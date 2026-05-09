@@ -475,6 +475,11 @@ export function manifestSource(url: string, opts: ManifestSourceOptions = {}): S
 
   return {
     start(onMessage, onStatus) {
+      // Reset stopped flag so the source can be restarted (React StrictMode
+      // mounts useEffect twice in dev, so start->stop->start happens on
+      // every mount; without this reset the second start would short-circuit
+      // and the renderer would stay stuck on "Connecting…").
+      stopped = false;
       onStatus("connecting");
       void (async () => {
         try {
