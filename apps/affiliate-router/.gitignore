@@ -1,0 +1,6 @@
+data/clicks.db
+data/clicks.db-shm
+data/clicks.db-wal
+.env
+dist/
+node_modules/
