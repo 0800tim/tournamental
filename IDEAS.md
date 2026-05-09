@@ -15,6 +15,12 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, doc 07] Custom GLB avatar tier for forks (Roblox-style worlds). (open)
 
 ### Producers
+- [2026-05-09, statsbomb-replay] Multi-match support: lift the hard-coded ARG/FRA team identity into a config so the producer can replay any StatsBomb open-data match. (open)
+- [2026-05-09, statsbomb-replay] Bezier-arc ball trajectories on shots / long passes; current state synthesis is linear-only. (open)
+- [2026-05-09, statsbomb-replay] Auto-fetch player photos from Wikidata SPARQL instead of the hand-curated CSV. (open)
+- [2026-05-09, statsbomb-replay] Speed-driven facing improvements during freeze-frame holds (currently faces toward next anchor). (open)
+- [2026-05-09, statsbomb-replay] Emit ``event.tackle`` from StatsBomb ``Duel`` / ``Dribbled Past`` pairs for richer renderer animation triggers. (open)
+- [2026-05-09, statsbomb-replay] Emit ``event.out_of_bounds`` from StatsBomb ``Ball Out`` / restart events. (open)
 - [2026-05-09, doc 06] Per-player MOT tracking (TrackNet for ball, ByteTrack for players). (open)
 - [2026-05-09, doc 06] Camera-pose estimation to back out world coordinates from broadcast view. (open)
 - [2026-05-09, doc 06] Pose estimation for accurate kicking / heading animations. (open)
