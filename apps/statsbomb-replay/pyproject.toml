@@ -1,0 +1,13 @@
+[project]
+name = "statsbomb-replay"
+version = "0.0.0"
+description = "VTorn StatsBomb-replay producer (AR-FR 2022 World Cup Final)"
+requires-python = ">=3.11"
+dependencies = []
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+package = false
