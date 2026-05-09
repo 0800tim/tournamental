@@ -1,0 +1,838 @@
+{
+  "fixtures": [
+    {
+      "away_team_slot": "MAR",
+      "home_team_slot": "MEX",
+      "host_city_id": "mexico_city",
+      "kickoff_utc": "2026-06-11T19:00:00Z",
+      "match_number": 1,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "UPO1",
+      "home_team_slot": "JOR",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-06-12T22:00:00Z",
+      "match_number": 2,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "JOR",
+      "home_team_slot": "MEX",
+      "host_city_id": "mexico_city",
+      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "match_number": 3,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "MAR",
+      "home_team_slot": "UPO1",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-06-18T22:00:00Z",
+      "match_number": 4,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "MEX",
+      "home_team_slot": "UPO1",
+      "host_city_id": "mexico_city",
+      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "match_number": 5,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "JOR",
+      "home_team_slot": "MAR",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-06-24T23:00:00Z",
+      "match_number": 6,
+      "stage": "group_a"
+    },
+    {
+      "away_team_slot": "ECU",
+      "home_team_slot": "CAN",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-12T19:00:00Z",
+      "match_number": 7,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "EGY",
+      "home_team_slot": "TUN",
+      "host_city_id": "vancouver",
+      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "match_number": 8,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "TUN",
+      "home_team_slot": "CAN",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "match_number": 9,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "ECU",
+      "home_team_slot": "EGY",
+      "host_city_id": "vancouver",
+      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "match_number": 10,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "CAN",
+      "home_team_slot": "EGY",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "match_number": 11,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "TUN",
+      "home_team_slot": "ECU",
+      "host_city_id": "vancouver",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "match_number": 12,
+      "stage": "group_b"
+    },
+    {
+      "away_team_slot": "ALG",
+      "home_team_slot": "ARG",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "match_number": 13,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "UPO2",
+      "home_team_slot": "PAR",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-06-13T19:00:00Z",
+      "match_number": 14,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "PAR",
+      "home_team_slot": "ARG",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "match_number": 15,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "ALG",
+      "home_team_slot": "UPO2",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-19T19:00:00Z",
+      "match_number": 16,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "ARG",
+      "home_team_slot": "UPO2",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "match_number": 17,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "PAR",
+      "home_team_slot": "ALG",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "match_number": 18,
+      "stage": "group_c"
+    },
+    {
+      "away_team_slot": "AUT",
+      "home_team_slot": "USA",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-12T19:00:00Z",
+      "match_number": 19,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "GHA",
+      "home_team_slot": "QAT",
+      "host_city_id": "seattle",
+      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "match_number": 20,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "QAT",
+      "home_team_slot": "USA",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-19T19:00:00Z",
+      "match_number": 21,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "AUT",
+      "home_team_slot": "GHA",
+      "host_city_id": "san_francisco_bay",
+      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "match_number": 22,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "USA",
+      "home_team_slot": "GHA",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "match_number": 23,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "QAT",
+      "home_team_slot": "AUT",
+      "host_city_id": "seattle",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "match_number": 24,
+      "stage": "group_d"
+    },
+    {
+      "away_team_slot": "AUS",
+      "home_team_slot": "ENG",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "match_number": 25,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "RSA",
+      "home_team_slot": "PAN",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-06-14T19:00:00Z",
+      "match_number": 26,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "PAN",
+      "home_team_slot": "ENG",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "match_number": 27,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "AUS",
+      "home_team_slot": "RSA",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-20T19:00:00Z",
+      "match_number": 28,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "ENG",
+      "home_team_slot": "RSA",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "match_number": 29,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "PAN",
+      "home_team_slot": "AUS",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-26T20:00:00Z",
+      "match_number": 30,
+      "stage": "group_e"
+    },
+    {
+      "away_team_slot": "URU",
+      "home_team_slot": "FRA",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-06-14T18:00:00Z",
+      "match_number": 31,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "IPO1",
+      "home_team_slot": "CRC",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-14T21:00:00Z",
+      "match_number": 32,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "CRC",
+      "home_team_slot": "FRA",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-06-20T18:00:00Z",
+      "match_number": 33,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "URU",
+      "home_team_slot": "IPO1",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-06-20T21:00:00Z",
+      "match_number": 34,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "FRA",
+      "home_team_slot": "IPO1",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-26T19:00:00Z",
+      "match_number": 35,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "CRC",
+      "home_team_slot": "URU",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-06-26T22:00:00Z",
+      "match_number": 36,
+      "stage": "group_f"
+    },
+    {
+      "away_team_slot": "SUI",
+      "home_team_slot": "BRA",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-06-14T16:00:00Z",
+      "match_number": 37,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "JPN",
+      "home_team_slot": "CIV",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "match_number": 38,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "CIV",
+      "home_team_slot": "BRA",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-06-20T16:00:00Z",
+      "match_number": 39,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "SUI",
+      "home_team_slot": "JPN",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "match_number": 40,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "BRA",
+      "home_team_slot": "JPN",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-26T17:00:00Z",
+      "match_number": 41,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "CIV",
+      "home_team_slot": "SUI",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_number": 42,
+      "stage": "group_g"
+    },
+    {
+      "away_team_slot": "COL",
+      "home_team_slot": "GER",
+      "host_city_id": "monterrey",
+      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "match_number": 43,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "UPO3",
+      "home_team_slot": "KOR",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-06-15T22:00:00Z",
+      "match_number": 44,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "KOR",
+      "home_team_slot": "GER",
+      "host_city_id": "san_francisco_bay",
+      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "match_number": 45,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "COL",
+      "home_team_slot": "UPO3",
+      "host_city_id": "monterrey",
+      "kickoff_utc": "2026-06-21T22:00:00Z",
+      "match_number": 46,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "GER",
+      "home_team_slot": "UPO3",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_number": 47,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "KOR",
+      "home_team_slot": "COL",
+      "host_city_id": "san_francisco_bay",
+      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "match_number": 48,
+      "stage": "group_h"
+    },
+    {
+      "away_team_slot": "CRO",
+      "home_team_slot": "ITA",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-06-15T16:00:00Z",
+      "match_number": 49,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "NZL",
+      "home_team_slot": "IRN",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "match_number": 50,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "IRN",
+      "home_team_slot": "ITA",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-21T16:00:00Z",
+      "match_number": 51,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "CRO",
+      "home_team_slot": "NZL",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "match_number": 52,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "ITA",
+      "home_team_slot": "NZL",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-27T17:00:00Z",
+      "match_number": 53,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "IRN",
+      "home_team_slot": "CRO",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_number": 54,
+      "stage": "group_i"
+    },
+    {
+      "away_team_slot": "DEN",
+      "home_team_slot": "POR",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-06-16T18:00:00Z",
+      "match_number": 55,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "TUR",
+      "home_team_slot": "UZB",
+      "host_city_id": "houston",
+      "kickoff_utc": "2026-06-16T21:00:00Z",
+      "match_number": 56,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "UZB",
+      "home_team_slot": "POR",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-22T18:00:00Z",
+      "match_number": 57,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "DEN",
+      "home_team_slot": "TUR",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-06-22T21:00:00Z",
+      "match_number": 58,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "POR",
+      "home_team_slot": "TUR",
+      "host_city_id": "houston",
+      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "match_number": 59,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "UZB",
+      "home_team_slot": "DEN",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "match_number": 60,
+      "stage": "group_j"
+    },
+    {
+      "away_team_slot": "SEN",
+      "home_team_slot": "NED",
+      "host_city_id": "seattle",
+      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "match_number": 61,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "SCO",
+      "home_team_slot": "NOR",
+      "host_city_id": "vancouver",
+      "kickoff_utc": "2026-06-17T22:00:00Z",
+      "match_number": 62,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "NOR",
+      "home_team_slot": "NED",
+      "host_city_id": "seattle",
+      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "match_number": 63,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "SEN",
+      "home_team_slot": "SCO",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-23T22:00:00Z",
+      "match_number": 64,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "NED",
+      "home_team_slot": "SCO",
+      "host_city_id": "vancouver",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_number": 65,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "NOR",
+      "home_team_slot": "SEN",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "match_number": 66,
+      "stage": "group_k"
+    },
+    {
+      "away_team_slot": "WAL",
+      "home_team_slot": "BEL",
+      "host_city_id": "houston",
+      "kickoff_utc": "2026-06-17T18:00:00Z",
+      "match_number": 67,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "UPO4",
+      "home_team_slot": "IPO2",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-06-17T21:00:00Z",
+      "match_number": 68,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "IPO2",
+      "home_team_slot": "BEL",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-06-23T18:00:00Z",
+      "match_number": 69,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "WAL",
+      "home_team_slot": "UPO4",
+      "host_city_id": "houston",
+      "kickoff_utc": "2026-06-23T21:00:00Z",
+      "match_number": 70,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "BEL",
+      "home_team_slot": "UPO4",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "match_number": 71,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "IPO2",
+      "home_team_slot": "WAL",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "match_number": 72,
+      "stage": "group_l"
+    },
+    {
+      "away_team_slot": "2C",
+      "home_team_slot": "1A",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-06-28T20:00:00Z",
+      "match_number": 73,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2F",
+      "home_team_slot": "1B",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-06-28T20:00:00Z",
+      "match_number": 74,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2A",
+      "home_team_slot": "1C",
+      "host_city_id": "toronto",
+      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "match_number": 75,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2E",
+      "home_team_slot": "1D",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "match_number": 76,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2D",
+      "home_team_slot": "1E",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "match_number": 77,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2B",
+      "home_team_slot": "1F",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "match_number": 78,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2H",
+      "home_team_slot": "1G",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "match_number": 79,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2G",
+      "home_team_slot": "1H",
+      "host_city_id": "monterrey",
+      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "match_number": 80,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2L",
+      "home_team_slot": "1I",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-07-02T20:00:00Z",
+      "match_number": 81,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2K",
+      "home_team_slot": "1J",
+      "host_city_id": "houston",
+      "kickoff_utc": "2026-07-02T20:00:00Z",
+      "match_number": 82,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2J",
+      "home_team_slot": "1K",
+      "host_city_id": "guadalajara",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 83,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "2I",
+      "home_team_slot": "1L",
+      "host_city_id": "san_francisco_bay",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 84,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "3E/F/G/H",
+      "home_team_slot": "3A/B/C/D",
+      "host_city_id": "seattle",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 85,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "3A/B/E/F",
+      "home_team_slot": "3I/J/K/L",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 86,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "3I/J/K/L",
+      "home_team_slot": "3C/D/G/H",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 87,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "3C/E/H/I",
+      "home_team_slot": "3A/B/F/J",
+      "host_city_id": "mexico_city",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_number": 88,
+      "stage": "r32"
+    },
+    {
+      "away_team_slot": "W74",
+      "home_team_slot": "W73",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "match_number": 89,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W76",
+      "home_team_slot": "W75",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "match_number": 90,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W78",
+      "home_team_slot": "W77",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-07-05T20:00:00Z",
+      "match_number": 91,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W80",
+      "home_team_slot": "W79",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-07-05T20:00:00Z",
+      "match_number": 92,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W82",
+      "home_team_slot": "W81",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "match_number": 93,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W84",
+      "home_team_slot": "W83",
+      "host_city_id": "philadelphia",
+      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "match_number": 94,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W86",
+      "home_team_slot": "W85",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-07-07T20:00:00Z",
+      "match_number": 95,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W88",
+      "home_team_slot": "W87",
+      "host_city_id": "san_francisco_bay",
+      "kickoff_utc": "2026-07-07T20:00:00Z",
+      "match_number": 96,
+      "stage": "r16"
+    },
+    {
+      "away_team_slot": "W90",
+      "home_team_slot": "W89",
+      "host_city_id": "los_angeles",
+      "kickoff_utc": "2026-07-09T20:00:00Z",
+      "match_number": 97,
+      "stage": "qf"
+    },
+    {
+      "away_team_slot": "W92",
+      "home_team_slot": "W91",
+      "host_city_id": "boston",
+      "kickoff_utc": "2026-07-09T20:00:00Z",
+      "match_number": 98,
+      "stage": "qf"
+    },
+    {
+      "away_team_slot": "W94",
+      "home_team_slot": "W93",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "match_number": 99,
+      "stage": "qf"
+    },
+    {
+      "away_team_slot": "W96",
+      "home_team_slot": "W95",
+      "host_city_id": "kansas_city",
+      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "match_number": 100,
+      "stage": "qf"
+    },
+    {
+      "away_team_slot": "W98",
+      "home_team_slot": "W97",
+      "host_city_id": "atlanta",
+      "kickoff_utc": "2026-07-14T20:00:00Z",
+      "match_number": 101,
+      "stage": "sf"
+    },
+    {
+      "away_team_slot": "W100",
+      "home_team_slot": "W99",
+      "host_city_id": "dallas",
+      "kickoff_utc": "2026-07-15T20:00:00Z",
+      "match_number": 102,
+      "stage": "sf"
+    },
+    {
+      "away_team_slot": "L102",
+      "home_team_slot": "L101",
+      "host_city_id": "miami",
+      "kickoff_utc": "2026-07-18T19:00:00Z",
+      "match_number": 103,
+      "stage": "third_place"
+    },
+    {
+      "away_team_slot": "W102",
+      "home_team_slot": "W101",
+      "host_city_id": "new_york_new_jersey",
+      "kickoff_utc": "2026-07-19T19:00:00Z",
+      "match_number": 104,
+      "stage": "final"
+    }
+  ],
+  "match_count": 104,
+  "tournament": "FIFA World Cup 2026"
+}

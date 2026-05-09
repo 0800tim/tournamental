@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FIFA WC 2026 Fixtures",
+  "type": "object",
+  "required": ["tournament", "match_count", "fixtures"],
+  "properties": {
+    "tournament": { "type": "string" },
+    "match_count": { "type": "integer", "const": 104 },
+    "fixtures": {
+      "type": "array",
+      "minItems": 104,
+      "maxItems": 104,
+      "items": { "$ref": "#/$defs/fixture" }
+    }
+  },
+  "$defs": {
+    "fixture": {
+      "type": "object",
+      "required": [
+        "match_number",
+        "stage",
+        "kickoff_utc",
+        "host_city_id",
+        "home_team_slot",
+        "away_team_slot"
+      ],
+      "properties": {
+        "match_number": { "type": "integer", "minimum": 1, "maximum": 104 },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "group_a", "group_b", "group_c", "group_d", "group_e", "group_f",
+            "group_g", "group_h", "group_i", "group_j", "group_k", "group_l",
+            "r32", "r16", "qf", "sf", "third_place", "final"
+          ]
+        },
+        "kickoff_utc": {
+          "type": "string",
+          "pattern": "^2026-(06|07)-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+        },
+        "host_city_id": { "type": "string" },
+        "home_team_slot": { "type": "string", "minLength": 2 },
+        "away_team_slot": { "type": "string", "minLength": 2 }
+      },
+      "additionalProperties": false
+    }
+  }
+}

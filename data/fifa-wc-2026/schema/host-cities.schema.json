@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FIFA WC 2026 Host Cities",
+  "type": "object",
+  "required": ["tournament", "host_cities"],
+  "properties": {
+    "tournament": { "type": "string" },
+    "host_cities": {
+      "type": "array",
+      "minItems": 16,
+      "maxItems": 16,
+      "items": { "$ref": "#/$defs/city" }
+    }
+  },
+  "$defs": {
+    "city": {
+      "type": "object",
+      "required": ["id", "city", "country", "stadium", "capacity", "timezone", "coords"],
+      "properties": {
+        "id": { "type": "string" },
+        "city": { "type": "string" },
+        "country": { "type": "string", "enum": ["US", "CA", "MX"] },
+        "stadium": { "type": "string" },
+        "stadium_tournament_name": { "type": "string" },
+        "capacity": { "type": "integer", "minimum": 30000 },
+        "timezone": { "type": "string" },
+        "coords": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "items": { "type": "number" }
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,1207 @@
+{
+  "_note": "Pre-tournament seed rosters. Final 26-man squads announced ~late May 2026; refresh via wc2026-scrape after that date.",
+  "players": [
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Marcos Acuña",
+      "number": 8,
+      "player_id": "ARG_ACUNA",
+      "pre_tournament": true,
+      "wikidata_q": "Q17462635"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Rodrigo De Paul",
+      "number": 7,
+      "player_id": "ARG_DE_PAUL",
+      "pre_tournament": true,
+      "wikidata_q": "Q6110670"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Ángel Di María",
+      "number": 11,
+      "player_id": "ARG_DI_MARIA",
+      "pre_tournament": true,
+      "wikidata_q": "Q251683"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Enzo Fernández",
+      "number": 24,
+      "player_id": "ARG_E_FERNANDEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q96105248"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Emiliano Martínez",
+      "number": 23,
+      "player_id": "ARG_E_MARTINEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q3275904"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Julián Álvarez",
+      "number": 9,
+      "player_id": "ARG_J_ALVAREZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q98641810"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Alexis Mac Allister",
+      "number": 20,
+      "player_id": "ARG_MAC_ALLISTER",
+      "pre_tournament": true,
+      "wikidata_q": "Q33297140"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Lionel Messi",
+      "number": 10,
+      "player_id": "ARG_MESSI",
+      "pre_tournament": true,
+      "wikidata_q": "Q615"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Nahuel Molina",
+      "number": 26,
+      "player_id": "ARG_MOLINA",
+      "pre_tournament": true,
+      "wikidata_q": "Q22082590"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Nicolás Otamendi",
+      "number": 19,
+      "player_id": "ARG_OTAMENDI",
+      "pre_tournament": true,
+      "wikidata_q": "Q182063"
+    },
+    {
+      "attribution": null,
+      "country": "ARG",
+      "image_url": null,
+      "name": "Cristian Romero",
+      "number": 13,
+      "player_id": "ARG_ROMERO",
+      "pre_tournament": true,
+      "wikidata_q": "Q28058687"
+    },
+    {
+      "attribution": null,
+      "country": "AUS",
+      "image_url": null,
+      "name": "Riley McGree",
+      "number": 6,
+      "player_id": "AUS_ARNOLD",
+      "pre_tournament": true,
+      "wikidata_q": "Q31096498"
+    },
+    {
+      "attribution": null,
+      "country": "AUS",
+      "image_url": null,
+      "name": "Jackson Irvine",
+      "number": 22,
+      "player_id": "AUS_IRVINE",
+      "pre_tournament": true,
+      "wikidata_q": "Q15455061"
+    },
+    {
+      "attribution": null,
+      "country": "AUS",
+      "image_url": null,
+      "name": "Mathew Ryan",
+      "number": 1,
+      "player_id": "AUS_RYAN",
+      "pre_tournament": true,
+      "wikidata_q": "Q4140013"
+    },
+    {
+      "attribution": null,
+      "country": "BEL",
+      "image_url": null,
+      "name": "Koen Casteels",
+      "number": 1,
+      "player_id": "BEL_CASTEELS",
+      "pre_tournament": true,
+      "wikidata_q": "Q1361858"
+    },
+    {
+      "attribution": null,
+      "country": "BEL",
+      "image_url": null,
+      "name": "Kevin De Bruyne",
+      "number": 7,
+      "player_id": "BEL_DE_BRUYNE",
+      "pre_tournament": true,
+      "wikidata_q": "Q367530"
+    },
+    {
+      "attribution": null,
+      "country": "BEL",
+      "image_url": null,
+      "name": "Jérémy Doku",
+      "number": 11,
+      "player_id": "BEL_DOKU",
+      "pre_tournament": true,
+      "wikidata_q": "Q60661493"
+    },
+    {
+      "attribution": null,
+      "country": "BEL",
+      "image_url": null,
+      "name": "Romelu Lukaku",
+      "number": 9,
+      "player_id": "BEL_LUKAKU",
+      "pre_tournament": true,
+      "wikidata_q": "Q1245533"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Alisson Becker",
+      "number": 1,
+      "player_id": "BRA_ALISSON",
+      "pre_tournament": true,
+      "wikidata_q": "Q19828054"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Bruno Guimarães",
+      "number": 8,
+      "player_id": "BRA_BRUNO_G",
+      "pre_tournament": true,
+      "wikidata_q": "Q60634443"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Casemiro",
+      "number": 5,
+      "player_id": "BRA_CASEMIRO",
+      "pre_tournament": true,
+      "wikidata_q": "Q3499053"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Danilo",
+      "number": 2,
+      "player_id": "BRA_DANILO",
+      "pre_tournament": true,
+      "wikidata_q": "Q3251268"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Marquinhos",
+      "number": 4,
+      "player_id": "BRA_MARQUINHOS",
+      "pre_tournament": true,
+      "wikidata_q": "Q1438268"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Raphinha",
+      "number": 11,
+      "player_id": "BRA_RAPHINHA",
+      "pre_tournament": true,
+      "wikidata_q": "Q23015660"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Rodrygo",
+      "number": 9,
+      "player_id": "BRA_RODRYGO",
+      "pre_tournament": true,
+      "wikidata_q": "Q57498611"
+    },
+    {
+      "attribution": null,
+      "country": "BRA",
+      "image_url": null,
+      "name": "Vinicius Jr.",
+      "number": 7,
+      "player_id": "BRA_VINICIUS",
+      "pre_tournament": true,
+      "wikidata_q": "Q17451832"
+    },
+    {
+      "attribution": null,
+      "country": "CAN",
+      "image_url": null,
+      "name": "Jonathan David",
+      "number": 20,
+      "player_id": "CAN_DAVID",
+      "pre_tournament": true,
+      "wikidata_q": "Q42301731"
+    },
+    {
+      "attribution": null,
+      "country": "CAN",
+      "image_url": null,
+      "name": "Alphonso Davies",
+      "number": 19,
+      "player_id": "CAN_DAVIES",
+      "pre_tournament": true,
+      "wikidata_q": "Q31092497"
+    },
+    {
+      "attribution": null,
+      "country": "CAN",
+      "image_url": null,
+      "name": "Mark-Anthony Kaye",
+      "number": 14,
+      "player_id": "CAN_KAYE",
+      "pre_tournament": true,
+      "wikidata_q": "Q33129083"
+    },
+    {
+      "attribution": null,
+      "country": "CAN",
+      "image_url": null,
+      "name": "Cyle Larin",
+      "number": 17,
+      "player_id": "CAN_LARIN",
+      "pre_tournament": true,
+      "wikidata_q": "Q21080574"
+    },
+    {
+      "attribution": null,
+      "country": "CAN",
+      "image_url": null,
+      "name": "Dayne St. Clair",
+      "number": 1,
+      "player_id": "CAN_ST_CLAIR",
+      "pre_tournament": true,
+      "wikidata_q": "Q60728085"
+    },
+    {
+      "attribution": null,
+      "country": "COL",
+      "image_url": null,
+      "name": "Juan Cuadrado",
+      "number": 11,
+      "player_id": "COL_CUADRADO",
+      "pre_tournament": true,
+      "wikidata_q": "Q322318"
+    },
+    {
+      "attribution": null,
+      "country": "COL",
+      "image_url": null,
+      "name": "James Rodríguez",
+      "number": 10,
+      "player_id": "COL_J_RODRIGUEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q21737"
+    },
+    {
+      "attribution": null,
+      "country": "COL",
+      "image_url": null,
+      "name": "Jefferson Lerma",
+      "number": 8,
+      "player_id": "COL_LERMA",
+      "pre_tournament": true,
+      "wikidata_q": "Q21193275"
+    },
+    {
+      "attribution": null,
+      "country": "CRO",
+      "image_url": null,
+      "name": "Mateo Kovačić",
+      "number": 8,
+      "player_id": "CRO_KOVACIC",
+      "pre_tournament": true,
+      "wikidata_q": "Q1356420"
+    },
+    {
+      "attribution": null,
+      "country": "CRO",
+      "image_url": null,
+      "name": "Dominik Livaković",
+      "number": 1,
+      "player_id": "CRO_LIVAKOVIC",
+      "pre_tournament": true,
+      "wikidata_q": "Q21058174"
+    },
+    {
+      "attribution": null,
+      "country": "CRO",
+      "image_url": null,
+      "name": "Luka Modrić",
+      "number": 10,
+      "player_id": "CRO_MODRIC",
+      "pre_tournament": true,
+      "wikidata_q": "Q102447"
+    },
+    {
+      "attribution": null,
+      "country": "CRO",
+      "image_url": null,
+      "name": "Ivan Perišić",
+      "number": 4,
+      "player_id": "CRO_PERISIC",
+      "pre_tournament": true,
+      "wikidata_q": "Q1378443"
+    },
+    {
+      "attribution": null,
+      "country": "DEN",
+      "image_url": null,
+      "name": "Christian Eriksen",
+      "number": 10,
+      "player_id": "DEN_ERIKSEN",
+      "pre_tournament": true,
+      "wikidata_q": "Q175366"
+    },
+    {
+      "attribution": null,
+      "country": "DEN",
+      "image_url": null,
+      "name": "Pierre-Emile Højbjerg",
+      "number": 23,
+      "player_id": "DEN_HOJBJERG",
+      "pre_tournament": true,
+      "wikidata_q": "Q19527929"
+    },
+    {
+      "attribution": null,
+      "country": "DEN",
+      "image_url": null,
+      "name": "Kasper Schmeichel",
+      "number": 1,
+      "player_id": "DEN_SCHMEICHEL",
+      "pre_tournament": true,
+      "wikidata_q": "P104551"
+    },
+    {
+      "attribution": null,
+      "country": "ECU",
+      "image_url": null,
+      "name": "Moisés Caicedo",
+      "number": 23,
+      "player_id": "ECU_CAICEDO",
+      "pre_tournament": true,
+      "wikidata_q": "Q98056022"
+    },
+    {
+      "attribution": null,
+      "country": "ECU",
+      "image_url": null,
+      "name": "Pervis Estupiñán",
+      "number": 7,
+      "player_id": "ECU_ESTUPINAN",
+      "pre_tournament": true,
+      "wikidata_q": "Q22674094"
+    },
+    {
+      "attribution": null,
+      "country": "ECU",
+      "image_url": null,
+      "name": "Enner Valencia",
+      "number": 13,
+      "player_id": "ECU_E_VALENCIA",
+      "pre_tournament": true,
+      "wikidata_q": "Q1357829"
+    },
+    {
+      "attribution": null,
+      "country": "EGY",
+      "image_url": null,
+      "name": "Mohamed El-Shenawy",
+      "number": 1,
+      "player_id": "EGY_EL_SHENAWY",
+      "pre_tournament": true,
+      "wikidata_q": "Q4087960"
+    },
+    {
+      "attribution": null,
+      "country": "EGY",
+      "image_url": null,
+      "name": "Mohamed Salah",
+      "number": 10,
+      "player_id": "EGY_SALAH",
+      "pre_tournament": true,
+      "wikidata_q": "Q15828499"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Jude Bellingham",
+      "number": 10,
+      "player_id": "ENG_BELLINGHAM",
+      "pre_tournament": true,
+      "wikidata_q": "Q97157330"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Phil Foden",
+      "number": 11,
+      "player_id": "ENG_FODEN",
+      "pre_tournament": true,
+      "wikidata_q": "Q22337568"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Harry Kane",
+      "number": 9,
+      "player_id": "ENG_KANE",
+      "pre_tournament": true,
+      "wikidata_q": "Q5673502"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Jordan Pickford",
+      "number": 1,
+      "player_id": "ENG_PICKFORD",
+      "pre_tournament": true,
+      "wikidata_q": "Q19362953"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Declan Rice",
+      "number": 4,
+      "player_id": "ENG_RICE",
+      "pre_tournament": true,
+      "wikidata_q": "Q39103196"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Bukayo Saka",
+      "number": 7,
+      "player_id": "ENG_SAKA",
+      "pre_tournament": true,
+      "wikidata_q": "Q67073611"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "John Stones",
+      "number": 5,
+      "player_id": "ENG_STONES",
+      "pre_tournament": true,
+      "wikidata_q": "Q14939218"
+    },
+    {
+      "attribution": null,
+      "country": "ENG",
+      "image_url": null,
+      "name": "Kyle Walker",
+      "number": 2,
+      "player_id": "ENG_WALKER",
+      "pre_tournament": true,
+      "wikidata_q": "Q295862"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Ousmane Dembélé",
+      "number": 11,
+      "player_id": "FRA_DEMBELE",
+      "pre_tournament": true,
+      "wikidata_q": "Q18684030"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Antoine Griezmann",
+      "number": 7,
+      "player_id": "FRA_GRIEZMANN",
+      "pre_tournament": true,
+      "wikidata_q": "Q3289492"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Jules Koundé",
+      "number": 5,
+      "player_id": "FRA_KOUNDE",
+      "pre_tournament": true,
+      "wikidata_q": "Q39605400"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Mike Maignan",
+      "number": 16,
+      "player_id": "FRA_MAIGNAN",
+      "pre_tournament": true,
+      "wikidata_q": "Q19601893"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Kylian Mbappé",
+      "number": 10,
+      "player_id": "FRA_MBAPPE",
+      "pre_tournament": true,
+      "wikidata_q": "Q19359939"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Aurélien Tchouaméni",
+      "number": 8,
+      "player_id": "FRA_TCHOUAMENI",
+      "pre_tournament": true,
+      "wikidata_q": "Q60664194"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Theo Hernández",
+      "number": 22,
+      "player_id": "FRA_THEO_HERNANDEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q19828144"
+    },
+    {
+      "attribution": null,
+      "country": "FRA",
+      "image_url": null,
+      "name": "Dayot Upamecano",
+      "number": 4,
+      "player_id": "FRA_UPAMECANO",
+      "pre_tournament": true,
+      "wikidata_q": "Q22327729"
+    },
+    {
+      "attribution": null,
+      "country": "GER",
+      "image_url": null,
+      "name": "Kai Havertz",
+      "number": 7,
+      "player_id": "GER_HAVERTZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q60661632"
+    },
+    {
+      "attribution": null,
+      "country": "GER",
+      "image_url": null,
+      "name": "Joshua Kimmich",
+      "number": 6,
+      "player_id": "GER_KIMMICH",
+      "pre_tournament": true,
+      "wikidata_q": "Q19953987"
+    },
+    {
+      "attribution": null,
+      "country": "GER",
+      "image_url": null,
+      "name": "Jamal Musiala",
+      "number": 10,
+      "player_id": "GER_MUSIALA",
+      "pre_tournament": true,
+      "wikidata_q": "Q98581057"
+    },
+    {
+      "attribution": null,
+      "country": "GER",
+      "image_url": null,
+      "name": "Manuel Neuer",
+      "number": 1,
+      "player_id": "GER_NEUER",
+      "pre_tournament": true,
+      "wikidata_q": "Q83933"
+    },
+    {
+      "attribution": null,
+      "country": "GER",
+      "image_url": null,
+      "name": "Florian Wirtz",
+      "number": 17,
+      "player_id": "GER_WIRTZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q83296017"
+    },
+    {
+      "attribution": null,
+      "country": "ITA",
+      "image_url": null,
+      "name": "Nicolò Barella",
+      "number": 18,
+      "player_id": "ITA_BARELLA",
+      "pre_tournament": true,
+      "wikidata_q": "Q22337482"
+    },
+    {
+      "attribution": null,
+      "country": "ITA",
+      "image_url": null,
+      "name": "Federico Chiesa",
+      "number": 14,
+      "player_id": "ITA_CHIESA",
+      "pre_tournament": true,
+      "wikidata_q": "Q22337517"
+    },
+    {
+      "attribution": null,
+      "country": "ITA",
+      "image_url": null,
+      "name": "Gianluigi Donnarumma",
+      "number": 1,
+      "player_id": "ITA_DONNARUMMA",
+      "pre_tournament": true,
+      "wikidata_q": "Q22321776"
+    },
+    {
+      "attribution": null,
+      "country": "JPN",
+      "image_url": null,
+      "name": "Wataru Endo",
+      "number": 6,
+      "player_id": "JPN_ENDO",
+      "pre_tournament": true,
+      "wikidata_q": "Q5575921"
+    },
+    {
+      "attribution": null,
+      "country": "JPN",
+      "image_url": null,
+      "name": "Takefusa Kubo",
+      "number": 11,
+      "player_id": "JPN_KUBO",
+      "pre_tournament": true,
+      "wikidata_q": "Q57500499"
+    },
+    {
+      "attribution": null,
+      "country": "JPN",
+      "image_url": null,
+      "name": "Kaoru Mitoma",
+      "number": 9,
+      "player_id": "JPN_MITOMA",
+      "pre_tournament": true,
+      "wikidata_q": "Q60670898"
+    },
+    {
+      "attribution": null,
+      "country": "JPN",
+      "image_url": null,
+      "name": "Zion Suzuki",
+      "number": 1,
+      "player_id": "JPN_SUZUKI",
+      "pre_tournament": true,
+      "wikidata_q": "Q108784712"
+    },
+    {
+      "attribution": null,
+      "country": "KOR",
+      "image_url": null,
+      "name": "Kim Min-jae",
+      "number": 4,
+      "player_id": "KOR_KIM_MJ",
+      "pre_tournament": true,
+      "wikidata_q": "Q42289038"
+    },
+    {
+      "attribution": null,
+      "country": "KOR",
+      "image_url": null,
+      "name": "Lee Kang-in",
+      "number": 18,
+      "player_id": "KOR_LEE_KM",
+      "pre_tournament": true,
+      "wikidata_q": "Q66365574"
+    },
+    {
+      "attribution": null,
+      "country": "KOR",
+      "image_url": null,
+      "name": "Son Heung-min",
+      "number": 7,
+      "player_id": "KOR_SON",
+      "pre_tournament": true,
+      "wikidata_q": "Q488998"
+    },
+    {
+      "attribution": null,
+      "country": "MAR",
+      "image_url": null,
+      "name": "Yassine Bounou",
+      "number": 1,
+      "player_id": "MAR_BOUNOU",
+      "pre_tournament": true,
+      "wikidata_q": "Q3194091"
+    },
+    {
+      "attribution": null,
+      "country": "MAR",
+      "image_url": null,
+      "name": "Youssef En-Nesyri",
+      "number": 19,
+      "player_id": "MAR_EN_NESYRI",
+      "pre_tournament": true,
+      "wikidata_q": "Q22337624"
+    },
+    {
+      "attribution": null,
+      "country": "MAR",
+      "image_url": null,
+      "name": "Achraf Hakimi",
+      "number": 2,
+      "player_id": "MAR_HAKIMI",
+      "pre_tournament": true,
+      "wikidata_q": "Q22082748"
+    },
+    {
+      "attribution": null,
+      "country": "MAR",
+      "image_url": null,
+      "name": "Hakim Ziyech",
+      "number": 7,
+      "player_id": "MAR_ZIYECH",
+      "pre_tournament": true,
+      "wikidata_q": "Q14941437"
+    },
+    {
+      "attribution": null,
+      "country": "MEX",
+      "image_url": null,
+      "name": "Luis Chávez",
+      "number": 18,
+      "player_id": "MEX_CHAVEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q47009027"
+    },
+    {
+      "attribution": null,
+      "country": "MEX",
+      "image_url": null,
+      "name": "Edson Álvarez",
+      "number": 4,
+      "player_id": "MEX_E_ALVAREZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q60727099"
+    },
+    {
+      "attribution": null,
+      "country": "MEX",
+      "image_url": null,
+      "name": "Hirving Lozano",
+      "number": 22,
+      "player_id": "MEX_LOZANO",
+      "pre_tournament": true,
+      "wikidata_q": "Q14534946"
+    },
+    {
+      "attribution": null,
+      "country": "MEX",
+      "image_url": null,
+      "name": "Guillermo Ochoa",
+      "number": 13,
+      "player_id": "MEX_OCHOA",
+      "pre_tournament": true,
+      "wikidata_q": "Q371478"
+    },
+    {
+      "attribution": null,
+      "country": "MEX",
+      "image_url": null,
+      "name": "Alexis Vega",
+      "number": 11,
+      "player_id": "MEX_VEGA",
+      "pre_tournament": true,
+      "wikidata_q": "Q42284470"
+    },
+    {
+      "attribution": null,
+      "country": "NED",
+      "image_url": null,
+      "name": "Memphis Depay",
+      "number": 10,
+      "player_id": "NED_DEPAY",
+      "pre_tournament": true,
+      "wikidata_q": "Q3334416"
+    },
+    {
+      "attribution": null,
+      "country": "NED",
+      "image_url": null,
+      "name": "Frenkie de Jong",
+      "number": 21,
+      "player_id": "NED_DE_JONG",
+      "pre_tournament": true,
+      "wikidata_q": "Q22082728"
+    },
+    {
+      "attribution": null,
+      "country": "NED",
+      "image_url": null,
+      "name": "Cody Gakpo",
+      "number": 8,
+      "player_id": "NED_GAKPO",
+      "pre_tournament": true,
+      "wikidata_q": "Q60631488"
+    },
+    {
+      "attribution": null,
+      "country": "NED",
+      "image_url": null,
+      "name": "Virgil van Dijk",
+      "number": 4,
+      "player_id": "NED_VAN_DIJK",
+      "pre_tournament": true,
+      "wikidata_q": "Q1517816"
+    },
+    {
+      "attribution": null,
+      "country": "NED",
+      "image_url": null,
+      "name": "Bart Verbruggen",
+      "number": 1,
+      "player_id": "NED_VERBRUGGEN",
+      "pre_tournament": true,
+      "wikidata_q": "Q123056116"
+    },
+    {
+      "attribution": null,
+      "country": "NOR",
+      "image_url": null,
+      "name": "Erling Haaland",
+      "number": 9,
+      "player_id": "NOR_HAALAND",
+      "pre_tournament": true,
+      "wikidata_q": "Q60690750"
+    },
+    {
+      "attribution": null,
+      "country": "NOR",
+      "image_url": null,
+      "name": "Martin Ødegaard",
+      "number": 8,
+      "player_id": "NOR_ODEGAARD",
+      "pre_tournament": true,
+      "wikidata_q": "Q19353833"
+    },
+    {
+      "attribution": null,
+      "country": "POR",
+      "image_url": null,
+      "name": "Bernardo Silva",
+      "number": 10,
+      "player_id": "POR_BERNARDO",
+      "pre_tournament": true,
+      "wikidata_q": "Q15968220"
+    },
+    {
+      "attribution": null,
+      "country": "POR",
+      "image_url": null,
+      "name": "Bruno Fernandes",
+      "number": 8,
+      "player_id": "POR_B_FERNANDES",
+      "pre_tournament": true,
+      "wikidata_q": "Q15620038"
+    },
+    {
+      "attribution": null,
+      "country": "POR",
+      "image_url": null,
+      "name": "Rúben Dias",
+      "number": 4,
+      "player_id": "POR_DIAS",
+      "pre_tournament": true,
+      "wikidata_q": "Q22667290"
+    },
+    {
+      "attribution": null,
+      "country": "POR",
+      "image_url": null,
+      "name": "Cristiano Ronaldo",
+      "number": 7,
+      "player_id": "POR_RONALDO",
+      "pre_tournament": true,
+      "wikidata_q": "Q11571"
+    },
+    {
+      "attribution": null,
+      "country": "POR",
+      "image_url": null,
+      "name": "Rafael Leão",
+      "number": 11,
+      "player_id": "POR_R_LEAO",
+      "pre_tournament": true,
+      "wikidata_q": "Q60661675"
+    },
+    {
+      "attribution": null,
+      "country": "SCO",
+      "image_url": null,
+      "name": "Scott McTominay",
+      "number": 4,
+      "player_id": "SCO_MCTOMINAY",
+      "pre_tournament": true,
+      "wikidata_q": "Q33125196"
+    },
+    {
+      "attribution": null,
+      "country": "SCO",
+      "image_url": null,
+      "name": "Andrew Robertson",
+      "number": 3,
+      "player_id": "SCO_ROBERTSON",
+      "pre_tournament": true,
+      "wikidata_q": "Q19899867"
+    },
+    {
+      "attribution": null,
+      "country": "SCO",
+      "image_url": null,
+      "name": "Kieran Tierney",
+      "number": 6,
+      "player_id": "SCO_TIERNEY",
+      "pre_tournament": true,
+      "wikidata_q": "Q22667386"
+    },
+    {
+      "attribution": null,
+      "country": "SEN",
+      "image_url": null,
+      "name": "Kalidou Koulibaly",
+      "number": 3,
+      "player_id": "SEN_KOULIBALY",
+      "pre_tournament": true,
+      "wikidata_q": "Q15991081"
+    },
+    {
+      "attribution": null,
+      "country": "SEN",
+      "image_url": null,
+      "name": "Édouard Mendy",
+      "number": 16,
+      "player_id": "SEN_MENDY",
+      "pre_tournament": true,
+      "wikidata_q": "Q3580234"
+    },
+    {
+      "attribution": null,
+      "country": "SEN",
+      "image_url": null,
+      "name": "Ismaïla Sarr",
+      "number": 18,
+      "player_id": "SEN_SARR",
+      "pre_tournament": true,
+      "wikidata_q": "Q22674145"
+    },
+    {
+      "attribution": null,
+      "country": "SUI",
+      "image_url": null,
+      "name": "Manuel Akanji",
+      "number": 5,
+      "player_id": "SUI_AKANJI",
+      "pre_tournament": true,
+      "wikidata_q": "Q22682810"
+    },
+    {
+      "attribution": null,
+      "country": "SUI",
+      "image_url": null,
+      "name": "Yann Sommer",
+      "number": 1,
+      "player_id": "SUI_SOMMER",
+      "pre_tournament": true,
+      "wikidata_q": "Q373824"
+    },
+    {
+      "attribution": null,
+      "country": "SUI",
+      "image_url": null,
+      "name": "Granit Xhaka",
+      "number": 10,
+      "player_id": "SUI_XHAKA",
+      "pre_tournament": true,
+      "wikidata_q": "Q1145614"
+    },
+    {
+      "attribution": null,
+      "country": "URU",
+      "image_url": null,
+      "name": "Ronald Araújo",
+      "number": 4,
+      "player_id": "URU_ARAUJO",
+      "pre_tournament": true,
+      "wikidata_q": "Q60634443"
+    },
+    {
+      "attribution": null,
+      "country": "URU",
+      "image_url": null,
+      "name": "Darwin Núñez",
+      "number": 19,
+      "player_id": "URU_NUNEZ",
+      "pre_tournament": true,
+      "wikidata_q": "Q83305012"
+    },
+    {
+      "attribution": null,
+      "country": "URU",
+      "image_url": null,
+      "name": "Federico Valverde",
+      "number": 15,
+      "player_id": "URU_VALVERDE",
+      "pre_tournament": true,
+      "wikidata_q": "Q60634473"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Tyler Adams",
+      "number": 4,
+      "player_id": "USA_ADAMS",
+      "pre_tournament": true,
+      "wikidata_q": "Q42287198"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Sergiño Dest",
+      "number": 2,
+      "player_id": "USA_DEST",
+      "pre_tournament": true,
+      "wikidata_q": "Q56602797"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Weston McKennie",
+      "number": 8,
+      "player_id": "USA_MCKENNIE",
+      "pre_tournament": true,
+      "wikidata_q": "Q42287048"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Christian Pulisic",
+      "number": 10,
+      "player_id": "USA_PULISIC",
+      "pre_tournament": true,
+      "wikidata_q": "Q22667221"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Tim Ream",
+      "number": 13,
+      "player_id": "USA_REAM",
+      "pre_tournament": true,
+      "wikidata_q": "Q1620488"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Gio Reyna",
+      "number": 7,
+      "player_id": "USA_REYNA",
+      "pre_tournament": true,
+      "wikidata_q": "Q97064419"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Matt Turner",
+      "number": 1,
+      "player_id": "USA_TURNER",
+      "pre_tournament": true,
+      "wikidata_q": "Q33203148"
+    },
+    {
+      "attribution": null,
+      "country": "USA",
+      "image_url": null,
+      "name": "Timothy Weah",
+      "number": 21,
+      "player_id": "USA_WEAH",
+      "pre_tournament": true,
+      "wikidata_q": "Q33060562"
+    },
+    {
+      "attribution": null,
+      "country": "WAL",
+      "image_url": null,
+      "name": "Aaron Ramsey",
+      "number": 10,
+      "player_id": "WAL_RAMSEY",
+      "pre_tournament": true,
+      "wikidata_q": "Q252027"
+    },
+    {
+      "attribution": null,
+      "country": "WAL",
+      "image_url": null,
+      "name": "Harry Wilson",
+      "number": 7,
+      "player_id": "WAL_WILSON",
+      "pre_tournament": true,
+      "wikidata_q": "Q19828071"
+    }
+  ],
+  "roster_format_version": "0.1",
+  "tournament": "FIFA World Cup 2026"
+}

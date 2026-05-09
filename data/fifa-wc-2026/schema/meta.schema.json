@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "FIFA WC 2026 Data Meta",
+  "type": "object",
+  "required": ["tournament", "scrape_date", "sources", "refresh_policy", "attribution_note"],
+  "properties": {
+    "tournament": { "type": "string" },
+    "scrape_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "url", "license", "used"],
+        "properties": {
+          "id": { "type": "string" },
+          "name": { "type": "string" },
+          "url": { "type": "string" },
+          "license": { "type": "string" },
+          "used": { "type": "boolean" },
+          "cached_only": { "type": "boolean" },
+          "failed": { "type": "boolean" }
+        }
+      }
+    },
+    "refresh_policy": {
+      "type": "object",
+      "required": ["schedule", "trigger", "fallback"]
+    },
+    "attribution_note": { "type": "string" }
+  }
+}

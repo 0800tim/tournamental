@@ -1,0 +1,166 @@
+{
+  "$schema": "./schema/host-cities.schema.json",
+  "tournament": "FIFA World Cup 2026",
+  "host_cities": [
+    {
+      "id": "atlanta",
+      "city": "Atlanta",
+      "country": "US",
+      "stadium": "Mercedes-Benz Stadium",
+      "stadium_tournament_name": "Atlanta Stadium",
+      "capacity": 71000,
+      "timezone": "America/New_York",
+      "coords": [33.7553, -84.4006]
+    },
+    {
+      "id": "boston",
+      "city": "Boston",
+      "country": "US",
+      "stadium": "Gillette Stadium",
+      "stadium_tournament_name": "Boston Stadium",
+      "capacity": 65878,
+      "timezone": "America/New_York",
+      "coords": [42.0909, -71.2643]
+    },
+    {
+      "id": "dallas",
+      "city": "Dallas",
+      "country": "US",
+      "stadium": "AT&T Stadium",
+      "stadium_tournament_name": "Dallas Stadium",
+      "capacity": 80000,
+      "timezone": "America/Chicago",
+      "coords": [32.7473, -97.0945]
+    },
+    {
+      "id": "guadalajara",
+      "city": "Guadalajara",
+      "country": "MX",
+      "stadium": "Estadio Akron",
+      "stadium_tournament_name": "Estadio Guadalajara",
+      "capacity": 49850,
+      "timezone": "America/Mexico_City",
+      "coords": [20.6819, -103.4625]
+    },
+    {
+      "id": "houston",
+      "city": "Houston",
+      "country": "US",
+      "stadium": "NRG Stadium",
+      "stadium_tournament_name": "Houston Stadium",
+      "capacity": 72220,
+      "timezone": "America/Chicago",
+      "coords": [29.6847, -95.4107]
+    },
+    {
+      "id": "kansas_city",
+      "city": "Kansas City",
+      "country": "US",
+      "stadium": "Arrowhead Stadium",
+      "stadium_tournament_name": "Kansas City Stadium",
+      "capacity": 76416,
+      "timezone": "America/Chicago",
+      "coords": [39.0489, -94.4839]
+    },
+    {
+      "id": "los_angeles",
+      "city": "Los Angeles",
+      "country": "US",
+      "stadium": "SoFi Stadium",
+      "stadium_tournament_name": "Los Angeles Stadium",
+      "capacity": 70240,
+      "timezone": "America/Los_Angeles",
+      "coords": [33.9534, -118.3387]
+    },
+    {
+      "id": "mexico_city",
+      "city": "Mexico City",
+      "country": "MX",
+      "stadium": "Estadio Azteca",
+      "stadium_tournament_name": "Estadio Banorte",
+      "capacity": 87523,
+      "timezone": "America/Mexico_City",
+      "coords": [19.3029, -99.1505]
+    },
+    {
+      "id": "miami",
+      "city": "Miami",
+      "country": "US",
+      "stadium": "Hard Rock Stadium",
+      "stadium_tournament_name": "Miami Stadium",
+      "capacity": 65326,
+      "timezone": "America/New_York",
+      "coords": [25.9580, -80.2389]
+    },
+    {
+      "id": "monterrey",
+      "city": "Monterrey",
+      "country": "MX",
+      "stadium": "Estadio BBVA",
+      "stadium_tournament_name": "Estadio Monterrey",
+      "capacity": 53500,
+      "timezone": "America/Monterrey",
+      "coords": [25.6692, -100.2447]
+    },
+    {
+      "id": "new_york_new_jersey",
+      "city": "New York / New Jersey",
+      "country": "US",
+      "stadium": "MetLife Stadium",
+      "stadium_tournament_name": "New York New Jersey Stadium",
+      "capacity": 82500,
+      "timezone": "America/New_York",
+      "coords": [40.8136, -74.0744]
+    },
+    {
+      "id": "philadelphia",
+      "city": "Philadelphia",
+      "country": "US",
+      "stadium": "Lincoln Financial Field",
+      "stadium_tournament_name": "Philadelphia Stadium",
+      "capacity": 69596,
+      "timezone": "America/New_York",
+      "coords": [39.9008, -75.1675]
+    },
+    {
+      "id": "san_francisco_bay",
+      "city": "San Francisco Bay Area",
+      "country": "US",
+      "stadium": "Levi's Stadium",
+      "stadium_tournament_name": "Bay Area Stadium",
+      "capacity": 68500,
+      "timezone": "America/Los_Angeles",
+      "coords": [37.4032, -121.9698]
+    },
+    {
+      "id": "seattle",
+      "city": "Seattle",
+      "country": "US",
+      "stadium": "Lumen Field",
+      "stadium_tournament_name": "Seattle Stadium",
+      "capacity": 68740,
+      "timezone": "America/Los_Angeles",
+      "coords": [47.5952, -122.3316]
+    },
+    {
+      "id": "toronto",
+      "city": "Toronto",
+      "country": "CA",
+      "stadium": "BMO Field",
+      "stadium_tournament_name": "Toronto Stadium",
+      "capacity": 45000,
+      "timezone": "America/Toronto",
+      "coords": [43.6332, -79.4185]
+    },
+    {
+      "id": "vancouver",
+      "city": "Vancouver",
+      "country": "CA",
+      "stadium": "BC Place",
+      "stadium_tournament_name": "Vancouver Stadium",
+      "capacity": 54500,
+      "timezone": "America/Vancouver",
+      "coords": [49.2768, -123.1116]
+    }
+  ]
+}
