@@ -315,8 +315,8 @@ importers:
         specifier: ^8.17.10
         version: 8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0)
       '@react-three/postprocessing':
-        specifier: 2.16.3
-        version: 2.16.3(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0))(@types/three@0.184.1)(react@18.3.1)(three@0.184.0)
+        specifier: 2.19.1
+        version: 2.19.1(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0))(@types/three@0.184.1)(react@18.3.1)(three@0.184.0)
       '@react-three/rapier':
         specifier: 1.5.0
         version: 1.5.0(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0))(react@18.3.1)(three@0.184.0)
@@ -345,8 +345,8 @@ importers:
         specifier: 14.2.15
         version: 14.2.15(@playwright/test@1.59.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       postprocessing:
-        specifier: 6.36.4
-        version: 6.36.4(three@0.184.0)
+        specifier: 6.39.1
+        version: 6.39.1(three@0.184.0)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -1423,11 +1423,11 @@ packages:
       react-native:
         optional: true
 
-  '@react-three/postprocessing@2.16.3':
-    resolution: {integrity: sha512-ftodXpUsy0/mzn0KqyV7MBau71dD9C5UOFnB3kHhCLNoxjKYQWZa9do0olJTSkl3owYXRfNHcLriK1Xn8wxZJw==}
+  '@react-three/postprocessing@2.19.1':
+    resolution: {integrity: sha512-7P25LOSToH/I6b3UipNK17IIFlX4FDUmWcaomfwu82+CzhXTOz8Fcc1ZXEZ7vFA/5Fr/2peNlXgXZJvoa+aCdA==}
     peerDependencies:
-      '@react-three/fiber': '>=8.0'
-      react: '>=18.0'
+      '@react-three/fiber': ^8.0
+      react: ^18.0
       three: '>= 0.138.0'
 
   '@react-three/rapier@1.5.0':
@@ -4389,10 +4389,10 @@ packages:
     resolution: {integrity: sha512-SoSL4+OSEtR99LHFZQiJLkT59C5B1amGO1NzTwj7TT1qCUgUO6hxOvzkOYxD+vMrXBM3XJIKzokoERdqQq/Zmg==}
     engines: {node: ^10 || ^12 || >=14}
 
-  postprocessing@6.36.4:
-    resolution: {integrity: sha512-3fAyBGuLNR7Rg/q+f2SNlsVCI5mDrymvxhOif3tPKEej8M38z4TvwzNZm+RNpRY2tACE7qQUNE5IHyMcqgvlAg==}
+  postprocessing@6.39.1:
+    resolution: {integrity: sha512-R2dG2zy+BAx3USl5EHw+PvnrlbT5PKnZVp3se0HCR0pWH8WQdh742yNG4YWOsq6c0bFpffk0Gd2RqPeoP/wKng==}
     peerDependencies:
-      three: '>= 0.157.0 < 0.171.0'
+      three: '>= 0.168.0 < 0.185.0'
 
   potpack@1.0.2:
     resolution: {integrity: sha512-choctRBIV9EMT9WGAZHn3V7t0Z2pMQyl0EZE6pFc/6ml3ssw7Dlf/oAOvFwjm1HVsqfQN8GfeFyJ+d8tRzqueQ==}
@@ -6390,13 +6390,13 @@ snapshots:
     transitivePeerDependencies:
       - '@types/react'
 
-  '@react-three/postprocessing@2.16.3(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0))(@types/three@0.184.1)(react@18.3.1)(three@0.184.0)':
+  '@react-three/postprocessing@2.19.1(@react-three/fiber@8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0))(@types/three@0.184.1)(react@18.3.1)(three@0.184.0)':
     dependencies:
       '@react-three/fiber': 8.18.0(@types/react@18.3.28)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.184.0)
       buffer: 6.0.3
       maath: 0.6.0(@types/three@0.184.1)(three@0.184.0)
-      n8ao: 1.10.1(postprocessing@6.36.4(three@0.184.0))(three@0.184.0)
-      postprocessing: 6.36.4(three@0.184.0)
+      n8ao: 1.10.1(postprocessing@6.39.1(three@0.184.0))(three@0.184.0)
+      postprocessing: 6.39.1(three@0.184.0)
       react: 18.3.1
       three: 0.184.0
       three-stdlib: 2.36.1(three@0.184.0)
@@ -9454,9 +9454,9 @@ snapshots:
       object-assign: 4.1.1
       thenify-all: 1.6.0
 
-  n8ao@1.10.1(postprocessing@6.36.4(three@0.184.0))(three@0.184.0):
+  n8ao@1.10.1(postprocessing@6.39.1(three@0.184.0))(three@0.184.0):
     dependencies:
-      postprocessing: 6.36.4(three@0.184.0)
+      postprocessing: 6.39.1(three@0.184.0)
       three: 0.184.0
 
   nanoid@3.3.12: {}
@@ -9802,7 +9802,7 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.1
 
-  postprocessing@6.36.4(three@0.184.0):
+  postprocessing@6.39.1(three@0.184.0):
     dependencies:
       three: 0.184.0
 
