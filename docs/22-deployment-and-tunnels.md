@@ -25,6 +25,7 @@
 | Live odds ingest | `vtorn-odds.aiva.nz` → `:3341`                  | `odds-dev.vtourn.com`                         | `odds.vtourn.com`         |
 | Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.vtourn.com`                         | `game.vtourn.com`         |
 | Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.vtourn.com`                          | `aff.vtourn.com`          |
+| VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.vtourn.com`                       | `vstamp.vtourn.com`       |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -46,6 +47,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/odds-ingest`         | 3341  | Fastify (Polymarket + The Odds API). Tunnel: `vtorn-odds.aiva.nz` / `odds.vtourn.com`. |
 | `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.vtourn.com`. See [docs/12](12-odds-and-predictions.md). |
 | `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.vtourn.com`. |
+| `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.vtourn.com`. |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 
