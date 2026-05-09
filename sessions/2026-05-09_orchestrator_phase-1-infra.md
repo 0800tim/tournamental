@@ -53,18 +53,26 @@ Stand up everything around the four parallel builder agents so they have working
 What's landed (or merged) this session:
 
 - **Issue #8** — Builder: HUD — historic odds for AR-FR 2022 demo.
+- **Issue #11** — Builder: `apps/admin/` admin dashboard MVP (held — Tim said pause on dispatching new builders).
 - **PR #7** — `ci: add baseline GitHub Actions pipeline` (`91d9ca5`).
-- **Tunnel routes** — `vtorn.aiva.nz`, `vtorn-stream.aiva.nz`, `vtorn-api.aiva.nz`, `vtorn-www.aiva.nz` all live, returning expected `HTTP/2 404` until the local services bind. Confirmed via `curl -sI`.
-- **Builder agents** — four background subagents working in isolated worktrees on issues #3, #4, #5, #6.
+- **PR #9** — `chore(infra): conventions, DB stack, backups, dependabot` — open and being expanded with analytics/gamification/secrets/kanban (this session).
+- **PR #10** — `feat(avatar): procedural avatar pipeline + assets` — opened by the avatar agent. Ready for review. (Avatar agent finished autonomously while infra work was in progress.)
+- **Tunnel routes** — `vtorn.aiva.nz` (3300), `vtorn-stream.aiva.nz` (4001), `vtorn-api.aiva.nz` (3310), `vtorn-www.aiva.nz` (3320) all live, returning expected `HTTP/2 404`.
+- **DB stack live** — Postgres 16 healthy on `:5435` with `vtorn` role + 5 extensions; Redis 7 healthy on `:6380`; backup smoke test passes.
+- **Builder agents** — three still in flight (statsbomb-replay #3, web #4, mock-producer #6). Avatar (#5) finished and PR #10 is awaiting orchestrator review.
 
 What's pending in this PR (chore/infra-conventions):
 
 - `docs/22-deployment-and-tunnels.md` — environment plan, URL plan, port table, caching strategy, daily review checklist.
+- `docs/23-analytics-and-marketing-insights.md` — events, engagement scoring, admin dashboard surfaces, GA4 + GTM + Meta Pixel + own server log architecture.
+- `docs/24-gamification-and-virality.md` — badges, streaks, leaderboards, share-card pipeline, auto-clip pipeline, bot persona policies.
+- `docs/25-keys-and-secrets-required.md` — exact list of credentials Tim needs to provide and which env var each becomes.
 - `CLAUDE.md` updates — performance/caching review section + port quick-reference table + DB stack pointer.
 - `infra/docker/compose.yml` + `postgres-init/01-extensions.sql`.
 - `infra/scripts/{db-up,db-down,db-backup,db-restore}.sh`.
 - `.env.example` covering DB, Redis, API, renderer.
 - `.github/dependabot.yml` (npm + gh-actions + pip-for-statsbomb-replay, weekly).
+- `tasks/` — markdown kanban scaffold (`README.md`, `BACKLOG.md`, `ROADMAP.md`) plus 6 starter task files matching the AR-FR critical path + the infra-merge watch.
 
 Tests: no new test code in this PR (infra/docs only). CI's existing checks must pass.
 
