@@ -84,11 +84,41 @@ can substitute `idle`.
 - `models/body.glb` — single shared body, ~26 KB, ~800 tris,
   Mixamo-named bones at T-pose. Sub-meshes named `torso`, `shorts`,
   `socks`, `head_billboard`.
-- `animations/*.glb` — 15 files. v0.1 ships unique loops for
-  `idle`, `run`, `kick`; the other 12 are stub clips on the same rig
-  that satisfy the loader contract. Mixamo retargets tracked in
-  [`IDEAS.md`](../../IDEAS.md) for v0.2.
-- Total bundle: ~460 KB (well under the 30 MB acceptance budget).
+- `animations/*.glb` — 15 files. **Phase 1 (current)** ships
+  hand-authored, differentiated clips for *every* tag:
+  `idle`, `walk`, `run`, `sprint`, `pass`, `kick`, `shoot`, `header`,
+  `tackle`, `fall`, `celebrate`, `throw`, `catch`, `dribble`, `jump`.
+  Each clip is short (0.4 – 3.0 s) and targets the canonical Mixamo
+  skeleton in `body.glb`, so a future Mixamo / Quaternius / RPM bake
+  drops in without renaming files.
+- Total bundle: ~440 KB (well under the 3 MB Phase-1 budget).
+
+## Asset substitution policy (Phase 1)
+
+`docs/27a-fidelity-phase1-mocap-rig.md` recommends Quaternius CC0 or
+Mixamo as the source of mocap-quality body + clip pack. Both require
+either Adobe sign-in (Mixamo) or HTTP downloads to external CDNs that
+the OSS sandbox can't reach. To keep CI deterministic and unblock
+Phase 1 we:
+
+1. **Bake CC0 clips** in `scripts/build-assets.mjs` directly against
+   our canonical skeleton. The file list, tag set, and bone names match
+   `MIXAMO_PACK` so the FSM, retargeter, and runtime path are all
+   exercised end-to-end.
+2. **Keep the runtime hooks open** for a future swap. `RpmAvatarProvider`
+   accepts a `resolveUrl(playerId)` callback so a bake script can drop
+   per-player avatars at `apps/web/public/assets/avatars/<id>.glb`
+   without touching `Player.tsx`. `loadMixamoPack` always passes clips
+   through `retargetClip()` so a Mixamo-prefix or RPM bone-naming
+   variant binds correctly.
+3. **Document the trade-off**: hand-authored clips don't reach mocap
+   fidelity. They're enough for the AR-FR demo's silhouette + motion
+   readability, but Phase 4 polish should swap in real mocap once
+   Quaternius / Mixamo / Sketchfab CC0 sources can be downloaded
+   through a network-enabled bake job (out of scope for this branch).
+
+The full Phase-1 acceptance suite (vitest unit tests + Playwright e2e)
+runs against these CC0 clips and gates the PR.
 
 ## Demo
 
