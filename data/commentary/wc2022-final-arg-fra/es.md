@@ -545,13 +545,13 @@ Player names and team names are kept in their original spelling.
 [L0537 · 22:07 · play] De Paul se asegura de que cada reinicio lleve mucho tiempo.
 [L0538 · 22:11 · play] Pase suave, recortado.
 [L0539 · 22:15 · tension] Y aquí está el momento. Di María ha sido derribado por Dembélé en el área.
-[L0540 · 22:17 · tension] Penalti para Argentina. El francés ha sacado una pierna y Di María se ha ido por encima.
-[L0541 · 22:19 · tension] Marciniak señala el lugar. Sin dudarlo. Dembélé se lleva las manos a la cabeza.
+[L0540 · 22:17 · tension] ¡Penal para Argentina! El francés ha estirado la pierna y Di María se ha dejado caer.
+[L0541 · 22:19 · tension] Marciniak señala el punto. Sin dudar. Dembélé se lleva las manos a la cabeza.
 [L0542 · 22:20 · tension] Messi coloca el balón. Por supuesto que sí.
 [L0543 · 22:21 · tension] Lloris en su línea. Dos compañeros del PSG, a doce metros de distancia.
 [L0544 · 22:22 · tension] Messi toma aire y emprende un largo camino de regreso.
 [L0545 · 22:23 · tension] Izar. Aquí vamos.
-[L0546 · 22:24 · GOAL] ¡META! ¡Messi! ¡Uno a cero Argentina!
+[L0546 · 22:24 · GOAL] ¡GOL! ¡Messi! Uno a cero Argentina!
 [L0547 · 22:24 · GOAL] ¡Envió a Lloris por el camino equivocado y se estrelló contra la esquina inferior!
 [L0548 · 22:26 · GOAL] ¡Se da vuelta, con ambos brazos en el aire y los ojos cerrados!
 [L0549 · 22:27 · GOAL] ¡Messi ha marcado en una final del Mundial!
@@ -858,7 +858,7 @@ Player names and team names are kept in their original spelling.
 [L0850 · 35:16 · buildup] ¡Mac Allister se da a la fuga, levanta la cabeza, busca a Di María interviniendo!
 [L0851 · 35:18 · buildup] ¡Bola cuadrada al otro lado de la caja! ¡Llega Di María!
 [L0852 · 35:19 · buildup] Di María, ¡primera vez!
-[L0853 · 35:22 · GOAL] ¡META! ¡Di María! ¡Dos a cero Argentina!
+[L0853 · 35:22 · GOAL] ¡GOL! ¡Di María! Dos a cero Argentina!
 [L0854 · 35:23 · GOAL] ¡Pie lateral, bajo, más allá de Lloris hacia la esquina más alejada!
 [L0855 · 35:25 · GOAL] ¡Qué contraataque! ¡Qué final!
 [L0856 · 35:26 · GOAL] ¡Di María fuera, con la camiseta por la cabeza y deslizándose de rodillas!
@@ -1804,10 +1804,10 @@ Player names and team names are kept in their original spelling.
 [L1796 · 79:11 · play] Balón rápido hacia Messi, que cae bajo su pie.
 [L1797 · 79:15 · play] Francia en el ya familiar 4-2-3-1, con Giroud como único objetivo.
 [L1798 · 79:18 · tension] ¡Penalti a Francia! ¡Otamendi ha metido a Kolo Muani en el área!
-[L1799 · 79:20 · tension] Marciniak vuelve al lugar. Francia tiene un salvavidas.
+[L1799 · 79:20 · tension] Marciniak vuelve al punto. Francia tiene una oportunidad.
 [L1800 · 79:21 · tension] Mbappé toma el balón. Por supuesto que sí.
 [L1801 · 79:23 · tension] E. Martínez en su línea, hablando con el balón.
-[L1802 · 79:24 · GOAL] ¡META! ¡Mbappé! ¡Dos uno!
+[L1802 · 79:24 · GOAL] ¡GOL! ¡Mbappé! Dos a uno!
 [L1803 · 79:25 · GOAL] ¡Se estrelló contra el techo de la red! ¡E. Martínez no tuvo posibilidades!
 [L1804 · 79:27 · GOAL] ¡Francia está viva! ¡Francia está viva en la final del Mundial!
 [L1805 · 79:29 · react] El extremo francés se ha vuelto loco.
@@ -1840,7 +1840,7 @@ Player names and team names are kept in their original spelling.
 [L1832 · 80:54 · buildup] Prensa francesa, ¡Coman lo recupera!
 [L1833 · 80:56 · buildup] ¡Comán a Mbappé!
 [L1834 · 80:57 · buildup] ¡Mbappé dentro del área, preparándose para disparar, de volea!
-[L1835 · 80:59 · GOAL] ¡META! ¡MBAPPÉ! ¡DOS DOS! ¡DOS DOS!
+[L1835 · 80:59 · GOAL] ¡GOL! ¡MBAPPÉ! ¡DOS A DOS! ¡DOS A DOS!
 [L1836 · 81:00 · GOAL] ¡Volea, pie lateral, conexión perfecta, hacia la esquina más alejada!
 [L1837 · 81:01 · GOAL] ¡Dos goles en noventa segundos! ¡DOS GOLES EN NOVENTA SEGUNDOS!
 [L1838 · 81:03 · GOAL] ¡Mbappé corre hacia la esquina gritando!
@@ -2499,7 +2499,7 @@ Player names and team names are kept in their original spelling.
 [L2491 · 107:53 · buildup] ¡Lautaro otra vez, bloqueado! ¡Fuera de línea!
 [L2492 · 107:54 · buildup] Está suelto. ¡Messi, merodeando al segundo palo!
 [L2493 · 107:56 · buildup] ¡Messi empuja!
-[L2494 · 107:58 · GOAL] ¡META! ¡MESSI! ¡TRES DOS ARGENTINAS!
+[L2494 · 107:58 · GOAL] ¡GOL! ¡MESSI! ¡TRES A DOS ARGENTINA!
 [L2495 · 107:59 · GOAL] ¡Lo ha arañado, no importa, se arrastra sobre la línea!
 [L2496 · 108:00 · GOAL] La tecnología de línea de gol lo confirma: ¡el balón se acabó!
 [L2497 · 108:01 · GOAL] ¡Argentina vuelve al frente en la final del Mundial!
@@ -2724,13 +2724,13 @@ Player names and team names are kept in their original spelling.
 [L2716 · 116:52 · play] Lloris y E. Martínez callan, manteniendo los nervios.
 [L2717 · 116:54 · play] Golpeó a los cuatro de atrás.
 [L2718 · 116:56 · play] Lloris y E. Martínez callan, manteniendo los nervios.
-[L2719 · 116:58 · tension] ¡Penalti a Francia! ¡Balonmano Montiel! ¡Martiniak saluda al lugar!
+[L2719 · 116:58 · tension] ¡Penal para Francia! ¡Mano de Montiel! ¡Marciniak señala el punto!
 [L2720 · 116:58 · play] Lloris y E. Martínez callan, manteniendo los nervios.
 [L2721 · 116:59 · tension] ¿Me estás tomando el pelo? ¿Hablas en serio?
 [L2722 · 117:01 · tension] Mbappé baja el balón. Él va a tomar esto. Necesita un hat-trick para mantener viva a Francia.
 [L2723 · 117:02 · tension] E. Martínez haciendo sus trucos habituales, tirando la pelota, hablando, hablando, hablando.
 [L2724 · 117:04 · tension] Mbappé le espera. Genial como quieras.
-[L2725 · 117:05 · GOAL] ¡META! ¡MBAPPÉ! ¡TRES TANTOS! ¡TRES TRES! ¡TRES TRES!
+[L2725 · 117:05 · GOAL] ¡GOL! ¡MBAPPÉ! ¡HAT-TRICK! ¡TRES A TRES! ¡TRES A TRES!
 [L2726 · 117:06 · GOAL] ¡Otra vez enterrado, misma esquina, E. Martínez al revés!
 [L2727 · 117:07 · GOAL] ¡Mbappé marcó un hat-trick en una final del Mundial!
 [L2728 · 117:09 · GOAL] ¡El primer hat-trick en una final de un Mundial desde Geoff Hurst en 1966!
@@ -2896,49 +2896,49 @@ Player names and team names are kept in their original spelling.
 [L2888 · 124:11 · react] Ambos equipos se desploman sobre el terreno de juego. Calambres en las piernas por todas partes.
 [L2889 · 124:15 · react] Manos en la cabeza, manos en las rodillas, camisetas goteando.
 [L2890 · 124:19 · react] Qué partido. Y va a los penaltis.
-[L2891 · 124:23 · shootout] Tanda de penaltis. Nos dirigimos a la portería frente al extremo argentino.
-[L2892 · 124:27 · shootout] Ambos entrenadores reúnen a sus jugadores. Palabras finales.
-[L2893 · 124:31 · shootout] Lloris y E. Martínez salen juntos al punto de penalti.
-[L2894 · 124:35 · shootout] Mbappé da un paso adelante para la FRA.
-[L2895 · 124:38 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2896 · 124:41 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2897 · 124:44 · shootout] Primero. Mbappé. Frío como el hielo. Lado derecho. Anotado. Un cero Francia.
-[L2898 · 124:49 · shootout] Mbappé celebra con el banquillo. Seguimos adelante.
-[L2899 · 124:53 · shootout] Messi da un paso al frente para ARG.
-[L2900 · 124:56 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2901 · 124:59 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2902 · 125:02 · shootout] Messi da un paso adelante. Esto lo hemos visto mil veces. Messi. Esquina derecha. MARCADO. Uno uno.
-[L2903 · 125:08 · shootout] Messi celebra con el banquillo. Seguimos adelante.
-[L2904 · 125:12 · shootout] Coman da un paso al frente por la FRA.
-[L2905 · 125:15 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2906 · 125:18 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2907 · 125:21 · shootout] Coman será el próximo de Francia. Guarda. ¡AHORRA! ¡E. Martínez! E. MARTÍNEZ! ¡La punta argentina se vuelve loca!
-[L2908 · 125:26 · shootout] ¡E. Martínez lo ha salvado! ¡Él lo es todo!
-[L2909 · 125:30 · shootout] Dybala da un paso adelante para ARG.
-[L2910 · 125:33 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2911 · 125:36 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2912 · 125:39 · shootout] Dybala para Argentina. Dybala. Esquina inferior. ¡ANOTADO! ¡Dos una Argentina!
-[L2913 · 125:45 · shootout] Dybala celebra con el banquillo. Seguimos adelante.
-[L2914 · 125:49 · shootout] Tchouaméni da un paso al frente por la FRA.
-[L2915 · 125:52 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2916 · 125:55 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2917 · 125:58 · shootout] Tchouaméni. Francia necesita esto. Tchouaméni... ¡LLEGA AL PUESTO! ¡Argentina no puede creer su suerte!
-[L2918 · 126:03 · shootout] ¡Fuera de la madera! ¡Tchouaméni no puede mirar!
-[L2919 · 126:07 · shootout] Paredes da un paso adelante por ARG.
-[L2920 · 126:10 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2921 · 126:13 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2922 · 126:16 · shootout] Paredes. Argentina puede ganarlo en el próximo. Paredes. ¡ANOTADO! ¡Tres uno argentino!
-[L2923 · 126:22 · shootout] Paredes celebra con el banquillo. Seguimos adelante.
-[L2924 · 126:26 · shootout] Kolo Muani da un paso al frente por la FRA.
-[L2925 · 126:29 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2926 · 126:32 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2927 · 126:35 · shootout] Kolo Muani. Francia debe marcar. MARCADO. Simplemente mantener viva a Francia. Tres dos.
-[L2928 · 126:40 · shootout] Kolo Muani celebra con el banquillo. Seguimos adelante.
-[L2929 · 126:44 · shootout] Montiel da un paso adelante por ARG.
-[L2930 · 126:47 · shootout] Coloca la pelota. Da un largo camino de regreso.
-[L2931 · 126:50 · shootout] El guardián espera. El estadio contiene la respiración.
-[L2932 · 126:53 · shootout] Montiel. Para ganar la Copa del Mundo. Tiene veinticinco años, diez minutos y puede ganarlo. Coloca la pelota. Lloris en su línea. Período previo. ¡ANOTADO! ¡ARGENTINA! ¡ARGENTINA GANA EL MUNDIAL!
-[L2933 · 126:59 · shootout] Montiel celebra con el banquillo. Seguimos adelante.
+[L2891 · 124:23 · shootout] Tanda de penales. Nos dirigimos al arco frente a la hinchada argentina.
+[L2892 · 124:27 · shootout] Ambos entrenadores reúnen a sus jugadores. Últimas palabras.
+[L2893 · 124:31 · shootout] Lloris y E. Martínez salen juntos hacia el punto penal.
+[L2894 · 124:35 · shootout] Mbappé se prepara para FRA.
+[L2895 · 124:38 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2896 · 124:41 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2897 · 124:44 · shootout] Primero. Mbappé. Frío como el hielo. Lado derecho. ¡GOL! Uno a cero Francia.
+[L2898 · 124:49 · shootout] Mbappé celebra con el banco. Pasamos al siguiente.
+[L2899 · 124:53 · shootout] Messi se prepara para ARG.
+[L2900 · 124:56 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2901 · 124:59 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2902 · 125:02 · shootout] Messi se prepara. Lo hemos visto mil veces. Messi. Esquina derecha. ¡GOL! Uno a uno.
+[L2903 · 125:08 · shootout] Messi celebra con el banco. Pasamos al siguiente.
+[L2904 · 125:12 · shootout] Coman se prepara para FRA.
+[L2905 · 125:15 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2906 · 125:18 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2907 · 125:21 · shootout] Coman va por Francia. ¡PARA! ¡PARA! ¡E. Martínez! ¡E. MARTÍNEZ! ¡El arco argentino se vuelve loco!
+[L2908 · 125:26 · shootout] ¡E. Martínez lo ha atajado! ¡Es todo!
+[L2909 · 125:30 · shootout] Dybala se prepara para ARG.
+[L2910 · 125:33 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2911 · 125:36 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2912 · 125:39 · shootout] Dybala por Argentina. Dybala. Esquina inferior. ¡GOL! ¡Dos a uno Argentina!
+[L2913 · 125:45 · shootout] Dybala celebra con el banco. Pasamos al siguiente.
+[L2914 · 125:49 · shootout] Tchouaméni se prepara para FRA.
+[L2915 · 125:52 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2916 · 125:55 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2917 · 125:58 · shootout] Tchouaméni. Francia necesita esto. Tchouaméni... ¡PEGA EN EL PALO! ¡Argentina no puede creer su suerte!
+[L2918 · 126:03 · shootout] ¡Al travesaño! ¡Tchouaméni no puede mirar!
+[L2919 · 126:07 · shootout] Paredes se prepara para ARG.
+[L2920 · 126:10 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2921 · 126:13 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2922 · 126:16 · shootout] Paredes. Argentina puede ganarlo en el siguiente. Paredes. ¡GOL! ¡Tres a uno Argentina!
+[L2923 · 126:22 · shootout] Paredes celebra con el banco. Pasamos al siguiente.
+[L2924 · 126:26 · shootout] Kolo Muani se prepara para FRA.
+[L2925 · 126:29 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2926 · 126:32 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2927 · 126:35 · shootout] Kolo Muani. Francia debe marcar. ¡GOL! Solo mantiene a Francia con vida. Tres a dos.
+[L2928 · 126:40 · shootout] Kolo Muani celebra con el banco. Pasamos al siguiente.
+[L2929 · 126:44 · shootout] Montiel se prepara para ARG.
+[L2930 · 126:47 · shootout] Coloca el balón. Da un largo paso atrás.
+[L2931 · 126:50 · shootout] El arquero espera. El estadio contiene la respiración.
+[L2932 · 126:53 · shootout] Montiel. Para ganar la Copa del Mundo. Veinticinco años, en la cancha por diez minutos, y puede ganarla. Coloca el balón. Lloris en su línea. Carrera. ¡GOL! ¡ARGENTINA! ¡ARGENTINA GANA LA COPA DEL MUNDO!
+[L2933 · 126:59 · shootout] Montiel celebra con el banco. Pasamos al siguiente.
 [L2934 · 127:03 · trophy] ¡ARGENTINA HA GANADO EL MUNDIAL!
 [L2935 · 127:04 · trophy] ¡Lionel Messi lo ha logrado!
 [L2936 · 127:06 · trophy] Argentina, campeona del mundo, ¡cuatro dos en penales!
