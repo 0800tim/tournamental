@@ -15,6 +15,7 @@ import { HUD } from "./HUD";
 import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
 import { TimelineScrubber } from "./TimelineScrubber";
+import { PerfMonitor } from "./PerfMonitor";
 
 export interface MatchSceneProps {
   /** Stream URL or `synthetic` (default). */
@@ -93,6 +94,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
 
           {init ? <Players store={store} /> : null}
           {init ? <Ball store={store} /> : null}
+          <PerfMonitor />
         </Canvas>
 
         <HUD store={store} />
