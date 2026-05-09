@@ -86,27 +86,29 @@ REGION_CITIES = {
 }
 
 
-# Seeded slot mapping for groups A-L. Reflects FIFA's pre-draw allocation
-# (host nations into A1/B1/D1) plus the post-draw team-into-group placement.
-# Where a UEFA play-off or FIFA intercontinental play-off slot remains, we
-# use the placeholder code from teams.json (UPO1-4, IPO1-2).
+# Group composition from the FIFA Final Draw — Kennedy Center,
+# Washington D.C., 5 December 2025. UEFA play-off finals + FIFA
+# intercontinental play-offs were resolved in March 2026, so all 48
+# slots are real teams (no UPO/IPO placeholders remain).
 #
-# NOTE: This mapping reflects the FIFA Final Draw of December 2025. If the
-# draw outcome differs from the snapshot used here, run
-# `wc2026-scrape --source-only=fifa` to refresh.
+# Source: per-group Wikipedia articles
+# https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_Group_A ... _Group_L
+# (revisions retrieved 2026-05-09; cited per-group in _meta.json).
+#
+# Host slot convention: MEX→A1, CAN→B1, USA→D1 (per FIFA seeding).
 GROUP_TEAMS_CLEAN: dict[str, list[str]] = {
-    "A": ["MEX", "MAR", "JOR", "UPO1"],
-    "B": ["CAN", "ECU", "TUN", "EGY"],
-    "C": ["ARG", "ALG", "PAR", "UPO2"],
-    "D": ["USA", "AUT", "QAT", "GHA"],
-    "E": ["ENG", "AUS", "PAN", "RSA"],
-    "F": ["FRA", "URU", "CRC", "IPO1"],
-    "G": ["BRA", "SUI", "CIV", "JPN"],
-    "H": ["GER", "COL", "KOR", "UPO3"],
-    "I": ["ITA", "CRO", "IRN", "NZL"],
-    "J": ["POR", "DEN", "UZB", "TUR"],
-    "K": ["NED", "SEN", "NOR", "SCO"],
-    "L": ["BEL", "WAL", "IPO2", "UPO4"],
+    "A": ["MEX", "RSA", "KOR", "CZE"],  # MEX host
+    "B": ["CAN", "BIH", "QAT", "SUI"],  # CAN host
+    "C": ["BRA", "MAR", "HAI", "SCO"],
+    "D": ["USA", "PAR", "AUS", "TUR"],  # USA host
+    "E": ["GER", "CUW", "CIV", "ECU"],
+    "F": ["NED", "JPN", "SWE", "TUN"],
+    "G": ["BEL", "EGY", "IRN", "NZL"],
+    "H": ["ESP", "CPV", "KSA", "URU"],
+    "I": ["FRA", "SEN", "IRQ", "NOR"],
+    "J": ["ARG", "ALG", "AUT", "JOR"],
+    "K": ["POR", "COD", "UZB", "COL"],
+    "L": ["ENG", "CRO", "GHA", "PAN"],
 }
 
 

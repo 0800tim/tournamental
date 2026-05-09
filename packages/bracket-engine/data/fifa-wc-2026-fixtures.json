@@ -1,1523 +1,1085 @@
 {
   "_meta": {
-    "source": "Generated placeholder by scripts/generate-fixtures-2026.mjs",
-    "source_url": "https://www.fifa.com/fifaplus/en/tournaments/mens/worldcup/canadamexicousa2026",
-    "schedule_status": "placeholder",
     "fetched_at_utc": "2026-05-09T00:00:00Z",
-    "notes": "48 teams in 8 groups of 6. Each team plays 3 of its 5 group rivals (Swiss-flavoured short round-robin) for 9 matches per group, 72 group matches total. Knockouts: R32 (16) + R16 (8) + QF (4) + SF (2) + 3rd-place play-off (1) + Final (1) = 32 matches. Total: 104 matches. NOTE: official FIFA 2026 format is 12 groups of 4 with a R32. This file uses the VTourn product brief (8 groups of 6). When the official 2026 draw is published, regenerate by replacing team names + kickoff_utc per match. The engine's advancement rules (1st+2nd+wildcard thirds+wildcard fourths) and knockout slot graph stay structurally the same. Replace team ids (currently SLOT_01..SLOT_48) with ISO-3166 alpha-3 codes once the draw is performed."
+    "notes": "12 groups of 4 (FIFA-official 2026 format). 72 group matches + 16 R32 + 8 R16 + 4 QF + 2 SF + 1 third-place + 1 final = 32 knockouts; total 104 matches. Group composition reflects the real Final Draw (Kennedy Center, Washington D.C., 5 December 2025) and the March 2026 UEFA + intercontinental play-off winners.",
+    "schedule_status": "official",
+    "source": "Wikipedia per-group articles + FIFA Final Draw 2025-12-05",
+    "source_url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup"
   },
-  "id": "fifa-wc-2026",
-  "name": "FIFA World Cup 2026 (US / Canada / Mexico)",
-  "start_utc": "2026-06-11T16:00:00.000Z",
+  "advancement": {
+    "automatic_per_group": 2,
+    "wildcard_fourth": 0,
+    "wildcard_third": 8
+  },
   "final_utc": "2026-07-19T19:00:00Z",
-  "teams": [
+  "group_fixtures": [
     {
-      "id": "SLOT_01",
-      "name": "Placeholder Team 01",
-      "country": "PLA",
-      "fifa_rank": 1,
-      "pre_tournament_implied_win": 0.22,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "A",
+      "home_idx": 0,
+      "host": "MX",
+      "kickoff_utc": "2026-06-11T19:00:00Z",
+      "match_no": 1,
+      "venue": "Estadio Azteca"
     },
     {
-      "id": "SLOT_02",
-      "name": "Placeholder Team 02",
-      "country": "PLA",
-      "fifa_rank": 2,
-      "pre_tournament_implied_win": 0.2048,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "A",
+      "home_idx": 2,
+      "host": "MX",
+      "kickoff_utc": "2026-06-12T22:00:00Z",
+      "match_no": 2,
+      "venue": "Estadio Akron"
     },
     {
-      "id": "SLOT_03",
-      "name": "Placeholder Team 03",
-      "country": "PLA",
-      "fifa_rank": 3,
-      "pre_tournament_implied_win": 0.1907,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "A",
+      "home_idx": 0,
+      "host": "MX",
+      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "match_no": 3,
+      "venue": "Estadio Azteca"
     },
     {
-      "id": "SLOT_04",
-      "name": "Placeholder Team 04",
-      "country": "PLA",
-      "fifa_rank": 4,
-      "pre_tournament_implied_win": 0.1776,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "A",
+      "home_idx": 3,
+      "host": "MX",
+      "kickoff_utc": "2026-06-18T22:00:00Z",
+      "match_no": 4,
+      "venue": "Estadio Akron"
     },
     {
-      "id": "SLOT_05",
-      "name": "Placeholder Team 05",
-      "country": "PLA",
-      "fifa_rank": 5,
-      "pre_tournament_implied_win": 0.1653,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "A",
+      "home_idx": 3,
+      "host": "MX",
+      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "match_no": 5,
+      "venue": "Estadio Azteca"
     },
     {
-      "id": "SLOT_06",
-      "name": "Placeholder Team 06",
-      "country": "PLA",
-      "fifa_rank": 6,
-      "pre_tournament_implied_win": 0.1539,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "A",
+      "home_idx": 1,
+      "host": "MX",
+      "kickoff_utc": "2026-06-24T23:00:00Z",
+      "match_no": 6,
+      "venue": "Estadio Akron"
     },
     {
-      "id": "SLOT_07",
-      "name": "Placeholder Team 07",
-      "country": "PLA",
-      "fifa_rank": 7,
-      "pre_tournament_implied_win": 0.1433,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "B",
+      "home_idx": 0,
+      "host": "CA",
+      "kickoff_utc": "2026-06-12T19:00:00Z",
+      "match_no": 7,
+      "venue": "BMO Field"
     },
     {
-      "id": "SLOT_08",
-      "name": "Placeholder Team 08",
-      "country": "PLA",
-      "fifa_rank": 8,
-      "pre_tournament_implied_win": 0.1334,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "B",
+      "home_idx": 2,
+      "host": "CA",
+      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "match_no": 8,
+      "venue": "BC Place"
     },
     {
-      "id": "SLOT_09",
-      "name": "Placeholder Team 09",
-      "country": "PLA",
-      "fifa_rank": 9,
-      "pre_tournament_implied_win": 0.1242,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "B",
+      "home_idx": 0,
+      "host": "CA",
+      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "match_no": 9,
+      "venue": "BMO Field"
     },
     {
-      "id": "SLOT_10",
-      "name": "Placeholder Team 10",
-      "country": "PLA",
-      "fifa_rank": 10,
-      "pre_tournament_implied_win": 0.1157,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "B",
+      "home_idx": 3,
+      "host": "CA",
+      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "match_no": 10,
+      "venue": "BC Place"
     },
     {
-      "id": "SLOT_11",
-      "name": "Placeholder Team 11",
-      "country": "PLA",
-      "fifa_rank": 11,
-      "pre_tournament_implied_win": 0.1077,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "B",
+      "home_idx": 3,
+      "host": "CA",
+      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "match_no": 11,
+      "venue": "BMO Field"
     },
     {
-      "id": "SLOT_12",
-      "name": "Placeholder Team 12",
-      "country": "PLA",
-      "fifa_rank": 12,
-      "pre_tournament_implied_win": 0.1003,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "B",
+      "home_idx": 1,
+      "host": "CA",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "match_no": 12,
+      "venue": "BC Place"
     },
     {
-      "id": "SLOT_13",
-      "name": "Placeholder Team 13",
-      "country": "PLA",
-      "fifa_rank": 13,
-      "pre_tournament_implied_win": 0.0934,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "C",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "match_no": 13,
+      "venue": "Lincoln Financial Field"
     },
     {
-      "id": "SLOT_14",
-      "name": "Placeholder Team 14",
-      "country": "PLA",
-      "fifa_rank": 14,
-      "pre_tournament_implied_win": 0.0869,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "C",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-13T19:00:00Z",
+      "match_no": 14,
+      "venue": "Hard Rock Stadium"
     },
     {
-      "id": "SLOT_15",
-      "name": "Placeholder Team 15",
-      "country": "PLA",
-      "fifa_rank": 15,
-      "pre_tournament_implied_win": 0.0809,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "C",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "match_no": 15,
+      "venue": "Gillette Stadium"
     },
     {
-      "id": "SLOT_16",
-      "name": "Placeholder Team 16",
-      "country": "PLA",
-      "fifa_rank": 16,
-      "pre_tournament_implied_win": 0.0754,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "C",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-19T19:00:00Z",
+      "match_no": 16,
+      "venue": "Lincoln Financial Field"
     },
     {
-      "id": "SLOT_17",
-      "name": "Placeholder Team 17",
-      "country": "PLA",
-      "fifa_rank": 17,
-      "pre_tournament_implied_win": 0.0702,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "C",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "match_no": 17,
+      "venue": "Hard Rock Stadium"
     },
     {
-      "id": "SLOT_18",
-      "name": "Placeholder Team 18",
-      "country": "PLA",
-      "fifa_rank": 18,
-      "pre_tournament_implied_win": 0.0653,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "C",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "match_no": 18,
+      "venue": "Gillette Stadium"
     },
     {
-      "id": "SLOT_19",
-      "name": "Placeholder Team 19",
-      "country": "PLA",
-      "fifa_rank": 19,
-      "pre_tournament_implied_win": 0.0608,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "D",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-12T19:00:00Z",
+      "match_no": 19,
+      "venue": "SoFi Stadium"
     },
     {
-      "id": "SLOT_20",
-      "name": "Placeholder Team 20",
-      "country": "PLA",
-      "fifa_rank": 20,
-      "pre_tournament_implied_win": 0.0566,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "D",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "match_no": 20,
+      "venue": "Lumen Field"
     },
     {
-      "id": "SLOT_21",
-      "name": "Placeholder Team 21",
-      "country": "PLA",
-      "fifa_rank": 21,
-      "pre_tournament_implied_win": 0.0527,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "D",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-19T19:00:00Z",
+      "match_no": 21,
+      "venue": "SoFi Stadium"
     },
     {
-      "id": "SLOT_22",
-      "name": "Placeholder Team 22",
-      "country": "PLA",
-      "fifa_rank": 22,
-      "pre_tournament_implied_win": 0.0491,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "D",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "match_no": 22,
+      "venue": "Levi's Stadium"
     },
     {
-      "id": "SLOT_23",
-      "name": "Placeholder Team 23",
-      "country": "PLA",
-      "fifa_rank": 23,
-      "pre_tournament_implied_win": 0.0457,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "D",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "match_no": 23,
+      "venue": "SoFi Stadium"
     },
     {
-      "id": "SLOT_24",
-      "name": "Placeholder Team 24",
-      "country": "PLA",
-      "fifa_rank": 24,
-      "pre_tournament_implied_win": 0.0426,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "D",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "match_no": 24,
+      "venue": "Lumen Field"
     },
     {
-      "id": "SLOT_25",
-      "name": "Placeholder Team 25",
-      "country": "PLA",
-      "fifa_rank": 25,
-      "pre_tournament_implied_win": 0.0396,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "E",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "match_no": 25,
+      "venue": "Gillette Stadium"
     },
     {
-      "id": "SLOT_26",
-      "name": "Placeholder Team 26",
-      "country": "PLA",
-      "fifa_rank": 26,
-      "pre_tournament_implied_win": 0.0369,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "E",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-14T19:00:00Z",
+      "match_no": 26,
+      "venue": "MetLife Stadium"
     },
     {
-      "id": "SLOT_27",
-      "name": "Placeholder Team 27",
-      "country": "PLA",
-      "fifa_rank": 27,
-      "pre_tournament_implied_win": 0.0343,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "E",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "match_no": 27,
+      "venue": "Lincoln Financial Field"
     },
     {
-      "id": "SLOT_28",
-      "name": "Placeholder Team 28",
-      "country": "PLA",
-      "fifa_rank": 28,
-      "pre_tournament_implied_win": 0.032,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "E",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-20T19:00:00Z",
+      "match_no": 28,
+      "venue": "Gillette Stadium"
     },
     {
-      "id": "SLOT_29",
-      "name": "Placeholder Team 29",
-      "country": "PLA",
-      "fifa_rank": 29,
-      "pre_tournament_implied_win": 0.0298,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "E",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "match_no": 29,
+      "venue": "MetLife Stadium"
     },
     {
-      "id": "SLOT_30",
-      "name": "Placeholder Team 30",
-      "country": "PLA",
-      "fifa_rank": 30,
-      "pre_tournament_implied_win": 0.0277,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "E",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-26T20:00:00Z",
+      "match_no": 30,
+      "venue": "Lincoln Financial Field"
     },
     {
-      "id": "SLOT_31",
-      "name": "Placeholder Team 31",
-      "country": "PLA",
-      "fifa_rank": 31,
-      "pre_tournament_implied_win": 0.0258,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "F",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-14T18:00:00Z",
+      "match_no": 31,
+      "venue": "AT&T Stadium"
     },
     {
-      "id": "SLOT_32",
-      "name": "Placeholder Team 32",
-      "country": "PLA",
-      "fifa_rank": 32,
-      "pre_tournament_implied_win": 0.024,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "F",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-14T21:00:00Z",
+      "match_no": 32,
+      "venue": "Mercedes-Benz Stadium"
     },
     {
-      "id": "SLOT_33",
-      "name": "Placeholder Team 33",
-      "country": "PLA",
-      "fifa_rank": 33,
-      "pre_tournament_implied_win": 0.0224,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "F",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-20T18:00:00Z",
+      "match_no": 33,
+      "venue": "AT&T Stadium"
     },
     {
-      "id": "SLOT_34",
-      "name": "Placeholder Team 34",
-      "country": "PLA",
-      "fifa_rank": 34,
-      "pre_tournament_implied_win": 0.0208,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "F",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-20T21:00:00Z",
+      "match_no": 34,
+      "venue": "Arrowhead Stadium"
     },
     {
-      "id": "SLOT_35",
-      "name": "Placeholder Team 35",
-      "country": "PLA",
-      "fifa_rank": 35,
-      "pre_tournament_implied_win": 0.0194,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "F",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-26T19:00:00Z",
+      "match_no": 35,
+      "venue": "Mercedes-Benz Stadium"
     },
     {
-      "id": "SLOT_36",
-      "name": "Placeholder Team 36",
-      "country": "PLA",
-      "fifa_rank": 36,
-      "pre_tournament_implied_win": 0.0181,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "F",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-26T22:00:00Z",
+      "match_no": 36,
+      "venue": "AT&T Stadium"
     },
     {
-      "id": "SLOT_37",
-      "name": "Placeholder Team 37",
-      "country": "PLA",
-      "fifa_rank": 37,
-      "pre_tournament_implied_win": 0.0168,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "G",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-14T16:00:00Z",
+      "match_no": 37,
+      "venue": "Hard Rock Stadium"
     },
     {
-      "id": "SLOT_38",
-      "name": "Placeholder Team 38",
-      "country": "PLA",
-      "fifa_rank": 38,
-      "pre_tournament_implied_win": 0.0157,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "G",
+      "home_idx": 2,
+      "host": "CA",
+      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "match_no": 38,
+      "venue": "BMO Field"
     },
     {
-      "id": "SLOT_39",
-      "name": "Placeholder Team 39",
-      "country": "PLA",
-      "fifa_rank": 39,
-      "pre_tournament_implied_win": 0.0146,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "G",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-20T16:00:00Z",
+      "match_no": 39,
+      "venue": "Hard Rock Stadium"
     },
     {
-      "id": "SLOT_40",
-      "name": "Placeholder Team 40",
-      "country": "PLA",
-      "fifa_rank": 40,
-      "pre_tournament_implied_win": 0.0136,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "G",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "match_no": 40,
+      "venue": "MetLife Stadium"
     },
     {
-      "id": "SLOT_41",
-      "name": "Placeholder Team 41",
-      "country": "PLA",
-      "fifa_rank": 41,
-      "pre_tournament_implied_win": 0.0126,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "G",
+      "home_idx": 3,
+      "host": "CA",
+      "kickoff_utc": "2026-06-26T17:00:00Z",
+      "match_no": 41,
+      "venue": "BMO Field"
     },
     {
-      "id": "SLOT_42",
-      "name": "Placeholder Team 42",
-      "country": "PLA",
-      "fifa_rank": 42,
-      "pre_tournament_implied_win": 0.0118,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "G",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_no": 42,
+      "venue": "Hard Rock Stadium"
     },
     {
-      "id": "SLOT_43",
-      "name": "Placeholder Team 43",
-      "country": "PLA",
-      "fifa_rank": 43,
-      "pre_tournament_implied_win": 0.011,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "H",
+      "home_idx": 0,
+      "host": "MX",
+      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "match_no": 43,
+      "venue": "Estadio BBVA"
     },
     {
-      "id": "SLOT_44",
-      "name": "Placeholder Team 44",
-      "country": "PLA",
-      "fifa_rank": 44,
-      "pre_tournament_implied_win": 0.0102,
-      "placeholder": true
+      "away_idx": 3,
+      "group_id": "H",
+      "home_idx": 2,
+      "host": "MX",
+      "kickoff_utc": "2026-06-15T22:00:00Z",
+      "match_no": 44,
+      "venue": "Estadio Akron"
     },
     {
-      "id": "SLOT_45",
-      "name": "Placeholder Team 45",
-      "country": "PLA",
-      "fifa_rank": 45,
-      "pre_tournament_implied_win": 0.0095,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "H",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "match_no": 45,
+      "venue": "Levi's Stadium"
     },
     {
-      "id": "SLOT_46",
-      "name": "Placeholder Team 46",
-      "country": "PLA",
-      "fifa_rank": 46,
-      "pre_tournament_implied_win": 0.0088,
-      "placeholder": true
+      "away_idx": 1,
+      "group_id": "H",
+      "home_idx": 3,
+      "host": "MX",
+      "kickoff_utc": "2026-06-21T22:00:00Z",
+      "match_no": 46,
+      "venue": "Estadio BBVA"
     },
     {
-      "id": "SLOT_47",
-      "name": "Placeholder Team 47",
-      "country": "PLA",
-      "fifa_rank": 47,
-      "pre_tournament_implied_win": 0.0082,
-      "placeholder": true
+      "away_idx": 0,
+      "group_id": "H",
+      "home_idx": 3,
+      "host": "MX",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_no": 47,
+      "venue": "Estadio Akron"
     },
     {
-      "id": "SLOT_48",
-      "name": "Placeholder Team 48",
-      "country": "PLA",
-      "fifa_rank": 48,
-      "pre_tournament_implied_win": 0.0077,
-      "placeholder": true
+      "away_idx": 2,
+      "group_id": "H",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "match_no": 48,
+      "venue": "Levi's Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "I",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-15T16:00:00Z",
+      "match_no": 49,
+      "venue": "MetLife Stadium"
+    },
+    {
+      "away_idx": 3,
+      "group_id": "I",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "match_no": 50,
+      "venue": "Lincoln Financial Field"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "I",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-21T16:00:00Z",
+      "match_no": 51,
+      "venue": "Gillette Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "I",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "match_no": 52,
+      "venue": "MetLife Stadium"
+    },
+    {
+      "away_idx": 0,
+      "group_id": "I",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T17:00:00Z",
+      "match_no": 53,
+      "venue": "Lincoln Financial Field"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "I",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_no": 54,
+      "venue": "Gillette Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "J",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-16T18:00:00Z",
+      "match_no": 55,
+      "venue": "Arrowhead Stadium"
+    },
+    {
+      "away_idx": 3,
+      "group_id": "J",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-16T21:00:00Z",
+      "match_no": 56,
+      "venue": "NRG Stadium"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "J",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-22T18:00:00Z",
+      "match_no": 57,
+      "venue": "Mercedes-Benz Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "J",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-22T21:00:00Z",
+      "match_no": 58,
+      "venue": "Arrowhead Stadium"
+    },
+    {
+      "away_idx": 0,
+      "group_id": "J",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "match_no": 59,
+      "venue": "NRG Stadium"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "J",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "match_no": 60,
+      "venue": "Mercedes-Benz Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "K",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "match_no": 61,
+      "venue": "Lumen Field"
+    },
+    {
+      "away_idx": 3,
+      "group_id": "K",
+      "home_idx": 2,
+      "host": "CA",
+      "kickoff_utc": "2026-06-17T22:00:00Z",
+      "match_no": 62,
+      "venue": "BC Place"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "K",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "match_no": 63,
+      "venue": "Lumen Field"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "K",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-23T22:00:00Z",
+      "match_no": 64,
+      "venue": "SoFi Stadium"
+    },
+    {
+      "away_idx": 0,
+      "group_id": "K",
+      "home_idx": 3,
+      "host": "CA",
+      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "match_no": 65,
+      "venue": "BC Place"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "K",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "match_no": 66,
+      "venue": "SoFi Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "L",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-17T18:00:00Z",
+      "match_no": 67,
+      "venue": "NRG Stadium"
+    },
+    {
+      "away_idx": 3,
+      "group_id": "L",
+      "home_idx": 2,
+      "host": "US",
+      "kickoff_utc": "2026-06-17T21:00:00Z",
+      "match_no": 68,
+      "venue": "Arrowhead Stadium"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "L",
+      "home_idx": 0,
+      "host": "US",
+      "kickoff_utc": "2026-06-23T18:00:00Z",
+      "match_no": 69,
+      "venue": "AT&T Stadium"
+    },
+    {
+      "away_idx": 1,
+      "group_id": "L",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-23T21:00:00Z",
+      "match_no": 70,
+      "venue": "NRG Stadium"
+    },
+    {
+      "away_idx": 0,
+      "group_id": "L",
+      "home_idx": 3,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "match_no": 71,
+      "venue": "Arrowhead Stadium"
+    },
+    {
+      "away_idx": 2,
+      "group_id": "L",
+      "home_idx": 1,
+      "host": "US",
+      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "match_no": 72,
+      "venue": "Mercedes-Benz Stadium"
     }
   ],
   "groups": [
     {
       "id": "A",
       "team_ids": [
-        "SLOT_01",
-        "SLOT_16",
-        "SLOT_17",
-        "SLOT_32",
-        "SLOT_33",
-        "SLOT_48"
+        "MEX",
+        "RSA",
+        "KOR",
+        "CZE"
       ]
     },
     {
       "id": "B",
       "team_ids": [
-        "SLOT_02",
-        "SLOT_15",
-        "SLOT_18",
-        "SLOT_31",
-        "SLOT_34",
-        "SLOT_47"
+        "CAN",
+        "BIH",
+        "QAT",
+        "SUI"
       ]
     },
     {
       "id": "C",
       "team_ids": [
-        "SLOT_03",
-        "SLOT_14",
-        "SLOT_19",
-        "SLOT_30",
-        "SLOT_35",
-        "SLOT_46"
+        "BRA",
+        "MAR",
+        "HAI",
+        "SCO"
       ]
     },
     {
       "id": "D",
       "team_ids": [
-        "SLOT_04",
-        "SLOT_13",
-        "SLOT_20",
-        "SLOT_29",
-        "SLOT_36",
-        "SLOT_45"
+        "USA",
+        "PAR",
+        "AUS",
+        "TUR"
       ]
     },
     {
       "id": "E",
       "team_ids": [
-        "SLOT_05",
-        "SLOT_12",
-        "SLOT_21",
-        "SLOT_28",
-        "SLOT_37",
-        "SLOT_44"
+        "GER",
+        "CUW",
+        "CIV",
+        "ECU"
       ]
     },
     {
       "id": "F",
       "team_ids": [
-        "SLOT_06",
-        "SLOT_11",
-        "SLOT_22",
-        "SLOT_27",
-        "SLOT_38",
-        "SLOT_43"
+        "NED",
+        "JPN",
+        "SWE",
+        "TUN"
       ]
     },
     {
       "id": "G",
       "team_ids": [
-        "SLOT_07",
-        "SLOT_10",
-        "SLOT_23",
-        "SLOT_26",
-        "SLOT_39",
-        "SLOT_42"
+        "BEL",
+        "EGY",
+        "IRN",
+        "NZL"
       ]
     },
     {
       "id": "H",
       "team_ids": [
-        "SLOT_08",
-        "SLOT_09",
-        "SLOT_24",
-        "SLOT_25",
-        "SLOT_40",
-        "SLOT_41"
+        "ESP",
+        "CPV",
+        "KSA",
+        "URU"
+      ]
+    },
+    {
+      "id": "I",
+      "team_ids": [
+        "FRA",
+        "SEN",
+        "IRQ",
+        "NOR"
+      ]
+    },
+    {
+      "id": "J",
+      "team_ids": [
+        "ARG",
+        "ALG",
+        "AUT",
+        "JOR"
+      ]
+    },
+    {
+      "id": "K",
+      "team_ids": [
+        "POR",
+        "COD",
+        "UZB",
+        "COL"
+      ]
+    },
+    {
+      "id": "L",
+      "team_ids": [
+        "ENG",
+        "CRO",
+        "GHA",
+        "PAN"
       ]
     }
   ],
-  "group_fixtures": [
-    {
-      "match_no": 1,
-      "group_id": "A",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-11T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 2,
-      "group_id": "A",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-11T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 3,
-      "group_id": "A",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-11T22:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "match_no": 4,
-      "group_id": "B",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-12T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 5,
-      "group_id": "B",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-12T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 6,
-      "group_id": "B",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-12T07:00:00.000Z",
-      "host": "US",
-      "venue": "Levi's Stadium (CA)"
-    },
-    {
-      "match_no": 7,
-      "group_id": "C",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-12T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 8,
-      "group_id": "C",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-12T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 9,
-      "group_id": "C",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-12T22:00:00.000Z",
-      "host": "US",
-      "venue": "Gillette Stadium (MA)"
-    },
-    {
-      "match_no": 10,
-      "group_id": "D",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-13T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 11,
-      "group_id": "D",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-13T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 12,
-      "group_id": "D",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-13T07:00:00.000Z",
-      "host": "US",
-      "venue": "AT&T Stadium (TX)"
-    },
-    {
-      "match_no": 13,
-      "group_id": "E",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-13T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 14,
-      "group_id": "E",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-13T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 15,
-      "group_id": "E",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-13T22:00:00.000Z",
-      "host": "US",
-      "venue": "Arrowhead Stadium (MO)"
-    },
-    {
-      "match_no": 16,
-      "group_id": "F",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-14T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 17,
-      "group_id": "F",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-14T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 18,
-      "group_id": "F",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-14T07:00:00.000Z",
-      "host": "US",
-      "venue": "Lincoln Financial Field (PA)"
-    },
-    {
-      "match_no": 19,
-      "group_id": "G",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-14T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 20,
-      "group_id": "G",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-14T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 21,
-      "group_id": "G",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-14T22:00:00.000Z",
-      "host": "US",
-      "venue": "NRG Stadium (TX)"
-    },
-    {
-      "match_no": 22,
-      "group_id": "H",
-      "home_idx": 0,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-15T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 23,
-      "group_id": "H",
-      "home_idx": 1,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-15T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 24,
-      "group_id": "H",
-      "home_idx": 2,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-15T07:00:00.000Z",
-      "host": "US",
-      "venue": "SoFi Stadium (CA)"
-    },
-    {
-      "match_no": 25,
-      "group_id": "A",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-15T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 26,
-      "group_id": "A",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-15T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 27,
-      "group_id": "A",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-15T22:00:00.000Z",
-      "host": "US",
-      "venue": "Mercedes-Benz Stadium (GA)"
-    },
-    {
-      "match_no": 28,
-      "group_id": "B",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-16T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 29,
-      "group_id": "B",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-16T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 30,
-      "group_id": "B",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-16T07:00:00.000Z",
-      "host": "US",
-      "venue": "Hard Rock Stadium (FL)"
-    },
-    {
-      "match_no": 31,
-      "group_id": "C",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-16T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 32,
-      "group_id": "C",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-16T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 33,
-      "group_id": "C",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-16T22:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
-    },
-    {
-      "match_no": 34,
-      "group_id": "D",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-17T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 35,
-      "group_id": "D",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-17T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 36,
-      "group_id": "D",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-17T07:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "match_no": 37,
-      "group_id": "E",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-17T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 38,
-      "group_id": "E",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-17T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 39,
-      "group_id": "E",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-17T22:00:00.000Z",
-      "host": "US",
-      "venue": "Levi's Stadium (CA)"
-    },
-    {
-      "match_no": 40,
-      "group_id": "F",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-18T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 41,
-      "group_id": "F",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-18T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 42,
-      "group_id": "F",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-18T07:00:00.000Z",
-      "host": "US",
-      "venue": "Gillette Stadium (MA)"
-    },
-    {
-      "match_no": 43,
-      "group_id": "G",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-18T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 44,
-      "group_id": "G",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-18T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 45,
-      "group_id": "G",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-18T22:00:00.000Z",
-      "host": "US",
-      "venue": "AT&T Stadium (TX)"
-    },
-    {
-      "match_no": 46,
-      "group_id": "H",
-      "home_idx": 0,
-      "away_idx": 3,
-      "kickoff_utc": "2026-06-19T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 47,
-      "group_id": "H",
-      "home_idx": 4,
-      "away_idx": 2,
-      "kickoff_utc": "2026-06-19T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 48,
-      "group_id": "H",
-      "home_idx": 5,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-19T07:00:00.000Z",
-      "host": "US",
-      "venue": "Arrowhead Stadium (MO)"
-    },
-    {
-      "match_no": 49,
-      "group_id": "A",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-19T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 50,
-      "group_id": "A",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-19T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 51,
-      "group_id": "A",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-19T22:00:00.000Z",
-      "host": "US",
-      "venue": "Lincoln Financial Field (PA)"
-    },
-    {
-      "match_no": 52,
-      "group_id": "B",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-20T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 53,
-      "group_id": "B",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-20T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 54,
-      "group_id": "B",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-20T07:00:00.000Z",
-      "host": "US",
-      "venue": "NRG Stadium (TX)"
-    },
-    {
-      "match_no": 55,
-      "group_id": "C",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-20T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 56,
-      "group_id": "C",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-20T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 57,
-      "group_id": "C",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-20T22:00:00.000Z",
-      "host": "US",
-      "venue": "SoFi Stadium (CA)"
-    },
-    {
-      "match_no": 58,
-      "group_id": "D",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-21T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 59,
-      "group_id": "D",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-21T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 60,
-      "group_id": "D",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-21T07:00:00.000Z",
-      "host": "US",
-      "venue": "Mercedes-Benz Stadium (GA)"
-    },
-    {
-      "match_no": 61,
-      "group_id": "E",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-21T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 62,
-      "group_id": "E",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-21T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 63,
-      "group_id": "E",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-21T22:00:00.000Z",
-      "host": "US",
-      "venue": "Hard Rock Stadium (FL)"
-    },
-    {
-      "match_no": 64,
-      "group_id": "F",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-22T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 65,
-      "group_id": "F",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-22T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 66,
-      "group_id": "F",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-22T07:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
-    },
-    {
-      "match_no": 67,
-      "group_id": "G",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-22T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "match_no": 68,
-      "group_id": "G",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-22T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 69,
-      "group_id": "G",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-22T22:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "match_no": 70,
-      "group_id": "H",
-      "home_idx": 0,
-      "away_idx": 1,
-      "kickoff_utc": "2026-06-23T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "match_no": 71,
-      "group_id": "H",
-      "home_idx": 2,
-      "away_idx": 5,
-      "kickoff_utc": "2026-06-23T04:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "match_no": 72,
-      "group_id": "H",
-      "home_idx": 3,
-      "away_idx": 4,
-      "kickoff_utc": "2026-06-23T07:00:00.000Z",
-      "host": "US",
-      "venue": "Levi's Stadium (CA)"
-    }
-  ],
+  "id": "fifa-wc-2026",
   "knockouts": [
     {
+      "away": {
+        "group": "C",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "A",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
       "id": "r32_01",
-      "stage": "r32",
+      "kickoff_utc": "2026-06-28T20:00:00Z",
       "match_no": 73,
-      "home": {
-        "kind": "group_position",
-        "group": "A",
-        "position": 1
-      },
-      "away": {
-        "kind": "group_position",
-        "group": "B",
-        "position": 2
-      },
-      "kickoff_utc": "2026-06-24T16:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
+      "stage": "r32",
+      "venue": "Lincoln Financial Field"
     },
     {
+      "away": {
+        "group": "F",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "B",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
       "id": "r32_02",
-      "stage": "r32",
+      "kickoff_utc": "2026-06-28T20:00:00Z",
       "match_no": 74,
-      "home": {
-        "kind": "group_position",
-        "group": "C",
-        "position": 1
-      },
-      "away": {
-        "kind": "group_position",
-        "group": "D",
-        "position": 2
-      },
-      "kickoff_utc": "2026-06-24T19:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
+      "stage": "r32",
+      "venue": "AT&T Stadium"
     },
     {
-      "id": "r32_03",
-      "stage": "r32",
-      "match_no": 75,
-      "home": {
-        "kind": "group_position",
-        "group": "E",
-        "position": 1
-      },
       "away": {
-        "kind": "group_position",
-        "group": "F",
-        "position": 2
-      },
-      "kickoff_utc": "2026-06-24T22:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "r32_04",
-      "stage": "r32",
-      "match_no": 76,
-      "home": {
-        "kind": "group_position",
-        "group": "G",
-        "position": 1
-      },
-      "away": {
-        "kind": "group_position",
-        "group": "H",
-        "position": 2
-      },
-      "kickoff_utc": "2026-06-25T01:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "id": "r32_05",
-      "stage": "r32",
-      "match_no": 77,
-      "home": {
-        "kind": "group_position",
-        "group": "B",
-        "position": 1
-      },
-      "away": {
-        "kind": "group_position",
         "group": "A",
+        "kind": "group_position",
         "position": 2
       },
-      "kickoff_utc": "2026-06-25T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "id": "r32_06",
-      "stage": "r32",
-      "match_no": 78,
       "home": {
-        "kind": "group_position",
-        "group": "D",
-        "position": 1
-      },
-      "away": {
-        "kind": "group_position",
         "group": "C",
-        "position": 2
-      },
-      "kickoff_utc": "2026-06-25T19:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "r32_07",
-      "stage": "r32",
-      "match_no": 79,
-      "home": {
         "kind": "group_position",
-        "group": "F",
         "position": 1
       },
+      "host": "CA",
+      "id": "r32_03",
+      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "match_no": 75,
+      "stage": "r32",
+      "venue": "BMO Field"
+    },
+    {
       "away": {
-        "kind": "group_position",
         "group": "E",
+        "kind": "group_position",
         "position": 2
       },
-      "kickoff_utc": "2026-06-25T22:00:00.000Z",
-      "host": "US",
-      "venue": "Levi's Stadium (CA)"
-    },
-    {
-      "id": "r32_08",
-      "stage": "r32",
-      "match_no": 80,
       "home": {
+        "group": "D",
         "kind": "group_position",
-        "group": "H",
         "position": 1
       },
+      "host": "US",
+      "id": "r32_04",
+      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "match_no": 76,
+      "stage": "r32",
+      "venue": "SoFi Stadium"
+    },
+    {
       "away": {
+        "group": "D",
         "kind": "group_position",
-        "group": "G",
         "position": 2
       },
-      "kickoff_utc": "2026-06-26T01:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
+      "home": {
+        "group": "E",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
+      "id": "r32_05",
+      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "match_no": 77,
+      "stage": "r32",
+      "venue": "Gillette Stadium"
     },
     {
+      "away": {
+        "group": "B",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "F",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
+      "id": "r32_06",
+      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "match_no": 78,
+      "stage": "r32",
+      "venue": "Mercedes-Benz Stadium"
+    },
+    {
+      "away": {
+        "group": "H",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "G",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
+      "id": "r32_07",
+      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "match_no": 79,
+      "stage": "r32",
+      "venue": "Hard Rock Stadium"
+    },
+    {
+      "away": {
+        "group": "G",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "H",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "MX",
+      "id": "r32_08",
+      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "match_no": 80,
+      "stage": "r32",
+      "venue": "Estadio BBVA"
+    },
+    {
+      "away": {
+        "group": "L",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "I",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
       "id": "r32_09",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-02T20:00:00Z",
       "match_no": 81,
-      "home": {
-        "kind": "best_third",
-        "rank": 1,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 1,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-26T16:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
+      "stage": "r32",
+      "venue": "Lincoln Financial Field"
     },
     {
+      "away": {
+        "group": "K",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "J",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
       "id": "r32_10",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-02T20:00:00Z",
       "match_no": 82,
-      "home": {
-        "kind": "best_third",
-        "rank": 2,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 2,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-26T19:00:00.000Z",
-      "host": "US",
-      "venue": "Gillette Stadium (MA)"
+      "stage": "r32",
+      "venue": "NRG Stadium"
     },
     {
+      "away": {
+        "group": "J",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "K",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "MX",
       "id": "r32_11",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
       "match_no": 83,
-      "home": {
-        "kind": "best_third",
-        "rank": 3,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 3,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-26T22:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
+      "stage": "r32",
+      "venue": "Estadio Akron"
     },
     {
+      "away": {
+        "group": "I",
+        "kind": "group_position",
+        "position": 2
+      },
+      "home": {
+        "group": "L",
+        "kind": "group_position",
+        "position": 1
+      },
+      "host": "US",
       "id": "r32_12",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
       "match_no": 84,
-      "home": {
-        "kind": "best_third",
-        "rank": 4,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 4,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-27T01:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
+      "stage": "r32",
+      "venue": "Levi's Stadium"
     },
     {
+      "away": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 2
+      },
+      "home": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 1
+      },
+      "host": "US",
       "id": "r32_13",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
       "match_no": 85,
-      "home": {
-        "kind": "best_third",
-        "rank": 5,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 5,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-27T16:00:00.000Z",
-      "host": "US",
-      "venue": "AT&T Stadium (TX)"
+      "stage": "r32",
+      "venue": "Lumen Field"
     },
     {
+      "away": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 4
+      },
+      "home": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 3
+      },
+      "host": "US",
       "id": "r32_14",
-      "stage": "r32",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
       "match_no": 86,
-      "home": {
-        "kind": "best_third",
-        "rank": 6,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 6,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-27T19:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
+      "stage": "r32",
+      "venue": "Arrowhead Stadium"
     },
     {
-      "id": "r32_15",
-      "stage": "r32",
-      "match_no": 87,
-      "home": {
-        "kind": "best_third",
-        "rank": 7,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
       "away": {
-        "kind": "best_fourth",
-        "rank": 7,
         "eligible_groups": [
           "A",
           "B",
@@ -1526,20 +1088,16 @@
           "E",
           "F",
           "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-27T22:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "r32_16",
-      "stage": "r32",
-      "match_no": 88,
-      "home": {
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
         "kind": "best_third",
-        "rank": 8,
+        "rank": 6
+      },
+      "home": {
         "eligible_groups": [
           "A",
           "B",
@@ -1548,287 +1106,709 @@
           "E",
           "F",
           "G",
-          "H"
-        ]
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 5
       },
-      "away": {
-        "kind": "best_fourth",
-        "rank": 8,
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H"
-        ]
-      },
-      "kickoff_utc": "2026-06-28T01:00:00.000Z",
       "host": "US",
-      "venue": "Arrowhead Stadium (MO)"
+      "id": "r32_15",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_no": 87,
+      "stage": "r32",
+      "venue": "MetLife Stadium"
     },
     {
-      "id": "r16_01",
-      "stage": "r16",
-      "match_no": 89,
-      "home": {
-        "kind": "knockout_winner",
-        "match_id": "r32_01"
+      "away": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 8
       },
+      "home": {
+        "eligible_groups": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L"
+        ],
+        "kind": "best_third",
+        "rank": 7
+      },
+      "host": "MX",
+      "id": "r32_16",
+      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "match_no": 88,
+      "stage": "r32",
+      "venue": "Estadio Azteca"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_02"
       },
-      "kickoff_utc": "2026-06-28T16:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
-    },
-    {
-      "id": "r16_02",
-      "stage": "r16",
-      "match_no": 90,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_03"
+        "match_id": "r32_01"
       },
+      "host": "US",
+      "id": "r16_01",
+      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "match_no": 89,
+      "stage": "r16",
+      "venue": "Gillette Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_04"
       },
-      "kickoff_utc": "2026-06-28T20:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "id": "r16_03",
-      "stage": "r16",
-      "match_no": 91,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_05"
+        "match_id": "r32_03"
       },
+      "host": "US",
+      "id": "r16_02",
+      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "match_no": 90,
+      "stage": "r16",
+      "venue": "Mercedes-Benz Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_06"
       },
-      "kickoff_utc": "2026-06-29T16:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "r16_04",
-      "stage": "r16",
-      "match_no": 92,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_07"
+        "match_id": "r32_05"
       },
+      "host": "US",
+      "id": "r16_03",
+      "kickoff_utc": "2026-07-05T20:00:00Z",
+      "match_no": 91,
+      "stage": "r16",
+      "venue": "SoFi Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_08"
       },
-      "kickoff_utc": "2026-06-29T20:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "id": "r16_05",
-      "stage": "r16",
-      "match_no": 93,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_09"
+        "match_id": "r32_07"
       },
+      "host": "US",
+      "id": "r16_04",
+      "kickoff_utc": "2026-07-05T20:00:00Z",
+      "match_no": 92,
+      "stage": "r16",
+      "venue": "AT&T Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_10"
       },
-      "kickoff_utc": "2026-06-30T16:00:00.000Z",
-      "host": "CA",
-      "venue": "BMO Field (Toronto)"
-    },
-    {
-      "id": "r16_06",
-      "stage": "r16",
-      "match_no": 94,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_11"
+        "match_id": "r32_09"
       },
+      "host": "US",
+      "id": "r16_05",
+      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "match_no": 93,
+      "stage": "r16",
+      "venue": "Hard Rock Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_12"
       },
-      "kickoff_utc": "2026-06-30T20:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "r16_07",
-      "stage": "r16",
-      "match_no": 95,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_13"
+        "match_id": "r32_11"
       },
+      "host": "US",
+      "id": "r16_06",
+      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "match_no": 94,
+      "stage": "r16",
+      "venue": "Lincoln Financial Field"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_14"
       },
-      "kickoff_utc": "2026-07-01T16:00:00.000Z",
-      "host": "US",
-      "venue": "Levi's Stadium (CA)"
-    },
-    {
-      "id": "r16_08",
-      "stage": "r16",
-      "match_no": 96,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r32_15"
+        "match_id": "r32_13"
       },
+      "host": "US",
+      "id": "r16_07",
+      "kickoff_utc": "2026-07-07T20:00:00Z",
+      "match_no": 95,
+      "stage": "r16",
+      "venue": "Arrowhead Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r32_16"
       },
-      "kickoff_utc": "2026-07-01T20:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "id": "qf_01",
-      "stage": "qf",
-      "match_no": 97,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r16_01"
+        "match_id": "r32_15"
       },
+      "host": "US",
+      "id": "r16_08",
+      "kickoff_utc": "2026-07-07T20:00:00Z",
+      "match_no": 96,
+      "stage": "r16",
+      "venue": "Levi's Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r16_02"
       },
-      "kickoff_utc": "2026-07-02T16:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
-    },
-    {
-      "id": "qf_02",
-      "stage": "qf",
-      "match_no": 98,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r16_03"
+        "match_id": "r16_01"
       },
+      "host": "US",
+      "id": "qf_01",
+      "kickoff_utc": "2026-07-09T20:00:00Z",
+      "match_no": 97,
+      "stage": "qf",
+      "venue": "SoFi Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r16_04"
       },
-      "kickoff_utc": "2026-07-02T20:00:00.000Z",
-      "host": "CA",
-      "venue": "BC Place (Vancouver)"
-    },
-    {
-      "id": "qf_03",
-      "stage": "qf",
-      "match_no": 99,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r16_05"
+        "match_id": "r16_03"
       },
+      "host": "US",
+      "id": "qf_02",
+      "kickoff_utc": "2026-07-09T20:00:00Z",
+      "match_no": 98,
+      "stage": "qf",
+      "venue": "Gillette Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r16_06"
       },
-      "kickoff_utc": "2026-07-03T16:00:00.000Z",
-      "host": "MX",
-      "venue": "Estadio BBVA (Monterrey)"
-    },
-    {
-      "id": "qf_04",
-      "stage": "qf",
-      "match_no": 100,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "r16_07"
+        "match_id": "r16_05"
       },
+      "host": "US",
+      "id": "qf_03",
+      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "match_no": 99,
+      "stage": "qf",
+      "venue": "Hard Rock Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "r16_08"
       },
-      "kickoff_utc": "2026-07-03T20:00:00.000Z",
-      "host": "US",
-      "venue": "Lumen Field (WA)"
-    },
-    {
-      "id": "sf_01",
-      "stage": "sf",
-      "match_no": 101,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "qf_01"
+        "match_id": "r16_07"
       },
+      "host": "US",
+      "id": "qf_04",
+      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "match_no": 100,
+      "stage": "qf",
+      "venue": "Arrowhead Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "qf_02"
       },
-      "kickoff_utc": "2026-07-05T16:00:00.000Z",
-      "host": "US",
-      "venue": "MetLife Stadium (NJ)"
-    },
-    {
-      "id": "sf_02",
-      "stage": "sf",
-      "match_no": 102,
       "home": {
         "kind": "knockout_winner",
-        "match_id": "qf_03"
+        "match_id": "qf_01"
       },
+      "host": "US",
+      "id": "sf_01",
+      "kickoff_utc": "2026-07-14T20:00:00Z",
+      "match_no": 101,
+      "stage": "sf",
+      "venue": "Mercedes-Benz Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "qf_04"
       },
-      "kickoff_utc": "2026-07-06T16:00:00.000Z",
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "qf_03"
+      },
       "host": "US",
-      "venue": "AT&T Stadium (TX)"
-    },
-    {
-      "id": "tp_01",
+      "id": "sf_02",
+      "kickoff_utc": "2026-07-15T20:00:00Z",
+      "match_no": 102,
       "stage": "sf",
-      "match_no": 103,
-      "home": {
-        "kind": "knockout_loser",
-        "match_id": "sf_01"
-      },
-      "away": {
-        "kind": "knockout_loser",
-        "match_id": "sf_02"
-      },
-      "kickoff_utc": "2026-07-08T16:00:00.000Z",
-      "host": "US",
-      "venue": "Lincoln Financial Field (PA)"
+      "venue": "AT&T Stadium"
     },
     {
-      "id": "final",
-      "stage": "f",
-      "match_no": 104,
+      "away": {
+        "kind": "knockout_loser",
+        "match_id": "sf_02"
+      },
       "home": {
-        "kind": "knockout_winner",
+        "kind": "knockout_loser",
         "match_id": "sf_01"
       },
+      "host": "US",
+      "id": "tp_01",
+      "kickoff_utc": "2026-07-18T19:00:00Z",
+      "match_no": 103,
+      "stage": "sf",
+      "venue": "Hard Rock Stadium"
+    },
+    {
       "away": {
         "kind": "knockout_winner",
         "match_id": "sf_02"
       },
-      "kickoff_utc": "2026-07-19T19:00:00Z",
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "sf_01"
+      },
       "host": "US",
-      "venue": "MetLife Stadium (NJ)"
+      "id": "final",
+      "kickoff_utc": "2026-07-19T19:00:00Z",
+      "match_no": 104,
+      "stage": "f",
+      "venue": "MetLife Stadium"
     }
   ],
-  "advancement": {
-    "automatic_per_group": 2,
-    "wildcard_third": 8,
-    "wildcard_fourth": 8
-  }
+  "name": "FIFA World Cup 2026 (US / Canada / Mexico)",
+  "start_utc": "2026-06-11T19:00:00Z",
+  "teams": [
+    {
+      "country": "ALG",
+      "fifa_rank": 36,
+      "id": "ALG",
+      "name": "Algeria",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0174
+    },
+    {
+      "country": "ARG",
+      "fifa_rank": 1,
+      "id": "ARG",
+      "name": "Argentina",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.22
+    },
+    {
+      "country": "AUS",
+      "fifa_rank": 27,
+      "id": "AUS",
+      "name": "Australia",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0333
+    },
+    {
+      "country": "AUT",
+      "fifa_rank": 23,
+      "id": "AUT",
+      "name": "Austria",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0446
+    },
+    {
+      "country": "BEL",
+      "fifa_rank": 8,
+      "id": "BEL",
+      "name": "Belgium",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1324
+    },
+    {
+      "country": "BIH",
+      "fifa_rank": 70,
+      "id": "BIH",
+      "name": "Bosnia and Herzegovina",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0015
+    },
+    {
+      "country": "BRA",
+      "fifa_rank": 5,
+      "id": "BRA",
+      "name": "Brazil",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1646
+    },
+    {
+      "country": "CAN",
+      "fifa_rank": 31,
+      "id": "CAN",
+      "name": "Canada",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0249
+    },
+    {
+      "country": "CIV",
+      "fifa_rank": 41,
+      "id": "CIV",
+      "name": "Ivory Coast",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0121
+    },
+    {
+      "country": "COD",
+      "fifa_rank": 56,
+      "id": "COD",
+      "name": "DR Congo",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0041
+    },
+    {
+      "country": "COL",
+      "fifa_rank": 14,
+      "id": "COL",
+      "name": "Colombia",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0856
+    },
+    {
+      "country": "CPV",
+      "fifa_rank": 71,
+      "id": "CPV",
+      "name": "Cape Verde",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0014
+    },
+    {
+      "country": "CRO",
+      "fifa_rank": 9,
+      "id": "CRO",
+      "name": "Croatia",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1231
+    },
+    {
+      "country": "CUW",
+      "fifa_rank": 82,
+      "id": "CUW",
+      "name": "Curaçao",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0006
+    },
+    {
+      "country": "CZE",
+      "fifa_rank": 41,
+      "id": "CZE",
+      "name": "Czech Republic",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0121
+    },
+    {
+      "country": "ECU",
+      "fifa_rank": 24,
+      "id": "ECU",
+      "name": "Ecuador",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0415
+    },
+    {
+      "country": "EGY",
+      "fifa_rank": 35,
+      "id": "EGY",
+      "name": "Egypt",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0187
+    },
+    {
+      "country": "ENG",
+      "fifa_rank": 4,
+      "id": "ENG",
+      "name": "England",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.177
+    },
+    {
+      "country": "ESP",
+      "fifa_rank": 3,
+      "id": "ESP",
+      "name": "Spain",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1903
+    },
+    {
+      "country": "FRA",
+      "fifa_rank": 2,
+      "id": "FRA",
+      "name": "France",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.2046
+    },
+    {
+      "country": "GER",
+      "fifa_rank": 11,
+      "id": "GER",
+      "name": "Germany",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1065
+    },
+    {
+      "country": "GHA",
+      "fifa_rank": 73,
+      "id": "GHA",
+      "name": "Ghana",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0012
+    },
+    {
+      "country": "HAI",
+      "fifa_rank": 83,
+      "id": "HAI",
+      "name": "Haiti",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0006
+    },
+    {
+      "country": "IRN",
+      "fifa_rank": 18,
+      "id": "IRN",
+      "name": "Iran",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0641
+    },
+    {
+      "country": "IRQ",
+      "fifa_rank": 58,
+      "id": "IRQ",
+      "name": "Iraq",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0035
+    },
+    {
+      "country": "JOR",
+      "fifa_rank": 64,
+      "id": "JOR",
+      "name": "Jordan",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0023
+    },
+    {
+      "country": "JPN",
+      "fifa_rank": 17,
+      "id": "JPN",
+      "name": "Japan",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0689
+    },
+    {
+      "country": "KOR",
+      "fifa_rank": 22,
+      "id": "KOR",
+      "name": "South Korea",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0479
+    },
+    {
+      "country": "KSA",
+      "fifa_rank": 59,
+      "id": "KSA",
+      "name": "Saudi Arabia",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0033
+    },
+    {
+      "country": "MAR",
+      "fifa_rank": 13,
+      "id": "MAR",
+      "name": "Morocco",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0921
+    },
+    {
+      "country": "MEX",
+      "fifa_rank": 16,
+      "id": "MEX",
+      "name": "Mexico",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0741
+    },
+    {
+      "country": "NED",
+      "fifa_rank": 6,
+      "id": "NED",
+      "name": "Netherlands",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1531
+    },
+    {
+      "country": "NOR",
+      "fifa_rank": 32,
+      "id": "NOR",
+      "name": "Norway",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0232
+    },
+    {
+      "country": "NZL",
+      "fifa_rank": 89,
+      "id": "NZL",
+      "name": "New Zealand",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0004
+    },
+    {
+      "country": "PAN",
+      "fifa_rank": 38,
+      "id": "PAN",
+      "name": "Panama",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.015
+    },
+    {
+      "country": "PAR",
+      "fifa_rank": 40,
+      "id": "PAR",
+      "name": "Paraguay",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.013
+    },
+    {
+      "country": "POR",
+      "fifa_rank": 7,
+      "id": "POR",
+      "name": "Portugal",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.1423
+    },
+    {
+      "country": "QAT",
+      "fifa_rank": 50,
+      "id": "QAT",
+      "name": "Qatar",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0063
+    },
+    {
+      "country": "RSA",
+      "fifa_rank": 60,
+      "id": "RSA",
+      "name": "South Africa",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.003
+    },
+    {
+      "country": "SCO",
+      "fifa_rank": 39,
+      "id": "SCO",
+      "name": "Scotland",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.014
+    },
+    {
+      "country": "SEN",
+      "fifa_rank": 21,
+      "id": "SEN",
+      "name": "Senegal",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0515
+    },
+    {
+      "country": "SUI",
+      "fifa_rank": 20,
+      "id": "SUI",
+      "name": "Switzerland",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0554
+    },
+    {
+      "country": "SWE",
+      "fifa_rank": 33,
+      "id": "SWE",
+      "name": "Sweden",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0216
+    },
+    {
+      "country": "TUN",
+      "fifa_rank": 49,
+      "id": "TUN",
+      "name": "Tunisia",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0068
+    },
+    {
+      "country": "TUR",
+      "fifa_rank": 26,
+      "id": "TUR",
+      "name": "Turkey",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0359
+    },
+    {
+      "country": "URU",
+      "fifa_rank": 15,
+      "id": "URU",
+      "name": "Uruguay",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0796
+    },
+    {
+      "country": "USA",
+      "fifa_rank": 25,
+      "id": "USA",
+      "name": "United States",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0385
+    },
+    {
+      "country": "UZB",
+      "fifa_rank": 57,
+      "id": "UZB",
+      "name": "Uzbekistan",
+      "placeholder": false,
+      "pre_tournament_implied_win": 0.0038
+    }
+  ]
 }
