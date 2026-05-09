@@ -67,22 +67,31 @@ export function BracketBuilder(props: BracketBuilderProps) {
   );
 
   // Bridge: convert the per-match Bracket → legacy BracketPrediction so the
-  // cascade engine can compute knockout slot occupancy. We then layer
-  // user knockout predictions on top via knockout team-id resolution.
+  // cascade engine can compute knockout slot occupancy. We then layer user
+  // knockout predictions on top.
+  //
+  // Multi-pass: each knockout round can only resolve its home/away slots
+  // once the previous round's winners are known. Iterate (group → R32 → R16
+  // → QF → SF → F) so a QF pick can find its (home, away) once R16 picks
+  // have populated them. Stop early at fixed point.
   const cascaded: CascadedBracket = useMemo(() => {
     const legacy = bracketToCascadeInput(tournament, bracket, userLocalId);
-    // Inject knockout predictions: each user pick is "home_win" or
-    // "away_win"; resolve to the team-id from the cascaded slot.
-    const firstPass = cascade(tournament, legacy);
-    const knockouts = Object.values(bracket.knockoutPredictions)
-      .map((p) => {
-        const k = firstPass.knockouts.find((x) => x.id === p.matchId);
-        if (!k) return null;
-        const team = p.outcome === "home_win" ? k.home.team : k.away.team;
-        return team ? { match_id: p.matchId, winner: team } : null;
-      })
-      .filter((x): x is { match_id: string; winner: string } => x !== null);
-    return cascade(tournament, { ...legacy, knockouts });
+    let result = cascade(tournament, legacy);
+    for (let pass = 0; pass < 6; pass += 1) {
+      const knockouts = Object.values(bracket.knockoutPredictions)
+        .map((p) => {
+          const k = result.knockouts.find((x) => x.id === p.matchId);
+          if (!k) return null;
+          const team = p.outcome === "home_win" ? k.home.team : k.away.team;
+          return team ? { match_id: p.matchId, winner: team } : null;
+        })
+        .filter((x): x is { match_id: string; winner: string } => x !== null);
+      const before = result.knockouts.filter((k) => k.effective_winner).length;
+      result = cascade(tournament, { ...legacy, knockouts });
+      const after = result.knockouts.filter((k) => k.effective_winner).length;
+      if (after === before) break;
+    }
+    return result;
   }, [tournament, bracket, userLocalId]);
 
   const update = (next: Bracket): void => {
