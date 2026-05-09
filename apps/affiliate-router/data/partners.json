@@ -1,0 +1,73 @@
+{
+  "$schema_note": "Affiliate partner registry. Real codes are loaded from env at runtime; this file holds placeholders. See README.md.",
+  "partners": [
+    {
+      "id": "polymarket",
+      "name": "Polymarket",
+      "kind": "prediction-market",
+      "base_url": "https://polymarket.com",
+      "affiliate_param_name": "ref",
+      "affiliate_param_value": "AFFCODE_PLACEHOLDER_polymarket",
+      "allowed_countries": ["US", "CA"],
+      "offer_text": "Trade your conviction. Sign-up bonus: $20 free trade.",
+      "logo_url": "https://cdn.vtourn.com/partners/polymarket.svg"
+    },
+    {
+      "id": "bet365",
+      "name": "Bet365",
+      "kind": "sportsbook",
+      "base_url": "https://www.bet365.com",
+      "affiliate_param_name": "affiliate",
+      "affiliate_param_value": "AFFCODE_PLACEHOLDER_bet365",
+      "allowed_countries": [
+        "GB",
+        "IE",
+        "DE",
+        "ES",
+        "IT",
+        "FR",
+        "NL",
+        "BE",
+        "AT",
+        "DK",
+        "SE",
+        "AU"
+      ],
+      "offer_text": "Live odds and accumulators on every World Cup match.",
+      "logo_url": "https://cdn.vtourn.com/partners/bet365.svg"
+    },
+    {
+      "id": "sky-nz",
+      "name": "Sky Sport NZ",
+      "kind": "paytv-stream",
+      "base_url": "https://www.skysport.co.nz/subscribe",
+      "affiliate_param_name": "partner",
+      "affiliate_param_value": "AFFCODE_PLACEHOLDER_sky_nz",
+      "allowed_countries": ["NZ"],
+      "offer_text": "Watch every World Cup match live. 4-week tournament pass NZ$14.99.",
+      "logo_url": "https://cdn.vtourn.com/partners/sky-nz.svg"
+    },
+    {
+      "id": "espn-plus",
+      "name": "ESPN+",
+      "kind": "paytv-stream",
+      "base_url": "https://plus.espn.com/subscribe",
+      "affiliate_param_name": "src",
+      "affiliate_param_value": "AFFCODE_PLACEHOLDER_espn_plus",
+      "allowed_countries": ["US"],
+      "offer_text": "Stream every match plus on-demand replays. From $11.99/mo.",
+      "logo_url": "https://cdn.vtourn.com/partners/espn-plus.svg"
+    },
+    {
+      "id": "dazn",
+      "name": "DAZN",
+      "kind": "paytv-stream",
+      "base_url": "https://www.dazn.com/welcome",
+      "affiliate_param_name": "promo",
+      "affiliate_param_value": "AFFCODE_PLACEHOLDER_dazn",
+      "allowed_countries": ["DE", "IT", "ES", "JP"],
+      "offer_text": "Live football, on every screen. Cancel anytime.",
+      "logo_url": "https://cdn.vtourn.com/partners/dazn.svg"
+    }
+  ]
+}
