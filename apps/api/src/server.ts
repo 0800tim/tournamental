@@ -18,10 +18,11 @@ const corsOrigins = (process.env.VTORN_API_CORS_ORIGINS ?? 'https://vtorn.aiva.n
   .filter(Boolean);
 
 export async function buildServer() {
+  const usePretty = process.env.LOG_PRETTY === '1';
   const app = Fastify({
     logger: {
       level: LOG_LEVEL,
-      transport: process.env.NODE_ENV === 'production' ? undefined : { target: 'pino-pretty' },
+      ...(usePretty ? { transport: { target: 'pino-pretty' } } : {}),
     },
     disableRequestLogging: false,
     trustProxy: true,
