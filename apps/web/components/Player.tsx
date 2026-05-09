@@ -1,12 +1,18 @@
 "use client";
 
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
-import { Billboard, Text } from "@react-three/drei";
 import type { StoreApi } from "zustand/vanilla";
 import type { Kit, Player as SpecPlayer } from "@vtorn/spec";
 import type { MatchStore } from "@vtorn/spec-client";
+import {
+  applyJersey,
+  applyKitColours,
+  BillboardFace,
+  deriveInitials,
+  makeJerseyTexture,
+} from "@vtorn/avatar";
 import {
   alphaForNow,
   estimateSpeed,
@@ -14,7 +20,8 @@ import {
 } from "@/lib/interpolation";
 import { stepFsm, INITIAL_FSM_STATE, activeTag, type FsmState } from "@/lib/animation-fsm";
 import { toWorldInto, toWorldYaw } from "@/lib/coords";
-import { makeJerseyTexture } from "@/lib/jersey-texture";
+import { useFaceLookup } from "@/lib/face-context";
+import { useClonedBody } from "@/lib/body-cache";
 
 interface PlayerProps {
   player: SpecPlayer;
@@ -24,23 +31,48 @@ interface PlayerProps {
 }
 
 /**
- * Procedural-billboard player avatar (doc 07 tier 3, simplified for v0.1).
+ * Player avatar (doc 07 tier 3 — shared body GLB + billboard face).
  *
- *   - Capsule body, scaled torso/legs that lean forward in run/sprint.
- *   - Jersey colour from the team kit; jersey number on the torso plane.
- *   - Nameplate billboard above the head.
- *   - Position/rotation updated every frame via refs (no React re-renders).
+ * The shared body GLB is loaded once at the scene level (see
+ * `useClonedBody()` which delegates to `@vtorn/avatar`'s module-cached
+ * loader). Each player gets an independent skeleton clone so per-player
+ * jersey textures don't collide.
  *
- * When `@vtorn/avatar` lands, swap the body group for their <AvatarBody/>
- * mesh — the position/rotation code below stays identical.
+ * If the GLB hasn't loaded yet (or fails), we fall back to a minimal
+ * capsule body so the renderer still has something on screen — matches
+ * the failure mode in docs/07.
+ *
+ * Position/rotation/animation state is updated every frame via refs (no
+ * React re-renders).
  */
 export function Player({ player, team, kit, store }: PlayerProps) {
   const groupRef = useRef<THREE.Group>(null!);
   const torsoRef = useRef<THREE.Mesh>(null!);
   const legsRef = useRef<THREE.Group>(null!);
   const isGK = player.position === "GK";
+  const initials = useMemo(() => deriveInitials(player.name), [player.name]);
+  const faces = useFaceLookup();
+  const faceUri = faces.resolve(player);
+  const body = useClonedBody();
 
-  const jerseyTexture = useMemo(() => makeJerseyTexture(kit, player.number, isGK), [kit, player.number, isGK]);
+  const jerseyTexture = useMemo(
+    () => makeJerseyTexture(kit, player.number, isGK),
+    [kit, player.number, isGK]
+  );
+
+  // When the body clone arrives, paint the kit + jersey texture in place.
+  useEffect(() => {
+    if (!body) return;
+    applyJersey(body, jerseyTexture);
+    applyKitColours(body, kit.primary, kit.secondary);
+    // Make sure every mesh in the cloned body casts/receives shadows.
+    body.scene.traverse((obj) => {
+      const mesh = obj as THREE.Mesh;
+      if (!mesh.isMesh) return;
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+    });
+  }, [body, jerseyTexture, kit.primary, kit.secondary]);
 
   const fsm = useRef<FsmState>({ ...INITIAL_FSM_STATE });
   const lastEventIdx = useRef(0);
@@ -71,12 +103,12 @@ export function Player({ player, team, kit, store }: PlayerProps) {
 
     const tag = activeTag(fsm.current, now);
 
-    // Visualise the FSM tag with cheap procedural motion: torso lean +
-    // leg swing scale by speed, big shoot/celebrate offsets.
+    // Cheap procedural motion for the fallback capsule. When the rigged
+    // body GLB exposes named animation clips we'll swap this for a real
+    // mixer (see docs/07 followups).
     if (torsoRef.current && legsRef.current) {
       let lean = 0;
       let bob = 0;
-      let armRaise = 0;
       switch (tag) {
         case "idle":
           bob = Math.sin(now * 0.003) * 0.02;
@@ -96,7 +128,6 @@ export function Player({ player, team, kit, store }: PlayerProps) {
         case "shoot":
         case "kick":
           lean = 0.35;
-          bob = 0;
           break;
         case "tackle":
           lean = 0.5;
@@ -109,7 +140,6 @@ export function Player({ player, team, kit, store }: PlayerProps) {
         case "celebrate":
           lean = -0.2;
           bob = Math.abs(Math.sin(now * 0.02)) * 0.3;
-          armRaise = 0.6;
           break;
         default:
           break;
@@ -117,14 +147,13 @@ export function Player({ player, team, kit, store }: PlayerProps) {
       torsoRef.current.rotation.x = lean;
       torsoRef.current.position.y = 0.85 + bob;
       legsRef.current.rotation.x = -lean * 0.6;
-      // Use scale.y on legs to fake stride for run/sprint (visually noticeable).
-      const stride = tag === "sprint" ? 1.0 + Math.sin(now * 0.03) * 0.25 : tag === "run" ? 1.0 + Math.sin(now * 0.022) * 0.15 : 1.0;
+      const stride =
+        tag === "sprint"
+          ? 1.0 + Math.sin(now * 0.03) * 0.25
+          : tag === "run"
+            ? 1.0 + Math.sin(now * 0.022) * 0.15
+            : 1.0;
       legsRef.current.scale.y = stride;
-
-      // Arm raise for celebrate.
-      if (groupRef.current.userData.armRaise !== armRaise) {
-        groupRef.current.userData.armRaise = armRaise;
-      }
     }
   });
 
@@ -132,43 +161,111 @@ export function Player({ player, team, kit, store }: PlayerProps) {
 
   return (
     <group ref={groupRef}>
-      {/* Legs */}
-      <group ref={legsRef} position={[0, 0.4, 0]}>
-        <mesh position={[-0.18, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.12, 0.12, 0.8, 8]} />
-          <meshStandardMaterial color="#222" />
-        </mesh>
-        <mesh position={[0.18, 0, 0]} castShadow>
-          <cylinderGeometry args={[0.12, 0.12, 0.8, 8]} />
-          <meshStandardMaterial color="#222" />
-        </mesh>
-      </group>
+      {/* Real body GLB clone. Falls back to capsule if the load is in flight. */}
+      {body ? (
+        <primitive object={body.scene} />
+      ) : (
+        <>
+          {/* Legs */}
+          <group ref={legsRef} position={[0, 0.4, 0]}>
+            <mesh position={[-0.18, 0, 0]} castShadow>
+              <cylinderGeometry args={[0.12, 0.12, 0.8, 8]} />
+              <meshStandardMaterial color="#222" />
+            </mesh>
+            <mesh position={[0.18, 0, 0]} castShadow>
+              <cylinderGeometry args={[0.12, 0.12, 0.8, 8]} />
+              <meshStandardMaterial color="#222" />
+            </mesh>
+          </group>
 
-      {/* Torso */}
-      <mesh ref={torsoRef} position={[0, 0.85, 0]} castShadow>
-        <cylinderGeometry args={[0.32, 0.28, 0.7, 12]} />
-        <meshStandardMaterial color={teamTint} map={jerseyTexture as THREE.Texture | null} />
-      </mesh>
+          {/* Torso */}
+          <mesh ref={torsoRef} position={[0, 0.85, 0]} castShadow>
+            <cylinderGeometry args={[0.32, 0.28, 0.7, 12]} />
+            <meshStandardMaterial color={teamTint} map={jerseyTexture as THREE.Texture | null} />
+          </mesh>
+        </>
+      )}
 
-      {/* Head (billboarded face later; for now a coloured sphere). */}
-      <mesh position={[0, 1.5, 0]} castShadow>
-        <sphereGeometry args={[0.18, 16, 12]} />
-        <meshStandardMaterial color="#f3c393" />
-      </mesh>
+      {/* Real face billboard from Wikidata; falls back to initials disc. */}
+      <BillboardFace faceUri={faceUri} kit={kit} initials={initials} yOffset={1.85} size={0.42} />
 
-      {/* Number on the back as floating label (cheap stand-in for UV-mapped art). */}
-      <Billboard position={[0, 0.95, 0]}>
-        <Text fontSize={0.22} color={kit.text ?? "#FFFFFF"} anchorX="center" anchorY="middle">
-          {player.number}
-        </Text>
-      </Billboard>
-
-      {/* Nameplate */}
-      <Billboard position={[0, 2.0, 0]}>
-        <Text fontSize={0.22} color="#ffffff" outlineWidth={0.02} outlineColor="#000000" anchorX="center" anchorY="middle">
-          {player.name}
-        </Text>
-      </Billboard>
+      {/* Nameplate (tiny label below the face). */}
+      <NamePlate name={player.name} number={player.number} kit={kit} />
     </group>
   );
+}
+
+/** Floating name + number nameplate, separated for readability. */
+function NamePlate({
+  name,
+  number,
+  kit,
+}: {
+  name: string;
+  number: number;
+  kit: Kit;
+}) {
+  const ref = useRef<THREE.Sprite>(null!);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const texture = useMemo(() => makeNamePlateTexture(name, number, kit), [name, number, kit.primary, kit.secondary, kit.text]);
+  useEffect(() => () => texture?.dispose(), [texture]);
+  if (!texture) return null;
+  return (
+    <sprite ref={ref} position={[0, 2.4, 0]} scale={[1.2, 0.32, 1]}>
+      <spriteMaterial map={texture} transparent depthWrite={false} />
+    </sprite>
+  );
+}
+
+function makeNamePlateTexture(name: string, number: number, kit: Kit): THREE.CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas");
+  c.width = 512;
+  c.height = 128;
+  const ctx = c.getContext("2d");
+  if (!ctx) return null;
+
+  // Pill background.
+  ctx.fillStyle = "rgba(8, 14, 22, 0.85)";
+  roundRect(ctx, 0, 0, 512, 128, 36);
+  ctx.fill();
+
+  // Number swatch.
+  ctx.fillStyle = kit.primary;
+  roundRect(ctx, 12, 16, 96, 96, 16);
+  ctx.fill();
+
+  ctx.fillStyle = kit.text ?? "#FFFFFF";
+  ctx.font = "bold 64px Inter, Arial, sans-serif";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText(String(number), 60, 64);
+
+  // Name.
+  ctx.fillStyle = "#e6edf3";
+  ctx.font = "600 56px Inter, Arial, sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText(name, 132, 66);
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.needsUpdate = true;
+  return tex;
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  r: number,
+): void {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
 }

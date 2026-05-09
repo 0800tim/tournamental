@@ -1,0 +1,12 @@
+{"type":"match.init","spec_version":"0.1.1","match_id":"fifa-wc-2022-final-arg-fra-2022-12-18","sport":"soccer","field":{"length":100,"width":64,"units":"m"},"teams":[{"id":"ARG","name":"Argentina","short_name":"ARG","kit":{"primary":"#75AADB","secondary":"#FFFFFF","text":"#000033"},"players":[{"id":"ARG_10","name":"Messi","number":10,"position":"ST"},{"id":"ARG_9","name":"Di María","number":11,"position":"RW"}]},{"id":"FRA","name":"France","short_name":"FRA","kit":{"primary":"#0055A4","secondary":"#FFFFFF","text":"#FFFFFF"},"players":[{"id":"FRA_10","name":"Mbappé","number":10,"position":"ST"},{"id":"FRA_1","name":"Lloris","number":1,"position":"GK"}]}],"start_time":"2022-12-18T15:00:00Z","venue":"Lusail Stadium","competition":"FIFA World Cup 2022 — Final","producer":"fixture-v1"}
+{"type":"event.kickoff","t":0,"team":"ARG"}
+{"type":"event.period_start","t":0,"period":1}
+{"type":"state","t":0,"ball":{"pos":[0,0,0]},"players":[{"id":"ARG_10","pos":[-5,0],"facing":0,"anim":"idle"},{"id":"ARG_9","pos":[-10,5],"facing":0,"anim":"idle"},{"id":"FRA_10","pos":[5,0],"facing":3.14,"anim":"idle"},{"id":"FRA_1","pos":[40,0],"facing":3.14,"anim":"idle"}],"period":1,"clock_display":"0:00"}
+{"type":"state","t":1000,"ball":{"pos":[1,0,0]},"players":[{"id":"ARG_10","pos":[-4,0],"facing":0,"anim":"walk"},{"id":"ARG_9","pos":[-9,5],"facing":0,"anim":"walk"},{"id":"FRA_10","pos":[6,0],"facing":3.14,"anim":"walk"},{"id":"FRA_1","pos":[40,0],"facing":3.14,"anim":"idle"}],"period":1,"clock_display":"0:01"}
+{"type":"state","t":60000,"ball":{"pos":[10,5,0]},"players":[{"id":"ARG_10","pos":[8,5],"facing":0,"anim":"run"},{"id":"ARG_9","pos":[5,10],"facing":0,"anim":"run"},{"id":"FRA_10","pos":[15,-5],"facing":3.14,"anim":"walk"},{"id":"FRA_1","pos":[40,0],"facing":3.14,"anim":"idle"}],"period":1,"clock_display":"1:00"}
+{"type":"event.shot","t":1379800,"player":"ARG_10","target":[50,0,1.5],"on_target":true}
+{"type":"event.goal","t":1380000,"player":"ARG_10","team":"ARG"}
+{"type":"event.score_change","t":1380001,"home":1,"away":0}
+{"type":"event.commentary","t":1380002,"text":"GOAL — Messi from the spot, 1-0 Argentina.","speaker":"Commentator"}
+{"type":"state","t":1380000,"ball":{"pos":[50,0,1]},"players":[{"id":"ARG_10","pos":[42,2],"facing":0,"anim":"celebrate"},{"id":"ARG_9","pos":[40,8],"facing":0,"anim":"celebrate"},{"id":"FRA_10","pos":[35,-5],"facing":3.14,"anim":"idle"},{"id":"FRA_1","pos":[50,0],"facing":3.14,"anim":"fall"}],"period":1,"clock_display":"23:00"}
+{"type":"event.match_end","t":1500000}

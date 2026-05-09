@@ -8,22 +8,33 @@ const MatchScene = dynamic(
 
 interface MatchPageProps {
   params: { id: string };
-  searchParams: { src?: string };
+  searchParams: { src?: string; manifest?: string };
 }
 
+const ARFR_DEFAULT_MANIFEST =
+  "/data/arfr-stream/fifa-wc-2022-final-arg-fra-2022-12-18.ndjson.gz";
+
 /**
- * Live demo route. By default we attach to a producer at
- * `NEXT_PUBLIC_VTORN_WS_URL` (defaults to ws://localhost:4001 — the
- * statsbomb-replay default) and fall back to the in-process synthetic
- * AR-FR fixture if no producer URL is reachable.
+ * Live demo route. Resolution order for the stream source:
  *
- * The query-string `?src=ws://...` overrides the env var for one-off testing.
+ *   1. `?src=...` query string (live producer, raw URL).
+ *   2. `?manifest=...` query string (canned NDJSON path; .gz auto-detected).
+ *   3. `NEXT_PUBLIC_VTORN_WS_URL` env var (live producer override).
+ *   4. **For AR-FR demo:** if the match id starts with `fifa-wc-2022-final`
+ *      AND nothing above is set, auto-use the bundled manifest.
+ *   5. In-process synthetic AR-FR fixture.
  */
 export default function MatchPage({ params, searchParams }: MatchPageProps) {
-  const explicit = searchParams.src;
+  const { src, manifest } = searchParams;
   const envUrl = process.env.NEXT_PUBLIC_VTORN_WS_URL;
-  const fallback = "synthetic";
-  const source = explicit ?? envUrl ?? fallback;
+  const isArFrDemo = params.id.startsWith("fifa-wc-2022-final");
+
+  let source: string;
+  if (src) source = src;
+  else if (manifest) source = manifest;
+  else if (envUrl) source = envUrl;
+  else if (isArFrDemo) source = ARFR_DEFAULT_MANIFEST;
+  else source = "synthetic";
 
   return <MatchScene source={source} matchId={params.id} />;
 }
