@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -73,7 +74,7 @@ jobs:
         if: steps.detect.outputs.found == 'true'
         uses: astral-sh/setup-uv@v3
         with:
-          enable-cache: true
+          enable-cache: false
 
       - name: Lint + test each Python project
         if: steps.detect.outputs.found == 'true'
