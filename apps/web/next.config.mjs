@@ -7,8 +7,16 @@ const nextConfig = {
   experimental: {
     // Workspace packages are imported as TS source — Next 14 transpiles them.
     externalDir: true,
+    // @resvg/resvg-js loads platform-specific native bindings at runtime;
+    // webpack mustn't try to bundle those. Same for satori (server-only).
+    serverComponentsExternalPackages: ["@resvg/resvg-js", "satori"],
   },
-  transpilePackages: ["@vtorn/spec", "@vtorn/spec-client", "@vtorn/avatar"],
+  transpilePackages: [
+    "@vtorn/spec",
+    "@vtorn/spec-client",
+    "@vtorn/avatar",
+    "@vtorn/bracket-engine",
+  ],
   webpack: (config) => {
     // ESM-style imports inside the @vtorn/* workspace packages use `.js`
     // suffixes (NodeNext convention). The actual files are `.ts` / `.tsx`,
