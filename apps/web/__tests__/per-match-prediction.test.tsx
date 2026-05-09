@@ -63,12 +63,12 @@ describe("BracketBuilder — per-match predictions", () => {
       if (!btn) throw new Error(`No ${btnClass} button in row`);
       fireEvent.click(btn);
     };
-    pickIn(matchRows[0]!, "mpr-btn-home"); // MEX over RSA
-    pickIn(matchRows[1]!, "mpr-btn-home"); // KOR over CZE
-    pickIn(matchRows[2]!, "mpr-btn-home"); // MEX over KOR
-    pickIn(matchRows[3]!, "mpr-btn-away"); // RSA over CZE
-    pickIn(matchRows[4]!, "mpr-btn-away"); // MEX over CZE
-    pickIn(matchRows[5]!, "mpr-btn-home"); // RSA over KOR
+    pickIn(matchRows[0]!, "mpr-pick-home"); // MEX over RSA
+    pickIn(matchRows[1]!, "mpr-pick-home"); // KOR over CZE
+    pickIn(matchRows[2]!, "mpr-pick-home"); // MEX over KOR
+    pickIn(matchRows[3]!, "mpr-pick-away"); // RSA over CZE
+    pickIn(matchRows[4]!, "mpr-pick-away"); // MEX over CZE
+    pickIn(matchRows[5]!, "mpr-pick-home"); // RSA over KOR
 
     // Predicted standings panel should now show MEX with 9 pts (3W).
     const standingsPanel = groupACard.querySelector(
@@ -89,7 +89,7 @@ describe("BracketBuilder — per-match predictions", () => {
       ".bracket-group",
     ) as HTMLElement;
     const firstMatchRow = groupACard.querySelector(".mpr-row")!;
-    fireEvent.click(firstMatchRow.querySelector(".mpr-btn-home")!);
+    fireEvent.click(firstMatchRow.querySelector(".mpr-pick-home")!);
     // Find draft key
     const localUserId = window.localStorage.getItem("vtorn:local_user_id");
     expect(localUserId).toBeTruthy();

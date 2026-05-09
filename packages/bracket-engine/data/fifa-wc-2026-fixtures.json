@@ -1403,7 +1403,7 @@
       "id": "tp_01",
       "kickoff_utc": "2026-07-18T19:00:00Z",
       "match_no": 103,
-      "stage": "sf",
+      "stage": "tp",
       "venue": "Hard Rock Stadium"
     },
     {
@@ -1534,7 +1534,7 @@
       "country": "CUW",
       "fifa_rank": 82,
       "id": "CUW",
-      "name": "Curaçao",
+      "name": "Cura\u00e7ao",
       "placeholder": false,
       "pre_tournament_implied_win": 0.0006
     },

@@ -34,12 +34,12 @@ test.describe("Per-match prediction", () => {
     // Pick MEX to win all of their matches and KOR to beat CZE; verify
     // the standings panel reflects MEX 1st, KOR 2nd.
     const matchRows = groupA.locator(".mpr-row");
-    await matchRows.nth(0).locator(".mpr-btn-home").click(); // MEX vs RSA
-    await matchRows.nth(1).locator(".mpr-btn-home").click(); // KOR vs CZE
-    await matchRows.nth(2).locator(".mpr-btn-home").click(); // MEX vs KOR
-    await matchRows.nth(3).locator(".mpr-btn-away").click(); // CZE vs RSA → RSA win
-    await matchRows.nth(4).locator(".mpr-btn-away").click(); // CZE vs MEX → MEX win
-    await matchRows.nth(5).locator(".mpr-btn-home").click(); // RSA vs KOR → RSA win
+    await matchRows.nth(0).locator(".mpr-pick-home").click(); // MEX vs RSA
+    await matchRows.nth(1).locator(".mpr-pick-home").click(); // KOR vs CZE
+    await matchRows.nth(2).locator(".mpr-pick-home").click(); // MEX vs KOR
+    await matchRows.nth(3).locator(".mpr-pick-away").click(); // CZE vs RSA → RSA win
+    await matchRows.nth(4).locator(".mpr-pick-away").click(); // CZE vs MEX → MEX win
+    await matchRows.nth(5).locator(".mpr-pick-home").click(); // RSA vs KOR → RSA win
 
     const mexRow = groupA.locator(".bracket-standings-row").filter({ hasText: "MEX" });
     await expect(mexRow).toContainText("9 pts");

@@ -135,9 +135,9 @@ describe("Bracket page — odds chip integration", () => {
     // Original outcome buttons still present — Home Win / Draw / Away Win.
     // Find them by their CSS class (set by MatchPredictionRow) so we
     // don't tangle with the chip's `role="button"` sibling.
-    const homeBtn = firstRow.querySelector(".mpr-btn-home") as HTMLButtonElement;
-    const drawBtn = firstRow.querySelector(".mpr-btn-draw") as HTMLButtonElement;
-    const awayBtn = firstRow.querySelector(".mpr-btn-away") as HTMLButtonElement;
+    const homeBtn = firstRow.querySelector(".mpr-pick-home") as HTMLButtonElement;
+    const drawBtn = firstRow.querySelector(".mpr-pick-draw") as HTMLButtonElement;
+    const awayBtn = firstRow.querySelector(".mpr-pick-away") as HTMLButtonElement;
     expect(homeBtn).not.toBeNull();
     expect(drawBtn).not.toBeNull();
     expect(awayBtn).not.toBeNull();
