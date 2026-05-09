@@ -1,0 +1,39 @@
+{
+  "attribution_note": "Flags and player photos sourced from Wikimedia Commons under CC-BY / CC-BY-SA. Per-asset attribution is preserved in players.json `attribution` and teams.json `flag_svg_url`. We bundle no copyrighted FIFA imagery; flags use Wikimedia Commons assets only.",
+  "refresh_policy": {
+    "fallback": "On upstream failure the previous cached snapshot is preserved and a warning is emitted; never crash the build.",
+    "schedule": "weekly via .github/workflows/wc2026-data-refresh.yml",
+    "trigger": "GitHub Actions cron + manual dispatch"
+  },
+  "scrape_date": "2026-05-09",
+  "sources": [
+    {
+      "cached_only": false,
+      "failed": false,
+      "id": "fifa",
+      "license": "© FIFA — fixture data; no FIFA imagery bundled",
+      "name": "FIFA.com — official 2026 World Cup match schedule",
+      "url": "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026",
+      "used": true
+    },
+    {
+      "cached_only": false,
+      "failed": false,
+      "id": "wikidata",
+      "license": "CC0",
+      "name": "Wikidata SPARQL",
+      "url": "https://query.wikidata.org/sparql",
+      "used": true
+    },
+    {
+      "cached_only": false,
+      "failed": false,
+      "id": "wikimedia",
+      "license": "CC-BY / CC-BY-SA / public domain — see per-asset attribution",
+      "name": "Wikimedia Commons (flags + player photos)",
+      "url": "https://commons.wikimedia.org",
+      "used": true
+    }
+  ],
+  "tournament": "FIFA World Cup 2026"
+}

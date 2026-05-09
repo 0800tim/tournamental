@@ -1,0 +1,87 @@
+name: WC 2026 Data Refresh
+
+on:
+  schedule:
+    # Weekly — Mondays 09:00 UTC. Runs the scrape, opens a PR with the diff.
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+    inputs:
+      source_only:
+        description: "Restrict to a single source (wikidata|fifa|wikimedia)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    name: Run wc2026-scrape and open a PR with the diff
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        working-directory: apps/wc2026-data
+        run: uv sync
+
+      - name: Run scrape
+        working-directory: apps/wc2026-data
+        run: |
+          if [ -n "${{ inputs.source_only }}" ]; then
+            uv run wc2026-scrape --source-only "${{ inputs.source_only }}"
+          else
+            uv run wc2026-scrape
+          fi
+
+      - name: Run schema-validation tests
+        working-directory: apps/wc2026-data
+        run: uv run pytest -q tests/test_schema_validation.py tests/test_data_consistency.py
+
+      - name: Detect diff
+        id: diff
+        run: |
+          if [ -n "$(git status --porcelain data/fifa-wc-2026/)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Open PR with refreshed data
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: |
+            chore(data): weekly WC 2026 data refresh
+
+            Automated refresh from FIFA + Wikidata + Wikimedia sources.
+
+            Signed-off-by: vtorn-bot <noreply@vtorn.com>
+          title: "chore(data): weekly WC 2026 data refresh"
+          body: |
+            Automated weekly refresh of `data/fifa-wc-2026/`.
+
+            Triggered by:
+            - schedule cron (`0 9 * * 1`), OR
+            - manual `workflow_dispatch`.
+
+            Diff is in this PR. Reviewer: spot-check `_meta.json`
+            `failed: true` flags for any source that bailed and fell
+            back to cache.
+          branch: chore/wc2026-data-refresh
+          base: main
+          delete-branch: true
+          add-paths: |
+            data/fifa-wc-2026/**

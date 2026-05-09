@@ -1,0 +1,23 @@
+{
+  "name": "@vtorn/wc2026-producer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "VTorn 2026 FIFA World Cup match-stream producer scaffold (replay-mode + live-mode stub)",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@vtorn/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}
