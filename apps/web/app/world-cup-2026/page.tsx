@@ -15,6 +15,8 @@ import type { Metadata } from "next";
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
 import { BracketBuilder } from "@/components/bracket/BracketBuilder";
+import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
+import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import "./bracket.css";
 
 export const dynamic = "force-static";
@@ -42,7 +44,11 @@ export const metadata: Metadata = {
 };
 
 export default function WorldCup2026Page() {
-  const tournament = loadFixtures2026();
+  const baseTournament = loadFixtures2026();
+  const tournament = enrichTournamentTeams(
+    baseTournament,
+    canonicalTeamsRaw as CanonicalTeamsFile,
+  );
 
   return (
     <main className="bracket-page">
@@ -50,10 +56,10 @@ export default function WorldCup2026Page() {
       <footer className="bracket-page-footer">
         <p>
           Engine: <code>@vtorn/bracket-engine</code>. Source data:{" "}
-          <a href={tournament._meta.source_url} target="_blank" rel="noreferrer">
+          <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
             FIFA 2026
           </a>{" "}
-          ({tournament._meta.schedule_status}). When the official draw is
+          ({baseTournament._meta.schedule_status}). When the official draw is
           finalised, swap the fixtures JSON.
         </p>
       </footer>

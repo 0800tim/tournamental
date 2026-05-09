@@ -6,13 +6,18 @@
  * lands; until then, the submit handler logs + warns + still writes
  * draft.
  *
+ * v2 of the schema (Apr 2026): the old per-group-finishing-order shape is
+ * replaced with `Bracket`'s per-match-prediction map. Old drafts under the
+ * v1 key are abandoned silently (the user re-makes their picks, which
+ * matches the product reset since the prediction model just changed).
+ *
  * Cache policy: localStorage is per-origin and keyed by tournament id +
  * a stable user-local id. No PII is written.
  */
 
-import type { BracketPrediction } from "@vtorn/bracket-engine";
+import type { Bracket, BracketPrediction } from "@vtorn/bracket-engine";
 
-const STORAGE_PREFIX = "vtorn:bracket:v1";
+const STORAGE_PREFIX = "vtorn:bracket:v2";
 
 export function draftKey(tournament_id: string, user_local_id: string): string {
   return `${STORAGE_PREFIX}:${tournament_id}:${user_local_id}`;
@@ -21,22 +26,26 @@ export function draftKey(tournament_id: string, user_local_id: string): string {
 export function loadDraft(
   tournament_id: string,
   user_local_id: string,
-): BracketPrediction | null {
+): Bracket | null {
   if (typeof window === "undefined") return null;
   const raw = window.localStorage.getItem(draftKey(tournament_id, user_local_id));
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as BracketPrediction;
+    return JSON.parse(raw) as Bracket;
   } catch {
     return null;
   }
 }
 
-export function saveDraft(prediction: BracketPrediction, user_local_id: string): void {
+export function saveDraft(
+  tournament_id: string,
+  bracket: Bracket,
+  user_local_id: string,
+): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(
-    draftKey(prediction.tournament_id, user_local_id),
-    JSON.stringify(prediction),
+    draftKey(tournament_id, user_local_id),
+    JSON.stringify(bracket),
   );
 }
 
@@ -59,3 +68,6 @@ export function localUserId(): string {
   }
   return id;
 }
+
+/** Unused, kept to avoid import errors during the migration. */
+export type _LegacyShim = BracketPrediction;

@@ -50,6 +50,13 @@ export interface Team {
   readonly pre_tournament_implied_win: number;
   /** True if the team is a placeholder (draw not yet performed). */
   readonly placeholder?: boolean;
+  /** Optional kit colours for UI accents (sparkle glow, segmented buttons). */
+  readonly kit?: {
+    readonly primary?: string;
+    readonly secondary?: string;
+  };
+  /** Optional emoji flag for compact share-card formats. */
+  readonly flag_emoji?: string;
 }
 
 // ---------- group ----------
@@ -200,6 +207,63 @@ export interface BracketPrediction {
   readonly locks: readonly PickLock[];
   /** ISO-8601 timestamp of when this BracketPrediction was last edited. */
   readonly updated_at_utc: string;
+}
+
+// ---------- per-match predictions (the user-facing draft model) ----------
+
+/**
+ * Per-match outcome the user picked. The group standings are *computed*
+ * from these — the user no longer drags teams into a finishing order. The
+ * whole point of the prediction game is to predict every match.
+ *
+ * `outcome` is the canonical pick (win/draw/loss). Optional `homeScore` and
+ * `awayScore` let the user shoot for the exact-score bonus; the engine
+ * never infers an outcome from scores (the user could leave scores blank).
+ */
+export interface MatchPrediction {
+  /** Stable id for the match. For the WC 2026 we use match_no as a string ("1".."104"). */
+  readonly matchId: string;
+  readonly outcome: "home_win" | "draw" | "away_win";
+  readonly homeScore?: number;
+  readonly awayScore?: number;
+  /** ISO-8601 timestamp of when this prediction was last edited. */
+  readonly lockedAt: string;
+}
+
+/**
+ * Tiebreaker: when the standings computer can't break a tie between two or
+ * more teams using points → goal diff → goals for → head-to-head, the user
+ * is asked to rank the tied teams. `rankedTeams` is the user's full
+ * 4-team finishing order for the group (1st through 4th). Only the slice
+ * involving the tied teams is consulted by the resolver, but storing the
+ * whole ranked list keeps the schema simple.
+ */
+export interface GroupTiebreaker {
+  readonly groupId: GroupId;
+  /** FIFA codes ordered 1st → 4th (inclusive of teams that weren't tied). */
+  readonly rankedTeams: readonly [TeamId, TeamId, TeamId, TeamId];
+  readonly setAt: string;
+}
+
+/**
+ * The full user bracket draft. Holds:
+ *   - Per-group-stage-match outcome predictions (and optional scores).
+ *   - Tiebreakers, only for groups whose computed standings have an
+ *     irresolvable tie.
+ *   - Per-knockout-match predictions (also `MatchPrediction` shapes; the
+ *     "draw" outcome is forbidden in the engine for knockout fixtures).
+ */
+export interface Bracket {
+  readonly bracketId: string;
+  /** matchId → prediction for group-stage matches. */
+  readonly matchPredictions: Record<string, MatchPrediction>;
+  /** groupId → user-supplied tiebreaker; absent unless a tie needs breaking. */
+  readonly groupTiebreakers: Record<string, GroupTiebreaker>;
+  /** matchId → prediction for knockout matches (R32/R16/QF/SF/F/3rd-place). */
+  readonly knockoutPredictions: Record<string, MatchPrediction>;
+  /** ISO-8601 timestamp; set when the user submits the bracket as final. */
+  readonly lockedAt?: string;
+  readonly version: number;
 }
 
 // ---------- actual results (for live recalc) ----------

@@ -29,7 +29,14 @@
  */
 
 import type { CascadedBracket } from "./cascade.js";
-import type { BracketPrediction, KnockoutFixture, Tournament } from "./tournament.js";
+import type {
+  BracketPrediction,
+  KnockoutFixture,
+  MatchPrediction,
+  StageId,
+  TeamId,
+  Tournament,
+} from "./tournament.js";
 
 // ---------- multipliers ----------
 
@@ -298,3 +305,173 @@ function derivePreTournamentImplied(
     awayTeam.pre_tournament_implied_win,
   );
 }
+
+// ---------- per-match scoring (docs/30) ----------
+
+/**
+ * Base correctness points per docs/30. The legacy long-shot model in
+ * `scorePick` is still used for downstream cascade scoring; the per-match
+ * model below is for the user-facing per-match-prediction game.
+ */
+export const BASE_POINTS = {
+  group_outcome: 50,
+  group_exact_score: 200,
+  group_first_place: 100,
+  group_second_place: 50,
+  knockout: {
+    r32: 200,
+    r16: 400,
+    qf: 800,
+    sf: 1500,
+    f: 3000,
+  },
+  tournament_winner: 3000,
+  top_scorer: 2000,
+} as const;
+
+/**
+ * The early-lock multiplier from docs/30:
+ *
+ *   lock_mult(t) = 1.0 + 4.0 × exp(-3 × (t / window))
+ *
+ * `t` is "time since the user last touched the pick" (so a freshly
+ * locked-in pick has small t and high multiplier). `window` is the time
+ * from "draw + 24h" to the moment the pick's outcome window opens
+ * (kickoff for that pick's match). The multiplier is capped at 5.0×.
+ *
+ * Inputs are seconds. If the user touched the pick *after* the window
+ * opens (negative `t`), the multiplier is clamped to 1.0×.
+ */
+export function lockMultiplier(secondsSinceLock: number, windowSeconds: number): number {
+  if (secondsSinceLock <= 0) return 5.0; // touched at draw → maximum
+  if (secondsSinceLock >= windowSeconds) return 1.0; // at-or-after kickoff
+  const raw = 1.0 + 4.0 * Math.exp((-3 * secondsSinceLock) / windowSeconds);
+  return Math.min(5.0, Math.max(1.0, raw));
+}
+
+/**
+ * Contrarian multiplier table from docs/30. Applied only to *correct*
+ * picks; incorrect picks always score zero so the multiplier doesn't
+ * matter on the wrong side.
+ */
+export function contrarianMultiplier(impliedAtLock: number): number {
+  if (impliedAtLock > 0.5) return 1.0;
+  if (impliedAtLock >= 0.3) return 1.25;
+  if (impliedAtLock >= 0.15) return 1.75;
+  if (impliedAtLock >= 0.05) return 2.5;
+  return 4.0;
+}
+
+export interface MatchScoreInput {
+  readonly stage: StageId;
+  /** "home_win" | "draw" | "away_win" — predicted outcome. */
+  readonly predictedOutcome: MatchPrediction["outcome"];
+  readonly actualOutcome: MatchPrediction["outcome"];
+  readonly predictedHomeScore?: number;
+  readonly predictedAwayScore?: number;
+  readonly actualHomeScore?: number;
+  readonly actualAwayScore?: number;
+  /** Polymarket implied probability of the predicted outcome at lock time. */
+  readonly impliedAtLock: number;
+  /** Seconds elapsed from "draw + 24h" to the lock time. */
+  readonly secondsSinceLock: number;
+  /** Length of the lock-window (draw → match kickoff), in seconds. */
+  readonly windowSeconds: number;
+}
+
+export interface MatchScoreBreakdown {
+  readonly basePoints: number;
+  readonly outcomeCorrect: boolean;
+  readonly exactScoreCorrect: boolean;
+  readonly lockMult: number;
+  readonly contrarianMult: number;
+  readonly raw: number;
+  readonly pointsAwarded: number;
+}
+
+/**
+ * Score one group-stage match prediction per the docs/30 formula:
+ *
+ *   score = base × lock_mult × contrarian_mult
+ *
+ * `base` is `group_outcome` (50) for a correct outcome plus
+ * `group_exact_score` (200) extra when the exact score is also correct.
+ * Wrong outcome → score is 0.
+ */
+export function scoreGroupMatchPrediction(input: MatchScoreInput): MatchScoreBreakdown {
+  const outcomeCorrect = input.predictedOutcome === input.actualOutcome;
+  const exactScoreCorrect =
+    outcomeCorrect &&
+    typeof input.predictedHomeScore === "number" &&
+    typeof input.predictedAwayScore === "number" &&
+    input.predictedHomeScore === input.actualHomeScore &&
+    input.predictedAwayScore === input.actualAwayScore;
+  const basePoints = outcomeCorrect
+    ? BASE_POINTS.group_outcome + (exactScoreCorrect ? BASE_POINTS.group_exact_score : 0)
+    : 0;
+  const lockMult = lockMultiplier(input.secondsSinceLock, input.windowSeconds);
+  const contrarianMult = contrarianMultiplier(input.impliedAtLock);
+  const raw = basePoints * lockMult * contrarianMult;
+  return {
+    basePoints,
+    outcomeCorrect,
+    exactScoreCorrect,
+    lockMult,
+    contrarianMult,
+    raw,
+    pointsAwarded: Math.round(raw),
+  };
+}
+
+export interface KnockoutMatchScoreInput {
+  readonly stage: Exclude<StageId, "group">;
+  readonly predictedWinner: TeamId;
+  readonly actualWinner: TeamId;
+  readonly impliedAtLock: number;
+  readonly secondsSinceLock: number;
+  readonly windowSeconds: number;
+}
+
+/**
+ * Score one knockout-match pick. Same formula structure as group-match
+ * scoring, but the base flips to the round-specific value
+ * (200/400/800/1500/3000) and there's no exact-score concept (knockouts
+ * resolve via ET + pens which we don't ask the user to predict).
+ */
+export function scoreKnockoutMatchPrediction(input: KnockoutMatchScoreInput): MatchScoreBreakdown {
+  const outcomeCorrect = input.predictedWinner === input.actualWinner;
+  const basePoints = outcomeCorrect ? BASE_POINTS.knockout[input.stage] ?? 0 : 0;
+  const lockMult = lockMultiplier(input.secondsSinceLock, input.windowSeconds);
+  const contrarianMult = contrarianMultiplier(input.impliedAtLock);
+  const raw = basePoints * lockMult * contrarianMult;
+  return {
+    basePoints,
+    outcomeCorrect,
+    exactScoreCorrect: false,
+    lockMult,
+    contrarianMult,
+    raw,
+    pointsAwarded: Math.round(raw),
+  };
+}
+
+export interface GroupStandingPlacementScoreInput {
+  readonly position: 1 | 2;
+  readonly predictedTeam: TeamId;
+  readonly actualTeam: TeamId;
+}
+
+/**
+ * Score a single group-standings placement (1st or 2nd). The base values
+ * come from docs/30 (100 / 50). Multipliers don't apply because the
+ * placement is a derived prediction — the lock-time and contrarian
+ * multipliers were already applied to the matches that *produced* the
+ * standings.
+ */
+export function scoreGroupPlacement(input: GroupStandingPlacementScoreInput): number {
+  if (input.predictedTeam !== input.actualTeam) return 0;
+  return input.position === 1
+    ? BASE_POINTS.group_first_place
+    : BASE_POINTS.group_second_place;
+}
+
