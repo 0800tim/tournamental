@@ -1,0 +1,10 @@
+# Rendered clips are content-addressed by SHA — reproducible from inputs,
+# never committed.
+data/clips/*.mp4
+data/clips/*.jpg
+data/clips/*.webp
+data/clips/*.png
+
+# tsc build artefacts.
+dist/
+*.tsbuildinfo
