@@ -1,0 +1,21 @@
+{
+  "_meta": {
+    "match_id": "fifa-wc-2022-final-arg-fra-2022-12-18",
+    "currency": "implied_probability",
+    "source": "Pinnacle / Bet365 / Betfair pre-match closing line consensus, 2022-12-18 (rounded)",
+    "method_for_in_game": "Score-state Bayesian update of pre-match implied probabilities; in-game numbers are MODELLED, not sourced.",
+    "generated_at": "2026-05-09T05:30:00Z",
+    "note": "Placeholder for the AR-FR demo. Issue #8 ships verified historic odds; this file is the visual scaffold meanwhile."
+  },
+  "snapshots": [
+    { "t_ms":       0, "label":"kickoff",          "decimal":{"team_0_win":2.55,"draw":3.20,"team_1_win":2.70}, "implied_probability":{"team_0_win":0.392,"draw":0.313,"team_1_win":0.370} },
+    { "t_ms": 1380000, "label":"after Messi 1-0",  "decimal":{"team_0_win":1.85,"draw":3.80,"team_1_win":4.50}, "implied_probability":{"team_0_win":0.541,"draw":0.263,"team_1_win":0.222} },
+    { "t_ms": 2160000, "label":"after Di María 2-0","decimal":{"team_0_win":1.30,"draw":5.50,"team_1_win":12.0}, "implied_probability":{"team_0_win":0.769,"draw":0.182,"team_1_win":0.083} },
+    { "t_ms": 4800000, "label":"after Mbappé 2-1 pen","decimal":{"team_0_win":1.55,"draw":4.20,"team_1_win":7.00}, "implied_probability":{"team_0_win":0.645,"draw":0.238,"team_1_win":0.143} },
+    { "t_ms": 4860000, "label":"after Mbappé 2-2", "decimal":{"team_0_win":3.10,"draw":2.40,"team_1_win":3.40}, "implied_probability":{"team_0_win":0.323,"draw":0.417,"team_1_win":0.294} },
+    { "t_ms": 5400000, "label":"end of regulation","decimal":{"team_0_win":3.10,"draw":2.40,"team_1_win":3.40}, "implied_probability":{"team_0_win":0.323,"draw":0.417,"team_1_win":0.294} },
+    { "t_ms": 6480000, "label":"after Messi 3-2 ET","decimal":{"team_0_win":1.40,"draw":1.0e9,"team_1_win":3.50}, "implied_probability":{"team_0_win":0.714,"draw":0.000,"team_1_win":0.286} },
+    { "t_ms": 7080000, "label":"after Mbappé 3-3 ET pen","decimal":{"team_0_win":2.05,"draw":1.0e9,"team_1_win":1.85}, "implied_probability":{"team_0_win":0.488,"draw":0.000,"team_1_win":0.512} },
+    { "t_ms": 7200000, "label":"pre-shootout",     "decimal":{"team_0_win":2.05,"draw":1.0e9,"team_1_win":1.85}, "implied_probability":{"team_0_win":0.488,"draw":0.000,"team_1_win":0.512} }
+  ]
+}

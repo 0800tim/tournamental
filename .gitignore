@@ -10,3 +10,6 @@ __pycache__/
 .uv/
 *.pyc
 *.tsbuildinfo
+
+# Generated AR-FR replay (regenerate via apps/statsbomb-replay)
+apps/web/public/data/arfr-stream/
