@@ -7,13 +7,27 @@ interface Props {
   title?: string;
   description?: string;
   ogImage?: string;
+  /**
+   * Optional explicit og:image dimensions; default to the standard 1200x630
+   * card size produced by `@vtorn/social-cards`. Telegram and LinkedIn rely
+   * on these to pick the preview at scale.
+   */
+  ogImageWidth?: number;
+  ogImageHeight?: number;
 }
 
 const {
   title = "VTourn — predict the world's biggest matches with your friends",
   description = "Watch the FIFA World Cup, Six Nations, the Cricket World Cup and any other tournament play out in 3D, predict outcomes for points, run your own pool at yourname.vtourn.com, and climb a global leaderboard.",
   ogImage = "/og-default.png",
+  ogImageWidth = 1200,
+  ogImageHeight = 630,
 } = Astro.props;
+
+const canonicalUrl = Astro.url.href.replace(/\/$/, "");
+const absoluteOgImage = ogImage.startsWith("http")
+  ? ogImage
+  : new URL(ogImage, Astro.site ?? "https://vtourn.com").toString();
 ---
 <!doctype html>
 <html lang="en">
@@ -26,12 +40,24 @@ const {
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImage} />
+    <meta property="og:image" content={absoluteOgImage} />
+    <meta property="og:image:width" content={String(ogImageWidth)} />
+    <meta property="og:image:height" content={String(ogImageHeight)} />
+    <meta property="og:image:alt" content={title} />
     <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="VTourn" />
+    <meta property="og:locale" content="en_NZ" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <link rel="canonical" href={Astro.url.href.replace(/\/$/, "")} />
+    <meta name="twitter:image" content={absoluteOgImage} />
+    <meta name="twitter:image:alt" content={title} />
+    <meta name="twitter:site" content="@vtourn" />
+    {/* Telegram link previews read og:* + twitter:image; the explicit tag below
+        is honoured by Telegram's instant-view legacy spec. */}
+    <meta name="telegram:channel" content="@vtourn" />
+    <link rel="canonical" href={canonicalUrl} />
     <meta name="theme-color" content="#0a0e1a" />
     <meta name="color-scheme" content="dark" />
   </head>
