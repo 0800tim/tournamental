@@ -2,9 +2,9 @@
 id: 0003
 title: Avatar pipeline (packages/avatar + apps/web/public assets)
 owner: agent:avatar
-status: in-progress
+status: done
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-09  # closed
 priority: P0
 labels: [demo-critical-path, assets, three-js]
 links:

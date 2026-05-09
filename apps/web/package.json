@@ -5,9 +5,9 @@
   "description": "VTorn 3D match renderer (Next.js + React Three Fiber)",
   "type": "module",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev -p 3300",
     "build": "next build",
-    "start": "next start -p 3000",
+    "start": "next start -p 3300",
     "lint": "next lint --dir app --dir components --dir lib --dir __tests__",
     "test": "vitest run",
     "test:watch": "vitest",

@@ -2,9 +2,9 @@
 id: 0004
 title: Mock producer (apps/mock-producer)
 owner: agent:mock-producer
-status: in-progress
+status: done
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-09  # closed
 priority: P0
 labels: [demo-critical-path, producer, node-ts]
 links:

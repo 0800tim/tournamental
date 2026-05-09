@@ -2,9 +2,9 @@
 id: 0007
 title: Merge infra/conventions PR
 owner: orchestrator
-status: blocked
+status: done
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-09  # closed
 priority: P1
 labels: [infra, ops]
 links:
