@@ -1,0 +1,52 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout
+  title="Get started · VTourn"
+  description="Pick the path that fits: a player, a syndicate host, or a developer building on the platform."
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Get started"
+      title="Pick your path. Five minutes either way."
+    />
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <a href="/how-it-works" class="card hover:border-accent-500 transition group">
+        <span class="pill mb-3">Players</span>
+        <h3 class="text-xl font-bold text-white group-hover:text-accent-400">Sign up &amp; predict</h3>
+        <p class="text-ink-200 mt-2">Make your first call in under five minutes. Build an IQ. Climb the global board.</p>
+      </a>
+      <a href="/syndicates" class="card hover:border-accent-500 transition group">
+        <span class="pill mb-3">Hosts</span>
+        <h3 class="text-xl font-bold text-white group-hover:text-accent-400">Claim a subdomain</h3>
+        <p class="text-ink-200 mt-2">Set up <code>yourname.vtourn.com</code> for your office, family, or fan club. Free to host.</p>
+      </a>
+      <a href="/open-source" class="card hover:border-accent-500 transition group">
+        <span class="pill mb-3">Developers</span>
+        <h3 class="text-xl font-bold text-white group-hover:text-accent-400">Build on the SDK</h3>
+        <p class="text-ink-200 mt-2"><code>npm i @vtourn/sdk</code> or <code>npx @vtourn/mcp</code>. Drop the renderer into your app.</p>
+      </a>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-4">Onboarding prompt library (LLM-driven)</h3>
+    <p class="text-ink-200 mb-6 max-w-prose">Paste any of these into Claude / Cursor / ChatGPT. They walk you through claiming a syndicate, configuring scoring, sharing, and going live — using either the API directly or our MCP server.</p>
+    <ul class="space-y-3">
+      <li class="card"><strong class="text-white">00</strong> · Claim your syndicate · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/00-claim-your-syndicate.md</a></li>
+      <li class="card"><strong class="text-white">01</strong> · Pick a tournament · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/01-pick-a-tournament.md</a></li>
+      <li class="card"><strong class="text-white">02</strong> · Configure scoring · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/02-configure-scoring.md</a></li>
+      <li class="card"><strong class="text-white">03</strong> · Share &amp; grow · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/03-share-and-grow.md</a></li>
+      <li class="card"><strong class="text-white">04</strong> · Host toolkit · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/04-host-toolkit.md</a></li>
+      <li class="card"><strong class="text-white">05</strong> · Developer quickstart · <a href="https://github.com/0800tim/vtorn/tree/main/prompts/onboarding" class="link">prompts/onboarding/05-developer-quickstart.md</a></li>
+    </ul>
+    <p class="text-ink-500 text-sm mt-4">The library is being filled in this sprint. Expect more prompts and copy buttons here within a few days.</p>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h3 class="text-xl font-bold text-white">Talk to a human</h3>
+    <p class="prose-vt">Email <a href="mailto:hello@vtourn.com" class="link">hello@vtourn.com</a> or DM the project on the GitHub repo. We're a small team based in Aotearoa and we read everything.</p>
+  </section>
+</Layout>

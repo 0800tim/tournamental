@@ -1,0 +1,69 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout
+  title="Contribute · VTourn"
+  description="How to ship code, docs, designs, or producer integrations to VTourn. PR workflow, review checklist, and the Drips Network revenue share for merged work."
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Contribute"
+      title="Ship something. Get paid."
+      lede="VTourn contributors share platform revenue via the Drips Network. Merge a PR, get the receipt, opt in once, and you're on the next quarterly payout."
+    />
+    <div class="flex flex-wrap gap-3">
+      <a href="https://github.com/0800tim/vtorn" class="btn-primary">Repo</a>
+      <a href="https://github.com/0800tim/vtorn/blob/main/CONTRIBUTING.md" class="btn-ghost">CONTRIBUTING.md</a>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-4">Five ways to help right now</h3>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card">
+        <h4 class="font-bold text-white">Ship a new producer</h4>
+        <p class="text-ink-200 mt-2">Bring your favourite tournament onto the spec — cricket (IPL), F1, NBA, MMA. <code>apps/&lt;sport&gt;-producer/</code>. Same wire protocol, same renderer.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Improve the renderer</h4>
+        <p class="text-ink-200 mt-2">Better animations, better lighting, smarter cameras. The codebase is small and the visible-impact-per-line ratio is incredibly high.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Translate the docs</h4>
+        <p class="text-ink-200 mt-2">CC-BY 4.0 means anyone can. We boost translated docs in search, drive traffic from your country, and credit the translator on the page.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Build an integration</h4>
+        <p class="text-ink-200 mt-2">Discord bot, Slack bot, Notion sync, Linear sync. Build it on top of <code>@vtourn/sdk</code>. Sign-on the affiliate revenue share.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Audit the spec</h4>
+        <p class="text-ink-200 mt-2">Spot a missing event type. Spot a coordinate-system bug. File an issue. Spec changes are gated through a single maintainer (the orchestrator) so impact is contained.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Smart-contract review</h4>
+        <p class="text-ink-200 mt-2">Phase 2 brings on-chain prize pools (per <a href="https://github.com/0800tim/vtorn/blob/main/docs/21-onchain-sweepstakes-oracle.md" class="link">doc 21</a>). If you're a Solidity / formal-methods person, this is where we need real eyes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-4">The flow</h3>
+    <ol class="space-y-4">
+      <li class="card flex gap-4"><div class="text-accent-400 font-mono text-sm w-8 shrink-0">01</div><div><h4 class="font-bold text-white">Find work that matches you</h4><p class="text-ink-200 mt-2">Open issues are tagged <code>good-first-issue</code>, <code>help-wanted</code>, or <code>agent:&lt;name&gt;</code> for AI-driven contribution. The orchestrator triages weekly.</p></div></li>
+      <li class="card flex gap-4"><div class="text-accent-400 font-mono text-sm w-8 shrink-0">02</div><div><h4 class="font-bold text-white">Branch + session note</h4><p class="text-ink-200 mt-2">Conventional Commits. DCO-signed (<code>git commit -s</code>). Drop a short note in <code>sessions/&lt;date&gt;_&lt;name&gt;_&lt;task&gt;.md</code> explaining what you're doing and why.</p></div></li>
+      <li class="card flex gap-4"><div class="text-accent-400 font-mono text-sm w-8 shrink-0">03</div><div><h4 class="font-bold text-white">CI + reviewer agent</h4><p class="text-ink-200 mt-2">CI runs lint, typecheck, tests, secret-scan, DCO check. A reviewer agent picks up the PR, runs the full <code>CONTRIBUTING.md</code> checklist, and either approves or requests changes — usually within an hour.</p></div></li>
+      <li class="card flex gap-4"><div class="text-accent-400 font-mono text-sm w-8 shrink-0">04</div><div><h4 class="font-bold text-white">Orchestrator merge</h4><p class="text-ink-200 mt-2">Squash-merge after reviewer approval. Your contribution is in <code>main</code> within minutes.</p></div></li>
+      <li class="card flex gap-4"><div class="text-accent-400 font-mono text-sm w-8 shrink-0">05</div><div><h4 class="font-bold text-white">Quarterly payout</h4><p class="text-ink-200 mt-2">Register a USDC address (or skip — many contributors prefer not to receive payments). The contribution-scorer auto-weights merged work and the next quarterly Drip List update lands payouts on-chain.</p></div></li>
+    </ol>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h2 class="text-2xl font-bold text-white">Code of conduct</h2>
+    <p class="prose-vt">Be kind. Critique code, not people. Disagreements are resolved by reference to the docs first, then by the maintainer's call. We follow the <a href="https://www.contributor-covenant.org/version/2/1/code_of_conduct/" class="link">Contributor Covenant 2.1</a>.</p>
+
+    <h2 class="text-2xl font-bold text-white mt-10">No unpaid hero work</h2>
+    <p class="prose-vt">Contributing should compound for you. We score every merged PR — lines, complexity, downstream usage — and the score determines your share of the next payout. If a project this open and broad doesn't reward you for what you build, we're doing it wrong.</p>
+  </section>
+</Layout>

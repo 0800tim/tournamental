@@ -1,0 +1,80 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+const useCases = [
+  {
+    title: "Office sweepstake",
+    body: "Twelve people, one ladder, $10 entry, the usual. Pin your subdomain in the channel and stop chasing predictions on the back of an envelope.",
+  },
+  {
+    title: "Friends WhatsApp pool",
+    body: "The chat where you've been calling matches for years finally has a permanent record. Top-of-table earns rights for the whole next tournament.",
+  },
+  {
+    title: "Influencer / creator group",
+    body: "Run a public syndicate under your own brand. Followers join, predict, share. You earn referral credit and surface your own affiliate links.",
+  },
+  {
+    title: "Fan club / supporters trust",
+    body: "Five hundred members, one season-long ladder, club-coloured branding. Tickets and merch as rewards. Settle the prize draw verifiably on-chain when phase 2 ships.",
+  },
+];
+
+const features = [
+  { title: "Custom subdomain", body: "yourname.vtourn.com — fuzzy matching catches typos, reserved words protected." },
+  { title: "Custom branding", body: "Logo, colours, tagline. Surfaces on every leaderboard, share card, and digest email." },
+  { title: "Format flexibility", body: "Winner-takes-all, podium, season ladder, knockout. Toggle as the tournament evolves." },
+  { title: "Off-platform settlement", body: "You handle the money however you already do. We track scores; the cash is between you." },
+  { title: "Auto-share", body: "Goal clips, leaderboard climbs, badges — auto-generated share cards land in your members' inboxes." },
+  { title: "Telegram + WhatsApp invite", body: "One-click bulk invite. Members onboard in seconds via the bot of their choice." },
+  { title: "CSV import", body: "Bulk-add entries from a spreadsheet. We dedupe, we normalise, we email." },
+  { title: "Dispute log", body: "Every settlement decision is logged with a signed receipt members can audit. No more arguments." },
+];
+---
+<Layout
+  title="Run your own pool · VTourn syndicates"
+  description="Office sweepstakes, friend pools, fan clubs, creator groups — every host gets their own branded subdomain, leaderboard, and toolkit."
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Syndicates"
+      title="Anyone can host. Anyone can join."
+      lede="A syndicate is your private VTourn. Your branding, your members, your scoring rules. Free to run. Real-money handled offline by you. We never touch funds we aren't authorised to hold."
+    />
+    <div class="flex flex-wrap gap-3">
+      <a href="/start" class="btn-primary">Claim a subdomain</a>
+      <a href="/world-cup-2026" class="btn-ghost">Plan around the World Cup</a>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-6">Who's already setting one up</h3>
+    <div class="grid md:grid-cols-2 gap-6">
+      {useCases.map((u) => (
+        <div class="card">
+          <h4 class="text-lg font-bold text-white">{u.title}</h4>
+          <p class="text-ink-200 mt-2">{u.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-6">What you get</h3>
+    <div class="grid-cards">
+      {features.map((f) => (
+        <div class="card">
+          <h4 class="font-bold text-white">{f.title}</h4>
+          <p class="text-ink-200 mt-2 text-sm">{f.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h3 class="text-xl font-bold text-white mb-3">Real money — read this carefully</h3>
+    <p class="prose-vt">VTourn is a free-to-play prediction game with an off-platform settlement model. Hosts running a real-money pool are the prize sponsor and the settler — VTourn provides the predictions ledger and the leaderboard, you arrange the cash. This keeps us out of regulated-gambling territory in most jurisdictions and keeps the platform free for the millions of people who just want to call matches with their friends.</p>
+    <p class="prose-vt">Phase 2 brings audited on-chain prize pools via our open <a href="/open-source" class="link">VTornOracle</a> spec for groups that want trustless settlement. The audit is a 6-10 week, $30-80k engagement and lands when revenue justifies it.</p>
+  </section>
+</Layout>

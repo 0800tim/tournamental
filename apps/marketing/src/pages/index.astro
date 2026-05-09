@@ -1,0 +1,92 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Hero from "@/components/Hero.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout>
+  <Hero />
+
+  <!-- Three pillars -->
+  <section class="container-page py-12">
+    <div class="grid-cards">
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">01</div>
+        <h3 class="text-xl font-bold text-white mt-2">Predict</h3>
+        <p class="text-ink-200 mt-3">Pick winners, scorers, scorelines, special markets. Lock predictions before kickoff. Earn points for accuracy and a Prediction IQ score that only goes up over time.</p>
+      </article>
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">02</div>
+        <h3 class="text-xl font-bold text-white mt-2">Watch</h3>
+        <p class="text-ink-200 mt-3">Live 3D replay of the actual match — pitch, players, ball, scoreboard, commentary. Drag the timeline. Jump to the 25th minute. Score updates as you scrub.</p>
+      </article>
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">03</div>
+        <h3 class="text-xl font-bold text-white mt-2">Compete</h3>
+        <p class="text-ink-200 mt-3">Global leaderboards by tournament, country, and friend group. Earn badges, win bonus tokens, get personalised goal clips you can share — referrals turn into real platform credit.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Syndicates pitch -->
+  <section class="container-page py-12">
+    <SectionHeading
+      eyebrow="Syndicates"
+      title="Run your own pool at yourname.vtourn.com"
+      lede="An office sweepstake. A friends' WhatsApp pool. A 5,000-person fan group. VTourn gives every host their own subdomain, theme, and leaderboard. You handle the money offline however you like — we keep the predictions and the stats."
+    />
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">Configurable formats</h3>
+        <p class="text-ink-200 mt-2">Winner-takes-all. Gold/silver/bronze. Season-long ladder. Knockout brackets. Free-to-play with bragging rights, or real-money handled by you.</p>
+      </div>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">Branded surfaces</h3>
+        <p class="text-ink-200 mt-2">Your logo, your colours, your tagline — on the leaderboard, the share cards, the email digests. Friends never need to know "VTourn" exists.</p>
+      </div>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">No platform middleman</h3>
+        <p class="text-ink-200 mt-2">Free for hosts. Real-money pools settle off-platform. We never touch funds we aren't authorised to hold — that's how we stay clean of regulated-gambling territory.</p>
+      </div>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">Built-in tooling</h3>
+        <p class="text-ink-200 mt-2">CSV import for entries. One-click invite via Telegram, WhatsApp, email. Auto-generated dispute receipts. Settlement clip you can post in the group on win-day.</p>
+      </div>
+    </div>
+    <div class="mt-8 flex gap-3">
+      <a href="/syndicates" class="btn-primary">Start a syndicate</a>
+      <a href="/influencers" class="btn-ghost">For influencers</a>
+    </div>
+  </section>
+
+  <!-- Open source banner -->
+  <section class="container-page py-12">
+    <div class="card border-accent-700/60 bg-gradient-to-br from-ink-800 to-ink-900">
+      <div class="grid md:grid-cols-3 gap-6 items-center">
+        <div class="md:col-span-2">
+          <span class="pill mb-3">Open source</span>
+          <h3 class="text-2xl font-bold text-white">Apache 2.0. Contributors share platform revenue.</h3>
+          <p class="text-ink-200 mt-3 max-w-prose">Every line of code, every doc, every spec is on GitHub. Build your own predictions product on top, fork the renderer, ship a tournament integration. Merged contributors opt in to a continuous USDC revenue share via the Drips Network.</p>
+        </div>
+        <div class="flex md:flex-col gap-3">
+          <a href="https://github.com/0800tim/vtorn" class="btn-primary">View the repo</a>
+          <a href="/contribute" class="btn-ghost">How to contribute</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- World Cup CTA -->
+  <section class="container-page py-12 mb-20">
+    <div class="rounded-2xl border border-accent-700/60 bg-accent-700/10 p-8 md:p-12 grid md:grid-cols-3 gap-8 items-center">
+      <div class="md:col-span-2">
+        <span class="pill mb-3">Coming June 2026</span>
+        <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">The Global World Cup Championship is the perfect time to start.</h3>
+        <p class="mt-4 text-ink-200">Six weeks. 48 teams. 104 matches. One global leaderboard. Set up your syndicate now and you'll be ready when the first whistle blows.</p>
+      </div>
+      <div class="flex md:flex-col gap-3">
+        <a href="/world-cup-2026" class="btn-primary">World Cup playbook</a>
+        <a href="/start" class="btn-ghost">Get started</a>
+      </div>
+    </div>
+  </section>
+</Layout>

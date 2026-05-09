@@ -1,0 +1,45 @@
+---
+const demoUrl = "https://vtorn.aiva.nz/match/fifa-wc-2022-final-arg-fra-2022-12-18";
+---
+<section class="container-page pt-16 pb-12 md:pt-24 md:pb-20">
+  <div class="grid lg:grid-cols-2 gap-10 items-center">
+    <div>
+      <span class="pill mb-6">Live demo: Argentina vs France, 2022 Final</span>
+      <h1 class="font-display text-4xl md:text-6xl font-extrabold leading-tight text-white">
+        Predict the matches that matter.
+        <span class="text-accent-400">Watch them play out in 3D.</span>
+        Bring your friends.
+      </h1>
+      <p class="mt-6 text-lg text-ink-200 max-w-prose">
+        VTourn is a global tournament prediction game with a verified, 3D match-renderer watch-along. Make a call, see the goals replay, climb the leaderboard. Spin up a private pool at <strong class="text-white">yourname.vtourn.com</strong> for your office, your group chat, or the world.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href={demoUrl} class="btn-primary">Watch the AR-FR replay</a>
+        <a href="/how-it-works" class="btn-ghost">How it works</a>
+      </div>
+      <p class="mt-6 text-sm text-ink-500">100% open source · Apache 2.0 · contributors share platform revenue.</p>
+    </div>
+    <div class="relative">
+      <a href={demoUrl} class="block group" aria-label="Open the live AR-FR demo">
+        <div class="aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
+          <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-emerald-500/20 to-accent-700/40"></div>
+          <div class="absolute inset-0 grid place-items-center">
+            <div class="text-center px-6">
+              <div class="font-display text-2xl md:text-3xl font-extrabold text-white tracking-tight">Argentina <span class="text-accent-400">3</span> – <span class="text-flame-400">3</span> France</div>
+              <div class="text-ink-200 text-sm mt-2">Penalties: 4–2 to Argentina · 18 December 2022</div>
+              <div class="mt-6 inline-flex items-center gap-2 text-accent-400 group-hover:text-white transition">
+                <span class="font-semibold">Open the live replay</span>
+                <span aria-hidden>→</span>
+              </div>
+            </div>
+          </div>
+          <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
+        </div>
+      </a>
+      <div class="mt-3 flex items-center gap-2 text-xs text-ink-500">
+        <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Streaming live from this dev server. Click to watch.
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  html {
+    background-color: theme(colors.ink.900);
+    color: theme(colors.ink.100);
+    font-family: theme(fontFamily.sans);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse at 50% -10%, rgba(126, 182, 232, 0.10), transparent 60%),
+      radial-gradient(ellipse at 110% 110%, rgba(255, 138, 61, 0.06), transparent 50%);
+  }
+  ::selection {
+    background-color: theme(colors.accent.500 / 30%);
+    color: theme(colors.ink.50);
+  }
+  a {
+    @apply transition-colors;
+  }
+  h1, h2, h3, h4 {
+    font-family: theme(fontFamily.display);
+    letter-spacing: -0.015em;
+  }
+  code {
+    @apply font-mono text-[0.92em] rounded bg-ink-700 px-1.5 py-0.5;
+  }
+  pre {
+    @apply font-mono rounded-lg bg-ink-800 border border-ink-700 p-4 overflow-x-auto;
+  }
+  pre code {
+    @apply bg-transparent p-0;
+  }
+}
+
+@layer components {
+  .container-prose {
+    @apply mx-auto max-w-prose px-6;
+  }
+  .container-page {
+    @apply mx-auto max-w-5xl px-6;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-5 py-3 font-semibold transition;
+  }
+  .btn-primary {
+    @apply btn bg-accent-500 text-ink-900 hover:bg-accent-400;
+  }
+  .btn-ghost {
+    @apply btn border border-ink-600 text-ink-100 hover:border-accent-400 hover:text-accent-400;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full border border-ink-600 bg-ink-800 px-3 py-1 text-xs uppercase tracking-wider text-ink-200;
+  }
+  .card {
+    @apply rounded-xl border border-ink-700 bg-ink-800/60 p-6;
+  }
+  .grid-cards {
+    @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3;
+  }
+  .link {
+    @apply text-accent-400 hover:text-accent-500 underline underline-offset-4 decoration-accent-700/60 hover:decoration-accent-500;
+  }
+  .prose-vt {
+    @apply text-ink-100 leading-relaxed;
+  }
+  .prose-vt h2 {
+    @apply mt-12 mb-4 text-2xl md:text-3xl font-bold text-white;
+  }
+  .prose-vt h3 {
+    @apply mt-8 mb-3 text-xl font-semibold text-ink-50;
+  }
+  .prose-vt p {
+    @apply my-4 text-ink-200;
+  }
+  .prose-vt ul {
+    @apply list-disc pl-6 space-y-2 text-ink-200;
+  }
+  .prose-vt ol {
+    @apply list-decimal pl-6 space-y-2 text-ink-200;
+  }
+  .prose-vt strong {
+    @apply text-ink-50;
+  }
+}

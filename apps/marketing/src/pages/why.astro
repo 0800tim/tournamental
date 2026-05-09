@@ -1,0 +1,43 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout
+  title="Why VTourn exists"
+  description="Why we're building a verified, open-source tournament prediction game with a 3D watch-along, and why now."
+>
+  <article class="container-prose pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Why VTourn exists"
+      title="Predictions are the reason people watch sport."
+      lede="Every brain in the stadium is running a prediction. Every group chat is full of them. Every betting market is a billion-dollar version of them. We just want to count them properly, render them beautifully, and give the people making them the credit they deserve."
+    />
+
+    <div class="prose-vt mt-8">
+      <h2>Sport is already a global prediction game</h2>
+      <p>People predict every match they care about. Most of those predictions are forgotten the moment they're spoken. The sportsbook industry has built a $400 billion machine on the few that get formalised — and almost none of that value flows back to the fans, the analysts, the friends who called it three weeks ago.</p>
+
+      <h2>The watch-along has been broken for years</h2>
+      <p>Live broadcasts cost a fortune in rights, geo-block half the world, and treat the audience as passive consumers of an ad-funded feed. Live data feeds and 3D engines are now cheap and good enough that any community can render its own watch party. We ship the renderer and the protocol, anyone can plug a producer into it.</p>
+
+      <h2>The prediction loop should be public, verifiable, and rewarded</h2>
+      <p>Every prediction on VTourn is timestamped before kickoff, signed, and verifiable for life. We call this a <strong>VStamp</strong>. Your record can be quoted, used as a credential, or fed into a higher-stakes pool — without anyone needing to trust us.</p>
+
+      <h2>The platform should be a public good</h2>
+      <p>VTourn is open source under Apache 2.0. The docs are CC-BY 4.0. Every contributor opts in to a continuous USDC revenue share via the Drips Network. We don't believe a category-defining piece of cultural infrastructure should be owned by a single company, and we don't intend to be one.</p>
+
+      <h2>Why now</h2>
+      <ul>
+        <li><strong>3D rendering in the browser is finally good enough</strong> for a 22-player match at 60 fps on a mid-range Android.</li>
+        <li><strong>Real-time data feeds</strong> from open sources (StatsBomb open data; the upcoming SimulatedSports community feeds) cover the major tournaments.</li>
+        <li><strong>L2s</strong> like Arbitrum make verifiable prediction receipts cheap (cents, not dollars).</li>
+        <li><strong>Distribution</strong> via Telegram, WhatsApp, and the open ATProto/ActivityPub web is no longer locked behind one app store's caprice.</li>
+        <li><strong>The next FIFA World Cup is in June 2026</strong> — six weeks of global attention. We need to be ready.</li>
+      </ul>
+
+      <h2>The bet</h2>
+      <p>If we get this right, every group chat, every office, every fan community has a place to lock in their calls and earn the credit when they're right — and the platform that hosts that activity will be entirely open, owned by the people who built it and the people who use it.</p>
+      <p>That's the bet. <a href="/how-it-works" class="link">Here's how it works</a>.</p>
+    </div>
+  </article>
+</Layout>
