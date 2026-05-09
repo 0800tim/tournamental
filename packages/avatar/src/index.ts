@@ -99,3 +99,14 @@ export {
   type RpmAvatarProviderOptions,
   type ClonedRpmAvatar,
 } from "./rpm-loader.js";
+
+export {
+  FootIK,
+  locomotionStance,
+  resolveLegBones,
+  solveTwoBoneAngles,
+  type FootIkOptions,
+  type FootSide,
+  type LegBones,
+  type StanceHint,
+} from "./foot-ik.js";

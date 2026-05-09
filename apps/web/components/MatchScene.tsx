@@ -11,6 +11,7 @@ import { Stadium } from "./Stadium";
 import { Players } from "./Players";
 import { Ball } from "./Ball";
 import { CameraRig, type CameraMode } from "./CameraRig";
+import { Director } from "./Director";
 import { HUD } from "./HUD";
 import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
@@ -42,7 +43,12 @@ export interface MatchSceneProps {
 export function MatchScene({ source, matchId }: MatchSceneProps) {
   const { store, controller } = useRendererStream(source);
   const init = useMatch(store, (s) => s.init);
-  const [mode, setMode] = useState<CameraMode>("broadcast");
+  // Default to "director" — Phase 2 ships the auto-director on by
+  // default. Manual modes (broadcast / tactical / follow) remain
+  // available via the toggle. The CameraRig no-ops while
+  // `director` is selected so the two systems don't fight.
+  const [mode, setMode] = useState<CameraMode>("director");
+  const directorEnabled = mode === "director";
 
   return (
     <FaceProvider>
@@ -87,7 +93,8 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             shadow-bias={-0.0001}
           />
 
-          <CameraRig store={store} mode={mode} />
+          {directorEnabled ? null : <CameraRig store={store} mode={mode} />}
+          <Director store={store} enabled={directorEnabled} />
           <Pitch />
           <Stadium />
           <ContactShadows position={[0, 0.01, 0]} opacity={0.35} blur={2.4} far={50} />
@@ -104,8 +111,17 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
         <div className="camera-toggle">
           <button
             type="button"
+            className={mode === "director" ? "active" : ""}
+            onClick={() => setMode("director")}
+            data-cam="director"
+          >
+            Director
+          </button>
+          <button
+            type="button"
             className={mode === "broadcast" ? "active" : ""}
             onClick={() => setMode("broadcast")}
+            data-cam="broadcast"
           >
             Broadcast
           </button>
@@ -113,6 +129,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             type="button"
             className={mode === "tactical" ? "active" : ""}
             onClick={() => setMode("tactical")}
+            data-cam="tactical"
           >
             Top-down
           </button>
@@ -120,6 +137,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             type="button"
             className={mode === "follow" ? "active" : ""}
             onClick={() => setMode("follow")}
+            data-cam="follow"
           >
             Follow ball
           </button>

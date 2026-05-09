@@ -8,7 +8,7 @@ import type { MatchStore } from "@vtorn/spec-client";
 import { interpolateBall, alphaForNow } from "@/lib/interpolation";
 import { toWorld } from "@/lib/coords";
 
-export type CameraMode = "broadcast" | "tactical" | "follow";
+export type CameraMode = "broadcast" | "tactical" | "follow" | "director";
 
 interface CameraRigProps {
   store: StoreApi<MatchStore>;

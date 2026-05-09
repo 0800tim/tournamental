@@ -15,7 +15,10 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    include: ["__tests__/**/*.test.{ts,tsx}"],
+    include: [
+      "__tests__/**/*.test.{ts,tsx}",
+      "lib/**/test/**/*.test.{ts,tsx}",
+    ],
     // Playwright e2e specs live under __tests__/e2e and use `.e2e.spec.ts`
     // suffix; they are intentionally excluded from vitest because they
     // require a real browser and a dev server.

@@ -15,10 +15,13 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@dimforge/rapier3d-compat": "^0.14.0",
     "@react-three/drei": "^9.114.3",
     "@react-three/fiber": "^8.17.10",
+    "@react-three/rapier": "1.5.0",
     "@resvg/resvg-js": "^2.6.2",
     "@vtorn/avatar": "workspace:*",
+    "@vtorn/ball-physics": "workspace:*",
     "@vtorn/bracket-engine": "workspace:*",
     "@vtorn/spec": "workspace:*",
     "@vtorn/spec-client": "workspace:*",
