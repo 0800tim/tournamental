@@ -1,0 +1,305 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #0c1722;
+  color: #e6edf3;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  height: 100%;
+}
+
+a {
+  color: #6cabdd;
+}
+
+.match-scene,
+.match-scene > div:first-child {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.match-scene > canvas {
+  display: block;
+}
+
+/* HUD */
+.hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-feature-settings: "tnum" 1;
+}
+
+.hud-loading {
+  display: grid;
+  place-items: center;
+}
+
+.hud-card {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+  padding: 16px 24px;
+  font-weight: 600;
+}
+
+.hud-scoreboard {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  background: rgba(8, 14, 22, 0.85);
+  border-radius: 14px;
+  padding: 10px 18px;
+  min-width: 360px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+}
+
+.hud-team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 3px solid transparent;
+  padding: 4px 6px;
+}
+
+.hud-team.home {
+  justify-content: flex-end;
+}
+
+.hud-team-name {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 14px;
+  opacity: 0.85;
+}
+
+.hud-team-score {
+  font-size: 28px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-clock {
+  text-align: center;
+  padding: 0 14px;
+}
+
+.hud-period {
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.hud-clock-display {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+/* Shootout panel */
+.hud-shootout {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(80, 0, 0, 0.85);
+  border-radius: 12px;
+  padding: 8px 18px;
+  text-align: center;
+}
+
+.hud-shootout-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.hud-shootout-score {
+  font-size: 24px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.hud-shootout-ft {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+
+/* Event banner + commentary ticker */
+.hud-event-banner {
+  position: absolute;
+  top: 160px;
+  right: 16px;
+  background: rgba(8, 14, 22, 0.85);
+  border-left: 3px solid #f3b83b;
+  padding: 4px 10px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hud-event-type {
+  font-weight: 700;
+}
+
+.hud-commentary {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 14, 22, 0.85);
+  padding: 8px 18px;
+  border-radius: 8px;
+  max-width: min(720px, 90vw);
+  text-align: center;
+  font-size: 14px;
+}
+
+/* Odds HUD */
+.odds-hud {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: rgba(8, 14, 22, 0.85);
+  border-radius: 10px;
+  padding: 8px 12px;
+  min-width: 140px;
+  font-size: 12px;
+}
+
+.odds-hud-label {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+.odds-hud-row {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Debug panel */
+.debug-panel {
+  position: absolute;
+  bottom: 18px;
+  left: 18px;
+  background: rgba(0, 0, 0, 0.7);
+  border: 1px solid #1d2733;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  min-width: 200px;
+  pointer-events: auto;
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.debug-close {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  background: transparent;
+  border: 0;
+  color: #e6edf3;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.debug-toggle {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #e6edf3;
+  border: 1px solid #1d2733;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  pointer-events: auto;
+}
+
+/* Camera mode toggle */
+.camera-toggle {
+  position: absolute;
+  bottom: 18px;
+  right: 18px;
+  display: flex;
+  gap: 4px;
+  background: rgba(8, 14, 22, 0.85);
+  padding: 4px;
+  border-radius: 10px;
+}
+
+.camera-toggle button {
+  background: transparent;
+  color: #b8c5d3;
+  border: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+.camera-toggle button.active {
+  background: #6cabdd;
+  color: #00153a;
+  font-weight: 700;
+}
+
+/* Landing page */
+.landing {
+  display: grid;
+  place-items: center;
+  height: 100vh;
+  text-align: center;
+  padding: 20px;
+}
+
+.landing h1 {
+  font-size: clamp(36px, 8vw, 96px);
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.landing p {
+  opacity: 0.75;
+  max-width: 640px;
+  line-height: 1.6;
+}
+
+.landing-cta {
+  margin-top: 24px;
+  display: inline-block;
+  background: #6cabdd;
+  color: #00153a;
+  padding: 14px 28px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
