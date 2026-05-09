@@ -13,3 +13,4 @@ __pycache__/
 
 # Generated AR-FR replay (regenerate via apps/statsbomb-replay)
 apps/web/public/data/arfr-stream/
+.claude/worktrees/
