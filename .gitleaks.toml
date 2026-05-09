@@ -1,0 +1,18 @@
+title = "VTourn gitleaks config"
+
+# Extend the bundled default ruleset (don't replace it).
+[extend]
+useDefault = true
+
+# Allowlist:
+#   - .env.example: documentation file with empty/placeholder values.
+#     Real secrets live in .env (gitignored) and the deployment secret store.
+#   - sessions/, docs/: occasional embedded fixtures and doc examples.
+[allowlist]
+description = "Documentation, fixtures, and config templates"
+paths = [
+  '''(^|/)\.env\.example$''',
+  '''(^|/)\.env\.example\.[^/]+$''',
+  '''^docs/.*\.md$''',
+  '''^sessions/.*\.md$''',
+]

@@ -20,6 +20,7 @@
 | App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.vtourn.com`                              | `app.vtourn.com`          |
 | Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.vtourn.com/ws`)  | `wss://app.vtourn.com/ws` |
 | API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtourn.com`                          | `api.vtourn.com`          |
+| Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.vtourn.com`                         | `auth.vtourn.com`         |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -36,6 +37,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/mock-producer`       | 4001 (default) | Same default as statsbomb-replay; only one producer runs at a time during dev. Override with `--port` if running both. |
 | `apps/api`                 | 3310  | Fastify. Tunnel: `vtorn-api.aiva.nz`.                                                |
 | `apps/marketing` (future)  | 3320  | Next.js or Astro. Tunnel: `vtorn-www.aiva.nz`.                                       |
+| `apps/auth-sms`            | 3330  | Fastify (SMS / WhatsApp OTP). Tunnel: `vtorn-auth.aiva.nz`. See [docs/32](32-auth-and-privacy.md). |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 
