@@ -187,3 +187,39 @@ ELEVENLABS_MODEL=eleven_turbo_v2_5
 ## Out of scope
 
 - Magnus tuning, sweat normals, replay HUD, mobile perf pass (Phase 4).
+
+## Phase-3 implementation notes (2026-05-10)
+
+The first cut shipped under `feat/fidelity-phase3-stadium-crowd`. Key
+deltas vs the spec above:
+
+- **Stadium GLBs** — implemented procedurally rather than as authored
+  GLBs. `lib/stadium-geometry.ts` builds a 12-segment ring per tier
+  with parametric inputs (radius / depth / rise / tilt / colour). A
+  hand-authored GLB is parked in `IDEAS.md` for Phase 4 polish.
+- **Crowd atlas** — Phase-3 ships with a flat colour-jittered billboard
+  per stand instead of the 4x8 cheering-frames atlas. The instanced
+  layout (5,000 instances split across four stands and three tiers)
+  and the energy-driven colour shift are all in. Hooking up the
+  sprite atlas is a one-file change in `components/Crowd.tsx` once
+  the PNG corpus exists.
+- **ElevenLabs MP3 corpus** — the manifest endpoint returns an empty
+  `lines: []` array until the offline batch step lands. The
+  client-side scheduling logic (`lib/audio/pre-rendered-track.ts`),
+  scrub-recovery, and mixer ducking are all wired and tested.
+- **Floodlight `SpotLight`** — Phase 3 ships emissive floodlight head
+  geometry (so bloom catches it) but not actual `SpotLight` casting
+  shadows from the corner masts. The existing scene rig (sun
+  directional + hemisphere) carries the lighting load.
+
+The post-FX stack is gated on `?quality=low|medium|high|auto` and a
+single `?fx=off` escape hatch. Default is `auto` which resolves to
+`medium` on mobile UAs and `high` on a desktop with >= 8 GB RAM and
+>= 8 cores.
+
+The director writes `camera.userData.fx.vignette` every frame; the
+post-FX composer reads that to ramp vignette darkness during a
+goal-replay slow-mo cut. The commentary mixer reads
+`camera.userData.directorCam` to duck the commentary track by -8 dB
+when the cam transitions to `goal-replay` and ramps back to nominal
+when it returns to `broadcast`.

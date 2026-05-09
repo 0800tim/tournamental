@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import * as THREE from "three";
 import { ContactShadows, Sky } from "@react-three/drei";
@@ -17,6 +17,9 @@ import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
 import { TimelineScrubber } from "./TimelineScrubber";
 import { PerfMonitor } from "./PerfMonitor";
+import { PostFX } from "./PostFX";
+import { CommentaryAudio } from "./CommentaryAudio";
+import { resolveCurrentQuality } from "@/lib/quality";
 
 export interface MatchSceneProps {
   /** Stream URL or `synthetic` (default). */
@@ -26,19 +29,27 @@ export interface MatchSceneProps {
 }
 
 /**
- * Top-level renderer mount. Owns:
- *   - The Zustand match store + (in manifest mode) the playback controller.
- *   - The R3F Canvas + scene contents.
- *   - The 2D HUD overlay (DOM, not WebGL).
- *   - The camera-mode toggle UI + (in manifest mode) the timeline scrubber.
+ * Top-level renderer mount.
  *
- * Lighting rig: hemisphere (sky/ground) + directional (sun) with PCF soft
- * shadows enabled at the renderer level. Sky comes from drei's
- * procedural `<Sky/>`. Players + ball cast shadows; pitch receives.
+ * Phase-3 additions:
+ *   - Resolves the URL `?quality=` + `?fx=off` flags into a
+ *     `QualityProfile` once on mount; passes it to `<PostFX />`.
+ *   - Mounts `<Stadium />` (now with tiered seating + crowd + LED
+ *     boards), `<PostFX />` (effect composer), `<CommentaryAudio />`
+ *     (mixer + ducking) inside the Canvas.
  *
- * Everything React-render-driven (HUD score / clock) reads via useMatch.
- * Everything 60fps-driven reads from the store inside useFrame to avoid
- * React re-renders on every state frame.
+ * Owns: the Zustand match store + (in manifest mode) the playback
+ * controller; the R3F Canvas + scene contents; the 2D HUD overlay
+ * (DOM, not WebGL); the camera-mode toggle UI + (in manifest mode)
+ * the timeline scrubber.
+ *
+ * Lighting rig: hemisphere (sky/ground) + directional (sun) with PCF
+ * soft shadows enabled at the renderer level. Shadow-map size now
+ * scales with the quality profile (1024 / 2048 / 4096).
+ *
+ * Everything React-render-driven (HUD score / clock) reads via
+ * useMatch. Everything 60fps-driven reads from the store inside
+ * useFrame to avoid React re-renders on every state frame.
  */
 export function MatchScene({ source, matchId }: MatchSceneProps) {
   const { store, controller } = useRendererStream(source);
@@ -49,10 +60,15 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
   // `director` is selected so the two systems don't fight.
   const [mode, setMode] = useState<CameraMode>("director");
   const directorEnabled = mode === "director";
+  // Resolve quality once at mount. We don't react to URL changes mid-
+  // session; the player must reload to switch presets (a sensible
+  // tradeoff vs. tearing down + rebuilding the post-FX stack live).
+  const profile = useMemo(() => resolveCurrentQuality(), []);
+  const shadowMapSize = profile.shadowMapSize;
 
   return (
     <FaceProvider>
-      <div className="match-scene">
+      <div className="match-scene" data-quality={profile.preset ?? "off"}>
         <Canvas
           shadows="soft"
           dpr={[1, 2]}
@@ -83,7 +99,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             position={[40, 60, 20]}
             intensity={1.4}
             castShadow
-            shadow-mapSize={[2048, 2048]}
+            shadow-mapSize={[shadowMapSize, shadowMapSize]}
             shadow-camera-near={1}
             shadow-camera-far={220}
             shadow-camera-left={-90}
@@ -102,6 +118,8 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
           {init ? <Players store={store} /> : null}
           {init ? <Ball store={store} /> : null}
           <PerfMonitor />
+          <CommentaryAudio />
+          {profile.fxOff ? null : <PostFX profile={profile} />}
         </Canvas>
 
         <HUD store={store} />

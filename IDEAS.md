@@ -7,6 +7,9 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 ## Backlog
 
 ### Renderer
+- [2026-05-10, phase 3] Add the cheering-fan sprite atlas (crowd-atlas-day.png / night.png) and switch the InstancedMesh material to a textured atlas sampler with per-instance frame offset. Phase-3 ships with a flat colour-jittered billboard which reads OK at distance but misses the cheering frames. (open)
+- [2026-05-10, phase 3] Run the offline ElevenLabs MP3 batch step for the AR-FR final and check the resulting manifest.json + 200-line corpus into apps/web/public/audio/commentary/{lang}/. Renderer-side scheduling already wired in lib/audio/pre-rendered-track.ts. (open)
+- [2026-05-10, phase 3] Real GLB seating models per doc 27c — Phase-3 uses procedural boxes that are cheap and read fine, but a hand-authored GLB would tighten the silhouette. (open)
 - [2026-05-09, doc 04] WebXR / VR mode — scene already in three.js, additive lift. (open)
 - [2026-05-09, doc 04] In-scene replay seek (snap to event time). (open)
 - [2026-05-09, doc 04] Spectator chat / Twitch overlay. (open)
