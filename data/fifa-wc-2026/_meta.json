@@ -1,12 +1,46 @@
 {
-  "attribution_note": "Flags and player photos sourced from Wikimedia Commons under CC-BY / CC-BY-SA. Per-asset attribution is preserved in players.json `attribution` and teams.json `flag_svg_url`. We bundle no copyrighted FIFA imagery; flags use Wikimedia Commons assets only.",
+  "attribution_note": "Real-draw composition sourced from the per-group Wikipedia articles for the 2026 FIFA World Cup (CC BY-SA 4.0). Flags and player photos sourced from Wikimedia Commons under CC-BY / CC-BY-SA. Per-asset attribution is preserved in players.json `attribution` and teams.json `flag_svg_url`. We bundle no copyrighted FIFA imagery; flags use Wikimedia Commons assets only.",
+  "draw_resolution": {
+    "draw_date": "2025-12-05",
+    "draw_event": "FIFA Final Draw",
+    "draw_location": "Kennedy Center, Washington, D.C.",
+    "intercontinental_playoff_winners": [
+      "COD",
+      "IRQ"
+    ],
+    "playoff_resolution_window": "March 2026",
+    "uefa_playoff_winners": [
+      "BIH",
+      "SWE",
+      "TUR",
+      "CZE"
+    ]
+  },
   "refresh_policy": {
-    "fallback": "On upstream failure the previous cached snapshot is preserved and a warning is emitted; never crash the build.",
+    "fallback": "On upstream failure the previous cached snapshot is preserved and a warning is emitted; never crash the build. Real-draw fall-back is the manually-curated snapshot in wc2026_data.sources_real.MANUAL_DRAW_SNAPSHOT.",
     "schedule": "weekly via .github/workflows/wc2026-data-refresh.yml",
     "trigger": "GitHub Actions cron + manual dispatch"
   },
   "scrape_date": "2026-05-09",
   "sources": [
+    {
+      "cached_only": false,
+      "failed": false,
+      "id": "wikipedia_groups",
+      "license": "CC BY-SA 4.0",
+      "name": "Wikipedia per-group articles (2026 FIFA World Cup Group A-L)",
+      "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup",
+      "used": true
+    },
+    {
+      "cached_only": false,
+      "failed": false,
+      "id": "wikipedia_qualification",
+      "license": "CC BY-SA 4.0",
+      "name": "Wikipedia: 2026 FIFA World Cup qualification (play-off winners)",
+      "url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup_qualification",
+      "used": true
+    },
     {
       "cached_only": false,
       "failed": false,

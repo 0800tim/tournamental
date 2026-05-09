@@ -50,7 +50,7 @@ describe("cascade — determinism", () => {
     const pred: BracketPrediction = { ...emptyPrediction(), groups: fullGroupPicks() };
     const c = cascade(tournament, pred);
     expect(c.groups.map((g) => g.group_id)).toEqual([
-      "A", "B", "C", "D", "E", "F", "G", "H",
+      "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L",
     ]);
   });
 
@@ -147,11 +147,17 @@ describe("cascade — live recalc on actual results", () => {
 });
 
 describe("cascade — committed-team tally", () => {
-  it("counts (automatic_per_group * 8) + wildcards + all knockout winners", () => {
+  it("counts (automatic_per_group * 12) + wildcards + all knockout winners", () => {
     const pred: BracketPrediction = { ...emptyPrediction(), groups: fullGroupPicks() };
     const c = cascade(tournament, pred);
-    // 2 advance per group * 8 = 16 + 8 thirds + 8 fourths + 32 knockouts = 64
-    expect(c.committed_total_required).toBe(64);
+    // 12 groups * 2 advancing = 24 + 8 best-thirds + 0 best-fourths
+    // + 32 knockouts (16 R32 + 8 R16 + 4 QF + 2 SF + 1 third-place + 1 final) = 64
+    expect(c.committed_total_required).toBe(
+      tournament.advancement.automatic_per_group * tournament.groups.length +
+        tournament.advancement.wildcard_third +
+        tournament.advancement.wildcard_fourth +
+        tournament.knockouts.length,
+    );
   });
 
   it("returns committed team list de-duplicated and sorted", () => {
@@ -166,8 +172,10 @@ describe("cascade — committed-team tally", () => {
   it("with no knockout picks, committed list is just the group-stage advancers", () => {
     const pred: BracketPrediction = { ...emptyPrediction(), groups: fullGroupPicks() };
     const c = cascade(tournament, pred);
-    // 8 groups * 2 advancing = 16 distinct team ids
-    expect(c.committed_teams.length).toBe(16);
+    // 12 groups * 2 advancing = 24 distinct team ids
+    expect(c.committed_teams.length).toBe(
+      tournament.advancement.automatic_per_group * tournament.groups.length,
+    );
   });
 });
 
@@ -276,9 +284,12 @@ describe("cascade — wildcard pools", () => {
       best_thirds: [groupA.team_ids[2]],
     };
     const c = cascade(tournament, pred);
-    // r32_09 sources from best_third rank=1 — should resolve to A's 3rd team.
-    const r32_09 = c.knockouts.find((k) => k.id === "r32_09")!;
-    expect(r32_09.home.team).toBe(groupA.team_ids[2]);
+    // First R32 match whose home slot is a `best_third` — find it
+    // dynamically since slot ordering depends on the FIFA bracket layout.
+    const firstBestThirdMatch = c.knockouts.find(
+      (k) => k.stage === "r32" && k.home.source.kind === "best_third",
+    )!;
+    expect(firstBestThirdMatch.home.team).toBe(groupA.team_ids[2]);
   });
 
   it("warns when wildcard slots are unfilled", () => {

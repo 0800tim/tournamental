@@ -383,36 +383,6 @@
     },
     {
       "attribution": null,
-      "country": "DEN",
-      "image_url": null,
-      "name": "Christian Eriksen",
-      "number": 10,
-      "player_id": "DEN_ERIKSEN",
-      "pre_tournament": true,
-      "wikidata_q": "Q175366"
-    },
-    {
-      "attribution": null,
-      "country": "DEN",
-      "image_url": null,
-      "name": "Pierre-Emile Højbjerg",
-      "number": 23,
-      "player_id": "DEN_HOJBJERG",
-      "pre_tournament": true,
-      "wikidata_q": "Q19527929"
-    },
-    {
-      "attribution": null,
-      "country": "DEN",
-      "image_url": null,
-      "name": "Kasper Schmeichel",
-      "number": 1,
-      "player_id": "DEN_SCHMEICHEL",
-      "pre_tournament": true,
-      "wikidata_q": "P104551"
-    },
-    {
-      "attribution": null,
       "country": "ECU",
       "image_url": null,
       "name": "Moisés Caicedo",
@@ -670,36 +640,6 @@
       "player_id": "GER_WIRTZ",
       "pre_tournament": true,
       "wikidata_q": "Q83296017"
-    },
-    {
-      "attribution": null,
-      "country": "ITA",
-      "image_url": null,
-      "name": "Nicolò Barella",
-      "number": 18,
-      "player_id": "ITA_BARELLA",
-      "pre_tournament": true,
-      "wikidata_q": "Q22337482"
-    },
-    {
-      "attribution": null,
-      "country": "ITA",
-      "image_url": null,
-      "name": "Federico Chiesa",
-      "number": 14,
-      "player_id": "ITA_CHIESA",
-      "pre_tournament": true,
-      "wikidata_q": "Q22337517"
-    },
-    {
-      "attribution": null,
-      "country": "ITA",
-      "image_url": null,
-      "name": "Gianluigi Donnarumma",
-      "number": 1,
-      "player_id": "ITA_DONNARUMMA",
-      "pre_tournament": true,
-      "wikidata_q": "Q22321776"
     },
     {
       "attribution": null,
@@ -1180,26 +1120,6 @@
       "player_id": "USA_WEAH",
       "pre_tournament": true,
       "wikidata_q": "Q33060562"
-    },
-    {
-      "attribution": null,
-      "country": "WAL",
-      "image_url": null,
-      "name": "Aaron Ramsey",
-      "number": 10,
-      "player_id": "WAL_RAMSEY",
-      "pre_tournament": true,
-      "wikidata_q": "Q252027"
-    },
-    {
-      "attribution": null,
-      "country": "WAL",
-      "image_url": null,
-      "name": "Harry Wilson",
-      "number": 7,
-      "player_id": "WAL_WILSON",
-      "pre_tournament": true,
-      "wikidata_q": "Q19828071"
     }
   ],
   "roster_format_version": "0.1",

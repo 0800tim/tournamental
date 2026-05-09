@@ -50,8 +50,13 @@ export function GroupCard(props: GroupCardProps) {
       <ol className="bracket-group-list">
         {fullOrder.map((teamId, idx) => {
           const team = teams.get(teamId);
+          // 4-team group: top 2 advance automatically, 3rd is in the
+          // best-thirds wildcard pool, 4th is eliminated.
+          // (Older 6-team layout had two wildcard spots; the engine still
+          // accepts that, but the FIFA 2026 format is 4-team groups.)
+          const groupSize = group.team_ids.length;
           const advancing = idx < 2;
-          const wildcard = idx === 2 || idx === 3;
+          const wildcard = groupSize === 4 ? idx === 2 : idx === 2 || idx === 3;
           return (
             <li
               key={teamId}
