@@ -26,6 +26,7 @@
 | Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.vtourn.com`                         | `game.vtourn.com`         |
 | Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.vtourn.com`                          | `aff.vtourn.com`          |
 | VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.vtourn.com`                       | `vstamp.vtourn.com`       |
+| Clip pipeline    | `vtorn-clip.aiva.nz` → `:3380`                  | `clip-dev.vtourn.com`                         | `clip.vtourn.com`         |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -48,6 +49,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.vtourn.com`. See [docs/12](12-odds-and-predictions.md). |
 | `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.vtourn.com`. |
 | `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.vtourn.com`. |
+| `apps/clip-pipeline`       | 3380  | Fastify + ffmpeg clip render service (per docs/14). Tunnel: `vtorn-clip.aiva.nz`.   |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 
@@ -153,6 +155,8 @@ Every PR touching public surfaces is reviewed against this table.
 | Player photo thumbs                    | Cloudflare Image Resizing; 30d edge; SWR 7d            | External source can be slow; we compute once. |
 | Affiliate click (`/v1/affiliate/click`) | `Cache-Control: no-store`                              | 302 redirect with per-user audit; never cache. |
 | Affiliate partner list (`/v1/affiliate/partners`) | `public, max-age=60, s-maxage=300, stale-while-revalidate=3600` | Per-country list; rarely changes; SWR absorbs deploys. |
+| Clip MP4s (`/v1/clip/:id/file`)        | `Cache-Control: public, max-age=31536000, immutable`   | clip_id is a SHA over the inputs, so the bytes are content-addressed. |
+| Highlight reel (`/v1/match/:id/highlights`) | `public, s-maxage=30, stale-while-revalidate=120` | Detection is deterministic; a 30s edge cache absorbs the bracket-page hot path. |
 
 **Performance budgets** (enforced by Playwright + Lighthouse in CI eventually):
 
