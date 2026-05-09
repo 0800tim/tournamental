@@ -1,0 +1,26 @@
+{
+  "id": "f651a6c4-55e3-4e0f-a178-59414ba83d6a",
+  "index": 5,
+  "period": 1,
+  "timestamp": "00:00:00.578",
+  "minute": 0,
+  "second": 0,
+  "type": { "id": 30, "name": "Pass" },
+  "possession": 2,
+  "possession_team": { "id": 771, "name": "France" },
+  "play_pattern": { "id": 9, "name": "From Kick Off" },
+  "team": { "id": 771, "name": "France" },
+  "player": { "id": 5487, "name": "Antoine Griezmann" },
+  "position": { "id": 19, "name": "Center Attacking Midfield" },
+  "location": [61.0, 40.1],
+  "duration": 0.975702,
+  "pass": {
+    "recipient": { "id": 10481, "name": "Aurélien Djani Tchouaméni" },
+    "length": 13.36,
+    "angle": 2.9,
+    "height": { "id": 1, "name": "Ground Pass" },
+    "end_location": [48.0, 43.2],
+    "type": { "id": 65, "name": "Kick Off" },
+    "body_part": { "id": 38, "name": "Left Foot" }
+  }
+}
