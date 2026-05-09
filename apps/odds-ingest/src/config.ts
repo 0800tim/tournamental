@@ -40,7 +40,7 @@ function asInt(v: string | undefined, dflt: number): number {
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
   return {
-    port: asInt(env.ODDS_INGEST_PORT, 3340),
+    port: asInt(env.ODDS_INGEST_PORT, 3341),
     bind: env.ODDS_INGEST_BIND ?? "0.0.0.0",
     dbPath: env.ODDS_INGEST_DB_PATH ?? "./data/odds-ingest.sqlite",
     logLevel: env.LOG_LEVEL ?? "info",
