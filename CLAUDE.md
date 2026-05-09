@@ -302,6 +302,53 @@ The renderer reads from the WebSocket the producer emits on. At `time-scale=10`,
 - Audio mix plays commentary cues at goals and shootout attempts.
 - A 30-second screen recording of the demo is shareable on social.
 
+## Performance and caching are paramount
+
+Tim's standing rule: **performance and caching are reviewed on every PR**. Read [docs/22-deployment-and-tunnels.md](docs/22-deployment-and-tunnels.md) for the full caching matrix and budgets. The TL;DR for every code agent:
+
+1. **Public surfaces have an explicit cache policy.** No new route ships without one. Defaults:
+   - Static asset (hashed filename): `Cache-Control: public, max-age=31536000, immutable`.
+   - HTML page: `Cache-Control: no-store` unless it's marketing (then long edge cache + SWR).
+   - API list/aggregate: short TTL via Redis + `s-maxage` per endpoint; `stale-while-revalidate` to absorb spikes.
+   - User-specific (`/v1/me/*`): `private, no-store`.
+2. **Hot reads go through Redis.** If a query is on the request hot path and is staleness-tolerant, Redis caches it. In-memory LRU on top of Redis for the hottest items (leaderboards top-10, current-match summaries).
+3. **Frontend critical-path is budgeted.** LCP < 2.5s on a mid-range 2022 Android, renderer steady-state 60fps with 22 players + ball, WS lag < 250ms p95 same-continent.
+4. **Measure before optimising and after changing.** A 5% perf regression with no clear win is a request-changes.
+
+Daily review checkpoints (orchestrator + reviewer agent):
+
+- New public surface? → cache policy chosen and matches docs/22?
+- New hot read? → Redis (and/or in-memory LRU) layer in front?
+- New write? → read-after-write semantics documented?
+- New dep? → bundle-size justified (`next build` analyzer for client code)?
+- Slowed a critical path? → measured, justified, or fixed?
+
+## Ports and environments
+
+Single source of truth: [docs/22-deployment-and-tunnels.md](docs/22-deployment-and-tunnels.md). Quick reference:
+
+| Service              | Dev port | Dev URL                         |
+| -------------------- | -------- | ------------------------------- |
+| `apps/web`           | 3300     | https://vtorn.aiva.nz           |
+| Producer WS          | 4001     | wss://vtorn-stream.aiva.nz      |
+| `apps/api`           | 3310     | https://vtorn-api.aiva.nz       |
+| `apps/marketing`     | 3320     | https://vtorn-www.aiva.nz       |
+| Postgres (dev)       | 5435     | localhost only                  |
+| Redis (dev)          | 6380     | localhost only                  |
+
+When you change a port, update `docs/22-deployment-and-tunnels.md` and the corresponding tunnel ingress rule in the same PR.
+
+## Database and cache stack
+
+Postgres 16 + Redis 7, both Dockerised, brought up via `bash infra/scripts/db-up.sh`. Connection settings come from `.env` (template at `.env.example`). See:
+
+- `infra/docker/compose.yml` — the stack.
+- `infra/scripts/db-backup.sh` — hourly/daily/weekly rotation, sha256 verified, optional offsite mirror.
+- `infra/scripts/db-restore.sh` — host-allowlisted, optional PII-scrub for prod-snapshot-into-staging.
+- `infra/db/pii-scrub.sql` — schema-following scrub config (created when prod schema lands).
+
+Migrations: builders pick the migration tool that fits their stack (Prisma for Node TS surfaces, plain SQL for the producer if it ever writes). Whichever tool, **migrations live in `apps/<service>/migrations/` and are checked in.** Reviewer agent rejects PRs that mutate schema without a migration.
+
 ## Three things to remember
 
 1. **Ship the AR-FR demo first.** Everything else is enabled by it.

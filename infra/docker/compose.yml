@@ -1,0 +1,95 @@
+# VTorn dev database stack.
+#
+# Brings up Postgres 16 (port 5435) and Redis 7 (port 6380) with named
+# volumes so data persists across `docker compose up`/`down` cycles.
+# Ports are picked to avoid clashing with clawdia (5433/6379).
+#
+# Usage:
+#   cd infra/docker
+#   docker compose up -d
+#   docker compose ps
+#   docker compose logs -f
+#   docker compose down       # stops; volumes survive
+#   docker compose down -v    # nukes the volumes (rare; use db-restore.sh instead)
+#
+# Env file: ../../.env (copy from ../../.env.example first)
+# Backup script: ../scripts/db-backup.sh
+
+name: vtorn-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: vtorn-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vtorn}
+      POSTGRES_USER: ${POSTGRES_USER:-vtorn}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required (set in .env)}
+      # Tune for a single-box dev instance with 6.5GB RAM available.
+      # These are conservative; production tuning is in docs/22.
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    command:
+      - postgres
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - effective_cache_size=1536MB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=128MB
+      - -c
+      - max_connections=100
+      - -c
+      - wal_compression=on
+      - -c
+      - log_min_duration_statement=500
+      - -c
+      - log_checkpoints=on
+      - -c
+      - track_io_timing=on
+    ports:
+      - "127.0.0.1:5435:5432"
+    volumes:
+      - vtorn-pgdata:/var/lib/postgresql/data
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-vtorn} -d ${POSTGRES_DB:-vtorn}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    container_name: vtorn-redis
+    restart: unless-stopped
+    command:
+      - redis-server
+      - --requirepass
+      - ${REDIS_PASSWORD:?REDIS_PASSWORD is required (set in .env)}
+      - --maxmemory
+      - 512mb
+      - --maxmemory-policy
+      - allkeys-lru
+      - --appendonly
+      - "yes"
+      - --save
+      - "60 1000"
+    ports:
+      - "127.0.0.1:6380:6379"
+    volumes:
+      - vtorn-redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "PING"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+
+volumes:
+  vtorn-pgdata:
+    name: vtorn-pgdata
+  vtorn-redisdata:
+    name: vtorn-redisdata
