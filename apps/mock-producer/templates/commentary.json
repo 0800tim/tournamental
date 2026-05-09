@@ -1,0 +1,72 @@
+{
+  "kickoff": [
+    "We're underway!",
+    "And the match begins!",
+    "Kick-off, here we go."
+  ],
+  "kickoff_restart": [
+    "{team} restart from the centre circle.",
+    "Back to kick-off for {team}."
+  ],
+  "goal": [
+    "GOAL! {scorer} buries it for {team}!",
+    "And it's there! {scorer} with a finish, {team} lead!",
+    "{team} score! {scorer} makes it {home}-{away}.",
+    "What a strike from {scorer}! {team} are in front."
+  ],
+  "shot_saved": [
+    "{keeper} gets a hand to it.",
+    "Brilliant save by {keeper}!",
+    "Denied! {keeper} stays alert.",
+    "{keeper} keeps it out — superb."
+  ],
+  "shot_off_target": [
+    "Just wide of the post!",
+    "Over the bar from {player}.",
+    "{player} drags it wide.",
+    "Gone — just inches off."
+  ],
+  "tackle": [
+    "Strong tackle from {player}.",
+    "{player} wins it back."
+  ],
+  "foul": [
+    "Free kick — {player} caught {victim}.",
+    "Whistle goes against {player}.",
+    "{player} pulls one back, ref's not happy."
+  ],
+  "yellow_card": [
+    "Yellow card for {player}.",
+    "{player} is in the book.",
+    "Booking — {player}, that's a yellow."
+  ],
+  "out_of_bounds_throw": [
+    "Out for a throw.",
+    "Touch line — throw-in for {team}."
+  ],
+  "out_of_bounds_corner": [
+    "Corner kick.",
+    "{team} have a corner."
+  ],
+  "out_of_bounds_goal_kick": [
+    "Goal kick.",
+    "{team} restart with a goal kick."
+  ],
+  "substitution": [
+    "{player_in} comes on for {player_out}.",
+    "Change for {team} — {player_out} off, {player_in} on."
+  ],
+  "period_start": [
+    "We're underway in the {period_label}.",
+    "{period_label} begins."
+  ],
+  "period_end": [
+    "{period_label} comes to a close.",
+    "That's the end of the {period_label}."
+  ],
+  "match_end": [
+    "Full time — final whistle!",
+    "And that's it. Final score: {home}-{away}.",
+    "Match over."
+  ]
+}
