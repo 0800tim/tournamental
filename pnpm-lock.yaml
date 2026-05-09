@@ -8,4 +8,18 @@ importers:
 
   .: {}
 
+  apps/mock-producer:
+    dependencies:
+      '@vtorn/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+
+  apps/web:
+    dependencies:
+      '@vtorn/spec':
+        specifier: workspace:*
+        version: link:../../packages/spec
+
+  packages/avatar: {}
+
   packages/spec: {}
