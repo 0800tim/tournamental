@@ -1,14 +1,14 @@
 # 22 — Deployment, environments, and tunnels
 
-> Where VTorn runs, what URLs it serves, what ports back them, and how dev / staging / production differ. Read this if you're touching infrastructure, adding a service, or need to know which URL to point a client at.
+> Where VTourn runs, what URLs it serves, what ports back them, and how dev / staging / production differ. Read this if you're touching infrastructure, adding a service, or need to know which URL to point a client at.
 
 ## Three environments
 
 | Env         | Purpose                                                    | DNS owner          | Hosting target                                       |
 | ----------- | ---------------------------------------------------------- | ------------------ | ---------------------------------------------------- |
 | **dev**     | Day-to-day development on Tim's dev server (this machine). | Cloudflare aiva.nz | This server, exposed via the existing aiva.nz tunnel |
-| **staging** | Pre-production validation against real-world conditions.   | Cloudflare vtorn.com | This server (initially), then a dedicated staging box |
-| **prod**    | Public site. Users live here.                              | Cloudflare vtorn.com | Cloudflare Pages (marketing) + dedicated app/API hosts |
+| **staging** | Pre-production validation against real-world conditions.   | Cloudflare vtourn.com | This server (initially), then a dedicated staging box |
+| **prod**    | Public site. Users live here.                              | Cloudflare vtourn.com | Cloudflare Pages (marketing) + dedicated app/API hosts |
 
 **Rule**: a deploy goes `dev → staging → prod`. Never push code straight from local to prod. Staging exists to catch the "works on dev, broken in CDN" class of issue.
 
@@ -16,10 +16,10 @@
 
 | Component        | Dev (today)                                     | Staging (next sprint)                       | Prod (launch)            |
 | ---------------- | ----------------------------------------------- | ------------------------------------------- | ------------------------ |
-| Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.vtorn.com`                          | `vtorn.com`              |
-| App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.vtorn.com`                              | `app.vtorn.com`          |
-| Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.vtorn.com/ws`)  | `wss://app.vtorn.com/ws` |
-| API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtorn.com`                          | `api.vtorn.com`          |
+| Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.vtourn.com`                          | `vtourn.com`              |
+| App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.vtourn.com`                              | `app.vtourn.com`          |
+| Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.vtourn.com/ws`)  | `wss://app.vtourn.com/ws` |
+| API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtourn.com`                          | `api.vtourn.com`          |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -100,20 +100,20 @@ If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing —
 
 ## Cloudflare Tunnel (staging + prod)
 
-When `vtorn.com` is in Cloudflare under Tim's account, set up a **separate tunnel for vtorn.com** so it has its own credentials and isn't entangled with aiva.nz. Suggested name: `vtorn-prod` (and `vtorn-staging` if a separate machine is used).
+When `vtourn.com` is in Cloudflare under Tim's account, set up a **separate tunnel for vtourn.com** so it has its own credentials and isn't entangled with aiva.nz. Suggested name: `vtorn-prod` (and `vtorn-staging` if a separate machine is used).
 
 ```bash
 # On the host that will run the tunnel:
 cloudflared tunnel login                 # one-time browser auth
 cloudflared tunnel create vtorn-staging
-cloudflared tunnel route dns vtorn-staging dev.vtorn.com
-cloudflared tunnel route dns vtorn-staging preview.vtorn.com
-cloudflared tunnel route dns vtorn-staging api-dev.vtorn.com
+cloudflared tunnel route dns vtorn-staging dev.vtourn.com
+cloudflared tunnel route dns vtorn-staging preview.vtourn.com
+cloudflared tunnel route dns vtorn-staging api-dev.vtourn.com
 # Then write /etc/cloudflared/config.yml with these ingress rules
 sudo systemctl enable --now cloudflared
 ```
 
-Production replaces `staging` with `prod` and the dev hostnames with `vtorn.com`, `app.vtorn.com`, `api.vtorn.com`. The marketing site `vtorn.com` ideally lives on Cloudflare Pages (no tunnel needed) — only the app + API need a tunnel/origin.
+Production replaces `staging` with `prod` and the dev hostnames with `vtourn.com`, `app.vtourn.com`, `api.vtourn.com`. The marketing site `vtourn.com` ideally lives on Cloudflare Pages (no tunnel needed) — only the app + API need a tunnel/origin.
 
 ## Database snapshots (cross-env)
 
@@ -131,8 +131,8 @@ Every PR touching public surfaces is reviewed against this table.
 
 | Surface                                | Cache policy                                           | Why |
 | -------------------------------------- | ------------------------------------------------------ | --- |
-| Marketing static (`vtorn.com`)          | Edge cache 24h; `Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800` | Mostly-static; rarely changes; SWR keeps perceived perf high during deploys. |
-| Renderer HTML (`app.vtorn.com/match/*`) | `Cache-Control: no-store` for HTML; `Cache-Control: public, max-age=31536000, immutable` for hashed assets | HTML is per-user/per-match; assets are content-addressed. |
+| Marketing static (`vtourn.com`)          | Edge cache 24h; `Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800` | Mostly-static; rarely changes; SWR keeps perceived perf high during deploys. |
+| Renderer HTML (`app.vtourn.com/match/*`) | `Cache-Control: no-store` for HTML; `Cache-Control: public, max-age=31536000, immutable` for hashed assets | HTML is per-user/per-match; assets are content-addressed. |
 | Renderer WebSocket (`/ws`)             | Cloudflare-bypass; no caching ever                     | Live data. |
 | API hot reads (`/v1/leaderboards/*`)   | Redis layer: 1s–10s TTL; Cache-Control: `public, max-age=5`. Edge cache 5s. | Highly contended; staleness-tolerant; Redis absorbs the bulk. |
 | API user-specific (`/v1/me/*`)         | `Cache-Control: private, no-store`                     | PII. |
@@ -142,7 +142,7 @@ Every PR touching public surfaces is reviewed against this table.
 
 **Performance budgets** (enforced by Playwright + Lighthouse in CI eventually):
 
-- TTFB on `app.vtorn.com/match/*`: < 200ms p95 (cached origin) / < 600ms cold.
+- TTFB on `app.vtourn.com/match/*`: < 200ms p95 (cached origin) / < 600ms cold.
 - LCP on the demo route: < 2.5s on a mid-range 2022 Android over 4G.
 - Renderer steady-state: 60fps, 22 players + ball, with the pitch shadow on.
 - WS lag (producer → renderer first-frame): < 250ms p95 from the same continent.

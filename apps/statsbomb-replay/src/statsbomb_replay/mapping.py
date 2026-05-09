@@ -1,4 +1,4 @@
-"""Map StatsBomb structures to VTorn spec messages.
+"""Map StatsBomb structures to VTourn spec messages.
 
 This module is pure: every public function takes raw StatsBomb dicts and
 returns dicts shaped per ``packages/spec/src/index.ts`` (SPEC_VERSION

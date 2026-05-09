@@ -1,6 +1,6 @@
-# 21 — On-Chain Sweepstakes and the VTorn Oracle
+# 21 — On-Chain Sweepstakes and the VTourn Oracle
 
-> User-organised sweepstakes settled by smart contract. **VTorn never touches money.** We publish the verified result of each match (we already do this for VStamps in [doc 17](17-vstamp-and-prediction-iq.md)); a permissionless smart contract reads the published result and pays out users who staked into the pool. VTorn is the **oracle** — a reliable, immutable ledger of tournament outcomes — not the operator. This is an upgrade path on top of the off-platform self-attested pools in [doc 12](12-odds-and-predictions.md), aimed at users who want trustless settlement.
+> User-organised sweepstakes settled by smart contract. **VTourn never touches money.** We publish the verified result of each match (we already do this for VStamps in [doc 17](17-vstamp-and-prediction-iq.md)); a permissionless smart contract reads the published result and pays out users who staked into the pool. VTourn is the **oracle** — a reliable, immutable ledger of tournament outcomes — not the operator. This is an upgrade path on top of the off-platform self-attested pools in [doc 12](12-odds-and-predictions.md), aimed at users who want trustless settlement.
 
 ## Why this exists
 
@@ -10,19 +10,19 @@ But there's a cohort — crypto-native users, larger pools, strangers organising
 
 - Members deposit USDC into a pool contract on-chain.
 - The contract knows the prize-distribution rules in advance (winner-takes-all, gold/silver/bronze, custom split).
-- When VTorn publishes the verified tournament result, the contract reads it and pays out automatically.
+- When VTourn publishes the verified tournament result, the contract reads it and pays out automatically.
 - Nobody has to be trusted; the code is the agreement.
 
-VTorn earns nothing from the pool itself. Our role is **oracle** — we publish authoritative results of matches and tournaments, signed by our oracle key, and the smart contract does the rest. This lines up cleanly with the existing architecture: we already produce settled match results to power Prediction IQ ([doc 17](17-vstamp-and-prediction-iq.md)) and the predictions game ([doc 16](16-game-modes-and-scoring.md)). Publishing those results to a public smart contract is a small additional step.
+VTourn earns nothing from the pool itself. Our role is **oracle** — we publish authoritative results of matches and tournaments, signed by our oracle key, and the smart contract does the rest. This lines up cleanly with the existing architecture: we already produce settled match results to power Prediction IQ ([doc 17](17-vstamp-and-prediction-iq.md)) and the predictions game ([doc 16](16-game-modes-and-scoring.md)). Publishing those results to a public smart contract is a small additional step.
 
 ## What we explicitly are not
 
 - **Not the pool operator.** Users deploy their own pool from a public registry.
-- **Not the custodian.** Funds live in the pool contract on-chain, controlled by the contract logic, never touchable by VTorn.
+- **Not the custodian.** Funds live in the pool contract on-chain, controlled by the contract logic, never touchable by VTourn.
 - **Not the betting counterparty.** No house. No edge. No commission on stakes.
 - **Not the arbiter of disputes.** If a user disputes the published result, they can challenge via the on-chain oracle protocol; we publish, we don't adjudicate (beyond standard correction processes).
 
-The closest comparison is **Augur**, **UMA**, or **Reality.eth** — established prediction-market oracle protocols. VTorn's role is closer to a *trusted result feed* than a Polymarket-style market-maker. Reality.eth and UMA both solve the "what was the actual outcome of X" problem with their own stake-based dispute systems; we publish into the same pattern.
+The closest comparison is **Augur**, **UMA**, or **Reality.eth** — established prediction-market oracle protocols. VTourn's role is closer to a *trusted result feed* than a Polymarket-style market-maker. Reality.eth and UMA both solve the "what was the actual outcome of X" problem with their own stake-based dispute systems; we publish into the same pattern.
 
 ## Architecture
 
@@ -53,7 +53,7 @@ The closest comparison is **Augur**, **UMA**, or **Reality.eth** — established
                              │  reads
                              ▼
               ┌─────────────────────────────┐
-              │  VTornOracle contract       │   ◄── VTorn Foundation publishes
+              │  VTournOracle contract       │   ◄── VTourn Foundation publishes
               │  (Polygon / Base mainnet)   │       match results, signed by
               │  results[matchId] = winner  │       its oracle key
               └─────────────────────────────┘
@@ -73,7 +73,7 @@ Three contracts:
 
 1. **`PoolFactory.sol`** — anyone can call `createPool(...)` to deploy a new pool with their chosen parameters. Cheap (~$0.30 on Polygon). Emits a `PoolCreated` event with the new pool's address.
 2. **`Pool.sol`** — one instance per pool. Holds USDC, accepts `deposit()` from approved members, accepts `submitPrediction()` until lock, computes rankings against the oracle, distributes prize on `finalize()`.
-3. **`VTornOracle.sol`** — VTorn Foundation-controlled contract that records authoritative match results. Each `setResult(matchId, outcome)` call is signed by the Foundation's oracle key (an air-gapped multisig); same key that signs VStamp Merkle roots ([doc 17](17-vstamp-and-prediction-iq.md)).
+3. **`VTournOracle.sol`** — VTourn Foundation-controlled contract that records authoritative match results. Each `setResult(matchId, outcome)` call is signed by the Foundation's oracle key (an air-gapped multisig); same key that signs VStamp Merkle roots ([doc 17](17-vstamp-and-prediction-iq.md)).
 
 ### Why two chains
 
@@ -87,7 +87,7 @@ Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, wel
 
 ### Pool creator
 
-1. On VTorn web or in the Telegram bot: `/pool new`.
+1. On VTourn web or in the Telegram bot: `/pool new`.
 2. Choose: tournament, entry amount in USDC, prize structure, member cap, deadline for joining.
 3. Choose **on-chain** vs **off-platform self-attested** (the existing flow from [doc 12](12-odds-and-predictions.md)).
 4. If on-chain, the UI prompts the user to connect a wallet (MetaMask, Rainbow, Coinbase Wallet, WalletConnect — standard EVM wallet UX).
@@ -97,7 +97,7 @@ Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, wel
 ### Pool member
 
 1. Friend taps the invite link.
-2. UI verifies their identity (wallet must be registered to a VTorn account; if not, prompts auth).
+2. UI verifies their identity (wallet must be registered to a VTourn account; if not, prompts auth).
 3. UI prompts wallet signature to call `pool.deposit(amount)` (a single USDC ERC-20 approval + deposit).
 4. UI walks them through prediction submission as usual ([doc 16](16-game-modes-and-scoring.md)).
 5. Predictions are committed on-chain via `pool.submitPrediction(predictionHash)` — only the hash, full prediction stays off-chain.
@@ -105,14 +105,14 @@ Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, wel
 
 ### Settlement
 
-1. Tournament ends; VTorn publishes results to `VTornOracle` (typically a single transaction batch covering an entire tournament's worth of match outcomes; ~$5–$20 on Polygon).
+1. Tournament ends; VTourn publishes results to `VTournOracle` (typically a single transaction batch covering an entire tournament's worth of match outcomes; ~$5–$20 on Polygon).
 2. Anyone (any pool member, the creator, even a stranger) can call `pool.finalize()`. Contract reads results from the oracle, ranks members by prediction-vs-result accuracy, computes payouts per the predefined `prizeStructure`.
 3. Each winner can call `pool.withdraw()` and receives their USDC.
 4. Pool contract is now fully settled and has zero balance.
 
-End to end, VTorn never holds funds. Members never need to trust the creator. Creator never needs to chase members for entry fees. Result is published once, on-chain, immutable.
+End to end, VTourn never holds funds. Members never need to trust the creator. Creator never needs to chase members for entry fees. Result is published once, on-chain, immutable.
 
-## VTornOracle in detail
+## VTournOracle in detail
 
 This is where the trust does live. The oracle's published results are the single source of truth for any pool that uses it.
 
@@ -173,15 +173,15 @@ This means an on-chain pool offers *strictly stronger* trust guarantees than the
 
 This is the section that needs careful framing. Three points:
 
-### Point 1 — VTorn is the oracle, not the operator
+### Point 1 — VTourn is the oracle, not the operator
 
-We publish results. The pool contracts are deployed by users, run on permissionless infrastructure (Polygon / Base), and pay out to users. VTorn Foundation has zero ability to alter pool outcomes once the result is set, and can only set results that match the verified outcome of the actual sporting event.
+We publish results. The pool contracts are deployed by users, run on permissionless infrastructure (Polygon / Base), and pay out to users. VTourn Foundation has zero ability to alter pool outcomes once the result is set, and can only set results that match the verified outcome of the actual sporting event.
 
-This positions VTorn similarly to a price oracle (Chainlink, Pyth, UMA) rather than a sportsbook or a prediction-market operator. Price oracles aren't gambling operators despite many financial products depending on them.
+This positions VTourn similarly to a price oracle (Chainlink, Pyth, UMA) rather than a sportsbook or a prediction-market operator. Price oracles aren't gambling operators despite many financial products depending on them.
 
 ### Point 2 — The pool is user-organised
 
-The pool is created by a user, joined by other users, settled by a smart contract, and pays out user-to-user. There is no "operator". Every parameter (prize structure, entry amount, deadline) is set by the pool creator. VTorn provides software that makes deploying such a pool easier; it does not run any pool.
+The pool is created by a user, joined by other users, settled by a smart contract, and pays out user-to-user. There is no "operator". Every parameter (prize structure, entry amount, deadline) is set by the pool creator. VTourn provides software that makes deploying such a pool easier; it does not run any pool.
 
 The legal label that may attach is "facilitator". Different jurisdictions treat facilitators differently:
 
@@ -197,15 +197,15 @@ The geo-routing engine from [doc 18](18-monetization.md) gates access. NZ / US /
 
 ### Point 3 — We publish results regardless of pool jurisdiction
 
-The oracle's results are published whether or not pools exist in any given jurisdiction. The oracle is a public dataset. NZ users can't *use* it for sweepstakes settlement under the current legal framing, but they can absolutely read it as a verified results feed for free-play VTorn purposes.
+The oracle's results are published whether or not pools exist in any given jurisdiction. The oracle is a public dataset. NZ users can't *use* it for sweepstakes settlement under the current legal framing, but they can absolutely read it as a verified results feed for free-play VTourn purposes.
 
 ## Tax and reporting
 
-For pool members, USDC winnings are typically taxable income in their jurisdiction. VTorn does not issue tax forms (we don't see the transactions; the user's wallet does). Pool participants are responsible for their own tax compliance.
+For pool members, USDC winnings are typically taxable income in their jurisdiction. VTourn does not issue tax forms (we don't see the transactions; the user's wallet does). Pool participants are responsible for their own tax compliance.
 
 Pool *creators* may have higher reporting obligations depending on jurisdiction (organising a paid contest can have its own reporting requirements). The UI surfaces a "consult your tax advisor" reminder at pool-creation time.
 
-For VTorn Foundation, the oracle service generates no revenue. Gas costs to publish results (~$10–$50 per matchday batch on Polygon) come out of the operating reserve from [doc 19](19-open-source-and-contributor-revenue.md). At sufficient scale we may charge sponsoring brands to "co-sign" prominent matchday result publications (a marketing feature, not a fee on users) — see [doc 18](18-monetization.md) for the sponsorship model.
+For VTourn Foundation, the oracle service generates no revenue. Gas costs to publish results (~$10–$50 per matchday batch on Polygon) come out of the operating reserve from [doc 19](19-open-source-and-contributor-revenue.md). At sufficient scale we may charge sponsoring brands to "co-sign" prominent matchday result publications (a marketing feature, not a fee on users) — see [doc 18](18-monetization.md) for the sponsorship model.
 
 ## What the contracts look like (sketch)
 
@@ -218,7 +218,7 @@ pragma solidity ^0.8.24;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
-interface IVTornOracle {
+interface IVTournOracle {
     struct MatchResult {
         bytes32 matchId;
         uint8 outcome;
@@ -235,7 +235,7 @@ contract Pool {
     using SafeERC20 for IERC20;
 
     IERC20 public immutable usdc;
-    IVTornOracle public immutable oracle;
+    IVTournOracle public immutable oracle;
 
     address public creator;
     bytes32 public tournamentId;
@@ -265,11 +265,11 @@ contract PoolFactory {
     function createPool(/*...*/) external returns (address) { /* deploys minimal proxy */ }
 }
 
-contract VTornOracle {
+contract VTournOracle {
     address public multisig;          // 4-of-7 governance multisig
-    mapping(bytes32 => IVTornOracle.MatchResult) private _results;
+    mapping(bytes32 => IVTournOracle.MatchResult) private _results;
 
-    function setResult(IVTornOracle.MatchResult calldata r) external {
+    function setResult(IVTournOracle.MatchResult calldata r) external {
         require(msg.sender == multisig, "unauthorized");
         require(_results[r.matchId].finalisedAt == 0, "already set");
         _results[r.matchId] = r;
@@ -277,7 +277,7 @@ contract VTornOracle {
     }
 
     // 24h correction window
-    function correctResult(bytes32 matchId, IVTornOracle.MatchResult calldata r) external {
+    function correctResult(bytes32 matchId, IVTournOracle.MatchResult calldata r) external {
         require(msg.sender == multisig, "unauthorized");
         require(block.timestamp - _results[matchId].finalisedAt < 24 hours, "window closed");
         _results[matchId] = r;
@@ -290,7 +290,7 @@ For deployment efficiency, `Pool` is a minimal proxy / clone (EIP-1167) — `Poo
 
 A full audit by Trail of Bits, OpenZeppelin, ConsenSys Diligence, or similar is required before mainnet deployment. Budget: $30k–$80k for a focused audit on this contract surface.
 
-## How this composes with the rest of VTorn
+## How this composes with the rest of VTourn
 
 - **Doc 12** keeps the off-platform self-attested pool as the default for friend-group sweeps. Most pools should be off-platform — friction is the feature when trust already exists.
 - **Doc 17** (VStamps + Prediction IQ) provides the prediction-commitment layer that on-chain pools verify against.
@@ -302,7 +302,7 @@ A full audit by Trail of Bits, OpenZeppelin, ConsenSys Diligence, or similar is 
 
 - [ ] `PoolFactory.createPool(...)` deploys a new Pool on Polygon for under $0.50 in gas.
 - [ ] A pool member's `deposit()` and `submitPrediction()` flow completes in two transactions and under $0.20 in gas combined.
-- [ ] After `VTornOracle.setResult(...)` for all the pool's matches, anyone can call `pool.finalize()` and the contract correctly distributes USDC per the prize split.
+- [ ] After `VTournOracle.setResult(...)` for all the pool's matches, anyone can call `pool.finalize()` and the contract correctly distributes USDC per the prize split.
 - [ ] `pool.withdraw()` for the winner returns the correct USDC amount and zeroes their balance.
 - [ ] Re-running `finalize()` is a no-op (idempotent).
 - [ ] `correctResult` works inside the 24h window and reverts after.

@@ -1,20 +1,20 @@
 # 17 — VStamp and Prediction IQ
 
-> Two related things that together turn VTorn from "another tipping comp" into a credible reputation network. **VStamp** is the cryptographic verification of *what* you predicted *when*. **Prediction IQ** is the long-term reputation score derived from a verified history of your calls. Engine in `apps/vstamp-service`; shared with `apps/game-service` (agent J, [doc 09](09-agent-task-breakdown.md)).
+> Two related things that together turn VTourn from "another tipping comp" into a credible reputation network. **VStamp** is the cryptographic verification of *what* you predicted *when*. **Prediction IQ** is the long-term reputation score derived from a verified history of your calls. Engine in `apps/vstamp-service`; shared with `apps/game-service` (agent J, [doc 09](09-agent-task-breakdown.md)).
 
 ## Why this matters
 
-The single feature that makes VTorn stronger than every other tipping comp is the *verifiability* of historical predictions. A leaderboard alone is bragging rights; a verifiable on-chain history is a reputation asset.
+The single feature that makes VTourn stronger than every other tipping comp is the *verifiability* of historical predictions. A leaderboard alone is bragging rights; a verifiable on-chain history is a reputation asset.
 
 Three concrete benefits:
 
 1. **Trust.** Users (and the platform) cannot retroactively edit a prediction to look smarter than they were. The leaderboard is therefore *trustworthy*, not just an internal score.
-2. **Portability.** A user's Prediction IQ is a public, auditable identity component. They can show it to anyone (a sportsbook, a media employer, a fantasy podcast) without VTorn needing to vouch.
+2. **Portability.** A user's Prediction IQ is a public, auditable identity component. They can show it to anyone (a sportsbook, a media employer, a fantasy podcast) without VTourn needing to vouch.
 3. **Marketing.** "Every locked prediction gets a tamper-proof verification stamp." The story sells itself; the implementation is cheap.
 
 The user does not need to understand blockchain. The platform's user-facing message is just:
 
-> Every locked prediction gets a verification stamp. Nobody can edit it after the fact — not you, not VTorn, not the leaderboard.
+> Every locked prediction gets a verification stamp. Nobody can edit it after the fact — not you, not VTourn, not the leaderboard.
 
 ## VStamp architecture
 
@@ -115,7 +115,7 @@ VStamp:  V-2026-W47-#A92F-81C
          └───────────────── tournament season tag
 ```
 
-Compact, copyable, human-readable. Each VStamp resolves to a public proof page at `https://vtorn.com/v/V-2026-W47-A92F-81C` showing:
+Compact, copyable, human-readable. Each VStamp resolves to a public proof page at `https://vtourn.com/v/V-2026-W47-A92F-81C` showing:
 
 - The prediction's canonical fields.
 - The full hash.
@@ -138,14 +138,14 @@ A VStamp **verifies**:
 A VStamp does **not** verify:
 
 - **That the prediction was correct.** The user's Prediction IQ separately captures correctness over time, but a single VStamp by itself says nothing about whether the prediction won.
-- **That any opinion, recommendation, or piece of content the user posts alongside the stamp is endorsed by VTorn.** A high-IQ user who shares a sponsored post recommending a sportsbook does not inherit VTorn's authority. The VStamp on their profile attests to their *track record of locked predictions* — it does not attest to anything they say or recommend in marketing copy.
-- **That the user is acting in any official capacity** for VTorn, VTorn Holdings, or VTorn Foundation.
+- **That any opinion, recommendation, or piece of content the user posts alongside the stamp is endorsed by VTourn.** A high-IQ user who shares a sponsored post recommending a sportsbook does not inherit VTourn's authority. The VStamp on their profile attests to their *track record of locked predictions* — it does not attest to anything they say or recommend in marketing copy.
+- **That the user is acting in any official capacity** for VTourn, VTourn Holdings, or VTourn Foundation.
 
-This distinction matters for the Verified Pundit programme described later in this doc. A "verified" badge means *the prediction record is auditable*, not *VTorn vouches for this person's opinions*. Marketing copy must always reflect this distinction. The standard disclosure in any Verified Pundit context:
+This distinction matters for the Verified Pundit programme described later in this doc. A "verified" badge means *the prediction record is auditable*, not *VTourn vouches for this person's opinions*. Marketing copy must always reflect this distinction. The standard disclosure in any Verified Pundit context:
 
-> Verified Pundit status is awarded based on a public, auditable prediction history. It is not an endorsement by VTorn or VTorn Holdings of any opinion, recommendation, or third-party offer the holder may share.
+> Verified Pundit status is awarded based on a public, auditable prediction history. It is not an endorsement by VTourn or VTourn Holdings of any opinion, recommendation, or third-party offer the holder may share.
 
-The distinction also matters for any sponsored-pundit endorsement of a sportsbook or prediction market: the endorsement is the pundit's, not VTorn's, and the geo-routed affiliate router still applies the standard third-party-link disclosure on top.
+The distinction also matters for any sponsored-pundit endorsement of a sportsbook or prediction market: the endorsement is the pundit's, not VTourn's, and the geo-routed affiliate router still applies the standard third-party-link disclosure on top.
 
 ### Verification flow (technical)
 
@@ -205,7 +205,7 @@ Most users will only ever notice the green tick. The Bitcoin-verified badge is f
 
 ## Prediction IQ
 
-The reputation score that makes VTorn a long-term identity asset.
+The reputation score that makes VTourn a long-term identity asset.
 
 ### Definition
 
@@ -275,7 +275,7 @@ For tournaments specifically, also track tournament-stage IQ (group-stage IQ vs 
 
 ### Profile page
 
-The user's public profile (at `vtorn.com/u/<handle>`) is structured around their reputation:
+The user's public profile (at `vtourn.com/u/<handle>`) is structured around their reputation:
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -324,9 +324,9 @@ Without protections, sophisticated users could pump their IQ by predicting only 
 
 The Prediction IQ + verified prediction history together form a portable reputation primitive. Over time:
 
-- **VTorn handles become the X / Twitter of sports prediction.** A user's `@handle` is their public reputation in any sports-prediction conversation.
-- **Cross-platform plug** — third parties can verify a VStamp themselves (the proof page works without VTorn) so a user could embed their VTorn IQ on a Substack or use it as proof on a sports podcast.
-- **Cross-domain expansion** — the same architecture works for elections, awards, entertainment outcomes. A user who builds a sports IQ on VTorn can later predict on a politics tournament and get a separate domain-IQ that compounds.
+- **VTourn handles become the X / Twitter of sports prediction.** A user's `@handle` is their public reputation in any sports-prediction conversation.
+- **Cross-platform plug** — third parties can verify a VStamp themselves (the proof page works without VTourn) so a user could embed their VTourn IQ on a Substack or use it as proof on a sports podcast.
+- **Cross-domain expansion** — the same architecture works for elections, awards, entertainment outcomes. A user who builds a sports IQ on VTourn can later predict on a politics tournament and get a separate domain-IQ that compounds.
 
 The *long-term product* is the network of verified predictors. Every other surface — the renderer, the bot, the clip pipeline, the affiliate links, the sweepstakes pools — exists to feed predictions into the reputation graph.
 
@@ -347,7 +347,7 @@ The *long-term product* is the network of verified predictors. Every other surfa
   "batch_id": 4827,
   "polygon_tx_hash": "0xabc123...",
   "polygon_block_number": 53291045,
-  "ots_proof_uri": "https://cdn.vtorn.com/ots/V-2026-W47-A92F-81C.ots",
+  "ots_proof_uri": "https://cdn.vtourn.com/ots/V-2026-W47-A92F-81C.ots",
   "ots_status": "bitcoin_confirmed",
   "ots_bitcoin_block_height": 877245,
   "locked_at_ms": 1734729600123,
@@ -385,8 +385,8 @@ Snapshotter writes these to `/v1/static/profiles/<user_id>/iq.json` per the flat
 - [ ] Every locked prediction is hashed and assigned a VStamp ID within 100ms.
 - [ ] Within 60 seconds of lock, the prediction's Merkle root is anchored on Polygon.
 - [ ] Within 60 minutes, the OpenTimestamps proof completes for the same root and the prediction shows the Bitcoin-verified badge.
-- [ ] The public proof page at `vtorn.com/v/<vstamp_id>` shows the canonical fields, hash, Merkle proof, both anchor links, and a working in-browser verifier.
-- [ ] The in-browser verifier successfully verifies a real prediction without contacting any VTorn server (CDN-only proof page + a public Polygon RPC).
+- [ ] The public proof page at `vtourn.com/v/<vstamp_id>` shows the canonical fields, hash, Merkle proof, both anchor links, and a working in-browser verifier.
+- [ ] The in-browser verifier successfully verifies a real prediction without contacting any VTourn server (CDN-only proof page + a public Polygon RPC).
 - [ ] Prediction IQ algorithm is deterministic given the same input history.
 - [ ] IQ percentile displays only after ≥30 resolved predictions.
 - [ ] Per-sport IQ is independently maintained and displayed.

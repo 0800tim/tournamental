@@ -22,7 +22,7 @@
  * fall back to idle in v0.1; full Mixamo retargets land in a follow-up
  * issue tracked in IDEAS.md.
  *
- * Author: VTorn (self-authored, CC0). See apps/web/public/CREDITS.md.
+ * Author: VTourn (self-authored, CC0). See apps/web/public/CREDITS.md.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";

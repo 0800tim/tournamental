@@ -1,4 +1,4 @@
-# VTorn dev database stack.
+# VTourn dev database stack.
 #
 # Brings up Postgres 16 (port 5435) and Redis 7 (port 6380) with named
 # volumes so data persists across `docker compose up`/`down` cycles.

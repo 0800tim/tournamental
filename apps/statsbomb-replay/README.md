@@ -2,7 +2,7 @@
 
 > Owned by [AGENT-PROMPTS.md](../../AGENT-PROMPTS.md) section 1. See [docs/11-historic-data-sources.md](../../docs/11-historic-data-sources.md).
 
-Python service that converts StatsBomb open data for the **2022 FIFA World Cup Final, Argentina vs France** into the canonical VTorn message stream (`@vtorn/spec` v0.1.1). Emits over WebSocket, writes NDJSON to disk, or pipes JSON-per-line to stdout.
+Python service that converts StatsBomb open data for the **2022 FIFA World Cup Final, Argentina vs France** into the canonical VTourn message stream (`@vtorn/spec` v0.1.1). Emits over WebSocket, writes NDJSON to disk, or pipes JSON-per-line to stdout.
 
 The Argentina-France final is the v0.1 demo headline match. This producer streams a spec-conformant sequence including regulation goals (Messi pen 23', Di María 36', Mbappé pen 80', Mbappé 81', Messi 108', Mbappé pen 118') and the ARG 4–2 penalty shoot-out finish.
 

@@ -2,7 +2,7 @@
   "name": "@vtorn/avatar",
   "version": "0.1.0",
   "private": true,
-  "description": "VTorn procedural avatar pipeline (body GLB + jersey textures + billboard faces)",
+  "description": "VTourn procedural avatar pipeline (body GLB + jersey textures + billboard faces)",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

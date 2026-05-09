@@ -40,7 +40,7 @@
 - Auto-clip pipeline (per-goal short clips, captioned, branded, posted on TikTok / Instagram / X / YouTube Shorts).
 - Bot persona policies live (lurker prompt / share prompt / VIP invite).
 - Affiliate router + Polymarket/Bet365 integrations.
-- VTornOracle audit + on-chain pool launch.
+- VTournOracle audit + on-chain pool launch.
 - ClickHouse warehouse migration.
 - iOS / Android native shells (contacts integration for friend leaderboards).
 

@@ -1,17 +1,17 @@
 # 18 — Monetization
 
-> Comprehensive revenue model for VTorn. Affiliate routing as one lane (geo-restricted, capped by NZ regulation), but **the platform's design opens at least eight other revenue surfaces** that don't depend on a single sportsbook deal or a single jurisdiction. Strategy: keep the free-to-play game as the primary product so the business is not dependent on gambling access in any one country; monetize across many surfaces; treat affiliate as upside, not core.
+> Comprehensive revenue model for VTourn. Affiliate routing as one lane (geo-restricted, capped by NZ regulation), but **the platform's design opens at least eight other revenue surfaces** that don't depend on a single sportsbook deal or a single jurisdiction. Strategy: keep the free-to-play game as the primary product so the business is not dependent on gambling access in any one country; monetize across many surfaces; treat affiliate as upside, not core.
 >
-> **Where the money actually goes:** all monetization revenue flows to **VTorn Holdings** (and its companion entity **VTorn Foundation**). The Foundation's published treasury policy then streams a fixed percentage to upstream contributors via Drips Network. Full structure and contributor revshare mechanics in [doc 19](19-open-source-and-contributor-revenue.md).
+> **Where the money actually goes:** all monetization revenue flows to **VTourn Holdings** (and its companion entity **VTourn Foundation**). The Foundation's published treasury policy then streams a fixed percentage to upstream contributors via Drips Network. Full structure and contributor revshare mechanics in [doc 19](19-open-source-and-contributor-revenue.md).
 
 ## TL;DR — the six revenue lanes ranked
 
-For VTorn specifically (NZ home base, free-to-play core, Prediction IQ as the killer feature), the priority order is:
+For VTourn specifically (NZ home base, free-to-play core, Prediction IQ as the killer feature), the priority order is:
 
 | # | Lane | Regulatory load | Revenue ceiling | Time-to-first-dollar |
 |---|------|-----------------|-----------------|----------------------|
 | 1 | **Sponsored tournaments + native ads** | Low | $0.5M–$10M per major tournament | Weeks |
-| 2 | **VTorn Pro subscription** | None | $5M–$50M ARR at scale | Days post-launch |
+| 2 | **VTourn Pro subscription** | None | $5M–$50M ARR at scale | Days post-launch |
 | 3 | **B2B white-label** | None | $10M+ ARR | 1–3 months |
 | 4 | **Creator leagues** | Low | $1M–$10M | Weeks |
 | 5 | **Affiliate routing (geo-restricted)** | High in some jurisdictions | $25M–$250M+ per major tournament where applicable | Months (deal cycle) |
@@ -21,12 +21,12 @@ Lanes 1–4 are the "ship-anywhere" base; lane 5 is the geographically-bounded u
 
 ## The big NZ regulatory update
 
-**From 28 June 2025, TAB NZ became the sole legal online race and sports betting provider for people located in New Zealand**, and New Zealanders are not lawfully allowed to place bets with anyone other than TAB NZ. This is a tighter constraint than the older Polymarket/Kalshi-flagged framing in [doc 15](15-vtorn-brand-and-positioning.md) and forces a hard rule:
+**From 28 June 2025, TAB NZ became the sole legal online race and sports betting provider for people located in New Zealand**, and New Zealanders are not lawfully allowed to place bets with anyone other than TAB NZ. This is a tighter constraint than the older Polymarket/Kalshi-flagged framing in [doc 15](15-vtourn-brand-and-positioning.md) and forces a hard rule:
 
 - **NZ users see no offshore-sportsbook affiliate links. Ever.**
 - The only legal NZ-facing affiliate option is TAB NZ — and only if TAB NZ runs an affiliate programme open to a free-to-play prediction game (verify in writing before shipping any link).
 - Polymarket is *also* not legal for NZ users to use, so no Polymarket affiliate to NZ users either.
-- VTorn for NZ users is **free-to-play only**, with VTorn Pro / sponsored badges / data offers as the monetization.
+- VTourn for NZ users is **free-to-play only**, with VTourn Pro / sponsored badges / data offers as the monetization.
 - This drives traffic to lanes 1–4 + 6 for the home market — which is fine because those lanes don't have a regulatory cliff anywhere.
 
 A standard standing instruction for the affiliate routing engine: *if Cloudflare's `cf-ipcountry == "NZ"`, the only affiliate link surface is TAB NZ (if approved) or no link*.
@@ -90,7 +90,7 @@ Pricing: ~$5–$20 CPM (per thousand subscribers seeing the message), tournament
 
 ### Inventory stack at a major tournament (illustrative)
 
-For a World Cup-scale event with VTorn at meaningful scale (5M+ registered users):
+For a World Cup-scale event with VTourn at meaningful scale (5M+ registered users):
 
 | Inventory | Slots | Price each | Subtotal |
 |-----------|-------|------------|----------|
@@ -104,7 +104,7 @@ For a World Cup-scale event with VTorn at meaningful scale (5M+ registered users
 
 That's a *single tournament* of native ad inventory. Annualizing across 4–6 major tournaments per year (FIFA WC, Euros, Rugby WC, Cricket WC, IPL, NBA Finals) gets you to the $5M–$15M range without ever showing a sportsbook link.
 
-## Lane 2 — VTorn Pro subscription
+## Lane 2 — VTourn Pro subscription
 
 Recurring revenue, no regulatory load, scales linearly with engaged-user count.
 
@@ -115,7 +115,7 @@ Recurring revenue, no regulatory load, scales linearly with engaged-user count.
 - AI Match Briefing once per matchday (concise version).
 - Free league hosting up to 50 members per league.
 
-**VTorn Pro — $9.99/month or $79/year.**
+**VTourn Pro — $9.99/month or $79/year.**
 - Unlimited AI briefings + AI Prediction Coach + AI Post-Match Debrief per match.
 - Advanced odds movement charts (multi-operator, historical).
 - Prediction analytics: win rate by sport, by tournament stage, by implied-probability bucket; export.
@@ -123,9 +123,9 @@ Recurring revenue, no regulatory load, scales linearly with engaged-user count.
 - Private leagues up to 1,000 members, custom branding, prize-tracking.
 - Priority access to new sport modules and beta features.
 - Premium Bitcoin-verified VStamp upgrade — every prediction immediately submitted to OpenTimestamps + Polygon (free tier batches every minute; Pro batches every 10 seconds).
-- Custom profile URL: `vtorn.com/u/<custom>` instead of `vtorn.com/u/<user_id>`.
+- Custom profile URL: `vtourn.com/u/<custom>` instead of `vtourn.com/u/<user_id>`.
 
-**VTorn Pro for Coaches — $29.99/month.**
+**VTourn Pro for Coaches — $29.99/month.**
 - Everything in Pro.
 - Multi-account roster management (a coach managing 25 athletes' predictions for analysis).
 - White-label "team challenges" with the coach's branding.
@@ -148,7 +148,7 @@ These numbers compound — Pro has high retention because the analytics get more
 
 ## Lane 3 — B2B white-label
 
-The whole VTorn stack — predictions game, leaderboards, badges, private leagues, share cards, optional renderer — wrapped as a white-label engine for organizations that want fan engagement without building it themselves.
+The whole VTourn stack — predictions game, leaderboards, badges, private leagues, share cards, optional renderer — wrapped as a white-label engine for organizations that want fan engagement without building it themselves.
 
 ### Customer segments
 
@@ -174,66 +174,66 @@ A single mid-size broadcaster deal (say, a regional Sky Sports equivalent runnin
 
 ### Watch Party Mode (B2B-flavored)
 
-A dedicated screen mode for pubs, lounges, and Discord streams: live score, match clock, live market odds, VTorn crowd prediction, biggest market moves, leaderboard movement, best live calls, "who just got wrecked", "who called the comeback". Sold as part of the white-label package, or as a stand-alone Pubs subscription at $49/month per location. Hardware: any modern smart TV with a browser does it.
+A dedicated screen mode for pubs, lounges, and Discord streams: live score, match clock, live market odds, VTourn crowd prediction, biggest market moves, leaderboard movement, best live calls, "who just got wrecked", "who called the comeback". Sold as part of the white-label package, or as a stand-alone Pubs subscription at $49/month per location. Hardware: any modern smart TV with a browser does it.
 
 ## Lane 4 — Creator and community leagues
 
-Influencers, streamers, sports clubs, and community leaders run their own private leagues for their audiences. They own the branding and — critically — *they own the monetization*. VTorn provides the engine and **never touches their money**.
+Influencers, streamers, sports clubs, and community leaders run their own private leagues for their audiences. They own the branding and — critically — *they own the monetization*. VTourn provides the engine and **never touches their money**.
 
 This is the most powerful and most defensible monetization path on the platform. It strengthens the "we are infrastructure, not a betting operator" positioning because the platform is genuinely community-led: every prediction game is somebody's league, run by them, for their people.
 
 ### How creators and community leaders monetize off-platform
 
-Examples of the model in action — none of which involve VTorn handling a single dollar of the operator's revenue:
+Examples of the model in action — none of which involve VTourn handling a single dollar of the operator's revenue:
 
-- **Soccer YouTuber, 500k subscribers**, runs a free VTorn league for their audience. Monetises via existing YouTube ad revenue boosted by the engagement, Patreon subscriptions for "pundit's picks" (delivered via the creator's own Patreon, never through VTorn), branded merch, and direct sponsorships they sign with their own sponsors.
-- **Rugby club leader** runs a small VTorn league among the club's 200 members for the season. Off-platform, members pay $20 each to enter a club-organised raffle / sweepstake; the verified VTorn leaderboard determines the winner; the pot funds the new clubrooms. Cash settlement happens member-to-treasurer through the club's existing bank account or Wise. VTorn provides the verified leaderboard. We never see the money.
+- **Soccer YouTuber, 500k subscribers**, runs a free VTourn league for their audience. Monetises via existing YouTube ad revenue boosted by the engagement, Patreon subscriptions for "pundit's picks" (delivered via the creator's own Patreon, never through VTourn), branded merch, and direct sponsorships they sign with their own sponsors.
+- **Rugby club leader** runs a small VTourn league among the club's 200 members for the season. Off-platform, members pay $20 each to enter a club-organised raffle / sweepstake; the verified VTourn leaderboard determines the winner; the pot funds the new clubrooms. Cash settlement happens member-to-treasurer through the club's existing bank account or Wise. VTourn provides the verified leaderboard. We never see the money.
 - **Twitch streamer** offers a "Pundit's Picks" Patreon tier; their backers see the streamer's locked predictions in real time during the stream. The tier is sold and fulfilled entirely through Patreon. The streamer's VStamp history is the proof their picks were locked before kickoff.
-- **Sports bar / pub chain** runs a free seasonal VTorn league across all its locations, branded with the chain's name. They monetise via increased foot traffic, food and drink sales, and a season-end prize ceremony at the flagship venue. The chain's marketing budget pays for any prizes; VTorn provides the league engine on a free or B2B-discounted tier.
-- **Local news media** embeds a VTorn league alongside its coverage of a tournament. Monetises via existing ad inventory + a sponsor of "<Sponsor>'s Tournament Predictor". League-engine cost runs through the B2B white-label tier in lane 3.
+- **Sports bar / pub chain** runs a free seasonal VTourn league across all its locations, branded with the chain's name. They monetise via increased foot traffic, food and drink sales, and a season-end prize ceremony at the flagship venue. The chain's marketing budget pays for any prizes; VTourn provides the league engine on a free or B2B-discounted tier.
+- **Local news media** embeds a VTourn league alongside its coverage of a tournament. Monetises via existing ad inventory + a sponsor of "<Sponsor>'s Tournament Predictor". League-engine cost runs through the B2B white-label tier in lane 3.
 
-In each case VTorn provides: the league mechanics, the verified leaderboard, VStamp prediction receipts, shareable cards the creator uses in their own content, and (optionally) the Tournament Bot in their group chats. VTorn's take from the creator's external revenue: **zero**. We are explicitly not a custodian, not a payment processor, not a sportsbook, not a counterparty.
+In each case VTourn provides: the league mechanics, the verified leaderboard, VStamp prediction receipts, shareable cards the creator uses in their own content, and (optionally) the Tournament Bot in their group chats. VTourn's take from the creator's external revenue: **zero**. We are explicitly not a custodian, not a payment processor, not a sportsbook, not a counterparty.
 
-### Where VTorn's revenue *does* come from in this model
+### Where VTourn's revenue *does* come from in this model
 
 Indirectly, not from the creator's wallet:
 
 - Affiliate-link clicks within the league (subject to lane 5 geo-rules — the creator never sees this revenue).
-- VTorn Pro upsells to engaged creator-league members (lane 2).
+- VTourn Pro upsells to engaged creator-league members (lane 2).
 - Sponsored ad inventory (lane 1) seen by the creator's audience.
 - B2B white-label tier (lane 3) for larger creators or organisations who want custom branding, larger member caps, or admin tools.
 
-If a creator wants to monetise *through* the platform rather than around it (creator charges audience for premium league access, VTorn handles billing), that's the optional secondary path — and we take a 15% cut for handling Stripe and the entitlement plumbing. Most creators with their own audience won't need this and will keep monetisation on their existing channels. That's fine. We benefit from their growth either way.
+If a creator wants to monetise *through* the platform rather than around it (creator charges audience for premium league access, VTourn handles billing), that's the optional secondary path — and we take a 15% cut for handling Stripe and the entitlement plumbing. Most creators with their own audience won't need this and will keep monetisation on their existing channels. That's fine. We benefit from their growth either way.
 
-### Optional secondary path: creator monetises *through* VTorn
+### Optional secondary path: creator monetises *through* VTourn
 
-For creators who don't have their own subscription pipe set up, VTorn offers an opt-in:
+For creators who don't have their own subscription pipe set up, VTourn offers an opt-in:
 
 ```
-Free creator league:      Creator runs the league. VTorn keeps any incidental
+Free creator league:      Creator runs the league. VTourn keeps any incidental
                           affiliate revenue from market-link clicks (subject to
                           geo-rules). Creator pays nothing, earns nothing on this
                           path; their monetization is wherever they run it.
 
 Premium creator league:   Creator charges their audience for league access (e.g.
-                          $5/mo) via VTorn's optional billing pipe. VTorn takes
+                          $5/mo) via VTourn's optional billing pipe. VTourn takes
                           15% of subscription revenue. Stripe fees pass through.
                           Use this only if the creator doesn't already have their
                           own paid-tier infrastructure.
 
 Sponsored creator league: Creator brings a sponsor; revenue split 50/50 between
-                          creator and VTorn after the sponsor's fee.
+                          creator and VTourn after the sponsor's fee.
 ```
 
-Creator-economy ceiling estimate (illustrative, see disclaimer below): a mid-tier sports streamer with 50k engaged followers running a premium creator league at 5% paid conversion at $5/mo = 2,500 paying members × $5 × 12 = $150k/year, of which VTorn earns $22.5k via the optional billing path. Three hundred such creators on the optional billing path = $6.75M/year of platform revenue, with VTorn doing zero customer acquisition. The flywheel: VTorn's Verified Pundit programme (lane 6 below) gives creators a verifiable track record to point at when they pitch their league.
+Creator-economy ceiling estimate (illustrative, see disclaimer below): a mid-tier sports streamer with 50k engaged followers running a premium creator league at 5% paid conversion at $5/mo = 2,500 paying members × $5 × 12 = $150k/year, of which VTourn earns $22.5k via the optional billing path. Three hundred such creators on the optional billing path = $6.75M/year of platform revenue, with VTourn doing zero customer acquisition. The flywheel: VTourn's Verified Pundit programme (lane 6 below) gives creators a verifiable track record to point at when they pitch their league.
 
 ### Why this is the right model
 
-A creator running a league funded by their YouTube ads is **infrastructure usage**, not a betting affiliate funnel. A rugby club running a $20 sweepstake for new clubrooms is **community fundraising**, not VTorn operating a lottery. By making this the headline monetization story for community-led activity — and making it explicit that VTorn never touches the money in any of these flows — the platform's regulatory surface stays small, the trust story stays clean, and the creators get a clean engine to build on without inheriting any of VTorn's compliance overhead.
+A creator running a league funded by their YouTube ads is **infrastructure usage**, not a betting affiliate funnel. A rugby club running a $20 sweepstake for new clubrooms is **community fundraising**, not VTourn operating a lottery. By making this the headline monetization story for community-led activity — and making it explicit that VTourn never touches the money in any of these flows — the platform's regulatory surface stays small, the trust story stays clean, and the creators get a clean engine to build on without inheriting any of VTourn's compliance overhead.
 
 ## Lane 5 — Affiliate routing (the high-ceiling, geo-restricted lane)
 
-Synthesizing the ChatGPT analysis: the absolute *upper bound* on affiliate revenue (1M qualified funded depositors at premium CPA) reaches $200M+, but realistic scenarios for VTorn during a single tournament are an order of magnitude smaller. **Build for the realistic scenario; design for the upper-bound to be possible.**
+Synthesizing the ChatGPT analysis: the absolute *upper bound* on affiliate revenue (1M qualified funded depositors at premium CPA) reaches $200M+, but realistic scenarios for VTourn during a single tournament are an order of magnitude smaller. **Build for the realistic scenario; design for the upper-bound to be possible.**
 
 ### The four affiliate models
 
@@ -243,7 +243,7 @@ Synthesizing the ChatGPT analysis: the absolute *upper bound* on affiliate reven
 
 **3. Sportsbook revenue share.** 25–55% of operator net gaming revenue from referred users. Good only if users are expected to keep betting long-term. Heavy welcome-bonus periods can drag NGR negative for the first weeks of a campaign.
 
-**4. Hybrid (CPA + smaller revshare).** $50 CPA + 15–20% revshare. Recommended for VTorn because it captures upfront cash *and* compounds if users stay engaged.
+**4. Hybrid (CPA + smaller revshare).** $50 CPA + 15–20% revshare. Recommended for VTourn because it captures upfront cash *and* compounds if users stay engaged.
 
 ### Revenue scenarios (re-modelled with realistic ramp)
 
@@ -258,9 +258,9 @@ The ChatGPT brainstorm modelled an aspirational 1M-FTD scenario. Here's the more
 
 Year 1 is small because conversion takes time and reputation. The bigger numbers materialize when (a) legal geos open up via signed deals, and (b) Verified Pundit reputation creates word-of-mouth.
 
-For comparison: a World Cup peak audience is ~1.5B viewers globally across all platforms. If VTorn captures 1% of that (15M users) and converts 5% to FTDs in legal geos, that's 750k FTDs. That's roughly the year-4 ceiling — meaningful, but not hand-waved.
+For comparison: a World Cup peak audience is ~1.5B viewers globally across all platforms. If VTourn captures 1% of that (15M users) and converts 5% to FTDs in legal geos, that's 750k FTDs. That's roughly the year-4 ceiling — meaningful, but not hand-waved.
 
-### Affiliate routing engine (the system VTorn must actually build)
+### Affiliate routing engine (the system VTourn must actually build)
 
 This is the component that turns affiliate revenue from "lottery ticket" into "consistent line item". It's a small TS service (`apps/affiliate-router/`) that decides, for every outbound market-link click:
 
@@ -292,7 +292,7 @@ This is the component that turns affiliate revenue from "lottery ticket" into "c
      legal_in: [crypto-friendly-jurisdictions]
      ...
    ```
-4. **Filter** to operators legal for this user *and* with active VTorn affiliate deals.
+4. **Filter** to operators legal for this user *and* with active VTourn affiliate deals.
 5. **Rank** the surviving operators by current EPC (earnings per click), updated daily from our own tracking. Optionally weight by user-stated preference (some users want crypto-only options).
 6. **Show the top 1–3** with clear "Opens a third-party site" labelling, bonus offer summary, and our tracking parameters in the URL.
 7. **Track every click and downstream conversion** in our own clicks/conversions tables (Redis hot, S3 archive). Don't trust each operator's dashboard.
@@ -308,18 +308,18 @@ For tournament-scale traffic, don't accept public affiliate terms. Negotiate:
 - **Custom CPA tiers** (escalating per FTD bracket — 0–10k FTDs at $75, 10k–50k at $100, 50k+ at $125).
 - **Hybrid upside** (CPA + 12-month revshare).
 - **Exclusive tournament sponsor package** ($500k–$5M fixed plus CPA/revshare; gives the operator branded inventory in lane 1).
-- **Region exclusivity** ("Official VTorn betting partner for Brazil").
+- **Region exclusivity** ("Official VTourn betting partner for Brazil").
 - **Performance floors** (guaranteed minimum if we give premium placement).
 
 A combined deal with a single major operator at the top of a tournament can be $1M–$10M just on the fixed component, before per-FTD payouts.
 
 ## Lane 6 — Data licensing and the Verified Pundit programme
 
-The platform produces two kinds of data that have outside-VTorn value:
+The platform produces two kinds of data that have outside-VTourn value:
 
 ### Crowd-prediction data
 
-The aggregate VTorn crowd implied-probability over time is a unique dataset — effectively a real-time sentiment signal for sports outcomes. Comparable to Twitter sentiment but more structured (predictions are forced into outcome categories with locks).
+The aggregate VTourn crowd implied-probability over time is a unique dataset — effectively a real-time sentiment signal for sports outcomes. Comparable to Twitter sentiment but more structured (predictions are forced into outcome categories with locks).
 
 Customers:
 - **Media outlets** running data-driven sports columns ("the crowd thought X, the market thought Y, here's who was right").
@@ -336,10 +336,10 @@ The killer feature of [doc 17](17-vstamp-and-prediction-iq.md) — Prediction IQ
 How it works:
 - A user with a sustained Prediction IQ above a threshold (e.g. 1500, ~top 7%) becomes eligible for **Verified Pundit** status.
 - Verification is free (it's already proven by their VStamps), but **monetization** kicks in via:
-  - **Featured placement** in the VTorn discovery feed and in tournament-relevant content.
-  - **A "Verified Pundit" widget** they can embed on their own blog, podcast site, or Substack — pulling their live IQ + best calls. Free, but drives traffic back to VTorn.
+  - **Featured placement** in the VTourn discovery feed and in tournament-relevant content.
+  - **A "Verified Pundit" widget** they can embed on their own blog, podcast site, or Substack — pulling their live IQ + best calls. Free, but drives traffic back to VTourn.
   - **Paid endorsements** — brands pay the platform to feature a Verified Pundit's pre-tournament picks. Revenue split with the pundit (50/50).
-  - **Verified Pundit subscription tier** — a fan can pay $5/month to follow a specific pundit's locked predictions in real time (delayed for free users, instant for subscribers). VTorn takes 15%.
+  - **Verified Pundit subscription tier** — a fan can pay $5/month to follow a specific pundit's locked predictions in real time (delayed for free users, instant for subscribers). VTourn takes 15%.
 
 This is the **flywheel** that converts the reputation network from a curiosity into a real business: pundits compete for IQ → users follow pundits → fans pay to follow → brands sponsor pundits → more pundits compete. Comparable economics to OnlyFans but for sports prediction skill, with verification as the moat.
 
@@ -363,23 +363,23 @@ For each lane, the regulatory load varies. Honest mapping:
 | Lane | Risk surface | Required mitigations |
 |------|--------------|----------------------|
 | Sponsored tournaments + native ads | Low. ASA / FTC ad-disclosure rules. | Clear `Sponsored` labels. Don't blur sponsor and editorial copy. |
-| VTorn Pro subscription | Low. Standard SaaS. | Stripe / Paddle handles tax + chargebacks. |
+| VTourn Pro subscription | Low. Standard SaaS. | Stripe / Paddle handles tax + chargebacks. |
 | B2B white-label | Low. Standard B2B. | Per-customer DPA where required (GDPR, CCPA). |
 | Creator leagues | Low if no cash prizes; medium if real-money entry. | Use the existing non-custodial sweepstakes pattern from [doc 12](12-odds-and-predictions.md). |
 | Affiliate routing | High in some jurisdictions. NZ TAB monopoly, UK Gambling Commission rules, etc. | Geo-routing engine with hard fallback. Operator-by-operator approval. Age-gating. Responsible-gambling messaging. Affiliate disclosures on every link. |
 | Data licensing | Low. | Aggregate / anonymize. No personal data in any feed. |
 | Verified Pundit programme | Low for the reputation; medium when paid endorsements involve operators. | Endorsements that point to sportsbook offers go through the same affiliate routing engine + geo-rules. |
 
-On payment processors: VTorn doesn't custody money for sweepstakes (already specced — pools are non-custodial). All on-platform money flows are subscription (Stripe / Paddle) and B2B invoicing (Stripe Connect or direct ACH/wire). Affiliate revenue arrives from operators on net-30 / net-60 cycles; cashflow needs ~3 months runway to cover the lag during a big tournament campaign.
+On payment processors: VTourn doesn't custody money for sweepstakes (already specced — pools are non-custodial). All on-platform money flows are subscription (Stripe / Paddle) and B2B invoicing (Stripe Connect or direct ACH/wire). Affiliate revenue arrives from operators on net-30 / net-60 cycles; cashflow needs ~3 months runway to cover the lag during a big tournament campaign.
 
-On responsible-gambling messaging: every page that surfaces market data displays the standard "VTorn is a free-to-play prediction game…" disclosure. Every affiliate link includes the operator's responsible-gambling badge per the operator's affiliate brand-safety package. Some jurisdictions (UK in particular) require specific phrasing — handled per-region by the affiliate router.
+On responsible-gambling messaging: every page that surfaces market data displays the standard "VTourn is a free-to-play prediction game…" disclosure. Every affiliate link includes the operator's responsible-gambling badge per the operator's affiliate brand-safety package. Some jurisdictions (UK in particular) require specific phrasing — handled per-region by the affiliate router.
 
 ## Why this stack is durable
 
-VTorn's revenue is *resilient* because it doesn't depend on any single lane:
+VTourn's revenue is *resilient* because it doesn't depend on any single lane:
 
 - A regulatory crackdown on offshore sportsbooks in a major market closes lane 5 for that geo, but lanes 1–4 + 6 keep running.
-- An economic downturn hits VTorn Pro (lane 2) but probably increases free-to-play engagement, which lifts lanes 1 and 5.
+- An economic downturn hits VTourn Pro (lane 2) but probably increases free-to-play engagement, which lifts lanes 1 and 5.
 - A sponsor pulling out of a tournament hits lane 1 but doesn't touch lane 2's recurring base.
 - A creator competitor emerging hurts lane 4 but only at the margin.
 - A blow to the platform's reputation (lane 6) is the *only* existential risk — which is why the verification layer ([doc 17](17-vstamp-and-prediction-iq.md)) is load-bearing for the whole business, not just a feature.
@@ -391,7 +391,7 @@ This is also why sponsored tournaments + Pro subscription lead the priority list
 This is the order of monetization features the agents (J / K / L / M / N) should ship, in addition to the core platform work in [doc 09](09-agent-task-breakdown.md):
 
 1. **Affiliate click tracking infrastructure** (per-click DB rows + S3 archive). Must exist on day one even before any deals are signed; without it, no future revenue can be attributed.
-2. **VTorn Pro paywall** (Stripe + entitlement system in user record). Ships with first launch. The features it gates can come online progressively.
+2. **VTourn Pro paywall** (Stripe + entitlement system in user record). Ships with first launch. The features it gates can come online progressively.
 3. **Sponsored badge and challenge slot system** (config-driven; ops can drop a sponsor in via JSON + asset upload). Built once; reused every tournament.
 4. **Affiliate routing engine** (geo + legality + EPC ranking). Built before the first major-tournament campaign.
 5. **B2B white-label theming** (config-driven branding swap on the renderer + UI). Ships when the first customer signs.
@@ -401,20 +401,20 @@ This is the order of monetization features the agents (J / K / L / M / N) should
 
 ## Headline number expectations
 
-> **These are illustrative scenarios, not forecasts.** The ranges below stack the six lanes under explicit assumptions: registered-user counts at each stage, conversion rates to VTorn Pro, B2B deal counts, sponsor-deal sizes, and legal-geo footprint for affiliate. Actual outcomes depend on launch traction, regulatory developments per jurisdiction, sponsor-deal negotiations, and operator approvals — most of which are unknowable until they happen. These numbers are appropriate for internal planning and high-level partner conversations; they should not be presented to investors, regulators, or sophisticated counterparties as forecasts. VTorn does not custody user funds, does not operate as a sportsbook, and these figures are not a solicitation of investment.
+> **These are illustrative scenarios, not forecasts.** The ranges below stack the six lanes under explicit assumptions: registered-user counts at each stage, conversion rates to VTourn Pro, B2B deal counts, sponsor-deal sizes, and legal-geo footprint for affiliate. Actual outcomes depend on launch traction, regulatory developments per jurisdiction, sponsor-deal negotiations, and operator approvals — most of which are unknowable until they happen. These numbers are appropriate for internal planning and high-level partner conversations; they should not be presented to investors, regulators, or sophisticated counterparties as forecasts. VTourn does not custody user funds, does not operate as a sportsbook, and these figures are not a solicitation of investment.
 
 Stacking the lanes at three points in the company's life:
 
 **Year 1 (first major tournament, 500k registered).**
 - Sponsorship: $0.5M–$2M (one tournament, 1–2 sponsors landed)
-- VTorn Pro: $0.3M (5k subs at $9.99)
+- VTourn Pro: $0.3M (5k subs at $9.99)
 - B2B: $0–$0.5M (early deals)
 - Affiliate: $0.5M–$1.5M (small geo footprint)
 - Total: **~$1M–$4M**
 
 **Year 3 (5M registered, established brand).**
 - Sponsorship: $5M–$15M (across 4–6 tournaments, multiple sponsors each)
-- VTorn Pro: $12M–$30M (100k–250k subs)
+- VTourn Pro: $12M–$30M (100k–250k subs)
 - B2B: $5M–$15M (3–10 white-label deals)
 - Creator leagues: $1M–$3M
 - Affiliate: $20M–$50M (legal-geo footprint expanded)
@@ -423,24 +423,24 @@ Stacking the lanes at three points in the company's life:
 
 **Year 5 (15M+ registered, multi-tournament-of-record platform).**
 - Sponsorship: $20M–$50M
-- VTorn Pro: $40M–$100M
+- VTourn Pro: $40M–$100M
 - B2B: $20M–$50M
 - Creator: $5M–$15M
 - Affiliate: $75M–$200M (peak tournament window)
 - Verified Pundit + data: $5M–$15M
 - Total: **~$165M–$430M**
 
-The headline insight: **affiliate is large but never the majority** in a healthy VTorn. By year 5, sponsorship + Pro + B2B is half the revenue, and that half is regulatorily robust globally. Affiliate is the upside that compounds in legal geos; it's not the foundation.
+The headline insight: **affiliate is large but never the majority** in a healthy VTourn. By year 5, sponsorship + Pro + B2B is half the revenue, and that half is regulatorily robust globally. Affiliate is the upside that compounds in legal geos; it's not the foundation.
 
 ## Acceptance criteria for the monetization layer
 
 - [ ] Click tracking writes every outbound market-link click to durable storage with `(user_id, operator, region, timestamp, deal_id)`.
 - [ ] Affiliate router never shows a sportsbook link to a NZ-located user.
 - [ ] Affiliate router never shows a Polymarket link to a NZ-located user.
-- [ ] VTorn Pro entitlement is a single boolean on the user record; gated features check it server-side, not client-side.
+- [ ] VTourn Pro entitlement is a single boolean on the user record; gated features check it server-side, not client-side.
 - [ ] Sponsored challenge / badge / voice / stadium configs are JSON-driven; adding a sponsor is a config change, not a code deploy.
 - [ ] B2B white-label theming swaps logo, colour palette, and brand strings via env config + assets, not by forking the codebase.
-- [ ] Disclosure text (`Sponsored`, `Opens a third-party site`, `VTorn is a free-to-play prediction game`) is injected by the layout, never written by hand into individual pages.
+- [ ] Disclosure text (`Sponsored`, `Opens a third-party site`, `VTourn is a free-to-play prediction game`) is injected by the layout, never written by hand into individual pages.
 - [ ] Cashflow forecast assumes a 60-day lag on affiliate payouts and a 30-day lag on B2B contract revenue.
 
 ## Sources cited in this doc

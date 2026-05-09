@@ -8,7 +8,7 @@
 
 ## Goal
 
-Bring up the VTorn repo from a manual file copy: create the GitHub repo, land the workspace skeleton, stub the four parallel-builder directories, and dispatch issues so the AR-FR-2022 critical path can begin.
+Bring up the VTourn repo from a manual file copy: create the GitHub repo, land the workspace skeleton, stub the four parallel-builder directories, and dispatch issues so the AR-FR-2022 critical path can begin.
 
 ## Reading
 
@@ -30,7 +30,7 @@ Bring up the VTorn repo from a manual file copy: create the GitHub repo, land th
 
 ## Decisions
 
-- **Author identity for VTorn commits**: `Tim Thomas <0800tim@gmail.com>`. *Why*: clawdia's CLAUDE.md durable rule is "always use 0800tim@gmail.com". The STARTER-PROMPT's noreply suggestion was accompanied by "Tim can override later" — gmail is the override. Confirmed with Tim live.
+- **Author identity for VTourn commits**: `Tim Thomas <0800tim@gmail.com>`. *Why*: clawdia's CLAUDE.md durable rule is "always use 0800tim@gmail.com". The STARTER-PROMPT's noreply suggestion was accompanied by "Tim can override later" — gmail is the override. Confirmed with Tim live.
 - **`projects/vtorn/` ignored from clawdia's git tree**. *Why*: vtorn lives inside the clawdia working tree on this dev box. Adding to clawdia's `.gitignore` keeps the parent clean rather than leaving vtorn as a perpetually-untracked dir.
 - **`--if-present` added to top-level workspace scripts**. *Why*: CLAUDE.md's bootstrap snippet uses `pnpm -r run typecheck` directly, but pnpm 10.x errors when no package implements the script. `--if-present` makes the workspace tolerant of partially-implemented scripts so each builder can opt in independently. Noted in PR #1 body.
 - **Builder issues use `Closes #N` semantics**. *Why*: each builder's PR will be linked back to its issue, giving the orchestrator a clean Kanban view of "open builder issue + open PR" → "closed both on merge".

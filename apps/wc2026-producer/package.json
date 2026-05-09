@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "VTorn 2026 FIFA World Cup match-stream producer scaffold (replay-mode + live-mode stub)",
+  "description": "VTourn 2026 FIFA World Cup match-stream producer scaffold (replay-mode + live-mode stub)",
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.json",

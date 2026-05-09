@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Bring up the VTorn dev DB stack and wait for healthchecks to pass.
+# Bring up the VTourn dev DB stack and wait for healthchecks to pass.
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"

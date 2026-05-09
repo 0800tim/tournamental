@@ -36,7 +36,7 @@ Stand up everything around the four parallel builder agents so they have working
 - **Database choice: Postgres + Redis (not NoSQL).** *Why*: prediction integrity needs ACID; user accounts and affiliate accounting need transactions; relational + JSONB covers our flexibility needs without DynamoDB's quirks. Redis covers hot leaderboards (sorted sets), session cache, pub/sub, and an LRU layer in front of Postgres for the hottest reads. Tim confirmed mid-session.
 - **In-memory cache layer added to the stack** *Why*: per-process LRU sits in front of Redis for the hottest items (leaderboard top-10, current-match summaries). Confirmed by Tim. Documented in `docs/22-deployment-and-tunnels.md`.
 - **Postgres 16 with `--data-checksums` and tuned shared_buffers/effective_cache_size for a 6.5GB host.** *Why*: detect silent corruption early; tuning prevents the OOM/swap loop a vanilla container hits when the JIT planner gets aggressive.
-- **Three-environment plan: dev (aiva.nz subdomains, this server) → staging (`*.vtorn.com` "dev/preview/api-dev") → prod (`vtorn.com`, `app.vtorn.com`, `api.vtorn.com`).** *Why*: Tim's request mid-session. Documented end-to-end in `docs/22-deployment-and-tunnels.md`. Production CNAMEs wait until vtorn.com is in his Cloudflare account.
+- **Three-environment plan: dev (aiva.nz subdomains, this server) → staging (`*.vtourn.com` "dev/preview/api-dev") → prod (`vtourn.com`, `app.vtourn.com`, `api.vtourn.com`).** *Why*: Tim's request mid-session. Documented end-to-end in `docs/22-deployment-and-tunnels.md`. Production CNAMEs wait until vtourn.com is in his Cloudflare account.
 - **Ports allocated in the 33xx + 4001 range.** *Why*: avoids clashing with clawdia (3001, 5433, 6379, 8888, 9201–9274). Producer WS stays on 4001 to match `docs/05-mock-producer.md` which is already authoritative.
 - **Cloudflare tunnel is locally configured at `/etc/cloudflared/config.yml`, NOT remotely managed.** *Why*: my memory note from the clawdia project said remote-managed. Verified by reading the live systemd unit — it runs `cloudflared --config /etc/cloudflared/config.yml tunnel run`. Local file is the source of truth. Updated my mental model and these session notes; the relevant clawdia memory should be updated separately.
 - **Backups: tiered hourly/daily/weekly with sha256 verification, plus optional `VTORN_BACKUP_OFFSITE_DIR` for the weekly archive.** *Why*: hourly catches "I just dropped a table" within an hour; daily covers most rollback windows; weekly is the offsite-friendly archive. sha256 sidecar lets restore pre-flight integrity check without re-reading the dump.
@@ -44,7 +44,7 @@ Stand up everything around the four parallel builder agents so they have working
 
 ## Open questions / blockers for Tim
 
-- **vtorn.com Cloudflare** — Tim said he'll set this up under his account. When done, I'll add the staging + prod tunnels. Until then, dev only.
+- **vtourn.com Cloudflare** — Tim said he'll set this up under his account. When done, I'll add the staging + prod tunnels. Until then, dev only.
 - **Offsite backup target** — `VTORN_BACKUP_OFFSITE_DIR` is a hook; needs an rclone mount or S3/R2 bucket pointed at it. I'll wire one in once Tim picks the storage provider.
 - **API surface** — `apps/api` skeleton lands as a separate PR. The actual auth/predictions/leaderboards endpoints are Phase 2 work; this PR sets up the Fastify shell at port 3310 with `/health` so the tunnel works end-to-end.
 
@@ -82,5 +82,5 @@ Tests: no new test code in this PR (infra/docs only). CI's existing checks must 
 - `infra/docker/compose.yml` (NEW)
 - `infra/scripts/*.sh` (NEW)
 - `.github/dependabot.yml` (NEW)
-- IDEAS.md additions: none yet (will park "production tunnel setup when vtorn.com is in Cloudflare" if it doesn't ship within this sprint)
+- IDEAS.md additions: none yet (will park "production tunnel setup when vtourn.com is in Cloudflare" if it doesn't ship within this sprint)
 - Related sessions: `sessions/2026-05-09_orchestrator_phase-0.md`
