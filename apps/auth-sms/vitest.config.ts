@@ -12,5 +12,8 @@ export default defineConfig({
         singleFork: true,
       },
     },
+    env: {
+      NODE_ENV: 'test',
+    },
   },
 });

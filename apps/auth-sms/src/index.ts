@@ -66,13 +66,18 @@ export interface BuildOptions {
 }
 
 export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInstance> {
+  // pino-pretty is only used for local interactive dev; CI and tests run
+  // with NODE_ENV=test and prod runs with NODE_ENV=production — both skip
+  // it so the package isn't a runtime requirement.
+  const usePretty =
+    process.env.NODE_ENV !== 'production' &&
+    process.env.NODE_ENV !== 'test' &&
+    process.env.AUTH_PRETTY_LOGS !== 'false';
+
   const app = Fastify({
     logger: {
       level: LOG_LEVEL,
-      transport:
-        process.env.NODE_ENV === 'production'
-          ? undefined
-          : { target: 'pino-pretty' },
+      transport: usePretty ? { target: 'pino-pretty' } : undefined,
     },
     disableRequestLogging: process.env.NODE_ENV !== 'production',
     trustProxy: true,
