@@ -52,7 +52,7 @@
 │ N. Affiliate    │  │ O. Identity +   │  │ P. On-chain pools + Oracle  │
 │    router       │  │    Humanness    │  │    (Solidity + TS)          │
 │  (geo + EPC)    │  │  (OAuth, friend │  │  PoolFactory, Pool,         │
-│   Node TS       │  │   graph, bots)  │  │  VTornOracle on Polygon/Base│
+│   Node TS       │  │   graph, bots)  │  │  VTournOracle on Polygon/Base│
 └─────────────────┘  └─────────────────┘  └─────────────────────────────┘
 ```
 
@@ -180,13 +180,13 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: a user can link 5+ providers in <30s each from the profile page; humanness score correctly increments and breakdown view shows source-of-truth; bot self-declaration toggle works and surfaces correctly across all leaderboards; planted bot ring of 5 is detected by nightly graph analysis.
 
-### Agent P — On-chain pool factory and VTornOracle
+### Agent P — On-chain pool factory and VTournOracle
 
 **Repo path**: `apps/onchain/`, `contracts/`.
 
-**Reads**: spec results pipeline (for oracle publication), web UI for pool deployment. **Writes**: signed transactions to PoolFactory and VTornOracle on Polygon + Base; published result events.
+**Reads**: spec results pipeline (for oracle publication), web UI for pool deployment. **Writes**: signed transactions to PoolFactory and VTournOracle on Polygon + Base; published result events.
 
-**Brief**: per [docs/21-onchain-sweepstakes-oracle.md](21-onchain-sweepstakes-oracle.md). Solidity contracts (Pool, PoolFactory, VTornOracle) + audit by Trail of Bits / OpenZeppelin / ConsenSys Diligence (budget $30k–$80k). TypeScript publisher service that takes settled match results from the spec pipeline, formats them as oracle MatchResult structs, signs with the 4-of-7 multisig, and publishes to both chains. Web UI flow for pool creation, joining, depositing, predicting, finalising. Geo-restriction so NZ/US/UK/AU users don't see the on-chain pool option until counsel confirms.
+**Brief**: per [docs/21-onchain-sweepstakes-oracle.md](21-onchain-sweepstakes-oracle.md). Solidity contracts (Pool, PoolFactory, VTournOracle) + audit by Trail of Bits / OpenZeppelin / ConsenSys Diligence (budget $30k–$80k). TypeScript publisher service that takes settled match results from the spec pipeline, formats them as oracle MatchResult structs, signs with the 4-of-7 multisig, and publishes to both chains. Web UI flow for pool creation, joining, depositing, predicting, finalising. Geo-restriction so NZ/US/UK/AU users don't see the on-chain pool option until counsel confirms.
 
 **Done when**: pool deployment costs <$0.50 on Polygon; deposit + prediction flow under $0.20 combined; result publication batches a full matchday in one tx for <$50; finalize + withdraw flows correctly distribute USDC; no high-severity audit findings remain.
 
@@ -198,7 +198,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Brief**: per [docs/17-vstamp-and-prediction-iq.md](17-vstamp-and-prediction-iq.md). Node 20+ TypeScript. Hash predictions on lock. Build Merkle trees in 1-minute batches. Anchor roots to Polygon (signed by a cold-stored anchor key) and submit to OpenTimestamps for Bitcoin-backed proofs. Issue VStamp IDs in human-friendly format. Generate static proof pages with in-browser verification. Compute Prediction IQ (Elo-flavoured, market-relative) and per-sport sub-scores; snapshot to CDN profile JSON.
 
-**Done when**: every locked prediction gets a VStamp ID within 100ms; Polygon anchor confirms within 60s; OpenTimestamps Bitcoin confirmation within 60min; public proof page verifies the Merkle proof against on-chain root in the user's browser without any VTorn server involvement; Prediction IQ recomputes correctly given new resolutions.
+**Done when**: every locked prediction gets a VStamp ID within 100ms; Polygon anchor confirms within 60s; OpenTimestamps Bitcoin confirmation within 60min; public proof page verifies the Merkle proof against on-chain root in the user's browser without any VTourn server involvement; Prediction IQ recomputes correctly given new resolutions.
 
 ### Agent L — Clip pipeline and social distributor
 

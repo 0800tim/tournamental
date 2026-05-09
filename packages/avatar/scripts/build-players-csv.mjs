@@ -75,7 +75,7 @@ if (ROSTER.length !== 22) {
 async function fetchJson(url) {
   const res = await fetch(url, {
     headers: {
-      "User-Agent": "VTorn-asset-builder/0.1 (https://github.com/0800tim/vtorn; 0800tim@gmail.com)",
+      "User-Agent": "VTourn-asset-builder/0.1 (https://github.com/0800tim/vtorn; 0800tim@gmail.com)",
       Accept: "application/json",
     },
   });
@@ -148,7 +148,7 @@ async function verifyUrl(url) {
         method: "HEAD",
         redirect: "follow",
         headers: {
-          "User-Agent": "VTorn-asset-builder/0.1 (https://github.com/0800tim/vtorn; 0800tim@gmail.com)",
+          "User-Agent": "VTourn-asset-builder/0.1 (https://github.com/0800tim/vtorn; 0800tim@gmail.com)",
         },
       });
       if (res.ok) return true;

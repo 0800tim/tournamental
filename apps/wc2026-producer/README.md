@@ -1,6 +1,6 @@
 # wc2026-producer
 
-VTorn 2026 FIFA World Cup match-stream producer scaffold.
+VTourn 2026 FIFA World Cup match-stream producer scaffold.
 
 ## Status
 

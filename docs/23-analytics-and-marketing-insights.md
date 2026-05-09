@@ -17,7 +17,7 @@ Three planes, one schema.
             │  Google Tag Manager (single tag) │
             │   ├── GA4                        │
             │   ├── Meta Pixel                 │
-            │   └── VTorn dataLayer events     │
+            │   └── VTourn dataLayer events     │
             │                                   │
             │  navigator.sendBeacon ───────────┐│
             └────────────┬─────────────────────┘│
@@ -43,7 +43,7 @@ Three planes, one schema.
 
 **Three planes**:
 1. **Client-side** (GA4 + Meta Pixel via GTM) — for marketing attribution and "who's coming from where" insights. No PII in the dataLayer beyond what GA4/Meta accept.
-2. **Server-side** (`/v1/event` on the VTorn API) — authoritative event log. Every browser-side event is also sent to our own API so we have ground truth even when ad-blockers nuke GTM.
+2. **Server-side** (`/v1/event` on the VTourn API) — authoritative event log. Every browser-side event is also sent to our own API so we have ground truth even when ad-blockers nuke GTM.
 3. **Engagement scorer** — a real-time stream consumer that updates each user's engagement score in Redis (with a Postgres mirror for durability). Bot-policy code reads from Redis.
 
 **One schema**: the same event names, same field names everywhere. The dataLayer payload === the `/v1/event` body === the Postgres `events` table === the GA4 custom-event name. No translation layers.
@@ -168,7 +168,7 @@ These combine into a single `engagement_score` (0–100) with a transparent form
 
 ## Admin dashboard
 
-Lives at `apps/admin/` (Next.js 14 + Tailwind + shadcn/ui), served on `vtorn-admin.aiva.nz` (dev) / `admin.vtorn.com` (prod). Auth-walled to a small list of admin emails configured in `.env`.
+Lives at `apps/admin/` (Next.js 14 + Tailwind + shadcn/ui), served on `vtorn-admin.aiva.nz` (dev) / `admin.vtourn.com` (prod). Auth-walled to a small list of admin emails configured in `.env`.
 
 Surfaces:
 

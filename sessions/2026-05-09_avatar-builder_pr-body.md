@@ -1,6 +1,6 @@
 ## Summary
 
-Procedural avatar pipeline for VTorn renderers, plus the AR-FR 2022
+Procedural avatar pipeline for VTourn renderers, plus the AR-FR 2022
 asset pack. Consumes `@vtorn/spec@0.1.1` `Player` / `Kit` shapes;
 exposes runtime jersey-texture generation, billboard faces with
 initials-disc fallback, a shared body GLB loader with per-clone

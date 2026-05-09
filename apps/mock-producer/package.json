@@ -2,7 +2,7 @@
   "name": "@vtorn/mock-producer",
   "version": "0.0.0",
   "private": true,
-  "description": "VTorn synthetic match generator (renderer dev fixture)",
+  "description": "VTourn synthetic match generator (renderer dev fixture)",
   "type": "module",
   "bin": {
     "mock-producer": "./dist/cli.js"

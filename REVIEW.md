@@ -1,4 +1,4 @@
-# REVIEW — VTorn docs pack readiness audit
+# REVIEW — VTourn docs pack readiness audit
 
 > Audit of the design pack as of **2026-05-09**. Goal: confirm the docs are sufficient for Claude code agents to begin building, identify any gaps that would block a parallel agent run, and define the **AR-FR 2022 critical path** to get a watchable demo running on the dev server fastest.
 
@@ -13,7 +13,7 @@ The orchestration layer (CLAUDE.md, AGENT-PROMPTS.md, CONTRIBUTING.md, IDEAS.md,
 ## Doc inventory (final state)
 
 ```
-VTorn Pitch.md                                    one-page elevator pitch
+VTourn Pitch.md                                    one-page elevator pitch
 README.md                                   entry point + doc index
 REVIEW.md                                   this file
 CLAUDE.md                                   orchestrator + agent ops entrypoint (NEW)
@@ -34,13 +34,13 @@ docs/11-historic-data-sources.md            StatsBomb open data + AR-FR plan
 docs/12-odds-and-predictions.md             gamification, leaderboards (flat-file)
 docs/13-telegram-bot-and-auth.md            bot + multi-mode auth
 docs/14-clip-generation-and-social.md       clip pipeline → socials
-docs/15-vtorn-brand-and-positioning.md      brand, NZ regulatory framing
+docs/15-vtourn-brand-and-positioning.md      brand, NZ regulatory framing
 docs/16-game-modes-and-scoring.md           10 modes, scoring formula
 docs/17-vstamp-and-prediction-iq.md         blockchain verification + Prediction IQ
 docs/18-monetization.md                     six revenue lanes
-docs/19-open-source-and-contributor-revenue.md  Apache 2.0 + Drips + VTorn Holdings
+docs/19-open-source-and-contributor-revenue.md  Apache 2.0 + Drips + VTourn Holdings
 docs/20-identity-humanness-bots.md          multi-provider OAuth + Humanness Score
-docs/21-onchain-sweepstakes-oracle.md       trustless settlement via VTornOracle
+docs/21-onchain-sweepstakes-oracle.md       trustless settlement via VTournOracle
 spec/types.ts                               canonical TypeScript types (v0.1.1)
 spec/examples/match-init.json
 spec/examples/state-stream.jsonl
@@ -79,7 +79,7 @@ Approximately 350KB of docs total.
 
 These are noted in IDEAS.md or in the relevant doc; they do not block the AR-FR demo or the broader v0.1 launch:
 
-- **Smart-contract audit** — full audit of VTornOracle / PoolFactory / Pool by Trail of Bits / OpenZeppelin / ConsenSys Diligence. 6–10 weeks, $30k–$80k. On-chain pools (doc 21) ship after audit.
+- **Smart-contract audit** — full audit of VTournOracle / PoolFactory / Pool by Trail of Bits / OpenZeppelin / ConsenSys Diligence. 6–10 weeks, $30k–$80k. On-chain pools (doc 21) ship after audit.
 - **Foundation incorporation** — Cayman Foundation + NZ Op Co structure (doc 19). $20k–$50k all-in. Defer until revenue justifies.
 - **Native iOS / Android apps** — doc 20 specifies these for contacts integration. Web + Telegram bot covers v0.1 launch.
 - **Polymarket / Bet365 / etc. affiliate deal negotiations** — doc 18 outlines the structure. Lead time ~1–3 months per operator. Begin negotiations early but launch with whatever has been signed.
@@ -121,12 +121,12 @@ All other types unchanged. Forward-compatible — a 0.1.0 renderer plays a 0.1.1
 
 These don't block agents but should be made before the v0.1 marketing launch:
 
-1. **Repo name and visibility.** The folder is `SimulatedSports` but the brand is VTorn. When to rename. Where to host (GitHub `vtorn` org? Codeberg? self-hosted?).
+1. **Repo name and visibility.** The folder is `SimulatedSports` but the brand is VTourn. When to rename. Where to host (GitHub `vtorn` org? Codeberg? self-hosted?).
 2. **License confirmation.** Apache 2.0 for code, CC-BY-4.0 for docs (recommended in doc 19) — confirm before LICENSE files are committed.
 3. **Match-ID and tournament tag conventions.** What's the canonical match_id for the 2022 WC Final in the spec stream? Suggested: `fifa-wc-2022-final-arg-fra-2022-12-18`. Document and use consistently.
 4. **Brand assets.** A real logo / wordmark is needed before any marketing surface goes live. Currently sketched in doc 15.
-5. **Telegram bot username.** `@VTornBot`, `@VTornTournamentBot`, or other. Reserve early.
-6. **vtorn.com landing.** A simple coming-soon page with email capture should go up well before the demo to start collecting interest.
+5. **Telegram bot username.** `@VTournBot`, `@VTournTournamentBot`, or other. Reserve early.
+6. **vtourn.com landing.** A simple coming-soon page with email capture should go up well before the demo to start collecting interest.
 
 ## Verdict
 

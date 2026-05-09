@@ -5,7 +5,7 @@ always points toward the goal of the team currently in possession (the
 "attacking direction"), so the orientation flips between possessions and
 also at half-time when teams swap ends.
 
-The VTorn spec uses a fixed 105 x 68 pitch-centred coordinate system:
+The VTourn spec uses a fixed 105 x 68 pitch-centred coordinate system:
 
   - origin at pitch centre
   - +x toward team[1]'s goal

@@ -1,12 +1,12 @@
 # CLAUDE.md — Orchestrator and Agent Entrypoint
 
-> **You are a code agent dropped into the VTorn repo.** Read this first. It tells you what the project is in 30 seconds, what to build right now, what tools to use, how to coordinate with other agents, and how to leave the repo cleaner than you found it.
+> **You are a code agent dropped into the VTourn repo.** Read this first. It tells you what the project is in 30 seconds, what to build right now, what tools to use, how to coordinate with other agents, and how to leave the repo cleaner than you found it.
 
 ## What this is, in 30 seconds
 
-**VTorn** (vtorn.com) — a tournament prediction game built around a free-to-play core, with a 3D match-renderer watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0; brand and affiliate codes owned by **VTorn Holdings**; contributors share platform revenue via Drips Network.
+**VTourn** (vtourn.com) — a tournament prediction game built around a free-to-play core, with a 3D match-renderer watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0; brand and affiliate codes owned by **VTourn Holdings**; contributors share platform revenue via Drips Network.
 
-Read [VTorn Pitch.md](VTorn%20Pitch.md) for the marketing one-pager. Read [README.md](README.md) for the repo layout and doc index. Read [REVIEW.md](REVIEW.md) for the current state of the design pack.
+Read [VTourn Pitch.md](VTourn%20Pitch.md) for the marketing one-pager. Read [README.md](README.md) for the repo layout and doc index. Read [REVIEW.md](REVIEW.md) for the current state of the design pack.
 
 ## Right now (the AR-FR 2022 critical path)
 

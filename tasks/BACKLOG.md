@@ -29,7 +29,7 @@
 
 ## P1 — Cloudflare / infra
 
-- `[?]` Set up `vtorn.com` Cloudflare zone (Tim) → wire `dev.vtorn.com`, `preview.vtorn.com`, `api-dev.vtorn.com` tunnels.
+- `[?]` Set up `vtourn.com` Cloudflare zone (Tim) → wire `dev.vtourn.com`, `preview.vtourn.com`, `api-dev.vtourn.com` tunnels.
 - `[?]` Pick offsite-backup target (R2 vs S3 vs Tigris) and wire `VTORN_BACKUP_OFFSITE_DIR`.
 - `[?]` Cron entries on this box for hourly/daily/weekly `db-backup.sh`.
 - `[?]` Add a tunnel for `vtorn-admin.aiva.nz` when admin agent is dispatched.
@@ -56,5 +56,5 @@
 
 - `[?]` ClickHouse warehouse + dbt models (when monthly events > 50M).
 - `[?]` Native iOS / Android apps for contacts integration (per doc 20).
-- `[?]` On-chain pools + VTornOracle audit (per doc 21).
+- `[?]` On-chain pools + VTournOracle audit (per doc 21).
 - `[?]` Cayman + NZ legal incorporation work (per doc 19).

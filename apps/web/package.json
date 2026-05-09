@@ -2,7 +2,7 @@
   "name": "@vtorn/web",
   "version": "0.0.0",
   "private": true,
-  "description": "VTorn 3D match renderer (Next.js + React Three Fiber)",
+  "description": "VTourn 3D match renderer (Next.js + React Three Fiber)",
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3300",

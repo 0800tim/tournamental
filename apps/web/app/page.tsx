@@ -6,7 +6,7 @@ export default function LandingPage() {
   return (
     <main className="landing">
       <div>
-        <h1>VTorn</h1>
+        <h1>VTourn</h1>
         <p>
           The 3D match watch-along, prediction game, and verified-receipt protocol.
           Coming soon. The renderer is open source under Apache 2.0.

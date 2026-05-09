@@ -1,5 +1,5 @@
 /**
- * @vtorn/avatar — procedural avatar pipeline for VTorn renderers.
+ * @vtorn/avatar — procedural avatar pipeline for VTourn renderers.
  *
  * Public surface:
  *
