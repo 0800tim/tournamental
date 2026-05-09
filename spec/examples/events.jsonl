@@ -1,0 +1,16 @@
+{"type":"event.kickoff","t":0,"team":"BLU"}
+{"type":"event.period_start","t":1,"period":1}
+{"type":"event.commentary","t":50,"text":"And we're underway. Blue United get us going.","voice_id":"11labs:adam"}
+{"type":"event.pass","t":1200,"from":"BLU_9","to":"BLU_8","target":[-10,12],"success":true}
+{"type":"event.pass","t":3400,"from":"BLU_8","to":"BLU_11","target":[5,-22],"success":true}
+{"type":"event.tackle","t":5800,"player":"RED_2","victim":"BLU_11","success":false}
+{"type":"event.commentary","t":5900,"text":"Loose tackle from Red there, Blue's left winger keeps possession.","voice_id":"11labs:adam"}
+{"type":"event.pass","t":6500,"from":"BLU_11","to":"BLU_10","target":[10,-5],"success":true}
+{"type":"event.shot","t":8900,"player":"BLU_10","target":[50,2,1.6],"on_target":true,"saved":false}
+{"type":"event.goal","t":9050,"player":"BLU_10","team":"BLU","assist":"BLU_11"}
+{"type":"event.score_change","t":9051,"home":1,"away":0}
+{"type":"event.commentary","t":9100,"text":"What a strike! Number ten finds the top corner. Blue lead, one to nil!","voice_id":"11labs:adam"}
+{"type":"event.kickoff","t":15000,"team":"RED"}
+{"type":"event.period_end","t":2700000,"period":1}
+{"type":"event.period_start","t":2700001,"period":2}
+{"type":"event.match_end","t":5400000}

@@ -1,0 +1,61 @@
+{
+  "type": "match.init",
+  "spec_version": "0.1.0",
+  "match_id": "demo-match-001",
+  "sport": "soccer",
+  "field": { "length": 105, "width": 68, "units": "m", "surface": "grass" },
+  "teams": [
+    {
+      "id": "BLU",
+      "name": "Blue United",
+      "short_name": "BLU",
+      "kit": {
+        "primary": "#1E3A8A",
+        "secondary": "#FFFFFF",
+        "text": "#FFFFFF",
+        "goalkeeper": { "primary": "#FACC15", "secondary": "#1E3A8A", "text": "#1E3A8A" }
+      },
+      "players": [
+        { "id": "BLU_1",  "name": "G. Keeper",   "number": 1,  "position": "GK" },
+        { "id": "BLU_2",  "name": "R. Back",     "number": 2,  "position": "RB" },
+        { "id": "BLU_3",  "name": "C. Defender", "number": 3,  "position": "CB" },
+        { "id": "BLU_4",  "name": "C. Centre",   "number": 4,  "position": "CB" },
+        { "id": "BLU_5",  "name": "L. Back",     "number": 5,  "position": "LB" },
+        { "id": "BLU_6",  "name": "D. Mid",      "number": 6,  "position": "DM" },
+        { "id": "BLU_8",  "name": "C. Mid",      "number": 8,  "position": "CM" },
+        { "id": "BLU_10", "name": "A. Mid",      "number": 10, "position": "AM" },
+        { "id": "BLU_7",  "name": "R. Wing",     "number": 7,  "position": "RW" },
+        { "id": "BLU_11", "name": "L. Wing",     "number": 11, "position": "LW" },
+        { "id": "BLU_9",  "name": "S. Triker",   "number": 9,  "position": "ST" }
+      ]
+    },
+    {
+      "id": "RED",
+      "name": "Red Rovers",
+      "short_name": "RED",
+      "kit": {
+        "primary": "#B91C1C",
+        "secondary": "#000000",
+        "text": "#FFFFFF",
+        "goalkeeper": { "primary": "#10B981", "secondary": "#000000", "text": "#FFFFFF" }
+      },
+      "players": [
+        { "id": "RED_1",  "name": "K. Eeper",    "number": 1,  "position": "GK" },
+        { "id": "RED_2",  "name": "F. Back",     "number": 2,  "position": "RB" },
+        { "id": "RED_3",  "name": "C. Henter",   "number": 3,  "position": "CB" },
+        { "id": "RED_4",  "name": "C. Pair",     "number": 4,  "position": "CB" },
+        { "id": "RED_5",  "name": "B. Left",     "number": 5,  "position": "LB" },
+        { "id": "RED_6",  "name": "M. Field",    "number": 6,  "position": "DM" },
+        { "id": "RED_8",  "name": "C. Mid",      "number": 8,  "position": "CM" },
+        { "id": "RED_10", "name": "A. Number",   "number": 10, "position": "AM" },
+        { "id": "RED_7",  "name": "W. Inger",    "number": 7,  "position": "RW" },
+        { "id": "RED_11", "name": "L. Side",     "number": 11, "position": "LW" },
+        { "id": "RED_9",  "name": "G. Olscorer", "number": 9,  "position": "ST" }
+      ]
+    }
+  ],
+  "start_time": "2026-05-09T19:45:00Z",
+  "venue": "Demo Stadium",
+  "competition": "Show & Tell Cup",
+  "producer": "mock-v1"
+}
