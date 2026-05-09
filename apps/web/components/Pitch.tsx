@@ -7,12 +7,17 @@ const FIELD_LENGTH = 100;
 const FIELD_WIDTH = 64;
 
 /**
- * Procedural pitch: one large green plane plus simple white line geometry
- * for boundary, halfway line, centre circle, and penalty boxes. The pitch
- * is centred at the origin and lies in the X/Z plane with +y up. Spec
- * coords are mapped to this convention by `lib/coords.ts` at the boundary.
+ * Procedural pitch with PBR-tweaked striped grass.
+ *
+ * Doc 04 calls for "procedural striped grass texture as a baseline" — we
+ * paint a 1024x512 canvas with ~10 alternating stripes plus subtle noise
+ * dapple, drop it into a `MeshStandardMaterial` with high roughness, and
+ * rely on the scene lighting rig to do the rest. The pitch always
+ * receives shadows.
  */
 export function Pitch() {
+  const grassTexture = useMemo(() => makeGrassTexture(), []);
+
   const lineMaterial = useMemo(
     () => new THREE.LineBasicMaterial({ color: "#ffffff", linewidth: 2 }),
     [],
@@ -24,35 +29,61 @@ export function Pitch() {
     <group>
       <mesh receiveShadow rotation-x={-Math.PI / 2} position={[0, 0, 0]}>
         <planeGeometry args={[FIELD_LENGTH + 8, FIELD_WIDTH + 8]} />
-        <meshStandardMaterial color="#1f6f3b" roughness={0.85} metalness={0} />
-      </mesh>
-
-      {/* Stripe overlay (subtle bands of darker green). */}
-      <mesh rotation-x={-Math.PI / 2} position={[0, 0.001, 0]}>
-        <planeGeometry args={[FIELD_LENGTH, FIELD_WIDTH, 16, 1]} />
-        <shaderMaterial
-          transparent
-          uniforms={useMemo(() => ({ uTime: { value: 0 } }), [])}
-          vertexShader={`
-            varying vec2 vUv;
-            void main() {
-              vUv = uv;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-          `}
-          fragmentShader={`
-            varying vec2 vUv;
-            void main() {
-              float band = step(0.5, fract(vUv.x * 8.0));
-              gl_FragColor = vec4(0.0, 0.0, 0.0, band * 0.07);
-            }
-          `}
+        <meshStandardMaterial
+          map={grassTexture as THREE.Texture | null}
+          color="#1f6f3b"
+          roughness={0.92}
+          metalness={0}
         />
       </mesh>
 
       <lineSegments geometry={lines} material={lineMaterial} position={[0, 0.01, 0]} />
     </group>
   );
+}
+
+/**
+ * Build a tiling grass texture with ~10 stripes of alternating shades plus
+ * a low-frequency dapple. Cached by useMemo at the call site.
+ */
+function makeGrassTexture(): THREE.Texture | null {
+  if (typeof document === "undefined") return null;
+  const c = document.createElement("canvas");
+  c.width = 1024;
+  c.height = 512;
+  const ctx = c.getContext("2d");
+  if (!ctx) return null;
+
+  // Base.
+  ctx.fillStyle = "#1f6f3b";
+  ctx.fillRect(0, 0, 1024, 512);
+
+  // Stripes along the length axis.
+  const stripeCount = 10;
+  for (let i = 0; i < stripeCount; i += 1) {
+    if (i % 2 === 0) continue;
+    ctx.fillStyle = "#1a5d33";
+    const x = (i * 1024) / stripeCount;
+    ctx.fillRect(x, 0, 1024 / stripeCount, 512);
+  }
+
+  // Subtle dapple via sparse low-alpha squares — cheap noise approximation.
+  ctx.globalAlpha = 0.06;
+  for (let i = 0; i < 1500; i += 1) {
+    ctx.fillStyle = Math.random() > 0.5 ? "#0f3a1f" : "#2c8c4b";
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const s = 1 + Math.random() * 3;
+    ctx.fillRect(x, y, s, s);
+  }
+  ctx.globalAlpha = 1;
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  tex.needsUpdate = true;
+  return tex;
 }
 
 function buildPitchLines(): THREE.BufferGeometry {

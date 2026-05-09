@@ -162,9 +162,9 @@ export const BillboardFace: React.FC<BillboardFaceProps> = ({
     [material]
   );
 
-  // R3F intrinsic JSX — typed via @react-three/fiber.
+  // R3F intrinsic JSX — typed via @react-three/fiber when consumer installs it.
   return (
-    // @ts-expect-error -- R3F intrinsic element; types provided by @react-three/fiber when consumer installs it.
+    // @ts-ignore -- R3F intrinsic element; types provided by @react-three/fiber when consumer installs it.
     <sprite position={[0, yOffset, 0]} scale={[size, size, size]} material={material} />
   );
 };

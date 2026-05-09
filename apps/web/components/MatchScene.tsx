@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { Canvas } from "@react-three/fiber";
-import { ContactShadows } from "@react-three/drei";
+import * as THREE from "three";
+import { ContactShadows, Sky } from "@react-three/drei";
 import { useRendererStream, useMatch } from "@/lib/store";
+import { FaceProvider } from "@/lib/face-context";
 import { Pitch } from "./Pitch";
 import { Stadium } from "./Stadium";
 import { Players } from "./Players";
@@ -12,6 +14,7 @@ import { CameraRig, type CameraMode } from "./CameraRig";
 import { HUD } from "./HUD";
 import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
+import { TimelineScrubber } from "./TimelineScrubber";
 
 export interface MatchSceneProps {
   /** Stream URL or `synthetic` (default). */
@@ -22,75 +25,106 @@ export interface MatchSceneProps {
 
 /**
  * Top-level renderer mount. Owns:
- *   - The Zustand match store (via useRendererStream).
+ *   - The Zustand match store + (in manifest mode) the playback controller.
  *   - The R3F Canvas + scene contents.
  *   - The 2D HUD overlay (DOM, not WebGL).
- *   - The camera-mode toggle UI.
+ *   - The camera-mode toggle UI + (in manifest mode) the timeline scrubber.
+ *
+ * Lighting rig: hemisphere (sky/ground) + directional (sun) with PCF soft
+ * shadows enabled at the renderer level. Sky comes from drei's
+ * procedural `<Sky/>`. Players + ball cast shadows; pitch receives.
  *
  * Everything React-render-driven (HUD score / clock) reads via useMatch.
- * Everything 60fps-driven (player positions, ball) reads from the store
- * inside useFrame to avoid React re-renders on every state frame.
+ * Everything 60fps-driven reads from the store inside useFrame to avoid
+ * React re-renders on every state frame.
  */
 export function MatchScene({ source, matchId }: MatchSceneProps) {
-  const store = useRendererStream(source);
+  const { store, controller } = useRendererStream(source);
   const init = useMatch(store, (s) => s.init);
   const [mode, setMode] = useState<CameraMode>("broadcast");
 
   return (
-    <div className="match-scene">
-      <Canvas
-        shadows
-        dpr={[1, 2]}
-        camera={{ position: [0, 25, 60], fov: 45 }}
-        gl={{ antialias: true, powerPreference: "high-performance" }}
-      >
-        <color attach="background" args={["#0c1722"]} />
-        <fog attach="fog" args={["#0c1722", 80, 220]} />
-
-        <hemisphereLight args={["#9fc4ff", "#1a2230", 0.6]} />
-        <directionalLight
-          position={[40, 60, 20]}
-          intensity={1.1}
-          castShadow
-          shadow-mapSize={[1024, 1024]}
-        />
-
-        <CameraRig store={store} mode={mode} />
-        <Pitch />
-        <Stadium />
-        <ContactShadows position={[0, 0.01, 0]} opacity={0.45} blur={2.4} far={50} />
-
-        {init ? <Players store={store} /> : null}
-        {init ? <Ball store={store} /> : null}
-      </Canvas>
-
-      <HUD store={store} />
-      <OddsHUD store={store} />
-      <DebugPanel store={store} matchId={matchId} mode={mode} />
-
-      <div className="camera-toggle">
-        <button
-          type="button"
-          className={mode === "broadcast" ? "active" : ""}
-          onClick={() => setMode("broadcast")}
+    <FaceProvider>
+      <div className="match-scene">
+        <Canvas
+          shadows="soft"
+          dpr={[1, 2]}
+          camera={{ position: [0, 25, 60], fov: 45 }}
+          gl={{ antialias: true, powerPreference: "high-performance" }}
+          onCreated={({ gl }) => {
+            gl.shadowMap.type = THREE.PCFSoftShadowMap;
+            gl.toneMapping = THREE.ACESFilmicToneMapping;
+            gl.toneMappingExposure = 1.05;
+          }}
         >
-          Broadcast
-        </button>
-        <button
-          type="button"
-          className={mode === "tactical" ? "active" : ""}
-          onClick={() => setMode("tactical")}
-        >
-          Top-down
-        </button>
-        <button
-          type="button"
-          className={mode === "follow" ? "active" : ""}
-          onClick={() => setMode("follow")}
-        >
-          Follow ball
-        </button>
+          {/* Procedural sky — gives a lived-in horizon under the stadium ring. */}
+          <Sky
+            distance={4500}
+            sunPosition={[40, 60, 20]}
+            inclination={0.49}
+            azimuth={0.25}
+            mieCoefficient={0.005}
+            mieDirectionalG={0.85}
+            rayleigh={2.5}
+            turbidity={6}
+          />
+          <fog attach="fog" args={["#cdd9e6", 110, 320]} />
+
+          {/* Lighting rig: hemisphere + sun. */}
+          <hemisphereLight args={["#cfe2ff", "#1a2230", 0.55]} />
+          <directionalLight
+            position={[40, 60, 20]}
+            intensity={1.4}
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-near={1}
+            shadow-camera-far={220}
+            shadow-camera-left={-90}
+            shadow-camera-right={90}
+            shadow-camera-top={70}
+            shadow-camera-bottom={-70}
+            shadow-bias={-0.0001}
+          />
+
+          <CameraRig store={store} mode={mode} />
+          <Pitch />
+          <Stadium />
+          <ContactShadows position={[0, 0.01, 0]} opacity={0.35} blur={2.4} far={50} />
+
+          {init ? <Players store={store} /> : null}
+          {init ? <Ball store={store} /> : null}
+        </Canvas>
+
+        <HUD store={store} />
+        <OddsHUD store={store} />
+        <DebugPanel store={store} matchId={matchId} mode={mode} />
+
+        <div className="camera-toggle">
+          <button
+            type="button"
+            className={mode === "broadcast" ? "active" : ""}
+            onClick={() => setMode("broadcast")}
+          >
+            Broadcast
+          </button>
+          <button
+            type="button"
+            className={mode === "tactical" ? "active" : ""}
+            onClick={() => setMode("tactical")}
+          >
+            Top-down
+          </button>
+          <button
+            type="button"
+            className={mode === "follow" ? "active" : ""}
+            onClick={() => setMode("follow")}
+          >
+            Follow ball
+          </button>
+        </div>
+
+        {controller ? <TimelineScrubber controller={controller} /> : null}
       </div>
-    </div>
+    </FaceProvider>
   );
 }

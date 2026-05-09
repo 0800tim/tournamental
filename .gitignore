@@ -10,3 +10,10 @@ __pycache__/
 .uv/
 *.pyc
 *.tsbuildinfo
+
+# Large generated stream dumps live under apps/web/public/data/arfr-stream/.
+# These are produced by `apps/statsbomb-replay` and should not be committed.
+# Test fixtures (prefixed __fixture__) ARE checked in.
+apps/web/public/data/arfr-stream/*.ndjson
+apps/web/public/data/arfr-stream/*.ndjson.gz
+!apps/web/public/data/arfr-stream/__fixture__.ndjson
