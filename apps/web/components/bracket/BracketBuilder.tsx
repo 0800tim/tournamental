@@ -232,6 +232,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       {tab === "lock" && (
         <section role="tabpanel" aria-label="Lock + share" className="bracket-lock-section">
           <LockSummary
+            bracket={bracket}
             cascaded={cascaded}
             tournament={tournament}
             deadline_utc={tournament.start_utc}
