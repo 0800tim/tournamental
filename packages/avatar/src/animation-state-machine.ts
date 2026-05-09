@@ -246,6 +246,26 @@ export class AvatarAnimationStateMachine {
     return this.currentTag;
   }
 
+  /**
+   * Public: the active AnimationAction, or null. Phase-2 foot IK
+   * reads this to compute the clip's normalised phase for the stance
+   * schedule.
+   */
+  get action(): THREE.AnimationAction | null {
+    return this.currentAction;
+  }
+
+  /**
+   * Public: normalised clip phase in [0, 1) of the active action.
+   * Returns 0 if no action is active or the clip has zero duration.
+   */
+  clipPhase(): number {
+    if (!this.currentAction) return 0;
+    const dur = this.currentAction.getClip().duration;
+    if (dur <= 0) return 0;
+    return ((this.currentAction.time % dur) + dur) % dur / dur;
+  }
+
   /** Public: ms since the current state was entered. */
   msSinceEnter(): number {
     return this.now() - this.enteredAt;

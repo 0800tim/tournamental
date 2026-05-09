@@ -13,6 +13,8 @@ import {
   BillboardFace,
   deriveInitials,
   findCanonicalBone,
+  FootIK,
+  locomotionStance,
   makeJerseyTexture,
 } from "@vtorn/avatar";
 import {
@@ -92,10 +94,12 @@ export function Player({ player, team, kit, store }: PlayerProps) {
 
   // Build the FSM once the body + clip library are ready.
   const fsmRef = useRef<AvatarAnimationStateMachine | null>(null);
+  const ikRef = useRef<FootIK | null>(null);
   useEffect(() => {
     if (!body || !clipLibrary) {
       fsmRef.current?.dispose();
       fsmRef.current = null;
+      ikRef.current = null;
       return;
     }
     const fsm = new AvatarAnimationStateMachine({
@@ -104,9 +108,17 @@ export function Player({ player, team, kit, store }: PlayerProps) {
       initialState: "idle",
     });
     fsmRef.current = fsm;
+    // Phase-2: foot IK plugs into the FSM's stance hint. The IK
+    // attaches to the same body; it modifies hip + knee local
+    // rotations *after* the mixer writes the pose, so the FSM stays
+    // authoritative.
+    const ik = new FootIK({ ankleClearance: 0.04 });
+    ik.attach(body.scene);
+    ikRef.current = ik;
     return () => {
       fsm.dispose();
       fsmRef.current = null;
+      ikRef.current = null;
     };
   }, [body, clipLibrary]);
 
@@ -154,6 +166,7 @@ export function Player({ player, team, kit, store }: PlayerProps) {
 
     // Animation FSM step (only for HIGH/MED; LOW skips the mixer).
     const fsm = fsmRef.current;
+    const ik = ikRef.current;
     if (fsm && lod !== "low") {
       const speed = estimateSpeed(state.prev, state.curr, player.id);
       const events = state.events;
@@ -163,7 +176,19 @@ export function Player({ player, team, kit, store }: PlayerProps) {
       for (const f of filtered) {
         fsm.consume(player.id, f.event);
       }
-      fsm.tick(delta, speed);
+      const tag = fsm.tick(delta, speed);
+
+      // Phase-2 foot IK: plug the FSM's current animation tag + the
+      // mixer's clip phase into the stance schedule, then let the IK
+      // pin / release feet against the ground plane (z=0 in world).
+      // We only run IK on HIGH (closest LOD) to keep the budget low —
+      // 11 active high-LOD characters × 2 legs × ~0.05 ms ≈ 1.1 ms
+      // per frame, well inside the 2.2 ms budget. MED+LOW skip IK.
+      if (ik && lod === "high") {
+        const phase = fsm.clipPhase();
+        const stance = locomotionStance(tag, phase);
+        ik.solve(stance);
+      }
     } else if (lod === "low") {
       // Keep the event index advanced so we don't replay them when we
       // come back into HIGH/MED.
