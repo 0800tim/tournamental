@@ -1,0 +1,19 @@
+{
+  "id": "test-penalty-mbappe",
+  "period": 5,
+  "timestamp": "00:00:13.386",
+  "minute": 120,
+  "second": 13,
+  "type": { "id": 16, "name": "Shot" },
+  "possession_team": { "id": 771, "name": "France" },
+  "team": { "id": 771, "name": "France" },
+  "player": { "id": 3009, "name": "Kylian Mbappé Lottin" },
+  "location": [109.0, 40.0],
+  "shot": {
+    "end_location": [120.0, 36.0, 1.5],
+    "technique": { "id": 93, "name": "Normal" },
+    "body_part": { "id": 40, "name": "Right Foot" },
+    "type": { "id": 88, "name": "Penalty" },
+    "outcome": { "id": 97, "name": "Goal" }
+  }
+}

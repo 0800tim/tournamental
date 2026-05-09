@@ -1,0 +1,21 @@
+{
+  "id": "test-shot-goal",
+  "period": 1,
+  "timestamp": "00:35:22.500",
+  "minute": 35,
+  "second": 22,
+  "type": { "id": 16, "name": "Shot" },
+  "possession_team": { "id": 779, "name": "Argentina" },
+  "team": { "id": 779, "name": "Argentina" },
+  "player": { "id": 2995, "name": "Ángel Fabián Di María Hernández" },
+  "location": [100.0, 30.0],
+  "shot": {
+    "statsbomb_xg": 0.18,
+    "end_location": [120.0, 40.0, 1.2],
+    "technique": { "id": 93, "name": "Normal" },
+    "body_part": { "id": 38, "name": "Left Foot" },
+    "type": { "id": 87, "name": "Open Play" },
+    "outcome": { "id": 97, "name": "Goal" },
+    "freeze_frame": []
+  }
+}
