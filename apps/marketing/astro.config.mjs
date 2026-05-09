@@ -11,14 +11,13 @@ export default defineConfig({
   },
   vite: {
     server: {
-      // Allow our cloudflared dev hostname to hit the dev server.
-      allowedHosts: [
-        "vtorn-www.aiva.nz",
-        "preview.vtourn.com",
-        "vtourn.com",
-        "www.vtourn.com",
-        "localhost",
-      ],
+      // Dev only: accept any Host header so the cloudflared tunnel
+      // (vtorn-www.aiva.nz today, vtourn.com tomorrow) can hit us
+      // without per-host config drift.
+      allowedHosts: true,
+    },
+    preview: {
+      allowedHosts: true,
     },
   },
 });
