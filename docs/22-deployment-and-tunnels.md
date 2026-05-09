@@ -19,6 +19,7 @@
 | Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.vtourn.com`                          | `vtourn.com`              |
 | App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.vtourn.com`                              | `app.vtourn.com`          |
 | Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.vtourn.com/ws`)  | `wss://app.vtourn.com/ws` |
+| Stream fan-out   | `vtorn-stream-fanout.aiva.nz` → `:4002`         | `stream-dev.vtourn.com`                       | `stream.vtourn.com`       |
 | API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtourn.com`                          | `api.vtourn.com`          |
 | Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.vtourn.com`                         | `auth.vtourn.com`          |
 | Admin console    | `vtorn-admin.aiva.nz` → `:3340`                 | `admin-dev.vtourn.com`                        | `admin.vtourn.com`        |
@@ -41,6 +42,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/web` (renderer)      | 3300  | Next.js dev. `pnpm dev -- -p 3300`. Tunnel: `vtorn.aiva.nz`.                        |
 | `apps/statsbomb-replay`    | 4001  | WebSocket for the AR-FR producer per docs/11. Tunnel: `vtorn-stream.aiva.nz`.       |
 | `apps/mock-producer`       | 4001 (default) | Same default as statsbomb-replay; only one producer runs at a time during dev. Override with `--port` if running both. |
+| `apps/stream-server`       | 4002  | Fan-out WS + admin REST. Subscribes to one or more producers (default `ws://localhost:4001`) and fans out per-match streams to many subscribers on `/v1/match/:match_id`. Tunnel: `vtorn-stream-fanout.aiva.nz` (dev) / `stream.vtourn.com` (prod). See [`apps/stream-server/README.md`](../apps/stream-server/README.md). |
 | `apps/api`                 | 3310  | Fastify. Tunnel: `vtorn-api.aiva.nz`.                                                |
 | `apps/marketing` (future)  | 3320  | Next.js or Astro. Tunnel: `vtorn-www.aiva.nz`.                                       |
 | `apps/auth-sms`            | 3330  | Fastify (SMS / WhatsApp OTP). Tunnel: `vtorn-auth.aiva.nz`. See [docs/32](32-auth-and-privacy.md). |

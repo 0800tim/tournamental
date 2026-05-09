@@ -1,0 +1,29 @@
+{
+  "name": "@vtorn/stream-server",
+  "version": "0.0.1",
+  "private": true,
+  "description": "VTorn live-stream fan-out server. Subscribes to one upstream producer WS, rings the last N seconds of frames, fans out to many subscribers on :4002 with back-pressure isolation.",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "prestart": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@vtorn/spec": "workspace:*",
+    "fastify": "^5.0.0",
+    "pino": "^9.5.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
