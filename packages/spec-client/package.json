@@ -1,0 +1,25 @@
+{
+  "name": "@vtorn/spec-client",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Client-side spec stream consumer: WebSocket driver + Zustand store + useMatchStream hook.",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@vtorn/spec": "workspace:*",
+    "zustand": "^4.5.5"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "react": "^18.3.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}
