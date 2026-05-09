@@ -1,0 +1,35 @@
+---
+const links = [
+  { href: "/why", label: "Why" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/syndicates", label: "Syndicates" },
+  { href: "/leaderboards", label: "Leaderboards" },
+  { href: "/world-cup-2026", label: "World Cup 2026" },
+  { href: "/open-source", label: "Open source" },
+];
+const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+---
+<header class="sticky top-0 z-40 border-b border-ink-700/70 bg-ink-900/80 backdrop-blur">
+  <div class="container-page flex items-center justify-between py-4">
+    <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
+      <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900 font-black">V</span>
+      <span class="text-white">VTourn</span>
+      <span class="hidden sm:inline pill">beta</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-6 text-sm">
+      {links.map((l) => (
+        <a
+          href={l.href}
+          class:list={[
+            "hover:text-accent-400 transition",
+            currentPath === l.href ? "text-accent-400" : "text-ink-200",
+          ]}
+        >{l.label}</a>
+      ))}
+    </nav>
+    <div class="flex items-center gap-3">
+      <a href="https://github.com/0800tim/vtorn" class="hidden sm:inline link text-sm" rel="me">GitHub</a>
+      <a href="/start" class="btn-primary text-sm">Get started</a>
+    </div>
+  </div>
+</header>

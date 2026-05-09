@@ -1,0 +1,89 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout
+  title="VTourn for the 2026 World Cup"
+  description="Six weeks. 48 teams. 104 matches. One global leaderboard. The playbook for hosts, players, and creators."
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Coming June 2026"
+      title="The Global World Cup Championship is the perfect way to start."
+      lede="Forty-eight teams, 104 matches, six weeks of saturation attention. Whether you want to play, host a syndicate for your office, or build a creator audience around it, here's the playbook."
+    />
+  </section>
+
+  <section class="container-page pb-12">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card">
+        <span class="pill mb-3">Players</span>
+        <h3 class="text-xl font-bold text-white">Sign up before the opener</h3>
+        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
+          <li>One account, every match.</li>
+          <li>Lock the early-stage long-shots — that's where Prediction IQ jumps the most.</li>
+          <li>Daily streak starts from day one of the group stage.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="pill mb-3">Syndicate hosts</span>
+        <h3 class="text-xl font-bold text-white">Have your subdomain ready</h3>
+        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
+          <li>Claim <code>yourname.vtourn.com</code> in March-April.</li>
+          <li>Set the format (winner-takes-all is a classic for the office; podium is friendlier for big groups).</li>
+          <li>Bulk-invite via the Telegram or WhatsApp bot.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="pill mb-3">Creators</span>
+        <h3 class="text-xl font-bold text-white">Build your record</h3>
+        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
+          <li>Public syndicate; daily call-cards on socials.</li>
+          <li>Auto-clip pipeline turns every shot you called correctly into a 6s clip with your handle.</li>
+          <li>Affiliate router on partner sportsbooks once you cross the size threshold.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h3 class="text-xl font-bold text-white mb-4">Tournament-specific features</h3>
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card">
+        <h4 class="font-bold text-white">Bracket Prophet</h4>
+        <p class="text-ink-200 mt-2">Predict the full bracket from group stage to final, not just match-by-match. Specific scoring weight on the further-out rounds; partial credit when your team makes it but loses in the round you predicted them to win.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Knockout streak</h4>
+        <p class="text-ink-200 mt-2">Get every Round-of-16 result right? Mythic badge. Chain it through quarters and semis? Featured on the global landing for the rest of the tournament.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Country pride leaderboard</h4>
+        <p class="text-ink-200 mt-2">Everyone playing for their country forms a single national average. Watch your country's rank move every match-day. Rivalries turned into a real signal.</p>
+      </div>
+      <div class="card">
+        <h4 class="font-bold text-white">Final-day raffle</h4>
+        <p class="text-ink-200 mt-2">Every prediction made during the tournament earns one raffle entry; correct ones earn 5x. On final day, top-tier sponsors fund a verifiable on-chain prize draw via VTornOracle. Closed unless we ship the audit on time — open if we do.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h2 class="text-2xl font-bold text-white">Timeline</h2>
+    <ul class="prose-vt list-disc pl-6 space-y-2">
+      <li><strong>March 2026</strong>: marketing site launches; subdomain reservations open; SDK + MCP server publish on npm.</li>
+      <li><strong>April 2026</strong>: bracket builder live; affiliate router live; Telegram + WhatsApp bots out of beta.</li>
+      <li><strong>May 2026</strong>: dry-run World Cup using a synthetic match; integration testing with the top 25 partner syndicates.</li>
+      <li><strong>11 June 2026</strong>: opening match. Global board live. Daily clip cycle running.</li>
+      <li><strong>19 July 2026</strong>: final. Final-day raffle. Mythic-tier badges drop. Tournament wrap.</li>
+    </ul>
+
+    <h2 class="text-2xl font-bold text-white mt-10">How to get involved now</h2>
+    <ol class="prose-vt list-decimal pl-6 space-y-2">
+      <li>Watch the <a href="https://vtorn.aiva.nz/match/fifa-wc-2022-final-arg-fra-2022-12-18" class="link">live AR-FR 2022 demo</a> to see the renderer.</li>
+      <li>Star <a href="https://github.com/0800tim/vtorn" class="link">the repo</a> — that's how we know who's serious.</li>
+      <li>Email <a href="mailto:partners@vtourn.com" class="link">partners@vtourn.com</a> if you're a creator or fan club hosting more than ~250 members.</li>
+      <li>Join the <a href="/start" class="link">Get-started prompt library</a> for the LLM-driven onboarding path.</li>
+    </ol>
+  </section>
+</Layout>

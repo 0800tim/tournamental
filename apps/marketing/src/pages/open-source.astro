@@ -1,0 +1,71 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+---
+<Layout
+  title="Open source · VTourn"
+  description="VTourn is 100% open source under Apache 2.0. The docs are CC-BY 4.0. Contributors share platform revenue via the Drips Network."
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Open source"
+      title="100% open. Apache 2.0 code, CC-BY 4.0 docs."
+      lede="Every line of code, every doc, every spec is on GitHub. Audit it. Fork it. Run your own. Contribute and share platform revenue via the Drips Network — not a stock-option pyramid, not a points scheme, real continuous USDC."
+    />
+    <div class="flex flex-wrap gap-3">
+      <a href="https://github.com/0800tim/vtorn" class="btn-primary">View the repo</a>
+      <a href="/contribute" class="btn-ghost">How to contribute</a>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="card">
+        <h3 class="font-bold text-white">Apache 2.0 (code)</h3>
+        <p class="text-ink-200 mt-2">Permissive licence. Use it commercially. Fork it. Re-licence your changes if you want — the originals stay free.</p>
+      </div>
+      <div class="card">
+        <h3 class="font-bold text-white">CC-BY 4.0 (docs)</h3>
+        <p class="text-ink-200 mt-2">Quote our docs. Translate them. Build courses around them. Just attribute.</p>
+      </div>
+      <div class="card">
+        <h3 class="font-bold text-white">Spec-first</h3>
+        <p class="text-ink-200 mt-2">A canonical TypeScript message spec drives every producer and renderer. Build your own producer (StatsBomb, OPTA, an experiment of your own); we'll render it.</p>
+      </div>
+      <div class="card">
+        <h3 class="font-bold text-white">@vtourn/sdk</h3>
+        <p class="text-ink-200 mt-2">Publishable npm package. Drop into any React app. <code>useMatchStream(id)</code> hook, <code>&lt;MatchScene /&gt;</code> R3F component, full typed API client.</p>
+      </div>
+      <div class="card">
+        <h3 class="font-bold text-white">@vtourn/mcp</h3>
+        <p class="text-ink-200 mt-2">Model Context Protocol server. <code>npx @vtourn/mcp</code> in Claude Desktop or Cursor and you can spin up a syndicate, attach a tournament, or stream a match through your favourite LLM session.</p>
+      </div>
+      <div class="card">
+        <h3 class="font-bold text-white">Drips revenue share</h3>
+        <p class="text-ink-200 mt-2">Platform revenue is split deterministically by merge-and-impact-weighted contribution. Quarterly payouts via the Drips Network. Opt in with a single registration step.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h2 class="text-2xl font-bold text-white">Architecture, in 30 seconds</h2>
+    <p class="prose-vt">Producers (StatsBomb-replay, mock-producer, future video-ingest) emit a canonical JSON message stream over WebSocket. Renderers (Next.js + React Three Fiber today; native apps and pixel-streaming later) consume that stream and render it. Every prediction is signed (VStamp), settled against the result, and reflected on global / country / syndicate leaderboards. Contributors and influencers earn revenue share through Drips and a partner program.</p>
+
+    <h2 class="text-2xl font-bold text-white mt-10">What's in the repo</h2>
+    <ul class="prose-vt list-disc pl-6 space-y-2">
+      <li><code>packages/spec/</code> — the canonical message spec.</li>
+      <li><code>apps/statsbomb-replay/</code> — Python producer for any StatsBomb open-data match.</li>
+      <li><code>apps/mock-producer/</code> — synthetic-match generator for development.</li>
+      <li><code>apps/web/</code> — the Next.js + R3F renderer.</li>
+      <li><code>packages/avatar/</code> — procedural avatars and the Wikidata-driven face billboard.</li>
+      <li><code>packages/commentary/</code> — event templates + TTS scheduler.</li>
+      <li><code>apps/api/</code> — Fastify API service.</li>
+      <li><code>apps/marketing/</code> — this site.</li>
+      <li><code>docs/</code> — 26 design docs covering vision, spec, renderer, producers, avatars, gamification, virality, and on-chain settlement.</li>
+    </ul>
+
+    <h2 class="text-2xl font-bold text-white mt-10">Why we're doing this in the open</h2>
+    <p class="prose-vt">Cultural infrastructure shouldn't be owned by a single company. The data formats and the renderers and the leaderboards should be standards that anyone can implement. Building VTourn in the open means it survives us.</p>
+    <p class="prose-vt">It also means the people who actually contribute — the engineer who writes the producer, the designer who improves the avatars, the analyst who tunes the IQ formula — get paid in proportion to what they build, continuously, on-chain, automatically.</p>
+  </section>
+</Layout>
