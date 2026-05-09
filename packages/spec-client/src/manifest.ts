@@ -55,16 +55,43 @@ export interface ManifestController {
   durationMs: number;
   /** Current playhead in ms. */
   getTime(): number;
-  /** Seek to `t_ms`; clamps to [0, durationMs]. Re-applies any newly-crossed events. */
+  /**
+   * Seek to `t_ms`; clamps to [0, durationMs]. Counts as a user-initiated
+   * jump — the driver resets its event cursor and re-applies any
+   * newly-crossed events, including events that are now in the past
+   * after a backward seek.
+   */
   seek(t_ms: number): void;
+  /**
+   * Internal: advance the playhead to `t_ms` due to natural wall-clock
+   * pacing. Does NOT count as a seek (the driver's event cursor is not
+   * reset). Fires general subscribers so a UI scrubber can update its
+   * display, but the seek-channel subscribers are not notified.
+   *
+   * Driver-only — UI code should always call `seek()`.
+   * @internal
+   */
+  _advanceTo(t_ms: number): void;
   /** Toggle the wall-clock driver. Does not change the current time. */
   setPlaying(playing: boolean): void;
   isPlaying(): boolean;
   /** Set the playback rate multiplier. 1 = realtime; > 1 = faster. */
   setRate(rate: number): void;
   getRate(): number;
-  /** Subscribe to time/state updates; returns unsubscribe. */
+  /**
+   * Subscribe to any time/state update (advance + seek + play/pause
+   * toggle + rate change). The callback fires on the driver's tick
+   * cadence so UI scrubbers can refresh smoothly.
+   */
   subscribe(cb: () => void): () => void;
+  /**
+   * Subscribe to user-initiated seeks only — the driver uses this to
+   * reset its event cursor so a backward scrub re-emits crossed events
+   * and a forward scrub past pending events drops them.
+   *
+   * @internal — driver wiring; not part of the UI surface.
+   */
+  subscribeSeek(cb: () => void): () => void;
   /** Underlying buffer for things that need it (UI markers, debug). */
   buffer(): ManifestBuffer;
   /** Compute (lerped) state at an arbitrary t. Cheap; allocates one StateFrame. */
@@ -279,6 +306,7 @@ export function createManifestController(opts: CreateControllerOptions): Manifes
   let playing = opts.startPlaying ?? true;
   let rate = opts.startRate ?? 1;
   const listeners = new Listeners();
+  const seekListeners = new Listeners();
 
   return {
     get durationMs() {
@@ -286,6 +314,11 @@ export function createManifestController(opts: CreateControllerOptions): Manifes
     },
     getTime: () => time,
     seek(t) {
+      time = clamp(t, 0, buffer.durationMs);
+      seekListeners.emit();
+      listeners.emit();
+    },
+    _advanceTo(t) {
       time = clamp(t, 0, buffer.durationMs);
       listeners.emit();
     },
@@ -300,6 +333,7 @@ export function createManifestController(opts: CreateControllerOptions): Manifes
     },
     getRate: () => rate,
     subscribe: (cb) => listeners.add(cb),
+    subscribeSeek: (cb) => seekListeners.add(cb),
     buffer: () => buffer,
     getCurrentState(t) {
       return getStateAt(buffer.frames, t);
@@ -330,8 +364,6 @@ interface DriverState {
   emittedInit: boolean;
   /** Index of the next event to flush (sorted ascending). */
   eventCursor: number;
-  /** Last applied state-frame time, used to know when to re-emit a frame. */
-  lastEmittedT: number;
   /** Last wall-clock time we ticked at. */
   lastWallMs: number;
 }
@@ -340,12 +372,32 @@ const DRIVER_FPS = 30;
 
 /**
  * Wall-clock driver that walks `controller.time` forward at `rate` and
- * emits messages to the renderer on every tick. Re-emits a fresh
- * `StateFrame` every tick so the store has prev/curr to lerp; flushes
- * any events whose `t` is between the previous and current playhead.
+ * emits messages to the renderer on every tick.
  *
- * On seek, fires a synthetic state frame at the new time and re-walks
- * the event cursor.
+ * Single source of truth for the match clock: every emitted state
+ * frame uses `controller.getTime()` as its `t`. We never emit the
+ * underlying buffer-frame's `t` directly — that value can lag the
+ * playhead (e.g. once we pass the last buffered frame the bracketing
+ * lookup keeps returning the same frame's t while real time advances).
+ * Emitting both would make the HUD clock alternate between the two
+ * values frame to frame, which is exactly the jitter Tim was seeing on
+ * his phone.
+ *
+ * On every tick:
+ *   1. Advance the playhead by `dtWall * rate` (only if playing).
+ *   2. Look up the lerped state at the new playhead and emit it,
+ *      overriding `t` with the playhead so the renderer sees a
+ *      monotonic clock.
+ *   3. Drain events whose `t` is on the segment we just covered, in
+ *      timestamp order. The event cursor advances naturally with
+ *      forward play and is only reset on a user-initiated seek (via
+ *      `controller.subscribeSeek`).
+ *
+ * NOTE: we deliberately do NOT subscribe to `controller.subscribe`.
+ * The previous version did, and reset the event cursor on every
+ * driver-internal `seek()`, which silently dropped the
+ * `event.score_change` (and every event between adjacent ticks) —
+ * this was the "scoreline doesn't update" symptom Tim reported.
  */
 function startDriver(
   state: DriverState,
@@ -362,63 +414,62 @@ function startDriver(
   }
   onStatus("synthetic");
 
-  // Catch the cursor up to the start time so we don't replay history.
+  // Catch the cursor up to the start time so we don't replay history
+  // before the configured startTime.
   state.eventCursor = firstEventAtOrAfter(buffer.events, controller.getTime());
 
   // Push an initial state frame so renderers have something to draw.
-  const initial = controller.getCurrentState(controller.getTime());
-  if (initial) {
-    onMessage(initial);
-    state.lastEmittedT = initial.t;
-  }
+  emitFrameAt(state, onMessage, controller.getTime());
   state.lastWallMs = nowMs();
+
+  // Subscribe to user-initiated seeks ONLY. The driver's natural
+  // `_advanceTo` does not fire this channel, so the cursor reset only
+  // runs when the scrubber moves the playhead.
+  const unsubscribeSeek = controller.subscribeSeek(() => {
+    state.eventCursor = firstEventAtOrAfter(buffer.events, controller.getTime());
+    // Re-emit a state frame so the renderer redraws at the new time
+    // without waiting for the next driver tick.
+    emitFrameAt(state, onMessage, controller.getTime());
+  });
 
   const tickIntervalMs = 1000 / DRIVER_FPS;
   let timer: ReturnType<typeof setInterval> | null = null;
 
-  const tick = () => {
+  timer = setInterval(() => {
     const now = nowMs();
     const dtWall = now - state.lastWallMs;
     state.lastWallMs = now;
 
+    let prevT = controller.getTime();
+    let nextT = prevT;
     if (controller.isPlaying()) {
-      const advance = dtWall * controller.getRate();
-      const next = controller.getTime() + advance;
-      if (next >= buffer.durationMs) {
-        controller.seek(buffer.durationMs);
+      nextT = prevT + dtWall * controller.getRate();
+      if (nextT >= buffer.durationMs) {
+        nextT = buffer.durationMs;
+        controller._advanceTo(nextT);
         controller.setPlaying(false);
       } else {
-        controller.seek(next);
+        controller._advanceTo(nextT);
       }
     }
-    flushFrame(state, onMessage);
-  };
 
-  // Subscribe to seek events: when the user scrubs, we flush a frame on the
-  // next animation frame so the renderer redraws immediately, regardless
-  // of the rate.
-  let dirty = false;
-  const unsubscribe = controller.subscribe(() => {
-    dirty = true;
-    // Reset the event cursor — a backward scrub means events ahead of the
-    // new time are pending again; a forward scrub past events skips them.
-    state.eventCursor = firstEventAtOrAfter(buffer.events, controller.getTime());
-  });
+    // Always emit a frame so the store's prev/curr wall-clock timestamps
+    // advance and downstream interpolation has a current frame to lerp
+    // toward — this matters even when we're paused (the renderer's
+    // useFrame still fires).
+    emitFrameAt(state, onMessage, controller.getTime());
 
-  // Run a small dirty-check on the same timer so we avoid double-emitting.
-  timer = setInterval(() => {
-    if (dirty) {
-      dirty = false;
-      flushFrame(state, onMessage);
-    }
-    tick();
+    // Drain events with prevT < t <= nextT (forward play). On a backward
+    // seek the cursor was reset by `subscribeSeek`, so `nextT < prevT`
+    // never happens here.
+    drainEvents(state, onMessage, controller.getTime());
   }, tickIntervalMs);
 
   return {
     stop() {
       if (timer) clearInterval(timer);
       timer = null;
-      unsubscribe();
+      unsubscribeSeek();
     },
   };
 }
@@ -432,20 +483,44 @@ function firstEventAtOrAfter(events: EventMessage[], t: number): number {
   return events.length;
 }
 
-function flushFrame(state: DriverState, onMessage: (m: Message) => void): void {
-  const t = state.controller.getTime();
+/**
+ * Emit a state frame at `t`. We always rebrand the frame's `t` field to
+ * the requested playhead so the consuming store sees a monotonic clock
+ * regardless of whether the underlying buffer frame is exactly at `t`,
+ * earlier (lerped) or clamped (past the last buffered frame).
+ *
+ * No-op when there is no current state available (empty buffer).
+ */
+function emitFrameAt(
+  state: DriverState,
+  onMessage: (m: Message) => void,
+  t: number,
+): void {
   const frame = state.controller.getCurrentState(t);
-  if (frame && frame.t !== state.lastEmittedT) {
+  if (!frame) return;
+  // If getStateAt already returned a frame whose t matches the playhead
+  // (which happens for in-range queries because getStateAt rebuilds the
+  // frame at exactly t), we still pass through the canonical fresh
+  // object. For clamp-to-end cases the buffer frame's t is older than
+  // the playhead — overwrite t to the playhead so the HUD clock keeps
+  // ticking.
+  if (frame.t === t) {
     onMessage(frame);
-    state.lastEmittedT = frame.t;
-  } else if (frame) {
-    // Same `t` (idle frame) — emit a fresh frame at controller.time so the
-    // store still updates wall-clock timestamps and components animate.
+  } else {
     onMessage({ ...frame, t });
-    state.lastEmittedT = t;
   }
+}
 
-  // Drain events with t <= playhead.
+/**
+ * Drain events with `t <= playhead`, in cursor order. The cursor is
+ * monotonically forward during playback; backward seeks reset it via
+ * the seek subscription.
+ */
+function drainEvents(
+  state: DriverState,
+  onMessage: (m: Message) => void,
+  t: number,
+): void {
   const buffer = state.controller.buffer();
   while (state.eventCursor < buffer.events.length) {
     const ev = buffer.events[state.eventCursor];
@@ -455,7 +530,13 @@ function flushFrame(state: DriverState, onMessage: (m: Message) => void): void {
   }
 }
 
-const nowMs = (): number => (typeof performance !== "undefined" ? performance.now() : Date.now());
+/**
+ * Wall-clock used for the driver tick rate. We use `Date.now()` instead
+ * of `performance.now()` so vitest's fake-timer infrastructure can
+ * advance us deterministically. The driver only cares about deltas,
+ * not absolute precision, so the millisecond resolution is fine.
+ */
+const nowMs = (): number => Date.now();
 
 /**
  * Build a `StreamSource` from an NDJSON URL (gzipped or plain).
@@ -500,7 +581,6 @@ export function manifestSource(url: string, opts: ManifestSourceOptions = {}): S
               controller,
               emittedInit: false,
               eventCursor: 0,
-              lastEmittedT: -1,
               lastWallMs: nowMs(),
             },
             onMessage,
@@ -544,14 +624,15 @@ export function manifestSourceFromText(
 
   return {
     start(onMessage, onStatus) {
-      if (stopped) return;
+      // Reset stopped flag so the source can be restarted (StrictMode
+      // double-mount in dev hits start->stop->start on every effect).
+      stopped = false;
       opts.onReady?.(controller);
       driver = startDriver(
         {
           controller,
           emittedInit: false,
           eventCursor: 0,
-          lastEmittedT: -1,
           lastWallMs: nowMs(),
         },
         onMessage,
