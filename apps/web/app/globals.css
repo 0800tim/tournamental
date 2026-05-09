@@ -572,3 +572,402 @@ a {
   letter-spacing: -0.005em;
   font-weight: 700;
 }
+
+/* ---------- Broadcast match-stats HUD ---------- */
+
+.match-stats-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-feature-settings: "tnum" 1;
+  z-index: 4;
+  color: #e6edf3;
+}
+
+.match-stats-hud .msh-panel-label {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+
+/* Top-left scoreboard */
+.msh-scoreboard {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: grid;
+  grid-template-columns: auto auto auto;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(8, 14, 22, 0.92), rgba(8, 14, 22, 0.74));
+  border-radius: 12px;
+  padding: 10px 14px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.msh-team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.msh-team.msh-home { justify-content: flex-end; }
+.msh-team.msh-away { justify-content: flex-start; }
+
+.msh-team-stripe {
+  display: inline-block;
+  width: 4px;
+  height: 26px;
+  border-radius: 2px;
+}
+
+.msh-team-name {
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  font-size: 13px;
+  text-transform: uppercase;
+}
+
+.msh-team-score {
+  font-size: 30px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  min-width: 28px;
+  text-align: center;
+}
+
+.msh-clock {
+  text-align: center;
+  padding: 0 8px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.msh-period {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.msh-clock-display {
+  font-size: 22px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Top-right scorers ticker */
+.msh-scorers {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  background: rgba(8, 14, 22, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 220px;
+  max-width: 290px;
+  max-height: 250px;
+  overflow-y: auto;
+  font-size: 13px;
+}
+
+.msh-scorers[data-empty="1"] {
+  opacity: 0.45;
+}
+
+.msh-scorers ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msh-scorers li {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 6px;
+  align-items: baseline;
+  padding: 2px 0;
+}
+
+.msh-scorers li[data-side="away"] {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid #f3b83b;
+  padding-left: 6px;
+}
+
+.msh-scorers li[data-side="home"] {
+  border-left: 2px solid #6cabdd;
+  padding-left: 6px;
+}
+
+.msh-scorer-min {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  opacity: 0.85;
+  letter-spacing: 0.04em;
+}
+
+.msh-scorer-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msh-scorer-team {
+  font-size: 10px;
+  opacity: 0.55;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Bottom-left match-stats panel */
+.msh-stats {
+  position: absolute;
+  bottom: 100px;
+  left: 18px;
+  width: 240px;
+  background: rgba(8, 14, 22, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msh-stat-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  align-items: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.msh-stat-home {
+  text-align: left;
+  font-weight: 700;
+}
+
+.msh-stat-away {
+  text-align: right;
+  font-weight: 700;
+}
+
+.msh-stat-label {
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+/* Bottom-right substitutions ticker */
+.msh-subs {
+  position: absolute;
+  bottom: 100px;
+  right: 18px;
+  width: 240px;
+  background: rgba(8, 14, 22, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 12px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.msh-subs[data-empty="1"] {
+  opacity: 0.45;
+}
+
+.msh-subs ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.msh-subs li {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-size: 11px;
+}
+
+.msh-sub-min {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
+}
+
+.msh-sub-arrow {
+  font-weight: 700;
+}
+
+.msh-sub-arrow:first-of-type { color: #4cd680; }
+.msh-sub-arrow:nth-of-type(2) { color: #ff7878; }
+
+.msh-sub-name {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.msh-sub-out {
+  opacity: 0.6;
+}
+
+/* Goal celebration burst (centre) */
+.msh-goal-burst {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: linear-gradient(135deg, rgba(243, 184, 59, 0.96), rgba(204, 64, 64, 0.96));
+  color: #00132e;
+  padding: 18px 36px;
+  border-radius: 14px;
+  text-align: center;
+  font-weight: 800;
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.18);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+  animation: msh-goal-burst-in 0.45s cubic-bezier(0.18, 0.78, 0.42, 1.45);
+}
+
+.msh-goal-burst-label {
+  font-size: 32px;
+  letter-spacing: 0.18em;
+  font-weight: 900;
+}
+
+.msh-goal-burst-name {
+  font-size: 22px;
+  margin-top: 4px;
+}
+
+.msh-goal-burst-min {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  opacity: 0.65;
+  margin-top: 4px;
+}
+
+.msh-goal-burst-score {
+  font-size: 18px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 4px;
+  font-weight: 800;
+}
+
+@keyframes msh-goal-burst-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%) scale(0.7);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* Mobile bottom-drawer tabs (hidden on desktop) */
+.msh-mobile-tabs {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .msh-scoreboard {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    width: auto;
+    grid-template-columns: 1fr auto 1fr;
+    padding: 6px 8px;
+    gap: 4px;
+  }
+
+  .msh-team-name { font-size: 11px; }
+  .msh-team-score { font-size: 22px; min-width: 22px; }
+  .msh-clock-display { font-size: 16px; }
+  .msh-period { font-size: 9px; }
+
+  .msh-scorers,
+  .msh-stats,
+  .msh-subs {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 36px;
+    width: auto;
+    max-width: none;
+    max-height: 38vh;
+    border-radius: 12px 12px 0 0;
+    transform: translateY(100%);
+    transition: transform 0.2s ease-out;
+  }
+
+  /* Default-hidden on mobile; the active tab pulls its panel back into
+     view via data-active. */
+  .match-stats-hud .msh-mobile-tabs[data-active="scorers"]
+    ~ .msh-scorers,
+  .match-stats-hud:has(.msh-mobile-tabs[data-active="scorers"]) .msh-scorers,
+  .match-stats-hud .msh-mobile-tabs[data-active="stats"] ~ .msh-stats,
+  .match-stats-hud:has(.msh-mobile-tabs[data-active="stats"]) .msh-stats,
+  .match-stats-hud .msh-mobile-tabs[data-active="subs"] ~ .msh-subs,
+  .match-stats-hud:has(.msh-mobile-tabs[data-active="subs"]) .msh-subs {
+    transform: translateY(0);
+  }
+
+  .msh-mobile-tabs {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    pointer-events: auto;
+    background: rgba(8, 14, 22, 0.96);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    z-index: 10;
+  }
+
+  .msh-mobile-tabs button {
+    background: transparent;
+    border: 0;
+    color: #b8c5d3;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 8px 0;
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .msh-mobile-tabs button[data-active="1"] {
+    background: rgba(108, 171, 221, 0.18);
+    color: #fff;
+  }
+}
+
+/* On portrait phones we narrow the goal-burst so it fits. */
+@media (max-width: 380px) {
+  .msh-goal-burst {
+    padding: 12px 20px;
+  }
+  .msh-goal-burst-label { font-size: 24px; }
+  .msh-goal-burst-name { font-size: 16px; }
+}

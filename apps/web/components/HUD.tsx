@@ -9,19 +9,16 @@ interface HUDProps {
 }
 
 /**
- * 2D overlay HUD. Subscribes to the slow-changing slices of the store
- * (score, clock, latest commentary) and renders a fixed overlay above the
- * R3F canvas. `pointer-events: none` so the overlay never steals clicks.
+ * Auxiliary 2D overlay — owns the shootout panel + commentary ticker +
+ * event banner. The primary scoreboard (team flags, score, minute) and
+ * the broadcast stats panels live in `MatchStatsHUD` so this component
+ * is intentionally narrow.
  *
- * Per acceptance: when fed AR-FR, this displays 3-3 (regulation+ET) and
- * 4-2 in the shootout panel.
+ * `pointer-events: none` so the overlay never steals clicks.
  */
 export function HUD({ store }: HUDProps) {
   const init = useStore(store, (s) => s.init);
-  const score = useStore(store, (s) => s.score);
   const shootout = useStore(store, (s) => s.shootout);
-  const period = useStore(store, (s) => s.period);
-  const clock = useStore(store, (s) => s.clockDisplay);
   const commentary = useStore(store, (s) => s.commentary);
   const lastEvent = useStore(store, (s) => s.events[s.events.length - 1] ?? null);
 
@@ -33,26 +30,8 @@ export function HUD({ store }: HUDProps) {
     );
   }
 
-  const home = init.teams[0];
-  const away = init.teams[1];
-
   return (
     <div className="hud" data-testid="hud">
-      <div className="hud-scoreboard">
-        <div className="hud-team home" style={{ borderColor: home.kit.primary }}>
-          <span className="hud-team-name">{home.short_name ?? home.name}</span>
-          <span className="hud-team-score" data-testid="home-score">{score.home}</span>
-        </div>
-        <div className="hud-clock">
-          <div className="hud-period">{periodLabel(period)}</div>
-          <div className="hud-clock-display" data-testid="clock">{clock ?? "0:00"}</div>
-        </div>
-        <div className="hud-team away" style={{ borderColor: away.kit.primary }}>
-          <span className="hud-team-score" data-testid="away-score">{score.away}</span>
-          <span className="hud-team-name">{away.short_name ?? away.name}</span>
-        </div>
-      </div>
-
       {shootout.active || shootout.ended ? (
         <div className="hud-shootout" data-testid="shootout">
           <div className="hud-shootout-label">Penalty shootout</div>
@@ -78,23 +57,6 @@ export function HUD({ store }: HUDProps) {
       ) : null}
     </div>
   );
-}
-
-function periodLabel(p: number): string {
-  switch (p) {
-    case 1:
-      return "1st half";
-    case 2:
-      return "2nd half";
-    case 3:
-      return "ET 1";
-    case 4:
-      return "ET 2";
-    case 5:
-      return "Penalties";
-    default:
-      return `Period ${p}`;
-  }
 }
 
 function eventLabel(ev: import("@vtorn/spec").EventMessage): string {
