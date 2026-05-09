@@ -68,9 +68,9 @@ test.describe("Odds chip on bracket page", () => {
     // Click MEX to win all 3 group A matches so KOR + MEX advance.
     const groupA = page.locator(".bracket-group").filter({ hasText: "Group A" });
     const matchRows = groupA.locator(".mpr-row");
-    await matchRows.nth(0).locator(".mpr-btn-home").click();
-    await matchRows.nth(1).locator(".mpr-btn-home").click();
-    await matchRows.nth(2).locator(".mpr-btn-home").click();
+    await matchRows.nth(0).locator(".mpr-pick-home").click();
+    await matchRows.nth(1).locator(".mpr-pick-home").click();
+    await matchRows.nth(2).locator(".mpr-pick-home").click();
     // Back to knockouts; expect to find at least one chip with no draw row.
     await page.getByRole("tab", { name: /Knockouts/ }).click();
     const koChip = page

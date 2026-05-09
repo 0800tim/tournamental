@@ -10,7 +10,7 @@
  * components:
  *
  *   - GroupCard          → `.bracket-group` cards with `.mpr-row` matches
- *   - MatchPredictionRow → `.mpr-btn-home` / `.mpr-btn-draw` / `.mpr-btn-away`
+ *   - MatchPredictionRow → `.mpr-pick-home` / `.mpr-pick-draw` / `.mpr-pick-away`
  *   - KnockoutMatch      → `[data-match-id]` cards with `.km-home` / `.km-away`
  *                          buttons; winning side gets `.is-winner`
  *   - BracketBuilder     → tab buttons `Group stage X/72`, `Knockouts X/32`
@@ -61,10 +61,10 @@ export async function pickAllGroupMatches(page: Page, side: GroupSide): Promise<
 
   const btnClass =
     side === "home_win"
-      ? ".mpr-btn-home"
+      ? ".mpr-pick-home"
       : side === "away_win"
-        ? ".mpr-btn-away"
-        : ".mpr-btn-draw";
+        ? ".mpr-pick-away"
+        : ".mpr-pick-draw";
 
   const buttons = page.locator(`.bracket-group .mpr-row ${btnClass}`);
   const count = await buttons.count();
