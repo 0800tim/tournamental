@@ -302,6 +302,15 @@ async function exportGLB(object, animations, outPath) {
 
 // ---------- animations ----------
 
+/**
+ * Helpers to keep clip authoring readable. Each returns the 4-element
+ * array form of a quaternion (xyzw) so we can splat directly into
+ * `QuaternionKeyframeTrack` value arrays.
+ */
+const Q = (x, y, z) =>
+  new THREE.Quaternion().setFromEuler(new THREE.Euler(x, y, z)).toArray();
+const Q0 = Q(0, 0, 0);
+
 /** Build a short looping clip on the bones we already authored. */
 function makeIdleClip(bones) {
   const tracks = [];
@@ -426,32 +435,452 @@ function makeKickClip(_bones) {
   return new THREE.AnimationClip("kick", 0.5, tracks);
 }
 
+// ---------- new differentiated clips (Phase 1 fidelity) ----------
+//
+// Self-authored CC0 — see packages/avatar/README.md § "Asset
+// substitution policy" for why we don't pull Mixamo's archive directly
+// in OSS CI. The clips are short, hand-tuned, and target the same
+// canonical Mixamo skeleton as `body.glb` so they retarget cleanly to a
+// future RPM/Quaternius rig drop.
+
+function makeWalkClip(_bones) {
+  const tracks = [];
+  const legUp = Q(0.5, 0, 0);
+  const legBack = Q(-0.3, 0, 0);
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.25, 0.5, 0.75, 1.0],
+      [...legUp, ...Q0, ...legBack, ...Q0, ...legUp]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.25, 0.5, 0.75, 1.0],
+      [...legBack, ...Q0, ...legUp, ...Q0, ...legBack]
+    )
+  );
+  const armFwd = Q(-0.35, 0, -0.05);
+  const armBack = Q(0.35, 0, -0.05);
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.25, 0.5, 0.75, 1.0],
+      [...armBack, ...Q0, ...armFwd, ...Q0, ...armBack]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.25, 0.5, 0.75, 1.0],
+      [...armFwd, ...Q0, ...armBack, ...Q0, ...armFwd]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine.quaternion",
+      [0, 0.5, 1.0],
+      [...Q(0.02, 0, 0), ...Q(-0.02, 0, 0), ...Q(0.02, 0, 0)]
+    )
+  );
+  return new THREE.AnimationClip("walk", 1.0, tracks);
+}
+
+function makeSprintClip(_bones) {
+  const tracks = [];
+  const legUp = Q(1.2, 0, 0);
+  const legBack = Q(-0.85, 0, 0);
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.11, 0.225, 0.34, 0.45],
+      [...legUp, ...Q0, ...legBack, ...Q0, ...legUp]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.11, 0.225, 0.34, 0.45],
+      [...legBack, ...Q0, ...legUp, ...Q0, ...legBack]
+    )
+  );
+  const armFwd = Q(-1.0, 0, 0);
+  const armBack = Q(1.0, 0, 0);
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.11, 0.225, 0.34, 0.45],
+      [...armBack, ...Q0, ...armFwd, ...Q0, ...armBack]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.11, 0.225, 0.34, 0.45],
+      [...armFwd, ...Q0, ...armBack, ...Q0, ...armFwd]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine.quaternion",
+      [0, 0.45],
+      [...Q(0.18, 0, 0), ...Q(0.18, 0, 0)]
+    )
+  );
+  return new THREE.AnimationClip("sprint", 0.45, tracks);
+}
+
+function makePassClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.1, 0.2, 0.4],
+      [...Q0, ...Q(-0.4, 0, 0.2), ...Q(0.6, 0, 0.2), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine1.quaternion",
+      [0, 0.2, 0.4],
+      [...Q0, ...Q(0, -0.2, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.2, 0.4],
+      [...Q0, ...Q(0, 0, 0.4), ...Q0]
+    )
+  );
+  return new THREE.AnimationClip("pass", 0.4, tracks);
+}
+
+function makeHeaderClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine.quaternion",
+      [0, 0.15, 0.3, 0.5],
+      [...Q0, ...Q(-0.3, 0, 0), ...Q(0.4, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigHead.quaternion",
+      [0, 0.15, 0.3, 0.5],
+      [...Q0, ...Q(-0.4, 0, 0), ...Q(0.6, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.15, 0.5],
+      [...Q0, ...Q(0.6, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.15, 0.5],
+      [...Q0, ...Q(0.6, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.15, 0.3, 0.5],
+      [0, 0.95, 0, 0, 1.25, 0, 0, 1.05, 0, 0, 0.95, 0]
+    )
+  );
+  return new THREE.AnimationClip("header", 0.5, tracks);
+}
+
+function makeShootClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.18, 0.36, 0.6],
+      [...Q0, ...Q(-1.0, 0, 0), ...Q(1.7, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightLeg.quaternion",
+      [0, 0.18, 0.36, 0.6],
+      [...Q0, ...Q(0.8, 0, 0), ...Q(-0.4, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.6],
+      [...Q(0.18, 0, 0), ...Q(0.18, 0, 0)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.18, 0.36, 0.6],
+      [...Q0, ...Q(0, 0, 0.5), ...Q(0, 0, -0.4), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine1.quaternion",
+      [0, 0.36, 0.6],
+      [...Q0, ...Q(0, -0.3, 0), ...Q0]
+    )
+  );
+  return new THREE.AnimationClip("shoot", 0.6, tracks);
+}
+
+function makeTackleClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.2, 0.5, 0.8],
+      [0, 0.95, 0, 0, 0.5, 0.1, 0, 0.25, 0.3, 0, 0.4, 0.2]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigHips.quaternion",
+      [0, 0.2, 0.5, 0.8],
+      [...Q0, ...Q(0.6, 0, 0), ...Q(1.2, 0, 0), ...Q(0.4, 0, 0)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.3, 0.5, 0.8],
+      [...Q0, ...Q(-0.6, 0.4, 0), ...Q(-1.2, 0.5, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.3, 0.8],
+      [...Q0, ...Q(0.8, 0, 0), ...Q(0.2, 0, 0)]
+    )
+  );
+  return new THREE.AnimationClip("tackle", 0.8, tracks);
+}
+
+function makeFallClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.3, 0.6, 1.0, 1.5],
+      [0, 0.95, 0, 0, 0.5, 0, 0, 0.2, 0.1, 0, 0.15, 0.15, 0, 0.18, 0.15]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigHips.quaternion",
+      [0, 0.3, 0.6, 1.0, 1.5],
+      [...Q0, ...Q(0.4, 0, 0), ...Q(1.1, 0, 0), ...Q(1.4, 0, 0), ...Q(1.4, 0, 0)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.4, 1.0],
+      [...Q0, ...Q(-0.6, 0.4, 0.2), ...Q(-0.4, 0.4, 0.2)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.4, 1.0],
+      [...Q0, ...Q(-0.6, -0.4, -0.2), ...Q(-0.4, -0.4, -0.2)]
+    )
+  );
+  return new THREE.AnimationClip("fall", 1.5, tracks);
+}
+
+function makeCelebrateClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.3, 1.5, 3.0],
+      [...Q0, ...Q(-2.0, 0, -0.3), ...Q(-1.8, 0, -0.4), ...Q(-1.6, 0, -0.3)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.3, 1.5, 3.0],
+      [...Q0, ...Q(-2.0, 0, 0.3), ...Q(-1.8, 0, 0.4), ...Q(-1.6, 0, 0.3)]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine.quaternion",
+      [0, 0.5, 1.5, 3.0],
+      [...Q0, ...Q(-0.25, 0, 0), ...Q(-0.2, 0, 0), ...Q(-0.15, 0, 0)]
+    )
+  );
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.3, 0.6, 1.0, 1.5, 2.0, 2.5, 3.0],
+      [0, 0.95, 0,
+       0, 1.2, 0,
+       0, 0.95, 0,
+       0, 1.1, 0,
+       0, 0.95, 0,
+       0, 1.05, 0,
+       0, 0.95, 0,
+       0, 0.95, 0]
+    )
+  );
+  return new THREE.AnimationClip("celebrate", 3.0, tracks);
+}
+
+function makeThrowClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.2, 0.4, 0.6],
+      [...Q0, ...Q(-2.4, 0, -0.2), ...Q(-1.0, 0, -0.2), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.2, 0.4, 0.6],
+      [...Q0, ...Q(-2.4, 0, 0.2), ...Q(-1.0, 0, 0.2), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine.quaternion",
+      [0, 0.2, 0.4, 0.6],
+      [...Q0, ...Q(-0.3, 0, 0), ...Q(0.2, 0, 0), ...Q0]
+    )
+  );
+  return new THREE.AnimationClip("throw", 0.6, tracks);
+}
+
+function makeCatchClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftArm.quaternion",
+      [0, 0.15, 0.3, 0.5],
+      [...Q0, ...Q(-1.5, 0, -0.2), ...Q(-1.4, 0, -0.2), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightArm.quaternion",
+      [0, 0.15, 0.3, 0.5],
+      [...Q0, ...Q(-1.5, 0, 0.2), ...Q(-1.4, 0, 0.2), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.2, 0.5],
+      [0, 0.95, 0, 0, 0.7, 0.2, 0, 0.95, 0]
+    )
+  );
+  return new THREE.AnimationClip("catch", 0.5, tracks);
+}
+
+function makeDribbleClip(_bones) {
+  const tracks = [];
+  const legUp = Q(0.6, 0, 0);
+  const legBack = Q(-0.4, 0, 0);
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.2, 0.4, 0.6, 0.8],
+      [...legUp, ...Q0, ...legBack, ...Q0, ...legUp]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.2, 0.4, 0.6, 0.8],
+      [...legBack, ...Q0, ...legUp, ...Q0, ...legBack]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigSpine1.quaternion",
+      [0, 0.2, 0.4, 0.6, 0.8],
+      [...Q0, ...Q(0, 0.2, 0), ...Q0, ...Q(0, -0.2, 0), ...Q0]
+    )
+  );
+  return new THREE.AnimationClip("dribble", 0.8, tracks);
+}
+
+function makeJumpClip(_bones) {
+  const tracks = [];
+  tracks.push(
+    new THREE.VectorKeyframeTrack(
+      "mixamorigHips.position",
+      [0, 0.15, 0.3, 0.5, 0.6],
+      [0, 0.95, 0, 0, 0.7, 0, 0, 1.4, 0, 0, 1.0, 0, 0, 0.95, 0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigLeftUpLeg.quaternion",
+      [0, 0.15, 0.3, 0.6],
+      [...Q0, ...Q(0.5, 0, 0), ...Q(-0.3, 0, 0), ...Q0]
+    )
+  );
+  tracks.push(
+    new THREE.QuaternionKeyframeTrack(
+      "mixamorigRightUpLeg.quaternion",
+      [0, 0.15, 0.3, 0.6],
+      [...Q0, ...Q(0.5, 0, 0), ...Q(-0.3, 0, 0), ...Q0]
+    )
+  );
+  return new THREE.AnimationClip("jump", 0.6, tracks);
+}
+
 // ---------- main ----------
 
 async function main() {
   console.log("Building shared body GLB…");
-  const { root, bones } = buildBody();
+  const { root } = buildBody();
   await exportGLB(root, [], resolve(MODELS_DIR, "body.glb"));
 
-  console.log("Building seed animations…");
-  // Authored clips. Remaining tags (walk, sprint, pass, header, shoot,
-  // tackle, fall, celebrate, throw, catch, dribble, jump) ship as
-  // idle-clip stubs so the renderer's loader contract works for all 15
-  // tags. Issue #IDEAS will track Mixamo retargets for the rest.
+  console.log("Building Phase-1 differentiated animation pack…");
+  // Each tag now gets a hand-tuned clip on the canonical Mixamo skeleton.
+  // Self-authored CC0; see packages/avatar/README.md § "Asset
+  // substitution policy". Future bake step replaces these with the real
+  // Mixamo retargets without renaming the files.
   const builders = {
     idle: makeIdleClip,
+    walk: makeWalkClip,
     run: makeRunClip,
+    sprint: makeSprintClip,
     kick: makeKickClip,
+    pass: makePassClip,
+    header: makeHeaderClip,
+    shoot: makeShootClip,
+    tackle: makeTackleClip,
+    fall: makeFallClip,
+    celebrate: makeCelebrateClip,
+    throw: makeThrowClip,
+    catch: makeCatchClip,
+    dribble: makeDribbleClip,
+    jump: makeJumpClip,
   };
-  const stubAs = "idle";
-  const ALL_TAGS = [
-    "idle", "walk", "run", "sprint",
-    "kick", "pass", "header", "shoot",
-    "tackle", "fall", "celebrate", "throw",
-    "catch", "dribble", "jump",
-  ];
+  const ALL_TAGS = Object.keys(builders);
   for (const tag of ALL_TAGS) {
-    const builder = builders[tag] ?? builders[stubAs];
+    const builder = builders[tag];
     const { root: animRoot, bones: animBones } = buildBody();
     const clip = builder(animBones);
     clip.name = tag;
