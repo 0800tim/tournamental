@@ -43,6 +43,8 @@
 - `[#0034]` `@vtourn/sdk` v0.1.0 — publishable npm SDK with React + R3F bindings.
 - `[#0035]` `@vtourn/mcp` — MCP server published as `npx @vtourn/mcp`.
 - `[#0036]` `prompts/onboarding/` library + marketing-site `/start` page.
+- `[#0040]` Smooth motion + natural animation polish (camera cuts, lookAt, run cycle).
+- `[#0041]` Suno-generated stadium ambience + goal stings (P3 polish).
 - `[?]` `#0037` `/globe` real-time prediction activity visualisation.
 - `[?]` `#0038` reserve `@VTournBot` on Telegram (Tim).
 - `[?]` `#0039` reserve `@vtourn` org on npm (Tim).
