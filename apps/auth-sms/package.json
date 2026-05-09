@@ -10,7 +10,6 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "prestart": "tsc -p tsconfig.json",
-    "lint": "eslint src --ext .ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc -p tsconfig.json --noEmit"
