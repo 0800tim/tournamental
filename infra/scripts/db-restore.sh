@@ -75,30 +75,46 @@ fi
 
 echo "Restoring $DUMP into ${POSTGRES_USER}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
 
-# Drop+recreate so we have a clean restore. pg_restore's --clean is
-# session-by-session; this is more deterministic.
-PGPASSWORD="$POSTGRES_PASSWORD" psql \
-  --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
-  --username="$POSTGRES_USER" --dbname=postgres \
-  -v ON_ERROR_STOP=1 \
+PG_CONTAINER="${VTORN_PG_CONTAINER:-vtorn-postgres}"
+USE_CONTAINER=0
+if docker inspect "$PG_CONTAINER" >/dev/null 2>&1; then USE_CONTAINER=1; fi
+
+run_psql() {
+  if [ "$USE_CONTAINER" = "1" ]; then
+    docker exec -i -e PGPASSWORD="$POSTGRES_PASSWORD" "$PG_CONTAINER" \
+      psql --host=localhost --port=5432 \
+      --username="$POSTGRES_USER" "$@"
+  else
+    PGPASSWORD="$POSTGRES_PASSWORD" psql \
+      --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
+      --username="$POSTGRES_USER" "$@"
+  fi
+}
+
+# Drop+recreate so we have a clean restore.
+run_psql --dbname=postgres -v ON_ERROR_STOP=1 \
   -c "DROP DATABASE IF EXISTS $POSTGRES_DB WITH (FORCE);" \
   -c "CREATE DATABASE $POSTGRES_DB OWNER $POSTGRES_USER;"
 
-PGPASSWORD="$POSTGRES_PASSWORD" pg_restore \
-  --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
-  --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
-  --no-owner --no-privileges \
-  --jobs=4 --verbose \
-  "$DUMP"
+if [ "$USE_CONTAINER" = "1" ]; then
+  cat "$DUMP" | docker exec -i -e PGPASSWORD="$POSTGRES_PASSWORD" "$PG_CONTAINER" \
+    pg_restore --host=localhost --port=5432 \
+    --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
+    --no-owner --no-privileges --verbose
+else
+  PGPASSWORD="$POSTGRES_PASSWORD" pg_restore \
+    --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
+    --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
+    --no-owner --no-privileges \
+    --jobs=4 --verbose \
+    "$DUMP"
+fi
 
 if [ "${VTORN_RESTORE_PII_SCRUB:-0}" = "1" ]; then
   SCRUB="$REPO_ROOT/infra/db/pii-scrub.sql"
   if [ -f "$SCRUB" ]; then
     echo "Applying PII scrub from $SCRUB"
-    PGPASSWORD="$POSTGRES_PASSWORD" psql \
-      --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
-      --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
-      -v ON_ERROR_STOP=1 -f "$SCRUB"
+    run_psql --dbname="$POSTGRES_DB" -v ON_ERROR_STOP=1 -f - < "$SCRUB"
   else
     echo "Warning: VTORN_RESTORE_PII_SCRUB=1 but $SCRUB doesn't exist" >&2
   fi

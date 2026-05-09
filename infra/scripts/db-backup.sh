@@ -65,29 +65,62 @@ mkdir -p "$TIER_DIR"
 STAMP="$(date -u +%Y%m%dT%H%M%SZ)"
 OUT="$TIER_DIR/vtorn-${STAMP}.dump"
 
+# Run pg_dump inside the postgres container so we always match the server
+# version, and the host doesn't need postgresql-client installed.
+# Falls back to a local pg_dump binary if VTORN_PG_CONTAINER is unset and
+# pg_dump is on PATH (e.g. for staging/prod where the script runs against
+# a remote managed database).
+PG_CONTAINER="${VTORN_PG_CONTAINER:-vtorn-postgres}"
+
+run_pgcmd() {
+  local cmd="$1"; shift
+  if docker inspect "$PG_CONTAINER" >/dev/null 2>&1; then
+    docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$PG_CONTAINER" \
+      "$cmd" --host=localhost --port=5432 \
+      --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" "$@"
+  elif command -v "$cmd" >/dev/null 2>&1; then
+    PGPASSWORD="$POSTGRES_PASSWORD" "$cmd" \
+      --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
+      --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" "$@"
+  else
+    echo "Neither container '$PG_CONTAINER' nor host '$cmd' available." >&2
+    return 127
+  fi
+}
+
 # pg_dump custom format: compressed, parallel-restore-capable, schema+data.
-PGPASSWORD="$POSTGRES_PASSWORD" pg_dump \
-  --host="$POSTGRES_HOST" \
-  --port="$POSTGRES_PORT" \
-  --username="$POSTGRES_USER" \
-  --dbname="$POSTGRES_DB" \
-  --format=custom \
-  --compress=6 \
-  --no-owner \
-  --no-privileges \
-  --verbose \
-  --file="$OUT" \
-  >/tmp/vtorn-backup-$$.log 2>&1 || {
-    echo "pg_dump failed; tail of log:" >&2
-    tail -40 /tmp/vtorn-backup-$$.log >&2
-    rm -f /tmp/vtorn-backup-$$.log "$OUT"
-    exit 4
-  }
+# Stream to host file (Docker pipes stdout out of the container).
+if docker inspect "$PG_CONTAINER" >/dev/null 2>&1; then
+  docker exec -e PGPASSWORD="$POSTGRES_PASSWORD" "$PG_CONTAINER" \
+    pg_dump --host=localhost --port=5432 \
+    --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
+    --format=custom --compress=6 --no-owner --no-privileges \
+    > "$OUT" 2>/tmp/vtorn-backup-$$.log || {
+      echo "pg_dump failed; tail of log:" >&2
+      tail -40 /tmp/vtorn-backup-$$.log >&2
+      rm -f /tmp/vtorn-backup-$$.log "$OUT"
+      exit 4
+    }
+else
+  PGPASSWORD="$POSTGRES_PASSWORD" pg_dump \
+    --host="$POSTGRES_HOST" --port="$POSTGRES_PORT" \
+    --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" \
+    --format=custom --compress=6 --no-owner --no-privileges --verbose \
+    --file="$OUT" >/tmp/vtorn-backup-$$.log 2>&1 || {
+      echo "pg_dump failed; tail of log:" >&2
+      tail -40 /tmp/vtorn-backup-$$.log >&2
+      rm -f /tmp/vtorn-backup-$$.log "$OUT"
+      exit 4
+    }
+fi
 rm -f /tmp/vtorn-backup-$$.log
 
-# Verify the dump (lists table-of-contents; pg_restore --list returns nonzero
-# on a corrupt dump).
-pg_restore --list "$OUT" >/dev/null
+# Verify the dump. pg_restore --list returns nonzero on a corrupt dump.
+if docker inspect "$PG_CONTAINER" >/dev/null 2>&1; then
+  cat "$OUT" | docker exec -i "$PG_CONTAINER" pg_restore --list >/dev/null
+else
+  pg_restore --list "$OUT" >/dev/null
+fi
 
 # Hash for integrity verification.
 sha256sum "$OUT" > "$OUT.sha256"
