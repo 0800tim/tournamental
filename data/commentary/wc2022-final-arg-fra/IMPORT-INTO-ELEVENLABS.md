@@ -1,8 +1,54 @@
 # Importing the VTourn Commentary into ElevenLabs
 
+All 10 languages now ready (en, es, pt, fr, de, it, zh, ar, ja, ru).
 This guide walks you through rendering the 2965-line broadcast pack into
 per-line MP3s for each of the ten languages, suitable for the renderer at
 `apps/web/`.
+
+## Recommended voice IDs per language
+
+ElevenLabs' Multilingual v2 model handles all 9 non-English target languages
+with the same English-trained voices, but cloned-from-target-language voices
+generally give crisper pronunciation of player names and football idioms.
+The voice IDs below are stable pre-made voices included free for any account
+tier; for production you may also clone Tim's preferred narrator.
+
+For browsing the latest free library, see https://elevenlabs.io/app/voice-library.
+The IDs below are stable across the ElevenLabs default-voice set; cross-check
+the "Voices" tab in the dashboard before render if a voice has been retired.
+
+| Lang | Voice (Male)                       | Voice (Female)                     |
+| ---- | ---------------------------------- | ---------------------------------- |
+| en   | Adam (`pNInz6obpgDQGcFmaJgB`)      | Rachel (`21m00Tcm4TlvDq8ikWAM`)    |
+| es   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| pt   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| fr   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| de   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| it   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| zh   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| ar   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| ja   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+| ru   | Adam (multilingual v2)             | Rachel (multilingual v2)           |
+
+**TODO (native-speaker voice IDs):** the table above uses Adam/Rachel via
+multilingual-v2 as a known-good baseline for every language. For broadcast
+quality, swap each language to a native-language clone or a hand-picked
+voice from the public library (https://elevenlabs.io/app/voice-library).
+Suggested filters per language:
+
+- es - "Latin American Spanish" / "Argentine Spanish" / "broadcast"
+- pt - "Brazilian Portuguese" / "broadcast"
+- fr - "French (France)" / "sports broadcast"
+- de - "German" / "broadcast" / "deep male"
+- it - "Italian" / "sports broadcast"
+- zh - "Mandarin" / "Standard / Mainland" / "news anchor"
+- ar - "Modern Standard Arabic" / "broadcast" / "Al Jazeera-style"
+- ja - "Japanese" / "broadcast" / "anime narrator" works for energy
+- ru - "Russian" / "sports broadcast" / "deep male"
+
+Update this table with the chosen voice IDs once Tim has previewed. The
+voice ID format is a 20-char alphanumeric string visible in the URL when
+viewing a voice in the dashboard.
 
 ## What you need
 

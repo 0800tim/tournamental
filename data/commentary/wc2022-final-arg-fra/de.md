@@ -544,14 +544,14 @@ Player names and team names are kept in their original spelling.
 [L0536 · 22:05 · play] Frankreich macht in dieser Halbzeit eher eine Faust.
 [L0537 · 22:07 · play] De Paul sorgt dafür, dass jeder Neustart lange dauert.
 [L0538 · 22:11 · play] Sanfter Pass, Ausschneiden.
-[L0539 · 22:15 · tension] Und hier ist der Moment. Di María wurde im Strafraum von Dembélé zu Fall gebracht.
-[L0540 · 22:17 · tension] Strafe für Argentinien. Der Franzose hat ein Bein herausgeschleudert und Di María ist rübergegangen.
-[L0541 · 22:19 · tension] Marciniak zeigt auf die Stelle. Kein Zögern. Dembélé legt seine Hände auf seinen Kopf.
+[L0539 · 22:15 · tension] Und hier ist der Moment. Di María wurde von Dembélé im Strafraum zu Fall gebracht.
+[L0540 · 22:17 · tension] Elfmeter für Argentinien. Der Franzose hat das Bein ausgefahren und Di María ist gefallen.
+[L0541 · 22:19 · tension] Marciniak zeigt auf den Punkt. Keine Zögerlichkeit. Dembélé legt die Hände auf den Kopf.
 [L0542 · 22:20 · tension] Messi platziert den Ball. Natürlich tut er das.
 [L0543 · 22:21 · tension] Lloris in seiner Leitung. Zwei PSG-Teamkollegen, zwölf Meter voneinander entfernt.
 [L0544 · 22:22 · tension] Messi atmet durch und macht einen langen Weg zurück.
 [L0545 · 22:23 · tension] Lauf hoch. Auf geht's.
-[L0546 · 22:24 · GOAL] ZIEL! Messi! Eins zu null Argentinien!
+[L0546 · 22:24 · GOAL] TOR! Messi! Eins null Argentinien!
 [L0547 · 22:24 · GOAL] Schickte Lloris in die falsche Richtung und landete in der unteren Ecke!
 [L0548 · 22:26 · GOAL] Er dreht sich um, beide Arme in die Luft, die Augen geschlossen!
 [L0549 · 22:27 · GOAL] Messi hat in einem WM-Finale getroffen!
@@ -858,7 +858,7 @@ Player names and team names are kept in their original spelling.
 [L0850 · 35:16 · buildup] Mac Allister ist auf der Flucht, hebt den Kopf und hält Ausschau nach Di María, die dazwischenkommt!
 [L0851 · 35:18 · buildup] Quadratischer Ball über den Strafraum! Di María kommt!
 [L0852 · 35:19 · buildup] Di María, zum ersten Mal!
-[L0853 · 35:22 · GOAL] ZIEL! Di María! Zwei zu null Argentinien!
+[L0853 · 35:22 · GOAL] TOR! Di María! Zwei null Argentinien!
 [L0854 · 35:23 · GOAL] Seitlicher Fuß, tief, über Lloris hinweg ins lange Eck!
 [L0855 · 35:25 · GOAL] Was für ein Gegenangriff! Was für ein Abschluss!
 [L0856 · 35:26 · GOAL] Di María ausgezogen, Hemd über dem Kopf, auf den Knien rutschend!
@@ -1804,10 +1804,10 @@ Player names and team names are kept in their original spelling.
 [L1796 · 79:11 · play] Schneller Ball in Messi, der unter seinem Fuß landete.
 [L1797 · 79:15 · play] Frankreich im mittlerweile bekannten 4-2-3-1, Giroud das einzige Ziel.
 [L1798 · 79:18 · tension] Elfmeter für Frankreich! Otamendi hat Kolo Muani in den Strafraum geschoben!
-[L1799 · 79:20 · tension] Marciniak wieder zur Stelle. Frankreich hat eine Rettungsleine.
+[L1799 · 79:20 · tension] Marciniak wieder auf den Punkt. Frankreich hat eine Lebenslinie.
 [L1800 · 79:21 · tension] Mbappé nimmt den Ball. Natürlich tut er das.
 [L1801 · 79:23 · tension] E. Martínez auf seiner Linie, im Gespräch mit dem Ball.
-[L1802 · 79:24 · GOAL] ZIEL! Mbappé! Zwei eins!
+[L1802 · 79:24 · GOAL] TOR! Mbappé! Zwei eins!
 [L1803 · 79:25 · GOAL] Auf das Dach des Netzes geschleudert! E. Martínez hatte keine Chance!
 [L1804 · 79:27 · GOAL] Frankreich lebt! Frankreich steht im WM-Finale!
 [L1805 · 79:29 · react] Das französische Ende ist verrückt geworden.
@@ -1840,7 +1840,7 @@ Player names and team names are kept in their original spelling.
 [L1832 · 80:54 · buildup] Frankreich drückt, Coman bekommt es zurück!
 [L1833 · 80:56 · buildup] Coman zu Mbappé!
 [L1834 · 80:57 · buildup] Mbappé im Strafraum, bereitet sich auf den Schuss vor, mit dem Volleyschuss!
-[L1835 · 80:59 · GOAL] ZIEL! MBAPPÉ! ZWEI ZWEI! ZWEI ZWEI!
+[L1835 · 80:59 · GOAL] TOR! MBAPPÉ! ZWEI ZWEI! ZWEI ZWEI!
 [L1836 · 81:00 · GOAL] Volley, seitlicher Fuß, perfekte Verbindung, ins lange Eck!
 [L1837 · 81:01 · GOAL] Zwei Tore in neunzig Sekunden! ZWEI TOR IN NEUNZIG SEKUNDEN!
 [L1838 · 81:03 · GOAL] Mbappé sprintet schreiend zur Ecke!
@@ -2499,7 +2499,7 @@ Player names and team names are kept in their original spelling.
 [L2491 · 107:53 · buildup] Wieder Lautaro, geblockt! Aus der Reihe!
 [L2492 · 107:54 · buildup] Es ist locker. Messi schleicht am hinteren Pfosten herum!
 [L2493 · 107:56 · buildup] Messi stochert!
-[L2494 · 107:58 · GOAL] ZIEL! MESSI! DREI ZWEI ARGENTINIEN!
+[L2494 · 107:58 · GOAL] TOR! MESSI! DREI ZWEI ARGENTINIEN!
 [L2495 · 107:59 · GOAL] Er hat es zerkratzt, egal, es kriecht über die Linie!
 [L2496 · 108:00 · GOAL] Die Torlinientechnik bestätigt es: Der Ball war vorbei!
 [L2497 · 108:01 · GOAL] Argentinien im WM-Finale wieder vorne!
@@ -2724,13 +2724,13 @@ Player names and team names are kept in their original spelling.
 [L2716 · 116:52 · play] Lloris und E. Martínez schweigen und behalten die Nerven.
 [L2717 · 116:54 · play] Über die Viererkette gepingt.
 [L2718 · 116:56 · play] Lloris und E. Martínez schweigen und behalten die Nerven.
-[L2719 · 116:58 · tension] Elfmeter Frankreich! Montiel-Handball! Marciniak winkt zur Stelle!
+[L2719 · 116:58 · tension] Elfmeter Frankreich! Montiel Handspiel! Marciniak winkt zum Punkt!
 [L2720 · 116:58 · play] Lloris und E. Martínez schweigen und behalten die Nerven.
 [L2721 · 116:59 · tension] Willst du mich verarschen? Meinst du das ernst?
 [L2722 · 117:01 · tension] Mbappé legt den Ball ab. Er wird das nehmen. Er braucht einen Hattrick, um Frankreich am Leben zu halten.
 [L2723 · 117:02 · tension] E. Martínez macht seine üblichen Tricks, wirft den Ball weg, redet, redet, redet.
 [L2724 · 117:04 · tension] Mbappé wartet auf ihn. Cool, wie Sie möchten.
-[L2725 · 117:05 · GOAL] ZIEL! MBAPPÉ! HATTRICK, HAT-TRICK! DREI DREI! DREI DREI!
+[L2725 · 117:05 · GOAL] TOR! MBAPPÉ! HATTRICK! DREI DREI! DREI DREI!
 [L2726 · 117:06 · GOAL] Erneut vergraben, gleiche Ecke, E. Martínez in die falsche Richtung!
 [L2727 · 117:07 · GOAL] Mbappé hat in einem WM-Finale einen Hattrick erzielt!
 [L2728 · 117:09 · GOAL] Der erste Hattrick in einem Weltcup-Finale seit Geoff Hurst im Jahr 1966!
@@ -2896,48 +2896,48 @@ Player names and team names are kept in their original spelling.
 [L2888 · 124:11 · react] Beide Teams brechen auf dem Spielfeld zusammen. Überall krampfartige Beine.
 [L2889 · 124:15 · react] Hände auf den Köpfen, Hände auf den Knien, triefende Trikots.
 [L2890 · 124:19 · react] Was für ein Match. Und es wird ein Elfmeterschießen geben.
-[L2891 · 124:23 · shootout] Elfmeterschießen. Wir steuern auf das Tor vor der argentinischen Seite zu.
-[L2892 · 124:27 · shootout] Beide Manager versammeln ihre Spieler. Letzte Worte.
+[L2891 · 124:23 · shootout] Elfmeter-Schießen. Wir gehen zum Tor vor dem argentinischen Ende.
+[L2892 · 124:27 · shootout] Beide Trainer versammeln ihre Spieler. Letzte Worte.
 [L2893 · 124:31 · shootout] Lloris und E. Martínez gehen gemeinsam zum Elfmeterpunkt.
 [L2894 · 124:35 · shootout] Mbappé tritt für FRA an.
-[L2895 · 124:38 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2896 · 124:41 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2897 · 124:44 · shootout] Als Erstes. Mbappé. Kühl wie Eis. Rechte Seite. Gepunktet. Eins null Frankreich.
+[L2895 · 124:38 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2896 · 124:41 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2897 · 124:44 · shootout] Erster. Mbappé. Cool wie Eis. Rechte Seite. Geschossen. Eins null Frankreich.
 [L2898 · 124:49 · shootout] Mbappé feiert mit der Bank. Wir machen weiter.
 [L2899 · 124:53 · shootout] Messi tritt für ARG an.
-[L2900 · 124:56 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2901 · 124:59 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2902 · 125:02 · shootout] Messi tritt vor. Wir haben das tausendmal gesehen. Messi. Rechte Ecke. GEWERTET. Eins.
+[L2900 · 124:56 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2901 · 124:59 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2902 · 125:02 · shootout] Messi tritt an. Wir haben das schon tausendmal gesehen. Messi. Rechter Winkel. GETROFFEN. Eins eins.
 [L2903 · 125:08 · shootout] Messi feiert mit der Bank. Wir machen weiter.
 [L2904 · 125:12 · shootout] Coman tritt für FRA an.
-[L2905 · 125:15 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2906 · 125:18 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2907 · 125:21 · shootout] Als nächstes kommt Coman für Frankreich. Spart. SPART! E. Martínez! E. MARTÍNEZ! Das argentinische Ende läuft wild!
-[L2908 · 125:26 · shootout] E. Martínez hat es gerettet! Er ist alles!
+[L2905 · 125:15 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2906 · 125:18 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2907 · 125:21 · shootout] Coman als nächster für Frankreich. Pariert. PARIEREN! E. Martínez! E. MARTÍNEZ! Das argentinische Ende dreht durch!
+[L2908 · 125:26 · shootout] E. Martínez hat ihn gehalten! Er ist alles!
 [L2909 · 125:30 · shootout] Dybala tritt für ARG an.
-[L2910 · 125:33 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2911 · 125:36 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2912 · 125:39 · shootout] Dybala für Argentinien. Dybala. Untere Ecke. GEpunktet! Zwei eins Argentinien!
+[L2910 · 125:33 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2911 · 125:36 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2912 · 125:39 · shootout] Dybala für Argentinien. Dybala. Untere Ecke. GETROFFEN! Zwei eins Argentinien!
 [L2913 · 125:45 · shootout] Dybala feiert mit der Bank. Wir machen weiter.
 [L2914 · 125:49 · shootout] Tchouaméni tritt für FRA an.
-[L2915 · 125:52 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2916 · 125:55 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2917 · 125:58 · shootout] Tchouaméni. Frankreich braucht das. Tchouaméni... trifft den Pfosten! Argentinien kann sein Glück nicht fassen!
-[L2918 · 126:03 · shootout] Runter mit dem Holzwerk! Tchouaméni kann nicht zusehen!
+[L2915 · 125:52 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2916 · 125:55 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2917 · 125:58 · shootout] Tchouaméni. Frankreich braucht das. Tchouaméni... TRIFFT DEN PFOSTEN! Argentinien kann ihr Glück nicht fassen!
+[L2918 · 126:03 · shootout] Vom Holz! Tchouaméni kann nicht zusehen!
 [L2919 · 126:07 · shootout] Paredes tritt für ARG an.
-[L2920 · 126:10 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2921 · 126:13 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2922 · 126:16 · shootout] Paredes. Argentinien kann es beim nächsten Mal gewinnen. Paredes. GEpunktet! Drei eins Argentinien!
+[L2920 · 126:10 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2921 · 126:13 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2922 · 126:16 · shootout] Paredes. Argentinien kann es beim nächsten gewinnen. Paredes. GETROFFEN! Drei eins Argentinien!
 [L2923 · 126:22 · shootout] Paredes feiert mit der Bank. Wir machen weiter.
 [L2924 · 126:26 · shootout] Kolo Muani tritt für FRA an.
-[L2925 · 126:29 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2926 · 126:32 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2927 · 126:35 · shootout] Kolo Muani. Frankreich muss punkten. GEWERTET. Nur um Frankreich am Leben zu halten. Drei zwei.
+[L2925 · 126:29 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2926 · 126:32 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2927 · 126:35 · shootout] Kolo Muani. Frankreich muss treffen. GETROFFEN. Hält Frankreich am Leben. Drei zwei.
 [L2928 · 126:40 · shootout] Kolo Muani feiert mit der Bank. Wir machen weiter.
-[L2929 · 126:44 · shootout] Montiel tritt für ARG ein.
-[L2930 · 126:47 · shootout] Er platziert den Ball. Er macht einen langen Spaziergang zurück.
-[L2931 · 126:50 · shootout] Der Torwart wartet. Das Stadion hält den Atem an.
-[L2932 · 126:53 · shootout] Montiel. Um die Weltmeisterschaft zu gewinnen. Fünfundzwanzig Jahre alt, zehn Minuten im Einsatz, und er kann gewinnen. Er platziert den Ball. Lloris in seiner Leitung. Anlauf. GEpunktet! ARGENTINIEN! ARGENTINIEN GEWINNT DIE WELTMEISTERSCHAFT!
+[L2929 · 126:44 · shootout] Montiel tritt für ARG an.
+[L2930 · 126:47 · shootout] Er platziert den Ball. Er macht einen langen Rückweg.
+[L2931 · 126:50 · shootout] Der Keeper wartet. Das Stadion hält den Atem an.
+[L2932 · 126:53 · shootout] Montiel. Um die Weltmeisterschaft zu gewinnen. Fünfundzwanzig Jahre alt, seit zehn Minuten auf dem Platz, und er kann sie gewinnen. Er platziert den Ball. Lloris auf der Linie. Anlauf. GETROFFEN! ARGENTINIEN! ARGENTINIEN GEWINNT DIE WELTMEISTERSCHAFT!
 [L2933 · 126:59 · shootout] Montiel feiert mit der Bank. Wir machen weiter.
 [L2934 · 127:03 · trophy] ARGENTINIEN HAT DIE WELTMEISTERSCHAFT GEWONNEN!
 [L2935 · 127:04 · trophy] Lionel Messi hat es geschafft!
