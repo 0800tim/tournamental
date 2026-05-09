@@ -1,0 +1,41 @@
+Mock 1 — /start onboarding flow
+
+  ┌─────────────────────────────────────────────────────────────┐
+  │  @VTournBot                                          ←  ⋮   │
+  ├─────────────────────────────────────────────────────────────┤
+  │                                                             │
+  │   You                                          09:14   ✓✓   │
+  │   /start                                                    │
+  │                                                             │
+  │   VTourn                                            09:14   │
+  │   Welcome to VTourn — the never-finished bracket game.      │
+  │                                                             │
+  │   Commands:                                                 │
+  │     /picks — see your bracket                               │
+  │     /odds team:argentina — current market probability       │
+  │     /leaderboard — your rank                                │
+  │     /syndicate — manage your syndicate                      │
+  │     /help — full command list                               │
+  │                                                             │
+  │   Tap /picks to start.                                      │
+  │                                                             │
+  │   ─────────────────────────────────────────────────────     │
+  │                                                             │
+  │   You                                           09:15  ✓✓   │
+  │   /start syn_jasons-office                                  │
+  │                                                             │
+  │   VTourn                                             09:15  │
+  │   Welcome to Jason's Office — VTourn syndicate.             │
+  │                                                             │
+  │   Format: top 3 share                                       │
+  │   Privacy: invite-only                                      │
+  │                                                             │
+  │   Tap /picks to see your bracket, /leaderboard to see       │
+  │   where the syndicate stands, /help for the rest.           │
+  │                                                             │
+  ├─────────────────────────────────────────────────────────────┤
+  │  💬  Message                                          📎  ↗  │
+  └─────────────────────────────────────────────────────────────┘
+
+Code path:  src/commands/start.ts
+Test:       test/commands.test.ts > /start
