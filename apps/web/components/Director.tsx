@@ -25,6 +25,7 @@ import { behindGoalCamera } from "@/lib/cameras/behind-goal-cam";
 import { playerTrackCamera } from "@/lib/cameras/player-track-cam";
 import { goalReplayCamera } from "@/lib/cameras/goal-replay-cam";
 import { crowdEnergyBus } from "@/lib/crowd-energy";
+import { replayHudBus } from "@/lib/director/replay-hud-bus";
 
 interface DirectorProps {
   store: StoreApi<MatchStore>;
@@ -193,6 +194,37 @@ export function Director({ store, enabled = true }: DirectorProps) {
     camera.userData.directorCam = camName;
     camera.userData.slowMoRate = policy.slowMoRate();
     camera.userData.fx = target.fx ?? null;
+
+    // Phase-4: publish to replay-HUD bus for the DOM-side overlay.
+    const scorerId = policy.scorerId();
+    let scorerName: string | null = null;
+    let scorerTeam: string | null = null;
+    let goalAtMatchSec = 0;
+    if (scorerId && state.init) {
+      for (const team of state.init.teams) {
+        const found = team.players.find((p) => p.id === scorerId);
+        if (found) {
+          scorerName = found.name;
+          scorerTeam = team.short_name ?? team.name;
+          break;
+        }
+      }
+      const phase = policy.getPhase();
+      if (phase.kind === "goal-sequence") {
+        goalAtMatchSec = phase.goalEventTime / 1000;
+      }
+    }
+    replayHudBus.publish({
+      cam: camName,
+      slowMoRate: policy.slowMoRate(),
+      secsSinceCut: policy.secsSinceCut(),
+      scorerId: scorerId ?? null,
+      scorerName,
+      scorerTeam,
+      goalAtMatchSec,
+      scoreHome: state.score?.home ?? 0,
+      scoreAway: state.score?.away ?? 0,
+    });
   });
 
   return null;
