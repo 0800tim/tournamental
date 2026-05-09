@@ -1,0 +1,11 @@
+.next/
+node_modules/
+dist/
+.env
+.env.local
+*.log
+.turbo/
+test-results/
+playwright-report/
+playwright/.cache/
+tsconfig.tsbuildinfo
