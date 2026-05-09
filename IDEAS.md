@@ -44,6 +44,10 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, doc 13] Voice messages from the bot (only after v0.1 lands). (open)
 - [2026-05-09, doc 13] Sticker pack as viral asset. (open)
 - [2026-05-09, doc 20] Behavioural-biometrics opt-in (typing cadence) — privacy-conscious, opt-in only. (open)
+- [2026-05-10, doc 13] Per-syndicate fresh bots (Option B) — proxy through BotFather to mint a dedicated bot per syndicate operator. v0 ships deep-link Option A on the main bot; revisit when syndicate count > ~50 and operator branding becomes the bottleneck. (open)
+- [2026-05-10, doc 13] Inline-keyboard pick flow for /picks (3–4 tap predict tree per doc 13). v0 deep-links to web. (open)
+- [2026-05-10, doc 13] `@VTournAnnounce` channel for tournament-wide broadcasts; bot posts pinned headlines at draw / kickoff / final. (open)
+- [2026-05-10, doc 13] Group-leaderboard mode — install bot in a group, `/setup` binds the group ID to a private leaderboard. (open)
 
 ### Verification / Prediction IQ
 - [2026-05-09, doc 17] Bitcoin-only OpenTimestamps tier marketing badge once Bitcoin proof completes. (open)

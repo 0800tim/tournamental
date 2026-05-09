@@ -1,0 +1,10 @@
+dist/
+node_modules/
+.env
+.env.local
+*.log
+tg.db
+tg.db-journal
+tg.db-wal
+tg.db-shm
+*.sqlite
