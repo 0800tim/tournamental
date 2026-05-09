@@ -7,11 +7,11 @@ host-cities.json.
 
 Format reference (as published by FIFA):
 - 48 teams in 12 groups (A through L) of 4.
-- Group stage: 12 June – 27 June 2026 (72 matches).
-- Round of 32: 28 June – 3 July 2026 (16 matches).
-- Round of 16: 4 July – 7 July 2026 (8 matches).
-- Quarter-finals: 9 July – 11 July 2026 (4 matches).
-- Semi-finals: 14 July – 15 July 2026 (2 matches).
+- Group stage: 12 June - 27 June 2026 (72 matches).
+- Round of 32: 28 June - 3 July 2026 (16 matches).
+- Round of 16: 4 July - 7 July 2026 (8 matches).
+- Quarter-finals: 9 July - 11 July 2026 (4 matches).
+- Semi-finals: 14 July - 15 July 2026 (2 matches).
 - Third-place play-off: 18 July 2026 (1 match).
 - Final: 19 July 2026 at MetLife Stadium, NJ (1 match).
 
@@ -129,7 +129,7 @@ GROUP_MATCH_PAIRS: list[tuple[int, int]] = [
 # of group A, "3A" = third-place of group A. The 8 best 3rd-placed teams
 # advance per FIFA rule.
 KNOCKOUT_DEPENDENCIES = {
-    # Round of 32 — 16 matches, FIFA-published bracket
+    # Round of 32 - 16 matches, FIFA-published bracket
     # Match numbers 73-88 in the canonical schedule
     "r32": [
         ("1A", "2C"),  # 73
@@ -144,16 +144,16 @@ KNOCKOUT_DEPENDENCIES = {
         ("1J", "2K"),  # 82
         ("1K", "2J"),  # 83
         ("1L", "2I"),  # 84
-        ("3A/B/C/D", "3E/F/G/H"),  # 85 — best-of-third matchups
+        ("3A/B/C/D", "3E/F/G/H"),  # 85 - best-of-third matchups
         ("3I/J/K/L", "3A/B/E/F"),  # 86
         ("3C/D/G/H", "3I/J/K/L"),  # 87
         ("3A/B/F/J", "3C/E/H/I"),  # 88
     ],
-    # Round of 16 — 8 matches; pairings are sequential winners.
+    # Round of 16 - 8 matches; pairings are sequential winners.
     "r16": [(f"W{73 + i*2}", f"W{74 + i*2}") for i in range(8)],
-    # Quarter-finals — 4 matches.
+    # Quarter-finals - 4 matches.
     "qf": [(f"W{89 + i*2}", f"W{90 + i*2}") for i in range(4)],
-    # Semi-finals — 2 matches.
+    # Semi-finals - 2 matches.
     "sf": [("W97", "W98"), ("W99", "W100")],
     # Third-place play-off.
     "third_place": [("L101", "L102")],
@@ -213,7 +213,14 @@ GROUP_VENUE_ROTATION: dict[str, list[str]] = {
         "toronto",
         "miami",
     ],
-    "H": ["monterrey", "guadalajara", "san_francisco_bay", "monterrey", "guadalajara", "san_francisco_bay"],
+    "H": [
+        "monterrey",
+        "guadalajara",
+        "san_francisco_bay",
+        "monterrey",
+        "guadalajara",
+        "san_francisco_bay",
+    ],
     "I": [
         "new_york_new_jersey",
         "philadelphia",
@@ -228,11 +235,11 @@ GROUP_VENUE_ROTATION: dict[str, list[str]] = {
 }
 
 
-# Knockout-stage venue assignments per FIFA release. R32 spans 28 Jun – 3 Jul,
+# Knockout-stage venue assignments per FIFA release. R32 spans 28 Jun - 3 Jul,
 # R16 spans 4-7 Jul, QFs 9-11 Jul, SFs 14-15 Jul, third-place 18 Jul (Miami),
 # final 19 Jul (NY/NJ).
 KNOCKOUT_VENUES = {
-    # R32 (16 matches) — geographic spread
+    # R32 (16 matches) - geographic spread
     "r32": [
         "philadelphia",  # 73
         "dallas",  # 74
@@ -347,7 +354,7 @@ def build_canonical_fixtures() -> list[FixtureRow]:
     fixtures: list[FixtureRow] = []
     match_no = 1
 
-    # Group stage — 12 groups × 6 matches = 72 matches.
+    # Group stage - 12 groups x 6 matches = 72 matches.
     for group_letter in "ABCDEFGHIJKL":
         team_codes = GROUP_TEAMS_CLEAN[group_letter]
         venues = GROUP_VENUE_ROTATION[group_letter]
@@ -371,7 +378,7 @@ def build_canonical_fixtures() -> list[FixtureRow]:
 
     assert match_no == 73, f"Group stage should end at match 72, got {match_no - 1}"
 
-    # Round of 32 — 16 matches.
+    # Round of 32 - 16 matches.
     r32_pairs = KNOCKOUT_DEPENDENCIES["r32"]
     r32_venues = KNOCKOUT_VENUES["r32"]
     r32_dates = KNOCKOUT_DATES["r32"]
@@ -391,7 +398,7 @@ def build_canonical_fixtures() -> list[FixtureRow]:
 
     assert match_no == 89, f"R32 should end at 88, got {match_no - 1}"
 
-    # Round of 16 — 8 matches.
+    # Round of 16 - 8 matches.
     r16_pairs = KNOCKOUT_DEPENDENCIES["r16"]
     r16_venues = KNOCKOUT_VENUES["r16"]
     r16_dates = KNOCKOUT_DATES["r16"]
@@ -411,7 +418,7 @@ def build_canonical_fixtures() -> list[FixtureRow]:
 
     assert match_no == 97, f"R16 should end at 96, got {match_no - 1}"
 
-    # Quarter-finals — 4 matches.
+    # Quarter-finals - 4 matches.
     qf_pairs = KNOCKOUT_DEPENDENCIES["qf"]
     qf_venues = KNOCKOUT_VENUES["qf"]
     qf_dates = KNOCKOUT_DATES["qf"]
@@ -431,7 +438,7 @@ def build_canonical_fixtures() -> list[FixtureRow]:
 
     assert match_no == 101, f"QFs should end at 100, got {match_no - 1}"
 
-    # Semi-finals — 2 matches.
+    # Semi-finals - 2 matches.
     sf_pairs = KNOCKOUT_DEPENDENCIES["sf"]
     sf_venues = KNOCKOUT_VENUES["sf"]
     sf_dates = KNOCKOUT_DATES["sf"]

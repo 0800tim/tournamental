@@ -38,8 +38,7 @@ def test_each_group_pair_plays_once() -> None:
     fixtures = build_canonical_fixtures()
     for letter in "ABCDEFGHIJKL":
         group_matches = [f for f in fixtures if f.stage == f"group_{letter.lower()}"]
-        teams = GROUP_TEAMS_CLEAN[letter]
-        # 4 teams, choose 2 → 6 unordered pairs.
+        # 4 teams, choose 2 -> 6 unordered pairs.
         seen = set()
         for f in group_matches:
             key = frozenset((f.home_team_slot, f.away_team_slot))

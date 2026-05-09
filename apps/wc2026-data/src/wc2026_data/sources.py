@@ -66,7 +66,7 @@ class HttpCache:
         if p.exists():
             try:
                 return json.loads(p.read_text())
-            except Exception:  # noqa: BLE001
+            except Exception:
                 return None
         return None
 
@@ -125,7 +125,7 @@ def fetch_wikidata_teams(
         if cache is not None:
             cache.put(WIKIDATA_SPARQL, data, {"q": WIKIDATA_TEAM_QUERY})
         return SourceResult("wikidata", True, data)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         logger.warning("wikidata fetch failed: %s", e)
         if cache is not None:
             cached = cache.get(WIKIDATA_SPARQL, {"q": WIKIDATA_TEAM_QUERY})
@@ -154,7 +154,7 @@ def fetch_fifa_schedule(
         if cache is not None:
             cache.put(FIFA_SCHEDULE_URL, html)
         return SourceResult("fifa", True, html)
-    except Exception as e:  # noqa: BLE001
+    except Exception as e:
         logger.warning("fifa fetch failed: %s", e)
         if cache is not None:
             cached = cache.get(FIFA_SCHEDULE_URL)

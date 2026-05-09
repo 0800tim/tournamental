@@ -19,7 +19,8 @@ def test_every_concrete_group_team_slot_is_in_teams_json(
     for fixture in fixtures_blob["fixtures"]:
         if fixture["stage"].startswith("group_"):
             for slot in (fixture["home_team_slot"], fixture["away_team_slot"]):
-                assert slot in valid_codes, f"Match {fixture['match_number']}: {slot} not in teams.json"
+                msg = f"Match {fixture['match_number']}: {slot} not in teams.json"
+                assert slot in valid_codes, msg
 
 
 def test_knockout_slots_are_dependency_strings(fixtures_blob: dict) -> None:

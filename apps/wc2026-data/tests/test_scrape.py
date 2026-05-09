@@ -6,11 +6,10 @@ import json
 from pathlib import Path
 
 import httpx
-import pytest
 import respx
 
-from wc2026_data.scrape import build_meta, fixtures_to_json, run, write_json
 from wc2026_data.canonical_fixtures import build_canonical_fixtures
+from wc2026_data.scrape import build_meta, fixtures_to_json, run, write_json
 from wc2026_data.sources import (
     FIFA_SCHEDULE_URL,
     WIKIDATA_SPARQL,
@@ -85,8 +84,9 @@ def test_fetch_wikidata_returns_data_on_200() -> None:
 
 @respx.mock
 def test_fetch_wikidata_falls_back_to_cache_on_failure(tmp_path: Path) -> None:
+    from wc2026_data.sources import WIKIDATA_TEAM_QUERY
     cache = HttpCache(tmp_path)
-    cache.put(WIKIDATA_SPARQL, {"cached": True}, {"q": __import__('wc2026_data.sources', fromlist=['WIKIDATA_TEAM_QUERY']).WIKIDATA_TEAM_QUERY})
+    cache.put(WIKIDATA_SPARQL, {"cached": True}, {"q": WIKIDATA_TEAM_QUERY})
     respx.get(WIKIDATA_SPARQL).mock(return_value=httpx.Response(500))
     result = fetch_wikidata_teams(httpx.Client(), cache=cache)
     assert result.ok
