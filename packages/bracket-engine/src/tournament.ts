@@ -18,7 +18,16 @@
 
 export type TeamId = string; // ISO-3166 alpha-3 (e.g. "FRA", "ARG", "USA")
 export type GroupId = string; // "A".."H"
-export type StageId = "group" | "r32" | "r16" | "qf" | "sf" | "f";
+/**
+ * Knockout stages.
+ *
+ * `tp` is the third-place playoff: losers of `sf_01` and `sf_02` meet
+ * to decide bronze. It runs the day before the Final and is a real
+ * FIFA fixture, not a synthetic stage. Cascade-wise it depends on
+ * `sf` (consuming losers, not winners), so it sits between `sf` and
+ * `f` in the advancement order.
+ */
+export type StageId = "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
 
 /**
  * Stage advancement order. The engine walks this in order to compute the
@@ -29,6 +38,7 @@ export const KNOCKOUT_STAGES: readonly StageId[] = [
   "r16",
   "qf",
   "sf",
+  "tp",
   "f",
 ] as const;
 

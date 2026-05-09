@@ -405,6 +405,17 @@
   color: #cbd5e1;
 }
 
+.bracket-tab-autopick {
+  margin-left: auto;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0f172a;
+  font-weight: 700;
+  border-color: #f59e0b;
+}
+.bracket-tab-autopick:hover {
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+}
+
 /* ---- Match prediction row ---- */
 .bracket-group-progress {
   font-size: 11px;
@@ -417,18 +428,33 @@
   margin-bottom: 12px;
 }
 
+/* Pick row: two big circular flags with a small DRAW pill between them.
+ * Layout adapts: on phones the three picks share equal space with the
+ * scores toggle wrapping below; on wider viewports the row is one line. */
 .mpr-row {
   display: grid;
-  grid-template-columns: minmax(60px, auto) 1fr minmax(60px, auto);
-  grid-template-rows: auto auto;
-  gap: 8px;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-areas:
+    "home draw away"
+    "scores scores scores"
+    "odds odds odds";
+  column-gap: 12px;
+  row-gap: 8px;
   align-items: center;
-  padding: 6px 8px;
-  border-radius: 8px;
+  justify-items: center;
+  padding: 12px 10px;
+  border-radius: 12px;
   background: #1e293b;
   border: 1px solid #334155;
-  font-size: 12px;
   outline: none;
+}
+
+.mpr-row[data-no-draw="true"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-areas:
+    "home away"
+    "scores scores"
+    "odds odds";
 }
 
 .mpr-row:focus-visible {
@@ -436,73 +462,102 @@
   box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.3);
 }
 
-.mpr-team {
+.mpr-pick {
+  /* big tappable button — flag + label + odds % stacked */
   display: inline-flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  font-weight: 600;
+  justify-content: flex-start;
+  gap: 4px;
+  padding: 6px 4px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  border-radius: 14px;
+  outline: none;
+  transition: opacity 120ms ease, transform 120ms ease;
+  /* big enough touch target on phones */
+  min-width: 64px;
+}
+
+.mpr-pick-home { grid-area: home; }
+.mpr-pick-away { grid-area: away; }
+.mpr-pick-draw { grid-area: draw; }
+
+.mpr-pick:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+.mpr-pick.is-dim { opacity: 0.45; }
+.mpr-pick.is-dim:hover { opacity: 0.75; }
+
+.mpr-pick.is-selected {
+  transform: translateY(-1px);
+}
+
+/* Glow ring on the selected flag-circle. We can't depend on the CSS
+ * module hash for the inner wrap, so style the button itself. */
+.mpr-pick-home.is-selected,
+.mpr-pick-away.is-selected {
+  background: rgba(255, 255, 255, 0.04);
+}
+.mpr-pick-home.is-selected {
+  box-shadow: inset 0 0 0 2px var(--mpr-home-accent, #fbbf24),
+    0 0 18px var(--mpr-home-accent, rgba(251, 191, 36, 0.55));
+}
+.mpr-pick-away.is-selected {
+  box-shadow: inset 0 0 0 2px var(--mpr-away-accent, #3b82f6),
+    0 0 18px var(--mpr-away-accent, rgba(59, 130, 246, 0.55));
+}
+
+.mpr-pick-code {
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  font-feature-settings: "tnum" 1;
   color: #e6edf3;
 }
 
-.mpr-team.mpr-away {
-  justify-content: flex-end;
-}
-
-.mpr-team-code {
-  font-feature-settings: "tnum" 1;
-  letter-spacing: 0.04em;
-  font-size: 12px;
-}
-
-.mpr-buttons {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-}
-
-.mpr-buttons:has(.mpr-btn-draw[hidden]),
-.mpr-row[data-no-draw="true"] .mpr-buttons {
-  grid-template-columns: repeat(2, 1fr);
-}
-
-.mpr-btn {
+.mpr-pick-draw .mpr-pick-draw-pill {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
   background: #0f172a;
   color: #cbd5e1;
-  border: 1px solid #334155;
-  border-radius: 6px;
-  padding: 6px 4px;
+  border: 1px solid #475569;
+  font-weight: 700;
   font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 100ms ease, border-color 100ms ease, color 100ms ease;
-  text-align: center;
+  letter-spacing: 0.08em;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.mpr-pick-draw.is-selected .mpr-pick-draw-pill {
+  background: #cbd5e1;
+  border-color: #cbd5e1;
+  color: #0f172a;
 }
 
-.mpr-btn:hover {
-  border-color: #64748b;
+.mpr-pick-pct {
+  font-size: 11px;
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+.mpr-pick.is-selected .mpr-pick-pct {
   color: #e6edf3;
+  font-weight: 700;
 }
 
-.mpr-btn-home.is-selected {
-  background: var(--mpr-home-accent, #fbbf24);
-  border-color: var(--mpr-home-accent, #fbbf24);
-  color: #0f172a;
-}
-
-.mpr-btn-away.is-selected {
-  background: var(--mpr-away-accent, #3b82f6);
-  border-color: var(--mpr-away-accent, #3b82f6);
-  color: #0f172a;
-}
-
-.mpr-btn-draw.is-selected {
-  background: #94a3b8;
-  border-color: #94a3b8;
-  color: #0f172a;
+.mpr-odds-cta {
+  grid-area: odds;
+  justify-self: stretch;
+  display: flex;
+  justify-content: center;
 }
 
 .mpr-scores-wrap {
-  grid-column: 1 / -1;
+  grid-area: scores;
+  justify-self: center;
   display: flex;
   align-items: center;
   gap: 8px;

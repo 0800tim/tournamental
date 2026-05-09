@@ -51,6 +51,11 @@ export const STAGE_MULTIPLIERS = {
   r16: 1.25,
   qf: 1.5,
   sf: 2.0,
+  // Third-place playoff: same difficulty as a SF (it's a real fixture
+  // between two of the world's top 4) but the points payoff is lower
+  // because there's no "I called the champion" marketing value.
+  // Sits between QF (1.5) and SF (2.0).
+  tp: 1.75,
   f: 3.0,
 } as const;
 
@@ -323,6 +328,7 @@ export const BASE_POINTS = {
     r16: 400,
     qf: 800,
     sf: 1500,
+    tp: 1750,
     f: 3000,
   },
   tournament_winner: 3000,

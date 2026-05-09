@@ -1,22 +1,27 @@
 /**
- * MatchPredictionRow — one match in the group stage with a 3-button
- * Home Win / Draw / Away Win segmented control. Optional collapsible
- * score input below.
+ * MatchPredictionRow — one match in the group/knockout stage with the
+ * "two big flags + small DRAW pill in the middle" UX. Live W/D/L odds
+ * percentages sit under each option, fed by the same /api/odds route
+ * that drives the OddsChip hover card (which stays accessible for the
+ * affiliate CTA).
  *
- * Keyboard: when focused, ArrowLeft/ArrowRight cycle outcome buttons,
- * 1/2/3 select home_win/draw/away_win directly.
+ * Tap the home flag → home_win. Tap the away flag → away_win. Tap the
+ * DRAW pill → draw (group stage only). Selected option gets a glow
+ * ring + bright label; unselected options dim.
  *
- * Pure controlled component — `onChange` fires whenever the user changes
- * outcome or scores. The parent owns the prediction map.
+ * Keyboard: 1/H = home, 2/D = draw, 3/A = away. Arrow keys cycle.
+ *
+ * Pure controlled component; parent owns prediction state.
  */
 
 "use client";
 
-import { useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useEffect, useState, type CSSProperties, type KeyboardEvent } from "react";
 
 import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
 
 import { OddsChip } from "../odds/OddsChip";
+import type { MatchOdds } from "@/lib/odds/types";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -27,16 +32,16 @@ export interface MatchPredictionRowProps {
   readonly disabled?: boolean;
   /** When true, the "Draw" option is hidden (knockout matches). */
   readonly noDraw?: boolean;
-  /** Optional group label, e.g. "Group A", passed through to the
-   * `<OddsChip>` hover card. */
   readonly groupLabel?: string;
-  /** Optional ISO kickoff string for the hover card header. */
   readonly kickoffIso?: string;
-  /** Cloudflare-derived 2-letter country code; gates the affiliate
-   * CTA in the hover card. */
   readonly country?: string | null;
-  /** When false, suppress the live-odds chip (used by tests + storybook). */
   readonly showOddsChip?: boolean;
+  /**
+   * Optional pre-fetched odds (shape from `/api/odds/snapshot`). When
+   * provided we render the percentages inline under each option;
+   * otherwise the row falls back to a single OddsChip.
+   */
+  readonly odds?: MatchOdds | null;
   readonly onChange: (next: MatchPrediction) => void;
 }
 
@@ -48,6 +53,11 @@ const ALL_OUTCOMES: readonly MatchPrediction["outcome"][] = [
 
 function nowIso(): string {
   return new Date().toISOString();
+}
+
+function pctLabel(p: number | null | undefined): string {
+  if (p == null || !Number.isFinite(p)) return "—";
+  return `${Math.round(p * 100)}%`;
 }
 
 export function MatchPredictionRow(props: MatchPredictionRowProps) {
@@ -62,12 +72,38 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     kickoffIso,
     country,
     showOddsChip = true,
+    odds: oddsProp,
     onChange,
   } = props;
   const [showScores, setShowScores] = useState<boolean>(
     prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
   );
+  const [fetchedOdds, setFetchedOdds] = useState<MatchOdds | null>(null);
 
+  // If no odds were passed in (cards rendered standalone), fetch the
+  // single-match endpoint. Cheap because the route already proxies the
+  // bulk snapshot. Skipped when oddsProp is provided (the page-level
+  // OddsContext path) or when the match is a knockout-without-slots.
+  useEffect(() => {
+    if (oddsProp || !showOddsChip) return;
+    let cancelled = false;
+    fetch(`/api/odds/match/${encodeURIComponent(matchId)}`, {
+      headers: { Accept: "application/json" },
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (cancelled) return;
+        if (j && typeof j === "object" && "homeWin" in j) setFetchedOdds(j as MatchOdds);
+      })
+      .catch(() => {
+        /* leave fetchedOdds null; the OddsChip hover card has its own fallback */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [matchId, oddsProp, showOddsChip]);
+
+  const odds = oddsProp ?? fetchedOdds;
   const outcomes = noDraw ? ALL_OUTCOMES.filter((o) => o !== "draw") : ALL_OUTCOMES;
 
   const choose = (outcome: MatchPrediction["outcome"]): void => {
@@ -95,13 +131,14 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
     if (disabled) return;
-    if (e.key === "1") {
+    const k = e.key.toLowerCase();
+    if (k === "1" || k === "h") {
       e.preventDefault();
       choose("home_win");
-    } else if (e.key === "2" && !noDraw) {
+    } else if (k === "2" || (k === "d" && !noDraw)) {
       e.preventDefault();
-      choose("draw");
-    } else if (e.key === "3" || (e.key === "2" && noDraw)) {
+      if (!noDraw) choose("draw");
+    } else if (k === "3" || k === "a" || (k === "2" && noDraw)) {
       e.preventDefault();
       choose("away_win");
     } else if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
@@ -116,10 +153,14 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     }
   };
 
-  const homeAccent: CSSProperties = {
+  const accent: CSSProperties = {
     "--mpr-home-accent": homeTeam.kit?.primary ?? "#fbbf24",
     "--mpr-away-accent": awayTeam.kit?.primary ?? "#3b82f6",
   } as CSSProperties;
+
+  const isHome = prediction?.outcome === "home_win";
+  const isDraw = prediction?.outcome === "draw";
+  const isAway = prediction?.outcome === "away_win";
 
   return (
     <div
@@ -129,67 +170,70 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       aria-label={`${homeTeam.name} vs ${awayTeam.name} prediction`}
       tabIndex={0}
       onKeyDown={onKeyDown}
-      style={homeAccent}
+      style={accent}
     >
-      <div className="mpr-team mpr-home">
+      <button
+        type="button"
+        className={`mpr-pick mpr-pick-home ${isHome ? "is-selected" : ""} ${prediction && !isHome ? "is-dim" : ""}`}
+        aria-pressed={isHome}
+        aria-label={`${homeTeam.name} to win`}
+        onClick={() => choose("home_win")}
+        disabled={disabled}
+      >
         <TeamFlag
           code={homeTeam.id}
           name={homeTeam.name}
           accentColor={homeTeam.kit?.primary}
-          size="sm"
-          sparkle={prediction?.outcome === "home_win"}
+          size="lg"
+          sparkle={isHome}
+          shape="circle"
         />
-        <span className="mpr-team-code">{homeTeam.id}</span>
-      </div>
+        <span className="mpr-pick-code">{homeTeam.id}</span>
+        <span className="mpr-pick-pct" data-outcome="home_win">
+          {pctLabel(odds?.homeWin)}
+        </span>
+      </button>
 
-      <div className="mpr-buttons" role="radiogroup" aria-label="Outcome">
+      {!noDraw && (
         <button
           type="button"
-          className={`mpr-btn mpr-btn-home ${prediction?.outcome === "home_win" ? "is-selected" : ""}`}
-          aria-pressed={prediction?.outcome === "home_win"}
-          aria-label={`${homeTeam.name} to win`}
-          onClick={() => choose("home_win")}
+          className={`mpr-pick mpr-pick-draw ${isDraw ? "is-selected" : ""} ${prediction && !isDraw ? "is-dim" : ""}`}
+          aria-pressed={isDraw}
+          aria-label="Draw"
+          onClick={() => choose("draw")}
           disabled={disabled}
         >
-          Home Win
+          <span className="mpr-pick-draw-pill">DRAW</span>
+          <span className="mpr-pick-pct" data-outcome="draw">
+            {pctLabel(odds?.draw)}
+          </span>
         </button>
-        {!noDraw && (
-          <button
-            type="button"
-            className={`mpr-btn mpr-btn-draw ${prediction?.outcome === "draw" ? "is-selected" : ""}`}
-            aria-pressed={prediction?.outcome === "draw"}
-            aria-label="Draw"
-            onClick={() => choose("draw")}
-            disabled={disabled}
-          >
-            Draw
-          </button>
-        )}
-        <button
-          type="button"
-          className={`mpr-btn mpr-btn-away ${prediction?.outcome === "away_win" ? "is-selected" : ""}`}
-          aria-pressed={prediction?.outcome === "away_win"}
-          aria-label={`${awayTeam.name} to win`}
-          onClick={() => choose("away_win")}
-          disabled={disabled}
-        >
-          Away Win
-        </button>
-      </div>
+      )}
 
-      <div className="mpr-team mpr-away">
-        <span className="mpr-team-code">{awayTeam.id}</span>
+      <button
+        type="button"
+        className={`mpr-pick mpr-pick-away ${isAway ? "is-selected" : ""} ${prediction && !isAway ? "is-dim" : ""}`}
+        aria-pressed={isAway}
+        aria-label={`${awayTeam.name} to win`}
+        onClick={() => choose("away_win")}
+        disabled={disabled}
+      >
         <TeamFlag
           code={awayTeam.id}
           name={awayTeam.name}
           accentColor={awayTeam.kit?.primary}
-          size="sm"
-          sparkle={prediction?.outcome === "away_win"}
+          size="lg"
+          sparkle={isAway}
+          shape="circle"
         />
-      </div>
+        <span className="mpr-pick-code">{awayTeam.id}</span>
+        <span className="mpr-pick-pct" data-outcome="away_win">
+          {pctLabel(odds?.awayWin)}
+        </span>
+      </button>
 
       {showOddsChip && (
-        <div className="mpr-odds" data-mpr-odds="">
+        <div className="mpr-odds-cta" data-mpr-odds="">
           <OddsChip
             matchNo={matchId}
             homeTeam={homeTeam.id}

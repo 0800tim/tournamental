@@ -122,6 +122,100 @@ export function BracketBuilder(props: BracketBuilderProps) {
     });
   };
 
+  /**
+   * Auto-pick — for every match that doesn't already have a user pick,
+   * fetch the live odds via /api/odds/snapshot and select the highest
+   * probability outcome. The user's existing picks are preserved.
+   *
+   * Knockout slots that don't yet have both teams resolved (because the
+   * upstream group/round hasn't been picked) get skipped; auto-pick fills
+   * them after the user makes those upstream picks and runs auto-pick
+   * again, OR when the cascade resolves them mid-loop.
+   */
+  const handleAutoPick = async (): Promise<void> => {
+    setSubmitState("auto-picking from live odds…");
+    let snap: { matches: Array<{ matchNo: string; homeWin: number; draw: number | null; awayWin: number }>; source?: string } | null = null;
+    try {
+      const r = await fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } });
+      if (r.ok) snap = await r.json();
+    } catch {
+      /* fall through to mock; /api/odds/snapshot has its own deterministic mock fallback */
+    }
+    if (!snap || !Array.isArray(snap.matches)) {
+      setSubmitState("auto-pick: couldn't load odds; nothing changed.");
+      return;
+    }
+    const byNo = new Map(snap.matches.map((m) => [String(m.matchNo), m]));
+
+    let next: Bracket = bracket;
+    let groupAdded = 0;
+    let knockoutAdded = 0;
+    const ts = new Date().toISOString();
+
+    // Group fixtures.
+    for (const f of tournament.group_fixtures) {
+      const id = String(f.match_no);
+      if (next.matchPredictions[id]) continue;
+      const o = byNo.get(id);
+      if (!o) continue;
+      const h = o.homeWin;
+      const d = o.draw ?? -1;
+      const a = o.awayWin;
+      const max = Math.max(h, d, a);
+      const outcome: MatchPrediction["outcome"] =
+        max === h ? "home_win" : max === d ? "draw" : "away_win";
+      next = {
+        ...next,
+        matchPredictions: {
+          ...next.matchPredictions,
+          [id]: { matchId: id, outcome, lockedAt: ts },
+        },
+      };
+      groupAdded += 1;
+    }
+
+    // Knockouts (only those whose home + away are already resolved by the
+    // current cascade; otherwise we'd be picking blind).
+    for (const k of cascaded.knockouts) {
+      if (next.knockoutPredictions[k.id]) continue;
+      if (!k.home.team || !k.away.team) continue;
+      const o = byNo.get(k.id);
+      if (!o) {
+        // No live odds for this specific knockout — fall back to FIFA-rank
+        // proxy: pick the lower-ranked team. This keeps auto-pick useful
+        // even when Polymarket per-match KO markets are absent.
+        const homeRank = tournament.teams.find((t) => t.id === k.home.team)?.fifa_rank ?? 99;
+        const awayRank = tournament.teams.find((t) => t.id === k.away.team)?.fifa_rank ?? 99;
+        const outcome: MatchPrediction["outcome"] =
+          homeRank <= awayRank ? "home_win" : "away_win";
+        next = {
+          ...next,
+          knockoutPredictions: {
+            ...next.knockoutPredictions,
+            [k.id]: { matchId: k.id, outcome, lockedAt: ts },
+          },
+        };
+        knockoutAdded += 1;
+        continue;
+      }
+      const outcome: MatchPrediction["outcome"] =
+        o.homeWin >= o.awayWin ? "home_win" : "away_win";
+      next = {
+        ...next,
+        knockoutPredictions: {
+          ...next.knockoutPredictions,
+          [k.id]: { matchId: k.id, outcome, lockedAt: ts },
+        },
+      };
+      knockoutAdded += 1;
+    }
+
+    update(next);
+    setSubmitState(
+      `auto-picked ${groupAdded} group + ${knockoutAdded} knockout (source: ${snap.source ?? "mock"}). Adjust any you disagree with.`,
+    );
+  };
+
   const handleSubmit = async (): Promise<void> => {
     setSubmitState("submitting…");
     const submission: Bracket = {
@@ -181,6 +275,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
         >
           Lock + share
         </button>
+        <button
+          type="button"
+          className="bracket-tab bracket-tab-autopick"
+          onClick={handleAutoPick}
+          aria-label="Auto-pick from live odds"
+          title="Auto-pick every empty match using current Polymarket odds; you can override any pick afterwards"
+        >
+          ⚡ Auto-pick
+        </button>
       </nav>
 
       {tab === "groups" && (
@@ -210,12 +313,20 @@ export function BracketBuilder(props: BracketBuilderProps) {
             you finish predicting the group stage.
           </p>
           <div className="km-grid">
-            {(["r32", "r16", "qf", "sf", "f"] as const).map((stage) => {
+            {(["r32", "r16", "qf", "sf", "tp", "f"] as const).map((stage) => {
               const stageMatches = cascaded.knockouts.filter((k) => k.stage === stage);
               if (stageMatches.length === 0) return null;
+              const stageLabel: Record<typeof stage, string> = {
+                r32: "R32",
+                r16: "R16",
+                qf: "QF",
+                sf: "SF",
+                tp: "3RD PLACE",
+                f: "FINAL",
+              };
               return (
                 <div key={stage} className="km-stage-col">
-                  <h3>{stage.toUpperCase()}</h3>
+                  <h3>{stageLabel[stage]}</h3>
                   {stageMatches.map((k) => (
                     <KnockoutMatch
                       key={k.id}
