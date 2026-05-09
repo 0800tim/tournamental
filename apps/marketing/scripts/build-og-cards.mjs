@@ -23,11 +23,18 @@ import { mkdir, writeFile, access } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import {
-  renderToPNG,
-  loadDefaultFonts,
-  palette,
-} from "@vtorn/social-cards";
+let renderToPNG, loadDefaultFonts, palette;
+try {
+  ({ renderToPNG, loadDefaultFonts, palette } = await import("@vtorn/social-cards"));
+} catch (err) {
+  console.warn(
+    `[build-og-cards] @vtorn/social-cards not loadable from node ESM ` +
+      `(needs a TS loader; expected during plain-node CI step). ` +
+      `Skipping OG card generation; pages will fall back to /og-default.png. ` +
+      `Original error: ${err?.message ?? err}`,
+  );
+  process.exit(0);
+}
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PUBLIC_OG_DIR = resolve(here, "..", "public", "og");
