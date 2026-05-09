@@ -1,97 +1,265 @@
 /**
- * GroupCard — the per-group pick UI.
+ * GroupCard — per-match prediction UI for a single group.
  *
- * Shows the 6 teams in a group; user assigns 1st / 2nd / 3rd / 4th etc.
- * Reorder by clicking up/down arrows (mobile-first, no drag library
- * required for v0.1; desktop drag is a follow-up). Per-pick lock toggle
- * locks the group's standings at the current odds for higher-on-correct
- * scoring.
+ * The user predicts the outcome of each of the group's 6 matches; the
+ * standings are *computed* from those predictions and rendered live in a
+ * panel below the matches. Only when computed standings produce a tie
+ * that points → goal-diff → goals-for → head-to-head can't break does
+ * the user pick a tiebreaker.
+ *
+ * No drag-and-drop. No "move team up". The whole point of the prediction
+ * game is to predict every match — the standings fall out of the
+ * predictions, not the other way around.
  */
 
 "use client";
 
-import type { Group, Team } from "@vtorn/bracket-engine";
+import { useState } from "react";
+
+import {
+  computeGroupStandings,
+  detectTiesNeedingTiebreaker,
+  isGroupComplete,
+  type Group,
+  type GroupStanding,
+  type GroupTiebreaker,
+  type MatchPrediction,
+  type Team,
+  type Tournament,
+} from "@vtorn/bracket-engine";
+
+import { groupMatchId } from "@/lib/bracket/match-ids";
+import { MatchPredictionRow } from "./MatchPredictionRow";
 
 export interface GroupCardProps {
+  readonly tournament: Tournament;
   readonly group: Group;
   readonly teams: ReadonlyMap<string, Team>;
-  readonly order: readonly string[]; // user's predicted finishing order
-  readonly locked: boolean;
-  readonly onReorder: (group_id: string, next: readonly string[]) => void;
-  readonly onToggleLock: (group_id: string) => void;
+  readonly matchPredictions: Record<string, MatchPrediction>;
+  readonly tiebreaker?: GroupTiebreaker;
+  readonly onChangeMatch: (next: MatchPrediction) => void;
+  readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
 }
 
-export function GroupCard(props: GroupCardProps) {
-  const { group, teams, order, locked, onReorder, onToggleLock } = props;
-  const fullOrder = order.length === group.team_ids.length ? order : group.team_ids;
+const POSITION_LABELS = [
+  "1st (advances)",
+  "2nd (advances)",
+  "3rd (best-thirds pool)",
+  "4th",
+];
 
-  const move = (idx: number, dir: -1 | 1): void => {
-    const j = idx + dir;
-    if (j < 0 || j >= fullOrder.length) return;
-    const next = [...fullOrder];
-    [next[idx], next[j]] = [next[j], next[idx]];
-    onReorder(group.id, next);
+export function GroupCard(props: GroupCardProps) {
+  const {
+    tournament,
+    group,
+    teams,
+    matchPredictions,
+    tiebreaker,
+    onChangeMatch,
+    onChangeTiebreaker,
+  } = props;
+
+  const groupFixtures = tournament.group_fixtures
+    .filter((f) => f.group_id === group.id)
+    .sort((a, b) => a.match_no - b.match_no);
+
+  const standings = computeGroupStandings(group.id, tournament, matchPredictions, tiebreaker);
+  const complete = isGroupComplete(group.id, tournament, matchPredictions);
+  const predictedCount = groupFixtures.filter((f) => matchPredictions[groupMatchId(f)]).length;
+  // Don't surface tiebreaker control until the user has *some* predictions
+  // — an empty group has every team tied at 0 pts, but that's not a real
+  // tie that needs resolution.
+  const ties = predictedCount === 0
+    ? []
+    : detectTiesNeedingTiebreaker(standings, {
+        tournament,
+        groupId: group.id,
+        predictions: matchPredictions,
+        tiebreaker,
+      });
+
+  return (
+    <div className="bracket-group" data-group-id={group.id}>
+      <div className="bracket-group-head">
+        <h3>Group {group.id}</h3>
+        <span className="bracket-group-progress" aria-live="polite">
+          {predictedCount} / {groupFixtures.length} matches predicted
+        </span>
+      </div>
+
+      <div className="bracket-group-matches">
+        {groupFixtures.map((f) => {
+          const homeCode = group.team_ids[f.home_idx]!;
+          const awayCode = group.team_ids[f.away_idx]!;
+          const home = teams.get(homeCode);
+          const away = teams.get(awayCode);
+          const id = groupMatchId(f);
+          if (!home || !away) return null;
+          return (
+            <MatchPredictionRow
+              key={id}
+              matchId={id}
+              homeTeam={home}
+              awayTeam={away}
+              prediction={matchPredictions[id]}
+              onChange={onChangeMatch}
+            />
+          );
+        })}
+      </div>
+
+      <PredictedStandingsPanel
+        standings={standings}
+        teams={teams}
+        complete={complete}
+        ties={ties}
+      />
+
+      {ties.length > 0 && (
+        <TiebreakerControl
+          group={group}
+          standings={standings}
+          ties={ties}
+          tiebreaker={tiebreaker}
+          onChangeTiebreaker={onChangeTiebreaker}
+        />
+      )}
+    </div>
+  );
+}
+
+interface StandingsPanelProps {
+  readonly standings: readonly GroupStanding[];
+  readonly teams: ReadonlyMap<string, Team>;
+  readonly complete: boolean;
+  readonly ties: ReturnType<typeof detectTiesNeedingTiebreaker>;
+}
+
+function PredictedStandingsPanel({ standings, teams, complete, ties }: StandingsPanelProps) {
+  const tiePositions = new Set<number>();
+  for (const t of ties) for (const p of t.positions) tiePositions.add(p);
+
+  return (
+    <div className="bracket-standings" aria-label="Predicted standings">
+      <h4>Predicted standings</h4>
+      {standings.length === 0 ? (
+        <p className="bracket-standings-hint">Pick the outcomes of each match to see predicted standings.</p>
+      ) : (
+        <ol className="bracket-standings-list">
+          {standings.map((s, i) => {
+            const team = teams.get(s.teamCode);
+            const pos = i + 1;
+            const advancing = pos <= 2;
+            const wildcard = pos === 3;
+            const tied = tiePositions.has(pos);
+            return (
+              <li
+                key={s.teamCode}
+                className={`bracket-standings-row ${
+                  advancing ? "is-advance" : wildcard ? "is-wildcard" : "is-out"
+                } ${tied ? "is-tied" : ""}`}
+              >
+                <span className="bracket-pos">{pos}.</span>
+                <span className="bracket-team-code">{s.teamCode}</span>
+                <span className="bracket-team-name">{team?.name ?? s.teamCode}</span>
+                <span className="bracket-stat" title="Points">{s.points} pts</span>
+                <span className="bracket-stat" title="Goal difference">
+                  {s.goalDiff >= 0 ? `+${s.goalDiff}` : s.goalDiff} GD
+                </span>
+                <span className="bracket-stat-detail" title="Won-Drawn-Lost">
+                  {s.wins}W {s.draws}D {s.losses}L
+                </span>
+                <span className="bracket-stat-detail" title="Goals for / against">
+                  {s.goalsFor}:{s.goalsAgainst}
+                </span>
+                <span className="bracket-pos-tag">
+                  {advancing ? "advances" : wildcard ? "best-thirds pool" : "out"}
+                </span>
+                {tied && <span className="bracket-tie-flag" aria-label="Tied — needs tiebreaker">tied</span>}
+              </li>
+            );
+          })}
+        </ol>
+      )}
+      {!complete && standings.some((s) => s.played > 0) && (
+        <p className="bracket-standings-hint">
+          Standings update live as you pick. Predict all 6 matches for a final order.
+        </p>
+      )}
+    </div>
+  );
+}
+
+interface TiebreakerControlProps {
+  readonly group: Group;
+  readonly standings: readonly GroupStanding[];
+  readonly ties: ReturnType<typeof detectTiesNeedingTiebreaker>;
+  readonly tiebreaker?: GroupTiebreaker;
+  readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
+}
+
+function TiebreakerControl({
+  group,
+  standings,
+  ties,
+  tiebreaker,
+  onChangeTiebreaker,
+}: TiebreakerControlProps) {
+  // The tiebreaker stores the user's full ranked-4 order. We seed it from
+  // the current standings and let the user reorder ties.
+  const initialOrder = (tiebreaker?.rankedTeams ?? standings.map((s) => s.teamCode)) as readonly string[];
+  const [order, setOrder] = useState<readonly string[]>(initialOrder);
+
+  const move = (i: number, dir: -1 | 1): void => {
+    const j = i + dir;
+    if (j < 0 || j >= order.length) return;
+    const next = [...order];
+    [next[i], next[j]] = [next[j], next[i]];
+    setOrder(next);
+    if (next.length === 4) {
+      onChangeTiebreaker({
+        groupId: group.id,
+        rankedTeams: next as unknown as GroupTiebreaker["rankedTeams"],
+        setAt: new Date().toISOString(),
+      });
+    }
   };
 
   return (
-    <div className={`bracket-group ${locked ? "is-locked" : ""}`} data-group-id={group.id}>
-      <div className="bracket-group-head">
-        <h3>Group {group.id}</h3>
-        <button
-          type="button"
-          className="bracket-lock-btn"
-          aria-pressed={locked}
-          onClick={() => onToggleLock(group.id)}
-          aria-label={locked ? "Unlock group" : "Lock group at current odds"}
-        >
-          {locked ? "Locked" : "Lock"}
-        </button>
-      </div>
-      <ol className="bracket-group-list">
-        {fullOrder.map((teamId, idx) => {
-          const team = teams.get(teamId);
-          // 4-team group: top 2 advance automatically, 3rd is in the
-          // best-thirds wildcard pool, 4th is eliminated.
-          // (Older 6-team layout had two wildcard spots; the engine still
-          // accepts that, but the FIFA 2026 format is 4-team groups.)
-          const groupSize = group.team_ids.length;
-          const advancing = idx < 2;
-          const wildcard = groupSize === 4 ? idx === 2 : idx === 2 || idx === 3;
-          return (
-            <li
-              key={teamId}
-              className={`bracket-group-row ${advancing ? "is-advance" : wildcard ? "is-wildcard" : "is-out"}`}
-            >
-              <span className="bracket-pos">{idx + 1}</span>
-              <span className="bracket-team">{team?.name ?? teamId}</span>
-              <span className="bracket-fifa-rank">#{team?.fifa_rank ?? "-"}</span>
-              <span className="bracket-controls" aria-hidden="true">
-                <button
-                  type="button"
-                  onClick={() => move(idx, -1)}
-                  disabled={idx === 0 || locked}
-                  aria-label={`Move ${team?.name ?? teamId} up`}
-                >
-                  &uarr;
-                </button>
-                <button
-                  type="button"
-                  onClick={() => move(idx, +1)}
-                  disabled={idx === fullOrder.length - 1 || locked}
-                  aria-label={`Move ${team?.name ?? teamId} down`}
-                >
-                  &darr;
-                </button>
-              </span>
-            </li>
-          );
-        })}
-      </ol>
-      <p className="bracket-group-legend">
-        <span className="dot dot-advance" /> Advance &middot;
-        <span className="dot dot-wildcard" /> Wildcard pool &middot;
-        <span className="dot dot-out" /> Eliminated
+    <div className="bracket-tiebreaker" role="group" aria-label="Tiebreaker — rank tied teams">
+      <h4>Tiebreaker — rank tied teams</h4>
+      <p className="bracket-tiebreaker-hint">
+        {ties.length === 1
+          ? `${ties[0]!.teamCodes.join(", ")} are tied. Drag-rank the order you'd predict.`
+          : `Multiple ties detected. Rank the full group below.`}
       </p>
+      <ol className="bracket-tiebreaker-list">
+        {order.map((code, i) => (
+          <li key={code} className="bracket-tiebreaker-row">
+            <span className="bracket-pos">{i + 1}.</span>
+            <span className="bracket-team-code">{code}</span>
+            <span className="bracket-pos-tag">{POSITION_LABELS[i]}</span>
+            <span className="bracket-controls">
+              <button
+                type="button"
+                onClick={() => move(i, -1)}
+                disabled={i === 0}
+                aria-label={`Rank ${code} higher`}
+              >
+                &uarr;
+              </button>
+              <button
+                type="button"
+                onClick={() => move(i, +1)}
+                disabled={i === order.length - 1}
+                aria-label={`Rank ${code} lower`}
+              >
+                &darr;
+              </button>
+            </span>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

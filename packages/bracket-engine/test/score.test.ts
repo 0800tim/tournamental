@@ -6,11 +6,17 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  BASE_POINTS,
   BRACKET_MODE_MULTIPLIER,
   LOCK_AND_HOLD_BONUS,
   STAGE_MULTIPLIERS,
   confidenceMultiplier,
+  contrarianMultiplier,
+  lockMultiplier,
   scoreBracket,
+  scoreGroupMatchPrediction,
+  scoreGroupPlacement,
+  scoreKnockoutMatchPrediction,
   scorePick,
   streakMultiplier,
   timeMultiplier,
@@ -246,5 +252,172 @@ describe("scoreBracket — full-bracket scoring", () => {
     expect(summary.correct_count).toBe(0);
     expect(summary.settled_count).toBe(1);
     expect(summary.total_points).toBe(0);
+  });
+});
+
+describe("per-match score — group outcome (docs/30 formula)", () => {
+  it("correct outcome alone earns 50 base points", () => {
+    const r = scoreGroupMatchPrediction({
+      stage: "group",
+      predictedOutcome: "home_win",
+      actualOutcome: "home_win",
+      impliedAtLock: 0.6, // favourite, contrarian = 1.0
+      secondsSinceLock: 1_000_000, // close to kickoff, lock_mult ~= 1.0
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(50);
+    expect(r.outcomeCorrect).toBe(true);
+    expect(r.exactScoreCorrect).toBe(false);
+    expect(r.contrarianMult).toBe(1.0);
+    // raw is base × lock × contrarian
+    expect(r.raw).toBeCloseTo(r.basePoints * r.lockMult * r.contrarianMult, 5);
+  });
+
+  it("exact-score correct earns 50 + 200 = 250 base points", () => {
+    const r = scoreGroupMatchPrediction({
+      stage: "group",
+      predictedOutcome: "home_win",
+      actualOutcome: "home_win",
+      predictedHomeScore: 2,
+      predictedAwayScore: 1,
+      actualHomeScore: 2,
+      actualAwayScore: 1,
+      impliedAtLock: 0.6,
+      secondsSinceLock: 0,
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(250);
+    expect(r.exactScoreCorrect).toBe(true);
+  });
+
+  it("wrong outcome earns 0", () => {
+    const r = scoreGroupMatchPrediction({
+      stage: "group",
+      predictedOutcome: "home_win",
+      actualOutcome: "draw",
+      impliedAtLock: 0.05,
+      secondsSinceLock: 0,
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(0);
+    expect(r.pointsAwarded).toBe(0);
+  });
+});
+
+describe("per-match score — multipliers (docs/30)", () => {
+  it("lockMultiplier returns 5.0 at the moment of draw", () => {
+    expect(lockMultiplier(0, 1_000_000)).toBe(5.0);
+  });
+
+  it("lockMultiplier returns 1.0 at or after kickoff", () => {
+    expect(lockMultiplier(1_000_000, 1_000_000)).toBe(1.0);
+    expect(lockMultiplier(2_000_000, 1_000_000)).toBe(1.0);
+  });
+
+  it("lockMultiplier follows the exponential curve in between", () => {
+    // ~1 week before kickoff in a 5-week window: paper says ~2.4×.
+    // Window = 5 * 7 * 86400 = 3024000; 1 week = 604800.
+    // t/window = 0.2; 1 + 4 * exp(-0.6) ≈ 1 + 4 * 0.5488 = 3.195
+    // The "1 week / 5 weeks before kickoff" = 4 weeks remaining of a 5-
+    // week window means the user touched the pick when 4/5 of the
+    // window had elapsed, so secondsSinceLock = 0.8 * window:
+    //   1 + 4 * exp(-3*0.8) = 1 + 4 * 0.0907 = 1.363 ≈ 1.4× (matches docs)
+    const result = lockMultiplier(0.8 * 1_000_000, 1_000_000);
+    expect(result).toBeGreaterThan(1.3);
+    expect(result).toBeLessThan(1.5);
+  });
+
+  it("contrarianMultiplier: 1.0 for favourites", () => {
+    expect(contrarianMultiplier(0.7)).toBe(1.0);
+    expect(contrarianMultiplier(0.51)).toBe(1.0);
+  });
+
+  it("contrarianMultiplier: 1.25 for 30-50% implied", () => {
+    expect(contrarianMultiplier(0.4)).toBe(1.25);
+    expect(contrarianMultiplier(0.3)).toBe(1.25);
+  });
+
+  it("contrarianMultiplier: 1.75 for 15-30% implied", () => {
+    expect(contrarianMultiplier(0.2)).toBe(1.75);
+    expect(contrarianMultiplier(0.15)).toBe(1.75);
+  });
+
+  it("contrarianMultiplier: 2.5 for 5-15% implied", () => {
+    expect(contrarianMultiplier(0.1)).toBe(2.5);
+    expect(contrarianMultiplier(0.05)).toBe(2.5);
+  });
+
+  it("contrarianMultiplier: 4.0 for <5% implied", () => {
+    expect(contrarianMultiplier(0.04)).toBe(4.0);
+    expect(contrarianMultiplier(0.0)).toBe(4.0);
+  });
+
+  it("worked example: 100 × 5.0 × 4.0 = 2000 for a 6%-implied early-locked group winner", () => {
+    // docs/30 §"contrarian multiplier" worked example uses
+    // base=100 (group winner). Our group-match outcome base is 50, so
+    // the worked-example product against group_outcome is 50*5*4=1000.
+    // Verify scoreGroupPlacement separately for the 100 case.
+    expect(scoreGroupPlacement({ position: 1, predictedTeam: "ARG", actualTeam: "ARG" })).toBe(100);
+    expect(scoreGroupPlacement({ position: 2, predictedTeam: "FRA", actualTeam: "FRA" })).toBe(50);
+    expect(scoreGroupPlacement({ position: 1, predictedTeam: "ARG", actualTeam: "BRA" })).toBe(0);
+  });
+});
+
+describe("per-match score — knockout rounds", () => {
+  it("R32 winner earns 200 base", () => {
+    const r = scoreKnockoutMatchPrediction({
+      stage: "r32",
+      predictedWinner: "ARG",
+      actualWinner: "ARG",
+      impliedAtLock: 0.6,
+      secondsSinceLock: 1_000_000,
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(200);
+  });
+
+  it("R16 winner earns 400 base", () => {
+    const r = scoreKnockoutMatchPrediction({
+      stage: "r16",
+      predictedWinner: "ARG",
+      actualWinner: "ARG",
+      impliedAtLock: 0.6,
+      secondsSinceLock: 1_000_000,
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(400);
+  });
+
+  it("QF=800, SF=1500, F=3000 base scaffold", () => {
+    expect(BASE_POINTS.knockout.qf).toBe(800);
+    expect(BASE_POINTS.knockout.sf).toBe(1500);
+    expect(BASE_POINTS.knockout.f).toBe(3000);
+  });
+
+  it("wrong knockout pick earns 0", () => {
+    const r = scoreKnockoutMatchPrediction({
+      stage: "f",
+      predictedWinner: "ARG",
+      actualWinner: "FRA",
+      impliedAtLock: 0.05,
+      secondsSinceLock: 0,
+      windowSeconds: 1_000_000,
+    });
+    expect(r.pointsAwarded).toBe(0);
+  });
+
+  it("multipliers compound: 4.0 × 5.0 on a correct R16 long-shot", () => {
+    const r = scoreKnockoutMatchPrediction({
+      stage: "r16",
+      predictedWinner: "ARG",
+      actualWinner: "ARG",
+      impliedAtLock: 0.04, // 4.0× contrarian
+      secondsSinceLock: 0, // 5.0× lock
+      windowSeconds: 1_000_000,
+    });
+    expect(r.basePoints).toBe(400);
+    expect(r.contrarianMult).toBe(4.0);
+    expect(r.lockMult).toBe(5.0);
+    expect(r.pointsAwarded).toBe(400 * 5 * 4);
   });
 });

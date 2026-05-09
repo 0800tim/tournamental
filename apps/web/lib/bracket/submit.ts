@@ -14,7 +14,7 @@
  * is `private, no-store` once it lands.
  */
 
-import type { BracketPrediction } from "@vtorn/bracket-engine";
+import type { Bracket } from "@vtorn/bracket-engine";
 import { saveDraft } from "./storage.js";
 
 export interface SubmitResult {
@@ -28,25 +28,26 @@ const API_BASE =
   process.env.NEXT_PUBLIC_VTORN_API_URL ?? "https://vtorn-api.aiva.nz";
 
 export async function submitBracket(
-  prediction: BracketPrediction,
+  tournament_id: string,
+  bracket: Bracket,
   user_local_id: string,
 ): Promise<SubmitResult> {
   // Always save the draft so the user never loses their picks.
-  saveDraft(prediction, user_local_id);
+  saveDraft(tournament_id, bracket, user_local_id);
 
   const url = `${API_BASE}/v1/predictions/bracket`;
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(prediction),
+      body: JSON.stringify({ tournament_id, user_local_id, bracket }),
       // user-specific write — never caches
       cache: "no-store",
     });
     if (!res.ok) {
       console.warn(
         `[bracket-submit] API returned ${res.status} from ${url}. Payload (copy/paste for curl):`,
-        prediction,
+        bracket,
       );
       return { ok: false, status: "api_error", error: `HTTP ${res.status}` };
     }
@@ -55,7 +56,7 @@ export async function submitBracket(
   } catch (err) {
     console.warn(
       "[bracket-submit] No API available yet (PR #27 not landed). Draft saved to localStorage. Payload:",
-      prediction,
+      bracket,
     );
     return {
       ok: false,

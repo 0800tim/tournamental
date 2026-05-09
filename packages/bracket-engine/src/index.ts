@@ -16,6 +16,7 @@
 export * from "./tournament.js";
 export * from "./cascade.js";
 export * from "./score.js";
+export * from "./standings.js";
 export { loadFixtures2026 } from "./fixtures-loader.js";
 // NOTE: `./vstamp` is NOT re-exported here because it imports
 // `node:crypto`. Browser bundles only need cascade + score + tournament.
