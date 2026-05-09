@@ -20,17 +20,22 @@
 
 ## Next (sprint after AR-FR demo lands)
 
-**Goal**: predictions can be submitted and settled; admin dashboard shows it; analytics ingest is live.
+**Goal**: predictions can be submitted and settled; admin dashboard shows it; analytics ingest is live; **VTourn becomes a platform** with marketing site + syndicate subdomains + SDK + MCP.
 
 | ID    | Item                              | Notes                                   |
 | ----- | --------------------------------- | --------------------------------------- |
 | #0010 | `apps/api/` Fastify skeleton      | `/v1/event` + auth scaffolding          |
-| #0011 | Prisma schema + migrations        | users, predictions, events, tournaments |
+| #0011 | Prisma schema + migrations        | users, predictions, events, tournaments, **syndicates** |
 | #0012 | `packages/analytics/` SDK         | GTM + sendBeacon, dataLayer events      |
 | #0013 | `apps/admin/` MVP (#11)           | live + today + users + drilldown        |
 | #0014 | Engagement scorer worker          | reads Redis stream, writes scores       |
 | #0015 | Telegram bot                      | auth + push channel                     |
 | #0016 | VStamp service                    | verifiable prediction receipts          |
+| #0030 | `apps/marketing/` v0.1 (vtourn.com) | landing + how-it-works + syndicates + start |
+| #0031 | Wildcard `*.vtourn.com` + slug resolver | DNS + tunnel + Levenshtein matching |
+| #0034 | `@vtourn/sdk` npm package         | publishable; SDK + R3F bindings         |
+| #0035 | `@vtourn/mcp` MCP server          | `npx @vtourn/mcp`; Claude Desktop integration |
+| #0036 | `prompts/onboarding/` library     | five copy-paste prompts + `/start` page |
 
 ## Later (Phase 3)
 

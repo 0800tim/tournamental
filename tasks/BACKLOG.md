@@ -34,6 +34,19 @@
 - `[?]` Cron entries on this box for hourly/daily/weekly `db-backup.sh`.
 - `[?]` Add a tunnel for `vtorn-admin.aiva.nz` when admin agent is dispatched.
 
+## P1 — platform-strategy lanes (see `docs/26-platform-strategy-and-syndicates.md`)
+
+- `[#0030]` `apps/marketing/` v0.1 (vtourn.com) — landing + how-it-works + syndicates pitch + start.
+- `[#0031]` Wildcard `*.vtourn.com` DNS + tunnel ingress + Levenshtein slug resolver.
+- `[?]`  `#0032` syndicate slug resolution + Levenshtein matcher (folded into #0031).
+- `[?]`  `#0033` syndicate / theme Prisma model + migration.
+- `[#0034]` `@vtourn/sdk` v0.1.0 — publishable npm SDK with React + R3F bindings.
+- `[#0035]` `@vtourn/mcp` — MCP server published as `npx @vtourn/mcp`.
+- `[#0036]` `prompts/onboarding/` library + marketing-site `/start` page.
+- `[?]` `#0037` `/globe` real-time prediction activity visualisation.
+- `[?]` `#0038` reserve `@VTournBot` on Telegram (Tim).
+- `[?]` `#0039` reserve `@vtourn` org on npm (Tim).
+
 ## P2 — gamification, sharing, virality (see `docs/24-gamification-and-virality.md`)
 
 - `[?]` Badge system: definitions, award engine, display surfaces, share cards.
