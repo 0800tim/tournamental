@@ -1,0 +1,140 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  node:
+    name: Node — install / lint / typecheck / test / build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Set up Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint (--if-present across workspace)
+        run: pnpm lint
+
+      - name: Typecheck (--if-present across workspace)
+        run: pnpm typecheck
+
+      - name: Test (--if-present across workspace)
+        run: pnpm test
+
+      - name: Build (--if-present across workspace)
+        run: pnpm build
+
+  python:
+    name: Python — ruff / pytest (if any pyproject.toml present)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Detect Python projects
+        id: detect
+        run: |
+          if find apps packages -name pyproject.toml 2>/dev/null | grep -q .; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Python 3.11
+        if: steps.detect.outputs.found == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install uv
+        if: steps.detect.outputs.found == 'true'
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Lint + test each Python project
+        if: steps.detect.outputs.found == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          while IFS= read -r pyproj; do
+            dir="$(dirname "$pyproj")"
+            echo "::group::ruff + pytest in $dir"
+            (
+              cd "$dir"
+              uv sync --quiet || true
+              uv run --with ruff ruff check . || exit 1
+              if [ -d tests ] || ls test_*.py *_test.py 2>/dev/null | grep -q .; then
+                uv run --with pytest pytest -q
+              else
+                echo "No tests in $dir — skipping pytest"
+              fi
+            )
+            echo "::endgroup::"
+          done < <(find apps packages -name pyproject.toml 2>/dev/null)
+
+  dco:
+    name: DCO sign-off check
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Verify every PR commit has Signed-off-by
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="${{ github.event.pull_request.base.sha }}"
+          head="${{ github.event.pull_request.head.sha }}"
+          missing=0
+          while IFS= read -r sha; do
+            if ! git log -1 --format=%B "$sha" | grep -qiE '^Signed-off-by: .+ <.+@.+>'; then
+              echo "::error ::Commit $sha is missing a Signed-off-by trailer (use git commit -s)."
+              missing=$((missing + 1))
+            fi
+          done < <(git rev-list "$base..$head")
+          if [ "$missing" -gt 0 ]; then
+            echo "DCO check failed for $missing commit(s)."
+            exit 1
+          fi
+
+  secrets:
+    name: gitleaks (secret scan)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
