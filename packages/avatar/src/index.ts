@@ -110,3 +110,22 @@ export {
   type LegBones,
   type StanceHint,
 } from "./foot-ik.js";
+
+export {
+  createFatigueState,
+  tickFatigue,
+  halfTimeBoost,
+  addDirt,
+  applySweatToMaterial,
+  applyDirtToMaterial,
+  fatigueShaderEnabled,
+  shouldSuggestSubstitution,
+  fatigueSubstitutionBias,
+  createSweatUniforms,
+  SWEAT_SHADER_FRAGMENT_CHUNK,
+  type FatigueState,
+  type FatigueOptions,
+  type DirtRegion,
+  type MaterialLike,
+  type SweatUniforms,
+} from "./sweat-shader.js";

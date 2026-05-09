@@ -13,6 +13,7 @@ import { Ball } from "./Ball";
 import { CameraRig, type CameraMode } from "./CameraRig";
 import { Director } from "./Director";
 import { HUD } from "./HUD";
+import { ReplayHUD } from "./ReplayHUD";
 import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
 import { TimelineScrubber } from "./TimelineScrubber";
@@ -123,6 +124,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
         </Canvas>
 
         <HUD store={store} />
+        <ReplayHUD />
         <OddsHUD store={store} />
         <DebugPanel store={store} matchId={matchId} mode={mode} />
 

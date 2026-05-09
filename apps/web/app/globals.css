@@ -476,3 +476,99 @@ a {
   font-weight: 700;
   letter-spacing: 0.04em;
 }
+
+/* Phase-4 broadcast-style replay HUD overlay. */
+.replay-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  font-feature-settings: "tnum" 1;
+  z-index: 5;
+}
+
+.replay-hud-score {
+  position: absolute;
+  top: 18px;
+  left: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(8, 14, 22, 0.78);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  border-left: 3px solid #f3b83b;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+}
+
+.replay-hud-score-team { opacity: 0.85; }
+.replay-hud-score-num { font-size: 18px; font-variant-numeric: tabular-nums; }
+.replay-hud-score-dash { opacity: 0.55; }
+
+.replay-hud-badge {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(160, 0, 0, 0.92);
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  animation: replay-hud-pulse 1.6s ease-in-out infinite;
+}
+
+.replay-hud-badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  display: inline-block;
+}
+
+.replay-hud-badge-rate {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  margin-left: 6px;
+  opacity: 0.85;
+}
+
+@keyframes replay-hud-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 80, 80, 0.4); }
+  50%      { box-shadow: 0 0 12px 4px rgba(255, 80, 80, 0.0); }
+}
+
+.replay-hud-scorer {
+  position: absolute;
+  bottom: 80px;
+  left: 18px;
+  background: linear-gradient(90deg, rgba(8, 14, 22, 0.92), rgba(8, 14, 22, 0.4));
+  padding: 10px 18px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  border-left: 3px solid #6cabdd;
+  transition: opacity 0.25s ease-out;
+  min-width: 200px;
+}
+
+.replay-hud-scorer-clock {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.replay-hud-scorer-name {
+  font-size: 18px;
+  letter-spacing: -0.005em;
+  font-weight: 700;
+}

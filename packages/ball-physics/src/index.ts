@@ -43,6 +43,15 @@ export {
 export {
   magnusSideForce,
   inferCurl,
+  magnusSpinFromShot,
+  magnusForce,
+  splinePeakLateralOffset,
+  magnusSplineSideForce,
+  liftCoefficient,
+  spinParameter,
   type CurlDirection,
   type MagnusInputs,
+  type ShotCategory,
+  type SpinEstimatorInputs,
+  type MagnusSpinEstimate,
 } from "./magnus.js";

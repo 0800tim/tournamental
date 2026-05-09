@@ -88,6 +88,8 @@ export interface BallStepInput {
   setPosition?: Vec3;
   /** Override velocity (e.g. spline mode handover). */
   setVelocity?: Vec3;
+  /** Phase-4: optional spin set (rad/s) — drives Magnus side-force. */
+  setSpin?: Vec3;
 }
 
 /** Pose read out of the physics layer per frame. */
@@ -116,10 +118,13 @@ export interface BallPhysicsAPI {
 export class VerletBall implements BallPhysicsAPI {
   private pos: Vec3 = [0, 0, BALL_CONSTANTS.radius];
   private vel: Vec3 = [0, 0, 0];
+  /** Angular velocity (spin) in rad/s. Phase-4 Magnus driver. */
+  private spin: Vec3 = [0, 0, 0];
 
   step(input: BallStepInput): BallPose {
     if (input.setPosition) this.pos = [...input.setPosition];
     if (input.setVelocity) this.vel = [...input.setVelocity];
+    if (input.setSpin) this.spin = [...input.setSpin];
     if (input.impulse) {
       const m = BALL_CONSTANTS.mass;
       this.vel = [
@@ -145,11 +150,14 @@ export class VerletBall implements BallPhysicsAPI {
       -(k * this.vel[2]) / BALL_CONSTANTS.mass,
     ];
 
+    // Magnus side-force from spin (Phase 4).
+    const magnus = computeMagnusAccel(this.spin, this.vel);
+
     // Semi-implicit Euler.
     this.vel = [
-      this.vel[0] + dragAccel[0] * dt,
-      this.vel[1] + dragAccel[1] * dt,
-      this.vel[2] + (dragAccel[2] - BALL_CONSTANTS.gravity) * dt,
+      this.vel[0] + (dragAccel[0] + magnus[0]) * dt,
+      this.vel[1] + (dragAccel[1] + magnus[1]) * dt,
+      this.vel[2] + (dragAccel[2] + magnus[2] - BALL_CONSTANTS.gravity) * dt,
     ];
 
     this.pos = [
@@ -157,6 +165,10 @@ export class VerletBall implements BallPhysicsAPI {
       this.pos[1] + this.vel[1] * dt,
       this.pos[2] + this.vel[2] * dt,
     ];
+
+    // Spin decay (~1%/sec).
+    const decay = Math.exp(-0.01 * dt);
+    this.spin = [this.spin[0] * decay, this.spin[1] * decay, this.spin[2] * decay];
 
     // Ground collision: flat z=0 with radius offset.
     if (this.pos[2] < BALL_CONSTANTS.radius) {
@@ -177,9 +189,57 @@ export class VerletBall implements BallPhysicsAPI {
     if (pose.vel) this.vel = [...pose.vel];
   }
 
+  /** Phase-4: explicitly set the spin axis (rad/s). */
+  setSpin(spin: Vec3): void {
+    this.spin = [...spin];
+  }
+
+  /** Phase-4: read the current spin axis (rad/s). */
+  getSpin(): Vec3 {
+    return [...this.spin];
+  }
+
   getPose(): BallPose {
     return { pos: [...this.pos], vel: [...this.vel] };
   }
+}
+
+/**
+ * Local helper: Magnus acceleration from spin × velocity. Mirrors
+ * `magnusForce` in magnus.ts but inlined here to avoid a circular
+ * import (magnus.ts imports BALL_CONSTANTS from this file).
+ */
+function computeMagnusAccel(omega: Vec3, velocity: Vec3): Vec3 {
+  const speed = Math.hypot(velocity[0], velocity[1], velocity[2]);
+  if (speed < 1e-3) return [0, 0, 0];
+  const omegaMag = Math.hypot(omega[0], omega[1], omega[2]);
+  if (omegaMag < 1e-6) return [0, 0, 0];
+
+  const S = (omegaMag * BALL_CONSTANTS.radius) / speed;
+  let Cl: number;
+  if (S < 0.05) Cl = 0;
+  else if (S < 0.15) Cl = 0.18 + ((S - 0.05) / 0.10) * (0.25 - 0.18);
+  else if (S < 0.30) Cl = 0.25 + ((S - 0.15) / 0.15) * (0.32 - 0.25);
+  else Cl = 0.32;
+  if (Cl === 0) return [0, 0, 0];
+
+  const A = Math.PI * BALL_CONSTANTS.radius * BALL_CONSTANTS.radius;
+  const factor = 0.5 * BALL_CONSTANTS.airDensity * Cl * A * speed * speed;
+
+  const omegaHat: Vec3 = [omega[0] / omegaMag, omega[1] / omegaMag, omega[2] / omegaMag];
+  const velHat: Vec3 = [velocity[0] / speed, velocity[1] / speed, velocity[2] / speed];
+  const cx = omegaHat[1] * velHat[2] - omegaHat[2] * velHat[1];
+  const cy = omegaHat[2] * velHat[0] - omegaHat[0] * velHat[2];
+  const cz = omegaHat[0] * velHat[1] - omegaHat[1] * velHat[0];
+  const cmag = Math.hypot(cx, cy, cz);
+  if (cmag < 1e-9) return [0, 0, 0];
+
+  const m = BALL_CONSTANTS.mass;
+  return [
+    (cx / cmag) * factor / m,
+    (cy / cmag) * factor / m,
+    (cz / cmag) * factor / m,
+  ];
 }
 
 /**
@@ -266,5 +326,14 @@ export class BallController {
   /** Apply an impulse — e.g. when the ball hits a post. */
   applyImpulse(impulse: Vec3): void {
     this.physics.step({ dt: 0, impulse });
+  }
+
+  /** Phase-4: set the ball spin (rad/s). */
+  setSpin(spin: Vec3): void {
+    if (this.physics instanceof VerletBall) {
+      this.physics.setSpin(spin);
+    } else {
+      this.physics.step({ dt: 0, setSpin: spin });
+    }
   }
 }
