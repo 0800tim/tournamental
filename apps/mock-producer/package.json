@@ -4,7 +4,30 @@
   "private": true,
   "description": "VTorn synthetic match generator (renderer dev fixture)",
   "type": "module",
+  "bin": {
+    "mock-producer": "./dist/cli.js"
+  },
+  "scripts": {
+    "dev": "tsc -p tsconfig.json && node dist/cli.js",
+    "start": "node dist/cli.js",
+    "prestart": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
   "dependencies": {
-    "@vtorn/spec": "workspace:*"
+    "@vtorn/spec": "workspace:*",
+    "commander": "^12.1.0",
+    "seedrandom": "^3.0.5",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "@types/seedrandom": "^3.0.8",
+    "@types/ws": "^8.5.13",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }
