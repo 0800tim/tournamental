@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 3320",
-    "build": "astro build",
+    "build": "node scripts/build-og-cards.mjs && astro build",
+    "build:og": "node scripts/build-og-cards.mjs",
     "start": "astro preview --host 0.0.0.0 --port 3320",
     "preview": "astro preview --host 0.0.0.0 --port 3320",
     "typecheck": "astro check"
@@ -14,6 +15,7 @@
   "dependencies": {
     "astro": "^4.16.0",
     "@astrojs/tailwind": "^5.1.2",
+    "@vtorn/social-cards": "workspace:*",
     "tailwindcss": "^3.4.14"
   }
 }
