@@ -24,6 +24,7 @@ import { broadcastCamera } from "@/lib/cameras/broadcast-cam";
 import { behindGoalCamera } from "@/lib/cameras/behind-goal-cam";
 import { playerTrackCamera } from "@/lib/cameras/player-track-cam";
 import { goalReplayCamera } from "@/lib/cameras/goal-replay-cam";
+import { crowdEnergyBus } from "@/lib/crowd-energy";
 
 interface DirectorProps {
   store: StoreApi<MatchStore>;
@@ -120,12 +121,19 @@ export function Director({ store, enabled = true }: DirectorProps) {
       });
     }
 
-    // 2. Feed any new events into the policy.
+    // 2. Feed any new events into the policy. Phase-3 also pulses
+    //    the crowd-energy bus on impactful events so `<Crowd />` can
+    //    react with bigger bobs / colour shifts.
     const events = state.events;
     if (events.length > lastEventIdx.current) {
       const newEvents = events.slice(lastEventIdx.current) as EventMessage[];
       lastEventIdx.current = events.length;
-      for (const ev of newEvents) policy.consume(ev);
+      for (const ev of newEvents) {
+        policy.consume(ev);
+        if (ev.type === "event.goal") crowdEnergyBus.pulse("goal");
+        else if (ev.type === "event.tackle" || ev.type === "event.foul")
+          crowdEnergyBus.pulse("tackle");
+      }
     }
 
     // 3. Tick the policy → active cam name.
