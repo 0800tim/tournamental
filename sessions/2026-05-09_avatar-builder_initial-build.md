@@ -2,7 +2,7 @@
 
 **Status**: done
 
-**PR**: see footer (added once `gh pr create` returns).
+**PR**: https://github.com/0800tim/vtorn/pull/10
 
 ## Goal
 
