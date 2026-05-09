@@ -21,5 +21,13 @@ apps/web/public/data/arfr-stream/*.ndjson.gz
 # Playwright local artefacts (HTML reporter output + per-run results).
 # The visual-snapshot fixtures under test-fixtures/visual/ ARE committed
 # so PR reviewers can inspect them.
+
+# Pre-launch syndicate signups are PII (email, name, optional Telegram).
+# /api/syndicate/intent writes to data/pre-signups/<id>.json. Never commit.
+data/pre-signups/*.json
+!data/pre-signups/README.md
+
+# Playwright outputs (e2e screenshots + test results + html report).
+apps/web/.playwright-screenshots/
 apps/web/test-results/
 apps/web/playwright-report/
