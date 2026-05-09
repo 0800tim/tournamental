@@ -29,6 +29,7 @@ import {
 } from "@vtorn/bracket-engine";
 
 import { groupMatchId } from "@/lib/bracket/match-ids";
+import { GroupWinnerChips } from "../odds/GroupWinnerChips";
 import { MatchPredictionRow } from "./MatchPredictionRow";
 
 export interface GroupCardProps {
@@ -37,6 +38,12 @@ export interface GroupCardProps {
   readonly teams: ReadonlyMap<string, Team>;
   readonly matchPredictions: Record<string, MatchPrediction>;
   readonly tiebreaker?: GroupTiebreaker;
+  /** Cloudflare-derived 2-letter country code; gates the affiliate
+   * CTAs in any odds hover-cards. */
+  readonly country?: string | null;
+  /** When false, suppress all live-odds chips in this card (used by
+   * tests that don't want network calls). */
+  readonly showOddsChips?: boolean;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
 }
@@ -55,6 +62,8 @@ export function GroupCard(props: GroupCardProps) {
     teams,
     matchPredictions,
     tiebreaker,
+    country,
+    showOddsChips = true,
     onChangeMatch,
     onChangeTiebreaker,
   } = props;
@@ -87,6 +96,15 @@ export function GroupCard(props: GroupCardProps) {
         </span>
       </div>
 
+      {showOddsChips && (
+        <GroupWinnerChips
+          groupId={group.id}
+          teamCodes={group.team_ids as readonly string[]}
+          teams={teams}
+          country={country}
+        />
+      )}
+
       <div className="bracket-group-matches">
         {groupFixtures.map((f) => {
           const homeCode = group.team_ids[f.home_idx]!;
@@ -102,6 +120,10 @@ export function GroupCard(props: GroupCardProps) {
               homeTeam={home}
               awayTeam={away}
               prediction={matchPredictions[id]}
+              groupLabel={`Group ${group.id}`}
+              kickoffIso={f.kickoff_utc}
+              country={country}
+              showOddsChip={showOddsChips}
               onChange={onChangeMatch}
             />
           );

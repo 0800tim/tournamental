@@ -29,6 +29,7 @@ import { LockSummary } from "./LockSummary";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { submitBracket } from "@/lib/bracket/submit";
+import { useCountry } from "@/lib/odds/use-country";
 
 export interface BracketBuilderProps {
   readonly tournament: Tournament;
@@ -52,6 +53,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [tab, setTab] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
+  const country = useCountry();
 
   useEffect(() => {
     const id = localUserId();
@@ -192,6 +194,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 teams={teamMap}
                 matchPredictions={bracket.matchPredictions}
                 tiebreaker={bracket.groupTiebreakers[g.id]}
+                country={country}
                 onChangeMatch={onChangeMatch}
                 onChangeTiebreaker={onChangeTiebreaker}
               />
@@ -219,6 +222,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       knockout={k}
                       teams={teamMap}
                       prediction={bracket.knockoutPredictions[k.id]}
+                      country={country}
                       onChange={onChangeKnockout}
                     />
                   ))}

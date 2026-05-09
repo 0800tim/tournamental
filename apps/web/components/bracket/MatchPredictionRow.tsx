@@ -16,6 +16,7 @@ import { useState, type CSSProperties, type KeyboardEvent } from "react";
 
 import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
 
+import { OddsChip } from "../odds/OddsChip";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -26,6 +27,16 @@ export interface MatchPredictionRowProps {
   readonly disabled?: boolean;
   /** When true, the "Draw" option is hidden (knockout matches). */
   readonly noDraw?: boolean;
+  /** Optional group label, e.g. "Group A", passed through to the
+   * `<OddsChip>` hover card. */
+  readonly groupLabel?: string;
+  /** Optional ISO kickoff string for the hover card header. */
+  readonly kickoffIso?: string;
+  /** Cloudflare-derived 2-letter country code; gates the affiliate
+   * CTA in the hover card. */
+  readonly country?: string | null;
+  /** When false, suppress the live-odds chip (used by tests + storybook). */
+  readonly showOddsChip?: boolean;
   readonly onChange: (next: MatchPrediction) => void;
 }
 
@@ -40,7 +51,19 @@ function nowIso(): string {
 }
 
 export function MatchPredictionRow(props: MatchPredictionRowProps) {
-  const { matchId, homeTeam, awayTeam, prediction, disabled, noDraw, onChange } = props;
+  const {
+    matchId,
+    homeTeam,
+    awayTeam,
+    prediction,
+    disabled,
+    noDraw,
+    groupLabel,
+    kickoffIso,
+    country,
+    showOddsChip = true,
+    onChange,
+  } = props;
   const [showScores, setShowScores] = useState<boolean>(
     prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
   );
@@ -164,6 +187,23 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           sparkle={prediction?.outcome === "away_win"}
         />
       </div>
+
+      {showOddsChip && (
+        <div className="mpr-odds" data-mpr-odds="">
+          <OddsChip
+            matchNo={matchId}
+            homeTeam={homeTeam.id}
+            awayTeam={awayTeam.id}
+            homeLabel={homeTeam.name}
+            awayLabel={awayTeam.name}
+            noDraw={noDraw}
+            groupLabel={groupLabel}
+            kickoffIso={kickoffIso}
+            country={country}
+            source="bracket-match-row"
+          />
+        </div>
+      )}
 
       <div className="mpr-scores-wrap">
         <button
