@@ -21,7 +21,7 @@ pnpm --filter @vtourn/odds-ingest start
 pnpm --filter @vtourn/odds-ingest dev
 ```
 
-Default port: **3340**. Override with `ODDS_INGEST_PORT`. The HTTP server
+Default port: **3341**. Override with `ODDS_INGEST_PORT`. The HTTP server
 exposes:
 
 | Method | Route | Purpose |
@@ -41,7 +41,7 @@ upstream Cloudflare cache absorbs traffic spikes.
 All config is read from the environment. See `.env.example` for the full
 list. Required-ish:
 
-- `ODDS_INGEST_PORT` (default `3340`)
+- `ODDS_INGEST_PORT` (default `3341`)
 - `ODDS_INGEST_DB_PATH` (default `./data/odds-ingest.sqlite`)
 - `POLYMARKET_GAMMA_URL` / `POLYMARKET_CLOB_URL` — defaults are the public
   Polymarket endpoints, no auth needed.
@@ -89,7 +89,7 @@ pm2 save
 
 ### Cloudflare tunnel
 
-The service binds to **localhost:3340** and is exposed externally via the
+The service binds to **localhost:3341** and is exposed externally via the
 existing `aiva-tunnel` per `docs/22-deployment-and-tunnels.md`. Add the
 ingress rule the same way other vtourn dev hostnames are added:
 
@@ -99,7 +99,7 @@ ingress rule the same way other vtourn dev hostnames are added:
 ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
 TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
 HOST=vtorn-odds.aiva.nz
-PORT=3340
+PORT=3341
 
 # 2. Create the CNAME record.
 cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
