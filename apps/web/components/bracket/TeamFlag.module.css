@@ -1,0 +1,104 @@
+/* Team flag with subtle wave + sparkle sweep + accent glow.
+   Cheap: pure CSS, no JS animation loops. Respects prefers-reduced-motion. */
+
+.flagWrap {
+  position: relative;
+  display: inline-block;
+  border-radius: 4px;
+  overflow: hidden;
+  vertical-align: middle;
+  isolation: isolate;
+  background: rgba(255, 255, 255, 0.04);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  transform: translateZ(0);
+  perspective: 600px;
+}
+
+.flagImg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.05) contrast(1.02);
+  transition: transform 0.3s ease;
+}
+
+/* Idle wave — gentle skew animation that suggests fabric movement. */
+.sparkle .flagImg {
+  animation: vt-flag-wave 6s ease-in-out infinite;
+  transform-origin: left center;
+}
+
+@keyframes vt-flag-wave {
+  0%, 100% { transform: skewY(0deg) scaleY(1); }
+  25%      { transform: skewY(-1.2deg) scaleY(1.005); }
+  50%      { transform: skewY(0deg) scaleY(0.995); }
+  75%      { transform: skewY(1.2deg) scaleY(1.005); }
+}
+
+/* Shimmer sweep — diagonal highlight band drifts across the flag. */
+.shimmer {
+  position: absolute;
+  inset: -50%;
+  background: conic-gradient(
+    from 210deg at 30% 30%,
+    transparent 0deg,
+    rgba(255, 255, 255, 0) 60deg,
+    rgba(255, 255, 255, 0.18) 90deg,
+    rgba(255, 255, 255, 0.45) 110deg,
+    rgba(255, 255, 255, 0.18) 130deg,
+    rgba(255, 255, 255, 0) 160deg,
+    transparent 360deg
+  );
+  mix-blend-mode: overlay;
+  opacity: 0.85;
+  animation: vt-flag-sweep 7s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+}
+
+@keyframes vt-flag-sweep {
+  0%   { transform: translateX(-30%) rotate(0deg); }
+  100% { transform: translateX(30%)  rotate(360deg); }
+}
+
+/* Accent glow — kit-colour halo around the flag. */
+.glow {
+  position: absolute;
+  inset: -2px;
+  border-radius: 6px;
+  pointer-events: none;
+  z-index: -1;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in srgb, var(--vt-flag-accent) 35%, transparent) 0%,
+    transparent 70%
+  );
+  opacity: 0.6;
+  filter: blur(6px);
+  animation: vt-flag-pulse 3.5s ease-in-out infinite;
+}
+
+@keyframes vt-flag-pulse {
+  0%, 100% { opacity: 0.45; }
+  50%      { opacity: 0.85; }
+}
+
+/* Hover — slight tilt + brighter glow. */
+.flagWrap:hover .flagImg {
+  transform: translateY(-1px) scale(1.04);
+}
+.flagWrap:hover .glow {
+  opacity: 1;
+}
+
+/* Reduced motion: kill animations, keep static styling. */
+@media (prefers-reduced-motion: reduce) {
+  .sparkle .flagImg,
+  .shimmer,
+  .glow {
+    animation: none !important;
+  }
+}
