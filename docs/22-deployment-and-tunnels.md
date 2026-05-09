@@ -45,19 +45,47 @@ Production maps to the same internal ports inside the container; the public port
 
 The aiva.nz tunnel is the existing tunnel `68c2f5b4-8713-441b-9de5-1933557a443b` running on this server (managed via systemd `cloudflared.service`). Per `clawdia/CLAUDE.md`, **don't modify ports or ingress for other services**. Adding new ingress for vtorn-* is fine.
 
-Add a new vtorn dev hostname:
+> **The local `/etc/cloudflared/config.yml` is NOT the source of truth.** This tunnel pulls its ingress configuration from Cloudflare's Zero Trust dashboard / API on every reconnect. Local config edits and `systemctl restart` will NOT change which hostnames route to which services. Use the API procedure below.
+
+### Add or change a vtorn dev hostname (API-driven)
 
 ```bash
-# 1. Add a CNAME record in Cloudflare (the tunnel CLI does this)
-cloudflared tunnel route dns 68c2f5b4-8713-441b-9de5-1933557a443b <new-host>.aiva.nz
+# Bring credentials into scope
+source /home/clawdbot/.cloudflared/cf-api-token        # CLOUDFLARE_API_TOKEN
+ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
+TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
+HOST=vtorn-newthing.aiva.nz
+PORT=3340
 
-# 2. Add an ingress rule to /etc/cloudflared/config.yml BEFORE the
-#    catch-all. Group with existing # --- VTorn (dev) --- block.
+# 1. Create the CNAME record (DNS side — this works locally even though
+#    ingress is remote-managed).
+cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
+
+# 2. Pull current ingress, append the new rule before the catch-all,
+#    PUT the merged config back.
+curl -s "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/configurations" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" > /tmp/cf-cur.json
+
+python3 <<PY > /tmp/cf-new.json
+import json
+cur = json.load(open('/tmp/cf-cur.json'))
+cfg = cur['result']['config']
+ingress = cfg['ingress']
+catchall = ingress.pop()
+ingress = [r for r in ingress if r.get('hostname') != "$HOST"]
+ingress.append({'hostname': "$HOST", 'service': "http://localhost:$PORT"})
+ingress.append(catchall)
+cfg['ingress'] = ingress
+print(json.dumps({'config': cfg}))
+PY
+
+curl -s -X PUT "https://api.cloudflare.com/client/v4/accounts/$ACCOUNT_ID/cfd_tunnel/$TUNNEL_ID/configurations" \
+  -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  --data @/tmp/cf-new.json | python3 -c "import json,sys;d=json.load(sys.stdin);print('ok' if d['success'] else d['errors'])"
+
+# 3. (Optional) mirror the change in the local config file as documentation.
 sudo $EDITOR /etc/cloudflared/config.yml
-
-# 3. Restart cloudflared (reload is unsupported on this build).
-sudo systemctl restart cloudflared
-sudo systemctl is-active cloudflared
 ```
 
 Smoke test:
@@ -66,7 +94,9 @@ Smoke test:
 curl -sI https://<new-host>.aiva.nz | head -3
 ```
 
-`HTTP/2 404` with `cf-cache-status: DYNAMIC` is healthy — it means Cloudflare reached the tunnel and the local service didn't answer (because it isn't running yet, or because that path 404s).
+`HTTP/2 404` with `cf-cache-status: DYNAMIC` *and your service not yet bound* is healthy — Cloudflare reached the tunnel and the local service didn't answer. Once your service is listening, you should get its real response.
+
+If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing — re-run `cloudflared tunnel route dns ...`.
 
 ## Cloudflare Tunnel (staging + prod)
 

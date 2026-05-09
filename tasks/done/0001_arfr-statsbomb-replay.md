@@ -2,9 +2,9 @@
 id: 0001
 title: AR-FR 2022 producer (apps/statsbomb-replay)
 owner: agent:statsbomb-replay
-status: in-progress
+status: done
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-09  # closed
 priority: P0
 labels: [demo-critical-path, producer, python]
 links:

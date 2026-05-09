@@ -2,9 +2,9 @@
 id: 0002
 title: Renderer (apps/web)
 owner: agent:web
-status: in-progress
+status: done
 created: 2026-05-09
-updated: 2026-05-09
+updated: 2026-05-09  # closed
 priority: P0
 labels: [demo-critical-path, frontend, r3f, nextjs]
 links:
