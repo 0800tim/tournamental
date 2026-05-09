@@ -11,6 +11,7 @@
     "lint": "next lint --dir app --dir components --dir lib --dir __tests__",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:e2e": "playwright test --project=chromium",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
