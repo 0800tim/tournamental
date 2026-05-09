@@ -16,17 +16,23 @@ import type { CSSProperties } from "react";
 
 import type { CascadedKnockout, MatchPrediction, Team } from "@vtorn/bracket-engine";
 
+import { OddsChip } from "../odds/OddsChip";
 import { TeamFlag } from "./TeamFlag";
 
 export interface KnockoutMatchProps {
   readonly knockout: CascadedKnockout;
   readonly teams: ReadonlyMap<string, Team>;
   readonly prediction?: MatchPrediction;
+  /** Cloudflare-derived 2-letter country code; gates the affiliate
+   * CTA in the hover card. */
+  readonly country?: string | null;
+  /** When false, suppress the live-odds chip (used by tests). */
+  readonly showOddsChip?: boolean;
   readonly onChange: (next: MatchPrediction) => void;
 }
 
 export function KnockoutMatch(props: KnockoutMatchProps) {
-  const { knockout, teams, prediction, onChange } = props;
+  const { knockout, teams, prediction, country, showOddsChip = true, onChange } = props;
 
   const homeTeam = knockout.home.team ? teams.get(knockout.home.team) : undefined;
   const awayTeam = knockout.away.team ? teams.get(knockout.away.team) : undefined;
@@ -102,6 +108,21 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
           <span className="km-tbd">{describeSource(knockout.away.source)}</span>
         )}
       </button>
+      {showOddsChip && slotsKnown && homeTeam && awayTeam && (
+        <div className="km-odds" data-km-odds="">
+          <OddsChip
+            matchNo={knockout.id}
+            homeTeam={homeTeam.id}
+            awayTeam={awayTeam.id}
+            homeLabel={homeTeam.name}
+            awayLabel={awayTeam.name}
+            noDraw
+            groupLabel={knockout.stage.toUpperCase()}
+            country={country}
+            source="bracket-knockout"
+          />
+        </div>
+      )}
     </div>
   );
 }

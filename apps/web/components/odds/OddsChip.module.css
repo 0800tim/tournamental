@@ -1,0 +1,293 @@
+/* OddsChip + OddsHoverCard styles. Pure CSS, no Radix.
+ *
+ * The chip is an inline-flex pill that the parent component (e.g.
+ * MatchPredictionRow) can drop in beside its other controls. The hover
+ * card is absolutely positioned relative to a container that wraps the
+ * chip, and is shown on `:hover`, `:focus-within`, and when the
+ * `data-open="true"` attribute is set (used for keyboard + long-press).
+ *
+ * `prefers-reduced-motion: reduce` disables the fade/slide entry.
+ */
+
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  padding: 0.18em 0.55em;
+  font-size: 0.72rem;
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.04);
+  color: #e8eaf2;
+  white-space: nowrap;
+  cursor: help;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    transform 120ms ease;
+}
+
+.chip[data-state="loading"] {
+  color: rgba(232, 234, 242, 0.5);
+}
+
+.chip[data-state="error"] {
+  color: rgba(232, 234, 242, 0.4);
+  border-style: dashed;
+}
+
+.chip:hover,
+.chip:focus-visible {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.28);
+  transform: translateY(-0.5px);
+}
+
+.chip:focus-visible {
+  outline: 2px solid #f5d74e;
+  outline-offset: 2px;
+}
+
+.chipPart {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18em;
+}
+
+.chipDot {
+  width: 0.45em;
+  height: 0.45em;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.chipPartHome {
+  color: #f8d061;
+}
+
+.chipPartDraw {
+  color: #b3b8c4;
+}
+
+.chipPartAway {
+  color: #6fb3ff;
+}
+
+.chipPct {
+  color: #e8eaf2;
+  font-variant-numeric: tabular-nums;
+}
+
+.chipSep {
+  color: rgba(255, 255, 255, 0.25);
+  font-weight: 400;
+}
+
+.tier {
+  margin-left: 0.4em;
+  font-size: 0.6rem;
+  letter-spacing: 0.02em;
+  color: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+/* --- Hover card --- */
+
+.card {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 60;
+  width: min(320px, 90vw);
+  padding: 0.85rem 0.95rem;
+  background: #11141d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  box-shadow:
+    0 18px 38px rgba(0, 0, 0, 0.5),
+    0 4px 8px rgba(0, 0, 0, 0.35);
+  color: #e8eaf2;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+
+.wrap:hover .card,
+.wrap:focus-within .card,
+.card[data-open="true"] {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    transition: none;
+    transform: none;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  align-items: baseline;
+  margin-bottom: 0.55rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.78rem;
+  color: #aab0bf;
+}
+
+.cardTitle {
+  font-weight: 700;
+  color: #f3f4fa;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardKickoff {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: #aab0bf;
+}
+
+.cardRow {
+  display: grid;
+  grid-template-columns: 64px 1fr 50px;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.18rem 0;
+}
+
+.cardRowLabel {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cardRowLabel[dir="rtl"] {
+  text-align: right;
+}
+
+.cardRowBar {
+  position: relative;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.cardRowBarFill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: linear-gradient(90deg, #f8d061, #f5b730);
+  border-radius: inherit;
+  transition: width 220ms ease;
+}
+
+.cardRow[data-side="draw"] .cardRowBarFill {
+  background: linear-gradient(90deg, #b3b8c4, #7e8294);
+}
+
+.cardRow[data-side="away"] .cardRowBarFill {
+  background: linear-gradient(90deg, #6fb3ff, #3a82e0);
+}
+
+.cardRowPct {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: right;
+}
+
+.cardFooter {
+  margin-top: 0.6rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: #8b91a4;
+}
+
+.cardSource {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  padding: 0.45rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  background: linear-gradient(90deg, #f5b730, #f8d061);
+  color: #1a1c25;
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+}
+
+.cta:hover {
+  filter: brightness(1.05);
+}
+
+.ctaSoftened {
+  background: transparent;
+  color: #aab0bf;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  font-weight: 500;
+}
+
+.trend {
+  display: block;
+  margin-top: 0.4rem;
+  width: 100%;
+  height: 28px;
+}
+
+.trendLine {
+  fill: none;
+  stroke-width: 1.6;
+}
+
+.trendLineHome {
+  stroke: #f8d061;
+}
+
+.trendLineDraw {
+  stroke: rgba(179, 184, 196, 0.7);
+}
+
+.trendLineAway {
+  stroke: #6fb3ff;
+}
+
+.trendBaseline {
+  stroke: rgba(255, 255, 255, 0.06);
+  stroke-width: 1;
+}
