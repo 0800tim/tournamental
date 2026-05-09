@@ -13,6 +13,8 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, doc 04] Stadium customisation per-team. (open)
 - [2026-05-09, doc 07] Ready Player Me avatar tier — generates GLB from one player photo, swap into existing pipeline. (open)
 - [2026-05-09, doc 07] Custom GLB avatar tier for forks (Roblox-style worlds). (open)
+- [2026-05-09, doc 07] Ship full Mixamo retargets for the 12 stub animations (`walk`, `sprint`, `pass`, `header`, `shoot`, `tackle`, `fall`, `celebrate`, `throw`, `catch`, `dribble`, `jump`) — current build emits idle-clip stubs that satisfy the loader contract but read as static. Pipeline: download Mixamo FBX → `FBX2glTF` → drop in `apps/web/public/animations/`. (open)
+- [2026-05-09, doc 07] Higher-fidelity body GLB: hand-modelled in Blender with a full Mixamo skeleton, tasteful low-poly silhouette (head/torso/arm separation rather than the current box approximation). Current self-authored body is functional but readable as boxes at close camera. (open)
 
 ### Producers
 - [2026-05-09, doc 06] Per-player MOT tracking (TrackNet for ball, ByteTrack for players). (open)
