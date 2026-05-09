@@ -17,3 +17,9 @@ __pycache__/
 apps/web/public/data/arfr-stream/*.ndjson
 apps/web/public/data/arfr-stream/*.ndjson.gz
 !apps/web/public/data/arfr-stream/__fixture__.ndjson
+
+# Playwright local artefacts (HTML reporter output + per-run results).
+# The visual-snapshot fixtures under test-fixtures/visual/ ARE committed
+# so PR reviewers can inspect them.
+apps/web/test-results/
+apps/web/playwright-report/
