@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "@react-three/drei": "^9.114.0",
-    "@react-three/fiber": "^8.17.10",
+    "@react-three/fiber": "^9.6.1",
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.12",
     "@types/three": "^0.184.1",
