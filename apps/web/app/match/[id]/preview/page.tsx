@@ -41,6 +41,7 @@ import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/en
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
 import { MatchPreviewTabs } from "./_components/MatchPreviewTabs";
+import { MatchPickOverlay } from "./_components/MatchPickOverlay";
 import {
   canonicalTeam,
   expectedScoreline,
@@ -195,6 +196,15 @@ export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
           &larr; Back to the bracket
         </Link>
       </footer>
+
+      <MatchPickOverlay
+        matchId={match.matchId}
+        homeTeam={homeEngine}
+        awayTeam={awayEngine}
+        kickoffIso={match.kickoffUtc}
+        venue={match.venue}
+        noDraw={match.stage !== "group"}
+      />
     </main>
   );
 }

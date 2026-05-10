@@ -1167,6 +1167,32 @@
   outline: none;
 }
 
+/* "..." popup trigger sits to the left of "View match". Same pill
+ * affordance, slightly tighter so it reads as a secondary action. */
+.mpr-popup-trigger {
+  position: absolute;
+  top: 6px;
+  right: 84px;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 999px;
+  cursor: pointer;
+  z-index: 2;
+}
+.mpr-popup-trigger:hover,
+.mpr-popup-trigger:focus-visible {
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
+  outline: none;
+}
+
 /* Same affordance for KnockoutMatch — the card's header is already a
  * flex row so we just plug it in as another item; small size keeps the
  * existing layout balanced. */

@@ -31,11 +31,19 @@ export interface KickoffLookup {
    * knockout slot whose cascade hasn't been resolved yet).
    */
   kickoffFor(matchId: string): string | null;
+  /**
+   * Returns the canonical stage for `matchId` ("group", "r32", "r16", "qf",
+   * "sf", "tp", "f"), or `null` if the match isn't part of this tournament.
+   * Used by the per-match-pick endpoints to validate that `draw` is only
+   * accepted on group-stage matches.
+   */
+  stageFor(matchId: string): string | null;
 }
 
 const NULL_LOOKUP: KickoffLookup = {
   tournamentId: "",
   kickoffFor: () => null,
+  stageFor: () => null,
 };
 
 /**
@@ -43,19 +51,25 @@ const NULL_LOOKUP: KickoffLookup = {
  * keyed by stringified `match_no`; knockout fixtures are keyed by `id`.
  */
 export function buildKickoffLookup(tournament: Tournament): KickoffLookup {
-  const map = new Map<string, string>();
+  const kickoffMap = new Map<string, string>();
+  const stageMap = new Map<string, string>();
   for (const f of tournament.group_fixtures) {
-    map.set(String(f.match_no), f.kickoff_utc);
+    kickoffMap.set(String(f.match_no), f.kickoff_utc);
+    stageMap.set(String(f.match_no), "group");
   }
   for (const k of tournament.knockouts) {
     if (k.kickoff_utc) {
-      map.set(k.id, k.kickoff_utc);
+      kickoffMap.set(k.id, k.kickoff_utc);
     }
+    stageMap.set(k.id, k.stage);
   }
   return {
     tournamentId: tournament.id,
     kickoffFor(matchId: string): string | null {
-      return map.get(matchId) ?? null;
+      return kickoffMap.get(matchId) ?? null;
+    },
+    stageFor(matchId: string): string | null {
+      return stageMap.get(matchId) ?? null;
     },
   };
 }

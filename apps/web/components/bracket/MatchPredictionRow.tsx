@@ -30,6 +30,7 @@ import { recentFormResults } from "@/lib/team-form";
 import { FormDots, type FormResult } from "@/components/shared/FormDots";
 import { HeadToHeadPill } from "@/components/shared/HeadToHeadPill";
 import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
+import { MatchPickPopup } from "@/components/match-pick/MatchPickPopup";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -100,6 +101,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
   );
   const [now, setNow] = useState<number>(() => Date.now());
+  const [popupOpen, setPopupOpen] = useState<boolean>(false);
 
   // Cheap heartbeat so the kickoff lockout banner appears without a
   // page refresh once the match starts. We don't need second-accuracy
@@ -239,6 +241,37 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       >
         View match
       </a>
+      <button
+        type="button"
+        className="mpr-popup-trigger"
+        aria-label={`Open pick popup for ${homeTeam.name} vs ${awayTeam.name}`}
+        title="Open in popup"
+        onClick={(e) => {
+          e.stopPropagation();
+          setPopupOpen(true);
+        }}
+      >
+        ⋯
+      </button>
+      {popupOpen && (
+        <MatchPickPopup
+          matchId={matchId}
+          homeTeam={homeTeam}
+          awayTeam={awayTeam}
+          kickoffIso={kickoffIso ?? null}
+          presentation="sheet"
+          noDraw={noDraw}
+          odds={odds ?? null}
+          initialPick={prediction ?? null}
+          onSaved={(saved) => {
+            // Mirror the popup save back into the parent state so the
+            // inline row reflects the new pick without a refresh.
+            onChange(saved);
+            setPopupOpen(false);
+          }}
+          onClose={() => setPopupOpen(false)}
+        />
+      )}
       <button
         type="button"
         className={`mpr-pick mpr-pick-home ${isHome ? "is-selected" : ""} ${prediction && !isHome ? "is-dim" : ""}`}

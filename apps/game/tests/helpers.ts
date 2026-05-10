@@ -46,14 +46,28 @@ export async function makeServer(opts: TestServerOpts = {}) {
 export function makeStubRegistry(
   tournamentId: string,
   kickoffs: Record<string, string>,
+  stages: Record<string, string> = {},
 ): KickoffRegistry {
+  const defaultStageFor = (matchId: string): string | null => {
+    if (matchId in stages) return stages[matchId] ?? null;
+    if (/^\d+$/.test(matchId)) return "group";
+    if (matchId.startsWith("r32")) return "r32";
+    if (matchId.startsWith("r16")) return "r16";
+    if (matchId.startsWith("qf")) return "qf";
+    if (matchId.startsWith("sf")) return "sf";
+    if (matchId === "tp" || matchId === "third_place") return "tp";
+    if (matchId === "final" || matchId === "f") return "f";
+    return null;
+  };
   const lookup: KickoffLookup = {
     tournamentId,
     kickoffFor: (matchId: string) => kickoffs[matchId] ?? null,
+    stageFor: defaultStageFor,
   };
   const empty: KickoffLookup = {
     tournamentId: "",
     kickoffFor: () => null,
+    stageFor: () => null,
   };
   return {
     forTournament: (tid: string) => (tid === tournamentId ? lookup : empty),
