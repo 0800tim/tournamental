@@ -2,6 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ----------------------------------------------------------------------
+ * Self-hosted Inter Variable. We host the .woff2 under /public/fonts/ so
+ * there's no Google Fonts request on the critical path (no FOUT, no
+ * third-party DNS lookup, no GDPR ambiguity). `font-display: swap` lets
+ * the system-font fallback paint immediately and the file swap-in runs
+ * with no layout shift because Inter and the system fallback metrics
+ * are similar at the body sizes we use.
+ * -------------------------------------------------------------------- */
+@font-face {
+  font-family: "Inter Variable";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/Inter-Variable.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Inter Variable";
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/Inter-Variable-Italic.woff2") format("woff2");
+}
+
 @layer base {
   /* Theme tokens. The defaults are dark (matching the long-standing
    * design); :root[data-theme="light"] flips the surfaces. The
@@ -47,6 +70,13 @@
     font-family: theme(fontFamily.sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* Inter ships several stylistic-set + character-variant
+       alternates; cv11 picks the single-storey 'a' alternate that
+       reads cleaner at headline sizes, ss01 enables the open-aperture
+       digit set for our number-heavy leaderboards (per the brand doc
+       §typography note about "tabular-number variant"). */
+    font-feature-settings: "cv11", "ss01";
+    font-optical-sizing: auto;
   }
   body {
     min-height: 100vh;
@@ -343,3 +373,227 @@
 :root[data-theme="light"] .vt-on-dark.bg-ink-800 { background-color: theme(colors.ink.800) !important; }
 :root[data-theme="light"] .vt-on-dark.border-ink-700,
 :root[data-theme="light"] .vt-on-dark .border-ink-700 { border-color: theme(colors.ink.700) !important; }
+
+/* ----------------------------------------------------------------------
+ * MOTION + DESIGN POLISH (May 2026 — feat/marketing-design-polish)
+ *
+ * Everything below is opt-in via class hooks (.is-in-view, .vt-hero-card,
+ * .vt-glow-cta, etc.) so it doesn't perturb existing markup. The
+ * keyframes are wrapped in a `prefers-reduced-motion: no-preference`
+ * media query — under reduce, the static end-state still paints, the
+ * hover/glow effects degrade to colour-only.
+ * -------------------------------------------------------------------- */
+
+/* Section fade-up on scroll. The intersection-observer in Layout.astro
+ * adds .is-in-view to each <section>; the staggered children pick up the
+ * class via the parent selector below. */
+section {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  section.vt-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity 600ms cubic-bezier(0.22, 1, 0.36, 1),
+      transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: var(--vt-stagger, 0ms);
+    will-change: opacity, transform;
+  }
+  section.vt-reveal.is-in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  /* Staggered children — direct grid + card descendants stagger their
+   * entrance behind the section by 80ms each. The runtime script in
+   * Layout.astro assigns --vt-stagger; this is the CSS recipe it leans
+   * on. */
+  section.vt-reveal.is-in-view .vt-stagger-child {
+    animation: vt-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation-delay: var(--vt-child-stagger, 0ms);
+  }
+}
+@keyframes vt-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ----------------------------------------------------------------------
+ * Hero rotating accent gradient (CSS @property + custom-prop animation).
+ *
+ * The match-card sits inside `.vt-hero-card` which paints a conic
+ * gradient ring through its ::before pseudo-element. We register an
+ * animatable `--vt-angle` so the gradient *transitions* rather than
+ * stepping, and `prefers-reduced-motion` simply pauses the animation.
+ * -------------------------------------------------------------------- */
+@property --vt-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.vt-hero-card {
+  position: relative;
+  isolation: isolate;
+}
+.vt-hero-card::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: 1.05rem; /* a hair larger than the inner rounded-2xl */
+  background: conic-gradient(
+    from var(--vt-angle),
+    rgba(126, 182, 232, 0.0) 0%,
+    rgba(126, 182, 232, 0.65) 18%,
+    rgba(255, 138, 61, 0.55) 38%,
+    rgba(33, 163, 74, 0.45) 60%,
+    rgba(126, 182, 232, 0.0) 78%,
+    rgba(126, 182, 232, 0.0) 100%
+  );
+  filter: blur(14px);
+  opacity: 0.85;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .vt-hero-card::before {
+    animation: vt-rotate-angle 14s linear infinite;
+  }
+}
+@keyframes vt-rotate-angle {
+  from { --vt-angle: 0deg; }
+  to   { --vt-angle: 360deg; }
+}
+
+/* Mouse-parallax tilt — the script in Hero.astro updates --vt-tilt-x and
+ * --vt-tilt-y on the parent. The tilt is subtle (max 4deg) and only
+ * applies when `prefers-reduced-motion` is no-preference. */
+.vt-hero-card-inner {
+  transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  transform-style: preserve-3d;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .vt-hero-card-tilt .vt-hero-card-inner {
+    transform:
+      perspective(1200px)
+      rotateX(var(--vt-tilt-y, 0deg))
+      rotateY(var(--vt-tilt-x, 0deg));
+  }
+}
+
+/* Per-word cascade reveal on the H1.
+ *
+ * Each word is wrapped in `<span class="vt-word">` with its own
+ * --vt-word-delay set inline (computed in Hero.astro). The cascade
+ * gives the H1 a typewriter-feel without forcing one phrase per line —
+ * the H1 wraps as a normal paragraph, words fade up in reading order.
+ * Under prefers-reduced-motion: reduce, words paint immediately. */
+.vt-word {
+  display: inline-block;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .vt-word {
+    opacity: 0;
+    transform: translateY(0.35em);
+    animation: vt-word-in 520ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation-delay: var(--vt-word-delay, 0ms);
+  }
+}
+@keyframes vt-word-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+/* ----------------------------------------------------------------------
+ * Subtle alpha-pulse for the "COMING JUNE 2026" pill (and any other pill
+ * that opts in via .vt-pill-pulse). 1.5s ease-in-out, 4 % alpha drift.
+ * -------------------------------------------------------------------- */
+@media (prefers-reduced-motion: no-preference) {
+  .vt-pill-pulse {
+    animation: vt-pill-pulse 1.5s ease-in-out infinite;
+  }
+}
+@keyframes vt-pill-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.96; }
+}
+
+/* ----------------------------------------------------------------------
+ * Soft sky-blue glow for the desktop "Play World Cup 2026" CTA. The
+ * default state has a faint diffused box-shadow; hover triples the
+ * spread and adds a subtle scale to lift the button off the chrome. The
+ * sky-blue here is `accent-500` (#5a96d8) as defined in tailwind.config.
+ * -------------------------------------------------------------------- */
+.vt-glow-cta {
+  box-shadow:
+    0 0 0 0 rgba(90, 150, 216, 0.0),
+    0 6px 18px -6px rgba(90, 150, 216, 0.45),
+    0 0 24px -8px rgba(90, 150, 216, 0.4);
+  transition: box-shadow 240ms ease-out, transform 240ms ease-out;
+}
+.vt-glow-cta:hover {
+  box-shadow:
+    0 0 0 6px rgba(90, 150, 216, 0.18),
+    0 10px 28px -8px rgba(90, 150, 216, 0.7),
+    0 0 38px -6px rgba(90, 150, 216, 0.6);
+  transform: translateY(-1px);
+}
+:root[data-theme="light"] .vt-glow-cta {
+  box-shadow:
+    0 0 0 0 rgba(63, 124, 196, 0.0),
+    0 6px 18px -6px rgba(63, 124, 196, 0.4),
+    0 0 24px -8px rgba(63, 124, 196, 0.35);
+}
+:root[data-theme="light"] .vt-glow-cta:hover {
+  box-shadow:
+    0 0 0 6px rgba(63, 124, 196, 0.16),
+    0 10px 28px -8px rgba(63, 124, 196, 0.6),
+    0 0 38px -6px rgba(63, 124, 196, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vt-glow-cta { transition: none; transform: none; }
+  .vt-glow-cta:hover { transform: none; }
+}
+
+/* ----------------------------------------------------------------------
+ * iPhone-SE breakpoint: tighten H1 size and lead so the hero doesn't
+ * push two awkward broken lines on the smallest screens. 375px wide,
+ * 320px content area after the 24px gutters. The default
+ * `text-4xl md:text-6xl` gives 36 px on small screens which over-runs.
+ * -------------------------------------------------------------------- */
+@media (max-width: 480px) {
+  .vt-hero-h1 {
+    /* iPhone SE (375 px) — keep the H1 a clear hero size without
+       overflowing the gutter. The block-stacked phrases mean we don't
+       need to fight word wrap; we just need an honest type scale. */
+    font-size: 2.25rem;     /* 36 px */
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+  }
+  .vt-hero-sub {
+    font-size: 1.05rem;
+    line-height: 1.5;
+  }
+}
+
+/* ----------------------------------------------------------------------
+ * Brand icon utility: mask-based inline icon rendering so every icon
+ * picks up `currentColor` from its parent. Used in SectionHeading and
+ * Footer.
+ * -------------------------------------------------------------------- */
+.vt-icon-mask {
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  /* Default sizing if a Tailwind size utility isn't supplied. Callers
+   * can pass `.size-3.5`, `.size-4`, `.size-6` etc. to override. */
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+}
+.vt-icon-v       { -webkit-mask-image: url("/icons/vtorn/v-mark.svg");    mask-image: url("/icons/vtorn/v-mark.svg"); }
+.vt-icon-trophy  { -webkit-mask-image: url("/icons/vtorn/trophy.svg");    mask-image: url("/icons/vtorn/trophy.svg"); }
+.vt-icon-flag    { -webkit-mask-image: url("/icons/vtorn/flag-pole.svg"); mask-image: url("/icons/vtorn/flag-pole.svg"); }
+.vt-icon-ball    { -webkit-mask-image: url("/icons/vtorn/ball-trail.svg"); mask-image: url("/icons/vtorn/ball-trail.svg"); }

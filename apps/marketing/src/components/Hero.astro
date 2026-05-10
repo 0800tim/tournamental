@@ -1,5 +1,34 @@
 ---
 const demoUrl = "https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12-18";
+
+/* Each H1 word is wrapped in a per-word span so we can cascade them
+ * with a fade-up motion. The split happens at build-time so the SSR'd
+ * HTML is the source of truth — no client JS to mutate the H1, no
+ * accessibility tree disruption. Screen readers read the joined text
+ * because spans are inline. */
+const HEADLINE: { text: string; accent?: boolean }[] = [
+  { text: "Predict the matches that matter." },
+  { text: "Watch them play out in 3D.", accent: true },
+  { text: "Bring your friends." },
+];
+const PER_WORD_DELAY_MS = 45;
+const PHRASE_GAP_MS = 280;
+let runningDelay = 0;
+const PHRASES = HEADLINE.map((p) => {
+  const words = p.text.split(/(\s+)/); // keep whitespace tokens
+  const wordSpans: { word: string; delay: number; isSpace: boolean }[] = [];
+  for (const w of words) {
+    const isSpace = /^\s+$/.test(w);
+    if (isSpace) {
+      wordSpans.push({ word: w, delay: -1, isSpace: true });
+    } else {
+      wordSpans.push({ word: w, delay: runningDelay, isSpace: false });
+      runningDelay += PER_WORD_DELAY_MS;
+    }
+  }
+  runningDelay += PHRASE_GAP_MS;
+  return { ...p, wordSpans };
+});
 ---
 <section class="container-page pt-16 pb-12 md:pt-24 md:pb-20">
   <div class="grid lg:grid-cols-2 gap-10 items-center">
@@ -8,39 +37,62 @@ const demoUrl = "https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12
       <p class="font-display text-xl md:text-2xl font-semibold tracking-tight text-accent-400 mb-4">
         Gamify the tournament. Run private sweepstakes.
       </p>
-      <h1 class="font-display text-4xl md:text-6xl font-extrabold leading-tight text-white">
-        Predict the matches that matter.
-        <span class="text-accent-400">Watch them play out in 3D.</span>
-        Bring your friends.
+      {/* Per-word cascade reveal: each word fades up with a small
+          stagger, the highlighted phrase ("Watch them play out in 3D.")
+          carries the accent colour. The H1 is one contiguous text run
+          so it wraps naturally at any viewport width. */}
+      <h1 class="vt-hero-h1 font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.05] text-white tracking-tight">
+        {PHRASES.map((phrase, pi) => (
+          <Fragment>
+            {pi > 0 && " "}
+            {phrase.wordSpans.map((w) =>
+              w.isSpace ? (
+                w.word
+              ) : (
+                <span
+                  class:list={[
+                    "vt-word",
+                    phrase.accent && "text-accent-400",
+                  ]}
+                  style={`--vt-word-delay: ${w.delay}ms`}
+                >{w.word}</span>
+              ),
+            )}
+          </Fragment>
+        ))}
       </h1>
-      <p class="mt-6 text-lg text-ink-200 max-w-prose">
+      <p class="vt-hero-sub mt-6 text-lg text-ink-200 max-w-prose">
         VTourn is a global tournament prediction game with a verified, 3D match-renderer watch-along. Make a call, see the goals replay, climb the leaderboard. Spin up a private pool at <strong class="text-white">yourname.vtourn.com</strong> for your office, your group chat, or the world.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
-        <a href={demoUrl} class="btn-primary">Watch the AR-FR replay</a>
+        <a href={demoUrl} class="btn-primary vt-glow-cta">Watch the AR-FR replay</a>
         <a href="/how-it-works" class="btn-ghost">How it works</a>
       </div>
       <p class="mt-6 text-sm text-ink-500">100% open source · Apache 2.0 · contributors share platform revenue.</p>
     </div>
-    <div class="relative">
+    {/* The match-card: an outer container that owns the rotating
+        conic-gradient halo (.vt-hero-card) + a tilting inner element
+        (.vt-hero-card-inner) that the parallax script writes to via
+        --vt-tilt-x / --vt-tilt-y custom properties. */}
+    <div class="relative" id="vt-hero-tilt-wrapper">
       <a href={demoUrl} class="block group" aria-label="Open the live AR-FR demo">
-        {/* The match-card is a faux video preview — we keep the dark
-            emerald-to-sky gradient in both themes (it's brand) and use
-            `vt-on-dark` to pin the inner copy to white when the rest
-            of the page goes light. */}
-        <div class="vt-on-dark aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
-          <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-emerald-500/20 to-accent-700/40"></div>
-          <div class="absolute inset-0 grid place-items-center">
-            <div class="text-center px-6">
-              <div class="font-display text-2xl md:text-3xl font-extrabold text-white tracking-tight">Argentina <span class="text-accent-400">3</span> – <span class="text-flame-400">3</span> France</div>
-              <div class="text-ink-200 text-sm mt-2">Penalties: 4–2 to Argentina · 18 December 2022</div>
-              <div class="mt-6 inline-flex items-center gap-2 text-accent-400 group-hover:text-white transition">
-                <span class="font-semibold">Open the live replay</span>
-                <span aria-hidden>→</span>
+        <div class="vt-hero-card rounded-2xl">
+          <div class="vt-hero-card-inner">
+            <div class="vt-on-dark aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
+              <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-emerald-500/20 to-accent-700/40"></div>
+              <div class="absolute inset-0 grid place-items-center">
+                <div class="text-center px-6">
+                  <div class="font-display text-2xl md:text-3xl font-extrabold text-white tracking-tight">Argentina <span class="text-accent-400">3</span> – <span class="text-flame-400">3</span> France</div>
+                  <div class="text-ink-200 text-sm mt-2">Penalties: 4–2 to Argentina · 18 December 2022</div>
+                  <div class="mt-6 inline-flex items-center gap-2 text-accent-400 group-hover:text-white transition">
+                    <span class="font-semibold">Open the live replay</span>
+                    <span aria-hidden>→</span>
+                  </div>
+                </div>
               </div>
+              <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
             </div>
           </div>
-          <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
         </div>
       </a>
       <div class="mt-3 flex items-center gap-2 text-xs text-ink-500">
@@ -50,3 +102,69 @@ const demoUrl = "https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12
     </div>
   </div>
 </section>
+
+{/* Parallax — desktop pointer-fine devices follow the mouse with a
+    subtle 4-degree tilt; mobile coarse-pointer devices fall back to
+    DeviceOrientation (gamma/beta) when the page has user gesture
+    permission. The script honours prefers-reduced-motion: reduce by
+    short-circuiting before any listener attaches. */}
+<script is:inline>
+  (function () {
+    var reduce = window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+
+    var wrapper = document.getElementById("vt-hero-tilt-wrapper");
+    if (!wrapper) return;
+    wrapper.classList.add("vt-hero-card-tilt");
+
+    var coarse = window.matchMedia &&
+      window.matchMedia("(pointer: coarse)").matches;
+
+    if (!coarse) {
+      // Desktop / fine-pointer path. Track the mouse over the wrapper's
+      // bounding box, normalise to [-1, 1], scale to ±4 deg.
+      var raf = 0;
+      var nx = 0, ny = 0;
+      function loop() {
+        wrapper.style.setProperty("--vt-tilt-x", (nx * 4).toFixed(2) + "deg");
+        wrapper.style.setProperty("--vt-tilt-y", (-ny * 4).toFixed(2) + "deg");
+        raf = 0;
+      }
+      wrapper.addEventListener("mousemove", function (e) {
+        var r = wrapper.getBoundingClientRect();
+        nx = ((e.clientX - r.left) / r.width) * 2 - 1;
+        ny = ((e.clientY - r.top) / r.height) * 2 - 1;
+        if (!raf) raf = requestAnimationFrame(loop);
+      });
+      wrapper.addEventListener("mouseleave", function () {
+        nx = 0; ny = 0;
+        if (!raf) raf = requestAnimationFrame(loop);
+      });
+    } else if ("DeviceOrientationEvent" in window) {
+      // Coarse pointer: device-tilt fallback. iOS gates this behind a
+      // permission prompt — we only request after first touch so the
+      // page isn't denied immediately on load.
+      var attach = function () {
+        window.addEventListener("deviceorientation", function (e) {
+          // gamma is left/right tilt, range ~-90..90; beta is front/back.
+          var g = Math.max(-30, Math.min(30, e.gamma || 0)) / 30;
+          var b = Math.max(-30, Math.min(30, (e.beta || 0) - 30)) / 30;
+          wrapper.style.setProperty("--vt-tilt-x", (g * 3).toFixed(2) + "deg");
+          wrapper.style.setProperty("--vt-tilt-y", (-b * 3).toFixed(2) + "deg");
+        }, { passive: true });
+      };
+      var ReqClass = window.DeviceOrientationEvent;
+      if (ReqClass && typeof ReqClass.requestPermission === "function") {
+        document.addEventListener("touchstart", function once() {
+          document.removeEventListener("touchstart", once);
+          ReqClass.requestPermission().then(function (state) {
+            if (state === "granted") attach();
+          }).catch(function () { /* user denied — fail silent */ });
+        }, { passive: true, once: true });
+      } else {
+        attach();
+      }
+    }
+  })();
+</script>

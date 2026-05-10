@@ -33,8 +33,11 @@ export default {
         },
       },
       fontFamily: {
-        sans: ["ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        display: ["ui-sans-serif", "system-ui", "sans-serif"],
+        // Inter Variable is self-hosted from /public/fonts/. The
+        // system-font fallback chain matches the previous default so
+        // first-paint stays clean while the woff2 streams in.
+        sans: ["Inter Variable", "ui-sans-serif", "system-ui", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
+        display: ["Inter Variable", "ui-sans-serif", "system-ui", "sans-serif"],
         mono: ["ui-monospace", "Menlo", "Monaco", "monospace"],
       },
       maxWidth: {

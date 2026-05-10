@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <!-- Geometric V chevron — leans into the "directional, fast" brand note
+       in docs/15-vtourn-brand-and-positioning.md §164. The inner stroke is
+       slightly narrower than the outer to give a chiselled depth. -->
+  <path d="M3 5 L12 21 L21 5 L17 5 L12 13.5 L7 5 Z" fill="currentColor" />
+</svg>

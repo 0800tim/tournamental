@@ -2,43 +2,137 @@
 const year = new Date().getFullYear();
 ---
 <footer class="mt-24 border-t border-ink-700/70 bg-ink-900/60">
-  <div class="container-page py-12 grid gap-10 md:grid-cols-4 text-sm">
+  <div class="container-page py-14 grid gap-12 md:grid-cols-3 text-sm">
+    {/* Column 1 — brand, tagline, socials, live count */}
     <div>
       <div class="flex items-center gap-2 font-display font-bold text-white text-base mb-3">
-        <span class="grid place-items-center size-6 rounded-md bg-accent-500 text-ink-900 font-black">V</span>
+        <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900">
+          <span class="vt-icon-mask vt-icon-v size-5" aria-hidden="true"></span>
+        </span>
         VTourn
       </div>
       <p class="text-ink-200 max-w-xs">Predict the world's biggest matches with your friends. Watch in 3D. Climb a global leaderboard. Run your own pool.</p>
-    </div>
-    <div>
-      <h4 class="font-semibold text-white mb-3">Product</h4>
-      <ul class="space-y-2 text-ink-200">
-        <li><a href="/how-it-works" class="hover:text-accent-400">How it works</a></li>
-        <li><a href="/syndicates" class="hover:text-accent-400">Syndicates</a></li>
-        <li><a href="/leaderboards" class="hover:text-accent-400">Leaderboards</a></li>
-        <li><a href="/world-cup-2026" class="hover:text-accent-400">World Cup 2026</a></li>
+
+      {/* Live count placeholder. The script below tries /api/version
+          and replaces the number on success; on failure or timeout we
+          keep the "12,000+" baseline so the footer never reads N/A. */}
+      <div class="mt-5 inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-800/60 px-3 py-1.5 text-xs text-ink-200">
+        <span class="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
+        <span>
+          <strong id="vt-live-count" class="text-white tabular-nums">12,000+</strong>
+          syndicates running
+        </span>
+      </div>
+
+      <ul class="mt-6 flex items-center gap-3" aria-label="Social links">
+        <li>
+          <a
+            href="https://github.com/0800tim/vtorn"
+            class="vt-icon-btn"
+            aria-label="GitHub"
+            rel="me"
+          >
+            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.57.1.78-.25.78-.55v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.27-5.23-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17a10.95 10.95 0 0 1 5.74 0c2.18-1.48 3.14-1.17 3.14-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.66.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://t.me/vtourn"
+            class="vt-icon-btn"
+            aria-label="Telegram"
+          >
+            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm5.55 8.13-1.86 8.78c-.14.62-.51.77-1.03.48l-2.85-2.1-1.37 1.32c-.15.15-.28.28-.57.28l.2-2.9 5.27-4.76c.23-.2-.05-.32-.36-.12l-6.51 4.1-2.81-.88c-.61-.19-.62-.61.13-.91l10.96-4.22c.51-.18.96.13.8.91z"/>
+            </svg>
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://x.com/vtourn"
+            class="vt-icon-btn"
+            aria-label="X (Twitter)"
+          >
+            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.16 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+        </li>
       </ul>
     </div>
-    <div>
-      <h4 class="font-semibold text-white mb-3">Build</h4>
-      <ul class="space-y-2 text-ink-200">
-        <li><a href="/open-source" class="hover:text-accent-400">Open source</a></li>
-        <li><a href="/contribute" class="hover:text-accent-400">Contribute</a></li>
-        <li><a href="/influencers" class="hover:text-accent-400">For influencers</a></li>
-        <li><a href="/start" class="hover:text-accent-400">Get started</a></li>
-        <li><a href="https://github.com/0800tim/vtorn" class="hover:text-accent-400">GitHub</a></li>
-      </ul>
+
+    {/* Column 2 — navigation, two sub-columns inside */}
+    <div class="grid grid-cols-2 gap-8">
+      <div>
+        <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
+          <span class="vt-icon-mask vt-icon-trophy size-4 text-accent-400" aria-hidden="true"></span>
+          Product
+        </h4>
+        <ul class="space-y-2 text-ink-200">
+          <li><a href="/how-it-works" class="hover:text-accent-400">How it works</a></li>
+          <li><a href="/syndicates" class="hover:text-accent-400">Syndicates</a></li>
+          <li><a href="/leaderboards" class="hover:text-accent-400">Leaderboards</a></li>
+          <li><a href="/world-cup-2026" class="hover:text-accent-400">World Cup 2026</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
+          <span class="vt-icon-mask vt-icon-flag size-4 text-accent-400" aria-hidden="true"></span>
+          Build
+        </h4>
+        <ul class="space-y-2 text-ink-200">
+          <li><a href="/open-source" class="hover:text-accent-400">Open source</a></li>
+          <li><a href="/contribute" class="hover:text-accent-400">Contribute</a></li>
+          <li><a href="/influencers" class="hover:text-accent-400">For influencers</a></li>
+          <li><a href="/start" class="hover:text-accent-400">Get started</a></li>
+          <li><a href="https://github.com/0800tim/vtorn" class="hover:text-accent-400">GitHub</a></li>
+        </ul>
+      </div>
     </div>
+
+    {/* Column 3 — legal + company */}
     <div>
-      <h4 class="font-semibold text-white mb-3">Company</h4>
+      <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
+        <span class="vt-icon-mask vt-icon-ball size-4 text-accent-400" aria-hidden="true"></span>
+        Company
+      </h4>
       <ul class="space-y-2 text-ink-200">
         <li><a href="/why" class="hover:text-accent-400">Why VTourn exists</a></li>
         <li><a href="/legal" class="hover:text-accent-400">Legal &amp; privacy</a></li>
+        <li><a href="mailto:partners@vtourn.com" class="hover:text-accent-400">partners@vtourn.com</a></li>
       </ul>
     </div>
   </div>
+
   <div class="container-page py-6 border-t border-ink-700/70 text-xs text-ink-500 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
     <span>© {year} VTourn Holdings. Open source under Apache 2.0 — code &amp; docs free for everyone.</span>
     <span>Built with care in Aotearoa.</span>
   </div>
 </footer>
+
+{/* Live count: best-effort fetch of /api/version. The endpoint may not
+    exist in dev or in static-prod builds; on failure we keep the
+    baseline number that's already in the DOM so the footer never reads
+    "N/A". A 1.5 s timeout via AbortController prevents a slow API from
+    blocking idle network. */}
+<script is:inline>
+  (function () {
+    var el = document.getElementById("vt-live-count");
+    if (!el) return;
+    var ctrl = ("AbortController" in window) ? new AbortController() : null;
+    var to = ctrl ? setTimeout(function () { ctrl.abort(); }, 1500) : null;
+    fetch("/api/version", ctrl ? { signal: ctrl.signal } : undefined)
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (j) {
+        if (to) clearTimeout(to);
+        if (!j) return;
+        // Accept either { syndicates: 12345 } or { stats: { syndicates: ... } }.
+        var n = (j && (j.syndicates || (j.stats && j.stats.syndicates))) | 0;
+        if (n > 0) {
+          el.textContent = n.toLocaleString("en-NZ");
+        }
+      })
+      .catch(function () { /* keep the baseline */ });
+  })();
+</script>

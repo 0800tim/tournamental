@@ -38,6 +38,17 @@ const absoluteOgImage = ogImage.startsWith("http")
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    {/* Preload the variable Inter file so first-paint headings already
+        have the right metrics. crossorigin is required for font preload
+        per the spec; it costs nothing here because the file is
+        same-origin. */}
+    <link
+      rel="preload"
+      href="/fonts/Inter-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
@@ -134,5 +145,53 @@ const absoluteOgImage = ogImage.startsWith("http")
       <slot />
     </main>
     <Footer />
+
+    {/* Section reveal — every <section> on the page fades up as it
+        enters the viewport. Children that opt in via .vt-stagger-child
+        animate behind the section by 80 ms each. The observer respects
+        prefers-reduced-motion: under reduce we add the .is-in-view
+        class immediately so static layout still paints. */}
+    <script is:inline>
+      (function () {
+        if (typeof window === "undefined") return;
+        var reduce = window.matchMedia
+          ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          : false;
+
+        var sections = document.querySelectorAll("main section");
+        sections.forEach(function (s) { s.classList.add("vt-reveal"); });
+
+        function reveal(section) {
+          section.classList.add("is-in-view");
+          // Stagger children that opt in.
+          var kids = section.querySelectorAll(".vt-stagger-child");
+          kids.forEach(function (k, i) {
+            k.style.setProperty("--vt-child-stagger", (i * 80) + "ms");
+          });
+        }
+
+        if (reduce || !("IntersectionObserver" in window)) {
+          sections.forEach(reveal);
+          return;
+        }
+
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) {
+              reveal(e.target);
+              io.unobserve(e.target);
+            }
+          });
+        }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
+
+        sections.forEach(function (s, i) {
+          // First section in the viewport gets a tiny stagger offset so
+          // the hero feels grounded; everything below uses the IO
+          // threshold normally.
+          s.style.setProperty("--vt-stagger", (i === 0 ? 60 : 0) + "ms");
+          io.observe(s);
+        });
+      })();
+    </script>
   </body>
 </html>

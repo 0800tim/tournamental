@@ -1,14 +1,45 @@
 ---
 interface Props {
   eyebrow?: string;
+  /**
+   * When true, the eyebrow pill picks up the `.vt-pill-pulse` class for
+   * a subtle 1.5 s alpha drift. Used on world-cup-2026 (the "COMING
+   * JUNE 2026" pill) and any other "ticking countdown" surface.
+   */
+  eyebrowPulse?: boolean;
+  /**
+   * Optional brand-icon slot. One of "v" | "trophy" | "flag" | "ball" —
+   * renders the matching mask icon from /public/icons/vtorn/ at the
+   * left of the eyebrow pill. Falls back to no icon when omitted.
+   */
+  eyebrowIcon?: "v" | "trophy" | "flag" | "ball";
   title: string;
   lede?: string;
   align?: "left" | "center";
 }
-const { eyebrow, title, lede, align = "left" } = Astro.props;
+const {
+  eyebrow,
+  eyebrowPulse = false,
+  eyebrowIcon,
+  title,
+  lede,
+  align = "left",
+} = Astro.props;
+
+const iconClass = eyebrowIcon ? `vt-icon-mask vt-icon-${eyebrowIcon}` : null;
 ---
 <header class:list={["mb-10", align === "center" && "text-center"]}>
-  {eyebrow && <span class="pill mb-4">{eyebrow}</span>}
+  {eyebrow && (
+    <span
+      class:list={[
+        "pill mb-4",
+        eyebrowPulse && "vt-pill-pulse",
+      ]}
+    >
+      {iconClass && <span class:list={[iconClass, "size-3.5"]} aria-hidden="true"></span>}
+      {eyebrow}
+    </span>
+  )}
   <h2 class="font-display text-3xl md:text-4xl font-bold text-white tracking-tight">{title}</h2>
   {lede && <p class:list={["mt-4 text-lg text-ink-200 max-w-prose", align === "center" && "mx-auto"]}>{lede}</p>}
 </header>
