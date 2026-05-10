@@ -1,0 +1,2 @@
+# Cursor and dead-letter persistence files land here at runtime.
+# Tracked so the directory exists in the worktree.
