@@ -82,6 +82,7 @@ function mockData(): Customer360 {
         shares: 320,
       },
     ],
+    pundit: null,
     fetchedAt: "2026-05-10T00:00:00Z",
   };
 }
@@ -217,6 +218,7 @@ describe("<Customer360Tabs>", () => {
       syndicates: null,
       affiliateRevenue: null,
       socialPosts: null,
+      pundit: null,
       fetchedAt: "2026-05-10T00:00:00Z",
     };
     render(

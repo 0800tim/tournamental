@@ -123,5 +123,6 @@ export function leaderboardRankCard(
     body: leaderboardRankBody(input, size),
     accentHex: palette.flame[500],
     locale: input.locale,
+    pundit: input.pundit,
   });
 }

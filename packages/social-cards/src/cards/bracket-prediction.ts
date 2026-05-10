@@ -151,5 +151,6 @@ export function bracketPredictionCard(
     body: bracketPredictionBody(input, size),
     accentHex: palette.flame[500],
     locale: input.locale,
+    pundit: input.pundit,
   });
 }

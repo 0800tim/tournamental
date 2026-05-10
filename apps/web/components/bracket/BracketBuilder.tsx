@@ -27,6 +27,7 @@ import {
 import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
+import { PunditBadge } from "@/components/shared/PunditBadge";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
 import {
@@ -40,6 +41,7 @@ import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
+import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
 
 import type { StageId } from "@vtorn/bracket-engine";
 
@@ -71,6 +73,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
     () => new Map(),
   );
+  const [punditStatus, setPunditStatus] = useState<PunditStatus>(UNVERIFIED);
   const country = useCountry();
 
   // Mobile gesture plumbing — these refs/effects are no-ops on
@@ -98,6 +101,20 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (draft) setBracket(draft);
     else setBracket({ ...emptyBracket(), bracketId: id });
   }, [tournament.id]);
+
+  // Verified-Pundit lookup runs once we know the local user id. Fails open:
+  // any error/network failure leaves the badge hidden — never blocks the
+  // bracket UI.
+  useEffect(() => {
+    if (userLocalId === "ssr_user") return;
+    let cancelled = false;
+    fetchPunditStatus(userLocalId).then((status) => {
+      if (!cancelled) setPunditStatus(status);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [userLocalId]);
 
   // Bulk-fetch odds once on mount so every MatchPredictionRow can show
   // its W/D/L percentages inline without 72 individual requests. The
@@ -451,7 +468,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
   return (
     <div className="bracket-builder">
       <header className="bracket-header">
-        <h1>{tournament.name} — Bracket Prophet</h1>
+        <h1>
+          {tournament.name} — Bracket Prophet
+          {punditStatus.verified && (
+            <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
+              <PunditBadge status={punditStatus} size={20} />
+            </span>
+          )}
+        </h1>
         <p>
           Predict the outcome of every match. The group standings are computed
           live from your picks. Lock the bracket before kickoff for max points.
