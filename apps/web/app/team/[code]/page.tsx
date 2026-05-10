@@ -32,9 +32,13 @@ import { notFound } from "next/navigation";
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
+import { PlayerCard } from "@/components/player/PlayerCard";
 import { AppShell } from "@/components/shell";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
+import { playersForTeam } from "@/lib/players";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
+
+import "@/components/player/player.css";
 
 import { RecentForm } from "./_components/RecentForm";
 import { TeamFixturesWithPicks } from "./_components/TeamFixturesWithPicks";
@@ -105,6 +109,10 @@ export default function TeamPage({ params }: TeamPageProps) {
   const upcoming = nextFixture(upper);
   const form = recentForm(upper);
   const squad = squadForTeam(upper);
+  // Real player records (from `apps/web/data/players-2026.json`) take
+  // priority. Falls back to the placeholder squad below when the dataset
+  // doesn't yet include this team.
+  const realPlayers = playersForTeam(upper);
 
   // Prior fixtures (already played, kickoff in past). The 2026 tournament
   // is in the future, so this will normally be empty; included so the
@@ -304,28 +312,44 @@ export default function TeamPage({ params }: TeamPageProps) {
       <section className="td-section td-squad" aria-label="Squad">
         <h2>Squad</h2>
         <p className="td-section-hint">
-          23-player provisional squad. Final squad lists lock 1 June 2026.
+          {realPlayers.length > 0
+            ? `${realPlayers.length}-player squad. Tap any player for their profile.`
+            : "23-player provisional squad. Final squad lists lock 1 June 2026."}
         </p>
-        <ul className="td-squad-grid">
-          {squad.map((p) => (
-            <li
-              key={`${p.position}-${p.jersey}`}
-              className="td-squad-card"
-              data-position={p.position}
-            >
-              <span className="td-squad-num">{p.jersey}</span>
-              <span className="td-squad-name">
-                {p.name}
-                {p.captain && (
-                  <span className="td-squad-captain" aria-label="Captain" title="Captain">
-                    {" "}(C)
-                  </span>
-                )}
-              </span>
-              <span className="td-squad-pos">{p.position}</span>
-            </li>
-          ))}
-        </ul>
+        {realPlayers.length > 0 ? (
+          <ul
+            className="player-grid"
+            data-testid="td-squad-real"
+            aria-label={`${canonical.name} squad`}
+          >
+            {realPlayers.map((p) => (
+              <li key={p.id}>
+                <PlayerCard player={p} />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ul className="td-squad-grid">
+            {squad.map((p) => (
+              <li
+                key={`${p.position}-${p.jersey}`}
+                className="td-squad-card"
+                data-position={p.position}
+              >
+                <span className="td-squad-num">{p.jersey}</span>
+                <span className="td-squad-name">
+                  {p.name}
+                  {p.captain && (
+                    <span className="td-squad-captain" aria-label="Captain" title="Captain">
+                      {" "}(C)
+                    </span>
+                  )}
+                </span>
+                <span className="td-squad-pos">{p.position}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
 
       {(priorFixtures.length > 0 || futureFixtures.length > 1) && (

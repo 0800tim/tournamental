@@ -67,11 +67,24 @@ describe("/team/[code] page", () => {
     expect(cta!.getAttribute("href")).toMatch(/^\/world-cup-2026(#match-\d+)?$/);
   });
 
-  it("renders a 23-player squad", () => {
+  it("renders the real player-card squad grid for teams with player data", () => {
     const { container } = render(<TeamPage params={{ code: "ARG" }} />);
-    // Squad list items have the .td-squad-card class.
-    const squad = container.querySelectorAll(".td-squad-card");
-    expect(squad.length).toBe(23);
+    // ARG is fully populated in apps/web/data/players-2026.json — uses
+    // <PlayerCard /> grid, not the stub `.td-squad-card`.
+    const realCards = container.querySelectorAll('[data-testid="player-card"]');
+    expect(realCards.length).toBeGreaterThan(0);
+    // Each card links into /player/<id>.
+    const firstHref = realCards[0]?.getAttribute("href");
+    expect(firstHref).toMatch(/^\/player\/ARG-/);
+  });
+
+  it("falls back to the stub squad when the team has no player data", () => {
+    // Pick a code that's in canonical teams.json but has no entries in
+    // players-2026.json. ALG has no seed players (seed only covers 24
+    // marquee teams).
+    const { container } = render(<TeamPage params={{ code: "ALG" }} />);
+    const stub = container.querySelectorAll(".td-squad-card");
+    expect(stub.length).toBeGreaterThan(0);
   });
 
   it("renders 5 recent-form dots", () => {
