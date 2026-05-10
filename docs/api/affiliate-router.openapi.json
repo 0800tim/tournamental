@@ -1,0 +1,60 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Affiliate Router API",
+    "description": "Geo-gated click resolution + audit log for Polymarket, sportsbook, and pay-TV partners.",
+    "version": "0.1.0",
+    "license": {
+      "name": "Apache-2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0"
+    }
+  },
+  "components": {
+    "schemas": {}
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/partners": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    },
+    "/v1/affiliate/click": {
+      "get": {
+        "responses": {
+          "200": {
+            "description": "Default Response"
+          }
+        }
+      }
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3370",
+      "description": "local dev"
+    },
+    {
+      "url": "https://vtorn-aff.aiva.nz",
+      "description": "dev tunnel"
+    }
+  ],
+  "tags": [
+    {
+      "name": "health",
+      "description": "Liveness + version"
+    }
+  ]
+}

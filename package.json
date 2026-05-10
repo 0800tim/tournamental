@@ -7,6 +7,7 @@
     "lint": "pnpm -r --if-present run lint",
     "test": "pnpm -r --if-present run test",
     "typecheck": "pnpm -r --if-present run typecheck",
+    "dump-openapi": "pnpm -r --if-present run dump-openapi",
     "daily-report": "pnpm --filter @vtorn/tools run daily-report",
     "deploy:staging": "pnpm --filter @vtorn/cicd-tools run publish-all -- --env=staging",
     "deploy:promote": "pnpm --filter @vtorn/cicd-tools exec tsx infra/deploy/promote-to-prod.ts",

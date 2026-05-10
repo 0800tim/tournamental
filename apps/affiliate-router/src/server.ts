@@ -33,6 +33,7 @@ import { ClickStore } from './storage.js';
 import { registerClick } from './routes/click.js';
 import { registerPartners } from './routes/partners.js';
 import { registerHealth } from './routes/health.js';
+import { registerSwagger } from './swagger.js';
 
 const PORT = Number(process.env.AFFILIATE_PORT ?? 3370);
 const BIND = process.env.AFFILIATE_BIND ?? '0.0.0.0';
@@ -124,6 +125,8 @@ export async function buildServer(opts: BuildOptions = {}) {
   }
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const partners = loadPartners(opts.partnersPath);
   const registry = buildRegistry(partners);

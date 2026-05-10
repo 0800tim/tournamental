@@ -468,7 +468,7 @@ describe("SubscriptionManager", () => {
 });
 
 describe("HTTP /v1/auto-trigger", () => {
-  function setup() {
+  async function setup() {
     const ffmpeg = makeRunner();
     const queue = new ClipQueue({ ffmpeg, storagePath: storage });
     const publisher = makePublisher();
@@ -476,12 +476,12 @@ describe("HTTP /v1/auto-trigger", () => {
     const { factory } = makeWSFactory();
     const triggers = new SubscriptionManager({ queue, publisher, store, wsFactory: factory });
     const fetchEvents = async (): Promise<ReadonlyArray<DetectorEvent>> => [];
-    const app = buildApp({ queue, ffmpeg, fetchEvents, triggers });
+    const app = await buildApp({ queue, ffmpeg, fetchEvents, triggers });
     return { app, triggers, publisher };
   }
 
   it("starts a subscription and reports it in /healthz", async () => {
-    const { app, triggers } = setup();
+    const { app, triggers } = await setup();
     const res = await app.inject({
       method: "POST",
       url: "/v1/auto-trigger/start",
@@ -499,7 +499,7 @@ describe("HTTP /v1/auto-trigger", () => {
   });
 
   it("rejects an invalid streamUrl scheme", async () => {
-    const { app, triggers } = setup();
+    const { app, triggers } = await setup();
     const res = await app.inject({
       method: "POST",
       url: "/v1/auto-trigger/start",
@@ -513,7 +513,7 @@ describe("HTTP /v1/auto-trigger", () => {
     const ffmpeg = makeRunner();
     const queue = new ClipQueue({ ffmpeg, storagePath: storage });
     const fetchEvents = async (): Promise<ReadonlyArray<DetectorEvent>> => [];
-    const app = buildApp({ queue, ffmpeg, fetchEvents });
+    const app = await buildApp({ queue, ffmpeg, fetchEvents });
     const res = await app.inject({
       method: "POST",
       url: "/v1/auto-trigger/start",
@@ -523,7 +523,7 @@ describe("HTTP /v1/auto-trigger", () => {
   });
 
   it("stops a subscription", async () => {
-    const { app, triggers } = setup();
+    const { app, triggers } = await setup();
     await app.inject({
       method: "POST",
       url: "/v1/auto-trigger/start",

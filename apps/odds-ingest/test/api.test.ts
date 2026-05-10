@@ -9,7 +9,7 @@ import { OddsStore } from "../src/store/sqlite.js";
 
 const log = pino({ level: "silent" });
 
-function setup() {
+async function setup() {
   const data = loadDataPack();
   const store = new OddsStore({ dbPath: ":memory:" });
   const config = loadConfig({
@@ -22,13 +22,13 @@ function setup() {
   });
   const poller = new IngestPoller(config, store, data, log);
   poller.seedMockData(1_700_000_000_000);
-  const app = buildApp({ store, data, poller });
+  const app = await buildApp({ store, data, poller });
   return { app, store, data };
 }
 
 describe("GET /healthz", () => {
   it("reports source status", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/healthz" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { ok: boolean; source_status: { mock: string } };
@@ -39,7 +39,7 @@ describe("GET /healthz", () => {
 
 describe("GET /v1/odds/match/:matchNo", () => {
   it("returns W/D/L probabilities for a known group fixture from mock data", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/match/1" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as {
@@ -54,19 +54,19 @@ describe("GET /v1/odds/match/:matchNo", () => {
   });
 
   it("returns 400 for non-numeric match number", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/match/foo" });
     expect(res.statusCode).toBe(400);
   });
 
   it("returns 404 for an unknown match number", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/match/9999" });
     expect(res.statusCode).toBe(404);
   });
 
   it("gracefully degrades to nulls when the fixture is a knockout TBD", async () => {
-    const { app, data } = setup();
+    const { app, data } = await setup();
     // Find a fixture whose home_team_slot is not a real team code.
     const tbd = data.fixtures.find((f) => !data.byCode.has(f.home_team_slot));
     expect(tbd).toBeTruthy();
@@ -78,7 +78,7 @@ describe("GET /v1/odds/match/:matchNo", () => {
 
 describe("GET /v1/odds/team/:code/winner", () => {
   it("returns tournament-winner probability for ARG", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/team/ARG/winner" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { team_name: string; prob: number };
@@ -88,7 +88,7 @@ describe("GET /v1/odds/team/:code/winner", () => {
   });
 
   it("returns 404 for an unknown team code", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/team/ZZZ/winner" });
     expect(res.statusCode).toBe(404);
   });
@@ -96,7 +96,7 @@ describe("GET /v1/odds/team/:code/winner", () => {
 
 describe("GET /v1/odds/markets", () => {
   it("lists all markets and respects a kind filter", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const all = await app.inject({ method: "GET", url: "/v1/odds/markets" });
     expect(all.statusCode).toBe(200);
     const allBody = all.json() as { count: number };
@@ -114,7 +114,7 @@ describe("GET /v1/odds/markets", () => {
 
 describe("GET /v1/odds/snapshot", () => {
   it("returns a probability map for every market", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/odds/snapshot" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as {

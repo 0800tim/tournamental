@@ -11,6 +11,8 @@
  */
 
 import cors from '@fastify/cors';
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { Logger } from 'pino';
 
@@ -30,7 +32,7 @@ export interface BuildAppOptions {
   now?: () => number;
 }
 
-export function buildApp(opts: BuildAppOptions): FastifyInstance {
+export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify(
     opts.logger
       ? {
@@ -41,7 +43,33 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
       : { logger: false, disableRequestLogging: true },
   );
 
-  void app.register(cors, { origin: true });
+  await app.register(cors, { origin: true });
+
+  // Swagger MUST be awaited so its onRoute hook captures every route below.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swagger as any, {
+    openapi: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Social-Publisher API',
+        description:
+          'Multi-platform fan-out for VTorn match clips and bracket cards.',
+        version: SERVICE_VERSION,
+        license: { name: 'Apache-2.0', url: 'https://www.apache.org/licenses/LICENSE-2.0' },
+      },
+      servers: [
+        { url: 'http://localhost:3382', description: 'local dev' },
+        { url: 'https://vtorn-social.aiva.nz', description: 'dev tunnel' },
+      ],
+      tags: [{ name: 'publish', description: 'ClipReady fan-out' }],
+    },
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swaggerUi as any, {
+    routePrefix: '/docs',
+    uiConfig: { docExpansion: 'list', deepLinking: true },
+    staticCSP: true,
+  });
 
   app.get('/healthz', async (_req, reply) => {
     reply.header('Cache-Control', 'no-store');

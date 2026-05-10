@@ -31,7 +31,7 @@ async function main(): Promise<void> {
   const seed = poller.seedMockData();
   log.info(seed, "mock seed complete");
 
-  const app = buildApp({ store, data, poller, log });
+  const app = await buildApp({ store, data, poller, log });
   await app.listen({ port: config.port, host: config.bind });
   log.info({ port: config.port, bind: config.bind }, "http server listening");
 

@@ -7,6 +7,7 @@ import sensible from '@fastify/sensible';
 import { registerHealth } from './routes/health.js';
 import { registerVersion } from './routes/version.js';
 import { registerRoot } from './routes/root.js';
+import { registerSwagger } from './swagger.js';
 
 const PORT = Number(process.env.VTORN_API_PORT ?? 3310);
 const BIND = process.env.VTORN_API_BIND ?? '0.0.0.0';
@@ -49,6 +50,8 @@ export async function buildServer() {
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   await registerRoot(app);
   await registerHealth(app);

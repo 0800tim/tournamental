@@ -10,9 +10,12 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/server.ts",
     "start": "node dist/server.js",
-    "fetch-fixtures": "tsx scripts/fetch-fixtures.ts"
+    "fetch-fixtures": "tsx scripts/fetch-fixtures.ts",
+    "dump-openapi": "tsx scripts/dump-openapi.ts"
   },
   "dependencies": {
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.6",
     "fastify": "^5.0.0",
     "undici": "^6.20.1"
   },

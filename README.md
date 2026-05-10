@@ -88,6 +88,13 @@ SimulatedSports/                           working folder name; consumer brand i
 
 The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). VTourn-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.
 
+## Documentation
+
+- **Hive-mind index** for agents and contributors: [`docs/README.md`](docs/README.md). Start here.
+- **Glossary** of VTourn-specific terms: [`docs/glossary.md`](docs/glossary.md).
+- **Playbooks** for adding apps, routes, debugging PRs, merge conflicts, feature flags, doc updates: [`docs/playbook/`](docs/playbook/).
+- **API reference** with per-service Swagger UI URLs and committed OpenAPI 3.0 specs: [`docs/api/README.md`](docs/api/README.md).
+
 ## Quickstart for code agents
 
 Each doc in `docs/` is written to be picked up by a separate code agent and implemented independently. The agent task breakdown lives in [docs/09-agent-task-breakdown.md](docs/09-agent-task-breakdown.md) and identifies which docs are blocking, which can run in parallel, and the contract surface each agent must respect.

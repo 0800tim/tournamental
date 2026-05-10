@@ -40,6 +40,7 @@ import { registerHealth } from './routes/health.js';
 import { registerEvents } from './routes/events.js';
 import { registerCustomer } from './routes/customer.js';
 import { registerAdmin } from './routes/admin.js';
+import { registerSwagger } from './swagger.js';
 
 const PORT = Number(process.env.CRM_PORT ?? 3395);
 const BIND = process.env.CRM_BIND ?? '0.0.0.0';
@@ -159,6 +160,8 @@ export async function buildServer(opts: BuildOptions = {}) {
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const now = opts.now ?? (() => Math.floor(Date.now() / 1000));
   const store = new EventStore();

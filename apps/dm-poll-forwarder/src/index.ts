@@ -22,6 +22,7 @@ import { DeadLetterQueue } from './lib/dead-letter.js';
 import { Forwarder } from './lib/forwarder.js';
 import { Scheduler } from './lib/scheduler.js';
 import { registerControlRoutes } from './routes/control.js';
+import { registerSwagger } from './swagger.js';
 import { MockPoller } from './pollers/mock.js';
 import { RedditPoller } from './pollers/reddit-poller.js';
 import { MastodonPoller, type MastodonInstanceConfig } from './pollers/mastodon-poller.js';
@@ -151,6 +152,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<{
     trustProxy: true,
   });
   await app.register(sensible);
+  await registerSwagger(app);
 
   const log: Logger = {
     info: (obj, msg) => app.log.info(obj as object, msg),

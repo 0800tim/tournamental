@@ -5,6 +5,8 @@
  */
 
 import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Logger } from "pino";
 
@@ -23,7 +25,7 @@ export interface ApiOptions {
   sourceHealth?: () => SourceHealth;
 }
 
-export function buildApp(opts: ApiOptions): FastifyInstance {
+export async function buildApp(opts: ApiOptions): Promise<FastifyInstance> {
   // Fastify v5 expects an object config or `false`; an external pino instance
   // goes via `loggerInstance`. We default to `false` and let the caller wire
   // request-level logging if it cares. The cast bridges pino's Logger type
@@ -38,7 +40,33 @@ export function buildApp(opts: ApiOptions): FastifyInstance {
       : { logger: false, disableRequestLogging: true },
   );
 
-  void app.register(cors, { origin: true });
+  await app.register(cors, { origin: true });
+
+  // Swagger MUST be awaited so its onRoute hook captures every route below.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swagger as any, {
+    openapi: {
+      openapi: "3.0.0",
+      info: {
+        title: "Odds-Ingest API",
+        description:
+          "Live prediction-market odds ingest for the VTorn 2026 World Cup bracket.",
+        version: "0.1.0",
+        license: { name: "Apache-2.0", url: "https://www.apache.org/licenses/LICENSE-2.0" },
+      },
+      servers: [
+        { url: "http://localhost:3375", description: "local dev" },
+        { url: "https://vtorn-odds.aiva.nz", description: "dev tunnel" },
+      ],
+      tags: [{ name: "odds", description: "Match-level odds reads" }],
+    },
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swaggerUi as any, {
+    routePrefix: "/docs",
+    uiConfig: { docExpansion: "list", deepLinking: true },
+    staticCSP: true,
+  });
 
   const sourceHealth =
     opts.sourceHealth ??

@@ -12,6 +12,7 @@ import { registerFinalise } from './routes/finalise.js';
 import { registerProof } from './routes/proof.js';
 import { registerRootRoute } from './routes/root.js';
 import { registerVerify } from './routes/verify.js';
+import { registerSwagger } from './swagger.js';
 import type { Context } from './context.js';
 
 export interface BuildOptions {
@@ -83,6 +84,8 @@ export async function buildServer(opts: BuildOptions = {}) {
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   await registerHealth(app, ctx);
   await registerIssue(app, ctx);
