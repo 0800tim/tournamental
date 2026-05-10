@@ -46,6 +46,7 @@ export { palette, sizes, referralUrl, referralLabel, wordmark } from "./theme.js
 export type { CardSize } from "./theme.js";
 
 export { buildCard } from "./cards/index.js";
+export { maybePunditBadge, VERIFIED_PUNDIT_TEXT } from "./cards/pundit-badge.js";
 
 export { renderToSVG, renderToPNG, generateOG } from "./render.js";
 export type { RenderRequest, RenderedCard, SVGRenderResult } from "./render.js";

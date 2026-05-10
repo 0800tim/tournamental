@@ -21,6 +21,8 @@
 import { el, styles, type SatoriElement } from "./jsdl.js";
 import { palette, sizes, referralLabel, type CardSize } from "./theme.js";
 import { isRtl } from "./fonts.js";
+import { maybePunditBadge, VERIFIED_PUNDIT_TEXT } from "./cards/pundit-badge.js";
+import type { CommonFooter } from "./types.js";
 
 export interface CardFrameArgs {
   size: CardSize;
@@ -35,10 +37,13 @@ export interface CardFrameArgs {
   accentHex?: string;
   /** Locale for direction handling. */
   locale?: string;
+  /** Optional Verified-Pundit status. Renders a small gold tick + levels chip
+   * next to the handle in the footer. */
+  pundit?: CommonFooter["pundit"];
 }
 
 export function cardFrame(args: CardFrameArgs): SatoriElement {
-  const { size, brandContext, userHandle, userId, body, accentHex, locale } = args;
+  const { size, brandContext, userHandle, userId, body, accentHex, locale, pundit } = args;
   const dim = sizes[size];
   const accent = accentHex ?? palette.accent[500];
   const dir = isRtl(locale) ? "rtl" : "ltr";
@@ -64,7 +69,7 @@ export function cardFrame(args: CardFrameArgs): SatoriElement {
       },
       body,
     ),
-    footerStrip({ userHandle, userId, size }),
+    footerStrip({ userHandle, userId, size, pundit }),
   );
 }
 
@@ -156,10 +161,13 @@ function footerStrip(args: {
   userHandle: string;
   userId: string;
   size: CardSize;
+  pundit?: CommonFooter["pundit"];
 }): SatoriElement {
-  const { userHandle, userId, size } = args;
+  const { userHandle, userId, size, pundit } = args;
   const padX = size === "story" ? 56 : 56;
   const fontSize = size === "story" ? 26 : 22;
+  const badgeSize = size === "story" ? 32 : 26;
+  const badge = maybePunditBadge({ pundit }, { size: badgeSize });
 
   return el(
     "div",
@@ -189,6 +197,25 @@ function footerStrip(args: {
         },
       },
       `@${userHandle}`,
+      badge,
+      // The plain text marker is hidden visually (zero font-size) but
+      // present in the satori tree so consumers can search-and-assert
+      // ("Verified Pundit") without rendering a real PNG.
+      badge
+        ? el(
+            "div",
+            {
+              style: {
+                display: "flex",
+                fontSize: 0,
+                width: 0,
+                height: 0,
+                overflow: "hidden",
+              },
+            },
+            VERIFIED_PUNDIT_TEXT,
+          )
+        : null,
     ),
     el(
       "div",

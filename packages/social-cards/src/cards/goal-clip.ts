@@ -203,5 +203,6 @@ export function goalClipCard(
     body: goalClipBody(input, size),
     accentHex: palette.emerald[500],
     locale: input.locale,
+    pundit: input.pundit,
   });
 }

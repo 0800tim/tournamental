@@ -197,5 +197,6 @@ export function matchResultCard(
     body: matchResultBody(input, size),
     accentHex: palette.accent[500],
     locale: input.locale,
+    pundit: input.pundit,
   });
 }
