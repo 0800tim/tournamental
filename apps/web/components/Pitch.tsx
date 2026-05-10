@@ -31,8 +31,10 @@ export function Pitch() {
         <planeGeometry args={[FIELD_LENGTH + 8, FIELD_WIDTH + 8]} />
         <meshStandardMaterial
           map={grassTexture as THREE.Texture | null}
-          color="#1f6f3b"
-          roughness={0.92}
+          /* White tint lets the texture's saturated greens read through —
+           * was #1f6f3b which multiplied the texture darker than intended. */
+          color="#ffffff"
+          roughness={0.78}
           metalness={0}
         />
       </mesh>
@@ -56,32 +58,30 @@ function makeGrassTexture(): THREE.Texture | null {
   const ctx = c.getContext("2d");
   if (!ctx) return null;
 
-  // Base.
-  ctx.fillStyle = "#1f6f3b";
+  // Base — vibrant video-game green (was khaki-dark #1f6f3b).
+  ctx.fillStyle = "#3aaa4b";
   ctx.fillRect(0, 0, c.width, c.height);
 
-  // Stripes along the length axis. 10 stripes total → bright/dim alternating.
-  // We draw a soft gradient on each stripe edge to avoid step-aliasing
-  // shimmer when the camera looks down the pitch at a low angle.
+  // Stripes along the length axis. 10 stripes total — bright/dim alternating.
   const stripeCount = 10;
   const stripeW = c.width / stripeCount;
   for (let i = 0; i < stripeCount; i += 1) {
     if (i % 2 === 0) continue;
     const x = i * stripeW;
     const grad = ctx.createLinearGradient(x, 0, x + stripeW, 0);
-    grad.addColorStop(0, "#1a5d33");
-    grad.addColorStop(0.04, "#1c6336");
-    grad.addColorStop(0.5, "#1a5d33");
-    grad.addColorStop(0.96, "#1c6336");
-    grad.addColorStop(1, "#1a5d33");
+    grad.addColorStop(0, "#2f9540");
+    grad.addColorStop(0.04, "#338f3f");
+    grad.addColorStop(0.5, "#2f9540");
+    grad.addColorStop(0.96, "#338f3f");
+    grad.addColorStop(1, "#2f9540");
     ctx.fillStyle = grad;
     ctx.fillRect(x, 0, stripeW, c.height);
   }
 
-  // Subtle dapple via sparse low-alpha squares — cheap noise approximation.
-  ctx.globalAlpha = 0.06;
+  // Subtle dapple — bright lime + a hint of darker green.
+  ctx.globalAlpha = 0.05;
   for (let i = 0; i < 3000; i += 1) {
-    ctx.fillStyle = Math.random() > 0.5 ? "#0f3a1f" : "#2c8c4b";
+    ctx.fillStyle = Math.random() > 0.5 ? "#287a35" : "#62cf6f";
     const x = Math.random() * c.width;
     const y = Math.random() * c.height;
     const s = 1 + Math.random() * 3;

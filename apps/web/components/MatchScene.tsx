@@ -106,22 +106,14 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
           }}
         >
           <StateFrameBufferProvider buffer={sceneBuffer}>
-            {/* Procedural sky — softened so the upper stadium silhouette
-             *  doesn't blow out against pure white. Higher turbidity
-             *  pushes more scattering haze in front of the sun, and
-             *  pulling rayleigh down avoids the deep-blue saturation
-             *  that makes the dark stand below read as crushed maroon. */}
-            <Sky
-              distance={4500}
-              sunPosition={[40, 60, 20]}
-              inclination={0.49}
-              azimuth={0.25}
-              mieCoefficient={0.004}
-              mieDirectionalG={0.78}
-              rayleigh={1.6}
-              turbidity={10}
-            />
-            <fog attach="fog" args={["#aab6c4", 90, 280]} />
+            {/* Replaced the procedural Sky with a controlled dusk gradient.
+             *  Sky's atmospheric scattering kept blowing out the upper
+             *  deck silhouette no matter how we tuned rayleigh / turbidity.
+             *  A solid dark-navy background + tighter fog reads as
+             *  evening-match conditions and stops the stadium roof
+             *  pinning to white. */}
+            <color attach="background" args={["#0e1830"]} />
+            <fog attach="fog" args={["#0e1830", 80, 260]} />
 
             {/* Lighting rig: ambient + hemisphere + sun. Total intensity
              *  budget ≤ 2.5 so the scene reads at mid-grey instead of

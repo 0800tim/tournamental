@@ -201,6 +201,97 @@
     color: theme(colors.accent.400);
   }
 
+  /* Desktop About dropdown */
+  .vt-nav-dropdown {
+    position: relative;
+  }
+  .vt-nav-dropdown-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+    color: var(--vt-fg-muted);
+  }
+  .vt-nav-dropdown-trigger:hover,
+  .vt-nav-dropdown[data-state="open"] .vt-nav-dropdown-trigger {
+    color: theme(colors.accent.400);
+  }
+  .vt-nav-dropdown-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 220px;
+    background: var(--vt-bg-elev);
+    border: 1px solid var(--vt-border-strong);
+    border-radius: 12px;
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+    z-index: 60;
+  }
+  .vt-nav-dropdown[data-state="open"] .vt-nav-dropdown-panel {
+    display: flex;
+  }
+  .vt-nav-dropdown-item {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--vt-fg);
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 120ms ease, color 120ms ease;
+  }
+  .vt-nav-dropdown-item:hover,
+  .vt-nav-dropdown-item:focus-visible {
+    background: var(--vt-bg-elev-2);
+    color: theme(colors.accent.400);
+  }
+  .vt-nav-dropdown-item.is-active {
+    color: theme(colors.accent.400);
+  }
+
+  /* Mobile menu — accordion for the About group */
+  .vt-mobile-accordion {
+    margin-top: 4px;
+  }
+  .vt-mobile-accordion-summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+  }
+  .vt-mobile-accordion-summary::-webkit-details-marker {
+    display: none;
+  }
+  .vt-mobile-accordion[open] .vt-mobile-accordion-icon {
+    transform: rotate(180deg);
+  }
+  .vt-mobile-accordion-icon {
+    transition: transform 160ms ease;
+  }
+  .vt-mobile-accordion-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 16px;
+    margin-top: 4px;
+  }
+  .vt-mobile-sublink {
+    font-size: 16px;
+    opacity: 0.9;
+  }
+  .vt-mobile-close {
+    width: 48px;
+    height: 48px;
+  }
+
   /* Square icon buttons (theme toggle, burger, mobile cup CTA). The
    * dark-theme defaults intentionally sit two surface-tiers above the
    * page bg so the chrome reads as clearly clickable on a phone in

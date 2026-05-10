@@ -1,15 +1,37 @@
 ---
-const links = [
+/**
+ * Site header.
+ *
+ * Desktop: 4 top-level items + an "About" dropdown that holds the
+ * less-frequently-visited links (News, Blog, Open source, GitHub,
+ * Contribute, For influencers, Legal). Theme toggle + Play CTA on
+ * the right. Keeps the bar uncluttered.
+ *
+ * Mobile: a single hamburger button opens a fullscreen overlay with
+ * the same items in a stack. About becomes an accordion-style group.
+ * Drawer dismisses on close button, link click, Escape, or outside tap.
+ */
+
+const primaryLinks = [
   { href: "/why", label: "Why" },
   { href: "/how-it-works", label: "How it works" },
+  { href: "/world-cup-2026", label: "World Cup 2026" },
+];
+
+const aboutLinks = [
   { href: "/syndicates", label: "Syndicates" },
   { href: "/leaderboards", label: "Leaderboards" },
-  { href: "/world-cup-2026", label: "World Cup 2026" },
   { href: "/news", label: "News" },
   { href: "/blog", label: "Blog" },
   { href: "/open-source", label: "Open source" },
+  { href: "https://github.com/0800tim/vtorn", label: "GitHub", external: true },
+  { href: "/contribute", label: "Contribute" },
+  { href: "/influencers", label: "For influencers" },
+  { href: "/legal", label: "Legal & privacy" },
 ];
+
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
+const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href);
 ---
 <header class="vt-header sticky top-0 z-40 border-b backdrop-blur">
   <div class="container-page flex items-center justify-between py-4">
@@ -20,8 +42,9 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       <span class="vt-brand-name">VTourn</span>
       <span class="hidden sm:inline pill">beta</span>
     </a>
-    <nav class="hidden md:flex items-center gap-6 text-sm">
-      {links.map((l) => (
+
+    <nav class="hidden md:flex items-center gap-6 text-sm" aria-label="Primary">
+      {primaryLinks.map((l) => (
         <a
           href={l.href}
           class:list={[
@@ -30,10 +53,36 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
           ]}
         >{l.label}</a>
       ))}
+      <div class="vt-nav-dropdown" data-state="closed">
+        <button
+          type="button"
+          class:list={["vt-nav-link vt-nav-dropdown-trigger", aboutActive ? "is-active" : ""]}
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="about-dropdown"
+        >
+          About
+          <svg class="size-3" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+            <path d="M2 4l4 4 4-4z"/>
+          </svg>
+        </button>
+        <div id="about-dropdown" class="vt-nav-dropdown-panel" role="menu">
+          {aboutLinks.map((l) => (
+            <a
+              href={l.href}
+              role="menuitem"
+              class:list={[
+                "vt-nav-dropdown-item",
+                !l.external && currentPath === l.href ? "is-active" : "",
+              ]}
+              {...(l.external ? { rel: "me", target: "_blank" } : {})}
+            >{l.label}</a>
+          ))}
+        </div>
+      </div>
     </nav>
-    <div class="flex items-center gap-2 md:gap-3">
-      <a href="https://github.com/0800tim/vtorn" class="hidden sm:inline link text-sm" rel="me">GitHub</a>
 
+    <div class="flex items-center gap-2 md:gap-3">
       <button
         id="theme-toggle"
         type="button"
@@ -60,19 +109,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
         href="https://2026wc.vtourn.com/"
         class="hidden md:inline-flex btn-primary vt-glow-cta text-sm"
       >Play World Cup 2026 →</a>
-      <a
-        href="https://2026wc.vtourn.com/"
-        class="md:hidden vt-icon-btn vt-icon-btn-primary"
-        aria-label="Play World Cup 2026"
-      >
-        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-          <path d="M6 9H4a2 2 0 0 1-2-2V5a1 1 0 0 1 1-1h3"/>
-          <path d="M18 9h2a2 2 0 0 0 2-2V5a1 1 0 0 0-1-1h-3"/>
-          <path d="M6 4h12v7a6 6 0 0 1-12 0z"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-        </svg>
-      </a>
+
       <button
         id="mobile-menu-toggle"
         type="button"
@@ -82,23 +119,14 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
         aria-controls="mobile-menu"
       >
         <svg id="mobile-menu-icon-open" class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-        <svg id="mobile-menu-icon-close" class="size-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
   </div>
-
 </header>
 
-{/* Mobile menu — fullscreen overlay.
-    Lives OUTSIDE the <header> on purpose: the header has
-    `backdrop-filter: blur(8px)` which establishes a containing block
-    for `position: fixed` descendants, so a child .vt-mobile-menu
-    would be clipped to the header's bounding box (~88px tall).
-    Putting the menu next to the header instead of inside it lets
-    `position: fixed; inset: 0;` actually mean "the whole viewport".
-    Plain block element, no flex tricks, no nested scroll containers,
-    no min-height gotchas. Click a link, the close button, or press
-    Escape to dismiss. */}
+{/* Mobile menu — fullscreen overlay outside <header> because the
+    header's `backdrop-filter: blur` creates a containing block for
+    `position: fixed` descendants. */}
 <aside
   id="mobile-menu"
   class="vt-mobile-menu md:hidden"
@@ -113,14 +141,14 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
     <button
       id="mobile-menu-close"
       type="button"
-      class="vt-icon-btn"
+      class="vt-icon-btn vt-mobile-close"
       aria-label="Close menu"
     >
-      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      <svg class="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
   </div>
-  <nav aria-label="Primary mobile navigation">
-    {links.map((l) => (
+  <nav class="vt-mobile-menu-nav" aria-label="Primary mobile navigation">
+    {primaryLinks.map((l) => (
       <a
         href={l.href}
         class:list={[
@@ -129,10 +157,26 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
         ]}
       >{l.label}</a>
     ))}
-    <a href="https://github.com/0800tim/vtorn" class="vt-mobile-link" rel="me">GitHub</a>
-    <a href="/contribute" class="vt-mobile-link">Contribute</a>
-    <a href="/influencers" class="vt-mobile-link">For influencers</a>
-    <a href="/legal" class="vt-mobile-link">Legal &amp; privacy</a>
+    <details class="vt-mobile-accordion" open={aboutActive}>
+      <summary class="vt-mobile-link vt-mobile-accordion-summary">
+        About
+        <svg class="vt-mobile-accordion-icon size-4" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+          <path d="M2 4l4 4 4-4z"/>
+        </svg>
+      </summary>
+      <div class="vt-mobile-accordion-panel">
+        {aboutLinks.map((l) => (
+          <a
+            href={l.href}
+            class:list={[
+              "vt-mobile-link vt-mobile-sublink",
+              !l.external && currentPath === l.href ? "is-active" : "",
+            ]}
+            {...(l.external ? { rel: "me", target: "_blank" } : {})}
+          >{l.label}</a>
+        ))}
+      </div>
+    </details>
   </nav>
   <div class="vt-mobile-menu-foot">
     <button
@@ -153,11 +197,10 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 
 <script is:inline>
   (function () {
+    /* Mobile menu open/close */
     const toggle = document.getElementById("mobile-menu-toggle");
     const menu = document.getElementById("mobile-menu");
     const closeBtn = document.getElementById("mobile-menu-close");
-    const iconOpen = document.getElementById("mobile-menu-icon-open");
-    const iconClose = document.getElementById("mobile-menu-icon-close");
 
     function setOpen(open) {
       if (!menu || !toggle) return;
@@ -165,32 +208,22 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       menu.setAttribute("aria-hidden", open ? "false" : "true");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-      if (iconOpen) iconOpen.classList.toggle("hidden", open);
-      if (iconClose) iconClose.classList.toggle("hidden", !open);
-      // Lock body scroll while the overlay is open.
       document.body.classList.toggle("vt-mobile-menu-open", open);
-      if (open) {
-        if (closeBtn) closeBtn.focus();
-      } else {
-        if (toggle) toggle.focus();
-      }
+      if (open && closeBtn) closeBtn.focus();
+      else if (toggle) toggle.focus();
     }
 
     if (toggle && menu) {
-      toggle.addEventListener("click", () => {
-        const open = menu.dataset.state !== "open";
-        setOpen(open);
-      });
+      toggle.addEventListener("click", () => setOpen(menu.dataset.state !== "open"));
       if (closeBtn) closeBtn.addEventListener("click", () => setOpen(false));
-      // Escape closes the menu.
       document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && menu.dataset.state === "open") {
           e.preventDefault();
           setOpen(false);
         }
       });
-      // Close the menu when a link inside it is followed, so the page
-      // transition shows the destination, not the open overlay.
+      // Close when a link inside the overlay is followed (so the new page
+      // appears, not the still-open overlay).
       menu.addEventListener("click", (e) => {
         const target = e.target;
         if (target instanceof HTMLAnchorElement && target.getAttribute("href")) {
@@ -199,11 +232,41 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       });
     }
 
-    // Theme toggle: cycles system → light → dark → system. The applied
-    // theme is computed from the user's choice and prefers-color-scheme,
-    // then mirrored to <html data-theme="...">. The choice persists in
-    // localStorage under "vtourn:theme". The pre-paint init script in
-    // Layout.astro applies the theme before hydration to avoid a FOUC.
+    /* Desktop About dropdown */
+    const dd = document.querySelector(".vt-nav-dropdown");
+    if (dd) {
+      const trigger = dd.querySelector(".vt-nav-dropdown-trigger");
+      const panel = dd.querySelector(".vt-nav-dropdown-panel");
+      function setDdOpen(open) {
+        dd.dataset.state = open ? "open" : "closed";
+        if (trigger) trigger.setAttribute("aria-expanded", open ? "true" : "false");
+      }
+      if (trigger && panel) {
+        trigger.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setDdOpen(dd.dataset.state !== "open");
+        });
+        // Click outside closes
+        document.addEventListener("click", (e) => {
+          if (dd.dataset.state === "open" && !dd.contains(e.target)) {
+            setDdOpen(false);
+          }
+        });
+        // Escape closes
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape" && dd.dataset.state === "open") {
+            setDdOpen(false);
+          }
+        });
+        // Click on a menu item closes (after navigation starts)
+        panel.addEventListener("click", (e) => {
+          if (e.target instanceof HTMLAnchorElement) setDdOpen(false);
+        });
+      }
+    }
+
+    /* Theme toggle: cycles system → light → dark → system */
     const KEY = "vtourn:theme";
     const STATES = ["system", "light", "dark"];
     const tBtn = document.getElementById("theme-toggle");
@@ -238,20 +301,13 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       const stored = (() => { try { return localStorage.getItem(KEY); } catch { return null; } })();
       apply(stored && STATES.includes(stored) ? stored : "system");
       tBtn.addEventListener("click", cycle);
-      // The drawer copy of the theme button cycles the same state. We
-      // listen separately so each button can be removed/re-added without
-      // breaking the other.
       if (drawerThemeBtn) {
         drawerThemeBtn.addEventListener("click", (e) => {
           e.preventDefault();
-          // Stop the drawer's "auto-close on link click" handler (this
-          // is a button, not a link, but the drawer-level click handler
-          // is link-only — guarding here is belt and braces).
           e.stopPropagation();
           cycle();
         });
       }
-      // Re-resolve when the OS preference changes and the user is on "system".
       const mq = window.matchMedia("(prefers-color-scheme: light)");
       const onChange = () => {
         if ((tBtn.dataset.themeState ?? "system") === "system") apply("system");
@@ -261,3 +317,5 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
     }
   })();
 </script>
+</content>
+</invoke>
