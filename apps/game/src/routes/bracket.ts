@@ -3,6 +3,7 @@
  *
  *   POST /v1/bracket/submit
  *   GET  /v1/bracket/me
+ *   POST /v1/predictions/:matchId/check-lockable
  *
  * Both routes require a `user_id` to identify the user. We accept it via
  * either an `X-User-Id` header or a `?user_id=` query param. Real auth
@@ -11,6 +12,13 @@
  *
  * Caching: both are user-specific writes/reads, so `Cache-Control:
  * private, no-store` per CLAUDE.md.
+ *
+ * Server-side kickoff lockout: every `MatchPrediction` in a submitted
+ * bracket is validated against the tournament's published `kickoff_utc`.
+ * Predictions whose `lockedAt` is at or after kickoff are rejected with a
+ * structured error and stripped from the persisted bracket. The remaining
+ * predictions still go through. The client (PR #74) does this client-side;
+ * this is the server-side backstop.
  */
 
 import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
@@ -18,6 +26,12 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from "fastify";
 import { submitBracketBodySchema } from "../schemas.js";
 import type { GameStore } from "../store/db.js";
 import type { LockReceipt, Bracket } from "../types.js";
+import {
+  buildDefaultKickoffRegistry,
+  checkLockable,
+  type KickoffRegistry,
+} from "../kickoffs.js";
+import type { MatchPrediction } from "@vtorn/bracket-engine";
 
 function resolveUserId(req: FastifyRequest): string | null {
   const headerUser = req.headers["x-user-id"];
@@ -33,6 +47,63 @@ function resolveUserId(req: FastifyRequest): string | null {
 export interface BracketRoutesDeps {
   readonly store: GameStore;
   readonly nowMs?: () => number;
+  /** Override the kickoff registry (tests inject deterministic fixtures). */
+  readonly kickoffs?: KickoffRegistry;
+}
+
+export interface RejectedPrediction {
+  readonly matchId: string;
+  readonly error: "match_already_started";
+  readonly kickoff_utc: string;
+  readonly lockedAt: string;
+}
+
+/**
+ * Filter a record of MatchPrediction by kickoff. Returns the kept set
+ * (still lockable) and a list of rejected ones with structured detail.
+ *
+ * Rules:
+ *   - Predictions whose `lockedAt` parses to a real ms value AND is `>=`
+ *     the match's `kickoff_utc` are rejected.
+ *   - Predictions whose `lockedAt` doesn't parse are kept (the schema
+ *     already validated it's a non-empty string; a malformed timestamp
+ *     here is a programmer error, not a kickoff violation).
+ *   - Predictions for matches with no known kickoff (knockout slots whose
+ *     cascade hasn't resolved, or unknown tournaments) are kept.
+ */
+function filterPredictionsByKickoff(
+  predictions: Record<string, MatchPrediction>,
+  kickoffFor: (matchId: string) => string | null,
+): {
+  kept: Record<string, MatchPrediction>;
+  rejected: RejectedPrediction[];
+} {
+  const kept: Record<string, MatchPrediction> = {};
+  const rejected: RejectedPrediction[] = [];
+  for (const [key, pred] of Object.entries(predictions)) {
+    const kickoff = kickoffFor(pred.matchId);
+    if (!kickoff) {
+      kept[key] = pred;
+      continue;
+    }
+    const kickoffMs = Date.parse(kickoff);
+    const lockedMs = Date.parse(pred.lockedAt);
+    if (Number.isNaN(kickoffMs) || Number.isNaN(lockedMs)) {
+      kept[key] = pred;
+      continue;
+    }
+    if (lockedMs >= kickoffMs) {
+      rejected.push({
+        matchId: pred.matchId,
+        error: "match_already_started",
+        kickoff_utc: kickoff,
+        lockedAt: pred.lockedAt,
+      });
+      continue;
+    }
+    kept[key] = pred;
+  }
+  return { kept, rejected };
 }
 
 export async function registerBracketRoutes(
@@ -40,6 +111,7 @@ export async function registerBracketRoutes(
   deps: BracketRoutesDeps,
 ): Promise<void> {
   const now = deps.nowMs ?? (() => Date.now());
+  const registry = deps.kickoffs ?? buildDefaultKickoffRegistry();
 
   app.post("/v1/bracket/submit", async (req, reply) => {
     reply.header("Cache-Control", "private, no-store");
@@ -56,21 +128,44 @@ export async function registerBracketRoutes(
     }
 
     const { tournament_id, user_id, bracket } = parsed.data;
+    const lookup = registry.forTournament(tournament_id);
+
+    // Filter every per-match prediction (groups + knockouts) against the
+    // tournament's known kickoffs. Rejected predictions are echoed back.
+    const groupFiltered = filterPredictionsByKickoff(
+      bracket.matchPredictions as Record<string, MatchPrediction>,
+      (id) => lookup.kickoffFor(id),
+    );
+    const knockoutFiltered = filterPredictionsByKickoff(
+      bracket.knockoutPredictions as Record<string, MatchPrediction>,
+      (id) => lookup.kickoffFor(id),
+    );
+    const rejected: RejectedPrediction[] = [
+      ...groupFiltered.rejected,
+      ...knockoutFiltered.rejected,
+    ];
+
     const lockedAt = now();
+    const persistBracket: Bracket = {
+      ...(bracket as Bracket),
+      matchPredictions: groupFiltered.kept,
+      knockoutPredictions: knockoutFiltered.kept,
+    };
     const result = deps.store.upsertBracket({
       bracketId: bracket.bracketId,
       userId: user_id,
       tournamentId: tournament_id,
-      bracket: bracket as Bracket,
+      bracket: persistBracket,
       lockedAt,
     });
 
-    const receipt: LockReceipt = {
+    const receipt: LockReceipt & { rejected?: RejectedPrediction[] } = {
       bracket_id: result.bracketId,
       user_id,
       tournament_id,
       locked_at: new Date(lockedAt).toISOString(),
       version: bracket.version,
+      ...(rejected.length ? { rejected } : {}),
     };
     return reply.code(result.created ? 201 : 200).send(receipt);
   });
@@ -105,4 +200,42 @@ export async function registerBracketRoutes(
       bracket: payload,
     };
   });
+
+  // ---------- defence-in-depth check: is this match still lockable? ----------
+  //
+  // The client calls this just before showing the pick UI so it can surface a
+  // "this match has already kicked off" message instead of letting the user
+  // pick something the submit handler will reject.
+  app.post(
+    "/v1/predictions/:matchId/check-lockable",
+    async (req, reply) => {
+      reply.header("Cache-Control", "private, no-store");
+      const params = req.params as { matchId?: string };
+      const matchId = params.matchId ?? "";
+      if (!matchId || matchId.length > 64) {
+        return reply.code(400).send({ error: "invalid_match_id" });
+      }
+      const body = (req.body ?? {}) as { tournament_id?: string };
+      const qs = (req.query ?? {}) as { tournament_id?: string };
+      const tournamentId =
+        (typeof body.tournament_id === "string" && body.tournament_id) ||
+        (typeof qs.tournament_id === "string" && qs.tournament_id) ||
+        "";
+      if (!tournamentId) {
+        return reply.code(400).send({ error: "missing_tournament_id" });
+      }
+      const lookup = registry.forTournament(tournamentId);
+      const kickoff = lookup.kickoffFor(matchId);
+      const nowMs = now();
+      const { lockable, kickoff_utc } = checkLockable({
+        kickoff_utc: kickoff,
+        lockedAtMs: nowMs,
+      });
+      return reply.code(200).send({
+        lockable,
+        kickoff_utc,
+        now: new Date(nowMs).toISOString(),
+      });
+    },
+  );
 }

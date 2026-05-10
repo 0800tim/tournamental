@@ -30,6 +30,7 @@ import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
+import type { KickoffRegistry } from "./kickoffs.js";
 
 export interface BuildServerOptions {
   /** Override DB path (e.g. ":memory:" for tests). Falls back to env. */
@@ -44,6 +45,12 @@ export interface BuildServerOptions {
   nowMs?: () => number;
   /** Whether to enable rate limiting (tests usually want false). */
   rateLimit?: boolean;
+  /**
+   * Override the kickoff registry. Tests pass a deterministic one;
+   * production falls back to the WC2026 registry built from the vendored
+   * fixture JSON in `@vtorn/bracket-engine`.
+   */
+  kickoffs?: KickoffRegistry;
 }
 
 export interface BuiltServer {
@@ -111,7 +118,11 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   });
 
   await registerHealth(app, store);
-  await registerBracketRoutes(app, { store, nowMs: opts.nowMs });
+  await registerBracketRoutes(app, {
+    store,
+    nowMs: opts.nowMs,
+    kickoffs: opts.kickoffs,
+  });
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });

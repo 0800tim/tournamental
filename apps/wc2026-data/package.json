@@ -1,0 +1,18 @@
+{
+  "name": "@vtorn/wc2026-data-scripts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "TS-side companion scripts for apps/wc2026-data (online fixture-time refresh). The Python entry-points remain canonical for offline canonical-fixture builds.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "fetch-fixtures": "tsx scripts/fetch-fixtures.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
