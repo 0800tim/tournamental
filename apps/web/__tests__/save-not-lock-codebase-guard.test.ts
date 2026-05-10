@@ -167,9 +167,12 @@ describe("Lock → Save rename — codebase guard", () => {
       "page.tsx",
     );
     const src = fs.readFileSync(file, "utf8");
-    expect(src).toMatch(/0 picks saved\. Be first\./);
+    // Accept either "0 picks saved" or "0 brackets saved" — sibling
+    // PR #127 settled on the latter; both are correct user copy.
+    expect(src).toMatch(/0 (?:picks|brackets) saved\. Be first\./);
     expect(src).toMatch(/Save your bracket now/);
     expect(src).not.toMatch(/Lock in your bracket now/);
     expect(src).not.toMatch(/0 picks locked\. Be first\./);
+    expect(src).not.toMatch(/0 brackets locked\. Be first\./);
   });
 });
