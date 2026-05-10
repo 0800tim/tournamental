@@ -34,6 +34,7 @@ export type {
   CommonFooter,
   RenderOptions,
   BracketPredictionInput,
+  BracketPickInput,
   GoalClipInput,
   MatchResultInput,
   LeaderboardRankInput,

@@ -11,6 +11,7 @@ import type { CardSize } from "../theme.js";
 import type { CardInput } from "../types.js";
 
 import { bracketPredictionCard } from "./bracket-prediction.js";
+import { bracketPickCard } from "./bracket-pick.js";
 import { goalClipCard } from "./goal-clip.js";
 import { matchResultCard } from "./match-result.js";
 import { leaderboardRankCard } from "./leaderboard-rank.js";
@@ -20,6 +21,7 @@ import { tournamentRecapCard } from "./tournament-recap.js";
 
 export {
   bracketPredictionCard,
+  bracketPickCard,
   goalClipCard,
   matchResultCard,
   leaderboardRankCard,
@@ -38,6 +40,8 @@ export function buildCard(input: CardInput, size: CardSize): SatoriElement {
   switch (input.kind) {
     case "bracket-prediction":
       return bracketPredictionCard(input.data, size);
+    case "bracket-pick":
+      return bracketPickCard(input.data, size);
     case "goal-clip":
       return goalClipCard(input.data, size);
     case "match-result":

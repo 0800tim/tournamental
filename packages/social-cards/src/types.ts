@@ -7,6 +7,7 @@
 
 export type CardKind =
   | "bracket-prediction"
+  | "bracket-pick"
   | "goal-clip"
   | "match-result"
   | "leaderboard-rank"
@@ -48,6 +49,44 @@ export interface BracketPredictionInput extends CommonFooter {
   picks: Array<{ round: string; pick: string }>;
   /** Optional confidence number to spotlight (Prediction IQ at lock-time). */
   predictionIq?: number;
+}
+
+/**
+ * Compact viral share card focussed on the user's *winner* pick + the
+ * route they predicted from R16 through to the final.
+ *
+ * Differs from `BracketPredictionInput`:
+ *  - That card lists every pick (up to 16) in a vertical list.
+ *  - This card spotlights the predicted winner + four route teams in a
+ *    horizontal flag-strip — designed for low-friction viral sharing.
+ */
+export interface BracketPickInput extends CommonFooter {
+  tournamentName: string;
+  /** ISO-3 (or vendor) code of the predicted final winner — e.g. "FRA". */
+  winnerCode: string;
+  /** Human-readable team name for the winner (e.g. "France"). */
+  winnerName: string;
+  /**
+   * Optional flag emoji for the winner. Used when no SVG/PNG is
+   * available at render-time (satori can't fetch network resources).
+   * Recommended: a 1F1E6-1F1FF regional indicator pair.
+   */
+  winnerFlagEmoji?: string;
+  /**
+   * R16 → QF → SF → Final route, in order. Each entry is the team that
+   * the user predicted to win that stage. The last entry is the
+   * `winnerName` and is rendered larger / glowing.
+   */
+  route: Array<{
+    stage: "R16" | "QF" | "SF" | "FINAL";
+    teamCode: string;
+    teamName: string;
+    flagEmoji?: string;
+  }>;
+  /** Short tagline rendered above the route (optional override). */
+  tagline?: string;
+  /** Optional fun-stat: count of remaining "long-shot" picks. */
+  longShotCount?: number;
 }
 
 export interface GoalClipInput extends CommonFooter {
@@ -114,6 +153,7 @@ export interface TournamentRecapInput extends CommonFooter {
 /** Discriminated union of every card input. */
 export type CardInput =
   | { kind: "bracket-prediction"; data: BracketPredictionInput }
+  | { kind: "bracket-pick"; data: BracketPickInput }
   | { kind: "goal-clip"; data: GoalClipInput }
   | { kind: "match-result"; data: MatchResultInput }
   | { kind: "leaderboard-rank"; data: LeaderboardRankInput }
