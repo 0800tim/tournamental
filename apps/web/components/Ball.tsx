@@ -110,10 +110,22 @@ export function Ball({ store }: BallProps) {
     }
   });
 
+  // Real ball radius is 0.11 m which reads as a barely-visible dot
+  // from broadcast cameras. Render at 4x so the ball is clearly trackable.
+  // (The ball's spec position is still in real-world coords; only the
+  // visual sphere is scaled. Other consumers — physics, AABB tests —
+  // stick with BALL_CONSTANTS.radius.)
+  const VISUAL_RADIUS = BALL_CONSTANTS.radius * 4;
   return (
     <mesh ref={meshRef} castShadow>
-      <sphereGeometry args={[BALL_CONSTANTS.radius, 24, 16]} />
-      <meshStandardMaterial color="#ffffff" roughness={0.5} />
+      <sphereGeometry args={[VISUAL_RADIUS, 24, 16]} />
+      <meshStandardMaterial
+        color="#ffffff"
+        emissive="#ffffff"
+        emissiveIntensity={0.35}
+        roughness={0.35}
+        metalness={0}
+      />
     </mesh>
   );
 }

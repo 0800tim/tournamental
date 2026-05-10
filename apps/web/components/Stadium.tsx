@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-import { Crowd } from "./Crowd";
-import { LedBoards } from "./LedBoards";
+/* Crowd, LedBoards, FloodlightMast deliberately not imported — Tim's
+ * spec on 2026-05-11 was: simple stadium stand, no haze, clear ball.
+ * The stand is just the seating tier rings + roof rim + goal nets. */
 import { buildSeatingTier, type SeatingTier } from "@/lib/stadium-geometry";
 
 /**
@@ -71,29 +72,19 @@ export function Stadium() {
 
   return (
     <group userData={{ vtornStadium: true }}>
+      {/* Simple stadium stand per Tim's spec: just tiered seating with
+       *  a roof rim and goal nets. No LED boards, no crowd, no
+       *  floodlight masts — those were the bright-stripe culprits in
+       *  the screenshots. The seating rings render at uniform
+       *  charcoal regardless of the per-tier colour config. */}
       {tiers.map((tier, i) => (
-        <SeatingRing key={i} tier={tier} />
+        <SeatingRing key={i} tier={{ ...tier, seatColour: "#1f2330" }} />
       ))}
 
-      {/* Roof rim — a thin dark band above the top tier to anchor
-       *  the silhouette under the procedural sky. */}
       <RoofRim height={13.5} />
 
-      {/* Goal nets at both ends. */}
       <GoalNet position={[55, 0, 0]} facing={-1} />
       <GoalNet position={[-55, 0, 0]} facing={1} />
-
-      {/* LED ad boards. */}
-      <LedBoards />
-
-      {/* Floodlight masts at the four corners. */}
-      <FloodlightMast position={[58, 0, 38]} />
-      <FloodlightMast position={[58, 0, -38]} />
-      <FloodlightMast position={[-58, 0, 38]} />
-      <FloodlightMast position={[-58, 0, -38]} />
-
-      {/* Instanced fans. */}
-      <Crowd />
     </group>
   );
 }

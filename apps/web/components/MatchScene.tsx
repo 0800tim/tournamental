@@ -106,23 +106,16 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
           }}
         >
           <StateFrameBufferProvider buffer={sceneBuffer}>
-            {/* Replaced the procedural Sky with a controlled dusk gradient.
-             *  Sky's atmospheric scattering kept blowing out the upper
-             *  deck silhouette no matter how we tuned rayleigh / turbidity.
-             *  A solid dark-navy background + tighter fog reads as
-             *  evening-match conditions and stops the stadium roof
-             *  pinning to white. */}
-            <color attach="background" args={["#0e1830"]} />
-            <fog attach="fog" args={["#0e1830", 80, 260]} />
+            {/* Pure black night sky per Tim's spec: "A black night sky,
+             *  no haze". No procedural Sky, no fog, no atmospheric
+             *  scattering. Reads as a stadium-at-night broadcast. */}
+            <color attach="background" args={["#000000"]} />
 
-            {/* Lighting rig: ambient + hemisphere + sun. Total intensity
-             *  budget ≤ 2.5 so the scene reads at mid-grey instead of
-             *  blown-out white (Tim's three screenshots showed the upper
-             *  deck pinned to 1.0). Previously the rig was 0 + 0.55 + 1.4
-             *  = 1.95 with NO ambient fill, which is why the pitch
-             *  crushed dark under the directional shadow. */}
-            <ambientLight intensity={0.55} color="#ffffff" />
-            <hemisphereLight args={["#bcd1ff", "#3a4d2a", 0.45]} />
+            {/* Night-stadium lighting rig: a single tight stadium-lights
+             *  cone from above + warm ambient fill. No sky scatter (we
+             *  removed Sky); no horizon haze (we removed fog). */}
+            <ambientLight intensity={0.85} color="#ffffff" />
+            <hemisphereLight args={["#a8c2ff", "#4a6b3a", 0.30]} />
             <directionalLight
               position={[40, 60, 30]}
               intensity={1.05}
