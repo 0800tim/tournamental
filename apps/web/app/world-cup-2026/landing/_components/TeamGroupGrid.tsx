@@ -5,6 +5,7 @@
 
 "use client";
 
+import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
@@ -99,12 +100,18 @@ export function TeamGroupGrid() {
               ×
             </button>
             <h3>
-              <TeamFlag
-                code={drawer.team.code}
-                name={drawer.team.name}
-                accentColor={drawer.team.kit.primary}
-                size="lg"
-              />
+              <Link
+                href={`/team/${drawer.team.code}`}
+                className="wc-drawer-flag-link"
+                aria-label={`Open ${drawer.team.name} full team page`}
+              >
+                <TeamFlag
+                  code={drawer.team.code}
+                  name={drawer.team.name}
+                  accentColor={drawer.team.kit.primary}
+                  size="lg"
+                />
+              </Link>
               {drawer.team.name}
             </h3>
             <div className="wc-drawer-meta">
@@ -112,6 +119,13 @@ export function TeamGroupGrid() {
               {" "}
               &middot; {drawer.team.confederation}
             </div>
+            <Link
+              href={`/team/${drawer.team.code}`}
+              className="wc-drawer-cta"
+              data-testid={`wc-team-detail-link-${drawer.team.code}`}
+            >
+              View full {drawer.team.name} profile &rarr;
+            </Link>
             <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
               <span style={{ fontSize: 12, color: "var(--wc-text-dim)" }}>
                 Tournament-winner odds:

@@ -1,0 +1,6726 @@
+{
+  "_note": "Stub 23-player squads - placeholder names + canonical jersey numbers. Deterministic per code.",
+  "_todo": "Replace with FIFA squad-list API at tournament squad-deadline (1 June 2026). Until then scrape Wikipedia per-team articles. Fields to add: club, age, caps, goals.",
+  "teams": {
+    "ALG": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Leo Olsen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Leo Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Oscar Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Eli Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Noah Chen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Oscar Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Jamie Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Ali Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Andre Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Pavel Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Sam Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Eli Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kofi Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ali Singh",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Viggo Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Tomas Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Alex Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Niko Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Pavel Silva",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Finn Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Viggo Suárez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Luka Adesina",
+        "position": "FW"
+      }
+    ],
+    "ARG": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Andre Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Alex Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Luka Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Leo Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Leo Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ivan Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Yuki Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Eli Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Alex Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Noah Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Andre Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Hugo Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Jamie Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Kai Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Kai Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Kai Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kofi Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Owen Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Yuki Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Tariq Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ali Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ben Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Diego Tanaka",
+        "position": "FW"
+      }
+    ],
+    "AUS": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Tomas Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Ali Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ali Cruz",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Andre Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Owen Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Tariq Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ivan Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Andre Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Noah Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Diego Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Yuki Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Alex Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Niko Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Leo Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Noah Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Diego Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Jamie Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ivan Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Noah Schmidt",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Eli Müller",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Zane Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ben Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Hugo Hernández",
+        "position": "FW"
+      }
+    ],
+    "AUT": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Ali Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Jamie Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Oscar Tanaka",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Oscar Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Jamie Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Jamie Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Andre Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Eli Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Eli Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Jamie Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Hugo Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Sam Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Niko Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Sven Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Owen Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Jamie Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Alex Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Pavel Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Sven Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Eli Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Leo Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Oscar Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Yuki Sato",
+        "position": "FW"
+      }
+    ],
+    "BEL": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Zane Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Sam Rossi",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Alex Kovacic",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ben Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Oscar Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Kai Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Noah Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Pavel Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Marco Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Kofi Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Niko Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Reza Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Tariq Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Alex Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Oscar Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Andre Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Ravi Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Marco Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Tariq Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Sven Smith",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Oscar Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Andre Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Sven Costa",
+        "position": "FW"
+      }
+    ],
+    "BIH": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Jamie Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Marco Rossi",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ivan Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Tomas Chen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Mateo Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Yuki Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Viggo Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Eli Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Marco Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Andre Chen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Eli Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Diego Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kai Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ali Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Leo Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Niko Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Eli Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Noah Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Andre Suárez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Hernández",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ivan Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Sam Martinez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Sven Suárez",
+        "position": "FW"
+      }
+    ],
+    "BRA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Tariq Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Marco Hernández",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Finn Andersson",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Noah Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Müller",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Leo Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Alex Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Alex Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Viggo Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Kai Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Kai Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Luka Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Oscar Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Leo Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Kai Singh",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Owen Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Owen Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Tomas Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Reza Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Luka Suárez",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Pavel Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Finn Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Zane Chen",
+        "position": "FW"
+      }
+    ],
+    "CAN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Eli Tanaka",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Noah Petrov",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ben Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Hugo Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kai Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Sven Müller",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Leo Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Jamie Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Mateo Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tomas Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Owen Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Alex Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Luka Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Sven Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Alex Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Sven Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Owen Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Hugo Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Niko Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Yuki Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Kofi Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ravi Schmidt",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Pavel Silva",
+        "position": "FW"
+      }
+    ],
+    "CIV": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Niko Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Alex Smith",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Leo Jones",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ravi Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Finn Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ravi Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Jamie Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Tariq Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Sam Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Hugo Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Ivan Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ali Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Sam Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Marco Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Viggo Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ivan Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Diego Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Viggo Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Sam Hernández",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Tariq Martinez",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Viggo Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ben Hernández",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Niko Singh",
+        "position": "FW"
+      }
+    ],
+    "COD": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Mateo Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Luka Smith",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Andre Lopez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Oscar Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ravi Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Sven Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Viggo Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Reza Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Sam Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Ravi Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Reza Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Reza Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Pavel Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Tariq Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Viggo Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ravi Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Noah Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Pavel Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Jamie Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Hugo Petrov",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Noah Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Diego Schmidt",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Yuki Müller",
+        "position": "FW"
+      }
+    ],
+    "COL": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Reza Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Jamie Lopez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Noah Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Tomas Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Eli Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ivan Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Tomas Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Tariq Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ravi Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Alex Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Marco Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Pavel Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Marco Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ben Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Ravi Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ali Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Kai Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Ben Olsen",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ivan Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kai Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Leo Park",
+        "position": "FW"
+      }
+    ],
+    "CPV": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Owen Petrov",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Finn Kovacic",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Eli Hernández",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Zane Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Jamie Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Leo Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kai Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Mateo Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Kofi Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Viggo Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Pavel Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Noah Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Reza Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Yuki Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Sven Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Leo Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ravi Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Noah Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Tomas Park",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Sam Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Oscar Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Yuki Lopez",
+        "position": "FW"
+      }
+    ],
+    "CRO": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Alex Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Zane Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ali Bauer",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ben Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Marco Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Hugo Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Marco Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Andre Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Owen Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Niko Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Leo Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Marco Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Zane Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ivan Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Kai Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Alex Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Tariq Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Jamie Costa",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Marco Jones",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Kai Schmidt",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kai Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Kai Jones",
+        "position": "FW"
+      }
+    ],
+    "CUW": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Jamie Vidal",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Tariq Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Mateo Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ravi Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Reza Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Reza Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Sven Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Owen Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Alex Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Jamie Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Oscar Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Mateo Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Alex Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Owen Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Diego Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Kofi Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Reza Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Ravi Park",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Kofi Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Jamie Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Kai Cruz",
+        "position": "FW"
+      }
+    ],
+    "CZE": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Mateo Tanaka",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Owen Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ben Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Sam Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Sven Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Tomas Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Finn Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Jamie Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Andre Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Luka Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Ravi Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ravi Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kofi Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Pavel Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Jamie Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Zane Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Kofi Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Owen Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Hugo Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Marco Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Viggo Khan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Tomas Park",
+        "position": "FW"
+      }
+    ],
+    "ECU": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Andre Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Kai Garcia",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tomas Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Marco Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Andre Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Eli Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ivan Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Owen Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Yuki Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tomas Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Marco Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ravi Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Diego Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Kai Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ravi Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Kai Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Ravi Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Tariq Bauer",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Tomas Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kofi Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ali Petrov",
+        "position": "FW"
+      }
+    ],
+    "EGY": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Marco Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Zane Olsen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Hugo Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Eli Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Chen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Alex Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Tomas Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Pavel Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ali Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Noah Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Mateo Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Eli Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kofi Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ivan Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Ivan Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Leo Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Niko Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Reza Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Oscar Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Alex Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ravi Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Sam Petrov",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Noah Bauer",
+        "position": "FW"
+      }
+    ],
+    "ENG": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Kai Tanaka",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Reza Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ben Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ravi Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Kai Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ravi Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Jamie Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Reza Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Owen Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Kai Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ali Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Diego Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Zane Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Tomas Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Finn Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Owen Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Owen Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Sven Khan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Oscar Khan",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Leo Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Niko Garcia",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Owen Tanaka",
+        "position": "FW"
+      }
+    ],
+    "ESP": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Yuki Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Yuki Jones",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Sam Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Mateo Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Leo Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Diego Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kofi Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Owen Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Hugo Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Owen Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Tomas Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Zane Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Tariq Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Andre Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Alex Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ben Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Noah Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Noah Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Eli Singh",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ravi Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Owen Cruz",
+        "position": "FW"
+      }
+    ],
+    "FRA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Viggo Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Jamie Costa",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Sven Rossi",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Reza Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Hugo Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Alex Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Sam Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Reza Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Oscar Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Marco Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Sven Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Tariq Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kai Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Viggo Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Niko Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Finn Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Viggo Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Diego Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Zane Andersson",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Andre Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Sven Chen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kofi Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Jamie Andersson",
+        "position": "FW"
+      }
+    ],
+    "GER": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Zane Vidal",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Tariq Costa",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Luka Kovacic",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Tomas Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Eli Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ravi Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Sven Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Sven Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Oscar Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Kofi Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Tariq Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Diego Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Ravi Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Oscar Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Sam Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Yuki Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Yuki Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Andre Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Ivan Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Marco Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Yuki Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Pavel Petrov",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Hugo Diallo",
+        "position": "FW"
+      }
+    ],
+    "GHA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Andre Vidal",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Finn Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tomas Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ben Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ben Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ivan Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ben Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Sven Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Pavel Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Noah Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Kofi Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Andre Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Kofi Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Niko Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Sven Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Pavel Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Ivan Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Finn Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Ravi Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Chen",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Yuki Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Diego Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Andre Olsen",
+        "position": "FW"
+      }
+    ],
+    "HAI": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Tomas Bauer",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Ivan Jones",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Jamie Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Eli Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Viggo Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Noah Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kofi Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Niko Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Hugo Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tomas Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Alex Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Hugo Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Andre Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Owen Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Diego Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Pavel Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Hugo Chen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ben Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Marco Bauer",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Leo Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Mateo Khan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Tomas Park",
+        "position": "FW"
+      }
+    ],
+    "IRN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Marco Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Eli Garcia",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tariq Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Mateo Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Alex Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ivan Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Tariq Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Luka Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Yuki Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Reza Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Owen Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ravi Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Tomas Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Oscar Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Noah Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Finn Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Ivan Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Finn Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Hugo Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Sven Olsen",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Noah Singh",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Jamie Andersson",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Kai Silva",
+        "position": "FW"
+      }
+    ],
+    "IRQ": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Diego Park",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Ravi Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Diego Park",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Hugo Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Oscar Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Alex Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Eli Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Leo Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Pavel Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Leo Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Niko Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Kai Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Niko Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Owen Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Hugo Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Marco Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Diego Olsen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Sam Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ravi Chen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Oscar Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ravi Schmidt",
+        "position": "FW"
+      }
+    ],
+    "JOR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Noah Martinez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Zane Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Jamie Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Jamie Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Hugo Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Luka Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Hugo Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Zane Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Luka Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Andre Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Jamie Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Leo Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Sven Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Oscar Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Sam Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Oscar Singh",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Yuki Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Alex Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Tariq Schmidt",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Jamie Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Kofi Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Diego Silva",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Finn Olsen",
+        "position": "FW"
+      }
+    ],
+    "JPN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Yuki Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Marco Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tariq Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Marco Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ali Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ravi Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Zane Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Tariq Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Alex Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tomas Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Noah Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Viggo Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Sven Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Zane Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Kai Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Pavel Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Yuki Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Jamie Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Yuki Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Tomas Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Sven Tanaka",
+        "position": "FW"
+      }
+    ],
+    "KOR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Andre Tanaka",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Noah Olsen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Leo Fernandez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Andre Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Sven Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Sven Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Hugo Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Jamie Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ali Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Ben Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Kai Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Alex Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Alex Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ravi Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Pavel Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Noah Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Sam Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Jamie Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Reza Khan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Andre Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Jamie Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Zane Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Jamie Bauer",
+        "position": "FW"
+      }
+    ],
+    "KSA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Alex Lopez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Noah Singh",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Mateo Vidal",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ben Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Noah Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Jamie Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Diego Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Ravi Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Finn Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Sven Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Owen Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Leo Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Niko Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Jamie Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Viggo Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Tomas Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Oscar Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Leo Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Reza Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Diego Silva",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Luka Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kofi Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Noah Park",
+        "position": "FW"
+      }
+    ],
+    "MAR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Kofi Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Alex Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Viggo Kovacic",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Oscar Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Owen Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Tomas Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Pavel Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Eli Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Kofi Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Oscar Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Zane Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Niko Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Jamie Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Niko Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Leo Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Leo Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Sam Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Kofi Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Hugo Chen",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Oscar Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Viggo Singh",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Diego Vidal",
+        "position": "FW"
+      }
+    ],
+    "MEX": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Hugo Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Diego Park",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Hugo Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Hugo Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Andre Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Diego Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kofi Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Reza Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Leo Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Owen Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Diego Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Sam Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Owen Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Alex Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Noah Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Owen Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Owen Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ali Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Sam Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Niko Andersson",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ivan Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Leo Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ravi Silva",
+        "position": "FW"
+      }
+    ],
+    "NED": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Ali Jones",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Owen Fernandez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ben Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Noah Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Pavel Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Kai Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ravi Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Hugo Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ben Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Owen Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Leo Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Alex Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Leo Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Finn Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Mateo Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Reza Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Jamie Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Kofi Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Zane Petrov",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Marco Jones",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Owen Singh",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ali Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Pavel Cruz",
+        "position": "FW"
+      }
+    ],
+    "NOR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Niko Martinez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Yuki Park",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Zane Smith",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Kai Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Finn Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Tariq Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Reza Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Zane Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Leo Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Sam Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Viggo Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Diego Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Hugo Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ivan Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Niko Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Niko Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Hugo Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Reza Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Kofi Andersson",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Pavel Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Leo Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Zane Bauer",
+        "position": "FW"
+      }
+    ],
+    "NZL": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Ben Hernández",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Andre Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Andre Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ali Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ravi Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Yuki Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kai Müller",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Viggo Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Reza Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Andre Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Owen Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Tariq Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Finn Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Luka Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ali Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Yuki Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ben Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Andre Müller",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Viggo Suárez",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ivan Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kofi Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Luka Diallo",
+        "position": "FW"
+      }
+    ],
+    "PAN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Noah Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Oscar Bauer",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Niko Lopez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Noah Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Tariq Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Eli Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Finn Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Noah Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Niko Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Ravi Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Leo Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ben Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Tariq Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Owen Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Ivan Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Noah Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Ravi Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Tariq Smith",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Owen Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Marco Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Leo Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Marco Diallo",
+        "position": "FW"
+      }
+    ],
+    "PAR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Eli Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Alex Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tomas Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Hugo Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Luka Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ivan Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kai Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Owen Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Reza Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Alex Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Ravi Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Hugo Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Mateo Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Marco Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Marco Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ben Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Zane Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Alex Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Jamie Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Yuki Silva",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Tariq Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Jamie Park",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Leo Singh",
+        "position": "FW"
+      }
+    ],
+    "POR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Oscar Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Finn Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Oscar Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Viggo Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Yuki Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Zane Chen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Luka Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Alex Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Andre Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Luka Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Tomas Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Reza Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Eli Adesina",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Diego Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Zane Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Sven Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Niko Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Sam Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Andre Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Owen Müller",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Yuki Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ali Olsen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ben Costa",
+        "position": "FW"
+      }
+    ],
+    "QAT": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Ravi Cruz",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Kofi Petrov",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Kofi Andersson",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Ali Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Owen Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Mateo Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ben Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Diego Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Mateo Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Kai Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Niko Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Pavel Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Zane Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ali Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Marco Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Ravi Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Sven Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Diego Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Oscar Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Hugo Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Kai Khan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ivan Costa",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Sven Smith",
+        "position": "FW"
+      }
+    ],
+    "RSA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Ben Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Ali Cruz",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Alex Rossi",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Owen Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ben Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Niko Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Leo Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Tariq Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Diego Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Marco Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Sven Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Pavel Fernandez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Sam Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Alex Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Ben Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Viggo Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Tomas Rossi",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Niko Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Ben Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Ivan Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Tariq Park",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Pavel Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Alex Müller",
+        "position": "FW"
+      }
+    ],
+    "SCO": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Kai Adesina",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Marco Olsen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Alex Petrov",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Sven Park",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Zane Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Yuki Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Eli Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Owen Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ali Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Mateo Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Leo Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Niko Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Viggo Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Diego Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Yuki Andersson",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Diego Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Andre Suárez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Hugo Hernández",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Alex Chen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Pavel Bauer",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Alex Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Kai Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Niko Müller",
+        "position": "FW"
+      }
+    ],
+    "SEN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Kofi Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Alex Schmidt",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Leo Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Alex Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Kofi Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Noah Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Kofi Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Tariq Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Pavel Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tomas Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Andre Hernández",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Mateo Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Viggo Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Kai Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Mateo Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Reza Kovacic",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Finn Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Viggo Bauer",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Kofi Silva",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Khan",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Alex Garcia",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Ali Andersson",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Kofi Diallo",
+        "position": "FW"
+      }
+    ],
+    "SUI": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Reza Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Reza Silva",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Noah Martinez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Oscar Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Sven Fernandez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Kai Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Ivan Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Andre Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Alex Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Zane Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Zane Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ben Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Sven Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Oscar Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Marco Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Finn Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Niko Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Sam Sato",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Diego Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Andre Müller",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Jamie Costa",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Sam Sato",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ravi Bauer",
+        "position": "FW"
+      }
+    ],
+    "SWE": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Viggo Garcia",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Niko Garcia",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Ali Hernández",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Alex Adesina",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ravi Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Tomas Sato",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Tomas Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Yuki Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Yuki Garcia",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Viggo Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Owen Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ivan Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Ivan Khan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Jamie Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Yuki Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Kai Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Diego Schmidt",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Jamie Lopez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Andre Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Zane Petrov",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Mateo Cruz",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ravi Hernández",
+        "position": "FW"
+      }
+    ],
+    "TUN": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Viggo Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Kofi Müller",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Leo Dubois",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Sam Petrov",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Oscar Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Zane Müller",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Niko Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Luka Cruz",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Luka Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Reza Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Mateo Smith",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Pavel Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Luka Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Tariq Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Diego Diallo",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Finn Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Niko Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Sam Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Tomas Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Leo Diallo",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Hugo Adesina",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Noah Tanaka",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Reza Khan",
+        "position": "FW"
+      }
+    ],
+    "TUR": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Eli Jones",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Owen Lopez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Eli Suárez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Noah Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Ivan Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Leo Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Alex Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Hugo Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Ravi Costa",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Tariq Bauer",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Kofi Jones",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Sven Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Oscar Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Hugo Dubois",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Marco Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Oscar Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Niko Cruz",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Hugo Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Oscar Jones",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Ravi Bauer",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Reza Hassan",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Sam Silva",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Luka Rossi",
+        "position": "FW"
+      }
+    ],
+    "URU": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Jamie Diallo",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Jamie Hassan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Andre Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Mateo Suárez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Yuki Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Ben Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Eli Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Noah Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Tomas Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Eli Lopez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Tariq Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Sven Costa",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Noah Martinez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Ali Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Finn Smith",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Marco Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Ravi Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Sven Garcia",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Oscar Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Zane Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Ali Olsen",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Sam Fernandez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Ravi Lopez",
+        "position": "FW"
+      }
+    ],
+    "USA": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Viggo Singh",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Hugo Khan",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Hugo Fernandez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Andre Dubois",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Hugo Kovacic",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Kai Singh",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Viggo Schmidt",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Finn Tanaka",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Andre Andersson",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Ben Müller",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Reza Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Kofi Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Finn Vidal",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Pavel Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Jamie Petrov",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Kai Jones",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Luka Silva",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Zane Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Leo Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Sven Garcia",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Alex Vidal",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Mateo Suárez",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Hugo Costa",
+        "position": "FW"
+      }
+    ],
+    "UZB": [
+      {
+        "captain": false,
+        "jersey": 1,
+        "name": "Sven Martinez",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 12,
+        "name": "Viggo Chen",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 23,
+        "name": "Tariq Sato",
+        "position": "GK"
+      },
+      {
+        "captain": false,
+        "jersey": 2,
+        "name": "Owen Silva",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 3,
+        "name": "Sven Olsen",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 4,
+        "name": "Marco Diallo",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 5,
+        "name": "Jamie Khan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 13,
+        "name": "Zane Vidal",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 16,
+        "name": "Eli Rossi",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 17,
+        "name": "Ivan Hassan",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 18,
+        "name": "Alex Martinez",
+        "position": "DF"
+      },
+      {
+        "captain": false,
+        "jersey": 6,
+        "name": "Ali Olsen",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 8,
+        "name": "Noah Hassan",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 14,
+        "name": "Andre Park",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 15,
+        "name": "Sven Müller",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 19,
+        "name": "Marco Singh",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 20,
+        "name": "Tomas Lopez",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 21,
+        "name": "Zane Tanaka",
+        "position": "MF"
+      },
+      {
+        "captain": false,
+        "jersey": 7,
+        "name": "Ali Dubois",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 9,
+        "name": "Tomas Kovacic",
+        "position": "FW"
+      },
+      {
+        "captain": true,
+        "jersey": 10,
+        "name": "Leo Rossi",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 11,
+        "name": "Luka Garcia",
+        "position": "FW"
+      },
+      {
+        "captain": false,
+        "jersey": 22,
+        "name": "Finn Vidal",
+        "position": "FW"
+      }
+    ]
+  }
+}
