@@ -48,12 +48,19 @@ export function CameraRig({ store, mode }: CameraRigProps) {
   useEffect(() => {
     // Snap camera to the new mode's pose immediately.
     if (mode === "tactical") {
-      camera.position.set(0, 80, 0);
+      camera.position.set(0, 95, 0.001);
     } else if (mode === "follow") {
-      camera.position.set(0, 6, 18);
+      // Stable "behind-and-above" anchor; matches the follow preset
+      // computed in useFrame below.
+      camera.position.set(0, 12, 28);
     } else {
-      camera.position.set(0, 25, 60);
+      camera.position.set(0, 22, 50);
     }
+    // Always enforce camera up-vector = world up. Some R3F internals
+    // tweak `camera.up` when interacting with controls; clamping it
+    // here means follow-ball can't end up banked / rolled (Tim's
+    // screenshots showed a rolled horizon).
+    camera.up.set(0, 1, 0);
     driver.reset();
   }, [mode, camera, driver]);
 
@@ -76,24 +83,43 @@ export function CameraRig({ store, mode }: CameraRigProps) {
 
     switch (mode) {
       case "tactical":
-        desiredPos.current.set(0, 80, 0.001);
+        // Pure top-down ~95 m up. Slight +z offset keeps the matrix
+        // non-singular so the lookAt doesn't flip the camera-up vector.
+        desiredPos.current.set(0, 95, 0.001);
         desiredTarget.current.set(0, 0, 0);
+        fov.current = 45;
         break;
-      case "follow":
-        desiredPos.current.set(target.x - 8, 5, target.z + 12);
-        desiredTarget.current.copy(target);
+      case "follow": {
+        // Stable behind-and-above shot. Anchored at a fixed offset in
+        // world space (+Z behind the play looking toward -Z / pitch) so
+        // the camera doesn't bank when the ball pivots. Height 12 m,
+        // 28 m behind. lookAt aimed slightly above the ball so it
+        // doesn't sit at the bottom of the frame.
+        desiredPos.current.set(target.x, 12, target.z + 28);
+        desiredTarget.current.set(target.x, 2, target.z);
+        fov.current = 36;
         break;
+      }
       case "broadcast":
       default: {
         // Camera sits above and behind, slightly tracking the ball's x.
-        const tx = THREE.MathUtils.clamp(target.x, -30, 30);
-        desiredPos.current.set(tx * 0.5, 22, 55);
-        desiredTarget.current.set(target.x * 0.4, 0, target.z * 0.4);
+        // Tightened from the old 50° / 25 m / 55 m setup so the
+        // stadium silhouette doesn't dominate the frame edges. Look-
+        // height raised above pitch-floor so player heads sit centred.
+        const tx = THREE.MathUtils.clamp(target.x, -25, 25);
+        desiredPos.current.set(tx * 0.5, 22, 50);
+        desiredTarget.current.set(target.x * 0.5, 1.5, target.z * 0.35);
+        fov.current = 36;
         break;
       }
     }
 
-    if (camera instanceof THREE.PerspectiveCamera) fov.current = camera.fov;
+    // Re-assert world-up every frame — the lookAt() call in the damper
+    // computes orientation off `camera.up`, so any drift there shows
+    // up as horizon roll. Belt-and-braces against the tilted-horizon
+    // Tim saw on follow-ball.
+    camera.up.set(0, 1, 0);
+
     driver.update(
       camera as THREE.PerspectiveCamera,
       {

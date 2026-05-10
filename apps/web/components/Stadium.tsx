@@ -233,14 +233,17 @@ function FloodlightMast({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.25, 0.4, 24, 6]} />
         <meshStandardMaterial color="#2b3540" roughness={0.55} />
       </mesh>
-      {/* Floodlight head — emissive so bloom catches it. */}
+      {/* Floodlight head — emissive so bloom still catches it, but a
+       *  much lower intensity (was 2.6, now 0.9) and now tone-mapped so
+       *  it can't blow the whole upper-deck area to white. With ACES
+       *  exposure 0.85 the floodlights still read as bright but the
+       *  highlights don't clip across half the frame. */}
       <mesh position={[0, 22, 0]}>
         <boxGeometry args={[3.5, 1.6, 1.6]} />
         <meshStandardMaterial
-          color="#fff7cc"
+          color="#d8cf9c"
           emissive="#ffeb99"
-          emissiveIntensity={2.6}
-          toneMapped={false}
+          emissiveIntensity={0.9}
         />
       </mesh>
     </group>

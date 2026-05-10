@@ -100,10 +100,15 @@ export function Crowd({
     const e = energy.value();
     if (Math.abs(e - lastEnergy.current) < 0.01) return;
     lastEnergy.current = e;
+    // Lightness floor 0.42 (was 0.68) so the crowd reads as crowd, not
+    // a wall of pure white. Tim's screenshots showed the upper deck
+    // pinned to 1.0 — tone mapping is now on (toneMapped no longer
+    // overridden below), and capping the lightness here keeps the
+    // brightest stand at ~mid-grey post-ACES.
     mat.color.setHSL(
       0.06 + 0.02 * e,
       0.32 + 0.08 * e,
-      0.68 + 0.05 * e,
+      0.42 + 0.05 * e,
     );
   });
 
@@ -121,10 +126,13 @@ export function Crowd({
        *  we don't have an alpha atlas in this repo yet. The cheering
        *  geometry comes through the bob animation + colour shift. */}
       <planeGeometry args={[0.55, 1.0]} />
+      {/* No `toneMapped={false}` here — we WANT ACES to compress this
+       *  cloud of instances. Base colour darkened from a hot cream
+       *  (#c8a978) to a mid biscuit (#7d6a52) so post-tone-map the
+       *  crowd reads at ~30-40% brightness, not blown-out white. */}
       <meshBasicMaterial
         ref={matRef}
-        color="#c8a978"
-        toneMapped={false}
+        color="#7d6a52"
         side={THREE.DoubleSide}
       />
     </instancedMesh>

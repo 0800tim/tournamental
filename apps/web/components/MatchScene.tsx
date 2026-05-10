@@ -89,32 +89,51 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
           gl={{
             antialias: profile.preset !== "low",
             powerPreference: "high-performance",
+            toneMapping: THREE.ACESFilmicToneMapping,
+            toneMappingExposure: 0.85,
+            outputColorSpace: THREE.SRGBColorSpace,
           }}
           onCreated={({ gl }) => {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
+            // Defensive: a few R3F versions don't honour `gl.toneMapping`
+            // when passed through the prop, so re-assert here. Exposure
+            // 0.85 is the single biggest fix for Tim's blown-out roof —
+            // it compresses the highlights so the upper deck reads at
+            // ~30% brightness instead of pure white.
             gl.toneMapping = THREE.ACESFilmicToneMapping;
-            gl.toneMappingExposure = 1.05;
+            gl.toneMappingExposure = 0.85;
+            gl.outputColorSpace = THREE.SRGBColorSpace;
           }}
         >
           <StateFrameBufferProvider buffer={sceneBuffer}>
-            {/* Procedural sky — gives a lived-in horizon under the stadium ring. */}
+            {/* Procedural sky — softened so the upper stadium silhouette
+             *  doesn't blow out against pure white. Higher turbidity
+             *  pushes more scattering haze in front of the sun, and
+             *  pulling rayleigh down avoids the deep-blue saturation
+             *  that makes the dark stand below read as crushed maroon. */}
             <Sky
               distance={4500}
               sunPosition={[40, 60, 20]}
               inclination={0.49}
               azimuth={0.25}
-              mieCoefficient={0.005}
-              mieDirectionalG={0.85}
-              rayleigh={2.5}
-              turbidity={6}
+              mieCoefficient={0.004}
+              mieDirectionalG={0.78}
+              rayleigh={1.6}
+              turbidity={10}
             />
-            <fog attach="fog" args={["#cdd9e6", 110, 320]} />
+            <fog attach="fog" args={["#aab6c4", 90, 280]} />
 
-            {/* Lighting rig: hemisphere + sun. */}
-            <hemisphereLight args={["#cfe2ff", "#1a2230", 0.55]} />
+            {/* Lighting rig: ambient + hemisphere + sun. Total intensity
+             *  budget ≤ 2.5 so the scene reads at mid-grey instead of
+             *  blown-out white (Tim's three screenshots showed the upper
+             *  deck pinned to 1.0). Previously the rig was 0 + 0.55 + 1.4
+             *  = 1.95 with NO ambient fill, which is why the pitch
+             *  crushed dark under the directional shadow. */}
+            <ambientLight intensity={0.55} color="#ffffff" />
+            <hemisphereLight args={["#bcd1ff", "#3a4d2a", 0.45]} />
             <directionalLight
-              position={[40, 60, 20]}
-              intensity={1.4}
+              position={[40, 60, 30]}
+              intensity={1.05}
               castShadow
               shadow-mapSize={[shadowMapSize, shadowMapSize]}
               shadow-camera-near={1}
@@ -123,7 +142,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
               shadow-camera-right={90}
               shadow-camera-top={70}
               shadow-camera-bottom={-70}
-              shadow-bias={-0.0001}
+              shadow-bias={-0.0005}
             />
 
             {directorEnabled ? null : <CameraRig store={store} mode={mode} />}

@@ -218,6 +218,10 @@ export function Director({ store, enabled = true }: DirectorProps) {
       damper.reset();
       lastCamName.current = evalOut.name;
     }
+    // Enforce world-up before lookAt() inside the damper. Tim's review
+    // flagged a banked horizon on follow-ball; pinning camera.up here
+    // means three.js can't pick an off-axis basis on lookAt.
+    camera.up.set(0, 1, 0);
     damper.update(camera as THREE.PerspectiveCamera, evalOut, dt);
 
     // 6. (Phase 3 hookup) Expose the post-FX intensities + slow-mo
