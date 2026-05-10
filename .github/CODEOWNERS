@@ -1,0 +1,35 @@
+# VTourn CODEOWNERS
+#
+# This file makes every PR that touches a sensitive zone require an
+# approval from the listed owner(s). The PR triage bot also uses this
+# list to auto-request reviewers for yellow/red verdicts.
+#
+# Syntax: <pattern> <handle> [<handle>...]
+# Last matching line wins.
+
+# Default — Tim sees every PR by default.
+*                                       @0800tim
+
+# Sensitive zones — auth, identity, payments, signing, smart contracts.
+/apps/auth-sms/                         @0800tim
+/apps/identity/                         @0800tim
+/apps/dm-otp/                           @0800tim
+/apps/vstamp/                           @0800tim
+/apps/drips-bridge/                     @0800tim
+/apps/affiliate-router/                 @0800tim
+
+# Security-meta — the watchdog and triage bot themselves.
+/apps/pr-triage-bot/                    @0800tim
+/apps/security-watchdog/                @0800tim
+
+# CI + repo policy.
+/.github/                               @0800tim
+/SECURITY.md                            @0800tim
+/CONTRIBUTING.md                        @0800tim
+/CODE_OF_CONDUCT.md                     @0800tim
+
+# Spec is sacred per CLAUDE.md.
+/packages/spec/                         @0800tim
+
+# Security docs.
+/docs/security/                         @0800tim

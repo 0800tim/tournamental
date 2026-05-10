@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a security vulnerability
+    url: https://github.com/0800tim/vtorn/security/advisories/new
+    about: Use GitHub's private security advisory flow. Do NOT file public issues for vulnerabilities.
+  - name: Question / discussion
+    url: https://github.com/0800tim/vtorn/discussions
+    about: For open-ended questions, design conversations, or RFC drafts.

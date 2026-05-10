@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an enhancement or new capability.
+title: "feat: <short description>"
+labels: ["enhancement", "triage"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What user pain or product gap does this address?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: A sketch of the solution. Doesn't have to be final.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+    validations:
+      required: false
+  - type: input
+    id: doc-refs
+    attributes:
+      label: Related docs
+      description: Doc(s) under `docs/` this should align with (e.g. `docs/04-renderer.md`).
+    validations:
+      required: false

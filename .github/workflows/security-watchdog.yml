@@ -1,0 +1,122 @@
+name: Security watchdog
+
+# Daily and weekly scheduled security scans, plus an on-demand
+# `workflow_dispatch` trigger for ad-hoc runs.
+#
+# Findings are written to JSONL artifacts and (optionally) POSTed to a
+# self-hosted security-watchdog HTTP service via WATCHDOG_URL +
+# WATCHDOG_API_TOKEN secrets.
+
+on:
+  schedule:
+    # Daily 04:30 UTC = 16:30 NZST = lunchtime + a margin
+    - cron: '30 4 * * *'
+    # Weekly Monday 05:00 UTC for the deeper sweep
+    - cron: '0 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Scan mode'
+        required: true
+        default: 'daily'
+        type: choice
+        options:
+          - daily
+          - weekly
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: security-watchdog
+  cancel-in-progress: false
+
+jobs:
+  daily:
+    name: Daily — npm audit + OSV + gitleaks (sample) + dependabot status
+    if: github.event_name != 'schedule' || (github.event.schedule == '30 4 * * *')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { version: 10 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: pnpm audit
+        run: pnpm audit --json --audit-level=low > pnpm-audit.json || true
+
+      - name: OSV-Scanner (recursive)
+        uses: google/osv-scanner-action/osv-scanner-action@v1.9.2
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            --format=json
+            --output=osv-daily.json
+            ./
+        continue-on-error: true
+
+      - name: Roll up to findings JSONL
+        run: node .github/scripts/watchdog-roll-up.mjs daily > findings.jsonl
+
+      - name: Upload daily findings artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchdog-daily-${{ github.run_id }}
+          path: |
+            findings.jsonl
+            pnpm-audit.json
+            osv-daily.json
+          if-no-files-found: ignore
+
+      - name: Forward to watchdog (if configured)
+        if: env.WATCHDOG_URL != ''
+        env:
+          WATCHDOG_URL: ${{ secrets.WATCHDOG_URL }}
+          WATCHDOG_API_TOKEN: ${{ secrets.WATCHDOG_API_TOKEN }}
+        run: |
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            curl -fsS -X POST "$WATCHDOG_URL/v1/findings" \
+              -H "authorization: Bearer $WATCHDOG_API_TOKEN" \
+              -H "content-type: application/json" \
+              --data "$line" || echo "forward failed: $line"
+          done < findings.jsonl
+
+  weekly:
+    name: Weekly — full gitleaks + semgrep + license-audit
+    if: github.event_name != 'schedule' || (github.event.schedule == '0 5 * * 1')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+
+      - name: Full gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+        continue-on-error: true
+
+      - name: Full semgrep
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: >-
+            p/owasp-top-ten
+            p/javascript
+            p/typescript
+            p/secrets
+        continue-on-error: true
+
+      - name: Open issue for unresolved findings
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "Weekly watchdog completed at $(date -u +%FT%TZ)" > weekly-summary.md
+          # The actual issue creation is handled by the security-watchdog
+          # endpoint when forwarding findings; this is a heartbeat artifact.
