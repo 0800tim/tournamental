@@ -155,160 +155,238 @@
   margin-top: 2px;
 }
 
-/* ---------- MatchCard ---------- */
+/* ---------- MatchCard (TVNZ FIFA-app inspired) ----------
+ *
+ * Layout:
+ *   .vt-match-card                 grid-rows: flag-band(110) / meta(auto)
+ *   └ .vt-match-card-flagband      grid-cols: 1fr 1fr; relative
+ *     ├ .vt-match-card-half        cell with flag bg-image + dark gradient
+ *     │ ├ .vt-match-card-half-grad overlay so codes stay legible on white flags
+ *     │ └ .vt-match-card-code      3-letter team code over the flag
+ *     ├ .vt-match-card-pill        UPCOMING / LIVE / FINAL pill top-left
+ *     └ .vt-match-card-centre-wrap "vs" badge centred on the boundary
+ *   └ .vt-match-card-meta          date • teams • group + venue
+ */
 
 .vt-match-card {
-  display: block;
+  display: grid;
+  grid-template-rows: 110px auto;
   background: var(--vt-bg-elev);
   border: 1px solid var(--vt-border);
   border-radius: var(--vt-radius-lg);
-  padding: 14px;
+  overflow: hidden;
   text-decoration: none;
   color: var(--vt-fg);
-  transition: background 140ms ease, transform 120ms ease;
+  transition: background 140ms ease, transform 120ms ease, box-shadow 140ms ease;
 }
 
-.vt-match-card:hover {
+.vt-match-card:hover,
+.vt-match-card:focus-visible {
   background: var(--vt-bg-elev-2);
   transform: translateY(-1px);
+  box-shadow: var(--vt-shadow-soft, 0 6px 18px rgba(0, 0, 0, 0.18));
 }
 
-.vt-match-card-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--vt-fg-muted);
-  margin-bottom: 12px;
+.vt-match-card:focus-visible {
+  outline: 2px solid var(--vt-accent, #f3b83b);
+  outline-offset: 2px;
 }
 
-.vt-match-card-state-live {
+.vt-match-card-flagband {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 110px;
+  isolation: isolate;
+}
+
+.vt-match-card-half {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.vt-match-card-half-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.1) 0%,
+    rgba(0, 0, 0, 0.35) 100%
+  );
+  pointer-events: none;
+}
+
+.vt-match-card-half[data-side="home"] .vt-match-card-half-grad {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+.vt-match-card-half[data-side="away"] .vt-match-card-half-grad {
+  background: linear-gradient(
+    225deg,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+.vt-match-card-code {
+  position: absolute;
+  bottom: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.vt-match-card-code[data-side="home"] {
+  left: 12px;
+}
+
+.vt-match-card-code[data-side="away"] {
+  right: 12px;
+}
+
+.vt-match-card-pill {
+  position: absolute;
+  top: 8px;
+  left: 8px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 8px;
-  border-radius: var(--vt-radius-pill);
-  background: rgba(220, 38, 38, 0.18);
-  color: #f87171;
-  font-weight: 700;
-  letter-spacing: 0.12em;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: var(--vt-radius-pill, 999px);
+  background: #4b5563;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
 }
 
-.vt-match-card-state-live::before {
-  content: "";
+.vt-match-card-pill[data-state="pre"] {
+  background: #2071b8;
+}
+
+.vt-match-card-pill[data-state="live"] {
+  background: #dc2626;
+}
+
+.vt-match-card-pill[data-state="final"] {
+  background: #1f2937;
+}
+
+.vt-match-card-pill-dot {
+  display: inline-block;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #f87171;
-  animation: vt-pulse 1.6s ease-in-out infinite;
+  background: #ffffff;
+  animation: vt-pulse 1.4s ease-in-out infinite;
 }
 
 @keyframes vt-pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  50% { opacity: 0.45; }
 }
 
-.vt-match-card-row {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 12px;
+.vt-match-card-centre-wrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  pointer-events: none;
 }
 
-.vt-match-card-team {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.vt-match-card-team[data-side="home"] {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.vt-match-card-team[data-side="away"] {
-  justify-content: flex-start;
-}
-
-.vt-match-card-flag {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--vt-bg-elev-2);
-  border: 1px solid var(--vt-border);
+.vt-match-card-centre {
   display: grid;
   place-items: center;
-  font-size: 11px;
-  font-weight: 700;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  font-weight: 800;
   letter-spacing: 0.04em;
-  flex-shrink: 0;
-  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
-.vt-match-card-flag img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.vt-match-card-centre.is-vs {
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
-.vt-match-card-team-name {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: -0.005em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.vt-match-card-mid {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+.vt-match-card-centre.is-score {
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  padding: 0 14px;
   min-width: 64px;
 }
 
-.vt-match-card-time {
-  font-size: 13px;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.005em;
+.vt-match-card-centre-sep {
+  margin: 0 6px;
+  opacity: 0.7;
 }
 
-.vt-match-card-score {
-  font-size: 22px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: -0.01em;
+.vt-match-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px 14px;
 }
 
 .vt-match-card-date {
   font-size: 11px;
-  color: var(--vt-fg-muted);
-  text-transform: uppercase;
+  font-weight: 700;
   letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.vt-match-card-loc {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid var(--vt-border);
+.vt-match-card-teams {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  color: var(--vt-fg);
+  line-height: 1.25;
+}
+
+.vt-match-card-teams-sep {
+  color: var(--vt-fg-muted);
+  font-weight: 500;
+  margin: 0 2px;
+}
+
+.vt-match-card-group {
   font-size: 12px;
   color: var(--vt-fg-muted);
+  line-height: 1.3;
 }
 
-.vt-match-card-loc svg {
-  width: 14px;
-  height: 14px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.8;
+@media (prefers-reduced-motion: reduce) {
+  .vt-match-card,
+  .vt-match-card-pill-dot {
+    transition: none;
+    animation: none;
+  }
+  .vt-match-card:hover,
+  .vt-match-card:focus-visible {
+    transform: none;
+  }
 }
 
 /* ---------- PillChip ---------- */

@@ -1,6 +1,9 @@
 /**
- * Vitest — MatchCard renders the right middle column for each state.
+ * Vitest — MatchCard renders the right centre badge and meta text for
+ * each state. Updated for the TVNZ flag-bg redesign.
  */
+
+// @vitest-environment jsdom
 
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
@@ -39,6 +42,7 @@ describe("<MatchCard>", () => {
     expect(text).toContain("Mexico");
     expect(text).toContain("Group A");
     expect(text).toContain("Estadio Azteca");
+    expect(text).toContain("UPCOMING");
   });
 
   it("shows score and clock for state=live", () => {
@@ -57,7 +61,7 @@ describe("<MatchCard>", () => {
     expect(text).toContain("LIVE");
   });
 
-  it("shows final score and FT badge for state=final", () => {
+  it("shows final score and FULL TIME label for state=final", () => {
     const { container } = render(
       <MatchCard
         home={{ code: "ARG", name: "Argentina", score: 3 }}
@@ -68,7 +72,8 @@ describe("<MatchCard>", () => {
     );
     const text = container.textContent ?? "";
     expect(text).toMatch(/3\s*-\s*3/);
-    expect(text).toContain("FT");
+    expect(text).toContain("FULL TIME");
+    expect(text).toContain("FINAL");
   });
 
   it("renders as a link when href is provided", () => {
