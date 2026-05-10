@@ -36,6 +36,7 @@ import { notFound } from "next/navigation";
 
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
+import { AppShell } from "@/components/shell";
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -137,7 +138,13 @@ export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
   const kickoff = new Date(match.kickoffUtc);
   const kickoffLabel = formatKickoff(kickoff);
 
+  const homeName = home?.name ?? match.homeCode ?? "";
+  const awayName = away?.name ?? match.awayCode ?? "";
+  const appBarTitle =
+    homeName && awayName ? `${homeName} v ${awayName}` : match.stageLabel;
+
   return (
+    <AppShell title={appBarTitle}>
     <main className="mp-page" style={heroStyle}>
       <Link href="/world-cup-2026" className="mp-back" aria-label="Back to bracket">
         &larr; Bracket
@@ -179,8 +186,8 @@ export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
         match={match}
         homeTeam={homeEngine}
         awayTeam={awayEngine}
-        homeName={home?.name ?? match.homeCode ?? ""}
-        awayName={away?.name ?? match.awayCode ?? ""}
+        homeName={homeName}
+        awayName={awayName}
         homeForm={homeForm}
         awayForm={awayForm}
         h2h={h2h}
@@ -206,6 +213,7 @@ export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
         noDraw={match.stage !== "group"}
       />
     </main>
+    </AppShell>
   );
 }
 

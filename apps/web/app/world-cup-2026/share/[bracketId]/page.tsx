@@ -9,6 +9,8 @@
 
 import type { Metadata } from "next";
 
+import { AppShell } from "@/components/shell";
+
 interface Params {
   readonly params: { bracketId: string };
   readonly searchParams: { handle?: string; winner?: string; locked?: string };
@@ -49,22 +51,24 @@ export default function SharePage(p: Params) {
   const handle = p.searchParams.handle ?? "Anonymous";
   const winner = p.searchParams.winner ?? "TBD";
   return (
-    <main style={{ padding: 32, color: "#e6edf3", maxWidth: 720, margin: "0 auto" }}>
-      <h1>@{handle}&apos;s World Cup 2026 bracket</h1>
-      <p>Picked <strong>{winner}</strong> to lift the trophy.</p>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src={ogUrl(p)}
-        alt={`@${handle}'s bracket`}
-        width={1200}
-        height={630}
-        style={{ width: "100%", height: "auto", borderRadius: 12, marginTop: 16 }}
-      />
-      <p style={{ marginTop: 24 }}>
-        <a href="/world-cup-2026" style={{ color: "#facc15" }}>
-          Build your own bracket &rarr;
-        </a>
-      </p>
-    </main>
+    <AppShell title="Shared bracket">
+      <main style={{ padding: 32, color: "var(--vt-fg)", maxWidth: 720, margin: "0 auto" }}>
+        <h1>@{handle}&apos;s World Cup 2026 bracket</h1>
+        <p>Picked <strong>{winner}</strong> to lift the trophy.</p>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={ogUrl(p)}
+          alt={`@${handle}'s bracket`}
+          width={1200}
+          height={630}
+          style={{ width: "100%", height: "auto", borderRadius: 12, marginTop: 16 }}
+        />
+        <p style={{ marginTop: 24 }}>
+          <a href="/world-cup-2026" style={{ color: "var(--vt-accent, #facc15)" }}>
+            Build your own bracket &rarr;
+          </a>
+        </p>
+      </main>
+    </AppShell>
   );
 }
