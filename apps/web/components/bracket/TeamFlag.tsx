@@ -3,7 +3,7 @@
 import { CSSProperties } from "react";
 import styles from "./TeamFlag.module.css";
 
-type Size = "sm" | "md" | "lg" | "xl";
+type Size = "xs" | "sm" | "md" | "lg" | "xl";
 type Shape = "rect" | "circle";
 
 type Props = {
@@ -34,16 +34,24 @@ type Props = {
   className?: string;
 };
 
+// Bumped per `feat/knockout-flag-backgrounds` (Tim, 2026-05-11). The old
+// `sm` (24x16) was barely identifiable on knockout cells, and the page felt
+// undersized for a flag-driven UI. New scale roughly doubles every step
+// from xs upward; consumers that explicitly opted into "sm" still render at
+// the old-ish cluster (32x22 instead of 24x16) so we don't blow up other
+// rows. KnockoutMatch was bumped to `md` separately.
 const SIZE: Record<Size, { w: number; h: number }> = {
-  sm: { w: 24, h: 16 },
-  md: { w: 36, h: 24 },
-  lg: { w: 60, h: 40 },
+  xs: { w: 16, h: 12 },
+  sm: { w: 32, h: 22 },
+  md: { w: 48, h: 32 },
+  lg: { w: 72, h: 48 },
   xl: { w: 120, h: 80 },
 };
 
 // Circle pick targets need to be square + tap-friendly. Per Apple/Material
 // guidelines minimum 44px; 64px hits "comfortably tappable" on phones.
 const CIRCLE_SIZE: Record<Size, number> = {
+  xs: 24,
   sm: 36,
   md: 56,
   lg: 64,

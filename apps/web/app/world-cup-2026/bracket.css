@@ -879,8 +879,8 @@
 .km-grid {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(220px, 1fr);
-  gap: 12px;
+  grid-auto-columns: minmax(260px, 1fr);
+  gap: 14px;
   overflow-x: auto;
   padding-bottom: 8px;
   /* Keep transforms snappy on mobile. */
@@ -900,35 +900,76 @@
   letter-spacing: 0.06em;
 }
 
+/* Knockout match cell — flag-as-background variant. The cell itself is
+ * just a container; the two `.km-team` buttons inside hold the flag
+ * background, dark gradient overlay, and team label.
+ *
+ * Per [doc 46](../../docs/46-knockout-flag-backgrounds.md):
+ *   - Selected side: full-bleed `background-image: url(/flags/<id>.svg)`
+ *     with a `::after` 0.15→0.65 vertical scrim for legibility.
+ *   - Idle side: dark cell with a faded flag preview on hover/focus
+ *     (skipped under `prefers-reduced-motion`).
+ */
 .km-card {
   background: #0f172a;
   border: 1px solid #334155;
-  border-radius: 8px;
-  padding: 8px 10px;
+  border-radius: 16px;
+  padding: 10px;
   display: grid;
-  gap: 4px;
+  gap: 6px;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+
+.km-card:has(.km-team.is-winner) {
+  /* Selected cells lift slightly above the unpicked siblings. */
+  box-shadow: 0 6px 18px -8px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .km-card-header {
   display: flex;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px;
   font-size: 9px;
   color: #94a3b8;
   letter-spacing: 0.06em;
 }
 
+.km-card-header .km-no {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
 .km-team {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  background: #1e293b;
+  gap: 10px;
+  background-color: #1e293b;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 4px 6px;
+  border-radius: 12px;
+  padding: 10px 12px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   color: #cbd5e1;
   text-align: left;
+  min-height: 56px;
+  overflow: hidden;
+  isolation: isolate;
+  transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
 }
 
 .km-team[disabled] {
@@ -936,32 +977,110 @@
   opacity: 0.55;
 }
 
+/* Selected cells — flag fills the cell; a dark scrim sits between flag
+ * and content so the team name + odds chip stay legible regardless of
+ * the flag's lightest region (Brazil yellow, Argentina white, etc). */
+.km-team.is-winner {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.18);
+  font-weight: 700;
+}
+
+.km-team.is-winner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.15) 0%,
+    rgba(0, 0, 0, 0.35) 45%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* The selected cell uses the team's kit colour as a 2px inner accent
+ * ring — same idea as the existing MPR pattern. */
 .km-team.km-home.is-winner {
-  background: var(--km-home-accent, #fbbf24);
-  color: #0f172a;
-  border-color: var(--km-home-accent, #fbbf24);
+  box-shadow: inset 0 0 0 2px var(--km-home-accent, #fbbf24);
 }
-
 .km-team.km-away.is-winner {
-  background: var(--km-away-accent, #3b82f6);
-  color: #0f172a;
-  border-color: var(--km-away-accent, #3b82f6);
+  box-shadow: inset 0 0 0 2px var(--km-away-accent, #3b82f6);
 }
 
-.km-vs {
-  text-align: center;
-  font-size: 9px;
-  color: #94a3b8;
-  letter-spacing: 0.1em;
+/* All children (flag chip, label, info badge) need to sit above the
+ * scrim, which is at z-index: 0. */
+.km-team > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Idle hover-preview: a faded flag image hints at what selecting will
+ * look like. CSS variable `--km-flag-preview` is set inline in JSX when
+ * the cell has a known team and isn't selected. */
+.km-team:not(.is-winner):not([disabled]):hover::before,
+.km-team:not(.is-winner):not([disabled]):focus-visible::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--km-flag-preview, none);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.28;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Skip the hover-preview entirely — Tim's a11y standing rule says
+   * reduce-motion users get the static idle state, no animated reveal. */
+  .km-team:not(.is-winner):not([disabled]):hover::before,
+  .km-team:not(.is-winner):not([disabled]):focus-visible::before {
+    content: none;
+  }
+  .km-card,
+  .km-team {
+    transition: none;
+  }
+}
+
+/* A short connector line replaces the old "vs" word — clearer + cleaner.
+ * Tim's screenshot brief: "no decoration that doesn't add information".
+ */
+.km-connector {
+  display: block;
+  margin: 2px auto;
+  width: 2px;
+  height: 14px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.06),
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.06)
+  );
+  border-radius: 2px;
 }
 
 .km-tbd {
   color: #64748b;
   font-style: italic;
+  font-size: 12px;
 }
 
 .km-team-name {
   font-weight: 600;
+  flex: 1;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  letter-spacing: 0.01em;
+}
+
+.km-team.is-winner .km-team-name {
+  /* Stronger shadow against the flag bg lifts the name off bright zones. */
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85),
+    0 0 1px rgba(0, 0, 0, 0.6);
 }
 
 /* ---- Lock summary tab ---- */
@@ -1085,6 +1204,17 @@
   }
   .km-grid {
     transition: transform 80ms ease-out;
+    /* Slightly tighter cells on phones — keeps the bracket scrollable
+     * sideways without each match dominating the viewport. */
+    grid-auto-columns: minmax(240px, 1fr);
+  }
+  .km-team {
+    /* Match cells were wasting vertical space; tighten the min-height
+     * and gap so two teams + connector fit cleanly without dwarfing
+     * the rest of the card. */
+    min-height: 52px;
+    padding: 8px 10px;
+    gap: 8px;
   }
 
   /* Each group card's header sticks to the top of the viewport while
@@ -1194,25 +1324,41 @@
 }
 
 /* Same affordance for KnockoutMatch — the card's header is already a
- * flex row so we just plug it in as another item; small size keeps the
- * existing layout balanced. */
+ * flex row so we just plug it in as another item. Small icon-style chip
+ * (arrow + "View") keeps the visual weight on the team picks themselves,
+ * not on the secondary navigation. */
 .km-view-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 9px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   font-weight: 700;
   color: #94a3b8;
   text-decoration: none;
-  padding: 2px 6px;
+  padding: 2px 7px;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
 }
 .km-view-link:hover,
 .km-view-link:focus-visible {
   color: #ffffff;
   background: rgba(15, 23, 42, 0.95);
   outline: none;
+  transform: translateX(1px);
+}
+.km-view-link-label {
+  /* Hide the label on very narrow viewports — the arrow alone reads as
+   * "go to match preview" and we save horizontal space for the team
+   * picks. */
+}
+@media (max-width: 380px) {
+  .km-view-link-label {
+    display: none;
+  }
 }
 
 /* ---- Team-info chip (overlay opener) ----

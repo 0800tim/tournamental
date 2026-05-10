@@ -8,6 +8,15 @@
  * The slot occupants are computed upstream from the user's group-stage
  * predictions via the cascade. While slots aren't yet filled, the buttons
  * are disabled and show "TBD".
+ *
+ * Visual contract (per [doc 46](../../../docs/46-knockout-flag-backgrounds.md)):
+ *   - Idle side: dark cell, mid-size flag chip, dim opacity.
+ *   - Hover/focus side (mouse, no reduced-motion): preview the flag at
+ *     ~28% opacity behind the dark cell, hinting "this is what selecting
+ *     looks like".
+ *   - Selected side: full-bleed team flag as the cell's background-image
+ *     with a vertical 0.15→0.65 dark gradient overlay so the team name
+ *     and odds remain ≥4.5:1 contrast against any flag region.
  */
 
 "use client";
@@ -72,11 +81,38 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
     "--km-away-accent": awayTeam?.kit?.primary ?? "#3b82f6",
   } as CSSProperties;
 
+  // Inline `backgroundImage` rather than a CSS variable so consumers that
+  // disable JS-rendered flag bg (e.g. a future "data-saver" mode) can opt
+  // out by short-circuiting this attribute alone. The CSS pseudo-element
+  // overlay still sits above this layer for legibility.
+  const homeBgStyle: CSSProperties | undefined =
+    homeWin && homeTeam
+      ? { backgroundImage: `url(/flags/${homeTeam.id}.svg)` }
+      : undefined;
+  const awayBgStyle: CSSProperties | undefined =
+    awayWin && awayTeam
+      ? { backgroundImage: `url(/flags/${awayTeam.id}.svg)` }
+      : undefined;
+
+  // Idle hover-preview: show a faded version of the flag behind the cell
+  // when the user's pointer is over an unpicked side. Uses CSS variables
+  // so the rule lives in stylesheet, but we still inject the URL inline
+  // because Next can't generate dynamic CSS at build time.
+  const homePreview: CSSProperties | undefined =
+    !homeWin && homeTeam
+      ? ({ "--km-flag-preview": `url(/flags/${homeTeam.id}.svg)` } as CSSProperties)
+      : undefined;
+  const awayPreview: CSSProperties | undefined =
+    !awayWin && awayTeam
+      ? ({ "--km-flag-preview": `url(/flags/${awayTeam.id}.svg)` } as CSSProperties)
+      : undefined;
+
   return (
     <div className="km-card" data-match-id={knockout.id} style={accent}>
       <header className="km-card-header">
-        <span className="km-stage">{knockout.stage.toUpperCase()}</span>
-        <span className="km-no">#{knockout.match_no}</span>
+        <span className="km-no" aria-label={`${knockout.stage.toUpperCase()} match number`}>
+          {knockout.stage.toUpperCase()} #{knockout.match_no}
+        </span>
         <a
           href={`/match/${knockout.id}/preview`}
           className="km-view-link"
@@ -87,7 +123,8 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
             openMatchOverlay(e);
           }}
         >
-          View match
+          <span aria-hidden="true">→</span>
+          <span className="km-view-link-label">View</span>
         </a>
       </header>
       <button
@@ -96,7 +133,12 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
         onClick={() => choose("home")}
         disabled={!slotsKnown}
         aria-pressed={homeWin}
-        aria-label={homeTeam ? `${homeTeam.name} advances` : "Home slot to be determined"}
+        aria-label={
+          homeTeam
+            ? `${homeTeam.name} — ${homeWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
+            : "Home slot to be determined"
+        }
+        style={{ ...(homeBgStyle ?? {}), ...(homePreview ?? {}) }}
       >
         {homeTeam ? (
           <>
@@ -104,8 +146,9 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
               code={homeTeam.id}
               name={homeTeam.name}
               accentColor={homeTeam.kit?.primary}
-              size="sm"
+              size="md"
               sparkle={homeWin}
+              dim={!homeWin && awayWin}
             />
             <span className="km-team-name">{homeTeam.name}</span>
             {overlay && (
@@ -124,14 +167,19 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
           <span className="km-tbd">{describeSource(knockout.home.source)}</span>
         )}
       </button>
-      <span className="km-vs" aria-hidden="true">vs</span>
+      <span className="km-connector" aria-hidden="true" />
       <button
         type="button"
         className={`km-team km-away ${awayWin ? "is-winner" : ""}`}
         onClick={() => choose("away")}
         disabled={!slotsKnown}
         aria-pressed={awayWin}
-        aria-label={awayTeam ? `${awayTeam.name} advances` : "Away slot to be determined"}
+        aria-label={
+          awayTeam
+            ? `${awayTeam.name} — ${awayWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
+            : "Away slot to be determined"
+        }
+        style={{ ...(awayBgStyle ?? {}), ...(awayPreview ?? {}) }}
       >
         {awayTeam ? (
           <>
@@ -139,8 +187,9 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
               code={awayTeam.id}
               name={awayTeam.name}
               accentColor={awayTeam.kit?.primary}
-              size="sm"
+              size="md"
               sparkle={awayWin}
+              dim={!awayWin && homeWin}
             />
             <span className="km-team-name">{awayTeam.name}</span>
             {overlay && (
