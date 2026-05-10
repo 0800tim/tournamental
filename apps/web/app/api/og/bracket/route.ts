@@ -5,7 +5,7 @@
  *   - bracket_id (string, required)
  *   - handle (string, optional, the user's display name)
  *   - winner (string, optional, the user's predicted final winner)
- *   - locked (number, optional, count of locked-in picks)
+ *   - locked (number, optional, kept as a query alias for back-compat — count of saved picks)
  *
  * Returns a 1200x630 PNG. Twitter Cards, Open Graph, Telegram preview
  * compatible. Cache-Control: long edge cache + immutable per bracket id.
@@ -151,7 +151,7 @@ async function renderPNG(params: OGParams): Promise<Buffer> {
               {
                 type: "div",
                 props: {
-                  children: `${params.locked} picks locked. Lock yours before kickoff.`,
+                  children: `${params.locked} picks saved. Save yours before kickoff.`,
                 },
               },
               {

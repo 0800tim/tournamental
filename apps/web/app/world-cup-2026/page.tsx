@@ -39,11 +39,11 @@ const SHARE_DEFAULT_OG = "/og/bracket/default.png";
 export const metadata: Metadata = {
   title: "VTourn Bracket Prophet — FIFA World Cup 2026",
   description:
-    "Predict the full 48-team bracket. Earlier locked long-shots earn more points. Powered by the VTourn cascade engine — your downstream tree updates instantly with every pick.",
+    "Predict the full 48-team bracket. Tweak picks match by match — earlier saved long-shots earn more points. Powered by the VTourn cascade engine — your downstream tree updates instantly with every pick.",
   openGraph: {
     title: "VTourn Bracket Prophet — FIFA World Cup 2026",
     description:
-      "Lock your bracket before kickoff. Long-shots locked early earn the most.",
+      "Save your bracket before kickoff. Tweak picks game by game. Long-shots saved early earn the most.",
     images: [{ url: SHARE_DEFAULT_OG, width: 1200, height: 630, alt: "VTourn Bracket" }],
     type: "website",
   },
@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "VTourn Bracket Prophet — FIFA World Cup 2026",
     description:
-      "Lock your bracket before kickoff. Long-shots locked early earn the most.",
+      "Save your bracket before kickoff. Tweak picks game by game. Long-shots saved early earn the most.",
     images: [SHARE_DEFAULT_OG],
   },
 };

@@ -161,7 +161,7 @@ describe("MatchPickPopup", () => {
       />,
     );
     fireEvent.click(container.querySelector(".mpp-pick-home") as HTMLButtonElement);
-    fireEvent.click(getByText("Lock it in"));
+    fireEvent.click(getByText("Save pick"));
     await waitFor(() => expect(onSaved).toHaveBeenCalledTimes(1));
     expect(onSaved.mock.calls[0]?.[0]).toEqual(savedPick);
 
@@ -227,7 +227,7 @@ describe("MatchPickPopup", () => {
       />,
     );
     fireEvent.click(container.querySelector(".mpp-pick-draw") as HTMLButtonElement);
-    fireEvent.click(getByText("Lock it in"));
+    fireEvent.click(getByText("Save pick"));
     const alert = await findByRole("alert");
     expect(alert.textContent).toMatch(/knockout/i);
   });
@@ -259,7 +259,7 @@ describe("MatchPickPopup", () => {
       />,
     );
     fireEvent.click(container.querySelector(".mpp-pick-home") as HTMLButtonElement);
-    fireEvent.click(getByText("Lock it in"));
+    fireEvent.click(getByText("Save pick"));
     const alert = await findByRole("alert");
     expect(alert.textContent).toMatch(/already started/i);
   });
@@ -379,7 +379,7 @@ describe("MatchPickPopup", () => {
       />,
     );
     fireEvent.click(container.querySelector(".mpp-pick-home") as HTMLButtonElement);
-    fireEvent.click(getByText("Lock it in"));
+    fireEvent.click(getByText("Save pick"));
     // Local fallback wrote the pick — the error banner shows up.
     await findByText(/Couldn't save/i);
   });
@@ -398,7 +398,7 @@ describe("MatchPickPopup", () => {
         onClose={() => {}}
       />,
     );
-    const save = getByText("Lock it in") as HTMLButtonElement;
+    const save = getByText("Save pick") as HTMLButtonElement;
     expect(save.disabled).toBe(true);
   });
 });

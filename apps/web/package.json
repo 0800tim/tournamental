@@ -24,6 +24,7 @@
     "@vtorn/avatar": "workspace:*",
     "@vtorn/ball-physics": "workspace:*",
     "@vtorn/bracket-engine": "workspace:*",
+    "@vtorn/social-cards": "workspace:*",
     "@vtorn/spec": "workspace:*",
     "@vtorn/spec-client": "workspace:*",
     "country-flag-icons": "^1.6.17",

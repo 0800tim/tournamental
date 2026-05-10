@@ -478,7 +478,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </h1>
         <p>
           Predict the outcome of every match. The group standings are computed
-          live from your picks. Lock the bracket before kickoff for max points.
+          live from your picks. Save your bracket before kickoff for max
+          points — you can tweak any pick game by game until kickoff.
         </p>
       </header>
 
@@ -508,7 +509,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
           className={`bracket-tab ${tab === "lock" ? "is-active" : ""}`}
           onClick={() => setTab("lock")}
         >
-          Lock + share
+          Save + share
         </button>
         <button
           type="button"
@@ -583,7 +584,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       )}
 
       {tab === "lock" && (
-        <section role="tabpanel" aria-label="Lock + share" className="bracket-lock-section">
+        <section role="tabpanel" aria-label="Save + share" className="bracket-lock-section">
           <LockSummary
             bracket={bracket}
             cascaded={cascaded}
@@ -607,14 +608,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
               onClick={() => saveDraft(tournament.id, bracket, userLocalId)}
               className="bracket-btn bracket-btn-secondary"
             >
-              Save draft
+              Save
             </button>
             <button
               type="button"
               onClick={handleSubmit}
               className="bracket-btn bracket-btn-primary"
             >
-              Lock final
+              Save + share
             </button>
             {submitState && <span className="bracket-submit-state">{submitState}</span>}
           </div>
@@ -655,7 +656,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
             </p>
             <p className="bracket-modal-body">
               You can change any pick afterwards — auto-pick is a starting
-              point, not a lock.
+              point, not a final answer. Picks save as you tweak them.
             </p>
             <div className="bracket-modal-actions">
               <button

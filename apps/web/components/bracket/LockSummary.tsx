@@ -1,7 +1,12 @@
 /**
- * LockSummary — running "X of 104 picks committed" + countdown + predicted
- * champion + lock-multiplier table + (placeholder) "back your boldest pick"
+ * LockSummary — running "X of 104 picks saved" + countdown + predicted
+ * champion + stage-multiplier table + (placeholder) "back your boldest pick"
  * CTA. Pure render; takes per-match bracket + cascade output.
+ *
+ * Naming note: the file + exported symbol are `LockSummary` for now —
+ * a follow-up refactor will rename to `SaveSummary` (Tim's 2026-05-11
+ * sweep). All user-visible copy in this component already uses the
+ * new "save" / "save + share" language.
  */
 
 "use client";
@@ -115,7 +120,7 @@ export function LockSummary(props: LockSummaryProps) {
     void tapFeedback("medium");
     await shareContent({
       title: "My VTourn World Cup 2026 bracket",
-      text: `I picked ${shareWinner} to lift the trophy. Lock yours before kickoff →`,
+      text: `I picked ${shareWinner} to lift the trophy. Save yours before kickoff →`,
       url: shareUrl,
     });
   };
@@ -123,11 +128,11 @@ export function LockSummary(props: LockSummaryProps) {
   return (
     <aside className="bracket-lock-summary" data-testid="lock-summary">
       <div data-testid="lock-summary-headline">
-        <strong>{committed}</strong> of {totalPicks} picks committed
+        <strong>{committed}</strong> of {totalPicks} picks saved
         <span aria-hidden="true"> — {groupPicks}/{totalGroup} group, {knockoutPicks}/{totalKnockout} knockout.</span>
       </div>
       <div>
-        Lock the rest before {new Date(deadline_utc).toUTCString().replace("GMT", "UTC")} for max points.
+        Save the rest before {new Date(deadline_utc).toUTCString().replace("GMT", "UTC")} for max points. Tweak any pick game-by-game until kickoff.
       </div>
       <div className="bracket-countdown">
         <span aria-label="time-to-deadline">{formatCountdown(now, deadline)}</span> remaining
@@ -142,7 +147,7 @@ export function LockSummary(props: LockSummaryProps) {
 
       {topMultRows.length > 0 && (
         <div className="bracket-multiplier-table" data-testid="lock-multiplier-table">
-          <h4>Top lock multipliers</h4>
+          <h4>Top stage multipliers</h4>
           <table>
             <thead>
               <tr><th>Pick</th><th>Stage</th><th>Multiplier</th></tr>
@@ -172,13 +177,13 @@ export function LockSummary(props: LockSummaryProps) {
 
       <button
         type="button"
-        className="btn-secondary bracket-share-cta"
+        className="btn-primary bracket-share-cta"
         data-testid="share-bracket-cta"
         onClick={() => {
           void handleShare();
         }}
       >
-        Share my bracket
+        Save + share my bracket
       </button>
     </aside>
   );

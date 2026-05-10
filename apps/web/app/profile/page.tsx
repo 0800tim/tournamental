@@ -32,7 +32,7 @@ export default function ProfilePage() {
         <section className="vt-section">
           <h2 className="vt-section-title">My picks</h2>
           <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>
-            Your locked picks will appear here once you build a bracket.
+            Your saved picks will appear here once you build a bracket.
           </p>
           <Link
             href="/world-cup-2026"

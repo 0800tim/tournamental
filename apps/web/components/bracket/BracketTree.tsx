@@ -109,11 +109,11 @@ export function BracketTree(props: BracketTreeProps) {
                   <rect y={38} width={COL_W - 32} height={16} rx={3} />
                   <text x={8} y={50}>{awayName}</text>
                 </g>
-                {/* lock indicator (top-right) */}
+                {/* save indicator (top-right) */}
                 <g
                   onClick={() => onToggleLock(k.id)}
                   style={{ cursor: "pointer" }}
-                  aria-label={locked ? "Unlock pick" : "Lock pick at current odds"}
+                  aria-label={locked ? "Clear save" : "Save pick at current odds"}
                 >
                   <circle cx={COL_W - 44} cy={10} r={6} className="bracket-card-lock" fill={locked ? "#facc15" : "rgba(255,255,255,0.18)"} />
                 </g>
