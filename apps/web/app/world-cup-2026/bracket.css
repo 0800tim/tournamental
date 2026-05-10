@@ -1426,3 +1426,225 @@
 .km-team {
   position: relative;
 }
+
+/* ============================================================
+ * Round-tabs layout (added 2026-05-11 by feat/bracket-tabs-and-save-rename)
+ *
+ * The bracket page is now organised into one tab per round so users
+ * (especially on mobile) can step through Groups → R32 → R16 → QF →
+ * SF + 3rd → Final without an endless scroll. The tab bar is sticky.
+ * Card grid is responsive 1/2/3 cols by viewport.
+ * ============================================================ */
+
+/* Sticky tab bar so the round nav is always reachable while the user
+ * scrolls a long list of cards. `top: 0` works because the bracket
+ * page lives inside <AppShell>, which scrolls its <main> area
+ * independently — the sticky reference is the panel, not the window. */
+.bracket-builder .bracket-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: linear-gradient(180deg, #0f172a 88%, rgba(15, 23, 42, 0.0));
+  padding: 8px 4px 4px;
+  margin: 0 -4px 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.bracket-builder .bracket-tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.bracket-builder .bracket-tab {
+  flex-shrink: 0;
+}
+
+.bracket-builder .bracket-tab-label {
+  white-space: nowrap;
+}
+
+.bracket-header-running-total {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 6px 0 0;
+}
+
+.bracket-header-running-total strong {
+  color: #facc15;
+  font-feature-settings: "tnum" 1;
+}
+
+/* Per-round header (title + progress counter). */
+.bracket-round-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 4px 0 12px;
+}
+
+.bracket-round-header h2 {
+  font-size: clamp(18px, 3vw, 22px);
+  margin: 0;
+}
+
+.bracket-round-progress {
+  font-size: 13px;
+  color: #94a3b8;
+  font-feature-settings: "tnum" 1;
+}
+
+.bracket-round-progress strong {
+  color: #facc15;
+}
+
+.bracket-round-help {
+  color: #94a3b8;
+  margin: 0 0 12px;
+  font-size: 13px;
+  max-width: 60ch;
+}
+
+/* Responsive round-grid. Card width is consistent across rounds via
+ * clamp so the final-match card doesn't look wildly bigger than a
+ * R32 card. */
+.bracket-round-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 640px) {
+  .bracket-round-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .bracket-round-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* The final tab uses a single-column centred card so the final match
+ * doesn't get lost in a 3-col grid all alone. */
+.bracket-round-grid-final,
+.km-grid-final {
+  grid-template-columns: 1fr;
+  max-width: clamp(280px, 100%, 480px);
+  margin: 0 auto;
+}
+
+/* SF tab splits into "Semi-finals" + "3rd-place play-off" sub-sections. */
+.bracket-round-subgroup + .bracket-round-subgroup {
+  margin-top: 20px;
+}
+
+.bracket-round-subgroup-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cbd5e1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 8px;
+}
+
+/* Single-round km-grid override — disable the multi-column knockout
+ * tree layout that the legacy "Knockouts" tab used. */
+.km-grid-single-round {
+  display: block !important;
+  grid-template-columns: 1fr !important;
+}
+
+.km-grid-single-round > .bracket-round-grid {
+  width: 100%;
+}
+
+.bracket-empty-state {
+  padding: 24px 16px;
+  text-align: center;
+  color: #94a3b8;
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px dashed #334155;
+  border-radius: 12px;
+}
+
+/* ---- Final tab: match + summary side-by-side on desktop ---- */
+.bracket-final-section {
+  display: grid;
+  gap: 16px;
+}
+
+.bracket-final-layout {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 900px) {
+  .bracket-final-layout {
+    grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
+    align-items: start;
+  }
+}
+
+.bracket-final-match {
+  min-width: 0;
+}
+
+.bracket-final-note {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 8px 0 0;
+}
+
+/* ---- Mobile floating Save & Share ---- */
+.bracket-mobile-cta {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(var(--vt-shell-bottomnav-h, 64px) + env(safe-area-inset-bottom, 0px) + 12px);
+  display: flex;
+  gap: 8px;
+  z-index: 30;
+  pointer-events: none;
+}
+
+.bracket-mobile-cta-btn {
+  flex: 1;
+  pointer-events: auto;
+  border-radius: 999px;
+  border: 1px solid #334155;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.bracket-mobile-cta-save {
+  background: linear-gradient(135deg, #facc15, #f59e0b);
+  color: #0f172a;
+  border-color: #facc15;
+}
+
+.bracket-mobile-cta-share {
+  background: rgba(15, 23, 42, 0.92);
+  color: #e6edf3;
+  backdrop-filter: blur(6px);
+}
+
+/* The CTA only makes sense on small screens. Hide above the bracket's
+ * desktop breakpoint so it doesn't crowd the right-hand summary. */
+@media (min-width: 900px) {
+  .bracket-mobile-cta {
+    display: none;
+  }
+}
+
+/* Give the panel some breathing room below the sticky bar. */
+.bracket-panel {
+  scroll-margin-top: 60px;
+}

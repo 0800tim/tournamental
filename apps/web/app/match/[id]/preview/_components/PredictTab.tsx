@@ -1,8 +1,7 @@
 /**
  * Predict tab — embeds the existing `MatchPredictionRow` so the user
  * can pick from the preview screen, mirroring the bracket UX. When the
- * user already has a pick, surface the odds-when-you-picked chip beneath
- * the row.
+ * user already has a pick, surface the saved-odds chip beneath the row.
  *
  * Both teams must be resolved (i.e. the cascade has filled the slot
  * for knockout matches) before we render the row. When an opponent is
@@ -67,7 +66,7 @@ export function PredictTab(props: PredictTabProps) {
 
       {lock && (
         <div className="mp-locked-odds" data-testid="mp-locked-odds">
-          <span className="mp-locked-odds-title">Odds when you picked</span>
+          <span className="mp-locked-odds-title">Saved odds</span>
           <span className="mp-locked-odds-row">
             <span>
               {homeTeam.id} {pctLabel(lock.homeWin)}
@@ -80,7 +79,7 @@ export function PredictTab(props: PredictTabProps) {
             </span>
           </span>
           <span className="mp-locked-odds-meta">
-            Source: {lock.source} - saved{" "}
+            Source: {lock.source} — saved{" "}
             {new Date(lock.capturedAt).toLocaleString()}
           </span>
         </div>
