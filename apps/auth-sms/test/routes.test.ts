@@ -69,6 +69,8 @@ async function makeHarness(): Promise<Harness> {
       otpTtlSeconds: 600,
       maxVerifyAttempts: 5,
       sessionTtlSeconds: 60 * 60,
+      telegramBotToken: '',
+      telegramBotUsername: 'VTournBot',
     },
     now: () => now.value,
     log: {

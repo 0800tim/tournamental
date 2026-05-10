@@ -80,7 +80,9 @@ export async function registerVerifyOtp(
     const signed = await signSessionJwt({
       secret: ctx.config.jwtSecret,
       userId: user.id,
-      phone: user.phone,
+      // SMS-OTP path always has a phone — but the column is nullable since
+      // v0.2 (Telegram users may have no phone), so coerce defensively.
+      phone: user.phone ?? phone,
       ttlSeconds: ctx.config.sessionTtlSeconds,
     });
 

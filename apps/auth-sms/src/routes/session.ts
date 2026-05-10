@@ -84,7 +84,7 @@ export async function registerSession(
     const signed = await signSessionJwt({
       secret: ctx.config.jwtSecret,
       userId: user.id,
-      phone: user.phone,
+      phone: user.phone ?? '',
       ttlSeconds: ctx.config.sessionTtlSeconds,
     });
     ctx.storage.insertSession({

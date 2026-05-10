@@ -25,6 +25,7 @@ import { registerRequestOtp } from './routes/request-otp.js';
 import { registerVerifyOtp } from './routes/verify-otp.js';
 import { registerSession } from './routes/session.js';
 import { registerWhatsAppPairing } from './routes/whatsapp-pairing.js';
+import { registerTelegramCallback } from './routes/telegram-callback.js';
 import type { AuthContext } from './context.js';
 
 const PORT = Number(process.env.AUTH_PORT ?? 3330);
@@ -118,6 +119,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerVerifyOtp(app, ctx);
   await registerSession(app, ctx);
   await registerWhatsAppPairing(app, ctx);
+  await registerTelegramCallback(app, ctx);
 
   app.addHook('onClose', async () => {
     try {
@@ -190,6 +192,9 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
       sessionTtlSeconds: Number(
         process.env.AUTH_SESSION_TTL_SECONDS ?? 30 * 24 * 60 * 60,
       ),
+      telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
+      telegramBotUsername:
+        process.env.TELEGRAM_BOT_USERNAME ?? 'VTournBot',
     },
     now: () => Date.now(),
     log: {

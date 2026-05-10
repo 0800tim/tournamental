@@ -9,6 +9,7 @@
 
 import { Suspense } from "react";
 import AuthForm from "./AuthForm";
+import TelegramLogin from "./TelegramLogin";
 import "./auth.css";
 
 export const metadata = {
@@ -29,6 +30,12 @@ export default function AuthPage() {
         </p>
         <Suspense fallback={<div className="auth-loading">Loading…</div>}>
           <AuthForm />
+        </Suspense>
+        <div className="auth-divider" aria-hidden="true">
+          <span>or</span>
+        </div>
+        <Suspense fallback={<div className="auth-loading">Loading…</div>}>
+          <TelegramLogin />
         </Suspense>
         <p className="auth-legal">
           By continuing you agree to our{" "}

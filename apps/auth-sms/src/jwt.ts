@@ -29,6 +29,12 @@ export interface SignedToken {
 
 export interface AuthClaims extends JWTPayload {
   sub: string;
+  /**
+   * E.164 phone, or empty string for users who authenticated via a
+   * non-phone provider (e.g. Telegram Login Widget). Downstream services
+   * that need a phone should resolve via /v1/auth/me rather than trusting
+   * the claim is non-empty.
+   */
   phone: string;
   jti: string;
 }
@@ -40,6 +46,7 @@ function secretKeyBytes(secret: string): Uint8Array {
 export async function signSessionJwt(opts: {
   secret: string;
   userId: string;
+  /** Empty string is allowed for non-phone providers (e.g. Telegram). */
   phone: string;
   ttlSeconds?: number;
   issuer?: string;
@@ -85,8 +92,8 @@ export async function verifySessionJwt(opts: {
     typeof payload.phone === 'string' ? payload.phone : '';
   const jti =
     typeof payload.jti === 'string' ? payload.jti : '';
-  if (!phone || !jti) {
-    throw new Error('jwt: missing phone or jti');
+  if (!jti) {
+    throw new Error('jwt: missing jti');
   }
   return { ...payload, sub: payload.sub, phone, jti } as AuthClaims;
 }

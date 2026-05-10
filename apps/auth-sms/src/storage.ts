@@ -32,9 +32,18 @@ export interface OtpRecord {
 
 export interface UserRecord {
   id: string;
-  phone: string;
+  /**
+   * E.164 phone, or `null` for users who signed up via a non-phone provider
+   * (e.g. Telegram Login Widget). The runtime invariant is "at least one
+   * external identity is set" — phone OR telegram_id.
+   */
+  phone: string | null;
   display_name: string | null;
   country: string | null;
+  /** Numeric Telegram user id, set if the user linked Telegram. */
+  telegram_id: number | null;
+  /** Telegram @-handle without the leading @, if the user has one set. */
+  telegram_username: string | null;
   created_at: number;
   last_seen_at: number;
 }
@@ -61,13 +70,20 @@ CREATE TABLE IF NOT EXISTS phone_otp (
 
 CREATE TABLE IF NOT EXISTS user (
   id TEXT PRIMARY KEY,
-  phone TEXT UNIQUE NOT NULL,
+  phone TEXT,
   display_name TEXT,
   country TEXT,
+  telegram_id INTEGER,
+  telegram_username TEXT,
   created_at INTEGER NOT NULL,
   last_seen_at INTEGER NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_user_phone ON user(phone);
+-- SQLite treats multiple NULLs as distinct in a UNIQUE index, so phone
+-- can be NULL for Telegram-only users while still being unique when set.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_phone_unique ON user(phone)
+  WHERE phone IS NOT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_telegram_id_unique ON user(telegram_id)
+  WHERE telegram_id IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS session (
   id TEXT PRIMARY KEY,
@@ -111,6 +127,61 @@ export class Storage {
     }
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA);
+    this.migrateUserTableIfNeeded();
+  }
+
+  /**
+   * v0.1 → v0.2: the original `user` table had `phone TEXT UNIQUE NOT NULL`
+   * and no telegram_* columns. SQLite cannot DROP NOT NULL in place, so if
+   * we detect the legacy shape we rebuild the table.
+   */
+  private migrateUserTableIfNeeded(): void {
+    const cols = this.db
+      .prepare(`PRAGMA table_info(user)`)
+      .all() as Array<{ name: string; notnull: number }>;
+    const phoneCol = cols.find((c) => c.name === 'phone');
+    const hasTelegramId = cols.some((c) => c.name === 'telegram_id');
+    const hasTelegramUsername = cols.some((c) => c.name === 'telegram_username');
+
+    const needsPhoneNullable = phoneCol && phoneCol.notnull === 1;
+    const needsTelegramCols = !hasTelegramId || !hasTelegramUsername;
+
+    if (!needsPhoneNullable && !needsTelegramCols) return;
+
+    // Cheap path: just ADD COLUMN for telegram_* if phone is already nullable.
+    if (!needsPhoneNullable && needsTelegramCols) {
+      if (!hasTelegramId) {
+        this.db.exec(`ALTER TABLE user ADD COLUMN telegram_id INTEGER`);
+      }
+      if (!hasTelegramUsername) {
+        this.db.exec(`ALTER TABLE user ADD COLUMN telegram_username TEXT`);
+      }
+      return;
+    }
+
+    // Rebuild path: copy data into a new table with the v0.2 shape.
+    this.db.exec(`
+      BEGIN;
+      CREATE TABLE user_new (
+        id TEXT PRIMARY KEY,
+        phone TEXT,
+        display_name TEXT,
+        country TEXT,
+        telegram_id INTEGER,
+        telegram_username TEXT,
+        created_at INTEGER NOT NULL,
+        last_seen_at INTEGER NOT NULL
+      );
+      INSERT INTO user_new (id, phone, display_name, country, created_at, last_seen_at)
+        SELECT id, phone, display_name, country, created_at, last_seen_at FROM user;
+      DROP TABLE user;
+      ALTER TABLE user_new RENAME TO user;
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_user_phone_unique ON user(phone)
+        WHERE phone IS NOT NULL;
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_user_telegram_id_unique ON user(telegram_id)
+        WHERE telegram_id IS NOT NULL;
+      COMMIT;
+    `);
   }
 
   close(): void {
@@ -183,13 +254,91 @@ export class Storage {
       phone,
       display_name: null,
       country: null,
+      telegram_id: null,
+      telegram_username: null,
       created_at: now,
       last_seen_at: now,
     };
     this.db
       .prepare(
-        `INSERT INTO user (id, phone, display_name, country, created_at, last_seen_at)
-         VALUES (@id, @phone, @display_name, @country, @created_at, @last_seen_at)`,
+        `INSERT INTO user (id, phone, display_name, country, telegram_id, telegram_username, created_at, last_seen_at)
+         VALUES (@id, @phone, @display_name, @country, @telegram_id, @telegram_username, @created_at, @last_seen_at)`,
+      )
+      .run(rec);
+    return rec;
+  }
+
+  /**
+   * Find by telegram_id, or create a new user. If `phone` is supplied (e.g.
+   * the user shared their phone via the bot's request-contact flow) we set
+   * it on a fresh row, or — when it would conflict with an existing
+   * phone-only row for the same person — merge by linking the telegram_id
+   * onto that existing row.
+   */
+  findOrCreateTelegramUser(opts: {
+    telegramId: number;
+    telegramUsername: string | null;
+    displayName: string | null;
+    phone: string | null;
+    now: number;
+  }): UserRecord {
+    const { telegramId, telegramUsername, displayName, phone, now } = opts;
+
+    // 1. Returning Telegram user.
+    const byTelegram = this.db
+      .prepare(`SELECT * FROM user WHERE telegram_id = ?`)
+      .get(telegramId) as UserRecord | undefined;
+    if (byTelegram) {
+      // Refresh metadata that may have changed since last login.
+      this.db
+        .prepare(
+          `UPDATE user
+             SET telegram_username = COALESCE(?, telegram_username),
+                 display_name = COALESCE(display_name, ?),
+                 phone = COALESCE(phone, ?),
+                 last_seen_at = ?
+           WHERE id = ?`,
+        )
+        .run(telegramUsername, displayName, phone, now, byTelegram.id);
+      return this.getUser(byTelegram.id)!;
+    }
+
+    // 2. Phone-already-registered user linking Telegram for the first time.
+    if (phone) {
+      const byPhone = this.db
+        .prepare(`SELECT * FROM user WHERE phone = ?`)
+        .get(phone) as UserRecord | undefined;
+      if (byPhone) {
+        this.db
+          .prepare(
+            `UPDATE user
+               SET telegram_id = ?,
+                   telegram_username = COALESCE(?, telegram_username),
+                   display_name = COALESCE(display_name, ?),
+                   last_seen_at = ?
+             WHERE id = ?`,
+          )
+          .run(telegramId, telegramUsername, displayName, now, byPhone.id);
+        return this.getUser(byPhone.id)!;
+      }
+    }
+
+    // 3. Brand-new user.
+    const id = `u_${randomUUID().replace(/-/g, '').slice(0, 22)}`;
+    const rec: UserRecord = {
+      id,
+      phone,
+      display_name: displayName,
+      country: null,
+      telegram_id: telegramId,
+      telegram_username: telegramUsername,
+      created_at: now,
+      last_seen_at: now,
+    };
+    this.db
+      .prepare(
+        `INSERT INTO user (id, phone, display_name, country, telegram_id, telegram_username, created_at, last_seen_at)
+         VALUES (@id, @phone, @display_name, @country, @telegram_id, @telegram_username, @created_at, @last_seen_at)`,
       )
       .run(rec);
     return rec;
