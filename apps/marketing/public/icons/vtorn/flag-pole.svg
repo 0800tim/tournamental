@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  <!-- Pole -->
+  <line x1="5" y1="3" x2="5" y2="21" />
+  <!-- Pennant: a wave-shaped sky-blue flag that mirrors the V chevron. -->
+  <path d="M5 4h11l-3 3.5L16 11H5V4Z" fill="currentColor" stroke="none" />
+  <!-- Knot at top -->
+  <circle cx="5" cy="3.2" r="0.8" fill="currentColor" stroke="none" />
+</svg>

@@ -12,7 +12,9 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 <header class="vt-header sticky top-0 z-40 border-b backdrop-blur">
   <div class="container-page flex items-center justify-between py-4">
     <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
-      <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900 font-black">V</span>
+      <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900">
+        <span class="vt-icon-mask vt-icon-v size-5" aria-hidden="true"></span>
+      </span>
       <span class="vt-brand-name">VTourn</span>
       <span class="hidden sm:inline pill">beta</span>
     </a>
@@ -54,7 +56,7 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 
       <a
         href="https://2026wc.vtourn.com/"
-        class="hidden md:inline-flex btn-primary text-sm"
+        class="hidden md:inline-flex btn-primary vt-glow-cta text-sm"
       >Play World Cup 2026 →</a>
       <a
         href="https://2026wc.vtourn.com/"
