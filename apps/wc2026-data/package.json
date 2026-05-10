@@ -3,11 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "TS-side companion scripts for apps/wc2026-data (online fixture-time refresh). The Python entry-points remain canonical for offline canonical-fixture builds.",
+  "description": "TS-side companion scripts + live-data service for apps/wc2026-data. Python entry-points remain canonical for offline canonical-fixture builds; this package provides the live match-state stream (provider abstraction + Fastify SSE service) for the 2026 World Cup.",
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.json",
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
     "fetch-fixtures": "tsx scripts/fetch-fixtures.ts"
+  },
+  "dependencies": {
+    "fastify": "^5.0.0",
+    "undici": "^6.20.1"
   },
   "devDependencies": {
     "@types/node": "^20.16.11",
