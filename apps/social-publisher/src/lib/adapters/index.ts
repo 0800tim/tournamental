@@ -13,6 +13,7 @@ import { redditAdapter } from './reddit.js';
 import { telegramAdapter } from './telegram.js';
 import { threadsAdapter } from './threads.js';
 import { tiktokAdapter } from './tiktok.js';
+import { whatsappAdapter } from './whatsapp.js';
 import { xAdapter } from './x.js';
 import { youtubeShortsAdapter } from './youtube-shorts.js';
 
@@ -25,6 +26,7 @@ export const ADAPTERS: Record<Platform, Adapter> = {
   telegram: telegramAdapter,
   discord: discordAdapter,
   reddit: redditAdapter,
+  whatsapp: whatsappAdapter,
 };
 
 export function getAdapter(platform: Platform): Adapter {

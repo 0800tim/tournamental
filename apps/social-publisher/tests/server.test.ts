@@ -35,7 +35,7 @@ describe('Fastify server', () => {
     const body = res.json() as { ok: boolean; adapters: string[] };
     expect(body.ok).toBe(true);
     expect(body.adapters).toContain('tiktok');
-    expect(body.adapters.length).toBe(8);
+    expect(body.adapters.length).toBe(9);
     await app.close();
   });
 
@@ -46,7 +46,7 @@ describe('Fastify server', () => {
     const body = res.json() as { service: string; version: string; adapter_count: number };
     expect(body.service).toBe('social-publisher');
     expect(body.version).toBe(SERVICE_VERSION);
-    expect(body.adapter_count).toBe(8);
+    expect(body.adapter_count).toBe(9);
     await app.close();
   });
 
@@ -89,6 +89,22 @@ describe('Fastify server', () => {
     const body = res.json() as { error: string; issues: unknown[] };
     expect(body.error).toBe('invalid_clip_ready');
     expect(Array.isArray(body.issues)).toBe(true);
+    await app.close();
+  });
+
+  it('POST /v1/publish with whatsapp in policy fans out via the registered adapter', async () => {
+    const waPolicy: SocialPolicy = { default: { goal: ['whatsapp'] } };
+    const app = buildApp({ policy: waPolicy, auditLog: log, logger: false });
+    const res = await app.inject({
+      method: 'POST',
+      url: '/v1/publish',
+      payload: makeClip(),
+    });
+    expect(res.statusCode).toBe(200);
+    const body = res.json() as { results: Array<{ platform: string; status: string; url?: string }> };
+    expect(body.results).toHaveLength(1);
+    expect(body.results[0]?.platform).toBe('whatsapp');
+    expect(body.results[0]?.status).toBe('published');
     await app.close();
   });
 

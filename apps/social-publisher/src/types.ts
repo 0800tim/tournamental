@@ -17,6 +17,7 @@ export const PlatformEnum = z.enum([
   'telegram',
   'discord',
   'reddit',
+  'whatsapp',
 ]);
 export type Platform = z.infer<typeof PlatformEnum>;
 

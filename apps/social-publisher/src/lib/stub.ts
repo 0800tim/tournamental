@@ -39,6 +39,11 @@ export function mockUrl(platform: Platform, externalId: string): string {
       return `https://discord.com/channels/vtorn/${externalId}`;
     case 'reddit':
       return `https://www.reddit.com/r/vtorn/comments/${externalId}`;
+    case 'whatsapp':
+      // WhatsApp group messages have no public permalink. Stub callers
+      // that don't configure the gateway still want a stable URL string,
+      // so we surface a fragment-only marker keyed by the message id.
+      return `https://wa.me/#message-${externalId}`;
   }
 }
 
