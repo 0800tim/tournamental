@@ -436,8 +436,7 @@
   grid-template-columns: 1fr auto 1fr;
   grid-template-areas:
     "home draw away"
-    "scores scores scores"
-    "odds odds odds";
+    "scores scores scores";
   column-gap: 12px;
   row-gap: 8px;
   align-items: center;
@@ -453,8 +452,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "home away"
-    "scores scores"
-    "odds odds";
+    "scores scores";
 }
 
 .mpr-row:focus-visible {
@@ -546,13 +544,6 @@
 .mpr-pick.is-selected .mpr-pick-pct {
   color: #e6edf3;
   font-weight: 700;
-}
-
-.mpr-odds-cta {
-  grid-area: odds;
-  justify-self: stretch;
-  display: flex;
-  justify-content: center;
 }
 
 .mpr-scores-wrap {
@@ -879,4 +870,58 @@
   padding: 4px 0 8px 0;
   border-bottom: 1px dashed rgba(255, 255, 255, 0.06);
   margin-bottom: 8px;
+}
+
+/* Auto-pick confirmation modal --------------------------------------- */
+.bracket-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 17, 0.78);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 50;
+  animation: bracket-modal-fade 120ms ease-out;
+}
+.bracket-modal {
+  width: 100%;
+  max-width: 480px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  animation: bracket-modal-pop 160ms cubic-bezier(0.2, 0.9, 0.4, 1.2);
+}
+.bracket-modal-title {
+  margin: 0 0 12px 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: -0.01em;
+}
+.bracket-modal-body {
+  margin: 0 0 12px 0;
+  color: #cbd5e1;
+  line-height: 1.5;
+  font-size: 15px;
+}
+.bracket-modal-body strong {
+  color: #f8fafc;
+}
+.bracket-modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+@keyframes bracket-modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes bracket-modal-pop {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
 }

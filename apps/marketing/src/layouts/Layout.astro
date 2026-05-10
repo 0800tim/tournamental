@@ -58,8 +58,28 @@ const absoluteOgImage = ogImage.startsWith("http")
         is honoured by Telegram's instant-view legacy spec. */}
     <meta name="telegram:channel" content="@vtourn" />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="theme-color" content="#0a0e1a" />
-    <meta name="color-scheme" content="dark" />
+    <meta id="vt-theme-color" name="theme-color" content="#0a0e1a" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline>
+      // Apply the user's theme choice before first paint to avoid a
+      // FOUC. State is one of "system" | "light" | "dark"; system
+      // resolves to OS preference. Mirrors localStorage key
+      // "vtourn:theme" — see Header.astro for the toggle UI.
+      (function () {
+        try {
+          var raw = localStorage.getItem("vtourn:theme");
+          var state = raw === "light" || raw === "dark" || raw === "system" ? raw : "system";
+          var resolved = state === "system"
+            ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
+            : state;
+          document.documentElement.setAttribute("data-theme", resolved);
+          var mc = document.getElementById("vt-theme-color");
+          if (mc) mc.setAttribute("content", resolved === "light" ? "#f5f7fc" : "#0a0e1a");
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
   </head>
   <body class="min-h-screen flex flex-col">
     <Header />

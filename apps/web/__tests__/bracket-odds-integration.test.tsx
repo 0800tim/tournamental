@@ -35,6 +35,23 @@ beforeEach(() => {
     if (url.includes("/api/odds/country")) {
       return Promise.resolve(jsonResponse({ country: "US" }));
     }
+    if (url.includes("/api/odds/snapshot")) {
+      // Bulk snapshot — BracketBuilder fetches once on mount and
+      // distributes via the oddsByMatch Map.
+      const matches: MatchOdds[] = tournament.group_fixtures.map((f) => ({
+        matchNo: String(f.match_no),
+        homeTeam: "MEX",
+        awayTeam: "RSA",
+        homeWin: 0.5,
+        draw: 0.3,
+        awayWin: 0.2,
+        source: "polymarket",
+        updatedAt: new Date().toISOString(),
+      }));
+      return Promise.resolve(
+        jsonResponse({ matches, source: "polymarket", updatedAt: new Date().toISOString() }),
+      );
+    }
     if (url.includes("/api/odds/match/")) {
       // Extract matchNo from URL.
       const match = url.match(/\/api\/odds\/match\/([^/?]+)/);
@@ -74,74 +91,63 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Bracket page — odds chip integration", () => {
-  it("renders an odds chip next to every group match row", async () => {
+describe("Bracket page — match-row inline odds integration", () => {
+  it("renders three inline W/D/L percentages under each group match row", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
 
-    // Wait for at least one chip to resolve.
+    // Wait for the bulk snapshot to land and the rows to fill in their
+    // inline percentages (the home pct cell goes from "—" to "50%").
     await waitFor(() => {
-      const chips = container.querySelectorAll('[data-mpr-odds] [role="button"]');
-      expect(chips.length).toBeGreaterThan(0);
+      const homePct = container.querySelector(
+        '.mpr-pick-home .mpr-pick-pct',
+      ) as HTMLElement | null;
+      if (!homePct) throw new Error("no home pct cell");
+      if (homePct.textContent?.includes("—")) throw new Error("still loading");
+      return true;
     });
-    // Each group has 6 matches × 12 groups = 72 group-stage chips.
-    const chips = container.querySelectorAll('[data-mpr-odds] [role="button"]');
-    expect(chips.length).toBe(72);
+
+    // 12 groups × 6 fixtures = 72 group-stage rows; each has three pct cells.
+    const homePcts = container.querySelectorAll(".mpr-pick-home .mpr-pick-pct");
+    const drawPcts = container.querySelectorAll(".mpr-pick-draw .mpr-pick-pct");
+    const awayPcts = container.querySelectorAll(".mpr-pick-away .mpr-pick-pct");
+    expect(homePcts.length).toBe(72);
+    expect(drawPcts.length).toBe(72);
+    expect(awayPcts.length).toBe(72);
+    expect(homePcts[0]?.textContent).toMatch(/50%/);
+    expect(drawPcts[0]?.textContent).toMatch(/30%/);
+    expect(awayPcts[0]?.textContent).toMatch(/20%/);
   });
 
-  it("hover-card opens on Enter and shows three rows (Home, Draw, Away)", async () => {
+  it("does not render the legacy in-row OddsChip block", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
-
-    // Wait for the chip to leave the loading state — only then is the
-    // hover-card rendered into the tree.
-    const firstChip = await waitFor(() => {
-      const c = container.querySelector('[data-mpr-odds] [role="button"]') as HTMLElement | null;
-      if (!c) throw new Error("no chip");
-      if (c.getAttribute("data-state") !== "ok") throw new Error("loading");
-      return c;
-    });
-
-    fireEvent.keyDown(firstChip, { key: "Enter" });
-
     await waitFor(() => {
-      expect(firstChip.getAttribute("aria-expanded")).toBe("true");
+      const homePct = container.querySelector(
+        '.mpr-pick-home .mpr-pick-pct',
+      ) as HTMLElement | null;
+      if (!homePct || homePct.textContent?.includes("—")) {
+        throw new Error("still loading");
+      }
+      return true;
     });
-
-    // The popover sibling is now data-open="true".
-    const tooltip = await waitFor(() => {
-      const t = container.querySelector('[role="tooltip"][data-open="true"]') as HTMLElement | null;
-      if (!t) throw new Error("no tooltip yet");
-      return t;
-    });
-
-    // Three .cardRow elements (home, draw, away) sum to 100%.
-    const rows = tooltip.querySelectorAll('[data-side="home"], [data-side="draw"], [data-side="away"]');
-    expect(rows.length).toBe(3);
-    const pcts = Array.from(rows).map((r) => {
-      const m = r.textContent?.match(/(\d+)%/);
-      return m ? Number(m[1]) : 0;
-    });
-    const total = pcts.reduce((a, b) => a + b, 0);
-    expect(total).toBe(100);
+    // The duplicate per-row OddsChip wrapper is gone — odds are inline
+    // under each pick now.
+    expect(container.querySelector("[data-mpr-odds]")).toBeNull();
+    expect(container.querySelector(".mpr-odds-cta")).toBeNull();
   });
 
-  it("chip co-exists with the existing match-row buttons (no a11y regression)", async () => {
+  it("clicking a flag pick toggles aria-pressed on the row", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     await waitFor(() => {
-      expect(container.querySelectorAll('[data-mpr-odds] [role="button"]').length).toBeGreaterThan(0);
+      expect(container.querySelector(".mpr-row")).not.toBeNull();
     });
 
     const firstRow = container.querySelector(".mpr-row") as HTMLElement;
-    expect(firstRow).not.toBeNull();
-    // Original outcome buttons still present — Home Win / Draw / Away Win.
-    // Find them by their CSS class (set by MatchPredictionRow) so we
-    // don't tangle with the chip's `role="button"` sibling.
     const homeBtn = firstRow.querySelector(".mpr-pick-home") as HTMLButtonElement;
     const drawBtn = firstRow.querySelector(".mpr-pick-draw") as HTMLButtonElement;
     const awayBtn = firstRow.querySelector(".mpr-pick-away") as HTMLButtonElement;
     expect(homeBtn).not.toBeNull();
     expect(drawBtn).not.toBeNull();
     expect(awayBtn).not.toBeNull();
-    // Existing click behaviour still works.
     fireEvent.click(homeBtn);
     expect(homeBtn.getAttribute("aria-pressed")).toBe("true");
   });

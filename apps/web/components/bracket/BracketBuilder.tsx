@@ -30,6 +30,7 @@ import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useCountry } from "@/lib/odds/use-country";
+import type { MatchOdds } from "@/lib/odds/types";
 
 export interface BracketBuilderProps {
   readonly tournament: Tournament;
@@ -53,6 +54,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [tab, setTab] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
+  const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
+  const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
+    () => new Map(),
+  );
   const country = useCountry();
 
   useEffect(() => {
@@ -62,6 +67,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (draft) setBracket(draft);
     else setBracket({ ...emptyBracket(), bracketId: id });
   }, [tournament.id]);
+
+  // Bulk-fetch odds once on mount so every MatchPredictionRow can show
+  // its W/D/L percentages inline without 72 individual requests. The
+  // snapshot route has its own deterministic mock fallback when the
+  // upstream odds-ingest service is unreachable.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (cancelled || !j || !Array.isArray(j.matches)) return;
+        const m = new Map<string, MatchOdds>();
+        for (const o of j.matches as MatchOdds[]) m.set(String(o.matchNo), o);
+        setOddsByMatch(m);
+      })
+      .catch(() => {
+        /* leave empty; rows render dashes until/unless odds load */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const teamMap = useMemo(
     () => new Map(tournament.teams.map((t) => [t.id, t])),
@@ -123,9 +150,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   /**
-   * Auto-pick — for every match that doesn't already have a user pick,
-   * fetch the live odds via /api/odds/snapshot and select the highest
-   * probability outcome. The user's existing picks are preserved.
+   * Auto-pick — fetch live odds via /api/odds/snapshot and set every
+   * match to the current favourite. Overwrites existing picks (the
+   * confirmation modal warns the user before this runs); the user can
+   * still adjust any pick afterwards.
    *
    * Knockout slots that don't yet have both teams resolved (because the
    * upstream group/round hasn't been picked) get skipped; auto-pick fills
@@ -133,6 +161,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
    * again, OR when the cascade resolves them mid-loop.
    */
   const handleAutoPick = async (): Promise<void> => {
+    setShowAutoPickConfirm(false);
     setSubmitState("auto-picking from live odds…");
     let snap: { matches: Array<{ matchNo: string; homeWin: number; draw: number | null; awayWin: number }>; source?: string } | null = null;
     try {
@@ -155,7 +184,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // Group fixtures.
     for (const f of tournament.group_fixtures) {
       const id = String(f.match_no);
-      if (next.matchPredictions[id]) continue;
       const o = byNo.get(id);
       if (!o) continue;
       const h = o.homeWin;
@@ -177,7 +205,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // Knockouts (only those whose home + away are already resolved by the
     // current cascade; otherwise we'd be picking blind).
     for (const k of cascaded.knockouts) {
-      if (next.knockoutPredictions[k.id]) continue;
       if (!k.home.team || !k.away.team) continue;
       const o = byNo.get(k.id);
       if (!o) {
@@ -278,9 +305,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
         <button
           type="button"
           className="bracket-tab bracket-tab-autopick"
-          onClick={handleAutoPick}
+          onClick={() => setShowAutoPickConfirm(true)}
           aria-label="Auto-pick from live odds"
-          title="Auto-pick every empty match using current Polymarket odds; you can override any pick afterwards"
+          title="Auto-pick every match to the current Polymarket favourite"
         >
           ⚡ Auto-pick
         </button>
@@ -298,6 +325,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 matchPredictions={bracket.matchPredictions}
                 tiebreaker={bracket.groupTiebreakers[g.id]}
                 country={country}
+                oddsByMatch={oddsByMatch}
                 onChangeMatch={onChangeMatch}
                 onChangeTiebreaker={onChangeTiebreaker}
               />
@@ -394,6 +422,50 @@ export function BracketBuilder(props: BracketBuilderProps) {
             ))}
           </ul>
         </details>
+      )}
+
+      {showAutoPickConfirm && (
+        <div
+          className="bracket-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="autopick-confirm-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAutoPickConfirm(false);
+          }}
+        >
+          <div className="bracket-modal">
+            <h2 id="autopick-confirm-title" className="bracket-modal-title">
+              ⚡ Auto-pick the favourite for every match?
+            </h2>
+            <p className="bracket-modal-body">
+              Auto-pick uses live Polymarket odds to set every match to the
+              current favourite. <strong>Your existing picks will be
+              overwritten.</strong>
+            </p>
+            <p className="bracket-modal-body">
+              You can change any pick afterwards — auto-pick is a starting
+              point, not a lock.
+            </p>
+            <div className="bracket-modal-actions">
+              <button
+                type="button"
+                className="bracket-btn bracket-btn-secondary"
+                onClick={() => setShowAutoPickConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="bracket-btn bracket-btn-primary"
+                onClick={handleAutoPick}
+                autoFocus
+              >
+                Yes, auto-pick favourites
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

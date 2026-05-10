@@ -1,9 +1,9 @@
 /**
  * MatchPredictionRow — one match in the group/knockout stage with the
  * "two big flags + small DRAW pill in the middle" UX. Live W/D/L odds
- * percentages sit under each option, fed by the same /api/odds route
- * that drives the OddsChip hover card (which stays accessible for the
- * affiliate CTA).
+ * percentages sit inline under each option, fed by the parent's bulk
+ * `/api/odds/snapshot` fetch (`odds` prop). When odds are not yet
+ * loaded the percentages render as "—".
  *
  * Tap the home flag → home_win. Tap the away flag → away_win. Tap the
  * DRAW pill → draw (group stage only). Selected option gets a glow
@@ -16,11 +16,10 @@
 
 "use client";
 
-import { useEffect, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useState, type CSSProperties, type KeyboardEvent } from "react";
 
 import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
 
-import { OddsChip } from "../odds/OddsChip";
 import type { MatchOdds } from "@/lib/odds/types";
 import { TeamFlag } from "./TeamFlag";
 
@@ -35,12 +34,12 @@ export interface MatchPredictionRowProps {
   readonly groupLabel?: string;
   readonly kickoffIso?: string;
   readonly country?: string | null;
+  /** Reserved for tests that opt out of the odds-aware UI; currently a
+   * no-op since odds are inline under each pick and there is no longer
+   * a separate per-row OddsChip. */
   readonly showOddsChip?: boolean;
-  /**
-   * Optional pre-fetched odds (shape from `/api/odds/snapshot`). When
-   * provided we render the percentages inline under each option;
-   * otherwise the row falls back to a single OddsChip.
-   */
+  /** Pre-fetched odds (shape from `/api/odds/snapshot`). Rendered
+   * inline as the W/D/L percentages under each pick. */
   readonly odds?: MatchOdds | null;
   readonly onChange: (next: MatchPrediction) => void;
 }
@@ -68,42 +67,13 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     prediction,
     disabled,
     noDraw,
-    groupLabel,
-    kickoffIso,
-    country,
-    showOddsChip = true,
-    odds: oddsProp,
+    odds,
     onChange,
   } = props;
   const [showScores, setShowScores] = useState<boolean>(
     prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
   );
-  const [fetchedOdds, setFetchedOdds] = useState<MatchOdds | null>(null);
 
-  // If no odds were passed in (cards rendered standalone), fetch the
-  // single-match endpoint. Cheap because the route already proxies the
-  // bulk snapshot. Skipped when oddsProp is provided (the page-level
-  // OddsContext path) or when the match is a knockout-without-slots.
-  useEffect(() => {
-    if (oddsProp || !showOddsChip) return;
-    let cancelled = false;
-    fetch(`/api/odds/match/${encodeURIComponent(matchId)}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (cancelled) return;
-        if (j && typeof j === "object" && "homeWin" in j) setFetchedOdds(j as MatchOdds);
-      })
-      .catch(() => {
-        /* leave fetchedOdds null; the OddsChip hover card has its own fallback */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [matchId, oddsProp, showOddsChip]);
-
-  const odds = oddsProp ?? fetchedOdds;
   const outcomes = noDraw ? ALL_OUTCOMES.filter((o) => o !== "draw") : ALL_OUTCOMES;
 
   const choose = (outcome: MatchPrediction["outcome"]): void => {
@@ -231,23 +201,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           {pctLabel(odds?.awayWin)}
         </span>
       </button>
-
-      {showOddsChip && (
-        <div className="mpr-odds-cta" data-mpr-odds="">
-          <OddsChip
-            matchNo={matchId}
-            homeTeam={homeTeam.id}
-            awayTeam={awayTeam.id}
-            homeLabel={homeTeam.name}
-            awayLabel={awayTeam.name}
-            noDraw={noDraw}
-            groupLabel={groupLabel}
-            kickoffIso={kickoffIso}
-            country={country}
-            source="bracket-match-row"
-          />
-        </div>
-      )}
 
       <div className="mpr-scores-wrap">
         <button
