@@ -81,31 +81,19 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
     "--km-away-accent": awayTeam?.kit?.primary ?? "#3b82f6",
   } as CSSProperties;
 
-  // Inline `backgroundImage` rather than a CSS variable so consumers that
-  // disable JS-rendered flag bg (e.g. a future "data-saver" mode) can opt
-  // out by short-circuiting this attribute alone. The CSS pseudo-element
-  // overlay still sits above this layer for legibility.
-  const homeBgStyle: CSSProperties | undefined =
-    homeWin && homeTeam
-      ? { backgroundImage: `url(/flags/${homeTeam.id}.svg)` }
-      : undefined;
-  const awayBgStyle: CSSProperties | undefined =
-    awayWin && awayTeam
-      ? { backgroundImage: `url(/flags/${awayTeam.id}.svg)` }
-      : undefined;
+  // Apply the flag as the cell background regardless of selection state.
+  // The selected side gets a thicker accent border + brighter scrim; the
+  // unselected side gets a heavier dark scrim + reduced opacity to read
+  // as clearly inactive. (See bracket.css for both treatments.)
+  const homeBgStyle: CSSProperties | undefined = homeTeam
+    ? { backgroundImage: `url(/flags/${homeTeam.id}.svg)` }
+    : undefined;
+  const awayBgStyle: CSSProperties | undefined = awayTeam
+    ? { backgroundImage: `url(/flags/${awayTeam.id}.svg)` }
+    : undefined;
 
-  // Idle hover-preview: show a faded version of the flag behind the cell
-  // when the user's pointer is over an unpicked side. Uses CSS variables
-  // so the rule lives in stylesheet, but we still inject the URL inline
-  // because Next can't generate dynamic CSS at build time.
-  const homePreview: CSSProperties | undefined =
-    !homeWin && homeTeam
-      ? ({ "--km-flag-preview": `url(/flags/${homeTeam.id}.svg)` } as CSSProperties)
-      : undefined;
-  const awayPreview: CSSProperties | undefined =
-    !awayWin && awayTeam
-      ? ({ "--km-flag-preview": `url(/flags/${awayTeam.id}.svg)` } as CSSProperties)
-      : undefined;
+  const homePreview: CSSProperties | undefined = undefined;
+  const awayPreview: CSSProperties | undefined = undefined;
 
   return (
     <div className="km-card" data-match-id={knockout.id} style={accent}>

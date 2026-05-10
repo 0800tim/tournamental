@@ -977,72 +977,90 @@
   opacity: 0.55;
 }
 
-/* Selected cells — flag fills the cell; a dark scrim sits between flag
- * and content so the team name + odds chip stay legible regardless of
- * the flag's lightest region (Brazil yellow, Argentina white, etc). */
-.km-team.is-winner {
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.18);
-  font-weight: 700;
-}
+/* Both sides show the team's flag as a full-bleed background; the
+ * selected/unselected treatment differs in scrim weight, opacity, and
+ * border. (See KnockoutMatch.tsx — backgroundImage is inlined on every
+ * cell that has a known team.) */
 
-.km-team.is-winner::after {
+/* The dark scrim that keeps text legible over any flag region (Brazil
+ * yellow, Argentina white, Spain red, France blue all verified ≥4.5:1). */
+.km-team::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    180deg,
-    rgba(0, 0, 0, 0.15) 0%,
-    rgba(0, 0, 0, 0.35) 45%,
-    rgba(0, 0, 0, 0.65) 100%
-  );
   z-index: 0;
   pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.20) 0%,
+    rgba(0, 0, 0, 0.40) 45%,
+    rgba(0, 0, 0, 0.65) 100%
+  );
+  transition: background 160ms ease;
 }
 
-/* The selected cell uses the team's kit colour as a 2px inner accent
- * ring — same idea as the existing MPR pattern. */
-.km-team.km-home.is-winner {
-  box-shadow: inset 0 0 0 2px var(--km-home-accent, #fbbf24);
-}
-.km-team.km-away.is-winner {
-  box-shadow: inset 0 0 0 2px var(--km-away-accent, #3b82f6);
+/* Unselected: dimmer + heavier scrim + slightly desaturated flag. The
+ * cell still reads as the team — Tim wants the flag visible — but it's
+ * obviously not the user's pick. */
+.km-team:not(.is-winner) {
+  color: rgba(226, 232, 240, 0.85);
+  font-weight: 500;
+  border-color: rgba(255, 255, 255, 0.06);
+  filter: saturate(0.7) brightness(0.78);
 }
 
-/* All children (flag chip, label, info badge) need to sit above the
- * scrim, which is at z-index: 0. */
+.km-team:not(.is-winner)::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.40) 0%,
+    rgba(0, 0, 0, 0.55) 45%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+}
+
+/* Selected: brighter, no desaturation, thicker yellow border ring,
+ * heavier shadow. The yellow is the platform's signal-of-pick colour
+ * (matches the OddsChip "winner" state and the bracket-tree highlight). */
+.km-team.is-winner {
+  color: #ffffff;
+  font-weight: 800;
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow:
+    inset 0 0 0 4px #fbbf24,
+    0 6px 16px rgba(251, 191, 36, 0.20),
+    0 0 0 1px rgba(251, 191, 36, 0.6);
+  transform: translateZ(0);
+  filter: none;
+}
+
+.km-team.is-winner::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.10) 0%,
+    rgba(0, 0, 0, 0.25) 45%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+}
+
+/* Hover on an unselected cell un-dims it briefly so the user previews
+ * what selecting will look like. */
+.km-team:not(.is-winner):not([disabled]):hover,
+.km-team:not(.is-winner):not([disabled]):focus-visible {
+  filter: saturate(0.95) brightness(0.95);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+/* All children (flag chip, label, info badge) sit above the scrim. */
 .km-team > * {
   position: relative;
   z-index: 1;
 }
 
-/* Idle hover-preview: a faded flag image hints at what selecting will
- * look like. CSS variable `--km-flag-preview` is set inline in JSX when
- * the cell has a known team and isn't selected. */
-.km-team:not(.is-winner):not([disabled]):hover::before,
-.km-team:not(.is-winner):not([disabled]):focus-visible::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-image: var(--km-flag-preview, none);
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.28;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: inherit;
-}
-
 @media (prefers-reduced-motion: reduce) {
-  /* Skip the hover-preview entirely — Tim's a11y standing rule says
-   * reduce-motion users get the static idle state, no animated reveal. */
-  .km-team:not(.is-winner):not([disabled]):hover::before,
-  .km-team:not(.is-winner):not([disabled]):focus-visible::before {
-    content: none;
-  }
   .km-card,
-  .km-team {
+  .km-team,
+  .km-team::after {
     transition: none;
   }
 }
