@@ -32,7 +32,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument(
         "--match-id",
         default=DEFAULT_MATCH_SLUG,
-        help="VTourn match slug to embed in MatchInit (default: AR-FR final).",
+        help="Tournamental match slug to embed in MatchInit (default: AR-FR final).",
     )
     p.add_argument(
         "--statsbomb-data",

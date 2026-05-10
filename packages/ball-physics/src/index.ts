@@ -1,5 +1,5 @@
 /**
- * @vtorn/ball-physics — ball trajectory + physics for VTourn renderers.
+ * @vtorn/ball-physics — ball trajectory + physics for Tournamental renderers.
  *
  * Public surface:
  *

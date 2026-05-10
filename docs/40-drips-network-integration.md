@@ -6,13 +6,13 @@
 
 ## Why this exists
 
-VTourn is Apache-2.0 licensed. Per the pitch and README, contributors —
-human or agent — share VTourn Holdings' platform revenue through
+Tournamental is Apache-2.0 licensed. Per the pitch and README, contributors —
+human or agent — share Tournamental Holdings' platform revenue through
 [Drips Network](https://drips.network). Drips is an Ethereum protocol for
 funding open-source projects: a "Drip List" maps recipient wallets to
 weighted shares, and senders stream or push payouts proportionally.
 
-`apps/drips-bridge` is the bridge between VTourn's internal accounting (who
+`apps/drips-bridge` is the bridge between Tournamental's internal accounting (who
 contributed, how much each share is worth this period, which receipts to
 distribute) and the on-chain Drip List that actually pays people. Keeping
 this in its own service means:
@@ -199,4 +199,4 @@ Postgres (one table per record kind, primary key on `(id, op_seq)`).
 - **Receipts ingestion**: a downstream service (or webhook from Stripe /
   affiliate router) creates the distribution automatically at month end.
 
-Refs: README, VTourn Pitch.md, docs/21, AGENT-PROMPTS.md.
+Refs: README, Tournamental Pitch.md, docs/21, AGENT-PROMPTS.md.

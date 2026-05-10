@@ -13,7 +13,7 @@
  * env var. Defaults to `mock` so a misconfigured deploy never silently
  * spams a customer's CRM.
  *
- * GHL contact identity: VTourn's `userId` is the durable key. We surface
+ * GHL contact identity: Tournamental's `userId` is the durable key. We surface
  * it as the `vtourn_user_id` custom field. The mock echoes the userId back
  * as the contactId; the real client uses GHL's `/contacts/upsert` response
  * which is keyed off email/phone (the upsert is GHL's contract for
@@ -44,7 +44,7 @@ export type GhlCustomFieldKey =
 export type GhlCustomFields = Partial<Record<GhlCustomFieldKey, string | number>>;
 
 export interface GhlContactUpsert {
-  /** VTourn user id; surfaced as the vtourn_user_id custom field. */
+  /** Tournamental user id; surfaced as the vtourn_user_id custom field. */
   userId: string;
   email?: string;
   phone?: string;
@@ -289,7 +289,7 @@ export interface GhlFailedCallRecord {
     | 'get_contact';
   /** Best-effort GHL contact id, where known. */
   contactId?: string;
-  /** Originating VTourn user id, where known. */
+  /** Originating Tournamental user id, where known. */
   userId?: string;
   /** Original payload so the operation can be replayed verbatim. */
   payload: Record<string, unknown>;
@@ -352,7 +352,7 @@ export class RealGhlClient implements GhlClient {
     });
     const body: Record<string, unknown> = {
       locationId: this.locationId,
-      source: input.source ?? 'vtourn-crm-bridge',
+      source: input.source ?? 'tournamental-crm-bridge',
     };
     if (input.email) body.email = input.email;
     if (input.phone) body.phone = input.phone;

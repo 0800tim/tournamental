@@ -23,7 +23,7 @@ const ALWAYS_OK = new Set([
   'localhost',
   '127.0.0.1',
   '0.0.0.0',
-  'vtourn.com',
+  'tournamental.com',
   'aiva.nz',
   'github.com',
   'tools.ietf.org',

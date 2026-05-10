@@ -1,4 +1,4 @@
--- 0001_init.sql — initial schema for the VTourn game service (docs/12).
+-- 0001_init.sql — initial schema for the Tournamental game service (docs/12).
 --
 -- Why SQLite: docs/12 specifies "no SQL — flat files + KV" for the
 -- production gamification layer. This service is the *write authority*

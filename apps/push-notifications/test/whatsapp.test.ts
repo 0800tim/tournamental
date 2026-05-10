@@ -252,7 +252,7 @@ describe('WhatsAppPushSender', () => {
     const result = await sender.send(
       'u1',
       '+64211234567',
-      { body: 'kickoff in 30', url: 'https://vtourn.com/match/M1' },
+      { body: 'kickoff in 30', url: 'https://tournamental.com/match/M1' },
       'kickoff_soon',
     );
     expect(result.ok).toBe(true);

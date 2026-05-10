@@ -1,12 +1,12 @@
-# WC2022 Final ARG-FRA - VTourn English Commentary
+# WC2022 Final ARG-FRA - Tournamental English Commentary
 
-Generated from StatsBomb event stream + VTourn narrator template.
+Generated from StatsBomb event stream + Tournamental narrator template.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 
 ---
 
 [L0001 · -03:00 · open] Benvenuti allo Stadio Lusail per la Finale della Coppa del Mondo FIFA, Argentina contro Francia.
-[L0002 · -02:56 · open] Io sono il vostro commentatore di VTourn e questa sera è la notte che tutti stavamo aspettando.
+[L0002 · -02:56 · open] Io sono il vostro commentatore di Tournamental e questa sera è la notte che tutti stavamo aspettando.
 [L0003 · -02:53 · scene] Ottantanovemila presenti, due miliardi a guardare in tutto il mondo.
 [L0004 · -02:49 · scene] Argentina, finalista per la sesta volta. Francia, i detentori, in cerca di un bis.
 [L0005 · -02:46 · scene] Sono passati quattordici anni da quando l'Argentina ha raggiunto l'ultima volta questa fase. Quarantaquattro da quando l'ha ospitata e vinta.
@@ -2966,7 +2966,7 @@ Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 [L2959 · 128:31 · trophy] MESSI HA LA COPPA DEL MONDO!
 [L2960 · 128:35 · trophy] Lo Stadio Lusail non ha smesso di ruggire per dieci minuti.
 [L2961 · 128:39 · trophy] E il resto è storia.
-[L2962 · 128:43 · wrap] Da parte di tutti noi di VTourn, che onore commentare questa partita.
+[L2962 · 128:43 · wrap] Da parte di tutti noi di Tournamental, che onore commentare questa partita.
 [L2963 · 128:47 · wrap] Argentina, campioni del mondo, duemilaventidue.
 [L2964 · 128:51 · wrap] Messi, finalmente, mette le mani sul trofeo.
 [L2965 · 128:55 · wrap] Fino alla prossima volta. Buonanotte da Lusail.

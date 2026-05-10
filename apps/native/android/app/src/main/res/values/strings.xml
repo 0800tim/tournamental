@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">VTourn</string>
-    <string name="title_activity_main">VTourn</string>
-    <string name="package_name">com.vtourn.app</string>
-    <string name="custom_url_scheme">com.vtourn.app</string>
+    <string name="app_name">Tournamental</string>
+    <string name="title_activity_main">Tournamental</string>
+    <string name="package_name">com.tournamental.app</string>
+    <string name="custom_url_scheme">com.tournamental.app</string>
 </resources>

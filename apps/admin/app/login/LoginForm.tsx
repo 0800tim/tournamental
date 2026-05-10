@@ -44,7 +44,7 @@ export function LoginForm({ next, disabled }: { next: string; disabled: boolean 
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         disabled={disabled}
-        placeholder="you@vtourn.com"
+        placeholder="you@tournamental.com"
         className="bg-ink-900 border border-ink-700 rounded px-3 py-2 text-ink-50 focus:outline-none focus:ring-2 focus:ring-accent-500 disabled:opacity-50"
       />
       {err && <div className="text-xs text-danger-500">{err}</div>}

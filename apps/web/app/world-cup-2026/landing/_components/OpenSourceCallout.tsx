@@ -8,7 +8,7 @@ export function OpenSourceCallout() {
     <div className="wc-oss">
       <h2>Built in public.</h2>
       <p>
-        VTourn is open source under Apache 2.0. Contributors share platform
+        Tournamental is open source under Apache 2.0. Contributors share platform
         revenue via Drips Network. Read the spec, file an issue, ship a
         feature — every commit is verifiable.
       </p>
@@ -17,7 +17,7 @@ export function OpenSourceCallout() {
         href="https://github.com/0800tim/vtorn"
         target="_blank"
         rel="noopener noreferrer"
-        aria-label="Star and watch the VTourn repo on GitHub"
+        aria-label="Star and watch the Tournamental repo on GitHub"
       >
         <svg
           width="18"

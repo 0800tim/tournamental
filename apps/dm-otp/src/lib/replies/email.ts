@@ -51,7 +51,7 @@ export async function sendEmailMagicLink(
   const body = buildRfc822({
     from: fromHeader,
     to: opts.to,
-    subject: 'Your VTourn login link',
+    subject: 'Your Tournamental login link',
     text: magicLinkEmailBody(linkUrl),
   });
   try {
@@ -172,7 +172,7 @@ export class MinimalSmtp implements SmtpClientLike {
 
     try {
       await expect('220');
-      write(`EHLO vtourn.com\r\n`);
+      write(`EHLO tournamental.com\r\n`);
       await expect('250');
 
       if (!useImplicitTls) {

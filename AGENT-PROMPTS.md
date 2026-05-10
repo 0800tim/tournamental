@@ -2,7 +2,7 @@
 
 > Six concrete prompts. **Use the orchestrator prompt first** — it does Phase 0 setup, freezes the spec, and dispatches the parallel builders. Then use the builder prompts in parallel terminals (Claude Code, Cursor, Aider, etc.). The reviewer prompt runs against open PRs.
 
-Each prompt is self-contained and assumes the agent has been dropped into the repo at `/path/to/SimulatedSports/` (working folder name; brand is VTourn). The prompts reference [CLAUDE.md](CLAUDE.md) for shared operational discipline so they stay short.
+Each prompt is self-contained and assumes the agent has been dropped into the repo at `/path/to/SimulatedSports/` (working folder name; brand is Tournamental). The prompts reference [CLAUDE.md](CLAUDE.md) for shared operational discipline so they stay short.
 
 ---
 
@@ -11,11 +11,11 @@ Each prompt is self-contained and assumes the agent has been dropped into the re
 > **Use this first.** Run a single instance of this. It does Phase 0 setup, locks the spec, dispatches Phase 1 builder agents, and reviews their PRs.
 
 ```
-You are the VTourn project orchestrator. You are dropped into the repo at the
+You are the Tournamental project orchestrator. You are dropped into the repo at the
 working directory; explore it.
 
 YOUR JOB
-1. Read CLAUDE.md, REVIEW.md, README.md, VTourn Pitch.md, and docs/01–09 in order.
+1. Read CLAUDE.md, REVIEW.md, README.md, Tournamental Pitch.md, and docs/01–09 in order.
    Do NOT read 10–21 unless a builder agent's question requires it. Building
    shared context is your job; reading the whole pack is not — REVIEW.md
    summarises everything.
@@ -72,7 +72,7 @@ DELIVERABLE THIS SESSION
 ```
 You are a code agent building apps/statsbomb-replay/.
 
-REPO ROOT: VTourn (working folder name "SimulatedSports").
+REPO ROOT: Tournamental (working folder name "SimulatedSports").
 
 START HERE
 1. Read CLAUDE.md (especially the agent operations protocol).
@@ -170,7 +170,7 @@ START HERE
 WHAT YOU'RE BUILDING
 A Next.js 14 (app router) + React Three Fiber app at apps/web/ that:
 - Routes:
-    /                       — landing page placeholder ("VTourn — coming soon")
+    /                       — landing page placeholder ("Tournamental — coming soon")
     /match/[id]             — main demo route; mounts the 3D scene
     /replay/[id]            — same scene against an archive manifest URL
 - Components: MatchScene (top-level Canvas), Pitch, Player, Ball, HUD,
@@ -336,7 +336,7 @@ DON'T
 > **Long-running review agent.** Picks up open PRs, runs the verification checklist, comments, approves or requests changes.
 
 ```
-You are the VTourn reviewer agent. Your job is to keep the merged main
+You are the Tournamental reviewer agent. Your job is to keep the merged main
 branch clean, secure, and spec-conformant by reviewing every PR before
 the orchestrator merges it.
 

@@ -295,7 +295,7 @@ const tournament = {
     notes: [
       "48 teams in 8 groups of 6. Each team plays 3 of its 5 group rivals (Swiss-flavoured short round-robin) for 9 matches per group, 72 group matches total.",
       "Knockouts: R32 (16) + R16 (8) + QF (4) + SF (2) + 3rd-place play-off (1) + Final (1) = 32 matches. Total: 104 matches.",
-      "NOTE: official FIFA 2026 format is 12 groups of 4 with a R32. This file uses the VTourn product brief (8 groups of 6). When the official 2026 draw is published, regenerate by replacing team names + kickoff_utc per match. The engine's advancement rules (1st+2nd+wildcard thirds+wildcard fourths) and knockout slot graph stay structurally the same.",
+      "NOTE: official FIFA 2026 format is 12 groups of 4 with a R32. This file uses the Tournamental product brief (8 groups of 6). When the official 2026 draw is published, regenerate by replacing team names + kickoff_utc per match. The engine's advancement rules (1st+2nd+wildcard thirds+wildcard fourths) and knockout slot graph stay structurally the same.",
       "Replace team ids (currently SLOT_01..SLOT_48) with ISO-3166 alpha-3 codes once the draw is performed.",
     ].join(" "),
   },

@@ -17,8 +17,8 @@ interface Props {
 }
 
 const {
-  title = "VTourn — predict the world's biggest matches with your friends",
-  description = "Watch the FIFA World Cup, Six Nations, the Cricket World Cup and any other tournament play out in 3D, predict outcomes for points, run your own pool at yourname.vtourn.com, and climb a global leaderboard.",
+  title = "Tournamental — predict the world's biggest matches with your friends",
+  description = "Watch the FIFA World Cup, Six Nations, the Cricket World Cup and any other tournament play out in 3D, predict outcomes for points, run your own pool at yourname.tournamental.com, and climb a global leaderboard.",
   ogImage = "/og-default.png",
   ogImageWidth = 1200,
   ogImageHeight = 630,
@@ -27,7 +27,7 @@ const {
 const canonicalUrl = Astro.url.href.replace(/\/$/, "");
 const absoluteOgImage = ogImage.startsWith("http")
   ? ogImage
-  : new URL(ogImage, Astro.site ?? "https://vtourn.com").toString();
+  : new URL(ogImage, Astro.site ?? "https://tournamental.com").toString();
 ---
 <!doctype html>
 {/* `data-themed` is a stable attribute for e2e tooling: every layout that
@@ -60,17 +60,17 @@ const absoluteOgImage = ogImage.startsWith("http")
     <meta property="og:image:alt" content={title} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalUrl} />
-    <meta property="og:site_name" content="VTourn" />
+    <meta property="og:site_name" content="Tournamental" />
     <meta property="og:locale" content="en_NZ" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={absoluteOgImage} />
     <meta name="twitter:image:alt" content={title} />
-    <meta name="twitter:site" content="@vtourn" />
+    <meta name="twitter:site" content="@tournamental" />
     {/* Telegram link previews read og:* + twitter:image; the explicit tag below
         is honoured by Telegram's instant-view legacy spec. */}
-    <meta name="telegram:channel" content="@vtourn" />
+    <meta name="telegram:channel" content="@tournamental" />
     <link rel="canonical" href={canonicalUrl} />
     <meta id="vt-theme-color" name="theme-color" content="#0a0e1a" />
     <meta name="color-scheme" content="light dark" />

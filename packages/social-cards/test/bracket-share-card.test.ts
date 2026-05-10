@@ -147,7 +147,7 @@ describe("renderBracketShareCard", () => {
   it("uses the override footer URL when provided", async () => {
     const png = await renderBracketShareCard({
       ...BASE_INPUT,
-      footerUrl: "vtourn.com/world-cup-2026",
+      footerUrl: "tournamental.com/world-cup-2026",
     });
     expect(isPng(png)).toBe(true);
   });

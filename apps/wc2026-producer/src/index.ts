@@ -1,5 +1,5 @@
 /**
- * VTourn 2026 World Cup producer scaffold.
+ * Tournamental 2026 World Cup producer scaffold.
  *
  * Two modes:
  *   - replay-mode: emit a spec-conformant stream by replaying a historic

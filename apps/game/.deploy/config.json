@@ -12,5 +12,5 @@
     "/healthz",
     "/v1/leaderboards/global?limit=10"
   ],
-  "warmBase": "https://game.vtourn.com"
+  "warmBase": "https://game.tournamental.com"
 }

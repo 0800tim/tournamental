@@ -1,14 +1,14 @@
 # 22 — Deployment, environments, and tunnels
 
-> Where VTourn runs, what URLs it serves, what ports back them, and how dev / staging / production differ. Read this if you're touching infrastructure, adding a service, or need to know which URL to point a client at.
+> Where Tournamental runs, what URLs it serves, what ports back them, and how dev / staging / production differ. Read this if you're touching infrastructure, adding a service, or need to know which URL to point a client at.
 
 ## Three environments
 
 | Env         | Purpose                                                    | DNS owner          | Hosting target                                       |
 | ----------- | ---------------------------------------------------------- | ------------------ | ---------------------------------------------------- |
 | **dev**     | Day-to-day development on Tim's dev server (this machine). | Cloudflare aiva.nz | This server, exposed via the existing aiva.nz tunnel |
-| **staging** | Pre-production validation against real-world conditions.   | Cloudflare vtourn.com | This server (initially), then a dedicated staging box |
-| **prod**    | Public site. Users live here.                              | Cloudflare vtourn.com | Cloudflare Pages (marketing) + dedicated app/API hosts |
+| **staging** | Pre-production validation against real-world conditions.   | Cloudflare tournamental.com | This server (initially), then a dedicated staging box |
+| **prod**    | Public site. Users live here.                              | Cloudflare tournamental.com | Cloudflare Pages (marketing) + dedicated app/API hosts |
 
 **Rule**: a deploy goes `dev → staging → prod`. Never push code straight from local to prod. Staging exists to catch the "works on dev, broken in CDN" class of issue.
 
@@ -16,19 +16,19 @@
 
 | Component        | Dev (today)                                     | Staging (next sprint)                       | Prod (launch)            |
 | ---------------- | ----------------------------------------------- | ------------------------------------------- | ------------------------ |
-| Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.vtourn.com`                          | `vtourn.com`              |
-| App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.vtourn.com`                              | `app.vtourn.com`          |
-| Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.vtourn.com/ws`)  | `wss://app.vtourn.com/ws` |
-| Stream fan-out   | `vtorn-stream-fanout.aiva.nz` → `:4002`         | `stream-dev.vtourn.com`                       | `stream.vtourn.com`       |
-| API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtourn.com`                          | `api.vtourn.com`          |
-| Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.vtourn.com`                         | `auth.vtourn.com`          |
-| DM-OTP login     | `vtorn-dm-otp.aiva.nz` → `:3331`                | `dm-dev.vtourn.com`                           | `dm.vtourn.com`            |
-| Admin console    | `vtorn-admin.aiva.nz` → `:3340`                 | `admin-dev.vtourn.com`                        | `admin.vtourn.com`        |
-| Live odds ingest | `vtorn-odds.aiva.nz` → `:3341`                  | `odds-dev.vtourn.com`                         | `odds.vtourn.com`         |
-| Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.vtourn.com`                         | `game.vtourn.com`         |
-| Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.vtourn.com`                          | `aff.vtourn.com`          |
-| VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.vtourn.com`                       | `vstamp.vtourn.com`       |
-| Clip pipeline    | `vtorn-clip.aiva.nz` → `:3380`                  | `clip-dev.vtourn.com`                         | `clip.vtourn.com`         |
+| Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.tournamental.com`                          | `tournamental.com`              |
+| App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.tournamental.com`                              | `app.tournamental.com`          |
+| Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.tournamental.com/ws`)  | `wss://app.tournamental.com/ws` |
+| Stream fan-out   | `vtorn-stream-fanout.aiva.nz` → `:4002`         | `stream-dev.tournamental.com`                       | `stream.tournamental.com`       |
+| API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.tournamental.com`                          | `api.tournamental.com`          |
+| Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.tournamental.com`                         | `auth.tournamental.com`          |
+| DM-OTP login     | `vtorn-dm-otp.aiva.nz` → `:3331`                | `dm-dev.tournamental.com`                           | `dm.tournamental.com`            |
+| Admin console    | `vtorn-admin.aiva.nz` → `:3340`                 | `admin-dev.tournamental.com`                        | `admin.tournamental.com`        |
+| Live odds ingest | `vtorn-odds.aiva.nz` → `:3341`                  | `odds-dev.tournamental.com`                         | `odds.tournamental.com`         |
+| Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.tournamental.com`                         | `game.tournamental.com`         |
+| Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.tournamental.com`                          | `aff.tournamental.com`          |
+| VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.tournamental.com`                       | `vstamp.tournamental.com`       |
+| Clip pipeline    | `vtorn-clip.aiva.nz` → `:3380`                  | `clip-dev.tournamental.com`                         | `clip.tournamental.com`         |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -43,18 +43,18 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/web` (renderer)      | 3300  | Next.js dev. `pnpm dev -- -p 3300`. Tunnel: `vtorn.aiva.nz`.                        |
 | `apps/statsbomb-replay`    | 4001  | WebSocket for the AR-FR producer per docs/11. Tunnel: `vtorn-stream.aiva.nz`.       |
 | `apps/mock-producer`       | 4001 (default) | Same default as statsbomb-replay; only one producer runs at a time during dev. Override with `--port` if running both. |
-| `apps/stream-server`       | 4002  | Fan-out WS + admin REST. Subscribes to one or more producers (default `ws://localhost:4001`) and fans out per-match streams to many subscribers on `/v1/match/:match_id`. Tunnel: `vtorn-stream-fanout.aiva.nz` (dev) / `stream.vtourn.com` (prod). See [`apps/stream-server/README.md`](../apps/stream-server/README.md). |
+| `apps/stream-server`       | 4002  | Fan-out WS + admin REST. Subscribes to one or more producers (default `ws://localhost:4001`) and fans out per-match streams to many subscribers on `/v1/match/:match_id`. Tunnel: `vtorn-stream-fanout.aiva.nz` (dev) / `stream.tournamental.com` (prod). See [`apps/stream-server/README.md`](../apps/stream-server/README.md). |
 | `apps/api`                 | 3310  | Fastify. Tunnel: `vtorn-api.aiva.nz`.                                                |
 | `apps/marketing` (future)  | 3320  | Next.js or Astro. Tunnel: `vtorn-www.aiva.nz`.                                       |
 | `apps/auth-sms`            | 3330  | Fastify (SMS / WhatsApp OTP). Tunnel: `vtorn-auth.aiva.nz`. See [docs/32](32-auth-and-privacy.md). |
 | `apps/dm-otp`              | 3331  | Fastify (DM-OTP login across 16 channels: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, LINE, Viber, Teams, LinkedIn, Signal, Email magic-link). Tunnel: `vtorn-dm-otp.aiva.nz`. |
-| `apps/admin`               | 3340  | Internal admin console (Next.js). Tunnel: `vtorn-admin.aiva.nz` / `admin.vtourn.com`. |
-| `apps/odds-ingest`         | 3341  | Fastify (Polymarket + The Odds API). Tunnel: `vtorn-odds.aiva.nz` / `odds.vtourn.com`. |
-| `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.vtourn.com`. See [docs/12](12-odds-and-predictions.md). |
-| `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.vtourn.com`. |
-| `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.vtourn.com`. |
+| `apps/admin`               | 3340  | Internal admin console (Next.js). Tunnel: `vtorn-admin.aiva.nz` / `admin.tournamental.com`. |
+| `apps/odds-ingest`         | 3341  | Fastify (Polymarket + The Odds API). Tunnel: `vtorn-odds.aiva.nz` / `odds.tournamental.com`. |
+| `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.tournamental.com`. See [docs/12](12-odds-and-predictions.md). |
+| `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.tournamental.com`. |
+| `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.tournamental.com`. |
 | `apps/clip-pipeline`       | 3380  | Fastify + ffmpeg clip render service (per docs/14). Tunnel: `vtorn-clip.aiva.nz`.   |
-| `apps/news-aggregator`     | 3402  | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). Tunnel: `vtorn-news.aiva.nz` / `news.vtourn.com`. |
+| `apps/news-aggregator`     | 3402  | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). Tunnel: `vtorn-news.aiva.nz` / `news.tournamental.com`. |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 
@@ -119,20 +119,20 @@ If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing —
 
 ## Cloudflare Tunnel (staging + prod)
 
-When `vtourn.com` is in Cloudflare under Tim's account, set up a **separate tunnel for vtourn.com** so it has its own credentials and isn't entangled with aiva.nz. Suggested name: `vtorn-prod` (and `vtorn-staging` if a separate machine is used).
+When `tournamental.com` is in Cloudflare under Tim's account, set up a **separate tunnel for tournamental.com** so it has its own credentials and isn't entangled with aiva.nz. Suggested name: `vtorn-prod` (and `vtorn-staging` if a separate machine is used).
 
 ```bash
 # On the host that will run the tunnel:
 cloudflared tunnel login                 # one-time browser auth
 cloudflared tunnel create vtorn-staging
-cloudflared tunnel route dns vtorn-staging dev.vtourn.com
-cloudflared tunnel route dns vtorn-staging preview.vtourn.com
-cloudflared tunnel route dns vtorn-staging api-dev.vtourn.com
+cloudflared tunnel route dns vtorn-staging dev.tournamental.com
+cloudflared tunnel route dns vtorn-staging preview.tournamental.com
+cloudflared tunnel route dns vtorn-staging api-dev.tournamental.com
 # Then write /etc/cloudflared/config.yml with these ingress rules
 sudo systemctl enable --now cloudflared
 ```
 
-Production replaces `staging` with `prod` and the dev hostnames with `vtourn.com`, `app.vtourn.com`, `api.vtourn.com`. The marketing site `vtourn.com` ideally lives on Cloudflare Pages (no tunnel needed) — only the app + API need a tunnel/origin.
+Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `app.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed) — only the app + API need a tunnel/origin.
 
 ## Database snapshots (cross-env)
 
@@ -150,8 +150,8 @@ Every PR touching public surfaces is reviewed against this table.
 
 | Surface                                | Cache policy                                           | Why |
 | -------------------------------------- | ------------------------------------------------------ | --- |
-| Marketing static (`vtourn.com`)          | Edge cache 24h; `Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800` | Mostly-static; rarely changes; SWR keeps perceived perf high during deploys. |
-| Renderer HTML (`app.vtourn.com/match/*`) | `Cache-Control: no-store` for HTML; `Cache-Control: public, max-age=31536000, immutable` for hashed assets | HTML is per-user/per-match; assets are content-addressed. |
+| Marketing static (`tournamental.com`)          | Edge cache 24h; `Cache-Control: public, max-age=86400, s-maxage=86400, stale-while-revalidate=604800` | Mostly-static; rarely changes; SWR keeps perceived perf high during deploys. |
+| Renderer HTML (`app.tournamental.com/match/*`) | `Cache-Control: no-store` for HTML; `Cache-Control: public, max-age=31536000, immutable` for hashed assets | HTML is per-user/per-match; assets are content-addressed. |
 | Renderer WebSocket (`/ws`)             | Cloudflare-bypass; no caching ever                     | Live data. |
 | API hot reads (`/v1/leaderboards/*`)   | Redis layer: 1s–10s TTL; Cache-Control: `public, max-age=5`. Edge cache 5s. | Highly contended; staleness-tolerant; Redis absorbs the bulk. |
 | API user-specific (`/v1/me/*`)         | `Cache-Control: private, no-store`                     | PII. |
@@ -166,7 +166,7 @@ Every PR touching public surfaces is reviewed against this table.
 
 **Performance budgets** (enforced by Playwright + Lighthouse in CI eventually):
 
-- TTFB on `app.vtourn.com/match/*`: < 200ms p95 (cached origin) / < 600ms cold.
+- TTFB on `app.tournamental.com/match/*`: < 200ms p95 (cached origin) / < 600ms cold.
 - LCP on the demo route: < 2.5s on a mid-range 2022 Android over 4G.
 - Renderer steady-state: 60fps, 22 players + ball, with the pitch shadow on.
 - WS lag (producer → renderer first-frame): < 250ms p95 from the same continent.

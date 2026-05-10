@@ -2,7 +2,7 @@
  * Aiva SMS gateway client — re-export shim.
  *
  * The canonical implementation now lives in `@vtorn/aiva-client` so multiple
- * VTourn services (auth-sms, push-notifications, future crm-bridge and
+ * Tournamental services (auth-sms, push-notifications, future crm-bridge and
  * tournament-bot) share one client, one env contract, one set of tests.
  *
  * This file preserves the import path that auth-sms internals + tests already

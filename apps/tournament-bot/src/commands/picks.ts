@@ -6,7 +6,7 @@ import type { Context } from "grammy";
 import type { BotDeps } from "../bots/main.js";
 
 const BRACKET_BASE_URL =
-  process.env.VTOURN_BRACKET_BASE_URL ?? "https://2026wc.vtourn.com";
+  process.env.TOURNAMENTAL_BRACKET_BASE_URL ?? "https://2026wc.tournamental.com";
 
 export async function handlePicks(ctx: Context, deps: BotDeps): Promise<void> {
   if (!ctx.chat) return;
@@ -15,7 +15,7 @@ export async function handlePicks(ctx: Context, deps: BotDeps): Promise<void> {
   if (!user || !user.user_id) {
     await ctx.reply(
       [
-        "You're not paired with a VTourn account yet.",
+        "You're not paired with a Tournamental account yet.",
         "",
         `Open ${BRACKET_BASE_URL} and tap "Sign in with Telegram", or run /start to get a fresh code.`,
       ].join("\n"),

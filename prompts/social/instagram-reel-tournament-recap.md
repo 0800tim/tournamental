@@ -24,7 +24,7 @@ The next one's already open. 🔗 in bio.
 
 In caption:
 ```
-{{tournament.hashtag}} #recap #predictions #VTourn
+{{tournament.hashtag}} #recap #predictions #Tournamental
 ```
 
 In first comment:
@@ -38,7 +38,7 @@ In first comment:
 
 ## CTA
 
-Bio link → `{{cta.url}}` (`https://vtourn.com/r/{{user.id}}?utm_source=instagram&utm_campaign=tournament-recap&utm_content={{campaign.id}}`).
+Bio link → `{{cta.url}}` (`https://tournamental.com/r/{{user.id}}?utm_source=instagram&utm_campaign=tournament-recap&utm_content={{campaign.id}}`).
 
 ## Compliance
 

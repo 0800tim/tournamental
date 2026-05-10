@@ -333,7 +333,7 @@ describe('TournamentBotPushClient', () => {
       ),
     );
     const client = new TournamentBotPushClient({
-      baseUrl: 'https://bot.vtourn.com/',
+      baseUrl: 'https://bot.tournamental.com/',
       secret: 'shh',
       fetchImpl: fetchMock as unknown as typeof fetch,
     });
@@ -350,7 +350,7 @@ describe('TournamentBotPushClient', () => {
     const call = fetchMock.mock.calls[0]!;
     const url = call[0];
     const init = call[1] as RequestInit;
-    expect(String(url)).toBe('https://bot.vtourn.com/v1/push');
+    expect(String(url)).toBe('https://bot.tournamental.com/v1/push');
     const headers = init.headers as Record<string, string>;
     expect(headers['X-Push-Secret']).toBe('shh');
     expect(headers['Content-Type']).toBe('application/json');

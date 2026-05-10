@@ -4,7 +4,7 @@
  * a fake without ever launching a real encoder.
  *
  * Brand colours used by the drawtext overlay are sourced from
- * docs/15-vtourn-brand-and-positioning.md (Tournament Bot palette). Keep
+ * docs/15-tournamental-brand-and-positioning.md (Tournament Bot palette). Keep
  * these in sync if the brand shifts.
  */
 

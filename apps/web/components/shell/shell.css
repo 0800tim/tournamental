@@ -1,6 +1,6 @@
 /* ---------- Design tokens ---------- */
 /*
- * VTourn app-shell theme tokens. Light + dark variants live on
+ * Tournamental app-shell theme tokens. Light + dark variants live on
  * data-theme="…" on the document root; consumers pick up the values
  * via these CSS variables. Brand palette: sky-blue accent, flame-orange
  * accent, emerald-pitch, ink-greys. No new hues introduced here.

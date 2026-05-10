@@ -54,14 +54,14 @@ export const sizes = {
 
 export type CardSize = keyof typeof sizes;
 
-/** VTourn brand wordmark used in every card footer. */
-export const wordmark = "VTourn";
+/** Tournamental brand wordmark used in every card footer. */
+export const wordmark = "Tournamental";
 
 /**
  * Build the referral URL footer text.
  *
  * The referral URL is *part of every card* per the spec: every card has
- * the user's handle + a footer URL pointing to `vtourn.com/r/{user_id}`.
+ * the user's handle + a footer URL pointing to `tournamental.com/r/{user_id}`.
  */
 export function referralUrl(args: {
   userId: string;
@@ -69,7 +69,7 @@ export function referralUrl(args: {
   utmCampaign?: string;
 }): string {
   const { userId, utmSource, utmCampaign } = args;
-  const base = `https://vtourn.com/r/${encodeURIComponent(userId)}`;
+  const base = `https://tournamental.com/r/${encodeURIComponent(userId)}`;
   const params = new URLSearchParams({ utm_source: utmSource });
   if (utmCampaign) params.set("utm_campaign", utmCampaign);
   return `${base}?${params.toString()}`;
@@ -80,5 +80,5 @@ export function referralUrl(args: {
  * no params shown — the QR / link beneath carries the tracking).
  */
 export function referralLabel(userId: string): string {
-  return `vtourn.com/r/${userId}`;
+  return `tournamental.com/r/${userId}`;
 }

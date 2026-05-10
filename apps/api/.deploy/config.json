@@ -12,5 +12,5 @@
     "/healthz",
     "/version"
   ],
-  "warmBase": "https://api.vtourn.com"
+  "warmBase": "https://api.tournamental.com"
 }

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Install VTourn" toast — appears once per device when the browser
+ * "Install Tournamental" toast — appears once per device when the browser
  * fires `beforeinstallprompt`. Stores its dismissal in localStorage so
  * the toast doesn't reappear on every visit.
  *
@@ -86,12 +86,12 @@ export function InstallPrompt() {
   };
 
   return (
-    <div className="vt-install-toast" role="dialog" aria-label="Install VTourn">
+    <div className="vt-install-toast" role="dialog" aria-label="Install Tournamental">
       <div className="vt-install-mark" aria-hidden="true">
         V
       </div>
       <div className="vt-install-body">
-        <p className="vt-install-title">Install VTourn</p>
+        <p className="vt-install-title">Install Tournamental</p>
         <p className="vt-install-sub">
           {iosHint
             ? "Tap share, then \"Add to Home Screen\" for the app experience."

@@ -34,7 +34,7 @@ match metadata and schedules.
 
 ## CTA
 
-Sticker `Link` → `{{cta.url}}` (`https://vtourn.com/r/brand?utm_source=instagram&utm_campaign=bracket-poll&utm_content={{campaign.id}}`).
+Sticker `Link` → `{{cta.url}}` (`https://tournamental.com/r/brand?utm_source=instagram&utm_campaign=bracket-poll&utm_content={{campaign.id}}`).
 
 ## Compliance
 

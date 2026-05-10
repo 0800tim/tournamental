@@ -37,7 +37,7 @@ export async function sendKickoffPush(
   if (push.user_pick) {
     lines.push(`Your pick: ${push.user_pick}.`);
   }
-  lines.push(`Watch: https://2026wc.vtourn.com/match/${push.match_id}`);
+  lines.push(`Watch: https://2026wc.tournamental.com/match/${push.match_id}`);
 
   await bot.api.sendMessage(tgUser.chat_id, lines.join("\n"), {
     parse_mode: "Markdown",

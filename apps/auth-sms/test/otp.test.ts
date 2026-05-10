@@ -80,11 +80,11 @@ describe('otp', () => {
   it('formatSmsBody includes WebOTP suffix on its own line', () => {
     const body = formatSmsBody({
       code: '123456',
-      appHost: 'vtourn.com',
-      productName: 'VTourn',
+      appHost: 'tournamental.com',
+      productName: 'Tournamental',
     });
-    expect(body).toContain('Your VTourn code is 123456');
-    expect(body).toMatch(/@vtourn\.com #123456$/);
+    expect(body).toContain('Your Tournamental code is 123456');
+    expect(body).toMatch(/@tournamental\.com #123456$/);
   });
 
   it('formatWhatsAppBody emphasises the code and notes the expiry', () => {

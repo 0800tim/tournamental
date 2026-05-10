@@ -4,7 +4,7 @@
 
 ## Pattern: one orchestrator + N parallel builders
 
-VTourn's build cadence is sustained at 5-10× a single dev's pace by running multiple specialised builder agents in parallel, with one orchestrator (currently Tim's primary Claude session) coordinating dispatch, merge, and triage.
+Tournamental's build cadence is sustained at 5-10× a single dev's pace by running multiple specialised builder agents in parallel, with one orchestrator (currently Tim's primary Claude session) coordinating dispatch, merge, and triage.
 
 ```
                     ┌──────────────────┐

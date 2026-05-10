@@ -10,7 +10,7 @@
       "affiliate_param_value": "AFFCODE_PLACEHOLDER_polymarket",
       "allowed_countries": ["US", "CA"],
       "offer_text": "Trade your conviction. Sign-up bonus: $20 free trade.",
-      "logo_url": "https://cdn.vtourn.com/partners/polymarket.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/polymarket.svg"
     },
     {
       "id": "bet365",
@@ -34,7 +34,7 @@
         "AU"
       ],
       "offer_text": "Live odds and accumulators on every World Cup match.",
-      "logo_url": "https://cdn.vtourn.com/partners/bet365.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/bet365.svg"
     },
     {
       "id": "sky-nz",
@@ -45,7 +45,7 @@
       "affiliate_param_value": "AFFCODE_PLACEHOLDER_sky_nz",
       "allowed_countries": ["NZ"],
       "offer_text": "Watch every World Cup match live. 4-week tournament pass NZ$14.99.",
-      "logo_url": "https://cdn.vtourn.com/partners/sky-nz.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/sky-nz.svg"
     },
     {
       "id": "espn-plus",
@@ -56,7 +56,7 @@
       "affiliate_param_value": "AFFCODE_PLACEHOLDER_espn_plus",
       "allowed_countries": ["US"],
       "offer_text": "Stream every match plus on-demand replays. From $11.99/mo.",
-      "logo_url": "https://cdn.vtourn.com/partners/espn-plus.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/espn-plus.svg"
     },
     {
       "id": "dazn",
@@ -67,7 +67,7 @@
       "affiliate_param_value": "AFFCODE_PLACEHOLDER_dazn",
       "allowed_countries": ["DE", "IT", "ES", "JP"],
       "offer_text": "Live football, on every screen. Cancel anytime.",
-      "logo_url": "https://cdn.vtourn.com/partners/dazn.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/dazn.svg"
     }
   ]
 }

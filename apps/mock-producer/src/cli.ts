@@ -30,7 +30,7 @@ async function main(argv: string[]): Promise<void> {
   const program = new Command();
   program
     .name("mock-producer")
-    .description("VTourn synthetic match generator (renderer dev fixture)")
+    .description("Tournamental synthetic match generator (renderer dev fixture)")
     .option("--seed <value>", "deterministic RNG seed", "42")
     .option("--match-duration-ms <ms>", "match duration in ms", (v) => parseInt(v, 10), 5_400_000)
     .option("--time-scale <factor>", "wall-clock pace multiplier (1=real time, 10=10x)", (v) => parseFloat(v), 1)

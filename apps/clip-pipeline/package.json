@@ -2,7 +2,7 @@
   "name": "@vtorn/clip-pipeline",
   "version": "0.0.1",
   "private": true,
-  "description": "Highlight detection + ffmpeg clip render service for VTourn social distribution",
+  "description": "Highlight detection + ffmpeg clip render service for Tournamental social distribution",
   "type": "module",
   "bin": {
     "clip-pipeline": "./dist/index.js"

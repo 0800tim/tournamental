@@ -1,6 +1,6 @@
 # 47 — CI/CD pipeline (build slots, atomic swap, fast rebuilds)
 
-> The deploy strategy across the VTourn monorepo. Generalises Sdeal's
+> The deploy strategy across the Tournamental monorepo. Generalises Sdeal's
 > `publish.sh` into a typed, tested, monorepo-aware library + per-app
 > entrypoints + GH Actions workflows.
 
@@ -155,7 +155,7 @@ Every deployable app has `apps/<name>/.deploy/config.json`:
     { "url": "/api/healthz", "label": "health", "maxMs": 1500 }
   ],
   "cacheWarm": ["/", "/world-cup-2026"],
-  "warmBase": "https://app.vtourn.com"
+  "warmBase": "https://app.tournamental.com"
 }
 ```
 
@@ -238,7 +238,7 @@ When we move staging and prod to separate hosts, the "swap" expands:
    feel; the previous host stays warm as the rollback target.
 
 This needs a Cloudflare-API helper similar to
-`infra/scripts/cf-add-vtourn-hosts.sh`. Out of scope for the first PR.
+`infra/scripts/cf-add-tournamental-hosts.sh`. Out of scope for the first PR.
 
 ## Failure modes and recovery
 

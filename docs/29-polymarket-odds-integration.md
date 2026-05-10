@@ -1,6 +1,6 @@
 # Polymarket odds integration
 
-> Live prediction-market odds piped into VTourn as a gamification + social-truth layer. Polymarket is by far the deepest, most-liquid market on the 2026 FIFA World Cup, and its prices are widely cited as the "real" probability of outcomes. Surfacing them in VTourn turns every prediction into a comparison: *the crowd thinks you're underrating Mbappé. Are you sure?*
+> Live prediction-market odds piped into Tournamental as a gamification + social-truth layer. Polymarket is by far the deepest, most-liquid market on the 2026 FIFA World Cup, and its prices are widely cited as the "real" probability of outcomes. Surfacing them in Tournamental turns every prediction into a comparison: *the crowd thinks you're underrating Mbappé. Are you sure?*
 
 ## Why this matters (and why it should be everywhere)
 
@@ -62,7 +62,7 @@ apps/odds-ingest/
     market-store.ts         Postgres upsert (idempotent on market_id)
     clob-snapshot.ts        Pulls CLOB current best-bid/best-ask every 30s for active markets
     ws-listener.ts          Maintains WSS subscription per market_id, fans out via Redis pubsub
-    normalise.ts            Maps Polymarket outcome tokens → VTourn team/player/event ids
+    normalise.ts            Maps Polymarket outcome tokens → Tournamental team/player/event ids
   test/
     normalise.test.ts       Unit tests on token-to-team mapping
     poller.test.ts          Mocked HTTP, asserts dedupe + retry

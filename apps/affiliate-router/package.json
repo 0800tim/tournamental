@@ -2,7 +2,7 @@
   "name": "@vtorn/affiliate-router",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn affiliate router — geo-gated click resolution + audit log for Polymarket, sportsbook, and pay-TV partners",
+  "description": "Tournamental affiliate router — geo-gated click resolution + audit log for Polymarket, sportsbook, and pay-TV partners",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

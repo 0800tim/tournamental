@@ -1,6 +1,6 @@
 /**
  * Fastify HTTP server. Exposes the read API for the bracket page and other
- * VTourn surfaces. CORS is wide-open — these are public, anonymised
+ * Tournamental surfaces. CORS is wide-open — these are public, anonymised
  * prediction-market numbers with no PII.
  */
 

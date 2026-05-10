@@ -2,7 +2,7 @@
   "name": "@vtorn/social-cards",
   "version": "0.1.0",
   "private": true,
-  "description": "Framework-agnostic OG / share card generator for VTourn (satori + @resvg/resvg-js).",
+  "description": "Framework-agnostic OG / share card generator for Tournamental (satori + @resvg/resvg-js).",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

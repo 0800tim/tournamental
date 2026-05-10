@@ -26,14 +26,14 @@ export interface MagicLinkEmail {
 
 export async function sendMagicLink(input: MagicLinkEmail): Promise<{ ok: true } | { ok: false; error: string }> {
   const provider = (process.env.ADMIN_MAILER ?? "log") as MailerProvider;
-  const from = process.env.ADMIN_MAIL_FROM ?? "VTourn Admin <admin@vtourn.com>";
+  const from = process.env.ADMIN_MAIL_FROM ?? "Tournamental Admin <admin@tournamental.com>";
 
-  const subject = "Your VTourn admin sign-in link";
+  const subject = "Your Tournamental admin sign-in link";
   const expMin = Math.max(1, Math.round((input.expiresAt - Date.now()) / 60_000));
   const text = [
     `Hi,`,
     ``,
-    `Click this link to sign in to the VTourn admin console.`,
+    `Click this link to sign in to the Tournamental admin console.`,
     `It expires in ${expMin} minutes and can only be used once.`,
     ``,
     input.url,

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # tools/daily-report-cron.sh
 #
-# VTourn daily-progress-report cron wrapper.
+# Tournamental daily-progress-report cron wrapper.
 #
 # What it does:
 #   1. Resolves the repo root from this script's location.

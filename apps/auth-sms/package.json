@@ -2,7 +2,7 @@
   "name": "@vtorn/auth-sms",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn auth service — SMS (Aiva SMS gateway) + WhatsApp (Baileys) OTP login",
+  "description": "Tournamental auth service — SMS (Aiva SMS gateway) + WhatsApp (Baileys) OTP login",
   "type": "module",
   "main": "dist/index.js",
   "exports": {

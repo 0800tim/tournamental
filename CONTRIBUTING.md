@@ -1,6 +1,6 @@
-# Contributing to VTourn
+# Contributing to Tournamental
 
-> Welcome. VTourn is **100% open source** under Apache 2.0 (code) and CC-BY-4.0 (docs). This guide is for both human contributors and code agents — the workflow is the same. By following it, you keep the project clean enough that anyone can drop in and contribute.
+> Welcome. Tournamental is **100% open source** under Apache 2.0 (code) and CC-BY-4.0 (docs). This guide is for both human contributors and code agents — the workflow is the same. By following it, you keep the project clean enough that anyone can drop in and contribute.
 
 ## TL;DR
 
@@ -168,17 +168,17 @@ Any PR touching `contracts/` (Solidity) requires:
 If you discover a security issue (not just a bug):
 
 - **Do not open a public issue.**
-- Email `security@vtourn.com` (TBD — reserve before launch) or DM the maintainers via Telegram.
+- Email `security@tournamental.com` (TBD — reserve before launch) or DM the maintainers via Telegram.
 - Include a clear reproducer.
 - We commit to acknowledging within 48 hours and patching within 14 days for high-severity issues.
 
-We will publicly credit the reporter unless they prefer to remain anonymous, and (once VTourn Holdings has revenue) issue a bounty proportional to severity from the strategic-reserve fund per [doc 19](docs/19-open-source-and-contributor-revenue.md).
+We will publicly credit the reporter unless they prefer to remain anonymous, and (once Tournamental Holdings has revenue) issue a bounty proportional to severity from the strategic-reserve fund per [doc 19](docs/19-open-source-and-contributor-revenue.md).
 
 ## Contributor revenue share
 
 Code contributors who opt in receive a streaming USDC share of platform revenue via the Drips Network, per [doc 19](docs/19-open-source-and-contributor-revenue.md). To opt in:
 
-1. Register your GitHub username + an Ethereum address at `vtourn.com/contributors/register` (URL active once VTourn Foundation is incorporated).
+1. Register your GitHub username + an Ethereum address at `tournamental.com/contributors/register` (URL active once Tournamental Foundation is incorporated).
 2. After your PR merges, your contribution is auto-scored by `apps/contribution-scorer/` and you appear on the next quarterly score sheet at `payouts/<YYYY>-q<N>.md`.
 3. Drip List updates quarterly; payouts are continuous after the update lands on-chain.
 

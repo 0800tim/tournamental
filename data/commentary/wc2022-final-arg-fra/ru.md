@@ -1,13 +1,13 @@
-# WC2022 Final ARG-FRA - VTourn Commentary [ru]
+# WC2022 Final ARG-FRA - Tournamental Commentary [ru]
 
-Generated from StatsBomb event stream + VTourn narrator template, machine-translated from English.
+Generated from StatsBomb event stream + Tournamental narrator template, machine-translated from English.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 Player names and team names are kept in their original spelling.
 
 ---
 
 [L0001 · -03:00 · open] Добро пожаловать на стадион «Лусаил» на финал чемпионата мира по футболу между Аргентиной и Францией.
-[L0002 · -02:56 · open] Я ваш комментатор VTourn, и сегодня тот вечер, которого мы все ждали.
+[L0002 · -02:56 · open] Я ваш комментатор Tournamental, и сегодня тот вечер, которого мы все ждали.
 [L0003 · -02:53 · scene] Восемьдесят девять тысяч внутри, два миллиарда смотрят по всему миру.
 [L0004 · -02:49 · scene] Аргентина выходит в финал в шестой раз. Франция, победители, идут подряд.
 [L0005 · -02:46 · scene] Прошло четырнадцать лет с тех пор, как Аргентина в последний раз достигала этой стадии. Сорок четыре с тех пор, как они приняли его и выиграли.
@@ -2967,7 +2967,7 @@ Player names and team names are kept in their original spelling.
 [L2959 · 128:31 · trophy] У МЕССИ ЧЕМПИОНАТ МИРА!
 [L2960 · 128:35 · trophy] Стадион Лусаил не переставал реветь уже десять минут.
 [L2961 · 128:39 · trophy] А остальное уже история.
-[L2962 · 128:43 · wrap] Для всех нас в VTourn большая честь называть этот матч.
+[L2962 · 128:43 · wrap] Для всех нас в Tournamental большая честь называть этот матч.
 [L2963 · 128:47 · wrap] Аргентина, чемпионы мира, две тысячи двадцать второй.
 [L2964 · 128:51 · wrap] Месси, наконец, получает в свои руки трофей.
 [L2965 · 128:55 · wrap] До следующего раза. Спокойной ночи из Лусаила.

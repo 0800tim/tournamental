@@ -769,7 +769,7 @@ section {
   height: 1em;
   vertical-align: -0.12em;
 }
-.vt-icon-v       { -webkit-mask-image: url("/icons/vtorn/v-mark.svg");    mask-image: url("/icons/vtorn/v-mark.svg"); }
-.vt-icon-trophy  { -webkit-mask-image: url("/icons/vtorn/trophy.svg");    mask-image: url("/icons/vtorn/trophy.svg"); }
-.vt-icon-flag    { -webkit-mask-image: url("/icons/vtorn/flag-pole.svg"); mask-image: url("/icons/vtorn/flag-pole.svg"); }
-.vt-icon-ball    { -webkit-mask-image: url("/icons/vtorn/ball-trail.svg"); mask-image: url("/icons/vtorn/ball-trail.svg"); }
+.vt-icon-v       { -webkit-mask-image: url("/icons/tournamental/v-mark.svg");    mask-image: url("/icons/tournamental/v-mark.svg"); }
+.vt-icon-trophy  { -webkit-mask-image: url("/icons/tournamental/trophy.svg");    mask-image: url("/icons/tournamental/trophy.svg"); }
+.vt-icon-flag    { -webkit-mask-image: url("/icons/tournamental/flag-pole.svg"); mask-image: url("/icons/tournamental/flag-pole.svg"); }
+.vt-icon-ball    { -webkit-mask-image: url("/icons/tournamental/ball-trail.svg"); mask-image: url("/icons/tournamental/ball-trail.svg"); }

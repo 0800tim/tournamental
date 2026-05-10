@@ -21,10 +21,10 @@ For each provider, what signal it gives, what data we pull, and what it contribu
 |----------|------------------|---------------|--------------------|--------------|-------|
 | **Google** | High (+15) | Optional via Google Contacts (consent) | Yes (`account_creation` not in OIDC; we proxy via email pattern + profile photo metadata) | name, email, profile photo, locale | Strongest humanness signal at zero cost. Google heavily invests in bot detection upstream of us. |
 | **Apple Sign-In** | High (+15) | No | Yes | name (sometimes), email | Apple ID requires phone or trusted recovery; very low fraud rate. |
-| **Facebook** | Medium (+10) | Yes (mutual friends only — Meta's API restriction) | Yes | name, email, profile photo, friend count, mutual friends with other VTourn users | Friend graph is the killer feature here despite Meta's API decline. |
+| **Facebook** | Medium (+10) | Yes (mutual friends only — Meta's API restriction) | Yes | name, email, profile photo, friend count, mutual friends with other Tournamental users | Friend graph is the killer feature here despite Meta's API decline. |
 | **X (Twitter)** | Medium (+8) | Limited (following list, paid API tier) | Yes | name, handle, profile photo, account age, follower count | Bot detection here is weak; we trust the signal but weight it lower. |
 | **LinkedIn** | High (+12) | Yes (1st-degree connections) | Yes | name, headline, profile photo, connections | High-trust for adult-professional users; less common context. |
-| **GitHub** | Medium (+8) for everyone, +20 for VTourn contributors | No | Yes | name, email, public profile, contribution graph | Proves real long-term human activity for devs. |
+| **GitHub** | Medium (+8) for everyone, +20 for Tournamental contributors | No | Yes | name, email, public profile, contribution graph | Proves real long-term human activity for devs. |
 | **Discord** | Medium (+6) | Limited (mutual servers) | Yes | username, avatar, mutual servers | Strong for esports / streaming audience. |
 | **WhatsApp** | Very High (+20) | Yes (via native app contact picker) | Yes (phone number age via WhatsApp's own checks) | phone number, profile photo, opt-in contact list | The single most predictive signal for "real human in real social network". Native app required. |
 | **Telegram** | Medium (+8) — already required as primary auth in [doc 13](13-telegram-bot-and-auth.md) | Yes (via bot, with consent) | Yes | telegram_id, username, profile photo | Already in the stack. |
@@ -50,7 +50,7 @@ After signing in, the profile page actively encourages linking more providers wi
 
 The web app + Telegram bot are sufficient for many users, but the native iOS / Android apps unlock signals the web cannot:
 
-- **Contacts API.** With explicit OS-level permission, the app reads the user's address book and looks up matches in VTourn (by phone number hash or email hash — never raw values uploaded). Friend candidates surface in the app: "8 of your contacts already play VTourn. Add them?"
+- **Contacts API.** With explicit OS-level permission, the app reads the user's address book and looks up matches in Tournamental (by phone number hash or email hash — never raw values uploaded). Friend candidates surface in the app: "8 of your contacts already play Tournamental. Add them?"
 - **WhatsApp contact picker.** Native iOS / Android share-sheets can hand a contact to the app, letting the user pick specific WhatsApp contacts to invite directly. Friction-light invite flow.
 - **Push notifications outside Telegram.** Some users prefer not to use Telegram; native push lets us still reach them for goal alerts and prediction resolutions.
 - **Background prediction reminders.** "You haven't predicted this match starting in 5 min" is far higher-conversion as a native push than a Telegram message for users who have the app pinned.
@@ -62,12 +62,12 @@ We never upload raw phone numbers or emails. The native app:
 
 1. Reads the address book (with permission).
 2. Hashes each contact's phone number (E.164 normalised + SHA-256 + a per-user salt).
-3. Sends the hashes to VTourn's API.
+3. Sends the hashes to Tournamental's API.
 4. Server matches the hashes against existing user phone-number-hashes.
-5. Returns the *user IDs* of matching VTourn users.
-6. App displays "8 of your contacts play VTourn" with their VTourn display names + avatars.
+5. Returns the *user IDs* of matching Tournamental users.
+6. App displays "8 of your contacts play Tournamental" with their Tournamental display names + avatars.
 
-The salt is user-specific so VTourn cannot cross-reference contacts across the user base. The hashes are stored in Redis with a 7-day TTL; recomputed on next contact-sync. Privacy reviewers can audit this; users can disable contact sync at any time.
+The salt is user-specific so Tournamental cannot cross-reference contacts across the user base. The hashes are stored in Redis with a 7-day TTL; recomputed on next contact-sync. Privacy reviewers can audit this; users can disable contact sync at any time.
 
 This is the same pattern Signal, WhatsApp, and most contact-discovery features use.
 
@@ -77,13 +77,13 @@ Specifically valuable. Two integrations:
 
 ### A — WhatsApp account verification (humanness signal)
 
-A user shares a WhatsApp message containing a one-time code we DM them to a designated VTourn WhatsApp Business number. We confirm their phone number is theirs and that WhatsApp itself (Meta) has previously verified that number. Cost: ~$0.005 per verification message (template message rate). Worth it for a high-quality humanness signal on first-time users.
+A user shares a WhatsApp message containing a one-time code we DM them to a designated Tournamental WhatsApp Business number. We confirm their phone number is theirs and that WhatsApp itself (Meta) has previously verified that number. Cost: ~$0.005 per verification message (template message rate). Worth it for a high-quality humanness signal on first-time users.
 
 ### B — In-WhatsApp friend invites and group leaderboards
 
-Native iOS share-intent: the user picks "Invite via WhatsApp" → the OS hands a pre-filled WhatsApp message to their friends → friends tap and land on a VTourn invite page. Conversion rate on this flow is dramatically higher than email or Telegram invite for any user with WhatsApp installed.
+Native iOS share-intent: the user picks "Invite via WhatsApp" → the OS hands a pre-filled WhatsApp message to their friends → friends tap and land on a Tournamental invite page. Conversion rate on this flow is dramatically higher than email or Telegram invite for any user with WhatsApp installed.
 
-For group chats, WhatsApp Business API lets us mirror the Telegram group leaderboard pattern from [doc 13](13-telegram-bot-and-auth.md): a user invites the VTourn bot into a WhatsApp group, the group becomes a private leaderboard, the bot posts results. Cost is non-zero (Meta's WhatsApp Business API is metered) but the humanness + viral mechanics justify it for engaged groups.
+For group chats, WhatsApp Business API lets us mirror the Telegram group leaderboard pattern from [doc 13](13-telegram-bot-and-auth.md): a user invites the Tournamental bot into a WhatsApp group, the group becomes a private leaderboard, the bot posts results. Cost is non-zero (Meta's WhatsApp Business API is metered) but the humanness + viral mechanics justify it for engaged groups.
 
 We will price-cap WhatsApp Business usage at ~$1,000/month for the first year and scale based on demonstrated cost-per-engaged-user.
 
@@ -115,7 +115,7 @@ Sum of provider weights from the matrix, capped at 50. Diminishing returns past 
 
 The killer signal. Up to 30 points based on:
 
-- **Mutual friend pairs that are *also* connected on a non-VTourn social network.** A friendship that exists on VTourn AND on Facebook AND on WhatsApp is much harder to fake than one that exists only on VTourn.
+- **Mutual friend pairs that are *also* connected on a non-Tournamental social network.** A friendship that exists on Tournamental AND on Facebook AND on WhatsApp is much harder to fake than one that exists only on Tournamental.
 - **Friend-network density** — how many of *your* friends are friends with *each other*. A real social graph has high local clustering; a bot ring tends to be a star (one centre, many edges to spokes that don't connect to each other).
 - **Bidirectional interaction** — predictions made within the same matches as your friends, share-card forwards from a friend to you that you opened.
 - **Time-extended consistency** — the friend has been your friend for >30 days, both predictions still active.

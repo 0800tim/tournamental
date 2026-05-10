@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * VTourn daily progress report generator.
+ * Tournamental daily progress report generator.
  *
  * Walks the repo and produces a markdown summary at
  * `sessions/daily/<YYYY-MM-DD>.md`. Designed to be run by cron (see

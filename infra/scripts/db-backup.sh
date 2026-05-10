@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# VTourn Postgres backup. Designed to be safe, idempotent, and cron-friendly.
+# Tournamental Postgres backup. Designed to be safe, idempotent, and cron-friendly.
 #
 # Usage:
 #   bash infra/scripts/db-backup.sh                # one shot, prints destination

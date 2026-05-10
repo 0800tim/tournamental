@@ -4,13 +4,13 @@
  * Every card has the same overall shape:
  *
  *   ┌─────────────────────────────────────────────────────┐
- *   │ [BRAND STRIP — VTOURN wordmark + tournament context]│
+ *   │ [BRAND STRIP — TOURNAMENTAL wordmark + tournament context]│
  *   ├─────────────────────────────────────────────────────┤
  *   │                                                       │
  *   │                  CARD-SPECIFIC BODY                  │
  *   │                                                       │
  *   ├─────────────────────────────────────────────────────┤
- *   │ [FOOTER — @handle • vtourn.com/r/<id>]              │
+ *   │ [FOOTER — @handle • tournamental.com/r/<id>]              │
  *   └─────────────────────────────────────────────────────┘
  *
  * The same component composes for both 1200×630 (`og`) and 1080×1920
@@ -134,7 +134,7 @@ function brandStrip(args: {
             color: "#fff",
           },
         },
-        "VTOURN",
+        "TOURNAMENTAL",
       ),
     ),
     brandContext

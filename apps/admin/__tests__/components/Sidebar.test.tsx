@@ -9,9 +9,9 @@ import { Sidebar } from "@/components/Sidebar";
 
 describe("<Sidebar>", () => {
   it("renders the brand and user info", () => {
-    render(<Sidebar email="tim@vtourn.com" role="super-admin" />);
-    expect(screen.getByText("VTourn")).toBeInTheDocument();
-    expect(screen.getByText("tim@vtourn.com")).toBeInTheDocument();
+    render(<Sidebar email="tim@tournamental.com" role="super-admin" />);
+    expect(screen.getByText("Tournamental")).toBeInTheDocument();
+    expect(screen.getByText("tim@tournamental.com")).toBeInTheDocument();
     expect(screen.getByText(/super admin/i)).toBeInTheDocument();
   });
 

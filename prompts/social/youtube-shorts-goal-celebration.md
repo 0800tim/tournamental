@@ -22,7 +22,7 @@
 ```
 {{event.scorer}} puts {{match.team_winning}} ahead {{match.score_team0}}-{{match.score_team1}} in the {{tournament.name}}, minute {{event.minute}}.
 
-Visualisation: VTourn 3D replay. Predict every match: {{cta.url}}
+Visualisation: Tournamental 3D replay. Predict every match: {{cta.url}}
 
 #Shorts {{tournament.hashtag}} #{{event.scorer_lastname}} #{{match.team_winning}} #goal
 ```
@@ -30,7 +30,7 @@ Visualisation: VTourn 3D replay. Predict every match: {{cta.url}}
 ## Tags
 
 ```
-{{tournament.hashtag}}, {{event.scorer}}, {{match.team0_code}}, {{match.team1_code}}, vtourn, predictions, soccer, football
+{{tournament.hashtag}}, {{event.scorer}}, {{match.team0_code}}, {{match.team1_code}}, tournamental, predictions, soccer, football
 ```
 
 ## Optimal post time
@@ -41,12 +41,12 @@ posting.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=youtube&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=youtube&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
 The full URL goes in the description; Shorts don't carry tap-through cards.
 
 ## Compliance
 
 - YouTube's content policy requires the AI / synthetic-content disclosure. We use
   the `videos.insert` `videoSelfDeclaredMadeForKids: false` plus the in-description
-  `Visualisation: VTourn 3D replay` line. AI-disclosure is *not* required for
+  `Visualisation: Tournamental 3D replay` line. AI-disclosure is *not* required for
   visualisations of real events; we ship it anyway for transparency.

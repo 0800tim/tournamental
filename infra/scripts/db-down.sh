@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Stop the VTourn dev DB stack. Volumes survive so data persists.
+# Stop the Tournamental dev DB stack. Volumes survive so data persists.
 # Pass --nuke to also delete volumes (DESTROYS ALL DATA).
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

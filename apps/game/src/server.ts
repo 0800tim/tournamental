@@ -1,5 +1,5 @@
 /**
- * VTourn game service (Fastify) — port 3360 by default.
+ * Tournamental game service (Fastify) — port 3360 by default.
  *
  * What it does (per docs/12):
  *   - Accepts bracket submissions, persists them, returns lock receipts.

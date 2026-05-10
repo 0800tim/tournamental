@@ -144,7 +144,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
   flag before any non-anonymous brand-channel push.
 - **Sportsbook affiliate disclosure**: Meta requires an "Includes paid partnership"
   label for posts that link to a sportsbook affiliate. Brand-channel posts under no
-  circumstances include affiliate links directly — they link only to `vtourn.com`,
+  circumstances include affiliate links directly — they link only to `tournamental.com`,
   which routes per geo (per `docs/18` § Monetization).
 - **Audience network restrictions**: real-money pool references are *prohibited* in
   ads under Meta's Gambling and Online Gaming policy. The publisher's pre-flight
@@ -162,7 +162,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
   toggle for fully synthetic content. Our auto-clips are 3D *visualisations* of real
   events, not synthetic events. Per the TikTok policy distinction (rendering vs.
   fabrication), we do not flip the AI toggle. We do include a description string
-  (`Visualisation: VTourn 3D replay`) on every brand-channel post.
+  (`Visualisation: Tournamental 3D replay`) on every brand-channel post.
 
 ### X
 
@@ -172,7 +172,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
     affiliate's `restricted_states` list and skips the post if the brand channel's
     primary geo is in that list.
   - **AU / NZ**: gambling promotion requires explicit advertising approval; we do
-    not run sportsbook ads from `@vtourn` in AU / NZ at all.
+    not run sportsbook ads from `@tournamental` in AU / NZ at all.
 
 ### YouTube
 
@@ -181,7 +181,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
   (per `docs/11`) on every post — auto-injected by the publisher.
 - **Sportsbook affiliate**: YouTube's policy permits affiliate links in description
   if the linked site is licensed in the viewer's jurisdiction. The publisher uses a
-  geo-routing landing page (`vtourn.com/sportsbook?geo=...`) that resolves at click
+  geo-routing landing page (`tournamental.com/sportsbook?geo=...`) that resolves at click
   time, not at post time.
 
 ### Sportsbook affiliate disclosure templates

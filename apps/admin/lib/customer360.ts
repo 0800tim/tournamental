@@ -2,7 +2,7 @@
  * Customer-360 aggregator.
  *
  * Pulls together everything the operator wants to see for one user, across
- * the VTourn microservice mesh. Each upstream call is independent — if one
+ * the Tournamental microservice mesh. Each upstream call is independent — if one
  * fails (or hasn't shipped yet), that section becomes `null` and the page
  * still renders.
  *

@@ -30,7 +30,7 @@ Within 30 minutes of badge award.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=badge-earned&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=badge-earned&utm_content={{campaign.id}}`.
 
 ## Compliance
 

@@ -112,17 +112,17 @@ Bonus tokens are an off-chain points currency users earn from streaks, referrals
 - Cosmetic unlocks (avatar accents, name flair).
 - Quarterly raffles for real prizes (per doc 19's contributor-revenue model — overlapping mechanics).
 
-**Tokens are never withdrawable as cash.** This is a play-to-engage system, not a wallet. For real prize draws, see VTournOracle (doc 21) and the on-chain pools.
+**Tokens are never withdrawable as cash.** This is a play-to-engage system, not a wallet. For real prize draws, see TournamentalOracle (doc 21) and the on-chain pools.
 
 ## Sharing
 
-Every shareable surface produces a tracked URL: `https://vtourn.com/<surface>/<id>?r=<user_id>&utm_source=<channel>&utm_campaign=<surface>`.
+Every shareable surface produces a tracked URL: `https://tournamental.com/<surface>/<id>?r=<user_id>&utm_source=<channel>&utm_campaign=<surface>`.
 
 Surfaces:
 
 - **Prediction card**: "I predicted Argentina 4-2 France in the WC Final shootout. Did you?" + auto-generated PNG with the user's handle and the prediction.
 - **Badge card**: the badge artefact + share copy.
-- **Leaderboard card**: "I'm #N globally on VTourn. Catch me." + leaderboard snapshot.
+- **Leaderboard card**: "I'm #N globally on Tournamental. Catch me." + leaderboard snapshot.
 - **Match-clip card**: a 6–10s video of a key moment, branded with the user's handle if they predicted it correctly.
 - **Tournament-recap card**: post-tournament summary of wins / losses / points / rank.
 
@@ -138,7 +138,7 @@ Pipeline (per `docs/14-clip-generation-and-social.md`, this section refines the 
 
 1. `apps/clip-recorder/` (background worker, headless Chromium) listens for spec event triggers.
 2. Pre-roll: 2s before the event timestamp from the recorded spec stream. Post-roll: 4–6s. Recorder seeks the renderer to that range and dumps frames.
-3. ffmpeg encodes to H.264 with a branded outro (1s VTourn end-card with the auto-injected referral URL).
+3. ffmpeg encodes to H.264 with a branded outro (1s Tournamental end-card with the auto-injected referral URL).
 4. Caption auto-built from the event payload (e.g. *"Messi just put Argentina ahead in the World Cup Final 🇦🇷"*).
 5. `apps/clip-publisher/` cross-posts to enabled platforms via their official APIs (TikTok Content Posting API, Instagram Graph API for Reels/Stories, X API v2, YouTube Data API).
 6. Each post records its post-id; engagement (views/likes/shares) flows back into our event stream as `social_post_engaged`.
@@ -165,7 +165,7 @@ A/B variants are tracked; the winning copy after 1000 sends becomes the new defa
 - Per `docs/17-vstamp-and-prediction-iq.md`: Prediction IQ feeds the engagement score directly and is the basis for skill-based badges.
 - Per `docs/18-monetization.md`: bonus tokens never substitute for the affiliate / on-chain pool revenue lanes; they're a retention surface, not a revenue surface.
 - Per `docs/20-identity-humanness-bots.md`: a Humanness Score gate prevents bot accounts from gaming streaks/leaderboards; gamification rewards are clamped if the Humanness Score is low.
-- Per `docs/21-onchain-sweepstakes-oracle.md`: real-prize raffles are gated through VTournOracle; tokens above a threshold + a Humanness check are required to enter.
+- Per `docs/21-onchain-sweepstakes-oracle.md`: real-prize raffles are gated through TournamentalOracle; tokens above a threshold + a Humanness check are required to enter.
 
 ## What every gamification PR is reviewed against
 

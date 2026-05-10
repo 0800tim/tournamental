@@ -28,7 +28,7 @@ Holding the line. Catch me. 🔒
 ## Hashtags
 
 ```
-{{tournament.hashtag}} #leaderboard #VTourn #predictions #fyp
+{{tournament.hashtag}} #leaderboard #Tournamental #predictions #fyp
 ```
 
 ## Optimal post time
@@ -38,7 +38,7 @@ delaying past 30 min flattens engagement.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=leaderboard-climb&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=leaderboard-climb&utm_content={{campaign.id}}`.
 
 ## Compliance
 

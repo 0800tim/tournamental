@@ -24,12 +24,12 @@ jobs:
       - name: Hit canonical URLs with gzip + brotli accept-encoding
         env:
           URLS: |
-            https://vtourn.com/
-            https://vtourn.com/about
-            https://app.vtourn.com/
-            https://app.vtourn.com/world-cup-2026
-            https://api.vtourn.com/healthz
-            https://game.vtourn.com/healthz
+            https://tournamental.com/
+            https://tournamental.com/about
+            https://app.tournamental.com/
+            https://app.tournamental.com/world-cup-2026
+            https://api.tournamental.com/healthz
+            https://game.tournamental.com/healthz
         run: |
           while IFS= read -r url; do
             [ -z "$url" ] && continue

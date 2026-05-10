@@ -1,5 +1,5 @@
 /**
- * Capacitor 6 configuration for the VTourn native shell.
+ * Capacitor 6 configuration for the Tournamental native shell.
  *
  * The shell is a thin native wrapper around the production `apps/web`
  * deployment. We do **not** ship a separate native UI; the web app is
@@ -8,7 +8,7 @@
  *
  * Per-build-target overrides via env:
  *   VTORN_WEB_URL              — full URL the WebView loads on launch.
- *                                 default: https://vtourn.com
+ *                                 default: https://tournamental.com
  *                                 stage:   https://vtorn.aiva.nz
  *                                 dev:     http://10.0.2.2:3300 (Android emu)
  *                                          http://localhost:3300 (iOS sim)
@@ -21,24 +21,24 @@
 
 import type { CapacitorConfig } from '@capacitor/cli';
 
-const webUrl = process.env.VTORN_WEB_URL ?? 'https://vtourn.com';
+const webUrl = process.env.VTORN_WEB_URL ?? 'https://tournamental.com';
 const cleartext =
   process.env.VTORN_ANDROID_CLEARTEXT === 'true' || webUrl.startsWith('http://');
 
 const config: CapacitorConfig = {
-  appId: 'com.vtourn.app',
-  appName: 'VTourn',
+  appId: 'com.tournamental.app',
+  appName: 'Tournamental',
   webDir: 'www',
   server: {
     // Loading the remote site rather than a bundled SPA. Capacitor's bridge
     // is still injected so plugin calls work from the live web app.
     url: webUrl,
     cleartext,
-    // Allow the WebView to navigate inside vtourn.com and our staging host
+    // Allow the WebView to navigate inside tournamental.com and our staging host
     // without bouncing back to the system browser.
     allowNavigation: [
-      'vtourn.com',
-      '*.vtourn.com',
+      'tournamental.com',
+      '*.tournamental.com',
       'aiva.nz',
       '*.aiva.nz',
       'localhost',

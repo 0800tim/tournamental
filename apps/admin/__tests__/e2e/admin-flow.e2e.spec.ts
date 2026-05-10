@@ -16,7 +16,7 @@ test("ban a user and see it in audit log", async ({ page, baseURL }) => {
   const ctx = await pwRequest.newContext({ baseURL });
   // Step 1: request a link.
   const reqR = await ctx.post("/api/auth/request", {
-    data: { email: "tim@vtourn.com", next: "/" },
+    data: { email: "tim@tournamental.com", next: "/" },
   });
   expect(reqR.ok()).toBeTruthy();
 

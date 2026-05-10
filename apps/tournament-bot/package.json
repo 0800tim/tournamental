@@ -1,8 +1,8 @@
 {
-  "name": "@vtourn/tournament-bot",
+  "name": "@tournamental/tournament-bot",
   "version": "0.0.0",
   "private": true,
-  "description": "VTourn Telegram bot — main platform bot + per-syndicate flows",
+  "description": "Tournamental Telegram bot — main platform bot + per-syndicate flows",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

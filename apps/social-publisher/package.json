@@ -2,7 +2,7 @@
   "name": "@vtorn/social-publisher",
   "version": "0.0.1",
   "private": true,
-  "description": "Multi-platform fan-out for VTourn match clips and bracket cards (TikTok, Instagram Reels, YouTube Shorts, X, Threads, Telegram, Discord, Reddit)",
+  "description": "Multi-platform fan-out for Tournamental match clips and bracket cards (TikTok, Instagram Reels, YouTube Shorts, X, Threads, Telegram, Discord, Reddit)",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

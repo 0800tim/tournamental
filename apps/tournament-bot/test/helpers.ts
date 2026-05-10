@@ -30,8 +30,8 @@ export function makeHarness(): TestBotHarness {
   bot.botInfo = {
     id: 1,
     is_bot: true,
-    first_name: "VTourn",
-    username: "VTournBot",
+    first_name: "Tournamental",
+    username: "TournamentalBot",
     can_join_groups: true,
     can_read_all_group_messages: false,
     supports_inline_queries: false,

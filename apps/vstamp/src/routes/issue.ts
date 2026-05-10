@@ -6,7 +6,7 @@
  * not verifiable), and the day-bucket the leaf was binned into.
  *
  * The bracket payload itself is NOT persisted server-side: only its hash.
- * That keeps the privacy story simple — VTourn cannot reveal a user's
+ * That keeps the privacy story simple — Tournamental cannot reveal a user's
  * pre-lock prediction even under subpoena because we never have it.
  */
 

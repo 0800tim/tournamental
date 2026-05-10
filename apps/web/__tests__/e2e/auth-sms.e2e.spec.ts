@@ -69,7 +69,7 @@ test.describe("auth page — phone → OTP → logged in", () => {
     await page.goto("/auth?next=/world-cup-2026");
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(
-      "Sign in to VTourn",
+      "Sign in to Tournamental",
     );
 
     await page.getByLabel("Phone number").fill("+6421999000");

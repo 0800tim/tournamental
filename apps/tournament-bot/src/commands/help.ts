@@ -6,7 +6,7 @@ import type { BotDeps } from "../bots/main.js";
 export async function handleHelp(ctx: Context, _deps: BotDeps): Promise<void> {
   await ctx.reply(
     [
-      "*VTourn — command list*",
+      "*Tournamental — command list*",
       "",
       "  /start — connect your bracket / accept a syndicate invite",
       "  /picks — view your bracket",

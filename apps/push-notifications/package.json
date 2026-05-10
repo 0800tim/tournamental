@@ -2,7 +2,7 @@
   "name": "@vtorn/push-notifications",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn push-notifications service — Web Push + Telegram + SMS fan-out + kickoff scheduler",
+  "description": "Tournamental push-notifications service — Web Push + Telegram + SMS fan-out + kickoff scheduler",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

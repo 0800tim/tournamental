@@ -73,14 +73,14 @@ export function generateMetadata({ params }: TeamPageProps): Metadata {
   const upper = params.code.toUpperCase();
   const c = canonicalTeamByCode(upper);
   if (!c) {
-    return { title: "Team not found - VTourn" };
+    return { title: "Team not found - Tournamental" };
   }
   return {
-    title: `${c.name} - FIFA World Cup 2026 | VTourn`,
-    description: `${c.name} squad, FIFA rank #${c.fifa_ranking_at_2026}, recent form, and upcoming fixtures at the FIFA World Cup 2026. Predict their next match on VTourn.`,
+    title: `${c.name} - FIFA World Cup 2026 | Tournamental`,
+    description: `${c.name} squad, FIFA rank #${c.fifa_ranking_at_2026}, recent form, and upcoming fixtures at the FIFA World Cup 2026. Predict their next match on Tournamental.`,
     openGraph: {
       title: `${c.name} - FIFA World Cup 2026`,
-      description: `${c.name} squad and fixtures. Predict their bracket on VTourn.`,
+      description: `${c.name} squad and fixtures. Predict their bracket on Tournamental.`,
       type: "website",
     },
   };

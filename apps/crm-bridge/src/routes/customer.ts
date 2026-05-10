@@ -2,7 +2,7 @@
  * GET /v1/customer/:userId — returns the customer-360 aggregate.
  *
  * This is the endpoint Tim's admin UI calls to render a single user's
- * VTourn lifecycle: the events we've received, plus the GHL contact state
+ * Tournamental lifecycle: the events we've received, plus the GHL contact state
  * we've (mock-)pushed. No PII obfuscation here — admin only; mounting
  * upstream tunnels is gated by docs/22.
  */

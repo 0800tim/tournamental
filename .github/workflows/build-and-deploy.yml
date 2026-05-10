@@ -13,7 +13,7 @@ name: build-and-deploy
 #
 # Secrets used:
 #   DEPLOY_SSH_HOST, DEPLOY_SSH_USER, DEPLOY_SSH_KEY  → for staging deploys
-#   STAGING_BASE_URL                                  → e.g. https://dev.vtourn.com
+#   STAGING_BASE_URL                                  → e.g. https://dev.tournamental.com
 
 on:
   push:

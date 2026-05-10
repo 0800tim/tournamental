@@ -2,7 +2,7 @@
   "name": "@vtorn/identity",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn identity service — multi-provider OAuth link adapters + Humanness Score",
+  "description": "Tournamental identity service — multi-provider OAuth link adapters + Humanness Score",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

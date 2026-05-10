@@ -1,4 +1,4 @@
-"""StatsBomb open-data → VTourn spec stream producer.
+"""StatsBomb open-data → Tournamental spec stream producer.
 
 Targets the 2022 FIFA World Cup Final (Argentina 3-3 France, ARG 4-2 on pens).
 Emits messages conforming to ``@vtorn/spec`` ``SPEC_VERSION = "0.1.1"``.

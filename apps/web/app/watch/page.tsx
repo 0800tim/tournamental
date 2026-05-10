@@ -10,7 +10,7 @@ import { AppShell } from "@/components/shell";
 import { HeroCard, MatchCard } from "@/components/ui";
 
 export const metadata = {
-  title: "Watch - VTourn",
+  title: "Watch - Tournamental",
 };
 
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";

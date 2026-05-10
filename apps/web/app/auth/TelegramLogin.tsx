@@ -17,7 +17,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 const AUTH_API_BASE =
   process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:3330";
 const TG_BOT_USERNAME =
-  process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? "VTournBot";
+  process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ?? "TournamentalBot";
 const STORAGE_KEY = "vtourn_jwt";
 
 interface TelegramAuthPayload {

@@ -10,7 +10,7 @@ Companion docs:
 - [docs/18-monetization.md](../../docs/18-monetization.md)
 - [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
   for the canonical port/tunnel table (this service is `:3370`,
-  `vtorn-aff.aiva.nz` in dev, `aff.vtourn.com` in prod).
+  `vtorn-aff.aiva.nz` in dev, `aff.tournamental.com` in prod).
 
 ## Quick start
 
@@ -80,7 +80,7 @@ response.
       "name": "Sky Sport NZ",
       "kind": "paytv-stream",
       "offer_text": "Watch every World Cup match live. 4-week tournament pass NZ$14.99.",
-      "logo_url": "https://cdn.vtourn.com/partners/sky-nz.svg"
+      "logo_url": "https://cdn.tournamental.com/partners/sky-nz.svg"
     }
   ]
 }
@@ -151,7 +151,7 @@ environment.
 | `AFFILIATE_DB_PATH`                | no                | `./data/clicks.db`                       | SQLite path; `:memory:` for tests |
 | `AFFILIATE_PARTNERS_PATH`          | no                | `./data/partners.json`                   | partner registry path override |
 | `AFFILIATE_USER_HASH_SALT`         | **prod**          | `change-me-32-random-bytes-please`       | min 16 chars; rotating invalidates dedupe |
-| `AFFILIATE_CORS_ORIGINS`           | no                | `https://vtourn.com,https://2026wc.vtourn.com` | csv |
+| `AFFILIATE_CORS_ORIGINS`           | no                | `https://tournamental.com,https://2026wc.tournamental.com` | csv |
 | `AFFILIATE_RATE_LIMIT_MAX`         | no                | `30`                                     | per-IP per minute |
 | `AFFCODE_POLYMARKET`               | prod              | (real Polymarket affiliate code)         | overrides JSON placeholder |
 | `AFFCODE_BET365`                   | prod              | (real Bet365 affiliate code)             | overrides JSON placeholder |
@@ -188,7 +188,7 @@ per-user-partner), audit-log writes, and hash determinism.
 - Dev: `vtorn-aff.aiva.nz` → `:3370` via the existing aiva.nz Cloudflare
   Tunnel. See [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
   for the API-driven ingress procedure.
-- Prod: `aff.vtourn.com` → service container on the prod tunnel.
+- Prod: `aff.tournamental.com` → service container on the prod tunnel.
 
 The clicks DB lives on local disk; for prod we mount a persistent volume and
 mirror nightly via the existing `infra/scripts/db-backup.sh`.
@@ -203,5 +203,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/affiliate-router run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

@@ -1,6 +1,6 @@
 # @vtorn/social-publisher
 
-Multi-platform fan-out for VTourn match clips and bracket cards.
+Multi-platform fan-out for Tournamental match clips and bracket cards.
 
 Subscribes to `ClipReady` events from the clip-pipeline (`apps/clip-pipeline`)
 and publishes the rendered variants to **TikTok**, **Instagram Reels**,
@@ -242,5 +242,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/social-publisher run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

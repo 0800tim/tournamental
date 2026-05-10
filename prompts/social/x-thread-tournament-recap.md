@@ -58,7 +58,7 @@ settled, close enough that interest hasn't decayed.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=tournament-recap&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=tournament-recap&utm_content={{campaign.id}}`.
 
 ## Compliance
 

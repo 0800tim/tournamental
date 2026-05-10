@@ -8,14 +8,14 @@ import type { ReactNode } from "react";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
-  title: "VTourn — Predict the matches that matter",
+  title: "Tournamental — Predict the matches that matter",
   description:
-    "VTourn is a tournament prediction game with a 3D match watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0.",
-  applicationName: "VTourn",
+    "Tournamental is a tournament prediction game with a 3D match watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0.",
+  applicationName: "Tournamental",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
-    title: "VTourn",
+    title: "Tournamental",
     statusBarStyle: "black-translucent",
   },
   formatDetection: {
@@ -51,7 +51,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             iOS Safari for the legacy "add to home screen" path. */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        <meta name="apple-mobile-web-app-title" content="VTourn" />
+        <meta name="apple-mobile-web-app-title" content="Tournamental" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>

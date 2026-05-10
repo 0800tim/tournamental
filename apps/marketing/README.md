@@ -1,6 +1,6 @@
 # @vtorn/marketing
 
-> The marketing site for VTourn, served at `vtourn.com` (prod), `preview.vtourn.com` (staging), `vtorn-www.aiva.nz` (dev).
+> The marketing site for Tournamental, served at `tournamental.com` (prod), `preview.tournamental.com` (staging), `vtorn-www.aiva.nz` (dev).
 
 ## Stack
 
@@ -23,7 +23,7 @@ Through the dev tunnel: `https://vtorn-www.aiva.nz`.
 | Path                | Purpose                                                              |
 | ------------------- | -------------------------------------------------------------------- |
 | `/`                 | Hero, three-pillar pitch, syndicates teaser, World Cup CTA.          |
-| `/why`              | Why VTourn exists. Vision and reasoning.                              |
+| `/why`              | Why Tournamental exists. Vision and reasoning.                              |
 | `/how-it-works`     | Six-step user journey.                                                |
 | `/syndicates`       | For hosts: office sweepstakes, friend pools, fan clubs.               |
 | `/influencers`      | For creators and partner program.                                     |

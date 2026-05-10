@@ -35,4 +35,4 @@ Within 5 minutes of full-time — the post-match X spike runs ~30 minutes.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=match-result&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=match-result&utm_content={{campaign.id}}`.

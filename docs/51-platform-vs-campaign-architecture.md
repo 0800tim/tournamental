@@ -6,7 +6,7 @@
 
 ## The clarification, in one sentence
 
-**VTourn is a tournament-prediction *platform*. The 2026 FIFA World Cup
+**Tournamental is a tournament-prediction *platform*. The 2026 FIFA World Cup
 is one *campaign* running on that platform.**
 
 The platform should be capable of hosting many campaigns side-by-side:
@@ -21,7 +21,7 @@ the codebase.
 ## The shape (target state)
 
 ```
-vtourn.com                      ← platform marketing site (apps/marketing)
+tournamental.com                      ← platform marketing site (apps/marketing)
   /                             ← homepage
   /why                          ← "how do prediction games work"
   /how-it-works
@@ -34,7 +34,7 @@ vtourn.com                      ← platform marketing site (apps/marketing)
   /login                        ← magic-link auth, DM-OTP, OAuth
   /me                           ← profile, settings, owned campaigns
 
-2026wc.vtourn.com               ← ONE CAMPAIGN running on the platform
+2026wc.tournamental.com               ← ONE CAMPAIGN running on the platform
   /                             ← hype landing (apps/web/app/world-cup-2026/landing)
   /world-cup-2026               ← the bracket builder (apps/web/app/world-cup-2026)
   /world-cup-2026/share/<id>    ← shareable bracket
@@ -45,13 +45,13 @@ vtourn.com                      ← platform marketing site (apps/marketing)
   /leaderboard                  ← this-campaign leaderboard
   /watch                        ← upcoming renderer streams
 
-<other-campaign>.vtourn.com     ← e.g. afcon2026, nfl-2026-playoffs, ...
+<other-campaign>.tournamental.com     ← e.g. afcon2026, nfl-2026-playoffs, ...
   (same routes; data + branding swap in)
 ```
 
 ## Platform-level primitives (never campaign-specific)
 
-These belong on `vtourn.com` and should never be duplicated in a
+These belong on `tournamental.com` and should never be duplicated in a
 campaign subdomain:
 
 - **Marketing surfaces**: `/why`, `/how-it-works`, `/syndicates`,
@@ -92,11 +92,11 @@ These vary per campaign and ship in a campaign config bundle:
 ## Subdomain pattern
 
 ```
-<campaign-slug>.vtourn.com
+<campaign-slug>.tournamental.com
 ```
 
 The middleware (`apps/web/middleware.ts`) already rewrites
-`2026wc.vtourn.com/` → `/world-cup-2026/landing`. The future shape:
+`2026wc.tournamental.com/` → `/world-cup-2026/landing`. The future shape:
 
 - A campaign-registry table maps `<slug>` → `<route prefix>` and
   `<config bundle>`.
@@ -104,7 +104,7 @@ The middleware (`apps/web/middleware.ts`) already rewrites
   so server components know which campaign they're rendering.
 - The `[campaign]` route segment (or context provider) replaces the
   hardcoded `/world-cup-2026/` paths in client navigation. Apex
-  `vtourn.com` resolves to the platform marketing site; everything
+  `tournamental.com` resolves to the platform marketing site; everything
   else resolves to a campaign.
 
 ## App-shell behaviour
@@ -127,13 +127,13 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
 ## What's already in place
 
 - `apps/marketing/` is the platform marketing site. Cleanly separate
-  from the bracket app, deploys to `vtourn.com`.
+  from the bracket app, deploys to `tournamental.com`.
 - `apps/web/` is the campaign app. Today it hardcodes WC2026, but the
   fixture / team data is already keyed by tournament under
   `data/fifa-wc-2026/`.
 - `@vtorn/bracket-engine` is campaign-agnostic (it takes a fixtures
   blob and returns a cascading bracket).
-- `apps/web/middleware.ts` already host-rewrites `2026wc.vtourn.com`
+- `apps/web/middleware.ts` already host-rewrites `2026wc.tournamental.com`
   → the WC landing.
 - Per [doc 22](22-deployment-and-tunnels.md), the deploy pipeline and
   Cloudflared ingress already model each campaign as a sub-domain
@@ -160,7 +160,7 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
    `loadFixtures(campaignSlug)`.
 4. **Add a self-serve "create a campaign" flow** on the marketing
    site (`/create`). MVP: upload a fixture CSV + a brand kit, get
-   back a `<slug>.vtourn.com` subdomain (gated behind login + manual
+   back a `<slug>.tournamental.com` subdomain (gated behind login + manual
    review at first).
 5. **Platform-level bottom nav defaults** in the PWA. The current
    `DEFAULT_BOTTOM_NAV_TABS` in `BottomNav.tsx` hardcodes the
@@ -176,7 +176,7 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
    to an AFCON bracket continues to work without a code change).
 8. **Global pundit leaderboard**: today `apps/web/app/leaderboard/`
    shows the WC2026 board. A *platform* leaderboard at
-   `vtourn.com/leaderboards` should aggregate per-campaign scores via
+   `tournamental.com/leaderboards` should aggregate per-campaign scores via
    the rolled-up Prediction IQ (per
    [doc 17](17-vstamp-and-prediction-iq.md)).
 
@@ -184,9 +184,9 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
 
 The pitch is now:
 
-- VTourn is a tournament prediction platform. Anyone can run a
+- Tournamental is a tournament prediction platform. Anyone can run a
   campaign on it.
-- The 2026 World Cup site (`2026wc.vtourn.com`) is **our** campaign —
+- The 2026 World Cup site (`2026wc.tournamental.com`) is **our** campaign —
   built end-to-end by the core team as a flagship and a proof point.
 - The renderer, bracket engine, scoring, social distribution, and
   watch-along are reusable across any campaign with a structured
@@ -204,7 +204,7 @@ The pitch is now:
 
 - [docs/01-vision-and-scope.md](01-vision-and-scope.md) — the vision
   this doc operationalises.
-- [docs/15-vtourn-brand-and-positioning.md](15-vtourn-brand-and-positioning.md)
+- [docs/15-tournamental-brand-and-positioning.md](15-tournamental-brand-and-positioning.md)
   — voice + visual language. The brand kit must accommodate per-campaign
   overrides.
 - [docs/17-vstamp-and-prediction-iq.md](17-vstamp-and-prediction-iq.md)

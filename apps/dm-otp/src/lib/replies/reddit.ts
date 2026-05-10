@@ -72,7 +72,7 @@ export async function sendRedditOtp(
   }
   const body = new URLSearchParams({
     api_type: 'json',
-    subject: 'VTourn login code',
+    subject: 'Tournamental login code',
     text: otpMessageBody(code),
     to: recipientUsername,
   });

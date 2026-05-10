@@ -23,7 +23,7 @@
 ## Hashtags
 
 ```
-{{tournament.hashtag}} #achievement #predictions #VTourn #reels
+{{tournament.hashtag}} #achievement #predictions #Tournamental #reels
 ```
 
 ## Optimal post time
@@ -32,7 +32,7 @@ Within 5 minutes of badge award.
 
 ## CTA
 
-Bio link → `{{cta.url}}` (`https://vtourn.com/r/{{user.id}}?utm_source=instagram&utm_campaign=badge-earned&utm_content={{campaign.id}}`).
+Bio link → `{{cta.url}}` (`https://tournamental.com/r/{{user.id}}?utm_source=instagram&utm_campaign=badge-earned&utm_content={{campaign.id}}`).
 
 ## Compliance
 

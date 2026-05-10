@@ -1,13 +1,13 @@
-# WC2022 Final ARG-FRA - VTourn Commentary [ar]
+# WC2022 Final ARG-FRA - Tournamental Commentary [ar]
 
-Generated from StatsBomb event stream + VTourn narrator template, machine-translated from English.
+Generated from StatsBomb event stream + Tournamental narrator template, machine-translated from English.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 Player names and team names are kept in their original spelling.
 
 ---
 
 [L0001 · -03:00 · open] مرحبًا بكم في استاد لوسيل لمشاهدة نهائي كأس العالم لكرة القدم، الأرجنتين ضد فرنسا.
-[L0002 · -02:56 · open] أنا معلق VTourn الخاص بكم والليلة هي الليلة التي كنا ننتظرها جميعًا.
+[L0002 · -02:56 · open] أنا معلق Tournamental الخاص بكم والليلة هي الليلة التي كنا ننتظرها جميعًا.
 [L0003 · -02:53 · scene] تسعة وثمانون ألفاً في الداخل، وملياران يشاهدون حول العالم.
 [L0004 · -02:49 · scene] الأرجنتين تتأهل للنهائي للمرة السادسة. فرنسا، حاملو اللقب، يتجهون ذهابًا وإيابًا.
 [L0005 · -02:46 · scene] لقد مرت أربعة عشر عامًا منذ آخر مرة وصلت فيها الأرجنتين إلى هذه المرحلة. أربعة وأربعون منذ استضافتهم وفازوا بها.
@@ -2967,7 +2967,7 @@ Player names and team names are kept in their original spelling.
 [L2959 · 128:31 · trophy] ميسي لديه كأس العالم!
 [L2960 · 128:35 · trophy] ملعب لوسيل لم يتوقف عن الصخب لمدة عشر دقائق.
 [L2961 · 128:39 · trophy] والباقي هو التاريخ.
-[L2962 · 128:43 · wrap] منا جميعًا في VTourn، يا له من شرف أن نسمي هذه المباراة.
+[L2962 · 128:43 · wrap] منا جميعًا في Tournamental، يا له من شرف أن نسمي هذه المباراة.
 [L2963 · 128:47 · wrap] الأرجنتين بطلة العالم ألفين واثنان وعشرون.
 [L2964 · 128:51 · wrap] وأخيرا ميسي يحصل على الكأس.
 [L2965 · 128:55 · wrap] حتى المرة القادمة. تصبحون على خير من لوسيل.

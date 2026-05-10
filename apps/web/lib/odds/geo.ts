@@ -80,7 +80,7 @@ export function buildPolymarketDeepLink(opts: {
   if (opts.outcomeToken) params.set("outcome", opts.outcomeToken);
   if (opts.campaignId) params.set("c", opts.campaignId);
   if (opts.source) params.set("s", opts.source);
-  // Ref param: VTourn Holdings affiliate code goes here once registered
+  // Ref param: Tournamental Holdings affiliate code goes here once registered
   // (see docs/30 open question #1). Until then, point at our own click-
   // tracking endpoint that 302s to Polymarket.
   return `/api/affiliate/polymarket/click?${params.toString()}`;

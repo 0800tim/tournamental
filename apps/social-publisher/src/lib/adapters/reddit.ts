@@ -518,7 +518,7 @@ const ENV_CONFIG = loadEnvConfig();
 
 /**
  * Default public-URL resolver. Looks at `REDDIT_PUBLIC_CLIP_BASE` (e.g.
- * https://clips.vtourn.com) and joins with the v16x9 path. Adapter throws
+ * https://clips.tournamental.com) and joins with the v16x9 path. Adapter throws
  * if the base is unset and the path isn't already absolute — Reddit
  * rejects local file paths.
  */

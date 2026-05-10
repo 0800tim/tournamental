@@ -56,8 +56,8 @@ export async function signSessionJwt(opts: {
   const jti = randomUUID();
   const now = Math.floor(Date.now() / 1000);
   const expiresAt = now + ttl;
-  const issuer = opts.issuer ?? 'vtourn-auth';
-  const audience = opts.audience ?? 'vtourn';
+  const issuer = opts.issuer ?? 'tournamental-auth';
+  const audience = opts.audience ?? 'tournamental';
 
   const jwt = await new SignJWT({ phone: opts.phone, jti })
     .setProtectedHeader({ alg: 'HS256', typ: 'JWT' })
@@ -78,8 +78,8 @@ export async function verifySessionJwt(opts: {
   issuer?: string;
   audience?: string;
 }): Promise<AuthClaims> {
-  const issuer = opts.issuer ?? 'vtourn-auth';
-  const audience = opts.audience ?? 'vtourn';
+  const issuer = opts.issuer ?? 'tournamental-auth';
+  const audience = opts.audience ?? 'tournamental';
   const { payload } = await jwtVerify(opts.token, secretKeyBytes(opts.secret), {
     issuer,
     audience,

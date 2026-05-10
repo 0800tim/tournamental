@@ -14,17 +14,17 @@
 
 The user's bracket is never finished. From the moment they make their first pick, every remaining day shows them how the world's biggest prediction market disagrees with them. They get points for being right; **bigger points for locking in early**; even bigger points for being right *and* contrarian. Then on match day, the app becomes a **second screen** — phone in one hand, broadcast on TV — and they keep playing through quizzes and micro-markets while the real game runs. Every push, every share-card, every odds-chip is a chance to look at Polymarket and act on their conviction. The user can also buy a streaming pass via our affiliate link to actually watch the match. We get paid both ways.
 
-## The flagship launch URL: `2026wc.vtourn.com`
+## The flagship launch URL: `2026wc.tournamental.com`
 
-The bracket game is **the** launch product. Its canonical URL is **`https://2026wc.vtourn.com`** — not buried under `/world-cup-2026` on a generic app subdomain.
+The bracket game is **the** launch product. Its canonical URL is **`https://2026wc.tournamental.com`** — not buried under `/world-cup-2026` on a generic app subdomain.
 
-- **Landing page**: `2026wc.vtourn.com` lands directly on the bracket game / second-screen view.
-- **Marketing site CTAs** (`www.vtourn.com`): every "Play the bracket game" / "Make your picks" button points at `2026wc.vtourn.com`.
-- **Social cards**: all OG URLs use `2026wc.vtourn.com`.
-- **Telegram bot**: `/start` deep links land on `2026wc.vtourn.com`.
-- **Future tournaments**: `euro2028.vtourn.com`, `copa2027.vtourn.com`, `2027nrl.vtourn.com`. Easy memorable URLs that creators can share verbally.
+- **Landing page**: `2026wc.tournamental.com` lands directly on the bracket game / second-screen view.
+- **Marketing site CTAs** (`www.tournamental.com`): every "Play the bracket game" / "Make your picks" button points at `2026wc.tournamental.com`.
+- **Social cards**: all OG URLs use `2026wc.tournamental.com`.
+- **Telegram bot**: `/start` deep links land on `2026wc.tournamental.com`.
+- **Future tournaments**: `euro2028.tournamental.com`, `copa2027.tournamental.com`, `2027nrl.tournamental.com`. Easy memorable URLs that creators can share verbally.
 
-Routing: Cloudflare tunnel routes `2026wc.vtourn.com` and `app.vtourn.com` to the same Next.js on `:3300`. The Next.js app uses host-based middleware: requests to `2026wc.vtourn.com` resolve to the bracket page as the root.
+Routing: Cloudflare tunnel routes `2026wc.tournamental.com` and `app.tournamental.com` to the same Next.js on `:3300`. The Next.js app uses host-based middleware: requests to `2026wc.tournamental.com` resolve to the bracket page as the root.
 
 ## Two-axis scoring (the spine)
 
@@ -233,7 +233,7 @@ T+1:30:00 full-time
 - `<PayTVStreamCTA>` — geo-gated banner (see below)
 - `<BracketPickReminder>` — subtle "your bracket pick: ARG to win" pinned at top
 
-All listen to a single match-event WebSocket. Reuses the `@vtourn/spec` event types.
+All listen to a single match-event WebSocket. Reuses the `@tournamental/spec` event types.
 
 ### API endpoints (additions to `apps/api`)
 
@@ -301,7 +301,7 @@ Per-match the user sees ONE primary stream CTA (their country's most popular bro
 2. **Live-match-view banner**: small ribbon top of screen, dismissable per match.
 3. **Bracket page header**: "Watching all 104 matches live? See best stream packages for [country]."
 4. **Match-card** in fixtures list: "Live" badge + stream CTA per match.
-5. **Onboarding flow**: first time the user lands on `2026wc.vtourn.com`, ask "Want help finding the best stream subscription for [auto-detected country]?" — soft CTA, dismissable, never blocking.
+5. **Onboarding flow**: first time the user lands on `2026wc.tournamental.com`, ask "Want help finding the best stream subscription for [auto-detected country]?" — soft CTA, dismissable, never blocking.
 
 ### Geo-gating
 
@@ -440,7 +440,7 @@ Total: 7 days, ships in time for go-to-market window.
 
 ## Open questions for Tim
 
-1. **Polymarket affiliate paperwork** — register VTourn Holdings as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
+1. **Polymarket affiliate paperwork** — register Tournamental Holdings as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
 2. **Pay-TV provider outreach** — recommend signing up for Impact and CJ Affiliate networks (cover most broadcasters); Sky NZ direct; Optus AU direct.
 3. **NZ audience copy** — for NZ users, the Polymarket CTA is hidden. Should the chip itself stay (editorial market intel) or be hidden? Recommend keeping the chip — it drives bracket engagement even without the affiliate.
 4. **First-deposit attribution** — does Polymarket's affiliate console expose a postback/webhook? Need to register and verify Mon.

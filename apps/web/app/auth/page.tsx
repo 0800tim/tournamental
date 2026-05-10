@@ -1,5 +1,5 @@
 /**
- * VTourn auth page — phone → OTP → logged in.
+ * Tournamental auth page — phone → OTP → logged in.
  *
  * Server component shell that hosts the client-side <AuthForm/>.
  * The whole flow is intentionally one route with client-managed state
@@ -13,7 +13,7 @@ import TelegramLogin from "./TelegramLogin";
 import "./auth.css";
 
 export const metadata = {
-  title: "VTourn — Sign in",
+  title: "Tournamental — Sign in",
   description: "Sign in with your phone number — we'll text you a 6-digit code.",
 };
 
@@ -24,7 +24,7 @@ export default function AuthPage() {
   return (
     <main className="auth-page">
       <div className="auth-card">
-        <h1 className="auth-title">Sign in to VTourn</h1>
+        <h1 className="auth-title">Sign in to Tournamental</h1>
         <p className="auth-sub">
           We&apos;ll text you a 6-digit code. No password.
         </p>

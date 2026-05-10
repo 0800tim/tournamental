@@ -2,7 +2,7 @@
   "name": "@vtorn/game",
   "version": "0.0.1",
   "private": true,
-  "description": "VTourn game service — bracket submission, match-result settlement, leaderboards. Per docs/12.",
+  "description": "Tournamental game service — bracket submission, match-result settlement, leaderboards. Per docs/12.",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

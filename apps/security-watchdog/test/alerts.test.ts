@@ -228,8 +228,8 @@ describe('buildEmailSink', () => {
   });
 
   it('uses an injected send when configured via env', async () => {
-    process.env.SECURITY_EMAIL_TO = 'tim@vtourn.com';
-    process.env.SECURITY_EMAIL_FROM = 'sec@vtourn.com';
+    process.env.SECURITY_EMAIL_TO = 'tim@tournamental.com';
+    process.env.SECURITY_EMAIL_FROM = 'sec@tournamental.com';
     const send = vi.fn().mockResolvedValue(undefined);
     const s = buildEmailSink({ send });
     expect(s.enabled).toBe(true);

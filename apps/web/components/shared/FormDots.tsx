@@ -1,7 +1,7 @@
 /**
  * FormDots — five W/D/L pills representing a team's last 5 results.
  *
- * Per the UX spec ([doc 36 — `FormDots` — NEW](../../../../docs/36-vtourn-ux-spec.md))
+ * Per the UX spec ([doc 36 — `FormDots` — NEW](../../../../docs/36-tournamental-ux-spec.md))
  * this is the single shared form-strip used in three places:
  *
  *  - inline under each flag in `MatchPredictionRow` (size="sm")

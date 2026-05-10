@@ -10,7 +10,7 @@
  * VAPID keys for production come from env:
  *   VAPID_PUBLIC_KEY
  *   VAPID_PRIVATE_KEY
- *   VAPID_SUBJECT      mailto:ops@vtourn.com
+ *   VAPID_SUBJECT      mailto:ops@tournamental.com
  */
 
 import type { AuditLogger } from './audit.js';

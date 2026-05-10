@@ -67,7 +67,7 @@ export class RedditPoller implements Poller {
 
   constructor(private readonly opts: RedditPollerOptions) {
     this.fetchImpl = opts.fetch ?? globalThis.fetch;
-    this.userAgent = opts.userAgent ?? 'vtorn-dm-poll-forwarder/0.1 by vtourn-bot';
+    this.userAgent = opts.userAgent ?? 'vtorn-dm-poll-forwarder/0.1 by tournamental-bot';
     this.apiBase = (opts.apiBase ?? 'https://oauth.reddit.com').replace(/\/+$/, '');
     this.oauthBase = (opts.oauthBase ?? 'https://www.reddit.com').replace(/\/+$/, '');
   }

@@ -4,7 +4,7 @@
  * FotMob-inspired five-tab match detail (Predict / H2H / Form / Lineup /
  * Stats) sitting above a kit-coloured hero strip with both team flags.
  * The 3D renderer lives at /match/[id]; this is the pre-match enrichment
- * surface (per docs/36-vtourn-ux-spec.md §B).
+ * surface (per docs/36-tournamental-ux-spec.md §B).
  *
  * Server component: looks up the match in the canonical tournament fixture
  * tree (`@vtorn/bracket-engine.loadFixtures2026`), enriches teams with kit
@@ -67,7 +67,7 @@ export function generateMetadata({ params }: MatchPreviewPageProps): Metadata {
   );
   const match = resolveMatch(tournament, params.id);
   if (!match) {
-    return { title: "Match not found - VTourn" };
+    return { title: "Match not found - Tournamental" };
   }
   const home =
     match.homeCode && (canonicalTeam(match.homeCode)?.name ?? match.homeCode);
@@ -75,11 +75,11 @@ export function generateMetadata({ params }: MatchPreviewPageProps): Metadata {
     match.awayCode && (canonicalTeam(match.awayCode)?.name ?? match.awayCode);
   const title =
     home && away
-      ? `${home} vs ${away} - ${match.stageLabel} | VTourn`
-      : `${match.stageLabel} - VTourn match preview`;
+      ? `${home} vs ${away} - ${match.stageLabel} | Tournamental`
+      : `${match.stageLabel} - Tournamental match preview`;
   const description = home && away
-    ? `Predict ${home} vs ${away} - head-to-head, form, predicted XI and pre-match stats. Make your pick on VTourn.`
-    : `${match.stageLabel} preview on VTourn.`;
+    ? `Predict ${home} vs ${away} - head-to-head, form, predicted XI and pre-match stats. Make your pick on Tournamental.`
+    : `${match.stageLabel} preview on Tournamental.`;
   return {
     title,
     description,

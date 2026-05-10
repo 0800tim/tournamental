@@ -1,5 +1,5 @@
 /**
- * `@vtorn/social-cards` — share / OG card generator for VTourn.
+ * `@vtorn/social-cards` — share / OG card generator for Tournamental.
  *
  * Entry-point. Pure-TS, framework-free, runs in Node and any modern
  * server runtime that supports `satori` + `@resvg/resvg-js`.

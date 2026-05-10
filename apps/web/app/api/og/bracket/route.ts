@@ -100,7 +100,7 @@ async function renderPNG(params: OGParams): Promise<Buffer> {
                 type: "div",
                 props: {
                   style: { fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em" },
-                  children: "VTourn · Bracket Prophet",
+                  children: "Tournamental · Bracket Prophet",
                 },
               },
               {
@@ -158,7 +158,7 @@ async function renderPNG(params: OGParams): Promise<Buffer> {
                 type: "div",
                 props: {
                   style: { fontWeight: 600, color: "#facc15" },
-                  children: "vtourn.com/world-cup-2026",
+                  children: "tournamental.com/world-cup-2026",
                 },
               },
             ],

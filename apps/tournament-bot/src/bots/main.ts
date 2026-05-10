@@ -1,4 +1,4 @@
-// Main bot — `@VTournBot` (final username TBD). Wires grammY commands to
+// Main bot — `@TournamentalBot` (final username TBD). Wires grammY commands to
 // the cross-platform dispatcher in `lib/dispatch.ts`.
 //
 // The grammY layer is now a thin transport adapter: it normalises an

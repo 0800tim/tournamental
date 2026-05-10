@@ -10,7 +10,7 @@ import { AppShell } from "@/components/shell";
 import { PillChip } from "@/components/ui";
 
 export const metadata = {
-  title: "Profile - VTourn",
+  title: "Profile - Tournamental",
 };
 
 export default function ProfilePage() {

@@ -1,7 +1,7 @@
 # `@vtorn/native` — Capacitor iOS + Android shell
 
 A thin native wrapper around [`apps/web`](../web). The shell renders the
-production VTourn web app inside a WebView and adds three native
+production Tournamental web app inside a WebView and adds three native
 capabilities the browser can't do as well:
 
 1. **Push notifications** via APNs (iOS) and FCM (Android), routed through
@@ -68,7 +68,7 @@ respectively (signing identity required — see "Tim's actions" below).
 
 1. `pnpm ios:build` — opens Xcode.
 2. In Xcode, choose any iPhone simulator from the device dropdown.
-3. Hit **Cmd+R**. The simulator boots and loads `vtourn.com` in the
+3. Hit **Cmd+R**. The simulator boots and loads `tournamental.com` in the
    shell. Push notifications **don't work in the simulator** — you'll
    need a real device with an Apple Developer push entitlement.
 
@@ -78,7 +78,7 @@ respectively (signing identity required — see "Tim's actions" below).
 2. In Studio, **Tools → Device Manager → Create Device** → pick a Pixel
    8 image with API 34.
 3. Hit the green run arrow. The emulator boots; the WebView loads
-   `vtourn.com`. FCM **does** work in the emulator if Google Play
+   `tournamental.com`. FCM **does** work in the emulator if Google Play
    Services is enabled in the AVD.
 
 ### Pointing the shell at local dev
@@ -96,7 +96,7 @@ VTORN_WEB_URL=http://10.0.2.2:3300 VTORN_ANDROID_CLEARTEXT=true pnpm cap:sync
 
 | Var | Default | Purpose |
 | --- | --- | --- |
-| `VTORN_WEB_URL` | `https://vtourn.com` | URL the WebView loads on launch |
+| `VTORN_WEB_URL` | `https://tournamental.com` | URL the WebView loads on launch |
 | `VTORN_ANDROID_CLEARTEXT` | `false` (auto-true if `VTORN_WEB_URL` starts with `http://`) | Allow plain HTTP on Android (dev only) |
 
 The push base URL is currently hardcoded to `https://vtorn-push.aiva.nz`
@@ -150,14 +150,14 @@ this gets swapped for the real account id at sign-in.
 | Action | Where |
 | --- | --- |
 | Enrol in Apple Developer Program ($99/yr) | https://developer.apple.com/programs/ |
-| Create the App ID `com.vtourn.app` in Apple Developer | Identifiers → +  |
+| Create the App ID `com.tournamental.app` in Apple Developer | Identifiers → +  |
 | Enable the **Push Notifications** capability on that App ID | Same screen |
 | Create an APNs auth key (`.p8`) and upload to push-notifications service | Keys → + → Apple Push Notifications service |
 | Enrol in Google Play Console ($25 one-time) | https://play.google.com/console/ |
-| Create the Android app entry with package name `com.vtourn.app` | Play Console → All apps → Create app |
+| Create the Android app entry with package name `com.tournamental.app` | Play Console → All apps → Create app |
 | Create a Firebase project, add the Android app, download `google-services.json` | https://console.firebase.google.com/ |
 | Drop `google-services.json` at `apps/native/android/app/google-services.json` | (do not commit; add to `.gitignore`) |
-| Generate an Android keystore for release signing | `keytool -genkey -v -keystore vtourn-release.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000` |
+| Generate an Android keystore for release signing | `keytool -genkey -v -keystore tournamental-release.jks -alias upload -keyalg RSA -keysize 2048 -validity 10000` |
 | Create the App Store Connect listing (screenshots, privacy nutrition labels, age rating) | https://appstoreconnect.apple.com/ |
 | Create the Play Console listing (store listing, content rating, data-safety) | Play Console → App content |
 

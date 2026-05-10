@@ -19,7 +19,7 @@ export interface AuthContext {
     otpSecret: string;
     /** Secret used to sign session JWTs. Must be > 32 bytes. */
     jwtSecret: string;
-    /** Apphost for the WebOTP suffix in SMS bodies. e.g. "vtourn.com". */
+    /** Apphost for the WebOTP suffix in SMS bodies. e.g. "tournamental.com". */
     appHost: string;
     /** Product name shown in OTP messages. */
     productName: string;

@@ -28,4 +28,4 @@ Within 30 minutes of the threshold-cross event.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=leaderboard-climb&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=leaderboard-climb&utm_content={{campaign.id}}`.

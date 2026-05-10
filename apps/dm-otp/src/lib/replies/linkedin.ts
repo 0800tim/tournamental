@@ -37,7 +37,7 @@ export async function sendLinkedInOtp(
     body: JSON.stringify({
       recipients: [recipientUrn],
       from: cfg.fromUrn,
-      subject: 'VTourn login',
+      subject: 'Tournamental login',
       body: otpMessageBody(code),
       messageContentType: 'TEXT',
     }),

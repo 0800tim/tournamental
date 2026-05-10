@@ -169,7 +169,7 @@ export class ApiFootballStatsSource implements StatsSource {
         Accept: "application/json",
         "User-Agent":
           process.env.WC2026_USER_AGENT ??
-          "VTourn-WC2026-Scraper/0.1 (+https://vtorn.aiva.nz; ops@vtourn.com)",
+          "Tournamental-WC2026-Scraper/0.1 (+https://vtorn.aiva.nz; ops@tournamental.com)",
       },
     });
     if (!res.ok) {

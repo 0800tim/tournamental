@@ -1,4 +1,4 @@
-title = "VTourn gitleaks config"
+title = "Tournamental gitleaks config"
 
 # Extend the bundled default ruleset (don't replace it).
 [extend]

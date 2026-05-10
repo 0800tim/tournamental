@@ -1,5 +1,5 @@
 /**
- * Strict structural validator for canonical VTourn spec messages
+ * Strict structural validator for canonical Tournamental spec messages
  * (`@vtorn/spec` v0.1.1). Used:
  *   - in tests to assert every emitted message is well-formed,
  *   - by the CLI in `--strict` debug mode (future toggle),

@@ -1,6 +1,6 @@
 # @vtorn/vstamp
 
-Tamper-evident prediction receipts for VTourn locked brackets. Phase 1 ships
+Tamper-evident prediction receipts for Tournamental locked brackets. Phase 1 ships
 the off-chain layer: a signed Merkle tree per (tournament, day). Phase 2
 (see [docs/21-onchain-sweepstakes-oracle.md](../../docs/21-onchain-sweepstakes-oracle.md))
 will anchor the daily root on-chain.
@@ -8,7 +8,7 @@ will anchor the daily root on-chain.
 > Engine for the marketing claim: **"every locked prediction gets a tamper-proof
 > verification stamp."** This service produces those stamps and lets anyone with
 > a receipt + public Merkle root verify a bracket was committed at the claimed
-> time without trusting VTourn.
+> time without trusting Tournamental.
 
 See also [docs/17-vstamp-and-prediction-iq.md](../../docs/17-vstamp-and-prediction-iq.md).
 
@@ -255,7 +255,7 @@ pnpm typecheck   # tsc --noEmit
   rotation timestamps, so verifier clients can pin a known-good set.
 - OpenTimestamps integration: submit each root to OTS calendar servers and
   store the returned `.ots` proof per the doc 17 design.
-- VStamp ID (`V-2026-W47-A92F-81C` style) issuance + `vtourn.com/v/<id>`
+- VStamp ID (`V-2026-W47-A92F-81C` style) issuance + `tournamental.com/v/<id>`
   static proof page.
 
 ## Test counts at ship
@@ -289,5 +289,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/vstamp run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

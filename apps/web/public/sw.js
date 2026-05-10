@@ -1,6 +1,6 @@
 /* eslint-disable */
 /**
- * VTourn PWA service worker.
+ * Tournamental PWA service worker.
  *
  * Strategies:
  *   - App shell precache: HTML route templates + critical CSS/JS at install.
@@ -279,9 +279,9 @@ self.addEventListener("push", (event) => {
   try {
     payload = event.data ? event.data.json() : {};
   } catch (e) {
-    payload = { title: "VTourn", body: event.data ? event.data.text() : "" };
+    payload = { title: "Tournamental", body: event.data ? event.data.text() : "" };
   }
-  const title = payload.title ?? "VTourn";
+  const title = payload.title ?? "Tournamental";
   const options = {
     body: payload.body ?? "Kickoff in 5 minutes",
     icon: payload.icon ?? "/icons/icon-192.png",

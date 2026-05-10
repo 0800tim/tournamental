@@ -1,14 +1,14 @@
-# VTourn glossary
+# Tournamental glossary
 
 Domain terms used across the codebase, alphabetical. If you find yourself explaining a term in plain English in two different docs, that term belongs here.
 
-Whenever a term has more than one meaning in normal English, the entry pins it to the VTourn-specific sense.
+Whenever a term has more than one meaning in normal English, the entry pins it to the Tournamental-specific sense.
 
 ## A
 
 **Affiliate router** — the service at [`apps/affiliate-router`](../apps/affiliate-router) that takes a partner ID + a click-context and resolves the geo-gated outbound URL while writing an audit row. See [`30-gamification-and-affiliate-spine.md`](30-gamification-and-affiliate-spine.md).
 
-**Aiva** — Tim's messaging platform that exposes a unified gateway over WhatsApp / SMS / Telegram. VTourn talks to it via [`packages/aiva-client`](../packages/aiva-client). Two specific surfaces: **Aiva-SMS** (transactional SMS via Twilio behind the gateway) and **Aiva-WhatsApp** (Baileys session pool fronted by the same gateway).
+**Aiva** — Tim's messaging platform that exposes a unified gateway over WhatsApp / SMS / Telegram. Tournamental talks to it via [`packages/aiva-client`](../packages/aiva-client). Two specific surfaces: **Aiva-SMS** (transactional SMS via Twilio behind the gateway) and **Aiva-WhatsApp** (Baileys session pool fronted by the same gateway).
 
 **Auto-director** — the camera director in the renderer that picks shot framing based on event type (goal, build-up, set piece). Defined in [`27b-fidelity-phase2-physics-director.md`](27b-fidelity-phase2-physics-director.md).
 
@@ -20,7 +20,7 @@ Whenever a term has more than one meaning in normal English, the entry pins it t
 
 ## C
 
-**Card-style overlay** — a full-bleed mobile-first overlay that animates in as a card and out as a sheet. Used for kickoff alerts, prediction confirmations, and result celebrations. See [`apps/web/components/overlay`](../apps/web/components/overlay) and [`36-vtourn-ux-spec.md`](36-vtourn-ux-spec.md).
+**Card-style overlay** — a full-bleed mobile-first overlay that animates in as a card and out as a sheet. Used for kickoff alerts, prediction confirmations, and result celebrations. See [`apps/web/components/overlay`](../apps/web/components/overlay) and [`36-tournamental-ux-spec.md`](36-tournamental-ux-spec.md).
 
 **Cascade** — when a knockout fixture's winner depends on an earlier fixture, the dependent fixture's prediction "cascades" — that is, the user's pick auto-updates if the underlying bracket pick was wrong but the underlying winner reaches the same slot. The bracket-engine package handles cascade resolution.
 
@@ -30,11 +30,11 @@ Whenever a term has more than one meaning in normal English, the entry pins it t
 
 **Dead-letter queue** — when [`apps/dm-poll-forwarder`](../apps/dm-poll-forwarder) tries to forward a message and the downstream `dm-otp` rejects it permanently, the message lands in the DLQ rather than being retried indefinitely. JSONL-backed.
 
-**DM-OTP** — the user-initiated DM flow where a user sends "VTOURN <code>" to one of seventeen platforms (Telegram, WhatsApp, Discord, X, Reddit, etc.) and gets verified back through the same channel. See [`13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) and [`apps/dm-otp`](../apps/dm-otp).
+**DM-OTP** — the user-initiated DM flow where a user sends "TOURNAMENTAL <code>" to one of seventeen platforms (Telegram, WhatsApp, Discord, X, Reddit, etc.) and gets verified back through the same channel. See [`13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) and [`apps/dm-otp`](../apps/dm-otp).
 
-**Drip List** — the on-chain Drips Network primitive that streams USDC to a fixed allocation of contributor addresses on a schedule. VTourn maintains one main contributor Drip List. See [`40-drips-network-integration.md`](40-drips-network-integration.md).
+**Drip List** — the on-chain Drips Network primitive that streams USDC to a fixed allocation of contributor addresses on a schedule. Tournamental maintains one main contributor Drip List. See [`40-drips-network-integration.md`](40-drips-network-integration.md).
 
-**Drips** — the open-source revenue-distribution protocol VTourn uses to share platform revenue with contributors. Apache-2.0 contributors share platform revenue per [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md).
+**Drips** — the open-source revenue-distribution protocol Tournamental uses to share platform revenue with contributors. Apache-2.0 contributors share platform revenue per [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md).
 
 ## F
 
@@ -74,13 +74,13 @@ Whenever a term has more than one meaning in normal English, the entry pins it t
 
 ## O
 
-**OracleStamp** — the on-chain signature VTourn writes when settling a sweepstakes pool. Distinct from a VStamp (which proves a prediction was made before the result was known). See [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md).
+**OracleStamp** — the on-chain signature Tournamental writes when settling a sweepstakes pool. Distinct from a VStamp (which proves a prediction was made before the result was known). See [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md).
 
 **OverlayRouter** — the client-side router in `apps/web` that decides which card-style overlay to show given the current route + match state. Owned by the per-match-pick-popup agent.
 
 ## P
 
-**Pool** — a sweepstakes pool. User-organised, not custodial — VTourn never holds funds. The on-chain settlement contract resolves payouts using an OracleStamp.
+**Pool** — a sweepstakes pool. User-organised, not custodial — Tournamental never holds funds. The on-chain settlement contract resolves payouts using an OracleStamp.
 
 **Prediction IQ** — a long-term per-user reputation score, computed from VStamp'd predictions over time. Survives bracket cycles. See [`17-vstamp-and-prediction-iq.md`](17-vstamp-and-prediction-iq.md).
 
@@ -116,4 +116,4 @@ Whenever a term has more than one meaning in normal English, the entry pins it t
 
 ## W
 
-**WC2026** — short for FIFA World Cup 2026. The first live tournament VTourn supports end-to-end. Data lives in [`apps/wc2026-data`](../apps/wc2026-data).
+**WC2026** — short for FIFA World Cup 2026. The first live tournament Tournamental supports end-to-end. Data lives in [`apps/wc2026-data`](../apps/wc2026-data).

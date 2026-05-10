@@ -30,4 +30,4 @@ local 8pm if it falls within ±6h.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=bracket-locked&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=bracket-locked&utm_content={{campaign.id}}`.

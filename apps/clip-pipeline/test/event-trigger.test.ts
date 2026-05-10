@@ -235,7 +235,7 @@ describe("subscribeToMatchStream - goal flow", () => {
     expect(verticalCall?.caption).toContain("Argentina");
     expect(verticalCall?.caption).toContain("France");
     expect(verticalCall?.caption).toContain("1-0");
-    expect(verticalCall?.hashtags).toContain("#VTourn");
+    expect(verticalCall?.hashtags).toContain("#Tournamental");
     expect(verticalCall?.event_type).toBe("event.goal");
     expect(verticalCall?.match_id).toBe("ar-fr-2022");
     expect(verticalCall?.clip_id).toMatch(/^clip_[0-9a-f]{16}$/);

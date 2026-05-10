@@ -2,7 +2,7 @@
   "name": "@vtorn/vstamp",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn VStamp service — tamper-evident prediction receipts (Merkle tree + Ed25519-signed roots)",
+  "description": "Tournamental VStamp service — tamper-evident prediction receipts (Merkle tree + Ed25519-signed roots)",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

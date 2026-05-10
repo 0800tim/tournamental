@@ -1,4 +1,4 @@
-# Importing the VTourn Commentary into ElevenLabs
+# Importing the Tournamental Commentary into ElevenLabs
 
 All 10 languages now ready (en, es, pt, fr, de, it, zh, ar, ja, ru).
 This guide walks you through rendering the 2965-line broadcast pack into
@@ -57,7 +57,7 @@ viewing a voice in the dashboard.
   or upgrade to Pro for the initial render).
 - A pre-cloned voice per language, or one voice you reuse with the language
   switch in the project settings.
-- A scratch folder, e.g. `~/Downloads/vtourn-render/`.
+- A scratch folder, e.g. `~/Downloads/tournamental-render/`.
 
 ## Recommended pipeline (one language at a time)
 
@@ -66,7 +66,7 @@ import (Workspace → Studio → New Project) with the markdown chunks.
 
 ### 1. Set the project voice
 
-Studio → New Project → pick the language → choose your VTourn narrator
+Studio → New Project → pick the language → choose your Tournamental narrator
 voice. Set:
 
 - Stability: 0.45 (broadcast-y, room for energy on goals)

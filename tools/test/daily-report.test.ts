@@ -167,7 +167,7 @@ describe('renderReport', () => {
           dir: 'web',
           name: '@vtorn/web',
           port: 3300,
-          description: 'VTourn 3D match renderer',
+          description: 'Tournamental 3D match renderer',
         },
         {
           group: 'apps',

@@ -1,7 +1,7 @@
 # TikTok — week-in-review compilation
 
 > Surface: TikTok. Event: weekly cron (Sunday 7pm in the tournament's primary
-> time zone). Posted from the brand `@vtourn` channel, not user channels.
+> time zone). Posted from the brand `@tournamental` channel, not user channels.
 
 ## Visual
 
@@ -23,7 +23,7 @@ If you're not predicting yet, you're losing free points →
 ## Hashtags
 
 ```
-{{tournament.hashtag}} #goals #compilation #weekrecap #VTourn #predictions #fyp
+{{tournament.hashtag}} #goals #compilation #weekrecap #Tournamental #predictions #fyp
 ```
 
 ## Optimal post time
@@ -34,11 +34,11 @@ tournament metadata.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/brand?utm_source=tiktok&utm_campaign=week-recap&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/brand?utm_source=tiktok&utm_campaign=week-recap&utm_content={{campaign.id}}`.
 
 ## Compliance
 
 - All clips reused must have engagement data older than 24h (so we can verify they
   haven't been flagged or removed by the user).
-- Brand-channel posts must include the `Visualisation: VTourn 3D replay`
+- Brand-channel posts must include the `Visualisation: Tournamental 3D replay`
   description string.

@@ -1,7 +1,7 @@
 {
   "match_id": "fifa-wc-2022-final-arg-fra-2022-12-18",
   "schema_version": "0.2.0",
-  "narrator": "vtourn-broadcast-v1",
+  "narrator": "tournamental-broadcast-v1",
   "languages": [
     "en",
     "es",

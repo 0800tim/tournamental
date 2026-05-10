@@ -33,7 +33,7 @@ FIFA_SCHEDULE_URL = "https://www.fifa.com/en/tournaments/mens/worldcup/canadamex
 
 POLITE_SLEEP_S = 1.0
 DEFAULT_TIMEOUT_S = 30.0
-USER_AGENT = "VTournDataBot/0.1 (+https://github.com/0800tim/vtorn)"
+USER_AGENT = "TournamentalDataBot/0.1 (+https://github.com/0800tim/vtorn)"
 
 
 @dataclass

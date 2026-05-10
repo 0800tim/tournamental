@@ -1,7 +1,7 @@
 /**
  * @vtorn/aiva-client
  *
- * Shared Aiva SMS + WhatsApp gateway clients used across VTourn services.
+ * Shared Aiva SMS + WhatsApp gateway clients used across Tournamental services.
  *
  * Consumers today: `apps/auth-sms`, `apps/push-notifications`. Likely next:
  * `apps/crm-bridge` (broadcast messages to drip-list subscribers) and

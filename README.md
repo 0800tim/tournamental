@@ -1,12 +1,12 @@
-# VTourn
+# Tournamental
 
 > **Predict the tournament. Beat the market. Prove it.**
 >
 > A live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network — all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten.
 
-Domain: **vtourn.com**. Brand expansion when needed: **VTourn — Verified Tournament Oracle Network**.
+Domain: **tournamental.com**. Brand expansion when needed: **Tournamental — Verified Tournament Oracle Network**.
 
-## What VTourn is
+## What Tournamental is
 
 A live tournament intelligence game. Users predict match outcomes and tournament-wide brackets, lock predictions before the result is known, and earn points scored against live market implied probabilities — so calling a 25%-implied underdog correctly is worth more than calling a 90% favourite. Every locked prediction is timestamped and committed to a blockchain Merkle batch (a **VStamp**) so the leaderboard is verifiably tamper-proof. Users build a long-term **Prediction IQ** that becomes a portable reputation asset.
 
@@ -14,7 +14,7 @@ The 3D match-renderer (originally specced as a stand-alone framework, "Simulated
 
 The killer line:
 
-> **Everyone says they knew what would happen. VTourn proves who really did.**
+> **Everyone says they knew what would happen. Tournamental proves who really did.**
 
 ## Core architecture in one diagram
 
@@ -47,9 +47,9 @@ The killer line:
 ## Repo layout
 
 ```
-SimulatedSports/                           working folder name; consumer brand is "VTourn"
+SimulatedSports/                           working folder name; consumer brand is "Tournamental"
 ├── README.md                              this file
-├── VTourn Pitch.md                               one-page elevator pitch
+├── Tournamental Pitch.md                               one-page elevator pitch
 ├── REVIEW.md                              docs-pack readiness audit
 ├── CLAUDE.md                              orchestrator + agent operations entrypoint
 ├── AGENT-PROMPTS.md                       copy-paste starter prompts for code agents
@@ -71,13 +71,13 @@ SimulatedSports/                           working folder name; consumer brand i
 │   ├── 12-odds-and-predictions.md         odds, predictions, leaderboards, sweepstakes
 │   ├── 13-telegram-bot-and-auth.md        Tournament Bot — auth (Telegram + email + TOTP + passkeys), notifications
 │   ├── 14-clip-generation-and-social.md   auto-clips → TikTok / Reels / Shorts / Telegram
-│   ├── 15-vtourn-brand-and-positioning.md  VTourn brand, taglines, NZ regulatory framing, monetisation overview
+│   ├── 15-tournamental-brand-and-positioning.md  Tournamental brand, taglines, NZ regulatory framing, monetisation overview
 │   ├── 16-game-modes-and-scoring.md       10 game modes, scoring formula, personality leaderboards
 │   ├── 17-vstamp-and-prediction-iq.md     blockchain verification + Prediction IQ reputation
 │   ├── 18-monetization.md                 affiliate routing + sponsorship + Pro + B2B + creator + data licensing
-│   ├── 19-open-source-and-contributor-revenue.md  Apache 2.0, VTourn Holdings, Drips Network revshare
+│   ├── 19-open-source-and-contributor-revenue.md  Apache 2.0, Tournamental Holdings, Drips Network revshare
 │   ├── 20-identity-humanness-bots.md      multi-provider OAuth, Humanness Score, bot policy, friend graph
-│   └── 21-onchain-sweepstakes-oracle.md   user-organised on-chain pools + VTourn-as-oracle (Polygon/Base)
+│   └── 21-onchain-sweepstakes-oracle.md   user-organised on-chain pools + Tournamental-as-oracle (Polygon/Base)
 ├── spec/
 │   ├── types.ts                           canonical TypeScript types
 │   └── examples/                          sample JSON payloads
@@ -86,12 +86,12 @@ SimulatedSports/                           working folder name; consumer brand i
 
 ## v0.2 demo target: 2022 World Cup Final
 
-The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). VTourn-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.
+The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). Tournamental-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.
 
 ## Documentation
 
 - **Hive-mind index** for agents and contributors: [`docs/README.md`](docs/README.md). Start here.
-- **Glossary** of VTourn-specific terms: [`docs/glossary.md`](docs/glossary.md).
+- **Glossary** of Tournamental-specific terms: [`docs/glossary.md`](docs/glossary.md).
 - **Playbooks** for adding apps, routes, debugging PRs, merge conflicts, feature flags, doc updates: [`docs/playbook/`](docs/playbook/).
 - **API reference** with per-service Swagger UI URLs and committed OpenAPI 3.0 specs: [`docs/api/README.md`](docs/api/README.md).
 
@@ -108,7 +108,7 @@ There are now thirteen agents (A–M):
 - **L** — clip pipeline: headless renderer → MP4 variants → social posting.
 - **M** — VStamp service: Merkle batching, Polygon anchoring, OpenTimestamps proofs.
 
-Critical-path "watchable demo" remains a weekend-one job (agents A–E + minimal H). The full VTourn launch with predictions, bot, VStamps, and clip distribution is a 2–4 week pack of work for a parallel team of code agents — roughly the timeframe to a tournament window like the 2026 World Cup.
+Critical-path "watchable demo" remains a weekend-one job (agents A–E + minimal H). The full Tournamental launch with predictions, bot, VStamps, and clip distribution is a 2–4 week pack of work for a parallel team of code agents — roughly the timeframe to a tournament window like the 2026 World Cup.
 
 ## Deploys
 
@@ -127,15 +127,15 @@ Top-level scripts: `pnpm deploy:staging --apps=marketing`,
 
 ## Positioning (short version)
 
-VTourn is **free-to-play**. Points are not redeemable for cash. We never operate as a sportsbook. We display public market odds (Polymarket, The Odds API) as a data layer for scoring difficulty; we surface affiliate links to regulated operators *only where legal for the user*. Sweepstakes pools are tracked but not custodial — users settle off-platform. Detailed regulatory framing (including the NZ-specific Polymarket/Kalshi situation) in [docs/15-vtourn-brand-and-positioning.md](docs/15-vtourn-brand-and-positioning.md).
+Tournamental is **free-to-play**. Points are not redeemable for cash. We never operate as a sportsbook. We display public market odds (Polymarket, The Odds API) as a data layer for scoring difficulty; we surface affiliate links to regulated operators *only where legal for the user*. Sweepstakes pools are tracked but not custodial — users settle off-platform. Detailed regulatory framing (including the NZ-specific Polymarket/Kalshi situation) in [docs/15-tournamental-brand-and-positioning.md](docs/15-tournamental-brand-and-positioning.md).
 
 ## Disclaimer
 
-This project is provided for educational and demonstration purposes only. VTourn does not offer or facilitate real-money wagers. Producer implementations that consume copyrighted broadcasts, scrape paid data feeds, or republish licensed tracking streams are the responsibility of the operator running them, not this framework. Operators are responsible for confirming the legality of any market-data display or affiliate-link placement in their jurisdiction.
+This project is provided for educational and demonstration purposes only. Tournamental does not offer or facilitate real-money wagers. Producer implementations that consume copyrighted broadcasts, scrape paid data feeds, or republish licensed tracking streams are the responsibility of the operator running them, not this framework. Operators are responsible for confirming the legality of any market-data display or affiliate-link placement in their jurisdiction.
 
 ## License and structure
 
-VTourn ships **100% open source** under **Apache 2.0** (code) and **CC-BY-4.0** (docs). The brand, wordmark, and the official `@VTournBot` Telegram identity are owned by **VTourn Holdings** and are *not* licensed for forks — see `TRADEMARK.md`. Anyone may fork the protocol, run their own instance, set their own affiliate destinations, build their own world.
+Tournamental ships **100% open source** under **Apache 2.0** (code) and **CC-BY-4.0** (docs). The brand, wordmark, and the official `@TournamentalBot` Telegram identity are owned by **Tournamental Holdings** and are *not* licensed for forks — see `TRADEMARK.md`. Anyone may fork the protocol, run their own instance, set their own affiliate destinations, build their own world.
 
 **Contributor revenue share.** A fixed percentage of net affiliate revenue (and other monetization lanes) flows to a public Drips Network treasury that streams USDC to scored contributors quarterly. Code merges, accepted RFCs, games built on the platform, vulnerability disclosures, and major reviews all earn into the pool. **This is revenue share, not equity.** Full design and contributor onboarding in [docs/19-open-source-and-contributor-revenue.md](docs/19-open-source-and-contributor-revenue.md).
 

@@ -141,7 +141,7 @@ TOTP (RFC 6238) is a shared-secret 6-digit-rotating-code standard. Every authent
 The thing to know: **TOTP is a second factor, not an identity**. The server still has to know which user is presenting the code. So the canonical flow is:
 
 1. User authenticates via Telegram or email magic link (gives us a `user_id`).
-2. In settings, user clicks "Enable 2FA". Server generates a TOTP secret, displays a QR code (`otpauth://totp/VTourn:tim@...?secret=...&issuer=VTourn`).
+2. In settings, user clicks "Enable 2FA". Server generates a TOTP secret, displays a QR code (`otpauth://totp/Tournamental:tim@...?secret=...&issuer=Tournamental`).
 3. User scans with Google Authenticator. Codes start rotating in their app.
 4. User confirms by typing one current code. Server stores the secret encrypted-at-rest.
 5. On future logins (after the primary factor), server prompts for the current TOTP code. User types it. Done.

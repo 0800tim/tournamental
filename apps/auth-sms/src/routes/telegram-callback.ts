@@ -18,10 +18,10 @@
  *
  * Tim's BotFather provisioning step (one-off):
  *   1. Open @BotFather, run `/setdomain` for the chosen bot, set
- *      `vtourn.com`. The widget will not load on any other origin.
+ *      `tournamental.com`. The widget will not load on any other origin.
  *   2. Reuse `TELEGRAM_BOT_TOKEN` from apps/tournament-bot/.env so the
  *      bot whose token signs Login payloads is the same bot whose
- *      username (`VTournBot` by default) renders on the widget.
+ *      username (`TournamentalBot` by default) renders on the widget.
  */
 
 import type { FastifyInstance } from 'fastify';

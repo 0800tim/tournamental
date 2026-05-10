@@ -1,5 +1,5 @@
 /**
- * VTourn dm-otp service entrypoint.
+ * Tournamental dm-otp service entrypoint.
  *
  * Boots a Fastify HTTP server on :3331 with:
  *   - Per-channel webhook receivers under /v1/auth/dm-otp/webhooks/*
@@ -127,7 +127,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
 
   const corsOrigins = (
     process.env.DM_OTP_CORS_ORIGINS ??
-    'https://vtourn.com,https://vtorn.aiva.nz,https://vtorn-auth.aiva.nz,http://localhost:3300'
+    'https://tournamental.com,https://vtorn.aiva.nz,https://vtorn-auth.aiva.nz,http://localhost:3300'
   )
     .split(',')
     .map((s) => s.trim())
@@ -150,7 +150,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   app.get('/', async (_req, reply) => {
     reply.header('Cache-Control', 'public, max-age=60');
     return {
-      service: 'vtourn-dm-otp',
+      service: 'tournamental-dm-otp',
       version: '0.1.0',
       health: '/health',
     };
@@ -201,9 +201,9 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
   const config: DmOtpConfig = {
     otpSecret: envOrDevDefault('DM_OTP_OTP_SECRET', 'dm-otp-secret'),
     jwtSecret: envOrDevDefault('DM_OTP_JWT_SECRET', 'dm-otp-jwt'),
-    productName: process.env.DM_OTP_PRODUCT_NAME ?? 'VTourn',
-    appHost: process.env.DM_OTP_APP_HOST ?? 'vtourn.com',
-    appBaseUrl: process.env.DM_OTP_APP_BASE_URL ?? 'https://vtourn.com',
+    productName: process.env.DM_OTP_PRODUCT_NAME ?? 'Tournamental',
+    appHost: process.env.DM_OTP_APP_HOST ?? 'tournamental.com',
+    appBaseUrl: process.env.DM_OTP_APP_BASE_URL ?? 'https://tournamental.com',
     codeTtlSeconds: Number(process.env.DM_OTP_CODE_TTL_SECONDS ?? 300),
     sessionTtlSeconds: Number(
       process.env.DM_OTP_SESSION_TTL_SECONDS ?? 30 * 24 * 60 * 60,
@@ -301,7 +301,7 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
           clientSecret: process.env.REDDIT_CLIENT_SECRET as string,
           username: process.env.REDDIT_USERNAME as string,
           password: process.env.REDDIT_PASSWORD as string,
-          userAgent: process.env.REDDIT_USER_AGENT ?? 'vtourn-dm-otp/0.1',
+          userAgent: process.env.REDDIT_USER_AGENT ?? 'tournamental-dm-otp/0.1',
         },
         username,
         code,
@@ -345,7 +345,7 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
       sendViberOtp(
         {
           authToken: process.env.VIBER_AUTH_TOKEN as string,
-          senderName: process.env.VIBER_SENDER_NAME ?? 'VTourn',
+          senderName: process.env.VIBER_SENDER_NAME ?? 'Tournamental',
         },
         userId,
         code,
@@ -403,8 +403,8 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
           smtpUser: process.env.EMAIL_SMTP_USER ?? '',
           smtpPass: process.env.EMAIL_SMTP_PASS ?? '',
           fromAddress:
-            process.env.EMAIL_FROM_ADDRESS ?? 'login@vtourn.com',
-          fromName: process.env.EMAIL_FROM_NAME ?? 'VTourn',
+            process.env.EMAIL_FROM_ADDRESS ?? 'login@tournamental.com',
+          fromName: process.env.EMAIL_FROM_NAME ?? 'Tournamental',
           appBaseUrl: config.appBaseUrl,
         },
         { to: toAddress, token },
@@ -427,7 +427,7 @@ async function start(): Promise<void> {
   const app = await buildServer();
   try {
     await app.listen({ port: PORT, host: BIND });
-    app.log.info({ port: PORT, bind: BIND }, `vtourn-dm-otp listening on http://${BIND}:${PORT}`);
+    app.log.info({ port: PORT, bind: BIND }, `tournamental-dm-otp listening on http://${BIND}:${PORT}`);
   } catch (err) {
     app.log.error(err);
     process.exit(1);
