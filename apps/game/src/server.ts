@@ -28,8 +28,10 @@ import { registerBracketRoutes } from "./routes/bracket.js";
 import { registerMatchRoutes } from "./routes/match.js";
 import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
+import { registerPunditRoutes } from "./routes/pundit.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
+import { recomputeVerifiedPundits } from "./pundit/compute.js";
 import type { KickoffRegistry } from "./kickoffs.js";
 
 export interface BuildServerOptions {
@@ -51,6 +53,13 @@ export interface BuildServerOptions {
    * fixture JSON in `@vtorn/bracket-engine`.
    */
   kickoffs?: KickoffRegistry;
+  /**
+   * Skip the boot-time Verified-Pundit recompute. Tests that don't care
+   * about the badge surface set this to keep startup quiet.
+   */
+  skipPunditRecompute?: boolean;
+  /** Override the JSONL audit-log path for the pundit compute (tests). */
+  punditJsonlPath?: string;
 }
 
 export interface BuiltServer {
@@ -126,6 +135,42 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });
+  await registerPunditRoutes(app, {
+    store,
+    adminToken,
+    nowMs: opts.nowMs,
+    jsonlPath: opts.punditJsonlPath,
+    // Tests pass `:memory:`; in that case avoid writing the audit file
+    // to a shared location unless the caller explicitly opts in.
+    suppressJsonl: opts.punditJsonlPath ? false : dbPath === ":memory:",
+  });
+
+  // Boot-time Verified-Pundit recompute. Cheap (top-100 scan per settled
+  // tournament) and ensures the in-DB qualifier table is consistent with
+  // the latest leaderboard state — useful after a manual re-score or a
+  // schema migration.
+  if (!opts.skipPunditRecompute) {
+    try {
+      // Boot recompute is in-DB only by default; the JSONL audit log is
+      // owned by the admin settle endpoint so we don't accidentally append
+      // a duplicate epoch line on every server restart.
+      const result = recomputeVerifiedPundits({
+        store,
+        now: opts.nowMs,
+        jsonlPath: opts.punditJsonlPath,
+        suppressJsonl: opts.punditJsonlPath ? false : true,
+      });
+      app.log.info(
+        {
+          tournaments: result.tournamentsScanned,
+          qualified: result.qualified,
+        },
+        "verified-pundit boot recompute",
+      );
+    } catch (err) {
+      app.log.warn({ err }, "verified-pundit boot recompute failed");
+    }
+  }
 
   // Close the store when the server is closed so tests don't leak file
   // handles between describe blocks.

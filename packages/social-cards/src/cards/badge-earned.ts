@@ -119,6 +119,7 @@ export function badgeEarnedCard(
     body: badgeEarnedBody(input, size),
     accentHex: TIER_COLOURS[input.badgeTier],
     locale: input.locale,
+    pundit: input.pundit,
   });
 }
 

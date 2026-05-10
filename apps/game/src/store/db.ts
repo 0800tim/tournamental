@@ -44,6 +44,21 @@ export interface MatchResultRow {
   recorded_at: number;
 }
 
+export interface TournamentRow {
+  id: string;
+  name: string | null;
+  settled_at: number | null;
+  created_at: number;
+}
+
+export interface VerifiedPunditRecordRow {
+  user_id: string;
+  tournament_id: string;
+  final_rank: number;
+  score_total: number;
+  stamped_at: number;
+}
+
 export class GameStore {
   readonly db: DatabaseT;
   private readonly migrationsDir: string;
@@ -62,6 +77,13 @@ export class GameStore {
   private leaderboardStmt!: Statement;
   private leaderboardSyndicateStmt!: Statement;
   private upsertSyndicateMemberStmt!: Statement;
+  private upsertTournamentStmt!: Statement;
+  private setTournamentSettledStmt!: Statement;
+  private getTournamentStmt!: Statement;
+  private listSettledTournamentsStmt!: Statement;
+  private upsertPunditRecordStmt!: Statement;
+  private listPunditRecordsForUserStmt!: Statement;
+  private deletePunditRecordsForTournamentStmt!: Statement;
 
   constructor(opts: GameStoreOptions) {
     if (opts.dbPath !== ":memory:") {
@@ -176,6 +198,35 @@ export class GameStore {
       `INSERT INTO syndicate_members (user_id, syndicate_id, joined_at)
        VALUES (?, ?, ?)
        ON CONFLICT(user_id, syndicate_id) DO NOTHING`,
+    );
+    this.upsertTournamentStmt = this.db.prepare(
+      `INSERT INTO tournaments (id, name, settled_at, created_at)
+       VALUES (@id, @name, @settled_at, @created_at)
+       ON CONFLICT(id) DO UPDATE SET
+         name = COALESCE(excluded.name, tournaments.name)`,
+    );
+    this.setTournamentSettledStmt = this.db.prepare(
+      `UPDATE tournaments SET settled_at = ? WHERE id = ?`,
+    );
+    this.getTournamentStmt = this.db.prepare(
+      `SELECT * FROM tournaments WHERE id = ?`,
+    );
+    this.listSettledTournamentsStmt = this.db.prepare(
+      `SELECT * FROM tournaments WHERE settled_at IS NOT NULL ORDER BY settled_at ASC`,
+    );
+    this.upsertPunditRecordStmt = this.db.prepare(
+      `INSERT INTO verified_pundit_records (user_id, tournament_id, final_rank, score_total, stamped_at)
+       VALUES (@user_id, @tournament_id, @final_rank, @score_total, @stamped_at)
+       ON CONFLICT(user_id, tournament_id) DO UPDATE SET
+         final_rank = excluded.final_rank,
+         score_total = excluded.score_total,
+         stamped_at = excluded.stamped_at`,
+    );
+    this.listPunditRecordsForUserStmt = this.db.prepare(
+      `SELECT * FROM verified_pundit_records WHERE user_id = ? ORDER BY stamped_at ASC`,
+    );
+    this.deletePunditRecordsForTournamentStmt = this.db.prepare(
+      `DELETE FROM verified_pundit_records WHERE tournament_id = ?`,
     );
   }
 
@@ -300,6 +351,77 @@ export class GameStore {
   addSyndicateMember(userId: string, syndicateId: string, now = Date.now()): void {
     this.ensureUser(userId, now);
     this.upsertSyndicateMemberStmt.run(userId, syndicateId, now);
+  }
+
+  // ---------- tournaments ----------
+
+  /**
+   * Register a tournament (idempotent). Used when admin marks a tournament
+   * as settled so the verified-pundit compute has something to scan. Pure
+   * insert/update; does not touch settled_at unless `settledAt` is given.
+   */
+  upsertTournament(args: {
+    id: string;
+    name?: string | null;
+    settledAt?: number | null;
+    now?: number;
+  }): void {
+    const now = args.now ?? Date.now();
+    this.upsertTournamentStmt.run({
+      id: args.id,
+      name: args.name ?? null,
+      settled_at: args.settledAt ?? null,
+      created_at: now,
+    });
+    if (args.settledAt !== undefined && args.settledAt !== null) {
+      this.setTournamentSettledStmt.run(args.settledAt, args.id);
+    }
+  }
+
+  markTournamentSettled(tournamentId: string, settledAt: number = Date.now()): void {
+    // Make sure the row exists, then stamp settled_at.
+    this.upsertTournamentStmt.run({
+      id: tournamentId,
+      name: null,
+      settled_at: settledAt,
+      created_at: settledAt,
+    });
+    this.setTournamentSettledStmt.run(settledAt, tournamentId);
+  }
+
+  getTournament(tournamentId: string): TournamentRow | null {
+    const row = this.getTournamentStmt.get(tournamentId) as TournamentRow | undefined;
+    return row ?? null;
+  }
+
+  listSettledTournaments(): TournamentRow[] {
+    return this.listSettledTournamentsStmt.all() as TournamentRow[];
+  }
+
+  // ---------- verified pundit ----------
+
+  upsertPunditRecord(args: {
+    userId: string;
+    tournamentId: string;
+    finalRank: number;
+    scoreTotal: number;
+    stampedAt: number;
+  }): void {
+    this.upsertPunditRecordStmt.run({
+      user_id: args.userId,
+      tournament_id: args.tournamentId,
+      final_rank: args.finalRank,
+      score_total: args.scoreTotal,
+      stamped_at: args.stampedAt,
+    });
+  }
+
+  listPunditRecordsForUser(userId: string): VerifiedPunditRecordRow[] {
+    return this.listPunditRecordsForUserStmt.all(userId) as VerifiedPunditRecordRow[];
+  }
+
+  clearPunditRecordsForTournament(tournamentId: string): void {
+    this.deletePunditRecordsForTournamentStmt.run(tournamentId);
   }
 
   // ---------- lifecycle ----------

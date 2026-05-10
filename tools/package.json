@@ -1,0 +1,19 @@
+{
+  "name": "@vtorn/tools",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Repo automation tools — daily progress report generator + cron wrapper.",
+  "type": "module",
+  "scripts": {
+    "daily-report": "tsx src/daily-report.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}

@@ -6,7 +6,8 @@
     "build": "pnpm -r --if-present run build",
     "lint": "pnpm -r --if-present run lint",
     "test": "pnpm -r --if-present run test",
-    "typecheck": "pnpm -r --if-present run typecheck"
+    "typecheck": "pnpm -r --if-present run typecheck",
+    "daily-report": "pnpm --filter @vtorn/tools run daily-report"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

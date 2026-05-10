@@ -10,6 +10,7 @@
 import { useState } from "react";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
+import { PunditBadge } from "@/components/shared/PunditBadge";
 import { allTeams } from "../_lib/groups";
 import { DataPlaceholder } from "./DataPlaceholder";
 
@@ -29,6 +30,12 @@ const SAMPLE_NAMES = [
   "@late-locker",
   "@argentina-2026",
 ];
+
+// Mid-tournament preview marks the top two positions as Verified Pundits
+// so visitors see the trust signal in the wild. Pre-launch this is a
+// visual mockup; once the leaderboard is live the badge is driven by the
+// real /v1/users/:userId/pundit data fetched per row.
+const PREVIEW_PUNDIT_LEVELS = [3, 1, 0, 0, 0];
 
 export function LeaderboardPreview() {
   const [tab, setTab] = useState<Tab>("global");
@@ -67,6 +74,15 @@ export function LeaderboardPreview() {
         </div>
         {SAMPLE_NAMES.map((name, idx) => {
           const team = teams[idx % teams.length];
+          const punditLevels = PREVIEW_PUNDIT_LEVELS[idx] ?? 0;
+          const punditStatus = punditLevels
+            ? {
+                verified: true,
+                levels: punditLevels,
+                sinceDate: "2025-12-18T00:00:00Z",
+                tournaments: Array.from({ length: punditLevels }, (_, i) => `t-${i + 1}`),
+              }
+            : null;
           return (
             <div className="wc-lb-row" key={name}>
               <span className="wc-lb-rank">{idx + 1}</span>
@@ -79,6 +95,7 @@ export function LeaderboardPreview() {
                   sparkle={false}
                 />
                 {name}
+                <PunditBadge status={punditStatus} size={14} style={{ marginLeft: 6 }} />
               </span>
               <span className="wc-lb-points">
                 {(1240 - idx * 90).toLocaleString()} pts

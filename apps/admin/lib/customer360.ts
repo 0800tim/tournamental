@@ -105,6 +105,13 @@ export interface AffiliateRevenueSummary {
   recent: AffiliateRevenueEntry[];
 }
 
+export interface PunditStatus {
+  verified: boolean;
+  levels: number;
+  sinceDate: string | null;
+  tournaments: string[];
+}
+
 export interface SocialPost {
   id: string;
   platform: string;
@@ -126,6 +133,8 @@ export interface Customer360 {
   syndicates: SyndicateMembership[] | null;
   affiliateRevenue: AffiliateRevenueSummary | null;
   socialPosts: SocialPost[] | null;
+  /** Verified-Pundit badge status. `null` means the upstream call failed. */
+  pundit: PunditStatus | null;
   /** When each sub-fetch happened. Useful for debugging stale data. */
   fetchedAt: string;
 }
@@ -181,6 +190,15 @@ export async function fetchAffiliateRevenue(
   );
 }
 
+export async function fetchPunditStatus(
+  userId: string,
+): Promise<PunditStatus | null> {
+  return upstreamGet<PunditStatus>(
+    `${GAME_SERVICE_BASE}/v1/users/${encodeURIComponent(userId)}/pundit`,
+    { tag: "game-service:pundit" },
+  );
+}
+
 export async function fetchSocialPosts(
   userId: string,
 ): Promise<SocialPost[] | null> {
@@ -198,15 +216,23 @@ export async function fetchSocialPosts(
  * upstream (each upstream has its own 4s timeout — see upstreamGet).
  */
 export async function fetchCustomer360(userId: string): Promise<Customer360> {
-  const [crmContact, bracketDraft, bracketHistory, syndicates, affiliateRevenue, socialPosts] =
-    await Promise.all([
-      fetchCrmContact(userId),
-      fetchUserBracketDraft(userId),
-      fetchBracketHistory(userId),
-      fetchUserSyndicates(userId),
-      fetchAffiliateRevenue(userId),
-      fetchSocialPosts(userId),
-    ]);
+  const [
+    crmContact,
+    bracketDraft,
+    bracketHistory,
+    syndicates,
+    affiliateRevenue,
+    socialPosts,
+    pundit,
+  ] = await Promise.all([
+    fetchCrmContact(userId),
+    fetchUserBracketDraft(userId),
+    fetchBracketHistory(userId),
+    fetchUserSyndicates(userId),
+    fetchAffiliateRevenue(userId),
+    fetchSocialPosts(userId),
+    fetchPunditStatus(userId),
+  ]);
 
   return {
     userId,
@@ -216,6 +242,7 @@ export async function fetchCustomer360(userId: string): Promise<Customer360> {
     syndicates,
     affiliateRevenue,
     socialPosts,
+    pundit,
     fetchedAt: new Date().toISOString(),
   };
 }

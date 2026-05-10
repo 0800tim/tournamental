@@ -1,0 +1,3 @@
+# Runtime JSONL stores — never commit (contains contributor PII).
+*.jsonl
+!.gitignore

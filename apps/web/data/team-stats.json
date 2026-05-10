@@ -1,0 +1,17 @@
+{
+  "_note": "Stub team stats - season-average + pre-match expected stats. Used by the Stats tab on /match/[id]/preview. Deterministic per team code so screenshots are stable. The loader synthesises a default for any team not listed here, derived from FIFA rank.",
+  "_todo": "Wire to a live stats source. Options: (a) FBref / Statsbomb open-data team aggregates; (b) SofaScore team-stats endpoint; (c) Wyscout for advanced metrics. Pre-match xG estimates likely come from an internal model fed by the producer. Schema may grow: pressing intensity, expected possession-adjusted shots, set-piece xG.",
+  "teams": {
+    "ARG": { "xg_per_match": 1.95, "xga_per_match": 0.78, "possession_pct": 56, "shots_per_match": 14.2, "shots_on_target_per_match": 5.6, "pass_accuracy_pct": 87, "form_rating": 7.8 },
+    "FRA": { "xg_per_match": 1.82, "xga_per_match": 0.92, "possession_pct": 54, "shots_per_match": 13.5, "shots_on_target_per_match": 5.2, "pass_accuracy_pct": 86, "form_rating": 7.6 },
+    "BRA": { "xg_per_match": 2.01, "xga_per_match": 0.81, "possession_pct": 58, "shots_per_match": 15.0, "shots_on_target_per_match": 5.8, "pass_accuracy_pct": 88, "form_rating": 7.7 },
+    "ENG": { "xg_per_match": 1.74, "xga_per_match": 0.95, "possession_pct": 55, "shots_per_match": 13.8, "shots_on_target_per_match": 4.9, "pass_accuracy_pct": 85, "form_rating": 7.4 },
+    "ESP": { "xg_per_match": 1.88, "xga_per_match": 0.86, "possession_pct": 62, "shots_per_match": 14.5, "shots_on_target_per_match": 5.3, "pass_accuracy_pct": 89, "form_rating": 7.5 },
+    "GER": { "xg_per_match": 1.78, "xga_per_match": 1.02, "possession_pct": 57, "shots_per_match": 14.0, "shots_on_target_per_match": 5.0, "pass_accuracy_pct": 87, "form_rating": 7.2 },
+    "POR": { "xg_per_match": 1.76, "xga_per_match": 0.94, "possession_pct": 55, "shots_per_match": 13.6, "shots_on_target_per_match": 5.1, "pass_accuracy_pct": 86, "form_rating": 7.5 },
+    "USA": { "xg_per_match": 1.32, "xga_per_match": 1.18, "possession_pct": 49, "shots_per_match": 11.4, "shots_on_target_per_match": 3.9, "pass_accuracy_pct": 82, "form_rating": 6.7 },
+    "MEX": { "xg_per_match": 1.41, "xga_per_match": 1.12, "possession_pct": 51, "shots_per_match": 11.9, "shots_on_target_per_match": 4.1, "pass_accuracy_pct": 83, "form_rating": 6.9 },
+    "CAN": { "xg_per_match": 1.21, "xga_per_match": 1.24, "possession_pct": 47, "shots_per_match": 10.8, "shots_on_target_per_match": 3.7, "pass_accuracy_pct": 80, "form_rating": 6.5 },
+    "NZL": { "xg_per_match": 0.98, "xga_per_match": 1.42, "possession_pct": 44, "shots_per_match": 9.6,  "shots_on_target_per_match": 3.2, "pass_accuracy_pct": 78, "form_rating": 6.1 }
+  }
+}

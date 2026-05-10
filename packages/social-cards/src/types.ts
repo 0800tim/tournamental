@@ -21,6 +21,21 @@ export interface CommonFooter {
   userId: string;
   /** Optional locale tag (e.g. "en", "es", "pt", "fr", "ar", "ja"). */
   locale?: string;
+  /**
+   * Optional Verified-Pundit status. When present and `verified`, every
+   * card type renders a small gold tick next to the user handle in the
+   * footer + body so the brand-trust signal travels with every share.
+   *
+   * Future-revenue-share hook (TODO, do NOT implement here): the same
+   * shape is the canonical signal for the Drips Network contributor
+   * allocation per docs/19. Treat it as the single source of truth.
+   */
+  pundit?: {
+    verified: boolean;
+    levels: number;
+    sinceDate?: string | null;
+    tournaments?: ReadonlyArray<string>;
+  };
 }
 
 export interface BracketPredictionInput extends CommonFooter {
