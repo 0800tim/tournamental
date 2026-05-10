@@ -62,12 +62,12 @@ export class GithubAdapter {
     headRefOid: string;
     isDraft: boolean;
   }> {
+    // gh pr view --json does NOT support authorAssociation; fetch it via gh api.
     const fields = [
       'number',
       'title',
       'body',
       'author',
-      'authorAssociation',
       'baseRefName',
       'headRefOid',
       'isDraft',
@@ -89,17 +89,32 @@ export class GithubAdapter {
       title: string;
       body: string;
       author?: { login?: string };
-      authorAssociation: string;
       baseRefName: string;
       headRefOid: string;
       isDraft: boolean;
     };
+    // Pull author_association via the raw API; default to NONE if unavailable.
+    let authorAssociation = 'NONE';
+    try {
+      const apiRes = await this.runner('gh', [
+        'api',
+        `repos/${this.opts.repo}/pulls/${prNumber}`,
+        '--jq',
+        '.author_association',
+      ]);
+      if (apiRes.code === 0) {
+        const v = apiRes.stdout.trim();
+        if (v) authorAssociation = v;
+      }
+    } catch {
+      // best-effort; default already set
+    }
     return {
       number: raw.number,
       title: raw.title ?? '',
       body: raw.body ?? '',
       author: raw.author?.login ?? 'unknown',
-      authorAssociation: raw.authorAssociation,
+      authorAssociation,
       baseRef: raw.baseRefName,
       headRefOid: raw.headRefOid,
       isDraft: raw.isDraft,
