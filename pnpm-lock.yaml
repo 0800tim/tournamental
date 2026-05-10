@@ -169,6 +169,9 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.1
         version: 6.0.4
+      '@vtorn/aiva-client':
+        specifier: workspace:*
+        version: link:../../packages/aiva-client
       '@whiskeysockets/baileys':
         specifier: ^6.7.9
         version: 6.17.16(eslint@8.57.1)(typescript@5.9.3)
@@ -502,6 +505,9 @@ importers:
       '@fastify/sensible':
         specifier: ^6.0.1
         version: 6.0.4
+      '@vtorn/aiva-client':
+        specifier: workspace:*
+        version: link:../../packages/aiva-client
       '@vtorn/auth-sms':
         specifier: workspace:*
         version: link:../auth-sms
@@ -799,6 +805,18 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^2.1.4
+        version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
+
+  packages/aiva-client:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.11
+        version: 20.19.40
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.5
         version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
 
   packages/avatar:

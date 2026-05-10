@@ -1,162 +1,52 @@
 /**
  * WhatsApp client.
  *
- * Two transport options, selected at boot via env:
+ * Three transport options, selected at boot via env:
  *
  *   1. WHATSAPP_TRANSPORT=aiva  (default — recommended)
  *      Use the Aiva SMS gateway's WhatsApp endpoint. The gateway runs
  *      a Baileys session under the hood; pairing happens once on the
  *      gateway dashboard and the session persists. Sending is a single
- *      HTTP call. This is the path Tim's existing Sdeal stack uses.
+ *      HTTP call. Implementation now lives in `@vtorn/aiva-client` and
+ *      is re-exported below for backwards-compat with auth-sms imports.
  *
  *   2. WHATSAPP_TRANSPORT=baileys
  *      Run Baileys in-process. Useful for environments where we don't
  *      want to share the Aiva gateway, or for local dev without
  *      gateway access. First-run pairing is via QR code printed to a
  *      PNG file and exposed at /v1/auth/whatsapp/pairing-qr (admin
- *      only).
+ *      only). Kept local because Baileys + libsignal + qrcode are heavy
+ *      and not used by other services.
  *
- * If neither transport is configured we fall back to a stub that logs
- * the OTP locally — same shape as the SMS stub.
+ *   3. Stub — no transport configured.
  *
- * Phone format for both paths: digits only, no leading "+",
+ * Phone format for all paths: digits only, no leading "+",
  * country-code first (e.g. "6421123456" for an NZ mobile).
  */
 
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 import QRCode from 'qrcode';
+import type {
+  SendWhatsAppRequest,
+  SendWhatsAppResult,
+  WhatsAppSender,
+} from '@vtorn/aiva-client';
 
-export interface SendWhatsAppRequest {
-  /** E.164 with or without leading "+" — we'll normalise. */
-  to: string;
-  body: string;
-}
-
-export interface SendWhatsAppResult {
-  ok: boolean;
-  raw?: unknown;
-  errorCode?: string;
-  errorMessage?: string;
-}
-
-export interface WhatsAppSender {
-  send(req: SendWhatsAppRequest): Promise<SendWhatsAppResult>;
-  /**
-   * Returns the latest pairing QR code as a data URL, or null if the
-   * session is already paired (or this transport doesn't expose one).
-   */
-  pairingQr(): Promise<string | null>;
-  shutdown(): Promise<void>;
-}
+// Re-export the shared HTTP gateway client + stub + types for existing
+// consumers that import from this module path.
+export {
+  AivaWhatsAppClient,
+  StubWhatsAppClient,
+  aivaWhatsAppConfigFromEnv,
+  type AivaWhatsAppConfig,
+  type SendWhatsAppRequest,
+  type SendWhatsAppResult,
+  type WhatsAppSender,
+} from '@vtorn/aiva-client';
 
 function normalisePhoneForWa(phone: string): string {
   return phone.replace(/\D/g, '').replace(/^0+/, '');
-}
-
-// ---- Aiva gateway transport (HTTP) ----
-
-export interface AivaWhatsAppConfig {
-  baseUrl: string;
-  apiKey: string;
-  sessionId: string;
-  fetchImpl?: typeof fetch;
-}
-
-export function aivaWhatsAppConfigFromEnv(
-  env: NodeJS.ProcessEnv = process.env,
-): AivaWhatsAppConfig {
-  const baseUrl =
-    env.AIVA_SMS_API_URL ?? env.AIVA_SMS_URL ?? 'http://localhost:9252';
-  const apiKey = env.AIVA_SMS_API_KEY ?? '';
-  const sessionId = env.AIVA_WA_SESSION_ID ?? '';
-  if (!apiKey) throw new Error('AIVA_SMS_API_KEY is required for WhatsApp');
-  if (!sessionId) throw new Error('AIVA_WA_SESSION_ID is required for WhatsApp');
-  return { baseUrl, apiKey, sessionId };
-}
-
-export class AivaWhatsAppClient implements WhatsAppSender {
-  private readonly baseUrl: string;
-  private readonly apiKey: string;
-  private readonly sessionId: string;
-  private readonly fetchImpl: typeof fetch;
-
-  constructor(config: AivaWhatsAppConfig) {
-    this.baseUrl = config.baseUrl.replace(/\/$/, '');
-    this.apiKey = config.apiKey;
-    this.sessionId = config.sessionId;
-    this.fetchImpl = config.fetchImpl ?? fetch;
-  }
-
-  async send(req: SendWhatsAppRequest): Promise<SendWhatsAppResult> {
-    const phone = normalisePhoneForWa(req.to);
-    const url = `${this.baseUrl}/api/v1/whatsapp/sessions/${encodeURIComponent(
-      this.sessionId,
-    )}/send`;
-
-    let res: Response;
-    try {
-      res = await this.fetchImpl(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
-        },
-        body: JSON.stringify({ phone, message: req.body }),
-      });
-    } catch (err) {
-      return {
-        ok: false,
-        errorCode: 'network',
-        errorMessage:
-          err instanceof Error ? err.message : 'wa gateway unreachable',
-      };
-    }
-
-    let payload: unknown;
-    try {
-      payload = await res.json();
-    } catch {
-      payload = undefined;
-    }
-
-    if (!res.ok) {
-      return {
-        ok: false,
-        raw: payload,
-        errorCode: `http-${res.status}`,
-        errorMessage: `aiva whatsapp gateway returned ${res.status}`,
-      };
-    }
-    return { ok: true, raw: payload };
-  }
-
-  async pairingQr(): Promise<string | null> {
-    // Aiva gateway exposes /api/v1/whatsapp/sessions/{id}/qr.
-    const url = `${this.baseUrl}/api/v1/whatsapp/sessions/${encodeURIComponent(
-      this.sessionId,
-    )}/qr`;
-    let res: Response;
-    try {
-      res = await this.fetchImpl(url, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
-      });
-    } catch {
-      return null;
-    }
-    if (!res.ok) return null;
-    try {
-      const body = (await res.json()) as { qrCode?: string; status?: string };
-      if (body.status === 'connected') return null;
-      return body.qrCode ?? null;
-    } catch {
-      return null;
-    }
-  }
-
-  async shutdown(): Promise<void> {
-    // HTTP client — nothing to close.
-  }
 }
 
 // ---- Local Baileys transport ----
@@ -325,26 +215,5 @@ export class LocalBaileysClient implements WhatsAppSender {
     }
     this.sock = null;
     this.connected = false;
-  }
-}
-
-// ---- Stub ----
-
-export class StubWhatsAppClient implements WhatsAppSender {
-  constructor(private readonly log: (msg: string) => void) {}
-
-  async send(req: SendWhatsAppRequest): Promise<SendWhatsAppResult> {
-    this.log(
-      `[stub-wa] would-send to=${req.to} body=${req.body.replace(/\s+/g, ' ')}`,
-    );
-    return { ok: true, raw: { stub: true } };
-  }
-
-  async pairingQr(): Promise<string | null> {
-    return null;
-  }
-
-  async shutdown(): Promise<void> {
-    /* no-op */
   }
 }
