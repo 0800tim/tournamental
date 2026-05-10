@@ -1,0 +1,60 @@
+---
+/**
+ * Source-filter chip row for /news.
+ *
+ * Each chip is an anchor that swaps the `?source=...` query param. The
+ * "All" chip clears it. We render the active chip with a different
+ * style so a user can see at a glance which source they're filtering
+ * by.
+ */
+interface Props {
+  sources: readonly { id: string; displayName: string }[];
+  active?: string | null;
+}
+const { sources, active = null } = Astro.props;
+---
+<nav class="vt-news-chips" aria-label="News source filter">
+  <a
+    class:list={["vt-news-chip", !active && "is-active"]}
+    href="/news"
+    aria-current={!active ? "page" : undefined}
+  >All</a>
+  {sources.map((s) => (
+    <a
+      class:list={["vt-news-chip", active === s.displayName && "is-active"]}
+      href={`/news?source=${encodeURIComponent(s.displayName)}`}
+      aria-current={active === s.displayName ? "page" : undefined}
+    >{s.displayName}</a>
+  ))}
+</nav>
+
+<style>
+  .vt-news-chips {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 1.25rem 0 1.5rem;
+  }
+  .vt-news-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.4rem 0.85rem;
+    border-radius: 999px;
+    border: 1px solid var(--vt-border);
+    background: var(--vt-bg-elev);
+    color: var(--vt-fg-muted);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: border-color 160ms ease, color 160ms ease, background 160ms ease;
+  }
+  .vt-news-chip:hover {
+    border-color: var(--vt-border-strong);
+    color: var(--vt-fg-strong);
+  }
+  .vt-news-chip.is-active {
+    background: #2071b8;
+    border-color: #2071b8;
+    color: #ffffff;
+  }
+</style>

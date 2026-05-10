@@ -1,0 +1,52 @@
+---
+/**
+ * Renders a relative time-ago label given an ISO timestamp.
+ *
+ * Server-side we render the canonical absolute time (so SSR + crawlers
+ * see useful text), and a small inline script swaps it to "12 min ago"
+ * style on mount. The fallback is the absolute time, so JS-disabled
+ * users still get something readable.
+ */
+interface Props {
+  iso: string;
+  className?: string;
+}
+const { iso, className } = Astro.props;
+
+// Format the absolute time once on the server (e.g. "11 May 2026, 09:00").
+const date = new Date(iso);
+const absolute = isNaN(date.getTime())
+  ? iso
+  : new Intl.DateTimeFormat("en-NZ", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }).format(date);
+---
+<time
+  class:list={["vt-time-ago", className]}
+  datetime={iso}
+  data-iso={iso}
+  title={absolute}
+>{absolute}</time>
+
+<script is:inline>
+  (function () {
+    function rel(iso) {
+      var diff = (Date.now() - new Date(iso).getTime()) / 1000;
+      if (isNaN(diff)) return null;
+      if (diff < 60) return "just now";
+      if (diff < 3600) return Math.floor(diff / 60) + " min ago";
+      if (diff < 86400) return Math.floor(diff / 3600) + " h ago";
+      if (diff < 86400 * 7) return Math.floor(diff / 86400) + " d ago";
+      return null; // fall back to the absolute date for older items
+    }
+    document.querySelectorAll("[data-iso]").forEach(function (el) {
+      var v = rel(el.getAttribute("data-iso"));
+      if (v) el.textContent = v;
+    });
+  })();
+</script>

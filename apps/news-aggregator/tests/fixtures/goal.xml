@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Goal.com - Football News</title>
+    <link>https://www.goal.com</link>
+    <description>Goal.com headlines</description>
+    <item>
+      <title>Vinicius Jr. wins player of the month</title>
+      <description>The Brazilian forward has been crowned La Liga's player of the month.</description>
+      <link>https://www.goal.com/en/news/vinicius-jr-player-month</link>
+      <pubDate>Sat, 10 May 2026 20:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

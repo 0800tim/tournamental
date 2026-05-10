@@ -1,0 +1,3 @@
+dist/
+data/news-cache.jsonl
+data/*.jsonl

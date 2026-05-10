@@ -14,6 +14,7 @@
  */
 
 import { AppShell } from "@/components/shell";
+import { NewsStrip } from "@/components/home/NewsStrip";
 import {
   CountdownBanner,
   HeroCard,
@@ -54,6 +55,8 @@ export default function HomePage() {
           subtitle="The full Argentina v France final, ball-by-ball, in our 3D renderer. 15 minutes at 10x speed."
           href={`/match/${DEMO_MATCH_ID}`}
         />
+
+        <NewsStrip />
 
         <section className="vt-section">
           <h2 className="vt-section-title">Up next</h2>

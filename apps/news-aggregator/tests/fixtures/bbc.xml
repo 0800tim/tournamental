@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">
+  <channel>
+    <title>BBC Sport - Football</title>
+    <link>https://www.bbc.co.uk/sport/football</link>
+    <description>BBC Sport football headlines</description>
+    <language>en-gb</language>
+    <item>
+      <title>England prepare for World Cup 2026 qualifying push</title>
+      <description>The Three Lions ramp up training ahead of the WC2026 qualifying window with new tactical drills.</description>
+      <link>https://www.bbc.co.uk/sport/football/articles/wc2026-england-prepare</link>
+      <guid isPermaLink="true">https://www.bbc.co.uk/sport/football/articles/wc2026-england-prepare</guid>
+      <pubDate>Sun, 11 May 2026 06:32:00 GMT</pubDate>
+      <media:thumbnail width="976" height="549" url="https://ichef.bbci.co.uk/news/976/bbc-images/england-2026.jpg" />
+    </item>
+    <item>
+      <title>Argentina drawn against Brazil in friendly tour</title>
+      <description><![CDATA[<p>Argentina will face Brazil in a high-profile friendly later this month.</p>]]></description>
+      <link>https://www.bbc.co.uk/sport/football/articles/argentina-brazil-friendly</link>
+      <guid isPermaLink="true">https://www.bbc.co.uk/sport/football/articles/argentina-brazil-friendly</guid>
+      <pubDate>Sat, 10 May 2026 18:10:00 GMT</pubDate>
+      <category>Football</category>
+    </item>
+    <item>
+      <title></title>
+      <link>https://www.bbc.co.uk/sport/football/articles/empty</link>
+      <description>This row has no title and should be skipped during normalisation.</description>
+      <pubDate>Sat, 10 May 2026 17:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

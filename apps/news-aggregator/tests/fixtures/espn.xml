@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>ESPN.com - Soccer</title>
+    <link>https://www.espn.com/soccer/</link>
+    <description>ESPN soccer headlines</description>
+    <item>
+      <title>Mbappé returns to training ahead of Les Bleus camp</title>
+      <description>Kylian Mbappé is back in light training and expected to join up with the France squad next week.</description>
+      <link>https://www.espn.com/soccer/story/_/id/12345/mbappe-returns</link>
+      <guid>https://www.espn.com/soccer/story/_/id/12345/mbappe-returns</guid>
+      <pubDate>Sun, 11 May 2026 04:15:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>USMNT names provisional roster for Gold Cup</title>
+      <description>USA head coach has named a provisional roster ahead of the Concacaf Gold Cup.</description>
+      <link>https://www.espn.com/soccer/story/_/id/12346/usmnt-roster</link>
+      <pubDate>Sat, 10 May 2026 22:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,159 @@
+---
+/**
+ * Marketing news card. Tap target spans the full card; the link is
+ * outbound (rel="noopener nofollow") so we comply with the source's
+ * link-out-not-rehost expectations.
+ *
+ * Image: optional. If present, capped at 16:9. If not, we paint a
+ * source-coloured gradient. We never inline the source's logo as the
+ * thumbnail — the source name renders below.
+ */
+import TimeAgo from "./TimeAgo.astro";
+
+interface Props {
+  item: {
+    id: string;
+    title: string;
+    summary: string;
+    url: string;
+    source: string;
+    sourceLogo?: string | null;
+    publishedAt: string;
+    imageUrl?: string | null;
+    tags: readonly string[];
+  };
+}
+const { item } = Astro.props;
+---
+<a
+  class="vt-news-card"
+  href={item.url}
+  target="_blank"
+  rel="noopener nofollow"
+  data-source={item.source}
+>
+  <div class="vt-news-card-media">
+    {item.imageUrl ? (
+      <img
+        src={item.imageUrl}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        width="640"
+        height="360"
+        referrerpolicy="no-referrer"
+      />
+    ) : (
+      <div class="vt-news-card-placeholder" aria-hidden="true"></div>
+    )}
+    <span class="vt-news-card-source-pill">{item.source}</span>
+  </div>
+  <div class="vt-news-card-body">
+    <h3 class="vt-news-card-title">{item.title}</h3>
+    {item.summary && <p class="vt-news-card-summary">{item.summary}</p>}
+    <footer class="vt-news-card-foot">
+      <TimeAgo iso={item.publishedAt} className="vt-news-card-time" />
+      <span class="vt-news-card-cta">Read on {item.source} →</span>
+    </footer>
+  </div>
+</a>
+
+<style>
+  .vt-news-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--vt-bg-elev);
+    border: 1px solid var(--vt-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+  }
+  .vt-news-card:hover,
+  .vt-news-card:focus-visible {
+    transform: translateY(-2px);
+    border-color: var(--vt-border-strong);
+    box-shadow: var(--vt-shadow);
+  }
+  .vt-news-card:focus-visible {
+    outline: 2px solid #5a96d8;
+    outline-offset: 2px;
+  }
+  .vt-news-card-media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--vt-bg-elev-2);
+    overflow: hidden;
+  }
+  .vt-news-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 240ms ease;
+  }
+  .vt-news-card:hover .vt-news-card-media img {
+    transform: scale(1.03);
+  }
+  .vt-news-card-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #2071b8 0%, #6cabdd 60%, #f3b83b 100%);
+  }
+  .vt-news-card-source-pill {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+    background: rgba(10, 14, 26, 0.8);
+    color: #ffffff;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    backdrop-filter: blur(4px);
+  }
+  .vt-news-card-body {
+    padding: 1rem 1.1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex-grow: 1;
+  }
+  .vt-news-card-title {
+    font-family: theme(fontFamily.display);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+    color: var(--vt-fg-strong);
+    /* clamp at 3 lines so a long headline doesn't blow up the grid */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vt-news-card-summary {
+    margin: 0;
+    color: var(--vt-fg-muted);
+    font-size: 0.9rem;
+    line-height: 1.45;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .vt-news-card-foot {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--vt-fg-muted);
+  }
+  .vt-news-card-cta {
+    color: #5a96d8;
+    font-weight: 600;
+  }
+</style>

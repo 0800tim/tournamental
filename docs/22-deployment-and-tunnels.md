@@ -54,6 +54,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.vtourn.com`. |
 | `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.vtourn.com`. |
 | `apps/clip-pipeline`       | 3380  | Fastify + ffmpeg clip render service (per docs/14). Tunnel: `vtorn-clip.aiva.nz`.   |
+| `apps/news-aggregator`     | 3402  | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). Tunnel: `vtorn-news.aiva.nz` / `news.vtourn.com`. |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 
