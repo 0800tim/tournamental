@@ -1,0 +1,141 @@
+---
+title: "Night shift: what shipped while you slept"
+description: "Seventeen merged PRs in 24 hours. The renderer is smoother on mobile, the bracket grew a tap-from-anywhere pick popup with shareable URLs, the marketing site got a build log, and the deploy story is now Sdeal-style atomic-swap with two-second downtime."
+pubDate: 2026-05-12
+author: "VTourn Team"
+tags: ["behind-the-scenes", "build-log"]
+heroImage: "/blog/2026-05-12-night-stadium-hero.jpg"
+heroImageAlt: "Floodlit football stadium at night, packed crowd lit by stadium lights."
+heroImageCredit: "Photo by Krzysztof Dubiel on Unsplash (Unsplash Licence)"
+---
+
+Seventeen PRs in twenty-four hours. One rewrote the renderer's
+interpolation pipeline so the AR-FR demo no longer jerks on mobile.
+Another turned every fixture in the app into a tap-anywhere pick
+popup with a deep-linkable URL, so a friend can share
+`/team/NZL?pick=55` and you land on New Zealand's page with the popup
+already open on match 55. A third stood up the security pipeline that
+gates the public-repo reveal. This is what happened.
+
+## The renderer is smoother now
+
+Tim watched the 2022 World Cup Final demo on his phone and reported
+the field was jerking back and forth. The
+[three.js skinning-blending example](https://threejs.org/examples/#webgl_animation_skinning_blending)
+ran buttery on the same hardware, so we knew it was us, not the
+device.
+
+We walked the renderer + producer + store together and isolated four
+root causes. The big one was inside the producer pacing loop: the
+synthetic stream batches roughly four messages every fifty
+milliseconds, but each state frame is one match-second apart. When
+four frames land in the same wall-clock tick they all stamp the store
+with the same wall-clock instant, so the renderer's interpolation
+fraction saturates at one and the player just snaps to the latest
+position. Players move four metres per match-second. Snapping four
+metres every fifty milliseconds is the "teleport every tick" judder.
+
+The fix is a per-match-time state frame buffer that interpolates on
+position (linear), yaw (shortest-arc slerp), and the ball
+(Catmull-Rom across four frames). On top of that we damped the
+camera, clamped the useFrame delta to one-thirtieth of a second on
+stalls so a tab-switch no longer punches a visible jump into the FSM,
+doubled the pitch canvas to 2048x1024 with explicit mipmaps to kill
+the grass shimmer, throttled the crowd material updates to four times
+a second, and capped mobile DPR per profile. Twenty-three new tests
+cover the buffer and damped-camera driver. The full diagnosis is in
+`docs/43-renderer-fidelity-overhaul.md`.
+
+## You can pick from anywhere now
+
+The bracket page is the right surface for the lock-it-all-in flow.
+But team pages, match preview pages, and (later) social cards
+present an individual fixture. Tim's ask: "as you're browsing and
+looking at teams and matches, tap on each of those and pop up just
+that match and predict that match, like changing your score."
+
+Two pieces shipped together. A `MatchPickPopup` component with three
+presentation modes (bottom sheet on mobile, modal on desktop, inline
+card for embedding) plus three new game-service endpoints: `PUT
+/v1/picks/:userId/:matchId` to lock or change a pick, `GET` to read
+it back, `DELETE` to remove it.
+
+The lever is the persistence shape. A per-match write is a
+read-modify-write on the same row the bulk submit handler touches,
+so a user can pick game-by-game and later open the bulk builder to
+find every pick already populated. Or they can submit the bulk
+bracket and then change one pick game-by-game without re-submitting
+everything.
+
+The deep-link scheme is small but useful. `/team/NZL?pick=55` opens
+New Zealand's page with the popup pre-opened on match 55. The URL
+stays clean when you close the popup; back does the right thing.
+That popup sits inside a broader `OverlayRouter` that encodes the
+open overlay stack on the URL. The underlying page route does not
+change when an overlay opens, so search engines and analytics still
+see `/world-cup-2026` as the canonical page. Browser back unwinds
+the stack first, then leaves the page. Specs:
+`docs/44-overlay-router-and-mobile-overlays.md` and
+`docs/45-per-match-pick-popup-and-api.md`.
+
+## Going public, safely
+
+The repo goes public soon. Before that we need a defence-in-depth
+pipeline that triages incoming PRs autonomously and escalates on red
+flags. That pipeline is open as PR #111 and ships in observation
+mode first. Two services: `apps/pr-triage-bot` scores incoming PRs
+zero to one hundred from path classifiers, file types, and diff
+size, posts a structured triage comment, and routes review requests
+to CODEOWNERS for yellow and red verdicts. `apps/security-watchdog`
+runs scheduled scans (daily on dependencies, weekly full-repo) with
+severity-routed alerts via pluggable sinks: Slack, Discord,
+Telegram, Aiva-SMS, email.
+
+The threat model is the part worth saying out loud. PR titles,
+descriptions, commit messages and diff content are treated strictly
+as data. There is no path where a string from a PR can change agent
+or workflow behaviour: comments are posted via `gh api` with the
+body in a tempfile, all scanner output is schema-validated before
+action, and the prompt-injection canary scans for known attack
+patterns and only *flags*, it never auto-actions.
+
+## Deploys are now Sdeal-style
+
+We borrowed the deploy strategy from one of our other projects.
+Same-host blue-green slot swap, smoke-test on the staging port
+before swap, atomic swap of the symlink, then `pm2 reload`.
+Worst-case perceived downtime is two to three seconds, often less.
+Persistent `.next/cache` between builds turns a one-line typo fix
+from minutes into seconds, and the build matrix is per-app and
+parallel so when only the marketing site changed we are not
+rebuilding the bracket. Architecture in `docs/47-cicd-pipeline.md`.
+
+## Four new apps
+
+`apps/wc2026-data` is the live-match-state scraper with adapters
+for SportRadar, API-Football, and a mock for dev. Real keys are
+env-flagged off; the mock is the default until we have a paid feed.
+`apps/dm-poll-forwarder` adds Reddit, Mastodon and Signal to
+yesterday's sixteen-channel DM-OTP login service by polling
+unread-DM endpoints (none of those three push webhooks).
+`apps/drips-bridge` is the contributor revenue-split scaffold for
+the Drips Network integration; mock client today, real one when the
+contract audit lands. `apps/native` is the Capacitor iOS and Android
+shell that wraps the bracket app into installable binaries with
+push, haptics and share.
+
+## What's next
+
+The morning's first move is landing the security pipeline (#111) and
+dry-running it against the four open dependabot bumps. After that:
+flag-as-background polish on the knockout grid, player profile pages
+at `/player/[id]` sourced from Wikidata and our own match data, and
+a news aggregator at `apps/news-aggregator/` that pulls a curated
+RSS list, classifies for relevance, and posts the day's top three on
+the bracket landing surface.
+
+Thirty days to kickoff. Seventeen PRs today, four new apps, twenty-three
+new renderer tests, one significantly smoother demo on a phone. None
+of this is finished. All of it is open source, all of it is
+[in the repo](https://github.com/0800tim/vtorn), and we will keep
+showing the work.
