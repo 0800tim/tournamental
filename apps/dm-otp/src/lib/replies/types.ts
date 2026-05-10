@@ -24,13 +24,13 @@ export interface AdapterDeps {
 
 /** Standard user-facing copy for the OTP delivery message. */
 export function otpMessageBody(code: string): string {
-  return `Your VTourn login code is ${code}. It expires in 5 minutes. If you didn't ask for this, ignore this message.`;
+  return `Your Tournamental login code is ${code}. It expires in 5 minutes. If you didn't ask for this, ignore this message.`;
 }
 
 /** Standard user-facing copy for the email magic-link delivery. */
 export function magicLinkEmailBody(linkUrl: string): string {
   return [
-    'Tap the link below to finish signing in to VTourn.',
+    'Tap the link below to finish signing in to Tournamental.',
     '',
     linkUrl,
     '',

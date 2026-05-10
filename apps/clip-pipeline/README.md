@@ -1,6 +1,6 @@
 # @vtorn/clip-pipeline
 
-Highlight detection + ffmpeg clip-render service for VTourn social distribution
+Highlight detection + ffmpeg clip-render service for Tournamental social distribution
 (see [docs/14-clip-generation-and-social.md](../../docs/14-clip-generation-and-social.md)).
 
 This service produces shareable 6–30s vertical (9:16), square (1:1), and
@@ -168,5 +168,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/clip-pipeline run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

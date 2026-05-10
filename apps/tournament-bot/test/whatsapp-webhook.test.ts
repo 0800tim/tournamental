@@ -41,7 +41,7 @@ function makeApp(over: { sendImpl?: (to: string, body: string) => Promise<void> 
   const client = new AivaWhatsAppClient({
     baseUrl: "http://aiva.local",
     apiKey: "test-key",
-    sessionId: "vtourn-bot",
+    sessionId: "tournamental-bot",
     fetchImpl: fetchImpl as unknown as typeof fetch,
   });
   // Capture outbound after the underlying fetch records it.
@@ -236,7 +236,7 @@ describe("renderForWhatsApp", () => {
   });
 
   it("preserves *bold* (WhatsApp renders it natively)", () => {
-    expect(renderForWhatsApp("*VTourn* — hi")).toBe("*VTourn* — hi");
+    expect(renderForWhatsApp("*Tournamental* — hi")).toBe("*Tournamental* — hi");
   });
 
   it("preserves newlines and plain URLs", () => {

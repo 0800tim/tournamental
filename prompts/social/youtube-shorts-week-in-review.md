@@ -20,7 +20,7 @@ This week's top 6 — {{tournament.name}} • Week {{tournament.week_n}}
 ```
 The 6 best goals from {{tournament.name}} this past week.
 
-Visualisation: VTourn 3D replay. Predict every match: {{cta.url}}
+Visualisation: Tournamental 3D replay. Predict every match: {{cta.url}}
 
 #Shorts {{tournament.hashtag}} #goalsoftheweek #weekrecap
 ```
@@ -28,7 +28,7 @@ Visualisation: VTourn 3D replay. Predict every match: {{cta.url}}
 ## Tags
 
 ```
-{{tournament.hashtag}}, weekly, recap, top goals, vtourn, predictions
+{{tournament.hashtag}}, weekly, recap, top goals, tournamental, predictions
 ```
 
 ## Optimal post time
@@ -38,7 +38,7 @@ post is staggered 14 hours later to capture the Monday-morning commute scroll.)
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/brand?utm_source=youtube&utm_campaign=week-recap&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/brand?utm_source=youtube&utm_campaign=week-recap&utm_content={{campaign.id}}`.
 
 ## Compliance
 

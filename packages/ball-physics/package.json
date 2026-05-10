@@ -2,7 +2,7 @@
   "name": "@vtorn/ball-physics",
   "version": "0.1.0",
   "private": true,
-  "description": "Ball physics for VTourn renderers — Catmull-Rom splines for passes/shots, Rapier-driven rigid body for free kicks and post hits, Magnus side-force preview.",
+  "description": "Ball physics for Tournamental renderers — Catmull-Rom splines for passes/shots, Rapier-driven rigid body for free kicks and post hits, Magnus side-force preview.",
   "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://vtourn.com/schemas/deploy-config.json",
+  "$id": "https://tournamental.com/schemas/deploy-config.json",
   "title": "Per-app deploy config",
   "type": "object",
   "required": ["buildKind", "port", "smoke", "cacheWarm"],

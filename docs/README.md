@@ -1,4 +1,4 @@
-# VTourn docs — the hive-mind index
+# Tournamental docs — the hive-mind index
 
 > **Read this first if you are an agent.** This file is the brain. Everything any contributor (human or AI) needs is one or two clicks away from here.
 >
@@ -11,7 +11,7 @@ The docs in this folder are numbered roughly by area (00s mission, 10s product, 
 | Doc | Why you read it |
 | --- | --- |
 | [`../CLAUDE.md`](../CLAUDE.md) | Operating contract for every agent every session. Sign-off checklist, commit conventions, performance rules. |
-| [`01-vision-and-scope.md`](01-vision-and-scope.md) | What VTourn is and isn't, in 30 seconds and then in detail. |
+| [`01-vision-and-scope.md`](01-vision-and-scope.md) | What Tournamental is and isn't, in 30 seconds and then in detail. |
 | [`09-agent-task-breakdown.md`](09-agent-task-breakdown.md) | The 16-agent matrix. Tells you who owns what. |
 | [`02-spec.md`](02-spec.md) | The JSON spec — the contract every producer and renderer respects. |
 | [`../AGENT-PROMPTS.md`](../AGENT-PROMPTS.md) | Copy-paste starter prompts for every agent type. |
@@ -38,7 +38,7 @@ The docs in this folder are numbered roughly by area (00s mission, 10s product, 
 | [`12-odds-and-predictions.md`](12-odds-and-predictions.md) | Odds ingest, prediction lock, leaderboard, sweepstakes flow. |
 | [`16-game-modes-and-scoring.md`](16-game-modes-and-scoring.md) | Ten game modes, the scoring formula, personality leaderboards. |
 | [`30-gamification-and-affiliate-spine.md`](30-gamification-and-affiliate-spine.md) | The economic spine — affiliate router + gamification loops. |
-| [`36-vtourn-ux-spec.md`](36-vtourn-ux-spec.md) | Bracket-app UX spec (canvas, taps, transitions, error states). |
+| [`36-tournamental-ux-spec.md`](36-tournamental-ux-spec.md) | Bracket-app UX spec (canvas, taps, transitions, error states). |
 | [`37-pwa-app-shell.md`](37-pwa-app-shell.md) | PWA shell — bottom nav, top app-bar, manifest, install affordance. |
 | [`24-gamification-and-virality.md`](24-gamification-and-virality.md) | Virality loops — invites, badges, streaks, share cards. |
 
@@ -75,7 +75,7 @@ API references for each service live under [`api/`](api/README.md). Every Fastif
 
 | Doc | Summary |
 | --- | --- |
-| [`15-vtourn-brand-and-positioning.md`](15-vtourn-brand-and-positioning.md) | VTourn brand, taglines, NZ regulatory framing, monetisation overview. |
+| [`15-tournamental-brand-and-positioning.md`](15-tournamental-brand-and-positioning.md) | Tournamental brand, taglines, NZ regulatory framing, monetisation overview. |
 | [`23-analytics-and-marketing-insights.md`](23-analytics-and-marketing-insights.md) | Analytics events, KPIs, attribution. |
 | [`35-competitor-ux-dossier.md`](35-competitor-ux-dossier.md) | UX teardowns of FIFA+, ESPN, Sleeper, Polymarket, Kalshi. |
 
@@ -85,8 +85,8 @@ API references for each service live under [`api/`](api/README.md). Every Fastif
 | --- | --- |
 | [`17-vstamp-and-prediction-iq.md`](17-vstamp-and-prediction-iq.md) | Tamper-evident prediction receipts + Prediction IQ reputation. |
 | [`18-monetization.md`](18-monetization.md) | Affiliate routing, sponsorship, Pro tier, B2B, creator, data licensing. |
-| [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) | Apache 2.0, VTourn Holdings, Drips Network revenue share. |
-| [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md) | User-organised on-chain pools + VTourn-as-oracle. |
+| [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) | Apache 2.0, Tournamental Holdings, Drips Network revenue share. |
+| [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md) | User-organised on-chain pools + Tournamental-as-oracle. |
 | [`29-polymarket-odds-integration.md`](29-polymarket-odds-integration.md) | How Polymarket numbers feed odds-ingest. |
 | [`40-drips-network-integration.md`](40-drips-network-integration.md) | Drip List + revenue-distribution lifecycle. |
 
@@ -116,7 +116,7 @@ Every Fastify service registers `@fastify/swagger` + `@fastify/swagger-ui`. The 
 
 ## Glossary
 
-[`glossary.md`](glossary.md) is the single source of truth for VTourn-specific terms. If you find yourself defining "Verified-Pundit" or "Cascade" again, link instead.
+[`glossary.md`](glossary.md) is the single source of truth for Tournamental-specific terms. If you find yourself defining "Verified-Pundit" or "Cascade" again, link instead.
 
 ## How to add to this index
 

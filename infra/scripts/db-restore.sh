@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Restore a VTourn Postgres dump produced by db-backup.sh.
+# Restore a Tournamental Postgres dump produced by db-backup.sh.
 #
 # Usage:
 #   bash infra/scripts/db-restore.sh /path/to/vtorn-YYYYMMDDTHHMMSSZ.dump

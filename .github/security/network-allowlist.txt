@@ -1,4 +1,4 @@
-# Network allowlist for VTourn.
+# Network allowlist for Tournamental.
 #
 # Hosts referenced in source code (fetch / axios / got / new URL / https.request)
 # must be on this list. Any new host triggers a CI flag and a human review
@@ -10,7 +10,7 @@
 # and any subdomain" (e.g. `.example.com` allows `api.example.com`).
 
 # --- our own surfaces ---
-.vtourn.com
+.tournamental.com
 .aiva.nz
 
 # --- developer + community ---

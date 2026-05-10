@@ -1,8 +1,8 @@
 /**
  * /world-cup-2026/landing — the WC 2026 hype/marketing landing page.
  *
- * This is the host-aware apex for `2026wc.vtourn.com` and
- * `wc2026.vtourn.com` (rewritten from `/` in `apps/web/middleware.ts`). It
+ * This is the host-aware apex for `2026wc.tournamental.com` and
+ * `wc2026.tournamental.com` (rewritten from `/` in `apps/web/middleware.ts`). It
  * does NOT replace `/world-cup-2026` (the bracket builder) — that route is
  * still the destination of every "Play the bracket game" CTA.
  *
@@ -37,30 +37,30 @@ export const dynamic = "force-static";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "VTourn — 33 days until the world predicts the World Cup.",
+  title: "Tournamental — 33 days until the world predicts the World Cup.",
   description:
-    "VTourn is the prediction game for the 2026 FIFA World Cup. Free to play. Save your bracket now and tweak it match by match — earlier picks score bigger. 48 teams, 104 matches, one open-source bracket.",
+    "Tournamental is the prediction game for the 2026 FIFA World Cup. Free to play. Lock in your bracket now — earlier picks score bigger. 48 teams, 104 matches, one open-source bracket.",
   openGraph: {
-    title: "VTourn — FIFA World Cup 2026 prediction game",
+    title: "Tournamental — FIFA World Cup 2026 prediction game",
     description:
-      "Save your bracket before kickoff. Tweak picks game by game. Earlier saved long-shots earn the most.",
-    url: "https://2026wc.vtourn.com/",
-    siteName: "VTourn",
+      "Lock your bracket before kickoff. Earlier locked long-shots earn the most.",
+    url: "https://2026wc.tournamental.com/",
+    siteName: "Tournamental",
     type: "website",
     images: [
       {
         url: "/og/bracket/default.png",
         width: 1200,
         height: 630,
-        alt: "VTourn — predict the 2026 World Cup",
+        alt: "Tournamental — predict the 2026 World Cup",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "VTourn — FIFA World Cup 2026 prediction game",
+    title: "Tournamental — FIFA World Cup 2026 prediction game",
     description:
-      "Save your bracket before kickoff. Tweak picks game by game. Earlier saved long-shots earn the most.",
+      "Lock your bracket before kickoff. Earlier locked long-shots earn the most.",
     images: ["/og/bracket/default.png"],
   },
 };
@@ -103,10 +103,10 @@ export default function LandingPage() {
             predicts the World Cup.
           </h1>
           <p className="wc-hero-sub">
-            VTourn is the open-source prediction game for the 2026 FIFA
+            Tournamental is the open-source prediction game for the 2026 FIFA
             World Cup. Free to play, free to syndicate, free to share.
-            Save your bracket now and tweak it match by match — the earlier
-            your saved pick, the bigger the multiplier.
+            Lock in your bracket now — the earlier you commit, the bigger
+            the multiplier.
           </p>
           <Countdown initial={initialCountdown} />
           <div className="wc-cta-row">
@@ -123,15 +123,15 @@ export default function LandingPage() {
       {/* ---------- LIVE PREVIEW ---------- */}
       <section className="wc-section" aria-labelledby="wc-dashboard-h2">
         <span className="wc-eyebrow">Right now</span>
-        <h2 id="wc-dashboard-h2">0 brackets saved. Be first.</h2>
+        <h2 id="wc-dashboard-h2">0 picks locked. Be first.</h2>
         <p className="wc-lede">
-          Every market tick, every saved pick, every country leaderboard
+          Every market tick, every locked pick, every country leaderboard
           flows into the live tournament dashboard the moment a match
           kicks off. Here&apos;s a peek.
         </p>
         <div className="wc-dashboard-preview">
           <div className="wc-card">
-            <h3>Picks saved, last 24h</h3>
+            <h3>Picks locked, last 24h</h3>
             <Sparkline />
             <p
               style={{
@@ -141,7 +141,7 @@ export default function LandingPage() {
               }}
             >
               <DataPlaceholder>preview</DataPlaceholder> Goes live the
-              moment the first user saves a pick.
+              moment the first user locks.
             </p>
           </div>
           <div className="wc-card">
@@ -188,7 +188,7 @@ export default function LandingPage() {
         <span className="wc-eyebrow">12 groups · 48 teams</span>
         <h2 id="wc-teams-h2">Every nation, every group.</h2>
         <p className="wc-lede">
-          The Final Draw is in. Click any team for kit colours, FIFA
+          The Final Draw is locked in. Click any team for kit colours, FIFA
           rank, first three fixtures, and live tournament-winner odds.
         </p>
         <TeamGroupGrid />
@@ -219,7 +219,7 @@ export default function LandingPage() {
         <h2 id="wc-lb-h2">Climb the boards. Globally, locally, or in your pool.</h2>
         <p className="wc-lede">
           Compete against the world, your country, your friends, or your
-          affiliate cohort. Every saved pick is verifiable on the
+          affiliate cohort. Every locked pick is verifiable on the
           VStamp ledger.
         </p>
         <LeaderboardPreview />
@@ -256,7 +256,7 @@ export default function LandingPage() {
       <footer className="wc-footer">
         <div className="wc-footer-inner">
           <div>
-            <h5>VTourn</h5>
+            <h5>Tournamental</h5>
             <p style={{ margin: 0, maxWidth: "44ch" }}>
               The open-source prediction game and 3D watch-along for global
               football tournaments. Built in public, owned by VTorn

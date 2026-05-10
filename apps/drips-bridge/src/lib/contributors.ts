@@ -1,7 +1,7 @@
 /**
  * Contributor + RevenueDistribution domain model and JSONL-backed store.
  *
- * VTourn is Apache-2.0 licensed; contributors (humans + agents) share the
+ * Tournamental is Apache-2.0 licensed; contributors (humans + agents) share the
  * platform's revenue via Drips Network per the pitch. This module is the
  * source of truth for *who* contributes and *how much* of each period's
  * receipts flows to whom.

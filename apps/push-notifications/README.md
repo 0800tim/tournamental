@@ -1,6 +1,6 @@
 # @vtorn/push-notifications
 
-VTourn's push-notifications service. Fastify on **:3398**. Fans match-event
+Tournamental's push-notifications service. Fastify on **:3398**. Fans match-event
 notifications out to **Web Push (browsers)**, **Telegram**, **WhatsApp**
 (via the Aiva gateway, sharing the auth-sms Baileys session), and **SMS**
 (via Aiva). Keeps a kickoff scheduler running so users get a "your match
@@ -93,5 +93,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/push-notifications run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

@@ -8,7 +8,7 @@ Copy **everything in this folder except**:
 
 - `.DS_Store` (macOS metadata)
 - `.git/` (will be created fresh on the server)
-- `docs/VTourn PITCH.md` (duplicate of root `VTourn Pitch.md` — skip)
+- `docs/Tournamental PITCH.md` (duplicate of root `Tournamental Pitch.md` — skip)
 - `docs/VTron Monitization.md` (legacy ChatGPT brainstorm — content already folded into doc 18 — skip)
 
 What you should see on the server after copy:
@@ -16,7 +16,7 @@ What you should see on the server after copy:
 ```
 <server-root>/
 ├── README.md
-├── VTourn Pitch.md
+├── Tournamental Pitch.md
 ├── REVIEW.md
 ├── CLAUDE.md
 ├── AGENT-PROMPTS.md
@@ -36,7 +36,7 @@ What you should see on the server after copy:
 Paste this into Claude (Claude Code, Cursor, Aider, etc.) in the server folder:
 
 ```
-You are the VTourn project bootstrap orchestrator on Tim's dev server. The
+You are the Tournamental project bootstrap orchestrator on Tim's dev server. The
 files in this folder are a fresh manual copy of the design pack from his
 Mac. There is no git history yet. `gh` CLI is already installed and
 authenticated as Tim's GitHub user (0800tim).
@@ -45,11 +45,11 @@ YOUR JOB, IN ORDER
 
 1. Orient and verify the copy.
    - Run `ls -la` to confirm the file tree.
-   - Confirm that .DS_Store, .git/, docs/VTourn PITCH.md, and
+   - Confirm that .DS_Store, .git/, docs/Tournamental PITCH.md, and
      docs/VTron Monitization.md are NOT present. If any are, delete them.
    - Confirm 37 working files: `find . -type f | wc -l`.
    - Read REVIEW.md fully. Read CLAUDE.md fully. Read AGENT-PROMPTS.md
-     top to bottom. Skim README.md and "VTourn Pitch.md".
+     top to bottom. Skim README.md and "Tournamental Pitch.md".
    - Confirm spec/types.ts begins with `export const SPEC_VERSION = "0.1.1"`
      and contains event.penalty_attempt etc. If not, STOP and tell Tim.
 
@@ -64,7 +64,7 @@ YOUR JOB, IN ORDER
    - `git add -A`
    - Commit with `git commit -s` and the following message body:
 
-     chore: import VTourn design pack v0.1.1
+     chore: import Tournamental design pack v0.1.1
 
      Initial commit of the complete design pack (37 files):
      top-level docs, docs/01–21, spec/, prompts/, sessions/.
@@ -75,7 +75,7 @@ YOUR JOB, IN ORDER
 
    - Create the remote and push in one shot:
        gh repo create 0800tim/vtorn --private --source=. --remote=origin \
-         --description "VTourn — verified tournament prediction game + 3D match renderer (vtourn.com)" \
+         --description "Tournamental — verified tournament prediction game + 3D match renderer (tournamental.com)" \
          --push
    - Confirm the push landed: `gh repo view 0800tim/vtorn --web` printed
      URL plus `git log --oneline origin/main`.

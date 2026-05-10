@@ -74,5 +74,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/identity run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

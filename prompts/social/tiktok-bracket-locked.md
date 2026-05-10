@@ -25,7 +25,7 @@ If you think I'm wrong, run yours and beat me 👇
 ## Hashtags
 
 ```
-{{tournament.hashtag}} #BracketChallenge #VTourn #predictions #fyp
+{{tournament.hashtag}} #BracketChallenge #Tournamental #predictions #fyp
 ```
 
 ## Optimal post time
@@ -35,7 +35,7 @@ spike. The publisher schedules per the user's local time zone (8pm).
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=bracket-locked&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=bracket-locked&utm_content={{campaign.id}}`.
 
 ## Compliance
 

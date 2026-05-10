@@ -25,7 +25,7 @@ describe("referral-invite card", () => {
       { ...baseInput, tournamentName: undefined },
       "og",
     );
-    expect(containsText(node, "@tane wants you on VTourn.")).toBe(true);
+    expect(containsText(node, "@tane wants you on Tournamental.")).toBe(true);
   });
 
   it("respects an explicit inviteHeadline override", () => {

@@ -1,6 +1,6 @@
 # Project tasks
 
-A lightweight markdown kanban for VTourn. Lives in-repo so the orchestrator and any agent can see and update it. No external tool. Survives across sessions because it's just files.
+A lightweight markdown kanban for Tournamental. Lives in-repo so the orchestrator and any agent can see and update it. No external tool. Survives across sessions because it's just files.
 
 ## Layout
 

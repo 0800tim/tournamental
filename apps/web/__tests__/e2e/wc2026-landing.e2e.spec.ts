@@ -5,7 +5,7 @@
  *   1. /world-cup-2026/landing renders, all 48 team flags appear, the
  *      countdown is positive, the syndicate form posts to
  *      /api/syndicate/intent and gets a 200.
- *   2. The middleware rewrite: GET / with `Host: 2026wc.vtourn.com`
+ *   2. The middleware rewrite: GET / with `Host: 2026wc.tournamental.com`
  *      serves the landing payload, GET / with the renderer host serves
  *      the original landing.
  */
@@ -97,11 +97,11 @@ test.describe("WC2026 hype landing — content", () => {
 });
 
 test.describe("WC2026 hype landing — host-aware middleware", () => {
-  test("Host: 2026wc.vtourn.com / rewrites to the landing", async ({
+  test("Host: 2026wc.tournamental.com / rewrites to the landing", async ({
     request,
   }) => {
     const res = await request.get("/", {
-      headers: { Host: "2026wc.vtourn.com" },
+      headers: { Host: "2026wc.tournamental.com" },
     });
     expect(res.status()).toBe(200);
     const html = await res.text();
@@ -109,11 +109,11 @@ test.describe("WC2026 hype landing — host-aware middleware", () => {
     expect(html).toContain("wc-countdown");
   });
 
-  test("Host: wc2026.vtourn.com / rewrites to the landing", async ({
+  test("Host: wc2026.tournamental.com / rewrites to the landing", async ({
     request,
   }) => {
     const res = await request.get("/", {
-      headers: { Host: "wc2026.vtourn.com" },
+      headers: { Host: "wc2026.tournamental.com" },
     });
     expect(res.status()).toBe(200);
     const html = await res.text();
@@ -124,12 +124,12 @@ test.describe("WC2026 hype landing — host-aware middleware", () => {
     request,
   }) => {
     const res = await request.get("/", {
-      headers: { Host: "vtourn.aiva.nz" },
+      headers: { Host: "tournamental.aiva.nz" },
     });
     expect(res.status()).toBe(200);
     const html = await res.text();
     expect(html).not.toContain("predicts the World Cup");
-    // The renderer apex landing — see app/page.tsx — copy is "VTourn" since
+    // The renderer apex landing — see app/page.tsx — copy is "Tournamental" since
     // PR #41. Just assert we're on the renderer's landing, not the WC page.
     expect(html).toContain("Watch the demo");
   });
@@ -138,7 +138,7 @@ test.describe("WC2026 hype landing — host-aware middleware", () => {
     request,
   }) => {
     const res = await request.get("/world-cup-2026", {
-      headers: { Host: "2026wc.vtourn.com" },
+      headers: { Host: "2026wc.tournamental.com" },
     });
     expect(res.status()).toBe(200);
     const html = await res.text();

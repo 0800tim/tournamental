@@ -1,6 +1,6 @@
 # @vtorn/game — Game service
 
-Bracket-submission, match-settlement, and leaderboards backend for VTourn.
+Bracket-submission, match-settlement, and leaderboards backend for Tournamental.
 Implements the game-side of [docs/12](../../docs/12-odds-and-predictions.md)
 and consumes the canonical scoring engine from `@vtorn/bracket-engine`.
 
@@ -14,7 +14,7 @@ flat-file pipeline from docs/12.
 | Env  | Port  | URL                                       |
 | ---- | ----- | ----------------------------------------- |
 | dev  | 3360  | `https://vtorn-game.aiva.nz`              |
-| prod | 3360  | `https://game.vtourn.com` (planned)       |
+| prod | 3360  | `https://game.tournamental.com` (planned)       |
 
 See [docs/22](../../docs/22-deployment-and-tunnels.md) for the full port
 table and tunnel-add procedure.
@@ -238,5 +238,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/game run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

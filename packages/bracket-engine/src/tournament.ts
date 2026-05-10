@@ -7,7 +7,7 @@
  *   Round of 32 → R16 → Quarter-finals → Semi-finals → Final.
  *
  * Note: the official FIFA 2026 format is 12 groups of 4 with top-32
- * advancing. This package follows the VTourn product brief (8 groups of 6,
+ * advancing. This package follows the Tournamental product brief (8 groups of 6,
  * 48 teams, R32→F) — see `data/fifa-wc-2026-fixtures.json` `_meta` for
  * source notes. The engine itself is generic — group counts, team-per-
  * group counts, and advancement rules are all config-driven so a real

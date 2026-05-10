@@ -4,7 +4,7 @@ import mdx from "@astrojs/mdx";
 import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
-  site: "https://vtourn.com",
+  site: "https://tournamental.com",
   trailingSlash: "ignore",
   // MDX gives us first-class React-style component embeds inside the
   // /blog/ content collection while keeping the rest of the marketing
@@ -18,7 +18,7 @@ export default defineConfig({
   vite: {
     server: {
       // Dev only: accept any Host header so the cloudflared tunnel
-      // (vtorn-www.aiva.nz today, vtourn.com tomorrow) can hit us
+      // (vtorn-www.aiva.nz today, tournamental.com tomorrow) can hit us
       // without per-host config drift.
       allowedHosts: true,
     },

@@ -8,14 +8,14 @@ test.describe("login flow", () => {
 
   test("renders the login form", async ({ page }) => {
     await page.goto("/login");
-    await expect(page.getByRole("heading", { name: /VTourn Admin/i })).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Tournamental Admin/i })).toBeVisible();
     await expect(page.getByLabel(/Admin email/i)).toBeVisible();
   });
 
   test("submitting an email shows the 'sent' confirmation", async ({ page }) => {
     test.skip(!process.env.ADMIN_EMAILS, "ADMIN_EMAILS not set in CI env");
     await page.goto("/login");
-    await page.getByLabel(/Admin email/i).fill("tim@vtourn.com");
+    await page.getByLabel(/Admin email/i).fill("tim@tournamental.com");
     await page.getByRole("button", { name: /Send sign-in link/i }).click();
     await expect(page).toHaveURL(/sent=1/);
   });

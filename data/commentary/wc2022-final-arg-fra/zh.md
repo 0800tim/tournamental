@@ -1,13 +1,13 @@
-# WC2022 Final ARG-FRA - VTourn Commentary [zh]
+# WC2022 Final ARG-FRA - Tournamental Commentary [zh]
 
-Generated from StatsBomb event stream + VTourn narrator template, machine-translated from English.
+Generated from StatsBomb event stream + Tournamental narrator template, machine-translated from English.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 Player names and team names are kept in their original spelling.
 
 ---
 
 [L0001 · -03:00 · open] 欢迎来到卢塞尔体育场观看 FIFA 世界杯决赛，阿根廷队对阵法国队。
-[L0002 · -02:56 · open] 我是你们的 VTourn 解说员，今晚是我们一直在等待的夜晚。
+[L0002 · -02:56 · open] 我是你们的 Tournamental 解说员，今晚是我们一直在等待的夜晚。
 [L0003 · -02:53 · scene] 八万九千人在里面，二十亿人在世界各地观看。
 [L0004 · -02:49 · scene] 阿根廷，第六次入围决赛。卫冕冠军法国队将背靠背晋级。
 [L0005 · -02:46 · scene] 距离阿根廷上一次达到这一阶段已有十四年了。自从他们主办并获胜以来已经四十四年了。
@@ -2967,7 +2967,7 @@ Player names and team names are kept in their original spelling.
 [L2959 · 128:31 · trophy] 梅西拥有世界杯！
 [L2960 · 128:35 · trophy] 卢塞尔球场的轰鸣声已经持续了十分钟。
 [L2961 · 128:39 · trophy] 其余的都是历史了。
-[L2962 · 128:43 · wrap] VTourn 的所有人都非常荣幸能够命名这场比赛。
+[L2962 · 128:43 · wrap] Tournamental 的所有人都非常荣幸能够命名这场比赛。
 [L2963 · 128:47 · wrap] 阿根廷，世界冠军，2022年。
 [L2964 · 128:51 · wrap] 梅西终于拿到了奖杯。
 [L2965 · 128:55 · wrap] 直到下次。卢塞尔的晚安。

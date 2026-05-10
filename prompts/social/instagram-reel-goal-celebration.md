@@ -31,7 +31,7 @@ the first comment (per Meta's 2026 algorithm guidance):
 
 In caption:
 ```
-{{tournament.hashtag}} #{{event.scorer_lastname}} #{{match.team_winning}} #goal #VTourn
+{{tournament.hashtag}} #{{event.scorer_lastname}} #{{match.team_winning}} #goal #Tournamental
 ```
 
 In first comment (auto-posted by publisher):
@@ -49,7 +49,7 @@ tournament's home time zone.
 
 The Reel itself does not carry the URL. The bio link rotates to the relevant
 campaign URL during the tournament:
-`{{cta.url}}` — `https://vtourn.com/r/brand?utm_source=instagram&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/brand?utm_source=instagram&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
 
 ## Compliance
 

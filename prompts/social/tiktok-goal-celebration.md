@@ -35,7 +35,7 @@ short URL must be the last token (TikTok auto-linkifies the last URL only).
 ## Hashtags
 
 ```
-{{tournament.hashtag}} #{{event.scorer_lastname}} #{{match.team_winning}} #fyp #VTourn #predictions
+{{tournament.hashtag}} #{{event.scorer_lastname}} #{{match.team_winning}} #fyp #Tournamental #predictions
 ```
 
 Per-locale add-ons live in `docs/27` § Hashtag strategy.
@@ -48,7 +48,7 @@ go out as fast as encode + upload allow.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=tiktok&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
 
 ## Compliance
 
@@ -56,4 +56,4 @@ go out as fast as encode + upload allow.
 - Match audio: original commentary track only; no music from non-cleared catalogues.
 - Auto-disclose AI-generated content is *not* required here — the clip is a real
   rendering of a real event, even though the visualisation is synthetic. Per doc 27
-  § AI disclosure, we mark the description with `Visualisation: VTourn 3D replay`.
+  § AI disclosure, we mark the description with `Visualisation: Tournamental 3D replay`.

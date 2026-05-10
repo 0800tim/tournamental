@@ -2,7 +2,7 @@
   "name": "@vtorn/security-watchdog",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn security watchdog — daily/weekly scans, severity-routed alerts, finding lifecycle (ack/resolve), audit log.",
+  "description": "Tournamental security watchdog — daily/weekly scans, severity-routed alerts, finding lifecycle (ack/resolve), audit log.",
   "type": "module",
   "main": "dist/index.js",
   "bin": {

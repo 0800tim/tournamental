@@ -8,7 +8,7 @@
  * survive a hard reload.
  *
  * Runs against a live deployed environment. Default base URL is
- * https://2026wc.vtourn.com; override with `PLAYWRIGHT_BASE_URL`.
+ * https://2026wc.tournamental.com; override with `PLAYWRIGHT_BASE_URL`.
  *
  * Bug-tolerance:
  *   - The test never *fixes* application code. If the cascade leaves
@@ -42,7 +42,7 @@ import {
 const BASE_URL =
   process.env.PLAYWRIGHT_BASE_URL ??
   process.env.VTORN_BASE_URL ??
-  "https://2026wc.vtourn.com";
+  "https://2026wc.tournamental.com";
 
 const BRACKET_PATH = "/world-cup-2026";
 

@@ -48,8 +48,8 @@ export async function signSession(opts: {
   const jti = randomUUID();
   const now = Math.floor(Date.now() / 1000);
   const expiresAt = now + ttl;
-  const issuer = opts.issuer ?? 'vtourn-dm-otp';
-  const audience = opts.audience ?? 'vtourn';
+  const issuer = opts.issuer ?? 'tournamental-dm-otp';
+  const audience = opts.audience ?? 'tournamental';
 
   const jwt = await new SignJWT({
     channel: opts.channel,
@@ -74,8 +74,8 @@ export async function verifySession(opts: {
   issuer?: string;
   audience?: string;
 }): Promise<DmOtpClaims> {
-  const issuer = opts.issuer ?? 'vtourn-dm-otp';
-  const audience = opts.audience ?? 'vtourn';
+  const issuer = opts.issuer ?? 'tournamental-dm-otp';
+  const audience = opts.audience ?? 'tournamental';
   const { payload } = await jwtVerify(
     opts.token,
     secretKeyBytes(opts.secret),

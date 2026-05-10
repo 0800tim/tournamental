@@ -9,7 +9,7 @@
  * unwieldy.
  *
  * Captions never contain emojis - per the brand voice rule in
- * docs/15-vtourn-brand-and-positioning.md.
+ * docs/15-tournamental-brand-and-positioning.md.
  */
 import { readFileSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";

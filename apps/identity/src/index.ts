@@ -1,5 +1,5 @@
 /**
- * VTourn identity service entrypoint.
+ * Tournamental identity service entrypoint.
  *
  * Boots a Fastify HTTP server on :3392 with:
  *   POST /v1/links/start
@@ -34,7 +34,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
 
 const corsOrigins = (
   process.env.IDENTITY_CORS_ORIGINS ??
-  'https://vtourn.com,https://vtorn.aiva.nz,https://vtorn-admin.aiva.nz,http://localhost:3300,http://localhost:3340'
+  'https://tournamental.com,https://vtorn.aiva.nz,https://vtorn-admin.aiva.nz,http://localhost:3300,http://localhost:3340'
 )
   .split(',')
   .map((s) => s.trim())
@@ -81,7 +81,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   app.get('/', async (_req, reply) => {
     reply.header('Cache-Control', 'public, max-age=60');
     return {
-      service: 'vtourn-identity',
+      service: 'tournamental-identity',
       version: PACKAGE_VERSION,
       health: '/healthz',
     };
@@ -94,7 +94,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
 
   app.get('/v1/version', async (_req, reply) => {
     reply.header('Cache-Control', 'public, max-age=60');
-    return { service: 'vtourn-identity', version: PACKAGE_VERSION };
+    return { service: 'tournamental-identity', version: PACKAGE_VERSION };
   });
 
   await registerLinks(app, ctx);
@@ -130,7 +130,7 @@ async function start(): Promise<void> {
     await app.listen({ port: PORT, host: BIND });
     app.log.info(
       { port: PORT, bind: BIND, corsOrigins },
-      `vtourn-identity listening on http://${BIND}:${PORT}`,
+      `tournamental-identity listening on http://${BIND}:${PORT}`,
     );
   } catch (err) {
     app.log.error(err);

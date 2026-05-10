@@ -64,10 +64,10 @@ export function safeEqualHex(a: string, b: string): boolean {
  */
 export function formatSmsBody(opts: {
   code: string;
-  appHost: string; // e.g. "vtourn.com"
-  productName?: string; // e.g. "VTourn"
+  appHost: string; // e.g. "tournamental.com"
+  productName?: string; // e.g. "Tournamental"
 }): string {
-  const product = opts.productName ?? 'VTourn';
+  const product = opts.productName ?? 'Tournamental';
   return (
     `Your ${product} code is ${opts.code}.\n` +
     `\n` +
@@ -80,6 +80,6 @@ export function formatWhatsAppBody(opts: {
   code: string;
   productName?: string;
 }): string {
-  const product = opts.productName ?? 'VTourn';
+  const product = opts.productName ?? 'Tournamental';
   return `Your ${product} code is *${opts.code}*. Expires in 10 minutes.`;
 }

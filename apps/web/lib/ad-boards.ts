@@ -17,7 +17,7 @@ export const AD_CYCLE_SECONDS = 15;
 /** Sponsor placeholders. Tim said sponsor logos are TBD; these read
  *  as broadcast filler. */
 export const AD_BOARD_NAMES = [
-  "VTOURN",
+  "TOURNAMENTAL",
   "AIVA",
   "Drips",
   "FairPlay",
@@ -37,7 +37,7 @@ export const AD_BOARD_NAMES = [
 
 /** Sponsor brand colour pairs (bg / fg). */
 export const AD_BOARD_COLOURS: Array<{ bg: string; fg: string }> = [
-  { bg: "#0b3d91", fg: "#ffffff" }, // VTOURN navy
+  { bg: "#0b3d91", fg: "#ffffff" }, // TOURNAMENTAL navy
   { bg: "#7c3aed", fg: "#ffffff" }, // AIVA violet
   { bg: "#0e7490", fg: "#e0f2fe" }, // Drips teal
   { bg: "#a16207", fg: "#fef3c7" }, // FairPlay gold

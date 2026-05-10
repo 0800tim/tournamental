@@ -34,7 +34,7 @@ for (const team of teams) {
   }
   try {
     const res = await fetch(team.flag_svg_url, {
-      headers: { "User-Agent": "VTourn-Flag-Downloader/1.0 (info@vtourn.com)" },
+      headers: { "User-Agent": "Tournamental-Flag-Downloader/1.0 (info@tournamental.com)" },
       redirect: "follow",
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

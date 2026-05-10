@@ -25,7 +25,7 @@ Final {{tournament.name}} stats for @{{user.handle}}:
 - {{stats.accuracy_pct}}% accuracy
 - #{{stats.rank}} of {{stats.total_entrants}}
 
-Visualisation: VTourn 3D replay. Run your own: {{cta.url}}
+Visualisation: Tournamental 3D replay. Run your own: {{cta.url}}
 
 #Shorts {{tournament.hashtag}} #recap
 ```
@@ -33,7 +33,7 @@ Visualisation: VTourn 3D replay. Run your own: {{cta.url}}
 ## Tags
 
 ```
-{{tournament.hashtag}}, recap, stats, vtourn, predictions
+{{tournament.hashtag}}, recap, stats, tournamental, predictions
 ```
 
 ## Optimal post time
@@ -42,4 +42,4 @@ Visualisation: VTourn 3D replay. Run your own: {{cta.url}}
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=youtube&utm_campaign=tournament-recap&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=youtube&utm_campaign=tournament-recap&utm_content={{campaign.id}}`.

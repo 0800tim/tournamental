@@ -42,7 +42,7 @@ export async function registerWhatsAppPairing(
     reply.header('Cache-Control', 'no-store');
     reply.type('text/html; charset=utf-8');
     return reply.send(
-      `<!doctype html><html><head><meta charset="utf-8"><title>VTourn WhatsApp pairing</title>` +
+      `<!doctype html><html><head><meta charset="utf-8"><title>Tournamental WhatsApp pairing</title>` +
         `<style>body{font-family:system-ui;background:#0b0b0e;color:#eee;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}` +
         `.card{background:#15151a;padding:24px;border-radius:16px;text-align:center;max-width:420px}` +
         `img{width:320px;height:320px;background:#fff;padding:8px;border-radius:8px}</style></head>` +

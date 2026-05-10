@@ -1,8 +1,8 @@
 {
-  "name": "@vtourn/odds-ingest",
+  "name": "@tournamental/odds-ingest",
   "version": "0.0.1",
   "private": true,
-  "description": "Live prediction-market odds ingest for the VTourn 2026 World Cup bracket",
+  "description": "Live prediction-market odds ingest for the Tournamental 2026 World Cup bracket",
   "type": "module",
   "bin": {
     "odds-ingest": "./dist/index.js"

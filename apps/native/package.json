@@ -2,7 +2,7 @@
   "name": "@vtorn/native",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn native iOS+Android shell — Capacitor wrapper around apps/web with push, haptics, share",
+  "description": "Tournamental native iOS+Android shell — Capacitor wrapper around apps/web with push, haptics, share",
   "type": "module",
   "scripts": {
     "build:web-bundle": "tsx scripts/build-web-bundle.ts",

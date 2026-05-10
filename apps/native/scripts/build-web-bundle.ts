@@ -8,7 +8,7 @@
  * shown if the device is offline at first launch (or for app-store
  * review builds where reviewers may sandbox the network).
  *
- * The shell is a static "VTourn — open the app" placeholder; no JS, no
+ * The shell is a static "Tournamental — open the app" placeholder; no JS, no
  * external assets, < 4kb.
  */
 
@@ -25,7 +25,7 @@ const HTML = `<!doctype html>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-    <title>VTourn</title>
+    <title>Tournamental</title>
     <style>
       :root { color-scheme: dark; }
       html, body { margin: 0; padding: 0; height: 100%;
@@ -56,9 +56,9 @@ const HTML = `<!doctype html>
             fill="none" stroke="#facc15" stroke-width="14"
             stroke-linecap="round" stroke-linejoin="round"/></svg>
         </div>
-        <h1>VTourn</h1>
+        <h1>Tournamental</h1>
         <p>You're offline or this is a sandboxed review build. Reconnect to load the live app.</p>
-        <a class="btn" href="https://vtourn.com">Open vtourn.com</a>
+        <a class="btn" href="https://tournamental.com">Open tournamental.com</a>
       </div>
     </div>
   </body>

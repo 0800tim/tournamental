@@ -159,7 +159,7 @@ function handleStart(
     return [
       {
         text: [
-          `Welcome to *${syn.name}* — VTourn syndicate.`,
+          `Welcome to *${syn.name}* — Tournamental syndicate.`,
           ``,
           `Format: ${formatLabel(syn.format)}`,
           `Privacy: ${syn.privacy === "invite_only" ? "invite-only" : "public"}`,
@@ -191,7 +191,7 @@ function handleStart(
   return [
     {
       text: [
-        "Welcome to *VTourn* — the never-finished bracket game.",
+        "Welcome to *Tournamental* — the never-finished bracket game.",
         "",
         "Commands:",
         "  /picks — see your bracket",
@@ -225,14 +225,14 @@ function formatLabel(f: string): string {
 function handlePicks(user: TgUser, deps: DispatchDeps): DispatchReply[] {
   const bracketBase =
     deps.env?.bracketBaseUrl ??
-    process.env.VTOURN_BRACKET_BASE_URL ??
-    "https://2026wc.vtourn.com";
+    process.env.TOURNAMENTAL_BRACKET_BASE_URL ??
+    "https://2026wc.tournamental.com";
 
   if (!user.user_id) {
     return [
       {
         text: [
-          "You're not paired with a VTourn account yet.",
+          "You're not paired with a Tournamental account yet.",
           "",
           `Open ${bracketBase} and tap "Sign in", or run /start to get a fresh code.`,
         ].join("\n"),
@@ -276,8 +276,8 @@ async function handleOdds(
   const fetchImpl = deps.fetch ?? fetch;
   const oddsBase =
     deps.env?.oddsApiBase ??
-    process.env.VTOURN_ODDS_API_BASE ??
-    "https://api-dev.vtourn.com";
+    process.env.TOURNAMENTAL_ODDS_API_BASE ??
+    "https://api-dev.tournamental.com";
   try {
     const res = await fetchImpl(
       `${oddsBase}/v1/odds/team/${encodeURIComponent(team)}`,
@@ -335,8 +335,8 @@ async function handleLeaderboard(
   const fetchImpl = deps.fetch ?? fetch;
   const apiBase =
     deps.env?.apiBase ??
-    process.env.VTOURN_API_BASE ??
-    "https://api-dev.vtourn.com";
+    process.env.TOURNAMENTAL_API_BASE ??
+    "https://api-dev.tournamental.com";
   const scope = (argline.trim().toLowerCase() || "global").split(/\s+/)[0];
   const url = `${apiBase}/v1/leaderboard/${encodeURIComponent(scope)}${
     user.user_id ? `?for=${encodeURIComponent(user.user_id)}` : ""
@@ -559,7 +559,7 @@ function handleHelp(): DispatchReply[] {
   return [
     {
       text: [
-        "*VTourn — command list*",
+        "*Tournamental — command list*",
         "",
         "  /start — connect your bracket / accept a syndicate invite",
         "  /picks — view your bracket",

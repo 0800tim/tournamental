@@ -40,7 +40,7 @@ export async function registerChannelsRoute(
     }));
     reply.header('Cache-Control', 'public, max-age=60, s-maxage=60, stale-while-revalidate=300');
     return {
-      productName: 'VTourn',
+      productName: 'Tournamental',
       phrase: 'log in',
       ttlSeconds: 300,
       channels,

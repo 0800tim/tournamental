@@ -43,7 +43,7 @@
  *          handle + opaque user id.
  *       b) for kinds keyed by `user_id`, the resolver checks the user's
  *          `share_to_brand_channel` flag where applicable, and substitutes
- *          a generic "VTourn" handle if not set.
+ *          a generic "Tournamental" handle if not set.
  *
  * Rate limit:
  *   - 60 req/min per IP (the global limiter from server.ts is fine).

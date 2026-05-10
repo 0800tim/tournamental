@@ -8,7 +8,7 @@ body:
       value: |
         Thanks for taking the time to file a bug report.
         Please do **not** report security vulnerabilities here.
-        Use the **Report a security vulnerability** template instead, or email security@vtourn.com.
+        Use the **Report a security vulnerability** template instead, or email security@tournamental.com.
   - type: textarea
     id: what-happened
     attributes:

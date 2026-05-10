@@ -40,7 +40,7 @@ export async function handleStart(ctx: Context, deps: BotDeps): Promise<void> {
     }
     await ctx.reply(
       [
-        `Welcome to *${syn.name}* — VTourn syndicate.`,
+        `Welcome to *${syn.name}* — Tournamental syndicate.`,
         ``,
         `Format: ${formatLabel(syn.format)}`,
         `Privacy: ${syn.privacy === "invite_only" ? "invite-only" : "public"}`,
@@ -71,7 +71,7 @@ export async function handleStart(ctx: Context, deps: BotDeps): Promise<void> {
 
   await ctx.reply(
     [
-      "Welcome to *VTourn* — the never-finished bracket game.",
+      "Welcome to *Tournamental* — the never-finished bracket game.",
       "",
       "Commands:",
       "  /picks — see your bracket",

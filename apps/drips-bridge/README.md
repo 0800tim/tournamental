@@ -1,7 +1,7 @@
 # @vtorn/drips-bridge
 
-VTourn's bridge to **Drips Network** — the contributor revenue-split scaffold.
-VTourn is Apache-2.0; contributors share platform revenue via Drips per the
+Tournamental's bridge to **Drips Network** — the contributor revenue-split scaffold.
+Tournamental is Apache-2.0; contributors share platform revenue via Drips per the
 pitch and README. This service holds the contributor registry, computes
 proportional revenue distributions per period, and pushes payouts to Drips
 (mock by default; real backend audit-gated).
@@ -68,5 +68,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/drips-bridge run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

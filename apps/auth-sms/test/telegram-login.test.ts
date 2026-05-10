@@ -217,14 +217,14 @@ async function makeHarness(opts: { telegramBotToken?: string } = {}): Promise<Ha
   const config: AuthContext['config'] = {
     otpSecret: 'test-otp-secret-32-chars-aaaaaaa',
     jwtSecret: 'test-jwt-secret-32-chars-aaaaaaa',
-    appHost: 'vtourn.test',
-    productName: 'VTourn',
+    appHost: 'tournamental.test',
+    productName: 'Tournamental',
     adminToken: 'admin-token',
     otpTtlSeconds: 600,
     maxVerifyAttempts: 5,
     sessionTtlSeconds: 60 * 60,
     telegramBotToken: opts.telegramBotToken ?? BOT_TOKEN,
-    telegramBotUsername: 'VTournBot',
+    telegramBotUsername: 'TournamentalBot',
   };
   const ctx: AuthContext = {
     storage,

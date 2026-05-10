@@ -1,4 +1,4 @@
-# 36 — VTourn UX redesign spec
+# 36 — Tournamental UX redesign spec
 
 > The synthesis. Doc [35](35-competitor-ux-dossier.md) was research; this doc is action. Every recommendation here is implementable in our existing stack (Next.js + React Three Fiber + Tailwind + the `@vtorn/bracket-engine` types) and references the specific components we already ship so the next builder agent can extend rather than rewrite.
 >
@@ -38,7 +38,7 @@ Currently missing entirely. The single biggest unlock from the dossier (FotMob's
 
 Today this route is the renderer-mounted live match view (per [doc 04](04-renderer.md)). The pre-match enrichment screen is a different concern and should sit at `/match/[id]/preview` or be a tab on the same route.
 
-**Pattern**: borrow FotMob's five-tab match detail (Facts / Stats / Lineup / H2H / Predict — see [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)). For VTourn pre-match the relevant tabs are:
+**Pattern**: borrow FotMob's five-tab match detail (Facts / Stats / Lineup / H2H / Predict — see [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)). For Tournamental pre-match the relevant tabs are:
 
 - **Predict** (default) — embed `MatchPredictionRow` (plus odds via existing `OddsChip`).
 - **H2H** — head-to-head record, last meetings.
@@ -404,7 +404,7 @@ Visual:
 
 ## Brand and palette guidance
 
-Keep VTourn's existing brand palette from [doc 15](15-vtourn-brand-and-positioning.md) as the chrome. **The kit colours are the content**.
+Keep Tournamental's existing brand palette from [doc 15](15-tournamental-brand-and-positioning.md) as the chrome. **The kit colours are the content**.
 
 - Card chrome: dark mode neutrals (similar to OneFootball's `#1A1A1A` / `#F0F0F0` axis from [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball)).
 - Active selection: kit-coloured ring on the chosen flag, plus a small accent in the global accent (`#fbbf24` works today; the existing `accentColor` prop on `TeamFlag` already supports this).
@@ -450,7 +450,7 @@ After the punch-list ships:
 - [doc 04 — renderer](04-renderer.md) — the live `/match/[id]` route.
 - [doc 11 — historic data sources](11-historic-data-sources.md) — where H2H data comes from.
 - [doc 12 — odds and predictions](12-odds-and-predictions.md) — where the percentages on `MatchPredictionRow` come from.
-- [doc 15 — brand and positioning](15-vtourn-brand-and-positioning.md) — chrome palette.
+- [doc 15 — brand and positioning](15-tournamental-brand-and-positioning.md) — chrome palette.
 - [doc 16 — game modes and scoring](16-game-modes-and-scoring.md) — why we resist confidence-points and stepper score-entry.
 - [doc 20 — identity and humanness](20-identity-humanness-bots.md) — leaderboard avatars.
 - [doc 22 — deployment and tunnels](22-deployment-and-tunnels.md) — caching budgets for `/team/[code]` and `/match/[id]/preview`.

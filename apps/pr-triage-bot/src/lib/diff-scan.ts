@@ -39,7 +39,7 @@ const ALWAYS_OK_HOSTS = new Set<string>([
   '127.0.0.1',
   '0.0.0.0',
   // ours
-  'vtourn.com',
+  'tournamental.com',
   'aiva.nz',
   // common docs anchors that show up in comments
   'github.com',
@@ -66,7 +66,7 @@ export function scanNetworkHosts(
         if (!host) continue;
         if (ALWAYS_OK_HOSTS.has(host)) continue;
         if (allowlist.has(host)) continue;
-        // Wildcard suffix match: an entry like ".vtourn.com" allows any subdomain
+        // Wildcard suffix match: an entry like ".tournamental.com" allows any subdomain
         let allowedBySuffix = false;
         for (const a of allowlist) {
           if (a.startsWith('.') && host.endsWith(a)) {

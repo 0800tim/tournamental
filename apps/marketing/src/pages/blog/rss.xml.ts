@@ -12,10 +12,10 @@ export async function GET(context: APIContext) {
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
   return rss({
-    title: "VTourn — Build Log",
+    title: "Tournamental — Build Log",
     description:
-      "The VTourn build log: behind-the-scenes engineering and feature show-offs as we ramp toward the 11 June 2026 World Cup kickoff.",
-    site: context.site ?? "https://vtourn.com",
+      "The Tournamental build log: behind-the-scenes engineering and feature show-offs as we ramp toward the 11 June 2026 World Cup kickoff.",
+    site: context.site ?? "https://tournamental.com",
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,

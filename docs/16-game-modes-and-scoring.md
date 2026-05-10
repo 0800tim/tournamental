@@ -1,6 +1,6 @@
 # 16 — Game Modes and Scoring
 
-> The rulebook. Ten game modes, the scoring formula that makes them all interoperable, the multipliers, the streaks, the confidence mechanic, and the personality leaderboards. Brand framing is in [doc 15](15-vtourn-brand-and-positioning.md); the engine that runs all of this lives in `apps/game-service` per agent J ([doc 09](09-agent-task-breakdown.md)).
+> The rulebook. Ten game modes, the scoring formula that makes them all interoperable, the multipliers, the streaks, the confidence mechanic, and the personality leaderboards. Brand framing is in [doc 15](15-tournamental-brand-and-positioning.md); the engine that runs all of this lives in `apps/game-service` per agent J ([doc 09](09-agent-task-breakdown.md)).
 
 ## The unifying score formula
 
@@ -199,7 +199,7 @@ Top 2% of all players in this tournament
 - Perfect Round: +2,000 bonus.
 - Perfect Group Stage: +5,000 bonus.
 - Perfect Knockout Stage: +10,000 bonus.
-- **Perfect Tournament: +100,000 bonus** (or a sponsor-provided physical prize where available; see [doc 15](15-vtourn-brand-and-positioning.md)).
+- **Perfect Tournament: +100,000 bonus** (or a sponsor-provided physical prize where available; see [doc 15](15-tournamental-brand-and-positioning.md)).
 
 **Mode multiplier**: each prediction inside an active perfect run gets a 1.05× multiplier on top of its other multipliers. Small enough not to dominate the casual leaderboard; meaningful when stacked.
 
@@ -292,7 +292,7 @@ Not a prediction mode the user *plays* but a public display layer that shows up 
 
 For each match we publish three implied probabilities:
 
-1. **VTourn Crowd** — aggregate of all VTourn user predictions on that outcome at lock time. Median, not mean (robust to whales).
+1. **Tournamental Crowd** — aggregate of all Tournamental user predictions on that outcome at lock time. Median, not mean (robust to whales).
 2. **Market** — Polymarket implied probability or median of Bookmaker odds via The Odds API.
 3. **AI Model** — our own simple Elo-ish + form-adjusted model. Transparent: we publish the model's logic.
 
@@ -300,7 +300,7 @@ After the match, the post-match share card shows which layer was right:
 
 ```
 Argentina v France (final score: 3–3, 4–2 pens)
-  VTourn Crowd:  Argentina 58%
+  Tournamental Crowd:  Argentina 58%
   Market:       Argentina 62%
   AI Model:     Argentina 51%
   Result:       Argentina won
@@ -311,7 +311,7 @@ Or the more shareable scenario:
 
 ```
 Saudi Arabia v Argentina (final score: 2–1)
-  VTourn Crowd:  Argentina 73%
+  Tournamental Crowd:  Argentina 73%
   Market:       Argentina 89%
   AI Model:     Argentina 81%
   Result:       Saudi Arabia won
@@ -338,7 +338,7 @@ Names appear in HUD banners, share cards, profile pages, and bot notifications.
 
 ## Personality leaderboards
 
-Beyond the standard global / country / city / friend / pool / tournament / round / day leaderboards (specced in [doc 12](12-odds-and-predictions.md)), VTourn ships **personality-flavoured leaderboards**. Each is a distinct ranked board scoped to a specific *style* of prediction. Players naturally specialise; many users will never make it onto the global board but will dominate one of these.
+Beyond the standard global / country / city / friend / pool / tournament / round / day leaderboards (specced in [doc 12](12-odds-and-predictions.md)), Tournamental ships **personality-flavoured leaderboards**. Each is a distinct ranked board scoped to a specific *style* of prediction. Players naturally specialise; many users will never make it onto the global board but will dominate one of these.
 
 | Leaderboard | Definition | Why it matters |
 |-------------|------------|----------------|
@@ -376,7 +376,7 @@ VStamp: #A92F-81C
 Prediction Won
 France won 2–1
 You locked France at 38%
-You beat 82% of VTourn users
+You beat 82% of Tournamental users
 Points earned: 84
 Badge earned: Before the Crowd
 Streak: 7  →  Hot Hand

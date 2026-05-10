@@ -30,7 +30,7 @@ const ROOT = resolve(__dirname, '..');
 
 /** Brand background — same dark navy as apps/web/app/globals.css. */
 const BG = '#0c1722';
-/** Brand accent — VTourn blue. */
+/** Brand accent — Tournamental blue. */
 const ACCENT = '#1f6feb';
 /** Foreground V — high-contrast yellow used in the bracket UI. */
 const V_COLOUR = '#facc15';

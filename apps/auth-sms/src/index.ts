@@ -1,5 +1,5 @@
 /**
- * VTourn auth-sms service entrypoint.
+ * Tournamental auth-sms service entrypoint.
  *
  * Boots a Fastify HTTP server on :3330 with the OTP request/verify/session
  * endpoints. Defaults to the Aiva SMS gateway for both SMS and WhatsApp;
@@ -35,7 +35,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
 
 const corsOrigins = (
   process.env.AUTH_CORS_ORIGINS ??
-  'https://vtourn.com,https://vtorn.aiva.nz,https://vtorn-auth.aiva.nz,http://localhost:3300'
+  'https://tournamental.com,https://vtorn.aiva.nz,https://vtorn-auth.aiva.nz,http://localhost:3300'
 )
   .split(',')
   .map((s) => s.trim())
@@ -107,7 +107,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   app.get('/', async (_req, reply) => {
     reply.header('Cache-Control', 'public, max-age=60');
     return {
-      service: 'vtourn-auth-sms',
+      service: 'tournamental-auth-sms',
       version: '0.1.0',
       health: '/health',
     };
@@ -185,8 +185,8 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
     config: {
       otpSecret: envOrDevDefault('AUTH_OTP_SECRET', 'otp'),
       jwtSecret: envOrDevDefault('AUTH_JWT_SECRET', 'jwt'),
-      appHost: process.env.AUTH_APP_HOST ?? 'vtourn.com',
-      productName: process.env.AUTH_PRODUCT_NAME ?? 'VTourn',
+      appHost: process.env.AUTH_APP_HOST ?? 'tournamental.com',
+      productName: process.env.AUTH_PRODUCT_NAME ?? 'Tournamental',
       adminToken: process.env.AUTH_ADMIN_TOKEN ?? '',
       otpTtlSeconds: Number(process.env.AUTH_OTP_TTL_SECONDS ?? 600),
       maxVerifyAttempts: Number(
@@ -197,7 +197,7 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
       ),
       telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
       telegramBotUsername:
-        process.env.TELEGRAM_BOT_USERNAME ?? 'VTournBot',
+        process.env.TELEGRAM_BOT_USERNAME ?? 'TournamentalBot',
     },
     now: () => Date.now(),
     log: {
@@ -214,7 +214,7 @@ async function start() {
     await app.listen({ port: PORT, host: BIND });
     app.log.info(
       { port: PORT, bind: BIND, corsOrigins },
-      `vtourn-auth-sms listening on http://${BIND}:${PORT}`,
+      `tournamental-auth-sms listening on http://${BIND}:${PORT}`,
     );
   } catch (err) {
     app.log.error(err);

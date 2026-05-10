@@ -63,14 +63,14 @@ async function makeHarness(): Promise<Harness> {
     config: {
       otpSecret: 'test-otp-secret-32-chars-aaaaaaa',
       jwtSecret: 'test-jwt-secret-32-chars-aaaaaaa',
-      appHost: 'vtourn.test',
-      productName: 'VTourn',
+      appHost: 'tournamental.test',
+      productName: 'Tournamental',
       adminToken: 'admin-token',
       otpTtlSeconds: 600,
       maxVerifyAttempts: 5,
       sessionTtlSeconds: 60 * 60,
       telegramBotToken: '',
-      telegramBotUsername: 'VTournBot',
+      telegramBotUsername: 'TournamentalBot',
     },
     now: () => now.value,
     log: {
@@ -118,7 +118,7 @@ describe('POST /v1/auth/request', () => {
     expect(h.sms.sent).toHaveLength(1);
     expect(h.sms.sent[0].to).toBe('+6421999000');
     expect(h.sms.sent[0].body).toMatch(/code is \d{6}/);
-    expect(h.sms.sent[0].body).toMatch(/@vtourn\.test #\d{6}$/);
+    expect(h.sms.sent[0].body).toMatch(/@tournamental\.test #\d{6}$/);
   });
 
   it('happy path WhatsApp — sends via wa sender', async () => {
@@ -429,7 +429,7 @@ describe('infra', () => {
   it('GET / returns service descriptor', async () => {
     const res = await h.app.inject({ method: 'GET', url: '/' });
     expect(res.statusCode).toBe(200);
-    expect(res.json().service).toBe('vtourn-auth-sms');
+    expect(res.json().service).toBe('tournamental-auth-sms');
   });
 
   it('GET /health returns ok with no-store', async () => {

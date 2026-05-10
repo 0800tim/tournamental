@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "VTourn Admin",
-  description: "Internal operations console — VTourn",
+  title: "Tournamental Admin",
+  description: "Internal operations console — Tournamental",
   robots: { index: false, follow: false },
 };
 

@@ -257,11 +257,11 @@ export function mockApiKeys(): { rows: ApiKeyRow[] } {
 export function mockAuditLog(): { rows: AuditEntry[] } {
   return {
     rows: [
-      { id: "a_1", ts: isoDaysAgo(0), actor: "tim@vtourn.com", action: "user.ban", target: "u_53", before: { status: "active" }, after: { status: "banned" } },
-      { id: "a_2", ts: isoDaysAgo(0), actor: "tim@vtourn.com", action: "feature_flag.toggle", target: "polymarket_odds_chip", before: { enabled: false }, after: { enabled: true } },
-      { id: "a_3", ts: isoDaysAgo(1), actor: "ops@vtourn.com", action: "syndicate.close", target: "polymarket-sharps" },
-      { id: "a_4", ts: isoDaysAgo(2), actor: "tim@vtourn.com", action: "api_key.revoke", target: "k_3" },
-      { id: "a_5", ts: isoDaysAgo(3), actor: "mod@vtourn.com", action: "content.remove", target: "c_1" },
+      { id: "a_1", ts: isoDaysAgo(0), actor: "tim@tournamental.com", action: "user.ban", target: "u_53", before: { status: "active" }, after: { status: "banned" } },
+      { id: "a_2", ts: isoDaysAgo(0), actor: "tim@tournamental.com", action: "feature_flag.toggle", target: "polymarket_odds_chip", before: { enabled: false }, after: { enabled: true } },
+      { id: "a_3", ts: isoDaysAgo(1), actor: "ops@tournamental.com", action: "syndicate.close", target: "polymarket-sharps" },
+      { id: "a_4", ts: isoDaysAgo(2), actor: "tim@tournamental.com", action: "api_key.revoke", target: "k_3" },
+      { id: "a_5", ts: isoDaysAgo(3), actor: "mod@tournamental.com", action: "content.remove", target: "c_1" },
     ],
   };
 }

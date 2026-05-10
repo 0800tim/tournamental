@@ -1,6 +1,6 @@
-# `@vtourn/tournament-bot`
+# `@tournamental/tournament-bot`
 
-> Telegram + WhatsApp bot for VTourn — main `@VTournBot` plus a WhatsApp
+> Telegram + WhatsApp bot for Tournamental — main `@TournamentalBot` plus a WhatsApp
 > surface via the Aiva gateway. Same command dispatcher serves both. Webhook-mode HTTP service on port `3350`. Reads
 > `TELEGRAM_BOT_TOKEN` (required) and the `AIVA_*` vars (optional, enables
 > WhatsApp) from `.env`. SQLite storage at `tg.db` (gitignored).
@@ -35,7 +35,7 @@ runs as a long-lived service behind the existing Cloudflare tunnel.
 
 1. Open Telegram, search **`@BotFather`**, tap *Start*.
 2. Send `/newbot`.
-3. Name: `VTourn` (or `VTourn Bot`). Username: `VTournBot` (or another
+3. Name: `Tournamental` (or `Tournamental Bot`). Username: `TournamentalBot` (or another
    available `@...Bot` handle — see *Open questions* in the session note).
 4. BotFather replies with an HTTP API token of the form
    `123456789:AAFr...`. Save it; you'll only see it once.
@@ -45,7 +45,7 @@ runs as a long-lived service behind the existing Cloudflare tunnel.
    The never-finished bracket. Lock picks, watch the market move, win.
 
    /setabouttext
-   VTourn — the never-finished tournament prediction game.
+   Tournamental — the never-finished tournament prediction game.
 
    /setcommands
    start - Connect your bracket
@@ -81,7 +81,7 @@ Per [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
 `config.yml`. Use the API procedure documented there to add:
 
 ```
-bot.vtourn.com → http://localhost:3350
+bot.tournamental.com → http://localhost:3350
 ```
 
 Quick form (read the doc-22 procedure for the full version):
@@ -90,7 +90,7 @@ Quick form (read the doc-22 procedure for the full version):
 source /home/clawdbot/.cloudflared/cf-api-token
 ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
 TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
-HOST=bot.vtourn.com
+HOST=bot.tournamental.com
 PORT=3350
 
 cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
@@ -101,7 +101,7 @@ cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
 Smoke-test the tunnel before pointing Telegram at it:
 
 ```bash
-curl -sI https://bot.vtourn.com/ | head -3
+curl -sI https://bot.tournamental.com/ | head -3
 # HTTP/2 502 (or whatever the local service returns) is healthy — Cloudflare
 # reached us. HTTP/2 530 means the DNS / ingress half is missing.
 ```
@@ -113,7 +113,7 @@ cd apps/tournament-bot
 pnpm install
 pnpm build
 node dist/index.js
-# tournament-bot listening on :3350, bot=@VTournBot
+# tournament-bot listening on :3350, bot=@TournamentalBot
 ```
 
 For dev with auto-restart:
@@ -132,7 +132,7 @@ curl -sS -X POST "https://api.telegram.org/bot${TOKEN}/setWebhook" \
   -H "content-type: application/json" \
   -d @- <<JSON
 {
-  "url": "https://bot.vtourn.com/v1/telegram/webhook",
+  "url": "https://bot.tournamental.com/v1/telegram/webhook",
   "secret_token": "${SECRET}",
   "drop_pending_updates": true,
   "allowed_updates": ["message", "callback_query"]
@@ -150,7 +150,7 @@ curl -s "https://api.telegram.org/bot${TOKEN}/getWebhookInfo" | jq .
 
 ### 6. Smoke-test from a real Telegram client
 
-1. In Telegram, open `https://t.me/VTournBot` (replace with the actual
+1. In Telegram, open `https://t.me/TournamentalBot` (replace with the actual
    username you registered).
 2. Tap *Start*. The bot should reply with the `/start` welcome message.
 3. Send `/help` — see the command list.
@@ -160,14 +160,14 @@ curl -s "https://api.telegram.org/bot${TOKEN}/getWebhookInfo" | jq .
 ### 7. Inbound from web (deep-link login)
 
 Web flow: when the user taps "Sign in with Telegram", the web app
-generates an OTC and shows the user `https://t.me/VTournBot?start=login_<code>`.
+generates an OTC and shows the user `https://t.me/TournamentalBot?start=login_<code>`.
 The bot's `/start` handler parses `login_*` payloads and acknowledges; the
 production wiring (see `docs/13` § Path A) consumes the OTC against Redis.
 
 ### 8. Inbound from web (syndicate invite)
 
 When a syndicate is created in the dashboard, the share link is
-`https://t.me/VTournBot?start=syn_<slug>`. The bot routes that into a
+`https://t.me/TournamentalBot?start=syn_<slug>`. The bot routes that into a
 syndicate-flavoured welcome and prompts for `/picks` etc.
 
 ### 9. Optional — WhatsApp parity via the Aiva gateway
@@ -198,7 +198,7 @@ inbound is a signed webhook the gateway POSTs to us.
    Restart the bot. You'll see `aiva-wa webhook registered` in the logs.
 
 4. **Point the Aiva gateway at us.** In the Aiva admin UI, set the inbound
-   webhook for this session to `https://bot.vtourn.com/v1/webhooks/aiva-wa`
+   webhook for this session to `https://bot.tournamental.com/v1/webhooks/aiva-wa`
    and paste the shared secret. The gateway HMAC-signs each inbound body
    as `X-Signature: sha256=<hex>`; we reject anything else.
 
@@ -235,7 +235,7 @@ Not implemented in v0. When the syndicate count justifies the toil:
 3. We boot a second `Bot` instance with that token in the same process
    (grammY supports many bots per process — see `bots/syndicate-factory.ts`
    for the seam).
-4. Webhook URL pattern: `bot.vtourn.com/v1/telegram/webhook/<bot-id>`.
+4. Webhook URL pattern: `bot.tournamental.com/v1/telegram/webhook/<bot-id>`.
 
 Tracked as `IDEAS.md → "Per-syndicate fresh bots"`.
 
@@ -337,10 +337,10 @@ Vitest, ~50 tests covering:
 
 ## Open questions for Tim
 
-1. **Bot username** — `@VTournBot`, `@VTourn2026`, `@VTournHQBot`? Doc 13 used
+1. **Bot username** — `@TournamentalBot`, `@Tournamental2026`, `@TournamentalHQBot`? Doc 13 used
    the working name `@SimSportsBot` from a pre-rebrand draft. Pick before
    running BotFather step 1; renaming costs us the deep-link history.
 2. **Option B (per-syndicate bots)** — confirm Option A (deep-link) is fine
    for v0 and Option B waits until syndicate count > N (50? 100?).
-3. **Announcements channel** — `@VTournAnnounce` for tournament-wide
+3. **Announcements channel** — `@TournamentalAnnounce` for tournament-wide
    broadcasts (doc 13 § Channels and groups). Not in this PR.

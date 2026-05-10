@@ -9,9 +9,9 @@
  * JWT, and redirect.
  *
  * BotFather setup (one-off):
- *   1. /setdomain → vtourn.com (and any other origins this widget
+ *   1. /setdomain → tournamental.com (and any other origins this widget
  *      should load on, e.g. localhost during dev).
- *   2. The bot's username (default `VTournBot`, override with
+ *   2. The bot's username (default `TournamentalBot`, override with
  *      `PUBLIC_TELEGRAM_BOT_USERNAME`) MUST match the bot whose token
  *      apps/auth-sms uses to verify the signature.
  */
@@ -20,17 +20,17 @@ import Layout from "@/layouts/Layout.astro";
 const AUTH_API_BASE =
   import.meta.env.PUBLIC_AUTH_API_URL ?? "https://vtorn-auth.aiva.nz";
 const TG_BOT_USERNAME =
-  import.meta.env.PUBLIC_TELEGRAM_BOT_USERNAME ?? "VTournBot";
+  import.meta.env.PUBLIC_TELEGRAM_BOT_USERNAME ?? "TournamentalBot";
 const BRACKET_URL =
-  import.meta.env.PUBLIC_BRACKET_URL ?? "https://2026wc.vtourn.com/";
+  import.meta.env.PUBLIC_BRACKET_URL ?? "https://2026wc.tournamental.com/";
 ---
 <Layout
-  title="Sign in · VTourn"
+  title="Sign in · Tournamental"
   description="Sign in with your phone number or with Telegram. No passwords."
 >
   <section class="container-page pt-16 pb-12">
     <div class="max-w-xl mx-auto card">
-      <h1 class="text-3xl font-bold text-white">Sign in to VTourn</h1>
+      <h1 class="text-3xl font-bold text-white">Sign in to Tournamental</h1>
       <p class="text-ink-200 mt-2">
         We never use passwords. Pick the path that's easiest for you.
       </p>

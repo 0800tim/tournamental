@@ -1,7 +1,7 @@
 /**
  * HeadToHeadPill — compact W-D-L summary between two teams.
  *
- * Per [doc 36 §HeadToHeadPill](../../../../docs/36-vtourn-ux-spec.md), used
+ * Per [doc 36 §HeadToHeadPill](../../../../docs/36-tournamental-ux-spec.md), used
  * inside the `MatchPredictionRow` (compact variant) and on the upcoming-match
  * preview / team-detail "Coming up" sections (wide variant).
  *

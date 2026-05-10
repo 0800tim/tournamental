@@ -20,7 +20,7 @@ Phone OTP is the lowest-common-denominator global identity: every
 phone in our target markets can receive an SMS or a WhatsApp message.
 
 We deliberately do *not* rely on third-party SMS providers (Twilio,
-Vonage). VTourn already runs the **Aiva SMS gateway** at sms.aiva.nz
+Vonage). Tournamental already runs the **Aiva SMS gateway** at sms.aiva.nz
 which delivers SMS via Android phones over FCM and WhatsApp via
 Baileys. Per-OTP cost is effectively zero, which keeps the
 free-to-play promise intact.
@@ -28,7 +28,7 @@ free-to-play promise intact.
 ## Service surface
 
 `apps/auth-sms/` exposes (port 3330; behind Cloudflare on
-`auth.vtourn.com` and dev `vtorn-auth.aiva.nz`):
+`auth.tournamental.com` and dev `vtorn-auth.aiva.nz`):
 
 | Method | Path | Purpose |
 |--------|------|---------|
@@ -78,7 +78,7 @@ for correlation; raw phone numbers never appear in logs.
 
 ### Account deletion
 
-Any user can email `support@vtourn.com` requesting account deletion.
+Any user can email `support@tournamental.com` requesting account deletion.
 SLA: 30 days per GDPR. Operator runs:
 
 ```sql
@@ -157,11 +157,11 @@ and HTTPS otherwise.
 
 To be embedded in the auth page footer link "Privacy":
 
-> When you sign in to VTourn with a phone number, we store your phone
+> When you sign in to Tournamental with a phone number, we store your phone
 > number, the device you signed in from, and the time of last
 > activity. We use it only to log you in and to send you predictions
 > reminders if you opt in. We never sell your data. To delete your
-> account, email support@vtourn.com — we'll process it within 30
+> account, email support@tournamental.com — we'll process it within 30
 > days.
 
 ## TOS notice (user-facing copy)
@@ -175,10 +175,10 @@ To be added to the existing TOS doc:
 
 ## Open questions
 
-- **Which Aiva SMS device ID** is allocated for VTourn? — see
+- **Which Aiva SMS device ID** is allocated for Tournamental? — see
   Tim's existing Sdeal device list. We may want a dedicated device
   to keep the SMS history separate.
-- **Which Aiva WhatsApp session** does VTourn use? — Sdeal's
+- **Which Aiva WhatsApp session** does Tournamental use? — Sdeal's
   `+64204259069` is the existing session. Decision: reuse it for
   v0.1 with a different sender display name, or stand up a new
   session on a fresh number.

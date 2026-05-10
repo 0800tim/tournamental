@@ -94,8 +94,8 @@ describe("buildCard: discriminated dispatch", () => {
       const story = buildCard(c, "story");
       expect(og.type).toBe("div");
       expect(story.type).toBe("div");
-      expect(containsText(og, "VTOURN")).toBe(true);
-      expect(containsText(story, "VTOURN")).toBe(true);
+      expect(containsText(og, "TOURNAMENTAL")).toBe(true);
+      expect(containsText(story, "TOURNAMENTAL")).toBe(true);
     }
   });
 
@@ -109,7 +109,7 @@ describe("buildCard: discriminated dispatch", () => {
   it("every card includes the referral URL footer", () => {
     for (const c of cases) {
       const node = buildCard(c, "og");
-      expect(containsText(node, "vtourn.com/r/id")).toBe(true);
+      expect(containsText(node, "tournamental.com/r/id")).toBe(true);
     }
   });
 });

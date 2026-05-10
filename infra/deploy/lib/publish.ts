@@ -51,7 +51,7 @@ export interface PublishConfig {
   smoke: SmokeAssertion[];
   /** URL paths to warm post-deploy (will be hit at https://<host> in prod). */
   cacheWarm: string[];
-  /** Hostname to use for cache-warm (e.g. https://vtourn.com). Defaults to localhost:port. */
+  /** Hostname to use for cache-warm (e.g. https://tournamental.com). Defaults to localhost:port. */
   warmBase?: string;
   /** Healthz path. Default /healthz. */
   healthzPath?: string;

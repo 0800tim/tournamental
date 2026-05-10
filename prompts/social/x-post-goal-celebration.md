@@ -38,7 +38,7 @@ posts here drive related-search and trending-topic surfacing.
 
 ## CTA
 
-`{{cta.url}}` — `https://vtourn.com/r/{{user.id}}?utm_source=x&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
+`{{cta.url}}` — `https://tournamental.com/r/{{user.id}}?utm_source=x&utm_campaign=goal-celebration&utm_content={{campaign.id}}`.
 We use `cta.short_url` because X counts every URL as 23 chars regardless of
 length, so the *display* matters but bytes don't.
 
@@ -46,5 +46,5 @@ length, so the *display* matters but bytes don't.
 
 - X allows sportsbook affiliate links *if* the account is geofenced and the
   jurisdictional disclosure is in profile. Per doc 27 § Compliance, brand-channel
-  goal posts never carry an affiliate link directly — they link to vtourn.com,
+  goal posts never carry an affiliate link directly — they link to tournamental.com,
   which routes per geo.

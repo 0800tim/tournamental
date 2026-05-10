@@ -1,5 +1,5 @@
 /**
- * POST /v1/events/* — accept events from other VTourn services and forward
+ * POST /v1/events/* — accept events from other Tournamental services and forward
  * a coherent contact upsert into GoHighLevel.
  *
  * Every endpoint is idempotent on `eventId`. A duplicate POST returns 200

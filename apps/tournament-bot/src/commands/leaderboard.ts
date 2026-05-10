@@ -4,7 +4,7 @@ import type { Context } from "grammy";
 import type { BotDeps } from "../bots/main.js";
 
 const LB_API_BASE =
-  process.env.VTOURN_API_BASE ?? "https://api-dev.vtourn.com";
+  process.env.TOURNAMENTAL_API_BASE ?? "https://api-dev.tournamental.com";
 
 export async function handleLeaderboard(
   ctx: Context,

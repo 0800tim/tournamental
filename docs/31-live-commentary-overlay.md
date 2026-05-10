@@ -13,8 +13,8 @@
 
 | # | Source | Sync to renderer | Licence | Cost | Fidelity |
 |---|---|---|---|---|---|
-| 1 | **VTourn AI commentary** (pre-rendered ElevenLabs MP3s) | Perfect (line-level `t_ms`) | Ours, clean | Server-rendered once, served from CDN | Excellent in 10 langs, recognisably AI |
-| 2 | **VTourn AI commentary** (live ElevenLabs WSS) | Perfect (live event-driven) | Ours, clean | Pay-as-you-go ElevenLabs Pro | Same as #1, but for live matches |
+| 1 | **Tournamental AI commentary** (pre-rendered ElevenLabs MP3s) | Perfect (line-level `t_ms`) | Ours, clean | Server-rendered once, served from CDN | Excellent in 10 langs, recognisably AI |
+| 2 | **Tournamental AI commentary** (live ElevenLabs WSS) | Perfect (live event-driven) | Ours, clean | Pay-as-you-go ElevenLabs Pro | Same as #1, but for live matches |
 | 3 | **YouTube embed** (fan reaction / unofficial mirror stream) | User aligns once with a "tap to sync" gesture | Embed iframe; honour creator's allow-embed setting | Free | Variable; depends on streamer |
 | 4 | **Official broadcaster audio** (link-out, geo-gated) | We don't host; user has the broadcaster app open in another window | Per-broadcaster licence; affiliate revenue per `docs/30` | Pay TV affiliate revenue ↑ | Native broadcast |
 
@@ -26,7 +26,7 @@ Default: **#1 (pre-rendered)** for replays. **#2 (live WSS)** for live matches o
 
 ```
 ┌─ Commentary ────────────────────────────────────┐
-│ ◉ VTourn AI (English) ▼                         │
+│ ◉ Tournamental AI (English) ▼                         │
 │   ┐  English / Spanish / French / Portuguese /  │
 │   │  German / Italian / Chinese / Arabic /      │
 │   └  Japanese / Russian                         │
@@ -126,7 +126,7 @@ We can't redistribute copyrighted broadcasts, but **fan-uploaded or open-license
 - **Sofascore / Flashscore / Livescore** — text commentary feed, scrape → TTS option for users who want a "real-broadcast vibe" but in our voice.
 
 For launch (11 June 2026), the **safe defaults** are:
-1. VTourn AI in 10 languages — guaranteed, owned, ready.
+1. Tournamental AI in 10 languages — guaranteed, owned, ready.
 2. YouTube embed picker as a power-user feature — opt-in.
 3. Broadcaster link-out as the affiliate CTA — pay-TV revenue.
 

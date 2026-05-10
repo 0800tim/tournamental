@@ -1,5 +1,5 @@
 <!--
-  Thanks for sending a PR to VTourn! Please fill out the sections
+  Thanks for sending a PR to Tournamental! Please fill out the sections
   below. The PR triage bot will post an automated security verdict
   (green / yellow / red) within ~5 minutes after the security workflow
   completes.

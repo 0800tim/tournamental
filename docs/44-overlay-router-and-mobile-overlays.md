@@ -18,7 +18,7 @@ React subtree, opened imperatively." We need three things they don't
 give us together:
 
 1. **URL-as-state**: the open overlay is encoded in `?overlay=...` so
-   `https://2026wc.vtourn.com/world-cup-2026?overlay=team&code=NZL` is
+   `https://2026wc.tournamental.com/world-cup-2026?overlay=team&code=NZL` is
    shareable and re-renders the same view on cold load.
 2. **Underlying-route preservation**: the page route must NOT change
    when an overlay opens — search engines + analytics still see

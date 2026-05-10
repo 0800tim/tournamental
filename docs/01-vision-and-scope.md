@@ -81,12 +81,12 @@ The project is *not* succeeding if it becomes:
 - [`12-odds-and-predictions.md`](12-odds-and-predictions.md) — Polymarket / sportsbook odds, predictions game, badges, granular leaderboards, self-organised sweepstakes.
 - [`13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) — Tournament Bot, plus Telegram / email-magic-link / TOTP / passkey auth; notifications, viral share loops.
 - [`14-clip-generation-and-social.md`](14-clip-generation-and-social.md) — auto-clip pipeline; posts to TikTok / Reels / Shorts / X / Facebook / Telegram.
-- [`15-vtourn-brand-and-positioning.md`](15-vtourn-brand-and-positioning.md) — VTourn brand identity, taglines, NZ-aware regulatory framing, free-to-play / affiliate-link separation, monetisation paths.
+- [`15-tournamental-brand-and-positioning.md`](15-tournamental-brand-and-positioning.md) — Tournamental brand identity, taglines, NZ-aware regulatory framing, free-to-play / affiliate-link separation, monetisation paths.
 - [`16-game-modes-and-scoring.md`](16-game-modes-and-scoring.md) — 10 game modes, the unifying scoring formula, multipliers, streaks, confidence chips, personality leaderboards.
 - [`17-vstamp-and-prediction-iq.md`](17-vstamp-and-prediction-iq.md) — Merkle-batched blockchain verification (Polygon + OpenTimestamps), VStamp UX, Prediction IQ reputation algorithm.
 - [`18-monetization.md`](18-monetization.md) — six revenue lanes (affiliate routing, sponsorship, Pro, B2B, creator leagues, data licensing), realistic revenue ramp, NZ TAB monopoly framing, build sequencing.
-- [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) — Apache 2.0 license, VTourn Holdings + Foundation structure, Drips Network contributor revshare, fork policy, comparable projects.
+- [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) — Apache 2.0 license, Tournamental Holdings + Foundation structure, Drips Network contributor revshare, fork policy, comparable projects.
 - [`20-identity-humanness-bots.md`](20-identity-humanness-bots.md) — multi-provider OAuth (Google / Apple / Facebook / X / LinkedIn / GitHub / Discord / WhatsApp), native-app contacts, Humanness Score algorithm, explicit bot policy, three-flavour leaderboards.
-- [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md) — user-deployed Pool contracts on Polygon / Base, VTournOracle (4-of-7 multisig) for verified match results, geo-restricted UI, trustless settlement.
+- [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md) — user-deployed Pool contracts on Polygon / Base, TournamentalOracle (4-of-7 multisig) for verified match results, geo-restricted UI, trustless settlement.
 
 `prompts/` holds the LLM prompts used by the video-ingest pipeline. `spec/` holds the canonical types and example payloads.

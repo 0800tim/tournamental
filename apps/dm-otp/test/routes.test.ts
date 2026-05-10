@@ -19,9 +19,9 @@ function makeCtx(overrides: Partial<DmOtpContext> = {}): DmOtpContext {
     config: {
       otpSecret: SECRET,
       jwtSecret: SECRET,
-      productName: 'VTourn',
-      appHost: 'vtourn.com',
-      appBaseUrl: 'https://vtourn.com',
+      productName: 'Tournamental',
+      appHost: 'tournamental.com',
+      appBaseUrl: 'https://tournamental.com',
       codeTtlSeconds: 300,
       sessionTtlSeconds: 3600,
       metaAppSecret: 'meta-secret',

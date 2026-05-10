@@ -1,19 +1,19 @@
-# `@vtorn/admin` — VTourn admin dashboard
+# `@vtorn/admin` — Tournamental admin dashboard
 
 Internal operations console. Next.js 14 + Tailwind, dark theme by default.
 
 - **Dev**: `pnpm --filter @vtorn/admin dev` → http://localhost:3340
 - **Tests**: `pnpm --filter @vtorn/admin test`
 - **E2E**: `pnpm --filter @vtorn/admin test:e2e`
-- **Prod URL**: `https://admin.vtourn.com`
+- **Prod URL**: `https://admin.tournamental.com`
 
 ## Configuring auth
 
 Copy `.env.example` to `.env` and set:
 
 ```bash
-ADMIN_EMAILS=tim@vtourn.com,ops@vtourn.com
-ADMIN_ROLES=tim@vtourn.com:super-admin,ops@vtourn.com:mod
+ADMIN_EMAILS=tim@tournamental.com,ops@tournamental.com
+ADMIN_ROLES=tim@tournamental.com:super-admin,ops@tournamental.com:mod
 ADMIN_JWT_SECRET=$(openssl rand -base64 48)
 ADMIN_MAILER=resend
 RESEND_API_KEY=re_xxx

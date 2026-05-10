@@ -2,7 +2,7 @@
   "name": "@vtorn/news-aggregator",
   "version": "0.0.1",
   "private": true,
-  "description": "VTourn news aggregator — polite RSS poller across 6 football news sources, normalises to a common shape, exposes a JSON API for the marketing site and bracket app.",
+  "description": "Tournamental news aggregator — polite RSS poller across 6 football news sources, normalises to a common shape, exposes a JSON API for the marketing site and bracket app.",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

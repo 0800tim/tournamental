@@ -1,7 +1,7 @@
 // Astro Content Collections registry.
 //
 // We keep one collection — `blog` — for the public-facing build log on
-// vtourn.com/blog. Posts are MDX, hero images live under
+// tournamental.com/blog. Posts are MDX, hero images live under
 // `apps/marketing/public/blog/` so they go through the public asset
 // pipeline (immutable hashing handled by Astro for assets imported via
 // `image()`; raw `/blog/*.jpg` references stay long-cache via
@@ -21,7 +21,7 @@ const blog = defineCollection({
       updated: z.coerce.date().optional(),
       // Authors are an enum so we don't accidentally publish under a
       // typo'd byline. Add new authors here as the team grows.
-      author: z.enum(["VTourn Team", "Orchestrator", "Tim"]).default("VTourn Team"),
+      author: z.enum(["Tournamental Team", "Orchestrator", "Tim"]).default("Tournamental Team"),
       tags: z.array(z.string()).default([]),
       // `image()` runs through Astro's asset pipeline (hashed, optimised);
       // we also accept a plain string for posts whose hero lives in

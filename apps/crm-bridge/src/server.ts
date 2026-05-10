@@ -1,5 +1,5 @@
 /**
- * VTourn CRM bridge service entrypoint.
+ * Tournamental CRM bridge service entrypoint.
  *
  * Boots a Fastify HTTP server on :3395 with the event ingest endpoints,
  * the customer-360 aggregate endpoint, and either a JSONL-backed mock
@@ -48,7 +48,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
 
 const corsOrigins = (
   process.env.CRM_CORS_ORIGINS ??
-  'https://vtourn.com,https://app.vtourn.com,https://admin.vtourn.com,https://vtorn.aiva.nz,https://vtorn-crm.aiva.nz,http://localhost:3300'
+  'https://tournamental.com,https://app.tournamental.com,https://admin.tournamental.com,https://vtorn.aiva.nz,https://vtorn-crm.aiva.nz,http://localhost:3300'
 )
   .split(',')
   .map((s) => s.trim())

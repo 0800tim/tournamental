@@ -44,15 +44,15 @@ const others = (await getCollection("blog", ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
   .slice(0, 2);
 
-const canonical = new URL(`/blog/${post.slug}`, Astro.site ?? "https://vtourn.com").toString();
+const canonical = new URL(`/blog/${post.slug}`, Astro.site ?? "https://tournamental.com").toString();
 const ogImage = heroSrc
   ? heroSrc.startsWith("http")
     ? heroSrc
-    : new URL(heroSrc, Astro.site ?? "https://vtourn.com").toString()
+    : new URL(heroSrc, Astro.site ?? "https://tournamental.com").toString()
   : "/og-default.png";
 ---
 <Layout
-  title={`${data.title} — VTourn Blog`}
+  title={`${data.title} — Tournamental Blog`}
   description={data.description}
   ogImage={ogImage}
 >

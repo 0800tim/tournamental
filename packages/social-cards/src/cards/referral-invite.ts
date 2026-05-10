@@ -18,7 +18,7 @@ export function referralInviteBody(
     inviteHeadline ??
     (tournamentName
       ? `@${userHandle} wants you in for the ${tournamentName}.`
-      : `@${userHandle} wants you on VTourn.`);
+      : `@${userHandle} wants you on Tournamental.`);
 
   return el(
     "div",
@@ -116,7 +116,7 @@ export function referralInviteCard(
 ): SatoriElement {
   return cardFrame({
     size,
-    brandContext: input.tournamentName ?? "Join VTourn",
+    brandContext: input.tournamentName ?? "Join Tournamental",
     userHandle: input.userHandle,
     userId: input.userId,
     body: referralInviteBody(input, size),

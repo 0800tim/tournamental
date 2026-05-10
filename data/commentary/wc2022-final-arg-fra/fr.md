@@ -1,12 +1,12 @@
-# WC2022 Final ARG-FRA - VTourn English Commentary
+# WC2022 Final ARG-FRA - Tournamental English Commentary
 
-Generated from StatsBomb event stream + VTourn narrator template.
+Generated from StatsBomb event stream + Tournamental narrator template.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 
 ---
 
 [L0001 · -03:00 · open] Bienvenue au stade de Lusail pour la finale de la Coupe du Monde de la FIFA, Argentine contre France.
-[L0002 · -02:56 · open] Je suis votre commentateur VTourn et ce soir est la nuit que nous attendons tous.
+[L0002 · -02:56 · open] Je suis votre commentateur Tournamental et ce soir est la nuit que nous attendons tous.
 [L0003 · -02:53 · scene] Quatre-vingt-neuf mille à l'intérieur, deux milliards regardent à travers le monde.
 [L0004 · -02:49 · scene] L'Argentine, finaliste pour la sixième fois. La France, tenante du titre, vise un doublé.
 [L0005 · -02:46 · scene] Cela fait quatorze ans que l'Argentine n'a pas atteint ce stade. Quarante-quatre ans depuis qu'ils l'ont accueilli et gagné.
@@ -2966,7 +2966,7 @@ Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 [L2959 · 128:31 · trophy] MESSI A LA COUPE DU MONDE!
 [L2960 · 128:35 · trophy] Le stade de Lusail n'a pas cessé de rugir depuis dix minutes.
 [L2961 · 128:39 · trophy] Et le reste appartient à l'histoire.
-[L2962 · 128:43 · wrap] De la part de toute l'équipe de VTourn, quel honneur de commenter ce match.
+[L2962 · 128:43 · wrap] De la part de toute l'équipe de Tournamental, quel honneur de commenter ce match.
 [L2963 · 128:47 · wrap] Argentine, champions du monde, deux mille vingt deux.
 [L2964 · 128:51 · wrap] Messi, enfin, met les mains sur le trophée.
 [L2965 · 128:55 · wrap] À la prochaine. Bonne nuit de Lusail.

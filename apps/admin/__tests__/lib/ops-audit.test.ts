@@ -57,7 +57,7 @@ describe("ops audit-log integration", () => {
     );
     await audit.writeAudit(
       {
-        email: "tim@vtourn.com",
+        email: "tim@tournamental.com",
         role: "super-admin",
         iat: 0,
         exp: 0,
@@ -71,7 +71,7 @@ describe("ops audit-log integration", () => {
     );
     const raw = await fs.readFile(auditPath, "utf-8");
     const entry = JSON.parse(raw.trim().split("\n").pop()!);
-    expect(entry.actor).toBe("tim@vtourn.com");
+    expect(entry.actor).toBe("tim@tournamental.com");
     expect(entry.role).toBe("super-admin");
     expect(entry.action).toBe("operator.patch");
     expect(entry.target).toBe("operator:polymarket");

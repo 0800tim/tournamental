@@ -1,14 +1,14 @@
-# 19 — Open Source, VTourn Holdings, and Contributor Revenue Share
+# 19 — Open Source, Tournamental Holdings, and Contributor Revenue Share
 
-> The structural decision: VTourn ships **100% open source** and anyone can fork the code. **VTourn Holdings** is the legal entity that owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury — proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
+> The structural decision: Tournamental ships **100% open source** and anyone can fork the code. **Tournamental Holdings** is the legal entity that owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury — proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
 
 ## The shape of the deal
 
 Three things, kept distinct:
 
-1. **The code and protocol** — open source, Apache 2.0 licensed, anyone can fork, run their own VTourn, set their own affiliate destinations, monetize independently. The protocol is a public good.
-2. **The official VTourn instance + brand** — `vtourn.com`, `@VTournBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **VTourn Holdings**.
-3. **The contributor revenue share programme** — VTourn Holdings allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes" — but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
+1. **The code and protocol** — open source, Apache 2.0 licensed, anyone can fork, run their own Tournamental, set their own affiliate destinations, monetize independently. The protocol is a public good.
+2. **The official Tournamental instance + brand** — `tournamental.com`, `@TournamentalBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **Tournamental Holdings**.
+3. **The contributor revenue share programme** — Tournamental Holdings allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes" — but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
 
 Anyone can fork; only contributors to the upstream get a slice of the official-instance revenue. Forks succeeding on their own merit help the protocol; they don't dilute upstream contributors because the treasury they feed is whatever the fork operator chooses to set up.
 
@@ -17,9 +17,9 @@ Anyone can fork; only contributors to the upstream get a slice of the official-i
 It threads a narrow needle:
 
 - **Open source maximises adoption and trust.** A closed prediction-game with affiliate links looks like a commercial flytrap; an open one looks like a public utility with optional commercial monetization.
-- **VTourn Holdings owning the brand and affiliate codes preserves negotiating power.** Sportsbooks and Polymarket want a single accountable counterparty. They sign deals with VTourn Holdings.
+- **Tournamental Holdings owning the brand and affiliate codes preserves negotiating power.** Sportsbooks and Polymarket want a single accountable counterparty. They sign deals with Tournamental Holdings.
 - **Contributor revshare aligns incentives.** Anyone who improves the upstream is improving the platform that drives revenue to the treasury they share in. Same incentive as equity vesting at a startup, with much lower legal load if structured as revshare not equity.
-- **Forks are welcome, not threats.** A fork that builds a niche stylized world or a regional feed doesn't compete with VTourn Holdings' affiliate revenue; if anything, it raises the protocol's profile.
+- **Forks are welcome, not threats.** A fork that builds a niche stylized world or a regional feed doesn't compete with Tournamental Holdings' affiliate revenue; if anything, it raises the protocol's profile.
 
 ## License — Apache 2.0
 
@@ -34,15 +34,15 @@ Not MIT. Not AGPL. Apache 2.0 specifically.
 ```
 Code (everything in /apps, /packages, /spec):    Apache-2.0
 Documentation (everything in /docs, /prompts):   CC-BY-4.0
-Brand assets (VTourn name, logo, Tournament       (c) VTourn Holdings, all rights
+Brand assets (Tournamental name, logo, Tournament       (c) Tournamental Holdings, all rights
 Bot persona, badge artwork, stadium skins):       reserved
 ```
 
-The brand assets are deliberately *not* open. A fork can use the code; it cannot call itself "VTourn" or use the wordmark. This is how essentially every open-source-with-commercial-arm project works (Linux + Linux Foundation, Mozilla + Firefox brand, Elasticsearch's old model, etc.).
+The brand assets are deliberately *not* open. A fork can use the code; it cannot call itself "Tournamental" or use the wordmark. This is how essentially every open-source-with-commercial-arm project works (Linux + Linux Foundation, Mozilla + Firefox brand, Elasticsearch's old model, etc.).
 
 Add a `TRADEMARK.md` to the repo root spelling this out plainly so forks know what they can and can't borrow.
 
-## VTourn Holdings — the legal entity
+## Tournamental Holdings — the legal entity
 
 A real company. Tim and the founding team own the equity. Recommendations on jurisdiction:
 
@@ -56,9 +56,9 @@ A real company. Tim and the founding team own the equity. Recommendations on jur
 | **Singapore Pte Ltd** | Crypto-friendly, English-language, good banking, well-regulated. | Slightly slower setup than Cayman. | Strong alternative to Cayman. |
 | **BVI / Marshall Islands** | Used by some DAO foundations. | Reputational drift; banking gets harder yearly. | Avoid. |
 
-**Recommended structure**: a NZ operating company (`VTourn NZ Limited`) for day-to-day operations, contractor payments, and tax residency, paired with a **Cayman or Singapore foundation** (`VTourn Foundation`) that holds the treasury and runs the contributor revenue share programme. The NZ co invoices the foundation for services rendered. This is essentially the structure used by most credible OSS-with-token projects — Optimism, Filecoin, Mina, Aztec, etc.
+**Recommended structure**: a NZ operating company (`Tournamental NZ Limited`) for day-to-day operations, contractor payments, and tax residency, paired with a **Cayman or Singapore foundation** (`Tournamental Foundation`) that holds the treasury and runs the contributor revenue share programme. The NZ co invoices the foundation for services rendered. This is essentially the structure used by most credible OSS-with-token projects — Optimism, Filecoin, Mina, Aztec, etc.
 
-Cost: $20k–$50k all-in for both entities + first-year compliance. Worth it if the project gets traction; defer until then by running everything through `VTourn NZ Limited` first and migrating later.
+Cost: $20k–$50k all-in for both entities + first-year compliance. Worth it if the project gets traction; defer until then by running everything through `Tournamental NZ Limited` first and migrating later.
 
 This doc is not legal advice. Engage counsel before formalizing.
 
@@ -70,8 +70,8 @@ The user phrasing is "blockchain-based equity and stakes". The clean way to deli
 
 [Drips Network](https://www.drips.network/) is an Ethereum-based protocol for streaming ERC-20 payments to GitHub repos and Ethereum addresses. Used by Radworks, the Ethereum Foundation, ENS, UNICEF, Scroll, Filecoin (for distributing RetroPGF allocations) and others. Streams of any ERC-20 are split across recipients on a configurable schedule.
 
-How VTourn would use it:
-1. VTourn Foundation deposits a fixed percentage (e.g. 30%) of monthly net affiliate revenue into a Drips treasury wallet, in a stablecoin (USDC).
+How Tournamental would use it:
+1. Tournamental Foundation deposits a fixed percentage (e.g. 30%) of monthly net affiliate revenue into a Drips treasury wallet, in a stablecoin (USDC).
 2. The treasury is configured as a Drip List with up to 200 recipient addresses + GitHub repos.
 3. Recipients are scored quarterly via a contribution-impact assessment (see scoring below). Their split percentages update each quarter.
 4. Contributors with their GitHub username verified to a wallet address can claim their continuous USDC stream at any time, no permission needed.
@@ -84,11 +84,11 @@ Cost: gas to update the Drip List quarterly (~$5–$50 per update on a cheap L2 
 
 [Optimism's RetroPGF](https://medium.com/ethereum-optimism/retroactive-public-goods-funding-33c9b7d00f0c) allocates fixed budgets retroactively to contributors based on demonstrated impact. The Optimism Foundation has run multiple rounds, allocating tens of millions of OP tokens.
 
-How VTourn would use it:
-1. VTourn Foundation announces a $X budget for Round N (e.g. $250k/quarter).
+How Tournamental would use it:
+1. Tournamental Foundation announces a $X budget for Round N (e.g. $250k/quarter).
 2. Contributors apply with evidence of work shipped (PRs merged, games built, content created, tournaments hosted).
 3. A panel of "badgeholders" (long-term contributors, opted-in users, governance token-holders if the project has one) vote on impact scores using a curated voting tool.
-4. Funds distribute one-time as USDC or VTourn-branded ERC-20.
+4. Funds distribute one-time as USDC or Tournamental-branded ERC-20.
 
 Pros: rewards work that's already shipped; less gameable than ongoing streams; closer to "equity round" feel.
 
@@ -112,7 +112,7 @@ Issue a `$VTORN` ERC-20 with revenue-share rights and on-chain governance. Token
 
 This is the most "crypto-native" expression of "blockchain-based equity stakes". It is also **almost certainly a security** in the US, UK, EU, Australia, and New Zealand under the Howey test (investment of money in a common enterprise with profits derived primarily from the efforts of others). Issuing it triggers full securities regulation: registration or exemption (Reg D, Reg S, etc.), KYC for holders, geographic blocks for restricted persons, ongoing reporting.
 
-For VTourn, Mechanism D should be **deferred until year 2+** if and only if a clear regulatory path appears (e.g. via a Cayman foundation structure with appropriate disclosures, or an international DAO model). It is *not* the way to ship the v1 contributor programme.
+For Tournamental, Mechanism D should be **deferred until year 2+** if and only if a clear regulatory path appears (e.g. via a Cayman foundation structure with appropriate disclosures, or an international DAO model). It is *not* the way to ship the v1 contributor programme.
 
 ## Scoring contributions
 
@@ -153,11 +153,11 @@ New contributors join the pool every quarter. Existing recipients are mathematic
 
 ## Treasury policy
 
-VTourn Foundation publishes its treasury policy openly:
+Tournamental Foundation publishes its treasury policy openly:
 
 ```
 Affiliate net revenue:                              100%
-  → VTourn Foundation operating reserve (12 mo runway):  50% (capped)
+  → Tournamental Foundation operating reserve (12 mo runway):  50% (capped)
   → Contributor revenue share Drip List:                30%
   → Public goods (sponsored events, OSS deps):          10%
   → Strategic reserve (legal, audits, contingency):     10%
@@ -171,11 +171,11 @@ Sponsored tournament + Pro subscription + B2B revenue (lanes 1–4 of [doc 18](1
 
 The contributor-onboarding page reads roughly:
 
-> When your code is merged into the VTourn upstream, you become eligible for the contributor revenue share programme. VTourn Foundation streams a portion of platform revenue — currently 30% of net revenue — to a public address list on the [Drips Network](https://www.drips.network/). Each quarter, your share of that stream is recalculated based on the work you've shipped that quarter and the previous five quarters (with a decay schedule).
+> When your code is merged into the Tournamental upstream, you become eligible for the contributor revenue share programme. Tournamental Foundation streams a portion of platform revenue — currently 30% of net revenue — to a public address list on the [Drips Network](https://www.drips.network/). Each quarter, your share of that stream is recalculated based on the work you've shipped that quarter and the previous five quarters (with a decay schedule).
 >
-> This is **not equity**. You don't get voting rights, board seats, or ownership of VTourn Holdings or VTourn Foundation. You get a share of incoming revenue for as long as you keep contributing and the project keeps earning. Your share decays over time as old work ages out and as new contributors join.
+> This is **not equity**. You don't get voting rights, board seats, or ownership of Tournamental Holdings or Tournamental Foundation. You get a share of incoming revenue for as long as you keep contributing and the project keeps earning. Your share decays over time as old work ages out and as new contributors join.
 >
-> To opt in, register your GitHub username with an Ethereum wallet address at `vtourn.com/contributors/register`. We'll do a basic sanctions check at payout time. Quarterly score sheets are published in the public `payouts/` directory of the repo.
+> To opt in, register your GitHub username with an Ethereum wallet address at `tournamental.com/contributors/register`. We'll do a basic sanctions check at payout time. Quarterly score sheets are published in the public `payouts/` directory of the repo.
 >
 > You're free to keep contributing without opting in (some contributors prefer not to receive payments for tax / personal / philosophical reasons). The code is Apache-2.0 either way.
 
@@ -185,23 +185,23 @@ Forks are explicitly endorsed. Every fork can:
 
 - Use 100% of the open-source code.
 - Set their own affiliate codes pointing at their own treasury.
-- Run their own brand on top of the codebase (subject to the trademark rules — they can't call it VTourn).
+- Run their own brand on top of the codebase (subject to the trademark rules — they can't call it Tournamental).
 - Rebrand the Tournament Bot, the renderer, the leaderboards.
 - Run their own contributor programme, or none at all.
-- Optionally upstream improvements back to VTourn — at which point the contributor would also become eligible for the upstream's revshare.
+- Optionally upstream improvements back to Tournamental — at which point the contributor would also become eligible for the upstream's revshare.
 
 What forks **cannot** do:
 
-- Use the VTourn name, wordmark, or logo.
-- Use the official `@VTournBot` Telegram identity.
-- Claim to be the official VTourn instance.
-- Use the official VTourn Foundation affiliate deal codes (those are tied to VTourn Holdings).
+- Use the Tournamental name, wordmark, or logo.
+- Use the official `@TournamentalBot` Telegram identity.
+- Claim to be the official Tournamental instance.
+- Use the official Tournamental Foundation affiliate deal codes (those are tied to Tournamental Holdings).
 
-This makes "official VTourn" a clear, brandable thing — `vtourn.com` — distinguishable from any number of forks that may exist, while keeping the underlying protocol genuinely public.
+This makes "official Tournamental" a clear, brandable thing — `tournamental.com` — distinguishable from any number of forks that may exist, while keeping the underlying protocol genuinely public.
 
 ## Comparable projects (for the README)
 
-These are projects that have shipped a similar OSS-with-foundation-revshare structure and that VTourn can credibly cite as precedent:
+These are projects that have shipped a similar OSS-with-foundation-revshare structure and that Tournamental can credibly cite as precedent:
 
 - **Optimism Collective** (`optimism.io`) — open-source rollup protocol; Optimism Foundation manages OP token distribution; RetroPGF rounds for OSS contributors.
 - **Filecoin Foundation** — open protocol; foundation runs grants + RetroPGF; uses Drips for distribution.
@@ -210,7 +210,7 @@ These are projects that have shipped a similar OSS-with-foundation-revshare stru
 - **Radworks** — open governance protocol; streamed $1M to FOSS dependencies via Drips.
 - **Mina Foundation, Aztec Foundation, Scroll Foundation** — all use the "Cayman foundation + open protocol + revshare-to-builders" pattern.
 
-VTourn isn't claiming to be these — it's positioning *alongside* them as a structurally familiar setup, which lowers legal review friction and makes the "is this legit" question easier for contributors and partners to answer.
+Tournamental isn't claiming to be these — it's positioning *alongside* them as a structurally familiar setup, which lowers legal review friction and makes the "is this legit" question easier for contributors and partners to answer.
 
 ## What to ship in v1 (concrete checklist)
 
@@ -218,15 +218,15 @@ This is the shippable version of "open source + contributor revshare" for a v0.1
 
 - [ ] Apache 2.0 LICENSE file at repo root.
 - [ ] CC-BY-4.0 LICENSE file in `/docs`.
-- [ ] TRADEMARK.md spelling out the VTourn brand reservation.
+- [ ] TRADEMARK.md spelling out the Tournamental brand reservation.
 - [ ] CONTRIBUTING.md with the contributor revshare programme summary, link to register.
 - [ ] CONTRIBUTORS.md auto-generated from accepted PRs.
 - [ ] `apps/contribution-scorer/` Node service polling GitHub, computing per-PR scores.
 - [ ] `payouts/2026-q1.md` (and every quarter thereafter) — public score sheet, council-signed.
-- [ ] Drip List on Optimism / Base mainnet, multisig-controlled by VTourn Foundation.
+- [ ] Drip List on Optimism / Base mainnet, multisig-controlled by Tournamental Foundation.
 - [ ] Sanctions screening hook before each Drip List update.
-- [ ] `vtourn.com/contributors/register` — wallet address + GitHub link + jurisdiction + opt-in.
-- [ ] Treasury dashboard at `vtourn.com/foundation/treasury` — public, real-time read of the multisig balance + Drip List config + history.
+- [ ] `tournamental.com/contributors/register` — wallet address + GitHub link + jurisdiction + opt-in.
+- [ ] Treasury dashboard at `tournamental.com/foundation/treasury` — public, real-time read of the multisig balance + Drip List config + history.
 
 What can be deferred to v2+:
 
@@ -237,10 +237,10 @@ What can be deferred to v2+:
 
 ## Securities-law reality check
 
-Honest disclosure for contributors and the team: even revenue share programmes can sometimes be characterised as securities. The reasons VTourn's structure is *probably* fine:
+Honest disclosure for contributors and the team: even revenue share programmes can sometimes be characterised as securities. The reasons Tournamental's structure is *probably* fine:
 
 - Contributors do *work* that is rewarded — economic substance is performance-for-payment, not investment-for-yield. (This is the key distinguisher from a token-holder revshare.)
-- No upfront purchase of any instrument. No money flows *to* VTourn from contributors.
+- No upfront purchase of any instrument. No money flows *to* Tournamental from contributors.
 - Payouts are denominated in USDC / fiat-pegged stablecoin. No appreciation play.
 - Foundation governance is centralized at first; not an investment-in-common-enterprise pattern.
 
@@ -254,7 +254,7 @@ Engage real counsel before crossing $100k/quarter in distributions or before any
 
 ## Why this matters strategically
 
-A 100%-open-source, foundation-backed VTourn is **harder to compete against** than a closed product:
+A 100%-open-source, foundation-backed Tournamental is **harder to compete against** than a closed product:
 
 - Forks become discovery channels and free QA.
 - Contributors have aligned incentives to make the upstream stronger.
@@ -263,7 +263,7 @@ A 100%-open-source, foundation-backed VTourn is **harder to compete against** th
 
 If a competitor copies the codebase, they have to also copy the foundation, the brand, the affiliate deals, and the contributor pool. Far higher activation energy than copying a closed product.
 
-The OSS-with-foundation pattern is the correct shape for a project that wants to become infrastructure. VTourn becoming infrastructure for prediction-network reputation is the long-term vision in [doc 15](15-vtourn-brand-and-positioning.md). This doc operationalises it.
+The OSS-with-foundation pattern is the correct shape for a project that wants to become infrastructure. Tournamental becoming infrastructure for prediction-network reputation is the long-term vision in [doc 15](15-tournamental-brand-and-positioning.md). This doc operationalises it.
 
 ## Sources
 

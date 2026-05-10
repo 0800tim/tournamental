@@ -29,7 +29,7 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 
 export default function HomePage() {
   return (
-    <AppShell title="VTourn" avatarInitials="V">
+    <AppShell title="Tournamental" avatarInitials="V">
       <div className="vt-page-content">
         <CountdownBanner
           targetUtc={WC_2026_KICKOFF_UTC}
@@ -81,7 +81,7 @@ export default function HomePage() {
           <h2 className="vt-section-title">From the desk</h2>
           <div className="vt-news-list">
             <NewsCard
-              category="VTourn lab"
+              category="Tournamental lab"
               title="How the cascade engine scores long-shots"
               meta="3 min read"
               href="/blog/cascade-scoring"

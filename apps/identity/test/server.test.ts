@@ -40,7 +40,7 @@ describe('identity server endpoints', () => {
   it('GET /v1/version returns service + version', async () => {
     const res = await app.inject({ method: 'GET', url: '/v1/version' });
     expect(res.statusCode).toBe(200);
-    expect(res.json()).toMatchObject({ service: 'vtourn-identity', version: '0.1.0' });
+    expect(res.json()).toMatchObject({ service: 'tournamental-identity', version: '0.1.0' });
   });
 
   it('POST /v1/links/start returns a mock URL with state', async () => {

@@ -1,15 +1,15 @@
 Mock 2 — /picks output (paired user)
 
   ┌─────────────────────────────────────────────────────────────┐
-  │  @VTournBot                                          ←  ⋮   │
+  │  @TournamentalBot                                          ←  ⋮   │
   ├─────────────────────────────────────────────────────────────┤
   │                                                             │
   │   You                                          14:02    ✓✓  │
   │   /picks                                                    │
   │                                                             │
-  │   VTourn                                            14:02   │
+  │   Tournamental                                            14:02   │
   │   Your bracket — open in the app:                           │
-  │   https://2026wc.vtourn.com/u/u_42_tim/bracket              │
+  │   https://2026wc.tournamental.com/u/u_42_tim/bracket              │
   │                                                             │
   │   Once the inline-keyboard pick flow ships (doc 13 §        │
   │   Bot commands), you'll be able to lock picks here          │

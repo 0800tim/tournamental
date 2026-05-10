@@ -1,5 +1,5 @@
 /**
- * VTourn push-notifications service entrypoint.
+ * Tournamental push-notifications service entrypoint.
  *
  * Boots a Fastify HTTP server on :3398. Provides:
  *   - subscribe endpoints for Web Push, Telegram, SMS (consent required)
@@ -36,7 +36,7 @@ const VERSION = '0.1.0';
 
 const corsOrigins = (
   process.env.PUSH_CORS_ORIGINS ??
-  'https://vtourn.com,https://2026wc.vtourn.com,https://vtorn.aiva.nz,http://localhost:3300'
+  'https://tournamental.com,https://2026wc.tournamental.com,https://vtorn.aiva.nz,http://localhost:3300'
 )
   .split(',')
   .map((s) => s.trim())

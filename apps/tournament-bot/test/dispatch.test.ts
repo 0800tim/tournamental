@@ -100,12 +100,12 @@ describe("dispatch — source agnosticism", () => {
         source: "telegram",
         sourceId: 1,
         text: "/syndicate create office Office",
-        botUsername: "VTournBot",
+        botUsername: "TournamentalBot",
       },
       deps,
     );
     expect(tgReply[0].text).toContain(
-      "https://t.me/VTournBot?start=syn_office",
+      "https://t.me/TournamentalBot?start=syn_office",
     );
 
     const waReply = await dispatch(

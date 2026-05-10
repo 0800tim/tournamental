@@ -6,7 +6,7 @@ import type { Context } from "grammy";
 import type { BotDeps } from "../bots/main.js";
 
 const ODDS_API_BASE =
-  process.env.VTOURN_ODDS_API_BASE ?? "https://api-dev.vtourn.com";
+  process.env.TOURNAMENTAL_ODDS_API_BASE ?? "https://api-dev.tournamental.com";
 
 export async function handleOdds(ctx: Context, deps: BotDeps): Promise<void> {
   const text = ctx.message?.text ?? "";

@@ -49,7 +49,7 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, doc 20] Behavioural-biometrics opt-in (typing cadence) — privacy-conscious, opt-in only. (open)
 - [2026-05-10, doc 13] Per-syndicate fresh bots (Option B) — proxy through BotFather to mint a dedicated bot per syndicate operator. v0 ships deep-link Option A on the main bot; revisit when syndicate count > ~50 and operator branding becomes the bottleneck. (open)
 - [2026-05-10, doc 13] Inline-keyboard pick flow for /picks (3–4 tap predict tree per doc 13). v0 deep-links to web. (open)
-- [2026-05-10, doc 13] `@VTournAnnounce` channel for tournament-wide broadcasts; bot posts pinned headlines at draw / kickoff / final. (open)
+- [2026-05-10, doc 13] `@TournamentalAnnounce` channel for tournament-wide broadcasts; bot posts pinned headlines at draw / kickoff / final. (open)
 - [2026-05-10, doc 13] Group-leaderboard mode — install bot in a group, `/setup` binds the group ID to a private leaderboard. (open)
 
 ### Verification / Prediction IQ
@@ -69,14 +69,14 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 ### Open source / contributor programme
 - [2026-05-09, doc 19] Quarterly RetroPGF round to layer onto Drips streaming. (open)
 - [2026-05-09, doc 19] Formal governance token (deferred to year 2+ if regulatory path appears). (open)
-- [2026-05-09, doc 19] Public treasury dashboard at vtourn.com/foundation/treasury. (open)
+- [2026-05-09, doc 19] Public treasury dashboard at tournamental.com/foundation/treasury. (open)
 - [2026-05-09, doc 19] Drips Network Drip List with 200 contributor addresses. (open)
 
 ### Marketing site
-- [2026-05-09, VTourn Pitch.md] vtourn.com landing — coming-soon page with email capture. (open)
-- [2026-05-09, VTourn Pitch.md] Pitch deck for sponsors / investors based on VTourn Pitch.md. (open)
-- [2026-05-09, VTourn Pitch.md] Brand assets: logo, wordmark, colour palette, animation reel. (open)
-- [2026-05-09, VTourn Pitch.md] OpenGraph share-card generator for matches and predictions. (open)
+- [2026-05-09, Tournamental Pitch.md] tournamental.com landing — coming-soon page with email capture. (open)
+- [2026-05-09, Tournamental Pitch.md] Pitch deck for sponsors / investors based on Tournamental Pitch.md. (open)
+- [2026-05-09, Tournamental Pitch.md] Brand assets: logo, wordmark, colour palette, animation reel. (open)
+- [2026-05-09, Tournamental Pitch.md] OpenGraph share-card generator for matches and predictions. (open)
 
 ### Tooling
 - [2026-05-09, CLAUDE.md] `scripts/sign-off.sh` — automate the end-of-session checklist. (open)
@@ -88,8 +88,8 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 ### Strategic / Tim-only
 - [2026-05-09, REVIEW.md] License confirmation (Apache 2.0 vs MIT vs AGPL — Apache 2.0 currently set). (open)
 - [2026-05-09, REVIEW.md] Cayman + NZ entity incorporation. (open)
-- [2026-05-09, REVIEW.md] Domain DNS + Cloudflare account setup for vtourn.com. (open)
-- [2026-05-09, REVIEW.md] Telegram bot username reservation (`@VTournBot` / variants). (open)
+- [2026-05-09, REVIEW.md] Domain DNS + Cloudflare account setup for tournamental.com. (open)
+- [2026-05-09, REVIEW.md] Telegram bot username reservation (`@TournamentalBot` / variants). (open)
 
 ## Triage rules
 

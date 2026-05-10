@@ -144,7 +144,7 @@ describe('Viber adapter', () => {
   it('treats data.status=0 as success', async () => {
     const fetch = mockFetch(async () => jsonResponse(200, { status: 0, message_token: 99 }));
     const r = await sendViberOtp(
-      { authToken: 't', senderName: 'VTourn' },
+      { authToken: 't', senderName: 'Tournamental' },
       'r1',
       '555555',
       { fetch: fetch as unknown as typeof globalThis.fetch },
@@ -155,7 +155,7 @@ describe('Viber adapter', () => {
   it('treats data.status!=0 as failure', async () => {
     const fetch = mockFetch(async () => jsonResponse(200, { status: 5, status_message: 'bad' }));
     const r = await sendViberOtp(
-      { authToken: 't', senderName: 'VTourn' },
+      { authToken: 't', senderName: 'Tournamental' },
       'r1',
       '555555',
       { fetch: fetch as unknown as typeof globalThis.fetch },
@@ -290,14 +290,14 @@ describe('Reddit adapter', () => {
 describe('Email adapter', () => {
   it('builds an RFC822 message with the magic link in body', () => {
     const raw = buildRfc822({
-      from: 'login@vtourn.com',
+      from: 'login@tournamental.com',
       to: 'a@b.com',
       subject: 's',
-      text: 'https://vtourn.com/auth?code=x',
+      text: 'https://tournamental.com/auth?code=x',
     });
-    expect(raw).toContain('From: login@vtourn.com');
+    expect(raw).toContain('From: login@tournamental.com');
     expect(raw).toContain('To: a@b.com');
-    expect(raw).toContain('https://vtourn.com/auth?code=x');
+    expect(raw).toContain('https://tournamental.com/auth?code=x');
   });
   it('uses an injected SMTP client and includes the link', async () => {
     let captured: { to: string; raw: string; from: string } | null = null;
@@ -307,8 +307,8 @@ describe('Email adapter', () => {
         smtpPort: 465,
         smtpUser: 'u',
         smtpPass: 'p',
-        fromAddress: 'login@vtourn.com',
-        appBaseUrl: 'https://vtourn.com',
+        fromAddress: 'login@tournamental.com',
+        appBaseUrl: 'https://tournamental.com',
       },
       { to: 'alice@example.com', token: 'TOKEN' },
       {
@@ -322,6 +322,6 @@ describe('Email adapter', () => {
     expect(r.ok).toBe(true);
     expect(captured).toBeTruthy();
     expect(captured!.to).toBe('alice@example.com');
-    expect(captured!.raw).toContain('https://vtourn.com/auth/dm-otp/verify?code=TOKEN');
+    expect(captured!.raw).toContain('https://tournamental.com/auth/dm-otp/verify?code=TOKEN');
   });
 });

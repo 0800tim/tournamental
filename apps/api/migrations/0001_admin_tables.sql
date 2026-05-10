@@ -1,6 +1,6 @@
 -- 0001_admin_tables.sql
 --
--- Admin-side schema for the VTourn admin console (apps/admin).
+-- Admin-side schema for the Tournamental admin console (apps/admin).
 -- Adds three tables:
 --   - admin_users         (allowlist mirror, role assignment, last-seen)
 --   - admin_audit_log     (append-only log of every state-changing action)

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <!-- Brand favicon: sky-blue rounded square with the geometric V mark
-       from /icons/vtorn/v-mark.svg, scaled to fit. The V is the same
+       from /icons/tournamental/v-mark.svg, scaled to fit. The V is the same
        chevron used in the in-page brand row. -->
   <rect width="64" height="64" rx="14" fill="#5a96d8"/>
   <path d="M14 16 L32 50 L50 16 L42 16 L32 34 L22 16 Z" fill="#0a0e1a"/>

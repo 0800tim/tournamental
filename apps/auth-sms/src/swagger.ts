@@ -28,7 +28,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       info: {
         title: 'Auth-SMS API',
         description:
-          'VTourn auth service. SMS + WhatsApp OTP login (Aiva gateway), Telegram login callback, session JWTs.',
+          'Tournamental auth service. SMS + WhatsApp OTP login (Aiva gateway), Telegram login callback, session JWTs.',
         version: '0.1.0',
         license: { name: 'Apache-2.0', url: 'https://www.apache.org/licenses/LICENSE-2.0' },
       },

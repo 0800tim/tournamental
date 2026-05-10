@@ -5,7 +5,7 @@ Mock 3 — market-move push notification
   ├─────────────────────────────────────────────────────────────┤
   │                                                             │
   │   ┌─────────────────────────────────────────────────────┐   │
-  │   │ 🏆  VTourn Bot                              now    │   │
+  │   │ 🏆  Tournamental Bot                              now    │   │
   │   │                                                     │   │
   │   │ Heads up — your pick Argentina just dropped from    │   │
   │   │ 38% to 30% on the market. Change pick?              │   │
@@ -17,21 +17,21 @@ Mock 3 — market-move push notification
   │   (Earlier — within match window, quiet-hours bypass)      │
   │                                                             │
   │   ┌─────────────────────────────────────────────────────┐   │
-  │   │ 🏆  VTourn Bot                              now    │   │
+  │   │ 🏆  Tournamental Bot                              now    │   │
   │   │                                                     │   │
   │   │ Argentina just scored — ARG 2 - 0 FRA.              │   │
   │   │ Your bracket's looking good.                        │   │
-  │   │ https://2026wc.vtourn.com/match/wc-arg-fra-2026     │   │
+  │   │ https://2026wc.tournamental.com/match/wc-arg-fra-2026     │   │
   │   └─────────────────────────────────────────────────────┘   │
   │                                                             │
   │   (Geo-blocked: NZ user does NOT see this CTA)             │
   │                                                             │
   │   ┌─────────────────────────────────────────────────────┐   │
-  │   │ 🏆  VTourn Bot                              13:30  │   │
+  │   │ 🏆  Tournamental Bot                              13:30  │   │
   │   │                                                     │   │
   │   │ Confident in Argentina? Polymarket has them at 78%. │   │
   │   │ Open an account — first trade $20 free.             │   │
-  │   │ https://polymarket.com/?ref=vtourn-c-1               │   │
+  │   │ https://polymarket.com/?ref=tournamental-c-1               │   │
   │   │                                                     │   │
   │   │ [delivered to US/EU/crypto-friendly users only]     │   │
   │   └─────────────────────────────────────────────────────┘   │

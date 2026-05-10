@@ -10,7 +10,7 @@ describe("/start", () => {
     const u = h.storage.getUser(555);
     expect(u).not.toBeNull();
     expect(u?.user_id).toBeNull();
-    expect(lastReply(h.calls)).toContain("VTourn");
+    expect(lastReply(h.calls)).toContain("Tournamental");
   });
 
   it("does not duplicate the user on a second /start", async () => {
@@ -165,7 +165,7 @@ describe("/syndicate", () => {
     expect(syn?.owner_user_id).toBe("u_owner");
     expect(lastReply(h.calls)).toContain("Jason's Office");
     expect(lastReply(h.calls)).toContain(
-      "https://t.me/VTournBot?start=syn_jasons-office",
+      "https://t.me/TournamentalBot?start=syn_jasons-office",
     );
   });
 
@@ -298,14 +298,14 @@ describe("syndicate-factory", () => {
   });
 
   it("builds a deep link for a valid slug", () => {
-    const link = buildSyndicateDeepLink("VTournBot", "jasons-office");
-    expect(link.url).toBe("https://t.me/VTournBot?start=syn_jasons-office");
+    const link = buildSyndicateDeepLink("TournamentalBot", "jasons-office");
+    expect(link.url).toBe("https://t.me/TournamentalBot?start=syn_jasons-office");
   });
 
   it("rejects invalid slugs", () => {
-    expect(() => buildSyndicateDeepLink("VTournBot", "Bad Slug")).toThrow();
-    expect(() => buildSyndicateDeepLink("VTournBot", "x")).toThrow();
-    expect(() => buildSyndicateDeepLink("VTournBot", "a".repeat(50))).toThrow();
+    expect(() => buildSyndicateDeepLink("TournamentalBot", "Bad Slug")).toThrow();
+    expect(() => buildSyndicateDeepLink("TournamentalBot", "x")).toThrow();
+    expect(() => buildSyndicateDeepLink("TournamentalBot", "a".repeat(50))).toThrow();
   });
 });
 

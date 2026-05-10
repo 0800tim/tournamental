@@ -14,7 +14,7 @@ export default function LoginPage({
     <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-sm bg-ink-800 ring-1 ring-ink-700 rounded-lg p-8">
         <div className="mb-6">
-          <div className="text-xl font-display font-semibold">VTourn Admin</div>
+          <div className="text-xl font-display font-semibold">Tournamental Admin</div>
           <div className="text-xs uppercase tracking-wider text-accent-400 mb-3">
             Sign in
           </div>

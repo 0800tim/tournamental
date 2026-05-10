@@ -33,7 +33,7 @@ interface CanonicalTeamsFile {
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
-  title: "Players - FIFA World Cup 2026 | VTourn",
+  title: "Players - FIFA World Cup 2026 | Tournamental",
   description:
     "Search every confirmed player at the FIFA World Cup 2026. Filter by team, position, or club. 1056 records, public-domain headshots from Wikidata.",
   alternates: { canonical: "/players" },

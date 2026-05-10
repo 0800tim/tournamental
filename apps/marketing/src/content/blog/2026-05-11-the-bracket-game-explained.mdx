@@ -1,21 +1,21 @@
 ---
 title: "The bracket game: how 104 picks become 1 winner"
-description: "VTourn's free-to-play prediction game in plain language. Eight groups of six, 104 picks, an auto-pick cascade for the impatient, an odds-at-lock stamp on every prediction, and a history ledger so you can see how your bracket evolved."
+description: "Tournamental's free-to-play prediction game in plain language. Eight groups of six, 104 picks, an auto-pick cascade for the impatient, an odds-at-lock stamp on every prediction, and a history ledger so you can see how your bracket evolved."
 pubDate: 2026-05-11
-author: "VTourn Team"
+author: "Tournamental Team"
 tags: ["product", "gameplay", "scoring"]
 heroImage: "/blog/2026-05-11-laptops-hero.jpg"
 heroImageAlt: "A team of people sitting around a whiteboard and laptops, planning."
 heroImageCredit: "Photo by Austin Distel on Unsplash (Unsplash Licence)"
 ---
 
-The bracket page at [`2026wc.vtourn.com`](https://2026wc.vtourn.com) has one job: turn the chaos of 104 World Cup matches into a single shareable scorecard that tells you, at any moment, how your calls compare against everyone else's. This post is the plain-language tour of how that works, because we tried explaining it on a phone call yesterday and realised even our friends did not all follow the bit about odds-at-lock.
+The bracket page at [`2026wc.tournamental.com`](https://2026wc.tournamental.com) has one job: turn the chaos of 104 World Cup matches into a single shareable scorecard that tells you, at any moment, how your calls compare against everyone else's. This post is the plain-language tour of how that works, because we tried explaining it on a phone call yesterday and realised even our friends did not all follow the bit about odds-at-lock.
 
 ## The format
 
 The 2026 World Cup is the first to run on the new 48-team layout: **twelve groups of four**, then a 32-team round of 16, then quarters, semis, the third-place playoff, and the final. From a prediction-game point of view that is **104 picks** in total: 72 group-stage match outcomes, then knockouts.
 
-For VTourn we ladder it like this:
+For Tournamental we ladder it like this:
 
 - **Group stage**: pick the winner (or draw) of every fixture, plus rank the four teams in your group so the right two advance and the right two go home
 - **Round of 32**: the bracket page renders the path; you call each tie
@@ -46,7 +46,7 @@ When you lock a pick, we capture the **live W/D/L odds** at that exact moment fr
 
 A pick at long odds — Mexico over Argentina at 12% the night before — is worth a lot more if it lands than the same pick made on the morning of the match when half the world has already piled in.
 
-This rewards two things we want VTourn to be about:
+This rewards two things we want Tournamental to be about:
 
 1. **Conviction**. If you believe in something three weeks out, before the herd, you should get the upside.
 2. **Effort**. Predicting a tournament early is harder. We respect that with the points we give you back.
@@ -78,4 +78,4 @@ Pick a route, follow the breadcrumbs, end up where you started.
 
 When the tournament finishes the bracket settles. We score every pick against the actual result, multiply by the odds-at-lock multiplier, and rank everyone on the leaderboard. The winner of the global leaderboard gets the cleanest possible verifiable receipt: an on-chain VStamp with their full bracket signed at kickoff and their final score recorded. Bragging rights with a cryptographic seal.
 
-If you want to play, the bracket is live now at [`2026wc.vtourn.com`](https://2026wc.vtourn.com). Free to join. No credit card. The whole codebase is open source under Apache 2.0; if you spot a bug or have a better idea for the scoring formula, [the repo is here](https://github.com/0800tim/vtorn) and pull requests are how this thing improves.
+If you want to play, the bracket is live now at [`2026wc.tournamental.com`](https://2026wc.tournamental.com). Free to join. No credit card. The whole codebase is open source under Apache 2.0; if you spot a bug or have a better idea for the scoring formula, [the repo is here](https://github.com/0800tim/vtorn) and pull requests are how this thing improves.

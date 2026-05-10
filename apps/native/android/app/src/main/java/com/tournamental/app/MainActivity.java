@@ -1,4 +1,4 @@
-package com.vtourn.app;
+package com.tournamental.app;
 
 import com.getcapacitor.BridgeActivity;
 

@@ -22,7 +22,7 @@ type Props = {
   /**
    * When true and `accentColor` is set, render a 3px solid kit-colour ring
    * around the flag. Composes additively with `sparkle`. Per
-   * [doc 36 §TeamFlag](../../../docs/36-vtourn-ux-spec.md), used to mark
+   * [doc 36 §TeamFlag](../../../docs/36-tournamental-ux-spec.md), used to mark
    * the picked team in `MatchPredictionRow` / `KnockoutMatch`.
    */
   selectionRing?: boolean;

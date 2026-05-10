@@ -7,7 +7,7 @@
 // Expected body shape (Aiva gateway):
 //
 //   {
-//     "session_id": "vtourn-bot",
+//     "session_id": "tournamental-bot",
 //     "from": "64211234567@s.whatsapp.net",
 //     "message": { "text": "/help" },          // or "body"/"text" at top level
 //     "timestamp": 1715300000000

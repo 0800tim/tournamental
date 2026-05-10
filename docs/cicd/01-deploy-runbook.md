@@ -10,7 +10,7 @@
 3. `build-and-deploy.yml` triggers: builds changed apps, smoke-tests,
    atomic-swaps the staging slots, reloads PM2, warms cache. **End-to-end
    ~20-90s** depending on the diff.
-4. Validate on `https://*.staging.vtourn.com`.
+4. Validate on `https://*.staging.tournamental.com`.
 5. When ready, manually trigger `promote-to-prod.yml` via the GH Actions
    UI. Same flow runs against the prod host.
 
@@ -119,7 +119,7 @@ When prod is on a separate host:
 2. Tim or a deployer triggers `promote-to-prod.yml`. The workflow SSHes
    to the prod host and runs the same `publish-all --env=production`.
 3. *Or* (planned): the workflow flips Cloudflare-Tunnel ingress so the
-   `app.vtourn.com` hostname routes to the staging host. The instant
+   `app.tournamental.com` hostname routes to the staging host. The instant
    ingress flip becomes the swap. Documented in
    [docs/47-cicd-pipeline.md](../47-cicd-pipeline.md).
 

@@ -1,6 +1,6 @@
 # 33 — Security hardening checklist
 
-> Pre-launch security pass for VTourn. We're a free-to-play prediction game with affiliate links and (eventually) authenticated users — the threat model is mostly: bot floods on the bracket, scraping of our odds-cache, abuse of affiliate-click endpoints, and PII leakage on phone-OTP flow. Plus the standard OWASP top-10 across every public surface.
+> Pre-launch security pass for Tournamental. We're a free-to-play prediction game with affiliate links and (eventually) authenticated users — the threat model is mostly: bot floods on the bracket, scraping of our odds-cache, abuse of affiliate-click endpoints, and PII leakage on phone-OTP flow. Plus the standard OWASP top-10 across every public surface.
 >
 > Run this checklist before each public launch. Date last reviewed: 2026-05-10.
 
@@ -78,7 +78,7 @@
 ## C. Data + privacy
 
 - [ ] Phone numbers, IPs, emails treated as PII per NZ Privacy Act 2020 + GDPR
-- [ ] Privacy policy live at `https://vtourn.com/legal/privacy` (audit before launch)
+- [ ] Privacy policy live at `https://tournamental.com/legal/privacy` (audit before launch)
 - [ ] Data subject access request (DSAR) flow documented in `docs/19` or new doc
 - [ ] Right-to-be-forgotten flow: delete user → cascade to all bracket / pick / event / push / affiliate-click rows tagged with that user_id
 - [ ] PII minimisation: don't ask for what we don't need (no DOB, no real name unless syndicate explicitly requires)
@@ -103,7 +103,7 @@ Per `docs/21-onchain-sweepstakes-oracle.md`:
 - [ ] Reentrancy guards on every state mutation
 - [ ] Withdrawal pull-pattern (no push transfers)
 - [ ] Time-locked oracle inputs
-- [ ] Multi-sig for treasury (minimum 2/3 with VTourn Holdings + Tim + auditor)
+- [ ] Multi-sig for treasury (minimum 2/3 with Tournamental Holdings + Tim + auditor)
 - [ ] Documented incident-response runbook
 
 ## F. Build pipeline
@@ -119,7 +119,7 @@ Per `docs/21-onchain-sweepstakes-oracle.md`:
 ## G. Incident response
 
 - [ ] On-call rotation (single-person Tim during launch)
-- [ ] Status page at `https://status.vtourn.com` (Cachet or BetterUptime)
+- [ ] Status page at `https://status.tournamental.com` (Cachet or BetterUptime)
 - [ ] PagerDuty / Opsgenie hookup (or just Telegram bot ping to Tim's chat)
 - [ ] Runbooks for: prod outage, data breach, affiliate-revenue dispute, Polymarket downtime, Cloudflare outage
 

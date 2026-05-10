@@ -1,6 +1,6 @@
 # Security policy
 
-> VTourn is open source. We take security seriously and we want you to feel safe disclosing problems to us.
+> Tournamental is open source. We take security seriously and we want you to feel safe disclosing problems to us.
 
 ## Reporting a vulnerability
 
@@ -9,7 +9,7 @@
 Use one of these private channels:
 
 - Preferred: open a [private security advisory](https://github.com/0800tim/vtorn/security/advisories/new) on GitHub. This routes directly to the maintainers and lets us collaborate on a fix in a private fork.
-- Email: `security@vtourn.com`. PGP key fingerprint pending publication; for high-sensitivity reports we will respond within 24h with a key.
+- Email: `security@tournamental.com`. PGP key fingerprint pending publication; for high-sensitivity reports we will respond within 24h with a key.
 
 Please include:
 
@@ -21,7 +21,7 @@ Please include:
 ## What's in scope
 
 - Anything in this repository's source code, including the apps under `apps/`, packages under `packages/`, and infrastructure scripts under `infra/`.
-- Our deployed surfaces under `*.vtourn.com` and `*.aiva.nz` (dev).
+- Our deployed surfaces under `*.tournamental.com` and `*.aiva.nz` (dev).
 - Our smart contracts (when they ship — see [docs/21-onchain-pool-and-oracle.md](docs/21-onchain-pool-and-oracle.md)). For contracts we additionally run a formal external audit before mainnet.
 
 ## What's out of scope
@@ -56,11 +56,11 @@ We follow **coordinated disclosure**. After a fix lands, we publish:
 
 - A GitHub Security Advisory on the affected repo.
 - A `CHANGELOG.md` entry crediting the reporter (unless you opt out).
-- For HIGH+ findings: a brief post on `vtourn.com/blog` describing the issue, fix, and what changed in our pipeline to prevent recurrence.
+- For HIGH+ findings: a brief post on `tournamental.com/blog` describing the issue, fix, and what changed in our pipeline to prevent recurrence.
 
 ## Bug bounty
 
-VTourn does not currently run a paid bounty programme. We will acknowledge contributors publicly and prioritise their next-day responses. If you'd like to advocate for a paid programme, please open a [discussion](https://github.com/0800tim/vtorn/discussions).
+Tournamental does not currently run a paid bounty programme. We will acknowledge contributors publicly and prioritise their next-day responses. If you'd like to advocate for a paid programme, please open a [discussion](https://github.com/0800tim/vtorn/discussions).
 
 ## Hall of fame
 

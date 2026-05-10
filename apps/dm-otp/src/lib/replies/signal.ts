@@ -2,7 +2,7 @@
  * Signal outbound reply adapter — talks to a self-hosted signal-cli
  * REST API gateway (https://github.com/bbernhard/signal-cli-rest-api).
  *
- * Each VTourn region needs its own signal-cli instance bound to a
+ * Each Tournamental region needs its own signal-cli instance bound to a
  * single phone number. SIGNAL_BOT_NUMBER is the bot's E.164 number;
  * SIGNAL_API_URL is the base URL of the gateway.
  */

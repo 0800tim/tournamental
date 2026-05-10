@@ -1,6 +1,6 @@
 # @vtorn/auth-sms
 
-Phone-number-only auth for VTourn: user enters phone, gets a 6-digit
+Phone-number-only auth for Tournamental: user enters phone, gets a 6-digit
 OTP via SMS or WhatsApp, enters the code, becomes a logged-in user.
 No password, no recovery email, no Telegram requirement (Telegram
 remains the recommended primary path per
@@ -96,11 +96,11 @@ ever shard out we'll move to Postgres per the rest of the stack.
 The Aiva gateway already runs a long-lived Baileys session for Sdeal
 on `+64204259069`. Reusing it means we:
 
-1. Don't require a new WhatsApp pairing for VTourn.
+1. Don't require a new WhatsApp pairing for Tournamental.
 2. Don't run a second Baileys process competing for the device.
 3. Get the gateway's auto-reconnect / QR-rotation handling for free.
 
-If we want a **dedicated** VTourn WhatsApp number, set
+If we want a **dedicated** Tournamental WhatsApp number, set
 `WHATSAPP_TRANSPORT=baileys` and visit
 `/v1/auth/whatsapp/pairing-qr` (with `X-Admin-Token`) to scan once.
 
@@ -148,5 +148,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/auth-sms run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

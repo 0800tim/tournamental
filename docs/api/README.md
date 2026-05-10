@@ -1,4 +1,4 @@
-# VTourn API reference
+# Tournamental API reference
 
 Every Fastify service in this repo registers `@fastify/swagger` + `@fastify/swagger-ui`. Each running service exposes:
 
@@ -19,7 +19,7 @@ The committed `*.openapi.json` files in this folder are the same JSON the servic
 | [`@vtorn/dm-otp`](../../apps/dm-otp) | 3331 | `http://localhost:3331/health` | `http://localhost:3331/docs` | [`dm-otp.openapi.json`](dm-otp.openapi.json) |
 | [`@vtorn/game`](../../apps/game) | 3360 | `http://localhost:3360/healthz` | `http://localhost:3360/docs` (TODO — see swagger.ts) | [`game.openapi.json`](game.openapi.json) |
 | [`@vtorn/affiliate-router`](../../apps/affiliate-router) | 3370 | `http://localhost:3370/healthz` | `http://localhost:3370/docs` | [`affiliate-router.openapi.json`](affiliate-router.openapi.json) |
-| [`@vtourn/odds-ingest`](../../apps/odds-ingest) | 3375 | `http://localhost:3375/healthz` | `http://localhost:3375/docs` | [`odds-ingest.openapi.json`](odds-ingest.openapi.json) |
+| [`@tournamental/odds-ingest`](../../apps/odds-ingest) | 3375 | `http://localhost:3375/healthz` | `http://localhost:3375/docs` | [`odds-ingest.openapi.json`](odds-ingest.openapi.json) |
 | [`@vtorn/vstamp`](../../apps/vstamp) | 3380 | `http://localhost:3380/healthz` | `http://localhost:3380/docs` | [`vstamp.openapi.json`](vstamp.openapi.json) |
 | [`@vtorn/social-publisher`](../../apps/social-publisher) | 3382 | `http://localhost:3382/healthz` | `http://localhost:3382/docs` | [`social-publisher.openapi.json`](social-publisher.openapi.json) |
 | [`@vtorn/clip-pipeline`](../../apps/clip-pipeline) | 3385 | `http://localhost:3385/healthz` | `http://localhost:3385/docs` | [`clip-pipeline.openapi.json`](clip-pipeline.openapi.json) |

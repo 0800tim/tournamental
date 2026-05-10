@@ -198,7 +198,7 @@ export class Dispatcher {
   static renderKickoff(matchId: string, minutesUntil: number): NotificationContent {
     const title = `Kickoff in ${minutesUntil} min`;
     const body = `Your match (${matchId}) starts in ${minutesUntil} minutes.`;
-    const url = `https://vtourn.com/match/${matchId}`;
+    const url = `https://tournamental.com/match/${matchId}`;
     return {
       webPush: { title, body, url, tag: `kickoff:${matchId}` },
       telegram: { body: `*${title}* — ${body}`, url },
@@ -216,7 +216,7 @@ export class Dispatcher {
     const body = scoreboard
       ? `Match ${matchId} ended ${scoreboard}. +${points} pts.`
       : `Match ${matchId} settled. +${points} pts.`;
-    const url = `https://vtourn.com/match/${matchId}`;
+    const url = `https://tournamental.com/match/${matchId}`;
     return {
       webPush: { title, body, url, tag: `result:${matchId}` },
       telegram: { body: `*${title}* +${points} pts. ${body}`, url },
@@ -233,7 +233,7 @@ export class Dispatcher {
     const body = scoreboard
       ? `Match ${matchId} ended ${scoreboard}. Better next time.`
       : `Match ${matchId} settled. Better next time.`;
-    const url = `https://vtourn.com/match/${matchId}`;
+    const url = `https://tournamental.com/match/${matchId}`;
     return {
       webPush: { title, body, url, tag: `result:${matchId}` },
       telegram: { body: `*${title}* — ${body}`, url },
@@ -250,7 +250,7 @@ export class Dispatcher {
     const delta = fromRank - toRank;
     const title = `You jumped ${delta} places!`;
     const body = `You moved from #${fromRank} to #${toRank} on the ${tournamentId} leaderboard.`;
-    const url = `https://vtourn.com/t/${tournamentId}/leaderboard`;
+    const url = `https://tournamental.com/t/${tournamentId}/leaderboard`;
     return {
       webPush: { title, body, url, tag: `lb:${tournamentId}` },
       telegram: { body: `*${title}* — ${body}`, url },

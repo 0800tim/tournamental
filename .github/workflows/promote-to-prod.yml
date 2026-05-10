@@ -115,10 +115,10 @@ jobs:
       - name: Hit canonical prod URLs
         env:
           URLS: |
-            https://vtourn.com/
-            https://app.vtourn.com/
-            https://api.vtourn.com/healthz
-            https://game.vtourn.com/healthz
+            https://tournamental.com/
+            https://app.tournamental.com/
+            https://api.tournamental.com/healthz
+            https://game.tournamental.com/healthz
         run: |
           set -e
           fail=0

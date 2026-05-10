@@ -1,14 +1,14 @@
 Mock 1 — /start onboarding flow
 
   ┌─────────────────────────────────────────────────────────────┐
-  │  @VTournBot                                          ←  ⋮   │
+  │  @TournamentalBot                                          ←  ⋮   │
   ├─────────────────────────────────────────────────────────────┤
   │                                                             │
   │   You                                          09:14   ✓✓   │
   │   /start                                                    │
   │                                                             │
-  │   VTourn                                            09:14   │
-  │   Welcome to VTourn — the never-finished bracket game.      │
+  │   Tournamental                                            09:14   │
+  │   Welcome to Tournamental — the never-finished bracket game.      │
   │                                                             │
   │   Commands:                                                 │
   │     /picks — see your bracket                               │
@@ -24,8 +24,8 @@ Mock 1 — /start onboarding flow
   │   You                                           09:15  ✓✓   │
   │   /start syn_jasons-office                                  │
   │                                                             │
-  │   VTourn                                             09:15  │
-  │   Welcome to Jason's Office — VTourn syndicate.             │
+  │   Tournamental                                             09:15  │
+  │   Welcome to Jason's Office — Tournamental syndicate.             │
   │                                                             │
   │   Format: top 3 share                                       │
   │   Privacy: invite-only                                      │

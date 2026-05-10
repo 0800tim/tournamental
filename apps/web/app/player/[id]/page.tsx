@@ -61,12 +61,12 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: PlayerPageProps): Metadata {
   const player = findPlayer(params.id);
   if (!player) {
-    return { title: "Player not found - VTourn" };
+    return { title: "Player not found - Tournamental" };
   }
   const team = TEAMS_BY_CODE.get(player.code);
   const teamName = team?.name ?? player.code;
-  const title = `${player.name} - ${teamName} - FIFA World Cup 2026 | VTourn`;
-  const desc = `${player.name} (${POSITION_LABEL[player.position]}) plays for ${teamName} at the 2026 World Cup. ${player.club ? `Club: ${player.club}.` : ""} Predict their next match on VTourn.`;
+  const title = `${player.name} - ${teamName} - FIFA World Cup 2026 | Tournamental`;
+  const desc = `${player.name} (${POSITION_LABEL[player.position]}) plays for ${teamName} at the 2026 World Cup. ${player.club ? `Club: ${player.club}.` : ""} Predict their next match on Tournamental.`;
   return {
     title,
     description: desc,

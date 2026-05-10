@@ -1,6 +1,6 @@
 # @vtorn/spec-client
 
-Client-side spec stream consumer for VTourn renderers.
+Client-side spec stream consumer for Tournamental renderers.
 
 Owned by [AGENT-PROMPTS.md](../../AGENT-PROMPTS.md) section 2 (the renderer
 agent), but designed so other consumers (analyst tools, alt-renderers, the

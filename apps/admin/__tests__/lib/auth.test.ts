@@ -31,8 +31,8 @@ describe("auth", () => {
   beforeEach(() => {
     cookieStore.clear();
     process.env.ADMIN_JWT_SECRET = "test-secret-test-secret-test-secret-12345";
-    process.env.ADMIN_EMAILS = "tim@vtourn.com,ops@vtourn.com";
-    process.env.ADMIN_ROLES = "tim@vtourn.com:super-admin,ops@vtourn.com:mod";
+    process.env.ADMIN_EMAILS = "tim@tournamental.com,ops@tournamental.com";
+    process.env.ADMIN_ROLES = "tim@tournamental.com:super-admin,ops@tournamental.com:mod";
     process.env.ADMIN_BASE_URL = "http://localhost:3340";
   });
 
@@ -51,13 +51,13 @@ describe("auth", () => {
   });
 
   it("createMagicLink + verifyMagicLink round-trip yields a session", async () => {
-    const link = await createMagicLink("Tim@vtourn.com");
+    const link = await createMagicLink("Tim@tournamental.com");
     expect(link).not.toBeNull();
     const url = new URL(link!.url);
     const token = url.searchParams.get("token")!;
     const session = await verifyMagicLink(token);
     expect(session).not.toBeNull();
-    expect(session!.email).toBe("tim@vtourn.com");
+    expect(session!.email).toBe("tim@tournamental.com");
     expect(session!.role).toBe("super-admin");
   });
 
@@ -66,22 +66,22 @@ describe("auth", () => {
   });
 
   it("verifyMagicLink rejects a token whose email is no longer allowlisted", async () => {
-    const link = await createMagicLink("ops@vtourn.com");
+    const link = await createMagicLink("ops@tournamental.com");
     const token = new URL(link!.url).searchParams.get("token")!;
-    process.env.ADMIN_EMAILS = "tim@vtourn.com";
+    process.env.ADMIN_EMAILS = "tim@tournamental.com";
     const r = await verifyMagicLink(token);
     expect(r).toBeNull();
   });
 
   it("issueSessionCookie + readSession round-trip", async () => {
     const session = await verifyMagicLink(
-      new URL((await createMagicLink("tim@vtourn.com"))!.url).searchParams.get("token")!,
+      new URL((await createMagicLink("tim@tournamental.com"))!.url).searchParams.get("token")!,
     );
     const jwt = await issueSessionCookie(session!);
     cookieStore.set(SESSION_COOKIE_NAME, { name: SESSION_COOKIE_NAME, value: jwt });
     const read = await readSession();
     expect(read).not.toBeNull();
-    expect(read!.email).toBe("tim@vtourn.com");
+    expect(read!.email).toBe("tim@tournamental.com");
     expect(read!.role).toBe("super-admin");
   });
 

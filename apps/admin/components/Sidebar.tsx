@@ -51,7 +51,7 @@ export function Sidebar({ email, role }: SidebarProps) {
       aria-label="Primary navigation"
     >
       <div>
-        <div className="text-lg font-display font-semibold text-ink-50">VTourn</div>
+        <div className="text-lg font-display font-semibold text-ink-50">Tournamental</div>
         <div className="text-xs uppercase tracking-wider text-accent-400">Admin console</div>
       </div>
 

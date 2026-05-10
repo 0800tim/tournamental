@@ -11,7 +11,7 @@
 Polls a small list of public football-news RSS feeds every 10 minutes,
 normalises each item to a common shape, deduplicates by canonical URL,
 and exposes a small JSON API consumed by the marketing site
-(`vtourn.com/news`) and the bracket app (`apps/web` home feed).
+(`tournamental.com/news`) and the bracket app (`apps/web` home feed).
 
 It is deliberately small. It does **not**:
 
@@ -49,7 +49,7 @@ states even for disabled rows.
 - One in-flight tick at a time; if a previous tick is still running,
   the next tick is dropped (prevents hammering on slow upstreams).
 - User-Agent header identifies us:
-  `VTournNewsAggregator/0.1 (+https://github.com/0800tim/vtorn; polite RSS poller, ~6 reqs / 10 min)`
+  `TournamentalNewsAggregator/0.1 (+https://github.com/0800tim/vtorn; polite RSS poller, ~6 reqs / 10 min)`
 - We honour HTTP 304 / cache headers from upstreams when present (the
   `rss-parser` library handles ETag / Last-Modified for us).
 
@@ -145,14 +145,14 @@ If a source's terms ever change to forbid even title-and-summary syndication, we
 | `NEWS_CACHE_PATH`                | `data/news-cache.jsonl`                                                                                | Append-only on-disk cache (gitignored).                                                |
 | `NEWS_RETENTION_DAYS`            | `30`                                                                                                   | Drop items older than this on load + on insert.                                        |
 | `NEWS_ADMIN_SECRET`              | unset                                                                                                  | Bearer for `POST /v1/admin/refresh`. When unset, that endpoint returns 503.            |
-| `NEWS_AGG_CORS_ORIGINS`          | comma-separated allow-list (defaults cover `vtourn.com`, `vtorn-www.aiva.nz`, `vtorn.aiva.nz`, dev)    | CORS allow-list.                                                                       |
+| `NEWS_AGG_CORS_ORIGINS`          | comma-separated allow-list (defaults cover `tournamental.com`, `vtorn-www.aiva.nz`, `vtorn.aiva.nz`, dev)    | CORS allow-list.                                                                       |
 | `NEWS_ENABLE_FIFA`               | `0`                                                                                                    | Flip to `1` once a confirmed FIFA feed URL is in place.                                |
 | `NEWS_ENABLE_GOAL`               | `0`                                                                                                    | Flip to `1` only when a Goal.com syndication partnership is in place.                  |
 
 ## Operations
 
-- **Force a refresh**: `curl -X POST -H "Authorization: Bearer $NEWS_ADMIN_SECRET" https://news-dev.vtourn.com/v1/admin/refresh`
-- **Source health**: `curl https://news-dev.vtourn.com/v1/sources | jq '.sources[] | {id, enabled, items: .health.itemCount, error: .health.lastError}'`
+- **Force a refresh**: `curl -X POST -H "Authorization: Bearer $NEWS_ADMIN_SECRET" https://news-dev.tournamental.com/v1/admin/refresh`
+- **Source health**: `curl https://news-dev.tournamental.com/v1/sources | jq '.sources[] | {id, enabled, items: .health.itemCount, error: .health.lastError}'`
 - **Live tail**: `pnpm --filter @vtorn/news-aggregator dev` and watch the structured log lines (`news scheduler tick` per cycle).
 
 ## Future work

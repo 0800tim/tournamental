@@ -1,6 +1,6 @@
-# `@vtourn/odds-ingest`
+# `@tournamental/odds-ingest`
 
-Live prediction-market odds ingest for the VTourn 2026 World Cup bracket.
+Live prediction-market odds ingest for the Tournamental 2026 World Cup bracket.
 
 Pulls W/D/L (and tournament-winner / group-winner) probabilities from
 **Polymarket** (primary, no auth) and **The Odds API** (free 500 req/month
@@ -15,10 +15,10 @@ mock derived from FIFA rankings so every fixture always has a number.
 
 ```bash
 pnpm install
-pnpm --filter @vtourn/odds-ingest build
-pnpm --filter @vtourn/odds-ingest start
+pnpm --filter @tournamental/odds-ingest build
+pnpm --filter @tournamental/odds-ingest start
 # or for dev (no build step):
-pnpm --filter @vtourn/odds-ingest dev
+pnpm --filter @tournamental/odds-ingest dev
 ```
 
 Default port: **3341**. Override with `ODDS_INGEST_PORT`. The HTTP server
@@ -71,7 +71,7 @@ yet.
 ## Tests
 
 ```bash
-pnpm --filter @vtourn/odds-ingest test
+pnpm --filter @tournamental/odds-ingest test
 ```
 
 Tests cover normalisation (team-name → FIFA code mapping, vig stripping,
@@ -91,11 +91,11 @@ pm2 save
 
 The service binds to **localhost:3341** and is exposed externally via the
 existing `aiva-tunnel` per `docs/22-deployment-and-tunnels.md`. Add the
-ingress rule the same way other vtourn dev hostnames are added:
+ingress rule the same way other tournamental dev hostnames are added:
 
 ```bash
 # 1. Pick a hostname (suggested: vtorn-odds.aiva.nz for dev,
-#    odds.vtourn.com for prod) and a tunnel.
+#    odds.tournamental.com for prod) and a tunnel.
 ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
 TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
 HOST=vtorn-odds.aiva.nz
@@ -107,8 +107,8 @@ cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
 # 3. PUT the merged ingress (see docs/22 for the full snippet).
 ```
 
-For the prod hostname `odds.vtourn.com`, follow the same flow against the
-vtourn.com zone using `infra/scripts/cf-add-vtourn-hosts.sh` as a template.
+For the prod hostname `odds.tournamental.com`, follow the same flow against the
+tournamental.com zone using `infra/scripts/cf-add-tournamental-hosts.sh` as a template.
 
 ## Database migration path
 
@@ -146,5 +146,5 @@ To regenerate the static spec after a route change:
 
 ```bash
 pnpm --filter @vtorn/odds-ingest run dump-openapi
-# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+# or @tournamental/odds-ingest / @vtorn/wc2026-data-scripts
 ```

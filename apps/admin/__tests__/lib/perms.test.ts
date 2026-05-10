@@ -26,9 +26,9 @@ describe("perms", () => {
   });
 
   it("parseAllowlist normalises and ignores empties", () => {
-    const set = parseAllowlist(" Tim@VTOURN.com, ,ops@vtourn.com ");
-    expect(set.has("tim@vtourn.com")).toBe(true);
-    expect(set.has("ops@vtourn.com")).toBe(true);
+    const set = parseAllowlist(" Tim@TOURNAMENTAL.com, ,ops@tournamental.com ");
+    expect(set.has("tim@tournamental.com")).toBe(true);
+    expect(set.has("ops@tournamental.com")).toBe(true);
     expect(set.size).toBe(2);
   });
 

@@ -2,7 +2,7 @@
   "name": "@vtorn/crm-bridge",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn CRM bridge — forwards user/prediction/syndicate events into GoHighLevel as contacts + custom fields + tags, plus a customer-360 aggregate endpoint",
+  "description": "Tournamental CRM bridge — forwards user/prediction/syndicate events into GoHighLevel as contacts + custom fields + tags, plus a customer-360 aggregate endpoint",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {

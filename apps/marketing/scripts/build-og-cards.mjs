@@ -7,7 +7,7 @@
  * paths via the `ogImage` prop already wired into every page.
  *
  * The generator uses `@vtorn/social-cards` so the OG cards share style
- * with every share / clip card — there is one source of truth for VTourn
+ * with every share / clip card — there is one source of truth for Tournamental
  * brand surfaces.
  *
  * Usage:
@@ -53,7 +53,7 @@ const MARKETING_OG_PAGES = [
     slug: "index",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "World Cup 2026",
@@ -64,10 +64,10 @@ const MARKETING_OG_PAGES = [
     slug: "how-it-works",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
-      tournamentName: "How VTourn works",
+      tournamentName: "How Tournamental works",
       inviteHeadline: "Six steps from sign-in to a verified record.",
     },
   },
@@ -75,7 +75,7 @@ const MARKETING_OG_PAGES = [
     slug: "world-cup-2026",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "World Cup 2026",
@@ -86,18 +86,18 @@ const MARKETING_OG_PAGES = [
     slug: "syndicates",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Syndicates",
-      inviteHeadline: "Run your own pool at yourname.vtourn.com.",
+      inviteHeadline: "Run your own pool at yourname.tournamental.com.",
     },
   },
   {
     slug: "influencers",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "For creators",
@@ -108,7 +108,7 @@ const MARKETING_OG_PAGES = [
     slug: "leaderboards",
     kind: "leaderboard-rank",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       scope: "global",
       scopeLabel: "Global",
@@ -121,10 +121,10 @@ const MARKETING_OG_PAGES = [
     slug: "why",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
-      tournamentName: "Why VTourn exists",
+      tournamentName: "Why Tournamental exists",
       inviteHeadline: "Predictions are why people watch sport.",
     },
   },
@@ -132,7 +132,7 @@ const MARKETING_OG_PAGES = [
     slug: "open-source",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Apache 2.0",
@@ -143,7 +143,7 @@ const MARKETING_OG_PAGES = [
     slug: "contribute",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Contribute",
@@ -154,7 +154,7 @@ const MARKETING_OG_PAGES = [
     slug: "start",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Get started",
@@ -165,7 +165,7 @@ const MARKETING_OG_PAGES = [
     slug: "legal",
     kind: "referral-invite",
     data: {
-      userHandle: "vtourn",
+      userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Legal",
@@ -219,7 +219,7 @@ async function main() {
       input: {
         kind: "referral-invite",
         data: {
-          userHandle: "vtourn",
+          userHandle: "tournamental",
           userId: "brand",
           bonusTokens: 25,
           inviteHeadline: "Predict every match. Watch in 3D.",

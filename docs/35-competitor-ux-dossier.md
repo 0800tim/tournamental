@@ -1,6 +1,6 @@
 # 35 — Competitor UX dossier
 
-> A research pass through twelve of the best (and a couple of the worst) prediction-game and football-data interfaces, captured here so the VTourn redesign in [doc 36](36-vtourn-ux-spec.md) is grounded in evidence rather than taste. Every concrete claim cites the URL it came from. Filename numbering note: the original assignment specified docs 24 and 25 but those numbers were already occupied by `24-gamification-and-virality.md` and `25-keys-and-secrets-required.md`, so we slotted into the next-free pair 35 and 36.
+> A research pass through twelve of the best (and a couple of the worst) prediction-game and football-data interfaces, captured here so the Tournamental redesign in [doc 36](36-tournamental-ux-spec.md) is grounded in evidence rather than taste. Every concrete claim cites the URL it came from. Filename numbering note: the original assignment specified docs 24 and 25 but those numbers were already occupied by `24-gamification-and-virality.md` and `25-keys-and-secrets-required.md`, so we slotted into the next-free pair 35 and 36.
 
 Date of capture: 2026-05-10.
 
@@ -23,7 +23,7 @@ Date of capture: 2026-05-10.
 - 50,000+ users played within early launch period (capcut.com analysis: <https://www.capcut.com/explore/telegraph-world-cup-predictor>).
 
 **What it does badly**:
-- The 2022 version was paywalled behind a Telegraph subscription on some flows (Scribd archive of the 2022 PDF version, <https://www.scribd.com/document/821317460/Pick-your-World-Cup-2022-winner-with-the-Telegraph-s-predictor>), losing share-driven viral loop — VTourn must keep the predictor in front of the paywall always.
+- The 2022 version was paywalled behind a Telegraph subscription on some flows (Scribd archive of the 2022 PDF version, <https://www.scribd.com/document/821317460/Pick-your-World-Cup-2022-winner-with-the-Telegraph-s-predictor>), losing share-driven viral loop — Tournamental must keep the predictor in front of the paywall always.
 - The wall-chart aesthetic, which is gorgeous on a 1080p desktop, is cramped on a 360-wide phone — the 2022 layout forced horizontal scroll on mobile per multiple reader reviews on Telegraph's Facebook comments thread.
 
 ---
@@ -33,13 +33,13 @@ Date of capture: 2026-05-10.
 **Primary URL**: <https://fantasy.espn.com/games/tournament-challenge-bracket-2026/bracket>; press release for the 2024 redesign at <https://espnpressroom.com/us/press-releases/2024/03/espn-tournament-challenge-2024-no-1-bracket-game-reimagined-rebuilt-for-fans-by-fans/>.
 
 **Hero/team layout**:
-- ESPN's matchup preview screens carry "all the statistics, analysis and key information" needed to fill out a bracket, and crucially "allow fans to make picks directly from the preview screens" (ESPN press release, <https://espnpressroom.com/us/press-releases/2024/03/espn-tournament-challenge-2024-no-1-bracket-game-reimagined-rebuilt-for-fans-by-fans/>). This is the lineage VTourn's per-match enrichment screen should descend from.
+- ESPN's matchup preview screens carry "all the statistics, analysis and key information" needed to fill out a bracket, and crucially "allow fans to make picks directly from the preview screens" (ESPN press release, <https://espnpressroom.com/us/press-releases/2024/03/espn-tournament-challenge-2024-no-1-bracket-game-reimagined-rebuilt-for-fans-by-fans/>). This is the lineage Tournamental's per-match enrichment screen should descend from.
 - The bracket displays user stats at the top: national rank, point total, points per round, and a percentage grade vs. other entrants (covered in <https://www.espn.com/fantasy/basketball/story/_/id/26103343/how-fill-march-madness-tournament-challenge-2026-mens-basketball-bracket>).
 
 **Pick UX**:
 - One-tap to pick a team in a matchup; the bracket then auto-advances the winner to the next round (ESPN press release).
 - The 2024 redesign added "BracketCast" which lets fans "follow live scores and bracket results in one spot" — a single, scrollable, self-updating consolidated view (<https://espnpressroom.com/us/press-releases/2024/03/espn-tournament-challenge-2024-no-1-bracket-game-reimagined-rebuilt-for-fans-by-fans/>).
-- Bird's-Eye View: "fans can zoom-out and see their entire bracket on a smartphone and easily share their Final Four and championship picks" — a critical mobile affordance VTourn currently lacks.
+- Bird's-Eye View: "fans can zoom-out and see their entire bracket on a smartphone and easily share their Final Four and championship picks" — a critical mobile affordance Tournamental currently lacks.
 - Group Results Forecast (Sweet 16 onward): "allows fans to determine each of their brackets' chances for winning their group and the potential results for every other bracket" — the live "what would I need" calculator. This is gold-standard.
 
 **Mobile vs desktop**:
@@ -71,11 +71,11 @@ Date of capture: 2026-05-10.
 - Pundit-pick comparisons let users see what Jeff Stelling or Phil Thompson predicted (<https://super6.skysports.com/pundits>) — social proof without needing a friend cohort yet.
 
 **Onboarding**:
-- Sign-in is a Sky Bet single-sign-on; if a user has a Sky Bet account, they're in. This is a moat VTourn does not have, and we should not try to invent one — magic-link via Telegram (per [doc 13](13-telegram-bot-and-auth.md)) is our equivalent.
+- Sign-in is a Sky Bet single-sign-on; if a user has a Sky Bet account, they're in. This is a moat Tournamental does not have, and we should not try to invent one — magic-link via Telegram (per [doc 13](13-telegram-bot-and-auth.md)) is our equivalent.
 
 **Don't copy**:
-- The score-stepper UX is *slow*. Six matches × two steppers × small targets on phones = many taps. VTourn's home/draw/away three-way pick is faster for a casual core loop, with score-entry kept optional (matches `MatchPredictionRow.tsx` "Add score" toggle).
-- Hard tie to the Sky Bet brand and 18+ messaging chrome — visually heavy with "BeGambleAware" banners at every step. VTourn aims for a free-to-play core that doesn't require an 18+ wrapper at the top.
+- The score-stepper UX is *slow*. Six matches × two steppers × small targets on phones = many taps. Tournamental's home/draw/away three-way pick is faster for a casual core loop, with score-entry kept optional (matches `MatchPredictionRow.tsx` "Add score" toggle).
+- Hard tie to the Sky Bet brand and 18+ messaging chrome — visually heavy with "BeGambleAware" banners at every step. Tournamental aims for a free-to-play core that doesn't require an 18+ wrapper at the top.
 
 ---
 
@@ -90,7 +90,7 @@ Date of capture: 2026-05-10.
 - Lineups display players directly on a pitch formation with their FotMob rating overlaid as a numbered chip on each player position (<https://www.designrush.com/best-designs/apps/soccer-scores-pro-fotmob>: "detailed player ratings directly on the pitch formation").
 - A market-value filter lets users highlight the most expensive players on the pitch (<https://www.designrush.com/best-designs/apps/soccer-scores-pro-fotmob>).
 
-**Team page** (very useful as the template for VTourn's `/team/[code]`):
+**Team page** (very useful as the template for Tournamental's `/team/[code]`):
 - Header shows the club crest and the parent country (e.g. Start of Norway: <https://www.fotmob.com/teams/9919/squad/start>).
 - Tab strip across the page: **Overview, Table, Fixtures, Squad, Player stats, Team stats, Transfers, History** (eight tabs; same source).
 - "Sync to calendar" and "Follow" controls in the header give two clear, low-commitment actions before the user goes deeper.
@@ -98,18 +98,18 @@ Date of capture: 2026-05-10.
 
 **Colour theming**:
 - Brand neutrals: white background, green (`#00D26A` family) accent for active state — described by the Pratt design critique as "active tab highlighted in green for immediate feedback" (<https://ixd.prattsi.org/2021/09/design-critique-fotmob-android-app/>).
-- Team-coloured stat bars: when comparing two teams' possession/shots, each side's bar is shaded in the team's primary kit colour rather than a generic blue/red — this is a visual cue VTourn already partially implements via `--mpr-home-accent` and `--mpr-away-accent`.
+- Team-coloured stat bars: when comparing two teams' possession/shots, each side's bar is shaded in the team's primary kit colour rather than a generic blue/red — this is a visual cue Tournamental already partially implements via `--mpr-home-accent` and `--mpr-away-accent`.
 
 **FotMob Predict (separate but tied)**:
 - Two competitions on the home page at time of capture: "World Cup 2026" and "FotMob's Top Picks 25/26" (<https://predict.fotmob.com/>).
-- Score predictions: 2 points for correct outcome (W/D/L), 3 points for outcome plus exact score (<https://predict.fotmob.com/>). VTourn's own scoring (per [doc 16](16-game-modes-and-scoring.md)) is more nuanced; FotMob's is a sane reference simple-mode.
+- Score predictions: 2 points for correct outcome (W/D/L), 3 points for outcome plus exact score (<https://predict.fotmob.com/>). Tournamental's own scoring (per [doc 16](16-game-modes-and-scoring.md)) is more nuanced; FotMob's is a sane reference simple-mode.
 - Predictions remain editable until kickoff — "Predictions remain editable until the match kicks off" (<https://predict.fotmob.com/>).
 
 **What surprised**:
 - The "Lineup Builder" web tool (<https://www.fotmob.com/en-gb/lineup-builder>) lets users assemble a fantasy XI on a pitch with player faces and shareable graphics. Pure social-distribution rocket fuel; we should consider an analogous "your bracket as a shareable card" generator.
 
 **Pratt critique caught**:
-- Two right-side menus at the top and bottom create a "gulf of execution" — users don't know which is for filters/alerts vs. TV schedules/transfers (<https://ixd.prattsi.org/2021/09/design-critique-fotmob-android-app/>). VTourn must keep its right-side controls to one menu.
+- Two right-side menus at the top and bottom create a "gulf of execution" — users don't know which is for filters/alerts vs. TV schedules/transfers (<https://ixd.prattsi.org/2021/09/design-critique-fotmob-android-app/>). Tournamental must keep its right-side controls to one menu.
 
 ```
 ASCII sketch — FotMob team page (mobile, 360 wide):
@@ -149,8 +149,8 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 **Onboarding**:
 - DesignStudio's identity work explicitly designed the brand to "dynamically adapt to each fan's individual experience" (<https://the-brandidentity.com/project/designstudios-identity-onefootball-dynamically-adapts-fans-individual-experience>). The user picks favourite teams and the visual chrome (gradients, accent colours) re-tints to those teams.
 
-**What VTourn should steal**:
-- The "neutral chrome + sparingly applied hype accent" rule is the perfect counterpoint to football's chaotic kit-colour landscape. VTourn currently uses bright yellow `#fbbf24` as a default in `TeamFlag.tsx`, which fights with team kits. A neutral chrome with hype-coloured selection ring borrowed from OneFootball's hype green / hype magenta would let team kits sing.
+**What Tournamental should steal**:
+- The "neutral chrome + sparingly applied hype accent" rule is the perfect counterpoint to football's chaotic kit-colour landscape. Tournamental currently uses bright yellow `#fbbf24` as a default in `TeamFlag.tsx`, which fights with team kits. A neutral chrome with hype-coloured selection ring borrowed from OneFootball's hype green / hype magenta would let team kits sing.
 
 **Don't copy**:
 - The DesignStudio identity is so specifically OneFootball-coded that any wholesale lift would feel derivative. We use the principle (neutrals + restrained accent), not the palette.
@@ -173,7 +173,7 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - FlashScore's stats facelift (<https://www.flashscore.com/news/more-data-to-help-you-read-the-game-flashscore-s-football-stats-get-a-facelift/42Kj2YYI/>) explicitly added per-player and per-team facets to the stats, while keeping the list density unchanged. They expand by tapping rather than re-laying out.
 
 **Don't copy**:
-- The relentless density makes FlashScore feel functional but joyless. There is no team-colour theming, no kit gradients, no humanity — VTourn's positioning is "the prediction game with personality", so we want FlashScore's information architecture but not its sterile aesthetic.
+- The relentless density makes FlashScore feel functional but joyless. There is no team-colour theming, no kit gradients, no humanity — Tournamental's positioning is "the prediction game with personality", so we want FlashScore's information architecture but not its sterile aesthetic.
 
 ---
 
@@ -187,10 +187,10 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - Stats include shots on target, blocked shots, clearances, tackles, fouls, corners, and xG for high-profile matches (multiple sources; same as above).
 
 **Typography**:
-- BBC switched to its custom **BBC Reith** type system in 2017 (<https://en.wikipedia.org/wiki/BBC_Sport>). Reith reads at small sizes and at on-pitch nameplate sizes — a single family that handles both. VTourn's body uses its own brand stack from doc 15.
+- BBC switched to its custom **BBC Reith** type system in 2017 (<https://en.wikipedia.org/wiki/BBC_Sport>). Reith reads at small sizes and at on-pitch nameplate sizes — a single family that handles both. Tournamental's body uses its own brand stack from doc 15.
 
 **What surprised**:
-- The BBC's live text commentary is its own column on desktop; on mobile it becomes a tab. Same content, different IA per breakpoint. A pattern we should adopt for VTourn's match enrichment.
+- The BBC's live text commentary is its own column on desktop; on mobile it becomes a tab. Same content, different IA per breakpoint. A pattern we should adopt for Tournamental's match enrichment.
 
 **Don't copy**:
 - The BBC has a public-service mandate that means it shows fixtures it doesn't have rights to. That's a unique BBC thing we don't replicate.
@@ -210,7 +210,7 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - The black chrome lets the team-colour accents sing; team logos and accent stripes pop against the dark background.
 
 **Don't copy**:
-- theScore's bracket assumes the user already knows the tournament structure. There's almost no onboarding; first-time visitors who don't know what a "Region" is are lost. VTourn's first run must be more explanatory.
+- theScore's bracket assumes the user already knows the tournament structure. There's almost no onboarding; first-time visitors who don't know what a "Region" is are lost. Tournamental's first run must be more explanatory.
 
 ---
 
@@ -235,12 +235,12 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - Markets table needed sorting by Outcome competitiveness, Resolution Date, Volume, Liquidity, Name — implies the prior version was static.
 - Mobile-first redesign in Figma; defaults to newest markets first.
 
-**What VTourn should steal**:
+**What Tournamental should steal**:
 - The market-card pattern is the right shape for "match cards in the pre-tournament hype phase". Pin a hot match (e.g. "Argentina vs Brazil to meet in semis?") above the bracket as a card with a probability percentage and a "predict this" call to action. Polymarket-style chrome around our own match data.
-- The Yes/No two-colour scheme avoids the red/green colour-blindness trap. VTourn should adopt the same logic for any binary prop bets we add later.
+- The Yes/No two-colour scheme avoids the red/green colour-blindness trap. Tournamental should adopt the same logic for any binary prop bets we add later.
 
 **Don't copy**:
-- Polymarket's "Huge Analysis Finds That the Average Person Is Getting Absolutely Hosed on Polymarket" reputational drag (<https://futurism.com/future-society/huge-analysis-hosed-polymarket>) — they're optimised for sophisticated traders, not casuals. VTourn's chrome must look approachable, not like a trading screen.
+- Polymarket's "Huge Analysis Finds That the Average Person Is Getting Absolutely Hosed on Polymarket" reputational drag (<https://futurism.com/future-society/huge-analysis-hosed-polymarket>) — they're optimised for sophisticated traders, not casuals. Tournamental's chrome must look approachable, not like a trading screen.
 
 ---
 
@@ -260,9 +260,9 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - NBA cards: traditional headshot vs. "action shot" with dynamic personality (<https://medium.com/sorare/sorare-nba-card-designs-f98b8b4bacd3>).
 - MLB cards: rookie badge, first-card-of-scarcity indicator, jersey-number serial number, "Year One Edition" strip (<https://medium.com/sorare/sorare-mlb-card-designs-d307a053dd98>).
 
-**What VTourn should steal**:
+**What Tournamental should steal**:
 - The "card-as-hero" framing is exactly right for our team profile pages. Big team flag (analogous to Sorare's player photo), kit-coloured frame, FIFA-rank chip in the corner like Sorare's scarcity indicator.
-- Five-tier scarcity equivalent: VTourn could surface a "tournament tier" chip (host, contender, dark horse, debutant) using similar visual hierarchy.
+- Five-tier scarcity equivalent: Tournamental could surface a "tournament tier" chip (host, contender, dark horse, debutant) using similar visual hierarchy.
 
 **Don't copy**:
 - Sorare cards are prestige objects; our team pages must work as both prestige posters and as functional info dashboards. Sorare-style cards are 4:5 portrait — too tall for our context. Borrow the visual language, not the proportions.
@@ -282,7 +282,7 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - Yahoo's product is "fill out a bracket → join a group → compete" — three steps, with the bracket itself being the first action. Notably, Yahoo lets non-account-holders preview the bracket builder before locking the account-creation gate (<https://tournament.fantasysports.yahoo.com/signup>) — softer than ESPN.
 
 **What surprised**:
-- Yahoo runs $25K cash contests for both men's and women's tournaments (<https://sports.yahoo.com/bracket-time-enter-yahoo-fantasys-25k-contests-for-the-mens-and-womens-tourneys-221154361.html>). The cash incentive has been baked into Yahoo's bracket products since the early 2010s — it's not a new mechanic. VTourn's prize-pool work in [doc 18](18-monetization.md) and [doc 21](21-onchain-sweepstakes-oracle.md) should learn from how Yahoo merchandises the prize on the bracket landing page.
+- Yahoo runs $25K cash contests for both men's and women's tournaments (<https://sports.yahoo.com/bracket-time-enter-yahoo-fantasys-25k-contests-for-the-mens-and-womens-tourneys-221154361.html>). The cash incentive has been baked into Yahoo's bracket products since the early 2010s — it's not a new mechanic. Tournamental's prize-pool work in [doc 18](18-monetization.md) and [doc 21](21-onchain-sweepstakes-oracle.md) should learn from how Yahoo merchandises the prize on the bracket landing page.
 
 **Don't copy**:
 - Yahoo's bracket UI hasn't materially changed since ~2014 — it feels old. Heavy purple chrome, 2014-vintage typography. Don't copy the look; copy the prize-merchandising.
@@ -303,10 +303,10 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 - Account linking from Run Your Pool / Office Football Pool — they've explicitly built a migration path from older fantasy-pool tools (<https://www.morningstar.com/news/business-wire/20260302037524/splash-sports-launches-player-pickem-and-daily-fantasy-sports-contests-in-new-york-state>).
 
 **Social**:
-- In-contest chat for "razzing your fellow competitors" (<https://splashsports.com/games/pick-em>). VTourn currently has no in-product chat layer; this is worth costing for the friends-leaderboard cohort.
+- In-contest chat for "razzing your fellow competitors" (<https://splashsports.com/games/pick-em>). Tournamental currently has no in-product chat layer; this is worth costing for the friends-leaderboard cohort.
 
 **Don't copy**:
-- Paysafe deposit/withdrawal flow with credit cards and PayPal (<https://splashsports.com/games/pick-em>). Splash needs this because its core is paid contests; VTourn's free-to-play core means we can keep the funnel one step shorter.
+- Paysafe deposit/withdrawal flow with credit cards and PayPal (<https://splashsports.com/games/pick-em>). Splash needs this because its core is paid contests; Tournamental's free-to-play core means we can keep the funnel one step shorter.
 
 ---
 
@@ -322,7 +322,7 @@ ASCII sketch — FotMob team page (mobile, 360 wide):
 | Sky Super 6       | 7 (account + 18+ confirmation)              |
 | FotMob Predict    | 3 (open URL → pick competition → tap match) |
 | Splash Sports     | 8 (account + ID verification in some states)|
-| **VTourn (today)**| ~3 (open URL → group tab → tap flag) — already strong |
+| **Tournamental (today)**| ~3 (open URL → group tab → tap flag) — already strong |
 
 Source: tap counts derived from each product's onboarding flow as documented in their App Store listings, FAQ pages, and how-to-play guides linked above.
 
@@ -341,7 +341,7 @@ Source: tap counts derived from each product's onboarding flow as documented in 
 - Yahoo: small circle logo or initial.
 - Splash Sports: team logo, no flag.
 
-**Implication**: VTourn's bet on the **big circular flag** (`TeamFlag` `shape="circle"` at `lg`/`xl`) is a deliberate and unusual choice. It sets us apart in the international-tournament space where every other product is using small flags. The flag is our primary visual asset, the way the player photo is Sorare's. Lean into it harder.
+**Implication**: Tournamental's bet on the **big circular flag** (`TeamFlag` `shape="circle"` at `lg`/`xl`) is a deliberate and unusual choice. It sets us apart in the international-tournament space where every other product is using small flags. The flag is our primary visual asset, the way the player photo is Sorare's. Lean into it harder.
 
 ### Form dots / W-D-L pills
 
@@ -351,14 +351,14 @@ Source: tap counts derived from each product's onboarding flow as documented in 
 - Telegraph: not surfaced in the predictor.
 - ESPN: shown on team profile pages, not in the bracket.
 
-**Implication**: 5-pill last-5 form is industry-standard. VTourn currently shows none. Easy win for credibility.
+**Implication**: 5-pill last-5 form is industry-standard. Tournamental currently shows none. Easy win for credibility.
 
 ### Pick affordance — ranking the patterns
 
 | Pattern                             | Speed | Engagement | Used by                           |
 | ----------------------------------- | ----- | ---------- | --------------------------------- |
-| Tap-flag (single tap)               | High  | Med        | Telegraph, ESPN, theScore, VTourn |
-| Tap-flag + draw pill                | High  | Med-High   | VTourn (group stage)              |
+| Tap-flag (single tap)               | High  | Med        | Telegraph, ESPN, theScore, Tournamental |
+| Tap-flag + draw pill                | High  | Med-High   | Tournamental (group stage)              |
 | Stepper score input                 | Low   | High       | Sky Super 6, FotMob Predict       |
 | Card with Yes/No buttons            | High  | Med        | Polymarket                        |
 | Confidence ranking (drag)           | Low   | Very High  | Splash, ESPN football pickem      |
@@ -371,7 +371,7 @@ Source: derived from the per-product UX descriptions above.
 - FotMob's app uses subtle slide transitions between matches (<https://ixd.prattsi.org/2021/09/design-critique-fotmob-android-app/>).
 - Polymarket's mobile redesign emphasises "fluid card swipes" (<https://www.finextra.com/blogposting/31216/polymarket-mobile-app-design-uiux-features-that-drive-engagement-amp-trust>).
 
-VTourn's `TeamFlag` already has a sparkle/shimmer/glow on the selected state — keep that, and add a one-shot "winner advances" animation when the cascade lifts a team into the next round.
+Tournamental's `TeamFlag` already has a sparkle/shimmer/glow on the selected state — keep that, and add a one-shot "winner advances" animation when the cascade lifts a team into the next round.
 
 ### Leaderboard — the avatar question
 
@@ -381,7 +381,7 @@ VTourn's `TeamFlag` already has a sparkle/shimmer/glow on the selected state —
 - Yahoo: avatar + username + points + percentile.
 - Splash Sports: avatar + username + points + cash earned.
 
-**Implication**: avatars are table-stakes for friends/community leaderboards. VTourn already has identity scaffolding from [doc 20](20-identity-humanness-bots.md) — surface those Humanness-Score-verified avatars on the leaderboard rows.
+**Implication**: avatars are table-stakes for friends/community leaderboards. Tournamental already has identity scaffolding from [doc 20](20-identity-humanness-bots.md) — surface those Humanness-Score-verified avatars on the leaderboard rows.
 
 ---
 
@@ -398,4 +398,4 @@ VTourn's `TeamFlag` already has a sparkle/shimmer/glow on the selected state —
 
 ## What to read next
 
-[doc 36](36-vtourn-ux-spec.md) is the synthesis: the concrete VTourn redesign spec drawn from the patterns above, mapped onto our existing components (`TeamFlag`, `MatchPredictionRow`, `BracketBuilder`, `KnockoutMatch`, `GroupCard`).
+[doc 36](36-tournamental-ux-spec.md) is the synthesis: the concrete Tournamental redesign spec drawn from the patterns above, mapped onto our existing components (`TeamFlag`, `MatchPredictionRow`, `BracketBuilder`, `KnockoutMatch`, `GroupCard`).

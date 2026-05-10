@@ -2,7 +2,7 @@
 
 > Status: shipped (PR `feat/web-pwa-app-shell`).
 > Owner: shell-agent.
-> Cross-refs: [doc 35](35-competitor-ux-dossier.md), [doc 36](36-vtourn-ux-spec.md), [doc 22](22-deployment-and-tunnels.md).
+> Cross-refs: [doc 35](35-competitor-ux-dossier.md), [doc 36](36-tournamental-ux-spec.md), [doc 22](22-deployment-and-tunnels.md).
 
 The web app's chrome is now an installable PWA shell that mirrors the FIFA Plus / FIFA World Cup 2026 app feel: top app-bar with avatar/title/action, pill tab nav, hero-card stacks, big countdown banner, fixture cards with flag-time-flag, and a thin bottom navigation bar with four icons (Home / Predict / Watch / Profile). On desktop (>=768px) the bottom nav is replaced with a 240px left side rail.
 
@@ -16,7 +16,7 @@ The shell is layered:
    - `BottomNav.tsx` — fixed bottom 64px nav (mobile only). Hides on scroll-down, reveals on scroll-up. Honours `prefers-reduced-motion`.
    - `SideRailNav.tsx` — 240px fixed left rail (desktop only).
    - `PillTabs.tsx` — controlled or uncontrolled rounded-full tab strip.
-   - `InstallPrompt.tsx` — once-per-device "Install VTourn" toast hooked to `beforeinstallprompt`. iOS fallback shows the share-sheet hint.
+   - `InstallPrompt.tsx` — once-per-device "Install Tournamental" toast hooked to `beforeinstallprompt`. iOS fallback shows the share-sheet hint.
    - `RegisterSW.tsx` — registers `/sw.js` post-mount in production. Opt-in for dev via `NEXT_PUBLIC_VTORN_SW_DEV=1`.
    - `ThemeMeta.tsx` — keeps `<meta name="theme-color">` in sync with `data-theme` on `<html>` and OS `prefers-color-scheme`.
    - `icons.tsx` — single source of truth for the 24px stroke icons used in the bottom nav, side rail, and app-bar action button.
@@ -108,7 +108,7 @@ For full-bleed canvas pages (the renderer):
 ## PWA install flow (user perspective)
 
 1. Visit `/` (or any route) on Chrome, Edge, or Brave on Android / desktop.
-2. After ~5s the "Install VTourn" toast appears (once per device — dismissal stored in `localStorage` under `vt-install-dismissed-v1`).
+2. After ~5s the "Install Tournamental" toast appears (once per device — dismissal stored in `localStorage` under `vt-install-dismissed-v1`).
 3. Tap **Install**; the browser shows its install dialog; accept.
 4. The app launches in standalone mode (no browser chrome) and the home-screen icon points to `/`.
 5. Three home-screen shortcuts: Predict / Watch live / My picks.
@@ -131,7 +131,7 @@ Brand palette tokens live in `shell.css`:
 | `--vt-accent-warm` | `#f3b83b`        | `#d97706`         | flame-orange accent         |
 | `--vt-accent-pitch`| `#4cd680`        | `#16a34a`         | emerald-pitch accent        |
 
-No new hues. Kit colours on team pages still come from each team's `kit.primary` / `kit.secondary` (per [doc 36](36-vtourn-ux-spec.md)).
+No new hues. Kit colours on team pages still come from each team's `kit.primary` / `kit.secondary` (per [doc 36](36-tournamental-ux-spec.md)).
 
 ## Performance budget
 

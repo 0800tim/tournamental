@@ -1,5 +1,5 @@
 /**
- * Vitest-driven OpenAPI dumper for @vtourn/odds-ingest.
+ * Vitest-driven OpenAPI dumper for @tournamental/odds-ingest.
  */
 
 import { writeFileSync, mkdirSync } from 'node:fs';

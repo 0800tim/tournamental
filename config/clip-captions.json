@@ -3,57 +3,57 @@
   "event.goal": {
     "9:16": {
       "caption": "GOAL {scorer} {minute} for {home} vs {away}. Score: {score}",
-      "hashtags": ["#VTourn", "#Goal", "#WorldCup"]
+      "hashtags": ["#Tournamental", "#Goal", "#WorldCup"]
     },
     "1:1": {
       "caption": "{scorer} finds the back of the net at {minute}. {home} {score} {away}",
-      "hashtags": ["#VTourn", "#Goal"]
+      "hashtags": ["#Tournamental", "#Goal"]
     },
     "16:9": {
-      "caption": "{scorer} scores at {minute} - {home} {score} {away}. Predict the next one on VTourn.",
-      "hashtags": ["#VTourn", "#Goal", "#FootballPredictions"]
+      "caption": "{scorer} scores at {minute} - {home} {score} {away}. Predict the next one on Tournamental.",
+      "hashtags": ["#Tournamental", "#Goal", "#FootballPredictions"]
     }
   },
   "event.red_card": {
     "9:16": {
       "caption": "RED CARD {scorer} sent off at {minute}. {home} vs {away} {score}",
-      "hashtags": ["#VTourn", "#RedCard"]
+      "hashtags": ["#Tournamental", "#RedCard"]
     },
     "1:1": {
       "caption": "{scorer} sees red at {minute}. {home} {score} {away}",
-      "hashtags": ["#VTourn", "#RedCard"]
+      "hashtags": ["#Tournamental", "#RedCard"]
     },
     "16:9": {
       "caption": "Red card for {scorer} at {minute} changes {home} vs {away}. Score now {score}.",
-      "hashtags": ["#VTourn", "#RedCard", "#Football"]
+      "hashtags": ["#Tournamental", "#RedCard", "#Football"]
     }
   },
   "event.penalty": {
     "9:16": {
       "caption": "PENALTY {scorer} at {minute} for {home} vs {away}. {score}",
-      "hashtags": ["#VTourn", "#Penalty"]
+      "hashtags": ["#Tournamental", "#Penalty"]
     },
     "1:1": {
       "caption": "Penalty taken by {scorer} at {minute}. {home} {score} {away}",
-      "hashtags": ["#VTourn", "#Penalty"]
+      "hashtags": ["#Tournamental", "#Penalty"]
     },
     "16:9": {
       "caption": "{scorer} steps up at {minute} - {home} vs {away}, score {score}.",
-      "hashtags": ["#VTourn", "#Penalty", "#Football"]
+      "hashtags": ["#Tournamental", "#Penalty", "#Football"]
     }
   },
   "event.match_end": {
     "9:16": {
       "caption": "FULL TIME {home} {score} {away}. The final whistle.",
-      "hashtags": ["#VTourn", "#FullTime"]
+      "hashtags": ["#Tournamental", "#FullTime"]
     },
     "1:1": {
       "caption": "Full time. {home} {score} {away}.",
-      "hashtags": ["#VTourn", "#FullTime"]
+      "hashtags": ["#Tournamental", "#FullTime"]
     },
     "16:9": {
-      "caption": "Match ends {home} {score} {away}. Recap on VTourn.",
-      "hashtags": ["#VTourn", "#FullTime", "#FootballPredictions"]
+      "caption": "Match ends {home} {score} {away}. Recap on Tournamental.",
+      "hashtags": ["#Tournamental", "#FullTime", "#FootballPredictions"]
     }
   }
 }

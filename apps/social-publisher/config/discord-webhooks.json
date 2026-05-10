@@ -3,7 +3,7 @@
   "enabled": true,
   "tournaments": {
     "wc26": {
-      "$comment": "Replace with real webhook URLs from the VTourn guild's #goals + #news + #recap channels.",
+      "$comment": "Replace with real webhook URLs from the Tournamental guild's #goals + #news + #recap channels.",
       "webhooks": []
     },
     "fifa-wc-2022": {

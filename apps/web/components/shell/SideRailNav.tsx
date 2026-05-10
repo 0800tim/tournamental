@@ -99,7 +99,7 @@ export function SideRailNav({
         <span className="vt-siderail-brand-mark" aria-hidden="true">
           V
         </span>
-        VTourn
+        Tournamental
       </Link>
       {primary.map((link) => (
         <RailLink key={link.href} link={link} pathname={pathname} />

@@ -3,7 +3,7 @@
 // webhook handler, and (when configured) the Aiva WhatsApp webhook so the
 // same dispatcher serves both surfaces.
 //
-// In production, Cloudflare tunnel routes `bot.vtourn.com` to this port.
+// In production, Cloudflare tunnel routes `bot.tournamental.com` to this port.
 
 import Fastify from "fastify";
 import { Storage } from "./storage.js";

@@ -1,13 +1,13 @@
-# WC2022 Final ARG-FRA - VTourn Commentary [ja]
+# WC2022 Final ARG-FRA - Tournamental Commentary [ja]
 
-Generated from StatsBomb event stream + VTourn narrator template, machine-translated from English.
+Generated from StatsBomb event stream + Tournamental narrator template, machine-translated from English.
 Per-line format: `[Lxxxx · MM:SS · intent] Spoken text`.
 Player names and team names are kept in their original spelling.
 
 ---
 
 [L0001 · -03:00 · open] FIFA ワールドカップ決勝、アルゼンチン対フランスのルサイル スタジアムへようこそ。
-[L0002 · -02:56 · open] 私は VTourn のコメンテーターです。今夜は私たち全員が待ち望んでいた夜です。
+[L0002 · -02:56 · open] 私は Tournamental のコメンテーターです。今夜は私たち全員が待ち望んでいた夜です。
 [L0003 · -02:53 · scene] 8 万 9 千人が参加し、世界中で 20 億人が視聴しています。
 [L0004 · -02:49 · scene] アルゼンチン、6度目のファイナリスト。ホルダーのフランスが連勝する。
 [L0005 · -02:46 · scene] アルゼンチンが最後にこの段階に到達してから 14 年になります。主催して優勝してから44回目。
@@ -2967,7 +2967,7 @@ Player names and team names are kept in their original spelling.
 [L2959 · 128:31 · trophy] メッシはワールドカップを持っています！
 [L2960 · 128:35 · trophy] ルサイルスタジアムは10分間も轟音が止まらなかった。
 [L2961 · 128:39 · trophy] そして残りは歴史です。
-[L2962 · 128:43 · wrap] VTourn の全員にとって、この試合を呼ぶことができて本当に光栄です。
+[L2962 · 128:43 · wrap] Tournamental の全員にとって、この試合を呼ぶことができて本当に光栄です。
 [L2963 · 128:47 · wrap] アルゼンチン、世界チャンピオン、2022人。
 [L2964 · 128:51 · wrap] メッシがついにトロフィーを手にする。
 [L2965 · 128:55 · wrap] 次回まで。ルサイルからおやすみ。

@@ -1,8 +1,8 @@
 ---
 title: "Watch the World Cup as a 3D scene — how our renderer works"
-description: "Inside the VTourn match-renderer: StatsBomb open data flows into a Python producer, the producer streams a typed event spec over WebSocket, and a React Three Fiber renderer plays the match in your browser at 60 fps. With the 2022 final as the proof-point and a single-source clock as the bug we still wear scars from."
+description: "Inside the Tournamental match-renderer: StatsBomb open data flows into a Python producer, the producer streams a typed event spec over WebSocket, and a React Three Fiber renderer plays the match in your browser at 60 fps. With the 2022 final as the proof-point and a single-source clock as the bug we still wear scars from."
 pubDate: 2026-05-11
-author: "VTourn Team"
+author: "Tournamental Team"
 tags: ["technical", "three-js", "renderer", "replay"]
 heroImage: "/blog/2026-05-11-pitch-aerial-hero.jpg"
 heroImageAlt: "Aerial top-down view of a green football pitch with white markings."
@@ -11,7 +11,7 @@ heroImageCredit: "Photo by Timothy Tan on Unsplash (Unsplash Licence)"
 
 Most football coverage on the internet is somebody else's video feed, geo-blocked and ad-stuffed. That is fine, but it has been the only option for so long that we have collectively forgotten the alternative. The match itself is a stream of events: passes, shots, fouls, substitutions. If we have those events, we have everything we need to render the match ourselves, in the browser, at any speed, with our own commentary and overlay layered on top.
 
-That is what the VTourn renderer is. This post walks through how it works, what shipped this weekend, the bug we found in our clock controller, and where it is going next.
+That is what the Tournamental renderer is. This post walks through how it works, what shipped this weekend, the bug we found in our clock controller, and where it is going next.
 
 ## The data path
 

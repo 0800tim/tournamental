@@ -9,10 +9,10 @@
 
 | URL | What works | Notes |
 | --- | --- | --- |
-| https://2026wc.vtourn.com/ | Hype landing — countdown, 48 flags, syndicate signup | Already shipped earlier |
-| https://2026wc.vtourn.com/world-cup-2026 | **Bracket builder with W/D/L odds chips on every match** | Hover any match to see live odds; cascade goes group → R32 → R16 → QF → SF → Final |
-| https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12-18 | AR-FR replay; renderer now has Phase-2 fidelity (foot IK, Rapier ball, auto-director with goal slow-mo) | "Connecting…" hang from yesterday is fixed |
-| https://www.vtourn.com/world-cup-2026 | Marketing page now CTAs to the WC subdomain | |
+| https://2026wc.tournamental.com/ | Hype landing — countdown, 48 flags, syndicate signup | Already shipped earlier |
+| https://2026wc.tournamental.com/world-cup-2026 | **Bracket builder with W/D/L odds chips on every match** | Hover any match to see live odds; cascade goes group → R32 → R16 → QF → SF → Final |
+| https://app.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18 | AR-FR replay; renderer now has Phase-2 fidelity (foot IK, Rapier ball, auto-director with goal slow-mo) | "Connecting…" hang from yesterday is fixed |
+| https://www.tournamental.com/world-cup-2026 | Marketing page now CTAs to the WC subdomain | |
 
 ## What merged overnight (chronological)
 
@@ -34,12 +34,12 @@
 ## Things still blocked on you
 
 1. **ElevenLabs API key** → `.env` `ELEVENLABS_API_KEY`. Unlocks programmatic 10-language commentary render (`scripts/render-commentary.mjs`).
-2. **Polymarket affiliate registration** → KYC for VTourn Holdings. Required before revenue.
+2. **Polymarket affiliate registration** → KYC for Tournamental Holdings. Required before revenue.
 3. **The Odds API key** → free tier at https://the-odds-api.com (500 req/mo). Set `THE_ODDS_API_KEY` to enable Bet365/Pinnacle aggregator.
-4. **Telegram BotFather token** → `/newbot` against @BotFather, save as `TELEGRAM_BOT_TOKEN`. Pick a username (suggested: `@VTournBot`).
-5. **WhatsApp Baileys QR pairing** → once `apps/auth-sms` is on auth.vtourn.com, hit `/v1/auth/whatsapp/pairing-qr` and scan once with WhatsApp on your account.
+4. **Telegram BotFather token** → `/newbot` against @BotFather, save as `TELEGRAM_BOT_TOKEN`. Pick a username (suggested: `@TournamentalBot`).
+5. **WhatsApp Baileys QR pairing** → once `apps/auth-sms` is on auth.tournamental.com, hit `/v1/auth/whatsapp/pairing-qr` and scan once with WhatsApp on your account.
 6. **ADMIN_EMAILS allowlist** → `.env` `ADMIN_EMAILS=info@growthspurt.agency,...`. Without this the admin dashboard refuses every login.
-7. **Cloudflare tunnel ingress** → run `bash infra/scripts/cf-add-vtourn-hosts-admin.sh` (and equivalent for auth-sms / odds-ingest). They were left for you to review since they touch shared infra.
+7. **Cloudflare tunnel ingress** → run `bash infra/scripts/cf-add-tournamental-hosts-admin.sh` (and equivalent for auth-sms / odds-ingest). They were left for you to review since they touch shared infra.
 
 ## What's still running in the background
 
@@ -47,11 +47,11 @@
 
 ## Morning verification (suggested order)
 
-1. **`https://2026wc.vtourn.com/world-cup-2026`** — pick a few group matches (you'll see a small W/D/L odds chip next to each). Hover one — tooltip shows breakdown. Switch to Knockouts tab. Verify cascade goes all the way to the Final.
-2. **`https://www.vtourn.com/world-cup-2026`** — check the "Play World Cup 2026 →" CTAs go to `2026wc.vtourn.com`.
-3. **`https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12-18`** — replay should play through; auto-director switches cams; goal moments slow-mo.
-4. **`https://2026wc.vtourn.com/api/odds/snapshot`** — JSON dump of all 72 group fixtures with `source: "mock-fifa-rank"` (will switch to `polymarket` once the live ingest service is wired up via `ODDS_API_URL` env var on the renderer).
-5. **`/admin.vtourn.com`** — won't work yet (DNS + ADMIN_EMAILS needed). Ready to flip on once you set both.
+1. **`https://2026wc.tournamental.com/world-cup-2026`** — pick a few group matches (you'll see a small W/D/L odds chip next to each). Hover one — tooltip shows breakdown. Switch to Knockouts tab. Verify cascade goes all the way to the Final.
+2. **`https://www.tournamental.com/world-cup-2026`** — check the "Play World Cup 2026 →" CTAs go to `2026wc.tournamental.com`.
+3. **`https://app.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18`** — replay should play through; auto-director switches cams; goal moments slow-mo.
+4. **`https://2026wc.tournamental.com/api/odds/snapshot`** — JSON dump of all 72 group fixtures with `source: "mock-fifa-rank"` (will switch to `polymarket` once the live ingest service is wired up via `ODDS_API_URL` env var on the renderer).
+5. **`/admin.tournamental.com`** — won't work yet (DNS + ADMIN_EMAILS needed). Ready to flip on once you set both.
 
 ## Deferred until after launch (June 11)
 

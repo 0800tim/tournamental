@@ -15,13 +15,13 @@ describe("theme", () => {
     expect(sizes.story).toEqual({ width: 1080, height: 1920 });
   });
 
-  it("brand wordmark is VTourn (capital V, capital T)", () => {
-    expect(wordmark).toBe("VTourn");
+  it("brand wordmark is Tournamental (capital V, capital T)", () => {
+    expect(wordmark).toBe("Tournamental");
   });
 
   it("referralUrl carries utm_source", () => {
     const url = referralUrl({ userId: "u_42", utmSource: "share-card" });
-    expect(url).toBe("https://vtourn.com/r/u_42?utm_source=share-card");
+    expect(url).toBe("https://tournamental.com/r/u_42?utm_source=share-card");
   });
 
   it("referralUrl carries utm_campaign when supplied", () => {
@@ -40,6 +40,6 @@ describe("theme", () => {
   });
 
   it("referralLabel is a clean human-readable footer string", () => {
-    expect(referralLabel("u_42")).toBe("vtourn.com/r/u_42");
+    expect(referralLabel("u_42")).toBe("tournamental.com/r/u_42");
   });
 });
