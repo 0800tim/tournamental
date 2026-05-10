@@ -14,6 +14,7 @@ import cors from '@fastify/cors';
 import Fastify, { type FastifyInstance } from 'fastify';
 import type { Logger } from 'pino';
 
+import { adapterModes } from './lib/adapter-mode.js';
 import { ALL_PLATFORMS } from './lib/adapters/index.js';
 import type { AuditLog } from './lib/audit-log.js';
 import type { SocialPolicy } from './lib/policy.js';
@@ -48,6 +49,7 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
       ok: true,
       service: 'social-publisher',
       adapters: ALL_PLATFORMS,
+      adapter_modes: adapterModes(),
       ts: Date.now(),
     };
   });

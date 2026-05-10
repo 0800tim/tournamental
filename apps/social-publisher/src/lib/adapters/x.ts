@@ -1,6 +1,11 @@
 /**
  * X (Twitter) adapter (stub).
  *
+ * STATUS: stub-only. X's posting endpoints require the Basic ($200/mo) or
+ * Pro ($5,000/mo) tier of the v2 API; media upload still uses the
+ * v1.1 endpoint, also gated by paid access. Real integration is gated on
+ * Tim signing off on the Basic tier subscription.
+ *
  * Real integration TODO:
  *   - Endpoints (X API v2):
  *       POST https://upload.twitter.com/1.1/media/upload.json   (chunked)

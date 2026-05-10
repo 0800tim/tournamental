@@ -1,6 +1,11 @@
 /**
  * YouTube Shorts adapter (stub).
  *
+ * STATUS: stub-only. YouTube Data API requires Google OAuth verification
+ * (sensitive scopes) before a non-test app can upload on behalf of a
+ * channel. The verification queue runs 2-4 weeks. Real integration ships
+ * once the app is verified.
+ *
  * Real integration TODO:
  *   - Endpoint: https://www.googleapis.com/upload/youtube/v3/videos?part=snippet,status
  *     with `?notifySubscribers=false` and snippet.tags including '#Shorts'.

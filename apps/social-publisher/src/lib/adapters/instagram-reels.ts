@@ -1,6 +1,11 @@
 /**
  * Instagram Reels adapter (stub).
  *
+ * STATUS: stub-only. The Graph API requires Meta App Review with
+ * `instagram_content_publish` advanced access — typically a 4-6 week
+ * back-and-forth for a creator account. Real integration ships once the
+ * app is approved.
+ *
  * Real integration TODO:
  *   - Endpoints (Graph API v19+):
  *       POST /{ig-user-id}/media          (upload container, media_type=REELS)
