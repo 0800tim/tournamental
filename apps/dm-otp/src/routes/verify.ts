@@ -1,116 +1,101 @@
 /**
  * POST /v1/auth/dm-otp/verify
+ * GET  /v1/auth/dm-otp/email/click?code=...
  *
- * Body: { code: string (6 digits), channel?: DmChannel }
- *
- * If `channel` is supplied, we additionally require the matched code's
- * channel to equal it (defence-in-depth so a code minted on WA can't be
- * silently accepted by the Telegram-flavoured UI). If absent, we accept
- * the code regardless of channel.
- *
- * Response 200:
- *   { ok: true, sessionJwt, userId, channel, externalId, expiresAt }
- *
- * Errors: 400 bad-body, 401 invalid-or-expired
- *
- * The user_id we emit is `dm:{channel}:{externalId}` — a deterministic
- * synthetic ID so this service is stateless. The downstream identity
- * service is expected to merge this into a canonical user record on
- * first verify (see apps/identity); that merge isn't this service's job.
+ * Verifies the OTP / magic-link click-token, mints a session JWT, and
+ * upserts an identity record.
  */
 
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { DmOtpContext } from '../context.js';
-import { OTP_LENGTH } from '../otp.js';
-import { signSessionJwt, type DmChannel } from '../jwt.js';
-import { makeVerifyEvent, maskExternalId } from '../audit.js';
+import { signSession } from '../lib/jwt-issuer.js';
+import { externalIdHash } from '../lib/log.js';
 
-const ChannelSchema = z.enum(['telegram', 'whatsapp', 'messenger', 'instagram']);
-
-const BodySchema = z.object({
-  code: z.string().length(OTP_LENGTH).regex(/^\d+$/),
-  channel: ChannelSchema.optional(),
+const VerifyBody = z.object({
+  channel: z.string().min(1).max(32),
+  externalId: z.string().min(1).max(256),
+  code: z.string().min(4).max(64),
 });
 
-function userIdForChannel(channel: DmChannel, externalId: string): string {
-  return `dm:${channel}:${externalId}`;
-}
-
-export async function registerVerify(
+export async function registerVerifyRoute(
   app: FastifyInstance,
   ctx: DmOtpContext,
 ): Promise<void> {
   app.post('/v1/auth/dm-otp/verify', async (req, reply) => {
-    const parsed = BodySchema.safeParse(req.body);
-    if (!parsed.success) {
-      return reply.code(400).send({ error: 'bad-body' });
-    }
-    const { code } = parsed.data;
-    const expectedChannel = parsed.data.channel;
+    const parsed = VerifyBody.safeParse(req.body);
+    if (!parsed.success) return reply.code(400).send({ error: 'bad-body' });
+    const { channel, externalId, code } = parsed.data;
 
-    const claimed = ctx.store.claim(code);
-    if (!claimed) {
-      ctx.audit.write(
-        makeVerifyEvent({
-          channel: expectedChannel ?? 'telegram',
-          externalId: '',
-          code,
-          ok: false,
-          reason: 'invalid-or-expired',
-        }),
-      );
-      return reply.code(401).send({ error: 'invalid-or-expired' });
+    const result = ctx.store.verify({ channel, externalId, code });
+    if (!result.ok) {
+      const status =
+        result.reason === 'too-many-attempts' ? 429 : 401;
+      return reply.code(status).send({ error: result.reason });
     }
-    if (expectedChannel && claimed.channel !== expectedChannel) {
-      ctx.audit.write(
-        makeVerifyEvent({
-          channel: claimed.channel,
-          externalId: claimed.externalId,
-          code,
-          ok: false,
-          reason: 'wrong-channel',
-        }),
-      );
-      return reply.code(401).send({ error: 'invalid-or-expired' });
-    }
-
-    const userId = userIdForChannel(claimed.channel, claimed.externalId);
-    const signed = await signSessionJwt({
+    const now = Math.floor(ctx.now() / 1000);
+    const identity = ctx.identityStore.upsert(channel, externalId, ctx.now());
+    const signed = await signSession({
       secret: ctx.config.jwtSecret,
-      userId,
-      channel: claimed.channel,
-      externalId: claimed.externalId,
-      phone: claimed.profile?.phone,
+      userId: identity.userId,
+      channel,
+      externalId,
       ttlSeconds: ctx.config.sessionTtlSeconds,
     });
-
-    ctx.audit.write(
-      makeVerifyEvent({
-        channel: claimed.channel,
-        externalId: claimed.externalId,
-        code,
-        ok: true,
-      }),
-    );
-
     ctx.log.info(
       {
-        channel: claimed.channel,
-        externalIdMask: maskExternalId(claimed.externalId),
-        jti: signed.jti,
+        channel,
+        extHash: externalIdHash(channel, externalId),
+        userId: identity.userId,
       },
-      'dm-otp: verified',
+      'dm-otp: verify ok',
     );
-
-    reply.header('Cache-Control', 'private, no-store');
     return reply.code(200).send({
       ok: true,
-      sessionJwt: signed.jwt,
-      userId,
-      channel: claimed.channel,
-      externalId: claimed.externalId,
+      jwt: signed.jwt,
       expiresAt: signed.expiresAt,
+      issuedAt: now,
+      user: { id: identity.userId, channel, externalId },
+    });
+  });
+
+  /**
+   * Email magic-link click. Single endpoint with a token-only lookup
+   * (we don't ask the user for their email twice).
+   */
+  app.get('/v1/auth/dm-otp/email/click', async (req, reply) => {
+    const q = req.query as { code?: string };
+    if (!q.code) return reply.code(400).send({ error: 'missing-code' });
+    const result = ctx.store.verifyByToken({ channel: 'email', code: q.code });
+    if (!result.ok) {
+      const status = result.reason === 'too-many-attempts' ? 429 : 401;
+      return reply.code(status).send({ error: result.reason });
+    }
+    const identity = ctx.identityStore.upsert(
+      'email',
+      result.record.externalId,
+      ctx.now(),
+    );
+    const signed = await signSession({
+      secret: ctx.config.jwtSecret,
+      userId: identity.userId,
+      channel: 'email',
+      externalId: result.record.externalId,
+      ttlSeconds: ctx.config.sessionTtlSeconds,
+    });
+    ctx.log.info(
+      {
+        channel: 'email',
+        extHash: externalIdHash('email', result.record.externalId),
+        userId: identity.userId,
+      },
+      'dm-otp: email magic-link verify ok',
+    );
+    return reply.code(200).send({
+      ok: true,
+      jwt: signed.jwt,
+      expiresAt: signed.expiresAt,
+      user: { id: identity.userId, channel: 'email', externalId: result.record.externalId },
     });
   });
 }

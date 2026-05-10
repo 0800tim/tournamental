@@ -1,53 +1,61 @@
 /**
- * DI context for routes. Same shape as apps/auth-sms/src/context.ts so
- * it stays a drop-in for tests.
+ * Dependency-injection container for the dm-otp service.
+ *
+ * Routes consume DmOtpContext rather than reaching directly into env.
+ * Tests build a DmOtpContext with stub senders and a deterministic
+ * clock — everything else is identical.
  */
 
-import type { CodeStore } from './code-store.js';
-import type { ReplyAdapter } from './lib/replies/types.js';
-import type { AuditWriter } from './audit.js';
+import type { CodeStore } from './lib/code-store.js';
+import type { IdentityStore } from './lib/identity-store.js';
+import type { SendFn } from './lib/dispatcher.js';
 
 export interface DmOtpConfig {
-  /** HS256 secret for issued JWTs. >= 32 bytes. */
+  /** Hash secret for OTP storage. >=32 chars. */
+  otpSecret: string;
+  /** JWT signing secret. >=32 chars. */
   jwtSecret: string;
-  /** Telegram webhook shared-secret header. */
-  telegramWebhookSecret: string;
-  /** Aiva gateway webhook HMAC key. */
-  aivaWebhookSecret: string;
-  /** Meta App Secret used for Messenger + Instagram signature verification. */
-  metaAppSecret: string;
-  /** Subscription verify token presented at GET / for Meta. */
-  metaVerifyToken: string;
-
-  /** Rendered into deep-links. e.g. "vtorn_bot". */
-  telegramBotUsername: string;
-  /** Aiva WA phone number for wa.me link. Digits only, no leading +. */
-  aivaWaPhone: string;
-  /** Facebook Page username for m.me link. */
-  facebookPageUsername: string;
-  /** Instagram business username for ig.me link. */
-  instagramBusinessUsername: string;
-
-  /** Issued JWT TTL in seconds. Default 30d. */
-  sessionTtlSeconds: number;
-  /** Product name used in user-facing copy. */
+  /** App display name in user-facing copy. */
   productName: string;
+  /** Public website host (used in magic-link URLs and CORS). */
+  appHost: string;
+  /** Public base URL for magic links. */
+  appBaseUrl: string;
+  /** Code TTL in seconds. */
+  codeTtlSeconds: number;
+  /** Session JWT TTL in seconds. */
+  sessionTtlSeconds: number;
+  /** Per-channel inbound webhook secrets (Meta app secret, etc.). */
+  metaAppSecret: string;
+  telegramBotToken: string;
+  telegramWebhookSecret: string;
+  discordPublicKey: string;
+  slackSigningSecret: string;
+  lineChannelSecret: string;
+  viberAuthToken: string;
+  xConsumerSecret: string;
+  mailgunSigningKey: string;
+  mastodonInboundBearer: string;
+  redditPollerBearer: string;
+  signalPollerBearer: string;
+  teamsAppId: string;
+  teamsAppPassword: string;
+  /** Comma-separated list of channels that should be enabled. Empty = all. */
+  enabledChannels: string;
+}
+
+export interface DmOtpLogger {
+  info(obj: object, msg: string): void;
+  warn(obj: object, msg: string): void;
+  error(obj: object, msg: string): void;
 }
 
 export interface DmOtpContext {
   store: CodeStore;
-  replies: {
-    telegram: ReplyAdapter;
-    whatsapp: ReplyAdapter;
-    messenger: ReplyAdapter;
-    instagram: ReplyAdapter;
-  };
-  audit: AuditWriter;
+  identityStore: IdentityStore;
+  senders: Map<string, SendFn>;
+  magicLinkChannels: Set<string>;
   config: DmOtpConfig;
-  now: () => number;
-  log: {
-    info: (obj: unknown, msg?: string) => void;
-    warn: (obj: unknown, msg?: string) => void;
-    error: (obj: unknown, msg?: string) => void;
-  };
+  log: DmOtpLogger;
+  now(): number;
 }

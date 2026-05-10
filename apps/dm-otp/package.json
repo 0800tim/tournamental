@@ -2,7 +2,7 @@
   "name": "@vtorn/dm-otp",
   "version": "0.1.0",
   "private": true,
-  "description": "VTourn user-initiated DM-OTP login: Telegram + WhatsApp + Messenger + Instagram",
+  "description": "VTourn user-initiated DM-OTP login: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, Line, Viber, Teams, LinkedIn, Signal, Email",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {

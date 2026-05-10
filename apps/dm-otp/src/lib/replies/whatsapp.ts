@@ -1,73 +1,44 @@
 /**
- * WhatsApp reply adapter — Aiva gateway transport.
+ * WhatsApp Cloud API outbound reply adapter.
  *
- * Same gateway path as apps/auth-sms uses (AivaWhatsAppClient), reduced
- * to the bits we need. Phone format: digits only, leading "+" stripped.
- *
- * Aiva endpoint:
- *   POST {AIVA_SMS_API_URL}/api/v1/whatsapp/sessions/{sessionId}/send
- *   body: { phone, message }
+ * https://developers.facebook.com/docs/whatsapp/cloud-api/reference/messages
  */
 
-import type { ReplyAdapter, ReplyResult, SendSeam } from './types.js';
-import { realFetchSeam } from './types.js';
+import { otpMessageBody, type AdapterDeps, type ReplyResult } from './types.js';
 
 export interface WhatsAppReplyConfig {
-  baseUrl: string;
-  apiKey: string;
-  sessionId: string;
-  _send?: SendSeam;
+  phoneNumberId: string;
+  accessToken: string;
+  graphVersion?: string;
 }
 
-function normalisePhoneForWa(phone: string): string {
-  return phone.replace(/\D/g, '').replace(/^0+/, '');
-}
-
-export class WhatsAppReply implements ReplyAdapter {
-  channel = 'whatsapp' as const;
-  private readonly baseUrl: string;
-  private readonly apiKey: string;
-  private readonly sessionId: string;
-  private readonly send: SendSeam;
-
-  constructor(cfg: WhatsAppReplyConfig) {
-    if (!cfg.apiKey) throw new Error('WhatsAppReply: apiKey required');
-    if (!cfg.sessionId) throw new Error('WhatsAppReply: sessionId required');
-    this.baseUrl = cfg.baseUrl.replace(/\/$/, '');
-    this.apiKey = cfg.apiKey;
-    this.sessionId = cfg.sessionId;
-    this.send = cfg._send ?? realFetchSeam;
+export async function sendWhatsAppOtp(
+  cfg: WhatsAppReplyConfig,
+  toMsisdn: string,
+  code: string,
+  deps: AdapterDeps = {},
+): Promise<ReplyResult> {
+  const fetchImpl = deps.fetch ?? globalThis.fetch;
+  const v = cfg.graphVersion ?? 'v20.0';
+  const url = `https://graph.facebook.com/${v}/${cfg.phoneNumberId}/messages`;
+  const res = await fetchImpl(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${cfg.accessToken}`,
+    },
+    body: JSON.stringify({
+      messaging_product: 'whatsapp',
+      to: toMsisdn,
+      type: 'text',
+      text: { body: otpMessageBody(code), preview_url: false },
+    }),
+  });
+  if (!res.ok) {
+    return { ok: false, status: res.status, detail: 'whatsapp-send-failed' };
   }
-
-  async reply(externalId: string, message: string): Promise<ReplyResult> {
-    const phone = normalisePhoneForWa(externalId);
-    const url = `${this.baseUrl}/api/v1/whatsapp/sessions/${encodeURIComponent(
-      this.sessionId,
-    )}/send`;
-    const init: RequestInit = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-      },
-      body: JSON.stringify({ phone, message }),
-    };
-    try {
-      const res = await this.send({ url, init });
-      if (!res.ok) {
-        return {
-          ok: false,
-          errorCode: `http-${res.status}`,
-          errorMessage: res.bodyText.slice(0, 200),
-        };
-      }
-      return { ok: true };
-    } catch (err) {
-      return {
-        ok: false,
-        errorCode: 'network',
-        errorMessage: err instanceof Error ? err.message : 'aiva-wa send failed',
-      };
-    }
-  }
+  const data = (await res.json().catch(() => ({}))) as {
+    messages?: Array<{ id?: string }>;
+  };
+  return { ok: true, status: res.status, messageId: data.messages?.[0]?.id };
 }

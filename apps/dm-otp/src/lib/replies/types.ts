@@ -1,40 +1,40 @@
 /**
- * Common reply-adapter shape. Each channel implements `reply(externalId, message)`
- * and exposes a `_send` seam so tests can capture outbound traffic.
+ * Shared shapes for outbound reply adapters.
+ *
+ * Each channel exposes a `sendOtp(externalId, code, opts?)` that
+ * returns a uniform `ReplyResult`. Tests inject a `fetch` shim so we
+ * can mock HTTP calls.
  */
 
 export interface ReplyResult {
   ok: boolean;
-  errorCode?: string;
-  errorMessage?: string;
+  /** HTTP status from the platform API (when applicable). */
+  status?: number;
+  /** Platform message id, when known. */
+  messageId?: string;
+  /** Diagnostic — never user-facing. */
+  detail?: string;
 }
 
-export interface ReplyAdapter {
-  channel: 'telegram' | 'whatsapp' | 'messenger' | 'instagram';
-  reply(externalId: string, message: string): Promise<ReplyResult>;
+export type FetchLike = typeof globalThis.fetch;
+
+export interface AdapterDeps {
+  fetch?: FetchLike;
 }
 
-/**
- * `_send` is the network seam: it accepts the prepared HTTP request
- * shape the adapter wants to send, and returns whatever the adapter
- * needs to interpret success. Tests substitute a capturing fake.
- */
-export type SendSeam = (req: {
-  url: string;
-  init: RequestInit;
-}) => Promise<{
-  ok: boolean;
-  status: number;
-  bodyText: string;
-}>;
+/** Standard user-facing copy for the OTP delivery message. */
+export function otpMessageBody(code: string): string {
+  return `Your VTourn login code is ${code}. It expires in 5 minutes. If you didn't ask for this, ignore this message.`;
+}
 
-export const realFetchSeam: SendSeam = async ({ url, init }) => {
-  const res = await fetch(url, init);
-  let bodyText = '';
-  try {
-    bodyText = await res.text();
-  } catch {
-    bodyText = '';
-  }
-  return { ok: res.ok, status: res.status, bodyText };
-};
+/** Standard user-facing copy for the email magic-link delivery. */
+export function magicLinkEmailBody(linkUrl: string): string {
+  return [
+    'Tap the link below to finish signing in to VTourn.',
+    '',
+    linkUrl,
+    '',
+    'The link expires in 5 minutes and can only be used once.',
+    "If you didn't ask to log in, ignore this email.",
+  ].join('\n');
+}
