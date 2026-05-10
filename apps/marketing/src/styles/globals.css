@@ -3,12 +3,41 @@
 @tailwind utilities;
 
 @layer base {
+  /* Theme tokens. The defaults are dark (matching the long-standing
+   * design); :root[data-theme="light"] flips the surfaces. The
+   * pre-paint script in Layout.astro applies data-theme before any
+   * paint to avoid FOUC. */
   :root {
     color-scheme: dark;
+    --vt-bg: #0a0e1a;          /* page bg */
+    --vt-bg-elev: #101626;     /* cards, header chrome */
+    --vt-bg-elev-2: #1a2238;   /* hovered surfaces */
+    --vt-fg: #e7ecf7;          /* body text */
+    --vt-fg-muted: #cdd5e7;    /* secondary text */
+    --vt-fg-strong: #ffffff;   /* headings */
+    --vt-border: #1a2238;
+    --vt-border-strong: #293352;
+    --vt-header-bg: rgba(10, 14, 26, 0.85);
+    --vt-glow-1: rgba(126, 182, 232, 0.10);
+    --vt-glow-2: rgba(255, 138, 61, 0.06);
+  }
+  :root[data-theme="light"] {
+    color-scheme: light;
+    --vt-bg: #f5f7fc;
+    --vt-bg-elev: #ffffff;
+    --vt-bg-elev-2: #e7ecf7;
+    --vt-fg: #0a0e1a;
+    --vt-fg-muted: #3e4a72;
+    --vt-fg-strong: #0a0e1a;
+    --vt-border: #cdd5e7;
+    --vt-border-strong: #3e4a72;
+    --vt-header-bg: rgba(245, 247, 252, 0.85);
+    --vt-glow-1: rgba(63, 124, 196, 0.10);
+    --vt-glow-2: rgba(231, 107, 21, 0.05);
   }
   html {
-    background-color: theme(colors.ink.900);
-    color: theme(colors.ink.100);
+    background-color: var(--vt-bg);
+    color: var(--vt-fg);
     font-family: theme(fontFamily.sans);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
@@ -16,12 +45,12 @@
   body {
     min-height: 100vh;
     background-image:
-      radial-gradient(ellipse at 50% -10%, rgba(126, 182, 232, 0.10), transparent 60%),
-      radial-gradient(ellipse at 110% 110%, rgba(255, 138, 61, 0.06), transparent 50%);
+      radial-gradient(ellipse at 50% -10%, var(--vt-glow-1), transparent 60%),
+      radial-gradient(ellipse at 110% 110%, var(--vt-glow-2), transparent 50%);
   }
   ::selection {
     background-color: theme(colors.accent.500 / 30%);
-    color: theme(colors.ink.50);
+    color: var(--vt-fg-strong);
   }
   a {
     @apply transition-colors;
@@ -29,12 +58,17 @@
   h1, h2, h3, h4 {
     font-family: theme(fontFamily.display);
     letter-spacing: -0.015em;
+    color: var(--vt-fg-strong);
   }
   code {
-    @apply font-mono text-[0.92em] rounded bg-ink-700 px-1.5 py-0.5;
+    @apply font-mono text-[0.92em] rounded px-1.5 py-0.5;
+    background: var(--vt-bg-elev-2);
+    color: var(--vt-fg);
   }
   pre {
-    @apply font-mono rounded-lg bg-ink-800 border border-ink-700 p-4 overflow-x-auto;
+    @apply font-mono rounded-lg p-4 overflow-x-auto;
+    background: var(--vt-bg-elev);
+    border: 1px solid var(--vt-border);
   }
   pre code {
     @apply bg-transparent p-0;
@@ -55,13 +89,20 @@
     @apply btn bg-accent-500 text-ink-900 hover:bg-accent-400;
   }
   .btn-ghost {
-    @apply btn border border-ink-600 text-ink-100 hover:border-accent-400 hover:text-accent-400;
+    @apply btn border text-ink-100 hover:border-accent-400 hover:text-accent-400;
+    border-color: var(--vt-border-strong);
+    color: var(--vt-fg);
   }
   .pill {
-    @apply inline-flex items-center gap-1 rounded-full border border-ink-600 bg-ink-800 px-3 py-1 text-xs uppercase tracking-wider text-ink-200;
+    @apply inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs uppercase tracking-wider;
+    background: var(--vt-bg-elev);
+    border-color: var(--vt-border-strong);
+    color: var(--vt-fg-muted);
   }
   .card {
-    @apply rounded-xl border border-ink-700 bg-ink-800/60 p-6;
+    @apply rounded-xl border p-6;
+    background: color-mix(in srgb, var(--vt-bg-elev) 60%, transparent);
+    border-color: var(--vt-border);
   }
   .grid-cards {
     @apply grid gap-4 md:grid-cols-2 lg:grid-cols-3;
@@ -70,24 +111,146 @@
     @apply text-accent-400 hover:text-accent-500 underline underline-offset-4 decoration-accent-700/60 hover:decoration-accent-500;
   }
   .prose-vt {
-    @apply text-ink-100 leading-relaxed;
+    color: var(--vt-fg);
+    @apply leading-relaxed;
   }
   .prose-vt h2 {
-    @apply mt-12 mb-4 text-2xl md:text-3xl font-bold text-white;
+    @apply mt-12 mb-4 text-2xl md:text-3xl font-bold;
+    color: var(--vt-fg-strong);
   }
   .prose-vt h3 {
-    @apply mt-8 mb-3 text-xl font-semibold text-ink-50;
+    @apply mt-8 mb-3 text-xl font-semibold;
+    color: var(--vt-fg-strong);
   }
   .prose-vt p {
-    @apply my-4 text-ink-200;
+    @apply my-4;
+    color: var(--vt-fg-muted);
   }
   .prose-vt ul {
-    @apply list-disc pl-6 space-y-2 text-ink-200;
+    @apply list-disc pl-6 space-y-2;
+    color: var(--vt-fg-muted);
   }
   .prose-vt ol {
-    @apply list-decimal pl-6 space-y-2 text-ink-200;
+    @apply list-decimal pl-6 space-y-2;
+    color: var(--vt-fg-muted);
   }
   .prose-vt strong {
-    @apply text-ink-50;
+    color: var(--vt-fg-strong);
+  }
+
+  /* ------- Header ---------------------------------------------------- */
+  .vt-header {
+    background: var(--vt-header-bg);
+    border-bottom-color: var(--vt-border);
+  }
+  .vt-brand-name {
+    color: var(--vt-fg-strong);
+  }
+  .vt-nav-link {
+    color: var(--vt-fg-muted);
+    @apply transition;
+  }
+  .vt-nav-link:hover {
+    color: theme(colors.accent.400);
+  }
+  .vt-nav-link.is-active {
+    color: theme(colors.accent.400);
+  }
+
+  /* Square icon buttons (theme toggle, burger, mobile cup CTA). The
+   * dark-theme defaults intentionally sit two surface-tiers above the
+   * page bg so the chrome reads as clearly clickable on a phone in
+   * sunlight. The earlier --vt-bg-elev value (#101626) was only one
+   * shade off the page bg (#0a0e1a) which made the buttons read as
+   * "flash then disappear" against the gradient. */
+  .vt-icon-btn {
+    @apply grid place-items-center rounded-md transition;
+    width: 40px;
+    height: 40px;
+    background: var(--vt-icon-btn-bg, #293352);
+    color: var(--vt-icon-btn-fg, #f5f7fc);
+    border: 1px solid var(--vt-icon-btn-border, #5a96d8);
+  }
+  :root[data-theme="light"] {
+    --vt-icon-btn-bg: #ffffff;
+    --vt-icon-btn-fg: #0a0e1a;
+    --vt-icon-btn-border: #3f7cc4;
+  }
+  .vt-icon-btn:hover {
+    background: var(--vt-icon-btn-hover-bg, #3e4a72);
+    border-color: theme(colors.accent.400);
+    color: theme(colors.accent.400);
+  }
+  :root[data-theme="light"] .vt-icon-btn:hover {
+    background: #e7ecf7;
+  }
+  .vt-icon-btn:focus-visible {
+    outline: 2px solid theme(colors.accent.500);
+    outline-offset: 2px;
+  }
+  .vt-icon-btn-primary {
+    background: theme(colors.accent.500);
+    color: theme(colors.ink.900);
+    border-color: theme(colors.accent.500);
+  }
+  .vt-icon-btn-primary:hover {
+    background: theme(colors.accent.400);
+    border-color: theme(colors.accent.400);
+    color: theme(colors.ink.900);
+  }
+
+  .vt-mobile-menu {
+    background: var(--vt-bg);
+    border-top-color: var(--vt-border);
+  }
+  .vt-mobile-link {
+    @apply block py-2 px-2 rounded-md transition;
+    color: var(--vt-fg);
+  }
+  .vt-mobile-link:hover {
+    background: var(--vt-bg-elev);
+    color: theme(colors.accent.400);
+  }
+  .vt-mobile-link.is-active {
+    color: theme(colors.accent.400);
   }
 }
+
+/* ----------------------------------------------------------------------
+ * Light-theme overrides for hardcoded Tailwind dark-palette utilities.
+ *
+ * The site is laid out with `text-white`, `text-ink-100`, `text-ink-200`,
+ * `bg-ink-900`, `bg-ink-800`, `border-ink-700` etc. baked into every
+ * component. In light mode those classes paint white-on-white headings
+ * and dark-navy cards on a light page — unreadable. Rather than rewrite
+ * every component to use dark: variants, we remap the most common
+ * dark-palette classes to theme variables when [data-theme="light"]
+ * is active. !important is required to beat Tailwind utility specificity.
+ *
+ * Accent classes (text-accent-400, bg-accent-500) deliberately stay the
+ * same in both themes — sky-blue is a brand colour, not a surface.
+ * -------------------------------------------------------------------- */
+/* Text */
+:root[data-theme="light"] .text-white { color: var(--vt-fg-strong) !important; }
+:root[data-theme="light"] .text-ink-50 { color: var(--vt-fg-strong) !important; }
+:root[data-theme="light"] .text-ink-100 { color: var(--vt-fg) !important; }
+:root[data-theme="light"] .text-ink-200 { color: var(--vt-fg-muted) !important; }
+:root[data-theme="light"] .text-ink-500 { color: #5e6a8a !important; }
+
+/* Surfaces */
+:root[data-theme="light"] .bg-ink-900 { background-color: var(--vt-bg) !important; }
+:root[data-theme="light"] .bg-ink-800 { background-color: var(--vt-bg-elev) !important; }
+:root[data-theme="light"] .bg-ink-800\/60 { background-color: rgba(255, 255, 255, 0.7) !important; }
+:root[data-theme="light"] .bg-ink-800\/80 { background-color: rgba(255, 255, 255, 0.85) !important; }
+:root[data-theme="light"] .bg-ink-700 { background-color: var(--vt-bg-elev-2) !important; }
+:root[data-theme="light"] .bg-ink-700\/70 { background-color: color-mix(in srgb, var(--vt-bg-elev-2) 70%, transparent) !important; }
+
+/* Borders */
+:root[data-theme="light"] .border-ink-900 { border-color: var(--vt-border) !important; }
+:root[data-theme="light"] .border-ink-800 { border-color: var(--vt-border) !important; }
+:root[data-theme="light"] .border-ink-700 { border-color: var(--vt-border) !important; }
+:root[data-theme="light"] .border-ink-700\/70 { border-color: color-mix(in srgb, var(--vt-border) 70%, transparent) !important; }
+:root[data-theme="light"] .border-ink-600 { border-color: var(--vt-border-strong) !important; }
+:root[data-theme="light"] .border-ink-500 { border-color: var(--vt-border-strong) !important; }
+:root[data-theme="light"] .border-dashed { border-color: var(--vt-border-strong) !important; }
+

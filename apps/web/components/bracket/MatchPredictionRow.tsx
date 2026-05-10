@@ -1,9 +1,9 @@
 /**
  * MatchPredictionRow — one match in the group/knockout stage with the
  * "two big flags + small DRAW pill in the middle" UX. Live W/D/L odds
- * percentages sit under each option, fed by the same /api/odds route
- * that drives the OddsChip hover card (which stays accessible for the
- * affiliate CTA).
+ * percentages sit inline under each option, fed by the parent's bulk
+ * `/api/odds/snapshot` fetch (`odds` prop). When odds are not yet
+ * loaded the percentages render as "—".
  *
  * Tap the home flag → home_win. Tap the away flag → away_win. Tap the
  * DRAW pill → draw (group stage only). Selected option gets a glow
@@ -20,8 +20,8 @@ import { useEffect, useState, type CSSProperties, type KeyboardEvent } from "rea
 
 import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
 
-import { OddsChip } from "../odds/OddsChip";
 import type { MatchOdds } from "@/lib/odds/types";
+import { snapshotOdds } from "@/lib/bracket/history";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -35,12 +35,12 @@ export interface MatchPredictionRowProps {
   readonly groupLabel?: string;
   readonly kickoffIso?: string;
   readonly country?: string | null;
+  /** Reserved for tests that opt out of the odds-aware UI; currently a
+   * no-op since odds are inline under each pick and there is no longer
+   * a separate per-row OddsChip. */
   readonly showOddsChip?: boolean;
-  /**
-   * Optional pre-fetched odds (shape from `/api/odds/snapshot`). When
-   * provided we render the percentages inline under each option;
-   * otherwise the row falls back to a single OddsChip.
-   */
+  /** Pre-fetched odds (shape from `/api/odds/snapshot`). Rendered
+   * inline as the W/D/L percentages under each pick. */
   readonly odds?: MatchOdds | null;
   readonly onChange: (next: MatchPrediction) => void;
 }
@@ -68,56 +68,47 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     prediction,
     disabled,
     noDraw,
-    groupLabel,
     kickoffIso,
-    country,
-    showOddsChip = true,
-    odds: oddsProp,
+    odds,
     onChange,
   } = props;
   const [showScores, setShowScores] = useState<boolean>(
     prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
   );
-  const [fetchedOdds, setFetchedOdds] = useState<MatchOdds | null>(null);
+  const [now, setNow] = useState<number>(() => Date.now());
 
-  // If no odds were passed in (cards rendered standalone), fetch the
-  // single-match endpoint. Cheap because the route already proxies the
-  // bulk snapshot. Skipped when oddsProp is provided (the page-level
-  // OddsContext path) or when the match is a knockout-without-slots.
+  // Cheap heartbeat so the kickoff lockout banner appears without a
+  // page refresh once the match starts. We don't need second-accuracy
+  // — a 30s tick is enough.
   useEffect(() => {
-    if (oddsProp || !showOddsChip) return;
-    let cancelled = false;
-    fetch(`/api/odds/match/${encodeURIComponent(matchId)}`, {
-      headers: { Accept: "application/json" },
-    })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((j) => {
-        if (cancelled) return;
-        if (j && typeof j === "object" && "homeWin" in j) setFetchedOdds(j as MatchOdds);
-      })
-      .catch(() => {
-        /* leave fetchedOdds null; the OddsChip hover card has its own fallback */
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [matchId, oddsProp, showOddsChip]);
+    if (!kickoffIso) return;
+    const tick = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(tick);
+  }, [kickoffIso]);
 
-  const odds = oddsProp ?? fetchedOdds;
+  // Lockout: once the match has kicked off, predictions are frozen.
+  // Tim's spec: "lock off any changes … at kickoff (0 minutes)".
+  const kickoffMs = kickoffIso ? Date.parse(kickoffIso) : null;
+  const matchStarted =
+    kickoffMs !== null && Number.isFinite(kickoffMs) && now >= kickoffMs;
+  const locked = !!disabled || matchStarted;
+
   const outcomes = noDraw ? ALL_OUTCOMES.filter((o) => o !== "draw") : ALL_OUTCOMES;
 
   const choose = (outcome: MatchPrediction["outcome"]): void => {
-    if (disabled) return;
+    if (locked) return;
     onChange({
       matchId,
       outcome,
       homeScore: prediction?.homeScore,
       awayScore: prediction?.awayScore,
       lockedAt: nowIso(),
+      oddsAtLock: snapshotOdds(odds),
     });
   };
 
   const setScore = (side: "home" | "away", value: string): void => {
+    if (locked) return;
     const n = value === "" ? undefined : Math.max(0, Math.min(99, Number(value)));
     if (value !== "" && Number.isNaN(n)) return;
     onChange({
@@ -126,11 +117,12 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       homeScore: side === "home" ? n : prediction?.homeScore,
       awayScore: side === "away" ? n : prediction?.awayScore,
       lockedAt: nowIso(),
+      oddsAtLock: prediction?.oddsAtLock ?? snapshotOdds(odds),
     });
   };
 
   const onKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
-    if (disabled) return;
+    if (locked) return;
     const k = e.key.toLowerCase();
     if (k === "1" || k === "h") {
       e.preventDefault();
@@ -164,21 +156,27 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
 
   return (
     <div
-      className="mpr-row"
+      className={`mpr-row ${matchStarted ? "is-locked" : ""}`}
       data-match-id={matchId}
+      data-no-draw={noDraw ? "true" : undefined}
       role="group"
       aria-label={`${homeTeam.name} vs ${awayTeam.name} prediction`}
       tabIndex={0}
       onKeyDown={onKeyDown}
       style={accent}
     >
+      {matchStarted && (
+        <div className="mpr-locked-banner" role="status" aria-live="polite">
+          Sorry — this match has already started. You can&apos;t change it now.
+        </div>
+      )}
       <button
         type="button"
         className={`mpr-pick mpr-pick-home ${isHome ? "is-selected" : ""} ${prediction && !isHome ? "is-dim" : ""}`}
         aria-pressed={isHome}
         aria-label={`${homeTeam.name} to win`}
         onClick={() => choose("home_win")}
-        disabled={disabled}
+        disabled={locked}
       >
         <TeamFlag
           code={homeTeam.id}
@@ -201,7 +199,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           aria-pressed={isDraw}
           aria-label="Draw"
           onClick={() => choose("draw")}
-          disabled={disabled}
+          disabled={locked}
         >
           <span className="mpr-pick-draw-pill">DRAW</span>
           <span className="mpr-pick-pct" data-outcome="draw">
@@ -216,7 +214,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         aria-pressed={isAway}
         aria-label={`${awayTeam.name} to win`}
         onClick={() => choose("away_win")}
-        disabled={disabled}
+        disabled={locked}
       >
         <TeamFlag
           code={awayTeam.id}
@@ -231,23 +229,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           {pctLabel(odds?.awayWin)}
         </span>
       </button>
-
-      {showOddsChip && (
-        <div className="mpr-odds-cta" data-mpr-odds="">
-          <OddsChip
-            matchNo={matchId}
-            homeTeam={homeTeam.id}
-            awayTeam={awayTeam.id}
-            homeLabel={homeTeam.name}
-            awayLabel={awayTeam.name}
-            noDraw={noDraw}
-            groupLabel={groupLabel}
-            kickoffIso={kickoffIso}
-            country={country}
-            source="bracket-match-row"
-          />
-        </div>
-      )}
 
       <div className="mpr-scores-wrap">
         <button
@@ -268,7 +249,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
                 max={99}
                 value={prediction?.homeScore ?? ""}
                 onChange={(e) => setScore("home", e.target.value)}
-                disabled={disabled}
+                disabled={locked}
                 aria-label={`${homeTeam.name} score`}
               />
             </label>
@@ -281,7 +262,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
                 max={99}
                 value={prediction?.awayScore ?? ""}
                 onChange={(e) => setScore("away", e.target.value)}
-                disabled={disabled}
+                disabled={locked}
                 aria-label={`${awayTeam.name} score`}
               />
             </label>

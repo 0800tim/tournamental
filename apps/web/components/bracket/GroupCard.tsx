@@ -29,6 +29,7 @@ import {
 } from "@vtorn/bracket-engine";
 
 import { groupMatchId } from "@/lib/bracket/match-ids";
+import type { MatchOdds } from "@/lib/odds/types";
 import { GroupWinnerChips } from "../odds/GroupWinnerChips";
 import { MatchPredictionRow } from "./MatchPredictionRow";
 
@@ -44,6 +45,11 @@ export interface GroupCardProps {
   /** When false, suppress all live-odds chips in this card (used by
    * tests that don't want network calls). */
   readonly showOddsChips?: boolean;
+  /** Bulk-fetched odds keyed by `matchId` (= String(match_no) for group
+   * fixtures). Passed through to MatchPredictionRow so the W/D/L
+   * percentages render inline under each pick without firing 6 fetches
+   * per group. */
+  readonly oddsByMatch?: ReadonlyMap<string, MatchOdds>;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
 }
@@ -64,6 +70,7 @@ export function GroupCard(props: GroupCardProps) {
     tiebreaker,
     country,
     showOddsChips = true,
+    oddsByMatch,
     onChangeMatch,
     onChangeTiebreaker,
   } = props;
@@ -124,6 +131,7 @@ export function GroupCard(props: GroupCardProps) {
               kickoffIso={f.kickoff_utc}
               country={country}
               showOddsChip={showOddsChips}
+              odds={oddsByMatch?.get(id) ?? null}
               onChange={onChangeMatch}
             />
           );

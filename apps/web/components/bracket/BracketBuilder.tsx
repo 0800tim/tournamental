@@ -27,9 +27,15 @@ import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
+import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useCountry } from "@/lib/odds/use-country";
+import type { MatchOdds } from "@/lib/odds/types";
+
+import type { StageId } from "@vtorn/bracket-engine";
+
+const KO_PICK_STAGES: readonly StageId[] = ["r32", "r16", "qf", "sf", "tp", "f"] as const;
 
 export interface BracketBuilderProps {
   readonly tournament: Tournament;
@@ -53,6 +59,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [tab, setTab] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
+  const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
+  const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
+    () => new Map(),
+  );
   const country = useCountry();
 
   useEffect(() => {
@@ -62,6 +72,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (draft) setBracket(draft);
     else setBracket({ ...emptyBracket(), bracketId: id });
   }, [tournament.id]);
+
+  // Bulk-fetch odds once on mount so every MatchPredictionRow can show
+  // its W/D/L percentages inline without 72 individual requests. The
+  // snapshot route has its own deterministic mock fallback when the
+  // upstream odds-ingest service is unreachable.
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((j) => {
+        if (cancelled || !j || !Array.isArray(j.matches)) return;
+        const m = new Map<string, MatchOdds>();
+        for (const o of j.matches as MatchOdds[]) m.set(String(o.matchNo), o);
+        setOddsByMatch(m);
+      })
+      .catch(() => {
+        /* leave empty; rows render dashes until/unless odds load */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const teamMap = useMemo(
     () => new Map(tournament.teams.map((t) => [t.id, t])),
@@ -102,6 +134,18 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   const onChangeMatch = (next: MatchPrediction): void => {
+    const prev = bracket.matchPredictions[next.matchId];
+    appendHistory(tournament.id, userLocalId, {
+      type:
+        prev && (prev.homeScore !== next.homeScore || prev.awayScore !== next.awayScore)
+          ? "match_score"
+          : "match_pick",
+      id: next.matchId,
+      outcome: next.outcome,
+      prevOutcome: prev?.outcome,
+      odds: next.oddsAtLock ?? prev?.oddsAtLock,
+      ts: next.lockedAt,
+    });
     update({
       ...bracket,
       matchPredictions: { ...bracket.matchPredictions, [next.matchId]: next },
@@ -109,6 +153,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   const onChangeTiebreaker = (next: GroupTiebreaker): void => {
+    appendHistory(tournament.id, userLocalId, {
+      type: "tiebreaker_set",
+      id: next.groupId,
+      ts: next.setAt,
+    });
     update({
       ...bracket,
       groupTiebreakers: { ...bracket.groupTiebreakers, [next.groupId]: next },
@@ -116,6 +165,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   const onChangeKnockout = (next: MatchPrediction): void => {
+    const prev = bracket.knockoutPredictions[next.matchId];
+    appendHistory(tournament.id, userLocalId, {
+      type: "knockout_pick",
+      id: next.matchId,
+      outcome: next.outcome,
+      prevOutcome: prev?.outcome,
+      odds: next.oddsAtLock ?? prev?.oddsAtLock,
+      ts: next.lockedAt,
+    });
     update({
       ...bracket,
       knockoutPredictions: { ...bracket.knockoutPredictions, [next.matchId]: next },
@@ -123,18 +181,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   /**
-   * Auto-pick — for every match that doesn't already have a user pick,
-   * fetch the live odds via /api/odds/snapshot and select the highest
-   * probability outcome. The user's existing picks are preserved.
+   * Auto-pick — fetch live odds via /api/odds/snapshot and fill EVERY
+   * match all the way down to the final, including the 3rd-place
+   * playoff and any group tiebreakers. Overwrites existing picks (the
+   * confirmation modal warns first); user can adjust any pick after.
    *
-   * Knockout slots that don't yet have both teams resolved (because the
-   * upstream group/round hasn't been picked) get skipped; auto-pick fills
-   * them after the user makes those upstream picks and runs auto-pick
-   * again, OR when the cascade resolves them mid-loop.
+   * Cascade-correctness: knockout slots only resolve once their
+   * upstream round has a winner. We loop stage-by-stage (R32 → R16 →
+   * QF → SF → TP → F), re-running the cascade after each round so the
+   * next round's slots become known before we try to pick them. Picks
+   * that still can't be resolved at the end get a FIFA-rank fallback
+   * (even though we should never actually reach that branch with the
+   * full per-stage loop in place — defensive belt + braces).
+   *
+   * Every pick is recorded in the prediction-history ledger with a
+   * snapshot of the live odds at lock-time, so we can later score
+   * "earlier picks earn higher odds" and run analytics on what users
+   * believed at each step.
    */
   const handleAutoPick = async (): Promise<void> => {
+    setShowAutoPickConfirm(false);
     setSubmitState("auto-picking from live odds…");
-    let snap: { matches: Array<{ matchNo: string; homeWin: number; draw: number | null; awayWin: number }>; source?: string } | null = null;
+    let snap: { matches: MatchOdds[]; source?: string } | null = null;
     try {
       const r = await fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } });
       if (r.ok) snap = await r.json();
@@ -150,12 +218,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
     let next: Bracket = bracket;
     let groupAdded = 0;
     let knockoutAdded = 0;
+    let tiebreakersSet = 0;
     const ts = new Date().toISOString();
 
-    // Group fixtures.
+    // ---------- Group fixtures ----------
     for (const f of tournament.group_fixtures) {
       const id = String(f.match_no);
-      if (next.matchPredictions[id]) continue;
       const o = byNo.get(id);
       if (!o) continue;
       const h = o.homeWin;
@@ -164,55 +232,122 @@ export function BracketBuilder(props: BracketBuilderProps) {
       const max = Math.max(h, d, a);
       const outcome: MatchPrediction["outcome"] =
         max === h ? "home_win" : max === d ? "draw" : "away_win";
+      const prev = next.matchPredictions[id]?.outcome;
+      const oddsAtLock = snapshotOdds(o);
       next = {
         ...next,
         matchPredictions: {
           ...next.matchPredictions,
-          [id]: { matchId: id, outcome, lockedAt: ts },
+          [id]: { matchId: id, outcome, lockedAt: ts, oddsAtLock },
         },
       };
+      appendHistory(tournament.id, userLocalId, {
+        type: "match_pick",
+        id,
+        outcome,
+        prevOutcome: prev,
+        odds: oddsAtLock,
+        ts,
+      });
       groupAdded += 1;
     }
 
-    // Knockouts (only those whose home + away are already resolved by the
-    // current cascade; otherwise we'd be picking blind).
-    for (const k of cascaded.knockouts) {
-      if (next.knockoutPredictions[k.id]) continue;
-      if (!k.home.team || !k.away.team) continue;
-      const o = byNo.get(k.id);
-      if (!o) {
-        // No live odds for this specific knockout — fall back to FIFA-rank
-        // proxy: pick the lower-ranked team. This keeps auto-pick useful
-        // even when Polymarket per-match KO markets are absent.
-        const homeRank = tournament.teams.find((t) => t.id === k.home.team)?.fifa_rank ?? 99;
-        const awayRank = tournament.teams.find((t) => t.id === k.away.team)?.fifa_rank ?? 99;
-        const outcome: MatchPrediction["outcome"] =
-          homeRank <= awayRank ? "home_win" : "away_win";
+    // ---------- Group tiebreakers ----------
+    // For any group that ends up with a tie that the engine can't break,
+    // rank by FIFA rank (lower = better) as a sensible default. The
+    // user can override via the TiebreakerControl afterwards.
+    for (const g of tournament.groups) {
+      const teamIds = g.team_ids;
+      if (teamIds.length !== 4) continue;
+      const ranked = [...teamIds].sort((aId, bId) => {
+        const ar = tournament.teams.find((t) => t.id === aId)?.fifa_rank ?? 99;
+        const br = tournament.teams.find((t) => t.id === bId)?.fifa_rank ?? 99;
+        return ar - br;
+      }) as [string, string, string, string];
+      next = {
+        ...next,
+        groupTiebreakers: {
+          ...next.groupTiebreakers,
+          [g.id]: { groupId: g.id, rankedTeams: ranked, setAt: ts },
+        },
+      };
+      tiebreakersSet += 1;
+      appendHistory(tournament.id, userLocalId, {
+        type: "tiebreaker_set",
+        id: g.id,
+        ts,
+      });
+    }
+
+    // ---------- Knockouts: stage-by-stage with re-cascade ----------
+    // Each round's slots only resolve once the previous round has
+    // winners. We loop over the engine's iterative cascade to pull the
+    // overlays from `next.knockoutPredictions` into the cascade output,
+    // then pick whichever stage we're processing on this iteration.
+    for (const stage of KO_PICK_STAGES) {
+      const legacy = bracketToCascadeInput(tournament, next, userLocalId);
+      let round = cascade(tournament, legacy);
+      // Multi-pass: keep looping until the resolved-winner count stops
+      // growing (mirrors the same pattern in the cascaded useMemo).
+      for (let pass = 0; pass < 6; pass += 1) {
+        const overlays = Object.values(next.knockoutPredictions)
+          .map((p) => {
+            const k = round.knockouts.find((x) => x.id === p.matchId);
+            if (!k) return null;
+            const team = p.outcome === "home_win" ? k.home.team : k.away.team;
+            return team ? { match_id: p.matchId, winner: team } : null;
+          })
+          .filter((x): x is { match_id: string; winner: string } => x !== null);
+        const before = round.knockouts.filter((k) => k.effective_winner).length;
+        round = cascade(tournament, { ...legacy, knockouts: overlays });
+        const after = round.knockouts.filter((k) => k.effective_winner).length;
+        if (after === before) break;
+      }
+      const stageMatches = round.knockouts.filter((k) => k.stage === stage);
+      for (const k of stageMatches) {
+        if (!k.home.team || !k.away.team) continue;
+        const o = byNo.get(k.id);
+        const prev = next.knockoutPredictions[k.id]?.outcome;
+        let outcome: MatchPrediction["outcome"];
+        let oddsAtLock = snapshotOdds(o);
+        if (o) {
+          outcome = o.homeWin >= o.awayWin ? "home_win" : "away_win";
+        } else {
+          // No per-match odds for this knockout — fall back to FIFA rank.
+          const homeRank = tournament.teams.find((t) => t.id === k.home.team)?.fifa_rank ?? 99;
+          const awayRank = tournament.teams.find((t) => t.id === k.away.team)?.fifa_rank ?? 99;
+          outcome = homeRank <= awayRank ? "home_win" : "away_win";
+          oddsAtLock = undefined;
+        }
         next = {
           ...next,
           knockoutPredictions: {
             ...next.knockoutPredictions,
-            [k.id]: { matchId: k.id, outcome, lockedAt: ts },
+            [k.id]: { matchId: k.id, outcome, lockedAt: ts, oddsAtLock },
           },
         };
+        appendHistory(tournament.id, userLocalId, {
+          type: "knockout_pick",
+          id: k.id,
+          outcome,
+          prevOutcome: prev,
+          odds: oddsAtLock,
+          ts,
+        });
         knockoutAdded += 1;
-        continue;
       }
-      const outcome: MatchPrediction["outcome"] =
-        o.homeWin >= o.awayWin ? "home_win" : "away_win";
-      next = {
-        ...next,
-        knockoutPredictions: {
-          ...next.knockoutPredictions,
-          [k.id]: { matchId: k.id, outcome, lockedAt: ts },
-        },
-      };
-      knockoutAdded += 1;
     }
+
+    appendHistory(tournament.id, userLocalId, {
+      type: "auto_pick_run",
+      id: "",
+      ts,
+      picksAdded: groupAdded + knockoutAdded,
+    });
 
     update(next);
     setSubmitState(
-      `auto-picked ${groupAdded} group + ${knockoutAdded} knockout (source: ${snap.source ?? "mock"}). Adjust any you disagree with.`,
+      `auto-picked ${groupAdded} group + ${knockoutAdded} knockout + ${tiebreakersSet} tiebreakers (source: ${snap.source ?? "mock"}). Adjust any you disagree with.`,
     );
   };
 
@@ -278,9 +413,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
         <button
           type="button"
           className="bracket-tab bracket-tab-autopick"
-          onClick={handleAutoPick}
+          onClick={() => setShowAutoPickConfirm(true)}
           aria-label="Auto-pick from live odds"
-          title="Auto-pick every empty match using current Polymarket odds; you can override any pick afterwards"
+          title="Auto-pick every match to the current Polymarket favourite"
         >
           ⚡ Auto-pick
         </button>
@@ -298,6 +433,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 matchPredictions={bracket.matchPredictions}
                 tiebreaker={bracket.groupTiebreakers[g.id]}
                 country={country}
+                oddsByMatch={oddsByMatch}
                 onChangeMatch={onChangeMatch}
                 onChangeTiebreaker={onChangeTiebreaker}
               />
@@ -394,6 +530,50 @@ export function BracketBuilder(props: BracketBuilderProps) {
             ))}
           </ul>
         </details>
+      )}
+
+      {showAutoPickConfirm && (
+        <div
+          className="bracket-modal-backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="autopick-confirm-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowAutoPickConfirm(false);
+          }}
+        >
+          <div className="bracket-modal">
+            <h2 id="autopick-confirm-title" className="bracket-modal-title">
+              ⚡ Auto-pick the favourite for every match?
+            </h2>
+            <p className="bracket-modal-body">
+              Auto-pick uses live Polymarket odds to set every match to the
+              current favourite. <strong>Your existing picks will be
+              overwritten.</strong>
+            </p>
+            <p className="bracket-modal-body">
+              You can change any pick afterwards — auto-pick is a starting
+              point, not a lock.
+            </p>
+            <div className="bracket-modal-actions">
+              <button
+                type="button"
+                className="bracket-btn bracket-btn-secondary"
+                onClick={() => setShowAutoPickConfirm(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="bracket-btn bracket-btn-primary"
+                onClick={handleAutoPick}
+                autoFocus
+              >
+                Yes, auto-pick favourites
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
