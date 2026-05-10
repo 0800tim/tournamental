@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Api } from "@/lib/api";
 import { requireAuth } from "@/lib/auth";
+import { fetchCustomer360 } from "@/lib/customer360";
 import { HumannessChip } from "@/components/HumannessChip";
 import { StatCard } from "@/components/StatCard";
+import { Customer360Tabs } from "./Customer360Tabs";
 
 export const dynamic = "force-dynamic";
 
@@ -12,7 +14,42 @@ export default async function UserDetailPage({
   params: { id: string };
 }) {
   const session = await requireAuth();
-  const u = await Api.user(session, params.id);
+  const [u, customer360] = await Promise.all([
+    Api.user(session, params.id),
+    fetchCustomer360(params.id),
+  ]);
+
+  // The original "Profile" view (kept verbatim) becomes the body of the
+  // Profile tab; the new tabs surface predictions, syndicates, revenue, and
+  // social around it.
+  const profileSlot = (
+    <div className="flex flex-col gap-6">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard label="Predictions" value={u.predictions_count} />
+        <StatCard label="Humanness" value={u.humanness} />
+        <StatCard
+          label="Status"
+          value={u.status}
+          tone={u.status === "banned" ? "danger" : "default"}
+        />
+        <StatCard label="Brackets" value={u.brackets.length} />
+      </section>
+
+      <section>
+        <h2 className="text-sm uppercase tracking-wider text-ink-500 mb-2">Brackets</h2>
+        <div className="rounded-lg ring-1 ring-ink-700 bg-ink-800 divide-y divide-ink-700">
+          {u.brackets.map((b) => (
+            <div key={b.id} className="px-4 py-3 flex justify-between text-sm">
+              <span>{b.tournament}</span>
+              <span className="text-ink-200">
+                Rank <span className="font-mono">#{b.rank}</span>
+              </span>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -35,26 +72,12 @@ export default async function UserDetailPage({
         </div>
       </header>
 
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Predictions" value={u.predictions_count} />
-        <StatCard label="Humanness" value={u.humanness} />
-        <StatCard label="Status" value={u.status} tone={u.status === "banned" ? "danger" : "default"} />
-        <StatCard label="Brackets" value={u.brackets.length} />
-      </section>
-
-      <section>
-        <h2 className="text-sm uppercase tracking-wider text-ink-500 mb-2">Brackets</h2>
-        <div className="rounded-lg ring-1 ring-ink-700 bg-ink-800 divide-y divide-ink-700">
-          {u.brackets.map((b) => (
-            <div key={b.id} className="px-4 py-3 flex justify-between text-sm">
-              <span>{b.tournament}</span>
-              <span className="text-ink-200">
-                Rank <span className="font-mono">#{b.rank}</span>
-              </span>
-            </div>
-          ))}
-        </div>
-      </section>
+      <Customer360Tabs
+        userId={u.id}
+        data={customer360}
+        role={session.role}
+        profileSlot={profileSlot}
+      />
     </div>
   );
 }
