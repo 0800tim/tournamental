@@ -21,7 +21,7 @@
   "dependencies": {
     "@napi-rs/canvas": "^0.1.55",
     "@resvg/resvg-js": "^2.6.2",
-    "satori": "^0.10.13"
+    "satori": "^0.26.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
