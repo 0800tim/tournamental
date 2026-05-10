@@ -81,6 +81,9 @@ function* addedLines() {
     if (!line.startsWith('+') || line.startsWith('+++')) continue;
     if (!/\.(ts|tsx|js|jsx|mjs|cjs|py|rs|go|java|kt|swift)$/.test(path)) continue;
     if (/\/(node_modules|\.next|dist|build)\//.test(path)) continue;
+    // Skip test files and fixtures — hostile-host literals are deliberate.
+    if (/(^|\/)(tests?|__tests__|fixtures?|e2e)\//.test(path)) continue;
+    if (/\.(test|spec)\.(ts|tsx|js|jsx|mjs|cjs)$/.test(path)) continue;
     yield line.slice(1);
   }
 }
