@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "next dev -p 3300",
-    "build": "next build",
+    "build": "NODE_ENV=production next build",
     "start": "next start -p 3300",
     "lint": "next lint --dir app --dir components --dir lib --dir __tests__",
     "test": "vitest run",
