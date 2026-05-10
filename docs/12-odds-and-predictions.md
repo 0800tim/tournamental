@@ -142,12 +142,22 @@ Card URLs are content-addressed: `/v1/static/cards/<sha256>.png`. Generated on d
 
 WhatsApp share is the highest-conversion channel for friend-network growth — preserve link previews via OpenGraph tags pointing at the card image. Telegram share goes through the bot directly using the `inline mode` API ([doc 13](13-telegram-bot-and-auth.md)).
 
-### Lock rules
+### Save and lockout rules
 
-- Pre-match predictions lock at official kickoff time pulled from the fixture provider.
-- In-play predictions lock the moment they're submitted.
-- No edits after lock.
-- Late submissions rejected by the server; client-side warnings before lock.
+> User copy reads "Save"; the technical / server-side concept is the
+> `kickoff_lockout` — they're the same policy, different vocabulary.
+> Internal fields like `lockedAt`, `oddsAtLock`, `lockMultiplier()` and
+> the 409 `match_already_started` error code stay as-is.
+
+- Pre-match predictions are changeable until official kickoff time
+  pulled from the fixture provider. Every save snapshots the
+  odds-at-save and updates the user's `lockedAt` for that pick.
+- In-play predictions lock the moment they're submitted (the prompt
+  window is shorter than a save round-trip).
+- No edits after kickoff. The server rejects with `match_already_started`
+  (409); the client surfaces a "this match has already started" banner.
+- Late submissions rejected by the server; the client warns "kicks off
+  in N minutes" approaching kickoff.
 
 ## Storage architecture (no SQL — flat files + KV)
 
