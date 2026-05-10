@@ -144,8 +144,15 @@ export function aggregateForUser(
  * Build the upsert payload pushed to GHL after an individual event lands.
  * Tags live in `addTags`; the mock client never removes tags by default,
  * matching prod behaviour where engagement-band churn is a separate flow.
+ *
+ * The optional `eventId` becomes the `vtourn_last_event_id` custom field
+ * on the real backend so duplicate events are observable in GHL even if
+ * they ever escape the EventStore's idempotency check.
  */
-export function upsertFromAggregate(c: AggregateContact): GhlContactUpsert {
+export function upsertFromAggregate(
+  c: AggregateContact,
+  eventId?: string,
+): GhlContactUpsert {
   return {
     userId: c.userId,
     email: c.email,
@@ -154,5 +161,6 @@ export function upsertFromAggregate(c: AggregateContact): GhlContactUpsert {
     source: c.source,
     customFields: c.customFields,
     addTags: c.tags,
+    eventId,
   };
 }
