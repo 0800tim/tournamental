@@ -94,11 +94,39 @@
   opacity: 1;
 }
 
+/* Selection ring — kit-colour outline marking the chosen team. The colour
+   itself is set inline in JSX so it picks up the team's `accentColor`. We
+   only own the fade-in here (per spec: 150ms ease-in). */
+.selectionRing {
+  animation: vt-flag-ring-in 150ms ease-out both;
+}
+
+@keyframes vt-flag-ring-in {
+  from {
+    outline-color: transparent;
+  }
+  to {
+    /* outline-color is set inline (kit colour); leave 'currentColor' as
+       a fallback so the keyframe ends with whatever outline-color is on
+       the element. */
+    outline-color: currentColor;
+  }
+}
+
+/* Dim — desaturate + fade the unselected side after a pick. */
+.dim .flagImg {
+  filter: grayscale(0.6) opacity(0.5) saturate(1.05) contrast(1.02);
+}
+.dim .glow {
+  opacity: 0.2;
+}
+
 /* Reduced motion: kill animations, keep static styling. */
 @media (prefers-reduced-motion: reduce) {
   .sparkle .flagImg,
   .shimmer,
-  .glow {
+  .glow,
+  .selectionRing {
     animation: none !important;
   }
 }
