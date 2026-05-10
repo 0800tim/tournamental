@@ -1,15 +1,20 @@
 /**
  * The first 12 matches of the tournament — group-stage matchday 1.
- * Renders home + away flags, kickoff time in the visitor's local timezone
- * (formatted client-side), and an "Add to calendar" button that builds an
- * .ics file inline.
+ *
+ * Visual: TVNZ FIFA-app inspired flag-bg card. Each match cell is split
+ * left/right by the two countries' flag SVGs as backgrounds with a soft
+ * dark gradient over the top, plus a centred "vs" badge, plus a small
+ * "UPCOMING" pill top-left. Below the flag band sit the date/time, team
+ * names, group/venue, and an "Add to calendar" button.
+ *
+ * The wrapping element keeps `.wc-match` + `data-testid=wc-upcoming-matches`
+ * so the existing e2e selectors continue to find the 12 cards.
  */
 
 "use client";
 
 import { useMemo } from "react";
 
-import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { upcomingMatches, type UpcomingMatch } from "../_lib/groups";
 
 function buildIcs(match: UpcomingMatch): string {
@@ -47,6 +52,13 @@ function downloadIcs(match: UpcomingMatch): void {
   URL.revokeObjectURL(url);
 }
 
+function groupLetterFor(stage: string): string {
+  // stage strings look like `group_a`, `group_b` etc.
+  const parts = stage.split("_");
+  const tail = parts[parts.length - 1] ?? "";
+  return tail.toUpperCase();
+}
+
 export function UpcomingMatches() {
   const matches = useMemo(() => upcomingMatches(12), []);
 
@@ -54,25 +66,60 @@ export function UpcomingMatches() {
     <div className="wc-matches" data-testid="wc-upcoming-matches">
       {matches.map((m) => {
         const date = new Date(m.kickoff_utc);
+        const groupLetter = groupLetterFor(m.stage);
+        const homeBg = { backgroundImage: `url("/flags/${m.home.code}.svg")` };
+        const awayBg = { backgroundImage: `url("/flags/${m.away.code}.svg")` };
         return (
-          <div className="wc-match" key={m.match_number}>
-            <div>
-              <div className="wc-match-teams">
-                <TeamFlag
-                  code={m.home.code}
-                  name={m.home.name}
-                  accentColor={m.home.kit.primary}
-                  size="md"
-                />
-                <strong>{m.home.short_name}</strong>
-                <span className="wc-match-vs">vs</span>
-                <TeamFlag
-                  code={m.away.code}
-                  name={m.away.name}
-                  accentColor={m.away.kit.primary}
-                  size="md"
-                />
-                <strong>{m.away.short_name}</strong>
+          <article className="wc-match" key={m.match_number}>
+            <div className="wc-match-flagband">
+              <div
+                className="wc-match-half"
+                data-side="home"
+                style={homeBg}
+                aria-hidden="true"
+              >
+                <span className="wc-match-half-grad" aria-hidden="true" />
+                <span className="wc-match-half-code" data-side="home">
+                  {m.home.short_name ?? m.home.code}
+                </span>
+              </div>
+              <div
+                className="wc-match-half"
+                data-side="away"
+                style={awayBg}
+                aria-hidden="true"
+              >
+                <span className="wc-match-half-grad" aria-hidden="true" />
+                <span className="wc-match-half-code" data-side="away">
+                  {m.away.short_name ?? m.away.code}
+                </span>
+              </div>
+              <span className="wc-match-pill" data-state="pre">UPCOMING</span>
+              <span className="wc-match-vs-badge" aria-hidden="true">vs</span>
+            </div>
+            <div className="wc-match-body">
+              <div className="wc-match-body-meta">
+                <span className="wc-match-date" suppressHydrationWarning>
+                  {date.toLocaleDateString(undefined, {
+                    weekday: "short",
+                    day: "numeric",
+                    month: "short",
+                  })}
+                  {" • "}
+                  <span suppressHydrationWarning>
+                    {date.toLocaleTimeString(undefined, {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </span>
+                <span className="wc-match-teams-line">
+                  {m.home.name} <span className="wc-match-vs">v</span>{" "}
+                  {m.away.name}
+                </span>
+                {groupLetter ? (
+                  <span className="wc-match-group">Group {groupLetter}</span>
+                ) : null}
               </div>
               <button
                 type="button"
@@ -83,23 +130,7 @@ export function UpcomingMatches() {
                 + Add to calendar
               </button>
             </div>
-            <div className="wc-match-time">
-              <span suppressHydrationWarning>
-                {date.toLocaleDateString(undefined, {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                })}
-              </span>
-              <br />
-              <span suppressHydrationWarning>
-                {date.toLocaleTimeString(undefined, {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
-            </div>
-          </div>
+          </article>
         );
       })}
     </div>
