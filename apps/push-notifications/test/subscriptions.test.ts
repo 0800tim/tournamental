@@ -56,6 +56,20 @@ describe('SubscriptionStore', () => {
     expect(b.getSms('u1')).toBeUndefined();
   });
 
+  it('round-trips native subscriptions', async () => {
+    const a = SubscriptionStore.memory();
+    await a.useFile(path);
+    const token = 'a'.repeat(64);
+    await a.upsertNative('u1', 'ios', token);
+
+    const b = SubscriptionStore.memory();
+    await b.useFile(path);
+    const rec = b.getNative('u1');
+    expect(rec).toBeDefined();
+    expect(rec?.platform).toBe('ios');
+    expect(rec?.token).toBe(token);
+  });
+
   it('lists picks per match', async () => {
     const a = SubscriptionStore.memory();
     await a.useFile(path);

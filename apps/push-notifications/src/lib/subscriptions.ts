@@ -19,7 +19,9 @@ import { promises as fs } from 'node:fs';
 import { dirname } from 'node:path';
 import type { WebPushSubscription } from './web-push.js';
 
-export type Channel = 'web-push' | 'telegram' | 'sms' | 'whatsapp';
+export type Channel = 'web-push' | 'telegram' | 'sms' | 'whatsapp' | 'native';
+
+export type NativePlatform = 'ios' | 'android';
 
 export interface WebPushRecord {
   channel: 'web-push';
@@ -53,11 +55,27 @@ export interface WhatsAppRecord {
   createdAt: string;
 }
 
+/**
+ * Native push subscription. The `token` is whatever the native plugin
+ * surfaces — APNs device-token (iOS) or FCM registration token (Android).
+ * One user can register one device per platform; later we'll widen to a
+ * (userId, deviceId) tuple but v0.1 keeps the (userId, channel) shape.
+ */
+export interface NativeRecord {
+  channel: 'native';
+  userId: string;
+  platform: NativePlatform;
+  token: string;
+  consent: true;
+  createdAt: string;
+}
+
 export type SubscriptionRecord =
   | WebPushRecord
   | TelegramRecord
   | SmsRecord
-  | WhatsAppRecord;
+  | WhatsAppRecord
+  | NativeRecord;
 
 export interface PickRecord {
   matchId: string;
@@ -142,6 +160,24 @@ export class SubscriptionStore {
     return rec;
   }
 
+  async upsertNative(
+    userId: string,
+    platform: NativePlatform,
+    token: string,
+  ): Promise<NativeRecord> {
+    const rec: NativeRecord = {
+      channel: 'native',
+      userId,
+      platform,
+      token,
+      consent: true,
+      createdAt: new Date().toISOString(),
+    };
+    this.subs.set(this.subKey(userId, 'native'), rec);
+    await this.append({ type: 'subscription', data: rec });
+    return rec;
+  }
+
   async upsertWhatsApp(
     userId: string,
     phone: string,
@@ -171,7 +207,13 @@ export class SubscriptionStore {
   }
 
   getAllForUser(userId: string): SubscriptionRecord[] {
-    const channels: Channel[] = ['web-push', 'telegram', 'sms', 'whatsapp'];
+    const channels: Channel[] = [
+      'web-push',
+      'telegram',
+      'sms',
+      'whatsapp',
+      'native',
+    ];
     const out: SubscriptionRecord[] = [];
     for (const c of channels) {
       const r = this.subs.get(this.subKey(userId, c));
@@ -199,6 +241,12 @@ export class SubscriptionStore {
   getWhatsApp(userId: string): WhatsAppRecord | undefined {
     return this.subs.get(this.subKey(userId, 'whatsapp')) as
       | WhatsAppRecord
+      | undefined;
+  }
+
+  getNative(userId: string): NativeRecord | undefined {
+    return this.subs.get(this.subKey(userId, 'native')) as
+      | NativeRecord
       | undefined;
   }
 

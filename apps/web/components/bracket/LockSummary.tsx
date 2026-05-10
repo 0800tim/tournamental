@@ -15,11 +15,17 @@ import {
   lockMultiplier,
 } from "@vtorn/bracket-engine";
 
+import { shareContent, tapFeedback } from "@/lib/native";
+
 export interface LockSummaryProps {
   readonly bracket: Bracket;
   readonly cascaded: CascadedBracket;
   readonly tournament: Tournament;
   readonly deadline_utc: string;
+  /** Optional: when present, used to build the share URL. */
+  readonly bracketId?: string;
+  /** Optional handle/display name for the share text. */
+  readonly handle?: string;
 }
 
 function formatCountdown(now: number, deadline: number): string {
@@ -37,7 +43,7 @@ function teamName(tournament: Tournament, code: string | null | undefined): stri
 }
 
 export function LockSummary(props: LockSummaryProps) {
-  const { bracket, cascaded, tournament, deadline_utc } = props;
+  const { bracket, cascaded, tournament, deadline_utc, bracketId, handle } = props;
   const [now, setNow] = useState<number>(() => Date.parse(tournament.start_utc) - 1000);
   useEffect(() => {
     setNow(Date.now());
@@ -91,6 +97,29 @@ export function LockSummary(props: LockSummaryProps) {
   const topMultRows = tableRows.slice(0, 5);
   const boldestPick = tableRows.find((r) => r.multiplier > 2.5);
 
+  // Build the canonical share URL for the user's bracket. We use the
+  // public /world-cup-2026/share/<bracketId> page, which has OG meta
+  // tags + a per-bracket OG image; the same URL renders correctly in
+  // social previews and in the OS share-sheet.
+  const shareHandle = handle ?? "Anonymous";
+  const shareWinner = champion === "—" ? "TBD" : champion;
+  const shareUrl = bracketId
+    ? `https://vtourn.com/world-cup-2026/share/${encodeURIComponent(
+        bracketId,
+      )}?handle=${encodeURIComponent(shareHandle)}&winner=${encodeURIComponent(
+        shareWinner,
+      )}`
+    : "https://vtourn.com/world-cup-2026";
+
+  const handleShare = async (): Promise<void> => {
+    void tapFeedback("medium");
+    await shareContent({
+      title: "My VTourn World Cup 2026 bracket",
+      text: `I picked ${shareWinner} to lift the trophy. Lock yours before kickoff →`,
+      url: shareUrl,
+    });
+  };
+
   return (
     <aside className="bracket-lock-summary" data-testid="lock-summary">
       <div data-testid="lock-summary-headline">
@@ -140,6 +169,17 @@ export function LockSummary(props: LockSummaryProps) {
           Back your boldest pick →
         </a>
       )}
+
+      <button
+        type="button"
+        className="btn-secondary bracket-share-cta"
+        data-testid="share-bracket-cta"
+        onClick={() => {
+          void handleShare();
+        }}
+      >
+        Share my bracket
+      </button>
     </aside>
   );
 }

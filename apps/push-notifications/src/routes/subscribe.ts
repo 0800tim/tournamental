@@ -57,6 +57,16 @@ const whatsappBody = z.object({
     .regex(/^\+?[0-9 ()-]+$/, 'phone must look like an E.164 number'),
 });
 
+const nativeBody = z.object({
+  userId: z.string().min(1).max(128),
+  consent: consentSchema,
+  platform: z.enum(['ios', 'android']),
+  // APNs tokens are hex (64 chars). FCM tokens are 140-200ish chars.
+  // We accept anything between 32 and 4096 chars to leave headroom for
+  // future provider quirks while still rejecting obvious garbage.
+  token: z.string().min(32).max(4096),
+});
+
 interface RouteCtx {
   store: SubscriptionStore;
   audit: AuditLogger;
@@ -124,6 +134,33 @@ export async function registerSubscribeRoutes(
       userId,
       event: 'subscribe',
       payload: { phone: phone.startsWith('+') ? phone : `+${phone}` },
+      ok: true,
+    });
+    return reply.code(201).send({ ok: true });
+  });
+
+  app.post('/v1/subscribe/native', async (req, reply) => {
+    const parse = nativeBody.safeParse(req.body);
+    if (!parse.success) {
+      return reply.code(400).send({
+        ok: false,
+        error: 'invalid_body',
+        details: parse.error.issues,
+      });
+    }
+    const { userId, platform, token } = parse.data;
+    await ctx.store.upsertNative(userId, platform, token);
+    // Audit with the token masked: keep the first 4 + last 4 chars only.
+    // Tokens are device secrets; full value should never land in audit log.
+    const maskedToken =
+      token.length > 12
+        ? `${token.slice(0, 4)}…${token.slice(-4)}`
+        : '***';
+    await ctx.audit.append({
+      channel: 'native',
+      userId,
+      event: 'subscribe',
+      payload: { platform, token: maskedToken },
       ok: true,
     });
     return reply.code(201).send({ ok: true });
