@@ -2,7 +2,7 @@
 
 **Branch:** `feat/renderer-fidelity-overhaul`
 **Doc refs:** `docs/04-renderer.md`, `docs/07-avatars-and-assets.md`, `docs/27a..d-fidelity-*.md`
-**Status:** in-progress
+**Status:** complete
 **Trigger:** Tim reported that the AR-FR demo jitters and the field jerks back and forth. Benchmark: threejs.org/examples/#webgl_animation_skinning_blending renders smoothly on mobile.
 
 ## Diagnosis
@@ -117,7 +117,58 @@ jitter Tim observed:
   conflict noted in Phase-2 notes — out of scope).
 
 ## Files changed
-(filled in as commits land)
+
+```
+apps/web/
+  components/
+    Ball.tsx              MODIFIED — buffer-aware sample, dt clamp
+    CameraRig.tsx         MODIFIED — DampedCameraDriver + buffer-aware sample
+    Crowd.tsx             MODIFIED — colour writes throttled to 4 Hz with hysteresis
+    Director.tsx          MODIFIED — DampedCameraDriver, buffer sample, dt clamp
+    MatchScene.tsx        MODIFIED — StateFrameBufferProvider, profile-aware DPR/AA
+    Pitch.tsx             MODIFIED — 2048×1024 grass, mipmaps, anisotropy=4
+    Player.tsx            MODIFIED — buffer-aware sample, smoothed-position speed,
+                                     dt clamp
+    PostFX.tsx            MODIFIED — frame-rate-independent vignette ramp
+    Stadium.tsx           MODIFIED — GoalNet sway throttled to 5 Hz
+  lib/
+    cameras/
+      damped-driver.ts    NEW
+    replay/
+      buffer-context.tsx       NEW
+      state-frame-buffer.ts    NEW
+      use-state-frame-buffer.ts NEW
+  __tests__/
+    damped-camera-driver.test.ts   NEW (6 tests)
+    state-frame-buffer.test.ts     NEW (17 tests)
+docs/
+  04-renderer.md                              MODIFIED
+  43-renderer-fidelity-overhaul.md            NEW
+sessions/
+  2026-05-11_renderer-fidelity-overhaul.md    NEW (this file)
+```
 
 ## Tests
-(filled in as commits land)
+
+- New `state-frame-buffer.test.ts` — 17 tests pass.
+- New `damped-camera-driver.test.ts` — 6 tests pass.
+- Existing `interpolation.test.ts` (10 tests) — unchanged, still passes.
+- Workspace `apps/web` test count: 432 → 475 (43 new tests across the
+  PR, including 23 from this session and 20 from other agents'
+  concurrent work that landed in main).
+- `pnpm typecheck` workspace-wide: clean.
+- `pnpm lint`: 1 pre-existing warning (`<img>` in TeamFlag.tsx) — not
+  from this PR.
+- `pnpm build`: pre-existing prerender failure on /team/[code] —
+  reproduced on `origin/main` before this branch's changes; not a
+  regression from this PR.
+
+## Verification
+
+- AR-FR demo at `/match/fifa-wc-2022-final-arg-fra-2022-12-18` reads
+  the StateFrameBuffer end-to-end (logs in DebugPanel + visible
+  smoother motion).
+- Camera follow no longer jerks per state-frame.
+- Pitch stripes don't shimmer at distance.
+- 432 → 475 tests pass (incl. 23 new in this PR).
+
