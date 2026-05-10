@@ -294,25 +294,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         <span className="mpr-pick-pct" data-outcome="home_win">
           {pctLabel(odds?.homeWin)}
         </span>
-        {homeFormResults.length > 0 && (
-          <FormDots
-            results={homeFormResults}
-            size="sm"
-            className="mpr-pick-form"
-            ariaLabel={`${homeTeam.name} last ${homeFormResults.length} results`}
-          />
-        )}
-        {overlay && (
-          <a
-            href={`/team/${homeTeam.id}`}
-            className="mpr-team-info"
-            aria-label={`Open ${homeTeam.name} team overlay`}
-            title={`${homeTeam.name} info`}
-            onClick={openTeamOverlay(homeTeam.id)}
-          >
-            i
-          </a>
-        )}
       </button>
 
       {!noDraw && (
@@ -329,16 +310,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
             {pctLabel(odds?.draw)}
           </span>
         </button>
-      )}
-
-      {h2h && (
-        <HeadToHeadPill
-          homeCode={homeTeam.id}
-          awayCode={awayTeam.id}
-          counts={h2h}
-          variant="compact"
-          className="mpr-h2h"
-        />
       )}
 
       <button
@@ -363,25 +334,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         <span className="mpr-pick-pct" data-outcome="away_win">
           {pctLabel(odds?.awayWin)}
         </span>
-        {awayFormResults.length > 0 && (
-          <FormDots
-            results={awayFormResults}
-            size="sm"
-            className="mpr-pick-form"
-            ariaLabel={`${awayTeam.name} last ${awayFormResults.length} results`}
-          />
-        )}
-        {overlay && (
-          <a
-            href={`/team/${awayTeam.id}`}
-            className="mpr-team-info"
-            aria-label={`Open ${awayTeam.name} team overlay`}
-            title={`${awayTeam.name} info`}
-            onClick={openTeamOverlay(awayTeam.id)}
-          >
-            i
-          </a>
-        )}
       </button>
 
       <div className="mpr-scores-wrap">

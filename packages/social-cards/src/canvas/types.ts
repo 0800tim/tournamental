@@ -4,7 +4,9 @@
  * The canvas renderer is intentionally separate from the satori card
  * builders in `src/cards/`: it accepts a richer, knockout-path-shaped
  * input that mirrors the @vtorn/bracket-engine cascade output rather
- * than the legacy "list of (round, pick)" tuples.
+ * than the legacy "list of (round, pick)" tuples. Includes optional
+ * runner-up and third-place fields so the card can render the
+ * gold-silver-bronze podium next to the champion centrepiece.
  *
  * The output is a PNG buffer ready to send back over HTTP or write to
  * disk. Three size presets are produced by the same render function:
@@ -64,6 +66,10 @@ export interface BracketShareCardInput {
     readonly displayName?: string | null;
   };
   readonly champion: BracketShareChampion;
+  /** Optional runner-up (silver) — the team the user picked to lose the final. */
+  readonly runnerUp?: BracketShareChampion | null;
+  /** Optional third-place (bronze) — winner of the user's predicted 3rd-place playoff. */
+  readonly thirdPlace?: BracketShareChampion | null;
   readonly knockoutPath: ReadonlyArray<BracketSharePathEntry>;
   readonly tournamentName: string;
   readonly pundit?: { readonly level: number } | null;
