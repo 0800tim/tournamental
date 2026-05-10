@@ -12,12 +12,13 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   cascade,
   type Bracket,
   type CascadedBracket,
+  type CascadedKnockout,
   type GroupTiebreaker,
   type MatchPrediction,
   type Tournament,
@@ -28,6 +29,13 @@ import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
+import {
+  HAPTIC,
+  scrollIntoViewIfHidden,
+  useHaptic,
+  usePinchZoom,
+  useStickyGroupHeaders,
+} from "@/lib/bracket/mobile-gestures";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useCountry } from "@/lib/odds/use-country";
@@ -64,6 +72,24 @@ export function BracketBuilder(props: BracketBuilderProps) {
     () => new Map(),
   );
   const country = useCountry();
+
+  // Mobile gesture plumbing — these refs/effects are no-ops on
+  // viewports wider than 640px so desktop UX is untouched.
+  const haptic = useHaptic();
+  const groupsRootRef = useStickyGroupHeaders<HTMLDivElement>({
+    headerSelector: ".bracket-group-head",
+  });
+  const { containerRef: kmContainerRef, targetRef: kmTargetRef } = usePinchZoom<
+    HTMLDivElement,
+    HTMLDivElement
+  >();
+  // Snapshot of the previous cascaded knockouts so we can detect when
+  // an upstream pick changes a downstream slot — when the slot occupant
+  // changes we smooth-scroll the affected card into view (only if it's
+  // off-screen). Stored in a ref so the cascade effect can compare
+  // without forcing extra renders.
+  const prevKnockoutsRef = useRef<readonly CascadedKnockout[] | null>(null);
+  const lastEditedRef = useRef<{ kind: "group" | "knockout"; matchId: string } | null>(null);
 
   useEffect(() => {
     const id = localUserId();
@@ -133,8 +159,53 @@ export function BracketBuilder(props: BracketBuilderProps) {
     saveDraft(tournament.id, next, userLocalId);
   };
 
+  // Scroll-to-fix: when an upstream pick changes a downstream slot,
+  // smooth-scroll the affected knockout card into view (only if it's
+  // off-screen). We compare the previous cascade snapshot to the
+  // current one and find the FIRST knockout whose home/away slot
+  // changed identity. We only do this on the knockouts tab — on the
+  // groups tab, downstream cards aren't visible anyway.
+  useEffect(() => {
+    if (tab !== "knockouts") {
+      prevKnockoutsRef.current = cascaded.knockouts;
+      return;
+    }
+    const prev = prevKnockoutsRef.current;
+    prevKnockoutsRef.current = cascaded.knockouts;
+    if (!prev) return;
+    const lastEdited = lastEditedRef.current;
+    if (!lastEdited) return;
+    const prevById = new Map(prev.map((k) => [k.id, k] as const));
+    const changed = cascaded.knockouts.find((k) => {
+      if (k.id === lastEdited.matchId) return false;
+      const before = prevById.get(k.id);
+      if (!before) return false;
+      return (
+        before.home.team !== k.home.team || before.away.team !== k.away.team
+      );
+    });
+    if (!changed) return;
+    // requestAnimationFrame so the DOM has the new occupant rendered.
+    const raf =
+      typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame
+        : (cb: FrameRequestCallback) => setTimeout(() => cb(0), 16);
+    const cancel =
+      typeof window !== "undefined" && typeof window.cancelAnimationFrame === "function"
+        ? window.cancelAnimationFrame
+        : (id: number) => clearTimeout(id);
+    const handle = raf(() => {
+      const el = document.querySelector(`[data-match-id="${changed.id}"]`);
+      scrollIntoViewIfHidden(el);
+    });
+    return () => cancel(handle as number);
+  }, [cascaded.knockouts, tab]);
+
   const onChangeMatch = (next: MatchPrediction): void => {
     const prev = bracket.matchPredictions[next.matchId];
+    const isOutcomeChange = !prev || prev.outcome !== next.outcome;
+    if (isOutcomeChange) haptic(HAPTIC.pick);
+    lastEditedRef.current = { kind: "group", matchId: next.matchId };
     appendHistory(tournament.id, userLocalId, {
       type:
         prev && (prev.homeScore !== next.homeScore || prev.awayScore !== next.awayScore)
@@ -166,6 +237,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
   const onChangeKnockout = (next: MatchPrediction): void => {
     const prev = bracket.knockoutPredictions[next.matchId];
+    const isOutcomeChange = !prev || prev.outcome !== next.outcome;
+    // Knockout picks fire the slightly-longer cascade-resolved pattern
+    // because picking a winner here ALWAYS resolves a downstream slot.
+    if (isOutcomeChange) haptic(HAPTIC.cascadeResolved);
+    lastEditedRef.current = { kind: "knockout", matchId: next.matchId };
     appendHistory(tournament.id, userLocalId, {
       type: "knockout_pick",
       id: next.matchId,
@@ -423,7 +499,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
       {tab === "groups" && (
         <section role="tabpanel" aria-label="Group stage" className="bracket-groups-section">
-          <div className="bracket-groups-grid">
+          <div className="bracket-groups-grid" ref={groupsRootRef}>
             {tournament.groups.map((g) => (
               <GroupCard
                 key={g.id}
@@ -448,7 +524,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
             Click the team you predict will advance. Slots fill in automatically as
             you finish predicting the group stage.
           </p>
-          <div className="km-grid">
+          <div className="km-pinch-wrap" ref={kmContainerRef} data-mobile-pinch="">
+          <div className="km-grid" ref={kmTargetRef}>
             {(["r32", "r16", "qf", "sf", "tp", "f"] as const).map((stage) => {
               const stageMatches = cascaded.knockouts.filter((k) => k.stage === stage);
               if (stageMatches.length === 0) return null;
@@ -476,6 +553,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 </div>
               );
             })}
+          </div>
           </div>
         </section>
       )}
