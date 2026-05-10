@@ -68,9 +68,12 @@ export function LedBoards() {
       {boards.map((b, i) => {
         // Each board gets its own material so the offset cycles
         // independently — but the texture is shared.
+        // toneMapped: true (the default) — LED boards should be
+        // compressed by ACES like everything else. With toneMapped:false
+        // these were blowing out against the sky and pulling bloom too
+        // hard. Tim asked for less blow-out; this is part of that.
         const mat = new THREE.MeshBasicMaterial({
           map: texture.clone(),
-          toneMapped: false,
           side: THREE.DoubleSide,
         });
         if (mat.map) {
