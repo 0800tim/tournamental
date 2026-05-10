@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "astro",
+  "port": 3320,
+  "smokePort": 3098,
+  "healthzPath": "/",
+  "smoke": [
+    { "url": "/", "label": "homepage", "maxMs": 1500 },
+    { "url": "/about", "label": "about", "maxMs": 1500 }
+  ],
+  "cacheWarm": [
+    "/",
+    "/about",
+    "/blog"
+  ],
+  "warmBase": "https://vtourn.com"
+}

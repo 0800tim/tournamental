@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "fastify",
+  "port": 3310,
+  "smokePort": 3096,
+  "healthzPath": "/healthz",
+  "smoke": [
+    { "url": "/healthz", "label": "health", "maxMs": 500 },
+    { "url": "/version", "label": "version", "maxMs": 500 }
+  ],
+  "cacheWarm": [
+    "/healthz",
+    "/version"
+  ],
+  "warmBase": "https://api.vtourn.com"
+}

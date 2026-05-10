@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vtourn.com/schemas/deploy-config.json",
+  "title": "Per-app deploy config",
+  "type": "object",
+  "required": ["buildKind", "port", "smoke", "cacheWarm"],
+  "properties": {
+    "buildKind": {
+      "type": "string",
+      "enum": ["next", "astro", "node", "fastify"],
+      "description": "Selects the build/start/smoke command set."
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Production HTTP port the PM2 process listens on."
+    },
+    "smokePort": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535,
+      "description": "Localhost-only port for the throwaway smoke server."
+    },
+    "healthzPath": {
+      "type": "string",
+      "default": "/healthz"
+    },
+    "smoke": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["url"],
+        "properties": {
+          "url": { "type": "string" },
+          "expect": { "type": "integer", "default": 200 },
+          "maxMs": { "type": "integer" },
+          "label": { "type": "string" }
+        }
+      }
+    },
+    "cacheWarm": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "URL paths to warm post-deploy."
+    },
+    "warmBase": {
+      "type": "string",
+      "format": "uri",
+      "description": "Base URL for cache warm. Defaults to http://127.0.0.1:<port>."
+    },
+    "pm2NameFromEnv": {
+      "type": "object",
+      "properties": {
+        "staging": { "type": "string" },
+        "production": { "type": "string" }
+      },
+      "description": "Optional explicit pm2 names per env. Defaults to vtorn-<app>-<staging|prod>."
+    }
+  }
+}

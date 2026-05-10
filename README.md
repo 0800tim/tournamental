@@ -103,6 +103,21 @@ There are now thirteen agents (A–M):
 
 Critical-path "watchable demo" remains a weekend-one job (agents A–E + minimal H). The full VTourn launch with predictions, bot, VStamps, and clip distribution is a 2–4 week pack of work for a parallel team of code agents — roughly the timeframe to a tournament window like the 2026 World Cup.
 
+## Deploys
+
+CI/CD is build-slot blue-green: build to `<slot>-staging`, smoke-test on a
+private port, atomic-swap `<slot>-prod`, PM2 reload. Worst-case ~2-3s
+perceived downtime. Generalised across all monorepo apps.
+
+- Architecture: [docs/47-cicd-pipeline.md](docs/47-cicd-pipeline.md)
+- Deploy runbook: [docs/cicd/01-deploy-runbook.md](docs/cicd/01-deploy-runbook.md)
+- Rollback: [docs/cicd/02-rollback-runbook.md](docs/cicd/02-rollback-runbook.md)
+- Incident flag: [docs/cicd/03-incident-flag-runbook.md](docs/cicd/03-incident-flag-runbook.md)
+- Secrets rotation: [docs/cicd/04-secrets-rotation-runbook.md](docs/cicd/04-secrets-rotation-runbook.md)
+
+Top-level scripts: `pnpm deploy:staging --apps=marketing`,
+`pnpm deploy:promote`, `pnpm deploy:rollback --app=marketing --buildKind=astro`.
+
 ## Positioning (short version)
 
 VTourn is **free-to-play**. Points are not redeemable for cash. We never operate as a sportsbook. We display public market odds (Polymarket, The Odds API) as a data layer for scoring difficulty; we surface affiliate links to regulated operators *only where legal for the user*. Sweepstakes pools are tracked but not custodial — users settle off-platform. Detailed regulatory framing (including the NZ-specific Polymarket/Kalshi situation) in [docs/15-vtourn-brand-and-positioning.md](docs/15-vtourn-brand-and-positioning.md).

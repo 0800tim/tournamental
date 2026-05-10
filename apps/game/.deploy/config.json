@@ -1,0 +1,16 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "fastify",
+  "port": 3360,
+  "smokePort": 3095,
+  "healthzPath": "/healthz",
+  "smoke": [
+    { "url": "/healthz", "label": "health", "maxMs": 500 },
+    { "url": "/v1/leaderboards/global?limit=10", "label": "leaderboard", "maxMs": 1000 }
+  ],
+  "cacheWarm": [
+    "/healthz",
+    "/v1/leaderboards/global?limit=10"
+  ],
+  "warmBase": "https://game.vtourn.com"
+}
