@@ -1,17 +1,59 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import "@/components/shell/shell.css";
+import "@/components/ui/ui.css";
+
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
-  title: "VTourn — Live Match Renderer",
-  description: "VTourn 3D match renderer (Next.js + React Three Fiber)",
+  title: "VTourn — Predict the matches that matter",
+  description:
+    "VTourn is a tournament prediction game with a 3D match watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0.",
+  applicationName: "VTourn",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "VTourn",
+    statusBarStyle: "black-translucent",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: dark)", color: "#0a0e1a" },
+    { media: "(prefers-color-scheme: light)", color: "#f5f7fc" },
+  ],
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
+      <head>
+        {/* iOS standalone web-app behaviour. The Next metadata API
+            covers most of these but the meta tags are still required by
+            iOS Safari for the legacy "add to home screen" path. */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="VTourn" />
+        <meta name="mobile-web-app-capable" content="yes" />
+      </head>
       <body>
         <NativeShellBoot />
         {children}

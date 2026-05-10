@@ -1,0 +1,57 @@
+.vt-leaderboard-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vt-leaderboard-row {
+  display: grid;
+  grid-template-columns: 40px 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
+}
+
+.vt-leaderboard-row[data-active="1"] {
+  border-color: var(--vt-accent);
+  background: color-mix(in srgb, var(--vt-accent) 14%, var(--vt-bg-elev));
+}
+
+.vt-lb-rank {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--vt-fg-muted);
+  font-size: 14px;
+}
+
+.vt-lb-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--vt-bg-elev-2);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.vt-lb-handle {
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-lb-points {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  font-size: 14px;
+}
