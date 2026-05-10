@@ -1,0 +1,145 @@
+---
+// Index-page card for a single post. Stable height-set via aspect-video
+// thumbnail + min-h on the body so the grid does not shift while hero
+// images stream in.
+import type { CollectionEntry } from "astro:content";
+import TagChip from "./TagChip.astro";
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+const { post } = Astro.props;
+const { data, slug } = post;
+const href = `/blog/${slug}`;
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+}).format(data.pubDate);
+const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+---
+<article class="vt-blog-card group">
+  <a href={href} class="vt-blog-card-media" aria-hidden="true" tabindex="-1">
+    {heroSrc ? (
+      <img
+        src={heroSrc}
+        alt={data.heroImageAlt ?? ""}
+        loading="lazy"
+        decoding="async"
+        width="800"
+        height="450"
+      />
+    ) : (
+      <div class="vt-blog-card-placeholder" aria-hidden="true">
+        <svg viewBox="0 0 64 36" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <rect x="2" y="2" width="60" height="32" rx="2" />
+          <path d="M2 24l16-12 12 8 8-6 24 14" />
+        </svg>
+      </div>
+    )}
+  </a>
+  <div class="vt-blog-card-body">
+    <div class="vt-blog-card-meta">
+      <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+      <span aria-hidden="true">·</span>
+      <span>{data.author}</span>
+    </div>
+    <h3 class="vt-blog-card-title">
+      <a href={href}>{data.title}</a>
+    </h3>
+    <p class="vt-blog-card-desc">{data.description}</p>
+    {data.tags.length > 0 && (
+      <div class="vt-blog-card-tags">
+        {data.tags.slice(0, 4).map((t) => <TagChip tag={t} />)}
+      </div>
+    )}
+  </div>
+</article>
+
+<style>
+  .vt-blog-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--vt-border);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+    overflow: hidden;
+    transition: border-color 160ms ease, transform 160ms ease;
+  }
+  .vt-blog-card:hover {
+    border-color: var(--vt-border-strong);
+    transform: translateY(-2px);
+  }
+  .vt-blog-card-media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: var(--vt-bg-elev-2);
+    overflow: hidden;
+  }
+  .vt-blog-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 320ms ease;
+  }
+  .vt-blog-card:hover .vt-blog-card-media img {
+    transform: scale(1.03);
+  }
+  .vt-blog-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--vt-fg-muted);
+    background: linear-gradient(135deg, rgba(126, 182, 232, 0.15), rgba(255, 138, 61, 0.08));
+  }
+  .vt-blog-card-placeholder svg {
+    width: 60%;
+    height: auto;
+    opacity: 0.5;
+  }
+  .vt-blog-card-body {
+    padding: 1.25rem 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1;
+    min-height: 11rem;
+  }
+  .vt-blog-card-meta {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+    color: var(--vt-fg-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .vt-blog-card-title {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 1.25rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--vt-fg-strong);
+  }
+  .vt-blog-card-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .vt-blog-card-title a:hover {
+    color: #5a96d8;
+  }
+  .vt-blog-card-desc {
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex: 1;
+  }
+  .vt-blog-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+</style>

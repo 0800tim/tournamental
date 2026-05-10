@@ -1,0 +1,119 @@
+---
+// Sits at the bottom of every post body. Author byline, share links
+// (Twitter / LinkedIn / copy link), and a pointer to the RSS feed.
+// We avoid platform tracking pixels — the share buttons are plain
+// `intent` URLs that open in a new tab.
+interface Props {
+  title: string;
+  url: string;
+  author: string;
+}
+const { title, url, author } = Astro.props;
+const encodedTitle = encodeURIComponent(title);
+const encodedUrl = encodeURIComponent(url);
+const twitterHref = `https://twitter.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`;
+const linkedInHref = `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`;
+---
+<footer class="vt-post-footer">
+  <div class="vt-post-footer-author">
+    <div class="vt-post-footer-avatar" aria-hidden="true">{author.slice(0, 1)}</div>
+    <div>
+      <div class="vt-post-footer-byline">{author}</div>
+      <div class="vt-post-footer-sub">VTourn build log · open source under Apache 2.0</div>
+    </div>
+  </div>
+  <div class="vt-post-footer-actions">
+    <a class="vt-post-footer-btn" href={twitterHref} target="_blank" rel="noopener noreferrer">
+      Share on X
+    </a>
+    <a class="vt-post-footer-btn" href={linkedInHref} target="_blank" rel="noopener noreferrer">
+      Share on LinkedIn
+    </a>
+    <button type="button" class="vt-post-footer-btn" data-copy-url={url}>Copy link</button>
+    <a class="vt-post-footer-btn" href="/blog/rss.xml">RSS</a>
+  </div>
+</footer>
+
+<script is:inline>
+  // Tiny copy-link handler. Falls back to a `prompt()` if the
+  // navigator.clipboard API is unavailable (older Android browsers
+  // behind certain webview wrappers still hit this path).
+  document.querySelectorAll("[data-copy-url]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const url = btn.getAttribute("data-copy-url") || window.location.href;
+      const original = btn.textContent;
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(url);
+        } else {
+          window.prompt("Copy link:", url);
+        }
+        btn.textContent = "Copied";
+        setTimeout(() => { btn.textContent = original; }, 1600);
+      } catch (_) {
+        window.prompt("Copy link:", url);
+      }
+    });
+  });
+</script>
+
+<style>
+  .vt-post-footer {
+    margin-top: 3.5rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--vt-border);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .vt-post-footer-author {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .vt-post-footer-avatar {
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 9999px;
+    background: #5a96d8;
+    color: #0a0e1a;
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-size: 1rem;
+  }
+  .vt-post-footer-byline {
+    font-weight: 600;
+    color: var(--vt-fg-strong);
+  }
+  .vt-post-footer-sub {
+    font-size: 0.82rem;
+    color: var(--vt-fg-muted);
+  }
+  .vt-post-footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .vt-post-footer-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.45rem 0.85rem;
+    border-radius: 0.5rem;
+    border: 1px solid var(--vt-border-strong);
+    background: var(--vt-bg-elev);
+    color: var(--vt-fg);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 120ms ease, border-color 120ms ease;
+    text-decoration: none;
+    font-family: inherit;
+  }
+  .vt-post-footer-btn:hover {
+    color: #5a96d8;
+    border-color: #5a96d8;
+  }
+</style>
