@@ -15,6 +15,7 @@ import type { Metadata } from "next";
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
 import { BracketBuilder } from "@/components/bracket/BracketBuilder";
+import { AppShell } from "@/components/shell";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import "./bracket.css";
@@ -51,18 +52,20 @@ export default function WorldCup2026Page() {
   );
 
   return (
-    <main className="bracket-page">
-      <BracketBuilder tournament={tournament} />
-      <footer className="bracket-page-footer">
-        <p>
-          Engine: <code>@vtorn/bracket-engine</code>. Source data:{" "}
-          <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
-            FIFA 2026
-          </a>{" "}
-          ({baseTournament._meta.schedule_status}). When the official draw is
-          finalised, swap the fixtures JSON.
-        </p>
-      </footer>
-    </main>
+    <AppShell title="Tournament">
+      <main className="bracket-page">
+        <BracketBuilder tournament={tournament} />
+        <footer className="bracket-page-footer">
+          <p>
+            Engine: <code>@vtorn/bracket-engine</code>. Source data:{" "}
+            <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
+              FIFA 2026
+            </a>{" "}
+            ({baseTournament._meta.schedule_status}). When the official draw is
+            finalised, swap the fixtures JSON.
+          </p>
+        </footer>
+      </main>
+    </AppShell>
   );
 }

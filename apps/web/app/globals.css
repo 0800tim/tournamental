@@ -6,10 +6,39 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: #0c1722;
+  background: #0a0e1a;
   color: #e6edf3;
-  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter",
+    "Segoe UI", Roboto, sans-serif;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Tighten the tracking on display headings; matches the FIFA app feel. */
+h1, h2, .vt-display {
+  letter-spacing: -0.015em;
+}
+
+/* Generic page sections used by the shelled feed. */
+.vt-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-section-title {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin: 8px 0 0;
+}
+
+.vt-fixture-list,
+.vt-news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 a {

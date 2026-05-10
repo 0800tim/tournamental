@@ -1,0 +1,532 @@
+/* ---------- Design tokens ---------- */
+/*
+ * VTourn app-shell theme tokens. Light + dark variants live on
+ * data-theme="…" on the document root; consumers pick up the values
+ * via these CSS variables. Brand palette: sky-blue accent, flame-orange
+ * accent, emerald-pitch, ink-greys. No new hues introduced here.
+ */
+
+:root,
+[data-theme="dark"] {
+  --vt-bg: #0a0e1a;
+  --vt-bg-elev: rgba(255, 255, 255, 0.06);
+  --vt-bg-elev-2: rgba(255, 255, 255, 0.1);
+  --vt-bg-overlay: rgba(10, 14, 26, 0.78);
+  --vt-fg: #e6edf3;
+  --vt-fg-muted: #9aa6b6;
+  --vt-fg-faint: #5c6675;
+  --vt-border: rgba(255, 255, 255, 0.08);
+  --vt-border-strong: rgba(255, 255, 255, 0.18);
+  --vt-accent: #6cabdd; /* sky-blue */
+  --vt-accent-on: #00153a;
+  --vt-accent-warm: #f3b83b; /* flame-orange */
+  --vt-accent-pitch: #4cd680; /* emerald-pitch */
+  --vt-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  --vt-shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.35);
+  --vt-radius-sm: 8px;
+  --vt-radius-md: 12px;
+  --vt-radius-lg: 18px;
+  --vt-radius-pill: 999px;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --vt-bg: #f5f7fc;
+  --vt-bg-elev: rgba(10, 14, 26, 0.05);
+  --vt-bg-elev-2: rgba(10, 14, 26, 0.08);
+  --vt-bg-overlay: rgba(245, 247, 252, 0.82);
+  --vt-fg: #0f1726;
+  --vt-fg-muted: #4a5468;
+  --vt-fg-faint: #8a93a4;
+  --vt-border: rgba(10, 14, 26, 0.1);
+  --vt-border-strong: rgba(10, 14, 26, 0.22);
+  --vt-accent: #2071b8;
+  --vt-accent-on: #ffffff;
+  --vt-accent-warm: #d97706;
+  --vt-accent-pitch: #16a34a;
+  --vt-shadow: 0 8px 28px rgba(10, 14, 26, 0.12);
+  --vt-shadow-soft: 0 4px 14px rgba(10, 14, 26, 0.08);
+  color-scheme: light;
+}
+
+/* ---------- App shell layout ---------- */
+
+.vt-shell {
+  --vt-shell-appbar-h: 56px;
+  --vt-shell-bottomnav-h: 64px;
+  --vt-shell-rail-w: 240px;
+  min-height: 100vh;
+  background: var(--vt-bg);
+  color: var(--vt-fg);
+  font-family: "Inter Variable", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  font-feature-settings: "tnum" 1, "ss01" 1;
+  letter-spacing: 0;
+}
+
+.vt-shell-main {
+  position: relative;
+  min-height: 100vh;
+  padding-top: var(--vt-shell-appbar-h);
+  padding-bottom: calc(var(--vt-shell-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 16px);
+  animation: vt-page-fade 120ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-shell-main {
+    animation: none;
+  }
+}
+
+@keyframes vt-page-fade {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Match-renderer pages opt out of the bottom nav and sit under a
+   translucent app bar so the canvas stays full-bleed. */
+.vt-shell[data-variant="canvas"] .vt-shell-main {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.vt-shell[data-variant="canvas"] .vt-appbar {
+  background: transparent;
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+@media (min-width: 768px) {
+  .vt-shell[data-variant="default"] .vt-shell-main {
+    padding-left: var(--vt-shell-rail-w);
+    padding-bottom: 32px;
+  }
+}
+
+/* ---------- AppBar ---------- */
+
+.vt-appbar {
+  position: sticky;
+  top: 0;
+  height: var(--vt-shell-appbar-h);
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 40px 1fr 40px;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  background: var(--vt-bg-overlay);
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border-bottom: 1px solid var(--vt-border);
+  transition: background 160ms ease, border-color 160ms ease;
+}
+
+.vt-appbar[data-scrolled="1"] {
+  background: var(--vt-bg-overlay);
+  border-bottom-color: var(--vt-border-strong);
+}
+
+.vt-appbar-avatar,
+.vt-appbar-action {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vt-radius-pill);
+  border: 1px solid var(--vt-border);
+  background: var(--vt-bg-elev);
+  color: var(--vt-fg);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 120ms ease, transform 120ms ease;
+}
+
+.vt-appbar-avatar:hover,
+.vt-appbar-action:hover {
+  background: var(--vt-bg-elev-2);
+}
+
+.vt-appbar-avatar:active,
+.vt-appbar-action:active {
+  transform: scale(0.96);
+}
+
+.vt-appbar-title {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  text-align: center;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vt-appbar-action svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* ---------- Bottom nav (mobile) ---------- */
+
+.vt-bottomnav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(var(--vt-bottomnav-cols, 4), 1fr);
+  height: calc(var(--vt-shell-bottomnav-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--vt-bg-overlay);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border-top: 1px solid var(--vt-border);
+  transition: transform 220ms ease;
+}
+
+.vt-bottomnav[data-hidden="1"] {
+  transform: translateY(110%);
+}
+
+.vt-bottomnav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--vt-fg-muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 6px 0;
+  transition: color 140ms ease;
+}
+
+.vt-bottomnav-tab svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+}
+
+.vt-bottomnav-tab[aria-current="page"] {
+  color: var(--vt-fg);
+  font-weight: 700;
+}
+
+.vt-bottomnav-tab[aria-current="page"] svg {
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--vt-accent) 60%, transparent));
+}
+
+.vt-bottomnav-tab[data-raised="1"] {
+  position: relative;
+}
+
+.vt-bottomnav-tab[data-raised="1"] .vt-bottomnav-icon {
+  position: relative;
+  margin-top: -22px;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--vt-radius-pill);
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  display: grid;
+  place-items: center;
+  box-shadow: var(--vt-shadow);
+  border: 4px solid var(--vt-bg);
+}
+
+.vt-bottomnav-tab[data-raised="1"] svg {
+  width: 24px;
+  height: 24px;
+  stroke: currentColor;
+}
+
+@media (min-width: 768px) {
+  .vt-bottomnav {
+    display: none;
+  }
+}
+
+/* ---------- Side rail (desktop) ---------- */
+
+.vt-siderail {
+  display: none;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: var(--vt-shell-rail-w);
+  z-index: 25;
+  padding: 24px 16px;
+  background: var(--vt-bg);
+  border-right: 1px solid var(--vt-border);
+  flex-direction: column;
+  gap: 6px;
+}
+
+@media (min-width: 768px) {
+  .vt-siderail {
+    display: flex;
+  }
+}
+
+.vt-siderail-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  margin-bottom: 24px;
+  padding: 0 8px;
+  color: var(--vt-fg);
+  text-decoration: none;
+}
+
+.vt-siderail-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+}
+
+.vt-siderail-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--vt-radius-md);
+  color: var(--vt-fg-muted);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.vt-siderail-link:hover {
+  background: var(--vt-bg-elev);
+  color: var(--vt-fg);
+}
+
+.vt-siderail-link[aria-current="page"] {
+  background: var(--vt-bg-elev-2);
+  color: var(--vt-fg);
+  font-weight: 700;
+}
+
+.vt-siderail-link svg {
+  width: 20px;
+  height: 20px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.8;
+  flex-shrink: 0;
+}
+
+.vt-siderail-section {
+  margin-top: 20px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-fg-faint);
+}
+
+/* ---------- Pill tabs ---------- */
+
+.vt-pilltabs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 12px 16px 12px;
+  margin: 0 -16px;
+  scroll-snap-type: x proximity;
+}
+
+.vt-pilltabs::-webkit-scrollbar {
+  display: none;
+}
+
+.vt-pilltab {
+  flex-shrink: 0;
+  padding: 8px 16px;
+  border-radius: var(--vt-radius-pill);
+  background: var(--vt-bg-elev);
+  border: 1px solid transparent;
+  color: var(--vt-fg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease, border-color 140ms ease;
+  scroll-snap-align: start;
+  white-space: nowrap;
+}
+
+.vt-pilltab:hover {
+  background: var(--vt-bg-elev-2);
+  color: var(--vt-fg);
+}
+
+.vt-pilltab[aria-selected="true"] {
+  background: transparent;
+  color: var(--vt-fg);
+  border-color: var(--vt-fg);
+}
+
+/* ---------- Install prompt ---------- */
+
+.vt-install-toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: calc(var(--vt-shell-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 16px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--vt-bg-overlay);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--vt-border-strong);
+  border-radius: var(--vt-radius-lg);
+  box-shadow: var(--vt-shadow);
+  animation: vt-install-toast-in 240ms cubic-bezier(0.18, 0.78, 0.42, 1.45);
+}
+
+@media (min-width: 640px) {
+  .vt-install-toast {
+    left: auto;
+    right: 24px;
+    bottom: 24px;
+    max-width: 380px;
+  }
+}
+
+@keyframes vt-install-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-install-toast {
+    animation: none;
+  }
+}
+
+.vt-install-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.vt-install-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.vt-install-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  margin: 0 0 2px;
+}
+
+.vt-install-sub {
+  font-size: 12px;
+  color: var(--vt-fg-muted);
+  margin: 0;
+}
+
+.vt-install-cta {
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  border: 0;
+  padding: 8px 14px;
+  border-radius: var(--vt-radius-pill);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.vt-install-dismiss {
+  background: transparent;
+  border: 0;
+  color: var(--vt-fg-muted);
+  cursor: pointer;
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--vt-radius-pill);
+}
+
+.vt-install-dismiss:hover {
+  background: var(--vt-bg-elev);
+  color: var(--vt-fg);
+}
+
+/* ---------- Sticky page header (with optional pill tabs) ---------- */
+
+.vt-page-header {
+  padding: 8px 16px 0;
+  position: sticky;
+  top: var(--vt-shell-appbar-h);
+  background: var(--vt-bg);
+  z-index: 20;
+}
+
+.vt-page-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .vt-page-content {
+    padding: 24px 32px;
+    max-width: 1200px;
+  }
+}

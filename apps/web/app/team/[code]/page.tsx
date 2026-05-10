@@ -32,6 +32,7 @@ import { notFound } from "next/navigation";
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
+import { AppShell } from "@/components/shell";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
@@ -130,6 +131,7 @@ export default function TeamPage({ params }: TeamPageProps) {
   } as React.CSSProperties;
 
   return (
+    <AppShell title={canonical.short_name ?? canonical.name}>
     <main className="td-page" style={heroStyle}>
       <Link href="/world-cup-2026" className="td-back" aria-label="Back to bracket">
         &larr; Bracket
@@ -373,6 +375,7 @@ export default function TeamPage({ params }: TeamPageProps) {
         </Link>
       </footer>
     </main>
+    </AppShell>
   );
 }
 

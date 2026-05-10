@@ -1,5 +1,7 @@
 import dynamic from "next/dynamic";
 
+import { AppShell } from "@/components/shell";
+
 // MatchScene is client-only — Three.js needs a real DOM and WebGL context.
 const MatchScene = dynamic(
   () => import("@/components/MatchScene").then((m) => m.MatchScene),
@@ -23,6 +25,10 @@ const ARFR_DEFAULT_MANIFEST =
  *   4. **For AR-FR demo:** if the match id starts with `fifa-wc-2022-final`
  *      AND nothing above is set, auto-use the bundled manifest.
  *   5. In-process synthetic AR-FR fixture.
+ *
+ * The page is wrapped in `<AppShell variant="canvas">` so the renderer
+ * canvas stays full-bleed under a translucent app-bar; the bottom nav
+ * is hidden so the renderer keeps the full viewport.
  */
 export default function MatchPage({ params, searchParams }: MatchPageProps) {
   const { src, manifest } = searchParams;
@@ -36,5 +42,14 @@ export default function MatchPage({ params, searchParams }: MatchPageProps) {
   else if (isArFrDemo) source = ARFR_DEFAULT_MANIFEST;
   else source = "synthetic";
 
-  return <MatchScene source={source} matchId={params.id} />;
+  return (
+    <AppShell
+      title="Match"
+      variant="canvas"
+      showBottomNav={false}
+      showSideRail={false}
+    >
+      <MatchScene source={source} matchId={params.id} />
+    </AppShell>
+  );
 }
