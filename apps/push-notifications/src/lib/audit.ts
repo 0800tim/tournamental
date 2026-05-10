@@ -25,6 +25,7 @@ export type AuditChannel =
   | 'telegram'
   | 'sms'
   | 'whatsapp'
+  | 'native'
   | 'system';
 export type AuditEvent =
   | 'kickoff_soon'

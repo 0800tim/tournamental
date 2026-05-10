@@ -110,6 +110,91 @@ describe('subscribe endpoints', () => {
     });
     expect(r.statusCode).toBe(400);
   });
+
+  it('accepts valid native (iOS) subscription and stores the token', async () => {
+    const token = 'a'.repeat(64);
+    const r = await built.app.inject({
+      method: 'POST',
+      url: '/v1/subscribe/native',
+      payload: {
+        userId: 'u1',
+        consent: true,
+        platform: 'ios',
+        token,
+      },
+    });
+    expect(r.statusCode).toBe(201);
+    const rec = built.store.getNative('u1');
+    expect(rec).toBeDefined();
+    expect(rec?.platform).toBe('ios');
+    expect(rec?.token).toBe(token);
+  });
+
+  it('accepts valid native (Android) subscription', async () => {
+    const r = await built.app.inject({
+      method: 'POST',
+      url: '/v1/subscribe/native',
+      payload: {
+        userId: 'u2',
+        consent: true,
+        platform: 'android',
+        token: 'fcm-token-' + 'x'.repeat(80),
+      },
+    });
+    expect(r.statusCode).toBe(201);
+    expect(built.store.getNative('u2')?.platform).toBe('android');
+  });
+
+  it('rejects native subscribe without consent', async () => {
+    const r = await built.app.inject({
+      method: 'POST',
+      url: '/v1/subscribe/native',
+      payload: {
+        userId: 'u1',
+        consent: false,
+        platform: 'ios',
+        token: 'a'.repeat(64),
+      },
+    });
+    expect(r.statusCode).toBe(400);
+  });
+
+  it('rejects native subscribe with bad platform', async () => {
+    const r = await built.app.inject({
+      method: 'POST',
+      url: '/v1/subscribe/native',
+      payload: {
+        userId: 'u1',
+        consent: true,
+        platform: 'windows',
+        token: 'a'.repeat(64),
+      },
+    });
+    expect(r.statusCode).toBe(400);
+  });
+
+  it('masks the token in the audit log for native subscribe', async () => {
+    const token = 'abcd' + 'z'.repeat(56) + 'wxyz';
+    await built.app.inject({
+      method: 'POST',
+      url: '/v1/subscribe/native',
+      payload: {
+        userId: 'u9',
+        consent: true,
+        platform: 'ios',
+        token,
+      },
+    });
+    const records = await built.audit.read();
+    const subscribe = records.find(
+      (r) => r.channel === 'native' && r.userId === 'u9',
+    );
+    expect(subscribe).toBeDefined();
+    const payload = subscribe?.payload as { token?: string };
+    expect(payload.token).toBeDefined();
+    expect(payload.token).not.toContain(token);
+    expect(payload.token).toMatch(/^abcd…wxyz$/);
+  });
 });
 
 describe('notify endpoints', () => {

@@ -340,6 +340,28 @@
   color: #cbd5e1;
 }
 
+.bracket-share-cta {
+  margin-top: 12px;
+  display: inline-block;
+  width: 100%;
+  background: transparent;
+  border: 1px solid #6cabdd;
+  color: #6cabdd;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 120ms ease,
+    color 120ms ease;
+}
+
+.bracket-share-cta:hover {
+  background: #6cabdd;
+  color: #0c1722;
+}
+
 .bracket-submit-state {
   font-size: 13px;
   color: #94a3b8;

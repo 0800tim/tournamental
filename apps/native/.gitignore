@@ -1,0 +1,38 @@
+# Generated bundles
+www/
+dist/
+
+# Capacitor / Cordova generated
+.capacitor/
+
+# iOS — keep ios/, but ignore CocoaPods + build artefacts
+ios/App/Pods/
+ios/App/Podfile.lock
+ios/App/build/
+ios/App/output/
+ios/.xcode.env.local
+ios/DerivedData/
+ios/*.xcworkspace/xcuserdata/
+ios/*.xcodeproj/xcuserdata/
+ios/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Android — keep android/, but ignore Gradle + build artefacts
+android/.gradle/
+android/build/
+android/app/build/
+android/app/release/
+android/app/google-services.json
+android/local.properties
+android/captures/
+android/.idea/
+android/gradle.properties.local
+
+# Signing material — never commit
+*.keystore
+*.jks
+*.p8
+*.p12
+*.mobileprovision
+
+# Generated icon scratch (keep PNG masters under resources/)
+resources/**/*.svg

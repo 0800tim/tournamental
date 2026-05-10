@@ -62,25 +62,57 @@ export function isMobileViewport(): boolean {
 /**
  * Fire a haptic vibration with graceful fallbacks.
  *
+ * Native shell precedence: when running inside the Capacitor wrapper
+ * (`window.Capacitor.isNativePlatform()`), this *also* dispatches
+ * `Haptics.impact()` via `@/lib/native` — the `navigator.vibrate`
+ * call typically no-ops in iOS WKWebView, so the native impact is the
+ * one users actually feel. The native call is fire-and-forget so this
+ * function stays synchronous + boolean-returning for existing callers.
+ *
  * - No-op on SSR.
- * - No-op when the device has no `navigator.vibrate`.
+ * - No-op when the device has no `navigator.vibrate` AND we're not on
+ *   the native shell.
  * - No-op when the user has set `prefers-reduced-motion: reduce`.
  *
- * Returns true when a vibration was actually triggered.
+ * Returns true when a vibration was actually triggered (either native
+ * haptic dispatched OR `navigator.vibrate` returned true).
  */
 export function vibrate(pattern: number | readonly number[]): boolean {
-  if (typeof navigator === "undefined") return false;
+  if (prefersReducedMotion()) return false;
+
+  // Native haptic — fire and forget. The shim is gated on
+  // `window.Capacitor.isNativePlatform()`, so this is a no-op on the
+  // plain web. Style is chosen by total pattern length: short single
+  // tap → light, longer / multi-step → medium.
+  let nativeFired = false;
+  if (
+    typeof window !== "undefined" &&
+    window.Capacitor?.isNativePlatform?.()
+  ) {
+    const total =
+      typeof pattern === "number"
+        ? pattern
+        : pattern.reduce((s, n) => s + n, 0);
+    const style: "light" | "medium" | "heavy" =
+      total >= 50 ? "heavy" : total >= 20 ? "medium" : "light";
+    void import("@/lib/native").then((m) => {
+      void m.tapFeedback(style);
+    });
+    nativeFired = true;
+  }
+
+  if (typeof navigator === "undefined") return nativeFired;
   const nav = navigator as Navigator & {
     vibrate?: (p: number | number[]) => boolean;
   };
-  if (typeof nav.vibrate !== "function") return false;
-  if (prefersReducedMotion()) return false;
+  if (typeof nav.vibrate !== "function") return nativeFired;
   // navigator.vibrate types want a mutable number[], so spread out a copy.
   const safe = typeof pattern === "number" ? pattern : [...pattern];
   try {
-    return nav.vibrate(safe);
+    const ok = nav.vibrate(safe);
+    return ok || nativeFired;
   } catch {
-    return false;
+    return nativeFired;
   }
 }
 

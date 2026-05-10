@@ -1,0 +1,40 @@
+{
+  "name": "@vtorn/native",
+  "version": "0.1.0",
+  "private": true,
+  "description": "VTourn native iOS+Android shell — Capacitor wrapper around apps/web with push, haptics, share",
+  "type": "module",
+  "scripts": {
+    "build:web-bundle": "tsx scripts/build-web-bundle.ts",
+    "icons": "tsx scripts/generate-icons.ts",
+    "cap": "cap",
+    "cap:sync": "cap sync",
+    "cap:add:ios": "cap add ios",
+    "cap:add:android": "cap add android",
+    "cap:open:ios": "cap open ios",
+    "cap:open:android": "cap open android",
+    "ios:build": "pnpm icons && pnpm build:web-bundle && cap sync ios && cap open ios",
+    "android:build": "pnpm icons && pnpm build:web-bundle && cap sync android && cap open android",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "test": "echo 'no native tests yet — see apps/push-notifications for the subscribe endpoint test' && exit 0"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/app": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/haptics": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "@capacitor/local-notifications": "^6.0.0",
+    "@capacitor/preferences": "^6.0.0",
+    "@capacitor/push-notifications": "^6.0.0",
+    "@capacitor/share": "^6.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.0.0",
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
