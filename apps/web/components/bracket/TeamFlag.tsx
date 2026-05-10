@@ -19,6 +19,18 @@ type Props = {
   /** "rect" (default, classic 3:2 flag) or "circle" (square crop with
    *  border-radius — used by the bracket pick buttons). */
   shape?: Shape;
+  /**
+   * When true and `accentColor` is set, render a 3px solid kit-colour ring
+   * around the flag. Composes additively with `sparkle`. Per
+   * [doc 36 §TeamFlag](../../../docs/36-vtourn-ux-spec.md), used to mark
+   * the picked team in `MatchPredictionRow` / `KnockoutMatch`.
+   */
+  selectionRing?: boolean;
+  /**
+   * When true, applies `filter: grayscale(0.6) opacity(0.5)` so unselected
+   * sides in a knockout match visibly recede.
+   */
+  dim?: boolean;
   className?: string;
 };
 
@@ -45,15 +57,17 @@ export function TeamFlag({
   size = "md",
   sparkle = true,
   shape = "rect",
+  selectionRing = false,
+  dim = false,
   className = "",
 }: Props) {
   const isCircle = shape === "circle";
-  const dim = isCircle ? CIRCLE_SIZE[size] : null;
+  const circleDim = isCircle ? CIRCLE_SIZE[size] : null;
   const { w, h } = SIZE[size];
-  const style: CSSProperties = isCircle
+  const baseStyle: CSSProperties = isCircle
     ? ({
-        width: dim,
-        height: dim,
+        width: circleDim,
+        height: circleDim,
         borderRadius: "50%",
         overflow: "hidden",
         "--vt-flag-accent": accentColor,
@@ -64,19 +78,42 @@ export function TeamFlag({
         "--vt-flag-accent": accentColor,
       } as CSSProperties);
 
+  // Selection ring: 3px solid kit-colour outline. We use `outline` rather
+  // than `box-shadow` so the ring sits cleanly outside the flag's own
+  // border-radius and composes with the existing glow halo.
+  const style: CSSProperties = selectionRing
+    ? {
+        ...baseStyle,
+        outline: `3px solid ${accentColor}`,
+        outlineOffset: "1px",
+      }
+    : baseStyle;
+
+  const wrapClassName = [
+    styles.flagWrap,
+    sparkle ? styles.sparkle : "",
+    selectionRing ? styles.selectionRing : "",
+    dim ? styles.dim : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   return (
     <span
-      className={`${styles.flagWrap} ${sparkle ? styles.sparkle : ""} ${className}`}
+      className={wrapClassName}
       style={style}
       aria-label={name ?? code}
       title={name ?? code}
+      data-selection-ring={selectionRing ? "true" : undefined}
+      data-dim={dim ? "true" : undefined}
     >
       <img
         className={styles.flagImg}
         src={`/flags/${code}.svg`}
         alt={`${name ?? code} flag`}
-        width={isCircle ? dim! : w}
-        height={isCircle ? dim! : h}
+        width={isCircle ? circleDim! : w}
+        height={isCircle ? circleDim! : h}
         loading="lazy"
         style={
           isCircle

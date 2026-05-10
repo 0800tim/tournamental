@@ -436,12 +436,13 @@
   grid-template-columns: 1fr auto 1fr;
   grid-template-areas:
     "home draw away"
+    "h2h h2h h2h"
     "scores scores scores";
   column-gap: 12px;
-  row-gap: 8px;
+  row-gap: 4px;
   align-items: center;
   justify-items: center;
-  padding: 12px 10px;
+  padding: 10px 10px 8px;
   border-radius: 12px;
   background: #1e293b;
   border: 1px solid #334155;
@@ -452,6 +453,7 @@
   grid-template-columns: 1fr 1fr;
   grid-template-areas:
     "home away"
+    "h2h h2h"
     "scores scores";
 }
 
@@ -461,13 +463,13 @@
 }
 
 .mpr-pick {
-  /* big tappable button — flag + label + odds % stacked */
+  /* big tappable button — flag + label + odds % + form dots stacked */
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 4px;
-  padding: 6px 4px;
+  gap: 2px;
+  padding: 4px 4px;
   background: transparent;
   border: 0;
   cursor: pointer;
@@ -476,6 +478,12 @@
   transition: opacity 120ms ease, transform 120ms ease;
   /* big enough touch target on phones */
   min-width: 64px;
+}
+
+/* Form dots inline under the percentage. Subtle, compact, never crowding
+ * the row above or the H2H pill below. */
+.mpr-pick-form {
+  margin-top: 1px;
 }
 
 .mpr-pick-home { grid-area: home; }
@@ -591,6 +599,106 @@
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* ---- FormDots (shared component, used inline in .mpr-pick) ----
+ * Standalone styles so the shared component renders consistently anywhere
+ * it's mounted — bracket row, team page, match preview cards. */
+.fd-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.fd-row.fd-md {
+  gap: 4px;
+}
+.fd-cell {
+  display: inline-flex;
+}
+.fd-dot {
+  display: inline-block;
+  border-radius: 50%;
+  flex: 0 0 auto;
+}
+.fd-row.fd-md .fd-dot {
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  line-height: 14px;
+  letter-spacing: 0;
+}
+
+/* ---- HeadToHeadPill (shared component) ---- */
+.h2h-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 8px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 10px;
+  line-height: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.h2h-pill-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.h2h-pill-code {
+  font-weight: 700;
+  color: #e6edf3;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+.h2h-pill-record {
+  color: #cbd5e1;
+  font-weight: 600;
+}
+.h2h-pill-empty-text {
+  font-size: 10px;
+  color: #94a3b8;
+  font-style: italic;
+}
+.h2h-pill-wide {
+  gap: 6px;
+}
+.h2h-pill-side,
+.h2h-pill-draw {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3px;
+}
+.h2h-pill-count {
+  font-weight: 700;
+  color: #e6edf3;
+}
+.h2h-pill-suffix {
+  font-size: 9px;
+  color: #94a3b8;
+}
+.h2h-pill-sep {
+  color: #475569;
+  font-size: 9px;
+}
+
+/* H2H pill placement inside the prediction row. */
+.mpr-h2h {
+  grid-area: h2h;
+  margin: 0;
 }
 
 /* ---- Predicted standings panel ---- */

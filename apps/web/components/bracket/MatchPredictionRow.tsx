@@ -22,6 +22,13 @@ import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
 
 import type { MatchOdds } from "@/lib/odds/types";
 import { snapshotOdds } from "@/lib/bracket/history";
+import {
+  headToHeadFor,
+  type HeadToHeadCounts,
+} from "@/lib/head-to-head";
+import { recentFormResults } from "@/lib/team-form";
+import { FormDots, type FormResult } from "@/components/shared/FormDots";
+import { HeadToHeadPill } from "@/components/shared/HeadToHeadPill";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -42,6 +49,19 @@ export interface MatchPredictionRowProps {
   /** Pre-fetched odds (shape from `/api/odds/snapshot`). Rendered
    * inline as the W/D/L percentages under each pick. */
   readonly odds?: MatchOdds | null;
+  /**
+   * Optional override for the home team's last-5 W/D/L sequence (most
+   * recent first). When omitted we look it up from the bundled stub.
+   * Tests pass an explicit array so they don't depend on stub contents.
+   */
+  readonly homeForm?: readonly FormResult[];
+  /** Optional override for the away team's last-5 W/D/L sequence. */
+  readonly awayForm?: readonly FormResult[];
+  /**
+   * Optional override for the head-to-head record. When omitted we look it
+   * up from the bundled stub. Pass `null` explicitly to suppress the pill.
+   */
+  readonly headToHead?: HeadToHeadCounts | null;
   readonly onChange: (next: MatchPrediction) => void;
 }
 
@@ -70,6 +90,9 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     noDraw,
     kickoffIso,
     odds,
+    homeForm,
+    awayForm,
+    headToHead,
     onChange,
   } = props;
   const [showScores, setShowScores] = useState<boolean>(
@@ -154,6 +177,19 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const isDraw = prediction?.outcome === "draw";
   const isAway = prediction?.outcome === "away_win";
 
+  // Resolve form + h2h from props or fall back to the bundled stub. We
+  // recompute these on every render — the underlying lookups are pure
+  // synchronous reads from a small map so the cost is negligible relative
+  // to the surrounding React work.
+  const homeFormResults: readonly FormResult[] =
+    homeForm ?? recentFormResults(homeTeam.id);
+  const awayFormResults: readonly FormResult[] =
+    awayForm ?? recentFormResults(awayTeam.id);
+  const h2h: HeadToHeadCounts | null =
+    headToHead === undefined
+      ? headToHeadFor(homeTeam.id, awayTeam.id)
+      : headToHead;
+
   return (
     <div
       className={`mpr-row ${matchStarted ? "is-locked" : ""}`}
@@ -194,11 +230,21 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           size="lg"
           sparkle={isHome}
           shape="circle"
+          selectionRing={isHome}
+          dim={!!prediction && !isHome}
         />
         <span className="mpr-pick-code">{homeTeam.id}</span>
         <span className="mpr-pick-pct" data-outcome="home_win">
           {pctLabel(odds?.homeWin)}
         </span>
+        {homeFormResults.length > 0 && (
+          <FormDots
+            results={homeFormResults}
+            size="sm"
+            className="mpr-pick-form"
+            ariaLabel={`${homeTeam.name} last ${homeFormResults.length} results`}
+          />
+        )}
       </button>
 
       {!noDraw && (
@@ -217,6 +263,16 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         </button>
       )}
 
+      {h2h && (
+        <HeadToHeadPill
+          homeCode={homeTeam.id}
+          awayCode={awayTeam.id}
+          counts={h2h}
+          variant="compact"
+          className="mpr-h2h"
+        />
+      )}
+
       <button
         type="button"
         className={`mpr-pick mpr-pick-away ${isAway ? "is-selected" : ""} ${prediction && !isAway ? "is-dim" : ""}`}
@@ -232,11 +288,21 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           size="lg"
           sparkle={isAway}
           shape="circle"
+          selectionRing={isAway}
+          dim={!!prediction && !isAway}
         />
         <span className="mpr-pick-code">{awayTeam.id}</span>
         <span className="mpr-pick-pct" data-outcome="away_win">
           {pctLabel(odds?.awayWin)}
         </span>
+        {awayFormResults.length > 0 && (
+          <FormDots
+            results={awayFormResults}
+            size="sm"
+            className="mpr-pick-form"
+            ariaLabel={`${awayTeam.name} last ${awayFormResults.length} results`}
+          />
+        )}
       </button>
 
       <div className="mpr-scores-wrap">
