@@ -4,7 +4,7 @@
 - **Agent**: share-card-and-viral-loop builder
 - **Branch**: `feat/share-card-and-viral-loop`
 - **Worktree**: `/home/clawdbot/clawdia/projects/vtorn-share-cards`
-- **Status**: in-progress
+- **Status**: PR-open (#128)
 - **Refs**: docs/52-share-cards-and-viral-loops.md, packages/social-cards
 
 ## Plan
@@ -55,9 +55,18 @@
   shares".
 - Real analytics persistence — endpoint is a 204 stub.
 
+## Outcome
+
+- PR #128 opened: https://github.com/0800tim/vtorn/pull/128
+- 33 new tests across web (`share-card-og.test.ts` 13 + `share-modal.test.tsx` 20)
+- 15 new tests in social-cards (`bracket-pick.test.ts`)
+- All 626 web tests green, all 95 social-cards tests green
+- Typecheck + build clean (39 routes incl. new ones)
+- Disk-cached PNGs verified: 44KB-49KB per bracket
+
 ## Next steps
 
-- Write code + tests.
-- `pnpm --filter @vtorn/web test`, `pnpm --filter @vtorn/web typecheck`,
-  build.
-- Open PR.
+- Reviewer agent picks up PR #128
+- Sibling `feat/bracket-tabs-and-save-rename` rebases and wires the
+  floating Save & Share button to `useShareModal().open(payload)`
+- Follow-up agent ships the animated MP4 generator per doc 52 §8
