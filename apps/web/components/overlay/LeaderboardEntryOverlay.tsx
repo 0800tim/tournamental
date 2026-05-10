@@ -42,7 +42,7 @@ export function LeaderboardEntryOverlay(props: LeaderboardEntryOverlayProps) {
             <strong>{score}</strong> pts
           </p>
         )}
-        <p>This entry was locked before kickoff.</p>
+        <p>This entry was saved before kickoff.</p>
         <div className="vt-lb-overlay-actions">
           <Link
             href={fullPageHref}

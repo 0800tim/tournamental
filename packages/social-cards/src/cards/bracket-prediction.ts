@@ -53,7 +53,7 @@ export function bracketPredictionBody(
             textTransform: "uppercase",
           },
         },
-        "Bracket Locked",
+        "Bracket Saved",
       ),
       predictionIq !== undefined
         ? el(
@@ -87,7 +87,7 @@ export function bracketPredictionBody(
       el(
         "div",
         { style: { display: "flex", fontSize: subSize, color: palette.ink[200] } },
-        "bracket — locked in. Beat it.",
+        "bracket — saved. Beat it.",
       ),
     ),
     el(

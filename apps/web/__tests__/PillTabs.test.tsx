@@ -11,14 +11,14 @@ describe("<PillTabs>", () => {
   const tabs = [
     { id: "a", label: "Group stage" },
     { id: "b", label: "Knockouts" },
-    { id: "c", label: "Lock and share" },
+    { id: "c", label: "Save and share" },
   ];
 
   it("renders every tab label", () => {
     const { getByText } = render(<PillTabs tabs={tabs} active="a" />);
     expect(getByText("Group stage")).toBeTruthy();
     expect(getByText("Knockouts")).toBeTruthy();
-    expect(getByText("Lock and share")).toBeTruthy();
+    expect(getByText("Save and share")).toBeTruthy();
   });
 
   it("marks the active tab with aria-selected", () => {

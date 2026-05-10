@@ -112,9 +112,9 @@ describe("BracketBuilder — per-match predictions", () => {
     expect(screen.getAllByText("R32").length).toBeGreaterThan(0);
   });
 
-  it("switching to the lock tab shows the lock summary + counts", () => {
+  it("switching to the save tab shows the save summary + counts", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /Lock \+ share/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /Save \+ share/ }));
     expect(screen.getByText(/group matches/)).toBeDefined();
     expect(screen.getByText(/knockout picks/)).toBeDefined();
   });

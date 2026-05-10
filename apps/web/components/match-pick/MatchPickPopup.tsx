@@ -11,7 +11,7 @@
  * Persistence: hooks into `useMatchPick` which talks to the per-match
  * game-service endpoints (PUT/GET/DELETE /v1/picks/:userId/:matchId).
  *
- * Lock state: if `now() >= kickoff`, the W/D/L buttons disable and a
+ * Kickoff freeze: if `now() >= kickoff`, the W/D/L buttons disable and a
  * banner appears with Tim's exact phrasing — same message as
  * `MatchPredictionRow`.
  *
@@ -416,8 +416,9 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
             Captured at: <time dateTime={odds.updatedAt}>{odds.updatedAt}</time>
           </p>
           <p className="mpp-odds-detail-note">
-            Locking now snapshots these odds with your pick so the multiplier
-            uses the implied probability at the moment you locked in.
+            Saving now snapshots these odds with your pick so the multiplier
+            uses the implied probability at the moment you saved. You can
+            still change the pick until the match kicks off.
           </p>
         </div>
       )}
@@ -512,7 +513,7 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
           onClick={onSave}
           disabled={!outcome || locked || hook.isSaving}
         >
-          {hook.isSaving ? "Saving…" : hook.pick ? "Update pick" : "Lock it in"}
+          {hook.isSaving ? "Saving…" : hook.pick ? "Update pick" : "Save pick"}
         </button>
       </footer>
     </div>

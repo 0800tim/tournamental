@@ -27,7 +27,7 @@ const SAMPLE_NAMES = [
   "@bracket-king",
   "@office-pizza",
   "@nz-football-mum",
-  "@late-locker",
+  "@late-saver",
   "@argentina-2026",
 ];
 
@@ -104,7 +104,7 @@ export function LeaderboardPreview() {
           );
         })}
         <div className="wc-lb-empty">
-          0 picks locked yet. Be the first on the {tab} board.
+          0 picks saved yet. Be the first on the {tab} board.
         </div>
       </div>
     </div>

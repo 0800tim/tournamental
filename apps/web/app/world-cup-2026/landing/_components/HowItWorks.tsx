@@ -1,6 +1,6 @@
 /**
- * The three-step explainer: predict, lock early, watch the world react.
- * Step 2 has a tiny inline bar chart showing the early-lock multiplier
+ * The three-step explainer: predict, save early, watch the world react.
+ * Step 2 has a tiny inline bar chart showing the early-save multiplier
  * decay (5.0× -> 1.0×). Pure SVG; no JS animation.
  */
 
@@ -23,12 +23,13 @@ export function HowItWorks() {
       </div>
 
       <div className="wc-step" data-step="2">
-        <h3>Lock in early.</h3>
+        <h3>Save early.</h3>
         <p>
-          The earlier you commit a long-shot pick, the bigger the multiplier
-          when it pays off. Wait until kickoff and you score flat.
+          Tweak picks game by game right up to kickoff. The earlier you save
+          a long-shot, the bigger the multiplier when it pays off — wait
+          until kickoff and you score flat.
         </p>
-        <div className="wc-step-decay" aria-label="Early-lock multiplier decay 5x to 1x">
+        <div className="wc-step-decay" aria-label="Early-save multiplier decay 5x to 1x">
           {DECAY.map((m, i) => (
             <span
               key={i}
@@ -46,7 +47,7 @@ export function HowItWorks() {
       <div className="wc-step" data-step="3">
         <h3>Watch the world react.</h3>
         <p>
-          Every Polymarket tick streams into the app. Compare your locked
+          Every Polymarket tick streams into the app. Compare your saved
           picks against global consensus, pile-on early underdog stories,
           and watch your country&apos;s leaderboard climb in real time.
         </p>

@@ -240,9 +240,9 @@ test.describe("Full WC2026 bracket cascade", () => {
     );
 
     // ------------------------------------------------------------------
-    // 11. Lock + share tab — verify summary shows the full submission.
+    // 11. Save + share tab — verify summary shows the full submission.
     // ------------------------------------------------------------------
-    await page.getByRole("tab", { name: /Lock \+ share/ }).click();
+    await page.getByRole("tab", { name: /Save \+ share/ }).click();
     await expect(page.locator(".bracket-lock-summary")).toBeVisible();
 
     // 11a. Counts inside the lock panel.

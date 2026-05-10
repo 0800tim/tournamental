@@ -46,9 +46,9 @@ test.describe("Per-match prediction", () => {
     await expect(mexRow).toHaveClass(/is-advance/);
   });
 
-  test("locks the bracket and shows the lock summary", async ({ page }) => {
+  test("saves the bracket and shows the save summary", async ({ page }) => {
     await page.goto(`${BASE_URL}/world-cup-2026`);
-    await page.getByRole("tab", { name: /Lock \+ share/ }).click();
-    await expect(page.getByRole("button", { name: /Lock final/ })).toBeVisible();
+    await page.getByRole("tab", { name: /Save \+ share/ }).click();
+    await expect(page.getByRole("button", { name: /Save \+ share/ })).toBeVisible();
   });
 });
