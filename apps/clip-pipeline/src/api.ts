@@ -17,6 +17,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import type { Logger } from "pino";
 
 import { detectHighlights } from "./highlights.js";
+import type { SubscriptionManager } from "./lib/event-trigger.js";
 import type { ClipQueue } from "./queue.js";
 import type { FfmpegRunner } from "./ffmpeg.js";
 import type {
@@ -32,6 +33,8 @@ export interface BuildAppOptions {
   ffmpeg: FfmpegRunner;
   /** Resolver called by GET /v1/match/:id/highlights to fetch the event stream. Tests inject a stub. */
   fetchEvents: (matchId: string) => Promise<ReadonlyArray<DetectorEvent>>;
+  /** Optional auto-trigger manager. When supplied, /v1/auto-trigger/* + healthz expose it. */
+  triggers?: SubscriptionManager;
   log?: Logger;
 }
 
@@ -58,6 +61,7 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
     return {
       ok: true,
       ffmpeg: ffmpegOk ? "available" : "missing",
+      active_triggers: opts.triggers?.count() ?? 0,
       ts: Date.now(),
     };
   });
@@ -152,7 +156,105 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
     },
   );
 
+  // -------- auto-trigger control --------
+
+  app.post<{ Body: unknown }>("/v1/auto-trigger/start", async (req, reply) => {
+    if (!opts.triggers) {
+      reply.status(503);
+      return { error: "auto-trigger not configured" };
+    }
+    const parsed = parseAutoTrigger(req.body);
+    if ("error" in parsed) {
+      reply.status(400);
+      return { error: parsed.error };
+    }
+    try {
+      await opts.triggers.start(parsed.value.matchId, parsed.value.streamUrl);
+    } catch (err) {
+      reply.status(502);
+      return { error: `failed to start subscription: ${(err as Error).message}` };
+    }
+    reply.header("Cache-Control", "no-store");
+    return {
+      ok: true,
+      matchId: parsed.value.matchId,
+      streamUrl: parsed.value.streamUrl,
+      active_triggers: opts.triggers.count(),
+    };
+  });
+
+  app.post<{ Body: unknown }>("/v1/auto-trigger/stop", async (req, reply) => {
+    if (!opts.triggers) {
+      reply.status(503);
+      return { error: "auto-trigger not configured" };
+    }
+    const parsed = parseAutoTriggerStop(req.body);
+    if ("error" in parsed) {
+      reply.status(400);
+      return { error: parsed.error };
+    }
+    const stopped = await opts.triggers.stop(parsed.value.matchId);
+    reply.header("Cache-Control", "no-store");
+    return {
+      ok: true,
+      matchId: parsed.value.matchId,
+      stopped,
+      active_triggers: opts.triggers.count(),
+    };
+  });
+
+  app.get("/v1/auto-trigger", async (_req, reply) => {
+    if (!opts.triggers) {
+      reply.status(503);
+      return { error: "auto-trigger not configured" };
+    }
+    reply.header("Cache-Control", "no-store");
+    return {
+      count: opts.triggers.count(),
+      subscriptions: opts.triggers.list(),
+    };
+  });
+
   return app;
+}
+
+// ---------- auto-trigger request parsing ----------
+
+type ParsedAutoTrigger =
+  | { value: { matchId: string; streamUrl: string } }
+  | { error: string };
+
+export function parseAutoTrigger(raw: unknown): ParsedAutoTrigger {
+  if (!raw || typeof raw !== "object") {
+    return { error: "body must be a JSON object" };
+  }
+  const r = raw as Record<string, unknown>;
+  const matchId = r.matchId;
+  if (typeof matchId !== "string" || matchId.length === 0 || matchId.length > 128) {
+    return { error: "matchId must be a non-empty string (max 128 chars)" };
+  }
+  const streamUrl = r.streamUrl;
+  if (typeof streamUrl !== "string" || streamUrl.length === 0 || streamUrl.length > 2048) {
+    return { error: "streamUrl must be a non-empty string (max 2048 chars)" };
+  }
+  if (!/^wss?:\/\//.test(streamUrl)) {
+    return { error: "streamUrl must start with ws:// or wss://" };
+  }
+  return { value: { matchId, streamUrl } };
+}
+
+type ParsedAutoTriggerStop = { value: { matchId: string } } | { error: string };
+
+export function parseAutoTriggerStop(raw: unknown): ParsedAutoTriggerStop {
+  if (!raw || typeof raw !== "object") {
+    return { error: "body must be a JSON object" };
+  }
+  const r = raw as Record<string, unknown>;
+  const matchId = r.matchId;
+  if (typeof matchId !== "string" || matchId.length === 0 || matchId.length > 128) {
+    return { error: "matchId must be a non-empty string (max 128 chars)" };
+  }
+  return { value: { matchId } };
 }
 
 // ---------- request parsing ----------

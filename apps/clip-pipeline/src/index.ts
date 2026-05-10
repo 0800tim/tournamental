@@ -13,6 +13,11 @@ import { pino } from "pino";
 import { buildApp } from "./api.js";
 import { loadConfig } from "./config.js";
 import { defaultFfmpegRunner } from "./ffmpeg.js";
+import {
+  defaultPublisherClient,
+  jsonlTriggerStore,
+  SubscriptionManager,
+} from "./lib/event-trigger.js";
 import { ClipQueue } from "./queue.js";
 import type { DetectorEvent } from "./types.js";
 
@@ -36,12 +41,38 @@ async function main(): Promise<void> {
     return [];
   };
 
-  const app = buildApp({ queue, ffmpeg, fetchEvents, log });
+  const triggerStore = jsonlTriggerStore({
+    activePath: config.activeTriggersPath,
+    failedPath: config.failedPublishesPath,
+  });
+  const publisher = defaultPublisherClient({ baseUrl: config.publisherBaseUrl });
+  const triggers = new SubscriptionManager({
+    queue,
+    publisher,
+    store: triggerStore,
+    log: log.child({ scope: "auto-trigger" }),
+  });
+
+  // Resume any in-flight match subscriptions from the JSONL store. This survives
+  // a restart - the operator doesn't have to re-issue the start calls.
+  try {
+    await triggers.resumeFromStore();
+    log.info({ count: triggers.count() }, "resumed match subscriptions from store");
+  } catch (err) {
+    log.warn({ err }, "failed to resume from trigger store");
+  }
+
+  const app = buildApp({ queue, ffmpeg, fetchEvents, triggers, log });
   await app.listen({ port: config.port, host: config.bind });
   log.info({ port: config.port, bind: config.bind }, "http server listening");
 
   const shutdown = async (signal: string) => {
     log.info({ signal }, "shutting down");
+    try {
+      triggers.closeAll();
+    } catch (e) {
+      log.warn({ err: e }, "error closing subscription manager");
+    }
     try {
       await app.close();
     } catch (e) {
