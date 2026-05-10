@@ -8,6 +8,8 @@ useDefault = true
 #   - .env.example: documentation file with empty/placeholder values.
 #     Real secrets live in .env (gitignored) and the deployment secret store.
 #   - sessions/, docs/: occasional embedded fixtures and doc examples.
+#   - test/spec files: legitimately use named "secret"/"key" identifiers
+#     with high-entropy strings to exercise HMAC/JWT helpers.
 [allowlist]
 description = "Documentation, fixtures, and config templates"
 paths = [
@@ -15,4 +17,6 @@ paths = [
   '''(^|/)\.env\.example\.[^/]+$''',
   '''^docs/.*\.md$''',
   '''^sessions/.*\.md$''',
+  '''(^|/)(tests?|__tests__)/.*\.(ts|tsx|js|jsx)$''',
+  '''.*\.(test|spec)\.(ts|tsx|js|jsx)$''',
 ]

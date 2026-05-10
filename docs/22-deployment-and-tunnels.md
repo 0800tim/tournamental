@@ -22,6 +22,7 @@
 | Stream fan-out   | `vtorn-stream-fanout.aiva.nz` → `:4002`         | `stream-dev.vtourn.com`                       | `stream.vtourn.com`       |
 | API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.vtourn.com`                          | `api.vtourn.com`          |
 | Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.vtourn.com`                         | `auth.vtourn.com`          |
+| DM-OTP login     | `vtorn-dm-otp.aiva.nz` → `:3331`                | `dm-dev.vtourn.com`                           | `dm.vtourn.com`            |
 | Admin console    | `vtorn-admin.aiva.nz` → `:3340`                 | `admin-dev.vtourn.com`                        | `admin.vtourn.com`        |
 | Live odds ingest | `vtorn-odds.aiva.nz` → `:3341`                  | `odds-dev.vtourn.com`                         | `odds.vtourn.com`         |
 | Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.vtourn.com`                         | `game.vtourn.com`         |
@@ -46,6 +47,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/api`                 | 3310  | Fastify. Tunnel: `vtorn-api.aiva.nz`.                                                |
 | `apps/marketing` (future)  | 3320  | Next.js or Astro. Tunnel: `vtorn-www.aiva.nz`.                                       |
 | `apps/auth-sms`            | 3330  | Fastify (SMS / WhatsApp OTP). Tunnel: `vtorn-auth.aiva.nz`. See [docs/32](32-auth-and-privacy.md). |
+| `apps/dm-otp`              | 3331  | Fastify (DM-OTP login across 16 channels: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, LINE, Viber, Teams, LinkedIn, Signal, Email magic-link). Tunnel: `vtorn-dm-otp.aiva.nz`. |
 | `apps/admin`               | 3340  | Internal admin console (Next.js). Tunnel: `vtorn-admin.aiva.nz` / `admin.vtourn.com`. |
 | `apps/odds-ingest`         | 3341  | Fastify (Polymarket + The Odds API). Tunnel: `vtorn-odds.aiva.nz` / `odds.vtourn.com`. |
 | `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.vtourn.com`. See [docs/12](12-odds-and-predictions.md). |
