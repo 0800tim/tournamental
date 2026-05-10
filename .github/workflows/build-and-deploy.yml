@@ -122,7 +122,7 @@ jobs:
           cache: pnpm
 
       - name: Restore Next/Astro/tsc build cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             apps/${{ matrix.app }}/.next/cache
