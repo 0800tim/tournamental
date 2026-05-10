@@ -21,7 +21,7 @@ import { FileAuditLogger, TeeAuditLogger } from './lib/audit.js';
 import { SubscriptionStore } from './lib/subscriptions.js';
 import { StubWebPushSender } from './lib/web-push.js';
 import { StubTelegramSender } from './lib/telegram.js';
-import { StubSmsSender } from './lib/sms.js';
+import { AivaSmsAdapter } from './lib/sms.js';
 import { WhatsAppPushSender } from './lib/whatsapp.js';
 import { Dispatcher, type PreferredChannel } from './lib/dispatcher.js';
 import { Scheduler, type ScheduledJob } from './lib/scheduler.js';
@@ -49,6 +49,8 @@ export interface BuildOptions {
   /** Path to the WhatsApp-only audit log (mirrored from main audit).
    *  Default `./data/whatsapp-audit.jsonl`. */
   whatsappAuditPath?: string;
+  /** Path to the privacy-masked SMS audit log. Default `./data/sms-audit.jsonl`. */
+  smsAuditPath?: string;
   /** Path to the scheduler state JSON. Default `./data/scheduled-jobs.json`. */
   schedulerStatePath?: string;
   /** If true (default), scan fixtures and arm timers on boot. */
@@ -121,11 +123,13 @@ export async function buildServer(opts: BuildOptions = {}): Promise<BuiltServer>
     pushUrl: process.env.TOURNAMENT_BOT_PUSH_URL,
     pushSecret: process.env.TOURNAMENT_BOT_PUSH_SECRET,
   });
-  const sms = new StubSmsSender({
+  const sms = new AivaSmsAdapter({
     audit,
+    smsAuditPath: opts.smsAuditPath ?? './data/sms-audit.jsonl',
     apiUrl: process.env.AIVA_SMS_API_URL ?? process.env.AIVA_SMS_URL,
     apiKey: process.env.AIVA_SMS_API_KEY,
     deviceId: process.env.AIVA_SMS_DEVICE_ID,
+    log: (msg) => app.log.warn(msg),
   });
   const whatsapp = new WhatsAppPushSender({
     audit: whatsappTee,
