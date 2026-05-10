@@ -16,7 +16,10 @@ Twitter / X.
 | `GET`  | `/v1/clip/:clip_id` | Poll status (`queued`, `rendering`, `done`, `failed`) and grab the URL. |
 | `GET`  | `/v1/clip/:clip_id/file` | Stream the rendered MP4 (immutable, content-addressed by SHA-256). |
 | `GET`  | `/v1/match/:match_id/highlights` | Auto-detected highlight reel for a match (from the StatsBomb / spec event stream). |
-| `GET`  | `/healthz` | Liveness + ffmpeg availability. |
+| `POST` | `/v1/auto-trigger/start` | Subscribe to a match stream and auto-render clips on goal / red card / penalty / match end. Body `{ matchId, streamUrl }`. |
+| `POST` | `/v1/auto-trigger/stop` | Stop a per-match subscription. Body `{ matchId }`. |
+| `GET`  | `/v1/auto-trigger` | List active subscriptions. |
+| `GET`  | `/healthz` | Liveness + ffmpeg availability + active-trigger count. |
 
 ## Running locally
 
@@ -58,7 +61,42 @@ curl -O http://localhost:3380/v1/clip/$CLIP/file
 
 # 5. Get the auto-detected highlight reel for a match.
 curl -s 'http://localhost:3380/v1/match/fifa-wc-2022-final-arg-fra/highlights?limit=10' | jq
+
+# 6. Auto-trigger clips from a live match stream.
+curl -s -X POST http://localhost:3380/v1/auto-trigger/start \
+  -H 'content-type: application/json' \
+  -d '{"matchId":"fifa-wc-2022-final-arg-fra","streamUrl":"ws://localhost:4002/v1/match/fifa-wc-2022-final-arg-fra"}' | jq
+
+# Stop it again.
+curl -s -X POST http://localhost:3380/v1/auto-trigger/stop \
+  -H 'content-type: application/json' \
+  -d '{"matchId":"fifa-wc-2022-final-arg-fra"}' | jq
 ```
+
+### Auto-trigger flow
+
+```
+   producer/stream-server WS
+            |
+            v
+   subscribeToMatchStream
+            |  (filter: goal | red_card | penalty | match_end)
+            v
+   ClipQueue.submit(...)         <- existing render pipeline
+            |
+            v
+   social-publisher /v1/publish  <- caption + hashtags from
+                                    config/clip-captions.json
+```
+
+Captions are loaded once from `config/clip-captions.json` (repo root) keyed
+by event type and clip format. Placeholders: `{home}`, `{away}`, `{scorer}`,
+`{minute}`, `{score}`. Captions never contain emojis (validated at load).
+
+If the social-publisher is offline or returns non-2xx, the dispatch payload is
+appended to `data/failed-publishes.jsonl` for later retry. Active subscriptions
+are persisted to `data/active-triggers.jsonl` so a restart re-subscribes
+without operator action.
 
 ## Architecture
 

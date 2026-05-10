@@ -12,6 +12,12 @@ export interface Config {
   /** Optional public URL prefix; trailing slash trimmed on load. */
   storageUrl: string | null;
   logLevel: string;
+  /** Where the SubscriptionManager persists active matches. */
+  activeTriggersPath: string;
+  /** Where failed publisher dispatches are dead-lettered. */
+  failedPublishesPath: string;
+  /** Base URL of the social-publisher service (POSTs to `${baseUrl}/v1/publish`). */
+  publisherBaseUrl: string;
 }
 
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
@@ -29,5 +35,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     ffmpegBin,
     storageUrl: rawUrl ? rawUrl.replace(/\/+$/, "") : null,
     logLevel: env.CLIP_LOG_LEVEL?.trim() || "info",
+    activeTriggersPath:
+      env.CLIP_ACTIVE_TRIGGERS_PATH?.trim() ||
+      "./apps/clip-pipeline/data/active-triggers.jsonl",
+    failedPublishesPath:
+      env.CLIP_FAILED_PUBLISHES_PATH?.trim() ||
+      "./apps/clip-pipeline/data/failed-publishes.jsonl",
+    publisherBaseUrl: env.CLIP_PUBLISHER_BASE_URL?.trim() || "http://localhost:3382",
   };
 }

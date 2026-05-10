@@ -5,6 +5,10 @@ data/clips/*.jpg
 data/clips/*.webp
 data/clips/*.png
 
+# Auto-trigger runtime state is per-deployment, never committed.
+data/active-triggers.jsonl
+data/failed-publishes.jsonl
+
 # tsc build artefacts.
 dist/
 *.tsbuildinfo

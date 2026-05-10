@@ -1,0 +1,59 @@
+{
+  "$schema": "Caption templates keyed by event type then clip format (9:16 vertical, 1:1 square, 16:9 horizontal). Placeholders: {home}, {away}, {scorer}, {minute}, {score}. Hashtags are appended verbatim. NO emojis.",
+  "event.goal": {
+    "9:16": {
+      "caption": "GOAL {scorer} {minute} for {home} vs {away}. Score: {score}",
+      "hashtags": ["#VTourn", "#Goal", "#WorldCup"]
+    },
+    "1:1": {
+      "caption": "{scorer} finds the back of the net at {minute}. {home} {score} {away}",
+      "hashtags": ["#VTourn", "#Goal"]
+    },
+    "16:9": {
+      "caption": "{scorer} scores at {minute} - {home} {score} {away}. Predict the next one on VTourn.",
+      "hashtags": ["#VTourn", "#Goal", "#FootballPredictions"]
+    }
+  },
+  "event.red_card": {
+    "9:16": {
+      "caption": "RED CARD {scorer} sent off at {minute}. {home} vs {away} {score}",
+      "hashtags": ["#VTourn", "#RedCard"]
+    },
+    "1:1": {
+      "caption": "{scorer} sees red at {minute}. {home} {score} {away}",
+      "hashtags": ["#VTourn", "#RedCard"]
+    },
+    "16:9": {
+      "caption": "Red card for {scorer} at {minute} changes {home} vs {away}. Score now {score}.",
+      "hashtags": ["#VTourn", "#RedCard", "#Football"]
+    }
+  },
+  "event.penalty": {
+    "9:16": {
+      "caption": "PENALTY {scorer} at {minute} for {home} vs {away}. {score}",
+      "hashtags": ["#VTourn", "#Penalty"]
+    },
+    "1:1": {
+      "caption": "Penalty taken by {scorer} at {minute}. {home} {score} {away}",
+      "hashtags": ["#VTourn", "#Penalty"]
+    },
+    "16:9": {
+      "caption": "{scorer} steps up at {minute} - {home} vs {away}, score {score}.",
+      "hashtags": ["#VTourn", "#Penalty", "#Football"]
+    }
+  },
+  "event.match_end": {
+    "9:16": {
+      "caption": "FULL TIME {home} {score} {away}. The final whistle.",
+      "hashtags": ["#VTourn", "#FullTime"]
+    },
+    "1:1": {
+      "caption": "Full time. {home} {score} {away}.",
+      "hashtags": ["#VTourn", "#FullTime"]
+    },
+    "16:9": {
+      "caption": "Match ends {home} {score} {away}. Recap on VTourn.",
+      "hashtags": ["#VTourn", "#FullTime", "#FootballPredictions"]
+    }
+  }
+}
