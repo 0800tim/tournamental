@@ -12,7 +12,8 @@
     "start": "node dist/server.js",
     "fetch-fixtures": "tsx scripts/fetch-fixtures.ts",
     "dump-openapi": "tsx scripts/dump-openapi.ts",
-    "scrape-players": "tsx scripts/scrape-players.ts"
+    "scrape-players": "tsx scripts/scrape-players.ts",
+    "scrape-stats": "tsx scripts/scrape-stats.ts"
   },
   "dependencies": {
     "@fastify/swagger": "^9.7.0",
