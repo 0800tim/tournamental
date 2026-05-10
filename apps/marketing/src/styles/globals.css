@@ -300,17 +300,37 @@
   }
 
   .vt-mobile-drawer-inner {
-    @apply h-full flex flex-col;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
   }
   .vt-mobile-drawer-head {
     @apply flex items-center justify-between px-4 py-3 border-b;
+    flex: 0 0 auto;
     border-color: var(--vt-border);
   }
   .vt-mobile-drawer-nav {
-    @apply flex flex-col gap-1 px-3 py-3 overflow-y-auto flex-1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .vt-mobile-drawer-nav .vt-mobile-link {
+    display: block;
+    padding: 10px 12px;
+    border-radius: 8px;
+    color: var(--vt-fg);
+    font-size: 1rem;
+    line-height: 1.4;
   }
   .vt-mobile-drawer-foot {
     @apply flex flex-col gap-2 px-3 py-3 border-t;
+    flex: 0 0 auto;
     border-color: var(--vt-border);
   }
   .vt-mobile-theme-btn {
