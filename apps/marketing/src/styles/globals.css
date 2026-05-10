@@ -258,6 +258,78 @@
   .vt-mobile-link.is-active {
     color: theme(colors.accent.400);
   }
+
+  /* Slide-in mobile drawer (replaces the dropdown panel). On screens
+   * < 768 px the drawer slides in from the right covering ~85vw, with
+   * a backdrop scrim behind it. Both elements are kept in DOM at all
+   * times so CSS transitions can animate `transform` + `opacity`
+   * without layout thrash. */
+  .vt-mobile-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(85vw, 360px);
+    z-index: 70;
+    background: var(--vt-bg);
+    border-left: 1px solid var(--vt-border);
+    box-shadow: -16px 0 40px rgba(0, 0, 0, 0.35);
+    transform: translateX(100%);
+    transition: transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    /* The drawer always exists in the DOM but is non-interactive while
+     * closed. `visibility` toggles via the [data-state] attribute keep
+     * it out of the focus order until opened. */
+    visibility: hidden;
+  }
+  .vt-mobile-drawer[data-state="open"] {
+    transform: translateX(0);
+    visibility: visible;
+  }
+  .vt-mobile-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease-out;
+  }
+  .vt-mobile-scrim[data-state="open"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .vt-mobile-drawer-inner {
+    @apply h-full flex flex-col;
+  }
+  .vt-mobile-drawer-head {
+    @apply flex items-center justify-between px-4 py-3 border-b;
+    border-color: var(--vt-border);
+  }
+  .vt-mobile-drawer-nav {
+    @apply flex flex-col gap-1 px-3 py-3 overflow-y-auto flex-1;
+  }
+  .vt-mobile-drawer-foot {
+    @apply flex flex-col gap-2 px-3 py-3 border-t;
+    border-color: var(--vt-border);
+  }
+  .vt-mobile-theme-btn {
+    @apply flex items-center justify-between cursor-pointer w-full text-left;
+    background: transparent;
+    border: 0;
+  }
+  .vt-mobile-cta {
+    @apply text-center;
+  }
+
+  body.vt-mobile-menu-open {
+    overflow: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .vt-mobile-drawer { transition: none; }
+    .vt-mobile-scrim { transition: none; }
+  }
 }
 
 /* ----------------------------------------------------------------------
