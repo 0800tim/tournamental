@@ -85,7 +85,7 @@ async function ingest<S extends ZodTypeAny, K extends StoredEvent['kind']>(
     ctx.store.eventsForUser(stored.userId),
   );
   const { contactId } = await ctx.ghl.upsertContact(
-    upsertFromAggregate(aggregate),
+    upsertFromAggregate(aggregate, stored.eventId),
   );
 
   return {

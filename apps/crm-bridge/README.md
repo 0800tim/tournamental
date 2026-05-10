@@ -8,11 +8,30 @@ Port: **3395** (see `docs/22-deployment-and-tunnels.md`).
 GHL secrets: `GHL_LOCATION_ID`, `GHL_API_KEY`
 (see `docs/25-keys-and-secrets-required.md`).
 
-## v0.1 status
+## Backends
 
-The GoHighLevel HTTP client is **mocked**. Every upsert / tag /
-custom-field operation is appended to `data/ghl-calls.jsonl`. Wiring the
-real API is a follow-up — see TODO at the bottom.
+Selected via the `CRM_BACKEND` env var:
+
+| `CRM_BACKEND` | Behaviour |
+| --- | --- |
+| `mock` *(default)* | All operations append a JSONL record to `data/ghl-calls.jsonl`. No network. |
+| `real` | HTTP calls to `https://services.leadconnectorhq.com` with `Bearer ${GHL_API_KEY}`, `Version: 2021-07-28`, `LocationId: ${GHL_LOCATION_ID}`. |
+
+When `CRM_BACKEND=real`, both `GHL_API_KEY` and `GHL_LOCATION_ID` must be
+set; otherwise the bridge throws at boot with a clear error rather than
+silently degrading.
+
+The real backend retries 429 / 5xx up to **3 times** with exponential
+backoff (1s, 2s, 4s). On final failure, the call is appended to
+`data/ghl-failed.jsonl` (configurable via `CRM_GHL_FAILED_LOG_PATH`) so
+it can be replayed by hitting the admin endpoint:
+
+```bash
+curl -X POST https://vtorn-crm.aiva.nz/v1/admin/replay-failed \
+  -H "Authorization: Bearer ${CRM_ADMIN_TOKEN}"
+```
+
+The replay endpoint is a no-op (`501`) on the mock backend.
 
 ## Endpoints
 
@@ -33,6 +52,7 @@ re-issue a GHL upsert.
 | Field | Source |
 | --- | --- |
 | `vtourn_user_id` | constant: the `userId` |
+| `vtourn_last_event_id` | originating `eventId` of the most recent upsert (real backend) |
 | `humanness_score` | placeholder `0` (real value lands with the identity service, doc 20) |
 | `total_predictions` | count of `prediction_locked` events |
 | `current_rank` | latest `match_settled.newRank` |
@@ -64,15 +84,13 @@ pnpm --filter @vtorn/crm-bridge typecheck
 
 ## TODO (production readiness)
 
-- Real GoHighLevel HTTP client (`lib/ghl-client.ts` interface stays
-  stable — only the implementation flips).
-- Read `GHL_LOCATION_ID` + `GHL_API_KEY` at boot and fail fast on absence
-  in production.
-- Retry + exponential backoff with a dead-letter queue on persistent
-  GHL failures.
-- Idempotency keys on the wire (we already enforce dedupe in-memory; the
-  real client should pass `eventId` as the GHL idempotency key).
+- Map GHL custom-field **ids** alongside **keys** so the upsert payload
+  can be sent against locations that haven't aliased keys yet.
+- Real GHL OAuth refresh-token flow (currently a static
+  private-integration token).
 - GDPR / RTBF endpoint: `DELETE /v1/customer/:userId` that purges the
   in-memory cache, the JSONL log line, and the live GHL contact.
 - Promote in-memory store to Postgres once we have a single instance to
   share state across replicas.
+- Search-by-email/phone helper (`/contacts/search`) for backfill
+  scenarios where we have to look up by identity instead of contactId.
