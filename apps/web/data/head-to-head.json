@@ -1,0 +1,27 @@
+{
+  "_note": "Stub historical head-to-head meetings keyed by `${homeCode}-${awayCode}` (alphabetised pair). Up to 5 most-recent meetings per pair. Deterministic per pair so the preview page is screenshot-stable. The reverse-direction lookup is normalised in match-data.ts.",
+  "_todo": "Wire to a live historical-meetings data source (FBref / SofaScore / soccer-data.mx-api / Wikipedia per-fixture). Likely path: scrape the `International football head-to-head` table on Wikipedia per pair and store as a build-time JSON.",
+  "pairs": {
+    "ARG-FRA": [
+      { "date": "2022-12-18", "homeCode": "ARG", "awayCode": "FRA", "homeScore": 3, "awayScore": 3, "extraTime": true, "penalties": "ARG 4-2", "competition": "FIFA World Cup Final", "venue": "Lusail, Qatar" },
+      { "date": "2018-06-30", "homeCode": "FRA", "awayCode": "ARG", "homeScore": 4, "awayScore": 3, "competition": "FIFA World Cup R16", "venue": "Kazan, Russia" },
+      { "date": "2009-02-11", "homeCode": "FRA", "awayCode": "ARG", "homeScore": 0, "awayScore": 2, "competition": "Friendly", "venue": "Marseille, France" },
+      { "date": "2007-02-07", "homeCode": "FRA", "awayCode": "ARG", "homeScore": 0, "awayScore": 1, "competition": "Friendly", "venue": "Saint-Denis, France" },
+      { "date": "1986-06-29", "homeCode": "ARG", "awayCode": "FRA", "homeScore": 3, "awayScore": 2, "competition": "FIFA World Cup Final", "venue": "Mexico City" }
+    ],
+    "ARG-BRA": [
+      { "date": "2024-03-21", "homeCode": "BRA", "awayCode": "ARG", "homeScore": 0, "awayScore": 1, "competition": "WC Qualifier", "venue": "Maracana, Rio" },
+      { "date": "2022-11-15", "homeCode": "ARG", "awayCode": "BRA", "homeScore": 1, "awayScore": 0, "competition": "Friendly", "venue": "Riyadh" },
+      { "date": "2021-07-10", "homeCode": "ARG", "awayCode": "BRA", "homeScore": 1, "awayScore": 0, "competition": "Copa America Final", "venue": "Maracana, Rio" },
+      { "date": "2019-07-02", "homeCode": "BRA", "awayCode": "ARG", "homeScore": 2, "awayScore": 0, "competition": "Copa America SF", "venue": "Belo Horizonte" },
+      { "date": "2019-06-15", "homeCode": "BRA", "awayCode": "ARG", "homeScore": 0, "awayScore": 0, "competition": "Friendly", "venue": "Riyadh" }
+    ],
+    "ENG-USA": [
+      { "date": "2022-11-25", "homeCode": "ENG", "awayCode": "USA", "homeScore": 0, "awayScore": 0, "competition": "FIFA World Cup Group", "venue": "Al Khor, Qatar" },
+      { "date": "2010-06-12", "homeCode": "ENG", "awayCode": "USA", "homeScore": 1, "awayScore": 1, "competition": "FIFA World Cup Group", "venue": "Rustenburg, South Africa" },
+      { "date": "2008-05-28", "homeCode": "USA", "awayCode": "ENG", "homeScore": 0, "awayScore": 2, "competition": "Friendly", "venue": "Wembley, London" },
+      { "date": "1994-09-07", "homeCode": "USA", "awayCode": "ENG", "homeScore": 2, "awayScore": 0, "competition": "Friendly", "venue": "Foxboro, USA" },
+      { "date": "1950-06-29", "homeCode": "ENG", "awayCode": "USA", "homeScore": 0, "awayScore": 1, "competition": "FIFA World Cup Group", "venue": "Belo Horizonte, Brazil" }
+    ]
+  }
+}

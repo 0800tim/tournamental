@@ -1,0 +1,38 @@
+{
+  "_note": "Stub predicted XI per team. 11 players each, with formation slot positions on a 100x100 normalised pitch (0,0 = own goal-line corner; 100,100 = far corner). Defaults populate from team-squads.json by position. For teams not listed here the loader synthesises a 4-3-3 from the squad.",
+  "_todo": "Wire to a live predicted-XI source. Options: (a) FBref's predicted lineup tables; (b) Whoscored/SofaScore JSON feeds; (c) bot-generated picks from recent starting XIs. Replace via build-time scrape one week before each match.",
+  "teams": {
+    "ARG": {
+      "formation": "4-3-3",
+      "xi": [
+        { "jersey": 23, "name": "E. Martinez",   "position": "GK", "x": 5,  "y": 50 },
+        { "jersey": 4,  "name": "G. Montiel",    "position": "RB", "x": 25, "y": 85 },
+        { "jersey": 13, "name": "C. Romero",     "position": "CB", "x": 22, "y": 65 },
+        { "jersey": 25, "name": "L. Martinez",   "position": "CB", "x": 22, "y": 35 },
+        { "jersey": 3,  "name": "N. Tagliafico", "position": "LB", "x": 25, "y": 15 },
+        { "jersey": 5,  "name": "L. Paredes",    "position": "DM", "x": 45, "y": 50 },
+        { "jersey": 7,  "name": "R. De Paul",    "position": "CM", "x": 55, "y": 70 },
+        { "jersey": 24, "name": "E. Fernandez",  "position": "CM", "x": 55, "y": 30 },
+        { "jersey": 11, "name": "A. Di Maria",   "position": "RW", "x": 80, "y": 80 },
+        { "jersey": 9,  "name": "J. Alvarez",    "position": "ST", "x": 85, "y": 50 },
+        { "jersey": 10, "name": "L. Messi",      "position": "LW", "x": 80, "y": 20 }
+      ]
+    },
+    "FRA": {
+      "formation": "4-2-3-1",
+      "xi": [
+        { "jersey": 1,  "name": "M. Maignan",    "position": "GK", "x": 5,  "y": 50 },
+        { "jersey": 2,  "name": "J. Kounde",     "position": "RB", "x": 25, "y": 85 },
+        { "jersey": 4,  "name": "D. Upamecano",  "position": "CB", "x": 22, "y": 65 },
+        { "jersey": 5,  "name": "I. Konate",     "position": "CB", "x": 22, "y": 35 },
+        { "jersey": 22, "name": "T. Hernandez",  "position": "LB", "x": 25, "y": 15 },
+        { "jersey": 13, "name": "N. Kante",      "position": "DM", "x": 45, "y": 60 },
+        { "jersey": 8,  "name": "A. Tchouameni", "position": "DM", "x": 45, "y": 40 },
+        { "jersey": 7,  "name": "A. Griezmann",  "position": "AM", "x": 65, "y": 50 },
+        { "jersey": 11, "name": "O. Dembele",    "position": "RW", "x": 78, "y": 80 },
+        { "jersey": 9,  "name": "O. Giroud",     "position": "ST", "x": 85, "y": 50 },
+        { "jersey": 10, "name": "K. Mbappe",     "position": "LW", "x": 78, "y": 20 }
+      ]
+    }
+  }
+}
