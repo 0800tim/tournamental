@@ -30,6 +30,11 @@ const tournament = loadFixtures2026();
 
 beforeEach(() => {
   window.localStorage.clear();
+  // Reset the URL hash so a previous test's tab selection doesn't bleed
+  // into the next render.
+  if (typeof window !== "undefined") {
+    window.history.replaceState(null, "", "/");
+  }
 });
 
 describe("BracketBuilder — per-match predictions", () => {
@@ -104,17 +109,17 @@ describe("BracketBuilder — per-match predictions", () => {
     });
   });
 
-  it("switching to the knockouts tab shows the knockouts grid", () => {
+  it("switching to the R32 tab shows the round-of-32 grid", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /Knockouts/ }));
-    expect(screen.getByText(/Click the team you predict will advance/)).toBeDefined();
-    // R32 column header must appear.
-    expect(screen.getAllByText("R32").length).toBeGreaterThan(0);
+    fireEvent.click(screen.getByRole("tab", { name: /R32/ }));
+    expect(screen.getByText(/Tap the team you predict will advance/)).toBeDefined();
+    // The R32 tab is the active panel — its heading reads "Round of 32".
+    expect(screen.getAllByText(/Round of 32/i).length).toBeGreaterThan(0);
   });
 
-  it("switching to the save tab shows the save summary + counts", () => {
+  it("switching to the Final tab shows the save summary + counts", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /Save \+ share/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Final/ }));
     expect(screen.getByText(/group matches/)).toBeDefined();
     expect(screen.getByText(/knockout picks/)).toBeDefined();
   });

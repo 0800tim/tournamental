@@ -36,6 +36,9 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 beforeEach(() => {
   window.localStorage.clear();
+  if (typeof window !== "undefined") {
+    window.history.replaceState(null, "", "/");
+  }
   vi.spyOn(global, "fetch").mockImplementation(((input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input.toString();
     if (url.includes("/api/odds/country")) {
