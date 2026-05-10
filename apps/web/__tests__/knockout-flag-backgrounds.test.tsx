@@ -76,7 +76,10 @@ function teamMap(): ReadonlyMap<string, Team> {
 }
 
 describe("KnockoutMatch — flag-as-background", () => {
-  it("does NOT render backgroundImage on either side when no pick is made", () => {
+  // Updated contract (post-feedback): both sides render the team flag
+  // as their background. The selected side is brighter + has a yellow
+  // ring; the unselected side is dimmer (CSS-driven via :not(.is-winner)).
+  it("renders backgroundImage on both sides when teams are known, even with no pick", () => {
     const { container } = render(
       <KnockoutMatch
         knockout={fixture()}
@@ -87,11 +90,14 @@ describe("KnockoutMatch — flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    expect(home.style.backgroundImage).toBe("");
-    expect(away.style.backgroundImage).toBe("");
+    expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
+    expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
+    // Neither is a winner pre-pick.
+    expect(home.classList.contains("is-winner")).toBe(false);
+    expect(away.classList.contains("is-winner")).toBe(false);
   });
 
-  it("renders backgroundImage URL on the home side when home is picked", () => {
+  it("renders backgroundImage on both sides; home is winner when home is picked", () => {
     const prediction: MatchPrediction = {
       matchId: "f_01",
       outcome: "home_win",
@@ -109,12 +115,12 @@ describe("KnockoutMatch — flag-as-background", () => {
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
     expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
-    expect(away.style.backgroundImage).toBe("");
+    expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
     expect(home.classList.contains("is-winner")).toBe(true);
     expect(away.classList.contains("is-winner")).toBe(false);
   });
 
-  it("renders backgroundImage URL on the away side when away is picked", () => {
+  it("renders backgroundImage on both sides; away is winner when away is picked", () => {
     const prediction: MatchPrediction = {
       matchId: "f_01",
       outcome: "away_win",
@@ -131,13 +137,13 @@ describe("KnockoutMatch — flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    expect(home.style.backgroundImage).toBe("");
+    expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
     expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
     expect(home.classList.contains("is-winner")).toBe(false);
     expect(away.classList.contains("is-winner")).toBe(true);
   });
 
-  it("sets the hover-preview CSS variable on unpicked sides only", () => {
+  it("does not set the hover-preview CSS variable (replaced by always-on flag bg)", () => {
     const prediction: MatchPrediction = {
       matchId: "f_01",
       outcome: "home_win",
@@ -154,14 +160,8 @@ describe("KnockoutMatch — flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    // The picked (home) side should NOT have the preview variable — its
-    // bg is the real flag, no preview needed.
     expect(home.style.getPropertyValue("--km-flag-preview")).toBe("");
-    // The unpicked (away) side SHOULD have the preview variable so the
-    // hover rule can paint it.
-    expect(away.style.getPropertyValue("--km-flag-preview")).toContain(
-      "/flags/FRA.svg",
-    );
+    expect(away.style.getPropertyValue("--km-flag-preview")).toBe("");
   });
 });
 
