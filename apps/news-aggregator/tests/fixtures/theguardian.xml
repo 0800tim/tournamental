@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <channel>
+    <title>The Guardian - Football</title>
+    <link>https://www.theguardian.com/football</link>
+    <description>Latest football news from the Guardian</description>
+    <language>en-gb</language>
+    <item>
+      <title>FIFA confirms Mexico City to open World Cup 2026</title>
+      <description>The opening match of FIFA World Cup 2026 will be staged at the Estadio Azteca in Mexico City.</description>
+      <link>https://www.theguardian.com/football/2026/may/11/wc2026-mexico-opener</link>
+      <guid>https://www.theguardian.com/football/2026/may/11/wc2026-mexico-opener</guid>
+      <pubDate>Sun, 11 May 2026 09:00:00 GMT</pubDate>
+      <dc:creator>Guardian sport staff</dc:creator>
+      <media:content url="https://i.guim.co.uk/img/media/azteca-2026/1200.jpg" width="1200" height="675" type="image/jpeg" />
+    </item>
+    <item>
+      <title>France name 30-man squad for friendlies</title>
+      <description>Didier Deschamps has named a 30-man squad ahead of two friendlies in the build-up to the World Cup.</description>
+      <link>https://www.theguardian.com/football/2026/may/10/france-squad</link>
+      <guid>https://www.theguardian.com/football/2026/may/10/france-squad</guid>
+      <pubDate>Sat, 10 May 2026 12:30:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

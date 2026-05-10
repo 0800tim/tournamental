@@ -1,0 +1,341 @@
+---
+/**
+ * /news — public news feed.
+ *
+ * The marketing site is currently built fully static (no SSR adapter).
+ * That suits us fine: the page ships as static HTML with a hydration
+ * script that fetches the latest news on the client from /api/news
+ * (which is itself prerendered as a static snapshot at build time and
+ * then refreshed by clients via the news-aggregator service).
+ *
+ * For a build-time snapshot we can also call the aggregator at build
+ * time and inline the first batch as a no-JS fallback. We attempt
+ * that here; on failure we render an empty state and the client-side
+ * fetcher takes over.
+ */
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import NewsCard from "@/components/news/NewsCard.astro";
+import NewsFilterChips from "@/components/news/NewsFilterChips.astro";
+
+const PAGE_SIZE = 12;
+
+interface NewsItem {
+  id: string;
+  title: string;
+  summary: string;
+  url: string;
+  source: string;
+  sourceLogo?: string | null;
+  publishedAt: string;
+  imageUrl?: string | null;
+  tags: string[];
+}
+
+interface SourceEntry {
+  id: string;
+  displayName: string;
+  enabled: boolean;
+}
+
+const NEWS_AGG_URL = (
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ((import.meta as any).env?.NEWS_AGG_URL as string | undefined) ??
+  process.env.NEWS_AGG_URL ??
+  "http://127.0.0.1:3402"
+).replace(/\/$/, "");
+
+let initialItems: NewsItem[] = [];
+let sources: SourceEntry[] = [];
+let upstreamErr: string | null = null;
+
+// Best-effort build-time inline. If the aggregator isn't reachable
+// (e.g. Cloudflare Pages build environment), we ship an empty page
+// and the client hydrates from /api/news.
+try {
+  const r = await fetch(`${NEWS_AGG_URL}/v1/news?limit=${PAGE_SIZE}&lang=en`, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(4_000),
+  });
+  if (r.ok) {
+    const j = (await r.json()) as { items: NewsItem[] };
+    initialItems = j.items;
+  } else {
+    upstreamErr = `upstream_${r.status}`;
+  }
+} catch (err) {
+  upstreamErr = err instanceof Error ? err.message : "upstream_unreachable";
+}
+
+try {
+  const r = await fetch(`${NEWS_AGG_URL}/v1/sources`, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(2_000),
+  });
+  if (r.ok) {
+    const j = (await r.json()) as { sources: SourceEntry[] };
+    sources = j.sources.filter((s) => s.enabled);
+  }
+} catch {
+  // Non-critical.
+}
+
+// We can't read query params at build time (page is static), so chip
+// state + pagination state is managed entirely client-side. The
+// markup ships with the first page already populated.
+---
+<Layout
+  title="News — VTourn"
+  description="Latest football and World Cup 2026 headlines from BBC Sport, the Guardian, ESPN, Marca, FIFA and more — links straight back to the original publishers."
+>
+  <article class="container-page pt-16 pb-16">
+    <SectionHeading
+      eyebrow="News"
+      eyebrowIcon="ball"
+      title="Latest from around the World Cup"
+      lede="Headlines from across the football press, refreshed every ten minutes. Tap a card to read the full story on the publisher's site."
+    />
+
+    {sources.length > 0 && (
+      <NewsFilterChips sources={sources} active={null} />
+    )}
+
+    <section
+      id="vt-news-grid"
+      class="vt-news-grid"
+      data-empty={initialItems.length === 0 ? "true" : "false"}
+      data-error={upstreamErr ?? ""}
+    >
+      {initialItems.map((item) => <NewsCard item={item} />)}
+    </section>
+
+    <div id="vt-news-empty" class="card mt-8" hidden={initialItems.length > 0}>
+      <p class="prose-vt">
+        {upstreamErr
+          ? `The news feed is taking a breather (${upstreamErr}). Refresh in a minute or two.`
+          : "Nothing here yet — the next refresh is on its way."}
+      </p>
+    </div>
+
+    <nav class="vt-news-pager" aria-label="News pagination">
+      <button
+        type="button"
+        class="vt-news-pager-link"
+        id="vt-news-load-more"
+        data-page="1"
+        data-page-size={PAGE_SIZE}
+      >Load older stories</button>
+    </nav>
+
+    <aside class="vt-news-foot">
+      <p class="prose-vt">
+        News surfaces summaries and links back to the original publisher.
+        We never reproduce full articles. Source list, ethics and
+        attribution: <a class="link" href="https://github.com/0800tim/vtorn/blob/main/docs/49-news-aggregator.md" rel="noopener">docs/49-news-aggregator.md</a>.
+      </p>
+    </aside>
+  </article>
+
+  <script is:inline>
+    (function () {
+      // Read the active source filter from the URL hash/query at runtime.
+      // We deliberately use the query string ("?source=BBC%20Sport") so
+      // chip links remain crawlable + shareable.
+      var qs = new URLSearchParams(window.location.search);
+      var activeSource = qs.get("source");
+      var grid = document.getElementById("vt-news-grid");
+      var empty = document.getElementById("vt-news-empty");
+      var loadBtn = document.getElementById("vt-news-load-more");
+      if (!grid || !loadBtn) return;
+
+      // Mark the active chip in the filter row.
+      document.querySelectorAll(".vt-news-chip").forEach(function (a) {
+        var href = a.getAttribute("href") || "";
+        var match = href.match(/source=([^&]+)/);
+        var src = match ? decodeURIComponent(match[1]) : null;
+        var isActive = (src && src === activeSource) || (!src && !activeSource);
+        a.classList.toggle("is-active", !!isActive);
+        if (isActive) a.setAttribute("aria-current", "page");
+      });
+
+      function buildCard(it) {
+        var card = document.createElement("a");
+        card.className = "vt-news-card";
+        card.href = it.url;
+        card.target = "_blank";
+        card.rel = "noopener nofollow";
+        card.setAttribute("data-source", it.source);
+
+        var media = document.createElement("div");
+        media.className = "vt-news-card-media";
+        if (it.imageUrl) {
+          var img = document.createElement("img");
+          img.src = it.imageUrl;
+          img.alt = "";
+          img.loading = "lazy";
+          img.decoding = "async";
+          img.referrerPolicy = "no-referrer";
+          media.appendChild(img);
+        } else {
+          var ph = document.createElement("div");
+          ph.className = "vt-news-card-placeholder";
+          ph.setAttribute("aria-hidden", "true");
+          media.appendChild(ph);
+        }
+        var pill = document.createElement("span");
+        pill.className = "vt-news-card-source-pill";
+        pill.textContent = it.source;
+        media.appendChild(pill);
+
+        var body = document.createElement("div");
+        body.className = "vt-news-card-body";
+        var h3 = document.createElement("h3");
+        h3.className = "vt-news-card-title";
+        h3.textContent = it.title;
+        body.appendChild(h3);
+        if (it.summary) {
+          var p = document.createElement("p");
+          p.className = "vt-news-card-summary";
+          p.textContent = it.summary;
+          body.appendChild(p);
+        }
+        var foot = document.createElement("footer");
+        foot.className = "vt-news-card-foot";
+        var t = document.createElement("time");
+        t.className = "vt-news-card-time";
+        t.dateTime = it.publishedAt;
+        var diff = (Date.now() - new Date(it.publishedAt).getTime()) / 1000;
+        if (isNaN(diff)) {
+          t.textContent = it.publishedAt;
+        } else if (diff < 60) {
+          t.textContent = "just now";
+        } else if (diff < 3600) {
+          t.textContent = Math.floor(diff / 60) + " min ago";
+        } else if (diff < 86400) {
+          t.textContent = Math.floor(diff / 3600) + " h ago";
+        } else if (diff < 86400 * 7) {
+          t.textContent = Math.floor(diff / 86400) + " d ago";
+        } else {
+          t.textContent = new Date(it.publishedAt).toLocaleDateString("en-NZ", {
+            day: "numeric", month: "short", year: "numeric"
+          });
+        }
+        var cta = document.createElement("span");
+        cta.className = "vt-news-card-cta";
+        cta.textContent = "Read on " + it.source + " →";
+        foot.appendChild(t);
+        foot.appendChild(cta);
+        body.appendChild(foot);
+
+        card.appendChild(media);
+        card.appendChild(body);
+        return card;
+      }
+
+      function renderItems(items) {
+        items.forEach(function (it) {
+          grid.appendChild(buildCard(it));
+        });
+        if (items.length === 0 && grid.children.length === 0) {
+          empty.removeAttribute("hidden");
+        }
+      }
+
+      function loadPage(page) {
+        loadBtn.disabled = true;
+        loadBtn.textContent = "Loading…";
+        var params = new URLSearchParams();
+        params.set("limit", String(parseInt(loadBtn.dataset.pageSize, 10) * page));
+        params.set("lang", "en");
+        if (activeSource) params.set("source", activeSource);
+        return fetch("/api/news?" + params.toString(), {
+          headers: { Accept: "application/json" },
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (j) {
+            // Replace the entire grid on filtered initial fetch (page=1),
+            // append on subsequent pages.
+            var pageSize = parseInt(loadBtn.dataset.pageSize, 10);
+            if (page === 1) {
+              while (grid.firstChild) grid.removeChild(grid.firstChild);
+            }
+            var startIdx = (page - 1) * pageSize;
+            var newItems = (j.items || []).slice(startIdx);
+            renderItems(newItems);
+            loadBtn.dataset.page = String(page);
+            loadBtn.disabled = false;
+            loadBtn.textContent = "Load older stories";
+            // If we got back fewer than pageSize, we're at the end.
+            if (newItems.length < pageSize) {
+              loadBtn.hidden = true;
+            }
+          })
+          .catch(function () {
+            loadBtn.disabled = false;
+            loadBtn.textContent = "Try again";
+          });
+      }
+
+      // If the user landed on the page with a ?source= filter, the
+      // build-time markup may not match — re-fetch immediately.
+      if (activeSource) {
+        loadPage(1);
+      }
+
+      loadBtn.addEventListener("click", function () {
+        var current = parseInt(loadBtn.dataset.page, 10) || 1;
+        loadPage(current + 1);
+      });
+    })();
+  </script>
+</Layout>
+
+<style>
+  .vt-news-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+    margin-top: 1.5rem;
+  }
+  @media (min-width: 640px) {
+    .vt-news-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .vt-news-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .vt-news-pager {
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid var(--vt-border);
+    padding-top: 1.25rem;
+  }
+  .vt-news-pager-link {
+    color: #5a96d8;
+    font-weight: 600;
+    background: transparent;
+    border: 1px solid var(--vt-border);
+    padding: 0.55rem 1rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+  .vt-news-pager-link:hover:not(:disabled) {
+    border-color: var(--vt-border-strong);
+  }
+  .vt-news-pager-link:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  .vt-news-foot {
+    margin-top: 2.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--vt-border);
+    color: var(--vt-fg-muted);
+    font-size: 0.92rem;
+  }
+</style>

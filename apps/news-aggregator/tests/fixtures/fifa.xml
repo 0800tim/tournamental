@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>FIFA News</title>
+    <link>https://www.fifa.com</link>
+    <description>FIFA official news</description>
+    <item>
+      <title>Mascot reveal for FIFA World Cup 2026</title>
+      <description>FIFA today unveiled the official mascots for the 2026 World Cup.</description>
+      <link>https://www.fifa.com/news/2026-mascot-reveal</link>
+      <pubDate>Sun, 11 May 2026 14:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

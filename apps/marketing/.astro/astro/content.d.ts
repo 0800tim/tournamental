@@ -1,4 +1,15 @@
 declare module 'astro:content' {
+	interface Render {
+		'.mdx': Promise<{
+			Content: import('astro').MarkdownInstance<{}>['Content'];
+			headings: import('astro').MarkdownHeading[];
+			remarkPluginFrontmatter: Record<string, any>;
+			components: import('astro').MDXInstance<{}>['components'];
+		}>;
+	}
+}
+
+declare module 'astro:content' {
 	interface RenderResult {
 		Content: import('astro/runtime/server/index.js').AstroComponentFactory;
 		headings: import('astro').MarkdownHeading[];
@@ -140,7 +151,30 @@ declare module 'astro:content' {
 	>;
 
 	type ContentEntryMap = {
-		
+		"blog": {
+"2026-05-11-from-zero-to-launch.mdx": {
+	id: "2026-05-11-from-zero-to-launch.mdx";
+  slug: "2026-05-11-from-zero-to-launch";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-11-the-bracket-game-explained.mdx": {
+	id: "2026-05-11-the-bracket-game-explained.mdx";
+  slug: "2026-05-11-the-bracket-game-explained";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-11-watch-along-renderer-tech.mdx": {
+	id: "2026-05-11-watch-along-renderer-tech.mdx";
+  slug: "2026-05-11-watch-along-renderer-tech";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+};
+
 	};
 
 	type DataEntryMap = {
@@ -149,5 +183,5 @@ declare module 'astro:content' {
 
 	type AnyEntryMap = ContentEntryMap & DataEntryMap;
 
-	export type ContentConfig = never;
+	export type ContentConfig = typeof import("../../src/content/config.js");
 }

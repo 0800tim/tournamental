@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Marca - Fútbol</title>
+    <link>https://www.marca.com/futbol.html</link>
+    <description>Últimas noticias de fútbol</description>
+    <language>es-es</language>
+    <item>
+      <title>España convoca a su lista para la Copa del Mundo 2026</title>
+      <description>El seleccionador anuncia los 26 jugadores convocados para los partidos amistosos previos al Mundial.</description>
+      <link>https://www.marca.com/futbol/seleccion/2026/05/11/lista-mundial.html</link>
+      <pubDate>Sun, 11 May 2026 08:00:00 +0200</pubDate>
+    </item>
+    <item>
+      <title>Argentina y Brasil se enfrentarán en amistoso</title>
+      <description>El clásico sudamericano vuelve con un amistoso programado para fin de mes.</description>
+      <link>https://www.marca.com/futbol/internacional/2026/05/10/argentina-brasil.html</link>
+      <pubDate>Sat, 10 May 2026 18:10:00 +0200</pubDate>
+    </item>
+  </channel>
+</rss>
