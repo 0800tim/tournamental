@@ -367,6 +367,34 @@ importers:
         specifier: ^2.1.8
         version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
 
+  apps/social-publisher:
+    dependencies:
+      '@fastify/cors':
+        specifier: ^10.0.1
+        version: 10.1.0
+      fastify:
+        specifier: ^5.1.0
+        version: 5.8.5
+      pino:
+        specifier: ^9.5.0
+        version: 9.14.0
+      zod:
+        specifier: ^3.23.8
+        version: 3.25.76
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.11
+        version: 20.19.40
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
+
   apps/stream-server:
     dependencies:
       '@vtorn/spec':
