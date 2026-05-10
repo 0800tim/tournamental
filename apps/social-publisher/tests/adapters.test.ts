@@ -5,7 +5,7 @@ import type { PostRecord } from '../src/types.js';
 import { makeClip } from './fixtures.js';
 
 describe('adapters', () => {
-  it('registers exactly the 8 platforms we ship', () => {
+  it('registers exactly the 9 platforms we ship', () => {
     expect(ALL_PLATFORMS.sort()).toEqual(
       [
         'discord',
@@ -14,6 +14,7 @@ describe('adapters', () => {
         'telegram',
         'threads',
         'tiktok',
+        'whatsapp',
         'x',
         'youtube-shorts',
       ].sort(),

@@ -5,7 +5,8 @@ Multi-platform fan-out for VTourn match clips and bracket cards.
 Subscribes to `ClipReady` events from the clip-pipeline (`apps/clip-pipeline`)
 and publishes the rendered variants to **TikTok**, **Instagram Reels**,
 **YouTube Shorts**, **X (Twitter)**, **Threads**, **Telegram**, **Discord**,
-and **Reddit** according to a per-tournament policy.
+**Reddit**, and **WhatsApp** (group fan-out via the Aiva gateway) according
+to a per-tournament policy.
 
 See [docs/27-social-distribution-strategy.md](../../docs/27-social-distribution-strategy.md)
 for the cadence, hashtag rules, and audience-tier strategy this service implements.
@@ -110,6 +111,35 @@ curl -s -X POST http://localhost:3382/v1/publish \
 
 Real-API env vars per platform live in the TODO block at the top of each
 adapter file.
+
+### WhatsApp adapter
+
+The WhatsApp adapter is the first non-stub adapter — it actually fans out
+clips to configured WhatsApp groups via the Aiva SMS / WhatsApp gateway.
+
+| Var                  | Notes                                                              |
+|----------------------|--------------------------------------------------------------------|
+| `AIVA_SMS_API_URL`   | Gateway base URL (default `http://localhost:9252`).                |
+| `AIVA_SMS_API_KEY`   | Bearer token for the gateway.                                      |
+| `AIVA_WA_SESSION_ID` | Pre-paired Baileys session id on the gateway.                      |
+| `WHATSAPP_GROUP_IDS` | CSV of group jids (e.g. `120363041234567890@g.us,...`).            |
+
+If any of those env vars are unset, the adapter falls back to deterministic
+stub behaviour (same as the other 8 adapters) so smoke tests still work.
+
+**Discovering group jids.** Send any message to the target group from the
+phone paired with the Aiva gateway, then call the gateway's
+`GET /api/v1/whatsapp/sessions/{sessionId}/chats` endpoint to read the jid
+back from recent chats. Group jids end in `@g.us` (vs `@s.whatsapp.net`
+for direct messages).
+
+**Rate limit.** The gateway accepts at most one message per group every 5
+seconds. The adapter applies a per-group token-bucket sleep before each
+send so back-to-back goals don't trip the throttle.
+
+**No metrics.** WhatsApp / Baileys does not expose group-message
+analytics. `pullMetrics` returns zeros. (Forward-counts may land in the
+gateway later — the TODO is in the adapter source.)
 
 ## What this layer does NOT do (yet)
 
