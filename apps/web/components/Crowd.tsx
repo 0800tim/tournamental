@@ -81,13 +81,25 @@ export function Crowd({
   // since cost matters, we instead nudge the material's emissive
   // vector and rely on a custom userData clock to be read by the
   // post-FX layer for celebratory bloom flares.
-  useFrame((_, delta) => {
+  //
+  // Throttle the colour update to ≤ 4 Hz so we don't allocate +
+  // re-upload material uniforms every frame. The crowd reads as
+  // colour-shifting on celebration; 4 Hz is more than fast enough to
+  // be perceived as smooth.
+  const lastColorAt = useRef(0);
+  const lastEnergy = useRef(-1);
+  useFrame((_, deltaRaw) => {
+    const delta = Math.min(deltaRaw, 1 / 30);
     energy.tick(delta);
     const mesh = meshRef.current;
     const mat = matRef.current;
     if (!mesh || !mat) return;
-    // Cheap macro animation: slightly raise emissive on celebration.
+    const tNow = performance.now();
+    if (tNow - lastColorAt.current < 250) return;
+    lastColorAt.current = tNow;
     const e = energy.value();
+    if (Math.abs(e - lastEnergy.current) < 0.01) return;
+    lastEnergy.current = e;
     mat.color.setHSL(
       0.06 + 0.02 * e,
       0.32 + 0.08 * e,

@@ -17,6 +17,7 @@ import {
   interpolateBall,
 } from "@/lib/interpolation";
 import { toWorldInto } from "@/lib/coords";
+import { useSceneBuffer } from "@/lib/replay/buffer-context";
 
 const STALE_THRESHOLD_MS = 200;
 
@@ -46,6 +47,7 @@ export function Ball({ store }: BallProps) {
   const meshRef = useRef<THREE.Mesh>(null!);
   const tmp = useRef(new THREE.Vector3());
   const lastEventIdx = useRef(0);
+  const sceneBuffer = useSceneBuffer();
 
   const controller = useMemo(
     () => new BallController(new VerletBall()),
@@ -53,15 +55,30 @@ export function Ball({ store }: BallProps) {
   );
   useEffect(() => () => void controller, [controller]);
 
-  useFrame((_state, delta) => {
+  useFrame((_state, deltaRaw) => {
     const state = store.getState();
     if (!state.curr) return;
 
-    const wallNow = Date.now();
-    const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
-    let ball = interpolateBall(state.prev, state.curr, alpha);
+    // Clamp delta to avoid huge integration steps in the physics
+    // controller after a tab-switch / GC stall.
+    const delta = Math.min(deltaRaw, 1 / 30);
+
+    // Resolve interpolated ball state. Prefer the shared scene buffer
+    // (Catmull-Rom across 4 frames where available; linear otherwise);
+    // fall back to the legacy alpha-per-arrival path so direct mounts
+    // / unit harnesses without a buffer continue to work.
+    let ball;
+    if (sceneBuffer && sceneBuffer.size() >= 2) {
+      const sample = sceneBuffer.sample();
+      ball = sample?.ball ?? null;
+    } else {
+      const wallNow = Date.now();
+      const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
+      ball = interpolateBall(state.prev, state.curr, alpha);
+    }
     if (!ball) return;
 
+    const wallNow = Date.now();
     const stale = wallNow - state.currWallMs;
     if (stale > STALE_THRESHOLD_MS) {
       ball = extrapolateBall(state.curr.ball, stale);

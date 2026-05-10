@@ -49,39 +49,57 @@ export function Pitch() {
 function makeGrassTexture(): THREE.Texture | null {
   if (typeof document === "undefined") return null;
   const c = document.createElement("canvas");
-  c.width = 1024;
-  c.height = 512;
+  // 2048×1024 keeps stripes crisp at glancing angles. Power-of-two
+  // dimensions also guarantee mipmaps generate cleanly.
+  c.width = 2048;
+  c.height = 1024;
   const ctx = c.getContext("2d");
   if (!ctx) return null;
 
   // Base.
   ctx.fillStyle = "#1f6f3b";
-  ctx.fillRect(0, 0, 1024, 512);
+  ctx.fillRect(0, 0, c.width, c.height);
 
-  // Stripes along the length axis.
+  // Stripes along the length axis. 10 stripes total → bright/dim alternating.
+  // We draw a soft gradient on each stripe edge to avoid step-aliasing
+  // shimmer when the camera looks down the pitch at a low angle.
   const stripeCount = 10;
+  const stripeW = c.width / stripeCount;
   for (let i = 0; i < stripeCount; i += 1) {
     if (i % 2 === 0) continue;
-    ctx.fillStyle = "#1a5d33";
-    const x = (i * 1024) / stripeCount;
-    ctx.fillRect(x, 0, 1024 / stripeCount, 512);
+    const x = i * stripeW;
+    const grad = ctx.createLinearGradient(x, 0, x + stripeW, 0);
+    grad.addColorStop(0, "#1a5d33");
+    grad.addColorStop(0.04, "#1c6336");
+    grad.addColorStop(0.5, "#1a5d33");
+    grad.addColorStop(0.96, "#1c6336");
+    grad.addColorStop(1, "#1a5d33");
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, 0, stripeW, c.height);
   }
 
   // Subtle dapple via sparse low-alpha squares — cheap noise approximation.
   ctx.globalAlpha = 0.06;
-  for (let i = 0; i < 1500; i += 1) {
+  for (let i = 0; i < 3000; i += 1) {
     ctx.fillStyle = Math.random() > 0.5 ? "#0f3a1f" : "#2c8c4b";
-    const x = Math.random() * 1024;
-    const y = Math.random() * 512;
+    const x = Math.random() * c.width;
+    const y = Math.random() * c.height;
     const s = 1 + Math.random() * 3;
     ctx.fillRect(x, y, s, s);
   }
   ctx.globalAlpha = 1;
 
   const tex = new THREE.CanvasTexture(c);
+  // Clamp wrapping (the plane is sized to the pitch) but let mipmaps
+  // generate so distant areas of the field don't shimmer.
   tex.wrapS = tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
+  tex.generateMipmaps = true;
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
+  // Anisotropy capped to a sane mid-range value; the WebGL renderer
+  // clamps to its hardware max regardless.
+  tex.anisotropy = 4;
   tex.needsUpdate = true;
   return tex;
 }

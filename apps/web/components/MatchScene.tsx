@@ -22,6 +22,8 @@ import { PerfMonitor } from "./PerfMonitor";
 import { PostFX } from "./PostFX";
 import { CommentaryAudio } from "./CommentaryAudio";
 import { resolveCurrentQuality } from "@/lib/quality";
+import { useStateFrameBuffer } from "@/lib/replay/use-state-frame-buffer";
+import { StateFrameBufferProvider } from "@/lib/replay/buffer-context";
 
 export interface MatchSceneProps {
   /** Stream URL or `synthetic` (default). */
@@ -67,61 +69,75 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
   // tradeoff vs. tearing down + rebuilding the post-FX stack live).
   const profile = useMemo(() => resolveCurrentQuality(), []);
   const shadowMapSize = profile.shadowMapSize;
+  // Single shared StateFrameBuffer for all renderer subscribers
+  // (Player, Ball, Director, CameraRig). Match-time-aware interp
+  // smooths burst-batched sources like the synthetic AR-FR producer.
+  const sceneBuffer = useStateFrameBuffer(store);
+  // Mobile-aware DPR cap. PostFX path renders at backbuffer resolution
+  // anyway, but capping DPR keeps us under the fillrate budget on
+  // mid-range Android.
+  const dprMax =
+    profile.preset === "low" ? 1.0 : profile.preset === "high" ? 1.75 : 1.5;
 
   return (
     <FaceProvider>
       <div className="match-scene" data-quality={profile.preset ?? "off"}>
         <Canvas
           shadows="soft"
-          dpr={[1, 2]}
+          dpr={[1, dprMax]}
           camera={{ position: [0, 25, 60], fov: 45 }}
-          gl={{ antialias: true, powerPreference: "high-performance" }}
+          gl={{
+            antialias: profile.preset !== "low",
+            powerPreference: "high-performance",
+          }}
           onCreated={({ gl }) => {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
             gl.toneMapping = THREE.ACESFilmicToneMapping;
             gl.toneMappingExposure = 1.05;
           }}
         >
-          {/* Procedural sky — gives a lived-in horizon under the stadium ring. */}
-          <Sky
-            distance={4500}
-            sunPosition={[40, 60, 20]}
-            inclination={0.49}
-            azimuth={0.25}
-            mieCoefficient={0.005}
-            mieDirectionalG={0.85}
-            rayleigh={2.5}
-            turbidity={6}
-          />
-          <fog attach="fog" args={["#cdd9e6", 110, 320]} />
+          <StateFrameBufferProvider buffer={sceneBuffer}>
+            {/* Procedural sky — gives a lived-in horizon under the stadium ring. */}
+            <Sky
+              distance={4500}
+              sunPosition={[40, 60, 20]}
+              inclination={0.49}
+              azimuth={0.25}
+              mieCoefficient={0.005}
+              mieDirectionalG={0.85}
+              rayleigh={2.5}
+              turbidity={6}
+            />
+            <fog attach="fog" args={["#cdd9e6", 110, 320]} />
 
-          {/* Lighting rig: hemisphere + sun. */}
-          <hemisphereLight args={["#cfe2ff", "#1a2230", 0.55]} />
-          <directionalLight
-            position={[40, 60, 20]}
-            intensity={1.4}
-            castShadow
-            shadow-mapSize={[shadowMapSize, shadowMapSize]}
-            shadow-camera-near={1}
-            shadow-camera-far={220}
-            shadow-camera-left={-90}
-            shadow-camera-right={90}
-            shadow-camera-top={70}
-            shadow-camera-bottom={-70}
-            shadow-bias={-0.0001}
-          />
+            {/* Lighting rig: hemisphere + sun. */}
+            <hemisphereLight args={["#cfe2ff", "#1a2230", 0.55]} />
+            <directionalLight
+              position={[40, 60, 20]}
+              intensity={1.4}
+              castShadow
+              shadow-mapSize={[shadowMapSize, shadowMapSize]}
+              shadow-camera-near={1}
+              shadow-camera-far={220}
+              shadow-camera-left={-90}
+              shadow-camera-right={90}
+              shadow-camera-top={70}
+              shadow-camera-bottom={-70}
+              shadow-bias={-0.0001}
+            />
 
-          {directorEnabled ? null : <CameraRig store={store} mode={mode} />}
-          <Director store={store} enabled={directorEnabled} />
-          <Pitch />
-          <Stadium />
-          <ContactShadows position={[0, 0.01, 0]} opacity={0.35} blur={2.4} far={50} />
+            {directorEnabled ? null : <CameraRig store={store} mode={mode} />}
+            <Director store={store} enabled={directorEnabled} />
+            <Pitch />
+            <Stadium />
+            <ContactShadows position={[0, 0.01, 0]} opacity={0.35} blur={2.4} far={50} />
 
-          {init ? <Players store={store} /> : null}
-          {init ? <Ball store={store} /> : null}
-          <PerfMonitor />
-          <CommentaryAudio />
-          {profile.fxOff ? null : <PostFX profile={profile} />}
+            {init ? <Players store={store} /> : null}
+            {init ? <Ball store={store} /> : null}
+            <PerfMonitor />
+            <CommentaryAudio />
+            {profile.fxOff ? null : <PostFX profile={profile} />}
+          </StateFrameBufferProvider>
         </Canvas>
 
         <HUD store={store} />

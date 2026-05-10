@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
 import type { MatchStore } from "@vtorn/spec-client";
 import { interpolateBall, alphaForNow } from "@/lib/interpolation";
 import { toWorld } from "@/lib/coords";
+import { useSceneBuffer } from "@/lib/replay/buffer-context";
+import { DampedCameraDriver } from "@/lib/cameras/damped-driver";
 
 export type CameraMode = "broadcast" | "tactical" | "follow" | "director";
 
@@ -29,11 +31,22 @@ interface CameraRigProps {
  */
 export function CameraRig({ store, mode }: CameraRigProps) {
   const { camera } = useThree();
-  const lookAt = useRef(new THREE.Vector3());
   const desiredPos = useRef(new THREE.Vector3());
   const desiredTarget = useRef(new THREE.Vector3());
+  const sceneBuffer = useSceneBuffer();
+  const driver = useMemo(
+    () =>
+      new DampedCameraDriver({
+        positionLambda: 5,
+        lookAtLambda: 4,
+        fovLambda: 6,
+      }),
+    [],
+  );
+  const fov = useRef(45);
 
   useEffect(() => {
+    // Snap camera to the new mode's pose immediately.
     if (mode === "tactical") {
       camera.position.set(0, 80, 0);
     } else if (mode === "follow") {
@@ -41,14 +54,25 @@ export function CameraRig({ store, mode }: CameraRigProps) {
     } else {
       camera.position.set(0, 25, 60);
     }
-  }, [mode, camera]);
+    driver.reset();
+  }, [mode, camera, driver]);
 
-  useFrame((_, dt) => {
+  useFrame((_, dtRaw) => {
+    const dt = Math.min(dtRaw, 1 / 30);
     const state = store.getState();
-    const wallNow = Date.now();
-    const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
-    const ball = interpolateBall(state.prev, state.curr, alpha);
-    const target = ball ? toWorld(ball.pos) : new THREE.Vector3(0, 0, 0);
+
+    let ballPos: [number, number, number] | null = null;
+    if (sceneBuffer && sceneBuffer.size() >= 2) {
+      const sample = sceneBuffer.sample();
+      ballPos = sample?.ball.pos ?? null;
+    }
+    if (!ballPos) {
+      const wallNow = Date.now();
+      const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
+      const ball = interpolateBall(state.prev, state.curr, alpha);
+      ballPos = ball ? ball.pos : null;
+    }
+    const target = ballPos ? toWorld(ballPos) : new THREE.Vector3(0, 0, 0);
 
     switch (mode) {
       case "tactical":
@@ -69,10 +93,16 @@ export function CameraRig({ store, mode }: CameraRigProps) {
       }
     }
 
-    const damping = mode === "tactical" ? 1 : Math.min(1, dt * 4);
-    camera.position.lerp(desiredPos.current, damping);
-    lookAt.current.lerp(desiredTarget.current, damping);
-    camera.lookAt(lookAt.current);
+    if (camera instanceof THREE.PerspectiveCamera) fov.current = camera.fov;
+    driver.update(
+      camera as THREE.PerspectiveCamera,
+      {
+        position: desiredPos.current,
+        lookAt: desiredTarget.current,
+        fov: fov.current,
+      },
+      dt,
+    );
   });
 
   return null;
