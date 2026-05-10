@@ -1,6 +1,11 @@
 /**
  * Threads adapter (stub).
  *
+ * STATUS: stub-only. The Threads Graph API requires Meta App Review with
+ * `threads_content_publish` advanced access — same review queue as
+ * Instagram. Real integration ships once approved (we'll piggy-back on the
+ * Instagram app review submission).
+ *
  * Real integration TODO:
  *   - Endpoints (Threads Graph API):
  *       POST /{threads-user-id}/threads          (create container, media_type=VIDEO)

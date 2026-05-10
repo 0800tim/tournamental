@@ -11,12 +11,31 @@ to a per-tournament policy.
 See [docs/27-social-distribution-strategy.md](../../docs/27-social-distribution-strategy.md)
 for the cadence, hashtag rules, and audience-tier strategy this service implements.
 
-## Status: v0.1 — adapter stubs only
+## Status
 
-Every adapter currently returns a deterministic mock external ID + URL. No
-real platform API calls happen yet. Each adapter file (`src/lib/adapters/*.ts`)
-has a `TODO` comment block listing the real endpoint, the env vars it expects,
-and the auth flow needed.
+Four adapters are wired for real API calls; the other five remain
+deterministic stubs because they're gated on Meta App Review, Google OAuth
+verification, X paid tier, or TikTok Direct Post approval.
+
+| Adapter            | Mode                 | Notes                                                                |
+|--------------------|----------------------|----------------------------------------------------------------------|
+| Discord            | real (when configured) | Webhook fan-out via `config/discord-webhooks.json`.                 |
+| Telegram           | real (when configured) | Bot API direct, or proxy via `TOURNAMENT_BOT_PUSH_URL`.             |
+| Reddit             | real (when configured) | OAuth script-app password grant; allowlisted subs only.             |
+| WhatsApp           | real (when configured) | Aiva gateway / Baileys; group fan-out.                              |
+| TikTok             | stub                 | Gated on TikTok Developer + Direct Post scope approval.              |
+| Instagram Reels    | stub                 | Gated on Meta App Review (`instagram_content_publish`).              |
+| YouTube Shorts     | stub                 | Gated on Google OAuth verification (sensitive scopes).               |
+| X (Twitter)        | stub                 | Gated on paid X API tier ($200/mo Basic).                            |
+| Threads            | stub                 | Gated on Meta App Review (`threads_content_publish`).                |
+
+`real (when configured)` means the adapter falls back to deterministic stub
+mode if its env vars or per-tournament config are empty — so an
+unconfigured deploy never crashes; it just no-ops on those channels and
+the audit log records the stub result.
+
+`GET /healthz` reports the live mode for every adapter under
+`adapter_modes`.
 
 ## Endpoints
 
@@ -112,10 +131,64 @@ curl -s -X POST http://localhost:3382/v1/publish \
 Real-API env vars per platform live in the TODO block at the top of each
 adapter file.
 
+### Discord adapter
+
+Posts via webhook URLs configured per-tournament in
+`config/discord-webhooks.json`. Multi-channel fan-out: list more than one
+URL per tournament. Webhook URLs are sensitive — treat the file as a
+secret when deploying, and only `webhook:<id>` ever appears in logs.
+
+| Var                              | Notes                                  |
+|----------------------------------|----------------------------------------|
+| `SOCIAL_PUBLISHER_DISCORD_MODE`  | `stub` to force stub mode.             |
+| `SOCIAL_PUBLISHER_DISCORD_CONFIG`| Override path to `discord-webhooks.json`. |
+
+Rate-limit: respects `X-RateLimit-Remaining` / `X-RateLimit-Reset-After`
+response headers; sleeps between calls when remaining hits 0; honours
+`retry_after` on a 429 with one retry.
+
+### Telegram adapter
+
+Two routing modes, tried in order:
+
+1. **Tournament-bot push proxy** — if `TOURNAMENT_BOT_PUSH_URL` and
+   `TOURNAMENT_BOT_PUSH_SECRET` are set, the adapter POSTs to
+   `${url}/v1/push` with a JSON body. The tournament-bot project doesn't
+   currently expose this endpoint; once it does, fan-out runs through its
+   rate-limit / quiet-hours / push-policy layer rather than re-implement
+   it here.
+2. **Direct Bot API** — falls back to
+   `https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendVideo` with a
+   multipart form. The bot must be admin on the target channel.
+
+Per-tournament chat list lives in `config/telegram-targets.json`. Caption
+is `pickCaption + hashtags joined`, hard-capped at 1024 chars.
+
+### Reddit adapter
+
+OAuth script-app password grant, then `POST oauth.reddit.com/api/submit`
+with `kind=link`. The clip URL is read from `REDDIT_PUBLIC_CLIP_BASE` (or
+the path is used directly if it's already absolute) — Reddit's
+v.redd.it native upload pipeline is fragile and tracks as v0.2.
+
+| Var                           | Notes                                          |
+|-------------------------------|------------------------------------------------|
+| `REDDIT_CLIENT_ID`            | from https://www.reddit.com/prefs/apps         |
+| `REDDIT_CLIENT_SECRET`        |                                                |
+| `REDDIT_USERNAME`             | bot account                                    |
+| `REDDIT_PASSWORD`             | bot account password                           |
+| `REDDIT_USER_AGENT`           | unique UA — Reddit bans generic ones           |
+| `REDDIT_PUBLIC_CLIP_BASE`     | base URL for clip MP4s                         |
+
+Per-tournament subreddit allowlist lives in `config/reddit-targets.json`.
+The adapter enforces a per-subreddit 10-minute cooldown and skips any
+clip already posted to that subreddit in the last 24h (when the
+`recentPostMs` / `recentSubredditPostMs` hooks are wired — v0.2).
+
 ### WhatsApp adapter
 
-The WhatsApp adapter is the first non-stub adapter — it actually fans out
-clips to configured WhatsApp groups via the Aiva SMS / WhatsApp gateway.
+WhatsApp fan-out clips to configured WhatsApp groups via the Aiva SMS /
+WhatsApp gateway.
 
 | Var                  | Notes                                                              |
 |----------------------|--------------------------------------------------------------------|

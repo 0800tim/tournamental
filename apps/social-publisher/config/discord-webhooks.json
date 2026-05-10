@@ -1,0 +1,18 @@
+{
+  "$comment": "Per-tournament Discord webhook fan-out. Tim populates with real webhook URLs (Server settings -> Integrations -> Webhooks). Multi-channel fan-out: list more than one URL to fire into multiple channels at once. Webhook URLs are secrets in their own right -- treat this file as sensitive when deploying. Set `enabled: false` to pause the adapter without removing config.",
+  "enabled": true,
+  "tournaments": {
+    "wc26": {
+      "$comment": "Replace with real webhook URLs from the VTourn guild's #goals + #news + #recap channels.",
+      "webhooks": []
+    },
+    "fifa-wc-2022": {
+      "$comment": "Demo tournament for the AR-FR replay. Aim a webhook at #demos in the dev guild.",
+      "webhooks": []
+    }
+  },
+  "default": {
+    "$comment": "Fallback webhook list for tournaments not listed above. If empty, fan-out skips Discord for unmapped tournaments (the adapter logs a warn).",
+    "webhooks": []
+  }
+}

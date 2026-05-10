@@ -1,6 +1,10 @@
 /**
  * TikTok adapter (stub).
  *
+ * STATUS: stub-only. The Content Posting API requires TikTok Developer
+ * verification + Direct Post scope approval (typically 2-6 weeks). We can't
+ * post programmatically without it. Real integration ships once approved.
+ *
  * Real integration TODO:
  *   - Endpoint: https://open.tiktokapis.com/v2/post/publish/inbox/video/init/
  *     (Content Posting API — Direct Post or Inbox flow)

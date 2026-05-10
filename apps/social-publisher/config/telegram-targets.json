@@ -1,0 +1,18 @@
+{
+  "$comment": "Per-tournament Telegram channel fan-out. Channel ids are either '@username' for public channels the bot has admin on, or numeric '-100xxxxxxxxxx' for private supergroups. Set `enabled: false` to pause without removing config. The adapter posts via the Telegram Bot API (or via the tournament-bot's HTTP push endpoint if TOURNAMENT_BOT_PUSH_URL is set).",
+  "enabled": true,
+  "tournaments": {
+    "wc26": {
+      "$comment": "Replace with real channel ids -- the bot must be admin on each channel for sendVideo to succeed.",
+      "chats": []
+    },
+    "fifa-wc-2022": {
+      "$comment": "Demo channel for the AR-FR replay. Suggest @VTournClipsDemo.",
+      "chats": []
+    }
+  },
+  "default": {
+    "$comment": "Fallback chat list. If empty, fan-out skips Telegram for unmapped tournaments.",
+    "chats": []
+  }
+}

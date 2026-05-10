@@ -1,0 +1,21 @@
+{
+  "$comment": "Per-tournament subreddit allowlist. Reddit is strict on cross-posting frequency and self-promotion; the adapter enforces a per-subreddit 10-minute cooldown and skips any clip already posted to that subreddit in the last 24h. `flair_id` is optional; some subreddits require flair on submission. Set `enabled: false` to pause without removing config.",
+  "enabled": true,
+  "tournaments": {
+    "wc26": {
+      "$comment": "FIFA World Cup 2026 -- r/soccer, r/worldcup, r/MLS for US relevance. Confirm with each sub's mod team before posting at scale.",
+      "subreddits": [
+        { "name": "soccer", "flair_id": null },
+        { "name": "worldcup", "flair_id": null }
+      ]
+    },
+    "fifa-wc-2022": {
+      "$comment": "Historic / demo content -- do NOT post to r/soccer (mods removed historic-replay spam in 2024). Use a sandbox sub.",
+      "subreddits": []
+    }
+  },
+  "default": {
+    "$comment": "Fallback for unmapped tournaments. Empty by default -- do not auto-cross-post unknown content.",
+    "subreddits": []
+  }
+}
