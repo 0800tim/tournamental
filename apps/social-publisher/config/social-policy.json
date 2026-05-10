@@ -1,0 +1,23 @@
+{
+  "$comment": "Maps eventType -> list of platforms to fan out to. Per-tournament overrides live under `tournaments`. The policy router prefers a tournament-specific entry; falls back to `default`. See docs/27-social-distribution-strategy.md.",
+  "default": {
+    "goal": ["tiktok", "instagram-reels", "youtube-shorts", "x", "threads", "telegram", "discord"],
+    "red-card": ["x", "threads", "telegram", "discord"],
+    "penalty": ["tiktok", "instagram-reels", "x", "telegram", "discord"],
+    "match-end": ["tiktok", "instagram-reels", "youtube-shorts", "x", "threads", "telegram", "discord", "reddit"],
+    "bracket-card": ["instagram-reels", "x", "threads", "telegram", "discord"],
+    "tournament-recap": ["tiktok", "instagram-reels", "youtube-shorts", "x", "threads", "telegram", "discord", "reddit"],
+    "highlight": ["tiktok", "instagram-reels", "youtube-shorts", "x", "telegram"]
+  },
+  "tournaments": {
+    "wc26": {
+      "$comment": "FIFA World Cup 2026 — fan-out everywhere on goals incl. reddit (r/soccer); brand cadence per docs/27.",
+      "goal": ["tiktok", "instagram-reels", "youtube-shorts", "x", "threads", "telegram", "discord", "reddit"]
+    },
+    "fifa-wc-2022": {
+      "$comment": "Historic / demo content — restricted set, no reddit pushes.",
+      "goal": ["tiktok", "instagram-reels", "youtube-shorts", "x", "telegram", "discord"],
+      "match-end": ["tiktok", "instagram-reels", "x", "telegram", "discord"]
+    }
+  }
+}
