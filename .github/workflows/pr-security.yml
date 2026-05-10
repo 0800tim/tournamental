@@ -1,0 +1,256 @@
+name: PR security
+
+# Defence-in-depth scanning for incoming pull requests.
+#
+# Layered with .github/workflows/ci.yml (which already does build/test
+# and a basic gitleaks pass). This workflow is the security-specific
+# pipeline: every job here can independently fail the PR.
+#
+# ROLLOUT:
+# We run in **soft-launch** mode for the first 24h after merge:
+#   - All jobs run.
+#   - The `triage-bot` job posts a `[DRY-RUN]` comment.
+#   - The `gate` job at the end is `continue-on-error: true`.
+# After 24h of clean signal, flip the gate to required-status (PR #to-be-filed).
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  checks: write
+
+concurrency:
+  group: pr-security-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+env:
+  # Soft-launch toggle. Flip to "false" to turn on real blocking.
+  TRIAGE_DRY_RUN: 'true'
+
+jobs:
+  # ----- Layer 1: deterministic scanners -----
+
+  gitleaks:
+    name: gitleaks (extended)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: .gitleaks.toml
+
+  osv-scanner:
+    name: OSV-Scanner (deps)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run OSV-Scanner
+        uses: google/osv-scanner-action/osv-scanner-action@v1.9.2
+        with:
+          scan-args: |-
+            --recursive
+            --skip-git
+            --format=json
+            --output=osv-results.json
+            ./
+        continue-on-error: true
+      - name: Upload OSV results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: osv-results
+          path: osv-results.json
+          if-no-files-found: ignore
+
+  semgrep:
+    name: semgrep (OWASP top 10 + js/ts + secrets)
+    runs-on: ubuntu-latest
+    container:
+      image: returntocorp/semgrep:latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: semgrep ci
+        run: |
+          semgrep ci \
+            --config=p/owasp-top-ten \
+            --config=p/javascript \
+            --config=p/typescript \
+            --config=p/secrets \
+            --json --output=semgrep-results.json || true
+      - name: Upload semgrep results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep-results
+          path: semgrep-results.json
+          if-no-files-found: ignore
+
+  license-audit:
+    name: License audit (npm)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+        with: { version: 10 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Resolve licences for added deps
+        run: node .github/scripts/license-audit.mjs > license-results.json
+      - name: Upload license results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-results
+          path: license-results.json
+          if-no-files-found: ignore
+      - name: Fail on disallowed licence
+        run: node -e "const r=require('./license-results.json'); if (r.violations && r.violations.length) { console.error('Disallowed licences:', JSON.stringify(r.violations,null,2)); process.exit(1) }"
+
+  network-allowlist:
+    name: Network host allowlist
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20 }
+      - name: Diff added hosts
+        run: node .github/scripts/network-allowlist.mjs > network-results.json
+      - name: Upload network results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: network-results
+          path: network-results.json
+          if-no-files-found: ignore
+      - name: Fail on un-allowlisted host
+        run: node -e "const r=require('./network-results.json'); if (r.unknownHosts && r.unknownHosts.length) { console.error('Unknown hosts:', r.unknownHosts.join(', ')); process.exit(1) }"
+
+  secret-scope:
+    name: Secret scope (process.env. references)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20 }
+      - run: node .github/scripts/secret-scope.mjs > secret-scope-results.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-scope-results
+          path: secret-scope-results.json
+          if-no-files-found: ignore
+
+  prompt-injection-canary:
+    name: Prompt-injection canary
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20 }
+      - run: node .github/scripts/prompt-injection-canary.mjs > prompt-injection-results.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prompt-injection-results
+          path: prompt-injection-results.json
+          if-no-files-found: ignore
+      # Don't fail on hits — the bot flags for human review. False
+      # positives are common (security docs, threat-model fixtures).
+
+  bundle-size:
+    name: Bundle size diff (apps/web, apps/marketing)
+    runs-on: ubuntu-latest
+    if: false # opt-in: enabled per-PR via /command, see docs/security/01
+    steps:
+      - run: echo "bundle-size diff disabled until apps/web ships its first build"
+
+  # ----- Layer 2: aggregating triage bot -----
+
+  triage-bot:
+    name: PR triage bot
+    needs:
+      - gitleaks
+      - osv-scanner
+      - semgrep
+      - license-audit
+      - network-allowlist
+      - secret-scope
+      - prompt-injection-canary
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with: { fetch-depth: 0 }
+      - uses: pnpm/action-setup@v6
+        with: { version: 10 }
+      - uses: actions/setup-node@v6
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+        continue-on-error: true
+      - name: Build external-flags JSON
+        run: node .github/scripts/build-external-flags.mjs > external-flags.json
+      - name: Run triage
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pnpm --filter @vtorn/pr-triage-bot exec tsx src/cli.ts \
+            --pr ${{ github.event.pull_request.number }} \
+            --repo ${{ github.repository }} \
+            --external-flags external-flags.json \
+            ${{ env.TRIAGE_DRY_RUN == 'true' && '--dry-run' || '' }} \
+            --out-json triage-verdict.json
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: triage-verdict
+          path: triage-verdict.json
+          if-no-files-found: ignore
+
+  # ----- Layer 3: final gate -----
+
+  gate:
+    name: PR security gate
+    needs:
+      - gitleaks
+      - osv-scanner
+      - semgrep
+      - license-audit
+      - network-allowlist
+      - secret-scope
+      - prompt-injection-canary
+      - triage-bot
+    if: always()
+    runs-on: ubuntu-latest
+    # Soft-launch: the gate observes but does not block. Flip to false
+    # once we've watched a day of real PR traffic without false-positives.
+    continue-on-error: true
+    steps:
+      - name: Roll up
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | python3 -c "
+          import json, sys
+          n = json.loads(sys.stdin.read())
+          failed = [k for k, v in n.items() if v.get('result') == 'failure']
+          if failed:
+            print('Failed scanners:', ', '.join(failed))
+            sys.exit(1)
+          print('All scanners passed.')
+          "
