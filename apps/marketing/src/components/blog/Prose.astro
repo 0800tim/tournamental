@@ -1,0 +1,116 @@
+---
+// Typography wrapper for MDX post bodies. We don't pull in
+// @tailwindcss/typography because the marketing surface only needs
+// these defaults and the plugin's footprint is wasted on a 3-post
+// section. All text colours read theme tokens so light/dark stay
+// readable without per-element overrides in globals.css.
+---
+<div class="vt-prose">
+  <slot />
+</div>
+
+<style is:global>
+  .vt-prose {
+    color: var(--vt-fg);
+    font-size: 1.075rem;
+    line-height: 1.7;
+  }
+  .vt-prose > * + * {
+    margin-top: 1.1em;
+  }
+  .vt-prose h2 {
+    margin-top: 2.4em;
+    margin-bottom: 0.6em;
+    font-size: 1.625rem;
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    color: var(--vt-fg-strong);
+  }
+  .vt-prose h3 {
+    margin-top: 1.8em;
+    margin-bottom: 0.4em;
+    font-size: 1.25rem;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--vt-fg-strong);
+  }
+  .vt-prose p {
+    color: var(--vt-fg);
+  }
+  .vt-prose strong {
+    color: var(--vt-fg-strong);
+    font-weight: 600;
+  }
+  .vt-prose a {
+    color: #5a96d8;
+    text-decoration: underline;
+    text-underline-offset: 0.18em;
+    text-decoration-color: rgba(90, 150, 216, 0.45);
+    transition: text-decoration-color 120ms ease, color 120ms ease;
+  }
+  .vt-prose a:hover {
+    color: #7eb6e8;
+    text-decoration-color: #7eb6e8;
+  }
+  .vt-prose ul,
+  .vt-prose ol {
+    padding-left: 1.4rem;
+    color: var(--vt-fg);
+  }
+  .vt-prose ul {
+    list-style: disc;
+  }
+  .vt-prose ol {
+    list-style: decimal;
+  }
+  .vt-prose li + li {
+    margin-top: 0.4em;
+  }
+  .vt-prose blockquote {
+    margin: 1.5em 0;
+    padding: 0.4rem 1.1rem;
+    border-left: 3px solid #5a96d8;
+    color: var(--vt-fg-muted);
+    font-style: italic;
+  }
+  .vt-prose code {
+    font-family: theme(fontFamily.mono);
+    font-size: 0.92em;
+    background: var(--vt-bg-elev-2);
+    color: var(--vt-fg);
+    border-radius: 4px;
+    padding: 0.12em 0.38em;
+  }
+  .vt-prose pre {
+    background: var(--vt-bg-elev);
+    border: 1px solid var(--vt-border);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    overflow-x: auto;
+    font-size: 0.92rem;
+  }
+  .vt-prose pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .vt-prose hr {
+    border: none;
+    border-top: 1px solid var(--vt-border);
+    margin: 2.5em 0;
+  }
+  .vt-prose img {
+    border-radius: 0.625rem;
+    border: 1px solid var(--vt-border);
+    max-width: 100%;
+    height: auto;
+  }
+  .vt-prose figure {
+    margin: 1.6em 0;
+  }
+  .vt-prose figcaption {
+    margin-top: 0.5em;
+    font-size: 0.85rem;
+    color: var(--vt-fg-muted);
+    text-align: center;
+  }
+</style>

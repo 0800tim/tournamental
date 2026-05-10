@@ -1,0 +1,81 @@
+---
+title: "The bracket game: how 104 picks become 1 winner"
+description: "VTourn's free-to-play prediction game in plain language. Eight groups of six, 104 picks, an auto-pick cascade for the impatient, an odds-at-lock stamp on every prediction, and a history ledger so you can see how your bracket evolved."
+pubDate: 2026-05-11
+author: "VTourn Team"
+tags: ["product", "gameplay", "scoring"]
+heroImage: "/blog/2026-05-11-laptops-hero.jpg"
+heroImageAlt: "A team of people sitting around a whiteboard and laptops, planning."
+heroImageCredit: "Photo by Austin Distel on Unsplash (Unsplash Licence)"
+---
+
+The bracket page at [`2026wc.vtourn.com`](https://2026wc.vtourn.com) has one job: turn the chaos of 104 World Cup matches into a single shareable scorecard that tells you, at any moment, how your calls compare against everyone else's. This post is the plain-language tour of how that works, because we tried explaining it on a phone call yesterday and realised even our friends did not all follow the bit about odds-at-lock.
+
+## The format
+
+The 2026 World Cup is the first to run on the new 48-team layout: **twelve groups of four**, then a 32-team round of 16, then quarters, semis, the third-place playoff, and the final. From a prediction-game point of view that is **104 picks** in total: 72 group-stage match outcomes, then knockouts.
+
+For VTourn we ladder it like this:
+
+- **Group stage**: pick the winner (or draw) of every fixture, plus rank the four teams in your group so the right two advance and the right two go home
+- **Round of 32**: the bracket page renders the path; you call each tie
+- **Round of 16, quarter-finals, semi-finals, third-place playoff, final**: same again
+
+Every pick is its own row. Every row stamps the moment you locked it. Every match is locked at kickoff and never again — more on that below.
+
+## The auto-pick cascade
+
+Most people we talk to fall into one of two camps:
+
+1. The completist who genuinely wants to call every game
+2. The casual fan who has views on twelve matches max and zero patience for the other 92
+
+The completist is fine. The casual fan was the design problem. So the bracket page has an **auto-pick cascade**: one click and we walk the entire knockout tree, pick the winners, populate the next round, walk it again, and lock the whole thing in. The default cascade uses **FIFA-rank tiebreakers** — higher rank wins, ties broken by goal difference, ties further broken by alphabetical order. You can override the tiebreakers from a settings drawer if you have a particular view.
+
+Once the cascade has filled out your card, you can **go back and tweak any individual pick**. Change Argentina to lose to Mexico in round 1 and the cascade re-runs forward from there: the next round shows Mexico, the round after shows whoever Mexico beats, and so on. Nothing is set in stone until the moment of kickoff.
+
+## The kickoff lockout
+
+Every fixture has a `kickoff` timestamp. The instant the local clock reaches it, the row flips to a locked state, all the buttons disable, and the banner says: "Sorry — this match has already started. You can't change it now." The server enforces the same rule for the API: any submit that arrives after `kickoff` for a given fixture comes back with `match_already_started`.
+
+This matters because the next mechanic only works if the stamp is honest.
+
+## Odds at lock
+
+When you lock a pick, we capture the **live W/D/L odds** at that exact moment from the same feed (Polymarket plus a sportsbook aggregator) the bracket page is showing you. That snapshot is stored next to your prediction.
+
+A pick at long odds — Mexico over Argentina at 12% the night before — is worth a lot more if it lands than the same pick made on the morning of the match when half the world has already piled in.
+
+This rewards two things we want VTourn to be about:
+
+1. **Conviction**. If you believe in something three weeks out, before the herd, you should get the upside.
+2. **Effort**. Predicting a tournament early is harder. We respect that with the points we give you back.
+
+Hindsight bracketing is a fine pastime. We just do not score it the same way.
+
+## The history ledger
+
+Every change you make to your bracket — every individual pick, every group ranking, every auto-pick run — writes a small append-only entry to a local ledger. Open the **History** drawer on any match row and you see:
+
+```
+2026-05-08 14:22  ARG > MEX  → 1-0  (odds at lock: 47% / 31% / 22%)
+2026-05-09 07:14  ARG > MEX  → 2-1  (odds at lock: 49% / 29% / 22%)
+2026-06-13 19:55  LOCKED        — match has started
+```
+
+It is a small thing but it makes the game more honest. When the tournament ends and a friend tells you "I had Argentina nailed from the start," you can ask them to show their working. We will be the platform that does.
+
+## The supporting pages
+
+The bracket page is the main thing, but the same picks feed two other surfaces:
+
+- **`/match/[id]/preview`** — every fixture has a five-tab preview built around it: Predict, H2H, Form, Lineup, and Stats. It is the page you open if you have not made up your mind yet. The Predict tab is the same row as on the bracket page; the others are the supporting evidence.
+- **`/team/[code]`** — every team gets a detail page with a massive circular flag, the kit-colour gradient strip, the FIFA rank chip, recent form (W, D, L dots), the upcoming fixture deep-link, head-to-head, and a squad grid
+
+Pick a route, follow the breadcrumbs, end up where you started.
+
+## Closing the loop
+
+When the tournament finishes the bracket settles. We score every pick against the actual result, multiply by the odds-at-lock multiplier, and rank everyone on the leaderboard. The winner of the global leaderboard gets the cleanest possible verifiable receipt: an on-chain VStamp with their full bracket signed at kickoff and their final score recorded. Bragging rights with a cryptographic seal.
+
+If you want to play, the bracket is live now at [`2026wc.vtourn.com`](https://2026wc.vtourn.com). Free to join. No credit card. The whole codebase is open source under Apache 2.0; if you spot a bug or have a better idea for the scoring formula, [the repo is here](https://github.com/0800tim/vtorn) and pull requests are how this thing improves.

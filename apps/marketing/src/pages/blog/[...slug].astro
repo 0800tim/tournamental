@@ -1,0 +1,196 @@
+---
+// Individual blog post route. Statically generated from the `blog`
+// content collection. We pass the rendered MDX into the Prose wrapper
+// so typography is consistent regardless of which post is rendered.
+//
+// SEO: title, description, og:image (post hero), canonical, all set
+// via the Layout's existing props.
+import Layout from "@/layouts/Layout.astro";
+import Prose from "@/components/blog/Prose.astro";
+import TagChip from "@/components/blog/TagChip.astro";
+import BlogCard from "@/components/blog/BlogCard.astro";
+import PostFooter from "@/components/blog/PostFooter.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("blog", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"blog">;
+}
+const { post } = Astro.props;
+const { Content } = await post.render();
+const { data } = post;
+
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(data.pubDate);
+const updatedLabel = data.updated
+  ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.updated)
+  : null;
+
+const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+
+// Pull two related posts for the footer "More from the blog" strip.
+const others = (await getCollection("blog", ({ data }) => !data.draft))
+  .filter((p) => p.slug !== post.slug)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 2);
+
+const canonical = new URL(`/blog/${post.slug}`, Astro.site ?? "https://vtourn.com").toString();
+const ogImage = heroSrc
+  ? heroSrc.startsWith("http")
+    ? heroSrc
+    : new URL(heroSrc, Astro.site ?? "https://vtourn.com").toString()
+  : "/og-default.png";
+---
+<Layout
+  title={`${data.title} — VTourn Blog`}
+  description={data.description}
+  ogImage={ogImage}
+>
+  <article class="container-prose pt-12 pb-16">
+    <nav class="vt-blog-back" aria-label="Breadcrumb">
+      <a href="/blog" class="link">← All posts</a>
+    </nav>
+
+    <header class="vt-blog-post-header">
+      <div class="vt-blog-post-meta">
+        <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+        <span aria-hidden="true">·</span>
+        <span>{data.author}</span>
+        {updatedLabel && (
+          <>
+            <span aria-hidden="true">·</span>
+            <span>updated {updatedLabel}</span>
+          </>
+        )}
+      </div>
+      <h1 class="vt-blog-post-title">{data.title}</h1>
+      <p class="vt-blog-post-lede">{data.description}</p>
+      {data.tags.length > 0 && (
+        <div class="vt-blog-post-tags">
+          {data.tags.map((t) => <TagChip tag={t} />)}
+        </div>
+      )}
+    </header>
+
+    {heroSrc && (
+      <figure class="vt-blog-post-hero">
+        <img
+          src={heroSrc}
+          alt={data.heroImageAlt ?? ""}
+          width="1600"
+          height="900"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high"
+        />
+        {data.heroImageCredit && (
+          <figcaption>{data.heroImageCredit}</figcaption>
+        )}
+      </figure>
+    )}
+
+    <Prose>
+      <Content />
+    </Prose>
+
+    <PostFooter title={data.title} url={canonical} author={data.author} />
+  </article>
+
+  {others.length > 0 && (
+    <section class="container-page pb-20">
+      <h4 class="vt-blog-related-eyebrow">More from the blog</h4>
+      <div class="vt-blog-related-grid">
+        {others.map((p) => <BlogCard post={p} />)}
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .vt-blog-back {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  .vt-blog-post-header {
+    margin-bottom: 1.75rem;
+  }
+  .vt-blog-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    color: var(--vt-fg-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.85rem;
+  }
+  .vt-blog-post-title {
+    font-family: theme(fontFamily.display);
+    font-size: 2.1rem;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--vt-fg-strong);
+  }
+  @media (min-width: 768px) {
+    .vt-blog-post-title { font-size: 2.6rem; }
+  }
+  .vt-blog-post-lede {
+    color: var(--vt-fg-muted);
+    margin-top: 0.85rem;
+    font-size: 1.125rem;
+    line-height: 1.55;
+  }
+  .vt-blog-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .vt-blog-post-hero {
+    margin: 1.5rem 0 2.5rem;
+    border-radius: 0.875rem;
+    overflow: hidden;
+    border: 1px solid var(--vt-border);
+  }
+  .vt-blog-post-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .vt-blog-post-hero figcaption {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--vt-fg-muted);
+    background: var(--vt-bg-elev);
+    border-top: 1px solid var(--vt-border);
+  }
+  .vt-blog-related-eyebrow {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-muted);
+    margin-bottom: 1rem;
+  }
+  .vt-blog-related-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .vt-blog-related-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

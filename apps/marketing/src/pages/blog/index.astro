@@ -1,0 +1,189 @@
+---
+// Blog index. The build log + product showcase published from
+// vtourn.com/blog. Posts come from the `blog` content collection
+// defined in src/content/config.ts.
+//
+// We sort by `pubDate` desc and skip drafts. The hero strip pulls the
+// most recent post into a wider card; older posts fill a 2/3-column
+// grid below.
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import BlogCard from "@/components/blog/BlogCard.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const [hero, ...rest] = posts;
+const heroDate = hero
+  ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(hero.data.pubDate)
+  : "";
+const heroSrc = hero
+  ? typeof hero.data.heroImage === "string"
+    ? hero.data.heroImage
+    : hero.data.heroImage?.src
+  : undefined;
+---
+<Layout
+  title="Blog — VTourn"
+  description="The VTourn build log: feature show-offs, behind-the-scenes technical posts, and updates as we ramp toward the 11 June 2026 World Cup kickoff."
+>
+  <article class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Blog"
+      title="The build log"
+      lede="Daily progress as we ship VTourn — feature show-offs, behind-the-scenes engineering, and the occasional tactical detour. Subscribe via the RSS link in the footer of any post."
+    />
+
+    {posts.length === 0 && (
+      <div class="card mt-8">
+        <p class="prose-vt">Nothing posted yet. Check back soon.</p>
+      </div>
+    )}
+
+    {hero && (
+      <a class="vt-blog-hero group" href={`/blog/${hero.slug}`}>
+        <div class="vt-blog-hero-media">
+          {heroSrc ? (
+            <img
+              src={heroSrc}
+              alt={hero.data.heroImageAlt ?? ""}
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+              width="1600"
+              height="900"
+            />
+          ) : (
+            <div class="vt-blog-hero-placeholder" aria-hidden="true"></div>
+          )}
+        </div>
+        <div class="vt-blog-hero-body">
+          <span class="pill">Latest · {heroDate}</span>
+          <h3 class="vt-blog-hero-title">{hero.data.title}</h3>
+          <p class="vt-blog-hero-desc">{hero.data.description}</p>
+          <span class="vt-blog-hero-cta">Read the post →</span>
+        </div>
+      </a>
+    )}
+
+    {rest.length > 0 && (
+      <section class="mt-12">
+        <h4 class="vt-blog-eyebrow">More from the blog</h4>
+        <div class="vt-blog-grid">
+          {rest.map((post) => <BlogCard post={post} />)}
+        </div>
+      </section>
+    )}
+
+    <aside class="vt-blog-rss">
+      <span>Want to follow along?</span>
+      <a href="/blog/rss.xml" class="link">Subscribe via RSS</a>
+    </aside>
+  </article>
+</Layout>
+
+<style>
+  .vt-blog-hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    margin-top: 1rem;
+    border: 1px solid var(--vt-border);
+    border-radius: 1rem;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+    text-decoration: none;
+    transition: border-color 200ms ease, transform 200ms ease;
+  }
+  .vt-blog-hero:hover {
+    border-color: var(--vt-border-strong);
+    transform: translateY(-2px);
+  }
+  @media (min-width: 768px) {
+    .vt-blog-hero {
+      grid-template-columns: 1.4fr 1fr;
+    }
+  }
+  .vt-blog-hero-media {
+    aspect-ratio: 16 / 9;
+    background: var(--vt-bg-elev-2);
+    overflow: hidden;
+  }
+  .vt-blog-hero-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 320ms ease;
+  }
+  .vt-blog-hero:hover .vt-blog-hero-media img {
+    transform: scale(1.02);
+  }
+  .vt-blog-hero-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(126, 182, 232, 0.18), rgba(255, 138, 61, 0.10));
+  }
+  .vt-blog-hero-body {
+    padding: 1.5rem 1.75rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    justify-content: center;
+  }
+  .vt-blog-hero-title {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    line-height: 1.18;
+    letter-spacing: -0.015em;
+    color: var(--vt-fg-strong);
+  }
+  @media (min-width: 768px) {
+    .vt-blog-hero-title {
+      font-size: 1.875rem;
+    }
+  }
+  .vt-blog-hero-desc {
+    color: var(--vt-fg-muted);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+  .vt-blog-hero-cta {
+    color: #5a96d8;
+    font-weight: 600;
+    margin-top: 0.25rem;
+  }
+  .vt-blog-eyebrow {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-muted);
+    margin-bottom: 1rem;
+  }
+  .vt-blog-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .vt-blog-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .vt-blog-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .vt-blog-rss {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--vt-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+  }
+</style>

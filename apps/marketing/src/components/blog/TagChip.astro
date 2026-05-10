@@ -1,0 +1,39 @@
+---
+// Small filterable tag pill used on the blog index card and the post
+// header. Reads the same theme tokens as `.pill` but is a touch denser
+// so 3-4 tags fit on one line on mobile.
+interface Props {
+  tag: string;
+  href?: string;
+}
+const { tag, href } = Astro.props;
+const slug = tag.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+const label = `#${tag}`;
+---
+{href ? (
+  <a href={href} class="vt-tag-chip" data-tag={slug}>{label}</a>
+) : (
+  <span class="vt-tag-chip" data-tag={slug}>{label}</span>
+)}
+
+<style>
+  .vt-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    border: 1px solid var(--vt-border-strong);
+    background: var(--vt-bg-elev);
+    color: var(--vt-fg-muted);
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0.35rem 0.65rem;
+    text-transform: lowercase;
+    letter-spacing: 0.02em;
+    transition: color 120ms ease, border-color 120ms ease;
+  }
+  a.vt-tag-chip:hover {
+    color: #5a96d8;
+    border-color: #5a96d8;
+  }
+</style>

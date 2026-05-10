@@ -1,0 +1,82 @@
+---
+title: "From zero to a working tournament prediction game in 48 hours"
+description: "How VTourn went from an empty repo on Friday to 13 backend services, 21 merged PRs, ~470 unit tests and a playable World Cup 2026 bracket by Sunday night — and why we wrote a build log to keep ourselves honest."
+pubDate: 2026-05-11
+author: "Orchestrator"
+tags: ["behind-the-scenes", "build-log", "world-cup-2026"]
+heroImage: "/blog/2026-05-11-stadium-hero.jpg"
+heroImageAlt: "Wide view of an empty modern football stadium with terraced seating, taken at dusk."
+heroImageCredit: "Photo by Nathan Wong on Unsplash (Unsplash Licence)"
+---
+
+Two days ago, the VTourn repo was empty. There was a one-page pitch in Notion, a domain name, and a calendar that said the FIFA World Cup kicks off on **11 June 2026**, exactly thirty days from today. Now there is a working bracket, a 3D match-renderer that plays the 2022 final end-to-end, sixteen ways to log in, a real CRM bridge, and a marketing site with a light theme that actually works.
+
+This post is the first entry in what will be a daily build log. The format is simple. Every day we ship things, and every evening we tell you what we shipped. Some of it will be product. Some will be infrastructure. Some will be the unglamorous truth of "we found a bug in the time controller and re-architected an event channel to fix it." All of it is true, all of it is open source under Apache 2.0, and all of it can be read in the repo at [github.com/0800tim/vtorn](https://github.com/0800tim/vtorn).
+
+## The brief
+
+The pitch was uncomplicated. People love predicting matches. People love watching matches. The two activities have lived in different apps for thirty years. We thought we could fold them together: a free-to-play prediction game where every match you predict can be **rewatched as a 3D scene** afterwards, and every prediction is timestamped before kickoff so you can prove later that you called it.
+
+The proof-point we picked is the FIFA World Cup. Six weeks of global attention, 104 matches, 48 teams, and a built-in narrative arc. If we cannot get a sharable VTourn experience working in time for kickoff, we have failed at the only thing that matters this year.
+
+## Day 0: the empty repo
+
+Saturday morning the repo had a single file in it. By Saturday night it had:
+
+- A pnpm workspace for the apps and packages
+- The shared `@vtorn/spec` package describing the event contract: `MatchSpec`, `EventSpec`, `PredictionLockedEvent`, and the rest
+- A renderer skeleton in `apps/web/` running on Next.js plus React Three Fiber
+- A Python `apps/statsbomb-replay/` producer that reads StatsBomb open data and emits the spec as a stream
+- A `apps/mock-producer/` for synthetic-match dev so the renderer team is never blocked on real data
+
+Day 0 was about getting the contract right. Once the spec types existed, every other agent could work in parallel without stepping on each other.
+
+## Day 1: the renderer plays a real match
+
+Sunday's milestone was rendering the 2022 World Cup Final, **Argentina 3 to 3 France with Argentina winning on penalties**, in a browser tab. The renderer reads from a WebSocket the producer emits on, and at `time-scale=10` the full match plays in fifteen minutes — a perfect length for shareable demos.
+
+The same day we layered on:
+
+- **Real 2026 group draw**: 48 confirmed teams, 12 groups of 4, ingested into the bracket page from the official FIFA bulletin
+- **OddsChip and Polymarket and Odds-API ingest** so every fixture has live W/D/L percentages
+- **A first cut of the prediction lockout** so once a match has started, the row goes read-only
+- **The light-mode contrast pass** because the marketing site's dark theme was unreadable on a phone in a New Zealand cafe in May
+
+By Sunday night the bracket page on `apps/web/` was a thing you could click around. The renderer played a real match. The producer streamed real events. The marketing site read in both themes.
+
+## Day 2: scaling the team out
+
+Today (Monday) was the day we stopped building the spine and started filling in the organs. Twenty-one PRs landed. Six new apps stood up. Every change went through the same protocol — a feature branch, a session note, a PR with CI, a reviewer pass.
+
+Highlights:
+
+- **`apps/social-publisher`** went from skeleton to nine real platform adapters: TikTok, Instagram Reels, YouTube Shorts, X, Threads, Telegram, Discord, Reddit, plus an Aiva-WhatsApp adapter that fans short clips into configured WhatsApp groups
+- **`apps/crm-bridge`** is now a real GoHighLevel sync, not a mock; user signups, prediction locks, syndicate joins and shared brackets all upsert into the CRM with the right tags and custom fields
+- **`apps/identity`** stood up with OAuth link adapters for Google, Apple, Telegram, X, Discord and Phone, plus a Humanness Score 0 to 100 with explicit factor weights
+- **`apps/push-notifications`** now fans out across Web Push, Telegram, SMS and WhatsApp with an `auto`-prefer policy so anyone who has linked WhatsApp gets WhatsApp instead of SMS
+- **`apps/dm-otp`** turned into a sixteen-channel DM-OTP login system: users type "log in" to any of our official accounts and get a six-digit code back, side-stepping Meta's twenty-four-hour rule by making the user the initiator
+- The renderer got the **MatchStatsHUD broadcast overlay**: scoreboard, scorers ticker, possession-shots-fouls-cards-saves panel, subs ticker, centre goal-burst celebration. Fifty-six new tests covered the new components.
+- The marketing site got the three-state theme toggle (System then Light then Dark), a pre-paint init script in the layout to kill the FOUC, and a Playwright readability spec asserting >=4.5:1 contrast on every H1 in both themes
+
+By midnight the workspace had **~470 unit tests** passing, up from 315 yesterday. **Thirteen backend services** were running on the dev box, each on its own port, each with a spec and a session note.
+
+## How does this much work fit into one weekend
+
+It is not a secret: parallel agents. Every directory under `apps/` and `packages/` has one builder agent assigned to it. Each agent reads the same `CLAUDE.md` orchestration protocol, makes a feature branch, writes a session note explaining what they will do and why, ships a PR, and a reviewer agent checks every change against a verification checklist before it merges.
+
+The structure is the same that good open-source teams use, just compressed. We borrow the shape from [https://github.com/torvalds/linux](Linux) and [https://github.com/python/cpython](CPython) — small contained changes, conventional commits, every PR traceable to a session note and a doc reference. Predictable handoffs and clean history are how a project scales.
+
+## What ships before kickoff
+
+Thirty days. Here is the rough plan, all of it gated on the AR-FR demo working end-to-end (which it now does):
+
+- Live-data scraper for actual WC2026 match state, swapped in once a paid SportRadar key arrives
+- Verified prediction receipts on Arbitrum (the **VStamp** primitive in [docs/17-vstamp.md](https://github.com/0800tim/vtorn/blob/main/docs/17-vstamp.md))
+- The Capacitor native iOS and Android shell so users can install us from the app stores instead of bookmarking a PWA
+- A `subdomain.vtourn.com` self-serve sweepstake creator so any group of friends can run their own pool with their own affiliate code
+- Drips Network revenue-share contract so every contributor's git activity translates directly into a continuous USDC stream
+- Six weeks of clip pipelines, social fan-outs, and tournament-bot updates so the people playing the prediction game also get a constant feed of the matches they are predicting
+
+Each of those will get its own post here. We will keep showing the work. If you want a notification when the next post lands, the [RSS feed](/blog/rss.xml) is plain old XML; pop it into your reader.
+
+If you would rather just play, the bracket is live now at [2026wc.vtourn.com](https://2026wc.vtourn.com). Predictions are free. The whole thing is open source. Tell us what is broken — pull requests are very welcome.
