@@ -1,0 +1,330 @@
+{
+  "_note": "Curated, source-verified historical meetings between WC2026 teams. Provenance per match in `competition` + the entry's location in StatsBomb open data when applicable. Read by apps/wc2026-data/src/stats/sources/statsbomb-h2h.ts as the high-confidence local fallback for the H2H scraper.",
+  "matches": [
+    {
+      "date": "2022-12-18",
+      "team_a": "ARG",
+      "team_b": "FRA",
+      "score_a": 3,
+      "score_b": 3,
+      "venue": "Lusail Iconic Stadium, Lusail",
+      "competition": "FIFA World Cup Final",
+      "extra_time": true,
+      "penalties": "ARG 4-2"
+    },
+    {
+      "date": "2018-06-30",
+      "team_a": "FRA",
+      "team_b": "ARG",
+      "score_a": 4,
+      "score_b": 3,
+      "venue": "Kazan Arena, Kazan",
+      "competition": "FIFA World Cup Round of 16"
+    },
+    {
+      "date": "2014-07-13",
+      "team_a": "GER",
+      "team_b": "ARG",
+      "score_a": 1,
+      "score_b": 0,
+      "venue": "Maracanã, Rio de Janeiro",
+      "competition": "FIFA World Cup Final",
+      "extra_time": true
+    },
+    {
+      "date": "2010-07-03",
+      "team_a": "GER",
+      "team_b": "ARG",
+      "score_a": 4,
+      "score_b": 0,
+      "venue": "Cape Town Stadium, Cape Town",
+      "competition": "FIFA World Cup Quarter-final"
+    },
+    {
+      "date": "2006-06-30",
+      "team_a": "GER",
+      "team_b": "ARG",
+      "score_a": 1,
+      "score_b": 1,
+      "venue": "Olympiastadion, Berlin",
+      "competition": "FIFA World Cup Quarter-final",
+      "extra_time": true,
+      "penalties": "GER 4-2"
+    },
+    {
+      "date": "1986-06-29",
+      "team_a": "ARG",
+      "team_b": "GER",
+      "score_a": 3,
+      "score_b": 2,
+      "venue": "Estadio Azteca, Mexico City",
+      "competition": "FIFA World Cup Final"
+    },
+    {
+      "date": "1986-06-22",
+      "team_a": "ARG",
+      "team_b": "ENG",
+      "score_a": 2,
+      "score_b": 1,
+      "venue": "Estadio Azteca, Mexico City",
+      "competition": "FIFA World Cup Quarter-final"
+    },
+    {
+      "date": "1998-06-30",
+      "team_a": "ARG",
+      "team_b": "ENG",
+      "score_a": 2,
+      "score_b": 2,
+      "venue": "Stade Geoffroy-Guichard, Saint-Étienne",
+      "competition": "FIFA World Cup Round of 16",
+      "extra_time": true,
+      "penalties": "ARG 4-3"
+    },
+    {
+      "date": "2002-06-07",
+      "team_a": "ARG",
+      "team_b": "ENG",
+      "score_a": 0,
+      "score_b": 1,
+      "venue": "Sapporo Dome, Sapporo",
+      "competition": "FIFA World Cup Group F"
+    },
+    {
+      "date": "1950-06-29",
+      "team_a": "ENG",
+      "team_b": "USA",
+      "score_a": 0,
+      "score_b": 1,
+      "venue": "Estádio Independência, Belo Horizonte",
+      "competition": "FIFA World Cup Group 2"
+    },
+    {
+      "date": "2010-06-12",
+      "team_a": "ENG",
+      "team_b": "USA",
+      "score_a": 1,
+      "score_b": 1,
+      "venue": "Royal Bafokeng Stadium, Rustenburg",
+      "competition": "FIFA World Cup Group C"
+    },
+    {
+      "date": "2022-11-25",
+      "team_a": "ENG",
+      "team_b": "USA",
+      "score_a": 0,
+      "score_b": 0,
+      "venue": "Al Bayt Stadium, Al Khor",
+      "competition": "FIFA World Cup Group B"
+    },
+    {
+      "date": "2022-12-09",
+      "team_a": "BRA",
+      "team_b": "CRO",
+      "score_a": 1,
+      "score_b": 1,
+      "venue": "Education City Stadium, Al Rayyan",
+      "competition": "FIFA World Cup Quarter-final",
+      "extra_time": true,
+      "penalties": "CRO 4-2"
+    },
+    {
+      "date": "2022-12-09",
+      "team_a": "NED",
+      "team_b": "ARG",
+      "score_a": 2,
+      "score_b": 2,
+      "venue": "Lusail Iconic Stadium, Lusail",
+      "competition": "FIFA World Cup Quarter-final",
+      "extra_time": true,
+      "penalties": "ARG 4-3"
+    },
+    {
+      "date": "2022-12-13",
+      "team_a": "ARG",
+      "team_b": "CRO",
+      "score_a": 3,
+      "score_b": 0,
+      "venue": "Lusail Iconic Stadium, Lusail",
+      "competition": "FIFA World Cup Semi-final"
+    },
+    {
+      "date": "2022-12-14",
+      "team_a": "FRA",
+      "team_b": "MAR",
+      "score_a": 2,
+      "score_b": 0,
+      "venue": "Al Bayt Stadium, Al Khor",
+      "competition": "FIFA World Cup Semi-final"
+    },
+    {
+      "date": "2022-12-10",
+      "team_a": "FRA",
+      "team_b": "ENG",
+      "score_a": 2,
+      "score_b": 1,
+      "venue": "Al Bayt Stadium, Al Khor",
+      "competition": "FIFA World Cup Quarter-final"
+    },
+    {
+      "date": "2022-12-06",
+      "team_a": "FRA",
+      "team_b": "POL",
+      "score_a": 3,
+      "score_b": 1,
+      "venue": "Al Thumama Stadium, Doha",
+      "competition": "FIFA World Cup Round of 16"
+    },
+    {
+      "date": "2022-11-21",
+      "team_a": "ARG",
+      "team_b": "KSA",
+      "score_a": 1,
+      "score_b": 2,
+      "venue": "Lusail Iconic Stadium, Lusail",
+      "competition": "FIFA World Cup Group C"
+    },
+    {
+      "date": "2022-11-26",
+      "team_a": "ARG",
+      "team_b": "MEX",
+      "score_a": 2,
+      "score_b": 0,
+      "venue": "Lusail Iconic Stadium, Lusail",
+      "competition": "FIFA World Cup Group C"
+    },
+    {
+      "date": "2022-11-23",
+      "team_a": "MEX",
+      "team_b": "POL",
+      "score_a": 0,
+      "score_b": 0,
+      "venue": "Stadium 974, Doha",
+      "competition": "FIFA World Cup Group C"
+    },
+    {
+      "date": "2018-07-15",
+      "team_a": "FRA",
+      "team_b": "CRO",
+      "score_a": 4,
+      "score_b": 2,
+      "venue": "Luzhniki Stadium, Moscow",
+      "competition": "FIFA World Cup Final"
+    },
+    {
+      "date": "2018-07-10",
+      "team_a": "FRA",
+      "team_b": "BEL",
+      "score_a": 1,
+      "score_b": 0,
+      "venue": "Saint Petersburg Stadium",
+      "competition": "FIFA World Cup Semi-final"
+    },
+    {
+      "date": "2018-07-11",
+      "team_a": "CRO",
+      "team_b": "ENG",
+      "score_a": 2,
+      "score_b": 1,
+      "venue": "Luzhniki Stadium, Moscow",
+      "competition": "FIFA World Cup Semi-final",
+      "extra_time": true
+    },
+    {
+      "date": "2014-07-08",
+      "team_a": "BRA",
+      "team_b": "GER",
+      "score_a": 1,
+      "score_b": 7,
+      "venue": "Estádio Mineirão, Belo Horizonte",
+      "competition": "FIFA World Cup Semi-final"
+    },
+    {
+      "date": "2014-07-09",
+      "team_a": "NED",
+      "team_b": "ARG",
+      "score_a": 0,
+      "score_b": 0,
+      "venue": "Arena de São Paulo",
+      "competition": "FIFA World Cup Semi-final",
+      "extra_time": true,
+      "penalties": "ARG 4-2"
+    },
+    {
+      "date": "2002-06-30",
+      "team_a": "BRA",
+      "team_b": "GER",
+      "score_a": 2,
+      "score_b": 0,
+      "venue": "International Stadium Yokohama",
+      "competition": "FIFA World Cup Final"
+    },
+    {
+      "date": "1998-07-12",
+      "team_a": "FRA",
+      "team_b": "BRA",
+      "score_a": 3,
+      "score_b": 0,
+      "venue": "Stade de France, Saint-Denis",
+      "competition": "FIFA World Cup Final"
+    },
+    {
+      "date": "1994-07-17",
+      "team_a": "BRA",
+      "team_b": "ITA",
+      "score_a": 0,
+      "score_b": 0,
+      "venue": "Rose Bowl, Pasadena",
+      "competition": "FIFA World Cup Final",
+      "extra_time": true,
+      "penalties": "BRA 3-2"
+    },
+    {
+      "date": "1990-07-08",
+      "team_a": "GER",
+      "team_b": "ARG",
+      "score_a": 1,
+      "score_b": 0,
+      "venue": "Stadio Olimpico, Rome",
+      "competition": "FIFA World Cup Final"
+    },
+    {
+      "date": "2024-07-14",
+      "team_a": "ARG",
+      "team_b": "COL",
+      "score_a": 1,
+      "score_b": 0,
+      "venue": "Hard Rock Stadium, Miami",
+      "competition": "Copa América Final 2024",
+      "extra_time": true
+    },
+    {
+      "date": "2021-07-10",
+      "team_a": "BRA",
+      "team_b": "ARG",
+      "score_a": 0,
+      "score_b": 1,
+      "venue": "Maracanã, Rio de Janeiro",
+      "competition": "Copa América Final 2021"
+    },
+    {
+      "date": "2020-07-11",
+      "team_a": "ENG",
+      "team_b": "ITA",
+      "score_a": 1,
+      "score_b": 1,
+      "venue": "Wembley, London",
+      "competition": "UEFA Euro 2020 Final",
+      "extra_time": true,
+      "penalties": "ITA 3-2"
+    },
+    {
+      "date": "2024-07-14",
+      "team_a": "ESP",
+      "team_b": "ENG",
+      "score_a": 2,
+      "score_b": 1,
+      "venue": "Olympiastadion, Berlin",
+      "competition": "UEFA Euro 2024 Final"
+    }
+  ]
+}

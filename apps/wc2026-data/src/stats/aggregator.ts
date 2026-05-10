@@ -72,7 +72,11 @@ export async function aggregateForm(
     let games = await opts.source.fetchTeamForm(upper);
     if (games.length === 0) {
       games = await opts.mockSource.fetchTeamForm(upper);
-    } else {
+    }
+    // Count as a real-source hit only when the rows themselves declare a
+    // non-mock provenance — keeps the file-level `source` label honest
+    // when the primary source happens to *be* the mock.
+    if (games.length > 0 && games[0]?.source && games[0].source !== "mock") {
       usedReal += 1;
     }
     teamsOut[upper] = games;
@@ -141,14 +145,29 @@ export async function aggregateH2H(
     if (merged.length === 0) continue; // skip empty pairs to keep JSON tight
     pairs[key] = merged;
     scraped += 1;
-    if (local.length > 0) usedStatsBomb += 1;
-    if (remote.length > 0 && remote[0]?.source !== "mock") usedReal += 1;
+    // Count provenance from the merged payload — only "statsbomb" (local
+    // corpus) and "wikidata" rows count as real; "mock" rows do not.
+    if (merged.some((m) => m.source === "statsbomb")) usedStatsBomb += 1;
+    if (merged.some((m) => m.source === "wikidata")) usedReal += 1;
     opts.cache?.write("h2h", key, merged);
   }
-  let source: H2HFile["source"] = "mock";
-  if (usedReal > 0 && usedStatsBomb > 0) source = "mixed";
-  else if (usedReal > 0) source = "wikidata";
-  else if (usedStatsBomb > 0) source = "statsbomb";
+  // Source label: a high-level summary of where the data came from.
+  //   - "mixed" if both wikidata + statsbomb contributed.
+  //   - "wikidata" / "statsbomb" if only one real source did and it
+  //     covers ≥10% of the pairs (otherwise the label is misleading).
+  //   - "mock" otherwise (CI default + sparse corpus).
+  let source: H2HFile["source"];
+  const totalPairs = scraped + fromCache || 1;
+  const realCoverage = (usedReal + usedStatsBomb) / totalPairs;
+  if (usedReal > 0 && usedStatsBomb > 0) {
+    source = "mixed";
+  } else if (realCoverage < 0.1) {
+    source = "mock";
+  } else if (usedReal > 0) {
+    source = "wikidata";
+  } else {
+    source = "statsbomb";
+  }
   return {
     file: {
       version: 2,
@@ -166,25 +185,31 @@ export async function aggregateH2H(
 
 /**
  * Merge StatsBomb-local + Wikidata-remote meetings, preferring local
- * on date collisions (same date + same teams). The result is sorted
- * most-recent first and trimmed to 5 rows (matching the legacy stub).
+ * on date collisions. Local entries are inserted first; remote entries
+ * are dropped if they share a date with any local entry (StatsBomb is
+ * the authoritative source for any historical match in the corpus).
+ *
+ * Result is sorted most-recent first and trimmed to 5 rows (matching
+ * the legacy stub).
  */
 export function mergeH2HMeetings(
   local: readonly H2HMeeting[],
   remote: readonly H2HMeeting[],
 ): readonly H2HMeeting[] {
-  const seen = new Set<string>();
+  const localDates = new Set(local.map((m) => m.date));
+  const seenScoreline = new Set<string>();
   const out: H2HMeeting[] = [];
   for (const m of local) {
     const k = `${m.date}|${m.homeScore}-${m.awayScore}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
+    if (seenScoreline.has(k)) continue;
+    seenScoreline.add(k);
     out.push(m);
   }
   for (const m of remote) {
+    if (localDates.has(m.date)) continue; // local wins date collisions
     const k = `${m.date}|${m.homeScore}-${m.awayScore}`;
-    if (seen.has(k)) continue;
-    seen.add(k);
+    if (seenScoreline.has(k)) continue;
+    seenScoreline.add(k);
     out.push(m);
   }
   out.sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
@@ -238,14 +263,13 @@ export async function aggregateStats(
     }
     if (!stats) {
       stats = await opts.mockSource.fetchTeamStats(upper);
-    } else {
-      usedReal += 1;
     }
     if (!stats) {
       // Last resort: curated baseline if present.
       stats = opts.baseline[upper] ?? null;
     }
     if (!stats) continue;
+    if (stats.source && stats.source !== "mock") usedReal += 1;
     out[upper] = stats;
     scraped += 1;
     opts.cache?.write("stats", upper, stats);
