@@ -1061,6 +1061,9 @@ importers:
       '@vtorn/bracket-engine':
         specifier: workspace:*
         version: link:../../packages/bracket-engine
+      '@vtorn/social-cards':
+        specifier: workspace:*
+        version: link:../../packages/social-cards
       '@vtorn/spec':
         specifier: workspace:*
         version: link:../../packages/spec

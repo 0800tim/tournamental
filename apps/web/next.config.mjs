@@ -16,6 +16,7 @@ const nextConfig = {
     "@vtorn/spec-client",
     "@vtorn/avatar",
     "@vtorn/bracket-engine",
+    "@vtorn/social-cards",
   ],
   webpack: (config) => {
     // ESM-style imports inside the @vtorn/* workspace packages use `.js`
