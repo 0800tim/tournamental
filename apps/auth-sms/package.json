@@ -5,6 +5,13 @@
   "description": "VTourn auth service — SMS (Aiva SMS gateway) + WhatsApp (Baileys) OTP login",
   "type": "module",
   "main": "dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./whatsapp": {
+      "types": "./src/whatsapp-baileys.ts",
+      "default": "./src/whatsapp-baileys.ts"
+    }
+  },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",

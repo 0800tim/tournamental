@@ -17,12 +17,13 @@ import helmet from '@fastify/helmet';
 import sensible from '@fastify/sensible';
 import { loadFixtures2026 } from '@vtorn/bracket-engine';
 
-import { FileAuditLogger } from './lib/audit.js';
+import { FileAuditLogger, TeeAuditLogger } from './lib/audit.js';
 import { SubscriptionStore } from './lib/subscriptions.js';
 import { StubWebPushSender } from './lib/web-push.js';
 import { StubTelegramSender } from './lib/telegram.js';
 import { StubSmsSender } from './lib/sms.js';
-import { Dispatcher } from './lib/dispatcher.js';
+import { WhatsAppPushSender } from './lib/whatsapp.js';
+import { Dispatcher, type PreferredChannel } from './lib/dispatcher.js';
 import { Scheduler, type ScheduledJob } from './lib/scheduler.js';
 import { registerSubscribeRoutes } from './routes/subscribe.js';
 import { registerNotifyRoutes } from './routes/notify.js';
@@ -45,12 +46,17 @@ export interface BuildOptions {
   subscriptionsPath?: string;
   /** Path to the JSONL audit log. Default `./data/audit.jsonl`. */
   auditPath?: string;
+  /** Path to the WhatsApp-only audit log (mirrored from main audit).
+   *  Default `./data/whatsapp-audit.jsonl`. */
+  whatsappAuditPath?: string;
   /** Path to the scheduler state JSON. Default `./data/scheduled-jobs.json`. */
   schedulerStatePath?: string;
   /** If true (default), scan fixtures and arm timers on boot. */
   bootScheduler?: boolean;
   /** If provided, requests to /v1/notify/* must include `x-push-secret`. */
   internalSecret?: string;
+  /** SMS↔WhatsApp routing policy. Default 'auto' (WA wins when linked). */
+  preferredChannel?: PreferredChannel;
 }
 
 export interface BuiltServer {
@@ -90,11 +96,16 @@ export async function buildServer(opts: BuildOptions = {}): Promise<BuiltServer>
   await app.register(sensible);
 
   const auditPath = opts.auditPath ?? './data/audit.jsonl';
+  const whatsappAuditPath =
+    opts.whatsappAuditPath ?? './data/whatsapp-audit.jsonl';
   const subsPath = opts.subscriptionsPath ?? './data/subscriptions.jsonl';
   const schedStatePath =
     opts.schedulerStatePath ?? './data/scheduled-jobs.json';
 
   const audit = new FileAuditLogger(auditPath);
+  const whatsappAudit = new FileAuditLogger(whatsappAuditPath);
+  // Tee: WA sends land in both the channel-specific log and the main one.
+  const whatsappTee = new TeeAuditLogger([whatsappAudit, audit]);
   const store = SubscriptionStore.memory();
   await store.useFile(subsPath);
 
@@ -116,8 +127,27 @@ export async function buildServer(opts: BuildOptions = {}): Promise<BuiltServer>
     apiKey: process.env.AIVA_SMS_API_KEY,
     deviceId: process.env.AIVA_SMS_DEVICE_ID,
   });
+  const whatsapp = new WhatsAppPushSender({
+    audit: whatsappTee,
+    apiUrl: process.env.AIVA_SMS_API_URL ?? process.env.AIVA_SMS_URL,
+    apiKey: process.env.AIVA_SMS_API_KEY,
+    sessionId: process.env.AIVA_WA_SESSION_ID,
+  });
 
-  const dispatcher = new Dispatcher({ store, webPush, telegram, sms });
+  const envPolicy = (process.env.PUSH_PREFERRED_CHANNEL ??
+    'auto') as PreferredChannel;
+  const policy: PreferredChannel =
+    opts.preferredChannel ??
+    (envPolicy === 'whatsapp' || envPolicy === 'sms' ? envPolicy : 'auto');
+
+  const dispatcher = new Dispatcher({
+    store,
+    webPush,
+    telegram,
+    sms,
+    whatsapp,
+    preferredChannel: policy,
+  });
 
   // Scheduler — its onFire callback uses the dispatcher to fan-out the
   // kickoff_soon notification to everyone who picked the match.

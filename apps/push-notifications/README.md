@@ -1,8 +1,9 @@
 # @vtorn/push-notifications
 
 VTourn's push-notifications service. Fastify on **:3398**. Fans match-event
-notifications out to **Web Push (browsers)**, **Telegram**, and **SMS** (via
-Aiva), and keeps a kickoff scheduler running so users get a "your match
+notifications out to **Web Push (browsers)**, **Telegram**, **WhatsApp**
+(via the Aiva gateway, sharing the auth-sms Baileys session), and **SMS**
+(via Aiva). Keeps a kickoff scheduler running so users get a "your match
 starts in 30 / 5 min" ping for everything they've picked.
 
 > **v0.1 status:** all channel adapters are stubs that write to
@@ -27,6 +28,7 @@ pnpm -F @vtorn/push-notifications dev
 - `POST /v1/subscribe/web-push` — body `{ userId, consent: true, subscription }`
 - `POST /v1/subscribe/telegram` — body `{ userId, consent: true, telegramUserId }`
 - `POST /v1/subscribe/sms` — body `{ userId, consent: true, phone }`
+- `POST /v1/subscribe/whatsapp` — body `{ userId, consent: true, phone }`
 
 ### Notify (gated by `x-push-secret` if `PUSH_INTERNAL_SECRET` set)
 - `POST /v1/notify/kickoff_soon` — `{ matchId, minutesUntil }`
@@ -41,6 +43,9 @@ pnpm -F @vtorn/push-notifications dev
 
 - `data/subscriptions.jsonl` — append-only subscription + pick log; replayed on boot.
 - `data/audit.jsonl` — append-only audit log (every adapter call, every subscribe).
+- `data/whatsapp-audit.jsonl` — WhatsApp-only mirror of the audit log.
+  Every WA send appends here as well as to the main audit. Phone numbers
+  are stored masked (`+*******4567` style — last 4 digits only).
 - `data/scheduled-jobs.json` — scheduler state for idempotent restart.
 
 ## Scheduler
@@ -52,10 +57,28 @@ job fans out a `kickoff_soon` notification to everyone who recorded a pick
 for that match. State is persisted to disk so a restart re-arms only the
 still-pending jobs.
 
+## Channel-preference policy
+
+Set `PUSH_PREFERRED_CHANNEL` to control how SMS and WhatsApp interact for a
+user who has linked both. Web Push and Telegram are unaffected.
+
+| `PUSH_PREFERRED_CHANNEL` | Behaviour                                                                                  |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| `auto` (default)         | WhatsApp wins when linked (cheaper + higher open rate). Falls back to SMS otherwise.       |
+| `whatsapp`               | WhatsApp only. SMS-only users receive nothing.                                             |
+| `sms`                    | SMS only. WhatsApp-only users receive nothing.                                             |
+
+The dispatcher returns `'suppressed'` for the channel that was skipped due
+to the policy (vs `'skipped'` when the user simply has no subscription).
+
 ## Env
 
-See `.env.example`. The four required-for-production groups are:
+See `.env.example`. The required-for-production groups are:
 - Web Push: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`
 - Telegram: `TELEGRAM_BOT_TOKEN` (or `TOURNAMENT_BOT_PUSH_URL` + `_SECRET`)
 - SMS: `AIVA_SMS_API_URL`, `AIVA_SMS_API_KEY`, `AIVA_SMS_DEVICE_ID`
+- WhatsApp: `AIVA_SMS_API_URL`, `AIVA_SMS_API_KEY`, `AIVA_WA_SESSION_ID`
+  (shares the URL + key with the SMS gateway; the session id is the paired
+  Baileys session on the gateway dashboard)
+- Routing: `PUSH_PREFERRED_CHANNEL=auto|whatsapp|sms` (default `auto`)
 - Auth: `PUSH_INTERNAL_SECRET` (gates the `/v1/notify/*` routes)

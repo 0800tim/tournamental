@@ -20,7 +20,12 @@
 import { promises as fs } from 'node:fs';
 import { dirname } from 'node:path';
 
-export type AuditChannel = 'web-push' | 'telegram' | 'sms' | 'system';
+export type AuditChannel =
+  | 'web-push'
+  | 'telegram'
+  | 'sms'
+  | 'whatsapp'
+  | 'system';
 export type AuditEvent =
   | 'kickoff_soon'
   | 'match_result'
@@ -76,6 +81,32 @@ export class FileAuditLogger implements AuditLogger {
       await fs.unlink(this.path);
     } catch (err) {
       if ((err as NodeJS.ErrnoException).code !== 'ENOENT') throw err;
+    }
+  }
+}
+
+/**
+ * Tee logger — appends every record to every wrapped logger in order.
+ * Used so a channel-specific audit log (e.g. data/whatsapp-audit.jsonl)
+ * can mirror its writes into the main data/audit.jsonl trail.
+ */
+export class TeeAuditLogger implements AuditLogger {
+  constructor(private readonly children: AuditLogger[]) {}
+
+  async append(record: Omit<AuditRecord, 'ts'>): Promise<void> {
+    for (const child of this.children) {
+      await child.append(record);
+    }
+  }
+
+  async read(): Promise<AuditRecord[]> {
+    if (this.children[0]) return this.children[0].read();
+    return [];
+  }
+
+  async clear(): Promise<void> {
+    for (const child of this.children) {
+      await child.clear();
     }
   }
 }
