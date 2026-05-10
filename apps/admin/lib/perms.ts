@@ -38,7 +38,12 @@ export type Permission =
   | "api-keys.revoke"
   | "audit-log.read"
   | "settings.read"
-  | "settings.write";
+  | "settings.write"
+  | "operators.read"
+  | "operators.write"
+  | "advertisers.read"
+  | "advertisers.write"
+  | "revenue.read";
 
 const MATRIX: Record<Role, ReadonlySet<Permission>> = {
   "super-admin": new Set<Permission>([
@@ -60,6 +65,11 @@ const MATRIX: Record<Role, ReadonlySet<Permission>> = {
     "audit-log.read",
     "settings.read",
     "settings.write",
+    "operators.read",
+    "operators.write",
+    "advertisers.read",
+    "advertisers.write",
+    "revenue.read",
   ]),
   mod: new Set<Permission>([
     "users.read",
@@ -73,6 +83,9 @@ const MATRIX: Record<Role, ReadonlySet<Permission>> = {
     "feature-flags.read",
     "audit-log.read",
     "settings.read",
+    "operators.read",
+    "advertisers.read",
+    "revenue.read",
   ]),
   viewer: new Set<Permission>([
     "users.read",
@@ -83,6 +96,9 @@ const MATRIX: Record<Role, ReadonlySet<Permission>> = {
     "feature-flags.read",
     "audit-log.read",
     "settings.read",
+    "operators.read",
+    "advertisers.read",
+    "revenue.read",
   ]),
 };
 
