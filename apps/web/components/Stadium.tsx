@@ -152,9 +152,17 @@ function GoalNet({
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
   // Tiny shift offset for the wind sway.
   const swayRef = useRef({ x: 0, y: 0, t: 0 });
+  const lastSwayAt = useRef(0);
 
-  useFrame((_, delta) => {
+  useFrame((_, deltaRaw) => {
+    // Clamp delta so a stall doesn't spike the sway phase.
+    const delta = Math.min(deltaRaw, 1 / 30);
     swayRef.current.t += delta;
+    // Throttle the per-frame mesh.position write to 5 Hz — this is a
+    // cosmetic gust, not a per-frame physics term.
+    const tNow = performance.now();
+    if (tNow - lastSwayAt.current < 200) return;
+    lastSwayAt.current = tNow;
     const sway = swayRef.current;
     const mesh = meshRef.current;
     if (!mesh) return;

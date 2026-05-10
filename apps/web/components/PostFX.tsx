@@ -48,7 +48,9 @@ export function PostFX({ profile }: PostFXProps) {
 
   // Read camera.userData every frame; ramp the vignette darkness up
   // during a goal-replay slow-mo cut.
-  useFrame(() => {
+  useFrame((_, deltaRaw) => {
+    // Clamp delta so a tab-stall doesn't snap the vignette.
+    const dt = Math.min(deltaRaw, 1 / 30);
     const fx = (camera as THREE.PerspectiveCamera & { userData: { fx?: { vignette?: number; motionBlur?: number; slowMoRate?: number } } }).userData
       ?.fx;
     const target = fx && typeof fx.vignette === "number" ? fx.vignette : 0;
@@ -62,8 +64,13 @@ export function PostFX({ profile }: PostFXProps) {
     const wantDark = baseDark + target * 0.6;
     const wantOff = baseOffset - target * 0.05;
     const cur = vignetteRef.current ?? { darkness: baseDark, offset: baseOffset };
-    cur.darkness += (wantDark - cur.darkness) * 0.2;
-    cur.offset += (wantOff - cur.offset) * 0.2;
+    // Frame-rate-independent lerp factor: a fixed 0.2 was effectively
+    // dt-dependent on a 60fps display. Use 1 - exp(-λ * dt) with λ ≈ 12
+    // which behaves like the old 0.2 at 60fps but stays stable across
+    // refresh rates and stalls.
+    const k = 1 - Math.exp(-12 * dt);
+    cur.darkness += (wantDark - cur.darkness) * k;
+    cur.offset += (wantOff - cur.offset) * k;
     vignetteRef.current = cur;
     if (eff.uniforms) {
       const dark = eff.uniforms.get("darkness");

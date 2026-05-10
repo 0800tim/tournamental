@@ -18,7 +18,13 @@ import { StateFrameBuffer } from "./state-frame-buffer.js";
  * inside `useFrame` and read pose from the resulting `InterpolatedFrame`.
  */
 export function useStateFrameBuffer(store: StoreApi<MatchStore>): StateFrameBuffer {
-  const buffer = useMemo(() => new StateFrameBuffer({ capacity: 12 }), [store]);
+  // Memoise on `store` identity so the buffer is rebuilt when the
+  // upstream store is swapped (e.g. between matches).
+  const buffer = useMemo(
+    () => new StateFrameBuffer({ capacity: 12 }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [store],
+  );
 
   useEffect(() => {
     let lastT: number | null = null;
