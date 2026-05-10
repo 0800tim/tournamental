@@ -29,6 +29,7 @@ import { registerMatchRoutes } from "./routes/match.js";
 import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
 import { registerPunditRoutes } from "./routes/pundit.js";
+import { registerPickRoutes } from "./routes/picks.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
 import { recomputeVerifiedPundits } from "./pundit/compute.js";
@@ -128,6 +129,11 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
 
   await registerHealth(app, store);
   await registerBracketRoutes(app, {
+    store,
+    nowMs: opts.nowMs,
+    kickoffs: opts.kickoffs,
+  });
+  await registerPickRoutes(app, {
     store,
     nowMs: opts.nowMs,
     kickoffs: opts.kickoffs,
