@@ -238,6 +238,19 @@ export interface MatchPrediction {
   readonly awayScore?: number;
   /** ISO-8601 timestamp of when this prediction was last edited. */
   readonly lockedAt: string;
+  /**
+   * Snapshot of the live odds at the moment the prediction was locked
+   * in. Used for the "earlier picks earn higher odds" scoring rule and
+   * for post-match analytics. Optional because legacy drafts won't have
+   * this field; future picks always carry it.
+   */
+  readonly oddsAtLock?: {
+    readonly homeWin: number;
+    readonly draw: number | null;
+    readonly awayWin: number;
+    readonly source: string;
+    readonly capturedAt: string;
+  };
 }
 
 /**

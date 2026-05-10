@@ -80,6 +80,32 @@ const absoluteOgImage = ogImage.startsWith("http")
         }
       })();
     </script>
+    {/* Critical light-mode overrides inlined in <head> so the browser
+        applies them BEFORE the external globals.css module finishes
+        loading. Without this, in dev mode the CSS module is async and
+        text-white briefly paints white-on-white when the user is on
+        light theme. Specificity (0,1,1) + !important beats any
+        Tailwind utility that arrives later. */}
+    <style is:inline>
+      :root[data-theme="light"] { background-color: #f5f7fc; color: #0a0e1a; }
+      :root[data-theme="light"] body { background-color: #f5f7fc; }
+      :root[data-theme="light"] .text-white,
+      :root[data-theme="light"] .text-ink-50,
+      :root[data-theme="light"] .text-ink-100 { color: #0a0e1a !important; }
+      :root[data-theme="light"] .text-ink-200 { color: #3e4a72 !important; }
+      :root[data-theme="light"] .text-ink-500 { color: #5e6a8a !important; }
+      :root[data-theme="light"] h1,
+      :root[data-theme="light"] h2,
+      :root[data-theme="light"] h3,
+      :root[data-theme="light"] h4 { color: #0a0e1a !important; }
+      :root[data-theme="light"] .bg-ink-900 { background-color: #f5f7fc !important; }
+      :root[data-theme="light"] .bg-ink-800 { background-color: #ffffff !important; }
+      :root[data-theme="light"] .bg-ink-700 { background-color: #e7ecf7 !important; }
+      :root[data-theme="light"] .border-ink-700,
+      :root[data-theme="light"] .border-ink-800,
+      :root[data-theme="light"] .border-ink-600 { border-color: #cdd5e7 !important; }
+      :root[data-theme="light"] strong { color: #0a0e1a; }
+    </style>
   </head>
   <body class="min-h-screen flex flex-col">
     <Header />
