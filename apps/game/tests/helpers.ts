@@ -11,6 +11,7 @@ import { dirname } from "node:path";
 import type { Bracket, MatchPrediction } from "@vtorn/bracket-engine";
 
 import { buildServer } from "../src/server.js";
+import type { KickoffRegistry, KickoffLookup } from "../src/kickoffs.js";
 
 const ADMIN_TOKEN = "test-admin-token";
 
@@ -20,6 +21,9 @@ const MIGRATIONS_DIR = resolve(here, "..", "migrations");
 export interface TestServerOpts {
   adminToken?: string | null;
   cacheTtlMs?: number;
+  kickoffs?: KickoffRegistry;
+  /** Override the clock (defaults to a fixed pre-tournament instant). */
+  nowMs?: () => number;
 }
 
 export async function makeServer(opts: TestServerOpts = {}) {
@@ -29,7 +33,31 @@ export async function makeServer(opts: TestServerOpts = {}) {
     adminToken: opts.adminToken === undefined ? ADMIN_TOKEN : opts.adminToken,
     cacheTtlMs: opts.cacheTtlMs ?? 100,
     rateLimit: false,
+    kickoffs: opts.kickoffs,
+    nowMs: opts.nowMs,
   });
+}
+
+/**
+ * Build a stub kickoff registry that returns fixed kickoffs for one
+ * tournament's matches. Anything not in `kickoffs` is treated as
+ * "kickoff unknown" (and therefore lockable).
+ */
+export function makeStubRegistry(
+  tournamentId: string,
+  kickoffs: Record<string, string>,
+): KickoffRegistry {
+  const lookup: KickoffLookup = {
+    tournamentId,
+    kickoffFor: (matchId: string) => kickoffs[matchId] ?? null,
+  };
+  const empty: KickoffLookup = {
+    tournamentId: "",
+    kickoffFor: () => null,
+  };
+  return {
+    forTournament: (tid: string) => (tid === tournamentId ? lookup : empty),
+  };
 }
 
 export const TEST_ADMIN_TOKEN = ADMIN_TOKEN;

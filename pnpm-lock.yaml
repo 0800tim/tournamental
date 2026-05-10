@@ -484,6 +484,21 @@ importers:
         specifier: ^2.1.5
         version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
 
+  apps/wc2026-data:
+    devDependencies:
+      '@types/node':
+        specifier: ^20.16.11
+        version: 20.19.40
+      tsx:
+        specifier: ^4.19.2
+        version: 4.21.0
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.5
+        version: 2.1.9(@types/node@20.19.40)(jsdom@25.0.1)
+
   apps/wc2026-producer:
     dependencies:
       '@vtorn/spec':
