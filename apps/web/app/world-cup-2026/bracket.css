@@ -731,6 +731,21 @@
   gap: 12px;
 }
 
+/* Pinch-zoom capture wrapper. On mobile this is the touch surface
+ * usePinchZoom listens on; the inner `.km-grid` is the scaled
+ * target. Desktop is unaffected because the hook short-circuits
+ * via the (max-width: 640px) check. We deliberately keep the
+ * horizontal scroll on `.km-grid` rather than this wrapper so
+ * a single-finger swipe still scrolls the grid sideways at scale=1. */
+.km-pinch-wrap {
+  position: relative;
+  /* touch-action: manipulation removes the 300ms tap delay AND lets
+   * single-finger pans pass through to the inner scroll container.
+   * We only own pinch (two fingers); single-finger drag is the
+   * browser's native horizontal scroll on `.km-grid`. */
+  touch-action: pan-x pan-y;
+}
+
 .km-grid {
   display: grid;
   grid-auto-flow: column;
@@ -738,6 +753,8 @@
   gap: 12px;
   overflow-x: auto;
   padding-bottom: 8px;
+  /* Keep transforms snappy on mobile. */
+  transform-origin: 50% 50%;
 }
 
 .km-stage-col {
@@ -924,6 +941,48 @@
 @keyframes bracket-modal-pop {
   from { opacity: 0; transform: scale(0.96) translateY(6px); }
   to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ---- Mobile-only gestures ---------------------------------------
+ * Sticky group-stage headers + a small shadow when stuck. Pinch
+ * zoom is wired via JS in `lib/bracket/mobile-gestures.ts`; CSS
+ * here only styles the resulting state classes.
+ * ---------------------------------------------------------------- */
+@media (max-width: 640px) {
+  /* Pinch container animates more gracefully when explicit. */
+  .km-pinch-wrap {
+    will-change: transform;
+  }
+  .km-grid {
+    transition: transform 80ms ease-out;
+  }
+
+  /* Each group card's header sticks to the top of the viewport while
+   * the rest of the group's content is still visible. Background
+   * keeps the underlying matches from bleeding through. */
+  .bracket-group {
+    /* Allow position:sticky inside the card to anchor against the
+     * page scroll, not the card itself. The card is the IO root for
+     * the sentinel, but `position: sticky` actually anchors against
+     * the nearest scrolling ancestor — typically the viewport. */
+    overflow: visible;
+  }
+  .bracket-group-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #0f172a;
+    /* a touch of breathing room so the H3 isn't crammed against the
+     * viewport edge */
+    margin: -12px -12px 8px -12px;
+    padding: 10px 12px;
+    border-bottom: 1px solid transparent;
+    transition: box-shadow 120ms ease, border-color 120ms ease;
+  }
+  .bracket-group-head.is-stuck {
+    border-bottom-color: #334155;
+    box-shadow: 0 6px 12px -8px rgba(0, 0, 0, 0.6);
+  }
 }
 
 /* Kickoff lockout banner (shown across the row once the match starts).
