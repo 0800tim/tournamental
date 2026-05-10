@@ -1188,3 +1188,51 @@
   background: rgba(15, 23, 42, 0.95);
   outline: none;
 }
+
+/* ---- Team-info chip (overlay opener) ----
+ *
+ * A tiny "i" badge anchored to the top-right of each pick button. It
+ * opens the team overlay on tap. Sits inside the existing .mpr-pick /
+ * .km-team button so the prediction-pick button is still the primary
+ * tap target — the badge only catches the tiny corner. We use plain
+ * <a> so Cmd-click / right-click navigates to /team/[code] for the
+ * full page (escape hatch). The handler in MatchPredictionRow /
+ * KnockoutMatch calls preventDefault on plain clicks and routes
+ * through useOverlay() instead. */
+
+.mpr-team-info,
+.km-team-info {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(15, 23, 42, 0.9);
+  color: #cbd5f5;
+  font-style: italic;
+  font-weight: 700;
+  font-size: 11px;
+  line-height: 1;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 2;
+  transition: background 120ms ease-out, color 120ms ease-out;
+}
+
+.mpr-team-info:hover,
+.mpr-team-info:focus-visible,
+.km-team-info:hover,
+.km-team-info:focus-visible {
+  background: #fbbf24;
+  color: #0f172a;
+  outline: none;
+}
+
+/* The pick button is a positioning context for the chip. */
+.mpr-pick,
+.km-team {
+  position: relative;
+}

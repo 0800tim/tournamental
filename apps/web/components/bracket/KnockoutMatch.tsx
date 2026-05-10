@@ -12,10 +12,11 @@
 
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, MouseEvent } from "react";
 
 import type { CascadedKnockout, MatchPrediction, Team } from "@vtorn/bracket-engine";
 
+import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
 import { OddsChip } from "../odds/OddsChip";
 import { TeamFlag } from "./TeamFlag";
 
@@ -37,6 +38,22 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
   const homeTeam = knockout.home.team ? teams.get(knockout.home.team) : undefined;
   const awayTeam = knockout.away.team ? teams.get(knockout.away.team) : undefined;
   const slotsKnown = !!homeTeam && !!awayTeam;
+
+  const overlay = useOptionalOverlay();
+  const openTeamOverlay = (code: string) => (e: MouseEvent): void => {
+    if (!overlay) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.open("team", { code });
+  };
+  const openMatchOverlay = (e: MouseEvent): void => {
+    if (!overlay) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.open("match", { id: knockout.id });
+  };
 
   const choose = (side: "home" | "away"): void => {
     if (!slotsKnown) return;
@@ -65,7 +82,10 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
           className="km-view-link"
           aria-label={`View match preview for ${knockout.id.toUpperCase()}`}
           title="View match preview"
-          onClick={(e) => e.stopPropagation()}
+          onClick={(e) => {
+            e.stopPropagation();
+            openMatchOverlay(e);
+          }}
         >
           View match
         </a>
@@ -88,6 +108,17 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
               sparkle={homeWin}
             />
             <span className="km-team-name">{homeTeam.name}</span>
+            {overlay && (
+              <a
+                href={`/team/${homeTeam.id}`}
+                className="km-team-info"
+                aria-label={`Open ${homeTeam.name} team overlay`}
+                title={`${homeTeam.name} info`}
+                onClick={openTeamOverlay(homeTeam.id)}
+              >
+                i
+              </a>
+            )}
           </>
         ) : (
           <span className="km-tbd">{describeSource(knockout.home.source)}</span>
@@ -112,6 +143,17 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
               sparkle={awayWin}
             />
             <span className="km-team-name">{awayTeam.name}</span>
+            {overlay && (
+              <a
+                href={`/team/${awayTeam.id}`}
+                className="km-team-info"
+                aria-label={`Open ${awayTeam.name} team overlay`}
+                title={`${awayTeam.name} info`}
+                onClick={openTeamOverlay(awayTeam.id)}
+              >
+                i
+              </a>
+            )}
           </>
         ) : (
           <span className="km-tbd">{describeSource(knockout.away.source)}</span>

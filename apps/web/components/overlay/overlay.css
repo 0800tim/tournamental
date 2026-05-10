@@ -1,0 +1,271 @@
+/**
+ * Overlay system styles.
+ *
+ * Mobile (< 768px): sheet anchors to bottom of viewport, slides up,
+ * 92vh max-height, drag-handle visible.
+ *
+ * Desktop (≥ 768px): sheet renders as a centred modal card, 720px max
+ * width, no drag-handle, fade-in.
+ *
+ * Stacking: `vt-overlay-shell` is the outermost wrapper. Multiple
+ * stacked overlays render with increasing z-index (we add 2 per depth
+ * level). The backdrop sits one z-level below the sheet.
+ *
+ * z-index budget:
+ *   1000–1099 — overlay shell (depth 0)
+ *   1100–1199 — overlay shell (depth 1)
+ *   1200+     — overlay shell (depth 2+)
+ * The PWA bottom-nav lives at 900–999 so overlays always render above it.
+ */
+
+.vt-overlay-shell {
+  position: fixed;
+  inset: 0;
+  z-index: calc(1000 + var(--vt-overlay-depth, 0) * 100);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+.vt-overlay-shell[data-overlay-depth="0"] { --vt-overlay-depth: 0; }
+.vt-overlay-shell[data-overlay-depth="1"] { --vt-overlay-depth: 1; }
+.vt-overlay-shell[data-overlay-depth="2"] { --vt-overlay-depth: 2; }
+.vt-overlay-shell[data-overlay-depth="3"] { --vt-overlay-depth: 3; }
+
+.vt-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  animation: vt-overlay-fade-in 180ms ease-out;
+}
+
+.vt-overlay-sheet {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  max-height: 92vh;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-top-left-radius: 18px;
+  border-top-right-radius: 18px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.5);
+  animation: vt-overlay-slide-up 220ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* Allow the body to scroll while the sheet itself is anchored. */
+  overflow: hidden;
+}
+
+/* Light-theme variant (consumer can opt in by setting [data-theme=light]
+ * on a parent). The bracket page is dark-only today, but the team /
+ * match overlays may render on light marketing pages later. */
+[data-theme="light"] .vt-overlay-sheet {
+  background: #ffffff;
+  color: #0f172a;
+  box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.18);
+}
+
+.vt-overlay-handle {
+  flex: 0 0 auto;
+  width: 100%;
+  padding: 10px 0 4px;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  touch-action: none;
+}
+
+.vt-overlay-handle-bar {
+  width: 44px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+[data-theme="light"] .vt-overlay-handle-bar {
+  background: rgba(15, 23, 42, 0.18);
+}
+
+.vt-overlay-header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .vt-overlay-header {
+  border-bottom-color: rgba(15, 23, 42, 0.08);
+}
+
+.vt-overlay-title {
+  flex: 1 1 auto;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-overlay-header-slot {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vt-overlay-close {
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
+  cursor: pointer;
+  transition: background 120ms ease-out;
+}
+
+.vt-overlay-close:hover,
+.vt-overlay-close:focus-visible {
+  background: rgba(255, 255, 255, 0.18);
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+[data-theme="light"] .vt-overlay-close {
+  background: rgba(15, 23, 42, 0.06);
+}
+
+[data-theme="light"] .vt-overlay-close:hover,
+[data-theme="light"] .vt-overlay-close:focus-visible {
+  background: rgba(15, 23, 42, 0.12);
+}
+
+.vt-overlay-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 16px;
+}
+
+/* Body scroll-lock while any overlay is open. We remove this class on
+ * unmount; touch-action: none is on touch devices only so desktop
+ * trackpad scrolling on the page doesn't get clobbered. */
+body.vt-overlay-open {
+  overflow: hidden;
+}
+
+@media (hover: none) and (pointer: coarse) {
+  body.vt-overlay-open {
+    touch-action: none;
+  }
+}
+
+/* Desktop: render as a centred modal card. */
+@media (min-width: 768px) {
+  .vt-overlay-shell {
+    align-items: center;
+    padding: 32px;
+  }
+  .vt-overlay-sheet {
+    max-width: 720px;
+    max-height: 88vh;
+    border-radius: 16px;
+    animation: vt-overlay-fade-in 200ms ease-out;
+  }
+  .vt-overlay-handle {
+    display: none;
+  }
+  .vt-overlay-header {
+    padding-top: 16px;
+  }
+}
+
+@keyframes vt-overlay-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes vt-overlay-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-overlay-backdrop,
+  .vt-overlay-sheet {
+    animation: none;
+  }
+}
+
+/* Breadcrumb that shows the page → overlay → overlay path */
+.vt-overlay-breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+  font-size: 12px;
+  line-height: 1.2;
+  padding: 6px 16px 0;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.vt-overlay-breadcrumb-sep {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+[data-theme="light"] .vt-overlay-breadcrumb {
+  color: rgba(15, 23, 42, 0.6);
+}
+
+[data-theme="light"] .vt-overlay-breadcrumb-sep {
+  color: rgba(15, 23, 42, 0.25);
+}
+
+/* "View full page" CTA in the sheet header */
+.vt-overlay-fullpage-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  text-decoration: none;
+  color: #fbbf24;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+
+.vt-overlay-fullpage-cta:hover,
+.vt-overlay-fullpage-cta:focus-visible {
+  background: rgba(251, 191, 36, 0.1);
+}
+
+/* Server-rendered shim: hidden visually but present in DOM for crawlers */
+.vt-overlay-server-shim {
+  position: absolute !important;
+  left: -10000px !important;
+  top: auto !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  /* Crawlers don't run JS; they read the HTML. We keep it parseable. */
+}

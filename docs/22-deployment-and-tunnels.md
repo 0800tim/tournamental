@@ -161,6 +161,7 @@ Every PR touching public surfaces is reviewed against this table.
 | Affiliate partner list (`/v1/affiliate/partners`) | `public, max-age=60, s-maxage=300, stale-while-revalidate=3600` | Per-country list; rarely changes; SWR absorbs deploys. |
 | Clip MP4s (`/v1/clip/:id/file`)        | `Cache-Control: public, max-age=31536000, immutable`   | clip_id is a SHA over the inputs, so the bytes are content-addressed. |
 | Highlight reel (`/v1/match/:id/highlights`) | `public, s-maxage=30, stale-while-revalidate=120` | Detection is deterministic; a 30s edge cache absorbs the bracket-page hot path. |
+| Bracket overlay deep-link (`/world-cup-2026?overlay=...`) | Same cache key as `/world-cup-2026` (CDN ignores query strings on this path); `Cache-Control: public, s-maxage=300, stale-while-revalidate=86400` | Per `docs/44-overlay-router-and-mobile-overlays.md` the overlay-server-shim is a small fixed addendum (~200 B). Splitting the cache by overlay would explode the key-space (team × match) for ~zero benefit; share-preview parity is achieved by the shim, which itself sits inside the cached HTML. |
 
 **Performance budgets** (enforced by Playwright + Lighthouse in CI eventually):
 

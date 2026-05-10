@@ -29,6 +29,7 @@ import {
 import { recentFormResults } from "@/lib/team-form";
 import { FormDots, type FormResult } from "@/components/shared/FormDots";
 import { HeadToHeadPill } from "@/components/shared/HeadToHeadPill";
+import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
 import { TeamFlag } from "./TeamFlag";
 
 export interface MatchPredictionRowProps {
@@ -177,6 +178,26 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const isDraw = prediction?.outcome === "draw";
   const isAway = prediction?.outcome === "away_win";
 
+  // Optional overlay router — when present, tapping the small "info"
+  // chip below a flag opens the team overlay; tapping the "View match"
+  // link opens the match overlay. When absent (e.g. in tests or pages
+  // outside the bracket shell) these fall back to plain links.
+  const overlay = useOptionalOverlay();
+  const openTeamOverlay = (code: string) => (e: React.MouseEvent): void => {
+    if (!overlay) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.open("team", { code });
+  };
+  const openMatchOverlay = (e: React.MouseEvent): void => {
+    if (!overlay) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    overlay.open("match", { id: matchId });
+  };
+
   // Resolve form + h2h from props or fall back to the bundled stub. We
   // recompute these on every render — the underlying lookups are pure
   // synchronous reads from a small map so the cost is negligible relative
@@ -211,7 +232,10 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         className="mpr-view-link"
         aria-label={`View match preview for ${homeTeam.name} vs ${awayTeam.name}`}
         title="View match preview"
-        onClick={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          openMatchOverlay(e);
+        }}
       >
         View match
       </a>
@@ -244,6 +268,17 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
             className="mpr-pick-form"
             ariaLabel={`${homeTeam.name} last ${homeFormResults.length} results`}
           />
+        )}
+        {overlay && (
+          <a
+            href={`/team/${homeTeam.id}`}
+            className="mpr-team-info"
+            aria-label={`Open ${homeTeam.name} team overlay`}
+            title={`${homeTeam.name} info`}
+            onClick={openTeamOverlay(homeTeam.id)}
+          >
+            i
+          </a>
         )}
       </button>
 
@@ -302,6 +337,17 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
             className="mpr-pick-form"
             ariaLabel={`${awayTeam.name} last ${awayFormResults.length} results`}
           />
+        )}
+        {overlay && (
+          <a
+            href={`/team/${awayTeam.id}`}
+            className="mpr-team-info"
+            aria-label={`Open ${awayTeam.name} team overlay`}
+            title={`${awayTeam.name} info`}
+            onClick={openTeamOverlay(awayTeam.id)}
+          >
+            i
+          </a>
         )}
       </button>
 

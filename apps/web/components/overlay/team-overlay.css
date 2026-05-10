@@ -1,0 +1,290 @@
+/**
+ * Styles for the TeamOverlay + MatchOverlay + LeaderboardEntryOverlay
+ * card content. The sheet chrome itself lives in `overlay.css`; this
+ * file scopes only the inner body layout.
+ */
+
+.vt-team-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vt-team-overlay-hero {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.vt-team-overlay-meta {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.vt-team-overlay-meta h3 {
+  margin: 0 0 6px;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.vt-team-overlay-chips {
+  list-style: none;
+  margin: 0 0 6px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vt-team-overlay-chips li {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 9999px;
+  font-size: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .vt-team-overlay-chips li {
+  background: rgba(15, 23, 42, 0.06);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.vt-team-overlay-manager {
+  margin: 4px 0 0;
+  font-size: 13px;
+  opacity: 0.75;
+}
+
+.vt-team-overlay-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .vt-team-overlay-section {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+.vt-team-overlay-section h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.vt-team-overlay-fixtures {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.vt-team-overlay-fixture-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+
+.vt-team-overlay-fixture-btn:hover,
+.vt-team-overlay-fixture-btn:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+[data-theme="light"] .vt-team-overlay-fixture-btn {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.vt-team-overlay-fixture-vs {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.vt-team-overlay-fixture-date {
+  font-size: 12px;
+  opacity: 0.7;
+  font-variant-numeric: tabular-nums;
+}
+
+.vt-team-overlay-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .vt-team-overlay-actions {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+/* ---------- Match overlay ---------- */
+
+.vt-match-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.vt-match-overlay-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 12px;
+  opacity: 0.75;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.vt-match-overlay-stage {
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.vt-match-overlay-row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: center;
+}
+
+.vt-match-overlay-side {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  text-align: center;
+  padding: 14px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+
+.vt-match-overlay-side:hover,
+.vt-match-overlay-side:focus-visible {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
+[data-theme="light"] .vt-match-overlay-side {
+  background: rgba(15, 23, 42, 0.03);
+  border-color: rgba(15, 23, 42, 0.1);
+}
+
+.vt-match-overlay-side-tbd {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.vt-match-overlay-name {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.vt-match-overlay-code {
+  font-size: 11px;
+  opacity: 0.7;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.vt-match-overlay-vs {
+  font-weight: 700;
+  font-size: 14px;
+  opacity: 0.5;
+}
+
+.vt-match-overlay-venue {
+  font-weight: 500;
+}
+
+.vt-match-overlay-actions {
+  display: flex;
+  justify-content: center;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .vt-match-overlay-actions {
+  border-top-color: rgba(15, 23, 42, 0.06);
+}
+
+/* ---------- Leaderboard entry overlay ---------- */
+
+.vt-lb-overlay {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vt-lb-overlay-score {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.vt-lb-overlay-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ---------- Breadcrumb back-stack ---------- */
+
+.vt-overlay-breadcrumb-stack {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .vt-overlay-breadcrumb-stack {
+  background: rgba(15, 23, 42, 0.03);
+  border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+.vt-overlay-breadcrumb-crumb {
+  cursor: pointer;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: inherit;
+}
+
+.vt-overlay-breadcrumb-crumb:hover,
+.vt-overlay-breadcrumb-crumb:focus-visible {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.vt-overlay-breadcrumb-crumb[aria-current="page"] {
+  font-weight: 600;
+  cursor: default;
+}

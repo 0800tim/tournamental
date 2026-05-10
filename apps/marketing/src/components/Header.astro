@@ -85,39 +85,142 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       </button>
     </div>
   </div>
-  <nav
+  {/* Mobile drawer + scrim. The drawer slides in from the right
+      (full-height, ~85% width) when the hamburger toggle is tapped.
+      Backdrop click + Escape + swipe-right gesture all dismiss it.
+      Order: scrim sits behind the drawer; both are inside the header
+      so they share the sticky positioning context. */}
+  <div
+    id="mobile-menu-scrim"
+    class="vt-mobile-scrim md:hidden"
+    aria-hidden="true"
+    data-state="closed"
+  ></div>
+  <aside
     id="mobile-menu"
-    class="vt-mobile-menu md:hidden hidden border-t backdrop-blur"
-    aria-label="Mobile navigation"
+    class="vt-mobile-drawer md:hidden"
+    aria-label="Mobile navigation drawer"
+    aria-hidden="true"
+    data-state="closed"
+    role="dialog"
+    aria-modal="false"
   >
-    <div class="container-page py-3 flex flex-col gap-1 text-base">
-      {links.map((l) => (
+    <div class="vt-mobile-drawer-inner">
+      <header class="vt-mobile-drawer-head">
+        <span class="font-display text-lg font-bold">Menu</span>
+        <button
+          id="mobile-menu-close"
+          type="button"
+          class="vt-icon-btn"
+          aria-label="Close menu"
+        >
+          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </header>
+      <nav class="vt-mobile-drawer-nav" aria-label="Primary mobile navigation">
+        {links.map((l) => (
+          <a
+            href={l.href}
+            class:list={[
+              "vt-mobile-link",
+              currentPath === l.href ? "is-active" : "",
+            ]}
+          >{l.label}</a>
+        ))}
+        <a href="https://github.com/0800tim/vtorn" class="vt-mobile-link" rel="me">GitHub</a>
+        <a href="/contribute" class="vt-mobile-link">Contribute</a>
+        <a href="/influencers" class="vt-mobile-link">For influencers</a>
+        <a href="/legal" class="vt-mobile-link">Legal &amp; privacy</a>
+      </nav>
+      <div class="vt-mobile-drawer-foot">
+        <button
+          id="mobile-menu-theme"
+          type="button"
+          class="vt-mobile-link vt-mobile-theme-btn"
+          aria-label="Toggle theme"
+        >
+          <span class="vt-mobile-theme-label">Theme: system</span>
+          <span aria-hidden="true">↻</span>
+        </button>
         <a
-          href={l.href}
-          class:list={[
-            "vt-mobile-link",
-            currentPath === l.href ? "is-active" : "",
-          ]}
-        >{l.label}</a>
-      ))}
-      <a href="https://github.com/0800tim/vtorn" class="vt-mobile-link" rel="me">GitHub</a>
+          href="https://2026wc.vtourn.com/"
+          class="btn-primary vt-glow-cta vt-mobile-cta"
+        >Play World Cup 2026 →</a>
+      </div>
     </div>
-  </nav>
+  </aside>
 </header>
 
 <script is:inline>
   (function () {
     const toggle = document.getElementById("mobile-menu-toggle");
-    const menu = document.getElementById("mobile-menu");
+    const drawer = document.getElementById("mobile-menu");
+    const scrim = document.getElementById("mobile-menu-scrim");
+    const closeBtn = document.getElementById("mobile-menu-close");
     const iconOpen = document.getElementById("mobile-menu-icon-open");
     const iconClose = document.getElementById("mobile-menu-icon-close");
-    if (toggle && menu && iconOpen && iconClose) {
+
+    function setOpen(open) {
+      if (!drawer || !scrim || !toggle) return;
+      drawer.dataset.state = open ? "open" : "closed";
+      scrim.dataset.state = open ? "open" : "closed";
+      drawer.setAttribute("aria-hidden", open ? "false" : "true");
+      scrim.setAttribute("aria-hidden", open ? "false" : "true");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+      if (iconOpen) iconOpen.classList.toggle("hidden", open);
+      if (iconClose) iconClose.classList.toggle("hidden", !open);
+      // Lock body scroll while the drawer is open.
+      document.body.classList.toggle("vt-mobile-menu-open", open);
+      if (open) {
+        // Focus the close button so keyboard users can dismiss with Enter.
+        if (closeBtn) closeBtn.focus();
+      } else {
+        if (toggle) toggle.focus();
+      }
+    }
+
+    if (toggle && drawer && scrim) {
       toggle.addEventListener("click", () => {
-        const open = menu.classList.toggle("hidden") === false;
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
-        iconOpen.classList.toggle("hidden", open);
-        iconClose.classList.toggle("hidden", !open);
+        const open = drawer.dataset.state !== "open";
+        setOpen(open);
+      });
+      scrim.addEventListener("click", () => setOpen(false));
+      if (closeBtn) closeBtn.addEventListener("click", () => setOpen(false));
+      // Escape closes the drawer.
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && drawer.dataset.state === "open") {
+          e.preventDefault();
+          setOpen(false);
+        }
+      });
+      // Swipe-right to close. Track touchstart on the drawer itself; if
+      // the user moves > 64 px to the right, dismiss. We bypass this on
+      // wide screens (drawer is hidden via CSS anyway).
+      let touchStartX = null;
+      drawer.addEventListener("touchstart", (e) => {
+        if (drawer.dataset.state !== "open") return;
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+      drawer.addEventListener("touchmove", (e) => {
+        if (touchStartX == null) return;
+        const dx = e.touches[0].clientX - touchStartX;
+        if (dx > 64) {
+          touchStartX = null;
+          setOpen(false);
+        }
+      }, { passive: true });
+      drawer.addEventListener("touchend", () => {
+        touchStartX = null;
+      }, { passive: true });
+      // Close drawer when a link inside it is followed (so the page
+      // transition shows the destination, not the open drawer).
+      drawer.addEventListener("click", (e) => {
+        const target = e.target;
+        if (target instanceof HTMLAnchorElement && target.getAttribute("href")) {
+          setOpen(false);
+        }
       });
     }
 
@@ -133,6 +236,10 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       const sysIcon = tBtn.querySelector('[data-theme-icon="system"]');
       const lightIcon = tBtn.querySelector('[data-theme-icon="light"]');
       const darkIcon = tBtn.querySelector('[data-theme-icon="dark"]');
+      const drawerThemeBtn = document.getElementById("mobile-menu-theme");
+      const drawerThemeLabel = drawerThemeBtn
+        ? drawerThemeBtn.querySelector(".vt-mobile-theme-label")
+        : null;
       const apply = (state) => {
         const resolved = state === "system"
           ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
@@ -145,15 +252,30 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
         if (sysIcon) sysIcon.classList.toggle("hidden", state !== "system");
         if (lightIcon) lightIcon.classList.toggle("hidden", state !== "light");
         if (darkIcon) darkIcon.classList.toggle("hidden", state !== "dark");
+        if (drawerThemeLabel) drawerThemeLabel.textContent = "Theme: " + state;
       };
-      const stored = (() => { try { return localStorage.getItem(KEY); } catch { return null; } })();
-      apply(stored && STATES.includes(stored) ? stored : "system");
-      tBtn.addEventListener("click", () => {
+      const cycle = () => {
         const cur = tBtn.dataset.themeState ?? "system";
         const next = STATES[(STATES.indexOf(cur) + 1) % STATES.length];
         try { localStorage.setItem(KEY, next); } catch {}
         apply(next);
-      });
+      };
+      const stored = (() => { try { return localStorage.getItem(KEY); } catch { return null; } })();
+      apply(stored && STATES.includes(stored) ? stored : "system");
+      tBtn.addEventListener("click", cycle);
+      // The drawer copy of the theme button cycles the same state. We
+      // listen separately so each button can be removed/re-added without
+      // breaking the other.
+      if (drawerThemeBtn) {
+        drawerThemeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          // Stop the drawer's "auto-close on link click" handler (this
+          // is a button, not a link, but the drawer-level click handler
+          // is link-only — guarding here is belt and braces).
+          e.stopPropagation();
+          cycle();
+        });
+      }
       // Re-resolve when the OS preference changes and the user is on "system".
       const mq = window.matchMedia("(prefers-color-scheme: light)");
       const onChange = () => {
