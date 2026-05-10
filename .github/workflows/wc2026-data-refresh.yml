@@ -61,7 +61,7 @@ jobs:
 
       - name: Open PR with refreshed data
         if: steps.diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: |
             chore(data): weekly WC 2026 data refresh
