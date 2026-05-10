@@ -3,7 +3,7 @@
 date: 2026-05-11
 agent: viral-share-builder
 branch: feat/bracket-share-png-mp4-and-save-rename
-status: in-progress
+status: complete
 
 ## Goal
 
@@ -52,6 +52,26 @@ Tim wants viral loops. Three deliverables:
 
 Internal/data terms kept: `lockedAt` field, `lockoutEnforced`, `lockMultiplier()` function name (export name unchanged), `oddsAtLock`, `is-locked` CSS class — all server-side / data-shape and not user-visible copy. Function and CSS renames are a follow-up refactor not in this PR's scope.
 
-## Next steps
+## Outcome
 
-- Implement, test, push, open PR.
+- Canvas PNG renderer shipped in three sizes (1080×1350 / 1200×630 / 1080×1080). Sample artifacts in `/tmp/bracket-share-{portrait,landscape,square}.png` rendered cleanly with the champion flag biggest, glow ring kit-coloured, "MY CHAMPION" gold pill, country name in caps, knockout path stacked beneath, and the `Tournament·al` footer wordmark.
+- Animated MP4 generator shipped (Instagram 1080×1350, TikTok 1080×1920, Twitter 1200×630). Real ffmpeg test produces a 6.0s yuv420p MP4 with `+faststart` at ~321 KB. Frame timeline: 0-1s wordmark fade, 1-2.5s handle, 2.5-4s R16 flags fan in, 4-5s QF/SF/Final settle, 5-6s champion zoom + gold pill + caption.
+- HTTP endpoints live at `/v1/share/bracket/[bracket](.png|.mp4)` plus the OG sibling at `/v1/share/bracket/[bracket]/og.png`. End-to-end verified against `next start` on port 13311 — 200s, correct content-types, 24h on-disk MP4 cache (cache-miss 44s, cache-hit 37ms with `x-vtorn-cache: hit` header).
+- `/world-cup-2026/share/[bracketId]/page.tsx` upgraded: OG metadata now points at the new `/v1/share/bracket/.../og.png` route; description rewritten to "Save yours before kickoff"; share-page body lists portrait PNG, square PNG, Instagram MP4, TikTok MP4 download links.
+- Lock → Save sweep: ~35 user-facing string replacements across 12 files (HowItWorks, LeaderboardPreview, UpcomingMatches, landing/page, world-cup-2026/page, profile, LockSummary, BracketBuilder, BracketTree, MatchPickPopup, PredictTab, LeaderboardEntryOverlay, share/[bracketId]/page, api/og/bracket/route). Five test fixtures updated to match the new copy (PillTabs, match-pick-popup, per-match-prediction unit, per-match-prediction.e2e, full-bracket-cascade.e2e). Internal field names (`lockedAt`, `oddsAtLock`, `lockMultiplier`, `LockSummary`, `mpp-locked-banner`) intentionally left alone — they are server-side semantics not user copy, per Tim's brief.
+- Build: marked `@napi-rs/canvas` + `@resvg/resvg-js` (plus the platform-specific `-linux-x64-gnu` siblings) as webpack server-side externals so the native `.node` skia binding loads via `require()` at runtime instead of being chunked into the route bundle.
+
+## Tests
+
+- `pnpm --filter @vtorn/social-cards test` — 100 / 100 green (was 80; +20 new tests: 12 PNG card + 8 MP4 video).
+- `pnpm --filter @vtorn/web test` — 593 / 593 green.
+- `pnpm --filter @vtorn/web typecheck` — clean.
+- `pnpm --filter @vtorn/web build` — clean.
+- Workspace `pnpm -r typecheck` — clean (only pre-existing marketing.astro lint hints, unrelated).
+
+## Follow-ups for a later session
+
+- Rename `LockSummary` component + file to `SaveSummary`, `bracket-lock-section` → `bracket-save-section` CSS, etc. — pure refactor, no behavioural change, gated on this PR landing first to keep the diff readable.
+- Replace `inputFromSearchParams` with a real bracket-store lookup once the game-service has a public `/v1/brackets/:id` read endpoint. Until then the share URL itself is the source of truth — works for every viral post because the data travels with the URL.
+- Cache MP4 renders to durable storage (S3 / Cloudflare R2) instead of `/tmp/` so the cache survives restarts across replicas.
+- Add commentary audio overlay to the 6-second reveal MP4 (currently silent) — gated on commentary-pipeline track.
