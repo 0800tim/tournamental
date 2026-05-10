@@ -60,6 +60,15 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
       <header className="km-card-header">
         <span className="km-stage">{knockout.stage.toUpperCase()}</span>
         <span className="km-no">#{knockout.match_no}</span>
+        <a
+          href={`/match/${knockout.id}/preview`}
+          className="km-view-link"
+          aria-label={`View match preview for ${knockout.id.toUpperCase()}`}
+          title="View match preview"
+          onClick={(e) => e.stopPropagation()}
+        >
+          View match
+        </a>
       </header>
       <button
         type="button"

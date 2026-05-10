@@ -170,6 +170,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           Sorry — this match has already started. You can&apos;t change it now.
         </div>
       )}
+      <a
+        href={`/match/${matchId}/preview`}
+        className="mpr-view-link"
+        aria-label={`View match preview for ${homeTeam.name} vs ${awayTeam.name}`}
+        title="View match preview"
+        onClick={(e) => e.stopPropagation()}
+      >
+        View match
+      </a>
       <button
         type="button"
         className={`mpr-pick mpr-pick-home ${isHome ? "is-selected" : ""} ${prediction && !isHome ? "is-dim" : ""}`}

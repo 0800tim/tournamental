@@ -1007,3 +1007,54 @@
   font-weight: 600;
   text-align: center;
 }
+
+/* "View match" link affordance on a MatchPredictionRow. Sits absolutely
+ * positioned in the row's top-right corner so it doesn't shift the
+ * existing grid layout. */
+.mpr-row {
+  position: relative;
+}
+.mpr-view-link {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 2;
+}
+.mpr-view-link:hover,
+.mpr-view-link:focus-visible {
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
+  outline: none;
+}
+
+/* Same affordance for KnockoutMatch — the card's header is already a
+ * flex row so we just plug it in as another item; small size keeps the
+ * existing layout balanced. */
+.km-view-link {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #94a3b8;
+  text-decoration: none;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.km-view-link:hover,
+.km-view-link:focus-visible {
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.95);
+  outline: none;
+}
