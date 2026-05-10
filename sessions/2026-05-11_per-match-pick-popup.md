@@ -1,6 +1,6 @@
 ---
 agent: per-match-pick-popup
-status: in-progress
+status: complete
 date: 2026-05-11
 docs:
   - docs/45-per-match-pick-popup-and-api.md (new)
@@ -44,8 +44,43 @@ Tim wants to pick / change a single prediction without leaving the team page. Ta
 
 ## Outcome
 
-(filled in at sign-off)
+Shipped:
+
+- `apps/game`: PUT/GET/DELETE `/v1/picks/:userId/:matchId` with stage
+  validation, kickoff lockout, owner-only auth, per-(user,match) rate
+  limit, and structured audit log. Reuses `brackets.payload_json` so
+  bulk submit and per-match writes remain interchangeable. Tests live
+  in `apps/game/tests/per-match-picks.test.ts` (13 cases). Total
+  game-app test count: 74 passed.
+- `apps/web`:
+  - `MatchPickPopup` component with sheet/modal/inline presentations
+    in `components/match-pick/`.
+  - `useMatchPick` hook (no SWR; manual fetch + reducer) with local
+    draft fallback on network errors.
+  - `TeamFixturesWithPicks` client component on the team page; each
+    fixture row gets a Pick button that opens a sheet. URL
+    `/team/[code]?pick=<matchId>` deep-link wired.
+  - `MatchPredictionRow` gets a `⋯` trigger that opens the same popup.
+  - `MatchPickOverlay` on `/match/[id]/preview` for `?pick=open`
+    deep-link.
+  - Tests in `__tests__/match-pick-popup.test.tsx` (12 cases). Total
+    web-app test count: 445 passed.
+- `docs/45-per-match-pick-popup-and-api.md`: full spec, error
+  codes, deep-link scheme, forward-looking note about
+  OverlayRouter integration.
+
+Quality gates passed: workspace `pnpm typecheck`, both apps' test
+suites, web lint (one pre-existing TeamFlag warning, unchanged).
 
 ## Next steps
 
-(filled in at sign-off)
+- When sibling agent `feat/mobile-overlays-deep-links` lands the
+  OverlayRouter primitive, replace the `MatchPickPopup`'s
+  hand-rolled overlay/backdrop with that. The popup content
+  component is already separated from the overlay shell.
+- Add a long-press gesture on mobile to MatchPredictionRow that
+  also opens the popup (currently only the `⋯` button does — fine
+  on desktop, an extra ergonomic on phone).
+- Cascade refresh: when a user changes a knockout pick via the
+  per-match endpoint, recompute downstream knockouts client-side
+  (the API already hints `cascade_refresh_hint: true`).

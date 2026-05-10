@@ -1,0 +1,397 @@
+/**
+ * MatchPickPopup — single-match pick UI styles.
+ *
+ * Variants:
+ *   .mpp-card-sheet  — bottom sheet on mobile, centered modal on desktop.
+ *   .mpp-card-modal  — always centered modal regardless of viewport.
+ *   .mpp-card-inline — naked card, embedded in a flow.
+ *
+ * Custom properties --mpp-home-accent / --mpp-away-accent are set inline
+ * by the component from the team kit colours so the selection ring + the
+ * vertical edge accents track the picked side.
+ */
+
+:root {
+  --mpp-bg: #131b2e;
+  --mpp-bg-overlay: rgba(7, 11, 22, 0.72);
+  --mpp-text: #e6edf3;
+  --mpp-text-dim: #94a3b8;
+  --mpp-text-bright: #ffffff;
+  --mpp-card-border: rgba(255, 255, 255, 0.08);
+  --mpp-divider: rgba(255, 255, 255, 0.06);
+  --mpp-danger: #f87171;
+}
+
+.mpp-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  background: var(--mpp-bg-overlay);
+  backdrop-filter: blur(6px);
+}
+
+.mpp-overlay-sheet {
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.mpp-overlay-modal {
+  align-items: center;
+  justify-content: center;
+}
+
+.mpp-overlay-inner {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.mpp-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  max-width: 520px;
+  padding: 16px 16px 18px;
+  background: var(--mpp-bg);
+  color: var(--mpp-text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
+  border: 1px solid var(--mpp-card-border);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.mpp-card-sheet {
+  border-radius: 22px 22px 0 0;
+  padding-top: 8px;
+}
+
+@media (min-width: 720px) {
+  .mpp-card-sheet {
+    border-radius: 22px;
+    margin-bottom: 32px;
+  }
+}
+
+.mpp-card-modal {
+  border-radius: 22px;
+}
+
+.mpp-card-inline {
+  border-radius: 16px;
+  max-width: none;
+}
+
+.mpp-grabber {
+  display: block;
+  margin: 4px auto 6px;
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.mpp-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  flex-direction: column;
+}
+
+.mpp-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.mpp-title {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  color: var(--mpp-text-bright);
+}
+
+.mpp-vs {
+  color: var(--mpp-text-dim);
+  font-weight: 500;
+  font-size: 13px;
+}
+
+.mpp-subtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--mpp-text-dim);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.mpp-sep {
+  color: rgba(255, 255, 255, 0.2);
+}
+
+.mpp-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--mpp-card-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--mpp-text);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mpp-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.mpp-locked-banner {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fecaca;
+  font-size: 14px;
+}
+
+.mpp-picks {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.mpp-card-inline .mpp-picks[data-no-draw="true"],
+.mpp-picks:not(:has(.mpp-pick-draw)) {
+  grid-template-columns: 1fr 1fr;
+}
+
+.mpp-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--mpp-card-border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--mpp-text);
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease,
+    background 0.12s ease;
+  min-height: 96px;
+}
+
+.mpp-pick:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mpp-pick.is-selected {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.mpp-pick-home.is-selected {
+  border-color: var(--mpp-home-accent);
+  box-shadow: 0 0 0 1px var(--mpp-home-accent);
+}
+
+.mpp-pick-away.is-selected {
+  border-color: var(--mpp-away-accent);
+  box-shadow: 0 0 0 1px var(--mpp-away-accent);
+}
+
+.mpp-pick.is-dim {
+  opacity: 0.6;
+}
+
+.mpp-pick:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.mpp-pick-code {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: var(--mpp-text-bright);
+}
+
+.mpp-pick-pct {
+  font-size: 12px;
+  color: var(--mpp-text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+.mpp-pick-draw {
+  align-self: center;
+  min-height: 64px;
+  padding: 10px 14px;
+}
+
+.mpp-pick-draw-pill {
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  font-weight: 700;
+  color: var(--mpp-text-bright);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mpp-odds-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px dashed rgba(148, 163, 184, 0.4);
+  background: transparent;
+  color: var(--mpp-text-dim);
+  border-radius: 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mpp-odds-chip.is-expanded {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.mpp-odds-source {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+}
+
+.mpp-odds-summary {
+  font-variant-numeric: tabular-nums;
+}
+
+.mpp-odds-detail {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(148, 163, 184, 0.06);
+  font-size: 13px;
+}
+
+.mpp-odds-detail p {
+  margin: 0 0 4px;
+}
+
+.mpp-odds-detail-note {
+  color: var(--mpp-text-dim);
+  font-size: 12px;
+}
+
+.mpp-scores-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mpp-scores-toggle {
+  align-self: flex-start;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--mpp-card-border);
+  background: transparent;
+  color: var(--mpp-text-dim);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.mpp-scores {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.mpp-score-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mpp-score-label {
+  font-size: 12px;
+  color: var(--mpp-text-dim);
+  letter-spacing: 0.06em;
+}
+
+.mpp-score-input input {
+  width: 56px;
+  padding: 6px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--mpp-card-border);
+  background: rgba(0, 0, 0, 0.3);
+  color: var(--mpp-text-bright);
+  font-size: 16px;
+  text-align: center;
+}
+
+.mpp-error {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  color: #fecaca;
+  font-size: 13px;
+}
+
+.mpp-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.mpp-btn {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--mpp-card-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--mpp-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.mpp-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mpp-btn-ghost {
+  margin-right: auto;
+  background: transparent;
+  color: var(--mpp-text-dim);
+}
+
+.mpp-btn-cancel {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mpp-btn-primary {
+  background: linear-gradient(180deg, var(--mpp-home-accent), var(--mpp-away-accent));
+  color: #0a0f1c;
+  border-color: transparent;
+}
+
+.mpp-btn-primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}

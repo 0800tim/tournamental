@@ -37,6 +37,7 @@ import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/en
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
 import { RecentForm } from "./_components/RecentForm";
+import { TeamFixturesWithPicks } from "./_components/TeamFixturesWithPicks";
 import {
   bracketEngineTeam,
   canonicalTeamByCode,
@@ -330,42 +331,28 @@ export default function TeamPage({ params }: TeamPageProps) {
       {(priorFixtures.length > 0 || futureFixtures.length > 1) && (
         <section className="td-section td-all-fixtures" aria-label="All tournament fixtures">
           <h2>Tournament fixtures</h2>
-          <ol className="td-fixtures-list">
-            {fixtures.map((f) => {
-              const opp = canonicalTeamByCode(f.opponentCode);
-              const date = new Date(f.kickoffUtc);
-              return (
-                <li key={f.matchId} className="td-fixture">
-                  <span className="td-fixture-stage">
-                    {f.groupId ? `Grp ${f.groupId}` : f.stage.toUpperCase()}
-                  </span>
-                  <span className="td-fixture-date">
-                    {date.toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                  <Link href={`/team/${f.opponentCode}`} className="td-fixture-opponent">
-                    <TeamFlag
-                      code={f.opponentCode}
-                      name={opp?.name ?? f.opponentCode}
-                      accentColor={opp?.kit?.primary}
-                      size="sm"
-                      shape="circle"
-                      sparkle={false}
-                    />
-                    <span>{f.home ? "vs" : "at"} {opp?.name ?? f.opponentCode}</span>
-                  </Link>
-                  <Link
-                    href={`/world-cup-2026#match-${f.matchId}`}
-                    className="td-fixture-predict"
-                  >
-                    Predict
-                  </Link>
-                </li>
-              );
-            })}
-          </ol>
+          <p className="td-section-hint">
+            Tap any match to pick it without leaving the page.
+          </p>
+          <TeamFixturesWithPicks
+            fixtures={fixtures}
+            canonicalByCode={
+              new Map(
+                tournament.teams.map((t) => {
+                  const c = canonicalTeamByCode(t.id);
+                  return [
+                    t.id,
+                    {
+                      name: c?.name ?? t.name,
+                      kit: c?.kit ?? t.kit,
+                    },
+                  ];
+                }),
+              )
+            }
+            selfTeam={engineTeam}
+            teamsById={new Map(tournament.teams.map((t) => [t.id, t]))}
+          />
         </section>
       )}
 

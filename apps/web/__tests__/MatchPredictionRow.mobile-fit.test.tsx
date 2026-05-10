@@ -88,14 +88,14 @@ describe("MatchPredictionRow — mobile fit", () => {
     );
     const row = container.querySelector(".mpr-row") as HTMLElement;
     expect(row).not.toBeNull();
-    // Structural children of .mpr-row: view-match link, home pick, draw
-    // pick (group only), away pick, h2h pill, scores wrap. So 6 in
-    // group stage. The enrichment adds exactly one child (the H2H pill)
-    // on top of what the upstream row had.
+    // Structural children of .mpr-row: view-match link, popup-trigger
+    // button, home pick, draw pick (group only), away pick, h2h pill,
+    // scores wrap. So 7 in group stage (6 in knockouts when the draw
+    // is hidden).
     const directChildren = Array.from(row.children).filter(
       (c) => !c.classList.contains("mpr-locked-banner"),
     );
-    expect([5, 6]).toContain(directChildren.length);
+    expect([6, 7]).toContain(directChildren.length);
     // And exactly one of those children is the new H2H pill.
     expect(row.querySelectorAll(".mpr-h2h")).toHaveLength(1);
   });
