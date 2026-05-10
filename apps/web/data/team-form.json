@@ -1,2261 +1,2502 @@
 {
-  "_note": "Stub recent-form data - last 5 results per team. Deterministic per code; replace with live results API (FIFA / football-data.org / Statsbomb).",
-  "_todo": "Wire to live results API. Options: (a) FIFA Public Data API, (b) football-data.org REST (free tier 10 req/min), (c) Statsbomb open data + Wikipedia scrape.",
+  "version": 2,
+  "lastUpdated": "2026-05-10T17:02:11.634Z",
+  "source": "mock",
   "teams": {
     "ALG": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "CRO",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "AUS",
-        "result": "D"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "CRO",
-        "result": "D"
+        "source": "mock"
       },
       {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
-        "home": false,
-        "opponent": "SEN",
-        "result": "D"
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 2,
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "USA",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "ARG": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 0,
-        "goals_for": 3,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "NOR",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "NED",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "USA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
         "goals_for": 2,
-        "home": false,
-        "opponent": "FRA",
-        "result": "D"
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "EGY",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "AUS": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "USA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
         "goals_for": 2,
-        "home": false,
-        "opponent": "QAT",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "POR",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
         "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "COL",
-        "result": "D"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "POR",
-        "result": "L"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "AUT": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "SUI",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
         "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "TUR",
-        "result": "W"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "MAR",
-        "result": "D"
+        "source": "mock"
       },
       {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
         "goals_for": 0,
-        "home": true,
-        "opponent": "JOR",
-        "result": "D"
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 3,
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
         "home": true,
-        "opponent": "USA",
-        "result": "W"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "BEL": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "HAI",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "SCO",
-        "result": "D"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
-        "home": false,
-        "opponent": "JPN",
-        "result": "L"
-      },
-      {
+        "goals_against": 1,
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "AUT",
-        "result": "W"
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
         "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "ECU",
-        "result": "L"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "BIH": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "ALG",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "MAR",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
         "goals_for": 2,
-        "home": false,
-        "opponent": "NOR",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "KSA",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
         "goals_against": 0,
-        "goals_for": 3,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "ALG",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "BRA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "ALG",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 3,
+        "opponent": "ARG",
         "home": true,
-        "opponent": "ENG",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "ECU",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "HAI",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
         "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "MEX",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CAN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": false,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
         "opponent": "FRA",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "SUI",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "SCO",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "CIV",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 1,
         "home": false,
-        "opponent": "CIV",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CIV": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "NZL",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "TUR",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "ALG",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "KOR",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
         "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "NED",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "COD": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "BEL",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "SEN",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "ECU",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
         "opponent": "BRA",
-        "result": "D"
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "RSA",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "COL": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "SCO",
-        "result": "W"
-      },
-      {
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "NED",
-        "result": "W"
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
         "goals_for": 0,
-        "home": true,
-        "opponent": "TUR",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "AUT",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
         "goals_against": 2,
-        "goals_for": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "USA",
-        "result": "D"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CPV": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "CAN",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "GHA",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "NED",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "KSA",
-        "result": "L"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "CUW",
-        "result": "L"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CRO": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "HAI",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "TUN",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "AUT",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
         "opponent": "BRA",
-        "result": "D"
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "ALG",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CUW": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "SUI",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
         "opponent": "FRA",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
         "home": false,
-        "opponent": "ENG",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
         "goals_for": 1,
-        "home": true,
-        "opponent": "SUI",
-        "result": "L"
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "KSA",
-        "result": "L"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "CZE": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "AUS",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "COL",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "SUI",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "GHA",
-        "result": "L"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "MEX",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "ECU": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "CZE",
-        "result": "W"
-      },
-      {
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "MAR",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "MAR",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
         "goals_for": 0,
-        "home": false,
-        "opponent": "BIH",
-        "result": "D"
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
         "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
         "home": true,
-        "opponent": "TUR",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "EGY": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "KOR",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "RSA",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
         "opponent": "BRA",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "NZL",
-        "result": "W"
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "CIV",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "ENG": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "CPV",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "ESP",
-        "result": "W"
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
-        "home": false,
-        "opponent": "ESP",
-        "result": "L"
-      },
-      {
+        "goals_against": 1,
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "ALG",
-        "result": "L"
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
+        "date": "2026-03-22",
+        "opponent": "ARG",
+        "home": true,
         "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "NED",
-        "result": "L"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "ESP": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 3,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "BIH",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "MAR",
-        "result": "D"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "TUR",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "USA",
-        "result": "D"
-      },
-      {
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 3,
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "PAN",
-        "result": "W"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ARG",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "FRA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "TUN",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "CZE",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "GHA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "RSA",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 3,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "UZB",
-        "result": "W"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "ARG",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "GER": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
         "opponent": "FRA",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "NED",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "UZB",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 2,
         "home": false,
-        "opponent": "IRQ",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 2,
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "TUR",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "ARG",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "GHA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "PAR",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
         "goals_for": 2,
-        "home": false,
-        "opponent": "FRA",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "SCO",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
         "goals_against": 0,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "COD",
-        "result": "W"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 2,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "KSA",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "HAI": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "IRQ",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "COL",
-        "result": "L"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "NED",
-        "result": "D"
-      },
-      {
+        "result": "D",
         "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "ALG",
-        "result": "L"
+        "source": "mock"
       },
       {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
-        "goals_for": 1,
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "SWE",
-        "result": "L"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "IRN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": false,
-        "opponent": "AUT",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
         "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "TUR",
-        "result": "W"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "CPV",
-        "result": "D"
+        "source": "mock"
       },
       {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
-        "home": false,
-        "opponent": "JPN",
-        "result": "L"
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 0,
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "NED",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "IRQ": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "SCO",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
         "opponent": "BRA",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "BEL",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "QAT",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
         "goals_against": 0,
-        "goals_for": 3,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "UZB",
-        "result": "W"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "JOR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "RSA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "GER",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "AUT",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "PAR",
-        "result": "L"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
-        "goals_for": 0,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "SCO",
-        "result": "L"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "JPN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "ENG",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "AUS",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "CAN",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "CPV",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "CIV",
-        "result": "D"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "KOR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "ECU",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
         "goals_for": 2,
-        "home": false,
-        "opponent": "NOR",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "QAT",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
         "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "CZE",
-        "result": "W"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 2,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
         "opponent": "GER",
-        "result": "W"
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "KSA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "ALG",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "JPN",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "BEL",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "SUI",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "SCO",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "MAR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "NOR",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "BEL",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "CRO",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "KOR",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 3,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "SCO",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "MEX": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "PAN",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "URU",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "AUS",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "EGY",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
         "opponent": "BRA",
-        "result": "W"
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "NED": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "AUT",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "UZB",
-        "result": "W"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
         "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "BIH",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "PAN",
-        "result": "D"
-      },
-      {
+        "result": "L",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 1,
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
         "home": true,
-        "opponent": "COD",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "NOR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "KSA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "QAT",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "COL",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
         "goals_for": 2,
-        "home": false,
-        "opponent": "IRQ",
-        "result": "D"
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "POR",
-        "result": "W"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "NZL": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "PAR",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "EGY",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "CIV",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "ARG",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "AUT",
-        "result": "L"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "PAN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "PAR",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "AUS",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "CIV",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
         "goals_for": 2,
-        "home": true,
-        "opponent": "AUS",
-        "result": "D"
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 1,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "NZL",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "PAR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "NZL",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "IRQ",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "GER",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "NZL",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": false,
         "opponent": "BRA",
-        "result": "L"
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "POR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 0,
-        "goals_for": 0,
-        "home": true,
         "opponent": "BRA",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "BRA",
-        "result": "W"
-      },
-      {
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "UZB",
-        "result": "W"
+        "source": "mock"
       },
       {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "HAI",
-        "result": "D"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
-        "goals_for": 2,
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "ECU",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "QAT": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "HAI",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "SUI",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "SWE",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "POR",
-        "result": "D"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
-        "goals_for": 1,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "PAN",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "RSA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "SEN",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "URU",
-        "result": "L"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "ECU",
-        "result": "L"
+        "source": "mock"
       },
       {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "CUW",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "JPN",
-        "result": "D"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "SCO": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": true,
-        "opponent": "COL",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
         "goals_against": 0,
-        "goals_for": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "NZL",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "PAN",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "COL",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
         "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "POR",
-        "result": "L"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "SEN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 3,
+        "opponent": "BRA",
+        "home": true,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
         "goals_for": 0,
-        "home": true,
-        "opponent": "BIH",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "POR",
-        "result": "W"
-      },
-      {
+        "goals_against": 2,
+        "result": "L",
         "competition": "Friendly",
-        "date": "2026-03-28",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "ALG",
-        "result": "W"
-      },
-      {
+        "result": "W",
         "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "CAN",
-        "result": "W"
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "KOR",
-        "result": "W"
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "SUI": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": false,
-        "opponent": "CIV",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "ECU",
-        "result": "D"
-      },
-      {
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "POR",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "COD",
-        "result": "D"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 2,
         "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
         "home": true,
-        "opponent": "NED",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "SWE": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
+        "opponent": "BRA",
+        "home": true,
         "goals_for": 2,
-        "home": false,
-        "opponent": "CRO",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "ARG",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": true,
-        "opponent": "CUW",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "GHA",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
         "goals_against": 0,
-        "goals_for": 2,
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "NED",
-        "result": "W"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "TUN": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 0,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "JOR",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
         "goals_for": 2,
-        "home": true,
-        "opponent": "ARG",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 2,
-        "goals_for": 1,
-        "home": true,
-        "opponent": "GHA",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
         "goals_against": 0,
-        "goals_for": 2,
-        "home": true,
-        "opponent": "KOR",
-        "result": "W"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 3,
-        "goals_for": 0,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "COL",
-        "result": "L"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "TUR": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "QAT",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
         "goals_for": 2,
-        "home": true,
-        "opponent": "RSA",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 1,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "CUW",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
         "goals_against": 0,
-        "goals_for": 3,
-        "home": true,
-        "opponent": "CIV",
-        "result": "W"
+        "result": "W",
+        "competition": "Friendly",
+        "source": "mock"
       },
       {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 2,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "CZE",
-        "result": "W"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "URU": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 0,
-        "goals_for": 2,
-        "home": false,
-        "opponent": "NED",
-        "result": "W"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 0,
-        "goals_for": 2,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "EGY",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-28",
+        "goals_for": 2,
         "goals_against": 0,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "EGY",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 0,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "ALG",
-        "result": "W"
-      },
-      {
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
+        "home": false,
         "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
         "home": true,
-        "opponent": "COD",
-        "result": "D"
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "USA": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 1,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "HAI",
-        "result": "D"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "CRO",
-        "result": "W"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 1,
+        "source": "mock"
+      },
+      {
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
+        "home": false,
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
         "opponent": "ESP",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 1,
-        "goals_for": 3,
-        "home": false,
-        "opponent": "NED",
-        "result": "W"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
-        "goals_against": 1,
-        "goals_for": 3,
         "home": true,
-        "opponent": "IRQ",
-        "result": "W"
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ],
     "UZB": [
       {
-        "competition": "Friendly",
         "date": "2026-04-15",
-        "goals_against": 2,
-        "goals_for": 1,
+        "opponent": "BRA",
         "home": true,
-        "opponent": "TUN",
-        "result": "L"
-      },
-      {
-        "competition": "Qualifier",
-        "date": "2026-04-08",
-        "goals_against": 3,
-        "goals_for": 0,
-        "home": false,
-        "opponent": "HAI",
-        "result": "L"
-      },
-      {
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
         "competition": "Friendly",
-        "date": "2026-03-28",
-        "goals_against": 3,
-        "goals_for": 1,
-        "home": false,
-        "opponent": "NOR",
-        "result": "L"
+        "source": "mock"
       },
       {
-        "competition": "Qualifier",
-        "date": "2026-03-18",
-        "goals_against": 3,
-        "goals_for": 1,
+        "date": "2026-04-03",
+        "opponent": "FRA",
         "home": false,
-        "opponent": "NZL",
-        "result": "L"
-      },
-      {
-        "competition": "Friendly",
-        "date": "2026-03-04",
+        "goals_for": 1,
         "goals_against": 1,
-        "goals_for": 3,
+        "result": "D",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-22",
+        "opponent": "ENG",
+        "home": true,
+        "goals_for": 0,
+        "goals_against": 2,
+        "result": "L",
+        "competition": "Friendly",
+        "source": "mock"
+      },
+      {
+        "date": "2026-03-10",
+        "opponent": "GER",
         "home": false,
-        "opponent": "CZE",
-        "result": "W"
+        "goals_for": 2,
+        "goals_against": 0,
+        "result": "W",
+        "competition": "Qualifier",
+        "source": "mock"
+      },
+      {
+        "date": "2026-02-26",
+        "opponent": "ESP",
+        "home": true,
+        "goals_for": 1,
+        "goals_against": 1,
+        "result": "D",
+        "competition": "Friendly",
+        "source": "mock"
       }
     ]
   }
