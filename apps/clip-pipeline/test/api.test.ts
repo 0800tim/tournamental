@@ -46,12 +46,12 @@ const fixtureEvents: DetectorEvent[] = [
   { t: 1_200_000, type: "event.match_end" },
 ];
 
-function setup(opts?: { events?: ReadonlyArray<DetectorEvent>; runner?: FfmpegRunner }) {
+async function setup(opts?: { events?: ReadonlyArray<DetectorEvent>; runner?: FfmpegRunner }) {
   const ffmpeg = opts?.runner ?? makeRunner();
   const queue = new ClipQueue({ ffmpeg, storagePath: storage });
   const fetchEvents = async (_id: string): Promise<ReadonlyArray<DetectorEvent>> =>
     opts?.events ?? fixtureEvents;
-  const app = buildApp({ queue, ffmpeg, fetchEvents });
+  const app = await buildApp({ queue, ffmpeg, fetchEvents });
   return { app, queue, ffmpeg };
 }
 
@@ -125,7 +125,7 @@ describe("parseClipRequest", () => {
 
 describe("GET /healthz", () => {
   it("reports ok and ffmpeg availability", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/healthz" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { ok: boolean; ffmpeg: string };
@@ -142,7 +142,7 @@ describe("GET /healthz", () => {
         return { ok: true };
       },
     };
-    const { app } = setup({ runner });
+    const { app } = await setup({ runner });
     const res = await app.inject({ method: "GET", url: "/healthz" });
     const body = res.json() as { ffmpeg: string };
     expect(body.ffmpeg).toBe("missing");
@@ -151,7 +151,7 @@ describe("GET /healthz", () => {
 
 describe("POST /v1/clip", () => {
   it("returns 202 + queued status on first submit", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -171,7 +171,7 @@ describe("POST /v1/clip", () => {
   });
 
   it("returns 200 + cached: true on duplicate submit", async () => {
-    const { app, queue } = setup();
+    const { app, queue } = await setup();
     const payload = {
       match_id: "m-dupe",
       start_ms: 0,
@@ -189,13 +189,13 @@ describe("POST /v1/clip", () => {
   });
 
   it("returns 400 when the body is missing required fields", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "POST", url: "/v1/clip", payload: { match_id: "m" } });
     expect(res.statusCode).toBe(400);
   });
 
   it("returns 400 when the format is invalid", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -207,13 +207,13 @@ describe("POST /v1/clip", () => {
 
 describe("GET /v1/clip/:clip_id", () => {
   it("returns 404 for an unknown clip", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/clip/clip_doesntexist" });
     expect(res.statusCode).toBe(404);
   });
 
   it("returns the queued/rendering/done state and a no-store cache header pre-completion", async () => {
-    const { app, queue } = setup();
+    const { app, queue } = await setup();
     const submit = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -244,7 +244,7 @@ describe("GET /v1/clip/:clip_id", () => {
         return { ok: false, error: "boom" };
       },
     };
-    const { app, queue } = setup({ runner: failingRunner });
+    const { app, queue } = await setup({ runner: failingRunner });
     const submit = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -267,7 +267,7 @@ describe("GET /v1/clip/:clip_id", () => {
 
 describe("GET /v1/clip/:clip_id/file", () => {
   it("streams the rendered MP4 with immutable caching", async () => {
-    const { app, queue } = setup();
+    const { app, queue } = await setup();
     const submit = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -290,7 +290,7 @@ describe("GET /v1/clip/:clip_id/file", () => {
   });
 
   it("returns 404 for an unknown clip", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/clip/clip_nope/file" });
     expect(res.statusCode).toBe(404);
   });
@@ -310,7 +310,7 @@ describe("GET /v1/clip/:clip_id/file", () => {
         });
       },
     };
-    const { app, queue } = setup({ runner: slowRunner });
+    const { app, queue } = await setup({ runner: slowRunner });
     const submit = await app.inject({
       method: "POST",
       url: "/v1/clip",
@@ -339,7 +339,7 @@ describe("GET /v1/clip/:clip_id/file", () => {
 
 describe("GET /v1/match/:match_id/highlights", () => {
   it("returns the detected highlight reel", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/match/m1/highlights" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { match_id: string; count: number; highlights: { kind: string }[] };
@@ -349,7 +349,7 @@ describe("GET /v1/match/:match_id/highlights", () => {
   });
 
   it("returns an empty list when there are no events", async () => {
-    const { app } = setup({ events: [] });
+    const { app } = await setup({ events: [] });
     const res = await app.inject({ method: "GET", url: "/v1/match/empty/highlights" });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { count: number; highlights: unknown[] };
@@ -358,14 +358,14 @@ describe("GET /v1/match/:match_id/highlights", () => {
   });
 
   it("respects the limit query param", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/match/m1/highlights?limit=1" });
     const body = res.json() as { count: number };
     expect(body.count).toBe(1);
   });
 
   it("attaches a SWR cache header", async () => {
-    const { app } = setup();
+    const { app } = await setup();
     const res = await app.inject({ method: "GET", url: "/v1/match/m1/highlights" });
     expect(res.headers["cache-control"]).toContain("stale-while-revalidate");
   });
@@ -376,7 +376,7 @@ describe("GET /v1/match/:match_id/highlights", () => {
     const fetchEvents = async () => {
       throw new Error("upstream-down");
     };
-    const app = buildApp({ queue, ffmpeg, fetchEvents });
+    const app = await buildApp({ queue, ffmpeg, fetchEvents });
     const res = await app.inject({ method: "GET", url: "/v1/match/m1/highlights" });
     expect(res.statusCode).toBe(502);
   });

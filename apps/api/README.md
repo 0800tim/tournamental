@@ -46,3 +46,16 @@ pnpm -F @vtorn/api typecheck
 - Health is `no-store`.
 - Service descriptor + version are short-cached at the edge for resilience.
 - Future hot-read endpoints will Redis-front; see `docs/22-deployment-and-tunnels.md`.
+
+## API reference
+
+- Swagger UI (running service): [`/docs`](http://localhost:0/docs) — port from this service's bootstrap
+- Static OpenAPI 3.0 spec (committed): [`docs/api/api.openapi.json`](../../docs/api/api.openapi.json)
+- Index of every VTorn service API: [`docs/api/README.md`](../../docs/api/README.md)
+
+To regenerate the static spec after a route change:
+
+```bash
+pnpm --filter @vtorn/api run dump-openapi
+# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+```

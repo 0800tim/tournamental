@@ -15,12 +15,15 @@
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc -p tsconfig.test.json"
+    "lint": "tsc -p tsconfig.test.json",
+    "dump-openapi": "tsx scripts/dump-openapi.ts"
   },
   "dependencies": {
+    "@fastify/cors": "^10.0.1",
+    "@fastify/swagger": "^9.7.0",
+    "@fastify/swagger-ui": "^5.2.6",
     "better-sqlite3": "^11.3.0",
     "fastify": "^5.1.0",
-    "@fastify/cors": "^10.0.1",
     "pino": "^9.5.0",
     "undici": "^7.1.0"
   },

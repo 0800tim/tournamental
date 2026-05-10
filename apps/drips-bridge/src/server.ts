@@ -34,6 +34,7 @@ import { makeDripsClient, type DripsBackend, type DripsClient } from './lib/drip
 import { registerHealth } from './routes/health.js';
 import { registerContributors } from './routes/contributors.js';
 import { registerDistributions } from './routes/distributions.js';
+import { registerSwagger } from './swagger.js';
 
 const PORT = Number(process.env.DRIPS_PORT ?? 3399);
 const BIND = process.env.DRIPS_BIND ?? '0.0.0.0';
@@ -103,6 +104,8 @@ export async function buildServer(opts: BuildOptions = {}) {
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const dataDir = opts.dataDir ?? defaultDataDir();
   const inMemory = dataDir === ':memory:';

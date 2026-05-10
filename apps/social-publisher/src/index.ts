@@ -44,7 +44,7 @@ async function main(): Promise<void> {
   const policy = loadPolicy(process.env.SOCIAL_PUBLISHER_POLICY);
   const auditLog = new AuditLog(process.env.SOCIAL_PUBLISHER_LOG_PATH ?? defaultLogPath());
 
-  const app = buildApp({ policy, auditLog, logger });
+  const app = await buildApp({ policy, auditLog, logger });
   await app.listen({ port: PORT, host: BIND });
   logger.info(
     { port: PORT, bind: BIND, policy_keys: Object.keys(policy.default).length },

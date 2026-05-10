@@ -26,6 +26,7 @@ import { registerVerifyOtp } from './routes/verify-otp.js';
 import { registerSession } from './routes/session.js';
 import { registerWhatsAppPairing } from './routes/whatsapp-pairing.js';
 import { registerTelegramCallback } from './routes/telegram-callback.js';
+import { registerSwagger } from './swagger.js';
 import type { AuthContext } from './context.js';
 
 const PORT = Number(process.env.AUTH_PORT ?? 3330);
@@ -98,6 +99,8 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const ctx = opts.ctx ?? buildDefaultContext(app);
 

@@ -13,6 +13,8 @@ import { createReadStream } from "node:fs";
 import { stat } from "node:fs/promises";
 
 import cors from "@fastify/cors";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Logger } from "pino";
 
@@ -43,7 +45,7 @@ const VALID_FORMATS = new Set<ClipFormat>(["9:16", "1:1", "16:9"]);
 const MIN_DURATION_MS = 1_000;
 const MAX_DURATION_MS = 90_000; // 90s ceiling per docs/14 long-form variant
 
-export function buildApp(opts: BuildAppOptions): FastifyInstance {
+export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> {
   const app = Fastify(
     opts.log
       ? {
@@ -54,7 +56,34 @@ export function buildApp(opts: BuildAppOptions): FastifyInstance {
       : { logger: false, disableRequestLogging: true },
   );
 
-  void app.register(cors, { origin: true });
+  await app.register(cors, { origin: true });
+
+  // Swagger / OpenAPI MUST be awaited so its onRoute hook captures every
+  // route registered after this line.
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swagger as any, {
+    openapi: {
+      openapi: "3.0.0",
+      info: {
+        title: "Clip-Pipeline API",
+        description:
+          "Highlight detection + ffmpeg clip render service for VTorn social distribution.",
+        version: "0.1.0",
+        license: { name: "Apache-2.0", url: "https://www.apache.org/licenses/LICENSE-2.0" },
+      },
+      servers: [
+        { url: "http://localhost:3385", description: "local dev" },
+        { url: "https://vtorn-clip.aiva.nz", description: "dev tunnel" },
+      ],
+      tags: [{ name: "clips", description: "Clip queue + render" }],
+    },
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await app.register(swaggerUi as any, {
+    routePrefix: "/docs",
+    uiConfig: { docExpansion: "list", deepLinking: true },
+    staticCSP: true,
+  });
 
   app.get("/healthz", async () => {
     const ffmpegOk = await opts.ffmpeg.available();

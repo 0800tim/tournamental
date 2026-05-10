@@ -55,6 +55,8 @@ import { sendLinkedInOtp } from './lib/replies/linkedin.js';
 import { sendSignalOtp } from './lib/replies/signal.js';
 import { sendEmailMagicLink } from './lib/replies/email.js';
 
+import { registerSwagger } from './swagger.js';
+
 const PORT = Number(process.env.DM_OTP_PORT ?? 3331);
 const BIND = process.env.DM_OTP_BIND ?? '0.0.0.0';
 const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
@@ -140,6 +142,8 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const ctx = opts.ctx ?? buildDefaultContext(app);
 

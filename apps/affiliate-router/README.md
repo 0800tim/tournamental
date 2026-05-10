@@ -192,3 +192,16 @@ per-user-partner), audit-log writes, and hash determinism.
 
 The clicks DB lives on local disk; for prod we mount a persistent volume and
 mirror nightly via the existing `infra/scripts/db-backup.sh`.
+
+## API reference
+
+- Swagger UI (running service): [`/docs`](http://localhost:0/docs) — port from this service's bootstrap
+- Static OpenAPI 3.0 spec (committed): [`docs/api/affiliate-router.openapi.json`](../../docs/api/affiliate-router.openapi.json)
+- Index of every VTorn service API: [`docs/api/README.md`](../../docs/api/README.md)
+
+To regenerate the static spec after a route change:
+
+```bash
+pnpm --filter @vtorn/affiliate-router run dump-openapi
+# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+```

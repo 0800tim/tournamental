@@ -32,7 +32,7 @@ describe('GET /healthz', () => {
   });
 
   it('reports adapter_modes for every platform', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({ method: 'GET', url: '/healthz' });
     expect(res.statusCode).toBe(200);
     const body = res.json() as {

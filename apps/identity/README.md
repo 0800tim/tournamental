@@ -63,3 +63,16 @@ pnpm -C apps/identity dev      # tsx watch
 pnpm -C apps/identity test     # vitest run
 pnpm -C apps/identity typecheck
 ```
+
+## API reference
+
+- Swagger UI (running service): [`/docs`](http://localhost:0/docs) — port from this service's bootstrap
+- Static OpenAPI 3.0 spec (committed): [`docs/api/identity.openapi.json`](../../docs/api/identity.openapi.json)
+- Index of every VTorn service API: [`docs/api/README.md`](../../docs/api/README.md)
+
+To regenerate the static spec after a route change:
+
+```bash
+pnpm --filter @vtorn/identity run dump-openapi
+# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+```

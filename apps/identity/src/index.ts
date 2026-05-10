@@ -24,6 +24,7 @@ import { Storage } from './lib/storage.js';
 import type { IdentityContext } from './context.js';
 import { registerLinks } from './routes/links.js';
 import { registerHumanness } from './routes/humanness.js';
+import { registerSwagger } from './swagger.js';
 
 const PACKAGE_VERSION = '0.1.0';
 
@@ -72,6 +73,8 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   });
 
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const ctx = opts.ctx ?? buildDefaultContext(app);
 

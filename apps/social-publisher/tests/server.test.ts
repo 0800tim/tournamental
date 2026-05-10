@@ -29,7 +29,7 @@ describe('Fastify server', () => {
   });
 
   it('GET /healthz returns 200 with adapter list', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({ method: 'GET', url: '/healthz' });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { ok: boolean; adapters: string[] };
@@ -40,7 +40,7 @@ describe('Fastify server', () => {
   });
 
   it('GET /v1/version returns the service version', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({ method: 'GET', url: '/v1/version' });
     expect(res.statusCode).toBe(200);
     const body = res.json() as { service: string; version: string; adapter_count: number };
@@ -51,7 +51,7 @@ describe('Fastify server', () => {
   });
 
   it('POST /v1/publish fans out to the policy-selected platforms', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({
       method: 'POST',
       url: '/v1/publish',
@@ -79,7 +79,7 @@ describe('Fastify server', () => {
   });
 
   it('POST /v1/publish 400s on a malformed body', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({
       method: 'POST',
       url: '/v1/publish',
@@ -94,7 +94,7 @@ describe('Fastify server', () => {
 
   it('POST /v1/publish with whatsapp in policy fans out via the registered adapter', async () => {
     const waPolicy: SocialPolicy = { default: { goal: ['whatsapp'] } };
-    const app = buildApp({ policy: waPolicy, auditLog: log, logger: false });
+    const app = await buildApp({ policy: waPolicy, auditLog: log, logger: false });
     const res = await app.inject({
       method: 'POST',
       url: '/v1/publish',
@@ -109,7 +109,7 @@ describe('Fastify server', () => {
   });
 
   it('POST /v1/publish with no matching policy returns empty results', async () => {
-    const app = buildApp({ policy, auditLog: log, logger: false });
+    const app = await buildApp({ policy, auditLog: log, logger: false });
     const res = await app.inject({
       method: 'POST',
       url: '/v1/publish',

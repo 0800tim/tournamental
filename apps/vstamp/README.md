@@ -278,3 +278,16 @@ Coverage map:
 The `test/merkle.test.ts > cross-implementation verifier` block re-implements
 the verifier in self-contained code to prove the protocol can be checked
 without any of our code.
+
+## API reference
+
+- Swagger UI (running service): [`/docs`](http://localhost:0/docs) — port from this service's bootstrap
+- Static OpenAPI 3.0 spec (committed): [`docs/api/vstamp.openapi.json`](../../docs/api/vstamp.openapi.json)
+- Index of every VTorn service API: [`docs/api/README.md`](../../docs/api/README.md)
+
+To regenerate the static spec after a route change:
+
+```bash
+pnpm --filter @vtorn/vstamp run dump-openapi
+# or @vtourn/odds-ingest / @vtorn/wc2026-data-scripts
+```

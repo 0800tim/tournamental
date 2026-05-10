@@ -22,6 +22,7 @@ import Fastify, { type FastifyInstance } from "fastify";
 import { buildProvider, parseBackend } from "./live/provider.js";
 import { SettlementBridge } from "./settlement-bridge.js";
 import type { LiveDataProvider, LiveMatchState } from "./live/types.js";
+import { registerSwagger } from "./swagger.js";
 
 const PKG_VERSION = "0.1.0";
 
@@ -62,6 +63,8 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   const adminSecret = env.WC2026_DATA_ADMIN_SECRET ?? "";
 
   const app = Fastify({ logger: { level: env.LOG_LEVEL ?? "info" } });
+
+  await registerSwagger(app);
 
   // ---------- health + version ----------
 

@@ -62,7 +62,7 @@ async function main(): Promise<void> {
     log.warn({ err }, "failed to resume from trigger store");
   }
 
-  const app = buildApp({ queue, ffmpeg, fetchEvents, triggers, log });
+  const app = await buildApp({ queue, ffmpeg, fetchEvents, triggers, log });
   await app.listen({ port: config.port, host: config.bind });
   log.info({ port: config.port, bind: config.bind }, "http server listening");
 

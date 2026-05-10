@@ -27,6 +27,7 @@ import { Dispatcher, type PreferredChannel } from './lib/dispatcher.js';
 import { Scheduler, type ScheduledJob } from './lib/scheduler.js';
 import { registerSubscribeRoutes } from './routes/subscribe.js';
 import { registerNotifyRoutes } from './routes/notify.js';
+import { registerSwagger } from './swagger.js';
 
 const PORT = Number(process.env.PUSH_PORT ?? 3398);
 const BIND = process.env.PUSH_BIND ?? '0.0.0.0';
@@ -96,6 +97,8 @@ export async function buildServer(opts: BuildOptions = {}): Promise<BuiltServer>
     credentials: true,
   });
   await app.register(sensible);
+
+  await registerSwagger(app);
 
   const auditPath = opts.auditPath ?? './data/audit.jsonl';
   const whatsappAuditPath =
