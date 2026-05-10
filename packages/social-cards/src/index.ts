@@ -53,3 +53,30 @@ export type { RenderRequest, RenderedCard, SVGRenderResult } from "./render.js";
 
 export { loadDefaultFonts, familyForLocale, isRtl } from "./fonts.js";
 export type { FontSpec } from "./fonts.js";
+
+// Canvas-rendered champion-centric bracket share card + animated MP4
+// generator. Tim's brief 2026-05-11: viral-loop social shares.
+export {
+  renderBracketShareCard,
+  paintBracketFrame,
+  loadFlagPng,
+  renderPlaceholderFlag,
+  defaultFlagsDir,
+  CANVAS_SIZES,
+  STAGE_LABEL,
+} from "./canvas/index.js";
+export type {
+  BracketShareCardInput,
+  BracketShareChampion,
+  BracketSharePathEntry,
+  BracketShareStage,
+  CanvasCardSize,
+  CanvasSizePreset,
+} from "./canvas/index.js";
+
+export { renderBracketRevealVideo } from "./video/index.js";
+export type {
+  BracketRevealVideoInput,
+  BracketRevealVideoResult,
+  VideoFormat,
+} from "./video/index.js";

@@ -10,13 +10,16 @@
     ".": "./src/index.ts",
     "./cards": "./src/cards/index.ts",
     "./theme": "./src/theme.ts",
-    "./fonts": "./src/fonts.ts"
+    "./fonts": "./src/fonts.ts",
+    "./canvas": "./src/canvas/index.ts",
+    "./video": "./src/video/index.ts"
   },
   "scripts": {
     "test": "vitest run",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.55",
     "@resvg/resvg-js": "^2.6.2",
     "satori": "^0.10.13"
   },
