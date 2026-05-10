@@ -31,6 +31,13 @@ export interface AuthContext {
     maxVerifyAttempts: number;
     /** Session JWT TTL in seconds. */
     sessionTtlSeconds: number;
+    /**
+     * Telegram bot token used to verify Login Widget payloads. Empty
+     * string disables the Telegram callback (returns 503).
+     */
+    telegramBotToken: string;
+    /** Telegram bot username (without @) shown on the widget. */
+    telegramBotUsername: string;
   };
   /** Time source — overridable for tests. */
   now: () => number;

@@ -172,3 +172,40 @@
 .auth-legal a {
   color: rgba(243, 244, 248, 0.65);
 }
+
+/* Divider between phone OTP form and Telegram widget. */
+.auth-divider {
+  position: relative;
+  margin: 22px 0 18px;
+  text-align: center;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(243, 244, 248, 0.45);
+}
+.auth-divider::before {
+  content: "";
+  position: absolute;
+  inset: 50% 0 auto 0;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+.auth-divider span {
+  position: relative;
+  display: inline-block;
+  padding: 0 10px;
+  background: rgba(28, 28, 38, 0.92);
+}
+
+.auth-telegram {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.auth-telegram-mount {
+  /* Telegram injects an iframe; give it room without forcing a fixed
+     height so the script can size itself. */
+  min-height: 44px;
+}
+
