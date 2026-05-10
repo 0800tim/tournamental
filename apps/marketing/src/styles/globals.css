@@ -32,8 +32,14 @@
     --vt-border: #cdd5e7;
     --vt-border-strong: #3e4a72;
     --vt-header-bg: rgba(245, 247, 252, 0.85);
-    --vt-glow-1: rgba(63, 124, 196, 0.10);
-    --vt-glow-2: rgba(231, 107, 21, 0.05);
+    /* Hero radial glow: dark mode uses the same sky-blue + flame radials
+       at 10/6% opacity to softly tint the navy page bg. On the lighter
+       page bg those values washed out completely; bump opacity and shift
+       to the deeper accent-600 / flame-600 brand stops so the gradient
+       still reads as a halo and signals brand colour without flooding the
+       page. */
+    --vt-glow-1: rgba(63, 124, 196, 0.18);
+    --vt-glow-2: rgba(231, 107, 21, 0.10);
   }
   html {
     background-color: var(--vt-bg);
@@ -92,6 +98,14 @@
     @apply btn border text-ink-100 hover:border-accent-400 hover:text-accent-400;
     border-color: var(--vt-border-strong);
     color: var(--vt-fg);
+  }
+  /* Tertiary CTA: outlined sky-blue button used on world-cup-2026.astro.
+     Was referenced by markup but never defined; rendered as plain text. */
+  .btn-secondary {
+    @apply btn border-2 border-accent-500 text-accent-500 hover:bg-accent-500;
+  }
+  .btn-secondary:hover {
+    color: theme(colors.ink.900);
   }
   .pill {
     @apply inline-flex items-center gap-1 rounded-full border px-3 py-1 text-xs uppercase tracking-wider;
@@ -239,6 +253,8 @@
 
 /* Surfaces */
 :root[data-theme="light"] .bg-ink-900 { background-color: var(--vt-bg) !important; }
+:root[data-theme="light"] .bg-ink-900\/60 { background-color: rgba(245, 247, 252, 0.7) !important; }
+:root[data-theme="light"] .bg-ink-900\/80 { background-color: rgba(245, 247, 252, 0.85) !important; }
 :root[data-theme="light"] .bg-ink-800 { background-color: var(--vt-bg-elev) !important; }
 :root[data-theme="light"] .bg-ink-800\/60 { background-color: rgba(255, 255, 255, 0.7) !important; }
 :root[data-theme="light"] .bg-ink-800\/80 { background-color: rgba(255, 255, 255, 0.85) !important; }
@@ -254,3 +270,76 @@
 :root[data-theme="light"] .border-ink-500 { border-color: var(--vt-border-strong) !important; }
 :root[data-theme="light"] .border-dashed { border-color: var(--vt-border-strong) !important; }
 
+/* -------------------------------------------------------------------------
+ * Per-page refinements after the blanket overrides
+ *
+ * The blanket layer above gets every page mostly-readable; this section
+ * tightens the cases that still wash out:
+ *   - text-accent-400 informational labels are too pale on a white card.
+ *     Step them down to accent-600 (the same hue at higher contrast).
+ *     Keep the brand sky-blue accent-500 fills on buttons untouched.
+ *   - Open-source banner on index.astro uses
+ *     `bg-gradient-to-br from-ink-800 to-ink-900` — that gradient becomes
+ *     a near-flat white card after the surface overrides. The faint
+ *     `border-accent-700/60` is then almost invisible; bump to accent-500.
+ *   - World-Cup CTA on index.astro uses `bg-accent-700/10` over a lighter
+ *     border-accent-700/60 frame; the tinted fill lifts cleanly on white
+ *     after a 2 % opacity nudge.
+ *   - Hero match-card retains its dark gradient surface in both themes
+ *     (it's a faux video preview). Mark the container `vt-on-dark` and
+ *     the inner copy stays white in light mode.
+ * ------------------------------------------------------------------------- */
+
+/* Accent text — accent-400 is the dark-canvas variant; on white it
+   washes out, so step informational uses to accent-600 (same hue,
+   higher contrast). Brand fills (bg-accent-500 on .btn-primary) are
+   untouched because they sit on dark text and stay readable. */
+:root[data-theme="light"] .text-accent-400 { color: theme(colors.accent.600) !important; }
+:root[data-theme="light"] .hover\:text-accent-400:hover { color: theme(colors.accent.600) !important; }
+:root[data-theme="light"] .hover\:border-accent-400:hover { border-color: theme(colors.accent.600) !important; }
+:root[data-theme="light"] .group:hover .group-hover\:text-accent-400 { color: theme(colors.accent.600) !important; }
+:root[data-theme="light"] .group:hover .group-hover\:text-white { color: var(--vt-fg-strong) !important; }
+:root[data-theme="light"] .hover\:border-accent-500:hover { border-color: theme(colors.accent.600) !important; }
+
+/* Flame accent stays vibrant; one step darker against white. */
+:root[data-theme="light"] .text-flame-400 { color: theme(colors.flame.600) !important; }
+
+/* Open-source banner gradient + frame.
+   `from-ink-800 to-ink-900` -> near-white card; bump the accent border
+   so the framing doesn't disappear. */
+:root[data-theme="light"] .from-ink-800 {
+  --tw-gradient-from: var(--vt-bg-elev) var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to);
+}
+:root[data-theme="light"] .to-ink-900 {
+  --tw-gradient-to: var(--vt-bg) var(--tw-gradient-to-position) !important;
+}
+:root[data-theme="light"] .border-accent-700\/60 { border-color: theme(colors.accent.500) !important; }
+:root[data-theme="light"] .bg-accent-700\/10 { background-color: rgba(63, 124, 196, 0.08) !important; }
+
+/* Hero match-card: keep the emerald-to-sky gradient strong enough that
+   white text still pops in light mode. The default 40 / 20 / 40 opacity
+   stack reads great on a dark page bg; under a light bg it deflates and
+   the white text loses contrast. Push to 70 / 45 / 70 in light only. */
+:root[data-theme="light"] .from-emerald-600\/40 {
+  --tw-gradient-from: rgba(26, 128, 56, 0.7) var(--tw-gradient-from-position) !important;
+}
+:root[data-theme="light"] .via-emerald-500\/20 {
+  --tw-gradient-via: rgba(33, 163, 74, 0.45) var(--tw-gradient-via-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via), var(--tw-gradient-to);
+}
+:root[data-theme="light"] .to-accent-700\/40 {
+  --tw-gradient-to: rgba(42, 95, 161, 0.7) var(--tw-gradient-to-position) !important;
+}
+
+/* The Hero match-card carves itself out of the light-mode text
+   inversion: any descendant inside a `vt-on-dark` container stays on
+   white text against the brand gradient. */
+:root[data-theme="light"] .vt-on-dark .text-white { color: #ffffff !important; }
+:root[data-theme="light"] .vt-on-dark .text-ink-200 { color: rgba(255, 255, 255, 0.85) !important; }
+:root[data-theme="light"] .vt-on-dark .text-accent-400 { color: theme(colors.accent.400) !important; }
+:root[data-theme="light"] .vt-on-dark .text-flame-400 { color: theme(colors.flame.400) !important; }
+:root[data-theme="light"] .vt-on-dark.bg-ink-800 { background-color: theme(colors.ink.800) !important; }
+:root[data-theme="light"] .vt-on-dark.border-ink-700,
+:root[data-theme="light"] .vt-on-dark .border-ink-700 { border-color: theme(colors.ink.700) !important; }

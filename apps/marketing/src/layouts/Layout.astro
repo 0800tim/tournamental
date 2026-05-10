@@ -30,7 +30,10 @@ const absoluteOgImage = ogImage.startsWith("http")
   : new URL(ogImage, Astro.site ?? "https://vtourn.com").toString();
 ---
 <!doctype html>
-<html lang="en">
+{/* `data-themed` is a stable attribute for e2e tooling: every layout that
+    participates in the theme system carries it, so a Playwright spec can
+    assert "this page is theme-aware" without sniffing for class names. */}
+<html lang="en" data-themed>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -62,21 +65,39 @@ const absoluteOgImage = ogImage.startsWith("http")
     <meta name="color-scheme" content="light dark" />
     <script is:inline>
       // Apply the user's theme choice before first paint to avoid a
-      // FOUC. State is one of "system" | "light" | "dark"; system
-      // resolves to OS preference. Mirrors localStorage key
-      // "vtourn:theme" — see Header.astro for the toggle UI.
+      // FOUC. Resolution order:
+      //   1. ?theme=light|dark   — deep-link override (used by the
+      //      light-mode-readability e2e spec)
+      //   2. localStorage["vtourn:theme"]  — user choice from the
+      //      header toggle, one of "system" | "light" | "dark"
+      //   3. system / prefers-color-scheme
+      //   4. dark (fallback if everything blows up)
       (function () {
         try {
-          var raw = localStorage.getItem("vtourn:theme");
-          var state = raw === "light" || raw === "dark" || raw === "system" ? raw : "system";
+          var override = null;
+          try {
+            var q = new URL(window.location.href).searchParams.get("theme");
+            if (q === "light" || q === "dark") override = q;
+          } catch (_) {}
+          var raw = override ? null : localStorage.getItem("vtourn:theme");
+          var state = override
+            ? override
+            : (raw === "light" || raw === "dark" || raw === "system" ? raw : "system");
           var resolved = state === "system"
             ? (window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark")
             : state;
           document.documentElement.setAttribute("data-theme", resolved);
+          // data-themed is a stable opt-in flag that says "this layout
+          // participates in the theme system". Astro omits the static
+          // <html> opening tag during build minification, so the markup
+          // attribute disappears; we set it here so the DOM still
+          // exposes it for e2e tooling.
+          document.documentElement.setAttribute("data-themed", "");
           var mc = document.getElementById("vt-theme-color");
           if (mc) mc.setAttribute("content", resolved === "light" ? "#f5f7fc" : "#0a0e1a");
         } catch (e) {
           document.documentElement.setAttribute("data-theme", "dark");
+          document.documentElement.setAttribute("data-themed", "");
         }
       })();
     </script>
