@@ -31,6 +31,9 @@ data/pre-signups/*.json
 apps/web/.playwright-screenshots/
 apps/web/test-results/
 apps/web/playwright-report/
+apps/marketing/e2e-screenshots/
+apps/marketing/test-results/
+apps/marketing/playwright-report/
 
 # Auth service runtime state (PII + WhatsApp credentials — never commit).
 apps/auth-sms/data/

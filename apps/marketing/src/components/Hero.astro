@@ -24,7 +24,11 @@ const demoUrl = "https://app.vtourn.com/match/fifa-wc-2022-final-arg-fra-2022-12
     </div>
     <div class="relative">
       <a href={demoUrl} class="block group" aria-label="Open the live AR-FR demo">
-        <div class="aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
+        {/* The match-card is a faux video preview — we keep the dark
+            emerald-to-sky gradient in both themes (it's brand) and use
+            `vt-on-dark` to pin the inner copy to white when the rest
+            of the page goes light. */}
+        <div class="vt-on-dark aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
           <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-emerald-500/20 to-accent-700/40"></div>
           <div class="absolute inset-0 grid place-items-center">
             <div class="text-center px-6">

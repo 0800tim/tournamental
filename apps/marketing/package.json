@@ -17,5 +17,10 @@
     "@astrojs/tailwind": "^5.1.2",
     "@vtorn/social-cards": "workspace:*",
     "tailwindcss": "^3.4.14"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.48.0",
+    "typescript": "^5.6.3"
   }
 }
