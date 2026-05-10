@@ -19,6 +19,8 @@ const ITEMS: {
   { href: "/fixtures", label: "Fixtures", group: "ops", minRole: "mod" },
   { href: "/content", label: "Content", group: "ops", minRole: "mod" },
   { href: "/affiliate", label: "Affiliate", group: "growth" },
+  { href: "/operators", label: "Operators", group: "growth" },
+  { href: "/advertisers", label: "Advertisers", group: "growth" },
   { href: "/analytics", label: "Analytics", group: "growth" },
   { href: "/feature-flags", label: "Feature flags", group: "system" },
   { href: "/api-keys", label: "API keys", group: "system", minRole: "super-admin" },
