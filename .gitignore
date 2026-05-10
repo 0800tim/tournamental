@@ -45,3 +45,22 @@ apps/auth-sms/auth.db-shm
 
 # Local screenshot output (demo only).
 .screenshots/
+
+# Deploy slots — built artefacts, never committed. The .deploy/config.json
+# files ARE committed (per-app deploy config); .deploy/rollback.json and
+# incident.flag are runtime-only.
+apps/*/.next-staging/
+apps/*/.next-prod/
+apps/*/.next-prev/
+apps/*/.next-failed/
+apps/*/dist-staging/
+apps/*/dist-prod/
+apps/*/dist-prev/
+apps/*/dist-failed/
+apps/*/.deploy/rollback.json
+apps/*/.env.staging
+apps/*/.env.production
+.deploy/incident.flag
+
+# Deploy timings JSONL is host-local; not committed.
+data/deploy-timings.jsonl

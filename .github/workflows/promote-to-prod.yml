@@ -1,0 +1,137 @@
+name: promote-to-prod
+
+# Manual-only. Triggered by an authorised actor; runs the production
+# publish-all over SSH against the prod deploy host. On post-promote
+# failure, the publish() helper auto-rolls-back via lib/rollback.ts.
+#
+# Pre-checks (fail-closed, see infra/deploy/promote-to-prod.ts):
+#   - .deploy/incident.flag absent on prod host
+#   - HEAD matches origin/main
+#   - staging is healthy (SSH + healthz)
+#
+# Required secrets:
+#   PROD_SSH_HOST, PROD_SSH_USER, PROD_SSH_KEY
+#   PROD_DEPLOYERS_LIST  → comma-separated GH usernames (allowed actors)
+
+on:
+  workflow_dispatch:
+    inputs:
+      apps:
+        description: 'Comma-separated app slugs to promote (default: all changed since last prod release)'
+        required: false
+        default: ''
+      dry_run:
+        description: 'Dry run (no real deploy)'
+        type: boolean
+        default: false
+      force_prechecks_skip:
+        description: 'Skip pre-checks (DANGEROUS, leave a comment why)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: promote-to-prod
+  cancel-in-progress: false
+
+jobs:
+  authorise:
+    name: Authorise actor
+    runs-on: ubuntu-latest
+    outputs:
+      authorised: ${{ steps.check.outputs.authorised }}
+    steps:
+      - name: Verify actor in PROD_DEPLOYERS_LIST
+        id: check
+        env:
+          DEPLOYERS: ${{ secrets.PROD_DEPLOYERS_LIST }}
+          ACTOR: ${{ github.actor }}
+        run: |
+          set -euo pipefail
+          if [ -z "${DEPLOYERS:-}" ]; then
+            echo "::error ::PROD_DEPLOYERS_LIST secret is not set."
+            echo "authorised=false" >> "$GITHUB_OUTPUT"
+            exit 1
+          fi
+          IFS=',' read -ra LIST <<< "$DEPLOYERS"
+          for u in "${LIST[@]}"; do
+            if [ "$u" = "$ACTOR" ]; then
+              echo "authorised=true" >> "$GITHUB_OUTPUT"
+              echo "$ACTOR is in deployers list"
+              exit 0
+            fi
+          done
+          echo "::error ::$ACTOR is not in the prod deployers list."
+          echo "authorised=false" >> "$GITHUB_OUTPUT"
+          exit 1
+
+  promote:
+    name: Promote staging → production
+    needs: authorise
+    if: needs.authorise.outputs.authorised == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Promote on prod host
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.PROD_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER }}
+          key: ${{ secrets.PROD_SSH_KEY }}
+          script_stop: true
+          command_timeout: 30m
+          script: |
+            set -euo pipefail
+            cd /opt/vtorn
+            git fetch --all --prune
+            git checkout main
+            git reset --hard origin/main
+            pnpm install --frozen-lockfile --prefer-offline
+
+            APPS_ARG=""
+            if [ -n "${{ github.event.inputs.apps }}" ]; then
+              APPS_ARG="--apps=${{ github.event.inputs.apps }}"
+            fi
+            DRY=""
+            if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+              DRY="--dry-run"
+            fi
+            FORCE=""
+            if [ "${{ github.event.inputs.force_prechecks_skip }}" = "true" ]; then
+              FORCE="--force-prechecks-skip"
+            fi
+            pnpm --filter @vtorn/cicd-tools exec tsx infra/deploy/promote-to-prod.ts \
+              $APPS_ARG $DRY $FORCE
+
+  verify:
+    name: Post-promote verify
+    needs: promote
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit canonical prod URLs
+        env:
+          URLS: |
+            https://vtourn.com/
+            https://app.vtourn.com/
+            https://api.vtourn.com/healthz
+            https://game.vtourn.com/healthz
+        run: |
+          set -e
+          fail=0
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
+            code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 15 "$url" || echo "000")
+            echo "$url → $code"
+            case "$code" in
+              2*|3*) ;;
+              *) fail=1 ;;
+            esac
+          done <<< "$URLS"
+          if [ "$fail" -ne 0 ]; then
+            echo "::error ::one or more canonical prod URLs failed verify."
+            exit 1
+          fi

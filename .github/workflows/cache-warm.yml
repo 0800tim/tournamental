@@ -1,0 +1,39 @@
+name: cache-warm
+
+# Hits a small list of public URLs to keep Cloudflare edge cache populated.
+# Cheap and rate-limited; runs every 30 minutes during business hours
+# (Pacific/Auckland: 08:00–22:00 NZT).
+
+on:
+  schedule:
+    # Every 30 minutes, 20:00 UTC (08:00 NZT) → 10:00 UTC (22:00 NZT).
+    # That is roughly 14 hours of business in NZT; the cron runs in UTC
+    # so we approximate with 0,30 between 20-23 UTC and 0-10 UTC.
+    - cron: '0,30 20-23 * * *'
+    - cron: '0,30 0-10 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  warm:
+    name: Warm public edge cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit canonical URLs with gzip + brotli accept-encoding
+        env:
+          URLS: |
+            https://vtourn.com/
+            https://vtourn.com/about
+            https://app.vtourn.com/
+            https://app.vtourn.com/world-cup-2026
+            https://api.vtourn.com/healthz
+            https://game.vtourn.com/healthz
+        run: |
+          while IFS= read -r url; do
+            [ -z "$url" ] && continue
+            t=$(curl -sS -o /dev/null -w 'HTTP %{http_code} | %{time_total}s | %{size_download}b | %{url_effective}\n' \
+              -H 'Accept-Encoding: gzip, br' --max-time 15 "$url" || echo "FAIL $url")
+            echo "$t"
+          done <<< "$URLS"

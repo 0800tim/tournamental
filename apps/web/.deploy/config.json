@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "next",
+  "port": 3300,
+  "smokePort": 3097,
+  "healthzPath": "/api/healthz",
+  "smoke": [
+    { "url": "/api/healthz", "label": "health", "maxMs": 1500 },
+    { "url": "/", "label": "homepage", "maxMs": 2500 }
+  ],
+  "cacheWarm": [
+    "/",
+    "/match/fifa-wc-2022-final-arg-fra-2022-12-18",
+    "/world-cup-2026"
+  ],
+  "warmBase": "https://app.vtourn.com"
+}
