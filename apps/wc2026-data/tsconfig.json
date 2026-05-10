@@ -4,8 +4,12 @@
     "moduleResolution": "Bundler",
     "module": "ESNext",
     "target": "ES2022",
-    "noEmit": true,
+    "outDir": "dist",
+    "rootDir": ".",
+    "noEmit": false,
+    "declaration": true,
     "resolveJsonModule": true
   },
-  "include": ["scripts/**/*.ts"]
+  "include": ["src/**/*.ts", "scripts/**/*.ts"],
+  "exclude": ["**/*.test.ts", "tests/**", "dist/**", "node_modules/**"]
 }
