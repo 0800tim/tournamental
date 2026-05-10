@@ -4,14 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
-import type { EventMessage, Vec2 } from "@vtorn/spec";
+import type { EventMessage, PlayerState, Vec2 } from "@vtorn/spec";
 import type { MatchStore } from "@vtorn/spec-client";
-import {
-  alphaForNow,
-  interpolateBall,
-  interpolatePlayer,
-  findPlayer,
-} from "@/lib/interpolation";
 import { toWorld, toWorldYaw } from "@/lib/coords";
 import {
   DirectorPolicy,
@@ -24,8 +18,10 @@ import { broadcastCamera } from "@/lib/cameras/broadcast-cam";
 import { behindGoalCamera } from "@/lib/cameras/behind-goal-cam";
 import { playerTrackCamera } from "@/lib/cameras/player-track-cam";
 import { goalReplayCamera } from "@/lib/cameras/goal-replay-cam";
+import { DampedCameraDriver } from "@/lib/cameras/damped-driver";
 import { crowdEnergyBus } from "@/lib/crowd-energy";
 import { replayHudBus } from "@/lib/director/replay-hud-bus";
+import { useSceneBuffer } from "@/lib/replay/buffer-context";
 
 interface DirectorProps {
   store: StoreApi<MatchStore>;
@@ -67,8 +63,11 @@ export function Director({ store, enabled = true }: DirectorProps) {
   const policyRef = useRef<DirectorPolicy | null>(null);
   const blenderRef = useRef<CutBlender | null>(null);
   const replayRef = useRef<ReplayBuffer | null>(null);
+  const damperRef = useRef<DampedCameraDriver | null>(null);
   const lastEventIdx = useRef(0);
+  const lastCamName = useRef<DirectorCamName | null>(null);
   const tmpBall = useRef(new THREE.Vector3());
+  const sceneBuffer = useSceneBuffer();
   const evalOut = useMemo(
     () => ({
       position: new THREE.Vector3(),
@@ -79,47 +78,70 @@ export function Director({ store, enabled = true }: DirectorProps) {
     [],
   );
 
-  // Build the policy + blender + buffer once on mount.
+  // Build the policy + blender + buffer + damper once on mount.
   useEffect(() => {
     policyRef.current = new DirectorPolicy({});
     blenderRef.current = new CutBlender({ blendSec: 0.3 });
     replayRef.current = new ReplayBuffer({ durationSec: 10, rateHz: 60 });
+    damperRef.current = new DampedCameraDriver({
+      positionLambda: 5,
+      lookAtLambda: 4,
+      fovLambda: 6,
+    });
     return () => {
       policyRef.current = null;
       blenderRef.current = null;
       replayRef.current = null;
+      damperRef.current = null;
     };
   }, []);
 
-  useFrame(() => {
+  useFrame((_threeState, dtRaw) => {
     if (!enabled) return;
     const policy = policyRef.current;
     const blender = blenderRef.current;
     const buffer = replayRef.current;
-    if (!policy || !blender || !buffer) return;
+    const damper = damperRef.current;
+    if (!policy || !blender || !buffer || !damper) return;
+
+    // Clamp delta to avoid frame-stall snaps in any downstream maths.
+    const dt = Math.min(dtRaw, 1 / 30);
 
     const state = store.getState();
-    const wallNow = Date.now();
     const sceneNow = performance.now();
 
     // 1. Buffer the latest pose at ~ 60 Hz (one push per frame; the
-    // ring buffer caps the duration window automatically).
+    // ring buffer caps the duration window automatically). Sample from
+    // the shared StateFrameBuffer so the replay buffer (used for
+    // post-goal slow-mo cuts) gets *interpolated* poses, not the raw
+    // burst-batched store frames.
     if (state.curr) {
-      const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
-      const ball = interpolateBall(state.prev, state.curr, alpha);
-      const players = state.curr.players.map((p) => {
-        const interp = interpolatePlayer(state.prev, state.curr, p.id, alpha);
-        return {
+      let ballPos: [number, number, number] = state.curr.ball.pos;
+      let players: { id: string; pos: Vec2; facing: number }[];
+      if (sceneBuffer && sceneBuffer.size() >= 2) {
+        const sample = sceneBuffer.sample();
+        if (sample) {
+          ballPos = sample.ball.pos;
+          players = sample.players.map((p) => ({
+            id: p.id,
+            pos: p.pos,
+            facing: p.facing,
+          }));
+        } else {
+          players = state.curr.players.map((p) => ({
+            id: p.id,
+            pos: p.pos as Vec2,
+            facing: p.facing,
+          }));
+        }
+      } else {
+        players = state.curr.players.map((p) => ({
           id: p.id,
-          pos: (interp ? interp.pos : p.pos) as Vec2,
-          facing: interp ? interp.facing : p.facing,
-        };
-      });
-      buffer.push({
-        t: sceneNow,
-        ball: ball ? ball.pos : state.curr.ball.pos,
-        players,
-      });
+          pos: p.pos as Vec2,
+          facing: p.facing,
+        }));
+      }
+      buffer.push({ t: sceneNow, ball: ballPos, players });
     }
 
     // 2. Feed any new events into the policy. Phase-3 also pulses
@@ -140,11 +162,13 @@ export function Director({ store, enabled = true }: DirectorProps) {
     // 3. Tick the policy → active cam name.
     const camName = policy.tick();
 
-    // 4. Compute the target pose for the active cam.
-    const ballState = state.curr ? state.curr.ball : null;
-    if (ballState) toWorld(ballState.pos);
-    const ballWorld = ballState
-      ? tmpBall.current.set(ballState.pos[0], ballState.pos[2], -ballState.pos[1])
+    // 4. Compute the target pose for the active cam. Read pose from
+    //    the shared scene buffer (smoothed) when available so a moving
+    //    target doesn't snap.
+    const sample = sceneBuffer ? sceneBuffer.sample() : null;
+    const ballPos = sample ? sample.ball.pos : state.curr ? state.curr.ball.pos : null;
+    const ballWorld = ballPos
+      ? tmpBall.current.set(ballPos[0], ballPos[2], -ballPos[1])
       : null;
 
     let target: CameraTarget;
@@ -160,7 +184,14 @@ export function Director({ store, enabled = true }: DirectorProps) {
         break;
       case "player-track": {
         const scorerId = policy.scorerId();
-        const player = scorerId && state.curr ? findPlayer(state.curr, scorerId) : null;
+        // Prefer the smoothed sample's player; fall back to the raw store.
+        let player: PlayerState | null = null;
+        if (scorerId && sample) {
+          player = sample.players.find((p) => p.id === scorerId) ?? null;
+        }
+        if (!player && scorerId && state.curr) {
+          player = state.curr.players.find((p) => p.id === scorerId) ?? null;
+        }
         if (player) {
           const playerWorld = toWorld(player.pos);
           target = playerTrackCamera({
@@ -174,19 +205,20 @@ export function Director({ store, enabled = true }: DirectorProps) {
       }
     }
 
-    // 5. Drive the cut blender → write to the active camera.
+    // 5. Drive the cut blender → damped write to the active camera.
     blender.setTarget(target);
     blender.evaluate(evalOut);
 
-    if (camera instanceof THREE.PerspectiveCamera) {
-      const fovChanged = Math.abs(camera.fov - evalOut.fov) > 0.1;
-      if (fovChanged) {
-        camera.fov = evalOut.fov;
-        camera.updateProjectionMatrix();
-      }
+    // On a cut to a new cam, force the damper to snap so we don't
+    // "slide" between cameras. The cut-blender's intra-segment ease
+    // already provides a 200-400 ms cosine transition for the
+    // *target*; the damper just smooths *target movement* within a
+    // single cam.
+    if (lastCamName.current !== evalOut.name) {
+      damper.reset();
+      lastCamName.current = evalOut.name;
     }
-    camera.position.copy(evalOut.position);
-    camera.lookAt(evalOut.lookAt);
+    damper.update(camera as THREE.PerspectiveCamera, evalOut, dt);
 
     // 6. (Phase 3 hookup) Expose the post-FX intensities + slow-mo
     //    rate on the camera's userData. Phase 3 wires this into the

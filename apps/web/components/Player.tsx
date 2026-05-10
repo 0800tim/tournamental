@@ -27,6 +27,7 @@ import { useFaceLookup } from "@/lib/face-context";
 import { useClonedBody } from "@/lib/body-cache";
 import { useAnimationLibrary } from "@/lib/animation-library";
 import { filterEventsForPlayer } from "@/lib/event-to-action";
+import { useSceneBuffer } from "@/lib/replay/buffer-context";
 import {
   classifyLODBucket,
   type PlayerLODBucket,
@@ -136,20 +137,53 @@ export function Player({ player, team, kit, store }: PlayerProps) {
 
   const lastEventIdx = useRef(0);
   const tmpVec = useRef(new THREE.Vector3());
+  const sceneBuffer = useSceneBuffer();
+  const lastSpeed = useRef(0);
+  const lastSpeedSampleAt = useRef(0);
+  const lastSpeedPos = useRef<[number, number] | null>(null);
 
-  useFrame((threeState, delta) => {
+  useFrame((threeState, deltaRaw) => {
     const state = store.getState();
     if (!state.curr) return;
 
-    const wallNow = Date.now();
-    const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
-    const interp = interpolatePlayer(state.prev, state.curr, player.id, alpha);
-    if (!interp) return;
+    // Clamp delta so a tab-stall or GC pause doesn't make the FSM /
+    // foot IK / mixer leap forward.
+    const delta = Math.min(deltaRaw, 1 / 30);
 
-    toWorldInto(tmpVec.current, interp.pos);
+    // Resolve interpolated pose. Prefer the shared scene buffer (which
+    // interpolates by match-time, not wall-clock arrival, and so
+    // smooths burst-batched sources like the synthetic AR-FR producer);
+    // fall back to the legacy alphaForNow path so unit tests / direct
+    // mounts without a buffer keep working.
+    let pos: [number, number];
+    let facing: number;
+    if (sceneBuffer && sceneBuffer.size() >= 2) {
+      const sample = sceneBuffer.sample();
+      const found = sample?.players.find((p) => p.id === player.id);
+      if (found) {
+        pos = found.pos;
+        facing = found.facing;
+      } else {
+        const wallNow = Date.now();
+        const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
+        const interp = interpolatePlayer(state.prev, state.curr, player.id, alpha);
+        if (!interp) return;
+        pos = interp.pos;
+        facing = interp.facing;
+      }
+    } else {
+      const wallNow = Date.now();
+      const alpha = alphaForNow(state.prevWallMs, state.currWallMs, wallNow);
+      const interp = interpolatePlayer(state.prev, state.curr, player.id, alpha);
+      if (!interp) return;
+      pos = interp.pos;
+      facing = interp.facing;
+    }
+
+    toWorldInto(tmpVec.current, pos);
     if (groupRef.current) {
       groupRef.current.position.copy(tmpVec.current);
-      groupRef.current.rotation.y = toWorldYaw(interp.facing);
+      groupRef.current.rotation.y = toWorldYaw(facing);
     }
 
     // LOD evaluation: cheap distance check, hysteresis-debounced.
@@ -164,11 +198,39 @@ export function Player({ player, team, kit, store }: PlayerProps) {
       }
     }
 
+    // Estimate per-player speed for the animation FSM. Prefer
+    // numerically derived speed from successive smoothed positions
+    // (works regardless of how the source paces frames); fall back to
+    // the legacy 2-frame estimate.
+    let speedEstimate = 0;
+    const tNow = performance.now();
+    if (lastSpeedPos.current) {
+      const dx = pos[0] - lastSpeedPos.current[0];
+      const dy = pos[1] - lastSpeedPos.current[1];
+      const dt = (tNow - lastSpeedSampleAt.current) / 1000;
+      if (dt > 0 && dt < 0.5) {
+        const inst = Math.hypot(dx, dy) / dt;
+        // Smooth the estimate to suppress sub-frame jitter.
+        speedEstimate = lastSpeed.current * 0.7 + inst * 0.3;
+      }
+    }
+    if (!lastSpeedPos.current) lastSpeedPos.current = [pos[0], pos[1]];
+    else {
+      lastSpeedPos.current[0] = pos[0];
+      lastSpeedPos.current[1] = pos[1];
+    }
+    lastSpeedSampleAt.current = tNow;
+    lastSpeed.current = speedEstimate;
+
     // Animation FSM step (only for HIGH/MED; LOW skips the mixer).
     const fsm = fsmRef.current;
     const ik = ikRef.current;
     if (fsm && lod !== "low") {
-      const speed = estimateSpeed(state.prev, state.curr, player.id);
+      // Use the smoothed speed as the primary signal; fall back to the
+      // raw 2-frame estimator when the buffer hasn't built up yet.
+      const speed = speedEstimate > 0
+        ? speedEstimate
+        : estimateSpeed(state.prev, state.curr, player.id);
       const events = state.events;
       const newEvents = events.slice(lastEventIdx.current) as EventMessage[];
       lastEventIdx.current = events.length;
