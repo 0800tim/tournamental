@@ -1,8 +1,9 @@
 # `@vtourn/tournament-bot`
 
-> Telegram bot for VTourn — main `@VTournBot` plus a deep-link path for
-> per-syndicate flows. Webhook-mode HTTP service on port `3350`. Reads
-> `TELEGRAM_BOT_TOKEN` from `.env`. SQLite storage at `tg.db` (gitignored).
+> Telegram + WhatsApp bot for VTourn — main `@VTournBot` plus a WhatsApp
+> surface via the Aiva gateway. Same command dispatcher serves both. Webhook-mode HTTP service on port `3350`. Reads
+> `TELEGRAM_BOT_TOKEN` (required) and the `AIVA_*` vars (optional, enables
+> WhatsApp) from `.env`. SQLite storage at `tg.db` (gitignored).
 
 This is the v0 implementation of the bot described in
 [docs/13-telegram-bot-and-auth.md](../../docs/13-telegram-bot-and-auth.md)
@@ -169,7 +170,63 @@ When a syndicate is created in the dashboard, the share link is
 `https://t.me/VTournBot?start=syn_<slug>`. The bot routes that into a
 syndicate-flavoured welcome and prompts for `/picks` etc.
 
-### 9. Optional — registering a fresh per-syndicate bot (Option B)
+### 9. Optional — WhatsApp parity via the Aiva gateway
+
+WhatsApp uses the same dispatcher (`src/lib/dispatch.ts`) as Telegram, so
+every command (`/start`, `/picks`, `/odds`, `/leaderboard`, `/syndicate`,
+`/help`) works on either surface. Outbound goes through Aiva's HTTP send;
+inbound is a signed webhook the gateway POSTs to us.
+
+1. **Pair the WhatsApp number once.** Open the Aiva admin dashboard, create
+   (or pick) a WhatsApp session, and pair it with the bot's WhatsApp
+   account by scanning the QR. Note the session ID and the API key.
+2. **Generate a webhook shared secret:**
+
+   ```bash
+   openssl rand -hex 32
+   ```
+
+3. **Configure `.env`:**
+
+   ```bash
+   AIVA_SMS_API_URL=http://localhost:9252      # or your gateway URL
+   AIVA_SMS_API_KEY=<aiva bearer token>
+   AIVA_WA_SESSION_ID=<session id from step 1>
+   AIVA_WEBHOOK_SECRET=<the secret from step 2>
+   ```
+
+   Restart the bot. You'll see `aiva-wa webhook registered` in the logs.
+
+4. **Point the Aiva gateway at us.** In the Aiva admin UI, set the inbound
+   webhook for this session to `https://bot.vtourn.com/v1/webhooks/aiva-wa`
+   and paste the shared secret. The gateway HMAC-signs each inbound body
+   as `X-Signature: sha256=<hex>`; we reject anything else.
+
+5. **Smoke-test from a real WhatsApp client.** Send `/help` to the paired
+   WhatsApp number — you should get the command list back.
+
+   Or test the webhook locally:
+
+   ```bash
+   BODY='{"from":"64211234567@s.whatsapp.net","text":"/help"}'
+   SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$AIVA_WEBHOOK_SECRET" -hex | awk '{print "sha256="$2}')
+   curl -X POST http://localhost:3350/v1/webhooks/aiva-wa \
+     -H "content-type: application/json" \
+     -H "x-signature: $SIG" \
+     -d "$BODY"
+   # → 204 No Content; the gateway's send API gets a /help reply.
+   ```
+
+What's the same vs different between TG and WA:
+
+- **Same**: every command, every reply text, every storage interaction. The dispatcher (`src/lib/dispatch.ts`) is the single source of truth.
+- **Different on WA**: deep-link invites in `/syndicate create` print the slug and instruction (`/start syn_<slug>`) instead of a `t.me/...` URL — WhatsApp has no equivalent of Telegram deep-links.
+- **Different on WA**: outbound text is run through `renderForWhatsApp` to strip backtick-code (WhatsApp doesn't render it) and flatten `[text](url)` markdown links to plain `text url`. `*bold*` passes through (WhatsApp renders it natively).
+
+If `AIVA_WA_SESSION_ID` or `AIVA_WEBHOOK_SECRET` is missing, the bot logs
+`aiva-wa webhook disabled` and Telegram keeps working as before.
+
+### 10. Optional — registering a fresh per-syndicate bot (Option B)
 
 Not implemented in v0. When the syndicate count justifies the toil:
 
@@ -187,19 +244,21 @@ Tracked as `IDEAS.md → "Per-syndicate fresh bots"`.
 ## Architecture (one diagram)
 
 ```
-   Telegram
-       │
-       ▼  POST /v1/telegram/webhook  (X-Telegram-Bot-Api-Secret-Token check)
-   Fastify (apps/tournament-bot, :3350)
-       │
-       ▼
-   grammY Bot  ──► commands/ (start, picks, odds, leaderboard, syndicate, help)
-       │
-       ▼
-   Storage (SQLite tg.db)
-       │
-       ▼
-   apps/api  (odds, leaderboard, bracket — HTTP)
+   Telegram                          WhatsApp (via Aiva gateway)
+       │                                       │
+       │  POST /v1/telegram/webhook            │  POST /v1/webhooks/aiva-wa
+       │  (X-Telegram-Bot-Api-Secret-Token)    │  (X-Signature: sha256=<hex>)
+       ▼                                       ▼
+                Fastify (apps/tournament-bot, :3350)
+                            │
+                            ▼
+                lib/dispatch.ts  ── single source of truth for command logic
+                            │
+                            ▼
+                    Storage (SQLite tg.db)
+                            │
+                            ▼
+                    apps/api (odds, leaderboard, bracket — HTTP)
 
    ──────── outbound push ────────
 
