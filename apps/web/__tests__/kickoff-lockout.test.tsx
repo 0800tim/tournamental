@@ -17,16 +17,22 @@ import { fireEvent, render } from "@testing-library/react";
 import type { MatchOdds } from "../lib/odds/types";
 import { MatchPredictionRow } from "../components/bracket/MatchPredictionRow";
 
-const home = {
+import type { Team } from "@vtorn/bracket-engine";
+
+const home: Team = {
   id: "ARG",
   name: "Argentina",
+  country: "AR",
   fifa_rank: 1,
+  pre_tournament_implied_win: 0.4,
   kit: { primary: "#75aadb", secondary: "#ffffff" },
 };
-const away = {
+const away: Team = {
   id: "FRA",
   name: "France",
+  country: "FR",
   fifa_rank: 2,
+  pre_tournament_implied_win: 0.3,
   kit: { primary: "#1f2a8c", secondary: "#ffffff" },
 };
 const odds: MatchOdds = {
