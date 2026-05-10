@@ -86,138 +86,112 @@ const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
       </button>
     </div>
   </div>
-  {/* Mobile drawer + scrim. The drawer slides in from the right
-      (full-height, ~85% width) when the hamburger toggle is tapped.
-      Backdrop click + Escape + swipe-right gesture all dismiss it.
-      Order: scrim sits behind the drawer; both are inside the header
-      so they share the sticky positioning context. */}
-  <div
-    id="mobile-menu-scrim"
-    class="vt-mobile-scrim md:hidden"
-    aria-hidden="true"
-    data-state="closed"
-  ></div>
-  <aside
-    id="mobile-menu"
-    class="vt-mobile-drawer md:hidden"
-    aria-label="Mobile navigation drawer"
-    aria-hidden="true"
-    data-state="closed"
-    role="dialog"
-    aria-modal="false"
-  >
-    <div class="vt-mobile-drawer-inner">
-      <header class="vt-mobile-drawer-head">
-        <span class="font-display text-lg font-bold">Menu</span>
-        <button
-          id="mobile-menu-close"
-          type="button"
-          class="vt-icon-btn"
-          aria-label="Close menu"
-        >
-          <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </header>
-      <nav class="vt-mobile-drawer-nav" aria-label="Primary mobile navigation">
-        {links.map((l) => (
-          <a
-            href={l.href}
-            class:list={[
-              "vt-mobile-link",
-              currentPath === l.href ? "is-active" : "",
-            ]}
-          >{l.label}</a>
-        ))}
-        <a href="https://github.com/0800tim/vtorn" class="vt-mobile-link" rel="me">GitHub</a>
-        <a href="/contribute" class="vt-mobile-link">Contribute</a>
-        <a href="/influencers" class="vt-mobile-link">For influencers</a>
-        <a href="/legal" class="vt-mobile-link">Legal &amp; privacy</a>
-      </nav>
-      <div class="vt-mobile-drawer-foot">
-        <button
-          id="mobile-menu-theme"
-          type="button"
-          class="vt-mobile-link vt-mobile-theme-btn"
-          aria-label="Toggle theme"
-        >
-          <span class="vt-mobile-theme-label">Theme: system</span>
-          <span aria-hidden="true">↻</span>
-        </button>
-        <a
-          href="https://2026wc.vtourn.com/"
-          class="btn-primary vt-glow-cta vt-mobile-cta"
-        >Play World Cup 2026 →</a>
-      </div>
-    </div>
-  </aside>
+
 </header>
+
+{/* Mobile menu — fullscreen overlay.
+    Lives OUTSIDE the <header> on purpose: the header has
+    `backdrop-filter: blur(8px)` which establishes a containing block
+    for `position: fixed` descendants, so a child .vt-mobile-menu
+    would be clipped to the header's bounding box (~88px tall).
+    Putting the menu next to the header instead of inside it lets
+    `position: fixed; inset: 0;` actually mean "the whole viewport".
+    Plain block element, no flex tricks, no nested scroll containers,
+    no min-height gotchas. Click a link, the close button, or press
+    Escape to dismiss. */}
+<aside
+  id="mobile-menu"
+  class="vt-mobile-menu md:hidden"
+  aria-label="Mobile navigation"
+  aria-hidden="true"
+  data-state="closed"
+  role="dialog"
+  aria-modal="true"
+>
+  <div class="vt-mobile-menu-bar">
+    <span class="vt-mobile-menu-title">Menu</span>
+    <button
+      id="mobile-menu-close"
+      type="button"
+      class="vt-icon-btn"
+      aria-label="Close menu"
+    >
+      <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <nav aria-label="Primary mobile navigation">
+    {links.map((l) => (
+      <a
+        href={l.href}
+        class:list={[
+          "vt-mobile-link",
+          currentPath === l.href ? "is-active" : "",
+        ]}
+      >{l.label}</a>
+    ))}
+    <a href="https://github.com/0800tim/vtorn" class="vt-mobile-link" rel="me">GitHub</a>
+    <a href="/contribute" class="vt-mobile-link">Contribute</a>
+    <a href="/influencers" class="vt-mobile-link">For influencers</a>
+    <a href="/legal" class="vt-mobile-link">Legal &amp; privacy</a>
+  </nav>
+  <div class="vt-mobile-menu-foot">
+    <button
+      id="mobile-menu-theme"
+      type="button"
+      class="vt-mobile-link vt-mobile-theme-btn"
+      aria-label="Toggle theme"
+    >
+      <span class="vt-mobile-theme-label">Theme: system</span>
+      <span aria-hidden="true">↻</span>
+    </button>
+    <a
+      href="https://2026wc.vtourn.com/"
+      class="btn-primary vt-glow-cta vt-mobile-cta"
+    >Play World Cup 2026 →</a>
+  </div>
+</aside>
 
 <script is:inline>
   (function () {
     const toggle = document.getElementById("mobile-menu-toggle");
-    const drawer = document.getElementById("mobile-menu");
-    const scrim = document.getElementById("mobile-menu-scrim");
+    const menu = document.getElementById("mobile-menu");
     const closeBtn = document.getElementById("mobile-menu-close");
     const iconOpen = document.getElementById("mobile-menu-icon-open");
     const iconClose = document.getElementById("mobile-menu-icon-close");
 
     function setOpen(open) {
-      if (!drawer || !scrim || !toggle) return;
-      drawer.dataset.state = open ? "open" : "closed";
-      scrim.dataset.state = open ? "open" : "closed";
-      drawer.setAttribute("aria-hidden", open ? "false" : "true");
-      scrim.setAttribute("aria-hidden", open ? "false" : "true");
+      if (!menu || !toggle) return;
+      menu.dataset.state = open ? "open" : "closed";
+      menu.setAttribute("aria-hidden", open ? "false" : "true");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
       toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       if (iconOpen) iconOpen.classList.toggle("hidden", open);
       if (iconClose) iconClose.classList.toggle("hidden", !open);
-      // Lock body scroll while the drawer is open.
+      // Lock body scroll while the overlay is open.
       document.body.classList.toggle("vt-mobile-menu-open", open);
       if (open) {
-        // Focus the close button so keyboard users can dismiss with Enter.
         if (closeBtn) closeBtn.focus();
       } else {
         if (toggle) toggle.focus();
       }
     }
 
-    if (toggle && drawer && scrim) {
+    if (toggle && menu) {
       toggle.addEventListener("click", () => {
-        const open = drawer.dataset.state !== "open";
+        const open = menu.dataset.state !== "open";
         setOpen(open);
       });
-      scrim.addEventListener("click", () => setOpen(false));
       if (closeBtn) closeBtn.addEventListener("click", () => setOpen(false));
-      // Escape closes the drawer.
+      // Escape closes the menu.
       document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && drawer.dataset.state === "open") {
+        if (e.key === "Escape" && menu.dataset.state === "open") {
           e.preventDefault();
           setOpen(false);
         }
       });
-      // Swipe-right to close. Track touchstart on the drawer itself; if
-      // the user moves > 64 px to the right, dismiss. We bypass this on
-      // wide screens (drawer is hidden via CSS anyway).
-      let touchStartX = null;
-      drawer.addEventListener("touchstart", (e) => {
-        if (drawer.dataset.state !== "open") return;
-        if (e.touches.length !== 1) return;
-        touchStartX = e.touches[0].clientX;
-      }, { passive: true });
-      drawer.addEventListener("touchmove", (e) => {
-        if (touchStartX == null) return;
-        const dx = e.touches[0].clientX - touchStartX;
-        if (dx > 64) {
-          touchStartX = null;
-          setOpen(false);
-        }
-      }, { passive: true });
-      drawer.addEventListener("touchend", () => {
-        touchStartX = null;
-      }, { passive: true });
-      // Close drawer when a link inside it is followed (so the page
-      // transition shows the destination, not the open drawer).
-      drawer.addEventListener("click", (e) => {
+      // Close the menu when a link inside it is followed, so the page
+      // transition shows the destination, not the open overlay.
+      menu.addEventListener("click", (e) => {
         const target = e.target;
         if (target instanceof HTMLAnchorElement && target.getAttribute("href")) {
           setOpen(false);
