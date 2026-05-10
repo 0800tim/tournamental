@@ -19,7 +19,7 @@ import { promises as fs } from 'node:fs';
 import { dirname } from 'node:path';
 import type { WebPushSubscription } from './web-push.js';
 
-export type Channel = 'web-push' | 'telegram' | 'sms';
+export type Channel = 'web-push' | 'telegram' | 'sms' | 'whatsapp';
 
 export interface WebPushRecord {
   channel: 'web-push';
@@ -45,10 +45,19 @@ export interface SmsRecord {
   createdAt: string;
 }
 
+export interface WhatsAppRecord {
+  channel: 'whatsapp';
+  userId: string;
+  phone: string; // E.164
+  consent: true;
+  createdAt: string;
+}
+
 export type SubscriptionRecord =
   | WebPushRecord
   | TelegramRecord
-  | SmsRecord;
+  | SmsRecord
+  | WhatsAppRecord;
 
 export interface PickRecord {
   matchId: string;
@@ -133,6 +142,23 @@ export class SubscriptionStore {
     return rec;
   }
 
+  async upsertWhatsApp(
+    userId: string,
+    phone: string,
+  ): Promise<WhatsAppRecord> {
+    const e164 = phone.startsWith('+') ? phone : `+${phone}`;
+    const rec: WhatsAppRecord = {
+      channel: 'whatsapp',
+      userId,
+      phone: e164,
+      consent: true,
+      createdAt: new Date().toISOString(),
+    };
+    this.subs.set(this.subKey(userId, 'whatsapp'), rec);
+    await this.append({ type: 'subscription', data: rec });
+    return rec;
+  }
+
   async remove(userId: string, channel: Channel): Promise<boolean> {
     const key = this.subKey(userId, channel);
     if (!this.subs.has(key)) return false;
@@ -145,7 +171,7 @@ export class SubscriptionStore {
   }
 
   getAllForUser(userId: string): SubscriptionRecord[] {
-    const channels: Channel[] = ['web-push', 'telegram', 'sms'];
+    const channels: Channel[] = ['web-push', 'telegram', 'sms', 'whatsapp'];
     const out: SubscriptionRecord[] = [];
     for (const c of channels) {
       const r = this.subs.get(this.subKey(userId, c));
@@ -168,6 +194,12 @@ export class SubscriptionStore {
 
   getSms(userId: string): SmsRecord | undefined {
     return this.subs.get(this.subKey(userId, 'sms')) as SmsRecord | undefined;
+  }
+
+  getWhatsApp(userId: string): WhatsAppRecord | undefined {
+    return this.subs.get(this.subKey(userId, 'whatsapp')) as
+      | WhatsAppRecord
+      | undefined;
   }
 
   /** All users with at least one subscription. */

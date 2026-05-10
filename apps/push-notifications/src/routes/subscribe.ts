@@ -47,6 +47,16 @@ const smsBody = z.object({
     .regex(/^\+?[0-9 ()-]+$/, 'phone must look like an E.164 number'),
 });
 
+const whatsappBody = z.object({
+  userId: z.string().min(1).max(128),
+  consent: consentSchema,
+  phone: z
+    .string()
+    .min(6)
+    .max(20)
+    .regex(/^\+?[0-9 ()-]+$/, 'phone must look like an E.164 number'),
+});
+
 interface RouteCtx {
   store: SubscriptionStore;
   audit: AuditLogger;
@@ -114,6 +124,31 @@ export async function registerSubscribeRoutes(
       userId,
       event: 'subscribe',
       payload: { phone: phone.startsWith('+') ? phone : `+${phone}` },
+      ok: true,
+    });
+    return reply.code(201).send({ ok: true });
+  });
+
+  app.post('/v1/subscribe/whatsapp', async (req, reply) => {
+    const parse = whatsappBody.safeParse(req.body);
+    if (!parse.success) {
+      return reply.code(400).send({
+        ok: false,
+        error: 'invalid_body',
+        details: parse.error.issues,
+      });
+    }
+    const { userId, phone } = parse.data;
+    await ctx.store.upsertWhatsApp(userId, phone);
+    // Audit with phone masked — never write the full E.164 to disk for WA.
+    const e164 = phone.startsWith('+') ? phone : `+${phone}`;
+    const last4 = e164.replace(/\D/g, '').slice(-4);
+    const masked = '+' + '*'.repeat(Math.max(0, e164.replace(/\D/g, '').length - 4)) + last4;
+    await ctx.audit.append({
+      channel: 'whatsapp',
+      userId,
+      event: 'subscribe',
+      payload: { phone: masked },
       ok: true,
     });
     return reply.code(201).send({ ok: true });
