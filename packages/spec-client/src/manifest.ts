@@ -425,11 +425,23 @@ function startDriver(
   // Subscribe to user-initiated seeks ONLY. The driver's natural
   // `_advanceTo` does not fire this channel, so the cursor reset only
   // runs when the scrubber moves the playhead.
+  //
+  // On any user seek (forward OR backward) we rebuild the store's
+  // cumulative state from scratch by re-emitting `match.init` followed
+  // by every event with `t <= playhead`. This guarantees the scoreboard,
+  // period, shootout state, scorers list, and event ring buffer all
+  // reflect the new playhead — the previous "reset cursor only" design
+  // silently dropped any event.score_change between the old and new
+  // playhead on a forward scrub, which Tim hit as "scoreboard reads
+  // 0-0 at 86:39" in the AR-FR 2022 final demo.
   const unsubscribeSeek = controller.subscribeSeek(() => {
-    state.eventCursor = firstEventAtOrAfter(buffer.events, controller.getTime());
+    const t = controller.getTime();
+    onMessage(buffer.init);
+    state.eventCursor = 0;
+    drainEvents(state, onMessage, t);
     // Re-emit a state frame so the renderer redraws at the new time
     // without waiting for the next driver tick.
-    emitFrameAt(state, onMessage, controller.getTime());
+    emitFrameAt(state, onMessage, t);
   });
 
   const tickIntervalMs = 1000 / DRIVER_FPS;

@@ -327,6 +327,157 @@ describe("manifest driver — backward seek replays crossed events", () => {
   });
 });
 
+describe("manifest driver — forward seek rebuilds cumulative state", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  // The "0-0 at 86'" regression Tim screenshot-flagged the night before
+  // launch. Repro: open the AR-FR replay, scrub the timeline forward
+  // past the goals before the natural driver tick has drained them, and
+  // the scoreboard stays stuck at 0-0. Pre-fix, the driver only reset
+  // its event cursor on user seeks and never re-applied the crossed
+  // events, so any event.score_change between the old and new playhead
+  // was dropped on the floor. Post-fix, a user seek re-emits match.init
+  // (full store reset) and re-drains every event with t <= playhead.
+  it("scoreboard reads 2-2 after a forward scrub to clock 86:39 (AR-FR ground truth)", () => {
+    const store = createMatchStore();
+    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+
+    const source = manifestSourceFromText(ARFR_NDJSON, {
+      autoplay: false,
+      rate: 1,
+      onReady: (c) => {
+        captured = c;
+      },
+    });
+    source.start((m) => store.getState().applyMessage(m), () => undefined);
+
+    // Scrub forward to 86:39 in match time — well past the Mbappé 81'
+    // equaliser. The fixture builds goals at minute marks: 23, 36, 80,
+    // 81, 108, 118. At t = 86 * 60 * 1000 + 39 * 1000 the score should
+    // already be 2-2.
+    captured!.seek(86 * 60 * 1000 + 39 * 1000);
+
+    expect(store.getState().score).toEqual({ home: 2, away: 2 });
+    source.stop();
+  });
+
+  it("scoreboard tracks every AR-FR ground-truth score line across forward scrubs", () => {
+    const store = createMatchStore();
+    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+
+    const source = manifestSourceFromText(ARFR_NDJSON, {
+      autoplay: false,
+      rate: 1,
+      onReady: (c) => {
+        captured = c;
+      },
+    });
+    source.start((m) => store.getState().applyMessage(m), () => undefined);
+
+    // Ground truth times (clock minute, expected score after).
+    // Goals: 23' 1-0, 36' 2-0, 80' 2-1, 81' 2-2, 108' 3-2, 118' 3-3.
+    const checkpoints: Array<[number, { home: number; away: number }]> = [
+      [25 * 60_000, { home: 1, away: 0 }],
+      [37 * 60_000, { home: 2, away: 0 }],
+      [81 * 60_000, { home: 2, away: 1 }],
+      [82 * 60_000, { home: 2, away: 2 }],
+      [109 * 60_000, { home: 3, away: 2 }],
+      [119 * 60_000, { home: 3, away: 3 }],
+    ];
+
+    for (const [t, expected] of checkpoints) {
+      captured!.seek(t);
+      expect(store.getState().score, `score at t=${t}`).toEqual(expected);
+    }
+    source.stop();
+  });
+
+  it("scoreboard returns to 0-0 after a backward scrub to t=0", () => {
+    const store = createMatchStore();
+    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+
+    const source = manifestSourceFromText(ARFR_NDJSON, {
+      autoplay: false,
+      rate: 1,
+      onReady: (c) => {
+        captured = c;
+      },
+    });
+    source.start((m) => store.getState().applyMessage(m), () => undefined);
+
+    // Seek forward to after the 2-2 equaliser.
+    captured!.seek(82 * 60_000);
+    expect(store.getState().score).toEqual({ home: 2, away: 2 });
+
+    // Now scrub back to kickoff — the score should fall back to 0-0
+    // because the store is rebuilt from the event log at the new
+    // playhead.
+    captured!.seek(0);
+    expect(store.getState().score).toEqual({ home: 0, away: 0 });
+    source.stop();
+  });
+
+  it("shootout score follows the playhead across forward + backward scrubs", () => {
+    const store = createMatchStore();
+    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+
+    const source = manifestSourceFromText(ARFR_NDJSON, {
+      autoplay: false,
+      rate: 1,
+      onReady: (c) => {
+        captured = c;
+      },
+    });
+    source.start((m) => store.getState().applyMessage(m), () => undefined);
+
+    // Scrub past the end of the shootout — Argentina wins 4-2.
+    captured!.seek(captured!.durationMs);
+    const finalShootout = store.getState().shootout;
+    expect(finalShootout.home).toBe(4);
+    expect(finalShootout.away).toBe(2);
+    expect(finalShootout.ended).toBe(true);
+
+    // Scrub back to mid-regulation — the shootout state should reset.
+    captured!.seek(60 * 60_000);
+    expect(store.getState().shootout.active).toBe(false);
+    expect(store.getState().shootout.ended).toBe(false);
+    expect(store.getState().shootout.home).toBe(0);
+    expect(store.getState().shootout.away).toBe(0);
+    source.stop();
+  });
+
+  it("scorers panel survives full-match scrubbing without losing early goals", () => {
+    // Repro for the "ring buffer evicts goals" side of the same bug:
+    // by 86' a real match has hundreds of events, so the previous 64-
+    // slot ring buffer had long since evicted the goal events that
+    // computeMatchStats needs to render the scorers list. With the
+    // bumped EVENT_RING_SIZE (4096) the goal events stay visible to
+    // the aggregator for the entire match.
+    const store = createMatchStore();
+    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+
+    const source = manifestSourceFromText(ARFR_NDJSON, {
+      autoplay: false,
+      rate: 1,
+      onReady: (c) => {
+        captured = c;
+      },
+    });
+    source.start((m) => store.getState().applyMessage(m), () => undefined);
+
+    captured!.seek(82 * 60_000);
+    const events = store.getState().events;
+    const goalCount = events.filter((e) => e.type === "event.goal").length;
+    expect(goalCount).toBeGreaterThanOrEqual(4);
+    source.stop();
+  });
+});
+
 describe("manifest driver — StrictMode start/stop/start", () => {
   beforeEach(() => {
     vi.useFakeTimers();
