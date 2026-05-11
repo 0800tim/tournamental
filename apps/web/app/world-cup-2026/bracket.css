@@ -1665,20 +1665,26 @@
  * ============================================================ */
 
 /* Sticky tab bar so the round nav is always reachable while the user
- * scrolls a long list of cards. `top: 0` works because the bracket
- * page lives inside <AppShell>, which scrolls its <main> area
- * independently, the sticky reference is the panel, not the window. */
+ * scrolls a long list of R32 / R16 / QF cards. The page scrolls at the
+ * window level (vt-shell-main has no own overflow), so we must offset
+ * the sticky top by the height of the sticky AppBar (56px) + the
+ * sticky microsite sub-nav row (~56px, auto-mounted for /world-cup-2026/*
+ * routes via AppShell). Without this offset the tabs stick to y=0 of
+ * the viewport, which is BEHIND the AppBar, so they appear to "scroll
+ * off" even though they're technically stuck. */
 .bracket-builder .bracket-tabs {
   position: sticky;
-  top: 0;
+  top: calc(var(--vt-shell-appbar-h, 56px) + 56px);
   z-index: 20;
-  background: linear-gradient(180deg, #0f172a 88%, rgba(15, 23, 42, 0.0));
-  padding: 8px 4px 4px;
+  background: linear-gradient(180deg, #0f172a 92%, rgba(15, 23, 42, 0.0));
+  padding: 10px 4px 8px;
   margin: 0 -4px 8px;
   flex-wrap: nowrap;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .bracket-builder .bracket-tabs::-webkit-scrollbar {

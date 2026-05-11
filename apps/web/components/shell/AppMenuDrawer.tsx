@@ -57,6 +57,7 @@ const WC2026: readonly DrawerLink[] = [
 const SECONDARY: readonly DrawerLink[] = [
   { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon /> },
   { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon /> },
+  { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
   { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
   { label: "Settings",    href: "/settings",    icon: <SettingsIcon /> },
 ];

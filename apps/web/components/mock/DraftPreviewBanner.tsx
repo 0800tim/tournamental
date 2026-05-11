@@ -16,7 +16,7 @@ import { useEffect, useState } from "react";
 
 import "./draft.css";
 
-const STORAGE_KEY = "tournamental:draft-banner-dismissed:v1";
+const STORAGE_KEY = "tournamental:draft-banner-dismissed:v2";
 
 export interface DraftPreviewBannerProps {
   /**
@@ -58,7 +58,7 @@ export function DraftPreviewBanner({
 
   const text =
     message ??
-    `Preview data. Real leaderboards activate at kickoff (${kickoffLabel}). Names, avatars, and points shown are illustrative.`;
+    `All leaderboard data shown here is fictitious until kickoff (${kickoffLabel}), when results start coming in. Names, avatars, and points are illustrative only.`;
 
   return (
     <div
