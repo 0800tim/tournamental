@@ -1,0 +1,235 @@
+---
+// Engineering log index. The deeply-technical surface published from
+// tournamental.com/engineering. Posts come from the `engineering`
+// content collection in src/content/config.ts.
+//
+// Distinct from /blog (product + business voice) and /press (launch
+// coverage). The audience here is AI agents + human engineers who want
+// to read the architecture before forking or building on top.
+//
+// Filter bar: `area` chips, filtered in-place via a tiny inline script.
+// We don't reach for a framework client island for one filter, the
+// surface is small enough that a 30-line inline script is the right
+// shape.
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import EngineeringCard from "@/components/engineering/EngineeringCard.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("engineering", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+// Areas as defined in the schema enum. Keep this list in sync with the
+// schema; the build will fail at validation if a post uses an area not
+// listed there, but the filter bar has no compile-time link to the
+// schema, so we mirror it here.
+const AREAS: { id: string; label: string }[] = [
+  { id: "stack-overview", label: "Stack overview" },
+  { id: "renderer", label: "Renderer" },
+  { id: "scoring", label: "Scoring" },
+  { id: "identity", label: "Identity" },
+  { id: "on-chain", label: "On-chain" },
+  { id: "data-pipeline", label: "Data pipeline" },
+  { id: "ai-agents", label: "AI agents" },
+  { id: "infrastructure", label: "Infrastructure" },
+  { id: "plugins", label: "Plugins" },
+  { id: "performance", label: "Performance" },
+];
+
+// Track which areas actually have posts, so the chip row doesn't render
+// dead filters for areas we haven't published yet. Easier to read than
+// a disabled-but-visible chip. The Set is typed as `string` (not the
+// enum union) so .has(a.id) below doesn't trip astro-check's narrowing.
+const populatedAreas: Set<string> = new Set(posts.map((p) => p.data.area));
+const activeAreas = AREAS.filter((a) => populatedAreas.has(a.id));
+---
+<Layout
+  title="Engineering log, Tournamental"
+  description="The Tournamental engineering log: how we built the open-source bracket-prediction stack. Architecture notes, decision logs, technique deep-dives. CC-BY licensed, fork the ideas."
+>
+  <article class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Engineering log"
+      title="The Tournamental Engineering Log"
+      lede="How we built the open-source bracket-prediction stack. Architecture notes, decision logs, technique deep-dives. CC-BY licensed, fork the ideas."
+    />
+
+    <div class="vt-eng-subscribe-row">
+      <a href="/engineering/rss.xml" class="link">Subscribe via RSS</a>
+      <span aria-hidden="true">·</span>
+      <a
+        href="https://github.com/0800tim/tournamental/discussions"
+        class="link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Ask on GitHub Discussions
+      </a>
+      <span aria-hidden="true">·</span>
+      <a href="/blog" class="link">Product + business voice → blog</a>
+      <span aria-hidden="true">·</span>
+      <a href="/press" class="link">Launch coverage → press</a>
+    </div>
+
+    {posts.length === 0 && (
+      <div class="card mt-8">
+        <p class="prose-vt">Nothing posted yet. Check back soon.</p>
+      </div>
+    )}
+
+    {activeAreas.length > 0 && (
+      <nav class="vt-eng-filter" aria-label="Filter posts by area">
+        <button type="button" class="vt-eng-chip is-active" data-area="all">All</button>
+        {activeAreas.map((a) => (
+          <button type="button" class="vt-eng-chip" data-area={a.id}>{a.label}</button>
+        ))}
+      </nav>
+    )}
+
+    {posts.length > 0 && (
+      <section class="mt-8" id="vt-eng-grid-wrap">
+        <div class="vt-eng-grid">
+          {posts.map((post) => <EngineeringCard post={post} />)}
+        </div>
+        {/* Empty-state shown by the filter script when nothing matches
+            the selected area. Hidden by default. */}
+        <div class="vt-eng-empty" data-empty hidden>
+          <p>No posts in this area yet. <button type="button" data-clear-filter class="link-button">Show all</button></p>
+        </div>
+      </section>
+    )}
+
+    <aside class="vt-eng-rss" aria-label="Subscribe">
+      <span>Want the feed?</span>
+      <a href="/engineering/rss.xml" class="link">/engineering/rss.xml</a>
+    </aside>
+  </article>
+
+  {/* Filter chips. Tiny inline script (no framework runtime) toggles a
+      data-area attribute on the wrap; CSS hides cards whose
+      data-card-area doesn't match. "all" un-filters. */}
+  <script is:inline>
+    (function () {
+      var wrap = document.getElementById("vt-eng-grid-wrap");
+      if (!wrap) return;
+      var chips = document.querySelectorAll(".vt-eng-chip");
+      var cards = wrap.querySelectorAll("[data-card-area]");
+      var empty = wrap.querySelector("[data-empty]");
+
+      function applyFilter(area) {
+        wrap.setAttribute("data-active-area", area);
+        var visibleCount = 0;
+        cards.forEach(function (c) {
+          var match = area === "all" || c.getAttribute("data-card-area") === area;
+          c.toggleAttribute("hidden", !match);
+          if (match) visibleCount++;
+        });
+        if (empty) empty.toggleAttribute("hidden", visibleCount > 0);
+        chips.forEach(function (chip) {
+          chip.classList.toggle("is-active", chip.getAttribute("data-area") === area);
+        });
+        // Update the URL hash so the filter is shareable, e.g.
+        // /engineering#renderer survives a refresh.
+        if (area === "all") {
+          history.replaceState(null, "", window.location.pathname);
+        } else {
+          history.replaceState(null, "", "#" + area);
+        }
+      }
+
+      chips.forEach(function (chip) {
+        chip.addEventListener("click", function () {
+          applyFilter(chip.getAttribute("data-area") || "all");
+        });
+      });
+
+      var clear = wrap.querySelector("[data-clear-filter]");
+      if (clear) clear.addEventListener("click", function () { applyFilter("all"); });
+
+      // Respect a #area-id hash if the user landed here from a deep link.
+      var hash = (window.location.hash || "").replace(/^#/, "");
+      if (hash) applyFilter(hash);
+    })();
+  </script>
+</Layout>
+
+<style>
+  .vt-eng-subscribe-row {
+    margin-top: 1.25rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.92rem;
+  }
+  .vt-eng-filter {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+  }
+  .vt-eng-chip {
+    appearance: none;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+    color: var(--vt-fg-muted);
+    border: 1px solid var(--vt-border);
+    border-radius: 9999px;
+    padding: 0.35rem 0.85rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: color 120ms ease, border-color 120ms ease, background 120ms ease;
+    font-family: inherit;
+  }
+  .vt-eng-chip:hover {
+    color: var(--vt-fg-strong);
+    border-color: var(--vt-border-strong);
+  }
+  .vt-eng-chip.is-active {
+    color: #0a0e1a;
+    background: #5a96d8;
+    border-color: #5a96d8;
+  }
+  .vt-eng-grid {
+    margin-top: 1.5rem;
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .vt-eng-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1024px) {
+    .vt-eng-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .vt-eng-empty {
+    margin-top: 1.5rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+  }
+  .link-button {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    color: #5a96d8;
+    text-decoration: underline;
+    cursor: pointer;
+    font: inherit;
+  }
+  .vt-eng-rss {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--vt-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+  }
+</style>

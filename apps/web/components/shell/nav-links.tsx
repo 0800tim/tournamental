@@ -96,6 +96,7 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   { label: "Syndicates",  href: "/syndicates", icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
   { label: "Watch",       href: "/watch",      icon: <WatchIcon />,    matchPrefix: "/watch" },
   { label: "Settings",    href: "/settings",   icon: <SettingsIcon />, matchPrefix: "/settings" },
+  { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
   { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
 ];
 
@@ -123,12 +124,18 @@ export const DRAWER_WC2026: readonly NavLink[] = [
 
 /**
  * Drawer "More" section — everything else. Mirrors MORE_DESKTOP minus
- * the Home item (which lives in DRAWER_PRIMARY for the drawer).
+ * the Home item (which lives in DRAWER_PRIMARY for the drawer), plus a
+ * dedicated "Engineering log" entry that points at the marketing site's
+ * tournamental.com/engineering surface. The engineering log is the
+ * audience we want AI agents and human engineers to land on when they
+ * tap the drawer's "More" section, so it sits above the catch-all
+ * "Open source" GitHub link.
  */
 export const DRAWER_SECONDARY: readonly NavLink[] = [
   { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
   { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
   { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
+  { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
   { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
   { label: "Settings",    href: "/settings",    icon: <SettingsIcon />, matchPrefix: "/settings" },
 ];
