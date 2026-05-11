@@ -3,20 +3,25 @@
 /**
  * RoundBond — one edge connecting two team atoms.
  *
- * v2: bonds remain cylinders but:
- *   - base thickness across all rounds is bumped slightly for legibility,
- *     respecting the round hierarchy (group < r32 < r16 < qf < sf < f).
- *   - bonds that sit on the highlighted path render in gold (#fbbf24)
- *     with 2× thickness and an emissive glow.
- *   - a small pulse-sphere travels along path bonds from rim → centre,
- *     completing one trip every ~3s. Disabled when reduce-motion is on.
- *   - group bonds fade out when `groupBondsVisible` is false (driven by
- *     the parent: visible at rest, hidden during camera-rotation /
- *     prolonged idle).
+ * v4: bonds come in two kinds —
+ *   - **match bonds** (kind === "match"): two different teams at the
+ *     same layer. Horizontal cylinder at the layer's Y, coloured by
+ *     stage palette, scaling with stage rank.
+ *   - **advance bonds** (kind === "advance"): the same team at two
+ *     adjacent layers. Near-vertical cylinder rising from layer N to
+ *     N+1. Default slate, thin (0.75) and low opacity. When the team
+ *     is on the champion's path, the advance bond lights up gold —
+ *     the headline "gold staircase" effect.
  *
- * Performance: ~103 cylinders + up to 5 small pulse spheres on the
- * champion path. All low-poly. Well within the 2022 mid-range Android
- * budget.
+ * Path-highlight: bonds that sit on the active highlight path render
+ * in gold with 2× thickness and an emissive glow. A small pulse-sphere
+ * travels along match bonds from rim → centre, completing one trip
+ * every ~3s. Advance bonds don't get the travelling pulse (the path
+ * already animates via the column rise — a second pulse-train would
+ * over-egg it).
+ *
+ * Performance: ≤ ~96 match cylinders + ~75 advance cylinders + up to 5
+ * pulse spheres. All low-poly. Within the 2022 mid-range Android budget.
  */
 
 import { useMemo, useRef } from "react";
@@ -79,7 +84,12 @@ export function RoundBond({
     tp: 0.13,
     f: 0.22,
   };
-  const baseRadius = bond.thickness * stageThicknessMult[bond.stage];
+  // v4 advance bonds use a flat thin radius (already 0.75 from layout).
+  // Match bonds keep their per-stage thickness multiplier.
+  const isAdvance = bond.kind === "advance";
+  const baseRadius = isAdvance
+    ? bond.thickness * 0.18
+    : bond.thickness * (stageThicknessMult[bond.stage] ?? 0.1);
   const radius = onPath ? baseRadius * 2.0 : baseRadius;
 
   // Colour + opacity.
@@ -87,6 +97,7 @@ export function RoundBond({
   const baseOpacity = (() => {
     if (onPath) return 0.95;
     if (highlighted) return 0.95;
+    if (isAdvance) return 0.32; // low default so the gold staircase pops
     if (bond.stage === "group") return 0.22;
     if (bond.stage === "r32") return 0.45;
     return 0.65;
@@ -111,7 +122,7 @@ export function RoundBond({
       matRef.current.opacity = cur + (target - cur) * Math.min(1, dt * 3);
     }
 
-    if (onPath && motionEnabled && pulseRef.current && pulseMatRef.current) {
+    if (onPath && !isAdvance && motionEnabled && pulseRef.current && pulseMatRef.current) {
       const t = (state.clock.elapsedTime % PULSE_PERIOD) / PULSE_PERIOD;
       const sliceWidth = 1 / Math.max(1, pathLen);
       const localStart = stagger;
@@ -165,8 +176,8 @@ export function RoundBond({
         />
       </mesh>
 
-      {/* Travelling pulse sphere — only on path bonds, only when motion is on. */}
-      {onPath ? (
+      {/* Travelling pulse sphere — only on match path bonds, when motion is on. */}
+      {onPath && !isAdvance ? (
         <mesh ref={pulseRef} visible={false}>
           <sphereGeometry args={[radius * 2.4, 14, 12]} />
           <meshBasicMaterial

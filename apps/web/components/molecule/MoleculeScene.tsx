@@ -28,6 +28,7 @@ import {
   type MoleculeNode,
 } from "@/lib/molecule/layout";
 import {
+  buildPathAdvanceBondKeySet,
   buildPathAtomSet,
   buildPathBondKeySet,
   derivePathToGold,
@@ -95,6 +96,7 @@ function MoleculeWorld({
   onHover,
   flagEmojiByTeam,
   pathBondKeys,
+  pathAdvanceBondKeys,
   pathAtomSet,
   pathBondOrder,
   motionEnabled,
@@ -107,15 +109,18 @@ function MoleculeWorld({
   onHover: (code: string | null) => void;
   flagEmojiByTeam: ReadonlyMap<string, string>;
   pathBondKeys: ReadonlySet<string>;
+  pathAdvanceBondKeys: ReadonlySet<string>;
   pathAtomSet: ReadonlySet<string>;
   /** Map of bond-key → (index in path, totalPathLength) for pulse staggering. */
   pathBondOrder: ReadonlyMap<string, { index: number; total: number }>;
   motionEnabled: boolean;
   groupBondsVisible: boolean;
 }) {
-  const nodeByCode = useMemo(() => {
+  // v4: nodes are identified by `${teamCode}:${stage}`. Bonds reference
+  // their endpoints by team + stage so we resolve them precisely here.
+  const nodeById = useMemo(() => {
     const m = new Map<string, MoleculeNode>();
-    for (const n of layout.nodes) m.set(n.teamCode, n);
+    for (const n of layout.nodes) m.set(n.id, n);
     return m;
   }, [layout.nodes]);
 
@@ -130,18 +135,27 @@ function MoleculeWorld({
         <meshBasicMaterial transparent opacity={0} />
       </mesh>
 
-      {layout.bonds.map((bond, i) => {
-        const a = nodeByCode.get(bond.a);
-        const b = nodeByCode.get(bond.b);
+      {layout.bonds.map((bond) => {
+        const a = nodeById.get(`${bond.a}:${bond.aStage}`);
+        const b = nodeById.get(`${bond.b}:${bond.bStage}`);
         if (!a || !b) return null;
-        const bondKey = `${bond.stage}:${bond.a}:${bond.b}`;
-        const onPath = pathBondKeys.has(bondKey);
-        const order = pathBondOrder.get(bondKey);
+        // Legacy bond-key is used for tests + the gold staircase lookups.
+        const matchBondKey = `${bond.stage}:${bond.a}:${bond.b}`;
+        const onPath =
+          bond.kind === "match"
+            ? pathBondKeys.has(matchBondKey)
+            : pathAdvanceBondKeys.has(matchBondKey);
+        const order = bond.kind === "match"
+          ? pathBondOrder.get(matchBondKey)
+          : undefined;
         const highlighted =
-          selected !== null && (bond.a === selected || bond.b === selected);
+          selected !== null
+          && (bond.kind === "match"
+            ? bond.a === selected || bond.b === selected
+            : bond.a === selected);
         return (
           <RoundBond
-            key={`${bond.stage}:${bond.a}:${bond.b}:${i}`}
+            key={bond.id}
             bond={bond}
             from={a}
             to={b}
@@ -157,7 +171,7 @@ function MoleculeWorld({
 
       {layout.nodes.map((node) => (
         <TeamAtom
-          key={node.teamCode}
+          key={node.id}
           node={node}
           flagEmoji={flagEmojiByTeam.get(node.teamCode) ?? null}
           selected={selected === node.teamCode}
@@ -261,10 +275,14 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
     [tournament, cascaded],
   );
 
-  // Stage-by-team map for the side panel pill.
+  // Stage-by-team map for the side panel pill. v4: every team has many
+  // instances, but they all carry the same `finalStage`, so picking any
+  // instance is fine — we use the top instance for clarity.
   const finalStageByTeam = useMemo(() => {
     const m = new Map<string, FinalStage>();
-    for (const node of layout.nodes) m.set(node.teamCode, node.finalStage);
+    for (const node of layout.nodes) {
+      if (node.isTopInstance) m.set(node.teamCode, node.finalStage);
+    }
     return m;
   }, [layout.nodes]);
 
@@ -295,6 +313,10 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
   }, [cascaded, selected, selectedOverridesAllowed, championPath]);
 
   const pathBondKeys = useMemo(() => buildPathBondKeySet(activePath), [activePath]);
+  const pathAdvanceBondKeys = useMemo(
+    () => buildPathAdvanceBondKeySet(activePath),
+    [activePath],
+  );
   const pathAtomSet = useMemo(() => buildPathAtomSet(activePath), [activePath]);
 
   const pathBondOrder = useMemo(() => {
@@ -309,12 +331,18 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
   }, [activePath]);
 
   const hoveredOrSelected = hovered ?? selected;
+  // v4: a team has many instances — surface the deepest one for tooltips
+  // / chips so the stage label is meaningful.
   const hoveredNode = hoveredOrSelected
-    ? layout.nodes.find((n) => n.teamCode === hoveredOrSelected) ?? null
+    ? layout.nodes.find((n) => n.teamCode === hoveredOrSelected && n.isTopInstance)
+        ?? layout.nodes.find((n) => n.teamCode === hoveredOrSelected)
+        ?? null
     : null;
 
   const championAtomNode = layout.championCode
-    ? layout.nodes.find((n) => n.teamCode === layout.championCode)
+    ? layout.nodes.find(
+        (n) => n.teamCode === layout.championCode && n.stage === "champion",
+      ) ?? layout.nodes.find((n) => n.teamCode === layout.championCode)
     : null;
 
   const showPathChip =
@@ -342,12 +370,13 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
         className="molecule-canvas"
         shadows={false}
         dpr={[1, 2]}
-        // v3: camera sits slightly above the centre of the pyramid and
-        // looks up toward the apex. The pyramid centre is ~y=14 (halfway
-        // between base y=0 and apex y=28), so the camera at y=12 + lookAt
-        // y=14 produces a 2° upward tilt that lets the eye read both the
-        // base spread and the apex from a single default angle.
-        camera={{ position: [0, 12, 46], fov: 40, near: 0.1, far: 500 }}
+        // v4: the pyramid is taller (apex at y=30, base y=0). Camera at
+        // y=16 + lookAt y=15 puts the lens almost level with the visual
+        // midpoint and pulls back to z=58 so the apex sits ~30% from
+        // the top of the frame and the base ~70% from the top with a
+        // 40° FOV — the whole silhouette fits inside the canvas on
+        // first paint, no manual zoom required.
+        camera={{ position: [0, 16, 58], fov: 40, near: 0.1, far: 500 }}
         gl={{
           antialias: true,
           powerPreference: "high-performance",
@@ -375,6 +404,7 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           onHover={setHovered}
           flagEmojiByTeam={flagEmojiByTeam}
           pathBondKeys={pathBondKeys}
+          pathAdvanceBondKeys={pathAdvanceBondKeys}
           pathAtomSet={pathAtomSet}
           pathBondOrder={pathBondOrder}
           motionEnabled={motionEnabled}
@@ -385,21 +415,18 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           ref={(c) => {
             controlsRef.current = c;
           }}
-          // v3: target the visual centre of the pyramid (~y=14) so the
-          // orbit camera circles around the silhouette rather than around
-          // the world origin.
-          target={[0, 14, 0]}
+          // v4: target the visual centre of the taller pyramid (~y=15).
+          target={[0, 15, 0]}
           enablePan={false}
           enableDamping
           dampingFactor={0.08}
           rotateSpeed={0.7}
-          minDistance={18}
-          maxDistance={120}
-          // v3: tighter polar-angle band — don't let the user look straight
-          // down (loses the pyramid silhouette) or straight up (sees the
-          // base disc head-on). Both extremes turn the pyramid into a
-          // ring, which defeats the whole point.
-          minPolarAngle={Math.PI * 0.22}
+          minDistance={22}
+          maxDistance={140}
+          // v4: tighter polar-angle band — don't let the user look
+          // straight down (loses the pyramid silhouette) or too far
+          // overhead (sees the base disc head-on).
+          minPolarAngle={Math.PI * 0.25}
           maxPolarAngle={Math.PI * 0.62}
           autoRotate
           autoRotateSpeed={0.35}

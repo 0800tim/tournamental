@@ -163,12 +163,48 @@ export function derivePathToGold(
 /**
  * Build a lookup-set of bond keys for fast `isOnPath(bond)` checks in the
  * render loop. The key matches the same scheme used in `layout.ts`:
- * `"<stage>:<a>:<b>"` with team codes in lexical order.
+ * `"<stage>:<a>:<b>"` with team codes in lexical order. Only match
+ * bonds are included here — for v4's gold staircase advance bonds, see
+ * `buildPathAdvanceBondKeySet`.
  */
 export function buildPathBondKeySet(path: TeamPath): Set<string> {
   const out = new Set<string>();
   for (const pb of path.bonds) {
     out.add(`${pb.stage}:${pb.a}:${pb.b}`);
+  }
+  return out;
+}
+
+type PathLayer = "group" | "r32" | "r16" | "qf" | "sf" | "f" | "champion";
+
+/**
+ * v4 — build a lookup-set of *advance* bond keys for the team's own
+ * column rising up the pyramid. These have the form
+ * `"<upperLayer>:<team>:<team>"`, matching the legacy `stage:a:b` key
+ * scheme that `MoleculeScene` uses for bond lookups. An advance bond is
+ * on-path iff its (team, upperLayer) appears in this set.
+ *
+ * The team reaches a layer L iff the path includes a match bond at L
+ * (they played there). The champion additionally reaches layer
+ * "champion" at the apex when `winsFinal` is true.
+ */
+export function buildPathAdvanceBondKeySet(path: TeamPath): Set<string> {
+  const out = new Set<string>();
+  if (!path.teamCode) return out;
+  const layerOrder: PathLayer[] = ["group", "r32", "r16", "qf", "sf", "f", "champion"];
+  const reachedLayers = new Set<PathLayer>(["group"]);
+  for (const pb of path.bonds) {
+    if (pb.stage === "r32" || pb.stage === "r16" || pb.stage === "qf"
+      || pb.stage === "sf" || pb.stage === "f") {
+      reachedLayers.add(pb.stage);
+    }
+  }
+  if (path.winsFinal) reachedLayers.add("champion");
+  for (let i = 0; i < layerOrder.length - 1; i++) {
+    const upper = layerOrder[i + 1]!;
+    if (reachedLayers.has(upper)) {
+      out.add(`${upper}:${path.teamCode}:${path.teamCode}`);
+    }
   }
   return out;
 }
