@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Three plug points labelled npm, REST and MCP feeding into a Tournamental molecule pyramid">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#101626"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5c542"/>
+      <stop offset="1" stop-color="#b8862a"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#7eb6e8" stop-opacity="0.6"/>
+      <stop offset="1" stop-color="#7eb6e8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <!-- pyramid silhouette on the right -->
+  <g transform="translate(780,90)" opacity="0.95">
+    <polygon points="180,0 360,360 0,360" fill="url(#gold)" opacity="0.18" stroke="#7eb6e8" stroke-width="1.2"/>
+    <circle cx="180" cy="40" r="22" fill="url(#gold)"/>
+    <text x="180" y="46" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="14" fill="#0a0e1a" font-weight="700">CHAMP</text>
+    <!-- scattered tier dots -->
+    <g fill="#cdd5e7" opacity="0.7">
+      <circle cx="120" cy="120" r="10"/><circle cx="240" cy="120" r="10"/>
+      <circle cx="80" cy="200" r="8"/><circle cx="180" cy="200" r="8"/><circle cx="280" cy="200" r="8"/>
+      <circle cx="40" cy="290" r="6"/><circle cx="120" cy="290" r="6"/><circle cx="180" cy="290" r="6"/><circle cx="240" cy="290" r="6"/><circle cx="320" cy="290" r="6"/>
+    </g>
+  </g>
+  <!-- three plug points on the left -->
+  <g font-family="DejaVu Sans, sans-serif" font-weight="700" text-anchor="middle" fill="#cdd5e7">
+    <g transform="translate(160,170)">
+      <circle r="70" fill="url(#glow)"/>
+      <circle r="42" fill="#101626" stroke="#7eb6e8" stroke-width="2"/>
+      <text y="6" font-size="22" fill="#7eb6e8">npm</text>
+    </g>
+    <g transform="translate(160,330)">
+      <circle r="70" fill="url(#glow)"/>
+      <circle r="42" fill="#101626" stroke="#f5c542" stroke-width="2"/>
+      <text y="6" font-size="22" fill="#f5c542">REST</text>
+    </g>
+    <g transform="translate(160,490)">
+      <circle r="70" fill="url(#glow)"/>
+      <circle r="42" fill="#101626" stroke="#cdd5e7" stroke-width="2"/>
+      <text y="6" font-size="22" fill="#cdd5e7">MCP</text>
+    </g>
+  </g>
+  <!-- connecting lines into the pyramid -->
+  <g stroke="#7eb6e8" stroke-width="1.5" fill="none" opacity="0.6">
+    <path d="M210 170 L 780 250"/>
+    <path d="M210 330 L 780 320"/>
+    <path d="M210 490 L 780 400"/>
+  </g>
+  <!-- wordmark -->
+  <text x="600" y="600" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="22" fill="#7a8aab">Tournamental // build-on plug points (hero WIP)</text>
+</svg>
