@@ -171,7 +171,6 @@ const absoluteOgImage = ogImage.startsWith("http")
           : false;
 
         var sections = document.querySelectorAll("main section");
-        sections.forEach(function (s) { s.classList.add("vt-reveal"); });
 
         function reveal(section) {
           section.classList.add("is-in-view");
@@ -183,9 +182,32 @@ const absoluteOgImage = ogImage.startsWith("http")
         }
 
         if (reduce || !("IntersectionObserver" in window)) {
-          sections.forEach(reveal);
+          // No animation: ensure every section paints fully and never
+          // gets stuck at opacity:0. Add both classes so the CSS rule
+          // matches `section.vt-reveal.is-in-view`.
+          sections.forEach(function (s) {
+            s.classList.add("vt-reveal", "is-in-view");
+          });
           return;
         }
+
+        // Tag sections below the fold for the fade-in. Sections already
+        // visible at first paint render with their default opacity:1 so
+        // the page never shows a half-rendered shell if the IO is slow
+        // or JS hits a hiccup. SEO crawlers + screenshotters see real
+        // content. Below-fold sections still fade in once they scroll
+        // into view.
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        sections.forEach(function (s, i) {
+          var rect = s.getBoundingClientRect();
+          if (rect.top >= vh) {
+            s.classList.add("vt-reveal");
+            s.style.setProperty("--vt-stagger", "0ms");
+          } else {
+            // In-view section: reveal immediately without the fade.
+            reveal(s);
+          }
+        });
 
         var io = new IntersectionObserver(function (entries) {
           entries.forEach(function (e) {
@@ -196,12 +218,10 @@ const absoluteOgImage = ogImage.startsWith("http")
           });
         }, { rootMargin: "0px 0px -10% 0px", threshold: 0.05 });
 
-        sections.forEach(function (s, i) {
-          // First section in the viewport gets a tiny stagger offset so
-          // the hero feels grounded; everything below uses the IO
-          // threshold normally.
-          s.style.setProperty("--vt-stagger", (i === 0 ? 60 : 0) + "ms");
-          io.observe(s);
+        sections.forEach(function (s) {
+          if (s.classList.contains("vt-reveal") && !s.classList.contains("is-in-view")) {
+            io.observe(s);
+          }
         });
       })();
     </script>
