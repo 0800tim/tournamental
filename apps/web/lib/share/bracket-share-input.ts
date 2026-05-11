@@ -24,6 +24,7 @@
 import type {
   BracketShareCardInput,
   BracketShareChampion,
+  BracketShareEliminationTier,
   BracketSharePathEntry,
   BracketShareStage,
 } from "@vtorn/social-cards";
@@ -103,6 +104,15 @@ export function inputFromSearchParams(args: {
   const runnerUp = championFromCode(searchParams.get("runner_up"));
   const thirdPlace = championFromCode(searchParams.get("third"));
 
+  // v2 (2026-05-11): the pyramid silhouette + flags-in-cup + deep-link
+  // share URL with QR. Both fields are optional — if absent the card
+  // falls back to its v1 (champion-column-only) appearance and the
+  // legacy footer URL.
+  const shareGuid = parseShareGuid(searchParams.get("share_guid"));
+  const allEliminatedByStage = parseEliminationTiers(
+    searchParams.get("eliminated"),
+  );
+
   return {
     user: { handle, displayName },
     champion,
@@ -115,7 +125,52 @@ export function inputFromSearchParams(args: {
     // `process.cwd()` for a Next.js server is the app root.
     flagsDir: `${process.cwd()}/public/flags`,
     footerUrl: `tournamental.com/wc2026?from=${bracketId}`,
+    shareGuid,
+    allEliminatedByStage,
   };
+}
+
+/**
+ * Parse the `eliminated=` query param, e.g. `group:AUS|JPN|KOR,qf:ESP,
+ * sf:BRA`. Each `<tier>:<code>|<code>...` chunk pins a list of team
+ * codes to the elimination tier. Tiers we don't recognise are dropped.
+ */
+function parseEliminationTiers(
+  raw: string | null,
+): ReadonlyArray<BracketShareEliminationTier> | undefined {
+  if (!raw) return undefined;
+  const TIERS = new Set<BracketShareEliminationTier["stage"]>([
+    "group",
+    "r32",
+    "r16",
+    "qf",
+    "sf",
+  ]);
+  const out: BracketShareEliminationTier[] = [];
+  for (const chunk of raw.split(",")) {
+    const [rawStage, rawCodes] = chunk.split(":");
+    if (!rawStage || !rawCodes) continue;
+    const stage = rawStage.trim().toLowerCase();
+    if (!TIERS.has(stage as BracketShareEliminationTier["stage"])) continue;
+    const teamCodes = rawCodes
+      .split("|")
+      .map((c) => c.trim().toUpperCase())
+      .filter((c) => /^[A-Z]{2,4}$/.test(c));
+    if (teamCodes.length === 0) continue;
+    out.push({
+      stage: stage as BracketShareEliminationTier["stage"],
+      teamCodes,
+    });
+  }
+  return out.length > 0 ? out : undefined;
+}
+
+/** Sanitise a share guid — accepts alphanumerics, `_` and `-`, 3-64 chars. */
+function parseShareGuid(raw: string | null): string | null | undefined {
+  if (!raw) return undefined;
+  const trimmed = raw.trim();
+  if (!/^[a-zA-Z0-9_-]{3,64}$/.test(trimmed)) return undefined;
+  return trimmed;
 }
 
 /** Build a `BracketShareChampion` from a 3-letter code query param. */

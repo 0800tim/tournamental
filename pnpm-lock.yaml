@@ -1252,6 +1252,9 @@ importers:
       '@resvg/resvg-js':
         specifier: ^2.6.2
         version: 2.6.2
+      qrcode:
+        specifier: ^1.5.4
+        version: 1.5.4
       satori:
         specifier: ^0.10.13
         version: 0.10.14
@@ -1259,6 +1262,9 @@ importers:
       '@types/node':
         specifier: ^22.7.5
         version: 22.19.18
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.6
       typescript:
         specifier: ^5.6.3
         version: 5.9.3

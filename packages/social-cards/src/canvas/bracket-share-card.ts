@@ -1,49 +1,69 @@
 /**
- * Canvas-rendered bracket share card.
+ * Canvas-rendered bracket share card (v2 — pyramid + flags-in-cups + QR).
  *
- * Layout (Tim spec, 2026-05-11):
+ * v1 (PR #144) was a header + "PATH TO GOLD" stage strip + gold/silver/
+ * bronze podium with flag chips *under* the cups.
  *
- *   ┌──────────────────────────────────────────────────────┐
- *   │ [V] Tournamental       FIFA WC 2026 — MY BRACKET     │  header
- *   │                                              @handle │
- *   ├──────────────────────────┬───────────────────────────┤
- *   │   PATH TO GOLD            │      MY PODIUM             │
- *   │   R16  → 🇦🇷 ARG          │           🥇                │
- *   │   QF   → 🇦🇷 ARG          │         (gold)              │
- *   │   SF   → 🇦🇷 ARG          │    🥈           🥉          │
- *   │   Final → 🇦🇷 ARG         │  (silver)    (bronze)       │
- *   │                          │   FRA          BRA           │
- *   ├──────────────────────────┴───────────────────────────┤
- *   │ Predict yours at tournamental.com/wc2026  Tournamental│  footer
- *   └──────────────────────────────────────────────────────┘
+ * v2 (Tim feedback 2026-05-11) replaces the stage strip with a
+ * stylised 2D pyramid silhouette that mirrors the 3D molecule v4 — the
+ * champion's flag rises through all seven layers (group → r32 → r16 →
+ * qf → sf → final → champion) with a gold trail connecting the
+ * instances. Other (non-path) teams sit at their elimination tier as
+ * dim flag discs to give the pyramid a visual silhouette. Flags now
+ * also live *inside* the cup bowls (clipped to the bowl ellipse with a
+ * medal-tint overlay) instead of as a chip beneath. The footer renders
+ * the share-guid deep-link URL `play.tournamental.com/s/<guid>` with a
+ * gold-on-navy QR code.
  *
- * Why this shape (vs. the earlier centerpiece-flag design): Tim wants
- * the share to read as a complete prediction — not just "I picked
- * Argentina" but "here's my full top-3 and how I got there". The
- * podium replaces the floating-flag champion; the user's champion
- * occupies the gold cup at the top.
+ * Layout (landscape — 1200×630):
  *
- * Output: a PNG `Buffer` ready to send as an HTTP response body or to
- * pipe into ffmpeg for the animated MP4 variant.
+ *   ┌──────────────────────────────────────────────────────────────┐
+ *   │ [V] Tournamental         FIFA WC 2026 — MY BRACKET           │ header
+ *   │                                                      @handle │
+ *   ├──────────────────────────┬───────────────────────────────────┤
+ *   │      PYRAMID             │              MY PODIUM             │
+ *   │                          │                                    │
+ *   │           🏆 ARG         │           🥇                       │
+ *   │          ARG ARG         │       (flag-inside-cup)            │
+ *   │         ·  ARG  ·        │                                    │
+ *   │       ·   ARG    ·       │      🥈           🥉              │
+ *   │     ·    ARG       ·     │                                    │
+ *   │   ·  ·   ARG  ·  ·  ·    │   FRA              BRA             │
+ *   │ · · · · ARG · · · · · ·  │                                    │
+ *   │  (base ring greyed)      │                                    │
+ *   ├──────────────────────────┴───────────────────────────────────┤
+ *   │ Predict yours at play.tournamental.com/s/<guid>   [QR]  Tournamental
+ *   └──────────────────────────────────────────────────────────────┘
+ *
+ * Portrait (1080×1350) and Square (1080×1080) variants compress the
+ * left/right split (see `layoutGeometry`).
+ *
+ * Output: a PNG `Buffer`.
  */
 
 import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
-import type { SKRSContext2D, Canvas } from "@napi-rs/canvas";
+import type { SKRSContext2D, Canvas, Image } from "@napi-rs/canvas";
+import * as QRCode from "qrcode";
 
 import {
   CANVAS_SIZES,
-  STAGE_LABEL,
+  PYRAMID_LAYERS,
+  STAGE_TO_LAYER,
   type BracketShareCardInput,
   type BracketShareChampion,
+  type BracketShareEliminationTier,
   type CanvasCardSize,
+  type PyramidLayer,
 } from "./types.js";
-import { loadFlagPng } from "./flags.js";
+import { loadFlagImage } from "./flags.js";
 
 const ACCENT_DEFAULT = "#7eb6e8";
 const BG_DARK = "#0a0e1a";
 const BG_DARK_2 = "#101626";
 const INK_200 = "#cdd5e7";
+const INK_400 = "#7a8aab";
 const GOLD = "#f5c542";
+const GOLD_WARM = "#fbbf24";
 const GOLD_DEEP = "#b8862a";
 const SILVER = "#d8dde6";
 const SILVER_DEEP = "#8c93a3";
@@ -52,6 +72,7 @@ const BRONZE_DEEP = "#854a1d";
 const WHITE = "#ffffff";
 
 const BRAND_WORDMARK = "Tournamental";
+const SHARE_BASE_URL = "play.tournamental.com/s/";
 
 let fontsRegistered = false;
 
@@ -151,9 +172,9 @@ async function paintLayout(
   const geom = layoutGeometry(size, w, h);
 
   await paintHeader(ctx, geom, input, accent, progress);
-  await paintBracketPath(ctx, geom, input, progress);
+  await paintPyramid(ctx, geom, input, accent, progress);
   await paintPodium(ctx, geom, input, accent, progress);
-  paintFooter(ctx, geom, input, accent, progress);
+  await paintFooter(ctx, geom, input, accent, progress);
 }
 
 interface Geom {
@@ -178,80 +199,82 @@ interface Geom {
   titleFont: number;
   handleFont: number;
   sectionLabelFont: number;
-  pathStageFont: number;
-  pathTeamFont: number;
   podiumLabelFont: number;
   podiumTeamFont: number;
   podiumNameFont: number;
   footerFont: number;
   wordmarkFont: number;
+  // QR
+  qrSize: number;
 }
 
 function layoutGeometry(size: CanvasCardSize, w: number, h: number): Geom {
   if (size === "landscape") {
-    // 1200 x 630 — header + body + footer
+    // 1200 x 630 — header + body + footer.
+    // LEFT 45% — pyramid; RIGHT 55% — podium cups.
     return {
       size, w, h,
       padX: 48,
       headerY: 28,
       headerHeight: 58,
       leftX: 48,
-      leftWidth: w * 0.42 - 48,
+      leftWidth: w * 0.45 - 48,
       rightX: w * 0.46,
       rightWidth: w - w * 0.46 - 48,
       bodyTop: 110,
-      bodyBottom: h - 70,
-      footerY: h - 56,
-      footerHeight: 40,
+      bodyBottom: h - 76,
+      footerY: h - 62,
+      footerHeight: 50,
       titleFont: 24,
       handleFont: 18,
       sectionLabelFont: 18,
-      pathStageFont: 16,
-      pathTeamFont: 20,
       podiumLabelFont: 16,
       podiumTeamFont: 18,
       podiumNameFont: 28,
-      footerFont: 16,
+      footerFont: 18,
       wordmarkFont: 14,
+      qrSize: 50,
     };
   }
   if (size === "square") {
-    // 1080 x 1080
+    // 1080 x 1080 — compress vertically: pyramid takes top 60%,
+    // cups bottom 40% of the body area (per the v2 spec).
     return {
       size, w, h,
       padX: 56,
       headerY: 44,
       headerHeight: 80,
       leftX: 56,
-      leftWidth: w * 0.42 - 56,
-      rightX: w * 0.46,
-      rightWidth: w - w * 0.46 - 56,
+      // Square mode is stacked, so leftWidth = full body width.
+      leftWidth: w - 112,
+      rightX: 56,
+      rightWidth: w - 112,
       bodyTop: 160,
       bodyBottom: h - 110,
       footerY: h - 88,
-      footerHeight: 56,
+      footerHeight: 60,
       titleFont: 28,
       handleFont: 22,
       sectionLabelFont: 22,
-      pathStageFont: 20,
-      pathTeamFont: 26,
       podiumLabelFont: 20,
       podiumTeamFont: 24,
       podiumNameFont: 40,
       footerFont: 22,
       wordmarkFont: 18,
+      qrSize: 64,
     };
   }
-  // portrait (default — 1080 × 1350)
+  // portrait (default — 1080 × 1350) — stacked: pyramid on top half,
+  // cups on bottom half.
   return {
     size, w, h,
     padX: 60,
     headerY: 52,
     headerHeight: 88,
     leftX: 60,
-    leftWidth: w * 0.42 - 60,
-    rightX: w * 0.46,
-    rightWidth: w - w * 0.46 - 60,
+    leftWidth: w - 120,
+    rightX: 60,
+    rightWidth: w - 120,
     bodyTop: 200,
     bodyBottom: h - 140,
     footerY: h - 110,
@@ -259,15 +282,16 @@ function layoutGeometry(size: CanvasCardSize, w: number, h: number): Geom {
     titleFont: 32,
     handleFont: 24,
     sectionLabelFont: 24,
-    pathStageFont: 22,
-    pathTeamFont: 30,
     podiumLabelFont: 22,
     podiumTeamFont: 28,
     podiumNameFont: 56,
     footerFont: 24,
     wordmarkFont: 20,
+    qrSize: 72,
   };
 }
+
+// ---------- header ----------
 
 async function paintHeader(
   ctx: SKRSContext2D,
@@ -315,16 +339,93 @@ async function paintHeader(
   ctx.restore();
 }
 
-async function paintBracketPath(
+// ---------- pyramid silhouette ----------
+
+interface PyramidRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+/** Pick the pyramid region inside the geometry, dependent on size. */
+function pyramidRegion(geom: Geom): PyramidRegion {
+  if (geom.size === "portrait") {
+    // Top 55% of body
+    const bodyH = geom.bodyBottom - geom.bodyTop;
+    return {
+      x: geom.leftX,
+      y: geom.bodyTop,
+      width: geom.leftWidth,
+      height: Math.round(bodyH * 0.55),
+    };
+  }
+  if (geom.size === "square") {
+    const bodyH = geom.bodyBottom - geom.bodyTop;
+    return {
+      x: geom.leftX,
+      y: geom.bodyTop,
+      width: geom.leftWidth,
+      height: Math.round(bodyH * 0.6),
+    };
+  }
+  // landscape — left column, full body height.
+  return {
+    x: geom.leftX,
+    y: geom.bodyTop,
+    width: geom.leftWidth,
+    height: geom.bodyBottom - geom.bodyTop,
+  };
+}
+
+/** Y position for a pyramid layer, top-anchored (Y0=top, Y=region.bottom at base). */
+function layerY(region: PyramidRegion, layer: PyramidLayer): number {
+  // PYRAMID_LAYERS goes group..champion (base..apex). Map evenly into
+  // the region so each layer gets a consistent vertical step.
+  const idx = PYRAMID_LAYERS.indexOf(layer);
+  const layerCount = PYRAMID_LAYERS.length; // 7
+  // group sits ~12% from the bottom (leave room for the base scatter),
+  // champion sits ~5% from the top. Linear in-between.
+  const tBottom = 0.12;
+  const tTop = 0.05;
+  const ratio = idx / (layerCount - 1);
+  const t = tBottom - ratio * (tBottom - tTop); // 0.12 down to 0.05
+  // Higher idx (closer to apex) = smaller distance from top.
+  const yFromTopFrac = 1 - t - ratio * (1 - t - tTop);
+  return region.y + yFromTopFrac * region.height;
+}
+
+/** Atom diameter for a given layer — biggest at apex, smallest at base. */
+function atomDiameter(region: PyramidRegion, layer: PyramidLayer): number {
+  // group(min) … champion(max). Scale against region width so the
+  // pyramid stays balanced at all three card sizes.
+  const sizeMap: Record<PyramidLayer, number> = {
+    group: 0.045,
+    r32: 0.055,
+    r16: 0.065,
+    qf: 0.075,
+    sf: 0.085,
+    final: 0.095,
+    champion: 0.11,
+  };
+  const minDim = Math.min(region.width, region.height);
+  // Floor/ceil so the smallest is ~16px and biggest ~36px on landscape.
+  return Math.max(14, Math.round(minDim * sizeMap[layer]));
+}
+
+async function paintPyramid(
   ctx: SKRSContext2D,
   geom: Geom,
   input: BracketShareCardInput,
+  accent: string,
   progress: number,
 ): Promise<void> {
   const alpha = easeIn(progress, 0.25, 0.7);
   if (alpha <= 0) return;
-  const path = canonicalisePath(input.knockoutPath, ["r16", "qf", "sf", "final"]);
-  if (path.length === 0) return;
+
+  const region = pyramidRegion(geom);
+  const cx = region.x + region.width / 2;
+  const champCode = input.champion.code;
 
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -334,74 +435,315 @@ async function paintBracketPath(
   ctx.font = `900 ${geom.sectionLabelFont}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillText("PATH TO GOLD", geom.leftX, geom.bodyTop);
+  ctx.fillText("PYRAMID", region.x, region.y - geom.sectionLabelFont - 4);
 
-  // Container card for the path rows.
-  const containerY = geom.bodyTop + geom.sectionLabelFont + 16;
-  const containerH = Math.min(
-    geom.bodyBottom - containerY,
-    path.length * (geom.pathTeamFont + 32) + 24,
-  );
-  const containerX = geom.leftX;
-  const containerW = geom.leftWidth;
-  ctx.fillStyle = hexToRgba(BG_DARK_2, 0.7);
-  roundRect(ctx, containerX, containerY, containerW, containerH, 16);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(255,255,255,0.07)";
-  ctx.lineWidth = 1;
-  ctx.stroke();
+  // Subtle pyramid outline triangle so the silhouette reads even when
+  // the context atoms are sparse / missing.
+  drawPyramidGuide(ctx, region);
 
-  const rowH = Math.floor((containerH - 24) / path.length);
-  for (let i = 0; i < path.length; i++) {
-    const row = path[i]!;
-    const rowAlpha = easeIn(progress, 0.3 + i * 0.05, 0.45 + i * 0.05);
-    const rowY = containerY + 12 + i * rowH + rowH / 2;
-
-    ctx.save();
-    ctx.globalAlpha = alpha * rowAlpha;
-
-    // Stage label on the left.
-    ctx.fillStyle = INK_200;
-    ctx.font = `700 ${geom.pathStageFont}px "DejaVu Sans", sans-serif`;
-    ctx.textAlign = "left";
-    ctx.textBaseline = "middle";
-    ctx.fillText(STAGE_LABEL[row.stage], containerX + 20, rowY);
-
-    // Flag chip on the right + team code.
-    const flagH = Math.max(28, rowH - 18);
-    const flagW = Math.round(flagH * 1.5);
-    const flagX = containerX + containerW - flagW - 20;
-    const flagY = rowY - flagH / 2;
-    try {
-      const png = await loadFlagPng({
-        code: row.teamCode,
-        width: flagW,
-        flagsDir: input.flagsDir,
-      });
-      const img = await loadImage(png);
-      ctx.save();
-      roundRect(ctx, flagX, flagY, flagW, flagH, 4);
-      ctx.clip();
-      ctx.drawImage(img, flagX, flagY, flagW, flagH);
-      ctx.restore();
-      ctx.strokeStyle = "rgba(255,255,255,0.22)";
-      ctx.lineWidth = 1;
-      roundRect(ctx, flagX, flagY, flagW, flagH, 4);
-      ctx.stroke();
-    } catch {
-      // skip
-    }
-
-    ctx.fillStyle = WHITE;
-    ctx.font = `700 ${geom.pathTeamFont}px "DejaVu Sans", sans-serif`;
-    ctx.textAlign = "right";
-    ctx.textBaseline = "middle";
-    ctx.fillText(row.teamName, flagX - 14, rowY);
-
-    ctx.restore();
+  // 1) Scatter base-ring + lower-tier context atoms (dim) so the
+  //    pyramid has body. These are drawn FIRST so the champion
+  //    column sits in front.
+  if (input.allEliminatedByStage && input.allEliminatedByStage.length > 0) {
+    await drawContextAtoms(
+      ctx,
+      region,
+      input.allEliminatedByStage,
+      champCode,
+      input.flagsDir,
+    );
   }
 
+  // 2) Draw the champion's path column — every layer from group up to
+  //    champion, with a gold trail connecting them and a glow halo.
+  await drawChampionColumn(
+    ctx,
+    region,
+    cx,
+    input.champion,
+    accent,
+    input.flagsDir,
+  );
+
   ctx.restore();
+}
+
+function drawPyramidGuide(ctx: SKRSContext2D, region: PyramidRegion): void {
+  // Faint isometric triangle outline.
+  const cx = region.x + region.width / 2;
+  const apexY = layerY(region, "champion") - 18;
+  const baseY = layerY(region, "group") + 24;
+  const baseHalf = region.width * 0.42;
+  ctx.save();
+  ctx.strokeStyle = "rgba(255,255,255,0.06)";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(cx, apexY);
+  ctx.lineTo(cx + baseHalf, baseY);
+  ctx.lineTo(cx - baseHalf, baseY);
+  ctx.closePath();
+  ctx.stroke();
+
+  // A few interior "tier" lines, very faint.
+  for (const layer of PYRAMID_LAYERS) {
+    if (layer === "champion" || layer === "group") continue;
+    const y = layerY(region, layer);
+    const t = (baseY - y) / (baseY - apexY); // 0..1 apex..base
+    const halfW = baseHalf * (1 - t);
+    ctx.strokeStyle = "rgba(255,255,255,0.04)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - halfW, y);
+    ctx.lineTo(cx + halfW, y);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+/** Draw the champion column with gold trail + glow halo. */
+async function drawChampionColumn(
+  ctx: SKRSContext2D,
+  region: PyramidRegion,
+  cx: number,
+  champion: BracketShareChampion,
+  accent: string,
+  flagsDir: string | undefined,
+): Promise<void> {
+  if (!champion.code) return;
+
+  // Walk layers bottom → top, recording the centre of each atom.
+  const points: Array<{ x: number; y: number; d: number; layer: PyramidLayer }> = [];
+  for (const layer of PYRAMID_LAYERS) {
+    const y = layerY(region, layer);
+    const d = atomDiameter(region, layer);
+    points.push({ x: cx, y, d, layer });
+  }
+
+  // 1) Gold trail behind the atoms — a thick, glow-shadowed line
+  //    threaded through the centres with a slight Bezier S-curve.
+  ctx.save();
+  ctx.shadowColor = hexToRgba(GOLD_WARM, 0.55);
+  ctx.shadowBlur = 14;
+  ctx.strokeStyle = GOLD_WARM;
+  ctx.lineWidth = 3;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i]!;
+    if (i === 0) {
+      ctx.moveTo(p.x, p.y);
+    } else {
+      const prev = points[i - 1]!;
+      const midY = (prev.y + p.y) / 2;
+      // Slight sinusoidal x sway so the trail isn't a dead-straight line.
+      const sway = ((i % 2 === 0) ? 1 : -1) * Math.min(8, region.width * 0.015);
+      ctx.bezierCurveTo(prev.x + sway, midY, p.x - sway, midY, p.x, p.y);
+    }
+  }
+  ctx.stroke();
+  ctx.restore();
+
+  // 2) Atoms on top of the trail. Apex = biggest, base = smallest.
+  for (const p of points) {
+    await drawFlagDisc(ctx, {
+      cx: p.x,
+      cy: p.y,
+      diameter: p.d,
+      teamCode: champion.code,
+      flagsDir,
+      onPath: true,
+      accent,
+    });
+  }
+
+  // 3) Big champion label above the apex atom — short and gold.
+  const apex = points[points.length - 1]!;
+  ctx.save();
+  ctx.fillStyle = GOLD;
+  ctx.font = `900 14px "DejaVu Sans", sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "bottom";
+  ctx.shadowColor = hexToRgba(GOLD_WARM, 0.65);
+  ctx.shadowBlur = 8;
+  ctx.fillText(champion.code.toUpperCase(), apex.x, apex.y - apex.d / 2 - 6);
+  ctx.restore();
+}
+
+/** Scatter the (non-path) elimination-tier flag discs. */
+async function drawContextAtoms(
+  ctx: SKRSContext2D,
+  region: PyramidRegion,
+  tiers: ReadonlyArray<BracketShareEliminationTier>,
+  champCode: string,
+  flagsDir: string | undefined,
+): Promise<void> {
+  const champCodeUpper = champCode.toUpperCase();
+  for (const tier of tiers) {
+    const layer = tier.stage; // restricted to base/lower tiers in the type
+    const codes = tier.teamCodes
+      .map((c) => c.toUpperCase())
+      .filter((c) => c && c !== champCodeUpper);
+    if (codes.length === 0) continue;
+
+    const y = layerY(region, layer);
+    const halfW = pyramidHalfWidthAtLayer(region, layer);
+    const d = Math.max(14, Math.round(atomDiameter(region, layer) * 0.85));
+
+    // Evenly distribute along the available row. Pad ends so atoms don't
+    // collide with the outline triangle.
+    const usableHalf = halfW - d * 0.6;
+    if (codes.length === 1) {
+      // Single atom — push left of centre slightly.
+      const x = (region.x + region.width / 2) - d * 0.8;
+      await drawFlagDisc(ctx, {
+        cx: x,
+        cy: y,
+        diameter: d,
+        teamCode: codes[0]!,
+        flagsDir,
+        onPath: false,
+      });
+      continue;
+    }
+    for (let i = 0; i < codes.length; i++) {
+      const t = i / (codes.length - 1); // 0..1
+      const xOffset = -usableHalf + t * (usableHalf * 2);
+      const x = region.x + region.width / 2 + xOffset;
+      // Skip the centre slot to keep the champion column readable.
+      if (Math.abs(xOffset) < d * 0.6) continue;
+      await drawFlagDisc(ctx, {
+        cx: x,
+        cy: y,
+        diameter: d,
+        teamCode: codes[i]!,
+        flagsDir,
+        onPath: false,
+      });
+    }
+  }
+}
+
+function pyramidHalfWidthAtLayer(region: PyramidRegion, layer: PyramidLayer): number {
+  const apexY = layerY(region, "champion") - 18;
+  const baseY = layerY(region, "group") + 24;
+  const y = layerY(region, layer);
+  const baseHalf = region.width * 0.42;
+  const t = (baseY - y) / Math.max(1, baseY - apexY);
+  return baseHalf * (1 - t);
+}
+
+interface FlagDiscArgs {
+  cx: number;
+  cy: number;
+  diameter: number;
+  teamCode: string;
+  flagsDir?: string;
+  onPath: boolean;
+  accent?: string;
+}
+
+/**
+ * Draw a circular flag disc. `onPath` atoms get a gold rim + slight
+ * glow; off-path atoms are dimmed via a navy overlay.
+ */
+async function drawFlagDisc(ctx: SKRSContext2D, args: FlagDiscArgs): Promise<void> {
+  const { cx, cy, diameter, teamCode, flagsDir, onPath } = args;
+  const r = diameter / 2;
+  ctx.save();
+  // Clip to circle.
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.clip();
+  // Flag fill inside circle.
+  let img: Image | null = null;
+  try {
+    img = await loadFlagImage({
+      code: teamCode,
+      width: Math.max(24, diameter * 2),
+      flagsDir,
+    });
+  } catch {
+    // ignore — fallback handled below
+  }
+  if (img) {
+    // Centre-crop the flag rectangle into the circle. Flag aspect 3:2.
+    const flagH = diameter;
+    const flagW = diameter * 1.5;
+    ctx.drawImage(img, cx - flagW / 2, cy - flagH / 2, flagW, flagH);
+  } else {
+    ctx.fillStyle = "#3e4a72";
+    ctx.fillRect(cx - r, cy - r, diameter, diameter);
+    ctx.fillStyle = WHITE;
+    ctx.font = `900 ${Math.round(diameter * 0.4)}px "DejaVu Sans", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(teamCode.slice(0, 3).toUpperCase(), cx, cy + 1);
+  }
+  // Off-path dim overlay.
+  if (!onPath) {
+    ctx.fillStyle = hexToRgba(BG_DARK, 0.55);
+    ctx.fillRect(cx - r, cy - r, diameter, diameter);
+  }
+  ctx.restore();
+
+  // Rim — gold for on-path, faint navy for off-path.
+  if (onPath) {
+    ctx.save();
+    ctx.shadowColor = hexToRgba(GOLD_WARM, 0.45);
+    ctx.shadowBlur = 6;
+    ctx.strokeStyle = GOLD_WARM;
+    ctx.lineWidth = Math.max(1.5, diameter * 0.06);
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 0.5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.strokeStyle = "rgba(180,200,230,0.25)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r - 0.5, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  }
+}
+
+// ---------- podium (cups with flags-as-fill) ----------
+
+interface PodiumRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function podiumRegion(geom: Geom): PodiumRegion {
+  if (geom.size === "portrait") {
+    const bodyH = geom.bodyBottom - geom.bodyTop;
+    const pyrH = Math.round(bodyH * 0.55);
+    return {
+      x: geom.rightX,
+      y: geom.bodyTop + pyrH + 20,
+      width: geom.rightWidth,
+      height: bodyH - pyrH - 20,
+    };
+  }
+  if (geom.size === "square") {
+    const bodyH = geom.bodyBottom - geom.bodyTop;
+    const pyrH = Math.round(bodyH * 0.6);
+    return {
+      x: geom.rightX,
+      y: geom.bodyTop + pyrH + 12,
+      width: geom.rightWidth,
+      height: bodyH - pyrH - 12,
+    };
+  }
+  return {
+    x: geom.rightX,
+    y: geom.bodyTop,
+    width: geom.rightWidth,
+    height: geom.bodyBottom - geom.bodyTop,
+  };
 }
 
 async function paintPodium(
@@ -414,10 +756,12 @@ async function paintPodium(
   const alpha = easeIn(progress, 0.3, 0.75);
   if (alpha <= 0) return;
 
-  // Derive the runner-up + third place if explicit fields aren't present.
+  // Derive silver/bronze if explicit fields aren't present.
   const silver: BracketShareChampion | null = input.runnerUp ?? null;
   const bronze: BracketShareChampion | null =
     input.thirdPlace ?? championFromPath(input.knockoutPath, "tp");
+
+  const region = podiumRegion(geom);
 
   ctx.save();
   ctx.globalAlpha = alpha;
@@ -427,31 +771,25 @@ async function paintPodium(
   ctx.font = `900 ${geom.sectionLabelFont}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.fillText("MY PODIUM", geom.rightX, geom.bodyTop);
+  ctx.fillText("MY PODIUM", region.x, region.y - geom.sectionLabelFont - 4);
 
-  // Layout the three cups in a classic podium step.
-  // Gold sits centred + tallest; silver left + medium; bronze right +
-  // smallest. Each cup has a baseplate (the "podium step") under it.
-  const rightCx = geom.rightX + geom.rightWidth / 2;
-  const podiumTop = geom.bodyTop + geom.sectionLabelFont + 24;
-  const podiumHeight = geom.bodyBottom - podiumTop;
+  // Layout: gold cup centred + tallest; silver left; bronze right.
+  const rightCx = region.x + region.width / 2;
+  const podiumTop = region.y;
+  const podiumHeight = region.height;
 
-  // Scale cup sizes against the right-column width so all three sizes
-  // (portrait / square / landscape) keep the same hierarchy.
-  const baseUnit = Math.min(geom.rightWidth / 3.2, podiumHeight / 4.2);
-  const goldCupW = Math.round(baseUnit * 1.35);
-  const sideCupW = Math.round(baseUnit * 0.95);
-  const cupGap = Math.round(baseUnit * 0.35);
+  const baseUnit = Math.min(region.width / 3.4, podiumHeight / 4.4);
+  const goldCupW = Math.round(baseUnit * 1.45);
+  const sideCupW = Math.round(baseUnit * 1.0);
+  const cupGap = Math.round(baseUnit * 0.32);
 
-  // Vertical placement: gold higher up, sides lower.
   const goldBaseline = podiumTop + Math.round(podiumHeight * 0.55);
-  const sideBaseline = goldBaseline + Math.round(baseUnit * 0.25);
+  const sideBaseline = goldBaseline + Math.round(baseUnit * 0.22);
 
   const goldCx = rightCx;
   const silverCx = goldCx - goldCupW / 2 - sideCupW / 2 - cupGap;
   const bronzeCx = goldCx + goldCupW / 2 + sideCupW / 2 + cupGap;
 
-  // Render the three cups (silver + bronze first so gold sits on top).
   await renderPodiumColumn(ctx, {
     centerX: silverCx,
     baseline: sideBaseline,
@@ -461,6 +799,7 @@ async function paintPodium(
     team: silver,
     fill: SILVER,
     shadow: SILVER_DEEP,
+    medalTint: SILVER,
     podiumLabelFont: geom.podiumLabelFont,
     podiumTeamFont: geom.podiumTeamFont,
     flagsDir: input.flagsDir,
@@ -477,6 +816,7 @@ async function paintPodium(
     team: bronze,
     fill: BRONZE,
     shadow: BRONZE_DEEP,
+    medalTint: BRONZE,
     podiumLabelFont: geom.podiumLabelFont,
     podiumTeamFont: geom.podiumTeamFont,
     flagsDir: input.flagsDir,
@@ -493,17 +833,17 @@ async function paintPodium(
     team: input.champion,
     fill: GOLD,
     shadow: GOLD_DEEP,
+    medalTint: GOLD,
     podiumLabelFont: geom.podiumLabelFont,
     podiumTeamFont: geom.podiumTeamFont,
     flagsDir: input.flagsDir,
     progress,
     showFrom: 0.4,
     showTo: 0.7,
-    // Gold gets a glow ring tied to the champion's kit colour.
     glowAccent: accent,
   });
 
-  // Champion country name below the podium — bold + biggest text.
+  // Champion country name below the gold cup.
   const nameAlpha = easeIn(progress, 0.6, 0.85);
   if (nameAlpha > 0) {
     ctx.save();
@@ -512,20 +852,19 @@ async function paintPodium(
     ctx.font = `900 ${geom.podiumNameFont}px "DejaVu Sans", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    const champLineY = goldBaseline + Math.round(baseUnit * 1.2);
+    const champLineY = goldBaseline + Math.round(baseUnit * 1.05);
     ctx.fillText(
       input.champion.name.toUpperCase(),
       rightCx,
       champLineY,
     );
-    // "My champion" subtitle pill.
     const pillText = "MY CHAMPION";
     ctx.font = `900 ${geom.podiumLabelFont}px "DejaVu Sans", sans-serif`;
     const padPill = 14;
     const pillW = ctx.measureText(pillText).width + padPill * 2;
     const pillH = Math.round(geom.podiumLabelFont * 1.7);
     const pillX = rightCx - pillW / 2;
-    const pillY = champLineY + geom.podiumNameFont + 12;
+    const pillY = champLineY + geom.podiumNameFont + 10;
     ctx.fillStyle = GOLD;
     roundRect(ctx, pillX, pillY, pillW, pillH, pillH / 2);
     ctx.fill();
@@ -548,6 +887,7 @@ interface PodiumColumnArgs {
   team: BracketShareChampion | null;
   fill: string;
   shadow: string;
+  medalTint: string;
   podiumLabelFont: number;
   podiumTeamFont: number;
   flagsDir?: string;
@@ -564,12 +904,9 @@ async function renderPodiumColumn(
   const colAlpha = easeIn(args.progress, args.showFrom, args.showTo);
   if (colAlpha <= 0) return;
 
-  // The cup is drawn anchored at (centerX, baseline) — baseline is the
-  // bottom of the cup's base plate. Width scales the entire trophy.
   const w = args.cupWidth;
   const cx = args.centerX;
   const baseY = args.baseline;
-  // Trophy proportions (relative to width):
   const bowlW = w;
   const bowlH = w * 0.95;
   const stemH = w * 0.18;
@@ -580,7 +917,7 @@ async function renderPodiumColumn(
   ctx.save();
   ctx.globalAlpha = colAlpha;
 
-  // Glow halo for the gold cup.
+  // Glow halo for gold.
   if (args.glowAccent) {
     const glow = ctx.createRadialGradient(cx, baseY - bowlH * 0.5, 0, cx, baseY - bowlH * 0.5, w * 1.4);
     glow.addColorStop(0, hexToRgba(args.glowAccent, 0.45));
@@ -596,7 +933,7 @@ async function renderPodiumColumn(
   const baseTop = baseY - baseH;
   drawCupBase(ctx, cx - baseW / 2, baseTop, baseW, baseH, args.fill, args.shadow);
 
-  // Stem (vertical bar between base and bowl).
+  // Stem.
   const stemW = w * 0.22;
   const stemTop = baseTop - stemH;
   ctx.fillStyle = args.shadow;
@@ -604,71 +941,136 @@ async function renderPodiumColumn(
   ctx.fillStyle = args.fill;
   ctx.fillRect(cx - stemW / 2 + 2, stemTop, stemW - 4, stemH);
 
-  // Handles (curved C-shapes on either side of the bowl).
+  // Handles.
   drawCupHandle(ctx, cx, stemTop, bowlW, bowlH, handleW, args.shadow, "left");
   drawCupHandle(ctx, cx, stemTop, bowlW, bowlH, handleW, args.shadow, "right");
 
-  // Bowl (rounded U-shape sitting on the stem).
-  drawCupBowl(ctx, cx - bowlW / 2, stemTop - bowlH, bowlW, bowlH, args.fill, args.shadow);
+  // Bowl + flag fill (v2: flag lives INSIDE the bowl ellipse).
+  const bowlCx = cx;
+  const bowlCy = stemTop - bowlH / 2;
+  const bowlRx = bowlW / 2;
+  const bowlRy = bowlH / 2;
+  await drawCupBowlWithFlag(ctx, {
+    cx: bowlCx,
+    cy: bowlCy,
+    rx: bowlRx,
+    ry: bowlRy,
+    team: args.team,
+    flagsDir: args.flagsDir,
+    rimFill: args.fill,
+    rimShadow: args.shadow,
+    medalTint: args.medalTint,
+  });
 
-  // Rank label (1ST / 2ND / 3RD) painted on the bowl.
-  ctx.fillStyle = BG_DARK;
-  const labelFont = Math.round(bowlH * 0.32);
+  // Rank label on the bowl (overlaid on top of flag fill, in dark ink
+  // with a soft halo so it stays legible against any flag colour).
+  ctx.save();
+  ctx.shadowColor = "rgba(0,0,0,0.55)";
+  ctx.shadowBlur = 5;
+  ctx.fillStyle = WHITE;
+  const labelFont = Math.round(bowlH * 0.3);
   ctx.font = `900 ${labelFont}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText(args.label, cx, stemTop - bowlH / 2 + 4);
+  ctx.fillText(args.label, bowlCx, bowlCy + 2);
+  ctx.restore();
 
-  // Flag chip + team code beneath the base plate.
-  const chipY = baseY + 12;
+  // Country code text beneath the base plate (the only text "below").
+  const codeY = baseY + 12;
   if (args.team && args.team.code) {
-    const chipW = Math.round(w * 0.95);
-    const chipH = Math.round(chipW * 0.6);
-    const chipX = cx - chipW / 2;
-    try {
-      const png = await loadFlagPng({
-        code: args.team.code,
-        width: chipW,
-        flagsDir: args.flagsDir,
-      });
-      const img = await loadImage(png);
-      ctx.save();
-      roundRect(ctx, chipX, chipY, chipW, chipH, 6);
-      ctx.clip();
-      ctx.drawImage(img, chipX, chipY, chipW, chipH);
-      ctx.restore();
-      ctx.strokeStyle = "rgba(255,255,255,0.35)";
-      ctx.lineWidth = 1.5;
-      roundRect(ctx, chipX, chipY, chipW, chipH, 6);
-      ctx.stroke();
-    } catch {
-      // skip flag fallback — code label below still renders
-    }
     ctx.fillStyle = WHITE;
     ctx.font = `900 ${args.podiumTeamFont}px "DejaVu Sans", sans-serif`;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
-    ctx.fillText(args.team.code.toUpperCase(), cx, chipY + chipH + 8);
+    ctx.fillText(args.team.code.toUpperCase(), cx, codeY);
   } else {
-    // No team picked at this slot — show a dashed "?" placeholder so the
-    // viewer still sees three columns and the layout doesn't collapse.
-    const chipW = Math.round(w * 0.95);
-    const chipH = Math.round(chipW * 0.6);
-    const chipX = cx - chipW / 2;
-    ctx.save();
-    ctx.setLineDash([6, 6]);
-    ctx.strokeStyle = "rgba(255,255,255,0.3)";
-    ctx.lineWidth = 1.5;
-    roundRect(ctx, chipX, chipY, chipW, chipH, 6);
-    ctx.stroke();
-    ctx.restore();
     ctx.fillStyle = INK_200;
-    ctx.font = `900 ${Math.round(args.podiumTeamFont * 1.3)}px "DejaVu Sans", sans-serif`;
+    ctx.font = `900 ${args.podiumTeamFont}px "DejaVu Sans", sans-serif`;
     ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("?", cx, chipY + chipH / 2 + 2);
+    ctx.textBaseline = "top";
+    ctx.fillText("?", cx, codeY);
   }
 
+  ctx.restore();
+}
+
+interface BowlWithFlagArgs {
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
+  team: BracketShareChampion | null;
+  flagsDir?: string;
+  rimFill: string;
+  rimShadow: string;
+  medalTint: string;
+}
+
+/**
+ * Draw the cup bowl as an ellipse, with the team flag clipped to the
+ * ellipse and a 0.45-alpha medal tint overlay. Re-draws the metal rim
+ * + a thin top accent on top so the cup still reads as gold/silver/
+ * bronze regardless of the flag colours.
+ */
+async function drawCupBowlWithFlag(
+  ctx: SKRSContext2D,
+  args: BowlWithFlagArgs,
+): Promise<void> {
+  const { cx, cy, rx, ry, team, flagsDir, rimFill, rimShadow, medalTint } = args;
+
+  // 1) Outer rim/shadow ellipse — slightly larger so the inside fill
+  //    can shrink and the rim shows.
+  ctx.save();
+  ctx.fillStyle = rimShadow;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + 2, rx + 3, ry + 3, 0, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // 2) Clip to bowl ellipse, draw flag (if any), then medal tint.
+  ctx.save();
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.clip();
+
+  // Base wash — medal colour so missing-flag still looks like a cup.
+  ctx.fillStyle = rimFill;
+  ctx.fillRect(cx - rx, cy - ry, rx * 2, ry * 2);
+
+  if (team && team.code) {
+    try {
+      const img = await loadFlagImage({
+        code: team.code,
+        width: Math.max(64, Math.round(rx * 2 * 1.2)),
+        flagsDir,
+      });
+      // Stretch flag to fully cover the bowl ellipse's bounding box.
+      ctx.drawImage(img, cx - rx, cy - ry, rx * 2, ry * 2);
+    } catch {
+      // wash already drawn — fall through
+    }
+  }
+
+  // Medal-tint overlay (gold/silver/bronze at 0.45 alpha) so the cup
+  // still reads "gold" / "silver" / "bronze" at a glance.
+  ctx.fillStyle = hexToRgba(medalTint, 0.45);
+  ctx.fillRect(cx - rx, cy - ry, rx * 2, ry * 2);
+
+  ctx.restore();
+
+  // 3) Top accent (rim highlight).
+  ctx.save();
+  ctx.strokeStyle = rimFill;
+  ctx.lineWidth = Math.max(2, ry * 0.08);
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+  ctx.stroke();
+  // Thin inner highlight to give the bowl depth.
+  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy - ry * 0.18, rx * 0.82, ry * 0.55, 0, Math.PI * 0.9, Math.PI * 0.1, true);
+  ctx.stroke();
   ctx.restore();
 }
 
@@ -687,42 +1089,6 @@ function drawCupBase(
   ctx.fillStyle = fill;
   roundRect(ctx, x + 2, y + 2, w - 4, h - 6, h * 0.3);
   ctx.fill();
-}
-
-function drawCupBowl(
-  ctx: SKRSContext2D,
-  x: number,
-  y: number,
-  w: number,
-  h: number,
-  fill: string,
-  shadow: string,
-): void {
-  // Outer (shadow) shape — a U with a slight inward taper at the bottom.
-  ctx.fillStyle = shadow;
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + w, y);
-  ctx.lineTo(x + w - w * 0.08, y + h);
-  ctx.quadraticCurveTo(x + w / 2, y + h * 1.08, x + w * 0.08, y + h);
-  ctx.closePath();
-  ctx.fill();
-
-  // Inner highlight (fill) — same shape but 4 px inset.
-  ctx.fillStyle = fill;
-  ctx.beginPath();
-  ctx.moveTo(x + 4, y + 4);
-  ctx.lineTo(x + w - 4, y + 4);
-  ctx.lineTo(x + w - 4 - w * 0.08, y + h - 4);
-  ctx.quadraticCurveTo(x + w / 2, y + h * 1.02 - 4, x + 4 + w * 0.08, y + h - 4);
-  ctx.closePath();
-  ctx.fill();
-
-  // Rim — thin horizontal accent at the top of the bowl.
-  ctx.fillStyle = shadow;
-  ctx.fillRect(x - 4, y - 4, w + 8, 6);
-  ctx.fillStyle = fill;
-  ctx.fillRect(x - 2, y - 2, w + 4, 4);
 }
 
 function drawCupHandle(
@@ -748,72 +1114,154 @@ function drawCupHandle(
   ctx.stroke();
 }
 
-function paintFooter(
+// ---------- footer (URL + QR) ----------
+
+/**
+ * Resolve the public share URL used in the footer + QR. Priority:
+ *   1. `shareGuid` → `play.tournamental.com/s/<guid>`
+ *   2. `footerUrl` (legacy)
+ *   3. `tournamental.com/wc2026` (compat default)
+ */
+export function resolveShareUrl(input: BracketShareCardInput): string {
+  if (input.shareGuid && /^[a-zA-Z0-9_-]{3,64}$/.test(input.shareGuid)) {
+    return `${SHARE_BASE_URL}${input.shareGuid}`;
+  }
+  return input.footerUrl ?? "tournamental.com/wc2026";
+}
+
+async function paintFooter(
   ctx: SKRSContext2D,
   geom: Geom,
   input: BracketShareCardInput,
   accent: string,
   progress: number,
-): void {
+): Promise<void> {
   const alpha = easeIn(progress, 0.55, 0.85);
   if (alpha <= 0) return;
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  const footerY = geom.footerY + geom.footerHeight / 2;
+  const footerCy = geom.footerY + geom.footerHeight / 2;
+  const url = resolveShareUrl(input);
+  const fullUrl = url.startsWith("http") ? url : `https://${url}`;
+
+  // QR on the right edge of the footer (so the URL text doesn't fight
+  // with the wordmark). Wordmark goes below or beside it depending on
+  // available room.
+  const qrSize = geom.qrSize;
+  const qrX = geom.w - geom.padX - qrSize;
+  const qrY = footerCy - qrSize / 2;
+  try {
+    const img = await getQrImage(fullUrl, qrSize);
+    ctx.drawImage(img, qrX, qrY, qrSize, qrSize);
+    // Round the outer corners with a 4px clip overlay (just a thin
+    // navy frame so the QR feels intentional rather than pasted).
+    ctx.strokeStyle = hexToRgba(GOLD, 0.6);
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, qrX, qrY, qrSize, qrSize, 4);
+    ctx.stroke();
+  } catch {
+    // If QR rendering fails for any reason, skip silently — footer URL
+    // still tells the viewer where to go.
+  }
+
+  // URL row. Mono font is just "DejaVu Sans Mono" if available; falling
+  // back to DejaVu Sans is fine — the canvas font registry only knows
+  // about whatever we registered in ensureFonts().
+  ctx.fillStyle = INK_200;
   ctx.font = `700 ${geom.footerFont}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "left";
   ctx.textBaseline = "middle";
 
-  const footerLeftText = "Predict yours at";
-  ctx.fillStyle = INK_200;
-  ctx.fillText(footerLeftText, geom.padX, footerY);
+  // "Predict yours at" prefix — only on landscape (the wider format).
+  let textX = geom.padX;
+  if (geom.size === "landscape") {
+    const prefix = "Predict yours at";
+    ctx.fillText(prefix, textX, footerCy);
+    textX += ctx.measureText(prefix).width + 12;
+  }
 
-  const url = input.footerUrl ?? "tournamental.com/wc2026";
   ctx.fillStyle = GOLD;
-  const leftW = ctx.measureText(footerLeftText).width;
-  ctx.fillText(url, geom.padX + leftW + 12, footerY);
+  ctx.font = `700 ${geom.footerFont}px "DejaVu Sans Mono", "DejaVu Sans", monospace`;
+  ctx.textAlign = "left";
+  ctx.fillText(url, textX, footerCy);
 
-  // Tournamental wordmark bottom-right.
+  // Tournamental wordmark — bottom-centred-ish for portrait/square,
+  // bottom-left for landscape (URL takes the centre).
   ctx.fillStyle = WHITE;
   ctx.font = `900 ${geom.wordmarkFont}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "right";
-  ctx.fillText(BRAND_WORDMARK, geom.w - geom.padX, footerY);
+  ctx.textBaseline = "middle";
+  // Slot the wordmark just left of the QR.
+  ctx.fillText(BRAND_WORDMARK, qrX - 14, footerCy);
 
-  // Optional pundit chip near the wordmark.
+  // Optional pundit chip.
   if (input.pundit && input.pundit.level > 0) {
     const pundit = `Verified Pundit · L${input.pundit.level}`;
     ctx.fillStyle = accent;
     ctx.font = `700 ${geom.wordmarkFont - 2}px "DejaVu Sans", sans-serif`;
     ctx.textAlign = "right";
-    ctx.fillText(pundit, geom.w - geom.padX, footerY - 24);
+    ctx.fillText(pundit, qrX - 14, footerCy - 22);
   }
   ctx.restore();
 }
 
-// ---------- pure helpers ----------
+// Cache for QR PNGs + decoded Images keyed by `<url>::<size>`. The same
+// share-guid URL is re-rendered 16+ times during video frame production
+// — encoding once and reusing the decoded `Image` avoids both QR
+// generation and PNG decode on subsequent frames.
+const qrPngCache = new Map<string, Buffer>();
+const qrImageCache = new Map<string, Image>();
 
-function canonicalisePath(
-  input: ReadonlyArray<BracketShareCardInput["knockoutPath"][number]>,
-  keepStages?: ReadonlyArray<BracketShareCardInput["knockoutPath"][number]["stage"]>,
-): Array<BracketShareCardInput["knockoutPath"][number]> {
-  const order: Record<string, number> = {
-    r16: 0,
-    qf: 1,
-    sf: 2,
-    tp: 3,
-    final: 4,
-  };
-  const seen = new Map<string, BracketShareCardInput["knockoutPath"][number]>();
-  for (const entry of input) {
-    if (!entry || !entry.teamCode) continue;
-    if (keepStages && !keepStages.includes(entry.stage)) continue;
-    seen.set(entry.stage, entry);
-  }
-  return Array.from(seen.values())
-    .sort((a, b) => (order[a.stage] ?? 9) - (order[b.stage] ?? 9))
-    .slice(0, 5);
+/**
+ * Encode a URL as a small PNG QR code with our brand palette.
+ *
+ * Foreground: GOLD; background: BG_DARK (the same navy used across
+ * the card so the QR sits flush). Error-correction level M is plenty
+ * for a sub-200-byte URL at 50–80 px output.
+ *
+ * Cached per `(url, size)` so video frame rendering doesn't redo the
+ * work 60+ times per share.
+ */
+export async function renderQrPng(url: string, size: number): Promise<Buffer> {
+  const w = Math.max(32, Math.round(size));
+  const key = `${url}::${w}`;
+  const hit = qrPngCache.get(key);
+  if (hit) return hit;
+  const buffer = await QRCode.toBuffer(url, {
+    type: "png",
+    errorCorrectionLevel: "M",
+    margin: 1,
+    width: w,
+    color: {
+      dark: GOLD,
+      light: BG_DARK,
+    },
+  });
+  const out = buffer as Buffer;
+  qrPngCache.set(key, out);
+  return out;
 }
+
+/** Internal: get a decoded QR image (cached). */
+async function getQrImage(url: string, size: number): Promise<Image> {
+  const w = Math.max(32, Math.round(size));
+  const key = `${url}::${w}`;
+  const hit = qrImageCache.get(key);
+  if (hit) return hit;
+  const png = await renderQrPng(url, w);
+  const img = await loadImage(png);
+  qrImageCache.set(key, img);
+  return img;
+}
+
+/** Test-only: clear the QR PNG cache. */
+export function _resetQrCache(): void {
+  qrPngCache.clear();
+  qrImageCache.clear();
+}
+
+// ---------- pure helpers ----------
 
 /** Pull the team at a given path stage and treat it as a Champion. */
 function championFromPath(
@@ -882,3 +1330,7 @@ function hexToRgba(hex: string, alpha: number): string {
   const b = parseInt(safe.slice(5, 7), 16);
   return `rgba(${r},${g},${b},${alpha})`;
 }
+
+// Suppress unused-warning for compatibility re-exports.
+void STAGE_TO_LAYER;
+void INK_400;

@@ -17,8 +17,11 @@ import { promises as fs } from "node:fs";
 import { join } from "node:path";
 
 import { Resvg } from "@resvg/resvg-js";
+import { loadImage } from "@napi-rs/canvas";
+import type { Image } from "@napi-rs/canvas";
 
 const flagPngCache = new Map<string, Uint8Array>();
+const flagImageCache = new Map<string, Image>();
 
 /**
  * Default flags directory — resolved relative to this file's path so
@@ -120,7 +123,30 @@ function escapeXml(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+/**
+ * Read and decode a flag as a `@napi-rs/canvas` `Image` in one shot,
+ * caching the decoded `Image` so repeated `drawImage` calls in the
+ * video pipeline don't re-decode 16+ times per video.
+ */
+export async function loadFlagImage(args: {
+  code: string;
+  width: number;
+  flagsDir?: string;
+  placeholderColour?: string;
+}): Promise<Image> {
+  const { code, width, flagsDir, placeholderColour } = args;
+  const dir = flagsDir ?? defaultFlagsDir();
+  const key = `${dir}::${code.toUpperCase()}::${Math.round(width)}`;
+  const hit = flagImageCache.get(key);
+  if (hit) return hit;
+  const png = await loadFlagPng({ code, width, flagsDir, placeholderColour });
+  const img = await loadImage(Buffer.from(png));
+  flagImageCache.set(key, img);
+  return img;
+}
+
 /** Test-only: clear the in-process flag cache. */
 export function _resetFlagCache(): void {
   flagPngCache.clear();
+  flagImageCache.clear();
 }
