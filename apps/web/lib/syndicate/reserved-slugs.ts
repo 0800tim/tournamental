@@ -34,7 +34,7 @@ export const RESERVED_SLUGS: ReadonlyArray<string> = [
   "six-nations",
   "super-bowl",
   "premier-league",
-  // product routes that already exist or are planned
+  // product / routing reserved words
   "play",
   "s",
   "api",
@@ -42,6 +42,18 @@ export const RESERVED_SLUGS: ReadonlyArray<string> = [
   "signup",
   "login",
   "auth",
+  "home",
+  "app",
+  "www",
+  "mail",
+  "email",
+  "support",
+  "help",
+  "about",
+  "terms",
+  "privacy",
+  "legal",
+  "tournamental",
 ] as const;
 
 const RESERVED_SET = new Set(RESERVED_SLUGS.map((s) => s.toLowerCase()));

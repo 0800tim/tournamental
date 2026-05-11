@@ -1,21 +1,21 @@
 /**
- * In-memory syndicate store — STUB pending the real backend.
+ * Syndicate store — production SQLite-backed implementation with a
+ * fallback to in-memory samples for the pre-launch hype window.
  *
- * Why this exists: the `/s/<guid>` universal share landing route needs
- * a syndicate lookup that returns *something* renderable so the page
- * has a real shape during pre-launch. The parallel syndicate-signup
- * agent (#70) is wiring the production store onto the game-service;
- * when that lands, this file gets swapped for a thin client.
+ * Resolution order in `loadSyndicateBySlug`:
+ *   1. SQLite row in the shared game-service DB (real signups).
+ *   2. In-memory sample syndicate (so dev / preview deploys without a
+ *      provisioned DB still render the `/s/<slug>` landing page).
+ *   3. Return `null` → `/s/<guid>` resolver falls through to user share.
  *
- * The shape exported here IS the contract — the backend implementation
- * MUST satisfy `SyndicateRecord` and `loadSyndicateBySlug`, otherwise
- * the share landing page breaks. Treat changes to `SyndicateRecord`
- * as a breaking-API change and coordinate with agent #70.
- *
- * Cache policy: pure in-memory, no caching layer; the calling route
- * sets `Cache-Control: public, s-maxage=60, stale-while-revalidate=600`
- * so a stale leaderboard never blocks the page.
+ * The persistence layer for *new* syndicates lives in `persistence.ts`
+ * — that's the create + retry-queue surface the signup route uses.
+ * Keeping the read-only stub here in `store.ts` preserves the contract
+ * the `/s/[guid]` share landing depends on (it imports
+ * `SyndicateRecord` + `loadSyndicateBySlug` from this file).
  */
+
+import { getPersistence } from "./persistence";
 
 export interface SyndicateMember {
   readonly handle: string;
@@ -93,34 +93,85 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
   },
 ];
 
-const STORE = new Map<string, SyndicateRecord>(
+const SAMPLE_BY_SLUG = new Map<string, SyndicateRecord>(
   SAMPLE_SYNDICATES.map((s) => [s.slug, s]),
 );
 
+// In-memory overrides used by tests via __unsafe_register_syndicate_for_tests.
+const TEST_OVERRIDES = new Map<string, SyndicateRecord>();
+
+const TOURNAMENT_LABELS: Record<string, string> = {
+  "fifa-wc-2026": "FIFA World Cup 2026",
+};
+
+/** Render a SQLite syndicate row into the public `SyndicateRecord` shape. */
+function fromPersistenceRow(row: {
+  slug: string;
+  name: string;
+  tournament_id: string;
+  owner_handle: string | null;
+  created_at: number;
+  member_count: number;
+}): SyndicateRecord {
+  return {
+    slug: row.slug,
+    name: row.name,
+    owner_handle: row.owner_handle ?? "owner",
+    owner_country_emoji: "🌍",
+    tournament_id: row.tournament_id,
+    tournament_label: TOURNAMENT_LABELS[row.tournament_id] ?? row.tournament_id,
+    created_at: new Date(row.created_at).toISOString(),
+    picks_made: 0,
+    // Real member fan-out lands post-launch (parallel agent #67 owns
+    // the landing page). For now the count is `member_count` rendered
+    // as a single placeholder so the page renders.
+    members: Array.from({ length: Math.max(1, row.member_count) }, (_, i) => ({
+      handle: i === 0 ? row.owner_handle ?? "owner" : `member_${i}`,
+      country_code: "NZL",
+      flag_emoji: "🇳🇿",
+      joined_at: new Date(row.created_at).toISOString(),
+      points: 0,
+    })),
+  };
+}
+
 /**
  * Look up a syndicate by its kebab slug. Returns `null` if the slug
- * doesn't exist. Pure function over the in-memory map — safe to call
- * from server components.
+ * doesn't exist in either the SQLite store or the in-memory samples.
  *
- * TODO(#70): replace with a fetch to game-service
- *   `GET /v1/syndicates/by-slug/<slug>` once that endpoint ships.
+ * Pure-async — safe to call from server components.
  */
 export async function loadSyndicateBySlug(
   slug: string,
 ): Promise<SyndicateRecord | null> {
   const safe = slug.trim().toLowerCase();
   if (!safe) return null;
-  return STORE.get(safe) ?? null;
+  // Test overrides win for deterministic resolver tests.
+  const override = TEST_OVERRIDES.get(safe);
+  if (override) return override;
+  // Real DB row.
+  try {
+    const row = getPersistence().getBySlug(safe);
+    if (row) {
+      return fromPersistenceRow(row);
+    }
+  } catch (err) {
+    // Schema not yet migrated, or the DB file is missing — fall back
+    // to the sample data so dev previews keep working.
+    // eslint-disable-next-line no-console
+    console.warn("syndicate db lookup failed; falling back to samples", err);
+  }
+  return SAMPLE_BY_SLUG.get(safe) ?? null;
 }
 
 /**
  * Test-only helper: register a synthetic syndicate. Used by the
  * `/s/[guid]` page tests to assert resolver behaviour against
- * deterministic fixtures. Not exported from the production index;
+ * deterministic fixtures. Not exported from any public surface;
  * consumers should never call this in real code.
  */
 export function __unsafe_register_syndicate_for_tests(
   record: SyndicateRecord,
 ): void {
-  STORE.set(record.slug, record);
+  TEST_OVERRIDES.set(record.slug, record);
 }
