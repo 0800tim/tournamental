@@ -37,10 +37,17 @@ export default function AuthPage() {
         <Suspense fallback={<div className="auth-loading">Loading…</div>}>
           <TelegramLogin />
         </Suspense>
+        {/* Pre-launch legal block (2026-05-13). The OTP delivery
+            partners are named explicitly per the privacy review so the
+            user knows where their phone or email is going before they
+            hand it over. Same copy appears on the marketing
+            /login.astro Telegram + phone blocks. */}
         <p className="auth-legal">
-          By continuing you agree to our{" "}
-          <a href="/legal/terms">terms</a> and{" "}
-          <a href="/legal/privacy">privacy notice</a>.
+          By continuing, you agree to our{" "}
+          <a href="https://tournamental.com/legal/terms">Terms</a> and{" "}
+          <a href="https://tournamental.com/legal/privacy">Privacy Policy</a>.
+          We send SMS, WhatsApp and email codes via Aiva SMS and Supabase.
+          Standard message rates may apply.
         </p>
       </div>
     </main>
