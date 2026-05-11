@@ -13,9 +13,11 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { Bracket, Tournament } from "@vtorn/bracket-engine";
 
+import { MoleculeCaptureButton } from "@/components/molecule/MoleculeCaptureButton";
 import { MoleculeScene } from "@/components/molecule/MoleculeScene";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
+import { useMoleculeCaptureInput } from "@/lib/molecule/use-capture-input";
 import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
 
 import "@/components/molecule/molecule.css";
@@ -142,6 +144,15 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
   // by the Leaderboard component.
   const pundits = useMemo(() => mockLeaderboardMembers(null, 50), []);
 
+  // Capture-and-share overlay: derive the user's prediction-card payload
+  // (champion + path + share guid) so the floating button can POST it
+  // alongside the captured WebGL pose. Hidden in consensus mode — that
+  // view is the rank-based proxy, not the user's own picks, so sharing
+  // it would mislabel the share-card. Hook is also no-op until the
+  // bracket hydrates from localStorage on the client.
+  const capture = useMoleculeCaptureInput({ tournament });
+  const captureHidden = mode !== "mine" || !capture.ready || !capture.hasChampion;
+
   return (
     <div className="molecule-page" data-compact-header="true">
       {/* v4: header is compact (single-line title) so the canvas claims
@@ -171,11 +182,23 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
         </div>
       </header>
       {mounted ? (
-        <MoleculeScene
-          tournament={tournament}
-          bracketOverride={override}
-          layoutMode={mode === "consensus" ? "rank-sorted" : "stable"}
-        />
+        <div className="molecule-page-canvas-pane">
+          <MoleculeScene
+            tournament={tournament}
+            bracketOverride={override}
+            layoutMode={mode === "consensus" ? "rank-sorted" : "stable"}
+          />
+          {/* Capture & share floats over the top-right of the canvas.
+           * It's a sibling of MoleculeScene so we don't have to touch
+           * the scene's internals — `.molecule-page-canvas-pane` is the
+           * shared positioning context. */}
+          <MoleculeCaptureButton
+            shareGuid={capture.shareGuid}
+            handle={capture.handle}
+            input={capture.captureInput}
+            hidden={captureHidden}
+          />
+        </div>
       ) : (
         <div style={{ height: "calc(100vh - 96px)", display: "grid", placeItems: "center", color: "#cdd5e7" }}>
           Loading molecule…
