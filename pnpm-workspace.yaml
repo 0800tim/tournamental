@@ -2,5 +2,6 @@ packages:
   - 'apps/*'
   - 'packages/*'
   - 'packages/plugins/*'
+  - 'examples/*'
   - 'tools'
   - 'infra/deploy'
