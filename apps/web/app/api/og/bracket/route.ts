@@ -152,20 +152,91 @@ async function tryEnrichFromGameService(
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
   try {
-    const res = await fetch(`${GAME_BASE}/v1/bracket/${encodeURIComponent(bracketId)}`, {
-      headers: { accept: "application/json" },
-      signal: controller.signal,
-      // Bypass Next's data cache; we run our own disk cache below.
-      cache: "no-store",
-    });
+    // /v1/bracket/by-guid/<guid> is the canonical public lookup since PR #153/#160.
+    // It runs the server-side cascade so `champion_code`, `runner_up_code`,
+    // and `third_place_code` are always populated when a champion can be
+    // derived from the user's picks. The legacy `/v1/bracket/<id>` is
+    // user-private and not exposed publicly.
+    const res = await fetch(
+      `${GAME_BASE}/v1/bracket/by-guid/${encodeURIComponent(bracketId)}`,
+      {
+        headers: { accept: "application/json" },
+        signal: controller.signal,
+        cache: "no-store",
+      },
+    );
     if (!res.ok) return inline;
     const body = (await res.json()) as unknown;
-    return mergeBracketPayload(inline, body);
+    return mergeByGuidPayload(inline, body);
   } catch {
     return inline;
   } finally {
     clearTimeout(timer);
   }
+}
+
+/**
+ * Adapter for the `/v1/bracket/by-guid/<guid>` shape. Maps the public
+ * cascade fields (`champion_code`, `runner_up_code`, `third_place_code`,
+ * `knockout_path[*].opponent_code`) onto the `BracketShareCardInput`
+ * shape the canvas renderer expects.
+ */
+function mergeByGuidPayload(
+  inline: BracketShareCardInput,
+  body: unknown,
+): BracketShareCardInput {
+  if (!body || typeof body !== "object") return inline;
+  const root = body as Record<string, unknown>;
+  const b = (root.bracket as Record<string, unknown> | undefined) ?? null;
+  if (!b) return inline;
+
+  const champCode = readIsoCode(b.champion_code);
+  const runnerCode = readIsoCode(b.runner_up_code);
+  const thirdCode = readIsoCode(b.third_place_code);
+
+  const champion =
+    champCode && (inline.champion.code === "ARG" || !inline.champion.code)
+      ? { code: champCode, name: champCode, kit: null }
+      : inline.champion;
+
+  const runnerUp = inline.runnerUp
+    ?? (runnerCode ? { code: runnerCode, name: runnerCode, kit: null } : null);
+  const thirdPlace = inline.thirdPlace
+    ?? (thirdCode ? { code: thirdCode, name: thirdCode, kit: null } : null);
+
+  let knockoutPath = inline.knockoutPath;
+  if (inline.knockoutPath.length <= 1 && Array.isArray(b.knockout_path)) {
+    const path = (b.knockout_path as unknown[])
+      .map((e) => {
+        if (!e || typeof e !== "object") return null;
+        const r = e as Record<string, unknown>;
+        const stage = typeof r.stage === "string" ? r.stage.toLowerCase() : null;
+        const oppCode = readIsoCode(r.opponent_code);
+        if (!stage || !oppCode) return null;
+        if (!["r16", "qf", "sf", "tp", "final"].includes(stage)) return null;
+        return {
+          stage: stage as "r16" | "qf" | "sf" | "tp" | "final",
+          teamCode: oppCode,
+          teamName: oppCode,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+    if (path.length > 0) knockoutPath = path;
+  }
+
+  let shareGuid = inline.shareGuid;
+  if (!shareGuid && typeof b.share_guid === "string"
+      && /^[a-zA-Z0-9_-]{3,64}$/.test(b.share_guid)) {
+    shareGuid = b.share_guid;
+  }
+
+  return { ...inline, champion, runnerUp, thirdPlace, knockoutPath, shareGuid };
+}
+
+function readIsoCode(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const s = raw.trim().toUpperCase();
+  return /^[A-Z]{2,4}$/.test(s) ? s : null;
 }
 
 /**
