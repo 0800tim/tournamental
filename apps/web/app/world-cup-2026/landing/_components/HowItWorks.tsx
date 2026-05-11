@@ -27,7 +27,9 @@ export function HowItWorks() {
         <p>
           Tweak picks game by game right up to kickoff. The earlier you save
           a long-shot, the bigger the multiplier when it pays off — wait
-          until kickoff and you score flat.
+          until kickoff and you score flat. Every save resets the multiplier
+          clock, so changing your mind costs you a little of that early
+          conviction bonus.
         </p>
         <div className="wc-step-decay" aria-label="Early-save multiplier decay 5x to 1x">
           {DECAY.map((m, i) => (

@@ -92,9 +92,9 @@ async function gotoBracket(page: Page): Promise<void> {
 // Tabs need a click to render — reading their badge counts only reflects
 // the current state if the page has hydrated.
 async function waitForHydration(page: Page): Promise<void> {
-  await expect(page.getByRole("tab", { name: /Group stage/ })).toBeVisible();
-  await expect(page.getByRole("tab", { name: /Knockouts/ })).toBeVisible();
-  await expect(page.getByRole("tab", { name: /Lock \+ share/ })).toBeVisible();
+  await expect(page.getByRole("tab", { name: /^Groups/ })).toBeVisible();
+  await expect(page.getByRole("tab", { name: /^R32/ })).toBeVisible();
+  await expect(page.getByRole("tab", { name: /^Final/ })).toBeVisible();
 }
 
 // ---------- the test ----------
@@ -150,10 +150,10 @@ test.describe("Full WC2026 bracket cascade", () => {
     await snap(page, SCREENSHOTS.groupsFilled);
 
     // ------------------------------------------------------------------
-    // 3. Switch to Knockouts tab — R32 slots should already be populated
+    // 3. Switch to the R32 tab — R32 slots should already be populated
     //    by the cascade because every group's standings are now defined.
     // ------------------------------------------------------------------
-    await page.getByRole("tab", { name: /Knockouts/ }).click();
+    await page.getByRole("tab", { name: /^R32/ }).click();
     await expect(page.locator(".km-grid")).toBeVisible();
     await snap(page, SCREENSHOTS.knockoutsTabEmpty);
 
@@ -240,12 +240,12 @@ test.describe("Full WC2026 bracket cascade", () => {
     );
 
     // ------------------------------------------------------------------
-    // 11. Save + share tab — verify summary shows the full submission.
+    // 11. Final tab — hosts the save-and-share summary for the full bracket.
     // ------------------------------------------------------------------
-    await page.getByRole("tab", { name: /Save \+ share/ }).click();
+    await page.getByRole("tab", { name: /^Final/ }).click();
     await expect(page.locator(".bracket-lock-summary")).toBeVisible();
 
-    // 11a. Counts inside the lock panel.
+    // 11a. Counts inside the save panel.
     const groupsCount = page.locator(".bracket-lock-counts strong").nth(0);
     const knockoutsCount = page.locator(".bracket-lock-counts strong").nth(1);
     await expect(groupsCount).toHaveText(String(EXPECTED_GROUP_MATCHES));
@@ -280,11 +280,11 @@ test.describe("Full WC2026 bracket cascade", () => {
     // not yet exist in the live UI. Reported as test failures so the
     // orchestrator gets a clear bug list, but they don't block the rest
     // of the run.
-    const lockSection = page.locator(".bracket-lock-section");
+    const lockSection = page.locator(".bracket-final-section");
     await expect
       .soft(
         lockSection,
-        "Lock-share section should surface the predicted tournament winner",
+        "Final/save section should surface the predicted tournament winner",
       )
       .toContainText(/winner|champion|wins it|champions/i);
 
@@ -294,7 +294,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await expect
       .soft(
         multiplierTable.first(),
-        "Lock-share section should expose a lock-multiplier table",
+        "Final/save section should expose an early-save multiplier table",
       )
       .toBeVisible();
 
@@ -305,7 +305,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     expect
       .soft(
         ctaCount,
-        "Lock-share section should expose a 'Back your boldest pick' (or 'view market') CTA",
+        "Final/save section should expose a 'Back your boldest pick' (or 'view market') CTA",
       )
       .toBeGreaterThan(0);
 

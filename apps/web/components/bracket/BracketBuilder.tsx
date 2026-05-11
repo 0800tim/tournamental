@@ -1,8 +1,25 @@
 /**
  * BracketBuilder — owns prediction state for the per-match prediction
- * game. Renders the group-stage tab (12 GroupCards), the knockouts tab
- * (knockout matches in a tree), and the lock-summary tab (counts +
- * submit).
+ * game.
+ *
+ * The bracket is split into round-tabs so users (especially on mobile)
+ * can navigate the 104-match tournament one round at a time:
+ *
+ *   - Groups   — 12 GroupCards, vertical stack per group
+ *   - R32      — Round-of-32 cards in a responsive grid
+ *   - R16      — Round-of-16 cards in a responsive grid
+ *   - QF       — Quarter-finals
+ *   - SF + 3rd — Semi-finals + 3rd-place playoff
+ *   - Final    — the Final match + save & share summary
+ *
+ * Tab state is URL-hash-routable so the user can bookmark or share
+ * `/world-cup-2026#qf` and land on the quarter-finals.
+ *
+ * "Save" everywhere in user copy: the internal field name `lockedAt`
+ * (used by the scoring engine) is intentionally preserved, but every
+ * user-facing button/label/toast reads as "Save" / "Saved". Tim's spec:
+ * picks are changeable until the match kicks off, so "lock" sounds too
+ * final.
  *
  * Performance: standings are computed pure-functionally on every
  * keystroke; a 12-group recompute is sub-millisecond on every device we
@@ -12,7 +29,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   cascade,
@@ -51,7 +68,40 @@ export interface BracketBuilderProps {
   readonly tournament: Tournament;
 }
 
-type TabId = "groups" | "knockouts" | "lock";
+/**
+ * One tab per round, plus the final-round tab also hosts the
+ * "save & share" summary. `groups` is the default landing tab.
+ */
+type TabId = "groups" | "r32" | "r16" | "qf" | "sf" | "final";
+
+const TAB_ORDER: readonly TabId[] = ["groups", "r32", "r16", "qf", "sf", "final"];
+
+interface TabMeta {
+  readonly id: TabId;
+  readonly label: string;
+  readonly hash: string;
+  readonly aria: string;
+}
+
+const TABS: readonly TabMeta[] = [
+  { id: "groups", label: "Groups", hash: "#groups", aria: "Group stage matches" },
+  { id: "r32", label: "R32", hash: "#r32", aria: "Round of 32" },
+  { id: "r16", label: "R16", hash: "#r16", aria: "Round of 16" },
+  { id: "qf", label: "QF", hash: "#qf", aria: "Quarter-finals" },
+  { id: "sf", label: "SF + 3rd", hash: "#sf", aria: "Semi-finals and 3rd-place play-off" },
+  { id: "final", label: "Final", hash: "#final", aria: "Final and bracket summary" },
+];
+
+function hashToTab(raw: string | undefined | null): TabId {
+  if (!raw) return "groups";
+  const cleaned = raw.replace(/^#/, "").toLowerCase();
+  // Allow a few obvious aliases so old `#knockouts` / `#lock` deeplinks
+  // don't drop the user on a 404-feeling blank tab.
+  if (cleaned === "knockouts") return "r32";
+  if (cleaned === "lock") return "final";
+  const found = TABS.find((t) => t.id === cleaned);
+  return found ? found.id : "groups";
+}
 
 function emptyBracket(): Bracket {
   return {
@@ -63,11 +113,35 @@ function emptyBracket(): Bracket {
   };
 }
 
+/**
+ * Count picks for a given knockout stage so the per-tab progress
+ * indicator reads "x of N picked".
+ */
+function knockoutCountFor(
+  stage: TabId,
+  cascaded: CascadedBracket,
+  picks: Record<string, MatchPrediction>,
+): { picked: number; total: number } {
+  const stageIds =
+    stage === "sf"
+      ? (["sf", "tp"] as const)
+      : stage === "final"
+        ? (["f"] as const)
+        : ([stage] as const);
+  const matches = cascaded.knockouts.filter((k) =>
+    (stageIds as readonly string[]).includes(k.stage),
+  );
+  const total = matches.length;
+  let picked = 0;
+  for (const m of matches) if (picks[m.id]) picked += 1;
+  return { picked, total };
+}
+
 export function BracketBuilder(props: BracketBuilderProps) {
   const { tournament } = props;
   const [userLocalId, setUserLocalId] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
-  const [tab, setTab] = useState<TabId>("groups");
+  const [tab, setTabState] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
   const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
@@ -86,13 +160,32 @@ export function BracketBuilder(props: BracketBuilderProps) {
     HTMLDivElement,
     HTMLDivElement
   >();
-  // Snapshot of the previous cascaded knockouts so we can detect when
-  // an upstream pick changes a downstream slot — when the slot occupant
-  // changes we smooth-scroll the affected card into view (only if it's
-  // off-screen). Stored in a ref so the cascade effect can compare
-  // without forcing extra renders.
   const prevKnockoutsRef = useRef<readonly CascadedKnockout[] | null>(null);
   const lastEditedRef = useRef<{ kind: "group" | "knockout"; matchId: string } | null>(null);
+
+  // Hash-driven tab routing. On mount, read window.location.hash. We
+  // listen for hashchange so back/forward navigation keeps the tab in
+  // sync. Writing the hash is debounced through `setTab` below.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const apply = () => setTabState(hashToTab(window.location.hash));
+    apply();
+    window.addEventListener("hashchange", apply);
+    return () => window.removeEventListener("hashchange", apply);
+  }, []);
+
+  const setTab = useCallback((next: TabId) => {
+    setTabState(next);
+    if (typeof window === "undefined") return;
+    const target = TABS.find((t) => t.id === next)?.hash ?? "#groups";
+    // Use history.replaceState so we don't pollute the back stack on
+    // every tab nudge; we still fire a synthetic hashchange so any
+    // sibling components listening pick it up.
+    if (window.location.hash !== target) {
+      const url = `${window.location.pathname}${window.location.search}${target}`;
+      window.history.replaceState(null, "", url);
+    }
+  }, []);
 
   useEffect(() => {
     const id = localUserId();
@@ -102,9 +195,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     else setBracket({ ...emptyBracket(), bracketId: id });
   }, [tournament.id]);
 
-  // Verified-Pundit lookup runs once we know the local user id. Fails open:
-  // any error/network failure leaves the badge hidden — never blocks the
-  // bracket UI.
   useEffect(() => {
     if (userLocalId === "ssr_user") return;
     let cancelled = false;
@@ -116,10 +206,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     };
   }, [userLocalId]);
 
-  // Bulk-fetch odds once on mount so every MatchPredictionRow can show
-  // its W/D/L percentages inline without 72 individual requests. The
-  // snapshot route has its own deterministic mock fallback when the
-  // upstream odds-ingest service is unreachable.
   useEffect(() => {
     let cancelled = false;
     fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } })
@@ -143,14 +229,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     [tournament.teams],
   );
 
-  // Bridge: convert the per-match Bracket → legacy BracketPrediction so the
-  // cascade engine can compute knockout slot occupancy. We then layer user
-  // knockout predictions on top.
-  //
-  // Multi-pass: each knockout round can only resolve its home/away slots
-  // once the previous round's winners are known. Iterate (group → R32 → R16
-  // → QF → SF → F) so a QF pick can find its (home, away) once R16 picks
-  // have populated them. Stop early at fixed point.
   const cascaded: CascadedBracket = useMemo(() => {
     const legacy = bracketToCascadeInput(tournament, bracket, userLocalId);
     let result = cascade(tournament, legacy);
@@ -177,13 +255,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   // Scroll-to-fix: when an upstream pick changes a downstream slot,
-  // smooth-scroll the affected knockout card into view (only if it's
-  // off-screen). We compare the previous cascade snapshot to the
-  // current one and find the FIRST knockout whose home/away slot
-  // changed identity. We only do this on the knockouts tab — on the
-  // groups tab, downstream cards aren't visible anyway.
+  // smooth-scroll the affected knockout card into view if off-screen.
+  // We only do this on the per-round tabs that show knockouts.
   useEffect(() => {
-    if (tab !== "knockouts") {
+    if (tab === "groups") {
       prevKnockoutsRef.current = cascaded.knockouts;
       return;
     }
@@ -202,7 +277,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
       );
     });
     if (!changed) return;
-    // requestAnimationFrame so the DOM has the new occupant rendered.
     const raf =
       typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
         ? window.requestAnimationFrame
@@ -255,8 +329,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const onChangeKnockout = (next: MatchPrediction): void => {
     const prev = bracket.knockoutPredictions[next.matchId];
     const isOutcomeChange = !prev || prev.outcome !== next.outcome;
-    // Knockout picks fire the slightly-longer cascade-resolved pattern
-    // because picking a winner here ALWAYS resolves a downstream slot.
     if (isOutcomeChange) haptic(HAPTIC.cascadeResolved);
     lastEditedRef.current = { kind: "knockout", matchId: next.matchId };
     appendHistory(tournament.id, userLocalId, {
@@ -278,19 +350,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
    * match all the way down to the final, including the 3rd-place
    * playoff and any group tiebreakers. Overwrites existing picks (the
    * confirmation modal warns first); user can adjust any pick after.
-   *
-   * Cascade-correctness: knockout slots only resolve once their
-   * upstream round has a winner. We loop stage-by-stage (R32 → R16 →
-   * QF → SF → TP → F), re-running the cascade after each round so the
-   * next round's slots become known before we try to pick them. Picks
-   * that still can't be resolved at the end get a FIFA-rank fallback
-   * (even though we should never actually reach that branch with the
-   * full per-stage loop in place — defensive belt + braces).
-   *
-   * Every pick is recorded in the prediction-history ledger with a
-   * snapshot of the live odds at lock-time, so we can later score
-   * "earlier picks earn higher odds" and run analytics on what users
-   * believed at each step.
    */
   const handleAutoPick = async (): Promise<void> => {
     setShowAutoPickConfirm(false);
@@ -346,9 +405,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }
 
     // ---------- Group tiebreakers ----------
-    // For any group that ends up with a tie that the engine can't break,
-    // rank by FIFA rank (lower = better) as a sensible default. The
-    // user can override via the TiebreakerControl afterwards.
     for (const g of tournament.groups) {
       const teamIds = g.team_ids;
       if (teamIds.length !== 4) continue;
@@ -373,15 +429,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }
 
     // ---------- Knockouts: stage-by-stage with re-cascade ----------
-    // Each round's slots only resolve once the previous round has
-    // winners. We loop over the engine's iterative cascade to pull the
-    // overlays from `next.knockoutPredictions` into the cascade output,
-    // then pick whichever stage we're processing on this iteration.
     for (const stage of KO_PICK_STAGES) {
       const legacy = bracketToCascadeInput(tournament, next, userLocalId);
       let round = cascade(tournament, legacy);
-      // Multi-pass: keep looping until the resolved-winner count stops
-      // growing (mirrors the same pattern in the cascaded useMemo).
       for (let pass = 0; pass < 6; pass += 1) {
         const overlays = Object.values(next.knockoutPredictions)
           .map((p) => {
@@ -406,7 +456,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
         if (o) {
           outcome = o.homeWin >= o.awayWin ? "home_win" : "away_win";
         } else {
-          // No per-match odds for this knockout — fall back to FIFA rank.
           const homeRank = tournament.teams.find((t) => t.id === k.home.team)?.fifa_rank ?? 99;
           const awayRank = tournament.teams.find((t) => t.id === k.away.team)?.fifa_rank ?? 99;
           outcome = homeRank <= awayRank ? "home_win" : "away_win";
@@ -452,18 +501,130 @@ export function BracketBuilder(props: BracketBuilderProps) {
     };
     const res = await submitBracket(tournament.id, submission, userLocalId);
     if (res.ok) {
-      setSubmitState(`Submitted (id: ${res.bracket_id ?? "n/a"})`);
+      setSubmitState(`Saved (id: ${res.bracket_id ?? "n/a"})`);
       update(submission);
     } else if (res.status === "draft_saved_no_api") {
       setSubmitState("Draft saved locally. API not live yet — see browser console.");
     } else {
-      setSubmitState(`Submit failed: ${res.error ?? "unknown"} — draft saved locally.`);
+      setSubmitState(`Save failed: ${res.error ?? "unknown"} — draft saved locally.`);
     }
+  };
+
+  const handleMobileSave = (): void => {
+    saveDraft(tournament.id, bracket, userLocalId);
+    setSubmitState("Saved locally.");
   };
 
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
   const completedKnockouts = Object.keys(bracket.knockoutPredictions).length;
+  const totalKnockouts = tournament.knockouts.length;
+  const totalPicks = totalGroupMatches + totalKnockouts;
+  const totalCompleted = completedGroupMatches + completedKnockouts;
+
+  // Per-tab progress counter labels.
+  const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
+  const r32Progress = knockoutCountFor("r32", cascaded, bracket.knockoutPredictions);
+  const r16Progress = knockoutCountFor("r16", cascaded, bracket.knockoutPredictions);
+  const qfProgress = knockoutCountFor("qf", cascaded, bracket.knockoutPredictions);
+  const sfProgress = knockoutCountFor("sf", cascaded, bracket.knockoutPredictions);
+  const finalProgress = knockoutCountFor("final", cascaded, bracket.knockoutPredictions);
+
+  const progressByTab: Record<TabId, { picked: number; total: number }> = {
+    groups: groupProgress,
+    r32: r32Progress,
+    r16: r16Progress,
+    qf: qfProgress,
+    sf: sfProgress,
+    final: finalProgress,
+  };
+
+  const stagesForTab = (id: TabId): readonly StageId[] => {
+    if (id === "sf") return ["sf", "tp"];
+    if (id === "final") return ["f"];
+    if (id === "groups") return [];
+    return [id as StageId];
+  };
+
+  const renderKnockoutGrid = (id: TabId) => {
+    const stages = stagesForTab(id);
+    const matches = cascaded.knockouts.filter((k) =>
+      (stages as readonly string[]).includes(k.stage),
+    );
+    if (matches.length === 0) {
+      return (
+        <p className="bracket-empty-state">
+          Make your group-stage picks first — slots fill in here as you pick.
+        </p>
+      );
+    }
+    // SF tab: split into Semi-finals + 3rd-place playoff sub-groups so
+    // the 3rd-place match doesn't read as just another SF card.
+    if (id === "sf") {
+      const sf = matches.filter((k) => k.stage === "sf");
+      const tp = matches.filter((k) => k.stage === "tp");
+      return (
+        <>
+          {sf.length > 0 && (
+            <section
+              className="bracket-round-subgroup"
+              aria-label="Semi-finals"
+            >
+              <h3 className="bracket-round-subgroup-title">Semi-finals</h3>
+              <div className="bracket-round-grid">
+                {sf.map((k) => (
+                  <KnockoutMatch
+                    key={k.id}
+                    knockout={k}
+                    teams={teamMap}
+                    prediction={bracket.knockoutPredictions[k.id]}
+                    country={country}
+                    onChange={onChangeKnockout}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+          {tp.length > 0 && (
+            <section
+              className="bracket-round-subgroup"
+              aria-label="3rd-place play-off"
+            >
+              <h3 className="bracket-round-subgroup-title">3rd-place play-off</h3>
+              <div className="bracket-round-grid">
+                {tp.map((k) => (
+                  <KnockoutMatch
+                    key={k.id}
+                    knockout={k}
+                    teams={teamMap}
+                    prediction={bracket.knockoutPredictions[k.id]}
+                    country={country}
+                    onChange={onChangeKnockout}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
+        </>
+      );
+    }
+    return (
+      <div
+        className={`bracket-round-grid ${id === "final" ? "bracket-round-grid-final" : ""}`}
+      >
+        {matches.map((k) => (
+          <KnockoutMatch
+            key={k.id}
+            knockout={k}
+            teams={teamMap}
+            prediction={bracket.knockoutPredictions[k.id]}
+            country={country}
+            onChange={onChangeKnockout}
+          />
+        ))}
+      </div>
+    );
+  };
 
   return (
     <div className="bracket-builder">
@@ -478,39 +639,37 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </h1>
         <p>
           Predict the outcome of every match. The group standings are computed
-          live from your picks. Save your bracket before kickoff for max
-          points — you can tweak any pick game by game until kickoff.
+          live from your picks. Save each pick before its match kicks off — you
+          can tweak any pick game by game until then.
+        </p>
+        <p className="bracket-header-running-total" aria-live="polite">
+          <strong>{totalCompleted}</strong> of {totalPicks} matches picked
         </p>
       </header>
 
-      <nav className="bracket-tabs" role="tablist" aria-label="Bracket sections">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "groups"}
-          className={`bracket-tab ${tab === "groups" ? "is-active" : ""}`}
-          onClick={() => setTab("groups")}
-        >
-          Group stage <span className="bracket-tab-count">{completedGroupMatches}/{totalGroupMatches}</span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "knockouts"}
-          className={`bracket-tab ${tab === "knockouts" ? "is-active" : ""}`}
-          onClick={() => setTab("knockouts")}
-        >
-          Knockouts <span className="bracket-tab-count">{completedKnockouts}/{tournament.knockouts.length}</span>
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "lock"}
-          className={`bracket-tab ${tab === "lock" ? "is-active" : ""}`}
-          onClick={() => setTab("lock")}
-        >
-          Save + share
-        </button>
+      <nav className="bracket-tabs" role="tablist" aria-label="Bracket rounds">
+        {TABS.map((t) => {
+          const p = progressByTab[t.id];
+          const isActive = tab === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={isActive}
+              aria-controls={`bracket-panel-${t.id}`}
+              className={`bracket-tab ${isActive ? "is-active" : ""}`}
+              onClick={() => setTab(t.id)}
+            >
+              <span className="bracket-tab-label">{t.label}</span>
+              {p.total > 0 && (
+                <span className="bracket-tab-count" aria-label={`${p.picked} of ${p.total} picked`}>
+                  {p.picked}/{p.total}
+                </span>
+              )}
+            </button>
+          );
+        })}
         <button
           type="button"
           className="bracket-tab bracket-tab-autopick"
@@ -523,7 +682,18 @@ export function BracketBuilder(props: BracketBuilderProps) {
       </nav>
 
       {tab === "groups" && (
-        <section role="tabpanel" aria-label="Group stage" className="bracket-groups-section">
+        <section
+          id="bracket-panel-groups"
+          role="tabpanel"
+          aria-label="Group stage"
+          className="bracket-panel bracket-groups-section"
+        >
+          <div className="bracket-round-header">
+            <h2>Group stage</h2>
+            <span className="bracket-round-progress">
+              <strong>{groupProgress.picked}</strong> of {groupProgress.total} matches picked
+            </span>
+          </div>
           <div className="bracket-groups-grid" ref={groupsRootRef}>
             {tournament.groups.map((g) => (
               <GroupCard
@@ -543,60 +713,63 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </section>
       )}
 
-      {tab === "knockouts" && (
-        <section role="tabpanel" aria-label="Knockouts" className="bracket-knockouts-section">
-          <p className="bracket-tree-help">
-            Click the team you predict will advance. Slots fill in automatically as
-            you finish predicting the group stage.
+      {tab !== "groups" && tab !== "final" && (
+        <section
+          id={`bracket-panel-${tab}`}
+          role="tabpanel"
+          aria-label={TABS.find((t) => t.id === tab)?.aria ?? "Knockouts"}
+          className={`bracket-panel bracket-round-section bracket-round-${tab}`}
+        >
+          <div className="bracket-round-header">
+            <h2>{TABS.find((t) => t.id === tab)?.aria ?? "Knockouts"}</h2>
+            <span className="bracket-round-progress">
+              <strong>{progressByTab[tab].picked}</strong> of {progressByTab[tab].total} picked
+            </span>
+          </div>
+          <p className="bracket-round-help">
+            Tap the team you predict will advance. Slots fill in as you finish
+            the previous round.
           </p>
           <div className="km-pinch-wrap" ref={kmContainerRef} data-mobile-pinch="">
-          <div className="km-grid" ref={kmTargetRef}>
-            {(["r32", "r16", "qf", "sf", "tp", "f"] as const).map((stage) => {
-              const stageMatches = cascaded.knockouts.filter((k) => k.stage === stage);
-              if (stageMatches.length === 0) return null;
-              const stageLabel: Record<typeof stage, string> = {
-                r32: "R32",
-                r16: "R16",
-                qf: "QF",
-                sf: "SF",
-                tp: "3RD PLACE",
-                f: "FINAL",
-              };
-              return (
-                <div key={stage} className="km-stage-col">
-                  <h3>{stageLabel[stage]}</h3>
-                  {stageMatches.map((k) => (
-                    <KnockoutMatch
-                      key={k.id}
-                      knockout={k}
-                      teams={teamMap}
-                      prediction={bracket.knockoutPredictions[k.id]}
-                      country={country}
-                      onChange={onChangeKnockout}
-                    />
-                  ))}
-                </div>
-              );
-            })}
-          </div>
+            <div className="km-grid km-grid-single-round" ref={kmTargetRef}>
+              {renderKnockoutGrid(tab)}
+            </div>
           </div>
         </section>
       )}
 
-      {tab === "lock" && (
-        <section role="tabpanel" aria-label="Save + share" className="bracket-lock-section">
-          <LockSummary
-            bracket={bracket}
-            cascaded={cascaded}
-            tournament={tournament}
-            deadline_utc={tournament.start_utc}
-          />
+      {tab === "final" && (
+        <section
+          id="bracket-panel-final"
+          role="tabpanel"
+          aria-label="Final and bracket summary"
+          className="bracket-panel bracket-final-section"
+        >
+          <div className="bracket-round-header">
+            <h2>Final</h2>
+            <span className="bracket-round-progress">
+              <strong>{finalProgress.picked}</strong> of {finalProgress.total} picked
+            </span>
+          </div>
+          <div className="bracket-final-layout">
+            <div className="bracket-final-match km-pinch-wrap" ref={kmContainerRef} data-mobile-pinch="">
+              <div className="km-grid km-grid-final" ref={kmTargetRef}>
+                {renderKnockoutGrid("final")}
+              </div>
+            </div>
+            <LockSummary
+              bracket={bracket}
+              cascaded={cascaded}
+              tournament={tournament}
+              deadline_utc={tournament.start_utc}
+            />
+          </div>
           <div className="bracket-lock-counts">
             <div>
               <strong>{completedGroupMatches}</strong> / {totalGroupMatches} group matches
             </div>
             <div>
-              <strong>{completedKnockouts}</strong> / {tournament.knockouts.length} knockout picks
+              <strong>{completedKnockouts}</strong> / {totalKnockouts} knockout picks
             </div>
             <div>
               <strong>{Object.keys(bracket.groupTiebreakers).length}</strong> tiebreakers set
@@ -608,17 +781,22 @@ export function BracketBuilder(props: BracketBuilderProps) {
               onClick={() => saveDraft(tournament.id, bracket, userLocalId)}
               className="bracket-btn bracket-btn-secondary"
             >
-              Save
+              Save draft locally
             </button>
             <button
               type="button"
               onClick={handleSubmit}
               className="bracket-btn bracket-btn-primary"
             >
-              Save + share
+              Save bracket
             </button>
             {submitState && <span className="bracket-submit-state">{submitState}</span>}
           </div>
+          <p className="bracket-final-note">
+            You can change any pick right up until that match kicks off. Saving
+            now lets you share your bracket and locks in your odds-at-pick for
+            scoring.
+          </p>
         </section>
       )}
 
@@ -634,6 +812,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
           </ul>
         </details>
       )}
+
+      {/* Mobile-only floating Save & Share CTA. Save persists any
+       * unsaved edits; Share is wired up by the share-card agent —
+       * stub here so the layout/CSS lands now. */}
+      <div className="bracket-mobile-cta" role="group" aria-label="Save and share">
+        <button
+          type="button"
+          className="bracket-mobile-cta-btn bracket-mobile-cta-save"
+          onClick={handleMobileSave}
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          className="bracket-mobile-cta-btn bracket-mobile-cta-share"
+          // TODO(share-card-agent): wire to the share modal once it lands.
+          onClick={() => setTab("final")}
+          aria-label="Share — opens the bracket summary"
+        >
+          Share
+        </button>
+      </div>
 
       {showAutoPickConfirm && (
         <div

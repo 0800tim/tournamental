@@ -113,7 +113,7 @@ export function BracketTree(props: BracketTreeProps) {
                 <g
                   onClick={() => onToggleLock(k.id)}
                   style={{ cursor: "pointer" }}
-                  aria-label={locked ? "Clear save" : "Save pick at current odds"}
+                  aria-label={locked ? "Remove save" : "Save pick at current odds"}
                 >
                   <circle cx={COL_W - 44} cy={10} r={6} className="bracket-card-lock" fill={locked ? "#facc15" : "rgba(255,255,255,0.18)"} />
                 </g>

@@ -2,10 +2,19 @@
 
 > Browse anywhere → tap any fixture → pick or change pick → no full nav.
 
+## Naming note — Save, not Lock
+
+User-facing copy reads as "Save" / "Saved" everywhere. Internally, the
+prediction record still carries `lockedAt` and `oddsAtLock` field names
+because the scoring engine consumes them and the 409 `match_already_started`
+error code stays. Tim's rule: the **policy** ("you can't change after
+kickoff") is intact; the **verb** in the UI is "Save" because a pick is
+changeable at any time before kickoff.
+
 ## Why
 
 The bracket page (`/world-cup-2026`) shows all 104 matches at once. That's
-the right surface for the "lock-it-all-in" flow, and it's the only way the
+the right surface for the "save-it-all-in" flow, and it's the only way the
 bulk submit endpoint can cover. But the team page (`/team/[code]`), the
 match preview page (`/match/[id]/preview`), and (later) social cards all
 present an **individual fixture** to the user. Tim's spec:
@@ -30,8 +39,10 @@ Mounted alongside the existing `/v1/bracket/*` routes. Same auth model
 
 ### `PUT /v1/picks/:userId/:matchId`
 
-Atomically lock or change a single pick. The path `:userId` must match
-the caller's `X-User-Id`; mismatch returns 403.
+Atomically save or change a single pick. The path `:userId` must match
+the caller's `X-User-Id`; mismatch returns 403. Internally the saved
+record carries a `lockedAt` ISO timestamp — that's what the scoring
+engine consumes; the user-facing UI calls this "saved".
 
 Body:
 

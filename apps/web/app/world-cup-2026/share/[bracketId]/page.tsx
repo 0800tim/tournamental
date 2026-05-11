@@ -31,7 +31,7 @@ export function generateMetadata(p: Params): Metadata {
   const og = ogUrl(p);
   return {
     title: `@${handle}'s World Cup 2026 bracket — Tournamental`,
-    description: `${handle} picked ${winner} to lift the trophy. Lock yours before kickoff.`,
+    description: `${handle} picked ${winner} to lift the trophy. Save yours before kickoff.`,
     openGraph: {
       title: `@${handle}'s World Cup 2026 bracket`,
       description: `${handle} picked ${winner} to lift the trophy.`,

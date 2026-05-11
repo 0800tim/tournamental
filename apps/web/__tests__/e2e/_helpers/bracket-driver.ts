@@ -13,7 +13,8 @@
  *   - MatchPredictionRow → `.mpr-pick-home` / `.mpr-pick-draw` / `.mpr-pick-away`
  *   - KnockoutMatch      → `[data-match-id]` cards with `.km-home` / `.km-away`
  *                          buttons; winning side gets `.is-winner`
- *   - BracketBuilder     → tab buttons `Group stage X/72`, `Knockouts X/32`
+ *   - BracketBuilder     → tab buttons `Groups X/72`, `R32 X/16`, `R16 X/8`,
+ *                          `QF X/4`, `SF + 3rd X/3`, `Final X/1`
  *
  * Cascade timing: every knockout pick triggers a multi-pass cascade
  * recompute in BracketBuilder. We add a tiny settle delay (~200ms) between
@@ -56,7 +57,7 @@ export async function clearBracketLocalStorage(page: Page): Promise<void> {
 /** Click the chosen outcome on every visible group-stage match (72 total). */
 export async function pickAllGroupMatches(page: Page, side: GroupSide): Promise<number> {
   // Make sure we're on the groups tab.
-  const groupsTab = page.getByRole("tab", { name: /Group stage/ });
+  const groupsTab = page.getByRole("tab", { name: /^Groups/ });
   await groupsTab.click();
 
   const btnClass =
@@ -90,8 +91,17 @@ export async function pickAllKnockoutsForRound(
   stage: KnockoutStage,
   side: KnockoutSide,
 ): Promise<number> {
-  const knockoutsTab = page.getByRole("tab", { name: /Knockouts/ });
-  await knockoutsTab.click();
+  // Each round is its own tab now; navigate to the matching one. The
+  // 3rd-place playoff lives on the same tab as the semi-finals.
+  const tabPatternByStage: Record<KnockoutStage, RegExp> = {
+    r32: /^R32/,
+    r16: /^R16/,
+    qf: /^QF/,
+    sf: /^SF/,
+    third_place: /^SF/,
+    final: /^Final/,
+  };
+  await page.getByRole("tab", { name: tabPatternByStage[stage] }).click();
 
   const cards = await listKnockoutCardsForStage(page, stage);
   for (const id of cards) {
@@ -165,18 +175,34 @@ export async function assertNoPlaceholders(
   }
 }
 
-/** Read the small "X/Y" badges from each tab. */
+/** Read the small "X/Y" badges from the per-round tabs.
+ *
+ * "knockouts" returns the sum of R32+R16+QF+SF+Final pick counts so
+ * existing callers continue to work without breakdown changes. */
 export async function getPickCounts(
   page: Page,
 ): Promise<{ groups: string; knockouts: string }> {
   const groupsBadge = page
-    .getByRole("tab", { name: /Group stage/ })
-    .locator(".bracket-tab-count");
-  const knockoutsBadge = page
-    .getByRole("tab", { name: /Knockouts/ })
+    .getByRole("tab", { name: /^Groups/ })
     .locator(".bracket-tab-count");
   const groups = (await groupsBadge.innerText()).trim();
-  const knockouts = (await knockoutsBadge.innerText()).trim();
+  const sumOver = async (regex: RegExp): Promise<{ picked: number; total: number }> => {
+    const badge = page.getByRole("tab", { name: regex }).locator(".bracket-tab-count");
+    const txt = (await badge.innerText()).trim();
+    const m = txt.match(/^(\d+)\/(\d+)$/);
+    if (!m) return { picked: 0, total: 0 };
+    return { picked: Number(m[1]), total: Number(m[2]) };
+  };
+  const parts = await Promise.all([
+    sumOver(/^R32/),
+    sumOver(/^R16/),
+    sumOver(/^QF/),
+    sumOver(/^SF/),
+    sumOver(/^Final/),
+  ]);
+  const picked = parts.reduce((a, p) => a + p.picked, 0);
+  const total = parts.reduce((a, p) => a + p.total, 0);
+  const knockouts = `${picked}/${total}`;
   return { groups, knockouts };
 }
 

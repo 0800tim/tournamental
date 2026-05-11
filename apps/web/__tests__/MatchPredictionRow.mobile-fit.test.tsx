@@ -1,16 +1,14 @@
 /**
  * Mobile-fit regression for MatchPredictionRow.
  *
- * The MPR enrichment (form dots + H2H pill + selection ring) must keep the
- * row compact: spec says the height delta is <=10% on a 375px-wide phone.
+ * Following the 2026-05-11 "cluttered MPR cleanup" (commit db4c7b4),
+ * the row no longer renders FormDots, the HeadToHeadPill, or the per-
+ * pick info badges. The contract is now simpler: each side is a single
+ * flag + team code + W/D/L percentage chip — that's it.
  *
- * jsdom can't actually paint pixels, so this test takes the lighter (but
- * still useful) approach: it asserts the structural footprint stays small.
- *
- *  - the H2H pill row is ONE single line (height-bounded by the pill's
- *    16px CSS height; whitelist `.h2h-pill[height=16]` if jsdom resolves it)
- *  - per-pick column adds ONE FormDots node at sm size (8px dots)
- *  - the row still uses CSS grid (not flex) so it lays out predictably
+ * jsdom can't actually paint pixels, so this test takes the lighter
+ * (but still useful) approach: it asserts the structural footprint
+ * stays small and the removed elements are not present.
  */
 
 // @vitest-environment jsdom
@@ -40,7 +38,7 @@ const AWAY = {
 } as const;
 
 describe("MatchPredictionRow — mobile fit", () => {
-  it("has exactly one FormDots strip per pick column", () => {
+  it("no FormDots strip in either pick column (cluttered-MPR cleanup)", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -52,14 +50,11 @@ describe("MatchPredictionRow — mobile fit", () => {
         onChange={() => {}}
       />,
     );
-    expect(container.querySelectorAll(".mpr-pick-home .fd-row")).toHaveLength(1);
-    expect(container.querySelectorAll(".mpr-pick-away .fd-row")).toHaveLength(1);
-    // Form dots in the row are the sm variant — small footprint.
-    const dotRow = container.querySelector(".mpr-pick-home .fd-row") as HTMLElement;
-    expect(dotRow.dataset.size).toBe("sm");
+    expect(container.querySelectorAll(".mpr-pick-home .fd-row")).toHaveLength(0);
+    expect(container.querySelectorAll(".mpr-pick-away .fd-row")).toHaveLength(0);
   });
 
-  it("renders exactly one H2H pill in the row", () => {
+  it("no H2H pill in the row (cluttered-MPR cleanup)", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -71,10 +66,10 @@ describe("MatchPredictionRow — mobile fit", () => {
         onChange={() => {}}
       />,
     );
-    expect(container.querySelectorAll(".mpr-h2h")).toHaveLength(1);
+    expect(container.querySelectorAll(".mpr-h2h")).toHaveLength(0);
   });
 
-  it("structural footprint — picks + h2h + scores rows only", () => {
+  it("structural footprint — picks + scores rows only", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -89,14 +84,14 @@ describe("MatchPredictionRow — mobile fit", () => {
     const row = container.querySelector(".mpr-row") as HTMLElement;
     expect(row).not.toBeNull();
     // Structural children of .mpr-row: view-match link, popup-trigger
-    // button, home pick, draw pick (group only), away pick, h2h pill,
-    // scores wrap. So 7 in group stage (6 in knockouts when the draw
-    // is hidden).
+    // button, home pick, draw pick (group only), away pick, scores
+    // wrap. So 6 in group stage (5 in knockouts when the draw is
+    // hidden). The H2H pill is gone post-cleanup.
     const directChildren = Array.from(row.children).filter(
       (c) => !c.classList.contains("mpr-locked-banner"),
     );
-    expect([6, 7]).toContain(directChildren.length);
-    // And exactly one of those children is the new H2H pill.
-    expect(row.querySelectorAll(".mpr-h2h")).toHaveLength(1);
+    expect([5, 6]).toContain(directChildren.length);
+    // And no H2H pill is rendered.
+    expect(row.querySelectorAll(".mpr-h2h")).toHaveLength(0);
   });
 });

@@ -27,6 +27,9 @@ function jsonResponse(body: unknown, status = 200): Response {
 
 beforeEach(() => {
   window.localStorage.clear();
+  if (typeof window !== "undefined") {
+    window.history.replaceState(null, "", "/");
+  }
   // Stub fetch — answer /api/odds/match/* with deterministic odds, and
   // /api/odds/team/*/group with a 0.25 baseline so each of the four
   // teams in a group gets ~25% group-winner.

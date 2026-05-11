@@ -62,6 +62,10 @@ function mockMatchMedia(reducedMotion = false): void {
 beforeEach(() => {
   window.localStorage.clear();
   mockMatchMedia(false);
+  // Reset the URL hash so a prior test's tab selection doesn't bleed in.
+  if (typeof window !== "undefined") {
+    window.history.replaceState(null, "", "/");
+  }
 });
 
 afterEach(() => {
@@ -75,8 +79,8 @@ afterEach(() => {
 describe("BracketBuilder — pinch-zoom container", () => {
   it("wraps the .km-grid in a .km-pinch-wrap container with transform-origin set", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
-    // Switch to the knockouts tab so the grid mounts.
-    fireEvent.click(screen.getByRole("tab", { name: /Knockouts/ }));
+    // Switch to a knockout-round tab so the pinch-zoom grid mounts.
+    fireEvent.click(screen.getByRole("tab", { name: /R32/ }));
     // Let the pinch-zoom effect run.
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));

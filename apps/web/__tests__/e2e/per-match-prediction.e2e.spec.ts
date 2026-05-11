@@ -48,7 +48,7 @@ test.describe("Per-match prediction", () => {
 
   test("saves the bracket and shows the save summary", async ({ page }) => {
     await page.goto(`${BASE_URL}/world-cup-2026`);
-    await page.getByRole("tab", { name: /Save \+ share/ }).click();
-    await expect(page.getByRole("button", { name: /Save \+ share/ })).toBeVisible();
+    await page.getByRole("tab", { name: /^Final/ }).click();
+    await expect(page.getByRole("button", { name: /Save bracket/ })).toBeVisible();
   });
 });
