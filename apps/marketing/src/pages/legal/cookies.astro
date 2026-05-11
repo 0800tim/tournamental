@@ -1,0 +1,521 @@
+---
+/**
+ * /legal/cookies — Cookie Notice + preference centre.
+ *
+ * First-draft pre-launch (2026-05-13). Required for ePrivacy + GDPR
+ * compliance before we ship the cookie banner.
+ *
+ * Flagged for lawyer review:
+ *   - The cookie table is accurate as of today; update when new cookies
+ *     are added.
+ *   - The preference form posts to /api/cookie-prefs which does not yet
+ *     exist. The analytics agent (parallel task) is wiring the actual
+ *     persistence; until then the form is captured client-side and
+ *     stored in localStorage under "vtourn:cookie-prefs" so the page is
+ *     useful in dev. The hidden POST is best-effort and will silently
+ *     fail until the endpoint lands.
+ *
+ *   - TODO endpoint: apps/api or a Supabase edge function that takes a
+ *     signed JSON payload and writes to a consent_log table. Until that
+ *     ships, the GA4 loader in Analytics.astro should read the
+ *     localStorage flag at boot, NOT a server response, to avoid a
+ *     round-trip on every page.
+ */
+import Layout from "@/layouts/Layout.astro";
+---
+<Layout
+  title="Cookie Notice · Tournamental"
+  description="What cookies and similar technologies Tournamental uses, why we use them, and how to change your preferences."
+  ogImage="/og/legal.png"
+>
+  <article
+    class="container-prose pt-16 pb-20 prose-vt"
+    data-cache-control="public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+  >
+    <p class="text-ink-500 text-xs uppercase tracking-wider">Legal</p>
+    <h1 class="font-display text-3xl md:text-4xl font-bold text-white mt-2">
+      Cookie Notice
+    </h1>
+    <p class="text-ink-500 text-sm mt-3">
+      Last updated: 13 May 2026. Companion to our
+      <a class="link" href="/legal/privacy">Privacy Policy</a>.
+    </p>
+
+    <h2>1. What cookies and similar technologies we use</h2>
+    <p>
+      We use a small set of cookies and similar storage mechanisms
+      (HTML5 localStorage, sessionStorage) to keep you signed in, to
+      remember your preferences, and to understand which parts of the
+      site are working. We do not use any cross-site tracking cookies,
+      and we do not load any third-party advertising cookies on the
+      launch surface.
+    </p>
+    <p>
+      Some of what we use are technically not cookies (for example, an
+      auth token stored in localStorage). We still cover them here
+      because the practical question — "what does the site keep on my
+      device, and what choices do I have?" — is the same.
+    </p>
+
+    <h2>2. Categories</h2>
+    <ul>
+      <li><strong>Strictly necessary.</strong> Required to make the
+        Platform work. Authentication, CSRF protection, load
+        balancing. No consent required, you cannot disable these
+        through the preference centre, but you can clear them in your
+        browser at any time.</li>
+      <li><strong>Performance and analytics.</strong> Help us
+        understand which pages convert, where users drop off, and
+        which features get used. Google Analytics 4 and our
+        first-party event layer. Opt-in.</li>
+      <li><strong>Functional.</strong> Remember preferences you set,
+        for example your tournament view (cards vs molecule), your
+        theme (light, dark, system), and your dismissed banners.
+        Opt-in.</li>
+      <li><strong>Marketing and targeting.</strong> <strong>None on
+        the launch surface.</strong> If we add any in the future we
+        will update this notice and ask for consent first.</li>
+    </ul>
+
+    <h2>3. Cookie table</h2>
+    <div class="vt-cookies-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category</th>
+            <th>Purpose</th>
+            <th>Expiry</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>vtourn_jwt</code> (localStorage)</td>
+            <td>Strictly necessary</td>
+            <td>Your signed-in session token. Required to stay logged
+              in across page loads.</td>
+            <td>30 days; refreshed on use</td>
+          </tr>
+          <tr>
+            <td><code>vtourn:theme</code> (localStorage)</td>
+            <td>Functional</td>
+            <td>Your chosen theme: <em>system</em>, <em>light</em>, or
+              <em>dark</em>. Used to avoid a flash of wrong colour on
+              first paint.</td>
+            <td>Until you change it</td>
+          </tr>
+          <tr>
+            <td><code>vtourn:cookie-prefs</code> (localStorage)</td>
+            <td>Strictly necessary</td>
+            <td>Stores your choices from the preference centre below.
+              Required to honour those choices on subsequent visits.</td>
+            <td>12 months</td>
+          </tr>
+          <tr>
+            <td><code>cf_clearance</code></td>
+            <td>Strictly necessary</td>
+            <td>Cloudflare bot-management challenge cookie. Set when
+              the WAF decides to verify the request.</td>
+            <td>30 minutes</td>
+          </tr>
+          <tr>
+            <td><code>_ga</code></td>
+            <td>Performance and analytics</td>
+            <td>Google Analytics 4 client identifier. Loaded only if
+              you accept analytics.</td>
+            <td>13 months</td>
+          </tr>
+          <tr>
+            <td><code>_gid</code></td>
+            <td>Performance and analytics</td>
+            <td>Google Analytics session identifier. Loaded only if
+              you accept analytics.</td>
+            <td>24 hours</td>
+          </tr>
+          <tr>
+            <td><code>_ga_&lt;CONTAINER_ID&gt;</code></td>
+            <td>Performance and analytics</td>
+            <td>Google Analytics 4 per-property session state.</td>
+            <td>13 months</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>4. Your choices</h2>
+    <p>
+      Set your preferences below. Your choice is saved on this device
+      and applied to future visits. We do not share your preferences
+      across devices.
+    </p>
+
+    <form
+      id="vt-cookie-prefs"
+      class="vt-cookie-prefs card mt-4"
+      action="/api/cookie-prefs"
+      method="POST"
+      novalidate
+    >
+      <p class="text-sm text-ink-500">
+        <span id="vt-cookie-prefs-status" role="status" aria-live="polite"></span>
+      </p>
+
+      <fieldset class="space-y-4">
+        <legend class="sr-only">Cookie preferences</legend>
+
+        <label class="vt-pref">
+          <input
+            type="checkbox"
+            name="strictly_necessary"
+            checked
+            disabled
+          />
+          <span>
+            <strong>Strictly necessary.</strong>
+            Always on. Required to sign in and keep the site secure.
+          </span>
+        </label>
+
+        <label class="vt-pref">
+          <input
+            type="checkbox"
+            name="analytics"
+          />
+          <span>
+            <strong>Performance and analytics.</strong>
+            Help us understand which pages work. Google Analytics 4
+            plus our first-party event layer.
+          </span>
+        </label>
+
+        <label class="vt-pref">
+          <input
+            type="checkbox"
+            name="functional"
+          />
+          <span>
+            <strong>Functional.</strong>
+            Remember your tournament view, theme, and dismissed
+            banners.
+          </span>
+        </label>
+
+        <label class="vt-pref vt-pref-muted">
+          <input
+            type="checkbox"
+            name="marketing"
+            disabled
+          />
+          <span>
+            <strong>Marketing and targeting.</strong>
+            Not used on the launch surface. Listed here so the option
+            exists if we add anything later, in which case it will be
+            off by default.
+          </span>
+        </label>
+      </fieldset>
+
+      <div class="mt-5 flex flex-wrap gap-3">
+        <button type="submit" class="btn-primary">Save preferences</button>
+        <button type="button" id="vt-cookie-accept-all" class="btn-ghost">
+          Accept all (except marketing)
+        </button>
+        <button type="button" id="vt-cookie-reject-non-essential" class="btn-ghost">
+          Reject non-essential
+        </button>
+      </div>
+    </form>
+
+    <h2>4a. What happens when you change your preferences</h2>
+    <p>
+      When you save a change in the preference centre, three things
+      happen:
+    </p>
+    <ul>
+      <li>Your choice is written to a small <code>vtourn:cookie-prefs</code>
+        record in your browser's localStorage. This record itself is a
+        strictly-necessary item: we need it to honour your choice on
+        the next visit.</li>
+      <li>The page best-effort posts the same record to our server
+        so we can apply your choice across devices once you are
+        signed in. The post is fire-and-forget; if it fails (for
+        example, because you are offline), the localStorage record
+        still wins on this device.</li>
+      <li>The analytics loader (<code>Analytics.astro</code>) reads
+        the new record on the next page load and either initialises
+        Google Analytics 4 or skips it. There is no Google Analytics
+        script on the page until you opt in.</li>
+    </ul>
+    <p>
+      Changing your preferences does not delete cookies that are
+      already on your device. If you have just turned analytics off,
+      the existing <code>_ga</code> and <code>_gid</code> cookies will
+      still be in your browser until they expire or until you clear
+      them manually (see the next section).
+    </p>
+
+    <h2>4b. Global Privacy Control</h2>
+    <p>
+      If your browser sends the <code>Sec-GPC: 1</code> header (or
+      exposes <code>navigator.globalPrivacyControl === true</code>),
+      we treat that as a signal that you do not consent to non-
+      essential cookies. On your first visit we will default the
+      preference centre to "strictly necessary only" and not load
+      analytics. You can still opt in manually by toggling the boxes
+      above. We follow the
+      <a class="link" href="https://globalprivacycontrol.org/">GPC
+      specification</a>.
+    </p>
+
+    <h2>5. How to opt out per-browser or per-device</h2>
+    <p>
+      You can also manage cookies directly in your browser:
+    </p>
+    <ul>
+      <li><strong>Chrome:</strong> Settings → Privacy and security →
+        Cookies and other site data.</li>
+      <li><strong>Safari:</strong> Preferences → Privacy.</li>
+      <li><strong>Firefox:</strong> Settings → Privacy &amp; Security →
+        Cookies and Site Data.</li>
+      <li><strong>Edge:</strong> Settings → Cookies and site
+        permissions.</li>
+    </ul>
+    <p>
+      You can also enable "Do Not Track" or "Global Privacy Control"
+      in your browser. We honour Global Privacy Control as a signal
+      that you do not consent to analytics or marketing cookies.
+    </p>
+
+    <h2>6. Changes to this notice</h2>
+    <p>
+      If we add a new cookie or change what an existing cookie does,
+      we will update this page and reset your preferences so you can
+      review them. We will tell you about material changes via an
+      on-site banner.
+    </p>
+
+    <h2>6a. Embedded content</h2>
+    <p>
+      Some pages embed third-party content (for example, a YouTube
+      replay of a goal, a Telegram message preview, or an X / Twitter
+      post). When you load such a page, the third party may set its
+      own cookies on your device. We try to use privacy-preserving
+      embed modes (<code>youtube-nocookie.com</code>, lazy-loaded
+      iframes) where the third party offers them. We are not
+      responsible for those third-party cookies; their own privacy
+      and cookie policies apply.
+    </p>
+
+    <h2>6b. Server-side analytics</h2>
+    <p>
+      Even when you opt out of all non-essential cookies, our server
+      still logs anonymised events (page paths, response times,
+      status codes) for operational purposes. These logs are not
+      keyed to any user identifier and the IP address is dropped at
+      the edge after the geolocation step. They are kept for 30 days
+      under the retention schedule in the
+      <a class="link" href="/legal/privacy#section-4">Privacy
+      Policy</a>.
+    </p>
+
+    <h2>7. Contact</h2>
+    <p>
+      Questions about cookies?
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.
+    </p>
+
+    <hr class="my-10 border-ink-700/70" />
+
+    <p class="text-ink-500 text-sm">
+      Companion documents:
+      <a class="link" href="/legal/terms">Terms of Service</a>
+      ·
+      <a class="link" href="/legal/privacy">Privacy Policy</a>
+      ·
+      <a class="link" href="/legal">Legal hub</a>
+    </p>
+  </article>
+</Layout>
+
+<style>
+  .vt-cookies-table {
+    margin: 1.6rem 0;
+    overflow-x: auto;
+  }
+  .vt-cookies-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .vt-cookies-table th,
+  .vt-cookies-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.7rem 0.6rem;
+    border-bottom: 1px solid var(--vt-border);
+  }
+  .vt-cookies-table th {
+    color: var(--vt-fg-strong);
+    font-weight: 600;
+  }
+  .vt-cookies-table td {
+    color: var(--vt-fg-muted);
+  }
+  @media (max-width: 640px) {
+    .vt-cookies-table table,
+    .vt-cookies-table thead,
+    .vt-cookies-table tbody,
+    .vt-cookies-table tr,
+    .vt-cookies-table th,
+    .vt-cookies-table td {
+      display: block;
+      width: 100%;
+    }
+    .vt-cookies-table thead { display: none; }
+    .vt-cookies-table tr {
+      margin-bottom: 1.1rem;
+      border: 1px solid var(--vt-border);
+      border-radius: 0.6rem;
+      padding: 0.4rem 0.6rem;
+    }
+    .vt-cookies-table td {
+      border-bottom: none;
+      padding: 0.35rem 0;
+    }
+  }
+
+  .vt-cookie-prefs .vt-pref {
+    display: grid;
+    grid-template-columns: 1.4rem 1fr;
+    gap: 0.7rem;
+    align-items: start;
+    padding: 0.45rem 0;
+  }
+  .vt-cookie-prefs .vt-pref input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+  .vt-cookie-prefs .vt-pref-muted {
+    opacity: 0.7;
+  }
+  .vt-cookie-prefs .vt-pref span {
+    color: var(--vt-fg-muted);
+  }
+  .vt-cookie-prefs .vt-pref strong {
+    color: var(--vt-fg-strong);
+  }
+</style>
+
+<script is:inline>
+  /* Read existing preferences (if any), apply to the form, and wire
+     the buttons. The form's `action` is /api/cookie-prefs but the
+     endpoint may not exist yet (TODO for the analytics agent). We
+     also persist to localStorage so the page is useful in dev and the
+     Analytics.astro loader has something to read on next page-load.
+
+     Honour Global Privacy Control (GPC) on first visit: if GPC is
+     enabled and we have not seen a stored choice, default the
+     non-essential boxes to off. The user can still flip them on. */
+  (function () {
+    var form = document.getElementById("vt-cookie-prefs");
+    if (!form) return;
+
+    var statusEl = document.getElementById("vt-cookie-prefs-status");
+    var KEY = "vtourn:cookie-prefs";
+
+    function readStored() {
+      try {
+        var raw = window.localStorage.getItem(KEY);
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch (_) {
+        return null;
+      }
+    }
+
+    function setStatus(msg) {
+      if (statusEl) statusEl.textContent = msg || "";
+    }
+
+    function apply(prefs) {
+      var fields = form.elements;
+      for (var i = 0; i < fields.length; i++) {
+        var el = fields[i];
+        if (el.type !== "checkbox") continue;
+        if (el.name === "strictly_necessary") continue;
+        if (el.disabled) continue;
+        el.checked = !!(prefs && prefs[el.name]);
+      }
+    }
+
+    function readForm() {
+      var out = { strictly_necessary: true };
+      var fields = form.elements;
+      for (var i = 0; i < fields.length; i++) {
+        var el = fields[i];
+        if (el.type !== "checkbox") continue;
+        if (el.disabled) continue;
+        if (el.name === "strictly_necessary") continue;
+        out[el.name] = !!el.checked;
+      }
+      return out;
+    }
+
+    function save(prefs) {
+      try {
+        window.localStorage.setItem(KEY, JSON.stringify(prefs));
+      } catch (_) {
+        /* storage disabled, server post is best-effort */
+      }
+      // Best-effort POST to the server-side store. Silently ignore
+      // failures (e.g. 404 during dev before the endpoint exists).
+      try {
+        fetch(form.action, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          credentials: "same-origin",
+          body: JSON.stringify(prefs),
+        }).catch(function () {});
+      } catch (_) {}
+    }
+
+    // GPC = Sec-GPC header / navigator.globalPrivacyControl
+    var gpc = !!(window.navigator && window.navigator.globalPrivacyControl);
+    var stored = readStored();
+
+    if (stored) {
+      apply(stored);
+    } else if (gpc) {
+      apply({ analytics: false, functional: false });
+      setStatus("Global Privacy Control detected. Non-essential cookies are off by default.");
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var prefs = readForm();
+      save(prefs);
+      setStatus("Preferences saved on this device.");
+    });
+
+    var acceptAll = document.getElementById("vt-cookie-accept-all");
+    if (acceptAll) {
+      acceptAll.addEventListener("click", function () {
+        apply({ analytics: true, functional: true });
+        var prefs = readForm();
+        save(prefs);
+        setStatus("All non-marketing cookies enabled.");
+      });
+    }
+
+    var rejectExtra = document.getElementById("vt-cookie-reject-non-essential");
+    if (rejectExtra) {
+      rejectExtra.addEventListener("click", function () {
+        apply({ analytics: false, functional: false });
+        var prefs = readForm();
+        save(prefs);
+        setStatus("Only strictly-necessary cookies will be used.");
+      });
+    }
+  })();
+</script>

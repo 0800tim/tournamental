@@ -92,24 +92,29 @@ const year = new Date().getFullYear();
       </div>
     </div>
 
-    {/* Column 3, legal + company */}
+    {/* Column 3, legal + company. The legal column links to the
+        three primary legal documents required for OTP-driven
+        sign-up; the legal hub at /legal aggregates them and a few
+        adjacent items (security disclosure, licences). */}
     <div>
       <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
         <span class="vt-icon-mask vt-icon-ball size-4 text-accent-400" aria-hidden="true"></span>
-        Company
+        Legal
       </h4>
       <ul class="space-y-2 text-ink-200">
+        <li><a href="/legal/terms" class="hover:text-accent-400">Terms</a></li>
+        <li><a href="/legal/privacy" class="hover:text-accent-400">Privacy</a></li>
+        <li><a href="/legal/cookies" class="hover:text-accent-400">Cookies</a></li>
+        <li><a href="/legal" class="hover:text-accent-400">Legal hub</a></li>
         <li><a href="/why" class="hover:text-accent-400">Why Tournamental exists</a></li>
         <li><a href="/press" class="hover:text-accent-400">Press</a></li>
-        <li><a href="/legal" class="hover:text-accent-400">Legal &amp; privacy</a></li>
         <li><a href="mailto:partners@tournamental.com" class="hover:text-accent-400">partners@tournamental.com</a></li>
-        <li><a href="mailto:press@tournamental.com" class="hover:text-accent-400">press@tournamental.com</a></li>
       </ul>
     </div>
   </div>
 
   <div class="container-page py-6 border-t border-ink-700/70 text-xs text-ink-500 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-    <span>© {year} Tournamental Holdings. Open source under Apache 2.0, code &amp; docs free for everyone.</span>
+    <span>© {year} Tournamental Holdings · Apache 2.0 code · CC-BY docs</span>
     <span>Built with care in Aotearoa.</span>
   </div>
 </footer>

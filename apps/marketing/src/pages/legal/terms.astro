@@ -1,0 +1,475 @@
+---
+/**
+ * /legal/terms — Terms of Service.
+ *
+ * First-draft pre-launch terms (2026-05-13). Required so the platform can
+ * lawfully collect phone numbers and emails for OTP login. NZ Privacy Act
+ * 2020 is the primary regime; the platform is global so we also acknowledge
+ * GDPR, UK GDPR, CCPA, and the Australian Privacy Act 1988.
+ *
+ * Flagged for NZ-licensed lawyer review before public launch:
+ *   - NZBN placeholder (TODO when Tournamental Holdings registration is
+ *     confirmed).
+ *   - Wellington venue clause (the registered office is TBD).
+ *   - The legal@tournamental.com mailbox is a placeholder.
+ *   - The Drips Network revenue-share clauses are summaries of doc 19;
+ *     a tax lawyer should check the "not employment / no withholding"
+ *     language for NZ + US recipients.
+ *   - Liability cap is set to NZD 100; sense-check this against NZ
+ *     Consumer Guarantees Act carve-outs.
+ *
+ * Cache policy: long-cache static HTML. The edge ingress reads the
+ * data-cache-control attribute and sets the real header.
+ */
+import Layout from "@/layouts/Layout.astro";
+---
+<Layout
+  title="Terms of Service · Tournamental"
+  description="The legal terms governing use of Tournamental, the open-source tournament prediction platform run by Tournamental Holdings."
+  ogImage="/og/legal.png"
+>
+  {/* Long-cache by default; bumps automatically when the file content
+      hash changes thanks to the cloudflared edge reading
+      data-cache-control. */}
+  <article
+    class="container-prose pt-16 pb-20 prose-vt"
+    data-cache-control="public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+  >
+    <p class="text-ink-500 text-xs uppercase tracking-wider">Legal</p>
+    <h1 class="font-display text-3xl md:text-4xl font-bold text-white mt-2">
+      Terms of Service
+    </h1>
+    <p class="text-ink-500 text-sm mt-3">
+      Last updated: 13 May 2026. This is a pre-launch first draft pending
+      review by a New Zealand licensed lawyer. If anything here conflicts
+      with applicable law, the law wins and the rest stays in force.
+    </p>
+
+    <p class="mt-6">
+      Welcome to Tournamental. These Terms of Service (the
+      <strong>Terms</strong>) govern your access to and use of the
+      Tournamental platform, including the marketing site at
+      <code>tournamental.com</code>, the play app at
+      <code>play.tournamental.com</code>, the API at
+      <code>api.tournamental.com</code>, the Telegram bot
+      <code>@TournamentalBot</code>, the open-source repositories at
+      <a class="link" href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>,
+      and any other surface we operate (collectively, the
+      <strong>Platform</strong>).
+    </p>
+
+    <h2>1. Acceptance</h2>
+    <p>
+      By creating an account, signing in with a phone number or email
+      one-time code, submitting a prediction, posting content, sharing a
+      bracket, joining a syndicate, embedding a Tournamental widget on
+      a third-party site, calling our API with a token issued to you,
+      or otherwise using the Platform, you agree to these Terms. If you
+      do not agree, do not use the Platform.
+    </p>
+    <p>
+      These Terms form a contract between you and Tournamental
+      Holdings. They apply to every interaction you have with the
+      Platform, whether you are a registered user, a casual visitor
+      reading a shared bracket, a journalist accessing the press kit,
+      a contributor pushing pull requests against the open-source
+      repository, or a partner integrating with our affiliate router.
+      Different sections may apply more or less to each kind of user;
+      where a section only applies in one context, we say so.
+    </p>
+    <p>
+      We may post additional terms for specific features (for example,
+      future entry-fee pools, affiliate-router placements, or the
+      tournament-organiser tier). Those additional terms form part of
+      these Terms when you opt into the feature they cover. If there is
+      a direct conflict, the feature-specific terms control for that
+      feature only; everything else in these Terms keeps running in the
+      background.
+    </p>
+
+    <h2>2. Who we are</h2>
+    <p>
+      <strong>Tournamental Holdings</strong> is a New Zealand company
+      operating the Platform.
+      {/* NZBN: TODO insert when company registration confirmed. */}
+      Our registered office is in Wellington, New Zealand
+      {/* TODO: update with the registered street address once filed. */}.
+      You can contact us at
+      <a class="link" href="mailto:0800tim@gmail.com">0800tim@gmail.com</a>
+      (launch contact) or
+      <a class="link" href="mailto:legal@tournamental.com">legal@tournamental.com</a>
+      {/* TODO: mailbox provisioning */}.
+    </p>
+
+    <h2>3. What Tournamental is</h2>
+    <p>
+      Tournamental is an open-source tournament prediction platform. We
+      let people predict outcomes of sports tournaments, watch matches
+      play out in a 3D in-browser renderer, run syndicates (friend
+      groups) with their own leaderboards, and share predictions to
+      social media as cards and clips.
+    </p>
+    <p>
+      The Platform code is licensed under the Apache License, Version
+      2.0. Our documentation is licensed under Creative Commons
+      Attribution 4.0 (CC-BY 4.0). The full licence texts ship with the
+      repository at
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/LICENSE">LICENSE</a>
+      and
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/LICENSE-DOCS">docs/LICENSE-DOCS</a>.
+    </p>
+    <p>
+      The Tournamental name, the Tournamental "V" mark, the affiliate
+      codes, and the operational accounts on social platforms are
+      proprietary to Tournamental Holdings. Apache 2.0 covers the code,
+      not the brand. If you fork the code, please fork it under a
+      different name.
+    </p>
+
+    <h2>4. Eligibility</h2>
+    <p>
+      You must be at least 13 years old to use the Platform. If your
+      local law (for example, the GDPR child-consent threshold in your
+      EU member state) sets a higher minimum age for using online
+      services without parental consent, you must meet that higher age.
+      In some jurisdictions that means 14, 15, or 16; we adopt the
+      higher of 13 and the local minimum.
+    </p>
+    <p>
+      Some features may carry their own age gates. The on-chain
+      prize-pool feature contemplated by our roadmap (see
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md">doc 21</a>)
+      will only be available to users who are at least the local minimum
+      gambling age (commonly 18 or 21) and resident in a jurisdiction
+      where such participation is lawful. We will gate these features by
+      country at the network edge and by self-attestation at the
+      account level.
+    </p>
+
+    <h2>5. Accounts</h2>
+    <p>
+      You sign in with a phone number or email address using a one-time
+      code (OTP). Phone codes are delivered via SMS or WhatsApp through
+      our delivery partner Aiva SMS. Email codes are delivered via our
+      auth provider Supabase. By providing your phone number or email
+      you authorise us to send you one-time codes to that address;
+      standard message rates from your carrier may apply. Telegram
+      sign-in via the Tournamental bot is an alternative path that does
+      not require us to learn your phone number; the same account
+      identity is bound to whichever channel you first verified with.
+    </p>
+    <p>
+      You are responsible for keeping your account secure, for the picks
+      you submit, for the handle (display name) you choose, and for any
+      content you publish on the Platform. One account per person.
+      Impersonating another person, including any public figure, is a
+      ground for immediate suspension under section 14. If you suspect
+      your account has been compromised, request a sign-out from all
+      devices at <code>/profile/security</code> and re-verify with a
+      fresh OTP; we will rotate the underlying session secret for you.
+    </p>
+    <p>
+      You can change your handle at any time, subject to a short
+      rate-limit and the rule that handles cannot be transferred for
+      consideration. We reserve handles that are confusingly similar to
+      Tournamental Holdings, to staff handles, to high-profile
+      sportspeople and clubs, or to officially licensed competitions.
+      Where a third party has a stronger trade-mark claim to a handle
+      than the user who currently holds it, we will resolve the dispute
+      in good faith and may require the user to pick a different
+      handle.
+    </p>
+
+    <h2>6. Acceptable use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Scrape or mirror the Platform at industrial scale. The site
+        is open source; the data isn't. Our Cloudflare Web Application
+        Firewall will block aggressive scraping automatically.</li>
+      <li>Create accounts in an automated way, run a bot net of fake
+        users, or otherwise game leaderboards. Our humanness-score
+        system (see <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/20-identity-and-humanness.md">doc 20</a>) is designed to detect this.</li>
+      <li>Post content that is illegal in your jurisdiction or ours,
+        including content that infringes another person's intellectual
+        property, harasses or threatens others, contains malware, or
+        depicts the sexual abuse of children.</li>
+      <li>Use the share-card or clip-share pipeline to distribute
+        political advertising, hate speech, doxxing material, or any
+        content designed primarily to cause harm.</li>
+      <li>Reverse-engineer the Platform to bypass paid features,
+        anti-cheat measures, or rate-limits. The code is open source;
+        run your own copy under a different name if you want a
+        different policy.</li>
+    </ul>
+
+    <h2>7. User content</h2>
+    <p>
+      You retain ownership of everything you create on the Platform:
+      your picks, your bracket, your handle, your avatar, your syndicate
+      name, and any text or images you upload. You grant Tournamental
+      Holdings a worldwide, non-exclusive, royalty-free, sublicensable
+      licence to host, store, reproduce, modify (only for the purposes
+      of resizing, transcoding, and re-encoding for delivery), display,
+      perform, and distribute your content within the Platform's own
+      surfaces and the official Tournamental accounts on social media.
+    </p>
+    <p>
+      This licence exists so we can do the things that make the Platform
+      work, for example showing your bracket on
+      <code>/s/&lt;guid&gt;</code>, generating an Open Graph card from
+      your picks, including your handle in leaderboards, and creating a
+      30-second goal clip with you tagged. It does not extend to using
+      your content in paid advertising without your separate consent.
+    </p>
+    <p>
+      You represent that you own or have the necessary rights to the
+      content you submit and that posting it does not violate any third
+      party's rights. We may remove content that, in our reasonable
+      view, breaches these Terms or any law.
+    </p>
+
+    <h2>8. No gambling, no wagers (free tier)</h2>
+    <p>
+      The free-tier prediction game has no entry fee and no cash prize.
+      Points and leaderboard placement are for fun and bragging rights.
+      Where you and your friends choose to run a real-money pool among
+      yourselves (for example, a private bracket challenge with a
+      $10 buy-in), Tournamental is not a party to that transaction. We
+      do not handle, hold, or disburse those funds. Your private pool
+      is your own arrangement with your friends.
+    </p>
+    <p>
+      A future paid feature (the on-chain prize pool contemplated by
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md">doc 21</a>
+      and the affiliate router in
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/18-affiliate-router.md">doc 18</a>)
+      may involve real money. Before any such feature goes live we will
+      publish supplemental terms, comply with the licensing regime of
+      each jurisdiction we operate in, and refuse onboarding to users
+      in jurisdictions where the feature would be unlawful. Nothing in
+      these Terms entitles you to participate in a paid feature that is
+      illegal where you live.
+    </p>
+
+    <h2>9. Open source and plugins</h2>
+    <p>
+      The Tournamental code is open source under Apache 2.0. Contributions
+      to the repository are governed by the
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>
+      guide and the Developer Certificate of Origin
+      (<a class="link" href="https://developercertificate.org/">DCO</a>);
+      every commit must carry a <code>Signed-off-by</code> line.
+    </p>
+    <p>
+      Third parties can author plugins to the Platform under the plugin
+      architecture documented in
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/28-plugin-architecture.md">doc 28</a>.
+      A third-party plugin is the work of its author, not of
+      Tournamental Holdings. We do not endorse third-party plugins. We
+      may ban any plugin from the Platform if, in our reasonable view,
+      it harms users, breaches these Terms, or is unlawful in a
+      jurisdiction where the Platform operates. A malicious plugin can
+      be removed without prior notice.
+    </p>
+
+    <h2>10. Drips Network revenue share</h2>
+    <p>
+      Contributors whose pull requests are merged into the official
+      Tournamental repositories may be eligible for a slice of Platform
+      revenue, paid via the
+      <a class="link" href="https://www.drips.network/">Drips Network</a>
+      smart contracts on Ethereum L1 or an L2 we designate. The split is
+      defined on chain and publicly auditable. See
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md">doc 19</a>
+      for the full mechanics.
+    </p>
+    <p>
+      Receiving a Drips share for a merged contribution is not
+      employment, is not a partnership, is not a joint venture, and does
+      not create any agency relationship between you and Tournamental
+      Holdings. You are responsible for your own tax obligations in
+      respect of any value you receive. Tournamental Holdings does not
+      withhold tax on Drips payouts and has no employer or contractor
+      obligation to do so under this arrangement.
+    </p>
+
+    <h2>11. Affiliate links</h2>
+    <p>
+      The affiliate router described in
+      <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/18-affiliate-router.md">doc 18</a>
+      routes outbound clicks to licensed sportsbook partners. When you
+      click an affiliate link, the destination operator's own terms,
+      privacy policy, and regulatory framework apply to anything you do
+      on their site. We do not facilitate any wager, do not handle any
+      stake, and do not take a share of your stake or your winnings; our
+      revenue from the partner is a fixed referral commission disclosed
+      in doc 18.
+    </p>
+    <p>
+      You can choose to disable affiliate routing in your account
+      preferences. Disabling it does not affect any other Platform
+      feature.
+    </p>
+
+    <h2>12. Disclaimer of warranties</h2>
+    <p>
+      The Platform is provided "as is" and "as available". To the
+      maximum extent permitted by law, we make no warranties of any
+      kind, whether express, implied, or statutory, including any
+      warranty of merchantability, fitness for a particular purpose,
+      title, non-infringement, accuracy, or availability.
+    </p>
+    <p>
+      Specifically:
+    </p>
+    <ul>
+      <li>We do not warrant that the Platform will be uninterrupted,
+        error-free, or available at any particular time.</li>
+      <li>We do not warrant that fixture data (kick-off times, lineups,
+        scores) is correct, complete, or current. Fixture data comes
+        from third-party providers and can be wrong.</li>
+      <li>We do not warrant the 3D renderer's depiction of any match;
+        it is an interpretation of event data, not a broadcast.</li>
+      <li>We do not warrant the security of any third-party site you
+        reach via an affiliate link.</li>
+    </ul>
+    <p>
+      Nothing in this section limits any non-excludable consumer
+      guarantee you have under the New Zealand Consumer Guarantees Act
+      1993, the Australian Consumer Law, or equivalent legislation in
+      your jurisdiction.
+    </p>
+
+    <h2>13. Limitation of liability</h2>
+    <p>
+      To the maximum extent permitted by law, the total aggregate
+      liability of Tournamental Holdings to you under or in connection
+      with these Terms and your use of the Platform is limited to the
+      greater of
+      <strong>NZD 100</strong> or the amount you paid us in the twelve
+      months immediately before the event giving rise to the claim. We
+      are not liable for any indirect, consequential, special,
+      incidental, exemplary, or punitive damages, lost profits, lost
+      goodwill, or lost data, however caused.
+    </p>
+    <p>
+      Where applicable consumer law does not permit the above limit, the
+      limit is reduced to the minimum permitted by that law and the
+      rest of this section remains in force.
+    </p>
+
+    <h2>13a. Force majeure</h2>
+    <p>
+      Neither party is liable for any failure to perform under these
+      Terms to the extent that the failure is caused by events outside
+      that party's reasonable control, including but not limited to
+      acts of god, natural disasters, war, terrorism, civil unrest,
+      pandemic, internet-backbone outages, sub-processor failures, or
+      government action. The affected party will use reasonable
+      efforts to resume performance as soon as practicable.
+    </p>
+
+    <h2>13b. No professional advice</h2>
+    <p>
+      Nothing on the Platform is investment advice, financial advice,
+      legal advice, or professional advice of any other kind. The
+      predictions, leaderboards, commentary, and statistical analyses
+      we publish are for entertainment. Do not treat them as a basis
+      for placing a bet, making an investment, or taking any other
+      consequential decision. If you need advice, talk to a licensed
+      professional.
+    </p>
+
+    <h2>14. Termination</h2>
+    <p>
+      You can stop using the Platform at any time and request deletion
+      of your account by emailing
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>
+      or using the data-export and deletion page in your profile (under
+      construction; see Privacy Policy section 8).
+    </p>
+    <p>
+      We can suspend or terminate your account if, in our reasonable
+      view, you have breached these Terms, broken the law, or put
+      other users at risk. For a serious or repeat breach, we may
+      suspend immediately. For a minor or first breach, we will
+      generally give you notice and a chance to fix the issue first.
+    </p>
+
+    <h2>15. Indemnification</h2>
+    <p>
+      You agree to indemnify Tournamental Holdings, its officers,
+      employees, and contributors against any third-party claim arising
+      out of content you contribute to the Platform that infringes that
+      third party's intellectual-property, privacy, or publicity rights.
+      This indemnity is narrow: it covers the content claim, the
+      reasonable cost of defending it, and any settlement we agree to
+      with you; it does not cover claims caused by our own conduct or
+      claims you can show we are independently responsible for. We
+      will tell you about a covered claim within a reasonable time of
+      receiving it, give you the opportunity to defend it at your own
+      expense, and not settle it without your prior consent except
+      where settlement is the only commercially reasonable response.
+    </p>
+
+    <h2>15a. Notice and takedown</h2>
+    <p>
+      If you believe content on the Platform infringes your rights,
+      send a written notice to
+      <a class="link" href="mailto:legal@tournamental.com">legal@tournamental.com</a>
+      identifying the content (URL plus a short description), the
+      right you claim, and your contact details. We will assess in
+      good faith and, where the claim is well founded, remove the
+      content or restrict access to it. We may also notify the user
+      who posted the content so they can submit a counter-notice.
+      Misuse of this process is itself a breach of these Terms.
+    </p>
+
+    <h2>16. Governing law and venue</h2>
+    <p>
+      These Terms are governed by the laws of New Zealand. The courts
+      of Wellington, New Zealand have non-exclusive jurisdiction to
+      hear any dispute under or in connection with these Terms.
+      {/* TODO: replace Wellington with the registered office once filed. */}
+    </p>
+    <p>
+      Nothing in this section prevents you from bringing a claim in
+      your local consumer-protection forum where local law requires us
+      to accept that forum (for example, EU consumers under the
+      Brussels I Recast Regulation).
+    </p>
+
+    <h2>17. Changes to these Terms</h2>
+    <p>
+      We may update these Terms from time to time. For a material
+      change, we will give at least 30 days' notice by email (to the
+      address on your account) and via an on-site banner on the
+      marketing site and the play app. The "Last updated" date at the
+      top of the page reflects the most recent change. Continued use of
+      the Platform after the notice period means you accept the new
+      Terms. If you do not accept, you can close your account before
+      the new Terms take effect.
+    </p>
+
+    <h2>18. Contact</h2>
+    <p>
+      General: <a class="link" href="mailto:0800tim@gmail.com">0800tim@gmail.com</a>
+      (launch contact)
+      or <a class="link" href="mailto:hello@tournamental.com">hello@tournamental.com</a>.
+      Privacy: <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.
+      Legal: <a class="link" href="mailto:legal@tournamental.com">legal@tournamental.com</a>.
+      Security: <a class="link" href="mailto:security@tournamental.com">security@tournamental.com</a>.
+    </p>
+
+    <hr class="my-10 border-ink-700/70" />
+
+    <p class="text-ink-500 text-sm">
+      Companion documents:
+      <a class="link" href="/legal/privacy">Privacy Policy</a>
+      ·
+      <a class="link" href="/legal/cookies">Cookie Notice</a>
+      ·
+      <a class="link" href="/legal">Legal hub</a>
+    </p>
+  </article>
+</Layout>

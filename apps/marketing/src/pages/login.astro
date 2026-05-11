@@ -48,23 +48,40 @@ const BRACKET_URL =
             role="status"
             aria-live="polite"
           ></p>
+          {/* Per the legal team: the consent notice must appear ABOVE
+              the send-code action and must name the OTP delivery
+              partners explicitly. Mirrored from the phone block
+              below. */}
+          <p class="text-ink-500 text-xs mt-4">
+            By continuing, you agree to our
+            <a class="link" href="/legal/terms">Terms</a> and
+            <a class="link" href="/legal/privacy">Privacy Policy</a>.
+            We send SMS, WhatsApp and email codes via Aiva SMS and
+            Supabase. Standard message rates may apply.
+          </p>
         </div>
 
         <div class="border-t border-ink-700 pt-6">
-          <h2 class="text-lg font-semibold text-white">Phone</h2>
+          <h2 class="text-lg font-semibold text-white">Phone or email</h2>
           <p class="text-ink-200 text-sm mt-1">
-            We'll text or WhatsApp a 6-digit code.
+            We'll text, WhatsApp or email a 6-digit code.
+          </p>
+          <p class="text-ink-500 text-xs mt-3">
+            By continuing, you agree to our
+            <a class="link" href="/legal/terms">Terms</a> and
+            <a class="link" href="/legal/privacy">Privacy Policy</a>.
+            We send SMS, WhatsApp and email codes via Aiva SMS and
+            Supabase. Standard message rates may apply.
           </p>
           <a class="btn-primary inline-block mt-3" href={BRACKET_URL + "auth"}>
-            Continue with phone →
+            Continue with phone or email →
           </a>
         </div>
       </div>
 
       <p class="text-ink-500 text-xs mt-8">
-        By continuing you agree to our
-        <a class="link" href="/legal#terms">terms</a> and
-        <a class="link" href="/legal#privacy">privacy notice</a>.
+        See also our
+        <a class="link" href="/legal/cookies">Cookie Notice</a>.
       </p>
     </div>
   </section>

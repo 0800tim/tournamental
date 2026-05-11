@@ -1,0 +1,590 @@
+---
+/**
+ * /legal/privacy — Privacy Policy.
+ *
+ * First-draft pre-launch privacy policy (2026-05-13). Required so the
+ * platform can lawfully collect phone numbers and emails for OTP login.
+ *
+ * Primary regime: NZ Privacy Act 2020. Platform is global, so we also
+ * acknowledge GDPR, UK GDPR, CCPA/CPRA, and the Australian Privacy Act
+ * 1988 (and the APPs).
+ *
+ * Flagged for NZ-licensed lawyer review:
+ *   - The lawful-basis mapping for each processing activity (contract /
+ *     legitimate interest / consent) should be confirmed against the
+ *     latest UK + EU guidance.
+ *   - The 12-month post-deletion retention for fraud prevention needs a
+ *     documented balancing test before launch (Article 6(1)(f) LIA).
+ *   - The "approved mechanisms for NZ→US transfers under NZPA s22"
+ *     wording — Tim wants a privacy lawyer to confirm we are using the
+ *     right form (binding scheme rules, contractual safeguards, or a
+ *     specific authorised country).
+ *   - The breach-notification window (72 hours) is GDPR; NZPA requires
+ *     "as soon as practicable". We meet both with 72h but a lawyer
+ *     should sense-check.
+ *   - privacy@tournamental.com and legal@tournamental.com mailboxes are
+ *     TODO.
+ *   - /profile/data-export page is a TODO for the identity agent.
+ */
+import Layout from "@/layouts/Layout.astro";
+---
+<Layout
+  title="Privacy Policy · Tournamental"
+  description="How Tournamental Holdings collects, uses, shares, and protects your personal information when you use the Tournamental platform."
+  ogImage="/og/legal.png"
+>
+  <article
+    class="container-prose pt-16 pb-20 prose-vt"
+    data-cache-control="public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+  >
+    <p class="text-ink-500 text-xs uppercase tracking-wider">Legal</p>
+    <h1 class="font-display text-3xl md:text-4xl font-bold text-white mt-2">
+      Privacy Policy
+    </h1>
+    <p class="text-ink-500 text-sm mt-3">
+      Last updated: 13 May 2026. This is a pre-launch first draft pending
+      review by a New Zealand licensed privacy lawyer.
+    </p>
+
+    <p class="mt-6">
+      This Privacy Policy explains what personal information Tournamental
+      Holdings (<strong>Tournamental</strong>, <strong>we</strong>,
+      <strong>us</strong>) collects about you, why we collect it, how
+      long we keep it, who we share it with, and what choices you have.
+      It applies to the marketing site at <code>tournamental.com</code>,
+      the play app at <code>play.tournamental.com</code>, the API at
+      <code>api.tournamental.com</code>, the Telegram bot
+      <code>@TournamentalBot</code>, and any other surface we operate.
+    </p>
+
+    <h2>1. Who we are and how to contact us</h2>
+    <p>
+      Tournamental Holdings is a New Zealand company.
+      {/* NZBN: TODO insert when company registration confirmed. */}
+      Our registered office is in Wellington, New Zealand.
+      {/* TODO: update with the registered street address once filed. */}
+      For privacy queries you can contact us at
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>
+      {/* TODO: mailbox provisioning */}
+      or, in the meantime, the launch contact at
+      <a class="link" href="mailto:0800tim@gmail.com">0800tim@gmail.com</a>.
+    </p>
+    <p>
+      For the purposes of the GDPR and UK GDPR, the controller of your
+      personal data is Tournamental Holdings. We have not appointed a
+      Data Protection Officer because we are not required to under
+      Article 37; the privacy mailbox above is the contact point. EU
+      and UK residents who need an Article 27 representative should
+      contact us via the privacy mailbox and we will appoint one before
+      the threshold for that requirement is met.
+    </p>
+
+    <h2>2. What we collect</h2>
+    <p>
+      We try to collect as little as possible. The full list is:
+    </p>
+    <div class="vt-privacy-table">
+      <table>
+        <thead>
+          <tr>
+            <th>What</th>
+            <th>When</th>
+            <th>Why</th>
+            <th>Who sees it</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Phone number</td>
+            <td>If you sign up with SMS or WhatsApp OTP</td>
+            <td>Sending the one-time code; account recovery; fraud prevention</td>
+            <td>You, us, Aiva SMS (for delivery only)</td>
+          </tr>
+          <tr>
+            <td>Email address</td>
+            <td>If you sign up with email OTP, or you subscribe to the press / build-log feed</td>
+            <td>Sending the one-time code; account recovery; transactional notifications; optional newsletters if you opt in</td>
+            <td>You, us, Supabase (auth) and our email-sending sub-processor</td>
+          </tr>
+          <tr>
+            <td>Handle / display name</td>
+            <td>You pick one at sign-up</td>
+            <td>Identifying you on leaderboards and shared brackets</td>
+            <td>Public by default</td>
+          </tr>
+          <tr>
+            <td>Bracket picks and cascaded summary</td>
+            <td>Each time you save a pick</td>
+            <td>Running the game; rendering your bracket on <code>/s/&lt;guid&gt;</code></td>
+            <td>Public by default once you lock a stage</td>
+          </tr>
+          <tr>
+            <td>Locked-at timestamps</td>
+            <td>When you lock each pick</td>
+            <td>Anti-cheat (no picks made after kick-off), audit log</td>
+            <td>Public</td>
+          </tr>
+          <tr>
+            <td>Approximate location (city-level)</td>
+            <td>From your IP, at our edge</td>
+            <td>Default tournament view, relevant affiliate routing, GDPR cookie-banner decisioning</td>
+            <td>Us. Never down to street level. We do not store raw IPs after the edge resolution step.</td>
+          </tr>
+          <tr>
+            <td>Analytics events</td>
+            <td>While you browse the site</td>
+            <td>Understanding which pages work, which CTAs convert, how to improve</td>
+            <td>Us via GA4 and our first-party event layer. See Cookies.</td>
+          </tr>
+          <tr>
+            <td>Device coarse fingerprint (user-agent + accept-language, hashed)</td>
+            <td>Every request</td>
+            <td>Bot detection and humanness scoring (see <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/20-identity-and-humanness.md">doc 20</a>)</td>
+            <td>Us; never the raw user-agent or raw IP</td>
+          </tr>
+          <tr>
+            <td>Optional Ethereum address</td>
+            <td>Only if you opt into the Drips Network contributor payout</td>
+            <td>Receiving your share of platform revenue</td>
+            <td>Public on chain; obviously</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      We do <strong>not</strong> collect your real name (unless you
+      choose to put it in your handle), your home address, your payment
+      details (we do not process payments at launch), or any biometric
+      data.
+    </p>
+
+    <h2>3. Lawful basis (GDPR / UK GDPR / NZPA)</h2>
+    <p>
+      Under the GDPR and UK GDPR, every act of processing has a lawful
+      basis. Under the NZ Privacy Act, every collection has a purpose
+      tied to a function or activity of the agency. We use the bases
+      below.
+    </p>
+    <ul>
+      <li><strong>Contract (Article 6(1)(b)).</strong> Running your
+        account, accepting your picks, delivering OTPs, showing your
+        bracket on a share link — these are necessary to provide the
+        service you signed up for.</li>
+      <li><strong>Legitimate interest (Article 6(1)(f)).</strong>
+        Server-side analytics, fraud detection, bot-net detection,
+        humanness scoring, abuse investigation, security logs. The
+        balancing test favours processing because the data minimisation
+        (hashed device signals, no raw IPs) makes intrusion low and the
+        benefit to all users high. You can object at any time at
+        <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.</li>
+      <li><strong>Consent (Article 6(1)(a)).</strong> Marketing emails
+        (newsletter), GA4 and any other non-essential analytics
+        cookies, cross-site advertising cookies (none on the launch
+        surface), share-card auto-post to social. You can withdraw
+        consent at any time without affecting the lawfulness of
+        processing before withdrawal.</li>
+      <li><strong>Legal obligation (Article 6(1)(c)).</strong> Where
+        required, retaining records to comply with NZ or EU law,
+        responding to lawful requests from public authorities.</li>
+    </ul>
+    <p>
+      For New Zealand residents, the equivalent NZPA principle for each
+      activity is documented in our internal Information Privacy
+      Statement (available on request).
+    </p>
+
+    <h2>3a. Specific purposes for sensitive identifiers</h2>
+    <p>
+      Phone numbers and email addresses are the two most sensitive
+      identifiers we collect because they are the keys to your
+      account. We use them only for:
+    </p>
+    <ul>
+      <li>Delivering the one-time code that signs you in or recovers
+        your account. This is the primary purpose, and it is the
+        reason these identifiers are collected at all.</li>
+      <li>Transactional notifications you opt in to (for example,
+        "your bracket has been locked", "your syndicate result is
+        in"). You can turn these off in your profile.</li>
+      <li>Limited fraud prevention (see the salted-hash retention
+        in section 4). We do not use your phone or email for any
+        ad-targeting, lookalike audience, or upload-to-platform
+        purpose.</li>
+      <li>Where you give explicit consent, sending the optional
+        newsletter or build-log digest. The consent is granular and
+        can be withdrawn in one click.</li>
+    </ul>
+    <p>
+      We will never sell, rent, or trade your phone number or email
+      address. We will never share them with an advertiser or
+      data-broker. If law-enforcement asks us for these identifiers
+      under a valid legal process, we will respond as required and,
+      where the law allows, we will tell you about the request.
+    </p>
+
+    <h2>4. How long we keep it</h2>
+    <ul>
+      <li><strong>Phone number and email.</strong> Retained while your
+        account is active. After you request deletion, we retain a
+        salted hash of the identifier for 12 months for fraud
+        prevention (so a banned user cannot immediately re-sign up
+        with the same number) and then delete it entirely.</li>
+      <li><strong>Handle.</strong> Retained as long as the account is
+        active; on deletion the handle is released back to the pool
+        after a 30-day quarantine.</li>
+      <li><strong>Bracket picks and cascaded summary.</strong>
+        Retained indefinitely under your share GUID so the share link
+        keeps working. When you delete your account we anonymise the
+        picks (the handle is replaced with a randomly generated alias)
+        but we keep the cascade so leaderboards stay consistent. You
+        can request full deletion of the cascade as well; this may
+        leave gaps in historical leaderboards.</li>
+      <li><strong>Approximate location and analytics events.</strong>
+        Raw events: 14 months. Aggregated reporting: indefinitely.</li>
+      <li><strong>Hashed device signals.</strong> 90 days.</li>
+      <li><strong>Server access logs.</strong> 30 days.</li>
+      <li><strong>Security incident records.</strong> As long as needed
+        to manage the incident plus 7 years for audit.</li>
+    </ul>
+
+    <h2>5. Sub-processors</h2>
+    <p>
+      We use a small set of sub-processors. Each one has a data
+      processing agreement in place that meets the standard of the NZ
+      Privacy Act, GDPR Article 28, and the UK GDPR equivalent.
+    </p>
+    <ul>
+      <li><strong>Supabase</strong> (USA) — authentication, Postgres
+        database, edge functions. Covered by the Supabase Data
+        Processing Addendum and the EU Standard Contractual Clauses.</li>
+      <li><strong>Cloudflare</strong> (USA, global edge) — DNS, CDN,
+        tunnel, Web Application Firewall. Covered by Cloudflare's
+        Binding Corporate Rules and Standard Contractual Clauses.</li>
+      <li><strong>Aiva SMS</strong> (New Zealand) — SMS and WhatsApp
+        one-time code delivery. Covered by a direct sub-processor
+        agreement with Tournamental Holdings.</li>
+      <li><strong>GoHighLevel</strong> (USA) — CRM for pre-launch
+        syndicate signup ingestion (name, email, optional Telegram).
+        Covered by GoHighLevel's DPA and EU Standard Contractual
+        Clauses.</li>
+      <li><strong>Google Analytics 4 / Tag Manager</strong> (Google
+        Ireland Ltd / USA) — analytics. Loaded only after you accept
+        analytics cookies. Server-side anonymised events are emitted
+        either way (no user identifier).</li>
+      <li><strong>npm and GitHub</strong> (USA) — open-source code
+        hosting and package distribution. No user PII flows here.</li>
+      <li><strong>Polymarket</strong> (data only) — odds data feed.
+        No user PII flows.</li>
+      <li><strong>StatsBomb</strong> (open data) — historical match
+        event data. No user PII flows.</li>
+      <li><strong>Anthropic, OpenAI, ElevenLabs</strong> (commentary
+        generation only) — used to generate commentary text and audio
+        from match event data. No user PII flows; we send the public
+        match event stream and receive commentary back.</li>
+    </ul>
+    <p>
+      We will update this list before we add any new sub-processor that
+      handles user personal data, and we will give 30 days' notice in
+      the same way we give notice of changes to this policy.
+    </p>
+
+    <h2>6. International transfers</h2>
+    <p>
+      Most of our sub-processors are based in the United States. When
+      your personal data is transferred from New Zealand, the European
+      Economic Area, the United Kingdom, or Australia to the United
+      States or any other country, we rely on the following safeguards:
+    </p>
+    <ul>
+      <li><strong>EU and UK GDPR transfers.</strong> EU Standard
+        Contractual Clauses (the 2021 modules) and the UK International
+        Data Transfer Addendum, with supplementary measures (encryption
+        at rest, encryption in transit, access logging).</li>
+      <li><strong>NZ Privacy Act 2020 transfers.</strong> Information
+        Privacy Principle 12 (cross-border disclosure). We rely on
+        contractual safeguards equivalent to the NZPA standard with
+        each sub-processor; we do not currently rely on a country
+        prescribed under section 22.</li>
+      <li><strong>Australian Privacy Act transfers.</strong> APP 8
+        compliant; we take reasonable steps to ensure the overseas
+        recipient does not breach the APPs.</li>
+    </ul>
+
+    <h2>7. Your rights</h2>
+    <p>
+      Depending on where you live, you have some or all of the
+      following rights. We honour all of them globally because the
+      Platform is global and it is simpler.
+    </p>
+    <ul>
+      <li><strong>Access.</strong> Ask for a copy of the personal data
+        we hold about you.</li>
+      <li><strong>Rectification.</strong> Ask us to correct inaccurate
+        data.</li>
+      <li><strong>Deletion ("right to be forgotten").</strong> Ask us
+        to delete your account and personal data, subject to the
+        fraud-prevention retention in section 4.</li>
+      <li><strong>Portability.</strong> Ask for your data in a
+        structured, machine-readable JSON export. We will deliver
+        within 30 days of a verified request.</li>
+      <li><strong>Objection.</strong> Object to processing based on
+        legitimate interest.</li>
+      <li><strong>Withdrawal of consent.</strong> Withdraw consent for
+        any consent-based processing.</li>
+      <li><strong>Lodge a complaint.</strong> Complain to your local
+        supervisory authority. New Zealand: the Office of the Privacy
+        Commissioner (<a class="link" href="https://www.privacy.org.nz/">privacy.org.nz</a>).
+        EU: your local data protection authority. UK: the ICO.
+        Australia: the OAIC.</li>
+    </ul>
+
+    <h2>8. How to exercise your rights</h2>
+    <p>
+      The fastest route is the in-product data-export and deletion
+      page in your profile (under construction, will live at
+      <code>/profile/data-export</code>).
+      {/* TODO: wire up by the identity agent before launch. */}
+      Until that is live, email
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>
+      with the phone number or email on your account, and the right
+      you want to exercise. We will respond within 30 days. If we need
+      more time (where allowed by law) we will tell you why.
+    </p>
+    <p>
+      To prevent identity theft we may need to verify that the request
+      is genuinely from you. We will do this by sending a one-time
+      code to the contact on file, never by asking for any other
+      personal information.
+    </p>
+
+    <h2>8a. Automated decision-making</h2>
+    <p>
+      We use automated decisions in two places:
+    </p>
+    <ul>
+      <li><strong>Humanness scoring.</strong> The identity service
+        (see <a class="link" href="https://github.com/0800tim/tournamental/blob/main/docs/20-identity-and-humanness.md">doc 20</a>)
+        scores each account against a set of bot-detection signals
+        (hashed device fingerprint, request timing, picks pattern). A
+        low score does not, by itself, ban the account; it changes
+        the friction (extra OTP confirmations, rate-limit
+        adjustments, hidden from the global leaderboard).</li>
+      <li><strong>Cookie-banner decisioning.</strong> Whether the
+        cookie banner appears, and what categories it offers by
+        default, depends on your inferred region (see section 2).</li>
+    </ul>
+    <p>
+      You can ask for a human review of any automated decision that
+      materially affects you (for example, a leaderboard suppression
+      or a rate-limit lockout) by emailing
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.
+      We will review within 30 days.
+    </p>
+
+    <h2>8b. California (CCPA / CPRA) specifics</h2>
+    <p>
+      If you are a California resident, the categories of personal
+      information we collect (per CCPA Section 1798.140) map to:
+      identifiers (your phone number, email, handle, account ID),
+      internet activity (analytics events, page views, click events),
+      and inferences drawn from those identifiers (humanness score,
+      preferred tournament view). We do not "sell" personal
+      information for money. We may share device-graph signals with
+      our humanness-score sub-processor for the limited purpose of
+      bot detection; you can opt out via the cookie preference centre
+      under "Performance and analytics". Verifiable consumer requests
+      go to <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.
+    </p>
+
+    <h2>9. Children</h2>
+    <p>
+      The Platform is intended for users aged 13 and over (or older if
+      your local law requires; see section 4 of the Terms of Service).
+      We do not knowingly collect personal data from anyone below the
+      applicable age. If you believe a child below that age has signed
+      up, please contact us and we will delete the account.
+    </p>
+
+    <h2>9a. How we handle minor sign-ups in error</h2>
+    <p>
+      If we receive a credible report that a user is below the
+      applicable minimum age (see section 9), we will suspend the
+      account pending review and contact the user (or their
+      verifiable parent or guardian, where available) before taking
+      any further action. If the report is confirmed, we will delete
+      the account and all associated data within seven days, except
+      where a legal hold applies. We will not retain the underlying
+      identifier (phone or email) in our salted-hash fraud-prevention
+      store for accounts deleted on this ground, because the harm
+      from a banned-handle re-signup is lower than the harm from
+      keeping any record of a minor's contact.
+    </p>
+
+    <h2>10. Security</h2>
+    <p>
+      We take security seriously. In short:
+    </p>
+    <ul>
+      <li>All data at rest in our Postgres database is encrypted by
+        Supabase using AES-256.</li>
+      <li>All data in transit uses TLS 1.2 or higher, terminated at
+        Cloudflare and re-encrypted to origin.</li>
+      <li>OTP attempts are rate-limited per phone number, per IP, and
+        per device fingerprint. Failed attempts are logged.</li>
+      <li>Privileged access to production systems is multi-factor
+        authenticated and logged.</li>
+      <li>We run automated dependency scanning on every pull request.</li>
+      <li>Responsible disclosures are welcome at
+        <a class="link" href="mailto:security@tournamental.com">security@tournamental.com</a>;
+        see <a class="link" href="https://github.com/0800tim/tournamental/blob/main/SECURITY.md">SECURITY.md</a>.</li>
+    </ul>
+    <p>
+      No system is perfectly secure. If you spot something, please tell
+      us.
+    </p>
+
+    <h2>10a. Open source and operational transparency</h2>
+    <p>
+      Because the Platform code is open source under Apache 2.0, you
+      can inspect exactly how we handle your data. The auth flow lives
+      in <code>apps/auth-sms/</code>, the identity scoring in
+      <code>apps/identity/</code>, the analytics pipeline in
+      <code>packages/analytics/</code>, and the database schema in
+      <code>infra/db/</code>. We publish session notes for every
+      contributor session under
+      <code>sessions/&lt;date&gt;_&lt;agent&gt;_&lt;task&gt;.md</code>,
+      so the changes to any of these systems are auditable in real
+      time. If you want a tour, ask at
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>
+      and we will point a privacy researcher at the relevant files.
+    </p>
+
+    <h2>11. Breach notification</h2>
+    <p>
+      If we suffer a personal-data breach that is likely to result in
+      serious harm or a risk to your rights and freedoms, we will
+      notify the Office of the Privacy Commissioner (and, where
+      applicable, the relevant EU and UK supervisory authorities)
+      within 72 hours of becoming aware of it, and we will notify you
+      directly without undue delay.
+    </p>
+
+    <h2>12. Cookies</h2>
+    <p>
+      We use a small number of cookies and similar technologies. The
+      details — what each cookie does, how long it lives, and how to
+      opt out — are in our separate
+      <a class="link" href="/legal/cookies">Cookie Notice</a>.
+    </p>
+
+    <h2>13. Changes to this policy</h2>
+    <p>
+      We may update this policy from time to time. For a material
+      change we will give at least 30 days' notice via email and an
+      on-site banner. The "Last updated" date at the top of the page
+      reflects the most recent change.
+    </p>
+
+    <h2>14. Contact for complaints</h2>
+    <p>
+      If you have a complaint about how we handle your personal data,
+      please tell us first at
+      <a class="link" href="mailto:privacy@tournamental.com">privacy@tournamental.com</a>.
+      We will acknowledge within five working days and respond
+      substantively within 30 days.
+    </p>
+    <p>
+      If you are not satisfied with our response, you have the right
+      to complain to your local data-protection authority:
+    </p>
+    <ul>
+      <li><strong>New Zealand residents:</strong> Office of the
+        Privacy Commissioner (<a class="link" href="https://www.privacy.org.nz/">privacy.org.nz</a>).</li>
+      <li><strong>EU residents:</strong> your local supervisory
+        authority, listed at
+        <a class="link" href="https://edpb.europa.eu/about-edpb/about-edpb/members_en">edpb.europa.eu</a>.</li>
+      <li><strong>UK residents:</strong> Information Commissioner's
+        Office (<a class="link" href="https://ico.org.uk/">ico.org.uk</a>).</li>
+      <li><strong>Australian residents:</strong> Office of the
+        Australian Information Commissioner (<a class="link" href="https://www.oaic.gov.au/">oaic.gov.au</a>).</li>
+      <li><strong>California residents:</strong> California Attorney
+        General (<a class="link" href="https://oag.ca.gov/">oag.ca.gov</a>);
+        see also the "Your California Privacy Rights" section of
+        our forthcoming CCPA notice.</li>
+    </ul>
+
+    <hr class="my-10 border-ink-700/70" />
+
+    <p class="text-ink-500 text-sm">
+      Companion documents:
+      <a class="link" href="/legal/terms">Terms of Service</a>
+      ·
+      <a class="link" href="/legal/cookies">Cookie Notice</a>
+      ·
+      <a class="link" href="/legal">Legal hub</a>
+    </p>
+  </article>
+</Layout>
+
+<style>
+  /* The privacy table is the densest text on the site and lives on a
+     360px viewport. Stack to cards on narrow screens; show as a real
+     table from ~700px up. Reuses the prose-vt colour tokens so it
+     follows the light/dark theme switcher. */
+  .vt-privacy-table {
+    margin: 1.6rem 0;
+    overflow-x: auto;
+  }
+  .vt-privacy-table table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+  }
+  .vt-privacy-table th,
+  .vt-privacy-table td {
+    text-align: left;
+    vertical-align: top;
+    padding: 0.7rem 0.6rem;
+    border-bottom: 1px solid var(--vt-border);
+  }
+  .vt-privacy-table th {
+    color: var(--vt-fg-strong);
+    font-weight: 600;
+  }
+  .vt-privacy-table td {
+    color: var(--vt-fg-muted);
+  }
+  @media (max-width: 640px) {
+    .vt-privacy-table table,
+    .vt-privacy-table thead,
+    .vt-privacy-table tbody,
+    .vt-privacy-table tr,
+    .vt-privacy-table th,
+    .vt-privacy-table td {
+      display: block;
+      width: 100%;
+    }
+    .vt-privacy-table thead {
+      display: none;
+    }
+    .vt-privacy-table tr {
+      margin-bottom: 1.1rem;
+      border: 1px solid var(--vt-border);
+      border-radius: 0.6rem;
+      padding: 0.4rem 0.6rem;
+    }
+    .vt-privacy-table td {
+      border-bottom: none;
+      padding: 0.35rem 0;
+    }
+    .vt-privacy-table td::before {
+      content: attr(data-label);
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--vt-fg-strong);
+      margin-bottom: 0.1rem;
+    }
+  }
+</style>
