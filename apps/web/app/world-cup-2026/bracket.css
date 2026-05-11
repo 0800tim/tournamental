@@ -1667,14 +1667,14 @@
 /* Sticky tab bar so the round nav is always reachable while the user
  * scrolls a long list of R32 / R16 / QF cards. The page scrolls at the
  * window level (vt-shell-main has no own overflow), so we must offset
- * the sticky top by the height of the sticky AppBar (56px) + the
- * sticky microsite sub-nav row (~56px, auto-mounted for /world-cup-2026/*
- * routes via AppShell). Without this offset the tabs stick to y=0 of
- * the viewport, which is BEHIND the AppBar, so they appear to "scroll
- * off" even though they're technically stuck. */
+ * the sticky top by the height of the sticky AppBar. That height
+ * already accounts for the desktop nav row on >=768px viewports via
+ * `--vt-shell-appbar-h: calc(56px + var(--vt-shell-appbar-nav-h))`
+ * in shell.css. Adding more offset on top was the previous bug — it
+ * left the tabs floating mid-page on top of the match cards. */
 .bracket-builder .bracket-tabs {
   position: sticky;
-  top: calc(var(--vt-shell-appbar-h, 56px) + 56px);
+  top: var(--vt-shell-appbar-h, 56px);
   z-index: 20;
   background: linear-gradient(180deg, #0f172a 92%, rgba(15, 23, 42, 0.0));
   padding: 10px 4px 8px;
