@@ -1,0 +1,212 @@
+/**
+ * Syndicates index page chrome. Inherits palette + typographic scale
+ * from shell.css and the bracket page. Mobile-first; tightens to a
+ * two-column card grid on tablet, three on desktop.
+ */
+
+.vt-syndicates-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+
+.vt-syndicates-hero {
+  padding: 28px 0 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+}
+
+.vt-syndicates-eyebrow {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(245, 197, 66, 0.16);
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  color: #fde68a;
+  font: 800 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.vt-syndicates-title {
+  font: 800 28px/1.15 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0;
+}
+
+@media (min-width: 768px) {
+  .vt-syndicates-title {
+    font-size: 36px;
+  }
+}
+
+.vt-syndicates-lede {
+  font: 400 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  max-width: 640px;
+  margin: 0;
+}
+
+.vt-syndicates-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.vt-syndicates-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 18px;
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 100%);
+  color: #0a0e1a;
+  border: 0;
+  border-radius: 999px;
+  font: 800 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  box-shadow:
+    0 6px 16px rgba(251, 191, 36, 0.28),
+    inset 0 0 0 1px rgba(255, 235, 178, 0.5);
+  transition: transform 120ms ease, box-shadow 200ms ease;
+}
+
+.vt-syndicates-cta-primary:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 10px 22px rgba(251, 191, 36, 0.36),
+    inset 0 0 0 1px rgba(255, 235, 178, 0.7);
+}
+
+.vt-syndicates-cta-ghost {
+  display: inline-flex;
+  align-items: center;
+  padding: 11px 16px;
+  background: transparent;
+  border: 1px solid rgba(205, 213, 231, 0.32);
+  border-radius: 999px;
+  color: #cdd5e7;
+  font: 700 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-decoration: none;
+  transition: border-color 200ms ease, color 200ms ease;
+}
+
+.vt-syndicates-cta-ghost:hover {
+  border-color: rgba(245, 197, 66, 0.55);
+  color: #fde68a;
+}
+
+.vt-syndicates-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vt-syndicates-section-title {
+  font: 800 20px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.005em;
+}
+
+.vt-syndicates-grid {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .vt-syndicates-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .vt-syndicates-grid-tight {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vt-syndicates-card {
+  padding: 18px 18px 16px;
+  background: rgba(16, 22, 38, 0.9);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  border-radius: 14px;
+  transition: border-color 220ms ease, transform 220ms ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-syndicates-card:hover {
+  border-color: rgba(245, 197, 66, 0.32);
+  transform: translateY(-2px);
+}
+
+.vt-syndicates-card-compact {
+  padding: 14px 14px 12px;
+}
+
+.vt-syndicates-card-title {
+  font: 700 15px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fde68a;
+  margin: 0;
+  letter-spacing: 0.005em;
+}
+
+.vt-syndicates-card-body {
+  font: 400 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  margin: 0;
+}
+
+.vt-syndicates-directory .vt-syndicates-empty {
+  padding: 20px;
+  background: rgba(16, 22, 38, 0.6);
+  border: 1px dashed rgba(125, 145, 200, 0.25);
+  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.vt-syndicates-empty p {
+  margin: 0;
+  color: #cdd5e7;
+  font: 400 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+.vt-syndicates-cta-block {
+  padding: 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(245, 197, 66, 0.1) 0%,
+    rgba(245, 197, 66, 0.03) 100%
+  );
+  border: 1px solid rgba(245, 197, 66, 0.25);
+  border-radius: 16px;
+  text-align: center;
+  align-items: center;
+}
+
+.vt-syndicates-cta-block .vt-syndicates-section-title {
+  margin-bottom: 4px;
+}
+
+.vt-syndicates-cta-body {
+  font: 400 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  max-width: 520px;
+  margin: 0 auto 4px;
+}
