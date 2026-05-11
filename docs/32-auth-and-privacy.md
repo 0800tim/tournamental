@@ -31,15 +31,17 @@ Phone OTP is the lowest-common-denominator global identity: every
 phone in our target markets can receive an SMS or a WhatsApp message.
 
 We deliberately do *not* rely on third-party SMS providers (Twilio,
-Vonage). Tournamental already runs the **Aiva SMS gateway** at sms.aiva.nz
-which delivers SMS via Android phones over FCM and WhatsApp via
-Baileys. Per-OTP cost is effectively zero, which keeps the
-free-to-play promise intact.
+Vonage) by default. The default integration is the **Aiva SMS
+gateway**, a self-hosted relay that delivers SMS via Android phones
+over FCM and WhatsApp via Baileys. Per-OTP cost is effectively zero,
+which keeps the free-to-play promise intact. Any gateway that
+implements the same interface can plug in by overriding
+`AIVA_SMS_API_URL` (see `packages/aiva-client/`).
 
 ## Service surface
 
 `apps/auth-sms/` exposes (port 3330; behind Cloudflare on
-`auth.tournamental.com` and dev `vtorn-auth.aiva.nz`):
+`auth.tournamental.com` in prod, and a maintainer's local tunnel hostname in dev):
 
 | Method | Path | Purpose |
 |--------|------|---------|

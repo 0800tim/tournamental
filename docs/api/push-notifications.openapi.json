@@ -119,8 +119,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-push.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://push.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

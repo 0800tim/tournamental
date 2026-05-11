@@ -77,7 +77,7 @@ const DEFAULT_SIZE: CanvasCardSize = "landscape";
 const GAME_BASE =
   process.env.VTORN_GAME_URL ??
   process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
-  "https://vtorn-game.aiva.nz";
+  "https://game.tournamental.com";
 
 /** Game-service fetch timeout, we'd rather show a query-param card than wait. */
 const FETCH_TIMEOUT_MS = 750;

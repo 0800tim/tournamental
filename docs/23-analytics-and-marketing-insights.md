@@ -23,7 +23,7 @@ Three planes, one schema.
             └────────────┬─────────────────────┘│
                          │                       │
                          ▼                       │
-                 vtorn-api.aiva.nz               │
+                 api.tournamental.com               │
                  ┌────────────────┐              │
                  │ /v1/event      │◄─────────────┘
                  │  - validate    │
@@ -168,7 +168,7 @@ These combine into a single `engagement_score` (0–100) with a transparent form
 
 ## Admin dashboard
 
-Lives at `apps/admin/` (Next.js 14 + Tailwind + shadcn/ui), served on `vtorn-admin.aiva.nz` (dev) / `admin.tournamental.com` (prod). Auth-walled to a small list of admin emails configured in `.env`.
+Lives at `apps/admin/` (Next.js 14 + Tailwind + shadcn/ui), served on `admin.tournamental.com` (dev) / `admin.tournamental.com` (prod). Auth-walled to a small list of admin emails configured in `.env`.
 
 Surfaces:
 

@@ -36,7 +36,7 @@ const VERSION = '0.1.0';
 
 const corsOrigins = (
   process.env.PUSH_CORS_ORIGINS ??
-  'https://tournamental.com,https://play.tournamental.com,https://vtorn.aiva.nz,http://localhost:3300'
+  'https://tournamental.com,https://play.tournamental.com,https://play.tournamental.com,http://localhost:3300'
 )
   .split(',')
   .map((s) => s.trim())

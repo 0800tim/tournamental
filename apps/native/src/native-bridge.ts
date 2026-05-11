@@ -34,7 +34,7 @@ const PUSH_BASE_URL =
   // Set at build time via the @capacitor/preferences key 'vtorn:pushBaseUrl'
   // or fallback to the stable production URL. We don't read process.env at
   // runtime because that's not present in the WebView.
-  'https://vtorn-push.aiva.nz';
+  'https://push.tournamental.com';
 
 const USER_ID_KEY = 'vtorn:userId';
 

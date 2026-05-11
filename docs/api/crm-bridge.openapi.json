@@ -129,8 +129,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-crm.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://crm.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

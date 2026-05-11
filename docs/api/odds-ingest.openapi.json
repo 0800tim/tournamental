@@ -104,8 +104,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-odds.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://odds.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

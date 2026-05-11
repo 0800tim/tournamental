@@ -22,7 +22,7 @@ import type { DeadLetterQueue } from './dead-letter.js';
 import type { Logger } from './log.js';
 
 export interface ForwarderOptions {
-  /** Base URL of the dm-otp service, e.g. https://vtorn-auth.aiva.nz */
+  /** Base URL of the dm-otp service, e.g. https://auth.tournamental.com */
   baseUrl: string;
   /** Bearer secret shared with the dm-otp service for poller forwards. */
   bearer: string;

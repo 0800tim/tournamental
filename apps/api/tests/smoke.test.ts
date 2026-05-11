@@ -40,12 +40,12 @@ describe('vtorn-api smoke', () => {
       method: 'OPTIONS',
       url: '/health',
       headers: {
-        Origin: 'https://vtorn.aiva.nz',
+        Origin: 'https://play.tournamental.com',
         'Access-Control-Request-Method': 'GET',
       },
     });
     expect(ok.statusCode).toBe(204);
-    expect(ok.headers['access-control-allow-origin']).toBe('https://vtorn.aiva.nz');
+    expect(ok.headers['access-control-allow-origin']).toBe('https://play.tournamental.com');
 
     const blocked = await app.inject({
       method: 'OPTIONS',

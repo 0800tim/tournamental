@@ -107,7 +107,7 @@ trigger that mirrors `auth.users` into `user_profiles`.
 brew install supabase/tap/supabase   # macOS
 # or: npm i -g supabase
 
-cd /home/clawdbot/clawdia/projects/vtorn
+cd /path/to/vtorn                    # the repo root
 supabase login                       # opens browser, paste access token
 supabase link --project-ref <ref>    # ref is the last segment of the project URL
 supabase db push                     # runs all migrations under supabase/migrations/
@@ -189,10 +189,10 @@ phone-OTP path; their telegram_id is then bound on the resulting profile.
 8. **OTP expiry**: 600 seconds (10 min).
 9. Save.
 
-The hook endpoint forwards OTPs to Aiva SMS, make sure `AIVA_SMS_API_URL`,
-`AIVA_SMS_API_KEY`, and `AIVA_WA_SESSION_ID` are set in
-`apps/web/.env.production`. See `/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`
-for the Aiva SMS gateway docs.
+The hook endpoint forwards OTPs to the configured SMS gateway, make sure
+`AIVA_SMS_API_URL`, `AIVA_SMS_API_KEY`, and `AIVA_WA_SESSION_ID` are set in
+`apps/web/.env.production`. See [`packages/aiva-client/`](../packages/aiva-client/)
+for the default Aiva SMS gateway client.
 
 ### Deferred, Google / Apple / X (week 2-3)
 
@@ -372,7 +372,7 @@ Before the launch week:
   posture (now reflects Supabase as the production trust model).
 - [`docs/13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) -
   Telegram bot identity layer.
-- [`/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`](../../../.claude/skills/aiva-sms/SKILL.md)
- , Aiva SMS gateway docs for the WhatsApp OTP hook.
+- [`packages/aiva-client/`](../packages/aiva-client/), the default
+  SMS / WhatsApp gateway client used by the OTP hook.
 - `supabase/migrations/0001_user_identity.sql`, the schema this doc
   walks you through running.

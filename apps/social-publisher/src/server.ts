@@ -59,7 +59,7 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
       },
       servers: [
         { url: 'http://localhost:3382', description: 'local dev' },
-        { url: 'https://vtorn-social.aiva.nz', description: 'dev tunnel' },
+        { url: 'https://social.tournamental.com', description: 'production' },
       ],
       tags: [{ name: 'publish', description: 'ClipReady fan-out' }],
     },

@@ -13,7 +13,7 @@ flat-file pipeline from docs/12.
 
 | Env  | Port  | URL                                       |
 | ---- | ----- | ----------------------------------------- |
-| dev  | 3360  | `https://vtorn-game.aiva.nz`              |
+| dev  | 3360  | `https://game.tournamental.com`              |
 | prod | 3360  | `https://game.tournamental.com` (planned)       |
 
 See [docs/22](../../docs/22-deployment-and-tunnels.md) for the full port

@@ -66,23 +66,21 @@ slowest is GHL because of their settings UI. Everything below is
 - ☐ Restart: `pm2 restart vtorn-api-prod`
 - ☐ Verify: send `/start` to the bot; should receive the welcome message.
 
-### 1.2 Aiva SMS gateway verification
+### 1.2 SMS gateway verification
 
-- ☐ Confirm the registered SIM (Tim's phone number) is still active in Aiva's gateway
-- ☐ Confirm Tournamental traffic is allowed to use the gateway, same trust boundary as Aiva SMS
-- ☐ Skill ref: `/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`
-- ☐ Test send: `curl -X POST https://sms-api.aiva.nz/send -H 'Content-Type: application/json' -d '{"to":"+64...","body":"Tournamental test"}'`
-- ☐ No env var needed if running on this server inside the trust boundary. Confirm with the existing Aiva infra.
+- ☐ Stand up an SMS gateway (Aiva SMS by default, or any compatible gateway). See `packages/aiva-client/` for the request shape.
+- ☐ Provision an API key and device.
+- ☐ Test send: `curl -X POST "$AIVA_SMS_API_URL/api/v1/gateway/devices/$AIVA_SMS_DEVICE_ID/send-sms" -H "Authorization: Bearer $AIVA_SMS_API_KEY" -H 'Content-Type: application/json' -d '{"phoneNumber":"+64...","message":"Tournamental test"}'`
+- ☐ Paste `AIVA_SMS_API_URL`, `AIVA_SMS_API_KEY`, `AIVA_SMS_DEVICE_ID` into `apps/auth-sms/.env.production`.
 
-### 1.3 WhatsApp via Baileys
+### 1.3 WhatsApp via Baileys (or via the gateway)
 
-- ☐ Identify the existing Baileys session directory on the server (likely under `/home/clawdbot/.baileys-session` or similar)
-- ☐ If pairing under the Tournamental brand specifically: factory-reset the session and re-pair via QR code from a phone on the Tournamental WhatsApp number (likely the same SIM as Aiva SMS, confirm)
-- ☐ Otherwise: confirm the existing session is fine for cross-product use
-- ☐ Set the WhatsApp profile name → "Tournamental"
-- ☐ Set the WhatsApp profile picture → same T-mark as Telegram
-- ☐ → Paste session path into `apps/api/.env.production` as `WA_BAILEYS_SESSION_DIR=/path/to/session`
-- ☐ Smoke-test: `pnpm --filter @vtorn/api send-whatsapp --to=+64... --body="test"`
+- ☐ Decide on the WhatsApp transport: `WHATSAPP_TRANSPORT=aiva` (default, uses the SMS gateway's WhatsApp session) or `WHATSAPP_TRANSPORT=baileys` (in-process).
+- ☐ If using the gateway: paste `AIVA_WA_SESSION_ID` from the gateway.
+- ☐ If using Baileys: pair a phone via QR (the auth-sms service exposes the pairing QR at `/v1/auth/whatsapp/pairing-qr`) and set `BAILEYS_AUTH_DIR`.
+- ☐ Set the WhatsApp profile name → "Tournamental".
+- ☐ Set the WhatsApp profile picture → same T-mark as Telegram.
+- ☐ Smoke-test: `pnpm --filter @vtorn/auth-sms send-whatsapp --to=+64... --body="test"`.
 
 ### 1.4 Social handles (reserve them now, even if you won't post yet)
 
@@ -270,7 +268,7 @@ For every "→ paste into `apps/<service>/.env.production`" row above:
 ```bash
 # 1. SSH to the server (or open the tmux session if you're already there).
 # 2. Edit the file:
-$EDITOR /home/clawdbot/clawdia/projects/vtorn/apps/<service>/.env.production
+$EDITOR /path/to/vtorn/apps/<service>/.env.production
 # 3. Add or update the env var on its own line, KEY=VALUE, no quotes around the value.
 # 4. Save + close.
 # 5. Restart the PM2 process for that service:

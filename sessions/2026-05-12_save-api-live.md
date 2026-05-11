@@ -88,7 +88,7 @@ fallback and added the canonical var on top — no breaking config rename.
   surfaces server-side `rejected` predictions ("couldn't save N picks: matches
   already started").
 - `lib/pundit.ts` + `components/match-pick/useMatchPick.ts`: updated their
-  default base URLs from the stale `vtorn-game.aiva.nz` host to
+  default base URLs from the stale `game.tournamental.com` host to
   `game.tournamental.com`, and now consume the same `NEXT_PUBLIC_GAME_API_URL`
   env var (with the legacy var still honoured for back-compat).
 

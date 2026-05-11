@@ -22,7 +22,7 @@ Stand up everything around the four parallel builder agents so they have working
 1. ✅ Land CI workflow (PR #7).
 2. ✅ Open issue #8 — historic-odds HUD (tight scope).
 3. ✅ Dispatch four builder agents in parallel worktrees (background).
-4. ✅ Wire `vtorn.aiva.nz`, `vtorn-stream.aiva.nz`, `vtorn-api.aiva.nz`, `vtorn-www.aiva.nz` ingress on the existing aiva.nz tunnel.
+4. ✅ Wire `play.tournamental.com`, `stream.tournamental.com`, `api.tournamental.com`, `tournamental.com` ingress on the maintainer's dev Cloudflare tunnel.
 5. ⏳ Stand up Postgres 16 + Redis 7 dev stack via Docker Compose (volumes, healthchecks, sane resource limits for 6.5GB box).
 6. ⏳ Backup discipline: `db-backup.sh` (hourly/daily/weekly rotation, sha256 verified, offsite-ready) + `db-restore.sh` (host-allowlisted, optional PII scrub).
 7. ⏳ Update `CLAUDE.md` with performance & caching review checkpoints, port table, environment plan.
@@ -36,7 +36,7 @@ Stand up everything around the four parallel builder agents so they have working
 - **Database choice: Postgres + Redis (not NoSQL).** *Why*: prediction integrity needs ACID; user accounts and affiliate accounting need transactions; relational + JSONB covers our flexibility needs without DynamoDB's quirks. Redis covers hot leaderboards (sorted sets), session cache, pub/sub, and an LRU layer in front of Postgres for the hottest reads. Tim confirmed mid-session.
 - **In-memory cache layer added to the stack** *Why*: per-process LRU sits in front of Redis for the hottest items (leaderboard top-10, current-match summaries). Confirmed by Tim. Documented in `docs/22-deployment-and-tunnels.md`.
 - **Postgres 16 with `--data-checksums` and tuned shared_buffers/effective_cache_size for a 6.5GB host.** *Why*: detect silent corruption early; tuning prevents the OOM/swap loop a vanilla container hits when the JIT planner gets aggressive.
-- **Three-environment plan: dev (aiva.nz subdomains, this server) → staging (`*.vtourn.com` "dev/preview/api-dev") → prod (`vtourn.com`, `app.vtourn.com`, `api.vtourn.com`).** *Why*: Tim's request mid-session. Documented end-to-end in `docs/22-deployment-and-tunnels.md`. Production CNAMEs wait until vtourn.com is in his Cloudflare account.
+- **Three-environment plan: dev (maintainer's private dev tunnel) → staging (`*-dev.tournamental.com`) → prod (`tournamental.com`, `play.tournamental.com`, `api.tournamental.com`).** *Why*: agreed mid-session. Documented end-to-end in `docs/22-deployment-and-tunnels.md`. Production CNAMEs wait until tournamental.com is in the maintainer's Cloudflare account.
 - **Ports allocated in the 33xx + 4001 range.** *Why*: avoids clashing with clawdia (3001, 5433, 6379, 8888, 9201–9274). Producer WS stays on 4001 to match `docs/05-mock-producer.md` which is already authoritative.
 - **Cloudflare tunnel is locally configured at `/etc/cloudflared/config.yml`, NOT remotely managed.** *Why*: my memory note from the clawdia project said remote-managed. Verified by reading the live systemd unit — it runs `cloudflared --config /etc/cloudflared/config.yml tunnel run`. Local file is the source of truth. Updated my mental model and these session notes; the relevant clawdia memory should be updated separately.
 - **Backups: tiered hourly/daily/weekly with sha256 verification, plus optional `VTORN_BACKUP_OFFSITE_DIR` for the weekly archive.** *Why*: hourly catches "I just dropped a table" within an hour; daily covers most rollback windows; weekly is the offsite-friendly archive. sha256 sidecar lets restore pre-flight integrity check without re-reading the dump.
@@ -57,7 +57,7 @@ What's landed (or merged) this session:
 - **PR #7** — `ci: add baseline GitHub Actions pipeline` (`91d9ca5`).
 - **PR #9** — `chore(infra): conventions, DB stack, backups, dependabot` — open and being expanded with analytics/gamification/secrets/kanban (this session).
 - **PR #10** — `feat(avatar): procedural avatar pipeline + assets` — opened by the avatar agent. Ready for review. (Avatar agent finished autonomously while infra work was in progress.)
-- **Tunnel routes** — `vtorn.aiva.nz` (3300), `vtorn-stream.aiva.nz` (4001), `vtorn-api.aiva.nz` (3310), `vtorn-www.aiva.nz` (3320) all live, returning expected `HTTP/2 404`.
+- **Tunnel routes** — `play.tournamental.com` (3300), `stream.tournamental.com` (4001), `api.tournamental.com` (3310), `tournamental.com` (3320) all live, returning expected `HTTP/2 404`.
 - **DB stack live** — Postgres 16 healthy on `:5435` with `vtorn` role + 5 extensions; Redis 7 healthy on `:6380`; backup smoke test passes.
 - **Builder agents** — three still in flight (statsbomb-replay #3, web #4, mock-producer #6). Avatar (#5) finished and PR #10 is awaiting orchestrator review.
 

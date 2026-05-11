@@ -145,7 +145,7 @@ If a source's terms ever change to forbid even title-and-summary syndication, we
 | `NEWS_CACHE_PATH`                | `data/news-cache.jsonl`                                                                                | Append-only on-disk cache (gitignored).                                                |
 | `NEWS_RETENTION_DAYS`            | `30`                                                                                                   | Drop items older than this on load + on insert.                                        |
 | `NEWS_ADMIN_SECRET`              | unset                                                                                                  | Bearer for `POST /v1/admin/refresh`. When unset, that endpoint returns 503.            |
-| `NEWS_AGG_CORS_ORIGINS`          | comma-separated allow-list (defaults cover `tournamental.com`, `vtorn-www.aiva.nz`, `vtorn.aiva.nz`, dev)    | CORS allow-list.                                                                       |
+| `NEWS_AGG_CORS_ORIGINS`          | comma-separated allow-list (defaults cover `tournamental.com`, `tournamental.com`, `play.tournamental.com`, dev)    | CORS allow-list.                                                                       |
 | `NEWS_ENABLE_FIFA`               | `0`                                                                                                    | Flip to `1` once a confirmed FIFA feed URL is in place.                                |
 | `NEWS_ENABLE_GOAL`               | `0`                                                                                                    | Flip to `1` only when a Goal.com syndication partnership is in place.                  |
 

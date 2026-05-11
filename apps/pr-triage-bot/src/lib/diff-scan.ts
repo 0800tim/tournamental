@@ -40,6 +40,9 @@ const ALWAYS_OK_HOSTS = new Set<string>([
   '0.0.0.0',
   // ours
   'tournamental.com',
+  // aiva.nz is the default SMS gateway integration target (see
+  // packages/aiva-client/). Override via AIVA_SMS_API_URL to use a
+  // different gateway.
   'aiva.nz',
   // common docs anchors that show up in comments
   'github.com',

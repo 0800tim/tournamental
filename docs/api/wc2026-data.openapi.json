@@ -94,8 +94,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-wc2026.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://wc2026.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

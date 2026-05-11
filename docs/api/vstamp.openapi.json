@@ -121,8 +121,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-vstamp.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://vstamp.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

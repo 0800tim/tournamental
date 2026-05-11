@@ -38,7 +38,7 @@ export async function buildServer(opts: BuildOptions = {}) {
 
   const corsOrigins =
     opts.corsOrigins ??
-    (process.env.VSTAMP_CORS_ORIGINS ?? 'https://vtorn.aiva.nz,http://localhost:3300')
+    (process.env.VSTAMP_CORS_ORIGINS ?? 'https://play.tournamental.com,http://localhost:3300')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean);

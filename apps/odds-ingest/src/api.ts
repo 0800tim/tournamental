@@ -56,7 +56,7 @@ export async function buildApp(opts: ApiOptions): Promise<FastifyInstance> {
       },
       servers: [
         { url: "http://localhost:3375", description: "local dev" },
-        { url: "https://vtorn-odds.aiva.nz", description: "dev tunnel" },
+        { url: "https://odds.tournamental.com", description: "dev tunnel" },
       ],
       tags: [{ name: "odds", description: "Match-level odds reads" }],
     },

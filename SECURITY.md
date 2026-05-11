@@ -21,7 +21,7 @@ Please include:
 ## What's in scope
 
 - Anything in this repository's source code, including the apps under `apps/`, packages under `packages/`, and infrastructure scripts under `infra/`.
-- Our deployed surfaces under `*.tournamental.com` and `*.aiva.nz` (dev).
+- Our deployed surfaces under `*.tournamental.com`.
 - Our smart contracts (when they ship — see [docs/21-onchain-pool-and-oracle.md](docs/21-onchain-pool-and-oracle.md)). For contracts we additionally run a formal external audit before mainnet.
 
 ## What's out of scope

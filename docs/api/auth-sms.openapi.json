@@ -101,8 +101,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-auth.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://auth.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

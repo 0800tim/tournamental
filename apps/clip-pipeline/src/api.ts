@@ -73,7 +73,7 @@ export async function buildApp(opts: BuildAppOptions): Promise<FastifyInstance> 
       },
       servers: [
         { url: "http://localhost:3385", description: "local dev" },
-        { url: "https://vtorn-clip.aiva.nz", description: "dev tunnel" },
+        { url: "https://clip.tournamental.com", description: "dev tunnel" },
       ],
       tags: [{ name: "clips", description: "Clip queue + render" }],
     },

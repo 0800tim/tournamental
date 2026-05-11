@@ -82,7 +82,7 @@ These are all internal identifiers that would either:
 | `vtourn_user_id` GHL custom field           | Breaks the live GHL CRM integration contract         |
 | `vtourn_last_event_id` GHL custom field     | Same as above                                        |
 | `onVtournTelegramAuth` window callback     | Internal JS identifier; not user-visible             |
-| `vtorn.aiva.nz` + `vtorn-*` tunnels        | Staging infra; rename in a separate ops window       |
+| `play.tournamental.com` + `vtorn-*` tunnels        | Staging infra; rename in a separate ops window       |
 | `VTORN_WEB_URL` env var (Capacitor)        | Internal build env; matches `@vtorn/*` scope         |
 | Historical blog post bodies                 | Per orchestrator brief                               |
 | Session notes                               | Per orchestrator brief                               |

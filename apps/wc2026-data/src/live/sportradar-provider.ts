@@ -196,7 +196,7 @@ export class SportRadarLiveDataProvider implements LiveDataProvider {
     return {
       Accept: "application/json",
       "Accept-Encoding": "gzip",
-      "User-Agent": "vtorn-wc2026-data/0.1 (+https://vtorn.aiva.nz)",
+      "User-Agent": "vtorn-wc2026-data/0.1 (+https://play.tournamental.com)",
     };
   }
 

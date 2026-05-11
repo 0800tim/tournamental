@@ -178,8 +178,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-game.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://game.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

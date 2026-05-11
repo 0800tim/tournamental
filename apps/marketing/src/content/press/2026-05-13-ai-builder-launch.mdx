@@ -35,7 +35,7 @@ tags: ["ai", "claude", "build log", "open source", "agents", "tournamental"]
 - **Backend**: Fastify 4 for the API, SQLite for local dev, Supabase Postgres + auth for production identity. Redis 7 for hot reads (leaderboards top-10, current-match summaries).
 - **Data**: StatsBomb open data for historical replays, custom WebSocket producer for live match streams, a flat-file leaderboard layer in front of Postgres for elasticity.
 - **Rendering**: napi-rs/canvas + satori + resvg for share-card image generation, server-side, on every save.
-- **Tunnelling and edge**: cloudflared for every public surface, ingress rules in `infra/cloudflared/config.yml`, all dev URLs at `*.aiva.nz`.
+- **Tunnelling and edge**: cloudflared for every public surface, with each maintainer running their own dev tunnel; staging and prod live on `*.tournamental.com`.
 - **On-chain**: VStamp signer skeleton for prediction receipts, Drips Network contract for contributor revenue routing.
 - **CI and ops**: pm2 for service supervision, GitHub Actions for lint/typecheck/test, an admin-merge workflow that requires green local tests before any PR lands.
 

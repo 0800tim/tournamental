@@ -50,7 +50,7 @@ Pick the next free port. Add a row to the table in `docs/22-deployment-and-tunne
 
 ## Tunnel ingress
 
-The dev tunnel routes `<service>.aiva.nz` to the local port. The tunnel config is **remotely managed via the Cloudflare API**, do not edit local YAML. Open a session note describing the new ingress rule and the orchestrator wires it via the API; the rule is then visible at the Cloudflare dashboard, not in the repo.
+Each maintainer's dev tunnel routes `<service>.<their-dev-domain>` to the local port. If your tunnel is remote-managed, do not edit local YAML; use the Cloudflare API procedure in `docs/22-deployment-and-tunnels.md`. Open a session note describing the new ingress rule.
 
 If you need a quick dev-only tunnel for testing webhooks, `cloudflared tunnel --url http://localhost:<port>` gets you a randomised URL, fine for one-off webhook testing, never commit it anywhere.
 

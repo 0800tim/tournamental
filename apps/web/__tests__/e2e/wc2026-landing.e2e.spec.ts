@@ -124,7 +124,7 @@ test.describe("WC2026 hype landing, host-aware middleware", () => {
     request,
   }) => {
     const res = await request.get("/", {
-      headers: { Host: "tournamental.aiva.nz" },
+      headers: { Host: "tournamental.com" },
     });
     expect(res.status()).toBe(200);
     const html = await res.text();

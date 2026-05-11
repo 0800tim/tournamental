@@ -7,7 +7,7 @@ If you're looking for OpenAPI: there is no JSON HTTP surface beyond `/healthz` a
 ## Connecting
 
 ```
-wss://vtorn-stream.aiva.nz/v1/match/<match_id>
+wss://stream.tournamental.com/v1/match/<match_id>
 ```
 
 Local dev: `ws://localhost:4001/v1/match/<match_id>`.

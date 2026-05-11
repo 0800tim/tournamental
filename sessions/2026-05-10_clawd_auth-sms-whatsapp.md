@@ -56,7 +56,7 @@ TOS copy.
 ### `docs/22-deployment-and-tunnels.md`
 
 Added `auth.vtourn.com` (prod), `auth-dev.vtourn.com` (staging), and
-`vtorn-auth.aiva.nz → :3330` (dev) to the URL plan and port table.
+`auth.tournamental.com → :3330` (dev) to the URL plan and port table.
 
 ### `.env.example` + `.gitignore`
 
@@ -132,7 +132,7 @@ curl http://localhost:3330/v1/auth/me \
 4. **Cloudflare tunnel ingress** — I added the URL plan to docs/22 but
    did NOT touch the tunnel config (remote-managed; Tim's standing
    rule). Orchestrator (or Tim) needs to run the API procedure in
-   docs/22 §Cloudflare to add `vtorn-auth.aiva.nz → :3330`.
+   docs/22 §Cloudflare to add `auth.tournamental.com → :3330`.
 
 ## Out of scope (parked)
 

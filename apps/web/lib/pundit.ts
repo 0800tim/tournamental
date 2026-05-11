@@ -19,7 +19,7 @@ export interface PunditStatus {
 
 // Resolution order matches `lib/bracket/api.ts`: prefer the canonical
 // NEXT_PUBLIC_GAME_API_URL, fall back to the legacy var, then the
-// production host. The legacy `vtorn-game.aiva.nz` default was the
+// production host. The legacy `game.tournamental.com` default was the
 // dev-mesh hostname and no longer resolves in production.
 const GAME_BASE =
   process.env.NEXT_PUBLIC_GAME_API_URL ??

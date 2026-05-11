@@ -1,6 +1,6 @@
 # @vtorn/api
 
-> VTorn API service. Fastify, TypeScript, ESM. Owns the public `vtorn-api.aiva.nz` (dev) / `api.vtorn.com` (prod) surface.
+> VTorn API service. Fastify, TypeScript, ESM. Owns the public `api.tournamental.com` (dev) / `api.vtorn.com` (prod) surface.
 
 This is the Phase-2 starter. It currently exposes only the health/version endpoints needed for the tunnel to answer cleanly. The events-ingest, predictions, and leaderboard surfaces land in subsequent PRs per `docs/23-analytics-and-marketing-insights.md` and the `tasks/` board.
 
@@ -12,7 +12,7 @@ pnpm -F @vtorn/api dev
 # → http://localhost:3310
 ```
 
-Through the dev tunnel: `https://vtorn-api.aiva.nz/health`.
+Through the dev tunnel: `https://api.tournamental.com/health`.
 
 ## Endpoints (today)
 

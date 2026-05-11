@@ -10,7 +10,7 @@ Companion docs:
 - [docs/18-monetization.md](../../docs/18-monetization.md)
 - [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
   for the canonical port/tunnel table (this service is `:3370`,
-  `vtorn-aff.aiva.nz` in dev, `aff.tournamental.com` in prod).
+  `aff.tournamental.com` in dev, `aff.tournamental.com` in prod).
 
 ## Quick start
 
@@ -185,8 +185,8 @@ per-user-partner), audit-log writes, and hash determinism.
 
 ## Deployment
 
-- Dev: `vtorn-aff.aiva.nz` → `:3370` via the existing aiva.nz Cloudflare
-  Tunnel. See [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
+- Dev: `:3370` exposed via the maintainer's local Cloudflare tunnel. See
+  [docs/22-deployment-and-tunnels.md](../../docs/22-deployment-and-tunnels.md)
   for the API-driven ingress procedure.
 - Prod: `aff.tournamental.com` → service container on the prod tunnel.
 

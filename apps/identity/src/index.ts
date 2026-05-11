@@ -34,7 +34,7 @@ const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
 
 const corsOrigins = (
   process.env.IDENTITY_CORS_ORIGINS ??
-  'https://tournamental.com,https://vtorn.aiva.nz,https://vtorn-admin.aiva.nz,http://localhost:3300,http://localhost:3340'
+  'https://tournamental.com,https://play.tournamental.com,https://admin.tournamental.com,http://localhost:3300,http://localhost:3340'
 )
   .split(',')
   .map((s) => s.trim())

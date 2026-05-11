@@ -35,7 +35,7 @@ two sources disagree.
 All real-backend requests carry a custom `User-Agent`:
 
 ```
-Tournamental-WC2026-Scraper/0.1 (+https://vtorn.aiva.nz; ops@tournamental.com)
+Tournamental-WC2026-Scraper/0.1 (+https://play.tournamental.com; ops@tournamental.com)
 ```
 
 Override via `WC2026_USER_AGENT=…` if forking.

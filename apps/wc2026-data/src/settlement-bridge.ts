@@ -24,7 +24,7 @@ import { request } from "undici";
 import type { LiveMatchState } from "./live/types.js";
 
 export interface SettlementBridgeOptions {
-  /** Base URL of the game service. e.g. https://vtorn-api.aiva.nz/game */
+  /** Base URL of the game service. e.g. https://api.tournamental.com/game */
   readonly gameBaseUrl: string;
   /** Shared secret expected by the game service's admin guard. */
   readonly gameInternalSecret: string | undefined;

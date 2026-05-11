@@ -22,7 +22,7 @@ import { NextRequest, NextResponse } from "next/server";
  * **Untouched hosts**: `tournamental.com` / `www.tournamental.com`
  * (marketing, separate Astro app), `dev.tournamental.com` (staging),
  * `stream.tournamental.com` (WebSocket producer), the local dev
- * origin, and `tournamental.aiva.nz` (legacy alias kept alive during
+ * origin, and `tournamental.com` (legacy alias kept alive during
  * the rebrand transition).
  *
  * Performance: the matcher excludes static asset paths so middleware

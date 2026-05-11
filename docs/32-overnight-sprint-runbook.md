@@ -38,7 +38,7 @@
 | #53 | LockSummary fixes | Real 104 picks, predicted champion, multiplier table |
 | #52 | Cascade end-to-end Playwright | Full group → R32 → R16 → QF → SF → final asserted |
 | #51 | Security hardening checklist + orchestrator runbook | Pre-launch security pass + parallel-agent docs |
-| #50 | api-shell rebased and CI clean | Fastify API ready for `vtorn-api.aiva.nz` |
+| #50 | api-shell rebased and CI clean | Fastify API ready for `api.tournamental.com` |
 | #49 | Marketing → WC subdomain CTA | Every page now has "Play World Cup 2026 →" button |
 | #48 | Best-thirds auto-rank | R32 #85-#88 slots now populate from group standings |
 | #47 | Multi-pass cascade | QF/SF/F slots resolve from upstream picks |

@@ -73,7 +73,7 @@ Pickable from a small headphones icon in the renderer top-right. Persists per-us
       "audio_base": "/audio/commentary/{match}/{lang}/"
     },
     "ai_live_wss": {
-      "feeder_url": "wss://vtorn-stream.aiva.nz/match/{match}/text",
+      "feeder_url": "wss://stream.tournamental.com/match/{match}/text",
       "elevenlabs_voice_ids_per_lang": { "en": "...", "es": "..." }
     },
     "youtube_embeds_known_to_work": [

@@ -7,6 +7,13 @@ remains the recommended primary path per
 [doc 13](../../docs/13-telegram-bot-and-auth.md), but this service is
 the fallback for users who want phone-number identity).
 
+## SMS / WhatsApp gateway
+
+The default gateway is the [Aiva SMS gateway](https://github.com/) (a
+self-hosted SMS + WhatsApp relay). Any other gateway that implements the
+same request shape can plug in by overriding `AIVA_SMS_API_URL`. The
+relevant client lives in `packages/aiva-client/`.
+
 ## Endpoints
 
 | Method | Path | Purpose |
@@ -27,9 +34,9 @@ cp ../../.env.example apps/auth-sms/.env  # then fill in:
 #   AUTH_OTP_SECRET=<32+ random bytes hex>
 #   AUTH_JWT_SECRET=<32+ random bytes hex>
 #   AUTH_ADMIN_TOKEN=<random>
-#   AIVA_SMS_API_KEY=<from sms.aiva.nz>
+#   AIVA_SMS_API_KEY=<from your SMS gateway>
 #   AIVA_SMS_DEVICE_ID=<your Android device UUID>
-#   AIVA_WA_SESSION_ID=<from sms.aiva.nz>
+#   AIVA_WA_SESSION_ID=<from your SMS gateway>
 pnpm --filter @vtorn/auth-sms dev
 ```
 

@@ -34,7 +34,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       },
       servers: [
         { url: 'http://localhost:3399', description: 'local dev' },
-        { url: 'https://vtorn-drips.aiva.nz', description: 'dev tunnel' },
+        { url: 'https://drips.tournamental.com', description: 'production' },
       ],
       tags: [
         { name: 'health', description: 'Liveness + version' },

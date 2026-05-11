@@ -2,7 +2,7 @@
 
 **Status**: done
 
-**Outcome**: AR-FR demo running end-to-end on the dev box and reachable over the public internet at https://vtorn.aiva.nz/match/arfr.
+**Outcome**: AR-FR demo running end-to-end on the dev box and reachable over the public internet at https://play.tournamental.com/match/arfr.
 
 ## What just happened
 
@@ -36,8 +36,8 @@ Lockfile conflicts on `pnpm-lock.yaml` resolved by `git checkout --theirs && pnp
 
 ## Decisions
 
-- **Tunnel is remote-managed; the local `/etc/cloudflared/config.yml` is NOT authoritative.** *Why*: cloudflared on this box pulls its ingress configuration from the Cloudflare Zero Trust dashboard / API on every reconnect, and silently ignores local config changes. The aiva.nz CLAUDE memory had said exactly this; I dismissed it earlier in this session because the local file existed and looked authoritative. Fixed by PUTting the new ingress rules via `https://api.cloudflare.com/client/v4/accounts/<ACCT>/cfd_tunnel/<TUN>/configurations`. Documented in `docs/22-deployment-and-tunnels.md` so I don't relearn this for the third time.
-- **Renderer dev script bound to `:3300` by default.** *Why*: the tunnel routes `vtorn.aiva.nz` to `http://localhost:3300`, and we don't want everyone to remember `pnpm dev -- -p 3300`. Changing the default keeps the demo a one-liner.
+- **Tunnel is remote-managed; the local `/etc/cloudflared/config.yml` is NOT authoritative.** *Why*: cloudflared on this box pulls its ingress configuration from the Cloudflare Zero Trust dashboard / API on every reconnect, and silently ignores local config changes. Fixed by PUTting the new ingress rules via `https://api.cloudflare.com/client/v4/accounts/<ACCT>/cfd_tunnel/<TUN>/configurations`. Documented in `docs/22-deployment-and-tunnels.md`.
+- **Renderer dev script bound to `:3300` by default.** *Why*: the tunnel routes `play.tournamental.com` to `http://localhost:3300`, and we don't want everyone to remember `pnpm dev -- -p 3300`. Changing the default keeps the demo a one-liner.
 - **Lockfile conflict resolution by `--theirs` then re-`pnpm install`.** *Why*: pnpm's lockfile is deterministic — re-deriving from `package.json` yields the same content as a hand-merge would, with less drama. Future agents handle conflicts the same way.
 - **No reviewer-agent dispatch this session.** *Why*: Tim said earlier in the day "stop building all of these agents so that everything starts working harmoniously." The reviewer agent (AGENT-PROMPTS.md § 5) is held until I have his explicit go.
 
@@ -51,11 +51,11 @@ Lockfile conflicts on `pnpm-lock.yaml` resolved by `git checkout --theirs && pnp
 What's reachable on the public internet right now:
 
 ```
-$ curl -sI https://vtorn.aiva.nz/match/arfr | head -2
+$ curl -sI https://play.tournamental.com/match/arfr | head -2
 HTTP/2 200
 content-type: text/html; charset=utf-8
 
-$ wscat -c wss://vtorn-stream.aiva.nz   (or the equivalent ws client)
+$ wscat -c wss://stream.tournamental.com   (or the equivalent ws client)
 < {"type":"match.init","spec_version":"0.1.1","match_id":"mock-42",...}
 < {"type":"state","t":372700,"ball":{...},"players":[...]}
 ... 10Hz state frames forever ...
@@ -64,14 +64,14 @@ $ wscat -c wss://vtorn-stream.aiva.nz   (or the equivalent ws client)
 End-to-end smoke results from this session:
 - 200 OK for the renderer route via the Cloudflare tunnel.
 - 426 Upgrade Required for the bare HTTP request to the WebSocket route (correct).
-- Live WebSocket from `wss://vtorn-stream.aiva.nz` returning a valid `match.init` followed by 10Hz `state` frames.
+- Live WebSocket from `wss://stream.tournamental.com` returning a valid `match.init` followed by 10Hz `state` frames.
 
 Tests run during this session: 38 vitest (renderer) + 13 vitest (avatar) + 14 vitest (mock-producer) + 10 pytest (statsbomb-replay) — all green per the merged PRs' CI.
 
 ## Next session
 
 - Run the **statsbomb-replay** producer against the AR-FR data and prove the full match plays correctly (3-3 ET, 4-2 pens) end-to-end through the renderer. Today's smoke used the synthetic mock producer; the real-data run is the headline demo.
-- Stand up `apps/api/` (Fastify, port 3310) so `vtorn-api.aiva.nz` is no longer 404.
+- Stand up `apps/api/` (Fastify, port 3310) so `api.tournamental.com` is no longer 404.
 - Begin Phase 2 work: analytics SDK (`packages/analytics/`), Prisma schema, admin dashboard agent (held — issue #11 ready when Tim's ready).
 - Add the reviewer agent (AGENT-PROMPTS § 5) when Tim greenlights it.
 
