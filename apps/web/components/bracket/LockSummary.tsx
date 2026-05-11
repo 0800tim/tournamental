@@ -25,6 +25,12 @@ import {
 } from "@vtorn/bracket-engine";
 
 import { shareContent, tapFeedback } from "@/lib/native";
+import {
+  buildShareText,
+  buildShareTitle,
+  resolveShareGuid,
+  shareUrlFor,
+} from "@/lib/share/share-text";
 
 export interface LockSummaryProps {
   readonly bracket: Bracket;
@@ -106,28 +112,47 @@ export function LockSummary(props: LockSummaryProps) {
   const topMultRows = tableRows.slice(0, 5);
   const boldestPick = tableRows.find((r) => r.multiplier > 2.5);
 
-  // Build the canonical share URL for the user's bracket. We use the
-  // public /world-cup-2026/share/<bracketId> page, which has OG meta
-  // tags + a per-bracket OG image; the same URL renders correctly in
-  // social previews and in the OS share-sheet.
-  const shareHandle = handle ?? "Anonymous";
+  // Build the canonical share URL for the user's bracket. Uses the
+  // play.tournamental.com/s/<guid> short-link form, which matches the
+  // public landing route owned by the s-guid agent (parallel #67).
+  // resolveShareGuid prefers the auth user id when present (PR #138);
+  // otherwise it falls back to the bracket's stable `bracketId`.
   const shareWinner = champion === "—" ? "TBD" : champion;
-  const shareUrl = bracketId
-    ? `https://tournamental.com/world-cup-2026/share/${encodeURIComponent(
-        bracketId,
-      )}?handle=${encodeURIComponent(shareHandle)}&winner=${encodeURIComponent(
-        shareWinner,
-      )}`
-    : "https://tournamental.com/world-cup-2026";
+  const isComplete =
+    Object.keys(bracket.matchPredictions).length +
+      Object.keys(bracket.knockoutPredictions).length >=
+    totalPicks;
+  const guid = resolveShareGuid({ authUserId: null, bracketId });
+  const shareUrl = shareUrlFor(guid);
+  const shareText = buildShareText({
+    champion: shareWinner,
+    guid,
+    isComplete,
+  });
 
   const handleShare = async (): Promise<void> => {
     void tapFeedback("medium");
+    if (typeof window !== "undefined") {
+      type DL = Window & { dataLayer?: Array<Record<string, unknown>> };
+      const w = window as DL;
+      if (!Array.isArray(w.dataLayer)) w.dataLayer = [];
+      w.dataLayer.push({
+        event: "share_clicked",
+        platform: "native",
+        surface: "lock-summary",
+      });
+    }
     await shareContent({
-      title: "My Tournamental World Cup 2026 bracket",
-      text: `I picked ${shareWinner} to lift the trophy. Save yours before kickoff →`,
+      title: buildShareTitle(),
+      text: shareText,
       url: shareUrl,
     });
   };
+
+  // Suppress the no-unused-vars warning — `handle` is still part of the
+  // public prop surface for forward-compat with the auth/handle wiring,
+  // even though the new share-url builder doesn't need it.
+  void handle;
 
   return (
     <aside className="bracket-lock-summary" data-testid="lock-summary">
@@ -179,16 +204,26 @@ export function LockSummary(props: LockSummaryProps) {
         </a>
       )}
 
-      <button
-        type="button"
-        className="btn-secondary bracket-share-cta"
-        data-testid="share-bracket-cta"
-        onClick={() => {
-          void handleShare();
-        }}
-      >
-        Share my bracket
-      </button>
+      <div className="bracket-share-actions">
+        <button
+          type="button"
+          className="bracket-share-cta-primary"
+          data-testid="share-bracket-cta"
+          onClick={() => {
+            void handleShare();
+          }}
+        >
+          <span aria-hidden="true" className="bracket-share-cta-icon">↗</span>
+          Share my bracket
+        </button>
+        <a
+          className="bracket-share-cta-secondary"
+          data-testid="open-save-share"
+          href="/world-cup-2026/save-share"
+        >
+          More share options →
+        </a>
+      </div>
     </aside>
   );
 }

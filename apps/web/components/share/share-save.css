@@ -1,0 +1,481 @@
+/**
+ * ShareSavePage stylesheet.
+ *
+ * Reuses the WC 2026 bracket palette:
+ *   bg     #0a0e1a      (--vt-bg)
+ *   ink    #cdd5e7      (~--vt-fg)
+ *   gold   #f5c542      (the primary brand accent for "Share")
+ *   silver #d8dde6
+ *   bronze #d8954f
+ *   accent #7eb6e8
+ *
+ * Layout philosophy: vertical stack on every viewport; the OG image is
+ * the hero, the share CTA is the call-to-action. No multi-column
+ * tricks — sharing is one user goal, not five.
+ */
+
+.vt-ss-page {
+  --ss-gold: #f5c542;
+  --ss-gold-soft: rgba(245, 197, 66, 0.16);
+  --ss-gold-on: #1a1305;
+  --ss-silver: #d8dde6;
+  --ss-bronze: #d8954f;
+  --ss-accent: #7eb6e8;
+  --ss-ink: #cdd5e7;
+  --ss-ink-faint: #8d99b3;
+  --ss-card-bg: rgba(255, 255, 255, 0.04);
+  --ss-card-border: rgba(255, 255, 255, 0.08);
+
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 120px; /* extra bottom padding for sticky CTA */
+  color: var(--ss-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* ---------- Hero ---------- */
+
+.vt-ss-hero {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.vt-ss-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ss-ink-faint);
+  margin: 0 0 4px;
+}
+
+.vt-ss-title {
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.vt-ss-sub {
+  margin: 0;
+  font-size: 14px;
+  color: var(--ss-ink-faint);
+}
+
+.vt-ss-saved-at {
+  display: inline-block;
+}
+
+.vt-ss-count-chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  font-size: 13px;
+  color: var(--ss-ink);
+  white-space: nowrap;
+}
+
+.vt-ss-count-chip strong {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.vt-ss-count-chip.is-complete {
+  background: var(--ss-gold-soft);
+  border-color: rgba(245, 197, 66, 0.45);
+}
+
+.vt-ss-count-chip.is-complete strong {
+  color: var(--ss-gold);
+}
+
+/* ---------- OG image preview ---------- */
+
+.vt-ss-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.vt-ss-preview-frame {
+  width: 100%;
+  max-width: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.25);
+  /* Subtle scale-up on mount; reduce-motion users get nothing. */
+  animation: vt-ss-preview-pop 400ms ease-out both;
+}
+
+@keyframes vt-ss-preview-pop {
+  from {
+    transform: scale(0.96);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-ss-preview-frame {
+    animation: none;
+  }
+}
+
+.vt-ss-preview-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 16px;
+}
+
+.vt-ss-preview-frame[data-size="portrait"] {
+  max-width: 360px;
+}
+
+.vt-ss-preview-frame[data-size="square"] {
+  max-width: 440px;
+}
+
+.vt-ss-size-chips {
+  display: inline-flex;
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+}
+
+.vt-ss-size-chip {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--ss-ink-faint);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 140ms ease, color 140ms ease;
+}
+
+.vt-ss-size-chip:hover {
+  color: var(--ss-ink);
+}
+
+.vt-ss-size-chip.is-active {
+  background: var(--ss-gold);
+  color: var(--ss-gold-on);
+  font-weight: 600;
+}
+
+/* ---------- URL row ---------- */
+
+.vt-ss-url-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vt-ss-url-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ss-ink-faint);
+  font-weight: 600;
+}
+
+.vt-ss-url-controls {
+  display: flex;
+  gap: 8px;
+}
+
+.vt-ss-url-input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 14px;
+  color: var(--ss-ink);
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: ui-monospace, SFMono-Regular, "Roboto Mono", monospace;
+}
+
+.vt-ss-url-input:focus-visible {
+  outline: 2px solid var(--ss-accent);
+  outline-offset: 2px;
+}
+
+.vt-ss-copy-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background: var(--ss-accent);
+  color: #0a0e1a;
+  border-radius: 12px;
+  font: inherit;
+  font-weight: 600;
+  padding: 12px 18px;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: filter 140ms ease, transform 100ms ease;
+}
+
+.vt-ss-copy-btn:hover {
+  filter: brightness(1.08);
+}
+
+.vt-ss-copy-btn:active {
+  transform: scale(0.98);
+}
+
+.vt-ss-copied-pill {
+  align-self: flex-start;
+  display: inline-block;
+  margin-top: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(76, 214, 128, 0.18);
+  color: #87f0a8;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Primary CTA ---------- */
+
+.vt-ss-primary-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.vt-ss-cta-btn {
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  background: var(--ss-gold);
+  color: var(--ss-gold-on);
+  border-radius: 16px;
+  font: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  padding: 18px 24px;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 32px rgba(245, 197, 66, 0.28);
+  transition: filter 140ms ease, transform 100ms ease, box-shadow 140ms ease;
+}
+
+.vt-ss-cta-btn:hover {
+  filter: brightness(1.05);
+  box-shadow: 0 16px 40px rgba(245, 197, 66, 0.38);
+}
+
+.vt-ss-cta-btn:active {
+  transform: translateY(1px);
+}
+
+.vt-ss-fallback-note {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ss-ink-faint);
+  text-align: center;
+}
+
+/* ---------- Platforms row ---------- */
+
+.vt-ss-platforms {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+
+.vt-ss-platform-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  border-radius: 14px;
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  color: var(--ss-ink);
+  text-decoration: none;
+  transition: background 140ms ease, border-color 140ms ease, transform 100ms ease;
+}
+
+.vt-ss-platform-btn:hover {
+  background: var(--ss-gold-soft);
+  border-color: rgba(245, 197, 66, 0.45);
+  color: var(--ss-gold);
+}
+
+.vt-ss-platform-btn:active {
+  transform: scale(0.98);
+}
+
+.vt-ss-platform-icon {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vt-ss-platform-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.vt-ss-platform-label {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ---------- Download row ---------- */
+
+.vt-ss-section-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 10px;
+  color: var(--ss-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.vt-ss-download-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.vt-ss-download-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  color: var(--ss-ink);
+  text-decoration: none;
+  transition: background 140ms ease, border-color 140ms ease;
+}
+
+.vt-ss-download-btn:hover {
+  background: var(--ss-gold-soft);
+  border-color: rgba(245, 197, 66, 0.45);
+}
+
+.vt-ss-download-size {
+  font-weight: 600;
+  font-size: 14px;
+  color: #fff;
+}
+
+.vt-ss-download-hint {
+  font-size: 11px;
+  color: var(--ss-ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---------- Embed ---------- */
+
+.vt-ss-embed details {
+  background: var(--ss-card-bg);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 14px;
+  padding: 12px 16px;
+}
+
+.vt-ss-embed summary {
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ss-ink);
+}
+
+.vt-ss-embed-note {
+  margin: 12px 0;
+  font-size: 13px;
+  color: var(--ss-ink-faint);
+}
+
+.vt-ss-embed-snippet {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--ss-card-border);
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, "Roboto Mono", monospace;
+  color: var(--ss-ink);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ---------- Mobile sticky CTA ---------- */
+
+.vt-ss-sticky-cta {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .vt-ss-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .vt-ss-title {
+    font-size: 24px;
+  }
+
+  .vt-ss-platforms {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  .vt-ss-platform-label {
+    font-size: 11px;
+  }
+
+  /* Inline CTA still visible — but the sticky-bottom copy is the
+   * thumb-reachable one. Hide the inline button to avoid duplicate-CTA
+   * confusion on mobile. */
+  .vt-ss-primary-cta .vt-ss-cta-btn:not(.vt-ss-cta-btn--sticky) {
+    display: none;
+  }
+
+  .vt-ss-sticky-cta {
+    display: block;
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    /* Sit above the bottom-nav (64px) + safe-area inset. */
+    bottom: calc(var(--vt-shell-bottomnav-h, 64px) + env(safe-area-inset-bottom, 0px) + 8px);
+    z-index: 40;
+  }
+
+  .vt-ss-cta-btn--sticky {
+    width: 100%;
+  }
+}

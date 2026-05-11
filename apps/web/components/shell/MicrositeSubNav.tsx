@@ -48,8 +48,9 @@ export const WC2026_SUBNAV: readonly MicrositeSubNavLink[] = [
   },
   {
     label: "Save & share",
-    href: "/world-cup-2026#final",
+    href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
+    matchPrefix: "/world-cup-2026/save-share",
   },
   {
     label: "Watch demo",
