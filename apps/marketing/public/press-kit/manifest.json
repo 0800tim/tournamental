@@ -1,0 +1,94 @@
+{
+  "name": "Tournamental Press Kit",
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-13",
+  "description": "Brand assets, founder headshots, product screenshots, and boilerplates for journalists, bloggers, and partners writing about Tournamental.",
+  "contact": {
+    "name": "Tim Lyons",
+    "email": "press@tournamental.com",
+    "phone": "+64 21 0800 846"
+  },
+  "license": {
+    "logos": "Tournamental Holdings, may be reproduced verbatim in articles about Tournamental",
+    "screenshots": "Tournamental Holdings, may be reproduced verbatim in articles about Tournamental",
+    "code": "Apache 2.0 (github.com/0800tim/tournamental)",
+    "docs": "CC-BY 4.0"
+  },
+  "contents": [
+    {
+      "path": "logos/tournamental-mark.svg",
+      "type": "logo",
+      "format": "svg",
+      "description": "Tournamental T mark, vector. Use against dark backgrounds at 16px and above.",
+      "status": "shipped"
+    },
+    {
+      "path": "logos/tournamental-mark-dark.png",
+      "type": "logo",
+      "format": "png",
+      "description": "Tournamental T mark, raster, 512x512, transparent. For embeds where SVG is not supported.",
+      "status": "pending, replace placeholder before launch+1"
+    },
+    {
+      "path": "logos/tournamental-wordmark.svg",
+      "type": "logo",
+      "format": "svg",
+      "description": "Tournamental full wordmark, vector. Use at 200px wide and above for legibility.",
+      "status": "pending, replace placeholder before launch+1"
+    },
+    {
+      "path": "headshots/tim-lyons-founder.jpg",
+      "type": "headshot",
+      "format": "jpg",
+      "description": "Tim Lyons, founder. 2048x2048, neutral background. Use with credit Photo by Tournamental.",
+      "status": "pending, replace placeholder before launch+1"
+    },
+    {
+      "path": "screenshots/bracket-app.png",
+      "type": "screenshot",
+      "format": "png",
+      "description": "Bracket app, save-don't-lock view, 2880x1800 retina. Source: apps/web/.",
+      "status": "pending, copy from docs/screens/"
+    },
+    {
+      "path": "screenshots/molecule-pyramid.png",
+      "type": "screenshot",
+      "format": "png",
+      "description": "3D molecule pyramid visualisation, 48-team base rising to champion atom. 2880x1800 retina.",
+      "status": "pending, copy from docs/screens/"
+    },
+    {
+      "path": "screenshots/match-renderer.png",
+      "type": "screenshot",
+      "format": "png",
+      "description": "3D match renderer playing the 2022 World Cup Final AR-FR. 2880x1800 retina.",
+      "status": "pending, copy from docs/screens/"
+    },
+    {
+      "path": "screenshots/podium-share-card.png",
+      "type": "screenshot",
+      "format": "png",
+      "description": "Auto-generated podium share card, 1200x630, gold-silver-bronze podium with predicted champion.",
+      "status": "pending, copy from docs/screens/"
+    },
+    {
+      "path": "palette/brand-colours.json",
+      "type": "palette",
+      "format": "json",
+      "description": "Tournamental brand colour palette: accent (gold), ink (midnight), border tints.",
+      "status": "pending"
+    },
+    {
+      "path": "boilerplate-en-NZ.md",
+      "type": "boilerplate",
+      "format": "markdown",
+      "description": "Standard About Tournamental paragraph in NZ English. One-paragraph and one-sentence variants.",
+      "status": "shipped"
+    }
+  ],
+  "boilerplates": {
+    "oneSentence": "Tournamental is an open-source tournament-prediction platform that lets you predict the FIFA World Cup 2026 with your friends, watch every match in a browser-based 3D renderer, and share platform revenue with the contributors who build it through Drips Network.",
+    "oneParagraph": "Tournamental is an open-source tournament-prediction platform for the FIFA World Cup 2026 and other major sports tournaments. Every prediction is timestamped before kickoff and signed on-chain, every match plays out in a browser-based 3D renderer, every contributor shares in the platform's revenue through Drips Network. The platform is licensed under Apache 2.0, documentation is licensed under Creative Commons BY 4.0. Headquarters: New Zealand. Live at tournamental.com.",
+    "longForm": "Tournamental is an open-source tournament-prediction platform built around three ideas the closed-source incumbents do not ship: save-don't-lock mechanics (players can change every pick until the match kicks off), VStamp on-chain receipts (every save is timestamped and signed before kickoff, anyone can verify it), and a contributor revenue split through Drips Network (a fixed fraction of platform revenue flows on-chain to whoever shipped the work). The product launches for the FIFA World Cup 2026 with a 3D match renderer driven by StatsBomb open data, a molecule pyramid visualisation of every player's bracket, path-based syndicates at play.tournamental.com/s/<slug>, and a podium share card pipeline that auto-generates on every save. The full codebase is at github.com/0800tim/tournamental under Apache 2.0, the documentation pack is CC-BY 4.0, and the Drips contract that pays contributors is public."
+  }
+}

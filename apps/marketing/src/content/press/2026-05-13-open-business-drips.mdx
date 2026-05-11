@@ -1,0 +1,89 @@
+---
+title: "Open-business, not just open-source: Tournamental routes platform revenue to contributors through Drips Network"
+subtitle: "No VC, no equity table, no NDAs. The Drips contract is public, the split formula is in the repo, anyone can fork it."
+pubDate: 2026-05-13
+contactName: "Tim Lyons"
+contactEmail: "press@tournamental.com"
+pressKitUrl: "/press-kit/tournamental-press-kit.zip"
+category: "open-source"
+audience: ["general"]
+heroImage: "/press/2026-05-13-drips-hero.png"
+heroImageAlt: "A flowing diagram of platform revenue routing from sportsbook affiliate clicks and paid integrations into a Drips Network on-chain split between merged contributors, translators, and the project foundation."
+quoteAttributable:
+  - quote: "Most open-source projects say contribute and earn karma. Nobody pays the bills with karma. We're routing real platform revenue on-chain to whoever contributed."
+    source: "Tim Lyons, founder, Tournamental"
+  - quote: "I do not want a board that requires me to lock the source code on month 12 because their portfolio company is also building a bracket app. I want this to be a thing the internet builds."
+    source: "Tim Lyons, founder, Tournamental"
+tags: ["open business", "drips", "open source", "web3", "apache 2.0", "contributors"]
+---
+
+**Auckland, New Zealand, 13 May 2026.** Tournamental, the open-source tournament-prediction platform that launches today at [tournamental.com](https://tournamental.com), is running an experiment most software companies do not: a fraction of every dollar of platform revenue flows on-chain to the people who contributed the code, the docs, the translations, the share-card variants, and the bug fixes that make the platform work.
+
+The mechanism is [Drips Network](https://drips.network), an Optimism-based protocol that lets a project define a public, forkable split of incoming funds between a set of beneficiaries. The Tournamental Drips list is in the repository at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental), the split formula is in `docs/`, and anyone can read it, audit it, or propose a change through a public process.
+
+## The model in one paragraph
+
+Tournamental earns revenue from optional paid integrations (clip-pipeline boosts, syndicate-host upgrades, branded share-card themes) and affiliate-attributed sportsbook clicks. The free game loop, bracket creation, save-anytime, VStamp receipts, 3D match renderer, share cards, syndicates, leaderboards, costs the player nothing. A fixed fraction of every dollar of platform revenue is routed through the public Drips contract to contributors: anyone whose pull request has been merged, anyone who has shipped a translation, anyone whose share-card variant ships in production, anyone whose smart-contract review caught a real bug.
+
+The platform takes a fee that funds operations and a small foundation budget. The remainder flows on-chain. There is no equity, there is no VC table, there are no NDAs, there is no contributor licence agreement.
+
+## Why this is structurally different from a bounty program
+
+Bounty programs pay a fixed amount per ticket. They are good at incentivising the first 5 tickets, then they run out of budget or the project moves on. The contributor who shipped ticket #1 sees no upside if their feature drives the platform's next year of growth.
+
+Drips routing is structurally different. Contributors are beneficiaries of an income stream, not the recipients of a one-off payment. If the share-card variant a contributor shipped in May 2026 is responsible for 20 percent of viral signups in June 2027, that contributor is still in the split, still earning, still benefitting from the work they did 14 months earlier. The protocol does the accounting, the contract is public, the beneficiaries can be audited.
+
+## Why this is structurally different from a token
+
+Tournamental does not issue a token. There is no fundraising round, no airdrop, no liquidity pool to design around. Drips routes existing platform revenue (denominated in stablecoins on Optimism) to a list of public addresses, no token economics, no speculative trading layer, no regulatory ambiguity about whether the asset is a security.
+
+The technical surface is small and auditable. A platform-owned address receives a defined share of every payable event, a Drips list contract publishes the split, beneficiaries claim against the contract on their own schedule. The smart contracts that handle this are off-the-shelf Drips Network primitives, not bespoke Tournamental code, which means the trust surface is already battle-tested by every project that has used Drips before.
+
+## What counts as a contribution
+
+The Drips list rewards five categories of work, all of which are documented in the contributor guide at `CONTRIBUTING.md` in the repository:
+
+- **Merged code pull requests.** Any PR that lands on `main`, sized by the reviewer's complexity assessment.
+- **Translations.** The 200-minute verbose-mode commentary is currently in 10 languages, every one of which a native speaker will improve. Improved translations ship and route Drips.
+- **Designs that ship.** Share-card variants, country-specific themes, accessibility passes. If it lands in production, the designer is in the list.
+- **Smart-contract reviews.** The VStamp signer skeleton and the Drips list contract itself benefit from external eyes. A real bug found and reported routes Drips.
+- **Documentation contributions.** Any merged doc PR (the `docs/` collection is CC-BY licensed) routes Drips, because docs that journalists, contributors, and new players actually read are platform-shaping.
+
+The intentional non-inclusions: no payouts for raising issues, no payouts for posting on social media about the project, no payouts for "evangelism". The Drips list is for shipped work that survives review.
+
+## What is open
+
+Everything. Apache 2.0 for code, Creative Commons BY 4.0 for documentation. The repository is at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental). The Drips contract address and the current split formula are in `docs/`. The full design pack (22 markdown documents covering the renderer, the spec, the clip pipeline, the on-chain receipts, the affiliate router, the smart-contract audit list) is readable in one sitting.
+
+The intentional escape valve: a fork is fine. If a contributor wants to take the codebase and ship a competing product, the Apache 2.0 licence permits it. The bet is that the network effects (the integrated Drips list, the existing user base, the existing syndicate URLs at `play.tournamental.com/s/`, the established brand) make the original a better place to contribute to than a fork in most cases. If the original drifts in a direction the community dislikes, a fork can correct that. That is the point.
+
+## On not raising venture capital
+
+The decision not to raise was deliberate. A VC round buys speed and connections, it also buys a board that has fiduciary obligations to its limited partners. Those obligations frequently conflict with open-sourcing the codebase, sharing platform revenue with external contributors, and saying "no" to a $20m revenue opportunity that would compromise the model.
+
+Tournamental's bet is that an internet-built, open-business platform compounds slower in year one and faster in year three than a venture-backed equivalent. The platform's break-even is a few thousand active syndicates, which is a reachable number on the strength of the World Cup 2026 launch and the open-source loop. After break-even, the foundation budget funds operations and the rest flows to contributors. There is no exit pressure, no IPO calendar, no acqui-hire ambition. The platform continues for as long as the next tournament still benefits from it.
+
+## Quotes
+
+> "Most open-source projects say contribute and earn karma. Nobody pays the bills with karma. We are routing real platform revenue on-chain to whoever contributed."
+> *, Tim Lyons, founder, Tournamental*
+
+> "I do not want a board that requires me to lock the source code on month 12 because their portfolio company is also building a bracket app. I want this to be a thing the internet builds."
+> *, Tim Lyons, founder, Tournamental*
+
+## How to participate
+
+- **As a contributor**: clone the repository, run the AR-FR 2022 demo locally, find a bug or pick an open issue, open a PR. Merged PRs route Drips.
+- **As a translator**: pick a language from the open list in `docs/14-clip-pipeline.md`, improve the verbose-mode commentary, open a PR.
+- **As an organisation**: spin up a free syndicate at `play.tournamental.com/s/<your-slug>`, run a workplace pool, a brand pool, or a charity pool with no fees and no setup cost.
+- **As a press contact**: email [press@tournamental.com](mailto:press@tournamental.com) for a demo, the brief, or access to the session notes.
+
+## Press contact
+
+Tim Lyons, founder
+[press@tournamental.com](mailto:press@tournamental.com)
+Press kit: [/press-kit/tournamental-press-kit.zip](/press-kit/tournamental-press-kit.zip)
+
+## About Tournamental
+
+Tournamental is an open-source tournament-prediction platform for the FIFA World Cup 2026 and other major sports tournaments. Every prediction is timestamped before kickoff and signed on-chain, every match plays out in a browser-based 3D renderer, every contributor shares in the platform's revenue through Drips Network. The platform is licensed under Apache 2.0, documentation is licensed under Creative Commons BY 4.0. Headquarters: New Zealand. Live at tournamental.com.

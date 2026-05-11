@@ -76,6 +76,11 @@ const absoluteOgImage = ogImage.startsWith("http")
         is honoured by Telegram's instant-view legacy spec. */}
     <meta name="telegram:channel" content="@tournamental" />
     <link rel="canonical" href={canonicalUrl} />
+    {/* RSS feeds: blog (build log) and press (official releases).
+        Journalists' feed readers pick up `/press/rss.xml` automatically
+        from the alternate link, no extra config needed. */}
+    <link rel="alternate" type="application/rss+xml" title="Tournamental, Build log" href="/blog/rss.xml" />
+    <link rel="alternate" type="application/rss+xml" title="Tournamental, Press releases" href="/press/rss.xml" />
     <meta id="vt-theme-color" name="theme-color" content="#0a0e1a" />
     <meta name="color-scheme" content="light dark" />
     <script is:inline>

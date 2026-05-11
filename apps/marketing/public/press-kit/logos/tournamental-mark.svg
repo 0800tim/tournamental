@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+  <!-- Geometric T glyph for Tournamental. Filename is v-mark.svg for
+       backwards-compat (CSS masks + Astro imports reference this path);
+       the visual is now a T. Crossbar slightly thicker than the stem so
+       it reads cleanly at 16 / 24 / 32 px favicon scales. -->
+  <path d="M3 3 L21 3 L21 8 L14 8 L14 21 L10 21 L10 8 L3 8 Z" fill="currentColor" />
+</svg>

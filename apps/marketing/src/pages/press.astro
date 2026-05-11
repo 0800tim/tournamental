@@ -1,0 +1,139 @@
+---
+// Press release index, /press.
+//
+// Lists every release in the `press` content collection, sorted by
+// pubDate desc. Embargoed releases (where `embargoUntil` is in the
+// future at render time) render as redacted "Embargoed until <date>"
+// entries. The page emits a short s-maxage when at least one embargo
+// is in flight so the entry flips to "live" within a minute of the
+// embargo expiring; otherwise it gets the long-cache default.
+//
+// Out-of-scope: filtering by category or audience (a fast follow once
+// the index has more than ~15 entries; today the list is short enough
+// that pills + scan beat a filter UI).
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import PressCard from "@/components/press/PressCard.astro";
+import { getCollection } from "astro:content";
+
+const now = new Date();
+const releases = (await getCollection("press", ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
+
+const hasEmbargoes = releases.some(
+  (r) => r.data.embargoUntil && r.data.embargoUntil.getTime() > now.getTime()
+);
+
+// Cache policy: long edge cache for the steady state, short s-maxage
+// when an embargo is pending so the index reflects the flip quickly.
+// Static builds can't set per-page headers, so the cloudflared/edge
+// ingress reads the data attribute below and sets the real
+// Cache-Control header at the CDN. Recorded in
+// docs/22-deployment-and-tunnels.md.
+const cacheControl = hasEmbargoes
+  ? "public, max-age=0, s-maxage=60, stale-while-revalidate=300"
+  : "public, max-age=300, s-maxage=3600, stale-while-revalidate=86400";
+
+const liveReleases = releases.filter(
+  (r) => !r.data.embargoUntil || r.data.embargoUntil.getTime() <= now.getTime()
+);
+const embargoedReleases = releases.filter(
+  (r) => r.data.embargoUntil && r.data.embargoUntil.getTime() > now.getTime()
+);
+---
+<Layout
+  title="Press, Tournamental"
+  description="Official press releases, embargoed announcements, and the Tournamental press kit. For demos, briefs and access to the session notes, email press@tournamental.com."
+>
+  {/* The edge ingress reads this data attribute and sets the real
+      Cache-Control header. Long cache when no embargo is pending,
+      short cache (s-maxage=60) when an embargo is in flight so the
+      flip-to-live shows up at the edge within a minute. */}
+  <article class="container-page pt-16 pb-12" data-cache-control={cacheControl}>
+    <SectionHeading
+      eyebrow="Press"
+      title="Press releases"
+      lede="Official announcements and embargoed releases from Tournamental. Journalists: email press@tournamental.com for a demo, the brief, or access to the founder's session notes."
+    />
+
+    <div class="vt-press-actions">
+      <a href="/press-kit/tournamental-press-kit.zip" class="btn-primary" download>
+        Download the press kit
+      </a>
+      <a href="/press/rss.xml" class="link">Subscribe via RSS</a>
+      <a href="mailto:press@tournamental.com" class="link">press@tournamental.com</a>
+    </div>
+
+    {releases.length === 0 && (
+      <div class="card mt-8">
+        <p class="prose-vt">Nothing released yet. Check back soon.</p>
+      </div>
+    )}
+
+    {liveReleases.length > 0 && (
+      <section class="mt-10">
+        <h4 class="vt-press-eyebrow">Released</h4>
+        <div class="vt-press-grid">
+          {liveReleases.map((r) => <PressCard release={r} now={now} />)}
+        </div>
+      </section>
+    )}
+
+    {embargoedReleases.length > 0 && (
+      <section class="mt-12">
+        <h4 class="vt-press-eyebrow">Under embargo</h4>
+        <div class="vt-press-grid">
+          {embargoedReleases.map((r) => <PressCard release={r} now={now} />)}
+        </div>
+      </section>
+    )}
+
+    <aside class="vt-press-rss">
+      <span>Want the feed?</span>
+      <a href="/press/rss.xml" class="link">/press/rss.xml</a>
+    </aside>
+  </article>
+</Layout>
+
+<style>
+  .vt-press-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    align-items: center;
+    margin-top: 1.4rem;
+    font-size: 0.92rem;
+  }
+  .vt-press-eyebrow {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-muted);
+    margin-bottom: 1rem;
+  }
+  .vt-press-grid {
+    display: grid;
+    gap: 1.1rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .vt-press-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (min-width: 1100px) {
+    .vt-press-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .vt-press-rss {
+    margin-top: 3rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--vt-border);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+  }
+</style>

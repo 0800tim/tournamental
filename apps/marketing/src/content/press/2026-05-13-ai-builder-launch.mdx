@@ -1,0 +1,106 @@
+---
+title: "What one founder built in 72 hours with Claude as the engineering partner: a full bracket-prediction platform, end-to-end"
+subtitle: "Build log, parallel-agent dispatching, honest failure modes, and the lessons that came out of shipping Tournamental solo"
+pubDate: 2026-05-13
+contactName: "Tim Lyons"
+contactEmail: "press@tournamental.com"
+pressKitUrl: "/press-kit/tournamental-press-kit.zip"
+category: "open-source"
+audience: ["ai-builder", "general"]
+heroImage: "/press/2026-05-13-ai-builder-hero.png"
+heroImageAlt: "A laptop screen showing a terminal with 12 parallel agent panes, each running a different Tournamental build task, alongside a 3D match renderer view."
+quoteAttributable:
+  - quote: "An agent will not tell you when it is wrong. It will write 800 lines of confident code, open a PR, and wait for you to notice the bug yourself. The discipline is in the verification loop, not the prompt."
+    source: "Tim Lyons, founder, Tournamental"
+  - quote: "The orchestrator owns the spec. Builders consume the spec. Nobody mutates the spec without the orchestrator's sign-off. That single rule killed 80 percent of the merge conflicts I expected."
+    source: "Tim Lyons, founder, Tournamental"
+tags: ["ai", "claude", "build log", "open source", "agents", "tournamental"]
+---
+
+**Auckland, New Zealand, 13 May 2026.** Today Tournamental launches, an open-source tournament-prediction platform built solo with Claude as the engineering partner over 72 hours of focused work. The code, the design docs, the marketing site, and the session notes are all public at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental). What follows is the build log, written for the AI-builder community, with honest numbers and honest failure modes.
+
+## The numbers
+
+- **72 hours** of focused build time, from initial commit to launch tag.
+- **28 pull requests** merged in three days, every one auditable on GitHub.
+- **~80 design docs and session notes** shipped alongside the code, mostly under `docs/` (CC-BY) and `sessions/`.
+- **5 services running in production**: Next.js bracket app (port 3300), Astro marketing site (3320), Fastify API (3310), Python StatsBomb replay producer (4001), a `@vtorn/social-cards` canvas renderer.
+- **3D match renderer** built on React Three Fiber playing the 2022 World Cup Final, Argentina 3-3 France (4-2 on penalties), at 10x speed in about 15 minutes.
+- **12 to 15 builder agents** dispatched in parallel through a tmux + git-worktree pattern at peak.
+- **1 founder**, 1 Linux box in New Zealand, no team, no VC.
+
+## The stack, end-to-end
+
+- **Frontend**: Next.js 14 (App Router) for the bracket app, Astro 4 for the marketing site, React Three Fiber + drei + three.js for the 3D match renderer and the molecule pyramid visualisation.
+- **Backend**: Fastify 4 for the API, SQLite for local dev, Supabase Postgres + auth for production identity. Redis 7 for hot reads (leaderboards top-10, current-match summaries).
+- **Data**: StatsBomb open data for historical replays, custom WebSocket producer for live match streams, a flat-file leaderboard layer in front of Postgres for elasticity.
+- **Rendering**: napi-rs/canvas + satori + resvg for share-card image generation, server-side, on every save.
+- **Tunnelling and edge**: cloudflared for every public surface, ingress rules in `infra/cloudflared/config.yml`, all dev URLs at `*.aiva.nz`.
+- **On-chain**: VStamp signer skeleton for prediction receipts, Drips Network contract for contributor revenue routing.
+- **CI and ops**: pm2 for service supervision, GitHub Actions for lint/typecheck/test, an admin-merge workflow that requires green local tests before any PR lands.
+
+## The parallel-agent pattern
+
+The orchestrator pattern is the single most important thing I figured out, and it is documented in `CLAUDE.md` at the root of the repository. The shape is:
+
+1. **One orchestrator agent** owns the spec at `packages/spec/`, never lets a builder mutate it, reviews all session notes, and merges all PRs after the reviewer agent's approval.
+2. **12 to 15 builder agents**, each scoped to a single app directory (`apps/web/`, `apps/marketing/`, `apps/statsbomb-replay/`, etc.). Each builder runs in its own git worktree under `.claude/worktrees/` or a sibling directory under `projects/`. Each builder reads its assigned design doc, plans in a session note, branches off `origin/main`, ships, and opens a PR.
+3. **One reviewer agent** runs the verification checklist on every PR, comments findings, approves or requests changes.
+
+The discipline that made this work is the worktree pattern. Every builder gets a clean checkout of `origin/main`, never sees another builder's in-flight work, and lands on top of whatever the orchestrator has already merged. The result is 28 PRs in 3 days with almost no merge conflicts, because builders converge on a single sequencing point (the merge) rather than fighting over a shared mutable branch.
+
+A typical builder brief looked like this:
+
+> "You own `apps/share-cards/`. Read `docs/14-clip-pipeline.md`. Ship a server-side share-card renderer that produces a 1200x630 PNG for any save, given a save GUID. Use `@vtorn/social-cards` for the canvas primitives. Open a PR. Do not ask questions, ship."
+
+The "do not ask questions" line was the unlock. Agents that ask clarifying questions burn an entire session round-trip on something the design doc already answers. Agents that ship a PR with a small mistake can be corrected in a 5-line review comment.
+
+## The failure modes (the honest part)
+
+Three categories of failure ate the most time, in roughly this order.
+
+**1. Infrastructure drift.** The single biggest source of broken builds in the first 24 hours was pm2 supervisor processes running from a deleted worktree path. A builder agent would finish, the orchestrator would delete the worktree, and a pm2 process kept pointing at the old node binary inside a now-vanished `node_modules`. The fix was a startup script that re-derives every service's `cwd` from a single source of truth in `infra/scripts/services.json`, and a cron that kills any pm2 process whose `cwd` does not exist on disk.
+
+**2. Agents stomping on each other's branches.** Twice in the first 36 hours, two builder agents independently decided to extend the same shared utility in `packages/spec/` and opened conflicting PRs. The fix was the orchestrator-only spec rule documented in `CLAUDE.md`: builders are not permitted to modify `packages/spec/`. If a builder needs a new shape, they propose it in their session note and the orchestrator either ships the spec change first or rejects the proposal. After that rule landed, spec-conflict PRs went to zero.
+
+**3. The mobile hydration crash.** Mid-rebuild on day two, a client-side hydration error started crashing the bracket app on mobile Safari and on Chrome Android. The error was a classic React mismatch (server rendered a server-time-derived date label, client rendered a local-time-derived one). The catch was that the error manifested as a blank white screen, not a console message a user would notice. The fix was a top-level error boundary plus an "if `window.__TOURNAMENTAL_BOOTED` is false 3 seconds after DOMContentLoaded, force a hard reload" recovery script. The bigger lesson: an agent will not tell you a feature crashes on mobile if you do not explicitly check on mobile. You have to run it on mobile yourself.
+
+## What I would do differently next time
+
+- **Set up the worktree pattern on day zero, not day one.** I lost the first 4 hours doing manual `git checkout` swaps on a single working copy. Worktrees pay for themselves before the second agent dispatches.
+- **Lock the spec earlier.** I left `packages/spec/` writable for the first 18 hours and paid for it in merge conflicts. The orchestrator-only-mutations rule should be in `CLAUDE.md` from minute one.
+- **Write the "do not ask questions" rule into every builder brief.** The single most expensive failure mode is a builder agent that burns a 90-second LLM round-trip asking whether to use Tailwind or vanilla CSS, when the design doc already says Tailwind. Pre-empt the question, ship the answer, save the round-trip.
+- **Measure verification time, not just build time.** The 72-hour figure counts coding time. It does not count the additional 8 to 10 hours I spent personally verifying every release on mobile, every share card render in Telegram, every kickoff-lockout edge case at 4 minutes before kickoff. Real-world testing on a real-world device is the throughput bottleneck, not the agents.
+
+## Lessons about agent prompting
+
+Things that consistently worked:
+
+- **Specific file paths in the brief.** "Edit `apps/web/src/components/Bracket.tsx`" beats "edit the bracket component". Saves a search round-trip.
+- **Explicit out-of-scope list.** "Do not touch the StatsBomb producer. Do not touch the marketing site. Do not modify the spec." removes the temptation for an agent to "helpfully" widen the PR.
+- **One acceptance criterion at a time.** "Ship a save-button that POSTs to /api/save and returns the save GUID" is testable. "Make the save experience better" is not.
+- **Force the agent to open a PR, not push to main.** PRs trigger the reviewer agent, the lint pipeline, the typecheck pipeline, and the human eye. Direct pushes skip all of those.
+
+Things that consistently failed:
+
+- **Agents asked to "design" something open-ended.** They produce reasonable-looking code that solves a problem nobody asked them to solve.
+- **Agents asked to refactor without a target shape.** The refactor PR will sprawl.
+- **Agents told to "make it production-ready".** That is not a brief, that is a wish.
+
+## What is open
+
+Everything. Apache 2.0 for code, Creative Commons BY 4.0 for docs. The repository is at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental). Clone it, run `pnpm install`, follow the README, watch the AR-FR 2022 demo in your browser, find a bug, open a PR. The Drips list pays merged contributors. No equity, no NDA, no contributor licence agreement.
+
+## The invitation
+
+If you are an AI-builder who has shipped real software with Claude as the engineering partner, I would love to compare notes. The session notes in `sessions/` are written so future contributors (including future-me) can understand decisions in context. If you spot something I got wrong, please open an issue, the project will improve faster with your eyes on it than without.
+
+## Press contact
+
+Tim Lyons, founder
+[press@tournamental.com](mailto:press@tournamental.com)
+Press kit: [/press-kit/tournamental-press-kit.zip](/press-kit/tournamental-press-kit.zip)
+
+## About Tournamental
+
+Tournamental is an open-source tournament-prediction platform for the FIFA World Cup 2026 and other major sports tournaments. Every prediction is timestamped before kickoff and signed on-chain, every match plays out in a browser-based 3D renderer, every contributor shares in the platform's revenue through Drips Network. The platform is licensed under Apache 2.0, documentation is licensed under Creative Commons BY 4.0. Headquarters: New Zealand. Live at tournamental.com.
