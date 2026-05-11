@@ -124,8 +124,21 @@ export async function registerBracketRoutes(
       });
     }
 
-    const { tournament_id, user_id, bracket } = parsed.data;
+    const { tournament_id, user_id, bracket, share_guid } = parsed.data;
     const lookup = registry.forTournament(tournament_id);
+
+    // If the client supplied a share_guid, ensure it isn't already
+    // taken by a different bracket. Re-using your own guid (on a
+    // re-save of your own bracket) is fine — that's the whole point.
+    if (
+      share_guid &&
+      deps.store.isShareGuidTakenByOther(share_guid, user_id, tournament_id)
+    ) {
+      return reply.code(409).send({
+        error: "share_guid_conflict",
+        message: "That share guid is already used by another bracket.",
+      });
+    }
 
     // Filter every per-match prediction (groups + knockouts) against the
     // tournament's known kickoffs. Rejected predictions are echoed back.
@@ -154,14 +167,19 @@ export async function registerBracketRoutes(
       tournamentId: tournament_id,
       bracket: persistBracket,
       lockedAt,
+      shareGuid: share_guid ?? null,
     });
 
-    const receipt: LockReceipt & { rejected?: RejectedPrediction[] } = {
+    const receipt: LockReceipt & {
+      rejected?: RejectedPrediction[];
+      share_guid: string;
+    } = {
       bracket_id: result.bracketId,
       user_id,
       tournament_id,
       locked_at: new Date(lockedAt).toISOString(),
       version: bracket.version,
+      share_guid: result.shareGuid,
       ...(rejected.length ? { rejected } : {}),
     };
     return reply.code(result.created ? 201 : 200).send(receipt);
@@ -194,6 +212,7 @@ export async function registerBracketRoutes(
       tournament_id: row.tournament_id,
       locked_at: new Date(row.locked_at).toISOString(),
       score_total: row.score_total,
+      share_guid: row.share_guid,
       bracket: payload,
     };
   });

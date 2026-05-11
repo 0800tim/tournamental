@@ -73,6 +73,7 @@ export class GameStore {
   private updateBracketStmt!: Statement;
   private getBracketByUserStmt!: Statement;
   private getBracketByIdStmt!: Statement;
+  private getBracketByShareGuidStmt!: Statement;
   private listBracketsByTournamentStmt!: Statement;
   private updateBracketScoreStmt!: Statement;
   private upsertMatchResultStmt!: Statement;
@@ -147,8 +148,8 @@ export class GameStore {
        ON CONFLICT(id) DO NOTHING`,
     );
     this.insertBracketStmt = this.db.prepare(
-      `INSERT INTO brackets (id, user_id, tournament_id, payload_json, locked_at, score_total)
-       VALUES (@id, @user_id, @tournament_id, @payload_json, @locked_at, 0)`,
+      `INSERT INTO brackets (id, user_id, tournament_id, payload_json, locked_at, score_total, share_guid)
+       VALUES (@id, @user_id, @tournament_id, @payload_json, @locked_at, 0, @share_guid)`,
     );
     this.updateBracketStmt = this.db.prepare(
       `UPDATE brackets
@@ -162,6 +163,9 @@ export class GameStore {
     );
     this.getBracketByIdStmt = this.db.prepare(
       `SELECT * FROM brackets WHERE id = ?`,
+    );
+    this.getBracketByShareGuidStmt = this.db.prepare(
+      `SELECT * FROM brackets WHERE share_guid = ?`,
     );
     this.listBracketsByTournamentStmt = this.db.prepare(
       `SELECT * FROM brackets WHERE tournament_id = ?`,
@@ -244,9 +248,17 @@ export class GameStore {
 
   /**
    * Submit (or re-submit before lock) a user's bracket. Returns the
-   * resulting row id. Re-submission on the same (user, tournament) pair
-   * replaces the prior payload and resets `score_total` to 0 — the next
-   * match-result POST will recompute it.
+   * resulting row id and the share guid (whether existing or newly
+   * minted). Re-submission on the same (user, tournament) pair
+   * replaces the prior payload and resets `score_total` to 0 — the
+   * next match-result POST will recompute it. The share guid is
+   * STABLE across re-saves: a re-submit never changes it.
+   *
+   * `shareGuid` (optional) lets the caller supply a client-minted
+   * UUID v4 for new brackets. If absent, the store mints a 16-char
+   * hex nanoid-style id locally. On update, this argument is ignored
+   * — the existing row's share guid wins so the share URL stays
+   * stable across re-saves of the same bracket.
    */
   upsertBracket(args: {
     bracketId: string;
@@ -254,7 +266,8 @@ export class GameStore {
     tournamentId: string;
     bracket: Bracket;
     lockedAt: number;
-  }): { bracketId: string; created: boolean } {
+    shareGuid?: string | null;
+  }): { bracketId: string; created: boolean; shareGuid: string } {
     this.ensureUser(args.userId, args.lockedAt);
     const existing = this.getBracketByUserStmt.get(args.userId, args.tournamentId) as
       | BracketRow
@@ -267,16 +280,54 @@ export class GameStore {
         user_id: args.userId,
         tournament_id: args.tournamentId,
       });
-      return { bracketId: existing.id, created: false };
+      // Defensive: the 0004 backfill should have populated this for
+      // every row, but if we somehow have an empty value here, mint
+      // one in place so the response always carries a guid back.
+      let shareGuid = existing.share_guid;
+      if (!shareGuid) {
+        shareGuid = generateShortGuid();
+        this.db
+          .prepare(`UPDATE brackets SET share_guid = ? WHERE id = ?`)
+          .run(shareGuid, existing.id);
+      }
+      return { bracketId: existing.id, created: false, shareGuid };
     }
+    const shareGuid =
+      (args.shareGuid && args.shareGuid.trim()) || generateShortGuid();
     this.insertBracketStmt.run({
       id: args.bracketId,
       user_id: args.userId,
       tournament_id: args.tournamentId,
       payload_json: payloadJson,
       locked_at: args.lockedAt,
+      share_guid: shareGuid,
     });
-    return { bracketId: args.bracketId, created: true };
+    return { bracketId: args.bracketId, created: true, shareGuid };
+  }
+
+  /** Lookup by the public share guid. Returns null if no row matches. */
+  getBracketByShareGuid(shareGuid: string): BracketRow | null {
+    const row = this.getBracketByShareGuidStmt.get(shareGuid) as
+      | BracketRow
+      | undefined;
+    return row ?? null;
+  }
+
+  /**
+   * Returns true iff the share guid is already used by a row OTHER
+   * than the one identified by `(userId, tournamentId)`. The save
+   * endpoint uses this to reject client-supplied guids that collide
+   * with somebody else's bracket. Re-using your own guid on a re-save
+   * of your own bracket is fine — that's the whole point.
+   */
+  isShareGuidTakenByOther(
+    shareGuid: string,
+    userId: string,
+    tournamentId: string,
+  ): boolean {
+    const row = this.getBracketByShareGuid(shareGuid);
+    if (!row) return false;
+    return row.user_id !== userId || row.tournament_id !== tournamentId;
   }
 
   getBracketForUser(
@@ -456,4 +507,29 @@ function defaultMigrationsDir(): string {
   // src/store/db.ts → ../../migrations
   // dist/store/db.js → ../../migrations
   return resolve(here, "..", "..", "migrations");
+}
+
+/**
+ * 16-char lower-hex share guid. Matches the nanoid shape accepted by
+ * the web client (`/^[a-zA-Z0-9_-]{16}$/`) and the backfill format the
+ * 0004 migration uses for legacy rows. No third-party nanoid
+ * dependency — Node's webcrypto is available everywhere we run.
+ */
+function generateShortGuid(): string {
+  const bytes = new Uint8Array(8);
+  const wc = (
+    globalThis as {
+      crypto?: { getRandomValues?: (a: Uint8Array) => Uint8Array };
+    }
+  ).crypto;
+  if (wc && typeof wc.getRandomValues === "function") {
+    wc.getRandomValues(bytes);
+  } else {
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = Math.floor(Math.random() * 256);
+    }
+  }
+  let out = "";
+  for (const b of bytes) out += (b ?? 0).toString(16).padStart(2, "0");
+  return out;
 }

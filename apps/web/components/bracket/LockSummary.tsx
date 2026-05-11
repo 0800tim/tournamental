@@ -1,14 +1,14 @@
 /**
- * LockSummary, running "X of 104 picks saved" + countdown + predicted
+ * LockSummary — running "X of 104 picks saved" + countdown + predicted
  * champion + early-save-multiplier table + (placeholder) "back your
  * boldest pick" CTA. Pure render; takes per-match bracket + cascade
  * output.
  *
- * Naming note: the file + exported symbol are `LockSummary` for now -
+ * Naming note: the file + exported symbol are `LockSummary` for now —
  * callers and tests reference it. All user-visible copy in this
  * component reads as "Save" / "Saved". Internally, `lockedAt`,
  * `oddsAtLock`, and `lockMultiplier()` are still the canonical
- * field/function names, they're consumed by the scoring engine. A
+ * field/function names — they're consumed by the scoring engine. A
  * follow-up refactor can rename the file to `SaveSummary` if we want
  * the file name to track the user-facing verb.
  */
@@ -24,7 +24,9 @@ import {
   lockMultiplier,
 } from "@vtorn/bracket-engine";
 
+import { localUserId } from "@/lib/bracket/storage";
 import { shareContent, tapFeedback } from "@/lib/native";
+import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
   buildShareText,
   buildShareTitle,
@@ -53,7 +55,7 @@ function formatCountdown(now: number, deadline: number): string {
 }
 
 function teamName(tournament: Tournament, code: string | null | undefined): string {
-  if (!code) return "-";
+  if (!code) return "—";
   return tournament.teams.find((t) => t.id === code)?.name ?? code;
 }
 
@@ -115,14 +117,26 @@ export function LockSummary(props: LockSummaryProps) {
   // Build the canonical share URL for the user's bracket. Uses the
   // play.tournamental.com/s/<guid> short-link form, which matches the
   // public landing route owned by the s-guid agent (parallel #67).
-  // resolveShareGuid prefers the auth user id when present (PR #138);
-  // otherwise it falls back to the bracket's stable `bracketId`.
-  const shareWinner = champion === "-" ? "TBD" : champion;
+  // resolveShareGuid prefers the server-returned share guid (persisted
+  // at last save, see lib/share/share-guid-storage.ts) over the auth
+  // user id and the bracket's stable `bracketId`. This guarantees the
+  // share URL resolves to the user's REAL saved bracket — not the
+  // synthetic stub that PR #140 generated before the backend lookup
+  // existed.
+  const shareWinner = champion === "—" ? "TBD" : champion;
   const isComplete =
     Object.keys(bracket.matchPredictions).length +
       Object.keys(bracket.knockoutPredictions).length >=
     totalPicks;
-  const guid = resolveShareGuid({ authUserId: null, bracketId });
+  const [storedShareGuid, setStoredShareGuid] = useState<string | null>(null);
+  useEffect(() => {
+    setStoredShareGuid(loadStoredShareGuid(tournament.id, localUserId()));
+  }, [tournament.id]);
+  const guid = resolveShareGuid({
+    serverShareGuid: storedShareGuid,
+    authUserId: null,
+    bracketId,
+  });
   const shareUrl = shareUrlFor(guid);
   const shareText = buildShareText({
     champion: shareWinner,
@@ -149,7 +163,7 @@ export function LockSummary(props: LockSummaryProps) {
     });
   };
 
-  // Suppress the no-unused-vars warning, `handle` is still part of the
+  // Suppress the no-unused-vars warning — `handle` is still part of the
   // public prop surface for forward-compat with the auth/handle wiring,
   // even though the new share-url builder doesn't need it.
   void handle;
@@ -158,7 +172,7 @@ export function LockSummary(props: LockSummaryProps) {
     <aside className="bracket-lock-summary" data-testid="lock-summary">
       <div data-testid="lock-summary-headline">
         <strong>{committed}</strong> of {totalPicks} picks saved
-        <span aria-hidden="true">, {groupPicks}/{totalGroup} group, {knockoutPicks}/{totalKnockout} knockout.</span>
+        <span aria-hidden="true"> — {groupPicks}/{totalGroup} group, {knockoutPicks}/{totalKnockout} knockout.</span>
       </div>
       <div>
         Save the rest before {new Date(deadline_utc).toUTCString().replace("GMT", "UTC")} for max points. Tweak any pick game-by-game until kickoff.

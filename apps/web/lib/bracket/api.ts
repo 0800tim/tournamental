@@ -64,6 +64,11 @@ export interface SaveFullBracketResult {
   readonly tournamentId: string;
   readonly lockedAt: string;
   readonly version: number;
+  /**
+   * Public opaque share guid the user copies into the share URL.
+   * Always present in the response from a 0004-migrated server.
+   */
+  readonly shareGuid: string;
   readonly rejected?: ReadonlyArray<{
     readonly matchId: string;
     readonly error: string;
@@ -80,6 +85,7 @@ export interface LoadServerBracketResult {
   readonly lockedAt: string;
   readonly scoreTotal: number;
   readonly bracket: Bracket;
+  readonly shareGuid: string | null;
 }
 
 export interface ApiFailure {
@@ -218,6 +224,12 @@ export async function saveFullBracket(
     readonly userId: string;
     readonly tournamentId: string;
     readonly bracket: Bracket;
+    /**
+     * Optional client-minted share guid. If absent, the server mints
+     * one (16-char hex) and returns it in the response. Either way the
+     * caller reads the canonical guid from `result.shareGuid`.
+     */
+    readonly shareGuid?: string | null;
   },
   opts: CallOptions = {},
 ): Promise<ApiResult<SaveFullBracketResult>> {
@@ -237,6 +249,7 @@ export async function saveFullBracket(
         tournament_id: args.tournamentId,
         user_id: args.userId,
         bracket: args.bracket,
+        ...(args.shareGuid ? { share_guid: args.shareGuid } : {}),
       }),
       cache: "no-store",
       signal: opts.signal ?? timer?.signal,
@@ -249,6 +262,7 @@ export async function saveFullBracket(
           tournament_id?: string;
           locked_at?: string;
           version?: number;
+          share_guid?: string;
           rejected?: SaveFullBracketResult["rejected"];
           error?: string;
           message?: string;
@@ -269,6 +283,7 @@ export async function saveFullBracket(
       tournamentId: json.tournament_id ?? args.tournamentId,
       lockedAt: json.locked_at ?? new Date().toISOString(),
       version: json.version ?? args.bracket.version,
+      shareGuid: json.share_guid ?? "",
       ...(json.rejected && json.rejected.length ? { rejected: json.rejected } : {}),
     };
   } catch (err) {
@@ -314,6 +329,7 @@ export async function loadServerBracket(
           tournament_id?: string;
           locked_at?: string;
           score_total?: number;
+          share_guid?: string | null;
           bracket?: Bracket;
           error?: string;
         }
@@ -336,6 +352,7 @@ export async function loadServerBracket(
       lockedAt: json.locked_at ?? "",
       scoreTotal: json.score_total ?? 0,
       bracket: json.bracket,
+      shareGuid: json.share_guid ?? null,
     };
   } catch (err) {
     timer?.cancel();

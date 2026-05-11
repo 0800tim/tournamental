@@ -38,6 +38,7 @@ import {
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft } from "@/lib/bracket/storage";
 import { shareContent, tapFeedback } from "@/lib/native";
+import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
   type OgSize,
   buildOgImageUrl,
@@ -175,6 +176,7 @@ export function ShareSavePage({
   // localStorage on mount.
   const [bracket, setBracket] = useState<Bracket | null>(null);
   const [userIdent, setUserIdent] = useState<string>("ssr_user");
+  const [storedShareGuid, setStoredShareGuid] = useState<string | null>(null);
   const [size, setSize] = useState<OgSize>("landscape");
   const [copied, setCopied] = useState<boolean>(false);
   const [fallbackOpen, setFallbackOpen] = useState<boolean>(false);
@@ -185,6 +187,11 @@ export function ShareSavePage({
     setUserIdent(id);
     const draft = loadDraft(tournament.id, id);
     if (draft) setBracket(draft);
+    // Pick up the canonical (server-returned) share guid persisted at
+    // last save. If absent (offline-only state), we fall through to
+    // the legacy bracketId-based URL — the next save will replace it.
+    const guid = loadStoredShareGuid(tournament.id, id);
+    if (guid) setStoredShareGuid(guid);
   }, [tournament.id]);
 
   // Cascade the bracket to derive the predicted champion. Re-runs only
@@ -226,8 +233,13 @@ export function ShareSavePage({
   // on every render, important because the `<img>`'s src would otherwise
   // re-fetch.
   const guid = useMemo(
-    () => resolveShareGuid({ authUserId, bracketId: bracket?.bracketId ?? userIdent }),
-    [authUserId, bracket?.bracketId, userIdent],
+    () =>
+      resolveShareGuid({
+        serverShareGuid: storedShareGuid,
+        authUserId,
+        bracketId: bracket?.bracketId ?? userIdent,
+      }),
+    [storedShareGuid, authUserId, bracket?.bracketId, userIdent],
   );
   const shareUrl = useMemo(() => shareUrlFor(guid), [guid]);
   const shareDisplay = useMemo(() => shareDisplayUrlFor(guid), [guid]);

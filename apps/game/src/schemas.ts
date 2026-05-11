@@ -42,10 +42,25 @@ export const bracketSchema = z.object({
 
 // ---------- submit body ----------
 
+/**
+ * Share guid accepted on submit. We allow either a UUID v4 (the modern
+ * web-client format) or a 16-char nanoid-style id (backfill + legacy
+ * pre-launch shares). Both are accepted by the web `/s/<guid>` route's
+ * `isShareGuidShape` check. The server treats it as an opaque token.
+ */
+export const shareGuidSchema = z
+  .string()
+  .regex(
+    /^([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}|[a-zA-Z0-9_-]{16})$/,
+    "share_guid must be a UUID v4 or a 16-char nanoid",
+  );
+
 export const submitBracketBodySchema = z.object({
   tournament_id: z.string().min(1).max(64),
   user_id: z.string().min(1).max(128),
   bracket: bracketSchema,
+  /** Optional client-minted share guid. Server mints one if absent. */
+  share_guid: shareGuidSchema.optional(),
 });
 
 // ---------- match-result body ----------
