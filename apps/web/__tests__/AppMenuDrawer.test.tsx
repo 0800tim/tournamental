@@ -49,7 +49,7 @@ describe("<AppMenuDrawer>", () => {
     expect(getByText("Leaderboard")).toBeTruthy();
   });
 
-  it("routes Syndicates and Open source as external new-window links", () => {
+  it("routes About Tournamental, Engineering log, and Open source as external new-window links", () => {
     const { container } = render(
       <AppMenuDrawer open onClose={() => {}} />,
     );
@@ -59,7 +59,10 @@ describe("<AppMenuDrawer>", () => {
       ),
     );
     const hrefs = externals.map((a) => a.getAttribute("href"));
-    expect(hrefs).toContain("https://tournamental.com/syndicates");
+    // Syndicates moved in-app (apps/web/app/syndicates/page.tsx); only the
+    // long-tail marketing/engineering/source links are external now.
+    expect(hrefs).toContain("https://tournamental.com");
+    expect(hrefs).toContain("https://tournamental.com/engineering");
     expect(hrefs).toContain("https://github.com/0800tim/tournamental");
     for (const a of externals) {
       expect(a.getAttribute("rel")).toBe("noopener noreferrer");
