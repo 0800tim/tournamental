@@ -1,0 +1,53 @@
+# Tournamental Supabase project config.
+# Used by the Supabase CLI for `supabase db diff`, `supabase db push`,
+# and local-dev `supabase start`. The project itself is created in
+# the web dashboard — see docs/52-supabase-setup.md.
+
+project_id = "tournamental"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 16
+
+[studio]
+enabled = true
+port = 54323
+
+[auth]
+enabled = true
+site_url = "https://play.tournamental.com"
+additional_redirect_urls = [
+  "https://play.tournamental.com/auth/callback",
+  "http://localhost:3300/auth/callback"
+]
+jwt_expiry = 3600
+enable_signup = true
+enable_anonymous_sign_ins = false
+enable_manual_linking = false
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+double_confirm_changes = true
+
+[auth.sms]
+enable_signup = true
+enable_confirmations = true
+template = "Tournamental verification code: {{ .Code }}"
+
+# Phone provider: custom hook to Aiva SMS gateway. The hook URL is set
+# in the dashboard (Authentication → Phone → Use custom SMS provider).
+# See docs/52-supabase-setup.md step 4.
+[auth.sms.twilio]
+enabled = false
+
+[storage]
+enabled = false

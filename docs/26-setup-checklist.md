@@ -40,6 +40,16 @@ slowest is GHL because of their settings UI. Everything below is
 
 ## Phase 1 — Brand handles & comms (do today)
 
+### 1.0 Supabase Auth (new — replaces the legacy `apps/auth-sms` path)
+
+- ☐ Provision a Supabase project per [`docs/52-supabase-setup.md`](52-supabase-setup.md) §1
+- ☐ Run `supabase/migrations/0001_user_identity.sql` (dashboard or CLI)
+- ☐ Paste the three project keys + JWT secret into `apps/web/.env.production`
+- ☐ Generate and paste `SUPABASE_PHONE_HASH_SALT` (`openssl rand -hex 32`)
+- ☐ Generate and paste `SUPABASE_SMS_HOOK_SECRET` (same; matches dashboard)
+- ☐ Configure Email + Phone (custom hook) + Telegram domain per doc 52 §4
+- ☐ Smoke test all three sign-in paths per doc 52 §6
+
 ### 1.1 Telegram bot
 
 - ☐ Open <https://t.me/BotFather>
