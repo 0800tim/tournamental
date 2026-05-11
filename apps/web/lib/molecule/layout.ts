@@ -112,6 +112,13 @@ export interface MoleculeNode {
   readonly finalStage: FinalStage;
   /** Kit primary hex (e.g. "#006233") if available, else palette fallback. */
   readonly accentColor: string;
+  /**
+   * FIFA world rank at config time (lower = stronger). Used by v5 to
+   * sort teams within each ring (in rank-favourites mode) and to render
+   * the "#42" rank chip below non-path team labels. May be `null` for
+   * placeholder slots.
+   */
+  readonly fifaRank: number | null;
 }
 
 export type BondStage = "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
@@ -264,9 +271,66 @@ function teamName(t: Tournament, code: string): string {
   return t.teams.find((x) => x.id === code)?.name ?? code;
 }
 
+function teamFifaRank(t: Tournament, code: string): number | null {
+  const team = t.teams.find((x) => x.id === code);
+  return team?.fifa_rank ?? null;
+}
+
 /** Stable azimuth angle (radians, 0..2π) for a team. Same θ at every layer. */
 function teamAzimuth(teamCode: string): number {
   return stableHash01(`${teamCode}:azimuth`) * Math.PI * 2;
+}
+
+/**
+ * v5 — Layout sort mode. Controls the azimuth allocation for each team
+ * within each ring.
+ *
+ *   "stable"      — per-team hash, identical across layers. The historical
+ *                   v4 behaviour: a team's column rises near-vertically up
+ *                   the pyramid because the azimuth is constant.
+ *   "rank-sorted" — within each ring, teams are placed around the circle
+ *                   in FIFA-rank order. Strongest at θ=0 (camera-front),
+ *                   weakest at θ=π (back). Different rings can therefore
+ *                   place the *same* team at slightly different azimuths,
+ *                   since the ring's neighbours differ. The pyramid still
+ *                   reads as a cone, but the rank gradient sweeps around
+ *                   each tier — which is the headline visual in "Rank
+ *                   Favourites" mode.
+ */
+export type LayoutMode = "stable" | "rank-sorted";
+
+/** Compute a rank-sorted azimuth lookup for every (team, layer) pair. */
+function computeRankSortedAzimuths(
+  tournament: Tournament,
+  layerForTeam: ReadonlyMap<string, LayerStage>,
+  deepestLayer: ReadonlyMap<LayerStage, ReadonlySet<string>>,
+): Map<string, Map<LayerStage, number>> {
+  const out = new Map<string, Map<LayerStage, number>>();
+  for (const layer of LAYER_ORDER) {
+    if (layer === "champion") continue;
+    const codes = deepestLayer.get(layer);
+    if (!codes) continue;
+    const sorted = [...codes].sort((a, b) => {
+      const ra = teamFifaRank(tournament, a) ?? 999;
+      const rb = teamFifaRank(tournament, b) ?? 999;
+      if (ra !== rb) return ra - rb;
+      return a < b ? -1 : 1;
+    });
+    const n = sorted.length;
+    sorted.forEach((code, i) => {
+      // Map index → azimuth in [0, 2π). Strongest at θ=0, weakest at θ=π,
+      // then wrapping back to θ→2π for the mid-tier teams. The mapping
+      // i / n produces an even fan around the ring.
+      const angle = (i / Math.max(1, n)) * Math.PI * 2;
+      let bucket = out.get(code);
+      if (!bucket) {
+        bucket = new Map();
+        out.set(code, bucket);
+      }
+      bucket.set(layer, angle);
+    });
+  }
+  return out;
 }
 
 /** Position of a team's instance at a given layer. */
@@ -297,10 +361,15 @@ const STAGE_RANK: Record<StageId, number> = {
 
 /**
  * Build the molecule layout from a cascaded bracket.
+ *
+ * v5: optionally accepts `mode = "rank-sorted"` to re-sort each ring by
+ * FIFA rank instead of using the per-team stable hash. Default is
+ * `"stable"` to preserve the v4 column visual.
  */
 export function buildMoleculeLayout(
   tournament: Tournament,
   cascaded: CascadedBracket | null,
+  mode: LayoutMode = "stable",
 ): MoleculeLayout {
   // 1. Determine each team's deepest layer reached.
   //
@@ -444,6 +513,12 @@ export function buildMoleculeLayout(
   //    "find by teamCode" defaults to the group-layer (base) instance.
   const nodes: MoleculeNode[] = [];
 
+  // v5: rank-sorted azimuths per (team, layer). Empty in stable mode.
+  const rankAzimuths =
+    mode === "rank-sorted"
+      ? computeRankSortedAzimuths(tournament, layerForTeam, deepestLayer)
+      : null;
+
   for (const layer of LAYER_ORDER) {
     const teamsAtLayer = deepestLayer.get(layer);
     if (!teamsAtLayer) continue;
@@ -456,10 +531,13 @@ export function buildMoleculeLayout(
       const kit = teamKitPrimary(tournament, code);
       const accent = kit ?? PALETTE[fs];
 
-      const override =
-        layer === "f" && finalLayerOverrides.has(code)
-          ? { azimuth: finalLayerOverrides.get(code)! }
-          : undefined;
+      let override: { azimuth?: number } | undefined;
+      if (layer === "f" && finalLayerOverrides.has(code)) {
+        override = { azimuth: finalLayerOverrides.get(code)! };
+      } else if (rankAzimuths) {
+        const a = rankAzimuths.get(code)?.get(layer);
+        if (a !== undefined) override = { azimuth: a };
+      }
 
       nodes.push({
         id: `${code}:${layer}`,
@@ -471,6 +549,7 @@ export function buildMoleculeLayout(
         isTopInstance: isTop,
         finalStage: fs,
         accentColor: accent,
+        fifaRank: teamFifaRank(tournament, code),
       });
     }
   }

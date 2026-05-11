@@ -33,6 +33,18 @@ export interface TeamAtomProps {
   hovered: boolean;
   /** True when this atom sits on the currently-highlighted path. */
   onPath?: boolean;
+  /**
+   * v5 — true if this instance is the *opponent's* terminal node on the
+   * active path (where they got knocked out). Draws a red `⨯` glyph
+   * above the team-code label.
+   */
+  isPathKnockoutPoint?: boolean;
+  /**
+   * v5 — true when no team is currently selected. We only render the
+   * non-path "this team dropped out here" chevron + rank chip in this
+   * mode, so they don't compete with the gold path highlight.
+   */
+  noSelection?: boolean;
   /** Caller's reduce-motion preference. False disables wave displacement. */
   motionEnabled?: boolean;
   onClick: (code: string) => void;
@@ -65,6 +77,8 @@ export function TeamAtom(props: TeamAtomProps) {
     selected,
     hovered,
     onPath = false,
+    isPathKnockoutPoint = false,
+    noSelection = false,
     motionEnabled = true,
     onClick,
     onPointerEnter,
@@ -146,7 +160,8 @@ export function TeamAtom(props: TeamAtomProps) {
         />
       </mesh>
 
-      {/* Flag emoji + team-code label, billboarded so it always faces the camera. */}
+      {/* Flag emoji + team-code label, billboarded so it always faces the camera.
+       * v5: stacks an optional rank chip below and a `⨯`/chevron above. */}
       <Billboard follow lockX={false} lockY={false} lockZ={false}>
         <Html
           center
@@ -155,14 +170,43 @@ export function TeamAtom(props: TeamAtomProps) {
           zIndexRange={[10, 0]}
           style={{ pointerEvents: "none", userSelect: "none" }}
         >
-          <div
-            className="molecule-label"
-            data-stage={node.finalStage}
-            data-on-path={onPath ? "true" : undefined}
-            data-selected={selected ? "true" : undefined}
-          >
-            {flagEmoji ? <span className="molecule-label-flag" aria-hidden>{flagEmoji}</span> : null}
-            <span className="molecule-label-code">{node.teamCode}</span>
+          <div className="molecule-label-stack">
+            {/* v5 — red `⨯` glyph above the label for the path's knockout
+             * points (the opponent's terminal instance on the active path). */}
+            {isPathKnockoutPoint ? (
+              <span
+                className="molecule-label-ko"
+                aria-label="knocked out here"
+                title="knocked out here"
+              >
+                ✕
+              </span>
+            ) : null}
+            <div
+              className="molecule-label"
+              data-stage={node.finalStage}
+              data-on-path={onPath ? "true" : undefined}
+              data-selected={selected ? "true" : undefined}
+            >
+              {flagEmoji ? <span className="molecule-label-flag" aria-hidden>{flagEmoji}</span> : null}
+              <span className="molecule-label-code">{node.teamCode}</span>
+            </div>
+            {/* v5 — rank chip + drop-out chevron on the TOP instance for
+             * non-path teams. Hidden whenever a team is selected so the
+             * gold path can breathe. Champions skip the chevron (they
+             * didn't drop out anywhere). */}
+            {noSelection && node.isTopInstance && node.finalStage !== "champion" ? (
+              <span className="molecule-label-chevron" aria-hidden>▾</span>
+            ) : null}
+            {noSelection && node.isTopInstance && node.fifaRank !== null ? (
+              <span
+                className="molecule-label-rank"
+                aria-label={`FIFA rank ${node.fifaRank}`}
+                data-stage={node.finalStage}
+              >
+                #{node.fifaRank}
+              </span>
+            ) : null}
           </div>
         </Html>
       </Billboard>

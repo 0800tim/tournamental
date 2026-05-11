@@ -23,7 +23,9 @@ import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { loadDraft, localUserId } from "@/lib/bracket/storage";
 import {
   buildMoleculeLayout,
+  type BondStage,
   type FinalStage,
+  type LayoutMode,
   type MoleculeLayout,
   type MoleculeNode,
 } from "@/lib/molecule/layout";
@@ -31,6 +33,7 @@ import {
   buildPathAdvanceBondKeySet,
   buildPathAtomSet,
   buildPathBondKeySet,
+  buildPathLoserAtTopInstance,
   derivePathToGold,
   type TeamPath,
 } from "@/lib/molecule/path";
@@ -51,6 +54,14 @@ import "./molecule.css";
 export interface MoleculeSceneProps {
   readonly tournament: Tournament;
   readonly bracketOverride?: Bracket | null;
+  /**
+   * v5 — layout mode for the molecule.
+   *   "stable"      — per-team hash (v4 default; columns rise vertical).
+   *   "rank-sorted" — strongest at θ=0 around each ring. Used in "Rank
+   *                   Favourites" mode so the contrast between your
+   *                   picks and the rank consensus is visually stark.
+   */
+  readonly layoutMode?: LayoutMode;
 }
 
 function emptyBracket(): Bracket {
@@ -99,6 +110,9 @@ function MoleculeWorld({
   pathAdvanceBondKeys,
   pathAtomSet,
   pathBondOrder,
+  pathWinnerByMatchBondKey,
+  pathLoserByTeam,
+  pathBondStageLabel,
   motionEnabled,
   groupBondsVisible,
 }: {
@@ -113,6 +127,12 @@ function MoleculeWorld({
   pathAtomSet: ReadonlySet<string>;
   /** Map of bond-key → (index in path, totalPathLength) for pulse staggering. */
   pathBondOrder: ReadonlyMap<string, { index: number; total: number }>;
+  /** v5 — match-bond-key → winner's teamCode (for directional arrow). */
+  pathWinnerByMatchBondKey: ReadonlyMap<string, string>;
+  /** v5 — teamCode of the loser at each path layer → bond stage (for `⨯` glyph). */
+  pathLoserByTeam: ReadonlyMap<string, BondStage>;
+  /** v5 — match-bond-key → human-readable round label ("R32", "Final", …). */
+  pathBondStageLabel: ReadonlyMap<string, string>;
   motionEnabled: boolean;
   groupBondsVisible: boolean;
 }) {
@@ -153,6 +173,22 @@ function MoleculeWorld({
           && (bond.kind === "match"
             ? bond.a === selected || bond.b === selected
             : bond.a === selected);
+        const winnerCode =
+          bond.kind === "match" && onPath
+            ? pathWinnerByMatchBondKey.get(matchBondKey) ?? null
+            : null;
+        const fromFlag =
+          bond.kind === "match" && onPath
+            ? flagEmojiByTeam.get(bond.a) ?? null
+            : null;
+        const toFlag =
+          bond.kind === "match" && onPath
+            ? flagEmojiByTeam.get(bond.b) ?? null
+            : null;
+        const matchBadgeLabel =
+          bond.kind === "match" && onPath
+            ? pathBondStageLabel.get(matchBondKey) ?? null
+            : null;
         return (
           <RoundBond
             key={bond.id}
@@ -165,26 +201,45 @@ function MoleculeWorld({
             pathLength={order?.total}
             motionEnabled={motionEnabled}
             groupBondsVisible={groupBondsVisible}
+            winnerCode={winnerCode}
+            fromFlag={fromFlag}
+            toFlag={toFlag}
+            matchBadgeLabel={matchBadgeLabel}
           />
         );
       })}
 
-      {layout.nodes.map((node) => (
-        <TeamAtom
-          key={node.id}
-          node={node}
-          flagEmoji={flagEmojiByTeam.get(node.teamCode) ?? null}
-          selected={selected === node.teamCode}
-          hovered={hovered === node.teamCode}
-          onPath={pathAtomSet.has(node.teamCode)}
-          motionEnabled={motionEnabled}
-          onClick={onSelect}
-          onPointerEnter={onHover}
-          onPointerLeave={(c) => {
-            if (hovered === c) onHover(null);
-          }}
-        />
-      ))}
+      {layout.nodes.map((node) => {
+        const koStage = pathLoserByTeam.get(node.teamCode);
+        // The `⨯` glyph only renders on the loser's TOP instance — the
+        // layer where they were actually eliminated. Other instances
+        // (their group-base, lower-layer climbs) stay clean.
+        const isPathKnockoutPoint =
+          koStage !== undefined
+          && node.isTopInstance
+          && (koStage === node.stage
+              || // tp losers terminate at sf — but the loss happened at the
+                 // match's stage, which the cascade marks as sf for our purposes.
+                 koStage === "tp");
+        return (
+          <TeamAtom
+            key={node.id}
+            node={node}
+            flagEmoji={flagEmojiByTeam.get(node.teamCode) ?? null}
+            selected={selected === node.teamCode}
+            hovered={hovered === node.teamCode}
+            onPath={pathAtomSet.has(node.teamCode)}
+            isPathKnockoutPoint={isPathKnockoutPoint}
+            noSelection={selected === null}
+            motionEnabled={motionEnabled}
+            onClick={onSelect}
+            onPointerEnter={onHover}
+            onPointerLeave={(c) => {
+              if (hovered === c) onHover(null);
+            }}
+          />
+        );
+      })}
     </>
   );
 }
@@ -229,7 +284,11 @@ function IdleAutoRotateBridge({
   return null;
 }
 
-export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProps) {
+export function MoleculeScene({
+  tournament,
+  bracketOverride,
+  layoutMode = "stable",
+}: MoleculeSceneProps) {
   const [userIdLocal, setUserIdLocal] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [selected, setSelected] = useState<string | null>(null);
@@ -271,8 +330,8 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
   );
 
   const layout = useMemo(
-    () => buildMoleculeLayout(tournament, cascaded),
-    [tournament, cascaded],
+    () => buildMoleculeLayout(tournament, cascaded, layoutMode),
+    [tournament, cascaded, layoutMode],
   );
 
   // Stage-by-team map for the side panel pill. v4: every team has many
@@ -330,6 +389,41 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
     return m;
   }, [activePath]);
 
+  // v5: winner per match-bond on the active path → drives the directional arrow.
+  const pathWinnerByMatchBondKey = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const b of activePath.bonds) {
+      if (b.winner) m.set(`${b.stage}:${b.a}:${b.b}`, b.winner);
+    }
+    return m;
+  }, [activePath]);
+
+  // v5: human-readable round label per match-bond on path → drives the
+  // floating match-badge pill.
+  const pathBondStageLabel = useMemo(() => {
+    const m = new Map<string, string>();
+    const BADGE: Record<BondStage, string> = {
+      group: "Group",
+      r32: "R32",
+      r16: "R16",
+      qf: "QF",
+      sf: "SF",
+      tp: "Bronze",
+      f: "Final",
+    };
+    for (const b of activePath.bonds) {
+      m.set(`${b.stage}:${b.a}:${b.b}`, BADGE[b.stage]);
+    }
+    return m;
+  }, [activePath]);
+
+  // v5: opponent-loser per layer → drives the red `⨯` glyph above the
+  // opponent's terminal instance node.
+  const pathLoserByTeam = useMemo(
+    () => buildPathLoserAtTopInstance(activePath),
+    [activePath],
+  );
+
   const hoveredOrSelected = hovered ?? selected;
   // v4: a team has many instances — surface the deepest one for tooltips
   // / chips so the stage label is meaningful.
@@ -338,6 +432,25 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
         ?? layout.nodes.find((n) => n.teamCode === hoveredOrSelected)
         ?? null
     : null;
+
+  // v5: derive the hovered team's path so the tooltip can show their
+  // R32/R16/QF opponents in a small list. Empty for group-stage outs.
+  const hoveredPath = useMemo<TeamPath | null>(
+    () => (hoveredOrSelected ? derivePathToGold(cascaded, hoveredOrSelected) : null),
+    [cascaded, hoveredOrSelected],
+  );
+  const HOVER_STAGE_LABEL: Record<BondStage, string> = useMemo(
+    () => ({
+      group: "GROUP",
+      r32: "R32",
+      r16: "R16",
+      qf: "QF",
+      sf: "SF",
+      tp: "BRONZE",
+      f: "FINAL",
+    }),
+    [],
+  );
 
   const championAtomNode = layout.championCode
     ? layout.nodes.find(
@@ -407,6 +520,9 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           pathAdvanceBondKeys={pathAdvanceBondKeys}
           pathAtomSet={pathAtomSet}
           pathBondOrder={pathBondOrder}
+          pathWinnerByMatchBondKey={pathWinnerByMatchBondKey}
+          pathLoserByTeam={pathLoserByTeam}
+          pathBondStageLabel={pathBondStageLabel}
           motionEnabled={motionEnabled}
           groupBondsVisible={groupBondsVisible}
         />
@@ -439,6 +555,16 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
 
       <MoleculeLegend />
 
+      {/* v5 — small mode hint chip surfacing when the user toggled
+       * "Rank Favourites" mode. Sits just below the PATH TO GOLD chip
+       * so the two stack neatly. */}
+      {layoutMode === "rank-sorted" ? (
+        <div className="molecule-mode-hint" role="status" aria-live="polite">
+          <span>↻</span>
+          <span>Rings sorted by FIFA rank</span>
+        </div>
+      ) : null}
+
       {/* "PATH TO GOLD" chip — visible when the default champion-path is the active highlight. */}
       {showPathChip ? (
         <div className="molecule-path-chip" role="status" aria-live="polite">
@@ -468,13 +594,45 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
       {/* Hover tooltip — desktop only. */}
       {hoveredNode && hoveredNode.teamCode !== selected ? (
         <div className="molecule-tooltip" role="tooltip">
-          <span className="molecule-tooltip-flag" aria-hidden>
-            {flagEmojiByTeam.get(hoveredNode.teamCode) ?? "·"}
-          </span>
-          <span className="molecule-tooltip-name">{hoveredNode.teamName}</span>
-          <span className="molecule-tooltip-stage">
-            {finalStageLabel(hoveredNode.finalStage)}
-          </span>
+          <div className="molecule-tooltip-head">
+            <span className="molecule-tooltip-flag" aria-hidden>
+              {flagEmojiByTeam.get(hoveredNode.teamCode) ?? "·"}
+            </span>
+            <span className="molecule-tooltip-name">{hoveredNode.teamName}</span>
+            <span className="molecule-tooltip-stage">
+              {finalStageLabel(hoveredNode.finalStage)}
+            </span>
+          </div>
+          {/* v5 — mini opponent list (R32 → F), if the team played any
+           * knockout matches. Group-stage outs hide this section. */}
+          {hoveredPath && hoveredPath.bonds.length > 0 ? (
+            <ul className="molecule-tooltip-opponents" aria-label="opponents">
+              {hoveredPath.bonds.map((b) => {
+                const opp =
+                  b.a === hoveredNode.teamCode ? b.b : b.a;
+                const won = b.winner === hoveredNode.teamCode;
+                const result =
+                  b.winner === null
+                    ? "tbd"
+                    : won
+                      ? "won"
+                      : "lost";
+                return (
+                  <li key={b.matchId} className="molecule-tooltip-opp" data-result={result}>
+                    <span className="molecule-tooltip-opp-stage">{HOVER_STAGE_LABEL[b.stage]}</span>
+                    <span className="molecule-tooltip-opp-vs">vs</span>
+                    <span className="molecule-tooltip-opp-flag" aria-hidden>
+                      {flagEmojiByTeam.get(opp) ?? "·"}
+                    </span>
+                    <span className="molecule-tooltip-opp-name">{opp}</span>
+                    <span className="molecule-tooltip-opp-result">
+                      {result === "tbd" ? "predicted" : result === "won" ? "won" : "lost"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : null}
         </div>
       ) : null}
 

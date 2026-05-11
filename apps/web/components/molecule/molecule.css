@@ -84,6 +84,110 @@
   color: #fde68a;
 }
 
+/* v5 — vertical stack around the team-code label.
+ *   row 1: red `⨯` glyph (path knockout points only)
+ *   row 2: the existing team-code label pill
+ *   row 3: gold chevron (non-path TOP instance, non-champion)
+ *   row 4: FIFA rank chip (#42)
+ */
+.molecule-label-stack {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  transform: translateZ(0);
+}
+
+.molecule-label-ko {
+  display: inline-grid;
+  place-items: center;
+  font: 900 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #ef4444;
+  text-shadow:
+    0 0 6px rgba(239, 68, 68, 0.75),
+    0 1px 2px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0;
+  pointer-events: auto;
+  cursor: help;
+}
+
+.molecule-label-chevron {
+  font: 700 8px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: rgba(245, 197, 66, 0.5);
+  margin-top: -1px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6);
+}
+
+.molecule-label-rank {
+  display: inline-grid;
+  place-items: center;
+  padding: 1px 5px;
+  font: 800 9px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  background: rgba(10, 14, 26, 0.85);
+  color: #f5c542;
+  border: 1px solid rgba(245, 197, 66, 0.55);
+  border-radius: 999px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.molecule-label-rank[data-stage="group"] {
+  color: rgba(245, 197, 66, 0.75);
+  border-color: rgba(245, 197, 66, 0.35);
+}
+
+/* v5 — match badge pill (drei <Html>) floating above each path match bond. */
+.molecule-match-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(16, 22, 38, 0.92);
+  border: 1px solid rgba(245, 197, 66, 0.55);
+  border-radius: 999px;
+  font: 800 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fde68a;
+  white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  pointer-events: none;
+  transform: translateZ(0);
+}
+
+.molecule-match-badge-flag {
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+
+.molecule-match-badge-vs {
+  color: #8b9bbd;
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.molecule-match-badge-round {
+  margin-left: 4px;
+  padding: 2px 6px;
+  background: rgba(245, 197, 66, 0.16);
+  border-radius: 999px;
+  color: #f5c542;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+}
+
+/* v5 — directional gold arrow on path match bonds. */
+.molecule-match-arrow {
+  display: inline-grid;
+  place-items: center;
+  font: 900 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fbbf24;
+  text-shadow:
+    0 0 6px rgba(251, 191, 36, 0.85),
+    0 0 14px rgba(251, 191, 36, 0.45);
+  letter-spacing: 0;
+}
+
 /* --- "PATH TO GOLD" floating chip (top-centre) --- */
 
 .molecule-path-chip {
@@ -229,17 +333,25 @@
   transform: translateX(-50%);
   z-index: 5;
   display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  padding: 10px 14px;
   background: rgba(16, 22, 38, 0.92);
   border: 1px solid rgba(245, 197, 66, 0.35);
-  border-radius: 999px;
+  border-radius: 14px;
   font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: #fff;
   pointer-events: none;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  max-width: 340px;
+}
+
+.molecule-tooltip-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .molecule-tooltip-flag {
@@ -249,6 +361,103 @@
 .molecule-tooltip-stage {
   color: #f5c542;
   font-weight: 600;
+}
+
+/* v5 — mini opponent list inside the hover tooltip. */
+.molecule-tooltip-opponents {
+  list-style: none;
+  padding: 6px 0 0;
+  margin: 4px 0 0;
+  border-top: 1px solid rgba(125, 145, 200, 0.18);
+  display: grid;
+  gap: 4px;
+}
+
+.molecule-tooltip-opp {
+  display: grid;
+  grid-template-columns: 38px auto auto 1fr auto;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #cdd5e7;
+  letter-spacing: 0.02em;
+}
+
+.molecule-tooltip-opp-stage {
+  font: 800 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  color: #7eb6e8;
+}
+
+.molecule-tooltip-opp-vs {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #8b9bbd;
+  text-transform: lowercase;
+}
+
+.molecule-tooltip-opp-flag {
+  font-size: 14px;
+}
+
+.molecule-tooltip-opp-name {
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #fff;
+}
+
+.molecule-tooltip-opp-result {
+  font: 800 9px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 3px 6px;
+  border-radius: 999px;
+}
+
+.molecule-tooltip-opp[data-result="won"] .molecule-tooltip-opp-result {
+  background: rgba(245, 197, 66, 0.2);
+  color: #f5c542;
+}
+
+.molecule-tooltip-opp[data-result="lost"] .molecule-tooltip-opp-result {
+  background: rgba(231, 87, 87, 0.18);
+  color: #ffb6b6;
+}
+
+.molecule-tooltip-opp[data-result="tbd"] .molecule-tooltip-opp-result {
+  background: rgba(125, 145, 200, 0.18);
+  color: #8b9bbd;
+}
+
+/* v5 — "Rank Favourites" mode hint chip (sits next to the PATH TO GOLD chip
+ * at top-centre when the page toggle flips to consensus). Subtle, info-only. */
+.molecule-mode-hint {
+  position: absolute;
+  top: 56px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(126, 182, 232, 0.4);
+  border-radius: 999px;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7eb6e8;
+  pointer-events: none;
+  animation: molecule-chip-in 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+@media (max-width: 720px) {
+  .molecule-mode-hint {
+    top: 48px;
+    font-size: 10px;
+    padding: 5px 10px;
+  }
 }
 
 @media (hover: none) {

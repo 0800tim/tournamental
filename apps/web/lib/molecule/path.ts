@@ -27,6 +27,14 @@ export interface PathBond {
   readonly b: string;
   /** Underlying match id from the cascade — useful for tests and tooltips. */
   readonly matchId: string;
+  /**
+   * v5 — directional metadata for arrow + KO-glyph rendering. The
+   * `winner`/`loser` codes are the resolved match outcome from the
+   * cascade. If the cascade hasn't decided the match yet, both are
+   * `null` and the arrow / KO-glyph is suppressed.
+   */
+  readonly winner: string | null;
+  readonly loser: string | null;
 }
 
 export interface TeamPath {
@@ -137,11 +145,22 @@ export function derivePathToGold(
     const away = k.away.team!;
     const stage = k.stage as BondStage;
     const [a, b] = bondPair(home, away);
+    const winner = k.effective_winner ?? null;
+    const loser =
+      winner === null
+        ? null
+        : winner === home
+          ? away
+          : winner === away
+            ? home
+            : null;
     bonds.push({
       stage,
       a,
       b,
       matchId: k.id,
+      winner,
+      loser,
     });
     atomSet.add(home);
     atomSet.add(away);
@@ -166,11 +185,45 @@ export function derivePathToGold(
  * `"<stage>:<a>:<b>"` with team codes in lexical order. Only match
  * bonds are included here — for v4's gold staircase advance bonds, see
  * `buildPathAdvanceBondKeySet`.
+ *
+ * v5 alias `buildPathMatchBondKeySet` mirrors `buildPathAdvanceBondKeySet`
+ * for naming symmetry. They return the same data — `buildPathBondKeySet`
+ * is retained for backwards-compat with the v2/v3/v4 tests.
  */
 export function buildPathBondKeySet(path: TeamPath): Set<string> {
   const out = new Set<string>();
   for (const pb of path.bonds) {
     out.add(`${pb.stage}:${pb.a}:${pb.b}`);
+  }
+  return out;
+}
+
+export const buildPathMatchBondKeySet = buildPathBondKeySet;
+
+/**
+ * v5 — for each layer of the path, return a map from `team@layer` (the
+ * team that LOST at that layer) → bond stage. The MoleculeScene uses this
+ * to draw a red `⨯` glyph above the loser's terminal instance, which
+ * reads as "knocked out here" — the eye can sweep the path and see
+ * exactly where each opponent dropped out.
+ *
+ * Only the *opponent's* TOP instance gets the glyph (the layer they were
+ * eliminated at). The path-team's own column never gets a `⨯`. We
+ * additionally exclude the path-team itself if they lost the final — the
+ * runner-up's red `⨯` would compete with the gold rim treatment on the
+ * final node, so we leave the final without a glyph (the silver rim and
+ * the side-panel pill already communicate "runner-up").
+ */
+export function buildPathLoserAtTopInstance(
+  path: TeamPath,
+): Map<string, BondStage> {
+  const out = new Map<string, BondStage>();
+  for (const pb of path.bonds) {
+    if (pb.loser && pb.loser !== path.teamCode) {
+      // Map the loser to their terminal layer — which is the same stage
+      // they played the bond at, since losing eliminates them.
+      out.set(pb.loser, pb.stage);
+    }
   }
   return out;
 }

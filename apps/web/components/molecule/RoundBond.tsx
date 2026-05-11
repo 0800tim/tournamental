@@ -25,6 +25,7 @@
  */
 
 import { useMemo, useRef } from "react";
+import { Billboard, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -46,7 +47,32 @@ export interface RoundBondProps {
   motionEnabled?: boolean;
   /** Group bonds: opacity is tweened to 0 when this is false. */
   groupBondsVisible?: boolean;
+  /**
+   * v5 — for path match bonds, the winner's teamCode. Used to point the
+   * directional arrow from winner → loser (lerp factor 0.35 along the
+   * cylinder). When `null`/`undefined`, no arrow is rendered.
+   */
+  winnerCode?: string | null;
+  /**
+   * v5 — flag emojis for the two endpoints. Used to render the small
+   * floating "match badge" (🇦🇷 vs 🇲🇽 · R32) above each path match-bond
+   * mid-point. When either is missing, no badge is rendered.
+   */
+  fromFlag?: string | null;
+  toFlag?: string | null;
+  /** v5 — short stage label for the match badge ("R32", "QF", "Final", …). */
+  matchBadgeLabel?: string | null;
 }
+
+const STAGE_BADGE_LABEL: Record<MoleculeBond["stage"], string> = {
+  group: "Group",
+  r32: "R32",
+  r16: "R16",
+  qf: "QF",
+  sf: "SF",
+  tp: "Bronze",
+  f: "Final",
+};
 
 const PATH_GOLD = "#fbbf24";
 
@@ -60,8 +86,12 @@ export function RoundBond({
   pathLength,
   motionEnabled = true,
   groupBondsVisible = true,
+  winnerCode = null,
+  fromFlag = null,
+  toFlag = null,
+  matchBadgeLabel = null,
 }: RoundBondProps) {
-  const { position, quaternion, length } = useMemo(() => {
+  const { position, quaternion, length, midpoint, arrowPos, arrowFromWinner } = useMemo(() => {
     const a = new THREE.Vector3(...from.position);
     const b = new THREE.Vector3(...to.position);
     const mid = a.clone().add(b).multiplyScalar(0.5);
@@ -71,8 +101,26 @@ export function RoundBond({
       new THREE.Vector3(0, 1, 0),
       dir.clone().normalize(),
     );
-    return { position: mid, quaternion: q, length: len };
-  }, [from.position, to.position]);
+    // v5: arrow sits at lerp(winner→loser, 0.35) — 35% of the way from
+    // winner toward loser. Pointing FROM winner TO loser semantically.
+    // Defaults to midpoint if we don't know the winner.
+    const isFromWinner = winnerCode !== null && from.teamCode === winnerCode;
+    const isToWinner = winnerCode !== null && to.teamCode === winnerCode;
+    let aPos: THREE.Vector3 | null = null;
+    if (isFromWinner) {
+      aPos = a.clone().lerp(b, 0.35);
+    } else if (isToWinner) {
+      aPos = b.clone().lerp(a, 0.35);
+    }
+    return {
+      position: mid,
+      quaternion: q,
+      length: len,
+      midpoint: mid,
+      arrowPos: aPos,
+      arrowFromWinner: isFromWinner || isToWinner,
+    };
+  }, [from.position, to.position, from.teamCode, to.teamCode, winnerCode]);
 
   // Base thickness — bumped across the board, scaled by stage rank.
   const stageThicknessMult: Record<MoleculeBond["stage"], number> = {
@@ -90,7 +138,11 @@ export function RoundBond({
   const baseRadius = isAdvance
     ? bond.thickness * 0.18
     : bond.thickness * (stageThicknessMult[bond.stage] ?? 0.1);
-  const radius = onPath ? baseRadius * 2.0 : baseRadius;
+  // v5: tone down the match-bond on-path bump to 1.4× — these are
+  // horizontal and don't need the same emphasis as the vertical advance
+  // columns. Advance bonds stay at 2.0× so the gold staircase still pops.
+  const onPathRadiusMult = isAdvance ? 2.0 : 1.4;
+  const radius = onPath ? baseRadius * onPathRadiusMult : baseRadius;
 
   // Colour + opacity.
   const colour = onPath ? PATH_GOLD : bond.color;
@@ -188,6 +240,52 @@ export function RoundBond({
             depthWrite={false}
           />
         </mesh>
+      ) : null}
+
+      {/* v5: directional arrow glyph — winner → loser. Only on path match bonds.
+       * Billboards toward the camera. Suppressed without a known winner. */}
+      {onPath && !isAdvance && arrowPos && arrowFromWinner ? (
+        <Billboard position={[arrowPos.x, arrowPos.y, arrowPos.z]} follow>
+          <Html
+            center
+            distanceFactor={18}
+            zIndexRange={[12, 0]}
+            style={{ pointerEvents: "none", userSelect: "none" }}
+          >
+            <span
+              className="molecule-match-arrow"
+              aria-hidden
+              data-stage={bond.stage}
+            >
+              ▶
+            </span>
+          </Html>
+        </Billboard>
+      ) : null}
+
+      {/* v5: small "match badge" pill — 🇦🇷 vs 🇲🇽 · R32. Only visible on
+       * path match bonds. Sits above the bond midpoint, billboards. */}
+      {onPath && !isAdvance && fromFlag && toFlag ? (
+        <Billboard
+          position={[midpoint.x, midpoint.y + 1.4, midpoint.z]}
+          follow
+        >
+          <Html
+            center
+            distanceFactor={18}
+            zIndexRange={[11, 0]}
+            style={{ pointerEvents: "none", userSelect: "none" }}
+          >
+            <div className="molecule-match-badge" data-stage={bond.stage}>
+              <span className="molecule-match-badge-flag" aria-hidden>{fromFlag}</span>
+              <span className="molecule-match-badge-vs">vs</span>
+              <span className="molecule-match-badge-flag" aria-hidden>{toFlag}</span>
+              <span className="molecule-match-badge-round">
+                {matchBadgeLabel ?? STAGE_BADGE_LABEL[bond.stage]}
+              </span>
+            </div>
+          </Html>
+        </Billboard>
       ) : null}
     </>
   );

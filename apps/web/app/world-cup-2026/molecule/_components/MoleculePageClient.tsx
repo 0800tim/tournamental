@@ -171,7 +171,11 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
         </div>
       </header>
       {mounted ? (
-        <MoleculeScene tournament={tournament} bracketOverride={override} />
+        <MoleculeScene
+          tournament={tournament}
+          bracketOverride={override}
+          layoutMode={mode === "consensus" ? "rank-sorted" : "stable"}
+        />
       ) : (
         <div style={{ height: "calc(100vh - 96px)", display: "grid", placeItems: "center", color: "#cdd5e7" }}>
           Loading molecule…
