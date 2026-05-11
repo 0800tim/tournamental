@@ -173,6 +173,41 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".mdx"] };
+"2026-05-12-night-shift.mdx": {
+	id: "2026-05-12-night-shift.mdx";
+  slug: "2026-05-12-night-shift";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-12-podium-share-cards.mdx": {
+	id: "2026-05-12-podium-share-cards.mdx";
+  slug: "2026-05-12-podium-share-cards";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-12-pot-of-gold-or-pot-of-shit.mdx": {
+	id: "2026-05-12-pot-of-gold-or-pot-of-shit.mdx";
+  slug: "2026-05-12-pot-of-gold-or-pot-of-shit";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-12-save-dont-lock.mdx": {
+	id: "2026-05-12-save-dont-lock.mdx";
+  slug: "2026-05-12-save-dont-lock";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-12-tournament-as-molecule.mdx": {
+	id: "2026-05-12-tournament-as-molecule.mdx";
+  slug: "2026-05-12-tournament-as-molecule";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
 };
 
 	};

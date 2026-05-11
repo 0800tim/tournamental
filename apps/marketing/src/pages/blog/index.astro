@@ -14,7 +14,11 @@ import { getCollection } from "astro:content";
 const posts = (await getCollection("blog", ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
-const [hero, ...rest] = posts;
+// If a post is explicitly featured, pin it as the hero. Otherwise the
+// latest-by-pubDate becomes hero.
+const featured = posts.find((p) => p.data.featured);
+const hero = featured ?? posts[0];
+const rest = posts.filter((p) => p.slug !== hero?.slug);
 const heroDate = hero
   ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(hero.data.pubDate)
   : "";

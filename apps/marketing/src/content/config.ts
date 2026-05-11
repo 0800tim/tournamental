@@ -32,6 +32,10 @@ const blog = defineCollection({
       // Format: `Photo by <name> on <source> (<licence>)`.
       heroImageCredit: z.string().optional(),
       draft: z.boolean().default(false),
+      // When true, this post is pinned to the hero slot on the blog index
+      // regardless of pubDate order. Use sparingly, at most one featured
+      // post at a time.
+      featured: z.boolean().default(false),
     }),
 });
 
