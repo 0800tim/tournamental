@@ -145,7 +145,7 @@ export function FlagSphereMaterial(props: FlagSphereMaterialProps) {
       roughness={0.45}
       metalness={0.18}
       emissive={emissive as THREE.Color}
-      emissiveIntensity={onPath ? Math.max(emissiveIntensity, 0.35) : emissiveIntensity}
+      emissiveIntensity={onPath ? Math.max(emissiveIntensity, 0.08) : emissiveIntensity}
     />
   );
 }

@@ -90,7 +90,12 @@ export function TeamAtom(props: TeamAtomProps) {
     if (rimRef.current) rimRef.current.scale.setScalar(1.18);
   });
 
-  const rimOpacity = onPath ? 0.7 : isChampion ? 0.55 : 0.32;
+  // Rim halo carries the selection cue (size bump + outer glow ring); the
+  // flag sphere itself gets only a whisper of emissive so the flag colours
+  // shine through, not a gold filter. Tim 2026-05-11: "less of a filter,
+  // so the flag really shines through."
+  const rimOpacity = (selected ? 0.85 : hovered ? 0.6 : 1)
+    * (onPath ? 0.6 : isChampion ? 0.5 : 0.32);
   const waveBoost = selected || hovered ? 1.6 : onPath ? 1.2 : 1;
 
   return (
@@ -135,7 +140,7 @@ export function TeamAtom(props: TeamAtomProps) {
           motionEnabled={motionEnabled}
           waveBoost={waveBoost}
           emissive={rim}
-          emissiveIntensity={selected ? 0.45 : isChampion ? 0.32 : 0.16}
+          emissiveIntensity={selected ? 0.12 : isChampion ? 0.07 : 0.04}
           isChampion={isChampion}
           onPath={onPath}
         />
