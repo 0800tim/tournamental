@@ -27,10 +27,19 @@ interface CachedEntry {
 
 const cache = new Map<string, CachedEntry>();
 
-const TEX_WIDTH = 512;
-const TEX_HEIGHT = 256;
-const FLAG_WIDTH = 384; // 3:2 aspect → height 256
-const FLAG_HEIGHT = 256;
+/**
+ * v3: raster at 1024×512 (was 512×256) so even the smallest atoms on
+ * the pyramid's lower tiers show crisp SVG strokes. 1024×512 RGBA × 48
+ * teams ≈ 96 MB worst-case GPU footprint — still within budget for a
+ * 2022 mid-range Android (most teams ~24 group losers stay at the smallest
+ * tier, but the texture is shared across all atoms of the same team so
+ * we only pay 48 × 2 MB = 96 MB max — typically ~half that since not
+ * every team is loaded at once).
+ */
+const TEX_WIDTH = 1024;
+const TEX_HEIGHT = 512;
+const FLAG_WIDTH = 768; // 3:2 aspect → height 512
+const FLAG_HEIGHT = 512;
 const FLAG_X = (TEX_WIDTH - FLAG_WIDTH) / 2;
 
 const POLE_TINT = "#0a0e1a"; // matches the scene background.
@@ -87,15 +96,36 @@ export function getFlagTexture(
   const canvas = makeFallbackCanvas(accent);
   const texture = new THREE.CanvasTexture(canvas);
   texture.colorSpace = THREE.SRGBColorSpace;
-  texture.anisotropy = 4;
+  // v3: bump anisotropy from 4 → 16 so flags stay sharp when the atom
+  // is viewed at a grazing angle (common on the lower pyramid tiers
+  // when the camera is tilted up toward the apex). Browsers cap this
+  // at the GPU's max, so we don't pay if the hardware can't support it.
+  texture.anisotropy = 16;
+  // Trilinear filter — softens shimmer on small atoms as the camera
+  // moves through their LOD threshold without introducing visible
+  // mip seams.
+  texture.minFilter = THREE.LinearMipmapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
   texture.needsUpdate = true;
 
   const entry: CachedEntry = { texture, canvas, ready: false };
   cache.set(key, entry);
 
+  // The SVG is rendered at twice the canvas size on the way in — most
+  // SVG renderers anti-alias on the final raster, so up-sampling first
+  // then drawing at the canvas's native size gives crisper strokes than
+  // letting the canvas API down-sample a wider source. Browsers that
+  // support `Image.decode()` get a clean wait-for-decode promise; older
+  // browsers fall back to onload.
   const img = new Image();
   img.crossOrigin = "anonymous";
-  img.onload = () => {
+  // Hint to the renderer that we want decoded image data, not just a
+  // bitmap reference — helps Firefox keep SVGs sharp. (`decoding` is a
+  // standard HTMLImageElement attribute; the cast is for the older
+  // lib.dom.d.ts that pre-dates it.)
+  (img as HTMLImageElement & { decoding?: "async" | "sync" | "auto" }).decoding = "async";
+  const paintOnce = () => {
     try {
       paintFlagOnto(canvas, img);
       texture.needsUpdate = true;
@@ -104,10 +134,20 @@ export function getFlagTexture(
       // ignore — fallback canvas stays in place.
     }
   };
+  img.onload = () => {
+    if (typeof img.decode === "function") {
+      img.decode().then(paintOnce).catch(paintOnce);
+    } else {
+      paintOnce();
+    }
+  };
   img.onerror = () => {
     // Fallback stays in place — accent-coloured flat colour.
   };
-  // SVG files in /public are served as image/svg+xml.
+  // SVG files in /public are served as image/svg+xml. We hint at the
+  // intrinsic size so the SVG renderer picks the high-res raster path.
+  img.width = FLAG_WIDTH;
+  img.height = FLAG_HEIGHT;
   img.src = `/flags/${teamCode}.svg`;
 
   return texture;

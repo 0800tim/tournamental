@@ -342,7 +342,12 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
         className="molecule-canvas"
         shadows={false}
         dpr={[1, 2]}
-        camera={{ position: [0, 22, 48], fov: 38, near: 0.1, far: 500 }}
+        // v3: camera sits slightly above the centre of the pyramid and
+        // looks up toward the apex. The pyramid centre is ~y=14 (halfway
+        // between base y=0 and apex y=28), so the camera at y=12 + lookAt
+        // y=14 produces a 2° upward tilt that lets the eye read both the
+        // base spread and the apex from a single default angle.
+        camera={{ position: [0, 12, 46], fov: 40, near: 0.1, far: 500 }}
         gl={{
           antialias: true,
           powerPreference: "high-performance",
@@ -380,14 +385,22 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           ref={(c) => {
             controlsRef.current = c;
           }}
+          // v3: target the visual centre of the pyramid (~y=14) so the
+          // orbit camera circles around the silhouette rather than around
+          // the world origin.
+          target={[0, 14, 0]}
           enablePan={false}
           enableDamping
           dampingFactor={0.08}
           rotateSpeed={0.7}
           minDistance={18}
           maxDistance={120}
-          minPolarAngle={Math.PI * 0.18}
-          maxPolarAngle={Math.PI * 0.82}
+          // v3: tighter polar-angle band — don't let the user look straight
+          // down (loses the pyramid silhouette) or straight up (sees the
+          // base disc head-on). Both extremes turn the pyramid into a
+          // ring, which defeats the whole point.
+          minPolarAngle={Math.PI * 0.22}
+          maxPolarAngle={Math.PI * 0.62}
           autoRotate
           autoRotateSpeed={0.35}
         />
@@ -441,6 +454,7 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
       <MoleculePanel
         teamCode={selected}
         tournament={tournament}
+        bracket={bracket}
         cascaded={cascaded}
         finalStageByTeam={finalStageByTeam}
         flagEmojiByTeam={flagEmojiByTeam}
