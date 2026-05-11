@@ -482,6 +482,12 @@
   color: #cbd5e1;
 }
 
+/* Legacy in-tab-strip Auto-pick styling. The button moved into its own
+ * row above the tab strip on 2026-05-11 (feat/auto-pick-prominent-mobile)
+ * so it's always visible without horizontal scrolling on mobile. The
+ * class is kept around in case any deep-link bookmark or 3rd-party
+ * styling expected it, but the visible button now uses
+ * `.bracket-autopick-cta` (see below). */
 .bracket-tab-autopick {
   margin-left: auto;
   background: linear-gradient(135deg, #fbbf24, #f59e0b);
@@ -491,6 +497,156 @@
 }
 .bracket-tab-autopick:hover {
   background: linear-gradient(135deg, #fcd34d, #fbbf24);
+}
+
+/* ---- Prominent Auto-pick row (above the tab strip) ---- */
+/* Tim's launch-eve feedback (2026-05-11): the Auto-pick CTA used to
+ * live at the right end of the tab strip. On a 375px-wide phone the tab
+ * strip scrolls horizontally and the CTA ends up off-screen until the
+ * user discovers the scroll. Hoisting it into its own full-width row
+ * above the tabs fixes this on every viewport. */
+.bracket-autopick-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 6px;
+  margin: 8px 0 12px;
+  /* Keep horizontal padding aligned with the tab strip so the full-width
+   * mobile button doesn't bleed past the tabs. */
+  padding: 0 4px;
+}
+
+.bracket-autopick-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 20px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0f172a;
+  border: 1px solid #f59e0b;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(251, 191, 36, 0.22);
+  transition: background 120ms ease, transform 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.bracket-autopick-cta:hover {
+  background: linear-gradient(135deg, #fcd34d, #fbbf24);
+  box-shadow: 0 10px 22px rgba(251, 191, 36, 0.32);
+}
+
+.bracket-autopick-cta:active {
+  transform: translateY(1px);
+}
+
+.bracket-autopick-cta:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.55),
+    0 6px 16px rgba(251, 191, 36, 0.22);
+}
+
+.bracket-autopick-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bracket-autopick-cta-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bracket-autopick-cta-label {
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+.bracket-autopick-subtitle {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* Desktop: compact-but-bold, right-aligned within the row container so
+ * the button matches the right-side action chip pattern. */
+@media (min-width: 768px) {
+  .bracket-autopick-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "subtitle button";
+    align-items: center;
+    gap: 12px;
+    padding: 0;
+  }
+  .bracket-autopick-cta {
+    grid-area: button;
+    width: auto;
+    min-width: 240px;
+    justify-self: end;
+  }
+  .bracket-autopick-subtitle {
+    grid-area: subtitle;
+    text-align: right;
+  }
+}
+
+/* ---- Mobile-only condensed sticky Auto-pick pill ----
+ * When the user has scrolled past the tab strip (so the Final tab is in
+ * view), this collapsed pill keeps the Auto-pick CTA reachable without
+ * scrolling back up. Same gold/navy language as the main button; 40px
+ * tall; sticks below the AppShell top bar (56px). */
+.bracket-autopick-sticky {
+  position: sticky;
+  top: 56px;
+  display: none; /* desktop default — overridden below */
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  align-self: flex-end;
+  margin: 0 8px 8px auto;
+  height: 40px;
+  padding: 0 16px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #0f172a;
+  border: 1px solid #f59e0b;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  /* Above the tab strip (z=20) but below the AppShell drawer (z=40). */
+  z-index: 25;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
+}
+
+.bracket-autopick-sticky:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.55),
+    0 4px 12px rgba(15, 23, 42, 0.35);
+}
+
+.bracket-autopick-sticky:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bracket-autopick-sticky-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+@media (max-width: 767px) {
+  .bracket-autopick-sticky {
+    display: inline-flex;
+  }
 }
 
 /* ---- Match prediction row ---- */

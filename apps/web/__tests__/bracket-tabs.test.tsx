@@ -15,7 +15,7 @@
 // @vitest-environment jsdom
 
 import React from "react";
-import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach, afterAll } from "vitest";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
@@ -316,6 +316,158 @@ describe("Lock → Save rename — user-visible copy", () => {
     expect(modal.textContent).not.toMatch(/not a lock/i);
     // Cancel to clean up.
     fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
+  });
+});
+
+/**
+ * Auto-pick prominence — Tim's launch-eve UX fix (2026-05-11):
+ * the Auto-pick CTA was buried at the right end of the horizontally-
+ * scrolling tab strip on mobile. These tests cover the hoist into a
+ * dedicated row above the tabs, the new subtitle copy, and the
+ * mobile-only sticky condensed pill.
+ */
+describe("<BracketBuilder> — prominent Auto-pick row", () => {
+  it("renders the Auto-pick CTA in a row separate from the tab strip", () => {
+    const { container } = render(<BracketBuilder tournament={tournament} />);
+    const autoPickRow = container.querySelector(
+      "[data-testid='bracket-autopick-row']",
+    );
+    const tabStrip = container.querySelector("[data-testid='bracket-tabs']");
+    expect(autoPickRow).toBeTruthy();
+    expect(tabStrip).toBeTruthy();
+    // The auto-pick row must not be a descendant of the tab strip, and
+    // the tab strip must not be a descendant of the auto-pick row.
+    expect(tabStrip!.contains(autoPickRow!)).toBe(false);
+    expect(autoPickRow!.contains(tabStrip!)).toBe(false);
+    // The prominent CTA lives inside the dedicated row.
+    const cta = autoPickRow!.querySelector(".bracket-autopick-cta");
+    expect(cta).toBeTruthy();
+    expect(cta!.getAttribute("aria-label")).toBe("Auto-pick from live odds");
+  });
+
+  it("Auto-pick row appears above the tab strip in DOM order", () => {
+    const { container } = render(<BracketBuilder tournament={tournament} />);
+    const autoPickRow = container.querySelector(
+      "[data-testid='bracket-autopick-row']",
+    ) as HTMLElement;
+    const tabStrip = container.querySelector(
+      "[data-testid='bracket-tabs']",
+    ) as HTMLElement;
+    // Node.compareDocumentPosition returns DOCUMENT_POSITION_FOLLOWING (4)
+    // when the argument follows the reference node in document order.
+    const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
+    expect(
+      autoPickRow.compareDocumentPosition(tabStrip) & FOLLOWING,
+    ).toBeTruthy();
+  });
+
+  it("subtitle reads the empty-bracket copy when no picks exist", () => {
+    render(<BracketBuilder tournament={tournament} />);
+    const subtitle = document.getElementById("bracket-autopick-subtitle");
+    expect(subtitle).toBeTruthy();
+    expect(subtitle!.textContent).toMatch(
+      /Fill your bracket using live consensus odds/i,
+    );
+    expect(subtitle!.textContent).toMatch(/edit any pick before kickoff/i);
+  });
+
+  it("subtitle flips to the 'refresh empty picks' copy once the user has at least one pick", () => {
+    render(<BracketBuilder tournament={tournament} />);
+    // Make one group pick.
+    const groupACard = screen.getAllByText("Group A")[0]!.closest(
+      ".bracket-group",
+    ) as HTMLElement;
+    fireEvent.click(groupACard.querySelector(".mpr-pick-home")!);
+    const subtitle = document.getElementById("bracket-autopick-subtitle");
+    expect(subtitle!.textContent).toMatch(
+      /Refresh empty picks using live consensus odds/i,
+    );
+  });
+
+  it("prominent CTA is keyboard-accessible: aria-label + describedby", () => {
+    render(<BracketBuilder tournament={tournament} />);
+    const cta = screen.getByRole("button", {
+      name: /^Auto-pick from live odds$/,
+    });
+    expect(cta.getAttribute("aria-describedby")).toBe(
+      "bracket-autopick-subtitle",
+    );
+    // The describedby target must exist so screen-readers can find it.
+    const desc = document.getElementById("bracket-autopick-subtitle");
+    expect(desc).toBeTruthy();
+  });
+
+  it("clicking the prominent Auto-pick CTA still opens the confirm modal", () => {
+    render(<BracketBuilder tournament={tournament} />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /^Auto-pick from live odds$/ }),
+    );
+    expect(
+      screen.getByRole("dialog", { name: /Auto-pick the favourite/i }),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
+  });
+
+  it("renders the mobile-only sticky Auto-pick shortcut pill", () => {
+    const { container } = render(<BracketBuilder tournament={tournament} />);
+    const sticky = container.querySelector(
+      "[data-testid='bracket-autopick-sticky']",
+    );
+    expect(sticky).toBeTruthy();
+    expect(sticky!.getAttribute("aria-label")).toBe(
+      "Auto-pick (sticky shortcut)",
+    );
+    // Sticky pill opens the same confirm modal as the prominent CTA.
+    fireEvent.click(sticky!);
+    expect(
+      screen.getByRole("dialog", { name: /Auto-pick the favourite/i }),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
+  });
+
+  it("Auto-pick button is no longer a child of the tab strip nav", () => {
+    const { container } = render(<BracketBuilder tournament={tournament} />);
+    const tabStrip = container.querySelector("[data-testid='bracket-tabs']");
+    expect(tabStrip).toBeTruthy();
+    // The legacy in-tab-strip auto-pick button used .bracket-tab-autopick
+    // and lived inside the nav. After the hoist the nav should contain
+    // no buttons with that class.
+    const inTabAutopick = tabStrip!.querySelector(".bracket-tab-autopick");
+    expect(inTabAutopick).toBeNull();
+  });
+});
+
+/**
+ * Mobile viewport (375x812 — iPhone 13 Mini) sanity check. jsdom doesn't
+ * apply stylesheets, so we can't measure layout pixels here, but we can
+ * verify the DOM contract the CSS relies on: the sticky pill exists and
+ * is rendered on every render (its visibility is purely a media-query
+ * concern). Precedent: bracket-mobile-gestures.test.tsx uses jsdom +
+ * window.innerWidth stubs for similar contract assertions.
+ */
+describe("<BracketBuilder> — mobile viewport (375x812) Auto-pick contract", () => {
+  const originalInnerWidth = window.innerWidth;
+  const originalInnerHeight = window.innerHeight;
+  beforeEach(() => {
+    Object.defineProperty(window, "innerWidth", { value: 375, configurable: true });
+    Object.defineProperty(window, "innerHeight", { value: 812, configurable: true });
+  });
+  afterAll(() => {
+    Object.defineProperty(window, "innerWidth", {
+      value: originalInnerWidth,
+      configurable: true,
+    });
+    Object.defineProperty(window, "innerHeight", {
+      value: originalInnerHeight,
+      configurable: true,
+    });
+  });
+
+  it("the prominent CTA, the subtitle, and the sticky shortcut all render on a 375px viewport", () => {
+    const { container } = render(<BracketBuilder tournament={tournament} />);
+    expect(container.querySelector(".bracket-autopick-cta")).toBeTruthy();
+    expect(container.querySelector(".bracket-autopick-subtitle")).toBeTruthy();
+    expect(container.querySelector(".bracket-autopick-sticky")).toBeTruthy();
   });
 });
 
