@@ -52,6 +52,14 @@ apps/auth-sms/auth.db-shm
 apps/web/public/og/bracket/
 apps/web/public/og/syndicate/
 
+# API docs portal bundle + per-service slices, regenerated at marketing
+# build time by `scripts/build-openapi-index.mjs`. The source of truth
+# is `docs/api/<service>.openapi.json`; this folder is a build artefact.
+# Exception: manifest.json IS committed so `astro check` (typecheck) can
+# import it without a build step running first.
+apps/marketing/public/api/*
+!apps/marketing/public/api/manifest.json
+
 # Deploy slots — built artefacts, never committed. The .deploy/config.json
 # files ARE committed (per-app deploy config); .deploy/rollback.json and
 # incident.flag are runtime-only.

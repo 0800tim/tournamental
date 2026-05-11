@@ -2,7 +2,7 @@
   "name": "@vtorn/api",
   "version": "0.0.1",
   "private": true,
-  "description": "VTorn API service (Fastify) — health, version, future event ingest",
+  "description": "VTorn API service (Fastify) \u2014 health, version, future event ingest",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -12,7 +12,8 @@
     "prestart": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "dump-openapi": "tsx scripts/dump-openapi.ts"
+    "dump-openapi": "tsx scripts/dump-openapi.ts",
+    "openapi:snapshot": "pnpm run dump-openapi"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

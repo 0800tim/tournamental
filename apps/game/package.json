@@ -2,7 +2,7 @@
   "name": "@vtorn/game",
   "version": "0.0.1",
   "private": true,
-  "description": "Tournamental game service — bracket submission, match-result settlement, leaderboards. Per docs/12.",
+  "description": "Tournamental game service \u2014 bracket submission, match-result settlement, leaderboards. Per docs/12.",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -12,7 +12,8 @@
     "prestart": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.test.json",
-    "dump-openapi": "tsx scripts/dump-openapi.ts"
+    "dump-openapi": "tsx scripts/dump-openapi.ts",
+    "openapi:snapshot": "pnpm run dump-openapi"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

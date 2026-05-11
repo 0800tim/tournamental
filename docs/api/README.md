@@ -1,5 +1,12 @@
 # Tournamental API reference
 
+> For an aggregated, Scalar-rendered view of every public service in
+> one place, see the live portal at
+> [`tournamental.com/api`](https://tournamental.com/api) (architecture
+> in [`../53-api-portal.md`](../53-api-portal.md)). This folder is the
+> source of truth: the portal aggregator reads the JSON snapshots
+> below at marketing-build time.
+
 Every Fastify service in this repo registers `@fastify/swagger` + `@fastify/swagger-ui`. Each running service exposes:
 
 - `GET /docs`, Swagger UI (interactive)

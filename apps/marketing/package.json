@@ -6,8 +6,9 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev --host 0.0.0.0 --port 3320",
-    "build": "node scripts/build-og-cards.mjs && astro build",
+    "build": "node scripts/build-og-cards.mjs && node scripts/build-openapi-index.mjs && astro build",
     "build:og": "node scripts/build-og-cards.mjs",
+    "build:openapi": "node scripts/build-openapi-index.mjs",
     "start": "astro preview --host 0.0.0.0 --port 3320",
     "preview": "astro preview --host 0.0.0.0 --port 3320",
     "typecheck": "astro check"

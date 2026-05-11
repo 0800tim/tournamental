@@ -16,7 +16,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "tsc -p tsconfig.test.json",
-    "dump-openapi": "tsx scripts/dump-openapi.ts"
+    "dump-openapi": "tsx scripts/dump-openapi.ts",
+    "openapi:snapshot": "pnpm run dump-openapi"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",

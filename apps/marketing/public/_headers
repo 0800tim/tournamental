@@ -1,0 +1,21 @@
+# Cloudflare Pages headers manifest (https://developers.cloudflare.com/pages/configuration/headers/).
+# Astro's static build copies `public/_headers` verbatim into `dist/`,
+# so CF Pages applies these on production. PM2 + astro preview ignores
+# this file in dev, that's fine, dev runs behind the aiva.nz tunnel
+# which has its own CDN edge.
+
+# API docs portal bundle: short edge cache + long SWR window. Per
+# docs/22-deployment-and-tunnels.md, public aggregates use this exact
+# policy so a hot Cloudflare edge can absorb traffic without backend
+# pressure. The per-service slices follow the same policy.
+/api/openapi-bundle.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Content-Type: application/json; charset=utf-8
+
+/api/*.openapi.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Content-Type: application/json; charset=utf-8
+
+/api/manifest.json
+  Cache-Control: public, max-age=300, stale-while-revalidate=86400
+  Content-Type: application/json; charset=utf-8
