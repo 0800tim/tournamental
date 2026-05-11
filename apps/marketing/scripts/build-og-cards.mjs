@@ -90,7 +90,7 @@ const MARKETING_OG_PAGES = [
       userId: "brand",
       bonusTokens: 25,
       tournamentName: "Syndicates",
-      inviteHeadline: "Run your own pool at yourname.tournamental.com.",
+      inviteHeadline: "Run your own pool at play.tournamental.com/s/yourname.",
     },
   },
   {
