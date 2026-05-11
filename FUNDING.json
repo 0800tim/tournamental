@@ -1,0 +1,24 @@
+{
+  "$schema": "https://raw.githubusercontent.com/drips-network/funding-json-schemas/main/v1/funding.json",
+  "drips": {
+    "ethereum": {
+      "ownedBy": "0x0000000000000000000000000000000000000000"
+    }
+  },
+  "github": ["0800tim"],
+  "info": {
+    "title": "Tournamental",
+    "description": "Open-source FIFA tournament prediction game. Contributors share platform revenue via Drips Network. Apache 2.0 code + CC-BY docs.",
+    "homepage": "https://tournamental.com",
+    "repository": "https://github.com/0800tim/tournamental",
+    "license": "Apache-2.0",
+    "tags": [
+      "sports",
+      "open-source",
+      "drips",
+      "contributor-revenue",
+      "prediction-game",
+      "fifa-world-cup-2026"
+    ]
+  }
+}

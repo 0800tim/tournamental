@@ -1,0 +1,16 @@
+{
+  "name": "__PKG_NAME__",
+  "version": "0.0.1",
+  "description": "__PKG_DISPLAY__ scorer plugin. Edit src/index.ts to change the scoring function.",
+  "sdkRange": "^0.1.0",
+  "provides": ["scorer"],
+  "license": "Apache-2.0",
+  "author": {
+    "name": "TODO: your name",
+    "url": "https://example.com"
+  },
+  "permissions": {
+    "dom": "none"
+  },
+  "tags": ["scorer"]
+}

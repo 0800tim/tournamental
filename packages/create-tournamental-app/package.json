@@ -1,0 +1,38 @@
+{
+  "name": "@tournamental/create-app",
+  "version": "0.1.0",
+  "description": "One-command scaffolder for Tournamental plugins and extensions. Run with `npm create @tournamental/app` or `pnpm create @tournamental/app`.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "bin": {
+    "create-tournamental-app": "./src/index.mjs"
+  },
+  "files": [
+    "src",
+    "templates",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "test": "node --test src/index.test.mjs",
+    "typecheck": "echo 'no-op (pure ESM JS)'"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "tournamental",
+    "scaffold",
+    "create-app",
+    "plugin",
+    "starter"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0800tim/tournamental.git",
+    "directory": "packages/create-tournamental-app"
+  },
+  "homepage": "https://tournamental.com/build"
+}
