@@ -325,6 +325,14 @@ export function MoleculeScene({
   >({});
   const [groupBondsVisible, setGroupBondsVisible] = useState(true);
   const [motionEnabled, setMotionEnabled] = useState(true);
+  /**
+   * v6, "viral share landing", on first mount we auto-open the panel for
+   * the predicted champion so the page lands on the exact pyramid+panel
+   * composition Tim uses for socials. The flag is a one-shot, the user's
+   * later clicks (including clicking the close button) win for the rest
+   * of the session.
+   */
+  const autoSelectedRef = useRef(false);
   const controlsRef = useState<React.MutableRefObject<unknown>>(() => ({ current: null }))[0];
   const interactionRef = useRef<{ idleMs: number; rotating: boolean }>({ idleMs: 0, rotating: false });
 
@@ -359,6 +367,35 @@ export function MoleculeScene({
     () => buildMoleculeLayout(tournament, cascaded, layoutMode),
     [tournament, cascaded, layoutMode],
   );
+
+  // v6, "viral share landing", auto-open the panel for the predicted
+  // champion on first mount. If the bracket has no resolved champion
+  // (empty / no knockout picks) we fall back to the rank-favourite team
+  // (lowest FIFA rank in the tournament) so the page is never blank on
+  // first paint. This is one-shot, after the first auto-select fires
+  // any later user click + close wins for the rest of the session.
+  useEffect(() => {
+    if (autoSelectedRef.current) return;
+    // Only auto-select once the bracket has hydrated, otherwise we'd
+    // briefly open the rank-favourite panel and then snap to the user's
+    // real champion when localStorage loads.
+    if (typeof window === "undefined") return;
+    const champion = layout.championCode;
+    if (champion) {
+      setSelected(champion);
+      autoSelectedRef.current = true;
+      return;
+    }
+    // No champion derivable, pick the strongest-ranked team as a safe
+    // fallback so the panel + gold-path chip aren't empty.
+    const fallback = [...tournament.teams]
+      .filter((t) => typeof t.fifa_rank === "number")
+      .sort((a, b) => (a.fifa_rank ?? 99) - (b.fifa_rank ?? 99))[0];
+    if (fallback) {
+      setSelected(fallback.id);
+      autoSelectedRef.current = true;
+    }
+  }, [layout.championCode, tournament.teams]);
 
   // Stage-by-team map for the side panel pill. v4: every team has many
   // instances, but they all carry the same `finalStage`, so picking any
@@ -558,13 +595,14 @@ export function MoleculeScene({
         className="molecule-canvas"
         shadows={false}
         dpr={[1, 2]}
-        // v4: the pyramid is taller (apex at y=30, base y=0). Camera at
-        // y=16 + lookAt y=15 puts the lens almost level with the visual
-        // midpoint and pulls back to z=58 so the apex sits ~30% from
-        // the top of the frame and the base ~70% from the top with a
-        // 40° FOV, the whole silhouette fits inside the canvas on
-        // first paint, no manual zoom required.
-        camera={{ position: [0, 16, 58], fov: 40, near: 0.1, far: 500 }}
+        // v6 "viral share landing" framing: closer dolly-in (z=44 vs
+        // v4's z=58) frames the pyramid taller in the canvas so the apex
+        // sits near the top of the frame and the group-stage base hits
+        // the bottom. Tim's brief calls this out as the share-image
+        // framing, so we let the on-page composition match what gets
+        // captured by default. The orbit target stays just below the
+        // visual midpoint at y=14 (was y=15 in v4).
+        camera={{ position: [0, 14, 44], fov: 40, near: 0.1, far: 500 }}
         gl={{
           antialias: true,
           powerPreference: "high-performance",
@@ -617,8 +655,9 @@ export function MoleculeScene({
           ref={(c) => {
             controlsRef.current = c;
           }}
-          // v4: target the visual centre of the taller pyramid (~y=15).
-          target={[0, 15, 0]}
+          // v6: target a touch below the visual midpoint so the apex sits
+          // near the top of the frame for the share composition.
+          target={[0, 14, 0]}
           enablePan={false}
           enableDamping
           dampingFactor={0.08}

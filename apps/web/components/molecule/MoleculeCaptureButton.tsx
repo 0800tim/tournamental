@@ -28,12 +28,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 import { track } from "@/lib/analytics";
 import {
-  captureAndCompose,
   shareCapture,
   type CaptureInput,
   type CaptureResult,
   type ShareOutcome,
 } from "@/lib/molecule/capture";
+import { captureDomComposition } from "@/lib/molecule/dom-capture";
 
 import "./molecule-capture.css";
 
@@ -85,10 +85,16 @@ export function MoleculeCaptureButton({
     let outcome: ShareOutcome | "error" = "error";
     const startedAt = Date.now();
     try {
-      result = await captureAndCompose({
-        ...input,
+      // v6, "viral share landing", compose the share image client-side
+      // as a literal DOM screenshot of the pyramid + champion panel
+      // rather than round-tripping to /api/share/molecule-capture
+      // (which re-draws a server-rendered card). See dom-capture.ts.
+      result = await captureDomComposition({
         shareGuid,
         handle,
+        tournamentName: input.tournamentName,
+        champion: input.champion,
+        knockoutPath: input.knockoutPath,
       });
       // Revoke any previous capture's object URL.
       if (lastUrlRef.current) {

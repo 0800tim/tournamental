@@ -552,6 +552,21 @@
   box-shadow: -16px 0 40px rgba(0, 0, 0, 0.5);
 }
 
+/* v6, "viral share landing", panel-while-capturing tweaks. The capture
+ * helper sets data-capture-mode="true" + inline width/height for the
+ * duration of the html-to-image snapshot, this rule kills the slide-in
+ * animation (it would race the snapshot deadline) and removes the body
+ * scroll so the panel renders its full height into the snapshot. */
+.molecule-panel[data-capture-mode="true"] {
+  animation: none;
+  box-shadow: none;
+  border-left: 0;
+}
+
+.molecule-panel[data-capture-mode="true"] .molecule-panel-body {
+  overflow: visible;
+}
+
 @keyframes molecule-panel-in {
   from {
     transform: translateX(20px);
