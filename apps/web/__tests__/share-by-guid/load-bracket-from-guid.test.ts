@@ -123,4 +123,82 @@ describe("loadBracketFromGuid", () => {
     );
     expect(result).toBeNull();
   });
+
+  it("passes ?include=payload upstream when includePayload is true and threads the payload through", async () => {
+    const fetchSpy = vi.fn(
+      async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            bracket: {
+              share_guid: "22222222-2222-4222-8222-222222222222",
+              user_handle: null,
+              tournament_id: "fifa-wc-2026",
+              champion_code: "ARG",
+              runner_up_code: "FRA",
+              third_place_code: "BRA",
+              knockout_path: [],
+              locked_at: "2026-05-11T12:00:00Z",
+              payload: {
+                bracketId: "bk-test",
+                matchPredictions: {
+                  "1": {
+                    matchId: "1",
+                    outcome: "home_win",
+                    lockedAt: "2026-05-11T12:00:00Z",
+                  },
+                },
+                groupTiebreakers: {},
+                knockoutPredictions: {},
+                version: 2,
+              },
+            },
+          }),
+        }) as unknown as Response,
+    ) as unknown as typeof fetch;
+    const result = await loadBracketFromGuid(
+      "22222222-2222-4222-8222-222222222222",
+      { fetchImpl: fetchSpy, baseUrl: "http://test", includePayload: true },
+    );
+    expect(result).not.toBeNull();
+    expect(result?.payload).toBeDefined();
+    expect(result?.payload?.matchPredictions["1"]?.outcome).toBe("home_win");
+    // The upstream URL must carry the include=payload query.
+    const url = (fetchSpy as unknown as { mock: { calls: string[][] } })
+      .mock.calls[0]?.[0];
+    expect(url).toContain("include=payload");
+  });
+
+  it("omits ?include=payload by default and surfaces no payload field", async () => {
+    const fetchSpy = vi.fn(
+      async () =>
+        ({
+          ok: true,
+          status: 200,
+          json: async () => ({
+            ok: true,
+            bracket: {
+              share_guid: "33333333-3333-4333-8333-333333333333",
+              user_handle: null,
+              tournament_id: "fifa-wc-2026",
+              champion_code: "ARG",
+              runner_up_code: "FRA",
+              third_place_code: "BRA",
+              knockout_path: [],
+              locked_at: "2026-05-11T12:00:00Z",
+            },
+          }),
+        }) as unknown as Response,
+    ) as unknown as typeof fetch;
+    const result = await loadBracketFromGuid(
+      "33333333-3333-4333-8333-333333333333",
+      { fetchImpl: fetchSpy, baseUrl: "http://test" },
+    );
+    expect(result?.payload).toBeUndefined();
+    const url = (fetchSpy as unknown as { mock: { calls: string[][] } })
+      .mock.calls[0]?.[0];
+    expect(url).not.toContain("include=payload");
+  });
 });

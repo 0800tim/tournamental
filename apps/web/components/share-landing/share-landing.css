@@ -531,3 +531,68 @@
   display: flex;
   gap: 10px;
 }
+
+/* ── Embedded molecule (read-only on /s/[guid] user landing) ─────── */
+
+/*
+ * Wrapper that constrains the canonical `.molecule-root` (which is
+ * `height: calc(100vh - 48px)` on the dedicated molecule page) to a
+ * share-landing-friendly box. Mobile claims 70vh so the pyramid has
+ * room to breathe; desktop pins to a comfortable 640px so the page
+ * still scrolls past it to reach the path-to-gold list.
+ *
+ * The canvas keeps its own OrbitControls so it auto-frames the
+ * pyramid regardless of container aspect ratio.
+ */
+.vt-share-molecule {
+  width: 100%;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--vt-share-bg);
+  position: relative;
+  isolation: isolate;
+  /* Mobile: lean on viewport height so the molecule dominates the
+   * fold. min-height pins a floor for very-short viewports. */
+  min-height: 70vh;
+  /* Cap at a comfortable max so a tall desktop browser doesn't
+   * stretch the molecule into a long thin column. */
+  max-height: 720px;
+}
+
+.vt-share-molecule .molecule-root {
+  /* Override the dedicated-page sizing — inside the share-landing
+   * frame, the parent owns the height. */
+  height: 100%;
+  min-height: 0;
+  border-radius: inherit;
+}
+
+.vt-share-molecule .molecule-canvas {
+  border-radius: inherit;
+}
+
+/* Suppress the bracket-edit side panel: the share-landing viewer
+ * isn't the bracket owner, edits are meaningless. */
+.vt-share-molecule .molecule-panel,
+.vt-share-molecule .molecule-pundits-panel {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .vt-share-molecule {
+    min-height: 640px;
+    max-height: 820px;
+  }
+}
+
+.vt-share-molecule-placeholder {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  min-height: inherit;
+  color: var(--vt-share-ink-muted);
+  font-size: 14px;
+}

@@ -32,7 +32,20 @@ export type ResolvedShare =
   | { readonly kind: "user"; readonly bracket: BracketByGuid }
   | { readonly kind: "not_found"; readonly attempted: string };
 
-export async function resolveShareGuid(raw: string): Promise<ResolvedShare> {
+export interface ResolveOptions {
+  /**
+   * When true, the user-bracket branch fetches the full persisted
+   * `Bracket` payload alongside the public summary. Used by the
+   * share-landing page so the read-only 3D molecule embed can render
+   * the saved picks without a second round-trip.
+   */
+  readonly includePayload?: boolean;
+}
+
+export async function resolveShareGuid(
+  raw: string,
+  opts: ResolveOptions = {},
+): Promise<ResolvedShare> {
   const guid = (raw ?? "").trim();
   if (!guid) return { kind: "not_found", attempted: raw };
 
@@ -45,7 +58,9 @@ export async function resolveShareGuid(raw: string): Promise<ResolvedShare> {
 
   // Step 2, user share guid. UUID v4 or 16-char nanoid.
   if (isShareGuidShape(guid)) {
-    const bracket = await loadBracketFromGuid(guid);
+    const bracket = await loadBracketFromGuid(guid, {
+      includePayload: opts.includePayload,
+    });
     if (bracket) return { kind: "user", bracket };
   }
 

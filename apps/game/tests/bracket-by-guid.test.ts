@@ -173,6 +173,141 @@ describe("game-service / share guid round-trip", () => {
     expect(lookup.headers["cache-control"]).toContain("s-maxage=60");
   });
 
+  it("GET /v1/bracket/by-guid/<guid> resolves the champion via the cascade for canonical knockout ids", async () => {
+    // Tim's 2026-05-11 bug: brackets saved by the live web client use
+    // canonical fixture ids ("r32_01", "qf_01", "final") instead of
+    // ISO-encoded ids. The legacy regex extractor falls through every
+    // one of those, surfacing TBD on the share page. The cascade-first
+    // summariser resolves them properly.
+    const { app } = await built;
+
+    // Build a bracket where the user picks ARG to top group D (Argentina's
+    // group in the 2026 fixtures) and picks the home (group-A winner)
+    // through every knockout — that produces a concrete cascade winner.
+    // We don't need to be precise about which team — we just need the
+    // cascade to land *some* concrete champion code (non-null ISO).
+    const matchPredictions: Record<string, { matchId: string; outcome: string; lockedAt: string }> = {};
+    for (let n = 1; n <= 72; n += 1) {
+      matchPredictions[String(n)] = {
+        matchId: String(n),
+        outcome: "home_win",
+        lockedAt: "2026-06-01T00:00:00Z",
+      };
+    }
+    const knockoutPredictions: Record<string, { matchId: string; outcome: string; lockedAt: string }> = {};
+    for (let n = 1; n <= 16; n += 1) {
+      knockoutPredictions[`r32_${String(n).padStart(2, "0")}`] = {
+        matchId: `r32_${String(n).padStart(2, "0")}`,
+        outcome: "home_win",
+        lockedAt: "2026-06-01T00:00:00Z",
+      };
+    }
+    for (let n = 1; n <= 8; n += 1) {
+      knockoutPredictions[`r16_${String(n).padStart(2, "0")}`] = {
+        matchId: `r16_${String(n).padStart(2, "0")}`,
+        outcome: "home_win",
+        lockedAt: "2026-06-01T00:00:00Z",
+      };
+    }
+    for (let n = 1; n <= 4; n += 1) {
+      knockoutPredictions[`qf_${String(n).padStart(2, "0")}`] = {
+        matchId: `qf_${String(n).padStart(2, "0")}`,
+        outcome: "home_win",
+        lockedAt: "2026-06-01T00:00:00Z",
+      };
+    }
+    for (let n = 1; n <= 2; n += 1) {
+      knockoutPredictions[`sf_${String(n).padStart(2, "0")}`] = {
+        matchId: `sf_${String(n).padStart(2, "0")}`,
+        outcome: "home_win",
+        lockedAt: "2026-06-01T00:00:00Z",
+      };
+    }
+    knockoutPredictions["tp_01"] = {
+      matchId: "tp_01",
+      outcome: "home_win",
+      lockedAt: "2026-06-01T00:00:00Z",
+    };
+    knockoutPredictions["final"] = {
+      matchId: "final",
+      outcome: "home_win",
+      lockedAt: "2026-06-01T00:00:00Z",
+    };
+
+    const res = await app.inject({
+      method: "POST",
+      url: "/v1/bracket/submit",
+      payload: {
+        tournament_id: "fifa-wc-2026",
+        user_id: "u_tim_canonical",
+        bracket: {
+          bracketId: "bk_tim_canonical",
+          matchPredictions,
+          groupTiebreakers: {},
+          knockoutPredictions,
+          lockedAt: "2026-06-01T00:00:00Z",
+          version: 2,
+        },
+      },
+    });
+    expect(res.statusCode).toBe(201);
+    const guid = res.json().share_guid;
+
+    const lookup = await app.inject({
+      method: "GET",
+      url: `/v1/bracket/by-guid/${guid}`,
+    });
+    expect(lookup.statusCode).toBe(200);
+    const body = lookup.json();
+    expect(body.ok).toBe(true);
+    // The exact code depends on the fixture set's group-A composition;
+    // assert it's a real ISO-3 code (not null, not "TBD").
+    expect(body.bracket.champion_code).toMatch(/^[A-Z]{3}$/);
+    expect(body.bracket.runner_up_code).toMatch(/^[A-Z]{3}$/);
+    expect(body.bracket.knockout_path.length).toBe(4);
+    // Every opponent should be a real ISO-3 code, not null.
+    for (const entry of body.bracket.knockout_path) {
+      expect(entry.opponent_code).toMatch(/^[A-Z]{3}$/);
+    }
+  });
+
+  it("GET /v1/bracket/by-guid/<guid>?include=payload returns the full bracket JSON", async () => {
+    const { app } = await built;
+    const submit = await app.inject({
+      method: "POST",
+      url: "/v1/bracket/submit",
+      payload: {
+        tournament_id: "fifa-wc-2026",
+        user_id: "u_payload",
+        bracket: makeBracket("bk_payload", {
+          "1": makeMatchPrediction("1", "home_win"),
+          "2": makeMatchPrediction("2", "away_win"),
+        }),
+      },
+    });
+    expect(submit.statusCode).toBe(201);
+    const guid = submit.json().share_guid;
+
+    const lookup = await app.inject({
+      method: "GET",
+      url: `/v1/bracket/by-guid/${guid}?include=payload`,
+    });
+    expect(lookup.statusCode).toBe(200);
+    const body = lookup.json();
+    expect(body.ok).toBe(true);
+    expect(body.bracket.payload).toBeTruthy();
+    expect(body.bracket.payload.matchPredictions["1"].outcome).toBe("home_win");
+    expect(body.bracket.payload.matchPredictions["2"].outcome).toBe("away_win");
+
+    // Without the include flag the payload is omitted.
+    const naked = await app.inject({
+      method: "GET",
+      url: `/v1/bracket/by-guid/${guid}`,
+    });
+    expect(naked.statusCode).toBe(200);
+    expect(naked.json().bracket.payload).toBeUndefined();
+  });
+
   it("GET /v1/bracket/by-guid/<guid> returns 404 for an unknown guid", async () => {
     const { app } = await built;
     const res = await app.inject({
