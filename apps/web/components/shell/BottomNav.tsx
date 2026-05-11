@@ -20,6 +20,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { track } from "@/lib/analytics";
+
 import {
   HomeIcon,
   PredictIcon,
@@ -129,6 +131,13 @@ export function BottomNav({
             className="vt-bottomnav-tab"
             aria-current={isActive ? "page" : undefined}
             data-raised={tab.raised ? "1" : undefined}
+            onClick={() => {
+              track("nav.tab.changed", {
+                label: tab.label,
+                href: tab.href,
+                surface: "bottomnav",
+              });
+            }}
           >
             <span className="vt-bottomnav-icon">{tab.icon}</span>
             <span>{tab.label}</span>
@@ -139,7 +148,10 @@ export function BottomNav({
         <button
           type="button"
           className="vt-bottomnav-tab vt-bottomnav-tab-menu"
-          onClick={onMenuClick}
+          onClick={() => {
+            track("nav.menu.opened", { surface: "bottomnav" });
+            onMenuClick();
+          }}
           aria-label="Open menu"
           aria-haspopup="dialog"
         >

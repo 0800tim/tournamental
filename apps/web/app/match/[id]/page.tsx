@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic";
 
+import { RouteEvent } from "@/components/analytics/RouteEvent";
 import { AppShell } from "@/components/shell";
 
 // MatchScene is client-only — Three.js needs a real DOM and WebGL context.
@@ -49,6 +50,10 @@ export default function MatchPage({ params, searchParams }: MatchPageProps) {
       showBottomNav={false}
       showSideRail={false}
     >
+      <RouteEvent
+        name="match.opened"
+        payload={{ match_id: params.id, source }}
+      />
       <MatchScene source={source} matchId={params.id} />
     </AppShell>
   );

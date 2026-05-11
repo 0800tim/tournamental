@@ -65,8 +65,20 @@ const PHRASES = HEADLINE.map((p) => {
         Tournamental is a global tournament prediction game with a verified, 3D match-renderer watch-along. Make a call, see the goals replay, climb the leaderboard. Spin up a private pool at <strong class="text-white">yourname.tournamental.com</strong> for your office, your group chat, or the world.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
-        <a href={demoUrl} class="btn-primary vt-glow-cta">Watch the AR-FR replay</a>
-        <a href="/how-it-works" class="btn-ghost">How it works</a>
+        <a
+          href={demoUrl}
+          class="btn-primary vt-glow-cta"
+          data-analytics="cta"
+          data-analytics-label="Watch the AR-FR replay"
+          data-analytics-surface="hero"
+        >Watch the AR-FR replay</a>
+        <a
+          href="/how-it-works"
+          class="btn-ghost"
+          data-analytics="cta"
+          data-analytics-label="How it works"
+          data-analytics-surface="hero"
+        >How it works</a>
       </div>
       <p class="mt-6 text-sm text-ink-500">100% open source · Apache 2.0 · contributors share platform revenue.</p>
     </div>

@@ -1,0 +1,123 @@
+---
+/**
+ * Marketing-site GTM + dataLayer bootstrap.
+ *
+ * Mounted in `Layout.astro` (head + body). Responsibilities:
+ *
+ *  1. Inline the GTM `<script>` snippet so the dataLayer + GTM container
+ *     are live before the first paint completes. Astro pages are mostly
+ *     server-rendered HTML, so we want the analytics surface up as soon
+ *     as the browser parses <head>.
+ *  2. Expose `window.tournamental.track(name, payload)` for vanilla
+ *     Astro pages that need to fire an event without importing a TS
+ *     module. The shape mirrors the React SDK in `apps/web/lib/analytics`.
+ *  3. Render the `<noscript>` iframe fallback in <body> for JS-disabled
+ *     browsers.
+ *  4. Auto-fire `tournamental.page.view` on every page load (initial +
+ *     Astro view transitions if they're ever enabled).
+ *  5. Auto-instrument the marketing-site CTAs by data-attribute:
+ *     anything with `data-analytics="cta"` fires
+ *     `tournamental.cta.clicked` with `{ label, href }`.
+ *
+ * When `PUBLIC_GTM_ID` is unset (Tim's container is still pending per
+ * docs/26-setup-checklist.md) we render NOTHING — no script, no banner,
+ * no fallback. This keeps the unconfigured marketing site clean.
+ *
+ * Astro env-var convention: variables prefixed `PUBLIC_*` are exposed
+ * to client code at build-time. We also fall back to `NEXT_PUBLIC_GTM_ID`
+ * so a single root `.env` works for both the Next and Astro apps.
+ */
+
+const gtmId =
+  import.meta.env.PUBLIC_GTM_ID ??
+  import.meta.env.NEXT_PUBLIC_GTM_ID ??
+  "";
+
+const enabled = typeof gtmId === "string" && gtmId.length >= 4 && !gtmId.includes(" ");
+---
+
+{
+  enabled && (
+    <>
+      {/* GTM bootstrap with consent-mode v2 defaults. Mirrors the
+          React SDK so both surfaces push into the same container with
+          the same gating. */}
+      <script is:inline define:vars={{ gtmId }}>
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('consent', 'default', {
+            analytics_storage: 'granted',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied'
+          });
+          (function(w,d,s,l,i){
+            w[l]=w[l]||[];
+            w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+            var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),
+                dl=l!='dataLayer'?'&l='+l:'';
+            j.async=true;
+            j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+            f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer','${gtmId}');
+
+          // ─── Marketing-site bridge ───────────────────────────────────
+          // Expose window.tournamental.track() so Astro islands can fire
+          // events without importing a TS module. Same envelope shape as
+          // the React SDK in apps/web.
+          window.tournamental = window.tournamental || {};
+          window.tournamental.track = function (name, payload) {
+            try {
+              if (!window.dataLayer) window.dataLayer = [];
+              var debug = false;
+              try { debug = localStorage.getItem('tournamental_analytics_debug') === '1'; } catch (e) {}
+              var env = Object.assign({ event: 'tournamental.' + name }, payload || {});
+              if (debug) console.debug('[tournamental.analytics]', env);
+              window.dataLayer.push(env);
+            } catch (e) {
+              console.warn('[tournamental.analytics] push failed', e);
+            }
+          };
+
+          // ─── Auto page.view ──────────────────────────────────────────
+          // Fire once per document load. Astro view transitions emit
+          // 'astro:page-load' on every soft nav — listen for that too.
+          function vt_pageview() {
+            try {
+              window.tournamental.track('page.view', {
+                path: location.pathname,
+                title: document.title,
+                host: location.host,
+                referrer: document.referrer || null
+              });
+            } catch (e) {}
+          }
+          if (document.readyState !== 'loading') vt_pageview();
+          else document.addEventListener('DOMContentLoaded', vt_pageview);
+          document.addEventListener('astro:page-load', vt_pageview);
+
+          // ─── Auto CTA instrumentation ────────────────────────────────
+          // Any anchor / button with [data-analytics="cta"] fires
+          // tournamental.cta.clicked. Page authors don't need to know
+          // about the SDK.
+          document.addEventListener('click', function (e) {
+            var el = e.target;
+            while (el && el !== document.body) {
+              if (el.dataset && el.dataset.analytics === 'cta') {
+                window.tournamental.track('cta.clicked', {
+                  label: (el.dataset.analyticsLabel || el.textContent || '').trim().slice(0, 80),
+                  href: el.getAttribute('href') || null,
+                  surface: el.dataset.analyticsSurface || location.pathname
+                });
+                return;
+              }
+              el = el.parentNode;
+            }
+          }, { capture: true });
+        `}
+      </script>
+    </>
+  )
+}

@@ -2,6 +2,8 @@
 import "@/styles/globals.css";
 import Header from "@/components/Header.astro";
 import Footer from "@/components/Footer.astro";
+import Analytics from "@/components/Analytics.astro";
+import AnalyticsNoScript from "@/components/AnalyticsNoScript.astro";
 
 interface Props {
   title?: string;
@@ -50,6 +52,8 @@ const absoluteOgImage = ogImage.startsWith("http")
       crossorigin
     />
     <meta name="generator" content={Astro.generator} />
+    {/* GTM + dataLayer bootstrap. No-ops when PUBLIC_GTM_ID is unset. */}
+    <Analytics />
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
@@ -140,6 +144,9 @@ const absoluteOgImage = ogImage.startsWith("http")
     </style>
   </head>
   <body class="min-h-screen flex flex-col">
+    {/* GTM noscript fallback per Google's install spec — must be the
+        first child of <body>. */}
+    <AnalyticsNoScript />
     <Header />
     <main class="flex-1">
       <slot />
