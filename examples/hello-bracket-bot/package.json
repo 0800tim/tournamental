@@ -1,0 +1,12 @@
+{
+  "name": "@tournamental/example-hello-bracket-bot",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Minimal Node example: build + submit a randomised 2026 World Cup bracket via personal API key.",
+  "type": "module",
+  "bin": "./index.mjs",
+  "scripts": {
+    "start": "node index.mjs"
+  },
+  "license": "Apache-2.0"
+}

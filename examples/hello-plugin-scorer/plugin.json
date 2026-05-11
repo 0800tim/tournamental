@@ -1,0 +1,17 @@
+{
+  "name": "@tournamental-plugin/example-hello-scorer",
+  "version": "0.0.1",
+  "description": "Minimal scorer example. Awards a fixed 10 points per correct match outcome. The thinnest possible reference for the scorer extension point.",
+  "sdkRange": "^0.1.0",
+  "provides": ["scorer"],
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Tournamental contributors",
+    "url": "https://tournamental.com"
+  },
+  "repository": "https://github.com/0800tim/tournamental",
+  "permissions": {
+    "dom": "none"
+  },
+  "tags": ["scorer", "example"]
+}

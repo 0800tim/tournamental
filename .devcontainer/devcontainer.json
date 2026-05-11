@@ -1,0 +1,55 @@
+{
+  "name": "Tournamental",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:20-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/python:1": {
+      "version": "3.11",
+      "installTools": false
+    },
+    "ghcr.io/devcontainers/features/ffmpeg-apt-get:1": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {},
+    "ghcr.io/va-h/devcontainers-features/uv:1": {}
+  },
+  "forwardPorts": [
+    3300,
+    3310,
+    3320,
+    3340,
+    3360,
+    4001,
+    4002,
+    5435,
+    6380
+  ],
+  "portsAttributes": {
+    "3300": { "label": "apps/web (bracket app)" },
+    "3310": { "label": "apps/api" },
+    "3320": { "label": "apps/marketing" },
+    "3340": { "label": "apps/admin" },
+    "3360": { "label": "apps/game" },
+    "4001": { "label": "producer WS" },
+    "4002": { "label": "stream-server WS" },
+    "5435": { "label": "Postgres" },
+    "6380": { "label": "Redis" }
+  },
+  "postCreateCommand": "npm install -g pnpm@9 && pnpm install",
+  "postStartCommand": "bash infra/scripts/db-up.sh || echo 'db-up: skipped (already running or docker unavailable)'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "astro-build.astro-vscode",
+        "bradlc.vscode-tailwindcss",
+        "ms-python.python",
+        "charliermarsh.ruff",
+        "github.copilot",
+        "anthropic.claude-code"
+      ]
+    }
+  },
+  "remoteUser": "node",
+  "containerEnv": {
+    "NODE_OPTIONS": "--max-old-space-size=4096"
+  }
+}
