@@ -173,7 +173,7 @@ export function LockSummary(props: LockSummaryProps) {
         <a
           className="btn-primary bracket-affiliate-cta"
           data-testid="boldest-pick-cta"
-          href={`https://2026wc.tournamental.com/odds/${boldestPick.matchId}`}
+          href={`https://play.tournamental.com/odds/${boldestPick.matchId}`}
         >
           Back your boldest pick →
         </a>

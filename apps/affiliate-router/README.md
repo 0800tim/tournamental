@@ -151,7 +151,7 @@ environment.
 | `AFFILIATE_DB_PATH`                | no                | `./data/clicks.db`                       | SQLite path; `:memory:` for tests |
 | `AFFILIATE_PARTNERS_PATH`          | no                | `./data/partners.json`                   | partner registry path override |
 | `AFFILIATE_USER_HASH_SALT`         | **prod**          | `change-me-32-random-bytes-please`       | min 16 chars; rotating invalidates dedupe |
-| `AFFILIATE_CORS_ORIGINS`           | no                | `https://tournamental.com,https://2026wc.tournamental.com` | csv |
+| `AFFILIATE_CORS_ORIGINS`           | no                | `https://tournamental.com,https://play.tournamental.com` | csv |
 | `AFFILIATE_RATE_LIMIT_MAX`         | no                | `30`                                     | per-IP per minute |
 | `AFFCODE_POLYMARKET`               | prod              | (real Polymarket affiliate code)         | overrides JSON placeholder |
 | `AFFCODE_BET365`                   | prod              | (real Bet365 affiliate code)             | overrides JSON placeholder |

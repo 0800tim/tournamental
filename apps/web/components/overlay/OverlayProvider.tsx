@@ -5,7 +5,7 @@
  * Behaviour:
  * - On mount, parses the current `window.location.search` into the
  *   initial stack so a deep-link like
- *   `https://2026wc.tournamental.com/world-cup-2026?overlay=team&code=NZL`
+ *   `https://play.tournamental.com/world-cup-2026?overlay=team&code=NZL`
  *   opens with the team overlay already on top.
  * - Every `open()/close()/replace()` mutates the stack AND pushes (or
  *   replaces) a history entry so the browser back button unwinds

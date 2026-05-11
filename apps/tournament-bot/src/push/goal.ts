@@ -41,7 +41,7 @@ export async function sendGoalPush(
   const text = [
     `${push.team_name} just scored — *${push.scoreline}*.`,
     bracketLine,
-    `https://2026wc.tournamental.com/match/${push.match_id}`,
+    `https://play.tournamental.com/match/${push.match_id}`,
   ]
     .filter(Boolean)
     .join("\n");

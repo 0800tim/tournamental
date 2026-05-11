@@ -118,6 +118,6 @@ test.describe("Mobile drawer", () => {
     // CTA is also present at the foot of the drawer.
     const cta = page.locator("#mobile-menu .vt-mobile-cta");
     await expect(cta).toBeVisible();
-    expect(await cta.getAttribute("href")).toContain("2026wc.tournamental.com");
+    expect(await cta.getAttribute("href")).toContain("play.tournamental.com");
   });
 });

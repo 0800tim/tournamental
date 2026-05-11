@@ -6,7 +6,7 @@ import type { Context } from "grammy";
 import type { BotDeps } from "../bots/main.js";
 
 const BRACKET_BASE_URL =
-  process.env.TOURNAMENTAL_BRACKET_BASE_URL ?? "https://2026wc.tournamental.com";
+  process.env.TOURNAMENTAL_BRACKET_BASE_URL ?? "https://play.tournamental.com";
 
 export async function handlePicks(ctx: Context, deps: BotDeps): Promise<void> {
   if (!ctx.chat) return;

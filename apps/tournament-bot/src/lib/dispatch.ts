@@ -226,7 +226,7 @@ function handlePicks(user: TgUser, deps: DispatchDeps): DispatchReply[] {
   const bracketBase =
     deps.env?.bracketBaseUrl ??
     process.env.TOURNAMENTAL_BRACKET_BASE_URL ??
-    "https://2026wc.tournamental.com";
+    "https://play.tournamental.com";
 
   if (!user.user_id) {
     return [

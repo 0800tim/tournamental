@@ -1,8 +1,8 @@
 /**
  * /world-cup-2026/landing — the WC 2026 hype/marketing landing page.
  *
- * This is the host-aware apex for `2026wc.tournamental.com` and
- * `wc2026.tournamental.com` (rewritten from `/` in `apps/web/middleware.ts`). It
+ * This is the host-aware apex for `play.tournamental.com` and
+ * `play.tournamental.com` (rewritten from `/` in `apps/web/middleware.ts`). It
  * does NOT replace `/world-cup-2026` (the bracket builder) — that route is
  * still the destination of every "Play the bracket game" CTA.
  *
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     title: "Tournamental — FIFA World Cup 2026 prediction game",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
-    url: "https://2026wc.tournamental.com/",
+    url: "https://play.tournamental.com/",
     siteName: "Tournamental",
     type: "website",
     images: [

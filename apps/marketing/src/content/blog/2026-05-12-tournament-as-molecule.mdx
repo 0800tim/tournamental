@@ -11,7 +11,7 @@ heroImageCredit: "Photo by Mitch Rosen on Unsplash (Unsplash Licence)"
 
 Every bracket UI we have ever seen is the same picture: a flat tree, expanded left-to-right or top-to-bottom, with team names crammed into cells. Yahoo's, ESPN's, the Telegraph Predictor's, our own first cut — they all read like a printed wall-chart that someone digitised. They tell you what is _in_ the bracket; they do not tell you anything about the **shape** of the tournament, the relative weight of each pick, who got close, who is on the rim.
 
-Last night we shipped a different view: the bracket as a **3D molecule** at [`2026wc.tournamental.com/world-cup-2026/molecule`](https://2026wc.tournamental.com/world-cup-2026/molecule). 48 teams are atoms. Edges between them are bonds, drawn for every match. Your predicted champion sits at the centre, glowing gold. Your runner-up and third-place picks orbit close. Eliminated-in-the-quarters teams sit a ring further out. R16 losers further still. The 16 teams that you predicted would crash out of the group stage form the outer cloud.
+Last night we shipped a different view: the bracket as a **3D molecule** at [`play.tournamental.com/world-cup-2026/molecule`](https://play.tournamental.com/world-cup-2026/molecule). 48 teams are atoms. Edges between them are bonds, drawn for every match. Your predicted champion sits at the centre, glowing gold. Your runner-up and third-place picks orbit close. Eliminated-in-the-quarters teams sit a ring further out. R16 losers further still. The 16 teams that you predicted would crash out of the group stage form the outer cloud.
 
 You can rotate the whole thing. Click an atom and the side panel shows the team's predicted path. Toggle to the **consensus bracket** (the auto-pick favourites) and watch your atoms reshuffle relative to where the market thinks they belong.
 
@@ -96,7 +96,7 @@ Files-level, for the curious:
 
 Around 1,200 lines of TypeScript total. The scene renders 48 spheres + ~80 bonds at locked 60 fps on a 2022 Pixel 6 and a 2020 iPhone SE. R3F is dramatically over-provisioned for this — it would happily render 10x the geometry — but the cap keeps the bundle slim (the route weighs in at 14.3 kB gzipped on first load, with the R3F runtime already amortised across the renderer route).
 
-The first commit was at 11pm local time. The first acceptable screenshot was at 12:30am. The PR landed at 01:42am. The v1 was up at [tournamental.com/world-cup-2026/molecule](https://2026wc.tournamental.com/world-cup-2026/molecule) before sunrise.
+The first commit was at 11pm local time. The first acceptable screenshot was at 12:30am. The PR landed at 01:42am. The v1 was up at [tournamental.com/world-cup-2026/molecule](https://play.tournamental.com/world-cup-2026/molecule) before sunrise.
 
 ## Why this is gamification
 
@@ -118,4 +118,4 @@ The deferred work:
 - **Animated reveal MP4** — Remotion-style 6-second video file, queued for the share-cards pipeline.
 - **VR mode** — for absolutely no good reason except that it sounds fun. We have the R3F scene; switching it to a WebXR session is one line. Whether anybody puts a Quest on to look at their World Cup bracket is a different question.
 
-If you want to see your bracket as a molecule, save at least your champion and runner-up over at [`/world-cup-2026`](https://2026wc.tournamental.com/world-cup-2026), then walk over to [`/world-cup-2026/molecule`](https://2026wc.tournamental.com/world-cup-2026/molecule). The atoms are waiting.
+If you want to see your bracket as a molecule, save at least your champion and runner-up over at [`/world-cup-2026`](https://play.tournamental.com/world-cup-2026), then walk over to [`/world-cup-2026/molecule`](https://play.tournamental.com/world-cup-2026/molecule). The atoms are waiting.

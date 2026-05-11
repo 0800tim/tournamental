@@ -32,7 +32,7 @@ function buildIcs(match: UpcomingMatch): string {
     `DTSTART:${fmt(start)}`,
     `DTEND:${fmt(end)}`,
     `SUMMARY:${match.home.name} vs ${match.away.name} — FIFA WC 2026`,
-    `DESCRIPTION:Group stage match #${match.match_number}. Save your bracket at https://2026wc.tournamental.com/world-cup-2026`,
+    `DESCRIPTION:Group stage match #${match.match_number}. Save your bracket at https://play.tournamental.com/world-cup-2026`,
     `LOCATION:${match.host_city_id.replaceAll("_", " ")}`,
     "END:VEVENT",
     "END:VCALENDAR",
