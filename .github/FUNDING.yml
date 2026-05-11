@@ -1,0 +1,11 @@
+# Tournamental funding configuration.
+#
+# Primary contributor-revenue mechanism is the Drips Network treasury,
+# which streams a fixed percentage of net affiliate revenue to scored
+# contributors quarterly (see docs/19-open-source-and-contributor-revenue.md).
+# GitHub Sponsors is offered as a secondary, one-shot route for individuals
+# who want to back the project directly.
+
+github: 0800tim
+custom:
+  - "https://www.drips.network/app/projects/github/0800tim/tournamental"
