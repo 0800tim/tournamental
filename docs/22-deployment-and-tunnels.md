@@ -39,7 +39,7 @@ The match-stream WebSocket gets its own dev hostname so Cloudflare's Tunnel clea
 
 ## Port assignments (dev)
 
-This is the single source of truth. **Update this file in the same PR as any port change.** All ports are in the 3300/4001 ranges to avoid clawdia's allocations (3001, 8888, 9201–9274, etc.) and Tim's other client work.
+This is the single source of truth. **Update this file in the same PR as any port change.** All ports are in the 3300/4001 ranges to keep room for other services running on the same dev host.
 
 | Service                    | Port  | Prod hostname                                          | Notes                                                                                |
 | -------------------------- | ----- | ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
@@ -59,8 +59,8 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/clip-pipeline`       | 3380  | `clip.tournamental.com`                                | Fastify + ffmpeg clip render service (per docs/14).                                  |
 | `apps/mcp`                 | 3395  | `mcp.tournamental.com`                                 | Fastify + MCP Streamable HTTP. Model Context Protocol server exposing the tournament API to AI agents (Claude Desktop, Cursor, Windsurf, Continue). See [docs/53](53-mcp-server.md).      |
 | `apps/news-aggregator`     | 3402  | `news.tournamental.com`                                | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). |
-| Postgres (dev DB)          | 5435  | n/a                                                    | Docker container. Avoid clashing with clawdia (5433).                                |
-| Redis (dev cache)          | 6380  | n/a                                                    | Docker container. Avoid clashing with clawdia (6379).                                |
+| Postgres (dev DB)          | 5435  | n/a                                                    | Docker container. 5433 / 5432 left for other Postgres instances on the dev host.     |
+| Redis (dev cache)          | 6380  | n/a                                                    | Docker container. 6379 left for other Redis instances on the dev host.               |
 
 Production maps to the same internal ports inside the container; the public ports are 80/443 fronted by Cloudflare.
 

@@ -304,7 +304,7 @@ The renderer reads from the WebSocket the producer emits on. At `time-scale=10`,
 
 ## Performance and caching are paramount
 
-Tim's standing rule: **performance and caching are reviewed on every PR**. Read [docs/22-deployment-and-tunnels.md](docs/22-deployment-and-tunnels.md) for the full caching matrix and budgets. The TL;DR for every code agent:
+Maintainer rule: **performance and caching are reviewed on every PR**. Read [docs/22-deployment-and-tunnels.md](docs/22-deployment-and-tunnels.md) for the full caching matrix and budgets. The TL;DR for every code agent:
 
 1. **Public surfaces have an explicit cache policy.** No new route ships without one. Defaults:
    - Static asset (hashed filename): `Cache-Control: public, max-age=31536000, immutable`.

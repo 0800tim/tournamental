@@ -65,32 +65,32 @@ pm2 env <pm-id> | grep -i <var-name> | sed 's/=.*$/=<set>/'
 ## Where to find each file
 
 ```
-/home/clawdbot/clawdia/projects/vtorn/.env                           # top-level
-/home/clawdbot/clawdia/projects/vtorn/apps/admin/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/affiliate-router/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/api/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/auth-sms/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/clip-pipeline/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/crm-bridge/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/dm-otp/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/dm-poll-forwarder/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/drips-bridge/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/game/.env                 # alias for dev
-/home/clawdbot/clawdia/projects/vtorn/apps/game/.env.production      # real prod
-/home/clawdbot/clawdia/projects/vtorn/apps/identity/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/marketing/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/mcp/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/news-aggregator/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/odds-ingest/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/pr-triage-bot/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/push-notifications/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/security-watchdog/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/social-publisher/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/stream-server/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/tournament-bot/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/vstamp/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/wc2026-data/.env
-/home/clawdbot/clawdia/projects/vtorn/apps/web/.env.production
+.env                           # top-level
+apps/admin/.env
+apps/affiliate-router/.env
+apps/api/.env
+apps/auth-sms/.env
+apps/clip-pipeline/.env
+apps/crm-bridge/.env
+apps/dm-otp/.env
+apps/dm-poll-forwarder/.env
+apps/drips-bridge/.env
+apps/game/.env                 # alias for dev
+apps/game/.env.production      # real prod
+apps/identity/.env
+apps/marketing/.env
+apps/mcp/.env
+apps/news-aggregator/.env
+apps/odds-ingest/.env
+apps/pr-triage-bot/.env
+apps/push-notifications/.env
+apps/security-watchdog/.env
+apps/social-publisher/.env
+apps/stream-server/.env
+apps/tournament-bot/.env
+apps/vstamp/.env
+apps/wc2026-data/.env
+apps/web/.env.production
 ```
 
 All are gitignored. Treat them like passwords — never paste into Slack/Discord/screenshots.

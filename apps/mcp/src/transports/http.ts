@@ -1,8 +1,7 @@
 /**
  * HTTP + SSE transport for the MCP server.
  *
- * Hosted at https://mcp.tournamental.com (prod) and
- * https://vtorn-mcp.aiva.nz (dev). Three surfaces:
+ * Hosted at https://mcp.tournamental.com (prod). Three surfaces:
  *
  *   POST /mcp        - MCP JSON-RPC, streamed via SSE per the
  *                       MCP "Streamable HTTP" transport spec.

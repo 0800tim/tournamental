@@ -57,7 +57,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/game",
     snapshotName: "game",
     url: {
-      dev: "https://vtorn-game.aiva.nz",
+      dev: "http://localhost:3360",
       prod: "https://game.tournamental.com",
     },
   },
@@ -71,7 +71,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/identity",
     snapshotName: "identity",
     url: {
-      dev: "https://vtorn-identity.aiva.nz",
+      dev: "http://localhost:3350",
       prod: "https://identity.tournamental.com",
     },
   },
@@ -85,7 +85,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/vstamp",
     snapshotName: "vstamp",
     url: {
-      dev: "https://vtorn-vstamp.aiva.nz",
+      dev: "http://localhost:3390",
       prod: "https://vstamp.tournamental.com",
     },
   },
@@ -99,7 +99,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/affiliate-router",
     snapshotName: "affiliate-router",
     url: {
-      dev: "https://vtorn-aff.aiva.nz",
+      dev: "http://localhost:3370",
       prod: "https://aff.tournamental.com",
     },
   },
@@ -113,7 +113,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/drips-bridge",
     snapshotName: "drips-bridge",
     url: {
-      dev: "https://vtorn-drips.aiva.nz",
+      dev: "http://localhost:3392",
       prod: "https://drips.tournamental.com",
     },
   },
@@ -127,7 +127,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/news-aggregator",
     snapshotName: "news-aggregator",
     url: {
-      dev: "https://vtorn-news.aiva.nz",
+      dev: "http://localhost:3344",
       prod: "https://news.tournamental.com",
     },
   },
@@ -140,7 +140,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/clip-pipeline",
     snapshotName: "clip-pipeline",
     url: {
-      dev: "https://vtorn-clip.aiva.nz",
+      dev: "http://localhost:3380",
       prod: "https://clip.tournamental.com",
     },
   },
@@ -154,7 +154,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/odds-ingest",
     snapshotName: "odds-ingest",
     url: {
-      dev: "https://vtorn-odds.aiva.nz",
+      dev: "http://localhost:3341",
       prod: "https://odds.tournamental.com",
     },
   },
@@ -168,7 +168,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/wc2026-data",
     snapshotName: "wc2026-data",
     url: {
-      dev: "https://vtorn-wc2026.aiva.nz",
+      dev: "http://localhost:3346",
       prod: "https://wc2026.tournamental.com",
     },
   },
@@ -182,7 +182,7 @@ export const API_SERVICES: ApiService[] = [
     source: "apps/api",
     snapshotName: "api",
     url: {
-      dev: "https://vtorn-api.aiva.nz",
+      dev: "http://localhost:3310",
       prod: "https://api.tournamental.com",
     },
   },
