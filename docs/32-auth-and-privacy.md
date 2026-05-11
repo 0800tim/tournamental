@@ -1,5 +1,16 @@
 # 32 — Auth (SMS / WhatsApp) and Privacy
 
+> **Update 2026-05-12 — production trust model is now Supabase Auth.**
+> The bespoke `apps/auth-sms` service described below is **legacy**:
+> kept around for the SMS-OTP flow during the hand-over but slated for
+> retirement once the Supabase rollout (see [doc 52](52-supabase-setup.md))
+> is bedded in. The dev-trust `X-User-Id` header still works in lower
+> environments behind `GAME_DEV_AUTH=1`; production validates Supabase
+> JWTs via the `Authorization: Bearer <token>` header.
+>
+> Read [doc 52](52-supabase-setup.md) first. The privacy posture below
+> still applies (data minimisation, retention, GDPR / NZ Privacy Act).
+
 > Phone-number-only OTP login service (`apps/auth-sms`) sits alongside
 > the Telegram-first auth from [doc 13](13-telegram-bot-and-auth.md)
 > and the social / passkey paths from [doc 20](20-identity-humanness-bots.md).

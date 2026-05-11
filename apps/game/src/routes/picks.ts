@@ -47,18 +47,15 @@ import {
   checkLockable,
   type KickoffRegistry,
 } from "../kickoffs.js";
+import { resolveUserId as resolveCallerId } from "./identity.js";
 
 // ---------- helpers ----------
 
 function resolveUserId(req: FastifyRequest): string | null {
-  const headerUser = req.headers["x-user-id"];
-  if (typeof headerUser === "string" && headerUser.length > 0) return headerUser;
-  if (Array.isArray(headerUser) && headerUser[0]) return headerUser[0];
-  const qs = req.query as Record<string, unknown> | undefined;
-  if (qs && typeof qs.user_id === "string" && qs.user_id.length > 0) {
-    return qs.user_id;
-  }
-  return null;
+  return resolveCallerId(req, {
+    devAuth: process.env.GAME_DEV_AUTH === "1" || process.env.NODE_ENV !== "production",
+    jwtSecret: process.env.SUPABASE_JWT_SECRET ?? null,
+  });
 }
 
 function isKnockoutStage(stage: string | null): boolean {
