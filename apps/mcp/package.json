@@ -1,0 +1,63 @@
+{
+  "name": "@tournamental/mcp",
+  "version": "0.1.0",
+  "description": "Tournamental Model Context Protocol server - exposes the tournament API as a tool surface for Claude Desktop, Cursor, Windsurf, Continue and other MCP-aware agents.",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/0800tim/tournamental",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0800tim/tournamental.git",
+    "directory": "apps/mcp"
+  },
+  "type": "module",
+  "main": "dist/server.js",
+  "bin": {
+    "tournamental-mcp": "dist/bin/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "tsx watch src/bin/cli.ts --mode=http",
+    "dev:stdio": "tsx watch src/bin/cli.ts --mode=stdio",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/bin/cli.js --mode=http",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "tsc -p tsconfig.json"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "tournamental",
+    "claude",
+    "anthropic",
+    "tournament",
+    "prediction",
+    "fifa",
+    "world-cup"
+  ],
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.29.0",
+    "@fastify/cors": "^10.0.1",
+    "@fastify/helmet": "^12.0.1",
+    "fastify": "^5.0.0",
+    "pino": "^9.5.0",
+    "zod": "^3.23.8",
+    "zod-to-json-schema": "^3.23.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

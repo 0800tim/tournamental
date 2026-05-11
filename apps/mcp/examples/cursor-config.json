@@ -1,0 +1,13 @@
+{
+  "// _comment": "Add to `~/.cursor/mcp.json` (global) or `<project>/.cursor/mcp.json` (per-project). Cursor spawns the command on its own when you toggle the MCP server on. Replace YOUR_USER_KEY_HERE with the API key from https://play.tournamental.com/account/keys.",
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": {
+        "TOURNAMENTAL_USER_KEY": "YOUR_USER_KEY_HERE",
+        "GAME_BASE_URL": "https://game.tournamental.com"
+      }
+    }
+  }
+}

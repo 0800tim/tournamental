@@ -31,6 +31,7 @@ Maintainers run dev on whatever local hostname their Cloudflare tunnel is config
 | Affiliate router | `<dev>` → `:3370`                              | `aff-dev.tournamental.com`                  | `aff.tournamental.com`          |
 | VStamp receipts  | `<dev>` → `:3390`                              | `vstamp-dev.tournamental.com`               | `vstamp.tournamental.com`       |
 | Clip pipeline    | `<dev>` → `:3380`                              | `clip-dev.tournamental.com`                 | `clip.tournamental.com`         |
+| MCP server       | `<dev>` → `:3395`                              | `mcp-dev.tournamental.com`                  | `mcp.tournamental.com`          |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -56,6 +57,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/affiliate-router`    | 3370  | `aff.tournamental.com`                                 | Fastify (geo-gated affiliate click resolver + audit log per docs/30).                |
 | `apps/vstamp`              | 3390  | `vstamp.tournamental.com`                              | Fastify (Merkle-signed prediction receipts; doc 17).                                 |
 | `apps/clip-pipeline`       | 3380  | `clip.tournamental.com`                                | Fastify + ffmpeg clip render service (per docs/14).                                  |
+| `apps/mcp`                 | 3395  | `mcp.tournamental.com`                                 | Fastify + MCP Streamable HTTP. Model Context Protocol server exposing the tournament API to AI agents (Claude Desktop, Cursor, Windsurf, Continue). See [docs/53](53-mcp-server.md).      |
 | `apps/news-aggregator`     | 3402  | `news.tournamental.com`                                | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). |
 | Postgres (dev DB)          | 5435  | n/a                                                    | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | n/a                                                    | Docker container. Avoid clashing with clawdia (6379).                                |
