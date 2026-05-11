@@ -1,0 +1,89 @@
+---
+/**
+ * /api/<slug>, single-service deep-link Scalar reference.
+ *
+ * Builds one page per entry in `public/api/manifest.json`. The page
+ * mounts Scalar against the per-service slice JSON
+ * (`/api/<slug>.openapi.json`) which preserves the service's original
+ * path scheme (no `/_/<slug>/` namespace prefix). That means an
+ * integrator can copy a curl command straight from the doc and hit the
+ * service directly without rewriting paths.
+ */
+import Layout from "@/layouts/Layout.astro";
+import manifest from "../../../public/api/manifest.json";
+
+export async function getStaticPaths() {
+  const m = manifest as {
+    services: Array<{
+      slug: string;
+      name: string;
+      description: string;
+      pkg: string;
+      auth: string;
+      mode: string;
+      paths: number;
+      source?: string;
+    }>;
+  };
+  return m.services.map((s) => ({ params: { service: s.slug }, props: { service: s } }));
+}
+
+interface Props {
+  service: {
+    slug: string;
+    name: string;
+    description: string;
+    pkg: string;
+    auth: string;
+    mode: string;
+    paths: number;
+    source?: string;
+  };
+}
+
+const { service } = Astro.props as Props;
+const sourcePath = `apps/${service.slug}`;
+const githubBase = "https://github.com/0800tim/tournamental/tree/main";
+---
+<Layout
+  title={`${service.name} API · Tournamental`}
+  description={`${service.description} Part of the open-source Tournamental monorepo.`}
+  ogImage="/og/contribute.png"
+>
+  <section class="container-page pt-16 pb-6">
+    <p class="uppercase tracking-widest text-xs text-ink-200 mb-3">API reference · {service.name}</p>
+    <h1 class="text-3xl md:text-5xl font-bold text-white">{service.name}</h1>
+    <p class="text-ink-200 mt-3 max-w-3xl">{service.description}</p>
+    <p class="text-ink-500 text-sm mt-2">
+      <code>{service.pkg}</code> · {service.paths} {service.paths === 1 ? "path" : "paths"} · auth: {service.auth} · source: {service.mode}
+    </p>
+    <div class="flex flex-wrap gap-3 mt-5">
+      <a href={`${githubBase}/${sourcePath}`} class="btn-primary">Source on GitHub</a>
+      <a href={`/api/${service.slug}.openapi.json`} class="btn-ghost">Download spec (JSON)</a>
+      <a href="/api" class="btn-ghost">All services</a>
+    </div>
+  </section>
+
+  <section class="container-page pb-16">
+    <div id="scalar-wrap" class="min-h-[60vh] rounded-xl overflow-hidden border border-ink-800 bg-ink-900">
+      <script
+        is:inline
+        id="api-reference"
+        data-url={`/api/${service.slug}.openapi.json`}
+        data-configuration={JSON.stringify({
+          theme: "purple",
+          layout: "modern",
+          hideDownloadButton: false,
+          searchHotKey: "k",
+          metaData: { title: `${service.name} API` },
+        })}
+      ></script>
+      <script
+        src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.25.116/dist/browser/standalone.js"
+        crossorigin="anonymous"
+        is:inline
+        defer
+      ></script>
+    </div>
+  </section>
+</Layout>
