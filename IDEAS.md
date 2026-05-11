@@ -96,6 +96,9 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, REVIEW.md] Cayman + NZ entity incorporation. (open)
 - [2026-05-09, REVIEW.md] Domain DNS + Cloudflare account setup for tournamental.com. (open)
 - [2026-05-09, REVIEW.md] Telegram bot username reservation (`@TournamentalBot` / variants). (open)
+- [2026-05-11, dependabot triage] React 18 → 19 migration: pulls @react-three/fiber 8→9 (#21) + @react-three/drei 9→10 (#23) + react/@types/react (#24). Multi-day; needs full match-replay smoke test. (open)
+- [2026-05-11, dependabot triage] vitest 2 → 4 migration: skip-major breaks with `ERR_PACKAGE_PATH_NOT_EXPORTED` across every monorepo `vitest.config.ts`. (#22) (open)
+- [2026-05-11, dependabot triage] Astro 4 → 5 migration: blocks @astrojs/sitemap 3.7+ (sitemap calls an `astro:build:done` hook signature that exists only on astro 5). (open)
 
 ## Triage rules
 
