@@ -1,0 +1,533 @@
+/**
+ * Styles for /s/[guid] universal share landing.
+ *
+ * Two layouts share this stylesheet:
+ *   - .vt-share-user (when guid resolves to a user's bracket)
+ *   - .vt-share-syn  (when guid resolves to a syndicate)
+ *   - .vt-share-404  (when neither matches)
+ *
+ * Colours pulled from the bracket palette so the surface matches the
+ * rest of the WC 2026 microsite. Avoid Tailwind here — the rest of the
+ * shell uses plain CSS modules, keep consistent.
+ */
+
+:root {
+  --vt-share-bg: #0a0e1a;
+  --vt-share-bg-2: #101626;
+  --vt-share-ink: #cdd5e7;
+  --vt-share-ink-muted: #94a3b8;
+  --vt-share-gold: #f5c542;
+  --vt-share-silver: #d8dde6;
+  --vt-share-bronze: #d8954f;
+  --vt-share-accent: #7eb6e8;
+}
+
+.vt-share {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 20px 16px 48px;
+  max-width: 760px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .vt-share {
+    padding: 32px 24px 64px;
+    gap: 36px;
+  }
+}
+
+/* ── Hero ───────────────────────────────────────────────────────── */
+
+.vt-share-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-share-hero-eyebrow {
+  color: var(--vt-share-ink-muted);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.vt-share-hero-title {
+  font-size: 48px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.vt-share-hero-title .vt-share-flag {
+  font-size: 1.2em;
+  line-height: 1;
+}
+
+@media (min-width: 768px) {
+  .vt-share-hero-title {
+    font-size: 64px;
+  }
+}
+
+.vt-share-hero-subhead {
+  color: var(--vt-share-ink);
+  font-size: 20px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.vt-share-syn-title {
+  font-size: 56px;
+}
+@media (min-width: 768px) {
+  .vt-share-syn-title {
+    font-size: 72px;
+  }
+}
+
+.vt-share-stats-row {
+  display: flex;
+  gap: 20px;
+  color: var(--vt-share-ink-muted);
+  font-size: 15px;
+  font-weight: 600;
+  flex-wrap: wrap;
+}
+
+.vt-share-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.vt-share-stat-value {
+  color: var(--vt-share-ink);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* ── OG preview image ───────────────────────────────────────────── */
+
+.vt-share-og {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1200 / 630;
+  border-radius: 16px;
+  background: var(--vt-share-bg-2);
+  box-shadow:
+    0 16px 48px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  object-fit: cover;
+}
+
+/* ── Podium row ─────────────────────────────────────────────────── */
+
+.vt-share-podium {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.vt-share-podium-cup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 8px;
+  border-radius: 12px;
+  background: var(--vt-share-bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.vt-share-podium-cup[data-rank="gold"] {
+  background: linear-gradient(
+    180deg,
+    rgba(245, 197, 66, 0.15) 0%,
+    rgba(245, 197, 66, 0.04) 100%
+  );
+  border-color: rgba(245, 197, 66, 0.4);
+  transform: translateY(-12px);
+}
+.vt-share-podium-cup[data-rank="silver"] {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 221, 230, 0.12) 0%,
+    rgba(216, 221, 230, 0.03) 100%
+  );
+  border-color: rgba(216, 221, 230, 0.3);
+}
+.vt-share-podium-cup[data-rank="bronze"] {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 149, 79, 0.12) 0%,
+    rgba(216, 149, 79, 0.03) 100%
+  );
+  border-color: rgba(216, 149, 79, 0.3);
+}
+
+.vt-share-podium-emoji {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.vt-share-podium-flag {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.vt-share-podium-name {
+  color: var(--vt-share-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.vt-share-podium-rank-label {
+  color: var(--vt-share-ink-muted);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ── Path to gold ───────────────────────────────────────────────── */
+
+.vt-share-path {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--vt-share-bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.vt-share-path-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--vt-share-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 6px;
+}
+
+.vt-share-path-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.vt-share-path-row {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.vt-share-path-stage {
+  color: var(--vt-share-ink-muted);
+  font-weight: 600;
+}
+
+.vt-share-path-opp {
+  color: var(--vt-share-ink);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── CTAs ───────────────────────────────────────────────────────── */
+
+.vt-share-ctas {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .vt-share-ctas {
+    flex-direction: row;
+    gap: 12px;
+  }
+}
+
+.vt-share-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.vt-share-cta[data-variant="primary"] {
+  background: var(--vt-share-gold);
+  color: #1a1208;
+  flex: 1;
+}
+
+.vt-share-cta[data-variant="secondary"] {
+  background: transparent;
+  color: var(--vt-share-ink);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  flex: 1;
+}
+
+.vt-share-cta[data-variant="primary"]:hover {
+  background: #ffd964;
+}
+.vt-share-cta[data-variant="secondary"]:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ── Social fallback row ────────────────────────────────────────── */
+
+.vt-share-fallback {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vt-share-fallback button,
+.vt-share-fallback a {
+  flex: 1 1 auto;
+  min-width: 100px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: var(--vt-share-bg-2);
+  color: var(--vt-share-ink);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.vt-share-fallback button:hover,
+.vt-share-fallback a:hover {
+  border-color: var(--vt-share-accent);
+  color: var(--vt-share-accent);
+}
+
+/* ── Leaderboard / members grid (syndicate) ─────────────────────── */
+
+.vt-share-syn-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--vt-share-accent);
+  margin: 0 0 8px;
+}
+
+.vt-share-leaderboard {
+  list-style: none;
+  padding: 12px;
+  margin: 0;
+  border-radius: 12px;
+  background: var(--vt-share-bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vt-share-leaderboard-empty {
+  color: var(--vt-share-ink-muted);
+  padding: 12px 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.vt-share-leaderboard-row {
+  display: grid;
+  grid-template-columns: 32px 28px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  font-size: 14px;
+}
+
+.vt-share-leaderboard-rank {
+  color: var(--vt-share-ink-muted);
+  font-weight: 700;
+  text-align: center;
+}
+
+.vt-share-leaderboard-flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.vt-share-leaderboard-handle {
+  color: var(--vt-share-ink);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-share-leaderboard-pts {
+  text-align: right;
+  color: var(--vt-share-gold);
+  font-weight: 700;
+}
+
+.vt-share-members-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+@media (min-width: 480px) {
+  .vt-share-members-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+@media (min-width: 768px) {
+  .vt-share-members-grid {
+    grid-template-columns: repeat(6, 1fr);
+  }
+}
+
+.vt-share-member-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  border-radius: 10px;
+  background: var(--vt-share-bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.vt-share-member-flag {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.vt-share-member-handle {
+  color: var(--vt-share-ink);
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
+}
+
+/* ── Footer ─────────────────────────────────────────────────────── */
+
+.vt-share-footer {
+  color: var(--vt-share-ink-muted);
+  font-size: 13px;
+  text-align: center;
+  padding-top: 8px;
+}
+
+/* ── 404 ────────────────────────────────────────────────────────── */
+
+.vt-share-404 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.vt-share-404-emoji {
+  font-size: 64px;
+}
+
+.vt-share-404-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.vt-share-404-body {
+  color: var(--vt-share-ink-muted);
+  font-size: 16px;
+  margin: 0 0 12px;
+  max-width: 420px;
+}
+
+/* ── Modal ──────────────────────────────────────────────────────── */
+
+.vt-share-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.vt-share-modal {
+  background: var(--vt-share-bg-2);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vt-share-modal-title {
+  font-size: 22px;
+  font-weight: 800;
+  margin: 0;
+}
+
+.vt-share-modal-body {
+  color: var(--vt-share-ink-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.vt-share-modal-input {
+  background: var(--vt-share-bg);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--vt-share-ink);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.vt-share-modal-row {
+  display: flex;
+  gap: 10px;
+}
