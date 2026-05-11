@@ -46,6 +46,12 @@ apps/auth-sms/auth.db-shm
 # Local screenshot output (demo only).
 .screenshots/
 
+# Runtime OG image caches — regenerated on demand by /api/og/bracket and
+# /api/og/syndicate. Keyed by content-addressed ids, so committing them
+# would just bloat the repo.
+apps/web/public/og/bracket/
+apps/web/public/og/syndicate/
+
 # Deploy slots — built artefacts, never committed. The .deploy/config.json
 # files ARE committed (per-app deploy config); .deploy/rollback.json and
 # incident.flag are runtime-only.

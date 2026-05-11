@@ -23,6 +23,7 @@
 
 import type {
   BracketShareCardInput,
+  BracketShareChampion,
   BracketSharePathEntry,
   BracketShareStage,
 } from "@vtorn/social-cards";
@@ -95,9 +96,18 @@ export function inputFromSearchParams(args: {
 
   const knockoutPath = parsePath(pathRaw, winnerCode);
 
+  // Explicit silver / bronze hints from the caller (the bracket OG route
+  // passes `runner_up=FRA&third=BRA` when the bracket cascade resolves
+  // these slots). If absent, the canvas renderer derives them from the
+  // knockout path (`final` → silver, `tp` → bronze).
+  const runnerUp = championFromCode(searchParams.get("runner_up"));
+  const thirdPlace = championFromCode(searchParams.get("third"));
+
   return {
     user: { handle, displayName },
     champion,
+    runnerUp,
+    thirdPlace,
     knockoutPath,
     tournamentName,
     pundit: punditLevel > 0 ? { level: punditLevel } : null,
@@ -105,6 +115,19 @@ export function inputFromSearchParams(args: {
     // `process.cwd()` for a Next.js server is the app root.
     flagsDir: `${process.cwd()}/public/flags`,
     footerUrl: `tournamental.com/wc2026?from=${bracketId}`,
+  };
+}
+
+/** Build a `BracketShareChampion` from a 3-letter code query param. */
+function championFromCode(raw: string | null): BracketShareChampion | null {
+  if (!raw) return null;
+  const code = raw.trim().toUpperCase();
+  if (!/^[A-Z]{2,4}$/.test(code)) return null;
+  const t = teamNameFor(code);
+  return {
+    code,
+    name: t.name,
+    kit: t.kit ? { primary: t.kit.primary ?? null } : null,
   };
 }
 
