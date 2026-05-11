@@ -28,7 +28,7 @@ import {
   type MoleculeLayout,
   type MoleculeNode,
 } from "@/lib/molecule/layout";
-import { loadFixtures2026, type Tournament } from "@vtorn/bracket-engine";
+import { loadFixtures2026, type Tournament } from "@tournamental/bracket-engine";
 
 const T: Tournament = loadFixtures2026();
 

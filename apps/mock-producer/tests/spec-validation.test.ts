@@ -1,5 +1,5 @@
 /**
- * Spec-validation: every emitted message validates against `@vtorn/spec`
+ * Spec-validation: every emitted message validates against `@tournamental/spec`
  * v0.1.1 via the bundled structural validator.
  */
 import { describe, it, expect } from "vitest";

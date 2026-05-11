@@ -9,7 +9,7 @@
 
 import type { NextRequest } from "next/server";
 
-import { renderBracketShareCard } from "@vtorn/social-cards";
+import { renderBracketShareCard } from "@tournamental/social-cards";
 
 import {
   inputFromSearchParams,

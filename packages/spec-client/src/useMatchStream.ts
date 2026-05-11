@@ -27,7 +27,7 @@ export function useMatchStream(input: string | StreamSource): StoreApi<MatchStor
 
   useEffect(() => {
     const source = resolveSource(input);
-    const onMessage = (m: import("@vtorn/spec").Message) => store.getState().applyMessage(m);
+    const onMessage = (m: import("@tournamental/spec").Message) => store.getState().applyMessage(m);
     const onStatus = (s: Parameters<MatchStore["setStatus"]>[0]) => store.getState().setStatus(s);
     source.start(onMessage, onStatus);
     return () => {

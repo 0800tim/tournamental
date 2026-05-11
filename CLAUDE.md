@@ -102,7 +102,7 @@ mkdir -p packages/spec/src
 cp spec/types.ts packages/spec/src/index.ts
 cat > packages/spec/package.json <<'EOF'
 {
-  "name": "@vtorn/spec",
+  "name": "@tournamental/spec",
   "version": "0.1.1",
   "main": "src/index.ts",
   "types": "src/index.ts"
@@ -134,7 +134,7 @@ git add -A
 git commit -sm "chore: initialize pnpm workspace + spec package + licence files
 
 Bootstrap repo per CLAUDE.md before parallel agents begin Phase 1.
-Spec is now consumable as @vtorn/spec workspace package.
+Spec is now consumable as @tournamental/spec workspace package.
 
 Refs: REVIEW.md
 "
@@ -161,7 +161,7 @@ Discipline is what makes this a clean open-source project anyone can contribute 
 
 - **Update your session note** with key decisions as you make them. Future-you and future contributors read these.
 - **Park out-of-scope ideas** in [IDEAS.md](IDEAS.md) — don't widen scope mid-session.
-- **Use the spec types** (`@vtorn/spec`) instead of redefining shapes. The spec is the contract.
+- **Use the spec types** (`@tournamental/spec`) instead of redefining shapes. The spec is the contract.
 - **Do not modify the spec** unless your task explicitly says so. Spec changes are an orchestrator-only escalation.
 - **Run lint + typecheck + tests locally** before each commit, not just at the end.
 
@@ -236,7 +236,7 @@ Parallel **builder agents** each own one app or package directory (e.g. `apps/st
 
 - Read the relevant doc(s) per their AGENT-PROMPTS.md prompt.
 - Build only inside their assigned directory.
-- Consume `@vtorn/spec` for shared types.
+- Consume `@tournamental/spec` for shared types.
 - Do not depend on another agent's *implementation* — only on the spec's contract surface.
 
 A **reviewer agent** ships alongside builders. It:

@@ -21,7 +21,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { KeyboardEvent } from "react";
 
-import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
+import type { MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import { PredictTab } from "./PredictTab";
 import { HeadToHeadTab } from "./HeadToHeadTab";

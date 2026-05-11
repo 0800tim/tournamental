@@ -13,7 +13,7 @@
  */
 import { describe, it, expect } from "vitest";
 import { runSimulation, defaultTeams } from "../src/index.js";
-import type { Message, StateFrame } from "@vtorn/spec";
+import type { Message, StateFrame } from "@tournamental/spec";
 
 const TICK_MS = 100;
 const PLAYER_VELOCITY_CAP_MPS = 14;

@@ -22,7 +22,7 @@
 
 import type { Metadata } from "next";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { ShareSavePage } from "@/components/share/ShareSavePage";
 import { AppShell } from "@/components/shell";

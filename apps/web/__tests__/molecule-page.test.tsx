@@ -11,7 +11,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 
-import type { Tournament } from "@vtorn/bracket-engine";
+import type { Tournament } from "@tournamental/bracket-engine";
 
 // Stub the client component so the test runner doesn't try to spin up
 // @react-three/fiber + drei inside jsdom.

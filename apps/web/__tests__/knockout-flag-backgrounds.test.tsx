@@ -26,7 +26,7 @@ import type {
   CascadedKnockout,
   MatchPrediction,
   Team,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 const ARG: Team = {
   id: "ARG",

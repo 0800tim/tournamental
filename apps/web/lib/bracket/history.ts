@@ -23,7 +23,7 @@
  * entries client-side. Server-side cleanup can compact after settlement
  * by retaining only the last entry per match.
  */
-import type { MatchPrediction } from "@vtorn/bracket-engine";
+import type { MatchPrediction } from "@tournamental/bracket-engine";
 
 import type { MatchOdds } from "@/lib/odds/types";
 

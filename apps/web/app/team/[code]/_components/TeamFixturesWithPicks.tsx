@@ -20,7 +20,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 
-import type { Team } from "@vtorn/bracket-engine";
+import type { Team } from "@tournamental/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { MatchPickPopup } from "@/components/match-pick/MatchPickPopup";

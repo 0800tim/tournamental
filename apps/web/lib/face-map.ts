@@ -12,7 +12,7 @@
  * from the statsbomb-replay package, see
  * `apps/web/scripts/copy-player-csv.mjs`).
  */
-import type { Player } from "@vtorn/spec";
+import type { Player } from "@tournamental/spec";
 
 export interface FaceCsvRow {
   player_id: string;

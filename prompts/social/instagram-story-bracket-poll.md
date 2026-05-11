@@ -6,7 +6,7 @@
 
 ## Visual
 
-- **Background**: `match-result` story-format card from `@vtorn/social-cards` rendered
+- **Background**: `match-result` story-format card from `@tournamental/social-cards` rendered
   pre-kick (no scores filled). The `predictedScoreTeam0` / `predictedScoreTeam1` fields
   are blank; the headline is overridden to "Lock your call." via the optional
   `inviteHeadline` parameter.

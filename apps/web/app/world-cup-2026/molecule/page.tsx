@@ -17,7 +17,7 @@
 
 import type { Metadata } from "next";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { RouteEvent } from "@/components/analytics/RouteEvent";
 import { AppShell } from "@/components/shell";

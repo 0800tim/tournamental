@@ -7,9 +7,9 @@
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { act, cleanup, render, screen, fireEvent } from "@testing-library/react";
-import { createMatchStore } from "@vtorn/spec-client";
-import type { EventMessage, MatchInit, StateFrame } from "@vtorn/spec";
-import { SPEC_VERSION } from "@vtorn/spec";
+import { createMatchStore } from "@tournamental/spec-client";
+import type { EventMessage, MatchInit, StateFrame } from "@tournamental/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 import { MatchStatsHUD } from "@/components/MatchStatsHUD";
 
 const init: MatchInit = {

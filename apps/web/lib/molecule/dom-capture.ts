@@ -32,7 +32,7 @@
  *      duration so the close button + Highlight-on-scene toggle are
  *      hidden in the snapshot.
  *   3. Fetch the QR PNG from `/api/share/qr/[guid]` (server-rendered with
- *      the existing @vtorn/social-cards QR pipeline, kept off the client
+ *      the existing @tournamental/social-cards QR pipeline, kept off the client
  *      bundle). Cache the resulting data URL in module scope so repeated
  *      captures don't re-fetch.
  *   4. Composite all three plus a Tournamental wordmark + URL onto an

@@ -21,7 +21,7 @@ import {
   buildPathBondKeySet,
   buildPathAtomSet,
 } from "@/lib/molecule/path";
-import type { CascadedBracket } from "@vtorn/bracket-engine";
+import type { CascadedBracket } from "@tournamental/bracket-engine";
 
 /**
  * Helper, build a fully-resolved synthetic cascade where ARG beats

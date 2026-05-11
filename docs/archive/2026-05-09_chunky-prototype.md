@@ -42,7 +42,7 @@ NEXT_PUBLIC_VTORN_WS_URL=wss://vtorn-stream.aiva.nz pnpm next dev -p 3400
 ## What lands after this archive
 
 The HD upgrade in `#31` (b7f9a42 squash-merged as `b7f9a42`):
-- Manifest mode in `@vtorn/spec-client`, fetch full `.ndjson(.gz)`, decompress in-browser, expose `seek(t_ms)` + `getStateAt(t_ms)`.
+- Manifest mode in `@tournamental/spec-client`, fetch full `.ndjson(.gz)`, decompress in-browser, expose `seek(t_ms)` + `getStateAt(t_ms)`.
 - `<TimelineScrubber/>` UI, drag any minute, score updates, goal markers, play/pause, 0.5x/1x/2x/5x/10x speed.
 - `<BillboardFace/>` from `@vtorn/avatar` for every starter, populated from `data/wc2022-final-players.csv` (Wikidata Q-numbers → Wikimedia Commons thumbnails).
 - Body GLB clone per player (Mixamo skeleton ready) replacing the capsule.

@@ -88,7 +88,7 @@ YOUR JOB, IN ORDER
        test/typecheck scripts per CLAUDE.md)
      - tsconfig.base.json (strict, ES2022, Bundler module resolution)
      - packages/spec/src/index.ts  (cp from spec/types.ts)
-     - packages/spec/package.json  (name @vtorn/spec, version 0.1.1)
+     - packages/spec/package.json  (name @tournamental/spec, version 0.1.1)
      - LICENSE  (Apache 2.0 canonical text from
        https://www.apache.org/licenses/LICENSE-2.0.txt)
      - docs/LICENSE-DOCS  (CC-BY-4.0 canonical text from
@@ -111,10 +111,10 @@ YOUR JOB, IN ORDER
        pyproject.toml stub for uv
        README.md: "Owned by AGENT-PROMPTS.md section 1. See docs/11."
    - apps/web/
-       package.json stub with workspace dep on @vtorn/spec
+       package.json stub with workspace dep on @tournamental/spec
        README.md: "Owned by AGENT-PROMPTS.md section 2. See docs/04."
    - apps/mock-producer/
-       package.json stub with workspace dep on @vtorn/spec
+       package.json stub with workspace dep on @tournamental/spec
        README.md: "Owned by AGENT-PROMPTS.md section 4. See docs/05."
    - packages/avatar/
        package.json stub

@@ -2,7 +2,7 @@ import type {
   EventMessage,
   MatchInit,
   StateFrame,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 
 /**
  * Broadcast-style match-stat aggregator.

@@ -1,6 +1,6 @@
 /**
  * Strict structural validator for canonical Tournamental spec messages
- * (`@vtorn/spec` v0.1.1). Used:
+ * (`@tournamental/spec` v0.1.1). Used:
  *   - in tests to assert every emitted message is well-formed,
  *   - by the CLI in `--strict` debug mode (future toggle),
  *   - by other producers as a copy-and-adapt reference.
@@ -8,7 +8,7 @@
  * We don't pull in zod/io-ts to keep the runtime deps tiny — and because
  * the spec types are intentionally narrow.
  */
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 
 export class SpecValidationError extends Error {
   constructor(message: string, public readonly path: string[] = []) {

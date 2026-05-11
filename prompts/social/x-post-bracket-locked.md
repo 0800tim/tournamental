@@ -4,7 +4,7 @@
 
 ## Visual
 
-- **Media**: 1200×630 `bracket-prediction` OG card from `@vtorn/social-cards`.
+- **Media**: 1200×630 `bracket-prediction` OG card from `@tournamental/social-cards`.
 - **Format**: single image post.
 
 ## Caption (≤ 280 chars)

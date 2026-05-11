@@ -13,7 +13,7 @@
  * Sizing math: 10 s × 60 Hz × (22 players × 12 bytes + 12 bytes ball +
  * 4 bytes time) ≈ 36 KB. Negligible.
  */
-import type { Vec2, Vec3 } from "@vtorn/spec";
+import type { Vec2, Vec3 } from "@tournamental/spec";
 
 export interface ReplaySnapshot {
   /** Scene clock ms. */

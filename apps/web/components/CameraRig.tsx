@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { MatchStore } from "@tournamental/spec-client";
 import { interpolateBall, alphaForNow } from "@/lib/interpolation";
 import { toWorld } from "@/lib/coords";
 import { useSceneBuffer } from "@/lib/replay/buffer-context";

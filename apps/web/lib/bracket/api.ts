@@ -24,7 +24,7 @@
  * locally (matched against typeof window for SSR safety).
  */
 
-import type { Bracket, MatchPrediction } from "@vtorn/bracket-engine";
+import type { Bracket, MatchPrediction } from "@tournamental/bracket-engine";
 
 const DEFAULT_GAME_URL =
   typeof process !== "undefined" && process.env.NODE_ENV === "production"

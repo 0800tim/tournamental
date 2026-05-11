@@ -18,7 +18,7 @@
 
 import type { Metadata } from "next";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { BracketBuilder } from "@/components/bracket/BracketBuilder";
 import { AppShell } from "@/components/shell";
@@ -74,7 +74,7 @@ export default function WorldCup2026Page({ searchParams }: WorldCup2026PageProps
           <BracketBuilder tournament={tournament} />
           <footer className="bracket-page-footer">
             <p>
-              Engine: <code>@vtorn/bracket-engine</code>. Source data:{" "}
+              Engine: <code>@tournamental/bracket-engine</code>. Source data:{" "}
               <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
                 FIFA 2026
               </a>{" "}

@@ -20,7 +20,7 @@ import type { IncomingMessage } from "node:http";
 import Fastify, { type FastifyInstance } from "fastify";
 import pino from "pino";
 import { WebSocketServer, type WebSocket as WS } from "ws";
-import { SPEC_VERSION } from "@vtorn/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 import { loadConfig, type StreamConfig } from "./config.js";
 import { Pipeline } from "./pipeline.js";
 

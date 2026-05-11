@@ -7,7 +7,7 @@
  * have a static copy without booting the service.
  *
  * We use the project's own vitest as the import resolver — vitest already
- * handles workspace `.ts`-main packages (e.g. `@vtorn/spec`) cleanly,
+ * handles workspace `.ts`-main packages (e.g. `@tournamental/spec`) cleanly,
  * whereas Node's loader + `tsx` can't reconcile the `.ts` main with the
  * lack of `"type": "module"` on those packages.
  *

@@ -1,4 +1,4 @@
-# @vtorn/spec-client
+# @tournamental/spec-client
 
 Client-side spec stream consumer for Tournamental renderers.
 
@@ -30,7 +30,7 @@ import {
   syntheticArFrSource,
   buildArFrMessages,
   wsSource,
-} from "@vtorn/spec-client";
+} from "@tournamental/spec-client";
 ```
 
 - `useMatchStream(input)` — React hook. `input` is either a `ws://` /
@@ -48,4 +48,4 @@ import {
 
 ## Spec contract
 
-Consumes `@vtorn/spec` workspace dep. Does not modify the spec.
+Consumes `@tournamental/spec` workspace dep. Does not modify the spec.

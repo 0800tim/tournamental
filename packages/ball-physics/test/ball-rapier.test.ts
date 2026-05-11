@@ -15,7 +15,7 @@ import {
   VerletBall,
   selectBallMode,
 } from "../src/ball-rapier.js";
-import type { EventMessage } from "@vtorn/spec";
+import type { EventMessage } from "@tournamental/spec";
 
 describe("selectBallMode", () => {
   it("defaults to spline mode", () => {

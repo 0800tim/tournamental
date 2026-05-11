@@ -44,7 +44,7 @@ this file *and* the publisher's bind layer.
 
 - `{{cta.url}}` — full referral URL with UTM params (per `apps/clip-publisher`'s referral builder).
 - `{{cta.short_url}}` — shortened version for X 280-char templates.
-- `{{card.og_url}}` — public URL of the OG card produced by `@vtorn/social-cards`.
+- `{{card.og_url}}` — public URL of the OG card produced by `@tournamental/social-cards`.
 - `{{card.story_url}}` — public URL of the story-format card.
 
 ## Campaign tracking

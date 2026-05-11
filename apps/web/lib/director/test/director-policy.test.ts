@@ -11,7 +11,7 @@
  */
 import { describe, it, expect } from "vitest";
 import * as THREE from "three";
-import type { EventMessage } from "@vtorn/spec";
+import type { EventMessage } from "@tournamental/spec";
 import {
   DirectorPolicy,
   simulateDirectorTimeline,

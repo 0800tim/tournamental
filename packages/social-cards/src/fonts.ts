@@ -68,7 +68,7 @@ export async function loadDefaultFonts(): Promise<FontSpec[]> {
     const data = await readFile(fontPath(f.file)).catch((err) => {
       throw new Error(
         `[social-cards] missing font ${f.file} (looked in ${fontPath(f.file)}). ` +
-          `Run \`pnpm --filter @vtorn/social-cards run fetch:fonts\` ` +
+          `Run \`pnpm --filter @tournamental/social-cards run fetch:fonts\` ` +
           `or pass a custom FontSpec[] into renderToSVG. (${err.message})`,
       );
     });

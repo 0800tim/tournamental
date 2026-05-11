@@ -84,6 +84,23 @@ SimulatedSports/                           working folder name; consumer brand i
 └── prompts/                               LLM prompts (frame-analyzer, commentary-extractor)
 ```
 
+## npm packages
+
+Workspace packages publish to npm under the `@tournamental` scope since
+2026-05-13. Apps inside this monorepo (`apps/web`, `apps/marketing`,
+`apps/game`, and friends) stay as `@vtorn/*` because they are internal
+deploy targets and do not publish.
+
+Public packages:
+
+- `@tournamental/spec` -- canonical message spec for every producer and
+  renderer.
+- `@tournamental/bracket-engine` -- cascade and scoring engine for the
+  bracket prophet flow.
+- `@tournamental/social-cards` -- OG, podium, and share-card renderer.
+- `@tournamental/plugin-sdk` -- plugin contracts for community-built
+  modes (in development).
+
 ## v0.2 demo target: 2022 World Cup Final
 
 The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). Tournamental-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.

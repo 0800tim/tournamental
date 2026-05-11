@@ -7,7 +7,7 @@
 
 - **Media**: 1080×1350 4:5 cut of the goal clip (X's native vertical aspect for
   in-feed video). Falls back to 16:9 if 4:5 isn't ready.
-- **Cover image**: 1200×630 `goal-clip` OG card rendered by `@vtorn/social-cards`,
+- **Cover image**: 1200×630 `goal-clip` OG card rendered by `@tournamental/social-cards`,
   uploaded as the video preview.
 
 ## Caption (≤ 280 chars including URL)

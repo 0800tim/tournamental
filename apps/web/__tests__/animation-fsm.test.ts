@@ -7,7 +7,7 @@ import {
   ONE_SHOT_MS,
   stepFsm,
 } from "@/lib/animation-fsm";
-import type { EventMessage } from "@vtorn/spec";
+import type { EventMessage } from "@tournamental/spec";
 
 describe("locomotionFor", () => {
   it("classifies by speed", () => {

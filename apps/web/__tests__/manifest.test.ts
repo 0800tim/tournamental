@@ -7,8 +7,8 @@ import {
   getStateAt,
   manifestSourceFromText,
   parseNdjson,
-} from "@vtorn/spec-client";
-import type { Message } from "@vtorn/spec";
+} from "@tournamental/spec-client";
+import type { Message } from "@tournamental/spec";
 
 const toNdjson = (messages: Message[]): string =>
   messages.map((m) => JSON.stringify(m)).join("\n");
@@ -111,7 +111,7 @@ describe("createManifestController + manifestSourceFromText", () => {
 
   it("manifestSourceFromText fires onReady with a controller", () => {
     const ndjson = toNdjson(buildArFrMessages());
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
     const source = manifestSourceFromText(ndjson, {
       autoplay: false,
       onReady: (c) => {

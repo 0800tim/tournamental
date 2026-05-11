@@ -1,7 +1,7 @@
 /**
  * Dumps this service's OpenAPI 3.0 spec to docs/api/<service>.openapi.json.
  * Runs via vitest because workspace packages with `.ts` mains (e.g.
- * `@vtorn/spec`) don't resolve cleanly under tsx + Node's ESM loader.
+ * `@tournamental/spec`) don't resolve cleanly under tsx + Node's ESM loader.
  */
 
 import { spawnSync } from 'node:child_process';

@@ -35,7 +35,7 @@ import {
   loadFixtures2026,
   type CascadedBracket,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 const T: Tournament = loadFixtures2026();
 

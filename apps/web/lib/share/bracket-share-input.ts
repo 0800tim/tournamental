@@ -27,7 +27,7 @@ import type {
   BracketShareEliminationTier,
   BracketSharePathEntry,
   BracketShareStage,
-} from "@vtorn/social-cards";
+} from "@tournamental/social-cards";
 
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import type { CanonicalTeamsFile } from "@/lib/bracket/enrich";

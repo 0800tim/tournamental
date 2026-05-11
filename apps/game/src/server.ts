@@ -52,7 +52,7 @@ export interface BuildServerOptions {
   /**
    * Override the kickoff registry. Tests pass a deterministic one;
    * production falls back to the WC2026 registry built from the vendored
-   * fixture JSON in `@vtorn/bracket-engine`.
+   * fixture JSON in `@tournamental/bracket-engine`.
    */
   kickoffs?: KickoffRegistry;
   /**

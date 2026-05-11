@@ -28,7 +28,7 @@ import React from "react";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { draftKey } from "../lib/bracket/storage";
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatTime, projectScoreAt } from "@/components/TimelineScrubber";
-import type { EventMessage } from "@vtorn/spec";
+import type { EventMessage } from "@tournamental/spec";
 
 describe("formatTime", () => {
   it("renders as MM:SS under an hour", () => {

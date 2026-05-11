@@ -8,7 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Player } from "@vtorn/spec";
+import type { Player } from "@tournamental/spec";
 import {
   buildFaceLookup,
   parseFaceCsv,

@@ -17,7 +17,7 @@ import { fireEvent, render } from "@testing-library/react";
 import type { MatchOdds } from "../lib/odds/types";
 import { MatchPredictionRow } from "../components/bracket/MatchPredictionRow";
 
-import type { Team } from "@vtorn/bracket-engine";
+import type { Team } from "@tournamental/bracket-engine";
 
 const home: Team = {
   id: "ARG",

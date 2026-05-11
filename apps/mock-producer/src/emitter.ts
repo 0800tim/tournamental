@@ -24,7 +24,7 @@ import { gzipSync } from "node:zlib";
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
 import { resolve } from "node:path";
 import { WebSocketServer, type WebSocket } from "ws";
-import type { MatchInit, Message } from "@vtorn/spec";
+import type { MatchInit, Message } from "@tournamental/spec";
 
 export interface EmitterContext {
   init: MatchInit;

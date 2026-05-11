@@ -32,8 +32,8 @@ import type {
   KnockoutFixture,
   Tournament,
   CascadedKnockout,
-} from "@vtorn/bracket-engine";
-import { cascade, type BracketPrediction } from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
+import { cascade, type BracketPrediction } from "@tournamental/bracket-engine";
 
 import canonicalFixturesRaw from "../../../../../../../data/fifa-wc-2026/fixtures.json";
 import canonicalTeamsRaw from "../../../../../../../data/fifa-wc-2026/teams.json";

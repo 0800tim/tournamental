@@ -2,7 +2,7 @@
 
 Bracket-submission, match-settlement, and leaderboards backend for Tournamental.
 Implements the game-side of [docs/12](../../docs/12-odds-and-predictions.md)
-and consumes the canonical scoring engine from `@vtorn/bracket-engine`.
+and consumes the canonical scoring engine from `@tournamental/bracket-engine`.
 
 This service is the **write authority** between the bot/web clients and
 the (eventual) snapshotter. For now it persists everything to SQLite via
@@ -36,7 +36,7 @@ curl -s http://localhost:3360/healthz
 
 ### `POST /v1/bracket/submit`
 
-Submit a `Bracket` (per `@vtorn/bracket-engine`) for a `(user_id,
+Submit a `Bracket` (per `@tournamental/bracket-engine`) for a `(user_id,
 tournament_id)` pair. Returns a lock receipt. Re-submitting before the
 tournament starts replaces the prior bracket and resets `score_total` to
 0 — the next match-result POST recomputes it.
@@ -196,7 +196,7 @@ Tables (see `migrations/0001_init.sql` for canonical DDL):
 
 Every match-result POST loads every recorded result for the tournament,
 walks every bracket whose payload references the just-settled match, and
-re-runs the per-match scoring functions from `@vtorn/bracket-engine` —
+re-runs the per-match scoring functions from `@tournamental/bracket-engine` —
 `scoreGroupMatchPrediction` for group fixtures, `scoreKnockoutMatchPrediction`
 for R32+. The total is written back to `brackets.score_total`. The
 leaderboard cache is then invalidated.

@@ -42,7 +42,7 @@ import {
   type Bracket,
   type CascadedBracket,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { MoleculeLayerLabels } from "./MoleculeLayerLabels";
 import { MoleculeLegend } from "./MoleculeLegend";

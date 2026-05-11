@@ -6,7 +6,7 @@
  * as plain strings means the bracket prediction map is JSON-friendly.
  */
 
-import type { GroupFixture, KnockoutFixture } from "@vtorn/bracket-engine";
+import type { GroupFixture, KnockoutFixture } from "@tournamental/bracket-engine";
 
 export function groupMatchId(f: GroupFixture): string {
   return String(f.match_no);

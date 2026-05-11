@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
-import type { EventMessage } from "@vtorn/spec";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { EventMessage } from "@tournamental/spec";
+import type { MatchStore } from "@tournamental/spec-client";
 import {
   BallController,
   VerletBall,

@@ -20,7 +20,7 @@ import {
   type MatchPrediction,
   type Tournament,
   type GroupStanding,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 // ---------- public types ----------
 

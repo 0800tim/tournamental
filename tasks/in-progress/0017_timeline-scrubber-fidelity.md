@@ -29,7 +29,7 @@ the actual 22 starters' faces and a stadium that doesn't look like a
 
 ## Acceptance
 
-- [ ] `manifestSource(url)` in `@vtorn/spec-client` fetches plain or
+- [ ] `manifestSource(url)` in `@tournamental/spec-client` fetches plain or
       `.gz` NDJSON, parses to typed messages, sorts state frames +
       events by `t`, exposes `seek(t)` / `getCurrentState(t)` lerp.
 - [ ] `<TimelineScrubber/>` renders in manifest mode with play/pause,
@@ -44,7 +44,7 @@ the actual 22 starters' faces and a stadium that doesn't look like a
       sky and procedural pitch grass present; ball + players cast
       shadows; pitch receives.
 - [ ] `pnpm -F @vtorn/web typecheck && pnpm -F @vtorn/web test &&
-      pnpm -F @vtorn/spec-client typecheck` all pass.
+      pnpm -F @tournamental/spec-client typecheck` all pass.
 
 ## Notes (rolling)
 

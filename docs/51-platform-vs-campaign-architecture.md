@@ -81,7 +81,7 @@ These vary per campaign and ship in a campaign config bundle:
   the World Cup" hero. AFCON would use very different palette + assets.
 - **Bracket format**: groups + knockout (WC), knockout-only (Champions
   League), round-robin (some leagues), best-of-N (eSports). The
-  `@vtorn/bracket-engine` already abstracts the format; the campaign
+  `@tournamental/bracket-engine` already abstracts the format; the campaign
   just declares which.
 - **Renderer match data**: stadium models, kit textures, ball model,
   commentary corpus, ad-boards.
@@ -131,7 +131,7 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
 - `apps/web/` is the campaign app. Today it hardcodes WC2026, but the
   fixture / team data is already keyed by tournament under
   `data/fifa-wc-2026/`.
-- `@vtorn/bracket-engine` is campaign-agnostic (it takes a fixtures
+- `@tournamental/bracket-engine` is campaign-agnostic (it takes a fixtures
   blob and returns a cascading bracket).
 - `apps/web/middleware.ts` already host-rewrites `2026wc.tournamental.com`
   → the WC landing.

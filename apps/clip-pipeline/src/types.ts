@@ -1,6 +1,6 @@
 /**
  * Public-facing types for the clip-pipeline service. Kept narrow on purpose —
- * the spec stream's full EventMessage union lives in @vtorn/spec; we only
+ * the spec stream's full EventMessage union lives in @tournamental/spec; we only
  * touch the discriminator + minimum fields needed for highlight scoring.
  */
 
@@ -45,7 +45,7 @@ export interface ClipJob {
 
 /**
  * Highlight kinds — the detector tags each merged window with the most
- * important event in that window. Mirrors a subset of @vtorn/spec event types
+ * important event in that window. Mirrors a subset of @tournamental/spec event types
  * but normalised for the social/clip surface.
  */
 export type HighlightKind =
@@ -71,7 +71,7 @@ export interface Highlight {
 
 /**
  * Minimal event shape the highlight detector consumes. The full
- * @vtorn/spec EventMessage is a wider discriminated union, but the detector
+ * @tournamental/spec EventMessage is a wider discriminated union, but the detector
  * only needs `t`, `type`, and a few discriminator-specific fields. This
  * lets the detector accept either a real spec stream or a synthetic one
  * without dragging the whole spec types in.

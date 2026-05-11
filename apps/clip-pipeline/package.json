@@ -22,7 +22,7 @@
     "@fastify/cors": "^10.0.1",
     "@fastify/swagger": "^9.7.0",
     "@fastify/swagger-ui": "^5.2.6",
-    "@vtorn/spec": "workspace:*",
+    "@tournamental/spec": "workspace:*",
     "fastify": "^5.1.0",
     "pino": "^9.5.0",
     "ws": "^8.18.0"

@@ -1,5 +1,5 @@
 import { Vector3 } from "three";
-import type { Vec2, Vec3 } from "@vtorn/spec";
+import type { Vec2, Vec3 } from "@tournamental/spec";
 
 /**
  * Spec coords are pitch-centred metres with +x along length, +y along width,

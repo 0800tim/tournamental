@@ -41,7 +41,7 @@ export interface CrmContact {
   lastSyncedAt?: string;
 }
 
-/** Subset of @vtorn/spec MatchPrediction used by the admin UI. We don't
+/** Subset of @tournamental/spec MatchPrediction used by the admin UI. We don't
  * import the spec package directly to keep the admin app's dependency
  * surface small and avoid pulling tournament data through the bundle. */
 export interface AdminMatchPrediction {

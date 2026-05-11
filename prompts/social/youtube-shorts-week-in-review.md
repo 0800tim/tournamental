@@ -7,7 +7,7 @@
 - **Compilation**: top 6 goals of the week, 8 seconds each, plus a 12-second
   intro "this week in {{tournament.name}}" slate. Total ≤ 60s for Shorts gating.
 - **Intro slate**: branded `tournament-recap` story-format card from
-  `@vtorn/social-cards` with `tournamentName="This week — {{tournament.name}}"`.
+  `@tournamental/social-cards` with `tournamentName="This week — {{tournament.name}}"`.
 
 ## Title (≤ 100 chars)
 

@@ -11,7 +11,7 @@ import {
   type ManifestController,
   type MatchStore,
   type StreamSource,
-} from "@vtorn/spec-client";
+} from "@tournamental/spec-client";
 
 export interface ResolvedStream {
   store: StoreApi<MatchStore>;

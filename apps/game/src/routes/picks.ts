@@ -41,7 +41,7 @@ import { z } from "zod";
 
 import type { GameStore } from "../store/db.js";
 import type { Bracket } from "../types.js";
-import type { MatchPrediction } from "@vtorn/bracket-engine";
+import type { MatchPrediction } from "@tournamental/bracket-engine";
 import {
   buildDefaultKickoffRegistry,
   checkLockable,

@@ -22,7 +22,7 @@ import {
   type CascadedBracket,
   type Tournament,
   lockMultiplier,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { localUserId } from "@/lib/bracket/storage";
 import { shareContent, tapFeedback } from "@/lib/native";

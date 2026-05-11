@@ -17,7 +17,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@vtorn/spec": "workspace:*",
+    "@tournamental/spec": "workspace:*",
     "commander": "^12.1.0",
     "seedrandom": "^3.0.5",
     "ws": "^8.18.0"

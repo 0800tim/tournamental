@@ -8,7 +8,7 @@
  */
 import * as React from "react";
 import * as THREE from "three";
-import type { Kit } from "@vtorn/spec";
+import type { Kit } from "@tournamental/spec";
 
 export interface BillboardFaceProps {
   /** Optional remote image (PNG with transparent background recommended). */

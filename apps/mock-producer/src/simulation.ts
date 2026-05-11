@@ -29,8 +29,8 @@ import type {
   Team,
   Vec2,
   Vec3,
-} from "@vtorn/spec";
-import { SPEC_VERSION } from "@vtorn/spec";
+} from "@tournamental/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 import { Rng } from "./rng.js";
 import { loadCommentaryBank, pickCommentary } from "./commentary.js";
 

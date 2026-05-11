@@ -33,7 +33,7 @@ import {
   type Bracket,
   type CascadedBracket,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft } from "@/lib/bracket/storage";

@@ -4,7 +4,7 @@
  * Tim's 2026-05-11 brief: every bracket needs a beautiful PNG (for
  * Instagram / Facebook / Twitter / OG unfurls) and a 6-second animated
  * MP4 (for TikTok / Reels). Both flavours come out of the same
- * `@vtorn/social-cards` canvas renderer with no external API spend.
+ * `@tournamental/social-cards` canvas renderer with no external API spend.
  *
  * Query params:
  *   - handle     (string) , user handle to feature
@@ -33,7 +33,7 @@ import { join } from "node:path";
 import { tmpdir } from "node:os";
 import type { NextRequest } from "next/server";
 
-import { renderBracketShareCard, renderBracketRevealVideo, type CanvasCardSize, type VideoFormat } from "@vtorn/social-cards";
+import { renderBracketShareCard, renderBracketRevealVideo, type CanvasCardSize, type VideoFormat } from "@tournamental/social-cards";
 
 import {
   parseBracketSegment,
