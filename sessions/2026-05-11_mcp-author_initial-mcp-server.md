@@ -75,9 +75,8 @@ to docs/22 + the doc-53 URL plan in the same PR.
 
 ## Next steps
 
-- Build the Cloudflare tunnel ingress row for `vtorn-mcp.aiva.nz`
-  (deferred - orchestrator owns the tunnel API per
-  `clawdia/CLAUDE.md`'s "don't touch working infra" rule).
+- Build the Cloudflare tunnel ingress row for `mcp.tournamental.com`
+  (deferred - orchestrator owns the tunnel API).
 - Publish to npm under `@tournamental/mcp` once the npm org is
   registered (Tim owns that).
 - Add `apps/mcp` to the deploy pipeline in

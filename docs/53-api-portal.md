@@ -16,8 +16,8 @@ Before the portal:
 
 - Every Fastify service in `apps/*` registered `@fastify/swagger-ui` on
   its own `/docs` endpoint behind its own port/tunnel.
-- Integrators had to know about 9+ separate URLs (`vtorn-game.aiva.nz`,
-  `vtorn-vstamp.aiva.nz`, etc.) and visit each in turn.
+- Integrators had to know about 9+ separate URLs (`game.tournamental.com`,
+  `vstamp.tournamental.com`, etc.) and visit each in turn.
 - AI agents reading the codebase had to grep the source to know which
   endpoints existed; OpenAPI specs were committed under `docs/api/`
   but there was no rendered view of them.

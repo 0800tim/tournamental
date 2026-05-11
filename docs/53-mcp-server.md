@@ -113,10 +113,10 @@ surfaces three routes:
 | `GET /healthz`         | none | Liveness probe. |
 | `GET /`                | none | Root descriptor. |
 
-Hosted deployment is `https://mcp.tournamental.com` (prod) and
-`https://vtorn-mcp.aiva.nz` (dev). Both are added to
-[`docs/22-deployment-and-tunnels.md`](22-deployment-and-tunnels.md) in
-the same PR.
+Hosted deployment is `https://mcp.tournamental.com` (prod). The dev
+endpoint is `http://localhost:3399` (see `apps/mcp/.env`). Tunnel
+ingress is documented in
+[`docs/22-deployment-and-tunnels.md`](22-deployment-and-tunnels.md).
 
 ## Auth model
 

@@ -91,9 +91,8 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-11, doc 28] `validate-plugin` CLI in the SDK that catches manifest/package.json drift before PR. v0.2. (open)
 - [2026-05-11, doc 28] Wire the plugin loader into apps/web/lib/plugins/loader.ts and apps/api/src/plugins/loader.ts. Currently the SDK + example plugin land additive; the actual loader is a follow-up PR once the first external plugin is ready. (open)
 
-### Strategic / Tim-only
+### Strategic / maintainers
 - [2026-05-09, REVIEW.md] License confirmation (Apache 2.0 vs MIT vs AGPL — Apache 2.0 currently set). (open)
-- [2026-05-09, REVIEW.md] Cayman + NZ entity incorporation. (open)
 - [2026-05-09, REVIEW.md] Domain DNS + Cloudflare account setup for tournamental.com. (open)
 - [2026-05-09, REVIEW.md] Telegram bot username reservation (`@TournamentalBot` / variants). (open)
 - [2026-05-11, dependabot triage] React 18 → 19 migration: pulls @react-three/fiber 8→9 (#21) + @react-three/drei 9→10 (#23) + react/@types/react (#24). Multi-day; needs full match-replay smoke test. (open)
