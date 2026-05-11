@@ -1,0 +1,33 @@
+---
+/**
+ * `<noscript>` iframe fallback for the marketing site's GTM tag.
+ *
+ * Per Google's GTM install guide, the iframe should be the very first
+ * child of <body> so the page-view fires even when JS is disabled. We
+ * also use this to keep the head-side `<Analytics/>` script-only and
+ * tidy.
+ *
+ * No-op when `PUBLIC_GTM_ID` is unset.
+ */
+
+const gtmId =
+  import.meta.env.PUBLIC_GTM_ID ??
+  import.meta.env.NEXT_PUBLIC_GTM_ID ??
+  "";
+
+const enabled = typeof gtmId === "string" && gtmId.length >= 4 && !gtmId.includes(" ");
+---
+
+{
+  enabled && (
+    <noscript>
+      <iframe
+        src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+        height="0"
+        width="0"
+        style="display:none;visibility:hidden"
+        title="Google Tag Manager (no-JS fallback)"
+      />
+    </noscript>
+  )
+}

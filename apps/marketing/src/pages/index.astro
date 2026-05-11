@@ -53,8 +53,20 @@ import SectionHeading from "@/components/SectionHeading.astro";
       </div>
     </div>
     <div class="mt-8 flex gap-3">
-      <a href="/syndicates" class="btn-primary">Start a syndicate</a>
-      <a href="/influencers" class="btn-ghost">For influencers</a>
+      <a
+        href="/syndicates"
+        class="btn-primary"
+        data-analytics="cta"
+        data-analytics-label="Start a syndicate"
+        data-analytics-surface="syndicates-section"
+      >Start a syndicate</a>
+      <a
+        href="/influencers"
+        class="btn-ghost"
+        data-analytics="cta"
+        data-analytics-label="For influencers"
+        data-analytics-surface="syndicates-section"
+      >For influencers</a>
     </div>
   </section>
 
@@ -68,8 +80,20 @@ import SectionHeading from "@/components/SectionHeading.astro";
           <p class="text-ink-200 mt-3 max-w-prose">Every line of code, every doc, every spec is on GitHub. Build your own predictions product on top, fork the renderer, ship a tournament integration. Merged contributors opt in to a continuous USDC revenue share via the Drips Network.</p>
         </div>
         <div class="flex md:flex-col gap-3">
-          <a href="https://github.com/0800tim/tournamental" class="btn-primary">View the repo</a>
-          <a href="/contribute" class="btn-ghost">How to contribute</a>
+          <a
+            href="https://github.com/0800tim/tournamental"
+            class="btn-primary"
+            data-analytics="cta"
+            data-analytics-label="View the repo"
+            data-analytics-surface="open-source-section"
+          >View the repo</a>
+          <a
+            href="/contribute"
+            class="btn-ghost"
+            data-analytics="cta"
+            data-analytics-label="How to contribute"
+            data-analytics-surface="open-source-section"
+          >How to contribute</a>
         </div>
       </div>
     </div>
@@ -87,8 +111,20 @@ import SectionHeading from "@/components/SectionHeading.astro";
         <p class="mt-4 text-ink-200">Six weeks. 48 teams. 104 matches. One global leaderboard. Set up your syndicate now and you'll be ready when the first whistle blows.</p>
       </div>
       <div class="flex md:flex-col gap-3">
-        <a href="/world-cup-2026" class="btn-primary">World Cup playbook</a>
-        <a href="/start" class="btn-ghost">Get started</a>
+        <a
+          href="/world-cup-2026"
+          class="btn-primary"
+          data-analytics="cta"
+          data-analytics-label="World Cup playbook"
+          data-analytics-surface="wc2026-section"
+        >World Cup playbook</a>
+        <a
+          href="/start"
+          class="btn-ghost"
+          data-analytics="cta"
+          data-analytics-label="Get started"
+          data-analytics-surface="wc2026-section"
+        >Get started</a>
       </div>
     </div>
   </section>

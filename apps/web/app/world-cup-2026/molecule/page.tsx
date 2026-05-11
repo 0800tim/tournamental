@@ -19,6 +19,7 @@ import type { Metadata } from "next";
 
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
+import { RouteEvent } from "@/components/analytics/RouteEvent";
 import { AppShell } from "@/components/shell";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
@@ -56,6 +57,7 @@ export default function WorldCup2026MoleculePage() {
 
   return (
     <AppShell title="Molecule" showBottomNav showSideRail>
+      <RouteEvent name="molecule.opened" />
       <MoleculePageClient tournament={tournament} />
     </AppShell>
   );

@@ -5,6 +5,7 @@ import "@/components/ui/ui.css";
 import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
+import { GtmRoot } from "@/components/analytics/GtmRoot";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
@@ -55,6 +56,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
+        <GtmRoot />
         <NativeShellBoot />
         {children}
       </body>

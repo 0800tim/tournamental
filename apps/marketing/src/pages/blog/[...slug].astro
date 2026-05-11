@@ -106,6 +106,23 @@ const ogImage = heroSrc
     <PostFooter title={data.title} url={canonical} author={data.author} />
   </article>
 
+  {/* Fire a blog.post.opened analytics event once the post mounts.
+      Inlined here so it captures the slug + title from the build-time
+      props without a dedicated component. */}
+  <script is:inline define:vars={{ slug: post.slug, title: data.title }}>
+    {`
+      (function () {
+        function fire() {
+          if (window.tournamental && typeof window.tournamental.track === 'function') {
+            window.tournamental.track('blog.post.opened', { slug: slug, title: title });
+          }
+        }
+        if (document.readyState !== 'loading') fire();
+        else document.addEventListener('DOMContentLoaded', fire);
+      })();
+    `}
+  </script>
+
   {others.length > 0 && (
     <section class="container-page pb-20">
       <h4 class="vt-blog-related-eyebrow">More from the blog</h4>

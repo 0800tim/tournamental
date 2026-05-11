@@ -57,6 +57,7 @@ import {
   usePinchZoom,
   useStickyGroupHeaders,
 } from "@/lib/bracket/mobile-gestures";
+import { track } from "@/lib/analytics";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { loadServerBracket, savePerMatchPick } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
@@ -279,6 +280,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const update = (next: Bracket): void => {
     setBracket(next);
     saveDraft(tournament.id, next, userLocalId);
+    // Analytics: a pick was just saved to the draft. Fire-and-forget;
+    // payload carries totals (not the picks themselves) so GA4 cohorts
+    // can segment by bracket-completion without exposing predictions.
+    track("bracket.pick.saved", {
+      tournament_id: tournament.id,
+      match_predictions: Object.keys(next.matchPredictions).length,
+      knockout_predictions: Object.keys(next.knockoutPredictions).length,
+      tiebreakers: Object.keys(next.groupTiebreakers).length,
+    });
   };
 
   // Scroll-to-fix: when an upstream pick changes a downstream slot,
@@ -417,6 +427,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const handleAutoPick = async (): Promise<void> => {
     setShowAutoPickConfirm(false);
     setSubmitState("auto-picking from live odds…");
+    track("bracket.autopick.run", { tournament_id: tournament.id });
     let snap: { matches: MatchOdds[]; source?: string } | null = null;
     try {
       const r = await fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } });
@@ -572,10 +583,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
           : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped — match already started)`,
       );
       update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        bracket_id: res.bracket_id ?? null,
+        match_predictions: Object.keys(submission.matchPredictions).length,
+        knockout_predictions: Object.keys(submission.knockoutPredictions).length,
+        rejected: rejected.length,
+        result: "ok",
+      });
     } else if (res.status === "saved_offline") {
       setSubmitState("Saved offline — we'll retry when you're back online.");
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        result: "saved_offline",
+        error: res.error ?? "unknown",
+      });
     } else {
       setSubmitState(`Save failed: ${res.error ?? "unknown"} — draft saved locally.`);
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        result: "error",
+        error: res.error ?? "unknown",
+      });
     }
   };
 
@@ -912,7 +941,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
           type="button"
           className="bracket-mobile-cta-btn bracket-mobile-cta-share"
           // TODO(share-card-agent): wire to the share modal once it lands.
-          onClick={() => setTab("final")}
+          onClick={() => {
+            track("bracket.share.opened", {
+              tournament_id: tournament.id,
+              surface: "mobile_cta",
+            });
+            setTab("final");
+          }}
           aria-label="Share — opens the bracket summary"
         >
           Share
