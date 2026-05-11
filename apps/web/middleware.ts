@@ -3,38 +3,57 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Host-based routing for the multi-domain Next app.
  *
- * - `2026wc.tournamental.com` and `wc2026.tournamental.com` are the World Cup 2026 brand.
- *   On those hosts:
- *     1. The apex (`/`) serves the WC 2026 hype/marketing landing (a rewrite
- *        to `/world-cup-2026/landing` so the URL stays clean).
- *     2. `/match/*` is redirected to `app.tournamental.com/match/*` so the AR-FR
- *        replay (and any other historical replay) lives on the platform host,
- *        never on the tournament-specific subdomain.
- *     3. Everything else (notably `/world-cup-2026` — the bracket builder)
- *        falls through unchanged.
+ * - `2026wc.tournamental.com` and `wc2026.tournamental.com` are the
+ *   World Cup 2026 hype/microsite hosts. Apex (`/`) rewrites to
+ *   `/world-cup-2026/landing` (pre-pick marketing flavour), `/match/*`
+ *   is redirected to the platform host, everything else falls through.
  *
- * - Other hosts (e.g. `tournamental.aiva.nz`, the renderer landing) are untouched.
+ * - `play.tournamental.com` is the "play the tournament" host. Apex
+ *   (`/`) rewrites straight to the bracket builder at
+ *   `/world-cup-2026` so the user lands on the predict surface
+ *   immediately. `/match/*` and all other paths fall through (so the
+ *   3D watch-along still works at play.tournamental.com/match/...).
  *
- * Performance: the matcher excludes static asset paths so middleware never
- * runs for flag SVGs, fonts, the renderer's data dumps, etc. A typical
- * navigation request is two host-string checks and at most one URL clone.
+ * - Other hosts (e.g. `tournamental.aiva.nz`, `app.tournamental.com`,
+ *   the local dev origin) are untouched.
+ *
+ * Performance: the matcher excludes static asset paths so middleware
+ * never runs for flag SVGs, fonts, the renderer's data dumps, etc.
  */
 
 const WC_HOST_PREFIXES = ["2026wc.tournamental.com", "wc2026.tournamental.com"] as const;
-// Convenience aliases for local + preview environments. Anything else is
-// left alone, so the renderer landing keeps working in dev.
 const WC_LOCAL_HOSTS = new Set(["2026wc.localhost", "wc2026.localhost"]);
+
+const PLAY_HOSTS = new Set([
+  "play.tournamental.com",
+  "play.localhost",
+]);
 
 function isWcHost(host: string): boolean {
   if (WC_LOCAL_HOSTS.has(host)) return true;
   return WC_HOST_PREFIXES.some((p) => host.startsWith(p));
 }
 
+function isPlayHost(host: string): boolean {
+  return PLAY_HOSTS.has(host);
+}
+
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
-  if (!isWcHost(host)) return NextResponse.next();
-
   const path = req.nextUrl.pathname;
+
+  if (isPlayHost(host)) {
+    // play.tournamental.com — bracket-first landing. Apex rewrites
+    // straight to the predict surface; every other route falls through.
+    if (path === "/") {
+      const url = req.nextUrl.clone();
+      url.pathname = "/world-cup-2026";
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
+  }
+
+  if (!isWcHost(host)) return NextResponse.next();
 
   // 1. /match/* → redirect to the platform host. Replays don't belong on the
   //    WC subdomain. (Existing behaviour from PR #42 — preserved here.)
