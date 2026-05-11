@@ -74,6 +74,11 @@ export function ShareMoleculeEmbed({ bracket }: ShareMoleculeEmbedProps) {
           tournament={tournament}
           bracketOverride={bracket}
           layoutMode="stable"
+          /* readOnly hides the panel close + highlight-toggle so the
+           * stranger viewing the share landing can't fake-edit the
+           * bracket. The auto-select-the-champion behaviour from PR
+           * #159 is unchanged. */
+          readOnly
         />
       ) : (
         <div className="vt-share-molecule-placeholder" role="status">

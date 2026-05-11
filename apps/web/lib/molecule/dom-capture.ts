@@ -53,12 +53,28 @@ import { toPng } from "html-to-image";
 
 import type { CaptureChampion, CapturePathEntry } from "./capture";
 
+export type DomCaptureSize = "landscape" | "portrait" | "square";
+
 export interface DomCaptureInput {
   readonly shareGuid: string;
   readonly handle?: string | null;
   readonly tournamentName?: string;
   readonly champion?: CaptureChampion | null;
   readonly knockoutPath?: ReadonlyArray<CapturePathEntry>;
+  /**
+   * v6.1, "viral share landing" follow-up (2026-05-11). Output aspect
+   * ratio. Each format uses a different composition:
+   *
+   *   landscape (1600x900): pyramid left, panel right, footer bottom.
+   *   portrait  (1080x1920): pyramid top, panel below, footer bottom.
+   *   square    (1080x1080): pyramid + panel side-by-side, taller panel.
+   *
+   * The Save & share page's format switcher passes one of these
+   * straight through, so the user's choice of platform-specific aspect
+   * ratio (X / WhatsApp landscape, Stories portrait, IG-feed square)
+   * lands a correctly-shaped PNG.
+   */
+  readonly size?: DomCaptureSize;
 }
 
 export interface DomCaptureResult {
@@ -67,13 +83,114 @@ export interface DomCaptureResult {
   readonly filename: string;
 }
 
-const OUT_WIDTH = 1600;
-const OUT_HEIGHT = 900;
-const FOOTER_HEIGHT = 80;
-const SCENE_HEIGHT = OUT_HEIGHT - FOOTER_HEIGHT; // 820
-const PYRAMID_WIDTH = 1100;
-const GUTTER = 8;
-const PANEL_WIDTH = OUT_WIDTH - PYRAMID_WIDTH - GUTTER; // 492
+interface CompositionSpec {
+  readonly outW: number;
+  readonly outH: number;
+  readonly footerH: number;
+  readonly pyramidX: number;
+  readonly pyramidY: number;
+  readonly pyramidW: number;
+  readonly pyramidH: number;
+  readonly panelX: number;
+  readonly panelY: number;
+  readonly panelW: number;
+  readonly panelH: number;
+  /** Position of the gold gutter (between pyramid and panel). */
+  readonly gutter:
+    | { readonly axis: "vertical"; readonly x: number; readonly y: number; readonly h: number }
+    | { readonly axis: "horizontal"; readonly x: number; readonly y: number; readonly w: number };
+}
+
+/**
+ * Per-size composition geometry. The panel snapshot is always taken at
+ * 492x820 (the canonical landscape size); for portrait/square the
+ * compositor scales it to fit. Keeping a single snapshot size keeps the
+ * `html-to-image` slow path at ~150-300ms regardless of which format
+ * the user picks.
+ */
+function specFor(size: DomCaptureSize): CompositionSpec {
+  switch (size) {
+    case "portrait": {
+      // 1080x1920 (9:16 stories). Pyramid takes the top 64% of the
+      // canvas; panel sits underneath in a horizontal strip; footer at
+      // the bottom.
+      const outW = 1080;
+      const outH = 1920;
+      const footerH = 96;
+      const pyramidH = 1240;
+      const panelH = outH - footerH - pyramidH - 8; // small gutter
+      return {
+        outW,
+        outH,
+        footerH,
+        pyramidX: 0,
+        pyramidY: 0,
+        pyramidW: outW,
+        pyramidH,
+        panelX: 0,
+        panelY: pyramidH + 8,
+        panelW: outW,
+        panelH,
+        gutter: { axis: "horizontal", x: 0, y: pyramidH, w: outW },
+      };
+    }
+    case "square": {
+      // 1080x1080. Pyramid + panel side-by-side, panel narrower than
+      // landscape; footer thinner.
+      const outW = 1080;
+      const outH = 1080;
+      const footerH = 72;
+      const sceneH = outH - footerH;
+      const pyramidW = 720;
+      const gutter = 8;
+      const panelW = outW - pyramidW - gutter;
+      return {
+        outW,
+        outH,
+        footerH,
+        pyramidX: 0,
+        pyramidY: 0,
+        pyramidW,
+        pyramidH: sceneH,
+        panelX: pyramidW + gutter,
+        panelY: 0,
+        panelW,
+        panelH: sceneH,
+        gutter: { axis: "vertical", x: pyramidW, y: 0, h: sceneH },
+      };
+    }
+    case "landscape":
+    default: {
+      const outW = 1600;
+      const outH = 900;
+      const footerH = 80;
+      const sceneH = outH - footerH; // 820
+      const pyramidW = 1100;
+      const gutter = 8;
+      const panelW = outW - pyramidW - gutter; // 492
+      return {
+        outW,
+        outH,
+        footerH,
+        pyramidX: 0,
+        pyramidY: 0,
+        pyramidW,
+        pyramidH: sceneH,
+        panelX: pyramidW + gutter,
+        panelY: 0,
+        panelW,
+        panelH: sceneH,
+        gutter: { axis: "vertical", x: pyramidW, y: 0, h: sceneH },
+      };
+    }
+  }
+}
+
+// Legacy single-format constants retained for the fallback paint path
+// (these match the landscape spec so the "no panel snapshot" fallback
+// keeps its old appearance).
+const PANEL_SNAPSHOT_W = 492;
+const PANEL_SNAPSHOT_H = 820;
 
 const BG = "#0a0e1a";
 const GOLD = "#f5c542";
@@ -156,9 +273,9 @@ async function snapshotPanel(): Promise<string | null> {
   panel.dataset.captureMode = "true";
   // Force a desktop-shaped panel for the snapshot (even on mobile where
   // the live element docks to a 60vh bottom sheet). The capture target
-  // is PANEL_WIDTH × SCENE_HEIGHT.
-  panel.style.width = `${PANEL_WIDTH}px`;
-  panel.style.height = `${SCENE_HEIGHT}px`;
+  // is PANEL_SNAPSHOT_W × PANEL_SNAPSHOT_H.
+  panel.style.width = `${PANEL_SNAPSHOT_W}px`;
+  panel.style.height = `${PANEL_SNAPSHOT_H}px`;
   panel.style.top = "0";
   panel.style.bottom = "auto";
   panel.style.right = "0";
@@ -167,8 +284,8 @@ async function snapshotPanel(): Promise<string | null> {
 
   try {
     const dataUrl = await toPng(panel, {
-      width: PANEL_WIDTH,
-      height: SCENE_HEIGHT,
+      width: PANEL_SNAPSHOT_W,
+      height: PANEL_SNAPSHOT_H,
       backgroundColor: BG,
       pixelRatio: 2,
       cacheBust: false,
@@ -253,55 +370,64 @@ function drawCovered(
 
 function drawFooter(
   ctx: CanvasRenderingContext2D,
+  spec: CompositionSpec,
   shareGuid: string,
   qrImg: HTMLImageElement | null,
 ): void {
-  const y = SCENE_HEIGHT;
+  const y = spec.outH - spec.footerH;
   // Footer strip
   ctx.fillStyle = "#101626";
-  ctx.fillRect(0, y, OUT_WIDTH, FOOTER_HEIGHT);
+  ctx.fillRect(0, y, spec.outW, spec.footerH);
   // Top-edge gold rule
   ctx.fillStyle = GOLD;
-  ctx.fillRect(0, y, OUT_WIDTH, 2);
+  ctx.fillRect(0, y, spec.outW, 2);
 
   // Wordmark left
   ctx.fillStyle = GOLD;
   ctx.font = '900 28px -apple-system, "Segoe UI", system-ui, sans-serif';
   ctx.textBaseline = "middle";
   ctx.textAlign = "left";
-  ctx.fillText("TOURNAMENTAL", 32, y + FOOTER_HEIGHT / 2);
+  ctx.fillText("TOURNAMENTAL", 32, y + spec.footerH / 2);
 
-  // Subtitle (handle / promo)
+  // Subtitle (handle / promo). On portrait/square the canvas isn't
+  // wide enough for both the wordmark and the subtitle on one row;
+  // we skip the subtitle when it would overflow into the QR zone.
   ctx.fillStyle = INK;
   ctx.font = '600 14px -apple-system, "Segoe UI", system-ui, sans-serif';
-  ctx.fillText(
-    "FIFA WORLD CUP 2026 · PREDICTION MOLECULE",
-    32 + ctx.measureText("TOURNAMENTAL").width + 16,
-    y + FOOTER_HEIGHT / 2 + 1,
-  );
+  const wordmarkW = ctx.measureText("TOURNAMENTAL").width;
+  const subtitle = "FIFA WORLD CUP 2026 · PREDICTION MOLECULE";
+  const subtitleW = ctx.measureText(subtitle).width;
+  const rightPad = 32;
+  const qrSize = 56;
+  const qrZone = qrImg ? qrSize + 200 : 200; // QR + room for URL text
+  if (32 + wordmarkW + 16 + subtitleW < spec.outW - rightPad - qrZone) {
+    ctx.fillText(
+      subtitle,
+      32 + wordmarkW + 16,
+      y + spec.footerH / 2 + 1,
+    );
+  }
 
   // QR + URL right
-  const qrSize = 56;
-  const rightPad = 32;
   const urlText = `${URL_BASE}${shareGuid}`;
   ctx.font = '700 16px -apple-system, "Segoe UI", system-ui, sans-serif';
   ctx.textAlign = "right";
   ctx.fillStyle = "#fff";
-  let urlX = OUT_WIDTH - rightPad;
+  let urlX = spec.outW - rightPad;
   if (qrImg) {
-    urlX = OUT_WIDTH - rightPad - qrSize - 16;
+    urlX = spec.outW - rightPad - qrSize - 16;
     ctx.drawImage(
       qrImg,
-      OUT_WIDTH - rightPad - qrSize,
-      y + (FOOTER_HEIGHT - qrSize) / 2,
+      spec.outW - rightPad - qrSize,
+      y + (spec.footerH - qrSize) / 2,
       qrSize,
       qrSize,
     );
   }
-  ctx.fillText(urlText, urlX, y + FOOTER_HEIGHT / 2 - 2);
+  ctx.fillText(urlText, urlX, y + spec.footerH / 2 - 2);
   ctx.font = '600 11px -apple-system, "Segoe UI", system-ui, sans-serif';
   ctx.fillStyle = "#8b9bbd";
-  ctx.fillText("Scan to view this molecule", urlX, y + FOOTER_HEIGHT / 2 + 18);
+  ctx.fillText("Scan to view this molecule", urlX, y + spec.footerH / 2 + 18);
 }
 
 /**
@@ -343,62 +469,67 @@ export async function captureDomComposition(
   const qrImg = qrDataUrl ? await loadImage(qrDataUrl).catch(() => null) : null;
 
   // 4. Composite.
-  const { canvas: out, ctx } = makeContext(OUT_WIDTH, OUT_HEIGHT);
+  const spec = specFor(input.size ?? "landscape");
+  const { canvas: out, ctx } = makeContext(spec.outW, spec.outH);
   ctx.fillStyle = BG;
-  ctx.fillRect(0, 0, OUT_WIDTH, OUT_HEIGHT);
+  ctx.fillRect(0, 0, spec.outW, spec.outH);
 
-  // Pyramid on the left (1100 × 820)
+  // Pyramid in its slot
   drawCovered(
     ctx,
     sceneImg,
     sceneImg.naturalWidth,
     sceneImg.naturalHeight,
-    0,
-    0,
-    PYRAMID_WIDTH,
-    SCENE_HEIGHT,
+    spec.pyramidX,
+    spec.pyramidY,
+    spec.pyramidW,
+    spec.pyramidH,
   );
 
-  // Gold gutter (1px) between pyramid and panel for the brand edge.
+  // Gold gutter between pyramid and panel for the brand edge.
   ctx.fillStyle = GOLD;
   ctx.globalAlpha = 0.55;
-  ctx.fillRect(PYRAMID_WIDTH, 0, GUTTER, SCENE_HEIGHT);
+  if (spec.gutter.axis === "vertical") {
+    ctx.fillRect(spec.gutter.x, spec.gutter.y, 8, spec.gutter.h);
+  } else {
+    ctx.fillRect(spec.gutter.x, spec.gutter.y, spec.gutter.w, 8);
+  }
   ctx.globalAlpha = 1;
 
-  // Panel on the right (~492 × 820)
+  // Panel in its slot (scaled from the snapshot dimensions)
   if (panelImg) {
     drawCovered(
       ctx,
       panelImg,
       panelImg.naturalWidth,
       panelImg.naturalHeight,
-      PYRAMID_WIDTH + GUTTER,
-      0,
-      PANEL_WIDTH,
-      SCENE_HEIGHT,
+      spec.panelX,
+      spec.panelY,
+      spec.panelW,
+      spec.panelH,
     );
   } else {
     // No panel snapshot — paint a "champion" fallback strip with the
     // basic data we already have in the capture input.
     ctx.fillStyle = "#101626";
-    ctx.fillRect(PYRAMID_WIDTH + GUTTER, 0, PANEL_WIDTH, SCENE_HEIGHT);
+    ctx.fillRect(spec.panelX, spec.panelY, spec.panelW, spec.panelH);
     ctx.fillStyle = GOLD;
     ctx.font = '900 24px -apple-system, "Segoe UI", system-ui, sans-serif';
     ctx.textBaseline = "top";
     ctx.textAlign = "left";
     ctx.fillText(
       "PREDICTED CHAMPION",
-      PYRAMID_WIDTH + GUTTER + 24,
-      32,
+      spec.panelX + 24,
+      spec.panelY + 32,
     );
     if (input.champion) {
       ctx.fillStyle = "#fff";
       ctx.font = '800 36px -apple-system, "Segoe UI", system-ui, sans-serif';
-      ctx.fillText(input.champion.name, PYRAMID_WIDTH + GUTTER + 24, 64);
+      ctx.fillText(input.champion.name, spec.panelX + 24, spec.panelY + 64);
     }
   }
 
-  drawFooter(ctx, input.shareGuid, qrImg);
+  drawFooter(ctx, spec, input.shareGuid, qrImg);
 
   // 5. Materialise PNG blob.
   const blob = await new Promise<Blob>((resolve, reject) => {

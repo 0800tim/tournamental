@@ -129,7 +129,163 @@
   object-fit: cover;
 }
 
-/* ── Podium row ─────────────────────────────────────────────────── */
+/* ── Podium hero strip (v6.1, 2026-05-11) ───────────────────────── */
+/*
+ * The new "scan from across the room" version. Three big medal tiles
+ * sitting above the molecule embed; each tile shows a chunky flag
+ * emoji, the 3-letter team code, an ordinal pill, and the team's full
+ * name. Gold tile sits ~12px higher than silver / bronze on desktop;
+ * mobile stacks into a column with the gold tile slightly enlarged.
+ *
+ * Mobile budget: must fit on a 320px-wide phone with a 16px gutter on
+ * either side. We use `clamp()` for the flag size so the column-mode
+ * tile doesn't dominate the viewport.
+ */
+.vt-share-podium-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+  padding: 4px 0;
+}
+
+.vt-share-podium-hero-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 18px 8px 16px;
+  border-radius: 16px;
+  background: var(--vt-share-bg-2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+}
+
+.vt-share-podium-hero-tile[data-rank="gold"] {
+  background: linear-gradient(
+    180deg,
+    rgba(245, 197, 66, 0.18) 0%,
+    rgba(245, 197, 66, 0.04) 100%
+  );
+  border-color: rgba(245, 197, 66, 0.55);
+  box-shadow:
+    0 0 0 2px rgba(245, 197, 66, 0.4) inset,
+    0 12px 32px rgba(245, 197, 66, 0.18);
+  transform: translateY(-12px);
+}
+
+.vt-share-podium-hero-tile[data-rank="silver"] {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 221, 230, 0.14) 0%,
+    rgba(216, 221, 230, 0.03) 100%
+  );
+  border-color: rgba(216, 221, 230, 0.4);
+  box-shadow: 0 0 0 2px rgba(216, 221, 230, 0.28) inset;
+}
+
+.vt-share-podium-hero-tile[data-rank="bronze"] {
+  background: linear-gradient(
+    180deg,
+    rgba(216, 149, 79, 0.14) 0%,
+    rgba(216, 149, 79, 0.03) 100%
+  );
+  border-color: rgba(216, 149, 79, 0.4);
+  box-shadow: 0 0 0 2px rgba(216, 149, 79, 0.28) inset;
+}
+
+.vt-share-podium-hero-cup {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.vt-share-podium-hero-flag {
+  font-size: clamp(56px, 16vw, 80px);
+  line-height: 1;
+  margin-top: 4px;
+}
+
+.vt-share-podium-hero-code {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  color: #fff;
+  line-height: 1;
+}
+
+.vt-share-podium-hero-pill {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-top: 2px;
+}
+
+.vt-share-podium-hero-tile[data-rank="gold"] .vt-share-podium-hero-pill {
+  background: rgba(245, 197, 66, 0.95);
+  color: #1a1305;
+}
+.vt-share-podium-hero-tile[data-rank="silver"] .vt-share-podium-hero-pill {
+  background: rgba(216, 221, 230, 0.9);
+  color: #1e2433;
+}
+.vt-share-podium-hero-tile[data-rank="bronze"] .vt-share-podium-hero-pill {
+  background: rgba(216, 149, 79, 0.95);
+  color: #1e1006;
+}
+
+.vt-share-podium-hero-name {
+  color: var(--vt-share-ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  margin-top: 2px;
+}
+
+@media (max-width: 540px) {
+  /* Column layout: gold first, then silver, then bronze. Each tile
+   * spans the full width but stays compact in height. Mobile users
+   * scan top-to-bottom, so we lead with gold. */
+  .vt-share-podium-hero {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .vt-share-podium-hero-tile {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 12px 14px;
+    transform: none !important;
+  }
+  .vt-share-podium-hero-flag {
+    font-size: 48px;
+  }
+  .vt-share-podium-hero-tile[data-rank="gold"] .vt-share-podium-hero-flag {
+    font-size: 56px;
+  }
+  .vt-share-podium-hero-cup {
+    font-size: 18px;
+  }
+  .vt-share-podium-hero-code {
+    font-size: 22px;
+  }
+  .vt-share-podium-hero-name {
+    flex: 1;
+    text-align: left;
+    font-size: 13px;
+  }
+  /* Visual order on mobile: gold-silver-bronze top-to-bottom. */
+  .vt-share-podium-hero-tile[data-rank="gold"] { order: 1; }
+  .vt-share-podium-hero-tile[data-rank="silver"] { order: 2; }
+  .vt-share-podium-hero-tile[data-rank="bronze"] { order: 3; }
+  .vt-share-podium-hero {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* ── Podium row (legacy, kept for syndicate / fallback views) ──── */
 
 .vt-share-podium {
   display: grid;
@@ -554,8 +710,11 @@
   position: relative;
   isolation: isolate;
   /* Mobile: lean on viewport height so the molecule dominates the
-   * fold. min-height pins a floor for very-short viewports. */
+   * fold. min-height pins a floor for very-short viewports.
+   * v6.1 (2026-05-11) requires aspect-ratio: 1 minimum on mobile so
+   * the embed is tappable. */
   min-height: 70vh;
+  aspect-ratio: 1 / 1;
   /* Cap at a comfortable max so a tall desktop browser doesn't
    * stretch the molecule into a long thin column. */
   max-height: 720px;
@@ -573,11 +732,33 @@
   border-radius: inherit;
 }
 
-/* Suppress the bracket-edit side panel: the share-landing viewer
- * isn't the bracket owner, edits are meaningless. */
-.vt-share-molecule .molecule-panel,
+/* v6.1, "viral share landing" follow-up (2026-05-11). The panel is
+ * now visible (read-only) inside the embed, so stranger viewers see
+ * the full "PREDICTED CHAMPION + GROUP STAGE + KNOCKOUT" composition
+ * that the bracket owner saw when capturing the viral image. The
+ * panel itself omits interactive controls because we pass
+ * `readOnly` to MoleculeScene. The pundits panel is for the molecule
+ * page only and stays hidden here. */
 .vt-share-molecule .molecule-pundits-panel {
   display: none !important;
+}
+
+/* On narrow viewports the panel docks to a 60vh bottom sheet which
+ * would crowd the molecule. Inside the share embed we'd rather scale
+ * down the panel and dock it as a slim right-rail strip, or hide it
+ * entirely on the smallest phones (the podium hero strip above the
+ * embed carries the medal information anyway). */
+@media (max-width: 540px) {
+  .vt-share-molecule .molecule-panel {
+    width: min(220px, 60vw);
+    font-size: 12px;
+  }
+  .vt-share-molecule .molecule-panel-title {
+    font-size: 17px;
+  }
+  .vt-share-molecule .molecule-panel-flag {
+    font-size: 26px;
+  }
 }
 
 @media (min-width: 768px) {

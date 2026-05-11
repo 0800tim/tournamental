@@ -63,6 +63,14 @@ export interface MoleculeSceneProps {
    *                   picks and the rank consensus is visually stark.
    */
   readonly layoutMode?: LayoutMode;
+  /**
+   * v6.1, "viral share landing" follow-up (2026-05-11). When `true`
+   * the side panel hides interactive affordances (close button, the
+   * highlight-on-scene toggle) so the share-landing embed can render
+   * the panel without implying edit-ability. The scene itself stays
+   * fully interactive (rotate / zoom / select).
+   */
+  readonly readOnly?: boolean;
 }
 
 function emptyBracket(): Bracket {
@@ -314,6 +322,7 @@ export function MoleculeScene({
   tournament,
   bracketOverride,
   layoutMode = "stable",
+  readOnly = false,
 }: MoleculeSceneProps) {
   const [userIdLocal, setUserIdLocal] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
@@ -570,6 +579,28 @@ export function MoleculeScene({
       ) ?? layout.nodes.find((n) => n.teamCode === layout.championCode)
     : null;
 
+  // v6.1, "viral share landing" follow-up (2026-05-11). The side
+  // panel needs the runner-up + 3rd-place codes when the user is
+  // viewing the predicted champion, so it can render the podium
+  // peek row underneath the hero. Both come straight off the cascade
+  // (final's loser; 3rd-place playoff winner). Compute once and
+  // pass through; the panel handles the "is the selected team the
+  // champion?" guard itself.
+  const podiumPeek = useMemo(() => {
+    const final = cascaded.knockouts.find((k) => k.stage === "f");
+    const tp = cascaded.knockouts.find((k) => k.stage === "tp");
+    const championCode = layout.championCode ?? null;
+    const runnerUpCode = final
+      ? final.effective_winner === final.home.team
+        ? final.away.team
+        : final.effective_winner === final.away.team
+          ? final.home.team
+          : null
+      : null;
+    const thirdPlaceCode = tp?.effective_winner ?? null;
+    return { championCode, runnerUpCode, thirdPlaceCode };
+  }, [cascaded.knockouts, layout.championCode]);
+
   const showPathChip =
     !selectedOverridesAllowed && championPath.bonds.length > 0 && !!championAtomNode;
 
@@ -777,6 +808,8 @@ export function MoleculeScene({
           if (selected) setHighlightOverride(selected, on);
         }}
         onClose={() => setSelected(null)}
+        podiumPeek={podiumPeek}
+        readOnly={readOnly}
       />
     </div>
   );

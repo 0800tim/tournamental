@@ -52,6 +52,28 @@ export interface MoleculePanelProps {
    * the capture helper for the duration of the snapshot.
    */
   captureMode?: boolean;
+  /**
+   * v6.1, "viral share landing" follow-up (2026-05-11). When the
+   * selected team IS the predicted champion, the panel shows a tiny
+   * "Podium" row right under the hero with the runner-up + 3rd-place
+   * flags so any viewer glancing at the share image gets all three
+   * medal positions without reading the knockout list. The codes are
+   * derived once in the parent (MoleculeScene) so we don't duplicate
+   * the cascade traversal here.
+   */
+  podiumPeek?: {
+    readonly championCode: string | null;
+    readonly runnerUpCode: string | null;
+    readonly thirdPlaceCode: string | null;
+  } | null;
+  /**
+   * Read-only mode. Suppresses the close button + the highlight-on-
+   * scene toggle so the share-landing embed can render the panel for
+   * strangers without giving them controls that imply edit-ability.
+   * Differs from `captureMode` in that the slide-in animation + scroll
+   * stay intact; only interactive affordances are hidden.
+   */
+  readOnly?: boolean;
 }
 
 const STAGE_LABEL: Record<string, string> = {
@@ -107,7 +129,14 @@ export function MoleculePanel(props: MoleculePanelProps) {
     onHighlightOverrideChange,
     onClose,
     captureMode = false,
+    podiumPeek = null,
+    readOnly = false,
   } = props;
+  /**
+   * Hide interactive bits whenever we're in either capture mode or
+   * read-only mode. Same surface area — different reason for hiding.
+   */
+  const suppressControls = captureMode || readOnly;
 
   const team = teamCode
     ? tournament.teams.find((t) => t.id === teamCode) ?? null
@@ -152,7 +181,7 @@ export function MoleculePanel(props: MoleculePanelProps) {
             {pill.label}
           </span>
         </div>
-        {captureMode ? null : (
+        {suppressControls ? null : (
           <button
             type="button"
             aria-label="Close team panel"
@@ -165,7 +194,7 @@ export function MoleculePanel(props: MoleculePanelProps) {
       </header>
 
       <section className="molecule-panel-body">
-        {captureMode ? null : (
+        {suppressControls ? null : (
           <div className="molecule-panel-toolbar">
             <label className="molecule-panel-toggle">
               <input
@@ -180,6 +209,17 @@ export function MoleculePanel(props: MoleculePanelProps) {
             </label>
           </div>
         )}
+
+        {/* Podium peek, only when this team is the predicted champion. */}
+        {podiumPeek && podiumPeek.championCode === teamCode ? (
+          <PodiumPeek
+            championCode={podiumPeek.championCode}
+            runnerUpCode={podiumPeek.runnerUpCode}
+            thirdPlaceCode={podiumPeek.thirdPlaceCode}
+            tournament={tournament}
+            flagEmojiByTeam={flagEmojiByTeam}
+          />
+        ) : null}
 
         {/* ---------- GROUP STAGE ---------- */}
         {groupSummary && groupSummary.groupId ? (
@@ -339,5 +379,80 @@ function GroupMatchRowView({
         {row.points} {row.points === 1 ? "pt" : "pts"}
       </span>
     </li>
+  );
+}
+
+/**
+ * Podium peek row, shown ONLY when the selected team is the predicted
+ * champion. Three medal tiles, gold / silver / bronze, each with the
+ * team's flag emoji + 3-letter code + ordinal pill. Renders nothing
+ * when any of the three codes is missing — partial podiums look worse
+ * than no podium.
+ *
+ * Why it lives inside the panel and not as a sibling of the molecule:
+ * a viewer's eye anchors on the champion hero in the panel, so the
+ * silver/bronze tiles sit closest to that anchor where the storytelling
+ * payoff is strongest. The share-image capture sweeps the panel into
+ * the right-hand strip so this tiny row ends up baked into the viral
+ * PNG too.
+ */
+function PodiumPeek({
+  championCode,
+  runnerUpCode,
+  thirdPlaceCode,
+  tournament,
+  flagEmojiByTeam,
+}: {
+  championCode: string | null;
+  runnerUpCode: string | null;
+  thirdPlaceCode: string | null;
+  tournament: Tournament;
+  flagEmojiByTeam: ReadonlyMap<string, string>;
+}): React.ReactElement | null {
+  const codeName = (code: string | null): string | null => {
+    if (!code) return null;
+    return tournament.teams.find((t) => t.id === code)?.name ?? code;
+  };
+  const championName = codeName(championCode);
+  const runnerUpName = codeName(runnerUpCode);
+  const thirdName = codeName(thirdPlaceCode);
+  // Don't render unless we have all three — a partial podium reads as
+  // a bug, not a feature.
+  if (!championCode || !runnerUpCode || !thirdPlaceCode) return null;
+  if (!championName || !runnerUpName || !thirdName) return null;
+  return (
+    <ol
+      className="molecule-panel-podium"
+      aria-label="Predicted podium"
+      data-testid="molecule-panel-podium"
+    >
+      <li className="molecule-panel-podium-tile" data-rank="gold">
+        <span className="molecule-panel-podium-cup" aria-hidden>
+          🥇
+        </span>
+        <span className="molecule-panel-podium-flag" aria-hidden>
+          {flagEmojiByTeam.get(championCode) ?? "🏳️"}
+        </span>
+        <span className="molecule-panel-podium-code">{championCode}</span>
+      </li>
+      <li className="molecule-panel-podium-tile" data-rank="silver">
+        <span className="molecule-panel-podium-cup" aria-hidden>
+          🥈
+        </span>
+        <span className="molecule-panel-podium-flag" aria-hidden>
+          {flagEmojiByTeam.get(runnerUpCode) ?? "🏳️"}
+        </span>
+        <span className="molecule-panel-podium-code">{runnerUpCode}</span>
+      </li>
+      <li className="molecule-panel-podium-tile" data-rank="bronze">
+        <span className="molecule-panel-podium-cup" aria-hidden>
+          🥉
+        </span>
+        <span className="molecule-panel-podium-flag" aria-hidden>
+          {flagEmojiByTeam.get(thirdPlaceCode) ?? "🏳️"}
+        </span>
+        <span className="molecule-panel-podium-code">{thirdPlaceCode}</span>
+      </li>
+    </ol>
   );
 }

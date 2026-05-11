@@ -95,6 +95,11 @@ export function MoleculeCaptureButton({
         tournamentName: input.tournamentName,
         champion: input.champion,
         knockoutPath: input.knockoutPath,
+        // v6.1, "viral share landing" follow-up (2026-05-11). The
+        // button is always the "share my current view" affordance so
+        // the user gets the landscape default; the Save & share page
+        // owns the size switcher for per-platform downloads.
+        size: input.size,
       });
       // Revoke any previous capture's object URL.
       if (lastUrlRef.current) {

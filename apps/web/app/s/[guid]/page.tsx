@@ -144,7 +144,6 @@ export default async function SharePage({ params }: PageProps) {
 function UserLanding({ bracket }: { bracket: BracketByGuid }) {
   const { handle, champion, runner_up, third_place, path_to_gold, tournament_label, saved_at } =
     bracket;
-  const ogSrc = `/api/og/bracket?bracket_id=${encodeURIComponent(bracket.bracket_id)}&handle=${encodeURIComponent(handle)}&winner=${encodeURIComponent(champion.name)}`;
   const savedDisplay = formatSavedAt(saved_at);
 
   return (
@@ -162,27 +161,30 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
         </p>
       </header>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="vt-share-og"
-        src={ogSrc}
-        alt={`${handle}'s podium prediction`}
-        width={1200}
-        height={630}
-        loading="eager"
-        decoding="async"
-      />
-
-      <div className="vt-share-podium" aria-label="Predicted podium">
-        <PodiumCup rank="silver" team={runner_up} cup="🥈" />
-        <PodiumCup rank="gold" team={champion} cup="🥇" />
-        <PodiumCup rank="bronze" team={third_place} cup="🥉" />
+      {/* v6.1, "viral share landing" follow-up (2026-05-11). Tim's
+        * brief calls out: the runner-up + 3rd-place flags must be
+        * BIG (not buried inside a knockout list) so anyone glancing
+        * at the page from across the room sees "gold X, silver Y,
+        * bronze Z" in one beat. This row is the hero, sitting above
+        * the molecule embed. The static OG `<img>` is gone — the
+        * embedded MoleculeScene IS the live equivalent. */}
+      <div
+        className="vt-share-podium-hero"
+        data-testid="share-podium-hero"
+        aria-label="Predicted podium"
+      >
+        <PodiumHeroTile rank="silver" team={runner_up} ordinal="2ND" cup="🥈" />
+        <PodiumHeroTile rank="gold" team={champion} ordinal="1ST" cup="🥇" />
+        <PodiumHeroTile rank="bronze" team={third_place} ordinal="3RD" cup="🥉" />
       </div>
 
       {/* Live 3D molecule. Tim 2026-05-11: every share landing should
         * embed the owner's actual predicted molecule, not just a flat
         * podium image. Read-only — the viewer can rotate / zoom but
-        * can't edit picks. */}
+        * can't edit picks. The MoleculeScene auto-selects the predicted
+        * champion on mount (PR #159) so the panel is open by default
+        * and visitors land on the exact pyramid + champion-panel
+        * composition Tim ships as the share image. */}
       {bracket.payload ? (
         <ShareMoleculeEmbed bracket={bracket.payload} />
       ) : null}
@@ -214,26 +216,54 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
   );
 }
 
-function PodiumCup({
+/**
+ * v6.1, "viral share landing" follow-up (2026-05-11). The hero podium
+ * tile is the BIG, scan-from-across-the-room rendering of one medal
+ * position. Each tile:
+ *
+ *   - 80px flag emoji
+ *   - 28px bold team code
+ *   - "1ST / 2ND / 3RD" pill in the medal accent colour
+ *   - team name in 16px under the pill
+ *
+ * The gold tile sits 12px higher than silver / bronze so the eye
+ * naturally lands on it first (same trick the old `.vt-share-podium`
+ * row used). On mobile the row collapses to a stacked column with
+ * the gold tile slightly enlarged.
+ */
+function PodiumHeroTile({
   rank,
   team,
+  ordinal,
   cup,
 }: {
   rank: "gold" | "silver" | "bronze";
   team: { code: string; name: string; flag_emoji: string };
+  ordinal: "1ST" | "2ND" | "3RD";
   cup: string;
 }) {
-  const label = rank === "gold" ? "Champion" : rank === "silver" ? "Runner-up" : "Third place";
+  const ariaLabel =
+    rank === "gold"
+      ? `Champion ${team.name}`
+      : rank === "silver"
+        ? `Runner-up ${team.name}`
+        : `Third place ${team.name}`;
   return (
-    <div className="vt-share-podium-cup" data-rank={rank}>
-      <span className="vt-share-podium-emoji" aria-hidden>
+    <div
+      className="vt-share-podium-hero-tile"
+      data-rank={rank}
+      data-testid={`share-podium-tile-${rank}`}
+      aria-label={ariaLabel}
+    >
+      <span className="vt-share-podium-hero-cup" aria-hidden>
         {cup}
       </span>
-      <span className="vt-share-podium-flag" aria-hidden>
+      <span className="vt-share-podium-hero-flag" aria-hidden>
         {team.flag_emoji}
       </span>
-      <span className="vt-share-podium-name">{team.name}</span>
-      <span className="vt-share-podium-rank-label">{label}</span>
+      <span className="vt-share-podium-hero-code">{team.code}</span>
+      <span className="vt-share-podium-hero-pill">{ordinal}</span>
+      <span className="vt-share-podium-hero-name">{team.name}</span>
     </div>
   );
 }
