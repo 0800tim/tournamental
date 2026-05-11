@@ -1,0 +1,13 @@
+{
+  "// _comment": "Add to `~/.codeium/windsurf/mcp_config.json` (Windsurf's default discovery path). Windsurf re-uses the same `mcpServers` shape as Claude Desktop. Replace YOUR_USER_KEY_HERE with the API key from https://play.tournamental.com/account/keys.",
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": {
+        "TOURNAMENTAL_USER_KEY": "YOUR_USER_KEY_HERE",
+        "GAME_BASE_URL": "https://game.tournamental.com"
+      }
+    }
+  }
+}

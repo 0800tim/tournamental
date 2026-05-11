@@ -1,0 +1,13 @@
+{
+  "// _comment": "Add this entry into your existing `mcpServers` object in `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%/Claude/claude_desktop_config.json` (Windows). Replace `YOUR_USER_KEY_HERE` with the per-user API key from https://play.tournamental.com/account/keys. Omit the env block entirely for read-only public-tier access.",
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": {
+        "TOURNAMENTAL_USER_KEY": "YOUR_USER_KEY_HERE",
+        "GAME_BASE_URL": "https://game.tournamental.com"
+      }
+    }
+  }
+}
