@@ -60,7 +60,7 @@ syndicate-scoped). Port 3360.
 - typecheck clean.
 - README documents every endpoint + curl examples.
 - `.env.example` documents every env var with a sensible default.
-- docs/22 updated: adds the `vtorn-game.aiva.nz` row + `apps/game` port
+- docs/22 updated: adds the `game.tournamental.com` row + `apps/game` port
   3360 entry. Did not touch the unrelated 3340 collision.
 
 ## Status

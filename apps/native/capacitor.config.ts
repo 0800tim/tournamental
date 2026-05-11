@@ -9,7 +9,7 @@
  * Per-build-target overrides via env:
  *   VTORN_WEB_URL              — full URL the WebView loads on launch.
  *                                 default: https://tournamental.com
- *                                 stage:   https://vtorn.aiva.nz
+ *                                 stage:   https://play.tournamental.com
  *                                 dev:     http://10.0.2.2:3300 (Android emu)
  *                                          http://localhost:3300 (iOS sim)
  *   VTORN_ANDROID_CLEARTEXT    — "true" to allow http:// (dev only).
@@ -39,8 +39,6 @@ const config: CapacitorConfig = {
     allowNavigation: [
       'tournamental.com',
       '*.tournamental.com',
-      'aiva.nz',
-      '*.aiva.nz',
       'localhost',
     ],
   },

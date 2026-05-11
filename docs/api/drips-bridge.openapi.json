@@ -120,8 +120,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-drips.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://drips.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

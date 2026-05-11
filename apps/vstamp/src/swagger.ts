@@ -34,7 +34,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       },
       servers: [
         { url: 'http://localhost:3380', description: 'local dev' },
-        { url: 'https://vtorn-vstamp.aiva.nz', description: 'dev tunnel' },
+        { url: 'https://vstamp.tournamental.com', description: 'production' },
       ],
       tags: [
         { name: 'health', description: 'Liveness + version' },

@@ -94,11 +94,11 @@ existing `aiva-tunnel` per `docs/22-deployment-and-tunnels.md`. Add the
 ingress rule the same way other tournamental dev hostnames are added:
 
 ```bash
-# 1. Pick a hostname (suggested: vtorn-odds.aiva.nz for dev,
+# 1. Pick a hostname (suggested: odds.tournamental.com for dev,
 #    odds.tournamental.com for prod) and a tunnel.
 ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
 TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
-HOST=vtorn-odds.aiva.nz
+HOST=odds.tournamental.com
 PORT=3341
 
 # 2. Create the CNAME record.

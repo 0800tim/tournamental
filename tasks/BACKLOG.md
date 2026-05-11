@@ -32,7 +32,7 @@
 - `[?]` Set up `tournamental.com` Cloudflare zone (Tim) → wire `dev.tournamental.com`, `preview.tournamental.com`, `api-dev.tournamental.com` tunnels.
 - `[?]` Pick offsite-backup target (R2 vs S3 vs Tigris) and wire `VTORN_BACKUP_OFFSITE_DIR`.
 - `[?]` Cron entries on this box for hourly/daily/weekly `db-backup.sh`.
-- `[?]` Add a tunnel for `vtorn-admin.aiva.nz` when admin agent is dispatched.
+- `[?]` Add a tunnel for `admin.tournamental.com` when admin agent is dispatched.
 
 ## P2 — gamification, sharing, virality (see `docs/24-gamification-and-virality.md`)
 

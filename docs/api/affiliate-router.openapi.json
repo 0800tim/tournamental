@@ -47,8 +47,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-aff.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://aff.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

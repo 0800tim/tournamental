@@ -38,7 +38,7 @@ export async function registerSwagger(app: FastifyInstance): Promise<void> {
       },
       servers: [
         { url: `http://localhost:${PORT}`, description: 'local dev' },
-        { url: 'https://vtorn-news.aiva.nz', description: 'dev tunnel' },
+        { url: 'https://news.tournamental.com', description: 'production' },
       ],
       tags: [
         { name: 'health', description: 'Liveness + version' },

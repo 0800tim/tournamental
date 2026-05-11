@@ -62,7 +62,7 @@ WATCHDOG_PORT                     default 3416
 WATCHDOG_BIND                     default 0.0.0.0
 WATCHDOG_DATA_DIR                 default ./data (relative to cwd)
 WATCHDOG_API_TOKEN                bearer token for write endpoints (>=16 chars)
-WATCHDOG_CORS_ORIGINS             comma-separated origins; default vtorn-admin.aiva.nz + localhost:3340
+WATCHDOG_CORS_ORIGINS             comma-separated origins; default admin.tournamental.com + localhost:3340
 
 # Alert sinks (all optional; missing env disables the sink)
 SECURITY_SLACK_WEBHOOK_URL

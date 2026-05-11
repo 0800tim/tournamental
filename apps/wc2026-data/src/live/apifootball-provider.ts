@@ -133,7 +133,7 @@ export class ApiFootballLiveDataProvider implements LiveDataProvider {
     return {
       "x-apisports-key": key,
       Accept: "application/json",
-      "User-Agent": "vtorn-wc2026-data/0.1 (+https://vtorn.aiva.nz)",
+      "User-Agent": "vtorn-wc2026-data/0.1 (+https://play.tournamental.com)",
     };
   }
 

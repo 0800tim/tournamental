@@ -13,7 +13,7 @@ const PORT = Number(process.env.VTORN_API_PORT ?? 3310);
 const BIND = process.env.VTORN_API_BIND ?? '0.0.0.0';
 const LOG_LEVEL = process.env.LOG_LEVEL ?? 'info';
 
-const corsOrigins = (process.env.VTORN_API_CORS_ORIGINS ?? 'https://vtorn.aiva.nz,http://localhost:3300')
+const corsOrigins = (process.env.VTORN_API_CORS_ORIGINS ?? 'https://play.tournamental.com,http://localhost:3300')
   .split(',')
   .map((s) => s.trim())
   .filter(Boolean);

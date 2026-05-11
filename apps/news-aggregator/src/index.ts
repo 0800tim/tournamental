@@ -35,7 +35,7 @@ const ADMIN_SECRET = process.env.NEWS_ADMIN_SECRET;
 
 const corsOrigins = (
   process.env.NEWS_AGG_CORS_ORIGINS ??
-  'https://vtorn-www.aiva.nz,https://vtorn.aiva.nz,https://tournamental.com,http://localhost:3300,http://localhost:3320'
+  'https://tournamental.com,https://play.tournamental.com,https://tournamental.com,http://localhost:3300,http://localhost:3320'
 )
   .split(',')
   .map((s) => s.trim())

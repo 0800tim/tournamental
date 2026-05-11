@@ -24,6 +24,8 @@ const ALWAYS_OK = new Set([
   '127.0.0.1',
   '0.0.0.0',
   'tournamental.com',
+  // aiva.nz is on this list because Tournamental's default SMS gateway
+  // integration (packages/aiva-client) targets the Aiva SMS service.
   'aiva.nz',
   'github.com',
   'tools.ietf.org',

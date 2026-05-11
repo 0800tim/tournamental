@@ -228,7 +228,7 @@ export class WikidataH2HSource implements H2HSource {
         Accept: "application/sparql-results+json",
         "User-Agent":
           process.env.WC2026_USER_AGENT ??
-          "Tournamental-WC2026-Scraper/0.1 (+https://vtorn.aiva.nz; ops@tournamental.com)",
+          "Tournamental-WC2026-Scraper/0.1 (+https://play.tournamental.com; ops@tournamental.com)",
       },
     });
     if (!res.ok) {

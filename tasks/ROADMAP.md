@@ -4,7 +4,7 @@
 
 ## Now (current sprint — week of 2026-05-09)
 
-**Goal**: AR-FR 2022 World Cup Final replay running in a browser at `https://vtorn.aiva.nz`, end-to-end, with historic odds in the HUD.
+**Goal**: AR-FR 2022 World Cup Final replay running in a browser at `https://play.tournamental.com`, end-to-end, with historic odds in the HUD.
 
 | ID    | Item                              | Owner                | Status        |
 | ----- | --------------------------------- | -------------------- | ------------- |
@@ -46,7 +46,7 @@
 
 ## Definition of Done — current sprint
 
-- [ ] AR-FR 2022 final replays in browser at `https://vtorn.aiva.nz` end-to-end.
+- [ ] AR-FR 2022 final replays in browser at `https://play.tournamental.com` end-to-end.
 - [ ] HUD shows live historic odds at every key moment.
 - [ ] 30-second screen capture exists, watchable, shareable.
 - [ ] All four builder PRs merged with the reviewer-agent checklist clean.

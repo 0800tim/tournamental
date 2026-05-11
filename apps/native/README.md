@@ -99,7 +99,7 @@ VTORN_WEB_URL=http://10.0.2.2:3300 VTORN_ANDROID_CLEARTEXT=true pnpm cap:sync
 | `VTORN_WEB_URL` | `https://tournamental.com` | URL the WebView loads on launch |
 | `VTORN_ANDROID_CLEARTEXT` | `false` (auto-true if `VTORN_WEB_URL` starts with `http://`) | Allow plain HTTP on Android (dev only) |
 
-The push base URL is currently hardcoded to `https://vtorn-push.aiva.nz`
+The push base URL is currently hardcoded to `https://push.tournamental.com`
 inside `src/native-bridge.ts`. When the production push service moves
 behind a stable production hostname, swap it there in the same PR.
 

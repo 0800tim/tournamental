@@ -253,8 +253,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-dm-otp.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://dm-otp.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

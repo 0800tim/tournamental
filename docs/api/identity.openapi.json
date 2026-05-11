@@ -122,8 +122,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-identity.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://identity.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

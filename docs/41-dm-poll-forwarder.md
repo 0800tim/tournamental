@@ -108,7 +108,7 @@ The admin token must be **at least 32 characters in production**. In development
 
 ## Deployment
 
-- Docker / PM2 process listening on `:3404` per [`docs/22-deployment-and-tunnels.md`](22-deployment-and-tunnels.md). Tunnel ingress: a private host like `vtorn-poll.aiva.nz` (admin endpoints are bearer-protected; do not expose `/v1/admin/*` to the public internet without IP allow-listing in addition).
+- Docker / PM2 process listening on `:3404` per [`docs/22-deployment-and-tunnels.md`](22-deployment-and-tunnels.md). Tunnel ingress: a private host like `poll.tournamental.com` (admin endpoints are bearer-protected; do not expose `/v1/admin/*` to the public internet without IP allow-listing in addition).
 - Volume-mount `data/` so cursors survive restarts.
 - Liveness: `/healthz`. Readiness: `/v1/status` returning HTTP 200 with all enabled channels reporting `lastPollOk !== false` (or no `lastPollAt` yet on a fresh boot).
 - Graceful shutdown: SIGTERM stops the scheduler timers and waits for any in-flight cycle before closing the HTTP server.

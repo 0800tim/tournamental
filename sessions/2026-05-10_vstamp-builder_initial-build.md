@@ -25,7 +25,7 @@ context, out of scope here).
    self-contained JS to prove the proof shape is independently verifiable.
 8. README with the exact curl walkthrough shown to actually run.
 9. Update `docs/22-deployment-and-tunnels.md` to add port 3390 + suggested
-   `vtorn-vstamp.aiva.nz` → `vstamp.vtourn.com`.
+   `vstamp.tournamental.com` → `vstamp.vtourn.com`.
 
 ## Outcome
 

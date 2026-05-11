@@ -94,8 +94,8 @@
       "description": "local dev"
     },
     {
-      "url": "https://vtorn-dm-poll.aiva.nz",
-      "description": "dev tunnel"
+      "url": "https://dm-poll.tournamental.com",
+      "description": "production"
     }
   ],
   "tags": [

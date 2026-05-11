@@ -11,6 +11,9 @@
 
 # --- our own surfaces ---
 .tournamental.com
+# aiva.nz is on this list because Tournamental's default SMS gateway integration
+# (packages/aiva-client) targets the Aiva SMS service at sms.aiva.nz. Override
+# via AIVA_SMS_API_URL to point at any compatible gateway.
 .aiva.nz
 
 # --- developer + community ---

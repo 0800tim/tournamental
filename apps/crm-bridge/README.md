@@ -27,7 +27,7 @@ backoff (1s, 2s, 4s). On final failure, the call is appended to
 it can be replayed by hitting the admin endpoint:
 
 ```bash
-curl -X POST https://vtorn-crm.aiva.nz/v1/admin/replay-failed \
+curl -X POST https://crm.tournamental.com/v1/admin/replay-failed \
   -H "Authorization: Bearer ${CRM_ADMIN_TOKEN}"
 ```
 

@@ -18,7 +18,7 @@ export default defineConfig({
   vite: {
     server: {
       // Dev only: accept any Host header so the cloudflared tunnel
-      // (vtorn-www.aiva.nz today, tournamental.com tomorrow) can hit us
+      // (tournamental.com today, tournamental.com tomorrow) can hit us
       // without per-host config drift.
       allowedHosts: true,
     },

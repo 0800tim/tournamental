@@ -56,7 +56,7 @@ schema in docs/29 so the future migration is mechanical.
    text (`world cup` / `fifa`) so we shouldn't miss markets even if the
    tag slug name moves.
 4. **Cloudflare ingress**: README documents the steps; I haven't actually
-   added `vtorn-odds.aiva.nz` to the live tunnel because that touches
+   added `odds.tournamental.com` to the live tunnel because that touches
    shared infra. Recommend doing it in the merge step.
 
 ## Coverage check

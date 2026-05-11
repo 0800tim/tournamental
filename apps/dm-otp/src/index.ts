@@ -127,7 +127,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
 
   const corsOrigins = (
     process.env.DM_OTP_CORS_ORIGINS ??
-    'https://tournamental.com,https://vtorn.aiva.nz,https://vtorn-auth.aiva.nz,http://localhost:3300'
+    'https://tournamental.com,https://play.tournamental.com,https://auth.tournamental.com,http://localhost:3300'
   )
     .split(',')
     .map((s) => s.trim())

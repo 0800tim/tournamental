@@ -1,12 +1,12 @@
 /**
  * Aiva SMS gateway client.
  *
- * Aiva SMS is a self-hosted gateway running at sms.aiva.nz that
- * delivers SMS via Android phones over FCM push. The gateway exposes
- * a REST API; we hit it with a Bearer token (JWT or API key).
+ * Aiva SMS is a self-hosted gateway that delivers SMS via Android
+ * phones over FCM push. The gateway exposes a REST API; we hit it
+ * with a Bearer token (JWT or API key). Any other gateway that
+ * implements the same shape can plug in by overriding the base URL.
  *
- * Reference (skill doc):
- *   - https://sms-api.aiva.nz/api/v1
+ * Reference (relative to your gateway's base URL):
  *   - POST /api/v1/gateway/devices/{deviceId}/send-sms
  *     body: { message: string, recipients: string[] }
  *

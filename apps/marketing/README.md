@@ -1,6 +1,6 @@
 # @vtorn/marketing
 
-> The marketing site for Tournamental, served at `tournamental.com` (prod), `preview.tournamental.com` (staging), `vtorn-www.aiva.nz` (dev).
+> The marketing site for Tournamental, served at `tournamental.com` (prod), `preview.tournamental.com` (staging), `tournamental.com` (dev).
 
 ## Stack
 
@@ -16,7 +16,7 @@ pnpm -F @vtorn/marketing build  # static dist/
 pnpm -F @vtorn/marketing typecheck
 ```
 
-Through the dev tunnel: `https://vtorn-www.aiva.nz`.
+Through the dev tunnel: `https://tournamental.com`.
 
 ## Pages (v0.1)
 

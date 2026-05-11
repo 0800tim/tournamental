@@ -32,7 +32,7 @@
  * Caching:
  *   - PNG responses set `Cache-Control: public, max-age=86400, immutable`
  *     and use a strong ETag of `kind:id:dataVersion`.
- *   - The CDN tier (Cloudflare in front of vtorn-api.aiva.nz, per
+ *   - The CDN tier (Cloudflare in front of api.tournamental.com, per
  *     `docs/22`) is what actually serves > 99% of traffic; this route
  *     is the cache-fill source.
  *

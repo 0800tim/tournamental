@@ -85,7 +85,7 @@ Drips client; mainnet is audit-gated.
 ## Next steps
 
 - Wire `pnpm-lock.yaml` regen into the CI on the orchestrator's side.
-- Add Cloudflare tunnel ingress for `vtorn-drips.aiva.nz → :3399` once the
+- Add Cloudflare tunnel ingress for `drips.tournamental.com → :3399` once the
   PR merges (per docs/22 conventions).
 - Per-PR review checklist: confirm no real on-chain writes added until audit.
 - Follow-ups in docs/40 — idempotent push, USD→ETH oracle, multi-period

@@ -73,7 +73,7 @@ Determinism: the same input event sequence yields the same badge awards every ti
 
 - **Match HUD**: when a prediction settles, a small modal celebrates the badge (audio cue + share-now CTA).
 - **Profile page**: a wall of earned badges; locked badges shown with criteria.
-- **Share card**: the badge artefact + tier + the user's handle + a referral URL, rendered server-side at `vtorn-api.aiva.nz/share/badge/<id>.png` (cached forever; immutable).
+- **Share card**: the badge artefact + tier + the user's handle + a referral URL, rendered server-side at `api.tournamental.com/share/badge/<id>.png` (cached forever; immutable).
 - **Telegram bot**: pushes the share card with copy tuned to the user's engagement band.
 
 ## Streaks

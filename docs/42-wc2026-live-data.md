@@ -187,7 +187,7 @@ curl -XPOST http://localhost:3411/v1/admin/reset \
 ## Deployment
 
 Reverse-proxied via `infra/cloudflared` under
-`https://vtorn-data.aiva.nz`. Add the ingress rule to
+`https://data.tournamental.com`. Add the ingress rule to
 `docs/22-deployment-and-tunnels.md` in the same PR that flips the
 backend to a real provider.
 

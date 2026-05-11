@@ -14,7 +14,7 @@
 - `pnpm --filter @vtorn/stream-server typecheck` clean.
 - `pnpm --filter @vtorn/stream-server build` produces `dist/`.
 - `docs/22-deployment-and-tunnels.md` updated with the new :4002 row +
-  `vtorn-stream-fanout.aiva.nz` ↔ `stream.vtourn.com`.
+  `stream-fanout.tournamental.com` ↔ `stream.vtourn.com`.
 - README documents the protocol, hello envelope, admin REST shape,
   capacity estimate, and multi-node future path.
 
@@ -39,7 +39,7 @@ the thing that lets a producer ever serve more than one viewer.
   scope for this service for now (file-write path lives elsewhere); we
   focus on live socket fan-out.
 - `docs/22-deployment-and-tunnels.md` — port table; we add :4002 +
-  `vtorn-stream-fanout.aiva.nz`.
+  `stream-fanout.tournamental.com`.
 - `apps/statsbomb-replay/README.md` — upstream producer shape.
 - `apps/mock-producer/src/emitter.ts` — `WebSocketEmitter` for protocol
   shape (init-on-connect + paced messages + 40-line backlog).
@@ -84,7 +84,7 @@ the thing that lets a producer ever serve more than one viewer.
    - Concurrency benchmark: N=200 subscribers, measure delivery latency
      p50/p99 over a synthetic 10s burst at 30Hz.
 8. Update `docs/22-deployment-and-tunnels.md` — add port 4002 row +
-   suggested tunnel `vtorn-stream-fanout.aiva.nz`.
+   suggested tunnel `stream-fanout.tournamental.com`.
 9. Sign-off + PR per CLAUDE.md.
 
 ## Decisions

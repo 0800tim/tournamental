@@ -17,7 +17,7 @@ The state of the renderer immediately after the four parallel-builder PRs merged
 
 - **Git tag**: `archive/2026-05-09-chunky-prototype` → commit `fbfac4c` (the post-merge-fixes commit, last main commit before PR #31).
 - **Worktree on dev**: `/home/clawdbot/clawdia/projects/vtorn-prototype-chunky/` (detached HEAD at the tag).
-- **Live URL**: `https://vtorn-prototype.aiva.nz/match/fifa-wc-2022-final-arg-fra-2022-12-18`. Cloudflared ingress → `localhost:3400`. The live AR-FR producer on `:4001` is shared with the HD demo; both renderers consume the same WS feed.
+- **Live URL**: `https://prototype.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18`. Cloudflared ingress → `localhost:3400`. The live AR-FR producer on `:4001` is shared with the HD demo; both renderers consume the same WS feed.
 
 ## Restoring locally
 
@@ -35,8 +35,8 @@ pnpm -F @vtorn/web dev    # serves on :3000 in this commit
 git worktree add /tmp/vtorn-chunky archive/2026-05-09-chunky-prototype
 cd /tmp/vtorn-chunky && pnpm install
 cd apps/web
-NEXT_PUBLIC_VTORN_WS_URL=wss://vtorn-stream.aiva.nz pnpm next dev -p 3400
-# Add a tunnel ingress (per docs/22) for vtorn-prototype.aiva.nz → :3400.
+NEXT_PUBLIC_VTORN_WS_URL=wss://stream.tournamental.com pnpm next dev -p 3400
+# Add a tunnel ingress (per docs/22) for prototype.tournamental.com → :3400.
 ```
 
 ## What lands after this archive

@@ -283,7 +283,7 @@ export class FbrefTeamFormSource implements TeamFormSource {
       headers: {
         "User-Agent":
           process.env.WC2026_USER_AGENT ??
-          "Tournamental-WC2026-Scraper/0.1 (+https://vtorn.aiva.nz; ops@tournamental.com)",
+          "Tournamental-WC2026-Scraper/0.1 (+https://play.tournamental.com; ops@tournamental.com)",
         Accept: "text/html",
       },
     });

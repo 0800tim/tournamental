@@ -61,7 +61,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
 
   await app.register(sensible);
   await app.register(cors, {
-    origin: (process.env.WATCHDOG_CORS_ORIGINS ?? 'https://vtorn-admin.aiva.nz,http://localhost:3340')
+    origin: (process.env.WATCHDOG_CORS_ORIGINS ?? 'https://admin.tournamental.com,http://localhost:3340')
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),

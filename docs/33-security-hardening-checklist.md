@@ -134,7 +134,7 @@ Per `docs/21-onchain-sweepstakes-oracle.md`:
 | WhatsApp Baileys session hijack | Low | High (impersonation) | 0700 perms on auth dir, cycle pairing every 30 days |
 | Polymarket affiliate program closure | Low | Critical (revenue) | Multi-source provider abstraction (`docs/30` § Risks) |
 | NZ DIA enforcement | Low | Critical (legal) | Geo-gate already enforced; no offshore-sportsbook links to NZ users |
-| Cloudflare worker outage | Low | High | Multi-tunnel fallback (we have aiva.nz dev URLs as static cutover) |
+| Cloudflare worker outage | Low | High | Multi-tunnel fallback (maintain a secondary dev tunnel as static cutover) |
 | Renderer code injection via face_uri | Low | Medium | Wikidata/Wikimedia content trusted; sanitised; no eval |
 
 ## Sign-off

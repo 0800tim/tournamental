@@ -6,29 +6,31 @@
 
 | Env         | Purpose                                                    | DNS owner          | Hosting target                                       |
 | ----------- | ---------------------------------------------------------- | ------------------ | ---------------------------------------------------- |
-| **dev**     | Day-to-day development on Tim's dev server (this machine). | Cloudflare aiva.nz | This server, exposed via the existing aiva.nz tunnel |
-| **staging** | Pre-production validation against real-world conditions.   | Cloudflare tournamental.com | This server (initially), then a dedicated staging box |
+| **dev**     | Day-to-day development on a maintainer's dev server.       | Maintainer's private dev domain (not committed) | The maintainer's dev box, exposed via a Cloudflare tunnel on a private dev domain |
+| **staging** | Pre-production validation against real-world conditions.   | Cloudflare tournamental.com | A staging box exposed via a `*-dev.tournamental.com` Cloudflare tunnel |
 | **prod**    | Public site. Users live here.                              | Cloudflare tournamental.com | Cloudflare Pages (marketing) + dedicated app/API hosts |
 
 **Rule**: a deploy goes `dev → staging → prod`. Never push code straight from local to prod. Staging exists to catch the "works on dev, broken in CDN" class of issue.
 
 ## URL plan
 
-| Component        | Dev (today)                                     | Staging (next sprint)                       | Prod (launch)            |
+Maintainers run dev on whatever local hostname their Cloudflare tunnel is configured for (commonly a private development domain). For staging we use the `*-dev.tournamental.com` family, and prod is the public hostname. Each maintainer's dev hosts are not committed to the repo.
+
+| Component        | Dev (local tunnel example)                      | Staging                                     | Prod (launch)            |
 | ---------------- | ----------------------------------------------- | ------------------------------------------- | ------------------------ |
-| Marketing site   | `vtorn-www.aiva.nz` → `:3320`                   | `preview.tournamental.com`                          | `tournamental.com`              |
-| App (renderer)   | `vtorn.aiva.nz` → `:3300`                       | `dev.tournamental.com`                              | `app.tournamental.com`          |
-| Match stream WS  | `vtorn-stream.aiva.nz` → `:4001`                | (folded into app, `wss://dev.tournamental.com/ws`)  | `wss://app.tournamental.com/ws` |
-| Stream fan-out   | `vtorn-stream-fanout.aiva.nz` → `:4002`         | `stream-dev.tournamental.com`                       | `stream.tournamental.com`       |
-| API              | `vtorn-api.aiva.nz` → `:3310`                   | `api-dev.tournamental.com`                          | `api.tournamental.com`          |
-| Auth (SMS / WA)  | `vtorn-auth.aiva.nz` → `:3330`                  | `auth-dev.tournamental.com`                         | `auth.tournamental.com`          |
-| DM-OTP login     | `vtorn-dm-otp.aiva.nz` → `:3331`                | `dm-dev.tournamental.com`                           | `dm.tournamental.com`            |
-| Admin console    | `vtorn-admin.aiva.nz` → `:3340`                 | `admin-dev.tournamental.com`                        | `admin.tournamental.com`        |
-| Live odds ingest | `vtorn-odds.aiva.nz` → `:3341`                  | `odds-dev.tournamental.com`                         | `odds.tournamental.com`         |
-| Game service     | `vtorn-game.aiva.nz` → `:3360`                  | `game-dev.tournamental.com`                         | `game.tournamental.com`         |
-| Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.tournamental.com`                          | `aff.tournamental.com`          |
-| VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.tournamental.com`                       | `vstamp.tournamental.com`       |
-| Clip pipeline    | `vtorn-clip.aiva.nz` → `:3380`                  | `clip-dev.tournamental.com`                         | `clip.tournamental.com`         |
+| Marketing site   | `<dev>` → `:3320`                              | `preview.tournamental.com`                  | `tournamental.com`              |
+| App (renderer)   | `<dev>` → `:3300`                              | `dev.tournamental.com`                      | `play.tournamental.com`         |
+| Match stream WS  | `<dev>` → `:4001`                              | (folded into app, `wss://dev.tournamental.com/ws`)  | `wss://play.tournamental.com/ws` |
+| Stream fan-out   | `<dev>` → `:4002`                              | `stream-dev.tournamental.com`               | `stream.tournamental.com`       |
+| API              | `<dev>` → `:3310`                              | `api-dev.tournamental.com`                  | `api.tournamental.com`          |
+| Auth (SMS / WA)  | `<dev>` → `:3330`                              | `auth-dev.tournamental.com`                 | `auth.tournamental.com`         |
+| DM-OTP login     | `<dev>` → `:3331`                              | `dm-dev.tournamental.com`                   | `dm.tournamental.com`           |
+| Admin console    | `<dev>` → `:3340`                              | `admin-dev.tournamental.com`                | `admin.tournamental.com`        |
+| Live odds ingest | `<dev>` → `:3341`                              | `odds-dev.tournamental.com`                 | `odds.tournamental.com`         |
+| Game service    | `<dev>` → `:3360`                              | `game-dev.tournamental.com`                 | `game.tournamental.com`         |
+| Affiliate router | `<dev>` → `:3370`                              | `aff-dev.tournamental.com`                  | `aff.tournamental.com`          |
+| VStamp receipts  | `<dev>` → `:3390`                              | `vstamp-dev.tournamental.com`               | `vstamp.tournamental.com`       |
+| Clip pipeline    | `<dev>` → `:3380`                              | `clip-dev.tournamental.com`                 | `clip.tournamental.com`         |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -38,42 +40,42 @@ The match-stream WebSocket gets its own dev hostname so Cloudflare's Tunnel clea
 
 This is the single source of truth. **Update this file in the same PR as any port change.** All ports are in the 3300/4001 ranges to avoid clawdia's allocations (3001, 8888, 9201–9274, etc.) and Tim's other client work.
 
-| Service                    | Port  | Notes                                                                                |
-| -------------------------- | ----- | ------------------------------------------------------------------------------------ |
-| `apps/web` (renderer)      | 3300  | Next.js dev. `pnpm dev -- -p 3300`. Tunnel: `vtorn.aiva.nz`.                        |
-| `apps/statsbomb-replay`    | 4001  | WebSocket for the AR-FR producer per docs/11. Tunnel: `vtorn-stream.aiva.nz`.       |
-| `apps/mock-producer`       | 4001 (default) | Same default as statsbomb-replay; only one producer runs at a time during dev. Override with `--port` if running both. |
-| `apps/stream-server`       | 4002  | Fan-out WS + admin REST. Subscribes to one or more producers (default `ws://localhost:4001`) and fans out per-match streams to many subscribers on `/v1/match/:match_id`. Tunnel: `vtorn-stream-fanout.aiva.nz` (dev) / `stream.tournamental.com` (prod). See [`apps/stream-server/README.md`](../apps/stream-server/README.md). |
-| `apps/api`                 | 3310  | Fastify. Tunnel: `vtorn-api.aiva.nz`.                                                |
-| `apps/marketing` (future)  | 3320  | Next.js or Astro. Tunnel: `vtorn-www.aiva.nz`.                                       |
-| `apps/auth-sms`            | 3330  | Fastify (SMS / WhatsApp OTP). Tunnel: `vtorn-auth.aiva.nz`. See [docs/32](32-auth-and-privacy.md). |
-| `apps/dm-otp`              | 3331  | Fastify (DM-OTP login across 16 channels: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, LINE, Viber, Teams, LinkedIn, Signal, Email magic-link). Tunnel: `vtorn-dm-otp.aiva.nz`. |
-| `apps/admin`               | 3340  | Internal admin console (Next.js). Tunnel: `vtorn-admin.aiva.nz` / `admin.tournamental.com`. |
-| `apps/odds-ingest`         | 3341  | Fastify (Polymarket + The Odds API). Tunnel: `vtorn-odds.aiva.nz` / `odds.tournamental.com`. |
-| `apps/game`                | 3360  | Fastify (bracket submission, match settlement, leaderboards). Tunnel: `vtorn-game.aiva.nz` / `game.tournamental.com`. See [docs/12](12-odds-and-predictions.md). |
-| `apps/affiliate-router`    | 3370  | Fastify (geo-gated affiliate click resolver + audit log per docs/30). Tunnel: `vtorn-aff.aiva.nz` / `aff.tournamental.com`. |
-| `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.tournamental.com`. |
-| `apps/clip-pipeline`       | 3380  | Fastify + ffmpeg clip render service (per docs/14). Tunnel: `vtorn-clip.aiva.nz`.   |
-| `apps/news-aggregator`     | 3402  | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). Tunnel: `vtorn-news.aiva.nz` / `news.tournamental.com`. |
-| Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
-| Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
+| Service                    | Port  | Prod hostname                                          | Notes                                                                                |
+| -------------------------- | ----- | ------------------------------------------------------ | ------------------------------------------------------------------------------------ |
+| `apps/web` (renderer)      | 3300  | `play.tournamental.com`                                | Next.js dev. `pnpm dev -- -p 3300`.                                                  |
+| `apps/statsbomb-replay`    | 4001  | (folded into `play.tournamental.com/ws` in prod)       | WebSocket for the AR-FR producer per docs/11.                                        |
+| `apps/mock-producer`       | 4001 (default) | n/a                                              | Same default as statsbomb-replay; only one producer runs at a time during dev. Override with `--port` if running both. |
+| `apps/stream-server`       | 4002  | `stream.tournamental.com`                              | Fan-out WS + admin REST. Subscribes to one or more producers (default `ws://localhost:4001`) and fans out per-match streams to many subscribers on `/v1/match/:match_id`. See [`apps/stream-server/README.md`](../apps/stream-server/README.md). |
+| `apps/api`                 | 3310  | `api.tournamental.com`                                 | Fastify.                                                                             |
+| `apps/marketing` (future)  | 3320  | `tournamental.com`                                     | Next.js or Astro.                                                                    |
+| `apps/auth-sms`            | 3330  | `auth.tournamental.com`                                | Fastify (SMS / WhatsApp OTP). See [docs/32](32-auth-and-privacy.md).                 |
+| `apps/dm-otp`              | 3331  | `dm-otp.tournamental.com`                              | Fastify (DM-OTP login across 16 channels: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, LINE, Viber, Teams, LinkedIn, Signal, Email magic-link). |
+| `apps/admin`               | 3340  | `admin.tournamental.com`                               | Internal admin console (Next.js).                                                    |
+| `apps/odds-ingest`         | 3341  | `odds.tournamental.com`                                | Fastify (Polymarket + The Odds API).                                                 |
+| `apps/game`                | 3360  | `game.tournamental.com`                                | Fastify (bracket submission, match settlement, leaderboards). See [docs/12](12-odds-and-predictions.md). |
+| `apps/affiliate-router`    | 3370  | `aff.tournamental.com`                                 | Fastify (geo-gated affiliate click resolver + audit log per docs/30).                |
+| `apps/vstamp`              | 3390  | `vstamp.tournamental.com`                              | Fastify (Merkle-signed prediction receipts; doc 17).                                 |
+| `apps/clip-pipeline`       | 3380  | `clip.tournamental.com`                                | Fastify + ffmpeg clip render service (per docs/14).                                  |
+| `apps/news-aggregator`     | 3402  | `news.tournamental.com`                                | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). |
+| Postgres (dev DB)          | 5435  | n/a                                                    | Docker container. Avoid clashing with clawdia (5433).                                |
+| Redis (dev cache)          | 6380  | n/a                                                    | Docker container. Avoid clashing with clawdia (6379).                                |
 
 Production maps to the same internal ports inside the container; the public ports are 80/443 fronted by Cloudflare.
 
 ## Cloudflare Tunnel (dev)
 
-The aiva.nz tunnel is the existing tunnel `68c2f5b4-8713-441b-9de5-1933557a443b` running on this server (managed via systemd `cloudflared.service`). Per `clawdia/CLAUDE.md`, **don't modify ports or ingress for other services**. Adding new ingress for vtorn-* is fine.
+Each maintainer runs their own Cloudflare Tunnel pointing at their dev box. The tunnel name, ID, account ID, and hostname family are private to the maintainer and live in their local `.env` / Cloudflare account, not in this repo.
 
-> **The local `/etc/cloudflared/config.yml` is NOT the source of truth.** This tunnel pulls its ingress configuration from Cloudflare's Zero Trust dashboard / API on every reconnect. Local config edits and `systemctl restart` will NOT change which hostnames route to which services. Use the API procedure below.
+> **If your tunnel is "remote-managed",** the local `/etc/cloudflared/config.yml` is NOT the source of truth: the tunnel pulls its ingress from Cloudflare's Zero Trust dashboard / API on every reconnect. Local config edits and `systemctl restart` will NOT change which hostnames route to which services. Use the API procedure below.
 
-### Add or change a vtorn dev hostname (API-driven)
+### Add or change a dev hostname (API-driven, for a remote-managed tunnel)
 
 ```bash
-# Bring credentials into scope
-source /home/clawdbot/.cloudflared/cf-api-token        # CLOUDFLARE_API_TOKEN
-ACCOUNT_ID=f08ad6bd468886c7d991a817b3bbbeba
-TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
-HOST=vtorn-newthing.aiva.nz
+# Bring credentials into scope (each maintainer manages these locally).
+source ~/.cloudflared/cf-api-token        # CLOUDFLARE_API_TOKEN
+ACCOUNT_ID=<your-cloudflare-account-id>
+TUNNEL_ID=<your-tunnel-id>
+HOST=newthing.<your-dev-domain>
 PORT=3340
 
 # 1. Create the CNAME record (DNS side, this works locally even though
@@ -110,7 +112,7 @@ sudo $EDITOR /etc/cloudflared/config.yml
 Smoke test:
 
 ```bash
-curl -sI https://<new-host>.aiva.nz | head -3
+curl -sI https://<new-host> | head -3
 ```
 
 `HTTP/2 404` with `cf-cache-status: DYNAMIC` *and your service not yet bound* is healthy, Cloudflare reached the tunnel and the local service didn't answer. Once your service is listening, you should get its real response.
@@ -119,20 +121,20 @@ If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing, re
 
 ## Cloudflare Tunnel (staging + prod)
 
-When `tournamental.com` is in Cloudflare under Tim's account, set up a **separate tunnel for tournamental.com** so it has its own credentials and isn't entangled with aiva.nz. Suggested name: `vtorn-prod` (and `vtorn-staging` if a separate machine is used).
+For the `tournamental.com` zone, run a **dedicated tunnel** so it has its own credentials. Suggested name: `tournamental-prod` (and `tournamental-staging` if a separate machine is used).
 
 ```bash
 # On the host that will run the tunnel:
 cloudflared tunnel login                 # one-time browser auth
-cloudflared tunnel create vtorn-staging
-cloudflared tunnel route dns vtorn-staging dev.tournamental.com
-cloudflared tunnel route dns vtorn-staging preview.tournamental.com
-cloudflared tunnel route dns vtorn-staging api-dev.tournamental.com
+cloudflared tunnel create tournamental-staging
+cloudflared tunnel route dns tournamental-staging dev.tournamental.com
+cloudflared tunnel route dns tournamental-staging preview.tournamental.com
+cloudflared tunnel route dns tournamental-staging api-dev.tournamental.com
 # Then write /etc/cloudflared/config.yml with these ingress rules
 sudo systemctl enable --now cloudflared
 ```
 
-Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `app.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed), only the app + API need a tunnel/origin.
+Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `play.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed); only the app + API need a tunnel/origin.
 
 ## Database snapshots (cross-env)
 

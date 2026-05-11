@@ -68,4 +68,4 @@ docs/41-dm-poll-forwarder.md
 
 - PR review by reviewer agent.
 - Once merged, operator wires `POLL_FORWARDER_BEARER` to the corresponding `*_POLLER_BEARER` / `MASTODON_INBOUND_BEARER` env values on the dm-otp side.
-- Tunnel ingress entry for `vtorn-poll.aiva.nz` (admin path remains bearer-protected; consider IP allow-list in addition).
+- Tunnel ingress entry for `poll.tournamental.com` (admin path remains bearer-protected; consider IP allow-list in addition).

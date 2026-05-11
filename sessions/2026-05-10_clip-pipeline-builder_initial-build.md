@@ -12,7 +12,7 @@
 4. Implement an in-memory clip job queue with a state machine (`queued → rendering → done | failed`) and content-addressable IDs (SHA-256 of inputs).
 5. Wire `child_process.spawn` to drive ffmpeg with a `drawtext` overlay; mock the spawn in tests so CI doesn't depend on actual encodes.
 6. Write 25+ vitest unit + endpoint tests.
-7. Add `.env.example`, README, and update `docs/22-deployment-and-tunnels.md` to add port 3380 + `vtorn-clip.aiva.nz`.
+7. Add `.env.example`, README, and update `docs/22-deployment-and-tunnels.md` to add port 3380 + `clip.tournamental.com`.
 
 ## Key decisions
 
@@ -34,7 +34,7 @@
 - Highlight detector validated against an AR-FR 2022 final fixture: produces
   9 highlights (6 goals, 1 yellow, 1 save, 1 match_end) from 11 events, with
   the two ET penalties correctly merged into their goal windows.
-- `docs/22` updated with port 3380 + tunnel `vtorn-clip.aiva.nz` and the
+- `docs/22` updated with port 3380 + tunnel `clip.tournamental.com` and the
   caching policy table extended with the new clip surfaces.
 - ffmpeg never spawned in CI — runner interface is mocked.
 

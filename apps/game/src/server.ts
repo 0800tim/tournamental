@@ -76,7 +76,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
     opts.adminToken !== undefined ? opts.adminToken : process.env.GAME_ADMIN_TOKEN || null;
   const cacheTtlMs =
     opts.cacheTtlMs ?? Number(process.env.GAME_LEADERBOARD_TTL_S ?? 30) * 1000;
-  const corsOrigins = (process.env.GAME_CORS_ORIGINS ?? "https://vtorn.aiva.nz,http://localhost:3300")
+  const corsOrigins = (process.env.GAME_CORS_ORIGINS ?? "https://play.tournamental.com,http://localhost:3300")
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);

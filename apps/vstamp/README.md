@@ -233,7 +233,7 @@ the only externally-meaningful state — leaf payloads are not persisted).
 | `VSTAMP_DB_PATH`          | `./apps/vstamp/data/vstamp.db`     | no       |
 | `VSTAMP_ADMIN_TOKEN`      | (unset → finalise returns 503)     | yes (for finalise) |
 | `VSTAMP_KEY_PASSPHRASE`   | (unset → service refuses to start) | **yes**  |
-| `VSTAMP_CORS_ORIGINS`     | `https://vtorn.aiva.nz,http://localhost:3300` | no |
+| `VSTAMP_CORS_ORIGINS`     | `https://play.tournamental.com,http://localhost:3300` | no |
 | `LOG_LEVEL`               | `info`                             | no       |
 | `LOG_PRETTY`              | `0`                                | no       |
 

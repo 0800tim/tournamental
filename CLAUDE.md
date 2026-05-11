@@ -327,12 +327,12 @@ Daily review checkpoints (orchestrator + reviewer agent):
 
 Single source of truth: [docs/22-deployment-and-tunnels.md](docs/22-deployment-and-tunnels.md). Quick reference:
 
-| Service              | Dev port | Dev URL                         |
+| Service              | Dev port | Public (prod) hostname          |
 | -------------------- | -------- | ------------------------------- |
-| `apps/web`           | 3300     | https://vtorn.aiva.nz           |
-| Producer WS          | 4001     | wss://vtorn-stream.aiva.nz      |
-| `apps/api`           | 3310     | https://vtorn-api.aiva.nz       |
-| `apps/marketing`     | 3320     | https://vtorn-www.aiva.nz       |
+| `apps/web`           | 3300     | https://play.tournamental.com   |
+| Producer WS          | 4001     | wss://stream.tournamental.com   |
+| `apps/api`           | 3310     | https://api.tournamental.com    |
+| `apps/marketing`     | 3320     | https://tournamental.com        |
 | Postgres (dev)       | 5435     | localhost only                  |
 | Redis (dev)          | 6380     | localhost only                  |
 

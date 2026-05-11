@@ -18,7 +18,7 @@ A Next.js 14 + React Three Fiber app that connects to the producer's WebSocket a
 
 ## Why
 
-It is the user-visible end of the demo. Tim wants this watchable on `https://vtorn.aiva.nz` ASAP.
+It is the user-visible end of the demo. Tim wants this watchable on `https://play.tournamental.com` ASAP.
 
 ## Acceptance
 
@@ -34,5 +34,5 @@ It is the user-visible end of the demo. Tim wants this watchable on `https://vto
 ## Notes (rolling)
 
 - Background agent dispatched 2026-05-09 with isolation:worktree.
-- Port assigned: **3300** (per `docs/22-deployment-and-tunnels.md`). Tunnel `vtorn.aiva.nz` already routes here.
+- Port assigned: **3300** (per `docs/22-deployment-and-tunnels.md`). Tunnel `play.tournamental.com` already routes here.
 - Build coordinates with #0003 (avatar) for body GLB and animations; renderer can stub with cubes if avatar PR not yet landed.

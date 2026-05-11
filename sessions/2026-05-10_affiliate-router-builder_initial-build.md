@@ -39,7 +39,7 @@ Shipped:
   duplicate-id detection.
 - README, `.env.example`, `.gitignore` (clicks.db, .env, dist).
 - `docs/22-deployment-and-tunnels.md` updated: port 3370, tunnel
-  `vtorn-aff.aiva.nz` → `aff.vtourn.com`, two new rows in the caching matrix
+  `aff.tournamental.com` → `aff.vtourn.com`, two new rows in the caching matrix
   (click route is `no-store`; partners list is edge-cacheable).
 
 ## Key decisions
@@ -94,7 +94,7 @@ Shipped:
 - Real affiliate codes — `AFFCODE_*` placeholders only. Tim onboards each
   partner separately and sets the env vars in the prod secret store.
 - Postback/webhook reconciliation against partner consoles (separate agent).
-- The cloudflared ingress for `vtorn-aff.aiva.nz` (per CLAUDE.md, the
+- The cloudflared ingress for `aff.tournamental.com` (per CLAUDE.md, the
   tunnel is remote-managed; Tim can add the rule via the API procedure
   documented in docs/22 once this PR merges).
 - Logo SVGs at `https://cdn.vtourn.com/partners/*.svg` — placeholder URLs
