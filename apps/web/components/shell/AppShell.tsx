@@ -4,14 +4,18 @@
  * AppShell, the shared chrome around every shelled page.
  *
  * Renders:
- *   - top app-bar with brand logo (left) + hamburger menu (right)
+ *   - top app-bar with brand logo (left) + hamburger menu (right);
+ *     on desktop (>=768px) the bar grows by a second row containing
+ *     primary nav links, a "More" dropdown, and an auth chip (see
+ *     DesktopNav). Phone viewports keep the slim single-row bar.
  *   - main content area (children)
  *   - bottom nav on mobile (unless `showBottomNav={false}`)
  *   - microsite sub-nav (auto-mounted for /world-cup-2026/* paths,
  *     or passed explicitly via `subHeader`)
  *   - slide-in app-menu drawer, triggered by the hamburger or the
  *     bottom-nav "Menu" tab. The drawer is available on every viewport
- *     size, there is no longer a separate desktop side rail.
+ *     size and holds the full nav surface (the desktop bar only
+ *     exposes the most-used primaries inline).
  *   - install-prompt toast (once per device)
  *
  * Variants:
@@ -90,6 +94,7 @@ export function AppShell({
         rightAction={rightAction}
         onMenuClick={() => setMenuOpen((o) => !o)}
         menuOpen={menuOpen}
+        hideDesktopNav={variant === "canvas"}
       />
       {resolvedSubHeader ? (
         <div className="vt-page-header">{resolvedSubHeader}</div>

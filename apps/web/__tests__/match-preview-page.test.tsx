@@ -26,6 +26,8 @@ vi.mock("next/navigation", () => ({
   notFound: () => {
     throw new NotFoundError();
   },
+  // AppShell -> DesktopNav reads usePathname for active-route highlight.
+  usePathname: () => "/",
 }));
 
 import MatchPreviewPage from "../app/match/[id]/preview/page";

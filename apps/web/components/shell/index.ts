@@ -10,6 +10,18 @@ export { MicrositeSubNav, WC2026_SUBNAV } from "./MicrositeSubNav";
 export type { MicrositeSubNavLink, MicrositeSubNavProps } from "./MicrositeSubNav";
 export { AppMenuDrawer } from "./AppMenuDrawer";
 export type { AppMenuDrawerProps } from "./AppMenuDrawer";
+export { DesktopNav } from "./DesktopNav";
+export { AuthChip } from "./AuthChip";
+export {
+  PRIMARY_DESKTOP,
+  MORE_DESKTOP,
+  DRAWER_PRIMARY,
+  DRAWER_WC2026,
+  DRAWER_SECONDARY,
+  isLinkActive,
+  pickActiveLink,
+} from "./nav-links";
+export type { NavLink } from "./nav-links";
 export { InstallPrompt } from "./InstallPrompt";
 export { RegisterSW } from "./RegisterSW";
 export { ThemeMeta } from "./ThemeMeta";

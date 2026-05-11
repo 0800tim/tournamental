@@ -1,8 +1,22 @@
 "use client";
 
 /**
- * Top app-bar, 56px tall sticky header used on every shelled page.
- * Layout: brand (left) · title (centre) · hamburger or right-action (right).
+ * Top app-bar, sticky header used on every shelled page.
+ *
+ * Layout has two rows that stack on the desktop and collapse to one on
+ * phones:
+ *
+ *   Row 1 (always visible)
+ *     brand (left) · title (centre) · hamburger or right-action (right)
+ *
+ *   Row 2 (desktop only, hidden via CSS below 768px)
+ *     primary inline nav links · "More ▾" dropdown · auth chip
+ *
+ * On mobile the second row is `display: none` so the AppBar stays a
+ * single 56px-tall band and page content doesn't shift. On desktop the
+ * AppBar grows by the height of the nav row (~48px) and the
+ * `--vt-shell-appbar-h` custom property accounts for that automatically
+ * via the `data-with-desktop-nav` attribute.
  *
  * Backdrop-blurs when the page scrolls; on canvas pages
  * (`variant="canvas"`) the bar floats over the renderer with translucent
@@ -11,6 +25,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
+
+import { DesktopNav } from "./DesktopNav";
 
 export interface AppBarProps {
   readonly title: string;
@@ -21,6 +37,9 @@ export interface AppBarProps {
   readonly onMenuClick?: () => void;
   /** Reflects drawer open state so the hamburger can animate. */
   readonly menuOpen?: boolean;
+  /** When true, suppress the desktop nav row (used by `variant="canvas"`
+   *  pages that want a minimal floating bar). Defaults to false. */
+  readonly hideDesktopNav?: boolean;
 }
 
 export interface AppBarAction {
@@ -34,6 +53,7 @@ export function AppBar({
   rightAction,
   onMenuClick,
   menuOpen,
+  hideDesktopNav,
 }: AppBarProps) {
   const [scrolled, setScrolled] = useState(false);
   const lastY = useRef(0);
@@ -53,64 +73,68 @@ export function AppBar({
     <header
       className="vt-appbar"
       data-scrolled={scrolled ? "1" : "0"}
+      data-with-desktop-nav={hideDesktopNav ? "0" : "1"}
       role="banner"
     >
-      <Link
-        href="/"
-        className="vt-appbar-brand"
-        aria-label="Tournamental home"
-      >
-        <span className="vt-appbar-brand-mark" aria-hidden="true">T</span>
-      </Link>
-      <h1 className="vt-appbar-title" aria-live="polite">
-        {title}
-      </h1>
-      {rightAction ? (
-        <button
-          type="button"
-          className="vt-appbar-action"
-          aria-label={rightAction.label}
-          onClick={rightAction.onClick}
+      <div className="vt-appbar-row vt-appbar-row-main">
+        <Link
+          href="/"
+          className="vt-appbar-brand"
+          aria-label="Tournamental home"
         >
-          {rightAction.icon}
-        </button>
-      ) : onMenuClick ? (
-        <button
-          type="button"
-          className="vt-appbar-action vt-appbar-menu"
-          aria-label={menuOpen ? "Close menu" : "Open menu"}
-          aria-expanded={menuOpen ? "true" : "false"}
-          data-open={menuOpen ? "1" : "0"}
-          onClick={onMenuClick}
-        >
-          <svg
-            width="22"
-            height="22"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
+          <span className="vt-appbar-brand-mark" aria-hidden="true">T</span>
+        </Link>
+        <h1 className="vt-appbar-title" aria-live="polite">
+          {title}
+        </h1>
+        {rightAction ? (
+          <button
+            type="button"
+            className="vt-appbar-action"
+            aria-label={rightAction.label}
+            onClick={rightAction.onClick}
           >
-            {menuOpen ? (
-              <>
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
-        </button>
-      ) : (
-        <span aria-hidden="true" />
-      )}
+            {rightAction.icon}
+          </button>
+        ) : onMenuClick ? (
+          <button
+            type="button"
+            className="vt-appbar-action vt-appbar-menu"
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen ? "true" : "false"}
+            data-open={menuOpen ? "1" : "0"}
+            onClick={onMenuClick}
+          >
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              {menuOpen ? (
+                <>
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </>
+              ) : (
+                <>
+                  <line x1="3" y1="6" x2="21" y2="6" />
+                  <line x1="3" y1="12" x2="21" y2="12" />
+                  <line x1="3" y1="18" x2="21" y2="18" />
+                </>
+              )}
+            </svg>
+          </button>
+        ) : (
+          <span aria-hidden="true" />
+        )}
+      </div>
+      {hideDesktopNav ? null : <DesktopNav />}
     </header>
   );
 }
