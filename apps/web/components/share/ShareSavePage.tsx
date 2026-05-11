@@ -37,19 +37,24 @@ import {
 
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft } from "@/lib/bracket/storage";
-import { shareContent, tapFeedback } from "@/lib/native";
+import {
+  captureDomComposition,
+  type DomCaptureResult,
+  type DomCaptureSize,
+} from "@/lib/molecule/dom-capture";
+import { tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
   type OgSize,
-  buildOgImageUrl,
   buildShareLinks,
   buildShareText,
   buildShareTitle,
-  ogDownloadFilename,
   resolveShareGuid,
   shareDisplayUrlFor,
   shareUrlFor,
 } from "@/lib/share/share-text";
+
+import { MoleculeSharePreview } from "./MoleculeSharePreview";
 
 import "./share-save.css";
 
@@ -75,6 +80,17 @@ type AnalyticsPlatform =
   | "email"
   | "download";
 
+function triggerDownload(href: string, filename: string): void {
+  if (typeof document === "undefined") return;
+  const a = document.createElement("a");
+  a.href = href;
+  a.download = filename;
+  a.rel = "noopener";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
 function pushAnalytics(platform: AnalyticsPlatform): void {
   if (typeof window === "undefined") return;
   type DataLayerWindow = Window & {
@@ -92,6 +108,49 @@ function pushAnalytics(platform: AnalyticsPlatform): void {
 function teamName(tournament: Tournament, code: string | null | undefined): string | null {
   if (!code) return null;
   return tournament.teams.find((t) => t.id === code)?.name ?? code;
+}
+
+/** Pixel dimensions for the format chip hint. Matches `specFor` in
+ *  `dom-capture.ts` — bump both if either changes. */
+function sizeDimensions(s: DomCaptureSize): string {
+  switch (s) {
+    case "portrait":
+      return "1080×1920 PNG";
+    case "square":
+      return "1080×1080 PNG";
+    case "landscape":
+    default:
+      return "1600×900 PNG";
+  }
+}
+
+/**
+ * Compose the legacy static OG image URL used in the blog embed
+ * snippet. The molecule capture is per-pose and client-side, so the
+ * embed falls back to the server-rendered `bracket-share-card.ts`
+ * endpoint which produces the older PYRAMID-sketch + PODIUM card.
+ * Tim's brief explicitly carves that path out as "stays for legacy
+ * social-meta + blog embeds".
+ */
+function embedOgUrl(input: { bracketId: string; handle: string; winner: string }): string {
+  const q = new URLSearchParams();
+  q.set("bracket_id", input.bracketId);
+  q.set("handle", input.handle);
+  q.set("winner", input.winner);
+  q.set("size", "landscape");
+  return `/api/og/bracket?${q.toString()}`;
+}
+
+function sizeHint(s: DomCaptureSize): string {
+  switch (s) {
+    case "portrait":
+      return "Portrait fits Stories, Reels, and TikTok feeds.";
+    case "square":
+      return "Square fits Instagram feed posts and WhatsApp avatars.";
+    case "landscape":
+    default:
+      return "Landscape fits X, Facebook, LinkedIn, and WhatsApp link previews.";
+  }
 }
 
 function formatTimestamp(iso: string | undefined): string {
@@ -252,18 +311,69 @@ export function ShareSavePage({
     [champion, guid, isComplete],
   );
 
-  const ogUrlBase = useMemo(
-    () => ({
-      bracketId: bracket?.bracketId ?? guid,
-      handle: handle ?? "Anonymous",
-      winner: champion ?? "TBD",
+  // Note: the captured PNG inherits the full podium for free —
+  // `captureDomComposition` snapshots the live MoleculePanel which
+  // includes the new "Podium peek" row (PR #161, 2026-05-11), so the
+  // share image already carries 🥇 BRA · 🥈 ARG · 🥉 GER. No extra
+  // wiring needed here.
+
+  // ---------- Capture helpers ----------
+
+  /**
+   * Build the dom-capture input payload for a given size. Kept as a
+   * pure helper so the size-switcher (default share button) and the
+   * three explicit download buttons all derive the same shape from
+   * the same source data.
+   */
+  const captureInputFor = useCallback(
+    (s: DomCaptureSize) => ({
+      shareGuid: guid,
+      handle: handle ?? null,
+      tournamentName: "FIFA WC 2026",
+      champion:
+        championCode && champion
+          ? {
+              code: championCode,
+              name: champion,
+              kit: null,
+            }
+          : null,
+      size: s,
+      knockoutPath: [] as const,
     }),
-    [bracket?.bracketId, guid, handle, champion],
+    [guid, handle, championCode, champion],
   );
 
-  const ogUrl = useMemo(
-    () => buildOgImageUrl({ ...ogUrlBase, size }),
-    [ogUrlBase, size],
+  // Track the last captured object URL so we can revoke it on the
+  // next capture / unmount, otherwise the browser pins the blob in
+  // memory for the page session.
+  const lastCaptureUrlRef = useRef<string | null>(null);
+  useEffect(() => {
+    return () => {
+      if (lastCaptureUrlRef.current) {
+        try {
+          URL.revokeObjectURL(lastCaptureUrlRef.current);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, []);
+
+  const performCapture = useCallback(
+    async (s: DomCaptureSize): Promise<DomCaptureResult> => {
+      const result = await captureDomComposition(captureInputFor(s));
+      if (lastCaptureUrlRef.current) {
+        try {
+          URL.revokeObjectURL(lastCaptureUrlRef.current);
+        } catch {
+          // ignore
+        }
+      }
+      lastCaptureUrlRef.current = result.objectUrl;
+      return result;
+    },
+    [captureInputFor],
   );
 
   // ---------- Handlers ----------
@@ -290,20 +400,88 @@ export function ShareSavePage({
     }
   }, [shareUrl]);
 
+  const [primaryBusy, setPrimaryBusy] = useState<boolean>(false);
   const handlePrimaryShare = useCallback(async (): Promise<void> => {
+    if (primaryBusy) return;
     pushAnalytics("native");
     void tapFeedback("medium");
-    const ok = await shareContent({
-      title: buildShareTitle(),
-      text: shareText,
-      url: shareUrl,
-    });
-    if (!ok) {
-      // Web Share API unavailable / cancelled, show the platform
-      // fallback popover so the user can still pick a target.
+    setPrimaryBusy(true);
+    try {
+      // v6.1, "viral share landing" (2026-05-11). The primary CTA
+      // captures a fresh molecule + panel composition at the user's
+      // chosen size (defaulting to landscape) and hands it to the
+      // native share sheet via Web Share Level 2 (`files`). If files
+      // aren't supported (most desktop browsers) we fall through to
+      // the legacy URL+text share, then the platform-button popover.
+      let result: DomCaptureResult | null = null;
+      try {
+        result = await performCapture(size);
+      } catch {
+        // Capture failed (no canvas, GL context lost, hydration race).
+        // Don't bail entirely — the URL share path is still useful.
+        result = null;
+      }
+      const nav = typeof navigator !== "undefined" ? navigator : null;
+      // Web Share Level 2 (files) — iOS Safari + Android Chrome.
+      if (
+        result &&
+        nav &&
+        typeof nav.canShare === "function" &&
+        typeof nav.share === "function"
+      ) {
+        const file = new File([result.blob], result.filename, { type: "image/png" });
+        if (nav.canShare({ files: [file] })) {
+          try {
+            await nav.share({
+              files: [file],
+              title: buildShareTitle(),
+              text: shareText,
+              url: shareUrl,
+            });
+            return;
+          } catch (err) {
+            // AbortError = user cancelled, treat as success-ish.
+            if (err instanceof Error && err.name === "AbortError") return;
+            // Fall through to the URL-only share + popover fallback.
+          }
+        }
+      }
+      // Desktop / no-files fallback: pop the URL share sheet.
+      if (nav && typeof nav.share === "function") {
+        try {
+          await nav.share({
+            title: buildShareTitle(),
+            text: shareText,
+            url: shareUrl,
+          });
+          return;
+        } catch (err) {
+          if (err instanceof Error && err.name === "AbortError") return;
+        }
+      }
+      // Last-resort: download the PNG locally (if we have one) and
+      // open the platform popover so the user can pick a target.
+      if (result) triggerDownload(result.objectUrl, result.filename);
       setFallbackOpen(true);
+    } finally {
+      setPrimaryBusy(false);
     }
-  }, [shareText, shareUrl]);
+  }, [primaryBusy, performCapture, size, shareText, shareUrl]);
+
+  const handleDownload = useCallback(
+    async (s: DomCaptureSize): Promise<void> => {
+      pushAnalytics("download");
+      try {
+        const result = await performCapture(s);
+        triggerDownload(result.objectUrl, result.filename);
+      } catch {
+        // Swallow: the size-button is the user's last-resort, the
+        // primary share CTA already showed the popover if capture
+        // can't run for some reason.
+      }
+    },
+    [performCapture],
+  );
 
   useEffect(() => {
     return () => {
@@ -338,18 +516,16 @@ export function ShareSavePage({
         </div>
       </header>
 
-      {/* Big OG image preview */}
+      {/* v6.1, "viral share landing" (2026-05-11). The preview is now
+        * the LIVE molecule + champion-panel composition — the same
+        * one `dom-capture.ts` snapshots when the user hits Share or
+        * Download. The format switcher selects which aspect ratio the
+        * downloaded PNG uses (landscape 16:9, portrait 9:16, square
+        * 1:1). The on-screen preview stays 16:9 regardless, the
+        * format hint under the chips clarifies what each chip
+        * downloads as. */}
       <section className="vt-ss-preview" aria-label="Bracket card preview">
-        <div className="vt-ss-preview-frame" data-size={size}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            key={ogUrl}
-            src={ogUrl}
-            alt={`${handle ?? "Your"} bracket, champion ${champion ?? "TBD"}`}
-            className="vt-ss-preview-img"
-            data-testid="vt-ss-og-image"
-          />
-        </div>
+        <MoleculeSharePreview tournament={tournament} bracket={bracket} />
         <div
           className="vt-ss-size-chips"
           role="tablist"
@@ -359,6 +535,9 @@ export function ShareSavePage({
           <SizeChip size="landscape" current={size} onSelect={setSize} />
           <SizeChip size="square" current={size} onSelect={setSize} />
         </div>
+        <p className="vt-ss-size-hint" data-testid="vt-ss-size-hint">
+          {sizeHint(size)}
+        </p>
       </section>
 
       {/* Share URL row */}
@@ -450,26 +629,28 @@ export function ShareSavePage({
       <section className="vt-ss-downloads" aria-label="Download bracket image">
         <h2 className="vt-ss-section-title">Download as image</h2>
         <div className="vt-ss-download-grid">
-          {(["portrait", "landscape", "square"] as const).map((s) => {
-            const url = buildOgImageUrl({ ...ogUrlBase, size: s });
-            return (
-              <a
-                key={s}
-                href={url}
-                download={ogDownloadFilename({ ...ogUrlBase, size: s })}
-                className="vt-ss-download-btn"
-                data-testid={`vt-ss-download-${s}`}
-                onClick={() => pushAnalytics("download")}
-              >
-                <span className="vt-ss-download-size">{s[0].toUpperCase() + s.slice(1)}</span>
-                <span className="vt-ss-download-hint">PNG</span>
-              </a>
-            );
-          })}
+          {(["portrait", "landscape", "square"] as const).map((s) => (
+            <button
+              key={s}
+              type="button"
+              className="vt-ss-download-btn"
+              data-testid={`vt-ss-download-${s}`}
+              onClick={() => {
+                void handleDownload(s);
+              }}
+            >
+              <span className="vt-ss-download-size">{s[0].toUpperCase() + s.slice(1)}</span>
+              <span className="vt-ss-download-hint">{sizeDimensions(s)}</span>
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* Embed snippet, collapsible */}
+      {/* Embed snippet, collapsible. The molecule capture is per-pose
+        * + client-side, so the blog embed falls back to the legacy
+        * server-rendered OG card (static "PYRAMID + PODIUM" sketch).
+        * Tim 2026-05-11: keep this path alive for blog + meta-tag use
+        * cases; the live molecule preview is the on-page hero. */}
       <section className="vt-ss-embed" aria-label="Embed on a blog">
         <details>
           <summary>Embed this on a blog</summary>
@@ -479,7 +660,7 @@ export function ShareSavePage({
           </p>
           <pre className="vt-ss-embed-snippet" data-testid="vt-ss-embed-snippet">
 {`<a href="${shareUrl}" target="_blank" rel="noopener">
-  <img src="https://play.tournamental.com${buildOgImageUrl({ ...ogUrlBase, size: "landscape" })}"
+  <img src="https://play.tournamental.com${embedOgUrl({ bracketId: bracket?.bracketId ?? guid, handle: handle ?? "Anonymous", winner: champion ?? "TBD" })}"
        alt="My Tournamental World Cup 2026 bracket"
        width="1200" height="630" />
 </a>`}

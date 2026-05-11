@@ -7,12 +7,19 @@
  *   - the primary "Share my bracket" CTA calls navigator.share when
  *     available.
  *   - the five platform buttons render with correct deep-link patterns.
- *   - the OG image src reflects the selected size chip.
+ *   - the size hint updates as the format chip changes.
  *
  * The component reads its bracket draft from localStorage so we seed a
  * minimal one per test. We don't drive the full cascade here, those
  * concerns are tested elsewhere; this suite only cares about the share
  * surface.
+ *
+ * v6.1 (2026-05-11): the preview is now the LIVE molecule + panel
+ * composition (via `MoleculeSharePreview`), which mounts an R3F
+ * `<Canvas>` that needs a WebGL context jsdom can't provide. We mock
+ * the preview to a static `<div>` here so the suite stays jsdom-only
+ * (no Playwright). The molecule-page tests cover the live capture
+ * path under a real browser.
  */
 
 // @vitest-environment jsdom
@@ -23,8 +30,17 @@ import { act, fireEvent, render, screen, waitFor } from "@testing-library/react"
 
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
-import { ShareSavePage } from "../components/share/ShareSavePage";
 import { draftKey } from "../lib/bracket/storage";
+
+// Mock the live molecule preview before the ShareSavePage module is
+// loaded so the R3F canvas never enters the test render tree.
+vi.mock("../components/share/MoleculeSharePreview", () => ({
+  MoleculeSharePreview: () => (
+    React.createElement("div", { "data-testid": "vt-ss-molecule-preview-mock" })
+  ),
+}));
+
+import { ShareSavePage } from "../components/share/ShareSavePage";
 
 const tournament = loadFixtures2026();
 
@@ -134,20 +150,18 @@ describe("<ShareSavePage>", () => {
     expect(em.href.startsWith("mailto:")).toBe(true);
   });
 
-  it("changing the size chip updates the OG image src", async () => {
+  it("changing the size chip updates the size hint copy", async () => {
     seedDraft(false);
     render(<ShareSavePage tournament={tournament} />);
-    const initialImg = (await screen.findByTestId("vt-ss-og-image")) as HTMLImageElement;
-    expect(initialImg.getAttribute("src") ?? "").toContain("size=landscape");
+    const initialHint = await screen.findByTestId("vt-ss-size-hint");
+    expect(initialHint.textContent ?? "").toMatch(/Landscape/);
 
     const portraitChip = screen.getByRole("tab", { name: /Portrait/ });
     await act(async () => {
       fireEvent.click(portraitChip);
     });
-    // Image gets re-keyed on size change, so re-query the DOM rather than
-    // relying on the stale reference from before the click.
-    const afterImg = screen.getByTestId("vt-ss-og-image") as HTMLImageElement;
-    expect(afterImg.getAttribute("src") ?? "").toContain("size=portrait");
+    const afterHint = screen.getByTestId("vt-ss-size-hint");
+    expect(afterHint.textContent ?? "").toMatch(/Portrait|Stories/);
   });
 
   it("pushes a share_clicked analytics event when a platform button is clicked", async () => {

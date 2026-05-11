@@ -638,6 +638,64 @@
   overflow-y: auto;
 }
 
+/* v6.1, "viral share landing" follow-up (2026-05-11), podium peek.
+ * Three medal tiles, gold / silver / bronze, that surface the runner-up
+ * + 3rd-place flags right under the champion hero so a viewer scanning
+ * the share image from across the room registers all three medals at
+ * once. Sits between the toolbar and the GROUP STAGE block. */
+.molecule-panel-podium {
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+
+.molecule-panel-podium-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px 8px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+}
+
+.molecule-panel-podium-tile[data-rank="gold"] {
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.18) 0%, rgba(245, 197, 66, 0.04) 100%);
+  border-color: rgba(245, 197, 66, 0.55);
+  /* Hero rank sits ~6px above the silver / bronze tiles. */
+  transform: translateY(-6px);
+}
+
+.molecule-panel-podium-tile[data-rank="silver"] {
+  background: linear-gradient(180deg, rgba(216, 221, 230, 0.14) 0%, rgba(216, 221, 230, 0.03) 100%);
+  border-color: rgba(216, 221, 230, 0.4);
+}
+
+.molecule-panel-podium-tile[data-rank="bronze"] {
+  background: linear-gradient(180deg, rgba(216, 149, 79, 0.14) 0%, rgba(216, 149, 79, 0.03) 100%);
+  border-color: rgba(216, 149, 79, 0.4);
+}
+
+.molecule-panel-podium-cup {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.molecule-panel-podium-flag {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.molecule-panel-podium-code {
+  font: 800 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  color: #fff;
+}
+
 /* v3: each major section (Group stage / Knockout) gets its own block,
  * separated by a thin divider. Section headers are sticky inside the
  * scrollable panel so the user can always see which section they're in.

@@ -1,0 +1,76 @@
+/*
+ * MoleculeSharePreview CSS.
+ *
+ * The preview frame mounts the canonical MoleculeScene (which is
+ * `height: calc(100vh - 48px)` on the dedicated molecule page) inside
+ * a 16:9 box on the Save & share page. We override the scene's
+ * intrinsic sizing the same way `share-landing.css` does — the
+ * parent owns the height; the scene fills it.
+ *
+ * The panel docks to the right edge as on the dedicated page, so the
+ * preview composition matches what `captureDomComposition` snapshots
+ * 1:1.
+ *
+ * Mobile: the panel auto-collapses to a bottom-sheet on viewports
+ * <600px via the canonical molecule.css. We narrow the panel column
+ * inside the preview frame on small phones so the pyramid keeps the
+ * "viral" face-on framing.
+ */
+
+.vt-ss-molecule-preview {
+  width: 100%;
+  /* Match the dom-capture landscape output (1600x900 = 16:9) so what
+   * you see is what you share. */
+  aspect-ratio: 16 / 9;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  isolation: isolate;
+  background: #0a0e1a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+}
+
+.vt-ss-molecule-preview .molecule-root {
+  /* The canonical scene wants `height: calc(100vh - 48px)`, which
+   * would overflow the preview frame. Force it to fill the parent
+   * instead. */
+  height: 100% !important;
+  min-height: 0 !important;
+  border-radius: inherit;
+}
+
+.vt-ss-molecule-preview .molecule-canvas {
+  border-radius: inherit;
+}
+
+.vt-ss-molecule-preview-placeholder {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  color: #8d99b3;
+  font-size: 14px;
+}
+
+/* Make the panel slimmer inside the small preview frame so the
+ * pyramid keeps centre-stage on mobile + portrait laptops. The
+ * downloaded PNG always uses the full 492px panel-snapshot width
+ * regardless of how the preview shows it on screen. */
+@media (max-width: 640px) {
+  .vt-ss-molecule-preview .molecule-panel {
+    width: min(180px, 50%);
+  }
+  .vt-ss-molecule-preview .molecule-panel-title {
+    font-size: 16px;
+  }
+  .vt-ss-molecule-preview .molecule-panel-flag {
+    font-size: 24px;
+  }
+  .vt-ss-molecule-preview .molecule-panel-body {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+}
