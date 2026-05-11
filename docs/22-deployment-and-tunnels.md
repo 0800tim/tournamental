@@ -29,6 +29,7 @@
 | Affiliate router | `vtorn-aff.aiva.nz` → `:3370`                   | `aff-dev.tournamental.com`                          | `aff.tournamental.com`          |
 | VStamp receipts  | `vtorn-vstamp.aiva.nz` → `:3390`                | `vstamp-dev.tournamental.com`                       | `vstamp.tournamental.com`       |
 | Clip pipeline    | `vtorn-clip.aiva.nz` → `:3380`                  | `clip-dev.tournamental.com`                         | `clip.tournamental.com`         |
+| MCP server       | `vtorn-mcp.aiva.nz` → `:3395`                   | `mcp-dev.tournamental.com`                          | `mcp.tournamental.com`          |
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
@@ -55,6 +56,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/vstamp`              | 3390  | Fastify (Merkle-signed prediction receipts; doc 17). Tunnel: `vtorn-vstamp.aiva.nz` / `vstamp.tournamental.com`. |
 | `apps/clip-pipeline`       | 3380  | Fastify + ffmpeg clip render service (per docs/14). Tunnel: `vtorn-clip.aiva.nz`.   |
 | `apps/news-aggregator`     | 3402  | Fastify RSS news poller across BBC / Guardian / ESPN / Marca / FIFA / Goal (per docs/49). Tunnel: `vtorn-news.aiva.nz` / `news.tournamental.com`. |
+| `apps/mcp`                 | 3395  | Fastify + MCP Streamable HTTP. Model Context Protocol server exposing the tournament API to AI agents (Claude Desktop, Cursor, Windsurf, Continue). Tunnel: `vtorn-mcp.aiva.nz` / `mcp.tournamental.com`. See [docs/53](53-mcp-server.md). |
 | Postgres (dev DB)          | 5435  | Docker container. Avoid clashing with clawdia (5433).                                |
 | Redis (dev cache)          | 6380  | Docker container. Avoid clashing with clawdia (6379).                                |
 

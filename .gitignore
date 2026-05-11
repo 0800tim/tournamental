@@ -37,6 +37,9 @@ apps/marketing/playwright-report/
 
 # Auth service runtime state (PII + WhatsApp credentials — never commit).
 apps/auth-sms/data/
+
+# MCP audit log — written by apps/mcp on every tool call. Local-only.
+apps/mcp/data/
 apps/auth-sms/baileys-auth/
 apps/auth-sms/auth.db
 apps/auth-sms/auth.db-journal
