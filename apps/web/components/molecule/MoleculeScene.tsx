@@ -3,33 +3,18 @@
 /**
  * MoleculeScene — the R3F canvas that draws the 3D tournament molecule.
  *
- * Reads:
- *   - The user's `Bracket` from localStorage (the same draft the
- *     `/world-cup-2026` page edits). We compute the cascade here rather
- *     than passing it down so this component can be mounted anywhere
- *     (e.g. a future share page).
- *
- * Renders:
- *   - <Canvas> with a fixed perspective camera, OrbitControls (touch +
- *     mouse rotate, no panning to keep the centre of mass in view),
- *     and slow idle auto-rotate that stops while the user is interacting.
- *   - One <TeamAtom> per team (48 total).
- *   - One <RoundBond> per match with both teams resolved.
- *   - <MoleculePanel> overlay (DOM, outside the Canvas) when a team is
- *     selected.
- *   - <MoleculeLegend> top-right overlay.
- *
- * Visual rig: dark navy bg + ACES filmic tone mapping (same conventions
- * as `MatchScene.tsx`). No fog — per Tim's stadium-scene call, this
- * type of presentation reads cleaner without atmospheric haze.
- *
- * Empty state: when the user has no knockout picks, we still render the
- * scene (48 group-stage atoms on the outer ring) but overlay a soft CTA
- * pointing them at `/world-cup-2026` to start picking. This way the
- * page is *always* alive — never a blank canvas.
+ * v2 changes:
+ *   - Atoms render as flag-wrapped spheres (see TeamAtom + FlagSphereMaterial).
+ *   - The predicted champion's path-to-the-final (R32→R16→QF→SF→F) is
+ *     highlighted in gold by default. Clicking another atom replaces the
+ *     highlight with that team's path (toggleable via the side panel).
+ *   - Group-stage bonds fade out during camera rotation / prolonged idle
+ *     so the eye can find the gold trail.
+ *   - A small floating "PATH TO GOLD" chip sits top-centre when the
+ *     champion path is the active highlight.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -42,6 +27,12 @@ import {
   type MoleculeLayout,
   type MoleculeNode,
 } from "@/lib/molecule/layout";
+import {
+  buildPathAtomSet,
+  buildPathBondKeySet,
+  derivePathToGold,
+  type TeamPath,
+} from "@/lib/molecule/path";
 import {
   cascade,
   type Bracket,
@@ -58,10 +49,6 @@ import "./molecule.css";
 
 export interface MoleculeSceneProps {
   readonly tournament: Tournament;
-  /**
-   * When set, the scene uses this bracket instead of reading from
-   * localStorage. Used by the consensus-bracket toggle.
-   */
   readonly bracketOverride?: Bracket | null;
 }
 
@@ -75,11 +62,6 @@ function emptyBracket(): Bracket {
   };
 }
 
-/**
- * Run the same multi-pass cascade resolver the BracketBuilder uses so the
- * molecule reflects the user's full knockout tree (each round can only
- * resolve its slots once the previous round has winners).
- */
 function resolveCascade(
   tournament: Tournament,
   bracket: Bracket,
@@ -112,6 +94,11 @@ function MoleculeWorld({
   onSelect,
   onHover,
   flagEmojiByTeam,
+  pathBondKeys,
+  pathAtomSet,
+  pathBondOrder,
+  motionEnabled,
+  groupBondsVisible,
 }: {
   layout: MoleculeLayout;
   selected: string | null;
@@ -119,6 +106,12 @@ function MoleculeWorld({
   onSelect: (code: string | null) => void;
   onHover: (code: string | null) => void;
   flagEmojiByTeam: ReadonlyMap<string, string>;
+  pathBondKeys: ReadonlySet<string>;
+  pathAtomSet: ReadonlySet<string>;
+  /** Map of bond-key → (index in path, totalPathLength) for pulse staggering. */
+  pathBondOrder: ReadonlyMap<string, { index: number; total: number }>;
+  motionEnabled: boolean;
+  groupBondsVisible: boolean;
 }) {
   const nodeByCode = useMemo(() => {
     const m = new Map<string, MoleculeNode>();
@@ -141,7 +134,11 @@ function MoleculeWorld({
         const a = nodeByCode.get(bond.a);
         const b = nodeByCode.get(bond.b);
         if (!a || !b) return null;
-        const highlighted = selected !== null && (bond.a === selected || bond.b === selected);
+        const bondKey = `${bond.stage}:${bond.a}:${bond.b}`;
+        const onPath = pathBondKeys.has(bondKey);
+        const order = pathBondOrder.get(bondKey);
+        const highlighted =
+          selected !== null && (bond.a === selected || bond.b === selected);
         return (
           <RoundBond
             key={`${bond.stage}:${bond.a}:${bond.b}:${i}`}
@@ -149,6 +146,11 @@ function MoleculeWorld({
             from={a}
             to={b}
             highlighted={highlighted}
+            onPath={onPath}
+            pathIndex={order?.index}
+            pathLength={order?.total}
+            motionEnabled={motionEnabled}
+            groupBondsVisible={groupBondsVisible}
           />
         );
       })}
@@ -160,6 +162,8 @@ function MoleculeWorld({
           flagEmoji={flagEmojiByTeam.get(node.teamCode) ?? null}
           selected={selected === node.teamCode}
           hovered={hovered === node.teamCode}
+          onPath={pathAtomSet.has(node.teamCode)}
+          motionEnabled={motionEnabled}
           onClick={onSelect}
           onPointerEnter={onHover}
           onPointerLeave={(c) => {
@@ -172,32 +176,41 @@ function MoleculeWorld({
 }
 
 /**
- * IdleRotator — applies a gentle y-axis rotation to the *camera anchor*
- * while the user is not interacting. We don't rotate the scene itself
- * (that would fight OrbitControls); instead we let drei's
- * `autoRotate` on the controls do the work. This component just toggles
- * autoRotate on/off based on a pointer-down timer.
+ * IdleAutoRotateBridge — toggles OrbitControls.autoRotate based on recent
+ * interaction, and exposes both the interaction-timestamp and a
+ * "currently rotating" flag to the parent via callback.
  */
-function IdleAutoRotateBridge({ controls }: { controls: React.RefObject<unknown> }) {
+function IdleAutoRotateBridge({
+  controls,
+  onInteractionState,
+}: {
+  controls: React.RefObject<unknown>;
+  onInteractionState: (s: { idleMs: number; rotating: boolean }) => void;
+}) {
   const { gl } = useThree();
   const [lastInteract, setLastInteract] = useState(() => Date.now());
   useEffect(() => {
     const dom = gl.domElement;
     const bump = () => setLastInteract(Date.now());
     dom.addEventListener("pointerdown", bump);
+    dom.addEventListener("pointermove", bump);
     dom.addEventListener("wheel", bump, { passive: true });
     dom.addEventListener("touchstart", bump, { passive: true });
+    dom.addEventListener("touchmove", bump, { passive: true });
     return () => {
       dom.removeEventListener("pointerdown", bump);
+      dom.removeEventListener("pointermove", bump);
       dom.removeEventListener("wheel", bump);
       dom.removeEventListener("touchstart", bump);
+      dom.removeEventListener("touchmove", bump);
     };
   }, [gl]);
   useFrame(() => {
     const c = controls.current as { autoRotate?: boolean } | null;
-    if (!c) return;
     const idleMs = Date.now() - lastInteract;
-    c.autoRotate = idleMs > 1800;
+    const rotating = !!c && c.autoRotate === true;
+    if (c) c.autoRotate = idleMs > 1800;
+    onInteractionState({ idleMs, rotating });
   });
   return null;
 }
@@ -207,7 +220,24 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
+  /** Per-team toggle: when off, clicking this team does NOT replace the gold path. */
+  const [highlightOverridesByTeam, setHighlightOverridesByTeam] = useState<
+    Record<string, boolean>
+  >({});
+  const [groupBondsVisible, setGroupBondsVisible] = useState(true);
+  const [motionEnabled, setMotionEnabled] = useState(true);
   const controlsRef = useState<React.MutableRefObject<unknown>>(() => ({ current: null }))[0];
+  const interactionRef = useRef<{ idleMs: number; rotating: boolean }>({ idleMs: 0, rotating: false });
+
+  // Respect prefers-reduced-motion at mount.
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setMotionEnabled(!mq.matches);
+    const handler = (e: MediaQueryListEvent) => setMotionEnabled(!e.matches);
+    mq.addEventListener?.("change", handler);
+    return () => mq.removeEventListener?.("change", handler);
+  }, []);
 
   useEffect(() => {
     if (bracketOverride) {
@@ -246,10 +276,65 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
     return m;
   }, [tournament.teams]);
 
+  // Compute the *active* highlighted path. Priority:
+  //   1. If a team is selected AND its highlight-override is ON, use that team's path.
+  //   2. Otherwise, use the predicted champion's path.
+  const championPath = useMemo<TeamPath>(
+    () => derivePathToGold(cascaded, layout.championCode),
+    [cascaded, layout.championCode],
+  );
+
+  const selectedOverridesAllowed =
+    selected !== null && (highlightOverridesByTeam[selected] ?? true);
+
+  const activePath = useMemo<TeamPath>(() => {
+    if (selectedOverridesAllowed && selected) {
+      return derivePathToGold(cascaded, selected);
+    }
+    return championPath;
+  }, [cascaded, selected, selectedOverridesAllowed, championPath]);
+
+  const pathBondKeys = useMemo(() => buildPathBondKeySet(activePath), [activePath]);
+  const pathAtomSet = useMemo(() => buildPathAtomSet(activePath), [activePath]);
+
+  const pathBondOrder = useMemo(() => {
+    const m = new Map<string, { index: number; total: number }>();
+    activePath.bonds.forEach((b, i) => {
+      m.set(`${b.stage}:${b.a}:${b.b}`, {
+        index: i,
+        total: activePath.bonds.length,
+      });
+    });
+    return m;
+  }, [activePath]);
+
   const hoveredOrSelected = hovered ?? selected;
   const hoveredNode = hoveredOrSelected
     ? layout.nodes.find((n) => n.teamCode === hoveredOrSelected) ?? null
     : null;
+
+  const championAtomNode = layout.championCode
+    ? layout.nodes.find((n) => n.teamCode === layout.championCode)
+    : null;
+
+  const showPathChip =
+    !selectedOverridesAllowed && championPath.bonds.length > 0 && !!championAtomNode;
+
+  // Group-bond visibility: hide while orbit is auto-rotating, restore on interaction.
+  function onInteractionState(s: { idleMs: number; rotating: boolean }) {
+    interactionRef.current = s;
+    const shouldShow = !s.rotating && s.idleMs < 5000;
+    setGroupBondsVisible((prev) => (prev !== shouldShow ? shouldShow : prev));
+  }
+
+  const championTeamName = championAtomNode?.teamName ?? null;
+  const championFlag = layout.championCode
+    ? flagEmojiByTeam.get(layout.championCode) ?? null
+    : null;
+
+  function setHighlightOverride(code: string, on: boolean): void {
+    setHighlightOverridesByTeam((prev) => ({ ...prev, [code]: on }));
+  }
 
   return (
     <div className="molecule-root" data-has-picks={layout.hasAnyKnockoutPick ? "true" : "false"}>
@@ -284,6 +369,11 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           onSelect={setSelected}
           onHover={setHovered}
           flagEmojiByTeam={flagEmojiByTeam}
+          pathBondKeys={pathBondKeys}
+          pathAtomSet={pathAtomSet}
+          pathBondOrder={pathBondOrder}
+          motionEnabled={motionEnabled}
+          groupBondsVisible={groupBondsVisible}
         />
 
         <OrbitControls
@@ -301,10 +391,25 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
           autoRotate
           autoRotateSpeed={0.35}
         />
-        <IdleAutoRotateBridge controls={controlsRef} />
+        <IdleAutoRotateBridge
+          controls={controlsRef}
+          onInteractionState={onInteractionState}
+        />
       </Canvas>
 
       <MoleculeLegend />
+
+      {/* "PATH TO GOLD" chip — visible when the default champion-path is the active highlight. */}
+      {showPathChip ? (
+        <div className="molecule-path-chip" role="status" aria-live="polite">
+          <span className="molecule-path-chip-dot" aria-hidden />
+          <span className="molecule-path-chip-label">PATH TO GOLD</span>
+          {championFlag ? (
+            <span className="molecule-path-chip-flag" aria-hidden>{championFlag}</span>
+          ) : null}
+          <span className="molecule-path-chip-team">{championTeamName}</span>
+        </div>
+      ) : null}
 
       {!layout.hasAnyKnockoutPick ? (
         <div className="molecule-empty-state" role="status">
@@ -339,6 +444,12 @@ export function MoleculeScene({ tournament, bracketOverride }: MoleculeSceneProp
         cascaded={cascaded}
         finalStageByTeam={finalStageByTeam}
         flagEmojiByTeam={flagEmojiByTeam}
+        highlightOverrideOn={
+          selected ? highlightOverridesByTeam[selected] ?? true : true
+        }
+        onHighlightOverrideChange={(on) => {
+          if (selected) setHighlightOverride(selected, on);
+        }}
         onClose={() => setSelected(null)}
       />
     </div>

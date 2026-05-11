@@ -3,14 +3,10 @@
 /**
  * MoleculePanel — slide-in side panel for the selected team.
  *
- * Shows:
- *   - flag emoji + name
- *   - the user's predicted path through the bracket (R32 → ... → Final)
- *   - each match's W/D/L outcome pick + opponent
- *   - a tiny "predicted finish" pill (champion / runner-up / 3rd / out
- *     at QF / etc.)
- *
- * Pure presentation; reads CascadedBracket but doesn't mutate it.
+ * v2: each path row now displays the opponent's flag (SVG via /flags),
+ * and the panel exposes a "Highlight on scene" toggle. When ON (default),
+ * clicking this team replaces the default gold champion-path highlight
+ * with this team's path. When OFF, the default champion-path stays.
  */
 
 import type { CascadedBracket, Tournament } from "@vtorn/bracket-engine";
@@ -23,6 +19,9 @@ export interface MoleculePanelProps {
   cascaded: CascadedBracket | null;
   finalStageByTeam: ReadonlyMap<string, FinalStage>;
   flagEmojiByTeam: ReadonlyMap<string, string>;
+  /** Toggle state — is this team's path replacing the default highlight? */
+  highlightOverrideOn?: boolean;
+  onHighlightOverrideChange?: (on: boolean) => void;
   onClose: () => void;
 }
 
@@ -48,7 +47,16 @@ const FINAL_STAGE_PILL: Record<FinalStage, { label: string; bg: string; fg: stri
 };
 
 export function MoleculePanel(props: MoleculePanelProps) {
-  const { teamCode, tournament, cascaded, finalStageByTeam, flagEmojiByTeam, onClose } = props;
+  const {
+    teamCode,
+    tournament,
+    cascaded,
+    finalStageByTeam,
+    flagEmojiByTeam,
+    highlightOverrideOn = true,
+    onHighlightOverrideChange,
+    onClose,
+  } = props;
   if (!teamCode) return null;
 
   const team = tournament.teams.find((t) => t.id === teamCode);
@@ -90,6 +98,20 @@ export function MoleculePanel(props: MoleculePanelProps) {
       </header>
 
       <section className="molecule-panel-body">
+        <div className="molecule-panel-toolbar">
+          <label className="molecule-panel-toggle">
+            <input
+              type="checkbox"
+              checked={highlightOverrideOn}
+              onChange={(e) => onHighlightOverrideChange?.(e.currentTarget.checked)}
+            />
+            <span className="molecule-panel-toggle-track" aria-hidden />
+            <span className="molecule-panel-toggle-label">
+              Highlight on scene
+            </span>
+          </label>
+        </div>
+
         <h3 className="molecule-panel-section">Predicted path</h3>
         {matches.length === 0 ? (
           <p className="molecule-panel-empty">
@@ -99,17 +121,39 @@ export function MoleculePanel(props: MoleculePanelProps) {
         ) : (
           <ol className="molecule-panel-path">
             {matches.map((k) => {
-              const opponentCode = k.home.team === teamCode ? k.away.team : k.home.team;
+              const opponentCode =
+                k.home.team === teamCode ? k.away.team : k.home.team;
               const opponent = tournament.teams.find((t) => t.id === opponentCode);
               const won = k.effective_winner === teamCode;
               const lost = k.effective_winner && k.effective_winner !== teamCode;
+              const oppFlagSrc = opponentCode ? `/flags/${opponentCode}.svg` : null;
               return (
-                <li key={k.id} className="molecule-panel-path-row" data-result={won ? "win" : lost ? "loss" : "tbd"}>
+                <li
+                  key={k.id}
+                  className="molecule-panel-path-row"
+                  data-result={won ? "win" : lost ? "loss" : "tbd"}
+                >
                   <span className="molecule-panel-path-stage">
                     {STAGE_LABEL[k.stage] ?? k.stage.toUpperCase()}
                   </span>
                   <span className="molecule-panel-path-opp">
-                    vs {opponent?.name ?? opponentCode ?? "TBD"}
+                    <span className="molecule-panel-path-opp-flag" aria-hidden>
+                      {oppFlagSrc ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={oppFlagSrc}
+                          alt=""
+                          width={24}
+                          height={16}
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="molecule-panel-path-opp-flag-fallback">?</span>
+                      )}
+                    </span>
+                    <span className="molecule-panel-path-opp-name">
+                      vs {opponent?.name ?? opponentCode ?? "TBD"}
+                    </span>
                   </span>
                   <span className="molecule-panel-path-result">
                     {won ? "WIN" : lost ? "OUT" : "TBD"}
