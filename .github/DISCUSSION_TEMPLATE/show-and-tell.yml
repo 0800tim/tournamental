@@ -1,0 +1,67 @@
+title: "[show] "
+labels: ["show-and-tell", "community"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        You built something on Tournamental? Brilliant. Share it.
+
+        Posts here may be amplified on the Tournamental social accounts, quoted in the engineering log at [tournamental.com/engineering](https://tournamental.com/engineering), and considered for the quarterly contributor revenue payout via the [Drips Network treasury](https://www.drips.network/app/projects/github/0800tim/tournamental).
+  - type: input
+    id: name
+    attributes:
+      label: Project name
+      placeholder: BracketBattle, Pundit Showdown, etc.
+    validations:
+      required: true
+  - type: input
+    id: link
+    attributes:
+      label: Live link or demo URL
+      description: Where can we see it running? A short Loom or screen recording is fine if there is no public deploy yet.
+      placeholder: https://...
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: 30-second pitch
+      description: What does it do and who is it for?
+    validations:
+      required: true
+  - type: textarea
+    id: pieces
+    attributes:
+      label: Which Tournamental pieces did you use?
+      description: Renderer, bracket engine, plugin SDK, MCP server, share cards, npm packages, API portal, something else? List them.
+      placeholder: |
+        - @tournamental/bracket-engine for cascade + scoring
+        - @tournamental/social-cards for the share preview
+        - mcp.tournamental.com for the leaderboard query in the agent
+    validations:
+      required: true
+  - type: textarea
+    id: lessons
+    attributes:
+      label: What was easy? What was hard?
+      description: Helps us improve the SDK and docs. Honest feedback welcome.
+    validations:
+      required: false
+  - type: textarea
+    id: media
+    attributes:
+      label: Screenshots or video
+      description: Drag images in here, or paste links. Marketing might pick these up.
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-post checklist
+      options:
+        - label: My project is Apache-2.0, MIT, BSD-2-Clause, or BSD-3-Clause compatible (or it is closed-source but documents that clearly).
+          required: true
+        - label: I am happy for Tournamental to amplify this post on social channels and the engineering log.
+          required: true
+        - label: I agree to the [Code of Conduct](https://github.com/0800tim/tournamental/blob/main/CODE_OF_CONDUCT.md).
+          required: true

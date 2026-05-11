@@ -1,10 +1,35 @@
 # Tournamental
 
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
+[![npm: @tournamental/bracket-engine](https://img.shields.io/npm/v/@tournamental/bracket-engine.svg?label=%40tournamental%2Fbracket-engine)](https://www.npmjs.com/package/@tournamental/bracket-engine)
+[![Open issues](https://img.shields.io/github/issues/0800tim/tournamental.svg)](https://github.com/0800tim/tournamental/issues)
+[![Last commit](https://img.shields.io/github/last-commit/0800tim/tournamental.svg)](https://github.com/0800tim/tournamental/commits/main)
+<!-- TODO: replace https://discord.gg/tournamental with the finalised invite URL once it is reserved. See docs/55-public-launch-checklist.md. -->
+[![Discord](https://img.shields.io/badge/discord-tournamental-5865F2.svg?logo=discord&logoColor=white)](https://discord.gg/tournamental)
+
 > **Predict the tournament. Beat the market. Prove it.**
 >
-> A live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network, all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten.
+> Tournamental is a live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network, all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten. Open source under Apache 2.0, brand and treasury held by Tournamental Holdings, contributor revenue streamed via the Drips Network.
 
 Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verified Tournament Oracle Network**.
+
+## What just shipped
+
+- **npm packages live** under [`@tournamental/*`](https://www.npmjs.com/search?q=%40tournamental) -- `spec`, `bracket-engine`, `social-cards`, and `plugin-sdk` (in development).
+- **MCP server live** at [`mcp.tournamental.com`](https://mcp.tournamental.com) so Claude, Cursor, Windsurf, and other Model Context Protocol clients can read live Tournamental state.
+- **Engineering blog + plugin SDK** -- the engineering log at [`tournamental.com/engineering`](https://tournamental.com/engineering) is now the canonical entry point for builders, and the plugin SDK in [`packages/plugin-sdk/`](packages/plugin-sdk) lets you drop in renderers, scorers, ingest sources, identity providers, share-card pipelines, odds feeds, and affiliate routers without forking the core.
+
+## Build on Tournamental in 20 minutes
+
+1. Read [The Tournamental stack at a glance](https://tournamental.com/engineering/2026-05-13-stack-at-a-glance) for the six-step "vibe-code your app on top of Tournamental" walkthrough.
+2. Pick the npm packages you need:
+   - [`@tournamental/spec`](https://www.npmjs.com/package/@tournamental/spec) -- the canonical JSON message spec.
+   - [`@tournamental/bracket-engine`](https://www.npmjs.com/package/@tournamental/bracket-engine) -- cascade and scoring engine.
+   - [`@tournamental/social-cards`](https://www.npmjs.com/package/@tournamental/social-cards) -- OG, podium, and share-card renderer.
+   - [`@tournamental/plugin-sdk`](https://www.npmjs.com/package/@tournamental/plugin-sdk) -- plugin contracts for community-built modes.
+3. Wire your agent (Claude, Cursor, Windsurf) to the MCP server at [`mcp.tournamental.com`](https://mcp.tournamental.com) so it can read live state without you writing a fetch layer first.
+4. Browse the aggregated API reference at [`tournamental.com/api`](https://tournamental.com/api) (Scalar UI, deep-linkable per service). Per-service OpenAPI snapshots live under [`docs/api/`](docs/api/) for offline use.
+5. Ship it, open a PR for the contrib pool, and post in [Show and Tell](https://github.com/0800tim/tournamental/discussions/categories/show-and-tell).
 
 ## Read the engineering log
 
@@ -188,3 +213,26 @@ Tournamental ships **100% open source** under **Apache 2.0** (code) and **CC-BY-
 **Comparable structures.** Optimism, Filecoin, Mozilla, Linux Foundation, Radworks. Foundation-backed open protocol with brand-and-treasury controlled by the entity, contributor revshare via on-chain streaming.
 
 Asset packs (avatars, stadium models, jersey textures) follow the licence of their original creators; the framework itself contains none.
+
+## Sub-processors
+
+Production Tournamental surfaces depend on the following third-party services. New contributors should know the data-flow boundary before shipping anything that touches user data. The same list appears in [SECURITY.md](SECURITY.md) for the security-disclosure context.
+
+- **Supabase** -- managed Postgres + auth (user records, sessions, predictions, leaderboards).
+- **Cloudflare** -- DNS, CDN, Workers, Tunnel, WAF; the public edge for every Tournamental surface.
+- **Aiva SMS** -- SMS and WhatsApp gateway for OTP delivery during the auth flow.
+- **GoHighLevel** -- CRM for syndicate signups and marketing automation.
+- **npm registry** -- distribution channel for the `@tournamental/*` packages.
+- **GitHub** -- source hosting, issues, discussions, releases, and security advisories.
+- **Drips Network** -- on-chain contributor revenue treasury (Ethereum + L2).
+- **Polymarket** -- read-only prediction-market odds used for difficulty scoring.
+- **StatsBomb Open Data** -- read-only historical match data for the replay demos.
+
+Sub-processor changes ship as their own PR with a CHANGELOG entry and a SECURITY.md update.
+
+## Community
+
+- **Discussions** -- ideas, help, and show-and-tell at [GitHub Discussions](https://github.com/0800tim/tournamental/discussions). Templates live in [`.github/DISCUSSION_TEMPLATE/`](.github/DISCUSSION_TEMPLATE/).
+- **Discord** -- live chat at [discord.gg/tournamental](https://discord.gg/tournamental) (invite finalised at public-launch, see [docs/55-public-launch-checklist.md](docs/55-public-launch-checklist.md)).
+- **Code of Conduct** -- the [Contributor Covenant 2.1](CODE_OF_CONDUCT.md). Report violations to `0800tim@gmail.com`.
+- **Security** -- private disclosure flow in [SECURITY.md](SECURITY.md). Do not open public issues for vulnerabilities.

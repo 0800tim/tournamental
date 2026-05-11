@@ -1,0 +1,49 @@
+title: "[idea] "
+labels: ["idea", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea for Tournamental. Ideas posted here feed into [IDEAS.md](https://github.com/0800tim/tournamental/blob/main/IDEAS.md) and the weekly orchestrator triage.
+
+        Before you post, scan the open ideas in [the Ideas category](https://github.com/0800tim/tournamental/discussions/categories/ideas) so we can collapse duplicates and build momentum on the same thread.
+  - type: textarea
+    id: summary
+    attributes:
+      label: One-line summary
+      description: What is the idea, in a single sentence?
+      placeholder: A bracket mode where pick locks are revealed at kick-off so spoilers do not leak in group chats.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or opportunity
+      description: What gap does this fill, or what experience does it unlock?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Rough proposal
+      description: Sketch the shape of the change. Bullets are fine. Don't worry about implementation detail.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you think about, and why is this one better?
+    validations:
+      required: false
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-post checklist
+      options:
+        - label: I searched the Ideas category for duplicates.
+          required: true
+        - label: I checked [IDEAS.md](https://github.com/0800tim/tournamental/blob/main/IDEAS.md) to confirm this is not already parked.
+          required: true
+        - label: I agree to the [Code of Conduct](https://github.com/0800tim/tournamental/blob/main/CODE_OF_CONDUCT.md).
+          required: true

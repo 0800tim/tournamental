@@ -1,17 +1,21 @@
 # Contributing to Tournamental
 
-> Welcome. Tournamental is **100% open source** under Apache 2.0 (code) and CC-BY-4.0 (docs). This guide is for both human contributors and code agents — the workflow is the same. By following it, you keep the project clean enough that anyone can drop in and contribute.
+> Welcome. Tournamental is **100% open source** under Apache 2.0 (code) and CC-BY-4.0 (docs). This guide is for both human contributors and code agents, the workflow is the same. By following it, you keep the project clean enough that anyone can drop in and contribute.
+
+By participating in this project you agree to abide by the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 ## TL;DR
 
-- Read [CLAUDE.md](CLAUDE.md) for the operations protocol.
+- Read [CLAUDE.md](CLAUDE.md) for the operations protocol, and [AGENT-PROMPTS.md](AGENT-PROMPTS.md) if you are a code agent.
+- Read the [Code of Conduct](CODE_OF_CONDUCT.md). It applies everywhere we interact.
 - One change per PR. Rebase, don't merge-commit.
 - Conventional Commits, DCO-signed (`git commit -s`).
-- Lint + typecheck + tests pass locally before push.
+- Lint + typecheck + tests pass locally before push (`pnpm lint && pnpm typecheck && pnpm test`).
 - A reviewer agent or human reviewer must approve before merge.
 - Out-of-scope ideas go in [IDEAS.md](IDEAS.md), not in your PR.
 - Session notes in `sessions/` describe what you did and why.
 - Code goes through a security and spec-conformance review on every PR.
+- Security issues: follow [SECURITY.md](SECURITY.md), do not open a public issue.
 
 ## Set up your environment
 
@@ -32,6 +36,35 @@ pnpm install                         # installs all workspace packages
 ```
 
 Each app has its own `README.md` with run instructions specific to it.
+
+## Run the test suite
+
+From the repo root:
+
+```bash
+pnpm install         # once, after clone
+pnpm lint            # eslint + prettier across the workspace
+pnpm typecheck       # tsc --noEmit across every TS package
+pnpm test            # vitest / jest, depending on the package
+pnpm build           # builds every app + package (slow, but the source of truth)
+```
+
+For a single package: `pnpm --filter @tournamental/<name> test`. For a single app: `pnpm --filter @vtorn/<app> test`.
+
+Python surfaces (`apps/statsbomb-replay/`, occasional pipelines) use [uv](https://docs.astral.sh/uv/):
+
+```bash
+cd apps/statsbomb-replay
+uv sync
+uv run ruff check .
+uv run pytest
+```
+
+CI runs the equivalent of `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, plus the security and spec-conformance checks listed below. Reproduce CI locally before pushing where you can; PRs with red CI are not reviewed until they go green.
+
+## Agent-author workflow
+
+If you are a code agent (Claude, Codex, Devin, or otherwise), follow the operations protocol in [CLAUDE.md](CLAUDE.md) and pick your starter prompt from [AGENT-PROMPTS.md](AGENT-PROMPTS.md). The same conventional commits + DCO sign-off + session note rules apply to agents as to humans. Reviewers do not give preferential treatment based on whether the author is human; the diff and the session note are what get read.
 
 ## Workflow
 
@@ -167,12 +200,11 @@ Any PR touching `contracts/` (Solidity) requires:
 
 If you discover a security issue (not just a bug):
 
-- **Do not open a public issue.**
-- Email `security@tournamental.com` (TBD — reserve before launch) or DM the maintainers via Telegram.
-- Include a clear reproducer.
-- We commit to acknowledging within 48 hours and patching within 14 days for high-severity issues.
+- **Do not open a public issue or discussion.**
+- Follow [SECURITY.md](SECURITY.md), which is the single source of truth for our disclosure flow, response SLA (24h acknowledge, 72h triage), and 90-day disclosure window.
+- Primary contact: `0800tim@gmail.com` with `[tournamental-security]` in the subject, or open a private [GitHub Security Advisory](https://github.com/0800tim/tournamental/security/advisories/new).
 
-We will publicly credit the reporter unless they prefer to remain anonymous, and (once Tournamental Holdings has revenue) issue a bounty proportional to severity from the strategic-reserve fund per [doc 19](docs/19-open-source-and-contributor-revenue.md).
+We will publicly credit the reporter unless they prefer to remain anonymous, and we pay valid disclosures from the Tournamental Drips Network treasury per [doc 19](docs/19-open-source-and-contributor-revenue.md).
 
 ## Contributor revenue share
 
@@ -188,7 +220,7 @@ You can contribute without registering — many contributors prefer not to recei
 
 Be kind. Assume good faith. Critique code, not people. Disagreements are resolved by reference to the docs first, then by the orchestrator's call.
 
-We follow the [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/). Violations: contact a maintainer; persistent violations result in PR-rights or ban.
+The full text lives in [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md), which is the [Contributor Covenant 2.1](https://www.contributor-covenant.org/version/2/1/code_of_conduct/) verbatim. Report violations to `0800tim@gmail.com`. Persistent violations result in PR-rights revocation or a ban.
 
 ## Questions
 
