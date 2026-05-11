@@ -1,51 +1,91 @@
 /**
- * Molecule layout — v3 pyramid edition.
+ * Molecule layout — v4 multi-instance pyramid edition.
  *
- * v2 placed atoms on concentric rings (champion at the centre, group
- * losers on the outermost ring). v3 reads the tournament as a pyramid:
- * group losers form the base, knockout losers stack at the tier they
- * were eliminated at, and the predicted champion glows alone at the
- * apex.
+ * v3 emitted one node per team, placed at the y-height of the deepest
+ * stage that team reached. Result: nice classification, but visually
+ * most teams ended up clustered at the base (because most teams *get*
+ * eliminated early) and the pyramid silhouette only existed in the
+ * count-per-tier, not in the placement.
  *
- *   y = 28    apex            1 atom    champion
- *   y = 22    SF tier         3 atoms   runner-up + bronze + 4th
- *   y = 16    QF tier         4 atoms   QF losers
- *   y = 10    R16 tier        8 atoms   R16 losers
- *   y =  4    R32 tier       16 atoms   R32 losers
- *   y =  0    base           ~16 atoms  group-stage eliminated
+ * v4 inverts that. Each team gets **one node per surviving layer** —
+ * a group-stage loser has 1 node (at the base), a R32 loser has 2
+ * (group + r32), a champion has 7 (group + r32 + r16 + qf + sf + f +
+ * champion@apex). For a fully-resolved 48-team WC: 48 + 32 + 16 + 8 +
+ * 4 + 2 + 1 = **111 nodes** total. The silhouette is then a literal
+ * cone.
  *
- * Atoms at each tier are placed on a circular footprint whose radius
- * shrinks toward the apex (base r=18, R32 r=14, R16 r=10, QF r=7,
- * SF r=4, apex r=0). The angle a loser sits at is a deterministic hash
- * of its team code — losers don't sit *exactly* under the team that
- * beat them (that would require a full bracket-graph walk we haven't
- * paid for yet), but jitter is bounded so the same prediction always
- * produces the same picture.
+ *   y = 30    champion        1 atom    the trophy holder (apex)
+ *   y = 25    f               2 atoms   champion + runner-up
+ *   y = 20    sf              4 atoms   semi-finalists
+ *   y = 15    qf              8 atoms   quarter-finalists
+ *   y = 10    r16            16 atoms   round-of-16 entrants
+ *   y =  5    r32            32 atoms   round-of-32 entrants
+ *   y =  0    group          48 atoms   every team competing
  *
- * Bond list: every match in the tournament with a resolved (predicted
- * or actual) home + away contributes one bond. Group bonds are thin
- * grey; knockout bonds escalate in colour + thickness. The champion's
- * gold trail is unchanged from v2 — `path.ts` builds it from bonds.
+ * Per-team azimuth: each team gets one stable azimuth derived from a
+ * djb2 hash of `"{teamCode}:azimuth"`. The *same* azimuth is used at
+ * every layer the team occupies → each team's instances stack into a
+ * near-vertical column rising up the pyramid. The Final layer (only
+ * two atoms) overrides azimuth to 0 / π so the two finalists read as
+ * an opposing pair across the apex.
  *
- * Public surface: `MoleculeLayout`, `MoleculeNode`, `MoleculeBond`,
- * `FinalStage`, `BondStage`, `PALETTE`, `stableHash01`, plus the
- * test-only helpers `isAtOrigin` and `isOnGroupRing` are preserved
- * verbatim so `MoleculeScene` + the v2 layout tests keep working.
- * A new `isAtPyramidTier(node, fs)` helper backs the new tier checks.
+ * Two kinds of bonds:
+ *   - **match bonds** — connect both teams' instances at the same layer
+ *     (the match they played there). Horizontal lines at layer Y.
+ *   - **advance bonds** — connect (team@layer N, team@layer N+1) for
+ *     the same team. These are the rising columns. Default slate +
+ *     thin; light up gold when the team is on the champion's path.
  *
- * Determinism: same (tournament, cascaded) → same layout. No clock
- * reads, no random calls. Jitter uses a stable string-hash per team.
+ * Public surface keeps backwards-compat fields:
+ *   - `MoleculeNode.teamCode`, `position`, `radius`, `finalStage`,
+ *     `accentColor`, `teamName` — unchanged.
+ *   - `MoleculeBond.a`, `b`, `stage`, `color`, `thickness` — unchanged
+ *     semantics for match bonds. For advance bonds, `a === b` (it's the
+ *     team progressing) and `stage` is the *higher* of the two layers.
+ *   - New fields: `MoleculeNode.id`, `stage`, `isTopInstance` and
+ *     `MoleculeBond.id`, `kind`, `aStage`, `bStage`.
+ *
+ * Tests asserting "champion at apex" should now look up the team's
+ * `isTopInstance` (a champion's top instance is at stage="champion").
+ * Tests looking up a team by `teamCode === "FOO"` find the *first*
+ * instance — the group-layer one — by convention; if you need the
+ * deepest, filter with `isTopInstance` too.
+ *
+ * Determinism: pure function over (tournament, cascaded). No clock
+ * reads, no random calls.
  */
 
 import type {
   CascadedBracket,
-  CascadedKnockout,
   StageId,
   Tournament,
 } from "@vtorn/bracket-engine";
 
 // ---------- public types ----------
 
+/**
+ * A literal layer the pyramid is built from. Strictly ordered:
+ * group < r32 < r16 < qf < sf < f < champion.
+ */
+export type LayerStage = "group" | "r32" | "r16" | "qf" | "sf" | "f" | "champion";
+
+/**
+ * Legacy "deepest stage reached" classification. Kept for backwards
+ * compatibility with the side-panel pill + existing tests. The mapping
+ * from v4 LayerStage → FinalStage is:
+ *   - top instance at "champion" → finalStage = "champion"
+ *   - top instance at "f"        → finalStage = "runner_up"
+ *   - top instance at "sf"       → finalStage = "third_place" or "fourth_place"
+ *                                   (determined by the tp match if present)
+ *   - top instance at "qf"       → finalStage = "qf"
+ *   - top instance at "r16"      → finalStage = "r16"
+ *   - top instance at "r32"      → finalStage = "r32"
+ *   - top instance at "group"    → finalStage = "group"
+ *
+ * Non-top instances always carry the same finalStage as their team's top
+ * instance — so a champion's r32 instance still has `finalStage = "champion"`.
+ * This keeps colour/rim logic stable across a team's column.
+ */
 export type FinalStage =
   | "champion"
   | "runner_up"
@@ -57,21 +97,41 @@ export type FinalStage =
   | "group";
 
 export interface MoleculeNode {
+  /** Unique node id: `"{teamCode}:{stage}"`. */
+  readonly id: string;
   readonly teamCode: string;
   readonly teamName: string;
   readonly position: readonly [number, number, number];
-  /** Sphere radius in three-units. Champion is biggest, group losers smallest. */
+  /** Sphere radius in three-units. Grows toward the apex. */
   readonly radius: number;
+  /** The literal layer this instance sits on. */
+  readonly stage: LayerStage;
+  /** True for the deepest instance of this team — drives "deepest finish" UI cues. */
+  readonly isTopInstance: boolean;
+  /** Legacy "deepest stage reached" classification. */
   readonly finalStage: FinalStage;
-  /** Kit primary hex (e.g. "#006233") if available, else neutral grey. */
+  /** Kit primary hex (e.g. "#006233") if available, else palette fallback. */
   readonly accentColor: string;
 }
 
 export type BondStage = "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
 
 export interface MoleculeBond {
+  /** Unique bond id: `"{kind}:{a}@{aStage}:{b}@{bStage}"`. */
+  readonly id: string;
+  /** Match bond = both endpoints are different teams at the same layer.
+   *  Advance bond = same team at two adjacent layers. */
+  readonly kind: "match" | "advance";
   readonly a: string;
   readonly b: string;
+  readonly aStage: LayerStage;
+  readonly bStage: LayerStage;
+  /**
+   * Legacy stage tag for match-bond colouring. For match bonds this is
+   * the layer they share (mapped through the v3 BondStage union). For
+   * advance bonds this is the *higher* of the two layers — but advance
+   * bonds carry their own colouring so it's largely informational.
+   */
   readonly stage: BondStage;
   readonly color: string;
   readonly thickness: number;
@@ -88,13 +148,13 @@ export interface MoleculeLayout {
   readonly hasAnyKnockoutPick: boolean;
 }
 
-// ---------- palette (matches bracket-share-card.ts) ----------
+// ---------- palette ----------
 
 export const PALETTE = {
   champion: "#f5c542", // gold
   runner_up: "#d8dde6", // silver
   third_place: "#d8954f", // bronze
-  fourth_place: "#7c6648", // dim bronze (loser of 3rd-place playoff)
+  fourth_place: "#7c6648", // dim bronze
   qf: "#ff9a3d", // warm orange
   r16: "#7eb6e8", // accent blue
   r32: "#566787", // slate
@@ -103,8 +163,8 @@ export const PALETTE = {
 
 const BOND_PALETTE: Record<BondStage, string> = {
   group: "#2a3145",
-  r32: "#3a4360",
-  r16: "#566787",
+  r32: "#566787",
+  r16: "#7eb6e8",
   qf: "#ff9a3d",
   sf: "#ff6b3d",
   tp: "#d8954f",
@@ -121,359 +181,386 @@ const BOND_THICKNESS: Record<BondStage, number> = {
   f: 3.0,
 };
 
+/** Advance-bond visual constants. */
+export const ADVANCE_BOND = {
+  color: "#3a4360",
+  colorOnPath: "#fbbf24",
+  thickness: 0.75,
+} as const;
+
 // ---------- pyramid geometry ----------
 
-/**
- * Y-height per tier. The pyramid reads as a pyramid because each tier
- * sits at a strictly higher y than the one below.
- */
-const TIER_Y: Record<FinalStage, number> = {
-  champion: 28,
-  runner_up: 22,
-  third_place: 22,
-  fourth_place: 22,
-  qf: 16,
-  r16: 10,
-  r32: 4,
+/** Y-height per layer. Strictly monotonic ascending. */
+const LAYER_Y: Record<LayerStage, number> = {
   group: 0,
-};
-
-/**
- * Horizontal footprint radius per tier — shrinks toward the apex.
- */
-const TIER_RADIUS: Record<FinalStage, number> = {
-  champion: 0,
-  runner_up: 4,
-  third_place: 4,
-  fourth_place: 4,
-  qf: 7,
+  r32: 5,
   r16: 10,
-  r32: 14,
-  group: 18,
+  qf: 15,
+  sf: 20,
+  f: 25,
+  champion: 30,
 };
 
-/**
- * Atom sphere radius per tier — v3 bumps these vs v2 (~15%) so the
- * flag textures stay readable at smaller tiers when viewed from a
- * normal zoom level.
- */
-const NODE_RADIUS: Record<FinalStage, number> = {
-  champion: 2.3,
-  runner_up: 1.85,
-  third_place: 1.6,
-  fourth_place: 1.4,
-  qf: 1.25,
-  r16: 1.08,
-  r32: 0.95,
-  group: 0.82,
+/** Horizontal tier radius per layer. Strictly monotonic decreasing. */
+const LAYER_RADIUS: Record<LayerStage, number> = {
+  group: 26,
+  r32: 19,
+  r16: 13,
+  qf: 8,
+  sf: 4.5,
+  f: 2.2,
+  champion: 0,
 };
 
-// Within-tier angular jitter (radians) so atoms on a tier of N don't
-// collide with their hash-only neighbours. We blend hash-angle with
-// even-spacing-angle so the result reads as a circle but isn't
-// trivially predictable.
-const TIER_ANGULAR_BLEND = 0.5;
-
-// SF tier seats: runner-up at 0°, bronze at 180°, 4th at 90°. The hash
-// jitter doesn't apply here — these are too few + named.
-const SF_TIER_ANGLES: Record<"runner_up" | "third_place" | "fourth_place", number> = {
-  runner_up: 0,
-  third_place: Math.PI,
-  fourth_place: Math.PI / 2,
+/** Sphere radius per layer. Grows toward the apex. */
+const NODE_RADIUS: Record<LayerStage, number> = {
+  group: 0.55,
+  r32: 0.7,
+  r16: 0.85,
+  qf: 1.05,
+  sf: 1.3,
+  f: 1.6,
+  champion: 2.1,
 };
+
+/** Y-jitter range at the base only (±units). Stops the base reading as a flat plane. */
+const BASE_Y_JITTER = 0.4;
+
+/** All layers in ascending order. */
+const LAYER_ORDER: readonly LayerStage[] = [
+  "group",
+  "r32",
+  "r16",
+  "qf",
+  "sf",
+  "f",
+  "champion",
+];
+
+const LAYER_INDEX: Record<LayerStage, number> = (() => {
+  const m: Record<string, number> = {};
+  LAYER_ORDER.forEach((l, i) => {
+    m[l] = i;
+  });
+  return m as Record<LayerStage, number>;
+})();
 
 // ---------- helpers ----------
 
-function colourFor(stage: FinalStage): string {
-  return PALETTE[stage];
-}
-
-/** Stable djb2-ish string hash → 0..1. Used to seed jitter for repeatable layouts. */
+/** Stable djb2-ish string hash → [0, 1]. */
 export function stableHash01(input: string): number {
   let h = 5381;
   for (let i = 0; i < input.length; i++) {
     h = ((h << 5) + h + input.charCodeAt(i)) | 0;
   }
-  // Map to 0..1 deterministically.
-  const u = (h >>> 0) / 0xffffffff;
-  return u;
+  return (h >>> 0) / 0xffffffff;
 }
 
-function teamKitPrimary(
-  tournament: Tournament,
-  code: string,
-): string | null {
-  const t = tournament.teams.find((x) => x.id === code);
-  return t?.kit?.primary ?? null;
+function teamKitPrimary(t: Tournament, code: string): string | null {
+  return t.teams.find((x) => x.id === code)?.kit?.primary ?? null;
 }
 
-function teamName(tournament: Tournament, code: string): string {
-  const t = tournament.teams.find((x) => x.id === code);
-  return t?.name ?? code;
+function teamName(t: Tournament, code: string): string {
+  return t.teams.find((x) => x.id === code)?.name ?? code;
 }
 
-function stageOf(k: CascadedKnockout): BondStage {
-  return k.stage as BondStage;
+/** Stable azimuth angle (radians, 0..2π) for a team. Same θ at every layer. */
+function teamAzimuth(teamCode: string): number {
+  return stableHash01(`${teamCode}:azimuth`) * Math.PI * 2;
 }
+
+/** Position of a team's instance at a given layer. */
+function instancePosition(
+  teamCode: string,
+  stage: LayerStage,
+  override?: { azimuth?: number },
+): [number, number, number] {
+  if (stage === "champion") return [0, LAYER_Y.champion, 0];
+  const radius = LAYER_RADIUS[stage];
+  const angle = override?.azimuth ?? teamAzimuth(teamCode);
+  const x = radius * Math.cos(angle);
+  const z = radius * Math.sin(angle);
+  let y = LAYER_Y[stage];
+  if (stage === "group") {
+    // Tiny seeded y-jitter so the base doesn't read as a perfectly flat disc.
+    y += (stableHash01(`${teamCode}:y`) - 0.5) * BASE_Y_JITTER * 2;
+  }
+  return [x, y, z];
+}
+
+/** Stage rank from the bracket-engine's StageId union. */
+const STAGE_RANK: Record<StageId, number> = {
+  group: 0, r32: 1, r16: 2, qf: 3, sf: 4, tp: 5, f: 6,
+};
 
 // ---------- main entry ----------
 
 /**
  * Build the molecule layout from a cascaded bracket.
- *
- * The cascade output gives us, for every knockout match, a home team
- * (resolved or null) and an away team (resolved or null) plus the
- * predicted/actual winner. We use the winner to determine each team's
- * final stage (= "deepest round they reached"), then place them on the
- * matching pyramid tier.
- *
- * If a team isn't found in any knockout's resolved slots, they're
- * treated as group-stage eliminated and placed on the base tier.
  */
 export function buildMoleculeLayout(
   tournament: Tournament,
   cascaded: CascadedBracket | null,
 ): MoleculeLayout {
-  // 1. Determine each team's final stage.
-  const finalStageByTeam = new Map<string, FinalStage>();
+  // 1. Determine each team's deepest layer reached.
+  //
+  // Default: every team starts at "group" (= competed in group stage,
+  // didn't survive to the knockouts). We deepen the classification as
+  // we walk knockout matches in stage order.
+  const deepestLayer = new Map<LayerStage, Set<string>>();
+  const layerForTeam = new Map<string, LayerStage>();
   for (const t of tournament.teams) {
-    finalStageByTeam.set(t.id, "group");
+    layerForTeam.set(t.id, "group");
   }
+
+  // We also need to know who reached each layer (entered, regardless of
+  // whether they won/lost there). A team is "in" layer L if they played
+  // a match at layer L. Champion is "in" the champion layer (apex) too.
+  // Reaching a layer is the union of "lost at L" + "won at L → reaches
+  // L+1".
 
   let championCode: string | null = null;
   let runnerUpCode: string | null = null;
   let thirdPlaceCode: string | null = null;
 
   if (cascaded) {
-    // Walk knockouts and update each team's "deepest stage reached".
-    // A team starts at group; loses an R32 match → stage = "r32"; wins
-    // R32 + loses R16 → "r16"; ...; wins SF + loses Final → "runner_up";
-    // wins Final → "champion".
-    //
-    // The 3rd-place playoff (stage = "tp") is special: its winner = bronze,
-    // its loser = 4th-place. The losing semi-finalists feed into "tp", so
-    // we look that up explicitly.
-    //
-    // Process matches in advancement order so later results overwrite
-    // earlier (e.g. an R16 win > R32 loss for the same team).
-    const STAGE_RANK: Record<StageId, number> = {
-      group: 0, r32: 1, r16: 2, qf: 3, sf: 4, tp: 5, f: 6,
-    };
-
-    const stageReached = new Map<string, FinalStage>();
-    const setIfDeeper = (code: string, fs: FinalStage): void => {
-      const existing = stageReached.get(code);
-      if (!existing) {
-        stageReached.set(code, fs);
-        return;
-      }
-      // Rank used to decide whether a new classification deepens the
-      // existing one. Note: third_place strictly outranks fourth_place
-      // (winning the bronze playoff is a "deeper" finish than losing
-      // it). Likewise runner_up outranks both, and champion outranks
-      // everything.
-      const rank: Record<FinalStage, number> = {
-        group: 0, r32: 1, r16: 2, qf: 3,
-        fourth_place: 4, third_place: 5,
-        runner_up: 6, champion: 7,
-      };
-      if (rank[fs] > rank[existing]) stageReached.set(code, fs);
-    };
-
-    // Sort matches by stage rank so we process R32 before R16 etc.
-    const orderedMatches = [...cascaded.knockouts].sort(
+    // Process matches in stage order.
+    const ordered = [...cascaded.knockouts].sort(
       (a, b) => STAGE_RANK[a.stage] - STAGE_RANK[b.stage],
     );
 
-    for (const k of orderedMatches) {
+    /** Upgrade a team's deepest-layer marker if `next` is deeper. */
+    const setDeeper = (code: string, next: LayerStage) => {
+      const cur = layerForTeam.get(code);
+      if (!cur || LAYER_INDEX[next] > LAYER_INDEX[cur]) {
+        layerForTeam.set(code, next);
+      }
+    };
+
+    for (const k of ordered) {
       const home = k.home.team;
       const away = k.away.team;
       const winner = k.effective_winner;
+      const stage = k.stage;
 
-      if (!home && !away) continue;
+      // A team only "reaches" a knockout layer if they appear in a match
+      // at that layer. The cascade only places teams into a knockout
+      // slot when the upstream resolves; if both slots are null we don't
+      // count anyone as reaching this layer.
+      const playedHere: string[] = [];
+      if (home) playedHere.push(home);
+      if (away) playedHere.push(away);
 
-      const homeIsLoser = winner !== null && home !== null && winner !== home;
-      const awayIsLoser = winner !== null && away !== null && winner !== away;
-
-      if (k.stage === "f") {
-        if (winner && home && winner === home) {
-          setIfDeeper(home, "champion");
-          if (away) setIfDeeper(away, "runner_up");
-        } else if (winner && away && winner === away) {
-          setIfDeeper(away, "champion");
-          if (home) setIfDeeper(home, "runner_up");
-        } else {
-          if (home) setIfDeeper(home, "runner_up");
-          if (away) setIfDeeper(away, "runner_up");
+      if (stage === "r32" || stage === "r16" || stage === "qf" || stage === "sf") {
+        // Anyone who played at this layer reached it.
+        for (const c of playedHere) setDeeper(c, stage);
+        // The winner reached the *next* layer too.
+        if (winner) {
+          const next: LayerStage =
+            stage === "r32" ? "r16" :
+            stage === "r16" ? "qf" :
+            stage === "qf" ? "sf" :
+            "f";
+          setDeeper(winner, next);
         }
-      } else if (k.stage === "tp") {
-        if (winner && home && winner === home) {
-          setIfDeeper(home, "third_place");
-          if (away) setIfDeeper(away, "fourth_place");
-        } else if (winner && away && winner === away) {
-          setIfDeeper(away, "third_place");
-          if (home) setIfDeeper(home, "fourth_place");
-        } else {
-          if (home) setIfDeeper(home, "fourth_place");
-          if (away) setIfDeeper(away, "fourth_place");
-        }
-      } else {
-        const stageFor: Record<"r32" | "r16" | "qf" | "sf", FinalStage> = {
-          r32: "r32",
-          r16: "r16",
-          qf: "qf",
-          // SF losers are 4th-place candidates until tp resolves them.
-          sf: "fourth_place",
-        };
-        const fs = stageFor[k.stage as "r32" | "r16" | "qf" | "sf"];
-        if (homeIsLoser && home) setIfDeeper(home, fs);
-        if (awayIsLoser && away) setIfDeeper(away, fs);
+      } else if (stage === "f") {
+        for (const c of playedHere) setDeeper(c, "f");
+        if (winner) setDeeper(winner, "champion");
 
-        const nextStage: Record<"r32" | "r16" | "qf" | "sf", FinalStage> = {
-          r32: "r16",
-          r16: "qf",
-          qf: "fourth_place",
-          sf: "runner_up",
-        };
-        if (winner) setIfDeeper(winner, nextStage[k.stage as "r32" | "r16" | "qf" | "sf"]);
+        // Identify champion + runner-up codes for the layout summary.
+        if (winner) {
+          championCode = winner;
+          runnerUpCode = home === winner ? (away ?? null) : (home ?? null);
+        }
+      } else if (stage === "tp") {
+        // The 3rd-place playoff doesn't grant a new layer — both teams
+        // are already at SF as their deepest. We do, however, mark both
+        // participants as having *reached* SF (in case the cascade
+        // omitted them from their semi-final fixture — e.g. the
+        // synthesised single-route fixtures used in tests). And we
+        // record the tp winner for the side-panel bronze pill.
+        if (winner) thirdPlaceCode = winner;
+        for (const c of playedHere) setDeeper(c, "sf");
       }
-    }
-
-    // Final: identify champion + runner-up + bronze codes.
-    const finalMatch = cascaded.knockouts.find((k) => k.stage === "f");
-    const tpMatch = cascaded.knockouts.find((k) => k.stage === "tp");
-    if (finalMatch?.effective_winner) {
-      championCode = finalMatch.effective_winner;
-      const home = finalMatch.home.team;
-      const away = finalMatch.away.team;
-      runnerUpCode = championCode === home ? away ?? null : home ?? null;
-    }
-    if (tpMatch?.effective_winner) {
-      thirdPlaceCode = tpMatch.effective_winner;
-    }
-
-    for (const [code, fs] of stageReached) {
-      finalStageByTeam.set(code, fs);
+      // "group" stage in the bracket-engine is unrelated to knockout layers.
     }
   }
 
-  // 2. Group teams by final stage so we can lay them out per-tier.
-  const byStage = new Map<FinalStage, string[]>();
-  for (const [code, fs] of finalStageByTeam) {
-    if (!byStage.has(fs)) byStage.set(fs, []);
-    byStage.get(fs)!.push(code);
+  // 2. Materialise per-team layer sets — every layer index ≤ deepest is
+  //    occupied by that team. e.g. deepest = "qf" → ["group","r32","r16","qf"].
+  for (const [code, deepest] of layerForTeam) {
+    const cap = LAYER_INDEX[deepest];
+    const layers = LAYER_ORDER.slice(0, cap + 1);
+    for (const l of layers) {
+      let s = deepestLayer.get(l);
+      if (!s) {
+        s = new Set();
+        deepestLayer.set(l, s);
+      }
+      s.add(code);
+    }
   }
-  // Sort each tier deterministically by team code so the layout is stable.
-  for (const arr of byStage.values()) arr.sort();
 
-  // 3. Place each team on its pyramid tier.
-  const nodes: MoleculeNode[] = [];
+  // 3. Compute Final-layer azimuth overrides — 0 for the team whose
+  //    teamCode sorts first, π for the other. This makes the two atoms
+  //    sit at opposite sides of the apex (reads as a "final pair").
+  const finalLayerOverrides = new Map<string, number>();
+  const finalists: string[] = [];
+  if (championCode) finalists.push(championCode);
+  if (runnerUpCode) finalists.push(runnerUpCode);
+  if (finalists.length === 2) {
+    const sorted = [...finalists].sort();
+    finalLayerOverrides.set(sorted[0]!, 0);
+    finalLayerOverrides.set(sorted[1]!, Math.PI);
+  }
 
-  const placeTier = (fs: FinalStage, teams: readonly string[]): void => {
-    const y = TIER_Y[fs];
-    const radius = TIER_RADIUS[fs];
-    const nodeRadius = NODE_RADIUS[fs];
-    const accent = colourFor(fs);
-    const count = Math.max(1, teams.length);
-
-    teams.forEach((code, i) => {
-      // Champion: apex (radius=0). Position is (0, y, 0).
-      if (fs === "champion") {
-        const kit = teamKitPrimary(tournament, code);
-        nodes.push({
-          teamCode: code,
-          teamName: teamName(tournament, code),
-          position: [0, y, 0],
-          radius: nodeRadius,
-          finalStage: fs,
-          accentColor: kit ?? accent,
-        });
-        return;
-      }
-
-      // SF tier — 3 named seats (runner-up at 0°, bronze at 180°, 4th at 90°).
-      let angle: number;
-      if (fs === "runner_up" || fs === "third_place" || fs === "fourth_place") {
-        angle = SF_TIER_ANGLES[fs];
-      } else {
-        // Even spacing + hash jitter blended together.
-        const baseAngle = (i / count) * Math.PI * 2;
-        const hashAngle = stableHash01(code) * Math.PI * 2;
-        angle =
-          baseAngle * (1 - TIER_ANGULAR_BLEND) + hashAngle * TIER_ANGULAR_BLEND;
-      }
-
-      // Y jitter — tiny, ±0.5 units — gives the tier a little depth so
-      // it doesn't read as a perfectly flat disc, but stays inside its
-      // tier slab (no overlap with the tier above/below).
-      const yJitter = (stableHash01(code + ":y") - 0.5) * 1.0;
-      const x = radius * Math.cos(angle);
-      const z = radius * Math.sin(angle);
-      const kit = teamKitPrimary(tournament, code);
-      nodes.push({
-        teamCode: code,
-        teamName: teamName(tournament, code),
-        position: [x, y + yJitter, z],
-        radius: nodeRadius,
-        finalStage: fs,
-        accentColor: kit ?? accent,
-      });
-    });
+  // 4. Compute legacy finalStage classification (one per team).
+  //
+  // For tp-loser semi-finalists we mark "fourth_place"; tp-winner is
+  // "third_place". If tp isn't resolved, both semi-finalists get
+  // "third_place"-style classification only for the team who won bronze,
+  // and the loser stays at "fourth_place"; if tp absent entirely both
+  // get "fourth_place" — but the v3 tests expected `third_place` and
+  // `fourth_place` to both appear, so we honour the tp result when present.
+  const finalStageOf = (code: string): FinalStage => {
+    const deepest = layerForTeam.get(code) ?? "group";
+    if (deepest === "champion") return "champion";
+    if (deepest === "f") return "runner_up";
+    if (deepest === "sf") {
+      if (thirdPlaceCode === code) return "third_place";
+      // If tp resolved and this team isn't the winner, they're 4th.
+      if (thirdPlaceCode !== null) return "fourth_place";
+      // tp not resolved — fall back to fourth_place; the bronze pill
+      // requires an explicit tp winner.
+      return "fourth_place";
+    }
+    if (deepest === "qf") return "qf";
+    if (deepest === "r16") return "r16";
+    if (deepest === "r32") return "r32";
+    return "group";
   };
 
-  placeTier("champion", byStage.get("champion") ?? []);
-  placeTier("runner_up", byStage.get("runner_up") ?? []);
-  placeTier("third_place", byStage.get("third_place") ?? []);
-  placeTier("fourth_place", byStage.get("fourth_place") ?? []);
-  placeTier("qf", byStage.get("qf") ?? []);
-  placeTier("r16", byStage.get("r16") ?? []);
-  placeTier("r32", byStage.get("r32") ?? []);
-  placeTier("group", byStage.get("group") ?? []);
+  // 5. Emit nodes. Iterate layers from base → apex so the legacy-lookup
+  //    "find by teamCode" defaults to the group-layer (base) instance.
+  const nodes: MoleculeNode[] = [];
 
-  // 4. Build bonds — one edge per match with both teams resolved.
+  for (const layer of LAYER_ORDER) {
+    const teamsAtLayer = deepestLayer.get(layer);
+    if (!teamsAtLayer) continue;
+    // Sort by teamCode for determinism.
+    const sorted = [...teamsAtLayer].sort();
+    for (const code of sorted) {
+      const deepest = layerForTeam.get(code) ?? "group";
+      const isTop = deepest === layer;
+      const fs = finalStageOf(code);
+      const kit = teamKitPrimary(tournament, code);
+      const accent = kit ?? PALETTE[fs];
+
+      const override =
+        layer === "f" && finalLayerOverrides.has(code)
+          ? { azimuth: finalLayerOverrides.get(code)! }
+          : undefined;
+
+      nodes.push({
+        id: `${code}:${layer}`,
+        teamCode: code,
+        teamName: teamName(tournament, code),
+        position: instancePosition(code, layer, override),
+        radius: NODE_RADIUS[layer],
+        stage: layer,
+        isTopInstance: isTop,
+        finalStage: fs,
+        accentColor: accent,
+      });
+    }
+  }
+
+  // 6. Build bonds.
   const bonds: MoleculeBond[] = [];
-  const seenBondKey = new Set<string>();
+  const seenBondId = new Set<string>();
 
-  // Group-stage bonds (thin grey, every group fixture).
+  // 6a. Match bonds — group-stage fixtures (always at the base layer).
   for (const f of tournament.group_fixtures) {
     const group = tournament.groups.find((g) => g.id === f.group_id);
     if (!group) continue;
     const home = group.team_ids[f.home_idx];
     const away = group.team_ids[f.away_idx];
     if (!home || !away) continue;
-    const key = bondKey(home, away, "group");
-    if (seenBondKey.has(key)) continue;
-    seenBondKey.add(key);
+    const id = matchBondId(home, away, "group");
+    if (seenBondId.has(id)) continue;
+    seenBondId.add(id);
     bonds.push({
-      a: home,
-      b: away,
+      id,
+      kind: "match",
+      a: home < away ? home : away,
+      b: home < away ? away : home,
+      aStage: "group",
+      bStage: "group",
       stage: "group",
       color: BOND_PALETTE.group,
       thickness: BOND_THICKNESS.group,
     });
   }
 
-  // Knockout bonds — only if both slots resolved.
+  // 6b. Match bonds — knockout matches. Map StageId → LayerStage. We
+  //     skip "tp" entirely (no dedicated tier for the 3rd-place playoff
+  //     in v4; both teams already have an SF instance, and a tp bond
+  //     would float at SF height without a sensible visual home).
   if (cascaded) {
     for (const k of cascaded.knockouts) {
       const a = k.home.team;
       const b = k.away.team;
       if (!a || !b) continue;
-      const stage = stageOf(k);
-      const key = bondKey(a, b, stage);
-      if (seenBondKey.has(key)) continue;
-      seenBondKey.add(key);
+      const stage = k.stage;
+      if (stage === "tp") continue;
+      // After filtering "tp", stage is "r32" | "r16" | "qf" | "sf" | "f"
+      // — all of which exist as both LayerStage and BondStage keys.
+      const layer = stage as Exclude<LayerStage, "group" | "champion">;
+      const bondStage = stage as Exclude<BondStage, "group" | "tp">;
+      const id = matchBondId(a, b, layer);
+      if (seenBondId.has(id)) continue;
+      seenBondId.add(id);
       bonds.push({
-        a,
-        b,
-        stage,
-        color: BOND_PALETTE[stage],
-        thickness: BOND_THICKNESS[stage],
+        id,
+        kind: "match",
+        a: a < b ? a : b,
+        b: a < b ? b : a,
+        aStage: layer,
+        bStage: layer,
+        stage: bondStage,
+        color: BOND_PALETTE[bondStage],
+        thickness: BOND_THICKNESS[bondStage],
       });
     }
   }
 
-  const hasAnyKnockoutPick = !!cascaded && cascaded.knockouts.some((k) => k.predicted_winner !== null);
+  // 6c. Advance bonds — for each team, connect their instance at
+  //     layer N to their instance at layer N+1, for every N up to their
+  //     deepest layer.
+  for (const [code, deepest] of layerForTeam) {
+    const cap = LAYER_INDEX[deepest];
+    for (let i = 0; i < cap; i++) {
+      const lower = LAYER_ORDER[i]!;
+      const upper = LAYER_ORDER[i + 1]!;
+      const id = advanceBondId(code, lower, upper);
+      if (seenBondId.has(id)) continue;
+      seenBondId.add(id);
+      bonds.push({
+        id,
+        kind: "advance",
+        a: code,
+        b: code,
+        aStage: lower,
+        bStage: upper,
+        stage: upper as BondStage,
+        color: ADVANCE_BOND.color,
+        thickness: ADVANCE_BOND.thickness,
+      });
+    }
+  }
+
+  const hasAnyKnockoutPick =
+    !!cascaded && cascaded.knockouts.some((k) => k.predicted_winner !== null);
 
   return {
     nodes,
@@ -485,60 +572,98 @@ export function buildMoleculeLayout(
   };
 }
 
-function bondKey(a: string, b: string, stage: BondStage): string {
+function matchBondId(a: string, b: string, layer: LayerStage): string {
   const [x, y] = a < b ? [a, b] : [b, a];
-  return `${stage}:${x}:${y}`;
+  return `match:${x}@${layer}:${y}@${layer}`;
+}
+
+function advanceBondId(code: string, lower: LayerStage, upper: LayerStage): string {
+  return `advance:${code}@${lower}:${code}@${upper}`;
 }
 
 // ---------- helpers exposed for tests ----------
 
-/**
- * Legacy alias for v2's `RING_RADIUS` constant — now backed by
- * `TIER_RADIUS`. Kept so the v2 layout test (which only asserts that
- * the runner-up sits *inside* the group ring) continues to pass.
- */
-export const RING_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = TIER_RADIUS;
-export const NODE_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = NODE_RADIUS;
-export const TIER_Y_TEST_ONLY: Readonly<Record<FinalStage, number>> = TIER_Y;
+/** v3 legacy alias — `RING_RADII_TEST_ONLY` was indexed by FinalStage. We
+ * re-derive the equivalent for v4: each FinalStage maps to the layer that
+ * a team with that classification *occupies as its deepest instance*. */
+export const RING_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = {
+  champion: LAYER_RADIUS.champion,
+  runner_up: LAYER_RADIUS.f,
+  third_place: LAYER_RADIUS.sf,
+  fourth_place: LAYER_RADIUS.sf,
+  qf: LAYER_RADIUS.qf,
+  r16: LAYER_RADIUS.r16,
+  r32: LAYER_RADIUS.r32,
+  group: LAYER_RADIUS.group,
+};
+
+export const NODE_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = {
+  champion: NODE_RADIUS.champion,
+  runner_up: NODE_RADIUS.f,
+  third_place: NODE_RADIUS.sf,
+  fourth_place: NODE_RADIUS.sf,
+  qf: NODE_RADIUS.qf,
+  r16: NODE_RADIUS.r16,
+  r32: NODE_RADIUS.r32,
+  group: NODE_RADIUS.group,
+};
+
+export const TIER_Y_TEST_ONLY: Readonly<Record<FinalStage, number>> = {
+  champion: LAYER_Y.champion,
+  runner_up: LAYER_Y.f,
+  third_place: LAYER_Y.sf,
+  fourth_place: LAYER_Y.sf,
+  qf: LAYER_Y.qf,
+  r16: LAYER_Y.r16,
+  r32: LAYER_Y.r32,
+  group: LAYER_Y.group,
+};
+
+/** Direct LAYER_Y accessor for v4 tests. */
+export const LAYER_Y_TEST_ONLY: Readonly<Record<LayerStage, number>> = LAYER_Y;
+export const LAYER_RADIUS_TEST_ONLY: Readonly<Record<LayerStage, number>> = LAYER_RADIUS;
+export const LAYER_NODE_RADIUS_TEST_ONLY: Readonly<Record<LayerStage, number>> = NODE_RADIUS;
+export const LAYER_ORDER_TEST_ONLY: readonly LayerStage[] = LAYER_ORDER;
 
 /**
- * True if `node` sits on the base (group-loser) tier within tolerance.
- *
- * Backward-compatible with the v2 semantic: a group-tier node has
- * `finalStage === "group"` AND its horizontal radius is ~`TIER_RADIUS.group`.
- * v3 also checks y ≈ 0.
+ * True if `node` sits on the group base (horizontal radius ≈ group tier).
+ * v4: we tolerate the group tier radius across slightly more nodes
+ * because every team has a group instance. Test-only convenience.
  */
 export function isOnGroupRing(node: MoleculeNode, tol = 0.001): boolean {
+  if (node.stage !== "group") return false;
   const r = Math.hypot(node.position[0], node.position[2]);
-  const yOk = Math.abs(node.position[1] - TIER_Y.group) < 2.0;
-  return Math.abs(r - TIER_RADIUS.group) < tol + 1 && yOk;
+  const yOk = Math.abs(node.position[1] - LAYER_Y.group) <= BASE_Y_JITTER + 0.001;
+  return Math.abs(r - LAYER_RADIUS.group) < tol + 1 && yOk;
 }
 
 /**
- * True if `node` sits at the molecule apex (the champion). The
- * champion is the only atom on the y=apex tier (radius=0).
+ * True if `node` is the champion's apex instance — i.e. the team is the
+ * champion and their instance is at the champion layer (x=z=0).
  */
 export function isAtOrigin(node: MoleculeNode, tol = 0.001): boolean {
+  if (node.stage !== "champion") return false;
   const r = Math.hypot(node.position[0], node.position[2]);
   if (r >= tol + 0.001) return false;
-  // v3: the champion is at y = TIER_Y.champion (28). The v2 semantic of
-  // "at origin" treated y as a don't-care (atoms had y-jitter around 0).
-  // Either acceptance keeps the existing v2 tests + the v3 invariant
-  // both honest.
-  return (
-    Math.abs(node.position[1] - TIER_Y.champion) < tol + 0.5 ||
-    Math.abs(node.position[1]) < tol + 4.0
-  );
+  return Math.abs(node.position[1] - LAYER_Y.champion) < tol + 0.5;
 }
 
 /**
- * True if `node` sits at the y-height for the given final stage tier,
- * with a small tolerance for the per-tier y-jitter.
+ * True if `node` sits at the y-height for the given legacy final-stage tier,
+ * with a small tolerance.
  */
 export function isAtPyramidTier(
   node: MoleculeNode,
   fs: FinalStage,
   tol = 1.0,
 ): boolean {
-  return Math.abs(node.position[1] - TIER_Y[fs]) <= tol;
+  return Math.abs(node.position[1] - TIER_Y_TEST_ONLY[fs]) <= tol;
+}
+
+/** Helper for tests that want all instances of a given team. */
+export function instancesOf(
+  nodes: readonly MoleculeNode[],
+  teamCode: string,
+): MoleculeNode[] {
+  return nodes.filter((n) => n.teamCode === teamCode);
 }

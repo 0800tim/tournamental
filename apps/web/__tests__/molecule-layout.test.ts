@@ -1,20 +1,17 @@
 /**
  * Vitest — `buildMoleculeLayout` deterministic layout assertions.
  *
- * These tests cover the pure-function piece of the molecule view: given
- * a `(tournament, cascaded)` pair, the layout must:
+ * v4 multi-instance pyramid edition. Each team now contributes one node
+ * per surviving layer (so a champion has 7 instances, an R32 loser has
+ * 2, a group-out team has 1). These tests cover:
  *
- *   1. Place the predicted champion at (or extremely near) the origin.
- *   2. Place teams that "haven't yet been picked into a knockout"
- *      (i.e. group-stage eliminated, by default) on the outermost ring
- *      at radius `RING_RADIUS.group` (modulo small y-jitter).
- *   3. Use the right palette colour per stage.
- *   4. Emit one bond per group fixture + one bond per resolved knockout.
- *   5. Be deterministic — same inputs, same output, no clock reads.
- *
- * The R3F scene component is *not* tested here (we mock it in the page
- * smoke test) because mounting @react-three/fiber under jsdom requires a
- * WebGL context the test environment doesn't have.
+ *   1. Champion's *top instance* (stage === "champion") sits at the apex.
+ *   2. With an empty bracket, every team has exactly one instance (group).
+ *   3. Group-stage eliminated teams stay on the base ring.
+ *   4. Palette colour per stage is sane.
+ *   5. Bonds: one match bond per group fixture + one per resolved knockout
+ *      (excluding the 3rd-place playoff which has no dedicated v4 layer).
+ *   6. Layout is deterministic — same inputs, same output.
  */
 
 import { describe, it, expect } from "vitest";
@@ -27,6 +24,7 @@ import {
   isOnGroupRing,
   stableHash01,
   type MoleculeLayout,
+  type MoleculeNode,
 } from "@/lib/molecule/layout";
 import {
   cascade,
@@ -59,24 +57,32 @@ function emptyPrediction(t: Tournament): BracketPrediction {
   };
 }
 
-describe("buildMoleculeLayout — empty bracket", () => {
+function topInstance(layout: MoleculeLayout, teamCode: string): MoleculeNode | undefined {
+  return layout.nodes.find((n) => n.teamCode === teamCode && n.isTopInstance);
+}
+
+describe("buildMoleculeLayout — empty bracket (v4)", () => {
   const t = loadFixtures2026();
   const empty = cascade(t, emptyPrediction(t));
   const layout = buildMoleculeLayout(t, empty);
 
-  it("renders one node per team in the tournament", () => {
+  it("renders exactly one node per team (group-only) when no knockouts resolved", () => {
+    // Empty bracket: every team is at "group" stage. v4 emits one
+    // instance per surviving layer, so each team has exactly 1 node.
     expect(layout.nodes.length).toBe(t.teams.length);
   });
 
   it("places every team on the outermost group ring when no picks exist", () => {
     for (const n of layout.nodes) {
       expect(n.finalStage).toBe("group");
+      expect(n.stage).toBe("group");
+      expect(n.isTopInstance).toBe(true);
       expect(isOnGroupRing(n)).toBe(true);
     }
   });
 
-  it("emits the group-stage bonds for every group fixture", () => {
-    const groupBonds = layout.bonds.filter((b) => b.stage === "group");
+  it("emits the group-stage match bonds for every group fixture", () => {
+    const groupBonds = layout.bonds.filter((b) => b.stage === "group" && b.kind === "match");
     expect(groupBonds.length).toBe(t.group_fixtures.length);
   });
 
@@ -85,36 +91,21 @@ describe("buildMoleculeLayout — empty bracket", () => {
     expect(layout.championCode).toBeNull();
   });
 
-  it("uses the group-stage palette colour for the rim of group-out teams", () => {
-    // Rim colour comes from the stage palette regardless of the team's
-    // kit primary. The node.accentColor field stores the kit (or a
-    // palette fallback if no kit defined).
-    // Spot-check: ensure all nodes have a non-empty accentColor string.
+  it("uses palette + non-empty accent colour per node", () => {
     for (const n of layout.nodes) {
       expect(typeof n.accentColor).toBe("string");
       expect(n.accentColor.length).toBeGreaterThan(0);
     }
-    // PALETTE.group should be a #-prefixed hex.
     expect(PALETTE.group).toMatch(/^#[0-9a-f]{6}$/i);
   });
 });
 
-describe("buildMoleculeLayout — champion-at-origin invariant", () => {
-  /**
-   * Synthesise a cascaded bracket where the user has picked every
-   * knockout's "home" side to advance. We don't go through the full
-   * BracketBuilder flow — we synthesise a CascadedBracket directly so
-   * the test stays local to the layout logic.
-   */
+describe("buildMoleculeLayout — champion-at-apex invariant (v4)", () => {
   const t = loadFixtures2026();
-  // Pick "ARG" as the synthetic champion (it's in the 2026 fixtures).
   const championCode = "ARG";
   const argInTournament = t.teams.some((x) => x.id === championCode);
   expect(argInTournament).toBe(true);
 
-  // Build a minimal CascadedBracket-shape: one knockout match per stage,
-  // with a known winner so the layout function classifies ARG as
-  // "champion".
   const fakeCascaded = {
     tournament_id: t.id,
     groups: t.groups.map((g) => ({
@@ -204,56 +195,61 @@ describe("buildMoleculeLayout — champion-at-origin invariant", () => {
     expect(layout.championCode).toBe(championCode);
   });
 
-  it("places the champion at the molecule origin", () => {
-    const champ = layout.nodes.find((n) => n.teamCode === championCode)!;
-    expect(champ).toBeDefined();
-    expect(champ.finalStage).toBe("champion");
-    expect(isAtOrigin(champ)).toBe(true);
+  it("places the champion's top instance at the molecule apex", () => {
+    const champTop = topInstance(layout, championCode);
+    expect(champTop).toBeDefined();
+    expect(champTop!.stage).toBe("champion");
+    expect(champTop!.finalStage).toBe("champion");
+    expect(isAtOrigin(champTop!)).toBe(true);
   });
 
-  it("places the runner-up on the inner ring (radius < group ring)", () => {
+  it("places the runner-up's top instance inside the group ring", () => {
     expect(layout.runnerUpCode).toBe("ENG");
-    const runner = layout.nodes.find((n) => n.teamCode === "ENG");
+    const runner = topInstance(layout, "ENG");
     expect(runner).toBeDefined();
+    expect(runner!.stage).toBe("f");
     expect(runner!.finalStage).toBe("runner_up");
     const dist = Math.hypot(runner!.position[0], runner!.position[2]);
     expect(dist).toBeLessThan(RING_RADII_TEST_ONLY.group);
+    // Final-layer atom is one of the two seats (radius ≈ LAYER_RADIUS.f = 2.2).
     expect(dist).toBeGreaterThan(0);
   });
 
-  it("places the bronze (3rd-place playoff winner) at the runner_up ring", () => {
+  it("places the bronze (3rd-place playoff winner) at the SF tier", () => {
     expect(layout.thirdPlaceCode).toBe("ESP");
-    const bronze = layout.nodes.find((n) => n.teamCode === "ESP");
+    const bronze = topInstance(layout, "ESP");
     expect(bronze).toBeDefined();
+    expect(bronze!.stage).toBe("sf");
     expect(bronze!.finalStage).toBe("third_place");
   });
 
-  it("places group-stage eliminated teams at the group ring", () => {
-    // Most teams in this synthesised cascade never played a knockout
-    // — they're group-stage eliminated and must sit on the outer ring.
+  it("places group-stage eliminated teams on the group ring", () => {
     const groupOut = layout.nodes.filter((n) => n.finalStage === "group");
     expect(groupOut.length).toBeGreaterThan(10);
     for (const n of groupOut) {
+      expect(n.stage).toBe("group");
       expect(isOnGroupRing(n)).toBe(true);
     }
   });
 
-  it("emits a bond for the final + sf + qf + r16 + r32 + tp matches", () => {
-    const koBonds = layout.bonds.filter((b) => b.stage !== "group");
-    // 6 synthesised knockout matches; the synthesiser provided exactly one per stage.
-    expect(koBonds.length).toBeGreaterThanOrEqual(6);
+  it("emits a match bond for final + sf + qf + r16 + r32 (tp skipped)", () => {
+    const koBonds = layout.bonds.filter(
+      (b) => b.kind === "match" && b.stage !== "group",
+    );
+    // 5 synthesised knockout matches end up as match bonds (tp is omitted).
+    expect(koBonds.length).toBeGreaterThanOrEqual(5);
     const finalBond = koBonds.find((b) => b.stage === "f");
     expect(finalBond).toBeDefined();
     expect(finalBond!.color).toBe(PALETTE.champion);
   });
 
-  it("is deterministic — building twice yields the same layout", () => {
+  it("is deterministic — building twice yields identical layouts", () => {
     const a = buildMoleculeLayout(t, fakeCascaded);
     const b = buildMoleculeLayout(t, fakeCascaded);
     expect(a.nodes.length).toBe(b.nodes.length);
     for (let i = 0; i < a.nodes.length; i++) {
       expect(a.nodes[i]!.position).toEqual(b.nodes[i]!.position);
-      expect(a.nodes[i]!.teamCode).toBe(b.nodes[i]!.teamCode);
+      expect(a.nodes[i]!.id).toBe(b.nodes[i]!.id);
     }
     expect(a.bonds.length).toBe(b.bonds.length);
   });

@@ -84,18 +84,20 @@ describe("<MoleculeScene> — composition smoke (mocked R3F)", () => {
     expect(container.querySelector("[data-testid='mock-canvas']")).toBeTruthy();
   });
 
-  it("mounts a FlagSphereMaterial stub for every atom (48 teams)", () => {
+  it("mounts a FlagSphereMaterial stub for every atom (v4: ≥ 48 — one per surviving layer per team)", () => {
     const tournament = loadFixtures2026();
     const { container } = render(<MoleculeScene tournament={tournament} />);
     const materials = container.querySelectorAll("[data-testid='mock-flag-material']");
-    expect(materials.length).toBe(tournament.teams.length);
-    expect(materials.length).toBe(48);
+    // v4: each team has ≥1 instance (group layer) and up to 7 (the
+    // predicted champion). The default empty-bracket case still gives
+    // exactly 48 — one per team.
+    expect(materials.length).toBeGreaterThanOrEqual(tournament.teams.length);
   });
 
-  it("renders Html labels for every atom", () => {
+  it("renders Html labels for every atom (v4: one per instance)", () => {
     const tournament = loadFixtures2026();
     const { container } = render(<MoleculeScene tournament={tournament} />);
     const htmls = container.querySelectorAll("[data-testid='mock-html']");
-    expect(htmls.length).toBe(tournament.teams.length);
+    expect(htmls.length).toBeGreaterThanOrEqual(tournament.teams.length);
   });
 });

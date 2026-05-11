@@ -143,34 +143,37 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
   const pundits = useMemo(() => mockLeaderboardMembers(null, 50), []);
 
   return (
-    <div className="molecule-page">
-      <header className="molecule-page-header">
-        <div>
-          <h1 className="molecule-page-title">
-            {tournament.name} — Molecule
-          </h1>
-          <p className="molecule-page-subtitle">
-            {mode === "mine"
-              ? "Your bracket, rendered as a 3D atom map. Click any team to inspect."
-              : "Rank-favourite bracket — what the odds say."}
-          </p>
+    <div className="molecule-page" data-compact-header="true">
+      {/* v4: header is compact (single-line title) so the canvas claims
+       * more vertical space. The mode subtitle moves to a small caption
+       * pill on the right rail, alongside the toggle. */}
+      <header className="molecule-page-header molecule-page-header--compact">
+        <h1 className="molecule-page-title">Molecule</h1>
+        <div className="molecule-page-header-right">
+          <span
+            className="molecule-page-mode-caption"
+            data-mode={mode}
+            aria-live="polite"
+          >
+            {mode === "mine" ? "Your picks" : "Rank favourites"}
+          </span>
+          <button
+            type="button"
+            className="molecule-page-toggle"
+            data-active={mode === "consensus" ? "true" : "false"}
+            onClick={() =>
+              setMode((m) => (m === "mine" ? "consensus" : "mine"))
+            }
+            aria-pressed={mode === "consensus"}
+          >
+            🎲 {mode === "mine" ? "Show favourites" : "Back to my picks"}
+          </button>
         </div>
-        <button
-          type="button"
-          className="molecule-page-toggle"
-          data-active={mode === "consensus" ? "true" : "false"}
-          onClick={() =>
-            setMode((m) => (m === "mine" ? "consensus" : "mine"))
-          }
-          aria-pressed={mode === "consensus"}
-        >
-          🎲 {mode === "mine" ? "Show different prediction" : "Back to my picks"}
-        </button>
       </header>
       {mounted ? (
         <MoleculeScene tournament={tournament} bracketOverride={override} />
       ) : (
-        <div style={{ height: "calc(100vh - 56px)", display: "grid", placeItems: "center", color: "#cdd5e7" }}>
+        <div style={{ height: "calc(100vh - 96px)", display: "grid", placeItems: "center", color: "#cdd5e7" }}>
           Loading molecule…
         </div>
       )}
