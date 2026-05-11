@@ -1,13 +1,20 @@
 /**
- * MatchPredictionRow enrichment — verifies the new ornaments added on top
- * of the existing two-flag/draw UX:
+ * MatchPredictionRow enrichment — post-cleanup contract.
  *
- *   - per-team FormDots inline under each flag
- *   - HeadToHeadPill centred between the two picks (when h2h data exists)
- *   - kit-coloured selection ring on the chosen flag, others lose it
+ * Following the 2026-05-11 "cluttered MPR cleanup" (commit db4c7b4),
+ * FormDots and the HeadToHeadPill were removed from MatchPredictionRow.
+ * The row now renders flag + team code + W/D/L percentage on each side
+ * and that's it. These tests pin the new contract:
  *
- * Public props are still backwards compatible: the only new ones are
- * optional (homeForm / awayForm / headToHead overrides for tests).
+ *   - FormDots are NOT rendered (props are accepted but ignored for
+ *     rendering — kept on the public type so callers don't break).
+ *   - HeadToHeadPill is NOT rendered.
+ *   - The kit-coloured selection ring is still applied to the picked
+ *     flag — that's the visual hook the user relies on to confirm
+ *     their pick.
+ *
+ * Public props are still backwards compatible: every optional prop the
+ * old tests passed is still accepted.
  */
 
 // @vitest-environment jsdom
@@ -37,7 +44,7 @@ const AWAY = {
 } as const;
 
 describe("MatchPredictionRow — enrichment", () => {
-  it("renders form dots under each flag", () => {
+  it("does NOT render form dots after the cluttered-MPR cleanup", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -49,13 +56,10 @@ describe("MatchPredictionRow — enrichment", () => {
         onChange={() => {}}
       />,
     );
-    const homePick = container.querySelector(".mpr-pick-home") as HTMLElement;
-    const awayPick = container.querySelector(".mpr-pick-away") as HTMLElement;
-    expect(homePick.querySelectorAll(".fd-dot")).toHaveLength(5);
-    expect(awayPick.querySelectorAll(".fd-dot")).toHaveLength(5);
+    expect(container.querySelectorAll(".fd-dot")).toHaveLength(0);
   });
 
-  it("renders a centred H2H pill when head-to-head data is provided", () => {
+  it("does NOT render the H2H pill after the cluttered-MPR cleanup", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -67,12 +71,7 @@ describe("MatchPredictionRow — enrichment", () => {
         onChange={() => {}}
       />,
     );
-    const pill = container.querySelector(".mpr-h2h") as HTMLElement;
-    expect(pill).not.toBeNull();
-    expect(pill.textContent).toContain("ARG");
-    expect(pill.textContent).toContain("FRA");
-    // Compact record format
-    expect(container.textContent).toContain("2-1-1");
+    expect(container.querySelector(".mpr-h2h")).toBeNull();
   });
 
   it("omits the H2H pill when headToHead is explicitly null", () => {
@@ -127,17 +126,21 @@ describe("MatchPredictionRow — enrichment", () => {
     expect(awayDim).not.toBeNull();
   });
 
-  it("falls back to bundled stub form data when overrides are omitted", () => {
-    // Argentina has 5 stub games in team-form.json so dots should appear.
-    const { container } = render(
-      <MatchPredictionRow
-        matchId="m1"
-        homeTeam={HOME}
-        awayTeam={AWAY}
-        onChange={() => {}}
-      />,
-    );
-    const homePick = container.querySelector(".mpr-pick-home") as HTMLElement;
-    expect(homePick.querySelectorAll(".fd-dot").length).toBeGreaterThan(0);
+  it("backwards-compatible: callers may still pass homeForm/awayForm/headToHead", () => {
+    // The cleanup removed FormDots + H2H but kept the prop surface so
+    // existing callers don't need to be updated in lockstep.
+    expect(() =>
+      render(
+        <MatchPredictionRow
+          matchId="m1"
+          homeTeam={HOME}
+          awayTeam={AWAY}
+          homeForm={["W"]}
+          awayForm={["L"]}
+          headToHead={{ homeWins: 1, draws: 0, awayWins: 0 }}
+          onChange={() => {}}
+        />,
+      ),
+    ).not.toThrow();
   });
 });
