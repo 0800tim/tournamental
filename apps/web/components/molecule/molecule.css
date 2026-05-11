@@ -111,6 +111,35 @@
   cursor: help;
 }
 
+/* v5.1, silver "VS" chip above opponent atoms on the active path. The
+ * chip uses the same silver palette as the opponent rim halo so the eye
+ * couples the two cues: "this team is one of the teams the path-holder
+ * played, find them across all the layers". */
+.molecule-label-vs {
+  display: inline-grid;
+  place-items: center;
+  padding: 1px 5px;
+  font: 900 8px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  color: #0a0e1a;
+  background: #cbd5e1;
+  border: 1px solid rgba(203, 213, 225, 0.85);
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 0 6px rgba(203, 213, 225, 0.55);
+  pointer-events: auto;
+  cursor: help;
+}
+
+/* Opponent label tweak, silvery border so the chip + label feel like
+ * one stacked unit. The label itself stays legible and isn't competing
+ * with the gold of the path-team labels. */
+.molecule-label[data-path-opponent="true"] {
+  border-color: rgba(203, 213, 225, 0.7);
+  color: #e6ebf3;
+  box-shadow: 0 0 0 1px rgba(203, 213, 225, 0.2);
+}
+
 .molecule-label-chevron {
   font: 700 8px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: rgba(245, 197, 66, 0.5);
@@ -136,19 +165,26 @@
   border-color: rgba(245, 197, 66, 0.35);
 }
 
-/* v5, match badge pill (drei <Html>) floating above each path match bond. */
+/* v5.1, "vs <OPPONENT>" badge floating above each path match bond.
+ * Larger and bolder than v5's two-flag pill so the opponent at every
+ * stage of the gold trail reads at a glance even at the default zoom.
+ * The stage tag leads ("SF · vs <FLAG> ENGLAND") so the eye picks up
+ * the round first, then the name of who was beaten there.
+ */
 .molecule-match-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
-  background: rgba(16, 22, 38, 0.92);
-  border: 1px solid rgba(245, 197, 66, 0.55);
+  padding: 5px 10px 5px 6px;
+  background: rgba(16, 22, 38, 0.94);
+  border: 1px solid rgba(245, 197, 66, 0.7);
   border-radius: 999px;
-  font: 800 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font: 800 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: #fde68a;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  box-shadow:
+    0 4px 14px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(251, 191, 36, 0.18);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
   pointer-events: none;
@@ -156,24 +192,52 @@
 }
 
 .molecule-match-badge-flag {
-  font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font: 700 15px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
 
 .molecule-match-badge-vs {
-  color: #8b9bbd;
-  font-size: 9px;
-  letter-spacing: 0.1em;
+  color: #cbd5e1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
 }
 
 .molecule-match-badge-round {
-  margin-left: 4px;
-  padding: 2px 6px;
-  background: rgba(245, 197, 66, 0.16);
+  padding: 3px 8px;
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.32) 0%, rgba(245, 197, 66, 0.14) 100%);
   border-radius: 999px;
-  color: #f5c542;
-  font-size: 10px;
-  letter-spacing: 0.06em;
+  color: #fbe89c;
+  font: 900 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px rgba(245, 197, 66, 0.3);
+}
+
+.molecule-match-badge-opp {
+  font: 900 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+@media (max-width: 720px) {
+  /* Mobile, keep the badge readable on a 320px-wide phone. */
+  .molecule-match-badge {
+    font-size: 11px;
+    padding: 4px 8px 4px 5px;
+    gap: 5px;
+  }
+  .molecule-match-badge-flag {
+    font-size: 13px;
+  }
+  .molecule-match-badge-opp {
+    font-size: 11px;
+  }
+  .molecule-match-badge-round {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
 }
 
 /* v5, directional gold arrow on path match bonds. */
