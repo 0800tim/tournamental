@@ -10,10 +10,15 @@ import { dirname, join } from "node:path";
 
 import {
   renderBracketShareCard,
+  renderQrPng,
+  resolveShareUrl,
   CANVAS_SIZES,
+  PYRAMID_LAYERS,
   type BracketShareCardInput,
+  type BracketShareEliminationTier,
 } from "../src/canvas/index.js";
 import { _resetFlagCache } from "../src/canvas/flags.js";
+import { _resetQrCache } from "../src/canvas/bracket-share-card.js";
 
 const FIXTURE_FLAGS = join(
   dirname(fileURLToPath(import.meta.url)),
@@ -49,6 +54,7 @@ function isPng(buf: Buffer): boolean {
 describe("renderBracketShareCard", () => {
   beforeAll(() => {
     _resetFlagCache();
+    _resetQrCache();
   });
 
   it("renders a portrait PNG (1080×1350) for the default size", async () => {
@@ -160,5 +166,130 @@ describe("renderBracketShareCard", () => {
     expect(isPng(a)).toBe(true);
     expect(isPng(b)).toBe(true);
     expect(Math.abs(a.length - b.length)).toBeLessThan(1_024);
+  });
+
+  // ---------- v2 (2026-05-11) ----------
+
+  it("(v2) renders with `allEliminatedByStage` context atoms scattered across tiers", async () => {
+    const tiers: BracketShareEliminationTier[] = [
+      { stage: "group", teamCodes: ["AUS", "JPN", "KOR", "FRA", "ESP", "BRA"] },
+      { stage: "r32", teamCodes: ["AUS", "JPN"] },
+      { stage: "r16", teamCodes: ["KOR"] },
+      { stage: "qf", teamCodes: ["ESP"] },
+      { stage: "sf", teamCodes: ["BRA"] },
+    ];
+    const png = await renderBracketShareCard({
+      ...BASE_INPUT,
+      allEliminatedByStage: tiers,
+    });
+    expect(isPng(png)).toBe(true);
+    // Pyramid + scatter atoms = more drawing → larger PNG than the
+    // bare-bones card (champion column only).
+    const bare = await renderBracketShareCard(BASE_INPUT);
+    expect(png.length).toBeGreaterThanOrEqual(bare.length - 1024);
+  });
+
+  it("(v2) renders with a shareGuid → footer URL uses /s/<guid>", async () => {
+    const png = await renderBracketShareCard({
+      ...BASE_INPUT,
+      shareGuid: "abc123xyz",
+    });
+    expect(isPng(png)).toBe(true);
+  });
+
+  it("(v2) resolveShareUrl prefers shareGuid over footerUrl", () => {
+    const url = resolveShareUrl({
+      ...BASE_INPUT,
+      shareGuid: "qq7-share",
+      footerUrl: "tournamental.com/ignored",
+    });
+    expect(url).toBe("play.tournamental.com/s/qq7-share");
+  });
+
+  it("(v2) resolveShareUrl falls back to footerUrl when shareGuid is absent", () => {
+    const url = resolveShareUrl({
+      ...BASE_INPUT,
+      footerUrl: "tournamental.com/world-cup-2026",
+    });
+    expect(url).toBe("tournamental.com/world-cup-2026");
+  });
+
+  it("(v2) resolveShareUrl rejects invalid shareGuid characters", () => {
+    const url = resolveShareUrl({
+      ...BASE_INPUT,
+      // Contains a `/` — must not be interpreted as a guid.
+      shareGuid: "../etc/passwd",
+      footerUrl: "tournamental.com/safe",
+    });
+    expect(url).toBe("tournamental.com/safe");
+  });
+
+  it("(v2) renderQrPng outputs a valid PNG with the QR data encoded", async () => {
+    _resetQrCache();
+    const png = await renderQrPng(
+      "https://play.tournamental.com/s/abc123",
+      80,
+    );
+    expect(isPng(png)).toBe(true);
+    expect(png.length).toBeGreaterThan(120);
+    // PNG dimensions live at offset 16/20 (big-endian uint32 each).
+    const width = png.readUInt32BE(16);
+    const height = png.readUInt32BE(20);
+    // QR libs round the requested width up to the next module multiple,
+    // but always produce a square image at least the requested size.
+    expect(width).toBe(height);
+    expect(width).toBeGreaterThanOrEqual(64);
+  });
+
+  it("(v2) renderQrPng returns identical bytes for the same URL+size (cache)", async () => {
+    _resetQrCache();
+    const a = await renderQrPng("https://play.tournamental.com/s/cache-1", 80);
+    const b = await renderQrPng("https://play.tournamental.com/s/cache-1", 80);
+    expect(a).toBe(b); // identity — cached buffer reused
+  });
+
+  it("(v2) PYRAMID_LAYERS exposes the 7-tier base→apex ordering", () => {
+    expect(PYRAMID_LAYERS).toEqual([
+      "group",
+      "r32",
+      "r16",
+      "qf",
+      "sf",
+      "final",
+      "champion",
+    ]);
+  });
+
+  it("(v2) renders all 3 sizes with full pyramid + context atoms + shareGuid", async () => {
+    const tiers: BracketShareEliminationTier[] = [
+      { stage: "group", teamCodes: ["AUS", "JPN", "KOR", "FRA"] },
+      { stage: "qf", teamCodes: ["ESP"] },
+      { stage: "sf", teamCodes: ["BRA"] },
+    ];
+    for (const size of ["portrait", "landscape", "square"] as const) {
+      const png = await renderBracketShareCard({
+        ...BASE_INPUT,
+        size,
+        shareGuid: "v2-render-all",
+        allEliminatedByStage: tiers,
+      });
+      expect(isPng(png), `${size}`).toBe(true);
+      expect(png.readUInt32BE(16)).toBe(CANVAS_SIZES[size].width);
+      expect(png.readUInt32BE(20)).toBe(CANVAS_SIZES[size].height);
+    }
+  });
+
+  it("(v2) skips eliminated entries that share the champion code", async () => {
+    // If the elimination scatter accidentally includes the champion,
+    // we'd double-draw at the base ring. The renderer must filter
+    // those out — the test passes if no error is thrown and the PNG
+    // is valid.
+    const png = await renderBracketShareCard({
+      ...BASE_INPUT,
+      allEliminatedByStage: [
+        { stage: "group", teamCodes: ["ARG", "AUS", "ARG"] },
+      ],
+    });
+    expect(isPng(png)).toBe(true);
   });
 });

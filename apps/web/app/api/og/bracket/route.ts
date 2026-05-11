@@ -208,13 +208,71 @@ function mergeBracketPayload(
     if (path.length > 0) knockoutPath = path;
   }
 
+  // v2: share guid + elimination tiers.
+  let shareGuid = inline.shareGuid;
+  if (!shareGuid) {
+    const candidate =
+      typeof src.shareGuid === "string"
+        ? src.shareGuid
+        : typeof src.share_guid === "string"
+          ? src.share_guid
+          : null;
+    if (candidate && /^[a-zA-Z0-9_-]{3,64}$/.test(candidate)) {
+      shareGuid = candidate;
+    }
+  }
+
+  let allEliminatedByStage = inline.allEliminatedByStage;
+  if (!allEliminatedByStage || allEliminatedByStage.length === 0) {
+    const raw =
+      (src.allEliminatedByStage as unknown) ??
+      (src.all_eliminated_by_stage as unknown) ??
+      (src.eliminatedByStage as unknown);
+    if (Array.isArray(raw)) {
+      const parsed = readEliminationTiers(raw);
+      if (parsed.length > 0) allEliminatedByStage = parsed;
+    }
+  }
+
   return {
     ...inline,
     champion,
     runnerUp,
     thirdPlace,
     knockoutPath,
+    shareGuid,
+    allEliminatedByStage,
   };
+}
+
+type EliminationTier = {
+  stage: "group" | "r32" | "r16" | "qf" | "sf";
+  teamCodes: string[];
+};
+
+function readEliminationTiers(raw: unknown[]): EliminationTier[] {
+  const TIERS = new Set(["group", "r32", "r16", "qf", "sf"]);
+  const out: EliminationTier[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+    const e = entry as Record<string, unknown>;
+    const stage = typeof e.stage === "string" ? e.stage.trim().toLowerCase() : null;
+    if (!stage || !TIERS.has(stage)) continue;
+    const codesRaw =
+      (e.teamCodes as unknown) ??
+      (e.team_codes as unknown) ??
+      (e.teams as unknown);
+    if (!Array.isArray(codesRaw)) continue;
+    const teamCodes = codesRaw
+      .map((c) => (typeof c === "string" ? c.trim().toUpperCase() : ""))
+      .filter((c) => /^[A-Z]{2,4}$/.test(c));
+    if (teamCodes.length === 0) continue;
+    out.push({
+      stage: stage as "group" | "r32" | "r16" | "qf" | "sf",
+      teamCodes,
+    });
+  }
+  return out;
 }
 
 function readChampion(raw: unknown): BracketShareCardInput["champion"] | null {

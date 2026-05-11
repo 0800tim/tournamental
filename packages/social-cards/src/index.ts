@@ -56,22 +56,30 @@ export type { FontSpec } from "./fonts.js";
 
 // Canvas-rendered champion-centric bracket share card + animated MP4
 // generator. Tim's brief 2026-05-11: viral-loop social shares.
+// v2 (2026-05-11): adds pyramid silhouette, flags-in-cups + share-guid
+// URL with QR code.
 export {
   renderBracketShareCard,
   paintBracketFrame,
+  renderQrPng,
+  resolveShareUrl,
   loadFlagPng,
   renderPlaceholderFlag,
   defaultFlagsDir,
   CANVAS_SIZES,
   STAGE_LABEL,
+  PYRAMID_LAYERS,
+  STAGE_TO_LAYER,
 } from "./canvas/index.js";
 export type {
   BracketShareCardInput,
   BracketShareChampion,
+  BracketShareEliminationTier,
   BracketSharePathEntry,
   BracketShareStage,
   CanvasCardSize,
   CanvasSizePreset,
+  PyramidLayer,
 } from "./canvas/index.js";
 
 export { renderBracketRevealVideo } from "./video/index.js";

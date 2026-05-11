@@ -48,6 +48,44 @@ export const STAGE_LABEL: Readonly<Record<BracketShareStage, string>> = {
   final: "Final",
 } as const;
 
+/**
+ * The seven pyramid layers the v2 share card draws (matches the 3D
+ * molecule v4 schema in `apps/web/lib/molecule/layout.ts`).
+ *
+ * The card's vertical axis maps:
+ *   - group    → base (Y 0%)     widest ring, 32px atoms
+ *   - r32      → 17%               16 atoms wide
+ *   - r16      → 33%               8 atoms wide
+ *   - qf       → 50%               4 atoms wide
+ *   - sf       → 67%               3 atoms wide
+ *   - final    → 83%               2 atoms wide
+ *   - champion → apex (Y 100%)    1 atom (the crown jewel)
+ */
+export type PyramidLayer = "group" | "r32" | "r16" | "qf" | "sf" | "final" | "champion";
+
+export const PYRAMID_LAYERS: ReadonlyArray<PyramidLayer> = [
+  "group",
+  "r32",
+  "r16",
+  "qf",
+  "sf",
+  "final",
+  "champion",
+] as const;
+
+/**
+ * Map a knockout-path stage onto a pyramid layer. The 3rd-place playoff
+ * (`tp`) is dropped because the molecule pyramid has no slot for it —
+ * tp does not advance anyone.
+ */
+export const STAGE_TO_LAYER: Readonly<Record<BracketShareStage, PyramidLayer | null>> = {
+  r16: "r16",
+  qf: "qf",
+  sf: "sf",
+  final: "final",
+  tp: null,
+} as const;
+
 export interface BracketSharePathEntry {
   readonly stage: BracketShareStage;
   readonly teamCode: string;
@@ -58,6 +96,22 @@ export interface BracketShareChampion {
   readonly code: string;
   readonly name: string;
   readonly kit?: { readonly primary?: string | null } | null;
+}
+
+/**
+ * Context atoms scattered along the pyramid's base ring + lower tiers.
+ * `stage` is the *layer* where the team is drawn (its elimination tier);
+ * `teamCodes` is the list of 3-letter codes to scatter at that layer.
+ *
+ * Only the layers `group` / `r32` / `r16` / `qf` / `sf` are honoured by
+ * the renderer — `final` and `champion` are reserved for the user's
+ * champion column.
+ *
+ * If omitted, the renderer draws only the champion's column.
+ */
+export interface BracketShareEliminationTier {
+  readonly stage: Extract<PyramidLayer, "group" | "r32" | "r16" | "qf" | "sf">;
+  readonly teamCodes: ReadonlyArray<string>;
 }
 
 export interface BracketShareCardInput {
@@ -82,4 +136,17 @@ export interface BracketShareCardInput {
   readonly flagsDir?: string;
   /** Optional override for the "view it" footer URL. */
   readonly footerUrl?: string;
+  /**
+   * Optional share GUID — when set, the footer URL is rendered as
+   * `play.tournamental.com/s/<shareGuid>` and the QR code encodes the
+   * same. Wins over `footerUrl` when both are present.
+   */
+  readonly shareGuid?: string | null;
+  /**
+   * Optional context atoms for the pyramid silhouette — the teams the
+   * user predicted to be eliminated at each non-path stage. Drawn as
+   * dim flag discs on their elimination tier so the pyramid has visual
+   * weight beyond the champion column.
+   */
+  readonly allEliminatedByStage?: ReadonlyArray<BracketShareEliminationTier>;
 }

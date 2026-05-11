@@ -15,6 +15,8 @@
 export {
   renderBracketShareCard,
   paintBracketFrame,
+  renderQrPng,
+  resolveShareUrl,
 } from "./bracket-share-card.js";
 
 export {
@@ -27,13 +29,17 @@ export {
 export {
   CANVAS_SIZES,
   STAGE_LABEL,
+  PYRAMID_LAYERS,
+  STAGE_TO_LAYER,
 } from "./types.js";
 
 export type {
   BracketShareCardInput,
   BracketShareChampion,
+  BracketShareEliminationTier,
   BracketSharePathEntry,
   BracketShareStage,
   CanvasCardSize,
   CanvasSizePreset,
+  PyramidLayer,
 } from "./types.js";
