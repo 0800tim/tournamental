@@ -186,3 +186,16 @@ The orchestrator and reviewer agent both check this on every PR:
 5. Did this PR slow a critical path? → Is the regression measured and justified, or fixed?
 
 Tim's standing rule: **performance and caching are paramount**. A 5% perf regression with no clear win is a request-changes.
+
+## Pre-launch checklist
+
+In addition to the full security pass in [doc 33](33-security-hardening-checklist.md), the operator runs these infra-side steps before each public launch:
+
+- [ ] DNS records for every prod hostname in the URL plan exist and resolve.
+- [ ] Cloudflare Tunnel ingress in prod covers every prod hostname (game, auth, dm-otp, etc.) and the local PM2 / systemd processes are listening on the documented ports.
+- [ ] Edge cache rules match the caching strategy table above.
+- [ ] **OTP brute-force WAF rules applied**: run `bash infra/cloudflare/otp-protection.sh --dry-run` to preview, then re-run without `--dry-run`. The script is idempotent (rules keyed by stable description) and pairs with `otp-protection-revert.sh` for rollback. See [doc 33 § OTP brute-force protection](33-security-hardening-checklist.md#otp-brute-force-protection-defence-in-depth) for the threshold rationale.
+- [ ] Smoke-test: `curl -i https://tournamental.com/health` and the per-app `/health` endpoints all return 200.
+- [ ] `pnpm typecheck && pnpm test` green at `main` head; PR backlog clean of `Needs revert`.
+
+Failed items become tickets in `tasks/in-progress/` with an owner and ETA; the launch is not green-lit until they clear.

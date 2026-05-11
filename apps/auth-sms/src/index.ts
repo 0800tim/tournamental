@@ -28,6 +28,7 @@ import { registerWhatsAppPairing } from './routes/whatsapp-pairing.js';
 import { registerTelegramCallback } from './routes/telegram-callback.js';
 import { registerSwagger } from './swagger.js';
 import type { AuthContext } from './context.js';
+import { buildAuditLogger } from './audit.js';
 
 const PORT = Number(process.env.AUTH_PORT ?? 3330);
 const BIND = process.env.AUTH_BIND ?? '0.0.0.0';
@@ -178,10 +179,16 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
     }
   }
 
+  const audit = buildAuditLogger({
+    path: process.env.AUDIT_LOG_PATH,
+    warn: (msg) => app.log.warn(msg),
+  });
+
   return {
     storage,
     smsSender,
     waSender,
+    audit,
     config: {
       otpSecret: envOrDevDefault('AUTH_OTP_SECRET', 'otp'),
       jwtSecret: envOrDevDefault('AUTH_JWT_SECRET', 'jwt'),

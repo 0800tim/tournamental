@@ -4,6 +4,7 @@ import { createHmac, generateKeyPairSync, sign as edSign } from 'node:crypto';
 import { buildServer } from '../src/index.js';
 import { CodeStore } from '../src/lib/code-store.js';
 import { IdentityStore } from '../src/lib/identity-store.js';
+import { BruteForceGuard } from '../src/lib/brute-force.js';
 import type { DmOtpContext } from '../src/context.js';
 import type { SendFn } from '../src/lib/dispatcher.js';
 
@@ -15,6 +16,7 @@ function makeCtx(overrides: Partial<DmOtpContext> = {}): DmOtpContext {
     store: new CodeStore({ secret: SECRET }),
     identityStore: new IdentityStore(),
     senders,
+    bruteForce: new BruteForceGuard(),
     magicLinkChannels: new Set(['email']),
     config: {
       otpSecret: SECRET,
