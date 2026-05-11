@@ -1,0 +1,466 @@
+/**
+ * Molecule scene chrome — labels (drei <Html>), side panel, legend,
+ * tooltip, and empty state. Lives outside the Canvas so it uses
+ * normal DOM styling.
+ *
+ * Colour palette mirrors the bracket-share-card.ts canvas palette:
+ *   bg dark    #0a0e1a
+ *   bg dark 2  #101626
+ *   ink-200    #cdd5e7
+ *   gold       #f5c542
+ *   silver     #d8dde6
+ *   bronze     #d8954f
+ *   accent     #7eb6e8
+ */
+
+.molecule-root {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 56px);
+  min-height: 480px;
+  background: #0a0e1a;
+  color: #cdd5e7;
+  overflow: hidden;
+}
+
+.molecule-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* --- Drei <Html> team labels --- */
+
+.molecule-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  background: rgba(10, 14, 26, 0.78);
+  border: 1px solid rgba(125, 145, 200, 0.25);
+  border-radius: 999px;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transform: translateZ(0);
+}
+
+.molecule-label-flag {
+  font-size: 13px;
+  line-height: 1;
+}
+
+.molecule-label-code {
+  letter-spacing: 0.04em;
+}
+
+.molecule-label[data-stage="champion"] {
+  border-color: #f5c542;
+  background: rgba(245, 197, 66, 0.16);
+  color: #fbe89c;
+}
+
+.molecule-label[data-stage="runner_up"] {
+  border-color: #d8dde6;
+}
+
+.molecule-label[data-stage="third_place"] {
+  border-color: #d8954f;
+}
+
+.molecule-label[data-selected="true"] {
+  background: rgba(245, 197, 66, 0.22);
+  border-color: #f5c542;
+  color: #fff;
+}
+
+/* --- Legend --- */
+
+.molecule-legend {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  border-radius: 12px;
+  padding: 10px 12px;
+  font: 600 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  max-width: 220px;
+}
+
+.molecule-legend-toggle {
+  background: transparent;
+  border: 0;
+  color: #f5c542;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.molecule-legend-list {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0;
+  display: grid;
+  gap: 4px;
+}
+
+.molecule-legend-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.molecule-legend-swatch {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+
+/* --- Hover tooltip --- */
+
+.molecule-tooltip {
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 5;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: rgba(16, 22, 38, 0.92);
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  border-radius: 999px;
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fff;
+  pointer-events: none;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.molecule-tooltip-flag {
+  font-size: 16px;
+}
+
+.molecule-tooltip-stage {
+  color: #f5c542;
+  font-weight: 600;
+}
+
+@media (hover: none) {
+  /* Touch devices: tooltip hides — selecting an atom opens the side panel
+   * which carries the same info. */
+  .molecule-tooltip {
+    display: none;
+  }
+}
+
+/* --- Side panel --- */
+
+.molecule-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(380px, 92vw);
+  background: linear-gradient(180deg, #101626 0%, #0a0e1a 100%);
+  border-left: 1px solid rgba(125, 145, 200, 0.18);
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  animation: molecule-panel-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.5);
+}
+
+@keyframes molecule-panel-in {
+  from {
+    transform: translateX(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.molecule-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  border-bottom: 1px solid rgba(125, 145, 200, 0.12);
+}
+
+.molecule-panel-flag {
+  font-size: 36px;
+  line-height: 1;
+}
+
+.molecule-panel-titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.molecule-panel-title {
+  font: 800 22px/1.1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fff;
+  margin: 0 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.molecule-panel-pill {
+  display: inline-block;
+  font: 800 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 999px;
+}
+
+.molecule-panel-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(125, 145, 200, 0.12);
+  border: 0;
+  color: #cdd5e7;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.molecule-panel-close:hover {
+  background: rgba(245, 197, 66, 0.2);
+  color: #f5c542;
+}
+
+.molecule-panel-body {
+  flex: 1;
+  padding: 18px 20px;
+  overflow-y: auto;
+}
+
+.molecule-panel-section {
+  font: 800 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #f5c542;
+  margin: 0 0 12px;
+}
+
+.molecule-panel-empty {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #8b9bbd;
+}
+
+.molecule-panel-path {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.molecule-panel-path-row {
+  display: grid;
+  grid-template-columns: 92px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(20, 28, 48, 0.6);
+  border: 1px solid rgba(125, 145, 200, 0.1);
+  border-radius: 10px;
+}
+
+.molecule-panel-path-stage {
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #7eb6e8;
+}
+
+.molecule-panel-path-opp {
+  font-size: 14px;
+  color: #fff;
+}
+
+.molecule-panel-path-result {
+  font: 800 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.molecule-panel-path-row[data-result="win"] .molecule-panel-path-result {
+  background: rgba(245, 197, 66, 0.18);
+  color: #f5c542;
+}
+
+.molecule-panel-path-row[data-result="loss"] .molecule-panel-path-result {
+  background: rgba(216, 221, 230, 0.12);
+  color: #aab1c0;
+}
+
+.molecule-panel-path-row[data-result="tbd"] .molecule-panel-path-result {
+  background: rgba(125, 145, 200, 0.12);
+  color: #8b9bbd;
+}
+
+.molecule-panel-foot {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(125, 145, 200, 0.12);
+}
+
+.molecule-panel-link {
+  color: #7eb6e8;
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-decoration: none;
+}
+
+.molecule-panel-link:hover {
+  color: #f5c542;
+}
+
+/* --- Empty state --- */
+
+.molecule-empty-state {
+  position: absolute;
+  bottom: 32px;
+  left: 32px;
+  z-index: 4;
+  max-width: 360px;
+  background: rgba(16, 22, 38, 0.88);
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: molecule-panel-in 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.molecule-empty-title {
+  font: 800 17px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #f5c542;
+  margin: 0 0 8px;
+}
+
+.molecule-empty-body {
+  font-size: 13px;
+  line-height: 1.45;
+  color: #cdd5e7;
+  margin: 0 0 14px;
+}
+
+.molecule-empty-cta {
+  display: inline-block;
+  background: #f5c542;
+  color: #0a0e1a;
+  font: 800 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  padding: 10px 16px;
+  border-radius: 999px;
+}
+
+.molecule-empty-cta:hover {
+  background: #ffd861;
+  transform: translateY(-1px);
+}
+
+/* --- Header above the canvas (provided by page.tsx) --- */
+
+.molecule-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 24px;
+  background: linear-gradient(180deg, #0a0e1a 0%, rgba(10, 14, 26, 0.85) 100%);
+  border-bottom: 1px solid rgba(125, 145, 200, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.molecule-page-title {
+  font: 800 18px/1.1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fff;
+  margin: 0;
+}
+
+.molecule-page-subtitle {
+  font: 500 12px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #8b9bbd;
+  margin: 4px 0 0;
+}
+
+.molecule-page-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  background: transparent;
+  border: 1px solid rgba(245, 197, 66, 0.45);
+  border-radius: 999px;
+  color: #f5c542;
+  font: 700 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+
+.molecule-page-toggle[data-active="true"] {
+  background: #f5c542;
+  color: #0a0e1a;
+}
+
+.molecule-page-toggle:hover {
+  background: rgba(245, 197, 66, 0.12);
+}
+
+.molecule-page-toggle[data-active="true"]:hover {
+  background: #ffd861;
+}
+
+@media (max-width: 720px) {
+  .molecule-panel {
+    width: 100vw;
+    border-left: 0;
+    border-top: 1px solid rgba(125, 145, 200, 0.18);
+    top: auto;
+    bottom: 0;
+    height: 60vh;
+  }
+  .molecule-legend {
+    top: 12px;
+    right: 12px;
+    max-width: 180px;
+    font-size: 11px;
+  }
+  .molecule-empty-state {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
+  .molecule-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+}
