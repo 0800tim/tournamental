@@ -13,18 +13,68 @@
  * to pick which layout to render.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import {
   isReservedSlug,
   isValidSlugShape,
 } from "@/lib/syndicate/reserved-slugs";
-import { isShareGuidShape } from "@/lib/bracket/by-guid";
+import {
+  isShareGuidShape,
+  __unsafe_register_bracket_for_tests,
+  __unsafe_clear_bracket_registry_for_tests,
+  type BracketByGuid,
+} from "@/lib/bracket/by-guid";
 import {
   __unsafe_register_syndicate_for_tests,
   type SyndicateRecord,
 } from "@/lib/syndicate/store";
+
+const sampleBracket = (guid: string): BracketByGuid => ({
+  bracket_id: guid,
+  handle: "Anonymous",
+  saved_at: "2026-05-11T12:00:00Z",
+  tournament_id: "fifa-wc-2026",
+  tournament_label: "FIFA World Cup 2026",
+  champion: { code: "ARG", name: "Argentina", flag_emoji: "🇦🇷" },
+  runner_up: { code: "FRA", name: "France", flag_emoji: "🇫🇷" },
+  third_place: { code: "BRA", name: "Brazil", flag_emoji: "🇧🇷" },
+  path_to_gold: [
+    {
+      stage: "r16",
+      stage_label: "Round of 16",
+      opponent_code: "AUS",
+      opponent_name: "Australia",
+      opponent_flag_emoji: "🇦🇺",
+    },
+    {
+      stage: "qf",
+      stage_label: "Quarter-final",
+      opponent_code: "NED",
+      opponent_name: "Netherlands",
+      opponent_flag_emoji: "🇳🇱",
+    },
+    {
+      stage: "sf",
+      stage_label: "Semi-final",
+      opponent_code: "CRO",
+      opponent_name: "Croatia",
+      opponent_flag_emoji: "🇭🇷",
+    },
+    {
+      stage: "final",
+      stage_label: "Final",
+      opponent_code: "FRA",
+      opponent_name: "France",
+      opponent_flag_emoji: "🇫🇷",
+    },
+  ],
+});
+
+beforeEach(() => {
+  __unsafe_clear_bracket_registry_for_tests();
+});
 
 describe("resolveShareGuid", () => {
   it("resolves a known syndicate slug to a 'syndicate' result", async () => {
@@ -46,6 +96,7 @@ describe("resolveShareGuid", () => {
 
   it("resolves a valid UUID v4 share guid to a 'user' result", async () => {
     const uuid = "4f5b3c7e-1d2f-4a8b-9c0d-1e2f3a4b5c6d";
+    __unsafe_register_bracket_for_tests(uuid, sampleBracket(uuid));
     expect(isShareGuidShape(uuid)).toBe(true);
     const res = await resolveShareGuid(uuid);
     expect(res.kind).toBe("user");
@@ -58,6 +109,7 @@ describe("resolveShareGuid", () => {
 
   it("resolves a valid 16-char nanoid to a 'user' result", async () => {
     const nano = "AbCd1234efGH5678"; // 16 chars, alphanumeric
+    __unsafe_register_bracket_for_tests(nano, sampleBracket(nano));
     expect(nano.length).toBe(16);
     expect(isShareGuidShape(nano)).toBe(true);
     const res = await resolveShareGuid(nano);
@@ -66,6 +118,16 @@ describe("resolveShareGuid", () => {
 
   it("returns not_found for a random non-matching string", async () => {
     const res = await resolveShareGuid("hello world!!");
+    expect(res.kind).toBe("not_found");
+  });
+
+  it("returns not_found when the guid shape is valid but the upstream lookup misses", async () => {
+    // No __unsafe_register_bracket_for_tests call → the resolver hits
+    // fetch, which in vitest's jsdom env is unimplemented/aborted, so
+    // loadBracketFromGuid returns null and the resolver falls through.
+    const uuid = "00000000-0000-4000-8000-000000000000";
+    expect(isShareGuidShape(uuid)).toBe(true);
+    const res = await resolveShareGuid(uuid);
     expect(res.kind).toBe("not_found");
   });
 

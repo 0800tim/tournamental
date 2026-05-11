@@ -1,17 +1,34 @@
 /**
- * Server-side bracket lookup by share guid, STUB pending the game
- * service `/v1/bracket/by-guid/<guid>` endpoint.
+ * Public bracket lookup by share guid.
  *
- * The `/s/<guid>` universal share landing route hits this after the
- * syndicate-slug lookup misses. Two valid guid shapes:
- *   - UUID v4 (dashed, 36 chars)
- *   - 16-char nanoid (alphanumeric + `_`/`-`)
+ * Hits the game-service's `GET /v1/bracket/by-guid/<guid>` endpoint and
+ * normalises the response into the `BracketByGuid` shape the
+ * `/s/<guid>` user-landing template consumes (champion + runner-up +
+ * third-place TeamLites, path-to-gold list, saved_at timestamp).
  *
- * We accept both because the early share URLs in pre-launch were
- * nanoids and the moment user-id-backed shares land in #70 the
- * authenticated route will emit UUIDs. Keeping the guard permissive
- * here means old screenshot links keep resolving once the backend
- * lands, the UUID variant just hits a different code path.
+ * Two valid guid shapes:
+ *   - UUID v4 (dashed, 36 chars) — modern web-client mints these.
+ *   - 16-char nanoid (alphanumeric + `_`/`-`) — backfill + legacy
+ *     pre-launch shares + the 0004 migration's hex backfill.
+ *
+ * Failure modes (all surface as `null`, which the `/s/<guid>` page
+ * renders as the friendly "Share link not found" view):
+ *   - guid shape doesn't match
+ *   - upstream returns 404 (guid not in DB)
+ *   - upstream returns 5xx or times out
+ *   - network error (offline, DNS failure, etc.)
+ *
+ * Cache policy: this fetch is server-side (called from the RSC for
+ * `/s/<guid>`). We pass `cache: "no-store"` so the Next.js fetch
+ * cache doesn't pin a stale response to the same URL forever. The
+ * CDN edge cache (set by the game-service via
+ * `Cache-Control: public, s-maxage=60`) does the actual caching.
+ *
+ * Replaces the pre-launch synthetic-bracket stub (PR #140). The stub
+ * generated a deterministic-from-hash bracket so the share-landing
+ * page could render something coherent before the backend lookup
+ * existed — which meant Tim's copied share URL resolved to a DIFFERENT
+ * bracket than the one he saved. This file is the data-layer fix.
  */
 
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -52,13 +69,13 @@ export interface TeamLite {
   readonly flag_emoji: string;
 }
 
-function teamLite(code: string): TeamLite {
-  const safe = code.toUpperCase();
+function teamLite(code: string | null | undefined): TeamLite {
+  const safe = (code ?? "").toUpperCase();
   const file = canonicalTeamsRaw as CanonicalTeamsFile;
   const t = file.teams.find((x) => x.code === safe);
   return {
-    code: safe,
-    name: t?.name ?? safe,
+    code: safe || "TBD",
+    name: t?.name ?? (safe || "TBD"),
     flag_emoji: t?.flag_emoji ?? "🏳️",
   };
 }
@@ -70,41 +87,150 @@ const STAGE_LABEL: Record<PathToGoldEntry["stage"], string> = {
   final: "Final",
 };
 
+const TOURNAMENT_LABEL: Record<string, string> = {
+  "fifa-wc-2026": "FIFA World Cup 2026",
+};
+
 /**
- * Build a deterministic synthetic bracket from a guid so the share
- * landing page renders something coherent during pre-launch.
- *
- * The synthetic picks rotate through a fixed pool of teams seeded by
- * a hash of the guid, same guid always yields the same bracket so
- * link-back from a social post stays stable across reloads.
- *
- * TODO: replace with a fetch to
- *   `GET <gameServiceUrl>/v1/bracket/by-guid/<guid>`
- * once the game service lands. The fetch should pass
- *   `Cache-Control: max-age=60, stale-while-revalidate=600`
- * and the upstream response should include a `saved_at` timestamp so
- * the page's cache key flips when the user re-saves.
+ * Upstream shape returned by `GET /v1/bracket/by-guid/<guid>` on the
+ * game-service. Kept narrow on purpose — the route exposes only the
+ * public-display fields.
+ */
+interface UpstreamBracket {
+  readonly share_guid: string;
+  readonly user_handle: string | null;
+  readonly tournament_id: string;
+  readonly champion_code: string | null;
+  readonly runner_up_code: string | null;
+  readonly third_place_code: string | null;
+  readonly knockout_path: ReadonlyArray<{
+    readonly stage: string;
+    readonly opponent_code: string | null;
+    readonly result: "win" | "loss" | "tbd";
+  }>;
+  readonly locked_at: string | null;
+}
+
+interface UpstreamResponse {
+  readonly ok: boolean;
+  readonly bracket?: UpstreamBracket;
+  readonly error?: string;
+}
+
+/**
+ * Resolve the game-service base URL. Server-side this prefers the
+ * private `GAME_API_BASE` so the SSR fetch goes through the internal
+ * mesh; client-side it falls back to `NEXT_PUBLIC_GAME_API_BASE` (or
+ * the same-origin `/api` proxy default) so a browser-side call (rare,
+ * but possible from a React component that uses this) doesn't try to
+ * hit an internal hostname.
+ */
+function resolveGameApiBase(): string {
+  const isServer = typeof window === "undefined";
+  if (isServer) {
+    return (
+      process.env.GAME_API_BASE ??
+      process.env.NEXT_PUBLIC_GAME_API_BASE ??
+      process.env.NEXT_PUBLIC_GAME_API_URL ??
+      "http://localhost:3360"
+    );
+  }
+  return (
+    process.env.NEXT_PUBLIC_GAME_API_BASE ??
+    process.env.NEXT_PUBLIC_GAME_API_URL ??
+    "/api"
+  );
+}
+
+const FETCH_TIMEOUT_MS = 1500;
+
+/**
+ * Test-only override hook. Mirrors the pattern in
+ * `lib/syndicate/store.ts` — tests register a fake bracket and the
+ * resolver short-circuits to it without going to the network.
+ */
+const __test_registry = new Map<string, BracketByGuid>();
+
+export function __unsafe_register_bracket_for_tests(
+  guid: string,
+  bracket: BracketByGuid,
+): void {
+  __test_registry.set(guid, bracket);
+}
+
+export function __unsafe_clear_bracket_registry_for_tests(): void {
+  __test_registry.clear();
+}
+
+/**
+ * Fetch a bracket by share guid from the game-service. Returns `null`
+ * on any failure — the `/s/<guid>` page renders that as the friendly
+ * not-found view.
  */
 export async function loadBracketFromGuid(
   guid: string,
+  opts: {
+    readonly fetchImpl?: typeof fetch;
+    readonly baseUrl?: string;
+    readonly timeoutMs?: number;
+  } = {},
 ): Promise<BracketByGuid | null> {
+  const seeded = __test_registry.get(guid);
+  if (seeded) return seeded;
+
   if (!isShareGuidShape(guid)) return null;
 
-  // Cheap deterministic seed: sum char codes, take mod over the pool.
-  let seed = 0;
-  for (let i = 0; i < guid.length; i++) seed = (seed + guid.charCodeAt(i)) % 0xffffffff;
+  const fetchImpl =
+    opts.fetchImpl ?? (typeof fetch !== "undefined" ? fetch : null);
+  if (!fetchImpl) return null;
 
-  const pool = ["ARG", "FRA", "BRA", "ESP", "ENG", "GER", "POR", "NED", "ITA", "URU"] as const;
-  const pickAt = (offset: number): string => pool[(seed + offset) % pool.length] ?? "ARG";
+  const base = (opts.baseUrl ?? resolveGameApiBase()).replace(/\/+$/, "");
+  const url = `${base}/v1/bracket/by-guid/${encodeURIComponent(guid)}`;
 
-  const champion = teamLite(pickAt(0));
-  const runner_up = teamLite(pickAt(3));
-  const third_place = teamLite(pickAt(5));
+  const ctrl = new AbortController();
+  const timer = setTimeout(
+    () => ctrl.abort(),
+    opts.timeoutMs ?? FETCH_TIMEOUT_MS,
+  );
 
-  const path_to_gold: PathToGoldEntry[] = (
-    ["r16", "qf", "sf", "final"] as const
-  ).map((stage, i) => {
-    const opp = teamLite(pickAt(7 + i * 2));
+  try {
+    const res = await fetchImpl(url, {
+      signal: ctrl.signal,
+      cache: "no-store",
+      headers: { accept: "application/json" },
+    });
+    clearTimeout(timer);
+    if (res.status === 404) return null;
+    if (!res.ok) return null;
+    const data = (await res.json()) as UpstreamResponse | null;
+    if (!data || !data.ok || !data.bracket) return null;
+    return normaliseUpstream(data.bracket);
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+function normaliseUpstream(b: UpstreamBracket): BracketByGuid {
+  const champion = teamLite(b.champion_code);
+  const runner_up = teamLite(b.runner_up_code);
+  const third_place = teamLite(b.third_place_code);
+
+  // Build path_to_gold from upstream entries. The four expected stages
+  // are always surfaced even if upstream skipped one, so the share
+  // landing always renders four rows. Missing entries get TBD.
+  const byStage = new Map<string, UpstreamBracket["knockout_path"][number]>();
+  for (const k of b.knockout_path) byStage.set(k.stage, k);
+
+  const stages: ReadonlyArray<PathToGoldEntry["stage"]> = [
+    "r16",
+    "qf",
+    "sf",
+    "final",
+  ];
+  const path_to_gold: PathToGoldEntry[] = stages.map((stage) => {
+    const upstream = byStage.get(stage);
+    const opp = teamLite(upstream?.opponent_code ?? null);
     return {
       stage,
       stage_label: STAGE_LABEL[stage],
@@ -114,16 +240,17 @@ export async function loadBracketFromGuid(
     };
   });
 
-  // Synthetic stable timestamp derived from the guid so cache keys are
-  // deterministic. Maps to a date inside the pre-launch window.
-  const savedAtMs = 1746700000000 + (seed % 86_400_000);
+  const handle = b.user_handle ?? "Anonymous";
+  const saved_at = b.locked_at ?? new Date(0).toISOString();
+  const tournament_label =
+    TOURNAMENT_LABEL[b.tournament_id] ?? b.tournament_id;
 
   return {
-    bracket_id: guid,
-    handle: `player_${guid.slice(0, 6).toLowerCase()}`,
-    saved_at: new Date(savedAtMs).toISOString(),
-    tournament_id: "fifa-wc-2026",
-    tournament_label: "FIFA World Cup 2026",
+    bracket_id: b.share_guid,
+    handle,
+    saved_at,
+    tournament_id: b.tournament_id,
+    tournament_label,
     champion,
     runner_up,
     third_place,

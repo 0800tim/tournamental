@@ -25,6 +25,7 @@ import sensible from "@fastify/sensible";
 
 import { registerHealth } from "./routes/health.js";
 import { registerBracketRoutes } from "./routes/bracket.js";
+import { registerBracketByGuidRoutes } from "./routes/bracket-by-guid.js";
 import { registerMatchRoutes } from "./routes/match.js";
 import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
@@ -133,6 +134,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
     nowMs: opts.nowMs,
     kickoffs: opts.kickoffs,
   });
+  await registerBracketByGuidRoutes(app, { store });
   await registerPickRoutes(app, {
     store,
     nowMs: opts.nowMs,
