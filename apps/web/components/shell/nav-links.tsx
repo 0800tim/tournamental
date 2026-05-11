@@ -96,6 +96,7 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   { label: "Syndicates",  href: "/syndicates", icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
   { label: "Watch",       href: "/watch",      icon: <WatchIcon />,    matchPrefix: "/watch" },
   { label: "Settings",    href: "/settings",   icon: <SettingsIcon />, matchPrefix: "/settings" },
+  { label: "API keys",    href: "/profile/api-keys", icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
   { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
   { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
 ];

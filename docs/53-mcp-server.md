@@ -140,6 +140,14 @@ The user-key is forwarded as `Authorization: Bearer` to the
 game-service's `/v1/me/*` endpoints; the game-service is the
 authoritative source of "what user is this".
 
+End users mint, rotate and revoke their personal user-keys at
+[`/profile/api-keys`](../apps/web/app/profile/api-keys/page.tsx) on
+play.tournamental.com. The token format and full self-service contract
+live in [docs/54](54-personal-api-keys.md). The plaintext key is shown
+ONCE at mint time and never recoverable; users paste it into
+`TOURNAMENTAL_USER_KEY` in their MCP client config and treat it like a
+password.
+
 ### Admin tier
 
 Resolved in this priority order:

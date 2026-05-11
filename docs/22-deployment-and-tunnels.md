@@ -53,7 +53,7 @@ This is the single source of truth. **Update this file in the same PR as any por
 | `apps/dm-otp`              | 3331  | `dm-otp.tournamental.com`                              | Fastify (DM-OTP login across 16 channels: Telegram, WhatsApp, Messenger, Instagram, Discord, X, Reddit, Threads, Slack, Mastodon, LINE, Viber, Teams, LinkedIn, Signal, Email magic-link). |
 | `apps/admin`               | 3340  | `admin.tournamental.com`                               | Internal admin console (Next.js).                                                    |
 | `apps/odds-ingest`         | 3341  | `odds.tournamental.com`                                | Fastify (Polymarket + The Odds API).                                                 |
-| `apps/game`                | 3360  | `game.tournamental.com`                                | Fastify (bracket submission, match settlement, leaderboards). See [docs/12](12-odds-and-predictions.md). |
+| `apps/game`                | 3360  | `game.tournamental.com`                                | Fastify (bracket submission, match settlement, leaderboards, personal API keys at `/v1/me/api-keys`). See [docs/12](12-odds-and-predictions.md) and [docs/54](54-personal-api-keys.md). |
 | `apps/affiliate-router`    | 3370  | `aff.tournamental.com`                                 | Fastify (geo-gated affiliate click resolver + audit log per docs/30).                |
 | `apps/vstamp`              | 3390  | `vstamp.tournamental.com`                              | Fastify (Merkle-signed prediction receipts; doc 17).                                 |
 | `apps/clip-pipeline`       | 3380  | `clip.tournamental.com`                                | Fastify + ffmpeg clip render service (per docs/14).                                  |
