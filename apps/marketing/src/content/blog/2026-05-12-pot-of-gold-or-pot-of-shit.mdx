@@ -38,7 +38,7 @@ That's the pot of gold.
 
 ## The pot-of-shit case
 
-I'm doing this on a single Linux box in New Zealand with one human and a small team of agents. I have shipped 28 PRs in the last 72 hours. There are bugs in production right now that I will fix tomorrow morning and then ten new bugs will arrive by lunchtime.
+I'm doing this on a single Linux box in New Zealand with one human and a small team of orchestrated agents. In the last four days I have shipped, with that team, **150 pull requests, 152 commits, 77 session notes, 60 architecture documents and roughly 94,000 lines of code** across the bracket app, the renderer, the marketing site and the on-chain bits. (More on what that actually means a few sections down.) There are bugs in production right now that I will fix tomorrow morning and then ten new bugs will arrive by lunchtime.
 
 The competition isn't asleep. ESPN has eight figures of marketing budget and a partnership with Disney. Yahoo has a billion existing email addresses. The Telegraph has the editorial wing of a national newspaper. Polymarket has a war chest and is already running a bracket consensus product. Dream11 is going to look at this market the day after the 2026 final. _If any of them ship a "save, don't lock" mode in the next month, my whole differentiation collapses._
 
@@ -93,6 +93,25 @@ To be specific, here's what is on GitHub at [`github.com/0800tim/tournamental`](
 Even the **doubts** are shipped. Doc 21 explicitly lists the things we don't know how to do yet and would love someone to come help with. Doc 17 admits that the kickoff-lockout edge case where the user's clock is more than five minutes off the server clock is not handled in v1. The README has a section called "What we got wrong already" and it will only grow.
 
 If you want to find the cracks, they're easy to find. They're labelled.
+
+## The brain dump, in numbers
+
+When I say "the whole brain", I mean it literally. Here is what landed on `main` in the four days before this post went live, by one human and a small pack of orchestrated AI agents working in parallel git worktrees:
+
+- **150 pull requests** opened, reviewed and merged. CI ran on every one and a reviewer agent left actual comments, not rubber stamps. Sixty of those PRs were Dependabot security bumps that got verified before merge. The other ninety were features, fixes and design iterations responding to me literally screenshotting bugs from my phone at 11pm and the agents shipping the fix before I went to bed.
+- **152 commits** on `main`. Each one signed-off, conventional-commit formatted, and traceable back to a session note that explains what the agent thought it was doing and why.
+- **77 session notes** in `sessions/`. Each is the kind of thing you'd write in a project diary if you were trying to remember in six months what tonight's decision was actually about. "Tried option A, hit foot-gun B, fell back to option C, here is why." A surprising number contain the words "this is dumb but it works".
+- **60 architecture documents** in `docs/`. Cache budgets, port allocations, identity scoring, smart-contract review checklists, deployment tunnels, the entire scoring formula derivation. CC-BY licensed, so if any of it is useful to your project you can lift it wholesale and credit the source.
+- **Roughly 94,000 lines** of TypeScript, Astro, MDX and CSS across `apps/*` and `packages/*`. Plus the Python replay producer. Plus the Solidity smart-contract scaffolding. Plus the brand book.
+- **Four parallel agent worktrees** at peak, each one rebasing onto `main` independently, opening its own PR, and never stepping on each other's files because `AGENT-PROMPTS.md` allocates ownership boundaries up front.
+- **Eight blog posts**, including this one, each written, illustrated and shipped through the same Astro content collection that real contributors will use.
+- **Zero production outages longer than fifteen minutes**, despite shipping straight from a single tmux session on a single laptop.
+
+The feedback loop, the one I think actually matters, looks like this. I notice a thing. I screenshot it or describe it in plain English. An orchestrator agent picks the right specialist, spins up a worktree, makes the change, runs lint and typecheck and tests, opens a PR with a session note attached, a reviewer agent leaves comments, the PR gets merged, PM2 picks up the new build, and the next user does not see the bug. Median round trip is about twelve minutes. Some of the bigger PRs are an hour. None of them takes a week.
+
+So could a brain dump that big and that fast be a pot of gold? I genuinely do not know. What I do know is that a brain dump this complete is hard for a closed company to reproduce. The competition has bigger teams and bigger budgets, but none of them are working in public with a twelve-minute feedback loop. Speed is a moat. **The brain dump is a speed moat**, because every new contributor who reads `sessions/2026-05-11_*.md` arrives knowing what I was thinking last Tuesday at 11pm. That is a serious onboarding shortcut compared with "here is the README, good luck".
+
+There's also a romantic case I genuinely like. The brain dump might end up being more valuable than the product itself. There is a chance somebody reads doc 12 and realises the scoring formula generalises to a much larger problem than World Cup brackets. Or reads doc 17 and notices the VStamp pattern is the actually-useful primitive nobody has built yet. Or reads doc 21 and decides the open-business contract is the thing they want to write a thesis about. _Pots of gold sometimes turn up in places the person who buried them did not expect._ This whole repository is, in that sense, an ideas dump as much as a code dump. Some of the ideas in it are gold. Some are shit. The bet is that putting them all out there, labelled and dated, is the fastest way to find out which is which.
 
 ## Why I'm scared, exactly
 

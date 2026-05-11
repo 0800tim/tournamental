@@ -38,9 +38,6 @@ export interface AppShellProps {
   readonly title: string;
   readonly children: ReactNode;
   readonly rightAction?: AppBarAction;
-  /** Initials rendered inside the brand mark on the top-left logo.
-   *  Defaults to "T". Kept as a prop for theming flexibility. */
-  readonly brandInitials?: string;
   readonly showBottomNav?: boolean;
   readonly variant?: "default" | "canvas";
   readonly bottomNavTabs?: readonly BottomNavTab[];
@@ -60,7 +57,6 @@ export function AppShell({
   title,
   children,
   rightAction,
-  brandInitials,
   showBottomNav = true,
   variant = "default",
   bottomNavTabs,
@@ -92,7 +88,6 @@ export function AppShell({
       <AppBar
         title={title}
         rightAction={rightAction}
-        brandInitials={brandInitials}
         onMenuClick={() => setMenuOpen((o) => !o)}
         menuOpen={menuOpen}
       />

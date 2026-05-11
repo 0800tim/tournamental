@@ -61,12 +61,12 @@ const SECONDARY: readonly DrawerLink[] = [
   { label: "Settings",    href: "/settings",    icon: <SettingsIcon /> },
 ];
 
-export interface MobileMenuDrawerProps {
+export interface AppMenuDrawerProps {
   readonly open: boolean;
   readonly onClose: () => void;
 }
 
-export function MobileMenuDrawer({ open, onClose }: MobileMenuDrawerProps) {
+export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
   const handleEsc = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
