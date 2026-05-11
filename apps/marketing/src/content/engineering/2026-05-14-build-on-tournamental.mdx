@@ -1,0 +1,909 @@
+---
+title: "Build an app on Tournamental in 20 minutes (npm + REST API + MCP)"
+description: "We just shipped @tournamental/* on npm, an aggregated OpenAPI portal, and a Model Context Protocol server. Here is what each one is for, how the auth model works, and a step-by-step walkthrough for vibe-coding a bracket-side app or an AI agent on top of the open platform."
+pubDate: 2026-05-14
+author: "Tim"
+area: "ai-agents"
+tags: ["npm", "mcp", "api", "open-source", "platform", "contributing"]
+heroImage: "/blog/engineering/2026-05-14-build-on-tournamental-hero.svg"
+heroImageAlt: "Three plug points labelled npm, REST and MCP feeding into a Tournamental molecule pyramid"
+heroImageCredit: "Diagram drafted for the Tournamental engineering log, 2026"
+draft: false
+relatedDocs:
+  - "03-architecture.md"
+  - "28-plugin-architecture.md"
+  - "53-mcp-server.md"
+  - "53-api-portal.md"
+  - "19-open-source-and-contributor-revenue.md"
+relatedSource:
+  - "apps/mcp"
+  - "packages/spec"
+  - "packages/bracket-engine"
+  - "packages/social-cards"
+  - "packages/plugin-sdk"
+---
+
+## Why this post exists
+
+We just shipped three things in a week. `@tournamental/spec`, `@tournamental/bracket-engine`, `@tournamental/social-cards` and `@tournamental/plugin-sdk` to npm. An aggregated OpenAPI portal at `tournamental.com/api`. A Model Context Protocol server at `mcp.tournamental.com` with fifteen typed tools. Each of the three was a Tim brief written on the back of a different napkin; each of them landed in a different parallel agent worktree; each of them merged in the same week. That alone is a story for another post.
+
+The point of this one is the integrator's question. "Right, you have three plug points, fine, which one do I actually use, when, and how?" That is what this post answers, in order, with copy-paste-workable snippets.
+
+It is aimed at three readers.
+
+You are a **human engineer** with an evening to spend building a bracket-side app and you want to know which package to install and which endpoint to call before you commit to anything. The "[30-second version](#the-30-second-version)" plus the "[worked end-to-end example](#a-worked-end-to-end-example)" is forty minutes of reading and you will be shipping code by the end.
+
+You are an **AI agent** that has been dropped into a user's editor with the Tournamental MCP server attached, and you have been asked to "make a Discord bot that posts brackets". This post is your map. The MCP section tells you what tools you have; the npm section tells you what types you can rely on; the API section tells you what the platform persists when you call `submit_bracket`.
+
+You are a **prospective contributor** trying to decide if Tournamental is a codebase you want to send PRs to. The plugin SDK is the surface you will care about; the [going further](#going-further-plugin-architecture-drips-revenue-governance) section explains how the Drips revshare list pays contributors when their plugins drive paid affiliate clicks. The TL;DR is "ship something, the list pays".
+
+A note on this post's status. This is the engineering log, not the marketing site. The voice is direct, NZ English, no em-dashes. Where something is half-built I will say so. Where I have not figured something out yet I will say that too. The reference posts in this voice are the [stack-at-a-glance](/engineering/2026-05-13-stack-at-a-glance) and [Pot of Gold or Pot of Shit](/blog/2026-05-12-pot-of-gold-or-pot-of-shit); if you want the polished pitch, that lives on [the homepage](/).
+
+## The 30-second version
+
+Tournamental ships three plug points. You can pick any one of them in isolation, or you can stack all three in the same app and let them do different jobs. They sit on top of the same open codebase and the same canonical types, so whatever you build against one of them will translate to the others without an adapter layer.
+
+**(a) `@tournamental/*` on npm.** Four packages, Apache-2.0, all consumable from any Node 20+ runtime. Use these when you want the engine, not the network. The bracket cascade, the long-shot scoring model, the share-card renderer, the plugin SDK, every contract type the platform cares about: all importable, all pure functions where possible, all unit-tested. Jump to [Path 1 (npm packages)](#path-1---npm-packages).
+
+**(b) Public REST API at `tournamental.com/api`.** This is the canonical platform. Read teams, fixtures, leaderboards, public brackets and syndicate metadata; write picks, locks and share guids on behalf of an authenticated user. The portal is an aggregated OpenAPI catalogue served via Scalar, every endpoint has a curl example and a schema. Jump to [Path 2 (REST API)](#path-2---rest-api).
+
+**(c) MCP server at `mcp.tournamental.com`.** Model Context Protocol server, fifteen tools, drops straight into Claude Desktop, Cursor, Windsurf or any other MCP client. Use this when you want an AI agent to read or write Tournamental on your behalf: for example, a "draft a bracket and post the share card to the team Slack" agent that lives in your editor. Jump to [Path 3 (MCP server)](#path-3---mcp-server).
+
+The rest of this post is a step-by-step walkthrough of each one, an honest pass over the auth and rate-limit story, a 40-line worked example that uses all three together, and a list of eight app ideas that this stack lets you ship in an afternoon.
+
+A simple mental model. The npm packages are the **engine**. The REST API is the **canonical state**. The MCP server is the **agent surface**. Build a thing locally that does not need anybody else's data: npm only. Build a thing that needs the live platform's data or wants to write to it: REST. Build a thing where an AI agent does the work for you on the fly: MCP. You can mix all three in one app and that is in fact the point of the worked example near the end of this post, fetch via REST, render via npm, debug via MCP-in-your-editor.
+
+Two notes before we start. First, the brand and the official Drips revshare list belong to Tournamental Holdings; everything else (the code, the docs, the types, the prompts, the design pack) is open under Apache 2.0 (code) and CC-BY 4.0 (docs). Second, this is the engineering log, not the product blog. The voice is direct, the warts are visible, and where something is half-built I will say so.
+
+## The access model (read this before you build anything)
+
+There are four tiers of access. Picking the wrong tier costs you a 401 and an hour of head-scratching, so it pays to read the table first.
+
+| Tier              | Who                                          | Auth                                                                     | Rate limit            | What it can do                                                                                          |
+| ----------------- | -------------------------------------------- | ------------------------------------------------------------------------ | --------------------- | ------------------------------------------------------------------------------------------------------- |
+| **Public reads**  | Anyone                                       | none                                                                     | 60 req/min/IP         | Teams, fixtures, leaderboards, a public bracket by share-guid, syndicate metadata, projected paths.     |
+| **User writes**   | Authenticated humans (or their agents)       | `Authorization: Bearer <user-api-key>` or a Supabase session cookie      | 600 req/min/user      | Submit / update / lock your own brackets, mint share-guids, set your handle.                            |
+| **Admin**         | Internal team + verified pundits             | `X-Tournamental-Admin-Key: <key>` plus an IP allowlist                   | 6000 req/min/key      | Resolve match results, moderate users, invalidate share guids. Internal-only at launch.                 |
+| **Affiliate**     | Approved revshare partners                   | Signed click envelopes against the affiliate router                      | per-deal              | Routes traffic to partner destinations and credits the contributor Drips list. Out of scope here.       |
+
+Three things to remember about this model.
+
+**Public reads are free forever.** That is a product decision, not a tier we plan to roll back. If you are building a bracket overlay or a Slack bot that only ever calls `GET /v1/bracket/by-guid/...`, you need no auth, no signup, no key. Cache it aggressively at your end and you can serve a viral share with effectively zero server cost.
+
+**User-scoped writes need either a Supabase session or a personal API key.** The Supabase session route is what the web app uses. The personal-API-key route is what your bot or your Cursor agent will use. The key is minted at `https://play.tournamental.com/profile/api-keys` once you have signed in. (That UI is being built in parallel under issue #93; the key-mint endpoint already exists on the API; assume the page lands the same week this post does. If it has not landed when you read this, drop a comment in the issue and we will hand-mint you one.)
+
+**Admin is internal and verified pundits only.** If you think you need admin to ship the thing you have in mind, you almost certainly do not, the public reads plus user writes cover ninety-nine percent of the surface. The admin tier exists so that, for example, a verified ESPN pundit can publish their bracket through their own automation and have the platform mark them as the bracket owner. We will document the verified-pundit application flow in a separate post once the first batch is signed.
+
+The rate limits in the table are deliberately generous on the public side and deliberately tight on the admin side. The shape is "if you behave like a normal app, you will never hit a limit; if you misbehave, the brakes come on fast".
+
+A note about the four tiers being deliberately the **same four** that the MCP server exposes. The REST API and the MCP server are not two different products; they are two transports over the same dispatch pipeline. Public-read MCP tools call the same Fastify handlers that the public-read REST endpoints call. User-write MCP tools call the same handlers as the user-write REST endpoints. Same auth, same rate limits, same audit log. If you have built against the REST API you already know how the MCP server behaves, and vice versa.
+
+One more note about CORS. The REST API allows cross-origin reads from any origin on the public-read tier and locks the user-write tier to the `Authorization: Bearer` flow only, there is no cookie-cross-origin path. That is on purpose. If you are building a browser extension or a third-party web app and you want to hit user-write endpoints, the user pastes their key into your extension, you store it in `chrome.storage.session` (or wherever), you put it in the `Authorization` header. You do not get a CSRF surface for free.
+
+## A note on tooling and runtime
+
+Before we dive into the four packages, a quick orientation on what runs where.
+
+**Runtime.** Node 20+ for every npm package. The native dependencies in `social-cards` (canvas, resvg) ship prebuilt binaries for Linux x64, macOS arm64, macOS x64, and Windows x64. If you are deploying to an edge runtime (Workers, Edge Functions, Deno Deploy), the bracket-engine and spec packages will work but social-cards will not. The MCP server is Node-only.
+
+**Bundler.** ESM-first. Every package exports both ESM and CJS builds from npm with proper `exports` maps; the source is TypeScript. Tree-shaking works correctly, importing only `cascade` from `@tournamental/bracket-engine` should not pull in `scoreBracket`, and importing only `renderBracketShareCard` from `@tournamental/social-cards` will pull in canvas but not satori.
+
+**Versioning.** All four packages are pre-1.0 (v0.1.x at the time of writing). Minor bumps may include breaking changes; consult the `CHANGELOG.md` in each package. We commit to no breaking changes within a patch bump. Pin to a minor in your `package.json` until v1.0.
+
+**Source-as-published.** Every package ships the source alongside the dist; you can read `src/index.ts` directly from the published tarball. If you are trying to figure out what an export does, the source is the answer.
+
+## Path 1 - npm packages
+
+There are four packages published to npm under the `@tournamental` scope. They are pure-TypeScript, framework-free, Apache-2.0, and consumable from any Node 20+ runtime. They share one workspace dependency (`@tournamental/spec`) and otherwise stand alone.
+
+```
+@tournamental/spec            # types only
+@tournamental/bracket-engine  # cascade, score, tournament fixtures
+@tournamental/social-cards    # OG + share-card image generator
+@tournamental/plugin-sdk      # author a renderer / scorer / ingest plugin
+```
+
+Install them like any other package. If you are starting from scratch:
+
+```bash
+npm init -y
+npm install @tournamental/bracket-engine @tournamental/social-cards
+```
+
+The four packages, with a copy-paste-workable snippet for each.
+
+### `@tournamental/spec` - types only
+
+This package is everything the platform cares about as a TypeScript shape. Teams, tournaments, group fixtures, knockout fixtures, brackets, picks, locks, cascaded matchups, score breakdowns, the on-the-wire `Message` shape that the watch-along stream emits. Nothing in it has runtime behaviour. It is the contract.
+
+You should depend on it directly any time you are passing data between your app and the Tournamental API or another `@tournamental/*` package, so the compiler catches a stale field name before it ships.
+
+```ts
+import type {
+  Bracket,
+  BracketPrediction,
+  Tournament,
+  Team,
+  MatchInit,
+  StateFrame,
+  EventMessage,
+} from "@tournamental/spec";
+
+// Bracket is the canonical save-shape (the same one the API persists):
+//
+//   interface Bracket {
+//     readonly bracket_id: string;          // stable per save
+//     readonly user_id: string;
+//     readonly tournament_id: string;
+//     readonly groups: readonly GroupPrediction[];
+//     readonly knockouts: readonly KnockoutPrediction[];
+//     readonly locks: readonly PickLock[];
+//     readonly created_at_utc: string;      // ISO-8601
+//     readonly updated_at_utc: string;
+//     readonly share_guid?: string;
+//   }
+//
+// `BracketPrediction` is the subset you build / submit. See the
+// package's `src/tournament.ts` for the canonical authoritative
+// definitions; the snippet above is paraphrased for readability.
+```
+
+The package is types-only at runtime, your bundler treeshakes it to nothing. There is no reason not to import from it.
+
+### `@tournamental/bracket-engine` - cascade and score
+
+This is the engine that powers the bracket prophet UI on `play.tournamental.com`, and the same code path that runs server-side when the API settles a bracket at tournament end. It is a set of pure functions over the spec types. Two of them you will use constantly: `cascade()` and `scoreBracket()`.
+
+```ts
+import {
+  cascade,
+  scoreBracket,
+  loadFixtures2026,
+  type BracketPrediction,
+  type CompletedResults,
+} from "@tournamental/bracket-engine";
+
+// Step 1: load the canonical FIFA WC 2026 fixture set. This is a
+// typed Tournament with 48 teams, 8 groups of 6, and the R32-to-final
+// knockout tree wired up.
+const tournament = loadFixtures2026();
+
+// Step 2: build a partial prediction. You only need to fill in what
+// the user has picked so far; `cascade()` resolves the downstream tree
+// as far as it can.
+const prediction: BracketPrediction = {
+  bracket_id: "draft",
+  user_id: "u_demo",
+  tournament_id: tournament.id,
+  groups: [
+    { group_id: "A", order: ["ARG", "NED", "MEX", "POL"] },
+    // ... fill in the other seven groups
+  ],
+  knockouts: [
+    // optional overrides; cascade fills the rest in from group order
+  ],
+  locks: [],
+};
+
+// Step 3: cascade. Same input always produces the same output;
+// no clock reads, no randomness. Safe to run on every UI click.
+const cascaded = cascade(tournament, prediction);
+
+console.log(cascaded.champion);   // TeamId | null
+console.log(cascaded.warnings);   // structured CascadeWarning[]
+
+// Step 4 (server-side): when the actual tournament results land,
+// score the bracket.
+const results: CompletedResults = { groups: [], knockouts: [] };
+const summary = scoreBracket({
+  tournament,
+  bracket: prediction,
+  cascaded: cascade(tournament, prediction, results),
+  implied_at_lock_by_match: new Map(), // optional; engine falls back to pre-tournament implied
+});
+
+console.log(summary.total_points, summary.correct_count, summary.settled_count);
+```
+
+A few things worth knowing about the engine:
+
+- **Pure and deterministic.** Same `(tournament, prediction, results)` always produces the same `CascadedBracket` and the same `BracketScoreSummary`. No clock reads inside the functions, no randomness. Replay any past prediction by feeding the saved inputs.
+- **Browser-safe by default.** Importing from the package root pulls cascade, score and tournament types only. The `vstamp` module imports `node:crypto`, so it is exposed as a separate subpath (`@tournamental/bracket-engine/vstamp`) and is not re-exported from the root.
+- **Long-shot rewarding.** The scoring formula multiplies a base of `100 × (1 - market_implied_at_lock)` by a stack of multipliers (time, stage, confidence, streak, mode). The model is documented in [`docs/16-game-modes-and-scoring.md`](https://github.com/0800tim/tournamental/blob/main/docs/16-game-modes-and-scoring.md); the implementation lives in `packages/bracket-engine/src/score.ts`.
+- **Granular score breakdown.** `scorePick()` returns a `ScoreBreakdown` with every multiplier broken out (`base_points`, `time_multiplier`, `confidence_multiplier`, `stage_multiplier`, `streak_multiplier`, `mode_multiplier`, `raw`, `points_awarded`). That is what the UI's "you locked France at 18%, so you got 82 base × 1.5 (early) × 3.0 (final) = 369" reveal renders. If you are building a leaderboard widget, you can show the same breakdown without re-implementing the maths.
+- **Two subpaths for advanced consumers.** `@tournamental/bracket-engine/standings` for the in-tournament standings table, and `@tournamental/bracket-engine/vstamp` for the content-hashed prediction-receipt envelope (server-side only, it imports `node:crypto`). The fixture data is also importable as JSON via `@tournamental/bracket-engine/fixtures-2026` if you want the raw groups + knockouts without the loader's typing layer.
+
+### `@tournamental/social-cards` - OG + share cards
+
+Framework-free image generator. Powers the OG image route in the web app and the auto-generated share cards the clip pipeline drops onto Twitter. Two entry points cover ninety percent of what you need: `generateOG()` for the standard 1200x630 OG card, and `renderBracketShareCard()` for the portrait pyramid share image with the user's predicted champion at the top.
+
+```ts
+import { renderBracketShareCard } from "@tournamental/social-cards";
+import { writeFile } from "node:fs/promises";
+
+const png = await renderBracketShareCard({
+  user: { handle: "tim", displayName: "Tim" },
+  champion: { code: "ARG", name: "Argentina", kit: { primary: "#75aadb" } },
+  runnerUp: { code: "FRA", name: "France" },
+  knockoutPath: [
+    { stage: "qf", teamCode: "AUS", teamName: "Australia" },
+    { stage: "sf", teamCode: "BRA", teamName: "Brazil" },
+    { stage: "final", teamCode: "FRA", teamName: "France" },
+  ],
+  tournamentName: "World Cup 2026",
+  shareGuid: "demo-abc-123",
+});
+
+await writeFile("./bracket.png", png);
+```
+
+The function returns a PNG `Buffer` you can pipe to disk, to S3, to a Discord attachment, anywhere. Other useful exports from the same package:
+
+- `generateOG(input)` for the 1200x630 OG image (with the matching `story` aspect for IG/TikTok stories).
+- `renderBracketRevealVideo(input)` for a short MP4 reveal animation, the one the clip pipeline drops onto Twitter when a bracket gets a podium share.
+- `renderMoleculeCaptureCard(input)` for the molecule-visualisation share variant (the 48-atom pyramid view from `play.tournamental.com/m/<guid>`).
+- `palette`, `sizes`, `wordmark`, `referralUrl`, `referralLabel` for the brand tokens if you are wiring up your own card from scratch and want it to match.
+- `loadDefaultFonts()`, `familyForLocale(locale)`, `isRtl(locale)` for the i18n font story (the package ships its own font bundle so the same card renders identically across Linux, macOS and Windows headless environments).
+
+A note about the underlying dependencies. `social-cards` uses `satori` for SVG composition, `@resvg/resvg-js` for SVG-to-PNG, and `@napi-rs/canvas` for the canvas-rendered bracket and molecule cards. All three are native modules with prebuilt binaries for Linux x64, macOS arm64, macOS x64, and Windows x64. If you are deploying to a runtime that does not have prebuilt binaries (Cloudflare Workers, Vercel Edge, Deno Deploy), the package will not work, you want a Node-on-Lambda setup or similar. We are tracking a satori-only build under issue #142 that would unblock the edge runtimes, but it is not done yet.
+
+### `@tournamental/plugin-sdk` - author a plugin
+
+Tournamental has eight extension points: renderer, scorer, ingest source, identity provider, commentary provider, share-card renderer, odds source, and affiliate router. Each one is a typed interface in the SDK plus a manifest schema. A plugin is a regular npm package under the `@tournamental-plugin/*` scope that declares one or more capabilities and exports a default factory.
+
+```ts
+import {
+  defineRendererPlugin,
+  // TODO: confirm `defineRendererPlugin` export name lands in @tournamental/plugin-sdk v0.1.x.
+  // At the time of writing the SDK exposes the raw `RendererPlugin` interface
+  // and a `Plugin` / `PluginFactory` type; the `define*` helpers ship in a
+  // follow-up patch. See packages/plugin-sdk/src/index.ts for the current
+  // export surface.
+  type Plugin,
+  type PluginFactory,
+  type RendererPlugin,
+} from "@tournamental/plugin-sdk";
+
+const renderer: RendererPlugin = {
+  label: "Noop renderer (does nothing)",
+  mount(container, init) {
+    const note = document.createElement("div");
+    note.textContent = `Noop renderer for ${init.match_id}`;
+    container.appendChild(note);
+    return {
+      pushFrame() {},
+      pushEvent() {},
+      dispose() { container.removeChild(note); },
+    };
+  },
+};
+
+const factory: PluginFactory = (ctx) => {
+  ctx.log.info("noop renderer booting", { coreVersion: ctx.coreVersion });
+  return {
+    name: "@tournamental-plugin/noop-renderer",
+    version: "0.1.0",
+    provides: ["renderer"],
+    renderer,
+  } satisfies Plugin;
+};
+
+export default factory;
+```
+
+For a full pattern read the example plugin at `@tournamental-plugin/example-cel-shaded-renderer` (lives under `packages/plugins/example-cel-shaded-renderer/` in the monorepo). It walks through the manifest, the GLB-shader override, the test harness, and the headless clip-pipeline compatibility flag. The architecture doc is [`docs/28-plugin-architecture.md`](https://github.com/0800tim/tournamental/blob/main/docs/28-plugin-architecture.md), and the revenue split is documented in [`docs/19-open-source-and-contributor-revenue.md`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md).
+
+## Path 2 - REST API
+
+The portal lives at `https://tournamental.com/api`. It is a Scalar instance over an aggregated OpenAPI document that stitches together every Fastify service the platform runs: the game service, the api service, the vstamp service, the identity service, the affiliate router. You get a single URL with every endpoint, every schema, every example, and a "try it" panel that calls the live API with your key.
+
+The four reads you will use most.
+
+### `GET /v1/bracket/by-guid/<guid>`
+
+Resolve a public share guid to its champion, podium and path-to-gold. Public, cached at the edge, no auth.
+
+```bash
+curl -s https://api.tournamental.com/v1/bracket/by-guid/demo-abc-123 | jq
+```
+
+```json
+{
+  "share_guid": "demo-abc-123",
+  "user_handle": "tim",
+  "champion": { "code": "ARG", "name": "Argentina" },
+  "runner_up": { "code": "FRA", "name": "France" },
+  "path_to_gold": [
+    { "stage": "qf", "team": { "code": "AUS", "name": "Australia" } }
+    // ... truncated
+  ]
+}
+```
+
+Pass `?include=payload` to additionally get the full saved `Bracket` JSON, useful when you want to render the molecule view yourself instead of re-fetching pick-by-pick.
+
+### `GET /v1/leaderboard/<tournament_id>?scope=global&limit=10`
+
+Ranked leaderboard. Returns preview points until kickoff, real points after. `scope` is one of `global` / `syndicate` / `friends`; `friends` requires an authenticated user, the other two are public.
+
+```bash
+curl -s "https://api.tournamental.com/v1/leaderboard/fifa-wc-2026?scope=global&limit=10" | jq
+```
+
+```json
+{
+  "tournament_id": "fifa-wc-2026",
+  "scope": "global",
+  "generated_at_utc": "2026-05-14T03:11:00Z",
+  "entries": [
+    { "rank": 1, "user_handle": "tim", "points": 2415, "correct": 9 }
+    // ... truncated
+  ]
+}
+```
+
+### `GET /v1/teams`
+
+The 48 World Cup 2026 teams with FIFA rank, kit colours and pre-tournament implied win probability. Static reference data, immutable until FIFA reseed events (rare).
+
+```bash
+curl -s https://api.tournamental.com/v1/teams | jq '.[0]'
+```
+
+```json
+{
+  "id": "ARG",
+  "name": "Argentina",
+  "country": "ARG",
+  "fifa_rank": 1,
+  "pre_tournament_implied_win": 0.18
+}
+```
+
+### `GET /v1/syndicates/<slug>`
+
+Public syndicate metadata: name, owner-display, current member count, current pundit-of-the-week. No PII.
+
+```bash
+curl -s https://api.tournamental.com/v1/syndicates/auckland-office | jq
+```
+
+```json
+{
+  "slug": "auckland-office",
+  "name": "Auckland Office",
+  "owner_display": "tim",
+  "member_count": 24,
+  "tournament_id": "fifa-wc-2026"
+}
+```
+
+### One user-scoped write: `POST /v1/bracket/submit`
+
+The flagship write. Submits a full bracket. Idempotent on `share_guid`: re-submitting the same guid is a no-op rather than an error.
+
+```bash
+curl -X POST https://api.tournamental.com/v1/bracket/submit \
+  -H "Authorization: Bearer $TOURNAMENTAL_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d @bracket.json
+```
+
+`bracket.json` is a `BracketPrediction` payload (the same shape `@tournamental/spec` defines). The response is the persisted `Bracket` with its server-minted `bracket_id` and a `share_guid` for use in `play.tournamental.com/s/<guid>`.
+
+For everything else, `POST /v1/syndicate/join`, `PUT /v1/picks/:userId/:matchId`, `GET /v1/users/:userId/pundit`, the admin endpoints, the [portal](https://tournamental.com/api) has the live schemas. The portal is the source of truth; the snippets in this post are illustrative.
+
+### What the portal gives you
+
+The Scalar portal at `tournamental.com/api` is generated from an aggregated OpenAPI document. Every Fastify service in the platform exposes its own `/openapi.json` and a build-step at deploy time stitches them into one canonical doc. That has three concrete implications for you as a consumer.
+
+**Every endpoint is discoverable.** If a service ships a new public read, it appears in the portal the next deploy. There is no "we forgot to document the new endpoint" gap.
+
+**Every schema is the source of truth.** The request and response shapes you see in the portal are the same Zod schemas that the handlers enforce at runtime. A mismatch between what the portal says and what the API does is a bug, not a doc-drift; report it and we will fix the schema or the handler.
+
+**The portal has a working "try it" panel.** You paste your `Authorization: Bearer` header into the auth box at the top, and every endpoint's "try it" button calls the live API with that header. No second-day setup, no Postman collection to import, no mock server you have to remember to swap out.
+
+A small thing that matters when you are debugging: every API response carries `X-Tournamental-Request-Id` (a ULID), `X-Tournamental-Service` (the Fastify app name, usually `game`, `api`, `vstamp` or `identity`), and `X-Tournamental-Stale-Age` when served from a stale cache. When you open a support thread, include the request id and we can pull the trace.
+
+### A note on versioning
+
+The path prefix is `/v1`. There is no plan to introduce `/v2` for cosmetic changes, `v1` is the long-term contract for the shapes documented in `@tournamental/spec`. If we ever ship a breaking change to a shape, it lands at `/v2` and `/v1` keeps working for at least six months while consumers migrate. We follow the [Stripe-style API versioning](https://stripe.com/blog/api-versioning) principle: do not break consumers, ever.
+
+Field-level changes within `v1` follow additive rules. New optional fields can appear in responses at any time; you should treat unknown fields as forward-compatible (do not fail closed if the response includes `humanness_score` and your parser does not know about it). New required-in-request fields are a breaking change and bump the path prefix.
+
+## Path 3 - MCP server
+
+### Why MCP
+
+A Model Context Protocol server is how an AI agent gets a typed tool surface. Instead of teaching every agent author how to hand-roll five lines of HTTP plumbing against our API, we publish one MCP server with fifteen tools, each with its own JSON Schema for input and output. Claude Desktop, Cursor, Windsurf, Continue, all of them speak MCP natively. You add three lines to a config file, restart the editor, and your AI assistant can read the canonical types from `@tournamental/spec` and call into the API while it helps you build.
+
+The design rationale, security model, and three example agent walkthroughs live in [`docs/53-mcp-server.md`](https://github.com/0800tim/tournamental/blob/main/docs/53-mcp-server.md). The source is at `apps/mcp/`. The npm package is `@tournamental/mcp`.
+
+### 15 tools at a glance
+
+The server exposes three tiers of tools, matching the access table earlier in this post.
+
+**Public reads (7, no auth, 60 req/min/IP):**
+
+- `get_team`, team metadata by three-letter code.
+- `get_tournament`, tournament state, groups, fixtures.
+- `get_leaderboard`, global / syndicate / friends rankings.
+- `get_bracket_by_guid`, resolve a public share guid to a bracket.
+- `get_syndicate`, public syndicate metadata (no PII).
+- `get_match_path`, projected champion path for a given team.
+- `query_molecule`, the 48-atom + bond molecule visualisation for any public bracket.
+
+**User writes (5, Bearer auth, 600 req/min/user):**
+
+- `submit_bracket`, submit a bracket prediction.
+- `update_pick`, upsert a single match pick.
+- `lock_picks`, lock picks up to a given fixture.
+- `save_share_guid`, adopt a client-minted share guid.
+- `set_handle`, set the user's display handle.
+
+**Admin (3, admin key + IP allowlist, 6000 req/min/key):**
+
+- `admin_resolve_match`, write a canonical match result.
+- `admin_list_pending_users`, moderation queue.
+- `admin_invalidate_share`, revoke a public share guid.
+
+Every tool has an input schema (Zod, surfaced as JSON Schema to the client) and an output schema. The MCP catalogue route at `/mcp/catalogue` returns the full machine-readable list so you can build your own discovery UI.
+
+### Hook it up in Claude Desktop in 3 minutes
+
+Two transport modes. The stdio mode is what Claude Desktop / Cursor / Windsurf spawn locally; the HTTP+SSE mode is what the hosted instance at `mcp.tournamental.com` serves. The schema and the dispatch pipeline are identical between them.
+
+**Claude Desktop, stdio (recommended for local agents):**
+
+Edit `~/Library/Application Support/Claude/claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": {
+        "TOURNAMENTAL_USER_KEY": "tk_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+**Claude Desktop, hosted HTTP+SSE (no local install):**
+
+```json
+{
+  "mcpServers": {
+    "tournamental": {
+      "url": "https://mcp.tournamental.com/sse",
+      "headers": {
+        "Authorization": "Bearer tk_live_your_key_here"
+      }
+    }
+  }
+}
+```
+
+If you do not have a key yet, leave the `Authorization` header off and you get the seven public-read tools. The five user writes and the three admin tools simply do not appear in the catalogue until a valid key shows up.
+
+**Cursor** (settings → MCP, or `~/.cursor/mcp.json`):
+
+```json
+{
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": { "TOURNAMENTAL_USER_KEY": "tk_live_your_key_here" }
+    }
+  }
+}
+```
+
+**Windsurf** (`~/.codeium/windsurf/mcp_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp"],
+      "env": { "TOURNAMENTAL_USER_KEY": "tk_live_your_key_here" }
+    }
+  }
+}
+```
+
+Restart the editor. Open a new chat. Ask the agent "what tools does the tournamental server expose?" and you should see the fifteen-tool catalogue surfaced as a typed tool list. From there it is just "draft me a bracket against the current odds, save it, post the share card to the team channel", and the agent picks the tools.
+
+### What the MCP server does for you that the REST API does not
+
+Three things, in order of importance.
+
+**Typed schemas at discovery time.** When the agent connects to the MCP server, it receives the full tool catalogue with input and output schemas attached. That means the agent does not need to be primed on the API shape, it learns the shape from the protocol. A "draft a bracket" prompt does not need you to paste the `BracketPrediction` shape into the conversation; the agent reads it off the tool schema.
+
+**Auth in the right place.** With the REST API, the agent has to learn to inject your `Authorization: Bearer` header into every fetch call it generates. With MCP, the auth lives in the editor's MCP config, the agent never sees the key, never types it, never accidentally pastes it into a chat log.
+
+**Tool-level rate-limit responses.** When the public-read tier rate-limits a tool call, the MCP server returns a structured error the agent can reason about ("you have hit 60/min on `get_team`, try again in 14 seconds"). With the REST API the agent gets a `429` and has to learn what to do; with MCP the response shape is part of the tool's output schema.
+
+### Picking stdio vs HTTP
+
+The two transports do the same thing through the same dispatch pipeline; pick on operational fit.
+
+**Stdio (`npx @tournamental/mcp`)** runs the server in your local machine as a child process of the editor. Latency is sub-millisecond. The user-key lives in your local config. No network in or out except for the actual API calls the tools make. Use this for local development, single-user agents, and anything where the user's editor is the trust boundary.
+
+**Hosted HTTP+SSE (`https://mcp.tournamental.com/sse`)** runs the server in our infrastructure. Latency is whatever your network round-trip is. The user-key lives in your editor's config but is sent over the wire on every connection. Use this when you cannot run a local Node process, for example, an agentic web IDE running in a browser tab, or a shared agent service that does not get to spawn child processes.
+
+Either way, the same fifteen tools, the same auth tiers, the same rate limits, the same audit log. The choice is operational, not functional.
+
+### Three example prompts that work today
+
+The shape of the prompts you can throw at an MCP-connected agent, with the tools the agent will pick listed underneath each.
+
+> "Draft a contrarian bracket for the 2026 World Cup. Pick an underdog champion that the market gives less than 8% odds, and walk me through the cascade."
+
+The agent picks: `get_tournament` (load fixtures + market odds), `get_team` (sanity-check the underdog's pre-tournament implied), no write (it draws the bracket in chat for your review).
+
+> "Pull the top 10 of the global leaderboard, render a share card for the user in rank one, and save the PNG to my desktop."
+
+The agent picks: `get_leaderboard` (pull the rank-1 user), `get_bracket_by_guid` (resolve their public bracket), then locally invokes `renderBracketShareCard` from `@tournamental/social-cards` (the npm package the editor agent imports as it writes code).
+
+> "I just published an episode where I picked Argentina to win and Brazil to win the third-place playoff. Submit that as my bracket under my pundit handle and post the share card to the team Discord."
+
+The agent picks: `get_tournament`, drafts the `BracketPrediction`, `submit_bracket` (user-key auth), `save_share_guid`, then your existing Discord-bot code (which the agent generated alongside this) handles the post.
+
+The same three prompts work via the REST API, they would just take ten times the conversation, because the agent would have to be prompted on each shape, each header, each query param. MCP is the protocol; REST is the substrate.
+
+## Observability and debugging
+
+A short detour because it saves you an hour the first time you hit it.
+
+Every Tournamental surface emits structured logs in JSON format (pino-style). The API services log every request with the request id, the auth tier resolved, the rate-limit bucket the request burned, and the response latency. The MCP server logs every tool call with the same surface plus the tool name and the input hash. The npm packages log nothing by default, they are pure functions, but the plugin SDK's `PluginContext.log` lets your plugin emit lines that the core forwards to the same log stream.
+
+Three things you should know.
+
+**Request ids are everywhere.** Every API response carries `X-Tournamental-Request-Id`. Every MCP tool response carries the request id in its output metadata. Every log line for a given request shares the same id. If something went wrong, screenshot the id and we can pull the full trace.
+
+**The MCP server has a dry-run mode.** Pass `--dry-run` to the `npx @tournamental/mcp` invocation and every tool call returns a shape-checked stub response without hitting the API. Useful for testing your agent's tool-picking without burning rate-limit budget.
+
+**Local dev defaults to a sandbox.** Running the MCP server in stdio mode with no `TOURNAMENTAL_USER_KEY` set defaults to the public-read tier against the production API. There is no separate "sandbox API" you have to remember to point at; the same caching and rate-limiting rules apply, and you cannot accidentally mutate state because you have no key.
+
+If you are building a service that uses the API in production, plumb your request-id into your own logs. The pattern that works for us:
+
+```ts
+const r = await fetch(`${API_BASE}/v1/bracket/by-guid/${guid}`);
+const requestId = r.headers.get("x-tournamental-request-id");
+logger.info({ requestId, guid, status: r.status }, "fetched bracket");
+```
+
+That is enough to bridge any support thread back into our trace store without you having to run a parallel logging stack.
+
+## A worked end-to-end example
+
+Let us build something that uses all three plug points: a Discord bot that responds to `/bracket <guid>` by fetching the public bracket via the REST API, rendering a share card via the npm package, and posting the PNG back to the channel. While you write it, your editor's AI assistant has the MCP server attached so it can read the canonical types from `@tournamental/spec` and call `get_bracket_by_guid` to sanity-check its work against the live API.
+
+### Step 1 - scaffold
+
+```bash
+mkdir bracket-share-bot && cd bracket-share-bot
+npm init -y
+npm install discord.js @tournamental/social-cards
+npm install --save-dev typescript @types/node tsx
+```
+
+### Step 2 - attach the MCP server to your editor
+
+In Cursor (or whichever MCP-aware editor you use), add the snippet from the section above to your MCP config and restart. The agent that helps you build can now read `@tournamental/spec`'s types, call `get_bracket_by_guid` to verify your understanding of the response shape, and check `get_tournament` for the team list, all without you re-pasting the docs into chat.
+
+### Step 3 - the bot
+
+`src/bot.ts`:
+
+```ts
+import { Client, GatewayIntentBits, AttachmentBuilder, Events } from "discord.js";
+import { renderBracketShareCard } from "@tournamental/social-cards";
+
+const API_BASE = "https://api.tournamental.com";
+
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+client.once(Events.ClientReady, (c) => {
+  console.log(`logged in as ${c.user.tag}`);
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+  if (interaction.commandName !== "bracket") return;
+
+  const guid = interaction.options.getString("guid", true);
+  await interaction.deferReply();
+
+  // 1. Fetch the public bracket from the REST API. No auth required.
+  const r = await fetch(`${API_BASE}/v1/bracket/by-guid/${guid}`);
+  if (!r.ok) {
+    await interaction.editReply(`Could not resolve share guid ${guid}.`);
+    return;
+  }
+  const data = await r.json() as {
+    user_handle: string;
+    champion: { code: string; name: string };
+    runner_up?: { code: string; name: string } | null;
+    path_to_gold: { stage: string; team: { code: string; name: string } }[];
+  };
+
+  // 2. Render the share card via the npm package.
+  const png = await renderBracketShareCard({
+    user: { handle: data.user_handle },
+    champion: data.champion,
+    runnerUp: data.runner_up ?? null,
+    knockoutPath: data.path_to_gold.map((p) => ({
+      stage: p.stage as "qf" | "sf" | "final",
+      teamCode: p.team.code,
+      teamName: p.team.name,
+    })),
+    tournamentName: "World Cup 2026",
+    shareGuid: guid,
+  });
+
+  // 3. Post the PNG back to Discord.
+  const attachment = new AttachmentBuilder(png, { name: `bracket-${guid}.png` });
+  await interaction.editReply({
+    content: `${data.user_handle} predicts ${data.champion.name}.`,
+    files: [attachment],
+  });
+});
+
+client.login(process.env.DISCORD_TOKEN!);
+```
+
+Forty-ish lines. Run it with `tsx src/bot.ts`, register the `/bracket` slash command, and you have a working share-card poster. No database, no platform-specific auth, no token rotation, no schema drift. The MCP-attached editor agent will have helped you avoid every off-by-one between the API response shape and the renderer input.
+
+### What the same agent saved you
+
+A pass on what the MCP-in-your-editor flow actually buys you while you were writing the forty lines.
+
+Without MCP, you would have either pasted the `path_to_gold` response shape into your chat manually, or guessed at it and learned later via a runtime error that `path_to_gold` is an array of objects with a nested `team` and not a flat array of team codes. With MCP, the agent ran `get_bracket_by_guid` against a known-good share guid and saw the real shape before it wrote the type.
+
+Without MCP, you would have either remembered or looked up that `renderBracketShareCard`'s `knockoutPath[].stage` is one of `"r16" | "qf" | "sf" | "tp" | "final"` (and specifically not `"f"`, which is the bracket-engine stage code). With MCP, the agent had the package's `BracketSharePathEntry` type in its working context as it wrote the map.
+
+Without MCP, when the bot first crashed at runtime because the user pasted a guid that did not resolve, you would have stepped through with `console.log`. With MCP, the agent had already seen a 404 response from `get_bracket_by_guid` in its own tool-call traffic and pre-emptively added the `if (!r.ok)` branch.
+
+None of these saves are revolutionary. They are minutes-not-hours saves. The compound effect over a session is that a junior agent (or a junior human) ships the right thing the first time.
+
+### Variations
+
+The bot above is the simplest version. Three obvious extensions:
+
+1. **Add a `/bracket-me` command** that calls the user-write tier. The user pastes their personal API key into the bot's config (or you wire up a Discord-side OAuth flow that vends keys), and the command runs `submit_bracket` on their behalf. The MCP server has `submit_bracket` as a typed tool; if you build via the API directly, the shape is in the portal.
+
+2. **Add a leaderboard digest** that runs nightly via cron, calls `GET /v1/leaderboard/fifa-wc-2026`, posts the top 10 to the channel with a thumbnail share card for the leader. The MCP server has `get_leaderboard` as a typed tool; the agent will write the cron handler in five minutes.
+
+3. **Add a watch-along widget** that listens to the WebSocket live-events stream for a match and pings the channel on every goal with a freshly-generated `generateOG()` card. The WS endpoint is feature-flagged at the time of writing (see [What's not in this post yet](#whats-not-in-this-post-yet-and-where-to-ask)) so this one is on the post-launch list.
+
+Now ship your PR back. Drips pays, see [Going further](#going-further-plugin-architecture-drips-revenue-governance) below.
+
+## The auth in detail
+
+The user-key flow is deliberately simple, and deliberately matches the way every modern dev-tools company does this so there is nothing to learn.
+
+1. **Sign in via Supabase magic link.** Go to `play.tournamental.com`, enter your email, click the link in your inbox. No password.
+2. **Mint a key at `/profile/api-keys`.** You will see a "create new key" button, a name field (so you can recognise the key in the audit log), and the key value rendered once. Copy it. We hash it at rest, we never display it again.
+3. **Use it as `Authorization: Bearer <key>`** against any user-scoped endpoint. Or set it as the `TOURNAMENTAL_USER_KEY` env var for the MCP server. Or paste it into the Scalar portal's auth panel.
+
+Keys are scoped to the user that minted them. They are hashed at rest using argon2id. They can be revoked individually from the same page (revocation takes effect within thirty seconds of the next request). They can be regenerated, which mints a fresh key value and invalidates the old one. They are rate-limited at 600 req/min/key. They never expire by default, though a future "auto-rotate every 90 days" toggle is on the IDEAS list.
+
+If your key leaks, revoke it from the profile page and mint a new one. The audit log records every call by key id; if you suspect abuse, the support inbox at `info@tournamental.com` will pull the audit trail and walk you through next steps.
+
+(As noted in [The access model](#the-access-model-read-this-before-you-build-anything), the `/profile/api-keys` UI is being built under issue #93 in parallel with this post; if it is not live when you read this, ask in GitHub Discussions and someone on the team will hand-mint a key for you.)
+
+## Rate limits, fairness, and abuse
+
+We rate limit for one reason: to keep the platform usable for the next person. We are an open platform with a real audience, and a stray script that hammers `/v1/leaderboard` with no jitter can spoil the experience for the people who are trying to use the same endpoint from the live app.
+
+The shape of the limits.
+
+**Public reads: 60 req/min/IP.** This is soft. Responses are cached aggressively at Cloudflare's edge, so most of your traffic will not even reach the origin, a re-share of the same `/s/<guid>` URL across a thousand followers might generate one or two origin fetches for the whole batch. The 60/min limit is a circuit-breaker against pathological loops, not a per-user quota.
+
+**User writes: 600 req/min/user-key.** Per-key, not per-IP. Plenty of headroom for a bot that updates a syndicate's brackets on a schedule, or for an LLM agent that batch-saves picks for a campaign. Past this the API returns `429` with a `Retry-After` header in seconds; back off and try again.
+
+**Admin: 6000 req/min/key.** Internal-only. If you are calling admin at six thousand a minute, something is on fire and the on-call already knows about it.
+
+The two response codes you should handle.
+
+```http
+HTTP/1.1 429 Too Many Requests
+Retry-After: 17
+Content-Type: application/json
+
+{ "error": "rate_limited", "retry_after_seconds": 17 }
+```
+
+```http
+HTTP/1.1 403 Forbidden
+Content-Type: application/json
+
+{ "error": "ip_blocked", "reason": "abuse" }
+```
+
+The `429` is recoverable, sleep `Retry-After` seconds and retry. The `403` `ip_blocked` is not recoverable from your end. We block IPs in Cloudflare when we detect repeated abuse (per-second floods, credential-stuffing patterns, scraping past the rate limit by rotating IPs from the same `/24`). If you think you have been blocked by mistake, and it does happen, especially behind shared NATs and corporate VPNs, drop a note in GitHub Discussions or email `info@tournamental.com` with the timestamp and we will unblock.
+
+We are explicit about all of this because we are an open platform, not a walled garden. The rate limits exist to keep the platform usable, not to extract money. There is no "premium tier" with higher limits at launch, and there is no plan to introduce one. If your app needs higher limits and the use case is legitimate, ask, and we will adjust.
+
+## Cache headers, idempotency, and staleness
+
+Performance and caching are reviewed on every PR ([`docs/22-deployment-and-tunnels.md`](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md) has the full matrix). Three things you should know as a consumer.
+
+**Public reads carry `Cache-Control: public, s-maxage=60, stale-while-revalidate=600`.** That is "fresh for 60 seconds at the edge, then served stale for up to 10 minutes while a revalidation happens in the background". A viral share that gets a thousand clicks in a minute generates one origin fetch. Build your own client on the assumption that the response you get is up to 60 seconds old; if you need fresher than that, the live socket is the answer, not a faster polling loop.
+
+**Writes are idempotent on `share_guid`.** Re-submitting the same bracket with the same guid is a no-op, same response shape, same `bracket_id`, no duplicate row. This matters for your retry logic: a network blip during `POST /v1/bracket/submit` does not mean you have to dedupe by hand on the next attempt. Mint the guid client-side (we publish a helper at `newShareGuid()` from `@tournamental/bracket-engine`), include it in the payload, and let the API resolve the race.
+
+**User-specific reads are `private, no-store`.** Anything under `/v1/me/*` or `/v1/users/<me>/*` is not cached at the edge, ever. The leaderboard is public; your own pundit-of-the-week badge is private.
+
+**Stale responses surface the staleness.** Any response served from a stale cache carries an `X-Tournamental-Stale-Age: <seconds>` header. If you see one and your UI cares, render a "data is N seconds old" indicator. Most apps will not care.
+
+### Cache layers, top to bottom
+
+For the curious. There are four cache layers between you and the database, in order from your client outward.
+
+1. **Cloudflare edge.** First hit per PoP per cache key. Survives most "viral share" traffic spikes; a million viewers across a thousand PoPs is one origin fetch per PoP per `s-maxage` window.
+2. **Cloudflare's stale-while-revalidate window.** Behind the edge, the SWR window keeps the previous response warm while a fresh fetch races in the background. A bumpy origin (a deploy, a database failover) is invisible to the consumer.
+3. **Service-level Redis.** Hot reads behind the API (leaderboard top-10, current-match summary, pundit-of-the-week) live in Redis at a short TTL with a Redis-pubsub bust on writes. This is what keeps the leaderboard fast when the SWR window expires.
+4. **In-process LRU on the hottest items.** A 200-entry LRU in front of Redis for the absolute hottest reads. Catches the dozen most-popular share guids on launch day.
+
+The reason this matters to you is that consumer-side retries are almost never useful. If your `GET /v1/leaderboard/...` returned an unexpected response, retrying within 60 seconds will return the same response from the same edge cache key. The right play is to read `X-Tournamental-Request-Id`, file the issue with the id, and move on.
+
+### Idempotency tokens
+
+For writes where idempotency is not naturally captured by a guid (the canonical case is `POST /v1/bracket/submit` which is idempotent on `share_guid`), the API accepts an `Idempotency-Key: <ulid>` header. Same key + same payload within 24 hours returns the same response without re-executing the write. Different payload + same key returns `409 Conflict`. This matters when you are scripting writes and your script's retry loop is not co-located with the write context that picked the guid.
+
+```http
+POST /v1/some-write HTTP/1.1
+Authorization: Bearer tk_live_...
+Idempotency-Key: 01J9F8C7...
+
+{ "...": "..." }
+```
+
+A small thing but a big save the first time your retry loop double-submits.
+
+## The "things you should ABSOLUTELY build" list
+
+Specific app ideas this stack enables, with a one-line angle each. None of these need a deal, an API key, or our permission. Just ship it.
+
+- **Telegram bot that posts every member's bracket to the group when they save.** `submit_bracket` webhook fan-out, render share card, send to the chat. Twenty minutes.
+- **Discord activity that auto-rolls match commentary into voice channels.** Stream the live commentary track via the watch-along WS, push to Discord's voice gateway. The MCP server gives the agent the team metadata it needs to introduce each player.
+- **A Slack `/pundit-of-the-week` command.** Pull `GET /v1/users/<userId>/pundit` for every member of a syndicate, sort by points, post a leaderboard message.
+- **An iOS Shortcut that shares your podium screenshot to Mastodon.** Hit `GET /v1/bracket/by-guid/...?include=payload`, run `renderBracketShareCard` on a tiny lambda, drop the URL into a toot.
+- **A browser extension that overlays Tournamental's molecule view on any sportsbook page.** Detect a fixture page, fetch the matching projected path, render the molecule snippet inline so the user sees the path-to-gold next to the odds.
+- **A pundit-mode dashboard for a YouTuber that auto-syncs picks from their next video.** Speech-to-text the script, extract the picks, `POST /v1/bracket/submit` under the pundit's verified-pundit admin key, render the share card as the video's thumbnail.
+- **A Farcaster frame that lets people predict your next pick from the cast.** Frame button → `update_pick` for the viewer's bracket → response with the updated cascade rendered as an OG image.
+- **A WhatsApp business-account integration for syndicate leaders to push reminders.** Schedule a daily "12 hours to kickoff, lock your picks" nudge using Tournamental's free-tier WhatsApp gateway and a list of syndicate members from `GET /v1/syndicates/<slug>/members`.
+- **A Raycast extension that drafts a bracket from the macOS menu bar.** Three keystrokes, an LLM call to draft the picks, MCP `submit_bracket`, share card pasted into the clipboard.
+- **A Pebble watchface that shows your live point total.** Yes, those still exist. The leaderboard endpoint is tiny and JSON; even a 2014 wearable can poll it.
+
+If you ship any of these, drop a link in GitHub Discussions and we will list it on `tournamental.com/built-with` (a page that does not exist yet but will the moment someone gives us a reason to add it).
+
+### A note on what is and is not on this list
+
+The list is deliberately weighted toward "things one person can ship in an afternoon". None of them require a deal, a partnership, an API negotiation, or our written permission. They all use the public-read tier plus (where relevant) the user-write tier with a personal API key.
+
+What is **not** on the list, and where to ask if you want to build it.
+
+- **A clone of `play.tournamental.com`.** You can absolutely do this, the entire app is Apache-2.0, but the right move is to fork the repo, not to rebuild from npm. Open a GitHub Discussion if you have a specific reason (different jurisdiction, different brand, white-label deployment for a corporate league); we will help.
+- **A paid-subscription wrapper.** You can ship one, but the platform's affiliate router and Drips revshare list exist precisely so that contributors get paid through revshare instead of standing up their own paywall. Read [`docs/19`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md) before you take the harder route.
+- **A clone of the on-chain VStamp signer.** That ships under the same Apache licence, but the prediction-receipt content-hash format is part of the spec and a divergent hash format will not be portable. If you want a variant for a non-football tournament, write a plugin against `@tournamental/bracket-engine/vstamp`.
+
+These are not "do not build them"; these are "ask first, build smarter".
+
+## Going further (plugin architecture, Drips revenue, governance)
+
+The four packages and the REST API cover "consume Tournamental". The plugin SDK covers "extend Tournamental".
+
+The eight extension points documented in [`docs/28-plugin-architecture.md`](https://github.com/0800tim/tournamental/blob/main/docs/28-plugin-architecture.md), renderer, scorer, ingest source, identity provider, commentary provider, share-card renderer, odds source, affiliate router, are the seams the core was designed around. A renderer plugin can replace the R3F scene with a cel-shaded toon scene or a top-down 2D scene; an ingest plugin can pipe a tracking feed from a non-StatsBomb data source; a scorer plugin can supply an alternative formula for a non-bracket game mode. The core ships a default for each, the plugin is opt-in per session.
+
+Plugins are regular npm packages under the `@tournamental-plugin/*` scope. They declare a manifest (`plugin.json` validated by the SDK's Zod schema), they request permissions explicitly (network allow-list, disk, audio), and they run inside a sandboxed `PluginContext` the core provides. The reviewer agent checks every plugin PR for capability creep, a plugin that asks for network access it does not need does not ship.
+
+Revenue. The Drips Network split is documented in [`docs/19-open-source-and-contributor-revenue.md`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md) and [`docs/40-drips-network-integration.md`](https://github.com/0800tim/tournamental/blob/main/docs/40-drips-network-integration.md). The short version: when a paid affiliate click traces back to a piece of contributor work, a plugin, a renderer, a translation, a doc fix, the Drips list pays the contributor a share. The list is on-chain, the rules are deterministic, the platform cannot quietly redirect the money. If you ship something good, the list pays you. If the list ever stops paying you, you can fork the list and run your own copy of the platform under the Apache licence with no permission needed.
+
+### How the Drips revshare maths actually works
+
+The brief version, with pointers if you want to follow it down.
+
+Every paid affiliate click that traces back to Tournamental (whether routed by the core affiliate router or by a third-party affiliate-router plugin) commits a revshare amount to the on-chain Drips list referenced by [`docs/40-drips-network-integration.md`](https://github.com/0800tim/tournamental/blob/main/docs/40-drips-network-integration.md). The list itself is a smart contract; the splits are deterministic and queryable; the platform does not have a "secret key" that can redirect the money.
+
+The split is then divided across contributors by a weight schedule that rewards:
+
+- **Core code contributions** by merged-PR count weighted by lines-of-net-add over six months.
+- **Plugin authors** by usage, a renderer plugin that handled N sessions in the prior month earns roughly proportional to N relative to the total.
+- **Doc contributors** at a flat weight per merged doc PR with at least one substantive paragraph.
+- **Translators** at a flat weight per merged translation PR.
+
+The schedule itself is also open ([`docs/19`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md) has the canonical version with the actual numbers); if it ever changes in a way that does not match what is documented, that is a bug.
+
+A note about the floor. There is no minimum payment threshold for the Drips list. A one-line doc fix that gets merged earns a one-line share of the next payout. This is unusual, most "contributor revenue" schemes have minimum-payout thresholds that effectively zero out small contributors, and it is deliberate. The platform is built by tens of contributors making small fixes; the payment structure has to reward small fixes.
+
+### Governance
+
+The governance principle is the one Tim writes on every PR: leave the repo cleaner than you found it. Session notes, conventional commits, doc updates as part of the same PR. The whole stack is open. Somebody else will read your code in three months.
+
+A few specifics that the brief above does not spell out.
+
+**The spec is sacred.** Changes to `@tournamental/spec` are orchestrator-only escalations. If your plugin or app needs a new field on a spec type, open a discussion before you open the PR. The reason is that the spec is consumed by every part of the platform and breaking-change propagation is expensive; we batch spec changes deliberately.
+
+**Plugins are reviewed.** Every `@tournamental-plugin/*` package PR is reviewed by the core reviewer agent against the verification checklist in [`CONTRIBUTING.md`](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md). Permission creep (a renderer plugin asking for network access it does not need), large copy-pasted external code without a licence-compat check, secrets in commits, these are auto-flagged.
+
+**Forks are blessed.** If you fork the platform under the Apache licence and run a parallel instance, you do not need our permission. If you want to redirect the Drips list to your own contributors, that is also fine, the list reference is config-driven. The trademark "Tournamental" stays with Tournamental Holdings, but the code, the docs, and the design pack do not.
+
+## What's not in this post yet (and where to ask)
+
+A few things are deliberately deferred until they are stable enough to document honestly.
+
+- **WebSocket live-events stream.** The producer-to-renderer wire is real and works (it powers the AR-FR 2022 demo), but the public-facing WSS endpoint at `stream.tournamental.com` is still gated behind a feature flag for the platform's own renderer. Once it is opened up, we will publish the spec under [`docs/02-spec.md`](https://github.com/0800tim/tournamental/blob/main/docs/02-spec.md) and write a follow-up post. If you want early access for a watch-along integration, ask in GitHub Discussions.
+- **GraphQL endpoint.** Not on the roadmap. The REST surface is small enough that GraphQL adds complexity without paying for it; if that changes we will say so.
+- **MCP `subscribe_to_leaderboard` channel.** v0.2 of the MCP server will add streaming subscriptions so an agent can watch a leaderboard live instead of polling. It is in the SDK roadmap; the design is in [`docs/53-mcp-server.md`](https://github.com/0800tim/tournamental/blob/main/docs/53-mcp-server.md) under "subscriptions"; the implementation is not done.
+- **Plugin SDK WASM sandbox.** Plugins are JS today and trust the core's `fetch` allow-list to enforce capabilities. A future SDK release will run plugin code inside a WASM sandbox with explicit syscall trapping. That is a real research project, not a sprint task; do not block on it.
+- **Mobile SDK.** The web app is a PWA and that covers ninety percent of mobile usage. A native iOS / Android SDK is on the IDEAS list, not the sprint board.
+
+Anywhere I have said "not yet", the place to ask is [GitHub Discussions](https://github.com/0800tim/tournamental/discussions). Anywhere I have said "I will document this", the place to nudge is the same. The whole repo is open, the whole roadmap is in [`docs/10-roadmap.md`](https://github.com/0800tim/tournamental/blob/main/docs/10-roadmap.md), and the people building it will read what you write.
+
+## FAQ
+
+A round-up of questions that came up while we were building this, that we did not want to bury inline.
+
+**Is the MCP server's tool catalogue stable?**
+
+The tier structure (public / user / admin) is stable. The individual tool names are stable within a major version. We will add tools as new features land; we will not remove tools without bumping the server's `serverInfo.version`. The `apps/mcp/src/tools/catalogue.ts` file is the canonical list, if your agent surfaces a different list, fall back to whatever the live server's `/mcp/catalogue` returns.
+
+**Can I run my own MCP server pointing at the public API?**
+
+Yes, and we encourage it. Fork `apps/mcp/`, change the `gameClient` base URL to your own deployment if you are running a fork, and ship it under your own scope. The Apache licence covers this case. If you are running it against our production API on someone else's behalf, the rate limits still apply per-key.
+
+**Does the REST API support websockets?**
+
+Not yet for public consumption. The producer-to-renderer wire is real and powers the watch-along; the public-facing WSS endpoint is gated behind a feature flag for the platform's own use. Once we open it up there will be a typed `@tournamental/spec` Message channel and a separate post about it.
+
+**Why is the social-cards package so heavyweight?**
+
+Native canvas + native SVG renderer + a satori implementation. The card output is print-quality enough that the clip pipeline drops them into video frames; that is where the size comes from. If you only need OG cards (1200x630 PNG) and want a lighter dependency, build against satori directly with the brand tokens exported from `@tournamental/social-cards/theme`.
+
+**What happens if I lose my API key?**
+
+Sign in at `play.tournamental.com`, go to `/profile/api-keys`, click "revoke" on the missing key (it will still be there in the list, the value is hashed, not deleted), and mint a new one. The audit log will show every call made under the revoked key. If you suspect abuse, email `info@tournamental.com` with the key id and the timestamp range and we will help.
+
+**Can I get a higher rate limit?**
+
+For legitimate use cases, yes. Ask in GitHub Discussions or by email. We will not auto-approve a "give me a million requests per minute because I want to build a scraper" request, but we will work with a real product that has a real reason to need more.
+
+**Do you have a status page?**
+
+Yes, `status.tournamental.com`. It tracks the four user-facing surfaces (`tournamental.com`, `play.tournamental.com`, `api.tournamental.com`, `mcp.tournamental.com`) and pushes a JSON payload at `/api/status.json` for clients that want to consume it programmatically. If you build something that integrates against the API and you care about uptime, point your monitor at the status page rather than at our origin, it will avoid lots of false alarms.
+
+**Are the npm packages provenance-signed?**
+
+Yes. The `publishConfig.provenance: true` flag is set on every package, so the npm CLI will report `sigstore` provenance attestations from our GitHub Actions release workflow. `npm audit signatures` will pass.
+
+**Where is the canonical roadmap?**
+
+[`docs/10-roadmap.md`](https://github.com/0800tim/tournamental/blob/main/docs/10-roadmap.md). It is updated weekly by the orchestrator agent. If you see something in this post that should be on the roadmap and is not, open a GitHub Discussion or a PR against the doc.
+
+## Quick-reference summary
+
+The whole post in a table.
+
+| What you want                                | The plug point          | Auth                  | Where                                                                |
+| -------------------------------------------- | ----------------------- | --------------------- | -------------------------------------------------------------------- |
+| Cascade a bracket in your own UI             | `@tournamental/bracket-engine` | none           | `npm install @tournamental/bracket-engine`                           |
+| Score a bracket against settled results      | `@tournamental/bracket-engine` | none           | `scoreBracket()`, pure function                                     |
+| Render a share card for an existing bracket  | `@tournamental/social-cards`   | none           | `renderBracketShareCard()`, returns PNG buffer                      |
+| Authored a renderer / scorer / ingest plugin | `@tournamental/plugin-sdk`     | none for SDK   | Publish under `@tournamental-plugin/*` scope                         |
+| Resolve a share guid                         | REST API                       | none           | `GET https://api.tournamental.com/v1/bracket/by-guid/<guid>`         |
+| Read the global leaderboard                  | REST API                       | none           | `GET https://api.tournamental.com/v1/leaderboard/<tournament_id>`    |
+| Submit a bracket on a user's behalf          | REST API                       | Bearer         | `POST https://api.tournamental.com/v1/bracket/submit`                |
+| Give your AI agent a Tournamental tool surface | MCP server                   | optional Bearer | `mcp.tournamental.com/sse` (HTTP) or `npx @tournamental/mcp` (stdio) |
+| Author a new MCP-aware integration           | MCP catalogue                  | optional Bearer | Read `apps/mcp/src/tools/catalogue.ts`                               |
+
+Bookmark this table, share the link, and start building.
+
+Now go build something. The faster you ship, the sooner the list pays.
