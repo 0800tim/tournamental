@@ -30,6 +30,7 @@ import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
 import { registerPunditRoutes } from "./routes/pundit.js";
 import { registerPickRoutes } from "./routes/picks.js";
+import { registerUserRoutes } from "./routes/users.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
 import { recomputeVerifiedPundits } from "./pundit/compute.js";
@@ -75,7 +76,22 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
     opts.adminToken !== undefined ? opts.adminToken : process.env.GAME_ADMIN_TOKEN || null;
   const cacheTtlMs =
     opts.cacheTtlMs ?? Number(process.env.GAME_LEADERBOARD_TTL_S ?? 30) * 1000;
-  const corsOrigins = (process.env.GAME_CORS_ORIGINS ?? "https://vtorn.aiva.nz,http://localhost:3300")
+  // Default CORS allow-list: the public Tournamental hosts + the legacy
+  // aiva.nz dev URL + localhost. The sister `feat/save-api-live` agent
+  // owns the canonical list in `.env.production`; this default is the
+  // minimum so a dev server is reachable from both old + new hosts
+  // without env config.
+  const corsOrigins = (
+    process.env.GAME_CORS_ORIGINS ??
+    [
+      "https://play.tournamental.com",
+      "https://2026wc.tournamental.com",
+      "https://app.tournamental.com",
+      "https://www.tournamental.com",
+      "https://vtorn.aiva.nz",
+      "http://localhost:3300",
+    ].join(",")
+  )
     .split(",")
     .map((s) => s.trim())
     .filter(Boolean);
@@ -138,6 +154,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
     nowMs: opts.nowMs,
     kickoffs: opts.kickoffs,
   });
+  await registerUserRoutes(app, { store, nowMs: opts.nowMs });
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });

@@ -46,6 +46,11 @@ apps/auth-sms/auth.db-shm
 # Local screenshot output (demo only).
 .screenshots/
 
+# Agent working context (screenshots + sample exports for PR descriptions).
+# Not part of the codebase; lives next to the worktree for the reviewer.
+.context/
+.playwright-mcp/
+
 # Deploy slots — built artefacts, never committed. The .deploy/config.json
 # files ARE committed (per-app deploy config); .deploy/rollback.json and
 # incident.flag are runtime-only.

@@ -1,0 +1,256 @@
+/**
+ * Signup modal — 2-step bottom-sheet (mobile) / centered modal (desktop).
+ *
+ * The class names mirror the MatchPickPopup convention (`mpp-`) but with
+ * a `vsm-` prefix so the two modals can coexist on a page without
+ * fighting for the same CSS specificity. Both share the theme tokens
+ * declared in `shell.css`.
+ */
+
+.vsm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: rgba(5, 8, 18, 0.72);
+  backdrop-filter: blur(8px);
+}
+
+@media (min-width: 720px) {
+  .vsm-overlay {
+    align-items: center;
+  }
+}
+
+.vsm-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 460px;
+  padding: 18px 18px 22px;
+  background: var(--vt-bg, #0a0e1a);
+  color: var(--vt-fg, #e6edf3);
+  border-radius: 22px 22px 0 0;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.65);
+}
+
+@media (min-width: 720px) {
+  .vsm-card {
+    border-radius: 22px;
+    margin-bottom: 32px;
+  }
+}
+
+.vsm-grabber {
+  align-self: center;
+  width: 44px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  margin-bottom: 2px;
+}
+
+.vsm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.vsm-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.vsm-step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: var(--vt-bg-elev, rgba(255, 255, 255, 0.06));
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--vt-fg-muted, #9aa6b6);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vsm-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: none;
+  background: var(--vt-bg-elev, rgba(255, 255, 255, 0.06));
+  color: var(--vt-fg, #e6edf3);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vsm-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vsm-section-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--vt-fg-muted, #9aa6b6);
+}
+
+.vsm-input {
+  appearance: none;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--vt-bg-elev, rgba(255, 255, 255, 0.06));
+  color: var(--vt-fg, #e6edf3);
+  font-size: 15px;
+  font-family: inherit;
+}
+
+.vsm-input:focus {
+  outline: 2px solid var(--vt-accent, #6cabdd);
+  outline-offset: 1px;
+}
+
+.vsm-tabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.vsm-tab {
+  flex: 1;
+  min-width: 80px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--vt-bg-elev, rgba(255, 255, 255, 0.06));
+  color: var(--vt-fg, #e6edf3);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+}
+
+.vsm-tab[aria-pressed="true"] {
+  background: var(--vt-accent, #6cabdd);
+  color: var(--vt-accent-on, #00153a);
+  border-color: transparent;
+}
+
+.vsm-tab[data-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vsm-tab[data-disabled="true"] .vsm-tab-soon {
+  display: inline-block;
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.14);
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.vsm-hint {
+  font-size: 12px;
+  color: var(--vt-fg-muted, #9aa6b6);
+  margin: 0;
+}
+
+.vsm-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.vsm-row > * {
+  flex: 1;
+}
+
+.vsm-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.vsm-btn {
+  flex: 1;
+  padding: 12px 16px;
+  border-radius: 999px;
+  border: none;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.vsm-btn-primary {
+  background: var(--vt-accent, #6cabdd);
+  color: var(--vt-accent-on, #00153a);
+}
+
+.vsm-btn-secondary {
+  background: var(--vt-bg-elev-2, rgba(255, 255, 255, 0.1));
+  color: var(--vt-fg, #e6edf3);
+}
+
+.vsm-error {
+  font-size: 13px;
+  color: #f87171;
+  margin: 0;
+}
+
+.vsm-handle-input {
+  font-family: ui-monospace, SFMono-Regular, "JetBrains Mono", monospace;
+  letter-spacing: 0.03em;
+}
+
+.vsm-handle-prefix {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  color: var(--vt-fg-muted, #9aa6b6);
+}
+
+.vsm-handle-wrap {
+  display: flex;
+  align-items: center;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--vt-bg-elev, rgba(255, 255, 255, 0.06));
+  overflow: hidden;
+}
+
+.vsm-handle-wrap:focus-within {
+  outline: 2px solid var(--vt-accent, #6cabdd);
+  outline-offset: 1px;
+}
+
+.vsm-handle-wrap input {
+  background: transparent;
+  border: none;
+  outline: none;
+  flex: 1;
+  padding: 12px 12px 12px 0;
+  color: inherit;
+  font: inherit;
+}

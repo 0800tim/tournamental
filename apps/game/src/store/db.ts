@@ -17,6 +17,7 @@ import Database from "better-sqlite3";
 import type { Database as DatabaseT, Statement } from "better-sqlite3";
 
 import type { Bracket } from "../types.js";
+import { UserStore } from "./users.js";
 
 export interface GameStoreOptions {
   /** Filesystem path to the SQLite file. ":memory:" for tests. */
@@ -61,6 +62,13 @@ export interface VerifiedPunditRecordRow {
 
 export class GameStore {
   readonly db: DatabaseT;
+  /**
+   * User + profile sub-store. Exposed as a public field so route handlers
+   * can call `store.users.registerUser(...)` directly; we don't proxy
+   * every method through `GameStore` because the surface is large and
+   * largely orthogonal to bracket/scoring concerns.
+   */
+  readonly users: UserStore;
   private readonly migrationsDir: string;
 
   // Prepared statements
@@ -97,6 +105,10 @@ export class GameStore {
     this.migrationsDir = opts.migrationsDir ?? defaultMigrationsDir();
     this.applyMigrations();
     this.prepareStatements();
+    // UserStore prepares its own statements on construction, so it has
+    // to come *after* applyMigrations(): otherwise the user_profiles
+    // table doesn't exist yet.
+    this.users = new UserStore(this.db);
   }
 
   // ---------- migrations ----------
@@ -139,7 +151,12 @@ export class GameStore {
 
   private prepareStatements(): void {
     this.upsertUserStmt = this.db.prepare(
-      `INSERT INTO users (id, created_at) VALUES (?, ?)
+      // `last_seen_at` was added in migration 0003. Setting it on insert
+      // means a brand-new guest user (created lazily by the bracket
+      // submit flow) immediately has a valid last_seen_at, so the
+      // /v1/users/:id/visit endpoint can compute an engagement band
+      // without first nudging the row.
+      `INSERT INTO users (id, created_at, last_seen_at) VALUES (?, ?, ?)
        ON CONFLICT(id) DO NOTHING`,
     );
     this.insertBracketStmt = this.db.prepare(
@@ -233,7 +250,7 @@ export class GameStore {
   // ---------- users ----------
 
   ensureUser(userId: string, now = Date.now()): void {
-    this.upsertUserStmt.run(userId, now);
+    this.upsertUserStmt.run(userId, now, now);
   }
 
   // ---------- brackets ----------

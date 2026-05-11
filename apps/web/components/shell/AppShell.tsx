@@ -23,7 +23,10 @@
  *     true full-screen, e.g. the match renderer).
  */
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+
+import { SignupModal } from "@/components/auth/SignupModal";
+import { useCurrentUser } from "@/lib/user/useCurrentUser";
 
 import { AppBar, type AppBarAction } from "./AppBar";
 import { BottomNav, type BottomNavTab } from "./BottomNav";
@@ -78,6 +81,16 @@ export function AppShell({
 }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [autoSubNav, setAutoSubNav] = useState<ReactNode>(null);
+  const [signupOpen, setSignupOpen] = useState(false);
+
+  // Identity is read once per page mount. The hook also fires a
+  // best-effort visit ping so the engagement-band counter stays current.
+  const { user, profile, refresh } = useCurrentUser();
+  const resolvedInitials = useMemo(() => {
+    if (avatarInitials) return avatarInitials;
+    if (user?.handle) return user.handle.slice(0, 2).toUpperCase();
+    return "T";
+  }, [avatarInitials, user]);
 
   useEffect(() => {
     if (subHeader || suppressMicrositeNav) return;
@@ -106,9 +119,15 @@ export function AppShell({
       <AppBar
         title={title}
         rightAction={rightAction}
-        avatarInitials={avatarInitials}
+        avatarInitials={resolvedInitials}
         avatarUrl={avatarUrl}
-        onAvatarClick={() => setMenuOpen(true)}
+        onAvatarClick={() => {
+          // Signed-in: existing behaviour (open the menu drawer).
+          // Signed-out: open the signup modal so a first-time visitor
+          // can register from the avatar tap.
+          if (user) setMenuOpen(true);
+          else setSignupOpen(true);
+        }}
       />
       {resolvedSubHeader ? (
         <div className="vt-page-header">{resolvedSubHeader}</div>
@@ -123,7 +142,26 @@ export function AppShell({
         />
       ) : null}
       <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <SignupModal
+        open={signupOpen}
+        onClose={() => setSignupOpen(false)}
+        onComplete={() => {
+          setSignupOpen(false);
+          void refresh();
+        }}
+      />
       <InstallPrompt />
+      {/* Aria-live region so screen readers announce identity changes
+          without re-rendering the avatar (visual surface stays calm). */}
+      <span
+        aria-live="polite"
+        style={{ position: "absolute", left: -9999, top: 0 }}
+      >
+        {user ? `Signed in as ${user.handle}` : ""}
+        {profile?.profile?.engagement_band
+          ? `, engagement band ${profile.profile.engagement_band}`
+          : ""}
+      </span>
     </div>
   );
 }

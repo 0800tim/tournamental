@@ -72,3 +72,94 @@ export const syndicateJoinBodySchema = z.object({
 export type SubmitBracketBody = z.infer<typeof submitBracketBodySchema>;
 export type MatchResultBody = z.infer<typeof matchResultBodySchema>;
 export type SyndicateJoinBody = z.infer<typeof syndicateJoinBodySchema>;
+
+// ---------- users + profile ----------
+
+/**
+ * Handle pattern: lowercase letters, digits, underscore. 3-24 chars.
+ * Deliberately no `.` (Twitter-style handles are easier to address than
+ * email-style ones) and no leading underscore (Telegram convention).
+ */
+export const handleSchema = z
+  .string()
+  .min(3)
+  .max(24)
+  .regex(/^[a-z0-9_]+$/, "handle must be lowercase letters, digits or underscore");
+
+export const authMethodSchema = z.enum([
+  "telegram",
+  "sms",
+  "email-magic-link",
+  "guest",
+]);
+
+export const ageBucketSchema = z.enum([
+  "<18",
+  "18-24",
+  "25-34",
+  "35-44",
+  "45-54",
+  "55-64",
+  "65+",
+]);
+
+export const genderSchema = z.enum([
+  "male",
+  "female",
+  "non-binary",
+  "prefer-not-to-say",
+]);
+
+export const watchesViaSchema = z.enum([
+  "tv",
+  "streaming",
+  "in-person",
+  "highlights",
+]);
+
+/** ISO-2 country code; we don't validate against a closed list so unknown
+ *  codes (e.g. Kosovo "XK") still flow through. The shape is the cheap
+ *  defence; the canonical 48-team list governs `favourite_team_code`. */
+export const countryCodeSchema = z
+  .string()
+  .regex(/^[A-Z]{2}$/, "country_code must be ISO-2 uppercase");
+
+/** FIFA-3 team code (e.g. "ARG"). Closed-list validation against the
+ *  canonical 48-team file is layered on top in the route handler — the
+ *  schema only enforces the *shape* so the rest of the validation
+ *  pipeline is one Zod parse. */
+export const teamCodeSchema = z
+  .string()
+  .regex(/^[A-Z]{3}$/, "favourite_team_code must be a 3-letter team code");
+
+export const registerUserBodySchema = z
+  .object({
+    handle: handleSchema,
+    auth_method: authMethodSchema,
+    auth_id: z.string().min(1).max(128).optional(),
+    display_name: z.string().min(1).max(64).optional(),
+  })
+  .strict();
+
+export const profilePatchBodySchema = z
+  .object({
+    age_bucket: ageBucketSchema.nullable().optional(),
+    gender: genderSchema.nullable().optional(),
+    country_code: countryCodeSchema.nullable().optional(),
+    city: z.string().max(80).nullable().optional(),
+    timezone: z.string().max(64).nullable().optional(),
+    favourite_team_code: teamCodeSchema.nullable().optional(),
+    follows_leagues: z.string().max(256).nullable().optional(),
+    watches_via: watchesViaSchema.nullable().optional(),
+    marketing_consent: z.boolean().optional(),
+    analytics_consent: z.boolean().optional(),
+    display_name: z.string().min(1).max(64).nullable().optional(),
+  })
+  .strict()
+  .refine(
+    (v) => Object.keys(v).length > 0,
+    "profile patch must include at least one field",
+  );
+
+export type RegisterUserBody = z.infer<typeof registerUserBodySchema>;
+export type ProfilePatchBody = z.infer<typeof profilePatchBodySchema>;
