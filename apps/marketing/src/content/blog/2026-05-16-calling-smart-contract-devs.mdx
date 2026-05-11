@@ -1,0 +1,703 @@
+---
+title: "Calling all on-chain devs: audit my smart contracts before I embarrass myself"
+description: "Tournamental's on-chain footprint is small but it is load-bearing: a VStamp signer that batches prediction Merkle roots into Bitcoin via OpenTimestamps, a Tournamental Oracle that publishes match results for permissionless sweepstakes pools, and a Drips list that pays contributors in USDC. I have written exactly one production smart contract in my life. The audit holes are documented. The contracts go live before mainnet money does. Solidity engineers, audit firms, and pool-design specialists: come and find the bugs before users do. This is the highest pay tier on the Drips list."
+pubDate: 2026-05-16
+author: "Tim"
+tags: ["open source", "contributing", "drips", "smart contracts", "ethereum", "security"]
+heroImage: "/blog/calls/2026-05-16-calling-smart-contract-devs-hero.svg"
+heroImageAlt: "A bank vault door, open, with a single nervous-looking Kiwi developer standing in front of it holding a clipboard. Inside the vault: stacks of USDC, a Bitcoin logo on a paper Merkle proof, a Polygon hexagon, and a clearly-too-thin lock on the inner door. Above the scene, the words 'Calling all on-chain devs' in chunky display type."
+heroImageCredit: "Illustration generated for Tournamental, 2026"
+---
+
+TODO: (hero image WIP, placeholder pending)
+
+## The hook
+
+If you write Solidity for a living, you have audited contracts that hold real money, or you have ever found a re-entrancy bug in the wild and felt the small thrill of it, this post is for you.
+
+Tournamental's on-chain footprint is small. It is also the only part of the platform where a bug burns real user money.
+
+I have written one production smart contract in my life and I would not stake my own savings on it. Come and audit. The Drips list pays the highest contribution tier on smart-contract work for a reason.
+
+This post is the long version of the call. The [pot-of-gold-or-pot-of-shit manifesto](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/) is the broader open-source case; this post is the narrow call to on-chain engineers and audit specialists. The rest covers what I built, what is wrong, what an audit could ship in a day, a week, or a month, and how the Drips list compensates the work.
+
+## What I built so far
+
+Tournamental's on-chain surface is three contracts, all designed to keep Tournamental itself away from custodying money. The architecture choice, which I want to be clear about up front, is that **Tournamental never touches user funds**. We are the oracle, not the operator. The contracts that hold money are permissionless and deployable by anyone, and our role is to publish authoritative match results into the oracle contract that those pools read from.
+
+### The three on-chain surfaces
+
+**`apps/vstamp/`** is the VStamp signer service. The architecture is in [docs/17-vstamp-and-prediction-iq.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md). What it does:
+
+1. Receives prediction hashes from the bracket app every time a user locks a prediction. The hash is `sha256(user_id + match_id + tournament_id + prediction_type + predicted_outcome + market_implied_probability_at_lock + confidence_chips_committed + locked_at_unix_ms + nonce)`.
+2. Batches the hashes by minute into a Merkle tree.
+3. Anchors the Merkle root via two channels in parallel: an [OpenTimestamps](https://opentimestamps.org/) submission that lands on Bitcoin (~10 to 60 minutes to confirmation), and an EVM transaction that calls `TournamentalOracle.recordVStampRoot(matchId, merkleRoot, batchNonce)` on Polygon and Base.
+4. Stores the per-prediction Merkle proof in Redis and in the user's prediction record so any individual prediction can later be verified.
+
+The signer skeleton is at [`apps/vstamp/src/`](https://github.com/0800tim/tournamental/tree/main/apps/vstamp/src). The Bitcoin OpenTimestamps integration is wired and tested. The EVM-side signer uses [ethers v6](https://docs.ethers.org/v6/) and an air-gapped multisig pattern for the foundation's oracle key.
+
+**`packages/onchain-contracts/`** is where the Solidity contracts live. The full architecture is in [docs/21-onchain-sweepstakes-oracle.md](https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md). Three contracts:
+
+1. **`TournamentalOracle.sol`**, the foundation-controlled contract that records authoritative match results. Each `setResult(matchId, outcome)` call is signed by the foundation's oracle key. Same key that signs VStamp Merkle roots. Multisig (4-of-7), air-gapped, with a planned hardware-wallet upgrade.
+2. **`PoolFactory.sol`**, a permissionless contract that anyone can call `createPool(...)` on to deploy a new pool with their chosen parameters. Each pool is a fresh `Pool.sol` instance.
+3. **`Pool.sol`**, one instance per sweepstakes pool. Holds USDC. Accepts `deposit()` from approved members. Accepts `submitPrediction()` until kickoff lock. Computes rankings against the oracle results. Distributes the prize pool on `finalize()` according to the prize structure (winner-takes-all, gold/silver/bronze, or a custom split chosen at pool-creation time).
+
+**`apps/drips-bridge/`** is the Drips integration that pays contributors. The design is in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md) and the [Drips Network](https://www.drips.network/) protocol does most of the heavy lifting. Our contract surface is a Drip List configured with up to 200 recipient addresses, multisig-controlled by the Tournamental Foundation, and updated quarterly when the contribution-score sheet is finalised. The bridge service polls GitHub via the [GitHub REST API](https://docs.github.com/en/rest), tallies merged PRs, computes per-contributor scores, generates the new Drip List configuration, posts it as a Markdown file to `payouts/2026-qN.md`, and submits the multisig transaction.
+
+### The contract surface, in numbers
+
+All three contracts are written. None of them have been audited. The Pool contracts have a planned **testnet deployment first, mainnet only after external audit** policy, but the policy is words and the testnet has not been deployed yet.
+
+The Solidity codebase totals around 800 lines across the three contracts. `Pool.sol` is the largest at around 400 lines. `TournamentalOracle.sol` is around 250. `PoolFactory.sol` is around 150. The Foundry project layout is standard: `src/`, `test/`, `script/`, `lib/` (with [OpenZeppelin](https://github.com/OpenZeppelin/openzeppelin-contracts) as the primary dependency, plus [solmate](https://github.com/transmissions11/solmate) for some primitives).
+
+The VStamp signer at `apps/vstamp/src/` is around 1,200 lines of TypeScript across the OpenTimestamps integration, the Merkle batching, the EVM-side oracle anchor call, and the multisig orchestration. The Drips bridge at `apps/drips-bridge/src/` is around 800 lines.
+
+### What is deployed today
+
+Nothing on mainnet. The Foundry test suite runs against [Anvil](https://book.getfoundry.sh/anvil/) for local tests and the [Sepolia testnet](https://sepolia.dev/) for integration tests. The deployment scripts in `packages/onchain-contracts/script/` are written and they have run against testnet; they have not run against Polygon or Base mainnet.
+
+The plan is: full Foundry suite green, internal review, testnet deployment with real OpenTimestamps anchoring (which is free because OTS aggregates), invite-only beta pools on testnet for two weeks, external audit engagement, mainnet deployment for the World Cup window.
+
+The internal review has not happened. The external audit has not been engaged. The mainnet deployment is gated on both.
+
+## What I cannot do alone
+
+I want to be honest about this one because the consequences of getting it wrong involve real money.
+
+### I have written one production smart contract in my life
+
+I have written one production smart contract in my life. It was a NFT minting contract for a charity drop in 2022. It worked. It did not hold money beyond the mint window. I would not stake my own savings on the contracts I am shipping now, and I am asking you not to either, until somebody who knows what they are doing has read them.
+
+### The re-entrancy surface
+
+There is a not-zero chance I have written a **re-entrancy bug** into the `Pool.sol` contract's `finalize()` function. The function distributes USDC to winners by iterating over the rankings array and calling `IERC20(usdc).transfer(winner, amount)` in a loop. I am aware of the [Checks-Effects-Interactions](https://docs.soliditylang.org/en/latest/security-considerations.html#use-the-checks-effects-interactions-pattern) pattern. I have applied it. I have also seen experienced developers think they applied it and ship a re-entrancy bug anyway, and I cannot confidently rule out that I am one of them.
+
+### The audit holes I have not closed
+
+Doc 21 explicitly lists the audit holes I have not closed. Specifically:
+
+- **The oracle front-running surface.** The `Pool.finalize()` function reads the result from `TournamentalOracle.results(matchId)` at the moment of the call. If the oracle publishes the result and a sophisticated actor sees the transaction in the mempool, they may be able to time their own `Pool.finalize()` call to front-run a still-open prediction window. The fix is a `pool.lockKickoff()` enforced earlier, but the current implementation has a race condition I have not characterised tightly.
+- **The deposit-after-lock attack surface.** If a pool's `lock_time` is set incorrectly (which the factory does not validate stringently), an attacker can deposit after the match has started and the result is known. I have a sanity check on `lock_time > block.timestamp + 1 hour` but I am not confident this is the right defence.
+- **The signature replay surface on the oracle.** The `TournamentalOracle.setResult` function checks the foundation's signature against the message hash. I am using [EIP-712](https://eips.ethereum.org/EIPS/eip-712) for the typed-data hash. I am not 100% confident the domain separator includes the contract address correctly, which would mean a signature signed for testnet might be replayable on mainnet, or vice versa.
+- **The Drip List update authorisation surface.** The `apps/drips-bridge/` service has a private key that can post quarterly Drip List updates. The key is in a multisig. The multisig threshold is 4-of-7. The signers are documented but not yet onboarded to the hardware-wallet pattern. If one signer's wallet is compromised, the threshold protects us. If four signers' wallets are compromised, the foundation's contributor payments can be redirected. The mitigation is mostly process and the process is not yet fully documented.
+
+### I do not have formal-verification experience
+
+I do not have **formal verification** experience. I have read enough about [Certora](https://www.certora.com/) and [Foundry's invariant testing](https://book.getfoundry.sh/forge/invariant-testing) to know what they do. I have not written a single invariant test for the Pool contract. The unit tests cover happy-path deposits, happy-path finalisations, and a small set of unhappy-path inputs. They do not cover the space of possible attack vectors.
+
+### I have never run a mainnet deployment
+
+I have **never run a mainnet deployment** on Polygon or Base. The deployment scripts in `packages/onchain-contracts/script/` are written. They have run against Anvil and against the [Foundry Sepolia testnet](https://book.getfoundry.sh/getting-started/installation). They have not run against mainnet. The gas estimations, the deployment ordering, the post-deploy verification, all of that is theoretical.
+
+### I have never been through a third-party audit
+
+I have **never been through a third-party audit**. I know the basics: pick a firm, deliver the code freeze, answer questions during the engagement, publish the audit report. I do not know what makes a good audit firm engagement versus a bad one, I do not know which firms specialise in pool-style contracts, and I do not have a budget for it yet.
+
+### I have read enough to know what I do not know
+
+I have **read** the [Augur whitepaper](https://www.augur.net/whitepaper.pdf), the [UMA optimistic oracle docs](https://docs.umaproject.org/), the [Reality.eth docs](https://reality.eth.link/), and the [Polymarket smart-contract repo](https://github.com/Polymarket). I know enough to know that my `TournamentalOracle` is a much simpler design than any of theirs, intentionally, because I want the failure mode to be "Tournamental publishes the wrong result and gets caught" rather than "the dispute mechanism becomes a market for itself". I do not know if my simplification has hidden a subtle vulnerability.
+
+### I have not thought enough about MEV
+
+The on-chain pool contracts may be vulnerable to [Maximal Extractable Value](https://ethereum.org/en/developers/docs/mev/) extraction by sophisticated searchers. The most obvious vector is the `Pool.finalize()` call: when the oracle publishes a result, a searcher who sees the publish transaction in the mempool may be able to time their own pool's `finalize()` call to win the prize ordering. I have not characterised this attack tightly. A MEV-aware contributor could.
+
+### I have not built the testnet beta yet
+
+The testnet beta deployment is on the critical path. The plan is to deploy `PoolFactory`, `Pool`, and `TournamentalOracle` to Polygon's Mumbai testnet (or its [Amoy](https://www.alchemy.com/overviews/polygon-amoy) successor), let invited testers create pools and submit predictions, verify the finalisation path works end-to-end, and only then engage the external audit. The testnet deployment script is at `packages/onchain-contracts/script/deploy-testnet.s.sol` and it is written but not run.
+
+### The Drips bridge has its own concerns
+
+The Drips bridge service polls GitHub, computes scores, and posts the multisig transaction. The service has a private key that can post quarterly Drip List updates. The key is in a multisig with a 4-of-7 threshold. The signers are documented but not yet onboarded to the hardware-wallet pattern. The bridge's audit surface is therefore: the GitHub API authentication, the scoring algorithm's input validation, the multisig signer onboarding, the contributor self-declared jurisdiction lookup, and the OFAC sanctions screening.
+
+I have implemented all five. I have not had any of them audited.
+
+## The opportunity
+
+This is the highest-stakes contribution category at Tournamental because it is the one that gates real-money features. Every other piece of the platform (the renderer, the share cards, the commentary) can go live with bugs and the worst case is "the user gets a worse experience". The smart contracts cannot.
+
+### The big picture
+
+The security maturity ladder, from where we are today to "this is safe to put real money in":
+
+- **Level 0**, the unverified. Contracts written but not audited. We are here.
+- **Level 1**, the internally reviewed. The Foundry suite covers happy-path and the obvious unhappy-paths. The threat model is documented. Two to four weeks of focused security work.
+- **Level 2**, the externally audited. A reputable audit firm has signed off on a "no critical issues" letter. Four to twelve weeks plus the audit cost.
+- **Level 3**, the production-proven. The contracts have run on mainnet for months without incident. Real money has flowed through them. The community has had time to find any remaining issues. Six to twelve months post-mainnet.
+
+We need Level 1 before the testnet beta. Level 2 before mainnet. Level 3 is the long-term ambition, earned by time and uptime.
+
+### A category overview
+
+Smart-contract contributions cluster into five buckets:
+
+1. **Audit work.** Reviewing the existing contracts for specific vulnerability classes (re-entrancy, signature replay, MEV, governance attacks).
+2. **Test suite work.** Foundry invariant tests, fuzz tests, integration tests.
+3. **Implementation work.** Implementing the unfinished parts (the deposit-after-lock attack defence, the gas-optimised pagination on `finalize()`, the testnet deployment scripts).
+4. **Threat-modelling work.** Documenting the attack surface from an external red-team perspective.
+5. **Deployment-and-operations work.** Multisig migration, hardware-wallet ceremony, emergency-pause procedures, key rotation policy.
+
+Each bucket is mostly independent. A specialist can stay in audit work without writing implementation; an implementer can stay in implementation without writing audit reports. Pick the bucket you have the most experience in.
+
+### A note on tooling
+
+The project uses [Foundry](https://book.getfoundry.sh/) for Solidity development. The test suite runs via `forge test`. The deployment scripts use Foundry's `forge script`. The CI runs against the latest Foundry release.
+
+The VStamp signer uses [ethers v6](https://docs.ethers.org/v6/) for EVM interaction and [`@bitcoinerlab/opentimestamps`](https://github.com/bitcoinerlab/opentimestamps) for the Bitcoin anchor side. The Drips bridge uses [`@drips-network/sdk`](https://github.com/drips-network/sdk-typescript) for the on-chain interaction.
+
+For multisig administration, the project uses [Safe](https://safe.global/) as the primary contract. The recommended hardware wallets are [Ledger](https://www.ledger.com/) for the founding signers and [GridPlus Lattice1](https://gridplus.io/lattice) as a backup for the engineering signers.
+
+### What an audit specialist could ship in one day
+
+- A **focused re-entrancy audit** of `Pool.finalize()`. Read the function. Confirm the Checks-Effects-Interactions pattern. Write a Foundry test that attempts re-entrancy via a malicious recipient contract. Either confirm the contract is safe (with a written rationale and a passing test) or find the bug and submit the fix. One day. The contract path is [`packages/onchain-contracts/src/Pool.sol`](https://github.com/0800tim/tournamental/blob/main/packages/onchain-contracts/src/Pool.sol). The test fixtures are in `packages/onchain-contracts/test/`.
+- An **EIP-712 domain-separator review** of the oracle signature scheme. Read the `TournamentalOracle.setResult` implementation. Confirm the domain separator includes the chain ID and the contract address correctly. Write a test that signs a payload on Anvil chain ID 31337 and confirms it is rejected on Sepolia. One day. The fix, if needed, is a single line.
+- A **deposit-window attack PR**. Write a Foundry test that attempts the deposit-after-lock attack with various lock_time configurations. Document the boundary cases. Submit either a defensive fix or a written confirmation that the existing check is sufficient.
+
+### What an audit specialist could ship in one week
+
+- A **full Foundry invariant test suite** for `Pool.sol`. Cover the invariants that ought to always hold: the sum of distributed amounts equals the deposited amount minus the fees, no member can withdraw more than their share, no two finalisations can occur on the same pool, the oracle result is read exactly once per finalisation. One week of invariant-test work catches an enormous class of bugs.
+- A **gas-optimisation pass** on `Pool.finalize()`. The current implementation iterates over all members in a single transaction. For pools with more than a few hundred members, the gas cost is prohibitive on mainnet and the transaction may fail. The fix is a paginated-finalise pattern. One week and the contract scales to ten-thousand-member pools.
+- A **threat model document** in `docs/` that enumerates the attack surface from an external red-team perspective. Pool-style contracts have known attack patterns (front-running, sandwich attacks on the result publication, governance attacks on the multisig). Write the model. Ship it as a PR against `docs/21-onchain-sweepstakes-oracle.md`. The threat model becomes the spec the next reviewer uses.
+
+### What an audit specialist could ship in one month
+
+- A **full internal audit report** against the three contracts (`TournamentalOracle`, `PoolFactory`, `Pool`) and the Drip List bridge. Standard audit format: severity-classified findings, reproduction steps, recommended remediations, and a signed-off "no critical issues found" letter if the contracts pass. One month, and we ship the contracts to mainnet with a credible audit in the docs.
+- A **multisig migration to a hardware-wallet-based ceremony**. Document the signer onboarding (which is currently informal), the key-rotation policy, the signer-removal process, and the emergency-pause process. Migrate the existing multisig to a [Safe](https://safe.global/) deployment with hardware-wallet signers. One month of process and tooling work, and the foundation's keys are protected to the standard the contracts require.
+- A **bridge to a more sophisticated oracle pattern** if the simple TournamentalOracle proves insufficient. The current contract reads results from a single foundation-controlled source. The upgrade is a [UMA optimistic oracle](https://docs.umaproject.org/) wrapper that allows challenge-based disputes with a stake-based settlement. One month of integration work, and Tournamental upgrades from "trusted result feed" to "trustless result feed with optimistic settlement".
+
+### Additional opportunities
+
+**An emergency-pause mechanism on the Pool contracts.** Today the contracts have no pause function. If a critical bug is discovered post-deployment, there is no clean way to halt new deposits while a fix is prepared. Implementing a multisig-controlled pause function, with a documented activation procedure, would be a meaningful safety feature. One week of implementation work plus the procedural documentation.
+
+**A property-based fuzz test suite for the entire contract surface.** [Echidna](https://github.com/crytic/echidna) is the standard fuzzer for Solidity property-based testing. A specialist could ship a property-test suite that runs against the Pool, Oracle, and Factory contracts, checking properties like "the sum of withdrawn amounts equals the deposited amount minus fees" and "no member can withdraw twice". Two to three weeks of focused work.
+
+**A contract-upgrade path documentation.** Today the contracts are non-upgradeable. The doc 21 design choice is intentional: upgradeability adds complexity and attack surface. The alternative is a versioning policy where v2 contracts replace v1 contracts and the migration is one-way for the pools that opt in. A specialist could document the upgrade-policy in `docs/21-` and write the example migration script. One week.
+
+**A formal-verification pass using [Certora](https://www.certora.com/) or [Foundry's invariants](https://book.getfoundry.sh/forge/invariant-testing).** This is the highest-rigor option. A specialist could write the formal specifications for the Pool contract, run them through the verifier, and ship a "no critical issues found" letter. Two to four weeks of focused work, plus the cost of the Certora licence (which we would cover from the strategic reserve).
+
+The reason this work is **the highest-pay tier on the Drips list** is exactly because it gates the real-money features. The pool contracts unlock the [trustless sweepstakes path](https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md). The oracle unlocks the broader prediction-market integrations (the [Polymarket](https://polymarket.com/) and [Kalshi](https://kalshi.com/) work in [docs/29-polymarket-odds-integration.md](https://github.com/0800tim/tournamental/blob/main/docs/29-polymarket-odds-integration.md)). The Drip List itself is the contract that pays every other contributor on the platform, so any work on it is meta-load-bearing for the whole foundation.
+
+## How Drips pays you
+
+Smart-contract contributors get the same revenue-share programme as code, design, and translation contributors, with the per-feature bounty scaled to reflect the criticality of the work. The whole system is documented in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md).
+
+### The Drips Network primer
+
+Tournamental's revenue routes through [Drips Network](https://www.drips.network/) to a list of contributor wallets. Drips is the same protocol that the [Ethereum Foundation](https://ethereum.foundation/), [Radworks](https://radworks.org/), the [Filecoin Foundation](https://fil.org/), [ENS](https://ens.domains/), [UNICEF](https://www.unicef.org/) and [Scroll](https://scroll.io/) use to stream funding to open-source contributors. It is on-chain. It is transparent. You can read the contract, fork it, propose a better split formula, or audit the multisig that controls the foundation's treasury wallet.
+
+The Drip List that pays Tournamental contributors is itself one of the contracts that smart-contract contributors are auditing. The audit work is partially recursive: your audit of the Drip List affects the contract that pays your audit work. This is intentional and the on-chain transparency is the safeguard; you can verify the contract behaves as documented before you sign up.
+
+### The treasury policy
+
+The Tournamental Foundation deposits a fixed percentage of net affiliate revenue and other monetization lanes into the Drips treasury wallet, paid in USDC. The split is **thirty percent to contributors, fifty percent to the operating reserve (capped at twelve months), ten percent to public goods, ten percent to strategic reserve**.
+
+For smart-contract work specifically, the strategic-reserve line item is the funding source for paid audit-firm engagements; the Drip List itself is the funding source for ongoing contributor work. The two are separate flows; you can be paid through either or both depending on the work.
+
+### The scoring formula, for smart-contract work
+
+The relevant scoring rules for smart-contract work:
+
+- **Vulnerability disclosures** earn a severity-tiered bounty. Critical findings (full loss of funds, oracle compromise, multisig bypass) earn the top tier. High findings (denial-of-service against `finalize()`, signature replay, gas griefing) earn the second tier. Medium and low findings earn the third and fourth tiers. The exact dollar amounts are in the doc; they are denominated in USDC and paid via Drips on the next quarterly update.
+- **Audit work** that ships as a PR (Foundry invariant tests, threat-model docs, gas-optimisation passes) earns the standard per-feature bounty plus the per-line LoC weight.
+- **External-audit-firm engagements** are paid out of the strategic reserve (the 10% line item in the treasury policy), separately from the contributor Drip List. If you are an audit firm reading this post, please email; we want to engage and the budget is being assembled.
+- **Multisig council seat** is a separate flow. The contributor multisig that signs the quarterly Drip List update is a paid position with a monthly stipend in USDC and a multi-year commitment. The seat is allocated by the existing council on supermajority.
+
+### The revenue flow
+
+Every paid affiliate click and every paid pool fee that traces back to a Tournamental on-chain surface routes a slice through Drips to your address. If your audit work prevents a critical bug, the value attribution is not "the bug did not happen" (which is hard to measure) but "the contracts went live and the pools generated revenue", which is straightforward to measure on-chain.
+
+### Decay and dilution
+
+The decay schedule for security work is **gentler** than the standard schedule, because a bug found today protects every future pool indefinitely. Critical-tier findings retain 100% of their score for two years and decay over the following three.
+
+For implementation work (tests, deployment scripts, the emergency-pause feature), the standard five-quarter decay applies.
+
+For audit-firm engagements paid from the strategic reserve, there is no decay because the payment is a one-off USDC transfer at the conclusion of the engagement.
+
+### A worked example of the payout flow
+
+Imagine you find a critical-tier signature-replay bug in the `TournamentalOracle.setResult` function in your first PR. The PR is a Foundry test demonstrating the bug plus the one-line fix. The reviewer agent confirms the bug; the council confirms the severity classification at critical.
+
+The critical-tier bounty in doc 19 is in the highest pay band; the exact USDC amount depends on the platform's revenue at the time of the finding and is published in the bounty table per quarter. For illustration, assume the critical-tier bounty is 10,000 USDC at the time of your finding.
+
+The bounty is paid as a one-off USDC transfer from the strategic-reserve multisig within thirty days of acceptance. The Drip List score also gets a per-line credit for the fix code, which adds to your ongoing stream.
+
+If your finding had been high-tier instead of critical, the bounty would be a fraction of the critical (typically a third), still paid as a one-off. If it had been medium or low, the bounty would be smaller still but the per-line credit and the per-feature bounty are the same as any other PR.
+
+### The wallet integration
+
+The wallet integration is the same as the rest of the contributor programme. You register your GitHub username with an Ethereum address. Sanctions screening runs at payout time. The quarterly score sheet is public in `payouts/`. Multisig-controlled, transparent, fork-able.
+
+If you would rather receive your audit fee as a one-off USDC transfer rather than a Drip stream (which is common for audit firms), the strategic-reserve line item handles that path. Both options are open.
+
+### Comparable projects
+
+If you want a sanity-check on whether "open source plus revenue share via Drips for security work" is a credible model, the precedents are:
+
+- **[Optimism Collective](https://www.optimism.io/)**, whose retroactive public-goods funding has paid security researchers for the Optimism Bedrock audit work.
+- **[ENS](https://ens.domains/)**, which has run a public-goods grant programme for ENS infrastructure security.
+- **[Yearn Finance](https://yearn.fi/)**, whose security council has paid audit firms via the protocol treasury.
+- **[Code4rena](https://code4rena.com/)** and **[Sherlock](https://www.sherlock.xyz/)**, the competitive-audit platforms that pay researchers per finding from a sponsor-funded pool.
+
+Tournamental's model is closest to the ENS / Yearn pattern: a foundation treasury paying both ongoing contributor work and one-off audit engagements. The Drip List is the ongoing path; the strategic reserve is the one-off path.
+
+### Opting out is fine
+
+You do not have to opt in. The code is Apache 2.0 either way. Some security researchers prefer to file responsible-disclosure reports without any payment for tax, personal, or philosophical reasons.
+
+## How to start
+
+1. Clone the repo: `git clone https://github.com/0800tim/tournamental`.
+2. Read [docs/21-onchain-sweepstakes-oracle.md](https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md), [docs/17-vstamp-and-prediction-iq.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md), and [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). Those are the three relevant design docs.
+3. Look at the contracts at `packages/onchain-contracts/src/`. The Foundry setup is in `foundry.toml`. The existing tests are in `packages/onchain-contracts/test/`. Run `forge test` and confirm the suite passes.
+4. Look at the VStamp signer at `apps/vstamp/src/`. The OpenTimestamps integration is at `apps/vstamp/src/ots.ts`. The Merkle batching is at `apps/vstamp/src/merkle.ts`. The unit tests cover both.
+5. Read [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md) for the PR template and the DCO sign-off rule. Read [SECURITY.md](https://github.com/0800tim/tournamental/blob/main/SECURITY.md) for the responsible-disclosure process. Critical findings go to `security@tournamental.com` with a PGP-encrypted payload; the key fingerprint is in the SECURITY.md file.
+
+If you are an audit firm and you want a paid engagement rather than a pull request, email `audit@tournamental.com`. The brief is short (three contracts, ~800 lines of Solidity, deployment to Polygon and Base, no upgradeability proxies in v1). The budget is being assembled out of the strategic reserve. We are looking for a firm with experience in pool-style contracts and oracle design.
+
+### Local dev environment
+
+Node 20+, [pnpm](https://pnpm.io/) v9+, Foundry (install via `foundryup`), [Anvil](https://book.getfoundry.sh/anvil/) (bundled with Foundry). For the VStamp signer work, you also need a Bitcoin testnet endpoint (we provide one via the OpenTimestamps calendar; you do not need to run a Bitcoin full node).
+
+The bootstrap is `pnpm install && forge install`. The Foundry suite runs as `forge test` from within `packages/onchain-contracts/`. The deployment scripts run via `forge script script/deploy-testnet.s.sol --rpc-url $RPC_URL --broadcast --verify`. The VStamp signer test suite runs via `pnpm -F @vtorn/vstamp test`. The Drips bridge test suite runs via `pnpm -F @vtorn/drips-bridge test`.
+
+If you want to test a critical-tier finding end-to-end, the recommended setup is: Anvil on chain 31337 running the contracts, a separate Anvil instance on a forked Sepolia at chain 11155111, the VStamp signer running against both with separate keys. The fork lets you test cross-chain replay scenarios.
+
+### Testing security changes locally
+
+Before opening a PR:
+
+1. Run `forge test`. The full suite must pass.
+2. Run `forge snapshot --check`. The gas snapshot must not regress beyond the documented threshold.
+3. Run `pnpm typecheck`. The Drips bridge TypeScript code is strict; missing a property is a typecheck error.
+4. Run the OpenTimestamps test suite if you touch the VStamp signer.
+5. Capture a coverage report at `forge coverage`. The reviewer agent expects coverage to stay above the documented threshold.
+
+If all five pass, the reviewer agent's run is mostly a sanity check.
+
+### The session-note discipline for security work
+
+Every PR comes with a session note at `sessions/<YYYY-MM-DD>_security-<your-name>_<task>.md`. For security PRs, the note is around 100 to 250 lines and covers:
+
+- The vulnerability class examined.
+- The methodology used (manual review, fuzz testing, formal verification).
+- The findings, with severity classifications.
+- The proposed remediations.
+- The test fixtures that reproduce the findings.
+
+The note matters because the next security researcher reads it to understand the threat model. Security work, more than any other contribution category, depends on the discipline.
+
+### The reviewer-agent checklist for security PRs
+
+The reviewer agent runs through a per-PR checklist that includes:
+
+- Foundry suite passes (including any new tests in the PR).
+- No regression in gas-cost benchmarks beyond a documented threshold.
+- The session note is legible.
+- The severity classification is justified.
+- A second human reviewer (typically Tim plus one external security council member) has reviewed before merge.
+
+If your PR meets all five, the council approves and Tim merges. Critical-tier PRs go through additional review including a re-audit of the fix itself.
+
+## A specific first PR
+
+If you want a one-day starter project that lands an immediately visible improvement, here it is.
+
+**Audit the VStamp signer for replay-attack surface and propose a fix.** The signer is at [`apps/vstamp/src/signer.ts`](https://github.com/0800tim/tournamental/blob/main/apps/vstamp/src/signer.ts) and the EVM-side anchor call is at `apps/vstamp/src/oracle-anchor.ts`. The hash construction is documented in [docs/17-vstamp-and-prediction-iq.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md), section "What gets stamped". The fields are deliberately included to prevent collisions but the EIP-712 domain separator on the EVM anchor call may not include the chain ID correctly.
+
+The PR:
+
+1. Read the signer and the anchor call. Trace the domain-separator construction.
+2. Write a Foundry test (in `packages/onchain-contracts/test/Replay.t.sol`) that signs a `setResult` payload with the foundation's oracle key on Anvil chain ID 31337 and confirms the same signature is rejected when replayed against the Sepolia testnet (chain ID 11155111).
+3. If the test passes (i.e. the rejection happens), submit a PR with the test and a written confirmation in the session note that the domain separator is correctly chain-bound.
+4. If the test fails (i.e. the signature is accepted on the wrong chain), submit a PR with the fix (typically adding `block.chainid` to the domain separator) and the test that confirms the fix.
+
+The PR is bounded. The test is concrete. The visible result is either a confirmed-safe contract or a fixed-critical-bug contract. Doc 19 scores this as a critical-tier security finding if the bug is real, and a per-feature bounty if the bug is not.
+
+If VStamp is not your area, the **Pool re-entrancy audit** is the other one-day starter. Same structure, different contract surface.
+
+If you want a one-week project, the **Foundry invariant test suite for Pool.sol** is the next step up. The doc 21 design has the invariants spelled out. Your job is to translate them into Solidity tests, run them against the contract, and ship the suite as a PR.
+
+If you want a one-month project, the **full internal audit report** is the one we want most. The brief is in the SECURITY.md file. The payment is from the strategic reserve, separate from the Drip List.
+
+### A range of alternative first PRs
+
+For each of the five buckets, here is the recommended starter PR:
+
+**Bucket 1 (audit)**: The VStamp signer replay-attack audit described below. One day.
+
+**Bucket 2 (test suite)**: A Foundry invariant test for the Pool's withdraw-twice property. The test asserts that for any sequence of deposits and finalisations, no member can withdraw more than their computed share. One day. The test goes in `packages/onchain-contracts/test/PoolInvariants.t.sol`.
+
+**Bucket 3 (implementation)**: The emergency-pause feature on the Pool contract. Add a `paused` flag, a multisig-controlled `setPaused()` function, and a `whenNotPaused` modifier on deposit and submitPrediction. The fix is around 30 lines of Solidity plus a test suite. One day.
+
+**Bucket 4 (threat-modelling)**: A red-team document at `docs/21-onchain-sweepstakes-oracle-threat-model.md`. Enumerate the attack vectors from an external perspective. Reference STRIDE, OWASP smart-contract Top 10, and relevant past incidents. One week for the document.
+
+**Bucket 5 (deployment-and-operations)**: The testnet beta deployment plus a written runbook. Deploy `PoolFactory`, `Pool`, and `TournamentalOracle` to Polygon's Amoy testnet. Invite a small set of testers. Document the deployment, the verification, and the rollback procedure. One week.
+
+### A worked example of the VStamp replay-audit PR
+
+To make the scope concrete, here is what a successful PR for the VStamp replay-attack audit looks like file-by-file:
+
+1. **Read** `apps/vstamp/src/signer.ts` and trace the signature construction.
+2. **Read** `packages/onchain-contracts/src/TournamentalOracle.sol` and trace the signature verification, in particular the EIP-712 domain separator at the contract level.
+3. **Write a Foundry test** at `packages/onchain-contracts/test/Replay.t.sol`. Set up an Anvil instance at chain ID 31337. Sign a `setResult` payload with a known test key. Deploy the contract to a fresh Sepolia fork (chain ID 11155111). Attempt to replay the signature.
+4. **Assert** the replay is rejected (i.e. the domain separator includes the chain ID and the signature fails verification on the wrong chain).
+5. **If the test passes**: write a session note confirming the contract is safe. Submit the test as a regression-test PR titled "test(oracle): chain-ID replay rejection".
+6. **If the test fails**: identify the missing chain-ID inclusion. Patch the contract. Submit the test plus the fix as a critical-tier security PR titled "fix(oracle): include chain ID in EIP-712 domain separator".
+
+The PR is bounded. The test is concrete. Doc 19 scores this as critical-tier if the bug is real, and a per-feature bounty if the bug is not. Either way, the wallet integration is the same as every other contributor in the list.
+
+## What I want to hear from you
+
+The three channels are:
+
+- **Email**: `tim@tournamental.com` for general contact, `security@tournamental.com` for vulnerability disclosures (PGP-encrypted; key in SECURITY.md), `audit@tournamental.com` for audit-firm engagements.
+- **GitHub Discussions**: open a thread on the repo, tagged `#security`. I will respond within 24 hours.
+- **Telegram**: `@TournamentalBuild` is the main channel. The security thread is `#security` and it is invite-only for verified contributors; ask in the main channel for an invite and link your GitHub.
+
+The contracts are the part of the platform that can lose users real money if they fail. Every other piece of Tournamental can ship with bugs and the worst case is "the user has a worse experience". The smart contracts cannot. If you have ever wanted to audit a real on-chain system in public before it goes live, with the full design docs and the threat model and the test suite all open for inspection, this is that project.
+
+I would rather catch the bug now than after it has cost a real user a real prize pool. Come and audit. Drips will pay you the highest contribution-category rate, and if your work crosses the threshold into a formal engagement, the strategic reserve will pay you again.
+
+### Who is on the security council already
+
+The security council right now is Tim plus one external advisor (a Solidity engineer who has shipped to mainnet at two prior projects). The council is the body that classifies severity, adjudicates disputes on findings, and signs off on the quarterly Drip List for security work. The published target is seven seats; we are at two. Critical-tier findings require council quorum (currently both members) to confirm the severity.
+
+The seat criteria is "shipped two or more high or critical findings at acceptance quality, has time to review others' findings, and is willing to be on-call for critical-tier escalations". The council expands as the contributor pool grows.
+
+### What happens after the World Cup
+
+The current critical path is the World Cup. The contracts ship to mainnet for the World Cup window in June. After the tournament concludes, the platform moves into a year-round on-chain mode: pools for the European leagues, pools for the NFL season, pools for the IPL, pools for the ATP. Each new tournament increases the at-risk exposure of the contract surface.
+
+For security contributors, the post-World Cup roadmap is:
+
+- **Mainnet operations**. The contracts run for years. Security monitoring, anomaly detection, and incident response become ongoing work.
+- **Contract evolution**. New features (the optimistic-oracle wrapper, the gas-paginated finalise, the emergency pause) require ongoing audit work.
+- **New chain deployments**. Polygon and Base are the launch chains. New EVM chains (Arbitrum, Optimism, Avalanche) are likely additions; each requires its own deployment audit.
+- **Cross-chain bridges**. If we deploy on multiple chains, the cross-chain bridge for liquidity is its own audit-heavy surface.
+
+A security contributor who joins now is positioning to lead the on-chain security work for the entire platform evolution.
+
+### The specific Telegram channel structure for security
+
+To make finding the right thread easier, the Telegram-side breakdown is:
+
+- **`@TournamentalBuild`**, the umbrella channel.
+- **`#security`**, the main security thread. Invite-only for verified contributors. Ask in `@TournamentalBuild` for an invite and link your GitHub.
+- **`#audit`**, audit-specific. For multi-week engagements.
+- **`#oracle`**, the TournamentalOracle contract specifically.
+- **`#pool`**, the Pool contract specifically.
+- **`#drips-bridge`**, the Drips bridge specifically.
+- **`#mev`**, MEV-related discussion.
+
+Each thread has a pinned message with the relevant doc links and the current open RFCs. The pinned message is updated by the security council weekly.
+
+### A specific concern about the OpenTimestamps integration
+
+Sub-RFC: **the OpenTimestamps timing-mismatch risk**. The VStamp signer anchors via two channels: Bitcoin (via OpenTimestamps, with a 10-60 minute confirmation latency) and EVM (Polygon/Base, with seconds-to-minutes latency). These two channels confirm at different times.
+
+The questions I cannot answer:
+
+- **What happens if the Bitcoin anchor and the EVM anchor disagree?** (For example, the EVM anchor records root R1, the Bitcoin anchor later confirms a different root R2 due to a relayer error.) The current design treats Bitcoin as the long-term authoritative record and EVM as the operational record. Is this the right split?
+- **What is the operational procedure if Bitcoin confirmation never arrives?** (For example, the OpenTimestamps calendar server is down for a week.) Today, the design has no fallback. We need one.
+- **Should we anchor to multiple Bitcoin calendar servers in parallel for redundancy?** OpenTimestamps supports this; we have not configured it.
+
+A contributor with Bitcoin operations experience plus EVM experience would be valuable here. The integration is in `apps/vstamp/src/ots.ts` and the architectural notes are in doc 17.
+
+### Time zones and async work
+
+Tim is in New Zealand (UTC+12 or +13 depending on daylight savings). Most security contributors are in the Americas or Europe, which makes the live-conversation overlap small. Async is the default and the PR cycle works fine async. For critical-tier findings, the security council is on-call for immediate escalation; the response SLA is one hour for critical, four hours for high, twenty-four hours for medium and low.
+
+### How long the first PR usually takes
+
+Based on rough estimates from comparable open-source security work: the VStamp replay-attack audit is typically eight to twelve hours of focused work. The re-entrancy audit on `Pool.finalize()` is typically twelve to twenty hours. A Foundry invariant suite for the Pool contract is typically forty to sixty hours. A full internal audit report covering all three contracts is typically eighty to one hundred and twenty hours over four to six weeks.
+
+A good rule of thumb: the first hour is reading the architecture docs. The second hour is reading the contracts. Hours three through eight are the focused analysis. Hours nine through twelve are writing the tests that demonstrate findings. The final hour is the session note and the PR description. Plan for the full estimate above per task.
+
+### A note on emergency response
+
+The contracts are deployed without an emergency-pause function in v1. The intentional design choice is documented in doc 21: pause functions add attack surface (a compromised pauser can grief the protocol) and the operational benefit is small if the contracts are simple enough to audit thoroughly. The alternative if a critical bug is found post-deployment: deploy fixed contracts, migrate the pools that opt in, leave the original contracts running for legacy pools.
+
+This is a deliberate trade-off and the doc explains the reasoning. If a contributor brings a strong argument for adding a pause function (with a multisig-controlled activation and a documented procedure), the discussion is open; it is not the v1 default.
+
+For incident-response procedures (which run regardless of pause-vs-no-pause), the runbook is in `docs/33-security-hardening-checklist.md`. The council is on-call for the World Cup window with documented escalation paths.
+
+### A specific governance concern
+
+Sub-RFC: **the Drip List governance**. The Drip List that pays contributors is multisig-controlled by the Tournamental Foundation. The 4-of-7 threshold protects against single-key compromise. The signers are the foundation council.
+
+The question I cannot answer: should the Drip List move toward community governance as the contributor pool grows? Today the council unilaterally signs the quarterly update; tomorrow the contributors who have shipped for several quarters might earn voting weight on the next quarter's update.
+
+There is a path to community governance documented in doc 19. It requires care; voting weight equals economic incentive equals attack surface. The transition needs an RFC and the council's sign-off.
+
+If you have governance design experience, the doc 19 transition is a one-month-plus RFC project. The result is the playbook for moving from foundation-controlled to community-governed contributor payments.
+
+### Frequently asked questions
+
+**Do I need to use Foundry? I prefer Hardhat / Brownie / Apeworx.**
+
+The Foundry suite is the canonical test suite. You can write additional tests in your preferred framework as a separate package, but the PR must pass the Foundry suite. The reviewer agent runs Foundry against your PR; if you want to run Hardhat locally, that is fine.
+
+**Can I use AI tools to assist my audit?**
+
+Yes. The reviewer agent itself is AI. AI-assisted audit is fine. The disclosure rule is that contributions credited to you are expected to be substantively your work, not just an LLM prompt with no editorial pass. Most experienced auditors use LLMs as a complement, not a substitute.
+
+**What if I find a bug but I am not sure if it is exploitable?**
+
+File the responsible-disclosure report anyway. The security council reviews and classifies. A finding that is theoretically exploitable but practically inaccessible gets a lower severity classification but is still a paid finding.
+
+**What if my finding is in an upstream dependency like OpenZeppelin?**
+
+File the responsible-disclosure report to the upstream project. If Tournamental is affected, file a parallel report to `security@tournamental.com`. The council will route the disclosure and credit you on the score sheet.
+
+**Can I sell my finding to a third party instead of disclosing it to Tournamental?**
+
+The Drips list pays. The Tournamental Pool contracts will hold user money. If you sell a finding to a third party who exploits it, that is theft from the Pool members, not a clever trade. Please do not.
+
+**What if I am a solo researcher with no firm affiliation?**
+
+Same flow as a firm. The Drips list pays individuals. The strategic-reserve line item also pays individuals for fixed-price engagements. Most of the existing security council members are solo researchers.
+
+**Can I rebrand the contracts in a fork?**
+
+The contracts are Apache 2.0. You can fork them, modify them, and use them in your own project. The Tournamental brand assets (the oracle's signing identity, the official affiliate codes) are not open and you cannot use them in a fork.
+
+### Examples from elsewhere
+
+If you want a sanity-check on what good open-source on-chain security looks like at scale:
+
+- **[OpenZeppelin Audits](https://blog.openzeppelin.com/security-audits)**, the published audit reports across dozens of major protocols.
+- **[Trail of Bits](https://www.trailofbits.com/)**, whose public audit reports are some of the most thorough in the industry.
+- **[Code4rena](https://code4rena.com/)**, the competitive audit platform that has paid millions of dollars to researchers.
+- **[Sherlock](https://www.sherlock.xyz/)**, an alternative competitive audit platform with a stake-backed model.
+- **[Immunefi](https://immunefi.com/)**, the largest bug bounty platform for on-chain protocols.
+
+Tournamental's security path is closer to the Trail of Bits / OpenZeppelin model: a foundation-funded audit engagement plus an ongoing bug bounty paid through the Drip List. We are not on Immunefi yet but the strategic-reserve budget will likely fund an Immunefi presence post-mainnet.
+
+### What the project does not need from a smart-contract contributor
+
+To save you time, the things that are **not** in scope for smart-contract contributions:
+
+- **Wholesale rewrites of the contract architecture.** The architecture is set in doc 21. Changes require an RFC and council review.
+- **Upgradeability proxies in v1.** Doc 21 explicitly chose non-upgradeable contracts for the first deployment. Adding proxies is a v2 conversation.
+- **Cross-chain bridges in v1.** Single-chain deployments per chain. No cross-chain message-passing in v1.
+- **A new oracle design from scratch.** The simple oracle is intentional. The path to a UMA-style optimistic oracle is documented as a future-version upgrade.
+- **Adding token-issuance to the platform.** Doc 19 explicitly defers governance token issuance to year 2 or later. Any token-issuance PR is rejected.
+
+### A note on hiring versus contributing
+
+For the avoidance of doubt: the contributor flow is not a hiring pipeline. Tournamental NZ Limited does not have headcount to hire security engineers. If we get to the point where there is a security hire to make (likely after the World Cup proves out the pool-contract demand), the conversation starts with contributors who have already shipped. The Drips list and the strategic reserve are the present-tense compensation paths.
+
+If you are an audit firm or a solo researcher looking for a fixed-price engagement, email `audit@tournamental.com` with the scope and the budget. The strategic-reserve budget is small but real.
+
+### A specific deployment-policy I would love help on
+
+Sub-RFC: **the multisig signer onboarding**. The plan is that the Tournamental Foundation operates a 4-of-7 multisig for the oracle and a 4-of-7 multisig for the Drips bridge. The seats are:
+
+- Two seats for the founding team (Tim plus one).
+- Three seats for engineering contributors with on-chain experience.
+- Two seats for external advisors (currently one filled).
+
+The questions I cannot answer alone:
+
+- What is the onboarding ceremony for a new signer? (Generate the key on a hardware wallet in a sealed room? Or is the standard process simpler?)
+- What is the recovery procedure if a signer loses their hardware wallet?
+- What is the rotation policy if a signer steps down?
+- Should the multisig be on Polygon or on Ethereum mainnet (with the cross-chain message replicated to Polygon)? Both have trade-offs.
+
+I have read the [Safe documentation](https://docs.safe.global/) end to end. I have not run an actual ceremony. A multisig-experienced contributor could ship the onboarding policy and the actual signer ceremony in two weeks and the foundation would be operationally ready for the testnet beta.
+
+### A specific concern about the foundation key management
+
+Sub-RFC: **the air-gapped multisig**. The plan is that the foundation's oracle key is held in an air-gapped multisig: hardware wallets in physical custody of seven signers in different geographic locations, with a 4-of-7 threshold for each signing event.
+
+The questions I cannot answer:
+
+- **What is the physical key-storage standard?** A safe-deposit box? A hardware-wallet vault? A combination?
+- **What is the signing-ceremony protocol?** A scheduled call where four signers each sign a transaction within a documented window? Or an async ceremony with a documented signing window per signer?
+- **What is the contingency for a signer being unavailable for an emergency signing (e.g. a critical fix that needs to deploy in hours)?** A standby fifth signer? A documented escalation path?
+
+I have read the procedures other foundations use ([Lido](https://lido.fi/), [Aave](https://aave.com/), [Compound](https://compound.finance/)). I have not adapted them to our specific context. A contributor with multisig operations experience could ship the playbook in a few weeks.
+
+### A specific MEV concern I want flagged
+
+Sub-RFC: **the front-running surface on `Pool.finalize()`**. When the oracle publishes a match result, a sophisticated MEV searcher who sees the publish transaction in the mempool may be able to time their own `Pool.finalize()` call to exploit ordering. The current defence is "the prediction-submission window closes at kickoff, so by the time the result publishes, all predictions are already locked in". That defence holds at the prediction-submission level.
+
+It does not hold at the **withdrawal** level if there is any post-finalisation re-ordering benefit. I have not characterised whether such a benefit exists. A MEV-aware contributor could in a week or two.
+
+### A note on the dev server
+
+The repo runs on a single Linux box at the time of writing. The infra is documented in [docs/22-deployment-and-tunnels.md](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md). For smart-contract work specifically, the local dev setup is:
+
+```bash
+# Install Foundry
+curl -L https://foundry.paradigm.xyz | bash
+foundryup
+
+# Bootstrap
+git clone https://github.com/0800tim/tournamental
+cd tournamental
+pnpm install
+forge install
+
+# Run the test suite
+cd packages/onchain-contracts
+forge test -vv
+
+# Start a local Anvil instance with the fork
+anvil --fork-url https://ethereum-sepolia-rpc.publicnode.com
+```
+
+The Foundry suite covers the core contract tests. The VStamp signer tests run separately via `pnpm -F @vtorn/vstamp test`. The Drips bridge tests run via `pnpm -F @vtorn/drips-bridge test`.
+
+The dev server is comfortable for local audit work. If you need a forked-mainnet environment for a complex MEV simulation, the project can spin one up on request; the cost is small and the budget is in the strategic reserve.
+
+### A note on the AI agents and security
+
+A small fleet of AI agents (mostly Claude, some local Llama variants) ships PRs against the repo. On the security side specifically, the agents are useful for:
+
+- Running the Foundry suite on every PR and flagging regressions.
+- Cross-referencing the threat model against the implementation.
+- Generating boilerplate test scaffolding.
+- Drafting threat-model documents from a structured prompt.
+
+The agents do **not** make the final severity classifications or write the critical-tier findings. That work is human-led; the agents are quality-assurance and acceleration.
+
+### Reading list, sorted by usefulness
+
+If you want to ramp up on the project's specific on-chain choices before you ship, the recommended reading list is:
+
+1. The on-chain sweepstakes doc at [`docs/21-onchain-sweepstakes-oracle.md`](https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md). The architecture.
+2. The VStamp doc at [`docs/17-vstamp-and-prediction-iq.md`](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md). The Merkle batching.
+3. The contributor revenue doc at [`docs/19-open-source-and-contributor-revenue.md`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). The Drips mechanics.
+4. The SECURITY.md at the repo root. The disclosure process.
+5. The Foundry book at [book.getfoundry.sh](https://book.getfoundry.sh/). The test framework.
+
+External references worth re-reading:
+
+- [The Augur whitepaper](https://www.augur.net/whitepaper.pdf) for the oracle-design lineage.
+- [UMA's optimistic-oracle docs](https://docs.umaproject.org/) for the dispute-mechanism reference.
+- [Reality.eth docs](https://reality.eth.link/) for an alternative oracle design.
+- [Polymarket's smart contracts](https://github.com/Polymarket) for a comparable pool-style implementation.
+- [OpenZeppelin's security guides](https://blog.openzeppelin.com/security-audits) for the auditing methodology canonical references.
+
+### The development cadence
+
+Tim ships from a single tmux session on a single Linux box. The cadence for security work is:
+
+- A contributor or agent finds a potential issue.
+- They file the responsible-disclosure report or open a PR with the finding.
+- The security council classifies the severity.
+- The fix is implemented and tested.
+- The fix is re-audited.
+- The fix is merged.
+- If the contract was already deployed, the upgrade path runs.
+
+The median round trip for a medium-tier finding is two to three days. Critical-tier findings are escalated and can be turned around in hours.
+
+### Why this category matters more than the others
+
+Renderer contributions affect the visual quality. Design contributions affect the brand. Translation contributions affect the audio. Smart-contract contributions affect whether users lose money.
+
+The asymmetry matters. A bad shader renders one frame slightly wrong; the next render fixes it. A bad colour choice can be reverted in the next PR. A bad commentary line can be edited and re-rendered. A bad contract that holds user money cannot be retracted. The user funds are gone.
+
+This is why the per-finding bounty for critical-tier security work is the highest of any contribution category on the platform. It is also why the review cadence is the slowest: the council confirms severity, the council reviews the fix, a second reviewer audits the fix. Slow is the right speed for security.
+
+If you ship even one critical-tier finding before mainnet, your contribution to the platform's long-term safety is plausibly larger than every other contributor's combined. That is the asymmetry. The Drips scoring formula reflects it.
+
+### A note on responsible disclosure
+
+The full responsible-disclosure process is in [SECURITY.md](https://github.com/0800tim/tournamental/blob/main/SECURITY.md). The short version:
+
+- **Critical findings** (full loss of funds, oracle compromise, multisig bypass): email `security@tournamental.com` with a PGP-encrypted payload. PGP key fingerprint in SECURITY.md. SLA is one hour.
+- **High findings** (denial-of-service, signature replay, gas griefing): same email path. SLA is four hours.
+- **Medium and low findings** (incorrect events, gas optimisation opportunities, code-quality concerns): can be filed as a GitHub Issue or a draft PR. SLA is twenty-four hours.
+
+Please do not post critical-tier findings publicly until the fix is deployed. The standard ninety-day responsible-disclosure window applies; if you find a critical issue and we have not deployed a fix within ninety days, you are free to publish.
+
+### A specific concern about the scoring algorithm
+
+Sub-RFC: **the contribution-scoring algorithm**. The Drips bridge service computes per-contributor scores from a GitHub poll. The scoring formula in doc 19 is the published baseline. The implementation at `apps/drips-bridge/src/scorer.ts` follows the formula.
+
+The questions I cannot answer:
+
+- **Are the LoC caps too low, too high, or right?** Today the cap is 200 lines per PR. A trivial CSS change is 30 lines; a substantive feature is 500. The cap encourages substantive features but penalises large refactors.
+- **Should documentation get the same per-line weight as code, or less?** The current weight is 0.5x. Some contributors argue documentation has higher leverage and should be weighted higher.
+- **Should there be a per-quarter minimum-contribution threshold before a contributor is eligible for the Drip List?** Today there is none. Adding one would reduce the long-tail-of-tiny-contributors administrative load but might exclude contributors who ship one important PR per year.
+
+A contributor with experience running RetroPGF rounds or similar contribution-scoring programmes would be valuable here. The implementation is at `apps/drips-bridge/src/scorer.ts` and the doc is `docs/19-`.
+
+### A specific concern about the Drips bridge service operations
+
+Sub-RFC: **the GitHub API authentication on the bridge**. The bridge polls GitHub to compute contributor scores. The GitHub API token used by the bridge is a fine-grained personal access token with read-only scope to the repo. The token is stored in the foundation's secret manager (currently a [Doppler](https://www.doppler.com/) project) and rotated quarterly.
+
+The questions I cannot answer:
+
+- **What is the right rotation cadence?** Quarterly feels right for low-risk; some foundations rotate monthly for sensitivity.
+- **What is the procedure if the token is leaked?** Today: rotate the token and audit the access log. We have not written the procedure down.
+- **Should the bridge use GitHub App authentication instead of a PAT?** GitHub Apps support fine-grained permissions and avoid the single-user-token pitfall.
+
+A contributor with GitHub-platform operations experience could ship the GitHub App migration plus the rotation policy in a week.
+
+### A specific concern about gas costs
+
+Sub-RFC: **gas-budget for `Pool.finalize()`**. For a 100-member pool, the gas cost of `finalize()` is bounded by the loop over the rankings. For a 10,000-member pool, the gas cost may exceed the block-gas-limit on Polygon, causing the transaction to revert. The current code does not paginate.
+
+The fix is a paginated-finalise pattern where `finalize()` splits the distribution across multiple transactions, each paying a chunk of the winners. The pattern is documented in [OpenZeppelin's documentation on iteration](https://docs.openzeppelin.com/contracts/4.x/api/utils#EnumerableSet) and there are several reference implementations in the Curve and Aave codebases.
+
+I have not implemented the pagination. A specialist could ship it in a week. Without it, the contract is capped at probably a few hundred members per pool, which is fine for friend-group sweeps but not for the larger pool sizes the marketing plan implies.
+
+### One specific moment I want to flag
+
+Inside the Pool.sol contract, the `finalize()` function is the moment where the contract transitions from "holding money" to "distributing money". If there is a bug in `finalize()`, the bug is the difference between a working pool and a pool that loses user funds. Every other function in the contract is consequential but `finalize()` is the one where the failure mode is "user money disappears".
+
+If you only have time for one audit, audit `finalize()`. The function is around 80 lines of Solidity. The audit goes through: the input validation, the rank-computation correctness, the prize-distribution math, the re-entrancy surface on the USDC transfers, the gas-usage characteristics, the event emission. One day of focused review and the function is either verified-safe or a fix is open.
+
+This is the audit that gates the World Cup pool launch. If it lands, every other audit-PR is gravy. If it does not land, we cannot ship.
+
+### A second specific moment I want to flag
+
+Inside the TournamentalOracle.sol contract, the `setResult()` function is the moment where the foundation publishes an authoritative result. If there is a bug here, the bug is the difference between "the pools settle correctly" and "the pools settle to a wrong result and disputes proliferate".
+
+The function is around 40 lines. The audit goes through: the EIP-712 domain separator, the signature verification, the chain-ID inclusion, the result-overwriting policy (today, results are immutable once set; if the foundation tries to publish a corrected result, the contract rejects the second `setResult` call for the same matchId), the access control.
+
+This is the second audit that gates the World Cup launch. The pair of audits (Pool.finalize and Oracle.setResult) is the absolute critical-path security work.
+
+### What success looks like, in one paragraph
+
+If this post does its job, three to five smart-contract specialists email me in the next month. One ships the re-entrancy audit and the replay-attack audit in their first week. One picks up the Foundry invariant test suite as a second-week project. One firm sends an engagement proposal for the full mainnet audit. The contracts go to mainnet for the World Cup window with a credible audit in the docs. No user loses money to a contract bug during the tournament.
+
+If it does not, the contracts ship with the holes documented but unverified, and we either delay the mainnet launch (which kills the on-chain pool feature for the World Cup) or take an irresponsible risk. Neither is acceptable.
+
+### The bug bounty programme
+
+After mainnet launch, Tournamental will run an ongoing bug bounty programme. The bounty tiers (paid in USDC from the strategic reserve) are documented in doc 19; the tiers scale with the at-risk TVL in the pool contracts and adjust quarterly. The bounty programme is administered through [Immunefi](https://immunefi.com/) (the largest on-chain bug bounty platform) plus a direct-disclosure path via the SECURITY.md email.
+
+Pre-mainnet, the bounty programme is "find a critical bug and we will pay the critical-tier bounty from the strategic reserve immediately". Post-mainnet, the Immunefi programme is the primary path.
+
+### A specific worry about the audit timeline
+
+Sub-RFC: **the audit timeline versus the World Cup deadline**. The World Cup kicks off in early June. The contracts need to be on mainnet by then or the on-chain pool feature is delayed. An external audit typically takes four to eight weeks. We are in mid-May.
+
+The math: if we engage an audit firm today, the earliest mainnet date is mid-to-late June. If we delay the engagement to do more internal review, we slip into July. If we do not engage an audit at all, we cannot ship to mainnet responsibly.
+
+The path forward is probably:
+
+- Run the internal audit (your one-month project, if you take it) in parallel with engaging an audit firm.
+- Use the testnet beta window to find issues that the internal audit missed.
+- Accept that the on-chain pool feature may launch a week or two into the World Cup rather than for the opening match.
+
+I do not love this timeline. A specialist who can compress it (by doing the internal audit faster, by engaging a firm with a faster turnaround, by parallelising the audit work) is valuable.
+
+### A few more honest admissions before I close
+
+I do not know if the simple `TournamentalOracle` is the right design or if I should be building toward an [UMA optimistic oracle](https://docs.umaproject.org/) wrapper from day one. The simple design is intentionally simple and the failure mode (foundation publishes wrong result, gets caught publicly) is the trade-off. A specialist with optimistic-oracle experience could write the case for moving to UMA earlier in the roadmap, and I would read it carefully.
+
+I do not know if Polygon and Base are the right launch chains. I chose them because gas is cheap, the EVM is identical to mainnet, and the ecosystems are large. A specialist who has shipped pool-style contracts on a different chain (Arbitrum, Optimism, Avalanche) might have an opinion on whether one of those would be a better fit. I would defer.
+
+I do not know if the Merkle batching in VStamp is the right granularity. The current design batches by the minute. A specialist might argue for batching by the event (a single Merkle root per match, anchored once), or by the day (more efficient but lower-granularity for verification). Doc 17 documents the trade-offs and I do not have a strong opinion.
+
+I do not know if the 4-of-7 multisig threshold is right. Higher thresholds add safety against insider compromise but reduce operational responsiveness; lower thresholds do the opposite. Other foundations have landed on different thresholds for different functions. A specialist could write the case for our specific threshold and the council would consider it.
+
+Audit me before I embarrass myself.
+
+- Tim
