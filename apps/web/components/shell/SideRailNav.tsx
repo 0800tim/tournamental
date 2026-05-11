@@ -97,7 +97,7 @@ export function SideRailNav({
     <aside className="vt-siderail" aria-label="Primary navigation">
       <Link href="/" className="vt-siderail-brand">
         <span className="vt-siderail-brand-mark" aria-hidden="true">
-          V
+          T
         </span>
         Tournamental
       </Link>

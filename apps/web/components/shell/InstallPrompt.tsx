@@ -88,7 +88,7 @@ export function InstallPrompt() {
   return (
     <div className="vt-install-toast" role="dialog" aria-label="Install Tournamental">
       <div className="vt-install-mark" aria-hidden="true">
-        V
+        T
       </div>
       <div className="vt-install-body">
         <p className="vt-install-title">Install Tournamental</p>

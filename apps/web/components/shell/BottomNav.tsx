@@ -26,6 +26,7 @@ import {
   WatchIcon,
   ProfileIcon,
   PlusIcon,
+  MenuIcon,
 } from "./icons";
 
 export interface BottomNavTab {
@@ -42,6 +43,9 @@ export interface BottomNavProps {
   readonly tabs?: readonly BottomNavTab[];
   /** Hide on scroll-down auto-hide. Defaults to true. */
   readonly autoHide?: boolean;
+  /** Optional handler — when provided, appends a "Menu" tab that
+   *  opens the mobile drawer instead of navigating. */
+  readonly onMenuClick?: () => void;
 }
 
 export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
@@ -64,6 +68,7 @@ export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
 export function BottomNav({
   tabs = DEFAULT_BOTTOM_NAV_TABS,
   autoHide = true,
+  onMenuClick,
 }: BottomNavProps) {
   const [pathname, setPathname] = useState<string>("/");
   const [hidden, setHidden] = useState(false);
@@ -103,13 +108,14 @@ export function BottomNav({
     return () => window.removeEventListener("scroll", onScroll);
   }, [autoHide]);
 
+  const totalCols = tabs.length + (onMenuClick ? 1 : 0);
   return (
     <nav
       className="vt-bottomnav"
       data-hidden={hidden ? "1" : "0"}
       style={
         {
-          "--vt-bottomnav-cols": String(tabs.length),
+          "--vt-bottomnav-cols": String(totalCols),
         } as React.CSSProperties
       }
       aria-label="Primary"
@@ -129,6 +135,18 @@ export function BottomNav({
           </Link>
         );
       })}
+      {onMenuClick ? (
+        <button
+          type="button"
+          className="vt-bottomnav-tab vt-bottomnav-tab-menu"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          aria-haspopup="dialog"
+        >
+          <span className="vt-bottomnav-icon"><MenuIcon /></span>
+          <span>Menu</span>
+        </button>
+      ) : null}
     </nav>
   );
 }

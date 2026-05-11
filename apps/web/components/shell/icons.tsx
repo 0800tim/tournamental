@@ -134,3 +134,41 @@ export function CodeIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function MoleculeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <circle cx="12" cy="12" r="2.4" />
+      <circle cx="5" cy="6"  r="1.8" />
+      <circle cx="19" cy="6" r="1.8" />
+      <circle cx="5" cy="18" r="1.8" />
+      <circle cx="19" cy="18" r="1.8" />
+      <path d="M12 12 5 6M12 12l7-6M12 12l-7 6M12 12l7 6" />
+    </svg>
+  );
+}
+
+export function MenuIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M4 7h16M4 12h16M4 17h16" />
+    </svg>
+  );
+}
+
+export function BackIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M15 6l-6 6 6 6" />
+    </svg>
+  );
+}
+
+export function FlagIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M5 4v16" />
+      <path d="M5 4h11l-2 3.5L16 11H5" />
+    </svg>
+  );
+}

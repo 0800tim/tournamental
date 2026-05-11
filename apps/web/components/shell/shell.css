@@ -530,3 +530,247 @@
     max-width: 1200px;
   }
 }
+
+/* ---------- Microsite sub-nav (WC 2026 cross-links) ---------- */
+
+.vt-microsite-subnav {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 14px;
+  background: var(--vt-bg-overlay);
+  border-bottom: 1px solid var(--vt-border);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  position: sticky;
+  top: 56px;            /* sit just below the app-bar */
+  z-index: 8;
+}
+
+.vt-microsite-subnav-eyebrow {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-accent-warm);
+  flex: 0 0 auto;
+  padding: 4px 10px;
+  border-radius: var(--vt-radius-pill);
+  background: rgba(243, 184, 59, 0.10);
+  border: 1px solid rgba(243, 184, 59, 0.35);
+}
+
+.vt-microsite-subnav-pills {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  flex: 1 1 auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vt-microsite-subnav-pills::-webkit-scrollbar {
+  display: none;
+}
+
+.vt-microsite-subnav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--vt-radius-pill);
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
+  color: var(--vt-fg-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
+}
+
+.vt-microsite-subnav-pill:hover {
+  color: var(--vt-fg);
+  background: var(--vt-bg-elev-2);
+  border-color: var(--vt-border-strong);
+}
+
+.vt-microsite-subnav-pill[aria-current="page"] {
+  color: var(--vt-accent-on);
+  background: var(--vt-accent-warm);
+  border-color: var(--vt-accent-warm);
+}
+
+.vt-microsite-subnav-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+}
+
+.vt-microsite-subnav-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+@media (min-width: 768px) {
+  .vt-microsite-subnav {
+    padding: 10px 24px;
+    top: 60px;
+  }
+  .vt-microsite-subnav-pill {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
+/* ---------- Bottom-nav Menu tab (drawer trigger) ---------- */
+
+.vt-bottomnav-tab-menu {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font: inherit;
+}
+
+.vt-bottomnav-tab-menu:active .vt-bottomnav-icon {
+  transform: scale(0.92);
+}
+
+.vt-bottomnav-tab-menu .vt-bottomnav-icon {
+  transition: transform 120ms ease;
+}
+
+/* ---------- Mobile menu drawer ---------- */
+
+.vt-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 17, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 60;
+  display: flex;
+  align-items: stretch;
+  justify-content: flex-end;
+  animation: vt-drawer-fade-in 160ms ease-out;
+}
+
+@keyframes vt-drawer-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.vt-drawer {
+  width: min(420px, 100vw);
+  background: var(--vt-bg);
+  border-left: 1px solid var(--vt-border);
+  display: flex;
+  flex-direction: column;
+  padding: 16px 16px 32px;
+  overflow-y: auto;
+  animation: vt-drawer-slide-in 220ms cubic-bezier(0.2, 0.9, 0.3, 1.1);
+  box-shadow: var(--vt-shadow);
+}
+
+@keyframes vt-drawer-slide-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+.vt-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.vt-drawer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 900;
+  font-size: 18px;
+  color: var(--vt-fg);
+}
+
+.vt-drawer-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  border-radius: var(--vt-radius-sm);
+  font-weight: 900;
+  font-size: 18px;
+}
+
+.vt-drawer-close {
+  appearance: none;
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
+  color: var(--vt-fg);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vt-radius-pill);
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 120ms ease;
+}
+
+.vt-drawer-close:hover {
+  background: var(--vt-bg-elev-2);
+}
+
+.vt-drawer-section-label {
+  margin: 16px 4px 6px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-fg-faint);
+}
+
+.vt-drawer-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vt-drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 12px;
+  border-radius: var(--vt-radius-md);
+  color: var(--vt-fg);
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.vt-drawer-link:hover {
+  background: var(--vt-bg-elev);
+}
+
+.vt-drawer-link svg {
+  width: 22px;
+  height: 22px;
+  color: var(--vt-accent);
+  flex: 0 0 22px;
+}
+
+@media (min-width: 768px) {
+  /* Desktop: side rail provides primary nav already. Drawer still works
+   * (e.g. small viewport on a laptop) but should sit narrower. */
+  .vt-drawer {
+    width: 380px;
+  }
+}

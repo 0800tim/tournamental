@@ -55,7 +55,7 @@ export default function WorldCup2026MoleculePage() {
   );
 
   return (
-    <AppShell title="Molecule" showBottomNav showSideRail variant="canvas">
+    <AppShell title="Molecule" showBottomNav showSideRail>
       <MoleculePageClient tournament={tournament} />
     </AppShell>
   );
