@@ -4,19 +4,18 @@
  * AppShell — the shared chrome around every shelled page.
  *
  * Renders:
- *   - top app-bar (always)
+ *   - top app-bar with brand logo (left) + hamburger menu (right)
  *   - main content area (children)
  *   - bottom nav on mobile (unless `showBottomNav={false}`)
- *   - side rail on desktop (unless `showSideRail={false}`)
  *   - microsite sub-nav (auto-mounted for /world-cup-2026/* paths,
  *     or passed explicitly via `subHeader`)
- *   - full-screen mobile menu drawer triggered by avatar tap or
- *     bottom-nav Menu tab
+ *   - slide-in app-menu drawer, triggered by the hamburger or the
+ *     bottom-nav "Menu" tab. The drawer is available on every viewport
+ *     size — there is no longer a separate desktop side rail.
  *   - install-prompt toast (once per device)
  *
  * Variants:
- *   - `"default"` — shifts main content right by 240px on desktop to
- *     make room for the side rail.
+ *   - `"default"` — standard chrome.
  *   - `"canvas"` — main content is full-bleed under a translucent
  *     app-bar; bottom nav still renders by default (turn it off
  *     explicitly with `showBottomNav={false}` on routes that need
@@ -26,12 +25,11 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { AppBar, type AppBarAction } from "./AppBar";
+import { AppMenuDrawer } from "./AppMenuDrawer";
 import { BottomNav, type BottomNavTab } from "./BottomNav";
 import { InstallPrompt } from "./InstallPrompt";
 import { MicrositeSubNav } from "./MicrositeSubNav";
-import { MobileMenuDrawer } from "./MobileMenuDrawer";
 import { RegisterSW } from "./RegisterSW";
-import { SideRailNav, type SideRailLink } from "./SideRailNav";
 import { ThemeMeta } from "./ThemeMeta";
 
 import "./shell.css";
@@ -40,14 +38,12 @@ export interface AppShellProps {
   readonly title: string;
   readonly children: ReactNode;
   readonly rightAction?: AppBarAction;
-  readonly avatarInitials?: string;
-  readonly avatarUrl?: string;
+  /** Initials rendered inside the brand mark on the top-left logo.
+   *  Defaults to "T". Kept as a prop for theming flexibility. */
+  readonly brandInitials?: string;
   readonly showBottomNav?: boolean;
-  readonly showSideRail?: boolean;
   readonly variant?: "default" | "canvas";
   readonly bottomNavTabs?: readonly BottomNavTab[];
-  readonly sideRailPrimary?: readonly SideRailLink[];
-  readonly sideRailSecondary?: readonly SideRailLink[];
   readonly className?: string;
   /** Optional content rendered between the app-bar and the main pane,
    *  typically a sticky pill-tabs strip. If undefined and the current
@@ -64,14 +60,10 @@ export function AppShell({
   title,
   children,
   rightAction,
-  avatarInitials,
-  avatarUrl,
+  brandInitials,
   showBottomNav = true,
-  showSideRail = true,
   variant = "default",
   bottomNavTabs,
-  sideRailPrimary,
-  sideRailSecondary,
   className,
   subHeader,
   suppressMicrositeNav,
@@ -97,18 +89,12 @@ export function AppShell({
     >
       <ThemeMeta />
       <RegisterSW />
-      {showSideRail && variant === "default" ? (
-        <SideRailNav
-          primary={sideRailPrimary}
-          secondary={sideRailSecondary}
-        />
-      ) : null}
       <AppBar
         title={title}
         rightAction={rightAction}
-        avatarInitials={avatarInitials}
-        avatarUrl={avatarUrl}
-        onAvatarClick={() => setMenuOpen(true)}
+        brandInitials={brandInitials}
+        onMenuClick={() => setMenuOpen((o) => !o)}
+        menuOpen={menuOpen}
       />
       {resolvedSubHeader ? (
         <div className="vt-page-header">{resolvedSubHeader}</div>
@@ -122,7 +108,7 @@ export function AppShell({
           onMenuClick={() => setMenuOpen(true)}
         />
       ) : null}
-      <MobileMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
+      <AppMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
       <InstallPrompt />
     </div>
   );

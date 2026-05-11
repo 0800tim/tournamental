@@ -9,8 +9,8 @@
  *   - "Up next" section: 5 MatchCards (mocked schedule).
  *   - "From the desk" section: 2 NewsCards.
  *
- * Wrapped in `<AppShell>` so the chrome (top app-bar, bottom nav on
- * mobile, side rail on desktop) renders consistently.
+ * Wrapped in `<AppShell>` so the chrome (top app-bar with brand logo +
+ * hamburger menu, bottom nav on mobile) renders consistently.
  */
 
 import { AppShell } from "@/components/shell";
@@ -29,7 +29,7 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 
 export default function HomePage() {
   return (
-    <AppShell title="Tournamental" avatarInitials="T">
+    <AppShell title="Tournamental">
       <div className="vt-page-content">
         <CountdownBanner
           targetUtc={WC_2026_KICKOFF_UTC}

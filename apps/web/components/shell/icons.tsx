@@ -1,6 +1,6 @@
 /**
  * Stroke icon set for the app shell. Single source of truth so the
- * bottom nav, side rail, and app-bar action button all share identical
+ * bottom nav, drawer rows, and app-bar action button all share identical
  * pixel-aligned strokes. 24x24 viewBox; consumer sets size via CSS.
  */
 

@@ -48,7 +48,6 @@ export default function MatchPage({ params, searchParams }: MatchPageProps) {
       title="Match"
       variant="canvas"
       showBottomNav={false}
-      showSideRail={false}
     >
       <RouteEvent
         name="match.opened"
