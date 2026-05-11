@@ -1,34 +1,40 @@
 /**
- * Molecule layout — pure, deterministic, no R3F deps.
+ * Molecule layout — v3 pyramid edition.
  *
- * Given a tournament + a (possibly partial) `CascadedBracket`, compute the
- * 3D positions of every team-atom and the bond (edge) list connecting
- * teams that played each other.
+ * v2 placed atoms on concentric rings (champion at the centre, group
+ * losers on the outermost ring). v3 reads the tournament as a pyramid:
+ * group losers form the base, knockout losers stack at the tier they
+ * were eliminated at, and the predicted champion glows alone at the
+ * apex.
  *
- * Geometry: concentric spherical-cap rings centred on origin.
+ *   y = 28    apex            1 atom    champion
+ *   y = 22    SF tier         3 atoms   runner-up + bronze + 4th
+ *   y = 16    QF tier         4 atoms   QF losers
+ *   y = 10    R16 tier        8 atoms   R16 losers
+ *   y =  4    R32 tier       16 atoms   R32 losers
+ *   y =  0    base           ~16 atoms  group-stage eliminated
  *
- *   Ring 0 (origin)     — predicted champion.
- *   Ring 1 (r=4)        — runner-up + 3rd-place winner.
- *   Ring 2 (r=8)        — losing semi-finalist that did NOT win 3rd place.
- *                         (Always 1 team — the 3rd-place playoff loser.)
- *   Ring 3 (r=12)       — QF losers (4 teams).
- *   Ring 4 (r=17)       — R16 losers (8 teams).
- *   Ring 5 (r=22)       — R32 losers (16 teams).
- *   Ring 6 (r=28)       — group-stage eliminated (the rest, 16 teams for
- *                          the FIFA 2026 12×4 format with 8 best-thirds
- *                          advancing).
+ * Atoms at each tier are placed on a circular footprint whose radius
+ * shrinks toward the apex (base r=18, R32 r=14, R16 r=10, QF r=7,
+ * SF r=4, apex r=0). The angle a loser sits at is a deterministic hash
+ * of its team code — losers don't sit *exactly* under the team that
+ * beat them (that would require a full bracket-graph walk we haven't
+ * paid for yet), but jitter is bounded so the same prediction always
+ * produces the same picture.
  *
- * Each ring lays its members evenly around the y-axis, with a slight tilt
- * (theta jitter from a deterministic per-team seed) so the molecule reads
- * three-dimensional from any orbit angle rather than as a flat disc.
+ * Bond list: every match in the tournament with a resolved (predicted
+ * or actual) home + away contributes one bond. Group bonds are thin
+ * grey; knockout bonds escalate in colour + thickness. The champion's
+ * gold trail is unchanged from v2 — `path.ts` builds it from bonds.
  *
- * Bond list: every match in the tournament that has a resolved (predicted
- * or actual) home + away team-id contributes one bond. Group bonds are
- * thin grey; R32→F bonds escalate in colour + thickness. The champion's
- * "trophy arc" — the final bond — gets the gold tier.
+ * Public surface: `MoleculeLayout`, `MoleculeNode`, `MoleculeBond`,
+ * `FinalStage`, `BondStage`, `PALETTE`, `stableHash01`, plus the
+ * test-only helpers `isAtOrigin` and `isOnGroupRing` are preserved
+ * verbatim so `MoleculeScene` + the v2 layout tests keep working.
+ * A new `isAtPyramidTier(node, fs)` helper backs the new tier checks.
  *
- * Determinism: same (tournament, cascaded) → same layout. No clock reads,
- * no random calls. The "jitter" uses a stable string-hash per team code.
+ * Determinism: same (tournament, cascaded) → same layout. No clock
+ * reads, no random calls. Jitter uses a stable string-hash per team.
  */
 
 import type {
@@ -115,28 +121,65 @@ const BOND_THICKNESS: Record<BondStage, number> = {
   f: 3.0,
 };
 
-// Radius (size of the team sphere) by final stage reached.
-const NODE_RADIUS: Record<FinalStage, number> = {
-  champion: 2.0,
-  runner_up: 1.6,
-  third_place: 1.4,
-  fourth_place: 1.2,
-  qf: 1.05,
-  r16: 0.9,
-  r32: 0.78,
-  group: 0.65,
+// ---------- pyramid geometry ----------
+
+/**
+ * Y-height per tier. The pyramid reads as a pyramid because each tier
+ * sits at a strictly higher y than the one below.
+ */
+const TIER_Y: Record<FinalStage, number> = {
+  champion: 28,
+  runner_up: 22,
+  third_place: 22,
+  fourth_place: 22,
+  qf: 16,
+  r16: 10,
+  r32: 4,
+  group: 0,
 };
 
-// Ring radius from origin.
-const RING_RADIUS: Record<FinalStage, number> = {
+/**
+ * Horizontal footprint radius per tier — shrinks toward the apex.
+ */
+const TIER_RADIUS: Record<FinalStage, number> = {
   champion: 0,
-  runner_up: 4.2,
-  third_place: 4.2,
-  fourth_place: 8.0,
-  qf: 12.0,
-  r16: 17.0,
-  r32: 22.0,
-  group: 28.0,
+  runner_up: 4,
+  third_place: 4,
+  fourth_place: 4,
+  qf: 7,
+  r16: 10,
+  r32: 14,
+  group: 18,
+};
+
+/**
+ * Atom sphere radius per tier — v3 bumps these vs v2 (~15%) so the
+ * flag textures stay readable at smaller tiers when viewed from a
+ * normal zoom level.
+ */
+const NODE_RADIUS: Record<FinalStage, number> = {
+  champion: 2.3,
+  runner_up: 1.85,
+  third_place: 1.6,
+  fourth_place: 1.4,
+  qf: 1.25,
+  r16: 1.08,
+  r32: 0.95,
+  group: 0.82,
+};
+
+// Within-tier angular jitter (radians) so atoms on a tier of N don't
+// collide with their hash-only neighbours. We blend hash-angle with
+// even-spacing-angle so the result reads as a circle but isn't
+// trivially predictable.
+const TIER_ANGULAR_BLEND = 0.5;
+
+// SF tier seats: runner-up at 0°, bronze at 180°, 4th at 90°. The hash
+// jitter doesn't apply here — these are too few + named.
+const SF_TIER_ANGLES: Record<"runner_up" | "third_place" | "fourth_place", number> = {
+  runner_up: 0,
+  third_place: Math.PI,
+  fourth_place: Math.PI / 2,
 };
 
 // ---------- helpers ----------
@@ -182,10 +225,10 @@ function stageOf(k: CascadedKnockout): BondStage {
  * (resolved or null) and an away team (resolved or null) plus the
  * predicted/actual winner. We use the winner to determine each team's
  * final stage (= "deepest round they reached"), then place them on the
- * matching ring.
+ * matching pyramid tier.
  *
  * If a team isn't found in any knockout's resolved slots, they're
- * treated as group-stage eliminated and placed on the outermost ring.
+ * treated as group-stage eliminated and placed on the base tier.
  */
 export function buildMoleculeLayout(
   tournament: Tournament,
@@ -249,14 +292,6 @@ export function buildMoleculeLayout(
 
       if (!home && !away) continue;
 
-      // Both teams "appear" in this stage. A loser settles at this stage;
-      // a winner moves on (we'll set their deeper stage from the next match).
-      // For final-stage classification:
-      //   - loser of stage X → final stage = X (e.g. r32 loss → "r32")
-      //   - winner of final → champion
-      //   - loser of final → runner_up
-      //   - winner of tp → third_place
-      //   - loser of tp → fourth_place
       const homeIsLoser = winner !== null && home !== null && winner !== home;
       const awayIsLoser = winner !== null && away !== null && winner !== away;
 
@@ -268,7 +303,6 @@ export function buildMoleculeLayout(
           setIfDeeper(away, "champion");
           if (home) setIfDeeper(home, "runner_up");
         } else {
-          // No winner picked yet — still record both as having reached the final.
           if (home) setIfDeeper(home, "runner_up");
           if (away) setIfDeeper(away, "runner_up");
         }
@@ -284,35 +318,28 @@ export function buildMoleculeLayout(
           if (away) setIfDeeper(away, "fourth_place");
         }
       } else {
-        // r32 / r16 / qf / sf — the loser is "out at this stage".
-        // The winner's "deeper stage" will be set by their next match.
-        // sf loser falls into the tp pool (handled by the next-round tp match above).
         const stageFor: Record<"r32" | "r16" | "qf" | "sf", FinalStage> = {
           r32: "r32",
           r16: "r16",
           qf: "qf",
-          // SF losers are 4th-place candidates until tp resolves them; if
-          // no tp winner is known yet, they sit as fourth_place tier.
+          // SF losers are 4th-place candidates until tp resolves them.
           sf: "fourth_place",
         };
         const fs = stageFor[k.stage as "r32" | "r16" | "qf" | "sf"];
         if (homeIsLoser && home) setIfDeeper(home, fs);
         if (awayIsLoser && away) setIfDeeper(away, fs);
 
-        // Also record that the winner of this stage *at least* reached
-        // the next round — without overriding deeper info from later
-        // matches. Use the next-stage label as a placeholder.
         const nextStage: Record<"r32" | "r16" | "qf" | "sf", FinalStage> = {
           r32: "r16",
           r16: "qf",
-          qf: "fourth_place", // SF participant (loser default; tp/f match upgrades)
-          sf: "runner_up", // F participant
+          qf: "fourth_place",
+          sf: "runner_up",
         };
         if (winner) setIfDeeper(winner, nextStage[k.stage as "r32" | "r16" | "qf" | "sf"]);
       }
     }
 
-    // Final: identify champion + runner-up + bronze codes for the legend / panels.
+    // Final: identify champion + runner-up + bronze codes.
     const finalMatch = cascaded.knockouts.find((k) => k.stage === "f");
     const tpMatch = cascaded.knockouts.find((k) => k.stage === "tp");
     if (finalMatch?.effective_winner) {
@@ -330,43 +357,63 @@ export function buildMoleculeLayout(
     }
   }
 
-  // 2. Group teams by final stage so we can lay them out per-ring.
+  // 2. Group teams by final stage so we can lay them out per-tier.
   const byStage = new Map<FinalStage, string[]>();
   for (const [code, fs] of finalStageByTeam) {
     if (!byStage.has(fs)) byStage.set(fs, []);
     byStage.get(fs)!.push(code);
   }
-  // Sort each ring deterministically by team code so the layout is stable.
+  // Sort each tier deterministically by team code so the layout is stable.
   for (const arr of byStage.values()) arr.sort();
 
-  // 3. Place each team on its ring.
+  // 3. Place each team on its pyramid tier.
   const nodes: MoleculeNode[] = [];
 
-  const placeRing = (
-    fs: FinalStage,
-    teams: readonly string[],
-    yLift: number,
-  ): void => {
-    const radius = RING_RADIUS[fs];
+  const placeTier = (fs: FinalStage, teams: readonly string[]): void => {
+    const y = TIER_Y[fs];
+    const radius = TIER_RADIUS[fs];
     const nodeRadius = NODE_RADIUS[fs];
     const accent = colourFor(fs);
     const count = Math.max(1, teams.length);
 
     teams.forEach((code, i) => {
-      // Even angular spacing + per-team jitter for depth.
-      const baseAngle = (i / count) * Math.PI * 2;
-      const jitterAngle = (stableHash01(code) - 0.5) * (Math.PI / 6);
-      const angle = baseAngle + jitterAngle;
-      // y-tilt jitter so the molecule reads 3D rather than as a flat disc.
-      const yJitter = (stableHash01(code + ":y") - 0.5) * 4;
+      // Champion: apex (radius=0). Position is (0, y, 0).
+      if (fs === "champion") {
+        const kit = teamKitPrimary(tournament, code);
+        nodes.push({
+          teamCode: code,
+          teamName: teamName(tournament, code),
+          position: [0, y, 0],
+          radius: nodeRadius,
+          finalStage: fs,
+          accentColor: kit ?? accent,
+        });
+        return;
+      }
+
+      // SF tier — 3 named seats (runner-up at 0°, bronze at 180°, 4th at 90°).
+      let angle: number;
+      if (fs === "runner_up" || fs === "third_place" || fs === "fourth_place") {
+        angle = SF_TIER_ANGLES[fs];
+      } else {
+        // Even spacing + hash jitter blended together.
+        const baseAngle = (i / count) * Math.PI * 2;
+        const hashAngle = stableHash01(code) * Math.PI * 2;
+        angle =
+          baseAngle * (1 - TIER_ANGULAR_BLEND) + hashAngle * TIER_ANGULAR_BLEND;
+      }
+
+      // Y jitter — tiny, ±0.5 units — gives the tier a little depth so
+      // it doesn't read as a perfectly flat disc, but stays inside its
+      // tier slab (no overlap with the tier above/below).
+      const yJitter = (stableHash01(code + ":y") - 0.5) * 1.0;
       const x = radius * Math.cos(angle);
       const z = radius * Math.sin(angle);
-      const y = yLift + yJitter;
       const kit = teamKitPrimary(tournament, code);
       nodes.push({
         teamCode: code,
         teamName: teamName(tournament, code),
-        position: [x, y, z],
+        position: [x, y + yJitter, z],
         radius: nodeRadius,
         finalStage: fs,
         accentColor: kit ?? accent,
@@ -374,19 +421,14 @@ export function buildMoleculeLayout(
     });
   };
 
-  // Champion at origin (slightly lifted for visual prominence).
-  placeRing("champion", byStage.get("champion") ?? [], 2.5);
-  // Runner-up + 3rd-place share the same ring *radius* (both `RING_RADIUS.runner_up`
-  // / `RING_RADIUS.third_place` resolve to 4.2 above) but each node carries its
-  // own `finalStage` classification + colour. We place them as separate rings
-  // so the panel/legend mapping stays honest.
-  placeRing("runner_up", byStage.get("runner_up") ?? [], 1.0);
-  placeRing("third_place", byStage.get("third_place") ?? [], 1.0);
-  placeRing("fourth_place", byStage.get("fourth_place") ?? [], 0.5);
-  placeRing("qf", byStage.get("qf") ?? [], 0);
-  placeRing("r16", byStage.get("r16") ?? [], 0);
-  placeRing("r32", byStage.get("r32") ?? [], 0);
-  placeRing("group", byStage.get("group") ?? [], 0);
+  placeTier("champion", byStage.get("champion") ?? []);
+  placeTier("runner_up", byStage.get("runner_up") ?? []);
+  placeTier("third_place", byStage.get("third_place") ?? []);
+  placeTier("fourth_place", byStage.get("fourth_place") ?? []);
+  placeTier("qf", byStage.get("qf") ?? []);
+  placeTier("r16", byStage.get("r16") ?? []);
+  placeTier("r32", byStage.get("r32") ?? []);
+  placeTier("group", byStage.get("group") ?? []);
 
   // 4. Build bonds — one edge per match with both teams resolved.
   const bonds: MoleculeBond[] = [];
@@ -450,17 +492,53 @@ function bondKey(a: string, b: string, stage: BondStage): string {
 
 // ---------- helpers exposed for tests ----------
 
-export const RING_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = RING_RADIUS;
+/**
+ * Legacy alias for v2's `RING_RADIUS` constant — now backed by
+ * `TIER_RADIUS`. Kept so the v2 layout test (which only asserts that
+ * the runner-up sits *inside* the group ring) continues to pass.
+ */
+export const RING_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = TIER_RADIUS;
 export const NODE_RADII_TEST_ONLY: Readonly<Record<FinalStage, number>> = NODE_RADIUS;
+export const TIER_Y_TEST_ONLY: Readonly<Record<FinalStage, number>> = TIER_Y;
 
-/** True if `node` sits on the outermost (group-loser) ring within tolerance. */
+/**
+ * True if `node` sits on the base (group-loser) tier within tolerance.
+ *
+ * Backward-compatible with the v2 semantic: a group-tier node has
+ * `finalStage === "group"` AND its horizontal radius is ~`TIER_RADIUS.group`.
+ * v3 also checks y ≈ 0.
+ */
 export function isOnGroupRing(node: MoleculeNode, tol = 0.001): boolean {
   const r = Math.hypot(node.position[0], node.position[2]);
-  return Math.abs(r - RING_RADIUS.group) < tol + 1; // allow small jitter
+  const yOk = Math.abs(node.position[1] - TIER_Y.group) < 2.0;
+  return Math.abs(r - TIER_RADIUS.group) < tol + 1 && yOk;
 }
 
-/** True if `node` is at the molecule centre (champion). */
+/**
+ * True if `node` sits at the molecule apex (the champion). The
+ * champion is the only atom on the y=apex tier (radius=0).
+ */
 export function isAtOrigin(node: MoleculeNode, tol = 0.001): boolean {
   const r = Math.hypot(node.position[0], node.position[2]);
-  return r < tol + 0.001;
+  if (r >= tol + 0.001) return false;
+  // v3: the champion is at y = TIER_Y.champion (28). The v2 semantic of
+  // "at origin" treated y as a don't-care (atoms had y-jitter around 0).
+  // Either acceptance keeps the existing v2 tests + the v3 invariant
+  // both honest.
+  return (
+    Math.abs(node.position[1] - TIER_Y.champion) < tol + 0.5 ||
+    Math.abs(node.position[1]) < tol + 4.0
+  );
+}
+
+/**
+ * True if `node` sits at the y-height for the given final stage tier,
+ * with a small tolerance for the per-tier y-jitter.
+ */
+export function isAtPyramidTier(
+  node: MoleculeNode,
+  fs: FinalStage,
+  tol = 1.0,
+): boolean {
+  return Math.abs(node.position[1] - TIER_Y[fs]) <= tol;
 }
