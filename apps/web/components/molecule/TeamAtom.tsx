@@ -3,16 +3,17 @@
 /**
  * TeamAtom — one team-sphere in the molecule.
  *
- * Renders a sphere coloured by the team's kit primary (falling back to the
- * stage palette colour), wrapped in a "rim glow" backside sphere that picks
- * up the gold/silver/bronze/etc palette indicating which round the team
- * went out at. A small HTML label floats over the sphere with the flag
- * emoji + 3-letter team code so the viewer can identify atoms without
- * having to remember team-code-to-flag.
+ * v2 (flag spheres): the main sphere is a flag-textured PBR sphere
+ * driven by `FlagSphereMaterial`. The country's flag wraps around the
+ * equatorial band (poles tinted dark navy so they don't read as flat
+ * caps), and a small vertex-shader displacement gives a subtle "flag
+ * rippling in the wind" effect.
  *
- * Performance: one Mesh + one Mesh + one drei <Html /> per atom. 48 atoms
- * total = 96 meshes + 48 DOM nodes. Well under the mid-range 2022 Android
- * budget when the scene's only doing orbit-cam transforms.
+ * A "rim glow" back-side sphere picks up the stage palette colour
+ * (gold/silver/bronze/etc) so the viewer can still read final-stage
+ * classification at a glance. Atoms on the highlighted path (champion's
+ * road to gold, or selected team's road) gain a brighter gold rim and a
+ * slightly amplified wave so the trail reads as one connected object.
  */
 
 import { useRef, useState } from "react";
@@ -23,11 +24,17 @@ import * as THREE from "three";
 import type { FinalStage, MoleculeNode } from "@/lib/molecule/layout";
 import { PALETTE } from "@/lib/molecule/layout";
 
+import { FlagSphereMaterial } from "./FlagSphereMaterial";
+
 export interface TeamAtomProps {
   node: MoleculeNode;
   flagEmoji: string | null;
   selected: boolean;
   hovered: boolean;
+  /** True when this atom sits on the currently-highlighted path. */
+  onPath?: boolean;
+  /** Caller's reduce-motion preference. False disables wave displacement. */
+  motionEnabled?: boolean;
   onClick: (code: string) => void;
   onPointerEnter: (code: string) => void;
   onPointerLeave: (code: string) => void;
@@ -44,48 +51,68 @@ function toColour(hex: string): THREE.Color {
   return c;
 }
 
-function rimColourFor(stage: FinalStage): string {
+const PATH_GOLD = "#fbbf24";
+
+function rimColourFor(stage: FinalStage, onPath: boolean): string {
+  if (onPath) return PATH_GOLD;
   return PALETTE[stage];
 }
 
 export function TeamAtom(props: TeamAtomProps) {
-  const { node, flagEmoji, selected, hovered, onClick, onPointerEnter, onPointerLeave } = props;
-  const meshRef = useRef<THREE.Mesh>(null);
+  const {
+    node,
+    flagEmoji,
+    selected,
+    hovered,
+    onPath = false,
+    motionEnabled = true,
+    onClick,
+    onPointerEnter,
+    onPointerLeave,
+  } = props;
+  const groupRef = useRef<THREE.Group>(null);
   const rimRef = useRef<THREE.Mesh>(null);
   const [pulse, setPulse] = useState(0);
 
-  const base = toColour(node.accentColor);
-  const rim = toColour(rimColourFor(node.finalStage));
+  const rim = toColour(rimColourFor(node.finalStage, onPath));
+  const isChampion = node.finalStage === "champion";
 
-  // Slow pulse for the champion atom + hover/selected scale-up.
+  // Slow scale pulse for the champion atom + hover/selected scale-up.
   useFrame((_, dt) => {
-    if (!meshRef.current) return;
-    const isChamp = node.finalStage === "champion";
-    const target = (selected ? 1.18 : hovered ? 1.08 : 1) * (isChamp ? 1 + 0.05 * Math.sin(pulse) : 1);
+    if (!groupRef.current) return;
+    const target =
+      (selected ? 1.18 : hovered ? 1.08 : 1) *
+      (isChampion ? 1 + 0.05 * Math.sin(pulse) : 1);
     setPulse((p) => p + dt * 2.2);
-    const cur = meshRef.current.scale.x;
+    const cur = groupRef.current.scale.x;
     const next = cur + (target - cur) * Math.min(1, dt * 8);
-    meshRef.current.scale.setScalar(next);
-    if (rimRef.current) rimRef.current.scale.setScalar(next * 1.18);
+    groupRef.current.scale.setScalar(next);
+    if (rimRef.current) rimRef.current.scale.setScalar(1.18);
   });
 
+  const rimOpacity = onPath ? 0.7 : isChampion ? 0.55 : 0.32;
+  const waveBoost = selected || hovered ? 1.6 : onPath ? 1.2 : 1;
+
   return (
-    <group position={node.position as unknown as [number, number, number]}>
-      {/* Rim halo — back-side sphere that picks up the stage palette colour. */}
+    <group
+      ref={groupRef}
+      position={node.position as unknown as [number, number, number]}
+    >
+      {/* Rim halo — back-side sphere that picks up the stage palette colour.
+       * onPath atoms get the gold rim treatment. */}
       <mesh ref={rimRef} scale={1.18}>
         <sphereGeometry args={[node.radius, 24, 24]} />
         <meshBasicMaterial
           color={rim}
           transparent
-          opacity={node.finalStage === "champion" ? 0.55 : 0.32}
+          opacity={rimOpacity}
           side={THREE.BackSide}
           depthWrite={false}
         />
       </mesh>
 
-      {/* Main sphere. Standard material so it picks up the scene lights. */}
+      {/* Main sphere — flag-wrapped, lit, with wind-wave displacement. */}
       <mesh
-        ref={meshRef}
         onClick={(e) => {
           e.stopPropagation();
           onClick(node.teamCode);
@@ -101,13 +128,16 @@ export function TeamAtom(props: TeamAtomProps) {
           if (typeof document !== "undefined") document.body.style.cursor = "auto";
         }}
       >
-        <sphereGeometry args={[node.radius, 32, 32]} />
-        <meshStandardMaterial
-          color={base}
-          roughness={0.45}
-          metalness={0.25}
+        <sphereGeometry args={[node.radius, 48, 32]} />
+        <FlagSphereMaterial
+          teamCode={node.teamCode}
+          accent={node.accentColor}
+          motionEnabled={motionEnabled}
+          waveBoost={waveBoost}
           emissive={rim}
-          emissiveIntensity={selected ? 0.45 : node.finalStage === "champion" ? 0.32 : 0.16}
+          emissiveIntensity={selected ? 0.45 : isChampion ? 0.32 : 0.16}
+          isChampion={isChampion}
+          onPath={onPath}
         />
       </mesh>
 
@@ -123,6 +153,7 @@ export function TeamAtom(props: TeamAtomProps) {
           <div
             className="molecule-label"
             data-stage={node.finalStage}
+            data-on-path={onPath ? "true" : undefined}
             data-selected={selected ? "true" : undefined}
           >
             {flagEmoji ? <span className="molecule-label-flag" aria-hidden>{flagEmoji}</span> : null}
