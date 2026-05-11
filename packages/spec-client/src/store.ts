@@ -18,11 +18,13 @@ export type StreamStatus =
   | "synthetic";
 
 /**
- * The bounded ring buffer length for events. Renderers consume one-shots and
- * we keep enough history for late-mounting components (HUD, debug panel) to
- * read recent activity.
+ * The bounded ring buffer length for events. Sized to comfortably exceed a
+ * single match's event count (~1500 for AR-FR 2022) so HUD aggregators
+ * (`computeMatchStats`) never lose a goal/foul/sub from the early phases by
+ * the time the playhead is in stoppage time. Live-WS callers that worry
+ * about unbounded growth can tune this if they need to.
  */
-export const EVENT_RING_SIZE = 64;
+export const EVENT_RING_SIZE = 4096;
 
 export interface MatchStore {
   /** Most recent MatchInit; null until the producer has emitted it. */
@@ -107,7 +109,17 @@ export function createMatchStore(): MatchStoreApi {
 
     applyMessage(msg) {
       if (msg.type === "match.init") {
-        set({ init: msg, status: get().status === "idle" ? "open" : get().status });
+        // `match.init` is the canonical "start (or restart) of a match"
+        // signal. In manifest mode the driver re-emits it after a user
+        // seek so the store rebuilds cumulative state (score, period,
+        // shootout, events ring buffer) from scratch as it re-drains the
+        // event log up to the new playhead. Without this reset, a
+        // forward scrub would silently skip the score_change events
+        // between the old and new playhead and the scoreboard would
+        // stay stuck at the pre-scrub score (the AR-FR "0-0 at 86'" bug).
+        const preservedStatus =
+          get().status === "idle" ? "open" : get().status;
+        set({ ...initialState, init: msg, status: preservedStatus });
         return;
       }
 
