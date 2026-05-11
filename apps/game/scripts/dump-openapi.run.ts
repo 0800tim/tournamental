@@ -28,6 +28,7 @@ import { registerMatchRoutes } from '../src/routes/match.js';
 import { registerLeaderboardRoutes } from '../src/routes/leaderboard.js';
 import { registerSyndicateRoutes } from '../src/routes/syndicate.js';
 import { registerPunditRoutes } from '../src/routes/pundit.js';
+import { registerUserApiKeyRoutes } from '../src/routes/user-api-keys.js';
 import { registerSwagger } from '../src/swagger.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -50,6 +51,7 @@ test('dump-openapi: writes game spec', async () => {
     adminToken: 'dump-stub-admin-token',
     suppressJsonl: true,
   });
+  await registerUserApiKeyRoutes(app, { store });
 
   await app.ready();
   const spec = (app as { swagger: () => unknown }).swagger();

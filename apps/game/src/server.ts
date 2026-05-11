@@ -31,6 +31,7 @@ import { registerLeaderboardRoutes } from "./routes/leaderboard.js";
 import { registerSyndicateRoutes } from "./routes/syndicate.js";
 import { registerPunditRoutes } from "./routes/pundit.js";
 import { registerPickRoutes } from "./routes/picks.js";
+import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
 import { recomputeVerifiedPundits } from "./pundit/compute.js";
@@ -143,6 +144,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });
+  await registerUserApiKeyRoutes(app, { store, nowMs: opts.nowMs });
   await registerPunditRoutes(app, {
     store,
     adminToken,

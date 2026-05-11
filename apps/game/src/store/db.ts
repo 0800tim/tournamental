@@ -63,6 +63,19 @@ export interface VerifiedPunditRecordRow {
   stamped_at: number;
 }
 
+export interface UserApiKeyRow {
+  id: string;
+  user_id: string;
+  label: string;
+  key_prefix: string;
+  key_hash: string;
+  scopes: string;          // JSON array of scope strings
+  rate_limit_rpm: number;
+  created_at: number;
+  last_used_at: number | null;
+  revoked_at: number | null;
+}
+
 export class GameStore {
   readonly db: DatabaseT;
   private readonly migrationsDir: string;
@@ -89,6 +102,12 @@ export class GameStore {
   private upsertPunditRecordStmt!: Statement;
   private listPunditRecordsForUserStmt!: Statement;
   private deletePunditRecordsForTournamentStmt!: Statement;
+  private insertUserApiKeyStmt!: Statement;
+  private listUserApiKeysForUserStmt!: Statement;
+  private getUserApiKeyByIdStmt!: Statement;
+  private getUserApiKeyByPrefixStmt!: Statement;
+  private revokeUserApiKeyStmt!: Statement;
+  private touchUserApiKeyStmt!: Statement;
 
   constructor(opts: GameStoreOptions) {
     if (opts.dbPath !== ":memory:") {
@@ -235,6 +254,35 @@ export class GameStore {
     );
     this.deletePunditRecordsForTournamentStmt = this.db.prepare(
       `DELETE FROM verified_pundit_records WHERE tournament_id = ?`,
+    );
+    this.insertUserApiKeyStmt = this.db.prepare(
+      `INSERT INTO user_api_keys
+         (id, user_id, label, key_prefix, key_hash, scopes,
+          rate_limit_rpm, created_at, last_used_at, revoked_at)
+       VALUES
+         (@id, @user_id, @label, @key_prefix, @key_hash, @scopes,
+          @rate_limit_rpm, @created_at, NULL, NULL)`,
+    );
+    this.listUserApiKeysForUserStmt = this.db.prepare(
+      `SELECT * FROM user_api_keys
+        WHERE user_id = ?
+        ORDER BY created_at DESC`,
+    );
+    this.getUserApiKeyByIdStmt = this.db.prepare(
+      `SELECT * FROM user_api_keys WHERE id = ?`,
+    );
+    this.getUserApiKeyByPrefixStmt = this.db.prepare(
+      `SELECT * FROM user_api_keys WHERE key_prefix = ?`,
+    );
+    this.revokeUserApiKeyStmt = this.db.prepare(
+      `UPDATE user_api_keys
+          SET revoked_at = ?
+        WHERE id = ? AND revoked_at IS NULL`,
+    );
+    this.touchUserApiKeyStmt = this.db.prepare(
+      `UPDATE user_api_keys
+          SET last_used_at = ?
+        WHERE id = ?`,
     );
   }
 
@@ -477,6 +525,58 @@ export class GameStore {
 
   clearPunditRecordsForTournament(tournamentId: string): void {
     this.deletePunditRecordsForTournamentStmt.run(tournamentId);
+  }
+
+  // ---------- user api keys ----------
+
+  insertUserApiKey(args: {
+    id: string;
+    userId: string;
+    label: string;
+    keyPrefix: string;
+    keyHash: string;
+    scopes: readonly string[];
+    rateLimitRpm: number;
+    createdAt: number;
+  }): void {
+    this.ensureUser(args.userId, args.createdAt);
+    this.insertUserApiKeyStmt.run({
+      id: args.id,
+      user_id: args.userId,
+      label: args.label,
+      key_prefix: args.keyPrefix,
+      key_hash: args.keyHash,
+      scopes: JSON.stringify(args.scopes),
+      rate_limit_rpm: args.rateLimitRpm,
+      created_at: args.createdAt,
+    });
+  }
+
+  listUserApiKeysForUser(userId: string): UserApiKeyRow[] {
+    return this.listUserApiKeysForUserStmt.all(userId) as UserApiKeyRow[];
+  }
+
+  getUserApiKeyById(id: string): UserApiKeyRow | null {
+    const row = this.getUserApiKeyByIdStmt.get(id) as UserApiKeyRow | undefined;
+    return row ?? null;
+  }
+
+  getUserApiKeyByPrefix(keyPrefix: string): UserApiKeyRow | null {
+    const row = this.getUserApiKeyByPrefixStmt.get(keyPrefix) as
+      | UserApiKeyRow
+      | undefined;
+    return row ?? null;
+  }
+
+  /** Flip a key to revoked. Returns true if the call actually changed a row. */
+  revokeUserApiKey(id: string, revokedAt: number): boolean {
+    const info = this.revokeUserApiKeyStmt.run(revokedAt, id);
+    return info.changes > 0;
+  }
+
+  /** Bump the last_used_at marker after a successful auth match. */
+  touchUserApiKey(id: string, usedAt: number): void {
+    this.touchUserApiKeyStmt.run(usedAt, id);
   }
 
   // ---------- lifecycle ----------

@@ -343,6 +343,30 @@ function ProfileEditor({ profile, email, onChange }: ProfileEditorProps) {
       </section>
 
       <section className="vt-section">
+        <h2 className="vt-section-title">Developer</h2>
+        <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
+          Mint a personal API key to call the Tournamental REST API or to
+          act as a user-tier key against the MCP server.
+        </p>
+        <a
+          href="/profile/api-keys"
+          style={{
+            alignSelf: "flex-start",
+            padding: "10px 16px",
+            borderRadius: 999,
+            background: "rgba(255,255,255,0.06)",
+            color: "var(--vt-fg)",
+            fontWeight: 600,
+            border: "1px solid rgba(255,255,255,0.12)",
+            textDecoration: "none",
+            fontSize: 14,
+          }}
+        >
+          Manage API keys
+        </a>
+      </section>
+
+      <section className="vt-section">
         <button
           type="button"
           onClick={() => {

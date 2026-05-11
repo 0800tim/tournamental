@@ -17,6 +17,13 @@
 import type { FastifyRequest } from "fastify";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import type { GameStore } from "../store/db.js";
+import {
+  isPersonalKeyShape,
+  prefixFor,
+  verifyKey,
+} from "./user-api-keys-crypto.js";
+
 export interface ResolveOptions {
   /** Allow X-User-Id / ?user_id= when no Bearer token is supplied. */
   readonly devAuth?: boolean;
@@ -24,6 +31,22 @@ export interface ResolveOptions {
   readonly jwtSecret?: string | null;
   /** Clock override for tests. */
   readonly nowMs?: () => number;
+  /**
+   * GameStore reference for resolving personal API keys
+   * (`tnm_live_<...>`). Omit to disable the personal-key path entirely,
+   * which keeps the existing pure-functional callers (identity tests)
+   * unchanged.
+   */
+  readonly store?: GameStore;
+}
+
+export interface AuthResolution {
+  readonly userId: string;
+  readonly source: "supabase" | "personal_key" | "dev_header";
+  /** Set only when source === "personal_key". */
+  readonly keyId?: string;
+  /** Set only when source === "personal_key". `tnm_live_<first-8>`. */
+  readonly keyPrefix?: string;
 }
 
 /**
@@ -35,28 +58,101 @@ export function resolveUserId(
   req: FastifyRequest,
   opts: ResolveOptions = {},
 ): string | null {
-  // 1. Bearer JWT (production path).
+  const resolution = resolveAuthFromHeader(req, opts);
+  return resolution?.userId ?? null;
+}
+
+/**
+ * Full auth resolution: returns who the caller is AND how we resolved
+ * them (Supabase session, personal API key, or the dev-fallback
+ * header). Callers that need to audit-log the originating key prefix
+ * (the MCP server's audit log, the bracket-submit route's rate limit)
+ * should use this rather than the bare `resolveUserId`.
+ *
+ * Resolution order:
+ *   1. `Authorization: Bearer tnm_live_<...>` , personal API key
+ *      (requires `opts.store`; falls through to step 2 if absent).
+ *   2. `Authorization: Bearer <supabase-jwt>` , verified HS256.
+ *   3. `X-User-Id` header / `?user_id=` , dev fallback only.
+ *
+ * Steps 1 and 2 share the `Authorization` header so we route on the
+ * value's shape. A `tnm_live_` prefix that fails verification fails
+ * the whole request closed , we don't fall back to JWT parsing because
+ * a malformed personal key is almost certainly a typo, not a JWT.
+ */
+export function resolveAuthFromHeader(
+  req: FastifyRequest,
+  opts: ResolveOptions = {},
+): AuthResolution | null {
   const authHeader = req.headers.authorization;
   if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
     const token = authHeader.slice("Bearer ".length).trim();
+    if (isPersonalKeyShape(token)) {
+      // Personal API key path. Requires a store reference; we fail
+      // closed if the caller hasn't wired one in.
+      if (!opts.store) return null;
+      const resolved = resolvePersonalKey(token, opts.store, opts.nowMs);
+      return resolved;
+    }
     const claims = verifySupabaseJwt(token, {
       secret: opts.jwtSecret ?? null,
       nowMs: opts.nowMs,
     });
-    if (claims?.sub) return claims.sub;
+    if (claims?.sub) {
+      return { userId: claims.sub, source: "supabase" };
+    }
     // Bearer was sent but invalid → fail closed.
     return null;
   }
   // 2. Dev fallback: X-User-Id header / ?user_id=.
   if (!opts.devAuth) return null;
   const headerUser = req.headers["x-user-id"];
-  if (typeof headerUser === "string" && headerUser.length > 0) return headerUser;
-  if (Array.isArray(headerUser) && headerUser[0]) return headerUser[0];
+  if (typeof headerUser === "string" && headerUser.length > 0) {
+    return { userId: headerUser, source: "dev_header" };
+  }
+  if (Array.isArray(headerUser) && headerUser[0]) {
+    return { userId: headerUser[0], source: "dev_header" };
+  }
   const qs = req.query as Record<string, unknown> | undefined;
   if (qs && typeof qs.user_id === "string" && qs.user_id.length > 0) {
-    return qs.user_id;
+    return { userId: qs.user_id, source: "dev_header" };
   }
   return null;
+}
+
+/**
+ * Resolve a `tnm_live_<...>` token to a user id. Looks up by the
+ * stored prefix, then constant-time compares the scrypt hash. Bumps
+ * `last_used_at` on success. Returns null if the key is unknown,
+ * revoked, or malformed.
+ *
+ * Note: only the `key_prefix` is ever exposed to callers. The plaintext
+ * is matched against the hash and immediately discarded.
+ */
+export function resolvePersonalKey(
+  plaintext: string,
+  store: GameStore,
+  nowMs?: () => number,
+): AuthResolution | null {
+  const prefix = prefixFor(plaintext);
+  if (!prefix) return null;
+  const row = store.getUserApiKeyByPrefix(prefix);
+  if (!row) return null;
+  if (row.revoked_at !== null) return null;
+  if (!verifyKey(plaintext, row.key_hash)) return null;
+  const now = nowMs ? nowMs() : Date.now();
+  try {
+    store.touchUserApiKey(row.id, now);
+  } catch {
+    // Touching last_used_at is best-effort , a write failure here must
+    // not deny a valid request. The audit log still has the call.
+  }
+  return {
+    userId: row.user_id,
+    source: "personal_key",
+    keyId: row.id,
+    keyPrefix: row.key_prefix,
+  };
 }
 
 // ---------- JWT verification ----------
