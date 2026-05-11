@@ -55,6 +55,8 @@ import {
   useStickyGroupHeaders,
 } from "@/lib/bracket/mobile-gestures";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
+import { loadServerBracket, savePerMatchPick } from "@/lib/bracket/api";
+import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
@@ -193,6 +195,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
     const draft = loadDraft(tournament.id, id);
     if (draft) setBracket(draft);
     else setBracket({ ...emptyBracket(), bracketId: id });
+
+    // Best-effort server hydration: fetch the persisted bracket and
+    // merge it with the local draft (newer-lockedAt wins per pick).
+    // A 404 / network error just leaves the local draft in place.
+    let cancelled = false;
+    (async () => {
+      const remote = await loadServerBracket({
+        userId: id,
+        tournamentId: tournament.id,
+      });
+      if (cancelled || !remote.ok) return;
+      setBracket((current) => {
+        const merged = mergeBrackets(current, remote.bracket);
+        // Persist the merged result so the next reload doesn't have
+        // to re-fetch in order to surface the server picks.
+        saveDraft(tournament.id, merged, id);
+        return merged;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [tournament.id]);
 
   useEffect(() => {
@@ -292,6 +316,40 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return () => cancel(handle as number);
   }, [cascaded.knockouts, tab]);
 
+  /**
+   * Fire-and-forget per-match save. Doesn't block the UI — the local
+   * state update happens synchronously. If the API call fails the
+   * localStorage write in `update()` keeps the pick alive locally; the
+   * next bulk submit (or page reload merge) will reconcile.
+   */
+  const persistPickToServer = useCallback(
+    (next: MatchPrediction): void => {
+      if (userLocalId === "ssr_user") return;
+      void savePerMatchPick({
+        userId: userLocalId,
+        matchId: next.matchId,
+        tournamentId: tournament.id,
+        outcome: next.outcome,
+        ...(next.homeScore !== undefined ? { homeScore: next.homeScore } : {}),
+        ...(next.awayScore !== undefined ? { awayScore: next.awayScore } : {}),
+        ...(next.oddsAtLock ? { oddsAtLock: next.oddsAtLock } : {}),
+      }).then((res) => {
+        if (!res.ok) {
+          // Soft failure: stay quiet on transport errors (the user is
+          // probably offline and we don't want to surface a banner per
+          // click), but log a structured warning for observability.
+          // eslint-disable-next-line no-console
+          console.warn("[bracket] per-match save failed", {
+            matchId: next.matchId,
+            code: res.code,
+            status: res.status,
+          });
+        }
+      });
+    },
+    [tournament.id, userLocalId],
+  );
+
   const onChangeMatch = (next: MatchPrediction): void => {
     const prev = bracket.matchPredictions[next.matchId];
     const isOutcomeChange = !prev || prev.outcome !== next.outcome;
@@ -312,6 +370,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       ...bracket,
       matchPredictions: { ...bracket.matchPredictions, [next.matchId]: next },
     });
+    persistPickToServer(next);
   };
 
   const onChangeTiebreaker = (next: GroupTiebreaker): void => {
@@ -343,6 +402,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       ...bracket,
       knockoutPredictions: { ...bracket.knockoutPredictions, [next.matchId]: next },
     });
+    persistPickToServer(next);
   };
 
   /**
@@ -501,10 +561,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
     };
     const res = await submitBracket(tournament.id, submission, userLocalId);
     if (res.ok) {
-      setSubmitState(`Saved (id: ${res.bracket_id ?? "n/a"})`);
-      update(submission);
-    } else if (res.status === "draft_saved_no_api") {
-      setSubmitState("Draft saved locally. API not live yet — see browser console.");
+      const rejected = res.rejected ?? [];
+      const baseMsg = "Bracket saved. You can change any pick before kickoff.";
+      setSubmitState(
+        rejected.length === 0
+          ? baseMsg
+          : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped — match already started)`,
+      );
+      update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
+    } else if (res.status === "saved_offline") {
+      setSubmitState("Saved offline — we'll retry when you're back online.");
     } else {
       setSubmitState(`Save failed: ${res.error ?? "unknown"} — draft saved locally.`);
     }

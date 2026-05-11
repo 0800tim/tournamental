@@ -17,8 +17,14 @@ export interface PunditStatus {
   readonly tournaments: ReadonlyArray<string>;
 }
 
+// Resolution order matches `lib/bracket/api.ts`: prefer the canonical
+// NEXT_PUBLIC_GAME_API_URL, fall back to the legacy var, then the
+// production host. The legacy `vtorn-game.aiva.nz` default was the
+// dev-mesh hostname and no longer resolves in production.
 const GAME_BASE =
-  process.env.NEXT_PUBLIC_VTORN_GAME_URL ?? "https://vtorn-game.aiva.nz";
+  process.env.NEXT_PUBLIC_GAME_API_URL ??
+  process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
+  "https://game.tournamental.com";
 
 export const UNVERIFIED: PunditStatus = {
   verified: false,

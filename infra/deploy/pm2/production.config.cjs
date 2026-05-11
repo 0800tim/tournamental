@@ -38,6 +38,39 @@ function fastifyApp({ name, app, port, instances = 1 }) {
   };
 }
 
+/**
+ * Fastify variant that runs through tsx so workspace packages whose
+ * `main` points at a `.ts` source file (e.g. @vtorn/bracket-engine,
+ * @vtorn/spec) resolve at runtime without needing a build step on
+ * those packages. The game service uses this because it consumes the
+ * bracket-engine cascade engine directly. CPU overhead is negligible
+ * for a Fastify service that's I/O bound on SQLite.
+ */
+function fastifyAppTsx({ name, app, port, instances = 1 }) {
+  // tsx accepts --env-file natively (>= v4.7), so the .env.production
+  // values land in process.env at boot without needing dotenv in the app.
+  const envFile = path.join(APPS, app, '.env.production');
+  return {
+    name,
+    cwd: path.join(APPS, app),
+    script: path.join(APPS, app, 'node_modules', '.bin', 'tsx'),
+    args: `--env-file-if-exists=${envFile} src/server.ts`,
+    interpreter: 'none',
+    instances,
+    exec_mode: instances > 1 ? 'cluster' : 'fork',
+    env: {
+      NODE_ENV: 'production',
+      PORT: String(port),
+      HOST: '0.0.0.0',
+    },
+    out_file: `/var/log/vtorn/${name}.out.log`,
+    error_file: `/var/log/vtorn/${name}.err.log`,
+    merge_logs: true,
+    max_memory_restart: '512M',
+    autorestart: true,
+  };
+}
+
 function nextApp({ name, app, port, instances = 1 }) {
   return {
     name,
@@ -87,7 +120,12 @@ module.exports = {
     astroApp({ name: 'vtorn-marketing-prod', app: 'marketing', port: 3320 }),
     nextApp({ name: 'vtorn-web-prod', app: 'web', port: 3300, instances: 2 }),
     fastifyApp({ name: 'vtorn-api-prod', app: 'api', port: 3310, instances: 2 }),
-    fastifyApp({ name: 'vtorn-game-prod', app: 'game', port: 3360, instances: 2 }),
+    // Game service runs via tsx because it depends on @vtorn/bracket-engine
+    // (workspace package whose main resolves to a .ts file). Single instance:
+    // SQLite is a single-writer database, so clustering would just queue
+    // writes behind the WAL. We'll re-evaluate when traffic warrants a
+    // proper PG migration.
+    fastifyAppTsx({ name: 'vtorn-game-prod', app: 'game', port: 3360, instances: 1 }),
     // fastifyApp({ name: 'vtorn-auth-sms-prod', app: 'auth-sms', port: 3330 }),
     // fastifyApp({ name: 'vtorn-dm-otp-prod', app: 'dm-otp', port: 3331 }),
     // fastifyApp({ name: 'vtorn-odds-ingest-prod', app: 'odds-ingest', port: 3341 }),
