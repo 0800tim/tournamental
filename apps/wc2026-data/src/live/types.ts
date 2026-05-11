@@ -2,7 +2,7 @@
  * Live-data types for the 2026 FIFA World Cup match-state stream.
  *
  * These shapes are intentionally narrower than the renderer spec
- * (`@vtorn/spec`) — they describe the *minimum* state needed by:
+ * (`@tournamental/spec`) — they describe the *minimum* state needed by:
  *   - the renderer to drive a watch-along view (current minute, score,
  *     latest events),
  *   - the push-notifications scheduler (status transitions: scheduled →

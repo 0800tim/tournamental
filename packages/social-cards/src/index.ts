@@ -1,12 +1,12 @@
 /**
- * `@vtorn/social-cards` — share / OG card generator for Tournamental.
+ * `@tournamental/social-cards` -- share / OG card generator for Tournamental.
  *
  * Entry-point. Pure-TS, framework-free, runs in Node and any modern
  * server runtime that supports `satori` + `@resvg/resvg-js`.
  *
  * Common consumer pattern:
  *
- *   import { generateOG, type CardInput } from "@vtorn/social-cards";
+ *   import { generateOG, type CardInput } from "@tournamental/social-cards";
  *
  *   const input: CardInput = {
  *     kind: "goal-clip",

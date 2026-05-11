@@ -10,7 +10,7 @@
 
 import { NextResponse, type NextRequest } from "next/server";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { generateMockOdds } from "@/lib/odds/client";
 import type { MatchOdds, OddsSource } from "@/lib/odds/types";

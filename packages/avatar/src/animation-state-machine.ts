@@ -41,7 +41,7 @@
  * `tick()` advances the mixer.
  */
 import * as THREE from "three";
-import type { AnimTag, EventMessage } from "@vtorn/spec";
+import type { AnimTag, EventMessage } from "@tournamental/spec";
 import { phaseLockRate } from "./locomotion.js";
 
 /** Coarse state buckets. Used internally for transition policy. */

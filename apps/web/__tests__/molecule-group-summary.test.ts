@@ -20,7 +20,7 @@ import {
   loadFixtures2026,
   type Bracket,
   type MatchPrediction,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 const T = loadFixtures2026();
 

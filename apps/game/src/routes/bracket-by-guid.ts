@@ -21,7 +21,7 @@
  * minutes after a revalidation kicks off.
  *
  * Resolution of the champion / podium / path:
- *   - Primary: run the full `@vtorn/bracket-engine` cascade against
+ *   - Primary: run the full `@tournamental/bracket-engine` cascade against
  *     the canonical FIFA WC 2026 fixture set. This works for every
  *     bracket saved by the live web client, whose `knockoutPredictions`
  *     keys are canonical fixture ids (`r32_01`, `qf_01`, `final`).
@@ -31,11 +31,11 @@
 
 import type { FastifyInstance } from "fastify";
 
-import { loadFixtures2026, type Tournament } from "@vtorn/bracket-engine";
+import { loadFixtures2026, type Tournament } from "@tournamental/bracket-engine";
 
 import type { GameStore } from "../store/db.js";
 import type { Bracket } from "../types.js";
-import type { MatchPrediction } from "@vtorn/bracket-engine";
+import type { MatchPrediction } from "@tournamental/bracket-engine";
 
 import {
   resolveCascadeForSummary,

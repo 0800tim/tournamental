@@ -15,7 +15,7 @@
  * a stable user-local id. No PII is written.
  */
 
-import type { Bracket, BracketPrediction } from "@vtorn/bracket-engine";
+import type { Bracket, BracketPrediction } from "@tournamental/bracket-engine";
 
 const STORAGE_PREFIX = "vtorn:bracket:v2";
 

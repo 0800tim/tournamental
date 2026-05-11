@@ -10,7 +10,7 @@
  *
  * Cache-wise: this is a per-render local memo. We do NOT round-trip to
  * the network; the bracket lives in localStorage and the cascade runs in
- * a pure function from `@vtorn/bracket-engine`. The molecule scene
+ * a pure function from `@tournamental/bracket-engine`. The molecule scene
  * already pays the same cost on every render, so duplicating it here
  * costs a single extra pass per molecule-page load — well within budget.
  */
@@ -22,7 +22,7 @@ import {
   type Bracket,
   type CascadedBracket,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { localUserId, loadDraft } from "@/lib/bracket/storage";

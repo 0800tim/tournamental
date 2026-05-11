@@ -16,7 +16,7 @@
 
 import type { NextRequest } from "next/server";
 
-import { renderQrPng } from "@vtorn/social-cards/canvas";
+import { renderQrPng } from "@tournamental/social-cards/canvas";
 
 export const runtime = "nodejs";
 

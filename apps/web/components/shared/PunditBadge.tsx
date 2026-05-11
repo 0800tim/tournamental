@@ -5,7 +5,7 @@
  *   - Leaderboard rows (LeaderboardPreview, mid-tournament leaderboard)
  *   - Bracket page header (when viewing your own bracket)
  *   - Customer-360 in admin (Profile tab)
- *   - Match-share OG card (via @vtorn/social-cards)
+ *   - Match-share OG card (via @tournamental/social-cards)
  *
  * Design rules:
  *   - Subtle. No animation. The badge is a brand-trust signal, not a

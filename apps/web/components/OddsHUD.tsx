@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { MatchStore } from "@tournamental/spec-client";
 
 /**
  * Placeholder hook for the historic-odds HUD widget (sister issue, owner

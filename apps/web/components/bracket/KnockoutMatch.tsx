@@ -23,7 +23,7 @@
 
 import type { CSSProperties, MouseEvent } from "react";
 
-import type { CascadedKnockout, MatchPrediction, Team } from "@vtorn/bracket-engine";
+import type { CascadedKnockout, MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
 import { OddsChip } from "../odds/OddsChip";

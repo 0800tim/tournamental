@@ -101,7 +101,7 @@ without operator action.
 ## Architecture
 
 - **Highlight detector** (`src/highlights.ts`) — pure function over an
-  `EventMessage[]` stream from `@vtorn/spec`. Scores each event by importance
+  `EventMessage[]` stream from `@tournamental/spec`. Scores each event by importance
   (goal=10, penalty=9, red=8, match_end=7, save=4, yellow=3, on-target shot=2),
   expands each into a (start, end) window, and greedy-merges overlapping
   windows. Deterministic; same input → byte-identical output.

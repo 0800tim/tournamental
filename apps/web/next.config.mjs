@@ -14,17 +14,17 @@ const nextConfig = {
       "satori",
       // @napi-rs/canvas loads platform-specific .node bindings (skia)
       // at runtime, webpack cannot bundle them. The bracket-share
-      // PNG / MP4 routes route through @vtorn/social-cards which uses
+      // PNG / MP4 routes route through @tournamental/social-cards which uses
       // it server-side.
       "@napi-rs/canvas",
-      "@vtorn/social-cards",
+      "@tournamental/social-cards",
     ],
   },
   transpilePackages: [
-    "@vtorn/spec",
-    "@vtorn/spec-client",
+    "@tournamental/spec",
+    "@tournamental/spec-client",
     "@vtorn/avatar",
-    "@vtorn/bracket-engine",
+    "@tournamental/bracket-engine",
   ],
   webpack: (config, { isServer }) => {
     // ESM-style imports inside the @vtorn/* workspace packages use `.js`

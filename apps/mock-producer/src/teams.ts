@@ -7,7 +7,7 @@
  * blob; the file is required to contain `teams: [Team, Team]`.
  */
 import { readFile } from "node:fs/promises";
-import type { Player, Team } from "@vtorn/spec";
+import type { Player, Team } from "@tournamental/spec";
 
 export interface TeamsBundle {
   teams: [Team, Team];

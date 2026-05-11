@@ -2,7 +2,7 @@
 
 import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { MatchStore } from "@tournamental/spec-client";
 
 interface HUDProps {
   store: StoreApi<MatchStore>;
@@ -59,7 +59,7 @@ export function HUD({ store }: HUDProps) {
   );
 }
 
-function eventLabel(ev: import("@vtorn/spec").EventMessage): string {
+function eventLabel(ev: import("@tournamental/spec").EventMessage): string {
   switch (ev.type) {
     case "event.goal":
       return "GOAL";

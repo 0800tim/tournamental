@@ -8,7 +8,7 @@
 - **Compilation**: the top 6 goal clips of the week from the auto-clip pipeline,
   ordered by engagement (views + saves + shares × weight). 60s total, 10s per clip.
 - **Outro**: branded 4-second card with the week's top-leaderboard rank stat, built
-  from `@vtorn/social-cards` `tournament-recap` card variant tuned to a "this week"
+  from `@tournamental/social-cards` `tournament-recap` card variant tuned to a "this week"
   scope. URL: `{{card.story_url}}`.
 
 ## Caption

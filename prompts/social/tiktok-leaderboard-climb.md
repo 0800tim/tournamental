@@ -5,7 +5,7 @@
 
 ## Visual
 
-- **Card**: `leaderboard-rank` story-format card from `@vtorn/social-cards` showing the
+- **Card**: `leaderboard-rank` story-format card from `@tournamental/social-cards` showing the
   rank, the scope, and the weekly move arrow. URL: `{{card.story_url}}`.
 - **Motion**: 3-frame Ken Burns zoom on the card from 110% → 100% over 4s, then a
   freeze frame for 5s with a caption overlay.

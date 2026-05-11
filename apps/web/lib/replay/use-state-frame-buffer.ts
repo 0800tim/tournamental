@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo } from "react";
 import type { StoreApi } from "zustand/vanilla";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { MatchStore } from "@tournamental/spec-client";
 import { StateFrameBuffer } from "./state-frame-buffer.js";
 
 /**

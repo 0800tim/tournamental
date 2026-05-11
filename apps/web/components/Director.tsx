@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
-import type { EventMessage, PlayerState, Vec2 } from "@vtorn/spec";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { EventMessage, PlayerState, Vec2 } from "@tournamental/spec";
+import type { MatchStore } from "@tournamental/spec-client";
 import { toWorld, toWorldYaw } from "@/lib/coords";
 import {
   DirectorPolicy,

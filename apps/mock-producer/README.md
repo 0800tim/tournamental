@@ -2,7 +2,7 @@
 
 > Owned by [AGENT-PROMPTS.md](../../AGENT-PROMPTS.md) section 4. See [docs/05-mock-producer.md](../../docs/05-mock-producer.md).
 
-Node 20+ TypeScript synthetic match generator. Emits a deterministic 90-min soccer match in canonical [`@vtorn/spec`](../../packages/spec) v0.1.1 shape. Useful as a fast renderer-dev fixture and as the public "always-on" demo stream when no live game is active.
+Node 20+ TypeScript synthetic match generator. Emits a deterministic 90-min soccer match in canonical [`@tournamental/spec`](../../packages/spec) v0.1.1 shape. Useful as a fast renderer-dev fixture and as the public "always-on" demo stream when no live game is active.
 
 The CLI shape mirrors `apps/statsbomb-replay/`'s producer so the renderer code in `apps/web/` is identical for both.
 
@@ -55,7 +55,7 @@ A given `--seed` reproduces an exact byte-for-byte match: the simulation is a pu
 
 ## Spec validation
 
-Every emitted message is validated against `@vtorn/spec` types in `tests/spec-validation.test.ts`. The validator (`src/validator.ts`) is exported from the package and can be reused by other producers.
+Every emitted message is validated against `@tournamental/spec` types in `tests/spec-validation.test.ts`. The validator (`src/validator.ts`) is exported from the package and can be reused by other producers.
 
 ## Output coverage
 
@@ -75,7 +75,7 @@ A more realistic simulator lives in `apps/sim-producer/` later. This package is 
 
 ## Spec contract
 
-Consumes `@vtorn/spec` workspace dep at `SPEC_VERSION = "0.1.1"`. Spec changes are orchestrator-only — see [CONTRIBUTING.md § Spec changes](../../CONTRIBUTING.md#spec-changes).
+Consumes `@tournamental/spec` workspace dep at `SPEC_VERSION = "0.1.1"`. Spec changes are orchestrator-only — see [CONTRIBUTING.md § Spec changes](../../CONTRIBUTING.md#spec-changes).
 
 ## Tests
 

@@ -12,7 +12,7 @@ This package is the contract surface between the Tournamental core and third-par
 pnpm add @tournamental/plugin-sdk
 ```
 
-The SDK has one runtime dependency (`zod` for manifest validation) plus a peer dependency on `@vtorn/spec` for the message types. Both are workspace deps in the monorepo and regular npm deps in external plugins.
+The SDK has one runtime dependency (`zod` for manifest validation) plus a peer dependency on `@tournamental/spec` for the message types. Both are workspace deps in the monorepo and regular npm deps in external plugins.
 
 ### 2. Scaffold a plugin
 

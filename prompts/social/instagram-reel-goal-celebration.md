@@ -7,7 +7,7 @@
 
 - **Video**: same 1080×1920 vertical clip used for TikTok, re-encoded at the IG
   recommended bitrate (5Mbps H.264, ≤ 90s).
-- **Cover image**: 1080×1920 `goal-clip` story-format card from `@vtorn/social-cards`,
+- **Cover image**: 1080×1920 `goal-clip` story-format card from `@tournamental/social-cards`,
   posted as the explicit Reel cover (set via the IG Graph API field `cover_url`).
 
 ## Caption

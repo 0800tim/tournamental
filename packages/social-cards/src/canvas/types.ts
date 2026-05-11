@@ -3,7 +3,7 @@
  *
  * The canvas renderer is intentionally separate from the satori card
  * builders in `src/cards/`: it accepts a richer, knockout-path-shaped
- * input that mirrors the @vtorn/bracket-engine cascade output rather
+ * input that mirrors the @tournamental/bracket-engine cascade output rather
  * than the legacy "list of (round, pick)" tuples. Includes optional
  * runner-up and third-place fields so the card can render the
  * gold-silver-bronze podium next to the champion centrepiece.

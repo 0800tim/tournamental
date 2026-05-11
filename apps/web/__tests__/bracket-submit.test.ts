@@ -16,7 +16,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Bracket } from "@vtorn/bracket-engine";
+import type { Bracket } from "@tournamental/bracket-engine";
 
 import { submitBracket } from "../lib/bracket/submit";
 import { draftKey, loadDraft } from "../lib/bracket/storage";

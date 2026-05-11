@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS brackets (
   id              TEXT PRIMARY KEY,
   user_id         TEXT NOT NULL,
   tournament_id   TEXT NOT NULL,
-  payload_json    TEXT NOT NULL,       -- the full Bracket from @vtorn/bracket-engine
+  payload_json    TEXT NOT NULL,       -- the full Bracket from @tournamental/bracket-engine
   locked_at       INTEGER NOT NULL,    -- epoch ms
   score_total     INTEGER NOT NULL DEFAULT 0,
   UNIQUE(user_id, tournament_id),

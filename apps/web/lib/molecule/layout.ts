@@ -59,7 +59,7 @@ import type {
   CascadedBracket,
   StageId,
   Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 // ---------- public types ----------
 

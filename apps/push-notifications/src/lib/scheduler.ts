@@ -24,7 +24,7 @@ import type {
   GroupFixture,
   KnockoutFixture,
   Tournament,
-} from '@vtorn/bracket-engine';
+} from '@tournamental/bracket-engine';
 import type { AuditLogger } from './audit.js';
 
 export interface ScheduledJob {

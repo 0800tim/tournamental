@@ -5,7 +5,7 @@
 
 ## Visual
 
-- **Card**: `tournament-recap` story-format card from `@vtorn/social-cards`.
+- **Card**: `tournament-recap` story-format card from `@tournamental/social-cards`.
 - **Length**: 30 seconds — 8s stat-counter intro → 18s top-3 user goal-clip
   highlights → 4s outro.
 - **Cover**: the recap card itself.

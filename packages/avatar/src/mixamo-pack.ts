@@ -19,7 +19,7 @@
  *     that ALSO calls `retargetClip` so the loaded clips bind to our
  *     canonical bones regardless of the source rig.
  */
-import type { AnimTag } from "@vtorn/spec";
+import type { AnimTag } from "@tournamental/spec";
 import * as THREE from "three";
 import {
   ANIMATION_FILES,

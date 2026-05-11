@@ -23,7 +23,7 @@
     "@fastify/swagger-ui": "^5.2.6",
     "@vtorn/aiva-client": "workspace:*",
     "@vtorn/auth-sms": "workspace:*",
-    "@vtorn/bracket-engine": "workspace:*",
+    "@tournamental/bracket-engine": "workspace:*",
     "fastify": "^5.0.0",
     "zod": "^3.23.8"
   },

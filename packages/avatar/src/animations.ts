@@ -12,7 +12,7 @@
  * Files that are not yet authored will reject with a clear error so the
  * renderer can fall back to `idle` per the FSM spec.
  */
-import type { AnimTag } from "@vtorn/spec";
+import type { AnimTag } from "@tournamental/spec";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 

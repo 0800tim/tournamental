@@ -20,7 +20,7 @@ import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { BracketBuilder } from "../components/bracket/BracketBuilder";
 import type { MatchOdds } from "../lib/odds/types";

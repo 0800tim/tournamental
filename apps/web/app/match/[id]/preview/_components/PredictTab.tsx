@@ -10,7 +10,7 @@
 
 "use client";
 
-import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
+import type { MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import { MatchPredictionRow } from "@/components/bracket/MatchPredictionRow";
 

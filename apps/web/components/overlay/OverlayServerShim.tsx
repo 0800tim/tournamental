@@ -29,7 +29,7 @@ import Link from "next/link";
 import { parseOverlayUrl } from "./url";
 import { canonicalTeamByCode } from "@/app/team/[code]/_lib/team-data";
 import { canonicalTeam, resolveMatch } from "@/app/match/[id]/preview/_lib/match-data";
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 

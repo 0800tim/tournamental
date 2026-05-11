@@ -181,7 +181,7 @@ describe('renderReport', () => {
         {
           group: 'packages',
           dir: 'spec',
-          name: '@vtorn/spec',
+          name: '@tournamental/spec',
           port: null,
           description: 'Shared types',
         },

@@ -8,7 +8,7 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
 
-import type { Bracket, MatchPrediction } from "@vtorn/bracket-engine";
+import type { Bracket, MatchPrediction } from "@tournamental/bracket-engine";
 
 import { buildServer } from "../src/server.js";
 import type { KickoffRegistry, KickoffLookup } from "../src/kickoffs.js";

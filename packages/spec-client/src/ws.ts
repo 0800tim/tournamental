@@ -1,4 +1,4 @@
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 import type { StreamSource, StreamStatus } from "./store";
 
 /**

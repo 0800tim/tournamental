@@ -54,7 +54,7 @@ open "http://localhost:3000/match/<id>?src=ws://localhost:4001"
 - `lib/interpolation.ts`, lerp / slerp / extrapolate / speed estimation.
 - `lib/animation-fsm.ts`, locomotion + one-shot animation state machine.
 - `lib/jersey-texture.ts`, per-player canvas texture (cached).
-- `lib/store.ts`, thin renderer-side wrapper around `@vtorn/spec-client`.
+- `lib/store.ts`, thin renderer-side wrapper around `@tournamental/spec-client`.
 
 ## Tests
 
@@ -66,6 +66,6 @@ pnpm --filter @vtorn/web lint
 
 ## Spec contract
 
-Consumes `@vtorn/spec` workspace dep. Stream consumption goes through the
-sister workspace package `@vtorn/spec-client`, which exposes
+Consumes `@tournamental/spec` workspace dep. Stream consumption goes through the
+sister workspace package `@tournamental/spec-client`, which exposes
 `useMatchStream(url|source)` and the in-process AR-FR synthetic source.

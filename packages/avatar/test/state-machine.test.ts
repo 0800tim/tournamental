@@ -11,7 +11,7 @@
  */
 import { describe, it, expect } from "vitest";
 import * as THREE from "three";
-import type { AnimTag, EventMessage } from "@vtorn/spec";
+import type { AnimTag, EventMessage } from "@tournamental/spec";
 import {
   AvatarAnimationStateMachine,
   STATE_TABLE,

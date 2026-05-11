@@ -11,7 +11,7 @@
  * Candidate partners (recommended discussion order):
  *   1. **Sportradar** — most mature WC live feed; full positional data
  *      via their MetaSport API; commercial licence required. Their
- *      schema maps fairly cleanly onto @vtorn/spec.
+ *      schema maps fairly cleanly onto @tournamental/spec.
  *   2. **Stats Perform / OPTA** — alternative; richer event taxonomy,
  *      lighter on positional. Good for HUD events; lighter on render
  *      fidelity.
@@ -25,7 +25,7 @@
  * interface; each partner is one concrete impl. None are wired yet.
  */
 
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 import type { Fixture } from "./fixtures.js";
 
 export interface LiveDataAdapter {
@@ -37,7 +37,7 @@ export interface LiveDataAdapter {
 
   /**
    * Open a stream for the given fixture and yield canonical
-   * `@vtorn/spec` messages. Closes when the upstream feed terminates.
+   * `@tournamental/spec` messages. Closes when the upstream feed terminates.
    */
   stream(fixture: Fixture, signal: AbortSignal): AsyncIterable<Message>;
 }

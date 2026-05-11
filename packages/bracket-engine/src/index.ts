@@ -1,5 +1,5 @@
 /**
- * @vtorn/bracket-engine — pure-function bracket prediction engine.
+ * @tournamental/bracket-engine -- pure-function bracket prediction engine.
  *
  * Used by the browser UI for the FIFA WC 2026 bracket prophet flow and
  * by the API service when settling brackets at tournament end.
@@ -22,7 +22,7 @@ export { loadFixtures2026 } from "./fixtures-loader.js";
 // `node:crypto`. Browser bundles only need cascade + score + tournament.
 // Server-side consumers (the API, replay tooling) import vstamp directly:
 //
-//   import { signBracket } from "@vtorn/bracket-engine/vstamp";
+//   import { signBracket } from "@tournamental/bracket-engine/vstamp";
 //
 // This keeps client bundles small and avoids "node:" scheme errors in
 // webpack.

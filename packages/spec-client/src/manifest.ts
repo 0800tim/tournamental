@@ -6,12 +6,12 @@ import type {
   StateFrame,
   Vec2,
   Vec3,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 import {
   isEvent,
   isMatchInit,
   isStateFrame,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 import type { StreamSource, StreamStatus } from "./store";
 
 /**

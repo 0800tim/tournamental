@@ -39,7 +39,7 @@ import {
   type GroupTiebreaker,
   type MatchPrediction,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
@@ -66,7 +66,7 @@ import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
 import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
 
-import type { StageId } from "@vtorn/bracket-engine";
+import type { StageId } from "@tournamental/bracket-engine";
 
 const KO_PICK_STAGES: readonly StageId[] = ["r32", "r16", "qf", "sf", "tp", "f"] as const;
 

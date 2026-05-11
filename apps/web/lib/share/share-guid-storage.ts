@@ -5,7 +5,7 @@
  * resolves to a bracket. We keep it in its own localStorage key —
  * separate from the bracket draft — for three reasons:
  *
- *  1. The `Bracket` shape from `@vtorn/bracket-engine` is the strict
+ *  1. The `Bracket` shape from `@tournamental/bracket-engine` is the strict
  *     contract used by the scoring + cascade engines, and we don't
  *     want to widen it just to hold a UI-layer identifier.
  *

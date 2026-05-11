@@ -26,7 +26,7 @@ import {
   type MatchPrediction,
   type Team,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 import { groupMatchId } from "@/lib/bracket/match-ids";
 import type { MatchOdds } from "@/lib/odds/types";

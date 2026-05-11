@@ -22,7 +22,7 @@ It is the AR-FR demo's data source. Without it, there is no demo.
 
 ## Acceptance
 
-- [ ] Streams a spec-valid sequence (validated against `@vtorn/spec`) for the full match including ET and pens.
+- [ ] Streams a spec-valid sequence (validated against `@tournamental/spec`) for the full match including ET and pens.
 - [ ] Final `event.score_change` carries 3-3 at 90+ET; final `event.penalty_shootout_end` carries Argentina, 4-2.
 - [ ] All major event timestamps within 30s of actual match timeline.
 - [ ] `--time-scale=10` plays the entire match in ≈ 15 wall-minutes.

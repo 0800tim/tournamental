@@ -5,8 +5,8 @@ import type {
   Player,
   StateFrame,
   Team,
-} from "@vtorn/spec";
-import { SPEC_VERSION } from "@vtorn/spec";
+} from "@tournamental/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 import type { StreamSource } from "./store";
 
 /**
@@ -321,4 +321,4 @@ export function syntheticArFrSource(opts: { tickMs?: number } = {}): StreamSourc
 // Re-export the canonical message list so tests / debug tooling can inspect
 // the synthetic match without running the timer.
 export { ARG, FRA, GOALS, PENALTIES };
-export type { Player as SyntheticPlayer } from "@vtorn/spec";
+export type { Player as SyntheticPlayer } from "@tournamental/spec";

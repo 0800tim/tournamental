@@ -15,7 +15,7 @@
  * the 2026-06-01 squad-deadline.
  */
 
-import type { Team as BracketTeam, Tournament } from "@vtorn/bracket-engine";
+import type { Team as BracketTeam, Tournament } from "@tournamental/bracket-engine";
 
 import canonicalTeams from "../../../../../../data/fifa-wc-2026/teams.json";
 import canonicalFixtures from "../../../../../../data/fifa-wc-2026/fixtures.json";

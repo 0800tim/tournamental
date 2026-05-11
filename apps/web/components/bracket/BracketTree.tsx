@@ -16,7 +16,7 @@ import type {
   CascadedKnockout,
   Team,
   Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 export interface BracketTreeProps {
   readonly tournament: Tournament;

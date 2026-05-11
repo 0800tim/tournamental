@@ -33,7 +33,7 @@
  *
  * Reference physics (Goff & Carré 2010; Kray et al. 2014).
  */
-import type { Vec3 } from "@vtorn/spec";
+import type { Vec3 } from "@tournamental/spec";
 import { BALL_CONSTANTS } from "./ball-rapier.js";
 
 export type CurlDirection =

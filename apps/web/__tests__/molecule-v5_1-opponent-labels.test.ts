@@ -28,7 +28,7 @@
 import { describe, it, expect } from "vitest";
 
 import { derivePathToGold } from "@/lib/molecule/path";
-import type { CascadedBracket } from "@vtorn/bracket-engine";
+import type { CascadedBracket } from "@tournamental/bracket-engine";
 
 /**
  * Synthetic full ARG → BRA → FRA → GER → ESP → ENG champion run.

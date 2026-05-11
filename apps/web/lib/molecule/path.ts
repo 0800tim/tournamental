@@ -15,7 +15,7 @@
  * Determinism: pure function over its inputs; no clock reads, no random.
  */
 
-import type { CascadedBracket, CascadedKnockout } from "@vtorn/bracket-engine";
+import type { CascadedBracket, CascadedKnockout } from "@tournamental/bracket-engine";
 
 import type { BondStage } from "./layout";
 

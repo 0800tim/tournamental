@@ -17,9 +17,9 @@
  * file is import-clean from server components too.
  */
 
-import type { CascadedBracket, Tournament } from "@vtorn/bracket-engine";
+import type { CascadedBracket, Tournament } from "@tournamental/bracket-engine";
 
-import type { CanvasCardSize } from "@vtorn/social-cards";
+import type { CanvasCardSize } from "@tournamental/social-cards";
 
 const CAPTURE_ENDPOINT = "/api/share/molecule-capture";
 

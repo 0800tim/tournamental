@@ -31,7 +31,7 @@
  * bracket than the one he saved. This file is the data-layer fix.
  */
 
-import type { Bracket } from "@vtorn/bracket-engine";
+import type { Bracket } from "@tournamental/bracket-engine";
 
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import type { CanonicalTeamsFile } from "@/lib/bracket/enrich";

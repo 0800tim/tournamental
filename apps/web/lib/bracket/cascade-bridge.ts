@@ -18,7 +18,7 @@ import {
   type Bracket,
   type BracketPrediction,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 export function bracketToCascadeInput(
   tournament: Tournament,

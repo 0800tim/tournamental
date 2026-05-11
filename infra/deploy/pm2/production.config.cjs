@@ -40,8 +40,8 @@ function fastifyApp({ name, app, port, instances = 1 }) {
 
 /**
  * Fastify variant that runs through tsx so workspace packages whose
- * `main` points at a `.ts` source file (e.g. @vtorn/bracket-engine,
- * @vtorn/spec) resolve at runtime without needing a build step on
+ * `main` points at a `.ts` source file (e.g. @tournamental/bracket-engine,
+ * @tournamental/spec) resolve at runtime without needing a build step on
  * those packages. The game service uses this because it consumes the
  * bracket-engine cascade engine directly. CPU overhead is negligible
  * for a Fastify service that's I/O bound on SQLite.
@@ -120,7 +120,7 @@ module.exports = {
     astroApp({ name: 'vtorn-marketing-prod', app: 'marketing', port: 3320 }),
     nextApp({ name: 'vtorn-web-prod', app: 'web', port: 3300, instances: 2 }),
     fastifyApp({ name: 'vtorn-api-prod', app: 'api', port: 3310, instances: 2 }),
-    // Game service runs via tsx because it depends on @vtorn/bracket-engine
+    // Game service runs via tsx because it depends on @tournamental/bracket-engine
     // (workspace package whose main resolves to a .ts file). Single instance:
     // SQLite is a single-writer database, so clustering would just queue
     // writes behind the WAL. We'll re-evaluate when traffic warrants a

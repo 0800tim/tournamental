@@ -5,7 +5,7 @@
 
 ## Visual
 
-- **Card**: `badge-earned` story-format card from `@vtorn/social-cards`. The card
+- **Card**: `badge-earned` story-format card from `@tournamental/social-cards`. The card
   ships the tier colour bar and the badge title prominently.
 - **Length**: 6 seconds.
 - **Motion (Mythic/Platinum)**: shimmer overlay rendered by clip-pipeline.

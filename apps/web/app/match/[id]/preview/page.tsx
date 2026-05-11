@@ -7,7 +7,7 @@
  * surface (per docs/36-tournamental-ux-spec.md §B).
  *
  * Server component: looks up the match in the canonical tournament fixture
- * tree (`@vtorn/bracket-engine.loadFixtures2026`), enriches teams with kit
+ * tree (`@tournamental/bracket-engine.loadFixtures2026`), enriches teams with kit
  * colours, and renders:
  *   - hero (kit gradient + two xl circular flags + scoreline placeholder
  *     or "Kicks off in N hours" countdown + group/round label + venue);
@@ -34,7 +34,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { AppShell } from "@/components/shell";
 import { TeamFlag } from "@/components/bracket/TeamFlag";

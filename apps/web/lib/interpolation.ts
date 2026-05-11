@@ -1,4 +1,4 @@
-import type { BallState, PlayerState, StateFrame, Vec2, Vec3 } from "@vtorn/spec";
+import type { BallState, PlayerState, StateFrame, Vec2, Vec3 } from "@tournamental/spec";
 
 export const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
 

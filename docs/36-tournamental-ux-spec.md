@@ -1,6 +1,6 @@
 # 36, Tournamental UX redesign spec
 
-> The synthesis. Doc [35](35-competitor-ux-dossier.md) was research; this doc is action. Every recommendation here is implementable in our existing stack (Next.js + React Three Fiber + Tailwind + the `@vtorn/bracket-engine` types) and references the specific components we already ship so the next builder agent can extend rather than rewrite.
+> The synthesis. Doc [35](35-competitor-ux-dossier.md) was research; this doc is action. Every recommendation here is implementable in our existing stack (Next.js + React Three Fiber + Tailwind + the `@tournamental/bracket-engine` types) and references the specific components we already ship so the next builder agent can extend rather than rewrite.
 >
 > Filename note: this lives at `36-` because `25-keys-and-secrets-required.md` already occupies the `25-` slot.
 

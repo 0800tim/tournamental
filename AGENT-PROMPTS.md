@@ -207,7 +207,7 @@ ACCEPTANCE
 OPS DISCIPLINE
 - Follow CLAUDE.md's session protocol.
 - Use pnpm. The app belongs in the workspace (pnpm-workspace.yaml).
-- Do NOT modify the spec. Consume @vtorn/spec; if a type is missing,
+- Do NOT modify the spec. Consume @tournamental/spec; if a type is missing,
   file an issue.
 - Tests: vitest for the lib/ helpers (interpolation, coords, anim FSM).
   Playwright e2e is nice-to-have, not required for v0.1.
@@ -484,7 +484,7 @@ DON'T
 
 **For the orchestrator agent**: paste prompt 0 into a Claude Code session and let it work.
 
-**For builder agents**: paste prompts 1–4 into separate Claude Code sessions, one per terminal. They can run truly in parallel - each touches a different directory and depends only on `@vtorn/spec`, which the orchestrator finalised in Phase 0.
+**For builder agents**: paste prompts 1-4 into separate Claude Code sessions, one per terminal. They can run truly in parallel, each touches a different directory and depends only on `@tournamental/spec`, which the orchestrator finalised in Phase 0.
 
 **For the reviewer**: prompt 5 in a long-running session that watches GitHub for open PRs. Or run it on-demand whenever a builder pushes.
 

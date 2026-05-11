@@ -8,8 +8,8 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import type { ManifestController } from "@vtorn/spec-client";
-import type { EventMessage } from "@vtorn/spec";
+import type { ManifestController } from "@tournamental/spec-client";
+import type { EventMessage } from "@tournamental/spec";
 
 const SPEED_OPTIONS = [0.5, 1, 2, 5, 10];
 

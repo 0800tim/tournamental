@@ -37,7 +37,7 @@ import type {
   PlayerState,
   StateFrame,
   Team,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 
 // Re-export spec primitives so plugins only need this one dependency
 // in their package.json. Keeps `pnpm create @tournamental/plugin` output
@@ -51,7 +51,7 @@ export type {
   PlayerState,
   StateFrame,
   Team,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 
 // ---------- common ----------
 

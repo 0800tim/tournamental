@@ -14,7 +14,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import type { Tournament } from '@vtorn/bracket-engine';
+import type { Tournament } from '@tournamental/bracket-engine';
 
 import { Scheduler } from '../src/lib/scheduler.js';
 import { MemoryAuditLogger } from '../src/lib/audit.js';

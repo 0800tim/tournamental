@@ -25,7 +25,7 @@ import type {
   Message,
   StateFrame,
   EventMessage,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 
 /** A non-init message: state frame or event. */
 export type FrameMessage = StateFrame | EventMessage;

@@ -3,8 +3,8 @@ import {
   buildArFrMessages,
   createMatchStore,
   manifestSourceFromText,
-} from "@vtorn/spec-client";
-import type { Message, StateFrame } from "@vtorn/spec";
+} from "@tournamental/spec-client";
+import type { Message, StateFrame } from "@tournamental/spec";
 
 /**
  * Driver-side regression tests covering the two Phase-4 bugs Tim hit
@@ -273,7 +273,7 @@ describe("manifest driver, backward seek replays crossed events", () => {
 
   it("re-emits goal events when the user scrubs back across them", () => {
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
     const goalTs: number[] = [];
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
@@ -345,7 +345,7 @@ describe("manifest driver, forward seek rebuilds cumulative state", () => {
   // (full store reset) and re-drains every event with t <= playhead.
   it("scoreboard reads 2-2 after a forward scrub to clock 86:39 (AR-FR ground truth)", () => {
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: false,
@@ -368,7 +368,7 @@ describe("manifest driver, forward seek rebuilds cumulative state", () => {
 
   it("scoreboard tracks every AR-FR ground-truth score line across forward scrubs", () => {
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: false,
@@ -399,7 +399,7 @@ describe("manifest driver, forward seek rebuilds cumulative state", () => {
 
   it("scoreboard returns to 0-0 after a backward scrub to t=0", () => {
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: false,
@@ -424,7 +424,7 @@ describe("manifest driver, forward seek rebuilds cumulative state", () => {
 
   it("shootout score follows the playhead across forward + backward scrubs", () => {
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: false,
@@ -459,7 +459,7 @@ describe("manifest driver, forward seek rebuilds cumulative state", () => {
     // bumped EVENT_RING_SIZE (4096) the goal events stay visible to
     // the aggregator for the entire match.
     const store = createMatchStore();
-    let captured: import("@vtorn/spec-client").ManifestController | null = null;
+    let captured: import("@tournamental/spec-client").ManifestController | null = null;
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: false,

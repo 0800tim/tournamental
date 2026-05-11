@@ -11,7 +11,7 @@
 
 import { describe, expect, it } from "vitest";
 
-import type { Bracket } from "@vtorn/bracket-engine";
+import type { Bracket } from "@tournamental/bracket-engine";
 
 import { mergeBrackets } from "../lib/bracket/merge";
 

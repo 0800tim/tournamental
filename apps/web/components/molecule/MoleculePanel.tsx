@@ -22,7 +22,7 @@
 
 import { useMemo } from "react";
 
-import type { Bracket, CascadedBracket, Tournament } from "@vtorn/bracket-engine";
+import type { Bracket, CascadedBracket, Tournament } from "@tournamental/bracket-engine";
 
 import type { FinalStage } from "@/lib/molecule/layout";
 import {

@@ -16,7 +16,7 @@ import type {
   Bracket,
   GroupTiebreaker,
   MatchPrediction,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 function parseTime(s: string | undefined | null): number {
   if (!s) return 0;
