@@ -110,6 +110,26 @@ There are now thirteen agents (A–M):
 
 Critical-path "watchable demo" remains a weekend-one job (agents A–E + minimal H). The full Tournamental launch with predictions, bot, VStamps, and clip distribution is a 2–4 week pack of work for a parallel team of code agents — roughly the timeframe to a tournament window like the 2026 World Cup.
 
+## Build a plugin in 10 minutes
+
+Tournamental ships a plugin SDK so third parties can drop in a replacement renderer, scorer, ingest source, identity provider, commentary voice, share-card pipeline, odds feed, or affiliate router without forking the core. Eight extension points are first-class in v0.1.
+
+Quickstart:
+
+- SDK: [`packages/plugin-sdk/`](packages/plugin-sdk) + [`packages/plugin-sdk/README.md`](packages/plugin-sdk/README.md)
+- Reference plugin: [`packages/plugins/example-cel-shaded-renderer/`](packages/plugins/example-cel-shaded-renderer)
+- Full architecture doc: [`docs/28-plugin-architecture.md`](docs/28-plugin-architecture.md)
+- Revenue split via Drips: [`docs/19-open-source-and-contributor-revenue.md`](docs/19-open-source-and-contributor-revenue.md)
+
+```bash
+pnpm add @tournamental/plugin-sdk
+# Create plugin.json declaring `provides: ["renderer"]` (or another capability)
+# Export a default PluginFactory from src/index.ts
+# Drop it in plugins/ for dev or publish to npm under @tournamental-plugin/*
+```
+
+Plugins are dynamically loaded at app boot. License must be Apache-2.0, MIT, BSD-2-Clause, or BSD-3-Clause (the manifest schema rejects everything else). Plugins shipped in `packages/plugins/*` or under the `@tournamental-plugin/*` npm scope receive a share of the upstream Drips treasury per [doc 19](docs/19-open-source-and-contributor-revenue.md).
+
 ## Deploys
 
 CI/CD is build-slot blue-green: build to `<slot>-staging`, smoke-test on a

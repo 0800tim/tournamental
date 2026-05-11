@@ -1,0 +1,40 @@
+{
+  "name": "@tournamental-plugin/example-cel-shaded-renderer",
+  "version": "0.1.0",
+  "description": "Reference renderer plugin: applies a cel-shading toon material to the existing player meshes. Use as a copy-paste template for your own renderer plugin.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src",
+    "plugin.json",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests"
+  },
+  "dependencies": {
+    "@tournamental/plugin-sdk": "workspace:*",
+    "@vtorn/spec": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "keywords": [
+    "tournamental-plugin",
+    "renderer",
+    "cel-shading",
+    "toon"
+  ]
+}
