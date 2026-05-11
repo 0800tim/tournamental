@@ -21,8 +21,15 @@ import type { MatchPrediction } from "@vtorn/bracket-engine";
 
 import { loadDraft, saveDraft, localUserId } from "@/lib/bracket/storage";
 
+// Resolution order:
+//   1. NEXT_PUBLIC_GAME_API_URL — canonical (matches `lib/bracket/api.ts`).
+//   2. NEXT_PUBLIC_VTORN_GAME_URL — legacy env var name; kept for any
+//      pre-existing deployment that still sets it.
+//   3. https://game.tournamental.com — production default.
 const GAME_BASE =
-  process.env.NEXT_PUBLIC_VTORN_GAME_URL ?? "https://vtorn-game.aiva.nz";
+  process.env.NEXT_PUBLIC_GAME_API_URL ??
+  process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
+  "https://game.tournamental.com";
 
 export interface MatchPickError {
   readonly status: number;
