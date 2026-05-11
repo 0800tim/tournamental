@@ -1,0 +1,128 @@
+# Machine-defined label catalogue. Apply with:
+#
+#   gh label create -F .github/labels.yml --force
+#
+# or via the official GitHub Action `crazy-max/ghaction-github-labeler`
+# (workflow at .github/workflows/labels-sync.yml).
+#
+# Three label families:
+#
+#   triage:      who should pick this up (humans, bots, orchestrator-only)
+#   work-type:   what kind of change (bug, feat, docs, infra, …)
+#   surface:     which top-level area is affected (apps/web, apps/mcp, …)
+
+# --- triage ---------------------------------------------------------
+
+- name: good first issue
+  color: 7057ff
+  description: For human newcomers. Single file, single test, well scoped.
+
+- name: agent-task
+  color: 5319e7
+  description: Structured for AI coding agents. Single acceptance test + file path + boundary note. See AGENTS.md.
+
+- name: spec-change
+  color: b60205
+  description: Touches packages/spec/. Orchestrator-only. Requires explicit Tim sign-off.
+
+- name: example
+  color: 0e8a16
+  description: A new entry under examples/. Reviewer uses the example-PR checklist.
+
+- name: skill
+  color: 0e8a16
+  description: A new entry under skills/ (Anthropic Agent Skills SKILL.md format).
+
+- name: needs-triage
+  color: ededed
+  description: Awaiting orchestrator review before being assigned a tier.
+
+- name: blocked
+  color: d93f0b
+  description: Cannot proceed without an upstream change. Comment links the blocker.
+
+# --- work-type ------------------------------------------------------
+
+- name: bug
+  color: d73a4a
+  description: Something is broken.
+
+- name: feat
+  color: a2eeef
+  description: New feature or capability.
+
+- name: chore
+  color: cccccc
+  description: Tooling, refactor, cleanup. No user-visible change.
+
+- name: docs
+  color: 0075ca
+  description: Documentation, comments, README, design pack.
+
+- name: ci
+  color: bfd4f2
+  description: CI / GitHub Actions / pre-commit hooks.
+
+- name: deps
+  color: cccccc
+  description: Dependency bumps. Mirror of the dependabot label.
+
+- name: perf
+  color: c2e0c6
+  description: Performance or caching change. Reviewer measures before + after.
+
+- name: security
+  color: b60205
+  description: Security-relevant. Reviewer agent runs the extended security checklist.
+
+# --- surfaces -------------------------------------------------------
+
+- name: surface:web
+  color: f9d0c4
+  description: apps/web (play.tournamental.com bracket app + renderer).
+
+- name: surface:marketing
+  color: f9d0c4
+  description: apps/marketing (tournamental.com Astro site).
+
+- name: surface:game
+  color: f9d0c4
+  description: apps/game (game service, scoring, leaderboards).
+
+- name: surface:mcp
+  color: f9d0c4
+  description: apps/mcp (Model Context Protocol server).
+
+- name: surface:auth
+  color: f9d0c4
+  description: apps/auth-sms, apps/identity, apps/dm-otp.
+
+- name: surface:plugin-sdk
+  color: f9d0c4
+  description: packages/plugin-sdk and any plugin authoring concern.
+
+- name: surface:renderer
+  color: f9d0c4
+  description: 3D match renderer, ball physics, avatars, audio mix.
+
+- name: surface:docs
+  color: f9d0c4
+  description: docs/, sessions/, IDEAS.md, top-level project docs.
+
+# --- legacy / dependabot --------------------------------------------
+
+- name: deps:js
+  color: cccccc
+  description: JS / TS dependency bump (dependabot).
+
+- name: deps:py
+  color: cccccc
+  description: Python dependency bump (dependabot).
+
+- name: deps:ci
+  color: cccccc
+  description: GitHub Actions bump (dependabot).
+
+- name: demo-critical-path
+  color: e11d21
+  description: Blocker for the AR-FR demo. Drop everything.
