@@ -111,16 +111,19 @@ function DrawerLinks({
               href={link.href}
               className="vt-drawer-link"
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
+              data-subitem={link.subItem ? "1" : undefined}
               onClick={onClick}
             >
               {link.icon}
               <span>{link.label}</span>
+              <span className="vt-drawer-external-icon" aria-hidden="true">↗</span>
             </a>
           ) : (
             <Link
               href={link.href}
               className="vt-drawer-link"
+              data-subitem={link.subItem ? "1" : undefined}
               onClick={onClick}
             >
               {link.icon}

@@ -38,6 +38,9 @@ export interface NavLink {
   readonly href: string;
   readonly icon: ReactNode;
   readonly external?: boolean;
+  /** Renders the row as a hierarchical child of the preceding entry —
+   *  indented + smaller font in the drawer's CSS. */
+  readonly subItem?: boolean;
   /** Optional explicit match prefix for active-route highlighting. When
    *  omitted, the surface uses `pathname === href || pathname.startsWith(href + "/")`. */
   readonly matchPrefix?: string;
@@ -68,10 +71,9 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
   },
   {
     label: "Save & share",
-    href: "/world-cup-2026#final",
+    href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
-    // Hash-only target; never highlights as the active route.
-    matchPrefix: "__never__",
+    matchPrefix: "/world-cup-2026/save-share",
   },
   {
     label: "Watch demo",
@@ -119,7 +121,7 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
 export const DRAWER_WC2026: readonly NavLink[] = [
   { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
   { label: "3D Molecule",           href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
-  { label: "Save & share",          href: "/world-cup-2026#final",                            icon: <ShareIcon />,    matchPrefix: "__never__" },
+  { label: "Save & share",          href: "/world-cup-2026/save-share",                       icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
   { label: "Watch the 2022 final",  href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",     icon: <WatchIcon />,    matchPrefix: "/match/" },
 ];
 
@@ -135,6 +137,7 @@ export const DRAWER_WC2026: readonly NavLink[] = [
 export const DRAWER_SECONDARY: readonly NavLink[] = [
   { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
   { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "Create a syndicate", href: "/syndicates/new", icon: <GroupsIcon />, matchPrefix: "/syndicates/new", subItem: true },
   { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
   { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
   { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
