@@ -620,6 +620,23 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const totalPicks = totalGroupMatches + totalKnockouts;
   const totalCompleted = completedGroupMatches + completedKnockouts;
 
+  // Subtitle for the prominent Auto-pick CTA changes based on whether the
+  // user has already started filling in picks. Tim's spec: "Fill your
+  // bracket using live consensus odds…" before any picks, "Refresh empty
+  // picks using live consensus odds." once at least one pick exists. Note
+  // tie-breakers are intentionally not counted — they're an implementation
+  // detail of auto-pick, not a user-initiated action.
+  const hasAnyPicks = totalCompleted > 0;
+  const autoPickSubtitle = hasAnyPicks
+    ? "Refresh empty picks using live consensus odds."
+    : "Fill your bracket using live consensus odds — you can edit any pick before kickoff.";
+
+  // The auto-pick button has no "no available matches" condition in
+  // practice (any unsaved match is a candidate), but we still wire a
+  // disabled state for the rare edge-case where the tournament fixture is
+  // empty so the keyboard/aria contract is intact.
+  const autoPickDisabled = totalPicks === 0;
+
   // Per-tab progress counter labels.
   const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
   const r32Progress = knockoutCountFor("r32", cascaded, bracket.knockoutPredictions);
@@ -745,7 +762,60 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </p>
       </header>
 
-      <nav className="bracket-tabs" role="tablist" aria-label="Bracket rounds">
+      {/* Auto-pick lives in its own row above the tab strip. On mobile
+       * the tab strip scrolls horizontally and historically buried this
+       * CTA off-screen; hoisting it keeps it visible at every viewport
+       * size. The button is full-width on phones, right-aligned and
+       * compact-but-bold on desktop. */}
+      <div
+        className="bracket-autopick-row"
+        data-testid="bracket-autopick-row"
+        role="group"
+        aria-label="Auto-pick"
+      >
+        <button
+          type="button"
+          className="bracket-autopick-cta"
+          onClick={() => setShowAutoPickConfirm(true)}
+          aria-label="Auto-pick from live odds"
+          aria-describedby="bracket-autopick-subtitle"
+          title="Auto-pick every match to the current Polymarket favourite"
+          disabled={autoPickDisabled}
+        >
+          <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
+          <span className="bracket-autopick-cta-label">Auto-pick</span>
+        </button>
+        <p
+          id="bracket-autopick-subtitle"
+          className="bracket-autopick-subtitle"
+        >
+          {autoPickSubtitle}
+        </p>
+      </div>
+
+      {/* Mobile-only condensed sticky pill. Visually identical language
+       * (gold pill, dark navy text) so it reads as the same CTA when the
+       * full row has scrolled out of view. Z-index sits above the tab
+       * strip but below AppShell's drawer (z=40). */}
+      <button
+        type="button"
+        className="bracket-autopick-sticky"
+        data-testid="bracket-autopick-sticky"
+        onClick={() => setShowAutoPickConfirm(true)}
+        aria-label="Auto-pick (sticky shortcut)"
+        title="Auto-pick every match to the current Polymarket favourite"
+        disabled={autoPickDisabled}
+      >
+        <span className="bracket-autopick-sticky-icon" aria-hidden="true">⚡</span>
+        <span className="bracket-autopick-sticky-label">Auto-pick</span>
+      </button>
+
+      <nav
+        className="bracket-tabs"
+        data-testid="bracket-tabs"
+        role="tablist"
+        aria-label="Bracket rounds"
+      >
         {TABS.map((t) => {
           const p = progressByTab[t.id];
           const isActive = tab === t.id;
@@ -768,15 +838,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
             </button>
           );
         })}
-        <button
-          type="button"
-          className="bracket-tab bracket-tab-autopick"
-          onClick={() => setShowAutoPickConfirm(true)}
-          aria-label="Auto-pick from live odds"
-          title="Auto-pick every match to the current Polymarket favourite"
-        >
-          ⚡ Auto-pick
-        </button>
       </nav>
 
       {tab === "groups" && (
