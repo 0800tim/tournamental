@@ -90,3 +90,5 @@ apps/wc2026-data/data/stats-cache/
 # Agent worktree pollution from local runs (gitignored to prevent embedded-repo warnings).
 .claude/worktrees/
 projects-fix-share-page-cascade-and-molecule/
+.playwright-mcp/
+qa-launch-screenshots/
