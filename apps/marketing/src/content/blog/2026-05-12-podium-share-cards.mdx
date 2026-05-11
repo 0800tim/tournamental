@@ -84,7 +84,7 @@ The render pipeline:
 1. **HTTP request** lands at `apps/web/app/api/share/bracket/[bracketId]/[size].png`.
 2. The route reads the user's saved bracket from KV (the same store the bracket UI reads).
 3. It builds a `BracketShareCardInput` shape, champion, runnerUp, thirdPlace, knockoutPath array, tournament name, user handle, optional pundit chip.
-4. Calls `renderBracketShareCard(input)` from `@vtorn/social-cards/canvas/bracket-share-card.ts`.
+4. Calls `renderBracketShareCard(input)` from `@tournamental/social-cards/canvas/bracket-share-card.ts`.
 5. The function creates a `@napi-rs/canvas` instance at the size preset, paints the background gradient (the champion's kit colour seeds a radial-tint on the right side where the podium sits), then walks the layout: header → bracket path strip → podium → footer.
 6. Returns a PNG buffer. The route sets `Cache-Control: public, max-age=300, s-maxage=86400` so the same bracket+size is CDN-cached at the edge for a day.
 

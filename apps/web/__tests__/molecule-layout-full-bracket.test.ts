@@ -21,7 +21,7 @@ import {
   type CascadedBracket,
   type CascadedKnockout,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 /**
  * Build a fully-resolved cascade by walking the tournament's knockout
@@ -75,7 +75,7 @@ function fullyResolvedCascade(t: Tournament): CascadedBracket {
     t.knockouts.filter((k) => k.stage === s);
 
   function resolveSource(
-    src: import("@vtorn/bracket-engine").SlotSource,
+    src: import("@tournamental/bracket-engine").SlotSource,
   ): string | null {
     if (src.kind === "group_position") {
       return teamByGroupPos(src.group, src.position);

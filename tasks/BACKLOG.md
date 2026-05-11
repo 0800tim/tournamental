@@ -47,7 +47,7 @@
 
 - `[?]` LICENSE-DOCS check in CI (CC-BY attribution test).
 - `[?]` Reviewer agent (AGENT-PROMPTS § 5) automated — held until first builder PR lands.
-- `[?]` Spec validator package — runtime JSON-schema validation against `@vtorn/spec`.
+- `[?]` Spec validator package — runtime JSON-schema validation against `@tournamental/spec`.
 - `[?]` `prettier --check` and `black --check` in CI.
 - `[?]` Bundle-size budget in CI (`apps/web` and `apps/admin`).
 - `[?]` Lighthouse CI on `apps/web` demo route.

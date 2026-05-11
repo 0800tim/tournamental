@@ -5,7 +5,7 @@
  * pairs each with the user's prediction (group-stage in
  * `bracket.matchPredictions`, knockout in `bracket.knockoutPredictions`),
  * and sums the per-match points using the canonical scoring functions in
- * `@vtorn/bracket-engine/score`.
+ * `@tournamental/bracket-engine/score`.
  *
  * The functions imported here (`scoreGroupMatchPrediction`,
  * `scoreKnockoutMatchPrediction`) are documented in `docs/30` and live in
@@ -19,7 +19,7 @@ import {
   scoreKnockoutMatchPrediction,
   type MatchScoreInput,
   type KnockoutMatchScoreInput,
-} from "@vtorn/bracket-engine/score";
+} from "@tournamental/bracket-engine/score";
 
 import type { Bracket, MatchOutcome } from "../types.js";
 

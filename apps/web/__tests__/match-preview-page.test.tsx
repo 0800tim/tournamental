@@ -42,7 +42,7 @@ import {
   statsFor,
   expectedScoreline,
 } from "../app/match/[id]/preview/_lib/match-data";
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 describe("/match/[id]/preview server component", () => {
   it("renders match #1 (group A: MEX vs RSA), both teams + Group A", () => {

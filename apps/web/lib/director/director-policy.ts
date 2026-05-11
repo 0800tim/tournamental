@@ -24,7 +24,7 @@
  * camera the director wants this frame.
  */
 import * as THREE from "three";
-import type { EventMessage } from "@vtorn/spec";
+import type { EventMessage } from "@tournamental/spec";
 
 export type DirectorCamName =
   | "broadcast"

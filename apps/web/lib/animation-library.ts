@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type * as THREE from "three";
-import type { AnimTag } from "@vtorn/spec";
+import type { AnimTag } from "@tournamental/spec";
 import { loadMixamoPack } from "@vtorn/avatar";
 
 /**

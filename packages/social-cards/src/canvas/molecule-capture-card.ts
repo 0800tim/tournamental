@@ -6,7 +6,7 @@
  * font registry, and QR cache. The molecule capture flow (`apps/web/app/
  * api/share/molecule-capture/route.ts`) is the only consumer, but the
  * function is exported here to keep `@napi-rs/canvas` calls inside this
- * package — the web app declares `@vtorn/social-cards` as a workspace
+ * package — the web app declares `@tournamental/social-cards` as a workspace
  * dep, not `@napi-rs/canvas` directly.
  *
  * Output is a `Buffer` PNG sized per `size` (defaults to landscape

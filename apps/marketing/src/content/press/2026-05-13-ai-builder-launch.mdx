@@ -24,7 +24,7 @@ tags: ["ai", "claude", "build log", "open source", "agents", "tournamental"]
 - **72 hours** of focused build time, from initial commit to launch tag.
 - **28 pull requests** merged in three days, every one auditable on GitHub.
 - **~80 design docs and session notes** shipped alongside the code, mostly under `docs/` (CC-BY) and `sessions/`.
-- **5 services running in production**: Next.js bracket app (port 3300), Astro marketing site (3320), Fastify API (3310), Python StatsBomb replay producer (4001), a `@vtorn/social-cards` canvas renderer.
+- **5 services running in production**: Next.js bracket app (port 3300), Astro marketing site (3320), Fastify API (3310), Python StatsBomb replay producer (4001), a `@tournamental/social-cards` canvas renderer.
 - **3D match renderer** built on React Three Fiber playing the 2022 World Cup Final, Argentina 3-3 France (4-2 on penalties), at 10x speed in about 15 minutes.
 - **12 to 15 builder agents** dispatched in parallel through a tmux + git-worktree pattern at peak.
 - **1 founder**, 1 Linux box in New Zealand, no team, no VC.
@@ -51,7 +51,7 @@ The discipline that made this work is the worktree pattern. Every builder gets a
 
 A typical builder brief looked like this:
 
-> "You own `apps/share-cards/`. Read `docs/14-clip-pipeline.md`. Ship a server-side share-card renderer that produces a 1200x630 PNG for any save, given a save GUID. Use `@vtorn/social-cards` for the canvas primitives. Open a PR. Do not ask questions, ship."
+> "You own `apps/share-cards/`. Read `docs/14-clip-pipeline.md`. Ship a server-side share-card renderer that produces a 1200x630 PNG for any save, given a save GUID. Use `@tournamental/social-cards` for the canvas primitives. Open a PR. Do not ask questions, ship."
 
 The "do not ask questions" line was the unlock. Agents that ask clarifying questions burn an entire session round-trip on something the design doc already answers. Agents that ship a PR with a small mistake can be corrected in a 5-line review comment.
 

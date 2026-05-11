@@ -13,7 +13,7 @@
  * pass `cache: "no-store"` on the fetch.
  */
 
-import type { Bracket } from "@vtorn/bracket-engine";
+import type { Bracket } from "@tournamental/bracket-engine";
 
 import { saveFullBracket } from "./api.js";
 import { saveDraft } from "./storage.js";

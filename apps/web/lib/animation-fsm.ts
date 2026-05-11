@@ -1,4 +1,4 @@
-import type { AnimTag, EventMessage } from "@vtorn/spec";
+import type { AnimTag, EventMessage } from "@tournamental/spec";
 
 /**
  * Per-player animation FSM.

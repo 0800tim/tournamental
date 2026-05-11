@@ -6,7 +6,7 @@
 
 ## Visual
 
-- **Card**: `bracket-prediction` story-format card from `@vtorn/social-cards` rendered
+- **Card**: `bracket-prediction` story-format card from `@tournamental/social-cards` rendered
   with the user's full lock. URL: `{{card.story_url}}`.
 - **Format**: 5-second still card → 10-second talking-head reaction → 5-second outro.
   The reaction is the user's optional selfie video uploaded with the lock; if absent,

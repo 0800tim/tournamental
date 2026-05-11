@@ -1,5 +1,5 @@
 /**
- * Zod schemas mirroring the `@vtorn/bracket-engine` Bracket / MatchPrediction
+ * Zod schemas mirroring the `@tournamental/bracket-engine` Bracket / MatchPrediction
  * types. We can't import the TS types as a runtime parser, so we keep the
  * shapes in lock-step here. If `Bracket` ever changes, this file is the
  * one place to update.

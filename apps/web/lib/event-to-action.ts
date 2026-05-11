@@ -16,7 +16,7 @@
  * future renderer (mobile native, etc.) can supply its own adapter
  * without forking the package.
  */
-import type { AnimTag, EventMessage } from "@vtorn/spec";
+import type { AnimTag, EventMessage } from "@tournamental/spec";
 import { eventToOneShot } from "@vtorn/avatar";
 
 export interface EventActionResult {

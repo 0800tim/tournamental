@@ -13,7 +13,7 @@
 
 import { useEffect, useState } from "react";
 
-import type { Team } from "@vtorn/bracket-engine";
+import type { Team } from "@tournamental/bracket-engine";
 
 import { MatchPickPopup } from "@/components/match-pick/MatchPickPopup";
 

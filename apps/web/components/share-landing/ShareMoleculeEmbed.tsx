@@ -25,8 +25,8 @@
 
 import { useEffect, useState } from "react";
 
-import type { Bracket, Tournament } from "@vtorn/bracket-engine";
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import type { Bracket, Tournament } from "@tournamental/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { MoleculeScene } from "@/components/molecule/MoleculeScene";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";

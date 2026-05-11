@@ -15,7 +15,7 @@
  *     full bracket-share-card layout helpers to the molecule page chunk
  *     would blow the 10 kB bundle budget called out in the brief.
  *   - We already ship a battle-tested canvas composer in
- *     `@vtorn/social-cards` (PR #151 v2). The new
+ *     `@tournamental/social-cards` (PR #151 v2). The new
  *     `renderMoleculeCaptureCard` helper reuses its palette, font
  *     registry, and QR cache, so the molecule capture matches the rest
  *     of the share surface for free.
@@ -56,7 +56,7 @@ import {
   type MoleculeCaptureCardInput,
   type MoleculeCaptureChampion,
   type MoleculeCapturePathEntry,
-} from "@vtorn/social-cards";
+} from "@tournamental/social-cards";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

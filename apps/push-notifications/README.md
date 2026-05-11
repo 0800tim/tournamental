@@ -51,7 +51,7 @@ pnpm -F @vtorn/push-notifications dev
 ## Scheduler
 
 On startup the service loads the FIFA WC 2026 fixtures via
-`@vtorn/bracket-engine` and arms two `setTimeout` jobs per fixture in the
+`@tournamental/bracket-engine` and arms two `setTimeout` jobs per fixture in the
 upcoming 24h window: `kickoff - 30min` and `kickoff - 5min`. Each fired
 job fans out a `kickoff_soon` notification to everyone who recorded a pick
 for that match. State is persisted to disk so a restart re-arms only the

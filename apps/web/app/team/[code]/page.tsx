@@ -29,7 +29,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { PlayerCard } from "@/components/player/PlayerCard";

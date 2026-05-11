@@ -15,7 +15,7 @@
  */
 
 import type { Logger } from "pino";
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 import { MatchRing } from "./ring.js";
 import { SubscriberHub } from "./hub.js";
 import { ProducerClient, type ProducerStatus } from "./producer.js";

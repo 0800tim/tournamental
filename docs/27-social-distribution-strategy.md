@@ -24,7 +24,7 @@ This doc is the strategy and operational rules layer that connects all three.
 | **YouTube Shorts**| 9:16 video < 60s   | 6–14 (rate-limited)   | < 10 min          | `apps/clip-publisher`  |
 
 A clip is rendered **once** by the auto-clip pipeline and forked into surface-specific
-encodes. The share card (`@vtorn/social-cards`) is rendered once per kind per size
+encodes. The share card (`@tournamental/social-cards`) is rendered once per kind per size
 and re-used as Reels cover, X media, and YouTube Shorts intro slate.
 
 ## Posting cadence during a live tournament

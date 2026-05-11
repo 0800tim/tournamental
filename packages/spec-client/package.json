@@ -1,5 +1,5 @@
 {
-  "name": "@vtorn/spec-client",
+  "name": "@tournamental/spec-client",
   "version": "0.0.0",
   "private": true,
   "description": "Client-side spec stream consumer: WebSocket driver + Zustand store + useMatchStream hook.",
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vtorn/spec": "workspace:*",
+    "@tournamental/spec": "workspace:*",
     "zustand": "^4.5.5"
   },
   "peerDependencies": {

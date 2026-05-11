@@ -1,5 +1,5 @@
 /**
- * Public types for `@vtorn/social-cards`.
+ * Public types for `@tournamental/social-cards`.
  *
  * Each card kind has a typed input. `generateOG(input, kind)` is the single
  * entry point and is fully discriminated: TypeScript will narrow on `kind`.

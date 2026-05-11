@@ -1,9 +1,24 @@
 {
-  "name": "@vtorn/bracket-engine",
+  "name": "@tournamental/bracket-engine",
   "version": "0.1.0",
-  "private": true,
-  "description": "Client-side bracket prediction engine + cascade calculator + scoring + VStamp envelope. Powers the FIFA WC 2026 bracket-prophet flow.",
-  "type": "module",
+  "description": "Pure-function bracket prediction engine: tournament types, cascade calculator, long-shot-rewarding scoring, and VStamp prediction-receipt envelope. Powers the FIFA WC 2026 bracket prophet flow.",
+  "keywords": [
+    "tournamental",
+    "bracket",
+    "world-cup-2026",
+    "fifa",
+    "prediction",
+    "tournament"
+  ],
+  "homepage": "https://tournamental.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0800tim/tournamental.git",
+    "directory": "packages/bracket-engine"
+  },
+  "bugs": "https://github.com/0800tim/tournamental/issues",
+  "author": "Tim <0800tim@gmail.com>",
+  "license": "Apache-2.0",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
@@ -11,19 +26,105 @@
     "./tournament": "./src/tournament.ts",
     "./cascade": "./src/cascade.ts",
     "./score": "./src/score.ts",
+    "./standings": "./src/standings.ts",
     "./vstamp": "./src/vstamp.ts",
     "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json"
   },
+  "files": [
+    "dist",
+    "src",
+    "data",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      },
+      "./tournament": {
+        "import": {
+          "types": "./dist/tournament.d.mts",
+          "default": "./dist/tournament.mjs"
+        },
+        "require": {
+          "types": "./dist/tournament.d.ts",
+          "default": "./dist/tournament.js"
+        }
+      },
+      "./cascade": {
+        "import": {
+          "types": "./dist/cascade.d.mts",
+          "default": "./dist/cascade.mjs"
+        },
+        "require": {
+          "types": "./dist/cascade.d.ts",
+          "default": "./dist/cascade.js"
+        }
+      },
+      "./score": {
+        "import": {
+          "types": "./dist/score.d.mts",
+          "default": "./dist/score.mjs"
+        },
+        "require": {
+          "types": "./dist/score.d.ts",
+          "default": "./dist/score.js"
+        }
+      },
+      "./standings": {
+        "import": {
+          "types": "./dist/standings.d.mts",
+          "default": "./dist/standings.mjs"
+        },
+        "require": {
+          "types": "./dist/standings.d.ts",
+          "default": "./dist/standings.js"
+        }
+      },
+      "./vstamp": {
+        "import": {
+          "types": "./dist/vstamp.d.mts",
+          "default": "./dist/vstamp.mjs"
+        },
+        "require": {
+          "types": "./dist/vstamp.d.ts",
+          "default": "./dist/vstamp.js"
+        }
+      },
+      "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json"
+    }
+  },
   "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vtorn/spec": "workspace:*"
+    "@tournamental/spec": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",
+    "tsup": "^8.3.5",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   }

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { EventMessage, MatchInit, StateFrame } from "@vtorn/spec";
-import { SPEC_VERSION } from "@vtorn/spec";
+import type { EventMessage, MatchInit, StateFrame } from "@tournamental/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 import {
   computeMatchStats,
   computeStatsAtTime,

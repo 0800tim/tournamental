@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useStore } from "zustand";
 import type { StoreApi } from "zustand/vanilla";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { MatchStore } from "@tournamental/spec-client";
 import {
   computeMatchStats,
   formatMatchMinute,
@@ -118,7 +118,7 @@ function ScorersList({
   init,
 }: {
   scorers: MatchStats["scorers"];
-  init: import("@vtorn/spec").MatchInit;
+  init: import("@tournamental/spec").MatchInit;
 }) {
   if (scorers.length === 0) {
     return (
@@ -260,7 +260,7 @@ function StatRow({ label, home, away, homePct, testid }: StatRowProps) {
 }
 
 function sideToTeam(
-  init: import("@vtorn/spec").MatchInit,
+  init: import("@tournamental/spec").MatchInit,
   side: "home" | "away",
 ): string {
   const team = side === "home" ? init.teams[0] : init.teams[1];

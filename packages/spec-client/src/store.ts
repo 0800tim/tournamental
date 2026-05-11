@@ -4,7 +4,7 @@ import type {
   MatchInit,
   Message,
   StateFrame,
-} from "@vtorn/spec";
+} from "@tournamental/spec";
 
 /**
  * Connection status for the underlying stream source.

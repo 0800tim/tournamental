@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "@tournamental/plugin-sdk": "workspace:*",
-    "@vtorn/spec": "workspace:*"
+    "@tournamental/spec": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.7.5",

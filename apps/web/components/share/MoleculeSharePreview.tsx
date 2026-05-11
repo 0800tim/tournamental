@@ -44,7 +44,7 @@
 
 import { useEffect, useState } from "react";
 
-import type { Bracket, Tournament } from "@vtorn/bracket-engine";
+import type { Bracket, Tournament } from "@tournamental/bracket-engine";
 
 import { MoleculeScene } from "@/components/molecule/MoleculeScene";
 

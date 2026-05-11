@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { createMatchStore, syntheticArFrSource, buildArFrMessages } from "@vtorn/spec-client";
-import type { Message } from "@vtorn/spec";
+import { createMatchStore, syntheticArFrSource, buildArFrMessages } from "@tournamental/spec-client";
+import type { Message } from "@tournamental/spec";
 
 describe("MatchStore + synthetic AR-FR stream", () => {
   it("ends with the canonical 3-3 / 4-2 scoreline", () => {

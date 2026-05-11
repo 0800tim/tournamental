@@ -15,7 +15,7 @@
 
 import WebSocket, { type CloseEvent, type ErrorEvent, type MessageEvent } from "ws";
 import type { Logger } from "pino";
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 
 export interface ProducerOptions {
   url: string;

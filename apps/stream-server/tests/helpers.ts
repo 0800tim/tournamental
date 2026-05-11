@@ -8,8 +8,8 @@ import type {
   MatchInit,
   StateFrame,
   EventMessage,
-} from "@vtorn/spec";
-import { SPEC_VERSION } from "@vtorn/spec";
+} from "@tournamental/spec";
+import { SPEC_VERSION } from "@tournamental/spec";
 
 export function makeInit(matchId = "m-test"): MatchInit {
   return {

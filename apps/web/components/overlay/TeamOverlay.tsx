@@ -17,7 +17,7 @@
 import Link from "next/link";
 import { useMemo } from "react";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";

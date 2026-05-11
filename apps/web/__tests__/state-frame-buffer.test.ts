@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { StateFrame } from "@vtorn/spec";
+import type { StateFrame } from "@tournamental/spec";
 import {
   StateFrameBuffer,
   catmullRom3,

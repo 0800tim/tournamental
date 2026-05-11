@@ -2,7 +2,7 @@
  * /api/og/bracket, OG image generator for shared brackets.
  *
  * Renders a rich gold/silver/bronze podium card via the canvas pipeline
- * in `@vtorn/social-cards` (see
+ * in `@tournamental/social-cards` (see
  * `packages/social-cards/src/canvas/bracket-share-card.ts`). Replaces
  * the v0.1 satori plain-text gradient.
  *
@@ -55,7 +55,7 @@ import {
   renderBracketShareCard,
   type BracketShareCardInput,
   type CanvasCardSize,
-} from "@vtorn/social-cards";
+} from "@tournamental/social-cards";
 
 import {
   inputFromSearchParams,

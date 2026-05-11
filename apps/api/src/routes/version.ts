@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 import type { FastifyInstance } from 'fastify';
-import { SPEC_VERSION } from '@vtorn/spec';
+import { SPEC_VERSION } from '@tournamental/spec';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const pkgPath = resolve(here, '../../package.json');

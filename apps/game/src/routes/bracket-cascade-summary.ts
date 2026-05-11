@@ -30,7 +30,7 @@ import {
   type CascadedKnockout,
   type MatchPrediction,
   type Tournament,
-} from "@vtorn/bracket-engine";
+} from "@tournamental/bracket-engine";
 
 /**
  * Path-to-gold row surfaced on the public share landing. Re-declared
@@ -81,7 +81,7 @@ function publicStageFor(
  * cascade engine consumes. Mirrors `apps/web/lib/bracket/cascade-bridge.ts`
  * but lives here so the game service can do it server-side without
  * pulling in a web-only dep. Future cleanup: hoist into
- * `@vtorn/bracket-engine` so both sides share one helper.
+ * `@tournamental/bracket-engine` so both sides share one helper.
  */
 function bracketToCascadeInput(
   tournament: Tournament,

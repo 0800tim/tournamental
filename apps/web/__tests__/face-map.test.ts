@@ -5,7 +5,7 @@ import {
   normaliseName,
   parseFaceCsv,
 } from "@/lib/face-map";
-import type { Player } from "@vtorn/spec";
+import type { Player } from "@tournamental/spec";
 
 const SAMPLE_CSV = `player_id,name,number,country,wikidata_q,image_url,attribution
 5503,Lionel Andrés Messi Cuccittini,10,Argentina,Q615,https://example.com/messi.jpg,CC

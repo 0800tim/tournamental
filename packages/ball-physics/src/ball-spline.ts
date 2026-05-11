@@ -16,7 +16,7 @@
  * `CatmullRomCurve3` does the heavy lifting on the renderer side
  * once we hand it the control points.
  */
-import type { Vec3 } from "@vtorn/spec";
+import type { Vec3 } from "@tournamental/spec";
 
 export interface BallTrajectoryOptions {
   /**

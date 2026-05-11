@@ -28,7 +28,7 @@
  * 4 can swap in clip-baked metadata.
  */
 import * as THREE from "three";
-import type { AnimTag } from "@vtorn/spec";
+import type { AnimTag } from "@tournamental/spec";
 import { findCanonicalBone } from "./retarget.js";
 
 /** Either left or right leg. */

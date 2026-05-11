@@ -7,7 +7,7 @@
  * the pixel demo is `scripts/render-jersey-demo.mjs`.
  */
 import { describe, it, expect, beforeEach } from "vitest";
-import type { Kit } from "@vtorn/spec";
+import type { Kit } from "@tournamental/spec";
 import {
   JerseyTextureCache,
   jerseyCacheKey,

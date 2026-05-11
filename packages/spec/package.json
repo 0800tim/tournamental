@@ -1,6 +1,69 @@
 {
-  "name": "@vtorn/spec",
-  "version": "0.1.1",
+  "name": "@tournamental/spec",
+  "version": "0.1.0",
+  "description": "Canonical SimulatedSports message spec: MatchInit, StateFrame, EventMessage types shared by every Tournamental producer and renderer.",
+  "keywords": [
+    "tournamental",
+    "spec",
+    "simulated-sports",
+    "world-cup-2026",
+    "sports",
+    "websocket"
+  ],
+  "homepage": "https://tournamental.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0800tim/tournamental.git",
+    "directory": "packages/spec"
+  },
+  "bugs": "https://github.com/0800tim/tournamental/issues",
+  "author": "Tim <0800tim@gmail.com>",
+  "license": "Apache-2.0",
   "main": "src/index.ts",
-  "types": "src/index.ts"
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "engines": {
+    "node": ">=20"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "import": {
+          "types": "./dist/index.d.mts",
+          "default": "./dist/index.mjs"
+        },
+        "require": {
+          "types": "./dist/index.d.ts",
+          "default": "./dist/index.js"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3"
+  }
 }

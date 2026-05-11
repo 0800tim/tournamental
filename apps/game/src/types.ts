@@ -2,12 +2,12 @@
  * Shared in-process types for the game service.
  *
  * Bracket / MatchPrediction shapes are re-exported from
- * `@vtorn/bracket-engine` so the service speaks the same language as the
+ * `@tournamental/bracket-engine` so the service speaks the same language as the
  * rest of the platform. We never redefine them here — single source of
  * truth.
  */
 
-import type { Bracket } from "@vtorn/bracket-engine";
+import type { Bracket } from "@tournamental/bracket-engine";
 
 export type { Bracket };
 

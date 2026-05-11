@@ -17,7 +17,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@vtorn/spec": "workspace:*"
+    "@tournamental/spec": "workspace:*"
   },
   "peerDependencies": {
     "three": ">=0.160"

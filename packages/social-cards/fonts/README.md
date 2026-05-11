@@ -1,6 +1,6 @@
 # Fonts
 
-These fonts are *not* committed. Run `pnpm --filter @vtorn/social-cards run fetch:fonts`
+These fonts are *not* committed. Run `pnpm --filter @tournamental/social-cards run fetch:fonts`
 during install (or before `pnpm test`) to pull them.
 
 Required:

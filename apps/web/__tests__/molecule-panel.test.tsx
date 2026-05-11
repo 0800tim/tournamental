@@ -11,7 +11,7 @@ import { describe, it, expect } from "vitest";
 import { render, screen, within } from "@testing-library/react";
 
 import { MoleculePanel } from "@/components/molecule/MoleculePanel";
-import { loadFixtures2026, type Bracket, type MatchPrediction } from "@vtorn/bracket-engine";
+import { loadFixtures2026, type Bracket, type MatchPrediction } from "@tournamental/bracket-engine";
 
 const T = loadFixtures2026();
 

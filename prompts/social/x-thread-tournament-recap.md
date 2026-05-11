@@ -6,7 +6,7 @@
 
 ## Visual
 
-- **Media tweet 1**: 1200×630 `tournament-recap` OG card from `@vtorn/social-cards`.
+- **Media tweet 1**: 1200×630 `tournament-recap` OG card from `@tournamental/social-cards`.
 - **Media tweet 2**: top-3 `goal-clip` OG cards as a 4-image grid.
 - **Media tweet 3**: `leaderboard-rank` OG card showing the user's final rank.
 

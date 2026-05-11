@@ -15,7 +15,7 @@
  * Where:
  *   - `kind`        — one of `bracket-prediction | goal-clip | match-result |
  *                     leaderboard-rank | badge-earned | referral-invite |
- *                     tournament-recap` (from `@vtorn/social-cards`).
+ *                     tournament-recap` (from `@tournamental/social-cards`).
  *   - `id`          — opaque resolution key. The route looks up the input
  *                     payload via the per-kind resolver:
  *                        - `goal-clip/{event_id}`        → spec event
@@ -53,7 +53,7 @@
  * Implementation sketch (PSEUDOCODE — the API agent fills this in):
  *
  *   import type { FastifyInstance } from 'fastify';
- *   import { generateOG, type CardKind } from '@vtorn/social-cards';
+ *   import { generateOG, type CardKind } from '@tournamental/social-cards';
  *
  *   export async function registerSocialCards(app: FastifyInstance) {
  *     app.get<{

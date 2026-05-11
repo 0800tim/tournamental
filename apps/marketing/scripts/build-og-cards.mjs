@@ -6,7 +6,7 @@
  * `apps/marketing/public/og/{slug}.png`. Astro `Layout` references those
  * paths via the `ogImage` prop already wired into every page.
  *
- * The generator uses `@vtorn/social-cards` so the OG cards share style
+ * The generator uses `@tournamental/social-cards` so the OG cards share style
  * with every share / clip card, there is one source of truth for Tournamental
  * brand surfaces.
  *
@@ -25,10 +25,10 @@ import { fileURLToPath } from "node:url";
 
 let renderToPNG, loadDefaultFonts, palette;
 try {
-  ({ renderToPNG, loadDefaultFonts, palette } = await import("@vtorn/social-cards"));
+  ({ renderToPNG, loadDefaultFonts, palette } = await import("@tournamental/social-cards"));
 } catch (err) {
   console.warn(
-    `[build-og-cards] @vtorn/social-cards not loadable from node ESM ` +
+    `[build-og-cards] @tournamental/social-cards not loadable from node ESM ` +
       `(needs a TS loader; expected during plain-node CI step). ` +
       `Skipping OG card generation; pages will fall back to /og-default.png. ` +
       `Original error: ${err?.message ?? err}`,

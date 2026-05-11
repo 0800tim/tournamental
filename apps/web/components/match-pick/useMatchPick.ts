@@ -17,7 +17,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-import type { MatchPrediction } from "@vtorn/bracket-engine";
+import type { MatchPrediction } from "@tournamental/bracket-engine";
 
 import { loadDraft, saveDraft, localUserId } from "@/lib/bracket/storage";
 

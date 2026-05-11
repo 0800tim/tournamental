@@ -4,8 +4,8 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import type { StoreApi } from "zustand/vanilla";
-import type { EventMessage, Kit, Player as SpecPlayer } from "@vtorn/spec";
-import type { MatchStore } from "@vtorn/spec-client";
+import type { EventMessage, Kit, Player as SpecPlayer } from "@tournamental/spec";
+import type { MatchStore } from "@tournamental/spec-client";
 import {
   applyJersey,
   applyKitColours,

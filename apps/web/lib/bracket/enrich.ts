@@ -8,7 +8,7 @@
  * (the page is statically generated). No runtime caching needed.
  */
 
-import type { Team, Tournament } from "@vtorn/bracket-engine";
+import type { Team, Tournament } from "@tournamental/bracket-engine";
 
 export interface CanonicalTeam {
   readonly code: string;

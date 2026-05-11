@@ -7,7 +7,7 @@
 
 - **Video**: 1080×1920 vertical clip from the auto-clip pipeline (`apps/clip-pipeline`),
   10–15s. Branded outro card (1.5s) appended.
-- **Cover image**: `goal-clip` story-format card from `@vtorn/social-cards` rendered with
+- **Cover image**: `goal-clip` story-format card from `@tournamental/social-cards` rendered with
   `predictedByUser={{user.predicted_this}}`. The card filename is
   `card-goal-{{match.id}}-{{event.id}}.png` and lives at `{{card.story_url}}`.
 - **Music**: tournament-specific licensed track from the curated TikTok Commercial

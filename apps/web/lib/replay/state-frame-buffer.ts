@@ -30,7 +30,7 @@
  * This module is pure (no React, no THREE) so it's unit-testable in
  * jsdom and reusable by any consumer that has a `prev/curr` pair.
  */
-import type { BallState, PlayerState, StateFrame, Vec2, Vec3 } from "@vtorn/spec";
+import type { BallState, PlayerState, StateFrame, Vec2, Vec3 } from "@tournamental/spec";
 import {
   clamp01,
   lerp,

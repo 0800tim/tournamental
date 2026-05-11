@@ -18,7 +18,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { render } from "@testing-library/react";
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 // Stub R3F primitives, return plain DOM elements that React can mount.
 // We use `data-testid` so the test can count them.

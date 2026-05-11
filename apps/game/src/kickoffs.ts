@@ -2,7 +2,7 @@
  * Kickoff index for server-side lockout enforcement.
  *
  * Loads the canonical 2026 FIFA World Cup fixture data from
- * `@vtorn/bracket-engine` and indexes every match's kickoff time by the
+ * `@tournamental/bracket-engine` and indexes every match's kickoff time by the
  * match-id used in user-submitted brackets.
  *
  *   - Group fixtures: keyed by `String(match_no)` (1..72) — matches
@@ -19,8 +19,8 @@
  * rejected as `match_already_started`.
  */
 
-import { loadFixtures2026 } from "@vtorn/bracket-engine";
-import type { Tournament } from "@vtorn/bracket-engine";
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
+import type { Tournament } from "@tournamental/bracket-engine";
 
 export interface KickoffLookup {
   /** Tournament identifier these kickoffs belong to (e.g. "fifa-wc-2026"). */

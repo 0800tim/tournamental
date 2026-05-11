@@ -19,7 +19,7 @@
 
 import type { WebSocket } from "ws";
 import type { Logger } from "pino";
-import type { Message } from "@vtorn/spec";
+import type { Message } from "@tournamental/spec";
 import type { MatchRing } from "./ring.js";
 
 export interface SubscriberOptions {

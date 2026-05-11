@@ -3,7 +3,7 @@ import {
   buildArFrMessages,
   buildManifestBuffer,
   createManifestController,
-} from "@vtorn/spec-client";
+} from "@tournamental/spec-client";
 
 describe("ManifestController seek vs advance channel separation", () => {
   it("seek() fires both general and seek subscribers", () => {

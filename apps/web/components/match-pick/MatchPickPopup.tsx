@@ -38,7 +38,7 @@ import {
   type TouchEvent as ReactTouchEvent,
 } from "react";
 
-import type { MatchPrediction, Team } from "@vtorn/bracket-engine";
+import type { MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import type { MatchOdds } from "@/lib/odds/types";
 import { snapshotOdds } from "@/lib/bracket/history";

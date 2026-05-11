@@ -31,7 +31,7 @@ import {
   checkLockable,
   type KickoffRegistry,
 } from "../kickoffs.js";
-import type { MatchPrediction } from "@vtorn/bracket-engine";
+import type { MatchPrediction } from "@tournamental/bracket-engine";
 import { resolveUserId as resolveCallerId } from "./identity.js";
 
 function resolveUserId(req: FastifyRequest): string | null {

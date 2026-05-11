@@ -12,7 +12,7 @@
  * factory is needed, callers can pass `canvasFactory` to override.
  */
 import * as THREE from "three";
-import type { Kit } from "@vtorn/spec";
+import type { Kit } from "@tournamental/spec";
 
 export interface MakeJerseyTextureOptions {
   /** Override canvas creation (useful for SSR / tests). */

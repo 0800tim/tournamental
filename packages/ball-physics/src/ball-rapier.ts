@@ -26,7 +26,7 @@
  * wired up in the renderer (`apps/web/components/Ball.tsx`) — that's
  * where `@react-three/rapier` is mounted as a context.
  */
-import type { EventMessage, Vec3 } from "@vtorn/spec";
+import type { EventMessage, Vec3 } from "@tournamental/spec";
 
 /** Ball mode classification. */
 export type BallMode = "spline" | "rapier";

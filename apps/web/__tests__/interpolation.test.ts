@@ -11,7 +11,7 @@ import {
   lerpVec3,
   slerpAngle,
 } from "@/lib/interpolation";
-import type { StateFrame } from "@vtorn/spec";
+import type { StateFrame } from "@tournamental/spec";
 
 describe("interpolation primitives", () => {
   it("clamps to [0, 1]", () => {
