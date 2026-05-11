@@ -571,6 +571,14 @@ export function MoleculeScene({
           toneMapping: THREE.ACESFilmicToneMapping,
           toneMappingExposure: 1.05,
           outputColorSpace: THREE.SRGBColorSpace,
+          // Capture-and-share (PR #154): canvas.toDataURL() reads the
+          // WebGL drawing buffer back to the CPU. By default the GL
+          // context clears the buffer after every present, so readback
+          // returns a blank PNG. preserveDrawingBuffer keeps it pinned
+          // for one extra frame, the cost is a minor perf hit (one
+          // extra GPU->CPU copy candidate per frame) which is fine for
+          // this single-pane viewer.
+          preserveDrawingBuffer: true,
         }}
         onCreated={({ gl }) => {
           gl.toneMapping = THREE.ACESFilmicToneMapping;

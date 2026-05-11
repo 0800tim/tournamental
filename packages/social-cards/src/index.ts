@@ -70,6 +70,8 @@ export {
   STAGE_LABEL,
   PYRAMID_LAYERS,
   STAGE_TO_LAYER,
+  renderMoleculeCaptureCard,
+  decodeCaptureDataUrl,
 } from "./canvas/index.js";
 export type {
   BracketShareCardInput,
@@ -80,6 +82,9 @@ export type {
   CanvasCardSize,
   CanvasSizePreset,
   PyramidLayer,
+  MoleculeCaptureCardInput,
+  MoleculeCaptureChampion,
+  MoleculeCapturePathEntry,
 } from "./canvas/index.js";
 
 export { renderBracketRevealVideo } from "./video/index.js";

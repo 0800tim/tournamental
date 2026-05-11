@@ -20,6 +20,16 @@ export {
 } from "./bracket-share-card.js";
 
 export {
+  renderMoleculeCaptureCard,
+  decodeCaptureDataUrl,
+} from "./molecule-capture-card.js";
+export type {
+  MoleculeCaptureCardInput,
+  MoleculeCaptureChampion,
+  MoleculeCapturePathEntry,
+} from "./molecule-capture-card.js";
+
+export {
   loadFlagPng,
   renderPlaceholderFlag,
   defaultFlagsDir,

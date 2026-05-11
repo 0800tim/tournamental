@@ -50,6 +50,7 @@ export type EventName =
   | "molecule.opened"
   | "molecule.team.clicked"
   | "molecule.consensus.toggled"
+  | "molecule.capture.shared"
   | "signup.started"
   | "signup.completed"
   | "signup.step.skipped"
