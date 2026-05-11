@@ -1,0 +1,121 @@
+---
+title: "Your bracket is a molecule: visualising 104 matches as one picture"
+description: "Tournamental's new 3D atom view turns 48 teams + 104 matches into a single rotatable molecule. Champion at the centre, group-stage losers at the rim, bonds between every team that played each other. Predictions become art that shares itself."
+pubDate: 2026-05-12
+author: "Tournamental Team"
+tags: ["product", "design", "renderer", "3d"]
+heroImage: "/blog/2026-05-12-night-stadium-hero.jpg"
+heroImageAlt: "A floodlit football stadium at night."
+heroImageCredit: "Photo by Mitch Rosen on Unsplash (Unsplash Licence)"
+---
+
+Every bracket UI we have ever seen is the same picture: a flat tree, expanded left-to-right or top-to-bottom, with team names crammed into cells. Yahoo's, ESPN's, the Telegraph Predictor's, our own first cut — they all read like a printed wall-chart that someone digitised. They tell you what is _in_ the bracket; they do not tell you anything about the **shape** of the tournament, the relative weight of each pick, who got close, who is on the rim.
+
+Last night we shipped a different view: the bracket as a **3D molecule** at [`2026wc.tournamental.com/world-cup-2026/molecule`](https://2026wc.tournamental.com/world-cup-2026/molecule). 48 teams are atoms. Edges between them are bonds, drawn for every match. Your predicted champion sits at the centre, glowing gold. Your runner-up and third-place picks orbit close. Eliminated-in-the-quarters teams sit a ring further out. R16 losers further still. The 16 teams that you predicted would crash out of the group stage form the outer cloud.
+
+You can rotate the whole thing. Click an atom and the side panel shows the team's predicted path. Toggle to the **consensus bracket** (the auto-pick favourites) and watch your atoms reshuffle relative to where the market thinks they belong.
+
+This post is about why we built it, what it does that a tree cannot, and what shipped in the v1.
+
+## The Obsidian moment
+
+The idea did not come from a sports app. It came from staring at the [Obsidian](https://obsidian.md) graph view of our own design docs. Forty-five-odd markdown files, every internal link drawn as an edge, the whole knowledge base reorganising itself into a constellation. The eye snaps to clusters — the design-docs cluster, the renderer-tech cluster, the gamification cluster. You can _see_ the shape of the thing you have written without reading any of it.
+
+Tournaments have exactly that structure. 48 teams. 104 matches. A small number of teams will end up in the centre — they kept playing. Most will end up on the rim — they played once or twice and were done. The bonds between them tell you who beat whom. Stage the bonds by colour and you can _see_ the cascade of the tournament shape without reading any score.
+
+The wall-chart bracket flattens that. The molecule preserves it.
+
+## What you see
+
+Three things define every atom:
+
+1. **Position** by stage reached. Concentric rings from the centre out — Champion / Runner-up / Bronze / QF / R16 / R32 / Group stage. The further out, the earlier the team is predicted to crash out.
+2. **Size** by progression depth. Champion biggest, group losers smallest. A glance tells you who you think is going far.
+3. **Rim glow colour** by final position. Gold for champion, silver for runner-up, bronze for third, slate-grey for the rest. Same palette as the [podium share card](/blog/2026-05-11-the-bracket-game-explained) so the visual language carries across surfaces.
+
+Every atom also wears its country flag as a billboard and a small 3-letter code so you can identify teams without rotating.
+
+Bonds between atoms are drawn for every match that the cascade predicts will happen between those two teams. Thickness + colour by round:
+
+- **Group-stage bonds**: thin, dark grey. Noisy but informative; the cloud at the rim is built from these.
+- **R32 bonds**: medium grey, slightly thicker.
+- **R16 bonds**: slate.
+- **QF bonds**: orange.
+- **SF bonds**: red.
+- **Final bond**: gold, biggest, glowing.
+
+The visual hierarchy reads at a glance. You can spot the user who picked _every_ favourite (their molecule is a tight central knot with the rim packed with the obvious 16 group-stage losers) versus the user who called every upset (their atoms scatter wildly, the bonds zigzag across the rings, the champion is some long-shot atom that the bonds suggest barely earned its place).
+
+That last image — the **shape of a contrarian bracket** vs a chalk bracket — is something a wall-chart cannot give you. We think it will be the most shared visual on the platform.
+
+## The "show consensus" toggle
+
+There is one toggle in the corner: **My picks** ↔ **Consensus**. Hit it and the same scene re-renders with the auto-pick-favourite bracket — every match resolves to whichever team the live odds rate higher. Your atoms reshuffle to the consensus positions, the bonds redraw, the central knot tightens or loosens depending on how much agreement there is between you and the market.
+
+This is a contrast tool. It is also, very deliberately, a **share hook**:
+
+> "Here's my bracket as a molecule. Here's the market's. Look how different they are."
+
+The contrarian bracket is the share-worthy bracket. We want the player to see their own divergence and feel proud of it. The consensus toggle is how we make that divergence legible.
+
+## How the layout works
+
+We deliberately did **not** ship a full force-directed simulation in v1. Force-directed graphs look magical when they relax to a stable state but they are unpredictable, GPU-expensive, and prone to weird re-layouts every time you click something.
+
+Instead, the v1 layout is a deterministic concentric-rings placement:
+
+```
+Ring 0 (origin):         Champion                   1 atom
+Ring 1 (r ≈ 6 units):    Runner-up + Bronze         2 atoms
+Ring 2 (r ≈ 12 units):   QF eliminated              4 atoms
+Ring 3 (r ≈ 20 units):   R16 eliminated             8 atoms
+Ring 4 (r ≈ 30 units):   R32 eliminated             16 atoms
+Outer cloud (r ≈ 42):    Group-stage eliminated     16 atoms
+```
+
+Within each ring, atoms are spaced evenly around the circle, then jittered slightly in the z-axis so the rings are visible from any rotation angle without looking like a flat dartboard. The layout is a pure function of the bracket prediction — the same input always produces the same picture.
+
+This is deliberate. A deterministic layout means:
+
+1. The same player loading the page twice sees the same scene. They can build a mental map of "where Argentina lives in my molecule".
+2. The screenshot exporter is trivial — there is no "wait for the physics to settle" step.
+3. The animated reveal MP4 (next post) just walks the camera from outside to centre on a fixed scene; the atoms do not have to converge.
+
+We left a `useForceDirected` feature flag in `apps/web/lib/molecule/layout.ts` for the day we want to ship a v2 that does relax bonds physically. The flag is off in production.
+
+## What we built
+
+Files-level, for the curious:
+
+- `apps/web/app/world-cup-2026/molecule/page.tsx` — the route. Server-renders the team roster + the user's saved bracket from the same Zustand store as the bracket page, then hands off to the client.
+- `apps/web/components/molecule/MoleculeScene.tsx` — the React Three Fiber canvas mount with `<OrbitControls>` for rotate/zoom and a gentle idle auto-rotate.
+- `apps/web/components/molecule/TeamAtom.tsx` — a kit-coloured sphere with a flag billboard, a 3-letter code label, and a rim-glow halo on the back hemisphere. The selected atom scales up + pulses; the champion permanently glows.
+- `apps/web/components/molecule/RoundBond.tsx` — the cylinder (not `<Line />`, because cylinders have actual volume and pick up the scene lighting properly) drawn between two atoms with thickness + colour per round.
+- `apps/web/components/molecule/MoleculePanel.tsx` — the side panel that opens when you click an atom: team flag, predicted path, stage W/D/L pick history.
+- `apps/web/lib/molecule/layout.ts` — the pure layout function. 100% testable. 15 invariants in unit tests: champion at origin, ring radii in order, bonds connect actual fixtures, eliminated-stage match counts add to 104, etc.
+
+Around 1,200 lines of TypeScript total. The scene renders 48 spheres + ~80 bonds at locked 60 fps on a 2022 Pixel 6 and a 2020 iPhone SE. R3F is dramatically over-provisioned for this — it would happily render 10x the geometry — but the cap keeps the bundle slim (the route weighs in at 14.3 kB gzipped on first load, with the R3F runtime already amortised across the renderer route).
+
+The first commit was at 11pm local time. The first acceptable screenshot was at 12:30am. The PR landed at 01:42am. The v1 was up at [tournamental.com/world-cup-2026/molecule](https://2026wc.tournamental.com/world-cup-2026/molecule) before sunrise.
+
+## Why this is gamification
+
+A view is not a game mechanic. But the molecule does three things that compound with the rest of the gamification layer:
+
+1. **It rewards completionism.** A half-finished bracket looks half-finished in the molecule — sparse outer ring, big empty pockets where unplaced teams ought to be. The visual incompleteness is more motivating than a "76 of 104 picks made" progress bar.
+2. **It rewards conviction.** A bracket made of consensus favourites looks like every other bracket. A bracket with a couple of long-shot calls forms a recognisable shape — distinct atoms in unusual positions, bonds zigzagging where they "should" go diagonal. Players want a distinct molecule.
+3. **It shares itself.** A 3D scene with the player's predicted champion glowing gold is dramatically more shareable than a JPEG of a wall-chart. We will hook the recorder for the animated MP4 variant in the next sprint (zooming from the rim into the centre to reveal your champion, 6 seconds, autoplay friendly on every social platform).
+
+The molecule is not the game. The game is still _save your picks before kickoff and call upsets the market did not see_. The molecule is **how the game's state becomes visible**. We think it will be the single most distinctive thing on the platform.
+
+## What's coming in v2
+
+The deferred work:
+
+- **Force-directed mode** for players who want the atoms to physically jostle into a relaxed shape. The flag is in place; the lib (`d3-force-3d`) is on the shortlist.
+- **Per-stage filter** — click "Round of 32 only" and the scene fades everything else, leaving just the 16 R32 bonds visible. Repeatable per stage. Lets you debug your bracket by round.
+- **Friend overlay** — load a friend's bracket and overlay their atoms as translucent ghosts. Where their molecule differs from yours, the divergence pops out visually.
+- **Animated reveal MP4** — Remotion-style 6-second video file, queued for the share-cards pipeline.
+- **VR mode** — for absolutely no good reason except that it sounds fun. We have the R3F scene; switching it to a WebXR session is one line. Whether anybody puts a Quest on to look at their World Cup bracket is a different question.
+
+If you want to see your bracket as a molecule, save at least your champion and runner-up over at [`/world-cup-2026`](https://2026wc.tournamental.com/world-cup-2026), then walk over to [`/world-cup-2026/molecule`](https://2026wc.tournamental.com/world-cup-2026/molecule). The atoms are waiting.

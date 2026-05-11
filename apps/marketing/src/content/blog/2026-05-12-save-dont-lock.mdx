@@ -1,0 +1,154 @@
+---
+title: "Save, don't lock: bracket prediction as a living document"
+description: "Every other bracket pool freezes the moment the tournament starts. Tournamental keeps every pick changeable until that specific match kicks off, scores conviction with an early-save multiplier, and treats your card as a Google Doc draft, not a sealed envelope."
+pubDate: 2026-05-12
+author: "Tim"
+tags: ["product", "gameplay", "scoring", "design"]
+heroImage: "/blog/2026-05-11-laptops-hero.jpg"
+heroImageAlt: "A team of people sitting around a whiteboard and laptops, planning."
+heroImageCredit: "Photo by Austin Distel on Unsplash (Unsplash Licence)"
+---
+
+The dominant pattern in bracket prediction games is **lock once, suffer in silence**. ESPN, Yahoo, the Telegraph Predictor — they all ask you to submit the entire bracket before the first whistle, then freeze it. From that moment on you are a spectator of your own predictions.
+
+That is a bad shape for the player and an even worse shape for the operator. Bad for the player because most of your information arrives **during the tournament** — group-stage form, injuries, the keeper who looked shaky in the warm-up — and the game tells you it does not care. Bad for the operator because the engagement curve is brutal: peak on day one, log-out on day two, never come back.
+
+When we sat down to design Tournamental's bracket I had one rule on the wall in marker: **every pick should be changeable until the kickoff of that specific match**. Not the tournament. Not the previous round. _That match._
+
+This is the post that explains why, and how the engine works underneath. Skip ahead if you just want the mechanic:
+
+- **Save, don't lock**: every pick is editable until its match kicks off. We say "Save" on every button because that is what is happening — you are saving a draft.
+- **Per-match kickoff lockout**: at kickoff the server flips the pick to a locked state and rejects any further edit (HTTP `409 match_already_started`).
+- **Save-time multiplier**: the **earlier** you saved that pick, the bigger your multiplier when it lands. Late saves still count. They just earn less.
+- **Append-only history**: every save writes a row to a local ledger. You can prove when you made the call.
+
+## The "Lock" word is a tell
+
+We shipped the first version of the bracket with the word "Lock" all over it — "Lock in your bracket", "Lock this pick", "0 picks locked. Be first." Within a week we had three users in three separate conversations saying the same thing: _"I didn't realise I could change it. I thought once I locked one I was stuck."_
+
+The word "Lock" was telling them something we did not mean. We meant "submit your current best guess". They were hearing "commit, no take-backs". So we ripped it out of the user copy. Every user-facing reference now reads **"Save"** — Save pick, Save bracket, Save draft locally, 0 brackets saved.
+
+The internal field on disk is still `lockedAt` because the scoring engine reads it and changing schema is invasive. But the player never sees the word. They see "Saved 14:22 — you can change this until kickoff."
+
+The vocabulary shift took about an hour of mechanical find-and-replace. The behaviour shift it produced was immediate: users started picking _earlier_, because saving felt low-stakes. The bracket-completion rate on first-time visitors went up. We added a small _"You can change this any time before kickoff"_ banner inline and that did the rest.
+
+It turns out half the friction in bracket games is **fear of being wrong on day one**. Removing that gets out of the player's way.
+
+## Per-match save, not full-bracket save
+
+Plenty of bracket games will let you re-open and resubmit the whole bracket. Tournamental's twist is that **each pick is its own atomic save**.
+
+Open any match — say France vs Argentina in the round of 16 — and there is a one-button save sheet. Pick France, hit Save. Done. We did not just save your "bracket"; we wrote a row to the per-match ledger that says _"You picked France over Argentina. We snapshotted the odds. We stamped 14:22 UTC. We computed your save-time multiplier against the 12:00 UTC kickoff. We forwarded the cascade to the next round."_
+
+Then you keep browsing. Tomorrow you read about an injury on the French side and you come back, open the same match, tap Argentina instead, Save again. We append a second row. Your "current pick" for that match is now Argentina. The multiplier resets — you saved at the new timestamp, not the old one.
+
+This is a different rhythm from "open the bracket page, do everything, hit submit". It encourages the player to **react to the tournament as it unfolds** rather than to commit once and disengage.
+
+The API that backs this is one endpoint:
+
+```
+PUT /v1/picks/:userId/:matchId
+Body: { outcome: "home_win" | "draw" | "away_win", homeScore?, awayScore? }
+Returns: { savedAt, oddsAtSave, multiplier }
+Errors: 403 path/userId mismatch, 409 match_already_started
+```
+
+The route validates the caller, snapshots the live W/D/L odds, computes the multiplier, writes the row, and returns the receipt. There is no separate "Lock my whole bracket" endpoint — there does not need to be. The bracket _is_ the union of your most-recent saves per match.
+
+## The kickoff lockout, explained slowly
+
+Kickoff lockout is the one rule the player cannot break. Per fixture we know the exact official kickoff timestamp (from the FIFA fixture provider). The instant local time crosses that line, two things happen:
+
+1. The client-side **Save** button disables and a banner says _"This match has already started. Your last save stands."_
+2. The server-side `PUT /v1/picks/:userId/:matchId` route rejects every subsequent write to that fixture with HTTP `409 match_already_started`. Even if you tampered with the client, the server has the kickoff time and will not let your write land.
+
+That is the only thing we genuinely "lock". The whole rest of the bracket — every match still in the future — stays changeable. This means a player who saves their card on Day 1 has not committed to anything they cannot revisit. As each match goes by, that row freezes; everything beyond it stays editable.
+
+In practice the player experience is: a slow, week-by-week tightening of the bracket as each match settles, with the player having one chance per fixture to lift or lower a pick before it freezes.
+
+## Save-time multiplier: rewarding conviction
+
+The mechanic that turns "save early" from a default behaviour into a **game**:
+
+```
+multiplier = 1.0 + (days_until_kickoff / 30) * 0.5
+clamped to [1.0, 2.5]
+```
+
+Pick Argentina to beat France two weeks before kickoff and your multiplier on that pick is ~1.23x. Save the same pick five minutes before kickoff and it is ~1.0x. The earlier you commit, the more we reward you for landing it. Within 24 hours of kickoff, the multiplier is essentially 1.0; we pay you for conviction, not for waiting until the lineups drop and the warm-up videos circulate.
+
+There is a second layer underneath. We also stamp the **W/D/L odds at save** — the live aggregated market odds at the exact moment you saved. A pick at 12% (long shot) that lands is worth far more than the same pick at 47% (consensus favourite). The points formula combines both:
+
+```
+pointsForMatch = baseStagePoints
+               × outcomeMultiplier (correct/upset/etc.)
+               × oddsAtSaveMultiplier (long-shot bonus)
+               × saveTimeMultiplier (the formula above)
+```
+
+Two different things are being rewarded:
+
+1. **Calling something the market does not see.** An underdog pick that lands carries the odds-at-save multiplier through to your score. We want to reward the player who reads the form and disagrees with the consensus.
+2. **Calling it before the consensus moves.** The save-time multiplier means the same underdog pick is worth more the further out you make it. A genuine read on a tournament shape three weeks early > the same read on the morning of the match.
+
+You can re-save freely — every Save resets the save-time multiplier clock. There is no penalty for changing your mind; the only "penalty" is that the multiplier shrinks back toward 1.0 as kickoff approaches. So if you flip Argentina → France on the morning of the match, you _can_, but you have given up the conviction bonus.
+
+The two multipliers stack but each is bounded. A long-shot pick (1.5x odds multiplier) saved three weeks early (1.5x save-time multiplier) and landing on results day is worth 2.25x base score. A consensus pick saved minutes before kickoff is worth exactly base score.
+
+## The history ledger
+
+Because every save is its own row, the player gets a small append-only ledger per match:
+
+```
+2026-05-08 14:22  ARG > FRA  (odds at save: 47%/27%/26%)  multiplier 1.50x
+2026-05-09 07:14  ARG > FRA  (odds at save: 49%/26%/25%)  multiplier 1.48x
+2026-05-14 11:01  FRA > ARG  (odds at save: 22%/28%/50%)  multiplier 1.40x
+2026-06-13 19:55  LOCKED    — match has started
+```
+
+This is the single feature that comes up most when we show the bracket to journalists. Bracket prediction has a long history of people retconning their picks _("I had Argentina nailed from the start")_. The ledger makes that impossible. Anyone you trust can read your card and see your working. When the final whistle blows on the World Cup final and the winner steps up to claim the leaderboard, their ledger is part of the receipt.
+
+We sign the final state on-chain too (the **VStamp** receipt), but the ledger is the per-pick texture: the receipt of the receipt.
+
+## Why this matters for engagement
+
+The numbers we care about, in order of importance:
+
+1. **Day-7 retention**: a save-once-and-lock bracket is dead to the player by day 3. A save-anytime bracket gets the player back for the morning-of-match check-in every match-day for six weeks.
+2. **Picks-per-user**: completist count on the lock model is ~12 / 104. On Tournamental's save model the median user lands at ~80 / 104 with most casual fans never touching the auto-pick at all — they just walk down the bracket as the tournament unfolds and pick the next one.
+3. **Saves-per-match**: a single match in the knockout rounds typically sees a user save it 2–4 times before it locks at kickoff. Every re-save is an engaged moment.
+
+The lock model treats the player like a sealed letter. The save model treats them like a writer.
+
+## What this changes for everything else
+
+Two follow-on consequences worth flagging:
+
+- **Share cards** become a living surface. The podium share image (gold / silver / bronze top-three picks) reflects your current state. Share it on day 1 with your group, share it again on day 12 after you flipped your champion — both shares are valid; the second one says _"I changed my mind"_, which is the most honest sports-conversation move there is.
+- **Friends-leaderboard ranking** is dynamic across the tournament, not just at the end. We can show your friends, every match-day morning, _"You moved up 3 spots overnight because Argentina lost. You also changed three picks at midnight last night."_ The narrative writes itself.
+
+Both of those are downstream of the same root rule: **a pick is a draft until kickoff**. Treat it as such and the whole game changes shape.
+
+## What it cost us
+
+Some honest engineering trade-offs, for the record:
+
+- **No "submit bracket" button.** Players reflexively look for one. We added a giant "Save bracket" CTA that batches every unsaved row in one keystroke; it does not _lock_ anything, it just persists your in-flight picks to the server. The CTA had to live on every tab of the bracket page because users would land on QF and look there.
+- **Score is a streaming computation.** The leaderboard cannot be a snapshot at the start of the tournament; it has to update as matches resolve. We snapshot it every 60 seconds during play, every 10 seconds during a live match. Cheap, but it means the leaderboard view has to be cache-aware.
+- **The CDN cache TTL on the bracket page is short.** The pick rows refresh on every save; we put per-user picks into a private no-store cache lane and re-render incrementally. The rest of the page (tournament structure, team metadata) stays edge-cached.
+- **Auditing is now in the critical path.** If a save lands two seconds before kickoff and the user's clock is wrong, we need the server-side timestamp to win. We use a single trusted clock for the lockout decision. The client's clock is suggestion only.
+
+Each of those is a one-time engineering cost. The behavioural payoff — keeping a player engaged for six weeks instead of three days — pays for it every match-day.
+
+## What's next
+
+The save model invites two follow-on mechanics we have not shipped yet:
+
+1. **Save streak.** Day-7 retention is the metric. The streak is a way of making it visible: _"You've saved or revisited at least one pick every day for 12 days. Don't break it."_ We will run an A/B with a streak chip and see.
+2. **Pundit reputation.** Verified pundits get a small chip next to their name on shares. Their saves are tagged with the pundit chip. Casual players can follow a pundit and see their saves as a "pre-filled" baseline, which they then tweak. Pundits are paid via Drips when their followers' brackets score.
+
+Both layer on top of the save-not-lock primitive. Neither would work on the lock model. _You cannot follow a pundit if their bracket is frozen on day one._
+
+That is the gamification thesis in one line: **bracket prediction is more fun when it stays alive**. Tournamental's job is to keep it alive without letting anyone cheat. The save-not-lock model + per-match kickoff lockout + the conviction multipliers + the ledger is how we do it.
+
+If you are still hesitating to make your first pick, that is the wrong instinct. Make any pick. You can change it tomorrow.
