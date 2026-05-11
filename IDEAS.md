@@ -85,6 +85,11 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-09, CONTRIBUTING.md] CI integration: GitHub Actions matrix for lint/test/build/security. (open)
 - [2026-05-09, CONTRIBUTING.md] Pre-commit hook running gitleaks + lint locally. (open)
 - [2026-05-09, REVIEW.md] Repo rename from `SimulatedSports` to `vtorn` once brand is locked. (open)
+- [2026-05-11, doc 28] `pnpm create @tournamental/plugin <kind> <name>` scaffolder. v0.2 SDK ship. (open)
+- [2026-05-11, doc 28] ESLint rule `no-unsanctioned-dom` shipped by the plugin SDK to lint renderer plugins. v0.2. (open)
+- [2026-05-11, doc 28] `/plugins` settings page in apps/web listing installed plugins with enable/disable + per-plugin error log. v0.2. (open)
+- [2026-05-11, doc 28] `validate-plugin` CLI in the SDK that catches manifest/package.json drift before PR. v0.2. (open)
+- [2026-05-11, doc 28] Wire the plugin loader into apps/web/lib/plugins/loader.ts and apps/api/src/plugins/loader.ts. Currently the SDK + example plugin land additive; the actual loader is a follow-up PR once the first external plugin is ready. (open)
 
 ### Strategic / Tim-only
 - [2026-05-09, REVIEW.md] License confirmation (Apache 2.0 vs MIT vs AGPL — Apache 2.0 currently set). (open)

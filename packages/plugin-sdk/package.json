@@ -1,0 +1,51 @@
+{
+  "name": "@tournamental/plugin-sdk",
+  "version": "0.1.0",
+  "description": "Plugin SDK for Tournamental. Types + manifest schema + test harness for authoring third-party plugins (renderers, scorers, ingest sources, identity providers, commentary, share cards, odds sources, affiliate routers).",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./manifest": "./src/manifest.ts",
+    "./test-harness": "./src/test-harness.ts"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@vtorn/spec": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "keywords": [
+    "tournamental",
+    "plugin",
+    "sdk",
+    "renderer",
+    "scoring",
+    "ingest",
+    "apache-2.0"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tournamental/tournamental",
+    "directory": "packages/plugin-sdk"
+  }
+}
