@@ -64,7 +64,7 @@ export const DEFAULT_SECONDARY_LINKS: readonly SideRailLink[] = [
   },
   {
     label: "Open source",
-    href: "https://github.com/vtorn",
+    href: "https://github.com/0800tim/tournamental",
     icon: <CodeIcon />,
     external: true,
   },

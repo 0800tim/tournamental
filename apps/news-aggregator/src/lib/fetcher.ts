@@ -16,7 +16,7 @@ const DEFAULT_TIMEOUT_MS = 12_000;
 // links back to the project so any upstream that wants to rate-limit
 // or contact us can.
 const USER_AGENT =
-  'TournamentalNewsAggregator/0.1 (+https://github.com/0800tim/vtorn; polite RSS poller, ~6 reqs / 10 min)';
+  'TournamentalNewsAggregator/0.1 (+https://github.com/0800tim/tournamental; polite RSS poller, ~6 reqs / 10 min)';
 
 export interface FetchSourceResult {
   readonly source: string;

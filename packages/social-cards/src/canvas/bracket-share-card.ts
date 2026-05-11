@@ -281,7 +281,7 @@ async function paintHeader(
   ctx.save();
   ctx.globalAlpha = alpha;
 
-  // V-mark + Tournamental wordmark on the left.
+  // T-mark + Tournamental wordmark on the left.
   const markSize = Math.round(geom.headerHeight * 0.62);
   const markX = geom.padX;
   const markY = geom.headerY;
@@ -292,7 +292,7 @@ async function paintHeader(
   ctx.font = `900 ${Math.round(markSize * 0.7)}px "DejaVu Sans", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("V", markX + markSize / 2, markY + markSize / 2 + 2);
+  ctx.fillText("T", markX + markSize / 2, markY + markSize / 2 + 2);
 
   ctx.fillStyle = WHITE;
   ctx.font = `900 ${geom.titleFont}px "DejaVu Sans", sans-serif`;

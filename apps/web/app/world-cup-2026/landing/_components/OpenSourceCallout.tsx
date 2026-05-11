@@ -14,7 +14,7 @@ export function OpenSourceCallout() {
       </p>
       <a
         className="wc-gh-btn"
-        href="https://github.com/0800tim/vtorn"
+        href="https://github.com/0800tim/tournamental"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Star and watch the Tournamental repo on GitHub"

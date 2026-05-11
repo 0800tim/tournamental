@@ -27,7 +27,7 @@ export async function registerVersion(app: FastifyInstance): Promise<void> {
     reply.header('Cache-Control', 'public, max-age=60');
     return {
       service: 'vtorn-news-aggregator',
-      docs: 'https://github.com/0800tim/vtorn/blob/main/docs/49-news-aggregator.md',
+      docs: 'https://github.com/0800tim/tournamental/blob/main/docs/49-news-aggregator.md',
       health: '/healthz',
       version: '/v1/version',
       news: '/v1/news',

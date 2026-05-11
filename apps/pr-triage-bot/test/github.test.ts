@@ -29,7 +29,7 @@ describe('GithubAdapter.getPR', () => {
         }),
       },
     ]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     const pr = await gh.getPR(42);
     expect(pr.number).toBe(42);
     expect(pr.author).toBe('octocat');
@@ -38,7 +38,7 @@ describe('GithubAdapter.getPR', () => {
 
   it('throws on non-zero exit', async () => {
     const runner = mockRunner([{ code: 1, stderr: 'not found' }]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     await expect(gh.getPR(99)).rejects.toThrow(/not found/);
   });
 });
@@ -52,7 +52,7 @@ describe('GithubAdapter.listFiles', () => {
       { filename: 'b.ts', status: 'added', additions: 5, deletions: 0 },
     ]);
     const runner = mockRunner([{ stdout: `${arr1}\n${arr2}` }]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     const files = await gh.listFiles(1);
     expect(files.length).toBe(2);
     expect(files[0]?.path).toBe('a.ts');
@@ -63,13 +63,13 @@ describe('GithubAdapter.listFiles', () => {
 describe('GithubAdapter.applyLabels', () => {
   it('rejects unsafe label names', async () => {
     const runner = mockRunner([{}]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     await expect(gh.applyLabels(1, ['valid', 'with space'])).rejects.toThrow(/unsafe label/);
   });
 
   it('skips when label list is empty', async () => {
     const runner = mockRunner([]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     await gh.applyLabels(1, []);
     // No calls made.
     expect((runner as unknown as { mock?: { calls: unknown[] } }).mock?.calls.length ?? 0).toBe(0);
@@ -79,7 +79,7 @@ describe('GithubAdapter.applyLabels', () => {
 describe('GithubAdapter.requestReviewers', () => {
   it('rejects unsafe reviewer logins', async () => {
     const runner = mockRunner([{}]);
-    const gh = new GithubAdapter({ repo: '0800tim/vtorn', runner });
+    const gh = new GithubAdapter({ repo: '0800tim/tournamental', runner });
     await expect(gh.requestReviewers(1, ['valid', 'has;semicolon'])).rejects.toThrow(/unsafe reviewer/);
   });
 });

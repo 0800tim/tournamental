@@ -33,7 +33,7 @@ export function AppBar({
   title,
   rightAction,
   onAvatarClick,
-  avatarInitials = "V",
+  avatarInitials = "T",
   avatarUrl,
 }: AppBarProps) {
   const [scrolled, setScrolled] = useState(false);

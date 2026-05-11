@@ -99,8 +99,8 @@ The result is a steady 60 fps on a Pixel 6 with the developer console open and a
 The 2022-final replay was the proof-of-concept. The next thing we are wiring is the **live-data path** for the actual 2026 matches. The plan:
 
 - A **live producer** that consumes a paid SportRadar feed and emits the same `@vtorn/spec` events to the same WebSocket. The renderer does not know the difference; the spec is the abstraction.
-- A **CDN-backed stream server** so the renderer scales beyond a handful of viewers per process. Fan-out is easy; the design lives in [`docs/03-stream-server.md`](https://github.com/0800tim/vtorn/blob/main/docs/03-stream-server.md).
+- A **CDN-backed stream server** so the renderer scales beyond a handful of viewers per process. Fan-out is easy; the design lives in [`docs/03-stream-server.md`](https://github.com/0800tim/tournamental/blob/main/docs/03-stream-server.md).
 - **Rewindable replay** with full scrubbing so a user can re-enter a match they missed and skim straight to the goals
 - **Verified prediction overlay** so the bracket-game predictions surface during the match — your call versus the live result, in the corner of the screen
 
-If you want to follow the engineering, the renderer's source is in [`apps/web/`](https://github.com/0800tim/vtorn/tree/main/apps/web), the producer is in [`apps/statsbomb-replay/`](https://github.com/0800tim/vtorn/tree/main/apps/statsbomb-replay), and the spec is in [`packages/spec/`](https://github.com/0800tim/vtorn/tree/main/packages/spec). We will keep posting here when we ship something the casual reader would care about.
+If you want to follow the engineering, the renderer's source is in [`apps/web/`](https://github.com/0800tim/tournamental/tree/main/apps/web), the producer is in [`apps/statsbomb-replay/`](https://github.com/0800tim/tournamental/tree/main/apps/statsbomb-replay), and the spec is in [`packages/spec/`](https://github.com/0800tim/tournamental/tree/main/packages/spec). We will keep posting here when we ship something the casual reader would care about.

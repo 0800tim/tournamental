@@ -15,7 +15,7 @@ export const metadata = {
 
 export default function ProfilePage() {
   return (
-    <AppShell title="Profile" avatarInitials="V">
+    <AppShell title="Profile" avatarInitials="T">
       <div className="vt-page-content">
         <section className="vt-section">
           <h2 className="vt-section-title">Sign in</h2>

@@ -82,7 +82,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<BuiltServer>
       service: pkg.name,
       version: pkg.version,
       spec_version: SPEC_VERSION,
-      docs: "https://github.com/0800tim/vtorn",
+      docs: "https://github.com/0800tim/tournamental",
       healthz: "/healthz",
       admin: "/admin/status",
       subscribe: "/v1/match/:match_id (WebSocket)",

@@ -29,7 +29,7 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 
 export default function HomePage() {
   return (
-    <AppShell title="Tournamental" avatarInitials="V">
+    <AppShell title="Tournamental" avatarInitials="T">
       <div className="vt-page-content">
         <CountdownBanner
           targetUtc={WC_2026_KICKOFF_UTC}

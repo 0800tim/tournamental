@@ -11,16 +11,16 @@ import { AppBar } from "@/components/shell/AppBar";
 describe("<AppBar>", () => {
   it("renders the title and avatar initials", () => {
     const { getByText, getByLabelText } = render(
-      <AppBar title="Tournament" avatarInitials="V" />,
+      <AppBar title="Tournament" avatarInitials="T" />,
     );
     expect(getByText("Tournament")).toBeTruthy();
-    expect(getByLabelText("Open profile menu").textContent).toBe("V");
+    expect(getByLabelText("Open profile menu").textContent).toBe("T");
   });
 
   it("invokes onAvatarClick when the avatar is tapped", () => {
     const fn = vi.fn();
     const { getByLabelText } = render(
-      <AppBar title="Home" avatarInitials="V" onAvatarClick={fn} />,
+      <AppBar title="Home" avatarInitials="T" onAvatarClick={fn} />,
     );
     fireEvent.click(getByLabelText("Open profile menu"));
     expect(fn).toHaveBeenCalledOnce();

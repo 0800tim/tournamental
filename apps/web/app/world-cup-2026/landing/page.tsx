@@ -269,7 +269,7 @@ export default function LandingPage() {
             <ul>
               <li><Link href="/world-cup-2026">Bracket builder</Link></li>
               <li><Link href="/match/fifa-wc-2022-final-arg-fra-2022-12-18">2022 final demo</Link></li>
-              <li><a href="https://github.com/0800tim/vtorn" target="_blank" rel="noreferrer">GitHub</a></li>
+              <li><a href="https://github.com/0800tim/tournamental" target="_blank" rel="noreferrer">GitHub</a></li>
             </ul>
           </div>
           <div>

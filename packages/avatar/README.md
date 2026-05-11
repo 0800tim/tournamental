@@ -2,7 +2,7 @@
 
 > Procedural avatar pipeline for Tournamental renderers. Owned by
 > [AGENT-PROMPTS.md](../../AGENT-PROMPTS.md) § 3 and tracked in
-> [GitHub issue #5](https://github.com/0800tim/vtorn/issues/5). See
+> [GitHub issue #5](https://github.com/0800tim/tournamental/issues/5). See
 > [docs/07-avatars-and-assets.md](../../docs/07-avatars-and-assets.md)
 > for the design spec.
 

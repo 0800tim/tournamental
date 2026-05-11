@@ -29,7 +29,7 @@ pnpm --filter @vtorn/pr-triage-bot triage --pr <number> [options]
 Common flags:
 
 - `--pr <n>`               required, the PR number
-- `--repo <owner/name>`    defaults to `$GITHUB_REPOSITORY` or `0800tim/vtorn`
+- `--repo <owner/name>`    defaults to `$GITHUB_REPOSITORY` or `0800tim/tournamental`
 - `--dry-run`              comment is prefixed `[DRY-RUN]`; CI is not blocked
 - `--no-post`              print the verdict JSON to stdout, do not comment
 - `--no-label`             skip label application

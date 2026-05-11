@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Brand favicon: sky-blue rounded square with the geometric V mark
-       from /icons/tournamental/v-mark.svg, scaled to fit. The V is the same
-       chevron used in the in-page brand row. -->
+  <!-- Brand favicon: sky-blue rounded square with the geometric T mark
+       from /icons/tournamental/v-mark.svg. Filename kept as v-mark for
+       backwards-compat with /styles/globals.css mask refs; the glyph
+       is now a T for Tournamental. -->
   <rect width="64" height="64" rx="14" fill="#5a96d8"/>
-  <path d="M14 16 L32 50 L50 16 L42 16 L32 34 L22 16 Z" fill="#0a0e1a"/>
+  <path d="M14 14 L50 14 L50 24 L37 24 L37 50 L27 50 L27 24 L14 24 Z" fill="#0a0e1a"/>
 </svg>

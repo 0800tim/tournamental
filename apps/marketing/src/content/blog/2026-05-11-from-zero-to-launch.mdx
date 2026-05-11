@@ -11,7 +11,7 @@ heroImageCredit: "Photo by Nathan Wong on Unsplash (Unsplash Licence)"
 
 Two days ago, the Tournamental repo was empty. There was a one-page pitch in Notion, a domain name, and a calendar that said the FIFA World Cup kicks off on **11 June 2026**, exactly thirty days from today. Now there is a working bracket, a 3D match-renderer that plays the 2022 final end-to-end, sixteen ways to log in, a real CRM bridge, and a marketing site with a light theme that actually works.
 
-This post is the first entry in what will be a daily build log. The format is simple. Every day we ship things, and every evening we tell you what we shipped. Some of it will be product. Some will be infrastructure. Some will be the unglamorous truth of "we found a bug in the time controller and re-architected an event channel to fix it." All of it is true, all of it is open source under Apache 2.0, and all of it can be read in the repo at [github.com/0800tim/vtorn](https://github.com/0800tim/vtorn).
+This post is the first entry in what will be a daily build log. The format is simple. Every day we ship things, and every evening we tell you what we shipped. Some of it will be product. Some will be infrastructure. Some will be the unglamorous truth of "we found a bug in the time controller and re-architected an event channel to fix it." All of it is true, all of it is open source under Apache 2.0, and all of it can be read in the repo at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental).
 
 ## The brief
 
@@ -71,7 +71,7 @@ The structure is the same that good open-source teams use, just compressed. We b
 Thirty days. Here is the rough plan, all of it gated on the AR-FR demo working end-to-end (which it now does):
 
 - Live-data scraper for actual WC2026 match state, swapped in once a paid SportRadar key arrives
-- Verified prediction receipts on Arbitrum (the **VStamp** primitive in [docs/17-vstamp.md](https://github.com/0800tim/vtorn/blob/main/docs/17-vstamp.md))
+- Verified prediction receipts on Arbitrum (the **VStamp** primitive in [docs/17-vstamp.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp.md))
 - The Capacitor native iOS and Android shell so users can install us from the app stores instead of bookmarking a PWA
 - A `subdomain.tournamental.com` self-serve sweepstake creator so any group of friends can run their own pool with their own affiliate code
 - Drips Network revenue-share contract so every contributor's git activity translates directly into a continuous USDC stream

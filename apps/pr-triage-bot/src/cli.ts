@@ -5,7 +5,7 @@
  *   vtorn-triage --pr <num> [--repo owner/name] [--dry-run] [--no-post]
  *
  * Run from a checked-out repo with `gh` authenticated. Default repo
- * is `0800tim/vtorn`.
+ * is `0800tim/tournamental`.
  *
  * Exit codes:
  *   0  always (the verdict is communicated via the comment + labels;
@@ -42,7 +42,7 @@ interface Args {
 function parseArgs(argv: string[]): Args {
   const out: Args = {
     pr: NaN,
-    repo: process.env.GITHUB_REPOSITORY ?? '0800tim/vtorn',
+    repo: process.env.GITHUB_REPOSITORY ?? '0800tim/tournamental',
     dryRun: false,
     noPost: false,
     noLabel: false,
@@ -105,7 +105,7 @@ USAGE
   vtorn-triage --pr <number> [options]
 
 OPTIONS
-  --repo <owner/name>     Default: $GITHUB_REPOSITORY or 0800tim/vtorn
+  --repo <owner/name>     Default: $GITHUB_REPOSITORY or 0800tim/tournamental
   --dry-run               Comment is prefixed [DRY-RUN]; CI is not blocked
   --no-post               Print verdict JSON to stdout; do not comment
   --no-label              Skip label application

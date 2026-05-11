@@ -49,7 +49,7 @@ states even for disabled rows.
 - One in-flight tick at a time; if a previous tick is still running,
   the next tick is dropped (prevents hammering on slow upstreams).
 - User-Agent header identifies us:
-  `TournamentalNewsAggregator/0.1 (+https://github.com/0800tim/vtorn; polite RSS poller, ~6 reqs / 10 min)`
+  `TournamentalNewsAggregator/0.1 (+https://github.com/0800tim/tournamental; polite RSS poller, ~6 reqs / 10 min)`
 - We honour HTTP 304 / cache headers from upstreams when present (the
   `rss-parser` library handles ETag / Last-Modified for us).
 
