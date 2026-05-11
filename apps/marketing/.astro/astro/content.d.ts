@@ -209,6 +209,29 @@ declare module 'astro:content' {
   data: InferEntrySchema<"blog">
 } & { render(): Render[".mdx"] };
 };
+"press": {
+"2026-05-13-ai-builder-launch.mdx": {
+	id: "2026-05-13-ai-builder-launch.mdx";
+  slug: "2026-05-13-ai-builder-launch";
+  body: string;
+  collection: "press";
+  data: InferEntrySchema<"press">
+} & { render(): Render[".mdx"] };
+"2026-05-13-launch-techcrunch.mdx": {
+	id: "2026-05-13-launch-techcrunch.mdx";
+  slug: "2026-05-13-launch-techcrunch";
+  body: string;
+  collection: "press";
+  data: InferEntrySchema<"press">
+} & { render(): Render[".mdx"] };
+"2026-05-13-open-business-drips.mdx": {
+	id: "2026-05-13-open-business-drips.mdx";
+  slug: "2026-05-13-open-business-drips";
+  body: string;
+  collection: "press";
+  data: InferEntrySchema<"press">
+} & { render(): Render[".mdx"] };
+};
 
 	};
 

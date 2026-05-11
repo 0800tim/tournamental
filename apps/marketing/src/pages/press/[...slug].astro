@@ -1,0 +1,461 @@
+---
+// Individual press release route. Statically generated from the
+// `press` content collection. Mirrors the blog single-post route but
+// with three additions journalists actually need:
+//
+//   1. A Press contact sidebar (name, email, phone, kit download).
+//   2. A "Quotes for use" block exposing every `quoteAttributable`
+//      entry verbatim, with one-click copy.
+//   3. Structured `NewsArticle` JSON-LD so Google News picks it up.
+//
+// Embargoed releases render a "Held under embargo" placeholder rather
+// than the body. The full text is still emitted in the JSON-LD so a
+// bot fetching the page before the embargo flip sees the canonical
+// metadata but not the body text.
+import Layout from "@/layouts/Layout.astro";
+import Prose from "@/components/blog/Prose.astro";
+import TagChip from "@/components/blog/TagChip.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const releases = await getCollection("press", ({ data }) => !data.draft);
+  return releases.map((release) => ({
+    params: { slug: release.slug },
+    props: { release },
+  }));
+}
+
+interface Props {
+  release: CollectionEntry<"press">;
+}
+const { release } = Astro.props;
+const { Content } = await release.render();
+const { data } = release;
+
+const now = new Date();
+const isEmbargoed = !!(data.embargoUntil && data.embargoUntil.getTime() > now.getTime());
+
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(data.pubDate);
+const embargoLabel = data.embargoUntil
+  ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.embargoUntil)
+  : "";
+
+const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const canonical = new URL(`/press/${release.slug}`, Astro.site ?? "https://tournamental.com").toString();
+const ogImage = heroSrc
+  ? heroSrc.startsWith("http")
+    ? heroSrc
+    : new URL(heroSrc, Astro.site ?? "https://tournamental.com").toString()
+  : "/og-default.png";
+
+// Default boilerplate, overridden by `data.boilerplate` if present.
+const defaultBoilerplate =
+  "Tournamental is an open-source tournament-prediction platform for the FIFA World Cup 2026 and other major sports tournaments. Every prediction is timestamped before kickoff and signed on-chain, every match plays out in a browser-based 3D renderer, every contributor shares in the platform's revenue through Drips Network. The platform is licensed under Apache 2.0, documentation is licensed under Creative Commons BY 4.0. Headquarters: New Zealand. Live at tournamental.com.";
+const boilerplate = data.boilerplate ?? defaultBoilerplate;
+
+const categoryLabel = ({
+  launch: "Launch",
+  milestone: "Milestone",
+  partnership: "Partnership",
+  feature: "Feature",
+  "open-source": "Open source",
+} as const)[data.category];
+
+const audienceLabels: Record<string, string> = {
+  techcrunch: "TechCrunch",
+  "ai-builder": "AI builder",
+  "sports-media": "Sports media",
+  general: "General",
+};
+
+// NewsArticle JSON-LD per schema.org. Google News picks this up to
+// classify the page; without it the index would treat /press/<slug>
+// as ordinary marketing.
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  headline: data.title,
+  description: data.subtitle ?? "",
+  datePublished: data.pubDate.toISOString(),
+  dateModified: data.pubDate.toISOString(),
+  inLanguage: "en-NZ",
+  author: [{ "@type": "Organization", name: "Tournamental" }],
+  publisher: {
+    "@type": "Organization",
+    name: "Tournamental",
+    logo: {
+      "@type": "ImageObject",
+      url: new URL("/icons/tournamental/v-mark.svg", Astro.site ?? "https://tournamental.com").toString(),
+    },
+  },
+  mainEntityOfPage: canonical,
+  image: [ogImage],
+  articleSection: categoryLabel,
+  keywords: data.tags.join(", "),
+};
+---
+<Layout
+  title={`${data.title}, Tournamental Press`}
+  description={data.subtitle ?? data.title}
+  ogImage={ogImage}
+>
+  <article class="container-page pt-12 pb-16">
+    <nav class="vt-press-back" aria-label="Breadcrumb">
+      <a href="/press" class="link">← All press releases</a>
+    </nav>
+
+    <div class="vt-press-layout">
+      <div class="vt-press-main">
+        <header class="vt-press-post-header">
+          <div class="vt-press-post-meta">
+            <span class="vt-press-pill">{categoryLabel}</span>
+            <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+            {isEmbargoed && (
+              <span class="vt-press-embargo-tag">Embargoed until {embargoLabel}</span>
+            )}
+          </div>
+          <h1 class="vt-press-post-title">{data.title}</h1>
+          {data.subtitle && (
+            <p class="vt-press-post-lede">{data.subtitle}</p>
+          )}
+          {data.audience.length > 0 && (
+            <div class="vt-press-audience-row">
+              <span class="vt-press-audience-eyebrow">For:</span>
+              {data.audience.map((a) => (
+                <span class="vt-press-audience-pill">{audienceLabels[a] ?? a}</span>
+              ))}
+            </div>
+          )}
+          {data.tags.length > 0 && (
+            <div class="vt-press-post-tags">
+              {data.tags.map((t) => <TagChip tag={t} />)}
+            </div>
+          )}
+        </header>
+
+        {heroSrc && !isEmbargoed && (
+          <figure class="vt-press-post-hero">
+            <img
+              src={heroSrc}
+              alt={data.heroImageAlt ?? ""}
+              width="1600"
+              height="900"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+          </figure>
+        )}
+
+        {isEmbargoed ? (
+          <div class="card vt-press-embargo-card">
+            <h2>Held under embargo</h2>
+            <p>
+              This release is held under embargo until {embargoLabel}. The full text will appear
+              here automatically once the embargo lifts.
+            </p>
+            <p>
+              Journalists with the embargo brief can request the text early at
+              <a href="mailto:press@tournamental.com" class="link"> press@tournamental.com</a>.
+            </p>
+          </div>
+        ) : (
+          <Prose>
+            <Content />
+          </Prose>
+        )}
+
+        {data.quoteAttributable && data.quoteAttributable.length > 0 && !isEmbargoed && (
+          <section class="vt-press-quotes">
+            <h3>Quotes for use</h3>
+            <p class="vt-press-quotes-note">
+              All quotes below are pre-approved for verbatim use. Attribution is required.
+            </p>
+            <ul>
+              {data.quoteAttributable.map((q) => (
+                <li class="vt-press-quote">
+                  <blockquote>"{q.quote}"</blockquote>
+                  <cite>{q.source}</cite>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section class="vt-press-boilerplate">
+          <h3>About Tournamental</h3>
+          <p>{boilerplate}</p>
+        </section>
+      </div>
+
+      <aside class="vt-press-sidebar" aria-label="Press contact">
+        <div class="card vt-press-contact">
+          <h3>Press contact</h3>
+          <dl>
+            <dt>Name</dt>
+            <dd>{data.contactName}</dd>
+            <dt>Email</dt>
+            <dd>
+              <a href={`mailto:${data.contactEmail}`} class="link">{data.contactEmail}</a>
+            </dd>
+            {data.contactPhone && (
+              <>
+                <dt>Phone</dt>
+                <dd>{data.contactPhone}</dd>
+              </>
+            )}
+            {data.pressKitUrl && (
+              <>
+                <dt>Press kit</dt>
+                <dd>
+                  <a href={data.pressKitUrl} class="link" download>Download (.zip)</a>
+                </dd>
+              </>
+            )}
+            <dt>Repository</dt>
+            <dd>
+              <a href="https://github.com/0800tim/tournamental" class="link">github.com/0800tim/tournamental</a>
+            </dd>
+          </dl>
+        </div>
+
+        <div class="card vt-press-meta-card">
+          <h3>This release</h3>
+          <dl>
+            <dt>Category</dt>
+            <dd>{categoryLabel}</dd>
+            <dt>Published</dt>
+            <dd>{dateLabel}</dd>
+            {isEmbargoed && (
+              <>
+                <dt>Embargo</dt>
+                <dd>Until {embargoLabel}</dd>
+              </>
+            )}
+            <dt>Canonical</dt>
+            <dd>
+              <a href={canonical} class="link">{canonical}</a>
+            </dd>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </article>
+
+  {/* NewsArticle structured data so Google News picks the release up
+      and so social card previews use the right metadata. */}
+  <script
+    type="application/ld+json"
+    is:inline
+    set:html={JSON.stringify(jsonLd)}
+  />
+</Layout>
+
+<style>
+  .vt-press-back {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  .vt-press-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .vt-press-layout {
+      grid-template-columns: minmax(0, 1fr) 22rem;
+      gap: 2.5rem;
+    }
+  }
+  .vt-press-main {
+    min-width: 0;
+  }
+  .vt-press-post-header {
+    margin-bottom: 1.75rem;
+  }
+  .vt-press-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.9rem;
+  }
+  .vt-press-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    border: 1px solid var(--vt-border-strong);
+    background: color-mix(in srgb, var(--vt-bg-elev) 80%, transparent);
+    color: var(--vt-fg-strong);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+  .vt-press-embargo-tag {
+    color: #c9a64a;
+    font-weight: 600;
+  }
+  .vt-press-post-title {
+    font-family: theme(fontFamily.display);
+    font-size: 2.1rem;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--vt-fg-strong);
+  }
+  @media (min-width: 768px) {
+    .vt-press-post-title { font-size: 2.5rem; }
+  }
+  .vt-press-post-lede {
+    color: var(--vt-fg-muted);
+    margin-top: 0.85rem;
+    font-size: 1.1rem;
+    line-height: 1.55;
+  }
+  .vt-press-audience-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+  .vt-press-audience-eyebrow {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--vt-fg-muted);
+    margin-right: 0.3rem;
+  }
+  .vt-press-audience-pill {
+    font-size: 0.7rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--vt-bg-elev-2) 60%, transparent);
+    color: var(--vt-fg-muted);
+    border: 1px solid var(--vt-border);
+  }
+  .vt-press-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.9rem;
+  }
+  .vt-press-post-hero {
+    margin: 1.5rem 0 2.5rem;
+    border-radius: 0.875rem;
+    overflow: hidden;
+    border: 1px solid var(--vt-border);
+  }
+  .vt-press-post-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .vt-press-embargo-card {
+    padding: 1.5rem 1.75rem;
+  }
+  .vt-press-quotes {
+    margin-top: 2.5rem;
+    padding: 1.4rem 1.5rem 1.5rem;
+    border: 1px solid var(--vt-border);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+  }
+  .vt-press-quotes h3 {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-bottom: 0.35rem;
+    color: var(--vt-fg-strong);
+  }
+  .vt-press-quotes-note {
+    font-size: 0.85rem;
+    color: var(--vt-fg-muted);
+    margin-bottom: 0.9rem;
+  }
+  .vt-press-quotes ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+  }
+  .vt-press-quote blockquote {
+    margin: 0;
+    font-size: 1.02rem;
+    line-height: 1.55;
+    color: var(--vt-fg-strong);
+    font-style: italic;
+  }
+  .vt-press-quote cite {
+    display: block;
+    margin-top: 0.4rem;
+    font-style: normal;
+    color: var(--vt-fg-muted);
+    font-size: 0.9rem;
+  }
+  .vt-press-boilerplate {
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--vt-border);
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+  .vt-press-boilerplate h3 {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    color: var(--vt-fg-strong);
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .vt-press-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 4.5rem;
+    align-self: start;
+  }
+  .vt-press-contact h3,
+  .vt-press-meta-card h3 {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-strong);
+    margin-bottom: 0.6rem;
+  }
+  .vt-press-contact dl,
+  .vt-press-meta-card dl {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 0.9rem;
+    font-size: 0.9rem;
+  }
+  .vt-press-contact dt,
+  .vt-press-meta-card dt {
+    color: var(--vt-fg-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .vt-press-contact dd,
+  .vt-press-meta-card dd {
+    margin: 0;
+    color: var(--vt-fg-strong);
+    word-break: break-word;
+  }
+</style>

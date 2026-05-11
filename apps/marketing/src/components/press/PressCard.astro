@@ -1,0 +1,222 @@
+---
+// Index-page card for a single press release.
+//
+// Press releases differ from blog posts in three ways the card needs to
+// reflect:
+//   - they have a category pill (Launch, Feature, Partnership, Milestone,
+//     Open source) used by journalists to filter quickly,
+//   - they target one or more audiences (TechCrunch, AI builder,
+//     Sports media, General),
+//   - they may carry a downloadable press kit URL.
+//
+// Embargoed releases (where `embargoUntil` is in the future) render as a
+// redacted entry: the title is hidden, the body says "Embargoed until
+// <date>". The parent /press route sets `s-maxage=60` on the response
+// when any embargoed release exists, so the entry goes live within a
+// minute of the embargo expiring.
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  release: CollectionEntry<"press">;
+  now?: Date;
+}
+const { release, now = new Date() } = Astro.props;
+const { data, slug } = release;
+const href = `/press/${slug}`;
+
+const isEmbargoed = !!(data.embargoUntil && data.embargoUntil.getTime() > now.getTime());
+
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(data.pubDate);
+
+const embargoLabel = data.embargoUntil
+  ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.embargoUntil)
+  : "";
+
+// Body excerpt, 200 chars, falls back to subtitle if no body content
+// is exposed at the index level. We use the rendered description-like
+// fields rather than parsing MDX so this stays cheap at build time.
+const excerptSource = data.subtitle ?? "";
+const excerpt = excerptSource.length > 200 ? excerptSource.slice(0, 197) + "..." : excerptSource;
+
+const categoryLabel = ({
+  launch: "Launch",
+  milestone: "Milestone",
+  partnership: "Partnership",
+  feature: "Feature",
+  "open-source": "Open source",
+} as const)[data.category];
+
+const audienceLabels: Record<string, string> = {
+  techcrunch: "TechCrunch",
+  "ai-builder": "AI builder",
+  "sports-media": "Sports media",
+  general: "General",
+};
+---
+<article class={`vt-press-card ${isEmbargoed ? "is-embargoed" : ""}`}>
+  <div class="vt-press-card-meta">
+    <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+    <span aria-hidden="true">·</span>
+    <span class="vt-press-pill">{categoryLabel}</span>
+  </div>
+
+  {isEmbargoed ? (
+    <div class="vt-press-card-body">
+      <h3 class="vt-press-card-title vt-press-redacted" aria-label="Embargoed release">
+        <span class="vt-press-lock" aria-hidden="true">[embargoed]</span>
+        Embargoed until {embargoLabel}
+      </h3>
+      <p class="vt-press-card-desc">
+        This release is held under embargo. Journalists with the embargo brief can request
+        the full text at <a href="mailto:press@tournamental.com" class="link">press@tournamental.com</a>.
+      </p>
+    </div>
+  ) : (
+    <div class="vt-press-card-body">
+      <h3 class="vt-press-card-title">
+        <a href={href}>{data.title}</a>
+      </h3>
+      {data.subtitle && <p class="vt-press-card-subtitle">{data.subtitle}</p>}
+      {excerpt && <p class="vt-press-card-desc">{excerpt}</p>}
+      <div class="vt-press-card-footer">
+        {data.audience.length > 0 && (
+          <div class="vt-press-audience">
+            {data.audience.map((a) => (
+              <span class="vt-press-audience-pill">{audienceLabels[a] ?? a}</span>
+            ))}
+          </div>
+        )}
+        <div class="vt-press-card-actions">
+          <a href={href} class="link">Read release →</a>
+          {data.pressKitUrl && (
+            <a href={data.pressKitUrl} class="link vt-press-kit-link" download>
+              Press kit ↓
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  )}
+</article>
+
+<style>
+  .vt-press-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1.25rem 1.4rem 1.5rem;
+    border: 1px solid var(--vt-border);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+    transition: border-color 160ms ease, transform 160ms ease;
+  }
+  .vt-press-card:hover {
+    border-color: var(--vt-border-strong);
+    transform: translateY(-2px);
+  }
+  .vt-press-card.is-embargoed {
+    border-style: dashed;
+    opacity: 0.85;
+  }
+  .vt-press-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .vt-press-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid var(--vt-border);
+    background: var(--vt-bg-elev);
+    color: var(--vt-fg-strong);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+  }
+  .vt-press-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .vt-press-card-title {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--vt-fg-strong);
+  }
+  .vt-press-card-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .vt-press-card-title a:hover {
+    color: #5a96d8;
+  }
+  .vt-press-redacted {
+    color: var(--vt-fg-muted);
+    font-weight: 600;
+  }
+  .vt-press-lock {
+    display: inline-block;
+    margin-right: 0.4rem;
+    font-family: theme(fontFamily.mono);
+    font-size: 0.8em;
+    color: #c9a64a;
+  }
+  .vt-press-card-subtitle {
+    color: var(--vt-fg-strong);
+    font-size: 0.98rem;
+    line-height: 1.4;
+    font-weight: 500;
+  }
+  .vt-press-card-desc {
+    color: var(--vt-fg-muted);
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+  .vt-press-card-footer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    margin-top: 0.4rem;
+  }
+  @media (min-width: 640px) {
+    .vt-press-card-footer {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+    }
+  }
+  .vt-press-audience {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .vt-press-audience-pill {
+    font-size: 0.7rem;
+    padding: 0.12rem 0.5rem;
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--vt-bg-elev-2) 60%, transparent);
+    color: var(--vt-fg-muted);
+    border: 1px solid var(--vt-border);
+  }
+  .vt-press-card-actions {
+    display: flex;
+    gap: 0.85rem;
+    align-items: center;
+    font-size: 0.85rem;
+  }
+  .vt-press-kit-link {
+    color: var(--vt-fg-muted);
+  }
+</style>
