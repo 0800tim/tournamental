@@ -1,13 +1,20 @@
 // Astro Content Collections registry.
 //
-// Two collections live here:
+// Three collections live here:
 //   - `blog`, the public-facing build log on tournamental.com/blog
 //   - `press`, official press releases on tournamental.com/press
+//   - `engineering`, the deep-technical engineering log on
+//     tournamental.com/engineering, aimed at AI agents and human
+//     engineers who want to read the architecture decisions before
+//     forking a service or shipping a plugin.
 //
-// Both are MDX. Blog hero images live under `apps/marketing/public/blog/`,
-// press hero images under `apps/marketing/public/press/`. Schemas are
-// strict on purpose, missing fields fail the build (Tim hates "shipped
-// without a date" bugs).
+// All three are MDX. Blog hero images live under
+// `apps/marketing/public/blog/`, press hero images under
+// `apps/marketing/public/press/`, engineering hero images under
+// `apps/marketing/public/blog/engineering/` (a sub-folder so the
+// existing public-asset CDN rules apply without extra config).
+// Schemas are strict on purpose, missing fields fail the build (Tim
+// hates "shipped without a date" bugs).
 import { defineCollection, z } from "astro:content";
 
 const blog = defineCollection({
@@ -87,4 +94,52 @@ const press = defineCollection({
     }),
 });
 
-export const collections = { blog, press };
+// Engineering log. A distinct surface from `blog`: deep technical posts
+// about how Tournamental is built, written so an AI agent or a human
+// engineer can read it and feed it back into their own build. Tagged
+// by `area` rather than freeform tags, so the index can render a clean
+// filter bar without growing into a tag-cloud mess. `relatedDocs` and
+// `relatedSource` capture canonical doc + source refs in frontmatter
+// so the post page can render a sidebar of "related docs" + "related
+// source" links without per-post bespoke HTML.
+const engineering = defineCollection({
+  type: "content",
+  schema: ({ image }) =>
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      pubDate: z.coerce.date(),
+      updated: z.coerce.date().optional(),
+      author: z.enum(["Tournamental Team", "Tim", "Orchestrator"]).default("Tim"),
+      // Engineering posts tag by area, not freeform. Adding a new area
+      // is intentional, missing-area must fail the build so the index
+      // filter bar stays a curated set.
+      area: z.enum([
+        "stack-overview",
+        "renderer",
+        "scoring",
+        "identity",
+        "on-chain",
+        "data-pipeline",
+        "ai-agents",
+        "infrastructure",
+        "plugins",
+        "performance",
+      ]),
+      tags: z.array(z.string()).default([]),
+      heroImage: z.union([image(), z.string()]).optional(),
+      heroImageAlt: z.string().optional(),
+      heroImageCredit: z.string().optional(),
+      draft: z.boolean().default(false),
+      // Engineering posts deep-link into the repo. Capture canonical
+      // doc + source refs in frontmatter so the post page can render
+      // a "Related" sidebar without per-post markup. `relatedDocs`
+      // entries are filenames inside `docs/` (e.g. `03-architecture.md`).
+      // `relatedSource` entries are repo-root-relative paths (e.g.
+      // `apps/web/components/molecule/Molecule.tsx`).
+      relatedDocs: z.array(z.string()).default([]),
+      relatedSource: z.array(z.string()).default([]),
+    }),
+});
+
+export const collections = { blog, press, engineering };

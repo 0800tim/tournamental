@@ -1,0 +1,987 @@
+---
+title: "The Tournamental stack at a glance, every service, every protocol, every plug point"
+description: "A 30-second map of the Tournamental open-source codebase: the four-layer service spine, the eight workspace packages, the contract types that hold it all together, and the seams an integrator can plug into to vibe-code a tournament app on top of it. Written for the AI agent or engineer who wants to fork, extend or embed Tournamental and is not sure where to start reading."
+pubDate: 2026-05-13
+author: "Tim"
+area: "stack-overview"
+tags: ["architecture", "open-source", "monorepo", "fastify", "next", "astro"]
+heroImage: "/blog/engineering/2026-05-13-stack-hero.svg"
+heroImageAlt: "An exploded-isometric diagram of the Tournamental stack: a marketing site, a bracket app and a watch-along renderer floating above a row of Fastify services, with an MCP server sitting beside them feeding into Claude Desktop and Cursor, and a Drips-list contract anchoring the bottom of the diagram. (hero image WIP.)"
+heroImageCredit: "Diagram drafted for the Tournamental engineering log, 2026"
+relatedDocs:
+  - "03-architecture.md"
+  - "02-spec.md"
+  - "16-game-modes-and-scoring.md"
+  - "17-vstamp-and-prediction-iq.md"
+  - "19-open-source-and-contributor-revenue.md"
+  - "21-onchain-sweepstakes-oracle.md"
+  - "22-deployment-and-tunnels.md"
+  - "28-plugin-architecture.md"
+  - "29-mcp-server.md"
+  - "40-drips-network-integration.md"
+  - "47-cicd-pipeline.md"
+relatedSource:
+  - "apps/web"
+  - "apps/marketing"
+  - "apps/game"
+  - "apps/identity"
+  - "apps/vstamp"
+  - "apps/drips-bridge"
+  - "apps/affiliate-router"
+  - "apps/clip-pipeline"
+  - "apps/odds-ingest"
+  - "apps/news-aggregator"
+  - "apps/stream-server"
+  - "apps/statsbomb-replay"
+  - "packages/spec"
+  - "packages/bracket-engine"
+  - "packages/social-cards"
+  - "packages/avatar"
+  - "packages/ball-physics"
+  - "packages/spec-client"
+  - "packages/aiva-client"
+---
+
+## Why this post exists
+
+If you have landed here, one of three things is true.
+
+You are an **AI agent** that has been pointed at the Tournamental codebase by a human who said "go build something on top of this". You opened the README, scrolled, opened a docs folder with sixty-plus markdown files, and realised you do not know which one to read first. This post is the map.
+
+You are a **human engineer** who wants to vibe-code an app on top of Tournamental. Maybe you want to embed the bracket UI in your own site. Maybe you want to drop the molecule visualisation into a streaming overlay. Maybe you just want to know whether the StatsBomb replay producer is reusable for your fantasy-cricket idea. Same map applies.
+
+You are a **prospective contributor** trying to work out whether the codebase is one you want to touch. You have read the open-source manifesto in [Pot of Gold or Pot of Shit](/blog/2026-05-12-pot-of-gold-or-pot-of-shit) and now you want to know what the surface area actually is before you commit a Saturday afternoon to it.
+
+This post answers one question: **what is in this repo, what is the contract surface, and where do I plug in?**
+
+The whole codebase is open source. Apache 2.0 for the code, CC-BY 4.0 for the docs. The brand and the official Drips list are owned by Tournamental Holdings. Everything else is up for grabs. Fork it, embed it, ship a plugin against it, propose a better scoring formula. The repo is a brain dump. This post is the page-one index.
+
+A note on tone before we begin. This is the engineering log, not the marketing site. The voice is direct, NZ English, no em-dashes. Where something is half-built I will say so. Where I have not figured it out yet I will say that too. The repo is shipped with the warts on, this log is shipped with the warts on. If you wanted a polished pitch you wanted [the product blog](/blog).
+
+A second note. Because the codebase is being built with AI agents in parallel git worktrees (more on that later), the docs in this log are kept terse and structural. We are deliberately not putting prose explanations in the architecture docs that change every other week. Those go here instead, in the engineering log, dated, so an agent that reads `docs/03-architecture.md` and finds it changed two weeks ago can come here for the prose around it.
+
+A third note, because somebody is bound to ask. Why "tournamental" and not "vtorn"? `vtorn` is the working-folder name from before the brand search settled. The npm packages, the public-facing domains and the imports are all `@tournamental/*` now. There is a chore PR in flight that scrubs the last `vtorn` references; until it lands you will see both names in the repo.
+
+A fourth note. The post is long on purpose. If you skim it once and bookmark it, that is fine. The structure follows the same order as the codebase: the 30-second version, the repo layout, the protocols, the flows, the walkthrough, the on-chain bits, the things we rejected, the agent build process, the test strategy, where to ask questions, and what is coming next. You can search for any of those headings.
+
+### How to read this post
+
+Three reading paths, depending on what you want.
+
+**If you have ten minutes**, read "The 30-second version" plus "What's stable, what's still moving". That gives you the surface area and the trust level for each chunk of it.
+
+**If you have thirty minutes and want to ship something**, read "The 30-second version" plus the full "How a request actually flows through the stack" section plus the "Vibe-code your app on top of Tournamental" walkthrough. By the end you will know which two npm packages to install and which one MCP config line to paste.
+
+**If you have an hour and want to actually contribute**, read the whole thing top to bottom. The "How the codebase gets built" section near the end is the part that tells you how to participate in the agent-driven workflow without stepping on anyone.
+
+## The 30-second version
+
+Before the diagram, two sentences that summarise the whole architecture.
+
+**The spec is the contract.** A tournament, a fixture, a player, an event, a pick, a save, a receipt, a leaderboard row, a syndicate, a Drips split, every shape Tournamental cares about is a TypeScript type in `packages/spec`. Everything else is a transport, a renderer, a scorer or a notifier built on top of it.
+
+**Write-once, serve via CDN.** Live data is a one-way append-only stream. It gets chunked into immutable files. The files cache forever at Cloudflare. A million viewers cost about the same as ten because the origin only ever sees one fetch per Cloudflare PoP per chunk. The bits that need a database (leaderboards, identity, drips splits) are kept as small as possible and surfaced via flat JSON snapshots wherever the read path is hot.
+
+Now the stack has four layers. Read them top to bottom.
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│  PRESENTATION                                                       │
+│                                                                     │
+│  apps/marketing  (Astro)   tournamental.com                         │
+│  apps/web        (Next.js + R3F)  play.tournamental.com             │
+│  apps/native     (Capacitor wrapper)  iOS + Android                 │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │ REST + WebSocket + MCP
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  SERVICES  (every one a Fastify app with /openapi.json)             │
+│                                                                     │
+│  game            predictions, leaderboards, badges                  │
+│  identity        OAuth, humanness, friend graph                     │
+│  vstamp          Merkle batching, Polygon anchoring                 │
+│  drips-bridge    contributor revshare on-chain                      │
+│  affiliate-router  jurisdiction-aware sportsbook routing            │
+│  clip-pipeline   headless renderer + ffmpeg                         │
+│  odds-ingest     Polymarket + The Odds API                          │
+│  news-aggregator  RSS + LLM categorisation                          │
+│  stream-server   spec stream fan-out                                │
+│  tournament-bot   Telegram + WhatsApp + DM                          │
+│  social-publisher  scheduled post + reply forwarder                 │
+│  api             aggregated portal + OpenAPI consolidator           │
+│  mcp-server      Model Context Protocol surface (ships with launch) │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │ shared types via @tournamental/spec
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  PACKAGES  (8 workspace packages, the reusable bits)                │
+│                                                                     │
+│  spec           the canonical type contract                         │
+│  spec-client    transport adapter + jitter buffer                   │
+│  bracket-engine  cascade resolver + scoring                         │
+│  social-cards   canvas-based share-image renderer                   │
+│  avatar         procedural body GLB + jersey textures               │
+│  ball-physics   Magnus-effect ball simulation                       │
+│  aiva-client    Aiva SMS / WhatsApp gateway client                  │
+│  (and one slot reserved for plugins, see below)                     │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │ on-chain
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│  ON-CHAIN  (Polygon + Base)                                         │
+│                                                                     │
+│  VStamp contract   prediction receipt anchoring                     │
+│  Pool oracle       trustless tournament pool settlement             │
+│  Drips list        contributor revenue stream                       │
+│  Tournamental Holdings governance multisig                          │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+That is the whole picture. Three apps at the top, thirteen services in the middle, eight packages in the lane below, four contracts on chain. Every arrow is a documented contract. Every contract is in the repo.
+
+Two more sentences before the long version. Every Fastify service is identical in shape: a `routes/` folder, a `schemas/` folder, an `openapi.ts` that publishes the Swagger doc, a `plugins/` folder for Fastify plugins, an `index.ts` that boots the server. Once you have read one service you have read all of them, the only thing that changes is which routes are inside `routes/`.
+
+Every workspace package is identical in shape too: a `src/index.ts` that re-exports the public surface, a `tsconfig.json` that extends the root, a `package.json` with the `@tournamental/<name>` identity, and (if it ships a runtime, not just types) a `dist/` produced by `tsc`. Plugins live in their own packages with the same shape and an extra `tournamental.plugin.json` manifest.
+
+If this is enough, skip the rest of the post and open `docs/03-architecture.md`. If you want the long version, keep reading.
+
+## The repo layout
+
+Here is what is in the tree and what owns each row.
+
+| Path | Role | Tech | Canonical doc | Extension point |
+| --- | --- | --- | --- | --- |
+| `apps/marketing/` | Marketing site at tournamental.com | Astro 4 + MDX + Tailwind | [22-deployment-and-tunnels.md](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md) | Add a content collection or a route |
+| `apps/web/` | Bracket app + 3D renderer | Next.js 14 + React Three Fiber | [04-renderer.md](https://github.com/0800tim/tournamental/blob/main/docs/04-renderer.md) | Renderer plugin via the molecule overlay registry |
+| `apps/native/` | iOS + Android shell | Capacitor wrapping `apps/web` | [37-pwa-app-shell.md](https://github.com/0800tim/tournamental/blob/main/docs/37-pwa-app-shell.md) | Native plugin module |
+| `apps/admin/` | Internal ops console | Next.js (internal-only) | [34-orchestrator-runbook.md](https://github.com/0800tim/tournamental/blob/main/docs/34-orchestrator-runbook.md) | Admin widget plugin |
+| `apps/game/` | Predictions, leaderboards, badges | Fastify + Redis + flat JSON | [12-odds-and-predictions.md](https://github.com/0800tim/tournamental/blob/main/docs/12-odds-and-predictions.md) | Custom scoring rule via plugin SDK |
+| `apps/identity/` | OAuth, humanness score, friend graph | Fastify + Supabase | [20-identity-humanness-bots.md](https://github.com/0800tim/tournamental/blob/main/docs/20-identity-humanness-bots.md) | Add an identity provider |
+| `apps/vstamp/` | Merkle batching, Polygon anchoring | Fastify + ethers.js | [17-vstamp-and-prediction-iq.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md) | Add a verification chain |
+| `apps/drips-bridge/` | Contributor revshare on-chain | Fastify + Drips Network SDK | [40-drips-network-integration.md](https://github.com/0800tim/tournamental/blob/main/docs/40-drips-network-integration.md) | Custom split formula |
+| `apps/affiliate-router/` | Jurisdiction-aware sportsbook routing | Fastify + GeoIP | [18-monetization.md](https://github.com/0800tim/tournamental/blob/main/docs/18-monetization.md) | Add an operator |
+| `apps/clip-pipeline/` | Headless renderer + ffmpeg | Node + Puppeteer + ffmpeg | [14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md) | Add a destination platform |
+| `apps/odds-ingest/` | Polymarket + The Odds API | Fastify + cron | [29-polymarket-odds-integration.md](https://github.com/0800tim/tournamental/blob/main/docs/29-polymarket-odds-integration.md) | Add a market source |
+| `apps/news-aggregator/` | RSS + LLM categorisation | Fastify + cron + Anthropic | [49-news-aggregator.md](https://github.com/0800tim/tournamental/blob/main/docs/49-news-aggregator.md) | Add a feed source |
+| `apps/stream-server/` | Spec stream fan-out | Fastify + WebSocket + NDJSON chunker | [03-architecture.md](https://github.com/0800tim/tournamental/blob/main/docs/03-architecture.md) | Add a producer adapter |
+| `apps/statsbomb-replay/` | StatsBomb open-data replay producer | Python 3.11 + uv | [11-historic-data-sources.md](https://github.com/0800tim/tournamental/blob/main/docs/11-historic-data-sources.md) | Add a match |
+| `apps/mock-producer/` | Synthetic match generator | Node TS | [05-mock-producer.md](https://github.com/0800tim/tournamental/blob/main/docs/05-mock-producer.md) | Add a scenario |
+| `apps/wc2026-producer/` | World Cup 2026 live producer | Node TS | [42-wc2026-live-data.md](https://github.com/0800tim/tournamental/blob/main/docs/42-wc2026-live-data.md) | Per-match override |
+| `apps/wc2026-data/` | WC 2026 schedule + draw | Node + flat JSON | [42-wc2026-live-data.md](https://github.com/0800tim/tournamental/blob/main/docs/42-wc2026-live-data.md) | Schedule patch |
+| `apps/tournament-bot/` | Telegram + WhatsApp identity bot | Node TS + Telegraf | [13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md) | Add a channel adapter |
+| `apps/dm-otp/` | One-time-code login via DM | Node TS | [13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md) | Add a DM provider |
+| `apps/dm-poll-forwarder/` | DM-poll to syndicate forwarder | Node TS | [41-dm-poll-forwarder.md](https://github.com/0800tim/tournamental/blob/main/docs/41-dm-poll-forwarder.md) | Add a poll source |
+| `apps/social-publisher/` | Scheduled post + reply forwarder | Node TS + cron | [27-social-distribution-strategy.md](https://github.com/0800tim/tournamental/blob/main/docs/27-social-distribution-strategy.md) | Add a destination |
+| `apps/push-notifications/` | Web Push + APNs + FCM | Fastify | [37-pwa-app-shell.md](https://github.com/0800tim/tournamental/blob/main/docs/37-pwa-app-shell.md) | Add a transport |
+| `apps/crm-bridge/` | GoHighLevel CRM glue | Fastify | [51-platform-vs-campaign-architecture.md](https://github.com/0800tim/tournamental/blob/main/docs/51-platform-vs-campaign-architecture.md) | Custom CRM webhook |
+| `apps/auth-sms/` | Aiva SMS authentication relay | Node TS | [52-supabase-setup.md](https://github.com/0800tim/tournamental/blob/main/docs/52-supabase-setup.md) | Add a region |
+| `apps/api/` | Aggregated portal + OpenAPI portal | Fastify | [api/README.md](https://github.com/0800tim/tournamental/blob/main/docs/api/README.md) | New service registration |
+| `apps/pr-triage-bot/` | Reviewer agent | Node TS + Claude Agent SDK | [34-orchestrator-runbook.md](https://github.com/0800tim/tournamental/blob/main/docs/34-orchestrator-runbook.md) | Add a review heuristic |
+| `apps/security-watchdog/` | Vulnerability + secret scan | Node TS + gitleaks | [33-security-hardening-checklist.md](https://github.com/0800tim/tournamental/blob/main/docs/33-security-hardening-checklist.md) | Add a scan rule |
+| `packages/spec/` | Canonical type contract | TypeScript types only | [02-spec.md](https://github.com/0800tim/tournamental/blob/main/docs/02-spec.md) | Propose a spec version bump |
+| `packages/spec-client/` | Transport adapter + jitter buffer | TypeScript | [03-architecture.md](https://github.com/0800tim/tournamental/blob/main/docs/03-architecture.md) | Plug a new transport |
+| `packages/bracket-engine/` | Cascade resolver + scoring | TypeScript pure functions | [16-game-modes-and-scoring.md](https://github.com/0800tim/tournamental/blob/main/docs/16-game-modes-and-scoring.md) | Author a new scoring rule |
+| `packages/social-cards/` | Canvas share-image renderer | TypeScript + skia-canvas | [14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md) | Add a card template |
+| `packages/avatar/` | Procedural body GLB + jersey textures | TypeScript + three.js | [07-avatars-and-assets.md](https://github.com/0800tim/tournamental/blob/main/docs/07-avatars-and-assets.md) | Custom rig variant |
+| `packages/ball-physics/` | Magnus-effect ball simulation | TypeScript pure functions | [27b-fidelity-phase2-physics-director.md](https://github.com/0800tim/tournamental/blob/main/docs/27b-fidelity-phase2-physics-director.md) | Sport-specific physics |
+| `packages/aiva-client/` | Aiva SMS / WhatsApp client | TypeScript | [skills/aiva-sms](https://github.com/0800tim/tournamental/tree/main/docs) | New transport |
+
+That is roughly 25 apps, 7 packages and one reserved plugin slot. The tree is flatter than it looks: every Fastify service has the same skeleton, every workspace package has the same `package.json`. Once you have read two services you have read all of them.
+
+A note on what is **not** here: there is no separate microservice for billing, no auth-as-a-service, no message queue. Auth lives in Supabase (managed). Money flows through Drips Network (on-chain). The closest thing to a queue is the spec stream chunker. We pay the cost of fewer moving parts in exchange for fewer pages on call.
+
+## The protocols, i.e. the seams an integrator builds against
+
+There are four ways to talk to Tournamental from the outside. Pick the one that fits your shape.
+
+### REST + OpenAPI
+
+Every Fastify service exposes a Swagger UI at `/docs` and a machine-readable `/openapi.json`. The committed source-of-truth specs live in `docs/api/`, one file per service, regenerated on every PR via the `apps/api/scripts/sync-openapi.ts` script. If a service ships a route change without updating its OpenAPI doc, the reviewer agent will reject the PR. The reviewer-agent rule is documented in `docs/47-cicd-pipeline.md`.
+
+The **aggregated API portal** at `https://tournamental.com/api` rolls every service's OpenAPI doc into a single browsable surface so you can read the whole API surface without hopping between subdomains. The portal also exposes a single consolidated OpenAPI 3.0 file at `/api/openapi.json` that you can pipe into a code generator: `openapi-generator-cli generate -i https://tournamental.com/api/openapi.json -g typescript-fetch -o ./generated`. The aggregator deduplicates the `components.schemas` namespace by prefixing each service's schemas with the service name, so two services that both define a `Pick` type do not collide.
+
+A few sharp edges worth knowing:
+
+- **Auth.** Public endpoints are unauthenticated and rate-limited to 100 requests per minute per IP. Anything that mutates user state needs a bearer token. Tokens are JWTs signed by `apps/identity/` and have a 24-hour TTL with a 30-day refresh window. The token format is documented in `docs/32-auth-and-privacy.md`.
+- **Rate limits.** Tier 1 (public): 100 req/min/IP. Tier 2 (authenticated): 1000 req/min/user. Tier 3 (API key): negotiated per integration, defaults to 10000 req/min. The limits are enforced at the Cloudflare edge for tier 1 and at the Fastify layer for tier 2 and 3, so a tier-1 burst never reaches origin.
+- **Versioning.** All stable endpoints live under `/api/v1/`. Anything under `/api/v0/` or `/api/experimental/` is allowed to break without notice. We add new endpoints behind `/api/v1/` and never break ones already there; if we ever have to, we ship `/api/v2/` in parallel and keep v1 live for at least 12 months.
+- **Pagination.** Cursor-based throughout. The cursor is opaque to the client and idempotent on the server. Page size defaults to 20, max 100. There is no `?page=` parameter, only `?cursor=` and `?limit=`.
+- **CORS.** The portal route is fully public (`Access-Control-Allow-Origin: *`). Per-service routes default to allow-list, with `tournamental.com` and `play.tournamental.com` always on it. Add a domain via the request flow at `https://tournamental.com/settings/api/cors`.
+
+Status: portal route ships with the launch on 11 June 2026. If you hit it before then and it returns 404, fall back to the per-service Swagger UI listed in `docs/api/README.md`. The consolidator script that builds the merged file is already in `apps/api/`; the route in front of it is the bit waiting on the marketing-site deploy.
+
+### MCP (Model Context Protocol)
+
+This is the new bit. There is a Model Context Protocol server in `apps/mcp-server/` that publishes a Tournamental tool surface for any MCP-capable AI agent. Claude Desktop, Cursor, Windsurf and the Anthropic API all speak it. The tool surface includes `predict_bracket`, `score_bracket`, `lookup_match`, `mint_vstamp`, `render_share_card` and `list_syndicates`. The full surface plus the JSON config snippet lives in [docs/29-mcp-server.md](https://github.com/0800tim/tournamental/blob/main/docs/29-mcp-server.md).
+
+What this gets you: an AI agent in Claude Desktop can fill out a bracket end to end, hit the score endpoint, mint a VStamp, and post the share card to a syndicate, all in one prompt, with one config line in `~/Library/Application Support/Claude/claude_desktop_config.json`. We expect this to be where most agent-driven integrations land in the next twelve months, so the surface is small on purpose and fully documented.
+
+The MCP server is itself a Fastify service that fronts a standard MCP transport. We picked the SSE transport over stdio for two reasons. First, we want to host the server publicly so users do not need to npm-install anything to connect; second, SSE survives a flaky home wifi connection better than stdio (the client reconnects automatically and resumes from the last event id). The downside is that SSE means the server is one HTTPS endpoint per user session rather than a process, which slightly complicates per-user rate limiting. We handle it with a short-lived session token that lives in the SSE handshake.
+
+The tools fall into three groups.
+
+- **Read tools** (`lookup_match`, `lookup_tournament`, `get_odds`, `list_syndicates`, `get_leaderboard`). Unauthenticated, fast, cache-friendly. These are the ones agents call first to ground their context.
+- **Write tools** (`predict_bracket`, `score_bracket`, `save_bracket`, `mint_vstamp`). Authenticated by API key in the env block of the MCP config, or by user-pass-through if the agent is logged in via OAuth. These mutate state.
+- **Render tools** (`render_share_card`, `render_molecule`, `render_clip`). Sit on the boundary between read and write because they cost compute. Rate-limited tighter than the read tools, return base64 PNG / MP4 in the response so the agent does not have to think about image URLs.
+
+Each tool returns a JSON shape with three top-level keys: `data`, `meta` (request id, latency, billed-quota), `errors` (an array; empty on success). The shape matches the REST endpoints exactly so an agent that knows the REST surface already knows the MCP surface.
+
+Status: ships with the launch. The doc is real, the server is in active development at the time of writing. If you want to follow along, watch task #87 in the agent task breakdown.
+
+### Plugin SDK
+
+Doc 28 ([28-plugin-architecture.md](https://github.com/0800tim/tournamental/blob/main/docs/28-plugin-architecture.md)) describes a plugin contract that lets a third party drop code into specific extension points without forking the whole monorepo. The seams are:
+
+- **Scoring plugin.** A pure function `(pick, outcome, market) => score` registered with the bracket engine. Useful if you want a per-tournament scoring tweak that the upstream maintainers will never merge.
+- **Share-card plugin.** A template function `(card) => Buffer` registered with the social-cards renderer. Your variant goes in the rotation.
+- **Renderer overlay plugin.** A React component registered with the molecule overlay registry. Drops a custom HUD layer on the 3D renderer.
+- **Producer plugin.** A producer adapter that emits the spec stream from a new data source. Useful for sports the upstream replay producer does not yet cover.
+- **Identity provider plugin.** An OAuth provider registered with the identity service.
+- **Affiliate operator plugin.** A jurisdiction-aware operator entry. Routes link traffic to your sportsbook if the user is in a region you serve.
+
+Each plugin is a workspace package with a `tournamental.plugin.json` manifest. The plugin SDK exposes a typed registration helper so the plugin discovers extension points at compile time, not runtime. The runtime side is just an ESM dynamic import behind a feature flag.
+
+A minimal scoring plugin looks like this:
+
+```ts
+// packages/plugin-my-scoring/src/index.ts
+import { defineScoringPlugin } from "@tournamental/plugin-sdk";
+
+export default defineScoringPlugin({
+  id: "my-scoring",
+  version: "0.1.0",
+  scoreMatchPick: ({ pick, outcome, market }) => {
+    if (pick.team !== outcome.winner) return 0;
+    // Reward early-saved picks at higher implied probabilities harder
+    // than the default scorer does, by squaring the conviction factor.
+    const conviction = Math.pow(pick.savedAtImpliedProb, 2);
+    return Math.round(100 * (1 - market.preMatchImpliedProb) / conviction);
+  },
+});
+```
+
+And the manifest beside it:
+
+```json
+{
+  "$schema": "https://tournamental.com/schemas/plugin.json",
+  "id": "my-scoring",
+  "kind": "scoring",
+  "version": "0.1.0",
+  "engine": ">=0.4.0",
+  "entry": "./dist/index.js"
+}
+```
+
+The plugin loader reads `tournamental.plugin.json` files from every workspace package at start-up, registers the plugin against the right extension point, and exposes a `/plugins` endpoint on the relevant service so an operator can see which plugins are loaded. Plugins are sandboxed by trust level: a "core" plugin (shipped in the upstream repo) has full access; a "community" plugin (loaded from npm) has a narrower API surface and is rate-limited harder.
+
+Status: SDK semver is still 0.x. Breaking changes are possible until 1.0. The plugin architecture doc ships with the launch (task #84). If you want to be one of the first plugins, the share-card and renderer-overlay surfaces are the most stable.
+
+### On-chain
+
+Three contracts and one governance multisig.
+
+The **VStamp contract** ([17-vstamp-and-prediction-iq.md](https://github.com/0800tim/tournamental/blob/main/docs/17-vstamp-and-prediction-iq.md)) accepts a Merkle root and a tournament id, emits an event, and indexes it for cheap lookup. Each user prediction becomes a Merkle leaf under that root before kickoff. After the tournament, any third party can verify a user's "I called this on the 5th of June 2026 at 02:14 UTC" claim against the on-chain root without trusting our server.
+
+The **Pool oracle** ([21-onchain-sweepstakes-oracle.md](https://github.com/0800tim/tournamental/blob/main/docs/21-onchain-sweepstakes-oracle.md)) is the trustless settlement layer for user-organised tournament pools. Pool creators deposit USDC, players join, the oracle resolves results from the spec stream after kickoff lockout, the contract pays out winners. Tournamental never custodies funds.
+
+The **Drips list** ([40-drips-network-integration.md](https://github.com/0800tim/tournamental/blob/main/docs/40-drips-network-integration.md)) routes a fixed fraction of every paid integration's revenue to contributors. Each contributor's share is set by a public formula. The contract is on-chain and transparent: you can read it, you can verify it, you can fork it and propose a better split.
+
+The **Tournamental Holdings multisig** ([19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md)) holds the brand and the affiliate-router operator keys. It is not in the loop on user predictions or pools, it just holds the bits that need a legal entity to own them.
+
+### The spec
+
+Below all four protocols sits the **spec**, the canonical TypeScript type contract that every other package depends on. It is one file. It is in `packages/spec/src/index.ts`. It is imported as `@tournamental/spec` (and historically also `@vtorn/spec`, the working-folder name). Read [02-spec.md](https://github.com/0800tim/tournamental/blob/main/docs/02-spec.md) for the prose version.
+
+The spec defines roughly thirty types. The most load-bearing ones are:
+
+- `MatchInit` and `MatchFrame`: the static metadata and the tick-by-tick state of a match. Every renderer in the stack consumes these.
+- `Event`: the union of every kind of in-match event (goal, foul, substitution, var-decision, penalty-shootout-attempt, half-end, full-time, et-end, pens-end). Tagged union with `kind` as the discriminator.
+- `Tournament`, `Group`, `Fixture`, `Stage`: the tournament structure. The cascade resolver reads these to compute "who plays whom in the round of 16".
+- `Bracket`, `Pick`, `Save`, `Receipt`: the prediction-side types. A `Bracket` is a user's full set of picks; a `Pick` is a single match prediction; a `Save` is a timestamped commitment of a bracket; a `Receipt` is the post-tournament artefact that proves a save against the on-chain VStamp root.
+- `Leaderboard`, `LeaderboardRow`: the public-facing leaderboard shapes. Snapshotted to flat JSON and served via CDN.
+- `Syndicate`: a user-organised pool. References a `Tournament`, has a `slug` for the path-based URL, owns its brand colours and share-card variant.
+- `DripsSplit`: the contributor revenue split. Read from the on-chain Drips list, exposed as a `DripsSplit[]` so the marketing site can render the current shares without an RPC call.
+
+There is one rule about the spec: it is the only thing in the whole codebase that nobody is allowed to change without orchestrator sign-off. The reason is simple: every other contract is downstream of it. A breaking spec change is a release-train change.
+
+If you find a missing type, the right move is to open a discussion on GitHub and propose the shape. We will land it in the next minor bump. If you need a one-off shape for your plugin, define it locally in your plugin package and re-export from there. The spec stays small on purpose.
+
+Here is a `Pick` and a `Bracket` for the AR-FR 2022 final, abbreviated. You can read every spec type's full shape at [packages/spec/src/index.ts](https://github.com/0800tim/tournamental/blob/main/packages/spec/src/index.ts).
+
+```ts
+type Pick = {
+  matchId: string;            // e.g. "fifa-wc-2022-final-arg-fra-2022-12-18"
+  pickedTeamId: string;       // e.g. "team-arg" or "team-fra"
+  pickedScoreHome?: number;   // optional, only for "exact score" game modes
+  pickedScoreAway?: number;
+  savedAtUtc: string;         // ISO 8601, must be before kickoff
+  savedAtImpliedProb: number; // 0-1, snapshot of market at save time
+  conviction: 1 | 2 | 3;      // user-selected, multiplies score on success
+};
+
+type Bracket = {
+  bracketId: string;          // server-issued on first save
+  userId: string;             // owner
+  tournamentId: string;       // e.g. "fifa-wc-2026"
+  picks: Pick[];              // one per match in the tournament cascade
+  metadata: {
+    createdUtc: string;
+    lastSavedUtc: string;
+    syndicateSlug?: string;   // if the bracket is in a syndicate
+    variant: "default" | "exact-score" | "consensus";
+  };
+};
+```
+
+A `Save` is what the VStamp service actually anchors. Conceptually it is a bracket plus a Merkle proof linking that bracket to the on-chain root.
+
+```ts
+type Save = {
+  saveId: string;             // server-issued, unique per save attempt
+  bracketId: string;
+  userId: string;
+  tournamentId: string;
+  savedAtUtc: string;
+  bracketHash: string;        // sha256 of the canonical bracket bytes
+  vstampRoot?: string;        // populated when the batch settles on chain
+  vstampTxHash?: string;      // populated when the batch settles on chain
+  merkleProof?: string[];     // populated when the batch settles on chain
+};
+```
+
+A `Receipt` is the post-tournament artefact that a third party can verify without trusting our server. It bundles the save, the on-chain root, the Merkle proof, and the outcome that the picks resolved against. We render it as a PDF + a `.txp` JSON file (the "Tournamental proof") that any verifier can read.
+
+## How a request actually flows through the stack
+
+Reading a list of services is one thing. Knowing how a request actually moves through them is the thing that makes you productive. Here are three end-to-end flows. If you internalise these, the rest of the codebase falls out.
+
+### Flow 1: a user saves a bracket
+
+You are on `play.tournamental.com/world-cup-2026`. You have filled in your 48 picks. You tap "Save".
+
+1. The Next.js client at `apps/web/` POSTs the bracket to `/api/v1/brackets` on the same origin. Same-origin so no CORS preflight.
+2. Vercel-style edge middleware in `apps/web/middleware.ts` resolves your Supabase session. Either the cookie is present and the JWT is valid, or the request short-circuits to a 401 with a "log in to save" payload and the client opens the login modal.
+3. The bracket payload reaches `apps/game/` (Fastify) at `POST /v1/brackets`. The route handler:
+   1. Validates the payload against the `Bracket` Zod schema (auto-derived from `@tournamental/spec`).
+   2. Calls `@tournamental/bracket-engine` to canonicalise the picks (resolve cascade dependencies, fill in defaults, attach the current implied-probability snapshot from `odds-ingest`).
+   3. Writes the canonical bracket to Redis under `bracket:<userId>:<tournamentId>` with a 90-day TTL.
+   4. Appends a `Save` row to the append-only log on disk at `data/saves/<tournamentId>/<yyyy-mm-dd>.ndjson`. The append-only log is the source of truth for the VStamp Merkle batch.
+   5. Returns the canonicalised bracket plus a `saveId`.
+4. A side-effect pipeline picks the save up async:
+   - The leaderboard snapshotter notices the save and recomputes the user's row on the next 30-second tick.
+   - The clip pipeline schedules a podium share-card render for the user.
+   - The VStamp batcher collects the save and batches it into the next Merkle root (every six hours or every 1000 saves, whichever happens first).
+   - The Tournament Bot's notification scheduler queues a "your bracket is saved" DM if the user has opted in.
+5. The client receives the canonicalised bracket and updates its local state. It also fires a `bracket.saved` analytics event into the GTM dataLayer so the marketing site picks up the conversion.
+
+Total round-trip on a healthy day: ~80ms client-perceived for the POST, plus 30 seconds before the leaderboard reflects the save, plus up to six hours before the on-chain VStamp settles. That last number matters: if a user wants their on-chain proof now, they can pay the gas themselves via the `/api/v1/vstamp/mint-now` route, which bypasses the batch.
+
+### Flow 2: a viewer watches the AR-FR 2022 final
+
+You open `play.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18` on your phone. You want to watch the 90 minutes plus extra time plus penalties play out in 3D.
+
+1. The Next.js client at `apps/web/` resolves the match id from the route and calls the spec-client SDK at `packages/spec-client/`.
+2. The spec client fetches `https://stream.tournamental.com/streams/fifa-wc-2022-final.../init.json`. This is the static match metadata: the lineups, the kickoff time, the stadium, the spec version. The file is cached at the Cloudflare edge for a year.
+3. The spec client then opens a WebSocket to `wss://stream.tournamental.com/streams/fifa-wc-2022-final.../live` for live frames. For a finished historical match like AR-FR 2022, the client also has the option of falling back to chunked replay (fetch `chunk-0001.ndjson.gz`, `chunk-0002.ndjson.gz`, ...) which is cheaper at scale. The `--time-scale=10` flag in the StatsBomb replay producer lets you watch the 2.5-hour match in 15 minutes.
+4. The React Three Fiber renderer at `apps/web/components/match-renderer/` consumes each frame as it arrives. Player positions are interpolated between frames at 60 fps so the 1-Hz frame rate from StatsBomb does not jitter.
+5. Events from the spec stream (goal, sub, var) trigger the HUD: the score updates, the goal-scorer banner flashes, the share-card pipeline schedules a clip render for the goal.
+6. The avatar package at `packages/avatar/` provides the procedural body GLB; jersey textures are generated at runtime from the team's colour palette; the billboard face for each starter is fetched from Wikidata via a cached proxy.
+7. The ball-physics package at `packages/ball-physics/` simulates Magnus-effect drift between two known ball positions so the ball curves on a free kick instead of teleporting.
+
+The whole pipeline is documented end to end across `docs/03-architecture.md`, `docs/04-renderer.md`, `docs/07-avatars-and-assets.md` and `docs/11-historic-data-sources.md`. The thing that surprises people is how little code is in `apps/web/components/match-renderer/`: most of the work is in the packages, the app is just glue.
+
+### Flow 3: an agent fills out a bracket via MCP
+
+You are using Claude Desktop. You have the Tournamental MCP server configured. You write:
+
+> Predict the World Cup 2026 bracket for me. Bias toward upsets in the round of 16 and toward favourites in the semis. Save it and tell me my podium share card URL.
+
+1. Claude reads the prompt, picks the Tournamental tool surface, and calls `lookup_tournament("fifa-wc-2026")`.
+2. The MCP server forwards the call to `apps/game/` via internal HTTP. The response is the `Tournament` shape plus the current cascade.
+3. Claude calls `get_odds("fifa-wc-2026")` to ground its picks in the current implied probabilities.
+4. Claude composes the picks per the prompt's bias instruction and calls `predict_bracket(picks)`. The MCP server calls `apps/game/`'s scoring route, which delegates to `@tournamental/bracket-engine` and returns the canonicalised bracket with a predicted-score histogram.
+5. Claude calls `save_bracket(bracketId)`. The MCP server requires the API key in the env block (we are mutating user state), forwards to `apps/game/POST /v1/brackets`, gets a `saveId` back.
+6. Claude calls `render_share_card({ bracketId, variant: "gold-silver-bronze" })`. The MCP server forwards to `@tournamental/social-cards` via an internal HTTP route, gets back a base64 PNG, returns it inline.
+7. The agent's response includes the share-card image, the share URL (`https://tournamental.com/b/<saveId>`), and a one-paragraph summary of the bracket.
+
+The whole flow is six MCP tool calls. If you tried to do the same thing without MCP you would need to read three sets of API docs, handle auth, juggle base64. The MCP server is the glue that makes the agent flow feel native.
+
+## The "vibe-code your app on top of Tournamental" walkthrough
+
+This is the bit you came here for. Six steps to a working app.
+
+### Step 1, install the packages
+
+```bash
+npm install @tournamental/spec @tournamental/bracket-engine
+```
+
+Two packages get you 80% of the way to a useful app: the spec gives you the shapes, the bracket-engine gives you the scoring. The social-cards package is one `npm install @tournamental/social-cards` away if you want share images.
+
+If you would rather pin to a particular version, every package follows semver and the latest tag is on GitHub Releases. We do not publish nightly builds, the only thing on npm is the tagged releases.
+
+### Step 2, add the MCP server to your agent config
+
+Paste this into `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or the equivalent on your platform.
+
+```json
+{
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/mcp-server"],
+      "env": {
+        "TOURNAMENTAL_API_KEY": "your-key-here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Desktop. The Tournamental tools now appear in the tool list. You can ask "fill out a bracket for the World Cup 2026 using my saved tournament IQ profile" and the agent will call the right tools in order.
+
+If you do not have an API key, the public endpoints work without one and are rate-limited to 100 requests per minute per IP. Auth-required tools (mint a VStamp, save a bracket) need the key. You get one for free at `https://tournamental.com/settings/api`.
+
+### Step 3, call `predict_bracket` from an agent prompt
+
+Once the MCP server is live in your agent, this prompt works:
+
+> Use the tournamental tools. Look up the 2026 World Cup tournament. Fill out a bracket where the team I rate highest goes the furthest, biased by the implied probabilities from the odds-ingest service. Score it. Tell me which match is the riskiest call I just made.
+
+The agent will:
+
+1. Call `lookup_tournament` to get the 48-team draw.
+2. Call `get_odds` to fetch the Polymarket implied probabilities for every match.
+3. Call `predict_bracket` with the cascade ordered by your preference.
+4. Call `score_bracket` against the current implied-probability model.
+5. Return the bracket with the highest-variance match flagged.
+
+The whole flow is documented in `docs/29-mcp-server.md` with the JSON request and response shapes. If you would rather call the REST endpoints directly, every one of these tools is also a `POST` against `https://tournamental.com/api/v1/...` with the same payload.
+
+### Step 4, render via `@tournamental/social-cards`
+
+The social-cards package is a canvas-based renderer that turns a bracket-engine output into a 1200x630 PNG. Three lines:
+
+```ts
+import { renderPodiumCard } from "@tournamental/social-cards";
+import type { Bracket } from "@tournamental/spec";
+
+const png = await renderPodiumCard({
+  bracket,
+  variant: "gold-silver-bronze",
+  brand: { name: "your-syndicate", colors: { primary: "#5a96d8", accent: "#ff8a3d" } },
+});
+```
+
+The same package renders goal-clip stills, leaderboard cards, kickoff countdowns and twenty-odd other templates. Add your own template as a function with the right signature and register it with the renderer. The contract is documented in `packages/social-cards/README.md`.
+
+### Step 5, embed the molecule API
+
+The molecule view (the 3D pyramid that shows a user's whole bracket on one rotatable shape) is exposed via a couple of routes you can embed.
+
+For a static OG image: `https://tournamental.com/api/molecule/og/<bracketId>.png` returns a 1200x630 render. The image is cached at the edge for 24 hours after the bracket is finalised.
+
+For an interactive embed: `https://tournamental.com/api/molecule/embed/<bracketId>` returns an iframe-safe page with the live three.js molecule. The iframe respects the same brand colours as the share card. There is also an MCP tool `render_molecule` that returns the same image in base64 if you would rather not deal with image URLs in your agent flow.
+
+The molecule layout algorithm itself is in `packages/bracket-engine/src/molecule.ts`. It is documented in [doc 36 (UX spec)](https://github.com/0800tim/tournamental/blob/main/docs/36-tournamental-ux-spec.md). There is a separate engineering post coming on how it actually works, see "What this blog will cover next" below.
+
+### Step 5b, embed via MCP if you would rather
+
+If your app is itself agent-driven, you can skip the iframe and go through MCP. The `render_molecule` tool returns a base64 PNG you can drop straight into an agent reply. The `embed_molecule` tool returns a one-shot HTML snippet you can render on the server side. Both pass the brand colours through from the syndicate metadata.
+
+### Step 6, ship and earn
+
+File a PR back into the upstream Tournamental repo with whatever you built. If it lands on `main`, you are in the Drips list. The Drips contract pays you a fraction of every dollar that flows through the affiliate router, the Pro subscriptions, the B2B partnerships, the data licensing, all of it. The split formula is on-chain and public. There is no contract to sign. There is no fund in Menlo Park taking a cut. The whole thing is described in [doc 19](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md).
+
+If you do not want to upstream your work, that is fine. Apache 2.0 lets you fork and run your own instance. The brand and the official Drips list are owned by Tournamental Holdings and are not licensed for forks (see `TRADEMARK.md`), but the protocol, the code, and the docs are yours to take.
+
+## Observability, performance and caching
+
+Tim's standing rule (see `CLAUDE.md`) is that performance and caching are reviewed on every PR. Here is how that maps to the stack.
+
+### Cache policy
+
+Every public surface has an explicit cache policy. Defaults:
+
+- **Static assets with hashed filenames** (`/_astro/*`, `/_next/static/*`): `Cache-Control: public, max-age=31536000, immutable`.
+- **Marketing HTML** (`tournamental.com/*`, the Astro site): `Cache-Control: public, max-age=300, s-maxage=3600, stale-while-revalidate=86400`. Short browser cache so a content fix lands fast, long edge cache so the origin is barely touched.
+- **App HTML** (`play.tournamental.com/*`): `Cache-Control: no-store` on user-personalised routes, `public, s-maxage=60` on the few static-ish routes (the homepage when logged-out).
+- **API list / aggregate** (`/api/v1/leaderboards/*`): `Cache-Control: public, max-age=10, s-maxage=30, stale-while-revalidate=300`. The 30-second snapshotter and the 30-second edge cache compose: the leaderboard is at most 60 seconds stale.
+- **User-specific** (`/api/v1/me/*`): `private, no-store`.
+- **Spec stream chunks**: `Cache-Control: public, max-age=31536000, immutable`. Chunks never mutate after they are written.
+
+The full caching matrix is in `docs/22-deployment-and-tunnels.md`. If you add a new public surface and forget the cache policy, the reviewer agent will catch it.
+
+### Hot reads
+
+Anything on the request hot path that tolerates a few seconds of staleness goes through Redis. The hottest reads (leaderboard top 10, current-match summaries, popular syndicate cards) have an in-memory LRU on top of Redis so the second hit on the same box does not even cross the network.
+
+Two patterns we use a lot:
+
+- **Snapshot to flat JSON.** The leaderboards, the syndicate rosters, the public match summaries are computed by a snapshotter that writes a flat JSON file to disk every N seconds. The file is served by Fastify with a long `s-maxage` so Cloudflare caches it. This is why the leaderboard read path does not touch Redis on Tournamental's scale.
+- **Write-behind to durable storage.** A bracket save lands in Redis first (so the next read sees it instantly), then asynchronously appends to the disk log (so VStamp can batch it), then asynchronously writes to Supabase (so the user's profile page shows it). If the disk log or Supabase is briefly unreachable, the Redis copy keeps the user experience intact.
+
+### Frontend budgets
+
+The bracket app's critical path is budgeted in `docs/22-deployment-and-tunnels.md`:
+
+- **LCP** under 2.5 seconds on a mid-range 2022 Android.
+- **Renderer steady-state** 60 fps with 22 player avatars and a ball, on the same device.
+- **WS lag** under 250 ms p95 same-continent, under 600 ms p95 cross-continent.
+- **Total JS** under 280 KB gzipped for the bracket app shell. The 3D renderer ships behind a code split so users who never open a match page never download it.
+
+The build pipeline emits a bundle-size report on every PR. A 5% regression with no clear win is a request-changes from the reviewer agent.
+
+### Tracing and logs
+
+Every Fastify service runs the same `apps/<name>/plugins/observability.ts` plugin. It:
+
+- Attaches a request id to every incoming request (`x-request-id`) and propagates it to every outbound call.
+- Logs structured JSON via Pino. Each log line has `level`, `time`, `req_id`, `route`, `latency_ms`, `status_code`, plus the route-specific fields.
+- Emits Prometheus metrics on `/metrics` (latency histogram, error rate, route-level counters). Scraped by the internal Prometheus + Grafana stack.
+- Reports unhandled errors to a Sentry-style sink (we self-host the sink in `apps/security-watchdog/` to avoid sending user data to a third party).
+
+If you are debugging a request, the recipe is: grep the request id across every service's log stream. The id propagates through HTTP, WebSocket and the MCP transport.
+
+### Test strategy
+
+We test at three levels and try to keep the pyramid right side up.
+
+**Unit tests (vitest).** Every package has a vitest suite covering its public surface. The bracket-engine is the most-tested package in the repo because the scoring formula has the most subtle edge cases (cascade settlements, the underdog multiplier, the conviction-saved-at-implied-prob multiplier interaction). The unit suite for `@tournamental/bracket-engine` runs in 1.2 seconds and covers 94% of branches.
+
+**Service tests (vitest + Fastify inject).** Every Fastify service has a `test/` folder that uses Fastify's `app.inject()` to fire requests against the boot-with-mocks app. These are fast (the whole game-service suite runs in 4 seconds) and they catch the contract-level bugs that escape unit tests.
+
+**End-to-end tests (playwright).** Both `apps/web/` and `apps/marketing/` have a playwright suite. We test the top user flows (save a bracket, view a match, share a podium card) and the visible chrome (header renders, footer renders, sign-in modal opens). The playwright suite runs on every PR in CI and on every deploy to staging. It does not run on every keystroke locally because it takes 90 seconds; you run it explicitly when you have shipped a flow change.
+
+**Spec-conformance check.** A separate CI job re-runs every spec example payload through every service that accepts it, and confirms the response shape matches the spec types. This catches "we added a route but forgot to update the OpenAPI" and "we changed the spec but forgot to update a downstream service" classes of bug. It runs in 12 seconds.
+
+**Smart-contract tests (foundry).** The `contracts/` folder has a foundry suite covering the VStamp anchor flow, the Pool create-join-settle flow, and a fuzz suite that throws random calldata at every external function. The fuzz suite runs nightly.
+
+What we deliberately do not have: a giant integration suite that boots every service at once. We rejected it because the maintenance cost was higher than the bug-catch rate. The spec-conformance check plus the playwright suite catches the same bugs at 10x lower cost.
+
+### CI and CD
+
+Each PR triggers:
+
+- `pnpm lint` (eslint + stylelint).
+- `pnpm typecheck` (TypeScript strict).
+- `pnpm test` (vitest at the package level, playwright at the app level).
+- `pnpm build` (Astro + Next + Fastify + every package).
+- A spec-conformance check that re-runs the spec's example payloads through every service.
+- A reviewer-agent pass that reads the diff and the session note, then leaves comments on the PR.
+- A security scan (gitleaks for secrets, npm audit for known CVEs, dependency review for licence drift).
+
+On merge, the build slot blue-green pipeline ships to the staging slot, runs smoke tests on a private port, and atomic-swaps the prod slot. Worst-case perceived downtime is 2 to 3 seconds. The pipeline is documented in `docs/47-cicd-pipeline.md` and the deploy runbooks live in `docs/cicd/`.
+
+## What's stable, what's still moving
+
+I am going to be honest with you about which bits of the surface are load-bearing and which bits are still in flux. If you build against a moving target you get a moving target.
+
+### Stable surfaces
+
+The **spec types** in `@tournamental/spec` are stable. The minor version is 0.1.x; we have not broken them since the 2026 World Cup hype window opened and we will not break them before the tournament ends in July 2026. If we have to break them after that, the spec doc has a section on the migration path. Pin the version and you are fine.
+
+The **scoring engine** in `@tournamental/bracket-engine` is stable. The cascade-resolver semantics are described in [doc 16](https://github.com/0800tim/tournamental/blob/main/docs/16-game-modes-and-scoring.md) and they have not changed in three weeks. The only thing that moves is the addition of new scoring rules, which are opt-in and do not break existing ones.
+
+The **share-card pipeline** in `@tournamental/social-cards` is stable. New templates are added regularly; the templates that exist do not break.
+
+The **podium OG image** at `/api/molecule/og/<bracketId>.png` is stable. The URL pattern, the dimensions, the cache headers and the brand-colour pass-through are settled.
+
+The **REST endpoints under `/api/v1/`** are stable. Anything under `/api/v0/` or `/api/experimental/` is not.
+
+### Surfaces still moving
+
+The **VStamp** contract is on Polygon Amoy testnet today. The Polygon mainnet deploy waits on a smart-contract audit that we have not finished. If you build against the testnet address today, plan to redeploy in June. The interface is unlikely to change.
+
+The **Pool oracle** is the same story: testnet today, mainnet after audit. The oracle's settlement format is locked in (it reads the spec stream), but the deposit interface might gain a small change before mainnet.
+
+The **plugin SDK** is at 0.x. We expect a 1.0 before the launch on 11 June 2026, but the surface might wobble between now and then. Read the changelog before bumping.
+
+The **MCP server tool surface** is also at 0.x. The five tools listed earlier are likely to keep their names and shapes; we might add tools, we might split a tool into two. Pin the server version if you are deploying agent flows.
+
+### Surfaces partly stable, partly moving
+
+The **identity service's friend graph**. The graph itself is stable: it is a bidirectional list of `userId` pairs with a state (`pending`, `accepted`, `blocked`). The thing that is moving is the OAuth provider list. We have Google, Apple, Twitter and Telegram live; Discord, Microsoft and the WhatsApp identity-linker are in review. If you build against the friend graph you are safe. If you build against the provider list, fetch it from `/api/v1/identity/providers` at runtime instead of hard-coding the available providers.
+
+The **affiliate router's operator list**. The router contract (jurisdiction match + outbound redirect + click record) is stable. The list of operators is not, because operators come and go based on licensing in their home markets. Fetch the live list from `/api/v1/affiliate/operators` and you will be fine through any churn.
+
+The **clip pipeline's clip-template list**. The render contract is stable: a clip is a `(matchId, startMs, endMs, template, overlay)` tuple. The list of templates is growing weekly. We add new ones for tournaments as we go; the originals stay in the rotation.
+
+### Surfaces I would not build against yet
+
+The **clip pipeline's destination plugins** are still in design. We can render a clip and post it to Twitter / X today; the Instagram and TikTok destinations are working but not yet feature-complete for vertical formats. Don't ship an "auto-post my clip to TikTok" UX until doc 14 is updated.
+
+The **news aggregator's** category taxonomy is still in flux. We are using an LLM to categorise feeds and the category names are getting refactored as we find ones that don't work. If you are building on top of the categorised feed, fetch the taxonomy from `/api/v1/news/taxonomy` rather than hard-coding it.
+
+The **drips-bridge contract's split formula** is on-chain but the version on chain at the time of writing is `0.3`. We expect to ship `1.0` before the launch. The contract is upgradeable via the Tournamental Holdings multisig. Any change is announced two weeks ahead via the engineering log (this blog).
+
+## Running the stack locally
+
+If you want to clone the repo and run everything on your laptop, here is the short version.
+
+```bash
+git clone https://github.com/0800tim/tournamental.git
+cd tournamental
+pnpm install
+cp .env.example .env
+# fill in OPENAI_API_KEY, ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_ANON_KEY,
+# POLYMARKET_API_KEY, and ODDS_API_KEY if you want the live-odds path
+
+# Bring the durable stack up
+bash infra/scripts/db-up.sh
+
+# In one terminal, the marketing site
+cd apps/marketing && pnpm dev
+
+# In another, the bracket app
+cd apps/web && pnpm dev
+
+# In another, the game service
+cd apps/game && pnpm dev
+```
+
+The marketing site is at `http://localhost:3320`, the bracket app at `http://localhost:3300`, the game service at `http://localhost:3310`. The full port map is in `docs/22-deployment-and-tunnels.md`.
+
+If you want to run the AR-FR 2022 demo:
+
+```bash
+# Terminal 1, the producer
+cd apps/statsbomb-replay
+uv run python replay.py \
+  --match=fifa-wc-2022-final-arg-fra-2022-12-18 \
+  --time-scale=10 \
+  --out=ws --port=4001
+
+# Terminal 2, the renderer
+cd apps/web && pnpm dev
+# Open http://localhost:3300/match/fifa-wc-2022-final-arg-fra-2022-12-18
+```
+
+At `--time-scale=10`, the 2.5-hour final plays out in 15 minutes. At `--time-scale=1`, real-time replay. Either way the renderer reads from the WebSocket the producer is emitting on.
+
+If you want to run the MCP server locally, the README in `apps/mcp-server/` has the steps. The short version is `pnpm dev` in that directory plus point Claude Desktop at `http://localhost:3340/sse`.
+
+## The on-chain layer in more detail
+
+Three contracts, one multisig. Here is what each one actually does on chain.
+
+### VStamp
+
+The VStamp contract is a Merkle-root anchor. The interface is intentionally tiny:
+
+```solidity
+interface IVStamp {
+  function anchor(bytes32 root, string calldata tournamentId) external;
+  function rootFor(string calldata tournamentId, uint256 batchId) external view returns (bytes32);
+  event Anchored(bytes32 indexed root, string tournamentId, uint256 batchId, uint256 timestamp);
+}
+```
+
+The off-chain service in `apps/vstamp/` collects user saves, builds a Merkle tree, and writes the root every six hours (or every 1000 saves, whichever comes first). The user's save is then verifiable: the user gets back a `(saveBytes, merkleProof, rootBatchId)` triple. Anyone can hash the bytes, walk the proof, and check the result against the on-chain root.
+
+Why batch and not anchor per save: gas. A per-save anchor on Polygon at peak is roughly $0.02. A batch of 1000 saves anchors with a single transaction and costs the same. We pass that saving back to users by making the default flow free; users who want their own anchor can pay it themselves via `mint-now`.
+
+### Pool oracle
+
+The Pool oracle is the trustless settlement layer for user-organised tournament pools. It is the thing that lets a workplace pool of 30 people in Auckland pay out in USDC without anyone needing to trust the organiser.
+
+```solidity
+interface IPool {
+  function createPool(string calldata tournamentId, uint256 entryFee, address payoutToken) external returns (uint256 poolId);
+  function join(uint256 poolId, bytes32 bracketHash) external payable;
+  function settle(uint256 poolId, address[] calldata winners, uint256[] calldata shares) external;  // restricted to oracle
+  event PoolCreated(uint256 indexed poolId, string tournamentId, uint256 entryFee);
+  event Joined(uint256 indexed poolId, address indexed player, bytes32 bracketHash);
+  event Settled(uint256 indexed poolId, address[] winners, uint256[] shares);
+}
+```
+
+The oracle role is held by a contract that reads the spec stream after the tournament ends, runs the scoring engine over every bracket hash that joined the pool, and posts the winners. The off-chain side of this is in `apps/vstamp/` (the same service handles the post-tournament settlement).
+
+The thing this enables: every syndicate at `play.tournamental.com/s/<slug>` can opt into an on-chain pool with one toggle. The organiser sets an entry fee, players deposit USDC, the oracle pays out. Tournamental never custodies funds. The contract is in `contracts/Pool.sol` in the repo, the audit log is in `docs/21-onchain-sweepstakes-oracle.md`.
+
+### Drips list
+
+The Drips list is the contributor revenue stream. It is on the Drips Network rather than on a contract we wrote ourselves, because Drips already solves the "stream USDC to a list of recipients with weighted shares" problem.
+
+The Tournamental Drips list is at a public address listed in `docs/40-drips-network-integration.md`. The current shares are computed by a formula that weights:
+
+- Merged PRs by line count and area (a renderer PR is worth more than a typo fix).
+- Accepted RFCs from `IDEAS.md` and the design-pack flow.
+- Translations that ship with verified native-speaker review.
+- Designs that win an A/B test against the upstream design.
+- Vulnerability disclosures that land a CVE.
+- Smart-contract reviews that turn into a patch.
+
+The formula is public. The contributor scoring script that drives the formula is in `tools/drips/score.ts`. We re-score every two weeks and propose a new split via the Tournamental Holdings multisig; the proposal has a seven-day timelock before it lands on chain, so contributors can object.
+
+### Tournamental Holdings multisig
+
+The multisig is a 3-of-5 Gnosis Safe on Polygon. The signers are the entity's directors and one independent technical reviewer. The multisig holds the brand assets, the affiliate-router operator keys, and the Drips list owner key. It does not hold user funds; it cannot ever hold user funds because the only contract that takes user funds (the Pool oracle) does not have a recoverable owner.
+
+The signer list, the rotation policy and the disaster-recovery plan are documented in `docs/19-open-source-and-contributor-revenue.md`.
+
+## Things we tried and rejected (so you don't have to)
+
+Honesty section. These are choices we made and then reversed, in case you are tempted to make the same mistake on a fork.
+
+### A single monolithic Next.js app
+
+Early in the build, the bracket app and the marketing site were one Next.js project. We split them because the marketing site is content-heavy and prefers Astro's zero-JS-by-default model; the bracket app needs the React Three Fiber renderer and the Next.js runtime. Two different optimisation targets, two different deploy cadences, two different teams of agents. Splitting them halved the bundle for both surfaces and cut the marketing site's LCP from 3.4s to 1.1s on a mid-range Android.
+
+### Postgres for everything
+
+The original architecture had Postgres in the hot path for leaderboards, predictions and identity. We moved leaderboards to Redis + snapshot-to-flat-JSON in week two and the read-path p95 dropped from 280ms to 8ms. Predictions still durable-write to Postgres for the user's history page, but the hot read for "who is on the leaderboard right now" never touches it.
+
+### A bespoke auth service
+
+We had a hand-rolled email-plus-magic-link service running for two weeks. Then we ripped it out and adopted Supabase. The bespoke service shipped a CVE risk surface we did not want to maintain. Supabase costs us 25 dollars a month and one less thing to be on call for. The migration path is in `docs/52-supabase-setup.md`.
+
+### A custom message queue
+
+We tried a thin Redis-stream-backed queue for cross-service async work. Two days later we replaced it with the spec stream chunker plus the append-only on-disk log. The spec stream is already the durable async pipeline; adding a second one was a duplication smell. If you find yourself wanting a queue inside Tournamental, the answer is almost always "append it to the spec stream".
+
+### Heavy social SDKs
+
+For posting to Twitter / X, Instagram and TikTok we initially pulled in their SDKs. The SDK footprints were 40+ MB of node_modules each. We replaced them with direct OAuth + fetch calls in `apps/social-publisher/` and the entire image shrank to 8 MB. The OAuth flows are in `docs/27-social-distribution-strategy.md`.
+
+### A 3D renderer in WebGPU
+
+Tempting at the start. We benchmarked WebGPU vs WebGL/R3F on a mid-range 2022 Android and the gap was negligible at our load (22 players, one ball, one stadium). Meanwhile WebGPU still does not ship on Safari iOS as of writing. We picked WebGL/R3F for the launch and have a feature-flagged WebGPU path for when iOS catches up.
+
+### A microservice per route
+
+The 25 services in `apps/` look like a lot. The number we rejected was 60. We collapsed a bunch of "this is just one route" services into the closest sensible parent. The rule of thumb: a service deserves its own process if it has its own deploy cadence, its own scaling profile, or its own on-call rotation. Otherwise it is a route inside an existing service.
+
+## How the codebase actually gets built (the AI-agents bit)
+
+This section is for the people reading the repo and wondering "wait, how is one human shipping all of this?". The honest answer: I am not. A small pack of orchestrated AI agents is. Here is what that means in practice, because the engineering log is the right place to be explicit about it.
+
+The model is a classic orchestrator-plus-builders pattern. There is exactly one orchestrator at any time (currently me, plus a Claude Opus instance that knows the whole repo). There are usually three to five builder agents (Claude Sonnet) working in parallel git worktrees on independent tasks. Each builder owns a directory (e.g. `apps/identity/` or `packages/social-cards/`) and never reads or writes outside its allocated boundary unless the orchestrator explicitly grants it.
+
+The contract that holds this together is `@tournamental/spec`. Every agent imports its types from the same package, so an agent in `apps/web/` and an agent in `apps/game/` never disagree about what a `Bracket` looks like. If they do disagree, the diff fails typecheck, the reviewer agent rejects the PR, and the orchestrator is paged.
+
+A typical session looks like this:
+
+1. **Plan.** The orchestrator opens an issue, references the docs, and writes a short prompt for a builder agent. The prompt is in the agent's "starter prompt" format described in `AGENT-PROMPTS.md`.
+2. **Worktree.** The builder creates a fresh git worktree (`git worktree add /tmp/vtorn-<feature>`) so its workspace is isolated from every other agent.
+3. **Session note.** The builder opens `sessions/<date>-<agent>-<task>.md` and writes a 5 to 10 line plan, including the doc references and any open questions.
+4. **Build.** The builder writes code. Iterates against lint, typecheck and tests locally. Updates the session note with key decisions.
+5. **PR.** The builder commits with conventional-commit format and DCO sign-off (`-s`), pushes, and opens a PR with the session note as the PR body.
+6. **Review.** A reviewer agent picks the PR up, runs the verification checklist in `CONTRIBUTING.md`, and leaves comments. The reviewer rejects, requests changes, or approves.
+7. **Merge.** The orchestrator (or the reviewer agent, depending on the trust level of the directory) merges.
+
+This is the same pattern good human open-source teams use. The agents follow it because it works. Predictable handoffs, clean history, every change traceable.
+
+What this means for you as a contributor:
+
+- The repo expects the same discipline from you. Session notes, conventional commits, signed-off, doc updates in the same PR as the code that needs them. If you skip the session note, the reviewer agent will ask you to add one.
+- The reviewer agent is reading your PR. It comments on things a human reviewer might miss (license drift, missing OpenAPI doc updates, secrets in commits, performance regressions). It does not block humour or style; it does block contract drift.
+- You can dispatch a builder agent yourself if you want. The orchestration scripts are in `tools/agents/`. Open an issue with `agent: <directory>` in the title and the orchestrator will pick up the task, allocate a worktree, and assign a builder.
+
+I wrote a longer post on this pattern over at [the product blog's "Night Shift" post](/blog/2026-05-12-night-shift). The summary: agents are not magic, the magic is the orchestration discipline and the spec contract that holds every parallel worktree in sync.
+
+## Where to ask questions
+
+There are four places.
+
+**GitHub Discussions** at [github.com/0800tim/tournamental/discussions](https://github.com/0800tim/tournamental/discussions) is the public Q&A venue. Searchable, archived, async. Open a discussion in the "Q&A" category if you have a question that future readers will also want the answer to. Open one in the "Show and tell" category if you built something on top of Tournamental.
+
+**GitHub Issues** at [github.com/0800tim/tournamental/issues](https://github.com/0800tim/tournamental/issues) is for bug reports and concrete feature requests. Please include a reproduction or a clear example.
+
+**The call-for-help blog posts** dropping over the next few days, where I ask the community to come help with specific gnarly bits. They cover translations, designer help, smart-contract review and the renderer plugin spec. The first lands tomorrow. Watch [the build log](/blog) or subscribe to the RSS feed.
+
+**Email me directly** at hello@tournamental.com if your question is private or commercial. I read every one.
+
+What I will not do: maintain a private Slack or Discord. The point of the engineering log is that the answers are public and Googleable forever. If you ask a question in private I will answer it and then ask if I can post the answer in Discussions, anonymised if you prefer.
+
+## What this blog will cover next
+
+A few posts are already in the pipeline. Each one drills into a specific subsystem with the same "here is the contract, here are the seams, here is what is still moving" treatment.
+
+- **How the molecule layout algorithm works.** Why a tournament bracket maps cleanly onto a tetrahedral pyramid, how we pack 48 teams onto the base ring without overlap, why the apex is a single gold atom and not a triangle, the GPU-instancing trick that keeps the whole thing at 60 fps with 22 player avatars also rendering on the same canvas.
+- **Why we don't use Redis for the leaderboard hot read.** A short post on the snapshot-to-flat-JSON pattern, why it is faster than Redis for the read path at our scale, why it would not be at 100x our scale, and how the snapshotter handles the bracket-cascade settlement after each match.
+- **How the StatsBomb replay producer maps to our spec types.** A walkthrough of the Python replay producer: how an event-and-360-freeze-frame dataset becomes a tick-based spec stream that the renderer can consume the same way it consumes a live match. With the AR-FR 2022 final as the worked example because that is the demo every contributor runs first.
+- **The bracket cascade in 60 lines.** The actual TypeScript implementation of the bracket-engine cascade resolver. Pure functions, no side effects, fully tested. We will reproduce it inline and explain why it is so much smaller than the equivalent in ESPN's bracket challenge.
+- **Authoring a renderer plugin.** A step-by-step guide to writing a HUD overlay plugin against the molecule overlay registry. By the end of the post you will have a working overlay that shows live odds movement next to each match cell. We will publish the resulting plugin as the first example in the plugin SDK docs.
+
+If there is a topic you want covered, open a discussion under "Engineering posts wishlist" on GitHub Discussions. We pick the next post from whatever has the most thumbs-up that week.
+
+## A short glossary for this post
+
+A handful of terms turn up often in this post and across the docs. Bookmarking them saves you a trip later. The full glossary lives at [docs/glossary.md](https://github.com/0800tim/tournamental/blob/main/docs/glossary.md).
+
+- **Spec.** The canonical TypeScript type contract in `@tournamental/spec`. The shape every other package agrees on.
+- **Spec stream.** A one-way append-only JSON stream that producers emit and renderers consume. Documented in `docs/02-spec.md` and `docs/03-architecture.md`.
+- **Cascade.** The way a bracket pick in an early round determines which teams are eligible in later rounds. The cascade resolver in `@tournamental/bracket-engine` does this in O(n) over the tournament's fixtures.
+- **Conviction.** A user-set multiplier (1, 2 or 3) that the scorer applies to a successful pick. Picking a 25%-implied underdog at conviction 3 is the highest-paying single action in the game.
+- **Save** vs **Lock.** Tournamental lets you save your bracket as many times as you want up until kickoff for each match. Other tournament-prediction products force you to lock once. The save-don't-lock model is described in `docs/note-on-save-not-lock.md`.
+- **VStamp.** A Verified Tournament Stamp. The Merkle-root anchor that proves a save existed before kickoff. Each user save participates in a batched Merkle root that gets anchored on Polygon every six hours.
+- **Prediction IQ.** A user's portable reputation score across tournaments. Computed by `apps/identity/` from the user's historical hit rate relative to the market.
+- **Syndicate.** A user-organised pool with its own URL at `play.tournamental.com/s/<slug>`, its own brand and its own (optional) on-chain entry pool.
+- **Molecule.** The 3D pyramid visualisation that shows a user's whole bracket on one rotatable shape. Implemented in `packages/bracket-engine/src/molecule.ts` and rendered in `apps/web/components/molecule/`.
+- **Drips list.** The on-chain Drips Network entry that pays contributors a share of platform revenue.
+- **Aiva SMS.** Our SMS / WhatsApp gateway. Exposed via `@tournamental/aiva-client`. Used for OTP login, syndicate invitations, kickoff push to non-app users.
+- **Humanness score.** A signal computed by `apps/identity/` that estimates how likely a given user is a real human, used for friend-graph and pool policy. Documented in `docs/20-identity-humanness-bots.md`.
+
+## A note on licensing for integrators
+
+Because the codebase mixes Apache 2.0 (code) and CC-BY 4.0 (docs) and the brand is owned by Tournamental Holdings, the licensing question comes up often. Short version:
+
+- **Code: Apache 2.0.** You can fork the entire repo, run your own instance, set your own affiliate destinations, and build whatever you want on top of it. You must preserve the NOTICE file and the LICENSE file. You cannot sue us over patent claims; we cannot sue you. You do not have to upstream your changes.
+- **Docs: CC-BY 4.0.** You can lift any of the architecture docs into your own design pack, including verbatim, as long as you credit Tournamental as the source. Helpful if you are writing a thesis on tournament-prediction systems, building a competing product whose design owes something to ours, or just want the doc text in your own internal wiki.
+- **Brand and the official Drips list: not licensed.** The Tournamental name, the wordmark, the official `@TournamentalBot` Telegram identity, and the on-chain Drips list controlled by Tournamental Holdings are not licensed for forks. You can fork the protocol and call your fork whatever you like, but you cannot call it Tournamental. `TRADEMARK.md` has the detail.
+- **Asset packs (avatars, jersey textures, stadium models): each has its own license.** The framework itself ships with no copyrighted assets. The procedural body GLB in `packages/avatar/` is original work and Apache 2.0. The jersey textures are generated at runtime from team colour palettes (no copyrighted logos). Wikimedia Commons faces use the underlying file's license; the proxy in `apps/web/` records the attribution per face.
+
+If you are an operator running a fork in a regulated jurisdiction, see the disclaimer in the README plus `docs/15-tournamental-brand-and-positioning.md`. The framework displays public market odds for scoring difficulty; it does not facilitate real-money wagers; it does not custody funds. Your fork is your responsibility.
+
+## A worked example: a Slack bracket bot in 90 minutes
+
+To make all of the above concrete, here is a worked example. The brief: build a Slack bot that lets a workplace fill out a World Cup 2026 bracket as a channel, posts the leaderboard every match-day, and produces a podium share image at the end of the tournament. You have 90 minutes and a free weekend.
+
+This is roughly the workshop talk I would give if somebody booked me for one. It uses the public Tournamental API and the MCP server. No fork required.
+
+### Minute 0 to 10, scaffold
+
+Use the Slack `bolt-ts` starter (or whatever Slack scaffold you prefer) and add the Tournamental SDK:
+
+```bash
+npm create slack@latest -- --name tournamental-bracket-bot --ts
+cd tournamental-bracket-bot
+npm install @tournamental/spec @tournamental/bracket-engine
+```
+
+Add a `.env` with your Slack signing secret, your Slack bot token, and your Tournamental API key from `https://tournamental.com/settings/api`.
+
+### Minute 10 to 30, the "/bracket" slash command
+
+Wire up a slash command that, when invoked, looks up the current tournament and posts a modal with the 48 group-stage match-ups. The Tournamental `lookup_tournament` REST call returns everything you need:
+
+```ts
+import { App } from "@slack/bolt";
+import type { Tournament } from "@tournamental/spec";
+
+const app = new App({ /* ... */ });
+
+app.command("/bracket", async ({ ack, client, body }) => {
+  await ack();
+  const res = await fetch("https://tournamental.com/api/v1/tournaments/fifa-wc-2026", {
+    headers: { authorization: `Bearer ${process.env.TOURNAMENTAL_API_KEY}` }
+  });
+  const tournament: Tournament = await res.json();
+  // Render a Slack modal with one block per group-stage match.
+  await client.views.open({ trigger_id: body.trigger_id, view: bracketModal(tournament) });
+});
+```
+
+The `bracketModal` helper is 80 lines of Slack Block Kit JSON; the trick is that each match's "block_id" is the spec `matchId` so the submit handler can read the picks back without any lookup logic.
+
+### Minute 30 to 60, the submit handler
+
+When a user submits the modal, your handler maps the Slack form values into a `Pick[]` and POSTs to `/api/v1/brackets`:
+
+```ts
+app.view("bracket_modal_submit", async ({ ack, view, body }) => {
+  await ack();
+  const picks = mapViewToPicks(view); // 30 lines, walks block_ids
+  const res = await fetch("https://tournamental.com/api/v1/brackets", {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+      authorization: `Bearer ${process.env.TOURNAMENTAL_API_KEY}`,
+    },
+    body: JSON.stringify({
+      tournamentId: "fifa-wc-2026",
+      picks,
+      metadata: {
+        syndicateSlug: `slack-${body.user.team_id}`,
+        variant: "default",
+      },
+    }),
+  });
+  const saved = await res.json();
+  await client.chat.postMessage({
+    channel: body.user.id,
+    text: `Bracket saved. Share URL: https://tournamental.com/b/${saved.saveId}`,
+  });
+});
+```
+
+Because you passed a `syndicateSlug`, the bracket auto-joins a Slack-team-scoped syndicate. The leaderboard at `https://tournamental.com/s/slack-<teamId>` shows everyone in your Slack who has saved a bracket.
+
+### Minute 60 to 80, the daily leaderboard post
+
+Set a cron in your hosting layer (Vercel, Render, fly.io, whatever) that hits the leaderboard endpoint once a day during the tournament and posts to a Slack channel:
+
+```ts
+async function postDailyLeaderboard() {
+  const res = await fetch("https://tournamental.com/api/v1/leaderboards/fifa-wc-2026?syndicate=slack-T01234");
+  const leaderboard = await res.json();
+  await client.chat.postMessage({
+    channel: "#world-cup",
+    blocks: renderLeaderboardBlocks(leaderboard),
+  });
+}
+```
+
+The `renderLeaderboardBlocks` helper is another 40 lines of Block Kit; it pulls each row's `userId` and `score`, decorates the top three with medals, and posts.
+
+### Minute 80 to 90, the podium share image
+
+At the end of the tournament, render a podium share card for each user and post a thread to the channel:
+
+```ts
+async function postPodium(saveId: string) {
+  const res = await fetch(`https://tournamental.com/api/molecule/og/${saveId}.png`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  await client.files.uploadV2({
+    channel_id: "C01234",
+    file: buf,
+    filename: `${saveId}.png`,
+    initial_comment: "Your final bracket result",
+  });
+}
+```
+
+You can also call `render_share_card` via the MCP server if you would rather get a base64 PNG without dealing with a URL. Same image, different transport.
+
+### Total: 90 minutes, 230 lines of TypeScript
+
+What you have at the end: a Slack bot that joins a workplace channel, lets each person fill out a bracket without leaving Slack, posts a daily leaderboard, and produces a podium image per user. It uses no Tournamental code that you had to fork. It runs entirely against the public API.
+
+If you publish it, file a PR adding the bot to `docs/integrations/`. We will add it to the marketing site's "Integrations" page and you go in the Drips list as the bot's maintainer.
+
+## Frequently asked questions
+
+A handful of questions come up over and over. Quick answers here so the engineering log can refer back to them.
+
+**Do I need to run a Polygon node to integrate?** No. The VStamp service uses an Alchemy / Infura RPC under the hood. If you are running a fork and you want trustless RPC, the env block accepts your own RPC URL.
+
+**Does the bracket app work offline?** Partially. The PWA shell at `apps/web/manifest.json` caches the bracket UI and your last-saved bracket. New saves queue and sync when you come back online. The 3D renderer needs a live spec stream, which means online; the molecule view caches the last-rendered state.
+
+**Can I run a fork without Cloudflare?** Yes. The whole CDN layer is replaceable. The chunk files are plain `.ndjson.gz` on disk; serve them with nginx and the spec-client SDK does not care. The cache headers in `docs/22-deployment-and-tunnels.md` are the things to set on your edge.
+
+**Can I disable on-chain bits entirely?** Yes. The VStamp service and the Pool oracle are opt-in per fork. The env block has `ENABLE_VSTAMP=false` and `ENABLE_POOL=false` flags; with both off the rest of the stack runs without ever talking to a chain.
+
+**Does the renderer work without internet?** It works without an internet-side spec stream as long as a producer is on the LAN. Useful for a local-pub-screen install where the stream comes from a local replay producer rather than from `stream.tournamental.com`.
+
+**Can I theme the bracket app?** Yes. The theme tokens are in `apps/web/styles/tokens.css` and the bracket app reads them at runtime. A syndicate's brand colours are passed in via the `Syndicate.brand.colors` field in the spec; the bracket app applies them via CSS custom properties.
+
+**Is there a Discord bot?** Not yet. The Tournament Bot covers Telegram, WhatsApp and SMS (via Aiva). Discord is on the roadmap; the call-for-help post on AI-agents covers it. If you want to land the first version, open an issue.
+
+**Is there a sportsbook integration?** The affiliate router routes outbound clicks to regulated operators where legal. It never runs odds-matching, it never custodies funds, it never acts as a sportsbook. The router is documented in `docs/18-monetization.md`.
+
+**Does the project accept paid sponsorship?** Yes, the model is described in `docs/18-monetization.md` and `docs/27-social-distribution-strategy.md`. Sponsorships flow into the same Drips list as code contributions, so the contributor community shares in sponsorship revenue too.
+
+**What happens after the 2026 World Cup?** The Cricket World Cup 2027 (the next tournament we are targeting), the Africa Cup of Nations 2027, the Six Nations 2027. The stack is sport-agnostic; the producer plugin model lets each sport have its own data path without changing the renderer or the scoring engine.
+
+## A closing note
+
+The thing I find genuinely interesting about building this in public is how often a question from a contributor turns into a doc update or an API change. That is the whole point. The engineering log is the place those conversations happen at a higher altitude than a PR comment thread. A PR fixes a bug; an engineering post explains why the bug was possible in the first place, and what the contract should have been so the bug class disappears.
+
+If you build something on top of Tournamental, please tell us. We will boost it on the social channels, we will quote you on the marketing site if you let us, and we will fix the docs that tripped you up so the next person has an easier time. The whole stack is open source. The whole brain is in this repo. The whole point is for somebody else to pick it up and run further with it than we ever could on our own.
+
+Now go build something.
+
+- Tim

@@ -1,0 +1,167 @@
+---
+// Index-page card for a single engineering post. Mirrors the shape of
+// BlogCard but with an `area` chip in place of the freeform tag row,
+// and a tighter description (the engineering log audience already
+// knows the lingo; we don't repeat the tagline-style prose the blog
+// surface uses).
+//
+// The `data-card-area` attribute is what the filter chip script on the
+// index page reads to show/hide cards.
+import type { CollectionEntry } from "astro:content";
+
+interface Props {
+  post: CollectionEntry<"engineering">;
+}
+const { post } = Astro.props;
+const { data, slug } = post;
+const href = `/engineering/${slug}`;
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+}).format(data.pubDate);
+const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+
+// Human-readable label for the `area` enum value. Kept in sync with
+// the index-page AREAS list manually; if it drifts the only damage is
+// a less-pretty pill label.
+const AREA_LABELS: Record<string, string> = {
+  "stack-overview": "Stack overview",
+  renderer: "Renderer",
+  scoring: "Scoring",
+  identity: "Identity",
+  "on-chain": "On-chain",
+  "data-pipeline": "Data pipeline",
+  "ai-agents": "AI agents",
+  infrastructure: "Infrastructure",
+  plugins: "Plugins",
+  performance: "Performance",
+};
+const areaLabel = AREA_LABELS[data.area] ?? data.area;
+---
+<article class="vt-eng-card group" data-card-area={data.area}>
+  <a href={href} class="vt-eng-card-media" aria-hidden="true" tabindex="-1">
+    {heroSrc ? (
+      <img
+        src={heroSrc}
+        alt={data.heroImageAlt ?? ""}
+        loading="lazy"
+        decoding="async"
+        width="800"
+        height="450"
+      />
+    ) : (
+      <div class="vt-eng-card-placeholder" aria-hidden="true">
+        <svg viewBox="0 0 64 36" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true">
+          <rect x="2" y="2" width="60" height="32" rx="2" />
+          <path d="M8 24 L18 14 L26 22 L34 14 L42 24 L56 12" />
+        </svg>
+      </div>
+    )}
+  </a>
+  <div class="vt-eng-card-body">
+    <div class="vt-eng-card-meta">
+      <span class="vt-eng-card-area">{areaLabel}</span>
+      <span aria-hidden="true">·</span>
+      <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+    </div>
+    <h3 class="vt-eng-card-title">
+      <a href={href}>{data.title}</a>
+    </h3>
+    <p class="vt-eng-card-desc">{data.description}</p>
+  </div>
+</article>
+
+<style>
+  .vt-eng-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--vt-border);
+    border-radius: 0.875rem;
+    background: color-mix(in srgb, var(--vt-bg-elev) 70%, transparent);
+    overflow: hidden;
+    transition: border-color 160ms ease, transform 160ms ease;
+  }
+  .vt-eng-card:hover {
+    border-color: var(--vt-border-strong);
+    transform: translateY(-2px);
+  }
+  .vt-eng-card[hidden] { display: none !important; }
+  .vt-eng-card-media {
+    display: block;
+    aspect-ratio: 16 / 9;
+    background: var(--vt-bg-elev-2);
+    overflow: hidden;
+  }
+  .vt-eng-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 320ms ease;
+  }
+  .vt-eng-card:hover .vt-eng-card-media img {
+    transform: scale(1.03);
+  }
+  .vt-eng-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    color: var(--vt-fg-muted);
+    background: linear-gradient(135deg, rgba(126, 182, 232, 0.18), rgba(120, 220, 180, 0.08));
+  }
+  .vt-eng-card-placeholder svg {
+    width: 60%;
+    height: auto;
+    opacity: 0.5;
+  }
+  .vt-eng-card-body {
+    padding: 1.25rem 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    flex: 1;
+    min-height: 9.5rem;
+  }
+  .vt-eng-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--vt-fg-muted);
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .vt-eng-card-area {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.12rem 0.55rem;
+    border-radius: 9999px;
+    border: 1px solid var(--vt-border-strong);
+    color: var(--vt-fg-strong);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+  }
+  .vt-eng-card-title {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 1.2rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    color: var(--vt-fg-strong);
+  }
+  .vt-eng-card-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+  .vt-eng-card-title a:hover {
+    color: #5a96d8;
+  }
+  .vt-eng-card-desc {
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.5;
+    flex: 1;
+  }
+</style>

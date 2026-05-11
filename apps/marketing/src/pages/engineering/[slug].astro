@@ -1,0 +1,456 @@
+---
+// Individual engineering post route. Statically generated from the
+// `engineering` content collection. Mirrors /blog/[slug] but with
+// three additions specific to the engineering audience:
+//
+//   1. A right-rail sidebar (desktop) / collapsed details block
+//      (mobile) listing `relatedDocs` and `relatedSource` deep-links
+//      into the public GitHub repo.
+//   2. A "Suggest an edit" link that lands on GitHub's edit URL for
+//      this MDX file, so an engineer reading the post can fix a typo
+//      or expand a section without cloning the repo.
+//   3. An `area` chip in the header, replacing the freeform tag pill
+//      row that /blog uses.
+//
+// We deliberately reuse the blog's Prose component so typography stays
+// consistent across the two surfaces. Sharing the prose styles also
+// means a single CSS pass tweak benefits both.
+import Layout from "@/layouts/Layout.astro";
+import Prose from "@/components/blog/Prose.astro";
+import TagChip from "@/components/blog/TagChip.astro";
+import EngineeringCard from "@/components/engineering/EngineeringCard.astro";
+import PostFooter from "@/components/blog/PostFooter.astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+
+export async function getStaticPaths() {
+  const posts = await getCollection("engineering", ({ data }) => !data.draft);
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+interface Props {
+  post: CollectionEntry<"engineering">;
+}
+const { post } = Astro.props;
+const { Content } = await post.render();
+const { data } = post;
+
+const dateLabel = new Intl.DateTimeFormat("en-NZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+}).format(data.pubDate);
+const updatedLabel = data.updated
+  ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.updated)
+  : null;
+
+const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+
+// Pull up to two related engineering posts for the bottom strip.
+const others = (await getCollection("engineering", ({ data }) => !data.draft))
+  .filter((p) => p.slug !== post.slug)
+  .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime())
+  .slice(0, 2);
+
+const canonical = new URL(`/engineering/${post.slug}`, Astro.site ?? "https://tournamental.com").toString();
+const ogImage = heroSrc
+  ? heroSrc.startsWith("http")
+    ? heroSrc
+    : new URL(heroSrc, Astro.site ?? "https://tournamental.com").toString()
+  : "/og-default.png";
+
+// GitHub deep-link bases. The repo is public so we link straight at it
+// rather than through a redirect. If the repo ever moves, this is the
+// only place to update.
+const GH_REPO = "https://github.com/0800tim/tournamental";
+const GH_DOCS_BASE = `${GH_REPO}/blob/main/docs/`;
+const GH_SOURCE_BASE = `${GH_REPO}/blob/main/`;
+const GH_EDIT_URL = `${GH_REPO}/edit/main/apps/marketing/src/content/engineering/${post.slug}.mdx`;
+
+// Render a friendly label for a doc filename. `12-odds-and-predictions.md`
+// becomes "12, Odds and predictions". Pure presentation, the link href
+// uses the original filename.
+function docLabel(filename: string): string {
+  const m = filename.match(/^(\d+[a-z]?)[-_](.+?)\.(md|mdx)$/i);
+  if (!m) return filename;
+  const num = m[1];
+  const rest = m[2].replace(/[-_]+/g, " ");
+  return `${num}, ${rest.charAt(0).toUpperCase() + rest.slice(1)}`;
+}
+
+const AREA_LABELS: Record<string, string> = {
+  "stack-overview": "Stack overview",
+  renderer: "Renderer",
+  scoring: "Scoring",
+  identity: "Identity",
+  "on-chain": "On-chain",
+  "data-pipeline": "Data pipeline",
+  "ai-agents": "AI agents",
+  infrastructure: "Infrastructure",
+  plugins: "Plugins",
+  performance: "Performance",
+};
+const areaLabel = AREA_LABELS[data.area] ?? data.area;
+---
+<Layout
+  title={`${data.title}, Tournamental Engineering`}
+  description={data.description}
+  ogImage={ogImage}
+>
+  <article class="container-page pt-12 pb-16">
+    <nav class="vt-eng-back" aria-label="Breadcrumb">
+      <a href="/engineering" class="link">← All engineering posts</a>
+    </nav>
+
+    <div class="vt-eng-layout">
+      <div class="vt-eng-main">
+        <header class="vt-eng-post-header">
+          <div class="vt-eng-post-meta">
+            <span class="vt-eng-post-area">{areaLabel}</span>
+            <time datetime={data.pubDate.toISOString()}>{dateLabel}</time>
+            <span aria-hidden="true">·</span>
+            <span>{data.author}</span>
+            {updatedLabel && (
+              <>
+                <span aria-hidden="true">·</span>
+                <span>updated {updatedLabel}</span>
+              </>
+            )}
+          </div>
+          <h1 class="vt-eng-post-title">{data.title}</h1>
+          <p class="vt-eng-post-lede">{data.description}</p>
+          {data.tags.length > 0 && (
+            <div class="vt-eng-post-tags">
+              {data.tags.map((t) => <TagChip tag={t} />)}
+            </div>
+          )}
+        </header>
+
+        {heroSrc && (
+          <figure class="vt-eng-post-hero">
+            <img
+              src={heroSrc}
+              alt={data.heroImageAlt ?? ""}
+              width="1600"
+              height="900"
+              loading="eager"
+              decoding="async"
+              fetchpriority="high"
+            />
+            {data.heroImageCredit && (
+              <figcaption>{data.heroImageCredit}</figcaption>
+            )}
+          </figure>
+        )}
+
+        {/* On mobile, the sidebar is collapsed into a <details> at the
+            top of the body so a reader on a 360px screen can expand
+            "Related docs" without scrolling past the whole post first.
+            On desktop the sidebar is rendered as a right-rail aside
+            (further down in this template) and this <details> hides. */}
+        {(data.relatedDocs.length > 0 || data.relatedSource.length > 0) && (
+          <details class="vt-eng-related-mobile">
+            <summary>Related docs and source</summary>
+            <div class="vt-eng-related-mobile-body">
+              {data.relatedDocs.length > 0 && (
+                <div>
+                  <h4>Docs</h4>
+                  <ul>
+                    {data.relatedDocs.map((d) => (
+                      <li>
+                        <a class="link" href={`${GH_DOCS_BASE}${d}`} target="_blank" rel="noopener noreferrer">
+                          {docLabel(d)}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {data.relatedSource.length > 0 && (
+                <div>
+                  <h4>Source</h4>
+                  <ul>
+                    {data.relatedSource.map((s) => (
+                      <li>
+                        <a class="link" href={`${GH_SOURCE_BASE}${s}`} target="_blank" rel="noopener noreferrer">
+                          <code>{s}</code>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <div>
+                <a class="link" href={GH_EDIT_URL} target="_blank" rel="noopener noreferrer">
+                  Suggest an edit on GitHub
+                </a>
+              </div>
+            </div>
+          </details>
+        )}
+
+        <Prose>
+          <Content />
+        </Prose>
+
+        <PostFooter title={data.title} url={canonical} author={data.author} />
+      </div>
+
+      {/* Desktop right-rail sidebar. Hidden under 1024px by the CSS. The
+          mobile <details> block above covers screens below that. */}
+      {(data.relatedDocs.length > 0 || data.relatedSource.length > 0) && (
+        <aside class="vt-eng-sidebar" aria-label="Related docs and source">
+          {data.relatedDocs.length > 0 && (
+            <div class="card vt-eng-sidebar-card">
+              <h3>Related docs</h3>
+              <ul>
+                {data.relatedDocs.map((d) => (
+                  <li>
+                    <a class="link" href={`${GH_DOCS_BASE}${d}`} target="_blank" rel="noopener noreferrer">
+                      {docLabel(d)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {data.relatedSource.length > 0 && (
+            <div class="card vt-eng-sidebar-card">
+              <h3>Related source</h3>
+              <ul>
+                {data.relatedSource.map((s) => (
+                  <li>
+                    <a class="link" href={`${GH_SOURCE_BASE}${s}`} target="_blank" rel="noopener noreferrer">
+                      <code>{s}</code>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div class="card vt-eng-sidebar-card">
+            <h3>Help out</h3>
+            <p class="vt-eng-sidebar-note">
+              Spotted a typo or want to expand a section? Edit the MDX directly on GitHub.
+            </p>
+            <a class="link" href={GH_EDIT_URL} target="_blank" rel="noopener noreferrer">
+              Suggest an edit
+            </a>
+          </div>
+        </aside>
+      )}
+    </div>
+  </article>
+
+  {/* Fire an engineering.post.opened analytics event when the post
+      mounts, so we can rank the engineering log's content by the same
+      heuristic as /blog. */}
+  <script is:inline define:vars={{ slug: post.slug, title: data.title, area: data.area }}>
+    {`
+      (function () {
+        function fire() {
+          if (window.tournamental && typeof window.tournamental.track === 'function') {
+            window.tournamental.track('engineering.post.opened', { slug: slug, title: title, area: area });
+          }
+        }
+        if (document.readyState !== 'loading') fire();
+        else document.addEventListener('DOMContentLoaded', fire);
+      })();
+    `}
+  </script>
+
+  {others.length > 0 && (
+    <section class="container-page pb-20">
+      <h4 class="vt-eng-related-eyebrow">More from the engineering log</h4>
+      <div class="vt-eng-related-grid">
+        {others.map((p) => <EngineeringCard post={p} />)}
+      </div>
+    </section>
+  )}
+</Layout>
+
+<style>
+  .vt-eng-back {
+    margin-bottom: 1.5rem;
+    font-size: 0.9rem;
+  }
+  .vt-eng-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  @media (min-width: 1024px) {
+    .vt-eng-layout {
+      grid-template-columns: minmax(0, 1fr) 20rem;
+      gap: 2.5rem;
+    }
+  }
+  .vt-eng-main {
+    min-width: 0;
+  }
+  .vt-eng-post-header {
+    margin-bottom: 1.75rem;
+  }
+  .vt-eng-post-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+    color: var(--vt-fg-muted);
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.85rem;
+  }
+  .vt-eng-post-area {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15rem 0.6rem;
+    border-radius: 9999px;
+    border: 1px solid var(--vt-border-strong);
+    color: var(--vt-fg-strong);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    margin-right: 0.2rem;
+  }
+  .vt-eng-post-title {
+    font-family: theme(fontFamily.display);
+    font-size: 1.95rem;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    font-weight: 700;
+    color: var(--vt-fg-strong);
+  }
+  @media (min-width: 768px) {
+    .vt-eng-post-title { font-size: 2.4rem; }
+  }
+  .vt-eng-post-lede {
+    color: var(--vt-fg-muted);
+    margin-top: 0.85rem;
+    font-size: 1.08rem;
+    line-height: 1.55;
+  }
+  .vt-eng-post-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 1rem;
+  }
+  .vt-eng-post-hero {
+    margin: 1.5rem 0 2.25rem;
+    border-radius: 0.875rem;
+    overflow: hidden;
+    border: 1px solid var(--vt-border);
+  }
+  .vt-eng-post-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .vt-eng-post-hero figcaption {
+    padding: 0.6rem 0.9rem;
+    font-size: 0.78rem;
+    color: var(--vt-fg-muted);
+    background: var(--vt-bg-elev);
+    border-top: 1px solid var(--vt-border);
+  }
+  .vt-eng-related-mobile {
+    margin: 0 0 1.75rem;
+    border: 1px solid var(--vt-border);
+    border-radius: 0.625rem;
+    background: color-mix(in srgb, var(--vt-bg-elev) 50%, transparent);
+  }
+  @media (min-width: 1024px) {
+    .vt-eng-related-mobile { display: none; }
+  }
+  .vt-eng-related-mobile summary {
+    cursor: pointer;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: var(--vt-fg-strong);
+  }
+  .vt-eng-related-mobile-body {
+    padding: 0 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    font-size: 0.92rem;
+  }
+  .vt-eng-related-mobile-body h4 {
+    margin: 0 0 0.25rem;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--vt-fg-muted);
+  }
+  .vt-eng-related-mobile-body ul {
+    margin: 0;
+    padding-left: 1.1rem;
+    list-style: disc;
+  }
+  .vt-eng-related-mobile-body li + li {
+    margin-top: 0.3rem;
+  }
+  .vt-eng-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    position: sticky;
+    top: 4.5rem;
+    align-self: start;
+  }
+  @media (max-width: 1023px) {
+    .vt-eng-sidebar { display: none; }
+  }
+  .vt-eng-sidebar-card h3 {
+    font-family: theme(fontFamily.display);
+    font-weight: 700;
+    font-size: 0.92rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-strong);
+    margin-bottom: 0.6rem;
+  }
+  .vt-eng-sidebar-card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    font-size: 0.9rem;
+  }
+  .vt-eng-sidebar-card li {
+    line-height: 1.4;
+  }
+  .vt-eng-sidebar-card code {
+    font-family: theme(fontFamily.mono);
+    font-size: 0.84rem;
+    color: var(--vt-fg);
+  }
+  .vt-eng-sidebar-note {
+    color: var(--vt-fg-muted);
+    font-size: 0.88rem;
+    line-height: 1.5;
+    margin-bottom: 0.55rem;
+  }
+  .vt-eng-related-eyebrow {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--vt-fg-muted);
+    margin-bottom: 1rem;
+  }
+  .vt-eng-related-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    .vt-eng-related-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+</style>

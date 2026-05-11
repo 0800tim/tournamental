@@ -148,3 +148,7 @@ The infra Tim is targeting (gigabit fibre + Starlink failover, lithium battery b
 The spec is a one-way append-only stream. That property is what makes everything cheap: chunks are immutable, so they cache forever; new viewers replay from `init.json` + chunks; the stream is trivially fan-out-able to any number of clients without any per-client server work. CDN economics do the heavy lifting. The only thing that scales with viewer count is bandwidth, and Cloudflare's free tier covers a *lot* of hobby-project bandwidth.
 
 Detail on chunking, cache headers, and edge config in [docs/08-cdn-distribution.md](08-cdn-distribution.md).
+
+## For the long version see the engineering log
+
+This doc is the canonical structural reference for the system. For the prose-and-context version, the "why this shape", and the walked-through request flows, read [The Tournamental stack at a glance](https://tournamental.com/engineering/2026-05-13-stack-at-a-glance) in the engineering log. That post is intentionally dated so a future reader can tell when its assumptions were captured; this doc stays a stable structural reference.

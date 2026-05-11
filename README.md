@@ -2,9 +2,13 @@
 
 > **Predict the tournament. Beat the market. Prove it.**
 >
-> A live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network — all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten.
+> A live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network, all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten.
 
-Domain: **tournamental.com**. Brand expansion when needed: **Tournamental — Verified Tournament Oracle Network**.
+Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verified Tournament Oracle Network**.
+
+## Read the engineering log
+
+If you are an AI agent or a human engineer landing in this repo and trying to work out where to plug in, start with the engineering log at **[tournamental.com/engineering](https://tournamental.com/engineering)** rather than the docs folder. The first post, [The Tournamental stack at a glance](https://tournamental.com/engineering/2026-05-13-stack-at-a-glance), maps every service and package and gives you a six-step "vibe-code your app on top of Tournamental" walkthrough. Subsequent posts drill into specific subsystems (renderer, scoring, on-chain, plugins, performance). RSS at `/engineering/rss.xml`. Public Q&A at [GitHub Discussions](https://github.com/0800tim/tournamental/discussions).
 
 ## What Tournamental is
 
