@@ -1,12 +1,12 @@
 /**
- * OverlayLink — a `next/link` superset that can either:
+ * OverlayLink, a `next/link` superset that can either:
  *
  *   1. Open a target route as an overlay (default when `as="overlay"`),
  *      preserving the underlying page route + appending the overlay
  *      params to the URL via `useOverlay().open()`.
  *
  *   2. Hard-navigate to the target route (default when `as="link"` or
- *      when the user holds Cmd/Ctrl/Shift, or middle-clicks — every
+ *      when the user holds Cmd/Ctrl/Shift, or middle-clicks, every
  *      escape-hatch a browser provides for "open in new tab").
  *
  * Why both modes? Tim's spec: bracket interactions should overlay the
@@ -35,7 +35,7 @@ import type { OverlayKind } from "./types";
 type AnchorProps = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">;
 
 export interface OverlayLinkProps extends AnchorProps {
-  /** Underlying real route — what Cmd-click / right-click navigates to. */
+  /** Underlying real route, what Cmd-click / right-click navigates to. */
   readonly href: LinkProps["href"];
   /** Overlay kind to open on plain click. Required when `as="overlay"`. */
   readonly overlayKind?: OverlayKind;
@@ -43,9 +43,9 @@ export interface OverlayLinkProps extends AnchorProps {
   readonly overlayParams?: Record<string, string>;
   /**
    * Behavioural mode:
-   *   - "overlay" (default if `overlayKind` is set) — plain click opens
+   *   - "overlay" (default if `overlayKind` is set), plain click opens
    *     the overlay; mod-click navigates to `href`.
-   *   - "link" (default if `overlayKind` is unset) — always navigates,
+   *   - "link" (default if `overlayKind` is unset), always navigates,
    *     identical to `next/link`.
    */
   readonly as?: "overlay" | "link";

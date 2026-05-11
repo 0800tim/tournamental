@@ -1,6 +1,6 @@
-# 13 — Telegram Bot and Auth
+# 13, Telegram Bot and Auth
 
-> Identity, notifications, and the centralised communications layer — all via a single Telegram bot. Free, global, low-latency, no SMS, no WhatsApp Business, no Messenger 24-hour-window pain. The bot is the *primary* surface; the web app is one of several clients on top of the same APIs.
+> Identity, notifications, and the centralised communications layer, all via a single Telegram bot. Free, global, low-latency, no SMS, no WhatsApp Business, no Messenger 24-hour-window pain. The bot is the *primary* surface; the web app is one of several clients on top of the same APIs.
 
 ## Why Telegram
 
@@ -19,15 +19,15 @@ Honest comparison of every option that was on the table:
 
 Telegram wins on every axis that matters for a free, global, real-time gamified product: zero per-message cost, no platform-mediated rate limits at our scale, robust API, mature inline-keyboard / web-app / mini-app surfaces, ubiquitous on mobile, and works in countries where Meta or US-flagged services are blocked.
 
-## Bot persona — the Tournament Bot
+## Bot persona, the Tournament Bot
 
 A single bot identity hosts all interactions. Working name: `@SimSportsBot` (final name TBD; the agent owns `apps/tournament-bot/` per [doc 09](09-agent-task-breakdown.md)).
 
-- **Avatar**: a stylized referee or commentator character — same art language as the in-scene avatars, recognisable across the app.
+- **Avatar**: a stylized referee or commentator character, same art language as the in-scene avatars, recognisable across the app.
 - **Voice / persona**: sharp, friendly, slightly cheeky. Templates live alongside the commentary templates so the bot's tone matches the in-scene commentary voice. Localised (English, Spanish, French, Arabic, Portuguese, Hindi for the WC2026 launch).
 - **Name in chats**: "Tournament Bot" generic; configurable per deployment.
 
-The persona matters because the bot is the user's *primary* relationship with the product. Every push notification, prediction confirmation, pool invite, badge unlock, clip share — it all comes from this one consistent voice.
+The persona matters because the bot is the user's *primary* relationship with the product. Every push notification, prediction confirmation, pool invite, badge unlock, clip share, it all comes from this one consistent voice.
 
 ## Architecture
 
@@ -82,16 +82,16 @@ The bot is the *only* component that talks to Telegram. It exposes a small HTTP 
 ## Stack
 
 - **Node 20+, TypeScript.** Same monorepo as the rest of the project.
-- **[grammY](https://grammy.dev/)** — modern TS-first Telegram bot framework. Smaller and clearer than Telegraf, well-maintained.
-- **Webhook mode** (not long-polling) — the bot exposes a public HTTPS endpoint, Telegram POSTs updates. Works behind Cloudflare Tunnels for the dev server.
-- **Redis** — shared with the gamification layer. The bot reads/writes the same KV namespace.
+- **[grammY](https://grammy.dev/)**, modern TS-first Telegram bot framework. Smaller and clearer than Telegraf, well-maintained.
+- **Webhook mode** (not long-polling), the bot exposes a public HTTPS endpoint, Telegram POSTs updates. Works behind Cloudflare Tunnels for the dev server.
+- **Redis**, shared with the gamification layer. The bot reads/writes the same KV namespace.
 - **No bot-specific database.** All state is in shared KV.
 
 ## Auth flow
 
 Two paths supported. Both terminate in the same outcome: the user's `telegram_id` is mapped to a `user_id` in Redis (`user_by_tg:<telegram_id> → user_id`).
 
-### Path A — One-time code (web → bot)
+### Path A, One-time code (web → bot)
 
 For users who land on the website first.
 
@@ -105,13 +105,13 @@ For users who land on the website first.
 
 This works on any device including desktop browsers without Telegram installed (user picks up their phone, taps deep link, web continues).
 
-### Path B — Telegram Login Widget
+### Path B, Telegram Login Widget
 
 For users who are already in Telegram Web or have Telegram open. Embed the [Telegram Login Widget](https://core.telegram.org/widgets/login) on the sign-in page; user clicks it, Telegram returns a signed payload with the user's `telegram_id`, `first_name`, `username`, and `photo_url`. Verify the HMAC signature server-side (using the bot token as the secret) and we have an authenticated session.
 
 Path B is faster but requires the user has clicked through Telegram's own permission UI once. We support both; the web app picks based on UA hint and falls back to A.
 
-### Path C — Bot-first (mobile users)
+### Path C, Bot-first (mobile users)
 
 For users who arrive via a friend's invite link.
 
@@ -128,13 +128,13 @@ A logged-in session is a JWT signed with our server key, valid for 30 days, refr
 
 ## Alternative auth paths (no Telegram)
 
-Telegram bot is the recommended primary identity because it doubles as the free push channel. But a tournament prediction product needs to work for users who don't want Telegram — and we want zero per-user cost regardless of path. Three free alternatives, supported alongside Telegram:
+Telegram bot is the recommended primary identity because it doubles as the free push channel. But a tournament prediction product needs to work for users who don't want Telegram, and we want zero per-user cost regardless of path. Three free alternatives, supported alongside Telegram:
 
 ### Email magic link
 
 Universal fallback. User enters email, receives a one-tap link with a signed token, clicks → logged in. JWT issued. Implementation: Resend, Postmark, or self-hosted Postfix; cost ~$0–0.001 per email. Latency 5–60 seconds depending on provider deliverability. Best for desktop sign-ups where Telegram-deep-linking is awkward.
 
-### TOTP (Google Authenticator, Authy, 1Password, etc.) — as 2FA on top of identity
+### TOTP (Google Authenticator, Authy, 1Password, etc.), as 2FA on top of identity
 
 TOTP (RFC 6238) is a shared-secret 6-digit-rotating-code standard. Every authenticator app on the planet implements it; it's free, offline, and doesn't lock the user to any vendor.
 
@@ -146,7 +146,7 @@ The thing to know: **TOTP is a second factor, not an identity**. The server stil
 4. User confirms by typing one current code. Server stores the secret encrypted-at-rest.
 5. On future logins (after the primary factor), server prompts for the current TOTP code. User types it. Done.
 
-For users who *prefer* TOTP as their primary path on a particular device, we support a "TOTP-first login" — the user enters their username + current TOTP code; if both match (and they've previously enrolled), they're in. This is technically still username-as-identity + TOTP-as-credential, which is fine.
+For users who *prefer* TOTP as their primary path on a particular device, we support a "TOTP-first login", the user enters their username + current TOTP code; if both match (and they've previously enrolled), they're in. This is technically still username-as-identity + TOTP-as-credential, which is fine.
 
 Recovery codes: at TOTP enrollment we generate 8 one-time recovery codes; the user is told to save them. Losing the device + the codes = account is recoverable only via the primary auth path (Telegram or email).
 
@@ -154,13 +154,13 @@ Recovery codes: at TOTP enrollment we generate 8 one-time recovery codes; the us
 
 Modern. Free. The most secure option. The user's browser/OS generates a public-key keypair bound to the site, stored in Apple Keychain / Google Password Manager / 1Password / a YubiKey. Login is biometric (Face ID, Touch ID, Windows Hello) or device PIN. Phishing-resistant by design.
 
-Use it when available — every modern Safari, Chrome, Firefox, Edge supports it. Falls back to email magic link or Telegram on older browsers. Implementation: a small TS wrapper around `navigator.credentials.create()` and `.get()`; on the server side use [`@simplewebauthn/server`](https://simplewebauthn.dev/).
+Use it when available, every modern Safari, Chrome, Firefox, Edge supports it. Falls back to email magic link or Telegram on older browsers. Implementation: a small TS wrapper around `navigator.credentials.create()` and `.get()`; on the server side use [`@simplewebauthn/server`](https://simplewebauthn.dev/).
 
 ### What we land on
 
 The auth picker on the web sign-in page offers, in this order:
 
-1. **Sign in with Telegram** (recommended — also unlocks notifications and the bot). Path A / B / C from above.
+1. **Sign in with Telegram** (recommended, also unlocks notifications and the bot). Path A / B / C from above.
 2. **Email magic link** (no app required).
 3. **Passkey** (offered when the browser supports it; one tap on supported devices).
 
@@ -173,22 +173,22 @@ This combo is fully free, works globally, has zero per-user cost, and gives user
 Designed for muscle memory and minimal typing. All have inline-keyboard variants for thumb-only use.
 
 ```
-/start          — onboard, create profile, link account
-/me             — show my profile card
-/streak         — current streak + history
-/predict        — submit predictions (inline keyboard for the next match)
-/predict <m>    — for a specific match by short id
-/odds           — current Polymarket / sportsbook odds for the live or next match
-/leaderboard    — global / country / city / friends / team — picker
-/pool new       — create a sweepstakes pool
-/pool join <code> — join with invite code
-/pool list      — pools I'm in
-/friends        — friend list + invites
-/share          — generate a shareable card of my last achievement
-/clip           — get the latest 15s highlight clip
-/help           — list commands
-/lang <code>    — change language
-/optout         — stop notifications (does NOT delete account)
+/start         , onboard, create profile, link account
+/me            , show my profile card
+/streak        , current streak + history
+/predict       , submit predictions (inline keyboard for the next match)
+/predict <m>   , for a specific match by short id
+/odds          , current Polymarket / sportsbook odds for the live or next match
+/leaderboard   , global / country / city / friends / team, picker
+/pool new      , create a sweepstakes pool
+/pool join <code>, join with invite code
+/pool list     , pools I'm in
+/friends       , friend list + invites
+/share         , generate a shareable card of my last achievement
+/clip          , get the latest 15s highlight clip
+/help          , list commands
+/lang <code>   , change language
+/optout        , stop notifications (does NOT delete account)
 ```
 
 Anything that takes a prediction comes back as an inline-keyboard tree:
@@ -211,18 +211,18 @@ The whole flow is 3–4 taps. Compare to a sportsbook UI which is 8+ taps with l
 
 For more complex flows (browsing odds, exploring leaderboards, watching a clip), open a [Telegram Web App](https://core.telegram.org/bots/webapps) inside the chat. Telegram passes the user's verified ID + a signed init payload, so the mini-app is auto-authed without any sign-in step. UI is a stripped-down version of the full Next.js app, served from the same origin.
 
-The mini app is *also* where the in-scene 3D match watches inside Telegram on mobile. Bandwidth-aware — defaults to 5s chunk CDN reads, falls back to a top-down sprite view if the device can't render WebGL2 at acceptable framerate.
+The mini app is *also* where the in-scene 3D match watches inside Telegram on mobile. Bandwidth-aware, defaults to 5s chunk CDN reads, falls back to a top-down sprite view if the device can't render WebGL2 at acceptable framerate.
 
 ## Notification fan-out
 
 The notification dispatcher (`apps/tournament-bot/dispatcher/`) consumes events from the gamification service via a Redis pub-sub channel and sends Telegram messages. Subscribed users receive:
 
-- **Match starting in 5 minutes** — gentle reminder with quick-predict inline keyboard.
-- **Goal in a match you predicted** — live update with point delta.
-- **Prediction resolved** — win/loss banner, badge unlock if applicable, share button.
-- **Pool result settled** — "You finished 3rd in Sydney Office Sweepstakes — 🥉".
-- **Friend overtook you** — "Ahmed just passed you on the leaderboard".
-- **Daily digest** — opt-in summary at user's local 8am.
+- **Match starting in 5 minutes**, gentle reminder with quick-predict inline keyboard.
+- **Goal in a match you predicted**, live update with point delta.
+- **Prediction resolved**, win/loss banner, badge unlock if applicable, share button.
+- **Pool result settled**, "You finished 3rd in Sydney Office Sweepstakes, 🥉".
+- **Friend overtook you**, "Ahmed just passed you on the leaderboard".
+- **Daily digest**, opt-in summary at user's local 8am.
 
 Rate-limit by user: max 5 messages per 30 minutes during live action, max 1 digest per day. Per-user notification preferences live in `user:<id>.notifications` JSON.
 
@@ -230,9 +230,9 @@ Rate-limit by user: max 5 messages per 30 minutes during live action, max 1 dige
 
 In addition to private DMs, the bot can post to:
 
-- **Tournament announcements channel** (e.g. `t.me/SimSportsAnnounce`) — official updates, big news, headline highlight clips.
-- **Country-specific channels** (e.g. `@SimSportsAR`) — country leaderboard standings, country-team highlights.
-- **Custom group chats** — install bot in a group; group automatically becomes a private leaderboard for its members. Bot posts predictions, results, and clip highlights to the group during matches. This is the office-watercooler killer feature.
+- **Tournament announcements channel** (e.g. `t.me/SimSportsAnnounce`), official updates, big news, headline highlight clips.
+- **Country-specific channels** (e.g. `@SimSportsAR`), country leaderboard standings, country-team highlights.
+- **Custom group chats**, install bot in a group; group automatically becomes a private leaderboard for its members. Bot posts predictions, results, and clip highlights to the group during matches. This is the office-watercooler killer feature.
 
 Group install flow: add `@SimSportsBot` to any group, type `/setup` once, the bot links the group ID to a private leaderboard and starts contributing.
 

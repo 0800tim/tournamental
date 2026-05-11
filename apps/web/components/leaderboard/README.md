@@ -8,14 +8,14 @@ It is intentionally _load-bearing_ for launch: every public surface that needs t
 
 Two non-negotiables, both enforced visually:
 
-1. **Banner above every mock surface** — `<DraftPreviewBanner>` is a yellow pill above the card grid that reads "Preview data. Real leaderboards activate at kickoff (11 Jun 2026). Names, avatars, and points shown are illustrative." Dismissible per browser via the `tournamental:draft-banner-dismissed:v1` localStorage flag.
-2. **Watermark behind every mock chart** — `<DraftWatermark>` wraps the chart and overlays a low-opacity "PREVIEW" SVG pattern at ~8% opacity, repeated at -30°.
+1. **Banner above every mock surface**, `<DraftPreviewBanner>` is a yellow pill above the card grid that reads "Preview data. Real leaderboards activate at kickoff (11 Jun 2026). Names, avatars, and points shown are illustrative." Dismissible per browser via the `tournamental:draft-banner-dismissed:v1` localStorage flag.
+2. **Watermark behind every mock chart**, `<DraftWatermark>` wraps the chart and overlays a low-opacity "PREVIEW" SVG pattern at ~8% opacity, repeated at -30°.
 
 You break the tenet by removing either one. Don't.
 
 ## Why DiceBear avataaars (and not realistic faces)
 
-`lib/mock/avatar.ts` uses [DiceBear v9 avataaars](https://www.dicebear.com/styles/avataaars/) — illustrated, cartoonish, _obviously_ not photographs. We chose this style on purpose:
+`lib/mock/avatar.ts` uses [DiceBear v9 avataaars](https://www.dicebear.com/styles/avataaars/), illustrated, cartoonish, _obviously_ not photographs. We chose this style on purpose:
 
 - **Headshot generators (ThisPersonDoesNotExist, etc.) are deceptive at small sizes.** A photoreal face on a leaderboard row reads as "real user" by default, which violates the tenet.
 - Avataaars produce a recognisable illustrated style that signals "placeholder" at a glance without needing extra copy.
@@ -27,9 +27,9 @@ Fallback: `initialsAvatarUrl(seed)` returns a coloured monogram when avataaars r
 
 The component shapes are stable. To go live with the real `/api/leaderboard` endpoint:
 
-1. In `app/leaderboard/page.tsx`, replace the `mockLeaderboardMembers(null, 50)` call with the real `fetchLeaderboard()` (server-side, ideally — switch the route to a server component and pass `members` as a prop).
+1. In `app/leaderboard/page.tsx`, replace the `mockLeaderboardMembers(null, 50)` call with the real `fetchLeaderboard()` (server-side, ideally, switch the route to a server component and pass `members` as a prop).
 2. Drop the `<DraftPreviewBanner />` and the `<DraftWatermark>` wrappers from every page that consumed them.
-3. Stop importing from `lib/mock/`. The `MockMember` interface is the contract — the real response should match it 1:1 (or you map at the boundary).
+3. Stop importing from `lib/mock/`. The `MockMember` interface is the contract, the real response should match it 1:1 (or you map at the boundary).
 4. Delete `draftMark` defaults from `<Leaderboard>`, or pass `draftMark={false}` from the call site if you'd rather keep the prop for future preview uses.
 
 That's it. No `<Leaderboard>` component changes required.
@@ -51,10 +51,10 @@ These are the syndicates parallel agent #67's `/s/[guid]` route should default-l
 
 ## Components shipped
 
-- `Leaderboard` — the polished social rank card.
-- `PointsSparkline` — inline 60×20 SVG sparkline.
-- `PicksDistributionChart` — horizontal stacked bar of pool picks per team.
-- `StageProgressChart` — 2-series "you vs the pool" line chart.
+- `Leaderboard`, the polished social rank card.
+- `PointsSparkline`, inline 60×20 SVG sparkline.
+- `PicksDistributionChart`, horizontal stacked bar of pool picks per team.
+- `StageProgressChart`, 2-series "you vs the pool" line chart.
 
 And in `components/syndicate/`:
 
@@ -68,4 +68,4 @@ And in `components/syndicate/`:
 
 The generators in `lib/mock/` are pure and seeded. `mockLeaderboardMembers("x", 50)` returns exactly the same shape on every call, in every process, under SSR + CSR. Tests in `__tests__/mock-leaderboard.test.ts` lock that contract.
 
-If you change any generator output, expect snapshot churn — that's the trade for stability.
+If you change any generator output, expect snapshot churn, that's the trade for stability.

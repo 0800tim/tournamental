@@ -9,7 +9,7 @@
  *      The server matches against existing rows; matched user_ids come back.
  *
  * Why SHA-256 + a server-side salt? A plain hash is a rainbow-table
- * target — every phone in E.164 maps to the same hash, and the search
+ * target, every phone in E.164 maps to the same hash, and the search
  * space (~10^11 globally) is small. The salt makes the hash
  * Tournamental-specific; a stolen DB can't be cross-referenced against
  * another service's leaked hashes.
@@ -27,12 +27,12 @@ import { createHash } from "node:crypto";
  *
  *   "+64 21 999 000" → "+6421999000"
  *   "0021999000"     → unchanged (caller should hand us E.164 already
- *                     or this is the user's fault — we don't guess
+ *                     or this is the user's fault, we don't guess
  *                     country codes)
  *
  * The exception: if the input has no leading "+" but is all digits and
  * the caller passes a default country, we prepend it. For v1 we expect
- * the client to canonicalise before sending — this is a defensive
+ * the client to canonicalise before sending, this is a defensive
  * normaliser, not a parser.
  */
 export function canonicaliseE164(raw: string): string {
@@ -40,7 +40,7 @@ export function canonicaliseE164(raw: string): string {
   if (!trimmed) return "";
   const cleaned = trimmed.replace(/[\s\-().]/g, "");
   if (cleaned.startsWith("+")) return cleaned;
-  // No leading "+" — accept only if it looks like E.164 already
+  // No leading "+", accept only if it looks like E.164 already
   // (digits only, 8–15 chars). Otherwise return empty (signal to the
   // caller that the input wasn't a valid phone).
   if (/^\d{8,15}$/.test(cleaned)) return "+" + cleaned;

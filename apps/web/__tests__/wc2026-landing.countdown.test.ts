@@ -1,5 +1,5 @@
 /**
- * Vitest — pure countdown math.
+ * Vitest, pure countdown math.
  */
 
 import { describe, it, expect } from "vitest";

@@ -1,16 +1,16 @@
 /**
  * Tiered odds client.
  *
- * Tier 1 — `process.env.NEXT_PUBLIC_ODDS_API_URL` (the real
+ * Tier 1, `process.env.NEXT_PUBLIC_ODDS_API_URL` (the real
  *   `apps/odds-ingest` service). Built by a parallel agent. May not be
  *   live when the chip is wired in, so we tolerate failure quietly.
  *
- * Tier 2 — `/api/odds/*` Next.js route handlers in this app. They proxy
+ * Tier 2, `/api/odds/*` Next.js route handlers in this app. They proxy
  *   to upstream when configured; without configuration they call the
  *   mock generator. Useful for local dev and for unit-testing the API
  *   contract without a network call.
  *
- * Tier 3 — `mockMatchOdds` directly, with FIFA ranks looked up from
+ * Tier 3, `mockMatchOdds` directly, with FIFA ranks looked up from
  *   `data/fifa-wc-2026/teams.json`. The chip never renders empty.
  *
  * The same client serves the browser (via `fetch`) and Next.js route
@@ -64,7 +64,7 @@ export interface FetchMatchOddsArgs {
   readonly fetchImpl?: typeof fetch;
   /** Tier-1 base URL override. Defaults to NEXT_PUBLIC_ODDS_API_URL. */
   readonly upstreamBaseUrl?: string | null;
-  /** AbortSignal — pass through to fetch. */
+  /** AbortSignal, pass through to fetch. */
   readonly signal?: AbortSignal;
 }
 
@@ -118,7 +118,7 @@ function isWellFormedMatchOdds(x: unknown): x is MatchOdds {
 
 /**
  * Fetch odds for a single match. Walks the three-tier fallback ladder
- * and returns the first successful response. Throws nothing — every
+ * and returns the first successful response. Throws nothing, every
  * path resolves to a stable result the UI can render.
  */
 export async function fetchMatchOdds(
@@ -165,7 +165,7 @@ export async function fetchMatchOdds(
   return { ok: true, data, tier: "mock" };
 }
 
-/** Direct mock-data path — exposed so the route stubs can call it. */
+/** Direct mock-data path, exposed so the route stubs can call it. */
 export function generateMockOdds(
   matchNo: string,
   homeTeam: string,
@@ -237,7 +237,7 @@ export async function fetchTeamWinnerSummary(
     } catch { /* fall through */ }
   }
 
-  // Mock: derive from FIFA rank — top-3 ~ 12-22%, top-10 ~ 4-8%, rest <2%.
+  // Mock: derive from FIFA rank, top-3 ~ 12-22%, top-10 ~ 4-8%, rest <2%.
   const rank = fifaRank(teamCode);
   const tournamentWinnerProb = rank <= 1 ? 0.22
     : rank <= 3 ? 0.16 - (rank - 1) * 0.03

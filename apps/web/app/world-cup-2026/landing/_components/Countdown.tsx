@@ -21,7 +21,7 @@ import {
 export interface CountdownProps {
   /** Override the target kickoff time (defaults to 2026-06-11T19:00Z). */
   readonly targetIso?: string;
-  /** SSR-snapshot date — supplied by the server component for stable HTML. */
+  /** SSR-snapshot date, supplied by the server component for stable HTML. */
   readonly initial: CountdownParts;
 }
 

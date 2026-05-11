@@ -1,5 +1,5 @@
 /**
- * /api/news — Astro endpoint that proxies the news-aggregator
+ * /api/news, Astro endpoint that proxies the news-aggregator
  * service so the marketing site never exposes the internal port.
  *
  * Forwarded query params: limit, since, source, lang, tag.

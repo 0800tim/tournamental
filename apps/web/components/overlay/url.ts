@@ -15,14 +15,14 @@
  *   bracket-syntax.
  *
  * Limitation: two stacked overlays of the *same kind* with conflicting
- * params can't both encode — we only support one frame per kind in the
+ * params can't both encode, we only support one frame per kind in the
  * URL. In practice the bracket UX never stacks two `team` overlays
  * (tapping a second team replaces the first), so this is fine.
  */
 
 import type { OverlayFrame, OverlayKind } from "./types";
 
-/** Known kinds — kept in sync with `types.ts`. */
+/** Known kinds, kept in sync with `types.ts`. */
 const KNOWN_KINDS: readonly OverlayKind[] = ["team", "match", "leaderboard-entry"];
 
 function isKnownKind(s: string): s is OverlayKind {
@@ -64,7 +64,7 @@ export function parseOverlayUrl(search: string | URLSearchParams): readonly Over
  *   1. Strip every `overlay` key + every key that *exactly matches* one
  *      of the param keys used by the new stack.
  *   2. Re-add `overlay=<kind1,kind2,...>` if the stack is non-empty.
- *   3. Re-add the overlay frames' params (deduped by key — last frame
+ *   3. Re-add the overlay frames' params (deduped by key, last frame
  *      wins).
  *   4. Re-add anything else (existing non-overlay params untouched).
  */
@@ -104,7 +104,7 @@ export function encodeOverlayUrl(
 }
 
 /**
- * Stack equality — used by the provider to skip no-op history pushes.
+ * Stack equality, used by the provider to skip no-op history pushes.
  */
 export function stacksEqual(
   a: readonly OverlayFrame[],

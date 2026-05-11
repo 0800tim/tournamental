@@ -1,4 +1,4 @@
-# Phase 1 — Mocap-quality players (Ready Player Me + Mixamo)
+# Phase 1, Mocap-quality players (Ready Player Me + Mixamo)
 
 > Replace the procedural-body + billboard-face avatar with a Ready Player Me rigged 3D avatar driven by Mixamo animations through a phase-locked state machine. End state: 22 players running with authority, no foot sliding, no pop transitions.
 
@@ -14,26 +14,26 @@ Run **immediately**. Doesn't depend on any other in-flight phase.
 ## Files to create / modify
 
 ```
-packages/avatar/                        (existing — extend)
+packages/avatar/                        (existing, extend)
   src/
-    rpm-loader.ts                       NEW — Ready Player Me GLB loader + cache
-    mixamo-pack.ts                      NEW — registry of canonical animation clips
-    animation-state-machine.ts          NEW — FSM: idle → walk → jog → sprint → kick → header → tackle → celebrate
-    locomotion.ts                       NEW — phase-locked playback rate (no foot slide)
-    retarget.ts                         NEW — Mixamo skeleton → RPM bone mapping
+    rpm-loader.ts                       NEW, Ready Player Me GLB loader + cache
+    mixamo-pack.ts                      NEW, registry of canonical animation clips
+    animation-state-machine.ts          NEW, FSM: idle → walk → jog → sprint → kick → header → tackle → celebrate
+    locomotion.ts                       NEW, phase-locked playback rate (no foot slide)
+    retarget.ts                         NEW, Mixamo skeleton → RPM bone mapping
   test/
-    state-machine.test.ts               NEW — vitest, cover all transitions
-    locomotion.test.ts                  NEW — vitest, foot-slide math
+    state-machine.test.ts               NEW, vitest, cover all transitions
+    locomotion.test.ts                  NEW, vitest, foot-slide math
 
 apps/web/
-  components/Player.tsx                 MODIFY — swap procedural body for RPM avatar
-  components/PlayerLOD.tsx              NEW — LOD selector (high/medium/low)
-  lib/event-to-action.ts                NEW — map StatsBomb event → state-machine action
-  public/assets/avatars/                NEW dir — pre-baked GLBs (22 starters per match)
-  public/assets/animations/             NEW dir — Mixamo packs as GLB
-  scripts/bake-avatars.mjs              NEW — one-time pre-bake from Wikidata photos → RPM API
-  scripts/convert-mixamo.mjs            NEW — FBX → GLB with retargeting
-  __tests__/player-state-machine.e2e.spec.ts   NEW — Playwright
+  components/Player.tsx                 MODIFY, swap procedural body for RPM avatar
+  components/PlayerLOD.tsx              NEW, LOD selector (high/medium/low)
+  lib/event-to-action.ts                NEW, map StatsBomb event → state-machine action
+  public/assets/avatars/                NEW dir, pre-baked GLBs (22 starters per match)
+  public/assets/animations/             NEW dir, Mixamo packs as GLB
+  scripts/bake-avatars.mjs              NEW, one-time pre-bake from Wikidata photos → RPM API
+  scripts/convert-mixamo.mjs            NEW, FBX → GLB with retargeting
+  __tests__/player-state-machine.e2e.spec.ts   NEW, Playwright
 
 docs/
   27a-fidelity-phase1-mocap-rig.md      THIS FILE
@@ -45,7 +45,7 @@ docs/
    - Pull head photo from Wikidata `P18` for each starter Q-id (already done in `face-map.ts`).
    - Send photo to Ready Player Me API: `POST https://models.readyplayer.me/avatar` with photo URL, body type `fullbody`, gender heuristic from FIFA squad metadata.
    - Cache the returned GLB at `apps/web/public/assets/avatars/<player-id>.glb`.
-   - Free tier: 1000/month — 22 starters × 2 sides × 2 matches = 88; well within budget.
+   - Free tier: 1000/month, 22 starters × 2 sides × 2 matches = 88; well within budget.
 
 2. **Animations**:
    - Source: Mixamo's free pack (must download manually via Adobe Mixamo, no API). Required clips:

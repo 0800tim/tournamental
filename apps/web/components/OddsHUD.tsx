@@ -9,10 +9,10 @@ import type { MatchStore } from "@vtorn/spec-client";
  * Placeholder hook for the historic-odds HUD widget (sister issue, owner
  * TBD). When `public/data/wc2022-final-odds.json` is present this widget
  * shows the AR-FR Dec 2022 decimal odds at kickoff and after each goal.
- * If the file is absent it renders nothing — so this PR doesn't need to
+ * If the file is absent it renders nothing, so this PR doesn't need to
  * ship odds data. Another PR will close that issue and add the JSON.
  *
- * Schema we expect (forward-compat — owner can change before the data
+ * Schema we expect (forward-compat, owner can change before the data
  * lands):
  *
  *   {

@@ -1,5 +1,5 @@
 /**
- * Vitest — molecule v5 matchup clarity primitives.
+ * Vitest, molecule v5 matchup clarity primitives.
  *
  * v4 highlighted only the team's own column (advance bonds) in gold when
  * a team was selected. v5 extends the gold to the team's match bonds
@@ -40,7 +40,7 @@ import {
 const T: Tournament = loadFixtures2026();
 
 /**
- * Build a synthetic full champion route — copy of the v4 helper, narrowed
+ * Build a synthetic full champion route, copy of the v4 helper, narrowed
  * to what these tests need. ARG beats BRA (R32) → FRA (R16) → GER (QF) →
  * ESP (SF) → ENG (F). ESP wins bronze over POR.
  */
@@ -129,7 +129,7 @@ function fullARGChampionCascade(): CascadedBracket {
   };
 }
 
-describe("v5 — selected team's match bonds light up across every layer", () => {
+describe("v5, selected team's match bonds light up across every layer", () => {
   const cascade = fullARGChampionCascade();
   const path = derivePathToGold(cascade, "ARG");
   const matchKeys = buildPathMatchBondKeySet(path);
@@ -157,14 +157,14 @@ describe("v5 — selected team's match bonds light up across every layer", () =>
     const engKeys = buildPathMatchBondKeySet(eng);
     expect(engKeys.has("f:ARG:ENG")).toBe(true);
     // The runner-up's other knockout bonds (R32..SF) aren't in the
-    // synthetic cascade — the SF for ENG and earlier matches weren't
-    // synthesised — so the size is only as large as the matches we
+    // synthetic cascade, the SF for ENG and earlier matches weren't
+    // synthesised, so the size is only as large as the matches we
     // staged for them.
     expect(engKeys.size).toBeGreaterThanOrEqual(1);
   });
 });
 
-describe("v5 — PathBond carries winner/loser direction metadata", () => {
+describe("v5, PathBond carries winner/loser direction metadata", () => {
   const cascade = fullARGChampionCascade();
 
   it("the champion's path bonds all have winner === champion code", () => {
@@ -203,7 +203,7 @@ describe("v5 — PathBond carries winner/loser direction metadata", () => {
   });
 });
 
-describe("v5 — KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
+describe("v5, KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
   const cascade = fullARGChampionCascade();
   const championPath = derivePathToGold(cascade, "ARG");
 
@@ -222,7 +222,7 @@ describe("v5 — KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
     expect(m.has("ARG")).toBe(false);
   });
 
-  it("teams not on the path (e.g. POR — 4th place) are NOT in the loser map", () => {
+  it("teams not on the path (e.g. POR, 4th place) are NOT in the loser map", () => {
     const m = buildPathLoserAtTopInstance(championPath);
     expect(m.has("POR")).toBe(false);
   });
@@ -231,7 +231,7 @@ describe("v5 — KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
     const engPath = derivePathToGold(cascade, "ENG");
     const m = buildPathLoserAtTopInstance(engPath);
     // ENG only had the final synthesised; the only knock-out on the
-    // path with a different loser is N/A — ENG IS the loser at f,
+    // path with a different loser is N/A, ENG IS the loser at f,
     // and the path-team is excluded, so the map ends up empty.
     expect(m.has("ENG")).toBe(false);
     // ENG's path has only the final → no opponents knocked out by ENG.
@@ -240,7 +240,7 @@ describe("v5 — KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
   });
 
   it("the KO glyph is only rendered on the loser's TOP instance (one entry per loser)", () => {
-    // We verify that the map only contains each loser once — the v5 scene
+    // We verify that the map only contains each loser once, the v5 scene
     // renders the glyph only when the node is `isTopInstance`. The map
     // itself is per-loser, not per-instance, so duplicates are impossible
     // by construction.
@@ -250,7 +250,7 @@ describe("v5 — KO-glyph mapping (buildPathLoserAtTopInstance)", () => {
   });
 });
 
-describe("v5 — rank-sorted layout mode", () => {
+describe("v5, rank-sorted layout mode", () => {
   const cascade = fullARGChampionCascade();
 
   it("layout sorts each ring by FIFA rank rather than per-team hash", () => {
@@ -268,7 +268,7 @@ describe("v5 — rank-sorted layout mode", () => {
       return aa - ab;
     });
 
-    // Find the node closest to angle 0 — that should be the strongest team.
+    // Find the node closest to angle 0, that should be the strongest team.
     const closestTo0 = groupNodes.reduce((best, n) => {
       const a = Math.atan2(n.position[2], n.position[0]);
       const bestA = Math.atan2(best.position[2], best.position[0]);
@@ -279,7 +279,7 @@ describe("v5 — rank-sorted layout mode", () => {
     );
     expect(closestTo0.fifaRank).toBe(minRank);
 
-    // Stable-mode comparison — the per-team hash placement is essentially
+    // Stable-mode comparison, the per-team hash placement is essentially
     // never going to coincide with the rank-sorted placement for all 48
     // teams. We confirm at least *one* team has a different position
     // between the two modes.
@@ -304,7 +304,7 @@ describe("v5 — rank-sorted layout mode", () => {
   });
 });
 
-describe("v5 — MoleculeNode.fifaRank is populated", () => {
+describe("v5, MoleculeNode.fifaRank is populated", () => {
   const cascade = fullARGChampionCascade();
   const layout = buildMoleculeLayout(T, cascade);
 
@@ -317,7 +317,7 @@ describe("v5 — MoleculeNode.fifaRank is populated", () => {
   });
 
   it("an unknown team would yield fifaRank = null (defensive default)", () => {
-    // Confirm via direct lookup — we don't have a synth path that
+    // Confirm via direct lookup, we don't have a synth path that
     // injects unknown codes into the layout, so this is a unit-level
     // assertion on the tournament fixture itself.
     const ranks = layout.nodes.map((n) => n.fifaRank).filter((r) => r !== null);

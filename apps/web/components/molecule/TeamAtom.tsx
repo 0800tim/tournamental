@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * TeamAtom — one team-sphere in the molecule.
+ * TeamAtom, one team-sphere in the molecule.
  *
  * v2 (flag spheres): the main sphere is a flag-textured PBR sphere
  * driven by `FlagSphereMaterial`. The country's flag wraps around the
@@ -34,13 +34,13 @@ export interface TeamAtomProps {
   /** True when this atom sits on the currently-highlighted path. */
   onPath?: boolean;
   /**
-   * v5 — true if this instance is the *opponent's* terminal node on the
+   * v5, true if this instance is the *opponent's* terminal node on the
    * active path (where they got knocked out). Draws a red `⨯` glyph
    * above the team-code label.
    */
   isPathKnockoutPoint?: boolean;
   /**
-   * v5 — true when no team is currently selected. We only render the
+   * v5, true when no team is currently selected. We only render the
    * non-path "this team dropped out here" chevron + rank chip in this
    * mode, so they don't compete with the gold path highlight.
    */
@@ -117,7 +117,7 @@ export function TeamAtom(props: TeamAtomProps) {
       ref={groupRef}
       position={node.position as unknown as [number, number, number]}
     >
-      {/* Rim halo — back-side sphere that picks up the stage palette colour.
+      {/* Rim halo, back-side sphere that picks up the stage palette colour.
        * onPath atoms get the gold rim treatment. */}
       <mesh ref={rimRef} scale={1.18}>
         <sphereGeometry args={[node.radius, 24, 24]} />
@@ -130,7 +130,7 @@ export function TeamAtom(props: TeamAtomProps) {
         />
       </mesh>
 
-      {/* Main sphere — flag-wrapped, lit, with wind-wave displacement. */}
+      {/* Main sphere, flag-wrapped, lit, with wind-wave displacement. */}
       <mesh
         onClick={(e) => {
           e.stopPropagation();
@@ -171,7 +171,7 @@ export function TeamAtom(props: TeamAtomProps) {
           style={{ pointerEvents: "none", userSelect: "none" }}
         >
           <div className="molecule-label-stack">
-            {/* v5 — red `⨯` glyph above the label for the path's knockout
+            {/* v5, red `⨯` glyph above the label for the path's knockout
              * points (the opponent's terminal instance on the active path). */}
             {isPathKnockoutPoint ? (
               <span
@@ -191,7 +191,7 @@ export function TeamAtom(props: TeamAtomProps) {
               {flagEmoji ? <span className="molecule-label-flag" aria-hidden>{flagEmoji}</span> : null}
               <span className="molecule-label-code">{node.teamCode}</span>
             </div>
-            {/* v5 — rank chip + drop-out chevron on the TOP instance for
+            {/* v5, rank chip + drop-out chevron on the TOP instance for
              * non-path teams. Hidden whenever a team is selected so the
              * gold path can breathe. Champions skip the chevron (they
              * didn't drop out anywhere). */}

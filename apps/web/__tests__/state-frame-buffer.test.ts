@@ -132,7 +132,7 @@ describe("StateFrameBuffer", () => {
   it("drops out-of-order frames", () => {
     const buf = new StateFrameBuffer();
     buf.push(f(100, [1, 0, 0]));
-    buf.push(f(50, [99, 0, 0])); // out of order — drop
+    buf.push(f(50, [99, 0, 0])); // out of order, drop
     expect(buf.size()).toBe(1);
     expect(buf.latest()?.t).toBe(100);
   });

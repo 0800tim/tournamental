@@ -1,7 +1,7 @@
 /**
  * Unit tests for the Phase-3 quality preset resolver.
  *
- * Pure module — no DOM/Three. Covers:
+ * Pure module, no DOM/Three. Covers:
  *   - URL flag parsing (`?quality=` + `?fx=`).
  *   - `?fx=off` escape hatch wins over everything.
  *   - `auto` device-hint heuristics for low / medium / high.

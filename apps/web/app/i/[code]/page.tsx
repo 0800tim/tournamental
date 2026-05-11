@@ -1,5 +1,5 @@
 /**
- * /i/<code> — invite-claim landing.
+ * /i/<code>, invite-claim landing.
  *
  * Flow:
  *   1. Server reads the invite code, marks it as claimed if the user
@@ -9,7 +9,7 @@
  *      bounces to /world-cup-2026?invited=1. The next sign-in attempts
  *      to claim the code via the auth callback handler.
  *
- * We deliberately don't render any UI here — the user expects to land
+ * We deliberately don't render any UI here, the user expects to land
  * on the bracket, not a confirmation page.
  */
 
@@ -31,7 +31,7 @@ export default async function ClaimInvite({ params }: PageProps) {
 
   const cfg = readPublicConfig();
   if (!cfg) {
-    // Without Supabase wired, just bounce to the bracket — invite
+    // Without Supabase wired, just bounce to the bracket, invite
     // attribution will pick up post-deploy when env vars land.
     redirect("/world-cup-2026?invited=1");
   }
@@ -104,7 +104,7 @@ export default async function ClaimInvite({ params }: PageProps) {
       }
     }
   } catch {
-    // Best-effort; missing service-role config will throw — that's a
+    // Best-effort; missing service-role config will throw, that's a
     // dev-env issue, not user-facing.
   }
 

@@ -1,14 +1,14 @@
-# 19 — Open Source, Tournamental Holdings, and Contributor Revenue Share
+# 19, Open Source, Tournamental Holdings, and Contributor Revenue Share
 
-> The structural decision: Tournamental ships **100% open source** and anyone can fork the code. **Tournamental Holdings** is the legal entity that owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury — proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
+> The structural decision: Tournamental ships **100% open source** and anyone can fork the code. **Tournamental Holdings** is the legal entity that owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury, proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
 
 ## The shape of the deal
 
 Three things, kept distinct:
 
-1. **The code and protocol** — open source, Apache 2.0 licensed, anyone can fork, run their own Tournamental, set their own affiliate destinations, monetize independently. The protocol is a public good.
-2. **The official Tournamental instance + brand** — `tournamental.com`, `@TournamentalBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **Tournamental Holdings**.
-3. **The contributor revenue share programme** — Tournamental Holdings allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes" — but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
+1. **The code and protocol**, open source, Apache 2.0 licensed, anyone can fork, run their own Tournamental, set their own affiliate destinations, monetize independently. The protocol is a public good.
+2. **The official Tournamental instance + brand**, `tournamental.com`, `@TournamentalBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **Tournamental Holdings**.
+3. **The contributor revenue share programme**, Tournamental Holdings allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes", but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
 
 Anyone can fork; only contributors to the upstream get a slice of the official-instance revenue. Forks succeeding on their own merit help the protocol; they don't dilute upstream contributors because the treasury they feed is whatever the fork operator chooses to set up.
 
@@ -21,13 +21,13 @@ It threads a narrow needle:
 - **Contributor revshare aligns incentives.** Anyone who improves the upstream is improving the platform that drives revenue to the treasury they share in. Same incentive as equity vesting at a startup, with much lower legal load if structured as revshare not equity.
 - **Forks are welcome, not threats.** A fork that builds a niche stylized world or a regional feed doesn't compete with Tournamental Holdings' affiliate revenue; if anything, it raises the protocol's profile.
 
-## License — Apache 2.0
+## License, Apache 2.0
 
 Not MIT. Not AGPL. Apache 2.0 specifically.
 
 **Why not MIT.** MIT is permissive but lacks an explicit patent grant. For a prediction-game platform with affiliate routing logic that may attract patent-troll attention, the Apache 2.0 explicit patent grant + termination clause matters.
 
-**Why not AGPL.** AGPL would force forks that run as a public service to open-source their changes back. Sounds good but creates real friction for the operators we *want* to attract — broadcasters running white-label, sponsors running branded leagues, etc. AGPL would chill enterprise adoption. Better to maximise ecosystem with Apache 2.0 and capture the official-instance value through brand and affiliate deals.
+**Why not AGPL.** AGPL would force forks that run as a public service to open-source their changes back. Sounds good but creates real friction for the operators we *want* to attract, broadcasters running white-label, sponsors running branded leagues, etc. AGPL would chill enterprise adoption. Better to maximise ecosystem with Apache 2.0 and capture the official-instance value through brand and affiliate deals.
 
 **The licensing stack:**
 
@@ -42,7 +42,7 @@ The brand assets are deliberately *not* open. A fork can use the code; it cannot
 
 Add a `TRADEMARK.md` to the repo root spelling this out plainly so forks know what they can and can't borrow.
 
-## Tournamental Holdings — the legal entity
+## Tournamental Holdings, the legal entity
 
 A real company. Tim and the founding team own the equity. Recommendations on jurisdiction:
 
@@ -56,17 +56,17 @@ A real company. Tim and the founding team own the equity. Recommendations on jur
 | **Singapore Pte Ltd** | Crypto-friendly, English-language, good banking, well-regulated. | Slightly slower setup than Cayman. | Strong alternative to Cayman. |
 | **BVI / Marshall Islands** | Used by some DAO foundations. | Reputational drift; banking gets harder yearly. | Avoid. |
 
-**Recommended structure**: a NZ operating company (`Tournamental NZ Limited`) for day-to-day operations, contractor payments, and tax residency, paired with a **Cayman or Singapore foundation** (`Tournamental Foundation`) that holds the treasury and runs the contributor revenue share programme. The NZ co invoices the foundation for services rendered. This is essentially the structure used by most credible OSS-with-token projects — Optimism, Filecoin, Mina, Aztec, etc.
+**Recommended structure**: a NZ operating company (`Tournamental NZ Limited`) for day-to-day operations, contractor payments, and tax residency, paired with a **Cayman or Singapore foundation** (`Tournamental Foundation`) that holds the treasury and runs the contributor revenue share programme. The NZ co invoices the foundation for services rendered. This is essentially the structure used by most credible OSS-with-token projects, Optimism, Filecoin, Mina, Aztec, etc.
 
 Cost: $20k–$50k all-in for both entities + first-year compliance. Worth it if the project gets traction; defer until then by running everything through `Tournamental NZ Limited` first and migrating later.
 
 This doc is not legal advice. Engage counsel before formalizing.
 
-## Contributor revenue share — the four mechanisms ranked
+## Contributor revenue share, the four mechanisms ranked
 
 The user phrasing is "blockchain-based equity and stakes". The clean way to deliver that experience without the securities-law trap is **revenue share**, not equity, paid on-chain. Four mechanisms, ranked by simplicity and legal load:
 
-### Mechanism A — Drips Network (recommended for v1)
+### Mechanism A, Drips Network (recommended for v1)
 
 [Drips Network](https://www.drips.network/) is an Ethereum-based protocol for streaming ERC-20 payments to GitHub repos and Ethereum addresses. Used by Radworks, the Ethereum Foundation, ENS, UNICEF, Scroll, Filecoin (for distributing RetroPGF allocations) and others. Streams of any ERC-20 are split across recipients on a configurable schedule.
 
@@ -80,7 +80,7 @@ Legal load: very low. This is contractual revenue share, not securities. Drips N
 
 Cost: gas to update the Drip List quarterly (~$5–$50 per update on a cheap L2 like Optimism or Base); the protocol itself is fee-free.
 
-### Mechanism B — Quarterly RetroPGF rounds (Optimism's model)
+### Mechanism B, Quarterly RetroPGF rounds (Optimism's model)
 
 [Optimism's RetroPGF](https://medium.com/ethereum-optimism/retroactive-public-goods-funding-33c9b7d00f0c) allocates fixed budgets retroactively to contributors based on demonstrated impact. The Optimism Foundation has run multiple rounds, allocating tens of millions of OP tokens.
 
@@ -94,9 +94,9 @@ Pros: rewards work that's already shipped; less gameable than ongoing streams; c
 
 Cons: heavier process; requires a voting platform; risk of politicization in early rounds.
 
-**Pragmatic combo**: ship Mechanism A first (Drips, automatic, low-load) and add Mechanism B as a quarterly *bonus* on top once the project has enough contributors to justify the process overhead. This is what Optimism + Filecoin do — Drips for the steady trickle, RetroPGF for the high-impact retroactive rewards.
+**Pragmatic combo**: ship Mechanism A first (Drips, automatic, low-load) and add Mechanism B as a quarterly *bonus* on top once the project has enough contributors to justify the process overhead. This is what Optimism + Filecoin do, Drips for the steady trickle, RetroPGF for the high-impact retroactive rewards.
 
-### Mechanism C — Off-chain accounting + on-chain payout
+### Mechanism C, Off-chain accounting + on-chain payout
 
 The most flexible: keep the contribution scoring in a standard internal ledger (Postgres, Notion, even a Google Sheet), pay out monthly in USDC via a multisig wallet (Safe / Gnosis Safe). No on-chain Drip List, no ERC-20 issuance, just direct contractor payments.
 
@@ -106,7 +106,7 @@ Cons: less transparent (contributors must trust the internal ledger); doesn't ha
 
 Verdict: **fine for the very first months** when there are 5–20 contributors and the foundation hasn't yet been incorporated. Migrate to Mechanism A once there's enough volume to justify the public infrastructure.
 
-### Mechanism D — Formal governance token (defer)
+### Mechanism D, Formal governance token (defer)
 
 Issue a `$VTORN` ERC-20 with revenue-share rights and on-chain governance. Token-holders vote on protocol changes; revenue distributions are pro-rata.
 
@@ -165,13 +165,13 @@ Affiliate net revenue:                              100%
 
 The split rebalances annually based on actual revenue. Once operating reserve is full, more flows to contributors and public goods. Once revenue is large, the operating-reserve cap drops to 6 months and more flows out.
 
-Sponsored tournament + Pro subscription + B2B revenue (lanes 1–4 of [doc 18](18-monetization.md)) flow into the same treasury; contributors share in *all* monetization, not just affiliate. This is critical because affiliate is geo-bounded — without including the other lanes, contributors in NZ-style restricted geos couldn't earn from their own work.
+Sponsored tournament + Pro subscription + B2B revenue (lanes 1–4 of [doc 18](18-monetization.md)) flow into the same treasury; contributors share in *all* monetization, not just affiliate. This is critical because affiliate is geo-bounded, without including the other lanes, contributors in NZ-style restricted geos couldn't earn from their own work.
 
-## What contributors are signing up for — plain language
+## What contributors are signing up for, plain language
 
 The contributor-onboarding page reads roughly:
 
-> When your code is merged into the Tournamental upstream, you become eligible for the contributor revenue share programme. Tournamental Foundation streams a portion of platform revenue — currently 30% of net revenue — to a public address list on the [Drips Network](https://www.drips.network/). Each quarter, your share of that stream is recalculated based on the work you've shipped that quarter and the previous five quarters (with a decay schedule).
+> When your code is merged into the Tournamental upstream, you become eligible for the contributor revenue share programme. Tournamental Foundation streams a portion of platform revenue, currently 30% of net revenue, to a public address list on the [Drips Network](https://www.drips.network/). Each quarter, your share of that stream is recalculated based on the work you've shipped that quarter and the previous five quarters (with a decay schedule).
 >
 > This is **not equity**. You don't get voting rights, board seats, or ownership of Tournamental Holdings or Tournamental Foundation. You get a share of incoming revenue for as long as you keep contributing and the project keeps earning. Your share decays over time as old work ages out and as new contributors join.
 >
@@ -185,10 +185,10 @@ Forks are explicitly endorsed. Every fork can:
 
 - Use 100% of the open-source code.
 - Set their own affiliate codes pointing at their own treasury.
-- Run their own brand on top of the codebase (subject to the trademark rules — they can't call it Tournamental).
+- Run their own brand on top of the codebase (subject to the trademark rules, they can't call it Tournamental).
 - Rebrand the Tournament Bot, the renderer, the leaderboards.
 - Run their own contributor programme, or none at all.
-- Optionally upstream improvements back to Tournamental — at which point the contributor would also become eligible for the upstream's revshare.
+- Optionally upstream improvements back to Tournamental, at which point the contributor would also become eligible for the upstream's revshare.
 
 What forks **cannot** do:
 
@@ -197,20 +197,20 @@ What forks **cannot** do:
 - Claim to be the official Tournamental instance.
 - Use the official Tournamental Foundation affiliate deal codes (those are tied to Tournamental Holdings).
 
-This makes "official Tournamental" a clear, brandable thing — `tournamental.com` — distinguishable from any number of forks that may exist, while keeping the underlying protocol genuinely public.
+This makes "official Tournamental" a clear, brandable thing, `tournamental.com`, distinguishable from any number of forks that may exist, while keeping the underlying protocol genuinely public.
 
 ## Comparable projects (for the README)
 
 These are projects that have shipped a similar OSS-with-foundation-revshare structure and that Tournamental can credibly cite as precedent:
 
-- **Optimism Collective** (`optimism.io`) — open-source rollup protocol; Optimism Foundation manages OP token distribution; RetroPGF rounds for OSS contributors.
-- **Filecoin Foundation** — open protocol; foundation runs grants + RetroPGF; uses Drips for distribution.
-- **Mozilla Foundation** — non-profit owning the Firefox brand on top of an open codebase; commercial revenue funds development.
-- **Linux Foundation** — open kernel; corporate-sponsored foundation funds maintainers.
-- **Radworks** — open governance protocol; streamed $1M to FOSS dependencies via Drips.
-- **Mina Foundation, Aztec Foundation, Scroll Foundation** — all use the "Cayman foundation + open protocol + revshare-to-builders" pattern.
+- **Optimism Collective** (`optimism.io`), open-source rollup protocol; Optimism Foundation manages OP token distribution; RetroPGF rounds for OSS contributors.
+- **Filecoin Foundation**, open protocol; foundation runs grants + RetroPGF; uses Drips for distribution.
+- **Mozilla Foundation**, non-profit owning the Firefox brand on top of an open codebase; commercial revenue funds development.
+- **Linux Foundation**, open kernel; corporate-sponsored foundation funds maintainers.
+- **Radworks**, open governance protocol; streamed $1M to FOSS dependencies via Drips.
+- **Mina Foundation, Aztec Foundation, Scroll Foundation**, all use the "Cayman foundation + open protocol + revshare-to-builders" pattern.
 
-Tournamental isn't claiming to be these — it's positioning *alongside* them as a structurally familiar setup, which lowers legal review friction and makes the "is this legit" question easier for contributors and partners to answer.
+Tournamental isn't claiming to be these, it's positioning *alongside* them as a structurally familiar setup, which lowers legal review friction and makes the "is this legit" question easier for contributors and partners to answer.
 
 ## What to ship in v1 (concrete checklist)
 
@@ -222,11 +222,11 @@ This is the shippable version of "open source + contributor revshare" for a v0.1
 - [ ] CONTRIBUTING.md with the contributor revshare programme summary, link to register.
 - [ ] CONTRIBUTORS.md auto-generated from accepted PRs.
 - [ ] `apps/contribution-scorer/` Node service polling GitHub, computing per-PR scores.
-- [ ] `payouts/2026-q1.md` (and every quarter thereafter) — public score sheet, council-signed.
+- [ ] `payouts/2026-q1.md` (and every quarter thereafter), public score sheet, council-signed.
 - [ ] Drip List on Optimism / Base mainnet, multisig-controlled by Tournamental Foundation.
 - [ ] Sanctions screening hook before each Drip List update.
-- [ ] `tournamental.com/contributors/register` — wallet address + GitHub link + jurisdiction + opt-in.
-- [ ] Treasury dashboard at `tournamental.com/foundation/treasury` — public, real-time read of the multisig balance + Drip List config + history.
+- [ ] `tournamental.com/contributors/register`, wallet address + GitHub link + jurisdiction + opt-in.
+- [ ] Treasury dashboard at `tournamental.com/foundation/treasury`, public, real-time read of the multisig balance + Drip List config + history.
 
 What can be deferred to v2+:
 
@@ -239,7 +239,7 @@ What can be deferred to v2+:
 
 Honest disclosure for contributors and the team: even revenue share programmes can sometimes be characterised as securities. The reasons Tournamental's structure is *probably* fine:
 
-- Contributors do *work* that is rewarded — economic substance is performance-for-payment, not investment-for-yield. (This is the key distinguisher from a token-holder revshare.)
+- Contributors do *work* that is rewarded, economic substance is performance-for-payment, not investment-for-yield. (This is the key distinguisher from a token-holder revshare.)
 - No upfront purchase of any instrument. No money flows *to* Tournamental from contributors.
 - Payouts are denominated in USDC / fiat-pegged stablecoin. No appreciation play.
 - Foundation governance is centralized at first; not an investment-in-common-enterprise pattern.
@@ -267,10 +267,10 @@ The OSS-with-foundation pattern is the correct shape for a project that wants to
 
 ## Sources
 
-- [Drips Network — open-source funding via streaming](https://www.drips.network/)
-- [Drips Docs — protocol introduction](https://docs.drips.network/)
-- [Optimism RetroPGF — retroactive public goods funding](https://medium.com/ethereum-optimism/retroactive-public-goods-funding-33c9b7d00f0c)
+- [Drips Network, open-source funding via streaming](https://www.drips.network/)
+- [Drips Docs, protocol introduction](https://docs.drips.network/)
+- [Optimism RetroPGF, retroactive public goods funding](https://medium.com/ethereum-optimism/retroactive-public-goods-funding-33c9b7d00f0c)
 - [Filecoin / Drips collaboration on RetroPGF distribution](https://www.drips.network/blog/posts/dependency-funding-with-drips)
-- [Apache License 2.0 — full text](https://www.apache.org/licenses/LICENSE-2.0)
+- [Apache License 2.0, full text](https://www.apache.org/licenses/LICENSE-2.0)
 - [Cayman Foundation Companies Law primer](https://www.harneys.com/our-blogs/practical-implications-of-the-cayman-foundation-companies-law/)
 - [Howey Test (US securities law summary)](https://www.investor.gov/introduction-investing/investing-basics/glossary/howey-test)

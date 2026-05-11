@@ -1,5 +1,5 @@
 /**
- * Vitest — MatchCard renders the right centre badge and meta text for
+ * Vitest, MatchCard renders the right centre badge and meta text for
  * each state. Updated for the TVNZ flag-bg redesign.
  */
 

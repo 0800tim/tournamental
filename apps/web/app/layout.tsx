@@ -9,7 +9,7 @@ import { GtmRoot } from "@/components/analytics/GtmRoot";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
-  title: "Tournamental — Predict the matches that matter",
+  title: "Tournamental, Predict the matches that matter",
   description:
     "Tournamental is a tournament prediction game with a 3D match watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0.",
   applicationName: "Tournamental",

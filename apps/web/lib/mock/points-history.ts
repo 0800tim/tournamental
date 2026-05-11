@@ -46,7 +46,7 @@ export function mockPointsHistory(seed: string, length = 36): PointsStamp[] {
 }
 
 /**
- * "Pool average" series — for the stage-progress chart's lower line.
+ * "Pool average" series, for the stage-progress chart's lower line.
  * Derived from the same seed plus a damping factor so the average
  * always lags the headline member's score by a believable margin.
  */

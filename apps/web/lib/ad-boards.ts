@@ -1,5 +1,5 @@
 /**
- * LED ad-board layout — pure module.
+ * LED ad-board layout, pure module.
  *
  * 32 boards around the pitch perimeter, set at the touchline. The
  * boards are short (1.0 m tall), wide (5.0 m), facing the pitch.
@@ -11,7 +11,7 @@ export const AD_BOARD_COUNT = 32;
 export const AD_BOARD_HEIGHT = 1.0;
 export const AD_BOARD_WIDTH = 5.0;
 export const AD_BOARD_OFFSET = 1.6; // metres outside the touchline
-/** Board cycle period — texture rotates every N seconds. */
+/** Board cycle period, texture rotates every N seconds. */
 export const AD_CYCLE_SECONDS = 15;
 
 /** Sponsor placeholders. Tim said sponsor logos are TBD; these read

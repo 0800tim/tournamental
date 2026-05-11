@@ -67,8 +67,8 @@ export function LedBoards() {
     <group ref={meshGroupRef} userData={{ vtornLedBoards: true, count: boards.length }}>
       {boards.map((b, i) => {
         // Each board gets its own material so the offset cycles
-        // independently — but the texture is shared.
-        // toneMapped: true (the default) — LED boards should be
+        // independently, but the texture is shared.
+        // toneMapped: true (the default), LED boards should be
         // compressed by ACES like everything else. With toneMapped:false
         // these were blowing out against the sky and pulling bloom too
         // hard. Tim asked for less blow-out; this is part of that.
@@ -105,7 +105,7 @@ export function LedBoards() {
  */
 function makeAdAtlas(): THREE.Texture {
   if (typeof document === "undefined") {
-    // SSR fallback — empty data texture.
+    // SSR fallback, empty data texture.
     return new THREE.DataTexture(new Uint8Array([0, 0, 0, 0]), 1, 1);
   }
   const tileH = 128;

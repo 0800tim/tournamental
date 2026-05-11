@@ -4,7 +4,7 @@
  * Per `docs/30 § Geo-gating`:
  *   - NZ + AU: hide the affiliate CTA entirely.
  *   - UK / GB: softened "view market" link.
- *   - US / EU / null: full CTA. Wait — null is "hidden" failsafe per
+ *   - US / EU / null: full CTA. Wait, null is "hidden" failsafe per
  *     the comment in geo.ts (so that an undetected country never leaks
  *     a CTA to a restricted user).
  */

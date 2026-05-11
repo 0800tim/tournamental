@@ -1,5 +1,5 @@
 /**
- * Vitest — analytics SDK contract.
+ * Vitest, analytics SDK contract.
  *
  *  - No-op when NEXT_PUBLIC_GTM_ID is unset (Tim's container is
  *    still pending; module must stay silent).
@@ -161,7 +161,7 @@ describe("analytics.track (GTM configured)", () => {
   });
 
   it("swallows errors from a broken dataLayer.push", () => {
-    // Build an array whose `.push` throws — `Array.isArray()` still
+    // Build an array whose `.push` throws, `Array.isArray()` still
     // returns true so isPushable() proceeds to .push(), which throws.
     const broken = [] as unknown as unknown[];
     Object.defineProperty(broken, "push", {

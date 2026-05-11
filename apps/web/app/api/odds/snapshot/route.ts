@@ -23,9 +23,9 @@ export const dynamic = "force-dynamic";
 
 // The live odds-ingest service (apps/odds-ingest) returns one of two shapes:
 //   1. { matches: [{matchNo, homeTeam, awayTeam, homeWin, draw, awayWin, source, updatedAt}, ...] }
-//      — already what we want; passthrough.
+//     , already what we want; passthrough.
 //   2. { ts, market_count, probabilities: { "wc2026:match:N": { "<TeamName>": p, "Draw": p, "<TeamName>": p } } }
-//      — needs team-name → 3-letter code translation, which we resolve via
+//     , needs team-name → 3-letter code translation, which we resolve via
 //      the loaded tournament's team table.
 function adaptIngestSnapshot(j: unknown, tournament: ReturnType<typeof loadFixtures2026>): MatchOdds[] | null {
   if (typeof j !== "object" || j === null) return null;

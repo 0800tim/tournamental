@@ -1,5 +1,5 @@
 /**
- * /player/[id] — single-player profile page.
+ * /player/[id], single-player profile page.
  *
  * Server-rendered. Loads the player from the bundled
  * `apps/web/data/players-2026.json`, renders:
@@ -11,7 +11,7 @@
  *   - Wikipedia link
  *   - Person/SportsTeam structured data (JSON-LD)
  *
- * Cache policy: this is identical for every unauthenticated visitor — the
+ * Cache policy: this is identical for every unauthenticated visitor, the
  * Next.js page is built fully static (`force-static`) and Vercel/Cloudflare
  * apply the long-edge cache + SWR per the standing rule in CLAUDE.md.
  */

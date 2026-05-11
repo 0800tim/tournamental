@@ -17,7 +17,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 const SYNDICATE_KINDS = [
   { value: "friends", icon: "🍕", label: "Friends", help: "Mates' chat group, family group, your fantasy crew." },
-  { value: "office", icon: "🏢", label: "Office", help: "Office sweepstakes — every desk picks a country." },
+  { value: "office", icon: "🏢", label: "Office", help: "Office sweepstakes, every desk picks a country." },
   { value: "public", icon: "🌍", label: "Public", help: "Anyone-can-join pool. Promote on socials." },
 ] as const;
 
@@ -31,7 +31,7 @@ export function SyndicateSignup({ defaultCountry }: { defaultCountry?: string })
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    // Capture the form node up-front — React releases `e.currentTarget`
+    // Capture the form node up-front, React releases `e.currentTarget`
     // after the handler returns, so we can't rely on it after `await`.
     const formEl = e.currentTarget;
     setStatus("submitting");

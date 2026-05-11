@@ -1,5 +1,5 @@
 /**
- * Form tab — two RecentForm strips side-by-side (home left, away right),
+ * Form tab, two RecentForm strips side-by-side (home left, away right),
  * each showing the team's last 5 W/D/L results.
  *
  * Reuses the existing `RecentForm` component from `/team/[code]` so the

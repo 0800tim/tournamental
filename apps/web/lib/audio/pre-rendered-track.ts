@@ -1,5 +1,5 @@
 /**
- * Pre-rendered commentary track — pure logic.
+ * Pre-rendered commentary track, pure logic.
  *
  * Per `docs/27c-fidelity-phase3-stadium-crowd.md` § "Pre-rendered
  * MP3s":
@@ -38,10 +38,10 @@ export interface CommentaryManifest {
  * upcoming line if none is currently active.
  *
  * Returns:
- *   - `{ kind: "active", line }`   — line is currently playing
- *   - `{ kind: "next", line }`     — no active, next line is in the future
- *   - `{ kind: "after-end" }`      — past the last line
- *   - `{ kind: "before-start", line }` — first line is in the future
+ *   - `{ kind: "active", line }`  , line is currently playing
+ *   - `{ kind: "next", line }`    , no active, next line is in the future
+ *   - `{ kind: "after-end" }`     , past the last line
+ *   - `{ kind: "before-start", line }`, first line is in the future
  */
 export type ScheduleResult =
   | { kind: "active"; line: CommentaryLine }
@@ -89,7 +89,7 @@ export function nearestLine(
 }
 
 /**
- * URL helper — constructs the CDN URL for a single line's MP3.
+ * URL helper, constructs the CDN URL for a single line's MP3.
  * Hashed-filename caching: the line id is a content-hash so the
  * `Cache-Control: max-age=31536000, immutable` header on the CDN
  * is safe.
@@ -104,7 +104,7 @@ export function audioUrlForLine(
 
 /**
  * Fetch the manifest JSON. The route may be missing (Phase-3 stub
- * mode) — in that case we synthesise a silent, empty manifest so
+ * mode), in that case we synthesise a silent, empty manifest so
  * the renderer mounts cleanly.
  */
 export async function loadManifest(

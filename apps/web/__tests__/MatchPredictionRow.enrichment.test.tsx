@@ -1,5 +1,5 @@
 /**
- * MatchPredictionRow enrichment — post-cleanup contract.
+ * MatchPredictionRow enrichment, post-cleanup contract.
  *
  * Following the 2026-05-11 "cluttered MPR cleanup" (commit db4c7b4),
  * FormDots and the HeadToHeadPill were removed from MatchPredictionRow.
@@ -7,10 +7,10 @@
  * and that's it. These tests pin the new contract:
  *
  *   - FormDots are NOT rendered (props are accepted but ignored for
- *     rendering — kept on the public type so callers don't break).
+ *     rendering, kept on the public type so callers don't break).
  *   - HeadToHeadPill is NOT rendered.
  *   - The kit-coloured selection ring is still applied to the picked
- *     flag — that's the visual hook the user relies on to confirm
+ *     flag, that's the visual hook the user relies on to confirm
  *     their pick.
  *
  * Public props are still backwards compatible: every optional prop the
@@ -43,7 +43,7 @@ const AWAY = {
   kit: { primary: "#0055A4", secondary: "#FFFFFF" },
 } as const;
 
-describe("MatchPredictionRow — enrichment", () => {
+describe("MatchPredictionRow, enrichment", () => {
   it("does NOT render form dots after the cluttered-MPR cleanup", () => {
     const { container } = render(
       <MatchPredictionRow

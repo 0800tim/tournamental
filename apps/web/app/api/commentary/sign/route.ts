@@ -13,7 +13,7 @@
  *     no-op stream so the rest of the pipeline (mixer, ducking,
  *     pre-rendered fallback) can still be exercised.
  *
- * Cache policy: `Cache-Control: private, no-store` — these URLs are
+ * Cache policy: `Cache-Control: private, no-store`, these URLs are
  * ephemeral and per-user.
  */
 
@@ -37,7 +37,7 @@ export async function POST(): Promise<NextResponse<SignedUrlResponse>> {
   const apiKey = process.env.ELEVENLABS_API_KEY;
   const voiceId = process.env.ELEVENLABS_VOICE_ID_EN ?? STUB_VOICE_ID;
 
-  // Stub path — no key in env. Return a no-op URL the client maps
+  // Stub path, no key in env. Return a no-op URL the client maps
   // to a silent buffer. This is the default in the OSS repo until
   // Tim drops a real key in `.env`.
   if (!apiKey) {
@@ -55,13 +55,13 @@ export async function POST(): Promise<NextResponse<SignedUrlResponse>> {
   }
 
   // Real path. ElevenLabs realtime expects an `xi-api-key` header
-  // when opening the WSS — but the *browser* can't send custom
+  // when opening the WSS, but the *browser* can't send custom
   // headers on WebSocket handshakes. The standard workaround is to
   // pass `xi-api-key` as a query parameter (some ElevenLabs SDKs
   // call this `auth_token`). We construct that URL here, server-
   // side, so the API key never leaves the server in plain text.
   //
-  // NOTE: the prompt says `eleven_turbo_v2_5` is the model — that's
+  // NOTE: the prompt says `eleven_turbo_v2_5` is the model, that's
   // model selection, not endpoint URL. The endpoint comes from
   // ElevenLabs docs and is hard-coded here. Any future change goes
   // alongside the docs note in `docs/27c-fidelity-phase3-stadium-crowd.md`.

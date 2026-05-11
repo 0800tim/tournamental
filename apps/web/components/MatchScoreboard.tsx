@@ -119,6 +119,6 @@ function periodLabel(p: number): string {
     case 5:
       return "PEN";
     default:
-      return p > 0 ? `P${p}` : "—";
+      return p > 0 ? `P${p}` : "-";
   }
 }

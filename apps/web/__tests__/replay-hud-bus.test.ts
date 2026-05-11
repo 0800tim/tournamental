@@ -1,5 +1,5 @@
 /**
- * Phase-4 ReplayHUD bus + helpers — pure-logic tests.
+ * Phase-4 ReplayHUD bus + helpers, pure-logic tests.
  */
 import { describe, it, expect, beforeEach } from "vitest";
 import {

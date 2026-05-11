@@ -1,4 +1,4 @@
-# Phase 4 — Magnus, fatigue, replay HUD, mobile perf
+# Phase 4, Magnus, fatigue, replay HUD, mobile perf
 
 > As-implemented design notes for the Phase-4 fidelity pass. Companion
 > to `27d-fidelity-phase4-polish.md` (the original aspirational
@@ -15,7 +15,7 @@
 
 ### 1. Magnus model (`packages/ball-physics`)
 
-Phase 2 shipped a "side-force preview" — a constant lateral offset
+Phase 2 shipped a "side-force preview", a constant lateral offset
 applied to the spline at mid-flight. Phase 4 replaces the preview with
 a physics-grounded model that works for both spline and rapier modes.
 
@@ -76,17 +76,17 @@ writes only at HIGH LOD per the docs/27d budget.
 
 - `FatigueState` (`matchClockSec`, `minutesPlayed`, `fatigue`,
   `sweat`, `dirtRegions`).
-- `tickFatigue(state, dtSec, opts)` — linear ramp to 1.0 over
+- `tickFatigue(state, dtSec, opts)`, linear ramp to 1.0 over
   `fullTimeMinutes` (default 90). Sweat tops at `sweatPeak` (0.6).
-- `halfTimeBoost(state, recoveryFraction)` — ~ 15% recovery.
-- `addDirt(state, region)` — immutable; regions are
+- `halfTimeBoost(state, recoveryFraction)`, ~ 15% recovery.
+- `addDirt(state, region)`, immutable; regions are
   `torso_front | torso_back | shorts | socks`.
-- `applySweatToMaterial`, `applyDirtToMaterial` —
+- `applySweatToMaterial`, `applyDirtToMaterial` -
   property-only material writes (cheap).
-- `fatigueShaderEnabled(quality)` — gates writes to HIGH only.
+- `fatigueShaderEnabled(quality)`, gates writes to HIGH only.
 - `shouldSuggestSubstitution(state, threshold)` +
-  `fatigueSubstitutionBias(state)` — auto-director hooks.
-- `SWEAT_SHADER_FRAGMENT_CHUNK` + `createSweatUniforms()` —
+  `fatigueSubstitutionBias(state)`, auto-director hooks.
+- `SWEAT_SHADER_FRAGMENT_CHUNK` + `createSweatUniforms()` -
   optional GLSL injection for full normal-map blending.
 
 **Tests**: 31 new tests (avatar baseline 91 → 122).
@@ -97,14 +97,14 @@ Pure DOM overlay (no WebGL cost), broadcast-style.
 
 **Architecture**:
 
-- `apps/web/lib/director/replay-hud-bus.ts` — module-level singleton
+- `apps/web/lib/director/replay-hud-bus.ts`, module-level singleton
   bus (pattern matches `crowdEnergyBus`).
-- `apps/web/components/Director.tsx` (modified) — publishes the
+- `apps/web/components/Director.tsx` (modified), publishes the
   active cam, slow-mo rate, secsSinceCut, scorer name + team + match
   clock once per frame.
-- `apps/web/components/ReplayHUD.tsx` — subscribes to the bus,
+- `apps/web/components/ReplayHUD.tsx`, subscribes to the bus,
   renders the overlay with `pointer-events: none`.
-- `apps/web/app/globals.css` — `.replay-hud-*` styles (animated
+- `apps/web/app/globals.css`, `.replay-hud-*` styles (animated
   badge pulse, fade-in plate).
 
 Pure helpers are unit-testable: `replayBadgeVisible`, `scorerOpacity`,
@@ -153,14 +153,14 @@ fps stays below `budget.minFps` for `1.5 s` sustained (configurable).
 | `@vtorn/ball-physics` | 26 | 28 | 54 |
 | `@vtorn/avatar` | 91 | 31 | 122 |
 | `@vtorn/web` | 268 | 47 | 315 |
-| **Total new** | — | **106** | — |
+| **Total new** |, | **106** |, |
 
 Clean: `pnpm lint && pnpm typecheck && pnpm test` pass across
 ball-physics, avatar, and web.
 
 ## Performance measurements (SwiftShader proxy)
 
-The CI lane runs Chromium with software WebGL — see Phase-2
+The CI lane runs Chromium with software WebGL, see Phase-2
 `director.e2e.spec.ts` caveat. Phase-4 measurements on the default
 lane are not a faithful proxy for mobile native-GPU performance but
 are recorded for trend tracking:

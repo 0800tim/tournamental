@@ -54,7 +54,7 @@ const events: EventMessage[] = [
   { type: "event.shot", t: 2_159_500, player: "ARG_9", target: [50, 0, 1.5], on_target: true },
   { type: "event.goal", t: 2_160_000, player: "ARG_9", team: "ARG", assist: "ARG_10" },
   { type: "event.score_change", t: 2_160_001, home: 2, away: 0 },
-  // 80' Mbappé (away — penalty)
+  // 80' Mbappé (away, penalty)
   { type: "event.shot", t: 4_799_500, player: "FRA_10", target: [-50, 0, 1.5], on_target: true },
   { type: "event.goal", t: 4_800_000, player: "FRA_10", team: "FRA" },
   { type: "event.score_change", t: 4_800_001, home: 2, away: 1 },

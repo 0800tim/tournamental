@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from "next/server";
  * **Canonical play surface**: `play.tournamental.com`. Apex `/`
  * rewrites internally to `/world-cup-2026` (the featured tournament)
  * so the user lands on the bracket builder immediately. Every other
- * path falls through — `/match/<id>`, `/world-cup-2026/molecule`,
+ * path falls through, `/match/<id>`, `/world-cup-2026/molecule`,
  * `/profile`, etc. all work transparently.
  *
  * **Deprecated hosts → 301 redirects** (Tim consolidated 2026-05-11
@@ -20,7 +20,7 @@ import { NextRequest, NextResponse } from "next/server";
  * caches don't break. After ~30 days we can quietly retire them.
  *
  * **Untouched hosts**: `tournamental.com` / `www.tournamental.com`
- * (marketing — separate Astro app), `dev.tournamental.com` (staging),
+ * (marketing, separate Astro app), `dev.tournamental.com` (staging),
  * `stream.tournamental.com` (WebSocket producer), the local dev
  * origin, and `tournamental.aiva.nz` (legacy alias kept alive during
  * the rebrand transition).

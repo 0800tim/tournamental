@@ -130,7 +130,7 @@ export function TeamGroupGrid() {
               <span style={{ fontSize: 12, color: "var(--wc-text-dim)" }}>
                 Tournament-winner odds:
               </span>
-              <DataPlaceholder>—</DataPlaceholder>
+              <DataPlaceholder>-</DataPlaceholder>
               <span style={{ fontSize: 11, color: "var(--wc-text-dim)" }}>
                 live via Polymarket (coming soon)
               </span>

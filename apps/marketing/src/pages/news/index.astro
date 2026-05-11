@@ -1,6 +1,6 @@
 ---
 /**
- * /news — public news feed.
+ * /news, public news feed.
  *
  * The marketing site is currently built fully static (no SSR adapter).
  * That suits us fine: the page ships as static HTML with a hydration
@@ -85,8 +85,8 @@ try {
 // markup ships with the first page already populated.
 ---
 <Layout
-  title="News — Tournamental"
-  description="Latest football and World Cup 2026 headlines from BBC Sport, the Guardian, ESPN, Marca, FIFA and more — links straight back to the original publishers."
+  title="News, Tournamental"
+  description="Latest football and World Cup 2026 headlines from BBC Sport, the Guardian, ESPN, Marca, FIFA and more, links straight back to the original publishers."
 >
   <article class="container-page pt-16 pb-16">
     <SectionHeading
@@ -113,7 +113,7 @@ try {
       <p class="prose-vt">
         {upstreamErr
           ? `The news feed is taking a breather (${upstreamErr}). Refresh in a minute or two.`
-          : "Nothing here yet — the next refresh is on its way."}
+          : "Nothing here yet, the next refresh is on its way."}
       </p>
     </div>
 
@@ -277,7 +277,7 @@ try {
       }
 
       // If the user landed on the page with a ?source= filter, the
-      // build-time markup may not match — re-fetch immediately.
+      // build-time markup may not match, re-fetch immediately.
       if (activeSource) {
         loadPage(1);
       }

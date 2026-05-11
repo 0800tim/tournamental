@@ -20,7 +20,7 @@
  * profile via the existing trigger.
  *
  * NOTE: for v1 we accept the verification but defer the session-mint to
- * a follow-up PR — Supabase doesn't expose a `createSessionFromTelegram`
+ * a follow-up PR, Supabase doesn't expose a `createSessionFromTelegram`
  * primitive yet. The endpoint validates and returns 200; the client UX
  * then funnels the user into the phone-OTP path to finish sign-in. The
  * Telegram identity binding is recorded server-side so subsequent
@@ -48,7 +48,7 @@ interface Payload {
   hash?: string;
 }
 
-const MAX_AGE_SECONDS = 60 * 60 * 24; // 24h — Telegram's recommended window.
+const MAX_AGE_SECONDS = 60 * 60 * 24; // 24h, Telegram's recommended window.
 
 export async function POST(req: NextRequest) {
   const botToken = process.env.TELEGRAM_BOT_TOKEN;

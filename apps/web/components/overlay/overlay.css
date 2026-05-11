@@ -12,9 +12,9 @@
  * level). The backdrop sits one z-level below the sheet.
  *
  * z-index budget:
- *   1000–1099 — overlay shell (depth 0)
- *   1100–1199 — overlay shell (depth 1)
- *   1200+     — overlay shell (depth 2+)
+ *   1000–1099, overlay shell (depth 0)
+ *   1100–1199, overlay shell (depth 1)
+ *   1200+    , overlay shell (depth 2+)
  * The PWA bottom-nav lives at 900–999 so overlays always render above it.
  */
 

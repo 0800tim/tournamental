@@ -122,9 +122,9 @@ export function activeTag(state: FsmState, now: number): AnimTag {
 /**
  * Step the FSM forward. Pure: returns the next state without mutating.
  *
- *   speed       — instantaneous speed in spec units/sec.
- *   newEvents   — events for this player observed since the last step.
- *   now         — wall-clock ms reference (use Date.now() in production).
+ *   speed      , instantaneous speed in spec units/sec.
+ *   newEvents  , events for this player observed since the last step.
+ *   now        , wall-clock ms reference (use Date.now() in production).
  */
 export function stepFsm(
   prev: FsmState,

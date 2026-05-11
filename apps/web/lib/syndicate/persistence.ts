@@ -1,5 +1,5 @@
 /**
- * Syndicate persistence — SQLite write layer shared with `apps/game`.
+ * Syndicate persistence, SQLite write layer shared with `apps/game`.
  *
  * Opens the same SQLite file the game service uses (`GAME_DB_PATH`,
  * default `apps/game/data/game.db`). The schema for `syndicates`,
@@ -15,7 +15,7 @@
  * in-process driver. We're a single-machine deploy for launch; WAL
  * mode means multiple readers + a single writer per process coexist.
  * If we ever scale to multiple Next.js instances we replace this with
- * a call to the game service's REST API — the surface here is narrow
+ * a call to the game service's REST API, the surface here is narrow
  * enough that the swap is contained.
  *
  * Schema bootstrap: when running outside the game service (tests, dev
@@ -86,7 +86,7 @@ export class SyndicatePersistence {
   /**
    * Create the syndicate schema directly. Tests use this with
    * `:memory:`; production relies on the game service migrations
-   * being run beforehand. Idempotent — safe to call against an
+   * being run beforehand. Idempotent, safe to call against an
    * already-migrated DB.
    */
   ensureSchema(): void {

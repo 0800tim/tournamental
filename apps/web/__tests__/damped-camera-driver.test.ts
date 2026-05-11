@@ -70,7 +70,7 @@ describe("DampedCameraDriver", () => {
     drv.update(cam, target, 1 / 60); // snap → fov 60
     expect(cam.fov).toBe(60);
 
-    // Now request fov 30 — observe the damp.
+    // Now request fov 30, observe the damp.
     const t2 = { ...target, fov: 30 };
     let lastFov = cam.fov;
     for (let i = 0; i < 100; i++) {
@@ -87,10 +87,10 @@ describe("DampedCameraDriver", () => {
     const cam = makeCam();
     drv.update(cam, target, 1 / 60); // initial snap
     cam.position.set(0, 0, 0);
-    // A few damp ticks — won't reach target.
+    // A few damp ticks, won't reach target.
     for (let i = 0; i < 10; i++) drv.update(cam, target, 1 / 60);
     expect(cam.position.distanceTo(target.position)).toBeGreaterThan(1);
-    // Now reset and update — should snap.
+    // Now reset and update, should snap.
     drv.reset();
     drv.update(cam, target, 1 / 60);
     expect(cam.position.x).toBe(10);

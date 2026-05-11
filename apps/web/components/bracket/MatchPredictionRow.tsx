@@ -1,9 +1,9 @@
 /**
- * MatchPredictionRow — one match in the group/knockout stage with the
+ * MatchPredictionRow, one match in the group/knockout stage with the
  * "two big flags + small DRAW pill in the middle" UX. Live W/D/L odds
  * percentages sit inline under each option, fed by the parent's bulk
  * `/api/odds/snapshot` fetch (`odds` prop). When odds are not yet
- * loaded the percentages render as "—".
+ * loaded the percentages render as "-".
  *
  * Tap the home flag → home_win. Tap the away flag → away_win. Tap the
  * DRAW pill → draw (group stage only). Selected option gets a glow
@@ -78,7 +78,7 @@ function nowIso(): string {
 }
 
 function pctLabel(p: number | null | undefined): string {
-  if (p == null || !Number.isFinite(p)) return "—";
+  if (p == null || !Number.isFinite(p)) return "-";
   return `${Math.round(p * 100)}%`;
 }
 
@@ -105,7 +105,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
 
   // Cheap heartbeat so the kickoff lockout banner appears without a
   // page refresh once the match starts. We don't need second-accuracy
-  // — a 30s tick is enough.
+  //, a 30s tick is enough.
   useEffect(() => {
     if (!kickoffIso) return;
     const tick = setInterval(() => setNow(Date.now()), 30_000);
@@ -180,7 +180,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const isDraw = prediction?.outcome === "draw";
   const isAway = prediction?.outcome === "away_win";
 
-  // Optional overlay router — when present, tapping the small "info"
+  // Optional overlay router, when present, tapping the small "info"
   // chip below a flag opens the team overlay; tapping the "View match"
   // link opens the match overlay. When absent (e.g. in tests or pages
   // outside the bracket shell) these fall back to plain links.
@@ -201,7 +201,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   };
 
   // Resolve form + h2h from props or fall back to the bundled stub. We
-  // recompute these on every render — the underlying lookups are pure
+  // recompute these on every render, the underlying lookups are pure
   // synchronous reads from a small map so the cost is negligible relative
   // to the surrounding React work.
   const homeFormResults: readonly FormResult[] =
@@ -226,7 +226,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     >
       {matchStarted && (
         <div className="mpr-locked-banner" role="status" aria-live="polite">
-          Sorry — this match has already started. You can&apos;t change it now.
+          Sorry, this match has already started. You can&apos;t change it now.
         </div>
       )}
       <a

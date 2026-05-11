@@ -1,5 +1,5 @@
 /**
- * /profile — Supabase-backed editable profile.
+ * /profile, Supabase-backed editable profile.
  *
  * The page itself is a server component shell; the editor + auth gating
  * live in <ProfilePage/> (client component) so the auth listener can

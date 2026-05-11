@@ -36,7 +36,7 @@ export function readPublicConfig(): SupabasePublicConfig | null {
 
 /**
  * Read server-only Supabase config. Throws if any required var is
- * missing — server routes that need this should fail loudly so we
+ * missing, server routes that need this should fail loudly so we
  * notice misconfigured deploys.
  */
 export function readServerConfig(): SupabaseServerConfig {

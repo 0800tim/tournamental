@@ -1,5 +1,5 @@
 /**
- * PunditBadge — visual signal for Verified-Pundit users.
+ * PunditBadge, visual signal for Verified-Pundit users.
  *
  * Shown next to a user's handle on:
  *   - Leaderboard rows (LeaderboardPreview, mid-tournament leaderboard)
@@ -9,9 +9,9 @@
  *
  * Design rules:
  *   - Subtle. No animation. The badge is a brand-trust signal, not a
- *     hero element — it sits next to the username and is read passively.
+ *     hero element, it sits next to the username and is read passively.
  *   - Tooltip-on-hover spells out the qualifier and the level count.
- *   - Renders nothing when the user is not verified — caller passes the
+ *   - Renders nothing when the user is not verified, caller passes the
  *     full `PunditStatus` payload (verified/levels/sinceDate/tournaments)
  *     fetched from `GET /v1/users/:userId/pundit`.
  */
@@ -27,7 +27,7 @@ export interface PunditStatus {
 
 export interface PunditBadgeProps {
   readonly status: PunditStatus | null | undefined;
-  /** Pixel size of the circular badge (defaults to 14 — small inline). */
+  /** Pixel size of the circular badge (defaults to 14, small inline). */
   readonly size?: number;
   /** Optional className for the wrapper. */
   readonly className?: string;
@@ -54,7 +54,7 @@ export function PunditBadge({
       })
     : "earlier this season";
   const levels = status.levels;
-  const tip = `Verified Pundit — top 100 in ${levels} tournament${
+  const tip = `Verified Pundit, top 100 in ${levels} tournament${
     levels === 1 ? "" : "s"
   } since ${since}`;
 

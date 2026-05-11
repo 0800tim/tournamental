@@ -1,9 +1,9 @@
 /**
- * `/v1/share/bracket/:bracketId/og.png` — the 1200×630 Open Graph
+ * `/v1/share/bracket/:bracketId/og.png`, the 1200×630 Open Graph
  * unfurl variant. Always landscape, always PNG. Used by Twitter /
  * Facebook / Telegram preview cards on shared bracket URLs.
  *
- * Same param surface as the sibling `[bracket]` route — `size=` is
+ * Same param surface as the sibling `[bracket]` route, `size=` is
  * ignored here because the OG aspect ratio is fixed.
  */
 

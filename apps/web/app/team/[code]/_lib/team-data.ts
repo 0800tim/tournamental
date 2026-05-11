@@ -113,7 +113,7 @@ export function teamFixtures(code: string): readonly TeamFixtureRow[] {
 }
 
 /**
- * The team's next fixture (relative to a reference instant — defaults to
+ * The team's next fixture (relative to a reference instant, defaults to
  * "now"). Returns undefined if no upcoming fixtures exist.
  */
 export function nextFixture(

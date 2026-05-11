@@ -4,14 +4,14 @@
  *
  * No DOM, no fetches, no React. Everything here is unit-testable.
  *
- * Cache policy: callers must memoise outputs — these functions are
+ * Cache policy: callers must memoise outputs, these functions are
  * trivial, but `shareUrlFor` in particular is consumed by every render
  * of the Save & share page and we don't want a fresh URL each tick.
  */
 
 /**
  * Public play.tournamental.com origin used in the human-readable share
- * URL. We deliberately do NOT use the apex tournamental.com here — `play`
+ * URL. We deliberately do NOT use the apex tournamental.com here, `play`
  * is the consumption-side subdomain (parallel agent #67 owns the
  * `/s/<guid>` route there).
  */
@@ -20,11 +20,11 @@ export const PLAY_ORIGIN = "https://play.tournamental.com";
 export type OgSize = "portrait" | "landscape" | "square";
 
 export interface ShareCopyInput {
-  /** The user's predicted final winner, e.g. "Argentina". `null`/`"—"` ⇒ incomplete bracket. */
+  /** The user's predicted final winner, e.g. "Argentina". `null`/`"-"` ⇒ incomplete bracket. */
   readonly champion: string | null;
   /** Stable share guid (the bracketId hash, or the auth user id). */
   readonly guid: string;
-  /** Whether the bracket is "complete" — used to pick between two copy variants. */
+  /** Whether the bracket is "complete", used to pick between two copy variants. */
   readonly isComplete: boolean;
 }
 
@@ -37,7 +37,7 @@ export interface ShareLinks {
 }
 
 /**
- * The canonical user-facing share URL. Stable per (guid) — the same
+ * The canonical user-facing share URL. Stable per (guid), the same
  * bracket always produces the same URL, so previews can be cached.
  */
 export function shareUrlFor(guid: string): string {
@@ -61,16 +61,16 @@ export function shareDisplayUrlFor(guid: string): string {
  *
  * Two variants:
  *   - Complete bracket: "Just locked in my FIFA World Cup 2026 bracket
- *     on Tournamental — I've got <Champion> taking the trophy. Pick
+ *     on Tournamental, I've got <Champion> taking the trophy. Pick
  *     yours: <url>"
  *   - Incomplete: "I'm building my FIFA World Cup 2026 bracket on
  *     Tournamental. Build yours: <url>"
  */
 export function buildShareText(input: ShareCopyInput): string {
   const url = shareUrlFor(input.guid);
-  if (input.isComplete && input.champion && input.champion !== "—" && input.champion !== "TBD") {
+  if (input.isComplete && input.champion && input.champion !== "-" && input.champion !== "TBD") {
     return (
-      `Just locked in my FIFA World Cup 2026 bracket on Tournamental — ` +
+      `Just locked in my FIFA World Cup 2026 bracket on Tournamental, ` +
       `I've got ${input.champion} taking the trophy. Pick yours: ${url}`
     );
   }
@@ -122,10 +122,10 @@ export function buildShareLinks(input: ShareCopyInput): ShareLinks {
  *   - bracket_id (required, immutable)
  *   - handle (display name)
  *   - winner (predicted champion country code or name)
- *   - size  (portrait | landscape | square — added by agent #68)
+ *   - size  (portrait | landscape | square, added by agent #68)
  *
  * We always include `size`. Until #68 lands the endpoint ignores it and
- * renders the default 1200×630 — the page still works, the image is
+ * renders the default 1200×630, the page still works, the image is
  * just always the landscape variant. Once #68 merges, the format
  * switcher in the UI controls the actual rendered shape.
  */
@@ -157,11 +157,11 @@ export function ogDownloadFilename(input: OgImageInput): string {
  *
  * Preference order:
  *   1. Authenticated user id (passed in from `useUser()` once PR #138
- *      lands — until then, undefined, so we drop to step 2).
+ *      lands, until then, undefined, so we drop to step 2).
  *   2. The bracket's `bracketId`. This is already a stable hash of
  *      (user_id × tournament_id) per apps/web/lib/bracket/storage.ts.
  *
- * Never derive from `Date.now()` or fresh random — the URL must be
+ * Never derive from `Date.now()` or fresh random, the URL must be
  * stable across renders + reloads.
  */
 export function resolveShareGuid(opts: {
@@ -172,7 +172,7 @@ export function resolveShareGuid(opts: {
   if (auth) return auth;
   const b = (opts.bracketId ?? "").trim();
   if (b) return b;
-  // Last resort — should rarely fire because the bracket builder always
+  // Last resort, should rarely fire because the bracket builder always
   // hydrates a localUserId. We return a non-empty sentinel so URL
   // composition doesn't break the page render.
   return "anonymous";

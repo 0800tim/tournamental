@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Install Tournamental" toast — appears once per device when the browser
+ * "Install Tournamental" toast, appears once per device when the browser
  * fires `beforeinstallprompt`. Stores its dismissal in localStorage so
  * the toast doesn't reappear on every visit.
  *

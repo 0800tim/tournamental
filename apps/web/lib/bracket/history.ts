@@ -1,8 +1,8 @@
 /**
  * Prediction-history ledger.
  *
- * Records EVERY prediction change the user makes — initial picks,
- * edits, auto-pick fills, tiebreaker changes — into an append-only
+ * Records EVERY prediction change the user makes, initial picks,
+ * edits, auto-pick fills, tiebreaker changes, into an append-only
  * localStorage array. This gives us:
  *
  *   1. **Replay analytics**: post-match we can answer "what did the
@@ -19,7 +19,7 @@
  *
  * Storage key: `vtorn:bracket:history:v1:<tournamentId>:<userId>`.
  *
- * The ledger is intentionally append-only — we never delete or compact
+ * The ledger is intentionally append-only, we never delete or compact
  * entries client-side. Server-side cleanup can compact after settlement
  * by retaining only the last entry per match.
  */
@@ -87,7 +87,7 @@ export function appendHistory(
     const next = existing.concat(entry);
     window.localStorage.setItem(key(tournamentId, userId), JSON.stringify(next));
   } catch {
-    /* localStorage full / private mode — drop silently; the prediction
+    /* localStorage full / private mode, drop silently; the prediction
      * itself is saved on the bracket draft path which is the
      * source-of-truth for what the user picks. */
   }

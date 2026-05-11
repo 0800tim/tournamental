@@ -1,10 +1,10 @@
-# 41 — DM Poll-Forwarder
+# 41, DM Poll-Forwarder
 
 > Polling worker that adapts the three "no native webhook" platforms (Reddit, Mastodon, Signal) into the [`apps/dm-otp`](../apps/dm-otp/) ingest contract so all 16 DM-OTP login channels work the same on the receiving end.
 
 ## Why this exists
 
-`apps/dm-otp` accepts inbound DM events via per-platform HTTP webhooks and replies with a 6-digit code. Thirteen of the sixteen login channels (Telegram, WhatsApp, Messenger, Instagram, Discord, X, Threads, Slack, Line, Viber, Teams, LinkedIn, Email) push events at us — the platform calls our webhook when a user DMs the bot.
+`apps/dm-otp` accepts inbound DM events via per-platform HTTP webhooks and replies with a 6-digit code. Thirteen of the sixteen login channels (Telegram, WhatsApp, Messenger, Instagram, Discord, X, Threads, Slack, Line, Viber, Teams, LinkedIn, Email) push events at us, the platform calls our webhook when a user DMs the bot.
 
 The three exceptions:
 
@@ -32,7 +32,7 @@ The three exceptions:
 - **Pollers** implement a single `poll(previousCursor) -> { messages, cursor }` interface (see [`src/pollers/types.ts`](../apps/dm-poll-forwarder/src/pollers/types.ts)).
 - **Cursor store** (`data/cursors.jsonl`) is append-only with latest-line-wins semantics. Compacts when it crosses 1 MiB. One short string per channel.
 - **Forwarder** retries with exponential backoff (200 ms → 400 ms → 800 ms by default) on 5xx/429/network errors. Permanent 4xx is dead-lettered immediately. Exhausted retries land in `data/forward-failed.jsonl`.
-- **Scheduler** runs each channel on its own interval with concurrency 1 per channel. If a `forward()` fails mid-cycle the cursor is *not* advanced past the failed message — the next poll retries the same items, so duplicates are bounded by the dm-otp service's own per-(channel, externalId) idempotency.
+- **Scheduler** runs each channel on its own interval with concurrency 1 per channel. If a `forward()` fails mid-cycle the cursor is *not* advanced past the failed message, the next poll retries the same items, so duplicates are bounded by the dm-otp service's own per-(channel, externalId) idempotency.
 
 ## Per-platform notes
 
@@ -61,9 +61,9 @@ The three exceptions:
 
 | Method | Path | Auth | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/healthz` | — | Liveness. |
-| `GET` | `/v1/version` | — | Service + channel list. |
-| `GET` | `/v1/status` | — | Per-channel `lastPollAt`, `cursor`, `lagMs`, `lastError`. |
+| `GET` | `/healthz` |, | Liveness. |
+| `GET` | `/v1/version` |, | Service + channel list. |
+| `GET` | `/v1/status` |, | Per-channel `lastPollAt`, `cursor`, `lagMs`, `lastError`. |
 | `POST` | `/v1/admin/pause/:channel` | `x-poll-admin` | Stops scheduling cycles for that channel until resumed. |
 | `POST` | `/v1/admin/resume/:channel` | `x-poll-admin` | Re-enables a paused channel. |
 | `POST` | `/v1/admin/replay-failed` | `x-poll-admin` | Drains `forward-failed.jsonl`, retries each entry, keeps the still-failing ones. |
@@ -84,16 +84,16 @@ The admin token must be **at least 32 characters in production**. In development
 | `POLL_INTERVAL_MASTODON_MS` | no | `20000` | Mastodon poll interval. |
 | `POLL_INTERVAL_SIGNAL_MS` | no | `15000` | Signal poll interval. |
 | `POLL_DATA_DIR` | no | `./data` | Where cursors and dead-letter files live. |
-| `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET` / `REDDIT_USERNAME` / `REDDIT_PASSWORD` / `REDDIT_USER_AGENT` | yes (real) | — | Reddit script-app credentials. |
-| `MASTODON_INSTANCES` | yes (real) | — | `host=token;host=token`. |
-| `SIGNAL_API_URL` | yes (real) | — | signal-cli REST URL. |
-| `SIGNAL_BOT_NUMBER` | yes (real) | — | Bot's E.164 number. |
+| `REDDIT_CLIENT_ID` / `REDDIT_CLIENT_SECRET` / `REDDIT_USERNAME` / `REDDIT_PASSWORD` / `REDDIT_USER_AGENT` | yes (real) |, | Reddit script-app credentials. |
+| `MASTODON_INSTANCES` | yes (real) |, | `host=token;host=token`. |
+| `SIGNAL_API_URL` | yes (real) |, | signal-cli REST URL. |
+| `SIGNAL_BOT_NUMBER` | yes (real) |, | Bot's E.164 number. |
 | `POLL_MOCK_SEED` | no | `false` | When mock backend is on, pre-load one fixture per channel. |
 
 ## Mock vs real backend
 
 - `POLL_BACKEND=mock` (default) wires three `MockPoller` instances. Operators can boot the worker locally against a dm-otp dev server without touching any third-party APIs. With `POLL_MOCK_SEED=true` each channel has one fixture so a single `runOnce` produces a real forward.
-- `POLL_BACKEND=real` wires the live pollers. Each platform poller is independently disabled if its env vars are absent — the worker will still boot and `/v1/status` will report the channel as `enabled: false`.
+- `POLL_BACKEND=real` wires the live pollers. Each platform poller is independently disabled if its env vars are absent, the worker will still boot and `/v1/status` will report the channel as `enabled: false`.
 
 ## Admin runbook
 
@@ -103,8 +103,8 @@ The admin token must be **at least 32 characters in production**. In development
 - **Replay dead-lettered messages after a dm-otp outage**:
   `curl -X POST -H "x-poll-admin: <TOKEN>" https://<host>/v1/admin/replay-failed`
   Response: `{ "replayed": N, "failed": M, "remaining": M }`. Anything that still fails stays in the file for the next replay.
-- **Inspect cursors**: `tail -n 20 data/cursors.jsonl` — last line per channel is current.
-- **Inspect dead letters**: `cat data/forward-failed.jsonl` — JSONL, one entry per line.
+- **Inspect cursors**: `tail -n 20 data/cursors.jsonl`, last line per channel is current.
+- **Inspect dead letters**: `cat data/forward-failed.jsonl`, JSONL, one entry per line.
 
 ## Deployment
 

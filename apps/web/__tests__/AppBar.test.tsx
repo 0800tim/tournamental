@@ -1,7 +1,6 @@
 /**
- * Vitest — AppBar smoke. Brand mark links to "/", hamburger fires
- * onMenuClick, page-level rightAction still works, scroll listener
- * flips data-scrolled.
+ * Vitest, AppBar smoke. Avatar fires onAvatarClick; right-action fires
+ * its onClick; scroll listener flips data-scrolled.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -9,49 +8,25 @@ import { act, fireEvent, render, waitFor } from "@testing-library/react";
 
 import { AppBar } from "@/components/shell/AppBar";
 
-vi.mock("next/link", () => ({
-  default: ({
-    children,
-    href,
-    ...rest
-  }: {
-    children: React.ReactNode;
-    href: string;
-  }) => (
-    <a href={href} {...rest}>
-      {children}
-    </a>
-  ),
-}));
-
 describe("<AppBar>", () => {
-  it("renders the title and the brand mark linking to /", () => {
+  it("renders the title and avatar initials", () => {
     const { getByText, getByLabelText } = render(
-      <AppBar title="Tournament" brandInitials="T" />,
+      <AppBar title="Tournament" avatarInitials="T" />,
     );
     expect(getByText("Tournament")).toBeTruthy();
-    const brand = getByLabelText("Tournamental home") as HTMLAnchorElement;
-    expect(brand.getAttribute("href")).toBe("/");
-    expect(brand.textContent).toBe("T");
+    expect(getByLabelText("Open profile menu").textContent).toBe("T");
   });
 
-  it("invokes onMenuClick when the burger is tapped", () => {
+  it("invokes onAvatarClick when the avatar is tapped", () => {
     const fn = vi.fn();
     const { getByLabelText } = render(
-      <AppBar title="Home" onMenuClick={fn} />,
+      <AppBar title="Home" avatarInitials="T" onAvatarClick={fn} />,
     );
-    fireEvent.click(getByLabelText("Open menu"));
+    fireEvent.click(getByLabelText("Open profile menu"));
     expect(fn).toHaveBeenCalledOnce();
   });
 
-  it("flips the burger aria-label to 'Close menu' when the drawer is open", () => {
-    const { getByLabelText } = render(
-      <AppBar title="Home" menuOpen onMenuClick={() => {}} />,
-    );
-    expect(getByLabelText("Close menu")).toBeTruthy();
-  });
-
-  it("renders rightAction next to the burger and fires its onClick", () => {
+  it("renders rightAction and fires its onClick", () => {
     const fn = vi.fn();
     const { getByLabelText } = render(
       <AppBar
@@ -65,8 +40,6 @@ describe("<AppBar>", () => {
     );
     fireEvent.click(getByLabelText("Share"));
     expect(fn).toHaveBeenCalledOnce();
-    // Burger still rendered alongside.
-    expect(getByLabelText("Open menu")).toBeTruthy();
   });
 
   it("toggles data-scrolled on scroll", async () => {

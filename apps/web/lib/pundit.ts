@@ -3,7 +3,7 @@
  *
  * Fetches `GET /v1/users/:userId/pundit` from the game-service. The
  * service caches its own response (60s TTL + SWR), so we keep the client
- * simple — no LRU here.
+ * simple, no LRU here.
  *
  * Future-revenue-share hook (TODO, do NOT implement here): the same
  * payload feeds the Drips Network contributor allocation per docs/19.
@@ -34,7 +34,7 @@ export const UNVERIFIED: PunditStatus = {
 };
 
 /**
- * Fetch a user's pundit status. Never throws — on any failure we return
+ * Fetch a user's pundit status. Never throws, on any failure we return
  * the unverified shape so the badge renders nothing and the page stays up.
  */
 export async function fetchPunditStatus(

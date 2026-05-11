@@ -1,5 +1,5 @@
 /**
- * RLS smoke — verifies that the queries our client issues are the ones
+ * RLS smoke, verifies that the queries our client issues are the ones
  * we expect to satisfy the RLS policies in the migration.
  *
  * This is a structural test: we record every query the supabase-js
@@ -12,7 +12,7 @@
  *
  * Why this matters: the RLS policy uses `auth.uid()` server-side, so
  * if the client accidentally forgot the WHERE clause, RLS would still
- * filter the result to zero rows (or reject the write) — but the user
+ * filter the result to zero rows (or reject the write), but the user
  * would see a confusing empty state. Pinning the contract here lets us
  * notice the regression at lint-time.
  */
@@ -43,7 +43,7 @@ describe("RLS contract (documented)", () => {
     it(`${e.op} on ${e.table} expects predicate "${e.predicate}"`, () => {
       // The actual SQL is in supabase/migrations/0001_user_identity.sql.
       // This test asserts the client code never issues a query that
-      // would *bypass* the RLS contract — i.e., we don't expect to see
+      // would *bypass* the RLS contract, i.e., we don't expect to see
       // a SELECT/INSERT on these tables that omits the predicate.
       expect(e.predicate).toContain("auth.uid()");
     });

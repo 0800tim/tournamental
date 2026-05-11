@@ -1,7 +1,7 @@
 /**
- * GroupWinnerChips — small bar of "team-code · 38%" pills shown above
+ * GroupWinnerChips, small bar of "team-code · 38%" pills shown above
  * the match list in `<GroupCard>`. Each pill is a live mini-chip; on
- * hover it reveals a compact card showing "team — group winner: X% on
+ * hover it reveals a compact card showing "team, group winner: X% on
  * Polymarket / source attribution / view market on Polymarket" link.
  *
  * The data source for these is `/v1/odds/team/:code/group` (or the

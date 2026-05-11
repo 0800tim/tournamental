@@ -56,7 +56,7 @@ describe("renderer tone mapping (MatchScene gl prop)", () => {
     expect(src).toMatch(/gl\.toneMapping\s*=\s*THREE\.ACESFilmicToneMapping/);
   });
 
-  it("uses exposure 0.85 — the single biggest blow-out fix", () => {
+  it("uses exposure 0.85, the single biggest blow-out fix", () => {
     const src = readMatchScene();
     // Both gl-prop and onCreated assertion must agree.
     expect(src).toMatch(/toneMappingExposure:\s*0\.85/);
@@ -80,10 +80,10 @@ describe("renderer light rig (MatchScene scene contents)", () => {
   it("keeps total light intensity within the mobile budget (sum <= 2.5)", () => {
     const src = readMatchScene();
     // Pull the three intensities out of the source. The values must
-    // sum to <= 2.5 — anything more and a mid-range 2022 Android can't
+    // sum to <= 2.5, anything more and a mid-range 2022 Android can't
     // keep 60 fps under the post-FX pass.
     const ambient = matchFloat(src, /<ambientLight\s+intensity=\{([\d.]+)\}/);
-    // hemisphereLight args={["sky", "ground", intensity]} — the third
+    // hemisphereLight args={["sky", "ground", intensity]}, the third
     // float in the array is the intensity we care about.
     const hemi = matchFloat(
       src,
@@ -121,7 +121,7 @@ describe("broadcast camera preset", () => {
   });
 
   it("clamps the camera's X follow to a tighter range than before", () => {
-    // Ball far down the wing — clamp should stop the camera at ±25,
+    // Ball far down the wing, clamp should stop the camera at ±25,
     // not the old ±30. Position.x = clampedX * 0.5 = ±12.5.
     const farRight = broadcastCamera(new THREE.Vector3(80, 0, 0));
     expect(farRight.position.x).toBeLessThanOrEqual(12.5 + 1e-6);
@@ -143,7 +143,7 @@ describe("camera up-vector is enforced as (0,1,0)", () => {
   it("DampedCameraDriver respects the camera.up vector on lookAt", () => {
     // The driver calls camera.lookAt() under the hood. As long as the
     // caller sets camera.up = (0,1,0) before each update (which both
-    // CameraRig and Director do — see source), the resulting
+    // CameraRig and Director do, see source), the resulting
     // orientation has zero roll. We verify that by checking the
     // camera's local "right" axis stays on the world XZ plane (y=0).
     const cam = new THREE.PerspectiveCamera(36, 1, 0.1, 1000);
@@ -190,7 +190,7 @@ describe("stadium materials don't escape tone mapping", () => {
       "utf8",
     );
     // We dropped `toneMapped={false}` so ACES can compress the cloud
-    // of instances — Tim's blown-out upper-deck cream comes from
+    // of instances, Tim's blown-out upper-deck cream comes from
     // here.
     const codeOnly = stripLineComments(crowd);
     expect(codeOnly).not.toMatch(/toneMapped=\{false\}/);

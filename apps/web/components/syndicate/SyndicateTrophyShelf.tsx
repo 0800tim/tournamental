@@ -1,5 +1,5 @@
 /**
- * SyndicateTrophyShelf — "if we ran the tournament today" virtual
+ * SyndicateTrophyShelf, "if we ran the tournament today" virtual
  * trophies: the pool's most-popular champion / runner-up / third.
  *
  * Pure visual: three cup tiles (gold/silver/bronze) with the team's

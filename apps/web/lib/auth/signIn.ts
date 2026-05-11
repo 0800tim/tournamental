@@ -1,16 +1,16 @@
 /**
  * Sign-in helpers, one per auth path.
  *
- *   signInWithMagicLink(email)        — Email magic link (Supabase built-in)
- *   signInWithTelegram(telegramAuth)  — Telegram Login Widget payload
- *   signInWithWhatsAppOtp(phone)      — request OTP via Aiva SMS (custom SMS hook)
- *   verifyWhatsAppOtp(phone, code)    — verify OTP, sign session in
+ *   signInWithMagicLink(email)       , Email magic link (Supabase built-in)
+ *   signInWithTelegram(telegramAuth) , Telegram Login Widget payload
+ *   signInWithWhatsAppOtp(phone)     , request OTP via Aiva SMS (custom SMS hook)
+ *   verifyWhatsAppOtp(phone, code)   , verify OTP, sign session in
  *
  * Each helper returns a discriminated result; the modal UI maps these
  * to user-facing strings without leaking provider implementation
  * details.
  *
- * All four helpers are no-ops when Supabase is unconfigured — they
+ * All four helpers are no-ops when Supabase is unconfigured, they
  * return `{ ok: false, error: "unconfigured" }`. The modal renders a
  * "Sign in coming soon" banner in that case.
  */
@@ -90,7 +90,7 @@ export async function signInWithTelegram(
 }
 
 /**
- * WhatsApp OTP — request. Calls Supabase's phone-auth provider; the
+ * WhatsApp OTP, request. Calls Supabase's phone-auth provider; the
  * custom SMS hook (configured in the dashboard) fans the OTP out to
  * Aiva SMS / WhatsApp gateway.
  */
@@ -107,7 +107,7 @@ export async function signInWithWhatsAppOtp(phone: string): Promise<SignInResult
   return { ok: true, hint: "check-whatsapp" };
 }
 
-/** WhatsApp OTP — verify. */
+/** WhatsApp OTP, verify. */
 export async function verifyWhatsAppOtp(
   phone: string,
   code: string,

@@ -1,5 +1,5 @@
 /**
- * Replay buffer — circular buffer of {playersPos, ballPos, time}
+ * Replay buffer, circular buffer of {playersPos, ballPos, time}
  * snapshots, used to play back the last 10 seconds at 0.25× during
  * goal replays.
  *
@@ -36,12 +36,12 @@ export interface ReplayBufferOptions {
  *
  * Methods:
  *
- *   - `push(snap)`     — record a frame. O(1) amortised; oldest entry
+ *   - `push(snap)`    , record a frame. O(1) amortised; oldest entry
  *                        is overwritten when full.
- *   - `read(window)`   — copy out the last `windowSec` seconds in
+ *   - `read(window)`  , copy out the last `windowSec` seconds in
  *                        time-ascending order. O(N).
- *   - `clear()`        — reset.
- *   - `length`         — number of snapshots currently held.
+ *   - `clear()`       , reset.
+ *   - `length`        , number of snapshots currently held.
  */
 export class ReplayBuffer {
   readonly capacity: number;
@@ -115,7 +115,7 @@ export class ReplayBuffer {
    *   · 600 snapshots = ~440 KB
    *
    * Caller should keep `playersPosArray` length ≤ 22 to honour the
-   * 36 KB envelope quoted in the spec — the spec's number assumes
+   * 36 KB envelope quoted in the spec, the spec's number assumes
    * Float32Array packing (3·22·4 = 264 B per frame); JS arrays are
    * fatter. For Phase 2 we accept the higher footprint and revisit
    * with a packed Float32Array layout in Phase 4.

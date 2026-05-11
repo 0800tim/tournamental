@@ -11,7 +11,7 @@ interface ReplayPageProps {
 }
 
 /**
- * Replay route — same scene as /match/[id] but the source defaults to
+ * Replay route, same scene as /match/[id] but the source defaults to
  * the in-process synthetic AR-FR fixture so the route is self-contained
  * without a running producer. A real archive manifest URL can be passed
  * via `?src=...`.

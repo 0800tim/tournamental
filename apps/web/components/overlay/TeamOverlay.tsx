@@ -1,12 +1,12 @@
 /**
- * TeamOverlay — bottom-sheet card that embeds team detail content.
+ * TeamOverlay, bottom-sheet card that embeds team detail content.
  *
  * Pulls a compact set of fields from the canonical teams JSON + the
  * tournament fixture data so the overlay is light enough to open
  * instantly. The "View full team page" CTA in the header navigates to
  * the real `/team/[code]` route for the deeper detail view.
  *
- * Note: we deliberately don't import the full team page component —
+ * Note: we deliberately don't import the full team page component -
  * it's a server component with its own data dependencies. Instead we
  * hand-roll a compact card view here that mirrors the same data
  * surface (flag, name, FIFA rank, group, manager, fixtures).
@@ -137,7 +137,7 @@ export function TeamOverlay(props: TeamOverlayProps) {
               {upcoming.home ? "vs" : "at"}{" "}
               {canonicalTeamByCode(upcoming.opponentCode)?.name ??
                 upcoming.opponentCode}{" "}
-              —{" "}
+              -{" "}
               <time dateTime={upcoming.kickoffUtc}>
                 {new Date(upcoming.kickoffUtc).toLocaleDateString(undefined, {
                   month: "short",

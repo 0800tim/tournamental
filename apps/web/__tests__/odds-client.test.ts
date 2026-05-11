@@ -116,7 +116,7 @@ describe("fetchMatchOdds tier-fallback", () => {
     const fakeFetch: typeof fetch = ((_url: string) => {
       calls += 1;
       if (calls === 1) {
-        // Live returns 200 OK but missing fields — must be rejected.
+        // Live returns 200 OK but missing fields, must be rejected.
         return Promise.resolve(jsonResponse({ wat: true }));
       }
       return Promise.reject(new Error("stub down"));
@@ -199,7 +199,7 @@ describe("fetchTeamGroupSummary tier-fallback", () => {
     const probs = results.map((r) => (r.ok ? r.data.groupWinnerProb : 0));
     const total = probs.reduce((a, b) => a + b, 0);
     // mock weights aren't perfectly normalised at the unit level, but
-    // they are within a reasonable range — the GroupWinnerChips
+    // they are within a reasonable range, the GroupWinnerChips
     // component re-normalises them to exactly 1.0 in the UI.
     expect(total).toBeGreaterThan(0.5);
     expect(total).toBeLessThan(1.5);

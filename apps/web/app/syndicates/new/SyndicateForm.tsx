@@ -5,12 +5,12 @@
  *
  * One-page client component. Renders the input form on first paint
  * and the success card after a 200 from POST /api/v1/syndicates.
- * Anonymous visitors can submit — `useUser()` is consulted to pre-
+ * Anonymous visitors can submit, `useUser()` is consulted to pre-
  * fill email + phone if a Supabase session exists, but the form does
  * NOT gate on a session.
  *
  * The slug field auto-derives from the syndicate name as the user
- * types (unless they've manually edited the slug — we track that
+ * types (unless they've manually edited the slug, we track that
  * with a `slugEdited` flag). A 300ms debounced fetch hits
  * /api/v1/syndicates/<slug>/available to live-check uniqueness.
  */
@@ -46,7 +46,7 @@ const SIZE_BANDS = [
 ] as const;
 
 /**
- * Country dial codes — small, deliberately curated list covering
+ * Country dial codes, small, deliberately curated list covering
  * Tournamental's launch markets (NZ, AU, GB, US, IE, ZA, IN, BR) plus
  * a few EU. A bigger picker can ship post-launch.
  */
@@ -450,7 +450,7 @@ export function SyndicateForm(): JSX.Element {
               className={`syn-textarea ${fieldErrors.topic ? "is-error" : ""}`}
               value={topic}
               maxLength={280}
-              placeholder="The office WC pool — winner brings cake."
+              placeholder="The office WC pool, winner brings cake."
               onChange={(e) => setTopic(e.target.value)}
             />
             {fieldErrors.topic && (
@@ -497,7 +497,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
   const url = payload.share_url;
   const inviteText = useMemo(
     () =>
-      `Come predict the FIFA World Cup 2026 with me — join my pool at ${url}`,
+      `Come predict the FIFA World Cup 2026 with me, join my pool at ${url}`,
     [url],
   );
 
@@ -507,7 +507,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      // Fallback for older browsers — selecting the visible text is enough.
+      // Fallback for older browsers, selecting the visible text is enough.
     }
   };
 

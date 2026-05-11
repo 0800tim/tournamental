@@ -1,5 +1,5 @@
 /**
- * KnockoutMatch — per-match prediction for a knockout fixture.
+ * KnockoutMatch, per-match prediction for a knockout fixture.
  *
  * Same UX shape as MatchPredictionRow but no draw option (knockouts go
  * to ET + pens; for the prediction we treat the user's pick as
@@ -123,7 +123,7 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
         aria-pressed={homeWin}
         aria-label={
           homeTeam
-            ? `${homeTeam.name} — ${homeWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
+            ? `${homeTeam.name}, ${homeWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
             : "Home slot to be determined"
         }
         style={{ ...(homeBgStyle ?? {}), ...(homePreview ?? {}) }}
@@ -164,7 +164,7 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
         aria-pressed={awayWin}
         aria-label={
           awayTeam
-            ? `${awayTeam.name} — ${awayWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
+            ? `${awayTeam.name}, ${awayWin ? "currently picked to advance" : "pick to advance"} from ${knockout.stage.toUpperCase()} #${knockout.match_no}`
             : "Away slot to be determined"
         }
         style={{ ...(awayBgStyle ?? {}), ...(awayPreview ?? {}) }}

@@ -1,4 +1,4 @@
-# Phase 4 — Polish (Magnus curls, sweat normals, replay HUD, mobile perf pass)
+# Phase 4, Polish (Magnus curls, sweat normals, replay HUD, mobile perf pass)
 
 > Final pass. Everything that makes the difference between "looks really good" and "looks like a TV broadcast still". Plus the rigorous mobile-perf review.
 
@@ -15,26 +15,26 @@ Phase 3 PR merged into `main`.
 ```
 packages/ball-physics/
   src/
-    magnus.ts                           MODIFY — full curl model with spin estimation
+    magnus.ts                           MODIFY, full curl model with spin estimation
   test/
     magnus-curl.test.ts                 NEW
 
 apps/web/
-  components/Player.tsx                 MODIFY — sweat normal, dirt stain on slide tackle
+  components/Player.tsx                 MODIFY, sweat normal, dirt stain on slide tackle
   components/HUD/
-    ReplayHUD.tsx                       NEW — score, clock, "REPLAY" banner, slow-mo factor
+    ReplayHUD.tsx                       NEW, score, clock, "REPLAY" banner, slow-mo factor
     MatchClock.tsx                      NEW
     Scoreboard.tsx                      NEW
-    SponsorRibbon.tsx                   NEW — bottom-of-screen rotating sponsor
-  components/MatchScene.tsx             MODIFY — wire HUD overlay
+    SponsorRibbon.tsx                   NEW, bottom-of-screen rotating sponsor
+  components/MatchScene.tsx             MODIFY, wire HUD overlay
   lib/perf/
-    perf-monitor.ts                     NEW — fps + memory + draw-call HUD (?dev=1 only)
-    perf-budget-test.ts                 NEW — assert budgets at runtime in dev
+    perf-monitor.ts                     NEW, fps + memory + draw-call HUD (?dev=1 only)
+    perf-budget-test.ts                 NEW, assert budgets at runtime in dev
   shaders/
-    sweat.glsl                          NEW — wet skin normal blend
-    dirt.glsl                           NEW — slide tackle stain decal
-  __tests__/full-match-perf.spec.ts     NEW — playwright, 90 min replay at time-scale=10
-  __tests__/visual-regression.spec.ts   NEW — perceptual diff vs golden snapshots
+    sweat.glsl                          NEW, wet skin normal blend
+    dirt.glsl                           NEW, slide tackle stain decal
+  __tests__/full-match-perf.spec.ts     NEW, playwright, 90 min replay at time-scale=10
+  __tests__/visual-regression.spec.ts   NEW, perceptual diff vs golden snapshots
 
 docs/
   27d-fidelity-phase4-polish.md         THIS FILE
@@ -141,5 +141,5 @@ Perceptual diff via `pixelmatch` with 0.05 tolerance.
 When this PR merges:
 - Update `docs/27-fidelity-roadmap.md` summary table with `done ✓` marks.
 - Tag `v0.5-fifa-fidelity-complete`.
-- Open `IDEAS.md` ticket for "Phase 5 — WebGPU upgrade" (deferred; gated on browser support).
+- Open `IDEAS.md` ticket for "Phase 5, WebGPU upgrade" (deferred; gated on browser support).
 - Notify Tim with screencap + URL.

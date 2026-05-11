@@ -1,4 +1,4 @@
-# `@vtorn/stream-server` — WebSocket protocol
+# `@vtorn/stream-server`, WebSocket protocol
 
 The stream server is the fan-out layer between producers (mock, StatsBomb replay, video ingest, live data) and renderer clients. It is **not** a REST API; clients connect via WebSocket and receive an ordered stream of spec messages.
 
@@ -35,11 +35,11 @@ After `hello`, the client receives any in-ring history (replayed) followed by th
 
 ## Spec messages
 
-Three kinds of message flow over the stream — all defined in [`packages/spec`](../../packages/spec):
+Three kinds of message flow over the stream, all defined in [`packages/spec`](../../packages/spec):
 
-1. **`MatchInit`** — exactly one, immediately after `hello`. Static scene description: teams, kits, players, field dimensions.
-2. **`StateFrame`** — many, batched into ~100ms windows. Player positions, ball position, animation tags, possession.
-3. **`Event`** — discrete events: kickoff, goal, foul, card, substitution, half-time, full-time, penalty.
+1. **`MatchInit`**, exactly one, immediately after `hello`. Static scene description: teams, kits, players, field dimensions.
+2. **`StateFrame`**, many, batched into ~100ms windows. Player positions, ball position, animation tags, possession.
+3. **`Event`**, discrete events: kickoff, goal, foul, card, substitution, half-time, full-time, penalty.
 
 See [`02-spec.md`](../02-spec.md) for the canonical contract and [`packages/spec/src/index.ts`](../../packages/spec/src/index.ts) for the TypeScript types.
 
@@ -53,7 +53,7 @@ Beyond spec messages, the server may send these control frames:
 | `x_error` | When the server is shedding load or refusing the upgrade | Close cleanly; back off |
 | `x_keepalive` | Every 30s when no other message has been sent | Reset your idle timer |
 
-Anything not on this list is a spec message — pass it to your decoder.
+Anything not on this list is a spec message, pass it to your decoder.
 
 ## Client → server messages
 
@@ -94,6 +94,6 @@ Per [`../22-deployment-and-tunnels.md`](../22-deployment-and-tunnels.md):
 
 ## Related
 
-- [`05-mock-producer.md`](../05-mock-producer.md) — synthetic producer for renderer dev
-- [`08-cdn-distribution.md`](../08-cdn-distribution.md) — Cloudflare CDN, manifest layout
-- [`apps/stream-server/README.md`](../../apps/stream-server/README.md) — service-level config and operational notes
+- [`05-mock-producer.md`](../05-mock-producer.md), synthetic producer for renderer dev
+- [`08-cdn-distribution.md`](../08-cdn-distribution.md), Cloudflare CDN, manifest layout
+- [`apps/stream-server/README.md`](../../apps/stream-server/README.md), service-level config and operational notes

@@ -1,5 +1,5 @@
 /**
- * MatchPickPopup — single-match prediction popup that can render as
+ * MatchPickPopup, single-match prediction popup that can render as
  * a bottom-sheet, a centered modal, or an inline card.
  *
  * Tim's spec: "as you're browsing and looking at teams and matches and
@@ -12,7 +12,7 @@
  * game-service endpoints (PUT/GET/DELETE /v1/picks/:userId/:matchId).
  *
  * Kickoff freeze: if `now() >= kickoff`, the W/D/L buttons disable and a
- * banner appears with Tim's exact phrasing — same message as
+ * banner appears with Tim's exact phrasing, same message as
  * `MatchPredictionRow`.
  *
  * Accessibility:
@@ -86,7 +86,7 @@ const ALL_OUTCOMES: readonly MatchPrediction["outcome"][] = [
 ];
 
 function pctLabel(p: number | null | undefined): string {
-  if (p == null || !Number.isFinite(p)) return "—";
+  if (p == null || !Number.isFinite(p)) return "-";
   return `${Math.round(p * 100)}%`;
 }
 
@@ -173,7 +173,7 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
     [noDraw],
   );
 
-  // Drag-down to close — works on the sheet header only.
+  // Drag-down to close, works on the sheet header only.
   const dragRef = useRef<{ startY: number; lastY: number } | null>(null);
   const onTouchStart = (e: ReactTouchEvent<HTMLElement>) => {
     if (presentation !== "sheet") return;
@@ -324,7 +324,7 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
 
       {matchStarted && (
         <div className="mpp-locked-banner" role="status" aria-live="polite">
-          Sorry — this match has already started. You can&apos;t change it now.
+          Sorry, this match has already started. You can&apos;t change it now.
         </div>
       )}
 
@@ -477,12 +477,12 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
       {hook.error && (
         <div className="mpp-error" role="alert">
           {hook.error.code === "match_already_started"
-            ? "Sorry — this match has already started. You can't change it now."
+            ? "Sorry, this match has already started. You can't change it now."
             : hook.error.code === "outcome_not_allowed_for_stage"
               ? "Knockout matches can't end in a draw. Pick a winner."
               : hook.error.code === "rate_limited"
-                ? "Slow down — too many edits. Try again in a moment."
-                : "Couldn't save just yet. Your pick was kept locally — try again in a sec."}
+                ? "Slow down, too many edits. Try again in a moment."
+                : "Couldn't save just yet. Your pick was kept locally, try again in a sec."}
         </div>
       )}
 

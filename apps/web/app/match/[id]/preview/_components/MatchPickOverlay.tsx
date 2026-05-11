@@ -1,5 +1,5 @@
 /**
- * MatchPickOverlay — client wrapper that opens the MatchPickPopup
+ * MatchPickOverlay, client wrapper that opens the MatchPickPopup
  * whenever the URL has `?pick=open` (or `?pick=<matchId>` matching the
  * current match). Used to satisfy Tim's deep-link spec:
  *

@@ -1,5 +1,5 @@
 /**
- * Playwright e2e — WC2026 hype landing page.
+ * Playwright e2e, WC2026 hype landing page.
  *
  * Covers:
  *   1. /world-cup-2026/landing renders, all 48 team flags appear, the
@@ -12,7 +12,7 @@
 
 import { test, expect } from "@playwright/test";
 
-test.describe("WC2026 hype landing — content", () => {
+test.describe("WC2026 hype landing, content", () => {
   test("renders 48 teams, countdown ticks, hero CTA points at the bracket", async ({
     page,
   }) => {
@@ -21,7 +21,7 @@ test.describe("WC2026 hype landing — content", () => {
     // Hero
     await expect(page.locator("h1")).toContainText("predicts the World Cup");
 
-    // Countdown — at least one cell, days >= 0
+    // Countdown, at least one cell, days >= 0
     const countdown = page.getByTestId("wc-countdown");
     await expect(countdown).toBeVisible();
     const days = await page.getByTestId("wc-countdown-days").textContent();
@@ -72,7 +72,7 @@ test.describe("WC2026 hype landing — content", () => {
     expect(response.status()).toBe(200);
 
     // Status banner appears (the most reliable assertion that the round-trip
-    // completed — the body parse occasionally races the page nav so we lean
+    // completed, the body parse occasionally races the page nav so we lean
     // on the visible UI confirmation).
     await expect(page.getByTestId("wc-syndicate-status")).toHaveAttribute(
       "data-status",
@@ -96,7 +96,7 @@ test.describe("WC2026 hype landing — content", () => {
   });
 });
 
-test.describe("WC2026 hype landing — host-aware middleware", () => {
+test.describe("WC2026 hype landing, host-aware middleware", () => {
   test("Host: 2026wc.tournamental.com / rewrites to the landing", async ({
     request,
   }) => {
@@ -129,7 +129,7 @@ test.describe("WC2026 hype landing — host-aware middleware", () => {
     expect(res.status()).toBe(200);
     const html = await res.text();
     expect(html).not.toContain("predicts the World Cup");
-    // The renderer apex landing — see app/page.tsx — copy is "Tournamental" since
+    // The renderer apex landing, see app/page.tsx, copy is "Tournamental" since
     // PR #41. Just assert we're on the renderer's landing, not the WC page.
     expect(html).toContain("Watch the demo");
   });

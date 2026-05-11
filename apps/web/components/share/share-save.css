@@ -11,7 +11,7 @@
  *
  * Layout philosophy: vertical stack on every viewport; the OG image is
  * the hero, the share CTA is the call-to-action. No multi-column
- * tricks — sharing is one user goal, not five.
+ * tricks, sharing is one user goal, not five.
  */
 
 .vt-ss-page {
@@ -458,7 +458,7 @@
     font-size: 11px;
   }
 
-  /* Inline CTA still visible — but the sticky-bottom copy is the
+  /* Inline CTA still visible, but the sticky-bottom copy is the
    * thumb-reachable one. Hide the inline button to avoid duplicate-CTA
    * confusion on mobile. */
   .vt-ss-primary-cta .vt-ss-cta-btn:not(.vt-ss-cta-btn--sticky) {

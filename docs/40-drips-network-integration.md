@@ -1,13 +1,13 @@
 # Drips Network integration (apps/drips-bridge)
 
-> **Status**: v0.1 — service scaffolded with a mock Drips client. Real on-chain
+> **Status**: v0.1, service scaffolded with a mock Drips client. Real on-chain
 > writes are deliberately disabled and gated by an external smart-contract
 > audit (see [Mainnet gating](#mainnet-gating)).
 
 ## Why this exists
 
-Tournamental is Apache-2.0 licensed. Per the pitch and README, contributors —
-human or agent — share Tournamental Holdings' platform revenue through
+Tournamental is Apache-2.0 licensed. Per the pitch and README, contributors -
+human or agent, share Tournamental Holdings' platform revenue through
 [Drips Network](https://drips.network). Drips is an Ethereum protocol for
 funding open-source projects: a "Drip List" maps recipient wallets to
 weighted shares, and senders stream or push payouts proportionally.
@@ -20,7 +20,7 @@ this in its own service means:
 - The contributor registry has a single source of truth.
 - Revenue accounting is auditable in a JSONL log, not buried inside the
   finance team's spreadsheet.
-- The Ethereum client is isolated — when the audit lands and we flip from
+- The Ethereum client is isolated, when the audit lands and we flip from
   mock to mainnet, the change is to one service and one env var.
 
 ## Contributor onboarding flow
@@ -96,7 +96,7 @@ Before we ship real mainnet writes:
 2. Sepolia run-through with the real client wired (still gated by audit).
 3. Per-PR review checklist updated to include "no mainnet writes added"
    until the audit is signed off.
-4. Switch flipped via env (`DRIPS_NETWORK=mainnet`) — never via code change
+4. Switch flipped via env (`DRIPS_NETWORK=mainnet`), never via code change
    that has to be re-reviewed.
 
 ## API reference
@@ -175,8 +175,8 @@ curl -s http://localhost:3399/v1/distributions/d_xxx -H "x-drips-admin: $S"
 
 Both stores are append-only JSONL:
 
-- `data/contributors.jsonl` — `{ op: 'insert' | 'patch' | 'delete', ... }`
-- `data/distributions.jsonl` — `{ op: 'insert' | 'status', ... }`
+- `data/contributors.jsonl`, `{ op: 'insert' | 'patch' | 'delete', ... }`
+- `data/distributions.jsonl`, `{ op: 'insert' | 'status', ... }`
 
 Append-only means the file doubles as an audit log: every state change is a
 new line, replaying the file rebuilds the in-memory state. Corrupt lines

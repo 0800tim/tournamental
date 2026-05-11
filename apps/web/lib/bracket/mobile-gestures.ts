@@ -3,8 +3,8 @@
  *
  * These hooks are no-ops on viewports wider than 640px so desktop
  * pointer / keyboard interactions are untouched. They use native
- * Touch / IntersectionObserver APIs only — no third-party gesture
- * library — to keep the bundle lean and avoid pulling in a
+ * Touch / IntersectionObserver APIs only, no third-party gesture
+ * library, to keep the bundle lean and avoid pulling in a
  * dependency that ships its own touch event abstractions.
  *
  * Hooks exported:
@@ -18,7 +18,7 @@
  *     `prefers-reduced-motion` and gracefully no-ops on devices that
  *     don't support `navigator.vibrate`.
  *   - useScrollIntoViewIfHidden: imperative helper to smooth-scroll an
- *     element into view only when it's currently off-screen — used by
+ *     element into view only when it's currently off-screen, used by
  *     the cascade so an upstream pick that affects a downstream slot
  *     doesn't yank the user around when the affected card is already
  *     visible.
@@ -35,7 +35,7 @@ export const MOBILE_MQ = "(max-width: 640px)";
 
 /** Standard haptic patterns used across the bracket UI. */
 export const HAPTIC = {
-  /** Tiny tap — group / knockout pick. */
+  /** Tiny tap, group / knockout pick. */
   pick: 8,
   /** Slightly longer cascade-resolved knockout pick: tap, pause, tap. */
   cascadeResolved: [8, 30, 8] as const,
@@ -64,7 +64,7 @@ export function isMobileViewport(): boolean {
  *
  * Native shell precedence: when running inside the Capacitor wrapper
  * (`window.Capacitor.isNativePlatform()`), this *also* dispatches
- * `Haptics.impact()` via `@/lib/native` — the `navigator.vibrate`
+ * `Haptics.impact()` via `@/lib/native`, the `navigator.vibrate`
  * call typically no-ops in iOS WKWebView, so the native impact is the
  * one users actually feel. The native call is fire-and-forget so this
  * function stays synchronous + boolean-returning for existing callers.
@@ -80,7 +80,7 @@ export function isMobileViewport(): boolean {
 export function vibrate(pattern: number | readonly number[]): boolean {
   if (prefersReducedMotion()) return false;
 
-  // Native haptic — fire and forget. The shim is gated on
+  // Native haptic, fire and forget. The shim is gated on
   // `window.Capacitor.isNativePlatform()`, so this is a no-op on the
   // plain web. Style is chosen by total pattern length: short single
   // tap → light, longer / multi-step → medium.
@@ -158,7 +158,7 @@ interface PinchState {
  * `target` element (which should be the scaling content, typically a
  * direct child of the touch-capture container).
  *
- * The container itself is the touch-capture surface — pinch within it
+ * The container itself is the touch-capture surface, pinch within it
  * scales the target, with transform-origin set to the midpoint of the
  * two fingers so the zoom feels anchored where the user pinched.
  *
@@ -253,7 +253,7 @@ export function usePinchZoom<C extends HTMLElement, T extends HTMLElement>(
       }
     };
 
-    // touchmove must NOT be passive — we call preventDefault to stop
+    // touchmove must NOT be passive, we call preventDefault to stop
     // the browser from also pinch-zooming the whole page when two
     // fingers land on the grid. touchstart / touchend can stay
     // passive: we only read the events, never block default action.

@@ -1,4 +1,4 @@
-# 43 — Renderer fidelity overhaul (2026-05-11)
+# 43, Renderer fidelity overhaul (2026-05-11)
 
 > Tim watched the AR-FR demo on his mobile and reported it jittered: the field jerks back and forth, players still aren't smooth, and the benchmark (the [three.js skinning-blending example](https://threejs.org/examples/#webgl_animation_skinning_blending)) renders buttery-smooth on the same hardware. This doc records the diagnosis and fix, so future agents understand why the renderer looks the way it does today and don't undo any of it.
 
@@ -10,7 +10,7 @@ Walked the renderer + producer + store and isolated four root causes:
    `packages/spec-client/src/synthetic.ts` paces ~7300 messages at `messagesPerTick ≈ 4` every 50 ms. State frames are 1 *match-second* apart. When 4 frames land in one tick they all stamp the store with the same wall-clock instant, so `prevWallMs === currWallMs` for the burst → `alphaForNow` saturates at 1 → renderer snaps to `curr` every tick. Between ticks (50 ms idle) no interpolation happens because the prev/curr pair was already burned through. Players move ~4 m per match-second; that's the visible "teleport every 50 ms" judder.
 
 2. **Camera writes were unsmoothed.**
-   `Director.tsx` did `camera.position.copy(evalOut.position)` and `camera.lookAt(...)` directly each frame. The `CutBlender` provides eased *transitions between cams* (200-400 ms cosine), but the *target itself* — e.g. broadcast tracking the ball x — moves discontinuously every state frame, so the camera snapped each tick. Add to that the position-jitter from problem #1 and you get the field-jerk Tim observed.
+   `Director.tsx` did `camera.position.copy(evalOut.position)` and `camera.lookAt(...)` directly each frame. The `CutBlender` provides eased *transitions between cams* (200-400 ms cosine), but the *target itself*, e.g. broadcast tracking the ball x, moves discontinuously every state frame, so the camera snapped each tick. Add to that the position-jitter from problem #1 and you get the field-jerk Tim observed.
 
 3. **`useFrame` deltas were unclamped.**
    On a stall (tab switch, GC pause, low-end mobile background tab), R3F passes a large `delta`. The animation FSM's phase-rate, foot IK, ball physics integrator, crowd-energy ticker, and PostFX vignette ramp all multiplied by that delta and produced a visible jump on the first frame after the stall.
@@ -56,7 +56,7 @@ Every `useFrame` clamps `delta = Math.min(deltaRaw, 1/30)` before any integratio
 
 ### 6. Crowd material throttling
 
-`Crowd.tsx`: `mat.color.setHSL(...)` was running every frame. Now throttled to 4 Hz with a hysteresis check (skip if energy delta < 0.01) — saves a uniform re-upload every frame and the per-frame allocation pattern.
+`Crowd.tsx`: `mat.color.setHSL(...)` was running every frame. Now throttled to 4 Hz with a hysteresis check (skip if energy delta < 0.01), saves a uniform re-upload every frame and the per-frame allocation pattern.
 
 ### 7. GoalNet sway throttling
 
@@ -85,7 +85,7 @@ pnpm --filter @vtorn/web dev
 What you should see, compared to before:
 
 - Players walk/run/sprint **smoothly** between match-seconds, no per-tick teleport.
-- The broadcast camera **eases** to follow the ball — no jerky framing.
+- The broadcast camera **eases** to follow the ball, no jerky framing.
 - The pitch stripes are **stable** when the camera tilts; no shimmer at distance.
 - The HUD score still updates exactly at the canonical AR-FR goal times.
 

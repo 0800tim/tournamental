@@ -17,7 +17,7 @@ type Props = {
   /** whether the sparkle sweep + idle wave animation are on */
   sparkle?: boolean;
   /** "rect" (default, classic 3:2 flag) or "circle" (square crop with
-   *  border-radius — used by the bracket pick buttons). */
+   *  border-radius, used by the bracket pick buttons). */
   shape?: Shape;
   /**
    * When true and `accentColor` is set, render a 3px solid kit-colour ring

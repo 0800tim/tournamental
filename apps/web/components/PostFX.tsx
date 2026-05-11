@@ -28,7 +28,7 @@ export interface PostFXProps {
  *   - Tone mapping: ACES (already set on the renderer in MatchScene).
  *   - Vignette: always on, *intensified* during goal-replay slow-mo.
  *   - Subtle film grain (medium / high).
- *   - Chromatic aberration (medium / high) — only really visible in
+ *   - Chromatic aberration (medium / high), only really visible in
  *     the goal-replay vignette, but adds a hint of broadcast-tape
  *     texture to the whole frame.
  *
@@ -37,7 +37,7 @@ export interface PostFXProps {
  * to drive the dynamic vignette / motion-blur uniforms during a
  * goal-replay cut.
  *
- * If `profile.fxOff` is true the caller does not mount this — that's
+ * If `profile.fxOff` is true the caller does not mount this, that's
  * the `?fx=off` escape hatch.
  */
 export function PostFX({ profile }: PostFXProps) {
@@ -95,12 +95,12 @@ export function PostFX({ profile }: PostFXProps) {
   }, [profile]);
 
   if (profile.fxOff) {
-    // Defensive — caller should already gate on this, but never let
+    // Defensive, caller should already gate on this, but never let
     // the composer mount with an off profile.
     return null;
   }
 
-  // Build the children array conditionally — EffectComposer's child
+  // Build the children array conditionally, EffectComposer's child
   // type is `ReactElement` (not nullable), so we filter null/undefined
   // before passing.
   const children = [

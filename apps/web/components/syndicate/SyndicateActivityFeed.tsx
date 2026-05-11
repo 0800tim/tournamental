@@ -1,5 +1,5 @@
 /**
- * SyndicateActivityFeed — chat-style "what happened in the pool"
+ * SyndicateActivityFeed, chat-style "what happened in the pool"
  * timeline. 8 events from the deterministic mock-data generator.
  */
 

@@ -1,5 +1,5 @@
 /**
- * /match/[id]/preview — pre-match preview page.
+ * /match/[id]/preview, pre-match preview page.
  *
  * FotMob-inspired five-tab match detail (Predict / H2H / Form / Lineup /
  * Stats) sitting above a kit-coloured hero strip with both team flags.

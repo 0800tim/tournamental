@@ -1,10 +1,10 @@
-# 18 — Monetization
+# 18, Monetization
 
 > Comprehensive revenue model for Tournamental. Affiliate routing as one lane (geo-restricted, capped by NZ regulation), but **the platform's design opens at least eight other revenue surfaces** that don't depend on a single sportsbook deal or a single jurisdiction. Strategy: keep the free-to-play game as the primary product so the business is not dependent on gambling access in any one country; monetize across many surfaces; treat affiliate as upside, not core.
 >
 > **Where the money actually goes:** all monetization revenue flows to **Tournamental Holdings** (and its companion entity **Tournamental Foundation**). The Foundation's published treasury policy then streams a fixed percentage to upstream contributors via Drips Network. Full structure and contributor revshare mechanics in [doc 19](19-open-source-and-contributor-revenue.md).
 
-## TL;DR — the six revenue lanes ranked
+## TL;DR, the six revenue lanes ranked
 
 For Tournamental specifically (NZ home base, free-to-play core, Prediction IQ as the killer feature), the priority order is:
 
@@ -24,44 +24,44 @@ Lanes 1–4 are the "ship-anywhere" base; lane 5 is the geographically-bounded u
 **From 28 June 2025, TAB NZ became the sole legal online race and sports betting provider for people located in New Zealand**, and New Zealanders are not lawfully allowed to place bets with anyone other than TAB NZ. This is a tighter constraint than the older Polymarket/Kalshi-flagged framing in [doc 15](15-tournamental-brand-and-positioning.md) and forces a hard rule:
 
 - **NZ users see no offshore-sportsbook affiliate links. Ever.**
-- The only legal NZ-facing affiliate option is TAB NZ — and only if TAB NZ runs an affiliate programme open to a free-to-play prediction game (verify in writing before shipping any link).
+- The only legal NZ-facing affiliate option is TAB NZ, and only if TAB NZ runs an affiliate programme open to a free-to-play prediction game (verify in writing before shipping any link).
 - Polymarket is *also* not legal for NZ users to use, so no Polymarket affiliate to NZ users either.
 - Tournamental for NZ users is **free-to-play only**, with Tournamental Pro / sponsored badges / data offers as the monetization.
-- This drives traffic to lanes 1–4 + 6 for the home market — which is fine because those lanes don't have a regulatory cliff anywhere.
+- This drives traffic to lanes 1–4 + 6 for the home market, which is fine because those lanes don't have a regulatory cliff anywhere.
 
 A standard standing instruction for the affiliate routing engine: *if Cloudflare's `cf-ipcountry == "NZ"`, the only affiliate link surface is TAB NZ (if approved) or no link*.
 
-## Lane 1 — Sponsored tournaments and native ad surfaces
+## Lane 1, Sponsored tournaments and native ad surfaces
 
 The platform is built for this. Every prediction-game surface is a place a brand can tastefully put their name without breaking the UX.
 
 ### Sponsored named challenges
 
 ```
-"Red Bull Comeback Challenge"     — points 2× for correct comeback predictions
-"Nike Underdog Cup"               — separate leaderboard for <30%-implied calls
-"TAB Free Prediction League"      — TAB-branded league (NZ-eligible)
-"Heineken Match Day Predictor"    — branded daily prompt
-"Pepsi Final Four Bracket"        — bracket challenge with sponsor logo + prize
+"Red Bull Comeback Challenge"    , points 2× for correct comeback predictions
+"Nike Underdog Cup"              , separate leaderboard for <30%-implied calls
+"TAB Free Prediction League"     , TAB-branded league (NZ-eligible)
+"Heineken Match Day Predictor"   , branded daily prompt
+"Pepsi Final Four Bracket"       , bracket challenge with sponsor logo + prize
 ```
 
 Inventory shape per tournament: 2–6 named challenges, each with logo placement on the dedicated leaderboard, a custom badge artwork, and inclusion on share cards. Pricing: $50k–$1M per tournament per sponsor depending on tournament size and exclusivity.
 
 ### Sponsored badges (brand-issued bragging rights)
 
-A brand can sponsor a permanent badge that lives on user profiles forever. Example: `"Vodafone Country Champion"` for the user who tops the country leaderboard during a tournament. The badge has the sponsor's logo on its artwork and lives in the user's profile gallery long after the campaign ends — which is *highly* valuable real estate.
+A brand can sponsor a permanent badge that lives on user profiles forever. Example: `"Vodafone Country Champion"` for the user who tops the country leaderboard during a tournament. The badge has the sponsor's logo on its artwork and lives in the user's profile gallery long after the campaign ends, which is *highly* valuable real estate.
 
 Pricing: $10k–$200k per badge per tournament.
 
 ### Sponsored AI commentary voices
 
-We're already using ElevenLabs (see [doc 6](06-video-ingest.md), [doc 14](14-clip-generation-and-social.md)). A licensed celebrity commentator voice — or a brand-native voice ("Snickers presents the in-app commentary by ___") — drops into the same pipeline. Premium tier; users hear it on rendered match playback and on auto-generated clips.
+We're already using ElevenLabs (see [doc 6](06-video-ingest.md), [doc 14](14-clip-generation-and-social.md)). A licensed celebrity commentator voice, or a brand-native voice ("Snickers presents the in-app commentary by ___"), drops into the same pipeline. Premium tier; users hear it on rendered match playback and on auto-generated clips.
 
 Pricing: $50k–$500k per voice per tournament.
 
 ### Sponsored stadium skins in the renderer
 
-The renderer's stadium is a swappable asset. A brand can sponsor a skin: a Pepsi-branded crowd ring, an Etihad pitch-side ad mesh, a Coca-Cola scoreboard. Doesn't change physics or gameplay — pure cosmetic.
+The renderer's stadium is a swappable asset. A brand can sponsor a skin: a Pepsi-branded crowd ring, an Etihad pitch-side ad mesh, a Coca-Cola scoreboard. Doesn't change physics or gameplay, pure cosmetic.
 
 Pricing: $25k–$250k per skin per tournament.
 
@@ -84,7 +84,7 @@ Pricing: $5–$25 per redemption to the platform; sponsor sets the prize cost.
 
 ### Sponsored push notification slots
 
-The Tournament Bot ([doc 13](13-telegram-bot-and-auth.md)) sends push notifications. One non-essential notification per day can be a sponsor slot ("Heineken says: Argentina v France kicks off in 30 min — make your prediction"). Hard rule: never bundle a sponsor message with a prediction-resolution or streak-protection notification — those stay clean.
+The Tournament Bot ([doc 13](13-telegram-bot-and-auth.md)) sends push notifications. One non-essential notification per day can be a sponsor slot ("Heineken says: Argentina v France kicks off in 30 min, make your prediction"). Hard rule: never bundle a sponsor message with a prediction-resolution or streak-protection notification, those stay clean.
 
 Pricing: ~$5–$20 CPM (per thousand subscribers seeing the message), tournament-scaled.
 
@@ -104,28 +104,28 @@ For a World Cup-scale event with Tournamental at meaningful scale (5M+ registere
 
 That's a *single tournament* of native ad inventory. Annualizing across 4–6 major tournaments per year (FIFA WC, Euros, Rugby WC, Cricket WC, IPL, NBA Finals) gets you to the $5M–$15M range without ever showing a sportsbook link.
 
-## Lane 2 — Tournamental Pro subscription
+## Lane 2, Tournamental Pro subscription
 
 Recurring revenue, no regulatory load, scales linearly with engaged-user count.
 
 ### Tiers
 
-**Free** (the platform — most users).
+**Free** (the platform, most users).
 - All 10 game modes, all leaderboards, basic share cards, badges, basic VStamps.
 - AI Match Briefing once per matchday (concise version).
 - Free league hosting up to 50 members per league.
 
-**Tournamental Pro — $9.99/month or $79/year.**
+**Tournamental Pro, $9.99/month or $79/year.**
 - Unlimited AI briefings + AI Prediction Coach + AI Post-Match Debrief per match.
 - Advanced odds movement charts (multi-operator, historical).
 - Prediction analytics: win rate by sport, by tournament stage, by implied-probability bucket; export.
 - Custom alerts: "market moved >15%", "friend overtook you", "your locked prediction's odds shifted".
 - Private leagues up to 1,000 members, custom branding, prize-tracking.
 - Priority access to new sport modules and beta features.
-- Premium Bitcoin-verified VStamp upgrade — every prediction immediately submitted to OpenTimestamps + Polygon (free tier batches every minute; Pro batches every 10 seconds).
+- Premium Bitcoin-verified VStamp upgrade, every prediction immediately submitted to OpenTimestamps + Polygon (free tier batches every minute; Pro batches every 10 seconds).
 - Custom profile URL: `tournamental.com/u/<custom>` instead of `tournamental.com/u/<user_id>`.
 
-**Tournamental Pro for Coaches — $29.99/month.**
+**Tournamental Pro for Coaches, $29.99/month.**
 - Everything in Pro.
 - Multi-account roster management (a coach managing 25 athletes' predictions for analysis).
 - White-label "team challenges" with the coach's branding.
@@ -144,22 +144,22 @@ Conservative Pro penetration is 1–3% of active users; aggressive is 5–10% (t
 | 5M | 5% | 250,000 | $30M |
 | 10M | 5% | 500,000 | $60M |
 
-These numbers compound — Pro has high retention because the analytics get more useful the longer the user's history. Plus Pro for Coaches at higher LTV is a separate stream.
+These numbers compound, Pro has high retention because the analytics get more useful the longer the user's history. Plus Pro for Coaches at higher LTV is a separate stream.
 
-## Lane 3 — B2B white-label
+## Lane 3, B2B white-label
 
-The whole Tournamental stack — predictions game, leaderboards, badges, private leagues, share cards, optional renderer — wrapped as a white-label engine for organizations that want fan engagement without building it themselves.
+The whole Tournamental stack, predictions game, leaderboards, badges, private leagues, share cards, optional renderer, wrapped as a white-label engine for organizations that want fan engagement without building it themselves.
 
 ### Customer segments
 
-- **Sports clubs** — fan-engagement campaigns through the season.
-- **Broadcasters** — interactive watch-along layer for digital streams.
-- **Pubs / bars** — branded WC pool with leaderboards on TVs.
-- **Fantasy / podcast brands** — community engagement with Verified Pundit upsell.
-- **Discord servers** — engagement layer for sports communities.
-- **Schools and universities** — internal tournaments (heavy discount tier).
-- **Workplaces** — office sweepstakes with brand-managed prizes (HR engagement).
-- **Media / publishing** — embedded "predict alongside the article" widget.
+- **Sports clubs**, fan-engagement campaigns through the season.
+- **Broadcasters**, interactive watch-along layer for digital streams.
+- **Pubs / bars**, branded WC pool with leaderboards on TVs.
+- **Fantasy / podcast brands**, community engagement with Verified Pundit upsell.
+- **Discord servers**, engagement layer for sports communities.
+- **Schools and universities**, internal tournaments (heavy discount tier).
+- **Workplaces**, office sweepstakes with brand-managed prizes (HR engagement).
+- **Media / publishing**, embedded "predict alongside the article" widget.
 
 ### Pricing structure
 
@@ -176,15 +176,15 @@ A single mid-size broadcaster deal (say, a regional Sky Sports equivalent runnin
 
 A dedicated screen mode for pubs, lounges, and Discord streams: live score, match clock, live market odds, Tournamental crowd prediction, biggest market moves, leaderboard movement, best live calls, "who just got wrecked", "who called the comeback". Sold as part of the white-label package, or as a stand-alone Pubs subscription at $49/month per location. Hardware: any modern smart TV with a browser does it.
 
-## Lane 4 — Creator and community leagues
+## Lane 4, Creator and community leagues
 
-Influencers, streamers, sports clubs, and community leaders run their own private leagues for their audiences. They own the branding and — critically — *they own the monetization*. Tournamental provides the engine and **never touches their money**.
+Influencers, streamers, sports clubs, and community leaders run their own private leagues for their audiences. They own the branding and, critically, *they own the monetization*. Tournamental provides the engine and **never touches their money**.
 
 This is the most powerful and most defensible monetization path on the platform. It strengthens the "we are infrastructure, not a betting operator" positioning because the platform is genuinely community-led: every prediction game is somebody's league, run by them, for their people.
 
 ### How creators and community leaders monetize off-platform
 
-Examples of the model in action — none of which involve Tournamental handling a single dollar of the operator's revenue:
+Examples of the model in action, none of which involve Tournamental handling a single dollar of the operator's revenue:
 
 - **Soccer YouTuber, 500k subscribers**, runs a free Tournamental league for their audience. Monetises via existing YouTube ad revenue boosted by the engagement, Patreon subscriptions for "pundit's picks" (delivered via the creator's own Patreon, never through Tournamental), branded merch, and direct sponsorships they sign with their own sponsors.
 - **Rugby club leader** runs a small Tournamental league among the club's 200 members for the season. Off-platform, members pay $20 each to enter a club-organised raffle / sweepstake; the verified Tournamental leaderboard determines the winner; the pot funds the new clubrooms. Cash settlement happens member-to-treasurer through the club's existing bank account or Wise. Tournamental provides the verified leaderboard. We never see the money.
@@ -198,12 +198,12 @@ In each case Tournamental provides: the league mechanics, the verified leaderboa
 
 Indirectly, not from the creator's wallet:
 
-- Affiliate-link clicks within the league (subject to lane 5 geo-rules — the creator never sees this revenue).
+- Affiliate-link clicks within the league (subject to lane 5 geo-rules, the creator never sees this revenue).
 - Tournamental Pro upsells to engaged creator-league members (lane 2).
 - Sponsored ad inventory (lane 1) seen by the creator's audience.
 - B2B white-label tier (lane 3) for larger creators or organisations who want custom branding, larger member caps, or admin tools.
 
-If a creator wants to monetise *through* the platform rather than around it (creator charges audience for premium league access, Tournamental handles billing), that's the optional secondary path — and we take a 15% cut for handling Stripe and the entitlement plumbing. Most creators with their own audience won't need this and will keep monetisation on their existing channels. That's fine. We benefit from their growth either way.
+If a creator wants to monetise *through* the platform rather than around it (creator charges audience for premium league access, Tournamental handles billing), that's the optional secondary path, and we take a 15% cut for handling Stripe and the entitlement plumbing. Most creators with their own audience won't need this and will keep monetisation on their existing channels. That's fine. We benefit from their growth either way.
 
 ### Optional secondary path: creator monetises *through* Tournamental
 
@@ -229,9 +229,9 @@ Creator-economy ceiling estimate (illustrative, see disclaimer below): a mid-tie
 
 ### Why this is the right model
 
-A creator running a league funded by their YouTube ads is **infrastructure usage**, not a betting affiliate funnel. A rugby club running a $20 sweepstake for new clubrooms is **community fundraising**, not Tournamental operating a lottery. By making this the headline monetization story for community-led activity — and making it explicit that Tournamental never touches the money in any of these flows — the platform's regulatory surface stays small, the trust story stays clean, and the creators get a clean engine to build on without inheriting any of Tournamental's compliance overhead.
+A creator running a league funded by their YouTube ads is **infrastructure usage**, not a betting affiliate funnel. A rugby club running a $20 sweepstake for new clubrooms is **community fundraising**, not Tournamental operating a lottery. By making this the headline monetization story for community-led activity, and making it explicit that Tournamental never touches the money in any of these flows, the platform's regulatory surface stays small, the trust story stays clean, and the creators get a clean engine to build on without inheriting any of Tournamental's compliance overhead.
 
-## Lane 5 — Affiliate routing (the high-ceiling, geo-restricted lane)
+## Lane 5, Affiliate routing (the high-ceiling, geo-restricted lane)
 
 Synthesizing the ChatGPT analysis: the absolute *upper bound* on affiliate revenue (1M qualified funded depositors at premium CPA) reaches $200M+, but realistic scenarios for Tournamental during a single tournament are an order of magnitude smaller. **Build for the realistic scenario; design for the upper-bound to be possible.**
 
@@ -258,14 +258,14 @@ The ChatGPT brainstorm modelled an aspirational 1M-FTD scenario. Here's the more
 
 Year 1 is small because conversion takes time and reputation. The bigger numbers materialize when (a) legal geos open up via signed deals, and (b) Verified Pundit reputation creates word-of-mouth.
 
-For comparison: a World Cup peak audience is ~1.5B viewers globally across all platforms. If Tournamental captures 1% of that (15M users) and converts 5% to FTDs in legal geos, that's 750k FTDs. That's roughly the year-4 ceiling — meaningful, but not hand-waved.
+For comparison: a World Cup peak audience is ~1.5B viewers globally across all platforms. If Tournamental captures 1% of that (15M users) and converts 5% to FTDs in legal geos, that's 750k FTDs. That's roughly the year-4 ceiling, meaningful, but not hand-waved.
 
 ### Affiliate routing engine (the system Tournamental must actually build)
 
 This is the component that turns affiliate revenue from "lottery ticket" into "consistent line item". It's a small TS service (`apps/affiliate-router/`) that decides, for every outbound market-link click:
 
 1. **Geo-detect** the user (Cloudflare provides `cf-ipcountry` for free).
-2. **Age-gate** — confirm the user is 18+ via the auth profile (declared at signup; legal in most jurisdictions but cross-check per region).
+2. **Age-gate**, confirm the user is 18+ via the auth profile (declared at signup; legal in most jurisdictions but cross-check per region).
 3. **Look up legal operators in this region** from a maintained `operators.yaml`:
    ```yaml
    bet365:
@@ -299,13 +299,13 @@ This is the component that turns affiliate revenue from "lottery ticket" into "c
 8. **Optimize routing daily** based on observed EPC, conversion rate, KYC pass rate, and revenue payback.
 9. **Failsafe**: if no operators are legal for this user, hide the affiliate UI entirely. Never default-route to "the closest jurisdiction".
 
-This is a bounded, well-scoped agent task — a candidate for **Agent N** (see [doc 09](09-agent-task-breakdown.md) update below).
+This is a bounded, well-scoped agent task, a candidate for **Agent N** (see [doc 09](09-agent-task-breakdown.md) update below).
 
 ### Custom deal structures to negotiate
 
 For tournament-scale traffic, don't accept public affiliate terms. Negotiate:
 
-- **Custom CPA tiers** (escalating per FTD bracket — 0–10k FTDs at $75, 10k–50k at $100, 50k+ at $125).
+- **Custom CPA tiers** (escalating per FTD bracket, 0–10k FTDs at $75, 10k–50k at $100, 50k+ at $125).
 - **Hybrid upside** (CPA + 12-month revshare).
 - **Exclusive tournament sponsor package** ($500k–$5M fixed plus CPA/revshare; gives the operator branded inventory in lane 1).
 - **Region exclusivity** ("Official Tournamental betting partner for Brazil").
@@ -313,13 +313,13 @@ For tournament-scale traffic, don't accept public affiliate terms. Negotiate:
 
 A combined deal with a single major operator at the top of a tournament can be $1M–$10M just on the fixed component, before per-FTD payouts.
 
-## Lane 6 — Data licensing and the Verified Pundit programme
+## Lane 6, Data licensing and the Verified Pundit programme
 
 The platform produces two kinds of data that have outside-Tournamental value:
 
 ### Crowd-prediction data
 
-The aggregate Tournamental crowd implied-probability over time is a unique dataset — effectively a real-time sentiment signal for sports outcomes. Comparable to Twitter sentiment but more structured (predictions are forced into outcome categories with locks).
+The aggregate Tournamental crowd implied-probability over time is a unique dataset, effectively a real-time sentiment signal for sports outcomes. Comparable to Twitter sentiment but more structured (predictions are forced into outcome categories with locks).
 
 Customers:
 - **Media outlets** running data-driven sports columns ("the crowd thought X, the market thought Y, here's who was right").
@@ -331,15 +331,15 @@ Pricing: $10k–$100k/year per licensee for an API feed of aggregated, anonymize
 
 ### Verified Pundit programme
 
-The killer feature of [doc 17](17-vstamp-and-prediction-iq.md) — Prediction IQ + verifiable history — becomes a paid certification programme.
+The killer feature of [doc 17](17-vstamp-and-prediction-iq.md), Prediction IQ + verifiable history, becomes a paid certification programme.
 
 How it works:
 - A user with a sustained Prediction IQ above a threshold (e.g. 1500, ~top 7%) becomes eligible for **Verified Pundit** status.
 - Verification is free (it's already proven by their VStamps), but **monetization** kicks in via:
   - **Featured placement** in the Tournamental discovery feed and in tournament-relevant content.
-  - **A "Verified Pundit" widget** they can embed on their own blog, podcast site, or Substack — pulling their live IQ + best calls. Free, but drives traffic back to Tournamental.
-  - **Paid endorsements** — brands pay the platform to feature a Verified Pundit's pre-tournament picks. Revenue split with the pundit (50/50).
-  - **Verified Pundit subscription tier** — a fan can pay $5/month to follow a specific pundit's locked predictions in real time (delayed for free users, instant for subscribers). Tournamental takes 15%.
+  - **A "Verified Pundit" widget** they can embed on their own blog, podcast site, or Substack, pulling their live IQ + best calls. Free, but drives traffic back to Tournamental.
+  - **Paid endorsements**, brands pay the platform to feature a Verified Pundit's pre-tournament picks. Revenue split with the pundit (50/50).
+  - **Verified Pundit subscription tier**, a fan can pay $5/month to follow a specific pundit's locked predictions in real time (delayed for free users, instant for subscribers). Tournamental takes 15%.
 
 This is the **flywheel** that converts the reputation network from a curiosity into a real business: pundits compete for IQ → users follow pundits → fans pay to follow → brands sponsor pundits → more pundits compete. Comparable economics to OnlyFans but for sports prediction skill, with verification as the moat.
 
@@ -347,14 +347,14 @@ Realistic scale: 500 verified pundits with average 500 paying followers at $5/mo
 
 ## Other revenue surfaces (smaller but additive)
 
-- **Premium clip downloads** — $1.99 per high-res, watermark-free MP4 of "your call" (the user's own prediction win, rendered with their name). Vanity purchase but high margin.
-- **Custom voice clones for commentary** — $19.99 one-time to have your own voice (uploaded sample) commentate on your own clip shares. Novelty premium.
-- **Tournament Bot premium personas** — alternative bot voices/personas at $4.99 each; "Posh British Pundit", "Cynical American Sportscaster", "Anime Tournament Host". Skin-style monetization.
-- **Sponsored verification batches** — a brand sponsors a specific minute's Merkle batch ("Verified by Polygon × Heineken"). Branding on the public proof page. $500–$5k per batch slot during major tournaments.
-- **API access for third-party developers** — $99/month base tier for read-only access to the public match-stream + leaderboard + crowd-prediction APIs. $999/month for higher rate limits and historical data.
-- **Tournament-specific virtual goods** — confidence chip skins, badge animations, profile frames. $0.99–$4.99 each.
-- **Donate / tip a creator** — Patreon-style tipping inside creator leagues. 10% platform fee.
-- **Picks-of-the-week newsletter sponsorship** — sponsored email to all opted-in users. $1k–$10k per send depending on list size.
+- **Premium clip downloads**, $1.99 per high-res, watermark-free MP4 of "your call" (the user's own prediction win, rendered with their name). Vanity purchase but high margin.
+- **Custom voice clones for commentary**, $19.99 one-time to have your own voice (uploaded sample) commentate on your own clip shares. Novelty premium.
+- **Tournament Bot premium personas**, alternative bot voices/personas at $4.99 each; "Posh British Pundit", "Cynical American Sportscaster", "Anime Tournament Host". Skin-style monetization.
+- **Sponsored verification batches**, a brand sponsors a specific minute's Merkle batch ("Verified by Polygon × Heineken"). Branding on the public proof page. $500–$5k per batch slot during major tournaments.
+- **API access for third-party developers**, $99/month base tier for read-only access to the public match-stream + leaderboard + crowd-prediction APIs. $999/month for higher rate limits and historical data.
+- **Tournament-specific virtual goods**, confidence chip skins, badge animations, profile frames. $0.99–$4.99 each.
+- **Donate / tip a creator**, Patreon-style tipping inside creator leagues. 10% platform fee.
+- **Picks-of-the-week newsletter sponsorship**, sponsored email to all opted-in users. $1k–$10k per send depending on list size.
 
 ## Risk and compliance
 
@@ -370,9 +370,9 @@ For each lane, the regulatory load varies. Honest mapping:
 | Data licensing | Low. | Aggregate / anonymize. No personal data in any feed. |
 | Verified Pundit programme | Low for the reputation; medium when paid endorsements involve operators. | Endorsements that point to sportsbook offers go through the same affiliate routing engine + geo-rules. |
 
-On payment processors: Tournamental doesn't custody money for sweepstakes (already specced — pools are non-custodial). All on-platform money flows are subscription (Stripe / Paddle) and B2B invoicing (Stripe Connect or direct ACH/wire). Affiliate revenue arrives from operators on net-30 / net-60 cycles; cashflow needs ~3 months runway to cover the lag during a big tournament campaign.
+On payment processors: Tournamental doesn't custody money for sweepstakes (already specced, pools are non-custodial). All on-platform money flows are subscription (Stripe / Paddle) and B2B invoicing (Stripe Connect or direct ACH/wire). Affiliate revenue arrives from operators on net-30 / net-60 cycles; cashflow needs ~3 months runway to cover the lag during a big tournament campaign.
 
-On responsible-gambling messaging: every page that surfaces market data displays the standard "Tournamental is a free-to-play prediction game…" disclosure. Every affiliate link includes the operator's responsible-gambling badge per the operator's affiliate brand-safety package. Some jurisdictions (UK in particular) require specific phrasing — handled per-region by the affiliate router.
+On responsible-gambling messaging: every page that surfaces market data displays the standard "Tournamental is a free-to-play prediction game…" disclosure. Every affiliate link includes the operator's responsible-gambling badge per the operator's affiliate brand-safety package. Some jurisdictions (UK in particular) require specific phrasing, handled per-region by the affiliate router.
 
 ## Why this stack is durable
 
@@ -382,7 +382,7 @@ Tournamental's revenue is *resilient* because it doesn't depend on any single la
 - An economic downturn hits Tournamental Pro (lane 2) but probably increases free-to-play engagement, which lifts lanes 1 and 5.
 - A sponsor pulling out of a tournament hits lane 1 but doesn't touch lane 2's recurring base.
 - A creator competitor emerging hurts lane 4 but only at the margin.
-- A blow to the platform's reputation (lane 6) is the *only* existential risk — which is why the verification layer ([doc 17](17-vstamp-and-prediction-iq.md)) is load-bearing for the whole business, not just a feature.
+- A blow to the platform's reputation (lane 6) is the *only* existential risk, which is why the verification layer ([doc 17](17-vstamp-and-prediction-iq.md)) is load-bearing for the whole business, not just a feature.
 
 This is also why sponsored tournaments + Pro subscription lead the priority list: they're the lanes that ship without legal review and produce real revenue while the affiliate deals are still being negotiated.
 
@@ -401,7 +401,7 @@ This is the order of monetization features the agents (J / K / L / M / N) should
 
 ## Headline number expectations
 
-> **These are illustrative scenarios, not forecasts.** The ranges below stack the six lanes under explicit assumptions: registered-user counts at each stage, conversion rates to Tournamental Pro, B2B deal counts, sponsor-deal sizes, and legal-geo footprint for affiliate. Actual outcomes depend on launch traction, regulatory developments per jurisdiction, sponsor-deal negotiations, and operator approvals — most of which are unknowable until they happen. These numbers are appropriate for internal planning and high-level partner conversations; they should not be presented to investors, regulators, or sophisticated counterparties as forecasts. Tournamental does not custody user funds, does not operate as a sportsbook, and these figures are not a solicitation of investment.
+> **These are illustrative scenarios, not forecasts.** The ranges below stack the six lanes under explicit assumptions: registered-user counts at each stage, conversion rates to Tournamental Pro, B2B deal counts, sponsor-deal sizes, and legal-geo footprint for affiliate. Actual outcomes depend on launch traction, regulatory developments per jurisdiction, sponsor-deal negotiations, and operator approvals, most of which are unknowable until they happen. These numbers are appropriate for internal planning and high-level partner conversations; they should not be presented to investors, regulators, or sophisticated counterparties as forecasts. Tournamental does not custody user funds, does not operate as a sportsbook, and these figures are not a solicitation of investment.
 
 Stacking the lanes at three points in the company's life:
 
@@ -446,8 +446,8 @@ The headline insight: **affiliate is large but never the majority** in a healthy
 ## Sources cited in this doc
 
 - [Polymarket affiliate / referral program (public terms)](https://polymarket.com/affiliate)
-- [TAB NZ — sole legal NZ online sports betting provider, effective 28 June 2025](https://www.dia.govt.nz/Gambling-licensing-online-sports-betting)
-- [UK Gambling Commission — affiliate responsibilities](https://www.gamblingcommission.gov.uk/guidance/the-licensing-conditions-and-codes-of-practice/affiliates)
+- [TAB NZ, sole legal NZ online sports betting provider, effective 28 June 2025](https://www.dia.govt.nz/Gambling-licensing-online-sports-betting)
+- [UK Gambling Commission, affiliate responsibilities](https://www.gamblingcommission.gov.uk/guidance/the-licensing-conditions-and-codes-of-practice/affiliates)
 - [iGaming affiliate model overview (CPA / revshare / hybrid)](https://www.affiliateguard.com/igaming-cpa-vs-revshare/)
-- [Sportsbook hold benchmarks — typical 5-9% range](https://www.legalsportsreport.com/sports-betting-revenue/)
-- [Entain partner programme — 24-month revshare cap](https://www.entainpartners.com/)
+- [Sportsbook hold benchmarks, typical 5-9% range](https://www.legalsportsreport.com/sports-betting-revenue/)
+- [Entain partner programme, 24-month revshare cap](https://www.entainpartners.com/)

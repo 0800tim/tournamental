@@ -1,5 +1,5 @@
 /**
- * Leaderboard preview — 4 tabs (Global / Country / Friends / Affiliate).
+ * Leaderboard preview, 4 tabs (Global / Country / Friends / Affiliate).
  * Pre-launch all show "Be the first" placeholders. The "what it'll look
  * like" sample uses synthetic names + flags so visitors get a feel for
  * the in-flight UI.

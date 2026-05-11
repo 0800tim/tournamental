@@ -1,5 +1,5 @@
 /**
- * Lineup tab — predicted XI per team rendered on a vertical pitch.
+ * Lineup tab, predicted XI per team rendered on a vertical pitch.
  *
  * Players are positioned via the formation's normalised x/y (0..100)
  * which we map to CSS percentages on a green pitch background. Mobile-
@@ -88,7 +88,7 @@ function PlayerDot({ player, side }: PlayerDotProps) {
   // Position the player. The formation's x is 0..100 along the long axis
   // (0 = own goal-line, 100 = halfway). The y is 0..100 along the wide
   // axis. For the away half we flip x so 0 still means "own goal-line"
-  // — i.e. visually at the top of the pitch.
+  //, i.e. visually at the top of the pitch.
   const longAxis = side === "home" ? `${player.x}%` : `${player.x}%`;
   const wideAxis = `${player.y}%`;
   const style = {

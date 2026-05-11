@@ -1,5 +1,5 @@
 /**
- * OverlayProvider — owns the overlay stack and keeps it in lockstep with
+ * OverlayProvider, owns the overlay stack and keeps it in lockstep with
  * the URL.
  *
  * Behaviour:
@@ -12,11 +12,11 @@
  *   overlays before navigating away from the page.
  * - Listens to `popstate`: when the user hits back, re-parse the URL
  *   and snap the stack to whatever the URL now says (works in both
- *   directions — back unwinds, forward redoes).
+ *   directions, back unwinds, forward redoes).
  * - Locks body scroll while at least one overlay is open (mobile UX).
  *
  * The provider is intentionally *not* part of the next/navigation
- * router — it lives on plain `history` so the underlying page route
+ * router, it lives on plain `history` so the underlying page route
  * never changes. This is critical for SEO: a search engine that fetches
  * the deep-link gets HTML for the *underlying* page (with the overlay's
  * server-rendered shim slotted in via `OverlayServerShim`); the overlay
@@ -44,7 +44,7 @@ const OverlayContext = createContext<OverlayApi | null>(null);
 interface OverlayProviderProps {
   readonly children: ReactNode;
   /**
-   * Optional initial stack — only used during SSR / tests. In the
+   * Optional initial stack, only used during SSR / tests. In the
    * browser the provider always re-reads `location.search` on mount to
    * stay authoritative.
    */
@@ -56,7 +56,7 @@ export function OverlayProvider(props: OverlayProviderProps) {
   const [stack, setStack] = useState<readonly OverlayFrame[]>(initialStack);
   // Internal flag: when true, the next state mutation came from a
   // popstate (browser back/forward) and we MUST NOT push another
-  // history entry — that would create an infinite loop.
+  // history entry, that would create an infinite loop.
   const skipNextPushRef = useRef<boolean>(false);
 
   // 1) On mount, hydrate the stack from the current URL. We can't do
@@ -173,7 +173,7 @@ export function OverlayProvider(props: OverlayProviderProps) {
 }
 
 /**
- * `useOverlay()` — read or mutate the overlay stack.
+ * `useOverlay()`, read or mutate the overlay stack.
  *
  * Throws when called outside an `<OverlayProvider>` so misuse fails
  * loudly in dev. Components that want to be optional can wrap in a
@@ -188,7 +188,7 @@ export function useOverlay(): OverlayApi {
 }
 
 /**
- * `useOptionalOverlay()` — returns null when not inside a provider.
+ * `useOptionalOverlay()`, returns null when not inside a provider.
  * Useful for shared components that may render in pages that don't
  * carry the overlay system (so they fall back to plain navigation).
  */

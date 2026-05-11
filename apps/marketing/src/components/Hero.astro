@@ -3,7 +3,7 @@ const demoUrl = "https://app.tournamental.com/match/fifa-wc-2022-final-arg-fra-2
 
 /* Each H1 word is wrapped in a per-word span so we can cascade them
  * with a fade-up motion. The split happens at build-time so the SSR'd
- * HTML is the source of truth — no client JS to mutate the H1, no
+ * HTML is the source of truth, no client JS to mutate the H1, no
  * accessibility tree disruption. Screen readers read the joined text
  * because spans are inline. */
 const HEADLINE: { text: string; accent?: boolean }[] = [
@@ -115,7 +115,7 @@ const PHRASES = HEADLINE.map((p) => {
   </div>
 </section>
 
-{/* Parallax — desktop pointer-fine devices follow the mouse with a
+{/* Parallax, desktop pointer-fine devices follow the mouse with a
     subtle 4-degree tilt; mobile coarse-pointer devices fall back to
     DeviceOrientation (gamma/beta) when the page has user gesture
     permission. The script honours prefers-reduced-motion: reduce by
@@ -155,7 +155,7 @@ const PHRASES = HEADLINE.map((p) => {
       });
     } else if ("DeviceOrientationEvent" in window) {
       // Coarse pointer: device-tilt fallback. iOS gates this behind a
-      // permission prompt — we only request after first touch so the
+      // permission prompt, we only request after first touch so the
       // page isn't denied immediately on load.
       var attach = function () {
         window.addEventListener("deviceorientation", function (e) {
@@ -172,7 +172,7 @@ const PHRASES = HEADLINE.map((p) => {
           document.removeEventListener("touchstart", once);
           ReqClass.requestPermission().then(function (state) {
             if (state === "granted") attach();
-          }).catch(function () { /* user denied — fail silent */ });
+          }).catch(function () { /* user denied, fail silent */ });
         }, { passive: true, once: true });
       } else {
         attach();

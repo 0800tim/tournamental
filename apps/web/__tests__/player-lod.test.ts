@@ -4,7 +4,7 @@
  * The selector lives at `components/PlayerLOD.tsx` but its hot logic
  * (`classifyLODBucket`) is pure so we unit-test it without R3F. The
  * hysteresis + previous-bucket interaction is the main correctness
- * concern — we don't want a player oscillating between HIGH/MED at the
+ * concern, we don't want a player oscillating between HIGH/MED at the
  * 14.9 m boundary.
  */
 import { describe, it, expect } from "vitest";

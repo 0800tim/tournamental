@@ -1,8 +1,8 @@
-// /blog/rss.xml — RSS 2.0 feed for the build log.
+// /blog/rss.xml, RSS 2.0 feed for the build log.
 //
 // Astro's `@astrojs/rss` integration handles the boilerplate. We stamp
 // the canonical site URL from `astro.config.mjs#site`, sort by
-// pubDate desc, and exclude drafts — same filter as the index.
+// pubDate desc, and exclude drafts, same filter as the index.
 import rss from "@astrojs/rss";
 import { getCollection } from "astro:content";
 import type { APIContext } from "astro";
@@ -12,7 +12,7 @@ export async function GET(context: APIContext) {
     .sort((a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime());
 
   return rss({
-    title: "Tournamental — Build Log",
+    title: "Tournamental, Build Log",
     description:
       "The Tournamental build log: behind-the-scenes engineering and feature show-offs as we ramp toward the 11 June 2026 World Cup kickoff.",
     site: context.site ?? "https://tournamental.com",

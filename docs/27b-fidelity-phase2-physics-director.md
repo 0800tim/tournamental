@@ -1,4 +1,4 @@
-# Phase 2 — Physics + auto-director
+# Phase 2, Physics + auto-director
 
 > Plant feet on the ground with IK. Replace position interpolation with a physics-driven ball. Build an event-driven camera director that switches angles + slow-mos goals.
 
@@ -15,7 +15,7 @@ Phase 1 PR merged into `main`.
 ```
 packages/avatar/
   src/
-    foot-ik.ts                          NEW — two-bone IK solver, foot to ground raycast
+    foot-ik.ts                          NEW, two-bone IK solver, foot to ground raycast
   test/
     foot-ik.test.ts                     NEW
 
@@ -23,26 +23,26 @@ packages/ball-physics/                  NEW workspace package
   package.json
   src/
     index.ts
-    ball-spline.ts                      NEW — Catmull-Rom + ease-out for passes/shots
-    ball-rapier.ts                      NEW — Rapier rigid-body for free kicks, contact moments
-    magnus.ts                           NEW — curl-effect modifier (Phase 4 fully realises this)
+    ball-spline.ts                      NEW, Catmull-Rom + ease-out for passes/shots
+    ball-rapier.ts                      NEW, Rapier rigid-body for free kicks, contact moments
+    magnus.ts                           NEW, curl-effect modifier (Phase 4 fully realises this)
   test/
     ball-trajectory.test.ts             NEW
 
 apps/web/
-  components/Ball.tsx                   MODIFY — read from BallPhysics not interpolation
-  components/Director.tsx               NEW — virtual camera + auto-cut on events
+  components/Ball.tsx                   MODIFY, read from BallPhysics not interpolation
+  components/Director.tsx               NEW, virtual camera + auto-cut on events
   lib/cameras/
-    broadcast-cam.ts                    NEW — wide tracking camera
+    broadcast-cam.ts                    NEW, wide tracking camera
     behind-goal-cam.ts                  NEW
     player-track-cam.ts                 NEW
-    goal-replay-cam.ts                  NEW — slow-mo, vignette boost
+    goal-replay-cam.ts                  NEW, slow-mo, vignette boost
   lib/director/
-    director-policy.ts                  NEW — listens to event stream, decides cuts
-    replay-buffer.ts                    NEW — circular buffer of last 10s of player+ball positions
-    cut-blender.ts                      NEW — eased camera transitions
-  app/match/[id]/page.tsx               MODIFY — wire <Director> into MatchScene
-  __tests__/director.spec.ts            NEW — playwright
+    director-policy.ts                  NEW, listens to event stream, decides cuts
+    replay-buffer.ts                    NEW, circular buffer of last 10s of player+ball positions
+    cut-blender.ts                      NEW, eased camera transitions
+  app/match/[id]/page.tsx               MODIFY, wire <Director> into MatchScene
+  __tests__/director.spec.ts            NEW, playwright
 
 docs/
   27b-fidelity-phase2-physics-director.md   THIS FILE

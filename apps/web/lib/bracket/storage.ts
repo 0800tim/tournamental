@@ -50,7 +50,7 @@ export function saveDraft(
 }
 
 /**
- * Stable per-browser id. NOT a real user id — the API will swap this for
+ * Stable per-browser id. NOT a real user id, the API will swap this for
  * an authenticated user_id once we ship `apps/api` auth.
  */
 export function localUserId(): string {

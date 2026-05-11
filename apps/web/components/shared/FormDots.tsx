@@ -1,7 +1,7 @@
 /**
- * FormDots — five W/D/L pills representing a team's last 5 results.
+ * FormDots, five W/D/L pills representing a team's last 5 results.
  *
- * Per the UX spec ([doc 36 — `FormDots` — NEW](../../../../docs/36-tournamental-ux-spec.md))
+ * Per the UX spec ([doc 36, `FormDots`, NEW](../../../../docs/36-tournamental-ux-spec.md))
  * this is the single shared form-strip used in three places:
  *
  *  - inline under each flag in `MatchPredictionRow` (size="sm")
@@ -10,13 +10,13 @@
  *
  * Two render shapes:
  *
- *  - **`sm`** — 8px colour-only dots, no letter, ultra-compact. Designed
+ *  - **`sm`**, 8px colour-only dots, no letter, ultra-compact. Designed
  *    for inline use under a flag. Five dots fit in ~52px wide and
  *    ~8px tall.
- *  - **`md`** — 14px circles with the W/D/L letter inside (white text).
+ *  - **`md`**, 14px circles with the W/D/L letter inside (white text).
  *    Used on the dedicated team page where context affords more room.
  *
- * Pure presentational — no data fetching. Caller passes the results in
+ * Pure presentational, no data fetching. Caller passes the results in
  * **most-recent-first** order (matches the spec's `results` prop) and we
  * render oldest -> newest left to right so the UX matches the canonical
  * "form moves left to right through time" pattern from FlashScore +

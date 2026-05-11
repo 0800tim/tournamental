@@ -11,7 +11,7 @@
  *
  * Response: `{ code, expires_at, deep_link }`
  *
- * Codes are 6 lowercase base-32 chars (alphabet 23456789abcdefghjkmnpqrstuvwxyz —
+ * Codes are 6 lowercase base-32 chars (alphabet 23456789abcdefghjkmnpqrstuvwxyz -
  * Crockford-style, no 0/1/l/o). One in 30^6 = ~700M collision space; we
  * retry on the rare collision.
  */

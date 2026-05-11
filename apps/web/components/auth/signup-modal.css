@@ -1,4 +1,4 @@
-/* SignupModal — three-tab sheet (Email / Telegram / WhatsApp).
+/* SignupModal, three-tab sheet (Email / Telegram / WhatsApp).
    Reuses .auth-* primitives from app/auth/auth.css where possible. */
 
 .vt-signup-backdrop {

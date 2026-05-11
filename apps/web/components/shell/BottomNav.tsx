@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Mobile bottom navigation bar — FIFA-style 4 (or 5) tab affordance.
+ * Mobile bottom navigation bar, FIFA-style 4 (or 5) tab affordance.
  *
  * - 4 main destinations: Home / Predict / Watch / Profile.
  * - Optional centre raised "Syndicates" (`+`-style) tab when
@@ -14,7 +14,7 @@
  * The active tab is computed from `window.location.pathname` once the
  * component mounts. We deliberately avoid `usePathname()` here because
  * pages with `dynamic = "force-static"` cannot prerender it cleanly in
- * Next 14 — the static-export RSC pass throws when the navigation
+ * Next 14, the static-export RSC pass throws when the navigation
  * context isn't available.
  */
 
@@ -46,7 +46,7 @@ export interface BottomNavProps {
   readonly tabs?: readonly BottomNavTab[];
   /** Hide on scroll-down auto-hide. Defaults to true. */
   readonly autoHide?: boolean;
-  /** Optional handler — when provided, appends a "Menu" tab that
+  /** Optional handler, when provided, appends a "Menu" tab that
    *  opens the mobile drawer instead of navigating. */
   readonly onMenuClick?: () => void;
 }

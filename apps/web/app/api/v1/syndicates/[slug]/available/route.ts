@@ -29,7 +29,7 @@ function jsonResponse(
     {
       status,
       headers: {
-        // Slug availability is volatile by design — never cache.
+        // Slug availability is volatile by design, never cache.
         "Cache-Control": "no-store",
       },
     },
@@ -43,7 +43,7 @@ export async function GET(
   const slug = (ctx.params?.slug ?? "").trim();
   const shape = validateSlug(slug);
   if (!shape.ok) {
-    // 200 (not 4xx) so the form's fetch never throws — the body
+    // 200 (not 4xx) so the form's fetch never throws, the body
     // carries the verdict. Returning the reason still tells the UI
     // what to say.
     return jsonResponse(false, shape.reason);

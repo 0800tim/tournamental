@@ -1,32 +1,32 @@
 /**
- * /api/og/syndicate — OG image generator for syndicate share pages.
+ * /api/og/syndicate, OG image generator for syndicate share pages.
  *
  * Surfaces the syndicate identity (name, host, member count, picks
  * made) as a 3-size matrix to match `/api/og/bracket`:
  *
- *   - landscape (default) → 1200×630  — X / FB / LinkedIn / Telegram.
- *   - portrait            → 1080×1350 — Instagram feed / Facebook / generic.
- *   - square              → 1080×1080 — Instagram square / Slack / WhatsApp.
+ *   - landscape (default) → 1200×630 , X / FB / LinkedIn / Telegram.
+ *   - portrait            → 1080×1350, Instagram feed / Facebook / generic.
+ *   - square              → 1080×1080, Instagram square / Slack / WhatsApp.
  *
  * Query params (all optional except `slug`):
- *   - slug          (required) — the syndicate slug. We do a server-side
+ *   - slug          (required), the syndicate slug. We do a server-side
  *                                lookup so the rendered image reflects
  *                                the LIVE member count and picks-made
  *                                figure when the syndicate is in the
  *                                store.
- *   - name          (optional) — display name override / fallback when
+ *   - name          (optional), display name override / fallback when
  *                                the syndicate isn't in the store yet.
- *   - member_count  (optional) — integer ≥ 0; fallback for store miss.
- *   - tournament    (optional) — defaults to "FIFA WC 2026".
- *   - size          (optional) — landscape | portrait | square.
+ *   - member_count  (optional), integer ≥ 0; fallback for store miss.
+ *   - tournament    (optional), defaults to "FIFA WC 2026".
+ *   - size          (optional), landscape | portrait | square.
  *
  * Resolution order:
- *   1. `loadSyndicateBySlug(slug)` — the canonical store, when populated.
- *   2. Inline query-param hints — when the slug isn't in the store yet
+ *   1. `loadSyndicateBySlug(slug)`, the canonical store, when populated.
+ *   2. Inline query-param hints, when the slug isn't in the store yet
  *      but the caller has the metadata. This keeps the route useful for
  *      previews and lets newly-signed-up syndicates render an OG card
  *      before the backend hydrates.
- *   3. A title-cased slug + zero members — last-resort placeholder so
+ *   3. A title-cased slug + zero members, last-resort placeholder so
  *      the route NEVER 404s. A poisoned 4xx in the CDN ruins every
  *      Open-Graph unfurl until the cache evicts.
  *
@@ -70,7 +70,7 @@ const ALLOWED_SIZES: ReadonlySet<SyndicateSize> = new Set([
 
 const DEFAULT_SIZE: SyndicateSize = "landscape";
 
-// Module-scope font cache — satori needs the buffer on every render but
+// Module-scope font cache, satori needs the buffer on every render but
 // we only read it from disk once per process.
 let fontCache: { regular: ArrayBuffer; bold: ArrayBuffer } | null = null;
 
@@ -208,7 +208,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       headers: {
         "content-type": "image/png",
         "content-disposition": `inline; filename="syndicate-${args.safeSlug}-${args.size}.png"`,
-        // Short edge TTL + SWR — the live member count refreshes within
+        // Short edge TTL + SWR, the live member count refreshes within
         // ~1 minute once the syndicate lands in the canonical store.
         "cache-control": "public, s-maxage=60, stale-while-revalidate=600",
         "x-vtorn-og-size": args.size,
@@ -232,7 +232,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const { width, height } = SIZES[args.size];
   const fonts = await loadFonts();
 
-  // Per-size typography scale — keeps the wordmark / title hierarchy
+  // Per-size typography scale, keeps the wordmark / title hierarchy
   // legible at every aspect ratio without overflowing on portrait.
   const scale =
     args.size === "landscape" ? 1 : args.size === "square" ? 1.05 : 1.15;

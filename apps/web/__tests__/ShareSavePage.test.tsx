@@ -1,5 +1,5 @@
 /**
- * Vitest — <ShareSavePage>.
+ * Vitest, <ShareSavePage>.
  *
  * Verifies the rebuilt Save & share surface:
  *   - copy-link button fires navigator.clipboard.writeText and flips to
@@ -10,7 +10,7 @@
  *   - the OG image src reflects the selected size chip.
  *
  * The component reads its bracket draft from localStorage so we seed a
- * minimal one per test. We don't drive the full cascade here — those
+ * minimal one per test. We don't drive the full cascade here, those
  * concerns are tested elsewhere; this suite only cares about the share
  * surface.
  */

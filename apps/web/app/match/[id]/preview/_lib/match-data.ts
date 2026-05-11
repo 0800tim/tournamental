@@ -1,17 +1,17 @@
 /**
  * Pure helpers for `/match/[id]/preview`.
  *
- *   - resolveMatch(id) — find a match by id (group fixture `match_no`
+ *   - resolveMatch(id), find a match by id (group fixture `match_no`
  *     stringified, or knockout `id` like `r32_01`/`final`); returns
  *     home / away team codes when known plus stage label and kickoff.
- *   - headToHead(homeCode, awayCode) — last <=5 historical meetings
+ *   - headToHead(homeCode, awayCode), last <=5 historical meetings
  *     from `apps/web/data/head-to-head.json`. The pair lookup is
  *     direction-insensitive: ARG-FRA finds the same record as FRA-ARG
  *     and per-meeting `homeCode` / `awayCode` are preserved.
- *   - lineupFor(code) — predicted XI from `team-formations.json`,
+ *   - lineupFor(code), predicted XI from `team-formations.json`,
  *     or a synthesised 4-3-3 from the team's squad in
  *     `team-squads.json` if the formations file has no entry.
- *   - statsFor(code) — pre-match expected stats from
+ *   - statsFor(code), pre-match expected stats from
  *     `team-stats.json`, or a deterministic synthesised default
  *     derived from the team's FIFA rank.
  *
@@ -96,7 +96,7 @@ export interface ResolvedMatch {
   readonly venue?: string;
   /** Original group_id for group matches ("A".."L"). */
   readonly groupId?: string;
-  /** Match number (1..104) — useful for the share URL and OG image. */
+  /** Match number (1..104), useful for the share URL and OG image. */
   readonly matchNo: number;
 }
 
@@ -390,7 +390,7 @@ export function lineupFor(code: string): TeamFormation {
 function synthesiseLineup(code: string): TeamFormation {
   const squad = SQUADS[code] ?? [];
   // Sort by position priority (GK first, then DF, MF, FW), keep
-  // jersey order within each band — gives a stable "starter" set.
+  // jersey order within each band, gives a stable "starter" set.
   const order: Record<SquadPlayer["position"], number> = {
     GK: 0,
     DF: 1,

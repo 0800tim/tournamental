@@ -1,5 +1,5 @@
 /**
- * <PlayerHero /> — top-of-page banner for `/player/[id]`.
+ * <PlayerHero />, top-of-page banner for `/player/[id]`.
  *
  * Renders:
  *   - hero portrait (Wikimedia headshot) with a 10-pt-style attribution

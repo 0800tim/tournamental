@@ -43,7 +43,7 @@ export class CutBlender {
   private ease: (t: number) => number;
   private instantCuts: Set<DirectorCamName>;
   private now: () => number;
-  /** Active target snapshot — captured at cut time so a moving target
+  /** Active target snapshot, captured at cut time so a moving target
    *  doesn't change underneath the blend mid-flight. */
   private target: CameraTarget | null = null;
 
@@ -72,7 +72,7 @@ export class CutBlender {
       return;
     }
     if (target.name === this.currentName) {
-      // Same cam — let the spec's pose updates flow through but keep
+      // Same cam, let the spec's pose updates flow through but keep
       // the blend going if it hasn't finished yet.
       this.target = { ...target, position: target.position.clone(), lookAt: target.lookAt.clone() };
       return;
@@ -98,7 +98,7 @@ export class CutBlender {
 
   /**
    * Compute the blended pose this frame and write it into `out`. Out
-   * vectors are reused across calls — pass scratch from the renderer.
+   * vectors are reused across calls, pass scratch from the renderer.
    */
   evaluate(out: { position: THREE.Vector3; lookAt: THREE.Vector3; fov: number; name: DirectorCamName }): void {
     if (!this.target) {

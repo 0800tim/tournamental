@@ -1,5 +1,5 @@
 /**
- * Server-side bracket lookup by share guid — STUB pending the game
+ * Server-side bracket lookup by share guid, STUB pending the game
  * service `/v1/bracket/by-guid/<guid>` endpoint.
  *
  * The `/s/<guid>` universal share landing route hits this after the
@@ -11,7 +11,7 @@
  * nanoids and the moment user-id-backed shares land in #70 the
  * authenticated route will emit UUIDs. Keeping the guard permissive
  * here means old screenshot links keep resolving once the backend
- * lands — the UUID variant just hits a different code path.
+ * lands, the UUID variant just hits a different code path.
  */
 
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -75,7 +75,7 @@ const STAGE_LABEL: Record<PathToGoldEntry["stage"], string> = {
  * landing page renders something coherent during pre-launch.
  *
  * The synthetic picks rotate through a fixed pool of teams seeded by
- * a hash of the guid — same guid always yields the same bracket so
+ * a hash of the guid, same guid always yields the same bracket so
  * link-back from a social post stays stable across reloads.
  *
  * TODO: replace with a fetch to

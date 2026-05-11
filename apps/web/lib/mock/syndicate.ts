@@ -22,7 +22,7 @@ export interface MockSyndicate {
   };
   /** One-line pitch shown in the hero subtitle. */
   readonly tagline: string;
-  /** Days until kickoff at the time these copy were written —
+  /** Days until kickoff at the time these copy were written -
    *  surfaces can render this directly until kickoff data lands. */
   readonly daysToKickoff: number;
   /** Number of picks placed across the pool so far. */
@@ -48,7 +48,7 @@ export const MOCK_SYNDICATES: readonly MockSyndicate[] = [
     ownerHandle: "@liam_w",
     memberCount: 128,
     region: "Manchester, UK",
-    topic: "Pub league — predictions over pints",
+    topic: "Pub league, predictions over pints",
     vibePalette: { primary: "#d8954f", accent: "#3ec27b" },
     tagline: "Every Tuesday at the Tackle House. Now the brackets count too.",
     daysToKickoff: 31,
@@ -96,7 +96,7 @@ export const MOCK_SYNDICATES: readonly MockSyndicate[] = [
     ownerHandle: "@ellie_b",
     memberCount: 312,
     region: "London, UK",
-    topic: "Verified-pundit league — analysts only",
+    topic: "Verified-pundit league, analysts only",
     vibePalette: { primary: "#cdd5e7", accent: "#f5c542" },
     tagline: "Tipsters with a track record. Earn your seat.",
     daysToKickoff: 31,
@@ -118,7 +118,7 @@ export interface MockActivityEvent {
 }
 
 /**
- * Deterministic activity feed for a syndicate — 8 events, mixed verbs.
+ * Deterministic activity feed for a syndicate, 8 events, mixed verbs.
  */
 export function mockActivityFeed(syndicateSlug: string): MockActivityEvent[] {
   // Hand-tuned so each syndicate page reads as plausible without being

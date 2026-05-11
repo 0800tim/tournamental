@@ -1,5 +1,5 @@
 /**
- * LeaderboardEntryOverlay — placeholder bottom-sheet for a leaderboard
+ * LeaderboardEntryOverlay, placeholder bottom-sheet for a leaderboard
  * row. Wires into the Verified-Pundit + share flow once the
  * leaderboard service is live (see docs/12-odds-and-predictions.md +
  * the share/[bracketId] route).

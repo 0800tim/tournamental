@@ -1,6 +1,6 @@
-# 06 — Video Ingest Pipeline (Video → Spec Stream)
+# 06, Video Ingest Pipeline (Video → Spec Stream)
 
-> Watches a video stream and produces a spec-conformant JSON stream from it. Uses ffmpeg, Whisper, a vision LLM, and an event-extractor LLM. The output is approximate, not authoritative — but it's cheap, model-agnostic on the input side, and works on any source you can play.
+> Watches a video stream and produces a spec-conformant JSON stream from it. Uses ffmpeg, Whisper, a vision LLM, and an event-extractor LLM. The output is approximate, not authoritative, but it's cheap, model-agnostic on the input side, and works on any source you can play.
 
 ## What this can and can't do
 
@@ -75,7 +75,7 @@ Each frame's filename encodes its timestamp (`frame_index = timestamp_seconds`).
 { "t_ms": 12000, "duration_ms": 2000, "text": "...and Smith finds Jones on the right..." }
 ```
 
-For multi-language matches use the multilingual model and a `language=` hint. Speaker diarization is *not* needed — we only care about the words.
+For multi-language matches use the multilingual model and a `language=` hint. Speaker diarization is *not* needed, we only care about the words.
 
 ### 3. Vision LLM frame description
 
@@ -100,7 +100,7 @@ For each sampled frame, call Claude with the `frame-analyzer` prompt (see [`prom
 
 Cost-control techniques:
 
-- Resize frames to 1280px on the long edge — vision LLMs don't benefit from more.
+- Resize frames to 1280px on the long edge, vision LLMs don't benefit from more.
 - One call per second of game time, not per video frame.
 - For "boring" frames (no visible action change), use a previous-frame diff heuristic and skip.
 - Cache frame descriptions by perceptual hash so re-runs of the same match cost nothing.
@@ -110,7 +110,7 @@ Cost-control techniques:
 A second LLM call once per second, batching:
 - The most recent frame description.
 - The transcript window covering the last ~2 seconds.
-- The previous 5 seconds of emitted events (for context — don't double-emit a goal).
+- The previous 5 seconds of emitted events (for context, don't double-emit a goal).
 
 Prompt: [`prompts/commentary-extractor.md`](../prompts/commentary-extractor.md). Model returns zero or more spec event messages plus an updated coarse position estimate for the ball and the active players.
 
@@ -127,7 +127,7 @@ The vision LLM's coarse `xy_estimate` for the ball and a few active players is s
 - Ball position interpolated between known estimates with simple constant-velocity assumption.
 - `anim` set from the most recent action label (running, walking, idle).
 
-This is unapologetically *fiction* — most of the players' positions are made up. The output looks plausible, supports the renderer, and is honestly labelled in the producer field of `MatchInit` (`"producer": "video-ingest-v0.3"`) so consumers know what they're getting.
+This is unapologetically *fiction*, most of the players' positions are made up. The output looks plausible, supports the renderer, and is honestly labelled in the producer field of `MatchInit` (`"producer": "video-ingest-v0.3"`) so consumers know what they're getting.
 
 ### 6. Emit to stream server
 

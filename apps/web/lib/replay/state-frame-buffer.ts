@@ -1,7 +1,7 @@
 /**
  * Match-time state-frame buffer with smooth interpolation.
  *
- * Background — why this exists:
+ * Background, why this exists:
  *
  * The old renderer pipeline used `alphaForNow(prevWallMs, currWallMs, now)`
  * to lerp between the store's `prev` and `curr` state frames. That works
@@ -19,7 +19,7 @@
  * follows.
  *
  * Fix: keep a small ring buffer of recent state frames, indexed by their
- * spec match-time `t` (not wall-clock). Track an *anchor* — the
+ * spec match-time `t` (not wall-clock). Track an *anchor*, the
  * wall-clock instant + the match-time of the most recent frame received
  * in real time. Whenever the renderer asks for the current pose, we
  * compute the active match-time from the anchor + elapsed wall-clock,
@@ -116,11 +116,11 @@ export class StateFrameBuffer {
    *   - First frame seeds the anchor at (wallNow, frame.t).
    *   - When a frame arrives whose match-time gap from the last anchor
    *     update is > the wall-clock gap (i.e. the source is bursting),
-   *     we KEEP the anchor where it is — the renderer will read it
+   *     we KEEP the anchor where it is, the renderer will read it
    *     forward at real-time pace and the catch-up happens via the
    *     `currentMatchTime()` ceiling logic on the next bursting wave.
    *   - When a frame arrives whose match-time gap matches wall-clock
-   *     (≤1.2× tolerance), we slide the anchor forward — that's the
+   *     (≤1.2× tolerance), we slide the anchor forward, that's the
    *     normal real-time source case.
    */
   push(frame: StateFrame): void {
@@ -151,7 +151,7 @@ export class StateFrameBuffer {
     // Allow up to 25% drift either way before we treat it as a burst.
     const ratio = wallGap > 0 ? matchGap / wallGap : Infinity;
     if (ratio < 0.75 || ratio > 1.25) {
-      // Burst (or stall). Don't slide — the consumer will sample at
+      // Burst (or stall). Don't slide, the consumer will sample at
       // real-time pace and naturally interpolate between the buffered
       // frames as wall-clock advances.
       return;
@@ -313,7 +313,7 @@ export function catmullRom3(
 }
 
 /**
- * Linear ramp helper for tests / debugging — exposed so other modules
+ * Linear ramp helper for tests / debugging, exposed so other modules
  * can compose match-time clocks without re-deriving the formula.
  */
 export function lerpScalar(a: number, b: number, t: number): number {

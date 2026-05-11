@@ -1,5 +1,5 @@
 /**
- * Phase-4 mobile perf budget tests — pure logic.
+ * Phase-4 mobile perf budget tests, pure logic.
  */
 import { describe, it, expect } from "vitest";
 import {

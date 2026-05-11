@@ -25,7 +25,7 @@
   transition: transform 0.3s ease;
 }
 
-/* Idle wave — gentle skew animation that suggests fabric movement. */
+/* Idle wave, gentle skew animation that suggests fabric movement. */
 .sparkle .flagImg {
   animation: vt-flag-wave 6s ease-in-out infinite;
   transform-origin: left center;
@@ -38,7 +38,7 @@
   75%      { transform: skewY(1.2deg) scaleY(1.005); }
 }
 
-/* Shimmer sweep — diagonal highlight band drifts across the flag. */
+/* Shimmer sweep, diagonal highlight band drifts across the flag. */
 .shimmer {
   position: absolute;
   inset: -50%;
@@ -64,7 +64,7 @@
   100% { transform: translateX(30%)  rotate(360deg); }
 }
 
-/* Accent glow — kit-colour halo around the flag. */
+/* Accent glow, kit-colour halo around the flag. */
 .glow {
   position: absolute;
   inset: -2px;
@@ -86,7 +86,7 @@
   50%      { opacity: 0.85; }
 }
 
-/* Hover — slight tilt + brighter glow. */
+/* Hover, slight tilt + brighter glow. */
 .flagWrap:hover .flagImg {
   transform: translateY(-1px) scale(1.04);
 }
@@ -94,7 +94,7 @@
   opacity: 1;
 }
 
-/* Selection ring — kit-colour outline marking the chosen team. The colour
+/* Selection ring, kit-colour outline marking the chosen team. The colour
    itself is set inline in JSX so it picks up the team's `accentColor`. We
    only own the fade-in here (per spec: 150ms ease-in). */
 .selectionRing {
@@ -113,7 +113,7 @@
   }
 }
 
-/* Dim — desaturate + fade the unselected side after a pick. */
+/* Dim, desaturate + fade the unselected side after a pick. */
 .dim .flagImg {
   filter: grayscale(0.6) opacity(0.5) saturate(1.05) contrast(1.02);
 }

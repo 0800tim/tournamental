@@ -1,5 +1,5 @@
 /**
- * BracketOverlayShell — client wrapper that stitches the overlay
+ * BracketOverlayShell, client wrapper that stitches the overlay
  * provider, the breadcrumb, the overlay root, and the page children
  * together. Lives as a separate component so the page itself stays a
  * server component (and so other pages can reuse the same shell).

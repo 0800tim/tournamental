@@ -3,7 +3,7 @@
 /**
  * Page-view auto-fire hook.
  *
- * Next.js client-side navigations don't trigger a fresh GTM page-view —
+ * Next.js client-side navigations don't trigger a fresh GTM page-view -
  * GA4 still thinks it's the initial document load. This hook listens
  * to the App Router's `usePathname()` and fires a single
  * `page.view` event whenever the pathname changes.
@@ -22,7 +22,7 @@ export function usePageView(): void {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // Honour SSR / pre-mount edge — pathname can be null before the
+    // Honour SSR / pre-mount edge, pathname can be null before the
     // first effect runs.
     if (!pathname) return;
     track("page.view", {

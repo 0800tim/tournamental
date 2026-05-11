@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MoleculeScene — the R3F canvas that draws the 3D tournament molecule.
+ * MoleculeScene, the R3F canvas that draws the 3D tournament molecule.
  *
  * v2 changes:
  *   - Atoms render as flag-wrapped spheres (see TeamAtom + FlagSphereMaterial).
@@ -55,9 +55,9 @@ export interface MoleculeSceneProps {
   readonly tournament: Tournament;
   readonly bracketOverride?: Bracket | null;
   /**
-   * v5 — layout mode for the molecule.
-   *   "stable"      — per-team hash (v4 default; columns rise vertical).
-   *   "rank-sorted" — strongest at θ=0 around each ring. Used in "Rank
+   * v5, layout mode for the molecule.
+   *   "stable"     , per-team hash (v4 default; columns rise vertical).
+   *   "rank-sorted", strongest at θ=0 around each ring. Used in "Rank
    *                   Favourites" mode so the contrast between your
    *                   picks and the rank consensus is visually stark.
    */
@@ -98,7 +98,7 @@ function resolveCascade(
   return result;
 }
 
-/** Inner R3F component — placed inside <Canvas>. */
+/** Inner R3F component, placed inside <Canvas>. */
 function MoleculeWorld({
   layout,
   selected,
@@ -127,11 +127,11 @@ function MoleculeWorld({
   pathAtomSet: ReadonlySet<string>;
   /** Map of bond-key → (index in path, totalPathLength) for pulse staggering. */
   pathBondOrder: ReadonlyMap<string, { index: number; total: number }>;
-  /** v5 — match-bond-key → winner's teamCode (for directional arrow). */
+  /** v5, match-bond-key → winner's teamCode (for directional arrow). */
   pathWinnerByMatchBondKey: ReadonlyMap<string, string>;
-  /** v5 — teamCode of the loser at each path layer → bond stage (for `⨯` glyph). */
+  /** v5, teamCode of the loser at each path layer → bond stage (for `⨯` glyph). */
   pathLoserByTeam: ReadonlyMap<string, BondStage>;
-  /** v5 — match-bond-key → human-readable round label ("R32", "Final", …). */
+  /** v5, match-bond-key → human-readable round label ("R32", "Final", …). */
   pathBondStageLabel: ReadonlyMap<string, string>;
   motionEnabled: boolean;
   groupBondsVisible: boolean;
@@ -211,14 +211,14 @@ function MoleculeWorld({
 
       {layout.nodes.map((node) => {
         const koStage = pathLoserByTeam.get(node.teamCode);
-        // The `⨯` glyph only renders on the loser's TOP instance — the
+        // The `⨯` glyph only renders on the loser's TOP instance, the
         // layer where they were actually eliminated. Other instances
         // (their group-base, lower-layer climbs) stay clean.
         const isPathKnockoutPoint =
           koStage !== undefined
           && node.isTopInstance
           && (koStage === node.stage
-              || // tp losers terminate at sf — but the loss happened at the
+              || // tp losers terminate at sf, but the loss happened at the
                  // match's stage, which the cascade marks as sf for our purposes.
                  koStage === "tp");
         return (
@@ -245,7 +245,7 @@ function MoleculeWorld({
 }
 
 /**
- * IdleAutoRotateBridge — toggles OrbitControls.autoRotate based on recent
+ * IdleAutoRotateBridge, toggles OrbitControls.autoRotate based on recent
  * interaction, and exposes both the interaction-timestamp and a
  * "currently rotating" flag to the parent via callback.
  */
@@ -336,7 +336,7 @@ export function MoleculeScene({
 
   // Stage-by-team map for the side panel pill. v4: every team has many
   // instances, but they all carry the same `finalStage`, so picking any
-  // instance is fine — we use the top instance for clarity.
+  // instance is fine, we use the top instance for clarity.
   const finalStageByTeam = useMemo(() => {
     const m = new Map<string, FinalStage>();
     for (const node of layout.nodes) {
@@ -425,7 +425,7 @@ export function MoleculeScene({
   );
 
   const hoveredOrSelected = hovered ?? selected;
-  // v4: a team has many instances — surface the deepest one for tooltips
+  // v4: a team has many instances, surface the deepest one for tooltips
   // / chips so the stage label is meaningful.
   const hoveredNode = hoveredOrSelected
     ? layout.nodes.find((n) => n.teamCode === hoveredOrSelected && n.isTopInstance)
@@ -487,7 +487,7 @@ export function MoleculeScene({
         // y=16 + lookAt y=15 puts the lens almost level with the visual
         // midpoint and pulls back to z=58 so the apex sits ~30% from
         // the top of the frame and the base ~70% from the top with a
-        // 40° FOV — the whole silhouette fits inside the canvas on
+        // 40° FOV, the whole silhouette fits inside the canvas on
         // first paint, no manual zoom required.
         camera={{ position: [0, 16, 58], fov: 40, near: 0.1, far: 500 }}
         gl={{
@@ -539,7 +539,7 @@ export function MoleculeScene({
           rotateSpeed={0.7}
           minDistance={22}
           maxDistance={140}
-          // v4: tighter polar-angle band — don't let the user look
+          // v4: tighter polar-angle band, don't let the user look
           // straight down (loses the pyramid silhouette) or too far
           // overhead (sees the base disc head-on).
           minPolarAngle={Math.PI * 0.25}
@@ -555,7 +555,7 @@ export function MoleculeScene({
 
       <MoleculeLegend />
 
-      {/* v5 — small mode hint chip surfacing when the user toggled
+      {/* v5, small mode hint chip surfacing when the user toggled
        * "Rank Favourites" mode. Sits just below the PATH TO GOLD chip
        * so the two stack neatly. */}
       {layoutMode === "rank-sorted" ? (
@@ -565,7 +565,7 @@ export function MoleculeScene({
         </div>
       ) : null}
 
-      {/* "PATH TO GOLD" chip — visible when the default champion-path is the active highlight. */}
+      {/* "PATH TO GOLD" chip, visible when the default champion-path is the active highlight. */}
       {showPathChip ? (
         <div className="molecule-path-chip" role="status" aria-live="polite">
           <span className="molecule-path-chip-dot" aria-hidden />
@@ -582,7 +582,7 @@ export function MoleculeScene({
           <h2 className="molecule-empty-title">Your molecule is still in the petri dish.</h2>
           <p className="molecule-empty-body">
             Pick at least one knockout match to see your tournament molecule
-            crystallise — group winners cluster on the outer ring, your
+            crystallise, group winners cluster on the outer ring, your
             predicted champion sits at the heart.
           </p>
           <a href="/world-cup-2026" className="molecule-empty-cta">
@@ -591,7 +591,7 @@ export function MoleculeScene({
         </div>
       ) : null}
 
-      {/* Hover tooltip — desktop only. */}
+      {/* Hover tooltip, desktop only. */}
       {hoveredNode && hoveredNode.teamCode !== selected ? (
         <div className="molecule-tooltip" role="tooltip">
           <div className="molecule-tooltip-head">
@@ -603,7 +603,7 @@ export function MoleculeScene({
               {finalStageLabel(hoveredNode.finalStage)}
             </span>
           </div>
-          {/* v5 — mini opponent list (R32 → F), if the team played any
+          {/* v5, mini opponent list (R32 → F), if the team played any
            * knockout matches. Group-stage outs hide this section. */}
           {hoveredPath && hoveredPath.bonds.length > 0 ? (
             <ul className="molecule-tooltip-opponents" aria-label="opponents">

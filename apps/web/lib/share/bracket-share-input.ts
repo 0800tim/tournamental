@@ -3,7 +3,7 @@
  * `/v1/share/bracket/...` routes.
  *
  * The bracket payload arrives one of two ways:
- *   1. Encoded in query params on the share URL — every public share
+ *   1. Encoded in query params on the share URL, every public share
  *      link the user posts to Instagram / Twitter carries the champion
  *      + knockout-path data inline. This is the path that always works,
  *      irrespective of any server-side bracket store.
@@ -54,7 +54,7 @@ const SAFE_ID_RE = /^[a-zA-Z0-9_-]{1,64}$/;
 /**
  * Pull the bare bracket id + any trailing file extension out of the
  * dynamic Next.js route segment. We refuse anything that wouldn't be
- * safe on disk — the on-disk MP4 cache path is built from this value.
+ * safe on disk, the on-disk MP4 cache path is built from this value.
  */
 export function parseBracketSegment(raw: string): ParsedShareUrl | null {
   const decoded = decodeURIComponent(raw);
@@ -70,7 +70,7 @@ export function isValidBracketId(raw: string): boolean {
 
 /**
  * Build the canvas input from URL search params. The shape is
- * intentionally permissive — every field defaults to a sensible
+ * intentionally permissive, every field defaults to a sensible
  * placeholder so we always return a renderable card.
  */
 export function inputFromSearchParams(args: {

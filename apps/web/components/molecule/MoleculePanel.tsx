@@ -1,19 +1,19 @@
 "use client";
 
 /**
- * MoleculePanel — slide-in side panel for the selected team.
+ * MoleculePanel, slide-in side panel for the selected team.
  *
  * v3: the panel now tells a full narrative of the team's run through
  * the user's predicted bracket. Sections, top to bottom:
  *
- *   1. Header — flag, name, terminal-state pill (OUT IN R16 / CHAMPION / …).
+ *   1. Header, flag, name, terminal-state pill (OUT IN R16 / CHAMPION / …).
  *   2. Highlight-on-scene toggle (carried over from v2).
- *   3. GROUP STAGE — a rank pill (1ST / 2ND / 3RD / 4TH), a sentence
+ *   3. GROUP STAGE, a rank pill (1ST / 2ND / 3RD / 4TH), a sentence
  *      ("Topped Group A with 7 points (+6 GD)") and three per-match
  *      rows (opponent flag + result + points).
- *   4. KNOCKOUT — the existing path-rows section. Empty for teams who
+ *   4. KNOCKOUT, the existing path-rows section. Empty for teams who
  *      didn't make it out of the group.
- *   5. Footer — link to the dedicated team page.
+ *   5. Footer, link to the dedicated team page.
  *
  * Group-stage data comes from `lib/molecule/group-summary.ts`, which
  * uses the same standings computer as the bracket UI (so the panel and
@@ -40,7 +40,7 @@ export interface MoleculePanelProps {
   cascaded: CascadedBracket | null;
   finalStageByTeam: ReadonlyMap<string, FinalStage>;
   flagEmojiByTeam: ReadonlyMap<string, string>;
-  /** Toggle state — is this team's path replacing the default highlight? */
+  /** Toggle state, is this team's path replacing the default highlight? */
   highlightOverrideOn?: boolean;
   onHighlightOverrideChange?: (on: boolean) => void;
   onClose: () => void;
@@ -81,7 +81,7 @@ function summarySentence(summary: GroupStageSummary): string {
   const pts = summary.totalPoints;
   const gd = gdLabel(summary.goalDiff);
   if (summary.matches.every((m) => m.teamScore === null)) {
-    // No scores set — omit the GD bit, it would always read +0.
+    // No scores set, omit the GD bit, it would always read +0.
     return `${head} with ${pts} ${pts === 1 ? "point" : "points"}.`;
   }
   return `${head} with ${pts} ${pts === 1 ? "point" : "points"} (${gd} GD).`;
@@ -212,7 +212,7 @@ export function MoleculePanel(props: MoleculePanelProps) {
           </header>
           {koMatches.length === 0 ? (
             <p className="molecule-panel-empty">
-              Eliminated at the group stage — no knockout matches in this team&apos;s
+              Eliminated at the group stage, no knockout matches in this team&apos;s
               predicted path.
             </p>
           ) : (

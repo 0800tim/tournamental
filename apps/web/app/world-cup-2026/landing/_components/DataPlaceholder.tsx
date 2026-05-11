@@ -10,7 +10,7 @@ export function DataPlaceholder({ children }: { children: ReactNode }) {
   return (
     <span
       className="wc-data-placeholder"
-      title="Mock data — live integration coming soon"
+      title="Mock data, live integration coming soon"
     >
       {children}
     </span>

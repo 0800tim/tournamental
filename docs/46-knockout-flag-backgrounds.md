@@ -1,4 +1,4 @@
-# Doc 46 — Knockout flag-as-background + bigger flags + layout polish
+# Doc 46, Knockout flag-as-background + bigger flags + layout polish
 
 > **Status**: shipped 2026-05-11 in `feat/knockout-flag-backgrounds`.
 > **Owner**: bracket-ui agent.
@@ -60,7 +60,7 @@ The `::after` scrim is the legibility layer. It darkens the bottom of the cell w
 
 All ≥4.5:1 against the team name in 13px-600. The two bands above also receive a `text-shadow: 0 1px 3px rgba(0,0,0,0.85)` to guarantee legibility on the rare flag-of-yellow case.
 
-The kit-colour ring (`box-shadow: inset 0 0 0 2px var(--km-home-accent)`) stays as a 2px accent inside the cell — same idea as the existing match-prediction-row pattern, layered on top of the flag.
+The kit-colour ring (`box-shadow: inset 0 0 0 2px var(--km-home-accent)`) stays as a 2px accent inside the cell, same idea as the existing match-prediction-row pattern, layered on top of the flag.
 
 ### 2. Bigger flag chips everywhere
 
@@ -68,7 +68,7 @@ The `TeamFlag` size scale moved from a 4-step (`sm/md/lg/xl`) to a 5-step:
 
 | Size | Old (rect)  | New (rect)  | Use site                          |
 | ---- | ----------- | ----------- | --------------------------------- |
-| xs   | —           | 16 × 12     | dense list rows, future use       |
+| xs   |,           | 16 × 12     | dense list rows, future use       |
 | sm   | 24 × 16     | 32 × 22     | inline labels, MPR fallback       |
 | md   | 36 × 24     | 48 × 32     | **knockout cells (new default)**  |
 | lg   | 60 × 40     | 72 × 48     | hero rows, team detail header     |
@@ -107,7 +107,7 @@ The hover-preview is implemented via a `::before` pseudo-element painting `var(-
 
 ## Tests
 
-`apps/web/__tests__/knockout-flag-backgrounds.test.tsx` — 12 cases covering:
+`apps/web/__tests__/knockout-flag-backgrounds.test.tsx`, 12 cases covering:
 
 - Bg-image inline style is set/unset on the right side per `MatchPrediction`.
 - Hover-preview CSS variable lives on unpicked sides only.
@@ -119,7 +119,7 @@ The hover-preview is implemented via a `::before` pseudo-element painting `var(-
 ## What stayed the same
 
 - The `--km-home-accent` / `--km-away-accent` CSS variables driven by `team.kit.primary` are still set on `.km-card`. They feed the 2px kit-colour ring on selected cells (a kit-colour accent on top of the flag) and are still available to any future ornament.
-- `TeamFlag.module.css` was untouched — the bigger sizes were a `SIZE`-table change, not a styling overhaul.
+- `TeamFlag.module.css` was untouched, the bigger sizes were a `SIZE`-table change, not a styling overhaul.
 - `BracketTree.tsx` (the SVG mini-bracket beside the cells) was deliberately not changed in this PR. It's a different visual context and Tim's feedback was about the **knockout stages tab**, not the tree view.
 
 ## Future work

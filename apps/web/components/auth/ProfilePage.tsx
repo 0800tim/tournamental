@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Authenticated profile editor — replaces the old placeholder
+ * Authenticated profile editor, replaces the old placeholder
  * `/profile` page when a Supabase user is signed in.
  *
  * Save model: optimistic UI. Each field is editable inline; on blur we
@@ -144,7 +144,7 @@ function ProfileEditor({ profile, email, onChange }: ProfileEditorProps) {
       .eq("id", profile.id);
     if (error) {
       setDraft(profile);
-      setToast({ kind: "err", text: "Couldn't save — please try again." });
+      setToast({ kind: "err", text: "Couldn't save, please try again." });
       window.setTimeout(() => setToast(null), 2500);
       return;
     }

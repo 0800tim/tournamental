@@ -1,10 +1,10 @@
-# 16 — Game Modes and Scoring
+# 16, Game Modes and Scoring
 
 > The rulebook. Ten game modes, the scoring formula that makes them all interoperable, the multipliers, the streaks, the confidence mechanic, and the personality leaderboards. Brand framing is in [doc 15](15-tournamental-brand-and-positioning.md); the engine that runs all of this lives in `apps/game-service` per agent J ([doc 09](09-agent-task-breakdown.md)).
 
 ## The unifying score formula
 
-Every prediction in every mode resolves through one base formula plus a stack of multipliers. This is the design centre — once a developer or a player understands this, everything else is variations on a theme.
+Every prediction in every mode resolves through one base formula plus a stack of multipliers. This is the design centre, once a developer or a player understands this, everything else is variations on a theme.
 
 ```
 points_awarded = round(
@@ -27,7 +27,7 @@ base_points = 100 × (1 - market_implied_probability_at_lock)
 
 A prediction that the market thought was 90% likely → 10 points. A prediction the market thought was 5% likely → 95 points. Calling a 50/50 → 50 points. **Skill is measured by how much you knew that the market didn't, at the moment you locked.**
 
-If the market doesn't have a tradable line for the predicted outcome (e.g. an exact-score on a regional fixture), use the closest proxy — typically the expert/AI model probability — and tag the prediction `proxy_probability: true` so leaderboards can filter / weight differently.
+If the market doesn't have a tradable line for the predicted outcome (e.g. an exact-score on a regional fixture), use the closest proxy, typically the expert/AI model probability, and tag the prediction `proxy_probability: true` so leaderboards can filter / weight differently.
 
 ### Time multiplier (early conviction beats late conviction)
 
@@ -44,7 +44,7 @@ Locking the right call early is hard *because* you're locking before more inform
 
 ### Confidence multiplier
 
-If the user explicitly assigned a confidence level (1–5 stars) — see Confidence Chips below.
+If the user explicitly assigned a confidence level (1–5 stars), see Confidence Chips below.
 
 ```
 confidence 1 → 1.00×
@@ -107,7 +107,7 @@ Predictions:
 - First major team eliminated (the highest-seeded team to go out first)
 - Total goals / points / runs across the tournament (over/under threshold)
 - Final match exact score
-- **Perfect bracket** — the headline (worth a tournament-defining bonus, see mode 5)
+- **Perfect bracket**, the headline (worth a tournament-defining bonus, see mode 5)
 
 **Mode multiplier**: 1.0× for individual sub-predictions. The Perfect Bracket lock has its own bonus structure.
 
@@ -158,7 +158,7 @@ The game service emits Live prompts based on event-stream patterns: a goal trigg
 
 ### 4. Beat the Market
 
-The flagship skill mode, and the centre of the brand. This isn't a separate game so much as a *lens* on top of every other mode — the user explicitly opts to be scored using the market-difficulty formula, *with no time/stage/streak fluff*.
+The flagship skill mode, and the centre of the brand. This isn't a separate game so much as a *lens* on top of every other mode, the user explicitly opts to be scored using the market-difficulty formula, *with no time/stage/streak fluff*.
 
 ```
 beat_the_market_points = base_points  ×  early_lock_bonus_only
@@ -166,17 +166,17 @@ beat_the_market_points = base_points  ×  early_lock_bonus_only
 
 A separate Beat the Market leaderboard surfaces only these scores. Players who climb it are demonstrably reading market mispricings, not just picking favourites in the easy modes.
 
-**Mode multiplier**: 1.5× (signature mode). This is intentional — we want users to opt into pure-skill scoring.
+**Mode multiplier**: 1.5× (signature mode). This is intentional, we want users to opt into pure-skill scoring.
 
 ### 5. Perfect Tournament Challenge
 
 The viral hook. Track every user's running streak of correct match predictions across the whole tournament.
 
-- **Perfect Match Day** — every match on a single day correct.
-- **Perfect Round** — every match in a tournament round correct.
-- **Perfect Group Stage** — every group-stage match correct.
-- **Perfect Knockout Stage** — every knockout match correct.
-- **Perfect Tournament** — every match in the tournament correct (the headline).
+- **Perfect Match Day**, every match on a single day correct.
+- **Perfect Round**, every match in a tournament round correct.
+- **Perfect Group Stage**, every group-stage match correct.
+- **Perfect Knockout Stage**, every knockout match correct.
+- **Perfect Tournament**, every match in the tournament correct (the headline).
 
 Live status banner on the user's profile and in the bot:
 
@@ -221,11 +221,11 @@ Tier ladder:
 50                      → "Legend"
 ```
 
-Streak multiplier (already shown in the unifying formula) compounds with each tier. Streak resets on the first incorrect prediction; "Streak Protection" — a single insurance use — is purchasable at 0 cost (game mechanic, no money) by spending 5 unused Confidence Chips. Forces a strategic decision: do I save my chips, or insure my streak?
+Streak multiplier (already shown in the unifying formula) compounds with each tier. Streak resets on the first incorrect prediction; "Streak Protection", a single insurance use, is purchasable at 0 cost (game mechanic, no money) by spending 5 unused Confidence Chips. Forces a strategic decision: do I save my chips, or insure my streak?
 
 ### 7. Confidence Chips
 
-Each user gets a fixed allocation of confidence chips per tournament — say **100 chips for a World Cup**. Chips are a currency-like *game* mechanic. Critically, **they are never redeemable for anything outside the game**.
+Each user gets a fixed allocation of confidence chips per tournament, say **100 chips for a World Cup**. Chips are a currency-like *game* mechanic. Critically, **they are never redeemable for anything outside the game**.
 
 Mechanics:
 - The user can stake 1–5 chips on any prediction (this is the confidence multiplier from the formula).
@@ -258,14 +258,14 @@ Example:
 - Timing bonus: `100 × (0.68 − 0.21) = 47` points on top of the base.
 
 Badges associated:
-- **Early Signal** — caught a move ≥30%.
-- **Before the Crowd** — prediction was below median crowd-prediction at the time, and won.
-- **Market Mover** — your locked prediction preceded a >15% market move within 5 minutes.
-- **Bought the Dip** — locked at a momentary trough in implied probability.
-- **Ice Veins** — held a low-probability call through a market spike against you, and won.
-- **Called the Comeback** — locked the eventual winner while they were trailing.
+- **Early Signal**, caught a move ≥30%.
+- **Before the Crowd**, prediction was below median crowd-prediction at the time, and won.
+- **Market Mover**, your locked prediction preceded a >15% market move within 5 minutes.
+- **Bought the Dip**, locked at a momentary trough in implied probability.
+- **Ice Veins**, held a low-probability call through a market spike against you, and won.
+- **Called the Comeback**, locked the eventual winner while they were trailing.
 
-**Mode multiplier**: 1.2× (signature, but less than Beat the Market — this is additive flavour, not a separate game).
+**Mode multiplier**: 1.2× (signature, but less than Beat the Market, this is additive flavour, not a separate game).
 
 ### 9. Comeback Radar
 
@@ -292,9 +292,9 @@ Not a prediction mode the user *plays* but a public display layer that shows up 
 
 For each match we publish three implied probabilities:
 
-1. **Tournamental Crowd** — aggregate of all Tournamental user predictions on that outcome at lock time. Median, not mean (robust to whales).
-2. **Market** — Polymarket implied probability or median of Bookmaker odds via The Odds API.
-3. **AI Model** — our own simple Elo-ish + form-adjusted model. Transparent: we publish the model's logic.
+1. **Tournamental Crowd**, aggregate of all Tournamental user predictions on that outcome at lock time. Median, not mean (robust to whales).
+2. **Market**, Polymarket implied probability or median of Bookmaker odds via The Odds API.
+3. **AI Model**, our own simple Elo-ish + form-adjusted model. Transparent: we publish the model's logic.
 
 After the match, the post-match share card shows which layer was right:
 
@@ -392,7 +392,7 @@ Market moved against you after 78 min
 Streak ended at 4
 ```
 
-The lost variant is intentionally not punishing — keep the user playing.
+The lost variant is intentionally not punishing, keep the user playing.
 
 ## API surface (from agent J)
 
@@ -424,9 +424,9 @@ Read paths primarily hit CDN JSON snapshots (per [doc 12](12-odds-and-prediction
 
 - [ ] Every prediction lock stores `market_implied_at_lock`, `t_lock_ms`, and the full multiplier breakdown so points can be recomputed if a multiplier rule changes.
 - [ ] Scoring engine produces identical outputs for identical inputs (deterministic).
-- [ ] All ten modes run through the same `score_prediction(prediction, resolution)` function — no special cases scattered through the code.
+- [ ] All ten modes run through the same `score_prediction(prediction, resolution)` function, no special cases scattered through the code.
 - [ ] Personality leaderboards are computed on every snapshot tick from the same prediction history.
 - [ ] Confidence chips can never go negative and never go above the per-tournament cap.
 - [ ] Streak protection consumes exactly 5 chips and is allowed at most once per streak.
-- [ ] Perfect Tournament tracker is correct after a settlement edge case (e.g. an abandoned match — predictions void without breaking the streak).
+- [ ] Perfect Tournament tracker is correct after a settlement edge case (e.g. an abandoned match, predictions void without breaking the streak).
 - [ ] Beat the Market and Market Killer leaderboards never include matches with `proxy_probability: true` (those flags taint the market measurement).

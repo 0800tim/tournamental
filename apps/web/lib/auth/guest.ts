@@ -1,5 +1,5 @@
 /**
- * Guest-mode session — what the app uses when Supabase is unconfigured
+ * Guest-mode session, what the app uses when Supabase is unconfigured
  * or the user hasn't signed in yet.
  *
  * The guest id is the stable per-browser id from

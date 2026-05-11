@@ -2,9 +2,9 @@
  * Native-shell shim for the wrapped web app.
  *
  * The web app runs in three contexts:
- *   1. Plain browser (desktop + mobile web)        — `isNative()` → false
- *   2. Inside the iOS Capacitor shell             — `isNative()` → true
- *   3. Inside the Android Capacitor shell         — `isNative()` → true
+ *   1. Plain browser (desktop + mobile web)       , `isNative()` → false
+ *   2. Inside the iOS Capacitor shell            , `isNative()` → true
+ *   3. Inside the Android Capacitor shell        , `isNative()` → true
  *
  * In contexts 2/3, Capacitor injects a global `window.Capacitor` object.
  * We **never** statically import `@capacitor/*` from this file because
@@ -14,10 +14,10 @@
  *
  * Public API:
  *   isNative()
- *   tapFeedback(style)        — haptic on native, navigator.vibrate on web
- *   shareContent(input)       — OS share-sheet on native, Web Share API on
+ *   tapFeedback(style)       , haptic on native, navigator.vibrate on web
+ *   shareContent(input)      , OS share-sheet on native, Web Share API on
  *                                web, clipboard fallback otherwise
- *   bootNativeShell()         — fire-and-forget; runs once per page load
+ *   bootNativeShell()        , fire-and-forget; runs once per page load
  */
 
 declare global {
@@ -42,7 +42,7 @@ export type HapticStyle = 'light' | 'medium' | 'heavy';
  * Haptic-tap feedback. On native devices fires `Haptics.impact()`; on web
  * falls back to `navigator.vibrate()` if available; otherwise no-op.
  *
- * Safe to await from event handlers — never throws.
+ * Safe to await from event handlers, never throws.
  */
 interface CapacitorHapticsModule {
   Haptics: { impact(opts: { style: unknown }): Promise<void> };
@@ -169,7 +169,7 @@ export async function shareContent(input: ShareInput): Promise<boolean> {
 let booted = false;
 
 /**
- * Boot the native shell — registers for push, wires the back button.
+ * Boot the native shell, registers for push, wires the back button.
  * Idempotent and a no-op outside a Capacitor WebView.
  */
 export async function bootNativeShell(): Promise<void> {

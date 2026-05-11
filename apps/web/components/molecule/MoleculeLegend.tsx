@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MoleculeLegend — small, dismissable overlay explaining what the rings
+ * MoleculeLegend, small, dismissable overlay explaining what the rings
  * + bond colours mean. Visible by default, can be collapsed by the user
  * so it gets out of the way on small screens.
  */

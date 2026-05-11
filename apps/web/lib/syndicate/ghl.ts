@@ -17,12 +17,12 @@
  * lighter call is duplicated here because:
  *
  *   - The launch goal is "marketing acquires syndicate owners during
- *     the launch hype window" — coupling the public signup to the
+ *     the launch hype window", coupling the public signup to the
  *     crm-bridge service availability would block us on its uptime.
  *   - The contact payload here is a single immutable upsert; the rich
  *     client elsewhere needs many more dependencies (humanness, ranks).
  *   - Post-launch we'll migrate this caller to the crm-bridge HTTP
- *     interface and delete this file — leave a TODO at the call site.
+ *     interface and delete this file, leave a TODO at the call site.
  */
 
 import type { SyndicateRow } from "./persistence";
@@ -33,7 +33,7 @@ export interface GhlPushResult {
   status: GhlStatus;
   /** GHL contact id on success. */
   contactId?: string;
-  /** Diagnostic only — never sent to the client. */
+  /** Diagnostic only, never sent to the client. */
   error?: string;
 }
 
@@ -49,9 +49,9 @@ const GHL_PUSH_TIMEOUT_MS = 3_000;
  * Custom-field keys mirror the conventions in `apps/crm-bridge` so we
  * have one consistent vocabulary across services:
  *
- *   - `syndicate_slug`       — kebab slug of the syndicate
- *   - `syndicate_role`       — "owner" | "member"
- *   - `syndicate_tournament` — tournament id (e.g. `fifa-wc-2026`)
+ *   - `syndicate_slug`      , kebab slug of the syndicate
+ *   - `syndicate_role`      , "owner" | "member"
+ *   - `syndicate_tournament`, tournament id (e.g. `fifa-wc-2026`)
  *
  * Tags applied: `["syndicate_owner"]` plus a tournament-scoped tag for
  * segment-level workflows in GHL.
@@ -81,7 +81,7 @@ export function buildGhlContactPayload(row: SyndicateRow): {
 /**
  * Push a syndicate owner to GHL. Returns:
  *   - `skipped` when GHL_API_KEY is unset (dev / preview). Caller
- *      logs a warning and proceeds — never blocks the user.
+ *      logs a warning and proceeds, never blocks the user.
  *   - `synced`  on a 2xx response.
  *   - `failed`  on timeout / non-2xx / network error. Caller enqueues
  *      the payload for the daily retry cron and still responds 200.

@@ -1,5 +1,5 @@
 /**
- * Vitest — `buildGroupStageSummary` correctness.
+ * Vitest, `buildGroupStageSummary` correctness.
  *
  * Covers:
  *   - A team that played all three matches and topped its group.
@@ -61,7 +61,7 @@ function pred(
  *   match 6: RSA vs KOR
  */
 
-describe("buildGroupStageSummary — MEX tops Group A", () => {
+describe("buildGroupStageSummary, MEX tops Group A", () => {
   // MEX wins all three of their matches (vs RSA, vs KOR, vs CZE).
   const predictions: Record<string, MatchPrediction> = {
     "1": pred("1", "home_win", 2, 0), // MEX vs RSA → MEX wins
@@ -104,8 +104,8 @@ describe("buildGroupStageSummary — MEX tops Group A", () => {
   });
 });
 
-describe("buildGroupStageSummary — partial predictions", () => {
-  // Only one match predicted — KOR vs CZE → CZE wins.
+describe("buildGroupStageSummary, partial predictions", () => {
+  // Only one match predicted, KOR vs CZE → CZE wins.
   const predictions: Record<string, MatchPrediction> = {
     "2": pred("2", "away_win"), // KOR vs CZE → CZE wins
   };
@@ -134,7 +134,7 @@ describe("buildGroupStageSummary — partial predictions", () => {
   });
 });
 
-describe("buildGroupStageSummary — no predictions at all", () => {
+describe("buildGroupStageSummary, no predictions at all", () => {
   const summary = buildGroupStageSummary(T, bracketWith({}), "MEX");
   it("position is null", () => {
     expect(summary.position).toBeNull();
@@ -151,7 +151,7 @@ describe("buildGroupStageSummary — no predictions at all", () => {
   });
 });
 
-describe("buildGroupStageSummary — draw scenarios", () => {
+describe("buildGroupStageSummary, draw scenarios", () => {
   // RSA draws KOR and loses to MEX and CZE.
   const predictions: Record<string, MatchPrediction> = {
     "1": pred("1", "home_win", 1, 0), // MEX vs RSA → MEX wins
@@ -171,12 +171,12 @@ describe("buildGroupStageSummary — draw scenarios", () => {
   });
 
   it("RSA finishes near the bottom of the group", () => {
-    // 1 point from a draw — should be 3rd or 4th depending on tiebreaks.
+    // 1 point from a draw, should be 3rd or 4th depending on tiebreaks.
     expect(summary.position === 3 || summary.position === 4).toBe(true);
   });
 });
 
-describe("buildGroupStageSummary — team not in tournament", () => {
+describe("buildGroupStageSummary, team not in tournament", () => {
   const summary = buildGroupStageSummary(T, bracketWith({}), "ZZZ");
   it("returns groupId null and no matches", () => {
     expect(summary.groupId).toBeNull();
@@ -185,7 +185,7 @@ describe("buildGroupStageSummary — team not in tournament", () => {
   });
 });
 
-describe("positionLabel + rankPillLabel — friendly strings", () => {
+describe("positionLabel + rankPillLabel, friendly strings", () => {
   it("positionLabel mirrors Tim's expected copy", () => {
     expect(positionLabel(1, "A")).toBe("Topped Group A");
     expect(positionLabel(2, "B")).toBe("Came 2nd in Group B");
@@ -198,6 +198,6 @@ describe("positionLabel + rankPillLabel — friendly strings", () => {
     expect(rankPillLabel(2)).toBe("2ND");
     expect(rankPillLabel(3)).toBe("3RD");
     expect(rankPillLabel(4)).toBe("4TH");
-    expect(rankPillLabel(null)).toBe("—");
+    expect(rankPillLabel(null)).toBe("-");
   });
 });

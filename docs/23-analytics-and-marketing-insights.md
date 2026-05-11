@@ -1,10 +1,10 @@
-# 23 — Analytics, marketing insights, and engagement
+# 23, Analytics, marketing insights, and engagement
 
 > The instrumentation layer that lets the team see what users do, lets the bots decide who to engage with, and lets marketing target spend by impact instead of by gut. This doc covers both *what we measure* and *how we act on it*.
 
 ## Why this doc exists
 
-Tim's standing direction: **users will scale from tens of thousands to hundreds of thousands to millions over three weeks**. We cannot improve what we cannot see, and we cannot ride a virality wave without knowing which features and which users drive it. Every code agent treats the events listed below as part of the contract — adding a feature without instrumentation is incomplete work.
+Tim's standing direction: **users will scale from tens of thousands to hundreds of thousands to millions over three weeks**. We cannot improve what we cannot see, and we cannot ride a virality wave without knowing which features and which users drive it. Every code agent treats the events listed below as part of the contract, adding a feature without instrumentation is incomplete work.
 
 ## Architecture
 
@@ -42,9 +42,9 @@ Three planes, one schema.
 ```
 
 **Three planes**:
-1. **Client-side** (GA4 + Meta Pixel via GTM) — for marketing attribution and "who's coming from where" insights. No PII in the dataLayer beyond what GA4/Meta accept.
-2. **Server-side** (`/v1/event` on the Tournamental API) — authoritative event log. Every browser-side event is also sent to our own API so we have ground truth even when ad-blockers nuke GTM.
-3. **Engagement scorer** — a real-time stream consumer that updates each user's engagement score in Redis (with a Postgres mirror for durability). Bot-policy code reads from Redis.
+1. **Client-side** (GA4 + Meta Pixel via GTM), for marketing attribution and "who's coming from where" insights. No PII in the dataLayer beyond what GA4/Meta accept.
+2. **Server-side** (`/v1/event` on the Tournamental API), authoritative event log. Every browser-side event is also sent to our own API so we have ground truth even when ad-blockers nuke GTM.
+3. **Engagement scorer**, a real-time stream consumer that updates each user's engagement score in Redis (with a Postgres mirror for durability). Bot-policy code reads from Redis.
 
 **One schema**: the same event names, same field names everywhere. The dataLayer payload === the `/v1/event` body === the Postgres `events` table === the GA4 custom-event name. No translation layers.
 
@@ -53,7 +53,7 @@ Three planes, one schema.
 To turn this on:
 - **GTM container ID**: `GTM-XXXXXX`. Tim creates a container in the Google Tag Manager UI under his account and pastes the ID into `.env`.
 - **GA4 measurement ID**: `G-XXXXXXXXXX`. Created inside GA4; configured *via GTM* (not hardcoded), so we can swap GA4 properties without a code deploy.
-- **Meta Pixel ID**: `XXXXXXXXXXXXXXX`. Same — configured via GTM.
+- **Meta Pixel ID**: `XXXXXXXXXXXXXXX`. Same, configured via GTM.
 - **(Optional, later) ClickHouse credentials**, if/when we set up the analytics warehouse.
 
 That's all that's needed. Everything else (event names, dashboards, server logs, engagement scoring, bot policies) lives in this repo.
@@ -164,7 +164,7 @@ A real-time consumer of the Redis stream maintains per-user metrics in Redis has
 These combine into a single `engagement_score` (0–100) with a transparent formula in `apps/api/src/engagement/score.ts`. The score is read by:
 - **Bot persona policy** (`apps/bots/`): selects the right outreach for each user (a lurker gets a gentle "predict the next match" prompt; a high-share user gets early access to a new feature with a "tell your friends" hook).
 - **Admin dashboard**: shows distribution, top-N, by cohort.
-- **Marketing exports**: weekly CSV to your CRM (whatever Tim picks — the export is tool-agnostic).
+- **Marketing exports**: weekly CSV to your CRM (whatever Tim picks, the export is tool-agnostic).
 
 ## Admin dashboard
 
@@ -217,11 +217,11 @@ Marketing tunes policies in YAML, the bot loop applies them. All sends are logge
 
 Phase 2 (in parallel with renderer hardening), in order of dependency:
 
-1. `packages/analytics/` — the SDK + GTM + dataLayer + sendBeacon. Tiny.
-2. `apps/api/` — `/v1/event` ingest + Postgres schema + Redis publish. Built alongside the auth surface.
-3. `apps/admin/` — read-only first (live counters + today + 7-day). Editing controls (bot policies, tournaments) come second.
+1. `packages/analytics/`, the SDK + GTM + dataLayer + sendBeacon. Tiny.
+2. `apps/api/`, `/v1/event` ingest + Postgres schema + Redis publish. Built alongside the auth surface.
+3. `apps/admin/`, read-only first (live counters + today + 7-day). Editing controls (bot policies, tournaments) come second.
 4. Engagement scorer (background worker reading the Redis stream). Lives in `apps/engagement-scorer/`.
-5. ClickHouse warehouse + dbt models (when monthly event volume crosses the threshold where Postgres analytics queries get noisy — at ~50M events/month).
+5. ClickHouse warehouse + dbt models (when monthly event volume crosses the threshold where Postgres analytics queries get noisy, at ~50M events/month).
 
 The agent breakdown for these is in [`docs/09-agent-task-breakdown.md`](09-agent-task-breakdown.md) (extend it as the lanes light up).
 

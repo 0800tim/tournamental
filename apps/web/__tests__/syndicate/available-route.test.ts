@@ -1,5 +1,5 @@
 /**
- * GET /api/v1/syndicates/:slug/available — route handler tests.
+ * GET /api/v1/syndicates/:slug/available, route handler tests.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 

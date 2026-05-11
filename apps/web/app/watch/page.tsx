@@ -1,5 +1,5 @@
 /**
- * /watch — landing for the watch-along feature. Lists upcoming and
+ * /watch, landing for the watch-along feature. Lists upcoming and
  * available replays. The replays-page shape comes online once the
  * stream-server (agent C, doc 03) ships; for now this is a stub.
  */

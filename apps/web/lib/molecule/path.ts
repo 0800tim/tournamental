@@ -1,5 +1,5 @@
 /**
- * Champion-path derivation — given a `CascadedBracket` and a team code,
+ * Champion-path derivation, given a `CascadedBracket` and a team code,
  * return the ordered chain of knockout matches that team plays through
  * to reach (or be eliminated short of) the Final.
  *
@@ -9,7 +9,7 @@
  * starting team code differs.
  *
  * The chain is returned as ordered `(stage, bond)` pairs from earliest
- * to latest stage — R32 → R16 → QF → SF → F. A team that doesn't appear
+ * to latest stage, R32 → R16 → QF → SF → F. A team that doesn't appear
  * in any knockout returns an empty list (group-stage out, no path).
  *
  * Determinism: pure function over its inputs; no clock reads, no random.
@@ -20,15 +20,15 @@ import type { CascadedBracket, CascadedKnockout } from "@vtorn/bracket-engine";
 import type { BondStage } from "./layout";
 
 export interface PathBond {
-  /** Stage of the bond — earlier stages come first in the array. */
+  /** Stage of the bond, earlier stages come first in the array. */
   readonly stage: BondStage;
   /** Lexicographically-sorted (a, b) team-code pair, matching MoleculeBond. */
   readonly a: string;
   readonly b: string;
-  /** Underlying match id from the cascade — useful for tests and tooltips. */
+  /** Underlying match id from the cascade, useful for tests and tooltips. */
   readonly matchId: string;
   /**
-   * v5 — directional metadata for arrow + KO-glyph rendering. The
+   * v5, directional metadata for arrow + KO-glyph rendering. The
    * `winner`/`loser` codes are the resolved match outcome from the
    * cascade. If the cascade hasn't decided the match yet, both are
    * `null` and the arrow / KO-glyph is suppressed.
@@ -43,7 +43,7 @@ export interface TeamPath {
   /** Ordered (R32 → F) list of bonds the team plays. May be empty. */
   readonly bonds: readonly PathBond[];
   /**
-   * All team codes that appear *on* the path — i.e. the team itself plus
+   * All team codes that appear *on* the path, i.e. the team itself plus
    * every opponent encountered. Useful for atom highlighting (gold rim).
    */
   readonly atomCodes: readonly string[];
@@ -86,7 +86,7 @@ function bondPair(a: string, b: string): [string, string] {
  * tournament cascade. Matches are returned in stage order (earliest →
  * latest), including the final if the team reached it.
  *
- * `cascaded` may be `null` — e.g. when no bracket has been loaded yet.
+ * `cascaded` may be `null`, e.g. when no bracket has been loaded yet.
  * In that case we return an empty path.
  *
  * The 3rd-place playoff ("tp") is *excluded* from the path-to-gold:
@@ -183,11 +183,11 @@ export function derivePathToGold(
  * Build a lookup-set of bond keys for fast `isOnPath(bond)` checks in the
  * render loop. The key matches the same scheme used in `layout.ts`:
  * `"<stage>:<a>:<b>"` with team codes in lexical order. Only match
- * bonds are included here — for v4's gold staircase advance bonds, see
+ * bonds are included here, for v4's gold staircase advance bonds, see
  * `buildPathAdvanceBondKeySet`.
  *
  * v5 alias `buildPathMatchBondKeySet` mirrors `buildPathAdvanceBondKeySet`
- * for naming symmetry. They return the same data — `buildPathBondKeySet`
+ * for naming symmetry. They return the same data, `buildPathBondKeySet`
  * is retained for backwards-compat with the v2/v3/v4 tests.
  */
 export function buildPathBondKeySet(path: TeamPath): Set<string> {
@@ -201,15 +201,15 @@ export function buildPathBondKeySet(path: TeamPath): Set<string> {
 export const buildPathMatchBondKeySet = buildPathBondKeySet;
 
 /**
- * v5 — for each layer of the path, return a map from `team@layer` (the
+ * v5, for each layer of the path, return a map from `team@layer` (the
  * team that LOST at that layer) → bond stage. The MoleculeScene uses this
  * to draw a red `⨯` glyph above the loser's terminal instance, which
- * reads as "knocked out here" — the eye can sweep the path and see
+ * reads as "knocked out here", the eye can sweep the path and see
  * exactly where each opponent dropped out.
  *
  * Only the *opponent's* TOP instance gets the glyph (the layer they were
  * eliminated at). The path-team's own column never gets a `⨯`. We
- * additionally exclude the path-team itself if they lost the final — the
+ * additionally exclude the path-team itself if they lost the final, the
  * runner-up's red `⨯` would compete with the gold rim treatment on the
  * final node, so we leave the final without a glyph (the silver rim and
  * the side-panel pill already communicate "runner-up").
@@ -220,7 +220,7 @@ export function buildPathLoserAtTopInstance(
   const out = new Map<string, BondStage>();
   for (const pb of path.bonds) {
     if (pb.loser && pb.loser !== path.teamCode) {
-      // Map the loser to their terminal layer — which is the same stage
+      // Map the loser to their terminal layer, which is the same stage
       // they played the bond at, since losing eliminates them.
       out.set(pb.loser, pb.stage);
     }
@@ -231,7 +231,7 @@ export function buildPathLoserAtTopInstance(
 type PathLayer = "group" | "r32" | "r16" | "qf" | "sf" | "f" | "champion";
 
 /**
- * v4 — build a lookup-set of *advance* bond keys for the team's own
+ * v4, build a lookup-set of *advance* bond keys for the team's own
  * column rising up the pyramid. These have the form
  * `"<upperLayer>:<team>:<team>"`, matching the legacy `stage:a:b` key
  * scheme that `MoleculeScene` uses for bond lookups. An advance bond is

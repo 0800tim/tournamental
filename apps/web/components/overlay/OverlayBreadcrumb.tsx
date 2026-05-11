@@ -1,12 +1,12 @@
 /**
- * OverlayBreadcrumb — visible breadcrumb that mirrors the overlay
+ * OverlayBreadcrumb, visible breadcrumb that mirrors the overlay
  * stack so the user always sees where they are: e.g.
  *
  *   Home › World Cup 2026 › NZL › NZL vs ARG
  *
  * The breadcrumb is rendered above the page chrome (or above the
  * AppBar when the PWA shell is active). Each crumb is a button that
- * pops the stack back to that depth — so tapping "World Cup 2026"
+ * pops the stack back to that depth, so tapping "World Cup 2026"
  * closes every overlay and returns to the underlying page.
  *
  * Renders nothing when no overlays are open.

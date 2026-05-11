@@ -1,5 +1,5 @@
 /**
- * Crowd instance generation — pure module.
+ * Crowd instance generation, pure module.
  *
  * The crowd is a single `InstancedMesh` split conceptually into 4
  * stands (north / south / east / west). Each stand is a 3-tier ring
@@ -11,7 +11,7 @@
  */
 
 export const CROWD_DEFAULT_COUNT = 5000;
-/** Conceptual subdivisions — used by the celebration shader-uniform. */
+/** Conceptual subdivisions, used by the celebration shader-uniform. */
 export const CROWD_TIERS = ["north", "south", "east", "west"] as const;
 export type CrowdStand = (typeof CROWD_TIERS)[number];
 
@@ -22,7 +22,7 @@ export interface CrowdInstance {
   y: number;
   /** World-space z. */
   z: number;
-  /** Yaw — billboards face roughly toward the pitch centre. */
+  /** Yaw, billboards face roughly toward the pitch centre. */
   yaw: number;
   /** Which stand this instance belongs to. */
   stand: CrowdStand;
@@ -47,7 +47,7 @@ export interface BuildCrowdOutput {
 }
 
 /**
- * Mulberry32 — small + deterministic PRNG. Adequate for layout
+ * Mulberry32, small + deterministic PRNG. Adequate for layout
  * jitter; not crypto.
  */
 export function mulberry32(seed: number): () => number {
@@ -125,12 +125,12 @@ export function buildCrowdInstanceData(input: BuildCrowdInput): BuildCrowdOutput
       let yaw: number;
 
       if (axis === "long") {
-        // North/south stand — parallel to X axis.
+        // North/south stand, parallel to X axis.
         x = u + jitter;
         z = sign * (insetShort + tierOffsetIn + jitter);
         yaw = sign === 1 ? Math.PI : 0;
       } else {
-        // East/west stand — parallel to Z axis.
+        // East/west stand, parallel to Z axis.
         x = sign * (insetLong + tierOffsetIn + jitter);
         z = u + jitter;
         yaw = sign === 1 ? -Math.PI / 2 : Math.PI / 2;

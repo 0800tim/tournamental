@@ -1,4 +1,4 @@
-# Archive — 2026-05-09 chunky-prototype
+# Archive, 2026-05-09 chunky-prototype
 
 > Tim asked to preserve the first chunky cube-stub AR-FR demo for a build-process video blog. This doc + the live archive URL keep that prototype around.
 
@@ -9,8 +9,8 @@ The state of the renderer immediately after the four parallel-builder PRs merged
 - Players were procedural capsules + jersey textures, not GLB bodies.
 - No Wikidata face billboards.
 - Flat directional lighting, no shadows, no sky, no ACES tonemapping.
-- No timeline scrubber — strict streaming WebSocket.
-- No manifest mode — couldn't seek.
+- No timeline scrubber, strict streaming WebSocket.
+- No manifest mode, couldn't seek.
 - The "chunky cube teleport" Tim described in his 2026-05-09 review.
 
 ## Where it lives
@@ -42,8 +42,8 @@ NEXT_PUBLIC_VTORN_WS_URL=wss://vtorn-stream.aiva.nz pnpm next dev -p 3400
 ## What lands after this archive
 
 The HD upgrade in `#31` (b7f9a42 squash-merged as `b7f9a42`):
-- Manifest mode in `@vtorn/spec-client` — fetch full `.ndjson(.gz)`, decompress in-browser, expose `seek(t_ms)` + `getStateAt(t_ms)`.
-- `<TimelineScrubber/>` UI — drag any minute, score updates, goal markers, play/pause, 0.5x/1x/2x/5x/10x speed.
+- Manifest mode in `@vtorn/spec-client`, fetch full `.ndjson(.gz)`, decompress in-browser, expose `seek(t_ms)` + `getStateAt(t_ms)`.
+- `<TimelineScrubber/>` UI, drag any minute, score updates, goal markers, play/pause, 0.5x/1x/2x/5x/10x speed.
 - `<BillboardFace/>` from `@vtorn/avatar` for every starter, populated from `data/wc2022-final-players.csv` (Wikidata Q-numbers → Wikimedia Commons thumbnails).
 - Body GLB clone per player (Mixamo skeleton ready) replacing the capsule.
 - drei `<Sky/>` + hemisphere + directional + `PCFSoftShadowMap` + ACES tonemapping.
@@ -52,9 +52,9 @@ The HD upgrade in `#31` (b7f9a42 squash-merged as `b7f9a42`):
 
 ## Why we keep both
 
-1. **Tim's video blog** — captures the build journey end-to-end.
-2. **A/B perf comparison** — the chunky version is a useful baseline for "is the new fancy stuff making things slower."
-3. **Open-source storytelling** — a clean narrative for blog posts, tweets, and the marketing site `/why` page.
+1. **Tim's video blog**, captures the build journey end-to-end.
+2. **A/B perf comparison**, the chunky version is a useful baseline for "is the new fancy stuff making things slower."
+3. **Open-source storytelling**, a clean narrative for blog posts, tweets, and the marketing site `/why` page.
 
 When this version's no longer useful for storytelling we'll prune the worktree (`git worktree remove /home/clawdbot/clawdia/projects/vtorn-prototype-chunky`) and remove the tunnel ingress.
 
@@ -62,4 +62,4 @@ When this version's no longer useful for storytelling we'll prune the worktree (
 
 - Tag: `archive/2026-05-09-chunky-prototype` → `fbfac4c`
 - HD-upgrade PR: #31 (b7f9a42)
-- `docs/22-deployment-and-tunnels.md` — tunnel ingress runbook
+- `docs/22-deployment-and-tunnels.md`, tunnel ingress runbook

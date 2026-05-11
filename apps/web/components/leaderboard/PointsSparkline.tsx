@@ -1,9 +1,9 @@
 /**
- * PointsSparkline — a 60×20 inline SVG sparkline showing the last
+ * PointsSparkline, a 60×20 inline SVG sparkline showing the last
  * N points-stamps for a leaderboard member.
  *
  * Pure SVG (no canvas, no chart-lib) for two reasons:
- *  1. Tiny — adds zero KB to the bundle.
+ *  1. Tiny, adds zero KB to the bundle.
  *  2. Renders in SSR so the leaderboard never flashes empty rows.
  *
  * The line is drawn through the points; the area under the line is

@@ -1,5 +1,5 @@
 /**
- * /api/og/bracket route — defensive smoke tests.
+ * /api/og/bracket route, defensive smoke tests.
  *
  * The canvas renderer itself is covered by
  * `packages/social-cards/test/bracket-share-card.test.ts`; here we
@@ -60,7 +60,7 @@ describe("/api/og/bracket", () => {
     expect(res.headers.get("x-vtorn-og-size")).toBe("landscape");
     const buf = Buffer.from(await res.arrayBuffer());
     expect(isPng(buf)).toBe(true);
-    // 1200×630 landscape — IHDR width/height at offset 16/20.
+    // 1200×630 landscape, IHDR width/height at offset 16/20.
     expect(buf.readUInt32BE(16)).toBe(1200);
     expect(buf.readUInt32BE(20)).toBe(630);
   }, 30_000);

@@ -3,7 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 /**
  * Playwright config for Phase-1 fidelity acceptance suite.
  *
- * The dev server is *not* spawned by this config — Phase-1 assumes the
+ * The dev server is *not* spawned by this config, Phase-1 assumes the
  * orchestrator already has `next dev -p 3300` running (per
  * `docs/22-deployment-and-tunnels.md`). If it isn't, set
  * `VTORN_AUTOSTART_DEV=1` and Playwright will boot it for you.

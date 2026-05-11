@@ -1,5 +1,5 @@
 /**
- * MembersGrid — 12-up (4-up on mobile) avatar grid showing recent
+ * MembersGrid, 12-up (4-up on mobile) avatar grid showing recent
  * joiners. Pure presentational; consumes any `MockMember[]` slice.
  *
  * Each tile shows the avatar, handle, country flag, and a "joined Nd

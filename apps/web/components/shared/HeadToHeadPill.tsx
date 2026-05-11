@@ -1,11 +1,11 @@
 /**
- * HeadToHeadPill — compact W-D-L summary between two teams.
+ * HeadToHeadPill, compact W-D-L summary between two teams.
  *
  * Per [doc 36 §HeadToHeadPill](../../../../docs/36-tournamental-ux-spec.md), used
  * inside the `MatchPredictionRow` (compact variant) and on the upcoming-match
  * preview / team-detail "Coming up" sections (wide variant).
  *
- * The data source is the stub at `apps/web/data/head-to-head.json` for now —
+ * The data source is the stub at `apps/web/data/head-to-head.json` for now -
  * the file is a deterministic placeholder (TODO: live FIFA H2H feed).
  *
  * Pure presentational. Counts are explicit props so the same pill can be fed
@@ -40,7 +40,7 @@ export function HeadToHeadPill(props: HeadToHeadPillProps) {
   const { homeWins, draws, awayWins } = counts;
   const total = homeWins + draws + awayWins;
 
-  // Empty record (no matches between sides) — show a neutral hint rather
+  // Empty record (no matches between sides), show a neutral hint rather
   // than a misleading "0-0-0".
   if (total === 0) {
     const ariaLabel = `No previous meetings between ${homeCode} and ${awayCode}`;

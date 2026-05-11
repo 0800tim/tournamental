@@ -1,5 +1,5 @@
 /**
- * bracket-driver — small Playwright helper toolbox for the bracket-cascade
+ * bracket-driver, small Playwright helper toolbox for the bracket-cascade
  * e2e suite.
  *
  * Pure thin wrappers around `page.locator()` / `page.evaluate()`; no test
@@ -142,7 +142,7 @@ export async function listKnockoutCardsForStage(
 /**
  * After picking all matches in the upstream stage, every card in the next
  * round should have BOTH home and away populated with a real team-name
- * span (`.km-team-name`) — i.e. no `.km-tbd` placeholders like
+ * span (`.km-team-name`), i.e. no `.km-tbd` placeholders like
  * "Winner r32_05".
  *
  * Throws an Error listing the offending match-ids when placeholders remain.

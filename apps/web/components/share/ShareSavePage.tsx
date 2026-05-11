@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * ShareSavePage — the logged-in user's Save & share surface.
+ * ShareSavePage, the logged-in user's Save & share surface.
  *
  * Visual order, top-to-bottom:
  *   1. Hero strip: title + last-saved timestamp + "x of 104 picks saved" chip.
@@ -9,11 +9,11 @@
  *      Portrait / Landscape / Square format switcher under it.
  *   3. Read-only share-URL row with a big "Copy link" button + a
  *      transient "Copied!" pill.
- *   4. Primary share CTA — a giant gold "Share my bracket" button that
+ *   4. Primary share CTA, a giant gold "Share my bracket" button that
  *      fires navigator.share if supported, else the fallback popover.
  *   5. Always-visible row of WhatsApp / Telegram / X / Facebook / Email
  *      deep-link buttons.
- *   6. Download row — "Download as image" for Portrait / Landscape /
+ *   6. Download row, "Download as image" for Portrait / Landscape /
  *      Square (the OG endpoint serves the PNG).
  *   7. Collapsible embed-snippet section (`<details>`).
  *
@@ -23,7 +23,7 @@
  * Analytics: every share action fires
  *   window.dataLayer.push({ event: 'share_clicked', platform, surface: 'save-share' })
  * so the analytics layer (parallel agent #62) is a single wire-up step
- * away — no further work on this surface required.
+ * away, no further work on this surface required.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -171,7 +171,7 @@ export function ShareSavePage({
   authUserId,
   handle,
 }: ShareSavePageProps): JSX.Element {
-  // Hydration-safe initial state — start "empty", load from
+  // Hydration-safe initial state, start "empty", load from
   // localStorage on mount.
   const [bracket, setBracket] = useState<Bracket | null>(null);
   const [userIdent, setUserIdent] = useState<string>("ssr_user");
@@ -223,7 +223,7 @@ export function ShareSavePage({
   const champion = teamName(tournament, championCode);
 
   // Stable share guid + URLs. `useMemo` ensures the URL doesn't change
-  // on every render — important because the `<img>`'s src would otherwise
+  // on every render, important because the `<img>`'s src would otherwise
   // re-fetch.
   const guid = useMemo(
     () => resolveShareGuid({ authUserId, bracketId: bracket?.bracketId ?? userIdent }),
@@ -274,7 +274,7 @@ export function ShareSavePage({
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       copyTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Swallow — the platform buttons still work without clipboard access.
+      // Swallow, the platform buttons still work without clipboard access.
     }
   }, [shareUrl]);
 
@@ -287,7 +287,7 @@ export function ShareSavePage({
       url: shareUrl,
     });
     if (!ok) {
-      // Web Share API unavailable / cancelled — show the platform
+      // Web Share API unavailable / cancelled, show the platform
       // fallback popover so the user can still pick a target.
       setFallbackOpen(true);
     }
@@ -312,7 +312,7 @@ export function ShareSavePage({
           <h1 id="vt-ss-title" className="vt-ss-title">Your World Cup 2026 bracket</h1>
           <p className="vt-ss-sub">
             <span className="vt-ss-saved-at" data-testid="vt-ss-saved-at">
-              {bracket?.lockedAt ? `Last saved ${lastSaved}` : "Draft only — save to share"}
+              {bracket?.lockedAt ? `Last saved ${lastSaved}` : "Draft only, save to share"}
             </span>
           </p>
         </div>
@@ -333,7 +333,7 @@ export function ShareSavePage({
           <img
             key={ogUrl}
             src={ogUrl}
-            alt={`${handle ?? "Your"} bracket — champion ${champion ?? "TBD"}`}
+            alt={`${handle ?? "Your"} bracket, champion ${champion ?? "TBD"}`}
             className="vt-ss-preview-img"
             data-testid="vt-ss-og-image"
           />
@@ -457,7 +457,7 @@ export function ShareSavePage({
         </div>
       </section>
 
-      {/* Embed snippet — collapsible */}
+      {/* Embed snippet, collapsible */}
       <section className="vt-ss-embed" aria-label="Embed on a blog">
         <details>
           <summary>Embed this on a blog</summary>
@@ -475,7 +475,7 @@ export function ShareSavePage({
         </details>
       </section>
 
-      {/* Mobile sticky share CTA — visible only at <=640px via CSS. */}
+      {/* Mobile sticky share CTA, visible only at <=640px via CSS. */}
       <div className="vt-ss-sticky-cta" aria-hidden="false">
         <button
           type="button"
@@ -493,7 +493,7 @@ export function ShareSavePage({
 }
 
 // ---------- Inline icons ----------
-// Monochrome SVGs — sized via CSS to 32×32. Keeping them inline avoids
+// Monochrome SVGs, sized via CSS to 32×32. Keeping them inline avoids
 // shipping an icon-font + an extra request for five 1KB sprites.
 
 function WhatsAppIcon(): JSX.Element {

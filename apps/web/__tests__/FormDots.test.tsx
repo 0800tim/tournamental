@@ -1,5 +1,5 @@
 /**
- * FormDots — shared form-strip used in MatchPredictionRow + team page.
+ * FormDots, shared form-strip used in MatchPredictionRow + team page.
  *
  * Asserts:
  *  - five W/D/L results render five dots

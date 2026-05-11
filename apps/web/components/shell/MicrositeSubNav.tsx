@@ -11,7 +11,7 @@
  * Visual: horizontal sticky pill strip, each pill a flag-icon + label.
  * Active pill picks up the gold accent (`--vt-accent-warm`). Scrolls
  * sideways on overflow on narrow viewports (no horizontal scroll bars
- * — uses momentum scrolling on touch).
+ *, uses momentum scrolling on touch).
  */
 
 import Link from "next/link";

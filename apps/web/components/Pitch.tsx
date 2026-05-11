@@ -9,7 +9,7 @@ const FIELD_WIDTH = 64;
 /**
  * Procedural pitch with PBR-tweaked striped grass.
  *
- * Doc 04 calls for "procedural striped grass texture as a baseline" — we
+ * Doc 04 calls for "procedural striped grass texture as a baseline", we
  * paint a 1024x512 canvas with ~10 alternating stripes plus subtle noise
  * dapple, drop it into a `MeshStandardMaterial` with high roughness, and
  * rely on the scene lighting rig to do the rest. The pitch always
@@ -31,7 +31,7 @@ export function Pitch() {
         <planeGeometry args={[FIELD_LENGTH + 8, FIELD_WIDTH + 8]} />
         <meshStandardMaterial
           map={grassTexture as THREE.Texture | null}
-          /* White tint lets the texture's saturated greens read through —
+          /* White tint lets the texture's saturated greens read through -
            * was #1f6f3b which multiplied the texture darker than intended. */
           color="#ffffff"
           roughness={0.78}
@@ -58,11 +58,11 @@ function makeGrassTexture(): THREE.Texture | null {
   const ctx = c.getContext("2d");
   if (!ctx) return null;
 
-  // Base — vibrant video-game green (was khaki-dark #1f6f3b).
+  // Base, vibrant video-game green (was khaki-dark #1f6f3b).
   ctx.fillStyle = "#3aaa4b";
   ctx.fillRect(0, 0, c.width, c.height);
 
-  // Stripes along the length axis. 10 stripes total — bright/dim alternating.
+  // Stripes along the length axis. 10 stripes total, bright/dim alternating.
   const stripeCount = 10;
   const stripeW = c.width / stripeCount;
   for (let i = 0; i < stripeCount; i += 1) {
@@ -78,7 +78,7 @@ function makeGrassTexture(): THREE.Texture | null {
     ctx.fillRect(x, 0, stripeW, c.height);
   }
 
-  // Subtle dapple — bright lime + a hint of darker green.
+  // Subtle dapple, bright lime + a hint of darker green.
   ctx.globalAlpha = 0.05;
   for (let i = 0; i < 3000; i += 1) {
     ctx.fillStyle = Math.random() > 0.5 ? "#287a35" : "#62cf6f";

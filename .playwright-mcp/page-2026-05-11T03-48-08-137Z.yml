@@ -1,0 +1,2758 @@
+- generic [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - link "Tournamental home" [ref=e4] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e5]: T
+      - heading "Tournament" [level=1] [ref=e6]
+      - button "Close menu" [expanded] [active] [ref=e2199] [cursor=pointer]:
+        - img [ref=e9]
+    - navigation "World Cup 2026 sections" [ref=e1913]:
+      - generic [ref=e1914]: WC 2026
+      - list [ref=e1915]:
+        - listitem [ref=e1916] [cursor=pointer]:
+          - img [ref=e1918]
+          - generic [ref=e1921]: Predict
+        - listitem [ref=e1922] [cursor=pointer]:
+          - img [ref=e1924]
+          - generic [ref=e1931]: Molecule
+        - listitem [ref=e1932] [cursor=pointer]:
+          - img [ref=e1934]
+          - generic [ref=e1939]: Save & share
+        - listitem [ref=e1940] [cursor=pointer]:
+          - img [ref=e1942]
+          - generic [ref=e1945]: Watch demo
+    - main [ref=e11]:
+      - main [ref=e12]:
+        - generic [ref=e13]:
+          - generic [ref=e14]:
+            - heading "FIFA World Cup 2026 (US / Canada / Mexico) — Bracket Prophet" [level=1] [ref=e15]
+            - paragraph [ref=e16]: Predict the outcome of every match. The group standings are computed live from your picks. Save each pick before its match kicks off — you can tweak any pick game by game until then.
+            - paragraph [ref=e17]:
+              - strong [ref=e18]: "0"
+              - text: of 104 matches picked
+          - group "Auto-pick" [ref=e19]:
+            - button "Auto-pick from live odds" [ref=e20] [cursor=pointer]:
+              - generic [ref=e21]: ⚡
+              - generic [ref=e22]: Auto-pick
+            - paragraph [ref=e23]: Fill your bracket using live consensus odds — you can edit any pick before kickoff.
+          - button "Auto-pick (sticky shortcut)" [ref=e24] [cursor=pointer]:
+            - generic [ref=e25]: ⚡
+            - generic [ref=e26]: Auto-pick
+          - tablist "Bracket rounds" [ref=e27]:
+            - tab "Groups 0 of 72 picked" [selected] [ref=e28] [cursor=pointer]:
+              - generic [ref=e29]: Groups
+              - generic "0 of 72 picked" [ref=e30]: 0/72
+            - tab "R32 0 of 16 picked" [ref=e31] [cursor=pointer]:
+              - generic [ref=e32]: R32
+              - generic "0 of 16 picked" [ref=e33]: 0/16
+            - tab "R16 0 of 8 picked" [ref=e34] [cursor=pointer]:
+              - generic [ref=e35]: R16
+              - generic "0 of 8 picked" [ref=e36]: 0/8
+            - tab "QF 0 of 4 picked" [ref=e37] [cursor=pointer]:
+              - generic [ref=e38]: QF
+              - generic "0 of 4 picked" [ref=e39]: 0/4
+            - tab "SF + 3rd 0 of 3 picked" [ref=e40] [cursor=pointer]:
+              - generic [ref=e41]: SF + 3rd
+              - generic "0 of 3 picked" [ref=e42]: 0/3
+            - tab "Final 0 of 1 picked" [ref=e43] [cursor=pointer]:
+              - generic [ref=e44]: Final
+              - generic "0 of 1 picked" [ref=e45]: 0/1
+          - tabpanel "Group stage" [ref=e46]:
+            - generic [ref=e47]:
+              - heading "Group stage" [level=2] [ref=e48]
+              - generic [ref=e49]:
+                - strong [ref=e50]: "0"
+                - text: of 72 matches picked
+            - generic [ref=e51]:
+              - generic [ref=e52]:
+                - generic [ref=e53]:
+                  - heading "Group A" [level=3] [ref=e54]
+                  - generic [ref=e55]: 0 / 6 matches predicted
+                - generic [ref=e1946]:
+                  - generic [ref=e1947]:
+                    - button "Mexico 25% to win Group A" [ref=e1948]:
+                      - generic [ref=e1949]:
+                        - generic [ref=e1950]: MEX
+                        - generic [ref=e1951]: 25%
+                    - 'tooltip "Mexico · Group A To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Mexico · Group A
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1952]:
+                    - button "South Africa 25% to win Group A" [ref=e1953]:
+                      - generic [ref=e1954]:
+                        - generic [ref=e1955]: RSA
+                        - generic [ref=e1956]: 25%
+                    - 'tooltip "South Africa · Group A To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: South Africa · Group A
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1957]:
+                    - button "South Korea 25% to win Group A" [ref=e1958]:
+                      - generic [ref=e1959]:
+                        - generic [ref=e1960]: KOR
+                        - generic [ref=e1961]: 25%
+                    - 'tooltip "South Korea · Group A To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: South Korea · Group A
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1962]:
+                    - button "Czech Republic 25% to win Group A" [ref=e1963]:
+                      - generic [ref=e1964]:
+                        - generic [ref=e1965]: CZE
+                        - generic [ref=e1966]: 25%
+                    - 'tooltip "Czech Republic · Group A To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Czech Republic · Group A
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e56]:
+                  - group "Mexico vs South Africa prediction" [ref=e57]:
+                    - link "View match preview for Mexico vs South Africa" [ref=e58] [cursor=pointer]:
+                      - /url: /match/1/preview
+                      - text: View match
+                    - button "Open pick popup for Mexico vs South Africa" [ref=e59] [cursor=pointer]: ⋯
+                    - button "Mexico to win" [ref=e60] [cursor=pointer]:
+                      - generic "Mexico" [ref=e61]:
+                        - img "Mexico flag" [ref=e62]
+                      - generic [ref=e63]: MEX
+                      - generic [ref=e64]: 85%
+                    - button "Draw" [ref=e65] [cursor=pointer]:
+                      - generic [ref=e66]: DRAW
+                      - generic [ref=e67]: 10%
+                    - button "South Africa to win" [ref=e68] [cursor=pointer]:
+                      - generic "South Africa" [ref=e69]:
+                        - img "South Africa flag" [ref=e70]
+                      - generic [ref=e71]: RSA
+                      - generic [ref=e72]: 5%
+                    - button "Add score" [ref=e74] [cursor=pointer]
+                  - group "South Korea vs Czech Republic prediction" [ref=e75]:
+                    - link "View match preview for South Korea vs Czech Republic" [ref=e76] [cursor=pointer]:
+                      - /url: /match/2/preview
+                      - text: View match
+                    - button "Open pick popup for South Korea vs Czech Republic" [ref=e77] [cursor=pointer]: ⋯
+                    - button "South Korea to win" [ref=e78] [cursor=pointer]:
+                      - generic "South Korea" [ref=e79]:
+                        - img "South Korea flag" [ref=e80]
+                      - generic [ref=e81]: KOR
+                      - generic [ref=e82]: 72%
+                    - button "Draw" [ref=e83] [cursor=pointer]:
+                      - generic [ref=e84]: DRAW
+                      - generic [ref=e85]: 17%
+                    - button "Czech Republic to win" [ref=e86] [cursor=pointer]:
+                      - generic "Czech Republic" [ref=e87]:
+                        - img "Czech Republic flag" [ref=e88]
+                      - generic [ref=e89]: CZE
+                      - generic [ref=e90]: 11%
+                    - button "Add score" [ref=e92] [cursor=pointer]
+                  - group "Mexico vs South Korea prediction" [ref=e93]:
+                    - link "View match preview for Mexico vs South Korea" [ref=e94] [cursor=pointer]:
+                      - /url: /match/3/preview
+                      - text: View match
+                    - button "Open pick popup for Mexico vs South Korea" [ref=e95] [cursor=pointer]: ⋯
+                    - button "Mexico to win" [ref=e96] [cursor=pointer]:
+                      - generic "Mexico" [ref=e97]:
+                        - img "Mexico flag" [ref=e98]
+                      - generic [ref=e99]: MEX
+                      - generic [ref=e100]: 57%
+                    - button "Draw" [ref=e101] [cursor=pointer]:
+                      - generic [ref=e102]: DRAW
+                      - generic [ref=e103]: 25%
+                    - button "South Korea to win" [ref=e104] [cursor=pointer]:
+                      - generic "South Korea" [ref=e105]:
+                        - img "South Korea flag" [ref=e106]
+                      - generic [ref=e107]: KOR
+                      - generic [ref=e108]: 18%
+                    - button "Add score" [ref=e110] [cursor=pointer]
+                  - group "Czech Republic vs South Africa prediction" [ref=e111]:
+                    - link "View match preview for Czech Republic vs South Africa" [ref=e112] [cursor=pointer]:
+                      - /url: /match/4/preview
+                      - text: View match
+                    - button "Open pick popup for Czech Republic vs South Africa" [ref=e113] [cursor=pointer]: ⋯
+                    - button "Czech Republic to win" [ref=e114] [cursor=pointer]:
+                      - generic "Czech Republic" [ref=e115]:
+                        - img "Czech Republic flag" [ref=e116]
+                      - generic [ref=e117]: CZE
+                      - generic [ref=e118]: 72%
+                    - button "Draw" [ref=e119] [cursor=pointer]:
+                      - generic [ref=e120]: DRAW
+                      - generic [ref=e121]: 17%
+                    - button "South Africa to win" [ref=e122] [cursor=pointer]:
+                      - generic "South Africa" [ref=e123]:
+                        - img "South Africa flag" [ref=e124]
+                      - generic [ref=e125]: RSA
+                      - generic [ref=e126]: 11%
+                    - button "Add score" [ref=e128] [cursor=pointer]
+                  - group "Czech Republic vs Mexico prediction" [ref=e129]:
+                    - link "View match preview for Czech Republic vs Mexico" [ref=e130] [cursor=pointer]:
+                      - /url: /match/5/preview
+                      - text: View match
+                    - button "Open pick popup for Czech Republic vs Mexico" [ref=e131] [cursor=pointer]: ⋯
+                    - button "Czech Republic to win" [ref=e132] [cursor=pointer]:
+                      - generic "Czech Republic" [ref=e133]:
+                        - img "Czech Republic flag" [ref=e134]
+                      - generic [ref=e135]: CZE
+                      - generic [ref=e136]: 19%
+                    - button "Draw" [ref=e137] [cursor=pointer]:
+                      - generic [ref=e138]: DRAW
+                      - generic [ref=e139]: 14%
+                    - button "Mexico to win" [ref=e140] [cursor=pointer]:
+                      - generic "Mexico" [ref=e141]:
+                        - img "Mexico flag" [ref=e142]
+                      - generic [ref=e143]: MEX
+                      - generic [ref=e144]: 67%
+                    - button "Add score" [ref=e146] [cursor=pointer]
+                  - group "South Africa vs South Korea prediction" [ref=e147]:
+                    - link "View match preview for South Africa vs South Korea" [ref=e148] [cursor=pointer]:
+                      - /url: /match/6/preview
+                      - text: View match
+                    - button "Open pick popup for South Africa vs South Korea" [ref=e149] [cursor=pointer]: ⋯
+                    - button "South Africa to win" [ref=e150] [cursor=pointer]:
+                      - generic "South Africa" [ref=e151]:
+                        - img "South Africa flag" [ref=e152]
+                      - generic [ref=e153]: RSA
+                      - generic [ref=e154]: 5%
+                    - button "Draw" [ref=e155] [cursor=pointer]:
+                      - generic [ref=e156]: DRAW
+                      - generic [ref=e157]: 10%
+                    - button "South Korea to win" [ref=e158] [cursor=pointer]:
+                      - generic "South Korea" [ref=e159]:
+                        - img "South Korea flag" [ref=e160]
+                      - generic [ref=e161]: KOR
+                      - generic [ref=e162]: 85%
+                    - button "Add score" [ref=e164] [cursor=pointer]
+                - generic "Predicted standings" [ref=e165]:
+                  - heading "Predicted standings" [level=4] [ref=e166]
+                  - list [ref=e167]:
+                    - listitem [ref=e168]:
+                      - generic [ref=e169]: "1."
+                      - generic [ref=e170]: CZE
+                      - generic [ref=e171]: Czech Republic
+                      - generic "Points" [ref=e172]: 0 pts
+                      - generic "Goal difference" [ref=e173]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e174]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e175]: 0:0
+                      - generic [ref=e176]: advances
+                    - listitem [ref=e177]:
+                      - generic [ref=e178]: "2."
+                      - generic [ref=e179]: KOR
+                      - generic [ref=e180]: South Korea
+                      - generic "Points" [ref=e181]: 0 pts
+                      - generic "Goal difference" [ref=e182]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e183]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e184]: 0:0
+                      - generic [ref=e185]: advances
+                    - listitem [ref=e186]:
+                      - generic [ref=e187]: "3."
+                      - generic [ref=e188]: MEX
+                      - generic [ref=e189]: Mexico
+                      - generic "Points" [ref=e190]: 0 pts
+                      - generic "Goal difference" [ref=e191]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e192]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e193]: 0:0
+                      - generic [ref=e194]: best-thirds pool
+                    - listitem [ref=e195]:
+                      - generic [ref=e196]: "4."
+                      - generic [ref=e197]: RSA
+                      - generic [ref=e198]: South Africa
+                      - generic "Points" [ref=e199]: 0 pts
+                      - generic "Goal difference" [ref=e200]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e201]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e202]: 0:0
+                      - generic [ref=e203]: out
+              - generic [ref=e204]:
+                - generic [ref=e205]:
+                  - heading "Group B" [level=3] [ref=e206]
+                  - generic [ref=e207]: 0 / 6 matches predicted
+                - generic [ref=e1967]:
+                  - generic [ref=e1968]:
+                    - button "Canada 25% to win Group B" [ref=e1969]:
+                      - generic [ref=e1970]:
+                        - generic [ref=e1971]: CAN
+                        - generic [ref=e1972]: 25%
+                    - 'tooltip "Canada · Group B To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Canada · Group B
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1973]:
+                    - button "Bosnia and Herzegovina 25% to win Group B" [ref=e1974]:
+                      - generic [ref=e1975]:
+                        - generic [ref=e1976]: BIH
+                        - generic [ref=e1977]: 25%
+                    - 'tooltip "Bosnia and Herzegovina · Group B To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Bosnia and Herzegovina · Group B
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1978]:
+                    - button "Qatar 25% to win Group B" [ref=e1979]:
+                      - generic [ref=e1980]:
+                        - generic [ref=e1981]: QAT
+                        - generic [ref=e1982]: 25%
+                    - 'tooltip "Qatar · Group B To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Qatar · Group B
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1983]:
+                    - button "Switzerland 25% to win Group B" [ref=e1984]:
+                      - generic [ref=e1985]:
+                        - generic [ref=e1986]: SUI
+                        - generic [ref=e1987]: 25%
+                    - 'tooltip "Switzerland · Group B To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Switzerland · Group B
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e208]:
+                  - group "Canada vs Bosnia and Herzegovina prediction" [ref=e209]:
+                    - link "View match preview for Canada vs Bosnia and Herzegovina" [ref=e210] [cursor=pointer]:
+                      - /url: /match/7/preview
+                      - text: View match
+                    - button "Open pick popup for Canada vs Bosnia and Herzegovina" [ref=e211] [cursor=pointer]: ⋯
+                    - button "Canada to win" [ref=e212] [cursor=pointer]:
+                      - generic "Canada" [ref=e213]:
+                        - img "Canada flag" [ref=e214]
+                      - generic [ref=e215]: CAN
+                      - generic [ref=e216]: 85%
+                    - button "Draw" [ref=e217] [cursor=pointer]:
+                      - generic [ref=e218]: DRAW
+                      - generic [ref=e219]: 10%
+                    - button "Bosnia and Herzegovina to win" [ref=e220] [cursor=pointer]:
+                      - generic "Bosnia and Herzegovina" [ref=e221]:
+                        - img "Bosnia and Herzegovina flag" [ref=e222]
+                      - generic [ref=e223]: BIH
+                      - generic [ref=e224]: 5%
+                    - button "Add score" [ref=e226] [cursor=pointer]
+                  - group "Qatar vs Switzerland prediction" [ref=e227]:
+                    - link "View match preview for Qatar vs Switzerland" [ref=e228] [cursor=pointer]:
+                      - /url: /match/8/preview
+                      - text: View match
+                    - button "Open pick popup for Qatar vs Switzerland" [ref=e229] [cursor=pointer]: ⋯
+                    - button "Qatar to win" [ref=e230] [cursor=pointer]:
+                      - generic "Qatar" [ref=e231]:
+                        - img "Qatar flag" [ref=e232]
+                      - generic [ref=e233]: QAT
+                      - generic [ref=e234]: 13%
+                    - button "Draw" [ref=e235] [cursor=pointer]:
+                      - generic [ref=e236]: DRAW
+                      - generic [ref=e237]: 13%
+                    - button "Switzerland to win" [ref=e238] [cursor=pointer]:
+                      - generic "Switzerland" [ref=e239]:
+                        - img "Switzerland flag" [ref=e240]
+                      - generic [ref=e241]: SUI
+                      - generic [ref=e242]: 74%
+                    - button "Add score" [ref=e244] [cursor=pointer]
+                  - group "Canada vs Qatar prediction" [ref=e245]:
+                    - link "View match preview for Canada vs Qatar" [ref=e246] [cursor=pointer]:
+                      - /url: /match/9/preview
+                      - text: View match
+                    - button "Open pick popup for Canada vs Qatar" [ref=e247] [cursor=pointer]: ⋯
+                    - button "Canada to win" [ref=e248] [cursor=pointer]:
+                      - generic "Canada" [ref=e249]:
+                        - img "Canada flag" [ref=e250]
+                      - generic [ref=e251]: CAN
+                      - generic [ref=e252]: 72%
+                    - button "Draw" [ref=e253] [cursor=pointer]:
+                      - generic [ref=e254]: DRAW
+                      - generic [ref=e255]: 18%
+                    - button "Qatar to win" [ref=e256] [cursor=pointer]:
+                      - generic "Qatar" [ref=e257]:
+                        - img "Qatar flag" [ref=e258]
+                      - generic [ref=e259]: QAT
+                      - generic [ref=e260]: 10%
+                    - button "Add score" [ref=e262] [cursor=pointer]
+                  - group "Switzerland vs Bosnia and Herzegovina prediction" [ref=e263]:
+                    - link "View match preview for Switzerland vs Bosnia and Herzegovina" [ref=e264] [cursor=pointer]:
+                      - /url: /match/10/preview
+                      - text: View match
+                    - button "Open pick popup for Switzerland vs Bosnia and Herzegovina" [ref=e265] [cursor=pointer]: ⋯
+                    - button "Switzerland to win" [ref=e266] [cursor=pointer]:
+                      - generic "Switzerland" [ref=e267]:
+                        - img "Switzerland flag" [ref=e268]
+                      - generic [ref=e269]: SUI
+                      - generic [ref=e270]: 85%
+                    - button "Draw" [ref=e271] [cursor=pointer]:
+                      - generic [ref=e272]: DRAW
+                      - generic [ref=e273]: 10%
+                    - button "Bosnia and Herzegovina to win" [ref=e274] [cursor=pointer]:
+                      - generic "Bosnia and Herzegovina" [ref=e275]:
+                        - img "Bosnia and Herzegovina flag" [ref=e276]
+                      - generic [ref=e277]: BIH
+                      - generic [ref=e278]: 5%
+                    - button "Add score" [ref=e280] [cursor=pointer]
+                  - group "Switzerland vs Canada prediction" [ref=e281]:
+                    - link "View match preview for Switzerland vs Canada" [ref=e282] [cursor=pointer]:
+                      - /url: /match/11/preview
+                      - text: View match
+                    - button "Open pick popup for Switzerland vs Canada" [ref=e283] [cursor=pointer]: ⋯
+                    - button "Switzerland to win" [ref=e284] [cursor=pointer]:
+                      - generic "Switzerland" [ref=e285]:
+                        - img "Switzerland flag" [ref=e286]
+                      - generic [ref=e287]: SUI
+                      - generic [ref=e288]: 61%
+                    - button "Draw" [ref=e289] [cursor=pointer]:
+                      - generic [ref=e290]: DRAW
+                      - generic [ref=e291]: 22%
+                    - button "Canada to win" [ref=e292] [cursor=pointer]:
+                      - generic "Canada" [ref=e293]:
+                        - img "Canada flag" [ref=e294]
+                      - generic [ref=e295]: CAN
+                      - generic [ref=e296]: 17%
+                    - button "Add score" [ref=e298] [cursor=pointer]
+                  - group "Bosnia and Herzegovina vs Qatar prediction" [ref=e299]:
+                    - link "View match preview for Bosnia and Herzegovina vs Qatar" [ref=e300] [cursor=pointer]:
+                      - /url: /match/12/preview
+                      - text: View match
+                    - button "Open pick popup for Bosnia and Herzegovina vs Qatar" [ref=e301] [cursor=pointer]: ⋯
+                    - button "Bosnia and Herzegovina to win" [ref=e302] [cursor=pointer]:
+                      - generic "Bosnia and Herzegovina" [ref=e303]:
+                        - img "Bosnia and Herzegovina flag" [ref=e304]
+                      - generic [ref=e305]: BIH
+                      - generic [ref=e306]: 24%
+                    - button "Draw" [ref=e307] [cursor=pointer]:
+                      - generic [ref=e308]: DRAW
+                      - generic [ref=e309]: 17%
+                    - button "Qatar to win" [ref=e310] [cursor=pointer]:
+                      - generic "Qatar" [ref=e311]:
+                        - img "Qatar flag" [ref=e312]
+                      - generic [ref=e313]: QAT
+                      - generic [ref=e314]: 59%
+                    - button "Add score" [ref=e316] [cursor=pointer]
+                - generic "Predicted standings" [ref=e317]:
+                  - heading "Predicted standings" [level=4] [ref=e318]
+                  - list [ref=e319]:
+                    - listitem [ref=e320]:
+                      - generic [ref=e321]: "1."
+                      - generic [ref=e322]: BIH
+                      - generic [ref=e323]: Bosnia and Herzegovina
+                      - generic "Points" [ref=e324]: 0 pts
+                      - generic "Goal difference" [ref=e325]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e326]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e327]: 0:0
+                      - generic [ref=e328]: advances
+                    - listitem [ref=e329]:
+                      - generic [ref=e330]: "2."
+                      - generic [ref=e331]: CAN
+                      - generic [ref=e332]: Canada
+                      - generic "Points" [ref=e333]: 0 pts
+                      - generic "Goal difference" [ref=e334]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e335]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e336]: 0:0
+                      - generic [ref=e337]: advances
+                    - listitem [ref=e338]:
+                      - generic [ref=e339]: "3."
+                      - generic [ref=e340]: QAT
+                      - generic [ref=e341]: Qatar
+                      - generic "Points" [ref=e342]: 0 pts
+                      - generic "Goal difference" [ref=e343]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e344]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e345]: 0:0
+                      - generic [ref=e346]: best-thirds pool
+                    - listitem [ref=e347]:
+                      - generic [ref=e348]: "4."
+                      - generic [ref=e349]: SUI
+                      - generic [ref=e350]: Switzerland
+                      - generic "Points" [ref=e351]: 0 pts
+                      - generic "Goal difference" [ref=e352]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e353]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e354]: 0:0
+                      - generic [ref=e355]: out
+              - generic [ref=e356]:
+                - generic [ref=e357]:
+                  - heading "Group C" [level=3] [ref=e358]
+                  - generic [ref=e359]: 0 / 6 matches predicted
+                - generic [ref=e1988]:
+                  - generic [ref=e1989]:
+                    - button "Brazil 25% to win Group C" [ref=e1990]:
+                      - generic [ref=e1991]:
+                        - generic [ref=e1992]: BRA
+                        - generic [ref=e1993]: 25%
+                    - 'tooltip "Brazil · Group C To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Brazil · Group C
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1994]:
+                    - button "Morocco 25% to win Group C" [ref=e1995]:
+                      - generic [ref=e1996]:
+                        - generic [ref=e1997]: MAR
+                        - generic [ref=e1998]: 25%
+                    - 'tooltip "Morocco · Group C To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Morocco · Group C
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e1999]:
+                    - button "Haiti 25% to win Group C" [ref=e2000]:
+                      - generic [ref=e2001]:
+                        - generic [ref=e2002]: HAI
+                        - generic [ref=e2003]: 25%
+                    - 'tooltip "Haiti · Group C To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Haiti · Group C
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2004]:
+                    - button "Scotland 25% to win Group C" [ref=e2005]:
+                      - generic [ref=e2006]:
+                        - generic [ref=e2007]: SCO
+                        - generic [ref=e2008]: 25%
+                    - 'tooltip "Scotland · Group C To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Scotland · Group C
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e360]:
+                  - group "Brazil vs Morocco prediction" [ref=e361]:
+                    - link "View match preview for Brazil vs Morocco" [ref=e362] [cursor=pointer]:
+                      - /url: /match/13/preview
+                      - text: View match
+                    - button "Open pick popup for Brazil vs Morocco" [ref=e363] [cursor=pointer]: ⋯
+                    - button "Brazil to win" [ref=e364] [cursor=pointer]:
+                      - generic "Brazil" [ref=e365]:
+                        - img "Brazil flag" [ref=e366]
+                      - generic [ref=e367]: BRA
+                      - generic [ref=e368]: 57%
+                    - button "Draw" [ref=e369] [cursor=pointer]:
+                      - generic [ref=e370]: DRAW
+                      - generic [ref=e371]: 23%
+                    - button "Morocco to win" [ref=e372] [cursor=pointer]:
+                      - generic "Morocco" [ref=e373]:
+                        - img "Morocco flag" [ref=e374]
+                      - generic [ref=e375]: MAR
+                      - generic [ref=e376]: 19%
+                    - button "Add score" [ref=e378] [cursor=pointer]
+                  - group "Haiti vs Scotland prediction" [ref=e379]:
+                    - link "View match preview for Haiti vs Scotland" [ref=e380] [cursor=pointer]:
+                      - /url: /match/14/preview
+                      - text: View match
+                    - button "Open pick popup for Haiti vs Scotland" [ref=e381] [cursor=pointer]: ⋯
+                    - button "Haiti to win" [ref=e382] [cursor=pointer]:
+                      - generic "Haiti" [ref=e383]:
+                        - img "Haiti flag" [ref=e384]
+                      - generic [ref=e385]: HAI
+                      - generic [ref=e386]: 5%
+                    - button "Draw" [ref=e387] [cursor=pointer]:
+                      - generic [ref=e388]: DRAW
+                      - generic [ref=e389]: 10%
+                    - button "Scotland to win" [ref=e390] [cursor=pointer]:
+                      - generic "Scotland" [ref=e391]:
+                        - img "Scotland flag" [ref=e392]
+                      - generic [ref=e393]: SCO
+                      - generic [ref=e394]: 85%
+                    - button "Add score" [ref=e396] [cursor=pointer]
+                  - group "Brazil vs Haiti prediction" [ref=e397]:
+                    - link "View match preview for Brazil vs Haiti" [ref=e398] [cursor=pointer]:
+                      - /url: /match/15/preview
+                      - text: View match
+                    - button "Open pick popup for Brazil vs Haiti" [ref=e399] [cursor=pointer]: ⋯
+                    - button "Brazil to win" [ref=e400] [cursor=pointer]:
+                      - generic "Brazil" [ref=e401]:
+                        - img "Brazil flag" [ref=e402]
+                      - generic [ref=e403]: BRA
+                      - generic [ref=e404]: 85%
+                    - button "Draw" [ref=e405] [cursor=pointer]:
+                      - generic [ref=e406]: DRAW
+                      - generic [ref=e407]: 10%
+                    - button "Haiti to win" [ref=e408] [cursor=pointer]:
+                      - generic "Haiti" [ref=e409]:
+                        - img "Haiti flag" [ref=e410]
+                      - generic [ref=e411]: HAI
+                      - generic [ref=e412]: 5%
+                    - button "Add score" [ref=e414] [cursor=pointer]
+                  - group "Scotland vs Morocco prediction" [ref=e415]:
+                    - link "View match preview for Scotland vs Morocco" [ref=e416] [cursor=pointer]:
+                      - /url: /match/16/preview
+                      - text: View match
+                    - button "Open pick popup for Scotland vs Morocco" [ref=e417] [cursor=pointer]: ⋯
+                    - button "Scotland to win" [ref=e418] [cursor=pointer]:
+                      - generic "Scotland" [ref=e419]:
+                        - img "Scotland flag" [ref=e420]
+                      - generic [ref=e421]: SCO
+                      - generic [ref=e422]: 17%
+                    - button "Draw" [ref=e423] [cursor=pointer]:
+                      - generic [ref=e424]: DRAW
+                      - generic [ref=e425]: 14%
+                    - button "Morocco to win" [ref=e426] [cursor=pointer]:
+                      - generic "Morocco" [ref=e427]:
+                        - img "Morocco flag" [ref=e428]
+                      - generic [ref=e429]: MAR
+                      - generic [ref=e430]: 69%
+                    - button "Add score" [ref=e432] [cursor=pointer]
+                  - group "Scotland vs Brazil prediction" [ref=e433]:
+                    - link "View match preview for Scotland vs Brazil" [ref=e434] [cursor=pointer]:
+                      - /url: /match/17/preview
+                      - text: View match
+                    - button "Open pick popup for Scotland vs Brazil" [ref=e435] [cursor=pointer]: ⋯
+                    - button "Scotland to win" [ref=e436] [cursor=pointer]:
+                      - generic "Scotland" [ref=e437]:
+                        - img "Scotland flag" [ref=e438]
+                      - generic [ref=e439]: SCO
+                      - generic [ref=e440]: 7%
+                    - button "Draw" [ref=e441] [cursor=pointer]:
+                      - generic [ref=e442]: DRAW
+                      - generic [ref=e443]: 10%
+                    - button "Brazil to win" [ref=e444] [cursor=pointer]:
+                      - generic "Brazil" [ref=e445]:
+                        - img "Brazil flag" [ref=e446]
+                      - generic [ref=e447]: BRA
+                      - generic [ref=e448]: 83%
+                    - button "Add score" [ref=e450] [cursor=pointer]
+                  - group "Morocco vs Haiti prediction" [ref=e451]:
+                    - link "View match preview for Morocco vs Haiti" [ref=e452] [cursor=pointer]:
+                      - /url: /match/18/preview
+                      - text: View match
+                    - button "Open pick popup for Morocco vs Haiti" [ref=e453] [cursor=pointer]: ⋯
+                    - button "Morocco to win" [ref=e454] [cursor=pointer]:
+                      - generic "Morocco" [ref=e455]:
+                        - img "Morocco flag" [ref=e456]
+                      - generic [ref=e457]: MAR
+                      - generic [ref=e458]: 85%
+                    - button "Draw" [ref=e459] [cursor=pointer]:
+                      - generic [ref=e460]: DRAW
+                      - generic [ref=e461]: 10%
+                    - button "Haiti to win" [ref=e462] [cursor=pointer]:
+                      - generic "Haiti" [ref=e463]:
+                        - img "Haiti flag" [ref=e464]
+                      - generic [ref=e465]: HAI
+                      - generic [ref=e466]: 5%
+                    - button "Add score" [ref=e468] [cursor=pointer]
+                - generic "Predicted standings" [ref=e469]:
+                  - heading "Predicted standings" [level=4] [ref=e470]
+                  - list [ref=e471]:
+                    - listitem [ref=e472]:
+                      - generic [ref=e473]: "1."
+                      - generic [ref=e474]: BRA
+                      - generic [ref=e475]: Brazil
+                      - generic "Points" [ref=e476]: 0 pts
+                      - generic "Goal difference" [ref=e477]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e478]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e479]: 0:0
+                      - generic [ref=e480]: advances
+                    - listitem [ref=e481]:
+                      - generic [ref=e482]: "2."
+                      - generic [ref=e483]: HAI
+                      - generic [ref=e484]: Haiti
+                      - generic "Points" [ref=e485]: 0 pts
+                      - generic "Goal difference" [ref=e486]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e487]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e488]: 0:0
+                      - generic [ref=e489]: advances
+                    - listitem [ref=e490]:
+                      - generic [ref=e491]: "3."
+                      - generic [ref=e492]: MAR
+                      - generic [ref=e493]: Morocco
+                      - generic "Points" [ref=e494]: 0 pts
+                      - generic "Goal difference" [ref=e495]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e496]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e497]: 0:0
+                      - generic [ref=e498]: best-thirds pool
+                    - listitem [ref=e499]:
+                      - generic [ref=e500]: "4."
+                      - generic [ref=e501]: SCO
+                      - generic [ref=e502]: Scotland
+                      - generic "Points" [ref=e503]: 0 pts
+                      - generic "Goal difference" [ref=e504]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e505]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e506]: 0:0
+                      - generic [ref=e507]: out
+              - generic [ref=e508]:
+                - generic [ref=e509]:
+                  - heading "Group D" [level=3] [ref=e510]
+                  - generic [ref=e511]: 0 / 6 matches predicted
+                - generic [ref=e2009]:
+                  - generic [ref=e2010]:
+                    - button "United States 25% to win Group D" [ref=e2011]:
+                      - generic [ref=e2012]:
+                        - generic [ref=e2013]: USA
+                        - generic [ref=e2014]: 25%
+                    - 'tooltip "United States · Group D To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: United States · Group D
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2015]:
+                    - button "Paraguay 25% to win Group D" [ref=e2016]:
+                      - generic [ref=e2017]:
+                        - generic [ref=e2018]: PAR
+                        - generic [ref=e2019]: 25%
+                    - 'tooltip "Paraguay · Group D To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Paraguay · Group D
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2020]:
+                    - button "Australia 25% to win Group D" [ref=e2021]:
+                      - generic [ref=e2022]:
+                        - generic [ref=e2023]: AUS
+                        - generic [ref=e2024]: 25%
+                    - 'tooltip "Australia · Group D To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Australia · Group D
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2025]:
+                    - button "Turkey 25% to win Group D" [ref=e2026]:
+                      - generic [ref=e2027]:
+                        - generic [ref=e2028]: TUR
+                        - generic [ref=e2029]: 25%
+                    - 'tooltip "Turkey · Group D To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Turkey · Group D
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e512]:
+                  - group "United States vs Paraguay prediction" [ref=e513]:
+                    - link "View match preview for United States vs Paraguay" [ref=e514] [cursor=pointer]:
+                      - /url: /match/19/preview
+                      - text: View match
+                    - button "Open pick popup for United States vs Paraguay" [ref=e515] [cursor=pointer]: ⋯
+                    - button "United States to win" [ref=e516] [cursor=pointer]:
+                      - generic "United States" [ref=e517]:
+                        - img "United States flag" [ref=e518]
+                      - generic [ref=e519]: USA
+                      - generic [ref=e520]: 66%
+                    - button "Draw" [ref=e521] [cursor=pointer]:
+                      - generic [ref=e522]: DRAW
+                      - generic [ref=e523]: 20%
+                    - button "Paraguay to win" [ref=e524] [cursor=pointer]:
+                      - generic "Paraguay" [ref=e525]:
+                        - img "Paraguay flag" [ref=e526]
+                      - generic [ref=e527]: PAR
+                      - generic [ref=e528]: 14%
+                    - button "Add score" [ref=e530] [cursor=pointer]
+                  - group "Australia vs Turkey prediction" [ref=e531]:
+                    - link "View match preview for Australia vs Turkey" [ref=e532] [cursor=pointer]:
+                      - /url: /match/20/preview
+                      - text: View match
+                    - button "Open pick popup for Australia vs Turkey" [ref=e533] [cursor=pointer]: ⋯
+                    - button "Australia to win" [ref=e534] [cursor=pointer]:
+                      - generic "Australia" [ref=e535]:
+                        - img "Australia flag" [ref=e536]
+                      - generic [ref=e537]: AUS
+                      - generic [ref=e538]: 47%
+                    - button "Draw" [ref=e539] [cursor=pointer]:
+                      - generic [ref=e540]: DRAW
+                      - generic [ref=e541]: 26%
+                    - button "Turkey to win" [ref=e542] [cursor=pointer]:
+                      - generic "Turkey" [ref=e543]:
+                        - img "Turkey flag" [ref=e544]
+                      - generic [ref=e545]: TUR
+                      - generic [ref=e546]: 27%
+                    - button "Add score" [ref=e548] [cursor=pointer]
+                  - group "United States vs Australia prediction" [ref=e549]:
+                    - link "View match preview for United States vs Australia" [ref=e550] [cursor=pointer]:
+                      - /url: /match/21/preview
+                      - text: View match
+                    - button "Open pick popup for United States vs Australia" [ref=e551] [cursor=pointer]: ⋯
+                    - button "United States to win" [ref=e552] [cursor=pointer]:
+                      - generic "United States" [ref=e553]:
+                        - img "United States flag" [ref=e554]
+                      - generic [ref=e555]: USA
+                      - generic [ref=e556]: 51%
+                    - button "Draw" [ref=e557] [cursor=pointer]:
+                      - generic [ref=e558]: DRAW
+                      - generic [ref=e559]: 25%
+                    - button "Australia to win" [ref=e560] [cursor=pointer]:
+                      - generic "Australia" [ref=e561]:
+                        - img "Australia flag" [ref=e562]
+                      - generic [ref=e563]: AUS
+                      - generic [ref=e564]: 24%
+                    - button "Add score" [ref=e566] [cursor=pointer]
+                  - group "Turkey vs Paraguay prediction" [ref=e567]:
+                    - link "View match preview for Turkey vs Paraguay" [ref=e568] [cursor=pointer]:
+                      - /url: /match/22/preview
+                      - text: View match
+                    - button "Open pick popup for Turkey vs Paraguay" [ref=e569] [cursor=pointer]: ⋯
+                    - button "Turkey to win" [ref=e570] [cursor=pointer]:
+                      - generic "Turkey" [ref=e571]:
+                        - img "Turkey flag" [ref=e572]
+                      - generic [ref=e573]: TUR
+                      - generic [ref=e574]: 65%
+                    - button "Draw" [ref=e575] [cursor=pointer]:
+                      - generic [ref=e576]: DRAW
+                      - generic [ref=e577]: 19%
+                    - button "Paraguay to win" [ref=e578] [cursor=pointer]:
+                      - generic "Paraguay" [ref=e579]:
+                        - img "Paraguay flag" [ref=e580]
+                      - generic [ref=e581]: PAR
+                      - generic [ref=e582]: 16%
+                    - button "Add score" [ref=e584] [cursor=pointer]
+                  - group "Turkey vs United States prediction" [ref=e585]:
+                    - link "View match preview for Turkey vs United States" [ref=e586] [cursor=pointer]:
+                      - /url: /match/23/preview
+                      - text: View match
+                    - button "Open pick popup for Turkey vs United States" [ref=e587] [cursor=pointer]: ⋯
+                    - button "Turkey to win" [ref=e588] [cursor=pointer]:
+                      - generic "Turkey" [ref=e589]:
+                        - img "Turkey flag" [ref=e590]
+                      - generic [ref=e591]: TUR
+                      - generic [ref=e592]: 47%
+                    - button "Draw" [ref=e593] [cursor=pointer]:
+                      - generic [ref=e594]: DRAW
+                      - generic [ref=e595]: 26%
+                    - button "United States to win" [ref=e596] [cursor=pointer]:
+                      - generic "United States" [ref=e597]:
+                        - img "United States flag" [ref=e598]
+                      - generic [ref=e599]: USA
+                      - generic [ref=e600]: 27%
+                    - button "Add score" [ref=e602] [cursor=pointer]
+                  - group "Paraguay vs Australia prediction" [ref=e603]:
+                    - link "View match preview for Paraguay vs Australia" [ref=e604] [cursor=pointer]:
+                      - /url: /match/24/preview
+                      - text: View match
+                    - button "Open pick popup for Paraguay vs Australia" [ref=e605] [cursor=pointer]: ⋯
+                    - button "Paraguay to win" [ref=e606] [cursor=pointer]:
+                      - generic "Paraguay" [ref=e607]:
+                        - img "Paraguay flag" [ref=e608]
+                      - generic [ref=e609]: PAR
+                      - generic [ref=e610]: 33%
+                    - button "Draw" [ref=e611] [cursor=pointer]:
+                      - generic [ref=e612]: DRAW
+                      - generic [ref=e613]: 20%
+                    - button "Australia to win" [ref=e614] [cursor=pointer]:
+                      - generic "Australia" [ref=e615]:
+                        - img "Australia flag" [ref=e616]
+                      - generic [ref=e617]: AUS
+                      - generic [ref=e618]: 48%
+                    - button "Add score" [ref=e620] [cursor=pointer]
+                - generic "Predicted standings" [ref=e621]:
+                  - heading "Predicted standings" [level=4] [ref=e622]
+                  - list [ref=e623]:
+                    - listitem [ref=e624]:
+                      - generic [ref=e625]: "1."
+                      - generic [ref=e626]: AUS
+                      - generic [ref=e627]: Australia
+                      - generic "Points" [ref=e628]: 0 pts
+                      - generic "Goal difference" [ref=e629]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e630]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e631]: 0:0
+                      - generic [ref=e632]: advances
+                    - listitem [ref=e633]:
+                      - generic [ref=e634]: "2."
+                      - generic [ref=e635]: PAR
+                      - generic [ref=e636]: Paraguay
+                      - generic "Points" [ref=e637]: 0 pts
+                      - generic "Goal difference" [ref=e638]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e639]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e640]: 0:0
+                      - generic [ref=e641]: advances
+                    - listitem [ref=e642]:
+                      - generic [ref=e643]: "3."
+                      - generic [ref=e644]: TUR
+                      - generic [ref=e645]: Turkey
+                      - generic "Points" [ref=e646]: 0 pts
+                      - generic "Goal difference" [ref=e647]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e648]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e649]: 0:0
+                      - generic [ref=e650]: best-thirds pool
+                    - listitem [ref=e651]:
+                      - generic [ref=e652]: "4."
+                      - generic [ref=e653]: USA
+                      - generic [ref=e654]: United States
+                      - generic "Points" [ref=e655]: 0 pts
+                      - generic "Goal difference" [ref=e656]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e657]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e658]: 0:0
+                      - generic [ref=e659]: out
+              - generic [ref=e660]:
+                - generic [ref=e661]:
+                  - heading "Group E" [level=3] [ref=e662]
+                  - generic [ref=e663]: 0 / 6 matches predicted
+                - generic [ref=e2030]:
+                  - generic [ref=e2031]:
+                    - button "Germany 25% to win Group E" [ref=e2032]:
+                      - generic [ref=e2033]:
+                        - generic [ref=e2034]: GER
+                        - generic [ref=e2035]: 25%
+                    - 'tooltip "Germany · Group E To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Germany · Group E
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2036]:
+                    - button "Curaçao 25% to win Group E" [ref=e2037]:
+                      - generic [ref=e2038]:
+                        - generic [ref=e2039]: CUW
+                        - generic [ref=e2040]: 25%
+                    - 'tooltip "Curaçao · Group E To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Curaçao · Group E
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2041]:
+                    - button "Ivory Coast 25% to win Group E" [ref=e2042]:
+                      - generic [ref=e2043]:
+                        - generic [ref=e2044]: CIV
+                        - generic [ref=e2045]: 25%
+                    - 'tooltip "Ivory Coast · Group E To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Ivory Coast · Group E
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2046]:
+                    - button "Ecuador 25% to win Group E" [ref=e2047]:
+                      - generic [ref=e2048]:
+                        - generic [ref=e2049]: ECU
+                        - generic [ref=e2050]: 25%
+                    - 'tooltip "Ecuador · Group E To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Ecuador · Group E
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e664]:
+                  - group "Germany vs Curaçao prediction" [ref=e665]:
+                    - link "View match preview for Germany vs Curaçao" [ref=e666] [cursor=pointer]:
+                      - /url: /match/25/preview
+                      - text: View match
+                    - button "Open pick popup for Germany vs Curaçao" [ref=e667] [cursor=pointer]: ⋯
+                    - button "Germany to win" [ref=e668] [cursor=pointer]:
+                      - generic "Germany" [ref=e669]:
+                        - img "Germany flag" [ref=e670]
+                      - generic [ref=e671]: GER
+                      - generic [ref=e672]: 85%
+                    - button "Draw" [ref=e673] [cursor=pointer]:
+                      - generic [ref=e674]: DRAW
+                      - generic [ref=e675]: 10%
+                    - button "Curaçao to win" [ref=e676] [cursor=pointer]:
+                      - generic "Curaçao" [ref=e677]:
+                        - img "Curaçao flag" [ref=e678]
+                      - generic [ref=e679]: CUW
+                      - generic [ref=e680]: 5%
+                    - button "Add score" [ref=e682] [cursor=pointer]
+                  - group "Ivory Coast vs Ecuador prediction" [ref=e683]:
+                    - link "View match preview for Ivory Coast vs Ecuador" [ref=e684] [cursor=pointer]:
+                      - /url: /match/26/preview
+                      - text: View match
+                    - button "Open pick popup for Ivory Coast vs Ecuador" [ref=e685] [cursor=pointer]: ⋯
+                    - button "Ivory Coast to win" [ref=e686] [cursor=pointer]:
+                      - generic "Ivory Coast" [ref=e687]:
+                        - img "Ivory Coast flag" [ref=e688]
+                      - generic [ref=e689]: CIV
+                      - generic [ref=e690]: 28%
+                    - button "Draw" [ref=e691] [cursor=pointer]:
+                      - generic [ref=e692]: DRAW
+                      - generic [ref=e693]: 18%
+                    - button "Ecuador to win" [ref=e694] [cursor=pointer]:
+                      - generic "Ecuador" [ref=e695]:
+                        - img "Ecuador flag" [ref=e696]
+                      - generic [ref=e697]: ECU
+                      - generic [ref=e698]: 54%
+                    - button "Add score" [ref=e700] [cursor=pointer]
+                  - group "Germany vs Ivory Coast prediction" [ref=e701]:
+                    - link "View match preview for Germany vs Ivory Coast" [ref=e702] [cursor=pointer]:
+                      - /url: /match/27/preview
+                      - text: View match
+                    - button "Open pick popup for Germany vs Ivory Coast" [ref=e703] [cursor=pointer]: ⋯
+                    - button "Germany to win" [ref=e704] [cursor=pointer]:
+                      - generic "Germany" [ref=e705]:
+                        - img "Germany flag" [ref=e706]
+                      - generic [ref=e707]: GER
+                      - generic [ref=e708]: 84%
+                    - button "Draw" [ref=e709] [cursor=pointer]:
+                      - generic [ref=e710]: DRAW
+                      - generic [ref=e711]: 11%
+                    - button "Ivory Coast to win" [ref=e712] [cursor=pointer]:
+                      - generic "Ivory Coast" [ref=e713]:
+                        - img "Ivory Coast flag" [ref=e714]
+                      - generic [ref=e715]: CIV
+                      - generic [ref=e716]: 5%
+                    - button "Add score" [ref=e718] [cursor=pointer]
+                  - group "Ecuador vs Curaçao prediction" [ref=e719]:
+                    - link "View match preview for Ecuador vs Curaçao" [ref=e720] [cursor=pointer]:
+                      - /url: /match/28/preview
+                      - text: View match
+                    - button "Open pick popup for Ecuador vs Curaçao" [ref=e721] [cursor=pointer]: ⋯
+                    - button "Ecuador to win" [ref=e722] [cursor=pointer]:
+                      - generic "Ecuador" [ref=e723]:
+                        - img "Ecuador flag" [ref=e724]
+                      - generic [ref=e725]: ECU
+                      - generic [ref=e726]: 85%
+                    - button "Draw" [ref=e727] [cursor=pointer]:
+                      - generic [ref=e728]: DRAW
+                      - generic [ref=e729]: 10%
+                    - button "Curaçao to win" [ref=e730] [cursor=pointer]:
+                      - generic "Curaçao" [ref=e731]:
+                        - img "Curaçao flag" [ref=e732]
+                      - generic [ref=e733]: CUW
+                      - generic [ref=e734]: 5%
+                    - button "Add score" [ref=e736] [cursor=pointer]
+                  - group "Ecuador vs Germany prediction" [ref=e737]:
+                    - link "View match preview for Ecuador vs Germany" [ref=e738] [cursor=pointer]:
+                      - /url: /match/29/preview
+                      - text: View match
+                    - button "Open pick popup for Ecuador vs Germany" [ref=e739] [cursor=pointer]: ⋯
+                    - button "Ecuador to win" [ref=e740] [cursor=pointer]:
+                      - generic "Ecuador" [ref=e741]:
+                        - img "Ecuador flag" [ref=e742]
+                      - generic [ref=e743]: ECU
+                      - generic [ref=e744]: 32%
+                    - button "Draw" [ref=e745] [cursor=pointer]:
+                      - generic [ref=e746]: DRAW
+                      - generic [ref=e747]: 20%
+                    - button "Germany to win" [ref=e748] [cursor=pointer]:
+                      - generic "Germany" [ref=e749]:
+                        - img "Germany flag" [ref=e750]
+                      - generic [ref=e751]: GER
+                      - generic [ref=e752]: 48%
+                    - button "Add score" [ref=e754] [cursor=pointer]
+                  - group "Curaçao vs Ivory Coast prediction" [ref=e755]:
+                    - link "View match preview for Curaçao vs Ivory Coast" [ref=e756] [cursor=pointer]:
+                      - /url: /match/30/preview
+                      - text: View match
+                    - button "Open pick popup for Curaçao vs Ivory Coast" [ref=e757] [cursor=pointer]: ⋯
+                    - button "Curaçao to win" [ref=e758] [cursor=pointer]:
+                      - generic "Curaçao" [ref=e759]:
+                        - img "Curaçao flag" [ref=e760]
+                      - generic [ref=e761]: CUW
+                      - generic [ref=e762]: 5%
+                    - button "Draw" [ref=e763] [cursor=pointer]:
+                      - generic [ref=e764]: DRAW
+                      - generic [ref=e765]: 10%
+                    - button "Ivory Coast to win" [ref=e766] [cursor=pointer]:
+                      - generic "Ivory Coast" [ref=e767]:
+                        - img "Ivory Coast flag" [ref=e768]
+                      - generic [ref=e769]: CIV
+                      - generic [ref=e770]: 85%
+                    - button "Add score" [ref=e772] [cursor=pointer]
+                - generic "Predicted standings" [ref=e773]:
+                  - heading "Predicted standings" [level=4] [ref=e774]
+                  - list [ref=e775]:
+                    - listitem [ref=e776]:
+                      - generic [ref=e777]: "1."
+                      - generic [ref=e778]: CIV
+                      - generic [ref=e779]: Ivory Coast
+                      - generic "Points" [ref=e780]: 0 pts
+                      - generic "Goal difference" [ref=e781]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e782]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e783]: 0:0
+                      - generic [ref=e784]: advances
+                    - listitem [ref=e785]:
+                      - generic [ref=e786]: "2."
+                      - generic [ref=e787]: CUW
+                      - generic [ref=e788]: Curaçao
+                      - generic "Points" [ref=e789]: 0 pts
+                      - generic "Goal difference" [ref=e790]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e791]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e792]: 0:0
+                      - generic [ref=e793]: advances
+                    - listitem [ref=e794]:
+                      - generic [ref=e795]: "3."
+                      - generic [ref=e796]: ECU
+                      - generic [ref=e797]: Ecuador
+                      - generic "Points" [ref=e798]: 0 pts
+                      - generic "Goal difference" [ref=e799]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e800]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e801]: 0:0
+                      - generic [ref=e802]: best-thirds pool
+                    - listitem [ref=e803]:
+                      - generic [ref=e804]: "4."
+                      - generic [ref=e805]: GER
+                      - generic [ref=e806]: Germany
+                      - generic "Points" [ref=e807]: 0 pts
+                      - generic "Goal difference" [ref=e808]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e809]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e810]: 0:0
+                      - generic [ref=e811]: out
+              - generic [ref=e812]:
+                - generic [ref=e813]:
+                  - heading "Group F" [level=3] [ref=e814]
+                  - generic [ref=e815]: 0 / 6 matches predicted
+                - generic [ref=e2051]:
+                  - generic [ref=e2052]:
+                    - button "Netherlands 25% to win Group F" [ref=e2053]:
+                      - generic [ref=e2054]:
+                        - generic [ref=e2055]: NED
+                        - generic [ref=e2056]: 25%
+                    - 'tooltip "Netherlands · Group F To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Netherlands · Group F
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2057]:
+                    - button "Japan 25% to win Group F" [ref=e2058]:
+                      - generic [ref=e2059]:
+                        - generic [ref=e2060]: JPN
+                        - generic [ref=e2061]: 25%
+                    - 'tooltip "Japan · Group F To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Japan · Group F
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2062]:
+                    - button "Sweden 25% to win Group F" [ref=e2063]:
+                      - generic [ref=e2064]:
+                        - generic [ref=e2065]: SWE
+                        - generic [ref=e2066]: 25%
+                    - 'tooltip "Sweden · Group F To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Sweden · Group F
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2067]:
+                    - button "Tunisia 25% to win Group F" [ref=e2068]:
+                      - generic [ref=e2069]:
+                        - generic [ref=e2070]: TUN
+                        - generic [ref=e2071]: 25%
+                    - 'tooltip "Tunisia · Group F To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Tunisia · Group F
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e816]:
+                  - group "Netherlands vs Japan prediction" [ref=e817]:
+                    - link "View match preview for Netherlands vs Japan" [ref=e818] [cursor=pointer]:
+                      - /url: /match/31/preview
+                      - text: View match
+                    - button "Open pick popup for Netherlands vs Japan" [ref=e819] [cursor=pointer]: ⋯
+                    - button "Netherlands to win" [ref=e820] [cursor=pointer]:
+                      - generic "Netherlands" [ref=e821]:
+                        - img "Netherlands flag" [ref=e822]
+                      - generic [ref=e823]: NED
+                      - generic [ref=e824]: 61%
+                    - button "Draw" [ref=e825] [cursor=pointer]:
+                      - generic [ref=e826]: DRAW
+                      - generic [ref=e827]: 21%
+                    - button "Japan to win" [ref=e828] [cursor=pointer]:
+                      - generic "Japan" [ref=e829]:
+                        - img "Japan flag" [ref=e830]
+                      - generic [ref=e831]: JPN
+                      - generic [ref=e832]: 18%
+                    - button "Add score" [ref=e834] [cursor=pointer]
+                  - group "Sweden vs Tunisia prediction" [ref=e835]:
+                    - link "View match preview for Sweden vs Tunisia" [ref=e836] [cursor=pointer]:
+                      - /url: /match/32/preview
+                      - text: View match
+                    - button "Open pick popup for Sweden vs Tunisia" [ref=e837] [cursor=pointer]: ⋯
+                    - button "Sweden to win" [ref=e838] [cursor=pointer]:
+                      - generic "Sweden" [ref=e839]:
+                        - img "Sweden flag" [ref=e840]
+                      - generic [ref=e841]: SWE
+                      - generic [ref=e842]: 68%
+                    - button "Draw" [ref=e843] [cursor=pointer]:
+                      - generic [ref=e844]: DRAW
+                      - generic [ref=e845]: 18%
+                    - button "Tunisia to win" [ref=e846] [cursor=pointer]:
+                      - generic "Tunisia" [ref=e847]:
+                        - img "Tunisia flag" [ref=e848]
+                      - generic [ref=e849]: TUN
+                      - generic [ref=e850]: 14%
+                    - button "Add score" [ref=e852] [cursor=pointer]
+                  - group "Netherlands vs Sweden prediction" [ref=e853]:
+                    - link "View match preview for Netherlands vs Sweden" [ref=e854] [cursor=pointer]:
+                      - /url: /match/33/preview
+                      - text: View match
+                    - button "Open pick popup for Netherlands vs Sweden" [ref=e855] [cursor=pointer]: ⋯
+                    - button "Netherlands to win" [ref=e856] [cursor=pointer]:
+                      - generic "Netherlands" [ref=e857]:
+                        - img "Netherlands flag" [ref=e858]
+                      - generic [ref=e859]: NED
+                      - generic [ref=e860]: 81%
+                    - button "Draw" [ref=e861] [cursor=pointer]:
+                      - generic [ref=e862]: DRAW
+                      - generic [ref=e863]: 13%
+                    - button "Sweden to win" [ref=e864] [cursor=pointer]:
+                      - generic "Sweden" [ref=e865]:
+                        - img "Sweden flag" [ref=e866]
+                      - generic [ref=e867]: SWE
+                      - generic [ref=e868]: 7%
+                    - button "Add score" [ref=e870] [cursor=pointer]
+                  - group "Tunisia vs Japan prediction" [ref=e871]:
+                    - link "View match preview for Tunisia vs Japan" [ref=e872] [cursor=pointer]:
+                      - /url: /match/34/preview
+                      - text: View match
+                    - button "Open pick popup for Tunisia vs Japan" [ref=e873] [cursor=pointer]: ⋯
+                    - button "Tunisia to win" [ref=e874] [cursor=pointer]:
+                      - generic "Tunisia" [ref=e875]:
+                        - img "Tunisia flag" [ref=e876]
+                      - generic [ref=e877]: TUN
+                      - generic [ref=e878]: 10%
+                    - button "Draw" [ref=e879] [cursor=pointer]:
+                      - generic [ref=e880]: DRAW
+                      - generic [ref=e881]: 10%
+                    - button "Japan to win" [ref=e882] [cursor=pointer]:
+                      - generic "Japan" [ref=e883]:
+                        - img "Japan flag" [ref=e884]
+                      - generic [ref=e885]: JPN
+                      - generic [ref=e886]: 80%
+                    - button "Add score" [ref=e888] [cursor=pointer]
+                  - group "Tunisia vs Netherlands prediction" [ref=e889]:
+                    - link "View match preview for Tunisia vs Netherlands" [ref=e890] [cursor=pointer]:
+                      - /url: /match/35/preview
+                      - text: View match
+                    - button "Open pick popup for Tunisia vs Netherlands" [ref=e891] [cursor=pointer]: ⋯
+                    - button "Tunisia to win" [ref=e892] [cursor=pointer]:
+                      - generic "Tunisia" [ref=e893]:
+                        - img "Tunisia flag" [ref=e894]
+                      - generic [ref=e895]: TUN
+                      - generic [ref=e896]: 5%
+                    - button "Draw" [ref=e897] [cursor=pointer]:
+                      - generic [ref=e898]: DRAW
+                      - generic [ref=e899]: 10%
+                    - button "Netherlands to win" [ref=e900] [cursor=pointer]:
+                      - generic "Netherlands" [ref=e901]:
+                        - img "Netherlands flag" [ref=e902]
+                      - generic [ref=e903]: NED
+                      - generic [ref=e904]: 85%
+                    - button "Add score" [ref=e906] [cursor=pointer]
+                  - group "Japan vs Sweden prediction" [ref=e907]:
+                    - link "View match preview for Japan vs Sweden" [ref=e908] [cursor=pointer]:
+                      - /url: /match/36/preview
+                      - text: View match
+                    - button "Open pick popup for Japan vs Sweden" [ref=e909] [cursor=pointer]: ⋯
+                    - button "Japan to win" [ref=e910] [cursor=pointer]:
+                      - generic "Japan" [ref=e911]:
+                        - img "Japan flag" [ref=e912]
+                      - generic [ref=e913]: JPN
+                      - generic [ref=e914]: 67%
+                    - button "Draw" [ref=e915] [cursor=pointer]:
+                      - generic [ref=e916]: DRAW
+                      - generic [ref=e917]: 18%
+                    - button "Sweden to win" [ref=e918] [cursor=pointer]:
+                      - generic "Sweden" [ref=e919]:
+                        - img "Sweden flag" [ref=e920]
+                      - generic [ref=e921]: SWE
+                      - generic [ref=e922]: 14%
+                    - button "Add score" [ref=e924] [cursor=pointer]
+                - generic "Predicted standings" [ref=e925]:
+                  - heading "Predicted standings" [level=4] [ref=e926]
+                  - list [ref=e927]:
+                    - listitem [ref=e928]:
+                      - generic [ref=e929]: "1."
+                      - generic [ref=e930]: JPN
+                      - generic [ref=e931]: Japan
+                      - generic "Points" [ref=e932]: 0 pts
+                      - generic "Goal difference" [ref=e933]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e934]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e935]: 0:0
+                      - generic [ref=e936]: advances
+                    - listitem [ref=e937]:
+                      - generic [ref=e938]: "2."
+                      - generic [ref=e939]: NED
+                      - generic [ref=e940]: Netherlands
+                      - generic "Points" [ref=e941]: 0 pts
+                      - generic "Goal difference" [ref=e942]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e943]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e944]: 0:0
+                      - generic [ref=e945]: advances
+                    - listitem [ref=e946]:
+                      - generic [ref=e947]: "3."
+                      - generic [ref=e948]: SWE
+                      - generic [ref=e949]: Sweden
+                      - generic "Points" [ref=e950]: 0 pts
+                      - generic "Goal difference" [ref=e951]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e952]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e953]: 0:0
+                      - generic [ref=e954]: best-thirds pool
+                    - listitem [ref=e955]:
+                      - generic [ref=e956]: "4."
+                      - generic [ref=e957]: TUN
+                      - generic [ref=e958]: Tunisia
+                      - generic "Points" [ref=e959]: 0 pts
+                      - generic "Goal difference" [ref=e960]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e961]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e962]: 0:0
+                      - generic [ref=e963]: out
+              - generic [ref=e964]:
+                - generic [ref=e965]:
+                  - heading "Group G" [level=3] [ref=e966]
+                  - generic [ref=e967]: 0 / 6 matches predicted
+                - generic [ref=e2072]:
+                  - generic [ref=e2073]:
+                    - button "Belgium 25% to win Group G" [ref=e2074]:
+                      - generic [ref=e2075]:
+                        - generic [ref=e2076]: BEL
+                        - generic [ref=e2077]: 25%
+                    - 'tooltip "Belgium · Group G To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Belgium · Group G
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2078]:
+                    - button "Egypt 25% to win Group G" [ref=e2079]:
+                      - generic [ref=e2080]:
+                        - generic [ref=e2081]: EGY
+                        - generic [ref=e2082]: 25%
+                    - 'tooltip "Egypt · Group G To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Egypt · Group G
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2083]:
+                    - button "Iran 25% to win Group G" [ref=e2084]:
+                      - generic [ref=e2085]:
+                        - generic [ref=e2086]: IRN
+                        - generic [ref=e2087]: 25%
+                    - 'tooltip "Iran · Group G To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Iran · Group G
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2088]:
+                    - button "New Zealand 25% to win Group G" [ref=e2089]:
+                      - generic [ref=e2090]:
+                        - generic [ref=e2091]: NZL
+                        - generic [ref=e2092]: 25%
+                    - 'tooltip "New Zealand · Group G To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: New Zealand · Group G
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e968]:
+                  - group "Belgium vs Egypt prediction" [ref=e969]:
+                    - link "View match preview for Belgium vs Egypt" [ref=e970] [cursor=pointer]:
+                      - /url: /match/37/preview
+                      - text: View match
+                    - button "Open pick popup for Belgium vs Egypt" [ref=e971] [cursor=pointer]: ⋯
+                    - button "Belgium to win" [ref=e972] [cursor=pointer]:
+                      - generic "Belgium" [ref=e973]:
+                        - img "Belgium flag" [ref=e974]
+                      - generic [ref=e975]: BEL
+                      - generic [ref=e976]: 81%
+                    - button "Draw" [ref=e977] [cursor=pointer]:
+                      - generic [ref=e978]: DRAW
+                      - generic [ref=e979]: 13%
+                    - button "Egypt to win" [ref=e980] [cursor=pointer]:
+                      - generic "Egypt" [ref=e981]:
+                        - img "Egypt flag" [ref=e982]
+                      - generic [ref=e983]: EGY
+                      - generic [ref=e984]: 7%
+                    - button "Add score" [ref=e986] [cursor=pointer]
+                  - group "Iran vs New Zealand prediction" [ref=e987]:
+                    - link "View match preview for Iran vs New Zealand" [ref=e988] [cursor=pointer]:
+                      - /url: /match/38/preview
+                      - text: View match
+                    - button "Open pick popup for Iran vs New Zealand" [ref=e989] [cursor=pointer]: ⋯
+                    - button "Iran to win" [ref=e990] [cursor=pointer]:
+                      - generic "Iran" [ref=e991]:
+                        - img "Iran flag" [ref=e992]
+                      - generic [ref=e993]: IRN
+                      - generic [ref=e994]: 85%
+                    - button "Draw" [ref=e995] [cursor=pointer]:
+                      - generic [ref=e996]: DRAW
+                      - generic [ref=e997]: 10%
+                    - button "New Zealand to win" [ref=e998] [cursor=pointer]:
+                      - generic "New Zealand" [ref=e999]:
+                        - img "New Zealand flag" [ref=e1000]
+                      - generic [ref=e1001]: NZL
+                      - generic [ref=e1002]: 5%
+                    - button "Add score" [ref=e1004] [cursor=pointer]
+                  - group "Belgium vs Iran prediction" [ref=e1005]:
+                    - link "View match preview for Belgium vs Iran" [ref=e1006] [cursor=pointer]:
+                      - /url: /match/39/preview
+                      - text: View match
+                    - button "Open pick popup for Belgium vs Iran" [ref=e1007] [cursor=pointer]: ⋯
+                    - button "Belgium to win" [ref=e1008] [cursor=pointer]:
+                      - generic "Belgium" [ref=e1009]:
+                        - img "Belgium flag" [ref=e1010]
+                      - generic [ref=e1011]: BEL
+                      - generic [ref=e1012]: 60%
+                    - button "Draw" [ref=e1013] [cursor=pointer]:
+                      - generic [ref=e1014]: DRAW
+                      - generic [ref=e1015]: 21%
+                    - button "Iran to win" [ref=e1016] [cursor=pointer]:
+                      - generic "Iran" [ref=e1017]:
+                        - img "Iran flag" [ref=e1018]
+                      - generic [ref=e1019]: IRN
+                      - generic [ref=e1020]: 19%
+                    - button "Add score" [ref=e1022] [cursor=pointer]
+                  - group "New Zealand vs Egypt prediction" [ref=e1023]:
+                    - link "View match preview for New Zealand vs Egypt" [ref=e1024] [cursor=pointer]:
+                      - /url: /match/40/preview
+                      - text: View match
+                    - button "Open pick popup for New Zealand vs Egypt" [ref=e1025] [cursor=pointer]: ⋯
+                    - button "New Zealand to win" [ref=e1026] [cursor=pointer]:
+                      - generic "New Zealand" [ref=e1027]:
+                        - img "New Zealand flag" [ref=e1028]
+                      - generic [ref=e1029]: NZL
+                      - generic [ref=e1030]: 5%
+                    - button "Draw" [ref=e1031] [cursor=pointer]:
+                      - generic [ref=e1032]: DRAW
+                      - generic [ref=e1033]: 10%
+                    - button "Egypt to win" [ref=e1034] [cursor=pointer]:
+                      - generic "Egypt" [ref=e1035]:
+                        - img "Egypt flag" [ref=e1036]
+                      - generic [ref=e1037]: EGY
+                      - generic [ref=e1038]: 85%
+                    - button "Add score" [ref=e1040] [cursor=pointer]
+                  - group "New Zealand vs Belgium prediction" [ref=e1041]:
+                    - link "View match preview for New Zealand vs Belgium" [ref=e1042] [cursor=pointer]:
+                      - /url: /match/41/preview
+                      - text: View match
+                    - button "Open pick popup for New Zealand vs Belgium" [ref=e1043] [cursor=pointer]: ⋯
+                    - button "New Zealand to win" [ref=e1044] [cursor=pointer]:
+                      - generic "New Zealand" [ref=e1045]:
+                        - img "New Zealand flag" [ref=e1046]
+                      - generic [ref=e1047]: NZL
+                      - generic [ref=e1048]: 5%
+                    - button "Draw" [ref=e1049] [cursor=pointer]:
+                      - generic [ref=e1050]: DRAW
+                      - generic [ref=e1051]: 10%
+                    - button "Belgium to win" [ref=e1052] [cursor=pointer]:
+                      - generic "Belgium" [ref=e1053]:
+                        - img "Belgium flag" [ref=e1054]
+                      - generic [ref=e1055]: BEL
+                      - generic [ref=e1056]: 85%
+                    - button "Add score" [ref=e1058] [cursor=pointer]
+                  - group "Egypt vs Iran prediction" [ref=e1059]:
+                    - link "View match preview for Egypt vs Iran" [ref=e1060] [cursor=pointer]:
+                      - /url: /match/42/preview
+                      - text: View match
+                    - button "Open pick popup for Egypt vs Iran" [ref=e1061] [cursor=pointer]: ⋯
+                    - button "Egypt to win" [ref=e1062] [cursor=pointer]:
+                      - generic "Egypt" [ref=e1063]:
+                        - img "Egypt flag" [ref=e1064]
+                      - generic [ref=e1065]: EGY
+                      - generic [ref=e1066]: 28%
+                    - button "Draw" [ref=e1067] [cursor=pointer]:
+                      - generic [ref=e1068]: DRAW
+                      - generic [ref=e1069]: 18%
+                    - button "Iran to win" [ref=e1070] [cursor=pointer]:
+                      - generic "Iran" [ref=e1071]:
+                        - img "Iran flag" [ref=e1072]
+                      - generic [ref=e1073]: IRN
+                      - generic [ref=e1074]: 55%
+                    - button "Add score" [ref=e1076] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1077]:
+                  - heading "Predicted standings" [level=4] [ref=e1078]
+                  - list [ref=e1079]:
+                    - listitem [ref=e1080]:
+                      - generic [ref=e1081]: "1."
+                      - generic [ref=e1082]: BEL
+                      - generic [ref=e1083]: Belgium
+                      - generic "Points" [ref=e1084]: 0 pts
+                      - generic "Goal difference" [ref=e1085]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1086]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1087]: 0:0
+                      - generic [ref=e1088]: advances
+                    - listitem [ref=e1089]:
+                      - generic [ref=e1090]: "2."
+                      - generic [ref=e1091]: EGY
+                      - generic [ref=e1092]: Egypt
+                      - generic "Points" [ref=e1093]: 0 pts
+                      - generic "Goal difference" [ref=e1094]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1095]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1096]: 0:0
+                      - generic [ref=e1097]: advances
+                    - listitem [ref=e1098]:
+                      - generic [ref=e1099]: "3."
+                      - generic [ref=e1100]: IRN
+                      - generic [ref=e1101]: Iran
+                      - generic "Points" [ref=e1102]: 0 pts
+                      - generic "Goal difference" [ref=e1103]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1104]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1105]: 0:0
+                      - generic [ref=e1106]: best-thirds pool
+                    - listitem [ref=e1107]:
+                      - generic [ref=e1108]: "4."
+                      - generic [ref=e1109]: NZL
+                      - generic [ref=e1110]: New Zealand
+                      - generic "Points" [ref=e1111]: 0 pts
+                      - generic "Goal difference" [ref=e1112]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1113]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1114]: 0:0
+                      - generic [ref=e1115]: out
+              - generic [ref=e1116]:
+                - generic [ref=e1117]:
+                  - heading "Group H" [level=3] [ref=e1118]
+                  - generic [ref=e1119]: 0 / 6 matches predicted
+                - generic [ref=e2093]:
+                  - generic [ref=e2094]:
+                    - button "Spain 25% to win Group H" [ref=e2095]:
+                      - generic [ref=e2096]:
+                        - generic [ref=e2097]: ESP
+                        - generic [ref=e2098]: 25%
+                    - 'tooltip "Spain · Group H To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Spain · Group H
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2099]:
+                    - button "Cape Verde 25% to win Group H" [ref=e2100]:
+                      - generic [ref=e2101]:
+                        - generic [ref=e2102]: CPV
+                        - generic [ref=e2103]: 25%
+                    - 'tooltip "Cape Verde · Group H To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Cape Verde · Group H
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2104]:
+                    - button "Saudi Arabia 25% to win Group H" [ref=e2105]:
+                      - generic [ref=e2106]:
+                        - generic [ref=e2107]: KSA
+                        - generic [ref=e2108]: 25%
+                    - 'tooltip "Saudi Arabia · Group H To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Saudi Arabia · Group H
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2109]:
+                    - button "Uruguay 25% to win Group H" [ref=e2110]:
+                      - generic [ref=e2111]:
+                        - generic [ref=e2112]: URU
+                        - generic [ref=e2113]: 25%
+                    - 'tooltip "Uruguay · Group H To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Uruguay · Group H
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e1120]:
+                  - group "Spain vs Cape Verde prediction" [ref=e1121]:
+                    - link "View match preview for Spain vs Cape Verde" [ref=e1122] [cursor=pointer]:
+                      - /url: /match/43/preview
+                      - text: View match
+                    - button "Open pick popup for Spain vs Cape Verde" [ref=e1123] [cursor=pointer]: ⋯
+                    - button "Spain to win" [ref=e1124] [cursor=pointer]:
+                      - generic "Spain" [ref=e1125]:
+                        - img "Spain flag" [ref=e1126]
+                      - generic [ref=e1127]: ESP
+                      - generic [ref=e1128]: 85%
+                    - button "Draw" [ref=e1129] [cursor=pointer]:
+                      - generic [ref=e1130]: DRAW
+                      - generic [ref=e1131]: 10%
+                    - button "Cape Verde to win" [ref=e1132] [cursor=pointer]:
+                      - generic "Cape Verde" [ref=e1133]:
+                        - img "Cape Verde flag" [ref=e1134]
+                      - generic [ref=e1135]: CPV
+                      - generic [ref=e1136]: 5%
+                    - button "Add score" [ref=e1138] [cursor=pointer]
+                  - group "Saudi Arabia vs Uruguay prediction" [ref=e1139]:
+                    - link "View match preview for Saudi Arabia vs Uruguay" [ref=e1140] [cursor=pointer]:
+                      - /url: /match/44/preview
+                      - text: View match
+                    - button "Open pick popup for Saudi Arabia vs Uruguay" [ref=e1141] [cursor=pointer]: ⋯
+                    - button "Saudi Arabia to win" [ref=e1142] [cursor=pointer]:
+                      - generic "Saudi Arabia" [ref=e1143]:
+                        - img "Saudi Arabia flag" [ref=e1144]
+                      - generic [ref=e1145]: KSA
+                      - generic [ref=e1146]: 5%
+                    - button "Draw" [ref=e1147] [cursor=pointer]:
+                      - generic [ref=e1148]: DRAW
+                      - generic [ref=e1149]: 10%
+                    - button "Uruguay to win" [ref=e1150] [cursor=pointer]:
+                      - generic "Uruguay" [ref=e1151]:
+                        - img "Uruguay flag" [ref=e1152]
+                      - generic [ref=e1153]: URU
+                      - generic [ref=e1154]: 85%
+                    - button "Add score" [ref=e1156] [cursor=pointer]
+                  - group "Spain vs Saudi Arabia prediction" [ref=e1157]:
+                    - link "View match preview for Spain vs Saudi Arabia" [ref=e1158] [cursor=pointer]:
+                      - /url: /match/45/preview
+                      - text: View match
+                    - button "Open pick popup for Spain vs Saudi Arabia" [ref=e1159] [cursor=pointer]: ⋯
+                    - button "Spain to win" [ref=e1160] [cursor=pointer]:
+                      - generic "Spain" [ref=e1161]:
+                        - img "Spain flag" [ref=e1162]
+                      - generic [ref=e1163]: ESP
+                      - generic [ref=e1164]: 85%
+                    - button "Draw" [ref=e1165] [cursor=pointer]:
+                      - generic [ref=e1166]: DRAW
+                      - generic [ref=e1167]: 10%
+                    - button "Saudi Arabia to win" [ref=e1168] [cursor=pointer]:
+                      - generic "Saudi Arabia" [ref=e1169]:
+                        - img "Saudi Arabia flag" [ref=e1170]
+                      - generic [ref=e1171]: KSA
+                      - generic [ref=e1172]: 5%
+                    - button "Add score" [ref=e1174] [cursor=pointer]
+                  - group "Uruguay vs Cape Verde prediction" [ref=e1175]:
+                    - link "View match preview for Uruguay vs Cape Verde" [ref=e1176] [cursor=pointer]:
+                      - /url: /match/46/preview
+                      - text: View match
+                    - button "Open pick popup for Uruguay vs Cape Verde" [ref=e1177] [cursor=pointer]: ⋯
+                    - button "Uruguay to win" [ref=e1178] [cursor=pointer]:
+                      - generic "Uruguay" [ref=e1179]:
+                        - img "Uruguay flag" [ref=e1180]
+                      - generic [ref=e1181]: URU
+                      - generic [ref=e1182]: 85%
+                    - button "Draw" [ref=e1183] [cursor=pointer]:
+                      - generic [ref=e1184]: DRAW
+                      - generic [ref=e1185]: 10%
+                    - button "Cape Verde to win" [ref=e1186] [cursor=pointer]:
+                      - generic "Cape Verde" [ref=e1187]:
+                        - img "Cape Verde flag" [ref=e1188]
+                      - generic [ref=e1189]: CPV
+                      - generic [ref=e1190]: 5%
+                    - button "Add score" [ref=e1192] [cursor=pointer]
+                  - group "Uruguay vs Spain prediction" [ref=e1193]:
+                    - link "View match preview for Uruguay vs Spain" [ref=e1194] [cursor=pointer]:
+                      - /url: /match/47/preview
+                      - text: View match
+                    - button "Open pick popup for Uruguay vs Spain" [ref=e1195] [cursor=pointer]: ⋯
+                    - button "Uruguay to win" [ref=e1196] [cursor=pointer]:
+                      - generic "Uruguay" [ref=e1197]:
+                        - img "Uruguay flag" [ref=e1198]
+                      - generic [ref=e1199]: URU
+                      - generic [ref=e1200]: 34%
+                    - button "Draw" [ref=e1201] [cursor=pointer]:
+                      - generic [ref=e1202]: DRAW
+                      - generic [ref=e1203]: 20%
+                    - button "Spain to win" [ref=e1204] [cursor=pointer]:
+                      - generic "Spain" [ref=e1205]:
+                        - img "Spain flag" [ref=e1206]
+                      - generic [ref=e1207]: ESP
+                      - generic [ref=e1208]: 46%
+                    - button "Add score" [ref=e1210] [cursor=pointer]
+                  - group "Cape Verde vs Saudi Arabia prediction" [ref=e1211]:
+                    - link "View match preview for Cape Verde vs Saudi Arabia" [ref=e1212] [cursor=pointer]:
+                      - /url: /match/48/preview
+                      - text: View match
+                    - button "Open pick popup for Cape Verde vs Saudi Arabia" [ref=e1213] [cursor=pointer]: ⋯
+                    - button "Cape Verde to win" [ref=e1214] [cursor=pointer]:
+                      - generic "Cape Verde" [ref=e1215]:
+                        - img "Cape Verde flag" [ref=e1216]
+                      - generic [ref=e1217]: CPV
+                      - generic [ref=e1218]: 33%
+                    - button "Draw" [ref=e1219] [cursor=pointer]:
+                      - generic [ref=e1220]: DRAW
+                      - generic [ref=e1221]: 20%
+                    - button "Saudi Arabia to win" [ref=e1222] [cursor=pointer]:
+                      - generic "Saudi Arabia" [ref=e1223]:
+                        - img "Saudi Arabia flag" [ref=e1224]
+                      - generic [ref=e1225]: KSA
+                      - generic [ref=e1226]: 46%
+                    - button "Add score" [ref=e1228] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1229]:
+                  - heading "Predicted standings" [level=4] [ref=e1230]
+                  - list [ref=e1231]:
+                    - listitem [ref=e1232]:
+                      - generic [ref=e1233]: "1."
+                      - generic [ref=e1234]: CPV
+                      - generic [ref=e1235]: Cape Verde
+                      - generic "Points" [ref=e1236]: 0 pts
+                      - generic "Goal difference" [ref=e1237]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1238]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1239]: 0:0
+                      - generic [ref=e1240]: advances
+                    - listitem [ref=e1241]:
+                      - generic [ref=e1242]: "2."
+                      - generic [ref=e1243]: ESP
+                      - generic [ref=e1244]: Spain
+                      - generic "Points" [ref=e1245]: 0 pts
+                      - generic "Goal difference" [ref=e1246]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1247]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1248]: 0:0
+                      - generic [ref=e1249]: advances
+                    - listitem [ref=e1250]:
+                      - generic [ref=e1251]: "3."
+                      - generic [ref=e1252]: KSA
+                      - generic [ref=e1253]: Saudi Arabia
+                      - generic "Points" [ref=e1254]: 0 pts
+                      - generic "Goal difference" [ref=e1255]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1256]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1257]: 0:0
+                      - generic [ref=e1258]: best-thirds pool
+                    - listitem [ref=e1259]:
+                      - generic [ref=e1260]: "4."
+                      - generic [ref=e1261]: URU
+                      - generic [ref=e1262]: Uruguay
+                      - generic "Points" [ref=e1263]: 0 pts
+                      - generic "Goal difference" [ref=e1264]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1265]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1266]: 0:0
+                      - generic [ref=e1267]: out
+              - generic [ref=e1268]:
+                - generic [ref=e1269]:
+                  - heading "Group I" [level=3] [ref=e1270]
+                  - generic [ref=e1271]: 0 / 6 matches predicted
+                - generic [ref=e2114]:
+                  - generic [ref=e2115]:
+                    - button "France 25% to win Group I" [ref=e2116]:
+                      - generic [ref=e2117]:
+                        - generic [ref=e2118]: FRA
+                        - generic [ref=e2119]: 25%
+                    - 'tooltip "France · Group I To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: France · Group I
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2120]:
+                    - button "Senegal 25% to win Group I" [ref=e2121]:
+                      - generic [ref=e2122]:
+                        - generic [ref=e2123]: SEN
+                        - generic [ref=e2124]: 25%
+                    - 'tooltip "Senegal · Group I To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Senegal · Group I
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2125]:
+                    - button "Iraq 25% to win Group I" [ref=e2126]:
+                      - generic [ref=e2127]:
+                        - generic [ref=e2128]: IRQ
+                        - generic [ref=e2129]: 25%
+                    - 'tooltip "Iraq · Group I To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Iraq · Group I
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2130]:
+                    - button "Norway 25% to win Group I" [ref=e2131]:
+                      - generic [ref=e2132]:
+                        - generic [ref=e2133]: NOR
+                        - generic [ref=e2134]: 25%
+                    - 'tooltip "Norway · Group I To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Norway · Group I
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e1272]:
+                  - group "France vs Senegal prediction" [ref=e1273]:
+                    - link "View match preview for France vs Senegal" [ref=e1274] [cursor=pointer]:
+                      - /url: /match/49/preview
+                      - text: View match
+                    - button "Open pick popup for France vs Senegal" [ref=e1275] [cursor=pointer]: ⋯
+                    - button "France to win" [ref=e1276] [cursor=pointer]:
+                      - generic "France" [ref=e1277]:
+                        - img "France flag" [ref=e1278]
+                      - generic [ref=e1279]: FRA
+                      - generic [ref=e1280]: 71%
+                    - button "Draw" [ref=e1281] [cursor=pointer]:
+                      - generic [ref=e1282]: DRAW
+                      - generic [ref=e1283]: 17%
+                    - button "Senegal to win" [ref=e1284] [cursor=pointer]:
+                      - generic "Senegal" [ref=e1285]:
+                        - img "Senegal flag" [ref=e1286]
+                      - generic [ref=e1287]: SEN
+                      - generic [ref=e1288]: 13%
+                    - button "Add score" [ref=e1290] [cursor=pointer]
+                  - group "Iraq vs Norway prediction" [ref=e1291]:
+                    - link "View match preview for Iraq vs Norway" [ref=e1292] [cursor=pointer]:
+                      - /url: /match/50/preview
+                      - text: View match
+                    - button "Open pick popup for Iraq vs Norway" [ref=e1293] [cursor=pointer]: ⋯
+                    - button "Iraq to win" [ref=e1294] [cursor=pointer]:
+                      - generic "Iraq" [ref=e1295]:
+                        - img "Iraq flag" [ref=e1296]
+                      - generic [ref=e1297]: IRQ
+                      - generic [ref=e1298]: 21%
+                    - button "Draw" [ref=e1299] [cursor=pointer]:
+                      - generic [ref=e1300]: DRAW
+                      - generic [ref=e1301]: 13%
+                    - button "Norway to win" [ref=e1302] [cursor=pointer]:
+                      - generic "Norway" [ref=e1303]:
+                        - img "Norway flag" [ref=e1304]
+                      - generic [ref=e1305]: NOR
+                      - generic [ref=e1306]: 66%
+                    - button "Add score" [ref=e1308] [cursor=pointer]
+                  - group "France vs Iraq prediction" [ref=e1309]:
+                    - link "View match preview for France vs Iraq" [ref=e1310] [cursor=pointer]:
+                      - /url: /match/51/preview
+                      - text: View match
+                    - button "Open pick popup for France vs Iraq" [ref=e1311] [cursor=pointer]: ⋯
+                    - button "France to win" [ref=e1312] [cursor=pointer]:
+                      - generic "France" [ref=e1313]:
+                        - img "France flag" [ref=e1314]
+                      - generic [ref=e1315]: FRA
+                      - generic [ref=e1316]: 85%
+                    - button "Draw" [ref=e1317] [cursor=pointer]:
+                      - generic [ref=e1318]: DRAW
+                      - generic [ref=e1319]: 10%
+                    - button "Iraq to win" [ref=e1320] [cursor=pointer]:
+                      - generic "Iraq" [ref=e1321]:
+                        - img "Iraq flag" [ref=e1322]
+                      - generic [ref=e1323]: IRQ
+                      - generic [ref=e1324]: 5%
+                    - button "Add score" [ref=e1326] [cursor=pointer]
+                  - group "Norway vs Senegal prediction" [ref=e1327]:
+                    - link "View match preview for Norway vs Senegal" [ref=e1328] [cursor=pointer]:
+                      - /url: /match/52/preview
+                      - text: View match
+                    - button "Open pick popup for Norway vs Senegal" [ref=e1329] [cursor=pointer]: ⋯
+                    - button "Norway to win" [ref=e1330] [cursor=pointer]:
+                      - generic "Norway" [ref=e1331]:
+                        - img "Norway flag" [ref=e1332]
+                      - generic [ref=e1333]: NOR
+                      - generic [ref=e1334]: 39%
+                    - button "Draw" [ref=e1335] [cursor=pointer]:
+                      - generic [ref=e1336]: DRAW
+                      - generic [ref=e1337]: 21%
+                    - button "Senegal to win" [ref=e1338] [cursor=pointer]:
+                      - generic "Senegal" [ref=e1339]:
+                        - img "Senegal flag" [ref=e1340]
+                      - generic [ref=e1341]: SEN
+                      - generic [ref=e1342]: 40%
+                    - button "Add score" [ref=e1344] [cursor=pointer]
+                  - group "Norway vs France prediction" [ref=e1345]:
+                    - link "View match preview for Norway vs France" [ref=e1346] [cursor=pointer]:
+                      - /url: /match/53/preview
+                      - text: View match
+                    - button "Open pick popup for Norway vs France" [ref=e1347] [cursor=pointer]: ⋯
+                    - button "Norway to win" [ref=e1348] [cursor=pointer]:
+                      - generic "Norway" [ref=e1349]:
+                        - img "Norway flag" [ref=e1350]
+                      - generic [ref=e1351]: NOR
+                      - generic [ref=e1352]: 16%
+                    - button "Draw" [ref=e1353] [cursor=pointer]:
+                      - generic [ref=e1354]: DRAW
+                      - generic [ref=e1355]: 11%
+                    - button "France to win" [ref=e1356] [cursor=pointer]:
+                      - generic "France" [ref=e1357]:
+                        - img "France flag" [ref=e1358]
+                      - generic [ref=e1359]: FRA
+                      - generic [ref=e1360]: 73%
+                    - button "Add score" [ref=e1362] [cursor=pointer]
+                  - group "Senegal vs Iraq prediction" [ref=e1363]:
+                    - link "View match preview for Senegal vs Iraq" [ref=e1364] [cursor=pointer]:
+                      - /url: /match/54/preview
+                      - text: View match
+                    - button "Open pick popup for Senegal vs Iraq" [ref=e1365] [cursor=pointer]: ⋯
+                    - button "Senegal to win" [ref=e1366] [cursor=pointer]:
+                      - generic "Senegal" [ref=e1367]:
+                        - img "Senegal flag" [ref=e1368]
+                      - generic [ref=e1369]: SEN
+                      - generic [ref=e1370]: 85%
+                    - button "Draw" [ref=e1371] [cursor=pointer]:
+                      - generic [ref=e1372]: DRAW
+                      - generic [ref=e1373]: 10%
+                    - button "Iraq to win" [ref=e1374] [cursor=pointer]:
+                      - generic "Iraq" [ref=e1375]:
+                        - img "Iraq flag" [ref=e1376]
+                      - generic [ref=e1377]: IRQ
+                      - generic [ref=e1378]: 5%
+                    - button "Add score" [ref=e1380] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1381]:
+                  - heading "Predicted standings" [level=4] [ref=e1382]
+                  - list [ref=e1383]:
+                    - listitem [ref=e1384]:
+                      - generic [ref=e1385]: "1."
+                      - generic [ref=e1386]: FRA
+                      - generic [ref=e1387]: France
+                      - generic "Points" [ref=e1388]: 0 pts
+                      - generic "Goal difference" [ref=e1389]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1390]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1391]: 0:0
+                      - generic [ref=e1392]: advances
+                    - listitem [ref=e1393]:
+                      - generic [ref=e1394]: "2."
+                      - generic [ref=e1395]: IRQ
+                      - generic [ref=e1396]: Iraq
+                      - generic "Points" [ref=e1397]: 0 pts
+                      - generic "Goal difference" [ref=e1398]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1399]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1400]: 0:0
+                      - generic [ref=e1401]: advances
+                    - listitem [ref=e1402]:
+                      - generic [ref=e1403]: "3."
+                      - generic [ref=e1404]: NOR
+                      - generic [ref=e1405]: Norway
+                      - generic "Points" [ref=e1406]: 0 pts
+                      - generic "Goal difference" [ref=e1407]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1408]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1409]: 0:0
+                      - generic [ref=e1410]: best-thirds pool
+                    - listitem [ref=e1411]:
+                      - generic [ref=e1412]: "4."
+                      - generic [ref=e1413]: SEN
+                      - generic [ref=e1414]: Senegal
+                      - generic "Points" [ref=e1415]: 0 pts
+                      - generic "Goal difference" [ref=e1416]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1417]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1418]: 0:0
+                      - generic [ref=e1419]: out
+              - generic [ref=e1420]:
+                - generic [ref=e1421]:
+                  - heading "Group J" [level=3] [ref=e1422]
+                  - generic [ref=e1423]: 0 / 6 matches predicted
+                - generic [ref=e2135]:
+                  - generic [ref=e2136]:
+                    - button "Argentina 25% to win Group J" [ref=e2137]:
+                      - generic [ref=e2138]:
+                        - generic [ref=e2139]: ARG
+                        - generic [ref=e2140]: 25%
+                    - 'tooltip "Argentina · Group J To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Argentina · Group J
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2141]:
+                    - button "Algeria 25% to win Group J" [ref=e2142]:
+                      - generic [ref=e2143]:
+                        - generic [ref=e2144]: ALG
+                        - generic [ref=e2145]: 25%
+                    - 'tooltip "Algeria · Group J To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Algeria · Group J
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2146]:
+                    - button "Austria 25% to win Group J" [ref=e2147]:
+                      - generic [ref=e2148]:
+                        - generic [ref=e2149]: AUT
+                        - generic [ref=e2150]: 25%
+                    - 'tooltip "Austria · Group J To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Austria · Group J
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2151]:
+                    - button "Jordan 25% to win Group J" [ref=e2152]:
+                      - generic [ref=e2153]:
+                        - generic [ref=e2154]: JOR
+                        - generic [ref=e2155]: 25%
+                    - 'tooltip "Jordan · Group J To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Jordan · Group J
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e1424]:
+                  - group "Argentina vs Algeria prediction" [ref=e1425]:
+                    - link "View match preview for Argentina vs Algeria" [ref=e1426] [cursor=pointer]:
+                      - /url: /match/55/preview
+                      - text: View match
+                    - button "Open pick popup for Argentina vs Algeria" [ref=e1427] [cursor=pointer]: ⋯
+                    - button "Argentina to win" [ref=e1428] [cursor=pointer]:
+                      - generic "Argentina" [ref=e1429]:
+                        - img "Argentina flag" [ref=e1430]
+                      - generic [ref=e1431]: ARG
+                      - generic [ref=e1432]: 85%
+                    - button "Draw" [ref=e1433] [cursor=pointer]:
+                      - generic [ref=e1434]: DRAW
+                      - generic [ref=e1435]: 10%
+                    - button "Algeria to win" [ref=e1436] [cursor=pointer]:
+                      - generic "Algeria" [ref=e1437]:
+                        - img "Algeria flag" [ref=e1438]
+                      - generic [ref=e1439]: ALG
+                      - generic [ref=e1440]: 5%
+                    - button "Add score" [ref=e1442] [cursor=pointer]
+                  - group "Austria vs Jordan prediction" [ref=e1443]:
+                    - link "View match preview for Austria vs Jordan" [ref=e1444] [cursor=pointer]:
+                      - /url: /match/56/preview
+                      - text: View match
+                    - button "Open pick popup for Austria vs Jordan" [ref=e1445] [cursor=pointer]: ⋯
+                    - button "Austria to win" [ref=e1446] [cursor=pointer]:
+                      - generic "Austria" [ref=e1447]:
+                        - img "Austria flag" [ref=e1448]
+                      - generic [ref=e1449]: AUT
+                      - generic [ref=e1450]: 85%
+                    - button "Draw" [ref=e1451] [cursor=pointer]:
+                      - generic [ref=e1452]: DRAW
+                      - generic [ref=e1453]: 10%
+                    - button "Jordan to win" [ref=e1454] [cursor=pointer]:
+                      - generic "Jordan" [ref=e1455]:
+                        - img "Jordan flag" [ref=e1456]
+                      - generic [ref=e1457]: JOR
+                      - generic [ref=e1458]: 5%
+                    - button "Add score" [ref=e1460] [cursor=pointer]
+                  - group "Argentina vs Austria prediction" [ref=e1461]:
+                    - link "View match preview for Argentina vs Austria" [ref=e1462] [cursor=pointer]:
+                      - /url: /match/57/preview
+                      - text: View match
+                    - button "Open pick popup for Argentina vs Austria" [ref=e1463] [cursor=pointer]: ⋯
+                    - button "Argentina to win" [ref=e1464] [cursor=pointer]:
+                      - generic "Argentina" [ref=e1465]:
+                        - img "Argentina flag" [ref=e1466]
+                      - generic [ref=e1467]: ARG
+                      - generic [ref=e1468]: 79%
+                    - button "Draw" [ref=e1469] [cursor=pointer]:
+                      - generic [ref=e1470]: DRAW
+                      - generic [ref=e1471]: 15%
+                    - button "Austria to win" [ref=e1472] [cursor=pointer]:
+                      - generic "Austria" [ref=e1473]:
+                        - img "Austria flag" [ref=e1474]
+                      - generic [ref=e1475]: AUT
+                      - generic [ref=e1476]: 6%
+                    - button "Add score" [ref=e1478] [cursor=pointer]
+                  - group "Jordan vs Algeria prediction" [ref=e1479]:
+                    - link "View match preview for Jordan vs Algeria" [ref=e1480] [cursor=pointer]:
+                      - /url: /match/58/preview
+                      - text: View match
+                    - button "Open pick popup for Jordan vs Algeria" [ref=e1481] [cursor=pointer]: ⋯
+                    - button "Jordan to win" [ref=e1482] [cursor=pointer]:
+                      - generic "Jordan" [ref=e1483]:
+                        - img "Jordan flag" [ref=e1484]
+                      - generic [ref=e1485]: JOR
+                      - generic [ref=e1486]: 18%
+                    - button "Draw" [ref=e1487] [cursor=pointer]:
+                      - generic [ref=e1488]: DRAW
+                      - generic [ref=e1489]: 12%
+                    - button "Algeria to win" [ref=e1490] [cursor=pointer]:
+                      - generic "Algeria" [ref=e1491]:
+                        - img "Algeria flag" [ref=e1492]
+                      - generic [ref=e1493]: ALG
+                      - generic [ref=e1494]: 69%
+                    - button "Add score" [ref=e1496] [cursor=pointer]
+                  - group "Jordan vs Argentina prediction" [ref=e1497]:
+                    - link "View match preview for Jordan vs Argentina" [ref=e1498] [cursor=pointer]:
+                      - /url: /match/59/preview
+                      - text: View match
+                    - button "Open pick popup for Jordan vs Argentina" [ref=e1499] [cursor=pointer]: ⋯
+                    - button "Jordan to win" [ref=e1500] [cursor=pointer]:
+                      - generic "Jordan" [ref=e1501]:
+                        - img "Jordan flag" [ref=e1502]
+                      - generic [ref=e1503]: JOR
+                      - generic [ref=e1504]: 5%
+                    - button "Draw" [ref=e1505] [cursor=pointer]:
+                      - generic [ref=e1506]: DRAW
+                      - generic [ref=e1507]: 10%
+                    - button "Argentina to win" [ref=e1508] [cursor=pointer]:
+                      - generic "Argentina" [ref=e1509]:
+                        - img "Argentina flag" [ref=e1510]
+                      - generic [ref=e1511]: ARG
+                      - generic [ref=e1512]: 85%
+                    - button "Add score" [ref=e1514] [cursor=pointer]
+                  - group "Algeria vs Austria prediction" [ref=e1515]:
+                    - link "View match preview for Algeria vs Austria" [ref=e1516] [cursor=pointer]:
+                      - /url: /match/60/preview
+                      - text: View match
+                    - button "Open pick popup for Algeria vs Austria" [ref=e1517] [cursor=pointer]: ⋯
+                    - button "Algeria to win" [ref=e1518] [cursor=pointer]:
+                      - generic "Algeria" [ref=e1519]:
+                        - img "Algeria flag" [ref=e1520]
+                      - generic [ref=e1521]: ALG
+                      - generic [ref=e1522]: 37%
+                    - button "Draw" [ref=e1523] [cursor=pointer]:
+                      - generic [ref=e1524]: DRAW
+                      - generic [ref=e1525]: 20%
+                    - button "Austria to win" [ref=e1526] [cursor=pointer]:
+                      - generic "Austria" [ref=e1527]:
+                        - img "Austria flag" [ref=e1528]
+                      - generic [ref=e1529]: AUT
+                      - generic [ref=e1530]: 44%
+                    - button "Add score" [ref=e1532] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1533]:
+                  - heading "Predicted standings" [level=4] [ref=e1534]
+                  - list [ref=e1535]:
+                    - listitem [ref=e1536]:
+                      - generic [ref=e1537]: "1."
+                      - generic [ref=e1538]: ALG
+                      - generic [ref=e1539]: Algeria
+                      - generic "Points" [ref=e1540]: 0 pts
+                      - generic "Goal difference" [ref=e1541]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1542]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1543]: 0:0
+                      - generic [ref=e1544]: advances
+                    - listitem [ref=e1545]:
+                      - generic [ref=e1546]: "2."
+                      - generic [ref=e1547]: ARG
+                      - generic [ref=e1548]: Argentina
+                      - generic "Points" [ref=e1549]: 0 pts
+                      - generic "Goal difference" [ref=e1550]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1551]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1552]: 0:0
+                      - generic [ref=e1553]: advances
+                    - listitem [ref=e1554]:
+                      - generic [ref=e1555]: "3."
+                      - generic [ref=e1556]: AUT
+                      - generic [ref=e1557]: Austria
+                      - generic "Points" [ref=e1558]: 0 pts
+                      - generic "Goal difference" [ref=e1559]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1560]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1561]: 0:0
+                      - generic [ref=e1562]: best-thirds pool
+                    - listitem [ref=e1563]:
+                      - generic [ref=e1564]: "4."
+                      - generic [ref=e1565]: JOR
+                      - generic [ref=e1566]: Jordan
+                      - generic "Points" [ref=e1567]: 0 pts
+                      - generic "Goal difference" [ref=e1568]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1569]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1570]: 0:0
+                      - generic [ref=e1571]: out
+              - generic [ref=e1572]:
+                - generic [ref=e1573]:
+                  - heading "Group K" [level=3] [ref=e1574]
+                  - generic [ref=e1575]: 0 / 6 matches predicted
+                - generic [ref=e2156]:
+                  - generic [ref=e2157]:
+                    - button "Portugal 25% to win Group K" [ref=e2158]:
+                      - generic [ref=e2159]:
+                        - generic [ref=e2160]: POR
+                        - generic [ref=e2161]: 25%
+                    - 'tooltip "Portugal · Group K To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Portugal · Group K
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2162]:
+                    - button "DR Congo 25% to win Group K" [ref=e2163]:
+                      - generic [ref=e2164]:
+                        - generic [ref=e2165]: COD
+                        - generic [ref=e2166]: 25%
+                    - 'tooltip "DR Congo · Group K To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: DR Congo · Group K
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2167]:
+                    - button "Uzbekistan 25% to win Group K" [ref=e2168]:
+                      - generic [ref=e2169]:
+                        - generic [ref=e2170]: UZB
+                        - generic [ref=e2171]: 25%
+                    - 'tooltip "Uzbekistan · Group K To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Uzbekistan · Group K
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2172]:
+                    - button "Colombia 25% to win Group K" [ref=e2173]:
+                      - generic [ref=e2174]:
+                        - generic [ref=e2175]: COL
+                        - generic [ref=e2176]: 25%
+                    - 'tooltip "Colombia · Group K To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Colombia · Group K
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e1576]:
+                  - group "Portugal vs DR Congo prediction" [ref=e1577]:
+                    - link "View match preview for Portugal vs DR Congo" [ref=e1578] [cursor=pointer]:
+                      - /url: /match/61/preview
+                      - text: View match
+                    - button "Open pick popup for Portugal vs DR Congo" [ref=e1579] [cursor=pointer]: ⋯
+                    - button "Portugal to win" [ref=e1580] [cursor=pointer]:
+                      - generic "Portugal" [ref=e1581]:
+                        - img "Portugal flag" [ref=e1582]
+                      - generic [ref=e1583]: POR
+                      - generic [ref=e1584]: 85%
+                    - button "Draw" [ref=e1585] [cursor=pointer]:
+                      - generic [ref=e1586]: DRAW
+                      - generic [ref=e1587]: 10%
+                    - button "DR Congo to win" [ref=e1588] [cursor=pointer]:
+                      - generic "DR Congo" [ref=e1589]:
+                        - img "DR Congo flag" [ref=e1590]
+                      - generic [ref=e1591]: COD
+                      - generic [ref=e1592]: 5%
+                    - button "Add score" [ref=e1594] [cursor=pointer]
+                  - group "Uzbekistan vs Colombia prediction" [ref=e1595]:
+                    - link "View match preview for Uzbekistan vs Colombia" [ref=e1596] [cursor=pointer]:
+                      - /url: /match/62/preview
+                      - text: View match
+                    - button "Open pick popup for Uzbekistan vs Colombia" [ref=e1597] [cursor=pointer]: ⋯
+                    - button "Uzbekistan to win" [ref=e1598] [cursor=pointer]:
+                      - generic "Uzbekistan" [ref=e1599]:
+                        - img "Uzbekistan flag" [ref=e1600]
+                      - generic [ref=e1601]: UZB
+                      - generic [ref=e1602]: 5%
+                    - button "Draw" [ref=e1603] [cursor=pointer]:
+                      - generic [ref=e1604]: DRAW
+                      - generic [ref=e1605]: 10%
+                    - button "Colombia to win" [ref=e1606] [cursor=pointer]:
+                      - generic "Colombia" [ref=e1607]:
+                        - img "Colombia flag" [ref=e1608]
+                      - generic [ref=e1609]: COL
+                      - generic [ref=e1610]: 85%
+                    - button "Add score" [ref=e1612] [cursor=pointer]
+                  - group "Portugal vs Uzbekistan prediction" [ref=e1613]:
+                    - link "View match preview for Portugal vs Uzbekistan" [ref=e1614] [cursor=pointer]:
+                      - /url: /match/63/preview
+                      - text: View match
+                    - button "Open pick popup for Portugal vs Uzbekistan" [ref=e1615] [cursor=pointer]: ⋯
+                    - button "Portugal to win" [ref=e1616] [cursor=pointer]:
+                      - generic "Portugal" [ref=e1617]:
+                        - img "Portugal flag" [ref=e1618]
+                      - generic [ref=e1619]: POR
+                      - generic [ref=e1620]: 85%
+                    - button "Draw" [ref=e1621] [cursor=pointer]:
+                      - generic [ref=e1622]: DRAW
+                      - generic [ref=e1623]: 10%
+                    - button "Uzbekistan to win" [ref=e1624] [cursor=pointer]:
+                      - generic "Uzbekistan" [ref=e1625]:
+                        - img "Uzbekistan flag" [ref=e1626]
+                      - generic [ref=e1627]: UZB
+                      - generic [ref=e1628]: 5%
+                    - button "Add score" [ref=e1630] [cursor=pointer]
+                  - group "Colombia vs DR Congo prediction" [ref=e1631]:
+                    - link "View match preview for Colombia vs DR Congo" [ref=e1632] [cursor=pointer]:
+                      - /url: /match/64/preview
+                      - text: View match
+                    - button "Open pick popup for Colombia vs DR Congo" [ref=e1633] [cursor=pointer]: ⋯
+                    - button "Colombia to win" [ref=e1634] [cursor=pointer]:
+                      - generic "Colombia" [ref=e1635]:
+                        - img "Colombia flag" [ref=e1636]
+                      - generic [ref=e1637]: COL
+                      - generic [ref=e1638]: 85%
+                    - button "Draw" [ref=e1639] [cursor=pointer]:
+                      - generic [ref=e1640]: DRAW
+                      - generic [ref=e1641]: 10%
+                    - button "DR Congo to win" [ref=e1642] [cursor=pointer]:
+                      - generic "DR Congo" [ref=e1643]:
+                        - img "DR Congo flag" [ref=e1644]
+                      - generic [ref=e1645]: COD
+                      - generic [ref=e1646]: 5%
+                    - button "Add score" [ref=e1648] [cursor=pointer]
+                  - group "Colombia vs Portugal prediction" [ref=e1649]:
+                    - link "View match preview for Colombia vs Portugal" [ref=e1650] [cursor=pointer]:
+                      - /url: /match/65/preview
+                      - text: View match
+                    - button "Open pick popup for Colombia vs Portugal" [ref=e1651] [cursor=pointer]: ⋯
+                    - button "Colombia to win" [ref=e1652] [cursor=pointer]:
+                      - generic "Colombia" [ref=e1653]:
+                        - img "Colombia flag" [ref=e1654]
+                      - generic [ref=e1655]: COL
+                      - generic [ref=e1656]: 44%
+                    - button "Draw" [ref=e1657] [cursor=pointer]:
+                      - generic [ref=e1658]: DRAW
+                      - generic [ref=e1659]: 23%
+                    - button "Portugal to win" [ref=e1660] [cursor=pointer]:
+                      - generic "Portugal" [ref=e1661]:
+                        - img "Portugal flag" [ref=e1662]
+                      - generic [ref=e1663]: POR
+                      - generic [ref=e1664]: 33%
+                    - button "Add score" [ref=e1666] [cursor=pointer]
+                  - group "DR Congo vs Uzbekistan prediction" [ref=e1667]:
+                    - link "View match preview for DR Congo vs Uzbekistan" [ref=e1668] [cursor=pointer]:
+                      - /url: /match/66/preview
+                      - text: View match
+                    - button "Open pick popup for DR Congo vs Uzbekistan" [ref=e1669] [cursor=pointer]: ⋯
+                    - button "DR Congo to win" [ref=e1670] [cursor=pointer]:
+                      - generic "DR Congo" [ref=e1671]:
+                        - img "DR Congo flag" [ref=e1672]
+                      - generic [ref=e1673]: COD
+                      - generic [ref=e1674]: 53%
+                    - button "Draw" [ref=e1675] [cursor=pointer]:
+                      - generic [ref=e1676]: DRAW
+                      - generic [ref=e1677]: 26%
+                    - button "Uzbekistan to win" [ref=e1678] [cursor=pointer]:
+                      - generic "Uzbekistan" [ref=e1679]:
+                        - img "Uzbekistan flag" [ref=e1680]
+                      - generic [ref=e1681]: UZB
+                      - generic [ref=e1682]: 21%
+                    - button "Add score" [ref=e1684] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1685]:
+                  - heading "Predicted standings" [level=4] [ref=e1686]
+                  - list [ref=e1687]:
+                    - listitem [ref=e1688]:
+                      - generic [ref=e1689]: "1."
+                      - generic [ref=e1690]: COD
+                      - generic [ref=e1691]: DR Congo
+                      - generic "Points" [ref=e1692]: 0 pts
+                      - generic "Goal difference" [ref=e1693]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1694]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1695]: 0:0
+                      - generic [ref=e1696]: advances
+                    - listitem [ref=e1697]:
+                      - generic [ref=e1698]: "2."
+                      - generic [ref=e1699]: COL
+                      - generic [ref=e1700]: Colombia
+                      - generic "Points" [ref=e1701]: 0 pts
+                      - generic "Goal difference" [ref=e1702]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1703]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1704]: 0:0
+                      - generic [ref=e1705]: advances
+                    - listitem [ref=e1706]:
+                      - generic [ref=e1707]: "3."
+                      - generic [ref=e1708]: POR
+                      - generic [ref=e1709]: Portugal
+                      - generic "Points" [ref=e1710]: 0 pts
+                      - generic "Goal difference" [ref=e1711]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1712]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1713]: 0:0
+                      - generic [ref=e1714]: best-thirds pool
+                    - listitem [ref=e1715]:
+                      - generic [ref=e1716]: "4."
+                      - generic [ref=e1717]: UZB
+                      - generic [ref=e1718]: Uzbekistan
+                      - generic "Points" [ref=e1719]: 0 pts
+                      - generic "Goal difference" [ref=e1720]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1721]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1722]: 0:0
+                      - generic [ref=e1723]: out
+              - generic [ref=e1724]:
+                - generic [ref=e1725]:
+                  - heading "Group L" [level=3] [ref=e1726]
+                  - generic [ref=e1727]: 0 / 6 matches predicted
+                - generic [ref=e2177]:
+                  - generic [ref=e2178]:
+                    - button "England 25% to win Group L" [ref=e2179]:
+                      - generic [ref=e2180]:
+                        - generic [ref=e2181]: ENG
+                        - generic [ref=e2182]: 25%
+                    - 'tooltip "England · Group L To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: England · Group L
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2183]:
+                    - button "Croatia 25% to win Group L" [ref=e2184]:
+                      - generic [ref=e2185]:
+                        - generic [ref=e2186]: CRO
+                        - generic [ref=e2187]: 25%
+                    - 'tooltip "Croatia · Group L To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Croatia · Group L
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2188]:
+                    - button "Ghana 25% to win Group L" [ref=e2189]:
+                      - generic [ref=e2190]:
+                        - generic [ref=e2191]: GHA
+                        - generic [ref=e2192]: 25%
+                    - 'tooltip "Ghana · Group L To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Ghana · Group L
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                  - generic [ref=e2193]:
+                    - button "Panama 25% to win Group L" [ref=e2194]:
+                      - generic [ref=e2195]:
+                        - generic [ref=e2196]: PAN
+                        - generic [ref=e2197]: 25%
+                    - 'tooltip "Panama · Group L To win 25% Source: Estimate"':
+                      - generic:
+                        - generic: Panama · Group L
+                      - generic:
+                        - generic: To win
+                        - generic: 25%
+                      - generic:
+                        - generic:
+                          - generic: "Source: Estimate"
+                - generic [ref=e1728]:
+                  - group "England vs Croatia prediction" [ref=e1729]:
+                    - link "View match preview for England vs Croatia" [ref=e1730] [cursor=pointer]:
+                      - /url: /match/67/preview
+                      - text: View match
+                    - button "Open pick popup for England vs Croatia" [ref=e1731] [cursor=pointer]: ⋯
+                    - button "England to win" [ref=e1732] [cursor=pointer]:
+                      - generic "England" [ref=e1733]:
+                        - img "England flag" [ref=e1734]
+                      - generic [ref=e1735]: ENG
+                      - generic [ref=e1736]: 58%
+                    - button "Draw" [ref=e1737] [cursor=pointer]:
+                      - generic [ref=e1738]: DRAW
+                      - generic [ref=e1739]: 24%
+                    - button "Croatia to win" [ref=e1740] [cursor=pointer]:
+                      - generic "Croatia" [ref=e1741]:
+                        - img "Croatia flag" [ref=e1742]
+                      - generic [ref=e1743]: CRO
+                      - generic [ref=e1744]: 18%
+                    - button "Add score" [ref=e1746] [cursor=pointer]
+                  - group "Ghana vs Panama prediction" [ref=e1747]:
+                    - link "View match preview for Ghana vs Panama" [ref=e1748] [cursor=pointer]:
+                      - /url: /match/68/preview
+                      - text: View match
+                    - button "Open pick popup for Ghana vs Panama" [ref=e1749] [cursor=pointer]: ⋯
+                    - button "Ghana to win" [ref=e1750] [cursor=pointer]:
+                      - generic "Ghana" [ref=e1751]:
+                        - img "Ghana flag" [ref=e1752]
+                      - generic [ref=e1753]: GHA
+                      - generic [ref=e1754]: 10%
+                    - button "Draw" [ref=e1755] [cursor=pointer]:
+                      - generic [ref=e1756]: DRAW
+                      - generic [ref=e1757]: 10%
+                    - button "Panama to win" [ref=e1758] [cursor=pointer]:
+                      - generic "Panama" [ref=e1759]:
+                        - img "Panama flag" [ref=e1760]
+                      - generic [ref=e1761]: PAN
+                      - generic [ref=e1762]: 80%
+                    - button "Add score" [ref=e1764] [cursor=pointer]
+                  - group "England vs Ghana prediction" [ref=e1765]:
+                    - link "View match preview for England vs Ghana" [ref=e1766] [cursor=pointer]:
+                      - /url: /match/69/preview
+                      - text: View match
+                    - button "Open pick popup for England vs Ghana" [ref=e1767] [cursor=pointer]: ⋯
+                    - button "England to win" [ref=e1768] [cursor=pointer]:
+                      - generic "England" [ref=e1769]:
+                        - img "England flag" [ref=e1770]
+                      - generic [ref=e1771]: ENG
+                      - generic [ref=e1772]: 85%
+                    - button "Draw" [ref=e1773] [cursor=pointer]:
+                      - generic [ref=e1774]: DRAW
+                      - generic [ref=e1775]: 10%
+                    - button "Ghana to win" [ref=e1776] [cursor=pointer]:
+                      - generic "Ghana" [ref=e1777]:
+                        - img "Ghana flag" [ref=e1778]
+                      - generic [ref=e1779]: GHA
+                      - generic [ref=e1780]: 5%
+                    - button "Add score" [ref=e1782] [cursor=pointer]
+                  - group "Panama vs Croatia prediction" [ref=e1783]:
+                    - link "View match preview for Panama vs Croatia" [ref=e1784] [cursor=pointer]:
+                      - /url: /match/70/preview
+                      - text: View match
+                    - button "Open pick popup for Panama vs Croatia" [ref=e1785] [cursor=pointer]: ⋯
+                    - button "Panama to win" [ref=e1786] [cursor=pointer]:
+                      - generic "Panama" [ref=e1787]:
+                        - img "Panama flag" [ref=e1788]
+                      - generic [ref=e1789]: PAN
+                      - generic [ref=e1790]: 17%
+                    - button "Draw" [ref=e1791] [cursor=pointer]:
+                      - generic [ref=e1792]: DRAW
+                      - generic [ref=e1793]: 13%
+                    - button "Croatia to win" [ref=e1794] [cursor=pointer]:
+                      - generic "Croatia" [ref=e1795]:
+                        - img "Croatia flag" [ref=e1796]
+                      - generic [ref=e1797]: CRO
+                      - generic [ref=e1798]: 71%
+                    - button "Add score" [ref=e1800] [cursor=pointer]
+                  - group "Panama vs England prediction" [ref=e1801]:
+                    - link "View match preview for Panama vs England" [ref=e1802] [cursor=pointer]:
+                      - /url: /match/71/preview
+                      - text: View match
+                    - button "Open pick popup for Panama vs England" [ref=e1803] [cursor=pointer]: ⋯
+                    - button "Panama to win" [ref=e1804] [cursor=pointer]:
+                      - generic "Panama" [ref=e1805]:
+                        - img "Panama flag" [ref=e1806]
+                      - generic [ref=e1807]: PAN
+                      - generic [ref=e1808]: 11%
+                    - button "Draw" [ref=e1809] [cursor=pointer]:
+                      - generic [ref=e1810]: DRAW
+                      - generic [ref=e1811]: 10%
+                    - button "England to win" [ref=e1812] [cursor=pointer]:
+                      - generic "England" [ref=e1813]:
+                        - img "England flag" [ref=e1814]
+                      - generic [ref=e1815]: ENG
+                      - generic [ref=e1816]: 79%
+                    - button "Add score" [ref=e1818] [cursor=pointer]
+                  - group "Croatia vs Ghana prediction" [ref=e1819]:
+                    - link "View match preview for Croatia vs Ghana" [ref=e1820] [cursor=pointer]:
+                      - /url: /match/72/preview
+                      - text: View match
+                    - button "Open pick popup for Croatia vs Ghana" [ref=e1821] [cursor=pointer]: ⋯
+                    - button "Croatia to win" [ref=e1822] [cursor=pointer]:
+                      - generic "Croatia" [ref=e1823]:
+                        - img "Croatia flag" [ref=e1824]
+                      - generic [ref=e1825]: CRO
+                      - generic [ref=e1826]: 85%
+                    - button "Draw" [ref=e1827] [cursor=pointer]:
+                      - generic [ref=e1828]: DRAW
+                      - generic [ref=e1829]: 10%
+                    - button "Ghana to win" [ref=e1830] [cursor=pointer]:
+                      - generic "Ghana" [ref=e1831]:
+                        - img "Ghana flag" [ref=e1832]
+                      - generic [ref=e1833]: GHA
+                      - generic [ref=e1834]: 5%
+                    - button "Add score" [ref=e1836] [cursor=pointer]
+                - generic "Predicted standings" [ref=e1837]:
+                  - heading "Predicted standings" [level=4] [ref=e1838]
+                  - list [ref=e1839]:
+                    - listitem [ref=e1840]:
+                      - generic [ref=e1841]: "1."
+                      - generic [ref=e1842]: CRO
+                      - generic [ref=e1843]: Croatia
+                      - generic "Points" [ref=e1844]: 0 pts
+                      - generic "Goal difference" [ref=e1845]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1846]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1847]: 0:0
+                      - generic [ref=e1848]: advances
+                    - listitem [ref=e1849]:
+                      - generic [ref=e1850]: "2."
+                      - generic [ref=e1851]: ENG
+                      - generic [ref=e1852]: England
+                      - generic "Points" [ref=e1853]: 0 pts
+                      - generic "Goal difference" [ref=e1854]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1855]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1856]: 0:0
+                      - generic [ref=e1857]: advances
+                    - listitem [ref=e1858]:
+                      - generic [ref=e1859]: "3."
+                      - generic [ref=e1860]: GHA
+                      - generic [ref=e1861]: Ghana
+                      - generic "Points" [ref=e1862]: 0 pts
+                      - generic "Goal difference" [ref=e1863]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1864]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1865]: 0:0
+                      - generic [ref=e1866]: best-thirds pool
+                    - listitem [ref=e1867]:
+                      - generic [ref=e1868]: "4."
+                      - generic [ref=e1869]: PAN
+                      - generic [ref=e1870]: Panama
+                      - generic "Points" [ref=e1871]: 0 pts
+                      - generic "Goal difference" [ref=e1872]: +0 GD
+                      - generic "Won-Drawn-Lost" [ref=e1873]: 0W 0D 0L
+                      - generic "Goals for / against" [ref=e1874]: 0:0
+                      - generic [ref=e1875]: out
+          - group "Save and share":
+            - button "Save" [ref=e1876] [cursor=pointer]
+            - button "Share — opens the bracket summary" [ref=e1877] [cursor=pointer]: Share
+        - paragraph [ref=e1879]:
+          - text: "Engine:"
+          - code [ref=e1880]: "@vtorn/bracket-engine"
+          - text: ". Source data:"
+          - link "FIFA 2026" [ref=e1881] [cursor=pointer]:
+            - /url: https://en.wikipedia.org/wiki/2026_FIFA_World_Cup
+          - text: (official). When the official draw is finalised, swap the fixtures JSON.
+    - navigation "Primary" [ref=e1882]:
+      - link "Home" [ref=e1883] [cursor=pointer]:
+        - /url: /
+        - img [ref=e1885]
+        - generic [ref=e1888]: Home
+      - link "Predict" [ref=e1889] [cursor=pointer]:
+        - /url: /world-cup-2026
+        - img [ref=e1891]
+        - generic [ref=e1894]: Predict
+      - link "Watch" [ref=e1895] [cursor=pointer]:
+        - /url: /watch
+        - img [ref=e1897]
+        - generic [ref=e1900]: Watch
+      - link "Profile" [ref=e1901] [cursor=pointer]:
+        - /url: /profile
+        - img [ref=e1903]
+        - generic [ref=e1906]: Profile
+      - button "Open menu" [ref=e1907] [cursor=pointer]:
+        - img [ref=e1909]
+        - generic [ref=e1911]: Menu
+    - dialog "Menu" [ref=e2200]:
+      - complementary [ref=e2201]:
+        - generic [ref=e2202]:
+          - generic [ref=e2203]:
+            - generic [ref=e2204]: T
+            - text: Tournamental
+          - button "Close menu" [ref=e2205] [cursor=pointer]: ✕
+        - generic [ref=e2206]: App
+        - list [ref=e2207]:
+          - listitem [ref=e2208]:
+            - link "Home" [ref=e2209] [cursor=pointer]:
+              - /url: /
+              - img [ref=e2210]
+              - generic [ref=e2213]: Home
+          - listitem [ref=e2214]:
+            - link "Predict" [ref=e2215] [cursor=pointer]:
+              - /url: /world-cup-2026
+              - img [ref=e2216]
+              - generic [ref=e2219]: Predict
+          - listitem [ref=e2220]:
+            - link "Watch" [ref=e2221] [cursor=pointer]:
+              - /url: /watch
+              - img [ref=e2222]
+              - generic [ref=e2225]: Watch
+          - listitem [ref=e2226]:
+            - link "Profile" [ref=e2227] [cursor=pointer]:
+              - /url: /profile
+              - img [ref=e2228]
+              - generic [ref=e2231]: Profile
+        - generic [ref=e2232]: World Cup 2026
+        - list [ref=e2233]:
+          - listitem [ref=e2234]:
+            - link "Bracket Prophet" [ref=e2235] [cursor=pointer]:
+              - /url: /world-cup-2026
+              - img [ref=e2236]
+              - generic [ref=e2239]: Bracket Prophet
+          - listitem [ref=e2240]:
+            - link "3D Molecule" [ref=e2241] [cursor=pointer]:
+              - /url: /world-cup-2026/molecule
+              - img [ref=e2242]
+              - generic [ref=e2249]: 3D Molecule
+          - listitem [ref=e2250]:
+            - link "Save & share" [ref=e2251] [cursor=pointer]:
+              - /url: /world-cup-2026/save-share
+              - img [ref=e2252]
+              - generic [ref=e2257]: Save & share
+          - listitem [ref=e2258]:
+            - link "Watch the 2022 final" [ref=e2259] [cursor=pointer]:
+              - /url: /match/fifa-wc-2022-final-arg-fra-2022-12-18
+              - img [ref=e2260]
+              - generic [ref=e2263]: Watch the 2022 final
+        - generic [ref=e2264]: More
+        - list [ref=e2265]:
+          - listitem [ref=e2266]:
+            - link "Leaderboard" [ref=e2267] [cursor=pointer]:
+              - /url: /leaderboard
+              - img [ref=e2268]
+              - generic [ref=e2272]: Leaderboard
+          - listitem [ref=e2273]:
+            - link "Syndicates" [ref=e2274] [cursor=pointer]:
+              - /url: https://tournamental.com/syndicates
+              - img [ref=e2275]
+              - generic [ref=e2279]: Syndicates
+              - generic [ref=e2280]: ↗
+          - listitem [ref=e2281]:
+            - link "Create a syndicate" [ref=e2282] [cursor=pointer]:
+              - /url: /syndicates/new
+              - img [ref=e2283]
+              - generic [ref=e2285]: Create a syndicate
+          - listitem [ref=e2286]:
+            - link "Open source" [ref=e2287] [cursor=pointer]:
+              - /url: https://github.com/0800tim/tournamental
+              - img [ref=e2288]
+              - generic [ref=e2290]: Open source
+              - generic [ref=e2291]: ↗
+          - listitem [ref=e2292]:
+            - link "Settings" [ref=e2293] [cursor=pointer]:
+              - /url: /settings
+              - img [ref=e2294]
+              - generic [ref=e2297]: Settings
+  - alert [ref=e2198]

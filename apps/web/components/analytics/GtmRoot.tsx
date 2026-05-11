@@ -6,7 +6,7 @@
  * Mounted once in `app/layout.tsx`. Responsibilities:
  *
  *  1. Inject the GTM `<script>` snippet via Next's `<Script>` so it
- *     loads after first paint (strategy `afterInteractive`) — no
+ *     loads after first paint (strategy `afterInteractive`), no
  *     LCP regression.
  *  2. Render the `<noscript>` iframe fallback for JS-disabled
  *     browsers (rare on a PWA, but it costs nothing and Google's
@@ -17,7 +17,7 @@
  *
  * If `NEXT_PUBLIC_GTM_ID` is unset (Tim's container ID is still
  * pending per docs/26-setup-checklist.md), this component renders
- * nothing — no script, no banner, no page-view events. The rest of
+ * nothing, no script, no banner, no page-view events. The rest of
  * the app's `track()` calls become silent no-ops.
  */
 
@@ -33,7 +33,7 @@ export function GtmRoot() {
   if (!gtmId) return null;
 
   // The standard GTM bootstrap, lightly trimmed. Note the
-  // `consent default` push before the GTM library loads — this is
+  // `consent default` push before the GTM library loads, this is
   // Google's recommended pattern for consent mode v2 and means GA4
   // honours the user's decision from the very first event.
   const gtmInit = `

@@ -1,5 +1,5 @@
 /**
- * Vitest — pure-function test for CountdownBanner.computeParts.
+ * Vitest, pure-function test for CountdownBanner.computeParts.
  * Verifies day/hour/minute/second decomposition and the elapsed flag.
  */
 

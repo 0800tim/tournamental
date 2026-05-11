@@ -6,17 +6,17 @@
 
 1. **Truth signal.** Polymarket is the reference mark for "what does the world actually think." When a user picks Brazil to win the group, showing the live Polymarket-implied probability next to their pick generates instant social pressure ("you're 12% off the consensus") which is the strongest hook we have for repeat engagement.
 2. **Free-tier dynamic content.** We are not a sportsbook. We can't show real betting odds in most jurisdictions without licensing. Polymarket's CFTC-regulated US-facing crypto-prediction market sits in a different legal bucket: its prices are public market data we can quote with attribution and a disclaimer.
-3. **Differentiator vs every other prediction game.** ESPN, Yahoo, Sleeper — none of them surface real-time prediction-market data. We can.
-4. **Drives the tournament-bot side.** Telegram bot can ping users when their pick's market price moves more than ±5% — keeps them re-opening the app.
+3. **Differentiator vs every other prediction game.** ESPN, Yahoo, Sleeper, none of them surface real-time prediction-market data. We can.
+4. **Drives the tournament-bot side.** Telegram bot can ping users when their pick's market price moves more than ±5%, keeps them re-opening the app.
 
 ## What Polymarket exposes
 
-- **CLOB API** (`https://clob.polymarket.com/`) — read-only; current orderbook + last-trade prices for any market. No auth needed for reads.
-- **Gamma API** (`https://gamma-api.polymarket.com/`) — market metadata (title, end date, conditions, outcome tokens). Used to enumerate which World Cup markets exist.
-- **Subgraph (The Graph)** — historical price + volume data for charts.
-- **WebSocket subscription** (`wss://ws-subscriptions-clob.polymarket.com/ws/`) — live orderbook updates per market id; used for the "odds tick live in the renderer HUD" feel.
+- **CLOB API** (`https://clob.polymarket.com/`), read-only; current orderbook + last-trade prices for any market. No auth needed for reads.
+- **Gamma API** (`https://gamma-api.polymarket.com/`), market metadata (title, end date, conditions, outcome tokens). Used to enumerate which World Cup markets exist.
+- **Subgraph (The Graph)**, historical price + volume data for charts.
+- **WebSocket subscription** (`wss://ws-subscriptions-clob.polymarket.com/ws/`), live orderbook updates per market id; used for the "odds tick live in the renderer HUD" feel.
 
-All three are free and rate-limit reasonable (60 req/min on REST). Auth is only needed for placing orders — we never do that.
+All three are free and rate-limit reasonable (60 req/min on REST). Auth is only needed for placing orders, we never do that.
 
 ## Markets we care about (2026 FIFA World Cup)
 
@@ -122,30 +122,30 @@ All have rate limits (60 req/min/IP, higher for authenticated keys).
 ### 1. Bracket page (`/world-cup-2026`)
 Each group card shows, next to each team:
 - User's pick toggle (our existing UI).
-- A subtle live percentage chip: e.g. `BRA 38%` — the Polymarket implied probability that Brazil wins the group.
-- When the user's pick disagrees with the market by more than ±10pp, a small icon appears: a "🤔 you're betting against the market — confident?" tooltip on hover.
+- A subtle live percentage chip: e.g. `BRA 38%`, the Polymarket implied probability that Brazil wins the group.
+- When the user's pick disagrees with the market by more than ±10pp, a small icon appears: a "🤔 you're betting against the market, confident?" tooltip on hover.
 
 ### 2. Replay HUD (during match playback)
-- Bottom-right tile: `Argentina 1-0 — Polymarket: ARG 78% / DRAW 14% / FRA 8%`.
+- Bottom-right tile: `Argentina 1-0, Polymarket: ARG 78% / DRAW 14% / FRA 8%`.
 - Updates every 30s via WS during live matches; on replays, uses historical ticks scrubbed to the current renderer timestamp.
 - On goal events, the tile flashes briefly with the new probability snapshot.
 
 ### 3. Tournament-winner dashboard (`/world-cup-2026/odds`)
 - New page, top-of-tournament leaderboard with each team's current Polymarket probability + 24h move + sparkline.
 - Filterable by group / confederation / kit colour.
-- Tied to the share-card system: clicking a team generates an OG card showing "Brazil — 22% to win, +3% today".
+- Tied to the share-card system: clicking a team generates an OG card showing "Brazil, 22% to win, +3% today".
 
 ### 4. Per-user pick comparison
 - After the user locks their bracket, the `LockSummary` shows their picks vs the market's consensus picks (the highest-probability team per group/round).
 - Score: "You're 67% market-aligned. The two contrarian picks are: Senegal over Norway in Group K, France out in R16."
-- Generates an OG card "67% market-aligned — see my picks" — virality fuel.
+- Generates an OG card "67% market-aligned, see my picks", virality fuel.
 
 ## Telegram bot integration
 
 The tournament bot (per `docs/13`) gets two new commands and one new push:
 
-- `/odds team:argentina` — current market probability, 24h move, link to chart.
-- `/picks` — replays user's bracket with each pick's current market % alongside.
+- `/odds team:argentina`, current market probability, 24h move, link to chart.
+- `/picks`, replays user's bracket with each pick's current market % alongside.
 - **Push (opt-in, per match-day)**: "Your pick **Senegal** to top Group K just dropped from 31% to 23% (-8pp) on Polymarket."
 
 ## Compliance + disclosure
@@ -153,7 +153,7 @@ The tournament bot (per `docs/13`) gets two new commands and one new push:
 We are **not a betting product**. We surface third-party prediction market data with attribution. Each surface that shows a Polymarket number must:
 - Display "Source: Polymarket. Live prediction-market price, not a guarantee or betting line."
 - Link to the source market on Polymarket.
-- Not use the word "odds" without "prediction-market" qualifier in jurisdictions with strict gambling-advertising rules (UK, AU, NZ — also the affiliate disclosure regime in `docs/27-social-distribution-strategy.md`).
+- Not use the word "odds" without "prediction-market" qualifier in jurisdictions with strict gambling-advertising rules (UK, AU, NZ, also the affiliate disclosure regime in `docs/27-social-distribution-strategy.md`).
 - Never imply we are facilitating a bet. Never link to "place your bet here".
 
 For the affiliate sportsbook router (`docs/18-monetization.md`), Polymarket can be ONE option for users who want to act on their conviction, but only in jurisdictions where it's permitted. The router's geo-gating already handles this.
@@ -168,10 +168,10 @@ For the affiliate sportsbook router (`docs/18-monetization.md`), Polymarket can 
 
 ## Tests
 
-- `normalise.test.ts` — Polymarket outcome token → our team code mapping for all 48 teams + top 50 player tokens.
-- `poller.test.ts` — mocked HTTP, deduplication, retry on 429.
-- `clob-snapshot.test.ts` — orderbook snapshot parsing.
-- `ws-listener.test.ts` — synthetic WSS upstream, assert fanout via Redis pubsub.
+- `normalise.test.ts`, Polymarket outcome token → our team code mapping for all 48 teams + top 50 player tokens.
+- `poller.test.ts`, mocked HTTP, deduplication, retry on 429.
+- `clob-snapshot.test.ts`, orderbook snapshot parsing.
+- `ws-listener.test.ts`, synthetic WSS upstream, assert fanout via Redis pubsub.
 - Playwright e2e: bracket page shows odds chip on each team within 2s of paint.
 
 ## Secrets
@@ -211,6 +211,6 @@ Total: about 5 working days. Phase 1-3 fidelity is parallelisable; this can run 
 
 1. Start the **`apps/odds-ingest`** scaffold + Gamma poller + Postgres schema.
 2. Wire **`/v1/odds/markets?tag=fifa-2026`** end-to-end so we have a JSON we can curl.
-3. Drop a tiny **`<OddsChip>`** React component on each `GroupCard` showing `pp%` next to each team — fed from the new endpoint.
+3. Drop a tiny **`<OddsChip>`** React component on each `GroupCard` showing `pp%` next to each team, fed from the new endpoint.
 
 That's the credible Day-1 demo: open the bracket page, see live Polymarket numbers next to every team. Everything else is on top.

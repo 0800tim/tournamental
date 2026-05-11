@@ -1,5 +1,5 @@
 /**
- * StoriesStrip — Instagram-style horizontal strip of 80px circular
+ * StoriesStrip, Instagram-style horizontal strip of 80px circular
  * tappable items. Used for "Bracket of the day", "Top pundits",
  * featured matches.
  */

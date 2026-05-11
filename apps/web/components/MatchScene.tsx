@@ -29,7 +29,7 @@ import { StateFrameBufferProvider } from "@/lib/replay/buffer-context";
 export interface MatchSceneProps {
   /** Stream URL or `synthetic` (default). */
   source?: string;
-  /** Match id passed in via the route — informational only at this layer. */
+  /** Match id passed in via the route, informational only at this layer. */
   matchId?: string;
 }
 
@@ -59,7 +59,7 @@ export interface MatchSceneProps {
 export function MatchScene({ source, matchId }: MatchSceneProps) {
   const { store, controller } = useRendererStream(source);
   const init = useMatch(store, (s) => s.init);
-  // Default to "director" — Phase 2 ships the auto-director on by
+  // Default to "director", Phase 2 ships the auto-director on by
   // default. Manual modes (broadcast / tactical / follow) remain
   // available via the toggle. The CameraRig no-ops while
   // `director` is selected so the two systems don't fight.
@@ -98,7 +98,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
             // Defensive: a few R3F versions don't honour `gl.toneMapping`
             // when passed through the prop, so re-assert here. Exposure
-            // 0.85 is the single biggest fix for Tim's blown-out roof —
+            // 0.85 is the single biggest fix for Tim's blown-out roof -
             // it compresses the highlights so the upper deck reads at
             // ~30% brightness instead of pure white.
             gl.toneMapping = THREE.ACESFilmicToneMapping;

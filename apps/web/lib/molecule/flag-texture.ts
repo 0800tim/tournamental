@@ -1,5 +1,5 @@
 /**
- * Flag-texture cache — load SVG flags from `/flags/<id>.svg` at runtime,
+ * Flag-texture cache, load SVG flags from `/flags/<id>.svg` at runtime,
  * rasterise them into a 3:2 canvas, and return a THREE.CanvasTexture that
  * can be wrapped around a sphere.
  *
@@ -30,10 +30,10 @@ const cache = new Map<string, CachedEntry>();
 /**
  * v3: raster at 1024×512 (was 512×256) so even the smallest atoms on
  * the pyramid's lower tiers show crisp SVG strokes. 1024×512 RGBA × 48
- * teams ≈ 96 MB worst-case GPU footprint — still within budget for a
+ * teams ≈ 96 MB worst-case GPU footprint, still within budget for a
  * 2022 mid-range Android (most teams ~24 group losers stay at the smallest
  * tier, but the texture is shared across all atoms of the same team so
- * we only pay 48 × 2 MB = 96 MB max — typically ~half that since not
+ * we only pay 48 × 2 MB = 96 MB max, typically ~half that since not
  * every team is loaded at once).
  */
 const TEX_WIDTH = 1024;
@@ -101,7 +101,7 @@ export function getFlagTexture(
   // when the camera is tilted up toward the apex). Browsers cap this
   // at the GPU's max, so we don't pay if the hardware can't support it.
   texture.anisotropy = 16;
-  // Trilinear filter — softens shimmer on small atoms as the camera
+  // Trilinear filter, softens shimmer on small atoms as the camera
   // moves through their LOD threshold without introducing visible
   // mip seams.
   texture.minFilter = THREE.LinearMipmapLinearFilter;
@@ -112,7 +112,7 @@ export function getFlagTexture(
   const entry: CachedEntry = { texture, canvas, ready: false };
   cache.set(key, entry);
 
-  // The SVG is rendered at twice the canvas size on the way in — most
+  // The SVG is rendered at twice the canvas size on the way in, most
   // SVG renderers anti-alias on the final raster, so up-sampling first
   // then drawing at the canvas's native size gives crisper strokes than
   // letting the canvas API down-sample a wider source. Browsers that
@@ -121,7 +121,7 @@ export function getFlagTexture(
   const img = new Image();
   img.crossOrigin = "anonymous";
   // Hint to the renderer that we want decoded image data, not just a
-  // bitmap reference — helps Firefox keep SVGs sharp. (`decoding` is a
+  // bitmap reference, helps Firefox keep SVGs sharp. (`decoding` is a
   // standard HTMLImageElement attribute; the cast is for the older
   // lib.dom.d.ts that pre-dates it.)
   (img as HTMLImageElement & { decoding?: "async" | "sync" | "auto" }).decoding = "async";
@@ -131,7 +131,7 @@ export function getFlagTexture(
       texture.needsUpdate = true;
       entry.ready = true;
     } catch {
-      // ignore — fallback canvas stays in place.
+      // ignore, fallback canvas stays in place.
     }
   };
   img.onload = () => {
@@ -142,7 +142,7 @@ export function getFlagTexture(
     }
   };
   img.onerror = () => {
-    // Fallback stays in place — accent-coloured flat colour.
+    // Fallback stays in place, accent-coloured flat colour.
   };
   // SVG files in /public are served as image/svg+xml. We hint at the
   // intrinsic size so the SVG renderer picks the high-res raster path.
@@ -154,7 +154,7 @@ export function getFlagTexture(
 }
 
 /**
- * Test-only — clear the cache so unit tests start fresh.
+ * Test-only, clear the cache so unit tests start fresh.
  */
 export function _clearFlagTextureCache(): void {
   for (const entry of cache.values()) {

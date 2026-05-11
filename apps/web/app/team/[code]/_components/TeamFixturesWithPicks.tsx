@@ -1,5 +1,5 @@
 /**
- * TeamFixturesWithPicks — client component that owns the popup state
+ * TeamFixturesWithPicks, client component that owns the popup state
  * for the team page. Each fixture row in the team's tournament fixtures
  * list becomes tappable; tapping opens MatchPickPopup as a bottom-sheet
  * (mobile) / centered modal (desktop).
@@ -35,7 +35,7 @@ export interface TeamFixturesWithPicksProps {
     string,
     { name: string; kit?: { primary?: string; secondary?: string } }
   >;
-  /** This team — for the popup header. */
+  /** This team, for the popup header. */
   readonly selfTeam: Team;
   /** All Tournament teams for opponent flag rendering. */
   readonly teamsById: ReadonlyMap<string, Team>;

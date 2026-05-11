@@ -9,7 +9,7 @@ interface HUDProps {
 }
 
 /**
- * Auxiliary 2D overlay — owns the shootout panel + commentary ticker +
+ * Auxiliary 2D overlay, owns the shootout panel + commentary ticker +
  * event banner. The primary scoreboard (team flags, score, minute) and
  * the broadcast stats panels live in `MatchStatsHUD` so this component
  * is intentionally narrow.

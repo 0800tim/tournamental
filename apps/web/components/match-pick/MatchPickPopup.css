@@ -1,10 +1,10 @@
 /**
- * MatchPickPopup — single-match pick UI styles.
+ * MatchPickPopup, single-match pick UI styles.
  *
  * Variants:
- *   .mpp-card-sheet  — bottom sheet on mobile, centered modal on desktop.
- *   .mpp-card-modal  — always centered modal regardless of viewport.
- *   .mpp-card-inline — naked card, embedded in a flow.
+ *   .mpp-card-sheet , bottom sheet on mobile, centered modal on desktop.
+ *   .mpp-card-modal , always centered modal regardless of viewport.
+ *   .mpp-card-inline, naked card, embedded in a flow.
  *
  * Custom properties --mpp-home-accent / --mpp-away-accent are set inline
  * by the component from the team kit colours so the selection ring + the

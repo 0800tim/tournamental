@@ -1,5 +1,5 @@
 /**
- * Vitest — `/match/[id]/preview` server component renders for a known
+ * Vitest, `/match/[id]/preview` server component renders for a known
  * group fixture, a knockout id, the final, and 404s for unknown ids.
  * Also covers the client tab component: each tab renders without
  * error and tab switching updates the URL hash.
@@ -43,7 +43,7 @@ import {
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
 describe("/match/[id]/preview server component", () => {
-  it("renders match #1 (group A: MEX vs RSA) — both teams + Group A", () => {
+  it("renders match #1 (group A: MEX vs RSA), both teams + Group A", () => {
     const { container } = render(<MatchPreviewPage params={{ id: "1" }} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Mexico");

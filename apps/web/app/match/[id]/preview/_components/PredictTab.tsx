@@ -1,5 +1,5 @@
 /**
- * Predict tab — embeds the existing `MatchPredictionRow` so the user
+ * Predict tab, embeds the existing `MatchPredictionRow` so the user
  * can pick from the preview screen, mirroring the bracket UX. When the
  * user already has a pick, surface the saved-odds chip beneath the row.
  *
@@ -79,7 +79,7 @@ export function PredictTab(props: PredictTabProps) {
             </span>
           </span>
           <span className="mp-locked-odds-meta">
-            Source: {lock.source} — saved{" "}
+            Source: {lock.source}, saved{" "}
             {new Date(lock.capturedAt).toLocaleString()}
           </span>
         </div>

@@ -1,5 +1,5 @@
 /**
- * Audio mixer — pure logic, testable in jsdom.
+ * Audio mixer, pure logic, testable in jsdom.
  *
  * Owns the gain curves for the commentary track. The renderer's
  * `<CommentaryAudio />` component reads `commentaryGain()` once per
@@ -91,7 +91,7 @@ export class AudioMixer {
 
   /**
    * Trigger a 100ms crossfade, e.g. when the user scrubs the timeline
-   * — we want a quick fade-out on the old commentary line and a
+   *, we want a quick fade-out on the old commentary line and a
    * fade-in on the new one.
    */
   scrub(): void {
@@ -118,7 +118,7 @@ export class AudioMixer {
   }
 
   /**
-   * Compute the current gain. Pure — call this once per frame from
+   * Compute the current gain. Pure, call this once per frame from
    * the audio component to write to the actual `GainNode`.
    */
   commentaryGain(): number {

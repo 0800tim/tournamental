@@ -1,5 +1,5 @@
 /**
- * RecentForm — five W/D/L dots for the most-recent five matches.
+ * RecentForm, five W/D/L dots for the most-recent five matches.
  *
  * Pure presentational. Server-rendered safe but kept as a client component
  * so a future "tap to expand" interaction (e.g. xG sparkline) can be added

@@ -1,5 +1,5 @@
 /**
- * /api/og/bracket — OG image generator for shared brackets.
+ * /api/og/bracket, OG image generator for shared brackets.
  *
  * Renders a rich gold/silver/bronze podium card via the canvas pipeline
  * in `@vtorn/social-cards` (see
@@ -7,20 +7,20 @@
  * the v0.1 satori plain-text gradient.
  *
  * Query params (all optional except `bracket_id`):
- *   - bracket_id (required) — content-addressed bracket id.
+ *   - bracket_id (required), content-addressed bracket id.
  *   - size       (landscape|portrait|square, default landscape)
- *       - landscape → 1200×630  — X / FB / LinkedIn / Telegram unfurl.
- *       - portrait  → 1080×1350 — Instagram feed / Facebook / generic.
- *       - square    → 1080×1080 — Instagram square / Slack / WhatsApp.
- *   - handle, name        — user display.
- *   - winner              — 3-letter champion code (e.g. ARG).
- *   - runner_up           — 3-letter silver code.
- *   - third               — 3-letter bronze code.
- *   - kit                 — override champion kit primary (#hex).
- *   - path                — knockout path: r16:JPN,qf:ESP,sf:BRA,final:FRA.
- *   - tournament          — tournament name (default "FIFA WC 2026").
- *   - pundit              — verified-pundit level (omit for none).
- *   - locked              — legacy alias for picks-saved; preserved for
+ *       - landscape → 1200×630 , X / FB / LinkedIn / Telegram unfurl.
+ *       - portrait  → 1080×1350, Instagram feed / Facebook / generic.
+ *       - square    → 1080×1080, Instagram square / Slack / WhatsApp.
+ *   - handle, name       , user display.
+ *   - winner             , 3-letter champion code (e.g. ARG).
+ *   - runner_up          , 3-letter silver code.
+ *   - third              , 3-letter bronze code.
+ *   - kit                , override champion kit primary (#hex).
+ *   - path               , knockout path: r16:JPN,qf:ESP,sf:BRA,final:FRA.
+ *   - tournament         , tournament name (default "FIFA WC 2026").
+ *   - pundit             , verified-pundit level (omit for none).
+ *   - locked             , legacy alias for picks-saved; preserved for
  *                           back-compat with social posts before
  *                           2026-05-11. Ignored by the renderer (the
  *                           podium card no longer surfaces this number).
@@ -30,7 +30,7 @@
  *      answers within ~750 ms and the payload has a champion / cascade,
  *      we use that.
  *   2. On any failure (timeout, 404, network, parse error) we fall back
- *      to the inline query-param hints so the route never 500s — this
+ *      to the inline query-param hints so the route never 500s, this
  *      image is publicly cached and a 500 poisons the link.
  *
  * Caching:
@@ -79,7 +79,7 @@ const GAME_BASE =
   process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
   "https://vtorn-game.aiva.nz";
 
-/** Game-service fetch timeout — we'd rather show a query-param card than wait. */
+/** Game-service fetch timeout, we'd rather show a query-param card than wait. */
 const FETCH_TIMEOUT_MS = 750;
 
 export async function GET(req: NextRequest): Promise<Response> {
@@ -94,7 +94,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       : DEFAULT_SIZE;
 
   try {
-    // 1) Build the inline-query input first — this is the always-works path.
+    // 1) Build the inline-query input first, this is the always-works path.
     const inlineInput = inputFromSearchParams({
       bracketId: safeBracketId,
       searchParams: url.searchParams,
@@ -122,7 +122,7 @@ export async function GET(req: NextRequest): Promise<Response> {
       },
     });
   } catch (err) {
-    // Last-resort safety net — never let this route 500 if we can help it.
+    // Last-resort safety net, never let this route 500 if we can help it.
     // A poisoned 500 in a CDN ruins every share link until the cache evicts.
     return new Response(
       JSON.stringify({
@@ -169,7 +169,7 @@ async function tryEnrichFromGameService(
 }
 
 /**
- * Defensive merge — accepts any shape and only pulls fields we
+ * Defensive merge, accepts any shape and only pulls fields we
  * recognise. Inline query-param fields take precedence so the caller
  * stays in control.
  */
@@ -186,7 +186,7 @@ function mergeBracketPayload(
   // `{ bracket: { ... } }`.
   const src = (obj.bracket as Record<string, unknown> | undefined) ?? obj;
 
-  // Champion — only override if inline left it on the ARG default and
+  // Champion, only override if inline left it on the ARG default and
   // the server gave us a real value.
   const serverChamp = readChampion(src.champion);
   const champion =
@@ -194,13 +194,13 @@ function mergeBracketPayload(
       ? serverChamp
       : inline.champion;
 
-  // Runner-up / third-place — fill in if the inline shape lacked them.
+  // Runner-up / third-place, fill in if the inline shape lacked them.
   const runnerUp =
     inline.runnerUp ?? readChampion(src.runnerUp ?? src.runner_up) ?? null;
   const thirdPlace =
     inline.thirdPlace ?? readChampion(src.thirdPlace ?? src.third_place) ?? null;
 
-  // Knockout path — only adopt the server path if the inline had nothing
+  // Knockout path, only adopt the server path if the inline had nothing
   // beyond the synthetic "final → champion" placeholder (length 1).
   let knockoutPath = inline.knockoutPath;
   if (inline.knockoutPath.length <= 1 && Array.isArray(src.knockoutPath)) {

@@ -1,7 +1,7 @@
 /**
  * Unit tests for the pre-rendered commentary track.
  *
- * Pure module — no DOM. Covers schedule lookup, scrub recovery, and
+ * Pure module, no DOM. Covers schedule lookup, scrub recovery, and
  * the CDN URL helper.
  */
 import { describe, expect, it } from "vitest";

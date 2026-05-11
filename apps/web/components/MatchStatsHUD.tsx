@@ -16,8 +16,8 @@ interface MatchStatsHUDProps {
  * Composes the two pieces that together cover the old `MatchStatsHUD`
  * surface:
  *
- *   - `<MatchScoreboard />` — top-centre score pill.
- *   - `<MatchPanelsStack />` — right-edge collapsible cards (scorers,
+ *   - `<MatchScoreboard />`, top-centre score pill.
+ *   - `<MatchPanelsStack />`, right-edge collapsible cards (scorers,
  *     match stats, substitutions) plus the goal-celebration burst.
  *
  * Sits inside `.match-stats-hud` so the broader pointer-events-none

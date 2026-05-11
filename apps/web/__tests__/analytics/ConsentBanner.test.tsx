@@ -1,5 +1,5 @@
 /**
- * Vitest — <ConsentBanner/>.
+ * Vitest, <ConsentBanner/>.
  *
  *  - Renders on first visit (no localStorage decision).
  *  - Hides itself once the user clicks Accept; persists the choice.

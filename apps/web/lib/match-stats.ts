@@ -8,12 +8,12 @@ import type {
  * Broadcast-style match-stat aggregator.
  *
  * Pure function over an event log + (optionally) the state-frame
- * stream — given everything up to time `t`, returns the stats panel
+ * stream, given everything up to time `t`, returns the stats panel
  * the broadcast HUD (`MatchStatsHUD`) renders. No mutable state, no
  * memoisation; `MatchStatsHUD` calls this on every animation frame
  * with the current playhead and React diffs the resulting object.
  *
- * The aggregator is intentionally idempotent at any `t` — recomputing
+ * The aggregator is intentionally idempotent at any `t`, recomputing
  * from scratch is cheap because the events list is bounded (typically
  * a few hundred per match) and the math per event is O(1). This
  * matters because we do NOT want to maintain a parallel store for
@@ -24,7 +24,7 @@ import type {
  * Shape:
  *
  *   - `home` / `away`: per-side counters (shots, fouls, cards, etc).
- *   - `scorers`: chronological scorer ticker — one entry per goal.
+ *   - `scorers`: chronological scorer ticker, one entry per goal.
  *   - `cards`: yellow + red cards by team and player.
  *   - `subs`: substitutions in event order.
  *   - `possession`: rough split derived from the state-frame ball
@@ -62,7 +62,7 @@ export interface ScorerEntry {
   playerName: string;
   /** Optional assist player display name. */
   assistName?: string;
-  /** True if the goal was a penalty (heuristic — see `attributeGoal`). */
+  /** True if the goal was a penalty (heuristic, see `attributeGoal`). */
   isPenalty: boolean;
   /** Score after this goal, in `[home, away]` order. */
   scoreAfter: { home: number; away: number };
@@ -322,7 +322,7 @@ export function computeMatchStats(
   // If a producer-side `event.score_change` set the truth, ensure
   // home.goals / away.goals align (some producers don't emit
   // event.goal but do emit score_change). If we already counted goals
-  // above we leave them — score_change might have arrived ahead of
+  // above we leave them, score_change might have arrived ahead of
   // a deferred event.goal in re-ordered streams.
   if (lastScoreChange) {
     if (home.goals < lastScoreChange.home) home.goals = lastScoreChange.home;

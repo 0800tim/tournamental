@@ -20,7 +20,7 @@
  *     `tournamental.cta.clicked` with `{ label, href }`.
  *
  * When `PUBLIC_GTM_ID` is unset (Tim's container is still pending per
- * docs/26-setup-checklist.md) we render NOTHING — no script, no banner,
+ * docs/26-setup-checklist.md) we render NOTHING, no script, no banner,
  * no fallback. This keeps the unconfigured marketing site clean.
  *
  * Astro env-var convention: variables prefixed `PUBLIC_*` are exposed
@@ -83,7 +83,7 @@ const enabled = typeof gtmId === "string" && gtmId.length >= 4 && !gtmId.include
 
           // ─── Auto page.view ──────────────────────────────────────────
           // Fire once per document load. Astro view transitions emit
-          // 'astro:page-load' on every soft nav — listen for that too.
+          // 'astro:page-load' on every soft nav, listen for that too.
           function vt_pageview() {
             try {
               window.tournamental.track('page.view', {

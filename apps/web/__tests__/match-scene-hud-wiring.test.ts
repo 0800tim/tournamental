@@ -1,5 +1,5 @@
 /**
- * MatchScene source-shape tests (no jsdom mount — the Canvas backend
+ * MatchScene source-shape tests (no jsdom mount, the Canvas backend
  * needs a real WebGL context).
  *
  * Verifies the polished HUD wiring stays intact:

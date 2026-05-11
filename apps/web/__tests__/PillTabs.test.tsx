@@ -1,5 +1,5 @@
 /**
- * Vitest — PillTabs active-state and click-handler smoke.
+ * Vitest, PillTabs active-state and click-handler smoke.
  */
 
 import { describe, it, expect, vi } from "vitest";

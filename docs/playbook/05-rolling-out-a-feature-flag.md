@@ -1,4 +1,4 @@
-# Playbook 05 — Rolling out a feature flag
+# Playbook 05, Rolling out a feature flag
 
 > **When to use this.** You're adding a backend that has a "real" implementation (Sportradar, GoHighLevel, real Drips on-chain) and want a "mock" path for tests + dev.
 
@@ -17,12 +17,12 @@ Every service that has a switchable backend uses the same env-var pattern:
 Pattern principles:
 
 1. **Default to mock.** Production sets `=real` explicitly. Dev never accidentally hits a real provider.
-2. **Tests pin the value.** Either via `process.env.<APP>_BACKEND='mock'` in a `beforeEach` or via dependency injection (preferred — see below).
+2. **Tests pin the value.** Either via `process.env.<APP>_BACKEND='mock'` in a `beforeEach` or via dependency injection (preferred, see below).
 3. **One flag per concern.** Don't bolt three flags onto the same service. If you have three concerns, you have three services.
 
 ## Adding a new flag
 
-Step 1 — extract the abstraction.
+Step 1, extract the abstraction.
 
 ```ts
 // src/lib/example-client.ts
@@ -48,7 +48,7 @@ export function makeExampleClient(backend: ExampleBackend, cfg?: ...): ExampleCl
 }
 ```
 
-Step 2 — wire it in the bootstrap.
+Step 2, wire it in the bootstrap.
 
 ```ts
 // src/server.ts
@@ -59,7 +59,7 @@ const client = makeExampleClient(backend, {
 });
 ```
 
-Step 3 — log on boot. Always log which backend was selected:
+Step 3, log on boot. Always log which backend was selected:
 
 ```ts
 app.log.info({ backend }, 'example client backend selected');
@@ -69,7 +69,7 @@ This shows up in healthz/audit and saves debugging hours when something is "brok
 
 ## Gating routes
 
-Most flags don't gate routes — they swap the implementation behind a route. But if you do need to hide a route entirely:
+Most flags don't gate routes, they swap the implementation behind a route. But if you do need to hide a route entirely:
 
 ```ts
 if (backend === 'real') {
@@ -95,7 +95,7 @@ describe('example service', () => {
 });
 ```
 
-For the `real` mode, mock the network at the `fetch` boundary (use `nock` or `undici`'s `MockAgent`). Don't actually call out — tests must work offline.
+For the `real` mode, mock the network at the `fetch` boundary (use `nock` or `undici`'s `MockAgent`). Don't actually call out, tests must work offline.
 
 ## Documenting the flag
 

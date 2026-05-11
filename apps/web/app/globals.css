@@ -144,7 +144,7 @@ a {
   font-size: 14px;
 }
 
-/* Odds HUD — pinned to the upper-left so it doesn't fight either the
+/* Odds HUD, pinned to the upper-left so it doesn't fight either the
  * centred scoreboard or the right-edge card stack. */
 .odds-hud {
   position: absolute;
@@ -189,7 +189,7 @@ a {
   }
 }
 
-/* Debug panel — hidden by default; opens via the `i` corner pill or
+/* Debug panel, hidden by default; opens via the `i` corner pill or
  * by pressing `~` (or the legacy `D` key). */
 .debug-pill {
   position: absolute;
@@ -412,7 +412,7 @@ a {
   }
 }
 
-/* Timeline scrubber — sits inside `.match-bottom-dock`, beneath the
+/* Timeline scrubber, sits inside `.match-bottom-dock`, beneath the
  * camera-angle row, so flow-positioned rather than absolute. */
 .timeline-scrubber {
   width: 100%;
@@ -637,7 +637,7 @@ a {
   display: none;
 }
 
-/* Replay-time score chip — shown during a goal replay sequence. Sits
+/* Replay-time score chip, shown during a goal replay sequence. Sits
  * tucked underneath the centred scoreboard so the two don't overlap. */
 .replay-hud-score {
   position: absolute;
@@ -756,7 +756,7 @@ a {
  *
  * Each peripheral panel uses the same `<CollapsibleHUDCard>` shell so
  * collapse/expand behaviour is uniform. Default state on first visit:
- * all three collapsed — the screen is mostly pitch.
+ * all three collapsed, the screen is mostly pitch.
  * ==================================================================== */
 
 .match-stats-hud {

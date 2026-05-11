@@ -1,4 +1,4 @@
-# 52 — Supabase Setup (Auth + Identity)
+# 52, Supabase Setup (Auth + Identity)
 
 > **Tim's hands-on setup walkthrough for the Supabase project that backs
 > Tournamental's user identity, friend graph, and invite codes.**
@@ -26,7 +26,7 @@
 
 ---
 
-## Step 1 — Create the Supabase project
+## Step 1, Create the Supabase project
 
 1. Go to <https://supabase.com/dashboard> and sign in (the
    Tournamental Holdings GitHub identity is fine for v1; we can move
@@ -37,7 +37,7 @@
 5. **Database password**: generate a 32-char password via
    `openssl rand -base64 32`. Paste it into the Bitwarden vault as
    "Supabase / tournamental / db-password". You won't need this day-to-day
-   — Supabase handles connection pooling — but you need it for the CLI
+  , Supabase handles connection pooling, but you need it for the CLI
    `supabase db push` step.
 6. **Region**: **Sydney (ap-southeast-2)**. Closest to the NZ-hosted dev
    box and to the EU/UK/AU user base.
@@ -47,7 +47,7 @@
 
 ---
 
-## Step 2 — Paste env vars
+## Step 2, Paste env vars
 
 When the project is ready, go to **Project Settings → API**.
 
@@ -74,7 +74,7 @@ openssl rand -hex 32   # → paste into SUPABASE_SMS_HOOK_SECRET
 ```
 
 You'll paste the SMS-hook secret into the Supabase dashboard at Step 4
-too — it has to match on both sides.
+too, it has to match on both sides.
 
 Restart the web service:
 
@@ -84,23 +84,23 @@ pm2 restart vtorn-web-prod
 
 ---
 
-## Step 3 — Run the migration
+## Step 3, Run the migration
 
 The migration creates `user_profiles`, `user_profile_history`,
 `friendships`, `invite_codes`, RLS policies, and the auto-provision
 trigger that mirrors `auth.users` into `user_profiles`.
 
-### Option A — Supabase Dashboard (quickest)
+### Option A, Supabase Dashboard (quickest)
 
 1. Go to **SQL Editor → New Query**.
 2. Copy the contents of
    `supabase/migrations/0001_user_identity.sql` from this repo.
 3. Paste into the editor, click **Run**.
-4. You should see "Success. No rows returned" — the tables are created.
+4. You should see "Success. No rows returned", the tables are created.
 5. Go to **Database → Tables**: you should see `user_profiles`,
    `friendships`, `invite_codes`, `user_profile_history`.
 
-### Option B — Supabase CLI (preferred for repeatable deploys)
+### Option B, Supabase CLI (preferred for repeatable deploys)
 
 ```bash
 # One-off, install the CLI on your dev box if not present:
@@ -113,7 +113,7 @@ supabase link --project-ref <ref>    # ref is the last segment of the project UR
 supabase db push                     # runs all migrations under supabase/migrations/
 ```
 
-The `db push` is idempotent — re-runs apply only new migrations.
+The `db push` is idempotent, re-runs apply only new migrations.
 
 ### Verify
 
@@ -131,9 +131,9 @@ SELECT count(*) FROM pg_policies WHERE schemaname = 'public';
 
 ---
 
-## Step 4 — Configure auth providers
+## Step 4, Configure auth providers
 
-### Step 4a — Email magic-link
+### Step 4a, Email magic-link
 
 1. Go to **Authentication → Providers → Email**.
 2. Set **Enable Email provider**: ON.
@@ -149,7 +149,7 @@ For v1, Supabase's default SMTP is fine (low volume, free tier). For
 production-scale we'll swap to Resend in a follow-up PR. See **Step 5**
 below.
 
-### Step 4b — Telegram Login Widget
+### Step 4b, Telegram Login Widget
 
 The widget runs client-side; the server verifies the HMAC. The verifier
 lives at `apps/web/app/api/auth/telegram-callback/route.ts`.
@@ -169,11 +169,11 @@ lives at `apps/web/app/api/auth/telegram-callback/route.ts`.
    `/api/auth/telegram-callback`.
 
 **v1 caveat**: clicking the widget verifies your identity but does not
-yet mint a Supabase session — full session-mint is the v1.1 sprint goal
+yet mint a Supabase session, full session-mint is the v1.1 sprint goal
 (see `IDEAS.md`). Users who click Telegram are funneled into the
 phone-OTP path; their telegram_id is then bound on the resulting profile.
 
-### Step 4c — WhatsApp OTP via Aiva SMS hook
+### Step 4c, WhatsApp OTP via Aiva SMS hook
 
 1. Go to **Authentication → Providers → Phone**.
 2. Set **Enable Phone provider**: ON.
@@ -189,19 +189,19 @@ phone-OTP path; their telegram_id is then bound on the resulting profile.
 8. **OTP expiry**: 600 seconds (10 min).
 9. Save.
 
-The hook endpoint forwards OTPs to Aiva SMS — make sure `AIVA_SMS_API_URL`,
+The hook endpoint forwards OTPs to Aiva SMS, make sure `AIVA_SMS_API_URL`,
 `AIVA_SMS_API_KEY`, and `AIVA_WA_SESSION_ID` are set in
 `apps/web/.env.production`. See `/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`
 for the Aiva SMS gateway docs.
 
-### Deferred — Google / Apple / X (week 2-3)
+### Deferred, Google / Apple / X (week 2-3)
 
 These follow-up providers ship in a separate PR. Leave them disabled
 for now.
 
 ---
 
-## Step 5 — SMTP (optional for v1)
+## Step 5, SMTP (optional for v1)
 
 Supabase's default SMTP works out of the box but has a low rate limit
 (3 emails per hour, shared across all free-tier projects in your region).
@@ -227,7 +227,7 @@ a dedicated SMTP.
 
 ---
 
-## Step 6 — Smoke test the full flow
+## Step 6, Smoke test the full flow
 
 ### Email magic-link
 
@@ -272,13 +272,13 @@ a dedicated SMTP.
 
 ---
 
-## Step 7 — Friend discovery smoke tests
+## Step 7, Friend discovery smoke tests
 
 ### WhatsApp invite
 
 1. Sign in. Open the bracket share card; the deep-link URL should look
    like `https://play.tournamental.com/i/k7m9q3`.
-2. Sign out. Paste the URL into a fresh incognito window — should
+2. Sign out. Paste the URL into a fresh incognito window, should
    redirect to `/world-cup-2026?invited=1` and set a
    `vtorn_pending_invite` cookie.
 3. Sign in with a *different* email. Run a SQL query to verify the
@@ -306,7 +306,7 @@ a dedicated SMTP.
        body: JSON.stringify({ hashes }) }).then(r => r.json());
    ```
 3. Response: empty `matched` array (no other users have those numbers
-   yet — that's fine; just verifies the endpoint round-trip).
+   yet, that's fine; just verifies the endpoint round-trip).
 
 ### Telegram contacts
 
@@ -322,7 +322,7 @@ curl -X POST https://play.tournamental.com/api/friends/discover/telegram \
 
 ---
 
-## Step 8 — Lock down
+## Step 8, Lock down
 
 Before the launch week:
 
@@ -348,7 +348,7 @@ Before the launch week:
 | "redirect_to is not allowed" | Not in the Auth → URL Configuration list | Add the URL, save |
 | WhatsApp OTP doesn't send | Aiva SMS session disconnected | `curl POST /api/v1/whatsapp/sessions/<id>/start` |
 | `/api/auth/sms-hook` returns 401 | `SUPABASE_SMS_HOOK_SECRET` mismatch | Re-paste in both Supabase dashboard + .env |
-| Profile row missing after sign-up | Trigger didn't fire | Re-run `0001_user_identity.sql` — `handle_new_auth_user` is idempotent |
+| Profile row missing after sign-up | Trigger didn't fire | Re-run `0001_user_identity.sql`, `handle_new_auth_user` is idempotent |
 | Telegram widget says "Bot domain invalid" | Forgot BotFather `/setdomain` | Set it to `play.tournamental.com` |
 | Game service returns 401 on `/v1/picks/*` | JWT secret not set | Ensure `SUPABASE_JWT_SECRET` is in `apps/game/.env.production`; restart `vtorn-game-prod` |
 
@@ -356,23 +356,23 @@ Before the launch week:
 
 ## What this doc explicitly defers
 
-- **Google OAuth, Apple Sign-in, X (Twitter) OAuth** — week 2-3 follow-up PR.
-- **Native Telegram OIDC session-mint** — see `IDEAS.md` "Telegram custom OAuth provider".
-- **Apple privacy nutrition labels** for native app stores — handled in `docs/26` Phase 5.
-- **Supabase Vault for secrets** — for v1 we store the phone-hash salt
+- **Google OAuth, Apple Sign-in, X (Twitter) OAuth**, week 2-3 follow-up PR.
+- **Native Telegram OIDC session-mint**, see `IDEAS.md` "Telegram custom OAuth provider".
+- **Apple privacy nutrition labels** for native app stores, handled in `docs/26` Phase 5.
+- **Supabase Vault for secrets**, for v1 we store the phone-hash salt
   in `.env`; production hardening moves it to Vault.
 
 ---
 
 ## Cross-references
 
-- [`docs/26-setup-checklist.md`](26-setup-checklist.md) — Tim's full
+- [`docs/26-setup-checklist.md`](26-setup-checklist.md), Tim's full
   external-account checklist (Phase 1 row 1.6 points back here).
-- [`docs/32-auth-and-privacy.md`](32-auth-and-privacy.md) — privacy
+- [`docs/32-auth-and-privacy.md`](32-auth-and-privacy.md), privacy
   posture (now reflects Supabase as the production trust model).
-- [`docs/13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) —
+- [`docs/13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) -
   Telegram bot identity layer.
 - [`/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`](../../../.claude/skills/aiva-sms/SKILL.md)
-  — Aiva SMS gateway docs for the WhatsApp OTP hook.
-- `supabase/migrations/0001_user_identity.sql` — the schema this doc
+ , Aiva SMS gateway docs for the WhatsApp OTP hook.
+- `supabase/migrations/0001_user_identity.sql`, the schema this doc
   walks you through running.

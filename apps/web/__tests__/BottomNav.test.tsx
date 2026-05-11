@@ -1,5 +1,5 @@
 /**
- * Vitest — BottomNav active-tab logic + rendering.
+ * Vitest, BottomNav active-tab logic + rendering.
  * - 4 tabs render by default with correct labels.
  * - The active tab matches `window.location.pathname` (prefix-aware).
  */

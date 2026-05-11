@@ -1,5 +1,5 @@
 /**
- * /predict — alias for /world-cup-2026 to back the bottom-nav "Predict"
+ * /predict, alias for /world-cup-2026 to back the bottom-nav "Predict"
  * tab when we add more tournaments. Today it just redirects.
  */
 

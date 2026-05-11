@@ -5,7 +5,7 @@ const nextConfig = {
   // We still keep the route file structure under `app/` so that we can use
   // server components for layout, OG image generation, and future REST.
   experimental: {
-    // Workspace packages are imported as TS source — Next 14 transpiles them.
+    // Workspace packages are imported as TS source, Next 14 transpiles them.
     externalDir: true,
     // @resvg/resvg-js loads platform-specific native bindings at runtime;
     // webpack mustn't try to bundle those. Same for satori (server-only).
@@ -13,7 +13,7 @@ const nextConfig = {
       "@resvg/resvg-js",
       "satori",
       // @napi-rs/canvas loads platform-specific .node bindings (skia)
-      // at runtime — webpack cannot bundle them. The bracket-share
+      // at runtime, webpack cannot bundle them. The bracket-share
       // PNG / MP4 routes route through @vtorn/social-cards which uses
       // it server-side.
       "@napi-rs/canvas",
@@ -35,7 +35,7 @@ const nextConfig = {
       ".js": [".ts", ".tsx", ".js"],
       ".mjs": [".mts", ".mjs"],
     };
-    // Native-binding packages can't be bundled by webpack — the .node
+    // Native-binding packages can't be bundled by webpack, the .node
     // platform binary lives outside the webpack module graph. Mark them
     // external on the server so Node `require()`s them at runtime.
     if (isServer) {

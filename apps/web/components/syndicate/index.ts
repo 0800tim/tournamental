@@ -1,5 +1,5 @@
 /**
- * Syndicate landing component set — consumed by parallel agent #67's
+ * Syndicate landing component set, consumed by parallel agent #67's
  * `/s/[guid]` route. This file is the stable surface that other
  * agents import from; the components themselves can iterate behind
  * it.

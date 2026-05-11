@@ -1,5 +1,5 @@
 /**
- * /players — index of every confirmed WC2026 player with search + filters.
+ * /players, index of every confirmed WC2026 player with search + filters.
  *
  * Server component shell: loads the (~1k row) static dataset and the team
  * lookup, hands them to the client `<PlayerIndex />` for interactive

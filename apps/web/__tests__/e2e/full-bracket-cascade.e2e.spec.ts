@@ -1,8 +1,8 @@
 /**
  * End-to-end Playwright suite for the full WC2026 bracket cascade.
  *
- * Goal: prove that a user can pick **every** match — 72 group matches plus
- * 32 knockouts — and that every cascade step (R32 → R16 → QF → SF →
+ * Goal: prove that a user can pick **every** match, 72 group matches plus
+ * 32 knockouts, and that every cascade step (R32 → R16 → QF → SF →
  * third-place + Final) resolves real team names into the next round's
  * slots, the lock-summary tab shows the full submission, and the picks
  * survive a hard reload.
@@ -89,7 +89,7 @@ async function gotoBracket(page: Page): Promise<void> {
   await expect(page.locator(".bracket-builder")).toBeVisible();
 }
 
-// Tabs need a click to render — reading their badge counts only reflects
+// Tabs need a click to render, reading their badge counts only reflects
 // the current state if the page has hydrated.
 async function waitForHydration(page: Page): Promise<void> {
   await expect(page.getByRole("tab", { name: /^Groups/ })).toBeVisible();
@@ -102,13 +102,13 @@ async function waitForHydration(page: Page): Promise<void> {
 test.describe.configure({ mode: "serial" });
 
 test.describe("Full WC2026 bracket cascade", () => {
-  test.setTimeout(300_000); // 5 min — 104 clicks + cascade settles
+  test.setTimeout(300_000); // 5 min, 104 clicks + cascade settles
 
   test.beforeAll(ensureScreenshotDir);
 
   // The cascade-prediction flow is identical across viewports; running it
   // on the mobile project doubles runtime for no extra signal. Skip the
-  // pixel-7 project — desktop-chromium gives full coverage.
+  // pixel-7 project, desktop-chromium gives full coverage.
   test.beforeEach(({}, testInfo) => {
     test.skip(
       testInfo.project.name !== "desktop-chromium",
@@ -131,14 +131,14 @@ test.describe("Full WC2026 bracket cascade", () => {
     await page.reload({ waitUntil: "networkidle" });
     await waitForHydration(page);
 
-    // 1a. Empty group state — counter should read "0/72".
+    // 1a. Empty group state, counter should read "0/72".
     const initialCounts = await getPickCounts(page);
     expect(initialCounts.groups).toBe(`0/${EXPECTED_GROUP_MATCHES}`);
     expect(initialCounts.knockouts).toBe(`0/${EXPECTED_KNOCKOUT_MATCHES}`);
     await snap(page, SCREENSHOTS.emptyGroups);
 
     // ------------------------------------------------------------------
-    // 2. Group stage — pick "Home Win" on every match.
+    // 2. Group stage, pick "Home Win" on every match.
     // ------------------------------------------------------------------
     const groupClicks = await pickAllGroupMatches(page, "home_win");
     expect(groupClicks).toBe(EXPECTED_GROUP_MATCHES);
@@ -150,7 +150,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await snap(page, SCREENSHOTS.groupsFilled);
 
     // ------------------------------------------------------------------
-    // 3. Switch to the R32 tab — R32 slots should already be populated
+    // 3. Switch to the R32 tab, R32 slots should already be populated
     //    by the cascade because every group's standings are now defined.
     // ------------------------------------------------------------------
     await page.getByRole("tab", { name: /^R32/ }).click();
@@ -166,7 +166,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await expect(firstR32.locator(".km-home .km-team-name")).toBeVisible();
 
     // ------------------------------------------------------------------
-    // 4. R32 — click home on each of the 16 R32 cards.
+    // 4. R32, click home on each of the 16 R32 cards.
     // ------------------------------------------------------------------
     const r32Picked = await pickAllKnockoutsForRound(page, "r32", "home");
     expect(r32Picked).toBe(EXPECTED_R32);
@@ -192,7 +192,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await assertNoPlaceholders(page, "sf");
 
     // ------------------------------------------------------------------
-    // 7. SF (the two real semi-finals — id `sf_01`, `sf_02`).
+    // 7. SF (the two real semi-finals, id `sf_01`, `sf_02`).
     //    The third-place playoff (id `tp_01`) shares the SF stage in the
     //    engine but its slots only resolve after the SF picks land
     //    (knockout_loser sources). We pick it separately below.
@@ -224,7 +224,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await finalCard.locator(".km-home").click();
     await page.waitForTimeout(200);
 
-    // The picked side gets an `.is-winner` modifier — sanity check.
+    // The picked side gets an `.is-winner` modifier, sanity check.
     await expect(finalCard.locator(".km-home")).toHaveClass(/is-winner/);
     await snap(page, SCREENSHOTS.finalPicked);
 
@@ -240,7 +240,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     );
 
     // ------------------------------------------------------------------
-    // 11. Final tab — hosts the save-and-share summary for the full bracket.
+    // 11. Final tab, hosts the save-and-share summary for the full bracket.
     // ------------------------------------------------------------------
     await page.getByRole("tab", { name: /^Final/ }).click();
     await expect(page.locator(".bracket-lock-summary")).toBeVisible();
@@ -252,7 +252,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await expect(knockoutsCount).toHaveText(String(EXPECTED_KNOCKOUT_MATCHES));
 
     // 11b. Total picks = 72 + 32 = 104. We probe localStorage as the
-    // canonical source of truth — that's what the API will eventually
+    // canonical source of truth, that's what the API will eventually
     // submit.
     const draft = await page.evaluate(() => {
       const keys = Object.keys(window.localStorage).filter((k) =>
@@ -312,7 +312,7 @@ test.describe("Full WC2026 bracket cascade", () => {
     await snap(page, SCREENSHOTS.lockSummary);
 
     // ------------------------------------------------------------------
-    // 12. Hard reload — picks must survive via localStorage.
+    // 12. Hard reload, picks must survive via localStorage.
     // ------------------------------------------------------------------
     await page.reload({ waitUntil: "networkidle" });
     await waitForHydration(page);

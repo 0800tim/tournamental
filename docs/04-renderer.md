@@ -1,4 +1,4 @@
-# 04 — Reference Renderer (Next.js + React Three Fiber)
+# 04, Reference Renderer (Next.js + React Three Fiber)
 
 > The default browser renderer. Subscribes to a spec stream, reconstructs the scene, draws it. This is one of many possible consumers; it's the one shipped in the repo and the one we polish first.
 
@@ -8,7 +8,7 @@
 - **React Three Fiber + drei + three.js.** WebGL via React. Mainstream, well-documented, easiest target for forks.
 - **Zustand** for the live match store. Lightweight, ref-friendly, no Context re-renders.
 - **`packages/spec-client` (workspace package)** holds the WebSocket + chunk client and exports a single `useMatchStream(url)` hook. Forks reuse this verbatim.
-- **No global state libraries beyond Zustand.** No Redux, no React Query for the live stream — the volume is too high for normal cache invalidation.
+- **No global state libraries beyond Zustand.** No Redux, no React Query for the live stream, the volume is too high for normal cache invalidation.
 
 Why Next.js and not pure Vite? Because Next gives us routing for `/match/[id]`, `/replay/[id]?t=...`, OG image generation for share cards, and a clean place to add server endpoints later (a small REST surface for "list active matches", auth tokens, etc.). The 3D scene itself is a `'use client'` component; SSR doesn't touch WebGL.
 
@@ -18,7 +18,7 @@ Why Next.js and not pure Vite? Because Next gives us routing for `/match/[id]`, 
 apps/web/
 ├── app/
 │   ├── layout.tsx                root layout, fonts, html
-│   ├── page.tsx                  landing — picks demo match
+│   ├── page.tsx                  landing, picks demo match
 │   ├── match/[id]/page.tsx       loads init, mounts <MatchScene/>
 │   └── replay/[id]/page.tsx      same scene, archive manifest
 ├── components/
@@ -119,7 +119,7 @@ The wall-clock alpha works for clean live streams with one frame per arrival. It
 - shortest-arc slerp on player yaw;
 - Catmull-Rom across 4 frames for the ball trajectory (linear when only 2 frames bracket).
 
-The buffer detects bursts (more match-time advance than wall-clock advance) and *holds* the anchor in place — the renderer reads forward at real-time pace and naturally interpolates between buffered frames as wall-clock advances.
+The buffer detects bursts (more match-time advance than wall-clock advance) and *holds* the anchor in place, the renderer reads forward at real-time pace and naturally interpolates between buffered frames as wall-clock advances.
 
 `MatchScene` mounts a single `StateFrameBuffer` via `useStateFrameBuffer(store)` and shares it through `<StateFrameBufferProvider>`. `Player`, `Ball`, `Director`, and `CameraRig` consume it via `useSceneBuffer()` and fall back to the wall-clock alpha when the provider isn't mounted (keeps unit tests / direct mounts working).
 
@@ -146,13 +146,13 @@ The buffer detects bursts (more match-time advance than wall-clock advance) and 
    any  ──event.foul(victim:self)─▶ one-shot: fall (~1.0s)
 ```
 
-For the v0.1 procedural avatar (see [docs/07-avatars-and-assets.md](07-avatars-and-assets.md)), "animation" is mostly a tag that drives a small position/rotation offset on the limbs (tilted body for run, swinging legs for kick) — full skeletal animation only kicks in when GLB avatars are loaded.
+For the v0.1 procedural avatar (see [docs/07-avatars-and-assets.md](07-avatars-and-assets.md)), "animation" is mostly a tag that drives a small position/rotation offset on the limbs (tilted body for run, swinging legs for kick), full skeletal animation only kicks in when GLB avatars are loaded.
 
 ## Camera modes
 
 `CameraRig.tsx` exposes three manual modes plus the auto-`Director` (default):
 
-- **Director (default).** `components/Director.tsx` runs an FSM over four virtual cams — broadcast / behind-goal / player-track / goal-replay — and switches on goal events.
+- **Director (default).** `components/Director.tsx` runs an FSM over four virtual cams, broadcast / behind-goal / player-track / goal-replay, and switches on goal events.
 - **Broadcast.** Tracks the ball with a smoothed offset, similar to a TV main camera. Slight zoom-out during set-pieces.
 - **Follow-ball-tight.** Closer, lower, dramatic. Good for short clips.
 - **Top-down tactical.** Ortho camera, plan view, lower frame budget. Used by analyst-style forks.
@@ -176,9 +176,9 @@ This is what turned the broadcast follow from "snaps per state-frame" into "smoo
 
 ## HUD
 
-A standard 2D React overlay with `pointer-events: none` over the canvas. Reads from the same store. Score, clock, latest commentary line, latest event banner ("GOAL — Blue 1, Red 0").
+A standard 2D React overlay with `pointer-events: none` over the canvas. Reads from the same store. Score, clock, latest commentary line, latest event banner ("GOAL, Blue 1, Red 0").
 
-For TTS commentary playback, an `Audio` element pool consumes `event.commentary` messages with `voice_id`. ElevenLabs (or local TTS) is invoked server-side when the producer emits the commentary; the resulting audio URL goes in the event payload (extension field, not yet in spec — propose `audio_uri` for v0.2).
+For TTS commentary playback, an `Audio` element pool consumes `event.commentary` messages with `voice_id`. ElevenLabs (or local TTS) is invoked server-side when the producer emits the commentary; the resulting audio URL goes in the event payload (extension field, not yet in spec, propose `audio_uri` for v0.2).
 
 ## Performance budget
 
@@ -217,7 +217,7 @@ Frametime budget on medium: 16.6ms total → 4ms scene update, 8ms draw, 4ms sla
 
 ## What's out of scope for v0.1
 
-- VR/AR (WebXR — fold in later, scene is already in three.js so it's an additive lift).
+- VR/AR (WebXR, fold in later, scene is already in three.js so it's an additive lift).
 - Crowd cheers / ambient audio (separate from commentary; needs an asset pack).
 - In-scene replay (snap to event time).
 - Spectator chat / Twitch overlay.

@@ -1,0 +1,106 @@
+- generic [ref=e2]:
+  - complementary "Primary navigation" [ref=e3]:
+    - link "Tournamental" [ref=e4] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e5]: T
+      - text: Tournamental
+    - link "Home" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - img [ref=e7]
+      - text: Home
+    - link "Predict" [ref=e10] [cursor=pointer]:
+      - /url: /world-cup-2026
+      - img [ref=e11]
+      - text: Predict
+    - link "Watch" [ref=e14] [cursor=pointer]:
+      - /url: /watch
+      - img [ref=e15]
+      - text: Watch
+    - link "Profile" [ref=e18] [cursor=pointer]:
+      - /url: /profile
+      - img [ref=e19]
+      - text: Profile
+    - generic [ref=e22]: More
+    - link "Leaderboard" [ref=e23] [cursor=pointer]:
+      - /url: /leaderboard
+      - img [ref=e24]
+      - text: Leaderboard
+    - link "Syndicates" [ref=e28] [cursor=pointer]:
+      - /url: /syndicates
+      - img [ref=e29]
+      - text: Syndicates
+    - link "Open source" [ref=e33] [cursor=pointer]:
+      - /url: https://github.com/0800tim/tournamental
+      - img [ref=e34]
+      - text: Open source
+    - link "Settings" [ref=e36] [cursor=pointer]:
+      - /url: /settings
+      - img [ref=e37]
+      - text: Settings
+  - banner [ref=e40]:
+    - button "Open profile menu" [ref=e41] [cursor=pointer]:
+      - generic [ref=e42]: T
+    - heading "Save & share" [level=1] [ref=e43]
+  - main [ref=e44]:
+    - main "Your World Cup 2026 bracket" [ref=e45]:
+      - generic [ref=e46]:
+        - generic [ref=e47]:
+          - paragraph [ref=e48]: FIFA World Cup 2026
+          - heading "Your World Cup 2026 bracket" [level=1] [ref=e49]
+          - paragraph [ref=e50]:
+            - generic [ref=e51]: Draft only — save to share
+        - generic "0 of 104 picks saved" [ref=e52]:
+          - strong [ref=e53]: "0"
+          - generic [ref=e54]: of 104 picks saved
+      - region "Bracket card preview" [ref=e55]:
+        - img "Your bracket — champion TBD" [ref=e57]
+        - tablist "Card format" [ref=e58]:
+          - tab "Portrait" [ref=e59] [cursor=pointer]
+          - tab "Landscape" [selected] [ref=e60] [cursor=pointer]
+          - tab "Square" [ref=e61] [cursor=pointer]
+      - region "Your shareable link" [ref=e62]:
+        - generic [ref=e63]: Your share link
+        - generic [ref=e64]:
+          - textbox "Your share link" [ref=e65]: play.tournamental.com/s/ssr_user
+          - button "Copy link" [ref=e66] [cursor=pointer]
+      - region "Share my bracket" [ref=e67]:
+        - button "Share my bracket" [ref=e68] [cursor=pointer]
+      - region "Share to a platform" [ref=e69]:
+        - link "Share on WhatsApp" [ref=e70] [cursor=pointer]:
+          - /url: https://wa.me/?text=I'm%20building%20my%20FIFA%20World%20Cup%202026%20bracket%20on%20Tournamental.%20Build%20yours%3A%20play.tournamental.com%2Fworld-cup-2026
+          - img [ref=e72]
+          - generic [ref=e74]: WhatsApp
+        - link "Share on Telegram" [ref=e75] [cursor=pointer]:
+          - /url: https://t.me/share/url?url=https%3A%2F%2Fplay.tournamental.com%2Fs%2Fssr_user&text=I'm%20building%20my%20FIFA%20World%20Cup%202026%20bracket%20on%20Tournamental.%20Build%20yours%3A%20play.tournamental.com%2Fworld-cup-2026
+          - img [ref=e77]
+          - generic [ref=e79]: Telegram
+        - link "Share on X" [ref=e80] [cursor=pointer]:
+          - /url: https://twitter.com/intent/tweet?text=I'm%20building%20my%20FIFA%20World%20Cup%202026%20bracket%20on%20Tournamental.%20Build%20yours%3A%20play.tournamental.com%2Fworld-cup-2026&url=https%3A%2F%2Fplay.tournamental.com%2Fs%2Fssr_user
+          - img [ref=e82]
+          - generic [ref=e84]: X
+        - link "Share on Facebook" [ref=e85] [cursor=pointer]:
+          - /url: https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fplay.tournamental.com%2Fs%2Fssr_user
+          - img [ref=e87]
+          - generic [ref=e89]: Facebook
+        - link "Share on Email" [ref=e90] [cursor=pointer]:
+          - /url: mailto:?subject=My%20Tournamental%20World%20Cup%202026%20bracket&body=I'm%20building%20my%20FIFA%20World%20Cup%202026%20bracket%20on%20Tournamental.%20Build%20yours%3A%20play.tournamental.com%2Fworld-cup-2026
+          - img [ref=e92]
+          - generic [ref=e94]: Email
+      - region "Download bracket image" [ref=e95]:
+        - heading "Download as image" [level=2] [ref=e96]
+        - generic [ref=e97]:
+          - link "Portrait PNG" [ref=e98] [cursor=pointer]:
+            - /url: /api/og/bracket?bracket_id=ssr_user&handle=Anonymous&winner=TBD&size=portrait
+            - generic [ref=e99]: Portrait
+            - generic [ref=e100]: PNG
+          - link "Landscape PNG" [ref=e101] [cursor=pointer]:
+            - /url: /api/og/bracket?bracket_id=ssr_user&handle=Anonymous&winner=TBD&size=landscape
+            - generic [ref=e102]: Landscape
+            - generic [ref=e103]: PNG
+          - link "Square PNG" [ref=e104] [cursor=pointer]:
+            - /url: /api/og/bracket?bracket_id=ssr_user&handle=Anonymous&winner=TBD&size=square
+            - generic [ref=e105]: Square
+            - generic [ref=e106]: PNG
+      - region "Embed on a blog" [ref=e107]:
+        - group [ref=e108]:
+          - generic "Embed this on a blog" [ref=e109] [cursor=pointer]

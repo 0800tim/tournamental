@@ -45,7 +45,7 @@ describe("isValidSlugShape (used by the signup form)", () => {
   });
 
   it("rejects non-string input", () => {
-    // @ts-expect-error — guarding runtime behaviour.
+    // @ts-expect-error, guarding runtime behaviour.
     expect(isValidSlugShape(null)).toBe(false);
     // @ts-expect-error
     expect(isValidSlugShape(undefined)).toBe(false);

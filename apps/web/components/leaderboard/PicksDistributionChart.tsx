@@ -1,10 +1,10 @@
 /**
- * PicksDistributionChart — a horizontal stacked bar showing what
+ * PicksDistributionChart, a horizontal stacked bar showing what
  * % of the pool picked each team for a given match.
  *
  * Used on the syndicate landing's "what the pool thinks" section.
  *
- * Pure SVG (no chart-lib) — the segment widths are computed in JS,
+ * Pure SVG (no chart-lib), the segment widths are computed in JS,
  * each rect renders the team's kit primary, and a small percentage
  * label inside each segment.
  */
@@ -18,7 +18,7 @@ export interface PicksDistributionSegment {
   readonly label: string;
   /** Percentage of the pool that picked this team (0-100). */
   readonly percent: number;
-  /** Bar segment colour — pass the team's kit primary. */
+  /** Bar segment colour, pass the team's kit primary. */
   readonly colour: string;
 }
 

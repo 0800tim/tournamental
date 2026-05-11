@@ -1,7 +1,7 @@
 /**
  * Head-to-head W/D/L counts for the bracket row.
  *
- * Reads the same stub as the `/match/[id]/preview` route does — the file at
+ * Reads the same stub as the `/match/[id]/preview` route does, the file at
  * `apps/web/data/head-to-head.json`, keyed by alpha-sorted `${a}-${b}`,
  * with each entry being a list of historical meetings (date, scores,
  * competition). The bracket row only needs the rolled-up W/D/L counts so
@@ -10,7 +10,7 @@
  *
  * For pairs not yet curated we fall back to a deterministic synth (FNV-1a
  * over the alpha-sorted pair key) so the H2H pill keeps its rhythm
- * everywhere — three small ints in 0..3 that sum to a plausible record.
+ * everywhere, three small ints in 0..3 that sum to a plausible record.
  *
  * Pure, synchronous, no I/O.
  *

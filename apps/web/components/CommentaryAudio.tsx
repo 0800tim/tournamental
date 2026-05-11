@@ -18,7 +18,7 @@ export interface CommentaryAudioProps {
  *   2. An `AudioMixer` (pure logic) that decides the gain curve based
  *      on the Director's `cutAtMs()` / `slowMoRate` writes to
  *      `camera.userData`.
- *   3. A stub commentary buffer (silent) — when the ElevenLabs API key
+ *   3. A stub commentary buffer (silent), when the ElevenLabs API key
  *      lands, swap the buffer source for the WSS stream from
  *      `lib/audio/elevenlabs-stream.ts`.
  *
@@ -69,7 +69,7 @@ export function CommentaryAudio({ onGoal: _onGoal }: CommentaryAudioProps = {}) 
         gain.gain.value = 1;
         gain.connect(ctx.destination);
         gainRef.current = gain;
-        // No source attached yet — this would be the WSS stream
+        // No source attached yet, this would be the WSS stream
         // decoder or the pre-rendered MP3 element. The wiring for
         // ducking is fully exercisable without one.
       } catch {
@@ -91,7 +91,7 @@ export function CommentaryAudio({ onGoal: _onGoal }: CommentaryAudioProps = {}) 
       .userData ?? {};
     const cam = userData.directorCam ?? "broadcast";
     if (cam !== lastCamRef.current) {
-      // Director cut to a new cam — react.
+      // Director cut to a new cam, react.
       if (cam === "goal-replay") mixer.duckForGoal();
       else if (lastCamRef.current === "goal-replay") mixer.returnToNominal();
       lastCamRef.current = cam;

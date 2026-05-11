@@ -1,4 +1,4 @@
-# 02 — JSON Stream Spec
+# 02, JSON Stream Spec
 
 > The contract that everything else hangs off. A producer that emits this stream and a renderer that consumes it can be authored independently and will interoperate. Canonical TypeScript types live in [`spec/types.ts`](../spec/types.ts).
 >
@@ -35,7 +35,7 @@ Units default to metres. A producer that reports in feet must set `field.units =
 
 ## Three message kinds
 
-### `match.init` — sent once
+### `match.init`, sent once
 
 The static scene. Field dimensions, both teams with full rosters, kit colours, and (optionally) URIs to per-player avatar assets. Emitted exactly once at the start of every stream. Late-joining clients receive it on connect.
 
@@ -70,7 +70,7 @@ The static scene. Field dimensions, both teams with full rosters, kit colours, a
 }
 ```
 
-### `state` — sent continuously
+### `state`, sent continuously
 
 Pure positional truth, emitted at 10–30 Hz. The renderer keeps the most recent two frames and lerps between them based on elapsed time. `t` is milliseconds since `match.init`.
 
@@ -88,9 +88,9 @@ Pure positional truth, emitted at 10–30 Hz. The renderer keeps the most recent
 }
 ```
 
-`anim` is the *current* sustained animation tag — almost always one of `idle`, `walk`, `run`, `sprint`, `dribble`. One-shot animations like `kick`, `header`, `tackle`, `celebrate` are typically driven by an event (see below) rather than a sustained `anim` tag, though both are legal.
+`anim` is the *current* sustained animation tag, almost always one of `idle`, `walk`, `run`, `sprint`, `dribble`. One-shot animations like `kick`, `header`, `tackle`, `celebrate` are typically driven by an event (see below) rather than a sustained `anim` tag, though both are legal.
 
-### `event.*` — sent irregularly
+### `event.*`, sent irregularly
 
 Discrete moments that drive animations, score updates, and HUD entries. Discriminated union, well typed.
 
@@ -108,8 +108,8 @@ Renderer behaviour for canonical event types is specified in [`docs/04-renderer.
 
 The stream is a sequence of JSON objects, one per message. Two encodings are supported and clients SHOULD accept either:
 
-- **NDJSON over WebSocket / SSE / chunked HTTP** — one JSON object per `\n`-terminated line. Default for live streams.
-- **JSONL files at rest** — same encoding, written to disk for replay or CDN distribution. See [`docs/08-cdn-distribution.md`](08-cdn-distribution.md) for chunking strategy.
+- **NDJSON over WebSocket / SSE / chunked HTTP**, one JSON object per `\n`-terminated line. Default for live streams.
+- **JSONL files at rest**, same encoding, written to disk for replay or CDN distribution. See [`docs/08-cdn-distribution.md`](08-cdn-distribution.md) for chunking strategy.
 
 Compression: gzip is recommended at the transport/CDN layer. Per-message compression is not part of the spec.
 

@@ -1,5 +1,5 @@
 /**
- * Vitest — MatchCard TVNZ-style flag-as-background visual contract.
+ * Vitest, MatchCard TVNZ-style flag-as-background visual contract.
  *
  *   - Each half cell renders the country flag SVG as `style.backgroundImage`.
  *   - The UPCOMING/LIVE/FINAL pill renders the correct text for each state.
@@ -32,7 +32,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-describe("MatchCard — flag-as-background", () => {
+describe("MatchCard, flag-as-background", () => {
   it("renders the home flag SVG URL as the home half's backgroundImage", () => {
     const { container } = render(
       <MatchCard

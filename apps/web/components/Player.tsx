@@ -41,7 +41,7 @@ interface PlayerProps {
 }
 
 /**
- * Player avatar (Phase 1 — fidelity rig).
+ * Player avatar (Phase 1, fidelity rig).
  *
  * Implements the Phase-1 spec from `docs/27a-fidelity-phase1-mocap-rig.md`:
  *
@@ -243,7 +243,7 @@ export function Player({ player, team, kit, store }: PlayerProps) {
       // Phase-2 foot IK: plug the FSM's current animation tag + the
       // mixer's clip phase into the stance schedule, then let the IK
       // pin / release feet against the ground plane (z=0 in world).
-      // We only run IK on HIGH (closest LOD) to keep the budget low —
+      // We only run IK on HIGH (closest LOD) to keep the budget low -
       // 11 active high-LOD characters × 2 legs × ~0.05 ms ≈ 1.1 ms
       // per frame, well inside the 2.2 ms budget. MED+LOW skip IK.
       if (ik && lod === "high") {
@@ -314,7 +314,7 @@ function FaceOnBone({
 }
 
 /**
- * Capsule fallback for the LOW bucket — same look the codebase shipped
+ * Capsule fallback for the LOW bucket, same look the codebase shipped
  * before Phase 1, fast-path far-away players where rigged animation
  * isn't readable anyway.
  */

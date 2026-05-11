@@ -7,7 +7,7 @@
  * paths via the `ogImage` prop already wired into every page.
  *
  * The generator uses `@vtorn/social-cards` so the OG cards share style
- * with every share / clip card — there is one source of truth for Tournamental
+ * with every share / clip card, there is one source of truth for Tournamental
  * brand surfaces.
  *
  * Usage:
@@ -45,7 +45,7 @@ const PUBLIC_OG_DIR = resolve(here, "..", "public", "og");
  * We deliberately repurpose existing card kinds (no bespoke "marketing-page"
  * card kind) so the cards stay consistent with the rest of the brand. Each
  * page's OG card is a `referral-invite` card with a tuned headline pointing
- * at the page's value-prop — except the leaderboards page, which uses
+ * at the page's value-prop, except the leaderboards page, which uses
  * `leaderboard-rank` to hint at the live-tournament story.
  */
 const MARKETING_OG_PAGES = [
@@ -210,7 +210,7 @@ async function main() {
     console.log(`  ✓ ${page.slug}.png  (${result.png.length} bytes)`);
   }
 
-  // Default fallback card — used by Layout when no slug-specific image is set.
+  // Default fallback card, used by Layout when no slug-specific image is set.
   const defaultPath = resolve(PUBLIC_OG_DIR, "..", "og-default.png");
   try {
     await access(defaultPath);

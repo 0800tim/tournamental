@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Standalone success client — used by `/syndicates/new/success?slug=…`
+ * Standalone success client, used by `/syndicates/new/success?slug=…`
  * when a user lands here directly (e.g. after a reload). The primary
  * happy path renders an inline success card on /syndicates/new and
  * never visits this URL.
@@ -19,7 +19,7 @@ export function SyndicateSuccessClient({ slug }: { slug: string }): JSX.Element 
   const [copied, setCopied] = useState(false);
 
   const inviteText = useMemo(
-    () => `Come predict the FIFA World Cup 2026 with me — join my pool at ${url}`,
+    () => `Come predict the FIFA World Cup 2026 with me, join my pool at ${url}`,
     [url],
   );
 
@@ -29,7 +29,7 @@ export function SyndicateSuccessClient({ slug }: { slug: string }): JSX.Element 
       setCopied(true);
       setTimeout(() => setCopied(false), 1600);
     } catch {
-      // ignore — user can still select and copy the text.
+      // ignore, user can still select and copy the text.
     }
   };
 

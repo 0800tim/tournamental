@@ -7,7 +7,7 @@
  * UUID lookup in `apps/web/app/s/[guid]/page.tsx`.
  *
  * That means we have to reserve any slug a real tournament or product
- * surface might want to claim — otherwise a squatter would block us
+ * surface might want to claim, otherwise a squatter would block us
  * from shipping `/s/nba` or `/s/world-cup` later. This list is the
  * single source of truth; the parallel syndicate-signup agent (#70)
  * imports it at signup time to refuse these names.
@@ -70,7 +70,7 @@ export function isReservedSlug(slug: string): boolean {
  *   - no consecutive hyphens
  *
  * This is intentionally narrower than a generic slug regex so that
- * the syndicate namespace stays predictable for URL sharing — a slug
+ * the syndicate namespace stays predictable for URL sharing, a slug
  * read out loud over a podcast should be unambiguous.
  */
 const SLUG_RE = /^[a-z0-9](?:[a-z0-9]|-(?!-))*[a-z0-9]$/;

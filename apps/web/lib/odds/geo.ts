@@ -5,7 +5,7 @@
  * affiliate CTA must be hidden in NZ + AU and most of the UK; the chip
  * itself stays visible (it's free editorial market intel). Pay-TV CTAs
  * are gated separately and require their own per-country provider
- * matching — this module only handles the Polymarket gating.
+ * matching, this module only handles the Polymarket gating.
  *
  * On the server we read `cf-ipcountry` (Cloudflare's signed country
  * header). On the client, the page renders `<OddsHoverCard>` with a
@@ -18,10 +18,10 @@
  * ISO 3166-1 alpha-2 country codes where the Polymarket affiliate CTA
  * must NOT be shown. Source: docs/30 § "Geo-gating".
  *
- *  - NZ — Department of Internal Affairs treats overseas-prediction
+ *  - NZ, Department of Internal Affairs treats overseas-prediction
  *    markets as gambling.
- *  - AU — ACMA treats them similarly.
- *  - UK — gated to "view market only" with no signup CTA. We hide the
+ *  - AU, ACMA treats them similarly.
+ *  - UK, gated to "view market only" with no signup CTA. We hide the
  *    "Back this on Polymarket" copy entirely and offer a passive link.
  *
  * Anything not in this list is permitted.
@@ -51,7 +51,7 @@ export function affiliateCtaMode(country: string | null | undefined): AffiliateC
 
 /**
  * Read the country from a Next.js Request (App Router). Returns `null`
- * if no Cloudflare header is present — caller decides the fallback.
+ * if no Cloudflare header is present, caller decides the fallback.
  */
 export function readCountryFromHeaders(
   headers: { get(name: string): string | null },
@@ -66,7 +66,7 @@ export function readCountryFromHeaders(
 
 /**
  * Build the affiliate redirect URL with our ref code attached. We don't
- * import provider URLs here — the API route owns them — but the client
+ * import provider URLs here, the API route owns them, but the client
  * component uses this to construct a click-tracking link.
  */
 export function buildPolymarketDeepLink(opts: {

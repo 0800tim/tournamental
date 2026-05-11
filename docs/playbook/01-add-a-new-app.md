@@ -1,8 +1,8 @@
-# Playbook 01 — Adding a new app
+# Playbook 01, Adding a new app
 
 > **When to use this.** You have a new bounded service or surface that doesn't fit any existing app. New micro-services, new front-end surfaces, new CLI tools all start here.
 >
-> **When NOT to use this.** A new feature inside an existing service is *not* a new app. A new shared library is a new package, not a new app — see `packages/` for those.
+> **When NOT to use this.** A new feature inside an existing service is *not* a new app. A new shared library is a new package, not a new app, see `packages/` for those.
 
 ## Decision: app or package
 
@@ -14,23 +14,23 @@
 | Owns its own database / data dir | sometimes | no |
 | Has tunnel ingress rules | yes | no |
 
-If you're between, default to package — it's easier to extract an app from a package than to refactor an app into a package.
+If you're between, default to package, it's easier to extract an app from a package than to refactor an app into a package.
 
 ## Workspace expectations
 
 Every app under `apps/` must have:
 
 1. **`package.json`** with these scripts at minimum:
-   - `dev` — `tsx watch src/<entry>.ts` (watch-mode dev server)
-   - `build` — `tsc -p tsconfig.json` (compile to `dist/`)
-   - `start` — `node dist/<entry>.js` (production boot)
-   - `prestart` — same as `build` (so `pnpm start` always boots clean)
-   - `typecheck` — `tsc -p tsconfig.json --noEmit`
-   - `test` — `vitest run`
+   - `dev`, `tsx watch src/<entry>.ts` (watch-mode dev server)
+   - `build`, `tsc -p tsconfig.json` (compile to `dist/`)
+   - `start`, `node dist/<entry>.js` (production boot)
+   - `prestart`, same as `build` (so `pnpm start` always boots clean)
+   - `typecheck`, `tsc -p tsconfig.json --noEmit`
+   - `test`, `vitest run`
 2. **`tsconfig.json`** that extends `../../tsconfig.base.json`.
 3. **`README.md`** with one-paragraph what-it-does, a port table, the env-var list, and a link to the relevant doc(s).
-4. **A `/healthz` endpoint** — return `{ ok: true, ts: Date.now() }` minimum.
-5. **A `/v1/version` endpoint** — return `{ service, version, spec_version, env, ts }`.
+4. **A `/healthz` endpoint**, return `{ ok: true, ts: Date.now() }` minimum.
+5. **A `/v1/version` endpoint**, return `{ service, version, spec_version, env, ts }`.
 6. **A test file** that boots the server with an in-memory store and round-trips at least one request via `app.inject(...)`.
 
 If the app speaks HTTP, register `@fastify/swagger` + `@fastify/swagger-ui` per [Playbook 02](02-add-a-new-fastify-route.md). Generated spec lands in `docs/api/<name>.openapi.json`.
@@ -46,13 +46,13 @@ Conventions:
 - 5400–5499 for databases (dev-bound only)
 - 6300–6399 for caches (dev-bound only)
 
-Pick the next free port. Add a row to the table in `docs/22-deployment-and-tunnels.md` *in the same PR* that creates the app — this is non-negotiable.
+Pick the next free port. Add a row to the table in `docs/22-deployment-and-tunnels.md` *in the same PR* that creates the app, this is non-negotiable.
 
 ## Tunnel ingress
 
-The dev tunnel routes `<service>.aiva.nz` to the local port. The tunnel config is **remotely managed via the Cloudflare API** — do not edit local YAML. Open a session note describing the new ingress rule and the orchestrator wires it via the API; the rule is then visible at the Cloudflare dashboard, not in the repo.
+The dev tunnel routes `<service>.aiva.nz` to the local port. The tunnel config is **remotely managed via the Cloudflare API**, do not edit local YAML. Open a session note describing the new ingress rule and the orchestrator wires it via the API; the rule is then visible at the Cloudflare dashboard, not in the repo.
 
-If you need a quick dev-only tunnel for testing webhooks, `cloudflared tunnel --url http://localhost:<port>` gets you a randomised URL — fine for one-off webhook testing, never commit it anywhere.
+If you need a quick dev-only tunnel for testing webhooks, `cloudflared tunnel --url http://localhost:<port>` gets you a randomised URL, fine for one-off webhook testing, never commit it anywhere.
 
 ## Daily-report inventory
 

@@ -1,16 +1,16 @@
 /**
- * BracketBuilder — owns prediction state for the per-match prediction
+ * BracketBuilder, owns prediction state for the per-match prediction
  * game.
  *
  * The bracket is split into round-tabs so users (especially on mobile)
  * can navigate the 104-match tournament one round at a time:
  *
- *   - Groups   — 12 GroupCards, vertical stack per group
- *   - R32      — Round-of-32 cards in a responsive grid
- *   - R16      — Round-of-16 cards in a responsive grid
- *   - QF       — Quarter-finals
- *   - SF + 3rd — Semi-finals + 3rd-place playoff
- *   - Final    — the Final match + save & share summary
+ *   - Groups  , 12 GroupCards, vertical stack per group
+ *   - R32     , Round-of-32 cards in a responsive grid
+ *   - R16     , Round-of-16 cards in a responsive grid
+ *   - QF      , Quarter-finals
+ *   - SF + 3rd, Semi-finals + 3rd-place playoff
+ *   - Final   , the Final match + save & share summary
  *
  * Tab state is URL-hash-routable so the user can bookmark or share
  * `/world-cup-2026#qf` and land on the quarter-finals.
@@ -156,7 +156,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [punditStatus, setPunditStatus] = useState<PunditStatus>(UNVERIFIED);
   const country = useCountry();
 
-  // Mobile gesture plumbing — these refs/effects are no-ops on
+  // Mobile gesture plumbing, these refs/effects are no-ops on
   // viewports wider than 640px so desktop UX is untouched.
   const haptic = useHaptic();
   const groupsRootRef = useStickyGroupHeaders<HTMLDivElement>({
@@ -330,7 +330,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   }, [cascaded.knockouts, tab]);
 
   /**
-   * Fire-and-forget per-match save. Doesn't block the UI — the local
+   * Fire-and-forget per-match save. Doesn't block the UI, the local
    * state update happens synchronously. If the API call fails the
    * localStorage write in `update()` keeps the pick alive locally; the
    * next bulk submit (or page reload merge) will reconcile.
@@ -419,7 +419,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   /**
-   * Auto-pick — fetch live odds via /api/odds/snapshot and fill EVERY
+   * Auto-pick, fetch live odds via /api/odds/snapshot and fill EVERY
    * match all the way down to the final, including the 3rd-place
    * playoff and any group tiebreakers. Overwrites existing picks (the
    * confirmation modal warns first); user can adjust any pick after.
@@ -580,7 +580,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       setSubmitState(
         rejected.length === 0
           ? baseMsg
-          : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped — match already started)`,
+          : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped, match already started)`,
       );
       update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
       track("bracket.bracket.saved", {
@@ -592,14 +592,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
         result: "ok",
       });
     } else if (res.status === "saved_offline") {
-      setSubmitState("Saved offline — we'll retry when you're back online.");
+      setSubmitState("Saved offline, we'll retry when you're back online.");
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
         result: "saved_offline",
         error: res.error ?? "unknown",
       });
     } else {
-      setSubmitState(`Save failed: ${res.error ?? "unknown"} — draft saved locally.`);
+      setSubmitState(`Save failed: ${res.error ?? "unknown"}, draft saved locally.`);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
         result: "error",
@@ -624,12 +624,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // user has already started filling in picks. Tim's spec: "Fill your
   // bracket using live consensus odds…" before any picks, "Refresh empty
   // picks using live consensus odds." once at least one pick exists. Note
-  // tie-breakers are intentionally not counted — they're an implementation
+  // tie-breakers are intentionally not counted, they're an implementation
   // detail of auto-pick, not a user-initiated action.
   const hasAnyPicks = totalCompleted > 0;
   const autoPickSubtitle = hasAnyPicks
     ? "Refresh empty picks using live consensus odds."
-    : "Fill your bracket using live consensus odds — you can edit any pick before kickoff.";
+    : "Fill your bracket using live consensus odds, you can edit any pick before kickoff.";
 
   // The auto-pick button has no "no available matches" condition in
   // practice (any unsaved match is a candidate), but we still wire a
@@ -669,7 +669,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (matches.length === 0) {
       return (
         <p className="bracket-empty-state">
-          Make your group-stage picks first — slots fill in here as you pick.
+          Make your group-stage picks first, slots fill in here as you pick.
         </p>
       );
     }
@@ -745,7 +745,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     <div className="bracket-builder">
       <header className="bracket-header">
         <h1>
-          {tournament.name} — Bracket Prophet
+          {tournament.name}, Bracket Prophet
           {punditStatus.verified && (
             <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
               <PunditBadge status={punditStatus} size={20} />
@@ -754,7 +754,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </h1>
         <p>
           Predict the outcome of every match. The group standings are computed
-          live from your picks. Save each pick before its match kicks off — you
+          live from your picks. Save each pick before its match kicks off, you
           can tweak any pick game by game until then.
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
@@ -988,7 +988,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       )}
 
       {/* Mobile-only floating Save & Share CTA. Save persists any
-       * unsaved edits; Share is wired up by the share-card agent —
+       * unsaved edits; Share is wired up by the share-card agent -
        * stub here so the layout/CSS lands now. */}
       <div className="bracket-mobile-cta" role="group" aria-label="Save and share">
         <button
@@ -1009,7 +1009,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
             });
             setTab("final");
           }}
-          aria-label="Share — opens the bracket summary"
+          aria-label="Share, opens the bracket summary"
         >
           Share
         </button>
@@ -1035,7 +1035,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
               overwritten.</strong>
             </p>
             <p className="bracket-modal-body">
-              You can change any pick afterwards — auto-pick is a starting
+              You can change any pick afterwards, auto-pick is a starting
               point, not a final answer. Picks save as you tweak them.
             </p>
             <div className="bracket-modal-actions">

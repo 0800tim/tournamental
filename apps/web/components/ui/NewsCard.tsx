@@ -1,5 +1,5 @@
 /**
- * NewsCard — image-left + headline-right + category-pill row card.
+ * NewsCard, image-left + headline-right + category-pill row card.
  * Tap target spans the whole card.
  */
 

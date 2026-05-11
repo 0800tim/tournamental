@@ -5,7 +5,7 @@
  * the same `searchPlayers()` helpers used by tests, paginates 24 rows.
  *
  * Why a client component? With ~1056 records the search is comfortably
- * in-memory — no need to round-trip a server every keystroke.
+ * in-memory, no need to round-trip a server every keystroke.
  */
 
 import { useDeferredValue, useMemo, useState } from "react";
