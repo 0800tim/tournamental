@@ -1,66 +1,35 @@
 "use client";
 
 /**
- * Full-screen mobile menu drawer.
+ * Full-screen menu drawer.
  *
- * Slides up from the bottom on mobile when the "Menu" tab is tapped on
- * the bottom nav. Holds the same primary + secondary links as the
- * desktop side-rail plus the World Cup 2026 microsite cross-links.
+ * Slides in from the right edge on every viewport size, triggered from
+ * the hamburger button or the bottom-nav "Menu" tab. Holds the full
+ * navigation surface (the World Cup microsite cross-links plus the
+ * settings tail) so it is always available even when the desktop bar
+ * already exposes the most-used primaries inline.
  *
  * Why a full-screen sheet, not a half-modal: a tournament microsite has
- * a deep enough secondary menu (Leaderboard / Syndicates / Open source
- * / Settings + four WC sections + a profile row) that a half-modal
- * crowds the choices. Full-screen reads as a primary destination.
+ * a deep enough secondary menu that a half-modal crowds the choices.
+ * Full-screen reads as a primary destination.
  *
  * Closing: tap the X, tap the backdrop above the drawer, press Escape,
- * or back-navigate. On route change the drawer auto-closes, we
- * subscribe to `popstate` and to the next-router `pushState`.
+ * or back-navigate. On route change the drawer auto-closes because the
+ * link onClick handlers call onClose before the route transition.
+ *
+ * The nav-link catalogue is owned by ./nav-links so the drawer and the
+ * desktop nav share a single source of truth.
  */
 
 import Link from "next/link";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
+import { useCallback, useEffect, type ReactNode } from "react";
 
 import {
-  HomeIcon,
-  PredictIcon,
-  WatchIcon,
-  ProfileIcon,
-  TrophyIcon,
-  GroupsIcon,
-  CodeIcon,
-  SettingsIcon,
-  MoleculeIcon,
-  ShareIcon,
-} from "./icons";
-
-interface DrawerLink {
-  readonly label: string;
-  readonly href: string;
-  readonly icon: ReactNode;
-  readonly external?: boolean;
-}
-
-const PRIMARY: readonly DrawerLink[] = [
-  { label: "Home",    href: "/",                icon: <HomeIcon /> },
-  { label: "Predict", href: "/world-cup-2026",  icon: <PredictIcon /> },
-  { label: "Watch",   href: "/watch",           icon: <WatchIcon /> },
-  { label: "Profile", href: "/profile",         icon: <ProfileIcon /> },
-];
-
-const WC2026: readonly DrawerLink[] = [
-  { label: "Bracket Prophet",  href: "/world-cup-2026",                                          icon: <PredictIcon /> },
-  { label: "3D Molecule",      href: "/world-cup-2026/molecule",                                 icon: <MoleculeIcon /> },
-  { label: "Save & share",     href: "/world-cup-2026#final",                                    icon: <ShareIcon /> },
-  { label: "Watch the 2022 final", href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",         icon: <WatchIcon /> },
-];
-
-const SECONDARY: readonly DrawerLink[] = [
-  { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon /> },
-  { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon /> },
-  { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
-  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
-  { label: "Settings",    href: "/settings",    icon: <SettingsIcon /> },
-];
+  DRAWER_PRIMARY,
+  DRAWER_WC2026,
+  DRAWER_SECONDARY,
+  type NavLink as DrawerLink,
+} from "./nav-links";
 
 export interface AppMenuDrawerProps {
   readonly open: boolean;
@@ -116,11 +85,11 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
           </button>
         </header>
         <div className="vt-drawer-section-label">App</div>
-        <DrawerLinks links={PRIMARY} onClick={onClose} />
+        <DrawerLinks links={DRAWER_PRIMARY} onClick={onClose} />
         <div className="vt-drawer-section-label">World Cup 2026</div>
-        <DrawerLinks links={WC2026} onClick={onClose} />
+        <DrawerLinks links={DRAWER_WC2026} onClick={onClose} />
         <div className="vt-drawer-section-label">More</div>
-        <DrawerLinks links={SECONDARY} onClick={onClose} />
+        <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
       </aside>
     </div>
   );
@@ -132,7 +101,7 @@ function DrawerLinks({
 }: {
   links: readonly DrawerLink[];
   onClick: () => void;
-}) {
+}): ReactNode {
   return (
     <ul className="vt-drawer-list">
       {links.map((link) => (

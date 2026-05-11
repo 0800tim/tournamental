@@ -2,7 +2,8 @@
  * Vitest — the hamburger burger must render on every viewport size:
  * jsdom default, mobile (375x812), and desktop (1440x900). Removing the
  * left side-rail means the burger is the only entry to the menu drawer
- * on desktop, so it has to be unconditional.
+ * on desktop (in addition to the new always-visible desktop nav row),
+ * so it has to be unconditional.
  *
  * NOTE: the BottomNav also surfaces a "Menu" tab with aria-label="Open
  * menu" on mobile, so we assert by the AppBar-specific class instead of
@@ -11,6 +12,16 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { render } from "@testing-library/react";
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/",
+}));
+vi.mock("@/lib/auth/supabase", () => ({
+  browserClient: () => null,
+}));
+vi.mock("@/lib/auth/config", () => ({
+  readPublicConfig: () => null,
+}));
 
 import { AppShell } from "@/components/shell/AppShell";
 
@@ -51,7 +62,10 @@ afterEach(() => {
 });
 
 function findBurger(container: HTMLElement) {
-  return container.querySelector(".vt-appbar-burger") as HTMLButtonElement | null;
+  // The hamburger is the action button with class vt-appbar-menu.
+  return container.querySelector(
+    ".vt-appbar-row-main .vt-appbar-menu",
+  ) as HTMLButtonElement | null;
 }
 
 describe("AppBar burger across viewports", () => {

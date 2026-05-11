@@ -1,0 +1,191 @@
+/**
+ * Canonical nav-link catalogue for the app shell.
+ *
+ * Both the mobile drawer (AppMenuDrawer) and the desktop horizontal nav
+ * (DesktopNav) read from this module so there is a single source of
+ * truth for labels, hrefs, and section grouping. When a new top-level
+ * destination is added, drop it in here and the surfaces pick it up.
+ *
+ * Why split PRIMARY vs MORE: Tim's directive is that desktop users
+ * should reach the 90%-use items in one click and tuck the long tail
+ * behind a "More" dropdown. PRIMARY is what renders inline on desktop;
+ * MORE is the dropdown. The mobile drawer renders everything regardless,
+ * grouped by section, so PRIMARY/MORE here also doubles as the App vs
+ * More section split in the drawer.
+ *
+ * Note: the drawer's "Profile" item is intentionally not in PRIMARY for
+ * the desktop bar because the desktop bar has a dedicated profile chip
+ * on the right side (see AuthChip).
+ */
+
+import type { ReactNode } from "react";
+
+import {
+  HomeIcon,
+  PredictIcon,
+  WatchIcon,
+  ProfileIcon,
+  TrophyIcon,
+  GroupsIcon,
+  CodeIcon,
+  SettingsIcon,
+  MoleculeIcon,
+  ShareIcon,
+} from "./icons";
+
+export interface NavLink {
+  readonly label: string;
+  readonly href: string;
+  readonly icon: ReactNode;
+  readonly external?: boolean;
+  /** Optional explicit match prefix for active-route highlighting. When
+   *  omitted, the surface uses `pathname === href || pathname.startsWith(href + "/")`. */
+  readonly matchPrefix?: string;
+}
+
+/**
+ * Inline desktop nav links — the items users hit 90% of the time.
+ * Order matters; this is the visual order on the desktop bar.
+ *
+ * These also seed the drawer's "App" section (with Profile + Home
+ * prepended via PRIMARY_DRAWER below, since the desktop bar has its own
+ * profile chip and the brand mark already links home).
+ */
+export const PRIMARY_DESKTOP: readonly NavLink[] = [
+  {
+    label: "Predict",
+    href: "/world-cup-2026",
+    icon: <PredictIcon />,
+    // Match /world-cup-2026 exactly or /world-cup-2026/(group|knockout|...)
+    // but NOT /world-cup-2026/molecule which has its own entry.
+    matchPrefix: "/world-cup-2026",
+  },
+  {
+    label: "3D Molecule",
+    href: "/world-cup-2026/molecule",
+    icon: <MoleculeIcon />,
+    matchPrefix: "/world-cup-2026/molecule",
+  },
+  {
+    label: "Save & share",
+    href: "/world-cup-2026#final",
+    icon: <ShareIcon />,
+    // Hash-only target; never highlights as the active route.
+    matchPrefix: "__never__",
+  },
+  {
+    label: "Watch demo",
+    href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",
+    icon: <WatchIcon />,
+    matchPrefix: "/match/",
+  },
+  {
+    label: "Leaderboard",
+    href: "/leaderboard",
+    icon: <TrophyIcon />,
+    matchPrefix: "/leaderboard",
+  },
+];
+
+/**
+ * Desktop "More ▾" dropdown links — secondary destinations that don't
+ * warrant inline real-estate but should still be one click away.
+ */
+export const MORE_DESKTOP: readonly NavLink[] = [
+  { label: "Home",        href: "/",           icon: <HomeIcon />,     matchPrefix: "__never__" },
+  { label: "Syndicates",  href: "/syndicates", icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "Watch",       href: "/watch",      icon: <WatchIcon />,    matchPrefix: "/watch" },
+  { label: "Settings",    href: "/settings",   icon: <SettingsIcon />, matchPrefix: "/settings" },
+  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+];
+
+/**
+ * Drawer "App" section — same as PRIMARY_DESKTOP but with Home + Profile
+ * bookends so the mobile surface still surfaces them prominently.
+ */
+export const DRAWER_PRIMARY: readonly NavLink[] = [
+  { label: "Home",    href: "/",                icon: <HomeIcon />,    matchPrefix: "__never__" },
+  { label: "Predict", href: "/world-cup-2026",  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
+  { label: "Watch",   href: "/watch",           icon: <WatchIcon />,   matchPrefix: "/watch" },
+  { label: "Profile", href: "/profile",         icon: <ProfileIcon />, matchPrefix: "/profile" },
+];
+
+/**
+ * Drawer "World Cup 2026" section — microsite cross-links retained from
+ * the original drawer layout.
+ */
+export const DRAWER_WC2026: readonly NavLink[] = [
+  { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
+  { label: "3D Molecule",           href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
+  { label: "Save & share",          href: "/world-cup-2026#final",                            icon: <ShareIcon />,    matchPrefix: "__never__" },
+  { label: "Watch the 2022 final",  href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",     icon: <WatchIcon />,    matchPrefix: "/match/" },
+];
+
+/**
+ * Drawer "More" section — everything else. Mirrors MORE_DESKTOP minus
+ * the Home item (which lives in DRAWER_PRIMARY for the drawer).
+ */
+export const DRAWER_SECONDARY: readonly NavLink[] = [
+  { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
+  { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
+  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  { label: "Settings",    href: "/settings",    icon: <SettingsIcon />, matchPrefix: "/settings" },
+];
+
+/**
+ * Determine whether a link is "active" for a given pathname. Used by
+ * both the drawer and the desktop nav to draw the active-route accent.
+ *
+ * Logic:
+ *   1. If link.matchPrefix === "__never__" return false.
+ *   2. Otherwise use matchPrefix (or href stripped of #fragment) as base.
+ *   3. Match if `pathname === base` OR `pathname.startsWith(base + "/")`.
+ *      The trailing-slash guard prevents `/leaderboards` matching
+ *      `/leaderboard`.
+ *
+ * 3D Molecule sits under /world-cup-2026/molecule which is also a
+ * prefix-match for /world-cup-2026. Order callers must therefore prefer
+ * the most-specific match. The current PRIMARY_DESKTOP order lists
+ * Predict before 3D Molecule, but isLinkActive itself returns
+ * independent booleans; callers pick the most-specific. In practice the
+ * desktop nav simply highlights whichever matches and the CSS shows
+ * both as active. We avoid that by giving each link its own explicit
+ * matchPrefix that's longest-first per route family.
+ */
+export function isLinkActive(link: NavLink, pathname: string): boolean {
+  const prefix = link.matchPrefix ?? stripHash(link.href);
+  if (prefix === "__never__" || !prefix) return false;
+  if (prefix === "/") return pathname === "/";
+  if (pathname === prefix) return true;
+  if (pathname.startsWith(prefix + "/")) return true;
+  return false;
+}
+
+function stripHash(href: string): string {
+  const i = href.indexOf("#");
+  return i === -1 ? href : href.slice(0, i);
+}
+
+/**
+ * Pick the most-specific active link for a given pathname from a list.
+ * Useful when two links share a prefix family (e.g. Predict and 3D
+ * Molecule both sit under /world-cup-2026). The desktop bar uses this
+ * to ensure /world-cup-2026/molecule lights up "3D Molecule", not both.
+ */
+export function pickActiveLink(
+  links: readonly NavLink[],
+  pathname: string,
+): NavLink | null {
+  let best: NavLink | null = null;
+  let bestLen = -1;
+  for (const l of links) {
+    if (!isLinkActive(l, pathname)) continue;
+    const prefix = l.matchPrefix ?? stripHash(l.href);
+    if (prefix.length > bestLen) {
+      best = l;
+      bestLen = prefix.length;
+    }
+  }
+  return best;
+}

@@ -52,7 +52,12 @@
 /* ---------- App shell layout ---------- */
 
 .vt-shell {
+  /* AppBar height. 56px on mobile (one row); on desktop the nav row
+   * adds 48px and we bump this via a media query below, so any
+   * `padding-top: var(--vt-shell-appbar-h)` consumer (the main pane,
+   * sticky sub-nav) keeps clearing the bar. */
   --vt-shell-appbar-h: 56px;
+  --vt-shell-appbar-nav-h: 48px;
   --vt-shell-bottomnav-h: 64px;
   min-height: 100vh;
   background: var(--vt-bg);
@@ -61,6 +66,14 @@
     Roboto, sans-serif;
   font-feature-settings: "tnum" 1, "ss01" 1;
   letter-spacing: 0;
+}
+
+@media (min-width: 768px) {
+  /* Desktop: AppBar grows to fit the second nav row. Canvas variant
+   * keeps the slimmer single-row bar because hideDesktopNav is true. */
+  .vt-shell:not([data-variant="canvas"]) {
+    --vt-shell-appbar-h: calc(56px + var(--vt-shell-appbar-nav-h));
+  }
 }
 
 .vt-shell-main {
@@ -115,11 +128,8 @@
   top: 0;
   height: var(--vt-shell-appbar-h);
   z-index: 30;
-  display: grid;
-  grid-template-columns: 40px 1fr auto;
-  align-items: center;
-  gap: 12px;
-  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
   background: var(--vt-bg-overlay);
   backdrop-filter: blur(12px) saturate(160%);
   -webkit-backdrop-filter: blur(12px) saturate(160%);
@@ -130,6 +140,16 @@
 .vt-appbar[data-scrolled="1"] {
   background: var(--vt-bg-overlay);
   border-bottom-color: var(--vt-border-strong);
+}
+
+.vt-appbar-row-main {
+  height: 56px;
+  display: grid;
+  grid-template-columns: 40px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  flex: 0 0 auto;
 }
 
 .vt-appbar-brand {
@@ -221,6 +241,263 @@
 .vt-appbar-action svg {
   width: 18px;
   height: 18px;
+}
+
+/* ---------- Desktop horizontal nav row ----------
+ * The second row inside the AppBar on desktop. Hidden on mobile via the
+ * media query below so the AppBar collapses to its single-row 56px form
+ * and the burger + drawer remain the full nav surface on phones.
+ *
+ * Z-layer: the dropdown panel sits at z-index 31 (one above the
+ * .vt-appbar z-30) so it overlays the page-header sub-nav (z-20) but
+ * stays below the drawer (z-60). On canvas variants the AppBar floats
+ * over a 3D canvas — the dropdown still renders cleanly because its
+ * panel is positioned absolute from the row container.
+ */
+
+.vt-appbar-nav {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .vt-appbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: var(--vt-shell-appbar-nav-h);
+    padding: 0 24px;
+    border-top: 1px solid var(--vt-border);
+    flex: 0 0 auto;
+    /* No overflow-scroll on desktop: we expect the inline links + More
+     * + auth chip to fit on any sensible viewport. If a future link
+     * pushes us over, push it into MORE_DESKTOP instead. */
+  }
+}
+
+.vt-appbar-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.vt-appbar-nav-spacer {
+  flex: 1 1 auto;
+}
+
+.vt-appbar-nav-link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--vt-radius-pill);
+  color: var(--vt-fg-muted);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  transition: color 140ms ease, background 140ms ease;
+  font-family: inherit;
+  letter-spacing: -0.005em;
+}
+
+.vt-appbar-nav-link:hover {
+  color: var(--vt-fg);
+  background: var(--vt-bg-elev);
+}
+
+.vt-appbar-nav-link:focus-visible {
+  outline: 2px solid var(--vt-accent);
+  outline-offset: 2px;
+}
+
+.vt-appbar-nav-link[data-active="1"] {
+  color: var(--vt-fg);
+  font-weight: 800;
+}
+
+.vt-appbar-nav-link[data-active="1"]::after {
+  content: "";
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--vt-accent-warm);
+}
+
+/* "More" dropdown */
+
+.vt-appbar-more {
+  position: relative;
+}
+
+.vt-appbar-more-button {
+  /* Inherits .vt-appbar-nav-link */
+}
+
+.vt-appbar-more-caret {
+  transition: transform 160ms ease;
+}
+
+.vt-appbar-more-caret[data-open="1"] {
+  transform: rotate(180deg);
+}
+
+.vt-appbar-more-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 220px;
+  background: var(--vt-bg);
+  border: 1px solid var(--vt-border-strong);
+  border-radius: var(--vt-radius-md);
+  box-shadow: var(--vt-shadow);
+  padding: 6px;
+  z-index: 31;
+  animation: vt-appbar-more-in 140ms ease-out;
+}
+
+@keyframes vt-appbar-more-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-appbar-more-panel {
+    animation: none;
+  }
+}
+
+.vt-appbar-more-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vt-appbar-more-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--vt-radius-sm);
+  color: var(--vt-fg);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 120ms ease;
+}
+
+.vt-appbar-more-item:hover,
+.vt-appbar-more-item:focus-visible {
+  background: var(--vt-bg-elev);
+  outline: none;
+}
+
+.vt-appbar-more-item[data-active="1"] {
+  color: var(--vt-accent-warm);
+}
+
+.vt-appbar-more-icon {
+  display: inline-flex;
+  align-items: center;
+  width: 18px;
+  height: 18px;
+  color: var(--vt-accent);
+}
+
+.vt-appbar-more-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.vt-appbar-more-external {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--vt-accent-warm);
+  font-weight: 700;
+}
+
+/* Auth chip (right side of the desktop nav row) */
+
+.vt-appbar-auth {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: var(--vt-radius-pill);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 120ms ease, background 140ms ease;
+  letter-spacing: -0.005em;
+}
+
+.vt-appbar-auth:active {
+  transform: scale(0.97);
+}
+
+.vt-appbar-auth:focus-visible {
+  outline: 2px solid var(--vt-accent);
+  outline-offset: 2px;
+}
+
+.vt-appbar-auth-signin {
+  background: var(--vt-accent-warm);
+  color: #1a1206;
+  padding: 8px 16px;
+}
+
+.vt-appbar-auth-signin:hover {
+  background: color-mix(in srgb, var(--vt-accent-warm) 88%, white);
+}
+
+.vt-appbar-auth-profile {
+  background: var(--vt-bg-elev);
+  color: var(--vt-fg);
+  border: 1px solid var(--vt-border);
+  padding: 4px 12px 4px 4px;
+}
+
+.vt-appbar-auth-profile:hover {
+  background: var(--vt-bg-elev-2);
+}
+
+.vt-appbar-auth-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--vt-radius-pill);
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0;
+  flex-shrink: 0;
+}
+
+.vt-appbar-auth-handle {
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ---------- Bottom nav (mobile) ---------- */
@@ -499,7 +776,9 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   position: sticky;
-  top: 56px;            /* sit just below the app-bar */
+  /* Sit just below the app-bar. Uses the shared height token so the
+   * sub-nav auto-tracks the taller two-row bar on desktop. */
+  top: var(--vt-shell-appbar-h);
   z-index: 8;
 }
 
@@ -571,7 +850,7 @@
 @media (min-width: 768px) {
   .vt-microsite-subnav {
     padding: 10px 24px;
-    top: 60px;
+    /* top already tracks var(--vt-shell-appbar-h) via the rule above */
   }
   .vt-microsite-subnav-pill {
     font-size: 14px;
