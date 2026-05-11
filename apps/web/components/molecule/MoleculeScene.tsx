@@ -114,6 +114,9 @@ function MoleculeWorld({
   pathWinnerByMatchBondKey,
   pathLoserByTeam,
   pathBondStageLabel,
+  pathOpponentByMatchBondKey,
+  pathOpponentAtomCodes,
+  pathTeamCode,
   motionEnabled,
   groupBondsVisible,
 }: {
@@ -134,6 +137,19 @@ function MoleculeWorld({
   pathLoserByTeam: ReadonlyMap<string, BondStage>;
   /** v5, match-bond-key → human-readable round label ("R32", "Final", …). */
   pathBondStageLabel: ReadonlyMap<string, string>;
+  /**
+   * v5.1, match-bond-key → the OPPONENT of the path team at that bond
+   * (code + display name). Drives the "vs <name>" labels Tim asked for
+   * so the opponent at every surviving stage is unmistakable.
+   */
+  pathOpponentByMatchBondKey: ReadonlyMap<
+    string,
+    { code: string; name: string }
+  >;
+  /** v5.1, all opponent team codes on the active path (used for atom rims). */
+  pathOpponentAtomCodes: ReadonlySet<string>;
+  /** v5.1, the team code the active path is FOR (the "us" side of "us vs them"). */
+  pathTeamCode: string | null;
   motionEnabled: boolean;
   groupBondsVisible: boolean;
 }) {
@@ -178,14 +194,12 @@ function MoleculeWorld({
           bond.kind === "match" && onPath
             ? pathWinnerByMatchBondKey.get(matchBondKey) ?? null
             : null;
-        const fromFlag =
+        const opponentInfo =
           bond.kind === "match" && onPath
-            ? flagEmojiByTeam.get(bond.a) ?? null
+            ? pathOpponentByMatchBondKey.get(matchBondKey) ?? null
             : null;
-        const toFlag =
-          bond.kind === "match" && onPath
-            ? flagEmojiByTeam.get(bond.b) ?? null
-            : null;
+        const opponentFlag =
+          opponentInfo ? flagEmojiByTeam.get(opponentInfo.code) ?? null : null;
         const matchBadgeLabel =
           bond.kind === "match" && onPath
             ? pathBondStageLabel.get(matchBondKey) ?? null
@@ -203,8 +217,9 @@ function MoleculeWorld({
             motionEnabled={motionEnabled}
             groupBondsVisible={groupBondsVisible}
             winnerCode={winnerCode}
-            fromFlag={fromFlag}
-            toFlag={toFlag}
+            opponentCode={opponentInfo?.code ?? null}
+            opponentName={opponentInfo?.name ?? null}
+            opponentFlag={opponentFlag}
             matchBadgeLabel={matchBadgeLabel}
           />
         );
@@ -222,6 +237,15 @@ function MoleculeWorld({
               || // tp losers terminate at sf, but the loss happened at the
                  // match's stage, which the cascade marks as sf for our purposes.
                  koStage === "tp");
+        // v5.1: an opponent atom on the active path (champion played them
+        // at this stage) gets a distinctive silver-ringed "opponent"
+        // treatment so the eye can pick out "this is England, beaten in
+        // the SF" without having to trace the bond. We light up only the
+        // opponent's top instance to avoid double-rings on lower layers.
+        const isPathOpponent =
+          node.teamCode !== pathTeamCode
+          && pathOpponentAtomCodes.has(node.teamCode)
+          && node.isTopInstance;
         return (
           <TeamAtom
             key={node.id}
@@ -231,6 +255,7 @@ function MoleculeWorld({
             hovered={hovered === node.teamCode}
             onPath={pathAtomSet.has(node.teamCode)}
             isPathKnockoutPoint={isPathKnockoutPoint}
+            isPathOpponent={isPathOpponent}
             noSelection={selected === null}
             motionEnabled={motionEnabled}
             onClick={onSelect}
@@ -425,6 +450,55 @@ export function MoleculeScene({
     [activePath],
   );
 
+  // Team-name lookup, used by the v5.1 "vs <NAME>" labels so the
+  // opponent at every surviving stage is unmistakable. We pull names off
+  // the top-instance nodes (canonical per team).
+  const teamNameByCode = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const node of layout.nodes) {
+      if (node.isTopInstance) m.set(node.teamCode, node.teamName);
+    }
+    // Defensive fallback: if a code somehow only appears as a non-top
+    // instance, surface its name too rather than blanking the badge.
+    for (const node of layout.nodes) {
+      if (!m.has(node.teamCode)) m.set(node.teamCode, node.teamName);
+    }
+    return m;
+  }, [layout.nodes]);
+
+  // v5.1: for every match bond on the active path, derive the OPPONENT
+  // of the path team (the other endpoint). This lets each match-bond
+  // badge render "vs <FLAG> <NAME>" pointing squarely at the team the
+  // path-holder beat at that stage. Tim 2026-05-11: "I can't see where
+  // they're facing England clearly", so we name the opponent on every
+  // stage of the gold trail.
+  const pathOpponentByMatchBondKey = useMemo(() => {
+    const m = new Map<string, { code: string; name: string }>();
+    const teamCode = activePath.teamCode;
+    if (!teamCode) return m;
+    for (const b of activePath.bonds) {
+      const oppCode = b.a === teamCode ? b.b : b.a;
+      m.set(`${b.stage}:${b.a}:${b.b}`, {
+        code: oppCode,
+        name: teamNameByCode.get(oppCode) ?? oppCode,
+      });
+    }
+    return m;
+  }, [activePath, teamNameByCode]);
+
+  // v5.1: the set of opponent codes on the active path → drives the
+  // silver "opponent" rim ring on those atoms' top instance.
+  const pathOpponentAtomCodes = useMemo(() => {
+    const s = new Set<string>();
+    const teamCode = activePath.teamCode;
+    if (!teamCode) return s;
+    for (const b of activePath.bonds) {
+      const opp = b.a === teamCode ? b.b : b.a;
+      if (opp !== teamCode) s.add(opp);
+    }
+    return s;
+  }, [activePath]);
+
   const hoveredOrSelected = hovered ?? selected;
   // v4: a team has many instances, surface the deepest one for tooltips
   // / chips so the stage label is meaningful.
@@ -524,6 +598,9 @@ export function MoleculeScene({
           pathWinnerByMatchBondKey={pathWinnerByMatchBondKey}
           pathLoserByTeam={pathLoserByTeam}
           pathBondStageLabel={pathBondStageLabel}
+          pathOpponentByMatchBondKey={pathOpponentByMatchBondKey}
+          pathOpponentAtomCodes={pathOpponentAtomCodes}
+          pathTeamCode={activePath.teamCode || null}
           motionEnabled={motionEnabled}
           groupBondsVisible={groupBondsVisible}
         />

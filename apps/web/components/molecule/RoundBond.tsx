@@ -54,12 +54,14 @@ export interface RoundBondProps {
    */
   winnerCode?: string | null;
   /**
-   * v5, flag emojis for the two endpoints. Used to render the small
-   * floating "match badge" (🇦🇷 vs 🇲🇽 · R32) above each path match-bond
-   * mid-point. When either is missing, no badge is rendered.
+   * v5.1, the OPPONENT of the path team at this bond. The match badge
+   * renders "STAGE · vs <FLAG> <NAME>" so the opponent at every
+   * surviving stage of the gold trail is unmistakable, replacing the
+   * v5 two-flag badge that didn't name either side.
    */
-  fromFlag?: string | null;
-  toFlag?: string | null;
+  opponentCode?: string | null;
+  opponentName?: string | null;
+  opponentFlag?: string | null;
   /** v5, short stage label for the match badge ("R32", "QF", "Final", …). */
   matchBadgeLabel?: string | null;
 }
@@ -87,8 +89,9 @@ export function RoundBond({
   motionEnabled = true,
   groupBondsVisible = true,
   winnerCode = null,
-  fromFlag = null,
-  toFlag = null,
+  opponentCode = null,
+  opponentName = null,
+  opponentFlag = null,
   matchBadgeLabel = null,
 }: RoundBondProps) {
   const { position, quaternion, length, midpoint, arrowPos, arrowFromWinner } = useMemo(() => {
@@ -263,25 +266,36 @@ export function RoundBond({
         </Billboard>
       ) : null}
 
-      {/* v5: small "match badge" pill, 🇦🇷 vs 🇲🇽 · R32. Only visible on
-       * path match bonds. Sits above the bond midpoint, billboards. */}
-      {onPath && !isAdvance && fromFlag && toFlag ? (
+      {/* v5.1: "vs <OPPONENT>" match badge. Names the opponent the path
+       * team beat at this stage, so the eye can read the gold trail as
+       * "<TEAM> beat ARG → BRA → FRA → GER → ENG → won it" without
+       * tracing every bond. Sits above the midpoint, billboards. */}
+      {onPath && !isAdvance && opponentCode && opponentName ? (
         <Billboard
-          position={[midpoint.x, midpoint.y + 1.4, midpoint.z]}
+          position={[midpoint.x, midpoint.y + 1.8, midpoint.z]}
           follow
         >
           <Html
             center
-            distanceFactor={18}
+            distanceFactor={16}
             zIndexRange={[11, 0]}
             style={{ pointerEvents: "none", userSelect: "none" }}
           >
             <div className="molecule-match-badge" data-stage={bond.stage}>
-              <span className="molecule-match-badge-flag" aria-hidden>{fromFlag}</span>
-              <span className="molecule-match-badge-vs">vs</span>
-              <span className="molecule-match-badge-flag" aria-hidden>{toFlag}</span>
               <span className="molecule-match-badge-round">
                 {matchBadgeLabel ?? STAGE_BADGE_LABEL[bond.stage]}
+              </span>
+              <span className="molecule-match-badge-vs">vs</span>
+              {opponentFlag ? (
+                <span className="molecule-match-badge-flag" aria-hidden>
+                  {opponentFlag}
+                </span>
+              ) : null}
+              <span
+                className="molecule-match-badge-opp"
+                data-team={opponentCode}
+              >
+                {opponentName}
               </span>
             </div>
           </Html>

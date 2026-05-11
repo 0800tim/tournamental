@@ -40,6 +40,14 @@ export interface TeamAtomProps {
    */
   isPathKnockoutPoint?: boolean;
   /**
+   * v5.1, true if this instance is an opponent atom on the active path
+   * (i.e. the team-the-path-holder played at some stage). The atom gets
+   * a silver "VS" rim badge above the label and a silver halo so the
+   * eye picks it out as "this is one of the opponents on the gold
+   * trail". The path-team itself is excluded.
+   */
+  isPathOpponent?: boolean;
+  /**
    * v5, true when no team is currently selected. We only render the
    * non-path "this team dropped out here" chevron + rank chip in this
    * mode, so they don't compete with the gold path highlight.
@@ -64,9 +72,20 @@ function toColour(hex: string): THREE.Color {
 }
 
 const PATH_GOLD = "#fbbf24";
+/**
+ * v5.1, silver rim used for opponent atoms on the active path. Distinct
+ * from the gold of the path team so the eye reads "us vs them" at a
+ * glance.
+ */
+const PATH_OPPONENT_SILVER = "#cbd5e1";
 
-function rimColourFor(stage: FinalStage, onPath: boolean): string {
+function rimColourFor(
+  stage: FinalStage,
+  onPath: boolean,
+  isPathOpponent: boolean,
+): string {
   if (onPath) return PATH_GOLD;
+  if (isPathOpponent) return PATH_OPPONENT_SILVER;
   return PALETTE[stage];
 }
 
@@ -78,6 +97,7 @@ export function TeamAtom(props: TeamAtomProps) {
     hovered,
     onPath = false,
     isPathKnockoutPoint = false,
+    isPathOpponent = false,
     noSelection = false,
     motionEnabled = true,
     onClick,
@@ -88,7 +108,7 @@ export function TeamAtom(props: TeamAtomProps) {
   const rimRef = useRef<THREE.Mesh>(null);
   const [pulse, setPulse] = useState(0);
 
-  const rim = toColour(rimColourFor(node.finalStage, onPath));
+  const rim = toColour(rimColourFor(node.finalStage, onPath, isPathOpponent));
   const isChampion = node.finalStage === "champion";
 
   // Slow scale pulse for the champion atom + hover/selected scale-up.
@@ -109,7 +129,13 @@ export function TeamAtom(props: TeamAtomProps) {
   // shine through, not a gold filter. Tim 2026-05-11: "less of a filter,
   // so the flag really shines through."
   const rimOpacity = (selected ? 0.85 : hovered ? 0.6 : 1)
-    * (onPath ? 0.6 : isChampion ? 0.5 : 0.32);
+    * (onPath
+        ? 0.6
+        : isPathOpponent
+          ? 0.55
+          : isChampion
+            ? 0.5
+            : 0.32);
   const waveBoost = selected || hovered ? 1.6 : onPath ? 1.2 : 1;
 
   return (
@@ -182,10 +208,23 @@ export function TeamAtom(props: TeamAtomProps) {
                 ✕
               </span>
             ) : null}
+            {/* v5.1, silver "VS" chip on opponent atoms, names this team as
+             * one of the gold path's opponents at a glance. Suppressed when
+             * the team is already on the path itself (mutually exclusive). */}
+            {isPathOpponent && !onPath ? (
+              <span
+                className="molecule-label-vs"
+                aria-label="opponent on the gold path"
+                title="opponent on the gold path"
+              >
+                VS
+              </span>
+            ) : null}
             <div
               className="molecule-label"
               data-stage={node.finalStage}
               data-on-path={onPath ? "true" : undefined}
+              data-path-opponent={isPathOpponent && !onPath ? "true" : undefined}
               data-selected={selected ? "true" : undefined}
             >
               {flagEmoji ? <span className="molecule-label-flag" aria-hidden>{flagEmoji}</span> : null}
