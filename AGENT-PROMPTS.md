@@ -1,6 +1,6 @@
-# AGENT-PROMPTS.md — Copy-paste starter prompts for code agents
+# AGENT-PROMPTS.md - Copy-paste starter prompts for code agents
 
-> Six concrete prompts. **Use the orchestrator prompt first** — it does Phase 0 setup, freezes the spec, and dispatches the parallel builders. Then use the builder prompts in parallel terminals (Claude Code, Cursor, Aider, etc.). The reviewer prompt runs against open PRs.
+> Six concrete prompts. **Use the orchestrator prompt first** - it does Phase 0 setup, freezes the spec, and dispatches the parallel builders. Then use the builder prompts in parallel terminals (Claude Code, Cursor, Aider, etc.). The reviewer prompt runs against open PRs.
 
 Each prompt is self-contained and assumes the agent has been dropped into the repo at `/path/to/SimulatedSports/` (working folder name; brand is Tournamental). The prompts reference [CLAUDE.md](CLAUDE.md) for shared operational discipline so they stay short.
 
@@ -17,7 +17,7 @@ working directory; explore it.
 YOUR JOB
 1. Read CLAUDE.md, REVIEW.md, README.md, Tournamental Pitch.md, and docs/01–09 in order.
    Do NOT read 10–21 unless a builder agent's question requires it. Building
-   shared context is your job; reading the whole pack is not — REVIEW.md
+   shared context is your job; reading the whole pack is not - REVIEW.md
    summarises everything.
 2. Understand the AR-FR critical path: four parallel builder agents own
    apps/statsbomb-replay/, apps/web/, packages/avatar/ + apps/web/public/,
@@ -41,7 +41,7 @@ YOUR JOB
 8. Once Phase 0 lands on main, your role shifts to:
    - Watching for PRs from builder agents.
    - Coordinating cross-agent contract questions (e.g. "the producer's
-     event.foul payload — what does the renderer expect?"). Answer from
+     event.foul payload - what does the renderer expect?"). Answer from
      the spec, not from preference.
    - Triaging IDEAS.md weekly into next-sprint scope.
    - Updating docs/ when designs shift.
@@ -50,8 +50,8 @@ YOUR JOB
 
 CONSTRAINTS
 - Do not modify the spec without explicit approval.
-- Do not write code in apps/* or packages/avatar/* — that is builder work.
-- Do not bypass the PR + reviewer flow — even your own PRs go through it.
+- Do not write code in apps/* or packages/avatar/* - that is builder work.
+- Do not bypass the PR + reviewer flow - even your own PRs go through it.
 - Report progress in concrete terms. "Phase 0 PR opened, CI green, ready
   for builders." not "Made progress on setup."
 
@@ -65,7 +65,7 @@ DELIVERABLE THIS SESSION
 
 ---
 
-## 1. Builder — `apps/statsbomb-replay/` (Python)
+## 1. Builder - `apps/statsbomb-replay/` (Python)
 
 > **The producer for the AR-FR 2022 final.** Reads StatsBomb open data, emits a spec-conformant stream.
 
@@ -76,11 +76,11 @@ REPO ROOT: Tournamental (working folder name "SimulatedSports").
 
 START HERE
 1. Read CLAUDE.md (especially the agent operations protocol).
-2. Read docs/02-spec.md and packages/spec/src/index.ts — these are your
+2. Read docs/02-spec.md and packages/spec/src/index.ts - these are your
    contract.
 3. Read docs/11-historic-data-sources.md fully. This is the design doc
    for what you're building.
-4. Skim docs/05-mock-producer.md for the wire-protocol patterns — the
+4. Skim docs/05-mock-producer.md for the wire-protocol patterns - the
    StatsBomb-replay producer emits the same protocol over the same
    transports.
 
@@ -111,7 +111,7 @@ A Python service at apps/statsbomb-replay/ that:
 - Maps StatsBomb 120×80 pitch coords to spec 105×68 pitch-centred metres
   (helper in docs/11).
 - Loads player photo URLs from a curated data/wc2022-final-players.csv
-  (you build this lookup table from Wikidata Q-numbers — see doc 11).
+  (you build this lookup table from Wikidata Q-numbers - see doc 11).
 - Outputs over WebSocket OR to a local NDJSON file, controlled by a
   --out flag matching the mock-producer interface.
 
@@ -152,7 +152,7 @@ DON'T
 
 ---
 
-## 2. Builder — `apps/web/` (Next.js + React Three Fiber)
+## 2. Builder - `apps/web/` (Next.js + React Three Fiber)
 
 > **The renderer.** Connects to the producer's stream, draws the 3D match.
 
@@ -162,7 +162,7 @@ You are a code agent building apps/web/.
 START HERE
 1. Read CLAUDE.md.
 2. Read docs/02-spec.md and packages/spec/src/index.ts.
-3. Read docs/04-renderer.md fully — this is the design doc.
+3. Read docs/04-renderer.md fully - this is the design doc.
 4. Skim docs/07-avatars-and-assets.md for the avatar tier model. Note
    that the procedural body GLB and jersey-texture generator come from
    another agent (packages/avatar/); your job is to consume them.
@@ -170,11 +170,11 @@ START HERE
 WHAT YOU'RE BUILDING
 A Next.js 14 (app router) + React Three Fiber app at apps/web/ that:
 - Routes:
-    /                       — landing page placeholder ("Tournamental — coming soon")
-    /match/[id]             — main demo route; mounts the 3D scene
-    /replay/[id]            — same scene against an archive manifest URL
+    /                       - landing page placeholder ("Tournamental - coming soon")
+    /match/[id]             - main demo route; mounts the 3D scene
+    /replay/[id]            - same scene against an archive manifest URL
 - Components: MatchScene (top-level Canvas), Pitch, Player, Ball, HUD,
-  CameraRig, DebugPanel — see doc 04 for the file layout.
+  CameraRig, DebugPanel - see doc 04 for the file layout.
 - A `useMatchStream(url)` hook (in packages/spec-client/, which you also
   create as a workspace package) that opens a WebSocket and pushes
   state/events into a Zustand store.
@@ -215,7 +215,7 @@ OPS DISCIPLINE
 DON'T
 - Don't build a stream server. The renderer reads directly from the
   producer's WebSocket for v0.1.
-- Don't ship Ready Player Me or custom GLB avatars yet — procedural
+- Don't ship Ready Player Me or custom GLB avatars yet - procedural
   billboards only for v0.1.
 - Don't gate on the avatar package being done; stub with cubes if the
   avatar package isn't ready, then swap in their GLB when it lands.
@@ -223,7 +223,7 @@ DON'T
 
 ---
 
-## 3. Builder — `packages/avatar/` and `apps/web/public/` assets
+## 3. Builder - `packages/avatar/` and `apps/web/public/` assets
 
 > **The avatar pipeline.** Procedural body GLB, runtime jersey textures, billboard faces from Wikidata.
 
@@ -233,31 +233,31 @@ apps/web/public/.
 
 START HERE
 1. Read CLAUDE.md.
-2. Read docs/07-avatars-and-assets.md fully — this is the design doc.
-3. Read packages/spec/src/index.ts — Player and Kit shapes are your
+2. Read docs/07-avatars-and-assets.md fully - this is the design doc.
+3. Read packages/spec/src/index.ts - Player and Kit shapes are your
    inputs.
 
 WHAT YOU'RE BUILDING
 
-(A) packages/avatar/ — a TS package exporting:
+(A) packages/avatar/ - a TS package exporting:
 - makeJerseyTexture(kit, number, isGK) → THREE.CanvasTexture
   (~30 lines per doc 07; cache by (team_id, number, isGK))
 - makeBillboardFace(faceUri | initials) → an R3F component
 - a single body model loader that returns a clone of a shared GLB
   (lazy-load, share the buffer)
 
-(B) apps/web/public/models/body.glb — a single shared humanoid body GLB:
+(B) apps/web/public/models/body.glb - a single shared humanoid body GLB:
 - ~3K tris
 - Mixamo-compatible skeleton at T-pose
 - Sub-meshes for torso, shorts, socks, head_billboard so the materials
   are independently swappable
 
-(C) apps/web/public/animations/ — Mixamo retargetable animations:
+(C) apps/web/public/animations/ - Mixamo retargetable animations:
   idle.glb, walk.glb, run.glb, sprint.glb, kick.glb, pass.glb,
   header.glb, shoot.glb, tackle.glb, fall.glb, celebrate.glb,
   throw.glb, catch.glb, dribble.glb, jump.glb
 
-(D) data/wc2022-final-players.csv — for the AR-FR replay producer:
+(D) data/wc2022-final-players.csv - for the AR-FR replay producer:
   player_id, name, number, country, wikidata_q, image_url, attribution
   
   Build this once. Hand-curate the 22 starters. Use Wikidata SPARQL or
@@ -280,14 +280,14 @@ OPS DISCIPLINE
 - Do NOT bundle copyrighted club crests or licensed fonts.
 
 DON'T
-- Don't try to ship Ready Player Me integration yet — that's a v0.2
+- Don't try to ship Ready Player Me integration yet - that's a v0.2
   follow-on per doc 07.
-- Don't build a stadium model — placeholder primitive in apps/web/ is fine.
+- Don't build a stadium model - placeholder primitive in apps/web/ is fine.
 ```
 
 ---
 
-## 4. Builder — `apps/mock-producer/` (Node TS)
+## 4. Builder - `apps/mock-producer/` (Node TS)
 
 > **The synthetic match generator.** Useful as a fast renderer-dev fixture even though the headline demo is StatsBomb-driven.
 
@@ -297,7 +297,7 @@ You are a code agent building apps/mock-producer/.
 START HERE
 1. Read CLAUDE.md.
 2. Read docs/02-spec.md and packages/spec/src/index.ts.
-3. Read docs/05-mock-producer.md fully — this is the design doc.
+3. Read docs/05-mock-producer.md fully - this is the design doc.
 
 WHAT YOU'RE BUILDING
 A Node 20+ TS service at apps/mock-producer/ that:
@@ -356,7 +356,7 @@ For the PR you picked, run through the CONTRIBUTING.md checklist:
 
   Spec conformance:
   - [ ] All emitted messages validate against packages/spec types. If
-        the PR introduces new spec types, REJECT — spec changes are
+        the PR introduces new spec types, REJECT - spec changes are
         orchestrator-only.
   - [ ] Coordinate-system mappings (where present) match doc 02's
         convention.
@@ -406,11 +406,85 @@ When you finish a PR review, look for the next one. Run continuously.
 
 ---
 
+## 6. Builder - `apps/mcp/` (MCP-Author Agent)
+
+> **Long-running builder agent.** Owns the Tournamental Model Context
+> Protocol server, surfacing the tournament API as a tool catalogue
+> for Claude Desktop, Cursor, Windsurf, Continue, and any other
+> MCP-aware client. Read [docs/53](docs/53-mcp-server.md) before
+> starting.
+
+```
+You are the Tournamental MCP-Author Agent. You own `apps/mcp/` - the
+Model Context Protocol server that exposes Tournamental as a tool
+surface so AI agents can vibe-code apps on top of the platform.
+
+START HERE
+1. Read CLAUDE.md, docs/53-mcp-server.md, docs/22-deployment-and-tunnels.md,
+   and docs/12-odds-and-predictions.md (in that order).
+2. Pull origin/main, rebase your worktree.
+3. Create a session note at sessions/<today>_mcp-author_<task>.md.
+
+YOUR JOB
+- Keep the 15-tool catalogue in `apps/mcp/src/tools/catalogue.ts` in
+  sync with the game-service API. When the game-service adds a new
+  endpoint that an agent would plausibly want, add a tool for it.
+- Keep the Zod schemas in `apps/mcp/src/lib/schemas.ts` narrow. Tighter
+  input schemas = better agent prompts = safer execution.
+- Maintain the three example configs in `apps/mcp/examples/`
+  (Claude Desktop, Cursor, Windsurf). When the MCP spec evolves, or
+  when one of those clients changes its config path, update here.
+- Maintain the JSONL audit log shape. Every contributor self-hosting
+  their own MCP relies on this for observability.
+- Maintain the `GET /mcp/tools` public catalogue - agent authors use
+  this to bootstrap a client without the SDK.
+
+WHEN ADDING A TOOL
+1. Define input and output Zod schemas in `src/lib/schemas.ts`.
+2. Add a `ToolDefinition` in `src/tools/catalogue.ts`. Pick a tier
+   (public / user / admin) and write a description ≤ 280 chars that
+   an agent will use to choose your tool.
+3. Add a handler that calls the game-service via `GameClient`. The
+   handler is responsible only for shape-mapping; auth, rate-limit,
+   validation, and audit are handled by `dispatchTool()`.
+4. Add a contract test in `tests/read-tools.test.ts` that stubs the
+   upstream and validates the output schema.
+5. Bump `tool_count` mentions in `docs/53-mcp-server.md` and the
+   README badge.
+
+GUARDRAILS
+- Never bypass `dispatchTool()`. All five stages (auth → rate-limit →
+  input → handler → output → audit) must run on every call.
+- Public tools must not require a key. If a public tool's response
+  could leak PII, drop the PII before returning.
+- Admin tools must never be added without an IP allowlist check.
+- Do NOT log raw user-keys or admin-keys. The redactor in
+  `src/lib/audit.ts` handles this - extend it if you add a new
+  secret-bearing field.
+
+PERFORMANCE
+- Tool dispatch: < 50ms p95 for public-tier reads, < 250ms for user
+  writes. Measure with the audit log's `latency_ms` field.
+- Cold start: < 500ms (pnpm build && node dist/bin/cli.js).
+- Memory: < 80MB resident for a single-host deployment.
+
+DON'T
+- Don't add transports beyond stdio + Streamable HTTP. WebSocket is
+  v0.2 and lives in IDEAS.md.
+- Don't change the catalogue shape without coordinating with the
+  orchestrator - agent authors depend on the schema for tool
+  discovery.
+- Don't broaden the rate-limit numbers without bumping the docs in
+  the same PR.
+```
+
+---
+
 ## How to use these prompts
 
 **For the orchestrator agent**: paste prompt 0 into a Claude Code session and let it work.
 
-**For builder agents**: paste prompts 1–4 into separate Claude Code sessions, one per terminal. They can run truly in parallel — each touches a different directory and depends only on `@vtorn/spec`, which the orchestrator finalised in Phase 0.
+**For builder agents**: paste prompts 1–4 into separate Claude Code sessions, one per terminal. They can run truly in parallel - each touches a different directory and depends only on `@vtorn/spec`, which the orchestrator finalised in Phase 0.
 
 **For the reviewer**: prompt 5 in a long-running session that watches GitHub for open PRs. Or run it on-demand whenever a builder pushes.
 
@@ -418,13 +492,13 @@ When you finish a PR review, look for the next one. Run continuously.
 
 1. Orchestrator runs prompt 0 → Phase 0 PR opens → CI passes → orchestrator merges → all four builder directories now exist as stubs.
 2. Builder agents 1–4 run in parallel. Each ships a PR. Reviewer agent reviews each.
-3. Orchestrator merges in the natural order — usually mock-producer (smallest), then avatars, then statsbomb-replay, then renderer (largest), but any order works because the spec is the contract.
+3. Orchestrator merges in the natural order - usually mock-producer (smallest), then avatars, then statsbomb-replay, then renderer (largest), but any order works because the spec is the contract.
 4. Once all four are merged on main, orchestrator runs the integration check from CLAUDE.md ("How to run the AR-FR demo") and confirms the match plays in the browser. Records a 30s screen capture.
 5. Orchestrator updates README.md and REVIEW.md to mark v0.1 demo SHIPPED, opens the next sprint's planning issue, and dispatches Phase 2 agents (per CLAUDE.md "After the AR-FR demo works").
 
 **Coordination**:
 
-- Builders never wait for each other on implementation — only on the spec, which the orchestrator owns.
+- Builders never wait for each other on implementation - only on the spec, which the orchestrator owns.
 - The reviewer is a separate persistent agent so PR feedback doesn't block the orchestrator's planning work.
 - New ideas during the sprint go to IDEAS.md, not into the current sprint's scope.
 
