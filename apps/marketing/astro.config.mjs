@@ -11,6 +11,10 @@ export default defineConfig({
   // surface as plain Astro. Sitemap auto-discovers the blog index +
   // every generated post slug; nothing to wire by hand.
   integrations: [tailwind(), mdx(), sitemap()],
+  // Suppress Astro's dev toolbar in built output. The toolbar is a
+  // dev-only convenience but the prod build was shipping it into the
+  // static HTML — visible on every marketing page at launch.
+  devToolbar: { enabled: false },
   server: {
     host: "0.0.0.0",
     port: 3320,

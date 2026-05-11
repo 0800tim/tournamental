@@ -50,7 +50,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "game",
     name: "Game",
-    pkg: "@vtorn/game",
+    pkg: "@tournamental/game",
     description:
       "Bracket submission, match-result settlement, leaderboards, syndicates, and Verified-Pundit endpoints.",
     auth: "mixed",
@@ -64,7 +64,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "identity",
     name: "Identity",
-    pkg: "@vtorn/identity",
+    pkg: "@tournamental/identity",
     description:
       "Authentication, humanness score, and account-link endpoints used across the platform.",
     auth: "mixed",
@@ -78,7 +78,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "vstamp",
     name: "VStamp",
-    pkg: "@vtorn/vstamp",
+    pkg: "@tournamental/vstamp",
     description:
       "On-chain Merkle-signed prediction receipts. Stamp a bracket, verify a stamp.",
     auth: "public",
@@ -92,7 +92,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "affiliate-router",
     name: "Affiliate Router",
-    pkg: "@vtorn/affiliate-router",
+    pkg: "@tournamental/affiliate-router",
     description:
       "Geo-gated affiliate-code resolution and click audit for Polymarket, sportsbook, and pay-TV partners.",
     auth: "public",
@@ -106,7 +106,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "drips-bridge",
     name: "Drips Bridge",
-    pkg: "@vtorn/drips-bridge",
+    pkg: "@tournamental/drips-bridge",
     description:
       "Bridge to the Drips Network for contributor revenue splits.",
     auth: "public",
@@ -120,7 +120,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "news-aggregator",
     name: "News Aggregator",
-    pkg: "@vtorn/news-aggregator",
+    pkg: "@tournamental/news-aggregator",
     description:
       "Public RSS-poller endpoints surfacing the BBC, Guardian, ESPN, Marca, FIFA, and Goal feeds.",
     auth: "public",
@@ -134,7 +134,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "clip-pipeline",
     name: "Clip Pipeline",
-    pkg: "@vtorn/clip-pipeline",
+    pkg: "@tournamental/clip-pipeline",
     description: "Public read endpoints for clip render status and outputs.",
     auth: "public",
     source: "apps/clip-pipeline",
@@ -161,7 +161,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "wc2026-data",
     name: "WC2026 Data",
-    pkg: "@vtorn/wc2026-data-scripts",
+    pkg: "@tournamental/wc2026-data-scripts",
     description:
       "Public read-only fixture and team data for the FIFA World Cup 2026 tournament.",
     auth: "public",
@@ -175,7 +175,7 @@ export const API_SERVICES: ApiService[] = [
   {
     slug: "api",
     name: "Umbrella API",
-    pkg: "@vtorn/api",
+    pkg: "@tournamental/api",
     description:
       "The umbrella tournamental.com API surface, health, version, and cross-service composites.",
     auth: "mixed",
@@ -195,21 +195,21 @@ export const API_SERVICES: ApiService[] = [
  * are internal.
  */
 export const SKIPPED_SERVICES: { pkg: string; reason: string }[] = [
-  { pkg: "@vtorn/auth-sms", reason: "Private OTP, admin-only." },
-  { pkg: "@vtorn/dm-otp", reason: "Internal Discord-DM OTP flow." },
+  { pkg: "@tournamental/auth-sms", reason: "Private OTP, admin-only." },
+  { pkg: "@tournamental/dm-otp", reason: "Internal Discord-DM OTP flow." },
   {
-    pkg: "@vtorn/dm-poll-forwarder",
+    pkg: "@tournamental/dm-poll-forwarder",
     reason: "Internal Discord poll forwarder.",
   },
   {
-    pkg: "@vtorn/push-notifications",
+    pkg: "@tournamental/push-notifications",
     reason: "Internal cron + push fan-out, no public surface.",
   },
   {
-    pkg: "@vtorn/social-publisher",
+    pkg: "@tournamental/social-publisher",
     reason: "Admin-only scheduler for Twitter/Telegram posts.",
   },
-  { pkg: "@vtorn/crm-bridge", reason: "Internal GoHighLevel relay." },
+  { pkg: "@tournamental/crm-bridge", reason: "Internal GoHighLevel relay." },
 ];
 
 /**
