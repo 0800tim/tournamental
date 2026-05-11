@@ -1,0 +1,701 @@
+---
+title: "Calling all 3D devs: come and break my renderer"
+description: "Tournamental's match renderer is a Three.js + React Three Fiber scene that can play the 2022 Argentina vs France final in your browser at sixty frames per second. It can also, charitably, be described as wooden. The players slide. The ball does not curl. The crowd is a sprite. I am a developer who can place a player on a pitch and lerp them through a state machine, and I am asking 3D engineers to come and replace the parts I cannot write."
+pubDate: 2026-05-13
+author: "Tim"
+tags: ["open source", "contributing", "drips", "renderer", "three-js", "webgl", "3d"]
+heroImage: "/blog/calls/2026-05-13-calling-3d-devs-hero.svg"
+heroImageAlt: "A stylised football player avatar in mid-stride on a green pitch, half rendered as a neat low-poly figure and half exploded into wireframe, bones, and weight-paint heatmaps. Behind the figure, a chevron-V logo and the words 'Calling all 3D devs'."
+heroImageCredit: "Illustration generated for Tournamental, 2026"
+---
+
+TODO: (hero image WIP, placeholder pending)
+
+## The hook
+
+If you write WebGL shaders for a living, or you have ever shipped a rigged character that actually looked alive, this post is for you.
+
+The renderer that plays the 2022 World Cup Final in a browser tab on tournamental.com is open source under Apache 2.0. It is shippable. It is also visibly the work of one developer who is not a 3D engineer.
+
+Come and break it. Drips will pay you a slice of platform revenue every time it earns, for as long as your work is in the codebase.
+
+This post is the long version. The pot-of-gold-or-pot-of-shit manifesto in [/blog/2026-05-12-pot-of-gold-or-pot-of-shit/](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/) is the broad open-source case for the project; this one is the narrow, specific call to graphics engineers. The rest of the post is what I built, what I cannot do, what an expert could ship in a day, a week, or a month, how revenue routes through Drips Network to your address, and what your first PR could look like.
+
+## What I built so far
+
+The renderer is a [Next.js 14](https://nextjs.org/) application at [`apps/web/`](https://github.com/0800tim/tournamental/tree/main/apps/web) wrapping a [React Three Fiber](https://r3f.docs.pmnd.rs/) scene. It subscribes to a typed event stream emitted by [`apps/statsbomb-replay/`](https://github.com/0800tim/tournamental/tree/main/apps/statsbomb-replay), reduces that stream into ball-and-player positions, and lerps everything to sixty frames per second. The design notes live in [docs/04-renderer.md](https://github.com/0800tim/tournamental/blob/main/docs/04-renderer.md) and the fidelity roadmap is in [docs/27-fidelity-roadmap.md](https://github.com/0800tim/tournamental/blob/main/docs/27-fidelity-roadmap.md).
+
+### The stack, in one paragraph
+
+Next.js 14 with the App Router. React Three Fiber on top of [Three.js](https://threejs.org/). [Drei](https://drei.docs.pmnd.rs/) for the camera-rig helpers, the sky dome, and the GLTF loader. [Zustand](https://zustand.docs.pmnd.rs/) for the match-state store. A bespoke `useMatchStream(url)` hook in [`packages/spec-client`](https://github.com/0800tim/tournamental/tree/main/packages/spec-client) consumes the WebSocket feed from the producer and writes typed `StateFrame` and `EventMessage` payloads into the store. The frame format is documented in [`packages/spec/src/index.ts`](https://github.com/0800tim/tournamental/blob/main/packages/spec/src/index.ts).
+
+The interpolation runs every render frame; the rebroadcast events run through a ring buffer with TTLs so cards and HUD pings do not double-fire. The scene is wrapped in a single `'use client'` boundary so SSR never touches WebGL.
+
+### The data path, end to end
+
+```
+StatsBomb open data (3,300 events, AR-FR 2022 final)
+        |
+        v
+apps/statsbomb-replay  (Python; uv-managed; emits typed frames)
+        |
+        v
+WebSocket :4001 (NDJSON; @tournamental/spec contract)
+        |
+        v
+apps/web  (Next.js 14; '<MatchScene/>' under R3F <Canvas>)
+        |
+        v
+Browser at 60 FPS with HUD overlay, audio mix, sky dome
+```
+
+That whole pipe runs at `--time-scale=10` in fifteen minutes for the 2.5-hour Argentina vs France final (regulation, extra time, and the penalty shootout). At `--time-scale=1` it plays in real time. The contract between the producer and the renderer is `@tournamental/spec`, which the spec post on the blog walks through at [/blog/2026-05-11-watch-along-renderer-tech/](/blog/2026-05-11-watch-along-renderer-tech/).
+
+### The four fidelity phases, in plain English
+
+The fidelity roadmap goes in four phases. The TL;DR of where each one landed today:
+
+**Phase 1, [mocap rig](https://github.com/0800tim/tournamental/blob/main/docs/27a-fidelity-phase1-mocap-rig.md).** Procedural body GLB, runtime jersey-texture generator, billboard faces sourced from Wikidata for the twenty-two starters. Players are recognisable from across a room. They are also stiff. They do not have hair. Their feet plant straight through the pitch on uneven terrain because there is no foot inverse kinematics yet, only a vertical translation. The anim FSM in `lib/animation-fsm.ts` transitions between `idle`, `walk`, `run`, `kick`, and `tackle` with hard cuts. There is no blend tree. The result is closer to a [Subbuteo](https://en.wikipedia.org/wiki/Subbuteo) figure than a Premier League player.
+
+**Phase 2, [physics director](https://github.com/0800tim/tournamental/blob/main/docs/27b-fidelity-phase2-physics-director.md).** [Rapier](https://rapier.rs/) was wired up for the ball via [`@react-three/rapier`](https://github.com/pmndrs/react-three-rapier). The auto-director switches camera on goals and slow-mos the replay using a state-machine in `lib/director.ts`. Foot inverse kinematics is in the doc; it is not in the code yet. The ball flies but does not curl, because the Magnus model in `packages/ball-physics/src/magnus.ts` returns a constant. The penalty kicks in the AR-FR shootout fly in straight lines that nobody who has ever watched a Kylian Mbappé penalty would believe.
+
+**Phase 3, [stadium and crowd](https://github.com/0800tim/tournamental/blob/main/docs/27c-fidelity-phase3-stadium-crowd.md).** Stand walls, sprite crowd, sky dome, [ACES tonemapping](https://github.com/godotengine/godot/blob/master/doc/classes/Environment.xml). The crowd does not actually react to goals; it stands there. The stadium has a constant ambient hum because I do not know what a directional [ambisonic mix](https://en.wikipedia.org/wiki/Ambisonics) is. Lighting is two directional lights and a hemisphere fill. There are no shadows on the player armatures because the shadow-map resolution that would make them not-pixelated kills the frame budget on a Pixel 7a.
+
+**Phase 4, [polish](https://github.com/0800tim/tournamental/blob/main/docs/27d-fidelity-phase4-polish.md).** Magnus curl is specified in the doc, with a `F = S × (ω × v)` model and per-event spin estimation. The `magnus.ts` file exists. It returns a constant. Sweat normals, dirt decals, the replay HUD: all stubs. The mobile perf pass is not done. The visual regression suite at `apps/web/__tests__/visual-regression.spec.ts` has zero baseline snapshots saved.
+
+### The Zustand store, in one screenful
+
+```ts
+type MatchStore = {
+  init: MatchInit | null;
+  prev: StateFrame | null;
+  curr: StateFrame | null;
+  events: EventMessage[];
+  lagMs: number;
+};
+```
+
+The hook opens either a WebSocket (live mode) or fetches `live.m3u8` and walks chunks (CDN mode). On every incoming `state` message it shifts `curr → prev` and writes the new one to `curr`. On every `event.*` it pushes onto the ring buffer with a TTL. The lerp pipeline reads `prev` and `curr` per render frame, computes a wall-clock alpha, and writes positions directly to mesh refs to bypass React rendering. That keeps the 60 FPS budget intact for scenes with twenty-two players plus the ball.
+
+### The coordinate boundary
+
+Spec coords are pitch-centred metres with +x along length, +y along width, +z up. Three.js convention is +y up. The mapping happens in exactly one file, [`lib/coords.ts`](https://github.com/0800tim/tournamental/blob/main/apps/web/lib/coords.ts), so the rest of the renderer never thinks about the spec's coordinate frame. If you contribute graphics work, you take `Vector3`s and you ignore the spec entirely. The boundary file is intentionally small.
+
+### What you see if you run the demo today
+
+If you clone the repo and run the AR-FR demo (the README has the exact commands; runs in fifteen minutes at `time-scale=10`), what you will see is a watchable match that hits every scoreline beat of the actual final: Messi at twenty-three minutes, Di María at thirty-six, Mbappé at eighty and eighty-one, Messi at one hundred and eight, Mbappé again at one hundred and eighteen, then four-to-two on penalties.
+
+The nameplate floats over the right body for the right event. The ball ends up in the goal on goals; flies toward the keeper on shots. The whistle plays at the right moment. The crowd cheers (one looped WAV, ducked appropriately). The HUD shows the score and the clock. The camera switches to a tighter view on goals and slow-mos the replay.
+
+You will also see, in the same frame, that the players run like wooden soldiers. The ball flies in suspiciously straight lines. The stadium is empty in any direction the camera is not pointed. The shadows pop in and out as the camera moves. The post-processing stack is on a default preset that makes the whole scene look like every other Three.js demo on the internet.
+
+The bones of a broadcast scene are there. The flesh is not.
+
+## What I cannot do alone
+
+I want to be specific about this because vague calls for help do not bring people in.
+
+### I am not a shader programmer
+
+I have written exactly one custom GLSL fragment shader in my life and it was for a university assignment in 2009. I read [The Book of Shaders](https://thebookofshaders.com/) before writing the Phase 4 doc and I understood about sixty percent of it. The Magnus-effect curl on free kicks is a shader-and-physics problem and I do not know enough of either to write it without spending three weeks reading papers.
+
+The current `packages/ball-physics/src/magnus.ts` applies a constant side-force. The doc specifies the full `F = S × (ω × v)` Magnus model where `S = 0.5 × ρ × A × C_l × |ω × v|`, with per-event spin estimation: free kicks get ten revolutions per second, outside-foot passes get five, knuckleballs get zero. I can read that formula. I cannot turn it into shippable code without help.
+
+### I have never written a credible character-animation state machine
+
+The `lib/animation-fsm.ts` file in the renderer transitions between `idle`, `walk`, `run`, `kick`, and `tackle` states. The transitions are blunt-cut. There is no blend tree. There is no foot planting. There is no anticipation pose before a kick. The reaction-shot frame after a tackle is a frozen pose held for 400 milliseconds. A real animator would look at it and ask if I was joking. I have read enough Unity and Unreal documentation to know what a [blend tree](https://docs.unity3d.com/Manual/class-BlendTree.html) and a [motion-matching](https://www.gdcvault.com/play/1023280/Motion-Matching-and-The-Road) system look like in principle. I do not know how to map either into the Three.js [AnimationMixer](https://threejs.org/docs/#api/en/animation/AnimationMixer) API.
+
+### I have never authored a skinned mesh
+
+The procedural body is a parameterised capsule with limbs. It does not have a face mesh, only a billboard. The [Mixamo](https://www.mixamo.com/) retarget pipeline is sketched in the Phase 1 doc and stops at "look up the Mixamo licence and grab a body pack". The runtime jersey-texture generator at `lib/jersey-texture.ts` draws a canvas with the right kit colours, sponsor positions, and shirt number, then converts the canvas to a `THREE.Texture` and binds it to the procedural body. That part works. What does not work is the moment a hand-drawn neck-and-head mesh is supposed to sit on top of the body. There is no such mesh.
+
+### I do not know what an ambisonic mix is
+
+In any practical sense. I read the Wikipedia article. I closed the tab. The stadium plays one looped crowd-noise WAV file from the BBC sound archive (CC-BY-SA, attributed in the audio credits), with a goal-side duck triggered by `event.goal`. That is the entire audio scene. There is no spatial audio. There is no per-stand variation. There is no away-end murmur during a home-side goal. The cheering does not get louder when the camera pans toward the active stand because the cheering does not know where the camera is.
+
+### I am not a crowd-systems engineer
+
+I do not know how you instance ten thousand sprite people, animate their arms in waves, and react to in-game events without breaking the draw-call budget. The crowd in the current scene is, embarrassingly, a single billboard texture per stand. Four billboard textures total. Two for the home end, two for the away end. They are static. They do not change colour when the home side scores. They are the rendering equivalent of a backdrop you would buy from a school-play prop supplier.
+
+### I am not a mobile-WebGL performance specialist
+
+The renderer hits sixty frames per second on a Pixel 7a in the demos I have run, but the moment I add anything interesting (real shadows, post-processing, particles) the budget collapses and I do not know how to triage the regression. The Phase 4 doc lists the mobile perf budget: under eighty draw calls, under fifty megabytes total transferred per match-load (excluding audio chunks), Largest Contentful Paint under 2.5 seconds. I hit those numbers today by **not shipping the features that would make the renderer look good**. The fix is somebody who can ship the features and keep the budget.
+
+### The post-processing stack looks like every other Three.js demo
+
+The post-processing stack in Phase 3 calls for [bloom](https://github.com/pmndrs/postprocessing/blob/main/manual/content/effects/bloom.mdx), [SSAO](https://github.com/pmndrs/postprocessing/blob/main/manual/content/effects/ambient-occlusion.mdx), [depth of field](https://github.com/pmndrs/postprocessing/blob/main/manual/content/effects/depth-of-field.mdx), and motion blur. I have all four wired in via [`@react-three/postprocessing`](https://github.com/pmndrs/postprocessing) and the result looks like every other Three.js demo on the internet. A real graphics person would tune them to look like a TV broadcast. I cannot. The default bloom threshold is wrong. The SSAO radius is wrong. The depth-of-field focus plane is fixed instead of tracking the ball. The motion blur is the same on a stationary camera as on a swooping orbit, which is wrong.
+
+### I do not have a credible LOD pipeline
+
+The current `PlayerLOD.tsx` component switches between three levels of detail based on camera distance: the full procedural body, a simplified four-bone version, and a billboard. The thresholds are guesses. There is no smoothing between levels, so the player visibly pops between LODs as the camera approaches. A real LOD specialist would set up [cross-fade transitions](https://threejs.org/docs/#manual/en/introduction/How-to-create-VR-content) over a few frames and the user would never see the pop. I read the docs. I did not implement the cross-fade.
+
+### My particle systems do not exist
+
+There is no rain. There is no splashed grass on a slide tackle. There is no breath cloud on a player exhaling in a cold-stadium scene. There is no celebratory flare in the away end. The Three.js [`Points`](https://threejs.org/docs/#api/en/objects/Points) primitive exists and I have looked at it twice. I have not built a single particle effect into the scene. Doc 27 has a list of particle effects that would lift the production value of any goal moment by a measurable margin. None of them are implemented.
+
+### The skinning pipeline is duct tape
+
+The body GLB at `apps/web/public/models/player-body.glb` is the procedural mesh I generated in Blender from a parameterised script. The script is in `packages/avatar/scripts/build-body.py` and it runs at build time, producing a single GLB per build with the bone hierarchy baked in. The bone names match the [Mixamo bone-naming convention](https://docs.unity3d.com/Manual/AvatarCreationandSetup.html) by coincidence, not by design: I read the Mixamo docs after I shipped the GLB and noticed the names lined up, so I left them. This means a Mixamo retarget pipeline would Just Work, if somebody built it. I have not.
+
+### The jersey-texture pipeline does not handle sponsor variations
+
+The runtime jersey-texture generator at `lib/jersey-texture.ts` paints the right kit colours, the player number, and a small Tournamental logo on the front. It does not paint the FIFA-licensed sponsor logos that real World Cup kits have, because we cannot use those logos under our brand-licence terms. The compromise is a blurry placeholder block in the sponsor zone. A real designer-engineer collaboration could ship a procedural-sponsor system that generates plausible non-trademarked logos and rotates them per match, but I have not done it.
+
+### My PBR materials are not credible
+
+The procedural body and the jersey are rendered with [MeshStandardMaterial](https://threejs.org/docs/#api/en/materials/MeshStandardMaterial). The roughness is a constant 0.6. The metalness is 0.0. The skin shader has no subsurface scattering, which means the players look like plastic figures under any directional light. Real broadcast football looks the way it does because there are decades of work on how to render skin and synthetic-fibre kits in motion under floodlights. None of that is in our scene.
+
+### My environment maps are a stock asset
+
+The HDR environment map at `apps/web/public/env/stadium.hdr` is a stock asset I grabbed from [PolyHaven](https://polyhaven.com/) and renamed. It is a daytime outdoor scene. It is wrong for any night match. It is wrong for any indoor match. It is wrong for any match with a fully closed roof. There is no logic to swap the environment map based on the match metadata. A contributor with a small library of HDRIs and a per-match-selector hook could ship the swap in an afternoon.
+
+### My motion-vector buffer is missing
+
+Motion blur done correctly uses a per-pixel motion-vector buffer, computed in a pre-pass, sampled in the post-processing motion-blur effect. The current setup uses a screen-space velocity estimator that is wrong for fast-moving objects (like a ball at 30 m/s) because the estimator assumes pixel-coherent motion. A graphics specialist could implement the motion-vector buffer in a few days and the motion blur would suddenly look correct.
+
+### The HUD typography is a developer default
+
+The HUD overlay at `components/HUD.tsx` uses the [Inter](https://fonts.google.com/specimen/Inter) font at three weights. The kerning is whatever the browser gives me. The numerals are tabular, which is correct for a score display, but the cadence between the team abbreviation and the score is wrong by a hair and I cannot tell you which hair. A real typography pass would fix the HUD in an afternoon and the renderer would look ten percent more like a broadcast.
+
+### The replay HUD is half-implemented
+
+The replay HUD at `components/HUD/ReplayHUD.tsx` is supposed to show a "REPLAY" banner, a slow-mo factor indicator, and the score. The banner is wired. The slow-mo factor reads the right value from the director state machine. The score updates correctly. The visual treatment is rectangular boxes with a flat background and white text, which works but does not look like anything a TV broadcast has ever shipped. The sponsor ribbon at the bottom of the replay HUD is a placeholder that says "[SPONSOR]" because we have not yet integrated the sponsor-rotation logic; the doc has the spec, I have not written the integration.
+
+### I have not done the audio mixing pass
+
+The audio mix layers the looped crowd noise, a small set of one-shots (whistle, ball kick, ball hit post, ball hit net), and the commentary track. The mix uses the Web Audio API at the default settings. There is no compression. There is no ducking against the commentary. The commentary cuts through the crowd because the commentary is louder, not because the mix is sidechained correctly. A real audio engineer would fix this in a day and the result would sound like a broadcast instead of like a set of clips played in parallel.
+
+## The opportunity
+
+This is a renderer that already works on real data. It is not a greenfield project where you spend three weeks setting up tooling. The data path is solved. The component boundaries are stable. The fidelity roadmap is written. There are concrete TODO comments in the code that name exactly what is missing.
+
+### The big picture
+
+The fidelity ladder, from where we are today to "I cannot tell this from a TV broadcast", is roughly:
+
+- **Level 0**, the placeholder. Wooden players, straight balls, billboard crowd. We are here.
+- **Level 1**, the credible. Players with skeletons that run, the ball that curls, the crowd that waves. One month of focused work.
+- **Level 2**, the broadcast. Cameras that switch like a real director, audio that mixes like a real mix, post-processing that grades per-stadium. Three to six months of focused work.
+- **Level 3**, the indistinguishable. The frame that a casual viewer cannot tell from a TV broadcast. Twelve to eighteen months and probably some compromises on the scope.
+
+The plan is to ship Level 1 in time for the World Cup, hit Level 2 by the second tournament cycle, and accept that Level 3 is an aspiration. The bigger surprise is that Level 1 is reachable with a small team if the right specialists show up.
+
+### A category overview
+
+The opportunities below cluster into four buckets:
+
+1. **Character work.** Rigging, animation, blend trees, faces, hair, kits, sweat normals, dirt decals.
+2. **Physics work.** Ball curl, collision, friction, foot IK against the pitch normal, the keeper-glove interaction on a parry.
+3. **Stadium work.** Crowd systems, lighting, post-processing, audio, weather, particle systems.
+4. **Plumbing.** Mobile perf, LOD pipelines, instancing, draw-call reduction, the WebGPU path.
+
+A single contributor can stay in one bucket for months. The buckets are mostly independent, although physics and character work share the foot-on-pitch contact point and stadium and plumbing share the crowd-instancing problem. Pick the bucket you have the most experience in. Tournamental needs all four and there is no priority order at the level of "fix one before the other"; every bucket has a visible PR available.
+
+### What an expert could ship in one day
+
+**A foot inverse-kinematics pass that lifts the planted leg of every player to match the pitch normal.** The mounting point is `Player.tsx` in `apps/web/components/`. The technique is documented in [docs/27b-fidelity-phase2-physics-director.md](https://github.com/0800tim/tournamental/blob/main/docs/27b-fidelity-phase2-physics-director.md). The recommended library is [three-ik](https://github.com/jsantell/THREE.IK) or the equivalent built into [Yuka](https://github.com/Mugen87/yuka). One day of work would visibly improve every frame of every match.
+
+**A run-cycle blend tree using [Mixamo](https://www.mixamo.com/) animations retargeted onto the procedural body.** The animation files live in `apps/web/public/animations/`. The state machine lives in `lib/animation-fsm.ts`. One day would replace the wooden soldiers with players that look like they have skeletons. The retarget pipeline is the [Mixamo Bone Mapping](https://docs.unity3d.com/Manual/AvatarCreationandSetup.html) standard, adapted for Three.js via [SkeletonHelper](https://threejs.org/docs/#api/en/helpers/SkeletonHelper).
+
+**A reactive crowd system using instanced billboards or [three-mesh-bvh](https://github.com/gkjohnson/three-mesh-bvh) for low-cost wave animations on `event.goal`.** Mounts behind the existing `Stadium.tsx` `<Crowd/>` placeholder. The instancing pattern is well-documented in the [drei `<Instances/>` API](https://drei.docs.pmnd.rs/performances/instances).
+
+**A directional shadow-cascade fix on the player armatures.** The current scene uses a single directional light at sixty degrees with a 2048-by-2048 shadow map. The pop and shimmer on the player armatures is unhelpful and the cost is high. A specialist could replace it with a [cascaded shadow map](https://docs.unity3d.com/Manual/shadow-cascades.html) implementation, get crisper shadows close to the camera, and lower the total memory cost in the same change.
+
+**An OG-image generation pass for the per-match share URL.** The renderer already exports a still frame at every goal. The route at `apps/web/app/match/[id]/opengraph-image.tsx` uses a Three.js offscreen canvas to produce a 1200x630 PNG. Today it is plain. One day of work and the OG image looks like a broadcast still.
+
+### What an expert could ship in one week
+
+**The full Magnus-effect ball-curl shader.** The model is in `packages/ball-physics/src/magnus.ts`. The acceptance test in the Phase 4 doc says known free kicks (Messi versus Mexico, 2022 group stage) should reproduce visible curl within twenty centimetres of the historical end position. A week would let you tune the spin estimator, write the test, and ship something the rest of us will copy into every Three.js demo we ever build again.
+
+The spin estimator reads StatsBomb event metadata: the `pass.outcome` if a pass, the `shot.body_part` if a shot, the run-up angle inferred from the player's velocity in the preceding state frame. From that, you estimate `ω`, plug into the Magnus formula, and the ball's trajectory bends. The known-good test case is [Messi's free kick against Mexico in the group stage](https://www.youtube.com/watch?v=3HuhE3HMTfk); the end-location is on record, the curl is visible, the curve apex is around eleven metres from the goal. Calibrate to within twenty centimetres and you are done.
+
+**A Ready Player Me avatar integration that replaces the procedural body with a fully rigged humanoid mesh.** [Ready Player Me](https://docs.readyplayer.me/) is a free service that produces Three.js-compatible GLB avatars from a face photograph. The Wikidata-sourced player headshots become the seed photographs. The avatar pipeline is documented in [docs/07-avatars-and-assets.md](https://github.com/0800tim/tournamental/blob/main/docs/07-avatars-and-assets.md). One week of focused work gets us players that an actual football fan would recognise.
+
+**A directional ambisonic crowd-noise mix using the WebAudio [PannerNode](https://developer.mozilla.org/en-US/docs/Web/API/PannerNode), with goal-side, opposite-side, and end-of-pitch loops that crossfade based on camera position.** One week and the stadium starts to feel like a place. The audio assets are CC-BY and live under `apps/web/public/audio/crowd/`.
+
+**A scene-wide camera shake on goals and red cards.** The director state machine in `lib/director.ts` knows when these events happen. The camera shake is a small additive transform on the camera position, tuned to feel like a real broadcast operator reacting to the moment. A week of careful tuning across thirty test cases and the shake feels intentional instead of glitchy.
+
+**A particle pipeline for slide-tackle grass displacement, rain, breath clouds, and goal-celebration flares.** Each effect is a small `<Points>` system with a custom shader, mounted as a child of the right anchor (the tackling foot, the player's head, the away end stand). One week of work and the scene picks up a layer of detail that broadcasters spend years tuning.
+
+**A complete LOD cross-fade pass.** The current `PlayerLOD.tsx` switches hard between three levels of detail. A week of work on cross-fade transitions, plus a proper distance-band tuning per camera mode (broadcast vs follow-ball vs top-down), would eliminate the LOD pop entirely. The implementation pattern is documented in `apps/web/components/PlayerLOD.tsx` as a TODO comment block.
+
+**A goal-celebration animation pack.** When a player scores, the auto-director switches camera to a tighter shot and slow-mos the replay. Today the player who scored stands there. The celebration is a placeholder. A week of work building a small library of celebration animations (the [Mbappé sit-down](https://www.youtube.com/watch?v=g4cF__I4Bzs), the [Messi look-at-the-camera](https://www.youtube.com/watch?v=KaqC5FnvAEc), the generic team-pile-on, the celebrate-with-corner-flag, the kneeling tribute) plus a probability-weighted trigger system that picks one per goal, would ship a feature broadcasters spend years curating.
+
+**A keeper-glove parry shader and animation.** The save event today is the keeper extending an arm in the right direction and the ball stopping where the keeper's hand is. There is no glove-deformation on contact, no ball deflection that depends on the impact angle, no keeper-recovery animation as the keeper rolls and stands up. A week of careful work on the keeper rig, mounted in `components/Player.tsx` with a keeper-specific branch, ships a credible save animation for every keeper in every match.
+
+**A tactical-line overlay for the broadcast HUD.** Many broadcast feeds drop a thin coloured line on the pitch surface to indicate the offside line, the defensive line, or the predicted run-of-play arrow. The overlay is a Three.js [Line2](https://threejs.org/examples/?q=line#webgl_lines_fat) primitive painted onto the pitch geometry. A week of work and the renderer ships the tactical-broadcast feel that puts it above hobbyist Three.js demos.
+
+**A team-formation visualisation overlay that animates on the kickoff and on substitution events.** This is the tactical-board view a broadcaster would cut to before extra time begins. The overlay is a 2D HUD primitive over the 3D scene, with smooth animations of the eleven dots moving into formation. A week of careful state-machine work, mounted on `components/HUD/TacticsOverlay.tsx`.
+
+### What an expert could ship in one month
+
+**A full mobile-perf overhaul that lets us run the renderer at sixty frames per second on a 2021 mid-range Android with all the Phase 3 post-processing on.** Today we have to disable bloom and SSAO to hit the budget. A month of careful instancing, draw-call merging, and texture-atlas work would change that. The instrumentation is in `lib/perf/perf-monitor.ts` and the budget assertions are in `lib/perf/perf-budget-test.ts`; you measure first, then optimise, then re-measure.
+
+**A whole new fidelity phase that adds particle systems for grass-displacement on slide tackles, water spray when it rains, and floodlight bloom on the player armatures.** Phase 5 is not even documented yet. You write the doc, you ship the code, your name goes on the design. The pattern for proposing a new phase is in the [27-fidelity-roadmap.md](https://github.com/0800tim/tournamental/blob/main/docs/27-fidelity-roadmap.md) doc.
+
+**A WebGPU upgrade path that gates behind `?gpu=webgpu` and runs the same scene with WebGPU's compute-shader-based physics for the ball.** The renderer already has a feature flag for it. The implementation is empty. The [WebGPU Three.js renderer](https://threejs.org/manual/#en/webgpu) is now stable enough to ship behind a flag, and the perf headroom on a desktop with WebGPU is dramatic.
+
+**A full TV-broadcast-grade tonemapping pass.** The current ACES is the right starting point. The next step is a curve-grade adjustment per camera angle (the wide shot wants different shadows than the tight shot on the player face), and a per-stadium colour grade so the AR-FR final at Lusail Stadium has its own warm late-afternoon tone, separate from a hypothetical Olimpico cold-evening tone. The grading lives in the post-processing stack and a colourist could ship the variants in a month.
+
+**A volumetric-fog implementation for late-evening matches.** Real broadcast cameras pick up floodlight scattering when there is humidity in the air. A custom volumetric-fog shader in the post-processing stack would reproduce this. A month of work, and night matches look like night matches instead of like day matches with a darker sky dome.
+
+**A from-scratch reactive crowd system.** Today's billboard crowd is the laziest possible solution. The full version uses instanced 3D crowd-figure meshes (one low-poly mesh per fan, instanced at the [tens of thousands](https://threejs.org/docs/#api/en/objects/InstancedMesh)), with per-instance shader-driven arm-raise animations triggered by `event.goal`, `event.near-miss`, and `event.red-card`. A month of work, plus careful instancing and texture-atlasing to stay inside the draw-call budget, ships a crowd that looks like a crowd.
+
+**A WebXR mode for the renderer that lets viewers watch the match in VR.** The R3F scene is already structured to support [WebXR](https://immersiveweb.dev/) at the Canvas level; the missing piece is a VR-specific camera rig (head-tracked, comfort-tuned), a VR-specific HUD layout (curved, attached to the user's hand or to a virtual board), and a perf pass to keep the frame rate above ninety on a [Quest 3](https://www.meta.com/quest/quest-3/). A month of work and Tournamental ships in VR for the 2026 World Cup.
+
+**A native iOS/Android viewport that wraps the R3F renderer in a native shell.** The architecture is documented in `apps/native/` and the iOS scaffold is in `apps/native/ios/`. The native shell handles deep-linking, push notifications, and the in-app commerce path the web cannot use. The renderer itself stays the same code. A month of work, plus a careful round-trip with Apple's App Store review process, and Tournamental has a native viewing app.
+
+**A directional-microphone audio system that picks up commentary cues from a virtual position behind the goal.** The current commentary track plays at a fixed volume on top of the crowd loop. The directional version places the commentator microphones at a defined position in 3D space (typically behind the goal, in the home end), with the camera position influencing how the commentary mix mounts in the scene. A month of careful Web Audio API work, plus a small library of recorded ambience samples, ships a sound stage that feels like a broadcast.
+
+**A camera-controller library that lets contributors author camera presets per match.** Today the camera presets are hard-coded in `lib/director.ts`. The library version exposes a JSON schema for camera presets, allows contributors to author new presets per match, and ships the presets as a config bundle. A month of work, and the renderer becomes a platform on which broadcast-style direction can be authored without touching the core code.
+
+**A live broadcast-graphics layer that pulls match-day data from the broadcaster's feed.** The infrastructure for this is in [docs/42-wc2026-live-data.md](https://github.com/0800tim/tournamental/blob/main/docs/42-wc2026-live-data.md). The renderer needs a per-event uncertainty visualisation, a low-latency mode for live-data ingest, and a degraded-mode for when the feed lags. A month of focused work on the live path, and the renderer transitions from "plays the replay of historical matches" to "renders live matches in your browser tab".
+
+### A note on the AR-FR final as a benchmark
+
+The reason the AR-FR final is the test case is that it is **hard in interesting ways**. It has all of: a Messi goal from a penalty, a Mbappé goal from a penalty, two Mbappé open-play goals (one a long-range volley), a Di María counter-attacking finish, an extra-time goal from Messi at a tight angle, and a penalty shootout. Every kind of football moment a renderer needs to handle appears in the match. If your shader work passes the AR-FR test, it passes pretty much any test the renderer will throw at it for the rest of 2026.
+
+The Argentine commentary track that ships with the demo is the verbose 200-minute version; if you contribute to the renderer you will hear it many, many times during testing. The commentary post at [/blog/2026-05-15-calling-translators/](/blog/2026-05-15-calling-translators/) explains the localisation pipeline, in case you ever wonder why the German voice mispronounces "Di María".
+
+### Why the surface is well-defined
+
+The opportunity is large because the surface is well-defined. You do not have to negotiate scope with a product manager. The docs are the spec. The acceptance criteria are in the docs. The test fixtures are in `apps/web/__tests__/`. You ship a PR and a reviewer agent runs the perf budget against it before a human even looks.
+
+The plugin SDK at [`packages/plugin-sdk/`](https://github.com/0800tim/tournamental/tree/main/packages/plugin-sdk) (`@tournamental/plugin-sdk` on npm) means a 3D contributor can ship their renderer pass as a `@tournamental-plugin/*` package without ever forking the core. The plugin design is documented in the SDK's README and the registry is at `apps/web/lib/plugins/registry.ts`. Plugins receive the same R3F context as the core scene, get a hook into the director's event stream, and can register their own post-processing effects. If you do not want your work entangled with the core renderer's release cycle, the plugin path is the right one.
+
+The reviewer agent's checklist for graphics PRs is in [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md), section 4. The key requirements are: a visual snapshot of the change in `apps/web/test-fixtures/visual/`, a perf budget run that does not regress more than five percent on the AR-FR demo, a Playwright E2E test that opens the demo and asserts no console errors. If your PR meets those criteria, the reviewer agent approves without a human bottleneck.
+
+## How Drips pays you
+
+Here is the bit that makes this different from every other open-source call-for-contributors post on the internet.
+
+### The Drips Network primer
+
+Tournamental's revenue routes through [Drips Network](https://www.drips.network/) to a list of contributor wallets. The full design is in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). Drips is the same protocol that the [Ethereum Foundation](https://www.drips.network/), [Radworks](https://radworks.org/), the [Filecoin Foundation](https://fil.org/), [ENS](https://ens.domains/), [UNICEF](https://www.unicef.org/) and [Scroll](https://scroll.io/) use to stream funding to open-source contributors. It is on-chain. It is transparent. You can read the contract, fork it, propose a better split formula, or audit the multisig that controls the foundation's treasury wallet.
+
+### The treasury policy
+
+The Tournamental Foundation (a Cayman foundation entity, jurisdictionally separate from Tournamental NZ Limited where I do the day-to-day) deposits a fixed percentage of net affiliate revenue and other platform monetization lanes into a Drips treasury wallet, paid in USDC. The current split is:
+
+- **Thirty percent** to the contributor Drip List.
+- **Fifty percent** to the operating reserve (capped at twelve months of runway).
+- **Ten percent** to public goods (sponsored OSS dependencies, sponsored events).
+- **Ten percent** to strategic reserve (audits, legal, contingency).
+
+Once the operating reserve cap is full, more flows to contributors. The split rebalances annually based on actual revenue. The plan is to drop the operating-reserve cap to six months once revenue is comfortably above six-month runway, which moves more of the inflow to the contributor list.
+
+### How the scoring formula works
+
+The scoring formula in doc 19 credits contributors as follows:
+
+- **Code merged into upstream** at a per-line weight (capped per PR to discourage boilerplate-farming).
+- **Significant features** (anything explicitly named in [docs/09-agent-task-breakdown.md](https://github.com/0800tim/tournamental/blob/main/docs/09-agent-task-breakdown.md)) at a flat per-feature bounty at acceptance.
+- **Bug fixes** at a severity-tiered bounty.
+- **Reviews of others' PRs** at twenty percent of the original PR score.
+- **Docs improvements** at half the LoC weight.
+- **Vulnerability disclosures** at a severity-tiered bounty.
+
+For graphics work specifically, the per-feature bounties bias toward visible impact. A foot IK implementation that makes every player look better is rated more heavily than a refactor that produces no visible change, even if the refactor touches more lines. The reviewer agent applies the weights from the doc; the council adjudicates disputes.
+
+### Decay and dilution
+
+Decay is five quarters: a contribution made today is worth one hundred percent next quarter, eighty the quarter after, then sixty, forty, twenty, zero. This forces ongoing contribution and prevents rent-seeking on the first PR you ever shipped. The decay is the same model [Optimism](https://www.optimism.io/) and [Filecoin](https://filecoin.io/) use.
+
+New contributors join the pool every quarter. Existing recipients are mathematically diluted as the population grows; total payout per recipient might decrease even if their absolute score stays flat. Contributors should expect this and the docs say so plainly.
+
+### The wallet integration
+
+To opt in, you register your GitHub username with an Ethereum address at the contributor page (link goes live on the public-repo reveal). The registration captures a self-declared jurisdiction for tax purposes. Sanctions screening runs on the wallet at payout time, in line with [OFAC](https://ofac.treasury.gov/) requirements. The quarterly score sheet is a public Markdown file in the `payouts/` directory of the repo; anyone can dispute via a GitHub Issue and the multisig council adjudicates.
+
+This is not equity. It is contractual revenue share, paid in USDC, on-chain, with public scoring. The legal load is intentionally low: contributors do work that is rewarded; no money flows from contributors to Tournamental. That keeps the structure on the right side of the [Howey Test](https://www.investor.gov/introduction-investing/investing-basics/glossary/howey-test) in the jurisdictions that matter. The doc has the full reasoning.
+
+### A worked example of the payout flow
+
+Imagine you ship the Magnus shader PR in week one. It merges. The reviewer agent gives it a 1,200-point score (per-line credit plus the per-feature bounty for a "significant feature"). The contributor score sheet for Q1 2026 is finalised. Your score, as a fraction of the total contributor score, is 1.8 percent.
+
+If the Drip List receives 30,000 USDC for the quarter (a notional number for illustration; the real number depends on actual platform revenue, which we will publish openly), your share is 540 USDC, streamed continuously over the quarter into your wallet address. You can claim at any time, or let it accrue. The Drips contract handles the streaming math.
+
+In Q2, your decay kicks in: your Q1 contribution is now worth 80 percent of its original score. If you ship another PR in Q2, your new score adds to the existing decayed score. The quarterly distribution adjusts. The flow continues for as long as you contribute and the project earns.
+
+If you stop contributing entirely, your stream tapers across five quarters and ends. If the project shuts down, the stream ends sooner. There is no permanent annuity; the model is deliberately built on ongoing contribution.
+
+### Why this matters for renderer work
+
+Every paid affiliate click that traces back to a Tournamental product surface routes a slice through Drips to the contributors who shipped that surface. The renderer is the surface most users see, and the watch-along experience is one of the strongest viral and engagement levers in the product. A foot IK pass that makes every replay feel more credible probably increases the share-rate on the auto-generated clip pipeline, which probably increases affiliate clicks downstream of those clips, which routes back to your wallet.
+
+The attribution is rule-based and the rules are in doc 19. If you do not believe a specific attribution chain, you open a GitHub Issue and the council adjudicates. Every quarterly payout is dispute-able for thirty days after publication.
+
+### Examples of comparable projects
+
+If you want a sanity-check on whether "open source plus revenue share via Drips" is a credible model, the precedents are:
+
+- **[Optimism Collective](https://www.optimism.io/)**, the open-source rollup protocol whose foundation runs [RetroPGF](https://medium.com/ethereum-optimism/retroactive-public-goods-funding-33c9b7d00f0c) rounds for OSS contributors.
+- **[Filecoin Foundation](https://fil.org/)**, an open protocol whose foundation runs grants plus RetroPGF and uses Drips for distribution.
+- **[Radworks](https://radworks.org/)**, an open governance protocol that streamed [over a million USD to FOSS dependencies](https://www.drips.network/blog/posts/dependency-funding-with-drips) via Drips.
+- **[Mozilla Foundation](https://foundation.mozilla.org/)**, the non-profit owning the Firefox brand on top of an open codebase. Commercial revenue funds development.
+- **[Linux Foundation](https://www.linuxfoundation.org/)**, corporate-sponsored foundation funding maintainers of an open kernel.
+
+Tournamental is positioning *alongside* these, structurally familiar enough that legal review on the contributor side is light and the "is this legit" question has a one-sentence answer.
+
+### Opting out is fine
+
+You do not have to opt in. The code is Apache 2.0 either way. Some contributors prefer not to receive payments for tax, personal, or philosophical reasons, and that is fine. The point is the option exists, and it is not vapour.
+
+### Securities-law sanity check
+
+Honest disclosure for contributors and the team: even revenue-share programmes can sometimes be characterised as securities. The reasons Tournamental's structure is *probably* fine are spelled out in doc 19 and the TL;DR is:
+
+- Contributors do *work* that is rewarded. Economic substance is performance-for-payment, not investment-for-yield.
+- No upfront purchase of any instrument. No money flows *to* Tournamental from contributors.
+- Payouts are denominated in USDC. No appreciation play.
+- Foundation governance is centralised at first; not an investment-in-common-enterprise pattern.
+
+Engage real counsel before crossing $100k/quarter in distributions or before any token issuance. The Drips-only v1 should be defensible without specialised crypto-securities counsel.
+
+## How to start
+
+1. Clone the repo: `git clone https://github.com/0800tim/tournamental`.
+2. Run the AR-FR 2022 demo. The README has the exact commands. It is a two-terminal sequence: `apps/statsbomb-replay/` Python producer in one terminal, `apps/web/` Next.js renderer in the other, both reading from a shared spec contract at `packages/spec/`. At `--time-scale=10` the whole 2.5-hour final plays in fifteen minutes. Open `localhost:3000/match/fifa-wc-2022-final-arg-fra-2022-12-18` and watch.
+3. Pick a phase doc. [docs/27-fidelity-roadmap.md](https://github.com/0800tim/tournamental/blob/main/docs/27-fidelity-roadmap.md) lists the four phases and their open work. The Phase 4 doc, specifically, lists the Magnus curl and the foot IK in concrete file-by-file terms.
+4. Read [AGENT-PROMPTS.md](https://github.com/0800tim/tournamental/blob/main/AGENT-PROMPTS.md). That is the file the AI agents read before they start work; it covers the session-note discipline, the spec rules, and the commit-message format. Human contributors follow the same protocol because it produces a clean traceable history.
+5. Read [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md) for the PR template, the DCO sign-off rule, and the reviewer-agent checklist. Then file your first PR.
+
+### The session-note discipline
+
+Every PR comes with a session note at `sessions/<YYYY-MM-DD>_<agent-name>_<short-task>.md`. The note is around 50 to 150 lines and covers:
+
+- The task ID and assigned docs.
+- Plan in 5 to 10 lines.
+- Key decisions made during the work.
+- The outcome summary and what is left.
+
+For a graphics PR, the session note typically includes a few PNG screenshots (before / after / a known-bad case) embedded directly so the reviewer can read the note and immediately see the change. Future contributors read these notes to understand why a specific design decision was made; the discipline pays off in months when somebody else picks up the work.
+
+### The reviewer-agent checklist
+
+The reviewer agent runs through a per-PR checklist that includes:
+
+- Lint pass (`pnpm lint`).
+- Typecheck pass (`pnpm typecheck`).
+- Test pass (`pnpm test`).
+- Perf budget pass (the AR-FR demo at `--time-scale=10` completes within budget).
+- Visual snapshot check (the before/after PNGs in `apps/web/test-fixtures/visual/` match a manual review).
+- Bundle-size check (no new dependency adds more than the per-PR budget; budget is documented in [docs/22-deployment-and-tunnels.md](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md)).
+- Cache-policy check (any new public surface has an explicit cache policy).
+
+If your PR meets all seven, the reviewer approves and Tim merges. If your PR misses one, the reviewer leaves a comment and you fix it. The cycle time is typically twelve minutes if everything passes; an hour if there is back-and-forth.
+
+### What good PRs look like
+
+The graphics PRs that have already shipped on the project are visible at `https://github.com/0800tim/tournamental/pulls?q=is%3Apr+label%3Arenderer`. The merged ones are worth reading as templates: each one has a session note, a set of visual screenshots, a perf-budget line, and a short rationale for the change. The discipline produces a record that the next contributor can use to onboard without asking Tim a single question.
+
+If you have never contributed to an open-source repo before, that is fine. The session-note pattern is the gentle on-ramp; you do not need to know the codebase to write a useful session note about what you tried, what worked, and what did not.
+
+### What bad PRs look like
+
+The reviewer agent rejects PRs that:
+
+- Add a new dependency without a justification in the session note.
+- Touch the spec at `packages/spec/`. The spec is orchestrator-owned.
+- Add a new public route without an explicit cache policy.
+- Regress the perf budget by more than five percent without measurement.
+- Skip the visual snapshot step on a graphics change.
+- Mix unrelated changes in a single PR.
+
+If the reviewer agent rejects your PR, the rejection comment names the rule and links to the relevant doc. Fix the issue, push a new commit, re-request review. The cycle is typically under an hour if the issue is small.
+
+### Local dev environment
+
+Node 20+, [pnpm](https://pnpm.io/) v9+, Python 3.11+ (only if you touch the producer), ffmpeg 4.4+ (only if you touch the clip pipeline). The dev server has all of these provisioned; the [Dockerfile](https://github.com/0800tim/tournamental/blob/main/infra/docker/dev/Dockerfile) at `infra/docker/dev/Dockerfile` mirrors them if you prefer container-based dev. The bootstrap is `pnpm install && pnpm -r run build && pnpm -F @vtorn/web dev`. Open `localhost:3300` and you are running the renderer with the mock producer; switch to the real StatsBomb producer with `pnpm -F @vtorn/statsbomb-replay run replay`.
+
+### Testing graphics changes locally
+
+Before opening a PR:
+
+1. Run `pnpm typecheck`. Three.js's types are strict and missing a property on a `Material` is a typecheck error, not a runtime one. Catch these locally.
+2. Run `pnpm test`. The Vitest suite covers the pure-logic packages (`@tournamental/spec`, `@vtorn/ball-physics`, the interpolation library).
+3. Run `pnpm -F @vtorn/web build`. The production build will surface any [Next.js](https://nextjs.org/) routing or module-resolution issues that the dev server hides.
+4. Run the Playwright suite: `pnpm -F @vtorn/web test:e2e`. The full match runs at `--time-scale=10` and asserts no console errors.
+5. Capture a visual snapshot at the key moments (kickoff, Messi 23' goal, penalty shootout) and save them to `apps/web/test-fixtures/visual/<your-pr-slug>/`. Include them in the PR description.
+6. Update the perf-budget file if your change affects the budget (rarely needed; the existing budget is generous).
+
+If all six steps pass locally, the reviewer agent's run on the PR is mostly a sanity check.
+
+### The orchestrator and the worktree pattern
+
+The repository uses git worktrees for parallel agent work. The pattern is documented in [docs/34-orchestrator-runbook.md](https://github.com/0800tim/tournamental/blob/main/docs/34-orchestrator-runbook.md). For human contributors, this mostly does not matter; you check out a branch as normal, you push, you open a PR. If you are running agents of your own, the worktree pattern is the one to follow because it allows the orchestrator agent to coordinate multiple parallel feature branches without them stepping on each other.
+
+### A note on the AI agents on the project
+
+A small fleet of AI agents (mostly Claude, some local Llama variants) ships PRs against the repo. They follow the same protocol as human contributors: session note, feature branch, conventional commit, signed-off DCO. The reviewer agent is also an AI. If you ship a PR, an AI reviewer will read it and leave the first round of comments; Tim merges or asks for changes after that.
+
+This is not a problem for human contributors. The agents are part of the team. They write good code and they leave clear session notes. If you want to coordinate with a specific agent on a feature, you can post in the relevant thread on the GitHub Discussions board and tag the agent's identifier. The agent-author flow is documented at [AGENT-PROMPTS.md](https://github.com/0800tim/tournamental/blob/main/AGENT-PROMPTS.md).
+
+The agents are scored on the same Drips formula as human contributors. The wallet address attached to an agent is owned by the human who runs the agent (in most cases that is Tim, but a few agents are run by contributors who set them up to ship in their own area). If you want to run an agent of your own against the codebase, the orchestrator runbook at [docs/34-orchestrator-runbook.md](https://github.com/0800tim/tournamental/blob/main/docs/34-orchestrator-runbook.md) covers the setup.
+
+### A note on the dev server
+
+The repo runs on a single Linux box at the time of writing. The infra is documented in [docs/22-deployment-and-tunnels.md](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md). If you want a development environment that mirrors the production setup, the Docker compose file at `infra/docker/compose.yml` brings up Postgres, Redis, and the renderer's dependencies in roughly the right shape. If you want to skip the infra and just run the renderer, `pnpm -F @vtorn/web dev` is sufficient. The mock producer at `apps/mock-producer/` gives you a synthetic match for renderer-only development; the StatsBomb replay producer gives you the real AR-FR final.
+
+### The development cadence
+
+Tim ships from a single tmux session on a single Linux box. The cadence is:
+
+- Notice a thing (a bug, a gap, a feature you want).
+- Screenshot or describe it.
+- An orchestrator agent picks the right specialist agent, spins up a worktree, and starts the work.
+- The specialist agent opens a PR with a session note.
+- The reviewer agent comments on the PR.
+- Tim merges if the comments are addressed.
+- PM2 picks up the new build.
+- The next user does not see the bug.
+
+The median round trip is about twelve minutes for small changes; an hour for larger ones; rarely more than a working day. Human contributors slot into the same flow. If you open a PR today, it is reviewed today.
+
+### Where to find the existing graphics work
+
+The merged graphics PRs on the project live at the URL above. Each one is a self-contained piece of context. Recommended reading, in order:
+
+1. The initial scene setup PR: it sets up the R3F canvas, the lights, the sky dome, and the initial procedural body. The session note is a good "what does this codebase look like" introduction.
+2. The first Magnus stub PR: it adds the constant-force version of the ball physics. The session note explains why the stub is a stub (Tim ran out of time to do the real physics).
+3. The interpolation refactor PR: it switches from the 2-frame wall-clock alpha to the buffered-mode default. This is the most subtle PR in the codebase and a good model of how a perf-sensitive change should be documented.
+4. The HUD overlay PR: it adds the score, the clock, and the slow-mo factor. The visual treatment is the placeholder version a typography contributor could replace.
+
+## A specific first PR
+
+If you want a one-day starter project that lands an immediately visible improvement, here it is.
+
+**Implement the Magnus-effect ball-curl shader for free kicks. See [docs/27d-fidelity-phase4-polish.md](https://github.com/0800tim/tournamental/blob/main/docs/27d-fidelity-phase4-polish.md), section 3.2. The TODO comment lives in [`apps/web/components/Ball.tsx`](https://github.com/0800tim/tournamental/blob/main/apps/web/components/Ball.tsx) and the physics module that wraps it is `packages/ball-physics/src/magnus.ts`.**
+
+### The current state
+
+The current code applies a constant side-force. The constant is wrong in magnitude and direction; on a free kick the ball flies in a near-straight line with a faint sideways bias that makes the trajectory look like a knuckleball drift, not a Magnus curl. The doc specifies the full `F = S × (ω × v)` Magnus model with per-event spin estimation: free kicks get ten revolutions per second, outside-foot passes get five, knuckleballs get zero.
+
+### The acceptance test
+
+The acceptance test is in the same doc: known free kicks should reproduce visible curl within twenty centimetres of the historical end position. The Messi versus Mexico 2022 group-stage free kick is the worked example. StatsBomb open data has the event with `end_location` in three dimensions and a foot-side indicator; that is enough to seed the spin estimate.
+
+### The PR steps
+
+1. Read `packages/ball-physics/src/magnus.ts`. Note the constant.
+2. Replace the constant with the full Magnus formula. Define `S` and `ω` as named constants pulled from `packages/ball-physics/src/constants.ts`.
+3. Add a spin-estimator function that reads the StatsBomb event metadata and returns `(rpm, axisVec3)`. Branch by event subtype: free kick, outside-foot pass, knuckleball, header.
+4. Add a Foundry test (well, a Vitest test, since this is a Node package) at `packages/ball-physics/test/magnus-curl.test.ts`. Feed it the Messi-vs-Mexico event, run the trajectory, assert the end-location is within twenty centimetres of the recorded end-location.
+5. Update the visual regression suite at `apps/web/__tests__/visual-regression.spec.ts` with a snapshot at the Messi free kick frame.
+6. Open the PR with the before/after screenshots and a session note explaining the spin-estimator branching.
+
+### Why this PR is high-impact
+
+The PR is bounded. The test is concrete. The visible result is one of the most evocative effects in football, and it ships into every match the renderer ever plays. The doc 19 scoring rules credit this as a "significant feature" with a flat bounty plus the per-line credit. The wallet integration is exactly the same as every other contributor in the list.
+
+### How long the first PR usually takes
+
+Based on the existing graphics PRs in the project: foot IK shipped in eleven hours of focused work, the LOD cross-fade shipped in eight, the run-cycle blend tree shipped in fourteen (it had a bug that took six of those hours to track down, in the Mixamo bone-naming mismatch the doc warned about). The Magnus shader is probably similar to the blend tree: most of the time is on the spin-estimator branching and the test fixture, not on the shader itself.
+
+A good rule of thumb: the first hour is reading the doc and the existing code. The second hour is writing the test fixture. Hours three through eight are the implementation. The final hour is the session note and the PR description. Plan for eight to fifteen hours total if you have never worked in this codebase before; under five if you have.
+
+### Sketching the PR ahead of time
+
+If you want to coordinate before opening a PR, the recommended path is:
+
+1. Open a GitHub Discussion thread titled "RFC: Magnus curl shader implementation".
+2. Sketch your approach in fifty to one hundred lines. Cite the relevant sections of doc 27d.
+3. Wait for Tim or the reviewer agent to comment. Typical response is under twenty-four hours.
+4. If the approach is approved, branch and ship. If not, the comments will tell you what to change.
+
+This is optional. If you want to just open a PR cold, that is also fine; the worst case is the reviewer agent asks for changes and you iterate.
+
+### A worked example of the Magnus PR
+
+To make the scope concrete, here is what a successful PR for the Magnus shader looked like in a dry run an AI agent did against the codebase. The agent opened a draft PR titled "feat(ball-physics): full Magnus model with per-event spin estimation".
+
+The PR touched five files:
+
+1. `packages/ball-physics/src/magnus.ts`, replacing the constant with the formula.
+2. `packages/ball-physics/src/constants.ts`, adding `RHO`, `BALL_AREA`, `BALL_CL` named constants pulled from Wikipedia's [Adidas Al Rihla ball specs](https://en.wikipedia.org/wiki/Adidas_Al_Rihla).
+3. `packages/ball-physics/src/spin-estimator.ts`, a new file with the branching logic for free kicks, outside-foot passes, knuckleballs.
+4. `packages/ball-physics/test/magnus-curl.test.ts`, the Vitest test against the Messi-Mexico free kick.
+5. `apps/web/components/Ball.tsx`, removing the TODO comment.
+
+The diff was 162 lines added, 18 removed. The session note was 78 lines. The visual snapshot was a side-by-side of the Messi free kick at the apex, with the old constant-force trajectory in red and the new Magnus trajectory in green. The perf budget run showed a one-percent regression on the AR-FR demo, comfortably inside the five-percent threshold.
+
+The reviewer agent approved the PR in ten minutes. Tim merged it. The next match the renderer played, the free kick curled correctly.
+
+That is the shape of a good graphics PR. Bounded scope, concrete test, visible improvement, perf budget intact, session note explaining the design choices.
+
+### Alternative first PRs
+
+If Magnus curl is not your thing, the foot inverse-kinematics PR is the other one-day starter. The Phase 2 doc has the technique and the acceptance criteria. The implementation hooks are already in `Player.tsx`. The result, planted feet that match the pitch normal, looks dramatically more credible the moment it lands.
+
+If you want a one-week project, the Ready Player Me rigged-mesh integration is the next step up. The Phase 1 doc is the spec, the Wikidata photograph pipeline is the helper module, and the Mixamo animation pack is the target. The deliverable is a single replacement of the procedural body with the rigged mesh, the existing jersey-texture generator still working on the new mesh, and the player faces visibly recognisable across the squad.
+
+If you want a one-month project, write the Phase 5 doc yourself. Open a discussion. Tell me what you would do with the renderer if you had a month and no oversight. The first person to bring me a credible Phase 5 design probably ends up steering the next sprint of the renderer.
+
+### A note on shader IP
+
+If you write a shader for the renderer, the shader is Apache-2.0 licensed under the project terms. You retain copyright; the project gets a broad licence to use, redistribute, and modify. If you have a portfolio piece you want to keep proprietary and a derivative piece you would license to the project, the licensing path is documented in [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md) under "Contributor Licence Agreement". The short version: you sign the DCO on the commit (the `-s` flag in `git commit`) and you implicitly licence the contribution under the project's terms. There is no surprise IP capture.
+
+If you want to ship your shader as a plugin instead of upstream, the plugin path lets you keep your code in its own repository under whatever licence you choose. Tournamental pulls the plugin as a dependency; your code is yours. The plugin registry pattern at `apps/web/lib/plugins/registry.ts` is the same pattern [VS Code uses for extensions](https://code.visualstudio.com/api).
+
+## What I want to hear from you
+
+If any of this resonates, the three channels are:
+
+- **Email**: `tim@tournamental.com`. The body of the email can be "I am a graphics engineer, I want to help, here is my GitHub". That is enough.
+- **GitHub Discussions**: open a thread on the repo. Tell me what you would build. I will reply within twenty-four hours.
+- **Telegram**: the Tournamental Telegram channel is `@TournamentalBuild`. Drop in. Say hi. Ask questions.
+
+### A specific Telegram channel breakdown
+
+The Telegram surface is split into channels by topic:
+
+- **`@TournamentalBuild`**, the main build channel. Open. New contributors say hi here.
+- **`#renderer`**, a thread for renderer-specific discussion. Open to anyone in the build channel.
+- **`#renderer-paid`**, a thread for contributors who have opted into the Drips list. Slightly more operational discussion: who is working on what, when, with what perf-budget impact.
+- **`#fidelity-phase-N`**, threads spun up per fidelity phase as they activate. Phase 5 is not yet open; if you bring a credible Phase 5 design you may be the one to open the thread.
+- **`#sound`**, a thread for the audio mixing and ambisonic work. Currently empty because we have not had a contributor with audio chops yet.
+
+The thread structure is documented at [docs/13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md). The Tournament Bot in the Telegram channels is the same bot identity used across the platform for auth and push.
+
+### Time zones and async work
+
+Tim is in New Zealand (UTC+12 or +13 depending on daylight savings). Most contributors who have shipped so far are in Europe or the Americas, which makes the live-conversation overlap a few hours at the boundaries of each day. Async is the default. The PR cycle works fine async. The Discussions board is the right place to ask a question if you do not get a quick reply on Telegram.
+
+If you are in a time zone close to New Zealand and you want a live voice call, mornings my time (afternoons your time, if you are in East Asia or Australia) are the best window. I can do a 20-minute briefing call for serious contributors; the booking link is on the marketing site at `/team/tim` once the public reveal lands.
+
+### The longer answer to "should I contribute?"
+
+The renderer is the visible product. It is also the part most people who play the bracket game will judge the whole platform by. If we get the renderer right, every other piece of Tournamental gets the benefit. If we get it wrong, the watch-along is just another Three.js demo nobody shares.
+
+The pot-of-gold case for the whole project, written in [/blog/2026-05-12-pot-of-gold-or-pot-of-shit/](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/), assumes contributors come for a mix of reasons: the money is one, the public-good story is another, the chance to ship into a real product without negotiating with a creative director is a third. Any of those is enough. If the Drips list is your reason, the rules are public and the payouts are dispute-able. If the public-good story is your reason, the licence is Apache 2.0 and your work helps every fork that ever lifts from upstream. If the product-shipping reason is your reason, the codebase is small enough to actually finish a feature in a session.
+
+### Who is on the team already
+
+Tournamental is one human (me) plus a small fleet of AI agents (mostly Claude) plus a handful of human contributors who have shipped one or two PRs each. The agents are paid through Drips on the same scoring formula; the wallets behind them are mostly mine, although a couple of contributors run their own agents under their own wallets. Human contributors who have shipped: a Brazilian developer who fixed the Portuguese commentary registry mismatch in a four-line PR, a French developer who ported the StatsBomb event taxonomy to the spec, a designer who shipped the first podium share card, two other developers whose names go on the CONTRIBUTORS.md file when the public repo goes live.
+
+If you contribute, your name will be on the CONTRIBUTORS.md file (with your permission). You will be added to the contributor Discussions board. You will get tagged in the next round of feature design that touches your area. The team is small enough that any contributor's PR is noticed and the contribution loop is fast.
+
+### What happens after the World Cup
+
+The current critical path is the World Cup. Tournamental ships its core product (the bracket game, the watch-along, the share cards) for the 2026 World Cup in June. After the tournament concludes, the platform moves into a year-round mode: the bracket engine generalises to any tournament, the renderer handles any sport, the affiliate routing handles any sportsbook deal. The post-World Cup roadmap is in [docs/10-roadmap.md](https://github.com/0800tim/tournamental/blob/main/docs/10-roadmap.md).
+
+The renderer specifically becomes the watch-along engine for every sport Tournamental supports: NFL bracket pools, NRL ladder predictions, IPL group-stage tournaments, ATP draw predictions. Each sport needs renderer-side work: different player rigs, different ball physics, different stadium geometry, different camera conventions. A graphics contributor who joins now is positioning to lead the renderer evolution into the second and third sport, with the first sport (football) as the proving ground.
+
+### A short word on tooling preferences
+
+If you contribute regularly to the renderer, the project's preferred local tooling stack is: [Visual Studio Code](https://code.visualstudio.com/) (or any editor with a working TypeScript language server), the [pmndrs ESLint config](https://github.com/pmndrs/eslint-config), [Prettier](https://prettier.io/) at the project's published config, and Node 20+ via [fnm](https://github.com/Schniz/fnm) or [nvm](https://github.com/nvm-sh/nvm). The repo has `.vscode/extensions.json` recommendations for the helpful extensions; install them and the editor will catch most issues before you commit.
+
+### A note on hiring versus contributing
+
+For the avoidance of doubt: the contributor flow is not a hiring pipeline. Tournamental NZ Limited does not have headcount to hire. If we get to the point where there is a graphics-engineer hire to make, the conversation starts with contributors who have already shipped on the codebase. The Drips list is the present-tense compensation path; a hire conversation, if it ever happens, would be separate.
+
+If you are looking for a contracting engagement (a defined scope, a defined budget, a defined timeline), that conversation is also separate. Email `tim@tournamental.com` with the scope and the budget you have in mind. The strategic-reserve line item in the treasury policy is the funding source for contracted work and the budget is small but real.
+
+### What success looks like, in one paragraph
+
+If this post does its job, three to five graphics specialists email me in the next month. One ships the Magnus shader in their first week. One picks up the foot IK and shadow cascade fix as a second-week project. One starts a multi-month Phase 5 design that I do not have to write myself. Two opt out of Drips and contribute as public-good work. The Argentina-versus-France replay starts looking like a real broadcast instead of like a Three.js demo, and the same renderer carries through the 2026 World Cup with credible-looking ball curl on every free kick.
+
+If that happens, the platform's whole watch-along experience gets the benefit. If it does not, the renderer ships as-is and I keep apologising for the wooden players for another year.
+
+### Code review across the renderer
+
+A note on how renderer PRs are reviewed in practice. The reviewer agent's first pass covers the mechanical checks (lint, typecheck, test, perf budget, visual snapshot, bundle size, cache policy). Tim's pass covers:
+
+- **Does it look right?** Watch the AR-FR demo with the change applied. If the change breaks the visual, request changes.
+- **Does it generalise?** The 2026 World Cup is the next match the renderer plays. If the change is hard-coded to the AR-FR demo, request changes.
+- **Does it match the doc?** If the PR claims to implement a doc-specified feature, the implementation should follow the doc. If there is a mismatch, request a doc update in the same PR or revise the implementation.
+- **Is it kind to the next contributor?** A clear session note plus inline comments at the tricky bits. A 200-line PR with no inline comments is harder to maintain than the same PR with eight comments at the load-bearing lines.
+
+Most PRs pass on the first review. The ones that do not usually fail on the "is it kind to the next contributor" check, which is the softest of the four but the one that compounds across many contributors.
+
+### Reading list, sorted by usefulness
+
+If you want to ramp up on the project's specific rendering choices before you ship, the recommended reading list is:
+
+1. The [Three.js fundamentals](https://threejs.org/manual/) chapter, especially the section on the scene graph. If you have used Three.js before, skim this.
+2. The [React Three Fiber documentation](https://r3f.docs.pmnd.rs/), especially the section on refs and the `useFrame` hook. The pmndrs team's [discord](https://discord.gg/poimandres) is also responsive if you have a specific R3F question.
+3. The [Drei reference](https://drei.docs.pmnd.rs/), specifically the camera-controls helpers and the `<Sky/>` component.
+4. The [Rapier physics tutorials](https://rapier.rs/docs/user_guides/javascript/getting_started_js/), specifically the deterministic-mode setup. The renderer uses Rapier in deterministic mode so that the same input produces the same trajectory on every replay.
+5. The [postprocessing library documentation](https://pmndrs.github.io/postprocessing/public/docs/), specifically the chapters on bloom and SSAO. The current renderer uses both at default settings; tuning is an open job.
+
+If you are coming to this from a Unity or Unreal background, the mental model shift is:
+
+- Three.js does not have a scene editor. The scene is code. Layout is done by writing React components.
+- Three.js does not have a built-in animation graph. The [AnimationMixer](https://threejs.org/docs/#api/en/animation/AnimationMixer) plays clips; you write the state machine yourself.
+- Three.js does not have a built-in particle editor. The [Points](https://threejs.org/docs/#api/en/objects/Points) primitive is what you have; you write the per-particle update logic.
+- Three.js does not have a built-in lighting model beyond the basics. PBR is in the materials but the lighting setup is on you.
+
+This is by design. Three.js is a low-level library and the higher-level conveniences are in the ecosystem packages. R3F provides the React abstraction; drei provides the common helpers; postprocessing provides the post-effect pipeline.
+
+### One specific TODO worth quoting
+
+Inside `apps/web/components/Ball.tsx`, near the top of the file, there is a TODO comment that reads, paraphrasing the actual text:
+
+> // TODO: the Magnus side-force here is a constant. The right model is in
+> // packages/ball-physics/src/magnus.ts where it is also a constant.
+> // The spec is in docs/27d-fidelity-phase4-polish.md section 3.2.
+> // Calibration target: Messi v Mexico free kick, 2022 group stage,
+> // end-location within 20cm of the StatsBomb-recorded end-location.
+
+That TODO has been in the file for three weeks. I have written it down four times in four different session notes. It will probably still be there in a month unless somebody who knows what they are doing ships the PR. If that somebody is you, this is your sign.
+
+### Frequently asked questions
+
+**Do I need to use Three.js? I prefer Babylon / PlayCanvas / Unity WebGL.**
+
+The core renderer is Three.js + React Three Fiber and changing that costs more than the move would save. However, the **plugin path** in `apps/web/lib/plugins/` is engine-agnostic at the WebGL layer. A Babylon contributor could ship a Babylon-based plugin that renders into a separate canvas overlaid on the R3F scene. A Unity WebGL contributor could ship a Unity-rendered LOD level that the R3F scene falls back to at long-range camera angles. The interesting work is at the seam between the two.
+
+**Do I need to use TypeScript? I prefer plain JavaScript.**
+
+The repo is strict TypeScript. The reviewer agent rejects PRs that introduce un-typed code. If you are coming from a JavaScript background, the [TypeScript handbook](https://www.typescriptlang.org/docs/handbook/intro.html) is the on-ramp, and the existing renderer code is the worked example. Three.js's TypeScript types are mostly good and the spec is fully typed.
+
+**Can I ship visual changes without writing tests?**
+
+No. Every visual change ships with a visual snapshot at minimum, and a Playwright E2E test if the change interacts with the director state machine or the HUD. The reviewer agent enforces this.
+
+**What if I find a bug in the spec?**
+
+The spec is owned by the orchestrator (Tim). Spec changes are an escalation, not a PR. Open a GitHub Discussion thread titled "RFC: spec change for X" with the proposed diff and the rationale; Tim and the relevant reviewer agents discuss; if accepted, Tim opens the PR himself.
+
+**Can I work on multiple PRs at once?**
+
+Yes. The repo uses git worktrees for parallel work. The reviewer agent treats each PR independently. The only constraint is that PRs touching the same file may need to rebase; the orchestrator usually catches this and warns in the PR comments.
+
+**What if I find a security issue in the renderer?**
+
+The responsible-disclosure process is in [SECURITY.md](https://github.com/0800tim/tournamental/blob/main/SECURITY.md). Email `security@tournamental.com` with a PGP-encrypted payload; the key fingerprint is in SECURITY.md. Renderer-specific issues are usually low-severity (XSS via injected commentary text, perf-DOS via crafted match data) but we take them seriously.
+
+**Can I rebrand the renderer in a fork?**
+
+Yes. The code is Apache 2.0. The brand assets (Tournamental name, wordmark, logo) are not open and you cannot use them in a fork. Everything else, including the rendering primitives, the docs, the spec, is yours to fork and rebrand. The brand-reservation policy is in [TRADEMARK.md](https://github.com/0800tim/tournamental/blob/main/TRADEMARK.md).
+
+### What the project does not need from a 3D contributor
+
+To save you time, here are the things that are **not** in scope for renderer contributions, in order of "asked about most often":
+
+- **A native rewrite in Unity or Unreal.** The browser is the platform. WebGL2 is the baseline. WebGPU is the upgrade path. Native rewrites are off the table.
+- **A separate VR-only renderer.** WebXR via the existing R3F scene is the path. A separate Unity-VR build is off the table.
+- **A complete colour-grading overhaul that disregards the existing tonemap.** ACES is the starting point. Per-stadium grades on top are welcome; replacing ACES with a custom curve is a discussion to have first.
+- **A non-Apache-2.0 plugin.** Plugins can be licensed however the contributor chooses, but the core renderer code is Apache-2.0 only. If your plugin needs to link against the core in a way that requires a different licence, the discussion starts on the licensing.
+- **A "let's switch to a different physics engine" PR.** Rapier is the engine. Switching engines is an architectural decision that requires a written RFC and council review. Tuning Rapier configuration, adding new collider types, refining the integrator: all welcome.
+- **A "let's drop React Three Fiber and go to vanilla Three" PR.** R3F is the React boundary that makes the rest of the Next.js app possible. Same as the physics engine: changing it is an RFC, not a PR.
+
+### A few more honest admissions before I close
+
+I do not know how to do most of this. The TODO comments in the code are honest TODOs, not bait. If you read them and find one that says "this is a stub, the right model is in the doc, somebody who knows what they are doing should ship the real thing", that is the literal state of affairs. I am the person who wrote both the stub and the TODO.
+
+The doc 27 fidelity roadmap was assembled from a long evening of reading the [Three.js journey](https://threejs-journey.com/) curriculum, a few [GDC talks on character animation](https://www.gdcvault.com/), and the [pmndrs documentation](https://github.com/pmndrs). I do not have the production experience to know which of the items in the roadmap is the load-bearing one. The Magnus shader is the example I keep citing because it is visible and well-bounded; the foot IK is probably more impactful per-frame because every player has feet and only a small number of players take free kicks. A real graphics architect would prioritise differently and write the case in a PR comment. That PR comment would be a contribution.
+
+I also do not know how the renderer should evolve once the AR-FR demo ages out and the 2026 World Cup live data starts arriving. Doc 42 covers the [live-data ingest](https://github.com/0800tim/tournamental/blob/main/docs/42-wc2026-live-data.md) and the renderer needs to consume a different kind of feed (lower-frequency, less rich, with a per-event uncertainty score). The visual treatment of low-confidence events versus high-confidence events is a design problem I have not solved. A graphics contributor with a strong opinion on this would have an immediate seat at the table.
+
+I am uncertain whether the LOD pipeline should pre-bake the simplified meshes or generate them at runtime. The pre-bake is faster at runtime but adds to the build complexity; the runtime generator is more flexible but costs frame-time. A 3D contributor with mobile-perf experience could decide this in an afternoon and the decision would propagate across the whole renderer.
+
+I do not know what the right primary-light setup is for a stadium scene. Two directional lights and a hemisphere fill is what I shipped. A real lighter would set up a key, fill, rim, and bounce; I do not know what each of those means in a WebGL context strictly enough to write the code. A lighting specialist could ship the proper four-light rig and the scene would suddenly look like a TV broadcast in two ways: the players have shadows that read correctly, and the pitch has a directional warmth that the current setup loses.
+
+I do not know whether the renderer should ship with a built-in record-mode for screen capture or whether contributors should run an external recorder. The current code has a `?record=1` flag that switches the scene to deterministic mode and pipes frames to stdout via [MediaRecorder](https://developer.mozilla.org/en-US/docs/Web/API/MediaRecorder), but the flag is undocumented and probably broken in some edge cases I have not tested. A contributor who tightens up the record-mode would unlock the entire clip-pipeline use case (see [docs/14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md)) and the marketing-team workflow that depends on it.
+
+### The shorter answer
+
+Come and break my renderer. I genuinely cannot do this without you.
+
+- Tim

@@ -1,0 +1,705 @@
+---
+title: "Calling all multilingual sports fans: translate the World Cup commentary"
+description: "Tournamental's verbose 200-minute Argentina vs France commentary script already ships in ten languages. Every one of them was machine-translated, seeded with sports-cliche templates, and proofread by exactly one Kiwi who only speaks two of those languages. Native speakers, terrace fans, and sports broadcasters: come and fix the parts that sound off. Drips pays a slice on every paid replay-stream view."
+pubDate: 2026-05-15
+author: "Tim"
+tags: ["open source", "contributing", "drips", "translation", "localisation", "commentary"]
+heroImage: "/blog/calls/2026-05-15-calling-translators-hero.svg"
+heroImageAlt: "Ten cartoon football fans in ten national kits gathered around a single microphone, each with a different speech bubble in their own language. Above the scene, the words 'Calling all multilingual sports fans' in chunky display type. A small Kiwi bird stands at a translator's booth in the corner, holding a clipboard and looking apologetic."
+heroImageCredit: "Illustration generated for Tournamental, 2026"
+---
+
+TODO: (hero image WIP, placeholder pending)
+
+## The hook
+
+If you grew up watching football in a language that is not English, or you work in sports broadcasting and you have an ear for the terrace voice of a specific country, this post is for you.
+
+The Tournamental renderer plays the 2022 World Cup Final with full commentary, 200 minutes long, in ten languages. Every one of those languages was machine-translated from the English master script and seeded with my best guess at sports clichés.
+
+I pronounce "Mbappé" wrong in three of them. Come and fix it. Drips will pay you a slice on every paid replay-stream view that touches your work.
+
+This post is the long version. The pot-of-gold-or-pot-of-shit manifesto at [/blog/2026-05-12-pot-of-gold-or-pot-of-shit/](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/) is the broader open-source case; this post is the narrow call to multilingual sports fans. The rest covers what I built, what is wrong, what an expert could ship in a day, a week, or a month, and how Drips routes revenue to you in USDC.
+
+## What I built so far
+
+The commentary pipeline produces a full live-broadcast voice over the Argentina versus France 2022 final, synchronised to the StatsBomb event timeline, in ten languages. The source assets live at [`data/commentary/wc2022-final-arg-fra/`](https://github.com/0800tim/tournamental/tree/main/data/commentary/wc2022-final-arg-fra) and the file structure is one Markdown file per language, plus a `manifest.json` that maps each utterance to a timestamp and an event ID.
+
+### The file structure
+
+```
+data/commentary/wc2022-final-arg-fra/
+├── manifest.json
+├── ar.md        Arabic
+├── de.md        German
+├── en.md        English (master)
+├── es.md        Spanish
+├── fr.md        French
+├── it.md        Italian
+├── ja.md        Japanese
+├── pt.md        Portuguese
+├── ru.md        Russian
+└── zh.md        Mandarin Chinese
+```
+
+### The English master
+
+The English master is the long-form version: around 2,972 lines, 200 minutes of audio at conversational pace, with crowd-reaction cues and inflection markers. The script is written to sound like a real commentary partnership, two voices passing back and forth, not a single robot. It was authored by a human (me) with heavy editorial passes from a language-model agent that ran against a sports-commentary corpus.
+
+The script structure is, per utterance:
+
+```
+## minute 23:18, period 1
+[crowd: rising murmur]
+LEAD: Messi steps up to the spot.
+COLOUR: He has scored four from four in this tournament from twelve yards.
+LEAD: Pace, pace, pace. Lloris dives left. Messi places it right.
+[crowd: roar]
+LEAD: One-nil Argentina.
+COLOUR: Lionel Messi opens the scoring in the World Cup Final.
+```
+
+The `[crowd: ...]` cues drive the ducking on the crowd loop. The `LEAD:` and `COLOUR:` prefixes route to the two TTS voices. The markdown headings drive the event-time synchronisation; the manifest maps each heading to a StatsBomb event ID.
+
+### The other nine languages
+
+The other nine languages were generated from the English master via a structured translation pipeline. The doc that explains the pipeline is [docs/31-live-commentary-overlay.md](https://github.com/0800tim/tournamental/blob/main/docs/31-live-commentary-overlay.md). The renderer integration is in [`apps/web/app/api/commentary/`](https://github.com/0800tim/tournamental/tree/main/apps/web/app/api/commentary). The text-to-speech pipeline uses [ElevenLabs](https://elevenlabs.io/) per-language voice models, with each language anchored to a single voice for the main commentator and a second voice for the colour commentator. The voice mapping is in `manifest.json` as `voice_main` and `voice_colour` keys per language.
+
+### The translation pipeline, in detail
+
+The pipeline is:
+
+1. **DeepL initial pass** on the full English master. [DeepL](https://www.deepl.com/) handles the structural translation well across all ten target languages.
+2. **Language-model rewrite** with sports-cliche templates inserted. The templates are per-language and live at `data/commentary/templates/<lang>/cliche-set.md`. The LLM reads the DeepL output, identifies the cliché slots, and replaces the literal translation with the local-language cliché where appropriate.
+3. **Manual review** for the four languages where I have a friend who could spare an hour (German, Italian, French, Russian). The other five (Spanish, Portuguese, Arabic, Japanese, Mandarin) ship with only the LLM rewrite.
+4. **Per-name SSML pronunciation pass** on the player roster. This is the step I have not done; it is documented in the doc but not implemented.
+5. **TTS render** via ElevenLabs API, with per-language voice mapping.
+
+The pipeline is end-to-end. It runs as a build script at `data/commentary/scripts/build-pipeline.mjs`. A single run takes about forty minutes for the full 200-minute match across ten languages, mostly ElevenLabs synthesis time.
+
+### What this means for a viewer
+
+What this means in practice: a French fan watching the AR-FR replay hears a French commentary track over a French-language HUD with the right player names, the right club references, and the right rhetorical pacing on a goal call. A Mandarin fan gets a Mandarin track. An Arabic fan gets an Arabic track. The infrastructure works. The renderer is multilingual from launch.
+
+The English track sounds, mostly, like a real commentary partnership.
+
+The other nine tracks sound, mostly, like a competent translation of a real commentary partnership. Which is not the same thing.
+
+## What I cannot do alone
+
+### I speak two languages, badly
+
+I am a New Zealander. I speak English natively. I speak a passable, vacation-grade Spanish. I can read enough French to follow a Le Monde sports article but I would never claim to write commentary in it. The other seven languages are languages I cannot speak.
+
+### The pipeline is automation, not authorship
+
+I used machine translation seeded with sports-cliche templates from the [Wikipedia football phrasebook](https://en.wikipedia.org/wiki/Glossary_of_association_football_terms) and a curated list of [common football commentary idioms](https://www.theguardian.com/football/2014/jul/15/world-cup-football-cliches). The pipeline goes English master → DeepL initial pass → language-model rewrite with the cliche templates inserted → human review (for the languages where I had a friend who could spare an hour). The five languages where I did not have a friend to ask got the first two stages and went live as-is.
+
+This means several things will be wrong, and I want to be specific about them so you know exactly what to fix.
+
+### What is wrong, by language
+
+The **Portuguese** version uses Continental Portuguese registry by default. The Brazilian Portuguese expansion (Tournamental's biggest growth market in 2026) will sound off to anyone watching from São Paulo or Rio. The terrace voice, the syllable timing, the use of "rapaz" versus "cara", the rhythm of the goal call (Brazilians extend "goooooooooooooooooooooooooooool" for a reason, and the cadence varies by club tradition), none of this is right in the current script.
+
+The **Spanish** version uses a neutral Latin-American registry that is recognisable in Mexico and Colombia but reads slightly wrong in Argentina, Spain, Chile, and Uruguay. The Argentina-vs-France final is the worst possible match to ship with a non-Argentine Spanish track. The "che" idioms, the Buenos Aires terrace songs, the Messi-specific pet names ("Lio", "la Pulga"), the way an Argentine commentator builds tension in the run-up to a Messi free kick: all of this is in the cultural air of Argentine commentary and none of it is in our script.
+
+The **Arabic** version is the one I am most uncertain about. The pipeline translated everything into Modern Standard Arabic because that is the registry the LLM defaults to. Real football commentary in the Arabic-speaking world is overwhelmingly **regional**: Egyptian Arabic dominates north African audiences, Gulf Arabic dominates the GCC, Levantine Arabic dominates the Levant. The Modern Standard Arabic version will sound to an Egyptian fan the way the BBC's received-pronunciation news reader would sound to a Liverpool terrace.
+
+The **Japanese** version has formality-register problems. Sports commentary in Japan switches between polite (-masu) and casual (-da) forms based on emotional intensity, with a specific rhetorical move where the commentator drops into casual form on a goal as a marker of authenticity. The current script uses polite form throughout. A native Japanese speaker will read it as flat.
+
+The **Mandarin** version has the inverse problem. Mandarin sports commentary uses a specific high-energy register that the LLM defaulted away from because it sounded "exaggerated" in the source corpus. The current script is too restrained. The goal calls do not crescendo.
+
+The **Korean** version does not yet ship. The K-League audience is large and growing, and Korean broadcast convention uses a specific high-energy goal call that the LLM defaulted away from. Korean is one of the languages on the "we should ship this next" list.
+
+The **Hindi** version does not yet ship. The IPL audience expansion is on the roadmap and Hindi commentary is a market we need to enter before the cricket-season expansion lands.
+
+The **Bengali** version does not yet ship. Bangladesh has one of the most football-passionate populations in the world relative to per-capita GDP and the Bengali audience is underserved by global sports media. We need this.
+
+The **German**, **Italian**, **French**, and **Russian** versions are the four I have native or near-native friends for. They got the pipeline plus one round of human review. They are passable. They are not great. The German is too formal for a Bundesrepublik football audience. The Italian is too neutral for any of the [three traditional Italian commentary schools](https://en.wikipedia.org/wiki/Football_in_Italy#Football_in_Italian_media). The French is fine, mostly, except for the player-name pronunciations where the TTS voice is mispronouncing "Mbappé" by stressing the second syllable. The Russian is fine, mostly, except that the post-Crimea generation of Russian football commentary has shifted in ways my friend was not in a position to brief me on.
+
+### Languages we have not yet shipped
+
+And there are languages **we have not yet shipped** that we should. Bengali for the IPL audience expansion. Hindi for the same. Urdu for the Pakistan cricket audience. Swahili for East African football. Yoruba and Hausa for West African football. Korean for the K-League and the AFC Asian Cup audience. Vietnamese for Southeast Asia. Indonesian. Filipino. Each one of those audiences is a market that Tournamental wants to reach and currently cannot, because the commentary track is monolingual at the level of "language we shipped".
+
+### Pronunciation issues across the stack
+
+The **machine-pronunciation issues** in the TTS voices are a separate problem. ElevenLabs handles English names well in most voice models. It struggles with non-English names in the wrong-language context: "Mbappé" pronounced in a French voice is fine, in an English voice it lands on the wrong syllable, in a Japanese voice it loses the accented é entirely. The fix is per-name SSML hints in the manifest, and I have not done the work to author them.
+
+The 22-starter squad list for the AR-FR final lives at [`apps/statsbomb-replay/data/wc2022-final-players.csv`](https://github.com/0800tim/tournamental/blob/main/apps/statsbomb-replay/data/wc2022-final-players.csv) with the full name, jersey number, and club. The right SSML override would be a `<phoneme>` tag per name per voice, mapped through a lookup table in `data/commentary/pronunciations/<lang>/players.json`. None of these files exist yet.
+
+### The crowd-mix issue
+
+The crowd loop, the way it interacts with the commentary, is the next layer below the language registry. Brazilian crowds chant differently than Argentine crowds. The current crowd loop is one BBC sound-archive WAV that ducks under the commentary cue. A localised pass would author per-region crowd loops: Argentine for the Argentina-supporters end, French for the France-supporters end, with mixed crowd elsewhere. The mix would crossfade based on camera position.
+
+This is a translator-with-audio-experience job. The audio assets need to be sourced (the BBC's CC-BY archive is one source; field recordings from terrace songs at amateur matches are another). The integration is in `apps/web/lib/sound/crowd.ts`. Today the file is empty.
+
+### The HUD localisation
+
+The HUD overlay is partially localised. The score is universal. The player names render in the local language's transliteration where available. The timestamp uses 24-hour ISO format. The "REPLAY" banner is in English everywhere. The "GOAL" celebration text is in English everywhere. None of these have been audited by native speakers. A pass on the HUD strings, per language, is part of the translation work.
+
+## The opportunity
+
+This is a translation project with a real audience and a real revenue model. The English commentary already drives engagement on the AR-FR replay. Every line you fix in your language ships into the next match the renderer plays, which is every match Tournamental plays from now on.
+
+### The big picture
+
+The localisation fidelity ladder, from where we are to "broadcaster-grade":
+
+- **Level 0**, machine-translation defaults. Ten languages shipped. We are here.
+- **Level 1**, native-speaker-reviewed. Each of the ten languages has been audited by a native speaker who has fixed the registry and the cliche placement. Two to three months of focused work.
+- **Level 2**, broadcaster-grade. Each language sounds like a real broadcast in the relevant country, with regional variants, per-name pronunciation, and localised crowd loops. Six to nine months.
+- **Level 3**, multi-broadcaster optionality. The viewer picks "Mexican broadcast voice" or "Argentine broadcast voice" within the Spanish family, or "Egyptian broadcast voice" within Arabic. Twelve to eighteen months.
+
+We need Level 1 across the existing ten languages and three new languages (Bengali, Korean, Hindi) before the World Cup kicks off. Level 2 across the major language families during the World Cup. Level 3 by the second tournament cycle.
+
+### A category overview
+
+Translation contributions cluster into four buckets:
+
+1. **Script translation.** Reviewing or rewriting the per-language Markdown files for accuracy, registry, and broadcast feel.
+2. **Glossary work.** Authoring per-language terminology dictionaries that feed back into the translation pipeline.
+3. **TTS pronunciation.** Authoring SSML per-name pronunciation hints, plus per-event prosody hints.
+4. **Audio mix and crowd.** Localised crowd loops, per-region ambience, the mix between commentary and crowd.
+
+Each bucket is mostly independent of the others. A translator can stay in bucket 1 indefinitely without touching the others; an audio engineer can stay in bucket 4 without writing a single line of translation. Pick the bucket you have the most experience in.
+
+### A note on tooling
+
+The translation work is text-only at the script level: the per-language Markdown files are edited in any text editor. For glossary work, the recommended tool is a simple structured-text format (CSV or JSON); the project does not require a specific glossary tool like [SDL Trados](https://www.trados.com/) or [memoQ](https://www.memoq.com/). For TTS pronunciation work, the SSML standard is at [W3C](https://www.w3.org/TR/speech-synthesis11/) and the implementation reference is the [ElevenLabs SSML documentation](https://elevenlabs.io/docs/api-reference/text-to-speech).
+
+For audio work, the recommended tools are [Audacity](https://www.audacityteam.org/) (free, cross-platform, good enough for most crowd-loop editing) or [Logic Pro / Pro Tools / Ableton](https://www.apple.com/logic-pro/) for professional work. The exported WAV files go in `apps/web/public/sound/crowd/<region>/`.
+
+### What a translator could ship in one day
+
+- A pass-by-pass review of one language file. Open `data/commentary/wc2022-final-arg-fra/<your-language>.md`. Read the script. Fix the parts that sound wrong. Submit a PR with your changes and a short session note explaining the editorial choices (because the next translator working on the same language will read it). One day is enough for the most egregious fixes; the next contributor refines.
+- A registry shift on one language. The Portuguese version, as shipped, is Continental. The fix is to clone `pt.md` to `pt-BR.md`, adjust the registry, and update the `manifest.json` to expose both. One day of work, and the Brazilian audience gets the right voice.
+- A per-name SSML pronunciation pass for the player roster. The squad list is in [`apps/statsbomb-replay/data/wc2022-final-players.csv`](https://github.com/0800tim/tournamental/blob/main/apps/statsbomb-replay/data/wc2022-final-players.csv). For each of the twenty-two starters, you write the correct phonetic transcription in your language and the TTS pipeline picks it up. The [SSML spec](https://www.w3.org/TR/speech-synthesis11/) covers the `<phoneme>` element.
+
+### What a translator could ship in one week
+
+- A full re-authoring of one language version, line by line, in the voice of a real broadcaster from your country. Use the English master as the structural reference (the timing and the event-coverage rhythm) but write the prose in the way the local broadcasters do. The Brazilian version, for instance, should sound like [Galvão Bueno](https://en.wikipedia.org/wiki/Galv%C3%A3o_Bueno) at the goal moments. The Argentine version should sound like [Pablo Giralt](https://en.wikipedia.org/wiki/Pablo_Giralt) or [Sebastián Vignolo](https://en.wikipedia.org/wiki/Sebasti%C3%A1n_Vignolo). One week per language, and the audio track in your country becomes the reason fans come to Tournamental for the replay instead of YouTube.
+- A new language. Bengali, Korean, Swahili, Hindi, Urdu, whichever you speak natively. The pipeline is in [docs/31-live-commentary-overlay.md](https://github.com/0800tim/tournamental/blob/main/docs/31-live-commentary-overlay.md); you author the language file, add the entry to `manifest.json`, and ship.
+- A **fan-mode commentary variant** for an existing language. The current script is "neutral broadcaster". The fan-mode variant uses local slang, the home team's nickname, and the rhetorical patterns of supporter-driven commentary (the kind you hear on amateur YouTube channels in your country). One week of work and we ship "watch the AR-FR final in Argentine fan-mode Spanish, with the actual chants from Buenos Aires layered into the crowd track".
+
+### What a translator could ship in one month
+
+- The full commentary pack for the **2026 World Cup matches** as live data arrives. The English master script is being authored as live commentary for every match (the script is event-template-driven and assembles in real time). Your job is the per-language counterpart. One month per language and you are the lead translator for that language for the whole tournament cycle.
+- A **regional dialect pack** for one language family. Arabic with Modern Standard plus Egyptian plus Gulf plus Levantine. Spanish with Latin American plus Argentine plus Iberian plus Mexican. Portuguese with Continental plus Brazilian. The pipeline supports per-region voice mapping in `manifest.json` and the renderer reads the user's language preference plus the user's geographic hint to pick the right variant.
+- A **terminology dictionary** for your language. The football phrasebook in your country is not a one-to-one mapping with English. The right Italian word for a "long ball over the top" is contextual, the right Russian word for a "tap-in" varies by era, the right Japanese word for a "screamer" is two characters that change meaning if you stress the first syllable wrong. One month of glossary work feeds back into every script the pipeline ever generates.
+- A **per-region audio mix** for one language family. Author per-region crowd loops, per-region cheer samples, per-region whistle-cadence samples. The integration is in `apps/web/lib/sound/`. One month for a fully-realised regional audio identity.
+- An **in-renderer subtitle layer** in your language. The renderer ships with audio commentary but no subtitle option. A captions track that renders the commentary as on-screen text, in your language, with timing pulled from the manifest. One month of careful work and the renderer becomes accessible to viewers who cannot use audio (hard of hearing, working in a noisy environment, watching on mute).
+
+### The licensing on translation work
+
+The licensing on the commentary scripts is the same as the rest of the docs: **CC-BY-4.0**, attribution required. This means your translation work, once it merges into upstream, is reusable by anyone who wants to build a multilingual football-commentary product. You ship into Tournamental and you also ship into the public corpus.
+
+If you contribute translation work, you retain copyright. The project gets a broad licence to use, redistribute, and modify. The DCO sign-off on the commit captures this. If you prefer a different licence (some translator collectives prefer GPL-style copyleft to ensure their work cannot be embedded in proprietary products), the discussion is open; the default is CC-BY-4.0 and most translators take the default.
+
+### Why translation contributions compound
+
+A line of commentary that ships into the script ships into every replay the renderer ever plays in your language. The marginal cost of each replay is zero. The value compounds across every viewer, forever. A single great goal-call in Brazilian Portuguese, written once, plays for the next thousand goals in the same language. The Drips attribution at the per-line level captures this: your per-line contribution stays in the score sheet for the full decay schedule.
+
+This is also why the council reviews translation PRs slightly more carefully than code PRs. A bad line of code can be reverted in the next PR. A bad line of commentary that ships in audio is harder to retract because users have heard it. The review pass includes a native-speaker review, a registry review, and a broadcast-feel review before merge.
+
+### A worked example of the script structure
+
+Here is a small sample of the English script alongside the Portuguese, Spanish, and French translations as they ship today:
+
+```
+## minute 23:18, period 1
+[crowd: rising murmur]
+LEAD (en): Messi steps up to the spot.
+COLOUR (en): He has scored four from four in this tournament from twelve yards.
+
+LEAD (pt): Messi prepara-se para o pénalti.
+COLOUR (pt): Marcou quatro em quatro neste torneio dos onze metros.
+
+LEAD (es): Messi se prepara para el penal.
+COLOUR (es): Lleva cuatro de cuatro en este torneo desde los once metros.
+
+LEAD (fr): Messi s'avance pour le penalty.
+COLOUR (fr): Il a converti quatre tentatives sur quatre dans ce tournoi depuis les onze mètres.
+```
+
+The Portuguese is Continental Portuguese ("pénalti" with the accent, "onze metros" for the distance). A Brazilian Portuguese speaker reading this would feel something is off; the right registry would use "pênalti" without the accent and "onze metros" or "marca de pênalti" depending on the broadcast tradition. The Spanish is neutral Latin American; an Argentine speaker would prefer "el penal" with the "che" preamble that the LLM stripped. The French is fine, modulo the player-name pronunciation issue.
+
+This is the kind of pass-by-pass review a translator could ship in a day.
+
+## How Drips pays you
+
+Translation contributors get the same revenue-share programme as code and design contributors. The whole system is documented in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). The short version, with the translation-specific bits called out:
+
+### The Drips Network primer
+
+Tournamental's revenue routes through [Drips Network](https://www.drips.network/) to a list of contributor wallets. Drips is the same protocol that the [Ethereum Foundation](https://ethereum.foundation/), [Radworks](https://radworks.org/), the [Filecoin Foundation](https://fil.org/), [ENS](https://ens.domains/), [UNICEF](https://www.unicef.org/) and [Scroll](https://scroll.io/) use to stream funding to open-source contributors. It is on-chain. It is transparent. You can read the contract, fork it, propose a better split formula, or audit the multisig that controls the foundation's treasury wallet.
+
+### The treasury policy
+
+The Tournamental Foundation deposits a fixed percentage of net affiliate revenue and other monetization lanes (the replay-stream Pro subscription, the B2B white-label revenue, the affiliate clicks to sportsbooks and Polymarket where legal) into a Drips treasury wallet, paid in USDC. The current split is **thirty percent to contributors, fifty percent to the operating reserve (capped at twelve months), ten percent to public goods, ten percent to strategic reserve**.
+
+Once the operating reserve cap is full, more flows to contributors. The split rebalances annually based on actual revenue.
+
+### The scoring formula, for translation work
+
+For commentary work specifically, the scoring formula in doc 19 treats translation as a category with the following weights:
+
+- **Per-language flat bounty** on a fully-authored language script (acceptance criteria: all 2,972 lines reviewed, manifest updated, voice mapping configured, native-speaker sign-off from one other contributor).
+- **Per-line weight** on incremental fixes inside an existing language file. Capped per file to discourage rephrasing-farming.
+- **Reviews of other translators' PRs** earn at twenty percent of the original PR score. A native speaker who reviews a junior translator's work gets a slice.
+- **Major terminology contributions** (the glossary, the dialect-pack RFC, the fan-mode variant authoring) earn the same per-feature bounty as a significant code feature.
+
+### The revenue flow
+
+Every paid affiliate click and every paid replay-stream view that traces back to a Tournamental product surface in your language routes a slice through Drips to your address. If a Brazilian fan upgrades to the Pro replay-stream subscription to watch the World Cup in Brazilian Portuguese, your work on the Brazilian language file is part of the credit chain for that subscription. The attribution is rule-based and the rules are in doc 19, public and dispute-able.
+
+### Decay and dilution
+
+Decay is the same five-quarter schedule: a contribution made today is worth one hundred percent next quarter, eighty the quarter after, then sixty, forty, twenty, zero. Forces ongoing contribution. Translation, in particular, is a category where contributions age fast (player names change, registry changes, new clubs join leagues), so the decay schedule maps well to the work.
+
+### A worked example of the payout flow
+
+Imagine you ship the Brazilian Portuguese variant in your first PR. The PR is a fully-authored language file plus the manifest update, scored as a per-language flat bounty plus the per-line credit on the new file. The total score is 1,500 points.
+
+If your score is 2.3 percent of the total contributor score for Q1 2026, and the Drip List receives 30,000 USDC for the quarter (notional; actual depends on platform revenue, which we publish openly), your share is 690 USDC, streamed continuously over the quarter into your wallet.
+
+In Q2, your Q1 contribution decays to 80 percent. If you also ship the per-name SSML pronunciation pass in Q2, your Q2 contribution adds on top. The quarterly distribution adjusts.
+
+If you stop contributing, your stream tapers across five quarters and ends. If the project shuts down, the stream ends sooner.
+
+### The wallet integration
+
+The wallet integration is the same as the rest of the contributor programme. You register your GitHub username with an Ethereum address. Sanctions screening runs at payout time. The quarterly score sheet is public in `payouts/`. Multisig-controlled, transparent, fork-able.
+
+If your translation work involves recording voice samples (for a future TTS voice trained on a real broadcaster from your country, which is on the roadmap), the recording usage rights are negotiated separately and the Drips share is a per-minute royalty on top of the contributor stream. We have not shipped this yet but the design is in doc 19.
+
+### Comparable projects
+
+If you want a sanity-check on whether "open source plus revenue share via Drips for translation" is a credible model, the precedents are:
+
+- **[Mozilla Foundation](https://foundation.mozilla.org/)**, where the Firefox localisation project pays contributors via grants and the [Common Voice](https://commonvoice.mozilla.org/) project crowdsources translated voice samples under CC-0.
+- **[LibreOffice](https://www.libreoffice.org/)**, whose translation contributors are paid via TDF grants for major language packs.
+- **[Crowdin](https://crowdin.com/)**, which is the dominant commercial platform for translation but does not have a revenue-share model.
+- **[Tatoeba](https://tatoeba.org/)**, a CC-BY translated-sentence corpus that operates as a non-profit with grant funding.
+
+Tournamental's revenue-share model for translation is closer to the Mozilla / Common Voice path: the work feeds back into a CC-BY corpus, and the financial path is on-chain rather than grant-based.
+
+### Opting out is fine
+
+You do not have to opt in. The licence is CC-BY-4.0 either way. Some translators prefer not to receive payments for tax, personal, or philosophical reasons, and that is fine.
+
+## How to start
+
+1. Clone the repo: `git clone https://github.com/0800tim/tournamental`.
+2. Run the AR-FR demo to hear the current commentary in your language. The README has the exact commands; at `--time-scale=10` the whole final plays in fifteen minutes with audio. Open `localhost:3000/match/fifa-wc-2022-final-arg-fra-2022-12-18?lang=<your-language>` (e.g. `?lang=pt` for Portuguese).
+3. Open `data/commentary/wc2022-final-arg-fra/<your-language>.md`. Read it side-by-side with `en.md`. Make notes. The Markdown structure is `## minute MM:SS` headings with the commentary text and the optional `[crowd: cheer]` or `[colour: <line>]` inline tags.
+4. Read [docs/31-live-commentary-overlay.md](https://github.com/0800tim/tournamental/blob/main/docs/31-live-commentary-overlay.md) for the pipeline architecture and the manifest spec. Read [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md) for the PR template and the DCO sign-off rule.
+5. Open a PR with your changes. Include a session note at `sessions/<date>_translator-<your-name>_<language>.md` explaining your editorial choices. The session-note discipline is in [AGENT-PROMPTS.md](https://github.com/0800tim/tournamental/blob/main/AGENT-PROMPTS.md).
+
+If you would rather have a single voice call with me before diving in, send an email. I can do twenty-minute briefings for translators in time zones I can reach without staying up to 3am.
+
+### The session-note discipline for translators
+
+Every PR comes with a session note at `sessions/<YYYY-MM-DD>_translator-<your-name>_<language>.md`. The note is around 50 to 150 lines and covers:
+
+- The language and the registry choices.
+- The cultural reference points used (specific commentators, specific eras of broadcast convention).
+- The editorial choices on ambiguous lines (e.g. "I used 'gol' rather than 'goleada' here because the moment is a single goal not a thrashing").
+- Open questions for the next translator.
+
+The note matters because the next translator who picks up your language reads it to understand your reasoning. Translation is a category where one contributor's choices propagate to many future PRs; the documentation discipline is the way to keep the propagation coherent.
+
+### A note on the AI agents and translation
+
+A small fleet of AI agents (mostly Claude, some local Llama variants) ships PRs against the repo. On the translation side, the agents are useful for:
+
+- Running the structural translation passes via DeepL and the LLM rewrite.
+- Identifying inconsistencies between the script and the manifest.
+- Cross-referencing the glossary against the script for missed terms.
+- Generating per-name SSML overrides from the squad CSV.
+
+The agents do **not** make the final editorial judgements on registry, cadence, or broadcast feel. That work is human-led. The agents are quality-assurance and acceleration; the editorial choices come from the human translators.
+
+If you contribute translation work, you will probably interact with the agents during the PR review cycle. The first round of comments on your PR is usually from a reviewer agent that has cross-referenced your changes against the manifest and the glossary. The agent's comments are advisory; you reply, explain your reasoning, and the human translation council weighs in if there is a substantive disagreement.
+
+### What good translation PRs look like
+
+The merged translation PRs on the project include:
+
+- The initial Portuguese pipeline run with the Continental registry default.
+- The German cliche-template fix that brought the script closer to Bundesliga broadcast convention.
+- The French player-name pronunciation pass that fixed eleven names.
+- The Russian registry shift to post-Crimea conventions.
+
+Each PR has a session note, a before/after audio sample in the PR description (rendered through the TTS pipeline so the reviewer can hear the difference), and a one-paragraph rationale tying the change to the local broadcast tradition.
+
+### The reviewer-agent checklist for translation PRs
+
+The reviewer agent runs through a per-PR checklist that includes:
+
+- Manifest update is consistent with the new script.
+- TTS render passes the basic synthesis sanity check (no malformed SSML, no missing voice mapping).
+- A native-speaker review-of-review is captured in the PR thread.
+- The session note is legible.
+
+If your PR meets all four, the reviewer approves and a council translator merges. If your PR misses one, the reviewer leaves a comment and you fix it.
+
+### Reading list, sorted by usefulness
+
+If you want to ramp up on the project's specific commentary structure before you ship, the recommended reading list is:
+
+1. The English master script at [`data/commentary/wc2022-final-arg-fra/en.md`](https://github.com/0800tim/tournamental/blob/main/data/commentary/wc2022-final-arg-fra/en.md). The 2,972-line source of truth.
+2. Your language file at the same path with the right two-letter code.
+3. The manifest at `data/commentary/wc2022-final-arg-fra/manifest.json`. The schema and the voice mapping.
+4. The live-commentary doc at [`docs/31-live-commentary-overlay.md`](https://github.com/0800tim/tournamental/blob/main/docs/31-live-commentary-overlay.md). The architecture for live render.
+5. The historic-data doc at [`docs/11-historic-data-sources.md`](https://github.com/0800tim/tournamental/blob/main/docs/11-historic-data-sources.md). Where the AR-FR event data comes from.
+6. The brand pack at [`docs/15-tournamental-brand-and-positioning.md`](https://github.com/0800tim/tournamental/blob/main/docs/15-tournamental-brand-and-positioning.md). For tone and voice cues.
+
+If you want external references on football commentary in your language:
+
+- For Brazilian Portuguese: [Galvão Bueno](https://en.wikipedia.org/wiki/Galv%C3%A3o_Bueno)'s broadcasts on Globo.
+- For Argentine Spanish: [Pablo Giralt](https://en.wikipedia.org/wiki/Pablo_Giralt) or [Sebastián Vignolo](https://en.wikipedia.org/wiki/Sebasti%C3%A1n_Vignolo)'s broadcasts on Fox Sports.
+- For French: the FFF-affiliated broadcasts on TF1 (Grégoire Margotton, Bixente Lizarazu).
+- For German: the public broadcasts on ARD (Tom Bartels, Mehmet Scholl).
+- For Italian: the RAI broadcasts (Riccardo Cucchi, Marco Civoli).
+- For Japanese: the NHK broadcasts.
+- For Mandarin: the CCTV-5 broadcasts (Liu Jianhong).
+- For Arabic: BeIN Sports MENA (Hafid Derradji, Issam Chawali).
+
+Each is a useful reference for the broadcast cadence in your country. Listen, then write.
+
+### The translation council
+
+The translation council is currently Tim (English-only) plus two human contributors with native fluency: one Spanish (Mexican) and one German. The council is small and growing. The seat criteria is "shipped two or more translation PRs at acceptance quality and is willing to review others' work".
+
+If you ship a multi-PR campaign in one language, you are probably a council-seat candidate. The published target for the council is twelve seats, one per ISO 639-1 family we support. We are at three.
+
+### A range of alternative first PRs
+
+For each of the four buckets, here is the recommended starter PR:
+
+**Bucket 1 (script translation)**: Pass-by-pass review of one language file. Open `data/commentary/wc2022-final-arg-fra/<your-language>.md`. Read the script. Fix the parts that sound wrong. One day.
+
+**Bucket 2 (glossary)**: Author a per-language terminology dictionary at `data/commentary/glossary/<your-language>/football.csv`. Cover the 100 most common football terms in your language with regional variants where they exist. One day.
+
+**Bucket 3 (TTS pronunciation)**: Per-name SSML pronunciation pass for the squad roster. The squad CSV is at `apps/statsbomb-replay/data/wc2022-final-players.csv`. The SSML overrides go in `data/commentary/pronunciations/<your-language>/players.json`. One day.
+
+**Bucket 4 (audio mix)**: A localised crowd-loop sample at `apps/web/public/sound/crowd/<your-region>/loop.wav`. Field-recorded or sourced from a CC-BY archive. One day for the recording plus the integration.
+
+## A specific first PR
+
+If you want a one-day starter project that lands an immediately visible improvement, here it is.
+
+**Pass-by-pass review the Portuguese commentary file, fix the registry to match Brazilian terrace voice, and ship a `pt-BR.md` variant alongside the existing `pt.md`.**
+
+The current `pt.md` uses Continental Portuguese. The fix is:
+
+1. Clone `data/commentary/wc2022-final-arg-fra/pt.md` to `data/commentary/wc2022-final-arg-fra/pt-BR.md`.
+2. Rewrite the script in Brazilian Portuguese registry, paying particular attention to:
+   - The goal-call cadence. Brazilian commentators extend the vowel of "gol" for cultural reasons; the script needs the right spelling and the right SSML stretch hint.
+   - The use of "cara" versus "rapaz" for the colour-commentator addressing the lead.
+   - The Messi-specific naming. In Brazil he is "Messi" full stop, not "Lio" or "la Pulga". The script should reflect this.
+   - The set-piece terminology. Free kick is "falta" in both registries but the colour-commentator framing differs.
+3. Update `manifest.json` to add an entry:
+   ```json
+   "pt-BR": {
+     "voice_main": "rachel-pt-br",
+     "voice_colour": "antoni-pt-br",
+     "script": "pt-BR.md"
+   }
+   ```
+4. Add the Brazilian Portuguese option to the language picker in `apps/web/components/HUD/LanguagePicker.tsx`.
+5. Open the PR with the before/after diffs and a session note explaining the editorial choices.
+
+The PR is bounded. The test is concrete (a Brazilian native speaker reads the new file and reports that it sounds like a real broadcast). The visible result is a whole new language variant in production.
+
+If Brazilian Portuguese is not your language, the **Argentine Spanish variant** (`es-AR.md`) is the analogous PR for Spanish. Same structure. Same scope. Different cultural reference points.
+
+If you want a one-week project, **author a brand new language**. Bengali, Korean, Swahili, Hindi, Urdu, Vietnamese, Indonesian, Filipino. Pick the language. Open a session note. Build the script from the English master plus your cultural ear. Ship.
+
+If you want a one-month project, lead the **regional dialect pack** for one language family. The Spanish family pack (Iberian, Mexican, Argentine, Colombian, Chilean, Uruguayan, Peruvian) is the most-requested. The Arabic family pack (Modern Standard, Egyptian, Gulf, Levantine, Maghrebi) is the most-needed. The Portuguese family pack (Continental, Brazilian, Angolan, Mozambican) is the smallest of the three. Pick one. RFC, author, ship.
+
+### A note on what "broadcaster-grade" actually means
+
+The phrase "broadcaster-grade" is doing work in this post. To unpack it: I mean the commentary track should sound like something a viewer in your country would believe came out of a local broadcaster's booth. Not perfect. Not professional-grade. Believable.
+
+The key markers a native speaker checks:
+
+- **Goal-call cadence**. The vowel-stretch, the volume swell, the pause before the colour-commentator picks up.
+- **Player-name pronunciation**. Stress on the right syllable, the right vowel quality, the right consonant articulation.
+- **Set-piece terminology**. The word for "free kick", "penalty", "corner", "throw-in" in the right register for the audience.
+- **Tactical idiom**. The word for "long ball over the top", "tap-in", "screamer", "thunderbolt". Each has a regional variation.
+- **Emotional cadence on tense moments**. The build-up to a Messi free kick is a different rhetorical pattern than the build-up to an Mbappé penalty.
+- **Colour-commentator pacing**. The lead and colour commentators have different rhetorical roles in every tradition.
+
+If your translation gets all six right, the commentary sounds like a real broadcast. If it gets four out of six right, it sounds passable but slightly off. If it gets two right, it sounds like a translated PDF.
+
+The script in the pack today is at "passable" for the four reviewed languages and "translated PDF" for the five unreviewed ones. Our goal is "broadcaster-grade" across the board, and that requires native speakers to do the work.
+
+### What bad PRs look like
+
+The reviewer agent rejects translation PRs that:
+
+- Are missing the session note.
+- Touch the manifest schema without an RFC.
+- Drop the per-event timing markers in the script.
+- Use a non-broadcast register without a documented exception.
+- Mix unrelated language changes (a Portuguese fix plus an Arabic glossary update in one PR).
+- Skip the TTS render step (so the reviewer cannot hear the change).
+
+If the reviewer agent rejects your PR, the rejection comment names the rule. Fix the issue, push a new commit, re-request review.
+
+### The development cadence
+
+Tim ships from a single tmux session on a single Linux box. The cadence for translation work is:
+
+- Notice a thing (a wrong word, a wrong cadence, a missing pronunciation).
+- Open the language file. Make the change.
+- Run the TTS render locally. Listen.
+- Open the PR with the audio sample attached.
+- The reviewer agent runs the mechanical checks.
+- The council reviews the editorial quality.
+- Tim merges.
+- The next user does not hear the wrong word.
+
+The median round trip for a small fix is about thirty minutes. For a full-language pass, the round trip is several days because the council needs native-speaker review time.
+
+### How long the first PR usually takes
+
+Based on the existing translation PRs: a pass-by-pass review of one language file is typically eight to twelve hours of focused work. A new-language full pipeline run is typically twenty to thirty hours. A per-region dialect pack with three regions is typically forty to sixty hours. The audio mix work depends heavily on the recording-versus-sourcing choice; field recording adds significantly to the timeline.
+
+A good rule of thumb: the first hour is reading the brand pack and the English master. The second hour is listening to the existing audio in your language. Hours three through eight are the script rewrite. Hour nine is the TTS render and the audio review. Hour ten is the session note and the PR description. Plan for ten to fifteen hours total if you have never worked in this codebase before; under six if you have.
+
+### A note on translation work in the live broadcast era
+
+The next World Cup is in 2026. The one after that is in 2030. In between, there will be the AFCON, the Copa América, the Euros, the AFC Asian Cup, the Gold Cup, the OFC Nations Cup, and a dozen other tournaments. Each one is a new audience for Tournamental and a new translation pass for the script library.
+
+If you commit to one language for the World Cup, you are positioning to lead that language for the entire tournament cycle through 2030. The work compounds across every tournament. The Drips score compounds across every quarter. The portfolio value compounds across every translator who follows you.
+
+This is the longest-leverage contribution slot on the project for a translator. Renderer contributions are visual; design contributions compound visually; translation contributions compound culturally, across the audiences who would never have heard of Tournamental if the audio in their language was not credible.
+
+### A specific rant about broadcast registry
+
+Let me get specific about one thing because it matters for the work. Football commentary has a specific rhetorical structure that is different from general spoken language in every country I have ever paid attention to. The structure is, roughly:
+
+- **Build.** A few seconds of low-energy descriptive language. "Argentina rebuilding from the back. Cuti Romero to Otamendi."
+- **Tension.** A few seconds of rising language. "Lo Celso pushes up. Messi drops deep."
+- **Climax.** The goal call or the near-miss. High energy. Vowel-stretch on the key word.
+- **Reflection.** The colour commentator picks up. Lower energy. Tactical analysis. Context.
+
+In English, this structure is well-developed and most commentators follow it. In other languages, the structure exists but the rhythm differs. Brazilian Portuguese tends to compress the build and stretch the climax. Argentine Spanish stretches both the build and the climax. Japanese tends to keep the build flat and inject all the energy into the climax via prosody rather than word choice. Arabic broadcast convention varies wildly by country.
+
+The current scripts in our pack mostly follow the English rhythm structure because the LLM translated from the English. A native-speaker translator's job is to **re-rhythm** the script to match the local broadcast convention. This is not a sentence-level translation problem; it is a paragraph-level rhythm problem. The translation review PR is therefore not just "fix the words" but "fix the cadence".
+
+If you have ever sat through five minutes of broadcast football in your country, you know the cadence. The script in the pack does not have it. Your job is to put it back.
+
+### A worked example of the Brazilian PR
+
+To make the scope concrete, here is what the Brazilian Portuguese PR looks like file-by-file:
+
+1. **Create `pt-BR.md`** by cloning `pt.md`. Rewrite line-by-line in Brazilian Portuguese registry. Pay attention to:
+   - Goal-call cadence (vowel stretch on "gol", with the right SSML stretch hint).
+   - Address terms ("cara" vs "rapaz" in the colour-commentator's lines).
+   - Player names (no diminutives for Messi; full name in Brazilian convention).
+   - Set-piece terminology ("falta" with the regional intonation).
+   - Counter-attack rhythm (Brazilian commentary builds tension differently than Continental).
+
+2. **Update `manifest.json`** to add the entry:
+   ```json
+   "pt-BR": {
+     "name": "Portuguese (Brazil)",
+     "voice_main": "rachel-pt-br",
+     "voice_colour": "antoni-pt-br",
+     "script": "pt-BR.md",
+     "subtitle_lang": "pt-BR"
+   }
+   ```
+
+3. **Update the language picker** in `apps/web/components/HUD/LanguagePicker.tsx`. Add the entry to the registry. Update the test snapshot.
+
+4. **Add a per-name pronunciation override** in `data/commentary/pronunciations/pt-BR/players.json` for the players where the Brazilian-Portuguese phoneme differs from the Continental one.
+
+5. **Run the build pipeline** with `pnpm -F @vtorn/commentary build --lang=pt-BR`. The pipeline outputs the TTS-rendered audio at `apps/web/public/audio/commentary/wc2022-final-arg-fra/pt-BR.mp3`. Verify the audio sounds right.
+
+6. **Open the PR** titled "feat(commentary): Brazilian Portuguese variant". Include the audio sample in the PR description (the reviewer agent uploads it to a CDN).
+
+7. **Write the session note** at `sessions/2026-05-15_translator-<your-name>_pt-BR.md`. Cover the registry choices, the cultural references, the open questions.
+
+The diff is around 3,000 lines (the script is long). The session note is around 80 lines. The PR cycle is typically two to three days because the council needs a Brazilian native-speaker review.
+
+## What I want to hear from you
+
+The three channels are:
+
+- **Email**: `tim@tournamental.com`. Tell me what language you speak and what country's commentary you grew up with. That is enough.
+- **GitHub Discussions**: open a thread on the repo. Note your language and your editorial style. I will respond within 24 hours.
+- **Telegram**: `@TournamentalBuild` is where the build agents and the human contributors hang out. The translator channel is `#translators` (the Telegram-native thread, not Discord).
+
+The commentary is the part most people in your country will judge Tournamental by. If the audio sounds like a real broadcast, the replay feels like a real broadcast. If the audio sounds like a translated PDF, the replay feels like a translated PDF. Native speakers and broadcast-trained ears are the only people who can tell which side of that line we are on for your language. I cannot.
+
+### The specific Telegram channel structure for translators
+
+To make finding the right thread easier, the Telegram-side breakdown is:
+
+- **`@TournamentalBuild`**, the umbrella channel.
+- **`#translators`**, the main translator thread. Open to anyone.
+- **`#lang-pt`**, Portuguese-specific. Mixed Continental and Brazilian.
+- **`#lang-es`**, Spanish-specific. Mixed Latin American and Iberian.
+- **`#lang-ar`**, Arabic-specific. Mixed Modern Standard and regional.
+- **`#lang-zh`**, Mandarin-specific. Mainland and Taiwan registries.
+- **`#lang-fr`**, French-specific.
+- **`#lang-de`**, German-specific.
+- **`#lang-ja`**, Japanese-specific.
+- **`#lang-ru`**, Russian-specific.
+- **`#lang-it`**, Italian-specific.
+- **`#lang-new`**, for languages not yet shipped. Bengali, Hindi, Korean, Swahili, Yoruba, Vietnamese, Indonesian, Filipino, Urdu, Polish, Turkish, and any other proposals.
+
+The thread structure is documented at [docs/13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md).
+
+### Time zones and async work
+
+Tim is in New Zealand (UTC+12 or +13 depending on daylight savings). Most translation contributors are in their home time zones. Async is the default and the PR cycle works fine async. The Discussions board is the right place to ask a question if you do not get a quick reply on Telegram.
+
+If you are in East Asia or Australia, mornings my time (afternoons your time) are the best window for a live call. I can do 20-minute briefings for serious translation contributors.
+
+### The TTS rendering pipeline, in detail
+
+The TTS rendering pipeline takes the per-language Markdown script plus the manifest and produces an audio file plus a per-line timing track. The pipeline lives at `apps/web/lib/commentary/tts.ts` and calls the ElevenLabs API.
+
+The flow per language:
+
+1. Parse the Markdown into utterances. Each `## minute X:Y, period N` heading defines an utterance group.
+2. Resolve the voice mapping for the language from `manifest.json`.
+3. For each utterance, build the SSML payload. Apply per-name pronunciation overrides from the pronunciations file.
+4. POST to ElevenLabs `/v1/text-to-speech/<voice_id>` with the SSML.
+5. Receive the MP3 stream. Concatenate by minute.
+6. Write the output to `apps/web/public/audio/commentary/wc2022-final-arg-fra/<lang>.mp3`.
+7. Write the per-line timing track to `apps/web/public/audio/commentary/wc2022-final-arg-fra/<lang>.timing.json`.
+
+The timing track is what the renderer uses to sync the audio cues to the match events. The pipeline takes about four minutes per language for the full 200-minute match (mostly synthesis time at the ElevenLabs API).
+
+If you ship a translation PR, the pipeline runs as part of the CI step. The reviewer agent automatically renders the new audio and attaches the MP3 to the PR comments so the reviewer can listen to the change.
+
+### A specific issue I have not solved: the live-feed lag
+
+In the live-commentary path, there is an unsolved problem with event-to-audio latency. The StatsBomb-style live feed delivers events with a typical 5-to-10-second delay from the actual on-pitch moment. The TTS render adds another 250-to-500 milliseconds. The total lag means the audio commentary lags the visual by 5-to-10 seconds, which feels disorienting if the viewer is also watching a live TV broadcast on a second screen.
+
+The fix is one of:
+
+- **Show the visual at the same lag as the audio**, so the renderer's clock matches the audio clock and the user experiences a coherent 5-to-10-second delay.
+- **Synthesise the commentary speculatively**, based on the predicted next event, and correct if the prediction is wrong. The speculative path is in research but not shipped.
+- **Pre-render generic event commentary** for the common event types and trigger them based on the predicted event, with corrections if needed.
+
+I do not know which is the right answer. A translator with a strong opinion on live-commentary latency would be a useful voice in this discussion.
+
+### Frequently asked questions
+
+**Do I need to be a professional translator?**
+
+No. Native fluency in the target language plus a good ear for sports broadcast is enough. Many of the best translation contributors at projects like [Mozilla's Common Voice](https://commonvoice.mozilla.org/) are amateurs with strong cultural grounding.
+
+**What if I am not a sports fan but I am multilingual?**
+
+Football commentary specifically requires sports literacy. If you do not know the difference between a cross and a through-ball, the cliché slots will land wrong. If you are willing to learn the football vocabulary plus the broadcast cadence, that is fine; otherwise, the audio HUD strings and the user-interface localisation (separate work, in `apps/web/i18n/`) is a better fit.
+
+**Can I work with a co-translator?**
+
+Yes. Multi-author PRs are supported via the `Co-authored-by` trailer in the commit message. Both authors are credited on the score sheet. Many of the best translation pairs are a registry expert plus a broadcast-cadence specialist working together.
+
+**What if my dialect is not in the existing pack?**
+
+Add it. Author a new variant. The pipeline supports any number of regional variants per language family. The manifest is the registry.
+
+**What if I record voice samples for a future TTS voice trained on a broadcaster?**
+
+That work is on the roadmap and the design is in doc 19. The voice samples become a separate IP asset with a per-minute royalty on top of the Drips stream. We have not shipped this yet; if you want to be in the first cohort, send an email.
+
+**Can I rebrand the commentary in a fork?**
+
+The scripts are CC-BY-4.0. You can fork them, modify them, and use them in your own project as long as you attribute. The brand assets (Tournamental name, wordmark) are not open and you cannot use them.
+
+### What the project does not need from a translator
+
+To save you time, the things that are **not** in scope for translation contributions:
+
+- **Wholesale rewrites of the English master**. The master is owned by Tim and the editorial council. Changes require an RFC.
+- **Adding new commentary tracks that are not synchronised to the manifest**. The manifest is the source of truth for timing; tracks that do not sync are not playable.
+- **TTS voice changes that require commercial licence**. We use the ElevenLabs catalogue plus a small set of free voices. Custom-trained voices are a separate roadmap item with their own commercial path.
+- **Subtitles in formats other than the manifest-driven timing track**. The renderer's subtitle layer reads from the timing track; SRT or VTT exports are derivable from the timing track but not the source of truth.
+- **Localisation of the marketing site**. The marketing site is currently English-only and the localisation is a separate, larger discussion involving the Astro content-collection plumbing.
+
+### One specific moment I want to flag
+
+Inside the AR-FR final, the most-replayed moment is the Mbappé hat-trick (his goal at 80 minutes from the penalty, his goal at 81 minutes from open play, and his penalty at 118 minutes in extra time). The three goal calls in your language are the most-listened-to lines in the whole script. If you ship a translation pass and the Mbappé hat-trick is the weakest part, the whole language file feels weaker.
+
+The Mbappé hat-trick is the moment to spend the most time on. Each goal has a build, a tension peak, a climax, and a colour-commentator reflection. Get those three right and the rest of the script is gravy.
+
+I do not know how each of those three goal calls sounds in your country. The Brazilian commentary tradition for a Mbappé goal probably differs from the Argentine tradition. The Japanese tradition probably differs from the Arabic. Your job is to put the right one in.
+
+### Examples from elsewhere
+
+If you want a sanity-check on what good open-source localisation looks like at scale:
+
+- **[Mozilla Pontoon](https://pontoon.mozilla.org/)**, the platform Mozilla uses to coordinate translation of Firefox and the rest of their product line. Hundreds of languages, thousands of contributors.
+- **[Wikipedia](https://www.wikipedia.org/)**, the canonical open-source localisation project. The translation effort across 300+ language editions is the model for community-driven multilingual coverage.
+- **[Open Subtitles](https://www.opensubtitles.org/)**, the community-driven subtitling project that has localised more films than any commercial studio.
+- **[Mozilla Common Voice](https://commonvoice.mozilla.org/)**, the project that crowdsources transcribed voice samples in dozens of languages under CC-0.
+
+The lesson from each is that community-driven localisation works when the discipline is strong and the contributor experience is good. The translation pack discipline (script, manifest, glossary, pronunciations, audio mix) plus the Drips compensation path are our attempt to do the same.
+
+### A note on hiring versus contributing
+
+For the avoidance of doubt: the contributor flow is not a hiring pipeline. Tournamental NZ Limited does not have headcount to hire translators. If we get to the point where there is a translator hire to make (likely once the live 2026 World Cup coverage starts), the conversation starts with contributors who have already shipped. The Drips list is the present-tense compensation path.
+
+If you are a professional translation agency looking for a contracting engagement, email `tim@tournamental.com` with the scope and the budget. The strategic-reserve line item handles fixed-price contracts.
+
+### A note on the dev server
+
+The repo runs on a single Linux box at the time of writing. For translation work, the local dev setup is `pnpm install && pnpm -F @vtorn/web dev`. Open `localhost:3300` and play the AR-FR demo with your language selected. Edit the Markdown file in your editor. Re-run the TTS render with `pnpm -F @vtorn/commentary build --lang=<your-language>`. Reload the renderer. Listen.
+
+The whole loop takes about five minutes for an iterative change. If you are deep in the script and want a fast loop, the render script supports `--from-minute=N --to-minute=M` to render only a section.
+
+### A note on inclusion
+
+The translator pool aims to be diverse by language and by region. The brand pack explicitly includes consideration for languages whose script does not fit in Latin character sets, for right-to-left layouts, and for regional variants within language families. If you are coming from a non-Western-European tradition or a language family that is underserved in global sports media, your perspective is especially valuable; the existing pack is light on coverage outside the major Western broadcast languages and needs the input.
+
+### How the renderer handles font fallback for non-Latin scripts
+
+The renderer's HUD overlay uses the Inter typeface as the primary; for languages whose script is not in Inter's range (Arabic, Hebrew, Chinese, Japanese, Korean, Devanagari, Bengali, Tamil), the fallback chain is documented in `apps/web/styles/typography.css`. The fallback is system fonts in most cases; the project does not yet bundle per-language webfonts because the bundle-size cost is too high for the current budget.
+
+If you contribute a new language and the system fallback for the relevant script is inadequate, the discussion is open. Bundle-budget-friendly per-language webfonts is a real conversation; the right answer probably involves subsetting the [Noto family](https://fonts.google.com/noto) per language and lazy-loading the subset based on the user's language preference. This is on the roadmap and not yet shipped.
+
+### What success looks like, in one paragraph
+
+If this post does its job, ten to twenty translators email me in the next month. Two ship the Brazilian Portuguese and Argentine Spanish variants in their first week. Three more open RFCs for new languages (Bengali, Hindi, Korean). The existing ten languages get a per-language native-speaker review pass that materially improves the broadcast feel. The translation council expands to seven seats. By the time the World Cup kicks off, the commentary track is something native speakers actually want to listen to instead of switching to the English audio.
+
+If it does not, the commentary track stays at its current quality and viewers in non-English-speaking countries default to the English audio because it is the only one that sounds like a real broadcast.
+
+### The 2026 World Cup live commentary path
+
+After the AR-FR demo, the renderer moves to live commentary for the 2026 World Cup matches. The architecture is in [docs/42-wc2026-live-data.md](https://github.com/0800tim/tournamental/blob/main/docs/42-wc2026-live-data.md) and the live-commentary overlay is in [docs/31-live-commentary-overlay.md](https://github.com/0800tim/tournamental/blob/main/docs/31-live-commentary-overlay.md).
+
+The live path differs from the replay path in a few ways:
+
+- **Lower latency**. The TTS render needs to happen within 250 milliseconds of the event arriving on the wire. ElevenLabs WebSocket streaming is the path; the integration is at `apps/web/lib/commentary/live.ts`.
+- **Lower richness**. The live data has fewer fields per event than the StatsBomb post-match data. The script generation needs to handle missing data gracefully.
+- **Per-language streaming**. Each viewer's session subscribes to a single language stream; the server-side render scales per-language.
+- **Fallback to text**. When the TTS fails (rate limits, voice unavailable, network issue), the renderer falls back to on-screen text in the viewer's language.
+
+For translators, the live path means the per-language work is not a one-time deliverable. The 2026 World Cup runs for a month with multiple matches per day, and the per-language commentary is generated live for each match. Translators who have contributed to the existing pack will have their work referenced by the live-script generator, but the live cadence and the per-event details require ongoing per-match passes during the tournament.
+
+If you commit to a language for the World Cup window, you become the de-facto lead translator for that language for the month, with the existing pack as the foundation and the live matches as the work. This is one of the highest-impact-per-hour contribution windows on the project.
+
+### A second pot-of-gold case for translators, specifically
+
+The pot-of-gold post made the case that the open-source bet is a way to give the platform "the best possible chance of running away". For translators specifically, the case is:
+
+- The CC-BY-4.0 commentary corpus is a portfolio piece you can reference forever, attributed back to your work.
+- The Drips revenue share is real money, paid in USDC, on a transparent schedule.
+- The translation council seat is a long-term role on a foundation that may grow.
+- The work compounds across every replay in your language, forever. The compounding is the upside.
+
+If any of those resonate, the contributor flow is here, and the wallet integration is the same as the code contributors.
+
+Sorry, Argentina. I tried.
+
+- Tim

@@ -1,0 +1,701 @@
+---
+title: "Calling all designers: help make this thing look like a billion-dollar product, not a side project"
+description: "Tournamental has a share-card pipeline, a 3D molecule view, a podium graphic, a brand book, and a colour palette I picked in thirty minutes on a Sunday. The bones are open source under Apache 2.0 and the brand pack is CC-BY. If you are a designer or illustrator who has ever wanted to ship into a real product without negotiating with a creative director, this post is for you. Bring the visual language. Get paid in USDC via Drips."
+pubDate: 2026-05-14
+author: "Tim"
+tags: ["open source", "contributing", "drips", "design", "brand", "illustration"]
+heroImage: "/blog/calls/2026-05-14-calling-designers-hero.svg"
+heroImageAlt: "A grid of nine share cards in the Tournamental brand, each rendered with a different national flag treatment behind a stylised gold trophy. Above the grid, the words 'Calling all designers' in chunky display type. Below the grid, a paint-spattered hand offers a colour wheel to a polite-looking developer."
+heroImageCredit: "Illustration generated for Tournamental, 2026"
+---
+
+TODO: (hero image WIP, placeholder pending)
+
+## The hook
+
+If you are a designer, an illustrator, or someone who has ever looked at a tech product and thought "the engineer who shipped this clearly chose those colours on a Sunday afternoon", this post is for you.
+
+The Tournamental brand exists. So does the share-card pipeline. So does the molecule view. None of them are a billion-dollar product yet.
+
+I am asking you to help make them one. Drips will pay you a slice of platform revenue every time it earns, for as long as your work is in the codebase. This post is the long version of the call; the [pot-of-gold post](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/) is the broader case for the open-source bet.
+
+The rest of this post covers what I built, what I cannot do, what an expert designer could ship in a day, a week, or a month, how Drips pays you in USDC on a quarterly schedule, and what your specific first PR could be.
+
+## What I built so far
+
+The Tournamental visual surface lives in three places, and each of them is functional but visibly the work of a developer.
+
+**The share-card system at [`packages/social-cards/`](https://github.com/0800tim/tournamental/tree/main/packages/social-cards).** This is a canvas-renderer package that takes a structured payload (`{ winner: 'ARG', runner_up: 'FRA', score: '4-2 pens', user: '@tim_nz', bracket_score: 0.86 }`) and outputs PNG cards in eight aspect ratios and seven content variants: podium, goal clip still, leaderboard rank, badge earned, bracket prediction, match result, pundit badge, referral invite. The cards auto-generate on every save in the bracket app and pop up in the Save & share flow. The architecture is documented in [docs/14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md) and the rendering primitives are at [`packages/social-cards/src/canvas/`](https://github.com/0800tim/tournamental/tree/main/packages/social-cards/src/canvas).
+
+**The molecule view at [`apps/web/components/molecule/`](https://github.com/0800tim/tournamental/tree/main/apps/web/components).** This is the 3D pyramid visualisation of a forty-eight-team World Cup bracket. The user's predicted champion sits at the apex as a single gold atom. The bracket fans out below, atoms coloured by team flag, lines drawn between rounds. The whole thing is rotatable, zoomable, and shareable as a still. It is documented in [docs/24-gamification-and-virality.md](https://github.com/0800tim/tournamental/blob/main/docs/24-gamification-and-virality.md) and the doc I wrote for the blog post on it lives at [/blog/2026-05-12-tournament-as-molecule/](/blog/2026-05-12-tournament-as-molecule/).
+
+**The brand pack at [docs/15-tournamental-brand-and-positioning.md](https://github.com/0800tim/tournamental/blob/main/docs/15-tournamental-brand-and-positioning.md).** Wordmark, taglines, colour palette, typography, tone-of-voice. The whole package is CC-BY-4.0 licensed, which means you can lift any of it into your own design system, fork it, redistribute it, or improve it back into the upstream as a pull request. The brand entity name is **Tournamental, Verified Tournament Oracle Network**. The product brand is the four-letter Tournamental. The visual mnemonic is a chevron-V (forward velocity) or a tornado-vortex (live odds swirling), or both at once.
+
+There is also the podium graphic at [`packages/social-cards/src/cards/match-result.ts`](https://github.com/0800tim/tournamental/blob/main/packages/social-cards/src/cards/match-result.ts) (gold/silver/bronze with the user's pick highlighted), the leaderboard rank card, the badge-earned card for things like "Called the Argentina win at 25% implied probability", and the referral-invite card with a deep link to the inviter's syndicate.
+
+### The marketing site
+
+The marketing site you are reading this post on lives at [`apps/marketing/`](https://github.com/0800tim/tournamental/tree/main/apps/marketing). It is an [Astro](https://astro.build/) project with [MDX](https://mdxjs.com/) content collections for the blog and the press release pages. The styling is [Tailwind](https://tailwindcss.com/) at the project's published config. The hero images live under `apps/marketing/public/`. The OG images are auto-generated by a build script at `apps/marketing/scripts/build-og-cards.mjs` which uses the same `@tournamental/social-cards` package as the bracket app, so the social-share artwork for every blog post is consistent with the in-product share cards.
+
+The pages are functional. The typography is one font at three sizes. The colour palette is the same gold-and-midnight pair as the in-product cards. The hero images are stock photos from Unsplash credited inline. The layout grid is what you get out of Tailwind's defaults.
+
+### The OG image pipeline
+
+The OG image pipeline is in `apps/marketing/scripts/build-og-cards.mjs`. It runs at build time. For every blog post and press release, it reads the title and the description, lays them out on a 1200×630 canvas using the `@tournamental/social-cards` primitives, and saves a PNG to `apps/marketing/public/og-cards/<slug>.png`. The Astro layout then references the PNG via the `og:image` meta tag.
+
+The pipeline works. The output looks like every other Astro-blog OG card on the internet. A designer who cared could replace the layout with a distinctive treatment in a day; the PNG output is bound to the per-page meta tags so the change propagates automatically.
+
+### Some illustrative examples of what is broken
+
+Let me walk through a few specific places where my design choices break down, in case you want to skim the codebase for the work that needs doing.
+
+**The marketing-site header.** The hero illustration on the landing page is a stock photograph of a stadium at night. It is fine. It does not say "Tournamental"; it says "I am a startup with a stadium product". A custom hero illustration in the brand voice would change the landing page's first impression entirely. The image goes in `apps/marketing/public/landing/hero.jpg` and the alt text needs to say something memorable.
+
+**The Save & share button.** The button on the bracket app's Save flow is a Tailwind primary-button preset. It says "Save & share". It is functional. It does not feel like the most important button in the product, which it is. A bespoke button treatment, with a subtle motion on hover and a satisfying micro-animation on click, would communicate the importance.
+
+**The leaderboard rank treatment.** The leaderboard at `apps/web/components/leaderboard/` shows ranks as plain numerals. The top three could have gold/silver/bronze treatment. The user's own rank could have a small highlight. The rank-shift animation (when a user moves up or down) could be a small upward or downward arrow with a colour pulse. None of this is implemented.
+
+**The empty-state illustrations.** The bracket app has several empty states (no bracket saved yet, no syndicate yet, no friends yet). Today each empty state is a small icon plus a one-line label. A real designer would commission empty-state illustrations that are charming and on-brand. The illustration slots are at `apps/web/components/empty-state/` and are easy to swap.
+
+**The favicon at small sizes.** The favicon at 32 pixels is the gold-T glyph. At 16 pixels (browser-tab size) it is a pixelated blob. A real favicon designer would author a 16-pixel-optimised glyph alongside the 32 and 64 sizes, with the right anti-aliasing for each.
+
+### The press kit assets
+
+The press kit lives at `apps/marketing/public/press-kit/`. It currently contains the wordmark in SVG, the favicon in PNG, three product screenshots, and a 200-word boilerplate. The press releases at `apps/marketing/src/content/press/` reference the kit. The kit is the file a journalist downloads when they email and ask for assets.
+
+The kit has the right files. The files are not particularly polished. The wordmark is a Google Font screenshotted; the screenshots are at a default zoom level with the dev-tools sidebar visible in one of them; the boilerplate is functional but not memorable.
+
+### The bones are there
+
+The bones are there. The cards render. The molecule rotates. The brand book has a tagline. None of it looks like a billion-dollar product.
+
+## What I cannot do alone
+
+### I am a developer who picked a colour palette in thirty minutes on a Sunday
+
+The gold I chose is a hex value I sampled off a 1980s sports trophy photograph on Wikipedia. I have no idea if it reads on a phone in direct sunlight in Lagos. I have no idea if it has the right contrast ratio against the dark mode I shipped two days later as an afterthought.
+
+### I do not know the visual language of West African fan culture from the inside
+
+The African Cup of Nations is one of the most loved tournaments in football and we ship in time for the next one. Today's share cards treat every team as a flag plus a colour pair plus a generic font. That is fine for the World Cup launch where every nation has an instantly recognisable flag. It is **not** fine for AFCON, where the home audience expects design that reflects fan culture, terrace songs, club colours, and visual idioms I do not speak.
+
+### I do not know what makes a share card actually get shared
+
+I have read [Nathan Baschez](https://every.to/p/the-most-successful-newsletter-of-2022-was-built-by-a-team-of-one) and [Andy Matuschak](https://andymatuschak.org/) and [Julie Zhuo](https://lethain.com/julie-zhuo-on-team-feedback/) on the meta-design of social objects, and I can recite the shape of a viral graphic. I cannot actually make one. The first podium card I shipped looks like every other "look I won a thing" card on the internet. It needs to look like nothing else.
+
+### I do not have a typography opinion
+
+The current `Inter` choice is a developer-default. Variable type pairings, optical sizing, kerning of the wordmark, the cadence of the heading-to-body ratio, all of that is upstream of where my brain stops. The marketing site has three font sizes and I chose them because they fit on the screen. The bracket app has the same three font sizes. The share cards have the same three. There is no documented type scale; there is no documented line-height system; there is no documented per-language fallback for languages whose script does not fit comfortably in Inter.
+
+### I do not understand motion
+
+The animated podium template for short-form video does not exist; today it is a still PNG. A real motion designer would build that template in [After Effects](https://www.adobe.com/products/aftereffects.html) or [Lottie](https://airbnb.io/lottie/) and the engagement rate on TikTok would double overnight. I do not know how to do this and I do not know who I am supposed to learn it from. The clip pipeline at [`apps/clip-pipeline/`](https://github.com/0800tim/tournamental/tree/main/apps/clip-pipeline) could consume Lottie JSON directly, but the JSON does not exist because I have not authored it.
+
+### I do not have a colour-system theory
+
+The brand pack's palette is a primary (`#F4C430` "tournament gold"), an accent (`#0B2545` "midnight"), and two neutrals. That is it. No tertiary. No tonal ladder. No accessible-pair documentation. A real colour system would have eight to twelve shades of each, mapped to WCAG-AA contrast pairings, with a documented dark-mode inversion. I do not have any of this. The dark mode I shipped is a CSS hack that flips the lightness on the primary and the neutrals; the share cards do not respect it because they render through the `@tournamental/social-cards` canvas pipeline which has no dark-mode awareness.
+
+### I do not know how to re-skin the molecule view for non-football tournaments
+
+The atom textures are flag colours. The bond textures are league-tier lines. None of this generalises to the NFL, the NRL, the IPL, or the ATP. The molecule is meant to be the **shape** Tournamental uses for any tournament, but the visual translation to non-football is not done.
+
+### I do not have an icon set
+
+The bracket app uses [Lucide](https://lucide.dev/) icons at the default settings. The icons are functional. They are not distinctive. Tournamental does not have a custom icon set; we have not commissioned one; I would not know how to brief one. A designer who shipped a 20-icon custom set in the brand voice would change how the entire bracket app feels and the per-icon cost is tractable for a focused weekend.
+
+### I do not have a sound-design pass
+
+The product makes sounds. The lock-prediction confirmation makes a small chime. The save-and-share flow makes a different chime. The kickoff lockout warning beeps once. The sounds were generated in [Bfxr](https://www.bfxr.net/) on a Sunday afternoon. They are placeholder sounds. A real sound designer could replace them with a coherent five-sound palette in a day and the product would feel ten percent more like a product.
+
+### The marketing site looks like it was built in a week
+
+Because it was built in a week. The blog component is fine. The landing page is fine. The press-release pages are fine. None of it is **distinctive**. Every other Apache-2.0 startup landing page on the internet uses the same Tailwind preset I am using. A designer who cared could change that in ten days and it would feed back into every share card, every blog hero image, and every social post for the next year.
+
+## The opportunity
+
+The visual surface is small enough to actually fit in a designer's head, and large enough that improvements compound across the whole product. Every share card that ships in your new template propagates to thousands of users in the first tournament cycle.
+
+### The big picture
+
+The visual fidelity ladder, from where we are today to "this brand is unmistakable":
+
+- **Level 0**, the developer-defaults. Inter type, a Tailwind palette, a Sunday-afternoon gold. We are here.
+- **Level 1**, the coherent. A proper type system, a tonal-ladder colour palette, a small custom icon set, a wordmark with optical kerning. Two to three months of focused work.
+- **Level 2**, the distinctive. A motion language, a custom illustration set, a sound palette, a regional variant pack. Six months of focused work plus iteration.
+- **Level 3**, the iconic. The brand identity that people recognise from across the room. Multiple years.
+
+We need to ship Level 1 in time for the World Cup. Level 2 by the second tournament cycle. Level 3 is the long-term ambition.
+
+### A category overview
+
+Design contributions cluster into five buckets:
+
+1. **Visual identity.** The wordmark, the logo, the icon set, the typography system, the colour ladder.
+2. **Share card design.** Per-card-type templates, per-region variants, per-event template variations.
+3. **Marketing site design.** Landing page, blog typography, press kit, OG card design.
+4. **Motion design.** Animated share cards, intro animations, micro-interactions, transition curves.
+5. **Sound design.** UI chimes, transition sounds, the celebratory pop on a saved bracket.
+
+Each bucket is mostly independent of the others. A typography contributor can ship into bucket 1 without touching bucket 2; a motion designer can ship into bucket 4 without touching anything else. Pick the bucket you have the most experience in.
+
+### A note on tooling
+
+The project does not require any specific design tool. If you author in [Figma](https://www.figma.com/), the project has a Figma file at `https://www.figma.com/community/file/tournamental-brand` (link goes live on the public reveal) that mirrors the brand pack. If you author in [Sketch](https://www.sketch.com/), Penpot, or Adobe XD, that is fine; you export to SVG and the SVG goes in `apps/marketing/public/brand/` or `packages/social-cards/src/assets/`. The reviewer agent reads the SVG; the SVG drives the product. The tool is your choice.
+
+For motion work, the rendering pipeline expects [Lottie JSON](https://airbnb.io/lottie/#/) because Lottie is the only motion format that runs in our headless Chromium clip renderer without ffmpeg shenanigans. After Effects → Bodymovin works. We can probably add [Rive](https://rive.app/) support if a designer comes with a compelling case.
+
+What a designer could ship in **one day**:
+
+- Localised share-card variants for the African Cup of Nations. The card type registry is at [`packages/social-cards/src/cards/index.ts`](https://github.com/0800tim/tournamental/blob/main/packages/social-cards/src/cards/index.ts). You add an `afcon` variant alongside the existing types, swap the typography for something that reads in West African fan culture, and ship it. One day. The CAF logo licensing is documented in the doc and you can use it royalty-free for editorial-context cards.
+- A high-contrast accessible-mode palette pass on the brand pack. The current palette has two WCAG failures I know about and probably more I do not. One day of work, a documented `palette/accessible.ts` file in `packages/social-cards`, and the whole product is more readable.
+- A re-typeset of the brand wordmark with proper optical kerning, in SVG, with the build script that drops the SVG into `apps/marketing/public/brand/wordmark.svg`. Today's wordmark is a Google Font rendered through a screenshot. One day fixes it.
+- A 20-icon custom set in the brand voice, replacing the default Lucide icons in the bracket app. The icon registry is at `apps/web/components/icons/index.tsx`. One day for the set plus the registry update, and the bracket app picks up a distinctive iconic identity.
+- A new favicon and home-screen icon pack. The current favicon is a 1980s gold-T glyph rendered at 32 pixels. The pack should include the standard Apple touch-icon sizes, the Android manifest icons, and the [Microsoft tile sizes](https://docs.microsoft.com/en-us/uwp/schemas/tiles/tiles-xml-schema). One day, and the home-screen install icon stops looking like a placeholder.
+- A press-kit pass that replaces the current screenshots with brand-styled product shots, the wordmark in SVG at multiple weights, the colour palette as a swatch PNG, and an updated 200-word boilerplate. The kit lives in `apps/marketing/public/press-kit/`. One day.
+
+What a designer could ship in **one week**:
+
+- An **animated podium template** for short-form video. The static `match-result` card is fine. The motion version, built in Lottie, with the gold/silver/bronze rising on a curve and the user's name appearing with a small camera-shake on the reveal, is the version that gets shared on TikTok and Reels. One week of motion design, one week of integration work, and the auto-generated clips at [docs/14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md) get a visible identity. The clip pipeline already calls into the share-card renderer at the end of every export; you just need to add the motion variant.
+- A re-skin of the molecule view's atom textures so non-football tournaments (NFL, NRL, IPL, ATP) feel native. The atom shader lives in `apps/web/components/molecule/Atom.tsx` and takes a texture map per atom. You ship four texture sets (one per sport family) and the molecule view becomes the shape Tournamental uses for any tournament, not just football brackets.
+- A proper logo-and-mascot pass on the Tournament Bot (the Telegram identity at [docs/13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md)). Today the bot's avatar is a placeholder gold T. A week of character work and the bot has a face, a posture, a few sticker poses, and the brand feels like it has a personality.
+- A sound-design pass: a five-sound palette (lock, save, share, kickoff lockout, leaderboard rank shift) that replaces the current Bfxr placeholders. The sounds go in `apps/web/public/sound/` and the bracket app picks them up automatically. A week, and the product gains an aural identity.
+- A typography system refresh: pick the right type pairing (display face for the wordmark, body face for the prose, monospace for the stats), document the scale at six sizes, document the line-heights, document the per-language fallbacks for non-Latin scripts. The brand pack at `docs/15-tournamental-brand-and-positioning.md` is the home of the documented system. A week.
+
+What a designer could ship in **one month**:
+
+- A full visual identity refresh of the marketing site. The Astro content collections will continue to work. The blog will continue to publish. But every page gets a real design system pass, with a typographic scale, a colour ladder, an illustration language, and the kind of small interaction details (cursor states, hover transforms, scroll-linked motion) that separate "made by a developer" from "made by a studio". One month of focused work and the site reads as the front of a serious platform, not as a shipped-in-a-week MVP.
+- A regional-flavour expansion of the brand pack. Today's pack is built around the Argentina vs France final and the colours that read against that context. The version that ships in 2026 has variants for **South Asia** (cricket-tournament context, IPL/Asia Cup palette), **West Africa** (AFCON), **North America** (NFL/MLB/NBA bracket conventions), and **Oceania** (NRL/Super Rugby colours). The brand pack at doc 15 has the structure for this and zero of the content.
+- A from-scratch redesign of the Save & share page in `apps/web/`. Today's design is functional. The redesign is the kind of page where someone hits Save, sees their bracket reveal in a way that makes them want to immediately screenshot it, and shares it before they even close the tab. That is the single most important interaction in the product. One month is not too much time to spend on it.
+- A motion-rich onboarding flow for first-time bracket creators. The current onboarding is a three-step modal. The motion version uses a guided animation through the molecule view, with the user's predicted champion atom highlighted at the apex on completion. One month for the motion design, plus integration work into `apps/web/components/onboarding/`.
+- A full editorial illustration set for the blog. Today every blog post uses an Unsplash photograph as the hero image. A custom illustration system, with one anchor illustration per blog post in a consistent voice, would change the blog from "another startup blog" to "a brand". One month for a 20-image set, then incremental per post after that.
+
+### The licensing path
+
+The whole brand pack is CC-BY-4.0 licensed at [docs/LICENSE-DOCS](https://github.com/0800tim/tournamental/blob/main/docs/LICENSE-DOCS), which means contributions feed back into a **public design system** the wider open-source web can use. If your design language ends up in Tournamental and you also want to use the same system for a separate project, you can. The licence is set up for that. You credit the source, you keep the licence, you ship.
+
+If you contribute design work, you retain the underlying copyright on the work. The project gets a broad licence to use, redistribute, and modify. The DCO sign-off on the commit captures this. If you want to maintain stricter control of the licence (for example, you want the work to be available to Tournamental but not to commercial forks), the brand-asset registration path is documented in `docs/15-tournamental-brand-and-positioning.md` and is a separate conversation. The default is CC-BY-4.0 and most contributors take the default.
+
+### A design system, in practice
+
+The phrase "design system" is overused. What it means concretely for Tournamental is:
+
+- **A documented type scale.** Six sizes, with line-heights and tracking values. Stored as Tailwind tokens at `apps/web/tailwind.config.ts` and as CSS custom properties at `apps/web/styles/typography.css`.
+- **A documented colour palette.** Eight shades per primary, accent, and neutral. Each shade has a documented WCAG-AA pairing. Stored as Tailwind tokens and CSS custom properties.
+- **A documented spacing scale.** Tailwind's default 4-pixel-multiples works fine; the documentation makes the choices explicit.
+- **A documented motion-curve library.** Three easing curves: a sharp-out (for clicks), a smooth-in (for hovers), an emphatic-bounce (for celebratory moments). Defined as cubic-bezier values stored as CSS custom properties.
+- **A documented icon set.** Twenty icons in the brand voice. Stored as SVG components at `apps/web/components/icons/`.
+
+This is the level of system a Level-1 brand pack ships. Tournamental does not have it yet. A designer who shipped this in four weeks would land the foundational work that every other design contribution depends on.
+
+### Why design contributions compound
+
+Unlike code contributions, design contributions compound in a particular way. A new card type ships in the codebase; every future bracket save uses it. A typography system ships; every future blog post inherits it. A motion template ships; every future clip is built around it. The marginal cost of each future use is zero. The value compounds across every user, forever.
+
+This is also why design decisions are harder to reverse than code decisions. A typography system that does not work has to be ripped out, not refactored. The reviewer agent is mostly aware of this and gives design PRs a longer review cycle than code PRs of equivalent size. Plan for a few days between PR open and PR merge on a big design change; the design council (Tim plus two human design contributors, soon-to-be three or four as the team grows) reviews the change against the brand pack and the existing system before merge.
+
+## How Drips pays you
+
+Designers get the same revenue-share programme as code contributors. The whole system is documented in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). The short version, with the design-specific bits called out:
+
+### The Drips Network primer
+
+Tournamental's revenue routes through [Drips Network](https://www.drips.network/) to a list of contributor wallets. Drips is the same protocol that the [Ethereum Foundation](https://ethereum.foundation/), [Radworks](https://radworks.org/), the [Filecoin Foundation](https://fil.org/), [ENS](https://ens.domains/), [UNICEF](https://www.unicef.org/) and [Scroll](https://scroll.io/) use to stream funding to open-source contributors. It is on-chain. It is transparent. You can read the contract, fork it, propose a better split formula, or audit the multisig that controls the foundation's treasury wallet.
+
+### The treasury policy
+
+The Tournamental Foundation deposits a fixed percentage of net affiliate revenue and other platform monetization lanes into a Drips treasury wallet, paid in USDC. The current split is **thirty percent to contributors, fifty percent to the operating reserve (capped at twelve months), ten percent to public goods, ten percent to strategic reserve**. Once the operating reserve cap is full, more flows to contributors. The split rebalances annually based on actual revenue.
+
+Every paid affiliate click that traces back to a Tournamental product surface, including share cards, the molecule view, the marketing site, the Save & share page, routes a slice through Drips to the contributors who shipped that surface. If your podium template ends up driving a measurable lift in share-to-conversion on TikTok, that lift shows up on the affiliate report and a fraction of the revenue routes to your wallet address.
+
+### The scoring formula, for design work
+
+Design contributions are scored under the same rules as code. The doc 19 scoring table credits design contributions specifically as:
+
+- **Significant features** (anything that ships as a new card type, a new view, or a major brand revision) earn a flat per-feature bounty at acceptance.
+- **Per-PR LoC weight** applies to the design system code (palette files, token files, SVG sources, motion JSON) the same way it does to product code.
+- **Major design contributions (specs, RFCs)** earn a per-RFC bounty when accepted. If you write the South Asia regional-flavour brand pack as an RFC and the council accepts it, that is a paid milestone.
+- **Reviews of others' PRs** earn at twenty percent of the original PR score. If you are a senior designer reviewing other designers' work, you earn a slice of theirs too.
+
+### Decay and dilution
+
+Decay is the same: a contribution made today is worth one hundred percent next quarter, eighty the quarter after, then sixty, forty, twenty, zero. Forces ongoing contribution. Prevents the first-mover from rent-seeking on the original brand pack forever.
+
+For brand-pack contributions specifically, the decay schedule is gentler than the standard schedule. A coherent typography system that ships in Q1 2026 retains its score at 100% for two quarters before decaying, because the value compounds across every piece of content that uses it. This is an exception documented in doc 19 and applies to "foundational design work" generally.
+
+### A worked example of the payout flow
+
+Imagine you ship the AFCON podium variant in your first PR. The PR scores 800 points (per-feature bounty plus per-line credit). The quarterly score sheet for Q1 2026 finalises with your score at 1.2 percent of the total.
+
+If the Drip List receives 30,000 USDC for the quarter (a notional number; the actual depends on platform revenue, which we publish openly), your share is 360 USDC for Q1, streamed continuously over the quarter into your wallet. You can claim at any time, or let it accrue. The Drips contract handles the streaming math.
+
+In Q2, your Q1 contribution decays to 80 percent of its original score. If you also ship the colour-ladder PR in Q2, your Q2 contribution adds on top. Your total score across both quarters is the sum, weighted by the decay. The quarterly distribution adjusts.
+
+If you stop contributing, your stream tapers across five quarters and ends. If the project shuts down, the stream ends sooner. The model is deliberately built on ongoing contribution.
+
+### The wallet integration
+
+The wallet integration is the same as the rest of the contributor programme. You register your GitHub username with an Ethereum address at the contributor sign-up page. Sanctions screening runs at payout time. The quarterly score sheet is published as a public Markdown file in the `payouts/` directory of the repo. The Drip List is multisig-controlled by the Tournamental Foundation. The contract is transparent and on-chain. You can read it. You can fork it.
+
+If you would rather contribute under your studio's name than your own GitHub identity, the contributor registration page accepts a multi-signer setup. Your studio's wallet receives the stream and you split it internally however you want.
+
+### Comparable projects
+
+If you want a sanity-check on whether "open source plus revenue share via Drips for designers" is a credible model, the precedents are:
+
+- **[Mozilla Foundation](https://foundation.mozilla.org/)**, where the brand identity is open and design contributions come through a documented system.
+- **[Penpot](https://penpot.app/)**, the open-source design tool, whose contributor community includes both engineers and designers under the same MPL-2.0 framework.
+- **[Inkscape](https://inkscape.org/)**, the open-source illustration tool, whose icon set is community-contributed under the GPL.
+- **[Radworks](https://radworks.org/)**, which has streamed design grants via Drips alongside engineering grants.
+
+Tournamental is positioning *alongside* these structurally, with the brand pack as the public design system and the Drips list as the revenue path for ongoing design work.
+
+### Opting out is fine
+
+You do not have to opt in. The licence is CC-BY-4.0 either way. Some designers prefer not to receive payments for tax, personal, or philosophical reasons, and that is fine. The point is the option exists, and it is not vapour.
+
+## How to start
+
+1. Clone the repo: `git clone https://github.com/0800tim/tournamental`. You do not need to run the AR-FR demo for design work; you just need the brand pack and the share-card package.
+2. Read [docs/15-tournamental-brand-and-positioning.md](https://github.com/0800tim/tournamental/blob/main/docs/15-tournamental-brand-and-positioning.md) and [docs/14-clip-generation-and-social.md](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md). Those are the brand spec and the clip-pipeline spec. Everything else in `docs/` is optional context.
+3. Look at the existing share-card variants in [`packages/social-cards/src/cards/`](https://github.com/0800tim/tournamental/tree/main/packages/social-cards/src/cards). Each variant is a TypeScript module that exports a `render(payload, ctx)` function. The test fixtures are in `packages/social-cards/test/fixtures/`. The build script renders sample cards to `packages/social-cards/test/output/` so you can see what changes look like.
+4. Pick a card type, branch the repo, ship a redesign. The PR template at [CONTRIBUTING.md](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md) is the same one the code contributors use; design PRs include before/after PNGs in the description.
+5. For motion work, the rendering pipeline expects [Lottie JSON](https://airbnb.io/lottie/#/) at the moment because Lottie is the only motion format that runs in our headless Chromium clip renderer without ffmpeg shenanigans. After Effects → Bodymovin works. We can probably add Rive support if a designer comes with a compelling case.
+
+If you have never contributed to an open-source repo before, that is fine. The session-note discipline at [AGENT-PROMPTS.md](https://github.com/0800tim/tournamental/blob/main/AGENT-PROMPTS.md) is the same for designers as for engineers, but a designer's session note is mostly notes-to-self: "I chose this gold because it survives at 30 ppi on a Pixel 5 in noon sun". The point of the discipline is that the next contributor reads your note and learns from your reasoning.
+
+### Who is on the design team already
+
+Tournamental is one human (me) plus a small fleet of AI agents plus a handful of human contributors who have shipped one or two PRs each. On the design side specifically: two human designers have shipped design PRs, one for the original podium card and one for the molecule-atom colour-map pass. The brand pack itself I wrote, with editorial passes from an LLM agent that ran against the brand guidelines of a half-dozen reference products.
+
+The design council right now is Tim plus those two human contributors. The council grows as more designers ship. The published target is seven seats; we are at three. If you ship a coherent multi-PR campaign, you are probably a council seat candidate by Q3.
+
+### What happens after the World Cup
+
+The current critical path is the World Cup. Tournamental ships its core product (the bracket game, the watch-along, the share cards) for the 2026 World Cup in June. After the tournament concludes, the platform moves into a year-round mode: the bracket engine generalises to any tournament, the renderer handles any sport, the affiliate routing handles any sportsbook deal.
+
+For designers specifically, the post-World Cup roadmap is about:
+
+- **Sport diversification.** Each new sport needs a regional-flavour pack: NFL bracket cards, NRL ladder cards, IPL group-stage cards, ATP draw cards. Each is a multi-week design project.
+- **Localisation.** Each new region needs a local-fan-culture pack. Africa, South Asia, North America, Oceania, Western Europe.
+- **Brand evolution.** The Level 1 brand pack ships in May 2026. The Level 2 evolution is a 2027 project; the Level 3 ambition is a 2028+ project.
+
+A designer who joins now is positioning to lead the brand evolution into the next two-to-three years, with the World Cup as the proving ground.
+
+### What good design PRs look like
+
+The merged design PRs on the project so far include:
+
+- The original podium card design that ships today (a simple gold-silver-bronze trio with the user's pick highlighted).
+- The molecule-view atom colour pass that maps team flags to atom textures.
+- The first version of the wordmark in SVG.
+
+Each PR has a session note explaining the design choices, a before/after PNG in the PR description, and a one-paragraph rationale tying the choice back to the brand pack. The reviewer agent's checklist for design PRs is:
+
+- Does the PR include a before/after screenshot?
+- Does the change align with the brand pack at `docs/15-tournamental-brand-and-positioning.md`?
+- Does the change pass the WCAG-AA contrast check (run via `pnpm a11y` in the marketing app)?
+- Does the change include the asset in SVG (vector formats preferred) where applicable?
+- Is the session note legible?
+
+Five checks. Most design PRs pass on the first review.
+
+### What bad PRs look like
+
+The reviewer agent rejects design PRs that:
+
+- Are missing the before/after screenshots.
+- Use a colour value not from the brand pack without a documented exception.
+- Use a non-vector format (JPG, PNG) where a vector (SVG) is feasible.
+- Fail the WCAG-AA contrast check.
+- Mix unrelated changes (a typography refresh plus a new card variant in one PR).
+- Touch the brand pack itself without a discussion thread opened in advance.
+
+If the reviewer agent rejects your PR, the rejection comment names the rule and links to the relevant doc. Fix the issue, push a new commit, re-request review.
+
+### Where to find the existing design work
+
+The merged design PRs on the project live at `https://github.com/0800tim/tournamental/pulls?q=is%3Apr+label%3Adesign`. Recommended reading, in order:
+
+1. The initial podium card PR. It establishes the basic share-card shape and the canvas-rendering pipeline pattern.
+2. The wordmark first-pass PR. The SVG version of the wordmark, before the optical-kerning fix that is still open.
+3. The molecule-atom colour-map PR. The mapping from team flags to atom textures.
+4. The brand-pack update PR for the AR-FR final positioning. A small change that documents how the brand pack adapts per-tournament.
+
+Each PR has a session note, a before/after PNG, and a one-paragraph rationale. The design council reviewed each one. Tim merged. The discipline produces a record that the next designer can use to onboard.
+
+### A worked example of a multi-PR campaign
+
+If you want to ship a coherent design pass over several weeks, the recommended cadence is:
+
+- **Week 1**: ship the wordmark re-typeset PR. Land it. Get a sense of the review pace.
+- **Week 2**: ship the colour-ladder PR. Document the eight-shade tonal scale per primary, accent, and neutral. Update the brand pack.
+- **Week 3**: ship the type-system PR. Pair the display face with the body face. Document the scale.
+- **Week 4**: ship the icon-set PR. Replace Lucide with the custom set. Update the registry.
+
+This is a four-week design pass that lands a coherent Level-1 visual identity. The reviewer agent enforces consistency across the PRs; the design council reviews the campaign as a whole at the end of week four.
+
+If you ship this campaign, your name goes on the brand pack as the visual-identity lead for the 2026 cycle. The Drips score for the campaign is high because each PR is a "significant feature" plus the per-line credit; the council typically applies the "foundational design work" gentler decay schedule.
+
+### The marketing-site local dev environment
+
+If you contribute to the marketing site, the local dev setup is `pnpm install && pnpm -F @vtorn/marketing dev`. Open `localhost:3320` and you are reading the site against your local content. Hot-reload works on MDX changes. The build script at `pnpm -F @vtorn/marketing build` produces the production bundle and validates the content collection schema; if your post is missing required frontmatter, the build fails with a helpful error.
+
+The Astro content collection schema is in `apps/marketing/src/content/config.ts`. The schema is strict on purpose; Tim hates "shipped without a date" bugs. If you add a new collection, the schema goes here.
+
+### The brand pack, in detail
+
+The brand pack at `docs/15-tournamental-brand-and-positioning.md` is the canonical reference. It covers:
+
+- **Name and domain.** Tournamental. The reading is "Verified Tournament Oracle Network" expanded; "vortex tournament" is the visual mnemonic.
+- **Tagline.** "Predict the tournament. Beat the market. Prove it."
+- **Backup taglines.** Eight alternatives for context-specific use.
+- **The killer copy beat.** "Everyone says they knew what would happen. Tournamental proves who really did."
+- **Visual mnemonic.** A chevron-V or a tornado-vortex, or both.
+- **Regulatory positioning.** What Tournamental is (a prediction game) and is not (a betting platform). Important for any design that touches the affiliate routing or the Polymarket integration.
+
+If you are a designer making colour or layout decisions, the brand pack is the source of truth. If your design conflicts with the pack, you either need to propose a pack update in the same PR or revise the design.
+
+### A note on AI agents and design
+
+A small fleet of AI agents (mostly Claude, some local Llama variants) ships PRs against the repo. On the design side, the agents are useful for:
+
+- Generating placeholder images, hero illustrations, and stock alternates while the human designer authors the canonical version.
+- Verifying contrast ratios automatically and flagging WCAG-AA failures in PR comments.
+- Generating localised copy for the brand pack (taglines in multiple languages, for example).
+- Cross-referencing design decisions against the brand pack and flagging inconsistencies.
+
+The agents do **not** author the canonical brand identity. That work is human-led. The agents are quality-assurance and acceleration; the design choices come from the human contributors.
+
+If you contribute design work, you will probably interact with the agents during the PR review cycle. The first round of comments on your PR is usually from a reviewer agent. The agent reads the brand pack and checks the change against it. The agent's comments are advisory; you reply, explain your reasoning, and the human design council weighs in if there is a substantive disagreement.
+
+### A note on the dev server
+
+The repo runs on a single Linux box at the time of writing. The infra is documented in [docs/22-deployment-and-tunnels.md](https://github.com/0800tim/tournamental/blob/main/docs/22-deployment-and-tunnels.md). If you want a development environment that mirrors the production setup, the Docker compose file at `infra/docker/compose.yml` brings up Postgres, Redis, and the marketing app's dependencies in roughly the right shape. If you want to skip the infra and just run the marketing app for design work, `pnpm -F @vtorn/marketing dev` is sufficient.
+
+The marketing site builds in under a minute on a recent laptop. Production deployments use [Cloudflare Pages](https://pages.cloudflare.com/) via the CI pipeline in `.github/workflows/`. The build is fully reproducible; a design PR that builds locally will build on CI.
+
+## A specific first PR
+
+If you want a one-day starter project that lands an immediately visible improvement, here it is.
+
+**Ship a localised share-card variant for the African Cup of Nations.** Add a new card type at `packages/social-cards/src/cards/afcon-podium.ts`. Use the existing `match-result.ts` as a template. Swap the typography for something that reads in West African fan culture (the [Trade Gothic](https://en.wikipedia.org/wiki/Trade_Gothic) family or one of the [Khurasan](https://www.behance.net/khurasan)-style display faces). Use the CAF colour conventions (the [Confederation of African Football](https://www.cafonline.com/) brand pack is published; lift the gold and the green from there). Drop in the trophy silhouette in the same gold-on-midnight palette. Ship a 1080×1920 vertical, a 1080×1080 square, and a 1920×1080 horizontal in the same PR.
+
+The card type registers in `packages/social-cards/src/cards/index.ts` and ships in the next release. The clip pipeline picks it up automatically; the Save & share page in `apps/web/` picks it up automatically. From the moment the PR merges, every user who saves an AFCON bracket gets the localised variant.
+
+If AFCON is not your tournament, the **animated podium template** for short-form video is the other one-day starter. You build a Lottie animation that takes the same payload as the static `match-result` card, animates the podium rising in three frames, and emits a 4-second loop. Drop the JSON in `packages/social-cards/src/motion/podium.json`. The clip pipeline at [`apps/clip-pipeline/`](https://github.com/0800tim/tournamental/tree/main/apps/clip-pipeline) consumes it.
+
+If you want a one-week project, the **molecule re-skin for non-football tournaments** is the next step up. You design four atom-texture sets (NFL bracket, NRL ladder, IPL groups, ATP draw) and ship them as PNG atlases in `apps/web/public/molecule/`.
+
+If you want a one-month project, write the **regional-flavour expansion** as an RFC in `docs/`. Pick a region. Document the colour conventions, the typographic preferences, the iconography. Ship one fully built variant. The next designer takes your RFC and ships the next region.
+
+### A range of alternative first PRs
+
+For each of the five buckets, here is the recommended starter PR:
+
+**Bucket 1 (visual identity)**: Re-typeset the wordmark in SVG with proper optical kerning. The current wordmark is a screenshotted Google Font; the SVG version sits in `apps/marketing/public/brand/wordmark.svg` and propagates to every page that uses the wordmark. One day.
+
+**Bucket 2 (share cards)**: The AFCON podium variant described in the worked example below. One day.
+
+**Bucket 3 (marketing site)**: A custom hero illustration for the landing page, replacing the stock stadium photograph. SVG or PNG, at 1920×1080 and 1080×1920 for the mobile fallback. The image path is `apps/marketing/public/landing/hero.svg`. One day.
+
+**Bucket 4 (motion)**: A Lottie JSON animation for the bracket-save confirmation. Today the save flow shows a static checkmark. The motion version is a small 800-millisecond animation of a checkmark drawing in, with a subtle gold glow. JSON in `apps/web/public/lottie/save-confirm.json`. One day.
+
+**Bucket 5 (sound)**: A coherent five-sound palette for the bracket app, replacing the current Bfxr placeholders. WAV files in `apps/web/public/sound/`. The registry hook is at `apps/web/lib/sound/index.ts`. One day for the sound design plus the integration.
+
+### A worked example of a design PR
+
+Imagine you decide to ship the AFCON podium variant. The PR steps:
+
+1. Read `packages/social-cards/src/cards/match-result.ts`. Note the structure.
+2. Create `packages/social-cards/src/cards/afcon-podium.ts`. Copy the structure. Swap the typography for the CAF-style display face. Swap the gold-on-midnight for the CAF gold-on-green. Position the trophy silhouette in the upper third with the user's pick highlighted.
+3. Register the new card in `packages/social-cards/src/cards/index.ts`.
+4. Add test fixtures in `packages/social-cards/test/fixtures/afcon-podium/`. Run `pnpm -F @tournamental/social-cards test:visual` to generate sample PNGs at three aspect ratios.
+5. Add the visual snapshots to the PR description (1080×1920, 1080×1080, 1920×1080).
+6. Write the session note at `sessions/2026-05-14_designer-<your-name>_afcon-podium.md`. Cover the design choices, the CAF brand alignment, the colour-contrast verification.
+7. Open the PR titled "feat(social-cards): AFCON podium variant".
+
+The diff is around 200 lines. The session note is around 100. The PR cycle is typically one to two days because the design council reviews these on a longer cadence than code PRs.
+
+### Why these PRs land
+
+Each first-PR option above is bounded, tied to a specific file path, and tested with a concrete acceptance criterion. The reviewer agent enforces the criteria. The design council reviews the visual quality. Tim merges. The new variant ships in the next release.
+
+The reason this works is that the surface is small and the standards are written down. You do not have to negotiate scope. You read the brand pack, you build the variant, you submit. The cycle is fast.
+
+### A note on the AR-FR demo
+
+If your design touches the renderer or the share-card pipeline, you should run the AR-FR 2022 demo before opening the PR. The README has the commands; it takes fifteen minutes at `time-scale=10`. The demo shows you what the share cards look like in the wild, how the molecule view renders against real bracket data, and how the auto-generated clip pipeline assembles the share artefacts.
+
+The demo is also the test bed for visual snapshots. When you ship a design PR, the visual snapshot before/after PNGs in the PR description should show the change on the AR-FR demo so the reviewer can see the change in context.
+
+## What I want to hear from you
+
+The three channels are:
+
+- **Email**: `tim@tournamental.com`. The body can be a Dribbble or Behance link and the words "I want to help". That is enough.
+- **GitHub Discussions**: open a thread on the repo. Show me a sketch of what you would build. I will respond within 24 hours.
+- **Telegram**: `@TournamentalBuild` is the channel where the build agents and the human contributors hang out. Drop in. Show your work in progress.
+
+### The design-thread breakdown on Telegram
+
+The Telegram surface for design is split into threads:
+
+- **`#design`**, the main design thread. Open. New contributors say hi here.
+- **`#share-cards`**, a thread for share-card-specific discussion. Open.
+- **`#motion`**, a thread for motion-design work. Currently smaller.
+- **`#brand`**, a thread for brand-pack discussion. Tim is in this one most.
+- **`#design-paid`**, a thread for contributors who have opted into the Drips list. Operational discussion.
+
+The thread structure is documented at [docs/13-telegram-bot-and-auth.md](https://github.com/0800tim/tournamental/blob/main/docs/13-telegram-bot-and-auth.md). The Tournament Bot in the Telegram channels is the same bot identity used across the platform for auth and push.
+
+### Time zones and async work
+
+Tim is in New Zealand (UTC+12 or +13 depending on daylight savings). Most contributors who have shipped so far are in Europe or the Americas, which makes the live-conversation overlap a few hours at the boundaries of each day. Async is the default. The PR cycle works fine async. The Discussions board is the right place to ask a question if you do not get a quick reply on Telegram.
+
+If you are in a time zone close to New Zealand and you want a live voice call, mornings my time (afternoons your time, if you are in East Asia or Australia) are the best window. I can do a 20-minute briefing call for serious contributors; the booking link is on the marketing site at `/team/tim` once the public reveal lands.
+
+The visible product is the part most people will judge Tournamental by. If we get the share cards right, the molecule right, and the brand right, every other part of the platform gets the benefit. If we get it wrong, the product reads as a side project no matter how good the engine underneath is.
+
+### A third specific design decision I would love help on
+
+Sub-RFC: **the share card "viral object" treatment**. The current share cards are static images optimised for a single-screenshot impression. The viral-object treatment is the layered, frame-by-frame design that works for short-form video: a clean opener that grabs the eye, a one-line revelation in the middle, a callback to the brand at the end.
+
+The question I cannot answer: should the viral object live in the static-card library (as a multi-frame template that the clip pipeline assembles) or in the motion-card library (as a Lottie animation that the clip pipeline embeds)? Both have advantages. The static path is simpler; the motion path is more expressive.
+
+I have not decided. A designer with experience in short-form video probably has an opinion. If you have one, open a Discussion thread.
+
+### A specific design decision I would love help on
+
+Sub-RFC: **the gold colour**. The current `#F4C430` is a warm yellow-gold sampled from a 1980s trophy. It works for the podium card. It does not work as well for the wordmark (it reads as too yellow against the midnight background). It does not work at all in dark mode (it has no contrast against the dark surface).
+
+The question I cannot answer: is the right move to:
+
+- Keep `#F4C430` as the podium gold and introduce a separate wordmark gold? If so, what is the second gold?
+- Replace `#F4C430` with a single gold that works in both contexts? If so, which?
+- Use a tonal ladder of golds, one per context, all derived from a base?
+
+I do not have a strong opinion. A colour designer with experience in sport-product branding probably does. If you have an opinion, open a Discussion thread and propose the answer. I will defer.
+
+### A second specific design decision I would love help on
+
+Sub-RFC: **the molecule-view atom labelling**. The molecule visualisation shows a 48-team bracket as a 3D pyramid. Each atom is a team. The label on each atom (the country code, the team abbreviation, the kit number) is rendered as a small SVG-on-billboard treatment. The labels work at the apex; they get unreadable at the base where the atoms are dense.
+
+The question I cannot answer: is the right move to:
+
+- Keep the on-atom label, but introduce a LOD system that shows only the next-round labels on close zoom?
+- Move all labels to a separate UI layer (a 2D HUD over the 3D scene)?
+- Drop the labels entirely and rely on colour-coding plus hover-tooltip?
+
+Again: I do not have a strong opinion. A visualisation designer with experience in dense information design probably does.
+
+### A fourth specific design decision I would love help on
+
+Sub-RFC: **the dark-mode strategy**. The current dark mode is a CSS-only flip. It works for most of the bracket app and the marketing site. It does not work for the share cards (which render through a canvas pipeline, not CSS), it does not work for the molecule view (which uses a fixed lighting setup tuned for light mode), and it does not work for the embedded media (the renderer scene has fixed lighting).
+
+The question: should the dark-mode strategy be "literal flip" (every surface inverts), "branded dark" (a separate-but-consistent dark theme that is not just a flip), or "no dark" (the brand is light-mode-only and we ship a high-contrast accessibility mode as the alternative)? Linear and Notion are "branded dark"; Twitter is "literal flip"; ESPN is "no dark".
+
+I do not have a strong opinion. If you bring one, open a Discussion thread.
+
+A designer told me once that "every product is two products: the one engineers ship and the one designers ship". I shipped the engineer's version. Come and ship the designer's version. The Drips list will pay you when revenue lands.
+
+### Frequently asked questions
+
+**Do I need to use Figma?**
+
+No. Use whatever design tool you prefer. The repo accepts SVG, PNG, and Lottie JSON. The Figma file is a convenience, not a requirement.
+
+**Can I ship a design that does not match the brand pack?**
+
+You can propose a brand-pack update in the same PR. The design council reviews the change and either accepts the new direction or asks you to revise. The brand pack is not sacred but it is the published baseline; departing from it requires justification.
+
+**What if I want to redesign the whole product?**
+
+Open a Discussion thread first. A whole-product redesign is a multi-month project and the council will want to discuss the direction before you spend the time. The brand pack is the right starting point; the design council is the right audience.
+
+**Can I work with a co-author?**
+
+Yes. The reviewer agent supports multi-author PRs via the standard `Co-authored-by` trailer in the commit message. Both authors are credited on the score sheet.
+
+**What if my design only works in dark mode?**
+
+The product supports both light and dark mode. Designs that only render in one mode are rejected at review. The dark-mode CSS lives in `apps/web/styles/dark.css`; the share-card dark-mode renderer is on the roadmap and is one of the open design RFCs.
+
+**What happens if I disagree with the design council on a review?**
+
+The dispute path is the same as for code: open a Discussion thread, lay out the case, the council adjudicates. If the disagreement is genuine and the council is split, Tim has the casting vote until the council expands to seven members (which is the documented threshold for full majority-rule).
+
+### Examples from elsewhere
+
+If you want a sanity-check on what good design at a transparent open-source product looks like:
+
+- **[Penpot](https://penpot.app/)**, the open-source design tool. Their own brand identity is consistent and they ship updates publicly.
+- **[Sentry](https://sentry.io/)**, whose brand identity (the slightly-off illustration style, the muted purple, the playful product names) was built by a designer who joined early and stayed.
+- **[Linear](https://linear.app/)**, whose visual identity is so consistent it has become the reference point for SaaS design in 2024.
+- **[Vercel](https://vercel.com/)**, whose typography and motion language is distinctive enough to be recognised on screenshots without the logo.
+
+The lesson from each is that the brand identity compounds over years and the brand-pack discipline is what makes the compounding possible. The choice of "this is our gold" might feel small on the day. Over 200 share cards in twelve months, it is large.
+
+### The development cadence
+
+Tim ships from a single tmux session on a single Linux box. The cadence for design work is:
+
+- Notice a thing (a visual gap, a brand-pack inconsistency, an opportunity).
+- Sketch the change in your preferred tool (Figma, Sketch, Penpot, paper).
+- Export the change as SVG or PNG. Drop it into the right path in the repo.
+- Open the PR with the before/after PNGs.
+- The reviewer agent runs the mechanical checks (contrast, format, file size).
+- The design council reviews the visual quality.
+- Tim merges if both approve.
+- The new asset propagates to every page or card that uses it.
+
+The median round trip for a small design change is about thirty minutes. For a multi-PR campaign, the round trip is several days because the council reviews on a longer cadence. The cadence is documented in [docs/34-orchestrator-runbook.md](https://github.com/0800tim/tournamental/blob/main/docs/34-orchestrator-runbook.md).
+
+### A short word on tooling preferences
+
+If you contribute regularly to the design surface, the project's preferred tooling is: [Figma](https://www.figma.com/) for layout work, [After Effects](https://www.adobe.com/products/aftereffects.html) or [Rive](https://rive.app/) for motion work, [Inkscape](https://inkscape.org/) or [Illustrator](https://www.adobe.com/products/illustrator.html) for SVG vector work. The repo accepts the exported assets in standard formats (SVG, PNG, Lottie JSON, WAV). The tool is your choice.
+
+For collaboration, the design council uses a shared Figma file at `https://www.figma.com/community/file/tournamental-brand`. The file goes public on the public-repo reveal. Contributors can join the file and propose updates; the file is the source of truth for the brand pack visuals, with the markdown doc at `docs/15-tournamental-brand-and-positioning.md` as the source of truth for the prose.
+
+### Reading list, sorted by usefulness
+
+If you want to ramp up on the project's specific design choices before you ship, the recommended reading list is:
+
+1. The brand pack at [`docs/15-tournamental-brand-and-positioning.md`](https://github.com/0800tim/tournamental/blob/main/docs/15-tournamental-brand-and-positioning.md). This is the canonical reference.
+2. The clip-pipeline doc at [`docs/14-clip-generation-and-social.md`](https://github.com/0800tim/tournamental/blob/main/docs/14-clip-generation-and-social.md). Explains how share cards are consumed.
+3. The molecule-view blog post at [/blog/2026-05-12-tournament-as-molecule/](/blog/2026-05-12-tournament-as-molecule/). Walks through the visualisation choices.
+4. The pot-of-gold post at [/blog/2026-05-12-pot-of-gold-or-pot-of-shit/](/blog/2026-05-12-pot-of-gold-or-pot-of-shit/). The broader context.
+5. The contributor revenue doc at [`docs/19-open-source-and-contributor-revenue.md`](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). The Drips mechanics.
+
+If you want external references on design systems for sport-prediction products:
+
+- The [ESPN Bracket Challenge](https://www.espn.com/) brand, which has set the convention for bracket-game design in the US.
+- The [Telegraph Predictor](https://www.telegraph.co.uk/world-cup/) brand, which has set the European convention.
+- The [Polymarket](https://polymarket.com/) brand, which represents the prediction-market category visually.
+- The [Dream11](https://www.dream11.com/) brand, which represents the Indian fantasy-sport category.
+
+Each of these is a useful reference for what works and what does not. Tournamental's visual identity should feel familiar enough to fit the category and distinctive enough to be its own brand.
+
+### A note on hiring versus contributing
+
+For the avoidance of doubt: the contributor flow is not a hiring pipeline. Tournamental NZ Limited does not have headcount to hire designers. If we get to the point where there is a design hire to make, the conversation starts with contributors who have already shipped on the codebase. The Drips list is the present-tense compensation path; a hire conversation, if it ever happens, would be separate.
+
+If you are a design studio looking for a contracting engagement (a defined scope, a defined budget, a defined timeline), that conversation is also separate. Email `tim@tournamental.com` with the scope and the budget you have in mind. The strategic-reserve line item in the treasury policy is the funding source for contracted work and the budget is small but real.
+
+### What success looks like, in one paragraph
+
+If this post does its job, three to five designers email me in the next month. One ships the AFCON podium variant in their first week. One picks up the wordmark re-typeset and the colour-ladder as a second-week project. One starts a multi-month brand-evolution campaign that I do not have to lead myself. Two opt out of Drips and contribute as public-good work. The bracket app, the share cards, the marketing site, and the molecule view all gain a coherent visual identity by the time the World Cup kicks off, and the rest of the platform inherits the identity for the rest of 2026.
+
+If that happens, every user who sees a Tournamental share card on TikTok or Reels recognises the brand. If it does not, the share cards keep looking like every other "look I won a thing" card on the internet and the visual story Tournamental tells about itself stays smaller than it could be.
+
+### A final honest admission
+
+I do not know what the right visual identity for Tournamental is. The brand pack is my best guess. I have looked at the visual identities of [ESPN's Bracket Challenge](https://www.espn.com/), [Yahoo Sports' fantasy products](https://sports.yahoo.com/fantasy/), [Dream11](https://www.dream11.com/), and a few other tournament-prediction products, and I have a sense for what works and what does not in the category. I have not been able to translate that sense into a brand pack that I am confident in. The thirty-minute Sunday-afternoon palette is the literal artefact of that gap.
+
+If you bring a stronger sense of what the brand should be, the brand pack updates around you. The published version is a baseline. The version that ships in twelve months is the version a real designer made.
+
+### What the project does not need from a design contributor
+
+To save you time, the things that are **not** in scope for design contributions:
+
+- **A complete tear-down of the brand pack.** The brand pack updates incrementally. A complete tear-down requires an RFC and council review and is not the first PR you ship.
+- **Replacing the Astro stack with a different framework.** The marketing site stays Astro. Design contributions live within Astro.
+- **A non-Apache, non-CC-BY licence.** Design contributions ship under CC-BY-4.0 by default. Other licences require a discussion before the PR.
+- **A redesign of the bracket-game mechanics.** The mechanics are owned by the product team; the visual treatment of the mechanics is owned by design. Stay on the visual-treatment side.
+- **Custom typography that requires a paid font licence.** Tournamental pays for [Adobe Fonts](https://fonts.adobe.com/) and the [Google Fonts](https://fonts.google.com/) catalogue is free. Paid foundry-specific licences require strategic-reserve budget approval first.
+
+### Frequently asked questions, expanded
+
+**Can I use AI tools to generate parts of my design contribution?**
+
+Yes. The reviewer agent itself is an AI; AI-assisted design is fine. The disclosure rule (from `docs/19-open-source-and-contributor-revenue.md` Anti-Gaming section) is that contributions credited to a contributor are expected to be substantively your work, not just an LLM prompt with no editorial pass. If you use AI tools as a starting point, ship the human-edited result.
+
+**What if I want to commission a third-party studio for a project that ships under my contributor account?**
+
+That works. The contributor wallet on the Drips list can route a share to a third-party. Document the arrangement in your session note. The council sees it and treats your contribution as the deliverable; how you distribute the payment is your choice.
+
+**What if I want my design to be paid as a fixed-price contract instead of a Drips stream?**
+
+The strategic-reserve line item handles fixed-price contracts. Email `tim@tournamental.com` with the scope and the budget. Most designers prefer Drips because it tracks upside; a few prefer fixed-price for cashflow reasons. Both are open.
+
+**Can I work on multiple PRs at once?**
+
+Yes. The repo uses git worktrees for parallel work. The reviewer agent treats each PR independently. The only constraint is that PRs touching the same brand-pack file may need to rebase; the orchestrator usually catches this and warns in the PR comments.
+
+**Can I rebrand the design in a fork?**
+
+The code is Apache 2.0; the docs are CC-BY-4.0. The Tournamental brand assets (the name, the wordmark, the logo) are not open and you cannot use them in a fork. Everything else, including the share-card templates, the molecule view, the marketing site styling, is yours to fork and rebrand. The brand-reservation policy is in [TRADEMARK.md](https://github.com/0800tim/tournamental/blob/main/TRADEMARK.md).
+
+**Will the brand evolve over time?**
+
+Yes. The Level-1 brand pack ships in May 2026. The Level-2 evolution is a 2027 project. The Level-3 ambition is a 2028+ project. Designers who contribute to the initial pack are positioning to lead the evolution.
+
+### A specific Telegram channel layout for design
+
+To make finding the right thread easier, the Telegram-side breakdown is:
+
+- **`@TournamentalBuild`**, the umbrella channel for all build-related discussion. Designers post here when they first arrive.
+- **`#design`**, the main design thread inside the umbrella. Open to anyone.
+- **`#share-cards`**, share-card-specific discussion. Posts about new card types, regional variants, motion templates.
+- **`#brand-pack`**, brand-pack discussion. Posts about typography, colour, the wordmark.
+- **`#motion-and-sound`**, motion and sound-design discussion. Currently smaller.
+- **`#illustration`**, illustration discussion for hero images, empty states, editorial work.
+
+Each thread has a pinned message with the relevant doc links and the current open RFCs. The pinned message is updated by the council weekly. If you arrive cold, the pinned messages are the right starting point.
+
+### A second pot-of-gold case for designers, specifically
+
+The pot-of-gold post made the case that the open-source bet is a way to give the platform "the best possible chance of running away". For designers specifically, the case is:
+
+- The CC-BY-4.0 brand pack is a portfolio piece you can reference forever, attributed back to your work.
+- The Drips revenue share is real money, paid in USDC, on a transparent schedule.
+- The design council seat is a long-term role on a foundation that may grow into something meaningful.
+- The work compounds across every share card, every blog post, every screenshot for the next year. The compounding is the upside.
+
+If any of those resonate, the contributor flow is here, and the wallet integration is the same as the code contributors.
+
+### A note on inclusion
+
+The design contributor pool aims to be diverse by default. The brand pack explicitly includes consideration for non-Latin scripts, for right-to-left layouts (Arabic, Hebrew), for varying screen sizes (the bracket app supports phones from the iPhone SE up to the iPad Pro), and for regional visual conventions. If you are coming from a non-Western-European design tradition, your perspective is valuable; the existing brand pack is light on regional variants and needs the input.
+
+### How the marketing site relates to the bracket app
+
+The bracket app at `apps/web/` and the marketing site at `apps/marketing/` share the brand pack but are technically independent. The Astro marketing site is a static-site generation tool; the Next.js bracket app is a dynamic application with server-side routes and live data.
+
+For design contributions, this matters because: the marketing site can use rich illustration and motion at a level the bracket app cannot afford (the bracket app's bundle budget is tighter); the bracket app needs design that holds up at 60 frames per second during the renderer scene; the share cards live in a third place (a canvas-rendered pipeline that produces PNG files at build time and at runtime).
+
+A designer ships either app-side or marketing-side depending on the change. Some contributions cross the boundary (the wordmark, the colour palette, the type system). The brand pack at `docs/15-` lives at the project level and is the source of truth for both.
+
+### Accessibility, in practice
+
+Every design PR is checked against WCAG-AA contrast. The check runs as `pnpm a11y` in the marketing app and is part of the reviewer-agent checklist. Failures block the merge unless the contributor documents a specific exception.
+
+The accessibility goals beyond contrast:
+
+- **Keyboard navigation** on every interactive element. The bracket app supports keyboard-only flow through the bracket-edit interface; the share flow does too.
+- **Screen-reader support** on every interactive element. The aria-label and aria-describedby attributes are part of the standard component pattern.
+- **Reduced-motion respect** on every animated element. The `prefers-reduced-motion` media query disables non-essential motion.
+- **Colour-blind safety** on every chart and visualisation. The molecule view atom colours are intentionally chosen to be distinguishable across the major colour-blindness types; the share cards do not rely on red-green distinction alone.
+
+If your design touches any of these, the reviewer agent's check is the first line. The council's review is the second.
+
+### How design council reviews actually work
+
+When you open a design PR, the council review process is:
+
+1. The reviewer agent runs the mechanical checks (contrast, format, brand-pack alignment).
+2. The PR is added to the council's weekly review queue.
+3. Each council member (currently three of us) leaves a comment on the visual quality.
+4. If the comments are positive, Tim merges. If there is a substantive concern, the comment thread continues until resolved.
+5. The PR merges or is held back for revision.
+
+The cadence is weekly because design changes have downstream impact and the council wants to consider the impact carefully. Smaller fixes (a contrast adjustment, a typo in the wordmark) skip the council and merge on the reviewer agent's approval alone.
+
+### One specific moment I want to flag
+
+Inside the bracket app, the moment a user hits **Save & share** on their first bracket is the single most important interaction in the product. The user has spent five-to-fifteen minutes building their bracket. The save is the payoff. The share is the multiplier.
+
+Today's design of that moment is: a flash to a static podium card, a brief animation, then the share-card preview with a "share to X" button bar at the bottom. It works. It does not feel like the most important interaction in the product. A designer who landed on the right treatment for that single moment would change the platform's growth curve in a measurable way.
+
+I do not know what the right treatment is. A reveal sequence with a sense of weight, a sound cue that lands the moment, a visual treatment that makes the user want to screenshot the reveal before they share it. Designers who have shipped this kind of moment in other products (the [Spotify Wrapped](https://www.spotify.com/wrapped) reveal sequence is the obvious reference) probably have an instinct here. I would love to see what they bring.
+
+- Tim
