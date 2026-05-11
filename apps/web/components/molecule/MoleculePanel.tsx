@@ -44,6 +44,14 @@ export interface MoleculePanelProps {
   highlightOverrideOn?: boolean;
   onHighlightOverrideChange?: (on: boolean) => void;
   onClose: () => void;
+  /**
+   * v6, capture mode. While true the panel hides UI controls (the
+   * close button, the "Highlight on scene" toggle) so the DOM
+   * snapshot used for the viral share image renders only the
+   * champion hero + group stage + knockout sections. Toggled by
+   * the capture helper for the duration of the snapshot.
+   */
+  captureMode?: boolean;
 }
 
 const STAGE_LABEL: Record<string, string> = {
@@ -98,6 +106,7 @@ export function MoleculePanel(props: MoleculePanelProps) {
     highlightOverrideOn = true,
     onHighlightOverrideChange,
     onClose,
+    captureMode = false,
   } = props;
 
   const team = teamCode
@@ -122,7 +131,12 @@ export function MoleculePanel(props: MoleculePanelProps) {
   );
 
   return (
-    <aside className="molecule-panel" role="complementary" aria-labelledby="molecule-panel-title">
+    <aside
+      className="molecule-panel"
+      role="complementary"
+      aria-labelledby="molecule-panel-title"
+      data-capture-mode={captureMode ? "true" : "false"}
+    >
       <header className="molecule-panel-head">
         <div className="molecule-panel-flag" aria-hidden>
           {flagEmojiByTeam.get(teamCode) ?? "·"}
@@ -138,30 +152,34 @@ export function MoleculePanel(props: MoleculePanelProps) {
             {pill.label}
           </span>
         </div>
-        <button
-          type="button"
-          aria-label="Close team panel"
-          className="molecule-panel-close"
-          onClick={onClose}
-        >
-          ×
-        </button>
+        {captureMode ? null : (
+          <button
+            type="button"
+            aria-label="Close team panel"
+            className="molecule-panel-close"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        )}
       </header>
 
       <section className="molecule-panel-body">
-        <div className="molecule-panel-toolbar">
-          <label className="molecule-panel-toggle">
-            <input
-              type="checkbox"
-              checked={highlightOverrideOn}
-              onChange={(e) => onHighlightOverrideChange?.(e.currentTarget.checked)}
-            />
-            <span className="molecule-panel-toggle-track" aria-hidden />
-            <span className="molecule-panel-toggle-label">
-              Highlight on scene
-            </span>
-          </label>
-        </div>
+        {captureMode ? null : (
+          <div className="molecule-panel-toolbar">
+            <label className="molecule-panel-toggle">
+              <input
+                type="checkbox"
+                checked={highlightOverrideOn}
+                onChange={(e) => onHighlightOverrideChange?.(e.currentTarget.checked)}
+              />
+              <span className="molecule-panel-toggle-track" aria-hidden />
+              <span className="molecule-panel-toggle-label">
+                Highlight on scene
+              </span>
+            </label>
+          </div>
+        )}
 
         {/* ---------- GROUP STAGE ---------- */}
         {groupSummary && groupSummary.groupId ? (

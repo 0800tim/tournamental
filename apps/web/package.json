@@ -31,6 +31,7 @@
     "@vtorn/spec-client": "workspace:*",
     "better-sqlite3": "^11.10.0",
     "country-flag-icons": "^1.6.17",
+    "html-to-image": "^1.11.13",
     "jose": "^5.9.6",
     "next": "14.2.15",
     "postprocessing": "6.39.1",
