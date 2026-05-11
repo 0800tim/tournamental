@@ -1,0 +1,112 @@
+name: Agent task
+description: A well-scoped task for an AI coding agent to pick up autonomously. Strict structure required.
+title: "[agent-task] <one-line summary>"
+labels: ["agent-task", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this template only for issues you intend an AI coding agent to pick up.
+        Vague acceptance criteria are the enemy of agent velocity, so every field is required.
+        For human contributors, use the **Bug** or **Feature** template instead.
+
+        See [AGENTS.md](https://github.com/0800tim/tournamental/blob/main/AGENTS.md)
+        for the broader operating manual and the boundary tiers.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: One paragraph. What should change after this task is merged? Write in plain English.
+      placeholder: "Add a 'streak bonus' to the bracket scoring: 3 correct picks in a row awards an extra 25 points; resets on any miss."
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance test
+      description: |
+        ONE machine-checkable outcome. The PR is mergeable iff this test passes.
+        Prefer a vitest spec, a curl invocation with expected body, or a typecheck-must-pass condition.
+      placeholder: |
+        ```ts
+        // packages/bracket-engine/test/streak.test.ts
+        it("awards 25 pts on the third consecutive correct pick", () => {
+          const result = scoreBracket({ predictions: [c, c, c], actual: { ... } });
+          expect(result.perPrediction.m3.base + result.perPrediction.m3.multipliers.streak).toBe(35);
+        });
+        ```
+    validations:
+      required: true
+
+  - type: input
+    id: file
+    attributes:
+      label: Start in this file
+      description: Absolute path from repo root. The agent SHOULD start here; it MAY edit related files.
+      placeholder: "packages/bracket-engine/src/scoring.ts"
+    validations:
+      required: true
+
+  - type: input
+    id: refs
+    attributes:
+      label: Refs
+      description: Comma-separated pointers to the relevant design doc(s) under `docs/`.
+      placeholder: "docs/16-game-modes-and-scoring.md, sessions/2026-04-18_orchestrator_scoring-v2.md"
+    validations:
+      required: true
+
+  - type: textarea
+    id: boundary
+    attributes:
+      label: This change should NOT touch
+      description: Explicit list of files / dirs the agent must stay out of. Use to prevent scope creep.
+      placeholder: |
+        - packages/spec/ (spec changes are orchestrator-only)
+        - apps/web/components/molecule/ (unrelated)
+        - any apps/*/migrations/*.sql (schema changes need a separate PR)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Boundary tier
+      description: Which AGENTS.md tier does this task fall under?
+      options:
+        - "do (agents may execute without further approval)"
+        - "ask-first (open the PR as DRAFT and request human review on the approach)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Primary surface
+      description: Which top-level area does this touch?
+      options:
+        - "surface:web"
+        - "surface:marketing"
+        - "surface:game"
+        - "surface:mcp"
+        - "surface:auth"
+        - "surface:plugin-sdk"
+        - "surface:renderer"
+        - "surface:docs"
+        - "other (explain in objective)"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Author checklist
+      options:
+        - label: I have stated the acceptance test in machine-checkable form.
+          required: true
+        - label: The objective is specific enough that two different agents would converge on the same outcome.
+          required: true
+        - label: I have linked at least one `Refs:` doc so the agent has design context.
+          required: true
