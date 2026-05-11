@@ -25,13 +25,18 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/shell";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
+import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
 
 import "@/components/share-landing/share-landing.css";
 
-export const dynamic = "force-dynamic";
+// 60-second edge revalidation mirrors the upstream game-service's
+// `s-maxage=60`. Re-shares (the common case, one tweet -> thousands of
+// clicks) hit the CDN; the bracket owner's re-saves bust the cache
+// inside a minute.
+export const revalidate = 60;
 
 interface PageProps {
   readonly params: { readonly guid: string };
@@ -42,6 +47,7 @@ interface PageProps {
 export async function generateMetadata(
   { params }: PageProps,
 ): Promise<Metadata> {
+  // Metadata fetch doesn't need the heavy payload; just the summary.
   const resolved = await resolveShareGuid(params.guid);
   if (resolved.kind === "syndicate") {
     const s = resolved.syndicate;
@@ -103,7 +109,11 @@ export async function generateMetadata(
 // ── Page ────────────────────────────────────────────────────────────
 
 export default async function SharePage({ params }: PageProps) {
-  const resolved = await resolveShareGuid(params.guid);
+  // The page (not the metadata) is the one that needs the full
+  // bracket payload — the molecule embed lives in the page body.
+  const resolved = await resolveShareGuid(params.guid, {
+    includePayload: true,
+  });
 
   if (resolved.kind === "not_found") {
     return (
@@ -168,6 +178,14 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
         <PodiumCup rank="gold" team={champion} cup="🥇" />
         <PodiumCup rank="bronze" team={third_place} cup="🥉" />
       </div>
+
+      {/* Live 3D molecule. Tim 2026-05-11: every share landing should
+        * embed the owner's actual predicted molecule, not just a flat
+        * podium image. Read-only — the viewer can rotate / zoom but
+        * can't edit picks. */}
+      {bracket.payload ? (
+        <ShareMoleculeEmbed bracket={bracket.payload} />
+      ) : null}
 
       <div className="vt-share-path" aria-label="Champion's path to gold">
         <h2 className="vt-share-path-title">Path to gold</h2>

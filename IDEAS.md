@@ -42,6 +42,7 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 ### Game / scoring
 - [2026-05-09, doc 16] Dynamic per-tournament scoring rule overrides (sponsor "Comeback Cup" with 2× comeback points). (open)
 - [2026-05-09, doc 16] Live-stream "Watch Party Mode" UI for pubs / Discord — see doc 14 mention. (open)
+- [2026-05-11, share-landing] Hoist `bracketToCascadeInput` from `apps/web/lib/bracket/cascade-bridge.ts` + `apps/game/src/routes/bracket-cascade-summary.ts` into `@vtorn/bracket-engine` so both surfaces share one helper. Currently near-duplicated. (open)
 
 ### Auth / identity
 - [2026-05-09, doc 13] Voice messages from the bot (only after v0.1 lands). (open)

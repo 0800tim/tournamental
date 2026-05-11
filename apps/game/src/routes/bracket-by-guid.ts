@@ -5,12 +5,14 @@
  * Anyone with the URL can resolve it — share links are public by
  * design (think Twitter / X public-tweet visibility).
  *
- * The endpoint is intentionally narrow: it exposes only the fields the
- * share-landing page renders (champion + podium + path to gold) plus
- * the locked-at timestamp for the saved-at footer. No raw bracket
- * payload, no scoring data, no per-match picks — keep the public
- * surface minimal so future privacy controls (private-by-default
- * brackets, opt-out, etc.) can plug in here.
+ * The default response is intentionally narrow: champion + podium +
+ * path to gold + locked-at. Pass `?include=payload` to additionally
+ * return the full persisted `Bracket` JSON — used by the share page's
+ * embedded 3D molecule scene, which renders the saved picks in
+ * read-only mode. Anyone with the share URL is already allowed to see
+ * the full prediction (the molecule reveals every pick), so the
+ * privacy surface of the opt-in payload field matches the rest of the
+ * landing.
  *
  * Caching: `public, s-maxage=60, stale-while-revalidate=600`. The
  * bracket can change on every save, but a 60-second edge cache makes
@@ -18,30 +20,30 @@
  * click) cheap. SWR=600 keeps the previous response warm for ten
  * minutes after a revalidation kicks off.
  *
- * Resolution of the optional `user_handle` and `knockout_path`:
- * - `user_handle` is null until the Supabase profiles layer is wired
- *   through. The share landing renders "@Anonymous" in that case.
- *   Once PR #138's user_profiles table lands, we'll join on it here.
- * - `knockout_path` walks the bracket's `knockoutPredictions` looking
- *   for matchIds whose tokens embed ISO team codes (the cascade
- *   produces ids like `qf_ARG_NED` for resolved knockouts). Rounds
- *   that aren't picked or that haven't been resolved by the cascade
- *   surface as `opponent_code: null, result: "tbd"`.
+ * Resolution of the champion / podium / path:
+ *   - Primary: run the full `@vtorn/bracket-engine` cascade against
+ *     the canonical FIFA WC 2026 fixture set. This works for every
+ *     bracket saved by the live web client, whose `knockoutPredictions`
+ *     keys are canonical fixture ids (`r32_01`, `qf_01`, `final`).
+ *   - Fallback: legacy ISO-token regex (`qf_ARG_NED` -> ARG vs NED).
+ *     Kept for unit tests and any hypothetical pre-cascade ids.
  */
 
 import type { FastifyInstance } from "fastify";
+
+import { loadFixtures2026, type Tournament } from "@vtorn/bracket-engine";
 
 import type { GameStore } from "../store/db.js";
 import type { Bracket } from "../types.js";
 import type { MatchPrediction } from "@vtorn/bracket-engine";
 
-export interface KnockoutPathEntry {
-  /** Stage label as the web client expects ("r16", "qf", "sf", "final"). */
-  readonly stage: string;
-  /** Opponent team code. Null when the prior round hasn't been picked. */
-  readonly opponent_code: string | null;
-  readonly result: "win" | "loss" | "tbd";
-}
+import {
+  resolveCascadeForSummary,
+  summariseFromCascade,
+  type KnockoutPathEntry,
+} from "./bracket-cascade-summary.js";
+
+export type { KnockoutPathEntry } from "./bracket-cascade-summary.js";
 
 export interface BracketByGuidPayload {
   readonly share_guid: string;
@@ -52,11 +54,22 @@ export interface BracketByGuidPayload {
   readonly third_place_code: string | null;
   readonly knockout_path: ReadonlyArray<KnockoutPathEntry>;
   readonly locked_at: string | null;
+  /**
+   * Full persisted bracket payload — only included when the caller
+   * passes `?include=payload`. The share-landing page uses this to
+   * drive the read-only 3D molecule embed underneath the podium card.
+   */
+  readonly payload?: Bracket;
 }
 
-// Stages we surface on the public share page. Any matchId that begins
-// with one of the listed prefixes is bucketed into that stage,
-// regardless of separator (`_`, `:`, `-`) or trailing tokens.
+// ---- Legacy ISO-token extractor (fallback for non-canonical ids) ----
+//
+// Some test fixtures use match ids like `final_ARG_FRA` whose tokens
+// embed the combatants directly. Those ids aren't in the canonical
+// tournament fixture set so the cascade can't resolve them. We keep
+// the regex extractor as a fallback so the existing public-API tests
+// (and any hypothetical hand-rolled bracket) still surface a champion.
+
 const STAGE_PREFIXES: ReadonlyArray<{
   stage: KnockoutPathEntry["stage"];
   test: (id: string) => boolean;
@@ -67,7 +80,7 @@ const STAGE_PREFIXES: ReadonlyArray<{
   { stage: "r16", test: (id) => /^(?:r16|round-?16)(?:[_:\-]|$)/i.test(id) },
 ];
 
-function stageFor(matchId: string): KnockoutPathEntry["stage"] | null {
+function legacyStageFor(matchId: string): KnockoutPathEntry["stage"] | null {
   for (const s of STAGE_PREFIXES) {
     if (s.test(matchId)) return s.stage;
   }
@@ -84,13 +97,7 @@ function teamsInMatchId(matchId: string): string[] {
   return matchId.split(/[_:\-]/).filter((t) => /^[A-Z]{3}$/.test(t));
 }
 
-/**
- * Compute champion / runner-up / third-place codes + the path-to-gold
- * from the bracket's knockoutPredictions. Best-effort — picks whose
- * matchIds don't embed ISO codes (e.g. plain numeric ids before the
- * cascade resolves them) surface as null.
- */
-function summariseBracket(bracket: Bracket): {
+function summariseLegacyIds(bracket: Bracket): {
   champion_code: string | null;
   runner_up_code: string | null;
   third_place_code: string | null;
@@ -104,13 +111,12 @@ function summariseBracket(bracket: Bracket): {
   };
 
   for (const pred of Object.values(bracket.knockoutPredictions ?? {})) {
-    const stage = stageFor(pred.matchId);
+    const stage = legacyStageFor(pred.matchId);
     if (!stage) continue;
     const arr = byStage[stage];
     if (arr) arr.push(pred);
   }
 
-  // Most-recent pick wins for each stage in case there are multiple.
   for (const arr of Object.values(byStage)) {
     arr.sort((a, b) => {
       const al = Date.parse(a.lockedAt ?? "");
@@ -147,7 +153,6 @@ function summariseBracket(bracket: Bracket): {
   const champion_code = winnerCode(finalPick);
   const runner_up_code = loserCode(finalPick);
 
-  // Third-place: pick from a tp/third-place fixture if present.
   let third_place_code: string | null = null;
   for (const pred of Object.values(bracket.knockoutPredictions ?? {})) {
     if (/^(?:tp|third)/i.test(pred.matchId)) {
@@ -156,8 +161,6 @@ function summariseBracket(bracket: Bracket): {
     }
   }
 
-  // Champion's path: opponent at each round. If a round wasn't picked
-  // (or doesn't embed team codes), surface TBD.
   const knockout_path: KnockoutPathEntry[] = (
     [
       { stage: "r16" as const, pick: r16Pick },
@@ -179,11 +182,39 @@ function summariseBracket(bracket: Bracket): {
   return { champion_code, runner_up_code, third_place_code, knockout_path };
 }
 
+/**
+ * Cascade-first summariser. Tries the canonical fixture set first
+ * (handles every bracket saved by the live web client) and falls back
+ * to the ISO-token regex for legacy / synthetic ids.
+ */
+function summariseBracket(
+  bracket: Bracket,
+  tournament: Tournament,
+): {
+  champion_code: string | null;
+  runner_up_code: string | null;
+  third_place_code: string | null;
+  knockout_path: KnockoutPathEntry[];
+} {
+  // Try the cascade first. For real brackets saved by the web client
+  // it resolves every slot. For test / synthetic brackets with
+  // ISO-encoded matchIds (no canonical fixture match) the cascade
+  // returns null and we fall through to the regex extractor.
+  const cascaded = resolveCascadeForSummary(tournament, bracket);
+  const cascadeSummary = summariseFromCascade(cascaded);
+  if (cascadeSummary.champion_code) return cascadeSummary;
+  return summariseLegacyIds(bracket);
+}
+
 export interface BracketByGuidRoutesDeps {
   readonly store: GameStore;
 }
 
 const CACHE_HEADER = "public, s-maxage=60, stale-while-revalidate=600";
+
+// Loaded once at module scope: the canonical fixture set is read-only
+// and ~100KB of JSON; we don't need to re-parse it per request.
+const FIXTURES_2026: Tournament = loadFixtures2026();
 
 export async function registerBracketByGuidRoutes(
   app: FastifyInstance,
@@ -191,7 +222,12 @@ export async function registerBracketByGuidRoutes(
 ): Promise<void> {
   app.get("/v1/bracket/by-guid/:guid", async (req, reply) => {
     const params = req.params as { guid?: string };
+    const query = req.query as { include?: string };
     const guid = (params.guid ?? "").trim();
+    const includePayload = (query.include ?? "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .includes("payload");
     reply.header("Cache-Control", CACHE_HEADER);
 
     if (!guid || guid.length < 8 || guid.length > 64) {
@@ -213,7 +249,13 @@ export async function registerBracketByGuidRoutes(
       return reply.code(404).send({ ok: false, error: "not_found" });
     }
 
-    const summary = summariseBracket(payload);
+    // Pick the right tournament fixture set. For 2026 we have one; if
+    // the bracket was saved against an unknown id, fall back to the
+    // canonical set so the regex path still gets a shot.
+    const tournament =
+      row.tournament_id === FIXTURES_2026.id ? FIXTURES_2026 : FIXTURES_2026;
+
+    const summary = summariseBracket(payload, tournament);
 
     const body: { ok: true; bracket: BracketByGuidPayload } = {
       ok: true,
@@ -226,6 +268,7 @@ export async function registerBracketByGuidRoutes(
         third_place_code: summary.third_place_code,
         knockout_path: summary.knockout_path,
         locked_at: row.locked_at ? new Date(row.locked_at).toISOString() : null,
+        ...(includePayload ? { payload } : {}),
       },
     };
 

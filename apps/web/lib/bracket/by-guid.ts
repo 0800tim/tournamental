@@ -31,6 +31,8 @@
  * bracket than the one he saved. This file is the data-layer fix.
  */
 
+import type { Bracket } from "@vtorn/bracket-engine";
+
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import type { CanonicalTeamsFile } from "@/lib/bracket/enrich";
 
@@ -61,6 +63,12 @@ export interface BracketByGuid {
   readonly runner_up: TeamLite;
   readonly third_place: TeamLite;
   readonly path_to_gold: ReadonlyArray<PathToGoldEntry>;
+  /**
+   * Full persisted bracket payload, only present when the caller
+   * passed `{ includePayload: true }`. Drives the read-only 3D
+   * molecule embed on the share-landing page.
+   */
+  readonly payload?: Bracket;
 }
 
 export interface TeamLite {
@@ -109,6 +117,8 @@ interface UpstreamBracket {
     readonly result: "win" | "loss" | "tbd";
   }>;
   readonly locked_at: string | null;
+  /** Present when `?include=payload` was requested. */
+  readonly payload?: Bracket;
 }
 
 interface UpstreamResponse {
@@ -173,6 +183,13 @@ export async function loadBracketFromGuid(
     readonly fetchImpl?: typeof fetch;
     readonly baseUrl?: string;
     readonly timeoutMs?: number;
+    /**
+     * When true, ask the game-service to inline the full persisted
+     * bracket payload alongside the public summary. Used by the
+     * share-landing page so the 3D molecule embed can render the
+     * saved picks without a second round-trip.
+     */
+    readonly includePayload?: boolean;
   } = {},
 ): Promise<BracketByGuid | null> {
   const seeded = __test_registry.get(guid);
@@ -185,7 +202,8 @@ export async function loadBracketFromGuid(
   if (!fetchImpl) return null;
 
   const base = (opts.baseUrl ?? resolveGameApiBase()).replace(/\/+$/, "");
-  const url = `${base}/v1/bracket/by-guid/${encodeURIComponent(guid)}`;
+  const query = opts.includePayload ? "?include=payload" : "";
+  const url = `${base}/v1/bracket/by-guid/${encodeURIComponent(guid)}${query}`;
 
   const ctrl = new AbortController();
   const timer = setTimeout(
@@ -255,5 +273,6 @@ function normaliseUpstream(b: UpstreamBracket): BracketByGuid {
     runner_up,
     third_place,
     path_to_gold,
+    ...(b.payload ? { payload: b.payload } : {}),
   };
 }
