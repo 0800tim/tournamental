@@ -798,6 +798,32 @@
   background: #ffd861;
 }
 
+/* Pundit-predictions side panel — sits over the scene, top-right.
+ * Floating so it never reflows the canvas. Collapses to a stacked
+ * sheet on narrow screens via `bottom: 0` rule below. */
+.molecule-pundits-panel {
+  position: absolute;
+  top: 96px;
+  right: 16px;
+  width: 320px;
+  max-height: calc(100vh - 140px);
+  overflow: auto;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto;
+}
+
+@media (max-width: 720px) {
+  .molecule-pundits-panel {
+    position: static;
+    width: 100%;
+    max-height: none;
+    margin: 12px;
+  }
+}
+
 @media (max-width: 720px) {
   .molecule-panel {
     width: 100vw;

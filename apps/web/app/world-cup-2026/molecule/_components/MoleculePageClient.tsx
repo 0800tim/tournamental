@@ -14,6 +14,9 @@ import { useEffect, useMemo, useState } from "react";
 import type { Bracket, Tournament } from "@vtorn/bracket-engine";
 
 import { MoleculeScene } from "@/components/molecule/MoleculeScene";
+import { Leaderboard } from "@/components/leaderboard/Leaderboard";
+import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
+import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
 
 import "@/components/molecule/molecule.css";
 
@@ -134,6 +137,11 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
 
   const override = mode === "consensus" ? consensus : null;
 
+  // Mock pundit picks shown in the side panel. Deterministic across
+  // renders so the snapshot stays stable. Filtered to badge="pundit"
+  // by the Leaderboard component.
+  const pundits = useMemo(() => mockLeaderboardMembers(null, 50), []);
+
   return (
     <div className="molecule-page">
       <header className="molecule-page-header">
@@ -166,6 +174,19 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
           Loading molecule…
         </div>
       )}
+      <aside className="molecule-pundits-panel" aria-label="Pundit predictions">
+        <DraftPreviewBanner />
+        <Leaderboard
+          title="Pundit predictions"
+          members={pundits}
+          badgeFilter="pundit"
+          density="compact"
+          showMovementColumn={false}
+          showCountryColumn={false}
+          showSparkline={false}
+          tabs={[]}
+        />
+      </aside>
     </div>
   );
 }

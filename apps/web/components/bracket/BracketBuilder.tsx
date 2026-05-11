@@ -44,7 +44,10 @@ import {
 import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
+import { Leaderboard } from "@/components/leaderboard/Leaderboard";
+import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
+import { mockTopN } from "@/lib/mock/leaderboard";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
 import {
@@ -823,12 +826,27 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 {renderKnockoutGrid("final")}
               </div>
             </div>
-            <LockSummary
-              bracket={bracket}
-              cascaded={cascaded}
-              tournament={tournament}
-              deadline_utc={tournament.start_utc}
-            />
+            <div className="bracket-final-sidecol">
+              <LockSummary
+                bracket={bracket}
+                cascaded={cascaded}
+                tournament={tournament}
+                deadline_utc={tournament.start_utc}
+              />
+              <div className="bracket-final-leaderboard">
+                <DraftPreviewBanner />
+                <Leaderboard
+                  title="Global top 10"
+                  members={mockTopN(null, 10)}
+                  density="compact"
+                  showCountryColumn={false}
+                  showSparkline={false}
+                  showMovementColumn
+                  tabs={[]}
+                  totalMembers={24388}
+                />
+              </div>
+            </div>
           </div>
           <div className="bracket-lock-counts">
             <div>
