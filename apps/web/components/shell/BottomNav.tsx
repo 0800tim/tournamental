@@ -8,7 +8,8 @@
  *   `withCenterAction` is true. Disabled by default for v0.1.
  * - Hides on scroll-down, reveals on scroll-up. Honours
  *   `prefers-reduced-motion` (no transform animation when set).
- * - Hidden on >=768px viewports (the side rail nav takes over).
+ * - Hidden on >=768px viewports (desktop relies on the top-right
+ *   hamburger button to open the menu drawer instead).
  *
  * The active tab is computed from `window.location.pathname` once the
  * component mounts. We deliberately avoid `usePathname()` here because

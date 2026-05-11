@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 
 export default function Page() {
   return (
-    <AppShell title="Profile" avatarInitials="T">
+    <AppShell title="Profile">
       <div className="vt-page-content">
         <ProfilePage />
       </div>

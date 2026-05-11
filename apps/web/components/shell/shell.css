@@ -54,7 +54,6 @@
 .vt-shell {
   --vt-shell-appbar-h: 56px;
   --vt-shell-bottomnav-h: 64px;
-  --vt-shell-rail-w: 240px;
   min-height: 100vh;
   background: var(--vt-bg);
   color: var(--vt-fg);
@@ -105,7 +104,6 @@
 
 @media (min-width: 768px) {
   .vt-shell[data-variant="default"] .vt-shell-main {
-    padding-left: var(--vt-shell-rail-w);
     padding-bottom: 32px;
   }
 }
@@ -118,7 +116,7 @@
   height: var(--vt-shell-appbar-h);
   z-index: 30;
   display: grid;
-  grid-template-columns: 40px 1fr 40px;
+  grid-template-columns: 40px 1fr auto;
   align-items: center;
   gap: 12px;
   padding: 0 16px;
@@ -134,8 +132,42 @@
   border-bottom-color: var(--vt-border-strong);
 }
 
-.vt-appbar-avatar,
-.vt-appbar-action {
+.vt-appbar-brand {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--vt-radius-pill);
+  color: var(--vt-fg);
+  text-decoration: none;
+  transition: transform 120ms ease;
+}
+
+.vt-appbar-brand:active {
+  transform: scale(0.96);
+}
+
+.vt-appbar-brand-mark {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--vt-accent);
+  color: var(--vt-accent-on);
+  font-weight: 900;
+  font-size: 16px;
+  letter-spacing: -0.02em;
+}
+
+.vt-appbar-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vt-appbar-action,
+.vt-appbar-burger {
   width: 36px;
   height: 36px;
   border-radius: var(--vt-radius-pill);
@@ -149,16 +181,30 @@
   font-size: 14px;
   font-weight: 600;
   transition: background 120ms ease, transform 120ms ease;
+  /* Expanded hit-target — visual is 36x36 but interaction area is >=44. */
+  position: relative;
 }
 
-.vt-appbar-avatar:hover,
-.vt-appbar-action:hover {
+.vt-appbar-action::before,
+.vt-appbar-burger::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
+}
+
+.vt-appbar-action:hover,
+.vt-appbar-burger:hover {
   background: var(--vt-bg-elev-2);
 }
 
-.vt-appbar-avatar:active,
-.vt-appbar-action:active {
+.vt-appbar-action:active,
+.vt-appbar-burger:active {
   transform: scale(0.96);
+}
+
+.vt-appbar-burger svg {
+  width: 24px;
+  height: 24px;
 }
 
 .vt-appbar-title {
@@ -264,96 +310,6 @@
   .vt-bottomnav {
     display: none;
   }
-}
-
-/* ---------- Side rail (desktop) ---------- */
-
-.vt-siderail {
-  display: none;
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: var(--vt-shell-rail-w);
-  z-index: 25;
-  padding: 24px 16px;
-  background: var(--vt-bg);
-  border-right: 1px solid var(--vt-border);
-  flex-direction: column;
-  gap: 6px;
-}
-
-@media (min-width: 768px) {
-  .vt-siderail {
-    display: flex;
-  }
-}
-
-.vt-siderail-brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: -0.015em;
-  margin-bottom: 24px;
-  padding: 0 8px;
-  color: var(--vt-fg);
-  text-decoration: none;
-}
-
-.vt-siderail-brand-mark {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--vt-accent);
-  color: var(--vt-accent-on);
-  display: grid;
-  place-items: center;
-  font-weight: 900;
-}
-
-.vt-siderail-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: var(--vt-radius-md);
-  color: var(--vt-fg-muted);
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 140ms ease, color 140ms ease;
-}
-
-.vt-siderail-link:hover {
-  background: var(--vt-bg-elev);
-  color: var(--vt-fg);
-}
-
-.vt-siderail-link[aria-current="page"] {
-  background: var(--vt-bg-elev-2);
-  color: var(--vt-fg);
-  font-weight: 700;
-}
-
-.vt-siderail-link svg {
-  width: 20px;
-  height: 20px;
-  stroke: currentColor;
-  fill: none;
-  stroke-width: 1.8;
-  flex-shrink: 0;
-}
-
-.vt-siderail-section {
-  margin-top: 20px;
-  padding: 0 12px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--vt-fg-faint);
 }
 
 /* ---------- Pill tabs ---------- */
@@ -767,9 +723,31 @@
   flex: 0 0 22px;
 }
 
+.vt-drawer-link[data-subitem="1"] {
+  padding-left: 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--vt-fg-muted);
+}
+
+.vt-drawer-link[data-subitem="1"] svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+}
+
+.vt-drawer-external-icon {
+  margin-left: auto;
+  font-size: 11px;
+  line-height: 1;
+  color: var(--vt-accent-warm);
+  letter-spacing: 0;
+  font-weight: 700;
+}
+
 @media (min-width: 768px) {
-  /* Desktop: side rail provides primary nav already. Drawer still works
-   * (e.g. small viewport on a laptop) but should sit narrower. */
+  /* Desktop: the drawer is the only nav surface, but it still sits as a
+   * right-edge sheet rather than a full-bleed panel. */
   .vt-drawer {
     width: 380px;
   }
