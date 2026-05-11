@@ -1,5 +1,5 @@
 /**
- * Tests for `lib/bracket/api.ts` — the thin fetch wrapper around the
+ * Tests for `lib/bracket/api.ts`, the thin fetch wrapper around the
  * game-service endpoints. We mock fetch and assert on the URL, headers,
  * body, and response shape mapping.
  */

@@ -2,7 +2,7 @@
  * Deterministic mock leaderboard generator.
  *
  * Real leaderboard data won't exist until kickoff (2026-06-11). Until
- * then, the marketing surfaces need to show *something* — but it must
+ * then, the marketing surfaces need to show *something*, but it must
  * be visibly draft. This module is the single source of truth for that
  * placeholder data. Swap `mockLeaderboardMembers` for a real fetch
  * (e.g. `fetchLeaderboard(syndicateSlug)`) when the API ships; the
@@ -18,7 +18,7 @@ import { MOCK_NAMES } from "./names";
 import { pickInt, seededRng, shuffle } from "./rng";
 
 export interface MockMember {
-  /** Stable hash of name+country — usable as a React key. */
+  /** Stable hash of name+country, usable as a React key. */
   readonly id: string;
   /** Display handle, always prefixed with "@". */
   readonly handle: string;
@@ -71,7 +71,7 @@ export function mockLeaderboardMembers(
     if (rank === 1) {
       points = topPoints;
     } else if (rank <= 3) {
-      // Tight gaps at the very top — 5 to 15 pts behind the previous.
+      // Tight gaps at the very top, 5 to 15 pts behind the previous.
       const gap = pickInt(rng, 5, 15);
       points = topPoints - gap * (rank - 1);
     } else {
@@ -112,7 +112,7 @@ export function mockLeaderboardMembers(
 }
 
 /**
- * Convenience helper for "what does row N look like?" — exposed so the
+ * Convenience helper for "what does row N look like?", exposed so the
  * bracket builder's compact rail can show just the top 10 without
  * repeating the slice logic.
  */

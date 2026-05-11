@@ -6,17 +6,17 @@
  *   const { status, user, profile, loading } = useUser();
  *
  * Status values:
- *   "loading"        — initial fetch is in flight
- *   "guest"          — Supabase is configured but no session exists
- *   "authenticated"  — signed-in user with profile loaded
- *   "unconfigured"   — Supabase env vars are missing (dev-without-creds)
+ *   "loading"       , initial fetch is in flight
+ *   "guest"         , Supabase is configured but no session exists
+ *   "authenticated" , signed-in user with profile loaded
+ *   "unconfigured"  , Supabase env vars are missing (dev-without-creds)
  *
  * Subscribes to `auth.onAuthStateChange` so a sign-in / sign-out in
  * another tab flows through here without a refresh.
  *
  * Profile loading: on every auth state change we `select * from
  * user_profiles where id = auth.uid()` once. We do **not** subscribe to
- * the profile table — edits happen via Server Actions that refetch on
+ * the profile table, edits happen via Server Actions that refetch on
  * success, which is cheaper than a realtime subscription.
  */
 
@@ -93,7 +93,7 @@ export function useUser(): UseUserReturn {
         .maybeSingle();
       if (cancelled || !mountedRef.current) return;
       if (error) {
-        // Profile not loaded — still authenticated, but the row is missing.
+        // Profile not loaded, still authenticated, but the row is missing.
         setState({
           status: "authenticated",
           user: { id: userId, email, phone },

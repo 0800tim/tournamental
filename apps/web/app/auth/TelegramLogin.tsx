@@ -62,7 +62,7 @@ export default function TelegramLogin(): JSX.Element {
         try {
           window.localStorage.setItem(STORAGE_KEY, body.jwt);
         } catch {
-          /* storage disabled — proceed anyway */
+          /* storage disabled, proceed anyway */
         }
         setStatus(null);
         router.push(next);

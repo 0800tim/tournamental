@@ -287,7 +287,7 @@ export async function saveFullBracket(
  *
  * Returns the persisted Bracket so the bracket builder can pick up
  * where the user left off on any device. Returns `ok: false` with
- * code `not_found` when the server has no bracket yet — the caller
+ * code `not_found` when the server has no bracket yet, the caller
  * should keep whatever's in localStorage.
  */
 export async function loadServerBracket(

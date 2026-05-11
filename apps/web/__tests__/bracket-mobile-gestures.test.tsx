@@ -1,8 +1,8 @@
 /**
  * Mobile gesture tests for the bracket UI.
  *
- * jsdom can't simulate real multi-touch pinch events end-to-end —
- * `Touch` and proper `TouchEvent` constructors are absent — so we
+ * jsdom can't simulate real multi-touch pinch events end-to-end -
+ * `Touch` and proper `TouchEvent` constructors are absent, so we
  * verify each gesture's *side effect* in isolation:
  *
  *   - usePinchZoom: the wrapped target gets the right transform-origin
@@ -76,7 +76,7 @@ afterEach(() => {
  * Pinch-zoom container wiring
  * ----------------------------------------------------------------- */
 
-describe("BracketBuilder — pinch-zoom container", () => {
+describe("BracketBuilder, pinch-zoom container", () => {
   it("wraps the .km-grid in a .km-pinch-wrap container with transform-origin set", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     // Switch to a knockout-round tab so the pinch-zoom grid mounts.
@@ -144,7 +144,7 @@ describe("vibrate()", () => {
   });
 });
 
-describe("BracketBuilder — vibrates on pick", () => {
+describe("BracketBuilder, vibrates on pick", () => {
   it("fires the short pick pattern when a group outcome changes", () => {
     const spy = vi.fn().mockReturnValue(true);
     Object.defineProperty(navigator, "vibrate", {

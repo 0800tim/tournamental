@@ -1,5 +1,5 @@
 /**
- * HeroCard — image-backed gradient card with a category pill and a
+ * HeroCard, image-backed gradient card with a category pill and a
  * bold headline. Tappable. Used at the top of the home feed.
  */
 

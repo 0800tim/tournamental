@@ -1,4 +1,4 @@
-# 07 — Avatars and Assets
+# 07, Avatars and Assets
 
 > How players actually look in the rendered scene. Three options shipped, all driven by the same `Player` field set in MatchInit.
 
@@ -8,7 +8,7 @@ The renderer picks the highest-fidelity option for which assets are available, f
 
 1. **GLB avatar** (`player.avatar_uri`). Full skinned 3D character with face geometry. Used by forks that ship custom characters (Roblox-flavoured worlds, anime worlds, animal mascots).
 2. **Ready Player Me avatar** (`player.rpm_avatar_id`). Generated from a single profile photo. Free service, optimized for web, ~2–4MB per avatar. Used when we want photoreal-ish player likenesses without bespoke modelling.
-3. **Procedural billboard-face avatar.** Fallback. Generic body GLB + a quad with the face image (`player.face_uri`) as a billboard always facing the camera + procedural jersey texture (kit colours and number). Cheap, works without any per-player modelling, and looks intentionally stylized like Wii Sports / Mii / Mario Strikers — a *charm*, not an embarrassment.
+3. **Procedural billboard-face avatar.** Fallback. Generic body GLB + a quad with the face image (`player.face_uri`) as a billboard always facing the camera + procedural jersey texture (kit colours and number). Cheap, works without any per-player modelling, and looks intentionally stylized like Wii Sports / Mii / Mario Strikers, a *charm*, not an embarrassment.
 
 If `face_uri` is also missing, the procedural avatar uses an initials disc instead of a photo.
 
@@ -51,13 +51,13 @@ export function makeJerseyTexture(kit: Kit, number: number, isGK = false): THREE
 }
 ```
 
-About 30 lines for a usable result. Cache by `(team_id, number, isGK)` and reuse — there are at most 22 unique textures per match.
+About 30 lines for a usable result. Cache by `(team_id, number, isGK)` and reuse, there are at most 22 unique textures per match.
 
 ## Billboard face
 
 A `<sprite>` (or a `<mesh>` with a billboard shader) parented to the head bone. Renders the `face_uri` texture as a flat plane that always faces the camera. PNG with transparent background recommended, square 256×256.
 
-Failure mode: if the image fails to load, render an initials disc with the kit colour as background — uses the same texture pipeline as `makeJerseyTexture`.
+Failure mode: if the image fails to load, render an initials disc with the kit colour as background, uses the same texture pipeline as `makeJerseyTexture`.
 
 ## Ready Player Me integration
 
@@ -69,7 +69,7 @@ RPM is a free service that generates GLB avatars from a single photo. Workflow:
 4. Producer includes `rpm_avatar_id` in the MatchInit message.
 5. Renderer fetches `https://models.readyplayer.me/<id>.glb` and uses it instead of the procedural body.
 
-Sizes are around 2–4MB each — fine to load eagerly for both starting XIs (44 avatars × 3MB = 132MB) but use HTTP/2 multiplexing and start the load while the user is on the pre-match HUD.
+Sizes are around 2–4MB each, fine to load eagerly for both starting XIs (44 avatars × 3MB = 132MB) but use HTTP/2 multiplexing and start the load while the user is on the pre-match HUD.
 
 License: RPM avatars under their default ToS are free for non-commercial open-source use. Document this in the project README.
 
@@ -98,7 +98,7 @@ animations/
 
 All retargeted onto the same Mixamo skeleton at the same scale. Loaded once into a shared `THREE.AnimationMixer` template; cloned per player.
 
-For RPM avatars, the same animations work because RPM uses a Mixamo-compatible skeleton. For custom GLBs (tier 1) the world author is responsible for ensuring skeleton compatibility — call this out in the renderer extension docs.
+For RPM avatars, the same animations work because RPM uses a Mixamo-compatible skeleton. For custom GLBs (tier 1) the world author is responsible for ensuring skeleton compatibility, call this out in the renderer extension docs.
 
 The animation FSM in `lib/animation-fsm.ts` (see [docs/04-renderer.md](04-renderer.md)) maps spec `AnimTag` values to these clips.
 
@@ -110,7 +110,7 @@ The animation FSM in `lib/animation-fsm.ts` (see [docs/04-renderer.md](04-render
 
 ## Asset licensing summary
 
-For the open-source default world, every shipped asset must be CC0, CC-BY-compatible, or self-authored. Do not check in copyrighted club crests, real player photos, sponsor logos, or licensed fonts. Faces from real player photos are the operator's responsibility — they're referenced by URL in the producer's MatchInit, never bundled with the renderer.
+For the open-source default world, every shipped asset must be CC0, CC-BY-compatible, or self-authored. Do not check in copyrighted club crests, real player photos, sponsor logos, or licensed fonts. Faces from real player photos are the operator's responsibility, they're referenced by URL in the producer's MatchInit, never bundled with the renderer.
 
 Practical defaults for v0.1:
 

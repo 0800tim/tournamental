@@ -1,5 +1,5 @@
 /**
- * Knockout flag-as-background — verifies the visual contract introduced
+ * Knockout flag-as-background, verifies the visual contract introduced
  * in `feat/knockout-flag-backgrounds` (doc 46):
  *
  *   - Selected (winner) side renders `style.backgroundImage` with the
@@ -75,7 +75,7 @@ function teamMap(): ReadonlyMap<string, Team> {
   ]);
 }
 
-describe("KnockoutMatch — flag-as-background", () => {
+describe("KnockoutMatch, flag-as-background", () => {
   // Updated contract (post-feedback): both sides render the team flag
   // as their background. The selected side is brighter + has a yellow
   // ring; the unselected side is dimmer (CSS-driven via :not(.is-winner)).
@@ -165,7 +165,7 @@ describe("KnockoutMatch — flag-as-background", () => {
   });
 });
 
-describe("KnockoutMatch — bigger inline flags", () => {
+describe("KnockoutMatch, bigger inline flags", () => {
   it("renders the inline TeamFlag chip at md (48px) by default, not sm (24px)", () => {
     const { container } = render(
       <KnockoutMatch
@@ -187,7 +187,7 @@ describe("KnockoutMatch — bigger inline flags", () => {
   });
 });
 
-describe("KnockoutMatch — a11y + interactions", () => {
+describe("KnockoutMatch, a11y + interactions", () => {
   it("aria-pressed flips when the user picks the home side", () => {
     const onChange = vi.fn();
     const { container } = render(
@@ -277,7 +277,7 @@ describe("KnockoutMatch — a11y + interactions", () => {
   });
 });
 
-describe("KnockoutMatch — layout improvements", () => {
+describe("KnockoutMatch, layout improvements", () => {
   it("renders a smaller match-number chip in the header (no separate stage span)", () => {
     const { container } = render(
       <KnockoutMatch

@@ -1,5 +1,5 @@
 /**
- * Phase-4 mobile performance budget — single source of truth.
+ * Phase-4 mobile performance budget, single source of truth.
  *
  * Per `docs/27d-fidelity-phase4-magnus-mobile.md`:
  *
@@ -8,7 +8,7 @@
  *   for ~ 1.5 s. `?perf=mobile` URL flag forces the mobile profile for
  *   QA on desktop.
  *
- * No three.js dependency — pure logic. Tests in
+ * No three.js dependency, pure logic. Tests in
  * `__tests__/mobile-perf-budget.test.ts`.
  */
 import type { QualityPreset } from "./quality";
@@ -89,7 +89,7 @@ const RANK_TO_PRESET: QualityPreset[] = ["low", "medium", "high"];
 
 /**
  * Decide whether to step the quality preset down based on the recent
- * fps trend. Pure logic — caller manages the sustained-low timer.
+ * fps trend. Pure logic, caller manages the sustained-low timer.
  */
 export function decideLODDowngrade(
   current: QualityPreset,

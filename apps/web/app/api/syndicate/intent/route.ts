@@ -1,9 +1,9 @@
 /**
- * /api/syndicate/intent — accept a syndicate pre-signup.
+ * /api/syndicate/intent, accept a syndicate pre-signup.
  *
  * Phase 0 storage: write a JSON file under `data/pre-signups/` (gitignored).
  * The file is keyed by ISO timestamp + a short random suffix so concurrent
- * writes don't collide. This is intentionally simple — when `apps/api`
+ * writes don't collide. This is intentionally simple, when `apps/api`
  * lands, the route forwards to it instead.
  *
  * Validation: lightweight runtime checks (no Zod dep added for v0.1).
@@ -39,7 +39,7 @@ function isString(x: unknown): x is string {
 }
 
 function validateEmail(email: string): boolean {
-  // Deliberately permissive — matches anything with an `@` and a `.` in the
+  // Deliberately permissive, matches anything with an `@` and a `.` in the
   // host. Real validation is the confirm-email round-trip we'll add later.
   return /.+@.+\..+/.test(email) && email.length <= 200;
 }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest) {
     );
   } catch (err) {
     // Log but don't expose internals. The form treats any non-200 as a
-    // generic "try again" — the operator sees the error in server logs.
+    // generic "try again", the operator sees the error in server logs.
     // eslint-disable-next-line no-console
     console.error("syndicate/intent persist failed", err);
     return Response.json(

@@ -6,7 +6,7 @@
  * so a DOM-side React tree can fade the "REPLAY" badge in/out
  * without polling Three internals.
  *
- * Pattern follows `crowdEnergyBus` — module-level singleton.
+ * Pattern follows `crowdEnergyBus`, module-level singleton.
  */
 import type { DirectorCamName } from "./director-policy";
 

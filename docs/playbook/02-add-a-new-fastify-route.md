@@ -1,4 +1,4 @@
-# Playbook 02 — Adding a new Fastify route
+# Playbook 02, Adding a new Fastify route
 
 > **When to use this.** You're adding an HTTP endpoint to an existing Fastify service.
 
@@ -17,13 +17,13 @@ export async function registerExample(app: FastifyInstance) {
 }
 ```
 
-The bootstrap then `await app.register()`s the registrar — but most services already do `await registerExample(app);` directly because Fastify's `.get/.post` calls are synchronous-from-the-caller. Either is fine; match the surrounding file.
+The bootstrap then `await app.register()`s the registrar, but most services already do `await registerExample(app);` directly because Fastify's `.get/.post` calls are synchronous-from-the-caller. Either is fine; match the surrounding file.
 
 ## Add an OpenAPI annotation
 
 Two ways. Pick whichever the surrounding file already uses:
 
-### Option A — JSON schema inline (most concise)
+### Option A, JSON schema inline (most concise)
 
 ```ts
 app.post(
@@ -64,7 +64,7 @@ app.post(
 );
 ```
 
-### Option B — zod schema with a converter
+### Option B, zod schema with a converter
 
 If the service already pulls `zod` (most do), define the zod schema where the route registers and convert on the fly:
 
@@ -93,10 +93,10 @@ Both produce a valid OpenAPI fragment in the generated spec.
 
 ### Always include
 
-- `tags: [<area>]` — the service's `registerSwagger` lists tags so the UI groups routes.
-- `summary` — one short sentence. Verb-first imperative.
-- `description` — optional; only when the summary isn't enough.
-- `response` — at minimum a 200/2xx shape and any explicitly-handled error codes.
+- `tags: [<area>]`, the service's `registerSwagger` lists tags so the UI groups routes.
+- `summary`, one short sentence. Verb-first imperative.
+- `description`, optional; only when the summary isn't enough.
+- `response`, at minimum a 200/2xx shape and any explicitly-handled error codes.
 
 ## Add a test
 
@@ -137,7 +137,7 @@ describe('POST /v1/example', () => {
 });
 ```
 
-`app.inject` doesn't bind a port — fast and parallel-safe.
+`app.inject` doesn't bind a port, fast and parallel-safe.
 
 ## Cache headers
 
@@ -151,7 +151,7 @@ Always set the header *explicitly* in the handler, even if it duplicates a defau
 
 ## Auth
 
-If the route is admin-only, gate via `app.addHook('onRequest', ...)` that checks the bearer token (`<APP>_ADMIN_TOKEN` from env). Most services already have a `requireAdmin` helper — search for it before re-implementing.
+If the route is admin-only, gate via `app.addHook('onRequest', ...)` that checks the bearer token (`<APP>_ADMIN_TOKEN` from env). Most services already have a `requireAdmin` helper, search for it before re-implementing.
 
 If the route is user-scoped, the user id comes from the `X-User-Id` header (dev mesh) or from a verified JWT in production. Match the surrounding service.
 
@@ -162,12 +162,12 @@ pnpm --filter @vtorn/<service> dump-openapi
 git add docs/api/<service>.openapi.json
 ```
 
-Always commit the regenerated dump — the docs/api/ JSONs are the contract surface for downstream consumers.
+Always commit the regenerated dump, the docs/api/ JSONs are the contract surface for downstream consumers.
 
 ## Common mistakes
 
 - **No schema = no entry in `/docs`.** Routes without a schema show up as `parameters: any`, which is useless. Always annotate.
-- **Missing `tags`.** A tagless route shows up under "default" — confusing for callers.
+- **Missing `tags`.** A tagless route shows up under "default", confusing for callers.
 - **Forgetting cache headers.** Reviewer agent comment: "every public surface has an explicit cache policy."
 - **Tests boot a real DB.** Use `:memory:` (better-sqlite3 supports it directly). Tests must not write outside the workspace.
 - **Forgetting to commit the dump.** CI catches this when it diffs the dumps; it's still annoying.

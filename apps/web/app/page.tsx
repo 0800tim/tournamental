@@ -1,10 +1,10 @@
 /**
- * Home feed — the first thing a user sees when landing on the PWA.
+ * Home feed, the first thing a user sees when landing on the PWA.
  *
  * Composition (top to bottom):
  *   - CountdownBanner pinned to the FIFA WC 2026 kickoff.
  *   - StoriesStrip: featured matches and pundits (mocked for v0.1).
- *   - HeroCard: "Watch the AR-FR 2022 final" — tappable, opens the
+ *   - HeroCard: "Watch the AR-FR 2022 final", tappable, opens the
  *     replay route.
  *   - "Up next" section: 5 MatchCards (mocked schedule).
  *   - "From the desk" section: 2 NewsCards.

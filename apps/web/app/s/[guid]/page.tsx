@@ -1,5 +1,5 @@
 /**
- * /s/[guid] — universal share-landing route.
+ * /s/[guid], universal share-landing route.
  *
  * Single URL surface for every "share my bracket" / "join my syndicate"
  * CTA on the platform. Resolution order (see `lib/share/resolve-guid.ts`):
@@ -8,14 +8,14 @@
  *   2. user share guid (UUID v4 or 16-char nanoid) → user landing
  *   3. otherwise                                   → friendly 404
  *
- * Server component — runs on the edge of every share-link click. Sets
+ * Server component, runs on the edge of every share-link click. Sets
  * Cache-Control:
  *   - user landing:     public, s-maxage=300, stale-while-revalidate=86400
  *   - syndicate landing: public, s-maxage=60,  stale-while-revalidate=600
  * via the route handler `headers()` mechanic (Next 14 only honours static
  * `revalidate` on RSCs, so we mirror the cache hint in `<meta>` and rely
  * on the upstream CDN to set the actual `Cache-Control` from
- * `docs/22-deployment-and-tunnels.md` — the route is keyed by the guid
+ * `docs/22-deployment-and-tunnels.md`, the route is keyed by the guid
  * + (for user) bracket commit timestamp so re-saves bust cleanly).
  */
 
@@ -95,7 +95,7 @@ export async function generateMetadata(
     };
   }
   return {
-    title: "Share link not found — Tournamental",
+    title: "Share link not found, Tournamental",
     description: "This share link doesn't resolve. Pick a fresh bracket.",
   };
 }
@@ -190,7 +190,7 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
       />
 
       <footer className="vt-share-footer">
-        Saved {savedDisplay} — locked at kickoff.
+        Saved {savedDisplay}, locked at kickoff.
       </footer>
     </section>
   );
@@ -287,7 +287,7 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         <h2 className="vt-share-syn-section-title">Leaderboard top 5</h2>
         {allPointsZero ? (
           <div className="vt-share-leaderboard-empty">
-            Leaderboard activates at kickoff — first match Mexico vs the world, 11 Jun 2026.
+            Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026.
           </div>
         ) : (
           <ol className="vt-share-leaderboard" aria-label="Leaderboard top 5">
@@ -353,7 +353,7 @@ function NotFoundView({ attempted }: { attempted: string }) {
       <h1 className="vt-share-404-title">Share link not found</h1>
       <p className="vt-share-404-body">
         We couldn&apos;t find that prediction or syndicate. Pick a fresh
-        bracket instead — kick-off is closer than you think.
+        bracket instead, kick-off is closer than you think.
       </p>
       <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
         Make a fresh bracket

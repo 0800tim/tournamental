@@ -87,7 +87,7 @@ describe("overlay URL codec", () => {
   it("round-trips a stack: kinds + per-frame param keys preserved", () => {
     // Each frame's *own* keys survive the round-trip; the URL flattens
     // params across frames so every frame on the way back sees every
-    // key, but readers only consume the keys they know about — the
+    // key, but readers only consume the keys they know about, the
     // contract we care about.
     const original = [
       { kind: "team" as const, params: { code: "NZL" } as Record<string, string> },
@@ -122,7 +122,7 @@ describe("overlay URL codec", () => {
     expect(sp.get("utm")).toBe("a");
     // code does too (we only strip claimed keys when stack is non-empty;
     // when empty, nothing claims `code`, so it stays. This is a
-    // conservative choice — the consumer can pass an empty existing
+    // conservative choice, the consumer can pass an empty existing
     // search if they want a hard reset).
   });
 
@@ -227,7 +227,7 @@ describe("OverlayProvider", () => {
     act(() => {
       api!.replace("team", { code: "FRA" });
     });
-    // jsdom's history.length doesn't increment on replaceState — that's
+    // jsdom's history.length doesn't increment on replaceState, that's
     // the contract we want.
     expect(window.history.length).toBe(histLenBefore);
     expect(api!.stack).toHaveLength(1);
@@ -352,7 +352,7 @@ describe("Sheet", () => {
   });
 
   // jsdom's PointerEvent constructor swallows clientY / pointerType /
-  // pointerId — they don't propagate to the React synthetic event when
+  // pointerId, they don't propagate to the React synthetic event when
   // dispatched via fireEvent. Workaround: dispatch a real
   // PointerEvent we build ourselves, mimicking React's expected shape.
   function dispatchPointer(
@@ -480,7 +480,7 @@ describe("OverlayLink", () => {
   });
 
   it("falls back to plain navigation when no provider is mounted", () => {
-    // No <OverlayProvider> — the link should render a normal anchor and
+    // No <OverlayProvider>, the link should render a normal anchor and
     // not throw.
     expect(() =>
       render(

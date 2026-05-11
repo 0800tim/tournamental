@@ -1,5 +1,5 @@
 /**
- * Vitest — `buildMoleculeLayout` v4 full-bracket node count.
+ * Vitest, `buildMoleculeLayout` v4 full-bracket node count.
  *
  * Builds a fully-resolved CascadedBracket for a 48-team WC where the
  * R32-home team wins every match. Result: each layer is fully populated.
@@ -134,7 +134,7 @@ function fullyResolvedCascade(t: Tournament): CascadedBracket {
   };
 }
 
-describe("buildMoleculeLayout — v4 fully-resolved 48-team WC", () => {
+describe("buildMoleculeLayout, v4 fully-resolved 48-team WC", () => {
   const t = loadFixtures2026();
   const cascade = fullyResolvedCascade(t);
   const layout: MoleculeLayout = buildMoleculeLayout(t, cascade);
@@ -193,7 +193,7 @@ describe("buildMoleculeLayout — v4 fully-resolved 48-team WC", () => {
 
   it("total advance bonds = 63 (sum of layer-occupancy steps)", () => {
     // Advance bonds count = sum over all teams of (deepest-layer-index).
-    // 48 teams reach group (no advance bond yet — every team is at layer 0).
+    // 48 teams reach group (no advance bond yet, every team is at layer 0).
     // 32 teams cross from group → r32 (32 advance bonds).
     // 16 cross r32 → r16, 8 cross r16 → qf, 4 cross qf → sf,
     // 2 cross sf → f, 1 crosses f → champion.

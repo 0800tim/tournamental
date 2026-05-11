@@ -1,5 +1,5 @@
 /**
- * Vitest — bracket round-tabs view.
+ * Vitest, bracket round-tabs view.
  *
  * Verifies the per-round tab restructure introduced by
  * feat/bracket-tabs-and-save-rename. The BracketBuilder now has six
@@ -7,7 +7,7 @@
  * three. The tab state is hash-routable so /world-cup-2026#qf lands on
  * the quarter-finals tab.
  *
- * The tournament fixture is the real FIFA WC 2026 spec — slot
+ * The tournament fixture is the real FIFA WC 2026 spec, slot
  * placeholders for knockouts mean we can probe DOM presence without
  * needing to drive a full cascade through every test.
  */
@@ -41,7 +41,7 @@ const ROUND_TABS = [
   { name: /^Final/, label: "Final" },
 ];
 
-describe("<BracketBuilder> — round tabs", () => {
+describe("<BracketBuilder>, round tabs", () => {
   it("renders all six round tabs", () => {
     render(<BracketBuilder tournament={tournament} />);
     for (const t of ROUND_TABS) {
@@ -164,12 +164,12 @@ describe("<BracketBuilder> — round tabs", () => {
     expect(
       screen.getByRole("tab", { name: /^Groups/ }).getAttribute("aria-selected"),
     ).toBe("true");
-    // Simulate the user using back/forward — change the hash, then
+    // Simulate the user using back/forward, change the hash, then
     // dispatch a hashchange event so the listener picks it up. jsdom's
     // history doesn't always synthesise this when replaceState is
     // called programmatically, hence the explicit dispatch.
     window.history.replaceState(null, "", "/world-cup-2026#sf");
-    // Use the generic Event constructor — HashChangeEvent isn't a
+    // Use the generic Event constructor, HashChangeEvent isn't a
     // separate ctor in older jsdom builds.
     fireEvent(window, new Event("hashchange"));
     expect(
@@ -266,7 +266,7 @@ describe("<BracketBuilder> — round tabs", () => {
   });
 });
 
-describe("Lock → Save rename — user-visible copy", () => {
+describe("Lock → Save rename, user-visible copy", () => {
   it("the header copy reads 'save' (not 'lock')", () => {
     render(<BracketBuilder tournament={tournament} />);
     // Header preamble mentions "Save each pick before its match kicks off"
@@ -296,7 +296,7 @@ describe("Lock → Save rename — user-visible copy", () => {
     // lowercase appearing inside compound words like "kickoff" or
     // class attributes (querying textContent only walks visible text,
     // so attributes are out of scope). The intentional remaining
-    // matches are: (none — everything user-visible was renamed).
+    // matches are: (none, everything user-visible was renamed).
     const visibleText = container.textContent ?? "";
     // Allowlist: nothing should match these patterns. If a future PR
     // re-introduces "Lock" as a verb, this test fails loudly.
@@ -320,13 +320,13 @@ describe("Lock → Save rename — user-visible copy", () => {
 });
 
 /**
- * Auto-pick prominence — Tim's launch-eve UX fix (2026-05-11):
+ * Auto-pick prominence, Tim's launch-eve UX fix (2026-05-11):
  * the Auto-pick CTA was buried at the right end of the horizontally-
  * scrolling tab strip on mobile. These tests cover the hoist into a
  * dedicated row above the tabs, the new subtitle copy, and the
  * mobile-only sticky condensed pill.
  */
-describe("<BracketBuilder> — prominent Auto-pick row", () => {
+describe("<BracketBuilder>, prominent Auto-pick row", () => {
   it("renders the Auto-pick CTA in a row separate from the tab strip", () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     const autoPickRow = container.querySelector(
@@ -438,14 +438,14 @@ describe("<BracketBuilder> — prominent Auto-pick row", () => {
 });
 
 /**
- * Mobile viewport (375x812 — iPhone 13 Mini) sanity check. jsdom doesn't
+ * Mobile viewport (375x812, iPhone 13 Mini) sanity check. jsdom doesn't
  * apply stylesheets, so we can't measure layout pixels here, but we can
  * verify the DOM contract the CSS relies on: the sticky pill exists and
  * is rendered on every render (its visibility is purely a media-query
  * concern). Precedent: bracket-mobile-gestures.test.tsx uses jsdom +
  * window.innerWidth stubs for similar contract assertions.
  */
-describe("<BracketBuilder> — mobile viewport (375x812) Auto-pick contract", () => {
+describe("<BracketBuilder>, mobile viewport (375x812) Auto-pick contract", () => {
   const originalInnerWidth = window.innerWidth;
   const originalInnerHeight = window.innerHeight;
   beforeEach(() => {

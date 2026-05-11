@@ -83,7 +83,7 @@ describe("buildAdBoardLayout (default)", () => {
     for (const b of boards) {
       const offX = Math.abs(b.position[0]) - halfL;
       const offZ = Math.abs(b.position[2]) - halfW;
-      // One of the two should be ~ AD_BOARD_OFFSET — whichever side
+      // One of the two should be ~ AD_BOARD_OFFSET, whichever side
       // the board sits on.
       const hits =
         Math.abs(offX - AD_BOARD_OFFSET) < 0.01 ||

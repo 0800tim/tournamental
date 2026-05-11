@@ -1,4 +1,4 @@
-# 04 — Secrets rotation runbook
+# 04, Secrets rotation runbook
 
 > How to rotate environment secrets without downtime.
 
@@ -55,7 +55,7 @@ After 24h of clean prod logs:
 When a key has leaked publicly:
 
 1. Set the incident flag (see 03 runbook).
-2. Rotate the secret in your provider (e.g. Aiva SMS, Stripe) **first** —
+2. Rotate the secret in your provider (e.g. Aiva SMS, Stripe) **first** -
    invalidate the old key.
 3. Update the env file on the deploy host directly:
    ```bash
@@ -89,6 +89,6 @@ Note the override in the post-mortem.
 ## Related docs
 
 - [docs/25-keys-and-secrets-required.md](../25-keys-and-secrets-required.md)
-  — the canonical list of secrets per app.
+ , the canonical list of secrets per app.
 - [docs/33-security-hardening-checklist.md](../33-security-hardening-checklist.md)
-  — broader security posture.
+ , broader security posture.

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 /**
- * ProfilePage — renders the right shell depending on auth state.
+ * ProfilePage, renders the right shell depending on auth state.
  *
  * Coverage:
  *   - Loading shows the "Loading…" placeholder.

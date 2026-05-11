@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 /**
- * useUser hook — subscribes to auth state and surfaces the profile.
+ * useUser hook, subscribes to auth state and surfaces the profile.
  *
  * Coverage:
  *   - "unconfigured" status when Supabase env vars are missing.

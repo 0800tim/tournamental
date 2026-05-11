@@ -1,9 +1,9 @@
 /**
- * /world-cup-2026/share/<bracketId> — public shareable page for one
+ * /world-cup-2026/share/<bracketId>, public shareable page for one
  * user's bracket. Emits OG meta tags pointing at the per-bracket OG
  * image. Twitter Card + Open Graph + Telegram preview compatible.
  *
- * Cache: this is a read of an immutable, content-addressed bracket id —
+ * Cache: this is a read of an immutable, content-addressed bracket id -
  * `public, max-age=300, s-maxage=86400, stale-while-revalidate=604800`.
  */
 
@@ -49,7 +49,7 @@ export function generateMetadata(p: Params): Metadata {
   const ogLandscape = ogUrl(p, "landscape");
   const ogSquare = ogUrl(p, "square");
   return {
-    title: `@${handle}'s World Cup 2026 bracket — Tournamental`,
+    title: `@${handle}'s World Cup 2026 bracket, Tournamental`,
     description: `${handle} picked ${winner} to lift the trophy. Save yours before kickoff.`,
     openGraph: {
       title: `@${handle}'s World Cup 2026 bracket`,

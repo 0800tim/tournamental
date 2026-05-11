@@ -1,5 +1,5 @@
 /**
- * Tournamental auth page — phone → OTP → logged in.
+ * Tournamental auth page, phone → OTP → logged in.
  *
  * Server component shell that hosts the client-side <AuthForm/>.
  * The whole flow is intentionally one route with client-managed state
@@ -13,8 +13,8 @@ import TelegramLogin from "./TelegramLogin";
 import "./auth.css";
 
 export const metadata = {
-  title: "Tournamental — Sign in",
-  description: "Sign in with your phone number — we'll text you a 6-digit code.",
+  title: "Tournamental, Sign in",
+  description: "Sign in with your phone number, we'll text you a 6-digit code.",
 };
 
 // Auth pages should not be cached.

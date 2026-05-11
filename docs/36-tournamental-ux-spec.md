@@ -1,4 +1,4 @@
-# 36 — Tournamental UX redesign spec
+# 36, Tournamental UX redesign spec
 
 > The synthesis. Doc [35](35-competitor-ux-dossier.md) was research; this doc is action. Every recommendation here is implementable in our existing stack (Next.js + React Three Fiber + Tailwind + the `@vtorn/bracket-engine` types) and references the specific components we already ship so the next builder agent can extend rather than rewrite.
 >
@@ -6,11 +6,11 @@
 
 ## North star
 
-> **A prediction game that looks like the World Cup feels — flags, kit colours, 48 nations on the pitch — and that lets a casual fan make their first pick in under five seconds.**
+> **A prediction game that looks like the World Cup feels, flags, kit colours, 48 nations on the pitch, and that lets a casual fan make their first pick in under five seconds.**
 
 Three sentences expanded:
 
-1. **Flags are the hero**. Every screen leads with a big circular flag. Our existing `TeamFlag` already supports this — we just need to lift it harder.
+1. **Flags are the hero**. Every screen leads with a big circular flag. Our existing `TeamFlag` already supports this, we just need to lift it harder.
 2. **Kit colours theme everything**. Group cards, match rows, knockout cards, leaderboard rows all pick up the home and away kit primaries. Existing CSS variables `--mpr-home-accent`, `--mpr-away-accent`, `--km-home-accent`, `--km-away-accent` are the wiring; we need to extend the language across the rest of the app.
 3. **Five seconds to first pick**. No login, no account, no email field, no "join a league" gate. Cold traffic lands on `/world-cup-2026`, taps a flag in any group card, and is now playing.
 
@@ -18,7 +18,7 @@ Three sentences expanded:
 
 ## Pages we should redesign or add
 
-### A. `/team/[code]` — NEW
+### A. `/team/[code]`, NEW
 
 Currently missing entirely. The single biggest unlock from the dossier (FotMob's team page at <https://www.fotmob.com/teams/9919/squad/start> and OneFootball's team-coloured headers per [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball)).
 
@@ -28,25 +28,25 @@ Currently missing entirely. The single biggest unlock from the dossier (FotMob's
 - Onboarding: deep-linking from social ("see Argentina's bracket page") becomes possible.
 
 **Components to add**:
-- `TeamHeroHeader` (new) — kit-coloured gradient strip + big circular flag + FIFA-rank chip.
-- `TeamFormDots` (new) — 5-pill last-5 form (W/D/L colours).
-- `TeamHeadToHeadPill` (new) — used on the team page's "Coming up" section.
-- `TeamSquadGrid` (new) — 4 position groups, photo + shirt number + name + nationality flag.
+- `TeamHeroHeader` (new), kit-coloured gradient strip + big circular flag + FIFA-rank chip.
+- `TeamFormDots` (new), 5-pill last-5 form (W/D/L colours).
+- `TeamHeadToHeadPill` (new), used on the team page's "Coming up" section.
+- `TeamSquadGrid` (new), 4 position groups, photo + shirt number + name + nationality flag.
 - Reuse `TeamFlag` at `size="xl"` `shape="circle"` for the hero.
 
-### B. `/match/[id]` — ENRICHMENT
+### B. `/match/[id]`, ENRICHMENT
 
 Today this route is the renderer-mounted live match view (per [doc 04](04-renderer.md)). The pre-match enrichment screen is a different concern and should sit at `/match/[id]/preview` or be a tab on the same route.
 
-**Pattern**: borrow FotMob's five-tab match detail (Facts / Stats / Lineup / H2H / Predict — see [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)). For Tournamental pre-match the relevant tabs are:
+**Pattern**: borrow FotMob's five-tab match detail (Facts / Stats / Lineup / H2H / Predict, see [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)). For Tournamental pre-match the relevant tabs are:
 
-- **Predict** (default) — embed `MatchPredictionRow` (plus odds via existing `OddsChip`).
-- **H2H** — head-to-head record, last meetings.
-- **Form** — last-5 form dots for each side.
-- **Lineup** (where available) — predicted XI.
-- **Stats** — pre-match xG, possession averages, group standing context.
+- **Predict** (default), embed `MatchPredictionRow` (plus odds via existing `OddsChip`).
+- **H2H**, head-to-head record, last meetings.
+- **Form**, last-5 form dots for each side.
+- **Lineup** (where available), predicted XI.
+- **Stats**, pre-match xG, possession averages, group standing context.
 
-### C. Group cards — REDESIGN
+### C. Group cards, REDESIGN
 
 Existing `GroupCard.tsx` works but it's a list of six prediction rows plus a standings table. Push it further:
 
@@ -54,7 +54,7 @@ Existing `GroupCard.tsx` works but it's a list of six prediction rows plus a sta
 - Each `MatchPredictionRow` keeps the two-flag-and-draw-pill UX but gets new ornament: H2H pill + form dots per team.
 - Standings table picks up team-coloured row backgrounds (5% tint) so each team is visually anchored to its kit colour even when the user scans the table.
 
-### D. Knockout cards — REDESIGN
+### D. Knockout cards, REDESIGN
 
 Existing `KnockoutMatch.tsx` is clean but uses small flags. Lift to a more dramatic, card-shaped layout:
 
@@ -63,7 +63,7 @@ Existing `KnockoutMatch.tsx` is clean but uses small flags. Lift to a more drama
 - Selection treatment: kit-coloured ring on the chosen flag, the other flag dimmed and desaturated.
 - Kit-coloured selection ring derives from `--km-home-accent` / `--km-away-accent` (already wired).
 
-### E. Leaderboard — REDESIGN
+### E. Leaderboard, REDESIGN
 
 Existing `LeaderboardPreview` has the right tab structure (Global / Country / Friends / Affiliate, per `apps/web/app/world-cup-2026/landing/_components/LeaderboardPreview.tsx`). Build on it:
 
@@ -75,11 +75,11 @@ Existing `LeaderboardPreview` has the right tab structure (Global / Country / Fr
 
 ## Concrete component specs
 
-### `TeamFlag` — extend (do not break)
+### `TeamFlag`, extend (do not break)
 
 Existing component at `apps/web/components/bracket/TeamFlag.tsx`. Already supports `shape="circle"` and four sizes. **No breaking changes**; add:
 
-- New `xxl` size — 144px circle for the team-hero on `/team/[code]`. Add to both `SIZE` and `CIRCLE_SIZE` maps.
+- New `xxl` size, 144px circle for the team-hero on `/team/[code]`. Add to both `SIZE` and `CIRCLE_SIZE` maps.
 - New `selectionRing` prop (boolean): when true and `shape="circle"`, render a 4px ring in the team's accent colour around the flag. Used on bracket-pick affordances and on the `/team/[code]` hero.
 - New `dim` prop (boolean): when true, applies `filter: grayscale(0.6) opacity(0.5)` so unselected sides in a knockout match visibly recede.
 
@@ -98,7 +98,7 @@ type Props = {
 };
 ```
 
-### `TeamColorStrip` — NEW
+### `TeamColorStrip`, NEW
 
 A 6px horizontal gradient strip painted from a team's `kit.primary` and `kit.secondary` colours. Used as the top edge of `/team/[code]`, of group cards, of knockout cards.
 
@@ -111,9 +111,9 @@ type TeamColorStripProps = {
 };
 ```
 
-Implementation: a single `<span>` with `background: linear-gradient(...)` — a few lines, no new deps.
+Implementation: a single `<span>` with `background: linear-gradient(...)`, a few lines, no new deps.
 
-### `RankChip` — NEW
+### `RankChip`, NEW
 
 A pill displaying FIFA rank in the form `#3 FIFA`. Sits on the team hero next to the flag. Inspired by Sorare's scarcity indicator (per [doc 35 §10](35-competitor-ux-dossier.md#10-sorare)).
 
@@ -127,7 +127,7 @@ type RankChipProps = {
 
 Visual: `#3 FIFA  ▲2` in OneFootball-styled neutral grey with hype-coloured delta if present.
 
-### `FormDots` — NEW
+### `FormDots`, NEW
 
 Five small pills representing the last 5 results. Standard across FlashScore and FotMob (per [doc 35 §6](35-competitor-ux-dossier.md#6-flashscore) and [§4](35-competitor-ux-dossier.md#4-fotmob)).
 
@@ -145,7 +145,7 @@ Visual:
 - Loss: red fill (`#ef4444`).
 - Each pill is a 14px circle (md) with the W/D/L letter in white, or a colour-only dot (sm).
 
-### `HeadToHeadPill` — NEW
+### `HeadToHeadPill`, NEW
 
 A horizontal pill showing the head-to-head record between two teams. Used on match cards on the team page and on `/match/[id]`.
 
@@ -169,7 +169,7 @@ Visual (compact):
 ARG 4-3-2 FRA
 ```
 
-### `MatchPredictionRow` — extend
+### `MatchPredictionRow`, extend
 
 Existing component at `apps/web/components/bracket/MatchPredictionRow.tsx`. The two-flag + DRAW-pill core is the right idea. Additions:
 
@@ -178,7 +178,7 @@ Existing component at `apps/web/components/bracket/MatchPredictionRow.tsx`. The 
 - Use the new `selectionRing` prop on `TeamFlag`: when `isHome`, render the home-team's kit-colour ring around the home flag; same for away. This replaces or augments the existing `sparkle` cue.
 - Keyboard shortcuts (1/H, 2/D, 3/A, Arrow keys) are already implemented and stay.
 
-### `KnockoutMatch` — extend
+### `KnockoutMatch`, extend
 
 Existing component at `apps/web/components/bracket/KnockoutMatch.tsx`. Additions:
 
@@ -188,14 +188,14 @@ Existing component at `apps/web/components/bracket/KnockoutMatch.tsx`. Additions
 - Add a `TeamColorStrip` at the top of each knockout card pulling both teams' primaries.
 - Stage badge (existing `km-stage`) restyled into a single pill ("R32" / "R16" / "QF" / "SF" / "F") in OneFootball-style neutral chrome (per [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball)).
 
-### `BracketBuilder` — extend
+### `BracketBuilder`, extend
 
 Existing component at `apps/web/components/bracket/BracketBuilder.tsx`. The three-tab structure (groups / knockouts / lock) stays. Add:
 
-- A new **`bird's-eye view`** modal/route accessible from the knockouts tab that shows the entire 32-team bracket scaled to fit a single 360-wide phone — pure read-only, share-as-image. Borrowed directly from ESPN's "Bird's-Eye View" (per [doc 35 §2](35-competitor-ux-dossier.md#2-espn-tournament-challenge)).
+- A new **`bird's-eye view`** modal/route accessible from the knockouts tab that shows the entire 32-team bracket scaled to fit a single 360-wide phone, pure read-only, share-as-image. Borrowed directly from ESPN's "Bird's-Eye View" (per [doc 35 §2](35-competitor-ux-dossier.md#2-espn-tournament-challenge)).
 - A **"share my bracket as a card"** action in the lock tab that generates a 1080x1920 PNG of the user's full bracket with kit-coloured flags. Reuses the OG-image generation pipeline already on the marketing site.
 
-### `LeaderboardRow` — NEW
+### `LeaderboardRow`, NEW
 
 Used inside `LeaderboardPreview` and the eventual full `/leaderboard` page.
 
@@ -219,7 +219,7 @@ Visual:
 
 ## Mobile + desktop wireframes (ASCII)
 
-### `/team/[code]` — mobile (375 wide)
+### `/team/[code]`, mobile (375 wide)
 
 ```
 +-----------------------------------+
@@ -262,11 +262,11 @@ Visual:
 +-----------------------------------+
 ```
 
-### `/team/[code]` — desktop (1280+ wide)
+### `/team/[code]`, desktop (1280+ wide)
 
 ```
 +---------------------------------------------------------------------------------+
-|  ░░░ kit-colour gradient strip — full width ░░░                                 |
+|  ░░░ kit-colour gradient strip, full width ░░░                                 |
 +----------------+----------------------------------+-----------------------------+
 | ( xxl 192px    | Argentina                        |  #3 FIFA  ▲2                |
 |   circle flag) | Group D • host: USMX             |  Form ● ● ○ ● ●             |
@@ -288,7 +288,7 @@ Visual:
 +---------------------------------------------------------------------------------+
 ```
 
-### `/match/[id]/preview` — mobile
+### `/match/[id]/preview`, mobile
 
 ```
 +-----------------------------------+
@@ -319,7 +319,7 @@ Visual:
 +-----------------------------------+
 ```
 
-### Group card — mobile
+### Group card, mobile
 
 ```
 +-----------------------------------+
@@ -343,7 +343,7 @@ Visual:
 +-----------------------------------+
 ```
 
-### Knockout card — mobile
+### Knockout card, mobile
 
 ```
 +-----------------------------------+
@@ -361,7 +361,7 @@ Visual:
 +-----------------------------------+
 ```
 
-### Leaderboard — desktop (1280 wide)
+### Leaderboard, desktop (1280 wide)
 
 ```
 +----------------------------------------------------------------------+
@@ -369,7 +369,7 @@ Visual:
 +----------------------------------------------------------------------+
 | #1  ▲2  [avatar] @bracket-king          NZ 🇳🇿  3,450  pts  ✓  19/24 |
 | #2  ▼1  [avatar] @argentina-2026         AR 🇦🇷  3,440  pts     18/24 |
-| #3  —   [avatar] @office-pizza           US 🇺🇸  3,210  pts  ✓  17/24 |
+| #3 ,   [avatar] @office-pizza           US 🇺🇸  3,210  pts  ✓  17/24 |
 | ...                                                                  |
 | #43 [you]  [avatar] @tim-nz              NZ 🇳🇿  2,210  pts     11/24 |
 +----------------------------------------------------------------------+
@@ -381,24 +381,24 @@ Visual:
 
 ### Small (≤1 day each)
 
-1. **`FormDots` component** — five-pill last-5 form. Reused everywhere. Reference: [doc 35 §6](35-competitor-ux-dossier.md#6-flashscore).
-2. **`RankChip` component** — FIFA-rank pill with optional delta. Reference: [doc 35 §10](35-competitor-ux-dossier.md#10-sorare).
-3. **`TeamColorStrip` component** — gradient strip, 6px tall, used as card-edge decoration. Reference: [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball).
-4. **`TeamFlag` extension** — add `xxl` size, `selectionRing` prop, `dim` prop. Backwards-compatible additive change to `apps/web/components/bracket/TeamFlag.tsx`.
-5. **`MatchPredictionRow` enrichment** — wire `FormDots` and `HeadToHeadPill` into the existing row.
+1. **`FormDots` component**, five-pill last-5 form. Reused everywhere. Reference: [doc 35 §6](35-competitor-ux-dossier.md#6-flashscore).
+2. **`RankChip` component**, FIFA-rank pill with optional delta. Reference: [doc 35 §10](35-competitor-ux-dossier.md#10-sorare).
+3. **`TeamColorStrip` component**, gradient strip, 6px tall, used as card-edge decoration. Reference: [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball).
+4. **`TeamFlag` extension**, add `xxl` size, `selectionRing` prop, `dim` prop. Backwards-compatible additive change to `apps/web/components/bracket/TeamFlag.tsx`.
+5. **`MatchPredictionRow` enrichment**, wire `FormDots` and `HeadToHeadPill` into the existing row.
 
 ### Medium (2–4 days each)
 
-6. **`HeadToHeadPill` component** — pill with both formats (compact / wide). Needs a small data layer (we likely have last-meeting data already from StatsBomb open data per [doc 11](11-historic-data-sources.md)).
-7. **`KnockoutMatch` redesign** — bigger flags, VS treatment, kit-coloured selection ring, dim losing side, `TeamColorStrip` at the top.
-8. **`/team/[code]` page** — new route, hero header (gradient strip + xxl flag + RankChip + FormDots + H2H pill), tabbed body (Squad / Fixtures / History). Copy FotMob's eight-tab IA but trim to three for v0.1 ([doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)).
-9. **`LeaderboardRow` polish** — avatars, rank-delta arrows, vstamp tick, current-user highlight. Reference: [doc 35 §11](35-competitor-ux-dossier.md#11-yahoo-sports-pickem--bracket-mayhem) and [§12](35-competitor-ux-dossier.md#12-splash-sports).
+6. **`HeadToHeadPill` component**, pill with both formats (compact / wide). Needs a small data layer (we likely have last-meeting data already from StatsBomb open data per [doc 11](11-historic-data-sources.md)).
+7. **`KnockoutMatch` redesign**, bigger flags, VS treatment, kit-coloured selection ring, dim losing side, `TeamColorStrip` at the top.
+8. **`/team/[code]` page**, new route, hero header (gradient strip + xxl flag + RankChip + FormDots + H2H pill), tabbed body (Squad / Fixtures / History). Copy FotMob's eight-tab IA but trim to three for v0.1 ([doc 35 §4](35-competitor-ux-dossier.md#4-fotmob)).
+9. **`LeaderboardRow` polish**, avatars, rank-delta arrows, vstamp tick, current-user highlight. Reference: [doc 35 §11](35-competitor-ux-dossier.md#11-yahoo-sports-pickem--bracket-mayhem) and [§12](35-competitor-ux-dossier.md#12-splash-sports).
 
 ### Large (≥1 week each)
 
-10. **`/match/[id]/preview` enrichment screen** — full FotMob-style five-tab match view (Predict / H2H / Form / Lineup / Stats). Each tab is a sub-component; the Predict tab embeds the existing `MatchPredictionRow`. Reference: [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob).
-11. **Bird's-Eye bracket view** — modal (or new route) that shows the user's entire 32-team knockout bracket scaled to one mobile viewport, plus PNG export. Reference: [doc 35 §2](35-competitor-ux-dossier.md#2-espn-tournament-challenge).
-12. **Bracket-as-shareable-card generator** — 1080x1920 PNG of the user's full bracket, generated server-side via the existing OG-image pipeline. Reference: FotMob's lineup-builder share pattern in [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob).
+10. **`/match/[id]/preview` enrichment screen**, full FotMob-style five-tab match view (Predict / H2H / Form / Lineup / Stats). Each tab is a sub-component; the Predict tab embeds the existing `MatchPredictionRow`. Reference: [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob).
+11. **Bird's-Eye bracket view**, modal (or new route) that shows the user's entire 32-team knockout bracket scaled to one mobile viewport, plus PNG export. Reference: [doc 35 §2](35-competitor-ux-dossier.md#2-espn-tournament-challenge).
+12. **Bracket-as-shareable-card generator**, 1080x1920 PNG of the user's full bracket, generated server-side via the existing OG-image pipeline. Reference: FotMob's lineup-builder share pattern in [doc 35 §4](35-competitor-ux-dossier.md#4-fotmob).
 
 ---
 
@@ -409,8 +409,8 @@ Keep Tournamental's existing brand palette from [doc 15](15-tournamental-brand-a
 - Card chrome: dark mode neutrals (similar to OneFootball's `#1A1A1A` / `#F0F0F0` axis from [doc 35 §5](35-competitor-ux-dossier.md#5-onefootball)).
 - Active selection: kit-coloured ring on the chosen flag, plus a small accent in the global accent (`#fbbf24` works today; the existing `accentColor` prop on `TeamFlag` already supports this).
 - Dim state: 60% grayscale + 50% opacity (per the new `dim` prop on `TeamFlag`).
-- Form colours: green `#22c55e` win, slate `#94a3b8` draw, red `#ef4444` loss. Avoid pure red/green to be colour-blind friendly — these are tested OK but consider supplementing with a letter glyph (W/D/L) at small sizes.
-- Yes/No-style props (when we ship them): blue for "advances/yes", warm orange for "out/no" — matches Polymarket's pattern from [doc 35 §9](35-competitor-ux-dossier.md#9-polymarket) and avoids the red/green trap.
+- Form colours: green `#22c55e` win, slate `#94a3b8` draw, red `#ef4444` loss. Avoid pure red/green to be colour-blind friendly, these are tested OK but consider supplementing with a letter glyph (W/D/L) at small sizes.
+- Yes/No-style props (when we ship them): blue for "advances/yes", warm orange for "out/no", matches Polymarket's pattern from [doc 35 §9](35-competitor-ux-dossier.md#9-polymarket) and avoids the red/green trap.
 
 ---
 
@@ -418,9 +418,9 @@ Keep Tournamental's existing brand palette from [doc 15](15-tournamental-brand-a
 
 - All flag images already lazy-load via `loading="lazy"` on `TeamFlag`'s `<img>`. Keep.
 - New `selectionRing` and `dim` props must compose cleanly so a screen reader user gets the same outcome via `aria-pressed` (existing on `MatchPredictionRow` buttons).
-- Form-dot colours need a non-colour cue at the smallest size — the `md` variant carries the W/D/L letter, the `sm` does not. Default to `md` everywhere except inside the standings table.
+- Form-dot colours need a non-colour cue at the smallest size, the `md` variant carries the W/D/L letter, the `sm` does not. Default to `md` everywhere except inside the standings table.
 - `/team/[code]` should hit the LCP budget from [doc 22](22-deployment-and-tunnels.md): hero flag SVG must be inlined or use `priority` loading.
-- `/match/[id]/preview` should use `s-maxage=60` edge caching with SWR — match data is staleness-tolerant in the pre-match window.
+- `/match/[id]/preview` should use `s-maxage=60` edge caching with SWR, match data is staleness-tolerant in the pre-match window.
 
 ---
 
@@ -428,10 +428,10 @@ Keep Tournamental's existing brand palette from [doc 15](15-tournamental-brand-a
 
 These are real ideas surfaced during research but should park in [IDEAS.md](../IDEAS.md) rather than the spec:
 
-- "Confidence points" overlay (Splash Sports pattern from [doc 35 §12](35-competitor-ux-dossier.md#12-splash-sports)) — interesting v2 mechanic, but conflicts with our scoring model in [doc 16](16-game-modes-and-scoring.md). Park.
-- "In-contest chat" (Splash Sports) — has support cost. Park until we have a cohort big enough to need it.
-- Pundit-pick comparisons (Sky Super 6) — would be cool with named NZ pundits like Wynton Rufer. Park; needs business-development effort.
-- Full FotMob-style market-value filter on lineups — gold-plate; not in scope for v0.1.
+- "Confidence points" overlay (Splash Sports pattern from [doc 35 §12](35-competitor-ux-dossier.md#12-splash-sports)), interesting v2 mechanic, but conflicts with our scoring model in [doc 16](16-game-modes-and-scoring.md). Park.
+- "In-contest chat" (Splash Sports), has support cost. Park until we have a cohort big enough to need it.
+- Pundit-pick comparisons (Sky Super 6), would be cool with named NZ pundits like Wynton Rufer. Park; needs business-development effort.
+- Full FotMob-style market-value filter on lineups, gold-plate; not in scope for v0.1.
 
 ---
 
@@ -447,13 +447,13 @@ After the punch-list ships:
 
 ## Cross-references
 
-- [doc 04 — renderer](04-renderer.md) — the live `/match/[id]` route.
-- [doc 11 — historic data sources](11-historic-data-sources.md) — where H2H data comes from.
-- [doc 12 — odds and predictions](12-odds-and-predictions.md) — where the percentages on `MatchPredictionRow` come from.
-- [doc 15 — brand and positioning](15-tournamental-brand-and-positioning.md) — chrome palette.
-- [doc 16 — game modes and scoring](16-game-modes-and-scoring.md) — why we resist confidence-points and stepper score-entry.
-- [doc 20 — identity and humanness](20-identity-humanness-bots.md) — leaderboard avatars.
-- [doc 22 — deployment and tunnels](22-deployment-and-tunnels.md) — caching budgets for `/team/[code]` and `/match/[id]/preview`.
-- [doc 24 — gamification and virality](24-gamification-and-virality.md) — share-card pipeline.
-- [doc 30 — gamification and affiliate spine](30-gamification-and-affiliate-spine.md) — leaderboard tabs (affiliate cohort).
-- [doc 35 — competitor UX dossier](35-competitor-ux-dossier.md) — every claim above is sourced there.
+- [doc 04, renderer](04-renderer.md), the live `/match/[id]` route.
+- [doc 11, historic data sources](11-historic-data-sources.md), where H2H data comes from.
+- [doc 12, odds and predictions](12-odds-and-predictions.md), where the percentages on `MatchPredictionRow` come from.
+- [doc 15, brand and positioning](15-tournamental-brand-and-positioning.md), chrome palette.
+- [doc 16, game modes and scoring](16-game-modes-and-scoring.md), why we resist confidence-points and stepper score-entry.
+- [doc 20, identity and humanness](20-identity-humanness-bots.md), leaderboard avatars.
+- [doc 22, deployment and tunnels](22-deployment-and-tunnels.md), caching budgets for `/team/[code]` and `/match/[id]/preview`.
+- [doc 24, gamification and virality](24-gamification-and-virality.md), share-card pipeline.
+- [doc 30, gamification and affiliate spine](30-gamification-and-affiliate-spine.md), leaderboard tabs (affiliate cohort).
+- [doc 35, competitor UX dossier](35-competitor-ux-dossier.md), every claim above is sourced there.

@@ -1,5 +1,5 @@
 /**
- * TeamFlag — bracket-pick affordance that gained `selectionRing` + `dim`
+ * TeamFlag, bracket-pick affordance that gained `selectionRing` + `dim`
  * props for the MPR enrichment work.
  *
  * Asserts:

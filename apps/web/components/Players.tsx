@@ -11,7 +11,7 @@ interface PlayersProps {
 
 /**
  * Render every player from MatchInit. We deliberately don't subscribe to
- * StateFrame updates here — each <Player/> reads from the store inside
+ * StateFrame updates here, each <Player/> reads from the store inside
  * useFrame, which avoids React reconciliation at 60 fps.
  */
 export function Players({ store }: PlayersProps) {

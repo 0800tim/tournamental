@@ -1,5 +1,5 @@
 /**
- * Playwright e2e — phone-OTP auth.
+ * Playwright e2e, phone-OTP auth.
  *
  * Stubs the auth API at /v1/auth/* via page.route(...) so we don't
  * need the auth-sms service running. The page reads
@@ -13,7 +13,7 @@ const AUTH_BASE =
   process.env.NEXT_PUBLIC_AUTH_API_URL ?? "http://localhost:3330";
 const AUTH_PATH = AUTH_BASE.replace(/^https?:\/\/[^/]+/, "");
 
-test.describe("auth page — phone → OTP → logged in", () => {
+test.describe("auth page, phone → OTP → logged in", () => {
   test("happy path SMS", async ({ page }) => {
     let stubCode = "424242";
 

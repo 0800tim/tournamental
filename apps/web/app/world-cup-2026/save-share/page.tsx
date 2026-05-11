@@ -1,5 +1,5 @@
 /**
- * /world-cup-2026/save-share — the LOGGED-IN user's view of their own
+ * /world-cup-2026/save-share, the LOGGED-IN user's view of their own
  * save-share surface.
  *
  * This is distinct from `/world-cup-2026/share/[bracketId]` (the public
@@ -8,7 +8,7 @@
  * platform buttons, and download/embed affordances.
  *
  * Cache policy: this is per-user content and reads from localStorage on
- * the client, so the server side is effectively a thin shell —
+ * the client, so the server side is effectively a thin shell -
  * `no-store` at the page level is fine (the static-asset payload is
  * cached as usual, and the OG image is cached at /api/og/bracket).
  *
@@ -32,7 +32,7 @@ import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Save & share your bracket — Tournamental",
+  title: "Save & share your bracket, Tournamental",
   description:
     "Share your FIFA World Cup 2026 bracket. Copy the link, share to WhatsApp / Telegram / X / Facebook / Email, or download the card image.",
 };

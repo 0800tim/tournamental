@@ -2,11 +2,11 @@
 
 Every Fastify service in this repo registers `@fastify/swagger` + `@fastify/swagger-ui`. Each running service exposes:
 
-- `GET /docs` — Swagger UI (interactive)
-- `GET /docs/json` — OpenAPI 3.0 spec as JSON
-- `GET /docs/yaml` — OpenAPI 3.0 spec as YAML
-- `GET /healthz` (or `/health`) — liveness probe
-- `GET /v1/version` — service identity, package version, spec version
+- `GET /docs`, Swagger UI (interactive)
+- `GET /docs/json`, OpenAPI 3.0 spec as JSON
+- `GET /docs/yaml`, OpenAPI 3.0 spec as YAML
+- `GET /healthz` (or `/health`), liveness probe
+- `GET /v1/version`, service identity, package version, spec version
 
 The committed `*.openapi.json` files in this folder are the same JSON the service serves at `/docs/json`. They're checked in so consumers (the dashboard, internal tooling, third-party integrators) don't have to boot the service first.
 
@@ -17,7 +17,7 @@ The committed `*.openapi.json` files in this folder are the same JSON the servic
 | [`@vtorn/api`](../../apps/api) | 3310 | `http://localhost:3310/health` | `http://localhost:3310/docs` | [`api.openapi.json`](api.openapi.json) |
 | [`@vtorn/auth-sms`](../../apps/auth-sms) | 3330 | `http://localhost:3330/health` | `http://localhost:3330/docs` | [`auth-sms.openapi.json`](auth-sms.openapi.json) |
 | [`@vtorn/dm-otp`](../../apps/dm-otp) | 3331 | `http://localhost:3331/health` | `http://localhost:3331/docs` | [`dm-otp.openapi.json`](dm-otp.openapi.json) |
-| [`@vtorn/game`](../../apps/game) | 3360 | `http://localhost:3360/healthz` | `http://localhost:3360/docs` (TODO — see swagger.ts) | [`game.openapi.json`](game.openapi.json) |
+| [`@vtorn/game`](../../apps/game) | 3360 | `http://localhost:3360/healthz` | `http://localhost:3360/docs` (TODO, see swagger.ts) | [`game.openapi.json`](game.openapi.json) |
 | [`@vtorn/affiliate-router`](../../apps/affiliate-router) | 3370 | `http://localhost:3370/healthz` | `http://localhost:3370/docs` | [`affiliate-router.openapi.json`](affiliate-router.openapi.json) |
 | [`@tournamental/odds-ingest`](../../apps/odds-ingest) | 3375 | `http://localhost:3375/healthz` | `http://localhost:3375/docs` | [`odds-ingest.openapi.json`](odds-ingest.openapi.json) |
 | [`@vtorn/vstamp`](../../apps/vstamp) | 3380 | `http://localhost:3380/healthz` | `http://localhost:3380/docs` | [`vstamp.openapi.json`](vstamp.openapi.json) |
@@ -30,11 +30,11 @@ The committed `*.openapi.json` files in this folder are the same JSON the servic
 | [`@vtorn/dm-poll-forwarder`](../../apps/dm-poll-forwarder) | 3404 | `http://localhost:3404/healthz` | `http://localhost:3404/docs` | [`dm-poll-forwarder.openapi.json`](dm-poll-forwarder.openapi.json) |
 | [`@vtorn/wc2026-data-scripts`](../../apps/wc2026-data) | 3411 | `http://localhost:3411/healthz` | `http://localhost:3411/docs` | [`wc2026-data.openapi.json`](wc2026-data.openapi.json) |
 
-The `@vtorn/game` service's swagger is registered out-of-band via the dump script today — see [`apps/game/src/swagger.ts`](../../apps/game/src/swagger.ts) for the orchestrator's TODO to wire it in `src/server.ts`.
+The `@vtorn/game` service's swagger is registered out-of-band via the dump script today, see [`apps/game/src/swagger.ts`](../../apps/game/src/swagger.ts) for the orchestrator's TODO to wire it in `src/server.ts`.
 
 ## WebSocket-only services
 
-These don't have an OpenAPI spec — see the WS-message documentation:
+These don't have an OpenAPI spec, see the WS-message documentation:
 
 | Service | Port | Doc |
 | --- | ---: | --- |
@@ -44,11 +44,11 @@ These don't have an OpenAPI spec — see the WS-message documentation:
 
 | Service | Reason |
 | --- | --- |
-| `apps/statsbomb-replay` | Python — see its own `README.md` |
-| `apps/wc2026-producer` | Python — see its own `README.md` |
+| `apps/statsbomb-replay` | Python, see its own `README.md` |
+| `apps/wc2026-producer` | Python, see its own `README.md` |
 | `apps/mock-producer` | CLI / library, no HTTP server |
-| `apps/tournament-bot` | Fastify v4 (telegram webhook handler); `@fastify/swagger@9` requires Fastify v5. To be migrated when the bot moves to v5 — tracked in IDEAS.md |
-| `apps/web`, `apps/marketing`, `apps/admin`, `apps/native` | front-end / Next.js / Astro / Capacitor — no HTTP API surface |
+| `apps/tournament-bot` | Fastify v4 (telegram webhook handler); `@fastify/swagger@9` requires Fastify v5. To be migrated when the bot moves to v5, tracked in IDEAS.md |
+| `apps/web`, `apps/marketing`, `apps/admin`, `apps/native` | front-end / Next.js / Astro / Capacitor, no HTTP API surface |
 
 ## How to regenerate every spec
 
@@ -60,7 +60,7 @@ pnpm -r --if-present run dump-openapi
 pnpm --filter @vtorn/<service> run dump-openapi
 ```
 
-Each script boots the service in-process via vitest, writes the OpenAPI JSON to this folder, and exits. No port binding, no real DB, no real network. CI re-runs all of them and fails if any committed JSON is stale — this is the standing rule per [`../playbook/06-shipping-a-doc-update.md`](../playbook/06-shipping-a-doc-update.md).
+Each script boots the service in-process via vitest, writes the OpenAPI JSON to this folder, and exits. No port binding, no real DB, no real network. CI re-runs all of them and fails if any committed JSON is stale, this is the standing rule per [`../playbook/06-shipping-a-doc-update.md`](../playbook/06-shipping-a-doc-update.md).
 
 ## How to consume a spec
 

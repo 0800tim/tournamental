@@ -1,4 +1,4 @@
-# 42 — WC2026 live-data service
+# 42, WC2026 live-data service
 
 > The 2026 FIFA World Cup kicks off on **11 June 2026**. The renderer,
 > push-notifications scheduler, and bracket-result settlement loop all
@@ -9,13 +9,13 @@
 
 **`apps/wc2026-data`** owns three jobs now:
 
-1. (existing — Python) **Canonical fixture builder** — produces
+1. (existing, Python) **Canonical fixture builder**, produces
    `data/fifa-wc-2026/{fixtures,teams,host-cities,_meta}.json` from
    public sources. Offline / batch.
-2. (existing — TS) **Online fixture refresh** — `scripts/fetch-fixtures.ts`
+2. (existing, TS) **Online fixture refresh**, `scripts/fetch-fixtures.ts`
    nightly splices kickoff times into
    `packages/bracket-engine/data/fifa-wc-2026-fixtures.json`.
-3. (new — TS) **Live match-state service** — Fastify HTTP service on
+3. (new, TS) **Live match-state service**, Fastify HTTP service on
    `:3411` that streams real-time state via Server-Sent Events. Backed
    by a deterministic mock by default; SportRadar and API-Football are
    real-API adapter stubs gated by `WC2026_DATA_BACKEND`.
@@ -34,7 +34,7 @@ service POSTs the result to `apps/game`.
 | **Mock**          | free                                                | 250 ms     | Deterministic synthetic   | Default; no network; CI / dev / smoke runs.        |
 
 We default to **mock** in dev and CI. The orchestrator will pick the
-real provider once the trial keys arrive — we recommend booking the
+real provider once the trial keys arrive, we recommend booking the
 **API-Football Ultra** trial first (cheap, fast iteration) and keeping
 **SportRadar** as a fallback for the knockouts where event richness
 matters.
@@ -90,7 +90,7 @@ matters.
 
 Idempotency key: `(matchId, settledVersion)`. We never double-post for
 the same version. If a transient error returns non-2xx, we don't mark
-as settled — the next snapshot retries the POST.
+as settled, the next snapshot retries the POST.
 
 ## Endpoints
 
@@ -117,7 +117,7 @@ POST /v1/admin/reset (x-internal-secret)        reset mock state machine
   ],
   latestEvents: [
     { minute: 0,  type: "kickoff", description: "Kick-off" },
-    { minute: 23, type: "goal",    description: "Goal for ARG — Messi (23')" }
+    { minute: 23, type: "goal",    description: "Goal for ARG, Messi (23')" }
   ],
   version: 24,                     // monotonic per match
   updatedAtUtc: "2026-06-11T19:23:01.000Z"
@@ -127,7 +127,7 @@ POST /v1/admin/reset (x-internal-secret)        reset mock state machine
 ## Renderer SSE consumption
 
 ```ts
-// apps/web — client-side
+// apps/web, client-side
 const ev = new EventSource("/wc2026-data/v1/match/1/stream");
 ev.onmessage = (e) => {
   const state = JSON.parse(e.data);
@@ -157,7 +157,7 @@ scheduled  ──tick──▶  live  ──crosses 45'──▶  ht
 
 - Goal probabilities are tuned for ~2.7 goals / 90 mins (FIFA average).
 - Scorer pool is a fixed list (Messi, Mbappé, ...) deterministically
-  selected by `(teamId + minute) mod pool.length` — same dev run will
+  selected by `(teamId + minute) mod pool.length`, same dev run will
   always produce the same goal sequence.
 - `subscribeMatch` polls every 250 ms; each tick advances the clock by
   one minute. Set `WC2026_MINUTES_PER_TICK` (TODO) or pass via
@@ -175,12 +175,12 @@ curl -XPOST http://localhost:3411/v1/admin/reset \
 | Variable                       | Required for             | Default     | Notes                                            |
 | ------------------------------ | ------------------------ | ----------- | ------------------------------------------------ |
 | `WC2026_DATA_BACKEND`          | always                   | `mock`      | `mock | sportradar | apifootball`                |
-| `WC2026_DATA_API_KEY`          | sportradar / apifootball | —           | Provider API key                                 |
+| `WC2026_DATA_API_KEY`          | sportradar / apifootball |,           | Provider API key                                 |
 | `WC2026_SPORTRADAR_BASE_URL`   | sportradar               | trial v4    | Override for a paid base URL                     |
 | `WC2026_APIFOOTBALL_BASE_URL`  | apifootball              | v3 official | Override for a RapidAPI host                     |
-| `WC2026_DATA_ADMIN_SECRET`     | optional                 | —           | x-internal-secret on /v1/admin/*                 |
-| `WC2026_GAME_BASE_URL`         | enable settlement bridge | —           | Game service base URL                            |
-| `WC2026_GAME_INTERNAL_SECRET`  | enable settlement bridge | —           | Sent as `x-game-internal-secret` to game service |
+| `WC2026_DATA_ADMIN_SECRET`     | optional                 |,           | x-internal-secret on /v1/admin/*                 |
+| `WC2026_GAME_BASE_URL`         | enable settlement bridge |,           | Game service base URL                            |
+| `WC2026_GAME_INTERNAL_SECRET`  | enable settlement bridge |,           | Sent as `x-game-internal-secret` to game service |
 | `WC2026_TOURNAMENT_ID`         | settlement bridge        | `fifa-wc-2026` | Tournament identifier on the result POST     |
 | `PORT`                         | optional                 | `3411`      | HTTP listen port                                 |
 
@@ -199,7 +199,7 @@ backend to a real provider.
   limits naturally via `pollIntervalMs`. We never poll faster than the
   provider's plan allows.
 - **Resilience.** A transient 5xx from upstream is logged but does not
-  break the SSE subscription — the next poll cycle retries.
+  break the SSE subscription, the next poll cycle retries.
 - **Cost ceiling.** With API-Football Ultra at 15 s polling and a
   realistic 12-match concurrency in the group stage, we burn ~3500
   reqs/day, well under the 75 000/day plan.

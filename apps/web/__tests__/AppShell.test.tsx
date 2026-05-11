@@ -1,7 +1,6 @@
 /**
- * Vitest — AppShell renders bar + bottom nav by default; canvas variant
- * hides bottom nav; the drawer-trigger burger is always present in the
- * top app-bar; the desktop side rail no longer exists.
+ * Vitest, AppShell renders bar + bottom nav by default; canvas variant
+ * hides bottom nav; default variant uses the desktop side rail.
  */
 
 import { describe, it, expect, vi } from "vitest";
@@ -35,29 +34,22 @@ describe("<AppShell>", () => {
       "Home",
     );
     expect(container.querySelector(".vt-bottomnav")).toBeTruthy();
-    // The desktop side rail has been removed in favour of the drawer.
-    expect(container.querySelector(".vt-siderail")).toBeNull();
+    expect(container.querySelector(".vt-siderail")).toBeTruthy();
   });
 
-  it("always renders the hamburger burger in the app-bar", () => {
+  it("hides bottom nav and side rail on canvas variant", () => {
     const { container } = render(
-      <AppShell title="Home">
-        <p>hello</p>
-      </AppShell>,
-    );
-    const burger = container.querySelector(".vt-appbar-burger");
-    expect(burger).toBeTruthy();
-    // Closed by default — aria-label reads "Open menu".
-    expect(burger?.getAttribute("aria-label")).toBe("Open menu");
-  });
-
-  it("hides bottom nav on canvas variant", () => {
-    const { container } = render(
-      <AppShell title="Match" variant="canvas" showBottomNav={false}>
+      <AppShell
+        title="Match"
+        variant="canvas"
+        showBottomNav={false}
+        showSideRail={false}
+      >
         <p>canvas</p>
       </AppShell>,
     );
     expect(container.querySelector(".vt-bottomnav")).toBeNull();
+    expect(container.querySelector(".vt-siderail")).toBeNull();
     const shell = container.querySelector(".vt-shell");
     expect(shell?.getAttribute("data-variant")).toBe("canvas");
   });

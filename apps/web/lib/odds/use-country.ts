@@ -1,5 +1,5 @@
 /**
- * useCountry — client-side hook that fetches the visitor's country
+ * useCountry, client-side hook that fetches the visitor's country
  * from `/api/odds/country` once on mount. Default `null`; the affiliate
  * CTA hides itself when the country is `null` (failsafe, see
  * `lib/odds/geo.ts`).
@@ -32,7 +32,7 @@ export function useCountry(): string | null {
         try {
           window.sessionStorage.setItem(SESSION_KEY, j.country);
         } catch {
-          // ignore — sessionStorage may be unavailable in private mode
+          // ignore, sessionStorage may be unavailable in private mode
         }
       })
       .catch(() => {

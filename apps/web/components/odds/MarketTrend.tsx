@@ -1,5 +1,5 @@
 /**
- * MarketTrend — 14-day sparkline showing how the W/D/L probabilities
+ * MarketTrend, 14-day sparkline showing how the W/D/L probabilities
  * have moved over time. Pure SVG, no chart lib.
  *
  * Inputs are an array of `OddsHistoryPoint`. We draw three polylines

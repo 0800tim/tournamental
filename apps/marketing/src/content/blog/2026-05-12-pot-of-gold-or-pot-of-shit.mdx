@@ -1,0 +1,128 @@
+---
+title: "Pot of gold or pot of shit: I'm open-sourcing my entire brain"
+description: "Tournamental's whole brain, the bracket app, the 3D match renderer, the molecule visualisation, the share cards, the on-chain receipts, the business model, the doubts, the late-night decision logs, is now on GitHub under Apache 2.0. This is the post that explains why I just put my entire idea out there in public before anyone has bought it."
+pubDate: 2026-05-12
+author: "Tim"
+tags: ["open source", "business", "philosophy", "contributing", "drips"]
+heroImage: "/blog/2026-05-12-pot-of-gold-or-pot-of-shit-hero.jpg"
+heroImageAlt: "A football fan, mouth agape, with a crown of gold bars, gold coins, gemstones, green slime and a steaming pile of shit erupting from his head, flies circling. Gold lettering reads 'Pot of Gold? or Pot of Shit?'. A floodlit stadium and a crowd of fans waving German, Argentine, Brazilian and other flags behind him."
+heroImageCredit: "Image generated for Tournamental, 2026"
+---
+
+A friend asked me last week what my exit strategy was for Tournamental.
+
+I said the exit strategy is **GitHub**. I'm putting the whole thing out there. The bracket app, the 3D match renderer, the 3D pyramid molecule, the StatsBomb replay producer, the share-card pipeline, the share-not-lock scoring engine, the kickoff lockout, the on-chain VStamp signer, the syndicate signup form, the Supabase identity layer, the GoHighLevel CRM glue, the Polymarket integration, the marketing site, the brand book, the design docs, the session notes where I was wrong about things and changed my mind, the late-night decisions I haven't even told the people building it with me about.
+
+The whole brain. Public. Apache 2.0 and CC-BY. Right now.
+
+He said _"That's either going to be a pot of gold or a pot of shit."_
+
+That's exactly the bet.
+
+This post is me sitting down and writing the honest case for both pots. If you've come here from the marketing site you probably already saw the polished version. This is the other one. The one where I admit how little I know about whether this works.
+
+## The pot-of-gold case
+
+Bracket prediction is a billion-dollar consumer behaviour. The Telegraph Predictor ran 13.8 million entries on the 2022 World Cup alone. ESPN's bracket Challenge has done eight figures of monthly active users for over a decade on March Madness. Yahoo's Premier League predictor. The UEFA Euro fantasy. Australia's NRL tipping. India's IPL fantasy that grew to a $6 billion company called Dream11 in seven years. _Bracket prediction is a thing humans deeply, deeply want to do every time a tournament happens._
+
+And every single one of those products is a closed-source app that lets you save your card once and then makes you a spectator of your own predictions for six weeks.
+
+Tournamental's bet is that there's a better shape for the game. **Save, don't lock.** Per-match kickoff lockout. Conviction multipliers that reward early saves. Long-shot multipliers that reward calling upsets the market did not see. An append-only ledger that lets you _prove_ when you called something. On-chain VStamp receipts that any tournament you trust can verify cryptographically before the trophy is awarded. A 3D match renderer so you can watch the goals you predicted happen in your browser. A path-based syndicate URL so a workplace can spin up `play.tournamental.com/s/the-office-pool` in 30 seconds with no DevOps. A molecule view that puts your entire bracket on one rotatable pyramid where you can see your predicted champion rise from a 48-team base to a single gold atom at the apex.
+
+If two percent of the people who already pay attention to a World Cup do their bracket on Tournamental this year, that's about 60,000 to 100,000 active brackets. Each one routes affiliate clicks to sportsbooks at conservative ARPUs of $5 to $20 a year. The bracket app's marketing-attribution funnel is wired into Meta and TikTok pixels with conversion events from day one. The 3D match renderer auto-cuts six-to-ten-second clips with the user's pick overlaid for the platforms they already share to.
+
+Pull together a free-to-play core that ships with a verified-record VStamp, a 3D watch-along, a podium share card that auto-generates on every save, and a viral loop where every share recruits the next player, and you get something with **a clear shot at a hundred-million-dollar outcome over five years**. A billion-dollar outcome if a second tournament cycle compounds the user base instead of resetting it.
+
+That's the pot of gold.
+
+## The pot-of-shit case
+
+I'm doing this on a single Linux box in New Zealand with one human and a small team of agents. I have shipped 28 PRs in the last 72 hours. There are bugs in production right now that I will fix tomorrow morning and then ten new bugs will arrive by lunchtime.
+
+The competition isn't asleep. ESPN has eight figures of marketing budget and a partnership with Disney. Yahoo has a billion existing email addresses. The Telegraph has the editorial wing of a national newspaper. Polymarket has a war chest and is already running a bracket consensus product. Dream11 is going to look at this market the day after the 2026 final. _If any of them ship a "save, don't lock" mode in the next month, my whole differentiation collapses._
+
+I might also just be wrong. Maybe the "lock once and suffer" model is what users _actually_ want and "save anytime" feels too fiddly. Maybe the molecule view is too clever and 95 percent of people see "3D pyramid" and bounce. Maybe the on-chain receipt is a feature I love and nobody else cares about. Maybe the launch hype dies on the third match-day. Maybe the marketing budget I do not yet have makes the whole thing irrelevant.
+
+And the thing that scares me most: **the open-source bet itself might be wrong.** What if the contributors don't come? Or what if they do come and the code becomes a mess of competing visions? What if a clone fork outranks me on Google because they have better SEO and the same source code? What if a sportsbook just copies the whole codebase and ships it under their own brand and I have signed away every legal weapon I had?
+
+That's the pot of shit. Zero return. Maybe-negative return if I have signed off on a thousand hours of my life to ship something somebody else monetises.
+
+## Why I'm doing this anyway
+
+There's a thing in startup advice that says you should keep your idea secret until you can defend a moat around it. I have read this advice for fifteen years and I have never, not once, met a founder who succeeded because they kept their idea secret. Every successful founder I know succeeded because they **executed harder than the people who heard them say the idea out loud**.
+
+So the idea isn't the moat. _The execution is._ The team is. The five thousand small decisions about what colour the gold trophy is, whether the lockout is per-match or per-stage, what happens when the cascade can't yet decide who plays Argentina in the round of 16, whether the share card shows the runner-up or just the champion. Those are the moat. None of them are findable in the README.
+
+And if you can't keep an idea secret as a moat, you might as well _give it the best possible chance of running away_. An open-source codebase compounds in ways a closed one cannot:
+
+- A developer in São Paulo can fix the Portuguese-language commentary on day three of the tournament. I cannot speak Portuguese.
+- A designer in Lagos can ship a Nigeria-themed share-card variant before the African Cup of Nations. I do not know the visual language of West African fan culture from the inside.
+- A statsbomb-replay contributor in Buenos Aires can correct my pronunciation of "Di María" in the verbose-mode audio commentary. (Sorry, Argentina. I tried.)
+- A user-experience designer in Tokyo can spot that my mobile reply-share flow uses a tap pattern that doesn't translate to LINE.
+
+These are real contributions that real people might make in the next 30 days if they care, and **the closed-source version of this product will never get any of them**. The marginal cost of each contribution is a code review. The marginal benefit can be 10,000 more users from a country I'd never have reached.
+
+## The Drips bet
+
+Here is the actually-new bit. Most open-source projects say _"contribute and earn karma"_. Nobody pays the bills with karma.
+
+Tournamental is wired into [Drips Network](https://drips.network) from day one. Every paid integration on the platform routes a fraction of its revenue through a Drips list that I do not control. Contributors who land merged PRs get a slice. Translators get a slice. The clip-pipeline contributor whose work makes a Nigerian fan's TikTok go viral gets a slice. The smart-contract reviewer who finds a bug in the VStamp signer gets a slice. The designer whose share-card template wins the most engagement gets a slice.
+
+The Drips contract is transparent and on-chain. You can read it. You can verify it. You can fork it and propose a better split formula. The numbers will change as the platform grows.
+
+This is the part I am most excited about. **Open-business, not just open-source.** A normal company says _"work for me, I'll give you a salary, the upside belongs to me and my VC backers"_. We are inverting that. The upside flows on-chain to whoever contributed to it. The platform takes a fee. The Foundation has a budget. The contributors are real economic participants.
+
+I am _not_ raising venture capital. I do not want a board that requires me to lock the source code on month 12 because their portfolio company is also building a bracket app. I want this to be a thing the internet builds.
+
+That's the second pot of gold. Smaller individual upside than VC, but a real one, and you don't need to sign over your equity to a fund in Menlo Park to get it.
+
+## What's actually open
+
+To be specific, here's what is on GitHub at [`github.com/0800tim/tournamental`](https://github.com/0800tim/tournamental) right now:
+
+- The Next.js bracket app at `apps/web/`. Save endpoint, scoring engine, save-time multiplier, odds-at-save snapshotting, the whole molecule pyramid visualisation, the podium share card pipeline, the auto-pick consensus path, the Save & share page.
+- The Astro marketing site at `apps/marketing/`. Every page you've read, every blog post including this one.
+- The Python StatsBomb replay producer at `apps/statsbomb-replay/`. Converts the open-data AR-FR 2022 final into a spec stream the renderer can play. You can run it locally tonight if you want.
+- The shared types at `packages/spec/`. The contract that defines a tournament, a fixture, an event, a pick, a save, a receipt.
+- The `@vtorn/social-cards` canvas renderer at `packages/social-cards/`. Gold-silver-bronze podium cards. Goal-clip stills. Leaderboard cards. The whole share-graphics toolbox.
+- The 22 markdown documents at `docs/`. Every architecture decision, every contract surface, every "we will probably regret this in v3" note. CC-BY licensed so you can lift any of them into your own design doc and just credit the source.
+- The session notes at `sessions/`. The thing I was writing at 2am the day before launch. Some of them are embarrassing. They're shipped anyway.
+- The VStamp on-chain signer skeleton. The smart-contract audit list. The drip-list contract that pays you.
+
+Even the **doubts** are shipped. Doc 21 explicitly lists the things we don't know how to do yet and would love someone to come help with. Doc 17 admits that the kickoff-lockout edge case where the user's clock is more than five minutes off the server clock is not handled in v1. The README has a section called "What we got wrong already" and it will only grow.
+
+If you want to find the cracks, they're easy to find. They're labelled.
+
+## Why I'm scared, exactly
+
+I want to be honest about this because I think founders pretending they're not scared is part of the reason every product on the internet feels a bit fake.
+
+I'm scared that I have given my best idea away. I'm scared that this post will get shared once on Hacker News and then nothing happens. I'm scared that the people who care most about football in the world will find Tournamental, find the open code, and find a thousand small things I got wrong about their cultures and their leagues and their game, and they will judge me for it. I'm scared the launch on Thursday gets exactly 47 sign-ups and the project quietly dies before the first kickoff. I'm scared the **opposite** happens, the launch goes well, and I am not personally capable of operating a platform that becomes too big for me to hand-run from a single tmux session on a single laptop.
+
+I am _also_ scared that I am underestimating how much fun this is going to be. Which, honestly, is the scarier one.
+
+## The invitation
+
+If you have read this far you are roughly the person I am writing this for.
+
+If you are a developer: clone the repo. Run the AR-FR 2022 demo locally. (It's in the README.) Find the bug I haven't found yet. Open a PR. The Drips list will pay you when the platform earns. Yes, this is real money. No, you do not need to sign anything.
+
+If you are a designer: read `docs/04-renderer.md` and `docs/14-clip-pipeline.md` and tell me what the share cards should look like for the African Cup of Nations. Your variant ships, you're in the Drips list.
+
+If you are a translator: pick a language. The verbose 200-minute AR-FR commentary is already in 10 languages but every single one will sound slightly off to a native speaker. Improve one. Drips list.
+
+If you are a sports brand or a pundit: come run your own syndicate at `play.tournamental.com/s/yourname`. It's free. Your audience gets your colours, your tagline, your share card. We never touch the cash you handle.
+
+If you are a journalist: this is the post you write the piece about. I will give you a brief, a demo, and access to the session notes. Email me.
+
+If you are a VC: I appreciate the email I am going to get. I am going to send you back this post with a note that says, kindly, no, but I would love to talk in 18 months when the data either proves I was right or proves I was nuts.
+
+If you are nobody in particular and you just want to **play**: go to [tournamental.com](https://tournamental.com) and make a bracket. The hype window opens this week. Kickoff is the 11th of June. Save your picks before then. You can change every one of them up until the match starts. You can keep your friends. You can win things.
+
+This whole thing could be a pot of gold or a pot of shit. I do not know which one it is yet. But it is going to be **in public**, both ways. If it's gold, half the world helped build it. If it's shit, at least everybody can see exactly which step I tripped on.
+
+That's worth more to me than a closed app with a 50/50 outcome.
+
+See you on the leaderboard.
+
+- Tim

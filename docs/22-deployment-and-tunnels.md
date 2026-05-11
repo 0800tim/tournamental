@@ -1,4 +1,4 @@
-# 22 — Deployment, environments, and tunnels
+# 22, Deployment, environments, and tunnels
 
 > Where Tournamental runs, what URLs it serves, what ports back them, and how dev / staging / production differ. Read this if you're touching infrastructure, adding a service, or need to know which URL to point a client at.
 
@@ -32,7 +32,7 @@
 
 The marketing site sits on a different host because it's mostly static and edge-cacheable; mixing it with the app would either over-cache the app's HTML or under-cache the marketing pages.
 
-The match-stream WebSocket gets its own dev hostname so Cloudflare's Tunnel cleanly proxies the upgrade. In staging and prod we fold it into the app's origin and route via path (`/ws`) — the dev split exists only because the producer is a separate process during development.
+The match-stream WebSocket gets its own dev hostname so Cloudflare's Tunnel cleanly proxies the upgrade. In staging and prod we fold it into the app's origin and route via path (`/ws`), the dev split exists only because the producer is a separate process during development.
 
 ## Port assignments (dev)
 
@@ -76,7 +76,7 @@ TUNNEL_ID=68c2f5b4-8713-441b-9de5-1933557a443b
 HOST=vtorn-newthing.aiva.nz
 PORT=3340
 
-# 1. Create the CNAME record (DNS side — this works locally even though
+# 1. Create the CNAME record (DNS side, this works locally even though
 #    ingress is remote-managed).
 cloudflared tunnel route dns "$TUNNEL_ID" "$HOST"
 
@@ -113,9 +113,9 @@ Smoke test:
 curl -sI https://<new-host>.aiva.nz | head -3
 ```
 
-`HTTP/2 404` with `cf-cache-status: DYNAMIC` *and your service not yet bound* is healthy — Cloudflare reached the tunnel and the local service didn't answer. Once your service is listening, you should get its real response.
+`HTTP/2 404` with `cf-cache-status: DYNAMIC` *and your service not yet bound* is healthy, Cloudflare reached the tunnel and the local service didn't answer. Once your service is listening, you should get its real response.
 
-If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing — re-run `cloudflared tunnel route dns ...`.
+If the response is `HTTP/2 530` or `error 1033`, the **DNS** half is missing, re-run `cloudflared tunnel route dns ...`.
 
 ## Cloudflare Tunnel (staging + prod)
 
@@ -132,7 +132,7 @@ cloudflared tunnel route dns vtorn-staging api-dev.tournamental.com
 sudo systemctl enable --now cloudflared
 ```
 
-Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `app.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed) — only the app + API need a tunnel/origin.
+Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `app.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed), only the app + API need a tunnel/origin.
 
 ## Database snapshots (cross-env)
 

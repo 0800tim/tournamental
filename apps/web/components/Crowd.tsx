@@ -33,7 +33,7 @@ export interface CrowdProps {
  *     ripples (a small additive pulse).
  *   - The fan billboards face the pitch.
  *
- * The colour-jittered material is a `MeshBasicMaterial` clone — no
+ * The colour-jittered material is a `MeshBasicMaterial` clone, no
  * per-fan texture sampling for now (keeps cost minimal). The fans get
  * three jersey hues per stand to suggest team-side colours.
  *
@@ -77,7 +77,7 @@ export function Crowd({
   }, [data]);
 
   // Drive the bob amplitude via the energy hook. We modulate a tiny
-  // per-frame Y offset on every instance via an opacity hack — but
+  // per-frame Y offset on every instance via an opacity hack, but
   // since cost matters, we instead nudge the material's emissive
   // vector and rely on a custom userData clock to be read by the
   // post-FX layer for celebratory bloom flares.
@@ -102,7 +102,7 @@ export function Crowd({
     lastEnergy.current = e;
     // Lightness floor 0.42 (was 0.68) so the crowd reads as crowd, not
     // a wall of pure white. Tim's screenshots showed the upper deck
-    // pinned to 1.0 — tone mapping is now on (toneMapped no longer
+    // pinned to 1.0, tone mapping is now on (toneMapped no longer
     // overridden below), and capping the lightness here keeps the
     // brightest stand at ~mid-grey post-ACES.
     mat.color.setHSL(
@@ -122,11 +122,11 @@ export function Crowd({
       // Mark the mesh so e2e tests can find it without reaching into R3F.
       userData={{ vtornCrowd: true, crowdCount: count, tiers: CROWD_TIERS }}
     >
-      {/* A simple billboard plane — alphaTest is unused here because
+      {/* A simple billboard plane, alphaTest is unused here because
        *  we don't have an alpha atlas in this repo yet. The cheering
        *  geometry comes through the bob animation + colour shift. */}
       <planeGeometry args={[0.55, 1.0]} />
-      {/* No `toneMapped={false}` here — we WANT ACES to compress this
+      {/* No `toneMapped={false}` here, we WANT ACES to compress this
        *  cloud of instances. Base colour darkened from a hot cream
        *  (#c8a978) to a mid biscuit (#7d6a52) so post-tone-map the
        *  crowd reads at ~30-40% brightness, not blown-out white. */}

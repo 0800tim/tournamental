@@ -136,7 +136,7 @@ describe("mockMatchOdds", () => {
     expect(o.draw).not.toBeNull();
     expect(o.draw!).toBeGreaterThan(0.18);
     expect(o.draw!).toBeLessThan(0.34);
-    // Loose balance check — with rank diff = 0, the home/away spread
+    // Loose balance check, with rank diff = 0, the home/away spread
     // is bounded by 2 × noise amplitude ≈ 0.10, allowing for normalisation
     // overhead.
     expect(Math.abs(o.homeWin - o.awayWin)).toBeLessThan(0.40);

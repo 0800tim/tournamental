@@ -3,8 +3,8 @@
  * list from the canonical data files. Tested in vitest.
  *
  * Source data:
- *   - `data/fifa-wc-2026/teams.json`  — 48 teams w/ kit colours, FIFA rank.
- *   - `data/fifa-wc-2026/fixtures.json` — 104 matches, real composition
+ *   - `data/fifa-wc-2026/teams.json` , 48 teams w/ kit colours, FIFA rank.
+ *   - `data/fifa-wc-2026/fixtures.json`, 104 matches, real composition
  *     (post-2025-12-05 Final Draw + March 2026 play-off winners).
  */
 
@@ -84,7 +84,7 @@ export function buildGroups(): readonly GroupBlock[] {
 
 /**
  * The first N matches (by kickoff time, ties broken by match_number).
- * Defaults to 12 — matchday 1 of the group stage (12 groups × 1 match = 12).
+ * Defaults to 12, matchday 1 of the group stage (12 groups × 1 match = 12).
  */
 export function upcomingMatches(limit: number = 12): readonly UpcomingMatch[] {
   const sorted = [...ALL_FIXTURES]

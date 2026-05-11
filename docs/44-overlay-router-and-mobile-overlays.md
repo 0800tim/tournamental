@@ -1,7 +1,7 @@
-# 44 — Overlay Router and Mobile Overlays
+# 44, Overlay Router and Mobile Overlays
 
 > Tim's directive (2026-05-11): the bracket should feel **card-style** on
-> mobile — tap a team, the team card overlays the bracket; tap close /
+> mobile, tap a team, the team card overlays the bracket; tap close /
 > drag down / browser back to return where you were. Every overlay must
 > still have a **deep-linkable URL** so it's shareable, SEO-indexable,
 > and bookmarkable.
@@ -21,7 +21,7 @@ give us together:
    `https://2026wc.tournamental.com/world-cup-2026?overlay=team&code=NZL` is
    shareable and re-renders the same view on cold load.
 2. **Underlying-route preservation**: the page route must NOT change
-   when an overlay opens — search engines + analytics still see
+   when an overlay opens, search engines + analytics still see
    `/world-cup-2026` as the canonical page.
 3. **Browser back unwinds the stack first**, then leaves the page.
    Each `open()` pushes a `history.pushState` entry; `popstate`
@@ -39,7 +39,7 @@ enough to hand-roll without bringing in framer-motion.
 - `overlay` is a comma-separated stack of overlay **kinds**, leftmost
   first (bottom of the stack) → rightmost last (top of the stack).
 - Each frame's params are flat keys on the same query-string. Param
-  flattening means every frame sees every key — readers consume only
+  flattening means every frame sees every key, readers consume only
   the keys they know about.
 
 Examples:
@@ -65,11 +65,11 @@ Limitations (deliberate, simplifies the codec):
 | `components/overlay/types.ts`                 | `OverlayKind`, `OverlayFrame`, `OverlayApi`                                                                       |
 | `components/overlay/url.ts`                   | `parseOverlayUrl` / `encodeOverlayUrl` / `stacksEqual`                                                            |
 | `components/overlay/OverlayProvider.tsx`      | React Context. Owns the stack, syncs with `history` and `location`, listens to `popstate`.                        |
-| `components/overlay/Sheet.tsx`                | The visual chrome — bottom sheet on mobile, centred modal on desktop. Drag-to-close, Esc, backdrop click.         |
+| `components/overlay/Sheet.tsx`                | The visual chrome, bottom sheet on mobile, centred modal on desktop. Drag-to-close, Esc, backdrop click.         |
 | `components/overlay/OverlayLink.tsx`          | `next/link` superset. Plain click → overlay; mod-click / middle-click → hard nav (escape hatch).                  |
 | `components/overlay/OverlayRoot.tsx`          | Renders the stack via the kind→component registry. Mounted once per page.                                         |
 | `components/overlay/OverlayBreadcrumb.tsx`    | Visible breadcrumb that mirrors the stack: "Page › Frame 1 › Frame 2".                                            |
-| `components/overlay/BracketOverlayShell.tsx`  | Convenience client wrapper — provider + breadcrumb + root.                                                        |
+| `components/overlay/BracketOverlayShell.tsx`  | Convenience client wrapper, provider + breadcrumb + root.                                                        |
 | `components/overlay/OverlayServerShim.tsx`    | Server-rendered fallback for crawlers + screen readers.                                                           |
 | `components/overlay/TeamOverlay.tsx`          | Team card content (`?overlay=team&code=...`)                                                                      |
 | `components/overlay/MatchOverlay.tsx`         | Match preview card (`?overlay=match&id=...`)                                                                      |
@@ -123,7 +123,7 @@ Per `docs/22-deployment-and-tunnels.md`:
   `/world-cup-2026?overlay=team&code=NZL`. This relies on the CDN
   ignoring query strings for cache-key purposes (Cloudflare default
   for marketing pages), but the cost of *not* doing this would be a
-  cache key per team × per match — explosion we don't want.
+  cache key per team × per match, explosion we don't want.
 
 - **Browser-side**: the overlay system mutates `history.pushState`
   but never touches `Cache-Control`. The browser caches the same HTML
@@ -145,7 +145,7 @@ out of cache.
   **team overlay**. The badge is a plain `<a>` so right-click /
   Cmd-click still navigates to `/team/[code]` for a real-route view.
 
-The pick functionality of the main button is unchanged — we did NOT
+The pick functionality of the main button is unchanged, we did NOT
 turn the flag tap itself into the overlay opener because that would
 break the existing prediction UX. The "i" badge is the team-overlay
 entry point, sized 18×18 in the corner of the pick button so it
@@ -170,10 +170,10 @@ script) and `apps/marketing/src/styles/globals.css` (`.vt-mobile-drawer`,
 
 ## Tests
 
-- `apps/web/__tests__/overlay-router.test.tsx` — 30+ unit tests across
+- `apps/web/__tests__/overlay-router.test.tsx`, 30+ unit tests across
   the URL codec, the provider state machine, the Sheet UI, and
   OverlayLink semantics.
-- `apps/marketing/e2e/mobile-drawer.spec.ts` — Playwright spec
+- `apps/marketing/e2e/mobile-drawer.spec.ts`, Playwright spec
   exercising open / close / Escape / swipe-right / link-reachability.
   Gated on `RUN_MARKETING_E2E=1` (same as the existing readability
   spec).

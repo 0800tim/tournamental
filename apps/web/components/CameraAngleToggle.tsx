@@ -15,7 +15,7 @@ interface CamOption {
 }
 
 /**
- * Camera-angle row — four pill-buttons sitting just above the timeline
+ * Camera-angle row, four pill-buttons sitting just above the timeline
  * scrubber. Replaces the old `.camera-toggle` cluster that was hidden
  * behind the (newer) scrubber. Icons render at all viewport sizes;
  * labels collapse out below 640px so the row stays compact on phones.
@@ -50,7 +50,7 @@ export function CameraAngleToggle({ mode, onChange }: CameraAngleToggleProps) {
   );
 }
 
-/* Inline minimalist line-art icons — they sit in `currentColor` so the
+/* Inline minimalist line-art icons, they sit in `currentColor` so the
  * active-state colour drives them automatically. Sized 14×14 to match
  * the pill text. */
 

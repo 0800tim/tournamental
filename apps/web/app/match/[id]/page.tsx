@@ -3,7 +3,7 @@ import dynamic from "next/dynamic";
 import { RouteEvent } from "@/components/analytics/RouteEvent";
 import { AppShell } from "@/components/shell";
 
-// MatchScene is client-only — Three.js needs a real DOM and WebGL context.
+// MatchScene is client-only, Three.js needs a real DOM and WebGL context.
 const MatchScene = dynamic(
   () => import("@/components/MatchScene").then((m) => m.MatchScene),
   { ssr: false },

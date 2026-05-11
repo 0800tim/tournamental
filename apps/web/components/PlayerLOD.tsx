@@ -13,7 +13,7 @@ import * as THREE from "three";
  * | MED    | 15 m – 35 m    | nearby players               |
  * | LOW    | > 35 m         | far players                  |
  *
- * In v0.1 the MED bucket re-uses the HIGH mesh (same RPM body) — the
+ * In v0.1 the MED bucket re-uses the HIGH mesh (same RPM body), the
  * docs note this is acceptable while we don't have a low-poly stand-in.
  * The LOW bucket renders a billboard fallback (the existing procedural
  * capsule body) so the per-frame mixer cost is skipped.
@@ -75,7 +75,7 @@ export interface PlayerLODSelectorProps {
 /**
  * Mount inside a player group. Watches camera distance every
  * `intervalMs` and calls `onChange` when the bucket flips. No re-renders
- * — purely a useFrame side-effect.
+ *, purely a useFrame side-effect.
  */
 export function PlayerLODSelector({ target, onChange, intervalMs = 200 }: PlayerLODSelectorProps) {
   const { camera } = useThree();

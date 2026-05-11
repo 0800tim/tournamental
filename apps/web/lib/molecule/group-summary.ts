@@ -1,5 +1,5 @@
 /**
- * Group-stage summary — pure derivation of a team's group-stage story
+ * Group-stage summary, pure derivation of a team's group-stage story
  * from the user's per-match predictions. Used by `MoleculePanel` to
  * render the GROUP STAGE section above the knockout rows.
  *
@@ -135,7 +135,7 @@ export function buildGroupStageSummary(
   const groupFixtures = tournament.group_fixtures.filter(
     (f) => f.group_id === groupId,
   );
-  // The fixtures involving this team — sorted by match_no to keep the
+  // The fixtures involving this team, sorted by match_no to keep the
   // narrative linear (matchday 1 → 3).
   const myFixtures = groupFixtures
     .filter((f) => {
@@ -188,7 +188,7 @@ export function buildGroupStageSummary(
     return s + (m.teamScore - m.opponentScore);
   }, 0);
 
-  // Position from the computed standings — same logic the bracket UI
+  // Position from the computed standings, same logic the bracket UI
   // uses for the group table, so the molecule panel agrees with the
   // bracket's group view exactly.
   const tiebreaker = bracket.groupTiebreakers[groupId];
@@ -230,12 +230,12 @@ export function positionLabel(
 }
 
 /**
- * Friendly rank pill — "1ST" / "2ND" / "3RD" / "4TH" / "—".
+ * Friendly rank pill, "1ST" / "2ND" / "3RD" / "4TH" / "-".
  */
 export function rankPillLabel(position: 1 | 2 | 3 | 4 | null): string {
   if (position === 1) return "1ST";
   if (position === 2) return "2ND";
   if (position === 3) return "3RD";
   if (position === 4) return "4TH";
-  return "—";
+  return "-";
 }

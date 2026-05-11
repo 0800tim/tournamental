@@ -8,7 +8,7 @@
  *
  * Also handles pending-invite claim: if `vtorn:auth:pending_invite_v1`
  * is set in localStorage, the client side does the claim on the
- * destination page — this server route just hands them back the
+ * destination page, this server route just hands them back the
  * session.
  */
 

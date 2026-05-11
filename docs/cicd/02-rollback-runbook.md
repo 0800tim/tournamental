@@ -1,4 +1,4 @@
-# 02 — Rollback runbook
+# 02, Rollback runbook
 
 > What rollback means in our build-slot model and when to invoke it
 > manually.
@@ -45,7 +45,7 @@ pnpm --filter @vtorn/cicd-tools exec tsx -e '
 
 ## When `.<kind>-prev` doesn't exist
 
-You're in a corner — there's nothing to roll back to on disk. Two paths:
+You're in a corner, there's nothing to roll back to on disk. Two paths:
 
 ### 1. Rebuild from a previous good SHA
 

@@ -13,7 +13,7 @@
  *
  * We forward the OTP via the Aiva SMS gateway to the user's WhatsApp.
  * Supabase signs the request HMAC-SHA256 using SUPABASE_SMS_HOOK_SECRET
- * — we verify the signature before doing anything else.
+ *, we verify the signature before doing anything else.
  *
  * Reference:
  *   https://supabase.com/docs/guides/auth/phone-login/custom-sms-hook

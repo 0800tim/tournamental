@@ -26,7 +26,7 @@ export function StateFrameBufferProvider({
 
 /**
  * Read the scene's shared `StateFrameBuffer`. Returns `null` if the
- * caller is mounted outside of `<StateFrameBufferProvider>` — components
+ * caller is mounted outside of `<StateFrameBufferProvider>`, components
  * that need it should fall back to the legacy
  * `interpolatePlayer/interpolateBall(prev, curr, alphaForNow(...))`
  * path so we don't break tests.

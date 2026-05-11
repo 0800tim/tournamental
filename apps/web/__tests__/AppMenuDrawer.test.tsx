@@ -1,5 +1,5 @@
 /**
- * Vitest — AppMenuDrawer rendering + link routing rules.
+ * Vitest, AppMenuDrawer rendering + link routing rules.
  *
  * 1. Internal links go through next/link (no target/rel attributes).
  * 2. External links carry target="_blank" + rel="noopener noreferrer"

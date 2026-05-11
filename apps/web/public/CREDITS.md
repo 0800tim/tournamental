@@ -6,7 +6,7 @@ shipped from `apps/web/public/`. Per
 every asset must be CC0, a CC-BY-compatible Creative Commons licence,
 or self-authored. No copyrighted club crests, sponsor logos, real-player
 photos, or licensed fonts are bundled here. Player face images are
-fetched at runtime from URLs in `data/wc2022-final-players.csv` — the
+fetched at runtime from URLs in `data/wc2022-final-players.csv`, the
 runtime referencer is the operator, the renderer is not the publisher.
 
 ## Models
@@ -51,7 +51,7 @@ runtime referencer is the operator, the renderer is not the publisher.
 - **Operator obligations**: When the renderer uses these images, it must
   display the licence and a link back to the Commons file page. Per
   doc 07, face images are referenced by URL, not bundled with the
-  renderer — the operator (i.e. the StatsBomb-replay producer that
+  renderer, the operator (i.e. the StatsBomb-replay producer that
   emits MatchInit) is responsible for that link in the HUD.
 - **Refresh**: re-run `node packages/avatar/scripts/build-players-csv.mjs`
   (requires network) to refetch P18 values from Wikidata. The script
@@ -64,7 +64,7 @@ The jersey-number text uses the system font stack
 `Inter, Arial, sans-serif`. **No font files** are bundled. If the
 renderer's host page wants Inter specifically, pull it from the system
 or from Google Fonts at runtime under the [SIL Open Font Licence
-1.1](https://fonts.google.com/specimen/Inter/license) — but doc 07 says
+1.1](https://fonts.google.com/specimen/Inter/license), but doc 07 says
 "do not check in licensed fonts" and we follow that.
 
 ## Verification

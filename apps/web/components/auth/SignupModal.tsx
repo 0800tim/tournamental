@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * SignupModal — the in-app sign-in / sign-up sheet.
+ * SignupModal, the in-app sign-in / sign-up sheet.
  *
  * Three tabs at the top: Email, Telegram, WhatsApp. Each tab is a tiny
  * form with one input and one button. The "unconfigured" state (no
  * Supabase env vars) renders a single "Sign in coming soon" message and
- * disables all inputs — this is what `pnpm dev` sees on a fresh checkout.
+ * disables all inputs, this is what `pnpm dev` sees on a fresh checkout.
  *
  * The modal is intentionally self-contained: it doesn't import the
  * shell layout primitives (AppShell, AppBar) so other parts of the app
@@ -90,7 +90,7 @@ export function SignupModal({
 
         {!configured && (
           <div className="vt-signup-banner" role="status">
-            Sign-in coming soon. You can still build a bracket as a guest —
+            Sign-in coming soon. You can still build a bracket as a guest -
             picks are saved on this device.
           </div>
         )}
@@ -155,7 +155,7 @@ function EmailTab({
   if (sent) {
     return (
       <div className="vt-signup-success" role="status">
-        Check your inbox — we sent a magic link to <strong>{email}</strong>.
+        Check your inbox, we sent a magic link to <strong>{email}</strong>.
         Tap it to finish signing in.
       </div>
     );
@@ -396,7 +396,7 @@ function humanReadable(error?: string): string {
     case "send-failed":
       return "Couldn't send the code. Try again in a moment.";
     case "verify-failed":
-      return "Code didn't match — or it expired. Request a new one.";
+      return "Code didn't match, or it expired. Request a new one.";
     case "telegram-failed":
       return "Telegram login didn't go through. Try again.";
     default:

@@ -12,18 +12,18 @@
  *   6. Save screenshots at goal moment + replay moment.
  *
  * The test is gated on a running dev server (`pnpm dev` on port 3300)
- * — see `playwright.config.ts`. Set `VTORN_AUTOSTART_DEV=1` to have
+ *, see `playwright.config.ts`. Set `VTORN_AUTOSTART_DEV=1` to have
  * the test boot it for you.
  *
  * NOTE on FPS in headless chromium: the dev box's CI lane has no
  * native GPU, so chromium falls back to SwiftShader software WebGL.
  * Steady-state FPS in that mode varies wildly (~ 8–30) and is not a
  * faithful proxy for native-GPU performance. The test asserts the
- * scene mounts + the director's cuts fire — the FPS budget gate
+ * scene mounts + the director's cuts fire, the FPS budget gate
  * (30 fps minimum during slow-mo) is *recorded* but only treated as
  * a hard failure when running on a CI lane with `VTORN_GPU_LANE=1`
  * set. This matches the Phase-2 spec's caveat ("60fps held on
- * Pixel 7a Playwright profile" — the Pixel 7a Playwright profile
+ * Pixel 7a Playwright profile", the Pixel 7a Playwright profile
  * has a hardware GPU when run on a real device farm).
  */
 
@@ -50,7 +50,7 @@ test.describe("Phase-2 auto-director", () => {
       if (msg.type() === "error") consoleErrors.push(msg.text());
     });
 
-    // Manifest mode @ 10× time scale — the AR-FR final replays in
+    // Manifest mode @ 10× time scale, the AR-FR final replays in
     // ~ 15 minutes. Seek to ~ 22:30 so we land on the Messi penalty
     // at minute 23.
     await page.goto(

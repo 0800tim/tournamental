@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * /leaderboard — global prediction-IQ leaderboard.
+ * /leaderboard, global prediction-IQ leaderboard.
  *
  * Until the live picks DB starts ingesting at kickoff (2026-06-11),
  * this surface renders deterministic mock data via
  * `mockLeaderboardMembers(null, 50)` and shows the DraftPreviewBanner
  * + the in-card "Preview data" footer chip. The shape of the data
  * is intentionally identical to what the real `/api/leaderboard`
- * endpoint will return — to go live, replace the
+ * endpoint will return, to go live, replace the
  * `mockLeaderboardMembers(...)` call with a server-side fetch and
  * drop both the banner and the watermark wrappers.
  */
@@ -49,7 +49,7 @@ export default function LeaderboardPage() {
     [],
   );
 
-  // For the "you vs the pool" chart — seed from the highlighted member.
+  // For the "you vs the pool" chart, seed from the highlighted member.
   const memberSeries = useMemo(
     () => mockPointsHistory(youId ?? "you", 28),
     [youId],

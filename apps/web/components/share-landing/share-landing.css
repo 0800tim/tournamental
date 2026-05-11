@@ -7,7 +7,7 @@
  *   - .vt-share-404  (when neither matches)
  *
  * Colours pulled from the bracket palette so the surface matches the
- * rest of the WC 2026 microsite. Avoid Tailwind here — the rest of the
+ * rest of the WC 2026 microsite. Avoid Tailwind here, the rest of the
  * shell uses plain CSS modules, keep consistent.
  */
 

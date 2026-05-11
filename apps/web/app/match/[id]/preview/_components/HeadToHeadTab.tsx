@@ -1,5 +1,5 @@
 /**
- * H2H tab — three-up summary (home wins, draws, away wins) at the top,
+ * H2H tab, three-up summary (home wins, draws, away wins) at the top,
  * then a list of recent meetings (date, score, competition, location).
  *
  * Direction-insensitive: the `H2HRecord` always has `homeWins` /

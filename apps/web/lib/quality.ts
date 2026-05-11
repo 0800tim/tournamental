@@ -1,5 +1,5 @@
 /**
- * Quality preset resolver — Phase 3.
+ * Quality preset resolver, Phase 3.
  *
  * Per `docs/27c-fidelity-phase3-stadium-crowd.md` § "Post-processing":
  *
@@ -17,7 +17,7 @@
  * device-hint of `mobile` (UA contains `Mobi` / `Android`) further
  * caps the preset at `medium`.
  *
- * Pure module — no React, no Three, fully unit-testable in jsdom.
+ * Pure module, no React, no Three, fully unit-testable in jsdom.
  */
 
 export type QualityPreset = "low" | "medium" | "high";
@@ -26,7 +26,7 @@ export type QualityFlag = QualityPreset | "auto" | "off";
 export interface QualityProfile {
   /** Active preset name. `null` when fx is fully off. */
   preset: QualityPreset | null;
-  /** Hard-off switch — if true the renderer should not mount PostFX at all. */
+  /** Hard-off switch, if true the renderer should not mount PostFX at all. */
   fxOff: boolean;
   /** Effect toggles. */
   ssao: boolean;
@@ -104,7 +104,7 @@ const PROFILES: Record<QualityPreset, QualityProfile> = {
 };
 
 /**
- * Build the "fx fully off" profile — every flag false, preset null.
+ * Build the "fx fully off" profile, every flag false, preset null.
  * The renderer treats this as "do not mount the EffectComposer at all".
  */
 export function fxOffProfile(): QualityProfile {
@@ -179,7 +179,7 @@ export function autoResolve(hint: DeviceHint): QualityPreset {
 
 /**
  * Parse a query-string into a `QualityFlag` + an `fx` override. Pure
- * — accepts the search string (with or without leading `?`).
+ *, accepts the search string (with or without leading `?`).
  */
 export function parseQualityFromSearch(
   search: string,

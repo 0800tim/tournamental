@@ -1,5 +1,5 @@
 /**
- * useMatchPick — load + save a single match prediction against the
+ * useMatchPick, load + save a single match prediction against the
  * per-match game-service endpoints (PUT/GET/DELETE
  * /v1/picks/:userId/:matchId).
  *
@@ -22,10 +22,10 @@ import type { MatchPrediction } from "@vtorn/bracket-engine";
 import { loadDraft, saveDraft, localUserId } from "@/lib/bracket/storage";
 
 // Resolution order:
-//   1. NEXT_PUBLIC_GAME_API_URL — canonical (matches `lib/bracket/api.ts`).
-//   2. NEXT_PUBLIC_VTORN_GAME_URL — legacy env var name; kept for any
+//   1. NEXT_PUBLIC_GAME_API_URL, canonical (matches `lib/bracket/api.ts`).
+//   2. NEXT_PUBLIC_VTORN_GAME_URL, legacy env var name; kept for any
 //      pre-existing deployment that still sets it.
-//   3. https://game.tournamental.com — production default.
+//   3. https://game.tournamental.com, production default.
 const GAME_BASE =
   process.env.NEXT_PUBLIC_GAME_API_URL ??
   process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
@@ -100,7 +100,7 @@ async function readJson(res: Response): Promise<unknown> {
 }
 
 /**
- * Merge a saved prediction into the local bulk-bracket draft. Best-effort —
+ * Merge a saved prediction into the local bulk-bracket draft. Best-effort -
  * if the user has never opened the bracket builder, the draft is empty
  * and we just write the single pick into it.
  */

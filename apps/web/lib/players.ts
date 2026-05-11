@@ -141,7 +141,7 @@ export function ageOnDate(dob: string | null | undefined, refIso: string): numbe
   if (!Number.isFinite(d) || !Number.isFinite(r)) return null;
   const ms = r - d;
   if (ms < 0) return null;
-  // 365.2425 days/year — close enough for display.
+  // 365.2425 days/year, close enough for display.
   const years = ms / (1000 * 60 * 60 * 24 * 365.2425);
   return Math.floor(years);
 }

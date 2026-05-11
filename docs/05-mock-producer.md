@@ -1,4 +1,4 @@
-# 05 — Mock Producer
+# 05, Mock Producer
 
 > A pure-synthetic spec stream. No external inputs. Used as the canonical test fixture for renderer development, and as the demo stream when no live game is active.
 
@@ -18,10 +18,10 @@ It's also genuinely useful as a public "always-on" demo: the framework site at `
 
 Configurable via CLI flags, all emit identical stream content:
 
-- `--out=ws --port=4001` — WebSocket server, broadcast to any connected client.
-- `--out=sse --port=4001` — SSE endpoint at `/stream`.
-- `--out=file --path=./out` — write `init.json` + `chunk-NNNNNN.ndjson.gz` + `live.m3u8` exactly as the production stream server does. Lets a renderer test the CDN path without standing up the real origin.
-- `--out=stdout` — NDJSON to stdout for piping into anything.
+- `--out=ws --port=4001`, WebSocket server, broadcast to any connected client.
+- `--out=sse --port=4001`, SSE endpoint at `/stream`.
+- `--out=file --path=./out`, write `init.json` + `chunk-NNNNNN.ndjson.gz` + `live.m3u8` exactly as the production stream server does. Lets a renderer test the CDN path without standing up the real origin.
+- `--out=stdout`, NDJSON to stdout for piping into anything.
 
 ## Match generation model
 
@@ -50,7 +50,7 @@ A "tick" runs every 100ms. Each tick:
 1. The carrier (a player on the possessing team) moves 0.4–0.7m toward a target.
 2. With probability `p_pass` (~0.05 per tick = avg 2s holding), pick a teammate at random within passing range, emit `event.pass`, and start a ball flight to that teammate over 0.4–1.0s.
 3. With probability `p_shot_when_in_final_third` (~0.02 per tick), emit `event.shot` toward the opposing goal. Resolve via random keeper save vs. goal (~30% goal probability).
-4. Other players: drift toward their formation positions with damped noise. Track the ball loosely — defenders converge on the carrier; attackers space out.
+4. Other players: drift toward their formation positions with damped noise. Track the ball loosely, defenders converge on the carrier; attackers space out.
 5. Emit a `state` message at 10Hz (every other tick).
 
 After a goal: `event.goal`, `event.score_change`, `event.commentary`, then 5s pause (celebration animations on the renderer side), then `event.kickoff` for the conceding team.
@@ -110,4 +110,4 @@ mock-producer \
 - Player attributes (every player has identical stats).
 - Multi-match orchestration (one process, one match).
 
-A more sophisticated *simulation* lives in `apps/sim-producer/` later — this one is purely about emitting a plausible stream for renderer development.
+A more sophisticated *simulation* lives in `apps/sim-producer/` later, this one is purely about emitting a plausible stream for renderer development.

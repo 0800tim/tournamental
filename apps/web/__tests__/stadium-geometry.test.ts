@@ -36,7 +36,7 @@ describe("buildSeatingTier", () => {
 
   it("places slices around an elliptical ring (X/Z axes)", () => {
     // We can only assert the cardinal slices land exactly on the
-    // ellipse — diagonal slices use the parametric (cos*rx, sin*rz)
+    // ellipse, diagonal slices use the parametric (cos*rx, sin*rz)
     // form which is NOT a constant-radius ring.
     // Slice 0 is at angle 0 → (rx, 0).
     expect(tier.slices[0].position[0]).toBeCloseTo(54 + 3, 3);

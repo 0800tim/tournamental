@@ -1,5 +1,5 @@
 /**
- * Vitest — share-text helpers.
+ * Vitest, share-text helpers.
  *
  * Pure-function coverage of the URL/text composition layer used by both
  * the inline LockSummary share button and the full Save & share page.

@@ -1,19 +1,19 @@
-# 14 — Clip Generation and Social Distribution
+# 14, Clip Generation and Social Distribution
 
-> Auto-generate platform-native MP4 clips from any moment in the rendered match, post them to TikTok, Instagram Reels, YouTube Shorts, X, Facebook, Telegram channels — driven by the same spec stream and event triggers. The render engine is the production studio; ffmpeg and platform APIs do the distribution. Telegram bot ([doc 13](13-telegram-bot-and-auth.md)) routes the user-share variants.
+> Auto-generate platform-native MP4 clips from any moment in the rendered match, post them to TikTok, Instagram Reels, YouTube Shorts, X, Facebook, Telegram channels, driven by the same spec stream and event triggers. The render engine is the production studio; ffmpeg and platform APIs do the distribution. Telegram bot ([doc 13](13-telegram-bot-and-auth.md)) routes the user-share variants.
 
 ## What this layer produces
 
-For each interesting moment in a match — goal, near-miss, save, red card, full-time — the system automatically produces a family of MP4 variants:
+For each interesting moment in a match, goal, near-miss, save, red card, full-time, the system automatically produces a family of MP4 variants:
 
-- **15s vertical (1080×1920)** — TikTok, Instagram Reels, YouTube Shorts.
-- **30s vertical** — TikTok, Instagram Reels, YouTube Shorts (longer cut).
-- **60s vertical** — Instagram Reels (max for many accounts), Reels-style cuts.
-- **90s vertical** — Reels long-form.
-- **3 min vertical** — full game-summary reels.
-- **16:9 1920×1080** — YouTube, X / Twitter, embedded on partner sites.
-- **1:1 1080×1080** — Instagram feed, Facebook feed.
-- **Square 720×720 low-bitrate** — Telegram channel previews, embedded shareables.
+- **15s vertical (1080×1920)**, TikTok, Instagram Reels, YouTube Shorts.
+- **30s vertical**, TikTok, Instagram Reels, YouTube Shorts (longer cut).
+- **60s vertical**, Instagram Reels (max for many accounts), Reels-style cuts.
+- **90s vertical**, Reels long-form.
+- **3 min vertical**, full game-summary reels.
+- **16:9 1920×1080**, YouTube, X / Twitter, embedded on partner sites.
+- **1:1 1080×1080**, Instagram feed, Facebook feed.
+- **Square 720×720 low-bitrate**, Telegram channel previews, embedded shareables.
 
 Each variant gets:
 - An LLM-written caption with platform-appropriate hashtags.
@@ -89,7 +89,7 @@ A pure-functional service consuming the spec event stream. Rules:
 |---------|--------|------------------|
 | `event.goal` | t-7s to t+10s | every variant |
 | `event.shot` (on_target, saved) | t-4s to t+5s | 15s vertical only |
-| `event.shot` (on_target, scored) | redundant — covered by goal | — |
+| `event.shot` (on_target, scored) | redundant, covered by goal |, |
 | `event.foul` (severity = red) | t-4s to t+8s | every variant |
 | `event.foul` (severity = yellow) | t-3s to t+5s | 15s vertical only |
 | `event.tackle` (success = true, defensive third) | t-3s to t+4s | 15s vertical only |
@@ -117,8 +117,8 @@ Priorities: `high` (goals, reds, full-match) → enter the fast queue. `normal` 
 
 The renderer is the same Next.js + R3F app from [doc 4](04-renderer.md), but with two extra modes:
 
-- **`?record=1`** — disables the live HUD (or shows a clean broadcast HUD), enables a deterministic time clock, runs the scene at exactly 30fps regardless of wall clock, and emits each frame via MediaRecorder into a single MP4 stream piped to stdout.
-- **`?frames=1`** — emits PNG frames + a `manifest.txt` with frame timings, for cases where ffmpeg-side compositing is preferred over MediaRecorder.
+- **`?record=1`**, disables the live HUD (or shows a clean broadcast HUD), enables a deterministic time clock, runs the scene at exactly 30fps regardless of wall clock, and emits each frame via MediaRecorder into a single MP4 stream piped to stdout.
+- **`?frames=1`**, emits PNG frames + a `manifest.txt` with frame timings, for cases where ffmpeg-side compositing is preferred over MediaRecorder.
 
 A worker runs:
 
@@ -138,9 +138,9 @@ For predictable QoS during live matches, the worker pool is per-priority. High-p
 
 Three layers:
 
-1. **Crowd bed** — looped CC0 ambient stadium noise, ducked under commentary. Stored as `assets/audio/crowd_bed.ogg`.
-2. **SFX cues** — `goal.ogg`, `whistle.ogg`, `kick.ogg`, etc. Triggered by event timings.
-3. **Commentary** — the `event.commentary.text` for the window, synthesised via ElevenLabs (or local Coqui XTTS for cost-free deployments) with the same `voice_id` used elsewhere.
+1. **Crowd bed**, looped CC0 ambient stadium noise, ducked under commentary. Stored as `assets/audio/crowd_bed.ogg`.
+2. **SFX cues**, `goal.ogg`, `whistle.ogg`, `kick.ogg`, etc. Triggered by event timings.
+3. **Commentary**, the `event.commentary.text` for the window, synthesised via ElevenLabs (or local Coqui XTTS for cost-free deployments) with the same `voice_id` used elsewhere.
 
 Mixed in ffmpeg with `-filter_complex` against the rendered video stream.
 
@@ -191,7 +191,7 @@ Output:
 }
 ```
 
-Hashtags are sourced from a curated list per tournament (we don't let the LLM invent random tags — too risky for shadow-banning). The list is in `data/hashtags/<tournament_id>.json`.
+Hashtags are sourced from a curated list per tournament (we don't let the LLM invent random tags, too risky for shadow-banning). The list is in `data/hashtags/<tournament_id>.json`.
 
 ## Distribution
 
@@ -246,11 +246,11 @@ The distributor enforces these via per-account token-bucket limiters. During a b
 
 Highlights also fan out to:
 
-- **`@SimSportsAnnounce`** main channel — every goal, every full-match summary.
-- **Country-specific channels** — only highlights involving that country's team.
-- **User DMs** — only if the user is in a relevant pool, opted in, or the highlight involves a player they predicted.
+- **`@SimSportsAnnounce`** main channel, every goal, every full-match summary.
+- **Country-specific channels**, only highlights involving that country's team.
+- **User DMs**, only if the user is in a relevant pool, opted in, or the highlight involves a player they predicted.
 
-Telegram channel posts are the *fastest* surface — bot can `sendVideo` within seconds of clip render. Use this as the canary: if the clip looks bad on Telegram, hold the others.
+Telegram channel posts are the *fastest* surface, bot can `sendVideo` within seconds of clip render. Use this as the canary: if the clip looks bad on Telegram, hold the others.
 
 ## Brand and consistency
 
@@ -300,8 +300,8 @@ Total: low hundreds of dollars per major tournament for a fully autonomous clip 
 
 - [Instagram Graph API for Reels](https://developers.facebook.com/docs/instagram-api/guides/content-publishing)
 - [TikTok Content Posting API](https://developers.tiktok.com/doc/content-posting-api-get-started/)
-- [YouTube Data API v3 — videos.insert](https://developers.google.com/youtube/v3/docs/videos/insert)
+- [YouTube Data API v3, videos.insert](https://developers.google.com/youtube/v3/docs/videos/insert)
 - [X API v2 media upload](https://developer.twitter.com/en/docs/twitter-api/v1/media/upload-media/api-reference/post-media-upload)
-- [Telegram Bot API — sendVideo](https://core.telegram.org/bots/api#sendvideo)
+- [Telegram Bot API, sendVideo](https://core.telegram.org/bots/api#sendvideo)
 - [Cloudflare R2 zero-egress object storage](https://developers.cloudflare.com/r2/)
 - [GoHighLevel social planner](https://www.gohighlevel.com/)

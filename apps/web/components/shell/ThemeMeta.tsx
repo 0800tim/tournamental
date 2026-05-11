@@ -29,7 +29,7 @@ function detect(): "dark" | "light" {
   const data = document.documentElement.dataset.theme;
   if (data === "light") return "light";
   if (data === "dark") return "dark";
-  // No explicit theme set — follow the OS.
+  // No explicit theme set, follow the OS.
   if (typeof window !== "undefined" && window.matchMedia) {
     if (window.matchMedia("(prefers-color-scheme: light)").matches)
       return "light";

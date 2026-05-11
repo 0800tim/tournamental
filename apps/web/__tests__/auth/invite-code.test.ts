@@ -1,5 +1,5 @@
 /**
- * invite-code mint route — happy-path smoke.
+ * invite-code mint route, happy-path smoke.
  *
  * We can't easily run the Next.js Route Handler in vitest (it pulls in
  * the App Router runtime), so this test exercises the code-generation

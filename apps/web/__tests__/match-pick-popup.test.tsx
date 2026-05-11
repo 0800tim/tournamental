@@ -1,5 +1,5 @@
 /**
- * MatchPickPopup — smoke tests for the per-match pick popup component
+ * MatchPickPopup, smoke tests for the per-match pick popup component
  * and useMatchPick hook.
  *
  * Coverage:
@@ -380,7 +380,7 @@ describe("MatchPickPopup", () => {
     );
     fireEvent.click(container.querySelector(".mpp-pick-home") as HTMLButtonElement);
     fireEvent.click(getByText("Save pick"));
-    // Local fallback wrote the pick — the error banner shows up.
+    // Local fallback wrote the pick, the error banner shows up.
     await findByText(/Couldn't save/i);
   });
 

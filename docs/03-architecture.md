@@ -1,4 +1,4 @@
-# 03 — System Architecture
+# 03, System Architecture
 
 > End-to-end design from "raw input" (a video feed, a tracking JSON, a CLI) through "rendered 3D world in the browser." The unifying contract is the [JSON spec](02-spec.md); everything below the spec is replaceable.
 
@@ -68,7 +68,7 @@ All producers emit the *same* spec-conformant stream. They differ only in what t
 
 **Official feed adapter** (`apps/feed-adapter/`, Node TS). Translates a licensed/scraped tracking feed (Genius Sports, Stats Perform, Second Spectrum, NFL Next Gen, RFID jersey systems) into the spec. The bulk of the work is mapping their schema to ours and resampling their tick rate. The ethics and legality of acquiring such a feed are entirely the operator's problem; the adapter just translates.
 
-**Commentary-only producer** (`apps/stt-producer/`, Python). When no positional data is available, transcribe broadcast commentary with Whisper, run an LLM that infers events ("Smith scores from twelve yards") and *plausible* positions. Output is dramatically lower fidelity — players teleport between events — but is enough for stylized recap-style worlds where strict spatial accuracy doesn't matter.
+**Commentary-only producer** (`apps/stt-producer/`, Python). When no positional data is available, transcribe broadcast commentary with Whisper, run an LLM that infers events ("Smith scores from twelve yards") and *plausible* positions. Output is dramatically lower fidelity, players teleport between events, but is enough for stylized recap-style worlds where strict spatial accuracy doesn't matter.
 
 Multiple producers MAY run for the same `match_id`. The stream server can either pick one as canonical, or merge (e.g. positions from the official feed, commentary from the STT producer).
 
@@ -88,8 +88,8 @@ Why both chunk files *and* a live socket? Two audiences. The free-tier audience 
 
 A client is anything that consumes the spec. It picks one of two transports:
 
-- **CDN replay** for chunked playback — fetches `init.json`, then chunks in order, with a small jitter buffer. Latency 1–10s depending on chunk size. Effectively free at any scale.
-- **Live socket** for live playback — opens a WebSocket / SSE to origin. Sub-second latency. Origin-bound, costs more, doesn't scale linearly.
+- **CDN replay** for chunked playback, fetches `init.json`, then chunks in order, with a small jitter buffer. Latency 1–10s depending on chunk size. Effectively free at any scale.
+- **Live socket** for live playback, opens a WebSocket / SSE to origin. Sub-second latency. Origin-bound, costs more, doesn't scale linearly.
 
 The default Next.js + R3F renderer supports both, with a config flag. Forked worlds inherit this for free if they use the published client SDK (`packages/spec-client/`).
 
@@ -97,8 +97,8 @@ The default Next.js + R3F renderer supports both, with a config flag. Forked wor
 
 Two distinct persistence regimes, by tier:
 
-- **Match stream tier** (this doc, agents A–E). Optional minimal Postgres for *offline* replay and analytics; never on the live read path. Live playback comes from the chunk files on disk plus the live WebSocket. If you don't want Postgres at all, omit it — long-term archive can be JSONL on disk and queried with DuckDB. The schema below is offered, not required.
-- **Gamification tier** (predictions, leaderboards, badges, pools — see [doc 12](12-odds-and-predictions.md)). **No SQL.** Redis is the write authority; a snapshotter flushes JSON to `/v1/static/...` every 5–60s; Cloudflare CDN serves the JSON to clients. This regime is described in detail in doc 12; it shares no infrastructure with the match stream tier other than Cloudflare in front and the spec event subscription that feeds settlement.
+- **Match stream tier** (this doc, agents A–E). Optional minimal Postgres for *offline* replay and analytics; never on the live read path. Live playback comes from the chunk files on disk plus the live WebSocket. If you don't want Postgres at all, omit it, long-term archive can be JSONL on disk and queried with DuckDB. The schema below is offered, not required.
+- **Gamification tier** (predictions, leaderboards, badges, pools, see [doc 12](12-odds-and-predictions.md)). **No SQL.** Redis is the write authority; a snapshotter flushes JSON to `/v1/static/...` every 5–60s; Cloudflare CDN serves the JSON to clients. This regime is described in detail in doc 12; it shares no infrastructure with the match stream tier other than Cloudflare in front and the spec event subscription that feeds settlement.
 
 ### Optional match stream Postgres schema
 
@@ -140,7 +140,7 @@ The infra Tim is targeting (gigabit fibre + Starlink failover, lithium battery b
 
 - **Producer crash.** Origin keeps serving the last successfully-emitted chunk. Renderer freezes its scene at the last known state. A watchdog can hot-spare to a backup producer.
 - **Origin crash.** CDN keeps serving previously-cached chunks indefinitely. New chunks stop appearing until origin is back. Renderer should display a "feed lost" indicator after N missed chunks.
-- **Network partition between producer and origin.** Producer should buffer locally (bounded ring buffer) and replay on reconnect. Origin must dedupe by `(match_id, t_ms, kind)` — that's why it's the primary key on `messages`.
+- **Network partition between producer and origin.** Producer should buffer locally (bounded ring buffer) and replay on reconnect. Origin must dedupe by `(match_id, t_ms, kind)`, that's why it's the primary key on `messages`.
 - **Cloudflare outage.** Live-socket clients keep working (origin-direct). CDN clients reconnect when CF returns. Consider a secondary CDN (Bunny.net, Fastly) for true vendor redundancy if it ever matters.
 
 ## Why this architecture is the right shape

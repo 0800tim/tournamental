@@ -1,5 +1,5 @@
 /**
- * GroupCard — per-match prediction UI for a single group.
+ * GroupCard, per-match prediction UI for a single group.
  *
  * The user predicts the outcome of each of the group's 6 matches; the
  * standings are *computed* from those predictions and rendered live in a
@@ -8,7 +8,7 @@
  * the user pick a tiebreaker.
  *
  * No drag-and-drop. No "move team up". The whole point of the prediction
- * game is to predict every match — the standings fall out of the
+ * game is to predict every match, the standings fall out of the
  * predictions, not the other way around.
  */
 
@@ -83,7 +83,7 @@ export function GroupCard(props: GroupCardProps) {
   const complete = isGroupComplete(group.id, tournament, matchPredictions);
   const predictedCount = groupFixtures.filter((f) => matchPredictions[groupMatchId(f)]).length;
   // Don't surface tiebreaker control until the user has *some* predictions
-  // — an empty group has every team tied at 0 pts, but that's not a real
+  //, an empty group has every team tied at 0 pts, but that's not a real
   // tie that needs resolution.
   const ties = predictedCount === 0
     ? []
@@ -205,7 +205,7 @@ function PredictedStandingsPanel({ standings, teams, complete, ties }: Standings
                 <span className="bracket-pos-tag">
                   {advancing ? "advances" : wildcard ? "best-thirds pool" : "out"}
                 </span>
-                {tied && <span className="bracket-tie-flag" aria-label="Tied — needs tiebreaker">tied</span>}
+                {tied && <span className="bracket-tie-flag" aria-label="Tied, needs tiebreaker">tied</span>}
               </li>
             );
           })}
@@ -256,8 +256,8 @@ function TiebreakerControl({
   };
 
   return (
-    <div className="bracket-tiebreaker" role="group" aria-label="Tiebreaker — rank tied teams">
-      <h4>Tiebreaker — rank tied teams</h4>
+    <div className="bracket-tiebreaker" role="group" aria-label="Tiebreaker, rank tied teams">
+      <h4>Tiebreaker, rank tied teams</h4>
       <p className="bracket-tiebreaker-hint">
         {ties.length === 1
           ? `${ties[0]!.teamCodes.join(", ")} are tied. Drag-rank the order you'd predict.`

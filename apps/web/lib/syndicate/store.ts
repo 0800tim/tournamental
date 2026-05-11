@@ -1,5 +1,5 @@
 /**
- * Syndicate store — production SQLite-backed implementation with a
+ * Syndicate store, production SQLite-backed implementation with a
  * fallback to in-memory samples for the pre-launch hype window.
  *
  * Resolution order in `loadSyndicateBySlug`:
@@ -9,7 +9,7 @@
  *   3. Return `null` → `/s/<guid>` resolver falls through to user share.
  *
  * The persistence layer for *new* syndicates lives in `persistence.ts`
- * — that's the create + retry-queue surface the signup route uses.
+ *, that's the create + retry-queue surface the signup route uses.
  * Keeping the read-only stub here in `store.ts` preserves the contract
  * the `/s/[guid]` share landing depends on (it imports
  * `SyndicateRecord` + `loadSyndicateBySlug` from this file).
@@ -139,7 +139,7 @@ function fromPersistenceRow(row: {
  * Look up a syndicate by its kebab slug. Returns `null` if the slug
  * doesn't exist in either the SQLite store or the in-memory samples.
  *
- * Pure-async — safe to call from server components.
+ * Pure-async, safe to call from server components.
  */
 export async function loadSyndicateBySlug(
   slug: string,
@@ -156,7 +156,7 @@ export async function loadSyndicateBySlug(
       return fromPersistenceRow(row);
     }
   } catch (err) {
-    // Schema not yet migrated, or the DB file is missing — fall back
+    // Schema not yet migrated, or the DB file is missing, fall back
     // to the sample data so dev previews keep working.
     // eslint-disable-next-line no-console
     console.warn("syndicate db lookup failed; falling back to samples", err);

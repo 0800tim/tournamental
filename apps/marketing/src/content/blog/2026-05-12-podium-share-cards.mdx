@@ -11,9 +11,9 @@ heroImageCredit: "Photo by Tembela Bohle on Pexels (Pexels Licence)"
 
 A prediction game lives or dies on its share card.
 
-Bracket pools work because of the conversation around them — _"I had Argentina"_, _"You picked Mexico over France?"_, _"How does your bracket look at the half?"_ Those conversations happen on WhatsApp, Telegram, X, Instagram, TikTok — anywhere people argue about football. The platform that wants to be part of those conversations has to give players a single artefact they can drop into any of those threads and have it _make sense without the app open_.
+Bracket pools work because of the conversation around them, _"I had Argentina"_, _"You picked Mexico over France?"_, _"How does your bracket look at the half?"_ Those conversations happen on WhatsApp, Telegram, X, Instagram, TikTok, anywhere people argue about football. The platform that wants to be part of those conversations has to give players a single artefact they can drop into any of those threads and have it _make sense without the app open_.
 
-For most prediction apps, that artefact is a screenshot of their bracket. Which is bad, because a wall-chart bracket looks like a spreadsheet — busy, unreadable on a phone, no visual hook.
+For most prediction apps, that artefact is a screenshot of their bracket. Which is bad, because a wall-chart bracket looks like a spreadsheet, busy, unreadable on a phone, no visual hook.
 
 This post is the design diary of what we shipped instead: a **podium share card** that puts your top three picks on a gold-silver-bronze stand with the country flags below each cup, your knockout path on the left, and a clean Tournamental wordmark in the corner. Three sizes for every social platform. Generated server-side in under 300 ms. Already triggering the share dialog from any pick row on the bracket page.
 
@@ -28,7 +28,7 @@ Four asks in three sentences:
 1. Winner on the right, not the centre.
 2. Bracket path (QF → SF → Final) on the left.
 3. Gold/silver/bronze cup imagery for the user's top three predictions.
-4. Brand wordmark fixed (the previous build was rendering "TOURNAMENT·AL" with a stylistic middle dot from an older brand draft — should just be "Tournamental").
+4. Brand wordmark fixed (the previous build was rendering "TOURNAMENT·AL" with a stylistic middle dot from an older brand draft, should just be "Tournamental").
 
 The fixes were quick. The interesting question was: **why this shape**?
 
@@ -42,11 +42,11 @@ A podium graphic _is_ that ranking, by definition. We have used the gold/silver/
 
 ## The layout
 
-The portrait variant (1080×1350 — Instagram + Facebook + generic share-sheet preview) lays out like this:
+The portrait variant (1080×1350, Instagram + Facebook + generic share-sheet preview) lays out like this:
 
 ```
 ┌──────────────────────────────────────────────────────┐
-│ [T] Tournamental         FIFA WC 2026 — MY BRACKET   │  header
+│ [T] Tournamental         FIFA WC 2026, MY BRACKET   │  header
 │                                              @handle │
 ├──────────────────────────┬───────────────────────────┤
 │   PATH TO GOLD            │      MY PODIUM             │
@@ -63,15 +63,15 @@ The portrait variant (1080×1350 — Instagram + Facebook + generic share-sheet 
 └──────────────────────────────────────────────────────┘
 ```
 
-The left column ("Path to gold") is a four-row strip showing the user's pick at each knockout stage — R16, QF, SF, Final. For most cards these will all be the same team (the champion), but for a contrarian bracket it might be _"R16 ARG, QF ARG, SF MEX (the upset), Final MEX"_, which immediately tells the viewer this user called the Mexico-knocks-out-Argentina semi-final. The path is the **story**; the podium is the **answer**.
+The left column ("Path to gold") is a four-row strip showing the user's pick at each knockout stage, R16, QF, SF, Final. For most cards these will all be the same team (the champion), but for a contrarian bracket it might be _"R16 ARG, QF ARG, SF MEX (the upset), Final MEX"_, which immediately tells the viewer this user called the Mexico-knocks-out-Argentina semi-final. The path is the **story**; the podium is the **answer**.
 
 The right column ("My podium") is the centrepiece. Three cups, drawn procedurally in canvas (no image assets), arranged in a classic podium step: gold biggest and centred, silver to the left and slightly lower, bronze to the right and slightly lower. Below each cup, a flag chip with the country flag and a 3-letter code (ARG / FRA / BRA). Below the whole podium, the champion country name in big 56-px type with a "MY CHAMPION" gold pill underneath.
 
 Three sizes ship out of the same renderer:
 
-- **Portrait** 1080×1350 — Instagram feed, Facebook, generic share-sheet preview.
-- **Landscape** 1200×630 — Twitter / X / Facebook OpenGraph, LinkedIn / Telegram link unfurl.
-- **Square** 1080×1080 — Instagram square post, Slack / WhatsApp link unfurl.
+- **Portrait** 1080×1350, Instagram feed, Facebook, generic share-sheet preview.
+- **Landscape** 1200×630, Twitter / X / Facebook OpenGraph, LinkedIn / Telegram link unfurl.
+- **Square** 1080×1080, Instagram square post, Slack / WhatsApp link unfurl.
 
 Geometry is per-size; the visual hierarchy is identical. The square card uses a slightly tighter podium so the champion country name still fits below the cups. The landscape card stretches the left "Path to gold" column wider so the four stage rows breathe.
 
@@ -83,7 +83,7 @@ The render pipeline:
 
 1. **HTTP request** lands at `apps/web/app/api/share/bracket/[bracketId]/[size].png`.
 2. The route reads the user's saved bracket from KV (the same store the bracket UI reads).
-3. It builds a `BracketShareCardInput` shape — champion, runnerUp, thirdPlace, knockoutPath array, tournament name, user handle, optional pundit chip.
+3. It builds a `BracketShareCardInput` shape, champion, runnerUp, thirdPlace, knockoutPath array, tournament name, user handle, optional pundit chip.
 4. Calls `renderBracketShareCard(input)` from `@vtorn/social-cards/canvas/bracket-share-card.ts`.
 5. The function creates a `@napi-rs/canvas` instance at the size preset, paints the background gradient (the champion's kit colour seeds a radial-tint on the right side where the podium sits), then walks the layout: header → bracket path strip → podium → footer.
 6. Returns a PNG buffer. The route sets `Cache-Control: public, max-age=300, s-maxage=86400` so the same bracket+size is CDN-cached at the edge for a day.
@@ -107,7 +107,7 @@ The same scene composes into an animated MP4 share for stories (1080×1920) and 
 5.50-6.00s  Soft gold-glow pulse, ready to loop.
 ```
 
-Each beat is a `progress` value passed to the same `paintBracketFrame()` function that paints the static PNG. The video pipeline does not have to know the geometry of the card — the canvas renderer is the single source of truth. ffmpeg image2pipe encodes 360 frames at 60 fps into an H.264 MP4 with `+faststart` so it plays in-feed on Instagram and TikTok without buffering.
+Each beat is a `progress` value passed to the same `paintBracketFrame()` function that paints the static PNG. The video pipeline does not have to know the geometry of the card, the canvas renderer is the single source of truth. ffmpeg image2pipe encodes 360 frames at 60 fps into an H.264 MP4 with `+faststart` so it plays in-feed on Instagram and TikTok without buffering.
 
 Total render time for the MP4: 3–4 seconds end-to-end. Cached as aggressively as the PNG.
 
@@ -117,9 +117,9 @@ This part matters. We did not build the podium share card to do "marketing". We 
 
 A bracket prediction game has three engagement loops:
 
-1. **The pick loop** — open the app, browse a fixture, save a pick. We covered this in the [save-don't-lock post](/blog/2026-05-12-save-dont-lock).
-2. **The watch loop** — load the 3D match renderer on a kickoff and watch your prediction land or fail. Live commentary, scrubber, replays.
-3. **The brag loop** — share your bracket somewhere your friends will see it, then defend or revise it in the resulting argument.
+1. **The pick loop**, open the app, browse a fixture, save a pick. We covered this in the [save-don't-lock post](/blog/2026-05-12-save-dont-lock).
+2. **The watch loop**, load the 3D match renderer on a kickoff and watch your prediction land or fail. Live commentary, scrubber, replays.
+3. **The brag loop**, share your bracket somewhere your friends will see it, then defend or revise it in the resulting argument.
 
 Loop 3 is the one that brings other players in. Every share is a hook. The job of the share card is to be **legible** (you can read who picked what without zooming), **distinctive** (no one's podium looks identical to anyone else's), and **emotive** (the gold cup feels like a trophy, not a UI element).
 
@@ -133,7 +133,7 @@ You cannot share a brag that nobody can read. The wall-chart is unreadable. The 
 
 ## Open questions, deferred to the next sprint
 
-- **Friend overlay**. Two podium cards side-by-side in one share — yours vs your friend's, with the divergence highlighted. This is the "WhatsApp group chat" surface in card form. Builds on the same input shape; just needs a second `BracketShareCardInput` and a wider canvas.
+- **Friend overlay**. Two podium cards side-by-side in one share, yours vs your friend's, with the divergence highlighted. This is the "WhatsApp group chat" surface in card form. Builds on the same input shape; just needs a second `BracketShareCardInput` and a wider canvas.
 - **Day-by-day variant**. As the tournament progresses, the card should mutate. _"Day 7: Argentina out. Tim's bracket now shows Mexico for gold."_ A small "Updated 2 hours ago" chip and a `vs my original pick` diff strip. We have the history ledger from the save model; we just have not wired it into the card yet.
 - **Pundit reputation badge**. Verified pundits get a small gold chip in the footer next to their handle. Already in the input shape (`pundit.level`); the renderer paints it; we need the pundit-onboarding flow before we turn it on for the public.
 

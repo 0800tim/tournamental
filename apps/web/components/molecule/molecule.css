@@ -1,5 +1,5 @@
 /**
- * Molecule scene chrome — labels (drei <Html>), side panel, legend,
+ * Molecule scene chrome, labels (drei <Html>), side panel, legend,
  * tooltip, and empty state. Lives outside the Canvas so it uses
  * normal DOM styling.
  *
@@ -84,7 +84,7 @@
   color: #fde68a;
 }
 
-/* v5 — vertical stack around the team-code label.
+/* v5, vertical stack around the team-code label.
  *   row 1: red `⨯` glyph (path knockout points only)
  *   row 2: the existing team-code label pill
  *   row 3: gold chevron (non-path TOP instance, non-champion)
@@ -136,7 +136,7 @@
   border-color: rgba(245, 197, 66, 0.35);
 }
 
-/* v5 — match badge pill (drei <Html>) floating above each path match bond. */
+/* v5, match badge pill (drei <Html>) floating above each path match bond. */
 .molecule-match-badge {
   display: inline-flex;
   align-items: center;
@@ -176,7 +176,7 @@
   letter-spacing: 0.06em;
 }
 
-/* v5 — directional gold arrow on path match bonds. */
+/* v5, directional gold arrow on path match bonds. */
 .molecule-match-arrow {
   display: inline-grid;
   place-items: center;
@@ -363,7 +363,7 @@
   font-weight: 600;
 }
 
-/* v5 — mini opponent list inside the hover tooltip. */
+/* v5, mini opponent list inside the hover tooltip. */
 .molecule-tooltip-opponents {
   list-style: none;
   padding: 6px 0 0;
@@ -429,7 +429,7 @@
   color: #8b9bbd;
 }
 
-/* v5 — "Rank Favourites" mode hint chip (sits next to the PATH TO GOLD chip
+/* v5, "Rank Favourites" mode hint chip (sits next to the PATH TO GOLD chip
  * at top-centre when the page toggle flips to consensus). Subtle, info-only. */
 .molecule-mode-hint {
   position: absolute;
@@ -461,7 +461,7 @@
 }
 
 @media (hover: none) {
-  /* Touch devices: tooltip hides — selecting an atom opens the side panel
+  /* Touch devices: tooltip hides, selecting an atom opens the side panel
    * which carries the same info. */
   .molecule-tooltip {
     display: none;
@@ -593,7 +593,7 @@
   margin: 0;
 }
 
-/* The rank pill — "1ST" / "2ND" / "3RD" / "4TH" — sits next to the
+/* The rank pill, "1ST" / "2ND" / "3RD" / "4TH", sits next to the
  * Group stage section header. Gold for top-of-group; silver for 2nd;
  * bronze for 3rd; dim for 4th. */
 .molecule-panel-rank-pill {
@@ -638,7 +638,7 @@
   margin: 0 0 12px;
 }
 
-/* Group-match row list — sits in the GROUP STAGE section. Same visual
+/* Group-match row list, sits in the GROUP STAGE section. Same visual
  * weight as the knockout path rows, but a tighter three-column layout
  * because the rows are shorter (just opponent + result + points). */
 .molecule-panel-group-matches {
@@ -1037,7 +1037,7 @@
   background: #ffd861;
 }
 
-/* Pundit-predictions side panel — sits over the scene, top-right.
+/* Pundit-predictions side panel, sits over the scene, top-right.
  * Floating so it never reflows the canvas. Collapses to a stacked
  * sheet on narrow screens via `bottom: 0` rule below. */
 .molecule-pundits-panel {

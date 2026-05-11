@@ -40,7 +40,7 @@ export function MatchPanelsStack({ store }: MatchPanelsStackProps) {
     [init, events, playheadMs],
   );
 
-  // Goal-celebration burst — fires once per new goal (keyed by matchSec).
+  // Goal-celebration burst, fires once per new goal (keyed by matchSec).
   const lastBurstMatchSec = stats.mostRecentGoal?.matchSec ?? null;
   const [burst, setBurst] = useState<ScorerEntry | null>(null);
   useEffect(() => {

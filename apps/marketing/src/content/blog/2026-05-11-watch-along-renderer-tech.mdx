@@ -1,5 +1,5 @@
 ---
-title: "Watch the World Cup as a 3D scene — how our renderer works"
+title: "Watch the World Cup as a 3D scene, how our renderer works"
 description: "Inside the Tournamental match-renderer: StatsBomb open data flows into a Python producer, the producer streams a typed event spec over WebSocket, and a React Three Fiber renderer plays the match in your browser at 60 fps. With the 2022 final as the proof-point and a single-source clock as the bug we still wear scars from."
 pubDate: 2026-05-11
 author: "Tournamental Team"
@@ -46,9 +46,9 @@ We made a choice early on. We could spend two years on photoreal mocap of every 
 
 Every avatar is:
 
-- A **procedural body GLB** — one base mesh, parameterised over height and build
+- A **procedural body GLB**, one base mesh, parameterised over height and build
 - A **runtime jersey-texture generator** that paints the right kit colours, sponsor placement, and number on a fresh canvas the first time the avatar is referenced (cached after that)
-- A **billboard face** — a transparent quad in front of the head with the player's photo from Wikidata, where the licence allows. If a face is unavailable, we fall back to a stylised silhouette with the shirt number floating above
+- A **billboard face**, a transparent quad in front of the head with the player's photo from Wikidata, where the licence allows. If a face is unavailable, we fall back to a stylised silhouette with the shirt number floating above
 
 This is not Madden 26. It is closer to the FM 2007 match engine had a baby with a Rocket League camera. It is **legible**: from any seat in the room you can tell that the person on the ball is wearing 10 in light blue and white, and that is enough.
 
@@ -66,7 +66,7 @@ The renderer's `MatchStatsHUD` is the equivalent layer for our 3D scene:
 - **Subs ticker**: rolling along the bottom edge with the standard arrow + name pattern
 - **Centre goal-burst celebration**: a full-screen flash when a goal is scored with the scorer's name, time, and ground-shake
 
-On mobile the panel collapses into a bottom drawer with tabs (Score, Scorers, Stats, Subs). Fifty-six new tests cover the components — these tend to be the things that drift.
+On mobile the panel collapses into a bottom drawer with tabs (Score, Scorers, Stats, Subs). Fifty-six new tests cover the components, these tend to be the things that drift.
 
 ## The clock bug we still wear scars from
 
@@ -92,7 +92,7 @@ What we kept:
 - Realtime shadows (single directional light, contact shadows)
 - Sub-pixel ball motion with a 240 Hz physics step inside the renderer so the ball never tunnels through a foot
 
-The result is a steady 60 fps on a Pixel 6 with the developer console open and a Discord call running. We will keep stretching this — the 2026 final will be played on a lot of phones at once.
+The result is a steady 60 fps on a Pixel 6 with the developer console open and a Discord call running. We will keep stretching this, the 2026 final will be played on a lot of phones at once.
 
 ## Where it goes next
 
@@ -101,6 +101,6 @@ The 2022-final replay was the proof-of-concept. The next thing we are wiring is 
 - A **live producer** that consumes a paid SportRadar feed and emits the same `@vtorn/spec` events to the same WebSocket. The renderer does not know the difference; the spec is the abstraction.
 - A **CDN-backed stream server** so the renderer scales beyond a handful of viewers per process. Fan-out is easy; the design lives in [`docs/03-stream-server.md`](https://github.com/0800tim/tournamental/blob/main/docs/03-stream-server.md).
 - **Rewindable replay** with full scrubbing so a user can re-enter a match they missed and skim straight to the goals
-- **Verified prediction overlay** so the bracket-game predictions surface during the match — your call versus the live result, in the corner of the screen
+- **Verified prediction overlay** so the bracket-game predictions surface during the match, your call versus the live result, in the corner of the screen
 
 If you want to follow the engineering, the renderer's source is in [`apps/web/`](https://github.com/0800tim/tournamental/tree/main/apps/web), the producer is in [`apps/statsbomb-replay/`](https://github.com/0800tim/tournamental/tree/main/apps/statsbomb-replay), and the spec is in [`packages/spec/`](https://github.com/0800tim/tournamental/tree/main/packages/spec). We will keep posting here when we ship something the casual reader would care about.

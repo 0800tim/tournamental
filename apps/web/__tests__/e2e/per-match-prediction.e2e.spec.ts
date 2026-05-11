@@ -2,7 +2,7 @@
  * Playwright e2e for the per-match-prediction flow.
  *
  * Runs against `http://localhost:3300/world-cup-2026` (Next.js dev). Not
- * wired into CI yet — Playwright isn't installed in this monorepo. To
+ * wired into CI yet, Playwright isn't installed in this monorepo. To
  * run locally:
  *
  *   pnpm --filter @vtorn/web add -D @playwright/test
@@ -10,7 +10,7 @@
  *   pnpm --filter @vtorn/web exec playwright test __tests__/e2e
  *
  * The same critical-path assertions are also covered (without a real
- * browser) by `apps/web/__tests__/per-match-prediction.test.tsx` — that
+ * browser) by `apps/web/__tests__/per-match-prediction.test.tsx`, that
  * is the gating test until Playwright lands.
  */
 

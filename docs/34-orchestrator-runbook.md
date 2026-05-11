@@ -1,4 +1,4 @@
-# 34 — Orchestrator runbook
+# 34, Orchestrator runbook
 
 > How the parallel-agent orchestration pattern works in this repo. For Tim, future contributors, and future-orchestrators.
 
@@ -68,7 +68,7 @@ git rebase --continue
 git push --force-with-lease
 ```
 
-For `apps/web/middleware.ts` conflicts where multiple agents add host-aware logic — manually merge both rule sets in.
+For `apps/web/middleware.ts` conflicts where multiple agents add host-aware logic, manually merge both rule sets in.
 
 ### Worktree hygiene
 
@@ -92,7 +92,7 @@ git rebase --abort
 - **Don't merge a PR that touches files outside its declared scope** without re-reading the prompt.
 - **Don't auto-merge PRs that touch security-sensitive paths** (`apps/auth-sms`, `apps/admin`, `infra/`). Tim or a human reviewer signs off.
 - **Don't share a port across worktrees.** `pnpm dev` on :3300 from worktree A blocks worktree B. Use `PORT=3301` overrides.
-- **Don't leave a dev server running on the wrong checkout** — the production tunnel's HTTP origin is whatever's listening. If a builder agent's worktree captures :3300, hard-kill it and restart from main.
+- **Don't leave a dev server running on the wrong checkout**, the production tunnel's HTTP origin is whatever's listening. If a builder agent's worktree captures :3300, hard-kill it and restart from main.
 
 ## Coordination signals
 

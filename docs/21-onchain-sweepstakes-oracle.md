@@ -1,19 +1,19 @@
-# 21 — On-Chain Sweepstakes and the Tournamental Oracle
+# 21, On-Chain Sweepstakes and the Tournamental Oracle
 
-> User-organised sweepstakes settled by smart contract. **Tournamental never touches money.** We publish the verified result of each match (we already do this for VStamps in [doc 17](17-vstamp-and-prediction-iq.md)); a permissionless smart contract reads the published result and pays out users who staked into the pool. Tournamental is the **oracle** — a reliable, immutable ledger of tournament outcomes — not the operator. This is an upgrade path on top of the off-platform self-attested pools in [doc 12](12-odds-and-predictions.md), aimed at users who want trustless settlement.
+> User-organised sweepstakes settled by smart contract. **Tournamental never touches money.** We publish the verified result of each match (we already do this for VStamps in [doc 17](17-vstamp-and-prediction-iq.md)); a permissionless smart contract reads the published result and pays out users who staked into the pool. Tournamental is the **oracle**, a reliable, immutable ledger of tournament outcomes, not the operator. This is an upgrade path on top of the off-platform self-attested pools in [doc 12](12-odds-and-predictions.md), aimed at users who want trustless settlement.
 
 ## Why this exists
 
-The off-platform model in doc 12 is fine: the pool is a tracker, members say "I paid" via a button, settlement happens off-platform via Wise / Venmo / cash. Friction is the feature — most pools are friend-group sweeps where trust already exists.
+The off-platform model in doc 12 is fine: the pool is a tracker, members say "I paid" via a button, settlement happens off-platform via Wise / Venmo / cash. Friction is the feature, most pools are friend-group sweeps where trust already exists.
 
-But there's a cohort — crypto-native users, larger pools, strangers organising via Discord — for whom **trustless settlement** is the unlock. Smart contracts solve that:
+But there's a cohort, crypto-native users, larger pools, strangers organising via Discord, for whom **trustless settlement** is the unlock. Smart contracts solve that:
 
 - Members deposit USDC into a pool contract on-chain.
 - The contract knows the prize-distribution rules in advance (winner-takes-all, gold/silver/bronze, custom split).
 - When Tournamental publishes the verified tournament result, the contract reads it and pays out automatically.
 - Nobody has to be trusted; the code is the agreement.
 
-Tournamental earns nothing from the pool itself. Our role is **oracle** — we publish authoritative results of matches and tournaments, signed by our oracle key, and the smart contract does the rest. This lines up cleanly with the existing architecture: we already produce settled match results to power Prediction IQ ([doc 17](17-vstamp-and-prediction-iq.md)) and the predictions game ([doc 16](16-game-modes-and-scoring.md)). Publishing those results to a public smart contract is a small additional step.
+Tournamental earns nothing from the pool itself. Our role is **oracle**, we publish authoritative results of matches and tournaments, signed by our oracle key, and the smart contract does the rest. This lines up cleanly with the existing architecture: we already produce settled match results to power Prediction IQ ([doc 17](17-vstamp-and-prediction-iq.md)) and the predictions game ([doc 16](16-game-modes-and-scoring.md)). Publishing those results to a public smart contract is a small additional step.
 
 ## What we explicitly are not
 
@@ -22,7 +22,7 @@ Tournamental earns nothing from the pool itself. Our role is **oracle** — we p
 - **Not the betting counterparty.** No house. No edge. No commission on stakes.
 - **Not the arbiter of disputes.** If a user disputes the published result, they can challenge via the on-chain oracle protocol; we publish, we don't adjudicate (beyond standard correction processes).
 
-The closest comparison is **Augur**, **UMA**, or **Reality.eth** — established prediction-market oracle protocols. Tournamental's role is closer to a *trusted result feed* than a Polymarket-style market-maker. Reality.eth and UMA both solve the "what was the actual outcome of X" problem with their own stake-based dispute systems; we publish into the same pattern.
+The closest comparison is **Augur**, **UMA**, or **Reality.eth**, established prediction-market oracle protocols. Tournamental's role is closer to a *trusted result feed* than a Polymarket-style market-maker. Reality.eth and UMA both solve the "what was the actual outcome of X" problem with their own stake-based dispute systems; we publish into the same pattern.
 
 ## Architecture
 
@@ -71,9 +71,9 @@ The closest comparison is **Augur**, **UMA**, or **Reality.eth** — established
 
 Three contracts:
 
-1. **`PoolFactory.sol`** — anyone can call `createPool(...)` to deploy a new pool with their chosen parameters. Cheap (~$0.30 on Polygon). Emits a `PoolCreated` event with the new pool's address.
-2. **`Pool.sol`** — one instance per pool. Holds USDC, accepts `deposit()` from approved members, accepts `submitPrediction()` until lock, computes rankings against the oracle, distributes prize on `finalize()`.
-3. **`TournamentalOracle.sol`** — Tournamental Foundation-controlled contract that records authoritative match results. Each `setResult(matchId, outcome)` call is signed by the Foundation's oracle key (an air-gapped multisig); same key that signs VStamp Merkle roots ([doc 17](17-vstamp-and-prediction-iq.md)).
+1. **`PoolFactory.sol`**, anyone can call `createPool(...)` to deploy a new pool with their chosen parameters. Cheap (~$0.30 on Polygon). Emits a `PoolCreated` event with the new pool's address.
+2. **`Pool.sol`**, one instance per pool. Holds USDC, accepts `deposit()` from approved members, accepts `submitPrediction()` until lock, computes rankings against the oracle, distributes prize on `finalize()`.
+3. **`TournamentalOracle.sol`**, Tournamental Foundation-controlled contract that records authoritative match results. Each `setResult(matchId, outcome)` call is signed by the Foundation's oracle key (an air-gapped multisig); same key that signs VStamp Merkle roots ([doc 17](17-vstamp-and-prediction-iq.md)).
 
 ### Why two chains
 
@@ -81,7 +81,7 @@ Default deployment on **Polygon** for cheap gas and large EVM ecosystem. **Base*
 
 ### Why USDC
 
-Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, well-understood by users and tax authorities. The contract restricts deposits to USDC only — no native MATIC / ETH staking, no exotic tokens. This dramatically narrows the regulatory surface.
+Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, well-understood by users and tax authorities. The contract restricts deposits to USDC only, no native MATIC / ETH staking, no exotic tokens. This dramatically narrows the regulatory surface.
 
 ## User flow
 
@@ -90,7 +90,7 @@ Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, wel
 1. On Tournamental web or in the Telegram bot: `/pool new`.
 2. Choose: tournament, entry amount in USDC, prize structure, member cap, deadline for joining.
 3. Choose **on-chain** vs **off-platform self-attested** (the existing flow from [doc 12](12-odds-and-predictions.md)).
-4. If on-chain, the UI prompts the user to connect a wallet (MetaMask, Rainbow, Coinbase Wallet, WalletConnect — standard EVM wallet UX).
+4. If on-chain, the UI prompts the user to connect a wallet (MetaMask, Rainbow, Coinbase Wallet, WalletConnect, standard EVM wallet UX).
 5. User signs a transaction that calls `PoolFactory.createPool(...)`. Transaction fee: ~$0.30 on Polygon.
 6. Pool contract address is shown; UI generates an invite link encoding the address.
 
@@ -100,7 +100,7 @@ Stablecoin denominated, regulated issuer, widely supported in fiat on-ramps, wel
 2. UI verifies their identity (wallet must be registered to a Tournamental account; if not, prompts auth).
 3. UI prompts wallet signature to call `pool.deposit(amount)` (a single USDC ERC-20 approval + deposit).
 4. UI walks them through prediction submission as usual ([doc 16](16-game-modes-and-scoring.md)).
-5. Predictions are committed on-chain via `pool.submitPrediction(predictionHash)` — only the hash, full prediction stays off-chain.
+5. Predictions are committed on-chain via `pool.submitPrediction(predictionHash)`, only the hash, full prediction stays off-chain.
 6. Pool locks at the configured deadline; nobody can deposit or change predictions after.
 
 ### Settlement
@@ -151,11 +151,11 @@ Real-world matches sometimes get amended (a goal disallowed on review the next m
 - **Pre-finalisation correction**: if a result is published and a pool hasn't called `finalize()` yet, a multisig action can `correctResult(matchId, newResult)` within a 24-hour window. Pools always read the latest state.
 - **Post-finalisation challenge**: too late to correct via the oracle; the pool is settled. For high-value disputes, a community-run challenge protocol (UMA-flavoured) can issue a counter-result with bonded stake; we'll wire to UMA's existing infrastructure rather than build our own.
 
-The result-publication policy is itself published — what kinds of post-event corrections we accept (red card overturned post-match: yes, before 24h; goal disallowed by VAR re-review next day: no, too late) and how we handle abandoned matches (ruled `void` and pool refunds), forfeits (oracle records the official ruling), etc.
+The result-publication policy is itself published, what kinds of post-event corrections we accept (red card overturned post-match: yes, before 24h; goal disallowed by VAR re-review next day: no, too late) and how we handle abandoned matches (ruled `void` and pool refunds), forfeits (oracle records the official ruling), etc.
 
 ### Why a multisig oracle key
 
-A single key signing oracle results is a single point of failure. The Foundation oracle key is a 4-of-7 multisig — same security model as the VStamp anchor key. The signers are: 3 Foundation board members, 2 elected community reps from the contributor pool, 2 independent industry observers (sports data background). Quarterly rotation.
+A single key signing oracle results is a single point of failure. The Foundation oracle key is a 4-of-7 multisig, same security model as the VStamp anchor key. The signers are: 3 Foundation board members, 2 elected community reps from the contributor pool, 2 independent industry observers (sports data background). Quarterly rotation.
 
 A compromised single signer cannot publish a fraudulent result. A coalition of 4 can publish *any* result, so the multisig members are accountable.
 
@@ -165,7 +165,7 @@ The oracle and VStamp share infrastructure:
 
 - Same multisig key signs VStamp Merkle roots and oracle results. When the prediction commitment phase ends and the result phase begins, no new infrastructure is needed.
 - A single transaction can publish both: a Merkle root for the day's locked predictions *and* the result of yesterday's matches. Saves gas, simplifies operations.
-- Pool contracts can verify (via the on-chain Merkle root + supplied proof) that a given member's prediction was indeed committed before the match started. Predictions thereafter cannot be falsely retroactively claimed — the same proof system proves the chain-of-custody.
+- Pool contracts can verify (via the on-chain Merkle root + supplied proof) that a given member's prediction was indeed committed before the match started. Predictions thereafter cannot be falsely retroactively claimed, the same proof system proves the chain-of-custody.
 
 This means an on-chain pool offers *strictly stronger* trust guarantees than the off-platform self-attested pool: not only is settlement trustless, but each member's prediction is verifiably committed before the match.
 
@@ -173,29 +173,29 @@ This means an on-chain pool offers *strictly stronger* trust guarantees than the
 
 This is the section that needs careful framing. Three points:
 
-### Point 1 — Tournamental is the oracle, not the operator
+### Point 1, Tournamental is the oracle, not the operator
 
 We publish results. The pool contracts are deployed by users, run on permissionless infrastructure (Polygon / Base), and pay out to users. Tournamental Foundation has zero ability to alter pool outcomes once the result is set, and can only set results that match the verified outcome of the actual sporting event.
 
 This positions Tournamental similarly to a price oracle (Chainlink, Pyth, UMA) rather than a sportsbook or a prediction-market operator. Price oracles aren't gambling operators despite many financial products depending on them.
 
-### Point 2 — The pool is user-organised
+### Point 2, The pool is user-organised
 
 The pool is created by a user, joined by other users, settled by a smart contract, and pays out user-to-user. There is no "operator". Every parameter (prize structure, entry amount, deadline) is set by the pool creator. Tournamental provides software that makes deploying such a pool easier; it does not run any pool.
 
 The legal label that may attach is "facilitator". Different jurisdictions treat facilitators differently:
 
-- **US** — a clear question whether facilitator software is treated like a sportsbook. We'd need explicit counsel before launching to US users. Default: **on-chain pools not offered to US users.**
-- **UK** — similar concern. The Gambling Commission's stance on prediction-market facilitators is evolving. **On-chain pools not offered to UK users without explicit licensing review.**
-- **Australia** — Interactive Gambling Act 2001 broadly restricts online gambling services. **On-chain pools not offered to AU users.**
-- **NZ** — TAB monopoly applies to "race and sports betting" specifically; user-organised on-chain pools may not technically fit that definition, but the safest position is **not offered to NZ users** until counsel confirms.
-- **EU** — varies by member state; some regulated regimes are more crypto-permissive (Malta, Estonia), others restrictive.
-- **Canada** — provincial regulation; varies.
-- **Crypto-friendly jurisdictions** with established DeFi precedent (e.g. parts of LATAM, Singapore, Switzerland, UAE) — generally permissive for non-custodial protocols.
+- **US**, a clear question whether facilitator software is treated like a sportsbook. We'd need explicit counsel before launching to US users. Default: **on-chain pools not offered to US users.**
+- **UK**, similar concern. The Gambling Commission's stance on prediction-market facilitators is evolving. **On-chain pools not offered to UK users without explicit licensing review.**
+- **Australia**, Interactive Gambling Act 2001 broadly restricts online gambling services. **On-chain pools not offered to AU users.**
+- **NZ**, TAB monopoly applies to "race and sports betting" specifically; user-organised on-chain pools may not technically fit that definition, but the safest position is **not offered to NZ users** until counsel confirms.
+- **EU**, varies by member state; some regulated regimes are more crypto-permissive (Malta, Estonia), others restrictive.
+- **Canada**, provincial regulation; varies.
+- **Crypto-friendly jurisdictions** with established DeFi precedent (e.g. parts of LATAM, Singapore, Switzerland, UAE), generally permissive for non-custodial protocols.
 
 The geo-routing engine from [doc 18](18-monetization.md) gates access. NZ / US / UK / AU users see only the off-platform self-attested pools from [doc 12](12-odds-and-predictions.md); users in legal jurisdictions see both options.
 
-### Point 3 — We publish results regardless of pool jurisdiction
+### Point 3, We publish results regardless of pool jurisdiction
 
 The oracle's results are published whether or not pools exist in any given jurisdiction. The oracle is a public dataset. NZ users can't *use* it for sweepstakes settlement under the current legal framing, but they can absolutely read it as a verified results feed for free-play Tournamental purposes.
 
@@ -205,7 +205,7 @@ For pool members, USDC winnings are typically taxable income in their jurisdicti
 
 Pool *creators* may have higher reporting obligations depending on jurisdiction (organising a paid contest can have its own reporting requirements). The UI surfaces a "consult your tax advisor" reminder at pool-creation time.
 
-For Tournamental Foundation, the oracle service generates no revenue. Gas costs to publish results (~$10–$50 per matchday batch on Polygon) come out of the operating reserve from [doc 19](19-open-source-and-contributor-revenue.md). At sufficient scale we may charge sponsoring brands to "co-sign" prominent matchday result publications (a marketing feature, not a fee on users) — see [doc 18](18-monetization.md) for the sponsorship model.
+For Tournamental Foundation, the oracle service generates no revenue. Gas costs to publish results (~$10–$50 per matchday batch on Polygon) come out of the operating reserve from [doc 19](19-open-source-and-contributor-revenue.md). At sufficient scale we may charge sponsoring brands to "co-sign" prominent matchday result publications (a marketing feature, not a fee on users), see [doc 18](18-monetization.md) for the sponsorship model.
 
 ## What the contracts look like (sketch)
 
@@ -286,17 +286,17 @@ contract TournamentalOracle {
 }
 ```
 
-For deployment efficiency, `Pool` is a minimal proxy / clone (EIP-1167) — `PoolFactory` deploys cheap clones of a single pre-deployed implementation.
+For deployment efficiency, `Pool` is a minimal proxy / clone (EIP-1167), `PoolFactory` deploys cheap clones of a single pre-deployed implementation.
 
 A full audit by Trail of Bits, OpenZeppelin, ConsenSys Diligence, or similar is required before mainnet deployment. Budget: $30k–$80k for a focused audit on this contract surface.
 
 ## How this composes with the rest of Tournamental
 
-- **Doc 12** keeps the off-platform self-attested pool as the default for friend-group sweeps. Most pools should be off-platform — friction is the feature when trust already exists.
+- **Doc 12** keeps the off-platform self-attested pool as the default for friend-group sweeps. Most pools should be off-platform, friction is the feature when trust already exists.
 - **Doc 17** (VStamps + Prediction IQ) provides the prediction-commitment layer that on-chain pools verify against.
-- **Doc 18** (monetization) is unaffected — oracle service generates no per-user revenue; sponsorship of result publications is opt-in marketing.
-- **Doc 19** (open source) covers the smart contract licensing — Apache 2.0 like everything else; community can audit, fork, deploy parallel infrastructure if they choose.
-- **Doc 20** (humanness) feeds into pool UX — high-humanness scores are a comfort signal in stranger-pool participation; pool creators can opt to require minimum humanness for joiners.
+- **Doc 18** (monetization) is unaffected, oracle service generates no per-user revenue; sponsorship of result publications is opt-in marketing.
+- **Doc 19** (open source) covers the smart contract licensing, Apache 2.0 like everything else; community can audit, fork, deploy parallel infrastructure if they choose.
+- **Doc 20** (humanness) feeds into pool UX, high-humanness scores are a comfort signal in stranger-pool participation; pool creators can opt to require minimum humanness for joiners.
 
 ## Acceptance criteria
 
@@ -312,11 +312,11 @@ A full audit by Trail of Bits, OpenZeppelin, ConsenSys Diligence, or similar is 
 
 ## Sources
 
-- [UMA Protocol — optimistic oracle](https://uma.xyz/)
-- [Reality.eth — crowd-sourced verification](https://reality.eth.limo/)
+- [UMA Protocol, optimistic oracle](https://uma.xyz/)
+- [Reality.eth, crowd-sourced verification](https://reality.eth.limo/)
 - [Chainlink Sports Data Feeds](https://chain.link/data-feeds)
 - [OpenZeppelin Contracts (ERC-20 / Clones)](https://docs.openzeppelin.com/contracts/)
-- [Polygon mainnet — gas + transaction costs](https://polygon.technology/)
-- [Base — Coinbase L2](https://base.org/)
-- [Trail of Bits — smart contract auditing](https://www.trailofbits.com/)
-- [Augur v2 — peer-to-peer prediction markets](https://augur.net/)
+- [Polygon mainnet, gas + transaction costs](https://polygon.technology/)
+- [Base, Coinbase L2](https://base.org/)
+- [Trail of Bits, smart contract auditing](https://www.trailofbits.com/)
+- [Augur v2, peer-to-peer prediction markets](https://augur.net/)

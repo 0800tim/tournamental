@@ -1,5 +1,5 @@
 /**
- * PunditBadge — verifies the badge is hidden for un-verified users and
+ * PunditBadge, verifies the badge is hidden for un-verified users and
  * exposes the right tooltip + level signal for verified ones.
  */
 

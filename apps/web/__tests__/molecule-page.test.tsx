@@ -1,5 +1,5 @@
 /**
- * Vitest — `/world-cup-2026/molecule` page render-smoke test.
+ * Vitest, `/world-cup-2026/molecule` page render-smoke test.
  *
  * We mock `MoleculePageClient` to a tiny stub so we don't have to mount
  * @react-three/fiber under jsdom (no WebGL context). The thing we care

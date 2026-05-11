@@ -5,8 +5,8 @@
  * `reserved-slugs.ts` because the share-landing resolver already
  * imports from there. This module adds:
  *
- *   - `deriveSlug(name)` — best-effort kebab-case from a human name
- *   - `validateSlug(slug)` — combined shape + reserved check
+ *   - `deriveSlug(name)`, best-effort kebab-case from a human name
+ *   - `validateSlug(slug)`, combined shape + reserved check
  *   - constants `SLUG_MIN_LEN` / `SLUG_MAX_LEN`
  *
  * The shape: 3-40 chars, lowercase letters / digits, single hyphens
@@ -23,7 +23,7 @@ export const SLUG_MAX_LEN = 40;
 export { isReservedSlug, isValidSlugShape };
 
 /**
- * Result of `validateSlug` — separates "the slug *cannot* be used at
+ * Result of `validateSlug`, separates "the slug *cannot* be used at
  * all" (invalid / reserved) from "ok-so-far, still need the DB lookup".
  */
 export function validateSlug(slug: string):
@@ -35,7 +35,7 @@ export function validateSlug(slug: string):
 }
 
 /**
- * Derive a slug from a syndicate name. Best-effort — the user can edit
+ * Derive a slug from a syndicate name. Best-effort, the user can edit
  * the result in the form before submit. Strips accents, lowercases,
  * replaces every run of non-[a-z0-9] with a single hyphen, and trims
  * leading/trailing hyphens. Truncates to `SLUG_MAX_LEN`.

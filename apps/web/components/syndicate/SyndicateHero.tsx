@@ -1,10 +1,10 @@
 /**
- * SyndicateHero — big-feeling pool intro at the top of the syndicate
+ * SyndicateHero, big-feeling pool intro at the top of the syndicate
  * landing. Hosts the "JOIN THIS POOL" gold CTA.
  *
  * Vibe palette is per-syndicate; we set CSS variables on the root so
  * the radial-gradient background paints from the syndicate's own
- * colours. No new global hues introduced — palette values come from
+ * colours. No new global hues introduced, palette values come from
  * `MockSyndicate.vibePalette`.
  */
 
@@ -72,7 +72,7 @@ export function SyndicateHero({
             type="button"
             className="vt-syn-hero-cta"
             onClick={onJoin}
-            aria-label={`${ctaLabel} — ${syndicate.name}`}
+            aria-label={`${ctaLabel}, ${syndicate.name}`}
           >
             {ctaLabel} →
           </button>

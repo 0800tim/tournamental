@@ -1,5 +1,5 @@
 /**
- * POST /api/v1/syndicates — route handler tests.
+ * POST /api/v1/syndicates, route handler tests.
  *
  * We mount a fresh in-memory SQLite persistence per test via
  * `__setPersistenceForTests`, mock `fetch` to control the GHL
@@ -66,7 +66,7 @@ describe("POST /api/v1/syndicates", () => {
     expect(body.slug).toBe("daves-mates");
     expect(body.syndicate_id).toMatch(/^[0-9a-f-]{36}$/i);
     expect(body.share_url).toMatch(/\/s\/daves-mates$/);
-    // GHL was skipped (no key) — that's a reportable status.
+    // GHL was skipped (no key), that's a reportable status.
     expect(body.ghl_status).toBe("skipped");
   });
 

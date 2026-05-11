@@ -30,7 +30,7 @@ const toNdjson = (messages: Message[]): string =>
 
 const ARFR_NDJSON = toNdjson(buildArFrMessages());
 
-describe("manifest driver — clock monotonicity", () => {
+describe("manifest driver, clock monotonicity", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -104,7 +104,7 @@ describe("manifest driver — clock monotonicity", () => {
 
   it("clock keeps ticking past the last buffered state frame", () => {
     // Constrain the buffer so the last state frame is well before the
-    // last event — the driver should still keep emitting frames whose
+    // last event, the driver should still keep emitting frames whose
     // t advances toward durationMs even after we've passed the last
     // buffered frame's timestamp.
     const truncated: Message[] = [
@@ -153,7 +153,7 @@ describe("manifest driver — clock monotonicity", () => {
   });
 });
 
-describe("manifest driver — event drainage / scoreline updates", () => {
+describe("manifest driver, event drainage / scoreline updates", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -167,7 +167,7 @@ describe("manifest driver — event drainage / scoreline updates", () => {
 
     const source = manifestSourceFromText(ARFR_NDJSON, {
       autoplay: true,
-      rate: 200, // very fast — many events per tick
+      rate: 200, // very fast, many events per tick
     });
 
     source.start(
@@ -263,7 +263,7 @@ describe("manifest driver — event drainage / scoreline updates", () => {
   });
 });
 
-describe("manifest driver — backward seek replays crossed events", () => {
+describe("manifest driver, backward seek replays crossed events", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -296,7 +296,7 @@ describe("manifest driver — backward seek replays crossed events", () => {
     const goalsBefore = goalTs.length;
     expect(goalsBefore).toBeGreaterThanOrEqual(1);
 
-    // Seek back to 0 — the driver should reset its cursor and re-emit
+    // Seek back to 0, the driver should reset its cursor and re-emit
     // any goals we cross again on the way forward.
     captured!.seek(0);
     for (let i = 0; i < 250; i += 1) vi.advanceTimersByTime(33);
@@ -327,7 +327,7 @@ describe("manifest driver — backward seek replays crossed events", () => {
   });
 });
 
-describe("manifest driver — forward seek rebuilds cumulative state", () => {
+describe("manifest driver, forward seek rebuilds cumulative state", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
@@ -356,7 +356,7 @@ describe("manifest driver — forward seek rebuilds cumulative state", () => {
     });
     source.start((m) => store.getState().applyMessage(m), () => undefined);
 
-    // Scrub forward to 86:39 in match time — well past the Mbappé 81'
+    // Scrub forward to 86:39 in match time, well past the Mbappé 81'
     // equaliser. The fixture builds goals at minute marks: 23, 36, 80,
     // 81, 108, 118. At t = 86 * 60 * 1000 + 39 * 1000 the score should
     // already be 2-2.
@@ -414,7 +414,7 @@ describe("manifest driver — forward seek rebuilds cumulative state", () => {
     captured!.seek(82 * 60_000);
     expect(store.getState().score).toEqual({ home: 2, away: 2 });
 
-    // Now scrub back to kickoff — the score should fall back to 0-0
+    // Now scrub back to kickoff, the score should fall back to 0-0
     // because the store is rebuilt from the event log at the new
     // playhead.
     captured!.seek(0);
@@ -435,14 +435,14 @@ describe("manifest driver — forward seek rebuilds cumulative state", () => {
     });
     source.start((m) => store.getState().applyMessage(m), () => undefined);
 
-    // Scrub past the end of the shootout — Argentina wins 4-2.
+    // Scrub past the end of the shootout, Argentina wins 4-2.
     captured!.seek(captured!.durationMs);
     const finalShootout = store.getState().shootout;
     expect(finalShootout.home).toBe(4);
     expect(finalShootout.away).toBe(2);
     expect(finalShootout.ended).toBe(true);
 
-    // Scrub back to mid-regulation — the shootout state should reset.
+    // Scrub back to mid-regulation, the shootout state should reset.
     captured!.seek(60 * 60_000);
     expect(store.getState().shootout.active).toBe(false);
     expect(store.getState().shootout.ended).toBe(false);
@@ -478,7 +478,7 @@ describe("manifest driver — forward seek rebuilds cumulative state", () => {
   });
 });
 
-describe("manifest driver — StrictMode start/stop/start", () => {
+describe("manifest driver, StrictMode start/stop/start", () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });

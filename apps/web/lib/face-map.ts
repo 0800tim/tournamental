@@ -9,7 +9,7 @@
  *
  * Single small CSV (~22 rows) so we just walk it linearly. The CSV is
  * served from `/data/wc2022-final-players.csv` (copied at scene mount
- * from the statsbomb-replay package — see
+ * from the statsbomb-replay package, see
  * `apps/web/scripts/copy-player-csv.mjs`).
  */
 import type { Player } from "@vtorn/spec";
@@ -81,7 +81,7 @@ export interface FaceLookupOptions {
  *   1. Exact normalised-name match.
  *   2. Last-name match (only if unambiguous within the row set).
  *
- * Players with no match resolve to `undefined` — the renderer falls back
+ * Players with no match resolve to `undefined`, the renderer falls back
  * to a `<BillboardFace>` initials disc per docs/07.
  */
 export function buildFaceLookup(rows: FaceCsvRow[]): (player: Player) => string | undefined {
@@ -107,7 +107,7 @@ export function buildFaceLookup(rows: FaceCsvRow[]): (player: Player) => string 
 
     // Then try CSV row whose normalised full-name CONTAINS the player's
     // full normalised name (handles "Messi" vs "Lionel Messi"). Also
-    // accepts the reverse — CSV's full-name fully contains the player
+    // accepts the reverse, CSV's full-name fully contains the player
     // name's last token (handles "E. Martínez" → "Damián Emiliano Martínez").
     for (const row of rows) {
       const normRow = normaliseName(row.name);

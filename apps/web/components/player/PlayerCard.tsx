@@ -1,5 +1,5 @@
 /**
- * <PlayerCard /> — square-ish player tile used by the /players index and
+ * <PlayerCard />, square-ish player tile used by the /players index and
  * the team-page squad grid. Pure presentation; no data fetching.
  *
  * Renders:

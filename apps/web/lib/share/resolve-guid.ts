@@ -36,14 +36,14 @@ export async function resolveShareGuid(raw: string): Promise<ResolvedShare> {
   const guid = (raw ?? "").trim();
   if (!guid) return { kind: "not_found", attempted: raw };
 
-  // Step 1 — syndicate slug. Only attempt if the shape is a valid slug
+  // Step 1, syndicate slug. Only attempt if the shape is a valid slug
   // and the name is NOT reserved. A reserved slug never resolves here.
   if (isValidSlugShape(guid) && !isReservedSlug(guid)) {
     const syndicate = await loadSyndicateBySlug(guid);
     if (syndicate) return { kind: "syndicate", syndicate };
   }
 
-  // Step 2 — user share guid. UUID v4 or 16-char nanoid.
+  // Step 2, user share guid. UUID v4 or 16-char nanoid.
   if (isShareGuidShape(guid)) {
     const bracket = await loadBracketFromGuid(guid);
     if (bracket) return { kind: "user", bracket };

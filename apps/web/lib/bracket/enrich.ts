@@ -1,5 +1,5 @@
 /**
- * Team-data enrichment — merge the canonical `data/fifa-wc-2026/teams.json`
+ * Team-data enrichment, merge the canonical `data/fifa-wc-2026/teams.json`
  * (kit colours + emoji flags + manager + confederation) onto the bracket-
  * engine Tournament's `teams[]`, which only has the prediction-relevant
  * fields.

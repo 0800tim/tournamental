@@ -22,7 +22,7 @@ export function newSyndicateId(): string {
 /**
  * 16-char URL-safe random identifier. We use base36 (no `=` padding,
  * no case-confusable chars on most fonts). 16 chars of base36 is ~83
- * bits — plenty for a non-secret share token.
+ * bits, plenty for a non-secret share token.
  */
 export function newShareGuid(): string {
   for (let i = 0; i < 4; i++) {
@@ -32,6 +32,6 @@ export function newShareGuid(): string {
     const encoded = n.toString(36).padStart(16, "0");
     if (encoded.length >= 16) return encoded.slice(0, 16);
   }
-  // Fallback — extremely unlikely path; pad with hex of more entropy.
+  // Fallback, extremely unlikely path; pad with hex of more entropy.
   return randomBytes(12).toString("hex").slice(0, 16);
 }

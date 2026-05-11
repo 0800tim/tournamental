@@ -43,7 +43,7 @@ self.addEventListener("install", (event) => {
     (async () => {
       const cache = await caches.open(SHELL_CACHE);
       // Best-effort precache; missing routes (e.g. /watch in dev) won't
-      // fail the install — we just continue without them.
+      // fail the install, we just continue without them.
       await Promise.all(
         SHELL_URLS.map((url) =>
           cache.add(url).catch(() => {

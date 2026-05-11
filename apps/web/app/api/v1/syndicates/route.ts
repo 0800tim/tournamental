@@ -1,5 +1,5 @@
 /**
- * POST /api/v1/syndicates — create a syndicate (a "pool" of predictors).
+ * POST /api/v1/syndicates, create a syndicate (a "pool" of predictors).
  *
  * Validation: zod against `createSyndicateInputSchema` (see
  * `lib/syndicate/schema.ts`).
@@ -131,7 +131,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     return jsonResponse({ error: "persist_failed" }, 500);
   }
 
-  // GHL push — best-effort, never blocks the response.
+  // GHL push, best-effort, never blocks the response.
   let ghlStatus: GhlStatus = "queued";
   try {
     const result = await pushToGhl(row);
@@ -155,7 +155,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       });
     }
   } catch (err) {
-    // Defensive — pushToGhl should not throw, but if it does, treat
+    // Defensive, pushToGhl should not throw, but if it does, treat
     // the same as a failure and enqueue.
     // eslint-disable-next-line no-console
     console.warn("syndicate ghl push threw; queued for retry", err);

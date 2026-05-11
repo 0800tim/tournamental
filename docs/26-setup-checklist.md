@@ -1,4 +1,4 @@
-# 26 — Setup Checklist
+# 26, Setup Checklist
 
 > **Tim's printable to-do list for getting every external account ready
 > for Tournamental's WC 2026 launch (kickoff 2026-06-11).**
@@ -18,19 +18,19 @@
 
 ---
 
-## TL;DR — what's urgent this week
+## TL;DR, what's urgent this week
 
 The bare minimum to get from "code works" to "people can actually use
 the launched product" is **eight accounts**, in this order:
 
-1. ☐ **Telegram bot** (BotFather) — auth + push channel
-2. ☐ **Aiva SMS verification** — confirm Tournamental can use the existing SIM gateway
-3. ☐ **WhatsApp via Baileys** — re-pair the existing Baileys session under the Tournamental brand
-4. ☐ **GoHighLevel** — location ID + API key (CRM + drip emails)
-5. ☐ **GA4 + GTM** — analytics from day 1 or we can't measure launch
-6. ☐ **Meta Pixel** — Facebook/Instagram ad attribution
-7. ☐ **Polymarket affiliate** code — real-money market integration
-8. ☐ **Cloudflare R2** bucket — offsite backup destination
+1. ☐ **Telegram bot** (BotFather), auth + push channel
+2. ☐ **Aiva SMS verification**, confirm Tournamental can use the existing SIM gateway
+3. ☐ **WhatsApp via Baileys**, re-pair the existing Baileys session under the Tournamental brand
+4. ☐ **GoHighLevel**, location ID + API key (CRM + drip emails)
+5. ☐ **GA4 + GTM**, analytics from day 1 or we can't measure launch
+6. ☐ **Meta Pixel**, Facebook/Instagram ad attribution
+7. ☐ **Polymarket affiliate** code, real-money market integration
+8. ☐ **Cloudflare R2** bucket, offsite backup destination
 
 Each of the eight is a 5–10 minute task on the provider's side. The
 slowest is GHL because of their settings UI. Everything below is
@@ -38,9 +38,9 @@ slowest is GHL because of their settings UI. Everything below is
 
 ---
 
-## Phase 1 — Brand handles & comms (do today)
+## Phase 1, Brand handles & comms (do today)
 
-### 1.0 Supabase Auth (new — replaces the legacy `apps/auth-sms` path)
+### 1.0 Supabase Auth (new, replaces the legacy `apps/auth-sms` path)
 
 - ☐ Provision a Supabase project per [`docs/52-supabase-setup.md`](52-supabase-setup.md) §1
 - ☐ Run `supabase/migrations/0001_user_identity.sql` (dashboard or CLI)
@@ -59,7 +59,7 @@ slowest is GHL because of their settings UI. Everything below is
 - ☐ Copy the token BotFather returns
 - ☐ Configure the bot:
   - `/setdescription` → "Predict the FIFA WC 2026 bracket. Free to play. Save picks before kickoff."
-  - `/setabouttext` → "Tournamental — predict the tournament that matters."
+  - `/setabouttext` → "Tournamental, predict the tournament that matters."
   - `/setuserpic` → upload the Tournamental T-mark from `apps/marketing/public/favicon.svg` (square 512×512 PNG)
   - `/setcommands` → paste the commands list from [`docs/13-telegram-bot-and-auth.md`](13-telegram-bot-and-auth.md) § Commands
 - ☐ → Paste token into `apps/api/.env.production` as `TELEGRAM_BOT_TOKEN=...`
@@ -69,7 +69,7 @@ slowest is GHL because of their settings UI. Everything below is
 ### 1.2 Aiva SMS gateway verification
 
 - ☐ Confirm the registered SIM (Tim's phone number) is still active in Aiva's gateway
-- ☐ Confirm Tournamental traffic is allowed to use the gateway — same trust boundary as Aiva SMS
+- ☐ Confirm Tournamental traffic is allowed to use the gateway, same trust boundary as Aiva SMS
 - ☐ Skill ref: `/home/clawdbot/.claude/skills/aiva-sms/SKILL.md`
 - ☐ Test send: `curl -X POST https://sms-api.aiva.nz/send -H 'Content-Type: application/json' -d '{"to":"+64...","body":"Tournamental test"}'`
 - ☐ No env var needed if running on this server inside the trust boundary. Confirm with the existing Aiva infra.
@@ -77,7 +77,7 @@ slowest is GHL because of their settings UI. Everything below is
 ### 1.3 WhatsApp via Baileys
 
 - ☐ Identify the existing Baileys session directory on the server (likely under `/home/clawdbot/.baileys-session` or similar)
-- ☐ If pairing under the Tournamental brand specifically: factory-reset the session and re-pair via QR code from a phone on the Tournamental WhatsApp number (likely the same SIM as Aiva SMS — confirm)
+- ☐ If pairing under the Tournamental brand specifically: factory-reset the session and re-pair via QR code from a phone on the Tournamental WhatsApp number (likely the same SIM as Aiva SMS, confirm)
 - ☐ Otherwise: confirm the existing session is fine for cross-product use
 - ☐ Set the WhatsApp profile name → "Tournamental"
 - ☐ Set the WhatsApp profile picture → same T-mark as Telegram
@@ -86,16 +86,16 @@ slowest is GHL because of their settings UI. Everything below is
 
 ### 1.4 Social handles (reserve them now, even if you won't post yet)
 
-These don't require API access for launch — Tim just needs to **reserve the handles** so nobody else takes them once the brand is public.
+These don't require API access for launch, Tim just needs to **reserve the handles** so nobody else takes them once the brand is public.
 
 - ☐ **X / Twitter**: reserve `@tournamental` (alt: `@tournamental_app`)
 - ☐ **Instagram**: reserve `@tournamental` (alt: `@tournamental.app`)
 - ☐ **TikTok**: reserve `@tournamental` (alt: `@tournamental.app`)
 - ☐ **YouTube**: reserve channel handle `@tournamental`
 - ☐ **Threads**: reserve `@tournamental` (mirrors Instagram)
-- ☐ **Bluesky**: reserve `@tournamental.com` (uses domain verification — quick)
+- ☐ **Bluesky**: reserve `@tournamental.com` (uses domain verification, quick)
 - ☐ **Mastodon**: skip for v1 unless we have a specific home server
-- ☐ **LinkedIn**: create a Company Page (Tournamental Holdings) — needed for partner outreach
+- ☐ **LinkedIn**: create a Company Page (Tournamental Holdings), needed for partner outreach
 - ☐ Once each handle is reserved, paste into `config/brand.json` so the marketing footer + share cards link to the right account
 
 ### 1.5 GitHub repo (✓ done)
@@ -106,9 +106,9 @@ These don't require API access for launch — Tim just needs to **reserve the ha
 
 ---
 
-## Phase 2 — CRM & comms (do this week)
+## Phase 2, CRM & comms (do this week)
 
-### 2.1 GoHighLevel (GHL) — CRM
+### 2.1 GoHighLevel (GHL), CRM
 
 - ☐ Go to <https://gohighlevel.com> → log in to the agency account
 - ☐ Create a new **sub-location**: "Tournamental"
@@ -120,7 +120,7 @@ These don't require API access for launch — Tim just needs to **reserve the ha
   GHL_API_KEY=...
   ```
 - ☐ Set up these GHL custom fields on the contact object (one-time, in GHL UI):
-  - `vtourn_user_id` (text, internal id — name kept for backwards-compat per the rebrand sweep)
+  - `vtourn_user_id` (text, internal id, name kept for backwards-compat per the rebrand sweep)
   - `vtourn_last_event_id` (text, last event we forwarded)
   - `bracket_completion` (number 0–104)
   - `engagement_band` (text: cold / warm / hot)
@@ -157,7 +157,7 @@ These don't require API access for launch — Tim just needs to **reserve the ha
 - ☐ Configure the pixel inside GTM (one tag per page-view + key conversion events)
 - ☐ Rebuild + restart
 
-### 2.4 TikTok Pixel (later — only when running TT ads)
+### 2.4 TikTok Pixel (later, only when running TT ads)
 
 - ☐ TikTok Ads Manager → Tools → Events → New Pixel
 - ☐ Name "Tournamental" → copy the pixel ID
@@ -168,26 +168,26 @@ These don't require API access for launch — Tim just needs to **reserve the ha
 
 ---
 
-## Phase 3 — External APIs (before launch, in any order)
+## Phase 3, External APIs (before launch, in any order)
 
 ### 3.1 Polymarket affiliate
 
-- ☐ Apply at <https://polymarket.com/affiliates> with a brief pitch — "Tournamental is a free-to-play FIFA WC 2026 bracket app routing predictions to your markets"
+- ☐ Apply at <https://polymarket.com/affiliates> with a brief pitch, "Tournamental is a free-to-play FIFA WC 2026 bracket app routing predictions to your markets"
 - ☐ Wait 24–48 hours for approval
 - ☐ → Paste the affiliate code into `apps/api/.env.production`:
   ```
   VTORN_POLYMARKET_AFF_CODE=...
   ```
 
-### 3.2 ElevenLabs (AI commentary TTS) — already wired
+### 3.2 ElevenLabs (AI commentary TTS), already wired
 
 - ☐ If the existing Aiva ElevenLabs subscription covers Tournamental traffic: confirm with Tim. No new account needed.
 - ☐ If not: <https://elevenlabs.io> → create new subscription → API key
 - ☐ → `ELEVENLABS_API_KEY=...` in `apps/api/.env.production`
 
-### 3.3 Anthropic API (for commentary script generation) — already wired
+### 3.3 Anthropic API (for commentary script generation), already wired
 
-- ☐ Same — confirm Tournamental can use the existing Anthropic key
+- ☐ Same, confirm Tournamental can use the existing Anthropic key
 - ☐ → `ANTHROPIC_API_KEY=...` in `apps/api/.env.production`
 
 ### 3.4 Cloudflare R2 (offsite backup)
@@ -213,17 +213,17 @@ These don't require API access for launch — Tim just needs to **reserve the ha
 
 ---
 
-## Phase 4 — Cloudflare ops (mostly done)
+## Phase 4, Cloudflare ops (mostly done)
 
 - ☑ `tournamental.com` zone added (2026-05-11)
 - ☑ Tunnel ingress configured for `2026wc`, `app`, `play`, `www`, `api`, `stream` (latest: `play.tournamental.com` 2026-05-11)
 - ☑ CNAME records created for the above
 - ☐ Add `admin.tournamental.com` ingress when the admin dashboard goes live (script ready at `infra/scripts/cf-add-tournamental-hosts-admin.sh`)
-- ☐ Cloudflare Pages project for the marketing site (optional — currently served via PM2 + tunnel; Pages is a future migration if we want zero-touch deploys)
+- ☐ Cloudflare Pages project for the marketing site (optional, currently served via PM2 + tunnel; Pages is a future migration if we want zero-touch deploys)
 
 ---
 
-## Phase 5 — Native app stores (when ready)
+## Phase 5, Native app stores (when ready)
 
 The Capacitor wrapper is ready in `apps/native/`. Pushing to the stores requires:
 
@@ -250,16 +250,16 @@ The Capacitor wrapper is ready in `apps/native/`. Pushing to the stores requires
 
 ---
 
-## Phase 6 — Legal / payment / on-chain (later, post-launch)
+## Phase 6, Legal / payment / on-chain (later, post-launch)
 
 These are NOT blockers for the 2026-06-11 launch. Defer until needed.
 
 - ☐ **Tournamental Holdings** legal incorporation (NZ or other jurisdiction Tim picks)
 - ☐ **Stripe** account for the entity (optional revenue routing)
 - ☐ **Drips Network** drip list creation once Foundation is incorporated → `VTORN_DRIPS_LIST_ID`
-- ☐ **EVM RPC** (Base mainnet or chosen L2) — Alchemy / Infura / QuickNode → `VTORN_EVM_RPC_URL`
+- ☐ **EVM RPC** (Base mainnet or chosen L2), Alchemy / Infura / QuickNode → `VTORN_EVM_RPC_URL`
 - ☐ **Oracle signer keypair** in AWS KMS → `VTORN_ORACLE_SIGNER_PRIVKEY` (HSM-only, never in `.env`)
-- ☐ **Sportsbook partnerships** (Bet365 / Pinnacle / etc.) — 1–3 month lead time per REVIEW.md
+- ☐ **Sportsbook partnerships** (Bet365 / Pinnacle / etc.), 1–3 month lead time per REVIEW.md
 
 ---
 
@@ -280,7 +280,7 @@ pm2 logs vtorn-<service>-prod --lines 30
 ```
 
 **Never** commit `.env.production` to git. The repo has `.env.example`
-files only — those document the variable names without the secrets.
+files only, those document the variable names without the secrets.
 `.gitignore` already covers `.env`, `.env.local`, `.env.production`.
 
 ---
@@ -288,7 +288,7 @@ files only — those document the variable names without the secrets.
 ## What unlocks what (the dependency chain)
 
 If you only have 2 hours, do these four and the platform is "minimally
-launchable" — payments + on-chain can wait:
+launchable", payments + on-chain can wait:
 
 1. Telegram bot token → unlocks the bot identity layer (auth + push)
 2. Aiva SMS confirmation → unlocks transactional SMS (auth codes, kickoff nudges)
@@ -296,7 +296,7 @@ launchable" — payments + on-chain can wait:
 4. GA4 + GTM → unlocks every analytics view in the admin dashboard
 
 Without any of these the app still runs (the bracket builder + 3D
-match renderer don't need external accounts) — but the launch
+match renderer don't need external accounts), but the launch
 funnel can't move users through the engagement loop without them.
 
 ---
@@ -311,6 +311,6 @@ funnel can't move users through the engagement loop without them.
 
 If a credential is **exposed** (committed to git, leaked in a
 screenshot, sent over a non-E2E channel): rotate it at the provider
-**immediately**. History rewrite is not a fix — assume the secret is
+**immediately**. History rewrite is not a fix, assume the secret is
 burned. Then file `sessions/<date>_security-incident_<slug>.md` with
 the timeline.

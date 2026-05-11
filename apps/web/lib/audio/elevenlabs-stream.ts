@@ -1,5 +1,5 @@
 /**
- * ElevenLabs realtime stream client — pure module (browser side).
+ * ElevenLabs realtime stream client, pure module (browser side).
  *
  * Contract:
  *   - `getSignedWss()` calls `/api/commentary/sign` to mint a
@@ -8,7 +8,7 @@
  *     (PCM/MP3 chunks) and `final`/`error`.
  *   - `sendText(text)` ships a chunk for synthesis.
  *
- * The ElevenLabs API key is NOT available in this environment — the
+ * The ElevenLabs API key is NOT available in this environment, the
  * agent prompt explicitly says "ship the wiring with a stub
  * commentary track (silent buffer) so the ducking logic can be
  * tested end-to-end". The wiring lives here; the actual key check
@@ -60,7 +60,7 @@ export async function getSignedWss(
 
 /**
  * Open a WSS connection to ElevenLabs realtime. If `signed` is
- * `false` we shortcut to a "stub" handler — the caller still gets a
+ * `false` we shortcut to a "stub" handler, the caller still gets a
  * predictable lifecycle (one `stub` event then `final`) so it can
  * exercise its mixer / ducking code.
  */
@@ -70,7 +70,7 @@ export async function openCommentaryStream(
   opts: StreamOpts = {},
 ): Promise<{ close(): void; sendText(text: string): void }> {
   if (!signed.signed) {
-    // Stub mode — fire one event so the consumer can exercise its
+    // Stub mode, fire one event so the consumer can exercise its
     // pipeline (and the ducker can run), then close.
     queueMicrotask(() => {
       onMessage({ kind: "stub" });

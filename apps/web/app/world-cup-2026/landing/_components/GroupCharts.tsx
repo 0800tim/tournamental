@@ -4,7 +4,7 @@
  * in once docs/29 Polymarket integration ships.
  *
  * Visual: list of teams in the group, each with a horizontal bar and a
- * percentage. Uses kit colour for accent. Pure SSR — no client JS.
+ * percentage. Uses kit colour for accent. Pure SSR, no client JS.
  */
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";

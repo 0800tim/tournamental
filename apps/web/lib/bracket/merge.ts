@@ -1,5 +1,5 @@
 /**
- * Bracket merge — combine a local draft with a server-hydrated
+ * Bracket merge, combine a local draft with a server-hydrated
  * bracket so we never clobber the user's newer offline picks.
  *
  * Rule per match: whichever side has the most recent `lockedAt`

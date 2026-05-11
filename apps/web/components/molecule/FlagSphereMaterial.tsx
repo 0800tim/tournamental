@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * FlagSphereMaterial — a `MeshStandardMaterial` augmented with a tiny
+ * FlagSphereMaterial, a `MeshStandardMaterial` augmented with a tiny
  * GLSL vertex displacement so each flag-textured sphere reads as a
  * "country football rippling in the wind" instead of a flat decal.
  *
@@ -14,7 +14,7 @@
  * Why not three-stdlib's `Sky` / `Water` shaders or a community
  * displacement-material? Bundle budget. Our wave is ~1KB of GLSL.
  *
- * Reduce-motion: caller passes `motionEnabled` — false means the
+ * Reduce-motion: caller passes `motionEnabled`, false means the
  * vertex shader is still installed but `uWaveAmp` clamps to 0, leaving
  * a static-but-correct sphere.
  */

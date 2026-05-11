@@ -37,7 +37,7 @@ beforeEach(() => {
   }
 });
 
-describe("BracketBuilder — per-match predictions", () => {
+describe("BracketBuilder, per-match predictions", () => {
   it("renders the 12 group cards on the group-stage tab by default", () => {
     render(<BracketBuilder tournament={tournament} />);
     // Group A header is present; standings panel is empty hint state.
@@ -50,12 +50,12 @@ describe("BracketBuilder — per-match predictions", () => {
 
     // Find the group A card and click outcomes that make MEX win the
     // group outright. Matches inside group A:
-    //   1: MEX(home) vs RSA(away) — MEX win → home_win
-    //   2: KOR(home) vs CZE(away) — KOR win → home_win
-    //   3: MEX(home) vs KOR(away) — MEX win → home_win
-    //   4: CZE(home) vs RSA(away) — RSA win → away_win
-    //   5: CZE(home) vs MEX(away) — MEX win → away_win
-    //   6: RSA(home) vs KOR(away) — RSA win → home_win
+    //   1: MEX(home) vs RSA(away), MEX win → home_win
+    //   2: KOR(home) vs CZE(away), KOR win → home_win
+    //   3: MEX(home) vs KOR(away), MEX win → home_win
+    //   4: CZE(home) vs RSA(away), RSA win → away_win
+    //   5: CZE(home) vs MEX(away), MEX win → away_win
+    //   6: RSA(home) vs KOR(away), RSA win → home_win
     // MEX 3W → 9 pts, advances 1st.
     const groupACard = screen.getAllByText("Group A")[0]!.closest(
       ".bracket-group",
@@ -113,7 +113,7 @@ describe("BracketBuilder — per-match predictions", () => {
     render(<BracketBuilder tournament={tournament} />);
     fireEvent.click(screen.getByRole("tab", { name: /R32/ }));
     expect(screen.getByText(/Tap the team you predict will advance/)).toBeDefined();
-    // The R32 tab is the active panel — its heading reads "Round of 32".
+    // The R32 tab is the active panel, its heading reads "Round of 32".
     expect(screen.getAllByText(/Round of 32/i).length).toBeGreaterThan(0);
   });
 

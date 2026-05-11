@@ -84,7 +84,7 @@ export function Ball({ store }: BallProps) {
       ball = extrapolateBall(state.curr.ball, stale);
     }
 
-    // Take any new event into account (latest only — the controller
+    // Take any new event into account (latest only, the controller
     // makes its mode decision based on the most recent ball-relevant
     // event).
     const events = state.events;
@@ -113,7 +113,7 @@ export function Ball({ store }: BallProps) {
   // Real ball radius is 0.11 m which reads as a barely-visible dot
   // from broadcast cameras. Render at 4x so the ball is clearly trackable.
   // (The ball's spec position is still in real-world coords; only the
-  // visual sphere is scaled. Other consumers — physics, AABB tests —
+  // visual sphere is scaled. Other consumers, physics, AABB tests -
   // stick with BALL_CONSTANTS.radius.)
   const VISUAL_RADIUS = BALL_CONSTANTS.radius * 4;
   return (

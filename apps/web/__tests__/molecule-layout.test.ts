@@ -1,5 +1,5 @@
 /**
- * Vitest — `buildMoleculeLayout` deterministic layout assertions.
+ * Vitest, `buildMoleculeLayout` deterministic layout assertions.
  *
  * v4 multi-instance pyramid edition. Each team now contributes one node
  * per surviving layer (so a champion has 7 instances, an R32 loser has
@@ -11,7 +11,7 @@
  *   4. Palette colour per stage is sane.
  *   5. Bonds: one match bond per group fixture + one per resolved knockout
  *      (excluding the 3rd-place playoff which has no dedicated v4 layer).
- *   6. Layout is deterministic — same inputs, same output.
+ *   6. Layout is deterministic, same inputs, same output.
  */
 
 import { describe, it, expect } from "vitest";
@@ -61,7 +61,7 @@ function topInstance(layout: MoleculeLayout, teamCode: string): MoleculeNode | u
   return layout.nodes.find((n) => n.teamCode === teamCode && n.isTopInstance);
 }
 
-describe("buildMoleculeLayout — empty bracket (v4)", () => {
+describe("buildMoleculeLayout, empty bracket (v4)", () => {
   const t = loadFixtures2026();
   const empty = cascade(t, emptyPrediction(t));
   const layout = buildMoleculeLayout(t, empty);
@@ -100,7 +100,7 @@ describe("buildMoleculeLayout — empty bracket (v4)", () => {
   });
 });
 
-describe("buildMoleculeLayout — champion-at-apex invariant (v4)", () => {
+describe("buildMoleculeLayout, champion-at-apex invariant (v4)", () => {
   const t = loadFixtures2026();
   const championCode = "ARG";
   const argInTournament = t.teams.some((x) => x.id === championCode);
@@ -243,7 +243,7 @@ describe("buildMoleculeLayout — champion-at-apex invariant (v4)", () => {
     expect(finalBond!.color).toBe(PALETTE.champion);
   });
 
-  it("is deterministic — building twice yields identical layouts", () => {
+  it("is deterministic, building twice yields identical layouts", () => {
     const a = buildMoleculeLayout(t, fakeCascaded);
     const b = buildMoleculeLayout(t, fakeCascaded);
     expect(a.nodes.length).toBe(b.nodes.length);
@@ -259,7 +259,7 @@ describe("buildMoleculeLayout — champion-at-apex invariant (v4)", () => {
   });
 });
 
-describe("stableHash01 — small util sanity", () => {
+describe("stableHash01, small util sanity", () => {
   it("returns a value in [0, 1] for every input", () => {
     for (const s of ["ARG", "FRA", "ENG", "BRA", "URU", "QAT", "USA", "MEX", ""]) {
       const u = stableHash01(s);

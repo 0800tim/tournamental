@@ -1,5 +1,5 @@
 /**
- * Broadcast camera — wide tracking shot (default).
+ * Broadcast camera, wide tracking shot (default).
  *
  * Per `docs/27b-fidelity-phase2-physics-director.md` (re-tuned 2026-05
  * for Tim's lighting + camera-angle review):
@@ -26,12 +26,12 @@ export const BROADCAST_LOOK_HEIGHT = 1.5;
 
 /**
  * Compute the broadcast camera's desired (position, lookAt) given the
- * current ball world position. Pure function — easy to unit-test.
+ * current ball world position. Pure function, easy to unit-test.
  */
 export function broadcastCamera(ballWorld: THREE.Vector3 | null): CameraTarget {
   // Tighter X clamp than the old [-30, 30] so the camera doesn't swing
   // alarmingly when play breaks down the wing. Half-damped via the
-  // *0.5 below — the X follow lags but stays anchored to the play.
+  // *0.5 below, the X follow lags but stays anchored to the play.
   const tx = ballWorld ? THREE.MathUtils.clamp(ballWorld.x, -25, 25) : 0;
   const targetX = ballWorld ? ballWorld.x * 0.5 : 0;
   const targetZ = ballWorld ? ballWorld.z * 0.35 : 0;

@@ -1,5 +1,5 @@
 /**
- * OverlayRoot — renders every active overlay frame as a portalled
+ * OverlayRoot, renders every active overlay frame as a portalled
  * sheet, in stack order. Lives once per page (mounted by the page that
  * owns the bracket UI), and reads the stack from the surrounding
  * `<OverlayProvider>` via `useOverlay()`.
@@ -10,7 +10,7 @@
  *   2. Implement a renderer + register it here.
  *
  * All components are mounted as plain children (not via `createPortal`)
- * because the sheet itself is `position: fixed` — there's no clipping
+ * because the sheet itself is `position: fixed`, there's no clipping
  * concern. We do, however, render a top-level wrapper with `aria-live`
  * so assistive tech announces the overlay opening.
  */
@@ -49,7 +49,7 @@ function renderFrame(frame: OverlayFrame, depth: number): React.ReactNode {
       );
     }
     default: {
-      // Unknown kind — render nothing. The provider already filters
+      // Unknown kind, render nothing. The provider already filters
       // these on parse, so this should be unreachable in practice.
       return null;
     }

@@ -1,6 +1,6 @@
-# 33 — Security hardening checklist
+# 33, Security hardening checklist
 
-> Pre-launch security pass for Tournamental. We're a free-to-play prediction game with affiliate links and (eventually) authenticated users — the threat model is mostly: bot floods on the bracket, scraping of our odds-cache, abuse of affiliate-click endpoints, and PII leakage on phone-OTP flow. Plus the standard OWASP top-10 across every public surface.
+> Pre-launch security pass for Tournamental. We're a free-to-play prediction game with affiliate links and (eventually) authenticated users, the threat model is mostly: bot floods on the bracket, scraping of our odds-cache, abuse of affiliate-click endpoints, and PII leakage on phone-OTP flow. Plus the standard OWASP top-10 across every public surface.
 >
 > Run this checklist before each public launch. Date last reviewed: 2026-05-10.
 
@@ -16,7 +16,7 @@
 - [ ] Cloudflare Turnstile on syndicate-pre-signup form (anti-bot)
 
 ### `apps/web` (Next 14, multi-host)
-- [ ] Same security headers via `middleware.ts` (already deployed for the WC redirect — extend with security headers)
+- [ ] Same security headers via `middleware.ts` (already deployed for the WC redirect, extend with security headers)
 - [ ] CSP narrowed: scripts from self, blob: (for Three.js workers), no `unsafe-eval` in prod
 - [ ] Subresource Integrity (SRI) on any third-party CDN scripts
 - [ ] Frame-ancestors 'none' to prevent clickjacking
@@ -68,7 +68,7 @@
 - [ ] `.env` is gitignored everywhere (already true)
 - [ ] `.env.example` documents every required key without values
 - [ ] No secrets in source (gitleaks runs on every PR; verify it's enforced as a CI gate, not just an info check)
-- [ ] Cloudflare API token has minimal scope (Tunnel:Edit, DNS:Edit on our zones only — already true post-rotation)
+- [ ] Cloudflare API token has minimal scope (Tunnel:Edit, DNS:Edit on our zones only, already true post-rotation)
 - [ ] Polymarket affiliate ref URL is fine in client (it's our public ref)
 - [ ] ElevenLabs key server-side only (never sent to client)
 - [ ] OpenAI / Anthropic keys: server-side only

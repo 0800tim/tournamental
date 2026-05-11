@@ -1,5 +1,5 @@
 /**
- * Kickoff lockout — once a match has kicked off, the user cannot
+ * Kickoff lockout, once a match has kicked off, the user cannot
  * change their prediction. The row shows a "match already started"
  * banner and the buttons go disabled (aria-disabled / disabled).
  *

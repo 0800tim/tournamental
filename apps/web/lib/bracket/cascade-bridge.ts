@@ -1,5 +1,5 @@
 /**
- * Cascade bridge — convert the new per-match `Bracket` (groups computed
+ * Cascade bridge, convert the new per-match `Bracket` (groups computed
  * from outcome predictions, plus knockout outcome predictions) into the
  * legacy `BracketPrediction` shape the cascade engine consumes (group
  * orderings + knockout winner picks).
@@ -69,7 +69,7 @@ export function bracketToCascadeInput(
     // itself disambiguates which team is "home" based on the cascade's
     // resolved slots, so we encode the team via the existing
     // `KnockoutPrediction.winner` field. To do this we'd need the
-    // resolved slots — but the user's choice is one of those slots.
+    // resolved slots, but the user's choice is one of those slots.
     //
     // We can pull the predicted winner team-id from the knockout
     // fixture's home/away SlotSource only when it's a `group_position`

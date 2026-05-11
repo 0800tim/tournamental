@@ -1,5 +1,5 @@
 /**
- * "Built in public" callout — Apache 2.0, contributors share platform
+ * "Built in public" callout, Apache 2.0, contributors share platform
  * revenue via Drips Network. Single GitHub-styled CTA.
  */
 
@@ -10,7 +10,7 @@ export function OpenSourceCallout() {
       <p>
         Tournamental is open source under Apache 2.0. Contributors share platform
         revenue via Drips Network. Read the spec, file an issue, ship a
-        feature — every commit is verifiable.
+        feature, every commit is verifiable.
       </p>
       <a
         className="wc-gh-btn"

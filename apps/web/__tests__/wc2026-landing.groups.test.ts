@@ -1,5 +1,5 @@
 /**
- * Vitest — group assembly + upcoming-matches selection from real data.
+ * Vitest, group assembly + upcoming-matches selection from real data.
  */
 
 import { describe, it, expect } from "vitest";

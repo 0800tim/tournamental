@@ -1,4 +1,4 @@
-# 08 — CDN Distribution
+# 08, CDN Distribution
 
 > "Write once, run everywhere." The spec stream is append-only and immutable, so CDN caching is essentially free fan-out. This doc specifies the chunking strategy, URL layout, and Cloudflare configuration.
 
@@ -32,8 +32,8 @@ This is exactly the HLS pattern, with NDJSON instead of MPEG-TS segments. We del
 
 Two supported chunk durations:
 
-- **1s chunks** — low latency (3–5s end-to-end with a 3-chunk jitter buffer), more files per match (~5,400 for a 90-min match), more requests per client.
-- **5s chunks** — higher latency (15–20s end-to-end), fewer files (~1,080), better cache hit ratio per file.
+- **1s chunks**, low latency (3–5s end-to-end with a 3-chunk jitter buffer), more files per match (~5,400 for a 90-min match), more requests per client.
+- **5s chunks**, higher latency (15–20s end-to-end), fewer files (~1,080), better cache hit ratio per file.
 
 The chunk writer can produce both simultaneously and the manifest exposes both as separate quality levels. Renderers default to 1s for live, 5s for replay.
 
@@ -106,13 +106,13 @@ Enable **Tiered Caching** so far-edge PoPs warm via a regional tier rather than 
 
 ## Compression
 
-ndjson compresses extremely well — most values in state frames are repetitive. Empirically a 1s state-only chunk at 30Hz with 22 players is ~30KB raw, ~6KB gzipped. A whole 90-min match is ~30MB on disk pre-compression, ~6MB compressed. CDN bandwidth at 1M viewers for a full match is roughly 6TB. Cloudflare Free tier handles that; a Pro plan eliminates any conceivable concern.
+ndjson compresses extremely well, most values in state frames are repetitive. Empirically a 1s state-only chunk at 30Hz with 22 players is ~30KB raw, ~6KB gzipped. A whole 90-min match is ~30MB on disk pre-compression, ~6MB compressed. CDN bandwidth at 1M viewers for a full match is roughly 6TB. Cloudflare Free tier handles that; a Pro plan eliminates any conceivable concern.
 
 Brotli at the CDN edge (CF supports it) cuts another ~15%. Worth enabling.
 
 ## Authentication
 
-For a fully open project there's none — anyone with the URL can fetch the stream. If the operator wants paid tiers later:
+For a fully open project there's none, anyone with the URL can fetch the stream. If the operator wants paid tiers later:
 
 - **Signed URLs** (Cloudflare's signed-URL feature, or signed cookies). Origin issues short-lived tokens; CDN validates without calling origin.
 - **Worker auth** (Cloudflare Workers in front of cache). Costs a few µs per request; negligible at this scale.
@@ -124,12 +124,12 @@ Neither is needed for v0.1.
 Replay is the same wire format. The client requests `archive.m3u8` instead of `live.m3u8`, which lists every chunk for the completed match. The renderer can seek by:
 
 1. Binary-search the `archive.m3u8` for the chunk containing the target `t_ms`.
-2. Fetch all chunks from `chunk-0` (for state continuity — the renderer needs `match.init` and at least one carrier resolution) up through the target chunk.
+2. Fetch all chunks from `chunk-0` (for state continuity, the renderer needs `match.init` and at least one carrier resolution) up through the target chunk.
 
-For very large seeks, the stream server can also publish `keyframes.json` — a sparse index of "complete world snapshots" written every 30s, so the seeker only needs to fetch one keyframe + the chunks since it. Optional optimisation; not required for v0.1.
+For very large seeks, the stream server can also publish `keyframes.json`, a sparse index of "complete world snapshots" written every 30s, so the seeker only needs to fetch one keyframe + the chunks since it. Optional optimisation; not required for v0.1.
 
 ## Why this is durable
 
-The architecture has zero per-viewer state on the hot path. Origin write rate is constant in viewer count. CDN cost scales linearly in viewer count but at fractions of a cent per GB. The same files serve a 10-viewer dev test and a 10-million-viewer World Cup final without code changes — only the cache TTL on `live.m3u8` is a tuning knob, and not by much.
+The architecture has zero per-viewer state on the hot path. Origin write rate is constant in viewer count. CDN cost scales linearly in viewer count but at fractions of a cent per GB. The same files serve a 10-viewer dev test and a 10-million-viewer World Cup final without code changes, only the cache TTL on `live.m3u8` is a tuning knob, and not by much.
 
 The same property makes failover trivial: any second origin pointed at the same `/streams/` directory (NFS / S3 / synced disk) is fully interchangeable. Stream servers are stateless apart from the chunk files themselves.

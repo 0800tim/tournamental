@@ -64,10 +64,10 @@ Every phase ships with:
 Per CLAUDE.md and `docs/22-deployment-and-tunnels.md`:
 
 - Static asset hashes: `Cache-Control: public, max-age=31536000, immutable`.
-- GLB models: served from `/_next/static/media/*` once Next 14 fingerprints them — automatic.
+- GLB models: served from `/_next/static/media/*` once Next 14 fingerprints them, automatic.
 - Mixamo FBX → GLB pre-processing happens at build time, never at request time.
 - ElevenLabs MP3s: pre-rendered, served from CDN with long TTL.
-- Realtime ElevenLabs WS streaming (Phase 3): no caching — direct duplex.
+- Realtime ElevenLabs WS streaming (Phase 3): no caching, direct duplex.
 
 ## What's already in place (Phase 0, done)
 
@@ -78,4 +78,4 @@ Per CLAUDE.md and `docs/22-deployment-and-tunnels.md`:
 - 22 starters + ball positions interpolated.
 - Verbose commentary transcript (English, 2972 lines, ElevenLabs-ready).
 
-Phase 1 builds **on top** of these — the goal is replacing the procedural body + billboard face with a rigged Ready Player Me avatar that runs with real Mixamo animation.
+Phase 1 builds **on top** of these, the goal is replacing the procedural body + billboard face with a rigged Ready Player Me avatar that runs with real Mixamo animation.

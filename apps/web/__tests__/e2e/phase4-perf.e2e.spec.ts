@@ -10,7 +10,7 @@
  * for the hard FPS gate. SwiftShader (default CI) records but does
  * not fail the build.
  *
- * Real-GPU runner is flagged for ops follow-up — see PR body.
+ * Real-GPU runner is flagged for ops follow-up, see PR body.
  */
 
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference

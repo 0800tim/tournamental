@@ -1,4 +1,4 @@
-# 17 — VStamp and Prediction IQ
+# 17, VStamp and Prediction IQ
 
 > Two related things that together turn Tournamental from "another tipping comp" into a credible reputation network. **VStamp** is the cryptographic verification of *what* you predicted *when*. **Prediction IQ** is the long-term reputation score derived from a verified history of your calls. Engine in `apps/vstamp-service`; shared with `apps/game-service` (agent J, [doc 09](09-agent-task-breakdown.md)).
 
@@ -14,7 +14,7 @@ Three concrete benefits:
 
 The user does not need to understand blockchain. The platform's user-facing message is just:
 
-> Every locked prediction gets a verification stamp. Nobody can edit it after the fact — not you, not Tournamental, not the leaderboard.
+> Every locked prediction gets a verification stamp. Nobody can edit it after the fact, not you, not Tournamental, not the leaderboard.
 
 ## VStamp architecture
 
@@ -68,19 +68,19 @@ This compresses 10,000 predictions into one on-chain transaction while preservin
 To verify prediction B was in the batch, a verifier checks:
 `Hash( Hash( H(A), H(B) ), Hash(C,D) ) == on-chain Merkle root`
 
-Standard Merkle proof, ~32 bytes per tree level (so ~448 bytes for a 16,000-prediction batch — log₂(16k) × 32B). Stored alongside each prediction in Redis and the off-chain prediction record.
+Standard Merkle proof, ~32 bytes per tree level (so ~448 bytes for a 16,000-prediction batch, log₂(16k) × 32B). Stored alongside each prediction in Redis and the off-chain prediction record.
 
 ### Two anchoring options (we ship both)
 
-**Option A — OpenTimestamps (free, Bitcoin-anchored, the default).**
+**Option A, OpenTimestamps (free, Bitcoin-anchored, the default).**
 
-[OpenTimestamps](https://opentimestamps.org/) is a free, decentralised timestamping protocol that bundles thousands of submitted hashes into a single Bitcoin transaction. We submit our Merkle root to OTS calendar servers; ~10–60 minutes later, when the next batch's parent Bitcoin block confirms, we get back a `.ots` proof file that proves our root was committed at-or-before that block's time. Verification is offline — anyone with the OTS Python or JS client can check the proof against a Bitcoin full node.
+[OpenTimestamps](https://opentimestamps.org/) is a free, decentralised timestamping protocol that bundles thousands of submitted hashes into a single Bitcoin transaction. We submit our Merkle root to OTS calendar servers; ~10–60 minutes later, when the next batch's parent Bitcoin block confirms, we get back a `.ots` proof file that proves our root was committed at-or-before that block's time. Verification is offline, anyone with the OTS Python or JS client can check the proof against a Bitcoin full node.
 
 Cost: **zero** to us. The OTS servers cover the Bitcoin transaction fees because they aggregate millions of stamps per transaction. Latency: ~10–60 minutes to "Bitcoin-confirmed". Strongest immutability story possible (Bitcoin-anchored). This is the right default for the product.
 
-**Option B — Polygon (or Base) on-chain anchor (fast, near-free, programmatic).**
+**Option B, Polygon (or Base) on-chain anchor (fast, near-free, programmatic).**
 
-For high-profile tournaments and the user-facing "VStamp confirmed" badge that should appear within a minute, also write the Merkle root to a smart contract on a cheap L2. Polygon mainnet transactions cost ~$0.001–0.005 each at typical gas. Base (Coinbase L2) is similar. With a 1-minute batch cadence, that's roughly $1.50–7.50/day during a tournament — trivial.
+For high-profile tournaments and the user-facing "VStamp confirmed" badge that should appear within a minute, also write the Merkle root to a smart contract on a cheap L2. Polygon mainnet transactions cost ~$0.001–0.005 each at typical gas. Base (Coinbase L2) is similar. With a 1-minute batch cadence, that's roughly $1.50–7.50/day during a tournament, trivial.
 
 The smart contract is a one-line storage:
 
@@ -100,7 +100,7 @@ contract VStampRegistry {
 
 A single signing key (cold-stored, rotated quarterly) is the only writer. Anyone can read.
 
-**Recommended deployment**: ship Polygon as the primary user-facing anchor (instant) *and* OpenTimestamps as the redundancy + Bitcoin-grade story (catches up within an hour). The combination is cheap, fast, and strongest-possible — and if Polygon ever has an outage, the OTS layer keeps the chain unbroken.
+**Recommended deployment**: ship Polygon as the primary user-facing anchor (instant) *and* OpenTimestamps as the redundancy + Bitcoin-grade story (catches up within an hour). The combination is cheap, fast, and strongest-possible, and if Polygon ever has an outage, the OTS layer keeps the chain unbroken.
 
 ### VStamp ID
 
@@ -123,9 +123,9 @@ Compact, copyable, human-readable. Each VStamp resolves to a public proof page a
 - The on-chain transaction hash (Polygon) and OpenTimestamps proof (linkable).
 - A "verify yourself" button that runs the Merkle check in the user's browser.
 
-The proof page is a static prerendered HTML — pure CDN read, zero backend on the verification path.
+The proof page is a static prerendered HTML, pure CDN read, zero backend on the verification path.
 
-### What a VStamp verifies — and what it does NOT
+### What a VStamp verifies, and what it does NOT
 
 Read this section carefully; it shapes how the platform talks about Verified Pundits, Prediction IQ, and any branded content that uses the verification badge.
 
@@ -138,7 +138,7 @@ A VStamp **verifies**:
 A VStamp does **not** verify:
 
 - **That the prediction was correct.** The user's Prediction IQ separately captures correctness over time, but a single VStamp by itself says nothing about whether the prediction won.
-- **That any opinion, recommendation, or piece of content the user posts alongside the stamp is endorsed by Tournamental.** A high-IQ user who shares a sponsored post recommending a sportsbook does not inherit Tournamental's authority. The VStamp on their profile attests to their *track record of locked predictions* — it does not attest to anything they say or recommend in marketing copy.
+- **That any opinion, recommendation, or piece of content the user posts alongside the stamp is endorsed by Tournamental.** A high-IQ user who shares a sponsored post recommending a sportsbook does not inherit Tournamental's authority. The VStamp on their profile attests to their *track record of locked predictions*, it does not attest to anything they say or recommend in marketing copy.
 - **That the user is acting in any official capacity** for Tournamental, Tournamental Holdings, or Tournamental Foundation.
 
 This distinction matters for the Verified Pundit programme described later in this doc. A "verified" badge means *the prediction record is auditable*, not *Tournamental vouches for this person's opinions*. Marketing copy must always reflect this distinction. The standard disclosure in any Verified Pundit context:
@@ -180,7 +180,7 @@ The distinction also matters for any sponsored-pundit endorsement of a sportsboo
             ◄────────────────────── OTS proof returns ────
             │
             ▼
-   Updates Redis: Bitcoin ✓ — strongest-tier verification
+   Updates Redis: Bitcoin ✓, strongest-tier verification
    Public proof page now shows both confirmations
 ```
 
@@ -189,19 +189,19 @@ The distinction also matters for any sponsored-pundit endorsement of a sportsboo
 The user sees three states on a prediction card, in order:
 
 ```
-🔘  Pending verification    (0–60 seconds — between lock and Polygon tx)
+🔘  Pending verification    (0–60 seconds, between lock and Polygon tx)
 ✅  VStamp confirmed         (Polygon-anchored)
 ⛓️ Bitcoin-verified         (OTS proof complete, ~10–60 min later)
 ```
 
 Most users will only ever notice the green tick. The Bitcoin-verified badge is for the long-term reputation story and surfaces on profile pages.
 
-### What this is *not* — and what it is
+### What this is *not*, and what it is
 
 - **Not a blockchain wallet for users.** Users never see a private key, never sign a transaction, never pay gas. The chain is an internal implementation detail; the product surface is "verified".
 - **Not a token, NFT, or financial instrument.** A VStamp is a verification receipt. It has no transfer, no marketplace, no value beyond the reputation it contributes to its owner's profile.
 - **Not on Ethereum mainnet.** Mainnet is too expensive at our cadence. We use L2s + Bitcoin via OTS.
-- **Not "blockchain for blockchain's sake".** It's the cheapest credible immutability mechanism available — and the marketing benefit is real.
+- **Not "blockchain for blockchain's sake".** It's the cheapest credible immutability mechanism available, and the marketing benefit is real.
 
 ## Prediction IQ
 
@@ -214,7 +214,7 @@ A user's Prediction IQ is a single integer (centred near 1000, like an Elo ratin
 - **Comparable** across sports and tournaments.
 - **Stable** in the short run (one lucky weekend doesn't blow it up).
 - **Sensitive** in the long run (sustained skill moves it).
-- **Comprehensible** at a glance ("Prediction IQ 842 — top 5%").
+- **Comprehensible** at a glance ("Prediction IQ 842, top 5%").
 - **Verifiable** because it's derived only from VStamped predictions.
 
 ### Calculation
@@ -250,7 +250,7 @@ Modeled on chess Elo distributions, broad expectations:
 ~25%   1100–1300       Engaged players with consistent stretches.
 ~15%   1300–1500       Skilled players who beat the market often.
 ~7%    1500–1700       Demonstrably reading the tournament well.
-~2%    1700–1900       Elite — sustained market-beating across multiple tournaments.
+~2%    1700–1900       Elite, sustained market-beating across multiple tournaments.
 ~1%    1900+           Legendary; rare; usually domain experts.
 ```
 
@@ -266,7 +266,7 @@ Overall Prediction IQ:  1342    (Top 6%)
   Soccer:               1418    (Top 3%)
   Cricket:              1287    (Top 12%)
   Tennis:               1102    (Top 38%)
-  Esports:              —       (no sample)
+  Esports:             ,       (no sample)
 ```
 
 This rewards specialists. A user who is a deep reader of cricket but unfamiliar with esports should see their cricket IQ stand out, not be diluted.
@@ -287,9 +287,9 @@ The user's public profile (at `tournamental.com/u/<handle>`) is structured aroun
 │  Sport Breakdown      Soccer 1418 · Cricket 1287 · Tennis 1102   │
 │                                                                  │
 │  Best Calls                                                      │
-│    Japan @ 12% vs Germany — 91 points (verified VStamp)          │
-│    Croatia @ 23% v Brazil — 84 points                            │
-│    Argentina @ 18% v favourites — 79 points                      │
+│    Japan @ 12% vs Germany, 91 points (verified VStamp)          │
+│    Croatia @ 23% v Brazil, 84 points                            │
+│    Argentina @ 18% v favourites, 79 points                      │
 │                                                                  │
 │  Verified history                                                │
 │    Total predictions:        1,847                               │
@@ -299,9 +299,9 @@ The user's public profile (at `tournamental.com/u/<handle>`) is structured aroun
 │    Tournaments played:       7                                   │
 │                                                                  │
 │  Personality leaderboards                                        │
-│    🏆 The Oracle — #14 globally                                  │
-│    🦈 The Shark  — #47 globally                                  │
-│    🎯 The Contrarian — #3 in NZ                                  │
+│    🏆 The Oracle, #14 globally                                  │
+│    🦈 The Shark , #47 globally                                  │
+│    🎯 The Contrarian, #3 in NZ                                  │
 │                                                                  │
 │  Badges (24)                                                     │
 │    [Before the Crowd] [Bracket Genius] [Ice Veins] [+21 more]    │
@@ -314,21 +314,21 @@ Public by default for active users; users can opt their handle out of the global
 
 Without protections, sophisticated users could pump their IQ by predicting only obvious favourites or only on slow days. Mitigations:
 
-- **Minimum sample** — IQ percentiles only display once a user has ≥30 resolved predictions.
-- **Concentration penalty** — IQ percentile is per-sport-weighted, so a user who only predicted one team's matches doesn't get an inflated overall IQ.
-- **Variance check** — large inactivity gaps reduce displayed-IQ confidence; the score doesn't actually decay, but the percentile UI shows a lower-confidence interval.
-- **Streak protection caps** — Streak Protection (from [doc 16](16-game-modes-and-scoring.md)) cannot artificially extend perfect-run states for IQ purposes; protected predictions count as wins for streak tier but as draws for IQ delta.
-- **Sybil resistance** — multi-account abuse is mitigated by the auth layer ([doc 13](13-telegram-bot-and-auth.md)) and a passive heuristic that flags suspiciously correlated prediction patterns across accounts.
+- **Minimum sample**, IQ percentiles only display once a user has ≥30 resolved predictions.
+- **Concentration penalty**, IQ percentile is per-sport-weighted, so a user who only predicted one team's matches doesn't get an inflated overall IQ.
+- **Variance check**, large inactivity gaps reduce displayed-IQ confidence; the score doesn't actually decay, but the percentile UI shows a lower-confidence interval.
+- **Streak protection caps**, Streak Protection (from [doc 16](16-game-modes-and-scoring.md)) cannot artificially extend perfect-run states for IQ purposes; protected predictions count as wins for streak tier but as draws for IQ delta.
+- **Sybil resistance**, multi-account abuse is mitigated by the auth layer ([doc 13](13-telegram-bot-and-auth.md)) and a passive heuristic that flags suspiciously correlated prediction patterns across accounts.
 
-### The reputation network — long-term
+### The reputation network, long-term
 
 The Prediction IQ + verified prediction history together form a portable reputation primitive. Over time:
 
 - **Tournamental handles become the X / Twitter of sports prediction.** A user's `@handle` is their public reputation in any sports-prediction conversation.
-- **Cross-platform plug** — third parties can verify a VStamp themselves (the proof page works without Tournamental) so a user could embed their Tournamental IQ on a Substack or use it as proof on a sports podcast.
-- **Cross-domain expansion** — the same architecture works for elections, awards, entertainment outcomes. A user who builds a sports IQ on Tournamental can later predict on a politics tournament and get a separate domain-IQ that compounds.
+- **Cross-platform plug**, third parties can verify a VStamp themselves (the proof page works without Tournamental) so a user could embed their Tournamental IQ on a Substack or use it as proof on a sports podcast.
+- **Cross-domain expansion**, the same architecture works for elections, awards, entertainment outcomes. A user who builds a sports IQ on Tournamental can later predict on a politics tournament and get a separate domain-IQ that compounds.
 
-The *long-term product* is the network of verified predictors. Every other surface — the renderer, the bot, the clip pipeline, the affiliate links, the sweepstakes pools — exists to feed predictions into the reputation graph.
+The *long-term product* is the network of verified predictors. Every other surface, the renderer, the bot, the clip pipeline, the affiliate links, the sweepstakes pools, exists to feed predictions into the reputation graph.
 
 ## Data shapes
 
@@ -396,6 +396,6 @@ Snapshotter writes these to `/v1/static/profiles/<user_id>/iq.json` per the flat
 
 - [OpenTimestamps protocol](https://opentimestamps.org/)
 - [OpenTimestamps client (TypeScript)](https://github.com/opentimestamps/javascript-opentimestamps)
-- [Polygon mainnet — gas + transaction costs](https://polygon.technology/)
-- [Base — Coinbase L2](https://base.org/)
+- [Polygon mainnet, gas + transaction costs](https://polygon.technology/)
+- [Base, Coinbase L2](https://base.org/)
 - [Merkle Tree primer (Wikipedia)](https://en.wikipedia.org/wiki/Merkle_tree)

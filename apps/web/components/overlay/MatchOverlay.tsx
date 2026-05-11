@@ -1,12 +1,12 @@
 /**
- * MatchOverlay — bottom-sheet card with the compact match-preview view.
+ * MatchOverlay, bottom-sheet card with the compact match-preview view.
  *
  * Renders a slimmed-down version of `/match/[id]/preview`: kickoff
  * label + venue, both team flags, and quick links to each team's
  * overlay (replaces self) plus a "View full preview" link to the real
  * route.
  *
- * Like TeamOverlay, this doesn't import the full preview component —
+ * Like TeamOverlay, this doesn't import the full preview component -
  * it builds its own compact view from pure helpers so the overlay opens
  * instantly.
  */

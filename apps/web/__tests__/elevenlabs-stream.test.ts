@@ -41,7 +41,7 @@ describe("getSignedWss", () => {
   });
 });
 
-describe("openCommentaryStream — stub mode", () => {
+describe("openCommentaryStream, stub mode", () => {
   it("emits stub + final without opening a websocket", async () => {
     const events: string[] = [];
     const handle = await openCommentaryStream(
@@ -63,7 +63,7 @@ describe("openCommentaryStream — stub mode", () => {
   });
 });
 
-describe("openCommentaryStream — real mode", () => {
+describe("openCommentaryStream, real mode", () => {
   it("dispatches binary frames as audio", async () => {
     const events: Array<{ kind: string; size?: number }> = [];
 

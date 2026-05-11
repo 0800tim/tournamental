@@ -1,5 +1,5 @@
 /**
- * Auto-director policy — pure logic.
+ * Auto-director policy, pure logic.
  *
  * Per `docs/27b-fidelity-phase2-physics-director.md` § "Director
  * policy":
@@ -42,7 +42,7 @@ export interface CameraTarget {
 }
 
 /**
- * Internal director state — exposed only for testability.
+ * Internal director state, exposed only for testability.
  */
 export type DirectorPhase =
   | { kind: "live"; cam: "broadcast" | "behind-goal" }
@@ -56,7 +56,7 @@ export type DirectorPhase =
   | { kind: "penalty"; cam: "behind-goal"; enteredAt: number };
 
 export interface DirectorPolicyOptions {
-  /** Scene clock provider — `() => performance.now()` in production. */
+  /** Scene clock provider, `() => performance.now()` in production. */
   now?: () => number;
   /** Replay dwell time in real seconds. Default 4. */
   replaySec?: number;
@@ -135,7 +135,7 @@ export class DirectorPolicy {
 
   /**
    * Ingest a spec event. The director updates its phase based on the
-   * event type. Idempotent — repeat events of the same type during a
+   * event type. Idempotent, repeat events of the same type during a
    * goal sequence are ignored (we don't want 10 simultaneous goals to
    * stack 10 replays).
    */
@@ -146,7 +146,7 @@ export class DirectorPolicy {
         break;
       case "event.penalty_attempt":
         // The director cuts to behind-goal `penaltyPreRollSec` before
-        // the actual kick — but in our model we cut when the event
+        // the actual kick, but in our model we cut when the event
         // arrives (the producer should send the event ~1s ahead of the
         // kick already) and hold until outcome.
         this.enterPenalty();
@@ -158,7 +158,7 @@ export class DirectorPolicy {
   }
 
   /**
-   * Tick the director — call once per render frame. Updates the
+   * Tick the director, call once per render frame. Updates the
    * phase if dwell timers have elapsed. Returns the active cam name
    * so the renderer can pick which `useCamera()` hook to read from.
    */

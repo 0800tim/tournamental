@@ -1,4 +1,4 @@
-# Doc 48 — Player Profile Pages (WC2026)
+# Doc 48, Player Profile Pages (WC2026)
 
 > Owner: builder agent (`feat/player-profiles`). Public-domain data via Wikidata.
 > Status: shipped 2026-05-11. Source: `apps/web/data/players-2026.json`.
@@ -41,12 +41,12 @@ player has a Q-id (`Q615` for Messi). Fields we read:
 | `P569` (date of birth) | `dob` |
 | `P18` (image) | `imageUrl` (Wikimedia Commons) |
 | `P413` (position played) | `position` |
-| `P54` (member of sports team) | `club` (active only — no end qualifier) |
+| `P54` (member of sports team) | `club` (active only, no end qualifier) |
 | `schema:about` (en.wp link) | `wikipediaUrl` |
 
 Images are served via the Commons CDN at
 `https://commons.wikimedia.org/wiki/Special:FilePath/<filename>?width=400px`.
-We tag each image as `CC BY-SA 4.0` (Commons default) — anything outside
+We tag each image as `CC BY-SA 4.0` (Commons default), anything outside
 the licence allowlist is dropped (URL nulled, credit replaced with a TODO
 breadcrumb). The licence allowlist:
 
@@ -66,7 +66,7 @@ the cache is stale. The cache directory is gitignored (we want fresh
 scrapes from a clean checkout).
 
 In CI, the scraper runs in **mock mode** (`WC2026_DATA_BACKEND` unset). The
-mock backend is deterministic — it returns one record per seed entry with a
+mock backend is deterministic, it returns one record per seed entry with a
 synthesised dob, club, and rotated GK/DEF/MID/FWD position. This keeps CI
 runs offline + reproducible.
 
@@ -100,7 +100,7 @@ The output is sorted by `id` for deterministic diffs.
 | `/player/<id>` | Single-player profile: hero, quick facts, tournament context, Wikipedia link, JSON-LD `Person`. |
 | `/team/<code>` | Squad section now uses real `<PlayerCard />` grid for teams with data; falls back to the legacy stub for teams without. |
 
-Both `/players` and `/player/[id]` are `force-static` — pre-rendered at
+Both `/players` and `/player/[id]` are `force-static`, pre-rendered at
 build time. SEO-friendly: every player profile is a fully-rendered HTML
 page in the static export.
 
@@ -117,7 +117,7 @@ Examples:
 - `ARG-MAC-ALLISTER` → Alexis Mac Allister
 - `FRA-MBAPPE` → Kylian Mbappé
 
-IDs are stable across regeneration — Tim can deep-link to a player URL
+IDs are stable across regeneration, Tim can deep-link to a player URL
 from social or Discord and it survives a refresh of the dataset.
 
 ## Known gaps and follow-ups

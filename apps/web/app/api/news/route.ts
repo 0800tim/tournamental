@@ -1,5 +1,5 @@
 /**
- * /api/news — Next route handler that proxies the news-aggregator
+ * /api/news, Next route handler that proxies the news-aggregator
  * service. Used by the home-page NewsStrip and any other surface that
  * wants the live feed without exposing the internal port.
  *

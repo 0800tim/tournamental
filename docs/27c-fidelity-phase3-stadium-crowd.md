@@ -1,4 +1,4 @@
-# Phase 3 — Stadium, crowd, post-processing, ElevenLabs realtime audio
+# Phase 3, Stadium, crowd, post-processing, ElevenLabs realtime audio
 
 > The "TV" pass. After this phase, a screenshot of the renderer should be hard to distinguish from a broadcast still. Adds: stadium geometry, animated crowd billboards, the post-processing stack (SSAO, bloom, motion blur, vignette, depth of field), and ElevenLabs realtime WebSocket commentary streaming.
 
@@ -14,25 +14,25 @@ Phase 2 PR merged into `main`.
 
 ```
 apps/web/
-  components/Stadium.tsx                MODIFY — add tiered seating + nets + LED boards
-  components/Crowd.tsx                  NEW — instanced billboards, animated atlas
-  components/PostFX.tsx                 NEW — EffectComposer with quality tiers
-  components/CommentaryAudio.tsx        NEW — pre-rendered MP3s + realtime WS
-  lib/quality.ts                        NEW — quality preset resolver (URL flag + device hint)
+  components/Stadium.tsx                MODIFY, add tiered seating + nets + LED boards
+  components/Crowd.tsx                  NEW, instanced billboards, animated atlas
+  components/PostFX.tsx                 NEW, EffectComposer with quality tiers
+  components/CommentaryAudio.tsx        NEW, pre-rendered MP3s + realtime WS
+  lib/quality.ts                        NEW, quality preset resolver (URL flag + device hint)
   lib/audio/
-    pre-rendered-track.ts               NEW — load + sync pre-baked MP3s from Phase-0 transcripts
-    elevenlabs-stream.ts                NEW — WSS client to ElevenLabs realtime
-    audio-mixer.ts                      NEW — duck commentary on goal moments
+    pre-rendered-track.ts               NEW, load + sync pre-baked MP3s from Phase-0 transcripts
+    elevenlabs-stream.ts                NEW, WSS client to ElevenLabs realtime
+    audio-mixer.ts                      NEW, duck commentary on goal moments
   public/assets/stadium/
-    seating-low.glb                     NEW — 12 segment box geometry
+    seating-low.glb                     NEW, 12 segment box geometry
     seating-medium.glb                  NEW
     seating-high.glb                    NEW
-    led-board-textures/                 NEW — 16 sponsor variants
+    led-board-textures/                 NEW, 16 sponsor variants
   public/assets/crowd/
-    crowd-atlas-day.png                 NEW — 4×8 sprite sheet, cheering frames
+    crowd-atlas-day.png                 NEW, 4×8 sprite sheet, cheering frames
     crowd-atlas-night.png               NEW
-  app/api/commentary/sign/route.ts      NEW — server-signed ElevenLabs WSS URL
-  __tests__/post-fx.spec.ts             NEW — playwright snapshot
+  app/api/commentary/sign/route.ts      NEW, server-signed ElevenLabs WSS URL
+  __tests__/post-fx.spec.ts             NEW, playwright snapshot
   __tests__/commentary-audio.spec.ts    NEW
 
 docs/
@@ -193,21 +193,21 @@ ELEVENLABS_MODEL=eleven_turbo_v2_5
 The first cut shipped under `feat/fidelity-phase3-stadium-crowd`. Key
 deltas vs the spec above:
 
-- **Stadium GLBs** — implemented procedurally rather than as authored
+- **Stadium GLBs**, implemented procedurally rather than as authored
   GLBs. `lib/stadium-geometry.ts` builds a 12-segment ring per tier
   with parametric inputs (radius / depth / rise / tilt / colour). A
   hand-authored GLB is parked in `IDEAS.md` for Phase 4 polish.
-- **Crowd atlas** — Phase-3 ships with a flat colour-jittered billboard
+- **Crowd atlas**, Phase-3 ships with a flat colour-jittered billboard
   per stand instead of the 4x8 cheering-frames atlas. The instanced
   layout (5,000 instances split across four stands and three tiers)
   and the energy-driven colour shift are all in. Hooking up the
   sprite atlas is a one-file change in `components/Crowd.tsx` once
   the PNG corpus exists.
-- **ElevenLabs MP3 corpus** — the manifest endpoint returns an empty
+- **ElevenLabs MP3 corpus**, the manifest endpoint returns an empty
   `lines: []` array until the offline batch step lands. The
   client-side scheduling logic (`lib/audio/pre-rendered-track.ts`),
   scrub-recovery, and mixer ducking are all wired and tested.
-- **Floodlight `SpotLight`** — Phase 3 ships emissive floodlight head
+- **Floodlight `SpotLight`**, Phase 3 ships emissive floodlight head
   geometry (so bloom catches it) but not actual `SpotLight` casting
   shadows from the corner masts. The existing scene rig (sun
   directional + hemisphere) carries the lighting load.

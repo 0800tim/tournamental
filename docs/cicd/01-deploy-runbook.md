@@ -1,9 +1,9 @@
-# 01 — Deploy runbook
+# 01, Deploy runbook
 
 > Operator-facing. How to deploy a change end-to-end, and what to do when
 > something looks wrong.
 
-## TL;DR — happy path
+## TL;DR, happy path
 
 1. Open a PR against `main`. CI runs build + test.
 2. Reviewer agent approves; merge.
@@ -106,7 +106,7 @@ pm2 start infra/deploy/pm2/<env>.config.cjs --only <name>
 
 ### Lock held
 
-`acquireLock: lock held at /tmp/vtorn-deploy-locks/<app>.lock` — another
+`acquireLock: lock held at /tmp/vtorn-deploy-locks/<app>.lock`, another
 deploy is running. Wait or check `cat /tmp/vtorn-deploy-locks/<app>.lock`
 to see whose PID. If the PID is dead the next deploy will steal the lock
 automatically.

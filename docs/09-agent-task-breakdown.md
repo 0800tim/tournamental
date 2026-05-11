@@ -1,12 +1,12 @@
-# 09 — Agent Task Breakdown
+# 09, Agent Task Breakdown
 
-> Parallelisable workstreams for code agents. Each row is a self-contained job with a defined contract on its boundaries. Agents working on different rows should not need to communicate — the spec is the contract.
+> Parallelisable workstreams for code agents. Each row is a self-contained job with a defined contract on its boundaries. Agents working on different rows should not need to communicate, the spec is the contract.
 
 ## Dependency graph
 
 ```
                  ┌─────────────────┐
-                 │ A. spec/types.ts│  (already written — frozen contract)
+                 │ A. spec/types.ts│  (already written, frozen contract)
                  └────────┬────────┘
                           │
         ┌─────────────────┼─────────────────┬─────────────────┐
@@ -60,13 +60,13 @@ Letters A–E are the critical path for the v0.1 demo. F–I can start in parall
 
 ## Agent briefs
 
-### Agent A — Spec freeze
+### Agent A, Spec freeze
 
 **Status**: complete. Files: `spec/types.ts`, `spec/examples/*`, `docs/02-spec.md`.
 
 Boundary: bumping `spec_version` requires the spec author. All other agents may read the spec but must not modify it.
 
-### Agent B — Mock producer
+### Agent B, Mock producer
 
 **Repo path**: `apps/mock-producer/`.
 
@@ -76,7 +76,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: `npm run mock -- --seed=42 --out=ws --port=4001` starts a server, the renderer can connect to it, and a 90-min replay produces the full set of canonical event types.
 
-### Agent C — Stream server (origin)
+### Agent C, Stream server (origin)
 
 **Repo path**: `apps/stream-server/`.
 
@@ -86,7 +86,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: mock-producer (Agent B) → stream-server → renderer (Agent D) works over WebSocket *and* over a localhost-served chunk directory.
 
-### Agent D — Reference renderer
+### Agent D, Reference renderer
 
 **Repo path**: `apps/web/`.
 
@@ -96,7 +96,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: connecting to a mock-producer stream shows a watchable 90-min match with score updating on goals.
 
-### Agent E — Spec client package
+### Agent E, Spec client package
 
 **Repo path**: `packages/spec-client/`.
 
@@ -106,7 +106,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: D consumes only via this package and tests cover both transports.
 
-### Agent F — Video ingest
+### Agent F, Video ingest
 
 **Repo path**: `apps/video-ingest/`.
 
@@ -116,7 +116,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: a recorded match video produces a spec-valid stream that, when piped to the renderer, shows a watchable approximation of the original (≥80% goal recall, correct final score).
 
-### Agent G — CDN deploy
+### Agent G, CDN deploy
 
 **Repo path**: `infra/cloudflare/`.
 
@@ -124,7 +124,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: a chunk URL is hit from 5 globally distributed PoPs and shows `cf-cache-status: HIT` after the first miss.
 
-### Agent H — Avatars and asset pack
+### Agent H, Avatars and asset pack
 
 **Repo path**: `assets/`, `apps/web/public/`.
 
@@ -132,7 +132,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: renderer asset bundle ≤ 30MB, no console errors, animations blend cleanly.
 
-### Agent I — Demo site / landing
+### Agent I, Demo site / landing
 
 **Repo path**: `apps/web/app/(marketing)/`.
 
@@ -140,7 +140,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: cold visitor lands on `/`, clicks "watch demo", and is rendering a match within 5 seconds.
 
-### Agent J — Gamification service (predictions, badges, leaderboards, pools)
+### Agent J, Gamification service (predictions, badges, leaderboards, pools)
 
 **Repo path**: `apps/game-service/`, `packages/snapshotter/`.
 
@@ -150,7 +150,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: bot-driven predictions land in Redis, snapshotter produces correct CDN JSON, leaderboards refresh on a 10s tick, scoring engine resolves predictions when match events arrive, badges award on the right milestones, pool flow works end-to-end without ever handling money.
 
-### Agent K — Tournament Bot (Telegram + auth + notifications)
+### Agent K, Tournament Bot (Telegram + auth + notifications)
 
 **Repo path**: `apps/tournament-bot/`.
 
@@ -160,17 +160,17 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: a fresh user can sign up via Path A, B, or C in under 30s; predicting the next match takes ≤4 taps; goals in predicted matches notify within 5s; a fresh group chat with the bot in it works as a private leaderboard out of the box.
 
-### Agent N — Affiliate routing engine
+### Agent N, Affiliate routing engine
 
 **Repo path**: `apps/affiliate-router/`.
 
 **Reads**: `cf-ipcountry` from request, `operators.yaml`, current EPC tracking. **Writes**: click events to durable storage, conversion records when affiliate postbacks fire.
 
-**Brief**: per [docs/18-monetization.md](18-monetization.md). Node 20+ TypeScript. Geo + age-gate + legality lookup + EPC-rank routing for every outbound market-link click. NZ users see no offshore-sportsbook links (TAB monopoly hard rule); US/UK/AU users see only locally-licensed operators. Own-side click and conversion tracking — never trust each operator's dashboard alone.
+**Brief**: per [docs/18-monetization.md](18-monetization.md). Node 20+ TypeScript. Geo + age-gate + legality lookup + EPC-rank routing for every outbound market-link click. NZ users see no offshore-sportsbook links (TAB monopoly hard rule); US/UK/AU users see only locally-licensed operators. Own-side click and conversion tracking, never trust each operator's dashboard alone.
 
 **Done when**: a US user is routed to DraftKings/FanDuel; a UK user to Bet365 if approved; a NZ user sees no links unless TAB NZ has approved an affiliate deal; every click writes to the durable store with `(user_id, operator, region, ts)`; daily EPC report ranks operators correctly.
 
-### Agent O — Multi-provider identity service + Humanness Score
+### Agent O, Multi-provider identity service + Humanness Score
 
 **Repo path**: `apps/identity-service/`, `packages/humanness/`.
 
@@ -180,7 +180,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: a user can link 5+ providers in <30s each from the profile page; humanness score correctly increments and breakdown view shows source-of-truth; bot self-declaration toggle works and surfaces correctly across all leaderboards; planted bot ring of 5 is detected by nightly graph analysis.
 
-### Agent P — On-chain pool factory and TournamentalOracle
+### Agent P, On-chain pool factory and TournamentalOracle
 
 **Repo path**: `apps/onchain/`, `contracts/`.
 
@@ -190,7 +190,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: pool deployment costs <$0.50 on Polygon; deposit + prediction flow under $0.20 combined; result publication batches a full matchday in one tx for <$50; finalize + withdraw flows correctly distribute USDC; no high-severity audit findings remain.
 
-### Agent M — VStamp service (verification + Prediction IQ)
+### Agent M, VStamp service (verification + Prediction IQ)
 
 **Repo path**: `apps/vstamp-service/`.
 
@@ -200,7 +200,7 @@ Boundary: bumping `spec_version` requires the spec author. All other agents may 
 
 **Done when**: every locked prediction gets a VStamp ID within 100ms; Polygon anchor confirms within 60s; OpenTimestamps Bitcoin confirmation within 60min; public proof page verifies the Merkle proof against on-chain root in the user's browser without any Tournamental server involvement; Prediction IQ recomputes correctly given new resolutions.
 
-### Agent L — Clip pipeline and social distributor
+### Agent L, Clip pipeline and social distributor
 
 **Repo path**: `apps/clip-pipeline/`, `apps/social-distributor/`.
 

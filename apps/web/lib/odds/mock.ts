@@ -59,7 +59,7 @@ export interface MockOddsInput {
   readonly matchNo: string;
   readonly homeTeam: string;
   readonly awayTeam: string;
-  /** FIFA ranking — lower number is better. */
+  /** FIFA ranking, lower number is better. */
   readonly homeRank: number;
   readonly awayRank: number;
   /** When true, omit the draw row (knockout match). */

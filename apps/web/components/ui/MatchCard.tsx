@@ -1,5 +1,5 @@
 /**
- * MatchCard — TVNZ FIFA-app inspired fixture card.
+ * MatchCard, TVNZ FIFA-app inspired fixture card.
  *
  * Layout (mobile, 375 px viewport):
  *
@@ -50,7 +50,7 @@ export interface MatchCardProps {
   readonly state?: MatchCardState;
   /** ISO-8601 UTC kickoff timestamp. Required for "pre". */
   readonly kickoffUtc?: string;
-  /** "12'", "HT", "FT", "90+3'" — for "live". */
+  /** "12'", "HT", "FT", "90+3'", for "live". */
   readonly clockLabel?: string;
   readonly stage?: string;
   readonly groupId?: string;

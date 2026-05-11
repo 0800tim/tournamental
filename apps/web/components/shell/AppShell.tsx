@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * AppShell — the shared chrome around every shelled page.
+ * AppShell, the shared chrome around every shelled page.
  *
  * Renders:
  *   - top app-bar with brand logo (left) + hamburger menu (right)
@@ -11,12 +11,12 @@
  *     or passed explicitly via `subHeader`)
  *   - slide-in app-menu drawer, triggered by the hamburger or the
  *     bottom-nav "Menu" tab. The drawer is available on every viewport
- *     size — there is no longer a separate desktop side rail.
+ *     size, there is no longer a separate desktop side rail.
  *   - install-prompt toast (once per device)
  *
  * Variants:
- *   - `"default"` — standard chrome.
- *   - `"canvas"` — main content is full-bleed under a translucent
+ *   - `"default"`, standard chrome.
+ *   - `"canvas"`, main content is full-bleed under a translucent
  *     app-bar; bottom nav still renders by default (turn it off
  *     explicitly with `showBottomNav={false}` on routes that need
  *     true full-screen, e.g. the match renderer).

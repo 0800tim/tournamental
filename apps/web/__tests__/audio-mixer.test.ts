@@ -33,7 +33,7 @@ describe("AudioMixer states", () => {
     expect(m.commentaryGain()).toBe(1);
   });
 
-  it("ducks for a goal — target is -8 dB", () => {
+  it("ducks for a goal, target is -8 dB", () => {
     let now = 1000;
     const m = new AudioMixer({ now: () => now, rampMs: 100 });
     m.duckForGoal();
@@ -41,7 +41,7 @@ describe("AudioMixer states", () => {
     expect(m.getTargetGain()).toBeCloseTo(dB(-8), 5);
   });
 
-  it("duckForGoal is idempotent — calling twice keeps the same state", () => {
+  it("duckForGoal is idempotent, calling twice keeps the same state", () => {
     let now = 0;
     const m = new AudioMixer({ now: () => now, rampMs: 100 });
     m.duckForGoal();
@@ -62,7 +62,7 @@ describe("AudioMixer states", () => {
     expect(m.commentaryGain()).toBeCloseTo(1, 3);
   });
 
-  it("boosts for half-time — target is +4 dB", () => {
+  it("boosts for half-time, target is +4 dB", () => {
     let now = 0;
     const m = new AudioMixer({ now: () => now });
     m.boostForHalfTime();
@@ -81,7 +81,7 @@ describe("AudioMixer ramps", () => {
     now = 0;
     expect(m.commentaryGain()).toBeCloseTo(1, 3);
 
-    // Midpoint — should be roughly halfway between 1 and dB(-8)
+    // Midpoint, should be roughly halfway between 1 and dB(-8)
     now = 50;
     const mid = m.commentaryGain();
     const expectedMid = (1 + dB(-8)) / 2;

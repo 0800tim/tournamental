@@ -1,5 +1,5 @@
 /**
- * OverlayServerShim — server-renders the active overlay's title +
+ * OverlayServerShim, server-renders the active overlay's title +
  * canonical link inline on the page so search-engine crawlers (which
  * generally don't run JS) and link-preview bots see real HTML for the
  * deep-link variant of a URL.

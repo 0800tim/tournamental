@@ -1,5 +1,5 @@
 /**
- * phone-hash — deterministic hashing for friend matching.
+ * phone-hash, deterministic hashing for friend matching.
  *
  * Coverage:
  *   - canonicaliseE164 trims, drops spaces, requires + or 8-15 digits.

@@ -1,5 +1,5 @@
 /**
- * /team/[code] — team detail page for a single tournament team.
+ * /team/[code], team detail page for a single tournament team.
  *
  * Server component: loads the tournament + canonical-team data once at
  * build / request time, finds the team by 3-letter FIFA code, and renders:
@@ -14,7 +14,7 @@
  *   - 23-player squad grid (stub names + jersey #).
  *
  * Cache policy: this is a marketing-flavoured surface, identical for every
- * unauthenticated visitor — `Cache-Control: public, s-maxage=300,
+ * unauthenticated visitor, `Cache-Control: public, s-maxage=300,
  * stale-while-revalidate=86400` per the standing rule in CLAUDE.md.
  *
  * Mobile-first: hero looks great at 375px width; tap targets >= 44px.

@@ -1,13 +1,13 @@
 /**
- * DampedCameraDriver — frame-rate-independent damping for the active
+ * DampedCameraDriver, frame-rate-independent damping for the active
  * camera's position, lookAt, and FOV.
  *
  * Background: the Director writes
  *   camera.position.copy(blendedTarget.position)
  *   camera.lookAt(blendedTarget.lookAt)
  * directly each frame. The CutBlender already eases *transitions
- * between cams* (200-400 ms cosine), but the *target itself* — e.g. the
- * broadcast camera's `lookAt = ball.position * 0.4` — moves
+ * between cams* (200-400 ms cosine), but the *target itself*, e.g. the
+ * broadcast camera's `lookAt = ball.position * 0.4`, moves
  * discontinuously each state frame. With state frames batched in the
  * synthetic stream, the target jumps several metres per tick and the
  * camera snaps to it.

@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 /**
- * Collapsible HUD card — single source of truth for the right-edge
+ * Collapsible HUD card, single source of truth for the right-edge
  * peripheral panels (scorers, stats, subs).
  *
  * Collapsed state is a glass pill showing a tiny icon, title, and a
@@ -13,7 +13,7 @@ import { useCallback, useEffect, useState, type ReactNode } from "react";
  * survives reloads.
  *
  * Visual language matches the molecule polish bar in
- * `apps/web/components/molecule/molecule.css` — translucent navy
+ * `apps/web/components/molecule/molecule.css`, translucent navy
  * background, 1px hairline border, 12px radius, backdrop-filter blur,
  * gold accent on focus.
  *
@@ -73,7 +73,7 @@ export function CollapsibleHUDCard({
   empty = false,
 }: CollapsibleHUDCardProps) {
   // Read the persisted preference ONCE on mount to avoid SSR hydration
-  // flashes — we render the SSR-stable default first, then resolve the
+  // flashes, we render the SSR-stable default first, then resolve the
   // stored value in a layout-safe useEffect.
   const [collapsed, setCollapsed] = useState<boolean>(defaultCollapsed);
   const [hydrated, setHydrated] = useState(false);

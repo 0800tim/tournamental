@@ -1,22 +1,22 @@
-# 30 — Gamification + affiliate revenue spine
+# 30, Gamification + affiliate revenue spine
 
 > The single most important document in this repo for the **business**. Polymarket-driven live odds, early-lock scoring, market-pressure push, second-screen live-match mode, pay-TV affiliate router, and the affiliate funnel that monetises the whole thing. Free-to-play core; everywhere it's legal, the natural CTA is "back your conviction on Polymarket via our link" or "watch live on broadcaster X via our link".
 >
 > Companion docs:
-> - [docs/29-polymarket-odds-integration.md](29-polymarket-odds-integration.md) — the live-odds data plumbing
-> - [docs/18-monetization.md](18-monetization.md) — full revenue model + NZ regulatory constraint
-> - [docs/24-gamification-and-virality.md](24-gamification-and-virality.md) — badge/streak primitives this doc builds on
-> - [docs/27-social-distribution-strategy.md](27-social-distribution-strategy.md) — share-card mechanics
-> - [docs/13-tournament-bot.md](13-tournament-bot.md) — Telegram push surface
-> - [docs/31-live-commentary-overlay.md](31-live-commentary-overlay.md) — user-selectable commentary
+> - [docs/29-polymarket-odds-integration.md](29-polymarket-odds-integration.md), the live-odds data plumbing
+> - [docs/18-monetization.md](18-monetization.md), full revenue model + NZ regulatory constraint
+> - [docs/24-gamification-and-virality.md](24-gamification-and-virality.md), badge/streak primitives this doc builds on
+> - [docs/27-social-distribution-strategy.md](27-social-distribution-strategy.md), share-card mechanics
+> - [docs/13-tournament-bot.md](13-tournament-bot.md), Telegram push surface
+> - [docs/31-live-commentary-overlay.md](31-live-commentary-overlay.md), user-selectable commentary
 
 ## The one-paragraph pitch
 
-The user's bracket is never finished. From the moment they make their first pick, every remaining day shows them how the world's biggest prediction market disagrees with them. They get points for being right; **bigger points for locking in early**; even bigger points for being right *and* contrarian. Then on match day, the app becomes a **second screen** — phone in one hand, broadcast on TV — and they keep playing through quizzes and micro-markets while the real game runs. Every push, every share-card, every odds-chip is a chance to look at Polymarket and act on their conviction. The user can also buy a streaming pass via our affiliate link to actually watch the match. We get paid both ways.
+The user's bracket is never finished. From the moment they make their first pick, every remaining day shows them how the world's biggest prediction market disagrees with them. They get points for being right; **bigger points for locking in early**; even bigger points for being right *and* contrarian. Then on match day, the app becomes a **second screen**, phone in one hand, broadcast on TV, and they keep playing through quizzes and micro-markets while the real game runs. Every push, every share-card, every odds-chip is a chance to look at Polymarket and act on their conviction. The user can also buy a streaming pass via our affiliate link to actually watch the match. We get paid both ways.
 
 ## The flagship launch URL: `2026wc.tournamental.com`
 
-The bracket game is **the** launch product. Its canonical URL is **`https://2026wc.tournamental.com`** — not buried under `/world-cup-2026` on a generic app subdomain.
+The bracket game is **the** launch product. Its canonical URL is **`https://2026wc.tournamental.com`**, not buried under `/world-cup-2026` on a generic app subdomain.
 
 - **Landing page**: `2026wc.tournamental.com` lands directly on the bracket game / second-screen view.
 - **Marketing site CTAs** (`www.tournamental.com`): every "Play the bracket game" / "Make your picks" button points at `2026wc.tournamental.com`.
@@ -61,7 +61,7 @@ lock_mult(t) = 1.0 + 4.0 × exp(-3 × (t / window))
 | 1 day before kickoff | ~1.4× |
 | At kickoff | 1.0× |
 
-**Loyalty bump**: every time the user *opens* their bracket but doesn't change a pick, they get a passive `+0.05×` "loyalty bump" on that pick — capped at `5.0×`. Reward for not flinching.
+**Loyalty bump**: every time the user *opens* their bracket but doesn't change a pick, they get a passive `+0.05×` "loyalty bump" on that pick, capped at `5.0×`. Reward for not flinching.
 
 ### Contrarian multiplier
 
@@ -77,14 +77,14 @@ If a pick **wins** AND was a market underdog at lock time:
 
 A correct pick on a 6% Polymarket underdog locked 5 weeks before kickoff is worth: `100 × 5.0 × 4.0 = 2000 pts` for a single group winner.
 
-This **forces the user to look at the odds before locking** — which is the primary mechanism for affiliate-funnel touch-points.
+This **forces the user to look at the odds before locking**, which is the primary mechanism for affiliate-funnel touch-points.
 
 ## The "never finished bracket" engagement loop
 
 ```
    pick → live odds chip appears next to your pick
      → market moves
-       → push: "MEX dropped 8pp — change pick?"
+       → push: "MEX dropped 8pp, change pick?"
          → user opens app
            ↓
       either: (a) change pick (lock multiplier resets to current value)
@@ -100,7 +100,7 @@ Every loop is a chance for the user to:
 2. Click an odds chip and bounce to Polymarket (good for revenue).
 3. Share their alignment / disagreement on social (good for growth).
 
-The loop runs continuously from "draw + 24h" through "final whistle of the final" — about 5 weeks for a World Cup.
+The loop runs continuously from "draw + 24h" through "final whistle of the final", about 5 weeks for a World Cup.
 
 ## Push system (the heartbeat)
 
@@ -108,14 +108,14 @@ The Telegram bot + (later) PWA push pings users on:
 
 | Trigger | Copy template |
 |---|---|
-| Their pick moved more than ±5pp on Polymarket | "Heads up — your pick {team} just dropped from {old}% to {new}% on the market. Change pick?" |
+| Their pick moved more than ±5pp on Polymarket | "Heads up, your pick {team} just dropped from {old}% to {new}% on the market. Change pick?" |
 | Lock multiplier about to fall below a band | "{team} multiplier expires in 24h. Lock now to keep 3.5× on this pick." |
-| A team they didn't pick is now a heavy favourite | "Brazil's now at 38% to win their group. You've got Switzerland — confident?" |
+| A team they didn't pick is now a heavy favourite | "Brazil's now at 38% to win their group. You've got Switzerland, confident?" |
 | Their bracket leaderboard rank dropped | "You've fallen 12 places to #847 in NZ. {team} winning made the difference." |
-| 24h before kickoff | "Final hour to lock in {group} — see latest market %." |
+| 24h before kickoff | "Final hour to lock in {group}, see latest market %." |
 | Match they predicted is starting in 5 min | "{Argentina} {kickoff time}. Your pick: {ARG to win}. Live in 5 min." |
 | Goal in a match relevant to their bracket | "{Argentina} just scored. Your bracket's looking good." |
-| **Affiliate CTA push (geo-permitted only)** | "Confident in {team}? Polymarket has them at {prob}%. Open an account — sign up bonus: $20 free trade." |
+| **Affiliate CTA push (geo-permitted only)** | "Confident in {team}? Polymarket has them at {prob}%. Open an account, sign up bonus: $20 free trade." |
 | **Pay-TV affiliate push (geo-permitted)** | "ARG vs FRA in 30 min. Watch live: Sky NZ 4-week pass $14.99 →" |
 
 Push frequency cap: **3/day max per user** unless explicitly opted in for "match-day full coverage". Quiet hours respected per user TZ. Affiliate pushes are separate and require explicit opt-in.
@@ -124,11 +124,11 @@ Push frequency cap: **3/day max per user** unless explicitly opted in for "match
 
 Five concurrent leaderboards, every user sees their rank in all five:
 
-1. **Global** — every user, every country.
-2. **Country** — Cloudflare-IP-derived. NZ leaderboard is its own thing (NZ rules).
-3. **Friends** — explicit invite list (Telegram handle import).
-4. **This week** — points earned in the trailing 7 days. Resets weekly.
-5. **Affiliate-cohort** — users who joined via the same referral code. Used for creator leagues.
+1. **Global**, every user, every country.
+2. **Country**, Cloudflare-IP-derived. NZ leaderboard is its own thing (NZ rules).
+3. **Friends**, explicit invite list (Telegram handle import).
+4. **This week**, points earned in the trailing 7 days. Resets weekly.
+5. **Affiliate-cohort**, users who joined via the same referral code. Used for creator leagues.
 
 Leaderboard hits a Redis ZSET that updates every 60s. A "share my rank" generates an OG card per `docs/27`.
 
@@ -153,12 +153,12 @@ Slide-up drawer showing:
 - "Lock multiplier" current value for this pick.
 - A **"Back this on Polymarket →"** button (geo-gated). Tapping it logs `affiliate_click`, opens Polymarket with our affiliate ref.
 
-### `<LockSummary>` (existing — extend)
+### `<LockSummary>` (existing, extend)
 After user locks their bracket:
 - Per-pick multiplier table.
 - "Total possible points from your current locks: X".
 - "Market alignment: 67%".
-- "Your most contrarian pick: Senegal over Norway (8% to win Group K) — locked early, worth up to 2000 pts if right."
+- "Your most contrarian pick: Senegal over Norway (8% to win Group K), locked early, worth up to 2000 pts if right."
 - "**Back your boldest pick →**" CTA (geo-gated).
 
 ### `<AffiliateCTA>` (NEW)
@@ -179,23 +179,23 @@ Geo-gated via Cloudflare `cf-ipcountry`. Renders nothing for restricted countrie
 
 ## Second-screen mode (live-match companion)
 
-> Once a match is in progress, the bracket-pick is locked but the user is far from finished. The app becomes a **second screen** — phone in hand, watching the game on TV (or a Pay TV stream sold by us), tapping for the next 90+ minutes.
+> Once a match is in progress, the bracket-pick is locked but the user is far from finished. The app becomes a **second screen**, phone in hand, watching the game on TV (or a Pay TV stream sold by us), tapping for the next 90+ minutes.
 
 ### What's running concurrently during a live match
 
-- **Pre-match locked bracket pick** — sits there, scoring as the result settles.
-- **Live odds tile** — Polymarket per-match prices update every 30s, plus instant tick on goals.
-- **Live quiz drops** — every ~7-10 minutes during play, a quick prompt: "Next throw-in to who?", "Goal in the next 5 minutes?". 5-second answer window. 5-50 in-match points.
-- **In-match prediction markets** — short-window predictions on shots-in-the-next-5-min, half-time-correct-score, next-card-colour. Each has a multiplier based on its remaining window. Each market line is **also** a Polymarket market the user can trade on with the affiliate CTA.
-- **Live commentary audio** — pre-rendered transcripts from `data/commentary/` for replays; ElevenLabs WSS streaming for live (per `docs/31`).
-- **Pay-TV stream affiliate** — see below.
+- **Pre-match locked bracket pick**, sits there, scoring as the result settles.
+- **Live odds tile**, Polymarket per-match prices update every 30s, plus instant tick on goals.
+- **Live quiz drops**, every ~7-10 minutes during play, a quick prompt: "Next throw-in to who?", "Goal in the next 5 minutes?". 5-second answer window. 5-50 in-match points.
+- **In-match prediction markets**, short-window predictions on shots-in-the-next-5-min, half-time-correct-score, next-card-colour. Each has a multiplier based on its remaining window. Each market line is **also** a Polymarket market the user can trade on with the affiliate CTA.
+- **Live commentary audio**, pre-rendered transcripts from `data/commentary/` for replays; ElevenLabs WSS streaming for live (per `docs/31`).
+- **Pay-TV stream affiliate**, see below.
 
 ### Live points currency
 
 A separate ledger from bracket points so users can keep playing the second-screen even if their bracket is dead.
 
 - **Live points** earned per quiz / per micro-prediction.
-- **Daily live leaderboard** — top scorers over 24h.
+- **Daily live leaderboard**, top scorers over 24h.
 - **Convert** to bracket-bonus at the end of the tournament: every 1000 live points → +100 bracket points. Caps at 5000 bracket points so live grinders can't overtake bracket-correct players.
 
 ### Live-match sequence
@@ -211,7 +211,7 @@ T+0:07:00
    ├ Quiz drop #1
 T+0:23:00 goal
    ├ Live tile flashes ARG 78% / DRAW 14% / FRA 8%
-   ├ "ARG just scored — your bracket pick is in the green"
+   ├ "ARG just scored, your bracket pick is in the green"
    ├ Affiliate push (geo-gated): "ARG now 78% to win. Trade on Polymarket?"
 T+0:45:00 half-time
    ├ Half-time recap auto-card to share
@@ -225,13 +225,13 @@ T+1:30:00 full-time
 
 ### Components to add (in `apps/web/components/live/`)
 
-- `<LiveMatchView>` — top-level second-screen layout
-- `<LiveOddsTile>` — bottom-right floating tile, ticks every 30s
-- `<QuizDrop>` — modal with countdown timer, 5s answer window
-- `<MicroMarketCard>` — short-window prediction with affiliate CTA
-- `<LivePointsLedger>` — sidebar showing accumulated live points + leaderboard rank
-- `<PayTVStreamCTA>` — geo-gated banner (see below)
-- `<BracketPickReminder>` — subtle "your bracket pick: ARG to win" pinned at top
+- `<LiveMatchView>`, top-level second-screen layout
+- `<LiveOddsTile>`, bottom-right floating tile, ticks every 30s
+- `<QuizDrop>`, modal with countdown timer, 5s answer window
+- `<MicroMarketCard>`, short-window prediction with affiliate CTA
+- `<LivePointsLedger>`, sidebar showing accumulated live points + leaderboard rank
+- `<PayTVStreamCTA>`, geo-gated banner (see below)
+- `<BracketPickReminder>`, subtle "your bracket pick: ARG to win" pinned at top
 
 All listen to a single match-event WebSocket. Reuses the `@tournamental/spec` event types.
 
@@ -260,7 +260,7 @@ All listen to a single match-event WebSocket. Reuses the `@tournamental/spec` ev
 - World Cup TV rights are sold per country: BBC/ITV (UK), Optus Sport / SBS (AU), Sky (NZ), Fox/Telemundo (US), TF1/M6 (FR), beIN (MENA), and so on.
 - Most broadcasters run affiliate programmes via Impact, CJ, or direct.
 - A single user signing up for a one-month streaming pass is typical USD $20-40 with affiliate cuts of 8-25%.
-- Sign-up timing aligns perfectly with our funnel: they have a bracket, we know the country, the next match relevant to their picks is in N hours, we can show "Watch ARG vs FRA on Sky for $14.99 — 4 weeks tournament pass".
+- Sign-up timing aligns perfectly with our funnel: they have a bracket, we know the country, the next match relevant to their picks is in N hours, we can show "Watch ARG vs FRA on Sky for $14.99, 4 weeks tournament pass".
 
 ### Implementation
 
@@ -278,8 +278,8 @@ apps/affiliate-router/
       paytv-tf1-fr.ts               (FR)
       paytv-bein-mena.ts            (MENA)
       ...
-    select-providers.ts             — geo + match → ranked provider list
-    track-click.ts                  — log + redirect with affiliate ref
+    select-providers.ts            , geo + match → ranked provider list
+    track-click.ts                 , log + redirect with affiliate ref
 ```
 
 Same `<AffiliateCTA>` pattern, just different `kind`:
@@ -287,7 +287,7 @@ Same `<AffiliateCTA>` pattern, just different `kind`:
 <AffiliateCTA
   kind="paytv-stream"
   matchId={match.id}
-  copy="Watch ARG vs FRA live — Sky 4-week pass $14.99"
+  copy="Watch ARG vs FRA live, Sky 4-week pass $14.99"
   geoCountry="NZ"
   campaignId={campaignId}
 />
@@ -297,11 +297,11 @@ Per-match the user sees ONE primary stream CTA (their country's most popular bro
 
 ### Surfaces
 
-1. **Pre-match push** (T-0:30): "ARG vs FRA in 30 min. Watch live: [Sky NZ — 4-week pass $14.99]"
+1. **Pre-match push** (T-0:30): "ARG vs FRA in 30 min. Watch live: [Sky NZ, 4-week pass $14.99]"
 2. **Live-match-view banner**: small ribbon top of screen, dismissable per match.
 3. **Bracket page header**: "Watching all 104 matches live? See best stream packages for [country]."
 4. **Match-card** in fixtures list: "Live" badge + stream CTA per match.
-5. **Onboarding flow**: first time the user lands on `2026wc.tournamental.com`, ask "Want help finding the best stream subscription for [auto-detected country]?" — soft CTA, dismissable, never blocking.
+5. **Onboarding flow**: first time the user lands on `2026wc.tournamental.com`, ask "Want help finding the best stream subscription for [auto-detected country]?", soft CTA, dismissable, never blocking.
 
 ### Geo-gating
 
@@ -312,9 +312,9 @@ Pay-TV affiliate is country-specific by definition. Each provider declares which
 Day 1 of the affiliate router we ship support for the top 8 markets:
 
 1. US (Fubo, Fox, Telemundo)
-2. UK (BBC iPlayer is free; ITVX is free; we ship a "free" badge — no affiliate but builds trust)
+2. UK (BBC iPlayer is free; ITVX is free; we ship a "free" badge, no affiliate but builds trust)
 3. AU (Optus Sport)
-4. NZ (Sky NZ — needs verification of affiliate programme)
+4. NZ (Sky NZ, needs verification of affiliate programme)
 5. FR (TF1, M6)
 6. DE (Magenta, Telekom)
 7. BR (Globo, SporTV)
@@ -334,7 +334,7 @@ Remaining ~40 broadcaster relationships ship over first 6 weeks post-launch.
 - Click only: $0
 - Sign-up: typical $5-15
 - First deposit: typical 25-40% of deposit amount up to a cap
-- Ongoing volume: typical 5-25% of trading fees, in perpetuity. **The big one** — a serious user generates monthly revenue for years.
+- Ongoing volume: typical 5-25% of trading fees, in perpetuity. **The big one**, a serious user generates monthly revenue for years.
 
 ### Revenue waterfall (Pay TV)
 - Click only: $0
@@ -370,7 +370,7 @@ A user who never clicks an affiliate link must still have an excellent game. Spe
 - All bracket mechanics work without an affiliate click.
 - All second-screen mechanics work without an affiliate click.
 - Leaderboards, push, social cards work without an affiliate click.
-- The "Back this on Polymarket" / "Watch on Sky" CTAs are **never required** — they're adjacent.
+- The "Back this on Polymarket" / "Watch on Sky" CTAs are **never required**, they're adjacent.
 - We never gate score/leaderboard/feature access on having clicked anything.
 
 Non-negotiable. If users feel the game is a vehicle for affiliate clicks, retention dies.
@@ -419,16 +419,16 @@ Total: 7 days, ships in time for go-to-market window.
 
 ## Success metrics (90 days post-launch)
 
-- Daily active users — target 30% of registered.
-- Pushes opened — target 25% open rate sustained.
-- Bracket edit rate — target 60% of users edit at least one pick after lock.
-- Odds-drawer open rate — target 40% of bracket viewers open at least one drawer.
-- Affiliate click-through rate (Polymarket) — target 8% of bracket lockers.
-- Affiliate signup rate — target 25% of clicks → signup.
-- Affiliate first-deposit rate — target 15% of signups → first deposit.
-- Pay-TV CTA click-through — target 12% in match-week.
-- Pay-TV signup rate — target 20% of clicks.
-- Implied revenue per affiliate-eligible user (90 days) — target USD $4-12 across both lanes.
+- Daily active users, target 30% of registered.
+- Pushes opened, target 25% open rate sustained.
+- Bracket edit rate, target 60% of users edit at least one pick after lock.
+- Odds-drawer open rate, target 40% of bracket viewers open at least one drawer.
+- Affiliate click-through rate (Polymarket), target 8% of bracket lockers.
+- Affiliate signup rate, target 25% of clicks → signup.
+- Affiliate first-deposit rate, target 15% of signups → first deposit.
+- Pay-TV CTA click-through, target 12% in match-week.
+- Pay-TV signup rate, target 20% of clicks.
+- Implied revenue per affiliate-eligible user (90 days), target USD $4-12 across both lanes.
 
 ## What NOT to do
 
@@ -436,12 +436,12 @@ Total: 7 days, ships in time for go-to-market window.
 - Don't trick users into clicking. CTAs must be honest.
 - Don't show Polymarket affiliate CTAs in NZ/AU. Test every release with forced `cf-ipcountry`.
 - Don't rely on a single affiliate provider per lane. Polymarket + Kalshi for predictions; multiple paytv providers per country.
-- Don't put gambling-language in `apps/marketing` — free-to-play prediction game, full stop.
+- Don't put gambling-language in `apps/marketing`, free-to-play prediction game, full stop.
 
 ## Open questions for Tim
 
-1. **Polymarket affiliate paperwork** — register Tournamental Holdings as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
-2. **Pay-TV provider outreach** — recommend signing up for Impact and CJ Affiliate networks (cover most broadcasters); Sky NZ direct; Optus AU direct.
-3. **NZ audience copy** — for NZ users, the Polymarket CTA is hidden. Should the chip itself stay (editorial market intel) or be hidden? Recommend keeping the chip — it drives bracket engagement even without the affiliate.
-4. **First-deposit attribution** — does Polymarket's affiliate console expose a postback/webhook? Need to register and verify Mon.
-5. **Sign-up bonus copy** — any specific Polymarket promo we should reference verbatim? E.g. "$20 free trade" or whatever's current.
+1. **Polymarket affiliate paperwork**, register Tournamental Holdings as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
+2. **Pay-TV provider outreach**, recommend signing up for Impact and CJ Affiliate networks (cover most broadcasters); Sky NZ direct; Optus AU direct.
+3. **NZ audience copy**, for NZ users, the Polymarket CTA is hidden. Should the chip itself stay (editorial market intel) or be hidden? Recommend keeping the chip, it drives bracket engagement even without the affiliate.
+4. **First-deposit attribution**, does Polymarket's affiliate console expose a postback/webhook? Need to register and verify Mon.
+5. **Sign-up bonus copy**, any specific Polymarket promo we should reference verbatim? E.g. "$20 free trade" or whatever's current.

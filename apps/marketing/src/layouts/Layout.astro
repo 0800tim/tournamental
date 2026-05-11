@@ -19,7 +19,7 @@ interface Props {
 }
 
 const {
-  title = "Tournamental — predict the world's biggest matches with your friends",
+  title = "Tournamental, predict the world's biggest matches with your friends",
   description = "Watch the FIFA World Cup, Six Nations, the Cricket World Cup and any other tournament play out in 3D, predict outcomes for points, run your own pool at play.tournamental.com/s/yourname, and climb a global leaderboard.",
   ogImage = "/og-default.png",
   ogImageWidth = 1200,
@@ -81,9 +81,9 @@ const absoluteOgImage = ogImage.startsWith("http")
     <script is:inline>
       // Apply the user's theme choice before first paint to avoid a
       // FOUC. Resolution order:
-      //   1. ?theme=light|dark   — deep-link override (used by the
+      //   1. ?theme=light|dark  , deep-link override (used by the
       //      light-mode-readability e2e spec)
-      //   2. localStorage["vtourn:theme"]  — user choice from the
+      //   2. localStorage["vtourn:theme"] , user choice from the
       //      header toggle, one of "system" | "light" | "dark"
       //   3. system / prefers-color-scheme
       //   4. dark (fallback if everything blows up)
@@ -144,7 +144,7 @@ const absoluteOgImage = ogImage.startsWith("http")
     </style>
   </head>
   <body class="min-h-screen flex flex-col">
-    {/* GTM noscript fallback per Google's install spec — must be the
+    {/* GTM noscript fallback per Google's install spec, must be the
         first child of <body>. */}
     <AnalyticsNoScript />
     <Header />
@@ -153,7 +153,7 @@ const absoluteOgImage = ogImage.startsWith("http")
     </main>
     <Footer />
 
-    {/* Section reveal — every <section> on the page fades up as it
+    {/* Section reveal, every <section> on the page fades up as it
         enters the viewport. Children that opt in via .vt-stagger-child
         animate behind the section by 80 ms each. The observer respects
         prefers-reduced-motion: under reduce we add the .is-in-view

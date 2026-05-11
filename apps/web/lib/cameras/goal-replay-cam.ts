@@ -6,7 +6,7 @@
  *   0.25× speed, vignette 0.6, motion blur up.
  *
  * The replay camera sits low (3 m up) and slightly to the side of
- * the goal-mouth, looking at the ball — the broadcast cliché. It also
+ * the goal-mouth, looking at the ball, the broadcast cliché. It also
  * exposes its post-FX intensity so `<Director>` can drive the
  * vignette / motion-blur stack (Phase 3 wires the actual passes).
  */
@@ -27,7 +27,7 @@ export const GOAL_REPLAY_DWELL_SEC = 4;
 /**
  * Compute the goal-replay camera's pose.
  *
- *   `ballWorld` — the ball's position at the moment of the goal.
+ *   `ballWorld`, the ball's position at the moment of the goal.
  *
  * Camera sits behind+offset from the goal-line, looking back at the
  * ball.

@@ -35,6 +35,10 @@ export interface BracketRow {
   payload_json: string;
   locked_at: number;
   score_total: number;
+  /** Public opaque share guid (added by migration 0004). Always present
+   *  on rows written after migration; rows that pre-date the migration
+   *  have it backfilled with a 16-char hex string. */
+  share_guid: string | null;
 }
 
 export interface MatchResultRow {

@@ -1,6 +1,6 @@
 // Astro Content Collections registry.
 //
-// We keep one collection — `blog` — for the public-facing build log on
+// We keep one collection, `blog`, for the public-facing build log on
 // tournamental.com/blog. Posts are MDX, hero images live under
 // `apps/marketing/public/blog/` so they go through the public asset
 // pipeline (immutable hashing handled by Astro for assets imported via
@@ -8,7 +8,7 @@
 // docs/22-deployment-and-tunnels.md).
 //
 // Frontmatter contract is intentionally narrow. If a field is missing
-// the build fails — Tim hates "the post shipped without a date" bugs.
+// the build fails, Tim hates "the post shipped without a date" bugs.
 import { defineCollection, z } from "astro:content";
 
 const blog = defineCollection({
@@ -28,7 +28,7 @@ const blog = defineCollection({
       // /public/blog/ and is referenced as a static URL.
       heroImage: z.union([image(), z.string()]).optional(),
       heroImageAlt: z.string().optional(),
-      // Required if heroImage is present — attribution + licence string.
+      // Required if heroImage is present, attribution + licence string.
       // Format: `Photo by <name> on <source> (<licence>)`.
       heroImageCredit: z.string().optional(),
       draft: z.boolean().default(false),

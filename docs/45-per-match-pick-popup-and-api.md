@@ -1,8 +1,8 @@
-# 45 — Per-match pick popup and game-by-game API
+# 45, Per-match pick popup and game-by-game API
 
 > Browse anywhere → tap any fixture → pick or change pick → no full nav.
 
-## Naming note — Save, not Lock
+## Naming note, Save, not Lock
 
 User-facing copy reads as "Save" / "Saved" everywhere. Internally, the
 prediction record still carries `lockedAt` and `oddsAtLock` field names
@@ -26,13 +26,13 @@ present an **individual fixture** to the user. Tim's spec:
 Two pieces ship together:
 
 1. A **MatchPickPopup** component that can render as a bottom-sheet,
-   centered modal, or inline card — same component, same UX,
+   centered modal, or inline card, same component, same UX,
    reusable from any browse surface.
 2. **Per-match pick API** endpoints on `apps/game` so a single
    prediction can be saved atomically without re-encoding the whole
    bracket.
 
-## API — `apps/game`
+## API, `apps/game`
 
 Mounted alongside the existing `/v1/bracket/*` routes. Same auth model
 (dev mesh trusts `X-User-Id` until production wires Telegram + SMS-OTP).
@@ -41,7 +41,7 @@ Mounted alongside the existing `/v1/bracket/*` routes. Same auth model
 
 Atomically save or change a single pick. The path `:userId` must match
 the caller's `X-User-Id`; mismatch returns 403. Internally the saved
-record carries a `lockedAt` ISO timestamp — that's what the scoring
+record carries a `lockedAt` ISO timestamp, that's what the scoring
 engine consumes; the user-facing UI calls this "saved".
 
 Body:
@@ -133,16 +133,16 @@ Every PUT and DELETE emits a structured pino log line at info level:
 }
 ```
 
-## Component — `MatchPickPopup`
+## Component, `MatchPickPopup`
 
 Located at `apps/web/components/match-pick/MatchPickPopup.tsx`. Three
 presentation modes:
 
-- `presentation="sheet"` — bottom sheet on mobile, centered modal on
+- `presentation="sheet"`, bottom sheet on mobile, centered modal on
   desktop. Drag-down to close on touch, Escape on keyboard, X button,
   backdrop click.
-- `presentation="modal"` — always centered modal.
-- `presentation="inline"` — naked card, no overlay/close button —
+- `presentation="modal"`, always centered modal.
+- `presentation="inline"`, naked card, no overlay/close button -
   embed inside an existing list (e.g. team page in-line).
 
 Props:
@@ -171,7 +171,7 @@ rendered when an `odds` prop is supplied; clicking it expands to show
 the source + captured-at timestamp (the same data the popup snapshots
 into `oddsAtLock`).
 
-### Hook — `useMatchPick(matchId, opts)`
+### Hook, `useMatchPick(matchId, opts)`
 
 Manages state for one match:
 

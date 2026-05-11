@@ -1,12 +1,12 @@
 /**
  * Supabase client factories for the Next.js App Router.
  *
- *   browserClient()        — for "use client" components. Cached at
+ *   browserClient()       , for "use client" components. Cached at
  *                            module scope so the realtime/auth listeners
  *                            survive route transitions.
- *   serverActionClient()   — for Route Handlers / Server Actions that
+ *   serverActionClient()  , for Route Handlers / Server Actions that
  *                            need to read the user's session from cookies.
- *   serviceRoleClient()    — server-only escape hatch that bypasses
+ *   serviceRoleClient()   , server-only escape hatch that bypasses
  *                            RLS. Use sparingly (admin tasks, trigger
  *                            handlers, friend-graph writes that span
  *                            users).
@@ -43,7 +43,7 @@ export function browserClient(): AnyClient | null {
 
 /**
  * Server-side client (Route Handlers, Server Actions, RSCs that need
- * the user's session). Caller passes in a `cookies()`-like adapter — we
+ * the user's session). Caller passes in a `cookies()`-like adapter, we
  * keep the factory signature loose so this module can compile without
  * importing `next/headers` (which would force every consumer onto the
  * server-only edge).

@@ -1,5 +1,5 @@
 /**
- * HeadToHeadPill — compact W-D-L summary rendered on bracket rows + match
+ * HeadToHeadPill, compact W-D-L summary rendered on bracket rows + match
  * preview cards.
  *
  * Asserts:

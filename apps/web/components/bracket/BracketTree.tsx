@@ -1,5 +1,5 @@
 /**
- * BracketTree — SVG visualisation of the user's predicted knockout path.
+ * BracketTree, SVG visualisation of the user's predicted knockout path.
  *
  * Scales to any viewport (the SVG viewBox handles it). Updates instantly
  * as group standings change because the cascade calculator is pure and
@@ -38,7 +38,7 @@ export function BracketTree(props: BracketTreeProps) {
   const { knockouts, teams, onPickWinner, onToggleLock, lockedKeys } = props;
 
   // Group knockouts by stage. Skip the 3rd-place play-off ("tp_01") in
-  // the main tree — render it as a sidebar below.
+  // the main tree, render it as a sidebar below.
   const byStage = STAGE_ORDER.map((stage) =>
     knockouts.filter((k) => k.stage === stage && k.id !== "tp_01"),
   );
@@ -83,8 +83,8 @@ export function BracketTree(props: BracketTreeProps) {
         {byStage.flatMap((stage, stageIdx) =>
           stage.map((k, rowIdx) => {
             const { x, y } = matchPosition(stageIdx, rowIdx, stage.length);
-            const homeName = teams.get(k.home.team ?? "")?.name ?? "—";
-            const awayName = teams.get(k.away.team ?? "")?.name ?? "—";
+            const homeName = teams.get(k.home.team ?? "")?.name ?? "-";
+            const awayName = teams.get(k.away.team ?? "")?.name ?? "-";
             const winner = k.predicted_winner;
             const isHomeWin = winner !== null && winner === k.home.team;
             const isAwayWin = winner !== null && winner === k.away.team;
@@ -127,8 +127,8 @@ export function BracketTree(props: BracketTreeProps) {
           <h4>3rd-place play-off</h4>
           {(() => {
             const tp = props.knockouts.find((k) => k.id === "tp_01")!;
-            const homeName = teams.get(tp.home.team ?? "")?.name ?? "—";
-            const awayName = teams.get(tp.away.team ?? "")?.name ?? "—";
+            const homeName = teams.get(tp.home.team ?? "")?.name ?? "-";
+            const awayName = teams.get(tp.away.team ?? "")?.name ?? "-";
             const winner = tp.predicted_winner;
             return (
               <div className="bracket-card-mini">

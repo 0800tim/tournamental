@@ -1,5 +1,5 @@
 /**
- * Vitest — `derivePathToGold` champion-path derivation.
+ * Vitest, `derivePathToGold` champion-path derivation.
  *
  * The molecule v2 view highlights the predicted champion's road to the
  * final in gold. This test suite covers the derivation function:
@@ -24,7 +24,7 @@ import {
 import type { CascadedBracket } from "@vtorn/bracket-engine";
 
 /**
- * Helper — build a fully-resolved synthetic cascade where ARG beats
+ * Helper, build a fully-resolved synthetic cascade where ARG beats
  * BRA (R32) → FRA (R16) → GER (QF) → ESP (SF) → ENG (F), and ESP wins
  * the 3rd-place playoff over POR.
  */
@@ -107,7 +107,7 @@ function fullARGChampionCascade(): CascadedBracket {
   };
 }
 
-describe("derivePathToGold — full champion cascade", () => {
+describe("derivePathToGold, full champion cascade", () => {
   const cascade = fullARGChampionCascade();
 
   it("returns exactly 5 bonds for the champion's road to the final", () => {
@@ -161,7 +161,7 @@ describe("derivePathToGold — full champion cascade", () => {
   });
 });
 
-describe("derivePathToGold — partial / empty / fallback inputs", () => {
+describe("derivePathToGold, partial / empty / fallback inputs", () => {
   it("returns an empty path when the cascaded bracket is null", () => {
     const path = derivePathToGold(null, "ARG");
     expect(path.bonds).toEqual([]);
@@ -180,7 +180,7 @@ describe("derivePathToGold — partial / empty / fallback inputs", () => {
 
   it("falls back to empty when the champion has no resolved R32 opponent yet", () => {
     // Synthetic cascade where ARG's R32 slot is resolved on the home side
-    // only — the away side hasn't been picked yet. This is the typical
+    // only, the away side hasn't been picked yet. This is the typical
     // mid-edit state.
     const cascade: CascadedBracket = {
       tournament_id: "t",
@@ -225,7 +225,7 @@ describe("derivePathToGold — partial / empty / fallback inputs", () => {
   });
 });
 
-describe("derivePathToGold — semi-finalist who lost", () => {
+describe("derivePathToGold, semi-finalist who lost", () => {
   // ESP played the SF (lost to ARG) and the tp match (won). Their
   // path-to-gold should be R32 → R16 → QF → SF (no F).
   const cascade = fullARGChampionCascade();

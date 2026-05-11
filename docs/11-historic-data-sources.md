@@ -1,4 +1,4 @@
-# 11 — Historic Match Data Sources
+# 11, Historic Match Data Sources
 
 > Research on what data is actually obtainable for historic matches, with a worked plan for recreating the **2022 FIFA World Cup Final, Argentina 3–3 France (Argentina 4–2 on penalties)** as the v0.2 demo. Bias is toward free, open-licensed, and scrape-friendly sources.
 
@@ -20,9 +20,9 @@ What is **not** publicly available for the 2022 World Cup:
 
 This is fine. **StatsBomb's open data is enough to build a watchable simulation**, with positional gaps filled by interpolation between freeze-frames. The producer's job is to be honest about what's authoritative and what's synthesised.
 
-## Source 1 — StatsBomb Open Data (the primary source)
+## Source 1, StatsBomb Open Data (the primary source)
 
-GitHub: [statsbomb/open-data](https://github.com/statsbomb/open-data). Clone or sparse-checkout — the repo is ~2GB, mostly because of 360 data.
+GitHub: [statsbomb/open-data](https://github.com/statsbomb/open-data). Clone or sparse-checkout, the repo is ~2GB, mostly because of 360 data.
 
 The 2022 World Cup is competition ID **43**, season ID **106**. The final is identified by date `2022-12-18` and home team `Argentina` in `data/matches/43/106.json`.
 
@@ -80,7 +80,7 @@ For each event there's a `three-sixty/<match_id>.json` entry listing all visible
 }
 ```
 
-Player IDs are NOT on freeze-frame entries — only "is teammate / is actor / is keeper" — so individual identity for non-actor players in freeze-frames must be inferred (e.g. nearest player from the previous resolved frame). This is a known limitation; document it in the producer.
+Player IDs are NOT on freeze-frame entries, only "is teammate / is actor / is keeper", so individual identity for non-actor players in freeze-frames must be inferred (e.g. nearest player from the previous resolved frame). This is a known limitation; document it in the producer.
 
 ### Coordinate mapping
 
@@ -100,13 +100,13 @@ function statsbombToSpec(loc: [number, number], periodTeam: TeamSide): Vec2 {
 
 StatsBomb's open data license permits use for personal projects, blogs, conference submissions, and academic research. Read it in the repo's LICENSE file before redistribution. For an open-source show-and-tell project this is fine.
 
-## Source 2 — Player profiles, names, numbers, photos
+## Source 2, Player profiles, names, numbers, photos
 
 We need three things per player: stable name, jersey number for the match, photograph for the billboard face.
 
 ### Names + numbers
 
-From StatsBomb's `lineups/<match_id>.json` — comes free. Argentina XI in the final: Martínez, Molina, Romero, Otamendi, Acuña, De Paul, Fernández, Mac Allister, Di María, Messi, Álvarez. France XI: Lloris, Koundé, Varane, Upamecano, Hernandez, Tchouaméni, Rabiot, Dembélé, Griezmann, Mbappé, Giroud.
+From StatsBomb's `lineups/<match_id>.json`, comes free. Argentina XI in the final: Martínez, Molina, Romero, Otamendi, Acuña, De Paul, Fernández, Mac Allister, Di María, Messi, Álvarez. France XI: Lloris, Koundé, Varane, Upamecano, Hernandez, Tchouaméni, Rabiot, Dembélé, Griezmann, Mbappé, Giroud.
 
 ### Photos
 
@@ -116,8 +116,8 @@ Three viable paths, in order of effort:
 
    ```sparql
    SELECT ?player ?playerLabel ?image WHERE {
-     ?player wdt:P54 wd:Q11193;        # member of (sports team) — too broad alone
-             wdt:P1532 wd:Q11193 ;     # country for sport — adjust for nation
+     ?player wdt:P54 wd:Q11193;        # member of (sports team), too broad alone
+             wdt:P1532 wd:Q11193 ;     # country for sport, adjust for nation
              wdt:P18   ?image .
      SERVICE wikibase:label { bd:serviceParam wikibase:language "en". }
    }
@@ -125,7 +125,7 @@ Three viable paths, in order of effort:
 
    Easier: hand-write a list of 22 Wikidata Q-numbers for the AR-FR XI and fetch each. Q-numbers are stable, e.g. Messi is `Q615`, Mbappé `Q19330496`. The image URL is constructed from the filename via the Commons thumbnail service.
 
-2. **Wikipedia infobox scraping (fallback).** Each player's English Wikipedia page has an infobox with their headshot. Use `mwparserfromhell` or `wptools` (Python). The image URL is exposed via the MediaWiki API at `https://en.wikipedia.org/api/rest_v1/page/summary/<title>` — returns a thumbnail in the JSON.
+2. **Wikipedia infobox scraping (fallback).** Each player's English Wikipedia page has an infobox with their headshot. Use `mwparserfromhell` or `wptools` (Python). The image URL is exposed via the MediaWiki API at `https://en.wikipedia.org/api/rest_v1/page/summary/<title>`, returns a thumbnail in the JSON.
 
 3. **Headless browser scrape (last resort).** Playwright or Puppeteer against FBref, Sofascore, or the FIFA archive. This works but is brittle and rate-limited. Only if 1 and 2 fail for a specific player.
 
@@ -135,7 +135,7 @@ For an open-source repo, **prefer Wikidata + Commons** because the licensing is 
 
 Player image rights are a separate question from copyright on the photo. For a non-commercial open-source project displaying widely-used press photos at billboard-quality on a stylized 3D body, the practical risk is low; legally it is non-zero. Tim has stated this is acceptable. Document it clearly in the repo README.
 
-## Source 3 — Cross-validation references
+## Source 3, Cross-validation references
 
 Useful for testing the producer pipeline against ground-truth tracking, even if not on AR-FR specifically.
 
@@ -205,13 +205,13 @@ To get continuous high-fidelity positions for *new* games (not 2022 WC), three p
 
 ## Sources
 
-- [StatsBomb Open Data — GitHub](https://github.com/statsbomb/open-data)
-- [StatsBomb releases free 2022 World Cup data — Statsbomb Blog](https://blogarchive.statsbomb.com/news/statsbomb-release-free-2022-world-cup-data/)
-- [StatsBomb 360 Freeze Frame Viewer — Statsbomb Blog](https://blogarchive.statsbomb.com/news/statsbomb-360-freeze-frame-viewer-a-new-release-in-statsbomb-iq/)
-- [SkillCorner Open Data — GitHub](https://github.com/SkillCorner/opendata)
-- [Metrica Sports sample data — GitHub](https://github.com/metrica-sports/sample-data)
-- [`soccerdata` Python library — GitHub](https://github.com/probberechts/soccerdata)
+- [StatsBomb Open Data, GitHub](https://github.com/statsbomb/open-data)
+- [StatsBomb releases free 2022 World Cup data, Statsbomb Blog](https://blogarchive.statsbomb.com/news/statsbomb-release-free-2022-world-cup-data/)
+- [StatsBomb 360 Freeze Frame Viewer, Statsbomb Blog](https://blogarchive.statsbomb.com/news/statsbomb-360-freeze-frame-viewer-a-new-release-in-statsbomb-iq/)
+- [SkillCorner Open Data, GitHub](https://github.com/SkillCorner/opendata)
+- [Metrica Sports sample data, GitHub](https://github.com/metrica-sports/sample-data)
+- [`soccerdata` Python library, GitHub](https://github.com/probberechts/soccerdata)
 - [`worldfootballR` R library](https://jaseziv.github.io/worldfootballR/articles/extract-fbref-data.html)
-- [FIFA Hawk-Eye 2022 World Cup explainer — Medium](https://medium.com/controversial-tech/world-cup-2022-technology-explained-a471acf94b5e)
-- [FIFA Player App, 2022 World Cup data insights — FIFA](https://inside.fifa.com/innovation/media-releases/fifa-world-cup-2022-tm-players-to-access-data-insights-through-app)
-- [2022 FIFA World Cup squads — Wikipedia](https://en.wikipedia.org/wiki/2022_FIFA_World_Cup_squads)
+- [FIFA Hawk-Eye 2022 World Cup explainer, Medium](https://medium.com/controversial-tech/world-cup-2022-technology-explained-a471acf94b5e)
+- [FIFA Player App, 2022 World Cup data insights, FIFA](https://inside.fifa.com/innovation/media-releases/fifa-world-cup-2022-tm-players-to-access-data-insights-through-app)
+- [2022 FIFA World Cup squads, Wikipedia](https://en.wikipedia.org/wiki/2022_FIFA_World_Cup_squads)

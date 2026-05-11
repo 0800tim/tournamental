@@ -1,5 +1,5 @@
 /**
- * MatchPreviewTabs — client-side tab strip for /match/[id]/preview.
+ * MatchPreviewTabs, client-side tab strip for /match/[id]/preview.
  *
  * Owns the active-tab state. Reflects the active tab into the URL hash
  * (#predict / #h2h / #form / #lineup / #stats) so each tab is shareable.
@@ -125,7 +125,7 @@ export function MatchPreviewTabs(props: MatchPreviewTabsProps) {
       const existing = merged[match.matchId];
       if (existing) setPrediction(existing);
     } catch {
-      /* localStorage may be unavailable (SSR, privacy mode) — ignore. */
+      /* localStorage may be unavailable (SSR, privacy mode), ignore. */
     }
   }, [match.matchId]);
 

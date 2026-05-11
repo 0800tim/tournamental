@@ -1,5 +1,5 @@
 /**
- * Vitest — `buildMoleculeLayout` v4 multi-instance pyramid invariants.
+ * Vitest, `buildMoleculeLayout` v4 multi-instance pyramid invariants.
  *
  * Where the v3 test file checked "team placed at the tier they were
  * eliminated at", v4 checks the multi-instance topology:
@@ -140,7 +140,7 @@ const cascadedChampionRoute = synthCascadeChampionRoute("ARG", {
   tp_winner: "ESP",
 });
 
-describe("buildMoleculeLayout — v4 layer geometry", () => {
+describe("buildMoleculeLayout, v4 layer geometry", () => {
   it("layer Y heights are strictly monotonic ascending", () => {
     const ys = LAYER_ORDER_TEST_ONLY.map((l) => LAYER_Y_TEST_ONLY[l]);
     for (let i = 0; i < ys.length - 1; i++) {
@@ -173,7 +173,7 @@ describe("buildMoleculeLayout — v4 layer geometry", () => {
   });
 });
 
-describe("buildMoleculeLayout — v4 multi-instance per team", () => {
+describe("buildMoleculeLayout, v4 multi-instance per team", () => {
   const layout: MoleculeLayout = buildMoleculeLayout(T, cascadedChampionRoute);
 
   it("places the predicted champion's top instance at the apex (0, 30, 0)", () => {
@@ -259,7 +259,7 @@ describe("buildMoleculeLayout — v4 multi-instance per team", () => {
     expect(count).toBe(1);
   });
 
-  it("places R32 losers at the R32 tier — base instance is at group", () => {
+  it("places R32 losers at the R32 tier, base instance is at group", () => {
     const braAtR32 = layout.nodes.find(
       (n) => n.teamCode === "BRA" && n.stage === "r32",
     )!;
@@ -309,7 +309,7 @@ describe("buildMoleculeLayout — v4 multi-instance per team", () => {
     expect(bronze.finalStage).toBe("third_place");
   });
 
-  it("layout is deterministic — same input, same node ids + positions", () => {
+  it("layout is deterministic, same input, same node ids + positions", () => {
     const a = buildMoleculeLayout(T, cascadedChampionRoute);
     const b = buildMoleculeLayout(T, cascadedChampionRoute);
     expect(a.nodes.length).toBe(b.nodes.length);
@@ -320,7 +320,7 @@ describe("buildMoleculeLayout — v4 multi-instance per team", () => {
   });
 });
 
-describe("buildMoleculeLayout — v4 bond shape", () => {
+describe("buildMoleculeLayout, v4 bond shape", () => {
   const layout = buildMoleculeLayout(T, cascadedChampionRoute);
 
   it("the champion has 6 advance bonds rising from group to apex", () => {
@@ -358,7 +358,7 @@ describe("buildMoleculeLayout — v4 bond shape", () => {
   });
 });
 
-describe("buildMoleculeLayout — v4 total node count", () => {
+describe("buildMoleculeLayout, v4 total node count", () => {
   it("matches 111 for a fully-resolved 48-team WC (48+32+16+8+4+2+1)", () => {
     const layout = buildMoleculeLayout(T, cascadedChampionRoute);
     // The synthesised cascade only resolves one path through the tree;
@@ -382,14 +382,14 @@ describe("buildMoleculeLayout — v4 total node count", () => {
   });
 });
 
-describe("buildMoleculeLayout — v4 summary structure", () => {
+describe("buildMoleculeLayout, v4 summary structure", () => {
   it("produces the expected per-stage instance counts for the synth route", () => {
     const layout = buildMoleculeLayout(T, cascadedChampionRoute);
     const counts: Record<string, number> = {};
     for (const n of layout.nodes) {
       counts[n.stage] = (counts[n.stage] ?? 0) + 1;
     }
-    // Every team has a base instance — 48 total.
+    // Every team has a base instance, 48 total.
     expect(counts.group).toBe(48);
     // 6 teams played at R32 (ARG vs BRA = 2 teams; FRA, GER, ESP, ENG
     // each appear at R32 by virtue of climbing through it; POR doesn't

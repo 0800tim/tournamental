@@ -7,12 +7,12 @@
  * been persisted in localStorage under `tournamental.consent.v1`. Two
  * options:
  *
- *  - "Accept" — grants all four GA4 consent flags (analytics + ads).
- *  - "Only essential" — keeps analytics on, denies the ad_* flags.
+ *  - "Accept", grants all four GA4 consent flags (analytics + ads).
+ *  - "Only essential", keeps analytics on, denies the ad_* flags.
  *
  * The choice persists; subsequent visits skip the banner. A v2 may
  * region-gate the prompt on `CF-IPCountry` to skip it in jurisdictions
- * that don't require it, but for v1 we show globally — better safe
+ * that don't require it, but for v1 we show globally, better safe
  * than sorry.
  *
  * Visual: bottom-pinned bar, theme-aware via existing `vt-*`
@@ -56,7 +56,7 @@ function saveDecision(decision: Decision): void {
       JSON.stringify({ decision, at: new Date().toISOString() } satisfies PersistedDecision),
     );
   } catch {
-    // localStorage can throw in private-mode Safari — silently drop.
+    // localStorage can throw in private-mode Safari, silently drop.
   }
 }
 

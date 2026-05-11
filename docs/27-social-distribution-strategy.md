@@ -1,4 +1,4 @@
-# 27 — Social distribution strategy
+# 27, Social distribution strategy
 
 > The playbook that turns the auto-clip pipeline (`docs/14`) and the
 > share-card library (`packages/social-cards/`) into a coordinated multi-surface
@@ -8,9 +8,9 @@
 
 ## What this doc is *not*
 
-- It is **not** the auto-clip pipeline (`docs/14` owns that — the *engine*).
-- It is **not** the gamification spec (`docs/24` owns that — the *triggers*).
-- It is **not** the analytics SDK (`docs/23` owns that — the *measurement*).
+- It is **not** the auto-clip pipeline (`docs/14` owns that, the *engine*).
+- It is **not** the gamification spec (`docs/24` owns that, the *triggers*).
+- It is **not** the analytics SDK (`docs/23` owns that, the *measurement*).
 
 This doc is the strategy and operational rules layer that connects all three.
 
@@ -34,7 +34,7 @@ Per match, the brand-channel cadence is:
 | Phase            | Window        | Posts (per surface)               | Card kind                  |
 | ---------------- | ------------- | --------------------------------- | -------------------------- |
 | Pre-kickoff      | T-60 min      | 1 (IG Story poll, X teaser)       | `match-result` (no scores) |
-| Kickoff          | T              | 1 (Telegram only — speed)         | n/a                         |
+| Kickoff          | T              | 1 (Telegram only, speed)         | n/a                         |
 | First-half goals | per goal      | 1 per surface per goal            | `goal-clip`                |
 | Half-time        | T+45 min      | 1 (X recap, IG Story half-time)   | `match-result` (current)   |
 | Second-half goals| per goal      | 1 per surface per goal            | `goal-clip`                |
@@ -73,7 +73,7 @@ layer never invents tags (per `docs/14` § Captions and copy).
 | -------- | ---------------------- | --------------------- | -------------------------------------------- |
 | TikTok   | 4–6                    | 0                     | Mix tournament + topic + algorithm (`#fyp`). |
 | IG Reels | 5                      | 25 in first comment    | Caption tags weighted high, comment tags as breadth play. |
-| X        | 1                      | 0                     | One tag only — multi-tag X posts get deboosted. |
+| X        | 1                      | 0                     | One tag only, multi-tag X posts get deboosted. |
 | YT Shorts| 3 in description       | 0                     | Always include `#Shorts`.                    |
 
 ### Per locale
@@ -129,7 +129,7 @@ policies). The engagement scorer (`docs/23`) computes the band in real time.
 | Engaged         | 50–80            | Auto-DM all share-cards. **Lookalike-audience seed for paid acquisition.** Personal email.  |
 | Super-engaged   | 80+              | Personal email from "Tim". Early-access tokens. **Featured on the brand channel** (with consent). |
 
-Paid placement filtering — for any retargeting / lookalike spend, the filter excludes:
+Paid placement filtering, for any retargeting / lookalike spend, the filter excludes:
 - Users below 20 engagement (waste of ad spend).
 - Users in jurisdictions where sportsbook affiliate retargeting is prohibited
   (per the compliance matrix below).
@@ -144,7 +144,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
   flag before any non-anonymous brand-channel push.
 - **Sportsbook affiliate disclosure**: Meta requires an "Includes paid partnership"
   label for posts that link to a sportsbook affiliate. Brand-channel posts under no
-  circumstances include affiliate links directly — they link only to `tournamental.com`,
+  circumstances include affiliate links directly, they link only to `tournamental.com`,
   which routes per geo (per `docs/18` § Monetization).
 - **Audience network restrictions**: real-money pool references are *prohibited* in
   ads under Meta's Gambling and Online Gaming policy. The publisher's pre-flight
@@ -168,7 +168,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
 
 - X's gambling policy is jurisdictional. We honour:
   - **EU / EEA**: no sportsbook affiliate URLs from brand channel.
-  - **US**: state-by-state — the publisher's pre-flight filter checks the
+  - **US**: state-by-state, the publisher's pre-flight filter checks the
     affiliate's `restricted_states` list and skips the post if the brand channel's
     primary geo is in that list.
   - **AU / NZ**: gambling promotion requires explicit advertising approval; we do
@@ -178,7 +178,7 @@ Paid placement filtering — for any retargeting / lookalike spend, the filter e
 
 - **Made for kids**: every Shorts post sets `videoSelfDeclaredMadeForKids: false`.
 - **Description disclosures**: visualisation note + StatsBomb attribution
-  (per `docs/11`) on every post — auto-injected by the publisher.
+  (per `docs/11`) on every post, auto-injected by the publisher.
 - **Sportsbook affiliate**: YouTube's policy permits affiliate links in description
   if the linked site is licensed in the viewer's jurisdiction. The publisher uses a
   geo-routing landing page (`tournamental.com/sportsbook?geo=...`) that resolves at click
@@ -241,7 +241,7 @@ A Monday-9am cron emits the `weekly-social-digest.md` report into
 - Surface mix and per-surface lift since the prior week.
 - Hashtag-set winners (which curated set produced the best
   signups-per-impression).
-- Underperforming creative — posts in the bottom decile that we'll cull from
+- Underperforming creative, posts in the bottom decile that we'll cull from
   the rotation.
 
 The digest is rendered server-side and posted into the team's Telegram channel.
@@ -276,11 +276,11 @@ Tim reads it Monday at 9:01am and tunes the cadence accordingly.
   consumes its output.
 - **`docs/23`**: every post fires events that flow into the engagement scorer
   and the analytics warehouse.
-- **`docs/24`**: triggers, share cards, referral URLs, audience bands —
+- **`docs/24`**: triggers, share cards, referral URLs, audience bands -
   this doc operationalises them across the four social surfaces.
-- **`docs/18`**: monetisation rules — what kinds of CTAs are allowed on
+- **`docs/18`**: monetisation rules, what kinds of CTAs are allowed on
   which surface in which jurisdiction.
-- **`docs/20`**: bot / humanness gating — auto-DM rollouts are gated by
+- **`docs/20`**: bot / humanness gating, auto-DM rollouts are gated by
   the recipient's Humanness Score.
 
 ## Sources

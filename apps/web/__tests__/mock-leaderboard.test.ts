@@ -1,5 +1,5 @@
 /**
- * Vitest — determinism + shape of mock leaderboard generators.
+ * Vitest, determinism + shape of mock leaderboard generators.
  *
  * The "real data day" swap-out is a single import swap; before that
  * happens, the generators are the load-bearing seed for every demo
@@ -28,7 +28,7 @@ describe("mock leaderboard determinism", () => {
   it("returns different members for different seeds", () => {
     const a = mockLeaderboardMembers("magnus-pool", 20);
     const b = mockLeaderboardMembers("london-pundits", 20);
-    // Top member should differ — same names pool, different shuffle.
+    // Top member should differ, same names pool, different shuffle.
     expect(a[0]?.handle === b[0]?.handle && a[1]?.handle === b[1]?.handle).toBe(false);
   });
 

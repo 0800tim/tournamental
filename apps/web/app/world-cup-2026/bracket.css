@@ -1,6 +1,6 @@
 /* Tournamental Bracket Prophet styles. Mobile-first; scales up to desktop.
  * Designed to live alongside the renderer's `globals.css` without
- * collision — every selector is namespaced under `.bracket-*`.
+ * collision, every selector is namespaced under `.bracket-*`.
  */
 
 .bracket-page {
@@ -605,7 +605,7 @@
 .bracket-autopick-sticky {
   position: sticky;
   top: 56px;
-  display: none; /* desktop default — overridden below */
+  display: none; /* desktop default, overridden below */
   align-items: center;
   justify-content: center;
   gap: 6px;
@@ -696,7 +696,7 @@
 }
 
 .mpr-pick {
-  /* big tappable button — flag + label + odds % + form dots stacked */
+  /* big tappable button, flag + label + odds % + form dots stacked */
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -836,7 +836,7 @@
 
 /* ---- FormDots (shared component, used inline in .mpr-pick) ----
  * Standalone styles so the shared component renders consistently anywhere
- * it's mounted — bracket row, team page, match preview cards. */
+ * it's mounted, bracket row, team page, match preview cards. */
 .fd-row {
   display: inline-flex;
   align-items: center;
@@ -1111,7 +1111,7 @@
   letter-spacing: 0.06em;
 }
 
-/* Knockout match cell — flag-as-background variant. The cell itself is
+/* Knockout match cell, flag-as-background variant. The cell itself is
  * just a container; the two `.km-team` buttons inside hold the flag
  * background, dark gradient overlay, and team label.
  *
@@ -1206,7 +1206,7 @@
 
 /* Both sides show the team's flag as a full-bleed background; the
  * selected/unselected treatment differs in scrim weight, opacity, and
- * border. (See KnockoutMatch.tsx — backgroundImage is inlined on every
+ * border. (See KnockoutMatch.tsx, backgroundImage is inlined on every
  * cell that has a known team.) */
 
 /* The dark scrim that keeps text legible over any flag region (Brazil
@@ -1228,7 +1228,7 @@
 }
 
 /* Unselected: dimmer + heavier scrim + slightly desaturated flag. The
- * cell still reads as the team — Tim wants the flag visible — but it's
+ * cell still reads as the team, Tim wants the flag visible, but it's
  * obviously not the user's pick. */
 .km-team:not(.is-winner) {
   color: rgba(226, 232, 240, 0.85);
@@ -1450,7 +1450,7 @@
   }
   .km-grid {
     transition: transform 80ms ease-out;
-    /* Slightly tighter cells on phones — keeps the bracket scrollable
+    /* Slightly tighter cells on phones, keeps the bracket scrollable
      * sideways without each match dominating the viewport. */
     grid-auto-columns: minmax(240px, 1fr);
   }
@@ -1470,7 +1470,7 @@
     /* Allow position:sticky inside the card to anchor against the
      * page scroll, not the card itself. The card is the IO root for
      * the sentinel, but `position: sticky` actually anchors against
-     * the nearest scrolling ancestor — typically the viewport. */
+     * the nearest scrolling ancestor, typically the viewport. */
     overflow: visible;
   }
   .bracket-group-head {
@@ -1569,7 +1569,7 @@
   outline: none;
 }
 
-/* Same affordance for KnockoutMatch — the card's header is already a
+/* Same affordance for KnockoutMatch, the card's header is already a
  * flex row so we just plug it in as another item. Small icon-style chip
  * (arrow + "View") keeps the visual weight on the team picks themselves,
  * not on the secondary navigation. */
@@ -1597,7 +1597,7 @@
   transform: translateX(1px);
 }
 .km-view-link-label {
-  /* Hide the label on very narrow viewports — the arrow alone reads as
+  /* Hide the label on very narrow viewports, the arrow alone reads as
    * "go to match preview" and we save horizontal space for the team
    * picks. */
 }
@@ -1612,7 +1612,7 @@
  * A tiny "i" badge anchored to the top-right of each pick button. It
  * opens the team overlay on tap. Sits inside the existing .mpr-pick /
  * .km-team button so the prediction-pick button is still the primary
- * tap target — the badge only catches the tiny corner. We use plain
+ * tap target, the badge only catches the tiny corner. We use plain
  * <a> so Cmd-click / right-click navigates to /team/[code] for the
  * full page (escape hatch). The handler in MatchPredictionRow /
  * KnockoutMatch calls preventDefault on plain clicks and routes
@@ -1667,7 +1667,7 @@
 /* Sticky tab bar so the round nav is always reachable while the user
  * scrolls a long list of cards. `top: 0` works because the bracket
  * page lives inside <AppShell>, which scrolls its <main> area
- * independently — the sticky reference is the panel, not the window. */
+ * independently, the sticky reference is the panel, not the window. */
 .bracket-builder .bracket-tabs {
   position: sticky;
   top: 0;
@@ -1779,7 +1779,7 @@
   margin: 0 0 8px;
 }
 
-/* Single-round km-grid override — disable the multi-column knockout
+/* Single-round km-grid override, disable the multi-column knockout
  * tree layout that the legacy "Knockouts" tab used. */
 .km-grid-single-round {
   display: block !important;

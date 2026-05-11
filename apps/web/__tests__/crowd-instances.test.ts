@@ -1,7 +1,7 @@
 /**
  * Unit tests for the Phase-3 crowd instance generator.
  *
- * Pure data — no Three. Verifies layout invariants:
+ * Pure data, no Three. Verifies layout invariants:
  *   - Total instance count divides evenly across stands.
  *   - Stands are placed on the correct sides of the pitch.
  *   - Tier rises are monotonic.

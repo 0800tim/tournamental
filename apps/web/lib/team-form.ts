@@ -3,7 +3,7 @@
  * row, match preview cards, etc).
  *
  * Reads the same stub as `app/team/[code]/_lib/team-data.ts` but exposes a
- * trimmed surface — just the W/D/L sequence — so consumers don't need to
+ * trimmed surface, just the W/D/L sequence, so consumers don't need to
  * pull in the full team-detail toolkit.
  *
  * TODO(live-data): replace stub source with the live results feed once

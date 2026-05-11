@@ -2,7 +2,7 @@
  * Deterministic PRNG helpers for mock data generators.
  *
  * The mock leaderboard, points-history, and activity feed all need to
- * be reproducible — the same seed must always produce the same output
+ * be reproducible, the same seed must always produce the same output
  * so that screenshots, snapshot tests, and "did the page change?"
  * comparisons aren't noisy.
  *

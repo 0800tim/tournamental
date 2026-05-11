@@ -1,5 +1,5 @@
 /**
- * Tests for `lib/bracket/submit.ts` — the bracket-submit wrapper that
+ * Tests for `lib/bracket/submit.ts`, the bracket-submit wrapper that
  * the "Save bracket" CTA on the Final tab calls.
  *
  * Coverage:
@@ -53,7 +53,7 @@ afterEach(() => {
   if (originalFetch) globalThis.fetch = originalFetch;
 });
 
-describe("submitBracket — server success", () => {
+describe("submitBracket, server success", () => {
   it("returns status: 'submitted' and writes the server bracketId into the local draft", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       jsonResponse(201, {
@@ -86,7 +86,7 @@ describe("submitBracket — server success", () => {
   });
 });
 
-describe("submitBracket — server failure fallback", () => {
+describe("submitBracket, server failure fallback", () => {
   it("returns status: 'saved_offline' on network error and keeps the local draft", async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error("ECONNREFUSED"));
     globalThis.fetch = fetchImpl as unknown as typeof fetch;

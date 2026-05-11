@@ -30,7 +30,7 @@ interface DirectorProps {
 }
 
 /**
- * Auto-director — watches the event stream and drives the active
+ * Auto-director, watches the event stream and drives the active
  * camera. Per `docs/27b-fidelity-phase2-physics-director.md`:
  *
  *   - 4 virtual cameras: broadcast / behind-goal / player-track /
@@ -47,7 +47,7 @@ interface DirectorProps {
  *   2. A `CutBlender` (eases position + lookAt across cuts).
  *   3. A `ReplayBuffer` (last 10s of player+ball positions at 60Hz).
  *
- * It uses the existing `useThree()` camera as the on-screen camera —
+ * It uses the existing `useThree()` camera as the on-screen camera -
  * we don't mount a second `<PerspectiveCamera>` because the existing
  * `<CameraRig>` already drives the same camera. To avoid two systems
  * fighting, the director takes priority when `enabled` is true and

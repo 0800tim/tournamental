@@ -7,7 +7,7 @@
  * 2026 so the AR-FR demo and the bracket previews both work without a
  * remote lookup.
  *
- * Returns `null` for codes we don't recognise — the caller should
+ * Returns `null` for codes we don't recognise, the caller should
  * gracefully fall back to the short name only.
  */
 

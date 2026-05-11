@@ -1,5 +1,5 @@
 /**
- * Mobile drawer e2e — verifies the slide-in nav drawer opens, dismisses
+ * Mobile drawer e2e, verifies the slide-in nav drawer opens, dismisses
  * via every documented interaction, and that every link inside it is
  * reachable + visible at mobile-width.
  *

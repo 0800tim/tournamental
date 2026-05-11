@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * MoleculePageClient — the client-side wrapper that owns the
+ * MoleculePageClient, the client-side wrapper that owns the
  * "your picks vs consensus favourites" toggle, plus the page header.
  *
  * Why split it out from page.tsx: the page.tsx is a server component
@@ -38,7 +38,7 @@ type Mode = "mine" | "consensus";
  * odds are available, so the molecule lines up with what the user would
  * see if they hit "Auto-pick" with no odds source.
  *
- * Note: this is deliberately *not* a Polymarket consensus — that'd
+ * Note: this is deliberately *not* a Polymarket consensus, that'd
  * require an API call and a non-trivial mapping. Tim asked for "your
  * picks vs consensus / odds-favourite"; the rank-based proxy is honest
  * about being a proxy, and a v2 enhancement can swap it out without
@@ -86,14 +86,14 @@ function buildFavouriteBracket(tournament: Tournament): Bracket {
 
   // Knockouts: we leave knockoutPredictions empty here. The MoleculeScene
   // runs the same multi-pass cascade resolver and will produce slot
-  // occupants, but no "winners" — which means the knockout bonds will
+  // occupants, but no "winners", which means the knockout bonds will
   // appear without a champion. To get a meaningful champion in
   // consensus mode we'd need to pick winners; do that here using the
   // same rank-based tiebreak.
   //
   // We approximate by picking knockoutPredictions iteratively after
   // running an initial cascade. Doing the full multi-pass thing inside
-  // here would be a near-duplicate of MoleculeScene's resolveCascade —
+  // here would be a near-duplicate of MoleculeScene's resolveCascade -
   // simpler v1 approach: trust the cascade to walk in order and pick
   // home_win for every knockout (the cascade slots are then determined
   // by the group rankings, and any knockout where home is ranked

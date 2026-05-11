@@ -256,7 +256,7 @@
     color: theme(colors.accent.400);
   }
 
-  /* Mobile menu — accordion for the About group */
+  /* Mobile menu, accordion for the About group */
   .vt-mobile-accordion {
     margin-top: 4px;
   }
@@ -442,13 +442,13 @@
  * The site is laid out with `text-white`, `text-ink-100`, `text-ink-200`,
  * `bg-ink-900`, `bg-ink-800`, `border-ink-700` etc. baked into every
  * component. In light mode those classes paint white-on-white headings
- * and dark-navy cards on a light page — unreadable. Rather than rewrite
+ * and dark-navy cards on a light page, unreadable. Rather than rewrite
  * every component to use dark: variants, we remap the most common
  * dark-palette classes to theme variables when [data-theme="light"]
  * is active. !important is required to beat Tailwind utility specificity.
  *
  * Accent classes (text-accent-400, bg-accent-500) deliberately stay the
- * same in both themes — sky-blue is a brand colour, not a surface.
+ * same in both themes, sky-blue is a brand colour, not a surface.
  * -------------------------------------------------------------------- */
 /* Text */
 :root[data-theme="light"] .text-white { color: var(--vt-fg-strong) !important; }
@@ -485,7 +485,7 @@
  *     Step them down to accent-600 (the same hue at higher contrast).
  *     Keep the brand sky-blue accent-500 fills on buttons untouched.
  *   - Open-source banner on index.astro uses
- *     `bg-gradient-to-br from-ink-800 to-ink-900` — that gradient becomes
+ *     `bg-gradient-to-br from-ink-800 to-ink-900`, that gradient becomes
  *     a near-flat white card after the surface overrides. The faint
  *     `border-accent-700/60` is then almost invisible; bump to accent-500.
  *   - World-Cup CTA on index.astro uses `bg-accent-700/10` over a lighter
@@ -496,7 +496,7 @@
  *     the inner copy stays white in light mode.
  * ------------------------------------------------------------------------- */
 
-/* Accent text — accent-400 is the dark-canvas variant; on white it
+/* Accent text, accent-400 is the dark-canvas variant; on white it
    washes out, so step informational uses to accent-600 (same hue,
    higher contrast). Brand fills (bg-accent-500 on .btn-primary) are
    untouched because they sit on dark text and stay readable. */
@@ -551,12 +551,12 @@
 :root[data-theme="light"] .vt-on-dark .border-ink-700 { border-color: theme(colors.ink.700) !important; }
 
 /* ----------------------------------------------------------------------
- * MOTION + DESIGN POLISH (May 2026 — feat/marketing-design-polish)
+ * MOTION + DESIGN POLISH (May 2026, feat/marketing-design-polish)
  *
  * Everything below is opt-in via class hooks (.is-in-view, .vt-hero-card,
  * .vt-glow-cta, etc.) so it doesn't perturb existing markup. The
  * keyframes are wrapped in a `prefers-reduced-motion: no-preference`
- * media query — under reduce, the static end-state still paints, the
+ * media query, under reduce, the static end-state still paints, the
  * hover/glow effects degrade to colour-only.
  * -------------------------------------------------------------------- */
 
@@ -580,7 +580,7 @@ section {
     opacity: 1;
     transform: translateY(0);
   }
-  /* Staggered children — direct grid + card descendants stagger their
+  /* Staggered children, direct grid + card descendants stagger their
    * entrance behind the section by 80ms each. The runtime script in
    * Layout.astro assigns --vt-stagger; this is the CSS recipe it leans
    * on. */
@@ -640,7 +640,7 @@ section {
   to   { --vt-angle: 360deg; }
 }
 
-/* Mouse-parallax tilt — the script in Hero.astro updates --vt-tilt-x and
+/* Mouse-parallax tilt, the script in Hero.astro updates --vt-tilt-x and
  * --vt-tilt-y on the parent. The tilt is subtle (max 4deg) and only
  * applies when `prefers-reduced-motion` is no-preference. */
 .vt-hero-card-inner {
@@ -660,7 +660,7 @@ section {
  *
  * Each word is wrapped in `<span class="vt-word">` with its own
  * --vt-word-delay set inline (computed in Hero.astro). The cascade
- * gives the H1 a typewriter-feel without forcing one phrase per line —
+ * gives the H1 a typewriter-feel without forcing one phrase per line -
  * the H1 wraps as a normal paragraph, words fade up in reading order.
  * Under prefers-reduced-motion: reduce, words paint immediately. */
 .vt-word {
@@ -736,7 +736,7 @@ section {
  * -------------------------------------------------------------------- */
 @media (max-width: 480px) {
   .vt-hero-h1 {
-    /* iPhone SE (375 px) — keep the H1 a clear hero size without
+    /* iPhone SE (375 px), keep the H1 a clear hero size without
        overflowing the gutter. The block-stacked phrases mean we don't
        need to fight word wrap; we just need an honest type scale. */
     font-size: 2.25rem;     /* 36 px */

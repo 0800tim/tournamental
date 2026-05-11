@@ -1,14 +1,14 @@
 "use client";
 
 /**
- * Leaderboard — the polished, social ranking card.
+ * Leaderboard, the polished, social ranking card.
  *
  * One component drives three places:
- *   1. /leaderboard — global, 50 rows, all columns.
- *   2. Syndicate landing — same shape, syndicate-scoped tabs.
- *   3. Bracket builder right-rail — density="compact", top 10.
+ *   1. /leaderboard, global, 50 rows, all columns.
+ *   2. Syndicate landing, same shape, syndicate-scoped tabs.
+ *   3. Bracket builder right-rail, density="compact", top 10.
  *
- * The component is data-agnostic — it accepts `members: MockMember[]`
+ * The component is data-agnostic, it accepts `members: MockMember[]`
  * today, but the shape is intentionally identical to what we expect
  * from the real `/api/leaderboard` endpoint. To swap mock for real,
  * the caller changes a single import; no changes here.

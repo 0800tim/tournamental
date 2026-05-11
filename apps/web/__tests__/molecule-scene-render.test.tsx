@@ -1,8 +1,8 @@
 /**
- * Vitest — `<MoleculeScene>` component-render smoke test.
+ * Vitest, `<MoleculeScene>` component-render smoke test.
  *
  * Mounting @react-three/fiber under jsdom is infeasible because there's
- * no WebGL context — so we mock the R3F primitives down to plain DOM
+ * no WebGL context, so we mock the R3F primitives down to plain DOM
  * elements and assert that the scene composes the right number of atoms
  * for a 48-team FIFA WC 2026 tournament.
  *
@@ -20,7 +20,7 @@ import { render } from "@testing-library/react";
 
 import { loadFixtures2026 } from "@vtorn/bracket-engine";
 
-// Stub R3F primitives — return plain DOM elements that React can mount.
+// Stub R3F primitives, return plain DOM elements that React can mount.
 // We use `data-testid` so the test can count them.
 vi.mock("@react-three/fiber", async () => {
   return {
@@ -45,7 +45,7 @@ vi.mock("@react-three/drei", async () => {
   };
 });
 
-// Stub the FlagSphereMaterial — it relies on onBeforeCompile and shader
+// Stub the FlagSphereMaterial, it relies on onBeforeCompile and shader
 // uniforms that have no meaning under jsdom.
 vi.mock("@/components/molecule/FlagSphereMaterial", () => ({
   FlagSphereMaterial: () => <div data-testid="mock-flag-material" />,
@@ -77,20 +77,20 @@ afterAll(() => {
 
 import { MoleculeScene } from "@/components/molecule/MoleculeScene";
 
-describe("<MoleculeScene> — composition smoke (mocked R3F)", () => {
+describe("<MoleculeScene>, composition smoke (mocked R3F)", () => {
   it("renders without throwing for the 48-team FIFA WC 2026 fixtures", () => {
     const tournament = loadFixtures2026();
     const { container } = render(<MoleculeScene tournament={tournament} />);
     expect(container.querySelector("[data-testid='mock-canvas']")).toBeTruthy();
   });
 
-  it("mounts a FlagSphereMaterial stub for every atom (v4: ≥ 48 — one per surviving layer per team)", () => {
+  it("mounts a FlagSphereMaterial stub for every atom (v4: ≥ 48, one per surviving layer per team)", () => {
     const tournament = loadFixtures2026();
     const { container } = render(<MoleculeScene tournament={tournament} />);
     const materials = container.querySelectorAll("[data-testid='mock-flag-material']");
     // v4: each team has ≥1 instance (group layer) and up to 7 (the
     // predicted champion). The default empty-bracket case still gives
-    // exactly 48 — one per team.
+    // exactly 48, one per team.
     expect(materials.length).toBeGreaterThanOrEqual(tournament.teams.length);
   });
 

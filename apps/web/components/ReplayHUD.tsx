@@ -18,7 +18,7 @@ import {
  *   - "REPLAY" badge top-right (only during goal-replay + celebration).
  *   - Scorer nameplate fades in 0.4 s after the cut.
  *
- * All HTML, no WebGL — costs nothing in render budget.
+ * All HTML, no WebGL, costs nothing in render budget.
  * `pointer-events: none` so it never steals clicks.
  */
 export function ReplayHUD() {

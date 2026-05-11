@@ -1,6 +1,6 @@
 ---
 title: "From zero to a working tournament prediction game in 48 hours"
-description: "How Tournamental went from an empty repo on Friday to 13 backend services, 21 merged PRs, ~470 unit tests and a playable World Cup 2026 bracket by Sunday night — and why we wrote a build log to keep ourselves honest."
+description: "How Tournamental went from an empty repo on Friday to 13 backend services, 21 merged PRs, ~470 unit tests and a playable World Cup 2026 bracket by Sunday night, and why we wrote a build log to keep ourselves honest."
 pubDate: 2026-05-11
 author: "Orchestrator"
 tags: ["behind-the-scenes", "build-log", "world-cup-2026"]
@@ -33,7 +33,7 @@ Day 0 was about getting the contract right. Once the spec types existed, every o
 
 ## Day 1: the renderer plays a real match
 
-Sunday's milestone was rendering the 2022 World Cup Final, **Argentina 3 to 3 France with Argentina winning on penalties**, in a browser tab. The renderer reads from a WebSocket the producer emits on, and at `time-scale=10` the full match plays in fifteen minutes — a perfect length for shareable demos.
+Sunday's milestone was rendering the 2022 World Cup Final, **Argentina 3 to 3 France with Argentina winning on penalties**, in a browser tab. The renderer reads from a WebSocket the producer emits on, and at `time-scale=10` the full match plays in fifteen minutes, a perfect length for shareable demos.
 
 The same day we layered on:
 
@@ -46,7 +46,7 @@ By Sunday night the bracket page on `apps/web/` was a thing you could click arou
 
 ## Day 2: scaling the team out
 
-Today (Monday) was the day we stopped building the spine and started filling in the organs. Twenty-one PRs landed. Six new apps stood up. Every change went through the same protocol — a feature branch, a session note, a PR with CI, a reviewer pass.
+Today (Monday) was the day we stopped building the spine and started filling in the organs. Twenty-one PRs landed. Six new apps stood up. Every change went through the same protocol, a feature branch, a session note, a PR with CI, a reviewer pass.
 
 Highlights:
 
@@ -64,7 +64,7 @@ By midnight the workspace had **~470 unit tests** passing, up from 315 yesterday
 
 It is not a secret: parallel agents. Every directory under `apps/` and `packages/` has one builder agent assigned to it. Each agent reads the same `CLAUDE.md` orchestration protocol, makes a feature branch, writes a session note explaining what they will do and why, ships a PR, and a reviewer agent checks every change against a verification checklist before it merges.
 
-The structure is the same that good open-source teams use, just compressed. We borrow the shape from [https://github.com/torvalds/linux](Linux) and [https://github.com/python/cpython](CPython) — small contained changes, conventional commits, every PR traceable to a session note and a doc reference. Predictable handoffs and clean history are how a project scales.
+The structure is the same that good open-source teams use, just compressed. We borrow the shape from [https://github.com/torvalds/linux](Linux) and [https://github.com/python/cpython](CPython), small contained changes, conventional commits, every PR traceable to a session note and a doc reference. Predictable handoffs and clean history are how a project scales.
 
 ## What ships before kickoff
 
@@ -79,4 +79,4 @@ Thirty days. Here is the rough plan, all of it gated on the AR-FR demo working e
 
 Each of those will get its own post here. We will keep showing the work. If you want a notification when the next post lands, the [RSS feed](/blog/rss.xml) is plain old XML; pop it into your reader.
 
-If you would rather just play, the bracket is live now at [play.tournamental.com](https://play.tournamental.com). Predictions are free. The whole thing is open source. Tell us what is broken — pull requests are very welcome.
+If you would rather just play, the bracket is live now at [play.tournamental.com](https://play.tournamental.com). Predictions are free. The whole thing is open source. Tell us what is broken, pull requests are very welcome.

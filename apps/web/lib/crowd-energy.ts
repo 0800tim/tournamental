@@ -1,5 +1,5 @@
 /**
- * Crowd-energy reactor — pure logic, hookable.
+ * Crowd-energy reactor, pure logic, hookable.
  *
  * The renderer publishes events to a singleton via
  * `crowdEnergyBus.pulse(kind)`. The hook reads the smoothed value
@@ -29,7 +29,7 @@ const SPEC: Record<CrowdPulseKind, PulseSpec> = {
 };
 
 /**
- * The reactor — testable and singleton-friendly.
+ * The reactor, testable and singleton-friendly.
  */
 export class CrowdEnergyReactor {
   private current = 0;
@@ -42,7 +42,7 @@ export class CrowdEnergyReactor {
   /** Used to ramp toward target on a pulse. */
   private rampRate = 4; // 1.0 -> ~250 ms
 
-  /** Push a pulse — bumps target up to (but not past) the spec peak. */
+  /** Push a pulse, bumps target up to (but not past) the spec peak. */
   pulse(kind: CrowdPulseKind): void {
     const spec = SPEC[kind];
     if (spec.peak > this.target) this.target = spec.peak;
@@ -63,7 +63,7 @@ export class CrowdEnergyReactor {
       );
       return;
     }
-    // We've hit the target — decay.
+    // We've hit the target, decay.
     this.target = Math.max(0, this.target - this.decayRate * dtSec);
     this.current = this.target;
     if (this.current === 0) this.decayRate = 0;

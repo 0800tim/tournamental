@@ -1,5 +1,5 @@
 /**
- * StageProgressChart — two-series native SVG line chart showing the
+ * StageProgressChart, two-series native SVG line chart showing the
  * member's cumulative points across the tournament's match-days vs
  * the pool average.
  *

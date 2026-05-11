@@ -1,8 +1,8 @@
 /**
- * <PlayerQuickFacts /> — small grid of stat-card facts under the hero.
+ * <PlayerQuickFacts />, small grid of stat-card facts under the hero.
  *
  * Drops any fact whose source value is missing (Wikidata is patchy, and
- * we'd rather show three solid facts than five with three "—" rows).
+ * we'd rather show three solid facts than five with three "-" rows).
  */
 
 import { ageOnDate, type PlayerRecord } from "@/lib/players";

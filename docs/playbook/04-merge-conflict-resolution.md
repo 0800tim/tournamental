@@ -1,4 +1,4 @@
-# Playbook 04 — Merge conflict resolution
+# Playbook 04, Merge conflict resolution
 
 > **When to use this.** Your branch has diverged from `main` and `git rebase main` reports conflicts. Or another agent's PR landed first and you need to integrate.
 
@@ -13,7 +13,7 @@ git rebase origin/main
 git push --force-with-lease   # never plain --force
 ```
 
-`--force-with-lease` will refuse to overwrite the remote if someone else pushed since your last fetch — a small but important seatbelt.
+`--force-with-lease` will refuse to overwrite the remote if someone else pushed since your last fetch, a small but important seatbelt.
 
 ## Resolving conflicts in code files
 
@@ -35,10 +35,10 @@ For files with many small conflicts, the merge tool helps: `git mergetool` (conf
 | Situation | Use |
 | --- | --- |
 | Conflicts in `pnpm-lock.yaml` | `--theirs` (then re-run `pnpm install` to settle) |
-| Conflicts in committed `dist/` (shouldn't exist — we gitignore dist) | delete and rebuild |
-| Conflicts in `package.json` `dependencies` ordering | manually merge — order doesn't matter, keep both adds |
+| Conflicts in committed `dist/` (shouldn't exist, we gitignore dist) | delete and rebuild |
+| Conflicts in `package.json` `dependencies` ordering | manually merge, order doesn't matter, keep both adds |
 | Conflicts in `docs/api/*.openapi.json` (generated) | regenerate after rebase via `pnpm --filter <pkg> dump-openapi` |
-| Conflicts in markdown TOC sections | manually merge both — both contributions are usually wanted |
+| Conflicts in markdown TOC sections | manually merge both, both contributions are usually wanted |
 | Conflicts in `.astro` build artefacts | gitignore them (they shouldn't be tracked); delete and let the build regenerate |
 
 When you reach for `--theirs` or `--ours`, write a one-line note in your session log explaining why.
@@ -47,9 +47,9 @@ When you reach for `--theirs` or `--ours`, write a one-line note in your session
 
 The repo treats some generated files as committed (so consumers don't have to build first):
 
-- `docs/api/*.openapi.json` — regenerate after rebase: `pnpm -r --if-present run dump-openapi`
-- `pnpm-lock.yaml` — let pnpm re-resolve: `pnpm install` after taking `--theirs`
-- `packages/*/dist/` — never tracked. If a sibling agent committed dist artefacts by accident, delete them in your PR and add to .gitignore in the same commit.
+- `docs/api/*.openapi.json`, regenerate after rebase: `pnpm -r --if-present run dump-openapi`
+- `pnpm-lock.yaml`, let pnpm re-resolve: `pnpm install` after taking `--theirs`
+- `packages/*/dist/`, never tracked. If a sibling agent committed dist artefacts by accident, delete them in your PR and add to .gitignore in the same commit.
 
 If a build artefact appears in the conflict list, your first move is "should this even be tracked?". Often the answer is no.
 
@@ -57,12 +57,12 @@ If a build artefact appears in the conflict list, your first move is "should thi
 
 Two PRs both touching `apps/<service>/migrations/` is a recipe for primary-key collisions. The convention:
 
-- Migrations are timestamp-prefixed (`20260511T0930_add-foo-table.sql`). Two agents picking the same minute is rare — but if it happens, the *second* PR to land bumps its timestamp by a minute and re-orders.
+- Migrations are timestamp-prefixed (`20260511T0930_add-foo-table.sql`). Two agents picking the same minute is rare, but if it happens, the *second* PR to land bumps its timestamp by a minute and re-orders.
 - Never `git rebase --interactive --autosquash` migrations. They're append-only.
 
 ## Generated documentation
 
-If you and a sibling agent both wrote new sections to `docs/README.md` or `glossary.md`, the merge is almost always *both* — manually combine the sections. Do not pick one.
+If you and a sibling agent both wrote new sections to `docs/README.md` or `glossary.md`, the merge is almost always *both*, manually combine the sections. Do not pick one.
 
 ## When the rebase is bigger than the work
 

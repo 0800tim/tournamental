@@ -4,7 +4,7 @@
  * Share-action CTAs for the `/s/<guid>` user-landing surface.
  *
  * Renders:
- *   - "Share this prediction" button — tries `navigator.share()` and
+ *   - "Share this prediction" button, tries `navigator.share()` and
  *     falls back to a row of platform-specific deep-links if Web Share
  *     isn't available (desktop Chrome, Firefox).
  *
@@ -35,7 +35,7 @@ export function ShareActions({ shareTitle, shareText }: ShareActionsProps) {
         await navigator.share({ title: shareTitle, text: shareText, url });
         return;
       } catch {
-        // user cancelled or share failed — fall through to fallback
+        // user cancelled or share failed, fall through to fallback
       }
     }
     setFallbackOpen((v) => !v);

@@ -1,11 +1,11 @@
-# Stats Scraper — team form, head-to-head, season aggregates
+# Stats Scraper, team form, head-to-head, season aggregates
 
 > Owns three of the data files the web app consumes for /team/[code],
 > /match/[id]/preview, the bracket H2H pill, and the FormDots component:
 >
-> - `apps/web/data/team-form.json` — last-N W/D/L per FIFA team.
-> - `apps/web/data/head-to-head.json` — historical results per pair.
-> - `apps/web/data/team-stats.json` — season-aggregate xG / poss / shots.
+> - `apps/web/data/team-form.json`, last-N W/D/L per FIFA team.
+> - `apps/web/data/head-to-head.json`, historical results per pair.
+> - `apps/web/data/team-stats.json`, season-aggregate xG / poss / shots.
 >
 > Implementation lives in `apps/wc2026-data/src/stats/` and the CLI at
 > `apps/wc2026-data/scripts/scrape-stats.ts`.
@@ -150,9 +150,9 @@ Each source contributes a static weight `w ∈ [0, 1]` from
 The on-disk `source` field is a single label summarising the dominant
 provenance for the file as a whole:
 
-- `mixed` — both real sources contributed.
-- The named source — if ≥10 % of the rows came from it.
-- `mock` — otherwise (CI default).
+- `mixed`, both real sources contributed.
+- The named source, if ≥10 % of the rows came from it.
+- `mock`, otherwise (CI default).
 
 This keeps the file label honest without forcing every row to carry a
 quantitative score.
@@ -204,12 +204,12 @@ Default behaviour (no env vars):
   StatsBomb local entries land in H2H).
 
 `WC2026_DATA_BACKEND=real` opts into FBref + Wikidata. API-Football
-*also* needs `APIFOOTBALL_KEY` to be set — otherwise that source
+*also* needs `APIFOOTBALL_KEY` to be set, otherwise that source
 silently falls back to the mock so the runner doesn't fail on missing
 secrets in non-prod environments.
 
 CI runs the mock backend exclusively. There's no hidden network call
-during the test suite — every backend is constructed with a stubbed
+during the test suite, every backend is constructed with a stubbed
 `fetch` impl + counted-call assertions verify it.
 
 ## Adding a new source

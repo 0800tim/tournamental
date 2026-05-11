@@ -37,7 +37,7 @@ export function TimelineScrubber({ controller }: TimelineScrubberProps) {
   const [hover, setHover] = useState<{ t: number; x: number } | null>(null);
 
   // Subscribe to controller updates. We re-read every fields and update
-  // local state cheaply — the controller fires on each driver tick.
+  // local state cheaply, the controller fires on each driver tick.
   useEffect(() => {
     return controller.subscribe(() => {
       setTime(controller.getTime());
@@ -147,7 +147,7 @@ export function TimelineScrubber({ controller }: TimelineScrubberProps) {
             key={`${g.t}-${i}`}
             className="ts-goal-marker"
             style={markerStyle(g.t, totalDuration)}
-            title={`${formatTime(g.t)} — goal`}
+            title={`${formatTime(g.t)}, goal`}
             data-testid="ts-goal-marker"
           />
         ))}

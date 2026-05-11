@@ -1,24 +1,24 @@
 "use client";
 
 /**
- * App menu drawer — slides in from the right on every viewport.
+ * Full-screen mobile menu drawer.
  *
- * Replaces the old desktop side-rail + mobile-only menu sheet. Triggered
- * by the hamburger button in the top-right of the AppBar (all sizes) and
- * by the "Menu" tab in the mobile BottomNav. Holds every primary +
- * secondary destination plus the World Cup 2026 cross-links.
+ * Slides up from the bottom on mobile when the "Menu" tab is tapped on
+ * the bottom nav. Holds the same primary + secondary links as the
+ * desktop side-rail plus the World Cup 2026 microsite cross-links.
  *
- * Routing rules:
- *   - Internal app destinations stay in the SPA via `next/link`.
- *   - Marketing-site / external links (`external: true`) open in a new
- *     window with `rel="noopener noreferrer"` and a small ↗ glyph after
- *     the label so users can see they're leaving the Play app.
+ * Why a full-screen sheet, not a half-modal: a tournament microsite has
+ * a deep enough secondary menu (Leaderboard / Syndicates / Open source
+ * / Settings + four WC sections + a profile row) that a half-modal
+ * crowds the choices. Full-screen reads as a primary destination.
  *
- * Closing: tap the X, tap the backdrop, press Escape, or follow a link.
+ * Closing: tap the X, tap the backdrop above the drawer, press Escape,
+ * or back-navigate. On route change the drawer auto-closes, we
+ * subscribe to `popstate` and to the next-router `pushState`.
  */
 
 import Link from "next/link";
-import { useCallback, useEffect, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 
 import {
   HomeIcon,
@@ -31,17 +31,13 @@ import {
   SettingsIcon,
   MoleculeIcon,
   ShareIcon,
-  PlusIcon,
 } from "./icons";
 
 interface DrawerLink {
   readonly label: string;
   readonly href: string;
   readonly icon: ReactNode;
-  /** Open in a new window. Marketing / GitHub / off-app links. */
   readonly external?: boolean;
-  /** Render the link visually indented as a child of the preceding row. */
-  readonly subItem?: boolean;
 }
 
 const PRIMARY: readonly DrawerLink[] = [
@@ -52,26 +48,25 @@ const PRIMARY: readonly DrawerLink[] = [
 ];
 
 const WC2026: readonly DrawerLink[] = [
-  { label: "Bracket Prophet",      href: "/world-cup-2026",                                  icon: <PredictIcon /> },
-  { label: "3D Molecule",          href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon /> },
-  { label: "Save & share",         href: "/world-cup-2026/save-share",                       icon: <ShareIcon /> },
-  { label: "Watch the 2022 final", href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",     icon: <WatchIcon /> },
+  { label: "Bracket Prophet",  href: "/world-cup-2026",                                          icon: <PredictIcon /> },
+  { label: "3D Molecule",      href: "/world-cup-2026/molecule",                                 icon: <MoleculeIcon /> },
+  { label: "Save & share",     href: "/world-cup-2026#final",                                    icon: <ShareIcon /> },
+  { label: "Watch the 2022 final", href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",         icon: <WatchIcon /> },
 ];
 
 const SECONDARY: readonly DrawerLink[] = [
-  { label: "Leaderboard",        href: "/leaderboard",                                icon: <TrophyIcon /> },
-  { label: "Syndicates",         href: "https://tournamental.com/syndicates",         icon: <GroupsIcon />, external: true },
-  { label: "Create a syndicate", href: "/syndicates/new",                             icon: <PlusIcon />, subItem: true },
-  { label: "Open source",        href: "https://github.com/0800tim/tournamental",     icon: <CodeIcon />, external: true },
-  { label: "Settings",           href: "/settings",                                   icon: <SettingsIcon /> },
+  { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon /> },
+  { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon /> },
+  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  { label: "Settings",    href: "/settings",    icon: <SettingsIcon /> },
 ];
 
-export interface AppMenuDrawerProps {
+export interface MobileMenuDrawerProps {
   readonly open: boolean;
   readonly onClose: () => void;
 }
 
-export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
+export function MobileMenuDrawer({ open, onClose }: MobileMenuDrawerProps) {
   const handleEsc = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -130,18 +125,6 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
   );
 }
 
-/**
- * Tiny ↗ glyph appended after the label on external (new-window) rows so
- * the destination is visually distinct from internal SPA navigation.
- */
-function ExternalGlyph() {
-  return (
-    <span aria-hidden="true" className="vt-drawer-external-icon">
-      ↗
-    </span>
-  );
-}
-
 function DrawerLinks({
   links,
   onClick,
@@ -157,20 +140,17 @@ function DrawerLinks({
             <a
               href={link.href}
               className="vt-drawer-link"
-              data-subitem={link.subItem ? "1" : undefined}
               target="_blank"
-              rel="noopener noreferrer"
+              rel="noreferrer"
               onClick={onClick}
             >
               {link.icon}
               <span>{link.label}</span>
-              <ExternalGlyph />
             </a>
           ) : (
             <Link
               href={link.href}
               className="vt-drawer-link"
-              data-subitem={link.subItem ? "1" : undefined}
               onClick={onClick}
             >
               {link.icon}
@@ -181,4 +161,20 @@ function DrawerLinks({
       ))}
     </ul>
   );
+}
+
+/**
+ * Hook that exposes drawer open/close state for use in the bottom nav.
+ * Centralises the state so the bottom nav's "Menu" tap can drive it.
+ */
+import { useState as useStateLocal } from "react";
+
+export function useMobileMenuState() {
+  const [open, setOpen] = useStateLocal(false);
+  return {
+    open,
+    openDrawer: () => setOpen(true),
+    closeDrawer: () => setOpen(false),
+    toggleDrawer: () => setOpen((p) => !p),
+  };
 }

@@ -2,7 +2,7 @@
  * Auto-pick cascade integration test.
  *
  * Verifies the recent fixes from Tim's feedback:
- *   1. ⚡ Auto-pick fills EVERY match in one click — group + R32 + R16
+ *   1. ⚡ Auto-pick fills EVERY match in one click, group + R32 + R16
  *      + QF + SF + 3rd-place + Final. Earlier behaviour required
  *      multiple clicks because the cascade only resolved one round per
  *      pass.
@@ -48,7 +48,7 @@ beforeEach(() => {
       // Deterministic favourites: home wins every group match (60/25/15);
       // for any knockout that lands here later we'd return similar but
       // the snapshot endpoint only returns group fixtures, which is
-      // fine — the cascade falls back to FIFA rank for KO matches with
+      // fine, the cascade falls back to FIFA rank for KO matches with
       // no per-match odds (covered by the recursive cascade pass).
       const matches: MatchOdds[] = tournament.group_fixtures.map((f) => ({
         matchNo: String(f.match_no),

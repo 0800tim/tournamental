@@ -4,7 +4,7 @@
  * Following the 2026-05-11 "cluttered MPR cleanup" (commit db4c7b4),
  * the row no longer renders FormDots, the HeadToHeadPill, or the per-
  * pick info badges. The contract is now simpler: each side is a single
- * flag + team code + W/D/L percentage chip — that's it.
+ * flag + team code + W/D/L percentage chip, that's it.
  *
  * jsdom can't actually paint pixels, so this test takes the lighter
  * (but still useful) approach: it asserts the structural footprint
@@ -37,7 +37,7 @@ const AWAY = {
   kit: { primary: "#0055A4" },
 } as const;
 
-describe("MatchPredictionRow — mobile fit", () => {
+describe("MatchPredictionRow, mobile fit", () => {
   it("no FormDots strip in either pick column (cluttered-MPR cleanup)", () => {
     const { container } = render(
       <MatchPredictionRow
@@ -69,7 +69,7 @@ describe("MatchPredictionRow — mobile fit", () => {
     expect(container.querySelectorAll(".mpr-h2h")).toHaveLength(0);
   });
 
-  it("structural footprint — picks + scores rows only", () => {
+  it("structural footprint, picks + scores rows only", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"

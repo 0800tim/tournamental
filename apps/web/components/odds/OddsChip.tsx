@@ -1,5 +1,5 @@
 /**
- * OddsChip — inline pill showing W/D/L probabilities for one match.
+ * OddsChip, inline pill showing W/D/L probabilities for one match.
  *
  * Default rendering: `MEX 52% · D 25% · KOR 23%` (group), or
  * `MEX 60% · KOR 40%` (knockout, no draw).
@@ -133,7 +133,7 @@ export function OddsChip(props: OddsChipProps) {
   let dataState: "ok" | "loading" | "error" = "ok";
 
   if (error && !data) {
-    chipBody = <span aria-hidden="true">— —</span>;
+    chipBody = <span aria-hidden="true">- -</span>;
     ariaLabel = "Live odds unavailable";
     dataState = "error";
   } else if (!data) {

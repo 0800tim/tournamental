@@ -132,7 +132,7 @@ test.describe("Phase-1 fidelity: rigged players + state machine", () => {
     // docs/27a § "Performance gates" targets median frame time < 16.7ms
     // on real hardware. In headless chromium with SwiftShader (no GPU),
     // we can't hit that. The pragmatic gate here is "did we regress
-    // dramatically?" — a 250 ms p50 (4 fps) means something is
+    // dramatically?", a 250 ms p50 (4 fps) means something is
     // disastrously wrong (e.g. an infinite re-render loop) and we
     // want to fail the PR. Native-perf assertions live in the
     // hardware-accelerated CI lane that boots a real GPU; documented

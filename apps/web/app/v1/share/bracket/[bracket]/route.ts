@@ -1,5 +1,5 @@
 /**
- * `/v1/share/bracket/:bracketId(.png|.mp4)` — viral-share endpoint.
+ * `/v1/share/bracket/:bracketId(.png|.mp4)`, viral-share endpoint.
  *
  * Tim's 2026-05-11 brief: every bracket needs a beautiful PNG (for
  * Instagram / Facebook / Twitter / OG unfurls) and a 6-second animated
@@ -7,18 +7,18 @@
  * `@vtorn/social-cards` canvas renderer with no external API spend.
  *
  * Query params:
- *   - handle     (string)  — user handle to feature
- *   - name       (string)  — optional display name override
- *   - winner     (3-letter) — champion country code (default ARG)
- *   - kit        (#hex)    — override champion kit primary colour
- *   - path       (string)  — knockout path: r16:AUS,qf:ESP,sf:BRA,final:FRA
- *   - tournament (string)  — override tournament name (default "FIFA WC 2026")
- *   - pundit     (number)  — verified-pundit level chip (omit for none)
- *   - size       (portrait|landscape|square) — for the .png variant
- *   - format     (instagram|tiktok|twitter)  — for the .mp4 variant
+ *   - handle     (string) , user handle to feature
+ *   - name       (string) , optional display name override
+ *   - winner     (3-letter), champion country code (default ARG)
+ *   - kit        (#hex)   , override champion kit primary colour
+ *   - path       (string) , knockout path: r16:AUS,qf:ESP,sf:BRA,final:FRA
+ *   - tournament (string) , override tournament name (default "FIFA WC 2026")
+ *   - pundit     (number) , verified-pundit level chip (omit for none)
+ *   - size       (portrait|landscape|square), for the .png variant
+ *   - format     (instagram|tiktok|twitter) , for the .mp4 variant
  *
  * Cache policy:
- *   - PNG: `public, s-maxage=600, stale-while-revalidate=86400` — the
+ *   - PNG: `public, s-maxage=600, stale-while-revalidate=86400`, the
  *     bracket is content-addressed by the query string so a long edge
  *     cache + SWR keeps the hot social-network unfurl path cheap.
  *   - MP4: heavier to render (~3s of ffmpeg per request). We cache to
@@ -128,7 +128,7 @@ async function handleMp4(
 function mp4CachePath(bracketId: string, format: VideoFormat): string {
   const safe = bracketId.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 64);
   // Cache to a writable per-process temp dir (we don't want to write
-  // into apps/web/public from a runtime handler — Next.js may snapshot
+  // into apps/web/public from a runtime handler, Next.js may snapshot
   // public/ at build time).
   return join(tmpdir(), "vtorn-share-mp4", `${safe}-${format}.mp4`);
 }

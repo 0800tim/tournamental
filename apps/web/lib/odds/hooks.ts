@@ -6,7 +6,7 @@
  * 60s while the component is mounted, and exposes `data | null`,
  * `tier`, `error | null`, and a `refresh()` function.
  *
- * Why a custom hook (rather than SWR / React Query) — we want zero
+ * Why a custom hook (rather than SWR / React Query), we want zero
  * extra deps. The chip is on every group/knockout match (~120 of them
  * on the page), so we avoid kicking off a request storm with simple
  * jittered polling.

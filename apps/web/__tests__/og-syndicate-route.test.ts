@@ -1,5 +1,5 @@
 /**
- * /api/og/syndicate route — smoke tests for size matrix + never-500 contract.
+ * /api/og/syndicate route, smoke tests for size matrix + never-500 contract.
  */
 
 import { describe, expect, it, beforeAll, afterAll } from "vitest";

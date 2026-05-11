@@ -15,7 +15,7 @@ and exposes a small JSON API consumed by the marketing site
 
 It is deliberately small. It does **not**:
 
-- Cache full article bodies — only title, capped 1–2 sentence summary,
+- Cache full article bodies, only title, capped 1–2 sentence summary,
   optional thumbnail, and a link out to the publisher.
 - Mirror or reformat publisher imagery beyond the thumbnail the feed
   itself provides via `media:thumbnail` / `media:content` / enclosure.
@@ -54,7 +54,7 @@ states even for disabled rows.
   `rss-parser` library handles ETag / Last-Modified for us).
 
 That works out to roughly **~36 requests per source per hour, or ~864
-per day** at peak — comfortably below the unmetered/abuse threshold
+per day** at peak, comfortably below the unmetered/abuse threshold
 for any of the configured publishers.
 
 ## Data shape
@@ -94,10 +94,10 @@ All endpoints live on the `:3402` service under `/v1/`:
 
 Cache headers:
 
-- `/v1/news` — `Cache-Control: public, s-maxage=120, stale-while-revalidate=600`. ETag is `W/"<latestPublishedAt>-<count>-<limit>"`; if the client sends `If-None-Match` with a matching value we return `304`.
-- `/v1/news/:id` — `s-maxage=300, stale-while-revalidate=1200`.
-- `/v1/sources` — `max-age=60`.
-- `/healthz` — `no-store`.
+- `/v1/news`, `Cache-Control: public, s-maxage=120, stale-while-revalidate=600`. ETag is `W/"<latestPublishedAt>-<count>-<limit>"`; if the client sends `If-None-Match` with a matching value we return `304`.
+- `/v1/news/:id`, `s-maxage=300, stale-while-revalidate=1200`.
+- `/v1/sources`, `max-age=60`.
+- `/healthz`, `no-store`.
 
 ## How `/news` and the home strip consume it
 
@@ -107,13 +107,13 @@ Cache headers:
 
 Both surfaces gracefully render an empty state on upstream failure rather than a 5xx error.
 
-## Source ethics — link-out, not rehost
+## Source ethics, link-out, not rehost
 
 This is non-negotiable. For every source we display:
 
 1. **Title** (HTML stripped).
 2. **A 1–2 sentence summary**, paraphrased from the RSS `description` and capped at 240 characters. We never store or render the full article body.
-3. **Source name + logo** — small, non-prominent, attribution-only.
+3. **Source name + logo**, small, non-prominent, attribution-only.
 4. **Publish time**, relative ("2 h ago") with the absolute time in a tooltip.
 5. **An outbound link** to the original article with `target="_blank"` and `rel="noopener nofollow"`.
 
@@ -164,7 +164,7 @@ If a source's terms ever change to forbid even title-and-summary syndication, we
 
 ## References
 
-- [`apps/news-aggregator/`](../apps/news-aggregator/) — service code.
-- [`apps/marketing/src/pages/news/index.astro`](../apps/marketing/src/pages/news/index.astro) — `/news` page.
-- [`apps/web/components/home/NewsStrip.tsx`](../apps/web/components/home/NewsStrip.tsx) — bracket-app home strip.
-- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md) — port + tunnel registry.
+- [`apps/news-aggregator/`](../apps/news-aggregator/), service code.
+- [`apps/marketing/src/pages/news/index.astro`](../apps/marketing/src/pages/news/index.astro), `/news` page.
+- [`apps/web/components/home/NewsStrip.tsx`](../apps/web/components/home/NewsStrip.tsx), bracket-app home strip.
+- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md), port + tunnel registry.

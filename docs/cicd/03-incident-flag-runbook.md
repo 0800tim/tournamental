@@ -1,4 +1,4 @@
-# 03 — Incident flag runbook
+# 03, Incident flag runbook
 
 > How to halt promotes during an incident.
 
@@ -9,7 +9,7 @@ root, on the deploy host) blocks `promote-to-prod.ts` at the pre-checks
 stage. The pre-check is `no-incident-flag`, and a non-empty flag file
 fails it.
 
-This is **not a kill switch for staging deploys** — staging stays open so
+This is **not a kill switch for staging deploys**, staging stays open so
 you can continue iterating on a fix. It's specifically the production
 promote that's gated.
 
@@ -27,7 +27,7 @@ notes: investigating cache-warm regression after marketing deploy
 EOF
 ```
 
-Any text content is fine — the file's existence is what matters. We
+Any text content is fine, the file's existence is what matters. We
 recommend including the incident ID, opener, and a one-line summary so
 later operators see context when they hit the block.
 

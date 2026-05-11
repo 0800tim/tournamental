@@ -7,7 +7,7 @@
  * so the back button unwinds it before navigating away from the page.
  *
  * Each overlay is identified by a stable `kind` plus a flat `params` bag.
- * Kinds are an extensible string-literal union — additional overlay
+ * Kinds are an extensible string-literal union, additional overlay
  * kinds can be added by builder agents without touching the router core,
  * so long as a `<kind>Overlay>` component is registered in the registry.
  */
@@ -28,13 +28,13 @@ export interface OverlayFrame {
   readonly kind: OverlayKind;
   /**
    * Flat key→string params bag. Numeric / boolean params should be
-   * encoded as strings; the consumer parses them. URL-safe — must
+   * encoded as strings; the consumer parses them. URL-safe, must
    * survive `encodeURIComponent` round-trip.
    */
   readonly params: Readonly<Record<string, string>>;
 }
 
-/** Public Overlay API — what `useOverlay()` returns. */
+/** Public Overlay API, what `useOverlay()` returns. */
 export interface OverlayApi {
   /** Stack snapshot, top-of-stack last. */
   readonly stack: readonly OverlayFrame[];

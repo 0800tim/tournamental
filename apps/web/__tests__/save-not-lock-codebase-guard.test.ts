@@ -1,5 +1,5 @@
 /**
- * Vitest — regression guard for the Lock → Save rename.
+ * Vitest, regression guard for the Lock → Save rename.
  *
  * Reads through every .tsx/.ts file under apps/web/app and
  * apps/web/components looking for user-visible strings that start with
@@ -8,8 +8,8 @@
  * that re-introduces "Lock pick" or "Lock in your bracket" gets caught
  * at CI.
  *
- * Internal identifiers — `lockedAt`, `oddsAtLock`, `lockMultiplier`,
- * `lockedKeys`, `LockSummary`, `kickoff_lockout`, `is-locked` etc. —
+ * Internal identifiers, `lockedAt`, `oddsAtLock`, `lockMultiplier`,
+ * `lockedKeys`, `LockSummary`, `kickoff_lockout`, `is-locked` etc. -
  * are intentionally allowlisted (they're consumed by the scoring
  * engine and stay).
  */
@@ -63,7 +63,7 @@ function strip(source: string): string {
   // Line comments
   s = s.replace(/\/\/[^\n]*/g, "");
   // Internal identifiers and CSS class names that contain "lock".
-  // Order matters — replace longest forms first.
+  // Order matters, replace longest forms first.
   const allowed: readonly RegExp[] = [
     /\bLockSummary\b/g,
     /\bLockSummaryProps\b/g,
@@ -82,7 +82,7 @@ function strip(source: string): string {
     /\bmpr-locked\b/g,
     /\bmpp-is-locked\b/g,
     // Verb forms inside identifiers ("locked", "lockout", "locking",
-    // "lockstep") — never user-visible by themselves; strip them so they
+    // "lockstep"), never user-visible by themselves; strip them so they
     // don't get counted.
     /\block(?:ed|ing|s|out|step)\b/gi,
   ];
@@ -90,7 +90,7 @@ function strip(source: string): string {
   return s;
 }
 
-describe("Lock → Save rename — codebase guard", () => {
+describe("Lock → Save rename, codebase guard", () => {
   it("no .tsx/.ts in apps/web/{app,components} renders user-visible 'Lock'", () => {
     const offenders: Array<{ file: string; matches: string[] }> = [];
     for (const root of ROOTS) {
@@ -167,7 +167,7 @@ describe("Lock → Save rename — codebase guard", () => {
       "page.tsx",
     );
     const src = fs.readFileSync(file, "utf8");
-    // Accept either "0 picks saved" or "0 brackets saved" — sibling
+    // Accept either "0 picks saved" or "0 brackets saved", sibling
     // PR #127 settled on the latter; both are correct user copy.
     expect(src).toMatch(/0 (?:picks|brackets) saved\. Be first\./);
     expect(src).toMatch(/Save your bracket now/);

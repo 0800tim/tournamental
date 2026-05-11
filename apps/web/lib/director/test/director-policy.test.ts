@@ -154,19 +154,19 @@ describe("DirectorPolicy", () => {
       replaySec: 4,
       celebrationSec: 5,
     });
-    // tick @ 0 — goal just consumed → replay
+    // tick @ 0, goal just consumed → replay
     expect(seq[0]).toBe("goal-replay");
-    // ticks @ 1-3s — still in replay
+    // ticks @ 1-3s, still in replay
     expect(seq[1]).toBe("goal-replay");
     expect(seq[2]).toBe("goal-replay");
     expect(seq[3]).toBe("goal-replay");
-    // tick @ 4.5s — celebration
+    // tick @ 4.5s, celebration
     expect(seq[4]).toBe("player-track");
-    // tick @ 8s — still celebration
+    // tick @ 8s, still celebration
     expect(seq[5]).toBe("player-track");
-    // tick @ 9.5s — easing-back (player-track holds for 1s easing)
+    // tick @ 9.5s, easing-back (player-track holds for 1s easing)
     expect(["player-track", "broadcast"]).toContain(seq[6]);
-    // tick @ 11s — back to broadcast
+    // tick @ 11s, back to broadcast
     expect(seq[7]).toBe("broadcast");
   });
 
@@ -244,7 +244,7 @@ describe("CutBlender", () => {
       name: "broadcast" as const,
     };
     blender.evaluate(out);
-    // Instant cut — should be at the target on the very next eval.
+    // Instant cut, should be at the target on the very next eval.
     expect(out.position.distanceTo(new THREE.Vector3(60, 3, 5))).toBeLessThan(0.5);
   });
 

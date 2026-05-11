@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 /**
- * SignupModal — happy-path smoke tests for each of the three tabs.
+ * SignupModal, happy-path smoke tests for each of the three tabs.
  *
  * We mock the sign-in helpers at the module boundary so the test
  * doesn't try to spin up a real Supabase client. The component

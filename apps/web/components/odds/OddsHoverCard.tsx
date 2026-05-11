@@ -1,7 +1,7 @@
 /**
- * OddsHoverCard — the popover that appears on chip hover/focus.
+ * OddsHoverCard, the popover that appears on chip hover/focus.
  *
- * Shows three rows (Home / Draw / Away — Draw hidden in knockouts), an
+ * Shows three rows (Home / Draw / Away, Draw hidden in knockouts), an
  * implied-probability bar per row, source attribution + age, and the
  * geo-gated affiliate CTA.
  *
@@ -27,7 +27,7 @@ export interface OddsHoverCardProps {
   readonly homeLabel: string;
   /** Display label for the away team (full name preferred). */
   readonly awayLabel: string;
-  /** ISO kickoff string, optional — shown in the card header if given. */
+  /** ISO kickoff string, optional, shown in the card header if given. */
   readonly kickoffIso?: string;
   /** Group label, e.g. "Group A", optional. */
   readonly groupLabel?: string;
@@ -101,7 +101,7 @@ export function OddsHoverCard(props: OddsHoverCardProps) {
     source,
   } = props;
 
-  // Live "Xs ago" — recompute every 15s while the card is mounted.
+  // Live "Xs ago", recompute every 15s while the card is mounted.
   const [, tick] = useState<number>(0);
   useEffect(() => {
     const t = setInterval(() => tick((x) => x + 1), 15_000);

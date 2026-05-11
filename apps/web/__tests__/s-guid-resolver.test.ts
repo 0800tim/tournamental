@@ -2,12 +2,12 @@
  * Unit tests for the `/s/<guid>` resolver.
  *
  * Covers:
- *   1. syndicate-slug branch — matches an existing sample slug
- *   2. reserved-slug refusal — a reserved name never resolves to a
+ *   1. syndicate-slug branch, matches an existing sample slug
+ *   2. reserved-slug refusal, a reserved name never resolves to a
  *      syndicate even if some imaginary store had it
- *   3. user-guid branch — a valid UUID v4 hits the bracket lookup
- *   4. user-guid branch — a valid 16-char nanoid hits the bracket lookup
- *   5. not-found branch — a random string that's neither slug nor guid
+ *   3. user-guid branch, a valid UUID v4 hits the bracket lookup
+ *   4. user-guid branch, a valid 16-char nanoid hits the bracket lookup
+ *   5. not-found branch, a random string that's neither slug nor guid
  *
  * These tests prove the contract that `/s/[guid]/page.tsx` relies on
  * to pick which layout to render.
@@ -126,7 +126,7 @@ describe("isShareGuidShape", () => {
   });
 
   it("rejects non-v4 UUIDs", () => {
-    // UUID with version digit '1' — not v4
+    // UUID with version digit '1', not v4
     expect(isShareGuidShape("4f5b3c7e-1d2f-1a8b-9c0d-1e2f3a4b5c6d")).toBe(false);
   });
 

@@ -1,5 +1,5 @@
 /**
- * Vitest — player-profile pages, components, and lib helpers.
+ * Vitest, player-profile pages, components, and lib helpers.
  *
  * Covers ~24 cases:
  *   - lib/players: findPlayer / playersForTeam / searchPlayers / age helpers
@@ -73,7 +73,7 @@ const mbappe: PlayerRecord = {
   wikipediaUrl: null,
 };
 
-describe("lib/players — dataset", () => {
+describe("lib/players, dataset", () => {
   it("ships at least 100 players in the bundled dataset", () => {
     const ids = allPlayerIds();
     expect(ids.length).toBeGreaterThanOrEqual(100);
@@ -98,7 +98,7 @@ describe("lib/players — dataset", () => {
   });
 });
 
-describe("lib/players — findPlayer", () => {
+describe("lib/players, findPlayer", () => {
   it("returns the messi record for ARG-MESSI", () => {
     const m = findPlayer("ARG-MESSI");
     expect(m?.name).toBe("Lionel Messi");
@@ -112,7 +112,7 @@ describe("lib/players — findPlayer", () => {
   });
 });
 
-describe("lib/players — playersForTeam", () => {
+describe("lib/players, playersForTeam", () => {
   it("returns ARG players sorted with GK first", () => {
     const arg = playersForTeam("ARG");
     expect(arg.length).toBeGreaterThan(0);
@@ -127,7 +127,7 @@ describe("lib/players — playersForTeam", () => {
   });
 });
 
-describe("lib/players — searchPlayers", () => {
+describe("lib/players, searchPlayers", () => {
   const fixture: PlayerRecord[] = [messi, mbappe];
 
   it("filters by name substring", () => {
@@ -154,7 +154,7 @@ describe("lib/players — searchPlayers", () => {
   });
 });
 
-describe("lib/players — ageOnDate", () => {
+describe("lib/players, ageOnDate", () => {
   it("computes integer years for valid input", () => {
     expect(ageOnDate("1987-06-24", "2026-06-25")).toBe(39);
   });

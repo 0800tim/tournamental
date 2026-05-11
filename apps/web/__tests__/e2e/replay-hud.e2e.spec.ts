@@ -5,7 +5,7 @@
  *
  *   1. The match clock advances monotonically (no oscillation between
  *      0 and the live clock).
- *   2. The scoreline updates as goals fire — `1-0` after Messi at 23',
+ *   2. The scoreline updates as goals fire, `1-0` after Messi at 23',
  *      `2-0` after Di María at 36'.
  *   3. The scorers ticker is populated in chronological order.
  *

@@ -1,5 +1,5 @@
 /**
- * Sheet — bottom-sheet on mobile, modal card on desktop.
+ * Sheet, bottom-sheet on mobile, modal card on desktop.
  *
  * Features:
  *  - Backdrop scrim. Clicking the scrim closes the sheet.
@@ -45,7 +45,7 @@ export interface SheetProps {
    * a stable id is generated from the title slug.
    */
   readonly idHint?: string;
-  /** Stack depth — used to render multi-overlay backdrops at slightly
+  /** Stack depth, used to render multi-overlay backdrops at slightly
    * different z so the topmost is visually dominant. */
   readonly depth?: number;
   /** Disable drag-down gesture (e.g. for a sheet that contains a
@@ -102,7 +102,7 @@ export function Sheet(props: SheetProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  // Trap focus inside the sheet when tabbing. Light implementation —
+  // Trap focus inside the sheet when tabbing. Light implementation -
   // forwards Tab from the last focusable to the first and Shift+Tab the
   // other way. Sufficient for the small content we render.
   const onSheetKeyDown = (e: KeyboardEvent<HTMLDivElement>): void => {
@@ -165,7 +165,7 @@ export function Sheet(props: SheetProps) {
     dragStateRef.current = null;
     const dy = Math.max(0, e.clientY - s.startY);
     const dt = Math.max(1, e.timeStamp - s.lastT + 16); // guard ÷0
-    const velocity = dy / dt; // px/ms — rough, but enough to catch flicks
+    const velocity = dy / dt; // px/ms, rough, but enough to catch flicks
     if (dy >= DRAG_DISMISS_PX || velocity >= DRAG_DISMISS_VELOCITY) {
       onClose();
     } else {

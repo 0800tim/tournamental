@@ -1,4 +1,4 @@
-# 51 — Analytics instrumentation
+# 51, Analytics instrumentation
 
 > The Tournamental GA4 + GTM tracking layer. This doc covers the event
 > taxonomy, the user-property taxonomy, the consent model, how to add a
@@ -12,7 +12,7 @@ can use a single trigger (`event matches RegEx ^tournamental\\.`) to
 forward everything. The wrapper is in `apps/web/lib/analytics/`; an
 Astro sibling exposes `window.tournamental.track()` for the marketing
 site. When `NEXT_PUBLIC_GTM_ID` / `PUBLIC_GTM_ID` is unset, every
-`track()` call is a silent no-op — local dev and production keep
+`track()` call is a silent no-op, local dev and production keep
 working while Tim's container ID is still pending (see
 [26-setup-checklist.md](26-setup-checklist.md) § 2.2).
 
@@ -28,21 +28,21 @@ This doc covers the **client** side only.
 | `bracket.pick.saved`             | Any pick committed to the bracket draft (BracketBuilder `update()`)         | `tournament_id`, `match_predictions`, `knockout_predictions`, `tiebreakers`           |
 | `bracket.bracket.saved`          | Final submission via `submitBracket` resolves                                | `tournament_id`, `bracket_id?`, `result` (`ok`/`draft_only`/`error`), `error?`        |
 | `bracket.share.opened`           | Share CTA tapped                                                            | `tournament_id`, `surface`                                                            |
-| `bracket.share.completed`        | *(deferred — share-card agent owns the modal; wire on merge)*               | `channel`, `tournament_id`, `bracket_id`                                              |
+| `bracket.share.completed`        | *(deferred, share-card agent owns the modal; wire on merge)*               | `channel`, `tournament_id`, `bracket_id`                                              |
 | `bracket.autopick.run`           | Auto-pick CTA confirmed                                                     | `tournament_id`                                                                       |
 | `match.opened`                   | `/match/[id]` mount                                                         | `match_id`, `source`                                                                  |
-| `match.cam.angle.changed`        | *(deferred — Director / CameraRig agent territory; add when stable hook)*   | `match_id`, `from`, `to`                                                              |
+| `match.cam.angle.changed`        | *(deferred, Director / CameraRig agent territory; add when stable hook)*   | `match_id`, `from`, `to`                                                              |
 | `molecule.opened`                | `/world-cup-2026/molecule` mount                                            | (none)                                                                                |
-| `molecule.team.clicked`          | *(deferred — molecule-v3 agent is rewriting `<MoleculeScene/>`; sweep PR)*  | `team_code`                                                                           |
-| `molecule.consensus.toggled`     | *(deferred — same as above)*                                                | `enabled`                                                                             |
-| `signup.started`                 | *(deferred — registration agent owns the modal; add in the signup modal)*   | `surface`                                                                             |
-| `signup.completed`               | *(deferred — call from registration `useEffect` on success)*                | `auth_method`, `user_id_hashed` (already hashed)                                      |
-| `signup.step.skipped`            | *(deferred — Skip click handler in the registration modal)*                 | `step`                                                                                |
-| `profile.field.updated`          | *(deferred — registration agent's profile form `onBlur` handler)*           | `field`                                                                               |
-| `profile.exported`               | *(deferred — profile export button)*                                        | `format`                                                                              |
-| `profile.deleted`                | *(deferred — profile delete-account confirm)*                               | (none)                                                                                |
-| `auth.signin.opened`             | *(deferred — registration agent's sign-in modal mount)*                     | `surface`                                                                             |
-| `auth.signin.completed`          | *(deferred — registration agent's sign-in success)*                         | `auth_method`                                                                         |
+| `molecule.team.clicked`          | *(deferred, molecule-v3 agent is rewriting `<MoleculeScene/>`; sweep PR)*  | `team_code`                                                                           |
+| `molecule.consensus.toggled`     | *(deferred, same as above)*                                                | `enabled`                                                                             |
+| `signup.started`                 | *(deferred, registration agent owns the modal; add in the signup modal)*   | `surface`                                                                             |
+| `signup.completed`               | *(deferred, call from registration `useEffect` on success)*                | `auth_method`, `user_id_hashed` (already hashed)                                      |
+| `signup.step.skipped`            | *(deferred, Skip click handler in the registration modal)*                 | `step`                                                                                |
+| `profile.field.updated`          | *(deferred, registration agent's profile form `onBlur` handler)*           | `field`                                                                               |
+| `profile.exported`               | *(deferred, profile export button)*                                        | `format`                                                                              |
+| `profile.deleted`                | *(deferred, profile delete-account confirm)*                               | (none)                                                                                |
+| `auth.signin.opened`             | *(deferred, registration agent's sign-in modal mount)*                     | `surface`                                                                             |
+| `auth.signin.completed`          | *(deferred, registration agent's sign-in success)*                         | `auth_method`                                                                         |
 | `nav.menu.opened`                | Mobile drawer open via the BottomNav Menu tab                                | `surface`                                                                             |
 | `nav.tab.changed`                | BottomNav tab tapped                                                        | `label`, `href`, `surface`                                                            |
 | `consent.changed`                | Consent banner decision or programmatic `setConsent()` call                  | `analytics_storage`, `ad_storage`                                                     |
@@ -94,12 +94,12 @@ metric pivoted by these dimensions in Looker Studio.
 
 GA4 consent-mode v2. Four independent flags:
 
-- `analytics_storage` — defaults **granted** (product analytics are
+- `analytics_storage`, defaults **granted** (product analytics are
   essential to product safety).
-- `ad_storage` — defaults **denied** (no ad-targeting until the user
+- `ad_storage`, defaults **denied** (no ad-targeting until the user
   accepts).
-- `ad_user_data` — defaults **denied**.
-- `ad_personalization` — defaults **denied**.
+- `ad_user_data`, defaults **denied**.
+- `ad_personalization`, defaults **denied**.
 
 A first-visit banner (`<ConsentBanner/>`) prompts the user. Two
 options:
@@ -111,7 +111,7 @@ Decision persists in `localStorage["tournamental.consent.v1"]` and is
 re-applied on every subsequent visit (the SDK re-pushes the
 `consent_update` envelope so GTM's current state is in sync).
 
-Region-aware rules (GDPR / CCPA) are a v2 add — for v1 we show the
+Region-aware rules (GDPR / CCPA) are a v2 add, for v1 we show the
 banner globally; better safe than sorry.
 
 ## Adding a new event
@@ -125,7 +125,7 @@ Three steps:
 3. Call `track("the.new.event", { … })` at the right point.
 
 If the event lives in another agent's branch, add the name to the
-union now and document the deferred call site here — that way the
+union now and document the deferred call site here, that way the
 type surface is locked even before the call site lands.
 
 ## Debugging locally

@@ -1,4 +1,4 @@
-# 47 — CI/CD pipeline (build slots, atomic swap, fast rebuilds)
+# 47, CI/CD pipeline (build slots, atomic swap, fast rebuilds)
 
 > The deploy strategy across the Tournamental monorepo. Generalises Sdeal's
 > `publish.sh` into a typed, tested, monorepo-aware library + per-app
@@ -104,21 +104,21 @@ Two reasons:
 2. **Single-host pragmatism.** The dev box runs everything; we don't have
    a load balancer in front yet. When we add one (Cloudflare Tunnel
    ingress flip), this same library will support multi-host blue-green by
-   adding a `--host` flag — design space documented in
+   adding a `--host` flag, design space documented in
    [docs/cicd/01-deploy-runbook.md](cicd/01-deploy-runbook.md).
 
 ## Cache strategy
 
 Three caches feed the speed promise:
 
-1. **GH Actions cache** — keyed on `pnpm-lock.yaml` + the app's source-tree
+1. **GH Actions cache**, keyed on `pnpm-lock.yaml` + the app's source-tree
    hash. Holds `.next/cache`, `node_modules/.cache`, `.astro`,
    `dist/.tsbuildinfo`. Restore-keys fall back to lockfile-only matches so
    even a fresh app benefits.
-2. **pnpm content store** — `pnpm install --frozen-lockfile --prefer-offline`
+2. **pnpm content store**, `pnpm install --frozen-lockfile --prefer-offline`
    guarantees we never re-resolve, only fetch missing tarballs (usually zero
    on a warm runner).
-3. **In-process incremental** — Next's incremental compile is preserved
+3. **In-process incremental**, Next's incremental compile is preserved
    between builds because we always build to the *same* staging dir
    (`.next-staging`) which retains `.next-staging/cache` between runs.
 
@@ -138,7 +138,7 @@ For Fastify Node services, `tsc -b --incremental` writes
 | `infra/deploy/...`              | rebuild ALL apps                |
 | `docs/...`, `sessions/...`      | no-op                           |
 
-The CI workflow uses the same logic via a one-liner that imports the lib —
+The CI workflow uses the same logic via a one-liner that imports the lib -
 so local-vs-CI behaviour is identical.
 
 ## Per-app config
@@ -173,7 +173,7 @@ picks the right build/start/smoke commands and slot prefixes.
 | Full monorepo (12+ apps, par=4)    | 3-4 min             | 2-3s per app       |
 | Cold-cache rebuild (drop GH cache) | 2× warm-build time  | unchanged          |
 
-PM2 cluster-mode apps (web, api, game) reload with **zero** downtime —
+PM2 cluster-mode apps (web, api, game) reload with **zero** downtime -
 PM2 brings up new workers, drains old ones, swaps. The 2-3s figure is the
 worst case (fork-mode astro/marketing).
 
@@ -194,10 +194,10 @@ If `.next-prev` doesn't exist, you can't auto-rollback; `git checkout
 
 ## Env config flow
 
-- **Dev**: `apps/<name>/.env` — gitignored, hand-managed.
-- **Staging**: `apps/<name>/.env.staging` — on the deploy host, populated
-  from a secret store (1Password / Vault / `pass` — TBD).
-- **Production**: `apps/<name>/.env.production` — same.
+- **Dev**: `apps/<name>/.env`, gitignored, hand-managed.
+- **Staging**: `apps/<name>/.env.staging`, on the deploy host, populated
+  from a secret store (1Password / Vault / `pass`, TBD).
+- **Production**: `apps/<name>/.env.production`, same.
 
 PM2 ecosystem files (`infra/deploy/pm2/<env>.config.cjs`) reference these
 files via `env_file`. PM2 doesn't natively support env_file, so the
@@ -255,15 +255,15 @@ This needs a Cloudflare-API helper similar to
 
 ## Related docs
 
-- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md) —
+- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md) -
   ports, hostnames, Cloudflare Tunnel.
-- [docs/25-keys-and-secrets-required.md](25-keys-and-secrets-required.md) —
+- [docs/25-keys-and-secrets-required.md](25-keys-and-secrets-required.md) -
   what env vars each service needs.
-- [docs/cicd/01-deploy-runbook.md](cicd/01-deploy-runbook.md) —
+- [docs/cicd/01-deploy-runbook.md](cicd/01-deploy-runbook.md) -
   step-by-step deploy.
-- [docs/cicd/02-rollback-runbook.md](cicd/02-rollback-runbook.md) —
+- [docs/cicd/02-rollback-runbook.md](cicd/02-rollback-runbook.md) -
   when and how to roll back.
-- [docs/cicd/03-incident-flag-runbook.md](cicd/03-incident-flag-runbook.md) —
+- [docs/cicd/03-incident-flag-runbook.md](cicd/03-incident-flag-runbook.md) -
   halting promotes during an incident.
-- [docs/cicd/04-secrets-rotation-runbook.md](cicd/04-secrets-rotation-runbook.md) —
+- [docs/cicd/04-secrets-rotation-runbook.md](cicd/04-secrets-rotation-runbook.md) -
   rotating env secrets without downtime.

@@ -1,5 +1,5 @@
 /**
- * Stadium geometry — pure module.
+ * Stadium geometry, pure module.
  *
  * Builds parametric "tier of seating" descriptors that the React
  * component then renders with vanilla Three meshes. Pure data so
@@ -12,9 +12,9 @@ export interface SeatingTierInput {
   innerRadiusLong: number;
   /** Inner radius along the short (Z) axis. */
   innerRadiusShort: number;
-  /** Tier depth (m) — how far back the tier reads. */
+  /** Tier depth (m), how far back the tier reads. */
   depth: number;
-  /** Tier rise (m) — how tall the tier is. */
+  /** Tier rise (m), how tall the tier is. */
   rise: number;
   /** Y of the bottom of the tier. */
   baseY: number;
@@ -68,7 +68,7 @@ export function buildSeatingTier(input: SeatingTierInput): SeatingTier {
     const cx = cos * (innerRadiusLong + depth / 2);
     const cz = sin * (innerRadiusShort + depth / 2);
 
-    // Slice arc length (tangential) — width of the box.
+    // Slice arc length (tangential), width of the box.
     const tangentialLen =
       ((innerRadiusLong + innerRadiusShort) / 2) *
       ((Math.PI * 2) / segments) *

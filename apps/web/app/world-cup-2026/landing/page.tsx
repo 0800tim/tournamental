@@ -1,9 +1,9 @@
 /**
- * /world-cup-2026/landing — the WC 2026 hype/marketing landing page.
+ * /world-cup-2026/landing, the WC 2026 hype/marketing landing page.
  *
  * This is the host-aware apex for `play.tournamental.com` and
  * `play.tournamental.com` (rewritten from `/` in `apps/web/middleware.ts`). It
- * does NOT replace `/world-cup-2026` (the bracket builder) — that route is
+ * does NOT replace `/world-cup-2026` (the bracket builder), that route is
  * still the destination of every "Play the bracket game" CTA.
  *
  * Architecture: server component shell (deterministic SSR for instant
@@ -11,7 +11,7 @@
  * leaderboards tabs, syndicate form, and ICS download.
  *
  * Cache policy: this is marketing-flavoured and identical for every
- * unauthenticated visitor — `Cache-Control: public, s-maxage=300,
+ * unauthenticated visitor, `Cache-Control: public, s-maxage=300,
  * stale-while-revalidate=86400` (5-min edge cache + 24h SWR), per the
  * standing rule in CLAUDE.md.
  */
@@ -37,11 +37,11 @@ export const dynamic = "force-static";
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Tournamental — 33 days until the world predicts the World Cup.",
+  title: "Tournamental, 33 days until the world predicts the World Cup.",
   description:
-    "Tournamental is the prediction game for the 2026 FIFA World Cup. Free to play. Save your bracket now and tweak it match by match — earlier-saved picks score bigger, and you can change any pick until that match kicks off. 48 teams, 104 matches, one open-source bracket.",
+    "Tournamental is the prediction game for the 2026 FIFA World Cup. Free to play. Save your bracket now and tweak it match by match, earlier-saved picks score bigger, and you can change any pick until that match kicks off. 48 teams, 104 matches, one open-source bracket.",
   openGraph: {
-    title: "Tournamental — FIFA World Cup 2026 prediction game",
+    title: "Tournamental, FIFA World Cup 2026 prediction game",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     url: "https://play.tournamental.com/",
@@ -52,13 +52,13 @@ export const metadata: Metadata = {
         url: "/og/bracket/default.png",
         width: 1200,
         height: 630,
-        alt: "Tournamental — predict the 2026 World Cup",
+        alt: "Tournamental, predict the 2026 World Cup",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tournamental — FIFA World Cup 2026 prediction game",
+    title: "Tournamental, FIFA World Cup 2026 prediction game",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: ["/og/bracket/default.png"],
@@ -105,7 +105,7 @@ export default function LandingPage() {
           <p className="wc-hero-sub">
             Tournamental is the open-source prediction game for the 2026 FIFA
             World Cup. Free to play, free to syndicate, free to share.
-            Save your bracket now and tweak it match by match — the
+            Save your bracket now and tweak it match by match, the
             earlier your saved pick, the bigger the multiplier. You can
             change any pick right up until that match kicks off.
           </p>
@@ -150,25 +150,25 @@ export default function LandingPage() {
             <div className="wc-stat-row">
               <span className="wc-stat-name">Argentina</span>
               <span className="wc-stat-value">
-                <DataPlaceholder>—</DataPlaceholder>
+                <DataPlaceholder>-</DataPlaceholder>
               </span>
             </div>
             <div className="wc-stat-row">
               <span className="wc-stat-name">France</span>
               <span className="wc-stat-value">
-                <DataPlaceholder>—</DataPlaceholder>
+                <DataPlaceholder>-</DataPlaceholder>
               </span>
             </div>
             <div className="wc-stat-row">
               <span className="wc-stat-name">Brazil</span>
               <span className="wc-stat-value">
-                <DataPlaceholder>—</DataPlaceholder>
+                <DataPlaceholder>-</DataPlaceholder>
               </span>
             </div>
             <div className="wc-stat-row">
               <span className="wc-stat-name">England</span>
               <span className="wc-stat-value">
-                <DataPlaceholder>—</DataPlaceholder>
+                <DataPlaceholder>-</DataPlaceholder>
               </span>
             </div>
             <p
@@ -178,7 +178,7 @@ export default function LandingPage() {
                 margin: "12px 0 0",
               }}
             >
-              Powered by Polymarket — wires up before kickoff.
+              Powered by Polymarket, wires up before kickoff.
             </p>
           </div>
         </div>
@@ -242,7 +242,7 @@ export default function LandingPage() {
         <span className="wc-eyebrow">Group winner probability</span>
         <h2 id="wc-charts-h2">Where the smart money is, today.</h2>
         <p className="wc-lede">
-          Per-group winner probability — derived from FIFA rank for now,
+          Per-group winner probability, derived from FIFA rank for now,
           and re-derived daily from Polymarket once the integration ships.
         </p>
         <GroupCharts />
@@ -278,7 +278,7 @@ export default function LandingPage() {
               <li>Free-to-play prediction game</li>
               <li>Affiliate disclosure: surfaces market data from Polymarket and stream subscriptions from local broadcasters.</li>
               <li>Adult content / responsible-gaming notes apply per jurisdiction.</li>
-              <li>Apache 2.0 — code; CC-BY 4.0 — docs.</li>
+              <li>Apache 2.0, code; CC-BY 4.0, docs.</li>
             </ul>
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function LandingPage() {
 }
 
 /**
- * Tiny inline sparkline. Mock data for now — labelled via the parent
+ * Tiny inline sparkline. Mock data for now, labelled via the parent
  * `<DataPlaceholder>`. Drawn in pure SVG; no chart library.
  */
 function Sparkline() {

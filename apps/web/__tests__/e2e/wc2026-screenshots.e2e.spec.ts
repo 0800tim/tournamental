@@ -70,7 +70,7 @@ test("performance: LCP + total transfer", async ({ page }) => {
         type: r.request().resourceType(),
       });
     } catch {
-      // some streams have no body — ignore.
+      // some streams have no body, ignore.
     }
   });
 

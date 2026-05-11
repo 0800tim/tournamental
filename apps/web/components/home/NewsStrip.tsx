@@ -1,5 +1,5 @@
 /**
- * NewsStrip — horizontal news scroller pinned to the home feed.
+ * NewsStrip, horizontal news scroller pinned to the home feed.
  *
  * - Mobile: horizontal scroll; cards snap.
  * - Desktop: 4-column grid.
@@ -10,7 +10,7 @@
  * failure we render a single "news temporarily unavailable" card so
  * the layout doesn't collapse.
  *
- * This component does NOT render on /world-cup-2026 — it's home-only.
+ * This component does NOT render on /world-cup-2026, it's home-only.
  * The home page composes it directly; nothing here gates the route.
  */
 "use client";
@@ -96,7 +96,7 @@ export function NewsStrip() {
           : items.length === 0
           ? (
               <div className="vt-newsstrip-empty" role="listitem">
-                <p>{error ? `News is taking a breather (${error}).` : "Nothing fresh yet — check back soon."}</p>
+                <p>{error ? `News is taking a breather (${error}).` : "Nothing fresh yet, check back soon."}</p>
               </div>
             )
           : items.map((it) => (

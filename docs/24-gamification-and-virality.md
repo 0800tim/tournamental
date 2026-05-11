@@ -1,4 +1,4 @@
-# 24 — Gamification, badges, and virality
+# 24, Gamification, badges, and virality
 
 > What turns a prediction app into something users *want* to share. Badges, streaks, leaderboards, share mechanics, and the auto-clip pipeline that drops branded short videos into socials throughout every tournament.
 
@@ -67,7 +67,7 @@ Mythic and Platinum badges are **NFTs on the same chain as VStamps** (per doc 17
 
 Pure consumer of the events stream (per doc 23). Reads a settled prediction or relevant aggregate event, evaluates each active badge's `award_rule`, awards if matched, fires `badge_earned` event back into the stream. The engine is `apps/award-engine/`.
 
-Determinism: the same input event sequence yields the same badge awards every time. Replayability is a property — we can re-derive every user's badge ledger from the events table.
+Determinism: the same input event sequence yields the same badge awards every time. Replayability is a property, we can re-derive every user's badge ledger from the events table.
 
 ### Surfaces
 
@@ -100,7 +100,7 @@ Three scopes, three timeframes each.
 Each leaderboard top-100 is a Redis sorted set updated on every settlement. Top-10 is rendered fresh per request; 11–100 is cached 30s; 101+ is paginated and served straight from Postgres with a 5-minute SWR.
 
 Leaderboard moves trigger events:
-- `leaderboard_climbed` (n positions, into top X) — only fires for moves that cross thresholds (top-100 entry, top-50 entry, top-10 entry, #1).
+- `leaderboard_climbed` (n positions, into top X), only fires for moves that cross thresholds (top-100 entry, top-50 entry, top-10 entry, #1).
 - These events are *high signal* for share prompts.
 
 ## Tokens (off-chain)
@@ -110,7 +110,7 @@ Bonus tokens are an off-chain points currency users earn from streaks, referrals
 - Higher stake limits in social tournaments.
 - Free entries to gated tournaments.
 - Cosmetic unlocks (avatar accents, name flair).
-- Quarterly raffles for real prizes (per doc 19's contributor-revenue model — overlapping mechanics).
+- Quarterly raffles for real prizes (per doc 19's contributor-revenue model, overlapping mechanics).
 
 **Tokens are never withdrawable as cash.** This is a play-to-engage system, not a wallet. For real prize draws, see TournamentalOracle (doc 21) and the on-chain pools.
 
@@ -132,7 +132,7 @@ Each share fires `share_clicked`. Each redemption fires `referral_redeemed`. The
 
 ## Auto-clip pipeline
 
-Every goal, save, foul-card, and shootout attempt in a streamed match becomes a 6–10s clip in three formats (9:16 for TikTok/IG/Shorts, 1:1 for X, 16:9 for YouTube). Clips are produced by the renderer's offscreen recorder fed off the same spec stream the live viewers watch — no separate broadcast is needed.
+Every goal, save, foul-card, and shootout attempt in a streamed match becomes a 6–10s clip in three formats (9:16 for TikTok/IG/Shorts, 1:1 for X, 16:9 for YouTube). Clips are produced by the renderer's offscreen recorder fed off the same spec stream the live viewers watch, no separate broadcast is needed.
 
 Pipeline (per `docs/14-clip-generation-and-social.md`, this section refines the gamification overlay):
 

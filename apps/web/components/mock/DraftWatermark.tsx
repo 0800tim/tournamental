@@ -1,5 +1,5 @@
 /**
- * DraftWatermark — a low-opacity diagonal "PREVIEW" pattern rendered
+ * DraftWatermark, a low-opacity diagonal "PREVIEW" pattern rendered
  * behind any chart, podium, or large mock visualisation. The pattern
  * is a 1× inline SVG tile referenced as a CSS background, so it costs
  * zero extra network requests and tiles cleanly at any size.

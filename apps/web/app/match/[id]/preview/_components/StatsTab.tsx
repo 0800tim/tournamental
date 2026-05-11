@@ -1,5 +1,5 @@
 /**
- * Stats tab — pre-match expected stats (xG, possession, shots) and
+ * Stats tab, pre-match expected stats (xG, possession, shots) and
  * season-average per team in a compact data-table.
  *
  * Presented as two stacked rows:

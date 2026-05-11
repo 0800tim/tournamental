@@ -1,5 +1,5 @@
 /**
- * Vitest — `<MoleculePanel>` group-stage section render test.
+ * Vitest, `<MoleculePanel>` group-stage section render test.
  *
  * The panel is plain DOM (no R3F) so it mounts cleanly under jsdom.
  * We feed it a synthetic Bracket where MEX tops Group A and verify the
@@ -42,7 +42,7 @@ const BRACKET_MEX_TOPS_A: Bracket = {
   version: 2,
 };
 
-describe("<MoleculePanel> — group-stage section", () => {
+describe("<MoleculePanel>, group-stage section", () => {
   it("renders the Group stage header when a team is selected", () => {
     render(
       <MoleculePanel

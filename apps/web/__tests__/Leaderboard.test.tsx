@@ -1,5 +1,5 @@
 /**
- * Vitest — <Leaderboard> snapshot + behaviour smoke.
+ * Vitest, <Leaderboard> snapshot + behaviour smoke.
  *
  * Three states snapshotted:
  *   1. empty

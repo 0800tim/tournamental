@@ -16,7 +16,7 @@ interface DebugPanelProps {
  * On-screen diagnostics: connection status, lag, fps, last state `t`,
  * frame count, current camera mode.
  *
- * Hidden by default — too much noise for end users. Open it via the
+ * Hidden by default, too much noise for end users. Open it via the
  * small `i` pill in the bottom-right corner, the `~` (or `\``) key, or
  * the legacy `D` key. The pill is the only persistent affordance; the
  * panel itself disappears when closed.
@@ -61,7 +61,7 @@ export function DebugPanel({ store, matchId, mode }: DebugPanelProps) {
         e.key === "d" ||
         e.key === "D"
       ) {
-        // Skip if user is typing in an input — `D` overlaps with
+        // Skip if user is typing in an input, `D` overlaps with
         // ordinary text entry.
         const tag = (e.target as HTMLElement | null)?.tagName ?? "";
         if (tag === "INPUT" || tag === "TEXTAREA") return;
@@ -102,7 +102,7 @@ export function DebugPanel({ store, matchId, mode }: DebugPanelProps) {
           </div>
           <div className="debug-row">
             <span>match</span>
-            <span>{matchId ?? "—"}</span>
+            <span>{matchId ?? "-"}</span>
           </div>
           <div className="debug-row">
             <span>status</span>

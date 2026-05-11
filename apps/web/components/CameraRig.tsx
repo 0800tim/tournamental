@@ -27,7 +27,7 @@ interface CameraRigProps {
  * Implementation: each frame we compute a desired (position, target) and
  * lerp the camera toward it with a fixed damping factor. Doc 04 calls for
  * "regular three.js camera + damped lerp on a target derived from the
- * lerped ball position" — that's exactly this.
+ * lerped ball position", that's exactly this.
  */
 export function CameraRig({ store, mode }: CameraRigProps) {
   const { camera } = useThree();
@@ -114,7 +114,7 @@ export function CameraRig({ store, mode }: CameraRigProps) {
       }
     }
 
-    // Re-assert world-up every frame — the lookAt() call in the damper
+    // Re-assert world-up every frame, the lookAt() call in the damper
     // computes orientation off `camera.up`, so any drift there shows
     // up as horizon roll. Belt-and-braces against the tilted-horizon
     // Tim saw on follow-ball.

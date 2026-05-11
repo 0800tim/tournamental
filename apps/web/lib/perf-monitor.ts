@@ -53,7 +53,7 @@ class PerfMonitor {
   /**
    * Call once per frame. `now` defaults to `performance.now()`.
    *
-   *   `info`        — optional renderer.info bag from THREE.WebGLRenderer.
+   *   `info`       , optional renderer.info bag from THREE.WebGLRenderer.
    */
   tick(now?: number, info?: { calls: number; triangles: number }): void {
     const t = now ?? (typeof performance !== "undefined" ? performance.now() : Date.now());
@@ -116,7 +116,7 @@ class PerfMonitor {
 
 let _monitor: PerfMonitor | null = null;
 
-/** Singleton accessor — every call returns the same monitor. */
+/** Singleton accessor, every call returns the same monitor. */
 export function getPerfMonitor(): PerfMonitor {
   if (!_monitor) _monitor = new PerfMonitor();
   return _monitor;

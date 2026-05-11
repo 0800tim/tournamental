@@ -1,5 +1,5 @@
 /**
- * Integration test — odds chip appears next to every match prediction
+ * Integration test, odds chip appears next to every match prediction
  * row + knockout match in the bracket page, the chip's hover card opens
  * with three rows summing to 100%, and the chip stays a sibling of the
  * existing match-row buttons (so we haven't broken keyboard a11y).
@@ -30,7 +30,7 @@ beforeEach(() => {
   if (typeof window !== "undefined") {
     window.history.replaceState(null, "", "/");
   }
-  // Stub fetch — answer /api/odds/match/* with deterministic odds, and
+  // Stub fetch, answer /api/odds/match/* with deterministic odds, and
   // /api/odds/team/*/group with a 0.25 baseline so each of the four
   // teams in a group gets ~25% group-winner.
   vi.spyOn(global, "fetch").mockImplementation(((input: RequestInfo | URL) => {
@@ -39,7 +39,7 @@ beforeEach(() => {
       return Promise.resolve(jsonResponse({ country: "US" }));
     }
     if (url.includes("/api/odds/snapshot")) {
-      // Bulk snapshot — BracketBuilder fetches once on mount and
+      // Bulk snapshot, BracketBuilder fetches once on mount and
       // distributes via the oddsByMatch Map.
       const matches: MatchOdds[] = tournament.group_fixtures.map((f) => ({
         matchNo: String(f.match_no),
@@ -72,7 +72,7 @@ beforeEach(() => {
       return Promise.resolve(jsonResponse(data));
     }
     if (url.includes("/api/odds/team/") && url.includes("/group")) {
-      // Per-team mock for GroupWinnerChips — echo the queried team
+      // Per-team mock for GroupWinnerChips, echo the queried team
       // code so each team in a group gets a unique entry.
       const m = url.match(/\/api\/odds\/team\/([^/?]+)\/group/);
       const teamCode = m?.[1] ?? "UNK";
@@ -94,18 +94,18 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-describe("Bracket page — match-row inline odds integration", () => {
+describe("Bracket page, match-row inline odds integration", () => {
   it("renders three inline W/D/L percentages under each group match row", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
 
     // Wait for the bulk snapshot to land and the rows to fill in their
-    // inline percentages (the home pct cell goes from "—" to "50%").
+    // inline percentages (the home pct cell goes from "-" to "50%").
     await waitFor(() => {
       const homePct = container.querySelector(
         '.mpr-pick-home .mpr-pick-pct',
       ) as HTMLElement | null;
       if (!homePct) throw new Error("no home pct cell");
-      if (homePct.textContent?.includes("—")) throw new Error("still loading");
+      if (homePct.textContent?.includes("-")) throw new Error("still loading");
       return true;
     });
 
@@ -127,12 +127,12 @@ describe("Bracket page — match-row inline odds integration", () => {
       const homePct = container.querySelector(
         '.mpr-pick-home .mpr-pick-pct',
       ) as HTMLElement | null;
-      if (!homePct || homePct.textContent?.includes("—")) {
+      if (!homePct || homePct.textContent?.includes("-")) {
         throw new Error("still loading");
       }
       return true;
     });
-    // The duplicate per-row OddsChip wrapper is gone — odds are inline
+    // The duplicate per-row OddsChip wrapper is gone, odds are inline
     // under each pick now.
     expect(container.querySelector("[data-mpr-odds]")).toBeNull();
     expect(container.querySelector(".mpr-odds-cta")).toBeNull();

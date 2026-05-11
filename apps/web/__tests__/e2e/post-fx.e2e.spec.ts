@@ -1,7 +1,7 @@
 /**
  * Phase-3 e2e: post-FX vignette + commentary ducking during goal-replay.
  *
- * Gated on `VTORN_RUN_PHASE3_E2E=1` per the agent prompt — this spec
+ * Gated on `VTORN_RUN_PHASE3_E2E=1` per the agent prompt, this spec
  * needs a real dev server (`pnpm dev` on port 3300) and SwiftShader
  * WebGL is enough for it to mount.
  *
@@ -91,7 +91,7 @@ test.describe("Phase-3 post-FX + commentary ducking", () => {
       { timeout: 5000 },
     );
 
-    // Sample the commentary gain — should be < 1 (ducked).
+    // Sample the commentary gain, should be < 1 (ducked).
     const gain = await page.evaluate(() => {
       const hud = document.querySelector(".perf-monitor");
       return Number(hud?.getAttribute("data-commentary-gain") ?? "1");

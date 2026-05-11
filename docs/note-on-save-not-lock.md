@@ -1,4 +1,4 @@
-# Note — "Save", not "Lock", in user copy
+# Note, "Save", not "Lock", in user copy
 
 > Why every user-facing button reads "Save" but the field on disk is still
 > `lockedAt`.
@@ -23,7 +23,7 @@
 > right before kickoff, so just say 'save' instead of 'lock', and then
 > people can save and share, and they can change at any time."
 
-In short: the **policy** ("no changes after kickoff") is intact —
+In short: the **policy** ("no changes after kickoff") is intact -
 that's the `kickoff_lockout`. The **verb** in the UI is "Save" because
 the user is mentally saving an editable doc, not locking a vault.
 
@@ -47,7 +47,7 @@ Inside `apps/marketing`:
 
 - The hero / how-it-works / world-cup-2026 / why pages all read "save"
   for the user-facing verb.
-- Blog posts (`apps/marketing/src/content/blog/*.mdx`) are NOT changed —
+- Blog posts (`apps/marketing/src/content/blog/*.mdx`) are NOT changed -
   they're historical artefacts.
 
 Inside `docs/`:
@@ -61,7 +61,7 @@ Inside `docs/`:
 
 ## What stays as "Lock"
 
-These are internal — they're field names, error codes, function names,
+These are internal, they're field names, error codes, function names,
 CSS classes, or comments quoting Tim's original spec line ("lock off
 any changes … at kickoff (0 minutes)"). Changing them risks breaking
 the scoring engine, the API contracts, or downstream consumers.
@@ -95,14 +95,14 @@ re-introduces "Lock pick" or "Lock in your bracket" will fail at CI.
 Bracket prediction games (Yahoo, ESPN, NCAA pools) usually use "lock"
 to mean "you've submitted; you can't change it now". Tim's product is
 different: every match can be re-picked until that specific match
-kicks off (not the tournament start, not the previous round — that
+kicks off (not the tournament start, not the previous round, that
 match). The "save and share now, change later" pattern is closer to a
 Google Doc draft than a Yahoo bracket submission. Using "Save" tells
 users they can keep tweaking.
 
 The early-save multiplier rewards conviction: pick a long-shot now and
 your multiplier is bigger than if you save the same pick five minutes
-before kickoff. Late saves still count — they just earn less. That's
+before kickoff. Late saves still count, they just earn less. That's
 the closest the user copy comes to needing to say "lock", and even
 there "save" is more accurate because every save resets the multiplier
 clock.

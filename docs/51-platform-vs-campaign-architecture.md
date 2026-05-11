@@ -1,4 +1,4 @@
-# 51 — Platform vs Campaign Architecture
+# 51, Platform vs Campaign Architecture
 
 > **Status**: design intent, not yet implemented. Captures Tim's
 > 2026-05-11 clarification so the next agents can align without
@@ -142,8 +142,8 @@ The PWA shell (`apps/web/components/shell/AppShell.tsx`) should:
 ## What's NOT in place yet (refactor backlog)
 
 > These tasks are recorded so the next sprint can pick them up. They
-> are NOT for this PR — Tim's directive: "as long as we can prototype
-> it" — just nail the architecture doc so the next agents have ground
+> are NOT for this PR, Tim's directive: "as long as we can prototype
+> it", just nail the architecture doc so the next agents have ground
 > truth.
 
 1. **Extract a campaign config provider.** Wrap each campaign route in
@@ -186,7 +186,7 @@ The pitch is now:
 
 - Tournamental is a tournament prediction platform. Anyone can run a
   campaign on it.
-- The 2026 World Cup site (`2026wc.tournamental.com`) is **our** campaign —
+- The 2026 World Cup site (`2026wc.tournamental.com`) is **our** campaign -
   built end-to-end by the core team as a flagship and a proof point.
 - The renderer, bracket engine, scoring, social distribution, and
   watch-along are reusable across any campaign with a structured
@@ -202,17 +202,17 @@ The pitch is now:
 
 ## Cross-references
 
-- [docs/01-vision-and-scope.md](01-vision-and-scope.md) — the vision
+- [docs/01-vision-and-scope.md](01-vision-and-scope.md), the vision
   this doc operationalises.
 - [docs/15-tournamental-brand-and-positioning.md](15-tournamental-brand-and-positioning.md)
-  — voice + visual language. The brand kit must accommodate per-campaign
+ , voice + visual language. The brand kit must accommodate per-campaign
   overrides.
 - [docs/17-vstamp-and-prediction-iq.md](17-vstamp-and-prediction-iq.md)
-  — global pundit IQ rolls up per-campaign scores.
-- [docs/18-monetization.md](18-monetization.md) — affiliate router
+ , global pundit IQ rolls up per-campaign scores.
+- [docs/18-monetization.md](18-monetization.md), affiliate router
   + revenue share lives at the platform layer.
-- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md) —
+- [docs/22-deployment-and-tunnels.md](22-deployment-and-tunnels.md) -
   subdomain → tunnel ingress wiring; already supports per-campaign
   domains.
-- [docs/37-pwa-app-shell.md](37-pwa-app-shell.md) — the AppShell
+- [docs/37-pwa-app-shell.md](37-pwa-app-shell.md), the AppShell
   contract whose default tabs this doc clarifies as platform-level.

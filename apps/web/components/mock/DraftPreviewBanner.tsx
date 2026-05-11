@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * DraftPreviewBanner — yellow honesty pill that sits above any mock-
+ * DraftPreviewBanner, yellow honesty pill that sits above any mock-
  * data surface. The visual contract for the whole "draft leaderboard"
  * system: every mock page MUST mount this once, near the top of the
  * card grid, so a viewer can never mistake placeholder rows for real
@@ -20,7 +20,7 @@ const STORAGE_KEY = "tournamental:draft-banner-dismissed:v1";
 
 export interface DraftPreviewBannerProps {
   /**
-   * Override the default message. Use sparingly — the default is
+   * Override the default message. Use sparingly, the default is
    * carefully worded for "honest by default".
    */
   readonly message?: string;
@@ -31,7 +31,7 @@ export interface DraftPreviewBannerProps {
   readonly kickoffLabel?: string;
   /**
    * Make the banner sticky to the top of its containing scroll
-   * region. Default false — most pages let it flow with the content.
+   * region. Default false, most pages let it flow with the content.
    */
   readonly sticky?: boolean;
 }
@@ -82,7 +82,7 @@ export function DraftPreviewBanner({
           try {
             window.localStorage.setItem(STORAGE_KEY, "1");
           } catch {
-            /* localStorage unavailable — still hide for this session */
+            /* localStorage unavailable, still hide for this session */
           }
           setHidden(true);
         }}

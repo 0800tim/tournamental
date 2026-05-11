@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
-/* Crowd, LedBoards, FloodlightMast deliberately not imported — Tim's
+/* Crowd, LedBoards, FloodlightMast deliberately not imported, Tim's
  * spec on 2026-05-11 was: simple stadium stand, no haze, clear ball.
  * The stand is just the seating tier rings + roof rim + goal nets. */
 import { buildSeatingTier, type SeatingTier } from "@/lib/stadium-geometry";
@@ -18,7 +18,7 @@ import { buildSeatingTier, type SeatingTier } from "@/lib/stadium-geometry";
  *     instanced for low draw-call cost).
  *   - Tier-fronts angled inwards 18 degrees, back-tilted away.
  *   - Roof rim above the back tier (cast shadow).
- *   - Floodlights at the four corners (light geometry only — actual
+ *   - Floodlights at the four corners (light geometry only, actual
  *     lighting stays on the existing scene rig until Phase 4 brings
  *     dedicated SpotLights).
  *   - Animated rotating LED ad boards around the perimeter (separate
@@ -33,7 +33,7 @@ import { buildSeatingTier, type SeatingTier } from "@/lib/stadium-geometry";
 export function Stadium() {
   const tiers: SeatingTier[] = useMemo(
     () => [
-      // Front tier — closest to pitch, lowest, deep red seats.
+      // Front tier, closest to pitch, lowest, deep red seats.
       buildSeatingTier({
         innerRadiusLong: 54,
         innerRadiusShort: 36,
@@ -74,7 +74,7 @@ export function Stadium() {
     <group userData={{ vtornStadium: true }}>
       {/* Simple stadium stand per Tim's spec: just tiered seating with
        *  a roof rim and goal nets. No LED boards, no crowd, no
-       *  floodlight masts — those were the bright-stripe culprits in
+       *  floodlight masts, those were the bright-stripe culprits in
        *  the screenshots. The seating rings render at uniform
        *  charcoal regardless of the per-tier colour config. */}
       {tiers.map((tier, i) => (
@@ -125,7 +125,7 @@ function SeatingRing({ tier }: { tier: SeatingTier }) {
 }
 
 /**
- * Procedural goal net — a 32×24-vert plane that sways gently in the
+ * Procedural goal net, a 32×24-vert plane that sways gently in the
  * "wind" via a per-frame uniform-driven vertex offset (cheaply done
  * here as a CPU-side morph). On goal events the net pulses inward.
  *
@@ -149,7 +149,7 @@ function GoalNet({
     // Clamp delta so a stall doesn't spike the sway phase.
     const delta = Math.min(deltaRaw, 1 / 30);
     swayRef.current.t += delta;
-    // Throttle the per-frame mesh.position write to 5 Hz — this is a
+    // Throttle the per-frame mesh.position write to 5 Hz, this is a
     // cosmetic gust, not a per-frame physics term.
     const tNow = performance.now();
     if (tNow - lastSwayAt.current < 200) return;
@@ -181,7 +181,7 @@ function GoalNet({
 }
 
 /**
- * A roof-rim ring — eight short box segments around the pitch that
+ * A roof-rim ring, eight short box segments around the pitch that
  * read as a stadium roof at distance. We use eight rather than 32 to
  * keep draw calls down.
  */
@@ -213,7 +213,7 @@ function RoofRim({ height }: { height: number }) {
 }
 
 /**
- * Floodlight mast — a tall vertical pole + emissive head. Acts as
+ * Floodlight mast, a tall vertical pole + emissive head. Acts as
  * silhouette + bloom-target only. No SpotLight (Phase 4 deliverable).
  */
 function FloodlightMast({ position }: { position: [number, number, number] }) {
@@ -224,7 +224,7 @@ function FloodlightMast({ position }: { position: [number, number, number] }) {
         <cylinderGeometry args={[0.25, 0.4, 24, 6]} />
         <meshStandardMaterial color="#2b3540" roughness={0.55} />
       </mesh>
-      {/* Floodlight head — emissive so bloom still catches it, but a
+      {/* Floodlight head, emissive so bloom still catches it, but a
        *  much lower intensity (was 2.6, now 0.9) and now tone-mapped so
        *  it can't blow the whole upper-deck area to white. With ACES
        *  exposure 0.85 the floodlights still read as bright but the

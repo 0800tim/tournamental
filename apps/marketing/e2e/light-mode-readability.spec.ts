@@ -94,7 +94,7 @@ test.describe("marketing light-mode readability", () => {
     for (const theme of THEMES) {
       test(`${route.name} renders cleanly in ${theme}`, async ({ page, context }) => {
         // The header toggle script in Header.astro reads localStorage
-        // ("vtourn:theme") on load and re-applies whatever it finds —
+        // ("vtourn:theme") on load and re-applies whatever it finds -
         // which would clobber the ?theme= override set by the pre-paint
         // script in Layout.astro. Pin storage to the theme under test
         // before navigation so both scripts agree on the resolved value.
@@ -102,7 +102,7 @@ test.describe("marketing light-mode readability", () => {
           try {
             window.localStorage.setItem("vtourn:theme", t);
           } catch (_) {
-            /* private mode etc — fall through */
+            /* private mode etc, fall through */
           }
         }, theme);
 

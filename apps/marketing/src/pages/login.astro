@@ -1,6 +1,6 @@
 ---
 /**
- * /login — phone-OTP or Telegram Login Widget.
+ * /login, phone-OTP or Telegram Login Widget.
  *
  * The Telegram Login Widget loads `telegram-widget.js` which renders a
  * button keyed to `data-telegram-login`. On click it pops up an oauth
@@ -105,7 +105,7 @@ const BRACKET_URL =
             try {
               window.localStorage.setItem("vtourn_jwt", res.body.jwt);
             } catch (_) {
-              /* storage disabled — proceed anyway */
+              /* storage disabled, proceed anyway */
             }
             const next = new URL(window.location.href).searchParams.get("next");
             window.location.href = next || BRACKET_URL;

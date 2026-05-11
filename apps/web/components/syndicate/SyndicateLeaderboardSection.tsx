@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * SyndicateLeaderboardSection — wraps `<Leaderboard>` with the
+ * SyndicateLeaderboardSection, wraps `<Leaderboard>` with the
  * syndicate-scoped tab set ("This pool / Global / Friends") and the
  * sticky DraftPreviewBanner. Drops straight into the /s/[guid] route.
  */
@@ -37,7 +37,7 @@ export function SyndicateLeaderboardSection({
     return mockLeaderboardMembers(seed, 30);
   }, [scope, syndicate.slug]);
 
-  // "You" is row 7 in the syndicate scope — a believable place for a
+  // "You" is row 7 in the syndicate scope, a believable place for a
   // first-week newcomer.
   const highlight = scope === "pool" ? members[6]?.id : undefined;
 

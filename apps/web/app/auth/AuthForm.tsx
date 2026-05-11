@@ -43,7 +43,7 @@ function readableError(reason?: string): string {
     case "send-failed":
       return "Couldn't send the code. Try the other channel?";
     case "invalid-or-expired":
-      return "Code didn't match — or it expired. Request a new one.";
+      return "Code didn't match, or it expired. Request a new one.";
     case "too-many-attempts":
       return "Too many wrong tries. Request a new code.";
     default:
@@ -150,7 +150,7 @@ export default function AuthForm() {
       try {
         window.localStorage.setItem(STORAGE_KEY, body.jwt);
       } catch {
-        /* storage disabled — proceed anyway */
+        /* storage disabled, proceed anyway */
       }
       setStep("done");
       router.push(next);

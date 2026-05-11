@@ -1,6 +1,6 @@
-# 32 — Auth (SMS / WhatsApp) and Privacy
+# 32, Auth (SMS / WhatsApp) and Privacy
 
-> **Update 2026-05-12 — production trust model is now Supabase Auth.**
+> **Update 2026-05-12, production trust model is now Supabase Auth.**
 > The bespoke `apps/auth-sms` service described below is **legacy**:
 > kept around for the SMS-OTP flow during the hand-over but slated for
 > retirement once the Supabase rollout (see [doc 52](52-supabase-setup.md))
@@ -22,7 +22,7 @@ Telegram bot auth is the recommended primary identity per doc 13.
 But there are users who:
 
 - Don't want to install Telegram (or are in markets where Telegram
-  is less common — e.g. India, Indonesia, parts of LATAM).
+  is less common, e.g. India, Indonesia, parts of LATAM).
 - Want a simpler "got the code, type the code" flow on first contact.
 - Are signing up via a marketing landing page where a phone-number
   field is cheaper friction than a deep-link to Telegram.
@@ -67,11 +67,11 @@ rate-limit counters.
 
 ### What is PII
 
-- **Phone number (E.164)** — direct identifier. Stored on the `user`
+- **Phone number (E.164)**, direct identifier. Stored on the `user`
   row. Returned to the user (their own row) via `/v1/auth/me` only.
-- **IP address** — pseudonymous identifier, retained on the `session`
+- **IP address**, pseudonymous identifier, retained on the `session`
   row for security review. Auto-deletes when the session expires.
-- **User agent string** — pseudonymous, retained on the session row.
+- **User agent string**, pseudonymous, retained on the session row.
 
 Truncated SHA-256 of the phone (first 12 hex chars) is used in logs
 for correlation; raw phone numbers never appear in logs.
@@ -107,7 +107,7 @@ hardening:
 1. **sqlcipher** (recommended for prod). The auth service is built
    against `@journeyapps/sqlcipher` (drop-in replacement for
    better-sqlite3) and `AUTH_SQLITE_KEY` is set at boot from the
-   secret store. Fully transparent — no code changes — but ties us
+   secret store. Fully transparent, no code changes, but ties us
    to a non-trivial native dep.
 2. **Disk-level encryption** (sufficient for small deployments). The
    host runs LUKS / FileVault / BitLocker; no app-level changes.
@@ -158,7 +158,7 @@ and HTTPS otherwise.
 - **IPP 5 (storage and security)**: SQLite with HMAC + host
   encryption + per-OTP rate limits.
 - **IPP 6 (access)**: `/v1/auth/me`.
-- **IPP 7 (correction)**: not applicable to phone — user can re-verify
+- **IPP 7 (correction)**: not applicable to phone, user can re-verify
   with a new number, old account flagged for deletion.
 - **IPP 9 (retention)**: indefinite while active, deleted on request.
 - **IPP 12 (cross-border)**: data lives on a NZ-based host; Aiva SMS
@@ -172,7 +172,7 @@ To be embedded in the auth page footer link "Privacy":
 > number, the device you signed in from, and the time of last
 > activity. We use it only to log you in and to send you predictions
 > reminders if you opt in. We never sell your data. To delete your
-> account, email support@tournamental.com — we'll process it within 30
+> account, email support@tournamental.com, we'll process it within 30
 > days.
 
 ## TOS notice (user-facing copy)
@@ -186,13 +186,13 @@ To be added to the existing TOS doc:
 
 ## Open questions
 
-- **Which Aiva SMS device ID** is allocated for Tournamental? — see
+- **Which Aiva SMS device ID** is allocated for Tournamental?, see
   Tim's existing Sdeal device list. We may want a dedicated device
   to keep the SMS history separate.
-- **Which Aiva WhatsApp session** does Tournamental use? — Sdeal's
+- **Which Aiva WhatsApp session** does Tournamental use?, Sdeal's
   `+64204259069` is the existing session. Decision: reuse it for
   v0.1 with a different sender display name, or stand up a new
   session on a fresh number.
-- **Do we add Africa / India SMS routing** for cost — current Aiva
+- **Do we add Africa / India SMS routing** for cost, current Aiva
   gateway routes via Tim's NZ Android phone, fine for sub-NZ scale
   but will need international SMS termination at scale.

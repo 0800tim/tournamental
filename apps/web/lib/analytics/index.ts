@@ -1,5 +1,5 @@
 /**
- * Tournamental analytics — thin wrapper around Google Tag Manager's
+ * Tournamental analytics, thin wrapper around Google Tag Manager's
  * `window.dataLayer`.
  *
  * Why a wrapper, not direct GTM calls:
@@ -8,14 +8,14 @@
  *  - Type-safe event names so a typo is a build error, not a silent
  *    miss in GA4.
  *  - Graceful no-op when `NEXT_PUBLIC_GTM_ID` is unset (Tim's GTM
- *    container is still pending per docs/26-setup-checklist.md) — local
+ *    container is still pending per docs/26-setup-checklist.md), local
  *    dev keeps working and production keeps shipping while the
  *    credential trickles in.
  *  - No PII leakage: `identifyUser()` hashes the user uuid to a 16-char
  *    SHA-256 prefix so a GA4 export can't be reversed into the SQLite
  *    primary key.
  *  - Fire-and-forget: every `track()` swallows errors and `console.warn`s
- *    instead of throwing — analytics must never break the UI.
+ *    instead of throwing, analytics must never break the UI.
  *  - Debug surface: when `localStorage.tournamental_analytics_debug = "1"`
  *    every push is mirrored to `console.debug` with the full envelope.
  *
@@ -68,7 +68,7 @@ export type EventName =
 
 /**
  * Allowed payload value types. Mirrors GA4's accepted parameter
- * primitives — anything richer would silently drop on the ingest side.
+ * primitives, anything richer would silently drop on the ingest side.
  */
 export interface EventPayload {
   readonly [key: string]: string | number | boolean | null | undefined;
@@ -78,7 +78,7 @@ export interface EventPayload {
  * GA4 user-properties shape. Reports can pivot every metric by any of
  * these dimensions. Future-Tim will thank you in Looker Studio.
  *
- * All fields optional — callers set whichever ones they have at the
+ * All fields optional, callers set whichever ones they have at the
  * call site. Country and visit_count are typically server-derived.
  */
 export interface UserProperties {
@@ -93,7 +93,7 @@ export interface UserProperties {
 }
 
 /**
- * GA4 consent v2 model — four independent storage categories. Privacy
+ * GA4 consent v2 model, four independent storage categories. Privacy
  * default is "analytics on, ads off"; the consent banner can upgrade or
  * downgrade based on user choice.
  *
@@ -118,7 +118,7 @@ interface DataLayerEnvelope {
 }
 
 /**
- * Ambient typing for window.dataLayer — it's a plain Array<unknown>
+ * Ambient typing for window.dataLayer, it's a plain Array<unknown>
  * with `.push()` semantics. GTM polls / rebinds it on load.
  */
 declare global {
@@ -126,7 +126,7 @@ declare global {
     // dataLayer is mutated by GTM; we intentionally type it permissively.
     dataLayer?: unknown[];
     /**
-     * Marketing-site bridge — exposed by
+     * Marketing-site bridge, exposed by
      * `apps/marketing/src/components/Analytics.astro` so non-React Astro
      * islands can `window.tournamental.track(name, payload)` without
      * importing this module. The shape mirrors the SDK surface here.
@@ -138,7 +138,7 @@ declare global {
 }
 
 /**
- * Test seam — the GTM container ID. Reads from the build-time env var
+ * Test seam, the GTM container ID. Reads from the build-time env var
  * (Next.js inlines `NEXT_PUBLIC_*` at build) so we can no-op at runtime
  * when the credential is pending.
  *
@@ -149,7 +149,7 @@ export function getGtmId(): string | undefined {
   if (typeof process === "undefined") return undefined;
   const id = process.env.NEXT_PUBLIC_GTM_ID;
   if (!id || id.trim() === "") return undefined;
-  // Sanity guard — GTM IDs look like "GTM-XXXXXXX". We don't reject
+  // Sanity guard, GTM IDs look like "GTM-XXXXXXX". We don't reject
   // unknown shapes (could be a staging container with a different
   // prefix), but an obviously-broken value is a no-op for safety.
   if (id.includes(" ") || id.length < 4) return undefined;
@@ -186,7 +186,7 @@ function debugEnabled(): boolean {
  * GA4 can join visits, but irreversible so a leak doesn't expose the
  * raw user id.
  *
- * SubtleCrypto.digest is async — we use a tiny pure-JS fallback for
+ * SubtleCrypto.digest is async, we use a tiny pure-JS fallback for
  * the synchronous track() path. The implementation is deliberately a
  * Berstein hash mixed with a salt; it is NOT cryptographic, but it
  * IS irreversible enough for analytics purposes (the user_id is
@@ -207,7 +207,7 @@ export function pseudoHash(input: string): string {
     h1 = Math.imul(h1, 0x01000193) >>> 0;
     h2 = Math.imul(h2, 0x100000001b3 & 0xffffffff) >>> 0;
   }
-  // 16 hex chars total — 8 from each half, padded.
+  // 16 hex chars total, 8 from each half, padded.
   const left = h1.toString(16).padStart(8, "0");
   const right = h2.toString(16).padStart(8, "0");
   return `${left}${right}`;
@@ -222,7 +222,7 @@ function safePush(envelope: DataLayerEnvelope): void {
   try {
     window.dataLayer!.push(envelope);
   } catch (err) {
-    // Never throw from an analytics call — log and move on.
+    // Never throw from an analytics call, log and move on.
     // eslint-disable-next-line no-console
     console.warn("[tournamental.analytics] push failed", err);
   }
@@ -250,7 +250,7 @@ export function track(name: EventName, payload?: EventPayload): void {
  * Set GA4 user-properties on the current visitor. Persisted by GA4 for
  * the rest of the session and surfaced as report dimensions.
  *
- * Idempotent — calling with the same values is harmless.
+ * Idempotent, calling with the same values is harmless.
  */
 export function setUserProperties(props: UserProperties): void {
   const envelope: DataLayerEnvelope = {
