@@ -197,8 +197,15 @@ export const ADVANCE_BOND = {
 
 // ---------- pyramid geometry ----------
 
-/** Y-height per layer. Strictly monotonic ascending. */
-const LAYER_Y: Record<LayerStage, number> = {
+/**
+ * Y-height per layer. Strictly monotonic ascending.
+ *
+ * Exported as a `readonly` public constant so DOM overlays (e.g. the
+ * left-edge layer-label strip) can read the canonical Y values without
+ * having to re-derive them. Mutating this would silently break every
+ * place that depends on the pyramid's Y axis — so it's `as const`.
+ */
+export const LAYER_Y: Readonly<Record<LayerStage, number>> = {
   group: 0,
   r32: 5,
   r16: 10,
@@ -206,7 +213,7 @@ const LAYER_Y: Record<LayerStage, number> = {
   sf: 20,
   f: 25,
   champion: 30,
-};
+} as const;
 
 /** Horizontal tier radius per layer. Strictly monotonic decreasing. */
 const LAYER_RADIUS: Record<LayerStage, number> = {

@@ -44,6 +44,7 @@ import {
   type Tournament,
 } from "@vtorn/bracket-engine";
 
+import { MoleculeLayerLabels } from "./MoleculeLayerLabels";
 import { MoleculeLegend } from "./MoleculeLegend";
 import { MoleculePanel } from "./MoleculePanel";
 import { RoundBond } from "./RoundBond";
@@ -552,6 +553,8 @@ export function MoleculeScene({
           onInteractionState={onInteractionState}
         />
       </Canvas>
+
+      <MoleculeLayerLabels />
 
       <MoleculeLegend />
 

@@ -255,7 +255,8 @@
 
 @media (max-width: 720px) {
   .molecule-path-chip {
-    top: 10px;
+    /* Sit below the layer-label pill row (top: 8px + ~24px height + 4px). */
+    top: 44px;
     font-size: 11px;
     padding: 6px 12px 6px 10px;
     max-width: calc(100vw - 24px);
@@ -454,7 +455,9 @@
 
 @media (max-width: 720px) {
   .molecule-mode-hint {
-    top: 48px;
+    /* Stack below the (moved-down) path chip — pill row 0–32px, path chip
+     * 44–76px, mode hint at 84px. */
+    top: 84px;
     font-size: 10px;
     padding: 5px 10px;
   }
@@ -1073,7 +1076,8 @@
     height: 60vh;
   }
   .molecule-legend {
-    top: 12px;
+    /* Sit below the layer-label pill row (top: 8px + ~24px height + 4px). */
+    top: 44px;
     right: 12px;
     max-width: 180px;
     font-size: 11px;
@@ -1098,5 +1102,140 @@
   }
   .molecule-page-header--compact .molecule-page-mode-caption {
     display: none; /* save horizontal room on phones */
+  }
+}
+
+/* --- Layer-label overlay (left-edge guide) ----------------------------
+ *
+ * Names each pyramid ring at its Y height so first-time viewers can
+ * orient: champion at the apex → group stage at the base. Static DOM,
+ * no animations, no per-frame re-renders.
+ *
+ * Desktop: vertical strip pinned to the canvas's left edge.
+ * Mobile  (<=720px): horizontal pill row hidden by default at desktop
+ *                    and revealed below 720px (the vertical strip hides).
+ * --------------------------------------------------------------------- */
+
+.molecule-layer-labels {
+  position: absolute;
+  top: 0;
+  left: 16px;
+  height: 100%;
+  z-index: 4;
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.molecule-layer-labels-list {
+  list-style: none;
+  padding: 14px 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+
+.molecule-layer-labels-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: 16px;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #cdd5e7;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+.molecule-layer-labels-item[data-stage="champion"] {
+  color: #f5c542;
+}
+
+.molecule-layer-labels-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f5c542;
+  box-shadow: 0 0 6px rgba(245, 197, 66, 0.85);
+}
+
+.molecule-layer-labels-text {
+  display: inline-block;
+}
+
+.molecule-layer-labels-divider {
+  width: 1px;
+  height: 100%;
+  background: linear-gradient(
+    180deg,
+    rgba(245, 197, 66, 0) 0%,
+    rgba(245, 197, 66, 0.18) 12%,
+    rgba(245, 197, 66, 0.18) 88%,
+    rgba(245, 197, 66, 0) 100%
+  );
+}
+
+/* Mobile horizontal-pill variant — hidden on desktop. */
+.molecule-layer-labels-mobile {
+  display: none;
+}
+
+@media (max-width: 720px) {
+  /* The vertical strip would crowd the molecule's own atom labels on a
+   * narrow screen — swap to the compact horizontal pill above the canvas. */
+  .molecule-layer-labels {
+    display: none;
+  }
+  .molecule-layer-labels-mobile {
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    z-index: 6;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    padding: 0 12px;
+  }
+  .molecule-layer-labels-mobile-list {
+    list-style: none;
+    padding: 5px 10px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 4px;
+    background: rgba(16, 22, 38, 0.85);
+    border: 1px solid rgba(245, 197, 66, 0.22);
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    max-width: 100%;
+    overflow: hidden;
+    font: 700 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+      sans-serif;
+    letter-spacing: 0.08em;
+    color: #cdd5e7;
+    white-space: nowrap;
+  }
+  .molecule-layer-labels-mobile-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 2px;
+    white-space: nowrap;
+  }
+  /* Bullet separators between pills. */
+  .molecule-layer-labels-mobile-item + .molecule-layer-labels-mobile-item::before {
+    content: "·";
+    padding-right: 6px;
+    color: rgba(125, 145, 200, 0.55);
+  }
+  .molecule-layer-labels-mobile-item[data-stage="champion"] {
+    color: #f5c542;
   }
 }
