@@ -77,62 +77,9 @@ a {
   font-weight: 600;
 }
 
-.hud-scoreboard {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 8px;
-  background: rgba(8, 14, 22, 0.85);
-  border-radius: 14px;
-  padding: 10px 18px;
-  min-width: 360px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
-}
-
-.hud-team {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 3px solid transparent;
-  padding: 4px 6px;
-}
-
-.hud-team.home {
-  justify-content: flex-end;
-}
-
-.hud-team-name {
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  font-size: 14px;
-  opacity: 0.85;
-}
-
-.hud-team-score {
-  font-size: 28px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-}
-
-.hud-clock {
-  text-align: center;
-  padding: 0 14px;
-}
-
-.hud-period {
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.7;
-}
-
-.hud-clock-display {
-  font-size: 22px;
-  font-weight: 700;
-}
+/* The legacy `.hud-scoreboard` rules have moved into the new
+ * `.match-scoreboard` block below. The old class is unused but we
+ * keep the namespace clear of stale styling. */
 
 /* Shootout panel */
 .hud-shootout {
@@ -197,126 +144,295 @@ a {
   font-size: 14px;
 }
 
-/* Odds HUD */
+/* Odds HUD — pinned to the upper-left so it doesn't fight either the
+ * centred scoreboard or the right-edge card stack. */
 .odds-hud {
   position: absolute;
-  top: 18px;
-  right: 18px;
-  background: rgba(8, 14, 22, 0.85);
-  border-radius: 10px;
-  padding: 8px 12px;
+  top: 16px;
+  left: 16px;
+  background: linear-gradient(180deg, rgba(16, 22, 38, 0.92), rgba(10, 14, 26, 0.84));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 10px 14px;
   min-width: 140px;
   font-size: 12px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #cdd5e7;
+  z-index: 3;
 }
 
 .odds-hud-label {
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font: 700 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: 4px;
+  color: #f5c542;
+  margin-bottom: 6px;
 }
 
 .odds-hud-row {
   display: flex;
   justify-content: space-between;
   font-variant-numeric: tabular-nums;
+  padding: 2px 0;
 }
 
-/* Debug panel */
+.odds-hud-row span:last-child {
+  font-weight: 700;
+  color: #f5f7fb;
+}
+
+@media (max-width: 640px) {
+  .odds-hud {
+    display: none;
+  }
+}
+
+/* Debug panel — hidden by default; opens via the `i` corner pill or
+ * by pressing `~` (or the legacy `D` key). */
+.debug-pill {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(8, 14, 22, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #cdd5e7;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font: 700 12px/1 ui-monospace, "SF Mono", Menlo, monospace;
+  pointer-events: auto;
+  z-index: 7;
+  opacity: 0.55;
+  transition: opacity 160ms ease, background 160ms ease;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.debug-pill:hover,
+.debug-pill[data-open="1"] {
+  opacity: 1;
+  background: rgba(8, 14, 22, 0.92);
+}
+
+.debug-pill[data-open="1"] {
+  border-color: rgba(245, 197, 66, 0.6);
+  color: #f5c542;
+}
+
+.debug-pill-i {
+  font-style: italic;
+}
+
 .debug-panel {
   position: absolute;
-  bottom: 18px;
-  left: 18px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 1px solid #1d2733;
-  padding: 10px 12px;
-  border-radius: 8px;
+  bottom: 48px;
+  right: 12px;
+  background: rgba(8, 14, 22, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 12px 10px;
+  border-radius: 10px;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 11px;
-  min-width: 200px;
+  min-width: 220px;
   pointer-events: auto;
+  z-index: 7;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  animation: debug-panel-in 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes debug-panel-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.debug-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.debug-panel-title {
+  font: 700 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #f5c542;
 }
 
 .debug-row {
   display: flex;
   justify-content: space-between;
   gap: 14px;
+  padding: 2px 0;
+  color: #cdd5e7;
+}
+
+.debug-row span:first-child {
+  opacity: 0.55;
 }
 
 .debug-close {
-  position: absolute;
-  top: 4px;
-  right: 6px;
   background: transparent;
   border: 0;
-  color: #e6edf3;
+  color: #cdd5e7;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 16px;
   line-height: 1;
+  padding: 0 4px;
 }
 
-.debug-toggle {
+.debug-close:hover {
+  color: #f5c542;
+}
+
+.debug-panel-hint {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 10px;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.debug-panel-hint kbd {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: inherit;
+}
+
+/* ---------- Camera-angle row + bottom dock ---------- */
+
+/* Bottom dock containing the camera-angle row + timeline scrubber. */
+.match-bottom-dock {
   position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(0, 0, 0, 0.6);
-  color: #e6edf3;
-  border: 1px solid #1d2733;
-  border-radius: 8px;
-  padding: 6px 10px;
-  cursor: pointer;
-  font-family: ui-monospace, monospace;
-  font-size: 11px;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  pointer-events: none;
+  z-index: 6;
+  width: min(920px, 94vw);
+}
+
+.match-bottom-dock > * {
   pointer-events: auto;
 }
 
-/* Camera mode toggle */
-.camera-toggle {
-  position: absolute;
-  bottom: 18px;
-  right: 18px;
-  display: flex;
+.camera-angle-row {
+  display: inline-flex;
+  align-items: center;
   gap: 4px;
-  background: rgba(8, 14, 22, 0.85);
+  background: rgba(8, 14, 22, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   padding: 4px;
-  border-radius: 10px;
+  border-radius: 999px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
-.camera-toggle button {
+.cam-pill {
   background: transparent;
-  color: #b8c5d3;
+  color: #cdd5e7;
   border: 0;
-  padding: 6px 10px;
-  border-radius: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
   cursor: pointer;
-  font-size: 12px;
+  font: 700 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 160ms ease, color 160ms ease;
 }
 
-.camera-toggle button.active {
-  background: #6cabdd;
-  color: #00153a;
+.cam-pill:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+}
+
+.cam-pill[data-active="1"] {
+  background: linear-gradient(135deg, #f5c542, #f1a72b);
+  color: #1a1305;
+  box-shadow: 0 4px 14px rgba(245, 197, 66, 0.3);
+}
+
+.cam-pill[data-active="1"]:hover {
+  filter: brightness(1.05);
+  color: #1a1305;
+}
+
+.cam-pill-icon {
+  display: inline-flex;
+  width: 14px;
+  height: 14px;
+}
+
+.cam-pill-label {
   font-weight: 700;
 }
 
-/* Timeline scrubber */
+@media (max-width: 640px) {
+  .cam-pill {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+  .cam-pill-label {
+    display: none;
+  }
+  .cam-pill-icon {
+    width: 16px;
+    height: 16px;
+  }
+  .cam-pill[data-active="1"] .cam-pill-label {
+    display: inline;
+    margin-left: 4px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cam-pill {
+    transition: none;
+  }
+}
+
+/* Timeline scrubber — sits inside `.match-bottom-dock`, beneath the
+ * camera-angle row, so flow-positioned rather than absolute. */
 .timeline-scrubber {
-  position: absolute;
-  left: 50%;
-  bottom: 70px;
-  transform: translateX(-50%);
-  width: min(880px, 92vw);
-  background: rgba(8, 14, 22, 0.9);
-  border: 1px solid #1d2733;
-  border-radius: 12px;
-  padding: 10px 14px 14px;
+  width: 100%;
+  background: rgba(8, 14, 22, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  padding: 10px 16px 14px;
   pointer-events: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
   font-size: 12px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.ts-play {
+  background: linear-gradient(135deg, #f5c542, #f1a72b) !important;
+  color: #1a1305 !important;
 }
 
 .ts-controls {
@@ -372,8 +488,8 @@ a {
 }
 
 .ts-rate-btn.active {
-  background: #6cabdd;
-  color: #00153a;
+  background: linear-gradient(135deg, #f5c542, #f1a72b);
+  color: #1a1305;
   font-weight: 700;
 }
 
@@ -414,17 +530,17 @@ a {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #6cabdd;
+  background: #f5c542;
   margin-top: -4px;
   cursor: grab;
-  box-shadow: 0 0 0 4px rgba(108, 171, 221, 0.18);
+  box-shadow: 0 0 0 4px rgba(245, 197, 66, 0.22);
 }
 
 .ts-range::-moz-range-thumb {
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: #6cabdd;
+  background: #f5c542;
   cursor: grab;
   border: 0;
 }
@@ -433,7 +549,7 @@ a {
   position: absolute;
   left: 0;
   height: 6px;
-  background: linear-gradient(90deg, #6cabdd, #b9e0ff);
+  background: linear-gradient(90deg, #f5c542, #fbe89c);
   border-radius: 4px;
   pointer-events: none;
   z-index: 1;
@@ -515,21 +631,32 @@ a {
   z-index: 5;
 }
 
+/* The replay-time score chip duplicates the centred scoreboard during
+ * normal play, so hide it unless the replay-hud is actually active. */
+.replay-hud[data-visible="0"] .replay-hud-score {
+  display: none;
+}
+
+/* Replay-time score chip — shown during a goal replay sequence. Sits
+ * tucked underneath the centred scoreboard so the two don't overlap. */
 .replay-hud-score {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 84px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(8, 14, 22, 0.78);
+  background: rgba(8, 14, 22, 0.84);
   padding: 6px 14px;
-  border-radius: 8px;
+  border-radius: 999px;
   font-size: 14px;
   letter-spacing: 0.04em;
   font-weight: 700;
-  border-left: 3px solid #f3b83b;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 .replay-hud-score-team { opacity: 0.85; }
@@ -539,13 +666,13 @@ a {
 .replay-hud-badge {
   position: absolute;
   top: 18px;
-  right: 18px;
+  left: 18px;
   display: flex;
   align-items: center;
   gap: 8px;
   background: rgba(160, 0, 0, 0.92);
   padding: 8px 14px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 13px;
   font-weight: 800;
   letter-spacing: 0.18em;
@@ -602,7 +729,35 @@ a {
   font-weight: 700;
 }
 
-/* ---------- Broadcast match-stats HUD ---------- */
+/* ====================================================================
+ * Broadcast match-stats HUD
+ *
+ * Layout (desktop ≥ 641px):
+ *
+ *   ┌──────────────────────────────────────────────────────┐
+ *   │           ▼ match-scoreboard (top-centre)           │
+ *   │                                                      │
+ *   │                                       ┌──Scorers ▼  │
+ *   │            (3D pitch fills            │              │
+ *   │             the canvas)               ├──Stats ▼     │
+ *   │                                       │              │
+ *   │                                       └──Subs ▼      │
+ *   │                                                      │
+ *   │            ┌─── camera-angle-row ───┐                │
+ *   │            └─── timeline-scrubber ──┘                │
+ *   │                                              [i]     │
+ *   └──────────────────────────────────────────────────────┘
+ *
+ * Palette mirrors the molecule view (dark navy + gold + ink-200):
+ *   bg dark   #0a0e1a
+ *   ink-200   #cdd5e7
+ *   gold      #f5c542
+ *   accent    #7eb6e8
+ *
+ * Each peripheral panel uses the same `<CollapsibleHUDCard>` shell so
+ * collapse/expand behaviour is uniform. Default state on first visit:
+ * all three collapsed — the screen is mostly pitch.
+ * ==================================================================== */
 
 .match-stats-hud {
   position: absolute;
@@ -610,215 +765,355 @@ a {
   pointer-events: none;
   font-feature-settings: "tnum" 1;
   z-index: 4;
-  color: #e6edf3;
+  color: #cdd5e7;
 }
 
-.match-stats-hud .msh-panel-label {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.7;
-  margin-bottom: 6px;
-}
+/* ---------- Centred broadcast scoreboard ---------- */
 
-/* Top-left scoreboard */
-.msh-scoreboard {
+.match-scoreboard {
   position: absolute;
-  top: 18px;
-  left: 18px;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
   display: grid;
-  grid-template-columns: auto auto auto;
-  align-items: center;
-  gap: 12px;
-  background: linear-gradient(135deg, rgba(8, 14, 22, 0.92), rgba(8, 14, 22, 0.74));
-  border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  grid-template-columns: 1fr auto 1fr;
+  align-items: stretch;
+  background: linear-gradient(180deg, rgba(16, 22, 38, 0.94), rgba(10, 14, 26, 0.88));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 6px;
+  min-width: 380px;
+  max-width: 560px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-.msh-team {
+.msb-side {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 10px;
+}
+
+.msb-side.msb-home {
+  justify-content: end;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.025));
+}
+
+.msb-side.msb-away {
+  justify-content: start;
+  background: linear-gradient(-90deg, transparent, rgba(255, 255, 255, 0.025));
+}
+
+.msb-flag {
+  font-size: 22px;
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.4));
+}
+
+.msb-name {
+  font: 800 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #f5f7fb;
+}
+
+.msb-score {
+  font: 800 28px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  min-width: 26px;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  /* Subtle team-coloured underline so the score pops without dominating */
+  border-bottom: 3px solid var(--team-colour, #f5c542);
+  padding-bottom: 2px;
+  margin-bottom: -5px;
+}
+
+.msb-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 16px;
+  border-left: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  min-width: 80px;
+}
+
+.msb-period {
+  font: 700 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #f5c542;
+}
+
+.msb-clock-display {
+  font: 800 22px/1.1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  margin-top: 3px;
+}
+
+.msb-shootout {
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
+  color: #f5c542;
+  margin-top: 4px;
+  letter-spacing: 0.06em;
+}
+
+.msb-shootout-dot {
+  opacity: 0.5;
+  margin: 0 4px;
+}
+
+/* ---------- Right-edge collapsible-card stack ---------- */
+
+.match-hud-stack {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: none;
+  width: 260px;
+  max-width: calc(100vw - 32px);
+}
+
+.hud-card-shell {
+  pointer-events: auto;
+  width: 100%;
+  background: linear-gradient(180deg, rgba(16, 22, 38, 0.92), rgba(10, 14, 26, 0.84));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  overflow: hidden;
+  transition: box-shadow 200ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hud-card-shell[data-collapsed="0"] {
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+  border-color: rgba(245, 197, 66, 0.16);
+}
+
+.hud-card-shell[data-empty="1"][data-collapsed="1"] {
+  opacity: 0.55;
+}
+
+.hud-card-head {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;
+  padding: 11px 14px;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: inherit;
+  text-align: left;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: background 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.msh-team.msh-home { justify-content: flex-end; }
-.msh-team.msh-away { justify-content: flex-start; }
+.hud-card-head:hover,
+.hud-card-head:focus-visible {
+  background: rgba(245, 197, 66, 0.06);
+  outline: none;
+}
 
-.msh-team-stripe {
+.hud-card-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+}
+
+.hud-card-dot {
   display: inline-block;
-  width: 4px;
-  height: 26px;
-  border-radius: 2px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #cdd5e7;
 }
 
-.msh-team-name {
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  font-size: 13px;
-  text-transform: uppercase;
+.hud-card-dot[data-tone="gold"]   { background: #f5c542; }
+.hud-card-dot[data-tone="blue"]   { background: #7eb6e8; }
+.hud-card-dot[data-tone="silver"] { background: #d8dde6; }
+
+.hud-card-title {
+  flex: 1;
+  color: #f5f7fb;
 }
 
-.msh-team-score {
-  font-size: 30px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  min-width: 28px;
-  text-align: center;
+.hud-card-chevron {
+  display: inline-flex;
+  color: #cdd5e7;
+  opacity: 0.55;
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.msh-clock {
-  text-align: center;
-  padding: 0 8px;
-  border-left: 1px solid rgba(255, 255, 255, 0.08);
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+.hud-card-head:hover .hud-card-chevron {
+  opacity: 0.9;
 }
 
-.msh-period {
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  opacity: 0.7;
+.hud-card-shell[data-collapsed="0"] .hud-card-chevron {
+  transform: rotate(180deg);
+  color: #f5c542;
+  opacity: 0.95;
 }
 
-.msh-clock-display {
-  font-size: 22px;
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
+/* Collapse animation: grid-rows trick gives smooth height transition
+ * without measuring the content. Children animate in opacity. */
+.hud-card-body {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Top-right scorers ticker */
-.msh-scorers {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  background: rgba(8, 14, 22, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 10px 14px;
-  min-width: 220px;
-  max-width: 290px;
-  max-height: 250px;
+.hud-card-shell[data-collapsed="0"] .hud-card-body {
+  grid-template-rows: 1fr;
+}
+
+.hud-card-body-inner {
+  min-height: 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.hud-card-shell[data-collapsed="0"] .hud-card-body-inner {
+  padding: 10px 14px 12px;
   overflow-y: auto;
-  font-size: 13px;
+  max-height: 320px;
 }
 
-.msh-scorers[data-empty="1"] {
-  opacity: 0.45;
+.hud-card-empty {
+  margin: 0;
+  font: 500 12px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #8b9bbd;
 }
 
-.msh-scorers ul {
+@media (prefers-reduced-motion: reduce) {
+  .hud-card-body,
+  .hud-card-chevron,
+  .hud-card-head,
+  .hud-card-shell {
+    transition: none;
+  }
+}
+
+/* ---------- Scorers list (inside the card) ---------- */
+
+.msh-scorers-list {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
-.msh-scorers li {
+.msh-scorers-list li {
   display: grid;
   grid-template-columns: auto 1fr auto;
-  gap: 6px;
+  gap: 8px;
   align-items: baseline;
-  padding: 2px 0;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(20, 28, 48, 0.55);
+  border-left: 2px solid transparent;
 }
 
-.msh-scorers li[data-side="away"] {
-  background: rgba(255, 255, 255, 0.02);
-  border-left: 2px solid #f3b83b;
-  padding-left: 6px;
-}
-
-.msh-scorers li[data-side="home"] {
-  border-left: 2px solid #6cabdd;
-  padding-left: 6px;
-}
+.msh-scorers-list li[data-side="home"] { border-left-color: #7eb6e8; }
+.msh-scorers-list li[data-side="away"] { border-left-color: #f5c542; }
 
 .msh-scorer-min {
-  font-weight: 700;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
-  font-size: 11px;
-  opacity: 0.85;
   letter-spacing: 0.04em;
+  color: #cdd5e7;
+  opacity: 0.75;
 }
 
 .msh-scorer-name {
-  font-weight: 600;
+  font: 700 13px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #f5f7fb;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .msh-scorer-team {
-  font-size: 10px;
-  opacity: 0.55;
-  letter-spacing: 0.08em;
+  font: 800 9px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: #8b9bbd;
 }
 
-/* Bottom-left match-stats panel */
-.msh-stats {
-  position: absolute;
-  bottom: 100px;
-  left: 18px;
-  width: 240px;
-  background: rgba(8, 14, 22, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 12px;
+/* ---------- Stats table (inside the card) ---------- */
+
+.msh-stats-table {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 7px;
+  font-variant-numeric: tabular-nums;
 }
 
 .msh-stat-row {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  font-variant-numeric: tabular-nums;
+  gap: 8px;
+  position: relative;
+  padding-bottom: 2px;
 }
 
-.msh-stat-home {
-  text-align: left;
-  font-weight: 700;
-}
-
+.msh-stat-home,
 .msh-stat-away {
-  text-align: right;
-  font-weight: 700;
+  font: 700 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #f5f7fb;
 }
+
+.msh-stat-home { text-align: left; }
+.msh-stat-away { text-align: right; }
 
 .msh-stat-label {
-  text-align: center;
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font: 700 9px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  opacity: 0.7;
+  color: #8b9bbd;
 }
 
-/* Bottom-right substitutions ticker */
-.msh-subs {
-  position: absolute;
-  bottom: 100px;
-  right: 18px;
-  width: 240px;
-  background: rgba(8, 14, 22, 0.86);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 12px;
-  max-height: 200px;
-  overflow-y: auto;
+.msh-stat-bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  background: rgba(245, 197, 66, 0.18);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 2px;
 }
 
-.msh-subs[data-empty="1"] {
-  opacity: 0.45;
+.msh-stat-bar-home {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #7eb6e8, #b9d5f0);
+  transition: width 240ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.msh-subs ul {
+/* ---------- Subs list (inside the card) ---------- */
+
+.msh-subs-list {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -827,26 +1122,33 @@ a {
   gap: 4px;
 }
 
-.msh-subs li {
-  display: flex;
+.msh-subs-list li {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto auto;
   gap: 6px;
   align-items: center;
-  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(20, 28, 48, 0.45);
+  font: 600 12px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
 }
 
 .msh-sub-min {
-  font-weight: 700;
   font-variant-numeric: tabular-nums;
+  font-weight: 700;
   letter-spacing: 0.04em;
-  opacity: 0.85;
+  opacity: 0.75;
+  font-size: 11px;
 }
 
 .msh-sub-arrow {
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 12px;
+  line-height: 1;
 }
 
-.msh-sub-arrow:first-of-type { color: #4cd680; }
-.msh-sub-arrow:nth-of-type(2) { color: #ff7878; }
+.msh-sub-in       { color: #4cd680; }
+.msh-sub-out-arrow { color: #ff8a8a; }
 
 .msh-sub-name {
   font-weight: 600;
@@ -855,148 +1157,115 @@ a {
   text-overflow: ellipsis;
 }
 
-.msh-sub-out {
-  opacity: 0.6;
-}
+.msh-sub-out { opacity: 0.55; }
 
-/* Goal celebration burst (centre) */
+/* ---------- Goal celebration burst (centre) ---------- */
+
 .msh-goal-burst {
   position: absolute;
-  top: 30%;
+  top: 32%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: linear-gradient(135deg, rgba(243, 184, 59, 0.96), rgba(204, 64, 64, 0.96));
-  color: #00132e;
+  background: linear-gradient(135deg, #f5c542 0%, #f1a72b 70%, #c2772a 100%);
+  color: #1a1305;
   padding: 18px 36px;
-  border-radius: 14px;
+  border-radius: 16px;
   text-align: center;
   font-weight: 800;
-  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.18);
-  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 0 rgba(255, 255, 255, 0.2);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 255, 255, 0.12) inset;
   animation: msh-goal-burst-in 0.45s cubic-bezier(0.18, 0.78, 0.42, 1.45);
+  pointer-events: none;
+  z-index: 8;
 }
 
 .msh-goal-burst-label {
-  font-size: 32px;
+  font: 900 32px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.18em;
-  font-weight: 900;
 }
 
 .msh-goal-burst-name {
-  font-size: 22px;
+  font: 800 22px/1.1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   margin-top: 4px;
 }
 
 .msh-goal-burst-min {
-  font-size: 12px;
-  font-weight: 700;
+  font: 800 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.18em;
   opacity: 0.65;
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
 .msh-goal-burst-score {
-  font-size: 18px;
+  font: 800 20px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   font-variant-numeric: tabular-nums;
   margin-top: 4px;
-  font-weight: 800;
 }
 
 @keyframes msh-goal-burst-in {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -60%) scale(0.7);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
+  from { opacity: 0; transform: translate(-50%, -60%) scale(0.7); }
+  to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 
-/* Mobile bottom-drawer tabs (hidden on desktop) */
-.msh-mobile-tabs {
-  display: none;
+@media (prefers-reduced-motion: reduce) {
+  .msh-goal-burst { animation: none; }
 }
+
+/* ---------- Mobile (≤ 640px) ---------- */
 
 @media (max-width: 640px) {
-  .msh-scoreboard {
-    top: 8px;
-    left: 8px;
+  .match-scoreboard {
+    top: 10px;
+    min-width: 0;
+    max-width: calc(100vw - 16px);
+    width: max-content;
+    padding: 4px;
+    transform: translateX(-50%) scale(0.92);
+    transform-origin: top center;
+  }
+
+  .msb-side { padding: 4px 8px; gap: 6px; }
+  .msb-name { font-size: 11px; letter-spacing: 0.06em; }
+  .msb-score { font-size: 22px; min-width: 20px; }
+  .msb-flag { font-size: 17px; }
+  .msb-clock { padding: 2px 10px; min-width: 64px; }
+  .msb-clock-display { font-size: 17px; }
+  .msb-period { font-size: 9px; letter-spacing: 0.16em; }
+
+  .match-hud-stack {
+    top: auto;
+    bottom: 130px;
     right: 8px;
-    width: auto;
-    grid-template-columns: 1fr auto 1fr;
-    padding: 6px 8px;
-    gap: 4px;
+    width: 220px;
+    max-width: calc(100vw - 16px);
+    gap: 6px;
   }
 
-  .msh-team-name { font-size: 11px; }
-  .msh-team-score { font-size: 22px; min-width: 22px; }
-  .msh-clock-display { font-size: 16px; }
-  .msh-period { font-size: 9px; }
+  .hud-card-head {
+    padding: 9px 12px;
+  }
 
-  .msh-scorers,
-  .msh-stats,
-  .msh-subs {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 36px;
-    width: auto;
-    max-width: none;
+  .hud-card-shell[data-collapsed="0"] .hud-card-body-inner {
     max-height: 38vh;
-    border-radius: 12px 12px 0 0;
-    transform: translateY(100%);
-    transition: transform 0.2s ease-out;
+    padding: 8px 12px 10px;
   }
 
-  /* Default-hidden on mobile; the active tab pulls its panel back into
-     view via data-active. */
-  .match-stats-hud .msh-mobile-tabs[data-active="scorers"]
-    ~ .msh-scorers,
-  .match-stats-hud:has(.msh-mobile-tabs[data-active="scorers"]) .msh-scorers,
-  .match-stats-hud .msh-mobile-tabs[data-active="stats"] ~ .msh-stats,
-  .match-stats-hud:has(.msh-mobile-tabs[data-active="stats"]) .msh-stats,
-  .match-stats-hud .msh-mobile-tabs[data-active="subs"] ~ .msh-subs,
-  .match-stats-hud:has(.msh-mobile-tabs[data-active="subs"]) .msh-subs {
-    transform: translateY(0);
+  .match-bottom-dock {
+    bottom: 10px;
+    gap: 6px;
+    width: calc(100vw - 16px);
   }
 
-  .msh-mobile-tabs {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    pointer-events: auto;
-    background: rgba(8, 14, 22, 0.96);
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
-    z-index: 10;
+  .msh-goal-burst {
+    padding: 14px 24px;
   }
-
-  .msh-mobile-tabs button {
-    background: transparent;
-    border: 0;
-    color: #b8c5d3;
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    padding: 8px 0;
-    cursor: pointer;
-    font-weight: 700;
-  }
-
-  .msh-mobile-tabs button[data-active="1"] {
-    background: rgba(108, 171, 221, 0.18);
-    color: #fff;
-  }
+  .msh-goal-burst-label { font-size: 26px; }
+  .msh-goal-burst-name { font-size: 18px; }
 }
 
-/* On portrait phones we narrow the goal-burst so it fits. */
 @media (max-width: 380px) {
-  .msh-goal-burst {
-    padding: 12px 20px;
-  }
-  .msh-goal-burst-label { font-size: 24px; }
-  .msh-goal-burst-name { font-size: 16px; }
+  .msh-goal-burst { padding: 12px 18px; }
+  .msh-goal-burst-label { font-size: 22px; }
+  .msh-goal-burst-name { font-size: 15px; }
 }

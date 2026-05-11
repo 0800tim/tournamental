@@ -18,6 +18,7 @@ import { ReplayHUD } from "./ReplayHUD";
 import { DebugPanel } from "./DebugPanel";
 import { OddsHUD } from "./OddsHUD";
 import { TimelineScrubber } from "./TimelineScrubber";
+import { CameraAngleToggle } from "./CameraAngleToggle";
 import { PerfMonitor } from "./PerfMonitor";
 import { PostFX } from "./PostFX";
 import { CommentaryAudio } from "./CommentaryAudio";
@@ -148,44 +149,13 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
         <MatchStatsHUD store={store} />
         <ReplayHUD />
         <OddsHUD store={store} />
-        <DebugPanel store={store} matchId={matchId} mode={mode} />
 
-        <div className="camera-toggle">
-          <button
-            type="button"
-            className={mode === "director" ? "active" : ""}
-            onClick={() => setMode("director")}
-            data-cam="director"
-          >
-            Director
-          </button>
-          <button
-            type="button"
-            className={mode === "broadcast" ? "active" : ""}
-            onClick={() => setMode("broadcast")}
-            data-cam="broadcast"
-          >
-            Broadcast
-          </button>
-          <button
-            type="button"
-            className={mode === "tactical" ? "active" : ""}
-            onClick={() => setMode("tactical")}
-            data-cam="tactical"
-          >
-            Top-down
-          </button>
-          <button
-            type="button"
-            className={mode === "follow" ? "active" : ""}
-            onClick={() => setMode("follow")}
-            data-cam="follow"
-          >
-            Follow ball
-          </button>
+        <div className="match-bottom-dock" data-testid="match-bottom-dock">
+          <CameraAngleToggle mode={mode} onChange={setMode} />
+          {controller ? <TimelineScrubber controller={controller} /> : null}
         </div>
 
-        {controller ? <TimelineScrubber controller={controller} /> : null}
+        <DebugPanel store={store} matchId={matchId} mode={mode} />
       </div>
     </FaceProvider>
   );

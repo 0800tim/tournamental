@@ -1,8 +1,12 @@
 /**
  * MatchStatsHUD component tests (jsdom).
+ *
+ * Verifies the broadcast HUD shell composes the centred scoreboard
+ * + the right-edge collapsible card stack, and that the data flows
+ * (scorers, stats, subs) still render correctly after the UI polish.
  */
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { act, cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, fireEvent } from "@testing-library/react";
 import { createMatchStore } from "@vtorn/spec-client";
 import type { EventMessage, MatchInit, StateFrame } from "@vtorn/spec";
 import { SPEC_VERSION } from "@vtorn/spec";
@@ -39,8 +43,20 @@ const init: MatchInit = {
   producer: "test",
 };
 
+function expandCard(testid: string) {
+  // Cards default to collapsed; some tests need the body in the DOM to
+  // assert on its descendants. The chevron button is the toggle.
+  const toggle = screen.getByTestId(`hud-card-toggle-${testid}`);
+  act(() => {
+    fireEvent.click(toggle);
+  });
+}
+
 beforeEach(() => {
   cleanup();
+  if (typeof window !== "undefined") {
+    window.localStorage.clear();
+  }
 });
 afterEach(() => {
   cleanup();
@@ -53,16 +69,17 @@ describe("MatchStatsHUD", () => {
     expect(container.firstChild).toBeNull();
   });
 
-  it("renders the team names + 0-0 score after init", () => {
+  it("renders the centred scoreboard with home + away codes and 0-0 score", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
     });
     render(<MatchStatsHUD store={store} />);
-    expect(screen.getByTestId("msh-home-name").textContent).toBe("ARG");
-    expect(screen.getByTestId("msh-away-name").textContent).toBe("FRA");
-    expect(screen.getByTestId("msh-home-score").textContent).toBe("0");
-    expect(screen.getByTestId("msh-away-score").textContent).toBe("0");
+    expect(screen.getByTestId("match-scoreboard")).toBeTruthy();
+    expect(screen.getByTestId("msb-home-name").textContent).toBe("ARG");
+    expect(screen.getByTestId("msb-away-name").textContent).toBe("FRA");
+    expect(screen.getByTestId("msb-home-score").textContent).toBe("0");
+    expect(screen.getByTestId("msb-away-score").textContent).toBe("0");
   });
 
   it("scoreboard updates when an event.score_change arrives", () => {
@@ -79,15 +96,14 @@ describe("MatchStatsHUD", () => {
         away: 0,
       } as EventMessage);
     });
-    expect(screen.getByTestId("msh-home-score").textContent).toBe("1");
-    expect(screen.getByTestId("msh-away-score").textContent).toBe("0");
+    expect(screen.getByTestId("msb-home-score").textContent).toBe("1");
+    expect(screen.getByTestId("msb-away-score").textContent).toBe("0");
   });
 
-  it("scorers ticker lists goals in chronological order", () => {
+  it("scorers card lists goals in chronological order once expanded", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
-      // Set the playhead via a state frame
       const frame: StateFrame = {
         type: "state",
         t: 5_000_000,
@@ -105,6 +121,7 @@ describe("MatchStatsHUD", () => {
       ].forEach((m) => store.getState().applyMessage(m as EventMessage));
     });
     render(<MatchStatsHUD store={store} />);
+    expandCard("scorers");
     const rows = screen.getAllByTestId("msh-scorer-row");
     expect(rows).toHaveLength(3);
     expect(rows[0].textContent).toContain("Messi");
@@ -134,12 +151,13 @@ describe("MatchStatsHUD", () => {
       ].forEach((m) => store.getState().applyMessage(m as EventMessage));
     });
     render(<MatchStatsHUD store={store} />);
+    expandCard("scorers");
     const rows = screen.getAllByTestId("msh-scorer-row");
     expect(rows[0].dataset.side).toBe("home");
     expect(rows[1].dataset.side).toBe("away");
   });
 
-  it("shots / fouls / cards / saves render in the stats panel", () => {
+  it("shots / fouls / cards / saves render in the stats card", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
@@ -159,42 +177,28 @@ describe("MatchStatsHUD", () => {
       ].forEach((m) => store.getState().applyMessage(m as EventMessage));
     });
     render(<MatchStatsHUD store={store} />);
+    expandCard("stats");
     expect(screen.getByTestId("msh-stat-shots").textContent).toContain("1");
     expect(screen.getByTestId("msh-stat-yellows").textContent).toContain("1");
     expect(screen.getByTestId("msh-stat-reds").textContent).toContain("1");
     expect(screen.getByTestId("msh-stat-saves").textContent).toContain("1");
   });
 
-  it("renders mobile-tab toggles", () => {
+  it("renders the three collapsible cards (scorers, stats, subs)", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
     });
     render(<MatchStatsHUD store={store} />);
-    const tabs = screen.getByTestId("msh-mobile-tabs");
-    expect(tabs.children).toHaveLength(4);
-    expect(tabs.dataset.active).toBe("score");
-  });
-
-  it("clicking a mobile tab updates the active state", async () => {
-    const store = createMatchStore();
-    act(() => {
-      store.getState().applyMessage(init);
-    });
-    render(<MatchStatsHUD store={store} />);
-    const tabs = screen.getByTestId("msh-mobile-tabs");
-    const buttons = tabs.querySelectorAll("button");
-    act(() => {
-      (buttons[1] as HTMLButtonElement).click();
-    });
-    expect(tabs.dataset.active).toBe("stats");
+    expect(screen.getByTestId("hud-card-scorers")).toBeTruthy();
+    expect(screen.getByTestId("hud-card-stats")).toBeTruthy();
+    expect(screen.getByTestId("hud-card-subs")).toBeTruthy();
   });
 
   it("clock display reads the latest clockDisplay or playhead minute", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
-      // No clockDisplay, but a state frame at 23:00
       const frame: StateFrame = {
         type: "state",
         t: 1_380_000,
@@ -205,7 +209,7 @@ describe("MatchStatsHUD", () => {
       store.getState().applyMessage(frame);
     });
     render(<MatchStatsHUD store={store} />);
-    expect(screen.getByTestId("msh-clock").textContent).toBe("23'");
+    expect(screen.getByTestId("msb-clock").textContent).toContain("23'");
   });
 
   it("clock display prefers clockDisplay when provided by the producer", () => {
@@ -223,15 +227,19 @@ describe("MatchStatsHUD", () => {
       store.getState().applyMessage(frame);
     });
     render(<MatchStatsHUD store={store} />);
-    expect(screen.getByTestId("msh-clock").textContent).toBe("23:00");
+    expect(screen.getByTestId("msb-clock").textContent).toContain("23:00");
   });
 
-  it("subs ticker is empty by default", () => {
+  it("subs card shows an empty-state message when there are no subs", () => {
     const store = createMatchStore();
     act(() => {
       store.getState().applyMessage(init);
     });
     render(<MatchStatsHUD store={store} />);
-    expect(screen.getByTestId("msh-subs").dataset.empty).toBe("1");
+    expandCard("subs");
+    // Empty-state copy lives inside the card body.
+    expect(screen.getByTestId("msh-subs-empty")).toBeTruthy();
+    // And the card shell is flagged as empty for the dimmed styling.
+    expect(screen.getByTestId("hud-card-subs").dataset.empty).toBe("1");
   });
 });

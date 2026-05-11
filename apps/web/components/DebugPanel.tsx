@@ -14,8 +14,12 @@ interface DebugPanelProps {
 
 /**
  * On-screen diagnostics: connection status, lag, fps, last state `t`,
- * frame count, and current camera mode. Toggle with `D` or click the
- * collapse handle.
+ * frame count, current camera mode.
+ *
+ * Hidden by default — too much noise for end users. Open it via the
+ * small `i` pill in the bottom-right corner, the `~` (or `\``) key, or
+ * the legacy `D` key. The pill is the only persistent affordance; the
+ * panel itself disappears when closed.
  *
  * fps is a rolling estimate from requestAnimationFrame deltas, kept here
  * so we don't pull r3f-perf into the production bundle.
@@ -28,7 +32,7 @@ export function DebugPanel({ store, matchId, mode }: DebugPanelProps) {
   const eventCount = useStore(store, (s) => s.events.length);
 
   const [fps, setFps] = useState(0);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const samples = useRef<number[]>([]);
 
   useEffect(() => {
@@ -49,57 +53,92 @@ export function DebugPanel({ store, matchId, mode }: DebugPanelProps) {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "d" || e.key === "D") setOpen((v) => !v);
+      // Toggle on `~`, backtick (which lives on the same physical key
+      // without shift), or the legacy `D` shortcut.
+      if (
+        e.key === "~" ||
+        e.key === "`" ||
+        e.key === "d" ||
+        e.key === "D"
+      ) {
+        // Skip if user is typing in an input — `D` overlaps with
+        // ordinary text entry.
+        const tag = (e.target as HTMLElement | null)?.tagName ?? "";
+        if (tag === "INPUT" || tag === "TEXTAREA") return;
+        setOpen((v) => !v);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  if (!open) {
-    return (
-      <button type="button" className="debug-toggle" onClick={() => setOpen(true)} aria-label="Show debug panel">
-        debug
-      </button>
-    );
-  }
-
   return (
-    <div className="debug-panel" data-testid="debug-panel">
-      <div className="debug-row">
-        <span>match</span>
-        <span>{matchId ?? "—"}</span>
-      </div>
-      <div className="debug-row">
-        <span>status</span>
-        <span data-testid="debug-status">{status}</span>
-      </div>
-      <div className="debug-row">
-        <span>fps</span>
-        <span data-testid="debug-fps">{fps}</span>
-      </div>
-      <div className="debug-row">
-        <span>lag</span>
-        <span data-testid="debug-lag">{lag} ms</span>
-      </div>
-      <div className="debug-row">
-        <span>last t</span>
-        <span data-testid="debug-last-t">{lastT} ms</span>
-      </div>
-      <div className="debug-row">
-        <span>frames</span>
-        <span>{frameCount}</span>
-      </div>
-      <div className="debug-row">
-        <span>events</span>
-        <span>{eventCount}</span>
-      </div>
-      <div className="debug-row">
-        <span>camera</span>
-        <span>{mode}</span>
-      </div>
-      <button type="button" className="debug-close" onClick={() => setOpen(false)} aria-label="Hide debug panel">
-        ×
+    <>
+      <button
+        type="button"
+        className="debug-pill"
+        onClick={() => setOpen((v) => !v)}
+        aria-label={open ? "Hide debug panel" : "Show debug panel"}
+        aria-pressed={open}
+        data-testid="debug-pill"
+        data-open={open ? "1" : "0"}
+        title="Diagnostics (press ~ to toggle)"
+      >
+        <span className="debug-pill-i" aria-hidden>i</span>
       </button>
-    </div>
+
+      {open ? (
+        <div className="debug-panel" data-testid="debug-panel" role="dialog" aria-label="Diagnostics">
+          <div className="debug-panel-head">
+            <span className="debug-panel-title">Diagnostics</span>
+            <button
+              type="button"
+              className="debug-close"
+              onClick={() => setOpen(false)}
+              aria-label="Hide debug panel"
+            >
+              ×
+            </button>
+          </div>
+          <div className="debug-row">
+            <span>match</span>
+            <span>{matchId ?? "—"}</span>
+          </div>
+          <div className="debug-row">
+            <span>status</span>
+            <span data-testid="debug-status">{status}</span>
+          </div>
+          <div className="debug-row">
+            <span>fps</span>
+            <span data-testid="debug-fps">{fps}</span>
+          </div>
+          <div className="debug-row">
+            <span>lag</span>
+            <span data-testid="debug-lag">{lag} ms</span>
+          </div>
+          <div className="debug-row">
+            <span>last t</span>
+            <span data-testid="debug-last-t">{lastT} ms</span>
+          </div>
+          <div className="debug-row">
+            <span>frames</span>
+            <span>{frameCount}</span>
+          </div>
+          <div className="debug-row">
+            <span>events</span>
+            <span>{eventCount}</span>
+          </div>
+          <div className="debug-row">
+            <span>camera</span>
+            <span>{mode}</span>
+          </div>
+          <div className="debug-panel-hint">
+            <span>press </span>
+            <kbd>~</kbd>
+            <span> to toggle</span>
+          </div>
+        </div>
+      ) : null}
+    </>
   );
 }
