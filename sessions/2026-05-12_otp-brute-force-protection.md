@@ -2,7 +2,7 @@
 
 - **Agent**: security-hardening
 - **Branch**: `feat/otp-brute-force-protection`
-- **Status**: in-progress
+- **Status**: shipped (PR #177)
 - **Docs**: 32-auth-and-privacy.md, 33-security-hardening-checklist.md, 22-deployment-and-tunnels.md
 
 ## Plan
