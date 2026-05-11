@@ -1155,11 +1155,12 @@
     height: 60vh;
   }
   .molecule-legend {
-    /* Sit below the layer-label pill row (top: 8px + ~24px height + 4px). */
-    top: 44px;
-    right: 12px;
-    max-width: 180px;
-    font-size: 11px;
+    /* v6.1: hide the legend on mobile, it competes with the pyramid
+     * for the user's attention and the colour coding is already self-
+     * evident from the gold path + flag-tinted atoms. Tim explicitly
+     * asked for it gone on phones (2026-05-11). The legend is still
+     * available on tablet+ where there's room for it. */
+    display: none;
   }
   .molecule-empty-state {
     left: 16px;
