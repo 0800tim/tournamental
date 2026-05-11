@@ -1611,6 +1611,19 @@
   min-width: 0;
 }
 
+.bracket-final-sidecol {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.bracket-final-leaderboard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .bracket-final-note {
   font-size: 12px;
   color: #94a3b8;

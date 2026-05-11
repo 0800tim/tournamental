@@ -1,0 +1,392 @@
+/* Leaderboard — polished social-rank card.
+ * Used on /leaderboard, on syndicate landings, and in the bracket
+ * builder's right-rail. One component, three densities. */
+
+.vt-lb-card {
+  --vt-lb-gold: #f5c542;
+  --vt-lb-silver: #d8dde6;
+  --vt-lb-bronze: #d8954f;
+  --vt-lb-accent: #7eb6e8;
+  --vt-lb-success: #3ec27b;
+  --vt-lb-warn: #ff6b6b;
+  --vt-lb-ink: #cdd5e7;
+  --vt-lb-ink-faint: #7a8597;
+
+  position: relative;
+  border-radius: 16px;
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.vt-lb-header {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 20px 12px;
+  background: linear-gradient(
+    180deg,
+    rgba(16, 22, 38, 0.95),
+    rgba(16, 22, 38, 0.75)
+  );
+  border-bottom: 1px solid rgba(125, 145, 200, 0.12);
+}
+
+.vt-lb-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vt-lb-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+  color: #f0f3fa;
+}
+
+.vt-lb-tabs {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(125, 145, 200, 0.08);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+}
+
+.vt-lb-tab {
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--vt-lb-ink-faint);
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.vt-lb-tab[aria-selected="true"] {
+  background: var(--vt-lb-gold);
+  color: #1a1408;
+  box-shadow: 0 2px 8px rgba(245, 197, 66, 0.35);
+}
+
+.vt-lb-tab:not([aria-selected="true"]):hover {
+  color: var(--vt-lb-ink);
+  background: rgba(125, 145, 200, 0.12);
+}
+
+.vt-lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0 8px;
+}
+
+.vt-lb-row {
+  display: grid;
+  grid-template-columns: 44px 44px 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid rgba(125, 145, 200, 0.06);
+  transition: background 120ms ease;
+}
+
+.vt-lb-row:last-child {
+  border-bottom: 0;
+}
+
+.vt-lb-row:hover {
+  background: rgba(125, 145, 200, 0.04);
+}
+
+.vt-lb-card[data-density="compact"] .vt-lb-row {
+  padding: 6px 14px;
+  grid-template-columns: 36px 28px 1fr auto;
+}
+
+.vt-lb-card[data-density="compact"] .vt-lb-row .vt-lb-movement,
+.vt-lb-card[data-density="compact"] .vt-lb-row .vt-lb-country,
+.vt-lb-card[data-density="compact"] .vt-lb-row .vt-lb-streak,
+.vt-lb-card[data-density="compact"] .vt-lb-row .vt-lb-sparkline {
+  display: none;
+}
+
+.vt-lb-row[data-highlight="1"] {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 197, 66, 0.18) 0%,
+    rgba(245, 197, 66, 0.03) 60%,
+    transparent 100%
+  );
+  border-bottom-color: rgba(245, 197, 66, 0.3);
+}
+
+.vt-lb-row[data-rank="1"] .vt-lb-rank,
+.vt-lb-row[data-rank="2"] .vt-lb-rank,
+.vt-lb-row[data-rank="3"] .vt-lb-rank {
+  color: #1a1408;
+  font-weight: 800;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.vt-lb-rank {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  background: rgba(125, 145, 200, 0.14);
+  color: var(--vt-lb-ink-faint);
+  letter-spacing: -0.01em;
+}
+
+.vt-lb-row[data-rank="1"] .vt-lb-rank {
+  background: var(--vt-lb-gold);
+  box-shadow: 0 0 0 2px rgba(245, 197, 66, 0.25), 0 4px 12px rgba(245, 197, 66, 0.35);
+}
+
+.vt-lb-row[data-rank="2"] .vt-lb-rank {
+  background: var(--vt-lb-silver);
+  box-shadow: 0 0 0 2px rgba(216, 221, 230, 0.18), 0 4px 12px rgba(216, 221, 230, 0.25);
+}
+
+.vt-lb-row[data-rank="3"] .vt-lb-rank {
+  background: var(--vt-lb-bronze);
+  box-shadow: 0 0 0 2px rgba(216, 149, 79, 0.2), 0 4px 12px rgba(216, 149, 79, 0.25);
+}
+
+.vt-lb-avatar-wrap {
+  position: relative;
+  width: 36px;
+  height: 36px;
+}
+
+.vt-lb-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(125, 145, 200, 0.18);
+  border: 1px solid rgba(125, 145, 200, 0.25);
+  display: block;
+}
+
+.vt-lb-flag {
+  position: absolute;
+  right: -4px;
+  bottom: -2px;
+  font-size: 12px;
+  line-height: 1;
+  background: #0b0f1a;
+  border-radius: 999px;
+  padding: 2px;
+  border: 1px solid rgba(125, 145, 200, 0.25);
+}
+
+.vt-lb-id {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vt-lb-handle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #f0f3fa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.vt-lb-you-pill {
+  background: var(--vt-lb-gold);
+  color: #1a1408;
+  font-size: 9px;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.06em;
+}
+
+.vt-lb-meta {
+  font-size: 11px;
+  color: var(--vt-lb-ink-faint);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vt-lb-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.vt-lb-badge[data-kind="pundit"] {
+  background: rgba(245, 197, 66, 0.18);
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  color: #f5d77a;
+}
+
+.vt-lb-badge[data-kind="creator"] {
+  background: rgba(126, 182, 232, 0.18);
+  border: 1px solid rgba(126, 182, 232, 0.35);
+  color: #b6d6ee;
+}
+
+.vt-lb-badge[data-kind="syndicate-owner"] {
+  background: rgba(62, 194, 123, 0.18);
+  border: 1px solid rgba(62, 194, 123, 0.35);
+  color: #7adba6;
+}
+
+.vt-lb-streak {
+  font-size: 11px;
+  color: #f5d77a;
+}
+
+.vt-lb-country {
+  font-size: 11px;
+  color: var(--vt-lb-ink-faint);
+  letter-spacing: 0.04em;
+}
+
+.vt-lb-sparkline {
+  width: 60px;
+  height: 20px;
+  display: block;
+}
+
+.vt-lb-points {
+  font-size: 18px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #f0f3fa;
+  text-align: right;
+  letter-spacing: -0.01em;
+}
+
+.vt-lb-movement {
+  font-size: 11px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 32px;
+}
+
+.vt-lb-movement[data-dir="up"] {
+  color: var(--vt-lb-success);
+}
+
+.vt-lb-movement[data-dir="down"] {
+  color: var(--vt-lb-warn);
+}
+
+.vt-lb-movement[data-dir="flat"] {
+  color: var(--vt-lb-ink-faint);
+}
+
+.vt-lb-footer {
+  padding: 10px 20px 14px;
+  font-size: 11px;
+  color: var(--vt-lb-ink-faint);
+  border-top: 1px solid rgba(125, 145, 200, 0.08);
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.vt-lb-empty {
+  padding: 40px 20px;
+  text-align: center;
+  color: var(--vt-lb-ink-faint);
+  font-size: 13px;
+}
+
+.vt-lb-skeleton {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+}
+
+.vt-lb-skeleton-row {
+  display: grid;
+  grid-template-columns: 44px 44px 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 20px;
+}
+
+.vt-lb-skeleton-block {
+  background: linear-gradient(
+    90deg,
+    rgba(125, 145, 200, 0.08),
+    rgba(125, 145, 200, 0.18),
+    rgba(125, 145, 200, 0.08)
+  );
+  background-size: 400% 100%;
+  animation: vt-lb-shimmer 1.2s ease-in-out infinite;
+  border-radius: 6px;
+  height: 14px;
+}
+
+.vt-lb-skeleton-circle {
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+}
+
+@keyframes vt-lb-shimmer {
+  0% { background-position: 0% 0; }
+  100% { background-position: -400% 0; }
+}
+
+@media (max-width: 640px) {
+  .vt-lb-row {
+    grid-template-columns: 36px 36px 1fr auto;
+    padding: 10px 14px;
+    gap: 10px;
+  }
+
+  .vt-lb-card[data-density="comfortable"] .vt-lb-movement,
+  .vt-lb-card[data-density="comfortable"] .vt-lb-country,
+  .vt-lb-card[data-density="comfortable"] .vt-lb-sparkline {
+    display: none;
+  }
+
+  .vt-lb-header {
+    padding: 14px 14px 10px;
+  }
+
+  .vt-lb-title {
+    font-size: 16px;
+  }
+}

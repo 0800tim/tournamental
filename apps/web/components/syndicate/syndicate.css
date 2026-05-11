@@ -1,0 +1,326 @@
+/* Syndicate landing — hero, members grid, trophy shelf, activity feed.
+ * Used by /s/[guid] (owned by parallel agent #67) and by the demo
+ * route in this PR. */
+
+.vt-syn {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vt-syn-hero {
+  position: relative;
+  border-radius: 18px;
+  padding: 28px 32px;
+  background:
+    radial-gradient(
+      120% 100% at 0% 0%,
+      color-mix(in srgb, var(--vt-syn-primary, #7eb6e8) 28%, transparent),
+      transparent 65%
+    ),
+    radial-gradient(
+      90% 80% at 100% 100%,
+      color-mix(in srgb, var(--vt-syn-accent, #f5c542) 20%, transparent),
+      transparent 70%
+    ),
+    linear-gradient(160deg, rgba(16, 22, 38, 0.95), rgba(16, 22, 38, 0.78));
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  overflow: hidden;
+}
+
+.vt-syn-hero-grid {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: center;
+}
+
+.vt-syn-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.vt-syn-hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #f5d77a;
+}
+
+.vt-syn-hero-title {
+  font-size: 36px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+  color: #f0f3fa;
+}
+
+.vt-syn-hero-tagline {
+  font-size: 15px;
+  color: #cdd5e7;
+  max-width: 56ch;
+  margin: 0;
+}
+
+.vt-syn-hero-owner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: #cdd5e7;
+}
+
+.vt-syn-owner-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.vt-syn-hero-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 16px;
+  font-size: 13px;
+  color: #cdd5e7;
+}
+
+.vt-syn-hero-stats strong {
+  font-size: 18px;
+  font-weight: 800;
+  color: #f0f3fa;
+  display: block;
+  font-variant-numeric: tabular-nums;
+}
+
+.vt-syn-hero-cta {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: 12px;
+  border: 0;
+  background: linear-gradient(180deg, #f5c542, #e1a921);
+  color: #1a1408;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(245, 197, 66, 0.35);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.vt-syn-hero-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 32px rgba(245, 197, 66, 0.45);
+}
+
+/* ----- Members grid ----- */
+
+.vt-syn-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-syn-section-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: #f0f3fa;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vt-syn-section-title-meta {
+  font-size: 12px;
+  color: #7a8597;
+  font-weight: 600;
+}
+
+.vt-syn-members-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 12px;
+}
+
+.vt-syn-member {
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  border-radius: 12px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+}
+
+.vt-syn-member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background: rgba(125, 145, 200, 0.14);
+  border: 1px solid rgba(125, 145, 200, 0.25);
+}
+
+.vt-syn-member-handle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #f0f3fa;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-syn-member-meta {
+  font-size: 10px;
+  color: #7a8597;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+@media (max-width: 720px) {
+  .vt-syn-members-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  .vt-syn-hero {
+    padding: 20px 18px;
+  }
+  .vt-syn-hero-title {
+    font-size: 24px;
+  }
+  .vt-syn-hero-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- Trophy shelf ----- */
+
+.vt-syn-trophies {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.vt-syn-trophy {
+  position: relative;
+  padding: 20px 16px;
+  border-radius: 16px;
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.vt-syn-trophy[data-medal="gold"] {
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.18), rgba(16, 22, 38, 0.85));
+  border-color: rgba(245, 197, 66, 0.35);
+}
+
+.vt-syn-trophy[data-medal="silver"] {
+  background: linear-gradient(180deg, rgba(216, 221, 230, 0.14), rgba(16, 22, 38, 0.85));
+  border-color: rgba(216, 221, 230, 0.3);
+}
+
+.vt-syn-trophy[data-medal="bronze"] {
+  background: linear-gradient(180deg, rgba(216, 149, 79, 0.18), rgba(16, 22, 38, 0.85));
+  border-color: rgba(216, 149, 79, 0.35);
+}
+
+.vt-syn-trophy-cup {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.vt-syn-trophy-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7a8597;
+  font-weight: 700;
+}
+
+.vt-syn-trophy-flag {
+  font-size: 24px;
+  line-height: 1;
+}
+
+.vt-syn-trophy-team {
+  font-size: 16px;
+  font-weight: 800;
+  color: #f0f3fa;
+}
+
+.vt-syn-trophy-pct {
+  font-size: 11px;
+  color: #cdd5e7;
+}
+
+@media (max-width: 720px) {
+  .vt-syn-trophies {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ----- Activity feed ----- */
+
+.vt-syn-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-radius: 16px;
+  background: rgba(16, 22, 38, 0.85);
+  border: 1px solid rgba(125, 145, 200, 0.18);
+  padding: 16px 18px;
+}
+
+.vt-syn-feed-event {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(125, 145, 200, 0.08);
+  font-size: 13px;
+}
+
+.vt-syn-feed-event:last-child {
+  border-bottom: 0;
+}
+
+.vt-syn-feed-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(125, 145, 200, 0.14);
+  border: 1px solid rgba(125, 145, 200, 0.25);
+}
+
+.vt-syn-feed-line strong {
+  color: #f0f3fa;
+  font-weight: 700;
+}
+
+.vt-syn-feed-when {
+  font-size: 11px;
+  color: #7a8597;
+  white-space: nowrap;
+}

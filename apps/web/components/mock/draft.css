@@ -1,0 +1,97 @@
+/* DraftPreviewBanner + DraftWatermark — shared draft-marking styles.
+ * Used everywhere mock leaderboard data is rendered. Honest by default.
+ */
+
+.vt-draft-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(245, 197, 66, 0.18),
+    rgba(245, 197, 66, 0.08)
+  );
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  color: #f5d77a;
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0 0 16px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2);
+}
+
+.vt-draft-banner[data-sticky="1"] {
+  position: sticky;
+  top: 12px;
+  z-index: 30;
+}
+
+.vt-draft-banner-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vt-draft-banner-text {
+  flex: 1;
+  color: #f5e3a5;
+}
+
+.vt-draft-banner-text strong {
+  color: #fff5cf;
+  font-weight: 800;
+  margin-right: 2px;
+}
+
+.vt-draft-banner-dismiss {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  color: #f5d77a;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.vt-draft-banner-dismiss:hover {
+  background: rgba(245, 197, 66, 0.18);
+  color: #fff5cf;
+}
+
+/* ----- Watermark ----- */
+
+.vt-draft-watermark {
+  position: relative;
+  isolation: isolate;
+}
+
+.vt-draft-watermark-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-repeat: repeat;
+  opacity: 1;
+  z-index: 1;
+  border-radius: inherit;
+}
+
+.vt-draft-watermark > :not(.vt-draft-watermark-layer) {
+  position: relative;
+  z-index: 2;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-draft-banner {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
