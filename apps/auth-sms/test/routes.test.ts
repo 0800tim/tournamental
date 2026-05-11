@@ -11,6 +11,7 @@ import { Storage } from '../src/storage.js';
 import type { AuthContext } from '../src/context.js';
 import type { SmsSender, SendSmsRequest, SendSmsResult } from '../src/sms-gateway.js';
 import type { WhatsAppSender, SendWhatsAppRequest, SendWhatsAppResult } from '../src/whatsapp-baileys.js';
+import { buildMemoryAuditLogger } from '../src/audit.js';
 
 class CapturingSmsSender implements SmsSender {
   sent: SendSmsRequest[] = [];
@@ -60,6 +61,7 @@ async function makeHarness(): Promise<Harness> {
     storage,
     smsSender: sms,
     waSender: wa,
+    audit: buildMemoryAuditLogger(),
     config: {
       otpSecret: 'test-otp-secret-32-chars-aaaaaaa',
       jwtSecret: 'test-jwt-secret-32-chars-aaaaaaa',
@@ -277,13 +279,20 @@ describe('POST /v1/auth/verify', () => {
     });
     expect(fifth.statusCode).toBe(429);
 
-    // Even the correct code is now invalid (OTP was deleted).
+    // Even the correct code is now invalid (OTP was deleted) and the
+    // phone is now locked for an hour, so the route returns 429 with
+    // either the per-OTP exhaustion or the phone-lockout reason.
     const after = await h.app.inject({
       method: 'POST',
       url: '/v1/auth/verify',
       payload: { phone: '+6421999000', code },
     });
-    expect(after.statusCode).toBe(401);
+    expect([401, 429]).toContain(after.statusCode);
+    if (after.statusCode === 429) {
+      expect(['phone-locked', 'too-many-attempts']).toContain(
+        after.json().error,
+      );
+    }
   });
 
   it('OTP single-use — verifying again fails', async () => {

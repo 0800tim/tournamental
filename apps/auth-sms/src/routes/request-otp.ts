@@ -1,5 +1,5 @@
 /**
- * POST /v1/auth/request — send a 6-digit OTP via SMS or WhatsApp.
+ * POST /v1/auth/request , send a 6-digit OTP via SMS or WhatsApp.
  *
  * Request:
  *   { phone: string (E.164), channel: "sms" | "whatsapp" }
@@ -31,6 +31,7 @@ import {
   formatWhatsAppBody,
 } from '../otp.js';
 import { phoneLogId } from '../storage.js';
+import { truncateUa } from '../audit.js';
 
 const BodySchema = z.object({
   phone: z.string().min(1).max(32),
@@ -60,6 +61,12 @@ export async function registerRequestOtp(
     const channel = parsed.data.channel;
     const now = Math.floor(ctx.now() / 1000);
     const ip = clientIp(req);
+    const ua = truncateUa(
+      typeof req.headers['user-agent'] === 'string'
+        ? req.headers['user-agent']
+        : undefined,
+    );
+    const pid = phoneLogId(phone);
 
     // Prune expired OTPs opportunistically.
     ctx.storage.pruneExpiredOtps(now);
@@ -72,6 +79,14 @@ export async function registerRequestOtp(
     });
     if (!limit.ok) {
       reply.header('Retry-After', String(limit.retryAfterSeconds));
+      ctx.audit.write({
+        action: 'otp.send.rate-limited',
+        phoneId: pid,
+        channel,
+        ip,
+        ua,
+        reason: limit.reason,
+      });
       return reply.code(429).send({
         error: 'rate-limited',
         reason: limit.reason,
@@ -118,13 +133,21 @@ export async function registerRequestOtp(
       ctx.storage.deleteOtp(phone);
       ctx.log.warn(
         {
-          phoneId: phoneLogId(phone),
+          phoneId: pid,
           channel,
           errorCode: result.errorCode,
           errorMessage: result.errorMessage,
         },
         'auth: send failed',
       );
+      ctx.audit.write({
+        action: 'otp.send.fail',
+        phoneId: pid,
+        channel,
+        ip,
+        ua,
+        reason: result.errorCode ?? 'unknown',
+      });
       return reply.code(502).send({
         error: 'send-failed',
         reason: result.errorCode ?? 'unknown',
@@ -132,9 +155,16 @@ export async function registerRequestOtp(
     }
 
     ctx.log.info(
-      { phoneId: phoneLogId(phone), channel, expiresAt },
+      { phoneId: pid, channel, expiresAt },
       'auth: otp sent',
     );
+    ctx.audit.write({
+      action: 'otp.send.ok',
+      phoneId: pid,
+      channel,
+      ip,
+      ua,
+    });
 
     return reply.code(200).send({
       ok: true,

@@ -21,6 +21,7 @@ import sensible from '@fastify/sensible';
 import type { DmOtpConfig, DmOtpContext, DmOtpLogger } from './context.js';
 import { CodeStore } from './lib/code-store.js';
 import { IdentityStore } from './lib/identity-store.js';
+import { BruteForceGuard } from './lib/brute-force.js';
 import type { SendFn } from './lib/dispatcher.js';
 import { registerChannelsRoute } from './routes/channels.js';
 import { registerVerifyRoute } from './routes/verify.js';
@@ -180,10 +181,11 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerEmailWebhook(app, ctx);
   await registerLinkedInWebhook(app, ctx);
 
-  // Background prune of expired codes every minute.
+  // Background prune of expired codes + lockout records every minute.
   const pruneInterval = setInterval(() => {
     try {
       ctx.store.prune();
+      ctx.bruteForce.prune();
     } catch {
       /* ignore */
     }
@@ -230,6 +232,7 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
     secret: config.otpSecret,
   });
   const identityStore = new IdentityStore();
+  const bruteForce = new BruteForceGuard();
 
   const log: DmOtpLogger = {
     info: (obj, msg) => app.log.info(obj as object, msg),
@@ -416,6 +419,7 @@ function buildDefaultContext(app: FastifyInstance): DmOtpContext {
     store,
     identityStore,
     senders,
+    bruteForce,
     magicLinkChannels: new Set(['email']),
     config,
     log,

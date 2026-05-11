@@ -9,11 +9,18 @@
 import type { Storage } from './storage.js';
 import type { SmsSender } from './sms-gateway.js';
 import type { WhatsAppSender } from './whatsapp-baileys.js';
+import type { AuditLogger } from './audit.js';
 
 export interface AuthContext {
   storage: Storage;
   smsSender: SmsSender;
   waSender: WhatsAppSender;
+  /**
+   * Append-only OTP audit logger. Every send + verify outcome writes
+   * a line. Defaults to a JSONL file at `AUDIT_LOG_PATH`; tests inject
+   * an in-memory implementation.
+   */
+  audit: AuditLogger;
   config: {
     /** Secret used to HMAC OTP hashes. Must be > 32 bytes. */
     otpSecret: string;

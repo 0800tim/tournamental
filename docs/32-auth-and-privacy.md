@@ -126,13 +126,18 @@ and HTTPS otherwise.
 
 ## Threat model and mitigations
 
+See **[doc 33 § OTP brute-force protection](33-security-hardening-checklist.md#otp-brute-force-protection-defence-in-depth)**
+for the full two-layer defence (app rate-limit + lockout + Cloudflare
+WAF rules). Summary:
+
 | Threat | Mitigation |
 |--------|------------|
-| OTP brute force | 6-digit code (1M space) + 5-attempt cap + 10-min TTL = 1 in 200k odds before lockout, then 0. |
+| OTP brute force | 6-digit code (1M space) + 5-attempt cap per code + per-phone lockout (5 failed verifies / 15 min -> 1 hour) + 10-min TTL. Combined effective odds of success before the user is locked: ~1 in 200k per code, with the lockout making "request fresh code and try again" useless. |
 | OTP replay | Single-use; deleted on successful verify. |
 | OTP intercept (SIM swap, SS7) | Out of our threat model for v0.1; users with high-value accounts will be encouraged to add TOTP / passkey per doc 13. We never make this service a high-value money path. |
 | Phone enumeration via timing | All verify branches do an HMAC compute + constant-time compare, even when the OTP row doesn't exist. |
-| Mass account creation (bots) | Per-IP rate limits + per-phone rate limits + verify-attempt limits. The Humanness Score from doc 20 then labels the resulting accounts. |
+| Mass account creation (bots) | Per-IP rate limits + per-phone rate limits + verify-attempt limits + per-IP verify throttle (30 / 5 min, catches phone-cycling). The Humanness Score from doc 20 then labels the resulting accounts. |
+| Distributed brute force from many IPs | Cloudflare edge rate-limit rules in front of `/v1/auth/otp/*` (10/15/30 req/min/IP) plus an ASN-targeted WAF custom rule. Managed and reverted via `infra/cloudflare/otp-protection*.sh`. |
 | JWT theft | 30-day expiry, server-side revocation list (`session` table). Logout / refresh both revoke the old JTI. |
 | Stolen DB → offline brute force | OTP hashes are HMAC-SHA-256 with a server-side secret bound to phone+channel. Without the secret, no brute force. |
 | Stolen DB → phone harvesting | Mitigated by sqlcipher in prod; partially mitigated by host disk encryption otherwise. |
@@ -165,6 +170,21 @@ and HTTPS otherwise.
 - **IPP 9 (retention)**: indefinite while active, deleted on request.
 - **IPP 12 (cross-border)**: data lives on a NZ-based host; Aiva SMS
   gateway is also NZ-based.
+
+## What the user sees on a brute-force defence trigger
+
+The auth page renders the 429 outcomes as friendly copy, not raw JSON:
+
+| Server response | What the page shows |
+| --- | --- |
+| `429 rate-limited` (send) | "Too many code requests. Try again in {n} minutes." |
+| `429 too-many-attempts` (verify) | "Wrong code five times. Request a new code." |
+| `429 phone-locked` (verify) | "Too many wrong codes. Try again in 1 hour, or email support@tournamental.com." |
+| `429 ip-throttled` (verify) | "Unusual activity from your network. Try again in a few minutes." |
+
+The audit log entry is the operator-side breadcrumb if a real user
+emails support , search the JSONL for the `phoneId` hash shown to
+support when the user gives their phone number.
 
 ## Privacy notice (user-facing copy)
 

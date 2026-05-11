@@ -9,6 +9,7 @@
 import type { CodeStore } from './lib/code-store.js';
 import type { IdentityStore } from './lib/identity-store.js';
 import type { SendFn } from './lib/dispatcher.js';
+import type { BruteForceGuard } from './lib/brute-force.js';
 
 export interface DmOtpConfig {
   /** Hash secret for OTP storage. >=32 chars. */
@@ -55,6 +56,8 @@ export interface DmOtpContext {
   identityStore: IdentityStore;
   senders: Map<string, SendFn>;
   magicLinkChannels: Set<string>;
+  /** Per-IP throttle + per-subject lockout in front of the verify route. */
+  bruteForce: BruteForceGuard;
   config: DmOtpConfig;
   log: DmOtpLogger;
   now(): number;
