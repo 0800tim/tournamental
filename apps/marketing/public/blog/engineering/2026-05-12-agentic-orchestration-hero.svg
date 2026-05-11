@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="A human orchestrator at top, a swarm of named AI agents below holding plug-shaped tickets, all feeding into a central spec monolith glowing gold, with merged-PR arrows looping back through a Drips revenue split">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#0e1a2b"/>
+    </linearGradient>
+    <linearGradient id="spec" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#b8862a"/>
+    </linearGradient>
+    <radialGradient id="specGlow" cx="0.5" cy="0.5" r="0.6">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="agentBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7eb6e8"/>
+      <stop offset="1" stop-color="#3c8bcf"/>
+    </linearGradient>
+    <linearGradient id="dripsPurple" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7e3c8b"/>
+      <stop offset="1" stop-color="#4c2358"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- glow behind spec monolith -->
+  <ellipse cx="600" cy="320" rx="340" ry="240" fill="url(#specGlow)"/>
+
+  <!-- human orchestrator at top -->
+  <g transform="translate(600,100)" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <circle cx="0" cy="0" r="32" fill="#cdd5e7"/>
+    <path d="M-20 18 A28 28 0 0 1 20 18 L20 36 L-20 36 Z" fill="#cdd5e7"/>
+    <text x="0" y="76" font-size="14" font-weight="700" fill="#fde68a" letter-spacing="0.06em">ORCHESTRATOR</text>
+    <text x="0" y="94" font-size="12" font-weight="500" fill="#cdd5e7">spec / direction / merge approval</text>
+  </g>
+
+  <!-- spec monolith centre -->
+  <g transform="translate(600,320)" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <rect x="-90" y="-70" width="180" height="140" rx="14" fill="url(#spec)" stroke="#0a0e1a" stroke-width="2"/>
+    <text x="0" y="-30" font-size="13" font-weight="800" fill="#0a0e1a" letter-spacing="0.1em">SPEC</text>
+    <line x1="-65" y1="-12" x2="65" y2="-12" stroke="#0a0e1a" stroke-width="1" opacity="0.4"/>
+    <text x="0" y="6" font-size="11" font-weight="600" fill="#0a0e1a">MatchInit</text>
+    <text x="0" y="22" font-size="11" font-weight="600" fill="#0a0e1a">StateFrame</text>
+    <text x="0" y="38" font-size="11" font-weight="600" fill="#0a0e1a">EventMessage</text>
+    <text x="0" y="56" font-size="9" fill="#0a0e1a" opacity="0.7">@tournamental/spec</text>
+  </g>
+
+  <!-- six agent workers, three on each side -->
+  <g font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <!-- left side -->
+    <g transform="translate(220,260)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Claude</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">renderer plugin</text>
+    </g>
+    <g transform="translate(220,360)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Cursor</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">scorer plugin</text>
+    </g>
+    <g transform="translate(220,460)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Codex</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">docs sweep</text>
+    </g>
+    <!-- right side -->
+    <g transform="translate(980,260)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Gemini CLI</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">odds source</text>
+    </g>
+    <g transform="translate(980,360)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Junie</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">test coverage</text>
+    </g>
+    <g transform="translate(980,460)">
+      <rect x="-58" y="-22" width="116" height="44" rx="22" fill="url(#agentBlue)"/>
+      <text x="0" y="4" font-size="12" font-weight="700" fill="#0a0e1a">Goose</text>
+      <text x="0" y="36" font-size="9" fill="#7eb6e8">refactor</text>
+    </g>
+  </g>
+
+  <!-- connection lines: agents to spec -->
+  <g stroke="#7eb6e8" stroke-width="1.2" stroke-dasharray="3,4" opacity="0.55" fill="none">
+    <path d="M280 260 L510 320"/>
+    <path d="M280 360 L510 340"/>
+    <path d="M280 460 L510 360"/>
+    <path d="M920 260 L690 320"/>
+    <path d="M920 360 L690 340"/>
+    <path d="M920 460 L690 360"/>
+  </g>
+
+  <!-- orchestrator to spec line -->
+  <line x1="600" y1="150" x2="600" y2="250" stroke="#fde68a" stroke-width="2" opacity="0.7"/>
+
+  <!-- merged-PR loop arrows back to drips -->
+  <g transform="translate(600,560)" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <rect x="-180" y="-22" width="360" height="44" rx="22" fill="url(#dripsPurple)"/>
+    <text x="0" y="4" font-size="13" font-weight="700" fill="#ffffff">Drips Network → USDC to contributors</text>
+  </g>
+  <g stroke="#7e3c8b" stroke-width="1.5" fill="none" stroke-dasharray="6,4" opacity="0.65">
+    <path d="M280 480 Q200 540 420 560"/>
+    <path d="M920 480 Q1000 540 780 560"/>
+  </g>
+
+  <!-- title overlay -->
+  <text x="80" y="50" font-family="DejaVu Sans, sans-serif" font-size="32" font-weight="800" fill="#fde68a" letter-spacing="-0.5">Built for the agent swarm</text>
+  <text x="80" y="78" font-family="DejaVu Sans, sans-serif" font-size="15" font-weight="500" fill="#cdd5e7">Humans at the helm. Agents at the wheel. Spec at the centre. Revenue on a continuous loop.</text>
+</svg>

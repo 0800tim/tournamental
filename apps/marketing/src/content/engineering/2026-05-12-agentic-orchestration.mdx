@@ -1,0 +1,282 @@
+---
+title: "Built for the agent swarm: how Tournamental is structured for AI-native open source"
+description: "Tournamental was built on the assumption that within the year, most code in the repo will be authored by AI coding agents under human supervision. Here is what we did about it."
+pubDate: 2026-05-12
+author: "Tim"
+area: "ai-agents"
+draft: false
+heroImage: "/blog/engineering/2026-05-12-agentic-orchestration-hero.svg"
+heroImageAlt: "An exploded diagram of the Tournamental repo as a control plane: a human orchestrator at the top, a swarm of named AI agents below holding plug-shaped tickets, all feeding into a central spec-monolith glowing gold, with merged-PR arrows looping back through a Drips revenue split."
+heroImageCredit: "Diagram drafted for the Tournamental engineering log, 2026"
+relatedDocs:
+  - "57-agentic-development.md"
+  - "28-plugin-architecture.md"
+  - "19-open-source-and-contributor-revenue.md"
+relatedSource:
+  - "AGENTS.md"
+  - "skills/README.md"
+  - "packages/plugin-sdk/src/index.ts"
+  - "apps/mcp/src/tools/index.ts"
+  - "packages/create-tournamental-app/src/index.mjs"
+tags:
+  - "agents"
+  - "open-source"
+  - "drips"
+  - "mcp"
+  - "platform"
+---
+
+## The bet
+
+Within the next twelve months most of the code shipped into the
+Tournamental repo will be written by AI coding agents under human
+supervision. We decided to build for that on day one rather than
+retrofit when the wave hit. This post is the why and the how.
+
+If you are an agent operator with a swarm of Claude / Cursor /
+Codex / Junie / Gemini-CLI / Devin / Goose instances, this is
+also the invitation. The repo is laid out so you can point your
+agents at it and expect mergeable work back, not a pile of
+drive-by garbage. The economics are arranged so the merged work
+pays out in USDC via [Drips
+Network](https://www.drips.network), no matter whether the typist
+was human or not.
+
+[Repo on GitHub.](https://github.com/0800tim/tournamental)
+
+## Humans at the helm, agents at the wheel
+
+This is the model. It is the inverse of the usual OSS shape, where
+the maintainer types as much as anyone and accepts patches from
+others. In Tournamental:
+
+- **The orchestrator is a human.** Today, one of them. The
+  orchestrator picks direction, owns the spec, decides what
+  merges. They do not type production code.
+- **The workers are agents.** They write the implementation,
+  the tests, the docs sweep, the late-night dependency triage.
+  Their PR is the unit of work.
+- **The contract is the spec.** `packages/spec/` is the single
+  source of truth for what a "match" is, what a "StateFrame"
+  looks like, what a "Team" carries. It is changed only by the
+  orchestrator. Agents reading the spec converge on the same
+  mental model; agents reading each other's code do not.
+
+The bargain is that you trade a year of single-developer
+throughput for a year of orchestrator throughput with a swarm
+under it. If the swarm is large and disciplined, the trade pays
+off. If the swarm is messy, the spec absorbs the damage so the
+mess does not propagate.
+
+We made this bet for Tournamental specifically because the
+project has a hard deadline (FIFA World Cup 2026 kickoff,
+2026-06-11) and a wide surface (a marketing site, a bracket app,
+a 3D renderer, sixteen Fastify services, a smart-contract pool
+on FVM later). It is too much for one person to build by hand,
+too small to staff with engineers, and exactly the right size
+for a maintainer plus a swarm.
+
+## Six things we built into the repo
+
+If you want to fork this model, here is the bill of materials.
+
+### 1. AGENTS.md and SKILL.md, not vibes
+
+[`AGENTS.md`](https://github.com/0800tim/tournamental/blob/main/AGENTS.md)
+is at the repo root. Six canonical sections: commands, testing,
+structure, code style, git workflow, and a three-tier boundary
+block (do / ask-first / never). Every major IDE-agent's
+auto-loader reads it — Cursor, Codex, Copilot, Junie, Kiro,
+Gemini CLI, Devin, Factory, Goose, Jules, Continue. The format
+stabilised in 2025-08 and is now stewarded by the Linux
+Foundation's Agentic AI Foundation; 60,000+ repos use it.
+
+[`skills/`](https://github.com/0800tim/tournamental/tree/main/skills)
+ships Anthropic Agent Skills. Each `SKILL.md` captures one
+high-leverage capability with executable detail and a
+machine-verifiable acceptance section. Four shipped at launch:
+`scoring-rules`, `syndicate-create`, `renderer-debug`,
+`mcp-tool-author`.
+
+The combination is opinionated. An agent dropped into the repo
+without any prompting reads AGENTS.md, learns the boundaries,
+finds a skill that matches its task, and executes against an
+acceptance check. The whole flow takes the agent thirty seconds.
+
+### 2. The MCP server as a runtime control plane
+
+[`apps/mcp/`](https://github.com/0800tim/tournamental/tree/main/apps/mcp)
+is our [Model Context Protocol](https://modelcontextprotocol.io)
+server. 15+ tools across three tiers, served at
+`mcp.tournamental.com`. The `/mcp/catalogue` endpoint emits a
+machine-readable JSON catalogue with names, tiers, descriptions,
+and JSON Schemas for input and output.
+
+This is the difference between "Tournamental has an API" and
+"Tournamental is a citizen of the agent ecosystem". An external
+agent points itself at the MCP URL and discovers what the
+platform can do, with no SDK installed. The API is the floor;
+MCP is the ceiling.
+
+The tiers are how we keep the public surface safe:
+
+- **public**: anonymous, IP-rate-limited reads. `get_team`,
+  `get_leaderboard`, `get_bracket_by_guid`.
+- **user**: requires a personal API key (`tnm_live_...`) minted
+  at `/profile/api-keys`. Reads + mutates one user's own state.
+  `submit_bracket`, `update_pick`, `lock_picks`.
+- **admin**: master admin key + IP allowlist. Mutates global
+  state. `admin_resolve_match`, `admin_invalidate_share`.
+
+### 3. Eight named extension points, no more
+
+The plugin SDK at
+[`packages/plugin-sdk/`](https://github.com/0800tim/tournamental/tree/main/packages/plugin-sdk)
+exposes exactly eight: renderer, scorer, ingestSource,
+identityProvider, commentaryProvider, shareCardRenderer,
+oddsSource, affiliateRouter. Each is a TypeScript interface in
+under fifty lines. Implementing one is a self-contained PR.
+
+Eight is not a magic number. It is the number we found we could
+make small enough that one agent could hold the contract in its
+head and produce a correct implementation on first try. If we
+need a ninth, we add it as a spec change. We do not let the
+catalogue grow by accretion.
+
+### 4. The agent-task contract
+
+Any GitHub Issue can be picked up by a human. Issues with the
+[`agent-task`](https://github.com/0800tim/tournamental/labels/agent-task)
+label can be picked up by an agent — but only if the issue uses
+the
+[`agent-task` template](https://github.com/0800tim/tournamental/blob/main/.github/ISSUE_TEMPLATE/agent-task.yml),
+which requires:
+
+- One sentence objective in plain English.
+- ONE machine-checkable acceptance test. Pseudocode is fine. A
+  vitest spec, a curl with expected body, a `tsc --noEmit` that
+  must pass.
+- A file path to start in.
+- A `Refs:` pointer to the design doc.
+- An explicit list of files / directories the change must NOT
+  touch.
+- A tier: `do` (agent may execute without further approval) or
+  `ask-first` (agent opens a draft PR and waits for direction).
+
+Vague acceptance criteria are the documented #1 cause of
+low-quality agent PRs in 2026. We force specificity at the
+input. The template is annoying to fill in by hand, and we are
+unapologetic about that.
+
+### 5. The scaffolder
+
+```bash
+npm create @tournamental/app
+```
+
+That's it. The
+[`@tournamental/create-app`](https://www.npmjs.com/package/@tournamental/create-app)
+package scaffolds a working plugin in one command. Interactive
+prompts for humans, `--template/--name/--dir` flags for agents.
+First template ships a 50-line scorer plugin with a passing
+test; more templates land as the platform's extension points get
+used in the wild.
+
+A weekly CI cron re-runs the scaffolder end-to-end on Node 20
+and 22 and opens a `demo-critical-path` issue if it ever silently
+breaks. Stale templates are the documented #1 dev-platform
+anti-pattern; we want a hard signal the moment it happens.
+
+### 6. Drips Network as the economic loop
+
+`FUNDING.json` at the repo root declares the project's Drips list.
+Merged contributors opt in via the same manifest field on their
+plugin. The
+[drips-bridge service](https://github.com/0800tim/tournamental/tree/main/apps/drips-bridge)
+applies new weightings on every merge wave; once we are
+audit-cleared and on mainnet, the platform's revenue routes
+continuously to the Drips list and out to contributors in USDC.
+
+**Drips supports agents as first-class identities.** You do not
+need to be human to receive USDC from the platform's revenue. If
+your agent's operator wallet is the address on the plugin
+manifest, that wallet earns. This is the economic reinforcement
+loop that makes a 200-agent swarm worth running.
+
+We will run a [Drips
+Wave](https://www.drips.network/blog/posts/drips-wave-whats-launching-in-january)
+in the week after launch — a one-week sprint where every merged
+PR converts to a share of a USDC pool. The first one is on us.
+The next one is yours; bring your own funding and we will
+publicise it.
+
+## What you can do today
+
+In rough order of leverage:
+
+### Hour-scale
+
+- Read [`AGENTS.md`](https://github.com/0800tim/tournamental/blob/main/AGENTS.md)
+  and one [`skills/SKILL.md`](https://github.com/0800tim/tournamental/tree/main/skills)
+  of your choosing.
+- Add an MCP-configured Claude Desktop or Cursor to a fresh
+  workspace, point it at the repo. Watch how fast it gets
+  context.
+- Scaffold a plugin with `npm create @tournamental/app`. Edit
+  one line. Open the PR.
+
+### Day-scale
+
+- Pick an `agent-task` issue. Give it to your agent. Approve the
+  PR. (Or reject and learn.)
+- Add a new SKILL.md for a capability the existing four miss. We
+  want skills for: `bot-author`, `affiliate-route-author`,
+  `clip-pipeline-extend`, `odds-source-add`. Open a PR with the
+  `skill` label.
+- Add a new `examples/` entry. The bar is one folder, one
+  purpose, under 200 lines.
+
+### Week-scale
+
+- Author a real plugin against one of the eight extension
+  points. The renderer is the most fun; the scorer is the most
+  used; the affiliate-router is the highest-leverage for
+  revenue.
+- Run a Drips Wave on your own funding. We will help with the
+  announcement.
+- Propose a new extension point. RFCs are open.
+
+### Month-scale
+
+- Build a third-party app on top of the platform. The Discord
+  Activity that runs Tournamental syndicates inside Discord; the
+  Twitch overlay; the native iOS rewrite; the AI-coach that
+  watches the user's bracket history and suggests differential
+  picks. These are not plugins inside the repo, they are their
+  own products that consume our API + MCP + npm packages. We
+  will list yours in the marketplace once we ship one.
+
+## The shape of the bargain
+
+This is a public bet. The repo is Apache 2.0, the docs are
+CC-BY, the contributor revenue split is on-chain via Drips, the
+spec is public, the MCP server's tool catalogue is public. We
+are not hiding anything. The model only works if you can audit
+how it works.
+
+If you run an agent operator company, fork the model. If you run
+a different open-source project, copy the parts that fit. The
+six pillars above are not Tournamental-specific. The combination
+of AGENTS.md plus a tight spec plus an extension-point catalogue
+plus an MCP control plane plus a strict task template plus a
+Drips-style revenue loop is generalisable.
+
+We will share what works and what breaks in the engineering log
+as we learn. The first signal lands the week after FIFA World
+Cup 2026 kickoff.
+
+Bring your swarm.
+
+[`github.com/0800tim/tournamental`](https://github.com/0800tim/tournamental)
+
+[Read the longer architecture doc.](https://github.com/0800tim/tournamental/blob/main/docs/57-agentic-development.md)
