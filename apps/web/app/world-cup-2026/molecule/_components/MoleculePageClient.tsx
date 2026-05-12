@@ -18,6 +18,11 @@ import { MoleculeScene } from "@/components/molecule/MoleculeScene";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { useMoleculeCaptureInput } from "@/lib/molecule/use-capture-input";
+import {
+  buildOddsConsensusBracket,
+  fetchOddsSnapshotMap,
+} from "@/lib/molecule/odds-consensus";
+import type { MatchOdds } from "@/lib/odds/types";
 import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
 
 import "@/components/molecule/molecule.css";
@@ -28,116 +33,44 @@ export interface MoleculePageClientProps {
 
 type Mode = "mine" | "consensus";
 
-/**
- * Build a "consensus / favourite per match" bracket on the fly. We don't
- * have a server-side consensus dataset for v1, so this is the simplest
- * defensible thing: predict every group outcome and every knockout
- * outcome based on FIFA rank (lower = better). Whoever's ranked higher
- * wins; draws are picked when ranks are within 3 of each other (the
- * "competitive" band).
- *
- * This matches the same fallback the BracketBuilder uses when no live
- * odds are available, so the molecule lines up with what the user would
- * see if they hit "Auto-pick" with no odds source.
- *
- * Note: this is deliberately *not* a Polymarket consensus, that'd
- * require an API call and a non-trivial mapping. Tim asked for "your
- * picks vs consensus / odds-favourite"; the rank-based proxy is honest
- * about being a proxy, and a v2 enhancement can swap it out without
- * touching this component.
- */
-function buildFavouriteBracket(tournament: Tournament): Bracket {
-  const rankOf = (code: string): number =>
-    tournament.teams.find((t) => t.id === code)?.fifa_rank ?? 99;
-  const ts = new Date().toISOString();
-
-  const matchPredictions: Bracket["matchPredictions"] = {};
-  for (const f of tournament.group_fixtures) {
-    const g = tournament.groups.find((x) => x.id === f.group_id);
-    if (!g) continue;
-    const home = g.team_ids[f.home_idx];
-    const away = g.team_ids[f.away_idx];
-    if (!home || !away) continue;
-    const hr = rankOf(home);
-    const ar = rankOf(away);
-    let outcome: "home_win" | "draw" | "away_win";
-    if (Math.abs(hr - ar) <= 3) outcome = "draw";
-    else outcome = hr < ar ? "home_win" : "away_win";
-    const id = String(f.match_no);
-    matchPredictions[id] = {
-      matchId: id,
-      outcome,
-      lockedAt: ts,
-    };
-  }
-
-  // Group tiebreakers: rank-sort each group. The cascade-bridge needs
-  // these so every group resolves a finishing order, which lets the
-  // knockout slots populate.
-  const groupTiebreakers: Bracket["groupTiebreakers"] = {};
-  for (const g of tournament.groups) {
-    if (g.team_ids.length !== 4) continue;
-    const ranked = [...g.team_ids].sort((a, b) => rankOf(a) - rankOf(b)) as
-      [string, string, string, string];
-    groupTiebreakers[g.id] = {
-      groupId: g.id,
-      rankedTeams: ranked,
-      setAt: ts,
-    };
-  }
-
-  // Knockouts: we leave knockoutPredictions empty here. The MoleculeScene
-  // runs the same multi-pass cascade resolver and will produce slot
-  // occupants, but no "winners", which means the knockout bonds will
-  // appear without a champion. To get a meaningful champion in
-  // consensus mode we'd need to pick winners; do that here using the
-  // same rank-based tiebreak.
-  //
-  // We approximate by picking knockoutPredictions iteratively after
-  // running an initial cascade. Doing the full multi-pass thing inside
-  // here would be a near-duplicate of MoleculeScene's resolveCascade -
-  // simpler v1 approach: trust the cascade to walk in order and pick
-  // home_win for every knockout (the cascade slots are then determined
-  // by the group rankings, and any knockout where home is ranked
-  // higher than away will be a "favourite picks home" result).
-  //
-  // BracketBuilder does the per-stage iterative resolve. For consensus
-  // mode in v1 we accept a partial molecule (group bonds present;
-  // knockout chain visible but champion may be null). When/if we want
-  // a polished consensus mode, we copy the per-stage loop from
-  // BracketBuilder.handleAutoPick.
-  const knockoutPredictions: Bracket["knockoutPredictions"] = {};
-  for (const k of tournament.knockouts) {
-    knockoutPredictions[k.id] = {
-      matchId: k.id,
-      outcome: "home_win", // cascade will resolve "home" to the rank-favoured side
-      lockedAt: ts,
-    };
-  }
-
-  return {
-    bracketId: "consensus-rank-v1",
-    matchPredictions,
-    groupTiebreakers,
-    knockoutPredictions,
-    version: 2,
-  };
-}
-
 export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
   const [mode, setMode] = useState<Mode>("mine");
   const [mounted, setMounted] = useState(false);
+  const [oddsByMatch, setOddsByMatch] = useState<Map<string, MatchOdds> | null>(
+    null,
+  );
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const consensus = useMemo(
-    () => buildFavouriteBracket(tournament),
-    [tournament],
-  );
+  // Pull the odds snapshot once on mount. The endpoint has its own
+  // mock fallback so this resolves with a usable map either way.
+  // `null` means "not loaded yet"; an empty Map means "loaded, but no
+  // live odds available — fall back to FIFA-rank proxy inside the
+  // builder".
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchOddsSnapshotMap(fetch, ac.signal).then((m) => {
+      if (!ac.signal.aborted) setOddsByMatch(m);
+    });
+    return () => ac.abort();
+  }, []);
 
-  const override = mode === "consensus" ? consensus : null;
+  // Build the global-prediction Bracket from the snapshot. The
+  // builder mirrors BracketBuilder.handleAutoPick: highest-probability
+  // outcome per match, FIFA rank for group tiebreakers, stage-by-stage
+  // re-cascade through the knockouts.
+  const consensus: Bracket | null = useMemo(() => {
+    if (!oddsByMatch) return null;
+    return buildOddsConsensusBracket(tournament, oddsByMatch);
+  }, [tournament, oddsByMatch]);
+
+  // While the snapshot is still loading we keep the toggle visible
+  // but disable it — flipping to consensus before consensus is ready
+  // would render an empty molecule.
+  const consensusReady = consensus !== null;
+  const override = mode === "consensus" && consensus ? consensus : null;
 
   // Mock pundit picks shown in the side panel. Deterministic across
   // renders so the snapshot stays stable. Filtered to badge="pundit"
@@ -166,7 +99,7 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
             data-mode={mode}
             aria-live="polite"
           >
-            {mode === "mine" ? "Your picks" : "Rank favourites"}
+            {mode === "mine" ? "Your picks" : "Global prediction"}
           </span>
           <button
             type="button"
@@ -176,8 +109,20 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
               setMode((m) => (m === "mine" ? "consensus" : "mine"))
             }
             aria-pressed={mode === "consensus"}
+            disabled={mode === "mine" && !consensusReady}
+            aria-busy={mode === "mine" && !consensusReady}
+            title={
+              mode === "mine" && !consensusReady
+                ? "Loading global prediction…"
+                : undefined
+            }
           >
-            🎲 {mode === "mine" ? "Show favourites" : "Back to my picks"}
+            🌍{" "}
+            {mode === "mine"
+              ? consensusReady
+                ? "Show global prediction"
+                : "Loading prediction…"
+              : "Back to my picks"}
           </button>
         </div>
       </header>
