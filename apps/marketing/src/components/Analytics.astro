@@ -34,15 +34,30 @@ const gtmId =
   "";
 
 const enabled = typeof gtmId === "string" && gtmId.length >= 4 && !gtmId.includes(" ");
+// Accept either a GTM container ID (`GTM-XXXX`) or a GA4 measurement
+// ID (`G-XXXX`). Both feed window.dataLayer so the rest of this file
+// (track(), page.view, CTA instrumentation) works either way.
+const isGa4Direct = enabled && gtmId.startsWith("G-");
 ---
+
+{
+  enabled && isGa4Direct && (
+    <script
+      is:inline
+      async
+      src={`https://www.googletagmanager.com/gtag/js?id=${gtmId}`}
+    />
+  )
+}
 
 {
   enabled && (
     <>
-      {/* GTM bootstrap with consent-mode v2 defaults. Mirrors the
-          React SDK so both surfaces push into the same container with
-          the same gating. */}
-      <script is:inline define:vars={{ gtmId }}>
+      {/* Consent defaults + tag bootstrap. Mirrors the React SDK so
+          both surfaces push into the same dataLayer with the same
+          gating. Branches on the ID prefix: GTM container vs gtag.js
+          direct GA4 install. */}
+      <script is:inline define:vars={{ gtmId, isGa4Direct }}>
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -52,16 +67,24 @@ const enabled = typeof gtmId === "string" && gtmId.length >= 4 && !gtmId.include
             ad_user_data: 'denied',
             ad_personalization: 'denied'
           });
-          (function(w,d,s,l,i){
-            w[l]=w[l]||[];
-            w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-            var f=d.getElementsByTagName(s)[0],
-                j=d.createElement(s),
-                dl=l!='dataLayer'?'&l='+l:'';
-            j.async=true;
-            j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-            f.parentNode.insertBefore(j,f);
-          })(window,document,'script','dataLayer','${gtmId}');
+          if (isGa4Direct) {
+            // gtag.js direct install (G-XXXX). The async src tag was
+            // injected above; we just need the standard init pair.
+            gtag('js', new Date());
+            gtag('config', gtmId);
+          } else {
+            // GTM container install (GTM-XXXX).
+            (function(w,d,s,l,i){
+              w[l]=w[l]||[];
+              w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+              var f=d.getElementsByTagName(s)[0],
+                  j=d.createElement(s),
+                  dl=l!='dataLayer'?'&l='+l:'';
+              j.async=true;
+              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+              f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer',gtmId);
+          }
 
           // ─── Marketing-site bridge ───────────────────────────────────
           // Expose window.tournamental.track() so Astro islands can fire

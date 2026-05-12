@@ -32,23 +32,26 @@ export function GtmRoot() {
   const gtmId = getGtmId();
   if (!gtmId) return null;
 
-  // The standard GTM bootstrap, lightly trimmed. Note the
-  // `consent default` push before the GTM library loads, this is
-  // Google's recommended pattern for consent mode v2 and means GA4
-  // honours the user's decision from the very first event.
-  const gtmInit = `
+  // Accept either a GTM container ID (`GTM-XXXX`) or a GA4 measurement
+  // ID (`G-XXXX`). Tim's current setup is GA4-direct via gtag.js, but
+  // the env var name is unchanged for backwards compatibility.
+  const isGa4Direct = gtmId.startsWith("G-");
+
+  // Common consent + dataLayer setup. Both paths feed window.dataLayer
+  // so the rest of the app's track() calls don't need to know which
+  // tag is installed.
+  const consentInit = `
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
-    // Consent defaults: analytics on (essential for product analytics),
-    // ads off until the consent banner upgrades us. The
-    // <ConsentBanner/> writes a localStorage decision; on subsequent
-    // visits we re-apply it via setConsent() in app code.
     gtag('consent', 'default', {
       'analytics_storage': 'granted',
       'ad_storage': 'denied',
       'ad_user_data': 'denied',
       'ad_personalization': 'denied'
     });
+  `;
+
+  const gtmBootstrap = `
     (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
@@ -56,21 +59,35 @@ export function GtmRoot() {
     })(window,document,'script','dataLayer','${gtmId}');
   `;
 
+  const gtagBootstrap = `
+    gtag('js', new Date());
+    gtag('config', '${gtmId}');
+  `;
+
   return (
     <>
-      <Script id="tournamental-gtm" strategy="afterInteractive">
-        {gtmInit}
-      </Script>
-      <noscript>
-        {/* eslint-disable-next-line @next/next/no-sync-scripts */}
-        <iframe
-          src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-          height="0"
-          width="0"
-          style={{ display: "none", visibility: "hidden" }}
-          title="Google Tag Manager (no-JS fallback)"
+      {isGa4Direct && (
+        <Script
+          id="tournamental-gtag-src"
+          src={`https://www.googletagmanager.com/gtag/js?id=${gtmId}`}
+          strategy="afterInteractive"
         />
-      </noscript>
+      )}
+      <Script id="tournamental-gtm" strategy="afterInteractive">
+        {consentInit + (isGa4Direct ? gtagBootstrap : gtmBootstrap)}
+      </Script>
+      {!isGa4Direct && (
+        <noscript>
+          {/* eslint-disable-next-line @next/next/no-sync-scripts */}
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+            title="Google Tag Manager (no-JS fallback)"
+          />
+        </noscript>
+      )}
       <PageViewListener />
       <ConsentBanner />
     </>
