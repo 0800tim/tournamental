@@ -15,21 +15,26 @@ const steps = [
   },
   {
     n: "03",
-    title: "Save your predictions",
-    body: "Each match has a few core markets, winner, scorer, scoreline, plus syndicate-specific custom ones. You can change any pick right up until kickoff; once it's saved, your VStamp is signed and the odds-at-save are locked in for scoring.",
+    title: "Save your predictions, change them any time",
+    body: "Every match has a few core markets, winner, scorer, scoreline, plus syndicate-specific custom ones. Unlike every household-name bracket game (Telegraph, ESPN, Yahoo), we don't lock you in at first kickoff. You can change any pick right up until that specific match kicks off. Each save signs a fresh VStamp and the odds-at-save are what scoring uses, so a late pivot has to overcome a worse price.",
   },
   {
     n: "04",
-    title: "Watch the 3D replay",
-    body: "Once a match starts, open the replay route to see the pitch, players, and ball in 3D. Drag the timeline to jump to any minute. Score updates as you scrub. Faces, jerseys, and commentary make it feel real.",
+    title: "Stay in the game every day, not just the first day",
+    body: "Daily quizzes, line bets, score-input games, and head-to-head matchday duels run inside the Telegram bot for the full six weeks of the tournament. The traditional bracket pool ends the moment the form is submitted; Tournamental ends the moment the trophy is lifted.",
   },
   {
     n: "05",
+    title: "Watch the 3D replay",
+    body: "Once a match starts, open the replay route to see the pitch, players, and ball in 3D. Drag the timeline to jump to any minute. Score updates as you scrub. Faces, jerseys, and commentary make it feel real. No app install, no geo-block, no broadcaster paywall.",
+  },
+  {
+    n: "06",
     title: "See the result settle",
     body: "When the final whistle blows, your predictions settle automatically. Points get added. Your Prediction IQ ticks up if you called it. Bonus tokens, badges, and shareable goal clips drop in.",
   },
   {
-    n: "06",
+    n: "07",
     title: "Climb the leaderboard. Bring friends.",
     body: "Compete on the global, country-level, and tournament-specific boards. Top performers get featured. Each share comes with a referral hook, your invited friends earn you bonus tokens.",
   },
@@ -43,8 +48,8 @@ const steps = [
   <section class="container-page pt-16 pb-8">
     <SectionHeading
       eyebrow="How it works"
-      title="Six steps. About five minutes the first time."
-      lede="Tournamental is a single product with two faces: the prediction game (you make calls, you earn points), and the 3D match-renderer watch-along (you see the game play out)."
+      title="Seven steps. About five minutes the first time."
+      lede="Tournamental is a single product with two faces: the prediction game (you make calls, you earn points, every day for the whole tournament), and the 3D match-renderer watch-along (you see the game play out). The traditional bracket pool ends at first kickoff. We start there."
     />
   </section>
 
@@ -68,6 +73,9 @@ const steps = [
 
     <h2 class="text-2xl font-bold text-white mt-10 mb-3">What a "VStamp" is</h2>
     <p class="prose-vt">A cryptographically-signed receipt of every prediction you submit, timestamped before kickoff. Anyone can verify it without trusting us. It's how we keep the leaderboards fair, and how analysts and influencers prove their record over time.</p>
+
+    <h2 class="text-2xl font-bold text-white mt-10 mb-3">Why "change picks until kickoff" matters</h2>
+    <p class="prose-vt">Telegraph Predictor, ESPN Bracket Challenge, and Yahoo Tournament Pick'em all use the same shape: fill the form before the tournament starts, then watch it play out for four to six weeks. If France look injured on the morning of a quarter-final, your bracket from three weeks ago is the one that gets scored. We think that is the wrong shape now that we are not passing a paper sheet around the office. On Tournamental every match is its own decision window, open until that match kicks off. Your Prediction IQ then rewards calls made under real information against the live market, not calls made before the tournament had even started. See the <a href="/why" class="link">full comparison</a>.</p>
 
     <h2 class="text-2xl font-bold text-white mt-10 mb-3">What about real money?</h2>
     <p class="prose-vt">Tournamental doesn't handle real-money pools for v0.1. Friends and offices have been pooling cash on tournaments forever, we leave that arrangement between you and your group. The platform tracks predictions, scores, and rankings, and that's enough for almost everyone. Phase 2 brings audited on-chain prize pools (per <a href="/open-source" class="link">our open spec</a>) for groups that want trustless settlement.</p>

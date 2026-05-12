@@ -24,6 +24,7 @@ import { Countdown } from "./_components/Countdown";
 import { HeroFlagGrid } from "./_components/HeroFlagGrid";
 import { TeamGroupGrid } from "./_components/TeamGroupGrid";
 import { HowItWorks } from "./_components/HowItWorks";
+import { WhyDifferent } from "./_components/WhyDifferent";
 import { SyndicateSignup } from "./_components/SyndicateSignup";
 import { LeaderboardPreview } from "./_components/LeaderboardPreview";
 import { UpcomingMatches } from "./_components/UpcomingMatches";
@@ -200,6 +201,18 @@ export default function LandingPage() {
         <span className="wc-eyebrow">How it works</span>
         <h2 id="wc-hiw-h2">Three steps. Free forever.</h2>
         <HowItWorks />
+      </section>
+
+      {/* ---------- WHY DIFFERENT ---------- */}
+      <section className="wc-section" id="why-different" aria-labelledby="wc-why-h2">
+        <span className="wc-eyebrow">Why a new bracket game</span>
+        <h2 id="wc-why-h2">Every other bracket game locks you in at first kickoff.</h2>
+        <p className="wc-lede">
+          We don&apos;t. We also ship the 3D watch-along, on-chain
+          prediction receipts, and a contributor revenue split, none of
+          which the household-name products do.
+        </p>
+        <WhyDifferent />
       </section>
 
       {/* ---------- SYNDICATES ---------- */}
