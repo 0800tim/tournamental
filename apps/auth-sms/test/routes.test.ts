@@ -61,6 +61,7 @@ async function makeHarness(): Promise<Harness> {
     storage,
     smsSender: sms,
     waSender: wa,
+    emailSender: null,
     audit: buildMemoryAuditLogger(),
     config: {
       otpSecret: 'test-otp-secret-32-chars-aaaaaaa',

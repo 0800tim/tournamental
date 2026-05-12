@@ -10,11 +10,17 @@ import type { Storage } from './storage.js';
 import type { SmsSender } from './sms-gateway.js';
 import type { WhatsAppSender } from './whatsapp-baileys.js';
 import type { AuditLogger } from './audit.js';
+import type { EmailSender } from './sendgrid.js';
 
 export interface AuthContext {
   storage: Storage;
   smsSender: SmsSender;
   waSender: WhatsAppSender;
+  /**
+   * SendGrid (or stub) client for email OTPs. Optional: if SENDGRID_API_KEY
+   * is unset the field is null and /v1/auth/email/* return 503.
+   */
+  emailSender: EmailSender | null;
   /**
    * Append-only OTP audit logger. Every send + verify outcome writes
    * a line. Defaults to a JSONL file at `AUDIT_LOG_PATH`; tests inject

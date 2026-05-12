@@ -124,6 +124,81 @@ function normaliseError(raw: string): InboundVerifyErr["error"] {
   }
 }
 
+// --- Email OTP ---------------------------------------------------------
+
+export interface EmailRequestOk {
+  readonly ok: true;
+  readonly expiresInSeconds: number;
+}
+export interface EmailRequestErr {
+  readonly ok: false;
+  readonly error:
+    | "bad-body"
+    | "cooldown"
+    | "hourly-cap"
+    | "send-failed"
+    | "not-configured"
+    | "network"
+    | "unknown";
+  readonly retryAfterSeconds?: number;
+}
+export type EmailRequestResult = EmailRequestOk | EmailRequestErr;
+
+/** Ask auth-sms to email a 6-digit OTP. */
+export async function requestEmailOtp(email: string): Promise<EmailRequestResult> {
+  const trimmed = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return { ok: false, error: "bad-body" };
+  }
+  const res = await postJson<EmailRequestOk>("/v1/auth/email/request", {
+    email: trimmed,
+  });
+  if (res.ok && "expiresInSeconds" in (res.body as object)) {
+    return res.body as EmailRequestOk;
+  }
+  const body = res.body as ApiErrorBody;
+  const err = body.error ?? "unknown";
+  const allowed: EmailRequestErr["error"][] = [
+    "bad-body",
+    "cooldown",
+    "hourly-cap",
+    "send-failed",
+    "not-configured",
+    "network",
+  ];
+  const code = (allowed as string[]).includes(err)
+    ? (err as EmailRequestErr["error"])
+    : "unknown";
+  return {
+    ok: false,
+    error: code,
+    retryAfterSeconds: body.retryAfterSeconds,
+  };
+}
+
+/** Verify the emailed 6-digit code and mint a session (cookie set apex-wide). */
+export async function verifyEmailOtp(
+  email: string,
+  code: string,
+): Promise<InboundVerifyResult> {
+  const trimmed = email.trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed)) {
+    return { ok: false, error: "bad-body" };
+  }
+  if (!/^\d{6}$/.test(code)) return { ok: false, error: "bad-body" };
+  const res = await postJson<InboundVerifyOk>("/v1/auth/email/verify", {
+    email: trimmed,
+    code,
+  });
+  if (res.ok && "jwt" in res.body) return res.body;
+  const err = (res.body as ApiErrorBody).error ?? "unknown";
+  return {
+    ok: false,
+    error: normaliseError(err),
+    retryAfterSeconds: (res.body as ApiErrorBody).retryAfterSeconds,
+  };
+}
+
 /** wa.me deep-link with `login` pre-filled. Opens the user's WhatsApp. */
 export function whatsAppLoginDeepLink(): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=login`;

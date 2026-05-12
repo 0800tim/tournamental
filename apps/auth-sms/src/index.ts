@@ -29,9 +29,16 @@ import { registerTelegramCallback } from './routes/telegram-callback.js';
 import { registerInboundLogin } from './routes/inbound-login.js';
 import { registerMagicVerify } from './routes/magic-verify.js';
 import { registerVerifyByCode } from './routes/verify-by-code.js';
+import { registerEmailOtp } from './routes/email-otp.js';
 import { registerSwagger } from './swagger.js';
 import type { AuthContext } from './context.js';
 import { buildAuditLogger } from './audit.js';
+import {
+  SendGridClient,
+  StubEmailSender,
+  sendGridConfigFromEnv,
+  type EmailSender,
+} from './sendgrid.js';
 
 const PORT = Number(process.env.AUTH_PORT ?? 3330);
 const BIND = process.env.AUTH_BIND ?? '0.0.0.0';
@@ -130,6 +137,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerInboundLogin(app, ctx);
   await registerMagicVerify(app, ctx);
   await registerVerifyByCode(app, ctx);
+  await registerEmailOtp(app, ctx);
 
   app.addHook('onClose', async () => {
     try {
@@ -190,10 +198,25 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
     warn: (msg) => app.log.warn(msg),
   });
 
+  // Email sender. Real SendGrid client when SENDGRID_API_KEY is set,
+  // stub-to-log otherwise so dev environments still hit the /email/*
+  // routes successfully.
+  let emailSender: EmailSender | null;
+  try {
+    emailSender = new SendGridClient(sendGridConfigFromEnv());
+  } catch (err) {
+    app.log.warn(
+      { err: String(err) },
+      'auth: SENDGRID not configured; using stub email sender (dev only)',
+    );
+    emailSender = new StubEmailSender((msg) => app.log.info(msg));
+  }
+
   return {
     storage,
     smsSender,
     waSender,
+    emailSender,
     audit,
     config: {
       otpSecret: envOrDevDefault('AUTH_OTP_SECRET', 'otp'),

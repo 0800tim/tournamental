@@ -29,7 +29,9 @@ import {
   type TelegramAuthPayload,
 } from "@/lib/auth/signIn";
 import {
+  requestEmailOtp,
   smsLoginDeepLink,
+  verifyEmailOtp,
   verifyInboundCode,
   whatsAppLoginDeepLink,
   WHATSAPP_NUMBER,
@@ -119,8 +121,142 @@ function SignInOptions() {
     <div className="vt-signin-stack">
       <TelegramButton />
       <WhatsAppButton />
+      <EmailBlock />
       <CodePasteForm />
       <SmsFooter />
+    </div>
+  );
+}
+
+// ---------------- EMAIL (request + verify) ----------------
+
+/**
+ * Two-step email flow: type address → tap "Email me a code" → paste the
+ * 6-digit code that arrives → signed in. Lives next to Telegram + WhatsApp
+ * as a peer option for users who don't use either, especially on shared
+ * desktops where typing an email is faster than opening a phone app.
+ */
+function EmailBlock() {
+  const [email, setEmail] = useState("");
+  const [code, setCode] = useState("");
+  const [stage, setStage] = useState<"address" | "code" | "success">("address");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const onRequest = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    const result = await requestEmailOtp(email);
+    setBusy(false);
+    if (!result.ok) {
+      setError(humanReadable(result.error));
+      return;
+    }
+    setStage("code");
+  };
+
+  const onVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setBusy(true);
+    const result = await verifyEmailOtp(email, code);
+    setBusy(false);
+    if (!result.ok) {
+      setError(humanReadable(result.error));
+      return;
+    }
+    setStage("success");
+    window.setTimeout(() => window.location.reload(), 1200);
+  };
+
+  if (stage === "success") {
+    return (
+      <div className="vt-signup-success" role="status">
+        ✅ Signed in as <strong>{email}</strong>. Welcome.
+      </div>
+    );
+  }
+
+  return (
+    <div className="vt-signin-block">
+      <div className="vt-signin-divider">
+        <span>or by email</span>
+      </div>
+      {stage === "address" ? (
+        <form className="vt-signup-form" onSubmit={onRequest}>
+          <input
+            aria-label="Email address"
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            placeholder="you@example.com"
+            className="auth-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            disabled={busy}
+          />
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={busy || !email}
+          >
+            {busy ? "Sending…" : "Email me a code"}
+          </button>
+        </form>
+      ) : (
+        <form className="vt-signup-form" onSubmit={onVerify}>
+          <p className="auth-info" style={{ fontSize: 12, opacity: 0.7 }}>
+            Code sent to <strong>{email}</strong>. Check your inbox.
+          </p>
+          <input
+            aria-label="6-digit code"
+            name="code"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            pattern="\d{6}"
+            maxLength={6}
+            placeholder="123 456"
+            className="auth-input auth-input-code"
+            value={code}
+            onChange={(e) =>
+              setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+            }
+            disabled={busy}
+          />
+          {error && (
+            <div className="auth-error" role="alert">
+              {error}
+            </div>
+          )}
+          <button
+            type="submit"
+            className="auth-submit"
+            disabled={busy || code.length !== 6}
+          >
+            {busy ? "Verifying…" : "Sign in with email code"}
+          </button>
+          <button
+            type="button"
+            className="vt-signup-link"
+            onClick={() => {
+              setStage("address");
+              setCode("");
+              setError(null);
+            }}
+          >
+            Use a different email
+          </button>
+        </form>
+      )}
     </div>
   );
 }
@@ -345,7 +481,15 @@ function humanReadable(error?: string): string {
     case "verify-failed":
     case "unknown-or-expired":
     case "unknown":
-      return "That code didn't match. It may have already been used or expired — tap WhatsApp or SMS for a fresh one.";
+      return "That code didn't match. It may have already been used or expired, tap WhatsApp, SMS, or 'Email me a code' for a fresh one.";
+    case "cooldown":
+      return "Give it 60 seconds before requesting another email code.";
+    case "hourly-cap":
+      return "Too many codes sent to this address. Try again in an hour, or use Telegram or WhatsApp.";
+    case "send-failed":
+      return "Couldn't send the email. Double-check the address and try again.";
+    case "not-configured":
+      return "Email sign-in isn't configured on this environment.";
     case "fingerprint-mismatch":
       return "This code was first used on a different device. Use that device, or message 'login' again.";
     case "ip-throttled":

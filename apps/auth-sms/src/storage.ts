@@ -162,6 +162,18 @@ CREATE TABLE IF NOT EXISTS rate_limit (
   PRIMARY KEY (key, bucket_start)
 );
 CREATE INDEX IF NOT EXISTS idx_rl_key ON rate_limit(key);
+
+-- Email OTP table (mirrors phone_otp). Email is the primary key,
+-- lowercased + trimmed by the caller before insert. otp_hash is HMAC
+-- bound to (code, email, channel='email', secret) so the same code
+-- can never validate against a different email row.
+CREATE TABLE IF NOT EXISTS email_otp (
+  email TEXT PRIMARY KEY,
+  otp_hash TEXT NOT NULL,
+  attempts INTEGER NOT NULL DEFAULT 0,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL
+);
 `;
 
 export interface StorageOptions {
@@ -453,6 +465,76 @@ export class Storage {
     return r.changes ?? 0;
   }
 
+  // ---- Email OTP ----
+
+  /**
+   * Upsert an email OTP row. `email` is the primary key; existing rows
+   * for the same email are replaced. Caller passes a lowercased + trimmed
+   * email and an HMAC hash bound to (code, email, channel='email', secret).
+   */
+  upsertEmailOtp(rec: {
+    email: string;
+    otp_hash: string;
+    attempts?: number;
+    expires_at: number;
+    created_at: number;
+  }): void {
+    this.db
+      .prepare(
+        `INSERT INTO email_otp (email, otp_hash, attempts, expires_at, created_at)
+         VALUES (@email, @otp_hash, @attempts, @expires_at, @created_at)
+         ON CONFLICT(email) DO UPDATE SET
+           otp_hash = excluded.otp_hash,
+           attempts = excluded.attempts,
+           expires_at = excluded.expires_at,
+           created_at = excluded.created_at`,
+      )
+      .run({ attempts: 0, ...rec });
+  }
+
+  getEmailOtp(email: string): {
+    email: string;
+    otp_hash: string;
+    attempts: number;
+    expires_at: number;
+    created_at: number;
+  } | null {
+    const row = this.db
+      .prepare(`SELECT * FROM email_otp WHERE email = ?`)
+      .get(email) as
+      | {
+          email: string;
+          otp_hash: string;
+          attempts: number;
+          expires_at: number;
+          created_at: number;
+        }
+      | undefined;
+    return row ?? null;
+  }
+
+  incrementEmailOtpAttempts(email: string): number {
+    const row = this.db
+      .prepare(
+        `UPDATE email_otp SET attempts = attempts + 1
+         WHERE email = ?
+         RETURNING attempts`,
+      )
+      .get(email) as { attempts: number } | undefined;
+    return row?.attempts ?? 0;
+  }
+
+  deleteEmailOtp(email: string): void {
+    this.db.prepare(`DELETE FROM email_otp WHERE email = ?`).run(email);
+  }
+
+  pruneExpiredEmailOtps(now: number): number {
+    const r = this.db
+      .prepare(`DELETE FROM email_otp WHERE expires_at < ?`)
+      .run(now);
+    return r.changes ?? 0;
+  }
+
   // ---- Users ----
 
   /** Find by phone, or create a new user. Returns the user. */
@@ -488,6 +570,50 @@ export class Storage {
       .prepare(
         `INSERT INTO user (id, phone, display_name, country, telegram_id, telegram_username, created_at, last_seen_at)
          VALUES (@id, @phone, @display_name, @country, @telegram_id, @telegram_username, @created_at, @last_seen_at)`,
+      )
+      .run(rec);
+    return rec;
+  }
+
+  /**
+   * Find a user by email (case-insensitive) or create a new one. The
+   * email is lowercased + trimmed by the caller. Same identity model as
+   * findOrCreateUser(phone): one row per verified email, last_seen_at
+   * refreshed on every return.
+   */
+  findOrCreateEmailUser(email: string, now: number): UserRecord {
+    const e = email.trim().toLowerCase();
+    const existing = this.db
+      .prepare(`SELECT * FROM user WHERE email = ?`)
+      .get(e) as UserRecord | undefined;
+    if (existing) {
+      this.db
+        .prepare(`UPDATE user SET last_seen_at = ? WHERE id = ?`)
+        .run(now, existing.id);
+      return { ...existing, last_seen_at: now };
+    }
+    const id = `u_${randomUUID().replace(/-/g, '').slice(0, 22)}`;
+    const rec: UserRecord = {
+      id,
+      phone: null,
+      display_name: null,
+      country: null,
+      telegram_id: null,
+      telegram_username: null,
+      created_at: now,
+      last_seen_at: now,
+      email: e,
+      first_name: null,
+      last_name: null,
+      city: null,
+      favourite_team_code: null,
+      highlevel_contact_id: null,
+      highlevel_synced_at: null,
+    };
+    this.db
+      .prepare(
+        `INSERT INTO user (id, email, created_at, last_seen_at)
+         VALUES (@id, @email, @created_at, @last_seen_at)`,
       )
       .run(rec);
     return rec;
