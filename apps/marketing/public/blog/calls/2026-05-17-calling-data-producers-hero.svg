@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Six producer desks under stadium floodlights, each emitting a different stream into a central spec monolith: live match data, live commentary audio, live odds, player market stats, in-match challenges, and leaderboard chat.">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#0e1a2b"/>
+    </linearGradient>
+    <linearGradient id="pitch" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#196a40"/>
+      <stop offset="1" stop-color="#0d4226"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#b8862a"/>
+    </linearGradient>
+    <radialGradient id="floodlight" cx="0.5" cy="0" r="0.7">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="deskBlue" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3c8bcf"/>
+      <stop offset="1" stop-color="#1f5a99"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#sky)"/>
+  <ellipse cx="600" cy="630" rx="800" ry="180" fill="url(#pitch)"/>
+  <ellipse cx="200" cy="120" rx="360" ry="220" fill="url(#floodlight)"/>
+  <ellipse cx="1000" cy="120" rx="360" ry="220" fill="url(#floodlight)"/>
+
+  <!-- title -->
+  <text x="80" y="80" font-family="DejaVu Sans, sans-serif" font-size="40" font-weight="800" fill="#fde68a" letter-spacing="-0.5">Calling data producers</text>
+  <text x="80" y="115" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="500" fill="#cdd5e7">Five live streams. Sixty-four matches. One open-source platform that runs on what you ship.</text>
+
+  <!-- central spec monolith -->
+  <g transform="translate(600,400)" font-family="DejaVu Sans, sans-serif" text-anchor="middle">
+    <rect x="-70" y="-60" width="140" height="120" rx="10" fill="url(#gold)" stroke="#0a0e1a" stroke-width="2"/>
+    <text x="0" y="-32" font-size="11" font-weight="800" fill="#0a0e1a" letter-spacing="0.1em">SPEC</text>
+    <text x="0" y="-12" font-size="9" font-weight="700" fill="#0a0e1a">match.init</text>
+    <text x="0" y="2" font-size="9" font-weight="700" fill="#0a0e1a">state x 30Hz</text>
+    <text x="0" y="16" font-size="9" font-weight="700" fill="#0a0e1a">event.*</text>
+    <line x1="-50" y1="22" x2="50" y2="22" stroke="#0a0e1a" stroke-width="0.6" opacity="0.4"/>
+    <text x="0" y="36" font-size="8" fill="#0a0e1a" opacity="0.7">@tournamental/spec</text>
+  </g>
+
+  <!-- six producer desks: positioned around the spec -->
+  <g font-family="DejaVu Sans, sans-serif" text-anchor="middle" font-size="11" font-weight="700">
+    <!-- 1. live match data -->
+    <g transform="translate(150,260)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Live match</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">goals / shots / fouls</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">30Hz state stream</text>
+    </g>
+    <!-- 2. commentary audio -->
+    <g transform="translate(150,380)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Commentary</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">your language, your voice</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">opus / mp3 chunks</text>
+    </g>
+    <!-- 3. live odds -->
+    <g transform="translate(150,500)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Live odds</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">implied probabilities</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">OddsSample WS</text>
+    </g>
+    <!-- 4. player stats -->
+    <g transform="translate(1050,260)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Player stats</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">xG / sprints / heatmap</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">playerstats.tick</text>
+    </g>
+    <!-- 5. challenges -->
+    <g transform="translate(1050,380)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Challenges</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">"who scores next?"</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">points-based, no money</text>
+    </g>
+    <!-- 6. chat -->
+    <g transform="translate(1050,500)">
+      <rect x="-72" y="-32" width="144" height="64" rx="10" fill="url(#deskBlue)"/>
+      <text x="0" y="-8" fill="#ffffff" font-size="13">Leaderboard chat</text>
+      <text x="0" y="10" fill="#cdd5e7" font-size="10">syndicate banter feed</text>
+      <text x="0" y="24" fill="#7eb6e8" font-size="9">chat.message</text>
+    </g>
+  </g>
+
+  <!-- patch cables from each desk into the spec -->
+  <g stroke="#7eb6e8" stroke-width="1.4" stroke-dasharray="3,4" fill="none" opacity="0.6">
+    <path d="M222 260 Q420 360 530 400"/>
+    <path d="M222 380 Q420 390 530 400"/>
+    <path d="M222 500 Q420 460 530 410"/>
+    <path d="M978 260 Q780 360 670 400"/>
+    <path d="M978 380 Q780 390 670 400"/>
+    <path d="M978 500 Q780 460 670 410"/>
+  </g>
+
+  <!-- pitch lines suggesting the field -->
+  <g stroke="#cdd5e7" stroke-width="0.8" opacity="0.25" fill="none">
+    <ellipse cx="600" cy="630" rx="800" ry="180"/>
+    <ellipse cx="600" cy="630" rx="360" ry="80"/>
+    <line x1="600" y1="450" x2="600" y2="630"/>
+  </g>
+
+  <!-- footer -->
+  <text x="600" y="600" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="600" fill="#fde68a">Apache 2.0 · Drips Network revenue split · 11 June 2026 kickoff</text>
+</svg>
