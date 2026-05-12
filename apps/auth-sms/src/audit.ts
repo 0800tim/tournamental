@@ -31,7 +31,19 @@ export type AuditAction =
   | 'otp.verify.expired'
   | 'otp.verify.unknown-phone'
   | 'otp.verify.rate-limited'
-  | 'otp.verify.locked-out';
+  | 'otp.verify.locked-out'
+  // Inbound-login (Aiva-gateway-initiated) flow.
+  | 'inbound.login.issued'
+  | 'inbound.login.bad-secret'
+  | 'inbound.login.rate-limited'
+  | 'inbound.magic.ok'
+  | 'inbound.magic.unknown'
+  | 'inbound.magic.expired'
+  | 'inbound.magic.attempts-exceeded'
+  | 'inbound.magic.fingerprint-mismatch'
+  | 'inbound.code.ok'
+  | 'inbound.code.no-match'
+  | 'inbound.code.ip-throttled';
 
 export interface AuditFields {
   ts: string;

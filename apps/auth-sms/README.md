@@ -16,6 +16,8 @@ relevant client lives in `packages/aiva-client/`.
 
 ## Endpoints
 
+### Outbound flow (website asks us to send a code)
+
 | Method | Path | Purpose |
 |--------|------|---------|
 | `POST` | `/v1/auth/request` | Send a 6-digit OTP. Body `{ phone, channel }` (`channel`: `sms` or `whatsapp`). |
@@ -25,6 +27,24 @@ relevant client lives in `packages/aiva-client/`.
 | `POST` | `/v1/auth/session/logout`  | Revoke the current session. |
 | `GET`  | `/v1/auth/whatsapp/pairing-qr` | Operator-only HTML page with the latest WhatsApp pairing QR code. |
 | `GET`  | `/health` | Liveness probe. |
+
+### Inbound flow (user messages us first, Aiva gateway calls us)
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| `POST` | `/v1/auth/inbound-login` | **Gateway-callable.** Body `{ phone, channel }` + header `x-inbound-secret`. Generates a 6-digit code + 32-byte magic token, returns `{ success: true, code, magicToken }`. |
+| `POST` | `/v1/auth/magic-verify`  | **Front-end-callable.** Body `{ token }`. Mints a session and sets `tnm_session` cookie on `.tournamental.com`. |
+| `POST` | `/v1/auth/verify-by-code` | **Front-end-callable, code paste fallback.** Body `{ code }`. Scans active OTP rows, matches by HMAC, mints a session. |
+
+The inbound flow starts when the user messages the keyword `login` to
+one of our WhatsApp / SMS numbers (operated by the
+[Aiva SMS gateway](https://aiva.nz)). The gateway recognises the
+keyword, POSTs to `/v1/auth/inbound-login`, and forwards our reply
+(code + one-tap magic link) back to the user.
+
+See [`docs/inbound-login.md`](./docs/inbound-login.md) for the full
+request/response shapes, security model, and gateway-integration
+contract.
 
 ## Quick start (dev)
 

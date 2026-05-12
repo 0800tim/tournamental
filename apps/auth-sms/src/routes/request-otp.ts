@@ -109,6 +109,10 @@ export async function registerRequestOtp(
       attempts: 0,
       expires_at: expiresAt,
       created_at: now,
+      challenge: null,
+      bound_ip: null,
+      bound_ua_fp: null,
+      magic_attempts: 0,
     });
 
     const body =

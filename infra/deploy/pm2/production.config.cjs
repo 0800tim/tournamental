@@ -126,7 +126,7 @@ module.exports = {
     // writes behind the WAL. We'll re-evaluate when traffic warrants a
     // proper PG migration.
     fastifyAppTsx({ name: 'vtorn-game-prod', app: 'game', port: 3360, instances: 1 }),
-    // fastifyApp({ name: 'vtorn-auth-sms-prod', app: 'auth-sms', port: 3330 }),
+    fastifyApp({ name: 'vtorn-auth-sms-prod', app: 'auth-sms', port: 3330 }),
     // fastifyApp({ name: 'vtorn-dm-otp-prod', app: 'dm-otp', port: 3331 }),
     // fastifyApp({ name: 'vtorn-odds-ingest-prod', app: 'odds-ingest', port: 3341 }),
     // fastifyApp({ name: 'vtorn-stream-server-prod', app: 'stream-server', port: 4002, instances: 2 }),

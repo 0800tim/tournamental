@@ -28,6 +28,34 @@ export interface OtpRecord {
   attempts: number;
   expires_at: number; // unix seconds
   created_at: number; // unix seconds
+  /**
+   * 32-byte hex magic-link token bound to the OTP row, or NULL when
+   * the OTP was issued via the legacy outbound flow (POST /v1/auth/request).
+   * Set by the inbound-login flow so the user can tap a one-tap
+   * sign-in link as well as paste the 6-digit code.
+   */
+  challenge: string | null;
+  /**
+   * IP that first used this code (magic-link click OR code paste).
+   * Subsequent attempts to use the same code from a different IP are
+   * rejected. NULL until first use. We bind on FIRST USE rather than
+   * at issuance because the user requests the code via phone but
+   * usually verifies on a different device (their desktop).
+   */
+  bound_ip: string | null;
+  /**
+   * Short SHA-256 hash of (user-agent || accept-language) recorded on
+   * first use; second axis of binding alongside bound_ip. NULL until
+   * first use.
+   */
+  bound_ua_fp: string | null;
+  /**
+   * Counter for failed magic-token / code-paste attempts BEFORE the
+   * row is consumed. Distinct from `attempts` which tracks the legacy
+   * outbound-flow verify failures (per-phone). This is the
+   * primary brute-force defence and is per-code (not per-IP).
+   */
+  magic_attempts: number;
 }
 
 export interface UserRecord {
@@ -65,8 +93,17 @@ CREATE TABLE IF NOT EXISTS phone_otp (
   channel TEXT NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0,
   expires_at INTEGER NOT NULL,
-  created_at INTEGER NOT NULL
+  created_at INTEGER NOT NULL,
+  -- Inbound-login extensions (added v0.3). NULL on rows created by
+  -- the legacy outbound /v1/auth/request flow.
+  challenge TEXT,
+  bound_ip TEXT,
+  bound_ua_fp TEXT,
+  magic_attempts INTEGER NOT NULL DEFAULT 0
 );
+-- Lookup by magic token for /v1/auth/magic-verify and /v1/auth/verify-by-code.
+CREATE UNIQUE INDEX IF NOT EXISTS idx_phone_otp_challenge ON phone_otp(challenge)
+  WHERE challenge IS NOT NULL;
 
 CREATE TABLE IF NOT EXISTS user (
   id TEXT PRIMARY KEY,
@@ -128,6 +165,37 @@ export class Storage {
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA);
     this.migrateUserTableIfNeeded();
+    this.migratePhoneOtpTableIfNeeded();
+  }
+
+  /**
+   * v0.2 → v0.3: add `challenge`, `bound_ip`, `bound_ua_fp`,
+   * `magic_attempts` columns to `phone_otp` to support the inbound-login
+   * magic-link + code-paste flow. SQLite ADD COLUMN is non-destructive.
+   */
+  private migratePhoneOtpTableIfNeeded(): void {
+    const cols = this.db
+      .prepare(`PRAGMA table_info(phone_otp)`)
+      .all() as Array<{ name: string }>;
+    const names = new Set(cols.map((c) => c.name));
+    if (!names.has('challenge')) {
+      this.db.exec(`ALTER TABLE phone_otp ADD COLUMN challenge TEXT`);
+    }
+    if (!names.has('bound_ip')) {
+      this.db.exec(`ALTER TABLE phone_otp ADD COLUMN bound_ip TEXT`);
+    }
+    if (!names.has('bound_ua_fp')) {
+      this.db.exec(`ALTER TABLE phone_otp ADD COLUMN bound_ua_fp TEXT`);
+    }
+    if (!names.has('magic_attempts')) {
+      this.db.exec(
+        `ALTER TABLE phone_otp ADD COLUMN magic_attempts INTEGER NOT NULL DEFAULT 0`,
+      );
+    }
+    this.db.exec(
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_phone_otp_challenge ON phone_otp(challenge)
+         WHERE challenge IS NOT NULL`,
+    );
   }
 
   /**
@@ -190,19 +258,37 @@ export class Storage {
 
   // ---- OTP records ----
 
-  upsertOtp(rec: OtpRecord): void {
+  upsertOtp(rec: Partial<OtpRecord> & Pick<OtpRecord,
+    'phone' | 'otp_hash' | 'channel' | 'attempts' | 'expires_at' | 'created_at'
+  >): void {
     this.db
       .prepare(
-        `INSERT INTO phone_otp (phone, otp_hash, channel, attempts, expires_at, created_at)
-         VALUES (@phone, @otp_hash, @channel, @attempts, @expires_at, @created_at)
+        `INSERT INTO phone_otp (
+           phone, otp_hash, channel, attempts, expires_at, created_at,
+           challenge, bound_ip, bound_ua_fp, magic_attempts
+         )
+         VALUES (
+           @phone, @otp_hash, @channel, @attempts, @expires_at, @created_at,
+           @challenge, @bound_ip, @bound_ua_fp, @magic_attempts
+         )
          ON CONFLICT(phone) DO UPDATE SET
            otp_hash = excluded.otp_hash,
            channel = excluded.channel,
            attempts = excluded.attempts,
            expires_at = excluded.expires_at,
-           created_at = excluded.created_at`,
+           created_at = excluded.created_at,
+           challenge = excluded.challenge,
+           bound_ip = excluded.bound_ip,
+           bound_ua_fp = excluded.bound_ua_fp,
+           magic_attempts = excluded.magic_attempts`,
       )
-      .run(rec);
+      .run({
+        challenge: null,
+        bound_ip: null,
+        bound_ua_fp: null,
+        magic_attempts: 0,
+        ...rec,
+      });
   }
 
   getOtp(phone: string): OtpRecord | null {
@@ -210,6 +296,87 @@ export class Storage {
       .prepare(`SELECT * FROM phone_otp WHERE phone = ?`)
       .get(phone) as OtpRecord | undefined;
     return row ?? null;
+  }
+
+  /**
+   * Look up an OTP row by its magic-link challenge token. Used by the
+   * /v1/auth/magic-verify endpoint when the user taps the one-tap link.
+   * Returns null on miss (unknown / expired-and-pruned token).
+   */
+  getOtpByChallenge(challenge: string): OtpRecord | null {
+    const row = this.db
+      .prepare(`SELECT * FROM phone_otp WHERE challenge = ?`)
+      .get(challenge) as OtpRecord | undefined;
+    return row ?? null;
+  }
+
+  /**
+   * List all currently-active (non-expired) OTP rows that originated
+   * from the inbound-login flow (i.e. have a `challenge` set). Used
+   * by /v1/auth/verify-by-code to match a bare 6-digit code without a
+   * phone number — we recompute each row's hash and constant-time
+   * compare. Bounded by the typical active-OTP count (~10s, never
+   * more than 1000) so the linear scan is fast.
+   */
+  listActiveInboundOtps(now: number): readonly OtpRecord[] {
+    return this.db
+      .prepare(
+        `SELECT * FROM phone_otp
+           WHERE challenge IS NOT NULL AND expires_at >= ?`,
+      )
+      .all(now) as OtpRecord[];
+  }
+
+  /**
+   * Bind an OTP row to the first-use device fingerprint (IP + UA hash).
+   * Atomic CAS: only updates if `bound_ip` is still NULL, returns true if
+   * the bind succeeded. Subsequent attempts to bind the same row from a
+   * different IP/fingerprint observe a non-NULL `bound_ip` and the caller
+   * must reject. (We do NOT bind on issuance because the user requests
+   * the code from their phone but verifies from their desktop.)
+   */
+  bindOtpToFingerprint(opts: {
+    phone: string;
+    ip: string;
+    uaFp: string;
+  }): { bound: true } | { bound: false; existingIp: string; existingFp: string } {
+    const row = this.db
+      .prepare(
+        `UPDATE phone_otp
+           SET bound_ip = ?, bound_ua_fp = ?
+           WHERE phone = ? AND bound_ip IS NULL
+           RETURNING bound_ip, bound_ua_fp`,
+      )
+      .get(opts.ip, opts.uaFp, opts.phone) as
+      | { bound_ip: string; bound_ua_fp: string }
+      | undefined;
+    if (row) return { bound: true };
+    const existing = this.db
+      .prepare(`SELECT bound_ip, bound_ua_fp FROM phone_otp WHERE phone = ?`)
+      .get(opts.phone) as
+      | { bound_ip: string | null; bound_ua_fp: string | null }
+      | undefined;
+    return {
+      bound: false,
+      existingIp: existing?.bound_ip ?? '',
+      existingFp: existing?.bound_ua_fp ?? '',
+    };
+  }
+
+  /**
+   * Increment the `magic_attempts` counter and return the new value.
+   * Used as the per-code brute-force counter, distinct from `attempts`
+   * which is reserved for the legacy outbound-flow lockout logic.
+   */
+  incrementMagicAttempts(phone: string): number {
+    const row = this.db
+      .prepare(
+        `UPDATE phone_otp SET magic_attempts = magic_attempts + 1
+         WHERE phone = ?
+         RETURNING magic_attempts`,
+      )
+      .get(phone) as { magic_attempts: number } | undefined;
+    return row?.magic_attempts ?? 0;
   }
 
   incrementOtpAttempts(phone: string): number {
