@@ -1,0 +1,104 @@
+/* TeamPicker — flag grid + search box for /profile. */
+
+.vt-team-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vt-team-picker-head {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vt-team-picker-search {
+  flex: 1;
+}
+
+.vt-team-picker-clear {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--vt-fg, #fff);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  font-size: 13px;
+  cursor: pointer;
+}
+.vt-team-picker-clear:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.vt-team-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 8px;
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vt-team-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 90ms ease, border-color 90ms ease, background 90ms ease;
+  color: inherit;
+}
+.vt-team-tile:hover {
+  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-1px);
+}
+.vt-team-tile[data-selected="1"] {
+  background: rgba(126, 182, 232, 0.18);
+  border-color: #7eb6e8;
+  box-shadow: 0 0 0 2px rgba(126, 182, 232, 0.25);
+}
+
+.vt-team-flag {
+  width: 56px;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.vt-team-code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.vt-team-tile[data-selected="1"] .vt-team-code {
+  color: #fde68a;
+}
+
+.vt-team-picker-empty {
+  grid-column: 1 / -1;
+  color: var(--vt-fg-muted, #888);
+  text-align: center;
+  font-size: 13px;
+  margin: 12px 0;
+}
+
+@media (max-width: 480px) {
+  .vt-team-picker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  }
+  .vt-team-flag {
+    width: 48px;
+  }
+}
