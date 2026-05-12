@@ -14,6 +14,9 @@ other — fork the one closest to what you want to build.
 | [`hello-syndicate-page/`](hello-syndicate-page/) | A static branded syndicate page that pulls live leaderboard data from `game.tournamental.com`. | `cd examples/hello-syndicate-page && pnpm dev` |
 | [`hello-affiliate-route/`](hello-affiliate-route/) | One new affiliate-router partner manifest, geo-gated, with a click audit log. | See its README. |
 | [`hello-bracket-bot/`](hello-bracket-bot/) | A Node script that points at the public REST API + signs a bracket with a personal API key (`tnm_live_...`). | `node examples/hello-bracket-bot/index.mjs` |
+| [`hello-plugin-scorer/`](hello-plugin-scorer/) | A `scorer` plugin awarding 10pt per correct outcome. The thinnest scorer reference. | `pnpm --filter @tournamental-plugin/example-hello-scorer test` |
+| [`hello-plugin-odds/`](hello-plugin-odds/) | An `oddsSource` plugin returning deterministic synthetic implied probabilities. Template for a real odds feed. | `pnpm --filter @tournamental-plugin/example-hello-odds test` |
+| [`hello-producer/`](hello-producer/) | A standalone Node WebSocket producer streaming a 90-min match (with scripted goals) into the renderer. | `pnpm --filter @tournamental/example-hello-producer start` |
 
 ## Run any example end-to-end in under 5 minutes
 

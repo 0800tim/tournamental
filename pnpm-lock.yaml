@@ -1189,6 +1189,22 @@ importers:
 
   examples/hello-bracket-bot: {}
 
+  examples/hello-plugin-odds:
+    dependencies:
+      '@tournamental/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../packages/plugin-sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^22.7.5
+        version: 22.19.18
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.19.18)(jsdom@25.0.1)
+
   examples/hello-plugin-scorer:
     dependencies:
       '@tournamental/plugin-sdk':
