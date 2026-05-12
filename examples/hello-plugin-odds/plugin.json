@@ -1,0 +1,19 @@
+{
+  "name": "@tournamental-plugin/example-hello-odds",
+  "version": "0.0.1",
+  "description": "Minimal oddsSource example. Returns synthetic implied probabilities derived from a deterministic hash of matchId — useful as a copy-paste template for a real odds-feed adapter.",
+  "sdkRange": "^0.1.0",
+  "provides": ["oddsSource"],
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Tournamental contributors",
+    "url": "https://tournamental.com"
+  },
+  "repository": "https://github.com/0800tim/tournamental",
+  "permissions": {
+    "network": {
+      "allowedOrigins": []
+    }
+  },
+  "tags": ["oddsSource", "example"]
+}

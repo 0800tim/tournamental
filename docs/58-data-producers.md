@@ -66,7 +66,62 @@ holding the producer's connection) sends:
 
 All messages are JSON, one per `ws.send()`. `match.init` carries
 `spec_version`; the renderer enforces a version match against
-`@tournamental/spec`'s exported `SPEC_VERSION`.
+`@tournamental/spec`'s exported `SPEC_VERSION` (currently `0.1.1`).
+
+#### Wire envelope (`x_hello`)
+
+Before the first `match.init`, the stream server sends one
+non-spec envelope so subscribers can confirm versioning and learn
+how much backlog is replayed from the ring buffer:
+
+```json
+{
+  "type": "x_hello",
+  "service": "@tournamental/stream-server",
+  "version": "0.4.x",
+  "spec_version": "0.1.1",
+  "match_id": "fifa-wc-2022-final-arg-fra-2022-12-18",
+  "ring": {
+    "match_id": "fifa-wc-2022-final-arg-fra-2022-12-18",
+    "has_init": true,
+    "frames": 12000,
+    "span_ms": 400000,
+    "t_newest": 5400000,
+    "t_oldest": 5000000,
+    "age_ms": 12
+  }
+}
+```
+
+The `x_` prefix is reserved for transport-layer envelopes that
+renderers and producers can safely ignore — they are NOT part of
+`@tournamental/spec`. If `ring.has_init` is `true`, the server
+replays `match.init` + the last N state frames before live frames
+resume; new producers don't need to handle this — only late-joining
+subscribers do.
+
+If you write a producer that connects DIRECTLY to a downstream
+(no stream-server in the middle, e.g. local dev), you can skip
+`x_hello` entirely. Tunnelled through the stream-server, the
+envelope is added for you.
+
+### Alternative transports
+
+WebSocket is the canonical primary-stream transport. For two real
+operational cases the reference mock-producer also supports:
+
+- **SSE** (`--out=sse`) — Server-Sent Events over plain HTTP.
+  Useful behind corporate proxies that strip WS upgrade headers,
+  and easier to debug with `curl -N`.
+- **File / HLS-style snapshot** (`--out=file`) — writes
+  `init.json`, chunked `chunk-NNNNN.ndjson.gz` (60 sec each), and
+  a rolling `live.m3u8`-style manifest. Lets a CDN absorb the
+  fan-out for a popular match (millions of viewers, $0 origin
+  traffic).
+
+Both surfaces are stable in `apps/mock-producer`. Adopting them
+for a new producer is a matter of choosing the transport adapter —
+the spec-level message shapes do not change.
 
 ### Auxiliary streams
 
@@ -106,6 +161,25 @@ For the auxiliary streams the shapes are described below. Some
 are stable; some are RFC. If you want to ship a producer against
 an RFC shape, open the spec-change PR first so we converge on
 the wire format.
+
+### Text commentary on the primary stream (stable, today)
+
+Before you reach for the audio channel, note that the primary
+stream's spec already has a stable text commentary event:
+
+```ts
+{ type: "event.commentary"; text: string; speaker?: string; voice_id?: string }
+```
+
+The renderer surfaces these in the HUD ticker. A text-only
+commentary producer (multilingual subtitles, alternative voice
+scripts) only needs to emit `event.commentary` on the primary
+stream — no audio channel involved. This is the lowest-effort
+way to ship a localised commentary track and ships against the
+v0.1.1 spec today.
+
+The audio channel below is for producers who want to ship actual
+audio chunks alongside the text.
 
 ### Audio commentary (stabilising)
 
@@ -355,9 +429,10 @@ plugin's `dripsListRef` opts in.
 - [`docs/02-spec.md`](02-spec.md), [`docs/04-renderer.md`](04-renderer.md), [`docs/05-mock-producer.md`](05-mock-producer.md), [`docs/11-historic-data-sources.md`](11-historic-data-sources.md), [`docs/31-commentary.md`](31-commentary.md) — adjacent design pack docs.
 - [`packages/spec/src/index.ts`](../packages/spec/src/index.ts) — the authoritative wire-protocol types.
 - [`packages/plugin-sdk/src/index.ts`](../packages/plugin-sdk/src/index.ts) — `IngestPlugin`, `OddsSourcePlugin`, `CommentaryPlugin` interfaces.
-- [`examples/hello-producer/`](../examples/hello-producer/) — 200-line working reference.
-- [`apps/statsbomb-replay/`](../apps/statsbomb-replay/) — Python reference for replay producers.
-- [`apps/mock-producer/`](../apps/mock-producer/) — Node reference for live-shape producers.
+- [`examples/hello-producer/`](../examples/hello-producer/) — 200-line standalone WebSocket producer with scripted goal events.
+- [`examples/hello-plugin-odds/`](../examples/hello-plugin-odds/) — ~50-line `oddsSource` plugin returning deterministic synthetic implied probabilities. Template for a real bookmaker / model feed.
+- [`apps/statsbomb-replay/`](../apps/statsbomb-replay/) — Python reference for replay producers. CLI is `--match-id` (not `--match`).
+- [`apps/mock-producer/`](../apps/mock-producer/) — Node reference for live-shape producers. Supports `--out=ws|sse|file|stdout`.
 
 ## RFC backlog
 
