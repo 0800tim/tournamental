@@ -164,6 +164,7 @@ export async function savePerMatchPick(
   try {
     const res = await fetchImpl(url, {
       method: "PUT",
+      credentials: "include",
       headers: {
         "content-type": "application/json",
         "x-user-id": input.userId,
@@ -241,6 +242,7 @@ export async function saveFullBracket(
   try {
     const res = await fetchImpl(url, {
       method: "POST",
+      credentials: "include",
       headers: {
         "content-type": "application/json",
         "x-user-id": args.userId,
@@ -317,6 +319,7 @@ export async function loadServerBracket(
   try {
     const res = await fetchImpl(url, {
       method: "GET",
+      credentials: "include",
       headers: { "x-user-id": args.userId },
       cache: "no-store",
       signal: opts.signal ?? timer?.signal,

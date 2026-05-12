@@ -59,9 +59,10 @@ import {
 } from "@/lib/bracket/mobile-gestures";
 import { track } from "@/lib/analytics";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
-import { loadServerBracket, savePerMatchPick } from "@/lib/bracket/api";
+import { loadServerBracket, saveFullBracket, savePerMatchPick } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
+import { useUser } from "@/lib/auth/useUser";
 import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
 import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
@@ -145,6 +146,15 @@ function knockoutCountFor(
 
 export function BracketBuilder(props: BracketBuilderProps) {
   const { tournament } = props;
+  // Identity hierarchy for bracket ownership:
+  //   1. Authed `tnm_session` user id (e.g. `u_<22 hex>`) when signed in.
+  //      Game-service verifies the cookie + stores brackets under this id,
+  //      so the same picks follow the user across devices.
+  //   2. Local browser uuid (`localUserId()`) when signed out. Same as
+  //      pre-auth behaviour, brackets stay device-local.
+  // The effect below resolves which one to use on every auth state change
+  // and migrates a guest bracket into the auth bracket on first sign-in.
+  const auth = useUser();
   const [userLocalId, setUserLocalId] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [tab, setTabState] = useState<TabId>("groups");
@@ -194,17 +204,63 @@ export function BracketBuilder(props: BracketBuilderProps) {
   }, []);
 
   useEffect(() => {
-    const id = localUserId();
-    setUserLocalId(id);
-    const draft = loadDraft(tournament.id, id);
-    if (draft) setBracket(draft);
-    else setBracket({ ...emptyBracket(), bracketId: id });
+    // Wait for auth to settle before deciding identity. "loading" means
+    // we don't yet know if the user is signed in; hydrating now under
+    // the guest id and then again under the auth id would race and
+    // potentially clobber picks.
+    if (auth.loading) return;
 
-    // Best-effort server hydration: fetch the persisted bracket and
-    // merge it with the local draft (newer-lockedAt wins per pick).
-    // A 404 / network error just leaves the local draft in place.
+    const authedId = auth.user?.id ?? null;
+    const guestId = localUserId();
+    const id = authedId ?? guestId;
+    setUserLocalId(id);
+
     let cancelled = false;
     (async () => {
+      // Load whatever's in localStorage for THIS identity. May be null
+      // for a first-time authed user; we hydrate from the server below.
+      let starting = loadDraft(tournament.id, id);
+      if (!starting) starting = { ...emptyBracket(), bracketId: id };
+      setBracket(starting);
+
+      // First sign-in migration: if we just transitioned guest→auth and
+      // there's a non-empty guest bracket in localStorage that hasn't
+      // been migrated yet, fold the guest picks into the auth bracket
+      // and POST the merged bracket to the server so the new user has
+      // their work persisted.
+      if (authedId && authedId !== guestId) {
+        const guestDraft = loadDraft(tournament.id, guestId);
+        const guestHasPicks =
+          guestDraft &&
+          (Object.keys(guestDraft.matchPredictions ?? {}).length > 0 ||
+            Object.keys(guestDraft.knockoutPredictions ?? {}).length > 0);
+        if (guestHasPicks) {
+          const merged = mergeBrackets(starting, guestDraft);
+          saveDraft(tournament.id, merged, authedId);
+          // Fire-and-forget; if it fails the local draft still wins and
+          // the next per-match save will reconcile.
+          void saveFullBracket({
+            userId: authedId,
+            tournamentId: tournament.id,
+            bracket: merged,
+          });
+          // Remove the guest draft so we don't migrate it again on a
+          // future load. The guest local-uuid stays valid for the next
+          // sign-out → guest flow.
+          if (typeof window !== "undefined") {
+            window.localStorage.removeItem(
+              `vtorn:bracket:v2:${tournament.id}:${guestId}`,
+            );
+          }
+          starting = merged;
+          if (!cancelled) setBracket(merged);
+        }
+      }
+
+      // Best-effort server hydration. The game-service uses the
+      // tnm_session cookie (or X-User-Id header in dev) to resolve the
+      // owner; we still pass userId in the args because the URL builder
+      // uses it for the dev fallback.
       const remote = await loadServerBracket({
         userId: id,
         tournamentId: tournament.id,
@@ -212,8 +268,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
       if (cancelled || !remote.ok) return;
       setBracket((current) => {
         const merged = mergeBrackets(current, remote.bracket);
-        // Persist the merged result so the next reload doesn't have
-        // to re-fetch in order to surface the server picks.
         saveDraft(tournament.id, merged, id);
         return merged;
       });
@@ -221,7 +275,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return () => {
       cancelled = true;
     };
-  }, [tournament.id]);
+  }, [tournament.id, auth.loading, auth.user?.id]);
 
   useEffect(() => {
     if (userLocalId === "ssr_user") return;

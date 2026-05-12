@@ -29,6 +29,12 @@ export interface ResolveOptions {
   readonly devAuth?: boolean;
   /** HMAC secret for verifying Supabase JWTs (HS256). */
   readonly jwtSecret?: string | null;
+  /**
+   * HMAC secret for verifying the auth-sms `tnm_session` cookie (HS256,
+   * issuer = "tournamental-auth"). Different secret + issuer from the
+   * Supabase path. Set via env `AUTH_JWT_SECRET`.
+   */
+  readonly authSmsJwtSecret?: string | null;
   /** Clock override for tests. */
   readonly nowMs?: () => number;
   /**
@@ -42,11 +48,31 @@ export interface ResolveOptions {
 
 export interface AuthResolution {
   readonly userId: string;
-  readonly source: "supabase" | "personal_key" | "dev_header";
+  readonly source: "supabase" | "tnm_session" | "personal_key" | "dev_header";
   /** Set only when source === "personal_key". */
   readonly keyId?: string;
   /** Set only when source === "personal_key". `tnm_live_<first-8>`. */
   readonly keyPrefix?: string;
+}
+
+/**
+ * Parse a Cookie header into a name→value map. Returns an empty object
+ * if the header is absent or malformed. Tiny stand-alone implementation
+ * so we don't pull `@fastify/cookie` into the game-service.
+ */
+function parseCookies(header: string | string[] | undefined): Record<string, string> {
+  if (!header) return {};
+  const raw = Array.isArray(header) ? header.join("; ") : header;
+  const out: Record<string, string> = {};
+  for (const segment of raw.split(/;\s*/)) {
+    if (!segment) continue;
+    const eq = segment.indexOf("=");
+    if (eq < 1) continue;
+    const k = segment.slice(0, eq).trim();
+    const v = segment.slice(eq + 1).trim();
+    if (k && v && !(k in out)) out[k] = v;
+  }
+  return out;
 }
 
 /**
@@ -84,6 +110,26 @@ export function resolveAuthFromHeader(
   req: FastifyRequest,
   opts: ResolveOptions = {},
 ): AuthResolution | null {
+  // 1. tnm_session cookie (browser path, set by auth-sms on apex domain).
+  //    Verified with the auth-sms HS256 secret. This is the primary
+  //    browser auth path now that we've moved off Supabase.
+  if (opts.authSmsJwtSecret) {
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionJwt = cookies["tnm_session"];
+    if (sessionJwt) {
+      const claims = verifyAuthSmsJwt(sessionJwt, {
+        secret: opts.authSmsJwtSecret,
+        nowMs: opts.nowMs,
+      });
+      if (claims?.sub) {
+        return { userId: claims.sub, source: "tnm_session" };
+      }
+      // Cookie present but invalid (e.g. expired) — fall through to
+      // try the other paths rather than failing closed; a stale
+      // cookie shouldn't deny a request that has a valid Bearer too.
+    }
+  }
+
   const authHeader = req.headers.authorization;
   if (typeof authHeader === "string" && authHeader.startsWith("Bearer ")) {
     const token = authHeader.slice("Bearer ".length).trim();
@@ -93,6 +139,16 @@ export function resolveAuthFromHeader(
       if (!opts.store) return null;
       const resolved = resolvePersonalKey(token, opts.store, opts.nowMs);
       return resolved;
+    }
+    // Try the auth-sms secret first, then the (legacy) Supabase secret.
+    if (opts.authSmsJwtSecret) {
+      const claims = verifyAuthSmsJwt(token, {
+        secret: opts.authSmsJwtSecret,
+        nowMs: opts.nowMs,
+      });
+      if (claims?.sub) {
+        return { userId: claims.sub, source: "tnm_session" };
+      }
     }
     const claims = verifySupabaseJwt(token, {
       secret: opts.jwtSecret ?? null,
@@ -221,6 +277,63 @@ export function verifySupabaseJwt(
   if (payload.exp && payload.exp < now) return null;
   // Supabase issues `aud: "authenticated"` for user sessions; we don't
   // hard-fail on it but production deployments can layer that check.
+
+  return payload;
+}
+
+/**
+ * HS256 verification of the auth-sms `tnm_session` JWT.
+ *
+ * Same HMAC algorithm as the Supabase path but a different secret
+ * (auth-sms's `AUTH_JWT_SECRET`) and different issuer claim
+ * (`tournamental-auth`, audience `tournamental`). The `sub` is the
+ * auth-sms user id (e.g. `u_<22 hex>`).
+ *
+ * We deliberately do NOT hard-fail on the iss/aud claims so this
+ * verifier survives a future re-issuer rename; the secret is the
+ * security boundary, not the claim strings.
+ */
+export function verifyAuthSmsJwt(
+  token: string,
+  opts: VerifyOptions,
+): JwtClaims | null {
+  if (!opts.secret) return null;
+  const parts = token.split(".");
+  if (parts.length !== 3) return null;
+  const [headerB64, payloadB64, signatureB64] = parts;
+
+  let header: { alg?: string; typ?: string };
+  try {
+    header = JSON.parse(Buffer.from(headerB64, "base64url").toString("utf8"));
+  } catch {
+    return null;
+  }
+  if (header.alg !== "HS256") return null;
+
+  const signingInput = `${headerB64}.${payloadB64}`;
+  const expected = createHmac("sha256", opts.secret).update(signingInput).digest();
+  let actual: Buffer;
+  try {
+    actual = Buffer.from(signatureB64, "base64url");
+  } catch {
+    return null;
+  }
+  if (expected.length !== actual.length) return null;
+  if (!timingSafeEqual(expected, actual)) return null;
+
+  let payload: JwtClaims;
+  try {
+    payload = JSON.parse(
+      Buffer.from(payloadB64, "base64url").toString("utf8"),
+    ) as JwtClaims;
+  } catch {
+    return null;
+  }
+
+  if (!payload.sub) return null;
+
+  const now = (opts.nowMs?.() ?? Date.now()) / 1000;
+  if (payload.exp && payload.exp < now) return null;
 
   return payload;
 }

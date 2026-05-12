@@ -1,6 +1,7 @@
 {
   "name": "@tournamental/bracket-engine",
   "version": "0.1.0",
+  "type": "module",
   "description": "Pure-function bracket prediction engine: tournament types, cascade calculator, long-shot-rewarding scoring, and VStamp prediction-receipt envelope. Powers the FIFA WC 2026 bracket prophet flow.",
   "keywords": [
     "tournamental",
