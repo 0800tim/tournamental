@@ -24,7 +24,55 @@ import { useEffect, useRef, useState } from "react";
 
 import { browserClient } from "./supabase";
 import { readPublicConfig } from "./config";
+import { AUTH_BASE } from "./inbound-login";
 import type { AuthState, UserProfile } from "./types";
+
+/**
+ * Probe the auth-sms service for an inbound-login session. Reads the
+ * `tnm_session` HttpOnly cookie via /v1/auth/me. Returns the minimal
+ * user shape we surface as `state.user` when Supabase has no session,
+ * so AuthChip flips to the authed pill after WhatsApp / SMS sign-in.
+ */
+/**
+ * Turn an E.164 phone into a friendlier short handle for the AuthChip
+ * label. We can't know the user's preferred handle without a server
+ * profile, so we use the last 4 digits, like "+64…1234". Plenty of
+ * privacy headroom for screenshots while still being recognisable to
+ * the user.
+ */
+function maskPhoneHandle(phone: string): string {
+  const trimmed = phone.replace(/[^0-9+]/g, "");
+  if (trimmed.length < 5) return trimmed || "you";
+  return `+${trimmed.replace(/^\+/, "").slice(0, 2)}…${trimmed.slice(-4)}`;
+}
+
+async function probeInboundSession(signal?: AbortSignal): Promise<{
+  id: string;
+  phone: string | null;
+  displayName: string | null;
+} | null> {
+  try {
+    const r = await fetch(AUTH_BASE.replace(/\/$/, "") + "/v1/auth/me", {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!r.ok) return null;
+    const j = (await r.json()) as {
+      user?: { id?: string; phone?: string | null; displayName?: string | null };
+    };
+    const u = j.user;
+    if (!u || !u.id) return null;
+    return {
+      id: u.id,
+      phone: u.phone ?? null,
+      displayName: u.displayName ?? null,
+    };
+  } catch {
+    return null;
+  }
+}
 
 const INITIAL_LOADING: AuthState = {
   status: "loading",
@@ -67,16 +115,42 @@ export function useUser(): UseUserReturn {
   const cfgKey = cfg?.url ?? null;
 
   useEffect(() => {
-    if (!cfg) {
-      setState(UNCONFIGURED);
+    const ac = new AbortController();
+
+    // Helper: when Supabase has no session (or isn't configured at
+    // all), fall through to the inbound-login session (tnm_session
+    // cookie). If that returns a user, surface as authenticated with
+    // a synthetic minimal profile so AuthChip + the rest of the
+    // shell render the signed-in state.
+    const applyGuestOrInbound = async (fallbackState: AuthState) => {
+      const inbound = await probeInboundSession(ac.signal);
+      if (ac.signal.aborted || !mountedRef.current) return;
+      if (!inbound) {
+        setState(fallbackState);
+        setLoading(false);
+        return;
+      }
+      const handle = inbound.phone ? maskPhoneHandle(inbound.phone) : "you";
+      setState({
+        status: "authenticated",
+        user: { id: inbound.id, email: null, phone: inbound.phone },
+        profile: {
+          id: inbound.id,
+          handle,
+          display_name: inbound.displayName ?? handle,
+        } as UserProfile,
+      });
       setLoading(false);
-      return;
+    };
+
+    if (!cfg) {
+      void applyGuestOrInbound(UNCONFIGURED);
+      return () => ac.abort();
     }
     const sb = browserClient();
     if (!sb) {
-      setState(UNCONFIGURED);
-      setLoading(false);
-      return;
+      void applyGuestOrInbound(UNCONFIGURED);
+      return () => ac.abort();
     }
 
     let cancelled = false;
@@ -115,8 +189,7 @@ export function useUser(): UseUserReturn {
       const u = data?.user;
       if (!u) {
         if (cancelled || !mountedRef.current) return;
-        setState(GUEST);
-        setLoading(false);
+        await applyGuestOrInbound(GUEST);
         return;
       }
       await loadProfileFor(u.id, u.email ?? null, u.phone ?? null);
@@ -129,8 +202,7 @@ export function useUser(): UseUserReturn {
     } = sb.auth.onAuthStateChange((_event, session) => {
       if (cancelled || !mountedRef.current) return;
       if (!session?.user) {
-        setState(GUEST);
-        setLoading(false);
+        void applyGuestOrInbound(GUEST);
         return;
       }
       void loadProfileFor(
@@ -142,6 +214,7 @@ export function useUser(): UseUserReturn {
 
     return () => {
       cancelled = true;
+      ac.abort();
       subscription.unsubscribe();
     };
     // We intentionally depend on cfgKey (a string) rather than the cfg

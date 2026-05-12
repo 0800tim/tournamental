@@ -283,6 +283,7 @@ function WhatsAppTab() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [smsCountry, setSmsCountry] = useState<"NZ" | "AU" | null>(null);
+  const [success, setSuccess] = useState<{ phone: string | null } | null>(null);
 
   useEffect(() => {
     setSmsCountry(detectSmsCountry());
@@ -298,9 +299,31 @@ function WhatsAppTab() {
       setError(humanReadable(result.error));
       return;
     }
-    // Cookie is set; reload so the user lands signed-in.
-    window.location.reload();
+    // Cookie is set on .tournamental.com; surface the success state
+    // in-place rather than reloading, since the play app's user hook
+    // now picks up tnm_session automatically on its next probe.
+    setSuccess({ phone: result.user.phone });
+    // Soft-reload after a short pause so any cached SSR / RSC
+    // state flips to the authed view.
+    window.setTimeout(() => {
+      window.location.reload();
+    }, 1200);
   };
+
+  if (success) {
+    return (
+      <div className="vt-signup-success" role="status">
+        ✅ Signed in
+        {success.phone ? (
+          <>
+            {" "}
+            as <strong>{success.phone}</strong>
+          </>
+        ) : null}
+        . Welcome back.
+      </div>
+    );
+  }
 
   return (
     <div className="auth-telegram">

@@ -24,6 +24,7 @@ import { verifyMagicToken } from "@/lib/auth/inbound-login";
 type Phase =
   | { state: "idle" }
   | { state: "busy" }
+  | { state: "success"; phone: string | null }
   | { state: "error"; message: string };
 
 const MAGIC_TOKEN_PARAM = "v";
@@ -51,9 +52,16 @@ export function MagicLinkConsumer() {
       }
 
       if (res.ok) {
-        // Reload so the auth context picks up the new session cookie.
-        // Replace, not push, so the back button doesn't go to ?v=.
-        window.location.replace(window.location.pathname + window.location.search + window.location.hash);
+        // Show success briefly so the user sees a clear confirmation,
+        // then reload so the auth context picks up the new session
+        // cookie. Replace (not push) so the back button doesn't go
+        // back to the now-burned ?v= URL.
+        setPhase({ state: "success", phone: res.user.phone });
+        window.setTimeout(() => {
+          window.location.replace(
+            window.location.pathname + window.location.search + window.location.hash,
+          );
+        }, 1200);
         return;
       }
 
@@ -73,7 +81,22 @@ export function MagicLinkConsumer() {
 
   if (phase.state === "idle") return null;
 
-  const isError = phase.state === "error";
+  const tone =
+    phase.state === "error"
+      ? { bg: "#3a0e0e", border: "#cf3c3c" }
+      : phase.state === "success"
+      ? { bg: "#0e3a26", border: "#34d399" }
+      : { bg: "#0e2548", border: "#3c8bcf" };
+
+  const message =
+    phase.state === "busy"
+      ? "Signing you in…"
+      : phase.state === "success"
+      ? phase.phone
+        ? `✅ Signed in as ${phase.phone}. Welcome back.`
+        : "✅ Signed in. Welcome back."
+      : phase.message;
+
   return (
     <div
       role="status"
@@ -88,14 +111,14 @@ export function MagicLinkConsumer() {
         borderRadius: 10,
         fontFamily: "system-ui, -apple-system, sans-serif",
         fontSize: 14,
-        background: isError ? "#3a0e0e" : "#0e2548",
+        background: tone.bg,
         color: "#fff",
         boxShadow: "0 8px 24px rgba(0,0,0,.4)",
-        border: `1px solid ${isError ? "#cf3c3c" : "#3c8bcf"}`,
+        border: `1px solid ${tone.border}`,
         maxWidth: "92vw",
       }}
     >
-      {phase.state === "busy" ? "Signing you in…" : phase.message}
+      {message}
     </div>
   );
 }
