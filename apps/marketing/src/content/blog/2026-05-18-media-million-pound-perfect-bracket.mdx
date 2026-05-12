@@ -1,0 +1,162 @@
+---
+title: "How to offer a £1M perfect-bracket prize without ruining your CFO"
+description: "Impossible-odds prizes are insurable. The premium is small, the marketing is enormous, and the verified entry ledger is what makes the underwriter say yes. Here is the maths, the stack, and the standard contract shape."
+pubDate: 2026-05-18
+author: "Tim"
+tags:
+  - "media"
+  - "broadcasters"
+  - "prize-draws"
+  - "vstamp"
+  - "insurance"
+  - "world-cup-2026"
+heroImage: "/og/media-hero.svg"
+heroImageAlt: "Stadium broadcast gantry feeding a £1M prize medal hanging above a public Merkle-tree audit ledger."
+heroImageCredit: "Illustration for Tournamental, 2026"
+---
+
+## Why this article exists
+
+Every commissioning editor in sports media has had the conversation. Someone in the room says "we should give away a million pounds to whoever predicts the whole tournament correctly." Someone else, usually the CFO, says "absolutely not." The idea dies in the second meeting because nobody can answer two questions:
+
+1. **Who pays if someone wins?**
+2. **How do we trust the entries are real, were locked before kickoff, and weren't edited after the fact?**
+
+Both questions have well-known answers. The combination has been underused because the verification stack used to require building a custom service from scratch. Tournamental ships that stack as open-source infrastructure, and the maths is the same maths the Quicken Loans Billion Dollar Bracket, the Yahoo Sports Perfect Bracket, and the BBC's Predict-the-Cup challenges have used for years.
+
+This post walks through both answers in detail, with real numbers.
+
+## Answer 1: who pays if someone wins?
+
+Underwriters.
+
+There is an entire category of insurance called **prize indemnity** that exists to absorb impossible-odds payouts. SCA Promotions, Odds On Promotions, and several London-market syndicates have insured everything from holes-in-one at sponsor golf days to a basketball half-court shot for $1M. Sports-prediction perfect-bracket contests are bread-and-butter business for them.
+
+The way it works:
+
+- You design the contest (entry rules, prize, deadline).
+- The underwriter calculates the probability of any entrant winning the prize, multiplied by the expected number of entrants.
+- They quote you a premium, which is that expected value plus their margin.
+- You pay the premium up front.
+- If nobody wins, the premium is the underwriter's revenue.
+- If somebody wins, the underwriter pays the prize.
+
+For a perfect-bracket contest with astronomical odds, the expected payout is tiny, and the premium is similarly tiny. A back-of-envelope for the 2026 FIFA World Cup, 48 teams, 64 matches, eight knockout rounds:
+
+- The probability of guessing every single match outcome correctly is approximately **1 in 2^32 to 1 in 9.2 quintillion** depending on how you score group-stage tiebreakers.
+- With one million entrants, the expected number of winners is approximately **0.0001**.
+- The expected payout on a £1M prize is therefore approximately **£100**.
+- A typical insurance premium would be that expected value plus the underwriter's margin and broker fee, landing in the **£5,000 to £25,000** range for a £1M prize across 1M entrants. (Real quotes vary; this is illustrative.)
+
+Five-figure premium for a seven-figure on-screen prize. The marketing value of putting "WIN £1M" on a sports show is enormous; the actual financial exposure is a rounding error on the production budget.
+
+The catch: underwriters want **proof the entries are clean**. Which is where Tournamental's verification stack comes in.
+
+## Answer 2: how do we trust the entries?
+
+Every Tournamental entry is signed by **VStamp**, our open-source receipt service, at the moment the user locks their bracket. Three things happen in that signing:
+
+1. The bracket payload (every match prediction, every tiebreaker, the user's pseudonymous handle) is hashed.
+2. That hash is folded into a Merkle tree alongside every other entry that locks before the deadline.
+3. The Merkle root is anchored to **Ethereum mainnet** in a single on-chain transaction at lock time.
+
+After lock time:
+
+- The user can pull a Merkle proof showing their specific entry is in the tree.
+- Anyone (your legal team, the underwriter, a journalist, a sceptical viewer) can independently verify the root on-chain, then verify any specific entry against that root.
+- Nobody, not Tournamental, not the broadcaster, not even a state-actor adversary with admin access to our infrastructure, can change a single entry after the deadline without invalidating the root.
+
+The underwriter's auditor verifies the root and verifies the count of entries. They charge you a premium proportional to that count. When the tournament ends, you (or the winner) present a Merkle proof for the winning bracket. The auditor verifies the proof against the root they already attested. The underwriter pays.
+
+This is the same cryptographic primitive that underpins Bitcoin, Git, and every modern certificate-transparency log. It is widely understood, has decades of academic literature behind it, and crucially is **independently verifiable** by anyone who knows how to run the open-source `vstamp-verify` CLI.
+
+For the curious: the [VStamp service spec](/open-source) is in the repo. The verifier is 200 lines of TypeScript. Your engineering team can run it themselves before the call.
+
+## What the standard contract looks like
+
+A typical Tournamental + broadcaster + underwriter contract has four moving parts:
+
+### 1. The broadcaster (you)
+
+- Funds the marketing wrap (host segments, graphics, on-air promo).
+- Pays the underwriter's premium.
+- Pays Tournamental a flat integration fee (or partners on revenue share for larger contests).
+- Owns the brand wrap and the audience data (subject to GDPR, etc.).
+
+### 2. Tournamental
+
+- Hosts the entry flow (free for entrants).
+- Operates VStamp (the verified entry ledger).
+- Provides broadcast integration assets (OBS / vMix overlays, JSON feed, on-air QR code, share cards).
+- Delivers the post-event audit pack (Merkle root, entry count, winner proofs, signed by the operator).
+
+### 3. The underwriter
+
+- Quotes the premium.
+- Verifies the entry ledger pre-kickoff.
+- Pays the winner if there is one.
+
+### 4. The contest itself
+
+- Free to enter (this is critical for compliance, see the [compliance deep-dive](/blog/2026-05-18-media-sweepstakes-compliance)).
+- Lock-time published in advance.
+- Tiebreaker rules published in advance (this stops disputes).
+- One winner only, or a documented tiebreaker procedure (e.g. earliest lock time wins among tied entries).
+
+The whole thing fits on one page when you strip the legalese. Your in-house legal team can review it in a week. We have draft templates we can share once we've had the discovery call.
+
+## Sample programs that actually work
+
+We have run the maths on four formats. All four have shipped on equivalent platforms in the US, UK, and Australia, so the numbers are well-trodden.
+
+### The headline impossible prize (£1M)
+
+- **Format**: predict every match of the 64-match tournament correctly. One mistake disqualifies.
+- **Odds**: ~1 in 9.2 quintillion if every match is genuinely independent (it isn't, but the underwriter prices conservatively).
+- **Premium**: low five figures for a £1M prize across 1M entrants.
+- **Marketing value**: the front-page headline. "Sky Sports puts £1M on the table." Every show, every podcast, every social-media post leads with it.
+
+### The plausible-but-rare prize (£100K perfect final)
+
+- **Format**: predict the exact final score and the goal scorers.
+- **Odds**: low five figures conditional on the final happening.
+- **Premium**: similar order of magnitude, often slightly higher because of payout variance.
+- **Marketing value**: drama all the way through the knockout rounds, peaks on final day. The kind of prize that does get won, every few generations, and that win becomes its own legend.
+
+### The reliable weekly winner (£5K per round)
+
+- **Format**: highest-scoring bracket each round wins a guaranteed cash prize.
+- **Odds**: there is always a winner (the field's top scorer).
+- **Premium**: this format is self-funded; no insurance needed. Predictable line item.
+- **Marketing value**: weekly winner segment on the show. "Here is this week's £5K bracket champion, joining us from Auckland."
+
+### The civic prize (city vs city)
+
+- **Format**: branded micro-leaderboards by city or station catchment. Trophy + bragging rights, no payout.
+- **Odds**: there is always a winning city.
+- **Premium**: zero. You're awarding civic pride.
+- **Marketing value**: talk-radio gold. Auckland vs Wellington. Manchester vs Liverpool. The audience picks sides and stays engaged for the whole tournament.
+
+The right format depends on your audience and your show. The £1M prize is enormous brand value but expensive to wrap properly. The civic-prize format is cheap, repeatable, and the host segments write themselves. Most production teams end up running two or three formats in parallel, layered.
+
+## What we need from you to start
+
+A 30-minute call with whoever owns the prize-promo budget and whoever owns the broadcast wrap. We need to understand:
+
+- What tournament you want to anchor on.
+- What size of prize is interesting (a useful filter for the format).
+- Your distribution channels (TV, radio, podcast, social, all of the above).
+- Your legal jurisdiction (informs the compliance brief).
+- Your timeline (the 2026 FIFA World Cup kickoff is 11 June 2026; pre-tournament rehearsal needs lead time).
+
+After the call we send a one-page proposal with a quoted premium range (we pull from underwriter friends, not bespoke quotes yet), an integration brief, and a 48-hour spin-up commitment for the branded landing.
+
+[media@tournamental.com](mailto:media@tournamental.com). We reply within one business day.
+
+## The other three deep dives
+
+- [The blockchain-verified prize draw playbook](/blog/2026-05-18-media-blockchain-prize-draws), the VStamp service in detail.
+- [Broadcast integration toolkit](/blog/2026-05-18-media-broadcast-integration), OBS / vMix / JSON feed / on-air QR.
+- [Free-to-enter, compliance-friendly](/blog/2026-05-18-media-sweepstakes-compliance), the sweepstakes-of-skill model, geo-gating, KYC handoff.
+
+Or skip the reading and book the [walkthrough](/media). It is faster.

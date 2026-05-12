@@ -1,0 +1,146 @@
+---
+title: "Broadcast integration toolkit: OBS, vMix, JSON feeds, on-air leaderboards"
+description: "Drop-in graphics for live shows. Spec for the data feed your graphics team plugs into. QR-code call-to-actions that convert on the couch. The integration playbook for production teams who need this on air by Friday."
+pubDate: 2026-05-18
+author: "Tim"
+tags:
+  - "media"
+  - "broadcasters"
+  - "production"
+  - "obs"
+  - "vmix"
+  - "graphics"
+heroImage: "/og/media-hero.svg"
+heroImageAlt: "Stadium broadcast gantry with cameras feeding a live leaderboard panel and a graphics package on a production switcher."
+heroImageCredit: "Illustration for Tournamental, 2026"
+---
+
+## Who this article is for
+
+The producer on the show. The head of digital. The on-air graphics lead. The OB-truck engineer. Anyone who has to make the prize draw actually appear on screen during a live broadcast and who needs the answer to be "yes that drops in cleanly" rather than "we'll need to build a bespoke widget."
+
+The short version: Tournamental ships **four integration surfaces** that cover essentially every production team's existing tooling. Pick the one that matches your truck.
+
+## Surface 1: OBS / vMix HTML overlays
+
+For shows produced through OBS or vMix (most podcasts, most digital-first shows, smaller cable productions, web-streaming events), our overlay is a single URL pointing to an HTML page sized to your canvas. Drop it in as a **Browser Source** in OBS or a **Web Browser** input in vMix.
+
+The overlay is 1920×1080 with full alpha, listens to a WebSocket from our stream service, and re-renders any of four standard layouts:
+
+- **Live leaderboard, top 10.** Names, current scores, movement arrows.
+- **Big-prize counter.** "1.2M entries · £1M still in play · 14 brackets still perfect."
+- **Last-pick spotlight.** "Stuart from Auckland just picked Brazil to win it all."
+- **Settlement segment.** Full-screen winner reveal with confetti and the share-card.
+
+Configuration is via URL query parameters: `?layout=leaderboard&theme=skysports&logo=/cdn/skysports.svg&refresh=15`. Your graphics lead can rehearse against test data the day they get the URL. No build pipeline. No deploy. No node_modules.
+
+The overlay theme can be a built-in (six options shipped, blue / red / gold / black / white / minimal) or a custom theme delivered to you as a single CSS file. Custom themes are part of the 48-hour spin-up.
+
+## Surface 2: vMix data sources + Newtek graphics
+
+For productions with serious broadcast graphics, vMix Data Sources, Newtek LiveText, ChyronHego, Vizrt, ross graphics, every modern broadcast graphics package can pull from a JSON or XML feed at a configurable poll interval.
+
+We expose a **JSON feed** at `https://api.tournamental.com/v1/broadcast/<your-slug>/leaderboard.json` (and `/program.json`, `/winners.json`, `/perfect-brackets-remaining.json`). Sample response:
+
+```json
+{
+  "updatedAt": "2026-06-23T14:32:08Z",
+  "leaderboard": [
+    { "rank": 1, "handle": "stuie_picks", "city": "Auckland", "score": 142, "delta": 0 },
+    { "rank": 2, "handle": "nzfooty",     "city": "Wellington", "score": 138, "delta": -1 },
+    { "rank": 3, "handle": "talksport_pundit", "city": "Manchester", "score": 135, "delta": +2 }
+  ],
+  "totals": {
+    "entries": 1247902,
+    "perfectBracketsRemaining": 14,
+    "currentPrizePool": 1000000,
+    "currentPrizeCurrency": "GBP"
+  }
+}
+```
+
+Field-level filtering via query parameters (e.g. `?city=Auckland`, `?country=NZ`) for regional leaderboards. Caching is short on our side (60-second edge TTL), so polling at 15-30 seconds is well within the rate limit.
+
+For productions that prefer XML or CSV, the same endpoints accept `Accept: text/xml` or `Accept: text/csv`. The CSV format is friendly to spreadsheet-based graphics workflows that still exist in some shops.
+
+## Surface 3: Live-stream WebSocket for low-latency tickers
+
+For shows that want the leaderboard to **animate in real time** (rather than polling), we have a WebSocket endpoint that pushes updates as they happen:
+
+```
+wss://stream.tournamental.com/broadcast/<your-slug>
+```
+
+Messages are JSON, one per ws.send. The shape is the same primary-stream protocol our renderer consumes (see [docs/58-data-producers.md](https://github.com/0800tim/tournamental/blob/main/docs/58-data-producers.md)), with a couple of broadcast-specific event types:
+
+- `broadcast.leaderboard.update` (rank changes for the top-100 leaderboard).
+- `broadcast.prize.update` (perfect-brackets-remaining counter, prize-pool changes).
+- `broadcast.winner.locked` (when a major prize is awarded, a single winner-card payload).
+
+Web-based broadcast graphics frameworks (Singular.live, Caspar, Tovera, NodeCG) plug into this directly. For OBS / vMix users, the HTML overlays in Surface 1 are subscribed to this WebSocket under the hood, you get the same animation behaviour without touching the protocol.
+
+## Surface 4: On-air QR codes + branded landing
+
+The most common production request: a QR code on screen that drops viewers into the contest entry flow in two taps.
+
+We deliver:
+
+- **A 1024×1024 SVG QR code** with your network logo embedded in the centre, scannable from a couch at typical TV viewing distance.
+- **A branded landing page** at `<network>.tournamental.com` or your own domain via CNAME. Your colours, your sponsor placement, your call-to-action.
+- **A deep-link contract**: scanning during the World Cup drops the viewer into the bracket entry flow with your network's source-attribution baked in. Scanning during a regional segment can drop them into a city-specific leaderboard.
+
+The QR code is regenerable per-segment if you want different landings for different show blocks. Most networks pick one master landing for the tournament and use show-segment URLs for sub-prizes.
+
+## Standard production timeline
+
+For a one-week pre-show rehearsal:
+
+- **Mon**: Discovery call. Confirm format, prize, branding, integration surfaces, talent involvement.
+- **Tue**: Branded landing live on staging. Graphics lead gets overlay URL + JSON feed URL + WebSocket URL.
+- **Wed**: Graphics rehearsal against test data. We sit on a Zoom for the first hour.
+- **Thu**: Talent walkthrough. Host runs the segment to camera with real overlay. We make notes for tweaks.
+- **Fri**: Final review. Greenlight if all four surfaces render clean on the production truck.
+- **Sat**: Promo segment airs on a regular show ("watch this space, we're announcing something huge on Monday").
+- **Mon (week 2)**: Contest live.
+
+For productions with longer lead times (national TV networks, season-long contests) the timeline stretches to give legal and procurement breathing room. The technology is rarely the bottleneck.
+
+## What to send us before the discovery call
+
+To make the call efficient:
+
+- **Show name, slot, and channel.** Helps us calibrate audience size and tone.
+- **Existing graphics package**, OBS, vMix, Vizrt, ChyronHego, Singular.live, whatever. Determines which surface you want.
+- **Prize idea, even rough.** £1M perfect-bracket, weekly £5K, civic city-vs-city. Determines the integration scope and whether we need to broker insurance.
+- **Distribution.** Linear TV, streaming, podcast, social, all of the above. Determines the QR-code strategy and the deep-link design.
+- **A talent name or two.** "James will host the segment, he wants something visual on screen for the reveal." Helps us suggest the right overlay layout.
+
+[media@tournamental.com](mailto:media@tournamental.com). The discovery call is 30 minutes; we work backwards from your timeline.
+
+## Talent-friendly: what the host actually sees
+
+A common production worry: "is this going to be technical-feeling on air?" No. The host segment is a leaderboard, a name, a city, and a number. We supply a host-card template:
+
+> "Tonight's bracket champion is **Stuart from Auckland**, currently sitting on **142 points**, eight matches ahead of second place. Stuart, if you stay on top through the final, you're walking away with **£1,000,000**. Twitter is going wild. Let's go to the verifier..."
+
+The verifier shot (Surface 4) is the credibility beat. The leaderboard is the human-interest beat. The host doesn't have to say the word "blockchain" once if they don't want to. The audience just sees their fellow viewers winning real money on a verifiable scoreboard.
+
+For hosts who *want* to lean into the verification angle (the BBC, the FT, anyone with a "this is how the technology works" audience), we supply a 30-second host-script explainer plus a graphic that walks through the Merkle proof in three steps. Used sparingly, it lands like a magic-trick reveal.
+
+## What it costs
+
+Surfaces 1-4 are **free to integrate** under the Tournamental open partner model for any network running a free-to-enter prediction game. We charge an integration fee only when:
+
+- We're brokering insurance for a big-prize format (we take a small commission from the underwriter).
+- We're providing dedicated overlay-design hours beyond the standard templates (custom Singular.live compositions, bespoke OBS scenes).
+- We're operating high-traffic infrastructure (>5M entries in a single contest needs dedicated capacity).
+
+For a typical regional radio or mid-tier digital show, the integration is genuinely free. We make our money on the headline contests; we want the long tail of broadcasters running their own smaller draws because that's where the platform gets its credibility.
+
+## The other three deep dives
+
+- [The blockchain-verified prize draw playbook](/blog/2026-05-18-media-blockchain-prize-draws), how the verification stack works.
+- [How to offer a £1M perfect-bracket prize](/blog/2026-05-18-media-million-pound-perfect-bracket), the prize-insurance maths.
+- [Free-to-enter, compliance-friendly](/blog/2026-05-18-media-sweepstakes-compliance), the sweepstakes-of-skill model.
+
+Or skip to the [walkthrough](/media). It's faster.

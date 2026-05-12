@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630" role="img" aria-label="Stadium broadcast gantry with cameras and graphics packages feeding a glowing on-chain verified leaderboard panel; a £1M prize medal hangs above a public Merkle-tree audit ledger.">
+  <defs>
+    <linearGradient id="sky2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#0e1a2b"/>
+    </linearGradient>
+    <linearGradient id="pitch2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#196a40"/>
+      <stop offset="1" stop-color="#0d4226"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fde68a"/>
+      <stop offset="1" stop-color="#b8862a"/>
+    </linearGradient>
+    <radialGradient id="floodlight2" cx="0.5" cy="0" r="0.7">
+      <stop offset="0" stop-color="#fde68a" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#fde68a" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e3a64"/>
+      <stop offset="1" stop-color="#0e2548"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7eb6e8"/>
+      <stop offset="1" stop-color="#3c8bcf"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="630" fill="url(#sky2)"/>
+  <ellipse cx="600" cy="630" rx="800" ry="180" fill="url(#pitch2)"/>
+  <ellipse cx="200" cy="120" rx="360" ry="220" fill="url(#floodlight2)"/>
+  <ellipse cx="1000" cy="120" rx="360" ry="220" fill="url(#floodlight2)"/>
+
+  <!-- title -->
+  <text x="80" y="80" font-family="DejaVu Sans, sans-serif" font-size="40" font-weight="800" fill="#fde68a" letter-spacing="-0.5">Tournamental for media</text>
+  <text x="80" y="115" font-family="DejaVu Sans, sans-serif" font-size="16" font-weight="500" fill="#cdd5e7">Run the prize game broadcasters wish they could afford. Blockchain-verified, insured, broadcast-ready.</text>
+
+  <!-- Prize medal -->
+  <g transform="translate(600,250)">
+    <circle r="90" fill="url(#gold2)" stroke="#0a0e1a" stroke-width="3"/>
+    <circle r="78" fill="none" stroke="#0a0e1a" stroke-width="1" opacity="0.4"/>
+    <text x="0" y="-12" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="22" font-weight="800" fill="#0a0e1a">£1M</text>
+    <text x="0" y="14" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="10" font-weight="700" fill="#0a0e1a" letter-spacing="0.1em">PERFECT</text>
+    <text x="0" y="28" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="10" font-weight="700" fill="#0a0e1a" letter-spacing="0.1em">BRACKET</text>
+    <!-- ribbon -->
+    <path d="M-50,-80 L-30,-100 L0,-92 L30,-100 L50,-80 L50,-110 L-50,-110 Z" fill="#7eb6e8" stroke="#0a0e1a" stroke-width="2"/>
+  </g>
+
+  <!-- Camera gantry tower left -->
+  <g transform="translate(180,400)" fill="#7eb6e8" stroke="#cdd5e7" stroke-width="1" opacity="0.85">
+    <rect x="-6" y="0" width="12" height="120" fill="#3c8bcf"/>
+    <rect x="-44" y="-26" width="88" height="26" rx="4" fill="url(#panel)" stroke="#3c8bcf"/>
+    <circle cx="-20" cy="-13" r="6" fill="#0a0e1a"/>
+    <circle cx="0" cy="-13" r="6" fill="#0a0e1a"/>
+    <circle cx="20" cy="-13" r="6" fill="#0a0e1a"/>
+    <text x="0" y="-40" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="10" font-weight="700" fill="#fde68a">CAM 1</text>
+  </g>
+
+  <!-- Camera gantry tower right -->
+  <g transform="translate(1020,400)" fill="#7eb6e8" stroke="#cdd5e7" stroke-width="1" opacity="0.85">
+    <rect x="-6" y="0" width="12" height="120" fill="#3c8bcf"/>
+    <rect x="-44" y="-26" width="88" height="26" rx="4" fill="url(#panel)" stroke="#3c8bcf"/>
+    <circle cx="-20" cy="-13" r="6" fill="#0a0e1a"/>
+    <circle cx="0" cy="-13" r="6" fill="#0a0e1a"/>
+    <circle cx="20" cy="-13" r="6" fill="#0a0e1a"/>
+    <text x="0" y="-40" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="10" font-weight="700" fill="#fde68a">CAM 2</text>
+  </g>
+
+  <!-- Leaderboard panel left -->
+  <g transform="translate(340,420)" font-family="DejaVu Sans, sans-serif" text-anchor="start">
+    <rect x="-90" y="-50" width="180" height="100" rx="8" fill="url(#panel)" stroke="#3c8bcf" stroke-width="1.5"/>
+    <text x="-80" y="-32" font-size="9" font-weight="700" fill="#fde68a" letter-spacing="0.1em">LIVE LEADERBOARD</text>
+    <line x1="-80" y1="-26" x2="80" y2="-26" stroke="#3c8bcf" stroke-width="0.8" opacity="0.6"/>
+    <text x="-80" y="-12" font-size="10" font-weight="700" fill="#ffffff">1. @stuie_picks</text>
+    <text x="60" y="-12" font-size="10" font-weight="700" fill="#fde68a">142</text>
+    <text x="-80" y="3" font-size="10" fill="#cdd5e7">2. @nzfooty</text>
+    <text x="60" y="3" font-size="10" fill="#cdd5e7">138</text>
+    <text x="-80" y="18" font-size="10" fill="#cdd5e7">3. @talksport_pundit</text>
+    <text x="60" y="18" font-size="10" fill="#cdd5e7">135</text>
+    <text x="-80" y="33" font-size="10" fill="#cdd5e7">4. @mond_at_dawn</text>
+    <text x="60" y="33" font-size="10" fill="#cdd5e7">131</text>
+    <text x="0" y="48" text-anchor="middle" font-size="8" fill="#7eb6e8">SKY SPORTS PRESENTS</text>
+  </g>
+
+  <!-- VStamp audit panel right -->
+  <g transform="translate(860,420)" font-family="DejaVu Sans, sans-serif" text-anchor="start">
+    <rect x="-90" y="-50" width="180" height="100" rx="8" fill="url(#panel)" stroke="#3c8bcf" stroke-width="1.5"/>
+    <text x="-80" y="-32" font-size="9" font-weight="700" fill="#fde68a" letter-spacing="0.1em">VSTAMP AUDIT</text>
+    <line x1="-80" y1="-26" x2="80" y2="-26" stroke="#3c8bcf" stroke-width="0.8" opacity="0.6"/>
+    <text x="-80" y="-12" font-size="9" fill="#7eb6e8">root: 0x8f3a…c2d1</text>
+    <text x="-80" y="3" font-size="9" fill="#7eb6e8">entries: 1,247,902</text>
+    <text x="-80" y="18" font-size="9" fill="#7eb6e8">locked: 2026-06-11 16:00 UTC</text>
+    <text x="-80" y="33" font-size="9" fill="#7eb6e8">chain: ethereum mainnet</text>
+    <text x="0" y="48" text-anchor="middle" font-size="8" fill="#34d399">✓ IMMUTABLE · PUBLIC LEDGER</text>
+  </g>
+
+  <!-- patch cables -->
+  <g stroke="#7eb6e8" stroke-width="1.4" stroke-dasharray="3,4" fill="none" opacity="0.5">
+    <path d="M180 374 Q260 340 340 410"/>
+    <path d="M1020 374 Q940 340 860 410"/>
+    <path d="M430 410 Q540 360 600 340"/>
+    <path d="M770 410 Q660 360 600 340"/>
+  </g>
+
+  <!-- pitch lines suggesting the field -->
+  <g stroke="#cdd5e7" stroke-width="0.8" opacity="0.2" fill="none">
+    <ellipse cx="600" cy="630" rx="800" ry="180"/>
+    <ellipse cx="600" cy="630" rx="360" ry="80"/>
+    <line x1="600" y1="500" x2="600" y2="630"/>
+  </g>
+
+  <!-- footer -->
+  <text x="600" y="600" text-anchor="middle" font-family="DejaVu Sans, sans-serif" font-size="13" font-weight="600" fill="#fde68a">Free to integrate · Blockchain-verified entries · Insurable up to $1M+</text>
+</svg>
