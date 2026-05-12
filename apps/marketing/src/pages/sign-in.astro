@@ -1,0 +1,327 @@
+---
+/**
+ * /sign-in
+ *
+ * Inbound-login sign-in page. Two flows:
+ *
+ *   1. WhatsApp (default, all countries). User taps the green CTA which
+ *      opens wa.me/<our-number>?text=login on their phone. They tap
+ *      send; the Aiva gateway sees the inbound message, calls
+ *      /v1/auth/inbound-login on auth-sms, gets back a code +
+ *      magicToken, and replies. The user either taps the one-tap link
+ *      (Layout.astro's magic-link consumer handles ?v=<token>) or
+ *      pastes the 6-digit code below.
+ *
+ *   2. SMS (New Zealand + Australia only). Same flow but via SMS to
+ *      our +64 number. Users outside +64 / +61 see a gentle banner
+ *      explaining SMS is region-limited and pointing them at the
+ *      WhatsApp button.
+ *
+ * The code-paste form on this page hits /v1/auth/verify-by-code on
+ * the auth-sms service and on success redirects to play.tournamental.com.
+ */
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+// Public WhatsApp + SMS receiver numbers. These are owned by the Aiva
+// SMS gateway; published on purpose so anyone can message them to sign
+// in. If you fork Tournamental, replace with your own gateway numbers.
+const WHATSAPP_NUMBER = "64204259096";
+const SMS_NUMBER = "64204259096";
+---
+<Layout
+  title="Sign in · Tournamental"
+  description="Sign in to Tournamental with WhatsApp (worldwide) or SMS (New Zealand + Australia). Message the keyword 'login' to receive a one-tap sign-in link and a 6-digit code."
+  ogImage="/og-default.png"
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Sign in"
+      title="Sign in with WhatsApp or SMS"
+      lede="Message us the word login. We'll text back a 6-digit code and a one-tap sign-in link. No password. No spam. Works on any phone."
+    />
+  </section>
+
+  <section class="container-page pb-12">
+    <div class="grid md:grid-cols-2 gap-6">
+      <div class="card vt-signin-card vt-signin-card--whatsapp">
+        <div class="vt-signin-channel-head">
+          <span class="vt-signin-channel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#25D366"><path d="M19.05 4.91A10.93 10.93 0 0 0 12.05 2C6.07 2 1.18 6.88 1.18 12.85a10.7 10.7 0 0 0 1.45 5.44L1 23l4.84-1.59a10.83 10.83 0 0 0 6.21 1.95h.01c5.97 0 10.85-4.88 10.85-10.86A10.78 10.78 0 0 0 19.05 4.91M12.05 21.55h-.01a9.06 9.06 0 0 1-4.61-1.26l-.33-.2-3.43 1.13 1.15-3.36-.22-.34a9.04 9.04 0 0 1-1.4-4.83c0-4.99 4.07-9.06 9.05-9.06 2.42 0 4.69.94 6.4 2.65a9 9 0 0 1 2.65 6.4c0 4.99-4.07 9.06-9.05 9.06z"/></svg>
+          </span>
+          <h3 class="text-xl font-bold text-white">WhatsApp <span class="pill pill--ok">Recommended</span></h3>
+        </div>
+        <p class="text-ink-200 mt-2">Works worldwide. Tap the button, your WhatsApp opens with the message already typed. Press send. We reply in under 5 seconds.</p>
+        <a
+          id="signin-wa-btn"
+          href={`https://wa.me/${WHATSAPP_NUMBER}?text=login`}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="btn-primary vt-signin-cta vt-signin-cta--whatsapp"
+        >
+          Sign in with WhatsApp →
+        </a>
+        <p class="text-ink-300 text-xs mt-3">If your phone doesn't open WhatsApp automatically, message <strong>login</strong> to <code>+{WHATSAPP_NUMBER}</code> manually.</p>
+      </div>
+
+      <div class="card vt-signin-card vt-signin-card--sms" id="signin-sms-card">
+        <div class="vt-signin-channel-head">
+          <span class="vt-signin-channel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="28" height="28" fill="#7eb6e8"><path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm0 14H5.17L4 17.17V4h16v12z"/><circle cx="9" cy="10" r="1"/><circle cx="12" cy="10" r="1"/><circle cx="15" cy="10" r="1"/></svg>
+          </span>
+          <h3 class="text-xl font-bold text-white">SMS <span class="pill pill--region" id="signin-sms-pill">NZ + AU</span></h3>
+        </div>
+        <p class="text-ink-200 mt-2" id="signin-sms-default-copy">Text the word <strong>login</strong> to our New Zealand number. We reply with a code + sign-in link. International SMS is not supported — use WhatsApp instead.</p>
+        <div id="signin-sms-unsupported-banner" hidden class="vt-signin-warning">
+          <strong>SMS isn't supported in your country.</strong> Use the WhatsApp button on the left — it works worldwide and is free over Wi-Fi.
+        </div>
+        <a
+          id="signin-sms-btn"
+          href={`sms:+${SMS_NUMBER}?&body=login`}
+          class="btn-ghost vt-signin-cta vt-signin-cta--sms"
+        >
+          Sign in with SMS →
+        </a>
+        <p class="text-ink-300 text-xs mt-3">Manually: text <strong>login</strong> to <code>+{SMS_NUMBER}</code>. Standard carrier rates apply.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <div class="card vt-signin-code-card">
+      <h3 class="text-lg font-bold text-white">Paste your 6-digit code</h3>
+      <p class="text-ink-200 mt-2 mb-4">Already received the code on your phone? Type or paste it here on this device.</p>
+      <form id="signin-code-form" class="vt-signin-code-form" novalidate>
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          maxlength="6"
+          autocomplete="one-time-code"
+          required
+          placeholder="6-digit code"
+          name="code"
+          id="signin-code-input"
+          class="vt-signin-code-input"
+          aria-label="6-digit sign-in code"
+        />
+        <button type="submit" class="btn-primary" id="signin-code-submit">Sign in</button>
+      </form>
+      <p id="signin-code-error" class="vt-signin-code-error" hidden></p>
+      <p id="signin-code-success" class="vt-signin-code-success" hidden>Signed in — redirecting…</p>
+    </div>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h3 class="text-xl font-bold text-white">Why message us?</h3>
+    <ul class="prose-vt list-disc pl-6 space-y-2">
+      <li><strong>No password to remember.</strong> Your phone number is your account.</li>
+      <li><strong>Free and worldwide via WhatsApp.</strong> Aiva SMS forwards your message to our auth service, we reply instantly.</li>
+      <li><strong>Privacy.</strong> We never share your number, never spam, and never sell it. The hash of your number is what we store, not the plaintext.</li>
+      <li><strong>Open source.</strong> The auth flow is in the public <a href="https://github.com/0800tim/tournamental/tree/main/apps/auth-sms" class="link">apps/auth-sms</a> service. Audit it before you trust it.</li>
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .vt-signin-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .vt-signin-channel-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .vt-signin-channel-icon {
+    display: inline-grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(126, 182, 232, 0.12);
+  }
+  .vt-signin-cta {
+    margin-top: 16px;
+    align-self: flex-start;
+  }
+  .vt-signin-cta--whatsapp {
+    background: #25D366;
+    color: #0a0e1a;
+    border-color: #1eb456;
+  }
+  .vt-signin-cta--whatsapp:hover {
+    background: #1eb456;
+  }
+  .pill--ok {
+    background: rgba(52, 211, 153, 0.18);
+    color: #34d399;
+    border-color: rgba(52, 211, 153, 0.35);
+  }
+  .pill--region {
+    background: rgba(126, 182, 232, 0.18);
+    color: #7eb6e8;
+    border-color: rgba(126, 182, 232, 0.35);
+  }
+  .vt-signin-warning {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: rgba(207, 60, 60, 0.12);
+    border: 1px solid rgba(207, 60, 60, 0.45);
+    color: #fde68a;
+    font-size: 0.875rem;
+  }
+  .vt-signin-code-form {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .vt-signin-code-input {
+    flex: 1 1 200px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(126, 182, 232, 0.35);
+    color: #fff;
+    font-size: 1.125rem;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    letter-spacing: 0.2em;
+    text-align: center;
+  }
+  .vt-signin-code-input:focus {
+    outline: none;
+    border-color: #7eb6e8;
+    box-shadow: 0 0 0 3px rgba(126, 182, 232, 0.25);
+  }
+  .vt-signin-code-error {
+    margin-top: 12px;
+    color: #f87171;
+    font-size: 0.875rem;
+  }
+  .vt-signin-code-success {
+    margin-top: 12px;
+    color: #34d399;
+    font-size: 0.875rem;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    // SMS country gate: detect from navigator.language or the user's
+    // timezone. Both are heuristics — we use them to surface UX, not
+    // to enforce anything (the auth service itself accepts all
+    // countries on WhatsApp). We treat NZ + AU as supported; anyone
+    // else sees a banner pointing them at WhatsApp.
+    var smsSupported = ["NZ", "AU"];
+    var locale = (navigator.language || "").toUpperCase();
+    var tz = "";
+    try {
+      tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    } catch (e) {}
+    var detected =
+      locale.endsWith("-NZ") || tz === "Pacific/Auckland"
+        ? "NZ"
+        : locale.endsWith("-AU") || /^Australia\//.test(tz)
+        ? "AU"
+        : "";
+    var isSupported = detected && smsSupported.indexOf(detected) >= 0;
+
+    if (!isSupported) {
+      var banner = document.getElementById("signin-sms-unsupported-banner");
+      var smsBtn = document.getElementById("signin-sms-btn");
+      var smsDefault = document.getElementById("signin-sms-default-copy");
+      if (banner) banner.hidden = false;
+      if (smsDefault) smsDefault.style.display = "none";
+      if (smsBtn) {
+        smsBtn.setAttribute("aria-disabled", "true");
+        smsBtn.style.opacity = "0.5";
+        smsBtn.style.pointerEvents = "none";
+      }
+    }
+
+    // Code-paste form: POST to verify-by-code, then redirect.
+    var form = document.getElementById("signin-code-form");
+    if (!form) return;
+    var input = document.getElementById("signin-code-input");
+    var errEl = document.getElementById("signin-code-error");
+    var okEl = document.getElementById("signin-code-success");
+    var btn = document.getElementById("signin-code-submit");
+
+    var meta = document.querySelector('meta[name="tnm-auth-base"]');
+    var base =
+      (meta && meta.getAttribute("content")) ||
+      "https://auth.tournamental.com";
+
+    function setError(msg) {
+      if (okEl) okEl.hidden = true;
+      if (errEl) {
+        errEl.textContent = msg;
+        errEl.hidden = false;
+      }
+    }
+    function setSuccess() {
+      if (errEl) errEl.hidden = true;
+      if (okEl) okEl.hidden = false;
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var code = (input.value || "").trim();
+      if (!/^\d{6}$/.test(code)) {
+        setError("Please enter the 6-digit code from your message.");
+        return;
+      }
+      btn.setAttribute("disabled", "true");
+      setError("");
+      fetch(base.replace(/\/$/, "") + "/v1/auth/verify-by-code", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({ code: code }),
+      })
+        .then(function (r) {
+          return r.json().then(function (body) {
+            return { ok: r.ok, status: r.status, body: body };
+          });
+        })
+        .then(function (res) {
+          btn.removeAttribute("disabled");
+          if (res.ok) {
+            setSuccess();
+            setTimeout(function () {
+              window.location.href = "https://play.tournamental.com/";
+            }, 600);
+            return;
+          }
+          var err = (res.body && res.body.error) || "verify-failed";
+          var msg =
+            err === "ip-throttled"
+              ? "Too many sign-in attempts from this network. Try again in a few minutes."
+              : err === "fingerprint-mismatch"
+              ? "This code was first used on a different device. Use that device, or message 'login' again."
+              : err === "unknown-or-expired"
+              ? "That code is wrong, expired, or already used. Check the message or request a fresh code."
+              : "Sign-in failed. Try again or message 'login' again.";
+          setError(msg);
+        })
+        .catch(function () {
+          btn.removeAttribute("disabled");
+          setError("Could not reach the sign-in service. Check your connection.");
+        });
+    });
+
+    // Auto-focus the code input if the user landed here via "paste
+    // the code" intent (Layout.astro's banner suggests this on
+    // certain magic-verify errors).
+    if (input && /code=/.test(window.location.search)) {
+      var preset = new URLSearchParams(window.location.search).get("code");
+      if (preset && /^\d{6}$/.test(preset)) input.value = preset;
+      input.focus();
+    }
+  })();
+</script>

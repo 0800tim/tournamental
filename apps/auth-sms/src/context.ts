@@ -45,6 +45,34 @@ export interface AuthContext {
     telegramBotToken: string;
     /** Telegram bot username (without @) shown on the widget. */
     telegramBotUsername: string;
+    /**
+     * Shared secret the upstream Aiva SMS / WhatsApp gateway sends as
+     * `x-inbound-secret` when calling /v1/auth/inbound-login. Empty
+     * string disables the inbound-login endpoint (returns 401).
+     * MUST be a high-entropy random string (>= 32 bytes); generate with
+     * `openssl rand -hex 32` and store in .env, never in the repo.
+     */
+    inboundLoginSecret: string;
+    /**
+     * Per-code attempt cap. After this many failed magic-verify /
+     * verify-by-code attempts against the same OTP row, the row is
+     * burned. Default 5; this is the primary brute-force defence
+     * and is IP-independent.
+     */
+    inboundMagicMaxAttempts: number;
+    /**
+     * Per-IP cap for verify-by-code attempts that match NO active OTP
+     * (the "blind guessing" pattern). Generous on purpose so 20+
+     * users behind a shared office NAT don't trip it; legitimate
+     * verifications never count against this bucket.
+     */
+    inboundCodeIpFailureMax: number;
+    /**
+     * Cookie domain set on the inbound-flow session cookie. Default
+     * `.tournamental.com` so the cookie is sent on both
+     * tournamental.com (marketing) and play.tournamental.com (web app).
+     */
+    inboundCookieDomain: string;
   };
   /** Time source — overridable for tests. */
   now: () => number;

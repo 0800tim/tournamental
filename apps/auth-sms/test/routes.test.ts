@@ -73,6 +73,10 @@ async function makeHarness(): Promise<Harness> {
       sessionTtlSeconds: 60 * 60,
       telegramBotToken: '',
       telegramBotUsername: 'TournamentalBot',
+      inboundLoginSecret: 'test-inbound-secret-32-chars-aaaaa',
+      inboundMagicMaxAttempts: 5,
+      inboundCodeIpFailureMax: 60,
+      inboundCookieDomain: '.tournamental.com',
     },
     now: () => now.value,
     log: {

@@ -225,6 +225,10 @@ async function makeHarness(opts: { telegramBotToken?: string } = {}): Promise<Ha
     sessionTtlSeconds: 60 * 60,
     telegramBotToken: opts.telegramBotToken ?? BOT_TOKEN,
     telegramBotUsername: 'TournamentalBot',
+    inboundLoginSecret: '',
+    inboundMagicMaxAttempts: 5,
+    inboundCodeIpFailureMax: 60,
+    inboundCookieDomain: '.tournamental.com',
   };
   const ctx: AuthContext = {
     storage,

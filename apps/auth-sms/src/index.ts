@@ -26,6 +26,9 @@ import { registerVerifyOtp } from './routes/verify-otp.js';
 import { registerSession } from './routes/session.js';
 import { registerWhatsAppPairing } from './routes/whatsapp-pairing.js';
 import { registerTelegramCallback } from './routes/telegram-callback.js';
+import { registerInboundLogin } from './routes/inbound-login.js';
+import { registerMagicVerify } from './routes/magic-verify.js';
+import { registerVerifyByCode } from './routes/verify-by-code.js';
 import { registerSwagger } from './swagger.js';
 import type { AuthContext } from './context.js';
 import { buildAuditLogger } from './audit.js';
@@ -124,6 +127,9 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerSession(app, ctx);
   await registerWhatsAppPairing(app, ctx);
   await registerTelegramCallback(app, ctx);
+  await registerInboundLogin(app, ctx);
+  await registerMagicVerify(app, ctx);
+  await registerVerifyByCode(app, ctx);
 
   app.addHook('onClose', async () => {
     try {
@@ -205,6 +211,15 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
       telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
       telegramBotUsername:
         process.env.TELEGRAM_BOT_USERNAME ?? 'TournamentalBot',
+      inboundLoginSecret: process.env.INBOUND_LOGIN_SECRET ?? '',
+      inboundMagicMaxAttempts: Number(
+        process.env.INBOUND_MAGIC_MAX_ATTEMPTS ?? 5,
+      ),
+      inboundCodeIpFailureMax: Number(
+        process.env.INBOUND_CODE_IP_FAILURE_MAX ?? 60,
+      ),
+      inboundCookieDomain:
+        process.env.INBOUND_COOKIE_DOMAIN ?? '.tournamental.com',
     },
     now: () => Date.now(),
     log: {
