@@ -43,6 +43,67 @@ import { phoneLogId } from '../storage.js';
 import { signSessionJwt } from '../jwt.js';
 import { truncateUa } from '../audit.js';
 
+/**
+ * In-memory dedupe for very recent successful verifications.
+ *
+ * Problem: a 200 response can race with a duplicate submission (the
+ * user double-taps "Sign in", the browser retries on a flaky network,
+ * or React Strict Mode in dev fires the handler twice). The first
+ * request consumes the OTP row; the second finds nothing and returns
+ * 401 — and that 401 is the response the user actually sees because
+ * it overwrites the in-flight success state.
+ *
+ * Fix: when a verify succeeds, stash the dedupe key for 60s. On the
+ * next verify-by-code / magic-verify call, if the active-OTP scan
+ * misses but the dedupe map has a match AND the requesting
+ * fingerprint matches the binding from the original successful
+ * verify, treat the duplicate as legitimate and mint a fresh session.
+ *
+ * The dedupe key:
+ *   verify-by-code:  the raw 6-digit code
+ *   magic-verify:    the challenge token (64 hex chars)
+ *
+ * Both are unique per-OTP and short-lived, so the map stays small
+ * (bounded by the OTP-issuance rate × 60s). Process-local; a restart
+ * clears it, which is fine — the user simply requests a fresh code.
+ */
+interface DedupeEntry {
+  userId: string;
+  phone: string | null;
+  uaFp: string;
+  ip: string;
+  expiresAt: number;
+}
+const RECENT_VERIFY = new Map<string, DedupeEntry>();
+const DEDUPE_TTL_SECONDS = 60;
+
+function pruneDedupe(nowSeconds: number): void {
+  for (const [k, v] of RECENT_VERIFY) {
+    if (v.expiresAt <= nowSeconds) RECENT_VERIFY.delete(k);
+  }
+}
+
+export function rememberRecentVerify(
+  key: string,
+  entry: Omit<DedupeEntry, 'expiresAt'>,
+  nowSeconds: number,
+): void {
+  pruneDedupe(nowSeconds);
+  RECENT_VERIFY.set(key, {
+    ...entry,
+    expiresAt: nowSeconds + DEDUPE_TTL_SECONDS,
+  });
+}
+
+export function findRecentVerify(
+  key: string,
+  nowSeconds: number,
+): DedupeEntry | null {
+  pruneDedupe(nowSeconds);
+  const e = RECENT_VERIFY.get(key);
+  return e && e.expiresAt > nowSeconds ? e : null;
+}
+
 const BodySchema = z.object({
   token: z.string().length(64).regex(/^[a-f0-9]+$/i),
 });
@@ -105,8 +166,13 @@ export async function bindAndMintSession(opts: {
   uaFp: string;
   pid: string;
   source: 'magic' | 'code';
+  /** Idempotency key: raw code (verify-by-code) or challenge token
+      (magic-verify). On success, this key is remembered for 60s so a
+      duplicate submission from the same fingerprint replays the same
+      sign-in instead of erroring. */
+  dedupeKey?: string;
 }): Promise<void> {
-  const { ctx, reply, phone, ip, uaFp, pid, source } = opts;
+  const { ctx, reply, phone, ip, uaFp, pid, source, dedupeKey } = opts;
   const now = Math.floor(ctx.now() / 1000);
 
   // Bind on first use. If the row was already bound, this returns the
@@ -154,6 +220,18 @@ export async function bindAndMintSession(opts: {
   // code / magic link cannot be replayed.
   ctx.storage.deleteOtp(phone);
 
+  // Remember this verification for 60s so a duplicate submission from
+  // the same fingerprint can be replayed without erroring. The
+  // dedupeKey is the raw code or challenge token — short-lived and
+  // already gated by fingerprint matching on the replay path.
+  if (dedupeKey) {
+    rememberRecentVerify(
+      dedupeKey,
+      { userId: user.id, phone: user.phone, uaFp, ip },
+      now,
+    );
+  }
+
   reply.header(
     'Set-Cookie',
     buildSessionCookie({
@@ -181,6 +259,76 @@ export async function bindAndMintSession(opts: {
   });
 }
 
+/**
+ * Replay path: a recent successful verify dedupe-hit. We trust the
+ * remembered user-id (already authenticated 60s ago from this exact
+ * fingerprint) and just mint a fresh session + cookie. No OTP row to
+ * delete, no audit churn beyond the dedupe note.
+ */
+export async function mintReplaySession(opts: {
+  ctx: AuthContext;
+  req: FastifyRequest;
+  reply: FastifyReply;
+  userId: string;
+  phone: string | null;
+  ip: string;
+  pid: string;
+  source: 'magic' | 'code';
+}): Promise<void> {
+  const { ctx, req, reply, userId, phone, ip, pid, source } = opts;
+  const now = Math.floor(ctx.now() / 1000);
+
+  const user = ctx.storage.getUser(userId);
+  if (!user) {
+    return reply.code(401).send({ error: 'unknown-or-expired' });
+  }
+  const signed = await signSessionJwt({
+    secret: ctx.config.jwtSecret,
+    userId: user.id,
+    phone: user.phone ?? '',
+    ttlSeconds: ctx.config.sessionTtlSeconds,
+  });
+  ctx.storage.insertSession({
+    id: signed.jti,
+    user_id: user.id,
+    jwt_jti: signed.jti,
+    created_at: now,
+    expires_at: signed.expiresAt,
+    user_agent:
+      truncateUa(
+        typeof req.headers['user-agent'] === 'string'
+          ? req.headers['user-agent']
+          : undefined,
+      ) ?? null,
+    ip,
+  });
+  reply.header(
+    'Set-Cookie',
+    buildSessionCookie({
+      jwt: signed.jwt,
+      ttlSeconds: ctx.config.sessionTtlSeconds,
+      cookieDomain: ctx.config.inboundCookieDomain,
+    }),
+  );
+  ctx.audit.write({
+    action: source === 'magic' ? 'inbound.magic.replay' : 'inbound.code.replay',
+    phoneId: pid,
+    ip,
+    ua: undefined,
+    reason: source,
+  });
+  return reply.code(200).send({
+    jwt: signed.jwt,
+    expiresAt: signed.expiresAt,
+    user: {
+      id: user.id,
+      phone: phone ?? user.phone,
+      displayName: user.display_name,
+      country: user.country,
+    },
+  });
+}
+
 export async function registerMagicVerify(
   app: FastifyInstance,
   ctx: AuthContext,
@@ -200,6 +348,23 @@ export async function registerMagicVerify(
 
     const row = ctx.storage.getOtpByChallenge(token);
     if (!row) {
+      // Dedupe replay: if this same token was successfully verified
+      // in the last 60s from the same fingerprint, mint a fresh
+      // session rather than erroring (handles browser back/forward,
+      // double-fire, retry on flaky network).
+      const replay = findRecentVerify(token, now);
+      if (replay && replay.uaFp === uaFp) {
+        return mintReplaySession({
+          ctx,
+          req,
+          reply,
+          userId: replay.userId,
+          phone: replay.phone,
+          ip,
+          pid: replay.phone ? phoneLogId(replay.phone) : '',
+          source: 'magic',
+        });
+      }
       ctx.audit.write({
         action: 'inbound.magic.unknown',
         phoneId: '',
@@ -242,6 +407,7 @@ export async function registerMagicVerify(
       uaFp,
       pid: phoneLogId(row.phone),
       source: 'magic',
+      dedupeKey: token,
     });
   });
 }

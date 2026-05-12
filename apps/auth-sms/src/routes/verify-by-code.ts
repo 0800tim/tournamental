@@ -39,7 +39,13 @@ import { z } from 'zod';
 import type { AuthContext } from '../context.js';
 import { phoneLogId } from '../storage.js';
 import { hashOtp, safeEqualHex, OTP_LENGTH } from '../otp.js';
-import { bindAndMintSession, clientIp, uaFingerprint } from './magic-verify.js';
+import {
+  bindAndMintSession,
+  clientIp,
+  findRecentVerify,
+  mintReplaySession,
+  uaFingerprint,
+} from './magic-verify.js';
 
 const BodySchema = z.object({
   code: z.string().length(OTP_LENGTH).regex(/^\d+$/),
@@ -121,6 +127,25 @@ export async function registerVerifyByCode(
     }
 
     if (!match) {
+      // Dedupe replay: was this exact code consumed by this same
+      // fingerprint in the last 60s? If so, mint a fresh session
+      // rather than erroring — the user double-tapped Submit, or the
+      // network retried, or React fired the handler twice. Bumping
+      // the IP-failure bucket here would also be wrong: the user is
+      // legitimate, they just clicked twice.
+      const replay = findRecentVerify(code, now);
+      if (replay && replay.uaFp === uaFp) {
+        return mintReplaySession({
+          ctx,
+          req,
+          reply,
+          userId: replay.userId,
+          phone: replay.phone,
+          ip,
+          pid: replay.phone ? phoneLogId(replay.phone) : '',
+          source: 'code',
+        });
+      }
       ctx.storage.bumpRateBucket(bucket.key, bucket.bucketStart);
       ctx.audit.write({
         action: 'inbound.code.no-match',
@@ -160,6 +185,7 @@ export async function registerVerifyByCode(
       uaFp,
       pid: phoneLogId(match.phone),
       source: 'code',
+      dedupeKey: code,
     });
   });
 }
