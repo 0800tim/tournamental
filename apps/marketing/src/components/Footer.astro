@@ -13,16 +13,13 @@ const year = new Date().getFullYear();
       </div>
       <p class="text-ink-200 max-w-xs">Predict the world's biggest matches with your friends. Watch in 3D. Climb a global leaderboard. Run your own pool.</p>
 
-      {/* Live count placeholder. The script below tries /api/version
-          and replaces the number on success; on failure or timeout we
-          keep the "12,000+" baseline so the footer never reads N/A. */}
-      <div class="mt-5 inline-flex items-center gap-2 rounded-full border border-ink-700/70 bg-ink-800/60 px-3 py-1.5 text-xs text-ink-200">
-        <span class="size-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true"></span>
-        <span>
-          <strong id="vt-live-count" class="text-white tabular-nums">12,000+</strong>
-          syndicates running
-        </span>
-      </div>
+      {/* Live-count pill removed pre-launch. Stay quiet about platform
+          metrics until the leaderboard surfaces real numbers from the
+          game-service; an unattested "12,000+ syndicates running"
+          counter undermines the integrity claim that's central to the
+          whole pitch (blockchain-verified, no fudged stats). Restore
+          this block once /api/version returns real data — keep the
+          fetch script below as a reference. */}
 
       <ul class="mt-6 flex items-center gap-3" aria-label="Social links">
         <li>
@@ -119,28 +116,6 @@ const year = new Date().getFullYear();
   </div>
 </footer>
 
-{/* Live count: best-effort fetch of /api/version. The endpoint may not
-    exist in dev or in static-prod builds; on failure we keep the
-    baseline number that's already in the DOM so the footer never reads
-    "N/A". A 1.5 s timeout via AbortController prevents a slow API from
-    blocking idle network. */}
-<script is:inline>
-  (function () {
-    var el = document.getElementById("vt-live-count");
-    if (!el) return;
-    var ctrl = ("AbortController" in window) ? new AbortController() : null;
-    var to = ctrl ? setTimeout(function () { ctrl.abort(); }, 1500) : null;
-    fetch("/api/version", ctrl ? { signal: ctrl.signal } : undefined)
-      .then(function (r) { return r.ok ? r.json() : null; })
-      .then(function (j) {
-        if (to) clearTimeout(to);
-        if (!j) return;
-        // Accept either { syndicates: 12345 } or { stats: { syndicates: ... } }.
-        var n = (j && (j.syndicates || (j.stats && j.stats.syndicates))) | 0;
-        if (n > 0) {
-          el.textContent = n.toLocaleString("en-NZ");
-        }
-      })
-      .catch(function () { /* keep the baseline */ });
-  })();
-</script>
+{/* Live-count script is intentionally dormant — see the comment above
+    where the pill used to render. Will be restored once /api/version
+    returns real syndicate counts post-launch. */}
