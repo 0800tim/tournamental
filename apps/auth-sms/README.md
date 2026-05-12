@@ -120,16 +120,23 @@ ever shard out we'll move to Postgres per the rest of the stack.
 
 ### Why Aiva SMS as the primary WhatsApp transport
 
-The Aiva gateway already runs a long-lived Baileys session for Sdeal
-on `+64204259069`. Reusing it means we:
+Tournamental runs its own dedicated number, `+64204259096`, which
+serves both WhatsApp inbound-login and SMS inbound-login (NZ + AU
+only on the SMS leg). The number is not shared with any other
+product. The Aiva SMS gateway (see [aiva.nz](https://aiva.nz))
+handles the underlying Baileys WhatsApp session and the SMS SIM
+behind a single HTTP API, which means we:
 
-1. Don't require a new WhatsApp pairing for Tournamental.
-2. Don't run a second Baileys process competing for the device.
-3. Get the gateway's auto-reconnect / QR-rotation handling for free.
+1. Don't run a second Baileys process competing for the SIM.
+2. Get the gateway's auto-reconnect / QR-rotation handling for free.
+3. Get one webhook surface (`/v1/auth/inbound-login`) for both
+   channels, with the channel field (`sms` or `whatsapp`) preserved
+   on the OTP row.
 
-If we want a **dedicated** Tournamental WhatsApp number, set
-`WHATSAPP_TRANSPORT=baileys` and visit
-`/v1/auth/whatsapp/pairing-qr` (with `X-Admin-Token`) to scan once.
+If you fork Tournamental and want to run your own number entirely
+in-process, set `WHATSAPP_TRANSPORT=baileys` and visit
+`/v1/auth/whatsapp/pairing-qr` (with `X-Admin-Token`) to scan a
+fresh WhatsApp pairing once.
 
 ## Rate limits
 

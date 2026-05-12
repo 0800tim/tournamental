@@ -1,6 +1,6 @@
 ---
 title: "Night shift: what shipped while you slept"
-description: "Seventeen merged PRs in 24 hours. The renderer is smoother on mobile, the bracket grew a tap-from-anywhere pick popup with shareable URLs, the marketing site got a build log, and the deploy story is now Sdeal-style atomic-swap with two-second downtime."
+description: "Seventeen merged PRs in 24 hours. The renderer is smoother on mobile, the bracket grew a tap-from-anywhere pick popup with shareable URLs, the marketing site got a build log, and the deploy story is now atomic-swap blue-green with two-second downtime."
 pubDate: 2026-05-12
 author: "Tournamental Team"
 tags: ["behind-the-scenes", "build-log"]
@@ -99,7 +99,7 @@ body in a tempfile, all scanner output is schema-validated before
 action, and the prompt-injection canary scans for known attack
 patterns and only *flags*, it never auto-actions.
 
-## Deploys are now Sdeal-style
+## Deploys are now atomic-swap blue-green
 
 We borrowed the deploy strategy from one of our other projects.
 Same-host blue-green slot swap, smoke-test on the staging port

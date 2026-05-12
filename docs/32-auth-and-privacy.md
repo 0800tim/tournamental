@@ -206,15 +206,26 @@ To be added to the existing TOS doc:
 > you; we never call your phone, and we never share the number with
 > third-party advertisers.
 
+## Telephony footprint
+
+Tournamental runs on its own dedicated number, **`+64204259096`**.
+This is **not shared with any other product** that the founder runs.
+The number handles both:
+
+- **WhatsApp inbound-login** (worldwide).
+- **SMS inbound-login** (NZ + AU only on the SMS leg; everyone else
+  is routed to WhatsApp by the play app's country detection).
+
+The number is provisioned through the Aiva SMS platform
+([aiva.nz](https://aiva.nz)), which hosts the Baileys WhatsApp
+session and the SMS SIM behind a single HTTP API surface so that
+Tournamental doesn't run its own Baileys process. The Aiva platform
+is shared infrastructure across multiple projects; the **number,
+session, and Aiva device-id used for Tournamental are unique to
+Tournamental**.
+
 ## Open questions
 
-- **Which Aiva SMS device ID** is allocated for Tournamental?, see
-  Tim's existing Sdeal device list. We may want a dedicated device
-  to keep the SMS history separate.
-- **Which Aiva WhatsApp session** does Tournamental use?, Sdeal's
-  `+64204259069` is the existing session. Decision: reuse it for
-  v0.1 with a different sender display name, or stand up a new
-  session on a fresh number.
 - **Do we add Africa / India SMS routing** for cost, current Aiva
-  gateway routes via Tim's NZ Android phone, fine for sub-NZ scale
-  but will need international SMS termination at scale.
+  gateway routes via the dedicated NZ-based SIM, fine for sub-NZ
+  scale but will need international SMS termination at scale.
