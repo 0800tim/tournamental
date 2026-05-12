@@ -73,6 +73,27 @@ async function authenticate(
   return { userId: claims.sub, phone: claims.phone, jti: claims.jti };
 }
 
+/**
+ * Shape we serialise user records into on the wire. camelCase per
+ * REST convention; everything is nullable except id and createdAt.
+ */
+function serialiseUser(user: import('../storage.js').UserRecord) {
+  return {
+    id: user.id,
+    phone: user.phone,
+    email: user.email,
+    displayName: user.display_name,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    country: user.country,
+    city: user.city,
+    favouriteTeamCode: user.favourite_team_code,
+    telegramUsername: user.telegram_username,
+    createdAt: user.created_at,
+    lastSeenAt: user.last_seen_at,
+  };
+}
+
 export async function registerSession(
   app: FastifyInstance,
   ctx: AuthContext,
@@ -84,15 +105,63 @@ export async function registerSession(
     if (!user) return reply.code(401).send({ error: 'unauthorized' });
     reply.header('Cache-Control', 'private, no-store');
     return reply.send({
-      user: {
-        id: user.id,
-        phone: user.phone,
-        displayName: user.display_name,
-        country: user.country,
-        createdAt: user.created_at,
-        lastSeenAt: user.last_seen_at,
-      },
+      user: serialiseUser(user),
     });
+  });
+
+  app.patch('/v1/auth/me', async (req, reply) => {
+    const authed = await authenticate(ctx, req);
+    if (!authed) return reply.code(401).send({ error: 'unauthorized' });
+    const body = (req.body ?? {}) as Record<string, unknown>;
+    const patch: Record<string, string | null> = {};
+    const stringField = (
+      key: 'display_name' | 'country' | 'email' | 'first_name' | 'last_name' | 'city' | 'favourite_team_code',
+      maxLen: number,
+    ): void => {
+      if (!(key in body)) return;
+      const v = body[key];
+      if (v === null || v === undefined || v === '') {
+        patch[key] = null;
+        return;
+      }
+      if (typeof v !== 'string') return;
+      const trimmed = v.trim().slice(0, maxLen);
+      patch[key] = trimmed.length > 0 ? trimmed : null;
+    };
+    stringField('display_name', 80);
+    stringField('country', 2);
+    stringField('email', 254);
+    stringField('first_name', 80);
+    stringField('last_name', 80);
+    stringField('city', 80);
+    stringField('favourite_team_code', 3);
+
+    if (patch.country) patch.country = patch.country.toUpperCase();
+    if (patch.favourite_team_code) patch.favourite_team_code = patch.favourite_team_code.toUpperCase();
+    if (patch.email) {
+      const e = patch.email.toLowerCase();
+      // Tight format check; the server rejects rather than the client.
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+        return reply.code(400).send({ error: 'bad-email' });
+      }
+      patch.email = e;
+    }
+
+    const now = Math.floor(ctx.now() / 1000);
+    let updated;
+    try {
+      updated = ctx.storage.updateUser(authed.userId, patch, now);
+    } catch (err) {
+      // Most likely cause: duplicate email (unique constraint).
+      const msg = err instanceof Error ? err.message : String(err);
+      if (/UNIQUE constraint failed.*email/.test(msg)) {
+        return reply.code(409).send({ error: 'email-taken' });
+      }
+      throw err;
+    }
+    if (!updated) return reply.code(404).send({ error: 'not-found' });
+    reply.header('Cache-Control', 'private, no-store');
+    return reply.send({ user: serialiseUser(updated) });
   });
 
   app.post('/v1/auth/session/refresh', async (req, reply) => {

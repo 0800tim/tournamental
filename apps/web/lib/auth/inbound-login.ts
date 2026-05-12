@@ -149,3 +149,85 @@ export function detectSmsCountry(): "NZ" | "AU" | null {
   if (locale.endsWith("-AU") || /^Australia\//.test(tz)) return "AU";
   return null;
 }
+
+/**
+ * Full user record returned by /v1/auth/me and the PATCH endpoint.
+ * Mirrors the auth-sms serialiseUser() shape.
+ */
+export interface InboundUser {
+  id: string;
+  phone: string | null;
+  email: string | null;
+  displayName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  country: string | null;
+  city: string | null;
+  favouriteTeamCode: string | null;
+  telegramUsername: string | null;
+  createdAt: number;
+  lastSeenAt: number;
+}
+
+/** GET /v1/auth/me — returns the full user record or null on no session. */
+export async function fetchInboundUser(signal?: AbortSignal): Promise<InboundUser | null> {
+  try {
+    const r = await fetch(AUTH_BASE.replace(/\/$/, "") + "/v1/auth/me", {
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
+      signal,
+    });
+    if (!r.ok) return null;
+    const j = (await r.json()) as { user?: InboundUser };
+    return j.user ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Profile patch payload. snake_case fields match the server. */
+export interface InboundProfilePatch {
+  display_name?: string | null;
+  country?: string | null;
+  email?: string | null;
+  first_name?: string | null;
+  last_name?: string | null;
+  city?: string | null;
+  favourite_team_code?: string | null;
+}
+
+export interface InboundUpdateOk {
+  readonly ok: true;
+  readonly user: InboundUser;
+}
+export interface InboundUpdateErr {
+  readonly ok: false;
+  readonly error: "unauthorized" | "bad-email" | "email-taken" | "network" | "unknown";
+}
+
+/** PATCH /v1/auth/me — applies the patch and returns the updated user. */
+export async function updateInboundProfile(
+  patch: InboundProfilePatch,
+): Promise<InboundUpdateOk | InboundUpdateErr> {
+  try {
+    const r = await fetch(AUTH_BASE.replace(/\/$/, "") + "/v1/auth/me", {
+      method: "PATCH",
+      credentials: "include",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(patch),
+    });
+    const j = (await r.json().catch(() => ({}))) as {
+      user?: InboundUser;
+      error?: string;
+    };
+    if (r.ok && j.user) return { ok: true, user: j.user };
+    const err = j.error ?? "unknown";
+    if (err === "bad-email" || err === "email-taken" || err === "unauthorized") {
+      return { ok: false, error: err };
+    }
+    return { ok: false, error: "unknown" };
+  } catch {
+    return { ok: false, error: "network" };
+  }
+}

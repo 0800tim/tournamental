@@ -62,8 +62,8 @@ export interface UserRecord {
   id: string;
   /**
    * E.164 phone, or `null` for users who signed up via a non-phone provider
-   * (e.g. Telegram Login Widget). The runtime invariant is "at least one
-   * external identity is set" — phone OR telegram_id.
+   * (e.g. Telegram Login Widget, email). The runtime invariant is "at least
+   * one external identity is set" — phone OR telegram_id OR email.
    */
   phone: string | null;
   display_name: string | null;
@@ -74,6 +74,16 @@ export interface UserRecord {
   telegram_username: string | null;
   created_at: number;
   last_seen_at: number;
+  /** Profile fields editable from /profile. NULL until set. */
+  email: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  city: string | null;
+  favourite_team_code: string | null;
+  /** Returned HighLevel contact ID once we've synced this user. NULL if not yet. */
+  highlevel_contact_id: string | null;
+  /** Unix seconds when the contact was last synced to HighLevel. NULL if not yet. */
+  highlevel_synced_at: number | null;
 }
 
 export interface SessionRecord {
@@ -113,8 +123,18 @@ CREATE TABLE IF NOT EXISTS user (
   telegram_id INTEGER,
   telegram_username TEXT,
   created_at INTEGER NOT NULL,
-  last_seen_at INTEGER NOT NULL
+  last_seen_at INTEGER NOT NULL,
+  -- Profile fields added v0.4. NULL until the user fills them in.
+  email TEXT,
+  first_name TEXT,
+  last_name TEXT,
+  city TEXT,
+  favourite_team_code TEXT,
+  highlevel_contact_id TEXT,
+  highlevel_synced_at INTEGER
 );
+-- idx_user_email_unique is created in migrateUserProfileColumns()
+-- after the ADD COLUMN runs on legacy DBs.
 -- SQLite treats multiple NULLs as distinct in a UNIQUE index, so phone
 -- can be NULL for Telegram-only users while still being unique when set.
 CREATE UNIQUE INDEX IF NOT EXISTS idx_user_phone_unique ON user(phone)
@@ -165,7 +185,38 @@ export class Storage {
     this.db.pragma('foreign_keys = ON');
     this.db.exec(SCHEMA);
     this.migrateUserTableIfNeeded();
+    this.migrateUserProfileColumns();
     this.migratePhoneOtpTableIfNeeded();
+  }
+
+  /**
+   * v0.3 → v0.4: add profile editor fields + HighLevel sync columns to
+   * `user`. SQLite ADD COLUMN is non-destructive; legacy rows simply
+   * carry NULL until the user edits them.
+   */
+  private migrateUserProfileColumns(): void {
+    const cols = this.db
+      .prepare(`PRAGMA table_info(user)`)
+      .all() as Array<{ name: string }>;
+    const names = new Set(cols.map((c) => c.name));
+    const want: Array<[string, string]> = [
+      ['email', 'TEXT'],
+      ['first_name', 'TEXT'],
+      ['last_name', 'TEXT'],
+      ['city', 'TEXT'],
+      ['favourite_team_code', 'TEXT'],
+      ['highlevel_contact_id', 'TEXT'],
+      ['highlevel_synced_at', 'INTEGER'],
+    ];
+    for (const [col, type] of want) {
+      if (!names.has(col)) {
+        this.db.exec(`ALTER TABLE user ADD COLUMN ${col} ${type}`);
+      }
+    }
+    this.db.exec(
+      `CREATE UNIQUE INDEX IF NOT EXISTS idx_user_email_unique ON user(email)
+         WHERE email IS NOT NULL`,
+    );
   }
 
   /**
@@ -425,6 +476,13 @@ export class Storage {
       telegram_username: null,
       created_at: now,
       last_seen_at: now,
+      email: null,
+      first_name: null,
+      last_name: null,
+      city: null,
+      favourite_team_code: null,
+      highlevel_contact_id: null,
+      highlevel_synced_at: null,
     };
     this.db
       .prepare(
@@ -501,6 +559,13 @@ export class Storage {
       telegram_username: telegramUsername,
       created_at: now,
       last_seen_at: now,
+      email: null,
+      first_name: null,
+      last_name: null,
+      city: null,
+      favourite_team_code: null,
+      highlevel_contact_id: null,
+      highlevel_synced_at: null,
     };
     this.db
       .prepare(
@@ -509,6 +574,41 @@ export class Storage {
       )
       .run(rec);
     return rec;
+  }
+
+  /**
+   * Patch a user record. Accepts a subset of the editable profile
+   * fields; unknown keys are ignored. `last_seen_at` is also bumped
+   * because this is the user's most recent action. Returns the
+   * updated record, or null if no row matched.
+   */
+  updateUser(id: string, patch: Partial<Omit<UserRecord, 'id' | 'created_at'>>, now: number): UserRecord | null {
+    const allowed: Array<keyof UserRecord> = [
+      'display_name',
+      'country',
+      'email',
+      'first_name',
+      'last_name',
+      'city',
+      'favourite_team_code',
+      'highlevel_contact_id',
+      'highlevel_synced_at',
+    ];
+    const assignments: string[] = ['last_seen_at = @last_seen_at'];
+    const params: Record<string, unknown> = { id, last_seen_at: now };
+    for (const key of allowed) {
+      if (key in patch) {
+        assignments.push(`${key} = @${key}`);
+        params[key] = (patch as Record<string, unknown>)[key] ?? null;
+      }
+    }
+    if (assignments.length === 1) {
+      // Only the bump; still execute so last_seen updates.
+    }
+    this.db
+      .prepare(`UPDATE user SET ${assignments.join(', ')} WHERE id = @id`)
+      .run(params);
+    return this.getUser(id);
   }
 
   getUser(id: string): UserRecord | null {
