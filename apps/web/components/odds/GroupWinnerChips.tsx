@@ -48,6 +48,17 @@ export function GroupWinnerChips(props: GroupWinnerChipsProps) {
         for (const r of results) {
           if (r.ok) ok.push(r.data);
         }
+        // Only show these chips when at least one backing market is
+        // real Polymarket data. Placeholder estimates from the mock
+        // or fallback default to a uniform split across all four
+        // teams (~25% each), which is meaningless noise — hide it
+        // until we wire real markets in. Once the odds-api proxy is
+        // live for WC 2026 group-winner markets, this gate flips.
+        const hasRealMarket = ok.some((s) => s.source === "polymarket");
+        if (!hasRealMarket) {
+          setSummaries([]);
+          return;
+        }
         // Normalise to sum to 1 (mock guarantees this; real data should
         // too but be defensive).
         const total = ok.reduce((a, s) => a + s.groupWinnerProb, 0);
