@@ -332,7 +332,7 @@ function WhatsAppTab() {
           className="vt-signup-link"
           style={{ display: "block", textAlign: "center", marginBottom: 16 }}
         >
-          …or sign in with SMS (you're in {smsCountry})
+          …or sign in with SMS (you&apos;re in {smsCountry})
         </a>
       ) : (
         <p
