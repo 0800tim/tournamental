@@ -66,7 +66,7 @@ export function ApiKeysPage() {
             onClick={() => setShowSignup(true)}
             style={signInButtonStyle}
           >
-            Sign in
+            Sign In/Up
           </button>
         </section>
         <SignupModal open={showSignup} onClose={() => setShowSignup(false)} />

@@ -73,14 +73,10 @@ export function ProfilePage() {
             onClick={() => setShowModal(true)}
             className="vt-profile-cta"
           >
-            Sign in
+            Sign In/Up
           </button>
         </section>
-        <SignupModal
-          open={showModal}
-          onClose={() => setShowModal(false)}
-          initialTab="whatsapp"
-        />
+        <SignupModal open={showModal} onClose={() => setShowModal(false)} />
       </>
     );
   }

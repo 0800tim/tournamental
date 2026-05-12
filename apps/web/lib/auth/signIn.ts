@@ -53,9 +53,16 @@ export async function signInWithMagicLink(
 /**
  * Telegram Login Widget payload. The widget JS hands us
  * `{ id, first_name, username, photo_url, auth_date, hash }`. We POST
- * it to `/api/auth/telegram-callback` which verifies the HMAC signature
- * against the bot token, mints a Supabase session via the service-role
- * client, and sets the session cookie.
+ * it directly to auth-sms's /v1/auth/telegram/callback, which verifies
+ * the HMAC signature against the bot token, upserts the user in the
+ * inbound-login `user` table, and sets the apex-domain `tnm_session`
+ * cookie.
+ *
+ * This path is intentionally Supabase-free and Aiva-free: auth-sms
+ * verifies the Telegram payload itself (the bot token is the HMAC key)
+ * and mints the same session cookie the WhatsApp / SMS magic-verify
+ * flow uses. The play app's MagicLinkConsumer + useUser pick it up via
+ * the cookie on the next render.
  */
 export interface TelegramAuthPayload {
   id: number;
@@ -67,22 +74,25 @@ export interface TelegramAuthPayload {
   hash: string;
 }
 
+const AUTH_BASE =
+  process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? "https://auth.tournamental.com";
+
 export async function signInWithTelegram(
   payload: TelegramAuthPayload,
 ): Promise<SignInResult> {
-  if (!isAuthConfigured()) return { ok: false, error: "unconfigured" };
   try {
-    const res = await fetch("/api/auth/telegram-callback", {
+    const res = await fetch(`${AUTH_BASE}/v1/auth/telegram/callback`, {
       method: "POST",
       headers: { "content-type": "application/json" },
+      credentials: "include",
       body: JSON.stringify(payload),
     });
     if (!res.ok) {
       const body = (await res.json().catch(() => ({}))) as { error?: string };
       return { ok: false, error: body.error ?? "telegram-failed" };
     }
-    // The callback responds 200 with a Set-Cookie; nothing else to do
-    // beyond letting the auth state listener fire.
+    // The callback responds 200 with Set-Cookie: tnm_session=…; the
+    // next render of useUser() / MagicLinkConsumer picks it up.
     return { ok: true };
   } catch (err) {
     return { ok: false, error: (err as Error).message };

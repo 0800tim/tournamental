@@ -33,6 +33,7 @@ import {
   verifyTelegramLogin,
 } from '../telegram-login.js';
 import { normalisePhone } from '../phone.js';
+import { buildSessionCookie } from './magic-verify.js';
 
 const BodySchema = z.object({
   id: z.number().int().positive(),
@@ -126,6 +127,18 @@ export async function registerTelegramCallback(
     ctx.log.info(
       { userId: user.id, telegramId: verified.id, jti: signed.jti },
       'auth: telegram verify ok',
+    );
+
+    // Set the same apex-domain cookie the WhatsApp/SMS magic-verify path
+    // uses, so the play app and marketing site recognise the session
+    // immediately without the client having to re-attach the JWT.
+    reply.header(
+      'Set-Cookie',
+      buildSessionCookie({
+        jwt: signed.jwt,
+        ttlSeconds: ctx.config.sessionTtlSeconds,
+        cookieDomain: ctx.config.inboundCookieDomain,
+      }),
     );
 
     return reply.code(200).send({

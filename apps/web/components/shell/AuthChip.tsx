@@ -49,16 +49,12 @@ export function AuthChip() {
         <button
           type="button"
           className="vt-appbar-auth vt-appbar-auth-signin"
-          aria-label="Sign in"
+          aria-label="Sign in or sign up"
           onClick={() => setOpen(true)}
         >
-          Sign in
+          Sign In/Up
         </button>
-        <SignupModal
-          open={open}
-          onClose={() => setOpen(false)}
-          initialTab="whatsapp"
-        />
+        <SignupModal open={open} onClose={() => setOpen(false)} />
       </>
     );
   }

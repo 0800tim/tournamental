@@ -1,33 +1,53 @@
-/* SignupModal, three-tab sheet (Email / Telegram / WhatsApp).
-   Reuses .auth-* primitives from app/auth/auth.css where possible. */
+/* SignupModal — single-screen vertical stack: Telegram, WhatsApp,
+   code paste, SMS footer. Centres in viewport, scrolls if it grows
+   past the screen, full-width on mobile. */
+
+/* Two-layer scroll pattern:
+   - .vt-signup-backdrop  → fixed full-viewport, IS the scroll container
+   - .vt-signup-scroll    → flex wrapper with min-height:100%, centres a
+                            short card vertically AND grows to wrap a tall
+                            one so nothing clips at the top.
+   Single-layer flex+overflow on one element silently clips the top of
+   tall children because you can't scroll into negative space. The
+   wrapper div fixes that. */
 
 .vt-signup-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(8, 8, 12, 0.72);
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vt-signup-scroll {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  min-height: 100%;
   padding: 16px;
-  backdrop-filter: blur(6px);
+  box-sizing: border-box;
 }
 
 .vt-signup-card {
+  position: relative;
   width: 100%;
-  max-width: 440px;
+  max-width: 420px;
   background: rgba(20, 20, 28, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 20px;
-  padding: 24px 22px 22px;
+  padding: 28px 24px 22px;
   box-shadow: 0 32px 64px rgba(0, 0, 0, 0.55);
   color: #f3f4f8;
+  /* No max-height / overflow: the backdrop scrolls. This lets the
+     top of a tall card always be reachable by scrolling up. */
 }
 
 .vt-signup-close {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: 12px;
+  right: 12px;
   width: 32px;
   height: 32px;
   border-radius: 999px;
@@ -35,63 +55,182 @@
   background: rgba(255, 255, 255, 0.08);
   color: #fff;
   font-size: 18px;
+  line-height: 1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  z-index: 1;
+}
+.vt-signup-close:hover {
+  background: rgba(255, 255, 255, 0.16);
 }
 
 .vt-signup-title {
   font-size: 22px;
   font-weight: 700;
-  margin: 0 0 2px 0;
+  margin: 0 0 4px 0;
   letter-spacing: -0.02em;
 }
 
 .vt-signup-sub {
   font-size: 14px;
-  margin: 0 0 18px 0;
+  margin: 0 0 20px 0;
   color: rgba(243, 244, 248, 0.65);
+  line-height: 1.45;
 }
 
-.vt-signup-tabs {
+/* ---- Vertical stack ---- */
+
+.vt-signin-stack {
   display: flex;
-  gap: 6px;
-  margin-bottom: 18px;
-  background: rgba(0, 0, 0, 0.25);
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vt-signin-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;
+}
+
+/* Telegram Login Widget renders an <iframe> with internal padding;
+   we just centre it within the slot. */
+.vt-telegram-mount {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 44px;
+}
+.vt-telegram-mount iframe {
+  /* The widget renders a roughly 240px wide button; let it size
+     itself but cap horizontally so it doesn't blow out narrow cards. */
+  max-width: 100%;
+}
+
+/* ---- Primary buttons (shared shape) ---- */
+
+.vt-signin-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 16px;
   border-radius: 12px;
-  padding: 4px;
-}
-
-.vt-signup-tab {
-  flex: 1;
-  padding: 10px 8px;
-  border-radius: 8px;
-  border: 0;
-  background: transparent;
-  color: rgba(243, 244, 248, 0.7);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
+  border: 1px solid transparent;
   transition:
+    transform 90ms ease,
     background 120ms ease,
-    color 120ms ease;
+    border-color 120ms ease;
+}
+.vt-signin-btn:hover {
+  transform: translateY(-1px);
+}
+.vt-signin-btn:active {
+  transform: translateY(0);
 }
 
-.vt-signup-tab[data-active="1"] {
-  background: rgba(92, 242, 142, 0.16);
-  color: #5cf28e;
+.vt-signin-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.vt-signup-tab-icon {
-  margin-right: 6px;
+.vt-signin-btn-whatsapp {
+  background: #25d366;
+  color: #0a0e1a;
+  border-color: #1eb456;
+}
+.vt-signin-btn-whatsapp:hover {
+  background: #2ee07a;
+}
+
+/* ---- Code paste section ---- */
+
+.vt-signin-codeblock {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.vt-signin-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(243, 244, 248, 0.45);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 4px 0 2px;
+}
+.vt-signin-divider::before,
+.vt-signin-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .vt-signup-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
+
+.auth-input-code {
+  text-align: center;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 22px;
+  letter-spacing: 0.4em;
+  font-weight: 600;
+}
+
+/* ---- SMS footer ---- */
+
+.vt-signin-sms-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vt-signin-sms-link {
+  color: rgba(243, 244, 248, 0.85);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.vt-signin-sms-link:hover {
+  color: #fff;
+}
+
+.vt-signin-sms-note {
+  font-size: 11px;
+  color: rgba(243, 244, 248, 0.5);
+  text-align: center;
+  line-height: 1.5;
+}
+.vt-signin-sms-note code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+/* ---- Status states ---- */
 
 .vt-signup-banner {
   background: rgba(255, 213, 79, 0.12);
@@ -105,10 +244,11 @@
 .vt-signup-success {
   background: rgba(92, 242, 142, 0.14);
   color: #b6fbcd;
-  padding: 10px 12px;
-  border-radius: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
   font-size: 14px;
   border: 1px solid rgba(92, 242, 142, 0.35);
+  text-align: center;
 }
 
 .vt-signup-link {
@@ -119,5 +259,29 @@
   cursor: pointer;
   padding: 6px 8px;
   font-size: 13px;
-  align-self: flex-start;
+}
+
+/* ---- Mobile ---- */
+
+@media (max-width: 480px) {
+  .vt-signup-scroll {
+    /* On phones, anchor the card near the top so the on-screen
+       keyboard doesn't push the code input below the fold when it
+       opens. The min-height:100% wrapper still lets a short card sit
+       roughly centred when no keyboard is up. */
+    align-items: flex-start;
+    padding: max(12px, env(safe-area-inset-top, 12px)) 12px 12px;
+  }
+  .vt-signup-card {
+    padding: 24px 18px 18px;
+  }
+  .vt-signup-title {
+    font-size: 20px;
+  }
+  .vt-signin-btn {
+    font-size: 15px;
+  }
+  .auth-input-code {
+    font-size: 20px;
+  }
 }
