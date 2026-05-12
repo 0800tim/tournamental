@@ -296,6 +296,13 @@ declare module 'astro:content' {
 } & { render(): Render[".mdx"] };
 };
 "press": {
+"2026-05-12-everything-open-source.mdx": {
+	id: "2026-05-12-everything-open-source.mdx";
+  slug: "2026-05-12-everything-open-source";
+  body: string;
+  collection: "press";
+  data: InferEntrySchema<"press">
+} & { render(): Render[".mdx"] };
 "2026-05-13-ai-builder-launch.mdx": {
 	id: "2026-05-13-ai-builder-launch.mdx";
   slug: "2026-05-13-ai-builder-launch";

@@ -1,0 +1,85 @@
+---
+title: "Tournamental open-sources the entire idea, not just the code: a complete consumer product built for AI agents to fork in days"
+subtitle: "The bracket app, the 3D match renderer, the on-chain prediction-receipts, the marketing site, the business model, the affiliate plumbing — all of it, Apache 2.0, before launch. Built solo with Claude over a long week. Now anyone can clone it, run it, fork it, or improve it at the speed of AI."
+pubDate: 2026-05-12
+contactName: "Tim Lyons"
+contactEmail: "press@tournamental.com"
+pressKitUrl: "/press-kit/tournamental-press-kit.zip"
+category: "open-source"
+audience: ["ai-builder", "techcrunch", "general"]
+heroImage: "/press/2026-05-12-everything-open-source-hero.jpg"
+heroImageAlt: "Tournamental's GitHub repo tree showing the apps, packages, docs and sessions folders, with a Claude Code terminal pane in the corner running parallel build agents. The Tournamental wordmark sits in the top-right."
+quoteAttributable:
+  - quote: "Everyone open-sources their code. We're open-sourcing the entire idea. The marketing site, the business model, the affiliate splits, the failure modes, the late-night decision logs. If you can clone a repo, you can clone a consumer product."
+    source: "Tim Lyons, founder, Tournamental"
+  - quote: "An idea is worth zero on its own. An idea that a thousand AI-fluent builders can fork on day one and ship a better version of by day three is worth something genuinely different. That's the bet."
+    source: "Tim Lyons, founder, Tournamental"
+  - quote: "We don't think of this as giving away our edge. We think of it as letting the world build the next year of Tournamental in a long weekend. The contributors get paid through Drips Network. Everyone wins, including the eventual users."
+    source: "Tim Lyons, founder, Tournamental"
+tags: ["open source", "ai", "claude", "bracket", "world cup 2026", "drips", "tournamental"]
+---
+
+**Auckland, New Zealand — 12 May 2026.** Tournamental, a tournament-prediction platform built around the 2026 FIFA World Cup, today publishes its entire production codebase, business model, marketing strategy, brand book, and design history under the Apache 2.0 licence. The full repository is live at **[github.com/0800tim/tournamental](https://github.com/0800tim/tournamental)**.
+
+What's open is not just the code. It is every part of the product:
+
+- the live bracket-prediction app at [play.tournamental.com](https://play.tournamental.com)
+- a 3D match-renderer for watch-along sessions of WC 2026 fixtures
+- a blockchain-anchored "prediction receipt" system that timestamps every pick before kickoff, immutably, for the first credible "I called it" verification on the internet
+- the marketing site, the press releases, the contributor-revenue plumbing
+- 27 design docs covering everything from scoring algorithms to identity-and-humanness scoring to on-chain settlement
+- 90+ session notes documenting every architectural decision, dead-end, and reversal across the build
+
+The licence is Apache 2.0 for code, CC-BY 4.0 for docs and marketing copy. The brand and affiliate codes remain owned by Tournamental Holdings; everything else is free to fork, run, modify, and ship.
+
+## Why open-source the whole thing, not just the code
+
+Tournamental is built on a thesis that AI-fluent builders are now fast enough to make the traditional "secret sauce" obsolete. A small team with Claude or another coding agent can clone a working consumer product, understand it in a day, and ship an improved version by the end of the week. Keeping the idea private no longer protects it — it only slows the version of it that ships first.
+
+"Everyone open-sources their code. We're open-sourcing the entire idea," said founder Tim Lyons. "The marketing site, the business model, the affiliate splits, the failure modes, the late-night decision logs. If you can clone a repo, you can clone a consumer product."
+
+The repository ships with **AGENT-PROMPTS.md** — a directory of starter prompts written specifically for AI coding agents — and a fully documented orchestrator protocol so a single developer with a coding agent can reproduce the build path from scratch.
+
+## Built solo with an AI engineering partner
+
+The platform was built by one person over a focused build sprint using Claude Code, Anthropic's CLI for software engineering. Up to 12 parallel agent sessions ran simultaneously at peak — one per service or feature area — coordinated by a single human orchestrator and a single human-written `CLAUDE.md` operations protocol. The build pattern, with its commit conventions, session notes, spec-as-contract rule, and parallel-agent dispatching, is itself part of the open-sourced material.
+
+"An idea is worth zero on its own," Lyons said. "An idea that a thousand AI-fluent builders can fork on day one and ship a better version of by day three is worth something genuinely different. That's the bet."
+
+## What contributors actually get
+
+Contributor revenue is real and on-chain. Tournamental routes a fixed share of platform revenue to its open-source contributors automatically via **[Drips Network](https://www.drips.network/)**, the Ethereum-mainnet protocol that streams payments to GitHub identities based on contribution weight. Drips splits are public, auditable, and continuous — contributors do not have to invoice, claim, or negotiate.
+
+The first wave of recruited contributors is targeted at four areas where the codebase has the most leverage for fast forks:
+
+1. **3D renderers and 3D engineers** — to lift the watch-along renderer to broadcast-grade quality across more sports.
+2. **Data producers** — to wire up real-time match feeds beyond the StatsBomb open-data set the launch demo uses.
+3. **Smart-contract developers** — to harden the on-chain prediction-pool oracle ahead of mainnet.
+4. **Designers, translators, and storytellers** — to take the platform global before the FIFA tournament kicks off on 11 June 2026.
+
+Calls-for-contributors for each of the four areas are already published on the Tournamental blog.
+
+## The unique twist: blockchain-verified, unhackable predictions
+
+Every pick a user saves is hashed and Merkle-anchored to Ethereum mainnet before its match kicks off. The result is a cryptographic receipt that proves *when* a prediction was made — to the second, immutably, with no possibility of post-hoc edits. This makes Tournamental the first consumer bracket-prediction game where "I called it" claims are independently verifiable by anyone, not just the platform owner.
+
+The verification chain runs end-to-end: pick is locked → hashed with a stable scheme → batched into a Merkle root each kickoff cycle → anchored to mainnet via a low-cost VStamp transaction → proof is publicly resolvable forever. This is the technical foundation for the platform's planned trustless prediction-pool product, designed for broadcasters and sports brands who want to run six-figure prize draws without the legal exposure of running their own custodial settlement.
+
+## Launch timeline
+
+- **12 May 2026** — Repository public; play.tournamental.com live for early testing; press release issued.
+- **June 2026** — Free-to-play bracket game open to the public, with WhatsApp / SMS / Telegram one-tap sign-in working worldwide.
+- **11 June 2026** — FIFA World Cup 2026 kicks off; prediction lock-in begins.
+- **Q3 2026** — On-chain prediction pool launches following smart-contract audit. Watch-along renderer rolls out for selected matches.
+
+## A note for journalists and content creators
+
+The full press kit, brand assets, screenshots, and a 30-second product demo are at **[tournamental.com/press](https://tournamental.com/press)**. For interviews, build-log walkthroughs, or technical deep-dives with the founder, contact `press@tournamental.com`. Tim is particularly happy to do build-log demos with AI-builder podcasts and YouTubers covering the rise of AI-coded consumer products.
+
+The repository itself is at **[github.com/0800tim/tournamental](https://github.com/0800tim/tournamental)** — issues are open, contribution guidelines are in `CONTRIBUTING.md`, and the orchestrator protocol for AI-agent builders is in `CLAUDE.md` at the root.
+
+## About Tournamental
+
+Tournamental is a fully open-source tournament-prediction platform launching for the 2026 FIFA World Cup. Built solo with AI as the engineering partner, it pairs a free-to-play bracket game with a 3D match-renderer for watch-along viewing, blockchain-anchored prediction receipts, and a contributor-revenue model paid on-chain via Drips Network. Brand and affiliate codes owned by Tournamental Holdings; everything else, including the entire codebase, design docs, and business model, is published under Apache 2.0 (code) and CC-BY 4.0 (docs).
+
+— ends —
