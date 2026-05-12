@@ -1,0 +1,191 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+const pillars = [
+  {
+    title: "Blockchain-verified entries",
+    body: "Every prediction is signed and timestamped before kickoff via VStamp, Tournamental's open-source Merkle-tree receipt service. Print the public verifier URL on screen. Anyone can audit. Nobody can edit retroactively.",
+    icon: "shield",
+  },
+  {
+    title: "Insurable big prizes",
+    body: "Run a £1M perfect-bracket draw. The maths is in your favour, perfect predictions are astronomically rare, and the verifiable entry ledger lets you buy real insurance for the payout. Premium scales with audience size, not exposure.",
+    icon: "trophy",
+  },
+  {
+    title: "Broadcast-ready integrations",
+    body: "OBS and vMix overlays for on-air leaderboards. JSON feed for your existing graphics package. QR codes that drop viewers into your branded landing in two taps. Audio commentary chips you can voice.",
+    icon: "broadcast",
+  },
+  {
+    title: "White-labelled in 48 hours",
+    body: "Branded subdomain (skysports.tournamental.com), your colours, your tagline, your sponsor placement. Or CNAME it to predict.skysports.com if you want it fully on your own brand.",
+    icon: "brand",
+  },
+];
+
+const programs = [
+  {
+    name: "The £1M Perfect Bracket",
+    odds: "~1 in 9.2 quintillion",
+    body: "Pick every match of the 64-match tournament. One mistake disqualifies. Astronomical odds, modest insurance premium. The on-screen prize that always lands the front page.",
+  },
+  {
+    name: "Perfect Final, £100K",
+    odds: "~1 in 50,000 conditional",
+    body: "Predict the exact score of the final and bonus the goal scorers. Sharp enough to genuinely happen once a generation, viral enough for daily on-air dramatic build-up.",
+  },
+  {
+    name: "Top-of-the-Round, $5K weekly",
+    odds: "best of the field",
+    body: "Highest scorer each round wins a guaranteed cash prize. Predictable budget. Weekly winner segment for the show. Repeatable across every tournament round.",
+  },
+  {
+    name: "City vs City",
+    odds: "regional leaderboard",
+    body: "Branded micro-leaderboards by city or station catchment. Auckland beats Wellington this weekend. Talk radio gold. Trophy + bragging rights, no payout needed.",
+  },
+];
+
+const articles = [
+  {
+    href: "/blog/2026-05-18-media-blockchain-prize-draws",
+    title: "The blockchain-verified prize draw playbook",
+    snippet: "How VStamp turns every entry into a public, immutable receipt your legal team and your audience can both audit. The technical mechanics in 1,800 words.",
+  },
+  {
+    href: "/blog/2026-05-18-media-million-pound-perfect-bracket",
+    title: "How to offer a £1M perfect-bracket prize without ruining your CFO",
+    snippet: "Why impossible-odds prizes are insurable, what the premium actually costs, and the verification stack that makes underwriters say yes.",
+  },
+  {
+    href: "/blog/2026-05-18-media-broadcast-integration",
+    title: "Broadcast integration toolkit: OBS, vMix, JSON feeds, on-air leaderboards",
+    snippet: "Drop-in graphics for live shows. Spec for the data feed your graphics team plugs into. QR-code call-to-actions that convert on the couch.",
+  },
+  {
+    href: "/blog/2026-05-18-media-sweepstakes-compliance",
+    title: "Free-to-enter, compliance-friendly: prize draws that survive legal review",
+    snippet: "The sweepstakes-of-skill model. Geo-gating. Age-gates. KYC handoff to your network. How we keep the whole thing out of regulated-gambling territory.",
+  },
+];
+---
+<Layout
+  title="Tournamental for media · Blockchain-verified prize draws for broadcasters"
+  description="Sports radio, TV, and digital networks run blockchain-verified prediction games and big-prize sweepstakes on Tournamental. Sky Sports, talkSPORT, BBC, TVNZ-grade infrastructure, free to integrate, branded in 48 hours, insurable up to £1M+."
+  ogImage="/og/media-hero.svg"
+>
+  <section class="container-page pt-16 pb-12">
+    <SectionHeading
+      eyebrow="For sports media"
+      title="Run the prize game broadcasters wish they could afford."
+      lede="A blockchain-verified, immutable, broadcast-ready prediction game your station, network, or radio brand can plug into the 2026 FIFA World Cup, the Lions tour, the World T20, the Olympics, or your weekly Premier League show. Free to integrate. Branded in 48 hours. Insurable up to £1M+."
+    />
+    <div class="flex flex-wrap gap-3">
+      <a href="mailto:media@tournamental.com?subject=Tournamental%20for%20media" class="btn-primary">Book a 30-min walkthrough</a>
+      <a href="#programs" class="btn-ghost">See prize-program templates</a>
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <figure class="vt-media-hero">
+      <img
+        src="/og/media-hero.svg"
+        alt="Stadium broadcast gantry with cameras and graphics packages feeding a glowing on-chain verified leaderboard panel and a £1M prize medal."
+        width="1200"
+        height="630"
+        loading="eager"
+      />
+    </figure>
+  </section>
+
+  <section class="container-page pb-12">
+    <h2 class="text-2xl font-bold text-white mb-6">Four reasons sports media run on Tournamental</h2>
+    <div class="grid md:grid-cols-2 gap-6">
+      {pillars.map((p) => (
+        <div class="card">
+          <h3 class="text-lg font-bold text-white">{p.title}</h3>
+          <p class="text-ink-200 mt-2">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-page pb-12" id="programs">
+    <h2 class="text-2xl font-bold text-white mb-2">Prize-program templates</h2>
+    <p class="text-ink-200 mb-6 max-w-3xl">Pick a format, swap the dollar sign for your currency, and we'll spin you a branded landing in 48 hours. All four templates are free-to-enter on the player's side; the prize and the marketing wrap are yours.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      {programs.map((p) => (
+        <div class="card">
+          <div class="flex items-start justify-between gap-4">
+            <h3 class="text-lg font-bold text-white">{p.name}</h3>
+            <span class="pill">{p.odds}</span>
+          </div>
+          <p class="text-ink-200 mt-3">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-page pb-12">
+    <h2 class="text-2xl font-bold text-white mb-2">Deep dives</h2>
+    <p class="text-ink-200 mb-6 max-w-3xl">Four articles for your producer, head of digital, or legal lead. Each is the long version of one slide in the walkthrough.</p>
+    <div class="grid md:grid-cols-2 gap-6">
+      {articles.map((a) => (
+        <a href={a.href} class="card vt-media-article-card">
+          <h3 class="text-lg font-bold text-white">{a.title}</h3>
+          <p class="text-ink-200 mt-2 text-sm">{a.snippet}</p>
+          <span class="link text-sm mt-3 inline-block">Read the deep dive →</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container-prose pb-12">
+    <h2 class="text-2xl font-bold text-white">How the integration lands</h2>
+    <ol class="prose-vt space-y-4">
+      <li><strong>30-minute call.</strong> Walk us through your show, your audience, and the prize idea. We tell you on the call what's straightforward, what needs custom work, and what timeframe is honest.</li>
+      <li><strong>48-hour bespoke landing.</strong> Branded subdomain, your colours, your sponsor placement, your call-to-action. Live test against pre-tournament friendlies so your production team can rehearse.</li>
+      <li><strong>Broadcast wrap.</strong> OBS / vMix overlay templates. JSON feed for your graphics package. On-air QR code that drops viewers straight into your branded entry flow. Audio chips you can voice as inserts.</li>
+      <li><strong>Insurance brokered (optional).</strong> For impossible-prize formats (£1M perfect-bracket, etc.) we connect you to underwriters who already insure US/UK televised contests. You sign with the broker, we deliver the verified entry ledger.</li>
+      <li><strong>Run the tournament.</strong> Daily winner digests, weekly settlement segments, on-air shoutouts. Post-event audit pack signed and archived.</li>
+    </ol>
+  </section>
+
+  <section class="container-prose pb-12">
+    <h2 class="text-2xl font-bold text-white">Why broadcasters trust the verification</h2>
+    <p class="prose-vt">Every entry is signed at lock time with VStamp, Tournamental's open-source receipt service. The signature is a Merkle-tree root anchored on Ethereum mainnet, which means anyone, your viewers, your legal team, your auditors, an independent observer, can verify that no entry was edited after kickoff. We print the verifier URL on the share card, on the broadcast graphic, and on the post-event report. There is no version of the prize draw where you have to take our word for it.</p>
+    <p class="prose-vt">If you want to read the technical mechanics before the walkthrough, the open-source <a href="/open-source" class="link">repo</a> has the VStamp service, the bracket engine, and the audit verifier. <a href="https://github.com/0800tim/tournamental" class="link">Fork it.</a> Run the verifier against last week's draw. Confirm the maths matches what we published. Then book the call.</p>
+  </section>
+
+  <section class="container-prose pb-16">
+    <h2 class="text-2xl font-bold text-white">Free-to-enter, compliance-friendly</h2>
+    <p class="prose-vt">Tournamental is a free-to-play prediction platform. Entrants do not pay. The prize sponsor (you) funds the prize and the marketing; Tournamental provides the verified entry ledger and the broadcast toolkit. This keeps the format out of regulated-gambling territory in NZ, AU, the UK, and most US states. We never use the word "gambling" because it is not what this is: it is a free-to-enter prediction contest, in the same legal family as the Quicken Loans Billion Dollar Bracket or the Daily Mail's Fantasy Football. The compliance brief is in the <a href="/blog/2026-05-18-media-sweepstakes-compliance" class="link">deep-dive post</a>.</p>
+
+    <h2 class="text-2xl font-bold text-white mt-10">Get in touch</h2>
+    <p class="prose-vt">
+      <a href="mailto:media@tournamental.com" class="link">media@tournamental.com</a>, with your network or show name, your audience size, and what tournament you want to run a prize draw around. We reply within one business day. Pre-2026-World-Cup slots are limited; pre-tournament rehearsal needs lead time so the production team can rehearse the on-air wrap.
+    </p>
+    <p class="prose-vt mt-4">
+      We're also keeping a short waitlist of media partners for the 11 June 2026 kickoff. <a href="mailto:media@tournamental.com?subject=Tournamental%20World%20Cup%20media%20partner" class="link">Drop us a line</a> and we'll prioritise.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .vt-media-hero img {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 24px 48px -16px rgba(0, 0, 0, 0.6);
+  }
+
+  .vt-media-article-card {
+    transition: transform 120ms ease, border-color 120ms ease;
+  }
+  .vt-media-article-card:hover {
+    transform: translateY(-2px);
+  }
+</style>

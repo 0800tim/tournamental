@@ -1,0 +1,142 @@
+---
+title: "The blockchain-verified prize draw playbook"
+description: "How VStamp turns every entry into a public, immutable receipt that your legal team, your underwriter, and your audience can all audit independently. The technical mechanics, in 1,800 words."
+pubDate: 2026-05-18
+author: "Tim"
+tags:
+  - "media"
+  - "broadcasters"
+  - "vstamp"
+  - "verification"
+  - "blockchain"
+heroImage: "/og/media-hero.svg"
+heroImageAlt: "Stadium broadcast gantry with cameras feeding a glowing on-chain verified leaderboard panel and a VStamp audit ledger."
+heroImageCredit: "Illustration for Tournamental, 2026"
+---
+
+## Why broadcasters care about verification
+
+Every prize-draw promo lives or dies on one question from the audience: **"How do I know this isn't rigged?"** It does not matter how trustworthy your network is, how respected the host is, or how clean the legal review was; if the audience cannot independently check that the entries were locked before kickoff and have not been edited since, the contest has a credibility ceiling.
+
+For small prizes the audience shrugs and trusts the brand. For headline prizes, £1M perfect-bracket, $100K perfect-final, a five-figure weekly winner, the credibility ceiling becomes the prize ceiling. You cannot offer a million on the table if a sceptic in the audience can plausibly claim "you just rigged it."
+
+Tournamental's verification stack exists to remove that ceiling.
+
+## The primitive: Merkle trees and on-chain anchoring
+
+A **Merkle tree** is a data structure where every entry's hash is combined pairwise with its siblings, those combined hashes are combined again, all the way up to a single 32-byte **root hash** that represents every entry in the set. Two properties matter for prize draws:
+
+1. **Tamper evidence.** Change a single entry, and the root hash changes. Adversaries cannot edit entries after the root is published without rendering every existing proof invalid.
+2. **Compact proofs.** Any single entry can be proven to be in the tree using a path of approximately log₂(N) sibling hashes. For a million entries, that's about 20 hashes per proof. Tiny. Auditable by hand.
+
+**On-chain anchoring** publishes the root hash as a transaction on Ethereum mainnet at lock time. Anyone, anywhere, can fetch that transaction; nobody can rewrite it. The cost of forging a fraudulent root after the fact would require attacking Ethereum's consensus layer, which has resisted attacks valued in the hundreds of billions of dollars for over a decade.
+
+These two primitives, combined, are how Tournamental's **VStamp** service produces verifiable entry ledgers.
+
+## How VStamp works, step by step
+
+At a high level:
+
+1. A user submits their bracket. The bracket payload (every match prediction, every tiebreaker, the user's pseudonymous handle, the lock timestamp) is canonicalised (sorted, normalised) and hashed with SHA-256.
+2. That hash goes into the next Merkle tree batch. We batch every 60 seconds; the batch interval is published in advance.
+3. When the batch closes, VStamp computes the root hash of that batch.
+4. VStamp anchors the root by submitting it as the data payload of an Ethereum mainnet transaction to a public, audited smart contract at a fixed address. The contract is open source; the address is on /open-source.
+5. The user receives a **proof**, a JSON document containing their original payload, the Merkle path from their leaf to the root, and the block number of the on-chain anchor.
+6. The user can post their proof anywhere, share it on Twitter, archive it in their email, print it as a QR code.
+
+**Independent verification** is a single command:
+
+```bash
+npx @tournamental/vstamp-verify <proof.json>
+# → ✓ Bracket locked at 2026-06-11 16:00:23 UTC
+#   ✓ Anchored in block 19,847,329 (Ethereum mainnet)
+#   ✓ Root hash 0x8f3ac2d1...
+#   ✓ Entry not modified since lock.
+```
+
+No central server is required for verification. The verifier connects to any Ethereum RPC (Infura, Alchemy, your own node) and re-derives the proof from public data. You can run it offline against a downloaded block snapshot if you want.
+
+## What this gives the broadcaster
+
+Five practical things:
+
+### 1. Audit-ready entry ledger
+
+When the contest closes, you can hand your underwriter, your auditor, or a sceptical journalist a snapshot:
+
+- The Merkle root, plus its on-chain transaction hash.
+- The total count of entries committed to that root.
+- A public verifier URL anyone can hit to confirm the root themselves.
+
+Underwriters love this. It is the same kind of evidence they accept for hole-in-one insurance from a sponsor golf tournament, except instead of trusting a referee's clipboard, they trust a 17-year-old cryptographic primitive. Premiums go down because their auditor's job goes from "review every entry by hand" to "verify one Merkle root."
+
+### 2. On-screen credibility
+
+You can put the public verifier URL on screen during the broadcast. Viewers who care, even ten percent of them, even one percent of them, can pull out their phone, hit the URL, and watch the root re-derive in real time. The other 90% see a confident graphic and conclude "this is legit."
+
+QR codes on the on-air graphic deep-link straight to the verifier with the root pre-filled. Three taps and the audience has independent confirmation.
+
+### 3. Dispute-proof settlement
+
+When someone wins a five- or six-figure prize, the standard playbook in regulated jurisdictions is for a third party (sometimes an accounting firm, sometimes an arbitration body) to verify the winner is legitimate. With VStamp this becomes a five-minute review:
+
+- Pull the winner's proof.
+- Verify the proof against the on-chain root.
+- Confirm the entry payload matches the bracket they're claiming.
+- Sign off.
+
+No "did they edit it on Tuesday?" No "is the timestamp right?" No "are we sure this is the entry they submitted?" All three questions are answered by the proof.
+
+### 4. Compliance evidence
+
+In jurisdictions that require contest operators to maintain auditable records (UK, US states with prize-promo registration, AU), VStamp is the strongest form of record you can produce. Most of the regulator-facing paperwork is "produce evidence the contest was operated as described in the rules." A Merkle proof for every entry, anchored on a public chain, is the gold standard.
+
+The compliance deep-dive ([free-to-enter, compliance-friendly](/blog/2026-05-18-media-sweepstakes-compliance)) covers the jurisdictional details.
+
+### 5. Brand-safe storytelling
+
+The story "we put a million pounds on the table and the entries are verified by the same cryptography that runs Ethereum" is a press-release gift. Tech press will cover it. Sports press will cover it. Crypto press will cover it (which can be a double-edged sword, but typically nets positive). The "verified prize draw" frame raises the credibility of the entire show, not just the contest segment.
+
+## What it does not give you
+
+VStamp is **not**:
+
+- **A KYC service.** When a real-money prize is awarded, the winner's identity has to be verified to the regulator's standard. We hand off to your network's existing KYC provider (or recommend one if you don't have a preference). The proof confirms the entry was theirs; KYC confirms they are who they say they are.
+- **A funds-handling service.** Tournamental does not touch prize money. You (the broadcaster) and the underwriter handle the payout, the same way the BBC paid out on Predict the Cup or Sky paid out on Super 6.
+- **A bot-detection service.** Determined adversaries can submit thousands of brackets from a botnet. We have rate-limiting and CAPTCHA-on-demand at the entry point, and we can deduplicate by phone number (via SMS verification) if the contest rules require one entry per person. Discuss this on the walkthrough; the right policy depends on the prize.
+- **An anti-collusion service.** If two people share their predictions, both might win the same prize. The rules for split prizes are yours to set; we surface the data (e.g. "X entries are 95% similar") and you decide what to do with it.
+
+## How long does the integration take?
+
+The VStamp service is **already running in production**. There is no engineering work on your side; you don't host the service, you don't pay for the on-chain gas (that is bundled into the integration fee), and you don't need a blockchain engineer on your team.
+
+The actual integration is:
+
+- Day 1: discovery call.
+- Day 2: branded landing live on `<network>.tournamental.com` (or CNAME).
+- Day 3-7: production team rehearses the on-air wrap against test entries.
+- Day 8+: contest goes live.
+
+For complex contests (£1M perfect-bracket with underwriter), add a week for the insurance broker review. The longest pole is rarely the technology.
+
+## The standard objection: "what if Ethereum dies?"
+
+It is the right question to ask. Three answers:
+
+1. **It hasn't, and the bar for it to is extraordinary.** Ethereum has been operating continuously since 2015. Total economic value secured is in the hundreds of billions. The reorg / attack history is well-documented and short.
+2. **You only need it to live long enough to verify the contest.** Most prize draws run for one tournament cycle (4-8 weeks). The on-chain root needs to survive that window. Ethereum surviving a four-week window is a near-certain bet.
+3. **We mirror to multiple chains for the truly paranoid.** For contests over $1M in prize value, VStamp can mirror the root to a second chain (Bitcoin, via OP_RETURN, or a major L2) for redundancy. Premium clients only; ask on the walkthrough.
+
+## How this compares to "blockchain-verified" marketing claims
+
+Most "blockchain-verified" promotional claims are theatre, the brand operates a private chain, anchors nothing, and asks you to trust a press release. Tournamental's VStamp is on Ethereum mainnet, the smart contract is open source at a published address, the verifier is open source, and the proofs are independently checkable using only public data.
+
+If you want to validate this before the walkthrough, the entire repo is at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental). The VStamp service lives under `apps/vstamp/`. Spin it up locally, generate a proof, verify the proof against any Ethereum RPC. Then book the call.
+
+## What to do next
+
+Three options, listed by depth:
+
+- **Skim**: the [/media landing page](/media) summarises this article and three siblings in four scrollable sections.
+- **Deep**: read the [£1M perfect-bracket post](/blog/2026-05-18-media-million-pound-perfect-bracket), the [broadcast integration post](/blog/2026-05-18-media-broadcast-integration), and the [compliance post](/blog/2026-05-18-media-sweepstakes-compliance). About 25 minutes total.
+- **Action**: book the [30-minute walkthrough](mailto:media@tournamental.com?subject=Tournamental%20for%20media%20walkthrough). Faster than the reading.

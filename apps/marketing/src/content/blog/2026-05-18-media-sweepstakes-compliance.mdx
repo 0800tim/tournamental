@@ -1,0 +1,158 @@
+---
+title: "Free-to-enter, compliance-friendly: prize draws that survive legal review"
+description: "The sweepstakes-of-skill model. Geo-gating. Age-gates. KYC handoff to your network. How Tournamental keeps the whole format out of regulated-gambling territory in NZ, AU, the UK, and the US. Plus the standard contract shape your legal team will recognise."
+pubDate: 2026-05-18
+author: "Tim"
+tags:
+  - "media"
+  - "broadcasters"
+  - "compliance"
+  - "legal"
+  - "sweepstakes"
+heroImage: "/og/media-hero.svg"
+heroImageAlt: "Stadium broadcast gantry feeding a verified leaderboard panel with a stamped compliance ledger underneath."
+heroImageCredit: "Illustration for Tournamental, 2026"
+---
+
+## Why this article exists
+
+The compliance brief is the second-most-asked question on a media-network discovery call, immediately after "how much does it cost?" and immediately before "can my legal team review it before we sign?" The answer is the same in every call, so this post is the long version we send ahead so the call can skip straight to the integration.
+
+## The headline answer
+
+Tournamental contests are **free-to-enter prediction games of skill**, settled against publicly observable sporting outcomes, with the prize funded by the broadcaster (or insured against an independent underwriter). This format is **not regulated gambling** in NZ, AU, the UK, or any US state we have reviewed, on the same legal basis as:
+
+- The Quicken Loans Billion Dollar Bracket (US, multi-year operation).
+- The Yahoo Sports Perfect Bracket (US, ongoing).
+- The BBC's Predict the Cup (UK, run multiple cycles since 2014).
+- Sky Super 6 (UK, weekly Premier League predictions, free-to-enter, ongoing).
+- The Australian Sportsbet Brownlow Predictor (AU, free-to-enter prediction overlay).
+- The TVNZ Cricket World Cup predictor (NZ, free-to-enter, run multiple cycles).
+
+If you have run any of those, or any equivalent product, you have already operated this exact compliance shape. Tournamental is the platform behind it; the legal model is identical.
+
+## The three requirements that keep us out of gambling territory
+
+For a contest to qualify as a free-to-enter prediction game of skill, **all three** of the following must be true:
+
+### 1. No consideration (no entry fee)
+
+The entrant must be able to enter **for free** with no purchase necessary. This is the single biggest hinge. The moment you charge anyone, anywhere, for the right to enter the prize draw, you've crossed into regulated gambling in most jurisdictions.
+
+Tournamental enforces this at the platform level. The entry flow is free everywhere we operate. Even premium subscriber tiers (if you add them later for non-prize features like ad-free leaderboards) cannot be a prerequisite to enter a prize contest. We surface this in the entry-flow audit pack as a guarantee.
+
+For broadcasters who sell premium tiers around the contest (e.g. "subscribers get a paid-only friends-and-family leaderboard"), the paid tier sits alongside the free contest, never inside it. The "free alternative method of entry" requirement is satisfied automatically because the primary entry path is always free.
+
+### 2. Skill > chance
+
+The contest must be **substantially decided by skill**. Picking match outcomes in a sporting tournament is universally treated as a skill activity (the entrant's knowledge of football, form, injuries, tactics, head-to-heads informs their pick). Random picks lose on average.
+
+This is well-established in case law in every major English-speaking jurisdiction. The leading US precedent is the 2007 ruling on fantasy sports (NY District Court in particular); the UK uses the Gambling Act 2005 definition of "gaming" which excludes prediction of an event whose outcome depends on participants' performance; the AU/NZ frame is similar via the relevant gaming acts.
+
+What you can't do under this prong:
+
+- Award the prize via a literal coin flip among tied predictors. (We use lock-time and the documented tiebreaker rule instead, which preserves the skill prong.)
+- Award the prize via a random raffle from all entries. (Pure-luck format; that's a sweepstake, separate compliance regime.)
+- Use opaque "secret" tiebreaker rules. (Skill prong requires the rules be published in advance.)
+
+### 3. Prize is funded by the operator, not pooled from entries
+
+The prize must come from the broadcaster's own marketing budget or from an independent underwriter, **not from entry fees pooled and redistributed**. The "we'll give away whatever is collected, minus our 20%" model is the classic gambling pool and crosses the regulated-gambling line everywhere.
+
+Tournamental never holds prize funds. The broadcaster either:
+
+- Funds the prize directly from marketing budget (low-five-figure weekly winners, civic-prize bragging rights).
+- Insures the prize with an underwriter (the £1M impossible-prize format, see the [insurance deep-dive](/blog/2026-05-18-media-million-pound-perfect-bracket)).
+- Provides non-cash prizes from sponsor inventory (tickets, merch, experiences).
+
+In all three cases, the prize source is the operator's commercial relationship, not the entrants. This satisfies the third prong.
+
+## Geo-gating: where contests can run
+
+Even within the free-to-enter framework, a handful of jurisdictions add **additional permit or registration requirements** for prize promotions. Tournamental geo-gates contest entry by Cloudflare's `cf-ipcountry` header. Operators can opt in or out per jurisdiction:
+
+- **NZ, AU, UK, IE, CA, ZA, SG, IN, MY**: free-to-enter prediction games are clearly permitted under standard conditions. No additional registration required for most contests.
+- **US states**: 49 of 50 permit free-to-enter prediction games under standard conditions. Florida, NY, RI require **bonded sweepstakes registration** for prizes >$5,000; we can help broker that through standard providers (SCA Promotions, Marden-Kane, others) or your existing legal partner. Hawaii has an outright prohibition on prize promotions; we exclude HA IPs by default.
+- **France, Belgium, Italy, Spain**: separate national sweepstakes-promotion regimes. We exclude these by default unless the operator has registered locally; turning them on is a one-line config and a copy of the local registration certificate.
+- **The Netherlands, Norway, Finland**: blanket exclusion of cross-border prize promotions for foreign operators. We exclude by default.
+
+The geo-gating happens at the entry point. Users in excluded countries see a friendly "this contest is not available in your country, try our free leaderboard mode" message. This is a real CTA, not a soft block; users can still play for fun, just not for the prize.
+
+The full geo-gating matrix is in our public [docs/30](https://github.com/0800tim/tournamental/blob/main/docs/30-gamification-and-affiliate-spine.md). Operators can override (e.g. you have a NY licence and want to switch NY on); we never override without an operator's signed instruction.
+
+## Age-gating
+
+The standard age threshold for prize contests in our default jurisdictions is **18 years**. Our entry flow includes:
+
+- A self-attestation checkbox at the entry point ("I confirm I am 18+").
+- A documented complaint procedure (parents can write in; we void entries flagged as under-18).
+- KYC age-verification on prize winners over a value threshold (we hand off to your network's existing KYC provider; see next section).
+
+For broadcasters who want a higher threshold (e.g. 21+ to align with US drinking-age conventions in some sponsor categories), the threshold is a config option. Lower thresholds (e.g. "under-13 family-friendly contests with no cash prize") are also supported but require a separate parental-consent flow; ask on the walkthrough.
+
+## KYC handoff for prize winners
+
+Winners of cash prizes above the relevant jurisdictional threshold need to be **identity-verified** before payment. This is to satisfy:
+
+- AML rules (UK Money Laundering Regulations 2017, US BSA, AU AML/CTF Act, NZ AML/CFT Act).
+- Tax-reporting obligations (1099-MISC equivalents in most jurisdictions).
+- Eligibility checks (age, residency, exclusion from staff/relatives etc).
+
+Tournamental does **not** perform KYC. We hand off the winner to your network's existing KYC provider (we recommend Onfido, Persona, Sumsub, Trulioo if you don't have one). The winner completes KYC; your provider returns a pass/fail; you authorise payment.
+
+The Merkle proof for the winning entry is part of the KYC package, it satisfies the "is this really the winning entrant?" question, leaving the provider to answer "is this person who they claim to be?"
+
+## The standard contract structure
+
+A typical Tournamental + broadcaster contest contract has six clauses. We have a template we share post-discovery-call; your legal team should expect:
+
+1. **The contest format.** Lock time, scoring rule, tiebreaker rule, prize, eligibility. Annexed in detail; this is the meat.
+2. **The verification stack.** VStamp anchor, post-event audit pack delivery, public verifier URL, dispute resolution.
+3. **The geo-gating + age-gating policy.** Which countries are in, what the age threshold is, what the under-age complaint process is.
+4. **The KYC handoff.** Which provider does identity verification, what the timeline is, who pays for it.
+5. **The data-handling agreement.** GDPR / CCPA / Privacy Act roles. Tournamental is typically a data processor; the broadcaster is the controller. Sub-processors disclosed.
+6. **The marketing usage clause.** Whether Tournamental can name the partnership ("Sky Sports ran on Tournamental"), what logo usage is permitted, how the partnership is announced.
+
+Standard contracts run six pages. For impossible-prize formats with insurance, add an annex for the underwriter's terms; that's another two pages typically. Total review time for an experienced in-house sports-promotions lawyer is one to two weeks.
+
+## What about the "this is just gambling with extra steps" criticism?
+
+Real criticism, worth addressing.
+
+**Legally**, the three-prong test above is well-established. Free-to-enter prediction games of skill are categorically not gambling, and have been operated by the largest media companies in every major jurisdiction for decades. The Quicken Loans Billion Dollar Bracket, the Sky Super 6, the BBC Predict the Cup, none of these have been challenged in court.
+
+**Behaviourally**, the more interesting critique is whether the format normalises gambling-adjacent behaviour. Our position:
+
+- The entry flow is friction-light but **not** designed to trigger compulsive engagement (no "spin again", no "increase your stake", no loss-chasing UI). Compare to the literature on loot boxes (Drummond & Sauer 2018, Zendle et al. 2019, etc.); we've explicitly avoided every dark-pattern they identify.
+- The leaderboard surfaces skill (your bracket score vs others) rather than financial outcome (your winnings vs others).
+- We never use the word "gambling" or its synonyms in user-facing copy, ever. The platform is consistently framed as a free-to-play prediction game, in the same product family as fantasy sports or trivia leagues.
+- Our affiliate-router (for broadcasters who want sportsbook offers alongside the contest) is **geo-gated** to exclude NZ, AU, and most of the UK by default. Even within the US/EU jurisdictions where it's permitted, the affiliate placement is in a clearly-separated section of the page, never inline with the prediction flow.
+
+The full position is in [docs/30](https://github.com/0800tim/tournamental/blob/main/docs/30-gamification-and-affiliate-spine.md). If your network has internal compliance principles that go further than what's described there (e.g. BBC's editorial guidelines forbid any commercial sportsbook association), we can disable the affiliate-router for your branded landing entirely. Most public-service broadcasters request this; we comply automatically.
+
+## What we ask from you on the compliance side
+
+To complete the standard contract review:
+
+- **Your jurisdictional scope.** UK-only? UK + IE? US 49-state with FL/NY/RI excluded? US + UK + AU? We adjust the geo-gating defaults to match.
+- **Your age threshold.** 18 default; higher available; lower available with parental-consent flow.
+- **Your KYC provider preference.** Bring your own, or use one of our four recommended.
+- **Any internal compliance principles beyond regulatory minimums.** Public-service broadcaster restrictions, sponsor exclusions, talent restrictions.
+- **Your legal contact.** We send the contract to your legal team directly with a 60-minute walkthrough call if they want one.
+
+The compliance brief is rarely the bottleneck on integration. Most legal teams sign off in a week once they've seen the three-prong logic, the geo-gating evidence, and the audit-pack guarantee.
+
+## What to do next
+
+If you've made it this far, you're either:
+
+- The compliance lead for a broadcaster considering integration. Forward this to your producer; book the [walkthrough](/media).
+- The producer who just got asked "can we do this legally?" by your CFO. Send your CFO this article and book the [walkthrough](/media).
+
+[media@tournamental.com](mailto:media@tournamental.com), with your network and your jurisdiction. We'll send the contract template back the same day if you ask for it.
+
+## The other three deep dives
+
+- [The blockchain-verified prize draw playbook](/blog/2026-05-18-media-blockchain-prize-draws), how the verification stack works.
+- [How to offer a £1M perfect-bracket prize](/blog/2026-05-18-media-million-pound-perfect-bracket), the insurance maths.
+- [Broadcast integration toolkit](/blog/2026-05-18-media-broadcast-integration), OBS / vMix / JSON feed / on-air QR.

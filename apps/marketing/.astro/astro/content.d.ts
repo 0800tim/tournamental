@@ -243,6 +243,34 @@ declare module 'astro:content' {
   collection: "blog";
   data: InferEntrySchema<"blog">
 } & { render(): Render[".mdx"] };
+"2026-05-18-media-blockchain-prize-draws.mdx": {
+	id: "2026-05-18-media-blockchain-prize-draws.mdx";
+  slug: "2026-05-18-media-blockchain-prize-draws";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-18-media-broadcast-integration.mdx": {
+	id: "2026-05-18-media-broadcast-integration.mdx";
+  slug: "2026-05-18-media-broadcast-integration";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-18-media-million-pound-perfect-bracket.mdx": {
+	id: "2026-05-18-media-million-pound-perfect-bracket.mdx";
+  slug: "2026-05-18-media-million-pound-perfect-bracket";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
+"2026-05-18-media-sweepstakes-compliance.mdx": {
+	id: "2026-05-18-media-sweepstakes-compliance.mdx";
+  slug: "2026-05-18-media-sweepstakes-compliance";
+  body: string;
+  collection: "blog";
+  data: InferEntrySchema<"blog">
+} & { render(): Render[".mdx"] };
 };
 "engineering": {
 "2026-05-12-agentic-orchestration.mdx": {
