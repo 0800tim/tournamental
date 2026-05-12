@@ -35,8 +35,11 @@ import {
   type Tournament,
 } from "@tournamental/bracket-engine";
 
+import { useUser } from "@/lib/auth/useUser";
+import { loadServerBracket } from "@/lib/bracket/api";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
-import { localUserId, loadDraft } from "@/lib/bracket/storage";
+import { mergeBrackets } from "@/lib/bracket/merge";
+import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import {
   captureDomComposition,
   type DomCaptureResult,
@@ -241,17 +244,50 @@ export function ShareSavePage({
   const [fallbackOpen, setFallbackOpen] = useState<boolean>(false);
   const copyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Identity hierarchy mirrors BracketBuilder: authed `tnm_session` user
+  // id when signed in, else the local browser uuid. Without this the
+  // save-share page reads the wrong bucket (guest uuid) when the user
+  // is signed in and saved under their auth id.
+  const auth = useUser();
   useEffect(() => {
-    const id = localUserId();
+    if (auth.loading) return;
+    const authedId = auth.user?.id ?? null;
+    const guestId = localUserId();
+    const id = authedId ?? guestId;
     setUserIdent(id);
-    const draft = loadDraft(tournament.id, id);
-    if (draft) setBracket(draft);
+
+    // Load whatever's in localStorage for the resolved identity.
+    let starting = loadDraft(tournament.id, id) ?? null;
+    if (starting) setBracket(starting);
+
     // Pick up the canonical (server-returned) share guid persisted at
-    // last save. If absent (offline-only state), we fall through to
-    // the legacy bracketId-based URL — the next save will replace it.
-    const guid = loadStoredShareGuid(tournament.id, id);
+    // last save. If absent (offline-only state) we fall through to the
+    // legacy bracketId-based URL, the next save will replace it.
+    const guid =
+      loadStoredShareGuid(tournament.id, id) ??
+      (authedId ? loadStoredShareGuid(tournament.id, guestId) : null);
     if (guid) setStoredShareGuid(guid);
-  }, [tournament.id]);
+
+    // Best-effort server hydration so the save-share view reflects the
+    // server-of-record even when this device hasn't built the bracket
+    // locally (e.g. user saved on phone, opens share page on laptop).
+    let cancelled = false;
+    void (async () => {
+      const remote = await loadServerBracket({
+        userId: id,
+        tournamentId: tournament.id,
+      });
+      if (cancelled || !remote.ok) return;
+      const merged = starting
+        ? mergeBrackets(starting, remote.bracket)
+        : remote.bracket;
+      saveDraft(tournament.id, merged, id);
+      setBracket(merged);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tournament.id, auth.loading, auth.user?.id]);
 
   // Cascade the bracket to derive the predicted champion. Re-runs only
   // when bracket changes (which after mount is approximately once).
