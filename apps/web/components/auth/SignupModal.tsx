@@ -20,10 +20,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   signInWithMagicLink,
   signInWithTelegram,
-  signInWithWhatsAppOtp,
-  verifyWhatsAppOtp,
   type TelegramAuthPayload,
 } from "@/lib/auth/signIn";
+import {
+  detectSmsCountry,
+  smsLoginDeepLink,
+  verifyInboundCode,
+  whatsAppLoginDeepLink,
+  WHATSAPP_NUMBER,
+} from "@/lib/auth/inbound-login";
 import { readPublicConfig } from "@/lib/auth/config";
 import "./signup-modal.css";
 // Reuse the auth-page primitives (auth-input, auth-submit, auth-error).
@@ -49,7 +54,7 @@ const TABS: { id: SignupTab; label: string; icon: string }[] = [
 export function SignupModal({
   open,
   onClose,
-  initialTab = "email",
+  initialTab = "whatsapp",
   redirectTo,
 }: SignupModalProps) {
   const [tab, setTab] = useState<SignupTab>(initialTab);
@@ -58,7 +63,10 @@ export function SignupModal({
     if (open) setTab(initialTab);
   }, [open, initialTab]);
 
-  const configured = useMemo(() => readPublicConfig() !== null, []);
+  // Supabase-gated paths (email + Telegram). The WhatsApp tab uses the
+  // standalone inbound-login flow at auth.tournamental.com and works
+  // without Supabase.
+  const supabaseConfigured = useMemo(() => readPublicConfig() !== null, []);
 
   if (!open) return null;
 
@@ -88,38 +96,38 @@ export function SignupModal({
           One tap to keep your picks, follow friends, and see your rank live.
         </p>
 
-        {!configured && (
-          <div className="vt-signup-banner" role="status">
-            Sign-in coming soon. You can still build a bracket as a guest -
-            picks are saved on this device.
-          </div>
-        )}
-
         <div className="vt-signup-tabs" role="tablist" aria-label="Sign-in method">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              role="tab"
-              aria-selected={tab === t.id}
-              data-active={tab === t.id ? "1" : "0"}
-              type="button"
-              className="vt-signup-tab"
-              onClick={() => setTab(t.id)}
-              disabled={!configured}
-            >
-              <span className="vt-signup-tab-icon" aria-hidden="true">
-                {t.icon}
-              </span>
-              {t.label}
-            </button>
-          ))}
+          {TABS.map((t) => {
+            // Email + Telegram still ride Supabase; gate them when
+            // Supabase isn't configured. WhatsApp is always available
+            // (inbound-login flow, no Supabase dependency).
+            const tabDisabled = t.id !== "whatsapp" && !supabaseConfigured;
+            return (
+              <button
+                key={t.id}
+                role="tab"
+                aria-selected={tab === t.id}
+                data-active={tab === t.id ? "1" : "0"}
+                type="button"
+                className="vt-signup-tab"
+                onClick={() => setTab(t.id)}
+                disabled={tabDisabled}
+                title={tabDisabled ? "Coming soon" : undefined}
+              >
+                <span className="vt-signup-tab-icon" aria-hidden="true">
+                  {t.icon}
+                </span>
+                {t.label}
+              </button>
+            );
+          })}
         </div>
 
         {tab === "email" && (
-          <EmailTab disabled={!configured} redirectTo={redirectTo} />
+          <EmailTab disabled={!supabaseConfigured} redirectTo={redirectTo} />
         )}
-        {tab === "telegram" && <TelegramTab disabled={!configured} />}
-        {tab === "whatsapp" && <WhatsAppTab disabled={!configured} />}
+        {tab === "telegram" && <TelegramTab disabled={!supabaseConfigured} />}
+        {tab === "whatsapp" && <WhatsAppTab />}
       </div>
     </div>
   );
@@ -258,59 +266,105 @@ function TelegramTab({ disabled }: { disabled: boolean }) {
   );
 }
 
-// ---------------- WHATSAPP OTP ----------------
+// ---------------- WHATSAPP + SMS (inbound-login flow) ----------------
 
-function WhatsAppTab({ disabled }: { disabled: boolean }) {
-  const [step, setStep] = useState<"phone" | "code">("phone");
-  const [phone, setPhone] = useState("");
+/**
+ * The inbound-login flow: user messages the keyword `login` to our
+ * public WhatsApp / SMS number, the Aiva SMS gateway forwards the
+ * inbound message to auth.tournamental.com, the auth-sms service
+ * replies with a 6-digit code + a one-tap magic link, and the user
+ * either taps the link (`?v=<token>` → MagicLinkConsumer) or pastes
+ * the code here.
+ *
+ * No phone number to type. No Supabase needed.
+ */
+function WhatsAppTab() {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [smsCountry, setSmsCountry] = useState<"NZ" | "AU" | null>(null);
 
-  const requestOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setBusy(true);
-    const result = await signInWithWhatsAppOtp(phone);
-    setBusy(false);
-    if (!result.ok) {
-      setError(humanReadable(result.error));
-      return;
-    }
-    setStep("code");
-  };
+  useEffect(() => {
+    setSmsCountry(detectSmsCountry());
+  }, []);
 
   const submitCode = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setBusy(true);
-    const result = await verifyWhatsAppOtp(phone, code);
+    const result = await verifyInboundCode(code);
     setBusy(false);
     if (!result.ok) {
       setError(humanReadable(result.error));
       return;
     }
-    // The auth state listener will fire and close the modal upstream.
+    // Cookie is set; reload so the user lands signed-in.
+    window.location.reload();
   };
 
-  if (step === "phone") {
-    return (
-      <form className="auth-form vt-signup-form" onSubmit={requestOtp}>
-        <label className="auth-label" htmlFor="vt-signup-phone">
-          WhatsApp phone number
+  return (
+    <div className="auth-telegram">
+      <p className="auth-info" style={{ marginTop: 4 }}>
+        Tap the green button. WhatsApp opens with <strong>login</strong> already
+        typed; press send. We reply in seconds with a one-tap sign-in link plus
+        a 6-digit code.
+      </p>
+      <a
+        href={whatsAppLoginDeepLink()}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="auth-submit"
+        style={{
+          background: "#25D366",
+          color: "#0a0e1a",
+          borderColor: "#1eb456",
+          display: "block",
+          textAlign: "center",
+          textDecoration: "none",
+          marginBottom: 12,
+        }}
+      >
+        Sign in with WhatsApp →
+      </a>
+      {smsCountry ? (
+        <a
+          href={smsLoginDeepLink()}
+          className="vt-signup-link"
+          style={{ display: "block", textAlign: "center", marginBottom: 16 }}
+        >
+          …or sign in with SMS (you're in {smsCountry})
+        </a>
+      ) : (
+        <p
+          className="auth-info"
+          style={{ fontSize: 12, opacity: 0.7, marginBottom: 16 }}
+        >
+          SMS sign-in is available in NZ + AU only. Use WhatsApp from anywhere
+          else.
+        </p>
+      )}
+
+      <p className="auth-info" style={{ fontSize: 12, opacity: 0.7 }}>
+        Already received your code? Paste it here:
+      </p>
+      <form className="auth-form vt-signup-form" onSubmit={submitCode}>
+        <label className="auth-label" htmlFor="vt-signup-code">
+          6-digit code
         </label>
         <input
-          id="vt-signup-phone"
-          name="phone"
-          type="tel"
-          inputMode="tel"
-          autoComplete="tel"
-          placeholder="+64 21 999 000"
-          className="auth-input"
-          value={phone}
-          onChange={(e) => setPhone(e.target.value)}
+          id="vt-signup-code"
+          name="code"
+          type="text"
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          pattern="\d{6}"
+          maxLength={6}
+          placeholder="123456"
+          className="auth-input auth-input-code"
+          value={code}
+          onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
           required
-          disabled={busy || disabled}
+          disabled={busy}
         />
         {error && (
           <div className="auth-error" role="alert">
@@ -320,64 +374,18 @@ function WhatsAppTab({ disabled }: { disabled: boolean }) {
         <button
           type="submit"
           className="auth-submit"
-          disabled={busy || disabled || !phone}
+          disabled={busy || code.length !== 6}
         >
-          {busy ? "Sending…" : "Send code on WhatsApp"}
+          {busy ? "Verifying…" : "Sign in"}
         </button>
       </form>
-    );
-  }
-
-  return (
-    <form className="auth-form vt-signup-form" onSubmit={submitCode}>
-      <p className="auth-info">
-        We sent a 6-digit code to <strong>{phone}</strong> on WhatsApp.
+      <p
+        className="auth-info"
+        style={{ fontSize: 11, opacity: 0.55, marginTop: 12, textAlign: "center" }}
+      >
+        Manually: message <strong>login</strong> to <code>+{WHATSAPP_NUMBER}</code>
       </p>
-      <label className="auth-label" htmlFor="vt-signup-code">
-        6-digit code
-      </label>
-      <input
-        id="vt-signup-code"
-        name="code"
-        type="text"
-        inputMode="numeric"
-        autoComplete="one-time-code"
-        pattern="\d{6}"
-        maxLength={6}
-        placeholder="123456"
-        className="auth-input auth-input-code"
-        value={code}
-        onChange={(e) =>
-          setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
-        }
-        required
-        disabled={busy || disabled}
-      />
-      {error && (
-        <div className="auth-error" role="alert">
-          {error}
-        </div>
-      )}
-      <button
-        type="submit"
-        className="auth-submit"
-        disabled={busy || disabled || code.length !== 6}
-      >
-        {busy ? "Verifying…" : "Verify"}
-      </button>
-      <button
-        type="button"
-        className="vt-signup-link"
-        onClick={() => {
-          setStep("phone");
-          setCode("");
-          setError(null);
-        }}
-        disabled={busy}
-      >
-        Use a different number
-      </button>
-    </form>
+    </div>
   );
 }
 
@@ -392,11 +400,19 @@ function humanReadable(error?: string): string {
     case "bad-phone":
       return "Use international format like +6421999000.";
     case "bad-code":
+    case "bad-body":
       return "Enter the 6-digit code.";
     case "send-failed":
       return "Couldn't send the code. Try again in a moment.";
     case "verify-failed":
-      return "Code didn't match, or it expired. Request a new one.";
+    case "unknown-or-expired":
+      return "That code is wrong, expired, or already used. Message 'login' again.";
+    case "fingerprint-mismatch":
+      return "This code was first used on a different device. Use that device, or message 'login' again.";
+    case "ip-throttled":
+      return "Too many sign-in attempts from this network. Try again in a few minutes.";
+    case "network":
+      return "Couldn't reach the sign-in service. Check your connection.";
     case "telegram-failed":
       return "Telegram login didn't go through. Try again.";
     default:
