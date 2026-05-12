@@ -6,12 +6,9 @@
  * Three visual states, all driven by the `useUser()` hook:
  *
  *   - `loading` / `unconfigured` / `guest` → "Sign in" pill (gold-on-
- *     dark), links to /profile where the SignupModal can be opened.
- *     We deliberately default to the same "Sign in" pill on any
- *     non-authenticated status so a missing/misconfigured Supabase
- *     instance still renders a sensible default (Tim's prompt: "If the
- *     hook fails to load, default to Sign in"). /profile already
- *     handles the unconfigured case gracefully.
+ *     dark). Clicking opens the SignupModal IN PLACE rather than
+ *     routing to /profile. This is one less hop for the user (Tim's
+ *     ask: "the sign-in page should just trigger the pop-up directly").
  *
  *   - `authenticated` with profile → small avatar circle (initial of
  *     handle or display name) + handle text, links to /profile.
@@ -20,20 +17,22 @@
  *     handle so the chip still renders.
  *
  * This is the only piece of the desktop nav that subscribes to auth
- * state, so on every route change only this chip re-renders.
- *
- * Why a Link not a button: navigating to /profile is a route change,
- * not an in-place action. The /profile page owns the SignupModal so
- * we don't have to mount a duplicate modal at the shell level. This
- * keeps the bundle weight of the shell down.
+ * state, so on every route change only this chip re-renders. The
+ * SignupModal mount adds ~6 KB to the shell bundle (gzipped) when
+ * Sign-in is the active state; the trade is one fewer click.
  */
 
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useState } from "react";
+
+import { SignupModal } from "@/components/auth/SignupModal";
 import { useUser } from "@/lib/auth/useUser";
 
 export function AuthChip() {
   const { status, profile, loading } = useUser();
+  const [open, setOpen] = useState(false);
 
   // Unauthenticated default — show a "Sign in" chip. We render this for
   // `loading` too because the chip is small and a flashing skeleton at
@@ -46,13 +45,21 @@ export function AuthChip() {
     status === "unconfigured"
   ) {
     return (
-      <Link
-        href="/profile"
-        className="vt-appbar-auth vt-appbar-auth-signin"
-        aria-label="Sign in"
-      >
-        Sign in
-      </Link>
+      <>
+        <button
+          type="button"
+          className="vt-appbar-auth vt-appbar-auth-signin"
+          aria-label="Sign in"
+          onClick={() => setOpen(true)}
+        >
+          Sign in
+        </button>
+        <SignupModal
+          open={open}
+          onClose={() => setOpen(false)}
+          initialTab="whatsapp"
+        />
+      </>
     );
   }
 

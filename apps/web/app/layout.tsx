@@ -6,6 +6,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import { GtmRoot } from "@/components/analytics/GtmRoot";
+import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
@@ -58,6 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <GtmRoot />
         <NativeShellBoot />
+        <MagicLinkConsumer />
         {children}
       </body>
     </html>
