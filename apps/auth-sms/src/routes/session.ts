@@ -24,19 +24,43 @@ interface AuthedRequest {
   jti: string;
 }
 
+/**
+ * Pull the JWT out of either an `Authorization: Bearer <jwt>` header
+ * (the original SDK path) or the `tnm_session` cookie set by the
+ * inbound-login flow at /v1/auth/magic-verify and /v1/auth/verify-by-code.
+ * Cookies take precedence when both are present so the browser-driven
+ * flow doesn't get masked by a stale Authorization header.
+ */
+function extractJwt(req: FastifyRequest): string | null {
+  const cookieHeader = req.headers.cookie;
+  if (typeof cookieHeader === 'string' && cookieHeader.length > 0) {
+    for (const part of cookieHeader.split(';')) {
+      const [name, ...rest] = part.trim().split('=');
+      if (name === 'tnm_session' && rest.length > 0) {
+        const value = rest.join('=').trim();
+        if (value) return decodeURIComponent(value);
+      }
+    }
+  }
+  const header = req.headers.authorization;
+  if (typeof header === 'string') {
+    const m = /^Bearer\s+(\S+)$/.exec(header);
+    if (m) return m[1];
+  }
+  return null;
+}
+
 async function authenticate(
   ctx: AuthContext,
   req: FastifyRequest,
 ): Promise<AuthedRequest | null> {
-  const header = req.headers.authorization;
-  if (!header || typeof header !== 'string') return null;
-  const m = /^Bearer\s+(\S+)$/.exec(header);
-  if (!m) return null;
+  const token = extractJwt(req);
+  if (!token) return null;
   let claims;
   try {
     claims = await verifySessionJwt({
       secret: ctx.config.jwtSecret,
-      token: m[1],
+      token,
     });
   } catch {
     return null;
