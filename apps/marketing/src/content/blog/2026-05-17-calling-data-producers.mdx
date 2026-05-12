@@ -1,0 +1,542 @@
+---
+title: "Calling data producers: stream live match content into Tournamental during the World Cup"
+description: "We have the renderer. We have the bracket. We have the scoring engine. What we need now is a swarm of contributors who can stream live data, commentary audio, live odds, player stats, in-match challenges, and leaderboard chat into the JSON feed during the 2026 World Cup. This is the long version of the call."
+pubDate: 2026-05-17
+author: "Tim"
+tags:
+  - "calling-for-help"
+  - "producers"
+  - "live-streaming"
+  - "world-cup-2026"
+  - "drips"
+  - "open-source"
+heroImage: "/blog/calls/2026-05-17-calling-data-producers-hero.svg"
+heroImageAlt: "A wall of cartoon contributors at six different live producer desks under stadium floodlights: one typing out goal events into a JSON terminal, one narrating live commentary into a microphone with an audio waveform behind them, one watching a live odds chart on a tablet, one scoring per-player heatmap deltas on a clipboard, one in a referee shirt dropping a 'who scores next?' challenge card, and one moderating a chat pane of fan banter. Above the wall: 'Calling data producers.' A small Kiwi in a fluoro stadium-staff vest holds the patch cable between all six desks and the central spec monolith glowing gold."
+heroImageCredit: "Illustration generated for Tournamental, 2026"
+---
+
+## What this post is
+
+It is the long version of the call to anyone who can produce
+**live data** for a football match. Goals, scorelines, fouls,
+substitutions, commentary audio, live odds, per-player market
+stats, in-match challenges and quizzes, leaderboard chat. The
+five-week sprint that starts the moment FIFA World Cup 2026
+kicks off on 11 June.
+
+We built the renderer. We built the bracket app. We built the
+scoring engine and the leaderboard and the share cards and the
+syndicate microsites. What we cannot build alone is the **content
+that fills the platform during the games**. That is a job for a
+hundred contributors running a hundred small producers, each
+emitting one stream of one kind of content during one match, one
+syndicate, one country, one language.
+
+If that is you, this post is for you. The rest covers what we
+built, what is wired up today, what an external producer of any
+of the five stream kinds can ship in a day or a week or a month,
+and how Drips Network routes the platform's revenue back to you
+in USDC continuously for as long as your producer ships content.
+
+[Build-on guide ›](https://tournamental.com/engineering/2026-05-14-build-on-tournamental)
+[Source on GitHub ›](https://github.com/0800tim/tournamental)
+[Producer authoring docs ›](https://github.com/0800tim/tournamental/blob/main/docs/58-data-producers.md)
+
+## The shape of the bet
+
+The model of FIFA viewing is broken. The current best-case looks
+like this: you sit on the couch, you watch a single video stream
+sourced from one broadcaster who happens to hold the rights in
+your country, with one set of commentators in one language, with
+a one-size-fits-all graphics package, with no way to interact
+without leaving the screen.
+
+The model we are betting on instead: you sit on the couch (or on
+the bus, or at the gym) and watch the **3D replay** of the same
+match composed from a producer of your choosing — your country's
+real-time commentator narrating into your ear, your friend
+group's syndicate leaderboard pulsing on the side, in-match
+challenges popping up every five minutes asking what happens
+next for 30-50-80 points, your fantasy-style player heatmap
+sliding across the field as Messi gets the ball, the live odds
+chip on the next goal jumping when he winds up a shot. All of it
+running in a browser, all of it Apache-2.0 open source, all of
+it composed from producers that anyone — including you — can
+write.
+
+The renderer we shipped is the canvas. The producers are the
+paint. Tournamental cannot ship the paint, because there is one
+of us and there are sixty-four matches and ten languages and
+forty-eight national teams. So we are turning the tap on and
+asking the world to ship paint.
+
+## Five things a producer can stream
+
+The platform's wire protocol is a single typed contract at
+[`@tournamental/spec`](https://www.npmjs.com/package/@tournamental/spec).
+A producer is any process that opens a WebSocket and emits
+spec-conformant messages. The renderer reads those messages and
+composes the match.
+
+There are five kinds of producer we want to onboard before
+kickoff. Each gets a section below.
+
+### 1. Live primary match data
+
+The first one. Goals, shots, fouls, substitutions, the ball, the
+players, the clock. Today the reference producer is
+[`apps/statsbomb-replay`](https://github.com/0800tim/tournamental/tree/main/apps/statsbomb-replay),
+which converts StatsBomb's free open data into a spec stream for
+historic matches (the 2022 AR-FR final is the demo we ship with
+the platform). For live World Cup matches we need producers
+hooked up to **real-time tracking data sources** — Hudl, Wyscout,
+Genius Sports, StatsBomb's live tier, or any of the regional
+data partners who have rights in their markets.
+
+We do not need all of them. We need one per match, and we are
+happy to have a primary + a backup for the matches we care most
+about. **One producer per match per source, end to end, is the
+unit of work.** A producer for the opening match Mexico-vs-X can
+be a separate person from the producer for the closing final.
+
+If you have access to a tracking-data feed your contract lets
+you re-emit, you are the right person for this. If you can ship
+a producer that watches a video stream and emits goals + cards +
+substitutions by hand from your sofa with a fast typist's
+keyboard, that is also a producer; the spec accepts it.
+
+The producer's interface is a 200-line Node script (or Python or
+Rust or Go, whatever speaks WebSocket). Fork
+[`examples/hello-producer/`](https://github.com/0800tim/tournamental/tree/main/examples/hello-producer),
+replace `tick()` with your data source, ship.
+
+### 2. Live audio commentary
+
+This is the biggest opportunity on the platform and the most
+under-explored. We can run a 3D replay of a match in a browser
+in real time. What goes over the top is your voice (or your AI
+voice, or your TTS-generated regional broadcaster impression)
+narrating the match in any of the world's ten or twenty most
+popular sports-broadcast languages.
+
+We already shipped a 200-minute pre-rendered ElevenLabs corpus
+for the AR-FR final in ten languages
+([sessions/2026-05-09](https://github.com/0800tim/tournamental/blob/main/sessions)).
+That corpus is the proof-of-concept. What we need for live World
+Cup matches is **a live commentary producer per language per
+match**: a tiny WebSocket process that watches the primary match
+stream, runs commentary lines through TTS in real time (or pipes
+a real broadcaster's microphone through a streaming TTS that
+matches their delivery), and ships opus chunks back to the
+renderer.
+
+If you are a broadcaster, an aspiring broadcaster, an AI-voice
+artist, a polyglot football fan with a microphone — this is
+your slot. The platform's audio mixer already supports ducking,
+multi-track, per-user language selection. Read
+[docs/31-commentary.md](https://github.com/0800tim/tournamental/blob/main/docs/31-commentary.md)
+for the shape; the [producer-author skill](https://github.com/0800tim/tournamental/blob/main/skills/producer-author/SKILL.md)
+walks you through it.
+
+There is a separate post in this series specifically calling
+translators and broadcast voices to ship a full-language
+re-authoring of the verbose commentary corpus —
+[Calling translators ›](https://tournamental.com/blog/2026-05-15-calling-translators).
+That post is the lower-volume offline track; this section is the
+higher-volume live one.
+
+### 3. Live odds streams
+
+Today the [odds-ingest service](https://github.com/0800tim/tournamental/tree/main/apps/odds-ingest)
+pulls Polymarket and The Odds API on a poll and re-emits a REST
+snapshot. The next step is **a WebSocket producer that streams
+live odds updates per match** — not just pre-match consensus,
+but every-five-second-the-Bayern-corner-changes-the-implied-probability
+deltas.
+
+We are not running a sportsbook. The platform's leaderboards are
+**points-based, no real money**. The vocabulary we use across
+the codebase and the docs is "wagering" for what users do with
+their points, "sweepstakes" for fixed-pot prediction pools,
+"betting" for the in-match challenge pulses, and "predictions"
+for everything else. We never use the word that starts with "g".
+Real-money settlement happens off-platform between the syndicate
+host and their members the same way an office sweepstake settles
+today, and we are deliberately structured to stay out of
+regulated territory ([docs/30](https://github.com/0800tim/tournamental/blob/main/docs)).
+
+What live-odds producers contribute is **the truth signal that
+makes the platform's points scoring interesting**. A correct
+pick at 3% market-implied odds is worth more than a correct pick
+at 80% market-implied odds — the bracket-engine scoring rewards
+long-shot calls. Live odds is the data the scorer reads.
+
+The
+[`OddsSourcePlugin`](https://github.com/0800tim/tournamental/blob/main/packages/plugin-sdk/src/index.ts)
+interface is shipped; the WebSocket surface is RFC-stage.
+Producers wanted: a Betfair Exchange streamer, a Polymarket CLOB
+follower with finer granularity than the current poll, a
+regional bookmaker proxy where it is legal, a synthetic
+"consensus of consensuses" producer that picks the median of a
+basket of sources.
+
+### 4. Live player market stats
+
+xG (expected goals). Sprint count. Pass-completion %. Possession
+heatmap deltas. Pressure index. Touches. These are the per-player
+numbers that turn a 3D replay from "two teams kicking" into
+"watch what the platform is telling you about Messi's pressing
+load right now".
+
+StatsBomb's open data has these for historic matches; live
+producers need a live source or have to derive the numbers from
+the primary match stream. **A pure-derivation producer is the
+easiest one to ship**: subscribe to the primary stream, run a
+small kalman filter on the player positions, output a
+`playerstats.tick` message every five seconds.
+
+The schema is RFC and described in
+[docs/58-data-producers.md](https://github.com/0800tim/tournamental/blob/main/docs/58-data-producers.md#player-market-stats-rfc).
+A producer that ships the first plausible numbers for the WC
+opener gets to define the schema by virtue of being first; that
+is a real perk to grabbing this one early.
+
+### 5. Live in-match challenges and quizzes
+
+This is the most fun one. Every five minutes during a match, a
+producer drops a 60-second prediction prompt onto every
+subscriber's screen: "Who takes the next corner?", "Will the
+next shot be on target?", "Who picks up the next yellow card?",
+"Pick the scorer in the next ten minutes for 80 points". Users
+tap an answer, the producer closes the challenge when the
+real-world answer is known, the game-service awards points.
+
+This is the points-based, no-real-money, in-match prediction
+layer. It is what makes the platform feel like a game during the
+ninety minutes instead of a leaderboard you check at half-time.
+And it is **completely producer-authored**: the platform ships
+no challenges by default. The challenge curators are
+contributors writing producers that emit `challenge.open` and
+`challenge.close` messages on a side WebSocket.
+
+Some challenge-curator producers we want shipped before kickoff:
+
+- A **next-corner-taker** challenge curator. Watches the primary
+  stream for "shot just missed" events that imply a corner is
+  coming; opens a 60-second challenge.
+- A **next-yellow** challenge curator. Opens a challenge after
+  any aggressive tackle.
+- A **half-time line-up** challenge. Opens a quiz at the 40th
+  minute asking which substitute the manager will bring on at
+  half-time.
+- A **score-at-the-hour** challenge. Opens at the 50th minute
+  asking what the score will be at the 60th.
+- A **trivia between play** quiz. Opens during long stoppages
+  with a footballing trivia question for 30 points.
+
+Each challenge-curator producer is a small WebSocket process,
+maybe 100-200 lines. Each one is independently merged. Each one
+runs in production for the matches it is configured for. Each
+one earns Drips revenue for as long as its challenges are being
+served to real users.
+
+This is where the platform gets compounded most quickly. A
+challenge-curator producer that ships a fun, novel format gets
+picked up by every syndicate that wants more in-match interaction,
+which means more user time on the platform, which means more
+revenue routing back through Drips, which means the producer's
+operator gets paid for the format they designed.
+
+### Bonus: leaderboard chat
+
+Almost a separate post. Producers that bridge leaderboard chat
+into Discord, Telegram, Matrix, Bluesky, the syndicate-bot DMs.
+The chat protocol is the smallest of the five auxiliary streams;
+the work is mostly making sure the federation handles abuse and
+moderation. If you have shipped Discord-bot integrations before,
+you are the right person for this one.
+
+## What is wired up today
+
+Brutally honest, so you know exactly what is real on 2026-05-17:
+
+| What | What works today | Maturity |
+| --- | --- | --- |
+| Primary match stream | StatsBomb-replay producer running locally; the AR-FR demo plays end-to-end at 10x scale; the spec at `@tournamental/spec` v0.1.1 is stable | **stable** |
+| Stream server fan-out | `apps/stream-server` connects to upstream producers and fans out to many subscribers per match-id | **stable** |
+| Audio commentary | Pre-rendered MP3 batch infrastructure shipped; ElevenLabs realtime WebSocket wired but not stress-tested at scale | **stabilising** |
+| Live odds | REST snapshot from Polymarket + The Odds API live; WebSocket producer surface is RFC | **partial** |
+| Player market stats | Schema RFC in `docs/58-data-producers.md`; no producer shipped | **RFC** |
+| Live challenges | Schema RFC in `docs/58-data-producers.md`; no curator shipped | **RFC** |
+| Leaderboard chat | Schema RFC in `docs/58-data-producers.md`; chat backend not built | **RFC** |
+| Producer scaffolder | `npm create @tournamental/app --template producer-ingest` ships a passing template | **stable** |
+| Drips revenue split | Accounting code real and tested; on-chain backend is a stub pending audit; first Drips Wave queued for the week after launch | **partial** |
+| Stream-server admin UI | API only; no UI for the operator to pick a producer per match yet | **partial** |
+
+"Partial" means the contract is described, the data structures
+exist, the renderer is built to consume them, but the end-to-end
+plumbing is incomplete. That is precisely the gap a producer
+contribution closes. Ship the producer, the platform plugs it
+in, the gap closes — and the contributor gets credit for closing
+it.
+
+## A day, a week, a month
+
+The same rough scaffold as our other calls-for-help posts.
+
+### One day
+
+You can have a producer running locally and emitting into the
+renderer in less than three hours from a cold clone of the repo.
+The path:
+
+1. Clone the repo. Run `pnpm install` at the root.
+2. Run `pnpm dev` inside `apps/web` — the renderer is on
+   localhost:3300.
+3. In a second terminal, `cd examples/hello-producer && pnpm
+   install && pnpm start`. The example producer listens on
+   :4001 and emits a synthetic match.
+4. Open `http://localhost:3300/match/hello-producer-demo` and
+   watch your example match render.
+5. Replace `tick()` in `examples/hello-producer/src/index.mjs`
+   with anything else. A timer that emits a goal every twenty
+   seconds. A Twitch chat poller that reads "GOAL" messages
+   from a stream and converts them into spec events. A
+   Spreadsheet reader that polls a Google Sheet you update by
+   hand at half-time. Anything.
+
+The platform is built to accept ugly first attempts. Ship the
+ugly one; iterate later.
+
+### One week
+
+This is the right size for **one curator producer or one
+auxiliary-stream producer**. A challenge-curator producer that
+opens "who scores next?" challenges every ten minutes is a
+week's work for one person, with tests and a passing
+spec-conformance check.
+
+The path:
+
+1. Scaffold:
+
+   ```
+   npm create @tournamental/app --template producer-ingest
+   ```
+
+2. Drop the scaffolded plugin at
+   `packages/plugins/<your-name>/`.
+3. Write the curator logic. The reference shape is in
+   [examples/hello-producer/](https://github.com/0800tim/tournamental/tree/main/examples/hello-producer).
+4. Add a vitest fixture asserting your output is spec-valid.
+   The `assertSpecConformant` helper from
+   [`@tournamental/spec-client`](https://github.com/0800tim/tournamental/tree/main/packages/spec-client)
+   is one line.
+5. Open the PR with label `skill: producer`. The reviewer agent
+   runs the producer-plugin checklist (spec-conformance,
+   back-pressure, no PII, idempotent restart, no
+   forbidden-vocabulary leaks).
+6. Once merged, the operator (today: Tim) registers your
+   producer at the stream server and configures it for the
+   matches it should run on.
+
+You are on the producer registry. Your name is on the contributor
+list. Drips routes the share you opted into. You get paid for as
+long as your producer is in use.
+
+### One month
+
+A whole new producer kind. Two things on the bucket list that
+fit a month-scale contribution:
+
+- **A live-tracking integration for one match.** Pick a single
+  WC 2026 fixture you care about (your country's group game,
+  say). Find a tracking-data partner who has rights in your
+  market. Build a producer that re-emits their live feed in
+  spec format. We help with the data agreement and the public
+  attribution; you ship the bridge.
+
+- **A live-commentary AI-voice producer for one language.**
+  Build a tiny WebSocket process that watches the primary match
+  stream, runs commentary lines through ElevenLabs realtime in
+  your language, ships opus chunks back to the audio mixer.
+  Test on the AR-FR demo. Ship before the WC opener.
+
+Either of these is the largest contribution one person can
+plausibly make to the platform pre-launch. We will publicise
+either at length.
+
+## How Drips routes the revenue
+
+The platform earns three streams of revenue. All three route
+back through the same Drips list:
+
+- **Affiliate-router revenue** when a user clicks through to a
+  partner (Polymarket, sportsbook, pay-TV). Geo-gated, audit-logged.
+- **Marketplace revenue** when a syndicate host opts into a
+  paid tier (custom domain, custom branding, custom
+  challenges).
+- **Sponsor and grant revenue** that we deliberately raise to
+  fund the contributor pool. Drips Wave runs are how we channel
+  that money on-chain to the contributors who actually shipped
+  code.
+
+The Drips list is on-chain on Filecoin (FVM) once the smart
+contracts audit clears. The accounting code is real today and
+tested ([apps/drips-bridge](https://github.com/0800tim/tournamental/tree/main/apps/drips-bridge));
+the on-chain backend ships after the audit completes ([docs/21](https://github.com/0800tim/tournamental/blob/main/docs)).
+
+Producers opt into the split by adding a `dripsListRef` to their
+`plugin.json` manifest:
+
+```json
+{
+  "dripsListRef": "drips:filecoin:1234567890abcdef"
+}
+```
+
+That is it. Once you are in, the platform's continuous revenue
+streams a slice of every dollar earned to your wallet for as
+long as your producer is in active use. Pause the producer, you
+stop earning. Ship a new producer that displaces yours, the
+share moves. The model is built to make the most useful
+producers more rewarded over time and the unused ones quietly
+retire.
+
+For the AI agents reading this who are not human: yes, you can
+have a wallet on the Drips list. Tournamental supports agents as
+first-class identities. If your operator's address is on your
+plugin's manifest, that address earns.
+
+## The vocabulary rule
+
+We have to say this explicitly because it is non-obvious. **The
+platform is points-based, no real money.** The leaderboards rank
+points. The challenges award points. The syndicate hosts settle
+real-money pools between their members the same way an office
+sweepstake settles today, off-platform.
+
+We avoid the word "gambling" everywhere — in the codebase, in
+the docs, in the marketing copy, in producer manifests, in PR
+comments. The accepted vocabulary is **wagering**, **sweepstakes**,
+**betting** (sparingly, only for the in-match challenge pulses),
+**predictions**, **challenges**, **picks**.
+
+This is not legal advice but it is product framing that the
+platform's lawyer has signed off on, and it is consistent with
+the legal/T&C wording at
+[tournamental.com/legal](https://tournamental.com/legal). The
+reviewer agent rejects PRs that introduce the forbidden word.
+The producer-plugin checklist explicitly scans for it.
+
+The framing matters because the platform's market is "the kid
+who runs the office pool", "the friends WhatsApp group that
+predicts every WC", "the fan club that brackets the season" —
+**not** the casino punter. We are deliberately structured to be
+fun, social, ranked, free-to-play, and clean of regulated
+territory. Producers that fit that posture get merged; producers
+that pretend to be a sportsbook do not.
+
+## A short list of the most useful producers to ship
+
+In rough order of leverage at launch:
+
+1. **A primary-match producer for the WC opener.** Mexico's
+   first game. We need a live source by 11 June. (Largest
+   single contribution.)
+2. **A live ElevenLabs commentary producer in en-NZ.** We are
+   based in NZ; an en-NZ track is a fun launch signal. Build
+   this around the AR-FR demo, switch to live on 11 June.
+3. **A challenge-curator producer that emits a "who scores
+   next?" challenge every ten minutes.** Highest fun per line
+   of code. Probably 200 lines.
+4. **A player-stats derivation producer.** Pure function over
+   the primary stream. No live source needed — it derives.
+   Sets the schema for everyone who follows.
+5. **A live-odds streamer for Polymarket CLOB.** Higher
+   resolution than the current REST poll. Direct revenue path
+   via the affiliate router.
+6. **A leaderboard-chat → Telegram bridge.** Federates the chat
+   into the bot ecosystem the platform already has.
+7. **A trivia-quiz curator** that opens 30-point trivia
+   questions during stoppages-in-play.
+8. **A backup producer for every match the primary fails on.**
+   Less glamorous, structurally important.
+
+If you are reading this and one of those is "yes, I can ship
+that", open an issue at
+[github.com/0800tim/tournamental/issues](https://github.com/0800tim/tournamental/issues)
+with the label `skill: producer`. We will reply within twenty-four
+hours with the spec pointer, the test fixture you should target,
+and a Drips-list slot.
+
+## Skills, recipes, scaffolders
+
+Everything in this post is backed by a concrete artifact in the
+repo.
+
+- The complete producer authoring reference is at
+  [`docs/58-data-producers.md`](https://github.com/0800tim/tournamental/blob/main/docs/58-data-producers.md).
+- The
+  [`producer-author` SKILL.md](https://github.com/0800tim/tournamental/blob/main/skills/producer-author/SKILL.md)
+  is the same content in Anthropic Agent Skills format, loaded by
+  Claude Code, Claude Desktop, Cursor, Junie, Kiro, Gemini CLI,
+  Goose, and Continue.
+- The working example is at
+  [`examples/hello-producer/`](https://github.com/0800tim/tournamental/tree/main/examples/hello-producer)
+  with 200 lines of Node, four passing tests, and a README that
+  walks through the modifications real producers make.
+- The plugin scaffolder is one command:
+
+  ```
+  npm create @tournamental/app --template producer-ingest
+  ```
+
+  It generates a `packages/plugins/<your-name>/` directory with
+  the `IngestPlugin` interface implemented, manifest written,
+  test passing.
+- The
+  [`@tournamental/spec-client`](https://github.com/0800tim/tournamental/tree/main/packages/spec-client)
+  package's `assertSpecConformant` helper is the gate every
+  merged producer passes.
+- The
+  [`tournamental.com/api`](https://tournamental.com/api) portal
+  shows the live OpenAPI for every service your producer might
+  call, including the auxiliary-stream endpoints for odds,
+  player stats, challenges, and chat.
+
+You can point any AI coding agent at this repository today and
+ask it to ship a producer. The
+[AGENTS.md](https://github.com/0800tim/tournamental/blob/main/AGENTS.md)
+at the root tells the agent what to read; the SKILL.md tells it
+how to author the producer; the test harness tells it when it is
+done. The agent submits the PR; the reviewer agent runs the
+checklist; the orchestrator merges; the Drips list pays.
+
+## Why we are doing this
+
+Because broadcast television's monopoly on the live-match
+experience is the single largest piece of unclaimed value in
+sport. The right to commentate, the right to overlay graphics,
+the right to ask the audience to make a prediction, the right to
+add a heatmap, the right to switch language, the right to be a
+fan — these are not the broadcaster's rights to grant. They are
+the fan's rights to claim. The technology now exists to claim
+them, and Tournamental is the first try at packaging it up so
+the claiming is easy.
+
+If we ship this well, the FIFA World Cup 2026 will be the first
+tournament in history where a meaningful share of the watching
+public composes their own broadcast from a marketplace of
+contributor-shipped producers running on an open platform. Even
+a 0.1% market share at that scale is a category-defining
+milestone for fan-owned sports media.
+
+We are six months out from the answer. The producers are the
+piece that decides it.
+
+[Open the producer-author skill ›](https://github.com/0800tim/tournamental/blob/main/skills/producer-author/SKILL.md)
+[Fork the hello-producer example ›](https://github.com/0800tim/tournamental/tree/main/examples/hello-producer)
+[Scaffold a real producer plugin ›](https://github.com/0800tim/tournamental/tree/main/packages/create-tournamental-app)
+
+Bring the paint.

@@ -1,0 +1,18 @@
+{
+  "name": "__PKG_NAME__",
+  "version": "0.0.1",
+  "description": "__PKG_DISPLAY__ — a Tournamental producer plugin. Emits spec-conformant match messages from your data source.",
+  "sdkRange": "^0.1.0",
+  "provides": ["ingestSource"],
+  "license": "Apache-2.0",
+  "author": {
+    "name": "TODO: your name",
+    "url": "https://example.com"
+  },
+  "permissions": {
+    "network": {
+      "allowedOrigins": []
+    }
+  },
+  "tags": ["producer", "ingestSource"]
+}

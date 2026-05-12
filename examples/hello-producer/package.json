@@ -1,0 +1,21 @@
+{
+  "name": "@tournamental/example-hello-producer",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Minimum-viable WebSocket producer that emits a synthetic 90-minute football match conforming to @tournamental/spec.",
+  "type": "module",
+  "main": "src/index.mjs",
+  "bin": "./src/index.mjs",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node src/index.mjs",
+    "test": "node --test src/index.test.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": ["tournamental", "producer", "websocket", "stream", "example"]
+}
