@@ -56,7 +56,9 @@ import SectionHeading from "@/components/SectionHeading.astro";
     <ul class="prose-vt list-disc pl-6 space-y-2">
       <li><code>packages/spec/</code>, the canonical message spec.</li>
       <li><code>apps/statsbomb-replay/</code>, Python producer for any StatsBomb open-data match.</li>
-      <li><code>apps/mock-producer/</code>, synthetic-match generator for development.</li>
+      <li><code>apps/mock-producer/</code>, synthetic-match generator for development (<code>--out=ws|sse|file|stdout</code>).</li>
+      <li><code>examples/hello-producer/</code> + <code>examples/hello-plugin-odds/</code>, ~50-line reference plugins. Fork to build a real data producer or odds source.</li>
+      <li><code>packages/create-tournamental-app/</code>, the <code>npm create</code> scaffolder. <code>--template producer-ingest</code> spins up a typed plugin skeleton.</li>
       <li><code>apps/web/</code>, the Next.js + R3F renderer.</li>
       <li><code>packages/avatar/</code>, procedural avatars and the Wikidata-driven face billboard.</li>
       <li><code>packages/commentary/</code>, event templates + TTS scheduler.</li>
