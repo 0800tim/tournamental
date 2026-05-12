@@ -2,7 +2,7 @@
   "name": "@vtorn/cicd-tools",
   "version": "0.1.0",
   "private": true,
-  "description": "Shared CI/CD deploy primitives — build slots, smoke tests, atomic swap, PM2 reload, cache warm. Generalises the Sdeal publish.sh pattern across the monorepo.",
+  "description": "Shared CI/CD deploy primitives — build slots, smoke tests, atomic swap, PM2 reload, cache warm. Generalises a prior atomic-swap publish.sh pattern across the monorepo.",
   "type": "module",
   "main": "lib/index.ts",
   "scripts": {

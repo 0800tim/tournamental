@@ -1,7 +1,7 @@
 /**
  * build-slots.ts — slot path + buildKind helpers.
  *
- * The Sdeal pattern:
+ * The blue-green slot pattern:
  *   - prod serves from `<slot>-prod` (e.g. `.next-prod`)
  *   - we build to `<slot>-staging` (e.g. `.next-staging`)
  *   - on swap, prod-prev <- prod, prod <- staging

@@ -1,6 +1,6 @@
 # 47, CI/CD pipeline (build slots, atomic swap, fast rebuilds)
 
-> The deploy strategy across the Tournamental monorepo. Generalises Sdeal's
+> The deploy strategy across the Tournamental monorepo. Generalises the prior project's
 > `publish.sh` into a typed, tested, monorepo-aware library + per-app
 > entrypoints + GH Actions workflows.
 

@@ -5,13 +5,13 @@ status: complete
 branch: feat/cicd-staging-prod-slots
 worktree: /home/clawdbot/clawdia/projects/vtorn-cicd
 refs:
-  - /home/clawdbot/clawdia/projects/sdeal/publish.sh (gold-standard reference)
+  - a prior atomic-swap project's `publish.sh` (gold-standard reference)
   - docs/22-deployment-and-tunnels.md
   - CLAUDE.md (operational ground truth)
 
 ## Plan
 
-Tim asked for a Sdeal-style atomic-swap deploy generalised across the ~22-app
+Tim asked for a blue-green slot-swap atomic-swap deploy generalised across the ~22-app
 monorepo. Requirements distilled from the prompt:
 
 1. **Build slots** — staging slot (`*-staging`) builds while prod slot
@@ -57,7 +57,7 @@ apps/<service>/.deploy/publish.ts     per-app entrypoint
 
 ## Key decisions
 
-- **Same-host blue-green** (Sdeal pattern) is the default. Multi-host swap is
+- **Same-host blue-green** (blue-green slot pattern) is the default. Multi-host swap is
   documented but deferred — Cloudflare-Tunnel ingress flip would be a v2.
 - **Build kind** is enum: `next | astro | node | fastify`. Each defines its
   staging dir, prod dir, build cmd, start cmd. Lets `publish()` stay generic.

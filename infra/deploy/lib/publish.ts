@@ -1,7 +1,7 @@
 /**
  * publish.ts — the per-app deploy orchestrator.
  *
- * Generalises Sdeal's publish.sh:
+ * Generalises the prior project's publish.sh:
  *   1. acquire deploy lock for this app
  *   2. build to staging slot
  *   3. smoke-test staging on a private port
@@ -274,7 +274,7 @@ export async function publish(config: PublishConfig): Promise<PublishResult> {
     //   - other → 'failed'
     if (notes.startsWith('smoke failed')) {
       outcome = 'aborted-smoke';
-      // staging slot stays for inspection? we wipe per Sdeal pattern.
+      // staging slot stays for inspection? we wipe per blue-green slot pattern.
       if (!dry) {
         try {
           await fsp.rm(slots.staging, { recursive: true, force: true });

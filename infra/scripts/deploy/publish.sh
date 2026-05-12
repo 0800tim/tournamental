@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Convenience wrapper that mirrors the inline scripting Sdeal uses.
+# Convenience wrapper that mirrors the inline scripting from the prior atomic-swap project.
 # Just shells out to pnpm + tsx. Useful when you want a one-line invocation
 # from cron or a systemd timer.
 #

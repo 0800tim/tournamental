@@ -32,7 +32,7 @@ src/
 test/  (54 tests, all passing — see below)
 ```
 
-Default WhatsApp transport is the Aiva SMS gateway (so we reuse Sdeal's
+Default WhatsApp transport is the Aiva SMS gateway (so we reuse another internal product's
 existing paired session). Setting `WHATSAPP_TRANSPORT=baileys` switches
 to in-process Baileys with a dashboard QR endpoint for first-run
 pairing.
@@ -112,7 +112,7 @@ curl http://localhost:3330/v1/auth/me \
 - **OTP hash binds phone + channel + secret.** Stops a stolen DB
   becoming a rainbow-table replay across the user base.
 - **Aiva gateway is the default WhatsApp transport.** Reuses the
-  existing Sdeal Baileys session; doesn't pair a second WhatsApp.
+  existing Aiva-hosted Baileys session; doesn't pair a second WhatsApp.
 - **SQLite over Postgres.** Sub-ms reads + zero-ops; we already have
   the better-sqlite3 native binding. Postgres swap is straightforward
   if scale demands.
@@ -122,9 +122,9 @@ curl http://localhost:3330/v1/auth/me \
 
 ## Open questions for orchestrator
 
-1. **Aiva SMS device ID** — should VTourn share Tim's Android (Sdeal's
+1. **Aiva SMS device ID** — should VTourn share the Aiva device (the existing
    current device) or get its own?
-2. **Aiva WhatsApp session ID** — reuse Sdeal's `+64204259069` for
+2. **Aiva WhatsApp session ID** — reuse an existing internal Aiva session for
    v0.1, or pair a fresh number?
 3. **At-rest encryption** — ship with disk-level encryption only, or
    add sqlcipher in v0.1.x? Tim signed off "disk-level for v0.1" in
