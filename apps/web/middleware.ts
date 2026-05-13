@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from "next/server";
 /**
  * Host-based routing for the multi-domain Next app.
  *
- * **Canonical play surface**: `play.tournamental.com`. Apex `/`
- * rewrites internally to `/world-cup-2026` (the featured tournament)
- * so the user lands on the bracket builder immediately. Every other
- * path falls through, `/match/<id>`, `/world-cup-2026/molecule`,
- * `/profile`, etc. all work transparently.
+ * **Canonical play surface**: `play.tournamental.com`. Apex `/` renders
+ * the sales-flow home page (hero → step 1 picks → step 2 3D molecule →
+ * step 3 syndicates → quickstart). Each step CTAs into the relevant
+ * route (`/world-cup-2026` for picks, `/match/<demo>` for the molecule,
+ * `/syndicates` for the embed widget).
  *
  * **Deprecated hosts → 301 redirects** (Tim consolidated 2026-05-11
  * to minimise subdomains):
@@ -60,15 +60,11 @@ export function middleware(req: NextRequest) {
   }
 
   if (isPlayHost(host)) {
-    // Apex `/` → rewrite to the featured tournament's bracket builder.
-    // (Internal rewrite, not redirect: the URL the user sees stays
-    // `https://play.tournamental.com/`.) Future tournaments will swap
-    // this pointer; the route hierarchy is multi-tournament-ready.
-    if (path === "/") {
-      const url = req.nextUrl.clone();
-      url.pathname = "/world-cup-2026";
-      return NextResponse.rewrite(url);
-    }
+    // Apex `/` renders the sales-flow home (apps/web/app/page.tsx) —
+    // the previous rewrite to /world-cup-2026 was removed 2026-05-13
+    // so the home page can front-and-centre syndicates, the 3D
+    // molecule, and the picks CTA without burying them under the
+    // bracket builder.
     return NextResponse.next();
   }
 
