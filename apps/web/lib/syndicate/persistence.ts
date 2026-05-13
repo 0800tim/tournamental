@@ -30,6 +30,8 @@ import { dirname, resolve } from "node:path";
 import Database from "better-sqlite3";
 import type { Database as DatabaseT, Statement } from "better-sqlite3";
 
+export type SyndicateTier = "free" | "premium" | "past_due";
+
 export interface SyndicateRow {
   id: string;
   slug: string;
@@ -45,6 +47,19 @@ export interface SyndicateRow {
   created_at: number;
   member_count: number;
   share_guid: string;
+  /**
+   * Commercial tier flag. 'free' by default. Flipped to 'premium' or
+   * 'past_due' by the HighLevel webhook. All billing/provisioning
+   * happens inside HL; this is the only piece of commercial state
+   * the codebase persists.
+   */
+  tier: SyndicateTier;
+  /** HighLevel Location id, null on free tier. Opaque. */
+  hl_location_id: string | null;
+  /** Stripe subscription id forwarded by HL. Opaque, for support refs. */
+  hl_subscription_id: string | null;
+  /** Epoch ms of first premium activation; survives later downgrades. */
+  hl_premium_since: number | null;
 }
 
 export interface PendingGhlRow {
@@ -109,10 +124,16 @@ export class SyndicatePersistence {
         marketing_consent   INTEGER NOT NULL DEFAULT 0,
         created_at          INTEGER NOT NULL,
         member_count        INTEGER NOT NULL DEFAULT 1,
-        share_guid          TEXT NOT NULL UNIQUE
+        share_guid          TEXT NOT NULL UNIQUE,
+        tier                TEXT NOT NULL DEFAULT 'free',
+        hl_location_id      TEXT,
+        hl_subscription_id  TEXT,
+        hl_premium_since    INTEGER
       );
       CREATE INDEX IF NOT EXISTS idx_syndicates_slug ON syndicates(slug);
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
+      CREATE INDEX IF NOT EXISTS idx_syndicates_tier ON syndicates(tier);
+      CREATE INDEX IF NOT EXISTS idx_syndicates_owner_user_id ON syndicates(owner_user_id);
       CREATE TABLE IF NOT EXISTS syndicate_owners_membership (
         syndicate_id TEXT NOT NULL,
         user_id      TEXT NOT NULL,
@@ -304,6 +325,76 @@ export class SyndicatePersistence {
     if (!this.listPendingGhlStmt) this.prepareStatements();
     if (!this.listPendingGhlStmt) return [];
     return this.listPendingGhlStmt.all(now, limit) as PendingGhlRow[];
+  }
+
+  /**
+   * List every syndicate this user owns. Drives the affiliate dashboard
+   * at `/dashboard/syndicates`. Ordered by most recently created so
+   * fresh creations float to the top.
+   */
+  listByOwnerUserId(userId: string): SyndicateRow[] {
+    if (!this.isReady()) return [];
+    return this.db
+      .prepare(
+        `SELECT * FROM syndicates
+         WHERE owner_user_id = ?
+         ORDER BY created_at DESC`,
+      )
+      .all(userId) as SyndicateRow[];
+  }
+
+  /**
+   * Update the commercial-tier state of a syndicate. Called only by the
+   * HighLevel webhook receiver. All billing, subscription state, and
+   * provisioning logic lives inside HL automations; this method is the
+   * single mutation surface the codebase exposes.
+   *
+   * Passing `tier: 'premium'` with a fresh `hl_location_id` activates
+   * premium and stamps `hl_premium_since` if it wasn't already set.
+   * Passing `tier: 'free'` downgrades but preserves `hl_premium_since`
+   * for loyalty metrics.
+   */
+  setTierBySlug(args: {
+    slug: string;
+    tier: SyndicateTier;
+    hl_location_id?: string | null;
+    hl_subscription_id?: string | null;
+    now?: number;
+  }): SyndicateRow | null {
+    if (!this.isReady()) return null;
+    const now = args.now ?? Date.now();
+    const existing = this.getBySlug(args.slug);
+    if (!existing) return null;
+
+    const premiumSince =
+      args.tier === "premium" && existing.hl_premium_since === null
+        ? now
+        : existing.hl_premium_since;
+
+    this.db
+      .prepare(
+        `UPDATE syndicates
+            SET tier = @tier,
+                hl_location_id = @hl_location_id,
+                hl_subscription_id = @hl_subscription_id,
+                hl_premium_since = @hl_premium_since
+          WHERE slug = @slug`,
+      )
+      .run({
+        slug: args.slug.toLowerCase(),
+        tier: args.tier,
+        hl_location_id:
+          args.hl_location_id !== undefined
+            ? args.hl_location_id
+            : existing.hl_location_id,
+        hl_subscription_id:
+          args.hl_subscription_id !== undefined
+            ? args.hl_subscription_id
+            : existing.hl_subscription_id,
+        hl_premium_since: premiumSince,
+      });
+
+    return this.getBySlug(args.slug);
   }
 
   close(): void {
