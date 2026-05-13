@@ -3,7 +3,7 @@
  *
  * Server component: loads the tournament + canonical-team data once at
  * build / request time, finds the team by 3-letter FIFA code, and renders:
- *   - Hero: oversized circular flag, kit-colour gradient strip, FIFA rank
+ *   - Hero: oversized circular flag, kit-colour gradient strip, world rank
  *     chip, group letter chip, country name, manager line.
  *   - Quick-pick CTA: deep-link into the bracket pre-scrolled to the team's
  *     next fixture.
@@ -76,10 +76,10 @@ export function generateMetadata({ params }: TeamPageProps): Metadata {
     return { title: "Team not found - Tournamental" };
   }
   return {
-    title: `${c.name} - FIFA World Cup 2026 | Tournamental`,
-    description: `${c.name} squad, FIFA rank #${c.fifa_ranking_at_2026}, recent form, and upcoming fixtures at the FIFA World Cup 2026. Predict their next match on Tournamental.`,
+    title: `${c.name} - Football World Cup 2026 | Tournamental`,
+    description: `${c.name} squad, world rank #${c.fifa_ranking_at_2026}, recent form, and upcoming fixtures at the Football World Cup 2026. Predict their next match on Tournamental.`,
     openGraph: {
-      title: `${c.name} - FIFA World Cup 2026`,
+      title: `${c.name} - Football World Cup 2026`,
       description: `${c.name} squad and fixtures. Predict their bracket on Tournamental.`,
       type: "website",
     },
@@ -170,7 +170,7 @@ export default function TeamPage({ params }: TeamPageProps) {
             </h1>
             <div className="td-hero-chips">
               <span className="td-chip td-chip-rank">
-                FIFA #{canonical.fifa_ranking_at_2026}
+                World #{canonical.fifa_ranking_at_2026}
               </span>
               {gid && (
                 <span className="td-chip td-chip-group">Group {gid}</span>
@@ -240,7 +240,7 @@ export default function TeamPage({ params }: TeamPageProps) {
           </ol>
           <p className="td-section-hint">
             Standings update once group-stage matches kick off. Until then the
-            order shown is FIFA-rank ascending.
+            order shown is world-rank ascending.
           </p>
         </section>
       )}

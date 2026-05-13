@@ -81,7 +81,7 @@ function sourceLabel(s: MatchOdds["source"]): string {
     case "kalshi":
       return "Kalshi";
     case "mock-fifa-rank":
-      return "Estimate (FIFA rank)";
+      return "Estimate (world rank)";
     case "mock-stub":
       return "Estimate";
   }

@@ -234,7 +234,14 @@ export async function registerBracketByGuidRoutes(
       return reply.code(404).send({ ok: false, error: "not_found" });
     }
 
-    const row = deps.store.getBracketByShareGuid(guid);
+    // Primary lookup: by the persisted share_guid column.
+    // Fallback: if the guid looks like a UUID v4, treat it as a userId
+    // and return that user's most-recent bracket. This is what makes
+    // `/s/<userId>` a working share URL — the canonical short form.
+    let row = deps.store.getBracketByShareGuid(guid);
+    if (!row && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(guid)) {
+      row = deps.store.getLatestBracketByUser(guid);
+    }
     if (!row) {
       return reply.code(404).send({ ok: false, error: "not_found" });
     }

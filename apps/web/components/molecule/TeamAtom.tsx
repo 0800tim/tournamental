@@ -240,7 +240,7 @@ export function TeamAtom(props: TeamAtomProps) {
             {noSelection && node.isTopInstance && node.fifaRank !== null ? (
               <span
                 className="molecule-label-rank"
-                aria-label={`FIFA rank ${node.fifaRank}`}
+                aria-label={`world rank ${node.fifaRank}`}
                 data-stage={node.finalStage}
               >
                 #{node.fifaRank}

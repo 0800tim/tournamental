@@ -65,7 +65,7 @@ export function generateMetadata({ params }: PlayerPageProps): Metadata {
   }
   const team = TEAMS_BY_CODE.get(player.code);
   const teamName = team?.name ?? player.code;
-  const title = `${player.name} - ${teamName} - FIFA World Cup 2026 | Tournamental`;
+  const title = `${player.name} - ${teamName} - Football World Cup 2026 | Tournamental`;
   const desc = `${player.name} (${POSITION_LABEL[player.position]}) plays for ${teamName} at the 2026 World Cup. ${player.club ? `Club: ${player.club}.` : ""} Predict their next match on Tournamental.`;
   return {
     title,
@@ -139,7 +139,7 @@ export default function PlayerPage({ params }: PlayerPageProps) {
         <section className="player-section" aria-label="Tournament context">
           <h2>Tournament 2026</h2>
           <p>
-            {player.name} represents {teamName} at the FIFA World Cup 2026. Plays as a{" "}
+            {player.name} represents {teamName} at the Football World Cup 2026. Plays as a{" "}
             {POSITION_LABEL[player.position].toLowerCase()}.
           </p>
           <p style={{ marginTop: "1rem" }}>

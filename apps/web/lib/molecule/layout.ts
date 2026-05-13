@@ -296,7 +296,7 @@ function teamAzimuth(teamCode: string): number {
  *                   v4 behaviour: a team's column rises near-vertically up
  *                   the pyramid because the azimuth is constant.
  *   "rank-sorted", within each ring, teams are placed around the circle
- *                   in FIFA-rank order. Strongest at θ=0 (camera-front),
+ *                   in world-rank order. Strongest at θ=0 (camera-front),
  *                   weakest at θ=π (back). Different rings can therefore
  *                   place the *same* team at slightly different azimuths,
  *                   since the ring's neighbours differ. The pyramid still
@@ -370,7 +370,7 @@ const STAGE_RANK: Record<StageId, number> = {
  * Build the molecule layout from a cascaded bracket.
  *
  * v5: optionally accepts `mode = "rank-sorted"` to re-sort each ring by
- * FIFA rank instead of using the per-team stable hash. Default is
+ * world rank instead of using the per-team stable hash. Default is
  * `"stable"` to preserve the v4 column visual.
  */
 export function buildMoleculeLayout(

@@ -74,7 +74,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "messi_picks",
     owner_country_emoji: "🇦🇷",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "FIFA World Cup 2026",
+    tournament_label: "Football World Cup 2026",
     created_at: "2026-04-12T09:00:00Z",
     picks_made: 47,
     members: [
@@ -94,7 +94,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "tim",
     owner_country_emoji: "🇳🇿",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "FIFA World Cup 2026",
+    tournament_label: "Football World Cup 2026",
     created_at: "2026-04-28T22:14:00Z",
     picks_made: 12,
     members: [
@@ -110,7 +110,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "otago_otto",
     owner_country_emoji: "🇳🇿",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "FIFA World Cup 2026",
+    tournament_label: "Football World Cup 2026",
     created_at: "2026-05-02T06:30:00Z",
     picks_made: 0,
     members: [
@@ -127,7 +127,7 @@ const SAMPLE_BY_SLUG = new Map<string, SyndicateRecord>(
 const TEST_OVERRIDES = new Map<string, SyndicateRecord>();
 
 const TOURNAMENT_LABELS: Record<string, string> = {
-  "fifa-wc-2026": "FIFA World Cup 2026",
+  "fifa-wc-2026": "Football World Cup 2026",
 };
 
 function parsePrizeSplit(json: string | null): ReadonlyArray<SyndicatePrizeSplitEntry> | null {

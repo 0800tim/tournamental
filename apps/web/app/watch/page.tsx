@@ -28,7 +28,7 @@ export default function WatchPage() {
         <section className="vt-section">
           <h2 className="vt-section-title">More replays coming</h2>
           <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>
-            We are wiring up the FIFA WC 2026 live producer next. Live
+            We are wiring up the World Cup 2026 live producer next. Live
             watch-along plus rewinds will land here as soon as the
             stream-server is online.
           </p>

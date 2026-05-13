@@ -43,7 +43,7 @@ export function bracketToCascadeInput(
     };
   });
 
-  // FIFA 2026: 12 groups × 4 teams. Top 2 from each group + best 8
+  // World Cup 2026: 12 groups × 4 teams. Top 2 from each group + best 8
   // third-placed teams advance to R32. Rank the 12 third-placed teams by
   // points → goal-diff → goals-for → team code (deterministic last-resort
   // tiebreak). Take top 8 to fill best-third R32 slots.

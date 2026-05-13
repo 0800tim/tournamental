@@ -71,6 +71,19 @@ export interface MoleculeSceneProps {
    * fully interactive (rotate / zoom / select).
    */
   readonly readOnly?: boolean;
+  /**
+   * 2026-05-13: when `true`, skip the auto-select-the-champion effect
+   * so the side panel doesn't open on mount. The save-share preview
+   * uses this so the molecule renders cleanly next to its own podium
+   * tile rather than overlapping the auto-opened panel.
+   */
+  readonly suppressAutoSelect?: boolean;
+  /**
+   * 2026-05-13: when `true`, hide the side-panel UI entirely. The
+   * save-share preview pairs the molecule with its own podium card,
+   * so the in-scene panel is redundant.
+   */
+  readonly hideSidePanel?: boolean;
 }
 
 function emptyBracket(): Bracket {
@@ -380,7 +393,7 @@ export function MoleculeScene({
   // v6, "viral share landing", auto-open the panel for the predicted
   // champion on first mount. If the bracket has no resolved champion
   // (empty / no knockout picks) we fall back to the rank-favourite team
-  // (lowest FIFA rank in the tournament) so the page is never blank on
+  // (lowest world rank in the tournament) so the page is never blank on
   // first paint. This is one-shot, after the first auto-select fires
   // any later user click + close wins for the rest of the session.
   useEffect(() => {
@@ -719,7 +732,7 @@ export function MoleculeScene({
       {layoutMode === "rank-sorted" ? (
         <div className="molecule-mode-hint" role="status" aria-live="polite">
           <span>↻</span>
-          <span>Rings sorted by FIFA rank</span>
+          <span>Rings sorted by world rank</span>
         </div>
       ) : null}
 

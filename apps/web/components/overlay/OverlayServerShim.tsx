@@ -73,7 +73,7 @@ export function OverlayServerShim(props: OverlayServerShimProps) {
       >
         <h2>{canonical.name}</h2>
         <p>
-          FIFA #{canonical.fifa_ranking_at_2026} · {canonical.confederation}
+          World #{canonical.fifa_ranking_at_2026} · {canonical.confederation}
           {canonical.manager ? ` · Manager: ${canonical.manager}` : ""}
         </p>
         <p>

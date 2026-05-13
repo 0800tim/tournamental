@@ -69,7 +69,7 @@ function validate(input: unknown): { ok: true; data: IntentPayload } | { ok: fal
     return { ok: false, error: "A valid email is required." };
   }
   if (!isString(obj.country) || !/^[A-Z]{3}$/.test(obj.country)) {
-    return { ok: false, error: "Country must be a 3-letter FIFA code." };
+    return { ok: false, error: "Country must be a 3-letter country code." };
   }
   let telegram: string | null = null;
   if (obj.telegram !== undefined && obj.telegram !== null && obj.telegram !== "") {

@@ -41,7 +41,7 @@
  *       { "stage": "final", "teamCode": "FRA", "teamName": "France" }
  *     ],
  *     "handle":         "messi-fan",                         // optional
- *     "tournamentName": "FIFA WC 2026"                       // optional
+ *     "tournamentName": "World Cup 2026"                       // optional
  *   }
  *
  * Response: image/png, 1200×630 (landscape) by default.
@@ -112,7 +112,7 @@ export async function POST(req: NextRequest): Promise<Response> {
     size,
     shareGuid,
     handle,
-    tournamentName: sanitiseShortText(body.tournamentName) ?? "FIFA WC 2026",
+    tournamentName: sanitiseShortText(body.tournamentName) ?? "World Cup 2026",
     champion: sanitiseChampion(body.champion),
     runnerUp: sanitiseChampion(body.runnerUp),
     thirdPlace: sanitiseChampion(body.thirdPlace),

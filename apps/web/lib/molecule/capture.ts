@@ -100,7 +100,7 @@ export async function captureAndCompose(
       size: input.size ?? "landscape",
       shareGuid: input.shareGuid,
       handle: input.handle ?? null,
-      tournamentName: input.tournamentName ?? "FIFA WC 2026",
+      tournamentName: input.tournamentName ?? "World Cup 2026",
       champion: input.champion ?? null,
       runnerUp: input.runnerUp ?? null,
       thirdPlace: input.thirdPlace ?? null,

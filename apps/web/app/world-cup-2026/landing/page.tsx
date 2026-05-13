@@ -40,9 +40,9 @@ export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Tournamental, 33 days until the world predicts the World Cup.",
   description:
-    "Tournamental is the prediction game for the 2026 FIFA World Cup. Free to play. Save your bracket now and tweak it match by match, earlier-saved picks score bigger, and you can change any pick until that match kicks off. 48 teams, 104 matches, one open-source bracket.",
+    "Tournamental is the prediction game for the 2026 Football World Cup. Free to play. Save your bracket now and tweak it match by match, earlier-saved picks score bigger, and you can change any pick until that match kicks off. 48 teams, 104 matches, one open-source bracket.",
   openGraph: {
-    title: "Tournamental, FIFA World Cup 2026 prediction game",
+    title: "Tournamental, Football World Cup 2026 prediction game",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     url: "https://play.tournamental.com/",
@@ -59,7 +59,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tournamental, FIFA World Cup 2026 prediction game",
+    title: "Tournamental, Football World Cup 2026 prediction game",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: ["/og/bracket/default.png"],
@@ -97,15 +97,15 @@ export default function LandingPage() {
       <section className="wc-hero" aria-labelledby="wc-hero-h1">
         <HeroFlagGrid />
         <div className="wc-hero-inner">
-          <span className="wc-hero-pulse">2026 FIFA World Cup &middot; June 11 kickoff</span>
+          <span className="wc-hero-pulse">2026 Football World Cup &middot; June 11 kickoff</span>
           <h1 id="wc-hero-h1">
             <em>{days}</em> {days === 1 ? "day" : "days"} until the world
             <br />
             predicts the World Cup.
           </h1>
           <p className="wc-hero-sub">
-            Tournamental is the open-source prediction game for the 2026 FIFA
-            World Cup. Free to play, free to syndicate, free to share.
+            Tournamental is the open-source prediction game for the 2026
+            Football World Cup. Free to play, free to syndicate, free to share.
             Save your bracket now and tweak it match by match, the
             earlier your saved pick, the bigger the multiplier. You can
             change any pick right up until that match kicks off.
@@ -190,7 +190,7 @@ export default function LandingPage() {
         <span className="wc-eyebrow">12 groups · 48 teams</span>
         <h2 id="wc-teams-h2">Every nation, every group.</h2>
         <p className="wc-lede">
-          The Final Draw is in. Click any team for kit colours, FIFA
+          The Final Draw is in. Click any team for kit colours, world
           rank, first three fixtures, and live tournament-winner odds.
         </p>
         <TeamGroupGrid />
@@ -255,7 +255,7 @@ export default function LandingPage() {
         <span className="wc-eyebrow">Group winner probability</span>
         <h2 id="wc-charts-h2">Where the smart money is, today.</h2>
         <p className="wc-lede">
-          Per-group winner probability, derived from FIFA rank for now,
+          Per-group winner probability, derived from world rank for now,
           and re-derived daily from Polymarket once the integration ships.
         </p>
         <GroupCharts />

@@ -82,7 +82,7 @@ export function inputFromSearchParams(args: {
   const displayName = searchParams.get("name") ?? undefined;
   const winnerCode = (searchParams.get("winner") ?? "ARG").toUpperCase();
   const tournamentName =
-    searchParams.get("tournament") ?? "FIFA WC 2026";
+    searchParams.get("tournament") ?? "World Cup 2026";
   const punditLevelRaw = searchParams.get("pundit");
   const punditLevel = punditLevelRaw ? Math.max(0, Number(punditLevelRaw) || 0) : 0;
   const kitOverride = searchParams.get("kit");

@@ -47,7 +47,7 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
   // Pull the odds snapshot once on mount. The endpoint has its own
   // mock fallback so this resolves with a usable map either way.
   // `null` means "not loaded yet"; an empty Map means "loaded, but no
-  // live odds available — fall back to FIFA-rank proxy inside the
+  // live odds available — fall back to world-rank proxy inside the
   // builder".
   useEffect(() => {
     const ac = new AbortController();
@@ -59,7 +59,7 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
 
   // Build the global-prediction Bracket from the snapshot. The
   // builder mirrors BracketBuilder.handleAutoPick: highest-probability
-  // outcome per match, FIFA rank for group tiebreakers, stage-by-stage
+  // outcome per match, world rank for group tiebreakers, stage-by-stage
   // re-cascade through the knockouts.
   const consensus: Bracket | null = useMemo(() => {
     if (!oddsByMatch) return null;

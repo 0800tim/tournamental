@@ -69,7 +69,7 @@ export function TeamGroupGrid() {
                       size="md"
                     />
                     <span className="wc-team-name">{t.name}</span>
-                    <span className="wc-team-rank">FIFA #{t.fifa_ranking_at_2026}</span>
+                    <span className="wc-team-rank">World #{t.fifa_ranking_at_2026}</span>
                   </button>
                 </li>
               ))}
@@ -115,7 +115,7 @@ export function TeamGroupGrid() {
               {drawer.team.name}
             </h3>
             <div className="wc-drawer-meta">
-              Group {drawer.groupId} &middot; FIFA #{drawer.team.fifa_ranking_at_2026}
+              Group {drawer.groupId} &middot; World #{drawer.team.fifa_ranking_at_2026}
               {" "}
               &middot; {drawer.team.confederation}
             </div>

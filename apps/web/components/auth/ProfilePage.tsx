@@ -258,7 +258,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
           {draft.favouriteTeamCode
             ? `Selected: ${findTeamByCode(draft.favouriteTeamCode)?.name ?? draft.favouriteTeamCode}`
-            : "Tap a flag to choose your favourite. Sorted by FIFA ranking."}
+            : "Tap a flag to choose your favourite. Sorted by world ranking."}
         </p>
         <TeamPicker
           value={draft.favouriteTeamCode}

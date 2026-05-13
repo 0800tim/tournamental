@@ -2,7 +2,7 @@
  * /api/odds/team/[code]/winner
  *
  * Tournament-winner probability for a single team. Proxies upstream if
- * configured, otherwise mocks from the FIFA rank.
+ * configured, otherwise mocks from the world rank.
  */
 
 import { NextResponse, type NextRequest } from "next/server";

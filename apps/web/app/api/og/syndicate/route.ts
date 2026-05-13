@@ -17,7 +17,7 @@
  *   - name          (optional), display name override / fallback when
  *                                the syndicate isn't in the store yet.
  *   - member_count  (optional), integer ≥ 0; fallback for store miss.
- *   - tournament    (optional), defaults to "FIFA WC 2026".
+ *   - tournament    (optional), defaults to "World Cup 2026".
  *   - size          (optional), landscape | portrait | square.
  *
  * Resolution order:
@@ -160,7 +160,7 @@ function fromQuery(req: NextRequest, slug: string, size: SyndicateSize): RenderA
   const name = (url.searchParams.get("name") ?? "").trim() || titleCase(slug);
   const memberCountRaw = url.searchParams.get("member_count");
   const memberCount = Math.max(0, Number(memberCountRaw ?? 0) || 0);
-  const tournament = (url.searchParams.get("tournament") ?? "").trim() || "FIFA WC 2026";
+  const tournament = (url.searchParams.get("tournament") ?? "").trim() || "World Cup 2026";
   return {
     slug,
     safeSlug: safeSlugify(slug),

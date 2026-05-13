@@ -31,18 +31,18 @@ export const revalidate = 600;
 const OG_IMAGE = "/og/bracket/default.png";
 
 export const metadata: Metadata = {
-  title: "Tournament Molecule, FIFA World Cup 2026",
+  title: "Tournament Molecule, Football World Cup 2026",
   description:
     "Your bracket prediction, rendered as a 3D atom map. Group losers on the outer ring, your predicted champion at the heart. Click any team to inspect their predicted path.",
   openGraph: {
-    title: "Tournament Molecule, FIFA WC 2026",
+    title: "Tournament Molecule, World Cup 2026",
     description: "Your bracket prediction as a 3D molecule. Click any team to inspect.",
     images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: "Tournamental molecule" }],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tournament Molecule, FIFA WC 2026",
+    title: "Tournament Molecule, World Cup 2026",
     description: "Your bracket prediction as a 3D molecule.",
     images: [OG_IMAGE],
   },

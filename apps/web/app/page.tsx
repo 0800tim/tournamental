@@ -33,7 +33,7 @@ const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 export const metadata: Metadata = {
   title: "Tournamental — predict the World Cup, watch it in 3D, run your own syndicate",
   description:
-    "Free-to-play FIFA World Cup 2026 prediction game with a 3D molecule watch-along, verifiable picks, and a built-in syndicate platform so anyone can run a branded sweepstake for their audience.",
+    "Free-to-play Football World Cup 2026 prediction game with a 3D molecule watch-along, verifiable picks, and a built-in syndicate platform so anyone can run a branded sweepstake for their audience.",
 };
 
 export default function HomePage(): JSX.Element {
@@ -42,7 +42,7 @@ export default function HomePage(): JSX.Element {
       <main className="vt-home">
         {/* ============== HERO ============== */}
         <section className="vt-home-hero">
-          <span className="vt-home-eyebrow">FIFA World Cup 2026 · Free to play</span>
+          <span className="vt-home-eyebrow">Football World Cup 2026 · Free to play</span>
           <h1 className="vt-home-title">
             Predict every match. Watch it in 3D.
             <br className="vt-home-br" /> Run your own sweepstake.

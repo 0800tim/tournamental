@@ -4,11 +4,11 @@
  *
  * The molecule's "Show global prediction" toggle uses this to overlay
  * what the world (Polymarket + The Odds API blended, falling back to
- * a deterministic FIFA-rank mock when no live feed is connected) is
+ * a deterministic world-rank mock when no live feed is connected) is
  * predicting for every match in the tournament.
  *
  * Source of truth on the wire: `/api/odds/snapshot`. That route's
- * mock tier already returns the same deterministic FIFA-rank
+ * mock tier already returns the same deterministic world-rank
  * probabilities the synchronous v1 of this helper hand-rolled, so the
  * snapshot fallback is honest about being a fallback while the live
  * service is offline.
@@ -43,7 +43,7 @@ const KO_PICK_STAGES: readonly StageId[] = [
  * Given a tournament and a map of `matchNo → MatchOdds`, return a
  * fully-populated Bracket whose predictions are the
  * highest-probability outcome for every match. Group tiebreakers are
- * resolved by FIFA rank (the snapshot doesn't carry winner summaries).
+ * resolved by world rank (the snapshot doesn't carry winner summaries).
  */
 export function buildOddsConsensusBracket(
   tournament: Tournament,
@@ -148,7 +148,7 @@ export function buildOddsConsensusBracket(
 /**
  * Fetch the snapshot from `/api/odds/snapshot` and return a
  * `Map<matchNo, MatchOdds>`. Returns an empty map on failure — the
- * helper above tolerates that and falls through to FIFA-rank
+ * helper above tolerates that and falls through to world-rank
  * heuristics.
  */
 export async function fetchOddsSnapshotMap(

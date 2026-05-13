@@ -44,11 +44,22 @@ interface PageProps {
 
 // ── Metadata ────────────────────────────────────────────────────────
 
+// Legacy URLs from before 2026-05-13 used the full server `bracketId`
+// (shape `bk_<userId-uuid>_<tournamentId>_<timestamp>`) as the share
+// guid, which the new resolver doesn't recognise. Normalise back to the
+// embedded userId UUID so old links resolve cleanly.
+function normaliseGuid(raw: string): string {
+  const m = (raw ?? "").match(
+    /^bk_([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})_/i,
+  );
+  return m ? m[1] : raw;
+}
+
 export async function generateMetadata(
   { params }: PageProps,
 ): Promise<Metadata> {
   // Metadata fetch doesn't need the heavy payload; just the summary.
-  const resolved = await resolveShareGuid(params.guid);
+  const resolved = await resolveShareGuid(normaliseGuid(params.guid));
   if (resolved.kind === "syndicate") {
     const s = resolved.syndicate;
     const ogUrl = `/api/og/syndicate?slug=${encodeURIComponent(s.slug)}`;
@@ -111,7 +122,7 @@ export async function generateMetadata(
 export default async function SharePage({ params }: PageProps) {
   // The page (not the metadata) is the one that needs the full
   // bracket payload — the molecule embed lives in the page body.
-  const resolved = await resolveShareGuid(params.guid, {
+  const resolved = await resolveShareGuid(normaliseGuid(params.guid), {
     includePayload: true,
   });
 

@@ -1,5 +1,5 @@
 /**
- * MatchCard, TVNZ FIFA-app inspired fixture card.
+ * MatchCard, TVNZ-app inspired fixture card.
  *
  * Layout (mobile, 375 px viewport):
  *

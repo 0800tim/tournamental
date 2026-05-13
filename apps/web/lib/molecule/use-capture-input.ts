@@ -133,7 +133,7 @@ export function useMoleculeCaptureInput(
     if (!cascaded) {
       return {
         size: "landscape",
-        tournamentName: "FIFA WC 2026",
+        tournamentName: "World Cup 2026",
         champion: null,
         runnerUp: null,
         thirdPlace: null,
@@ -184,7 +184,7 @@ export function useMoleculeCaptureInput(
 
     return {
       size: "landscape",
-      tournamentName: "FIFA WC 2026",
+      tournamentName: "World Cup 2026",
       champion,
       runnerUp,
       thirdPlace,

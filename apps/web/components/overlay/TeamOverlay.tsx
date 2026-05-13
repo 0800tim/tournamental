@@ -9,7 +9,7 @@
  * Note: we deliberately don't import the full team page component -
  * it's a server component with its own data dependencies. Instead we
  * hand-roll a compact card view here that mirrors the same data
- * surface (flag, name, FIFA rank, group, manager, fixtures).
+ * surface (flag, name, world rank, group, manager, fixtures).
  */
 
 "use client";
@@ -118,7 +118,7 @@ export function TeamOverlay(props: TeamOverlayProps) {
           <div className="vt-team-overlay-meta">
             <h3>{canonical.name}</h3>
             <ul className="vt-team-overlay-chips">
-              <li>FIFA #{canonical.fifa_ranking_at_2026}</li>
+              <li>World #{canonical.fifa_ranking_at_2026}</li>
               {groupId && <li>Group {groupId}</li>}
               <li>{canonical.confederation}</li>
             </ul>

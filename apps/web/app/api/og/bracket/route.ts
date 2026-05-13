@@ -18,7 +18,7 @@
  *   - third              , 3-letter bronze code.
  *   - kit                , override champion kit primary (#hex).
  *   - path               , knockout path: r16:JPN,qf:ESP,sf:BRA,final:FRA.
- *   - tournament         , tournament name (default "FIFA WC 2026").
+ *   - tournament         , tournament name (default "World Cup 2026").
  *   - pundit             , verified-pundit level (omit for none).
  *   - locked             , legacy alias for picks-saved; preserved for
  *                           back-compat with social posts before

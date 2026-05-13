@@ -1,7 +1,7 @@
 /**
  * Deterministic mock odds generator.
  *
- * Inputs: home/away FIFA rank + a stable per-match seed (the matchNo).
+ * Inputs: home/away world rank + a stable per-match seed (the matchNo).
  * Output: W/D/L probabilities that sum to 1.0 and are stable across
  * page reloads but plausibly different per match.
  *
@@ -59,7 +59,7 @@ export interface MockOddsInput {
   readonly matchNo: string;
   readonly homeTeam: string;
   readonly awayTeam: string;
-  /** FIFA ranking, lower number is better. */
+  /** world ranking, lower number is better. */
   readonly homeRank: number;
   readonly awayRank: number;
   /** When true, omit the draw row (knockout match). */
@@ -144,7 +144,7 @@ function round3(x: number): number {
 }
 
 /**
- * Cheap fallback when we don't even have FIFA ranks (e.g. the team
+ * Cheap fallback when we don't even have world ranks (e.g. the team
  * codes don't match the canonical teams.json). Returns a 50/25/25
  * baseline with a tiny per-match jitter so the chip still renders.
  */

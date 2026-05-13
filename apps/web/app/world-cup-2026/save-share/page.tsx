@@ -34,7 +34,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Save & share your bracket, Tournamental",
   description:
-    "Share your FIFA World Cup 2026 bracket. Copy the link, share to WhatsApp / Telegram / X / Facebook / Email, or download the card image.",
+    "Share your Football World Cup 2026 bracket. Copy the link, share to WhatsApp / Telegram / X / Facebook / Email, or download the card image.",
 };
 
 export default function SaveSharePageRoute(): JSX.Element {

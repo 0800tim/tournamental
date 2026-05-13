@@ -70,7 +70,7 @@ export function LockSummary(props: LockSummaryProps) {
 
   const deadline = Date.parse(deadline_utc);
 
-  // Per-match counts (group + knockout = up to 104 for FIFA 2026).
+  // Per-match counts (group + knockout = up to 104 for World Cup 2026).
   const totalGroup = tournament.group_fixtures.length;
   const totalKnockout = tournament.knockouts.length;
   const totalPicks = totalGroup + totalKnockout;

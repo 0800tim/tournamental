@@ -12,7 +12,7 @@
  *   - winner     (3-letter), champion country code (default ARG)
  *   - kit        (#hex)   , override champion kit primary colour
  *   - path       (string) , knockout path: r16:AUS,qf:ESP,sf:BRA,final:FRA
- *   - tournament (string) , override tournament name (default "FIFA WC 2026")
+ *   - tournament (string) , override tournament name (default "World Cup 2026")
  *   - pundit     (number) , verified-pundit level chip (omit for none)
  *   - size       (portrait|landscape|square), for the .png variant
  *   - format     (instagram|tiktok|twitter) , for the .mp4 variant

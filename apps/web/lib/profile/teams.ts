@@ -2,8 +2,8 @@
  * Team list for the favourite-team flag grid on /profile.
  *
  * The full team catalogue lives in `data/fifa-wc-2026/teams.json` (48
- * entries, FIFA rankings included). This module exposes a lighter
- * shape — `{ code, name, fifaRank }` — sorted by FIFA rank ascending
+ * entries, world rankings included). This module exposes a lighter
+ * shape — `{ code, name, fifaRank }` — sorted by world rank ascending
  * so the favourites land at the top of the grid by default.
  *
  * Flag SVGs live under `apps/web/public/flags/<CODE>.svg`. One file
@@ -28,7 +28,7 @@ interface RawTeam {
 
 const RAW = (teamsRaw as { teams: RawTeam[] }).teams;
 
-/** All 48 confirmed WC 2026 teams, sorted by FIFA rank (lowest = best). */
+/** All 48 confirmed WC 2026 teams, sorted by world rank (lowest = best). */
 export const TEAMS: readonly Team[] = RAW
   .map((t) => ({
     code: t.code,

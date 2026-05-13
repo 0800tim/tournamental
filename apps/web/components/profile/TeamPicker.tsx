@@ -2,14 +2,14 @@
 
 /**
  * Favourite-team picker: a responsive grid of all 48 WC 2026 flags
- * ordered by FIFA rank, with the 3-letter code overlaid. Tapping a
+ * ordered by world rank, with the 3-letter code overlaid. Tapping a
  * flag selects it; the parent saves on the next Save click.
  *
  * Why a grid rather than a dropdown: international teams have
  * recognisable flags; a flag grid recognises faster than a list of
  * 48 names, especially for non-English-speaking users.
  *
- * Why FIFA-rank order: power-law of football fan preferences — top-10
+ * Why world-rank order: power-law of football fan preferences — top-10
  * teams account for the majority of "favourite" picks. Putting them
  * first means one tap for most users.
  */
@@ -111,7 +111,7 @@ function TeamTile({ team, selected, onPick }: TeamTileProps) {
       data-selected={selected ? "1" : "0"}
       className="vt-team-tile"
       onClick={onPick}
-      title={`${team.name} · FIFA rank ${team.fifaRank}`}
+      title={`${team.name} · world rank ${team.fifaRank}`}
     >
       <img
         src={flagPath(team.code)}

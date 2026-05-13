@@ -6,7 +6,7 @@
  * preview / team-detail "Coming up" sections (wide variant).
  *
  * The data source is the stub at `apps/web/data/head-to-head.json` for now -
- * the file is a deterministic placeholder (TODO: live FIFA H2H feed).
+ * the file is a deterministic placeholder (TODO: live H2H feed).
  *
  * Pure presentational. Counts are explicit props so the same pill can be fed
  * from any future live source without reaching into JSON.

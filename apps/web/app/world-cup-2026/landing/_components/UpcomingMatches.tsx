@@ -1,7 +1,7 @@
 /**
  * The first 12 matches of the tournament, group-stage matchday 1.
  *
- * Visual: TVNZ FIFA-app inspired flag-bg card. Each match cell is split
+ * Visual: TVNZ-app inspired flag-bg card. Each match cell is split
  * left/right by the two countries' flag SVGs as backgrounds with a soft
  * dark gradient over the top, plus a centred "vs" badge, plus a small
  * "UPCOMING" pill top-left. Below the flag band sit the date/time, team
@@ -31,7 +31,7 @@ function buildIcs(match: UpcomingMatch): string {
     `DTSTAMP:${fmt(new Date())}`,
     `DTSTART:${fmt(start)}`,
     `DTEND:${fmt(end)}`,
-    `SUMMARY:${match.home.name} vs ${match.away.name}, FIFA WC 2026`,
+    `SUMMARY:${match.home.name} vs ${match.away.name}, World Cup 2026`,
     `DESCRIPTION:Group stage match #${match.match_number}. Save your bracket at https://play.tournamental.com/world-cup-2026`,
     `LOCATION:${match.host_city_id.replaceAll("_", " ")}`,
     "END:VEVENT",

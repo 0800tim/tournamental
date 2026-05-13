@@ -10,7 +10,7 @@
  *   mock generator. Useful for local dev and for unit-testing the API
  *   contract without a network call.
  *
- * Tier 3, `mockMatchOdds` directly, with FIFA ranks looked up from
+ * Tier 3, `mockMatchOdds` directly, with world ranks looked up from
  *   `data/fifa-wc-2026/teams.json`. The chip never renders empty.
  *
  * The same client serves the browser (via `fetch`) and Next.js route
@@ -43,7 +43,7 @@ const TEAMS_BY_CODE: ReadonlyMap<string, CanonicalTeam> = new Map(
   (canonicalTeamsRaw as CanonicalTeamsFile).teams.map((t) => [t.code, t]),
 );
 
-/** Look up a FIFA rank with a sensible default for unknowns. */
+/** Look up a world rank with a sensible default for unknowns. */
 export function fifaRank(code: string): number {
   const t = TEAMS_BY_CODE.get(code);
   if (t && typeof t.fifa_ranking_at_2026 === "number") {
@@ -237,7 +237,7 @@ export async function fetchTeamWinnerSummary(
     } catch { /* fall through */ }
   }
 
-  // Mock: derive from FIFA rank, top-3 ~ 12-22%, top-10 ~ 4-8%, rest <2%.
+  // Mock: derive from world rank, top-3 ~ 12-22%, top-10 ~ 4-8%, rest <2%.
   const rank = fifaRank(teamCode);
   const tournamentWinnerProb = rank <= 1 ? 0.22
     : rank <= 3 ? 0.16 - (rank - 1) * 0.03
@@ -302,7 +302,7 @@ export async function fetchTeamGroupSummary(
     } catch { /* fall through */ }
   }
 
-  // Mock: invert FIFA-rank within the group, normalise to 1.0.
+  // Mock: invert world-rank within the group, normalise to 1.0.
   const teamRank = fifaRank(teamCode);
   const allRanks = groupTeamCodes.map((c) => fifaRank(c));
   // Lower rank = stronger; convert to weight via 1 / sqrt(rank).

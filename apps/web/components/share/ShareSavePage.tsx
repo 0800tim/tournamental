@@ -365,7 +365,7 @@ export function ShareSavePage({
     (s: DomCaptureSize) => ({
       shareGuid: guid,
       handle: handle ?? null,
-      tournamentName: "FIFA WC 2026",
+      tournamentName: "World Cup 2026",
       champion:
         championCode && champion
           ? {
@@ -534,7 +534,7 @@ export function ShareSavePage({
       {/* Hero strip */}
       <header className="vt-ss-hero">
         <div>
-          <p className="vt-ss-eyebrow">FIFA World Cup 2026</p>
+          <p className="vt-ss-eyebrow">Football World Cup 2026</p>
           <h1 id="vt-ss-title" className="vt-ss-title">Your World Cup 2026 bracket</h1>
           <p className="vt-ss-sub">
             <span className="vt-ss-saved-at" data-testid="vt-ss-saved-at">

@@ -3,7 +3,7 @@
  *
  * Tier-2 stub. Proxies to the upstream `apps/odds-ingest` REST surface
  * if `ODDS_API_URL` is configured; otherwise returns a deterministic
- * mock derived from the FIFA-rank lookup in `data/fifa-wc-2026/teams.json`.
+ * mock derived from the world-rank lookup in `data/fifa-wc-2026/teams.json`.
  *
  * Cache policy: `s-maxage=30, stale-while-revalidate=300` per the
  * standing rule in CLAUDE.md and the table in

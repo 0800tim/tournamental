@@ -3,7 +3,7 @@
  *
  * Two surfaces under test:
  *  1. `buildOddsConsensusBracket` against a known odds map — picks the
- *     highest-probability outcome per match, falls back to FIFA rank
+ *     highest-probability outcome per match, falls back to world rank
  *     when a match is missing from the map.
  *  2. `fetchOddsSnapshotMap` against a mocked fetch — tolerates 404,
  *     malformed JSON, and abort.
@@ -47,7 +47,7 @@ describe("buildOddsConsensusBracket", () => {
     }
   });
 
-  it("falls back to FIFA-rank heuristic when a fixture is missing from the snapshot", () => {
+  it("falls back to world-rank heuristic when a fixture is missing from the snapshot", () => {
     const bracket = buildOddsConsensusBracket(tournament, new Map());
     // Every group fixture must still have a prediction (rank fallback).
     for (const f of tournament.group_fixtures) {

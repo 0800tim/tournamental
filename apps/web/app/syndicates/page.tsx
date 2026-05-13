@@ -358,7 +358,7 @@ export default function SyndicatesIndexPage(): JSX.Element {
               <summary>Can I run this for tournaments other than the World Cup?</summary>
               <p>
                 Soon. Six Nations, Cricket World Cup, college brackets, your office annual
-                ladder — the same toolkit applies. The FIFA 2026 setup is the launch
+                ladder — the same toolkit applies. The World Cup 2026 setup is the launch
                 tournament; new ones light up as the seasons roll.
               </p>
             </details>

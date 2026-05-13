@@ -1,6 +1,6 @@
 /**
  * Pure helpers for assembling everything the `/team/[code]` page needs:
- *   - canonical team metadata (name, FIFA rank, kit, confederation, manager)
+ *   - canonical team metadata (name, world rank, kit, confederation, manager)
  *   - the team's group letter (if grouped)
  *   - the team's group fixtures (computed standings opponents)
  *   - upcoming + recent fixtures for the team
@@ -133,7 +133,7 @@ export interface GroupOpponent {
 }
 
 /**
- * The other teams in the same group as `code` (by FIFA-rank ascending).
+ * The other teams in the same group as `code` (by world-rank ascending).
  * Used both to render the mini-standings strip and to seed the
  * head-to-head section.
  */

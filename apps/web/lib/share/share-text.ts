@@ -60,22 +60,22 @@ export function shareDisplayUrlFor(guid: string): string {
  * and as the body of platform deep-links.
  *
  * Two variants:
- *   - Complete bracket: "Just locked in my FIFA World Cup 2026 bracket
+ *   - Complete bracket: "Just locked in my Football World Cup 2026 bracket
  *     on Tournamental — I've got <Champion> taking the trophy. Pick
  *     yours: <url>"
- *   - Incomplete: "I'm building my FIFA World Cup 2026 bracket on
+ *   - Incomplete: "I'm building my Football World Cup 2026 bracket on
  *     Tournamental. Build yours: <url>"
  */
 export function buildShareText(input: ShareCopyInput): string {
   const url = shareUrlFor(input.guid);
   if (input.isComplete && input.champion && input.champion !== "—" && input.champion !== "TBD") {
     return (
-      `Just locked in my FIFA World Cup 2026 bracket on Tournamental — ` +
+      `Just locked in my Football World Cup 2026 bracket on Tournamental — ` +
       `I've got ${input.champion} taking the trophy. Pick yours: ${url}`
     );
   }
   return (
-    `I'm building my FIFA World Cup 2026 bracket on Tournamental. ` +
+    `I'm building my Football World Cup 2026 bracket on Tournamental. ` +
     `Build yours: ${PLAY_ORIGIN.replace(/^https?:\/\//, "")}/world-cup-2026`
   );
 }
@@ -170,6 +170,22 @@ export function ogDownloadFilename(input: OgImageInput): string {
  * Never derive from `Date.now()` or fresh random — the URL must be
  * stable across renders + reloads.
  */
+// Server-side bracketIds are minted as `bk_<userId>_<tournamentId>_<nowMs>`
+// (see apps/game/src/routes/picks.ts). If the only thing we have to
+// share is a bracketId, prefer the embedded userId UUID — it's the
+// stable per-user share key, and the resolver looks brackets up by
+// user_id when share_guid doesn't match. Falling back to the full
+// bracketId would produce an 80-char share URL that nobody can paste.
+const UUID_V4_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+function extractUserIdFromBracketId(bracketId: string): string | null {
+  const m = bracketId.match(
+    /^bk_([0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12})_/i,
+  );
+  return m ? m[1] : null;
+}
+
 export function resolveShareGuid(opts: {
   readonly serverShareGuid?: string | null;
   readonly authUserId?: string | null;
@@ -178,8 +194,11 @@ export function resolveShareGuid(opts: {
   const server = (opts.serverShareGuid ?? "").trim();
   if (server) return server;
   const auth = (opts.authUserId ?? "").trim();
-  if (auth) return auth;
+  if (auth && UUID_V4_RE.test(auth)) return auth;
   const b = (opts.bracketId ?? "").trim();
+  const fromBracket = b ? extractUserIdFromBracketId(b) : null;
+  if (fromBracket) return fromBracket;
+  if (auth) return auth;
   if (b) return b;
   // Last resort — should rarely fire because the bracket builder always
   // hydrates a localUserId. We return a non-empty sentinel so URL

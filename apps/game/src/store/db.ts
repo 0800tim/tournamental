@@ -87,6 +87,7 @@ export class GameStore {
   private getBracketByUserStmt!: Statement;
   private getBracketByIdStmt!: Statement;
   private getBracketByShareGuidStmt!: Statement;
+  private getLatestBracketByUserStmt!: Statement;
   private listBracketsByTournamentStmt!: Statement;
   private updateBracketScoreStmt!: Statement;
   private upsertMatchResultStmt!: Statement;
@@ -185,6 +186,9 @@ export class GameStore {
     );
     this.getBracketByShareGuidStmt = this.db.prepare(
       `SELECT * FROM brackets WHERE share_guid = ?`,
+    );
+    this.getLatestBracketByUserStmt = this.db.prepare(
+      `SELECT * FROM brackets WHERE user_id = ? ORDER BY locked_at DESC LIMIT 1`,
     );
     this.listBracketsByTournamentStmt = this.db.prepare(
       `SELECT * FROM brackets WHERE tournament_id = ?`,
@@ -356,6 +360,16 @@ export class GameStore {
   /** Lookup by the public share guid. Returns null if no row matches. */
   getBracketByShareGuid(shareGuid: string): BracketRow | null {
     const row = this.getBracketByShareGuidStmt.get(shareGuid) as
+      | BracketRow
+      | undefined;
+    return row ?? null;
+  }
+
+  /** Latest bracket saved by this user across all tournaments. Used as
+   *  the share-guid → bracket fallback: a user's stable UUID resolves
+   *  to their most-recently-saved bracket. */
+  getLatestBracketByUser(userId: string): BracketRow | null {
+    const row = this.getLatestBracketByUserStmt.get(userId) as
       | BracketRow
       | undefined;
     return row ?? null;

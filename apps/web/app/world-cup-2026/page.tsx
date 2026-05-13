@@ -1,5 +1,5 @@
 /**
- * /world-cup-2026, the bracket-prophet page for the FIFA WC 2026.
+ * /world-cup-2026, the bracket-prophet page for the World Cup 2026.
  *
  * Server component: emits OG meta tags + loads the vendored fixture JSON
  * once, server-side. The interactive bracket is a client island wrapped
@@ -37,11 +37,11 @@ export const dynamic = "force-dynamic";
 const SHARE_DEFAULT_OG = "/og/bracket/default.png";
 
 export const metadata: Metadata = {
-  title: "Tournamental Bracket Prophet, FIFA World Cup 2026",
+  title: "Tournamental Bracket Prophet, Football World Cup 2026",
   description:
     "Predict the full 48-team bracket. Tweak picks match by match, earlier-saved long-shots earn more points. Powered by the Tournamental cascade engine, your downstream tree updates instantly with every pick.",
   openGraph: {
-    title: "Tournamental Bracket Prophet, FIFA World Cup 2026",
+    title: "Tournamental Bracket Prophet, Football World Cup 2026",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: [{ url: SHARE_DEFAULT_OG, width: 1200, height: 630, alt: "Tournamental Bracket" }],
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tournamental Bracket Prophet, FIFA World Cup 2026",
+    title: "Tournamental Bracket Prophet, Football World Cup 2026",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: [SHARE_DEFAULT_OG],
@@ -76,7 +76,7 @@ export default function WorldCup2026Page({ searchParams }: WorldCup2026PageProps
             <p>
               Engine: <code>@tournamental/bracket-engine</code>. Source data:{" "}
               <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
-                FIFA 2026
+                World Cup 2026
               </a>{" "}
               ({baseTournament._meta.schedule_status}). When the official draw is
               finalised, swap the fixtures JSON.

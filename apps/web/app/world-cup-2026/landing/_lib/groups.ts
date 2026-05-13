@@ -3,7 +3,7 @@
  * list from the canonical data files. Tested in vitest.
  *
  * Source data:
- *   - `data/fifa-wc-2026/teams.json` , 48 teams w/ kit colours, FIFA rank.
+ *   - `data/fifa-wc-2026/teams.json` , 48 teams w/ kit colours, world rank.
  *   - `data/fifa-wc-2026/fixtures.json`, 104 matches, real composition
  *     (post-2025-12-05 Final Draw + March 2026 play-off winners).
  */
@@ -57,7 +57,7 @@ export function allTeams(): readonly Team[] {
 
 /**
  * Build the 12 group blocks (A-L) from the fixtures file.
- * Each group has 4 teams. Teams within a group are returned in FIFA-rank
+ * Each group has 4 teams. Teams within a group are returned in world-rank
  * order (best rank first) so the UI is stable.
  */
 export function buildGroups(): readonly GroupBlock[] {
@@ -123,7 +123,7 @@ export function firstFixturesForTeam(code: string, limit: number = 3): readonly 
 }
 
 /**
- * Synthetic "group winner probability" derived from FIFA ranks within the
+ * Synthetic "group winner probability" derived from world ranks within the
  * group. Real probabilities come from Polymarket later; this is a
  * deterministic placeholder so the chart isn't empty for launch.
  *

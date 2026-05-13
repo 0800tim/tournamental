@@ -96,7 +96,7 @@ const STAGE_LABEL: Record<PathToGoldEntry["stage"], string> = {
 };
 
 const TOURNAMENT_LABEL: Record<string, string> = {
-  "fifa-wc-2026": "FIFA World Cup 2026",
+  "fifa-wc-2026": "Football World Cup 2026",
 };
 
 /**

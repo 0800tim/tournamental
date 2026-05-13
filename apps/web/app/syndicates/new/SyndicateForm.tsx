@@ -370,7 +370,7 @@ export function SyndicateForm(): JSX.Element {
                   checked
                   readOnly
                 />
-                <span className="syn-radio-label">FIFA World Cup 2026</span>
+                <span className="syn-radio-label">Football World Cup 2026</span>
               </label>
               <label className="syn-radio" aria-disabled="true">
                 <input type="radio" name="syn-tournament" value="future" disabled />
@@ -522,7 +522,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
   const url = payload.share_url;
   const inviteText = useMemo(
     () =>
-      `Come predict the FIFA World Cup 2026 with me, join my pool at ${url}`,
+      `Come predict the Football World Cup 2026 with me, join my pool at ${url}`,
     [url],
   );
 
@@ -538,7 +538,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
 
   const waHref = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
   const tgHref = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
-    "Come predict the FIFA World Cup 2026 with me",
+    "Come predict the Football World Cup 2026 with me",
   )}`;
   const mailHref = `mailto:?subject=${encodeURIComponent(
     "Join my Tournamental pool",

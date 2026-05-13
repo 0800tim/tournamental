@@ -19,7 +19,7 @@ export function SyndicateSuccessClient({ slug }: { slug: string }): JSX.Element 
   const [copied, setCopied] = useState(false);
 
   const inviteText = useMemo(
-    () => `Come predict the FIFA World Cup 2026 with me, join my pool at ${url}`,
+    () => `Come predict the Football World Cup 2026 with me, join my pool at ${url}`,
     [url],
   );
 
@@ -35,7 +35,7 @@ export function SyndicateSuccessClient({ slug }: { slug: string }): JSX.Element 
 
   const waHref = `https://wa.me/?text=${encodeURIComponent(inviteText)}`;
   const tgHref = `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(
-    "Come predict the FIFA World Cup 2026 with me",
+    "Come predict the Football World Cup 2026 with me",
   )}`;
   const mailHref = `mailto:?subject=${encodeURIComponent(
     "Join my Tournamental pool",

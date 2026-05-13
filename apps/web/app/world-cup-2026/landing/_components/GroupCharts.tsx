@@ -1,6 +1,6 @@
 /**
  * Per-group "winner probability today" mini-chart. Synthetic data derived
- * from FIFA rank (deterministic, see _lib/groups.ts). Live odds will swap
+ * from world rank (deterministic, see _lib/groups.ts). Live odds will swap
  * in once docs/29 Polymarket integration ships.
  *
  * Visual: list of teams in the group, each with a horizontal bar and a

@@ -13,7 +13,7 @@
  *     `team-squads.json` if the formations file has no entry.
  *   - statsFor(code), pre-match expected stats from
  *     `team-stats.json`, or a deterministic synthesised default
- *     derived from the team's FIFA rank.
+ *     derived from the team's world rank.
  *
  * All loaders are synchronous + pure so they're safe to call from a
  * server component.
