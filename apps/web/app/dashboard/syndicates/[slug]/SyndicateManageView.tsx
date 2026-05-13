@@ -13,6 +13,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
 
+import { HlStatusBanner } from "../HlStatusBanner";
+
 interface OwnerSyndicate {
   readonly id: string;
   readonly slug: string;
@@ -238,6 +240,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
 
   return (
     <main className="vt-dash">
+      <HlStatusBanner />
       <header className="vt-dash-hero">
         <Link href="/dashboard/syndicates" className="vt-dash-link">
           ← Back to your syndicates
@@ -289,14 +292,12 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
             </div>
           </div>
           <div className="vt-dash-row-actions">
-            <a
-              href={HL_CHECKOUT_URL}
-              target="_blank"
-              rel="noreferrer"
+            <Link
+              href={`/dashboard/syndicates/${s.slug}/connect`}
               className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
             >
               Upgrade to Premium ($97/mo via Aiva) →
-            </a>
+            </Link>
             <a
               href="https://tournamental.com/partners/aiva"
               target="_blank"

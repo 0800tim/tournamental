@@ -20,6 +20,7 @@ import type { Metadata } from "next";
 import { AppShell } from "@/components/shell";
 import { RouteEvent } from "@/components/analytics/RouteEvent";
 
+import { LiveWidgetDemo } from "./LiveWidgetDemo";
 import "./syndicates.css";
 
 export const metadata: Metadata = {
@@ -272,13 +273,23 @@ export default function SyndicatesIndexPage(): JSX.Element {
           </p>
         </section>
 
-        {/* Embed snippet preview */}
+        {/* Embed snippet preview + live demo widget */}
         <section className="vt-syndicates-section" id="embed">
           <h2 className="vt-syndicates-section-title">One snippet, any site</h2>
+          <p className="vt-syndicates-card-body" style={{ maxWidth: "64ch" }}>
+            Drop these two lines anywhere on your site. The widget reads
+            your syndicate slug, fetches your branding, and renders. Here&apos;s
+            the same widget running against a demo syndicate, live on this page:
+          </p>
+
+          <div className="vt-syndicates-demo-wrap">
+            <div className="vt-syndicates-demo-badge">Live preview</div>
+            <LiveWidgetDemo slug="tournamental-demo" />
+          </div>
+
           <div className="vt-syndicates-snippet-wrap">
             <p className="vt-syndicates-card-body">
-              Drop these two lines anywhere on your site. The widget reads
-              your syndicate slug, fetches your branding, and renders.
+              That widget is rendered by exactly this snippet (substitute your slug):
             </p>
             <pre className="vt-syndicates-snippet">
               <code>{`<tournamental-syndicate slug="your-syndicate"></tournamental-syndicate>

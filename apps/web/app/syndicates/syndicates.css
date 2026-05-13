@@ -523,3 +523,31 @@
   font: 400 13px/1 ui-monospace, Menlo, Consolas, monospace;
   color: #fde68a;
 }
+
+/* Live demo widget wrapper */
+.vt-syndicates-demo-wrap {
+  position: relative;
+  margin: 16px 0 24px;
+  padding: 24px;
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.08) 0%, transparent 100%);
+  border: 1px dashed rgba(245, 197, 66, 0.3);
+  border-radius: 16px;
+}
+
+.vt-syndicates-demo-badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: #fbbf24;
+  color: #0a0e1a;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vt-syndicates-demo-host {
+  display: flex;
+  justify-content: center;
+}

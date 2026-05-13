@@ -20,6 +20,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
 
+import { HlStatusBanner } from "./HlStatusBanner";
+
 export interface DashboardSyndicate {
   readonly id: string;
   readonly slug: string;
@@ -203,6 +205,7 @@ export function SyndicatesDashboard(): JSX.Element {
 
   return (
     <main className="vt-dash">
+      <HlStatusBanner />
       <header className="vt-dash-hero">
         <p className="vt-dash-eyebrow">Syndicates</p>
         <h1 className="vt-dash-title">Your syndicates</h1>

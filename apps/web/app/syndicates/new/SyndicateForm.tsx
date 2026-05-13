@@ -283,6 +283,26 @@ export function SyndicateForm(): JSX.Element {
                 {fieldErrors.name}
               </span>
             )}
+            {/* Sample-name suggestion chips */}
+            <div className="syn-suggestions" aria-label="Sample names">
+              <span className="syn-suggestions-label">Try one:</span>
+              {[
+                "George FM World Cup",
+                "Mt Eden Primary Sweepstake",
+                "The Cafe Crew Bracket",
+                "Brookfield Bowls Club",
+                "Wellington Workplace Pool",
+              ].map((sample) => (
+                <button
+                  key={sample}
+                  type="button"
+                  className="syn-suggestion-chip"
+                  onClick={() => onNameChange(sample)}
+                >
+                  {sample}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Slug */}
@@ -484,8 +504,13 @@ export function SyndicateForm(): JSX.Element {
           {submitError && <div className="syn-form-error">{submitError}</div>}
 
           <button type="submit" className="syn-submit" disabled={!canSubmit}>
-            {submitting ? "Creating…" : "Create my syndicate"}
+            {submitting ? "Creating…" : "Create my syndicate · free"}
           </button>
+          <ul className="syn-reassure">
+            <li><span aria-hidden="true">✓</span> No credit card required</li>
+            <li><span aria-hidden="true">✓</span> Free forever on this tier</li>
+            <li><span aria-hidden="true">✓</span> Embed on any site you own</li>
+          </ul>
         </form>
       </div>
     </div>

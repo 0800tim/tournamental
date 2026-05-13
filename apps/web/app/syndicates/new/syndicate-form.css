@@ -372,3 +372,59 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Sample-name suggestion chips */
+.syn-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.syn-suggestions-label {
+  font: 600 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #9aa6c2;
+  margin-right: 4px;
+}
+
+.syn-suggestion-chip {
+  background: rgba(245, 197, 66, 0.08);
+  border: 1px solid rgba(245, 197, 66, 0.3);
+  color: #fde68a;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font: 500 12px/1.2 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  cursor: pointer;
+  transition: background 120ms, border-color 120ms;
+}
+
+.syn-suggestion-chip:hover {
+  background: rgba(245, 197, 66, 0.18);
+  border-color: rgba(245, 197, 66, 0.55);
+}
+
+/* Reassurance row above submit */
+.syn-reassure {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.syn-reassure li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 13px/1 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.syn-reassure li span {
+  color: #21a34a;
+  font-weight: 700;
+}
