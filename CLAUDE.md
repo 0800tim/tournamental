@@ -4,7 +4,7 @@
 
 ## What this is, in 30 seconds
 
-**Tournamental** (tournamental.com) — a tournament prediction game built around a free-to-play core, with a 3D match-renderer watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0; brand and affiliate codes owned by **Tournamental Holdings**; contributors share platform revenue via Drips Network.
+**Tournamental** (tournamental.com) — a tournament prediction game built around a free-to-play core, with a 3D match-renderer watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0; brand and affiliate codes owned by **Tournamental**; contributors share platform revenue via Drips Network.
 
 Read [Tournamental Pitch.md](Tournamental%20Pitch.md) for the marketing one-pager. Read [README.md](README.md) for the repo layout and doc index. Read [REVIEW.md](REVIEW.md) for the current state of the design pack.
 

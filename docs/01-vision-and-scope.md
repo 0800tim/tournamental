@@ -85,7 +85,7 @@ The project is *not* succeeding if it becomes:
 - [`16-game-modes-and-scoring.md`](16-game-modes-and-scoring.md), 10 game modes, the unifying scoring formula, multipliers, streaks, confidence chips, personality leaderboards.
 - [`17-vstamp-and-prediction-iq.md`](17-vstamp-and-prediction-iq.md), Merkle-batched blockchain verification (Polygon + OpenTimestamps), VStamp UX, Prediction IQ reputation algorithm.
 - [`18-monetization.md`](18-monetization.md), six revenue lanes (affiliate routing, sponsorship, Pro, B2B, creator leagues, data licensing), realistic revenue ramp, NZ TAB monopoly framing, build sequencing.
-- [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md), Apache 2.0 license, Tournamental Holdings + Foundation structure, Drips Network contributor revshare, fork policy, comparable projects.
+- [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md), Apache 2.0 license, Tournamental + Foundation structure, Drips Network contributor revshare, fork policy, comparable projects.
 - [`20-identity-humanness-bots.md`](20-identity-humanness-bots.md), multi-provider OAuth (Google / Apple / Facebook / X / LinkedIn / GitHub / Discord / WhatsApp), native-app contacts, Humanness Score algorithm, explicit bot policy, three-flavour leaderboards.
 - [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md), user-deployed Pool contracts on Polygon / Base, TournamentalOracle (4-of-7 multisig) for verified match results, geo-restricted UI, trustless settlement.
 

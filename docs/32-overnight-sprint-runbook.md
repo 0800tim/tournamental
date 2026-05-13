@@ -87,7 +87,7 @@ stream.tournamental.com                     → AR-FR stream producer (WS)     �
 ## Things blocked on Tim
 
 1. **ElevenLabs API key**, drop into `.env` as `ELEVENLABS_API_KEY` and the programmatic 10-language commentary render kicks off (`scripts/render-commentary.mjs`).
-2. **Polymarket affiliate registration**, KYC for Tournamental Holdings; first-deposit attribution callback verification.
+2. **Polymarket affiliate registration**, KYC for Tournamental; first-deposit attribution callback verification.
 3. **Mixamo / Ready Player Me credentials**, replaces hand-tuned CC0 placeholder anims with real mocap.
 4. **The Odds API key**, register at https://the-odds-api.com (free tier 500 req/mo); set `THE_ODDS_API_KEY` in `.env` to enable Bet365/Pinnacle aggregator backup.
 5. **Telegram BotFather token**, `/newbot` against @BotFather → save token as `TELEGRAM_BOT_TOKEN`. Bot username preference TBC.

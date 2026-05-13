@@ -440,7 +440,7 @@ Total: 7 days, ships in time for go-to-market window.
 
 ## Open questions for Tim
 
-1. **Polymarket affiliate paperwork**, register Tournamental Holdings as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
+1. **Polymarket affiliate paperwork**, register Tournamental as the affiliate party. Banking + KYC required. Recommend doing this Mon in parallel with first sprint day.
 2. **Pay-TV provider outreach**, recommend signing up for Impact and CJ Affiliate networks (cover most broadcasters); Sky NZ direct; Optus AU direct.
 3. **NZ audience copy**, for NZ users, the Polymarket CTA is hidden. Should the chip itself stay (editorial market intel) or be hidden? Recommend keeping the chip, it drives bracket engagement even without the affiliate.
 4. **First-deposit attribution**, does Polymarket's affiliate console expose a postback/webhook? Need to register and verify Mon.

@@ -94,7 +94,7 @@ This is not legal advice. The operator (Tim) is responsible for confirming with 
 
 > **See [doc 18](18-monetization.md) for the full monetization model with revenue scenarios, affiliate routing engine spec, and realistic ramp expectations. See [doc 19](19-open-source-and-contributor-revenue.md) for the open-source structure and contributor revenue share.**
 
-Tournamental ships free. Revenue lives in six buckets (sponsored tournaments + native ads, Tournamental Pro subscription, B2B white-label, creator leagues, geo-restricted affiliate routing, data licensing + Verified Pundit programme), none of which require us to operate as a sportsbook or financial service. Net revenue flows to **Tournamental Holdings** and is partially redistributed to upstream contributors via Drips Network. Quick summary of each lane below; full treatment in doc 18.
+Tournamental ships free. Revenue lives in six buckets (sponsored tournaments + native ads, Tournamental Pro subscription, B2B white-label, creator leagues, geo-restricted affiliate routing, data licensing + Verified Pundit programme), none of which require us to operate as a sportsbook or financial service. Net revenue flows to **Tournamental** and is partially redistributed to upstream contributors via Drips Network. Quick summary of each lane below; full treatment in doc 18.
 
 ### 1. Affiliate revenue (geo-restricted)
 

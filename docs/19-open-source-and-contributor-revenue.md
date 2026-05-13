@@ -1,14 +1,14 @@
-# 19, Open Source, Tournamental Holdings, and Contributor Revenue Share
+# 19, Open Source, Tournamental, and Contributor Revenue Share
 
-> The structural decision: Tournamental ships **100% open source** and anyone can fork the code. **Tournamental Holdings** is the legal entity that owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury, proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
+> The structural decision: Tournamental ships **100% open source** and anyone can fork the code. The Tournamental operating company owns the official brand, the official affiliate codes, and the treasury that those codes generate. Contributors to the upstream codebase and builders of games on the platform receive an on-chain, blockchain-tracked share of that treasury, proportional to their scored contributions. This doc specifies how that works without falling into a securities-law trap.
 
 ## The shape of the deal
 
 Three things, kept distinct:
 
 1. **The code and protocol**, open source, Apache 2.0 licensed, anyone can fork, run their own Tournamental, set their own affiliate destinations, monetize independently. The protocol is a public good.
-2. **The official Tournamental instance + brand**, `tournamental.com`, `@TournamentalBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **Tournamental Holdings**.
-3. **The contributor revenue share programme**, Tournamental Holdings allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes", but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
+2. **The official Tournamental instance + brand**, `tournamental.com`, `@TournamentalBot`, the trademark, the negotiated affiliate deals with sportsbooks and Polymarket. These are private commercial assets owned by **Tournamental**.
+3. **The contributor revenue share programme**, Tournamental allocates a fixed percentage of net affiliate revenue (and other monetization lanes from [doc 18](18-monetization.md)) to a pool that streams payments on-chain to scored contributors. This is the part the user shorthands as "blockchain-based equity stakes", but its implementation is a *revenue-share contract*, not literal equity, for legal-clarity reasons explained below.
 
 Anyone can fork; only contributors to the upstream get a slice of the official-instance revenue. Forks succeeding on their own merit help the protocol; they don't dilute upstream contributors because the treasury they feed is whatever the fork operator chooses to set up.
 
@@ -17,9 +17,9 @@ Anyone can fork; only contributors to the upstream get a slice of the official-i
 It threads a narrow needle:
 
 - **Open source maximises adoption and trust.** A closed prediction-game with affiliate links looks like a commercial flytrap; an open one looks like a public utility with optional commercial monetization.
-- **Tournamental Holdings owning the brand and affiliate codes preserves negotiating power.** Sportsbooks and Polymarket want a single accountable counterparty. They sign deals with Tournamental Holdings.
+- **Tournamental owning the brand and affiliate codes preserves negotiating power.** Sportsbooks and Polymarket want a single accountable counterparty. They sign deals with Tournamental.
 - **Contributor revshare aligns incentives.** Anyone who improves the upstream is improving the platform that drives revenue to the treasury they share in. Same incentive as equity vesting at a startup, with much lower legal load if structured as revshare not equity.
-- **Forks are welcome, not threats.** A fork that builds a niche stylized world or a regional feed doesn't compete with Tournamental Holdings' affiliate revenue; if anything, it raises the protocol's profile.
+- **Forks are welcome, not threats.** A fork that builds a niche stylized world or a regional feed doesn't compete with Tournamental's affiliate revenue; if anything, it raises the protocol's profile.
 
 ## License, Apache 2.0
 
@@ -34,7 +34,7 @@ Not MIT. Not AGPL. Apache 2.0 specifically.
 ```
 Code (everything in /apps, /packages, /spec):    Apache-2.0
 Documentation (everything in /docs, /prompts):   CC-BY-4.0
-Brand assets (Tournamental name, logo, Tournament       (c) Tournamental Holdings, all rights
+Brand assets (Tournamental name, logo, Tournament       (c) Tournamental, all rights
 Bot persona, badge artwork, stadium skins):       reserved
 ```
 
@@ -42,9 +42,9 @@ The brand assets are deliberately *not* open. A fork can use the code; it cannot
 
 Add a `TRADEMARK.md` to the repo root spelling this out plainly so forks know what they can and can't borrow.
 
-## Tournamental Holdings, the legal entity
+## The Tournamental operating company
 
-A real company. Tim and the founding team own the equity. Recommendations on jurisdiction:
+A real company. Tim and the founding team own the equity. The current operating entity is established in New Zealand; the jurisdiction analysis below preserves the historical design-pack reasoning for context.
 
 ### Jurisdiction options
 
@@ -173,7 +173,7 @@ The contributor-onboarding page reads roughly:
 
 > When your code is merged into the Tournamental upstream, you become eligible for the contributor revenue share programme. Tournamental Foundation streams a portion of platform revenue, currently 30% of net revenue, to a public address list on the [Drips Network](https://www.drips.network/). Each quarter, your share of that stream is recalculated based on the work you've shipped that quarter and the previous five quarters (with a decay schedule).
 >
-> This is **not equity**. You don't get voting rights, board seats, or ownership of Tournamental Holdings or Tournamental Foundation. You get a share of incoming revenue for as long as you keep contributing and the project keeps earning. Your share decays over time as old work ages out and as new contributors join.
+> This is **not equity**. You don't get voting rights, board seats, or ownership of Tournamental or Tournamental Foundation. You get a share of incoming revenue for as long as you keep contributing and the project keeps earning. Your share decays over time as old work ages out and as new contributors join.
 >
 > To opt in, register your GitHub username with an Ethereum wallet address at `tournamental.com/contributors/register`. We'll do a basic sanctions check at payout time. Quarterly score sheets are published in the public `payouts/` directory of the repo.
 >
@@ -195,7 +195,7 @@ What forks **cannot** do:
 - Use the Tournamental name, wordmark, or logo.
 - Use the official `@TournamentalBot` Telegram identity.
 - Claim to be the official Tournamental instance.
-- Use the official Tournamental Foundation affiliate deal codes (those are tied to Tournamental Holdings).
+- Use the official Tournamental Foundation affiliate deal codes (those are tied to Tournamental).
 
 This makes "official Tournamental" a clear, brandable thing, `tournamental.com`, distinguishable from any number of forks that may exist, while keeping the underlying protocol genuinely public.
 

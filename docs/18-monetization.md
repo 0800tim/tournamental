@@ -2,7 +2,7 @@
 
 > Comprehensive revenue model for Tournamental. Affiliate routing as one lane (geo-restricted, capped by NZ regulation), but **the platform's design opens at least eight other revenue surfaces** that don't depend on a single sportsbook deal or a single jurisdiction. Strategy: keep the free-to-play game as the primary product so the business is not dependent on gambling access in any one country; monetize across many surfaces; treat affiliate as upside, not core.
 >
-> **Where the money actually goes:** all monetization revenue flows to **Tournamental Holdings** (and its companion entity **Tournamental Foundation**). The Foundation's published treasury policy then streams a fixed percentage to upstream contributors via Drips Network. Full structure and contributor revshare mechanics in [doc 19](19-open-source-and-contributor-revenue.md).
+> **Where the money actually goes:** all monetization revenue flows to **Tournamental** (and its companion entity **Tournamental Foundation**). The Foundation's published treasury policy then streams a fixed percentage to upstream contributors via Drips Network. Full structure and contributor revshare mechanics in [doc 19](19-open-source-and-contributor-revenue.md).
 
 ## TL;DR, the six revenue lanes ranked
 

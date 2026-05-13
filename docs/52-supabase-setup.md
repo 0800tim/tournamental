@@ -29,7 +29,7 @@
 ## Step 1, Create the Supabase project
 
 1. Go to <https://supabase.com/dashboard> and sign in (the
-   Tournamental Holdings GitHub identity is fine for v1; we can move
+   Tournamental GitHub identity is fine for v1; we can move
    ownership later).
 2. Click **New project**.
 3. **Organisation**: Tournamental (create if missing).
@@ -210,7 +210,7 @@ a dedicated SMTP.
 
 **Recommended**: Resend.
 
-1. <https://resend.com> → sign up with the Tournamental Holdings email.
+1. <https://resend.com> → sign up with the Tournamental email.
 2. **Domains → Add Domain** → `tournamental.com`.
 3. Add the DNS records Resend gives you (SPF, DKIM, DMARC) via the
    Cloudflare dashboard for the `tournamental.com` zone. Wait ~10 min

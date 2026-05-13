@@ -85,7 +85,7 @@ API references for each service live under [`api/`](api/README.md). Every Fastif
 | --- | --- |
 | [`17-vstamp-and-prediction-iq.md`](17-vstamp-and-prediction-iq.md) | Tamper-evident prediction receipts + Prediction IQ reputation. |
 | [`18-monetization.md`](18-monetization.md) | Affiliate routing, sponsorship, Pro tier, B2B, creator, data licensing. |
-| [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) | Apache 2.0, Tournamental Holdings, Drips Network revenue share. |
+| [`19-open-source-and-contributor-revenue.md`](19-open-source-and-contributor-revenue.md) | Apache 2.0, Tournamental, Drips Network revenue share. |
 | [`21-onchain-sweepstakes-oracle.md`](21-onchain-sweepstakes-oracle.md) | User-organised on-chain pools + Tournamental-as-oracle. |
 | [`29-polymarket-odds-integration.md`](29-polymarket-odds-integration.md) | How Polymarket numbers feed odds-ingest. |
 | [`40-drips-network-integration.md`](40-drips-network-integration.md) | Drip List + revenue-distribution lifecycle. |

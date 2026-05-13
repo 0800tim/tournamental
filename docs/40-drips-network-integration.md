@@ -7,7 +7,7 @@
 ## Why this exists
 
 Tournamental is Apache-2.0 licensed. Per the pitch and README, contributors -
-human or agent, share Tournamental Holdings' platform revenue through
+human or agent, share Tournamental's platform revenue through
 [Drips Network](https://drips.network). Drips is an Ethereum protocol for
 funding open-source projects: a "Drip List" maps recipient wallets to
 weighted shares, and senders stream or push payouts proportionally.

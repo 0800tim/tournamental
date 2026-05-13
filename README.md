@@ -9,7 +9,7 @@
 
 > **Predict the tournament. Beat the market. Prove it.**
 >
-> Tournamental is a live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network, all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten. Open source under Apache 2.0, brand and treasury held by Tournamental Holdings, contributor revenue streamed via the Drips Network.
+> Tournamental is a live tournament prediction game with a 3D match-renderer watch-along, Telegram-bot identity, blockchain-verified prediction receipts, and a long-term reputation network, all on a write-once / serve-via-CDN architecture so a million viewers cost the same as ten. Open source under Apache 2.0, brand and treasury held by the Tournamental operating company, contributor revenue streamed via the Drips Network.
 
 Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verified Tournament Oracle Network**.
 
@@ -104,7 +104,7 @@ SimulatedSports/                           working folder name; consumer brand i
 │   ├── 16-game-modes-and-scoring.md       10 game modes, scoring formula, personality leaderboards
 │   ├── 17-vstamp-and-prediction-iq.md     blockchain verification + Prediction IQ reputation
 │   ├── 18-monetization.md                 affiliate routing + sponsorship + Pro + B2B + creator + data licensing
-│   ├── 19-open-source-and-contributor-revenue.md  Apache 2.0, Tournamental Holdings, Drips Network revshare
+│   ├── 19-open-source-and-contributor-revenue.md  Apache 2.0, Tournamental, Drips Network revshare
 │   ├── 20-identity-humanness-bots.md      multi-provider OAuth, Humanness Score, bot policy, friend graph
 │   └── 21-onchain-sweepstakes-oracle.md   user-organised on-chain pools + Tournamental-as-oracle (Polygon/Base)
 ├── spec/
@@ -206,7 +206,7 @@ This project is provided for educational and demonstration purposes only. Tourna
 
 ## License and structure
 
-Tournamental ships **100% open source** under **Apache 2.0** (code) and **CC-BY-4.0** (docs). The brand, wordmark, and the official `@TournamentalBot` Telegram identity are owned by **Tournamental Holdings** and are *not* licensed for forks — see `TRADEMARK.md`. Anyone may fork the protocol, run their own instance, set their own affiliate destinations, build their own world.
+Tournamental ships **100% open source** under **Apache 2.0** (code) and **CC-BY-4.0** (docs). The brand, wordmark, and the official `@TournamentalBot` Telegram identity are owned by **Tournamental** and are *not* licensed for forks — see `TRADEMARK.md`. Anyone may fork the protocol, run their own instance, set their own affiliate destinations, build their own world.
 
 **Contributor revenue share.** A fixed percentage of net affiliate revenue (and other monetization lanes) flows to a public Drips Network treasury that streams USDC to scored contributors quarterly. Code merges, accepted RFCs, games built on the platform, vulnerability disclosures, and major reviews all earn into the pool. **This is revenue share, not equity.** Full design and contributor onboarding in [docs/19-open-source-and-contributor-revenue.md](docs/19-open-source-and-contributor-revenue.md).
 

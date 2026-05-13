@@ -38,7 +38,7 @@ docs/15-tournamental-brand-and-positioning.md      brand, NZ regulatory framing
 docs/16-game-modes-and-scoring.md           10 modes, scoring formula
 docs/17-vstamp-and-prediction-iq.md         blockchain verification + Prediction IQ
 docs/18-monetization.md                     six revenue lanes
-docs/19-open-source-and-contributor-revenue.md  Apache 2.0 + Drips + Tournamental Holdings
+docs/19-open-source-and-contributor-revenue.md  Apache 2.0 + Drips + Tournamental
 docs/20-identity-humanness-bots.md          multi-provider OAuth + Humanness Score
 docs/21-onchain-sweepstakes-oracle.md       trustless settlement via TournamentalOracle
 spec/types.ts                               canonical TypeScript types (v0.1.1)

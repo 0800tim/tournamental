@@ -30,11 +30,11 @@ Sponsored tournaments + native ad inventory (badges, AI commentary voices, stadi
 
 ## Why it's a global success, not just a niche app
 
-Tournamental is **100% open source** under Apache 2.0. **Tournamental Holdings** owns the brand and the official affiliate codes; contributors to upstream code, sport modules, and games built on the platform get a streaming USDC revenue share via the Drips Network. Forks are encouraged. Comparable structurally to Optimism, Filecoin, Mozilla, and Linux Foundation — open protocol, foundation-backed, contributor-shared revenue. **First-to-market** as a verified reputation network for live tournament predictions, with a moat made of *people who care about the platform* rather than features that can be cloned.
+Tournamental is **100% open source** under Apache 2.0. **Tournamental** owns the brand and the official affiliate codes; contributors to upstream code, sport modules, and games built on the platform get a streaming USDC revenue share via the Drips Network. Forks are encouraged. Comparable structurally to Optimism, Filecoin, Mozilla, and Linux Foundation — open protocol, foundation-backed, contributor-shared revenue. **First-to-market** as a verified reputation network for live tournament predictions, with a moat made of *people who care about the platform* rather than features that can be cloned.
 
 ## What's needed
 
-Code contributors to the open Apache 2.0 codebase. Launch sponsors for the World Cup window. Pundits and creators to seed the Verified Pundit programme. Counsel to confirm the Cayman + NZ entity structure. Capital through Tournamental Holdings to fund Cloudflare, audits, and ElevenLabs costs to first-tournament break-even.
+Code contributors to the open Apache 2.0 codebase. Launch sponsors for the World Cup window. Pundits and creators to seed the Verified Pundit programme. Counsel to confirm the Cayman + NZ entity structure. Capital through Tournamental to fund Cloudflare, audits, and ElevenLabs costs to first-tournament break-even.
 
 **tournamental.com** — full architecture, design pack, and contributor onboarding from day one.
 

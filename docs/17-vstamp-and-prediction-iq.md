@@ -139,11 +139,11 @@ A VStamp does **not** verify:
 
 - **That the prediction was correct.** The user's Prediction IQ separately captures correctness over time, but a single VStamp by itself says nothing about whether the prediction won.
 - **That any opinion, recommendation, or piece of content the user posts alongside the stamp is endorsed by Tournamental.** A high-IQ user who shares a sponsored post recommending a sportsbook does not inherit Tournamental's authority. The VStamp on their profile attests to their *track record of locked predictions*, it does not attest to anything they say or recommend in marketing copy.
-- **That the user is acting in any official capacity** for Tournamental, Tournamental Holdings, or Tournamental Foundation.
+- **That the user is acting in any official capacity** for Tournamental, Tournamental, or Tournamental Foundation.
 
 This distinction matters for the Verified Pundit programme described later in this doc. A "verified" badge means *the prediction record is auditable*, not *Tournamental vouches for this person's opinions*. Marketing copy must always reflect this distinction. The standard disclosure in any Verified Pundit context:
 
-> Verified Pundit status is awarded based on a public, auditable prediction history. It is not an endorsement by Tournamental or Tournamental Holdings of any opinion, recommendation, or third-party offer the holder may share.
+> Verified Pundit status is awarded based on a public, auditable prediction history. It is not an endorsement by Tournamental or Tournamental of any opinion, recommendation, or third-party offer the holder may share.
 
 The distinction also matters for any sponsored-pundit endorsement of a sportsbook or prediction market: the endorsement is the pundit's, not Tournamental's, and the geo-routed affiliate router still applies the standard third-party-link disclosure on top.
 

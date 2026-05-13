@@ -93,7 +93,7 @@ These don't require API access for launch, Tim just needs to **reserve the handl
 - ☐ **Threads**: reserve `@tournamental` (mirrors Instagram)
 - ☐ **Bluesky**: reserve `@tournamental.com` (uses domain verification, quick)
 - ☐ **Mastodon**: skip for v1 unless we have a specific home server
-- ☐ **LinkedIn**: create a Company Page (Tournamental Holdings), needed for partner outreach
+- ☐ **LinkedIn**: create a Company Page (Tournamental), needed for partner outreach
 - ☐ Once each handle is reserved, paste into `config/brand.json` so the marketing footer + share cards link to the right account
 
 ### 1.5 GitHub repo (✓ done)
@@ -227,7 +227,7 @@ The Capacitor wrapper is ready in `apps/native/`. Pushing to the stores requires
 
 ### 5.1 Apple App Store
 
-- ☐ Apple Developer Program membership ($99/yr) for the **Tournamental Holdings** legal entity
+- ☐ Apple Developer Program membership ($99/yr) for the **Tournamental** legal entity
 - ☐ App Store Connect → New App → Bundle ID `com.tournamental.app`
 - ☐ Generate App-Specific Password for CI uploads
 - ☐ → `APPLE_TEAM_ID=...`, `APPLE_APP_STORE_API_KEY_ID=...`, key p8 file path in `apps/native/.env`
@@ -252,7 +252,7 @@ The Capacitor wrapper is ready in `apps/native/`. Pushing to the stores requires
 
 These are NOT blockers for the 2026-06-11 launch. Defer until needed.
 
-- ☐ **Tournamental Holdings** legal incorporation (NZ or other jurisdiction Tim picks)
+- ☐ **Tournamental** legal incorporation (NZ or other jurisdiction Tim picks)
 - ☐ **Stripe** account for the entity (optional revenue routing)
 - ☐ **Drips Network** drip list creation once Foundation is incorporated → `VTORN_DRIPS_LIST_ID`
 - ☐ **EVM RPC** (Base mainnet or chosen L2), Alchemy / Infura / QuickNode → `VTORN_EVM_RPC_URL`
