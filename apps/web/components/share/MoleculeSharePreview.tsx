@@ -82,10 +82,13 @@ export function MoleculeSharePreview({
           tournament={tournament}
           bracketOverride={bracket}
           layoutMode="stable"
-          /* The Save & share page is the bracket owner's own surface,
-           * not a stranger's view, so leave the panel's interactive
-           * affordances active. Auto-select-the-champion (from PR
-           * #159) opens the panel for the predicted winner. */
+          /* 2026-05-13 (Tim): the auto-opened champion panel was
+           * overlapping the molecule in this preview frame. We're
+           * about to replace this whole preview with a static podium
+           * card; meanwhile suppress the auto-select so users at least
+           * see the molecule cleanly. */
+          suppressAutoSelect
+          hideSidePanel
         />
       ) : (
         <div className="vt-ss-molecule-preview-placeholder" role="status">

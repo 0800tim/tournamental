@@ -336,6 +336,8 @@ export function MoleculeScene({
   bracketOverride,
   layoutMode = "stable",
   readOnly = false,
+  suppressAutoSelect = false,
+  hideSidePanel = false,
 }: MoleculeSceneProps) {
   const [userIdLocal, setUserIdLocal] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
@@ -398,6 +400,10 @@ export function MoleculeScene({
   // any later user click + close wins for the rest of the session.
   useEffect(() => {
     if (autoSelectedRef.current) return;
+    // Save-share preview opts out so the molecule renders cleanly
+    // alongside its own podium card rather than auto-opening the
+    // champion-detail panel (which previously overlapped the scene).
+    if (suppressAutoSelect) return;
     // Only auto-select once the bracket has hydrated, otherwise we'd
     // briefly open the rank-favourite panel and then snap to the user's
     // real champion when localStorage loads.
@@ -417,7 +423,7 @@ export function MoleculeScene({
       setSelected(fallback.id);
       autoSelectedRef.current = true;
     }
-  }, [layout.championCode, tournament.teams]);
+  }, [layout.championCode, tournament.teams, suppressAutoSelect]);
 
   // Stage-by-team map for the side panel pill. v4: every team has many
   // instances, but they all carry the same `finalStage`, so picking any
@@ -807,23 +813,25 @@ export function MoleculeScene({
         </div>
       ) : null}
 
-      <MoleculePanel
-        teamCode={selected}
-        tournament={tournament}
-        bracket={bracket}
-        cascaded={cascaded}
-        finalStageByTeam={finalStageByTeam}
-        flagEmojiByTeam={flagEmojiByTeam}
-        highlightOverrideOn={
-          selected ? highlightOverridesByTeam[selected] ?? true : true
-        }
-        onHighlightOverrideChange={(on) => {
-          if (selected) setHighlightOverride(selected, on);
-        }}
-        onClose={() => setSelected(null)}
-        podiumPeek={podiumPeek}
-        readOnly={readOnly}
-      />
+      {hideSidePanel ? null : (
+        <MoleculePanel
+          teamCode={selected}
+          tournament={tournament}
+          bracket={bracket}
+          cascaded={cascaded}
+          finalStageByTeam={finalStageByTeam}
+          flagEmojiByTeam={flagEmojiByTeam}
+          highlightOverrideOn={
+            selected ? highlightOverridesByTeam[selected] ?? true : true
+          }
+          onHighlightOverrideChange={(on) => {
+            if (selected) setHighlightOverride(selected, on);
+          }}
+          onClose={() => setSelected(null)}
+          podiumPeek={podiumPeek}
+          readOnly={readOnly}
+        />
+      )}
     </div>
   );
 }
