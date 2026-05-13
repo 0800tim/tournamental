@@ -406,3 +406,120 @@
   color: #fde68a;
   overflow-x: auto;
 }
+
+/* ---- Quickstart strip + trust row (2026-05-13) ---- */
+
+.vt-syndicates-quickstart {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 14px 18px;
+  background: rgba(245, 197, 66, 0.06);
+  border: 1px solid rgba(245, 197, 66, 0.2);
+  border-radius: 14px;
+}
+
+.vt-syndicates-qs-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 14px/1 -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  color: #ffffff;
+}
+
+.vt-syndicates-qs-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #0a0e1a;
+  font: 800 12px/1 -apple-system, system-ui, sans-serif;
+}
+
+.vt-syndicates-qs-arrow {
+  color: #9aa6c2;
+  font-size: 16px;
+}
+
+.vt-syndicates-qs-time {
+  margin-left: auto;
+  font: 700 13px/1 -apple-system, system-ui, sans-serif;
+  color: #fbbf24;
+}
+
+.vt-syndicates-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.vt-syndicates-trust-row li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 13px/1 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-syndicates-trust-row span {
+  color: #21a34a;
+  font-weight: 700;
+}
+
+.vt-syndicates-tier-foot {
+  margin: 6px 0 0;
+  font: 400 12px/1.4 -apple-system, system-ui, sans-serif;
+  color: #9aa6c2;
+}
+
+/* ---- FAQ ---- */
+
+.vt-syndicates-faq {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-syndicates-faq-item {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.vt-syndicates-faq-item summary {
+  cursor: pointer;
+  font: 600 15px/1.3 -apple-system, system-ui, sans-serif;
+  color: #ffffff;
+  user-select: none;
+}
+
+.vt-syndicates-faq-item summary:hover {
+  color: #fbbf24;
+}
+
+.vt-syndicates-faq-item[open] summary {
+  margin-bottom: 8px;
+}
+
+.vt-syndicates-faq-item p {
+  margin: 0;
+  font: 400 14px/1.6 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-syndicates-faq-item code {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font: 400 13px/1 ui-monospace, Menlo, Consolas, monospace;
+  color: #fde68a;
+}

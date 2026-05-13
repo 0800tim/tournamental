@@ -111,21 +111,49 @@ export default function SyndicatesIndexPage(): JSX.Element {
       <div className="vt-syndicates-page">
         {/* Hero */}
         <section className="vt-syndicates-hero">
-          <span className="vt-syndicates-eyebrow">Syndicates</span>
+          <span className="vt-syndicates-eyebrow">Syndicates · Free forever</span>
           <h1 className="vt-syndicates-title">The whole tournament, gamified for your audience.</h1>
           <p className="vt-syndicates-lede">
             A syndicate is your own branded prediction pool. Drop the embed widget on any site,
             run a six-week game with your own prize. Free forever; premium adds a fully-managed
             CRM, your own messaging, and paid-entry handling.
           </p>
+
+          {/* The 60-second start strip */}
+          <div className="vt-syndicates-quickstart">
+            <div className="vt-syndicates-qs-step">
+              <span className="vt-syndicates-qs-n">1</span>
+              <span>Pick your slug</span>
+            </div>
+            <div className="vt-syndicates-qs-arrow">→</div>
+            <div className="vt-syndicates-qs-step">
+              <span className="vt-syndicates-qs-n">2</span>
+              <span>Paste the embed</span>
+            </div>
+            <div className="vt-syndicates-qs-arrow">→</div>
+            <div className="vt-syndicates-qs-step">
+              <span className="vt-syndicates-qs-n">3</span>
+              <span>Invite your audience</span>
+            </div>
+            <div className="vt-syndicates-qs-time">≈ 60 seconds</div>
+          </div>
+
           <div className="vt-syndicates-cta-row">
             <Link href="/syndicates/new" className="vt-syndicates-cta-primary">
-              Create a syndicate
+              Start free in 60 seconds →
             </Link>
             <Link href="/syndicates/playbook" className="vt-syndicates-cta-ghost">
-              Read the playbook →
+              Read the playbook
             </Link>
           </div>
+
+          {/* Reassurance row */}
+          <ul className="vt-syndicates-trust-row">
+            <li><span aria-hidden="true">✓</span> No credit card</li>
+            <li><span aria-hidden="true">✓</span> No app install</li>
+            <li><span aria-hidden="true">✓</span> Apache 2.0 open source</li>
+            <li><span aria-hidden="true">✓</span> NZ-built</li>
+          </ul>
         </section>
 
         {/* Use cases */}
@@ -208,8 +236,9 @@ export default function SyndicatesIndexPage(): JSX.Element {
                 ))}
               </ul>
               <Link href="/syndicates/new" className="vt-syndicates-cta-primary vt-syndicates-cta-inline">
-                Start free
+                Start free →
               </Link>
+              <p className="vt-syndicates-tier-foot">No credit card. Cancel anytime (it&apos;s free).</p>
             </div>
 
             <div className="vt-syndicates-tier vt-syndicates-tier-premium">
@@ -259,6 +288,81 @@ export default function SyndicatesIndexPage(): JSX.Element {
               Works on Squarespace, WordPress, Wix, Shopify, Webflow, and any custom site.
               No iframe required, no host-CSS bleed, cached at the edge.
             </p>
+          </div>
+        </section>
+
+        {/* Common questions */}
+        <section className="vt-syndicates-section">
+          <h2 className="vt-syndicates-section-title">Common questions</h2>
+          <div className="vt-syndicates-faq">
+            <details className="vt-syndicates-faq-item">
+              <summary>Is it really free? What's the catch?</summary>
+              <p>
+                Genuinely free, no card needed, no trial timer. You can run a syndicate, brand
+                it, embed it, and watch your audience play for the whole tournament without
+                paying us a cent. Premium ($97/mo via Aiva) is an optional upgrade for hosts
+                who want a managed CRM, paid entries via Stripe, and outbound SMS / WhatsApp
+                at scale. Most syndicates run free forever.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>How do members find my syndicate?</summary>
+              <p>
+                Two ways. Either you embed the widget on your site (Squarespace, WordPress,
+                Shopify, custom) and members join straight from your page, or you share the
+                public landing link (<code>play.tournamental.com/s/yourname</code>) directly
+                on social, email, group chats, posters. Most hosts do both.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>Do my members need a Tournamental account?</summary>
+              <p>
+                They sign up via your widget or landing page with email or phone. The
+                experience is yours; the technology is ours. No app install required.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>Who handles the prize money?</summary>
+              <p>
+                You do, always. Tournamental does not touch money. On free, you settle however
+                you already do (PayPal, bank transfer, an envelope at the post-final pub).
+                On premium, Aiva's HighLevel sub-account gives you a Stripe-Connect checkout
+                and the funds land in your bank account directly. We never have custody.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>Can I brand the widget without paying?</summary>
+              <p>
+                Yes. Logo, colours, hero image, prize copy, and a sponsor block are all free.
+                Premium removes the small "Powered by Tournamental" footer and adds the
+                managed CRM on top.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>Can I run this for tournaments other than the World Cup?</summary>
+              <p>
+                Soon. Six Nations, Cricket World Cup, college brackets, your office annual
+                ladder — the same toolkit applies. The FIFA 2026 setup is the launch
+                tournament; new ones light up as the seasons roll.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>What if I cancel premium?</summary>
+              <p>
+                Your syndicate stays live on the free tier. Your members are yours. Aiva keeps
+                your CRM data accessible for 30 days so you can export it. There is no lock-in.
+              </p>
+            </details>
+            <details className="vt-syndicates-faq-item">
+              <summary>Is the code open source?</summary>
+              <p>
+                Yes, Apache 2.0. The whole platform is in the{" "}
+                <a href="https://github.com/0800tim/tournamental" target="_blank" rel="noreferrer" className="vt-syndicates-link">
+                  public GitHub repo
+                </a>
+                . Contributors share platform revenue via the Drips Network.
+              </p>
+            </details>
           </div>
         </section>
 

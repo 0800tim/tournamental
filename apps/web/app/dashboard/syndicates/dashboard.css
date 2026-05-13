@@ -202,3 +202,142 @@
 .vt-dash-link:hover {
   text-decoration: underline;
 }
+
+/* ---- Branding editor form ---- */
+
+.vt-dash-row-form {
+  display: block;
+}
+
+.vt-brand-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.vt-brand-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+@media (min-width: 600px) {
+  .vt-brand-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.vt-brand-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vt-brand-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--wc-text-dim, #9aa6c2);
+}
+
+.vt-brand-input {
+  background: var(--wc-ink-900, #0a0e1a);
+  border: 1px solid var(--wc-stroke, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  color: #fff;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.vt-brand-input:focus {
+  outline: none;
+  border-color: var(--wc-amber, #fbbf24);
+}
+
+.vt-brand-colour-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.vt-brand-colour-swatch {
+  width: 44px;
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--wc-stroke, rgba(255, 255, 255, 0.08));
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.vt-brand-presets {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vt-brand-preset-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vt-brand-preset {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 2px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 120ms;
+}
+
+.vt-brand-preset:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+}
+
+.vt-brand-sponsor-details {
+  background: rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--wc-stroke, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.vt-brand-summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--wc-text, #e7ecf7);
+  margin-bottom: 8px;
+  user-select: none;
+}
+
+.vt-brand-summary:hover {
+  color: var(--wc-amber, #fbbf24);
+}
+
+.vt-brand-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.vt-brand-status {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.vt-brand-status-ok {
+  color: var(--wc-emerald, #21a34a);
+}
+
+.vt-brand-status-err {
+  color: #f87171;
+}

@@ -1,13 +1,15 @@
 "use client";
 
+/* eslint-disable react/no-unescaped-entities */
 /**
  * Client view for the per-syndicate manage screen. Fetches the
  * owner-scoped data and renders tier, embed snippet, public-landing
- * link, and tier-aware actions.
+ * link, tier-aware actions, and the branding editor form (name,
+ * brand colours, logo, hero, sponsor block, prize copy).
  */
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
 
@@ -26,6 +28,14 @@ interface OwnerSyndicate {
   readonly size_band: string;
   readonly marketing_consent: boolean;
   readonly owner_handle: string | null;
+  readonly branding_primary_colour: string | null;
+  readonly branding_accent_colour: string | null;
+  readonly branding_logo_url: string | null;
+  readonly branding_hero_url: string | null;
+  readonly sponsor_name: string | null;
+  readonly sponsor_url: string | null;
+  readonly sponsor_logo_url: string | null;
+  readonly prize_text: string | null;
 }
 
 type FetchState =
@@ -338,6 +348,15 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         </section>
       )}
 
+      {/* Branding editor */}
+      <BrandingEditor
+        slug={s.slug}
+        initial={s}
+        onSaved={(updated) =>
+          setState({ status: "ready", syndicate: { ...s, ...updated } })
+        }
+      />
+
       {/* Embed snippet */}
       <section className="vt-dash-row" style={{ marginBottom: 16 }}>
         <div className="vt-dash-row-head">
@@ -387,11 +406,328 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
 
       <footer className="vt-dash-foot">
         <p className="vt-dash-sub">
-          Need to change a setting that isn&apos;t here yet (name, branding, sponsor block, prize
-          copy)? More controls land soon. In the meantime, message us via the contact form on
-          the marketing site.
+          Premium tier is delivered by{" "}
+          <a
+            href="https://tournamental.com/partners/aiva"
+            target="_blank"
+            rel="noreferrer"
+            className="vt-dash-link"
+          >
+            Aiva
+          </a>
+          , our CRM and messaging partner. Billing and CRM provisioning happen inside
+          HighLevel; Tournamental never handles your subscription or entry-fee revenue.
         </p>
       </footer>
     </main>
+  );
+}
+
+// --- Branding editor -------------------------------------------------------
+
+interface BrandingEditorProps {
+  readonly slug: string;
+  readonly initial: OwnerSyndicate;
+  readonly onSaved: (patch: Partial<OwnerSyndicate>) => void;
+}
+
+type SaveState =
+  | { status: "idle" }
+  | { status: "saving" }
+  | { status: "saved" }
+  | { status: "error"; message: string };
+
+const COLOUR_PRESETS: ReadonlyArray<{ label: string; primary: string; accent: string }> = [
+  { label: "Tournamental", primary: "#fbbf24", accent: "#21a34a" },
+  { label: "Ocean", primary: "#3c8bcf", accent: "#22d3ee" },
+  { label: "Forest", primary: "#21a34a", accent: "#fbbf24" },
+  { label: "Sunset", primary: "#ff8a3d", accent: "#fbbf24" },
+  { label: "Rose", primary: "#f43f5e", accent: "#fbbf24" },
+];
+
+function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.Element {
+  const [name, setName] = useState(initial.name);
+  const [primary, setPrimary] = useState(initial.branding_primary_colour ?? "#fbbf24");
+  const [accent, setAccent] = useState(initial.branding_accent_colour ?? "#21a34a");
+  const [logoUrl, setLogoUrl] = useState(initial.branding_logo_url ?? "");
+  const [heroUrl, setHeroUrl] = useState(initial.branding_hero_url ?? "");
+  const [sponsorName, setSponsorName] = useState(initial.sponsor_name ?? "");
+  const [sponsorUrl, setSponsorUrl] = useState(initial.sponsor_url ?? "");
+  const [sponsorLogoUrl, setSponsorLogoUrl] = useState(initial.sponsor_logo_url ?? "");
+  const [prizeText, setPrizeText] = useState(initial.prize_text ?? "");
+  const [save, setSave] = useState<SaveState>({ status: "idle" });
+
+  const dirty = useMemo(() => {
+    return (
+      name !== initial.name ||
+      primary !== (initial.branding_primary_colour ?? "#fbbf24") ||
+      accent !== (initial.branding_accent_colour ?? "#21a34a") ||
+      logoUrl !== (initial.branding_logo_url ?? "") ||
+      heroUrl !== (initial.branding_hero_url ?? "") ||
+      sponsorName !== (initial.sponsor_name ?? "") ||
+      sponsorUrl !== (initial.sponsor_url ?? "") ||
+      sponsorLogoUrl !== (initial.sponsor_logo_url ?? "") ||
+      prizeText !== (initial.prize_text ?? "")
+    );
+  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, initial]);
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!dirty) return;
+    setSave({ status: "saving" });
+
+    const trimmedOrNull = (v: string): string | null => {
+      const t = v.trim();
+      return t.length === 0 ? null : t;
+    };
+
+    const body: Record<string, unknown> = {};
+    if (name.trim() !== initial.name) body.name = name.trim();
+    if (primary !== (initial.branding_primary_colour ?? "#fbbf24"))
+      body.branding_primary_colour = primary;
+    if (accent !== (initial.branding_accent_colour ?? "#21a34a"))
+      body.branding_accent_colour = accent;
+    if (logoUrl !== (initial.branding_logo_url ?? ""))
+      body.branding_logo_url = trimmedOrNull(logoUrl);
+    if (heroUrl !== (initial.branding_hero_url ?? ""))
+      body.branding_hero_url = trimmedOrNull(heroUrl);
+    if (sponsorName !== (initial.sponsor_name ?? ""))
+      body.sponsor_name = trimmedOrNull(sponsorName);
+    if (sponsorUrl !== (initial.sponsor_url ?? ""))
+      body.sponsor_url = trimmedOrNull(sponsorUrl);
+    if (sponsorLogoUrl !== (initial.sponsor_logo_url ?? ""))
+      body.sponsor_logo_url = trimmedOrNull(sponsorLogoUrl);
+    if (prizeText !== (initial.prize_text ?? ""))
+      body.prize_text = trimmedOrNull(prizeText);
+
+    try {
+      const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const errBody = (await r.json().catch(() => ({}))) as { error?: string };
+        setSave({
+          status: "error",
+          message: errBody.error ?? `Server returned ${r.status}`,
+        });
+        return;
+      }
+      const ok = (await r.json()) as { syndicate?: OwnerSyndicate };
+      if (ok.syndicate) {
+        onSaved({
+          name: ok.syndicate.name,
+          branding_primary_colour: ok.syndicate.branding_primary_colour,
+          branding_accent_colour: ok.syndicate.branding_accent_colour,
+          branding_logo_url: ok.syndicate.branding_logo_url,
+          branding_hero_url: ok.syndicate.branding_hero_url,
+          sponsor_name: ok.syndicate.sponsor_name,
+          sponsor_url: ok.syndicate.sponsor_url,
+          sponsor_logo_url: ok.syndicate.sponsor_logo_url,
+          prize_text: ok.syndicate.prize_text,
+        });
+      }
+      setSave({ status: "saved" });
+      window.setTimeout(() => setSave({ status: "idle" }), 2500);
+    } catch (err) {
+      setSave({
+        status: "error",
+        message: err instanceof Error ? err.message : "Network error",
+      });
+    }
+  };
+
+  return (
+    <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
+      <div className="vt-dash-row-head">
+        <div>
+          <h2 className="vt-dash-row-name">Branding</h2>
+          <p className="vt-dash-row-meta">
+            Customise how your syndicate appears in the embed widget and on its public landing
+            page. All fields optional; we fall back to Tournamental defaults if you leave them
+            blank.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="vt-brand-form">
+        <div className="vt-brand-grid">
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Display name</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              maxLength={80}
+              required
+              className="vt-brand-input"
+            />
+          </label>
+
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Prize copy</span>
+            <input
+              type="text"
+              value={prizeText}
+              onChange={(e) => setPrizeText(e.target.value)}
+              maxLength={280}
+              placeholder='e.g. "Win a $250 store voucher"'
+              className="vt-brand-input"
+            />
+          </label>
+        </div>
+
+        <div className="vt-brand-presets">
+          <span className="vt-brand-label">Colour preset</span>
+          <div className="vt-brand-preset-row">
+            {COLOUR_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => {
+                  setPrimary(p.primary);
+                  setAccent(p.accent);
+                }}
+                className="vt-brand-preset"
+                style={{
+                  background: `linear-gradient(135deg, ${p.primary} 0%, ${p.accent} 100%)`,
+                }}
+                aria-label={`Apply ${p.label} colour preset`}
+                title={p.label}
+              />
+            ))}
+          </div>
+        </div>
+
+        <div className="vt-brand-grid">
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Primary colour</span>
+            <div className="vt-brand-colour-row">
+              <input
+                type="color"
+                value={primary}
+                onChange={(e) => setPrimary(e.target.value)}
+                className="vt-brand-colour-swatch"
+              />
+              <input
+                type="text"
+                value={primary}
+                onChange={(e) => setPrimary(e.target.value)}
+                className="vt-brand-input"
+                pattern="^#[0-9a-fA-F]{6}$"
+              />
+            </div>
+          </label>
+
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Accent colour</span>
+            <div className="vt-brand-colour-row">
+              <input
+                type="color"
+                value={accent}
+                onChange={(e) => setAccent(e.target.value)}
+                className="vt-brand-colour-swatch"
+              />
+              <input
+                type="text"
+                value={accent}
+                onChange={(e) => setAccent(e.target.value)}
+                className="vt-brand-input"
+                pattern="^#[0-9a-fA-F]{6}$"
+              />
+            </div>
+          </label>
+        </div>
+
+        <div className="vt-brand-grid">
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Logo URL (square, 256px+)</span>
+            <input
+              type="url"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://yourbrand.com/logo.png"
+              className="vt-brand-input"
+            />
+          </label>
+
+          <label className="vt-brand-field">
+            <span className="vt-brand-label">Hero image URL (wide, 1200px+)</span>
+            <input
+              type="url"
+              value={heroUrl}
+              onChange={(e) => setHeroUrl(e.target.value)}
+              placeholder="https://yourbrand.com/hero.jpg"
+              className="vt-brand-input"
+            />
+          </label>
+        </div>
+
+        <details className="vt-brand-sponsor-details">
+          <summary className="vt-brand-summary">Sponsor block (optional)</summary>
+          <div className="vt-brand-grid">
+            <label className="vt-brand-field">
+              <span className="vt-brand-label">Sponsor name</span>
+              <input
+                type="text"
+                value={sponsorName}
+                onChange={(e) => setSponsorName(e.target.value)}
+                maxLength={120}
+                placeholder='e.g. "George FM"'
+                className="vt-brand-input"
+              />
+            </label>
+            <label className="vt-brand-field">
+              <span className="vt-brand-label">Sponsor website</span>
+              <input
+                type="url"
+                value={sponsorUrl}
+                onChange={(e) => setSponsorUrl(e.target.value)}
+                placeholder="https://sponsor.com"
+                className="vt-brand-input"
+              />
+            </label>
+            <label className="vt-brand-field" style={{ gridColumn: "1 / -1" }}>
+              <span className="vt-brand-label">Sponsor logo URL</span>
+              <input
+                type="url"
+                value={sponsorLogoUrl}
+                onChange={(e) => setSponsorLogoUrl(e.target.value)}
+                placeholder="https://sponsor.com/logo.png"
+                className="vt-brand-input"
+              />
+            </label>
+          </div>
+        </details>
+
+        <div className="vt-brand-actions">
+          <button
+            type="submit"
+            disabled={!dirty || save.status === "saving"}
+            className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
+          >
+            {save.status === "saving" ? "Saving…" : dirty ? "Save changes" : "Saved"}
+          </button>
+          {save.status === "saved" && (
+            <span className="vt-brand-status vt-brand-status-ok">✓ Saved</span>
+          )}
+          {save.status === "error" && (
+            <span className="vt-brand-status vt-brand-status-err">
+              {save.message}
+            </span>
+          )}
+          <a
+            href={`/embed/preview?slug=${encodeURIComponent(slug)}`}
+            target="_blank"
+            rel="noreferrer"
+            className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
+          >
+            Preview widget →
+          </a>
+        </div>
+      </form>
+    </section>
   );
 }
