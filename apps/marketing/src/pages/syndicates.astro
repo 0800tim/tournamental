@@ -71,10 +71,10 @@ const freeFeatures = [
 
 const premiumFeatures = [
   "Everything in Free",
-  "Your own fully-provisioned HighLevel sub-account (we provision it)",
+  "Your own fully-provisioned HighLevel sub-account, provisioned and managed by Aiva",
   "Your own phone number / SIM for SMS + WhatsApp at scale",
   "Email campaigns, nurture workflows, behavioural triggers",
-  "Stripe Checkout for paid-entry pools (we never touch the cash)",
+  "Stripe Checkout for paid-entry pools (funds settle to your bank; Tournamental never touches the cash)",
   "Subdomain hosting: yourname.tournamental.com",
   "Member-level analytics dashboard",
   "Remove the Tournamental footer from your embed",
@@ -179,14 +179,12 @@ const premiumFeatures = [
         <a href="/start" class="btn-primary mt-6 inline-block">Start free</a>
       </div>
       <div class="card border-accent-500">
-        <p class="text-accent-400 text-xs uppercase tracking-wider">Premium</p>
+        <p class="text-accent-400 text-xs uppercase tracking-wider">Premium · powered by Aiva</p>
         <h4 class="text-2xl font-bold text-white mt-1">
           $97 <span class="text-base text-ink-200 font-normal">/ month + usage</span>
         </h4>
         <p class="text-ink-200 text-sm mt-2">
-          Your own fully-provisioned HighLevel CRM sub-account,
-          messaging at scale, paid-entry pools via Stripe Checkout,
-          subdomain hosting, and removal of our footer from your embed.
+          Our CRM and messaging partner <a href="/partners/aiva" class="link">Aiva</a> provisions a dedicated HighLevel sub-account for you, pre-configured with Tournamental-style workflows, messaging at scale, paid-entry pools via Stripe Checkout, subdomain hosting, and removal of our footer from your embed. Bring-your-own HighLevel via Aiva's affiliate link is also supported.
         </p>
         <ul class="mt-4 space-y-2 text-sm text-ink-200">
           {premiumFeatures.map((f) => (
@@ -200,10 +198,7 @@ const premiumFeatures = [
       </div>
     </div>
     <p class="text-ink-300 text-xs mt-4 max-w-2xl">
-      Usage means CRM messaging volume (SMS / WhatsApp / email) at the
-      same wholesale rates we pay. Tournamental never touches your
-      entry fees or prize money; Stripe sits inside your CRM
-      sub-account, the funds settle directly to your bank.
+      Premium tier is delivered by <a href="/partners/aiva" class="link">Aiva</a>, our CRM and messaging partner. Usage means CRM messaging volume (SMS / WhatsApp / email) at the same wholesale rates Aiva pays. Tournamental never touches your entry fees or prize money; Stripe sits inside your CRM sub-account and the funds settle directly to your bank.
     </p>
   </section>
 

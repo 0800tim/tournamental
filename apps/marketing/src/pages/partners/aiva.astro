@@ -1,0 +1,60 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+
+/**
+ * /partners/aiva — official CRM + messaging partner page.
+ *
+ * Aiva is a separate company that provides the CRM and messaging
+ * layer for the Tournamental premium syndicate tier. This page
+ * explains the partnership and the two paths to the premium offer
+ * (flat-fee provisioning vs BYO HighLevel via Aiva's affiliate
+ * link). Does not get into revenue mechanics; just describes the
+ * partnership.
+ */
+---
+<Layout
+  title="Aiva, our CRM and messaging partner · Tournamental"
+  description="Tournamental partners with Aiva to provide a fully-managed HighLevel CRM, SMS, WhatsApp, and email for premium syndicate hosts. Two paths: flat-fee provisioning or bring-your-own HighLevel via Aiva."
+  ogImage="/og/syndicates.png"
+>
+  <article class="container-prose pt-16 pb-12">
+    <SectionHeading
+      eyebrow="Partner"
+      title="Aiva runs the CRM behind premium syndicates."
+      lede="Tournamental builds the prediction game, the leaderboards, the embed widget, and the 3D watch-along. Aiva builds the CRM, the messaging, and the workflows that turn a syndicate into a real audience. Premium syndicate hosts get a fully-managed CRM sub-account, their own number for SMS and WhatsApp, and the marketing automation to engage their audience for the whole tournament."
+    />
+
+    <div class="prose-vt mt-8">
+      <h2>What Aiva provides</h2>
+      <p>Aiva is a CRM and messaging platform built on top of HighLevel. For Tournamental premium syndicates, Aiva supplies:</p>
+      <ul>
+        <li>A fully-provisioned HighLevel sub-account, pre-configured with the workflows a tournament-prediction game needs (welcome sequence, daily leaderboard digest, matchday alerts, sponsor-thank-you flow, final-week prize hand-off).</li>
+        <li>Outbound SMS and WhatsApp through a number the host owns, integrated end-to-end with the syndicate sign-up form.</li>
+        <li>Email campaigns at scale with the syndicate's brand on every send.</li>
+        <li>Contact management, segmentation by country and city, lead scoring, and CSV export of opted-in members.</li>
+        <li>Stripe Checkout connected directly to the host's bank account, for syndicates running paid-entry pools.</li>
+        <li>Onboarding, support, and workflow customisation.</li>
+      </ul>
+
+      <h2>Two paths to the premium tier</h2>
+      <p>Both routes give the host the same product. The difference is who they pay and how the underlying HighLevel account is set up.</p>
+
+      <h3>1. Managed: $97/month flat, delivered by Aiva</h3>
+      <p>Aiva provisions a HighLevel sub-account under their agency, hands it to the host pre-configured, and bills $97/month plus messaging usage at wholesale. The host owns the contact list and can take it with them if they leave; Aiva handles the technical setup, the workflow templates, and the support. This is the simplest path and the right choice for radio stations, schools, clubs, and e-commerce stores that don't want to manage CRM infrastructure themselves.</p>
+
+      <h3>2. Bring your own: HighLevel via Aiva's affiliate link</h3>
+      <p>If the host wants to own their HighLevel account directly (and pay HighLevel directly), they can sign up via <a href="#" class="link" aria-disabled="true">Aiva's HighLevel affiliate link</a> and then connect that account to Tournamental for the premium-tier integration. This route is cheaper for high-volume hosts already paying HighLevel rates; Aiva still earns the affiliate commission from HighLevel for the life of the account, so the partnership stays sustainable on both sides.</p>
+
+      <p>If a host already has a HighLevel account outside Aiva's affiliate funnel, they can switch agency partners to Aiva (HighLevel supports the transfer) or take the $97 managed route. There is no third option, by design; keeping the routes simple is what makes the partnership cleanly defensible.</p>
+
+      <h2>Why Tournamental partnered with Aiva</h2>
+      <p>The CRM and messaging layer is a fully-formed product in its own right, with its own operations, support obligations, and regulatory surface (telephony licensing, GDPR compliance, deliverability monitoring). Building it inside Tournamental would mean either doing it badly or pulling focus away from the prediction-game platform.</p>
+      <p>Aiva exists to do this well. The partnership lets Tournamental stay focused on what Tournamental does best, and lets premium syndicates get a real CRM rather than a half-built one.</p>
+
+      <h2>How to start</h2>
+      <p>The fastest path is to <a href="/start" class="link">claim a free syndicate path</a> first. Run the free embed widget for a weekend with friends or colleagues, get a feel for the rhythm, and upgrade to the Aiva-managed premium tier when you're ready to scale to a real audience. Premium upgrade unlocks the dedicated CRM sub-account on day one.</p>
+      <p>Questions about the Aiva partnership specifically: read the <a href="/syndicates/playbook#premium" class="link">premium-tier section of the syndicate playbook</a> or get in touch via the contact form.</p>
+    </div>
+  </article>
+</Layout>
