@@ -42,9 +42,11 @@ import {
 } from "@/lib/profile/countries";
 import { findTeamByCode } from "@/lib/profile/teams";
 import { TeamPicker } from "@/components/profile/TeamPicker";
+import { AvatarUploader } from "@/components/profile/AvatarUploader";
 import { SignupModal } from "./SignupModal";
 
 import "@/components/profile/team-picker.css";
+import "@/components/profile/avatar-uploader.css";
 
 export function ProfilePage() {
   const { status, user, loading } = useUser();
@@ -165,6 +167,15 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           {serverUser.email ? ` · ${serverUser.email}` : ""} · joined{" "}
           {new Date(serverUser.createdAt * 1000).toLocaleDateString()}
         </p>
+      </section>
+
+      <section className="vt-section">
+        <h2 className="vt-section-title">Avatar</h2>
+        <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
+          Shows on your share cards, leaderboard rows, and syndicate
+          tiles. Square images work best; we crop to a circle.
+        </p>
+        <AvatarUploader userId={userId} />
       </section>
 
       <section className="vt-section">
