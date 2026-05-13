@@ -12,7 +12,7 @@ We're explicit about this not to be difficult, but because the alternative is co
 
 ## Who owns the trademark
 
-The "Tournamental" wordmark and associated brand assets are owned by **Tournamental Holdings Limited** (New Zealand). Trademark registrations are in progress; the wordmark is asserted under common-law trademark in any jurisdiction where common-law marks are recognised, pending formal registration.
+The "Tournamental" wordmark and associated brand assets are owned by **Growth Spurt Ltd** (a New Zealand limited company), which trades as Tournamental. Trademark registrations are in progress; the wordmark is asserted under common-law trademark in any jurisdiction where common-law marks are recognised, pending formal registration.
 
 ## The canonical commercial deployment
 
@@ -21,17 +21,17 @@ The canonical Tournamental service runs at:
 - **play.tournamental.com** — the consumer prediction game and the reference implementation of this codebase
 - **tournamental.com** — marketing, documentation, and the open-source project website
 
-Both are operated by Tournamental Holdings Limited. No other deployment is officially "Tournamental".
+Both are operated by Growth Spurt Ltd (trading as Tournamental). No other deployment is officially "Tournamental".
 
 ## The premium tier and partner relationships
 
-The Tournamental premium-tier offer (managed HighLevel CRM sub-accounts, messaging infrastructure, paid-entry handling) is delivered by **Aiva**, a separate company that partners with Tournamental Holdings for these services. Aiva's offer is not part of this open-source repository; it is a commercial service available to syndicate hosts who use Tournamental.
+The Tournamental premium-tier offer (managed HighLevel CRM sub-accounts, messaging infrastructure, paid-entry handling) is delivered by **Aiva**, a separate company that partners with Growth Spurt Ltd for these services. Aiva's offer is not part of this open-source repository; it is a commercial service available to syndicate hosts who use Tournamental.
 
-Forks of this codebase do not inherit any partnership with Aiva, any HighLevel agency-partner status, or any commercial agreements that Tournamental Holdings has with third parties. Operators of forks are responsible for their own commercial arrangements.
+Forks of this codebase do not inherit any partnership with Aiva, any HighLevel agency-partner status, or any commercial agreements that Growth Spurt Ltd has with third parties. Operators of forks are responsible for their own commercial arrangements.
 
 ## Contributing
 
-If you contribute to this codebase, you contribute to the open-source project under Apache 2.0. The Drips Network revenue-share programme distributes Tournamental Holdings' platform revenue to contributors as described in the project documentation. Contributing does not transfer any trademark rights or ownership; contributors retain copyright in their contributions (per the Apache 2.0 grant) but not in the Tournamental brand.
+If you contribute to this codebase, you contribute to the open-source project under Apache 2.0. The Drips Network revenue-share programme distributes Growth Spurt Ltd' platform revenue to contributors as described in the project documentation. Contributing does not transfer any trademark rights or ownership; contributors retain copyright in their contributions (per the Apache 2.0 grant) but not in the Tournamental brand.
 
 ## Contact
 
