@@ -3,225 +3,51 @@ import Layout from "@/layouts/Layout.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
 
 /**
- * /syndicates — the host pitch.
+ * /syndicates — light-touch landing.
  *
- * A "syndicate" is anyone who runs their own pool, sweepstake, or
- * branded prediction game on top of Tournamental. This page sells
- * the freemium model: free branded embed widget on any audience
- * channel, premium ($97/mo) adds a fully-provisioned HighLevel
- * sub-account, custom messaging, paid-entry handling, and the
- * subdomain. Deep-dive scenarios live at /syndicates/playbook.
+ * The full syndicate marketing surface (use-cases, pricing, embed
+ * snippet, the playbook) lives on play.tournamental.com where the
+ * dashboard and creation flow also live. This page is a single-screen
+ * primer that explains what a syndicate is and CTAs people to the
+ * play app for the rich experience.
  */
-
-const useCases = [
-  {
-    icon: "🛒",
-    title: "E-commerce store",
-    body: "Run a six-week customer-engagement game with no relation to the sport itself. Winner gets a $250 store voucher. Picks-saved counter climbs in your storefront via the embed widget.",
-    prize: "$250 store voucher",
-    revenueAngle: "Increases repeat visits during the tournament; converts via the voucher post-final.",
-  },
-  {
-    icon: "📻",
-    title: "Radio station",
-    body: "Sponsor-funded prize draw with daily on-air mentions. Listeners predict, the host calls out the leaderboard each morning. One sponsor logo on every share card.",
-    prize: "Bluetooth speaker + 12 months of coffee",
-    revenueAngle: "Sells a six-week sponsor package; sponsor logo on every share image and the digest emails.",
-  },
-  {
-    icon: "⚽",
-    title: "Football club / supporters trust",
-    body: "Member-only ladder for the senior squad's tournament watch-along. Tickets, signed merch, and a final-week clubhouse-day prize for the leader.",
-    prize: "Season-ticket upgrade + signed kit",
-    revenueAngle: "Drives membership renewals; the leaderboard is a club fixture on the website all six weeks.",
-  },
-  {
-    icon: "🎓",
-    title: "School fundraiser",
-    body: "Parents and senior students enter for $10 each, donated to the school. A local business sponsors the prize. The school keeps the cash; the platform handles the bracket.",
-    prize: "Sponsored prize pack, all entry fees to the school",
-    revenueAngle: "Predictable fundraising number: 200 entries × $10 = $2,000 plus the sponsor's contribution.",
-  },
-  {
-    icon: "🏢",
-    title: "Workplace bracket",
-    body: "Twelve floors of the office, one ladder, $10 entry. Pin the bracket in the team channel. The CEO presents the cheque at the post-final lunch.",
-    prize: "Pooled entry money + bragging rights",
-    revenueAngle: "Free for the host; we never touch the money.",
-  },
-  {
-    icon: "🎤",
-    title: "Creator / influencer",
-    body: "Public syndicate under your own brand. Followers join via the embed on your site or via the bot. Sponsor pays you for placement; the embed swaps to their logo for the run.",
-    prize: "Sponsored bundle, you keep the sponsorship fee",
-    revenueAngle: "One sponsorship deal pays for the whole tournament's content schedule.",
-  },
-];
-
-const freeFeatures = [
-  "Branded embed widget for any site (Squarespace, WordPress, Shopify, custom)",
-  "Custom path: play.tournamental.com/s/yourname",
-  "Logo, colours, hero image, prize copy, sponsor block",
-  "Member sign-up form with consent-first contact capture",
-  "Country, city, and global leaderboard slices",
-  "3D match watch-along and the same scoring as the main game",
-  "Share cards for every member and every leaderboard climb",
-  "CSV export of your member list (with opt-in consent)",
-];
-
-const premiumFeatures = [
-  "Everything in Free",
-  "Your own fully-provisioned HighLevel sub-account, provisioned and managed by Aiva",
-  "Your own phone number / SIM for SMS + WhatsApp at scale",
-  "Email campaigns, nurture workflows, behavioural triggers",
-  "Stripe Checkout for paid-entry pools (funds settle to your bank; Tournamental never touches the cash)",
-  "Subdomain hosting: yourname.tournamental.com",
-  "Member-level analytics dashboard",
-  "Remove the Tournamental footer from your embed",
-  "Priority support + onboarding call",
-];
 ---
 <Layout
   title="Run your own pool · Tournamental syndicates"
-  description="Anyone can host a branded tournament pool with Tournamental. Free embed widget for any site. Premium tier adds a full CRM sub-account, paid entries, and subdomain hosting."
+  description="Anyone can host a branded tournament prediction pool on Tournamental. Free embed widget for any site, premium tier adds a fully-managed CRM. Create yours on play.tournamental.com."
   ogImage="/og/syndicates.png"
 >
-  <section class="container-page pt-16 pb-8">
+  <section class="container-page pt-16 pb-12">
     <SectionHeading
       eyebrow="Syndicates"
-      title="The whole tournament, gamified for your audience."
-      lede="A syndicate is your own private Tournamental, branded for your store, club, station, school, or community. Drop a widget on any site, the global leaderboards do the rest. Free forever; premium adds a fully-managed CRM, your own messaging, and paid-entry handling."
+      title="Run your own pool. Brand it your way."
+      lede="A syndicate is your own branded prediction pool, hosted on Tournamental. Drop the embed widget on any site. Free forever; premium adds a fully-managed CRM. Create yours and read the full playbook on the play app."
     />
     <div class="flex flex-wrap gap-3">
-      <a href="/start" class="btn-primary">Claim a syndicate path</a>
-      <a href="/syndicates/playbook" class="btn-ghost">Read the playbook →</a>
+      <a href="https://play.tournamental.com/syndicates/new" class="btn-primary">Create your World Cup syndicate →</a>
+      <a href="https://play.tournamental.com/syndicates/playbook" class="btn-ghost">Read the playbook</a>
     </div>
   </section>
 
-  <section class="container-page pb-12">
-    <h3 class="text-xl font-bold text-white mb-6">Six audiences, six prize models</h3>
-    <div class="grid md:grid-cols-2 gap-6">
-      {useCases.map((u) => (
-        <div class="card">
-          <div class="flex items-start gap-3">
-            <span class="text-3xl" aria-hidden="true">{u.icon}</span>
-            <div>
-              <h4 class="text-lg font-bold text-white">{u.title}</h4>
-              <p class="text-ink-200 mt-2 text-sm">{u.body}</p>
-              <p class="text-ink-300 mt-3 text-xs uppercase tracking-wider">Sample prize</p>
-              <p class="text-accent-400 text-sm font-semibold">{u.prize}</p>
-              <p class="text-ink-300 mt-2 text-xs uppercase tracking-wider">Why a host runs this</p>
-              <p class="text-ink-200 text-sm">{u.revenueAngle}</p>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-    <p class="text-ink-300 text-sm mt-6">
-      Every scenario plus week-by-week run-of-show, recruit emails,
-      sponsor pitches, and prize templates are in the
-      <a href="/syndicates/playbook" class="link">syndicate playbook</a>.
-    </p>
-  </section>
-
-  <section class="container-page pb-12" id="how-it-works">
-    <h3 class="text-xl font-bold text-white mb-6">How it lands on your audience</h3>
-    <ol class="grid md:grid-cols-3 gap-6">
-      <li class="card">
-        <p class="text-accent-400 text-xs font-mono mb-2">01</p>
-        <h4 class="text-lg font-bold text-white">Drop the widget</h4>
-        <p class="text-ink-200 text-sm mt-2">
-          One script tag on any page. Squarespace, WordPress, Shopify,
-          Webflow, or hand-rolled HTML. The widget renders your branded
-          bracket, leaderboard, and sign-up form inline.
-        </p>
-      </li>
-      <li class="card">
-        <p class="text-accent-400 text-xs font-mono mb-2">02</p>
-        <h4 class="text-lg font-bold text-white">Members join in seconds</h4>
-        <p class="text-ink-200 text-sm mt-2">
-          They enter on your site, no bounce to ours. We create the
-          account, save their picks, and surface them on your
-          syndicate leaderboard.
-        </p>
-      </li>
-      <li class="card">
-        <p class="text-accent-400 text-xs font-mono mb-2">03</p>
-        <h4 class="text-lg font-bold text-white">Engage every match-day</h4>
-        <p class="text-ink-200 text-sm mt-2">
-          Daily reminders, leaderboard climbs, share cards, and the 3D
-          watch-along run for the whole tournament. Premium adds
-          your own SMS / WhatsApp / email broadcasts via your CRM.
-        </p>
-      </li>
-    </ol>
-  </section>
-
-  <section class="container-page pb-12" id="pricing">
-    <h3 class="text-xl font-bold text-white mb-6">Freemium, on purpose</h3>
-    <div class="grid md:grid-cols-2 gap-6">
+  <section class="container-page pb-16">
+    <div class="grid md:grid-cols-3 gap-6">
       <div class="card">
-        <p class="text-ink-300 text-xs uppercase tracking-wider">Free</p>
-        <h4 class="text-2xl font-bold text-white mt-1">Branded embed</h4>
-        <p class="text-ink-200 text-sm mt-2">
-          Run a public or unlisted syndicate, embed on any site you own,
-          full leaderboards, share cards, and prediction game. Forever
-          free.
-        </p>
-        <ul class="mt-4 space-y-2 text-sm text-ink-200">
-          {freeFeatures.map((f) => (
-            <li class="flex gap-2">
-              <span class="text-accent-400" aria-hidden="true">✓</span>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <a href="/start" class="btn-primary mt-6 inline-block">Start free</a>
+        <h3 class="text-lg font-bold text-white">What it is</h3>
+        <p class="text-ink-200 mt-2 text-sm">Your own branded pool for any tournament. Office, friends, fan club, store, school, radio station, creator audience. Same toolkit, your brand on every leaderboard.</p>
       </div>
-      <div class="card border-accent-500">
-        <p class="text-accent-400 text-xs uppercase tracking-wider">Premium · powered by Aiva</p>
-        <h4 class="text-2xl font-bold text-white mt-1">
-          $97 <span class="text-base text-ink-200 font-normal">/ month + usage</span>
-        </h4>
-        <p class="text-ink-200 text-sm mt-2">
-          Our CRM and messaging partner <a href="/partners/aiva" class="link">Aiva</a> provisions a dedicated HighLevel sub-account for you, pre-configured with Tournamental-style workflows, messaging at scale, paid-entry pools via Stripe Checkout, subdomain hosting, and removal of our footer from your embed. Bring-your-own HighLevel via Aiva's affiliate link is also supported.
-        </p>
-        <ul class="mt-4 space-y-2 text-sm text-ink-200">
-          {premiumFeatures.map((f) => (
-            <li class="flex gap-2">
-              <span class="text-accent-400" aria-hidden="true">✦</span>
-              <span>{f}</span>
-            </li>
-          ))}
-        </ul>
-        <a href="/syndicates/playbook#premium" class="btn-primary mt-6 inline-block">See what premium unlocks</a>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">Free forever</h3>
+        <p class="text-ink-200 mt-2 text-sm">Branded embed widget you drop on any site (Squarespace, WordPress, Shopify, custom). Members sign up on your site, picks-saved climbs in your storefront, share cards carry your brand.</p>
+      </div>
+      <div class="card">
+        <h3 class="text-lg font-bold text-white">Premium tier</h3>
+        <p class="text-ink-200 mt-2 text-sm">$97/month via <a href="/partners/aiva" class="link">Aiva</a> adds a fully-managed HighLevel CRM sub-account, your own SMS / WhatsApp / email, paid entries via Stripe (funds settle to your bank), and subdomain hosting.</p>
       </div>
     </div>
-    <p class="text-ink-300 text-xs mt-4 max-w-2xl">
-      Premium tier is delivered by <a href="/partners/aiva" class="link">Aiva</a>, our CRM and messaging partner. Usage means CRM messaging volume (SMS / WhatsApp / email) at the same wholesale rates Aiva pays. Tournamental never touches your entry fees or prize money; Stripe sits inside your CRM sub-account and the funds settle directly to your bank.
+    <p class="text-ink-300 text-sm mt-8 max-w-2xl">
+      The full freemium pitch, six audience-archetype scenarios, prize-structure templates, sponsor-pitch email templates, and a six-week run-of-show all live in the play app at{" "}
+      <a href="https://play.tournamental.com/syndicates" class="link">play.tournamental.com/syndicates</a>{" "}
+      alongside the creation form and the affiliate dashboard.
     </p>
-  </section>
-
-  <section class="container-page pb-12" id="embed">
-    <h3 class="text-xl font-bold text-white mb-6">One snippet, any site</h3>
-    <div class="card">
-      <p class="text-ink-200 text-sm">
-        Drop these two lines anywhere on your site. The widget reads
-        your syndicate slug, fetches your branding, and renders.
-      </p>
-      <pre class="bg-ink-900 border border-ink-700 rounded-md p-4 mt-4 text-xs text-accent-200 overflow-x-auto"><code>{`<tournamental-syndicate slug="your-syndicate"></tournamental-syndicate>
-<script src="https://embed.tournamental.com/widget.js" async></script>`}</code></pre>
-      <p class="text-ink-300 text-sm mt-4">
-        Works on Squarespace, WordPress, Wix, Shopify, Webflow, and
-        any custom site. No iframe required, no host-CSS bleed, and
-        cached at the edge so it loads instantly.
-      </p>
-    </div>
-  </section>
-
-  <section class="container-prose pb-16">
-    <h3 class="text-xl font-bold text-white mb-3">Money: where it sits</h3>
-    <p class="prose-vt">Tournamental does not handle cash. On the free tier, real-money settlement happens off-platform between hosts and members the way it always has. On the premium tier we provision a Stripe-connected CRM sub-account in your name, the funds settle to your bank account, and we never have custody of them. This keeps the platform out of regulated-gambling territory in most jurisdictions and keeps the free tier free for everyone.</p>
-    <p class="prose-vt">Phase 2 brings audited on-chain prize pools via our open <a href="/open-source" class="link">TournamentalOracle</a> spec for groups that want trustless settlement without a CRM.</p>
   </section>
 </Layout>

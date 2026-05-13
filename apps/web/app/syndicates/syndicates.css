@@ -210,3 +210,199 @@
   max-width: 520px;
   margin: 0 auto 4px;
 }
+
+/* ---- Freemium-pitch additions (2026-05-13) ---- */
+
+.vt-syndicates-card-icon {
+  display: inline-block;
+  font-size: 28px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.vt-syndicates-card-prize-label {
+  margin: 12px 0 2px;
+  font: 600 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9aa6c2;
+}
+
+.vt-syndicates-card-prize {
+  margin: 0;
+  font: 700 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #fbbf24;
+}
+
+.vt-syndicates-link {
+  color: #fbbf24;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.vt-syndicates-link:hover {
+  text-decoration: underline;
+}
+
+.vt-syndicates-aside {
+  margin: 14px 0 0;
+  font: 400 13px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #9aa6c2;
+  max-width: 64ch;
+}
+
+/* Steps */
+.vt-syndicates-steps {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (min-width: 768px) {
+  .vt-syndicates-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vt-syndicates-steps > li {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-syndicates-step-n {
+  font: 700 12px/1 ui-monospace, Menlo, Consolas, monospace;
+  color: #fbbf24;
+  letter-spacing: 0.08em;
+}
+
+.vt-syndicates-step-title {
+  margin: 0;
+  font: 700 17px/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+}
+
+.vt-syndicates-step-body {
+  margin: 0;
+  font: 400 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+/* Tiers */
+.vt-syndicates-tiers {
+  display: grid;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+@media (min-width: 768px) {
+  .vt-syndicates-tiers {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.vt-syndicates-tier {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-syndicates-tier-premium {
+  border-color: rgba(245, 197, 66, 0.4);
+  background: linear-gradient(
+    180deg,
+    rgba(245, 197, 66, 0.08) 0%,
+    rgba(16, 22, 38, 0.7) 100%
+  );
+}
+
+.vt-syndicates-tier-eyebrow {
+  margin: 0;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #9aa6c2;
+}
+
+.vt-syndicates-tier-premium .vt-syndicates-tier-eyebrow {
+  color: #fbbf24;
+}
+
+.vt-syndicates-tier-name {
+  margin: 0;
+  font: 800 24px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #ffffff;
+}
+
+.vt-syndicates-tier-price-sub {
+  font: 400 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+  margin-left: 4px;
+}
+
+.vt-syndicates-tier-blurb {
+  margin: 0;
+  font: 400 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-syndicates-tier-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-syndicates-tier-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font: 400 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-syndicates-tick {
+  color: #fbbf24;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vt-syndicates-tick-premium {
+  color: #fbbf24;
+}
+
+.vt-syndicates-cta-inline {
+  align-self: flex-start;
+  margin-top: 8px;
+}
+
+/* Snippet */
+.vt-syndicates-snippet-wrap {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.vt-syndicates-snippet {
+  background: #0a0e1a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px;
+  margin: 12px 0 0;
+  font: 400 12px/1.55 ui-monospace, Menlo, Consolas, monospace;
+  color: #fde68a;
+  overflow-x: auto;
+}
