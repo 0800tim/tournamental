@@ -331,6 +331,8 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         decoding="async"
       />
 
+      <PrizePoolBlock syndicate={syndicate} />
+
       <div>
         <h2 className="vt-share-syn-section-title">Leaderboard top 5</h2>
         {allPointsZero ? (
@@ -381,6 +383,111 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       <footer className="vt-share-footer">
         Founded {formatSavedAt(syndicate.created_at)}.
       </footer>
+    </section>
+  );
+}
+
+// ── Prize-pool block (shared by syndicate landing) ─────────────────
+
+function formatMoney(cents: number, currency: string): string {
+  const dollars = cents / 100;
+  try {
+    return new Intl.NumberFormat("en-NZ", {
+      style: "currency",
+      currency,
+      minimumFractionDigits: dollars % 1 === 0 ? 0 : 2,
+    }).format(dollars);
+  } catch {
+    return `${currency} ${dollars.toFixed(2)}`;
+  }
+}
+
+function ordinal(rank: number): string {
+  const v = rank % 100;
+  if (v >= 11 && v <= 13) return `${rank}th`;
+  switch (rank % 10) {
+    case 1:
+      return `${rank}st`;
+    case 2:
+      return `${rank}nd`;
+    case 3:
+      return `${rank}rd`;
+    default:
+      return `${rank}th`;
+  }
+}
+
+function PrizePoolBlock({ syndicate }: { syndicate: SyndicateRecord }) {
+  const fee = syndicate.entry_fee_cents ?? 0;
+  const currency = syndicate.entry_fee_currency ?? "NZD";
+  const split = syndicate.prize_split ?? null;
+  const bonus = syndicate.bonus_prize_text?.trim() || null;
+  const prizeText = syndicate.prize_text?.trim() || null;
+
+  // Nothing configured → don't render at all. The owner is still in free
+  // tier with no fee, no split, no bonus, no prize copy.
+  if (fee <= 0 && (!split || split.length === 0) && !bonus && !prizeText) {
+    return null;
+  }
+
+  const memberCount = Math.max(1, syndicate.members.length);
+  const pool = fee > 0 ? fee * memberCount : 0;
+
+  return (
+    <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
+      <h2 id="vt-share-prize-title" className="vt-share-syn-section-title">
+        Prize pool
+      </h2>
+      <div className="vt-share-prize-grid">
+        {fee > 0 && (
+          <div className="vt-share-prize-fee">
+            <span className="vt-share-prize-fee-label">Entry fee</span>
+            <span className="vt-share-prize-fee-value">
+              {formatMoney(fee, currency)}
+            </span>
+            <span className="vt-share-prize-fee-note">
+              per member · pool {formatMoney(pool, currency)} at{" "}
+              {memberCount} member{memberCount === 1 ? "" : "s"}
+            </span>
+          </div>
+        )}
+        {split && split.length > 0 && (
+          <ol className="vt-share-prize-split" aria-label="Prize split">
+            {[...split]
+              .sort((a, b) => a.rank - b.rank)
+              .map((row) => {
+                const share = fee > 0 ? (pool * row.percent) / 100 : 0;
+                return (
+                  <li className="vt-share-prize-row" key={`${row.rank}-${row.label ?? ""}`}>
+                    <span className="vt-share-prize-rank">
+                      {row.label?.trim() ? row.label : ordinal(row.rank)}
+                    </span>
+                    <span className="vt-share-prize-pct">
+                      {Math.round(row.percent * 10) / 10}%
+                    </span>
+                    {fee > 0 && (
+                      <span className="vt-share-prize-amount">
+                        {formatMoney(share, currency)}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+          </ol>
+        )}
+      </div>
+      {prizeText && !split && (
+        <p className="vt-share-prize-copy">{prizeText}</p>
+      )}
+      {bonus && (
+        <p className="vt-share-prize-bonus">
+          <span className="vt-share-prize-bonus-label">Bonus prize</span>
+          <span className="vt-share-prize-bonus-text">{bonus}</span>
+        </p>
+      )}
+      <p className="vt-share-prize-fineprint">
+        Tournamental doesn&apos;t handle the money. {fee > 0 ? "The host collects entry fees and pays out the pool." : "Bragging rights only."}
+      </p>
     </section>
   );
 }

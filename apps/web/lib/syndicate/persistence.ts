@@ -76,6 +76,26 @@ export interface SyndicateRow {
   sponsor_logo_url: string | null;
   /** Free-form prize copy ("Win a $250 store voucher"). */
   prize_text: string | null;
+  /** Entry fee in cents (e.g. 1000 = $10.00). NULL = no fee. */
+  entry_fee_cents: number | null;
+  /** ISO 4217 currency code for the entry fee. Defaults to NZD. */
+  entry_fee_currency: string | null;
+  /**
+   * JSON-serialised prize-pool split as a stringified array of
+   * `{ rank, percent, label?, sponsor_name? }` entries. Percentages
+   * must sum to 100; the API validates this on PATCH.
+   */
+  prize_split_json: string | null;
+  /** Free-form copy for an extra prize (e.g. "longest streak"). */
+  bonus_prize_text: string | null;
+}
+
+/** Decoded prize-split entry, as the API and UI both manipulate it. */
+export interface PrizeSplitEntry {
+  rank: number;
+  percent: number;
+  label?: string | null;
+  sponsor_name?: string | null;
 }
 
 /** Subset of fields a syndicate owner can edit via the manage screen. */
@@ -89,6 +109,10 @@ export interface SyndicateBrandingPatch {
   sponsor_url?: string | null;
   sponsor_logo_url?: string | null;
   prize_text?: string | null;
+  entry_fee_cents?: number | null;
+  entry_fee_currency?: string | null;
+  prize_split_json?: string | null;
+  bonus_prize_text?: string | null;
 }
 
 export interface PendingGhlRow {
@@ -165,7 +189,11 @@ export class SyndicatePersistence {
         sponsor_name        TEXT,
         sponsor_url         TEXT,
         sponsor_logo_url    TEXT,
-        prize_text          TEXT
+        prize_text          TEXT,
+        entry_fee_cents     INTEGER,
+        entry_fee_currency  TEXT DEFAULT 'NZD',
+        prize_split_json    TEXT,
+        bonus_prize_text    TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_syndicates_slug ON syndicates(slug);
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
@@ -453,8 +481,8 @@ export class SyndicatePersistence {
     };
 
     // Build the SET clause dynamically so unspecified fields don't move.
-    const updates: Record<string, string | null> = {};
-    const fields: ReadonlyArray<keyof SyndicateBrandingPatch> = [
+    const updates: Record<string, string | number | null> = {};
+    const stringFields: ReadonlyArray<keyof SyndicateBrandingPatch> = [
       "name",
       "branding_primary_colour",
       "branding_accent_colour",
@@ -464,14 +492,24 @@ export class SyndicatePersistence {
       "sponsor_url",
       "sponsor_logo_url",
       "prize_text",
+      "entry_fee_currency",
+      "prize_split_json",
+      "bonus_prize_text",
     ];
-    for (const f of fields) {
+    for (const f of stringFields) {
       if (patch[f] !== undefined) {
         const next = normalise(patch[f] as string | null | undefined);
         if (next !== (undefined as unknown as string | null)) {
           updates[f] = next;
         }
       }
+    }
+    // Integer field handled separately so we don't normalise it through string land.
+    if (patch.entry_fee_cents !== undefined) {
+      updates.entry_fee_cents =
+        patch.entry_fee_cents === null
+          ? null
+          : Math.max(0, Math.round(patch.entry_fee_cents));
     }
     if (Object.keys(updates).length === 0) return existing;
 

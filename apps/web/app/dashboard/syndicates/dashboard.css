@@ -497,3 +497,103 @@
 .vt-admin-banner-close:hover {
   color: #ffffff;
 }
+
+/* ---- Prize pool editor ---- */
+.vt-brand-checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--wc-text, #e7ecf7);
+  cursor: pointer;
+  user-select: none;
+}
+
+.vt-brand-checkbox-row input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--wc-amber, #fbbf24);
+  cursor: pointer;
+}
+
+.vt-brand-fee-row {
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.vt-suggestion-chip-dash {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--wc-stroke, rgba(255, 255, 255, 0.08));
+  border-radius: 999px;
+  color: var(--wc-text, #e7ecf7);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms, border-color 120ms;
+}
+
+.vt-suggestion-chip-dash:hover {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.vt-brand-empty {
+  font-size: 13px;
+  color: var(--wc-text-dim, #9aa6c2);
+  font-style: italic;
+  margin: 8px 0;
+}
+
+.vt-prize-split-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.vt-prize-split-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.vt-prize-split-pct {
+  font-size: 14px;
+  color: var(--wc-text-dim, #9aa6c2);
+  margin-left: -4px;
+}
+
+.vt-prize-split-remove {
+  background: transparent;
+  border: 1px solid var(--wc-stroke, rgba(255, 255, 255, 0.08));
+  color: var(--wc-text-dim, #9aa6c2);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.vt-prize-split-remove:hover {
+  border-color: #f87171;
+  color: #f87171;
+}
+
+.vt-prize-split-total {
+  margin-top: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--wc-text-dim, #9aa6c2);
+}
+
+.vt-prize-split-total[data-valid="true"] {
+  color: var(--wc-emerald, #21a34a);
+}
+
+.vt-prize-split-total[data-valid="false"] {
+  color: #f87171;
+}

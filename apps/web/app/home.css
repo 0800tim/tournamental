@@ -1,0 +1,442 @@
+/* Home page sales-flow styles. Reuses the dark + amber palette from
+ * the rest of the play app. Selectors namespaced .vt-home-* to avoid
+ * collision with the bracket, leaderboard, or syndicate surfaces. */
+
+.vt-home {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 24px 20px 96px;
+  color: #e7ecf7;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter", "Segoe UI", Roboto, sans-serif;
+  line-height: 1.55;
+}
+
+/* ---- Hero ---- */
+.vt-home-hero {
+  text-align: center;
+  padding: 48px 0 32px;
+  position: relative;
+}
+
+.vt-home-eyebrow {
+  display: inline-block;
+  padding: 5px 12px;
+  border-radius: 999px;
+  background: rgba(245, 197, 66, 0.16);
+  border: 1px solid rgba(245, 197, 66, 0.4);
+  color: #fde68a;
+  font: 800 11px/1 -apple-system, system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.vt-home-title {
+  font: 800 clamp(28px, 5vw, 48px) / 1.1 -apple-system, system-ui, sans-serif;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0 0 16px;
+}
+
+.vt-home-br {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .vt-home-br {
+    display: inline;
+  }
+}
+
+.vt-home-lede {
+  font: 400 17px/1.55 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+  margin: 0 auto 24px;
+  max-width: 64ch;
+}
+
+.vt-home-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.vt-home-cta-row-centred {
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.vt-home-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font: 700 15px/1 -apple-system, system-ui, sans-serif;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: filter 120ms, border-color 120ms, transform 80ms;
+}
+
+.vt-home-btn:active {
+  transform: translateY(1px);
+}
+
+.vt-home-btn-primary {
+  background: #fbbf24;
+  color: #0a0e1a;
+}
+
+.vt-home-btn-primary:hover {
+  filter: brightness(1.06);
+}
+
+.vt-home-btn-ghost {
+  background: transparent;
+  color: #cdd5e7;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.vt-home-btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.36);
+  color: #ffffff;
+}
+
+.vt-home-btn-block {
+  display: block;
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+.vt-home-trust {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.vt-home-trust li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font: 500 13px/1 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-home-trust li span {
+  color: #21a34a;
+  font-weight: 700;
+}
+
+/* ---- Sections / steps ---- */
+.vt-home-section {
+  padding: 48px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vt-home-section:first-of-type {
+  border-top: none;
+}
+
+.vt-home-step {
+  padding: 56px 0;
+}
+
+.vt-home-step-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(33, 163, 74, 0.16);
+  border: 1px solid rgba(33, 163, 74, 0.4);
+  color: #6ee7b7;
+  font: 700 11px/1 -apple-system, system-ui, sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.vt-home-step-tag-headline {
+  background: rgba(245, 197, 66, 0.16);
+  border-color: rgba(245, 197, 66, 0.4);
+  color: #fde68a;
+}
+
+.vt-home-h2 {
+  font: 800 clamp(24px, 4vw, 36px) / 1.15 -apple-system, system-ui, sans-serif;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  margin: 0 0 12px;
+}
+
+.vt-home-h2-centred {
+  text-align: center;
+}
+
+.vt-home-p {
+  font: 400 16px/1.6 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+  margin: 0 0 16px;
+  max-width: 64ch;
+}
+
+.vt-home-bullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.vt-home-bullets li {
+  position: relative;
+  padding-left: 22px;
+  color: #cdd5e7;
+  font-size: 15px;
+}
+
+.vt-home-bullets li::before {
+  content: "→";
+  position: absolute;
+  left: 0;
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.vt-home-bullets strong {
+  color: #ffffff;
+}
+
+/* ---- Feature grid ---- */
+.vt-home-feature-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 1fr;
+  margin-top: 20px;
+}
+
+@media (min-width: 600px) {
+  .vt-home-feature-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 900px) {
+  .vt-home-feature-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.vt-home-feature {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.vt-home-feature h3 {
+  font: 700 16px/1.2 -apple-system, system-ui, sans-serif;
+  color: #ffffff;
+  margin: 0 0 6px;
+}
+
+.vt-home-feature p {
+  font: 400 13px/1.55 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+  margin: 0;
+}
+
+/* ---- Syndicate hero step ---- */
+.vt-home-step-syndicates {
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.04) 0%, transparent 100%);
+  margin: 0 -20px;
+  padding: 56px 20px;
+  border-radius: 18px;
+}
+
+.vt-home-demo-wrap {
+  position: relative;
+  margin: 24px 0;
+  padding: 32px 20px 20px;
+  background: rgba(16, 22, 38, 0.5);
+  border: 1px dashed rgba(245, 197, 66, 0.32);
+  border-radius: 16px;
+}
+
+.vt-home-demo-badge {
+  position: absolute;
+  top: -12px;
+  left: 20px;
+  background: #fbbf24;
+  color: #0a0e1a;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font: 700 11px/1 -apple-system, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vt-home-demo-note {
+  margin: 16px auto 0;
+  max-width: 56ch;
+  text-align: center;
+  font: 400 13px/1.5 -apple-system, system-ui, sans-serif;
+  color: #9aa6c2;
+}
+
+/* ---- Tiers ---- */
+.vt-home-tiers {
+  display: grid;
+  gap: 14px;
+  margin: 24px 0 12px;
+}
+
+@media (min-width: 700px) {
+  .vt-home-tiers {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.vt-home-tier {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-home-tier-premium {
+  border-color: rgba(245, 197, 66, 0.4);
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.08) 0%, rgba(16, 22, 38, 0.7) 100%);
+}
+
+.vt-home-tier-tag {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(33, 163, 74, 0.16);
+  border: 1px solid rgba(33, 163, 74, 0.4);
+  color: #6ee7b7;
+  font: 700 11px/1 -apple-system, system-ui, sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.vt-home-tier-tag-premium {
+  background: rgba(245, 197, 66, 0.16);
+  border-color: rgba(245, 197, 66, 0.4);
+  color: #fde68a;
+}
+
+.vt-home-tier-name {
+  font: 800 24px/1.2 -apple-system, system-ui, sans-serif;
+  color: #ffffff;
+  margin: 0;
+}
+
+.vt-home-tier-price-sub {
+  font: 400 14px/1 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+  margin-left: 4px;
+}
+
+.vt-home-tier-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-home-tier-list li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  font: 400 14px/1.45 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+}
+
+.vt-home-tier-list li::before {
+  content: "✓";
+  color: #fbbf24;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vt-home-link {
+  color: #fbbf24;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.vt-home-link:hover {
+  text-decoration: underline;
+}
+
+.vt-home-aside {
+  margin: 16px 0 0;
+  font: 400 13px/1.55 -apple-system, system-ui, sans-serif;
+  color: #9aa6c2;
+  max-width: 64ch;
+}
+
+/* ---- Quickstart ladder at the bottom ---- */
+.vt-home-quickstart {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+  display: grid;
+  gap: 14px;
+}
+
+@media (min-width: 700px) {
+  .vt-home-quickstart {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.vt-home-quickstart > li {
+  background: rgba(16, 22, 38, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  gap: 12px;
+}
+
+.vt-home-qs-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #0a0e1a;
+  font: 800 14px/1 -apple-system, system-ui, sans-serif;
+  flex-shrink: 0;
+}
+
+.vt-home-quickstart h3 {
+  font: 700 16px/1.2 -apple-system, system-ui, sans-serif;
+  color: #ffffff;
+  margin: 0 0 4px;
+}
+
+.vt-home-quickstart p {
+  font: 400 13px/1.55 -apple-system, system-ui, sans-serif;
+  color: #cdd5e7;
+  margin: 0;
+}
+
+.vt-home-final-cta {
+  text-align: center;
+}

@@ -77,6 +77,14 @@ function widgetSource(apiOrigin: string): string {
       '.tnm-prize{margin:0 0 12px;padding:10px 14px;background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.25);border-radius:10px;color:' + primary + ';font-weight:600;}',
       '.tnm-stats{display:flex;gap:24px;margin:8px 0 16px;color:#cdd5e7;font-size:13px;}',
       '.tnm-stat-num{display:block;font:800 22px/1 -apple-system,system-ui,sans-serif;color:#fff;}',
+      '.tnm-split{list-style:none;margin:0 0 12px;padding:0;display:flex;flex-direction:column;gap:4px;}',
+      '.tnm-split-row{display:grid;grid-template-columns:1fr auto auto;gap:10px;padding:6px 10px;border-radius:8px;background:rgba(0,0,0,0.2);border:1px solid rgba(255,255,255,0.04);font-size:13px;color:#cdd5e7;align-items:center;}',
+      '.tnm-split-row:first-child{background:rgba(245,197,66,0.08);border-color:rgba(245,197,66,0.25);}',
+      '.tnm-split-rank{font-weight:600;color:#fff;}',
+      '.tnm-split-pct{color:#9aa6c2;}',
+      '.tnm-split-amt{font-weight:700;color:#fff;}',
+      '.tnm-bonus{margin:0 0 12px;padding:8px 12px;border-radius:8px;background:rgba(126,182,232,0.06);border:1px solid rgba(126,182,232,0.18);font-size:13px;color:#cdd5e7;}',
+      '.tnm-bonus-label{display:block;font:700 10px/1 -apple-system,system-ui,sans-serif;text-transform:uppercase;letter-spacing:0.08em;color:' + accent + ';margin-bottom:2px;}',
       '.tnm-cta{display:inline-flex;align-items:center;justify-content:center;width:100%;padding:14px 18px;border-radius:10px;font:700 15px/1 -apple-system,system-ui,sans-serif;background:' + primary + ';color:#0a0e1a;text-decoration:none;border:none;cursor:pointer;transition:transform 80ms ease, filter 120ms;}',
       '.tnm-cta:hover{filter:brightness(1.08);}',
       '.tnm-cta:active{transform:translateY(1px);}',
@@ -88,6 +96,31 @@ function widgetSource(apiOrigin: string): string {
       '.tnm-skel{padding:32px 24px;color:#9aa6c2;text-align:center;}',
       '.tnm-err{padding:16px 20px;color:#fda4af;text-align:center;}'
     ].join("");
+  }
+
+  function formatMoney(cents, currency) {
+    var c = currency || "NZD";
+    var dollars = cents / 100;
+    try {
+      return new Intl.NumberFormat("en-NZ", {
+        style: "currency",
+        currency: c,
+        minimumFractionDigits: dollars % 1 === 0 ? 0 : 2,
+      }).format(dollars);
+    } catch (e) {
+      return c + " " + dollars.toFixed(2);
+    }
+  }
+
+  function ordinal(rank) {
+    var v = rank % 100;
+    if (v >= 11 && v <= 13) return rank + "th";
+    switch (rank % 10) {
+      case 1: return rank + "st";
+      case 2: return rank + "nd";
+      case 3: return rank + "rd";
+      default: return rank + "th";
+    }
   }
 
   function render(root, config) {
@@ -103,15 +136,50 @@ function widgetSource(apiOrigin: string): string {
     var landingUrl = config.public_landing_url || "https://play.tournamental.com/";
     var hideFooter = !!config.hide_tournamental_footer;
     var sponsor = config.sponsor;
+    var entryFee = config.entry_fee || null;
+    var prizeSplit = (config.prize_split && Array.isArray(config.prize_split)) ? config.prize_split : null;
+    var bonus = config.bonus_prize_text || "";
+
+    var feeCents = entryFee && typeof entryFee.cents === "number" ? entryFee.cents : 0;
+    var feeCurrency = entryFee && entryFee.currency ? entryFee.currency : "NZD";
+    var poolCents = feeCents > 0 ? feeCents * Math.max(1, members) : 0;
 
     var heroStyle = heroUrl ? ' style="background-image:url(' + JSON.stringify(heroUrl).slice(1, -1) + ')"' : '';
     var logoMarkup = logoUrl
       ? '<img class="tnm-logo" src="' + escapeHtml(logoUrl) + '" alt="" />'
       : '';
 
-    var prizeMarkup = prize
+    // Hide the prize-text blurb when the owner has defined a structured
+    // split; the table communicates the prize structure more clearly.
+    var prizeMarkup = prize && !(prizeSplit && prizeSplit.length)
       ? '<p class="tnm-prize">' + escapeHtml(prize) + '</p>'
       : '';
+
+    var splitMarkup = "";
+    if (prizeSplit && prizeSplit.length) {
+      var rows = prizeSplit.slice().sort(function (a, b) { return (a.rank || 0) - (b.rank || 0); });
+      var rowMarkup = rows.map(function (r) {
+        var label = (r.label && String(r.label).trim()) ? r.label : ordinal(r.rank || 0);
+        var pct = Math.round((r.percent || 0) * 10) / 10;
+        var amtMarkup = poolCents > 0
+          ? '<span class="tnm-split-amt">' + escapeHtml(formatMoney(poolCents * (r.percent || 0) / 100, feeCurrency)) + '</span>'
+          : '<span class="tnm-split-amt"></span>';
+        return '<li class="tnm-split-row">' +
+          '<span class="tnm-split-rank">' + escapeHtml(label) + '</span>' +
+          '<span class="tnm-split-pct">' + pct + '%</span>' +
+          amtMarkup +
+        '</li>';
+      }).join("");
+      splitMarkup = '<ul class="tnm-split">' + rowMarkup + '</ul>';
+    }
+
+    var bonusMarkup = bonus
+      ? '<div class="tnm-bonus"><span class="tnm-bonus-label">Bonus prize</span>' + escapeHtml(bonus) + '</div>'
+      : '';
+
+    var feeStat = feeCents > 0
+      ? '<div><span class="tnm-stat-num">' + escapeHtml(formatMoney(feeCents, feeCurrency)) + '</span>entry fee</div>'
+      : '<div><span class="tnm-stat-num">FREE</span>to play</div>';
 
     var sponsorMarkup = "";
     if (sponsor && (sponsor.name || sponsor.logo_url)) {
@@ -141,9 +209,11 @@ function widgetSource(apiOrigin: string): string {
         '</div>' +
         '<div class="tnm-body">' +
           prizeMarkup +
+          splitMarkup +
+          bonusMarkup +
           '<div class="tnm-stats">' +
             '<div><span class="tnm-stat-num">' + members + '</span>members</div>' +
-            '<div><span class="tnm-stat-num">FREE</span>to play</div>' +
+            feeStat +
           '</div>' +
           '<a class="tnm-cta" href="' + escapeHtml(joinUrl) + '" target="_blank" rel="noopener noreferrer">Join the syndicate →</a>' +
           '<a class="tnm-secondary" href="' + escapeHtml(landingUrl) + '" target="_blank" rel="noopener noreferrer">View leaderboard</a>' +

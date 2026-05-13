@@ -58,6 +58,10 @@ function projectOwnerRow(row: SyndicateRow): Record<string, unknown> {
     sponsor_url: row.sponsor_url,
     sponsor_logo_url: row.sponsor_logo_url,
     prize_text: row.prize_text,
+    entry_fee_cents: row.entry_fee_cents,
+    entry_fee_currency: row.entry_fee_currency,
+    prize_split_json: row.prize_split_json,
+    bonus_prize_text: row.bonus_prize_text,
   };
 }
 
@@ -109,6 +113,13 @@ const HttpsUrl = z
   .refine((u) => /^https?:\/\//i.test(u), "must start with http(s)")
   .nullable();
 
+const PrizeSplitEntry = z.object({
+  rank: z.number().int().min(1).max(20),
+  percent: z.number().min(0).max(100),
+  label: z.string().max(120).nullable().optional(),
+  sponsor_name: z.string().max(120).nullable().optional(),
+});
+
 const PatchSchema = z
   .object({
     name: z.string().min(1).max(80).optional(),
@@ -120,6 +131,15 @@ const PatchSchema = z
     sponsor_url: HttpsUrl.optional(),
     sponsor_logo_url: HttpsUrl.optional(),
     prize_text: z.string().max(280).nullable().optional(),
+    /** Cents. 0 or null means "no fee". */
+    entry_fee_cents: z.number().int().min(0).max(100_000_000).nullable().optional(),
+    entry_fee_currency: z.string().length(3).nullable().optional(),
+    /**
+     * Prize-split entries, validated to sum to 100% before save.
+     * Pass `null` to clear (e.g. revert to a single-prize string).
+     */
+    prize_split: z.array(PrizeSplitEntry).max(20).nullable().optional(),
+    bonus_prize_text: z.string().max(280).nullable().optional(),
   })
   .strict();
 
@@ -152,13 +172,30 @@ export async function PATCH(
     );
   }
 
-  // Drop any field that is undefined. Zod converts missing keys to
-  // undefined; the persistence layer treats undefined as "leave alone".
+  // Map the API surface to the persistence patch. prize_split arrives
+  // as a structured array; we serialise to JSON for storage. Validate
+  // the percentage sum here (Zod doesn't easily express the cross-field
+  // constraint).
   const patch: SyndicateBrandingPatch = {};
   for (const [k, v] of Object.entries(parsed.data)) {
-    if (v !== undefined) {
-      (patch as Record<string, unknown>)[k] = v;
+    if (v === undefined) continue;
+    if (k === "prize_split") {
+      if (v === null) {
+        patch.prize_split_json = null;
+      } else {
+        const arr = v as Array<{ rank: number; percent: number }>;
+        const total = arr.reduce((acc, e) => acc + e.percent, 0);
+        if (Math.round(total) !== 100) {
+          return jsonResponse(
+            { error: "prize_split_must_sum_to_100", actual: total },
+            400,
+          );
+        }
+        patch.prize_split_json = JSON.stringify(arr);
+      }
+      continue;
     }
+    (patch as Record<string, unknown>)[k] = v;
   }
 
   const persistence = getPersistence();

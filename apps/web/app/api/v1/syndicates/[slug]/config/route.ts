@@ -71,10 +71,24 @@ export async function GET(
   // hide it. Free tier always shows the footer.
   const hideFooter = row.tier === "premium";
 
-  // Public landing URL for the "open in Tournamental" link inside
-  // the widget. Uses the share_guid path which works for everyone.
-  const publicLandingUrl = `https://play.tournamental.com/s/${row.share_guid}`;
-  const joinUrl = `https://play.tournamental.com/s/${row.share_guid}?join=1`;
+  // Public landing URL for the "open in Tournamental" link inside the
+  // widget. The /s/<...> resolver matches slug-shape inputs in step 1
+  // and bracket-guid-shape inputs in step 2; using the slug here lands
+  // on the syndicate page reliably (a 16-char hex share_guid would
+  // false-match the nanoid bracket-guid pattern and 404 in step 2).
+  const publicLandingUrl = `https://play.tournamental.com/s/${row.slug}`;
+  const joinUrl = `https://play.tournamental.com/s/${row.slug}?join=1`;
+
+  // Decode the prize split (stored as JSON string). Surface as null if
+  // malformed rather than 500-ing — the widget falls back to prize_text.
+  let prizeSplit: unknown = null;
+  if (row.prize_split_json) {
+    try {
+      prizeSplit = JSON.parse(row.prize_split_json);
+    } catch {
+      prizeSplit = null;
+    }
+  }
 
   return jsonResponse(
     {
@@ -100,6 +114,15 @@ export async function GET(
               }
             : null,
         prize_text: row.prize_text,
+        entry_fee:
+          row.entry_fee_cents !== null && row.entry_fee_cents > 0
+            ? {
+                cents: row.entry_fee_cents,
+                currency: row.entry_fee_currency ?? "NZD",
+              }
+            : null,
+        prize_split: prizeSplit,
+        bonus_prize_text: row.bonus_prize_text,
         public_landing_url: publicLandingUrl,
         join_url: joinUrl,
         hide_tournamental_footer: hideFooter,

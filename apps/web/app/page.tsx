@@ -1,150 +1,272 @@
+/* eslint-disable react/no-unescaped-entities */
 /**
- * Home feed, the first thing a user sees when landing on the PWA.
+ * Home page — sales / landing flow for play.tournamental.com.
  *
- * Composition (top to bottom):
- *   - CountdownBanner pinned to the FIFA WC 2026 kickoff.
- *   - StoriesStrip: featured matches and pundits (mocked for v0.1).
- *   - HeroCard: "Watch the AR-FR 2022 final", tappable, opens the
- *     replay route.
- *   - "Up next" section: 5 MatchCards (mocked schedule).
- *   - "From the desk" section: 2 NewsCards.
+ * Tim's brief 2026-05-13: the home page must be a sales page, not a
+ * news feed. Flow:
+ *   1. Hero with the platform's one-line pitch + primary CTAs.
+ *   2. "Set your picks now" — the core game, single big CTA into the
+ *      bracket builder.
+ *   3. 3D molecule callout (watch-along + interactive bracket
+ *      molecule) with features and benefits.
+ *   4. Syndicates section, front and centre, with the live demo
+ *      widget rendering on the page itself (free + premium pitch).
+ *   5. Why-it-works / how-it-works strip.
+ *   6. Final CTA.
  *
- * Wrapped in `<AppShell>` so the chrome (top app-bar with brand logo +
- * hamburger menu, bottom nav on mobile) renders consistently.
+ * The old news-feed home moved to /home (kept for now in case
+ * internal links reference it; can delete later).
  */
 
+import Link from "next/link";
+import type { Metadata } from "next";
+
 import { AppShell } from "@/components/shell";
-import { NewsStrip } from "@/components/home/NewsStrip";
-import {
-  CountdownBanner,
-  HeroCard,
-  MatchCard,
-  NewsCard,
-  StoriesStrip,
-} from "@/components/ui";
+import { CountdownBanner } from "@/components/ui";
 
-const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
-// FIFA World Cup 2026 official kickoff (Mexico City, 11 June 2026 18:00 UTC-6).
+import { LiveWidgetDemo } from "./syndicates/LiveWidgetDemo";
+import "./home.css";
+
 const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
+const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
-export default function HomePage() {
+export const metadata: Metadata = {
+  title: "Tournamental — predict the World Cup, watch it in 3D, run your own syndicate",
+  description:
+    "Free-to-play FIFA World Cup 2026 prediction game with a 3D molecule watch-along, verifiable picks, and a built-in syndicate platform so anyone can run a branded sweepstake for their audience.",
+};
+
+export default function HomePage(): JSX.Element {
   return (
     <AppShell title="Tournamental">
-      <div className="vt-page-content">
-        <CountdownBanner
-          targetUtc={WC_2026_KICKOFF_UTC}
-          eyebrow="FIFA World Cup 2026"
-          title="Kickoff: Mexico vs the world"
-        />
+      <main className="vt-home">
+        {/* ============== HERO ============== */}
+        <section className="vt-home-hero">
+          <span className="vt-home-eyebrow">FIFA World Cup 2026 · Free to play</span>
+          <h1 className="vt-home-title">
+            Predict every match. Watch it in 3D.
+            <br className="vt-home-br" /> Run your own sweepstake.
+          </h1>
+          <p className="vt-home-lede">
+            Tournamental is the open-source prediction game for the world's biggest
+            tournaments. Save your picks before kickoff, change them right up until
+            each match starts, watch the action play out in our 3D molecule, and run
+            a branded syndicate for your audience. Free forever; premium adds a
+            fully-managed CRM via Aiva.
+          </p>
+          <div className="vt-home-cta-row">
+            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
+              Set your picks now →
+            </Link>
+            <Link href="/syndicates" className="vt-home-btn vt-home-btn-ghost">
+              Run a syndicate
+            </Link>
+          </div>
+          <ul className="vt-home-trust">
+            <li><span aria-hidden="true">✓</span> No credit card</li>
+            <li><span aria-hidden="true">✓</span> No app install</li>
+            <li><span aria-hidden="true">✓</span> Apache 2.0 open source</li>
+            <li><span aria-hidden="true">✓</span> NZ-built</li>
+          </ul>
+        </section>
 
-        <StoriesStrip
-          items={[
-            { id: "watch-arfr", label: "AR-FR 22", initials: "AR", progress: true, href: `/match/${DEMO_MATCH_ID}` },
-            { id: "bracket", label: "Build bracket", initials: "B", href: "/world-cup-2026" },
-            { id: "leaderboard", label: "Top picks", initials: "L", href: "/leaderboard" },
-            { id: "team-arg", label: "Argentina", initials: "AR", href: "/team/ARG" },
-            { id: "team-fra", label: "France", initials: "FR", href: "/team/FRA" },
-            { id: "team-bra", label: "Brazil", initials: "BR", href: "/team/BRA" },
-            { id: "team-eng", label: "England", initials: "EN", href: "/team/ENG" },
-          ]}
-        />
+        {/* ============== COUNTDOWN ============== */}
+        <section className="vt-home-section">
+          <CountdownBanner
+            targetUtc={WC_2026_KICKOFF_UTC}
+            eyebrow="Kickoff"
+            title="Mexico vs the world, 11 June 2026"
+          />
+        </section>
 
-        <HeroCard
-          title="Watch the AR-FR 2022 final, in 3D"
-          category="Replay"
-          subtitle="The full Argentina v France final, ball-by-ball, in our 3D renderer. 15 minutes at 10x speed."
-          href={`/match/${DEMO_MATCH_ID}`}
-        />
-
-        <NewsStrip />
-
-        <section className="vt-section">
-          <h2 className="vt-section-title">Up next</h2>
-          <div className="vt-fixture-list">
-            {SAMPLE_FIXTURES.map((f) => (
-              <MatchCard
-                key={f.id}
-                home={{ code: f.home.code, name: f.home.name }}
-                away={{ code: f.away.code, name: f.away.name }}
-                state="pre"
-                kickoffUtc={f.kickoffUtc}
-                groupId={f.groupId}
-                stage={f.stage}
-                venue={f.venue}
-                href={`/world-cup-2026#match-${f.id}`}
-              />
-            ))}
+        {/* ============== STEP 1 — PICKS ============== */}
+        <section className="vt-home-section vt-home-step" id="picks">
+          <div className="vt-home-step-tag">Step 1 · Today</div>
+          <h2 className="vt-home-h2">Set your picks now.</h2>
+          <p className="vt-home-p">
+            104 matches, 48 teams, one bracket. Pick winners, draw amounts, and group
+            standings. Save once, then tweak every match right up until kickoff. Earlier
+            saves earn a bigger multiplier; lock everything in when you're ready and watch
+            your prediction IQ climb.
+          </p>
+          <ul className="vt-home-bullets">
+            <li>
+              <strong>Change picks until kickoff.</strong> Unlike Telegraph, ESPN, or
+              Yahoo, nothing locks at the first whistle. Every match is its own decision.
+            </li>
+            <li>
+              <strong>Early-save multiplier.</strong> Call Argentina to win the final
+              today and the points are worth more than calling it the night before.
+            </li>
+            <li>
+              <strong>Pundit IQ ladder.</strong> Each prediction is timestamped and
+              signed (a VStamp). Your record is yours, transferable across syndicates.
+            </li>
+          </ul>
+          <div className="vt-home-cta-row">
+            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
+              Build my bracket →
+            </Link>
+            <Link href={`/match/${DEMO_MATCH_ID}`} className="vt-home-btn vt-home-btn-ghost">
+              Watch the 2022 final replay
+            </Link>
           </div>
         </section>
 
-        <section className="vt-section">
-          <h2 className="vt-section-title">From the desk</h2>
-          <div className="vt-news-list">
-            <NewsCard
-              category="Tournamental lab"
-              title="How the cascade engine scores long-shots"
-              meta="3 min read"
-              href="/blog/cascade-scoring"
-            />
-            <NewsCard
-              category="Open source"
-              title="The renderer ships under Apache 2.0"
-              meta="5 min read"
-              href="/blog/open-source-renderer"
-            />
+        {/* ============== STEP 2 — MOLECULE ============== */}
+        <section className="vt-home-section vt-home-step" id="molecule">
+          <div className="vt-home-step-tag">Step 2 · As matches play</div>
+          <h2 className="vt-home-h2">Watch the tournament in 3D.</h2>
+          <p className="vt-home-p">
+            The Tournamental molecule renders every match in the browser at 60 fps on a
+            mid-range phone, no app install, no broadcaster paywall. Drag the timeline,
+            rotate the pitch, zoom into the box, see your saved picks light up as each
+            result settles.
+          </p>
+          <div className="vt-home-feature-grid">
+            <div className="vt-home-feature">
+              <h3>22 players, real positions</h3>
+              <p>Body GLB + jersey textures + Wikidata faces for the 22 starters. Reads StatsBomb open data; SimulatedSports feeds for live.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>Scrubable timeline</h3>
+              <p>Jump to any minute. Pause on a goal, share the moment. Your bracket recalculates as the score moves.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>No app, no install</h3>
+              <p>Pure WebGL in the browser. Works on iOS Safari, Android Chrome, your laptop. Geo-block-free.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>Open the data</h3>
+              <p>The renderer is Apache 2.0. Plug in your own data feed; build your own watch-along; ship it.</p>
+            </div>
+          </div>
+          <div className="vt-home-cta-row">
+            <Link href={`/match/${DEMO_MATCH_ID}`} className="vt-home-btn vt-home-btn-primary">
+              See the 2022 final in 3D →
+            </Link>
+            <Link href="/watch" className="vt-home-btn vt-home-btn-ghost">
+              Browse other matches
+            </Link>
           </div>
         </section>
-      </div>
+
+        {/* ============== STEP 3 — SYNDICATES (FRONT AND CENTRE) ============== */}
+        <section className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
+          <div className="vt-home-step-tag vt-home-step-tag-headline">Step 3 · Bring your friends</div>
+          <h2 className="vt-home-h2">Run a syndicate. Brand it your way.</h2>
+          <p className="vt-home-p">
+            A syndicate is your own branded prediction pool. Pick a name, drop the embed
+            widget on any site (Squarespace, WordPress, Shopify, your blog), and run a
+            six-week sweepstake for your audience. Set an entry fee and prize splits, or
+            keep it free for bragging rights. Tournamental never touches the money.
+          </p>
+
+          <div className="vt-home-demo-wrap">
+            <div className="vt-home-demo-badge">Live preview of the syndicate widget</div>
+            <LiveWidgetDemo slug="tournamental-demo" />
+            <p className="vt-home-demo-note">
+              This is the exact widget partners drop on their own sites. Two lines of
+              code; renders branded; works anywhere.
+            </p>
+          </div>
+
+          {/* Tiered pitch */}
+          <div className="vt-home-tiers">
+            <div className="vt-home-tier">
+              <span className="vt-home-tier-tag">Free forever</span>
+              <h3 className="vt-home-tier-name">Branded embed widget</h3>
+              <ul className="vt-home-tier-list">
+                <li>Drop one snippet on any site, any CMS</li>
+                <li>Brand it with your logo, colours, prize copy</li>
+                <li>Country + city + global leaderboard slices</li>
+                <li>Off-platform entry money (you handle the cash)</li>
+                <li>Sponsor block on every share card</li>
+              </ul>
+              <Link href="/syndicates/new" className="vt-home-btn vt-home-btn-primary vt-home-btn-block">
+                Start free in 60 seconds →
+              </Link>
+            </div>
+            <div className="vt-home-tier vt-home-tier-premium">
+              <span className="vt-home-tier-tag vt-home-tier-tag-premium">Premium · powered by Aiva</span>
+              <h3 className="vt-home-tier-name">$97 <span className="vt-home-tier-price-sub">/ month + usage</span></h3>
+              <ul className="vt-home-tier-list">
+                <li>Everything in Free</li>
+                <li>Fully-managed HighLevel CRM sub-account</li>
+                <li>Your own phone number for SMS + WhatsApp at scale</li>
+                <li>Stripe Checkout for paid entries (funds to your bank)</li>
+                <li>Subdomain hosting + footer-free embed</li>
+              </ul>
+              <Link href="/syndicates#pricing" className="vt-home-btn vt-home-btn-ghost vt-home-btn-block">
+                See what premium unlocks
+              </Link>
+            </div>
+          </div>
+
+          <p className="vt-home-aside">
+            Premium tier is delivered by <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-home-link">Aiva</a>, our CRM and messaging partner. Tournamental never handles entry fees or prize money.
+          </p>
+        </section>
+
+        {/* ============== FEATURES STRIP ============== */}
+        <section className="vt-home-section">
+          <h2 className="vt-home-h2 vt-home-h2-centred">Why people stay</h2>
+          <div className="vt-home-feature-grid">
+            <div className="vt-home-feature">
+              <h3>Verifiable predictions</h3>
+              <p>Every pick gets a cryptographic VStamp before kickoff. Your record is portable, public, and yours for life.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>Free, open, no lock-in</h3>
+              <p>Apache 2.0 code, CC-BY docs, contributor revenue share via Drips. Fork it, host it yourself, or stay with us.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>Daily engagement</h3>
+              <p>Match-day quizzes, line bets, score-input games via the Telegram bot. Six weeks of touchpoints, not five minutes of form-fill.</p>
+            </div>
+            <div className="vt-home-feature">
+              <h3>Built on global data</h3>
+              <p>StatsBomb open data, Polymarket odds, public team data. We pay our data sources; they share in upside.</p>
+            </div>
+          </div>
+        </section>
+
+        {/* ============== FINAL CTA ============== */}
+        <section className="vt-home-section vt-home-final-cta">
+          <h2 className="vt-home-h2 vt-home-h2-centred">Three steps. Five minutes. Free.</h2>
+          <ol className="vt-home-quickstart">
+            <li>
+              <span className="vt-home-qs-n">1</span>
+              <div>
+                <h3>Set your picks</h3>
+                <p>Open the bracket, save your World Cup. Takes about five minutes the first time.</p>
+              </div>
+            </li>
+            <li>
+              <span className="vt-home-qs-n">2</span>
+              <div>
+                <h3>Watch the matches</h3>
+                <p>Tournament starts 11 June 2026. Every match plays in 3D, every saved pick settles automatically.</p>
+              </div>
+            </li>
+            <li>
+              <span className="vt-home-qs-n">3</span>
+              <div>
+                <h3>Run your own pool</h3>
+                <p>Like the experience? Spin up a syndicate, brand it, invite your friends or your audience. Free or premium.</p>
+              </div>
+            </li>
+          </ol>
+          <div className="vt-home-cta-row vt-home-cta-row-centred">
+            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
+              Set your picks now →
+            </Link>
+            <Link href="/syndicates" className="vt-home-btn vt-home-btn-ghost">
+              Run a syndicate
+            </Link>
+          </div>
+        </section>
+      </main>
     </AppShell>
   );
 }
-
-/** Mocked fixtures for the home feed. Replaced with the live schedule
- *  once the game-service is wired (per docs/12). */
-const SAMPLE_FIXTURES = [
-  {
-    id: "wc26-m01",
-    groupId: "A",
-    stage: "Group stage",
-    home: { code: "MEX", name: "Mexico" },
-    away: { code: "CAN", name: "Canada" },
-    kickoffUtc: "2026-06-11T18:00:00-06:00",
-    venue: "Estadio Azteca, Mexico City",
-  },
-  {
-    id: "wc26-m02",
-    groupId: "B",
-    stage: "Group stage",
-    home: { code: "USA", name: "United States" },
-    away: { code: "JPN", name: "Japan" },
-    kickoffUtc: "2026-06-12T17:00:00-04:00",
-    venue: "MetLife Stadium, New York",
-  },
-  {
-    id: "wc26-m03",
-    groupId: "C",
-    stage: "Group stage",
-    home: { code: "ARG", name: "Argentina" },
-    away: { code: "MEX", name: "Mexico" },
-    kickoffUtc: "2026-06-15T18:00:00-06:00",
-    venue: "Estadio Azteca, Mexico City",
-  },
-  {
-    id: "wc26-m04",
-    groupId: "D",
-    stage: "Group stage",
-    home: { code: "FRA", name: "France" },
-    away: { code: "CRO", name: "Croatia" },
-    kickoffUtc: "2026-06-16T20:00:00-04:00",
-    venue: "AT&T Stadium, Dallas",
-  },
-  {
-    id: "wc26-m05",
-    groupId: "E",
-    stage: "Group stage",
-    home: { code: "BRA", name: "Brazil" },
-    away: { code: "ENG", name: "England" },
-    kickoffUtc: "2026-06-17T15:00:00-04:00",
-    venue: "SoFi Stadium, Los Angeles",
-  },
-] as const;

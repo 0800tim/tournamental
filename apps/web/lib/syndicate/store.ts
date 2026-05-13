@@ -26,6 +26,13 @@ export interface SyndicateMember {
   readonly points: number;
 }
 
+export interface SyndicatePrizeSplitEntry {
+  readonly rank: number;
+  readonly percent: number;
+  readonly label?: string | null;
+  readonly sponsor_name?: string | null;
+}
+
 export interface SyndicateRecord {
   readonly slug: string;
   readonly name: string;
@@ -36,6 +43,25 @@ export interface SyndicateRecord {
   readonly created_at: string;
   readonly picks_made: number;
   readonly members: ReadonlyArray<SyndicateMember>;
+  /** Branding colours / sponsor / prize copy when configured by the owner. */
+  readonly branding?: {
+    readonly primary_colour: string | null;
+    readonly accent_colour: string | null;
+    readonly logo_url: string | null;
+    readonly hero_url: string | null;
+  };
+  readonly sponsor?: {
+    readonly name: string | null;
+    readonly url: string | null;
+    readonly logo_url: string | null;
+  } | null;
+  readonly prize_text?: string | null;
+  /** Entry fee (cents). `null` or `0` means "no fee, bragging rights only". */
+  readonly entry_fee_cents?: number | null;
+  readonly entry_fee_currency?: string | null;
+  /** Decoded prize split. `null` means owner hasn't defined one. */
+  readonly prize_split?: ReadonlyArray<SyndicatePrizeSplitEntry> | null;
+  readonly bonus_prize_text?: string | null;
 }
 
 // Three sample syndicates so the route renders something during the
@@ -104,6 +130,30 @@ const TOURNAMENT_LABELS: Record<string, string> = {
   "fifa-wc-2026": "FIFA World Cup 2026",
 };
 
+function parsePrizeSplit(json: string | null): ReadonlyArray<SyndicatePrizeSplitEntry> | null {
+  if (!json) return null;
+  try {
+    const parsed = JSON.parse(json) as unknown;
+    if (!Array.isArray(parsed)) return null;
+    return parsed
+      .map((e) => {
+        const obj = (e ?? {}) as Record<string, unknown>;
+        const rank = Number(obj.rank);
+        const percent = Number(obj.percent);
+        if (!Number.isFinite(rank) || !Number.isFinite(percent)) return null;
+        return {
+          rank,
+          percent,
+          label: typeof obj.label === "string" ? obj.label : null,
+          sponsor_name: typeof obj.sponsor_name === "string" ? obj.sponsor_name : null,
+        } as SyndicatePrizeSplitEntry;
+      })
+      .filter((e): e is SyndicatePrizeSplitEntry => e !== null);
+  } catch {
+    return null;
+  }
+}
+
 /** Render a SQLite syndicate row into the public `SyndicateRecord` shape. */
 function fromPersistenceRow(row: {
   slug: string;
@@ -112,7 +162,20 @@ function fromPersistenceRow(row: {
   owner_handle: string | null;
   created_at: number;
   member_count: number;
+  branding_primary_colour?: string | null;
+  branding_accent_colour?: string | null;
+  branding_logo_url?: string | null;
+  branding_hero_url?: string | null;
+  sponsor_name?: string | null;
+  sponsor_url?: string | null;
+  sponsor_logo_url?: string | null;
+  prize_text?: string | null;
+  entry_fee_cents?: number | null;
+  entry_fee_currency?: string | null;
+  prize_split_json?: string | null;
+  bonus_prize_text?: string | null;
 }): SyndicateRecord {
+  const sponsorPresent = !!(row.sponsor_name || row.sponsor_logo_url);
   return {
     slug: row.slug,
     name: row.name,
@@ -122,9 +185,6 @@ function fromPersistenceRow(row: {
     tournament_label: TOURNAMENT_LABELS[row.tournament_id] ?? row.tournament_id,
     created_at: new Date(row.created_at).toISOString(),
     picks_made: 0,
-    // Real member fan-out lands post-launch (parallel agent #67 owns
-    // the landing page). For now the count is `member_count` rendered
-    // as a single placeholder so the page renders.
     members: Array.from({ length: Math.max(1, row.member_count) }, (_, i) => ({
       handle: i === 0 ? row.owner_handle ?? "owner" : `member_${i}`,
       country_code: "NZL",
@@ -132,6 +192,24 @@ function fromPersistenceRow(row: {
       joined_at: new Date(row.created_at).toISOString(),
       points: 0,
     })),
+    branding: {
+      primary_colour: row.branding_primary_colour ?? null,
+      accent_colour: row.branding_accent_colour ?? null,
+      logo_url: row.branding_logo_url ?? null,
+      hero_url: row.branding_hero_url ?? null,
+    },
+    sponsor: sponsorPresent
+      ? {
+          name: row.sponsor_name ?? null,
+          url: row.sponsor_url ?? null,
+          logo_url: row.sponsor_logo_url ?? null,
+        }
+      : null,
+    prize_text: row.prize_text ?? null,
+    entry_fee_cents: row.entry_fee_cents ?? null,
+    entry_fee_currency: row.entry_fee_currency ?? null,
+    prize_split: parsePrizeSplit(row.prize_split_json ?? null),
+    bonus_prize_text: row.bonus_prize_text ?? null,
   };
 }
 

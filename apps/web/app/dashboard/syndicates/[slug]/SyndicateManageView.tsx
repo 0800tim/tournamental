@@ -38,6 +38,10 @@ interface OwnerSyndicate {
   readonly sponsor_url: string | null;
   readonly sponsor_logo_url: string | null;
   readonly prize_text: string | null;
+  readonly entry_fee_cents: number | null;
+  readonly entry_fee_currency: string | null;
+  readonly prize_split_json: string | null;
+  readonly bonus_prize_text: string | null;
 }
 
 type FetchState =
@@ -351,6 +355,15 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
 
       {/* Branding editor */}
       <BrandingEditor
+        slug={s.slug}
+        initial={s}
+        onSaved={(updated) =>
+          setState({ status: "ready", syndicate: { ...s, ...updated } })
+        }
+      />
+
+      {/* Prize pool editor */}
+      <PrizePoolEditor
         slug={s.slug}
         initial={s}
         onSaved={(updated) =>
@@ -727,6 +740,365 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
           >
             Preview widget →
           </a>
+        </div>
+      </form>
+    </section>
+  );
+}
+
+// --- Prize pool editor ------------------------------------------------
+
+interface PrizeSplitRow {
+  rank: number;
+  percent: number;
+  label: string;
+}
+
+const DEFAULT_PRESETS: ReadonlyArray<{
+  label: string;
+  split: ReadonlyArray<{ rank: number; percent: number; label: string }>;
+}> = [
+  {
+    label: "Winner takes all",
+    split: [{ rank: 1, percent: 100, label: "First" }],
+  },
+  {
+    label: "75 / 20 / 5",
+    split: [
+      { rank: 1, percent: 75, label: "First" },
+      { rank: 2, percent: 20, label: "Second" },
+      { rank: 3, percent: 5, label: "Third" },
+    ],
+  },
+  {
+    label: "50 / 30 / 20",
+    split: [
+      { rank: 1, percent: 50, label: "First" },
+      { rank: 2, percent: 30, label: "Second" },
+      { rank: 3, percent: 20, label: "Third" },
+    ],
+  },
+];
+
+function parseSplit(json: string | null): PrizeSplitRow[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json) as Array<{
+      rank?: number;
+      percent?: number;
+      label?: string | null;
+    }>;
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((e) => ({
+      rank: Number(e.rank ?? 0),
+      percent: Number(e.percent ?? 0),
+      label: typeof e.label === "string" ? e.label : "",
+    }));
+  } catch {
+    return [];
+  }
+}
+
+interface PrizePoolEditorProps {
+  readonly slug: string;
+  readonly initial: OwnerSyndicate;
+  readonly onSaved: (patch: Partial<OwnerSyndicate>) => void;
+}
+
+function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.Element {
+  const [entryEnabled, setEntryEnabled] = useState<boolean>(
+    (initial.entry_fee_cents ?? 0) > 0,
+  );
+  const [entryDollars, setEntryDollars] = useState<string>(
+    initial.entry_fee_cents ? (initial.entry_fee_cents / 100).toFixed(2) : "",
+  );
+  const [currency, setCurrency] = useState<string>(
+    initial.entry_fee_currency ?? "NZD",
+  );
+  const [splits, setSplits] = useState<PrizeSplitRow[]>(
+    parseSplit(initial.prize_split_json),
+  );
+  const [bonusText, setBonusText] = useState<string>(
+    initial.bonus_prize_text ?? "",
+  );
+  const [save, setSave] = useState<SaveState>({ status: "idle" });
+
+  const totalPercent = useMemo(
+    () => splits.reduce((acc, r) => acc + (Number.isFinite(r.percent) ? r.percent : 0), 0),
+    [splits],
+  );
+  const totalValid = Math.round(totalPercent) === 100 || splits.length === 0;
+
+  const dirty = useMemo(() => {
+    const newCents = entryEnabled
+      ? Math.max(0, Math.round(parseFloat(entryDollars || "0") * 100))
+      : null;
+    const initialCents = initial.entry_fee_cents ?? null;
+    if (newCents !== initialCents) return true;
+    if ((currency || "NZD") !== (initial.entry_fee_currency ?? "NZD")) return true;
+    const newJson = splits.length > 0 ? JSON.stringify(splits) : null;
+    if (newJson !== (initial.prize_split_json ?? null)) return true;
+    if (bonusText.trim() !== (initial.bonus_prize_text ?? "").trim()) return true;
+    return false;
+  }, [entryEnabled, entryDollars, currency, splits, bonusText, initial]);
+
+  const applyPreset = (preset: (typeof DEFAULT_PRESETS)[number]): void => {
+    setSplits(preset.split.map((s) => ({ ...s })));
+  };
+
+  const addSplitRow = (): void => {
+    setSplits((cur) => [
+      ...cur,
+      { rank: cur.length + 1, percent: 0, label: "" },
+    ]);
+  };
+
+  const removeSplitRow = (idx: number): void => {
+    setSplits((cur) => cur.filter((_, i) => i !== idx));
+  };
+
+  const updateSplit = (idx: number, patch: Partial<PrizeSplitRow>): void => {
+    setSplits((cur) => cur.map((r, i) => (i === idx ? { ...r, ...patch } : r)));
+  };
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!dirty) return;
+    if (splits.length > 0 && !totalValid) {
+      setSave({
+        status: "error",
+        message: `Prize split must sum to 100%. Current total: ${Math.round(totalPercent)}%.`,
+      });
+      return;
+    }
+    setSave({ status: "saving" });
+    const body: Record<string, unknown> = {};
+
+    const newCents = entryEnabled
+      ? Math.max(0, Math.round(parseFloat(entryDollars || "0") * 100))
+      : null;
+    if (newCents !== (initial.entry_fee_cents ?? null)) {
+      body.entry_fee_cents = newCents;
+    }
+    if ((currency || "NZD") !== (initial.entry_fee_currency ?? "NZD")) {
+      body.entry_fee_currency = currency || null;
+    }
+    const newSplitArr = splits.length > 0
+      ? splits.map((r) => ({
+          rank: r.rank,
+          percent: r.percent,
+          label: r.label.trim() || null,
+        }))
+      : null;
+    const newSplitJson = newSplitArr ? JSON.stringify(newSplitArr) : null;
+    if (newSplitJson !== (initial.prize_split_json ?? null)) {
+      body.prize_split = newSplitArr;
+    }
+    if (bonusText.trim() !== (initial.bonus_prize_text ?? "").trim()) {
+      body.bonus_prize_text = bonusText.trim() || null;
+    }
+
+    try {
+      const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const errBody = (await r.json().catch(() => ({}))) as { error?: string };
+        setSave({
+          status: "error",
+          message: errBody.error ?? `Server returned ${r.status}`,
+        });
+        return;
+      }
+      const ok = (await r.json()) as { syndicate?: OwnerSyndicate };
+      if (ok.syndicate) {
+        onSaved({
+          entry_fee_cents: ok.syndicate.entry_fee_cents,
+          entry_fee_currency: ok.syndicate.entry_fee_currency,
+          prize_split_json: ok.syndicate.prize_split_json,
+          bonus_prize_text: ok.syndicate.bonus_prize_text,
+        });
+      }
+      setSave({ status: "saved" });
+      window.setTimeout(() => setSave({ status: "idle" }), 2500);
+    } catch (err) {
+      setSave({
+        status: "error",
+        message: err instanceof Error ? err.message : "Network error",
+      });
+    }
+  };
+
+  return (
+    <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
+      <div className="vt-dash-row-head">
+        <div>
+          <h2 className="vt-dash-row-name">Prize pool & entry fee</h2>
+          <p className="vt-dash-row-meta">
+            Optional. Advertise an entry fee and how the pool splits. Tournamental
+            never handles the money — on free, you collect and pay out yourself; on
+            premium, Stripe inside your Aiva-managed HighLevel sub-account handles
+            the cash and the funds settle to your bank.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="vt-brand-form">
+        {/* Entry fee toggle + amount */}
+        <label className="vt-brand-checkbox-row">
+          <input
+            type="checkbox"
+            checked={entryEnabled}
+            onChange={(e) => setEntryEnabled(e.target.checked)}
+          />
+          <span>Charge an entry fee</span>
+        </label>
+
+        {entryEnabled && (
+          <div className="vt-brand-grid">
+            <label className="vt-brand-field">
+              <span className="vt-brand-label">Entry fee</span>
+              <div className="vt-brand-fee-row">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={entryDollars}
+                  onChange={(e) =>
+                    setEntryDollars(e.target.value.replace(/[^\d.]/g, ""))
+                  }
+                  placeholder="10.00"
+                  className="vt-brand-input"
+                />
+                <select
+                  value={currency}
+                  onChange={(e) => setCurrency(e.target.value)}
+                  className="vt-brand-input"
+                  style={{ maxWidth: 96 }}
+                >
+                  <option>NZD</option>
+                  <option>AUD</option>
+                  <option>USD</option>
+                  <option>GBP</option>
+                  <option>EUR</option>
+                </select>
+              </div>
+            </label>
+          </div>
+        )}
+
+        {/* Prize split */}
+        <div className="vt-brand-field">
+          <span className="vt-brand-label">Prize split</span>
+          <div className="vt-brand-presets">
+            <span className="vt-brand-label" style={{ fontSize: 11 }}>Quick presets:</span>
+            <div className="vt-brand-preset-row">
+              {DEFAULT_PRESETS.map((p) => (
+                <button
+                  key={p.label}
+                  type="button"
+                  className="vt-suggestion-chip-dash"
+                  onClick={() => applyPreset(p)}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {splits.length === 0 && (
+            <p className="vt-brand-empty">
+              No split defined yet. Pick a preset above, or click "Add prize" to build one manually.
+            </p>
+          )}
+          {splits.length > 0 && (
+            <div className="vt-prize-split-table">
+              {splits.map((row, idx) => (
+                <div key={idx} className="vt-prize-split-row">
+                  <input
+                    type="number"
+                    min={1}
+                    max={20}
+                    value={row.rank}
+                    onChange={(e) => updateSplit(idx, { rank: Number(e.target.value) })}
+                    className="vt-brand-input"
+                    style={{ maxWidth: 60 }}
+                    aria-label="Rank"
+                  />
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.1}
+                    value={row.percent}
+                    onChange={(e) => updateSplit(idx, { percent: Number(e.target.value) })}
+                    className="vt-brand-input"
+                    style={{ maxWidth: 90 }}
+                    aria-label="Percent"
+                  />
+                  <span className="vt-prize-split-pct">%</span>
+                  <input
+                    type="text"
+                    value={row.label}
+                    onChange={(e) => updateSplit(idx, { label: e.target.value })}
+                    placeholder="e.g. First place"
+                    className="vt-brand-input"
+                    aria-label="Label"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeSplitRow(idx)}
+                    className="vt-prize-split-remove"
+                    aria-label="Remove this prize tier"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+              <div className="vt-prize-split-total" data-valid={totalValid}>
+                Total: {Math.round(totalPercent * 10) / 10}%{" "}
+                {totalValid ? "✓" : "(must be 100%)"}
+              </div>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={addSplitRow}
+            className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
+            style={{ alignSelf: "flex-start", marginTop: 8 }}
+          >
+            + Add prize
+          </button>
+        </div>
+
+        {/* Bonus prize */}
+        <label className="vt-brand-field">
+          <span className="vt-brand-label">Bonus prize (optional)</span>
+          <input
+            type="text"
+            value={bonusText}
+            onChange={(e) => setBonusText(e.target.value)}
+            maxLength={280}
+            placeholder='e.g. "Longest correct-streak gets a $50 gift card"'
+            className="vt-brand-input"
+          />
+        </label>
+
+        <div className="vt-brand-actions">
+          <button
+            type="submit"
+            disabled={!dirty || save.status === "saving" || !totalValid}
+            className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
+          >
+            {save.status === "saving" ? "Saving…" : dirty ? "Save prize pool" : "Saved"}
+          </button>
+          {save.status === "saved" && (
+            <span className="vt-brand-status vt-brand-status-ok">✓ Saved</span>
+          )}
+          {save.status === "error" && (
+            <span className="vt-brand-status vt-brand-status-err">{save.message}</span>
+          )}
         </div>
       </form>
     </section>
