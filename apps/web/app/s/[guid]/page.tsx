@@ -197,7 +197,10 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
         * and visitors land on the exact pyramid + champion-panel
         * composition Tim ships as the share image. */}
       {bracket.payload ? (
-        <ShareMoleculeEmbed bracket={bracket.payload} />
+        <ShareMoleculeEmbed
+          bracket={bracket.payload}
+          championCode={champion.code}
+        />
       ) : null}
 
       <div className="vt-share-path" aria-label="Champion's path to gold">

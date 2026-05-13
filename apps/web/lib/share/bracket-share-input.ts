@@ -113,6 +113,22 @@ export function inputFromSearchParams(args: {
     searchParams.get("eliminated"),
   );
 
+  // Optional avatar URL passed by the caller (the OG route passes
+  // `avatar=/avatars/<userId>.webp` for authed users). Absolute https
+  // URLs also accepted. The viral renderer falls back to a silhouette
+  // when this is empty or the fetch fails.
+  const avatarRaw = searchParams.get("avatar");
+  const avatarUrl =
+    avatarRaw && /^(\/avatars\/[A-Za-z0-9_-]+\.(?:webp|png|jpg|jpeg|gif)|https?:\/\/[^\s]+)$/.test(avatarRaw)
+      ? avatarRaw
+      : null;
+
+  // Renderer style: `style=v3-podium` selects the new viral design;
+  // anything else (or absent) keeps the v2 pyramid + podium card.
+  const styleRaw = searchParams.get("style");
+  const style: BracketShareCardInput["style"] =
+    styleRaw === "v3-podium" || styleRaw === "v2-pyramid" ? styleRaw : "v3-podium";
+
   return {
     user: { handle, displayName },
     champion,
@@ -127,6 +143,8 @@ export function inputFromSearchParams(args: {
     footerUrl: `tournamental.com/wc2026?from=${bracketId}`,
     shareGuid,
     allEliminatedByStage,
+    avatarUrl,
+    style,
   };
 }
 

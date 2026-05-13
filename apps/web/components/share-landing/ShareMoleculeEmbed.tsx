@@ -39,6 +39,16 @@ import "@/components/molecule/molecule.css";
 
 export interface ShareMoleculeEmbedProps {
   readonly bracket: Bracket;
+  /**
+   * Server-resolved champion code (e.g. "BRA"). The share page already
+   * runs the bracket through the canonical cascade to render the
+   * podium hero; passing that result here keeps the auto-opened panel
+   * in lock-step with what the visitor sees in the hero. Without this
+   * the molecule's local cascade can fall through to a rank-favourite
+   * fallback (Argentina) when the trimmed payload doesn't resolve a
+   * champion, which contradicts the rest of the page.
+   */
+  readonly championCode?: string | null;
 }
 
 /**
@@ -55,7 +65,7 @@ function useEnrichedTournament(): Tournament {
   return tournament;
 }
 
-export function ShareMoleculeEmbed({ bracket }: ShareMoleculeEmbedProps) {
+export function ShareMoleculeEmbed({ bracket, championCode }: ShareMoleculeEmbedProps) {
   const tournament = useEnrichedTournament();
   const [mounted, setMounted] = useState(false);
 
@@ -76,9 +86,16 @@ export function ShareMoleculeEmbed({ bracket }: ShareMoleculeEmbedProps) {
           layoutMode="stable"
           /* readOnly hides the panel close + highlight-toggle so the
            * stranger viewing the share landing can't fake-edit the
-           * bracket. The auto-select-the-champion behaviour from PR
-           * #159 is unchanged. */
+           * bracket. */
           readOnly
+          /* Stage labels + swatch legend hidden 2026-05-14: the share
+           * landing trades label real estate for a wider molecule
+           * canvas and a clearer side-by-side panel layout. */
+          hideStageLegend
+          /* Pin the auto-opened team to the resolved champion from the
+           * share page's cascade, so visitors land on the actual pick
+           * (Brazil) instead of the rank-favourite fallback. */
+          initialSelectedTeam={championCode ?? null}
         />
       ) : (
         <div className="vt-share-molecule-placeholder" role="status">

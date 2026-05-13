@@ -40,15 +40,17 @@ import { loadServerBracket } from "@/lib/bracket/api";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
-import {
-  captureDomComposition,
-  type DomCaptureResult,
-  type DomCaptureSize,
+// dom-capture.ts is retained for legacy paths but no longer used here;
+// the save-share page now fetches the OG image directly (Tim 2026-05-14).
+import type {
+  DomCaptureResult,
+  DomCaptureSize,
 } from "@/lib/molecule/dom-capture";
 import { tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
   type OgSize,
+  buildOgImageUrl,
   buildShareLinks,
   buildShareText,
   buildShareTitle,
@@ -355,31 +357,6 @@ export function ShareSavePage({
 
   // ---------- Capture helpers ----------
 
-  /**
-   * Build the dom-capture input payload for a given size. Kept as a
-   * pure helper so the size-switcher (default share button) and the
-   * three explicit download buttons all derive the same shape from
-   * the same source data.
-   */
-  const captureInputFor = useCallback(
-    (s: DomCaptureSize) => ({
-      shareGuid: guid,
-      handle: handle ?? null,
-      tournamentName: "World Cup 2026",
-      champion:
-        championCode && champion
-          ? {
-              code: championCode,
-              name: champion,
-              kit: null,
-            }
-          : null,
-      size: s,
-      knockoutPath: [] as const,
-    }),
-    [guid, handle, championCode, champion],
-  );
-
   // Track the last captured object URL so we can revoke it on the
   // next capture / unmount, otherwise the browser pins the blob in
   // memory for the page session.
@@ -396,9 +373,43 @@ export function ShareSavePage({
     };
   }, []);
 
+  // 2026-05-14: capture pipeline swapped from a DOM-to-canvas dance
+  // (which required mounting the 3D molecule + .molecule-panel) to a
+  // direct fetch of /api/og/bracket. The endpoint renders the same
+  // viral podium card the visible preview shows, so what the user
+  // sees on this page is byte-identical to the file they download
+  // and what social platforms unfurl from the share link.
   const performCapture = useCallback(
     async (s: DomCaptureSize): Promise<DomCaptureResult> => {
-      const result = await captureDomComposition(captureInputFor(s));
+      // Derive runner-up / third-place codes from the cascade so the
+      // endpoint can skip its fallback path.
+      const finalK = cascaded?.knockouts.find((k) => k.stage === "f");
+      const runnerCode = finalK
+        ? finalK.effective_winner === finalK.home.team
+          ? finalK.away.team
+          : finalK.effective_winner === finalK.away.team
+            ? finalK.home.team
+            : null
+        : null;
+      const tpK = cascaded?.knockouts.find((k) => k.stage === "tp");
+      const thirdCode = tpK?.effective_winner ?? tpK?.predicted_winner ?? null;
+      const url = buildOgImageUrl({
+        bracketId: guid,
+        handle: handle ?? null,
+        winner: championCode ?? null,
+        runnerUp: runnerCode ?? null,
+        third: thirdCode ?? null,
+        avatarUrl:
+          authUserId ?? auth.user?.id
+            ? `/avatars/${authUserId ?? auth.user?.id}.webp`
+            : null,
+        size: s,
+      });
+      const res = await fetch(url, { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error(`OG image fetch failed: ${res.status}`);
+      }
+      const blob = await res.blob();
       if (lastCaptureUrlRef.current) {
         try {
           URL.revokeObjectURL(lastCaptureUrlRef.current);
@@ -406,10 +417,19 @@ export function ShareSavePage({
           // ignore
         }
       }
-      lastCaptureUrlRef.current = result.objectUrl;
-      return result;
+      const objectUrl = URL.createObjectURL(blob);
+      lastCaptureUrlRef.current = objectUrl;
+      const handleSlug = (handle ?? "bracket")
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "") || "bracket";
+      return {
+        blob,
+        objectUrl,
+        filename: `tournamental-${handleSlug}-${s}.png`,
+      };
     },
-    [captureInputFor],
+    [guid, handle, championCode, cascaded, authUserId, auth.user?.id],
   );
 
   // ---------- Handlers ----------
@@ -561,7 +581,17 @@ export function ShareSavePage({
         * format hint under the chips clarifies what each chip
         * downloads as. */}
       <section className="vt-ss-preview" aria-label="Bracket card preview">
-        <MoleculeSharePreview tournament={tournament} bracket={bracket} />
+        <MoleculeSharePreview
+          tournament={tournament}
+          bracket={bracket}
+          authUserId={authUserId ?? auth.user?.id ?? null}
+          handle={handle ?? null}
+          avatarUrl={
+            authUserId || auth.user?.id
+              ? `/avatars/${authUserId ?? auth.user?.id}.webp`
+              : null
+          }
+        />
         <div
           className="vt-ss-size-chips"
           role="tablist"

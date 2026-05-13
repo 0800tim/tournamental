@@ -19,6 +19,8 @@ export {
   resolveShareUrl,
 } from "./bracket-share-card.js";
 
+export { renderViralPodiumCard } from "./viral-podium-card.js";
+
 export {
   renderMoleculeCaptureCard,
   decodeCaptureDataUrl,

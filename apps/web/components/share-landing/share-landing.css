@@ -39,6 +39,14 @@
   }
 }
 
+/* Wider container on big screens so the molecule canvas + side panel
+ * can sit alongside each other comfortably without crowding. */
+@media (min-width: 1024px) {
+  .vt-share {
+    max-width: 1280px;
+  }
+}
+
 /* ── Hero ───────────────────────────────────────────────────────── */
 
 .vt-share-hero {
@@ -765,6 +773,22 @@
   .vt-share-molecule {
     min-height: 640px;
     max-height: 820px;
+  }
+}
+
+/* Desktop (>=1024px): drop the 1:1 lock and let the embed claim the
+ * full container width. The molecule canvas fills the whole frame
+ * while the side panel docks 420px on the right — there's enough
+ * horizontal room now that both read alongside each other rather
+ * than the panel obscuring half the molecule. */
+@media (min-width: 1024px) {
+  .vt-share-molecule {
+    aspect-ratio: auto;
+    height: 680px;
+    max-height: none;
+  }
+  .vt-share-molecule .molecule-panel {
+    width: min(420px, 38%);
   }
 }
 

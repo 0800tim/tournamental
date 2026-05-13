@@ -134,6 +134,12 @@ export interface OgImageInput {
   readonly handle?: string | null;
   readonly winner?: string | null;
   readonly size?: OgSize;
+  /** Predicted runner-up (silver) 3-letter code. */
+  readonly runnerUp?: string | null;
+  /** Predicted third-place (bronze) 3-letter code. */
+  readonly third?: string | null;
+  /** Avatar URL (absolute https or `/avatars/<id>.webp`). */
+  readonly avatarUrl?: string | null;
 }
 
 export function buildOgImageUrl(input: OgImageInput, basePath = "/api/og/bracket"): string {
@@ -142,6 +148,9 @@ export function buildOgImageUrl(input: OgImageInput, basePath = "/api/og/bracket
   if (input.handle) q.set("handle", input.handle);
   if (input.winner) q.set("winner", input.winner);
   if (input.size) q.set("size", input.size);
+  if (input.runnerUp) q.set("runner_up", input.runnerUp);
+  if (input.third) q.set("third", input.third);
+  if (input.avatarUrl) q.set("avatar", input.avatarUrl);
   return `${basePath}?${q.toString()}`;
 }
 

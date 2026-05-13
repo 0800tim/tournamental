@@ -84,6 +84,21 @@ export interface MoleculeSceneProps {
    * so the in-scene panel is redundant.
    */
   readonly hideSidePanel?: boolean;
+  /**
+   * 2026-05-14: override the team to auto-select on mount. The share
+   * landing passes the server-resolved champion here so a stranger
+   * viewing `/s/<guid>` lands on the actual predicted winner, not on
+   * the rank-favourite fallback that the local cascade picks when a
+   * stripped payload doesn't resolve a champion.
+   */
+  readonly initialSelectedTeam?: string | null;
+  /**
+   * 2026-05-14: when `true`, hide the stage legend (CHAMPION / FINAL /
+   * SEMIS / …) that sits behind the molecule. The share landing uses
+   * this so the molecule can claim full width without the column of
+   * labels competing for visual attention.
+   */
+  readonly hideStageLegend?: boolean;
 }
 
 function emptyBracket(): Bracket {
@@ -338,6 +353,8 @@ export function MoleculeScene({
   readOnly = false,
   suppressAutoSelect = false,
   hideSidePanel = false,
+  initialSelectedTeam = null,
+  hideStageLegend = false,
 }: MoleculeSceneProps) {
   const [userIdLocal, setUserIdLocal] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
@@ -408,6 +425,16 @@ export function MoleculeScene({
     // briefly open the rank-favourite panel and then snap to the user's
     // real champion when localStorage loads.
     if (typeof window === "undefined") return;
+    // `initialSelectedTeam` wins over the locally-cascaded champion:
+    // the share landing passes the server-resolved code here so a
+    // stranger viewer lands on the actual predicted winner even when
+    // the trimmed payload doesn't cascade cleanly client-side.
+    const explicit = initialSelectedTeam?.toUpperCase().trim() ?? null;
+    if (explicit) {
+      setSelected(explicit);
+      autoSelectedRef.current = true;
+      return;
+    }
     const champion = layout.championCode;
     if (champion) {
       setSelected(champion);
@@ -423,7 +450,7 @@ export function MoleculeScene({
       setSelected(fallback.id);
       autoSelectedRef.current = true;
     }
-  }, [layout.championCode, tournament.teams, suppressAutoSelect]);
+  }, [layout.championCode, tournament.teams, suppressAutoSelect, initialSelectedTeam]);
 
   // Stage-by-team map for the side panel pill. v4: every team has many
   // instances, but they all carry the same `finalStage`, so picking any
@@ -728,9 +755,9 @@ export function MoleculeScene({
         />
       </Canvas>
 
-      <MoleculeLayerLabels />
+      {hideStageLegend ? null : <MoleculeLayerLabels />}
 
-      <MoleculeLegend />
+      {hideStageLegend ? null : <MoleculeLegend />}
 
       {/* v5, small mode hint chip surfacing when the user toggled
        * "Rank Favourites" mode. Sits just below the PATH TO GOLD chip

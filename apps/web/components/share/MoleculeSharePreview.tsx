@@ -1,103 +1,146 @@
 "use client";
 
 /**
- * MoleculeSharePreview, the live "what you'll share" preview frame
- * on /world-cup-2026/save-share.
+ * BracketSharePreview — what the save-share visitor sees as their
+ * "this is the image that gets shared" preview.
  *
- * v6.1, "viral share landing" follow-up (2026-05-11). Tim's brief:
- * the visible preview on Save & share must MATCH the share image
- * pixel-for-pixel. The way we guarantee that is to mount the actual
- * MoleculeScene + panel inline here — the preview IS the capture
- * source. When the user hits "Download" or "Share", we run the same
- * `captureDomComposition` helper the floating capture button on
- * /world-cup-2026/molecule uses, and the resulting PNG is a literal
- * snapshot of what they're looking at.
+ * 2026-05-14: Tim swapped the live-mounted 3D molecule for a static
+ * preview of the OG image. The new viral renderer (v3-podium) produces
+ * a captivating podium-flag composition; that's the same PNG social
+ * platforms unfurl AND the same PNG the user downloads. Showing it as
+ * an `<img>` keeps the page-side preview pixel-identical to the share
+ * bytes, no DOM-to-canvas dance required.
  *
- * Implementation path B from the brief (live inline + client-side
- * capture). Path A was rejected because the existing
- * `/api/share/molecule-capture` endpoint requires a client-rendered
- * canvas dataURL upload, so a server-rendered preview would require
- * a brand-new molecule renderer on the server (headless Chrome) — a
- * non-starter for this PR.
- *
- * Why live mount rather than a placeholder `<img>` until capture:
- *   1. The user sees a moving 3D pyramid, which is far more engaging
- *      than a static thumbnail and matches the "viral hook" framing
- *      from Tim's 2026-05-11 brief.
- *   2. The molecule-page and save-share-page now look identical when
- *      viewed side-by-side, so the "what does my share image look
- *      like?" question has an obvious answer: it looks like THIS.
- *   3. The cost of running the R3F scene twice (molecule page +
- *      save-share page) is acceptable, this page is visited
- *      infrequently and the user is actively engaged. Hidden behind
- *      a `<Suspense>` boundary that defers the WebGL mount until the
- *      page has paint-ready DOM, so the initial LCP stays in budget.
- *
- * Cache: capture output is per-pose (the user can rotate the molecule
- * before clicking Share), so we don't cache the resulting blob across
- * format switches — we re-capture per click. The QR PNG fetched
- * during composition IS cached for the page session by
- * `dom-capture.ts`'s module-scope `qrCache`, keyed by `share_guid`.
- * The share_guid itself is stable per (user × bracketId × locked_at)
- * so re-saves bust the QR cache transparently.
+ * File kept under the old name `MoleculeSharePreview` so existing
+ * import sites continue to resolve while the rest of the share
+ * pipeline is refactored. A future rename to `BracketSharePreview`
+ * is cosmetic only.
  */
 
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 import type { Bracket, Tournament } from "@tournamental/bracket-engine";
+import { cascade } from "@tournamental/bracket-engine";
 
-import { MoleculeScene } from "@/components/molecule/MoleculeScene";
+import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 
-import "@/components/molecule/molecule.css";
+import { buildOgImageUrl, resolveShareGuid } from "@/lib/share/share-text";
+
 import "./molecule-share-preview.css";
 
 export interface MoleculeSharePreviewProps {
   readonly tournament: Tournament;
   /** The user's persisted bracket. Null until localStorage hydrates. */
   readonly bracket: Bracket | null;
+  /** Auth user id when signed in — used as the share guid. */
+  readonly authUserId?: string | null;
+  /** Display handle for the card header. */
+  readonly handle?: string | null;
+  /** Avatar URL (absolute or /avatars/<id>.webp). */
+  readonly avatarUrl?: string | null;
 }
 
 export function MoleculeSharePreview({
   tournament,
   bracket,
+  authUserId,
+  handle,
+  avatarUrl,
 }: MoleculeSharePreviewProps): JSX.Element {
-  // Deferred mount: WebGL takes ~200ms to spin up on a cold device,
-  // we keep the first paint cheap and hand control over to the R3F
-  // canvas a tick later.
-  const [shouldMount, setShouldMount] = useState(false);
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const id = window.requestAnimationFrame(() => setShouldMount(true));
-    return () => window.cancelAnimationFrame(id);
-  }, []);
+  // Re-run the cascade locally so we can pass the predicted podium
+  // codes to the OG endpoint. The renderer can also derive these from
+  // the knockoutPath fallback, but doing it here yields a faster card
+  // because the endpoint's optional game-service fetch can short-circuit.
+  const podium = useMemo(() => {
+    if (!bracket) return { champion: null, runnerUp: null, third: null };
+    return resolvePodium(tournament, bracket);
+  }, [tournament, bracket]);
+
+  const guid = useMemo(
+    () =>
+      resolveShareGuid({
+        serverShareGuid: null,
+        authUserId,
+        bracketId: bracket?.bracketId ?? null,
+      }),
+    [authUserId, bracket?.bracketId],
+  );
+
+  const ogUrl = useMemo(() => {
+    return buildOgImageUrl({
+      bracketId: guid,
+      handle: handle ?? null,
+      winner: podium.champion,
+      runnerUp: podium.runnerUp,
+      third: podium.third,
+      avatarUrl: avatarUrl ?? null,
+      size: "landscape",
+    });
+  }, [guid, handle, podium, avatarUrl]);
 
   return (
     <div
-      className="vt-ss-molecule-preview"
-      data-testid="vt-ss-molecule-preview"
-      aria-label="Your bracket as a 3D molecule, live preview"
+      className="vt-ss-bracket-preview"
+      data-testid="vt-ss-bracket-preview"
+      aria-label="Your share card preview"
     >
-      {shouldMount && bracket ? (
-        <MoleculeScene
-          tournament={tournament}
-          bracketOverride={bracket}
-          layoutMode="stable"
-          /* 2026-05-13 (Tim): the auto-opened champion panel was
-           * overlapping the molecule in this preview frame. We're
-           * about to replace this whole preview with a static podium
-           * card; meanwhile suppress the auto-select so users at least
-           * see the molecule cleanly. */
-          suppressAutoSelect
-          hideSidePanel
+      {bracket ? (
+        // The OG endpoint always responds with a renderable PNG even
+        // when fields are sparse, so the preview never sits on a
+        // broken-image icon during early hydration. Loading=eager so
+        // the preview slot doesn't flash empty.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={ogUrl}
+          alt="Your bracket share card"
+          width={1200}
+          height={630}
+          loading="eager"
+          decoding="async"
+          className="vt-ss-bracket-preview-img"
         />
       ) : (
-        <div className="vt-ss-molecule-preview-placeholder" role="status">
-          {bracket
-            ? "Loading molecule…"
-            : "No bracket saved yet. Pick at least one knockout match to see the live preview."}
+        <div className="vt-ss-bracket-preview-placeholder" role="status">
+          No bracket saved yet. Pick at least one knockout match to see
+          your shareable card.
         </div>
       )}
     </div>
   );
 }
 
+/** Cascade + extract champion / runner-up / bronze codes. */
+function resolvePodium(
+  tournament: Tournament,
+  bracket: Bracket,
+): { champion: string | null; runnerUp: string | null; third: string | null } {
+  const userId = "preview";
+  const legacy = bracketToCascadeInput(tournament, bracket, userId);
+  let result = cascade(tournament, legacy);
+  for (let pass = 0; pass < 6; pass += 1) {
+    const overlays = Object.values(bracket.knockoutPredictions)
+      .map((p) => {
+        const k = result.knockouts.find((x) => x.id === p.matchId);
+        if (!k) return null;
+        const team = p.outcome === "home_win" ? k.home.team : k.away.team;
+        return team ? { match_id: p.matchId, winner: team } : null;
+      })
+      .filter((x): x is { match_id: string; winner: string } => x !== null);
+    const before = result.knockouts.filter((k) => k.effective_winner).length;
+    result = cascade(tournament, { ...legacy, knockouts: overlays });
+    const after = result.knockouts.filter((k) => k.effective_winner).length;
+    if (after === before) break;
+  }
+  const final = result.knockouts.find((k) => k.stage === "f");
+  const tp = result.knockouts.find((k) => k.stage === "tp");
+  const champion = final?.effective_winner ?? final?.predicted_winner ?? null;
+  const runnerUp = final
+    ? final.effective_winner === final.home.team
+      ? final.away.team
+      : final.effective_winner === final.away.team
+        ? final.home.team
+        : null
+    : null;
+  const third = tp?.effective_winner ?? tp?.predicted_winner ?? null;
+  return { champion, runnerUp, third };
+}

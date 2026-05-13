@@ -60,6 +60,7 @@ export type { FontSpec } from "./fonts.js";
 // URL with QR code.
 export {
   renderBracketShareCard,
+  renderViralPodiumCard,
   paintBracketFrame,
   renderQrPng,
   resolveShareUrl,

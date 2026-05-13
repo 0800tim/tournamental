@@ -149,4 +149,18 @@ export interface BracketShareCardInput {
    * weight beyond the champion column.
    */
   readonly allEliminatedByStage?: ReadonlyArray<BracketShareEliminationTier>;
+  /**
+   * Optional absolute URL or path-relative URL to the user's avatar.
+   * The v3 viral podium card composites this top-left as a circular
+   * crop next to the handle. Older renderers ignore the field. Falls
+   * back to a silhouette if the fetch fails or the URL is missing.
+   */
+  readonly avatarUrl?: string | null;
+  /**
+   * Renderer variant selector. Defaults to `"v2-pyramid"` (the existing
+   * pyramid + podium card). `"v3-podium"` selects the viral redesign:
+   * big 3-flag podium, avatar + handle, champion-kit gradient, no
+   * pyramid silhouette.
+   */
+  readonly style?: "v2-pyramid" | "v3-podium";
 }

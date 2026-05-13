@@ -53,6 +53,7 @@ import type { NextRequest } from "next/server";
 
 import {
   renderBracketShareCard,
+  renderViralPodiumCard,
   type BracketShareCardInput,
   type CanvasCardSize,
 } from "@tournamental/social-cards";
@@ -106,7 +107,14 @@ export async function GET(req: NextRequest): Promise<Response> {
       ? await tryEnrichFromGameService(safeBracketId, inlineInput).catch(() => inlineInput)
       : inlineInput;
 
-    const png = await renderBracketShareCard({ ...enriched, size });
+    // Default to the v3 viral podium card (Tim 2026-05-14). The legacy
+    // v2 pyramid renderer stays available via ?style=v2-pyramid so old
+    // social posts whose unfurl image had been pre-cached can still be
+    // regenerated identically if needed.
+    const png =
+      enriched.style === "v2-pyramid"
+        ? await renderBracketShareCard({ ...enriched, size })
+        : await renderViralPodiumCard({ ...enriched, size });
 
     // Fire-and-forget on-disk cache. Keep the response on the hot path.
     void tryDiskCache(safeBracketId, size, png);
