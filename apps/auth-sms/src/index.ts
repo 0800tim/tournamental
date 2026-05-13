@@ -243,6 +243,8 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
       ),
       inboundCookieDomain:
         process.env.INBOUND_COOKIE_DOMAIN ?? '.tournamental.com',
+      magicLinkBaseUrl:
+        process.env.MAGIC_LINK_BASE_URL ?? 'https://play.tournamental.com/',
     },
     now: () => Date.now(),
     log: {

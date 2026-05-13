@@ -90,6 +90,7 @@ async function makeHarness(): Promise<Harness> {
       inboundMagicMaxAttempts: 5,
       inboundCodeIpFailureMax: 60,
       inboundCookieDomain: '.tournamental.com',
+      magicLinkBaseUrl: 'https://play.tournamental.com/',
     },
     now: () => now.value,
     log: { info: () => {}, warn: () => {}, error: () => {} },

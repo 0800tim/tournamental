@@ -229,6 +229,7 @@ async function makeHarness(opts: { telegramBotToken?: string } = {}): Promise<Ha
     inboundMagicMaxAttempts: 5,
     inboundCodeIpFailureMax: 60,
     inboundCookieDomain: '.tournamental.com',
+    magicLinkBaseUrl: 'https://play.tournamental.com/',
   };
   const ctx: AuthContext = {
     storage,

@@ -2,8 +2,8 @@
  * POST /v1/auth/magic-verify
  *
  * Front-end calls this when a user lands on
- * `https://tournamental.com?v=<token>` after tapping the one-tap
- * sign-in link from the inbound-login WhatsApp / SMS reply.
+ * `https://play.tournamental.com?v=<token>` after tapping the
+ * one-tap sign-in link from the inbound-login WhatsApp / SMS reply.
  *
  * Request body:   { token: string (64 hex chars) }
  * Response 200:   { jwt, expiresAt, user: { id, phone, displayName?, country? } }

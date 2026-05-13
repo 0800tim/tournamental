@@ -225,19 +225,18 @@ const absoluteOgImage = ogImage.startsWith("http")
         });
       })();
     </script>
-    {/* Magic-link consumer. When the user lands on
-        https://tournamental.com?v=<token> after tapping the one-tap
-        sign-in link from a WhatsApp / SMS reply, this script POSTs
-        the token to /v1/auth/magic-verify (the auth-sms service
-        proxied at api.tournamental.com), the service sets a
-        .tournamental.com session cookie, and we redirect into
-        play.tournamental.com (or `?next=` if supplied). On error we
-        show a friendly inline banner and clean the URL so a refresh
-        doesn't re-try a burned token.
+    {/* Magic-link bouncer. When the user lands on
+        https://tournamental.com?v=<token> (e.g. from an older
+        message body, or a press-page paste), bounce them straight to
+        play.tournamental.com with the token preserved. The play
+        app's MagicLinkConsumer does the actual verify there, so the
+        cookie is set against the surface the user actually wants to
+        be on. Marketing never authenticates anyone.
 
-        Runs on every page that uses this layout — the user might tap
-        the link from a footer-link share, a press-page paste, etc.
-        Cheap when ?v= is absent (single window.location check). */}
+        Token is preserved verbatim in the redirect URL, no fetch
+        happens on marketing — fastest possible bounce. ?next= is
+        forwarded so deep-links keep working. Cheap when ?v= is
+        absent (single window.location check). */}
     <script is:inline>
       (function () {
         try {
@@ -245,85 +244,19 @@ const absoluteOgImage = ogImage.startsWith("http")
           var token = params.get("v");
           if (!token || !/^[a-f0-9]{64}$/i.test(token)) return;
 
-          // Default endpoint. Override via <meta name="tnm-auth-base">
-          // for dev / staging.
-          var baseMeta = document.querySelector(
-            'meta[name="tnm-auth-base"]'
-          );
-          var base =
-            (baseMeta && baseMeta.getAttribute("content")) ||
-            "https://auth.tournamental.com";
-
           var next = params.get("next");
-          var safeNext =
-            next && /^\/[^\s]*$/.test(next)
-              ? next
-              : "https://play.tournamental.com/";
-
-          function showBanner(msg, kind) {
-            var b = document.createElement("div");
-            b.setAttribute("role", "status");
-            b.style.cssText =
-              "position:fixed;top:12px;left:50%;transform:translateX(-50%);" +
-              "z-index:9999;padding:12px 18px;border-radius:8px;" +
-              "font-family:system-ui,-apple-system,sans-serif;font-size:14px;" +
-              "background:" +
-              (kind === "ok" ? "#0e2548" : "#3a0e0e") +
-              ";color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.4);" +
-              "border:1px solid " +
-              (kind === "ok" ? "#3c8bcf" : "#cf3c3c") +
-              ";";
-            b.textContent = msg;
-            document.body.appendChild(b);
-            return b;
+          var target = new URL("https://play.tournamental.com/");
+          target.searchParams.set("v", token);
+          if (next && /^\/[^\s]*$/.test(next)) {
+            target.searchParams.set("next", next);
           }
 
-          var busy = showBanner("Signing you in…", "ok");
-
-          fetch(base.replace(/\/$/, "") + "/v1/auth/magic-verify", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json", Accept: "application/json" },
-            body: JSON.stringify({ token: token }),
-          })
-            .then(function (r) {
-              return r.json().then(function (body) {
-                return { ok: r.ok, status: r.status, body: body };
-              });
-            })
-            .then(function (res) {
-              busy.remove();
-              if (res.ok) {
-                // Clean the URL so refresh doesn't retry the now-burned
-                // token, then redirect.
-                try {
-                  history.replaceState(
-                    null,
-                    "",
-                    window.location.pathname
-                  );
-                } catch (e) {}
-                window.location.href = safeNext;
-                return;
-              }
-              var err = (res.body && res.body.error) || "verify-failed";
-              var human =
-                err === "fingerprint-mismatch"
-                  ? "This sign-in link was opened on a different device. Open the link on the device you used to message us, or paste the 6-digit code below."
-                  : err === "unknown-or-expired"
-                  ? "This sign-in link has expired or already been used. Message 'login' again to get a fresh one."
-                  : "Sign-in failed (" + err + "). Try again or paste the code.";
-              showBanner(human, "err");
-            })
-            .catch(function () {
-              busy.remove();
-              showBanner(
-                "Could not reach the sign-in service. Check your connection and try again.",
-                "err"
-              );
-            });
+          // replace() so the back button doesn't return to the
+          // tournamental.com?v=<token> URL (the token would already
+          // be burned by then).
+          window.location.replace(target.toString());
         } catch (e) {
-          /* never throw from a magic-link consumer; the page must still load */
+          /* never throw from a magic-link bouncer; the page must still load */
         }
       })();
     </script>

@@ -6,7 +6,7 @@ WhatsApp / SMS numbers. The
 sees the inbound message, calls our service with the user's phone
 number, gets back a 6-digit code + a one-tap magic-link token, and
 sends that as the outbound reply. The user either taps the link
-(consumed at `https://tournamental.com/?v=<token>` by the magic-link
+(consumed at `https://play.tournamental.com/?v=<token>` by the magic-link
 script in `apps/marketing/src/layouts/Layout.astro`) or pastes the
 code at [`/sign-in`](https://tournamental.com/sign-in).
 
@@ -72,7 +72,8 @@ proven by the shared secret).
 ### `POST /v1/auth/magic-verify` (browser → us)
 
 Called by the magic-link consumer script when the user lands on
-`https://tournamental.com/?v=<token>`.
+`https://play.tournamental.com/?v=<token>` (or whatever
+`MAGIC_LINK_BASE_URL` is set to on the auth-sms host).
 
 ```http
 POST /v1/auth/magic-verify HTTP/1.1
@@ -177,24 +178,34 @@ For the Aiva SMS gateway operator wiring this up:
 | Method + path | `POST /v1/auth/inbound-login` |
 | Auth header | `x-inbound-secret: <INBOUND_LOGIN_SECRET>` — value handed back out-of-band; see `apps/auth-sms/.env` |
 | Request body | `{ "phone": "+E164", "channel": "sms" \| "whatsapp" }` |
-| Response | `{ "success": true, "code": "<6 digits>", "magicToken": "<64 hex>" }` |
+| Response | `{ "success": true, "code": "<6 digits>", "magicToken": "<64 hex>", "magicLinkUrl": "<full URL>" }` |
 | Trigger keywords (recommended) | WhatsApp: `login`, `hi`, `hey`. SMS: `login`. Case-insensitive. |
 | Channels | WhatsApp (worldwide) + SMS (NZ + AU only — fall back to WhatsApp prompt for other countries) |
 
-Suggested reply template:
+Suggested reply template (preferred — uses `magicLinkUrl` verbatim so
+the destination is controlled server-side via the
+`MAGIC_LINK_BASE_URL` env var, default `https://play.tournamental.com/`):
 
 ```
 Your Tournamental login code is: *{code}*
 
 Tap to sign in instantly:
-https://tournamental.com/?v={magicToken}
+{magicLinkUrl}
 
 Or enter the code on the website. Expires in 5 minutes.
 ```
 
-The gateway should suppress the magic-link line if `magicToken` is
-absent from the response (which would only happen during a degraded
-state on our end — not the normal path).
+Legacy gateways that hardcoded the URL template can keep working by
+composing `<your-base>?v={magicToken}` — the `magicToken` field stays
+in the response for backwards compatibility — but new integrations
+should paste `magicLinkUrl` verbatim so any future change to the
+landing surface (e.g. a native-app deep-link) only requires an env
+var bump on the auth-sms side.
+
+The gateway should suppress the magic-link line if neither
+`magicLinkUrl` nor `magicToken` is present in the response (which
+would only happen during a degraded state on our end — not the
+normal path).
 
 ## Operational notes
 

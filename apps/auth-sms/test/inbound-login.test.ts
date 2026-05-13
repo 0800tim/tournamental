@@ -69,6 +69,7 @@ async function makeHarness() {
       inboundMagicMaxAttempts: 3,
       inboundCodeIpFailureMax: 5,
       inboundCookieDomain: '.tournamental.com',
+      magicLinkBaseUrl: 'https://play.tournamental.com/',
     },
     now: () => now.value,
     log: { info: () => {}, warn: () => {}, error: () => {} },
@@ -107,7 +108,7 @@ describe('POST /v1/auth/inbound-login', () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it('returns code + magicToken on a valid call', async () => {
+  it('returns code + magicToken + magicLinkUrl on a valid call', async () => {
     const res = await h.app.inject({
       method: 'POST',
       url: '/v1/auth/inbound-login',
@@ -119,6 +120,11 @@ describe('POST /v1/auth/inbound-login', () => {
     expect(body.success).toBe(true);
     expect(body.code).toMatch(/^\d{6}$/);
     expect(body.magicToken).toMatch(/^[a-f0-9]{64}$/);
+    // magicLinkUrl pastes the token into the configured base URL so
+    // the gateway can paste it verbatim into the user's reply.
+    expect(body.magicLinkUrl).toBe(
+      `https://play.tournamental.com/?v=${body.magicToken}`,
+    );
   });
 
   it('persists the OTP row with challenge + null binding fields', async () => {

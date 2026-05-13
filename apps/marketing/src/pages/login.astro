@@ -1,152 +1,35 @@
 ---
 /**
- * /login, phone-OTP or Telegram Login Widget.
+ * /login — legacy URL, now redirects to play.tournamental.com.
  *
- * The Telegram Login Widget loads `telegram-widget.js` which renders a
- * button keyed to `data-telegram-login`. On click it pops up an oauth
- * frame; on success it calls `window.onTelegramAuth(payload)` (set
- * below). We forward the payload to the auth-sms callback, store the
- * JWT, and redirect.
- *
- * BotFather setup (one-off):
- *   1. /setdomain → tournamental.com (and any other origins this widget
- *      should load on, e.g. localhost during dev).
- *   2. The bot's username (default `TournamentalBot`, override with
- *      `PUBLIC_TELEGRAM_BOT_USERNAME`) MUST match the bot whose token
- *      apps/auth-sms uses to verify the signature.
+ * Sign-in lives on the play surface; the marketing site does not
+ * authenticate users. Telegram, phone, and email sign-in all run
+ * inside the play app's SignupModal.
  */
-import Layout from "@/layouts/Layout.astro";
-
-const AUTH_API_BASE =
-  import.meta.env.PUBLIC_AUTH_API_URL ?? "https://auth.tournamental.com";
-const TG_BOT_USERNAME =
-  import.meta.env.PUBLIC_TELEGRAM_BOT_USERNAME ?? "TournamentalBot";
-const BRACKET_URL =
-  import.meta.env.PUBLIC_BRACKET_URL ?? "https://play.tournamental.com/";
 ---
-<Layout
-  title="Sign in · Tournamental"
-  description="Sign in with your phone number or with Telegram. No passwords."
->
-  <section class="container-page pt-16 pb-12">
-    <div class="max-w-xl mx-auto card">
-      <h1 class="text-3xl font-bold text-white">Sign in to Tournamental</h1>
-      <p class="text-ink-200 mt-2">
-        We never use passwords. Pick the path that's easiest for you.
-      </p>
-
-      <div class="mt-8 space-y-6">
-        <div>
-          <h2 class="text-lg font-semibold text-white">Telegram</h2>
-          <p class="text-ink-200 text-sm mt-1">
-            One tap. We'll never see your phone unless you choose to share it.
-          </p>
-          <div id="vt-telegram-mount" class="mt-3"></div>
-          <p
-            id="vt-tg-status"
-            class="text-sm mt-3 hidden"
-            role="status"
-            aria-live="polite"
-          ></p>
-          {/* Per the legal team: the consent notice must appear ABOVE
-              the send-code action and must name the OTP delivery
-              partners explicitly. Mirrored from the phone block
-              below. */}
-          <p class="text-ink-500 text-xs mt-4">
-            By continuing, you agree to our
-            <a class="link" href="/legal/terms">Terms</a> and
-            <a class="link" href="/legal/privacy">Privacy Policy</a>.
-            We send SMS, WhatsApp and email codes via Aiva SMS and
-            Supabase. Standard message rates may apply.
-          </p>
-        </div>
-
-        <div class="border-t border-ink-700 pt-6">
-          <h2 class="text-lg font-semibold text-white">Phone or email</h2>
-          <p class="text-ink-200 text-sm mt-1">
-            We'll text, WhatsApp or email a 6-digit code.
-          </p>
-          <p class="text-ink-500 text-xs mt-3">
-            By continuing, you agree to our
-            <a class="link" href="/legal/terms">Terms</a> and
-            <a class="link" href="/legal/privacy">Privacy Policy</a>.
-            We send SMS, WhatsApp and email codes via Aiva SMS and
-            Supabase. Standard message rates may apply.
-          </p>
-          <a class="btn-primary inline-block mt-3" href={BRACKET_URL + "auth"}>
-            Continue with phone or email →
-          </a>
-        </div>
-      </div>
-
-      <p class="text-ink-500 text-xs mt-8">
-        See also our
-        <a class="link" href="/legal/cookies">Cookie Notice</a>.
-      </p>
-    </div>
-  </section>
-
-  <script
-    define:vars={{
-      AUTH_API_BASE,
-      TG_BOT_USERNAME,
-      BRACKET_URL,
-    }}
-    is:inline
-  >
-    (function () {
-      const mount = document.getElementById("vt-telegram-mount");
-      const status = document.getElementById("vt-tg-status");
-      if (!mount) return;
-
-      // The Telegram widget calls `window[<callback name>]` on auth.
-      window.onVtournTelegramAuth = function (payload) {
-        if (status) {
-          status.textContent = "Verifying…";
-          status.classList.remove("hidden");
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Sign in · Tournamental</title>
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url=https://play.tournamental.com/" />
+    <link rel="canonical" href="https://play.tournamental.com/" />
+  </head>
+  <body>
+    <script is:inline>
+      (function () {
+        try {
+          var search = window.location.search || "";
+          var hash = window.location.hash || "";
+          window.location.replace("https://play.tournamental.com/" + search + hash);
+        } catch (e) {
+          window.location.href = "https://play.tournamental.com/";
         }
-        fetch(AUTH_API_BASE + "/v1/auth/telegram/callback", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(payload),
-        })
-          .then(function (r) {
-            return r.json().then(function (b) {
-              return { ok: r.ok, body: b };
-            });
-          })
-          .then(function (res) {
-            if (!res.ok || !res.body || !res.body.jwt) {
-              throw new Error(res.body && res.body.error ? res.body.error : "verify-failed");
-            }
-            try {
-              window.localStorage.setItem("vtourn_jwt", res.body.jwt);
-            } catch (_) {
-              /* storage disabled, proceed anyway */
-            }
-            const next = new URL(window.location.href).searchParams.get("next");
-            window.location.href = next || BRACKET_URL;
-          })
-          .catch(function (err) {
-            if (status) {
-              status.textContent =
-                "Couldn't sign in with Telegram (" + (err && err.message ? err.message : "error") + "). Try again or use your phone.";
-              status.classList.remove("hidden");
-            }
-          });
-      };
-
-      // Inject the widget script.
-      const s = document.createElement("script");
-      s.src = "https://telegram.org/js/telegram-widget.js?22";
-      s.async = true;
-      s.setAttribute("data-telegram-login", TG_BOT_USERNAME);
-      s.setAttribute("data-size", "large");
-      s.setAttribute("data-radius", "8");
-      s.setAttribute("data-userpic", "true");
-      s.setAttribute("data-request-access", "write");
-      s.setAttribute("data-onauth", "onVtournTelegramAuth(user)");
-      mount.appendChild(s);
-    })();
-  </script>
-</Layout>
+      })();
+    </script>
+    <noscript>
+      <p>Sign in has moved. <a href="https://play.tournamental.com/">Open the Tournamental play app</a>.</p>
+    </noscript>
+  </body>
+</html>

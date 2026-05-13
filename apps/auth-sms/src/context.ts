@@ -79,6 +79,16 @@ export interface AuthContext {
      * tournamental.com (marketing) and play.tournamental.com (web app).
      */
     inboundCookieDomain: string;
+    /**
+     * Base URL the magic-link is built against in the inbound-login
+     * response. The Aiva gateway pastes `magicLinkUrl` verbatim into
+     * the user's outbound reply, so this controls where the user
+     * lands after tapping the one-tap sign-in link. Default
+     * `https://play.tournamental.com/` — the play app's
+     * `MagicLinkConsumer` reads `?v=<token>` directly so the user
+     * stays on the surface they actually want to be on.
+     */
+    magicLinkBaseUrl: string;
   };
   /** Time source — overridable for tests. */
   now: () => number;

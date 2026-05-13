@@ -18,17 +18,20 @@
  * caller; the public web never hits this route.
  *
  * Request body:  { phone: string (E.164), channel: 'sms' | 'whatsapp' }
- * Response 200:  { success: true, code: string, magicToken: string }
+ * Response 200:  { success: true, code: string, magicToken: string, magicLinkUrl: string }
  * Response 400:  { error: 'bad-body' | 'bad-phone' | 'bad-channel' }
  * Response 401:  { error: 'bad-secret' }
  * Response 429:  { error: 'rate-limited', retryAfterSeconds, reason }
  *
- * Why we return `magicToken` (unlike some receivers that keep it
- * server-side): we want the outbound reply to contain a tappable
- * https://tournamental.com?v=<token> link so the user can sign in
- * with a single tap on the device they messaged us from. The token
- * is single-use, expires in 5 minutes, and binds to the first device
- * that uses it via `magic-verify` / `verify-by-code`.
+ * Why we return both `magicToken` and the full `magicLinkUrl`: the
+ * Aiva gateway pastes `magicLinkUrl` verbatim into the user's
+ * outbound reply, so the destination is controlled here (env var
+ * MAGIC_LINK_BASE_URL, default https://play.tournamental.com/) rather
+ * than hardcoded gateway-side. `magicToken` is still surfaced for
+ * gateways that want to compose their own URL or build a deep-link
+ * into a native app. The token is single-use, expires in 5 minutes,
+ * and binds to the first device that uses it via `magic-verify` /
+ * `verify-by-code`.
  */
 
 import type { FastifyInstance, FastifyRequest } from 'fastify';
@@ -168,10 +171,38 @@ export async function registerInboundLogin(
       reason: 'ok',
     });
 
+    // Build the full magic-link URL the gateway should paste into the
+    // outbound reply. Single source of truth — change MAGIC_LINK_BASE_URL
+    // here and every channel picks it up on next request.
+    const magicLinkUrl = buildMagicLinkUrl(
+      ctx.config.magicLinkBaseUrl,
+      magicToken,
+    );
+
     return reply.code(200).send({
       success: true,
       code,
       magicToken,
+      magicLinkUrl,
     });
   });
+}
+
+/**
+ * Append `?v=<token>` to the configured base URL. Preserves any
+ * existing path/query on the base so operators can point it at e.g.
+ * `https://play.tournamental.com/world-cup-2026?utm_source=otp` if
+ * they want UTM tracking on every magic-link tap. Falls back to a
+ * safe string concatenation if URL parsing fails (very rare, only
+ * with a totally malformed env var).
+ */
+export function buildMagicLinkUrl(baseUrl: string, token: string): string {
+  try {
+    const u = new URL(baseUrl);
+    u.searchParams.set('v', token);
+    return u.toString();
+  } catch {
+    const sep = baseUrl.includes('?') ? '&' : '?';
+    return `${baseUrl}${sep}v=${encodeURIComponent(token)}`;
+  }
 }
