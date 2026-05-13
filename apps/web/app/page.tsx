@@ -155,6 +155,11 @@ export default function HomePage(): JSX.Element {
         <section className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
           <div className="vt-home-step-tag vt-home-step-tag-headline">Step 3 · Bring your friends</div>
           <h2 className="vt-home-h2">Run a syndicate. Brand it your way.</h2>
+          <p className="vt-home-claim">
+            The only World Cup prediction platform where anyone can launch a fully
+            branded, embeddable syndicate with custom prize splits and verifiable
+            on-chain settlement — in minutes.
+          </p>
           <p className="vt-home-p">
             A syndicate is your own branded prediction pool. Pick a name, drop the embed
             widget on any site (Squarespace, WordPress, Shopify, your blog), and run a

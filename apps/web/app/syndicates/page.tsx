@@ -114,6 +114,11 @@ export default function SyndicatesIndexPage(): JSX.Element {
         <section className="vt-syndicates-hero">
           <span className="vt-syndicates-eyebrow">Syndicates · Free forever</span>
           <h1 className="vt-syndicates-title">The whole tournament, gamified for your audience.</h1>
+          <p className="vt-syndicates-claim">
+            The only World Cup prediction platform where anyone can launch a fully
+            branded, embeddable syndicate with custom prize splits and verifiable
+            on-chain settlement — in minutes.
+          </p>
           <p className="vt-syndicates-lede">
             A syndicate is your own branded prediction pool. Drop the embed widget on any site,
             run a six-week game with your own prize. Free forever; premium adds a fully-managed

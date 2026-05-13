@@ -67,13 +67,15 @@ export function CountdownBanner({
 
   return (
     <section className="vt-countdown" aria-live="polite">
-      <p className="vt-countdown-eyebrow">{parts.elapsed ? pastLabel : eyebrow}</p>
-      <h2 className="vt-countdown-title">{title}</h2>
+      <div className="vt-countdown-head">
+        <p className="vt-countdown-eyebrow">{parts.elapsed ? pastLabel : eyebrow}</p>
+        <h2 className="vt-countdown-title">{title}</h2>
+      </div>
       <div className="vt-countdown-grid">
         <Cell value={parts.days} label="Days" />
-        <Cell value={parts.hours} label="Hours" />
-        <Cell value={parts.minutes} label="Minutes" />
-        <Cell value={parts.seconds} label="Seconds" />
+        <Cell value={parts.hours} label="Hrs" />
+        <Cell value={parts.minutes} label="Min" />
+        <Cell value={parts.seconds} label="Sec" />
       </div>
     </section>
   );

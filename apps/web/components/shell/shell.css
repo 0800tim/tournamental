@@ -69,10 +69,12 @@
 }
 
 @media (min-width: 768px) {
-  /* Desktop: AppBar grows to fit the second nav row. Canvas variant
-   * keeps the slimmer single-row bar because hideDesktopNav is true. */
+  /* Desktop (Tim 2026-05-13): drop the docked nav entirely. The whole
+   * shell scrolls together — only a floating burger remains pinned in
+   * the top-right (see `.vt-appbar` override below). Reclaims ~100px
+   * of vertical space and lets every page own its own viewport. */
   .vt-shell:not([data-variant="canvas"]) {
-    --vt-shell-appbar-h: calc(56px + var(--vt-shell-appbar-nav-h));
+    --vt-shell-appbar-h: 0px;
   }
 }
 
@@ -225,6 +227,42 @@
 .vt-appbar-burger svg {
   width: 24px;
   height: 24px;
+}
+
+/* Desktop (Tim 2026-05-13, revised): the AppBar (brand + title +
+ * horizontal nav links) scrolls with the page rather than docking.
+ * Only the burger menu remains pinned top-right so the drawer is
+ * always one click away. Canvas variant keeps its own minimal floating
+ * bar (DesktopNav hidden via hideDesktopNav prop), so this scoped to
+ * the default variant. */
+@media (min-width: 768px) {
+  .vt-shell[data-variant="default"] .vt-appbar {
+    position: static;
+    height: auto;
+    background: var(--vt-bg, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-bottom: 1px solid var(--vt-border);
+  }
+
+  .vt-shell[data-variant="default"] .vt-appbar[data-scrolled="1"] {
+    background: var(--vt-bg, transparent);
+  }
+
+  /* The burger lives inside the AppBar's grid cell on mobile; on
+   * desktop we lift it out of the flow and pin it to the viewport so
+   * it stays one click away no matter how far the user has scrolled. */
+  .vt-shell[data-variant="default"] .vt-appbar-menu {
+    position: fixed;
+    top: 14px;
+    right: 16px;
+    background: var(--vt-bg-overlay, rgba(10, 14, 26, 0.78));
+    backdrop-filter: blur(12px) saturate(160%);
+    -webkit-backdrop-filter: blur(12px) saturate(160%);
+    border-color: var(--vt-border-strong, rgba(255, 255, 255, 0.14));
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.32);
+    z-index: 40;
+  }
 }
 
 .vt-appbar-title {
@@ -748,6 +786,16 @@
   top: var(--vt-shell-appbar-h);
   background: var(--vt-bg);
   z-index: 20;
+}
+
+/* Desktop: let the microsite sub-nav scroll with the page rather than
+ * dock under a non-existent appbar (--vt-shell-appbar-h is 0 on desktop
+ * so it would otherwise stick flush to the viewport top, competing for
+ * attention with the floating burger). */
+@media (min-width: 768px) {
+  .vt-shell[data-variant="default"] .vt-page-header {
+    position: static;
+  }
 }
 
 .vt-page-content {

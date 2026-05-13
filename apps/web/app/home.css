@@ -185,6 +185,25 @@
   max-width: 64ch;
 }
 
+/* Hero differentiator claim. Sits between the section h2 and the
+ * explanatory paragraph; styled bolder + with an amber accent stripe
+ * so it reads as the headline statement of intent. */
+.vt-home-claim {
+  position: relative;
+  margin: -4px 0 14px;
+  padding: 12px 16px 12px 18px;
+  font: 600 15px/1.5 -apple-system, system-ui, sans-serif;
+  color: #f5f7fb;
+  background: linear-gradient(
+    90deg,
+    rgba(251, 191, 36, 0.08),
+    rgba(251, 191, 36, 0)
+  );
+  border-left: 3px solid #fbbf24;
+  border-radius: 6px;
+  max-width: 64ch;
+}
+
 .vt-home-bullets {
   list-style: none;
   padding: 0;
