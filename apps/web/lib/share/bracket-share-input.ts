@@ -114,7 +114,7 @@ export function inputFromSearchParams(args: {
   );
 
   // Optional avatar URL passed by the caller (the OG route passes
-  // `avatar=/avatars/<userId>.webp` for authed users). Absolute https
+  // `avatar=/avatars/<userId>.jpg` for authed users). Absolute https
   // URLs also accepted. The viral renderer falls back to a silhouette
   // when this is empty or the fetch fails.
   const avatarRaw = searchParams.get("avatar");

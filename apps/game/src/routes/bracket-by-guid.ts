@@ -47,6 +47,7 @@ export type { KnockoutPathEntry } from "./bracket-cascade-summary.js";
 
 export interface BracketByGuidPayload {
   readonly share_guid: string;
+  readonly user_id: string;
   readonly user_handle: string | null;
   readonly tournament_id: string;
   readonly champion_code: string | null;
@@ -268,6 +269,7 @@ export async function registerBracketByGuidRoutes(
       ok: true,
       bracket: {
         share_guid: row.share_guid ?? guid,
+        user_id: row.user_id,
         user_handle: null,
         tournament_id: row.tournament_id,
         champion_code: summary.champion_code,

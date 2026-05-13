@@ -138,7 +138,7 @@ export interface OgImageInput {
   readonly runnerUp?: string | null;
   /** Predicted third-place (bronze) 3-letter code. */
   readonly third?: string | null;
-  /** Avatar URL (absolute https or `/avatars/<id>.webp`). */
+  /** Avatar URL (absolute https or `/avatars/<id>.jpg`). */
   readonly avatarUrl?: string | null;
 }
 

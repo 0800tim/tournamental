@@ -393,15 +393,17 @@ export function ShareSavePage({
         : null;
       const tpK = cascaded?.knockouts.find((k) => k.stage === "tp");
       const thirdCode = tpK?.effective_winner ?? tpK?.predicted_winner ?? null;
+      const effectiveHandle =
+        handle ?? auth.profile?.display_name ?? auth.profile?.handle ?? null;
       const url = buildOgImageUrl({
         bracketId: guid,
-        handle: handle ?? null,
+        handle: effectiveHandle,
         winner: championCode ?? null,
         runnerUp: runnerCode ?? null,
         third: thirdCode ?? null,
         avatarUrl:
           authUserId ?? auth.user?.id
-            ? `/avatars/${authUserId ?? auth.user?.id}.webp`
+            ? `/avatars/${authUserId ?? auth.user?.id}.jpg`
             : null,
         size: s,
       });
@@ -585,10 +587,15 @@ export function ShareSavePage({
           tournament={tournament}
           bracket={bracket}
           authUserId={authUserId ?? auth.user?.id ?? null}
-          handle={handle ?? null}
+          handle={
+            handle ??
+            auth.profile?.display_name ??
+            auth.profile?.handle ??
+            null
+          }
           avatarUrl={
             authUserId || auth.user?.id
-              ? `/avatars/${authUserId ?? auth.user?.id}.webp`
+              ? `/avatars/${authUserId ?? auth.user?.id}.jpg`
               : null
           }
         />

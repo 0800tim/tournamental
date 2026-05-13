@@ -56,6 +56,14 @@ export interface PathToGoldEntry {
 export interface BracketByGuid {
   readonly bracket_id: string;
   readonly handle: string;
+  /** Owner's auth user id, opaque to the share page. Used to compose
+   *  the avatar URL (`/avatars/<user_id>.jpg`). */
+  readonly user_id: string | null;
+  /** Owner's display name from their profile (e.g. "Tim Thomas").
+   *  Falls back to the handle when the user hasn't set one. */
+  readonly display_name: string | null;
+  /** Path to the owner's avatar; `null` when not uploaded. */
+  readonly avatar_url: string | null;
   readonly saved_at: string; // ISO-8601, the bracket commit timestamp
   readonly tournament_id: string;
   readonly tournament_label: string;
@@ -106,6 +114,10 @@ const TOURNAMENT_LABEL: Record<string, string> = {
  */
 interface UpstreamBracket {
   readonly share_guid: string;
+  /** Owner's auth user id (e.g. `u_<hex>` for auth-sms users, UUID for
+   *  legacy Supabase). Used by the web resolver to look up the
+   *  display name and avatar URL for the hero. */
+  readonly user_id?: string;
   readonly user_handle: string | null;
   readonly tournament_id: string;
   readonly champion_code: string | null;
@@ -222,14 +234,85 @@ export async function loadBracketFromGuid(
     if (!res.ok) return null;
     const data = (await res.json()) as UpstreamResponse | null;
     if (!data || !data.ok || !data.bracket) return null;
-    return normaliseUpstream(data.bracket);
+    // Side-fetch the owner's public profile so the hero can render
+    // their display name + avatar. Best-effort: a failure here just
+    // falls back to "Anonymous" / silhouette.
+    const ownerProfile = data.bracket.user_id
+      ? await loadOwnerProfile(data.bracket.user_id, fetchImpl)
+      : null;
+    return normaliseUpstream(data.bracket, ownerProfile);
   } catch {
     clearTimeout(timer);
     return null;
   }
 }
 
-function normaliseUpstream(b: UpstreamBracket): BracketByGuid {
+interface OwnerPublicProfile {
+  readonly displayName: string | null;
+  readonly firstName: string | null;
+  readonly country: string | null;
+}
+
+function resolveAuthApiBase(): string {
+  const isServer = typeof window === "undefined";
+  if (isServer) {
+    return (
+      process.env.AUTH_API_BASE ??
+      process.env.AUTH_API_URL ??
+      process.env.NEXT_PUBLIC_AUTH_BASE_URL ??
+      process.env.NEXT_PUBLIC_AUTH_API_URL ??
+      "http://localhost:18803"
+    );
+  }
+  return (
+    process.env.NEXT_PUBLIC_AUTH_BASE_URL ??
+    process.env.NEXT_PUBLIC_AUTH_API_URL ??
+    ""
+  );
+}
+
+async function loadOwnerProfile(
+  userId: string,
+  fetchImpl: typeof fetch,
+): Promise<OwnerPublicProfile | null> {
+  const base = resolveAuthApiBase().replace(/\/+$/, "");
+  if (!base) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 800);
+  try {
+    const res = await fetchImpl(
+      `${base}/v1/auth/users/${encodeURIComponent(userId)}/public`,
+      {
+        signal: ctrl.signal,
+        cache: "no-store",
+        headers: { accept: "application/json" },
+      },
+    );
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const body = (await res.json()) as {
+      user?: {
+        displayName?: string | null;
+        firstName?: string | null;
+        country?: string | null;
+      };
+    };
+    if (!body?.user) return null;
+    return {
+      displayName: body.user.displayName ?? null,
+      firstName: body.user.firstName ?? null,
+      country: body.user.country ?? null,
+    };
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
+function normaliseUpstream(
+  b: UpstreamBracket,
+  owner?: OwnerPublicProfile | null,
+): BracketByGuid {
   const champion = teamLite(b.champion_code);
   const runner_up = teamLite(b.runner_up_code);
   const third_place = teamLite(b.third_place_code);
@@ -258,7 +341,18 @@ function normaliseUpstream(b: UpstreamBracket): BracketByGuid {
     };
   });
 
-  const handle = b.user_handle ?? "Anonymous";
+  // Compose the handle: prefer the owner profile's display name, then
+  // their first name, then the upstream-provided handle, finally
+  // "Anonymous". This is what shows above the podium and inside the
+  // "@<handle>" share text.
+  const handle =
+    owner?.displayName?.trim() ||
+    owner?.firstName?.trim() ||
+    b.user_handle ||
+    "Anonymous";
+  const displayName = owner?.displayName?.trim() || null;
+  const userId = b.user_id ?? null;
+  const avatarUrl = userId ? `/avatars/${userId}.jpg` : null;
   const saved_at = b.locked_at ?? new Date(0).toISOString();
   const tournament_label =
     TOURNAMENT_LABEL[b.tournament_id] ?? b.tournament_id;
@@ -266,6 +360,9 @@ function normaliseUpstream(b: UpstreamBracket): BracketByGuid {
   return {
     bracket_id: b.share_guid,
     handle,
+    user_id: userId,
+    display_name: displayName,
+    avatar_url: avatarUrl,
     saved_at,
     tournament_id: b.tournament_id,
     tournament_label,

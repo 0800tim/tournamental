@@ -1,27 +1,28 @@
 /**
  * POST /api/v1/profile/avatar
  *
- * Filesystem-backed avatar upload. Stores a 256×256 webp to
- * `apps/web/public/avatars/<userId>.webp` keyed on the authenticated
- * user. The URL is then deterministic: `/avatars/<userId>.webp` works
- * as long as the file exists, and clients can fall back to a default
- * silhouette if a 404 happens (the share card, syndicate UI, etc.).
+ * Filesystem-backed avatar upload. Stores an 800×800 JPEG @ 80% to
+ * `apps/web/public/avatars/<userId>.jpg` keyed on the authenticated
+ * user. The URL is deterministic: `/avatars/<userId>.jpg` works as
+ * long as the file exists, and clients fall back to a silhouette
+ * when a 404 happens (share card, syndicate UI, etc.).
  *
- * Cloudflare caches `/avatars/*` aggressively (Next static handler
- * serves with long max-age + immutable hash via filename; we don't
- * fingerprint per-version so a re-upload races CF, see DELETE below
- * for the invalidation path).
+ * Tim 2026-05-14: clients resize + JPEG-encode in-browser before
+ * upload (see `components/profile/AvatarCropperModal.tsx`), so the
+ * server only ever sees ~30–120 KB. We still run sharp on the way
+ * in to enforce the canonical 800×800 / 80% target — a malicious
+ * client could otherwise upload a 12 MB JPEG and waste disk.
  *
  *   - Auth required: tnm_session cookie. 401 otherwise.
  *   - Body: multipart/form-data with a `file` field.
- *   - Validation: jpeg/png/webp/gif, max 5 MiB pre-resize.
- *   - Output: square-cropped, 256×256, webp quality 86. Deterministic
+ *   - Validation: jpeg/png/webp/gif, hard cap 12 MiB (well above the
+ *     client-side resize target so we never reject a legitimate
+ *     upload; just a guardrail against abuse).
+ *   - Output: square-cropped, 800×800 JPEG @ quality 80. Deterministic
  *     filename means the second upload OVERWRITES the first.
  *
  * DELETE removes the file so the user can revert to the default
- * silhouette. The two methods are the only public ones; GET reads
- * straight from /avatars/<userId>.webp via the static handler so it's
- * not implemented here.
+ * silhouette.
  */
 
 import { promises as fs } from "node:fs";
@@ -36,7 +37,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const AVATAR_DIR = join(process.cwd(), "public", "avatars");
-const MAX_BYTES = 5 * 1024 * 1024;
+// Generous cap — clients resize to 800×800 JPEG @ 80% before uploading,
+// so legitimate requests sit well under 1 MB. The 12 MiB ceiling
+// guards against a malicious upload that bypasses the client.
+const MAX_BYTES = 12 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/gif"]);
 
 function jsonResponse(body: unknown, status: number): Response {
@@ -82,16 +86,23 @@ export async function POST(req: NextRequest): Promise<Response> {
   try {
     resized = await sharp(buf, { failOn: "error" })
       .rotate() // honour EXIF orientation
-      .resize(256, 256, { fit: "cover", position: "centre" })
-      .webp({ quality: 86 })
+      .resize(800, 800, { fit: "cover", position: "centre" })
+      .jpeg({ quality: 80, mozjpeg: true })
       .toBuffer();
   } catch {
     return jsonResponse({ error: "image_decode_failed" }, 400);
   }
 
   await fs.mkdir(AVATAR_DIR, { recursive: true });
-  const filename = `${userId}.webp`;
+  const filename = `${userId}.jpg`;
   await fs.writeFile(join(AVATAR_DIR, filename), resized);
+
+  // Clean up any older webp from the previous filename convention so
+  // we don't serve a stale image when clients probe the legacy path.
+  const legacyWebp = join(AVATAR_DIR, `${userId}.webp`);
+  fs.unlink(legacyWebp).catch(() => {
+    /* file didn't exist — fine */
+  });
 
   return jsonResponse(
     { ok: true, url: `/avatars/${filename}?v=${Date.now()}` },
@@ -105,11 +116,11 @@ export async function DELETE(req: NextRequest): Promise<Response> {
   const userId = safeUserId(session.userId);
   if (!userId) return jsonResponse({ error: "bad_user_id" }, 400);
 
-  const filename = join(AVATAR_DIR, `${userId}.webp`);
-  try {
-    await fs.unlink(filename);
-  } catch {
-    // File already gone is fine.
-  }
+  // Remove both the current (.jpg) and legacy (.webp) names so
+  // re-uploading later doesn't accidentally surface a stale webp.
+  await Promise.allSettled([
+    fs.unlink(join(AVATAR_DIR, `${userId}.jpg`)),
+    fs.unlink(join(AVATAR_DIR, `${userId}.webp`)),
+  ]);
   return jsonResponse({ ok: true }, 200);
 }

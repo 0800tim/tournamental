@@ -36,7 +36,7 @@ export interface MoleculeSharePreviewProps {
   readonly authUserId?: string | null;
   /** Display handle for the card header. */
   readonly handle?: string | null;
-  /** Avatar URL (absolute or /avatars/<id>.webp). */
+  /** Avatar URL (absolute or /avatars/<id>.jpg). */
   readonly avatarUrl?: string | null;
 }
 

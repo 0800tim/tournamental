@@ -153,14 +153,37 @@ export default async function SharePage({ params }: PageProps) {
 // ── User landing ────────────────────────────────────────────────────
 
 function UserLanding({ bracket }: { bracket: BracketByGuid }) {
-  const { handle, champion, runner_up, third_place, path_to_gold, tournament_label, saved_at } =
-    bracket;
+  const {
+    handle,
+    display_name,
+    avatar_url,
+    champion,
+    runner_up,
+    third_place,
+    path_to_gold,
+    tournament_label,
+    saved_at,
+  } = bracket;
   const savedDisplay = formatSavedAt(saved_at);
 
   return (
     <section className="vt-share vt-share-user" data-testid="share-user-landing">
-      <header className="vt-share-hero">
-        <span className="vt-share-hero-eyebrow">{tournament_label}</span>
+      <header className="vt-share-hero vt-share-hero-user">
+        {/* Tim 2026-05-14: the owner is the hero of the share landing.
+          * Big avatar + handle so creators feel featured when they
+          * post these to their audience. */}
+        <div className="vt-share-owner" data-testid="share-owner">
+          <UserAvatar src={avatar_url} alt={display_name ?? handle} />
+          <div className="vt-share-owner-text">
+            <span className="vt-share-owner-handle">
+              {display_name ? display_name : `@${handle}`}
+            </span>
+            {display_name ? (
+              <span className="vt-share-owner-sub">@{handle}</span>
+            ) : null}
+            <span className="vt-share-hero-eyebrow">{tournament_label}</span>
+          </div>
+        </div>
         <h1 className="vt-share-hero-title">
           <span className="vt-share-flag" aria-hidden>
             {champion.flag_emoji}
@@ -168,7 +191,7 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
           <span>{champion.name}</span>
         </h1>
         <p className="vt-share-hero-subhead">
-          @{handle} picked {champion.name} to lift the trophy
+          picked {champion.name} to lift the trophy
         </p>
       </header>
 
@@ -245,6 +268,42 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
  * row used). On mobile the row collapses to a stacked column with
  * the gold tile slightly enlarged.
  */
+/**
+ * Big circular avatar for the share-landing hero. Falls back to a
+ * neutral silhouette when the owner hasn't uploaded one (so we never
+ * flash a broken-image icon when a stranger lands here).
+ */
+function UserAvatar({ src, alt }: { src: string | null; alt: string }) {
+  return (
+    <span className="vt-share-owner-avatar" data-has-image={src ? "1" : "0"}>
+      {src ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={src} alt={alt} width={96} height={96} loading="eager" />
+      ) : (
+        <svg
+          viewBox="0 0 96 96"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <defs>
+            <linearGradient id="vt-avatar-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#26314a" />
+              <stop offset="1" stopColor="#0f1422" />
+            </linearGradient>
+          </defs>
+          <rect width="96" height="96" rx="48" fill="url(#vt-avatar-grad)" />
+          <circle cx="48" cy="38" r="14" fill="#94a3b8" opacity="0.6" />
+          <path
+            d="M16 88c4-18 18-26 32-26s28 8 32 26z"
+            fill="#94a3b8"
+            opacity="0.55"
+          />
+        </svg>
+      )}
+    </span>
+  );
+}
+
 function PodiumHeroTile({
   rank,
   team,

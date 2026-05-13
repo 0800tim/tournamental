@@ -1,7 +1,7 @@
 /**
  * Avatar URL helpers — single source of truth for "where does a user's
  * avatar live on the web". The bytes are stored at
- * `public/avatars/<userId>.webp` (see app/api/v1/profile/avatar/route.ts)
+ * `public/avatars/<userId>.jpg` (see app/api/v1/profile/avatar/route.ts)
  * and served via Next's static handler, so the URL is deterministic.
  *
  * `DEFAULT_AVATAR_DATA_URI` is a 96×96 silhouette inlined as a data URI
@@ -12,7 +12,7 @@
  */
 
 export function avatarUrlFor(userId: string): string {
-  return `/avatars/${userId}.webp`;
+  return `/avatars/${userId}.jpg`;
 }
 
 export const DEFAULT_AVATAR_DATA_URI =

@@ -555,7 +555,7 @@ function drawCircularAvatar(
 async function tryLoadAvatar(url: string | null | undefined): Promise<Image | null> {
   if (!url) return null;
   try {
-    // Support same-origin paths (e.g. "/avatars/x.webp") by joining
+    // Support same-origin paths (e.g. "/avatars/x.jpg") by joining
     // to play.tournamental.com — the renderer runs server-side and
     // can fetch absolute URLs only.
     const full =

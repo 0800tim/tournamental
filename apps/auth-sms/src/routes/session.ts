@@ -94,10 +94,42 @@ function serialiseUser(user: import('../storage.js').UserRecord) {
   };
 }
 
+/**
+ * Pruned-down user shape returned by the public lookup endpoint. Only
+ * the fields safe to surface to a stranger viewing someone else's
+ * share page: identifier, display name, first name, country.
+ *
+ * Crucially excludes phone, email, last_seen_at and any session data.
+ */
+function serialiseUserPublic(user: import('../storage.js').UserRecord) {
+  return {
+    id: user.id,
+    displayName: user.display_name,
+    firstName: user.first_name,
+    country: user.country,
+    city: user.city,
+    favouriteTeamCode: user.favourite_team_code,
+  };
+}
+
 export async function registerSession(
   app: FastifyInstance,
   ctx: AuthContext,
 ): Promise<void> {
+  // Public profile lookup — no auth required. Powers the /s/<guid>
+  // share page so the visitor sees the bracket owner's chosen display
+  // name instead of "Anonymous". Returns only the non-PII fields.
+  app.get<{ Params: { id: string } }>('/v1/auth/users/:id/public', async (req, reply) => {
+    const id = (req.params.id ?? '').trim();
+    if (!id || !/^[a-zA-Z0-9_-]{4,128}$/.test(id)) {
+      return reply.code(400).send({ error: 'bad_id' });
+    }
+    const user = ctx.storage.getUser(id);
+    if (!user) return reply.code(404).send({ error: 'not_found' });
+    reply.header('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=86400');
+    return reply.send({ user: serialiseUserPublic(user) });
+  });
+
   app.get('/v1/auth/me', async (req, reply) => {
     const authed = await authenticate(ctx, req);
     if (!authed) return reply.code(401).send({ error: 'unauthorized' });

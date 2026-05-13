@@ -1,22 +1,26 @@
 "use client";
 
 /**
- * AvatarUploader — file-input + preview + POST to /api/v1/profile/avatar.
+ * AvatarUploader — file-input + cropper modal + POST to /api/v1/profile/avatar.
  *
- * The avatar URL is deterministic per user (`/avatars/<userId>.webp`)
- * so on success we just bust the cache with a `?v=<ts>` query and let
- * the rest of the UI re-render against the new URL.
+ * Flow:
+ *   1. User clicks "Upload avatar" → native file picker.
+ *   2. We read the picked file into an object URL and open the
+ *      Facebook-style cropper modal (zoom + drag inside a circular
+ *      crop frame; output is a square PNG).
+ *   3. On accept, we POST the cropped Blob to /api/v1/profile/avatar.
+ *      The server resizes to 256×256 webp and returns the new URL.
+ *   4. Bust the avatar URL with `?v=<ts>` so the preview rerenders.
  *
- * Why a query-string buster rather than a hash filename: the user's
- * own profile is the only thing that needs to see the freshly-uploaded
- * image immediately. Everything else (the share card, syndicate
- * member tiles, leaderboards) is fine being a few minutes stale —
- * the URL stays stable so Cloudflare can long-cache the bytes.
+ * The avatar URL is deterministic per user (`/avatars/<userId>.jpg`)
+ * so we just bust the cache with a `?v=<ts>` query and let the rest
+ * of the UI re-render against the new URL.
  */
 
 import { useEffect, useRef, useState } from "react";
 
 import { avatarUrlFor, DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
+import { AvatarCropperModal } from "./AvatarCropperModal";
 
 export interface AvatarUploaderProps {
   readonly userId: string;
@@ -30,6 +34,7 @@ export function AvatarUploader({ userId, onChange }: AvatarUploaderProps): JSX.E
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const [cropImageUrl, setCropImageUrl] = useState<string | null>(null);
 
   // Initial probe: does an avatar exist on disk? If yes, the version
   // bumps so the <img> shows it; if no, we keep the silhouette.
@@ -44,17 +49,42 @@ export function AvatarUploader({ userId, onChange }: AvatarUploaderProps): JSX.E
     };
   }, [userId]);
 
+  // Always revoke the previous crop-stage object URL when a new file
+  // is picked or the modal is dismissed; the browser pins the underlying
+  // bytes until we call `URL.revokeObjectURL`.
+  useEffect(() => {
+    return () => {
+      if (cropImageUrl) {
+        try {
+          URL.revokeObjectURL(cropImageUrl);
+        } catch {
+          // ignore
+        }
+      }
+    };
+  }, [cropImageUrl]);
+
   const currentUrl = version > 0 ? `${avatarUrlFor(userId)}?v=${version}` : null;
 
   const handlePick = (): void => {
     inputRef.current?.click();
   };
 
-  const handleFile = async (file: File): Promise<void> => {
+  const handlePicked = (file: File): void => {
+    setErr(null);
+    // No size cap on the picked file — the cropper resizes everything
+    // to 800×800 JPEG @ 80% in-browser before upload, so even a 30 MB
+    // RAW from someone's phone arrives at the server as ~80 KB.
+    const url = URL.createObjectURL(file);
+    setCropImageUrl(url);
+  };
+
+  const handleCropAccept = async (blob: Blob): Promise<void> => {
+    setCropImageUrl(null);
     setBusy(true);
     setErr(null);
     const fd = new FormData();
-    fd.set("file", file);
+    fd.set("file", new File([blob], "avatar.jpg", { type: "image/jpeg" }));
     try {
       const res = await fetch("/api/v1/profile/avatar", {
         method: "POST",
@@ -134,13 +164,19 @@ export function AvatarUploader({ userId, onChange }: AvatarUploaderProps): JSX.E
           hidden
           onChange={(e) => {
             const f = e.target.files?.[0];
-            if (f) void handleFile(f);
+            if (f) handlePicked(f);
             e.target.value = "";
           }}
         />
         {err && <span className="vt-avatar-uploader-err">{err}</span>}
         {busy && <span className="vt-avatar-uploader-status">Uploading…</span>}
       </div>
+
+      <AvatarCropperModal
+        imageUrl={cropImageUrl}
+        onAccept={(blob) => void handleCropAccept(blob)}
+        onCancel={() => setCropImageUrl(null)}
+      />
     </div>
   );
 }

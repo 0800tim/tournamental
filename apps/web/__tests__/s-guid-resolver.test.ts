@@ -34,6 +34,9 @@ import {
 const sampleBracket = (guid: string): BracketByGuid => ({
   bracket_id: guid,
   handle: "Anonymous",
+  user_id: null,
+  display_name: null,
+  avatar_url: null,
   saved_at: "2026-05-11T12:00:00Z",
   tournament_id: "fifa-wc-2026",
   tournament_label: "FIFA World Cup 2026",
