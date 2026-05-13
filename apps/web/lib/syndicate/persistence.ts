@@ -60,6 +60,35 @@ export interface SyndicateRow {
   hl_subscription_id: string | null;
   /** Epoch ms of first premium activation; survives later downgrades. */
   hl_premium_since: number | null;
+  /** Branding hex `#rrggbb`; renders as primary accent on the embed. */
+  branding_primary_colour: string | null;
+  /** Branding hex `#rrggbb`; renders as secondary accent. */
+  branding_accent_colour: string | null;
+  /** Hosted logo URL shown in the embed header. */
+  branding_logo_url: string | null;
+  /** Hosted hero/background image. */
+  branding_hero_url: string | null;
+  /** "Sponsored by ..." line shown in widget footer. */
+  sponsor_name: string | null;
+  /** Sponsor's own site; logo links here in a new tab. */
+  sponsor_url: string | null;
+  /** Sponsor logo URL. */
+  sponsor_logo_url: string | null;
+  /** Free-form prize copy ("Win a $250 store voucher"). */
+  prize_text: string | null;
+}
+
+/** Subset of fields a syndicate owner can edit via the manage screen. */
+export interface SyndicateBrandingPatch {
+  name?: string;
+  branding_primary_colour?: string | null;
+  branding_accent_colour?: string | null;
+  branding_logo_url?: string | null;
+  branding_hero_url?: string | null;
+  sponsor_name?: string | null;
+  sponsor_url?: string | null;
+  sponsor_logo_url?: string | null;
+  prize_text?: string | null;
 }
 
 export interface PendingGhlRow {
@@ -128,7 +157,15 @@ export class SyndicatePersistence {
         tier                TEXT NOT NULL DEFAULT 'free',
         hl_location_id      TEXT,
         hl_subscription_id  TEXT,
-        hl_premium_since    INTEGER
+        hl_premium_since    INTEGER,
+        branding_primary_colour TEXT,
+        branding_accent_colour TEXT,
+        branding_logo_url   TEXT,
+        branding_hero_url   TEXT,
+        sponsor_name        TEXT,
+        sponsor_url         TEXT,
+        sponsor_logo_url    TEXT,
+        prize_text          TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_syndicates_slug ON syndicates(slug);
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
@@ -395,6 +432,61 @@ export class SyndicatePersistence {
       });
 
     return this.getBySlug(args.slug);
+  }
+
+  /**
+   * Apply a partial branding patch from the owner. Empty strings are
+   * normalised to null (so clearing a field works). Caller is
+   * responsible for authorisation; this method does not check
+   * ownership. Returns the updated row or null if no row matches.
+   */
+  updateBranding(slug: string, patch: SyndicateBrandingPatch): SyndicateRow | null {
+    if (!this.isReady()) return null;
+    const existing = this.getBySlug(slug);
+    if (!existing) return null;
+
+    const normalise = (v: string | null | undefined): string | null => {
+      if (v === undefined) return undefined as unknown as string | null;
+      if (v === null) return null;
+      const trimmed = v.trim();
+      return trimmed.length > 0 ? trimmed : null;
+    };
+
+    // Build the SET clause dynamically so unspecified fields don't move.
+    const updates: Record<string, string | null> = {};
+    const fields: ReadonlyArray<keyof SyndicateBrandingPatch> = [
+      "name",
+      "branding_primary_colour",
+      "branding_accent_colour",
+      "branding_logo_url",
+      "branding_hero_url",
+      "sponsor_name",
+      "sponsor_url",
+      "sponsor_logo_url",
+      "prize_text",
+    ];
+    for (const f of fields) {
+      if (patch[f] !== undefined) {
+        const next = normalise(patch[f] as string | null | undefined);
+        if (next !== (undefined as unknown as string | null)) {
+          updates[f] = next;
+        }
+      }
+    }
+    if (Object.keys(updates).length === 0) return existing;
+
+    // `name` is NOT NULL in the schema; reject a clear-attempt rather
+    // than producing a constraint violation.
+    if ("name" in updates && updates.name === null) {
+      delete updates.name;
+    }
+
+    const assignments = Object.keys(updates).map((k) => `${k} = @${k}`).join(", ");
+    this.db
+      .prepare(`UPDATE syndicates SET ${assignments} WHERE slug = @slug`)
+      .run({ ...updates, slug: slug.toLowerCase() });
+
+    return this.getBySlug(slug);
   }
 
   close(): void {
