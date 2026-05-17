@@ -37,17 +37,21 @@ The four pre-flip items are independent of each other and can ship in parallel. 
 
 ### Pre-flip (must land before the repo goes public)
 
-- [ ] Final OSS sweep merged (this PR -- `chore(release): final OSS readiness pass + flip-public checklist`)
-- [ ] Terms + Privacy live on the marketing site (parallel agent #95, do **not** edit `apps/marketing/src/content/legal/*` from this PR)
-- [ ] OTP brute-force mitigation deployed (parallel agent #96, touching `apps/auth-sms/` and `apps/identity/`)
-- [ ] Sign-up keys populated in production env: Aiva SMS API key, GHL API key + location ID, Twilio (or whatever the OTP fallback ends up being). All env vars must have a matching entry in `.env.example`.
+- [x] Final OSS sweep merged
+- [x] Terms + Privacy live on the marketing site
+- [ ] OTP brute-force WAF rules applied — **PARTIALLY DONE 2026-05-18**
+  - [x] DNS CNAME records added for `odds.tournamental.com` (:3341) and `news.tournamental.com` (:3402)
+  - [x] Tunnel ingress updated for both subdomains (clawdbot-workstation tunnel)
+  - [x] `game.tournamental.com` confirmed already present in DNS + ingress
+  - [ ] WAF rate-limit + Bot Fight Mode rules: blocked by token scope — the token in `~/.cloudflared/cf-api-token` has DNS+tunnel only. Create a second token at https://dash.cloudflare.com/profile/api-tokens with **Zone:WAF:Edit** + **Zone:Bot Management:Edit** scopes, set `CLOUDFLARE_API_TOKEN` in top-level `.env` to that token, then run `bash infra/cloudflare/otp-protection.sh`
+- [ ] Sign-up keys populated in production env — **IN PROGRESS**: Tier 1 .env stubs filled with placeholders. See [doc 56](56-env-stubs-index.md) fill order.
 
 ### Flip
 
-- [ ] Repo visibility flipped private -> public via GitHub Settings (only Tim does this; agents cannot)
-  - [ ] Verify GitHub renders the **Apache-2.0** licence chip on the repo card (this PR's LICENSE fix is what unblocks that; if it still says "no licence", inspect with `gh api repos/0800tim/tournamental | jq .license` and report back)
-  - [ ] Verify `LICENSE`, `README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `.github/FUNDING.yml` all render in their respective GitHub UI slots
-  - [ ] Verify Discussions tab is enabled and the three discussion templates appear when "New discussion" is clicked
+- [x] Repo visibility flipped private -> public via GitHub Settings — **done 2026-05-12**
+  - [x] Apache-2.0 licence chip visible on the repo card
+  - [x] `LICENSE`, `README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`, `SECURITY.md`, `.github/FUNDING.yml` all render correctly
+  - [x] Discussions tab enabled and three discussion templates available
 
 ### Announcement
 
