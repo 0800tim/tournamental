@@ -13,7 +13,7 @@
     "promote": "tsx promote-to-prod.ts"
   },
   "dependencies": {
-    "tsx": "^4.19.2"
+    "tsx": "^4.22.1"
   },
   "devDependencies": {
     "@types/node": "^20.16.11",
