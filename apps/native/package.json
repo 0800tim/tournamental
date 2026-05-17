@@ -20,7 +20,7 @@
     "test": "echo 'no native tests yet — see apps/push-notifications for the subscribe endpoint test' && exit 0"
   },
   "dependencies": {
-    "@capacitor/android": "^6.0.0",
+    "@capacitor/android": "^8.3.4",
     "@capacitor/app": "^6.0.0",
     "@capacitor/core": "^6.0.0",
     "@capacitor/haptics": "^6.0.0",
