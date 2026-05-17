@@ -63,7 +63,7 @@ jobs:
         continue-on-error: true
       - name: Upload OSV results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: osv-results
           path: osv-results.json
@@ -86,7 +86,7 @@ jobs:
             --json --output=semgrep-results.json || true
       - name: Upload semgrep results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: semgrep-results
           path: semgrep-results.json
@@ -106,7 +106,7 @@ jobs:
         run: node .github/scripts/license-audit.mjs > license-results.json
       - name: Upload license results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: license-results
           path: license-results.json
@@ -126,7 +126,7 @@ jobs:
         run: node .github/scripts/network-allowlist.mjs > network-results.json
       - name: Upload network results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: network-results
           path: network-results.json
@@ -144,7 +144,7 @@ jobs:
         with: { node-version: 20 }
       - run: node .github/scripts/secret-scope.mjs > secret-scope-results.json
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: secret-scope-results
           path: secret-scope-results.json
@@ -160,7 +160,7 @@ jobs:
         with: { node-version: 20 }
       - run: node .github/scripts/prompt-injection-canary.mjs > prompt-injection-results.json
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: prompt-injection-results
           path: prompt-injection-results.json
@@ -216,7 +216,7 @@ jobs:
             ${{ env.TRIAGE_DRY_RUN == 'true' && '--dry-run' || '' }} \
             --out-json triage-verdict.json
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: triage-verdict
           path: triage-verdict.json
