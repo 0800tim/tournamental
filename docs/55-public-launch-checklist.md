@@ -45,7 +45,7 @@ The four pre-flip items are independent of each other and can ship in parallel. 
   - [x] `game.tournamental.com` confirmed already present in DNS + ingress
   - [x] Rate-limiting rule applied: `POST /v1/auth/otp/*` → 5 req/10s/IP → block 10s (Free-plan constraints: 1 rule, 10s period, block-only action)
   - [x] WAF ASN managed-challenge rule applied: OTP routes from 7 known spam ASNs → managed_challenge
-  - [ ] Bot Fight Mode: needs **Bot Management:Edit** API scope (separate from WAF:Edit). Enable manually: Cloudflare dashboard → tournamental.com → Security → Bots → Bot Fight Mode → **On**. Alternatively add "Bot Management:Edit" scope to the token in `~/.cloudflared/cf-api-token` and re-run the script.
+  - [x] Bot Fight Mode: enabled manually via Cloudflare dashboard → tournamental.com → Security → Bots → Bot Fight Mode — **done 2026-05-18**
 - [ ] Sign-up keys populated in production env — **IN PROGRESS**: Tier 1 .env stubs filled with placeholders. See [doc 56](56-env-stubs-index.md) fill order.
 
 ### Flip
