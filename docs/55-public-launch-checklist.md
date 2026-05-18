@@ -43,7 +43,9 @@ The four pre-flip items are independent of each other and can ship in parallel. 
   - [x] DNS CNAME records added for `odds.tournamental.com` (:3341) and `news.tournamental.com` (:3402)
   - [x] Tunnel ingress updated for both subdomains (clawdbot-workstation tunnel)
   - [x] `game.tournamental.com` confirmed already present in DNS + ingress
-  - [ ] WAF rate-limit + Bot Fight Mode rules: blocked by token scope — the token in `~/.cloudflared/cf-api-token` has DNS+tunnel only. Create a second token at https://dash.cloudflare.com/profile/api-tokens with **Zone:WAF:Edit** + **Zone:Bot Management:Edit** scopes, set `CLOUDFLARE_API_TOKEN` in top-level `.env` to that token, then run `bash infra/cloudflare/otp-protection.sh`
+  - [x] Rate-limiting rule applied: `POST /v1/auth/otp/*` → 5 req/10s/IP → block 10s (Free-plan constraints: 1 rule, 10s period, block-only action)
+  - [x] WAF ASN managed-challenge rule applied: OTP routes from 7 known spam ASNs → managed_challenge
+  - [ ] Bot Fight Mode: needs **Bot Management:Edit** API scope (separate from WAF:Edit). Enable manually: Cloudflare dashboard → tournamental.com → Security → Bots → Bot Fight Mode → **On**. Alternatively add "Bot Management:Edit" scope to the token in `~/.cloudflared/cf-api-token` and re-run the script.
 - [ ] Sign-up keys populated in production env — **IN PROGRESS**: Tier 1 .env stubs filled with placeholders. See [doc 56](56-env-stubs-index.md) fill order.
 
 ### Flip

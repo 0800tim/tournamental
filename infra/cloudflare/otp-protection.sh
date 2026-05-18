@@ -43,14 +43,16 @@ set -euo pipefail
 # -------- Configuration (edit thresholds here, not at the call sites) --------
 
 ZONE_HOSTS="tournamental.com"
-SEND_PATH="/v1/auth/otp/send"
-VERIFY_PATH="/v1/auth/otp/verify"
-WILD_PATH="/v1/auth/otp/"  # used in a "starts_with" match
+WILD_PATH="/v1/auth/otp/"  # all OTP routes; "starts_with" match
 
-# All rule descriptions are stable identifiers , DO NOT change the text
+# Cloudflare Free plan allows 1 rate-limiting rule per zone.
+# We use a single combined rule covering all /v1/auth/otp/* traffic at
+# 15 req/min (the verify threshold — the most attack-sensitive endpoint).
+# On Pro+ plans (5 rules) you can split this into per-path rules with
+# tighter thresholds on /send (10/min) and /verify (15/min) separately.
+#
+# All rule descriptions are stable identifiers — DO NOT change the text
 # without also bumping the revert script.
-DESC_SEND="tournamental-otp-send-rate-limit"
-DESC_VERIFY="tournamental-otp-verify-rate-limit"
 DESC_WILD="tournamental-otp-aggregate-rate-limit"
 DESC_ASN="tournamental-otp-asn-managed-challenge"
 DESC_BOT="tournamental-otp-bot-fight-mode"
@@ -182,15 +184,13 @@ asn_match() {
 
 echo "About to apply OTP brute-force protection to zone $CLOUDFLARE_ZONE_ID:"
 echo
-echo "  1. Rate-limit  $SEND_PATH    -> 10 req/min/IP   -> managed_challenge"
-echo "  2. Rate-limit  $VERIFY_PATH  -> 15 req/min/IP   -> block 10m"
-echo "  3. Rate-limit  $WILD_PATH*   -> 30 req/min/IP   -> block 1h"
-echo "  4. WAF         $WILD_PATH*   from suspicious ASNs -> managed_challenge"
+echo "  1. Rate-limit  $WILD_PATH*   -> 5 req/10s/IP+colo -> block 10s (Free-plan limits: 1 rule, 10s period, block-only)"
+echo "  2. WAF         $WILD_PATH*   from suspicious ASNs -> managed_challenge"
 echo "     ASNs:"
 for entry in "${ASN_LIST[@]}"; do
   echo "       - $entry"
 done
-echo "  5. Bot Fight Mode: ON (zone-level)"
+echo "  3. Bot Fight Mode: ON (zone-level)"
 echo
 
 if [ "$DRY_RUN" -eq 1 ]; then
@@ -212,45 +212,19 @@ if [ "$DRY_RUN" -eq 1 ]; then
   cf_call GET "$RL_ENTRYPOINT_URL"
   existing_rules='[]'
 else
-  cur=$(cf_call GET "$RL_ENTRYPOINT_URL" || true)
-  # If the entrypoint doesn't exist yet, this 404s , that's fine.
+  # 404 = entrypoint ruleset not yet initialised — treat as empty rule list.
+  # || true is outside $() so it applies to the assignment exit-code, not inside
+  # the subshell (exit 1 in cf_call would otherwise terminate the subshell before
+  # the || true could run).
+  cur=$(cf_call GET "$RL_ENTRYPOINT_URL") || true
   existing_rules=$(echo "$cur" | jq '.result.rules // []' 2>/dev/null || echo '[]')
 fi
 
-# Drop our own descriptions out, then append fresh.
+# Drop our own description out, then append fresh.
+# (Free plan = 1 rule max; single combined wildcard rule for all OTP paths.)
 filtered=$(echo "$existing_rules" \
-  | jq --arg s "$DESC_SEND" --arg v "$DESC_VERIFY" --arg w "$DESC_WILD" \
-       '[.[] | select(.description != $s and .description != $v and .description != $w)]')
-
-new_send=$(jq -n \
-  --arg desc "$DESC_SEND" \
-  --arg expr "$(match_exact_path "$SEND_PATH")" \
-  '{
-    description: $desc,
-    expression: $expr,
-    action: "managed_challenge",
-    ratelimit: {
-      characteristics: ["ip.src"],
-      period: 60,
-      requests_per_period: 10,
-      mitigation_timeout: 600
-    }
-  }')
-
-new_verify=$(jq -n \
-  --arg desc "$DESC_VERIFY" \
-  --arg expr "$(match_exact_path "$VERIFY_PATH")" \
-  '{
-    description: $desc,
-    expression: $expr,
-    action: "block",
-    ratelimit: {
-      characteristics: ["ip.src"],
-      period: 60,
-      requests_per_period: 15,
-      mitigation_timeout: 600
-    }
-  }')
+  | jq --arg w "$DESC_WILD" \
+       '[.[] | select(.description != $w)]')
 
 new_wild=$(jq -n \
   --arg desc "$DESC_WILD" \
@@ -260,18 +234,16 @@ new_wild=$(jq -n \
     expression: $expr,
     action: "block",
     ratelimit: {
-      characteristics: ["ip.src"],
-      period: 60,
-      requests_per_period: 30,
-      mitigation_timeout: 3600
+      characteristics: ["ip.src", "cf.colo.id"],
+      period: 10,
+      requests_per_period: 5,
+      mitigation_timeout: 10
     }
   }')
 
 rl_body=$(jq -n --argjson rules "$filtered" \
-                --argjson s "$new_send" \
-                --argjson v "$new_verify" \
                 --argjson w "$new_wild" \
-  '{rules: ($rules + [$s, $v, $w])}')
+  '{rules: ($rules + [$w])}')
 
 cf_call PUT "$RL_ENTRYPOINT_URL" "$rl_body"
 
@@ -286,7 +258,7 @@ if [ "$DRY_RUN" -eq 1 ]; then
   cf_call GET "$WAF_ENTRYPOINT_URL"
   existing_waf='[]'
 else
-  cur=$(cf_call GET "$WAF_ENTRYPOINT_URL" || true)
+  cur=$(cf_call GET "$WAF_ENTRYPOINT_URL") || true
   existing_waf=$(echo "$cur" | jq '.result.rules // []' 2>/dev/null || echo '[]')
 fi
 
