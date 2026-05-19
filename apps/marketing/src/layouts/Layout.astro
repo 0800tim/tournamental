@@ -40,6 +40,9 @@ const absoluteOgImage = ogImage.startsWith("http")
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icon-mark.png" />
+    <link rel="alternate icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     {/* Preload the variable Inter file so first-paint headings already
         have the right metrics. crossorigin is required for font preload
         per the spec; it costs nothing here because the file is
@@ -47,6 +50,16 @@ const absoluteOgImage = ogImage.startsWith("http")
     <link
       rel="preload"
       href="/fonts/Inter-Variable.woff2"
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+    {/* Editorial display serif. ~165KB Latin-extended subset, single
+        variable woff2 covering opsz + wght axes. Preloaded so the hero
+        headline doesn't reflow when the font lands. */}
+    <link
+      rel="preload"
+      href="/fonts/Fraunces-Variable.woff2"
       as="font"
       type="font/woff2"
       crossorigin
