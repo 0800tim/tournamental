@@ -74,7 +74,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "messi_picks",
     owner_country_emoji: "🇦🇷",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "Football World Cup 2026",
+    tournament_label: "Football World Cup 2026 Predictor",
     created_at: "2026-04-12T09:00:00Z",
     picks_made: 47,
     members: [
@@ -94,7 +94,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "tim",
     owner_country_emoji: "🇳🇿",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "Football World Cup 2026",
+    tournament_label: "Football World Cup 2026 Predictor",
     created_at: "2026-04-28T22:14:00Z",
     picks_made: 12,
     members: [
@@ -110,7 +110,7 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
     owner_handle: "otago_otto",
     owner_country_emoji: "🇳🇿",
     tournament_id: "fifa-wc-2026",
-    tournament_label: "Football World Cup 2026",
+    tournament_label: "Football World Cup 2026 Predictor",
     created_at: "2026-05-02T06:30:00Z",
     picks_made: 0,
     members: [
@@ -127,8 +127,20 @@ const SAMPLE_BY_SLUG = new Map<string, SyndicateRecord>(
 const TEST_OVERRIDES = new Map<string, SyndicateRecord>();
 
 const TOURNAMENT_LABELS: Record<string, string> = {
-  "fifa-wc-2026": "Football World Cup 2026",
+  "fifa-wc-2026": "Football World Cup 2026 Predictor",
 };
+
+/** 6-char hex tag derived from a user id, used as a stable placeholder
+ * handle for joined members until the membership table grows a handle
+ * column. Same input → same tag. */
+function shortUserHash(userId: string): string {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < userId.length; i += 1) {
+    h ^= userId.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  return h.toString(16).padStart(8, "0").slice(0, 6);
+}
 
 function parsePrizeSplit(json: string | null): ReadonlyArray<SyndicatePrizeSplitEntry> | null {
   if (!json) return null;
@@ -156,9 +168,11 @@ function parsePrizeSplit(json: string | null): ReadonlyArray<SyndicatePrizeSplit
 
 /** Render a SQLite syndicate row into the public `SyndicateRecord` shape. */
 function fromPersistenceRow(row: {
+  id: string;
   slug: string;
   name: string;
   tournament_id: string;
+  owner_user_id: string | null;
   owner_handle: string | null;
   created_at: number;
   member_count: number;
@@ -176,20 +190,47 @@ function fromPersistenceRow(row: {
   bonus_prize_text?: string | null;
 }): SyndicateRecord {
   const sponsorPresent = !!(row.sponsor_name || row.sponsor_logo_url);
+
+  // Read the real membership rows from `syndicate_owners_membership`
+  // rather than synthesising fake `member_1`, `member_2`, … handles from
+  // `member_count`. The cached count can drift (e.g. duplicate self-joins
+  // before the count guard landed) so we trust the membership table as
+  // the source of truth. The handle column doesn't exist on that table
+  // yet, so non-owner rows render with a stable short id derived from
+  // their user_id instead of a fabricated counter.
+  let realMembers: Array<{ user_id: string; role: string; joined_at: number }> = [];
+  try {
+    realMembers = getPersistence().getMembers(row.id);
+  } catch {
+    /* schema not ready in this environment; fall back to the owner row */
+  }
+  if (realMembers.length === 0) {
+    realMembers = [
+      {
+        user_id: row.owner_user_id ?? `anon:${row.id}`,
+        role: "owner",
+        joined_at: row.created_at,
+      },
+    ];
+  }
+
   return {
     slug: row.slug,
     name: row.name,
     owner_handle: row.owner_handle ?? "owner",
-    owner_country_emoji: "🌍",
+    owner_country_emoji: "⚽",
     tournament_id: row.tournament_id,
     tournament_label: TOURNAMENT_LABELS[row.tournament_id] ?? row.tournament_id,
     created_at: new Date(row.created_at).toISOString(),
     picks_made: 0,
-    members: Array.from({ length: Math.max(1, row.member_count) }, (_, i) => ({
-      handle: i === 0 ? row.owner_handle ?? "owner" : `member_${i}`,
+    members: realMembers.map((m) => ({
+      handle:
+        m.role === "owner"
+          ? row.owner_handle ?? "owner"
+          : `member-${shortUserHash(m.user_id)}`,
       country_code: "NZL",
       flag_emoji: "🇳🇿",
-      joined_at: new Date(row.created_at).toISOString(),
+      joined_at: new Date(m.joined_at).toISOString(),
       points: 0,
     })),
     branding: {
@@ -252,4 +293,23 @@ export function __unsafe_register_syndicate_for_tests(
   record: SyndicateRecord,
 ): void {
   TEST_OVERRIDES.set(record.slug, record);
+}
+
+/**
+ * Look up a syndicate by its short share_guid. Used by the /s/<guid>
+ * resolver to redirect legacy guid links to the canonical /s/<slug>
+ * URL. Returns null if no syndicate matches.
+ */
+export async function loadSyndicateByShareGuid(
+  shareGuid: string,
+): Promise<SyndicateRecord | null> {
+  const safe = shareGuid.trim();
+  if (!safe) return null;
+  try {
+    const row = getPersistence().getByShareGuid(safe);
+    if (row) return fromPersistenceRow(row);
+  } catch {
+    /* ignore — fall through */
+  }
+  return null;
 }

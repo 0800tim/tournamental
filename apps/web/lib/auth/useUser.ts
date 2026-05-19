@@ -49,6 +49,7 @@ function maskPhoneHandle(phone: string): string {
 async function probeInboundSession(signal?: AbortSignal): Promise<{
   id: string;
   phone: string | null;
+  email: string | null;
   displayName: string | null;
 } | null> {
   try {
@@ -60,13 +61,19 @@ async function probeInboundSession(signal?: AbortSignal): Promise<{
     });
     if (!r.ok) return null;
     const j = (await r.json()) as {
-      user?: { id?: string; phone?: string | null; displayName?: string | null };
+      user?: {
+        id?: string;
+        phone?: string | null;
+        email?: string | null;
+        displayName?: string | null;
+      };
     };
     const u = j.user;
     if (!u || !u.id) return null;
     return {
       id: u.id,
       phone: u.phone ?? null,
+      email: u.email ?? null,
       displayName: u.displayName ?? null,
     };
   } catch {
@@ -130,14 +137,25 @@ export function useUser(): UseUserReturn {
         setLoading(false);
         return;
       }
-      const handle = inbound.phone ? maskPhoneHandle(inbound.phone) : "you";
+      // Prefer the user's chosen display name when it looks like a
+      // handle (alphanumeric + underscores). Otherwise fall back to a
+      // masked phone label so AuthChip still has something to render —
+      // the masked label deliberately doesn't match the handle regex,
+      // so any UI that gates on "real handle" stays correct.
+      const displayName = inbound.displayName ?? null;
+      const handle =
+        displayName && /^[a-zA-Z0-9_]{2,32}$/.test(displayName)
+          ? displayName
+          : inbound.phone
+            ? maskPhoneHandle(inbound.phone)
+            : "you";
       setState({
         status: "authenticated",
-        user: { id: inbound.id, email: null, phone: inbound.phone },
+        user: { id: inbound.id, email: inbound.email, phone: inbound.phone },
         profile: {
           id: inbound.id,
           handle,
-          display_name: inbound.displayName ?? handle,
+          display_name: displayName ?? handle,
         } as UserProfile,
       });
       setLoading(false);

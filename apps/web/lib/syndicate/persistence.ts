@@ -88,6 +88,10 @@ export interface SyndicateRow {
   prize_split_json: string | null;
   /** Free-form copy for an extra prize (e.g. "longest streak"). */
   bonus_prize_text: string | null;
+  /** Long-form "about" copy shown on the embed widget's About tab. */
+  about_text: string | null;
+  /** Visual theme for the embed widget: "light" (default) or "dark". */
+  theme_mode: "light" | "dark" | null;
 }
 
 /** Decoded prize-split entry, as the API and UI both manipulate it. */
@@ -113,6 +117,8 @@ export interface SyndicateBrandingPatch {
   entry_fee_currency?: string | null;
   prize_split_json?: string | null;
   bonus_prize_text?: string | null;
+  about_text?: string | null;
+  theme_mode?: "light" | "dark" | null;
 }
 
 export interface PendingGhlRow {
@@ -136,6 +142,7 @@ export class SyndicatePersistence {
   private getBySlugStmt!: Statement;
   private getByIdStmt!: Statement;
   private insertMemberStmt!: Statement;
+  private getMembersBySyndicateStmt!: Statement;
   private upsertUserStmt!: Statement;
   private insertPendingGhlStmt!: Statement;
   private listPendingGhlStmt!: Statement;
@@ -258,6 +265,12 @@ export class SyndicatePersistence {
        VALUES (@syndicate_id, @user_id, @role, @joined_at)
        ON CONFLICT(syndicate_id, user_id) DO NOTHING`,
     );
+    this.getMembersBySyndicateStmt = this.db.prepare(
+      `SELECT user_id, role, joined_at
+         FROM syndicate_owners_membership
+        WHERE syndicate_id = ?
+        ORDER BY joined_at ASC`,
+    );
     this.insertPendingGhlStmt = this.db.prepare(
       `INSERT INTO syndicates_pending_ghl
          (syndicate_id, payload_json, attempts, last_error,
@@ -291,7 +304,62 @@ export class SyndicatePersistence {
     const row = this.getBySlugStmt.get(slug.toLowerCase()) as
       | SyndicateRow
       | undefined;
-    return row ?? null;
+    return row ? this.withRealMemberCount(row) : null;
+  }
+
+  /**
+   * Replace the cached `member_count` on a SyndicateRow with the live
+   * count from `syndicate_owners_membership`. The cached column used to
+   * drift on duplicate self-joins; reading from the membership table
+   * directly keeps every consumer consistent even on legacy rows.
+   */
+  private withRealMemberCount(row: SyndicateRow): SyndicateRow {
+    try {
+      const real = this.getMembers(row.id).length;
+      if (real > 0 && real !== row.member_count) {
+        return { ...row, member_count: real };
+      }
+    } catch {
+      /* fall through to cached value */
+    }
+    return row;
+  }
+
+  /**
+   * Return the real membership rows for a syndicate, oldest first.
+   * Includes the owner (role='owner') and any joined members (role='member').
+   * Used by the public landing to avoid synthesising fake handles from
+   * the cached `member_count` column.
+   */
+  getMembers(syndicateId: string): Array<{
+    user_id: string;
+    role: string;
+    joined_at: number;
+  }> {
+    if (!this.getMembersBySyndicateStmt) this.prepareStatements();
+    if (!this.getMembersBySyndicateStmt) return [];
+    return this.getMembersBySyndicateStmt.all(syndicateId) as Array<{
+      user_id: string;
+      role: string;
+      joined_at: number;
+    }>;
+  }
+
+  /**
+   * Look up a syndicate by its short share_guid (nanoid). Used by the
+   * /s/<guid> resolver so legacy guid links still resolve, then the
+   * page redirects to the canonical /s/<slug> URL.
+   */
+  getByShareGuid(shareGuid: string): SyndicateRow | null {
+    if (!this.db) return null;
+    try {
+      const row = this.db
+        .prepare(`SELECT * FROM syndicates WHERE share_guid = ?`)
+        .get(shareGuid) as SyndicateRow | undefined;
+      return row ? this.withRealMemberCount(row) : null;
+    } catch {
+      return null;
+    }
   }
 
   /**
@@ -399,13 +467,14 @@ export class SyndicatePersistence {
    */
   listByOwnerUserId(userId: string): SyndicateRow[] {
     if (!this.isReady()) return [];
-    return this.db
+    const rows = this.db
       .prepare(
         `SELECT * FROM syndicates
          WHERE owner_user_id = ?
          ORDER BY created_at DESC`,
       )
       .all(userId) as SyndicateRow[];
+    return rows.map((r) => this.withRealMemberCount(r));
   }
 
   /**
@@ -495,6 +564,8 @@ export class SyndicatePersistence {
       "entry_fee_currency",
       "prize_split_json",
       "bonus_prize_text",
+      "about_text",
+      "theme_mode",
     ];
     for (const f of stringFields) {
       if (patch[f] !== undefined) {

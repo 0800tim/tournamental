@@ -3,13 +3,11 @@
 /**
  * Syndicate signup form.
  *
- * One-page client component. Renders the input form on first paint
- * and the success card after a 200 from POST /api/v1/syndicates.
- * Anonymous visitors can submit, `useUser()` is consulted to pre-
- * fill email + phone if a Supabase session exists, but the form does
- * NOT gate on a session.
+ * Requires the user to be authenticated (WhatsApp / Telegram) before
+ * they can create a pool. Auth ensures the owner has a handle and
+ * a phone number, which gets written to the pool row and to GHL.
  *
- * The slug field auto-derives from the syndicate name as the user
+ * The slug field auto-derives from the pool name as the user
  * types (unless they've manually edited the slug, we track that
  * with a `slugEdited` flag). A 300ms debounced fetch hits
  * /api/v1/syndicates/<slug>/available to live-check uniqueness.
@@ -19,6 +17,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { deriveSlug, isValidSlugShape } from "@/lib/syndicate/slug";
 import { useUser } from "@/lib/auth/useUser";
+import { SignupModal } from "@/components/auth/SignupModal";
 
 import "./syndicate-form.css";
 
@@ -67,16 +66,33 @@ type FieldErrors = Partial<{
   name: string;
   slug: string;
   size_band: string;
+  owner_handle: string;
   owner_email: string;
   owner_phone: string;
   topic: string;
   terms: string;
 }>;
 
+/** Regex the syndicate API enforces on owner_handle. We mirror it here
+ * so we can decide whether a profile handle is safe to auto-fill +
+ * lock, or just looks like the synthetic masked-phone label that the
+ * inbound-login fallback produces (e.g. "+64…1234"). */
+const HANDLE_RE = /^[a-zA-Z0-9_]{2,32}$/;
+
 export function SyndicateForm(): JSX.Element {
   const auth = useUser();
   const prefillEmail = auth.user?.email ?? "";
   const prefillPhone = auth.user?.phone ?? "";
+  const profileHandle = auth.profile?.handle ?? "";
+  // Lock the handle field only when the profile carries a real handle
+  // — not the "+64…1234" synthetic label that useUser builds for an
+  // inbound-login session that hasn't been backed by a Supabase row yet.
+  // The user can't change a real handle once it's been registered, so
+  // we auto-populate and grey it out.
+  const handleLocked = HANDLE_RE.test(profileHandle);
+  const emailLocked = !!auth.user?.email;
+
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Form state.
   const [name, setName] = useState("");
@@ -87,6 +103,7 @@ export function SyndicateForm(): JSX.Element {
   const [email, setEmail] = useState(prefillEmail);
   const [dialCode, setDialCode] = useState<string>("+64");
   const [phoneLocal, setPhoneLocal] = useState<string>("");
+  const [handle, setHandle] = useState(handleLocked ? profileHandle : "");
   const [topic, setTopic] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
@@ -97,9 +114,13 @@ export function SyndicateForm(): JSX.Element {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState<SuccessPayload | null>(null);
 
-  // When the user signs in mid-session, sync prefills.
+  // When the user signs in mid-session (or the auth probe resolves
+  // after first render), sync the auto-fill fields. We treat the auth
+  // value as canonical for handle when it's a real one — overwriting
+  // even a half-typed local edit is fine because the field is also
+  // disabled in that branch.
   useEffect(() => {
-    if (prefillEmail && !email) setEmail(prefillEmail);
+    if (prefillEmail && email !== prefillEmail) setEmail(prefillEmail);
     if (prefillPhone && !phoneLocal) {
       // If the user's stored phone is E.164 we split off the dial code
       // by matching against our curated list. Otherwise just dump it.
@@ -111,8 +132,11 @@ export function SyndicateForm(): JSX.Element {
         setPhoneLocal(prefillPhone);
       }
     }
+    if (handleLocked && handle !== profileHandle) {
+      setHandle(profileHandle);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prefillEmail, prefillPhone]);
+  }, [prefillEmail, prefillPhone, profileHandle, handleLocked]);
 
   // Auto-derive slug from the name unless the user has touched it.
   const onNameChange = useCallback(
@@ -176,6 +200,8 @@ export function SyndicateForm(): JSX.Element {
     const errors: FieldErrors = {};
     if (name.trim().length < 3) errors.name = "Name must be at least 3 characters.";
     if (!isValidSlugShape(slug)) errors.slug = "Slug must be kebab-case (a-z, 0-9, single hyphens), 3-40 chars.";
+    const resolvedHandle = handle.trim() || auth.profile?.handle || "";
+    if (!resolvedHandle || resolvedHandle.length < 2) errors.owner_handle = "Enter a handle (at least 2 characters).";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.owner_email = "Enter a valid email address.";
     if (!/^\+[1-9]\d{7,14}$/.test(phoneE164)) errors.owner_phone = "Enter a valid phone number.";
     if (topic && topic.length > 280) errors.topic = "Keep the description under 280 characters.";
@@ -195,7 +221,7 @@ export function SyndicateForm(): JSX.Element {
           size_band: sizeBand,
           owner_email: email.trim().toLowerCase(),
           owner_phone: phoneE164,
-          owner_handle: auth.profile?.handle ?? null,
+          owner_handle: handle.trim() || auth.profile?.handle || null,
           topic: topic.trim() || null,
           marketing_consent: marketingConsent,
           terms_accepted: termsAccepted,
@@ -207,9 +233,9 @@ export function SyndicateForm(): JSX.Element {
         if (reason === "reserved") {
           setFieldErrors({ slug: "That name is reserved. Try another." });
         } else if (reason === "taken") {
-          setFieldErrors({ slug: "That syndicate name is already taken." });
+          setFieldErrors({ slug: "That pool name is already taken." });
         } else {
-          setSubmitError("That syndicate name isn't available. Try another.");
+          setSubmitError("That pool name isn't available. Try another.");
         }
         return;
       }
@@ -223,7 +249,7 @@ export function SyndicateForm(): JSX.Element {
           }
           setFieldErrors(nextErrors);
         } else {
-          setSubmitError("Couldn't create the syndicate. Please try again.");
+          setSubmitError("Couldn't create the pool. Please try again.");
         }
         return;
       }
@@ -241,6 +267,46 @@ export function SyndicateForm(): JSX.Element {
     return <SuccessCard payload={success} />;
   }
 
+  // Auth gate: require a signed-in session before showing the form.
+  // auth.loading stays true during the initial probe; once settled,
+  // guest/unconfigured means they need to sign in.
+  if (auth.loading) {
+    return (
+      <div className="syn-page">
+        <div className="syn-container">
+          <p className="syn-sub" style={{ textAlign: "center", marginTop: "4rem" }}>Checking your session…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (auth.status !== "authenticated") {
+    return (
+      <div className="syn-page">
+        <div className="syn-container">
+          <p className="syn-eyebrow">Create a pool</p>
+          <h1 className="syn-title">Start your prediction pool</h1>
+          <p className="syn-sub">
+            Sign in first so we can attach the pool to your player account, show your handle to members, and let you manage it later.
+          </p>
+          <div className="syn-form">
+            <button
+              type="button"
+              className="syn-submit"
+              onClick={() => setShowAuthModal(true)}
+            >
+              Sign in to continue
+            </button>
+            <p style={{ fontSize: "0.8rem", color: "var(--ink-400,#94a3b8)", textAlign: "center", marginTop: "0.5rem" }}>
+              One tap via WhatsApp or Telegram. No password needed.
+            </p>
+          </div>
+          <SignupModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+        </div>
+      </div>
+    );
+  }
+
   const canSubmit =
     !submitting &&
     name.trim().length >= 3 &&
@@ -253,7 +319,7 @@ export function SyndicateForm(): JSX.Element {
   return (
     <div className="syn-page">
       <div className="syn-container">
-        <p className="syn-eyebrow">Create a syndicate</p>
+        <p className="syn-eyebrow">Create a pool</p>
         <h1 className="syn-title">Start your prediction pool</h1>
         <p className="syn-sub">
           Pick a name, share the link, and watch your friends fight for bragging
@@ -264,7 +330,7 @@ export function SyndicateForm(): JSX.Element {
           {/* Name */}
           <div className="syn-field">
             <label className="syn-label syn-required" htmlFor="syn-name">
-              Syndicate name
+              Pool name
             </label>
             <input
               id="syn-name"
@@ -283,26 +349,6 @@ export function SyndicateForm(): JSX.Element {
                 {fieldErrors.name}
               </span>
             )}
-            {/* Sample-name suggestion chips */}
-            <div className="syn-suggestions" aria-label="Sample names">
-              <span className="syn-suggestions-label">Try one:</span>
-              {[
-                "George FM World Cup",
-                "Mt Eden Primary Sweepstake",
-                "The Cafe Crew Bracket",
-                "Brookfield Bowls Club",
-                "Wellington Workplace Pool",
-              ].map((sample) => (
-                <button
-                  key={sample}
-                  type="button"
-                  className="syn-suggestion-chip"
-                  onClick={() => onNameChange(sample)}
-                >
-                  {sample}
-                </button>
-              ))}
-            </div>
           </div>
 
           {/* Slug */}
@@ -402,6 +448,35 @@ export function SyndicateForm(): JSX.Element {
             </div>
           </div>
 
+          {/* Handle */}
+          <div className="syn-field">
+            <label className="syn-label syn-required" htmlFor="syn-handle">
+              Your player handle
+            </label>
+            <input
+              id="syn-handle"
+              className={`syn-input ${fieldErrors.owner_handle ? "is-error" : ""}`}
+              type="text"
+              autoComplete="username"
+              value={handle}
+              maxLength={32}
+              placeholder="your_handle"
+              onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase())}
+              aria-invalid={Boolean(fieldErrors.owner_handle)}
+              readOnly={handleLocked}
+              disabled={handleLocked}
+              aria-readonly={handleLocked || undefined}
+            />
+            <span className="syn-hint">
+              {handleLocked
+                ? "Locked to your account handle — handles can't be changed once they're registered."
+                : "Shown to pool members as your display name."}
+            </span>
+            {fieldErrors.owner_handle && (
+              <span className="syn-error-text">{fieldErrors.owner_handle}</span>
+            )}
+          </div>
+
           {/* Email */}
           <div className="syn-field">
             <label className="syn-label syn-required" htmlFor="syn-email">
@@ -418,7 +493,13 @@ export function SyndicateForm(): JSX.Element {
               placeholder="you@example.com"
               onChange={(e) => setEmail(e.target.value)}
               aria-invalid={Boolean(fieldErrors.owner_email)}
+              readOnly={emailLocked}
+              disabled={emailLocked}
+              aria-readonly={emailLocked || undefined}
             />
+            {emailLocked && (
+              <span className="syn-hint">Auto-filled from your account.</span>
+            )}
             {fieldErrors.owner_email && (
               <span className="syn-error-text">{fieldErrors.owner_email}</span>
             )}
@@ -504,7 +585,7 @@ export function SyndicateForm(): JSX.Element {
           {submitError && <div className="syn-form-error">{submitError}</div>}
 
           <button type="submit" className="syn-submit" disabled={!canSubmit}>
-            {submitting ? "Creating…" : "Create my syndicate · free"}
+            {submitting ? "Creating…" : "Create my pool · free"}
           </button>
           <ul className="syn-reassure">
             <li><span aria-hidden="true">✓</span> No credit card required</li>
@@ -548,7 +629,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
     <div className="syn-page">
       <div className="syn-container">
         <div className="syn-success-card">
-          <h1 className="syn-success-title">Your syndicate is live</h1>
+          <h1 className="syn-success-title">Your pool is live</h1>
           <p className="syn-success-sub">
             Share the link and start your pool.
           </p>
@@ -580,9 +661,9 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
           </div>
 
           <div className="syn-link-row">
-            <a href={`/s/${payload.slug}`}>Go to your syndicate page →</a>
+            <a href={`/s/${payload.slug}`}>Go to your pool page →</a>
             <a href="/world-cup-2026">Make your bracket first →</a>
-            <a href={`/manage/syndicates/${payload.slug}`}>Manage your syndicate →</a>
+            <a href={`/manage/syndicates/${payload.slug}`}>Manage your pool →</a>
           </div>
         </div>
       </div>
