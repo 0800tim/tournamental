@@ -77,6 +77,7 @@ export function SyndicateSuccessClient({ slug }: { slug: string }): JSX.Element 
           <div className="syn-link-row">
             <a href={`/s/${slug}`}>Go to your syndicate page →</a>
             <a href="/world-cup-2026">Make your bracket first →</a>
+            <a href={`/manage/syndicates/${slug}`}>Manage your syndicate →</a>
           </div>
         </div>
       </div>

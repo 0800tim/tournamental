@@ -582,6 +582,7 @@ function SuccessCard({ payload }: { payload: SuccessPayload }): JSX.Element {
           <div className="syn-link-row">
             <a href={`/s/${payload.slug}`}>Go to your syndicate page →</a>
             <a href="/world-cup-2026">Make your bracket first →</a>
+            <a href={`/manage/syndicates/${payload.slug}`}>Manage your syndicate →</a>
           </div>
         </div>
       </div>
