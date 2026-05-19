@@ -82,8 +82,12 @@ export function AppBar({
           className="vt-appbar-brand"
           aria-label="Tournamental, homepage"
         >
+          {/* `?v=ball` is a cache-buster, the brand mark was a sky-blue
+           * "V" letter on a square chip until 2026-05-20. Without the
+           * version param, browsers that cached the old asset still
+           * render it. New visitors get the file the URL points at. */}
           <img
-            src="/icons/icon-192.png"
+            src="/icons/icon-192.png?v=ball"
             alt=""
             width="28"
             height="28"
@@ -91,7 +95,7 @@ export function AppBar({
             className="vt-appbar-brand-mark"
           />
           <span className="vt-appbar-wordmark vt-wordmark" aria-hidden="true">
-            Tournamental
+            Tournamental <span className="vt-appbar-wordmark-sub">FWC2026</span>
           </span>
         </Link>
         <h1 className="vt-appbar-title" aria-live="polite">

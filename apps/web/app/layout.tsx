@@ -10,7 +10,10 @@ import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 
 export const metadata: Metadata = {
-  title: "Tournamental, Predict the matches that matter",
+  title: {
+    default: "Tournamental · FWC2026, Predict the matches that matter",
+    template: "%s · Tournamental · FWC2026",
+  },
   description:
     "Tournamental is a tournament prediction game with a 3D match watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0.",
   applicationName: "Tournamental",
@@ -42,7 +45,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#0a0e1a" },
+    { media: "(prefers-color-scheme: dark)", color: "#15151a" },
     { media: "(prefers-color-scheme: light)", color: "#f5f7fc" },
   ],
 };

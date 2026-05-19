@@ -195,8 +195,27 @@
    * hide the wordmark there so the brand mark + title pair stays
    * within the 56px row. */
 }
+.vt-appbar-wordmark-sub {
+  /* "FWC2026" subtitle next to the brand wordmark. Reads as a
+   * mono caption in muted gold so the editorial Fraunces wordmark
+   * stays the primary mark. */
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.62em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--vt-gold-400, #dca94b);
+  margin-left: 0.35em;
+  vertical-align: 0.18em;
+}
 @media (max-width: 420px) {
   .vt-appbar-wordmark {
+    display: none;
+  }
+}
+/* On medium phones (420-540px) keep the wordmark but drop the
+ * subtitle so the row doesn't overflow. */
+@media (max-width: 540px) {
+  .vt-appbar-wordmark-sub {
     display: none;
   }
 }
