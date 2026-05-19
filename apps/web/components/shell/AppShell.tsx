@@ -55,6 +55,11 @@ export interface AppShellProps {
    *  `/world-cup-2026/*` path. Use for full-bleed routes (the match
    *  renderer) that own their own chrome. */
   readonly suppressMicrositeNav?: boolean;
+  /** When true, render only the main pane — no AppBar, no BottomNav,
+   *  no sub-nav, no install prompt. Used by /world-cup-2026?embed=1
+   *  so partner sites can iframe the bracket app as a fully-playable
+   *  widget without duplicate chrome. */
+  readonly embed?: boolean;
 }
 
 export function AppShell({
@@ -67,18 +72,34 @@ export function AppShell({
   className,
   subHeader,
   suppressMicrositeNav,
+  embed = false,
 }: AppShellProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [autoSubNav, setAutoSubNav] = useState<ReactNode>(null);
 
   useEffect(() => {
-    if (subHeader || suppressMicrositeNav) return;
+    if (embed || subHeader || suppressMicrositeNav) return;
     if (typeof window === "undefined") return;
     const p = window.location.pathname || "";
     if (p.startsWith("/world-cup-2026")) {
       setAutoSubNav(<MicrositeSubNav />);
     }
-  }, [subHeader, suppressMicrositeNav]);
+  }, [embed, subHeader, suppressMicrositeNav]);
+
+  if (embed) {
+    return (
+      <div
+        className={`vt-shell vt-shell-embed${className ? ` ${className}` : ""}`}
+        data-variant={variant}
+        data-embed="1"
+      >
+        <ThemeMeta />
+        <main className="vt-shell-main" id="main">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   const resolvedSubHeader = subHeader ?? autoSubNav;
 
