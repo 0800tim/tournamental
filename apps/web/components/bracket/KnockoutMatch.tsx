@@ -104,15 +104,14 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
         <a
           href={`/match/${knockout.id}/preview`}
           className="km-view-link"
-          aria-label={`View match preview for ${knockout.id.toUpperCase()}`}
-          title="View match preview"
+          aria-label={`View match details for ${knockout.id.toUpperCase()}`}
+          title="View match details"
           onClick={(e) => {
             e.stopPropagation();
             openMatchOverlay(e);
           }}
         >
-          <span aria-hidden="true">→</span>
-          <span className="km-view-link-label">View</span>
+          <span aria-hidden="true">⋯</span>
         </a>
       </header>
       <button

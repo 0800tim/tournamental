@@ -86,14 +86,17 @@ export function TeamFlag({
         "--vt-flag-accent": accentColor,
       } as CSSProperties);
 
-  // Selection ring: 3px solid kit-colour outline. We use `outline` rather
-  // than `box-shadow` so the ring sits cleanly outside the flag's own
-  // border-radius and composes with the existing glow halo.
+  // Selection ring: a heavy gold outline (4px), brand-consistent across
+  // every pick rather than the kit-colour-per-team palette which was
+  // visually noisy on a page full of group cards. Per Tim 2026-05-20.
+  // Kit colour is still passed in via `accentColor` and used for the
+  // soft outer glow in TeamFlag.module.css.
+  const RING_GOLD = "var(--vt-gold-400, #dca94b)";
   const style: CSSProperties = selectionRing
     ? {
         ...baseStyle,
-        outline: `3px solid ${accentColor}`,
-        outlineOffset: "1px",
+        outline: `4px solid ${RING_GOLD}`,
+        outlineOffset: "2px",
       }
     : baseStyle;
 

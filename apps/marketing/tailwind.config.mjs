@@ -4,12 +4,17 @@ export default {
   theme: {
     extend: {
       colors: {
+        // Repalleted 2026-05-20: dark canvas was navy-tinted slate
+        // (#0a0e1a → #293352). New scale is a neutral charcoal so the
+        // gold ball-mark + gold editorial accents sit on a true-grey
+        // backdrop. Light tints (50/100/200) keep the cool ink cast so
+        // light-theme surfaces still feel branded.
         ink: {
-          900: "#0a0e1a",
-          800: "#101626",
-          700: "#1a2238",
-          600: "#293352",
-          500: "#3e4a72",
+          900: "#15151a",
+          800: "#1c1c22",
+          700: "#26262c",
+          600: "#3a3a44",
+          500: "#52525c",
           200: "#cdd5e7",
           100: "#e7ecf7",
           50:  "#f5f7fc",

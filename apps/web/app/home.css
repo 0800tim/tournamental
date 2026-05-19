@@ -86,7 +86,7 @@
 
 .vt-home-btn-primary {
   background: #fbbf24;
-  color: #0a0e1a;
+  color: #15151a;
 }
 
 .vt-home-btn-primary:hover {
@@ -292,7 +292,7 @@
   top: -12px;
   left: 20px;
   background: #fbbf24;
-  color: #0a0e1a;
+  color: #15151a;
   padding: 5px 12px;
   border-radius: 999px;
   font: 700 11px/1 -apple-system, system-ui, sans-serif;
@@ -439,7 +439,7 @@
   height: 30px;
   border-radius: 999px;
   background: #fbbf24;
-  color: #0a0e1a;
+  color: #15151a;
   font: 800 14px/1 -apple-system, system-ui, sans-serif;
   flex-shrink: 0;
 }
@@ -527,7 +527,7 @@
 
 .vt-home-btn-primary {
   background: #ffffff;
-  color: #0a0e1a;
+  color: #15151a;
   border: 1px solid #ffffff;
   border-radius: 999px;
   font-weight: 600;

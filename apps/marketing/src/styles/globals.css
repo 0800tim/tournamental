@@ -46,17 +46,20 @@
    * paint to avoid FOUC. */
   :root {
     color-scheme: dark;
-    --vt-bg: #0a0e1a;          /* page bg */
-    --vt-bg-elev: #101626;     /* cards, header chrome */
-    --vt-bg-elev-2: #1a2238;   /* hovered surfaces */
-    --vt-fg: #e7ecf7;          /* body text */
-    --vt-fg-muted: #cdd5e7;    /* secondary text */
+    /* Charcoal canvas (2026-05-20). Repalleted from the deep navy so
+     * the gold ball-mark + editorial gold accents stand on a true-grey
+     * backdrop rather than competing with a cool blue cast. */
+    --vt-bg: #15151a;          /* page bg */
+    --vt-bg-elev: #1c1c22;     /* cards, header chrome */
+    --vt-bg-elev-2: #26262c;   /* hovered surfaces */
+    --vt-fg: #e6e6ea;          /* body text */
+    --vt-fg-muted: #a3a3ad;    /* secondary text */
     --vt-fg-strong: #ffffff;   /* headings */
-    --vt-border: #1a2238;
-    --vt-border-strong: #293352;
-    --vt-header-bg: rgba(10, 14, 26, 0.85);
-    --vt-glow-1: rgba(126, 182, 232, 0.10);
-    --vt-glow-2: rgba(255, 138, 61, 0.06);
+    --vt-border: #26262c;
+    --vt-border-strong: #3a3a44;
+    --vt-header-bg: rgba(21, 21, 26, 0.85);
+    --vt-glow-1: rgba(220, 169, 75, 0.06); /* gold halo, was sky-blue */
+    --vt-glow-2: rgba(220, 169, 75, 0.04);
   }
   :root[data-theme="light"] {
     color-scheme: light;

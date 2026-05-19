@@ -229,30 +229,22 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           Sorry, this match has already started. You can&apos;t change it now.
         </div>
       )}
+      {/* Single ellipsis link opens the match preview overlay. The
+       * previous "View match" text label + popup-trigger pair was
+       * cluttering the top-right of the row and overlapping the
+       * circular flag on tight viewports. */}
       <a
         href={`/match/${matchId}/preview`}
         className="mpr-view-link"
-        aria-label={`View match preview for ${homeTeam.name} vs ${awayTeam.name}`}
-        title="View match preview"
+        aria-label={`View more details for ${homeTeam.name} vs ${awayTeam.name}`}
+        title="View match details"
         onClick={(e) => {
           e.stopPropagation();
           openMatchOverlay(e);
         }}
       >
-        View match
+        <span aria-hidden="true">⋯</span>
       </a>
-      <button
-        type="button"
-        className="mpr-popup-trigger"
-        aria-label={`Open pick popup for ${homeTeam.name} vs ${awayTeam.name}`}
-        title="Open in popup"
-        onClick={(e) => {
-          e.stopPropagation();
-          setPopupOpen(true);
-        }}
-      >
-        ⋯
-      </button>
       {popupOpen && (
         <MatchPickPopup
           matchId={matchId}

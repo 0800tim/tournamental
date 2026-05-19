@@ -8,15 +8,21 @@
 
 :root,
 [data-theme="dark"] {
-  --vt-bg: #0a0e1a;
-  --vt-bg-elev: rgba(255, 255, 255, 0.06);
-  --vt-bg-elev-2: rgba(255, 255, 255, 0.1);
-  --vt-bg-overlay: rgba(10, 14, 26, 0.78);
-  --vt-fg: #e6edf3;
-  --vt-fg-muted: #9aa6b6;
-  --vt-fg-faint: #5c6675;
-  --vt-border: rgba(255, 255, 255, 0.08);
-  --vt-border-strong: rgba(255, 255, 255, 0.18);
+  /* Dark canvas was a deep navy (#0a0e1a). Repalleted to a neutral
+   * charcoal on 2026-05-20 so the new gold ball-mark and the
+   * editorial gold accents pop against a true-grey backdrop rather
+   * than competing with a cool blue cast. The accent tokens stay
+   * (sky / flame / pitch) for components that still reference them
+   * explicitly, but the page is now charcoal across the board. */
+  --vt-bg: #15151a;
+  --vt-bg-elev: rgba(255, 255, 255, 0.05);
+  --vt-bg-elev-2: rgba(255, 255, 255, 0.09);
+  --vt-bg-overlay: rgba(21, 21, 26, 0.82);
+  --vt-fg: #e6e6ea;
+  --vt-fg-muted: #a3a3ad;
+  --vt-fg-faint: #67676f;
+  --vt-border: rgba(255, 255, 255, 0.07);
+  --vt-border-strong: rgba(255, 255, 255, 0.16);
   --vt-accent: #6cabdd; /* sky-blue */
   --vt-accent-on: #00153a;
   --vt-accent-warm: #f3b83b; /* flame-orange */
