@@ -87,10 +87,15 @@ async function execStreaming(
   log: (l: string) => void,
 ): Promise<{ code: number }> {
   return await new Promise((resolve) => {
+    // shell:false so spawn forks `bash` directly with `-lc <script>` as
+    // its argv, not via `/bin/sh -c "bash -lc <script>"` which would
+    // collapse "<script>" into bash's $0/$1 and run the inner command
+    // with no args (pnpm therefore printing help and exiting 0/1 with
+    // no build output). The orchestrator only ever passes `bash -lc`
+    // here so dropping shell:true loses no functionality.
     const c = spawn(cmd, args, {
       cwd,
       env: { ...process.env, ...env },
-      shell: true,
       stdio: 'pipe',
     });
     c.stdout?.on('data', (d) => log(`  ${d.toString().trimEnd()}`));

@@ -72,10 +72,15 @@ function fastifyAppTsx({ name, app, port, instances = 1 }) {
 }
 
 function nextApp({ name, app, port, instances = 1 }) {
+  // The `next` binary in node_modules/.bin/ is a bash shim, not a
+  // node-runnable JS file. PM2 defaults to a node interpreter which
+  // chokes on the shebang. Point at the actual JS entrypoint inside
+  // `next/dist/bin/next` and PM2's default node interpreter handles
+  // it cleanly under both fork and cluster mode.
   return {
     name,
     cwd: path.join(APPS, app),
-    script: 'node_modules/.bin/next',
+    script: path.join(APPS, app, 'node_modules', 'next', 'dist', 'bin', 'next'),
     args: `start --hostname 0.0.0.0 --port ${port}`,
     instances,
     exec_mode: instances > 1 ? 'cluster' : 'fork',

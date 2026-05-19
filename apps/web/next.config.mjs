@@ -1,6 +1,16 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The deploy orchestrator (infra/deploy/lib/publish.ts) builds into
+  // a per-slot directory so the live PM2 process can keep reading the
+  // current `.next-prod` while the new `.next-staging` is being built
+  // and smoke-tested. Next.js doesn't honour NEXT_BUILD_DIR natively
+  // and rejects absolute paths in `distDir`, so we accept the env var
+  // and pass through just the basename (the orchestrator's slots are
+  // always direct children of apps/web/). Unset → default `.next`.
+  ...(process.env.NEXT_BUILD_DIR
+    ? { distDir: process.env.NEXT_BUILD_DIR.replace(/^.*\//, "") || ".next" }
+    : {}),
   // The renderer scene is fully client-side; SSR doesn't render WebGL.
   // We still keep the route file structure under `app/` so that we can use
   // server components for layout, OG image generation, and future REST.
