@@ -44,22 +44,21 @@ export default function HomePage(): JSX.Element {
         <section className="vt-home-hero">
           <span className="vt-home-eyebrow">Football World Cup 2026 · Free to play</span>
           <h1 className="vt-home-title">
-            Predict every match. Watch it in 3D.
-            <br className="vt-home-br" /> Run your own sweepstake.
+            Predict <em>every match.</em>
+            <br className="vt-home-br" /> Watch it in 3D. Run your own pool.
           </h1>
           <p className="vt-home-lede">
-            Tournamental is the open-source prediction game for the world's biggest
-            tournaments. Save your picks before kickoff, change them right up until
-            each match starts, watch the action play out in our 3D molecule, and run
-            a branded syndicate for your audience. Free forever; premium adds a
-            fully-managed CRM via Aiva.
+            The open prediction game for the world's biggest tournaments. Save your
+            picks before kickoff, change them up to the whistle, watch every match
+            play out in our 3D molecule, and run a branded pool for your audience.
+            Free forever. Premium adds a fully-managed CRM via Aiva.
           </p>
           <div className="vt-home-cta-row">
             <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
               Set your picks now →
             </Link>
-            <Link href="/syndicates" className="vt-home-btn vt-home-btn-ghost">
-              Run a syndicate
+            <Link href="/pools" className="vt-home-btn vt-home-btn-ghost">
+              Run a pool
             </Link>
           </div>
           <ul className="vt-home-trust">
@@ -99,7 +98,7 @@ export default function HomePage(): JSX.Element {
               today and the points are worth more than calling it the night before.
             </li>
             <li>
-              <strong>Pundit IQ ladder.</strong> Each prediction is timestamped and
+              <strong>Punter IQ ladder.</strong> Each prediction is timestamped and
               signed (a VStamp). Your record is yours, transferable across syndicates.
             </li>
           </ul>
@@ -116,7 +115,7 @@ export default function HomePage(): JSX.Element {
         {/* ============== STEP 2 — MOLECULE ============== */}
         <section className="vt-home-section vt-home-step" id="molecule">
           <div className="vt-home-step-tag">Step 2 · As matches play</div>
-          <h2 className="vt-home-h2">Watch the tournament in 3D.</h2>
+          <h2 className="vt-home-h2">Watch the World Cup 2026 in 3D.</h2>
           <p className="vt-home-p">
             The Tournamental molecule renders every match in the browser at 60 fps on a
             mid-range phone, no app install, no broadcaster paywall. Drag the timeline,
@@ -154,21 +153,21 @@ export default function HomePage(): JSX.Element {
         {/* ============== STEP 3 — SYNDICATES (FRONT AND CENTRE) ============== */}
         <section className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
           <div className="vt-home-step-tag vt-home-step-tag-headline">Step 3 · Bring your friends</div>
-          <h2 className="vt-home-h2">Run a syndicate. Brand it your way.</h2>
+          <h2 className="vt-home-h2">Run a pool. Brand it your way.</h2>
           <p className="vt-home-claim">
             The only World Cup prediction platform where anyone can launch a fully
             branded, embeddable syndicate with custom prize splits and verifiable
             on-chain settlement — in minutes.
           </p>
           <p className="vt-home-p">
-            A syndicate is your own branded prediction pool. Pick a name, drop the embed
+            A pool is your own branded prediction pool. Pick a name, drop the embed
             widget on any site (Squarespace, WordPress, Shopify, your blog), and run a
             six-week sweepstake for your audience. Set an entry fee and prize splits, or
             keep it free for bragging rights. Tournamental never touches the money.
           </p>
 
           <div className="vt-home-demo-wrap">
-            <div className="vt-home-demo-badge">Live preview of the syndicate widget</div>
+            <div className="vt-home-demo-badge">Live preview of the pool widget</div>
             <LiveWidgetDemo slug="tournamental-demo" />
             <p className="vt-home-demo-note">
               This is the exact widget partners drop on their own sites. Two lines of
@@ -188,7 +187,7 @@ export default function HomePage(): JSX.Element {
                 <li>Off-platform entry money (you handle the cash)</li>
                 <li>Sponsor block on every share card</li>
               </ul>
-              <Link href="/syndicates/new" className="vt-home-btn vt-home-btn-primary vt-home-btn-block">
+              <Link href="/pools/new" className="vt-home-btn vt-home-btn-primary vt-home-btn-block">
                 Start free in 60 seconds →
               </Link>
             </div>
@@ -202,7 +201,7 @@ export default function HomePage(): JSX.Element {
                 <li>Stripe Checkout for paid entries (funds to your bank)</li>
                 <li>Subdomain hosting + footer-free embed</li>
               </ul>
-              <Link href="/syndicates#pricing" className="vt-home-btn vt-home-btn-ghost vt-home-btn-block">
+              <Link href="/pools#pricing" className="vt-home-btn vt-home-btn-ghost vt-home-btn-block">
                 See what premium unlocks
               </Link>
             </div>
@@ -251,14 +250,14 @@ export default function HomePage(): JSX.Element {
               <span className="vt-home-qs-n">2</span>
               <div>
                 <h3>Watch the matches</h3>
-                <p>Tournament starts 11 June 2026. Every match plays in 3D, every saved pick settles automatically.</p>
+                <p>World Cup 2026 kicks off 11 June. Every match plays in 3D, every saved pick settles automatically.</p>
               </div>
             </li>
             <li>
               <span className="vt-home-qs-n">3</span>
               <div>
                 <h3>Run your own pool</h3>
-                <p>Like the experience? Spin up a syndicate, brand it, invite your friends or your audience. Free or premium.</p>
+                <p>Like the experience? Spin up a pool, brand it, invite your friends or your audience. Free or premium.</p>
               </div>
             </li>
           </ol>
@@ -266,8 +265,8 @@ export default function HomePage(): JSX.Element {
             <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
               Set your picks now →
             </Link>
-            <Link href="/syndicates" className="vt-home-btn vt-home-btn-ghost">
-              Run a syndicate
+            <Link href="/pools" className="vt-home-btn vt-home-btn-ghost">
+              Run a pool
             </Link>
           </div>
         </section>

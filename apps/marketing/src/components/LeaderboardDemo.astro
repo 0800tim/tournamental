@@ -1,0 +1,150 @@
+---
+/**
+ * LeaderboardDemo, the illustrative top-5 card that used to live in
+ * the homepage hero. Relocated to the leaderboards page where a
+ * product preview belongs. No parallax tilt, no gradient ribbon,
+ * just a quiet editorial card that hints at the live experience.
+ *
+ * The data is a deterministic placeholder until the game service
+ * exposes a public /top endpoint. The component prints a clear
+ * "demo data" footnote so a visitor doesn't mistake it for live.
+ */
+const LEADERS = [
+  { rank: 1, name: "Nicolás B.", flag: "🇦🇷", score: 3847, piq: 94 },
+  { rank: 2, name: "Priya S.",   flag: "🇧🇷", score: 3602, piq: 91 },
+  { rank: 3, name: "James T.",   flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", score: 3580, piq: 89 },
+  { rank: 4, name: "Yuki M.",    flag: "🇯🇵", score: 3421, piq: 88 },
+  { rank: 5, name: "Ana C.",     flag: "🇵🇹", score: 3398, piq: 87 },
+];
+---
+<aside class="vt-lb-demo" aria-label="Demonstration leaderboard">
+  <header class="vt-lb-demo-head">
+    <div>
+      <span class="vt-lb-demo-eyebrow">Live preview</span>
+      <h3 class="vt-lb-demo-title">Global, World Cup 2026</h3>
+    </div>
+    <span class="vt-lb-demo-meta">Updates every minute at kickoff</span>
+  </header>
+
+  <ol class="vt-lb-demo-list">
+    {LEADERS.map((p) => (
+      <li class="vt-lb-demo-row">
+        <span class={`vt-lb-demo-rank vt-lb-demo-rank-${p.rank}`}>{p.rank}</span>
+        <span class="vt-lb-demo-flag" aria-hidden="true">{p.flag}</span>
+        <span class="vt-lb-demo-name">{p.name}</span>
+        <span class="vt-lb-demo-piq" aria-label={`Prediction IQ ${p.piq}`}>IQ {p.piq}</span>
+        <span class="vt-lb-demo-score">{p.score.toLocaleString()}</span>
+      </li>
+    ))}
+  </ol>
+
+  <p class="vt-lb-demo-foot">
+    <span aria-hidden="true">●</span>
+    Illustrative data. The live board opens at kickoff, 11 June 2026.
+  </p>
+</aside>
+
+<style>
+  .vt-lb-demo {
+    border: 1px solid var(--vt-border-strong);
+    background:
+      linear-gradient(180deg, var(--vt-bg-elev) 0%, color-mix(in srgb, var(--vt-bg-elev) 70%, var(--vt-bg) 30%) 100%);
+    border-radius: 14px;
+    padding: 1.25rem 1.25rem 1rem;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--vt-gold-400) 18%, transparent) inset;
+  }
+  .vt-lb-demo-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--vt-border);
+  }
+  .vt-lb-demo-eyebrow {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+  }
+  .vt-lb-demo-title {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72;
+    font-size: 1.375rem;
+    line-height: 1.1;
+    margin: 0.15rem 0 0;
+    color: var(--vt-fg-strong);
+  }
+  .vt-lb-demo-meta {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.625rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--vt-fg-muted);
+  }
+
+  .vt-lb-demo-list {
+    list-style: none;
+    margin: 0;
+    padding: 0.5rem 0 0;
+  }
+  .vt-lb-demo-row {
+    display: grid;
+    grid-template-columns: 28px 24px 1fr auto auto;
+    gap: 0.75rem;
+    align-items: center;
+    padding: 0.55rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--vt-border) 65%, transparent);
+    font-size: 0.95rem;
+  }
+  .vt-lb-demo-row:last-child {
+    border-bottom: 0;
+  }
+  .vt-lb-demo-rank {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-variation-settings: "opsz" 60, "tnum" 1;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-weight: 500;
+    font-size: 1.125rem;
+    text-align: center;
+    color: var(--vt-fg-muted);
+  }
+  .vt-lb-demo-rank-1 { color: var(--vt-gold-300); }
+  .vt-lb-demo-rank-2 { color: color-mix(in srgb, var(--vt-fg-strong) 75%, transparent); }
+  .vt-lb-demo-rank-3 { color: var(--vt-gold-500); }
+  .vt-lb-demo-flag { font-size: 1.05rem; line-height: 1; }
+  .vt-lb-demo-name {
+    color: var(--vt-fg-strong);
+    font-weight: 500;
+  }
+  .vt-lb-demo-piq {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    color: var(--vt-fg-muted);
+  }
+  .vt-lb-demo-score {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-variation-settings: "opsz" 36, "tnum" 1;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-weight: 500;
+    color: var(--vt-gold-400);
+  }
+
+  .vt-lb-demo-foot {
+    margin: 0.85rem 0 0;
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    color: var(--vt-fg-muted);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .vt-lb-demo-foot > span {
+    color: var(--vt-gold-400);
+    font-size: 0.7rem;
+  }
+</style>

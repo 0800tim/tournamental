@@ -17,14 +17,26 @@
 }
 
 .bracket-header h1 {
-  font-size: clamp(20px, 4vw, 32px);
-  margin: 0 0 6px;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -0.012em;
+  line-height: 1.05;
+  font-size: clamp(28px, 5vw, 44px);
+  margin: 0 0 8px;
+  color: #ffffff;
+}
+.bracket-header h1 em {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 60, "WONK" 1;
+  color: var(--vt-gold-400, #dca94b);
 }
 
 .bracket-header p {
   color: #94a3b8;
   margin: 0;
   max-width: 64ch;
+  line-height: 1.55;
 }
 
 /* ---- Lock summary ---- */
@@ -1374,6 +1386,16 @@
   display: flex;
   justify-content: center;
 }
+.km-odds:empty {
+  display: none;
+}
+/* Drop the third grid row entirely when the odds slot is hidden, so the
+ * row-gap above it doesn't leave a phantom strip under the team cells. */
+.km-card:has(.km-odds:empty) {
+  grid-template-areas:
+    "header header header"
+    "home   conn   away";
+}
 
 .bracket-group-winner-chips {
   display: flex;
@@ -1847,51 +1869,191 @@
   margin: 8px 0 0;
 }
 
-/* ---- Mobile floating Save & Share ---- */
-.bracket-mobile-cta {
-  position: fixed;
-  left: 12px;
-  right: 12px;
-  bottom: calc(var(--vt-shell-bottomnav-h, 64px) + env(safe-area-inset-bottom, 0px) + 12px);
-  display: flex;
-  gap: 8px;
-  z-index: 30;
-  pointer-events: none;
+/* Give the panel some breathing room below the sticky bar. */
+.bracket-panel {
+  scroll-margin-top: 60px;
 }
 
-.bracket-mobile-cta-btn {
-  flex: 1;
-  pointer-events: auto;
-  border-radius: 999px;
-  border: 1px solid #334155;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+/* ─────────────────────────────────────────────────────────────────────
+ * Light-theme overrides for the embed widget.
+ *
+ * The bracket page hardcodes a slate-dark palette throughout (legacy
+ * — pre-dates the shell's --vt-* tokens). When the embed iframe is
+ * loaded with `?theme=light`, /world-cup-2026/page.tsx stamps
+ * `data-theme="light"` on `<main class="bracket-page">` and these
+ * overrides invert the structural surfaces (page bg, cards, rows,
+ * tabs, borders, text). Semantic accent hues — gold for primary CTAs,
+ * the green/amber band for group-stage outcomes — keep their hue but
+ * shift to lighter tints so they read on a white surface.
+ *
+ * Out of scope here: per-team flag scrims, the 3D molecule (its own
+ * scene), and any modal that already opens above the bracket-page.
+ * ───────────────────────────────────────────────────────────────── */
+.bracket-page[data-theme="light"] {
+  color: #0f172a;
+  background: #ffffff;
 }
 
-.bracket-mobile-cta-save {
-  background: linear-gradient(135deg, #facc15, #f59e0b);
+.bracket-page[data-theme="light"] .bracket-header p,
+.bracket-page[data-theme="light"] .bracket-tree-help,
+.bracket-page[data-theme="light"] .bracket-final-note,
+.bracket-page[data-theme="light"] .bracket-fifa-rank,
+.bracket-page[data-theme="light"] .bracket-group-legend {
+  color: #475569;
+}
+
+.bracket-page[data-theme="light"] .bracket-lock-summary {
+  background: linear-gradient(180deg, #f8fafc, #ffffff);
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .bracket-countdown {
+  color: #b45309;
+}
+
+.bracket-page[data-theme="light"] .bracket-group {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.bracket-page[data-theme="light"] .bracket-group.is-locked {
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2);
+}
+
+.bracket-page[data-theme="light"] .bracket-lock-btn {
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.bracket-page[data-theme="light"] .bracket-lock-btn[aria-pressed="true"] {
+  background: #facc15;
   color: #0f172a;
   border-color: #facc15;
 }
 
-.bracket-mobile-cta-share {
-  background: rgba(15, 23, 42, 0.92);
-  color: #e6edf3;
-  backdrop-filter: blur(6px);
+.bracket-page[data-theme="light"] .bracket-group-row {
+  background: #f1f5f9;
+  color: #0f172a;
 }
 
-/* The CTA only makes sense on small screens. Hide above the bracket's
- * desktop breakpoint so it doesn't crowd the right-hand summary. */
-@media (min-width: 900px) {
-  .bracket-mobile-cta {
-    display: none;
-  }
+.bracket-page[data-theme="light"] .bracket-group-row.is-advance {
+  background: #dcfce7;
+  color: #14532d;
 }
 
-/* Give the panel some breathing room below the sticky bar. */
-.bracket-panel {
-  scroll-margin-top: 60px;
+.bracket-page[data-theme="light"] .bracket-group-row.is-wildcard {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.bracket-page[data-theme="light"] .bracket-group-row.is-out {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.bracket-page[data-theme="light"] .bracket-controls button {
+  border-color: #cbd5e1;
+  color: #334155;
+}
+
+.bracket-page[data-theme="light"] .dot-out {
+  background: #94a3b8;
+}
+
+.bracket-page[data-theme="light"] .bracket-tree {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .bracket-tree svg {
+  fill: #f8fafc;
+  stroke: #e2e8f0;
+}
+
+/* Tabs — invert chrome but keep the gold-leaning active border for
+ * stage progress. */
+.bracket-page[data-theme="light"] .bracket-tabs {
+  border-bottom-color: #e2e8f0;
+}
+
+.bracket-page[data-theme="light"] .bracket-tab {
+  color: #475569;
+}
+
+.bracket-page[data-theme="light"] .bracket-tab.is-active {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .bracket-tab-count {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* Panels that share the slate-900 card treatment with `.bracket-group`. */
+.bracket-page[data-theme="light"] .bracket-panel,
+.bracket-page[data-theme="light"] .bracket-final-leaderboard,
+.bracket-page[data-theme="light"] .bracket-final-sidecol > * {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+/* Generic catch-all: any element using the slate-900 / 800 / 700 trio
+ * that wasn't named above. Keeps newly-added cards consistent without
+ * needing another override every time we add a panel. */
+.bracket-page[data-theme="light"] [style*="background: #0f172a"],
+.bracket-page[data-theme="light"] [style*="background: #1e293b"] {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* Match-prediction rows (group stage). */
+.bracket-page[data-theme="light"] .mpr-row,
+.bracket-page[data-theme="light"] .mpr-pick-home,
+.bracket-page[data-theme="light"] .mpr-pick-away,
+.bracket-page[data-theme="light"] .mpr-pick-draw {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .mpr-pick-home:hover,
+.bracket-page[data-theme="light"] .mpr-pick-away:hover,
+.bracket-page[data-theme="light"] .mpr-pick-draw:hover {
+  background: #f1f5f9;
+}
+
+/* Knockout cards. The flag backgrounds stay as-is; we just brighten
+ * the card chrome and dim text. */
+.bracket-page[data-theme="light"] .km-card {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .km-team {
+  color: #0f172a;
+}
+
+.bracket-page[data-theme="light"] .km-no,
+.bracket-page[data-theme="light"] .km-view-link,
+.bracket-page[data-theme="light"] .km-team-name {
+  color: #1f2937;
+}
+
+.bracket-page[data-theme="light"] .km-tbd {
+  color: #64748b;
+}
+
+/* Bracket-tree connector lines. */
+.bracket-page[data-theme="light"] .bracket-tree-connector,
+.bracket-page[data-theme="light"] .bracket-tree-line {
+  stroke: #cbd5e1;
 }

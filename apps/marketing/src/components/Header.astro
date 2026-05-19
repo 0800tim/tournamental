@@ -37,12 +37,18 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
 ---
 <header class="vt-header sticky top-0 z-40 border-b backdrop-blur">
   <div class="container-page flex items-center justify-between py-4">
-    <a href="/" class="flex items-center gap-2 font-display text-xl font-bold tracking-tight">
-      <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900">
-        <span class="vt-icon-mask vt-icon-v size-5" aria-hidden="true"></span>
-      </span>
-      <span class="vt-brand-name">Tournamental</span>
-      <span class="hidden sm:inline pill">beta</span>
+    <a href="/" class="flex items-center gap-3" aria-label="Tournamental, homepage">
+      <img
+        src="/icon-mark.png"
+        alt=""
+        width="28"
+        height="28"
+        loading="eager"
+        decoding="async"
+        class="vt-brand-mark"
+      />
+      <span class="vt-wordmark vt-brand-name">Tournamental</span>
+      <span class="hidden sm:inline vt-wordmark-meta">est. 2026</span>
     </a>
 
     <nav class="hidden md:flex items-center gap-6 text-sm" aria-label="Primary">

@@ -999,3 +999,67 @@
   color: var(--vt-share-ink-muted);
   font-style: italic;
 }
+
+/* ------------------------------------------------------------------ *
+ * Editorial-sport pass (2026-05-20).
+ *
+ * Share landing hero, leaderboard heading, and section titles take the
+ * Fraunces editorial treatment so the page reads as a section-front
+ * rather than a SaaS shell. Eyebrow gets a dateline-style mono
+ * caption with a leading hairline.
+ * ------------------------------------------------------------------ */
+
+.vt-share-hero-eyebrow {
+  color: var(--vt-gold-400, #dca94b);
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-weight: 600;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.vt-share-hero-eyebrow::before {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.vt-share-hero-title,
+.vt-share-syn-title {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 120, "SOFT" 30;
+  letter-spacing: -0.015em;
+}
+
+.vt-share-hero-subhead {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: 1.125rem;
+  line-height: 1.5;
+}
+
+.vt-share-syn-section-title {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  letter-spacing: -0.012em;
+  font-size: 1.5rem;
+}
+
+.vt-share-leaderboard-rank,
+.vt-share-leaderboard-pts {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 48, "tnum" 1;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 500;
+}
+.vt-share-leaderboard-pts {
+  color: var(--vt-gold-400, #dca94b);
+}

@@ -2,48 +2,12 @@
 import Layout from "@/layouts/Layout.astro";
 import Hero from "@/components/Hero.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
+import TournamentBook from "@/components/TournamentBook.astro";
 ---
 <Layout ogImage="/og/index.png">
   <Hero />
 
-  <!-- Perfect bracket quest -->
-  <section class="container-page py-12">
-    <div class="rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-ink-900 to-accent-700/10 p-8 md:p-12">
-      <div class="grid md:grid-cols-2 gap-8 items-center">
-        <div>
-          <span class="pill mb-4" style="color: #f5c542; border-color: rgba(245,197,66,0.4);">🏆 The Perfect Bracket Hunt</span>
-          <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
-            104 matches.<br/>Nobody has ever called them all.
-          </h2>
-          <p class="text-ink-200 mt-4 max-w-prose">
-            The FIFA World Cup has never produced a perfect bracket. Not once. Tournamental tracks every prediction across the globe in real time. The first person to call all 104 matches correctly wins the biggest bragging right in football history, and we'll make sure the world knows it.
-          </p>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <a href="https://play.tournamental.com/" class="btn-primary" data-analytics="cta" data-analytics-label="Play free" data-analytics-surface="quest-section">Play free</a>
-            <a href="/leaderboards" class="btn-ghost" data-analytics="cta" data-analytics-label="Leaderboards" data-analytics-surface="quest-section">How scoring works</a>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-white">48</div>
-            <div class="text-ink-400 text-sm mt-1">Teams</div>
-          </div>
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-white">104</div>
-            <div class="text-ink-400 text-sm mt-1">Matches</div>
-          </div>
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-accent-400">0</div>
-            <div class="text-ink-400 text-sm mt-1">Perfect brackets ever</div>
-          </div>
-          <div class="card text-center">
-            <div class="text-3xl font-bold text-accent-400">∞</div>
-            <div class="text-ink-400 text-sm mt-1">Bragging rights</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
+  <TournamentBook />
 
   <!-- Syndicates — the creator pitch -->
   <section class="container-page py-12">

@@ -80,9 +80,19 @@ export function AppBar({
         <Link
           href="/"
           className="vt-appbar-brand"
-          aria-label="Tournamental home"
+          aria-label="Tournamental, homepage"
         >
-          <span className="vt-appbar-brand-mark" aria-hidden="true">T</span>
+          <img
+            src="/icons/icon-192.png"
+            alt=""
+            width="28"
+            height="28"
+            decoding="async"
+            className="vt-appbar-brand-mark"
+          />
+          <span className="vt-appbar-wordmark vt-wordmark" aria-hidden="true">
+            Tournamental
+          </span>
         </Link>
         <h1 className="vt-appbar-title" aria-live="polite">
           {title}

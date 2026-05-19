@@ -1,3 +1,17 @@
+/* Editorial display serif used across the play app for headlines and
+ * the wordmark. Single self-hosted Latin-extended subset (~165KB)
+ * variable woff2 covering opsz + wght + SOFT + WONK axes. The body
+ * stays on the system-font stack; Fraunces only loads when something
+ * actually requests `font-family: Fraunces` (via the @font-face
+ * font-display: swap behaviour). */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/Fraunces-Variable.woff2") format("woff2");
+}
+
 * {
   box-sizing: border-box;
 }
@@ -13,6 +27,43 @@ body {
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Editorial brand tokens, layered on top of the shell theme so the
+ * existing data-theme variables continue to work. Gold scale matches
+ * the new ball mark; --vt-font-editorial is a single hook for any
+ * headline that wants the magazine treatment. */
+:root {
+  --vt-gold-50:  #fcf2d4;
+  --vt-gold-100: #fcebb2;
+  --vt-gold-200: #f0d27a;
+  --vt-gold-300: #e6bf5e;
+  --vt-gold-400: #dca94b;
+  --vt-gold-500: #c08a26;
+  --vt-gold-600: #9a6a17;
+  --vt-gold-700: #6b4708;
+  --vt-font-editorial: "Fraunces", ui-serif, Charter, Georgia, Cambria,
+    "Times New Roman", serif;
+}
+
+/* Wordmark utility used by the AppBar so every page inherits the new
+ * brand chrome. Fraunces at display optical size with mildly negative
+ * tracking; the SOFT axis softens the terminals enough to feel like a
+ * sports broadsheet masthead rather than a textbook. */
+.vt-wordmark {
+  font-family: var(--vt-font-editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+  font-size: 1.25rem;
+  line-height: 1;
+  letter-spacing: -0.012em;
+}
+.vt-wordmark-meta {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 /* Tighten the tracking on display headings; matches the FIFA app feel. */

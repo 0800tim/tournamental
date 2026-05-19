@@ -1,0 +1,38 @@
+---
+/**
+ * StatLine, a typeset numeric stat row in the editorial-sport style.
+ *
+ * Four (or fewer) cells, each with a tabular numeral set in Fraunces
+ * over a mono uppercase caption. Hairline rule on top of every cell so
+ * the row sits like a magazine masthead's stat block rather than a
+ * card grid. Tabular numerics make the digits line up vertically
+ * across breakpoints.
+ *
+ * Caller passes an array of `{ value, label }` items; values can be
+ * arbitrary strings (e.g. "0", "∞", "104"). The component lives under
+ * the `.vt-editorial` scope, so it inherits all the editorial tokens
+ * from globals.css without needing inline styles.
+ */
+interface Stat {
+  value: string | number;
+  label: string;
+}
+interface Props {
+  stats: ReadonlyArray<Stat>;
+  /**
+   * Optional reveal index for the choreographed page-load animation.
+   * Hero sets this to "stats" so it inherits the same timing as
+   * sibling reveal targets.
+   */
+  reveal?: string;
+}
+const { stats, reveal } = Astro.props as Props;
+---
+<dl class="vt-stat-row" {...(reveal ? { "data-reveal": reveal } : {})}>
+  {stats.map((s) => (
+    <div class="vt-stat">
+      <dd class="vt-stat-num">{s.value}</dd>
+      <dt class="vt-stat-label">{s.label}</dt>
+    </div>
+  ))}
+</dl>

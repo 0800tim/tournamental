@@ -147,7 +147,7 @@
 .vt-appbar-row-main {
   height: 56px;
   display: grid;
-  grid-template-columns: 40px 1fr auto;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 12px;
   padding: 0 16px;
@@ -155,31 +155,44 @@
 }
 
 .vt-appbar-brand {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: var(--vt-radius-pill);
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   color: var(--vt-fg);
   text-decoration: none;
   transition: transform 120ms ease;
+  min-width: 0;
 }
 
 .vt-appbar-brand:active {
-  transform: scale(0.96);
+  transform: scale(0.98);
 }
 
+/* Ball mark, served from the existing PWA icon set so we don't ship a
+ * second raster. 28px CSS / 192px source ≈ 7× density, sharp on every
+ * retina device. */
 .vt-appbar-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  background: var(--vt-accent);
-  color: var(--vt-accent-on);
-  font-weight: 900;
-  font-size: 16px;
-  letter-spacing: -0.02em;
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 6px;
+  background: transparent;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35));
+}
+
+.vt-appbar-wordmark {
+  color: var(--vt-fg-strong, #ffffff);
+  white-space: nowrap;
+  /* On the narrowest phones the title text occupies the centre cell;
+   * hide the wordmark there so the brand mark + title pair stays
+   * within the 56px row. */
+}
+@media (max-width: 420px) {
+  .vt-appbar-wordmark {
+    display: none;
+  }
 }
 
 .vt-appbar-actions {

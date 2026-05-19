@@ -1,170 +1,113 @@
 ---
-const syndicateUrl = "https://play.tournamental.com/syndicates/new";
-const leaderboardUrl = "https://play.tournamental.com/leaderboard";
+/**
+ * Homepage hero, editorial-sport rewrite.
+ *
+ * Treated as a section front of a Saturday football broadsheet on the
+ * eve of a major tournament. Type carries the page: a Fraunces display
+ * headline, an italic lede, a tabular stat row, a single confident CTA.
+ * No product preview card, no parallax tilt, no competing accents.
+ *
+ * Lives under the `.vt-editorial` scope so it inherits the editorial
+ * tokens defined in globals.css (gold accent, opsz axis, hairline rules,
+ * choreographed first-paint reveal). All motion gates on
+ * `prefers-reduced-motion` automatically via that scope.
+ */
+import StatLine from "@/components/StatLine.astro";
 
-// Illustrative leaderboard — replaced by live data once the game service ships.
-const LEADERS = [
-  { rank: 1, name: "Nicolás B.", flag: "🇦🇷", score: 3847, piq: 94, streak: 7 },
-  { rank: 2, name: "Priya S.", flag: "🇧🇷", score: 3602, piq: 91, streak: 5 },
-  { rank: 3, name: "James T.", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", score: 3580, piq: 89, streak: 4 },
-  { rank: 4, name: "Yuki M.", flag: "🇯🇵", score: 3421, piq: 88, streak: 3 },
-  { rank: 5, name: "Ana C.", flag: "🇵🇹", score: 3398, piq: 87, streak: 3 },
+const KICKOFF_LABEL = "Kickoff 11 June 2026";
+const HEADLINE_LINE_1 = "Can you call";
+const HEADLINE_LINE_2 = "every match of";
+const HEADLINE_LINE_3 = "the World Cup?";
+
+const STATS = [
+  { value: "104", label: "Matches" },
+  { value: "48", label: "Teams" },
+  { value: "0", label: "Perfect brackets" },
+  { value: "∞", label: "Claim to glory" },
 ];
+
+const startHref = "https://play.tournamental.com/syndicates/new";
+const rulesHref = "/how-it-works";
 ---
-<section class="container-page pt-16 pb-12 md:pt-24 md:pb-20">
-  <div class="grid lg:grid-cols-2 gap-10 items-start">
-    <div>
-      <span class="pill mb-6 vt-pill-pulse">
-        <span class="vt-icon-mask vt-icon-trophy size-3.5" aria-hidden="true"></span>
-        World Cup 2026 · June 11
+<section class="vt-editorial vt-hero">
+  <div class="container-page vt-hero-inner">
+    <p class="vt-dateline" data-reveal="dateline">
+      Tournamental &middot; World Cup 2026 &middot; {KICKOFF_LABEL}
+    </p>
+
+    <h1 class="vt-headline mt-7" data-reveal="headline">
+      <span class="vt-hero-line">{HEADLINE_LINE_1}</span>
+      <span class="vt-hero-line">
+        every <em>match</em> of
       </span>
-      <p class="font-display text-xl md:text-2xl font-semibold tracking-tight text-accent-400 mb-4">
-        The global quest starts here.
-      </p>
-      <h1 class="vt-hero-h1 font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.05] text-white tracking-tight">
-        Can you predict<br/>
-        <span class="text-accent-400">every match</span><br/>
-        of the World Cup?
-      </h1>
-      <p class="vt-hero-sub mt-6 text-lg text-ink-200 max-w-prose">
-        Nobody has ever called a perfect World Cup. 104 matches, 48 teams, one tournament. Tournamental runs the global leaderboard to find out if anyone can, blockchain verified and tamper-proof. Set up a syndicate for your office, fan group, or creator audience, and join the race.
-      </p>
-      <div class="mt-8 flex flex-wrap gap-3">
-        <a
-          href={syndicateUrl}
-          class="btn-primary vt-glow-cta"
-          data-analytics="cta"
-          data-analytics-label="Start your syndicate"
-          data-analytics-surface="hero"
-        >Start your syndicate →</a>
-        <a
-          href={leaderboardUrl}
-          class="btn-ghost"
-          data-analytics="cta"
-          data-analytics-label="View leaderboard"
-          data-analytics-surface="hero"
-        >View the global board</a>
-        <a
-          href="https://play.tournamental.com"
-          class="btn-ghost"
-          data-analytics="cta"
-          data-analytics-label="Enter your predictions"
-          data-analytics-surface="hero"
-        >Enter your predictions</a>
-      </div>
-      <p class="mt-6 text-sm text-ink-500">Free to play · 100% open source · creators earn revenue share</p>
+      <span class="vt-hero-line">{HEADLINE_LINE_3}</span>
+    </h1>
+
+    <hr class="vt-rule mt-10" data-reveal="rule" aria-hidden="true" />
+
+    <p class="vt-lede mt-8" data-reveal="lede">
+      <strong>Nobody has ever done it.</strong>
+      Twenty-two World Cups, 964 matches, and the perfect bracket has
+      stayed unclaimed. The 104 matches of 2026 are the next attempt.
+      Tournamental keeps the global ledger and settles every pick on
+      record, so the claim to glory is finally provable.
+    </p>
+
+    <div class="mt-12 md:mt-14" data-reveal="stats">
+      <StatLine stats={STATS} />
     </div>
 
-    {/* Global leaderboard card — the hero visual */}
-    <div class="relative" id="vt-hero-tilt-wrapper">
-      <a href={leaderboardUrl} class="block group" aria-label="Open the global leaderboard">
-        <div class="vt-hero-card rounded-2xl">
-          <div class="vt-hero-card-inner">
-            <div class="vt-on-dark rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20">
-              {/* Card header */}
-              <div class="px-5 pt-5 pb-4 border-b border-ink-700 flex items-center justify-between">
-                <div>
-                  <div class="text-xs font-mono text-ink-500 uppercase tracking-widest mb-1">Global Leaderboard</div>
-                  <div class="text-white font-bold text-lg leading-tight">World Cup 2026</div>
-                </div>
-                <div class="text-right">
-                  <div class="text-xs text-ink-500">Players</div>
-                  <div class="text-accent-400 font-bold text-xl">—</div>
-                </div>
-              </div>
-
-              {/* Leaderboard rows */}
-              <div class="divide-y divide-ink-700/60">
-                {LEADERS.map((p) => (
-                  <div class="px-5 py-3 flex items-center gap-3">
-                    <span class:list={[
-                      "text-sm font-bold w-5 text-center shrink-0",
-                      p.rank === 1 ? "text-yellow-400" : p.rank === 2 ? "text-slate-300" : p.rank === 3 ? "text-amber-500" : "text-ink-500"
-                    ]}>{p.rank}</span>
-                    <span class="text-base">{p.flag}</span>
-                    <span class="flex-1 text-sm font-medium text-white truncate">{p.name}</span>
-                    <span class="text-xs text-ink-500 hidden sm:block">IQ {p.piq}</span>
-                    <span class="text-sm font-mono text-accent-400 font-bold">{p.score.toLocaleString()}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Perfect bracket hook */}
-              <div class="px-5 py-4 bg-gradient-to-r from-accent-700/20 to-transparent border-t border-accent-700/40">
-                <div class="flex items-center gap-2">
-                  <span class="text-yellow-400 text-lg">🏆</span>
-                  <div>
-                    <div class="text-white text-sm font-semibold">Perfect bracket: unclaimed</div>
-                    <div class="text-ink-400 text-xs">104 matches · no one has ever called them all</div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
-            </div>
-          </div>
-        </div>
+    <div class="vt-hero-cta-row mt-12 md:mt-16" data-reveal="cta">
+      <a class="vt-cta-primary" href={startHref} data-analytics="cta" data-analytics-label="Start a pool" data-analytics-surface="hero">
+        Start your pool <span aria-hidden="true">&rarr;</span>
       </a>
-      <div class="mt-3 flex items-center gap-2 text-xs text-ink-500">
-        <span class="size-2 rounded-full bg-ink-500"></span>
-        Demo data only. Live leaderboards will commence closer to kickoff.
-      </div>
+      <a class="vt-cta-text" href={rulesHref} data-analytics="cta" data-analytics-label="How scoring works" data-analytics-surface="hero">
+        How scoring works
+      </a>
     </div>
+
+    <p class="vt-footnote mt-10" data-reveal="footnote">
+      Free to play &middot; Apache 2.0 &middot; Contributors share platform revenue
+    </p>
   </div>
 </section>
 
-{/* Parallax tilt — desktop mouse, mobile device-orientation */}
-<script is:inline>
-  (function () {
-    var reduce = window.matchMedia &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduce) return;
+<style>
+  .vt-hero {
+    /* The hero opts out of the page-level radial-gradient body wash so
+     * the type sits on a flat canvas. The rest of the page keeps the
+     * existing background glow; only this section drops it. */
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+  .vt-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: var(--vt-bg);
+    z-index: -1;
+  }
 
-    var wrapper = document.getElementById("vt-hero-tilt-wrapper");
-    if (!wrapper) return;
-    wrapper.classList.add("vt-hero-card-tilt");
+  .vt-hero-inner {
+    padding-top: clamp(3rem, 7vw, 6rem);
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
 
-    var coarse = window.matchMedia &&
-      window.matchMedia("(pointer: coarse)").matches;
+  /* Stack the three headline lines so each rises individually. */
+  .vt-hero-line {
+    display: block;
+  }
 
-    if (!coarse) {
-      var raf = 0;
-      var nx = 0, ny = 0;
-      function loop() {
-        wrapper.style.setProperty("--vt-tilt-x", (nx * 4).toFixed(2) + "deg");
-        wrapper.style.setProperty("--vt-tilt-y", (-ny * 4).toFixed(2) + "deg");
-        raf = 0;
-      }
-      wrapper.addEventListener("mousemove", function (e) {
-        var r = wrapper.getBoundingClientRect();
-        nx = ((e.clientX - r.left) / r.width) * 2 - 1;
-        ny = ((e.clientY - r.top) / r.height) * 2 - 1;
-        if (!raf) raf = requestAnimationFrame(loop);
-      });
-      wrapper.addEventListener("mouseleave", function () {
-        nx = 0; ny = 0;
-        if (!raf) raf = requestAnimationFrame(loop);
-      });
-    } else if ("DeviceOrientationEvent" in window) {
-      var attach = function () {
-        window.addEventListener("deviceorientation", function (e) {
-          var g = Math.max(-30, Math.min(30, e.gamma || 0)) / 30;
-          var b = Math.max(-30, Math.min(30, (e.beta || 0) - 30)) / 30;
-          wrapper.style.setProperty("--vt-tilt-x", (g * 3).toFixed(2) + "deg");
-          wrapper.style.setProperty("--vt-tilt-y", (-b * 3).toFixed(2) + "deg");
-        }, { passive: true });
-      };
-      var ReqClass = window.DeviceOrientationEvent;
-      if (ReqClass && typeof ReqClass.requestPermission === "function") {
-        document.addEventListener("touchstart", function once() {
-          document.removeEventListener("touchstart", once);
-          ReqClass.requestPermission().then(function (state) {
-            if (state === "granted") attach();
-          }).catch(function () {});
-        }, { passive: true, once: true });
-      } else {
-        attach();
-      }
-    }
-  })();
-</script>
+  .vt-hero-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.5rem 2rem;
+  }
+
+  /* Slightly tighter stat row spacing on the hero specifically. */
+  .vt-editorial .vt-stat-num {
+    line-height: 0.95;
+  }
+</style>

@@ -662,11 +662,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }
   };
 
-  const handleMobileSave = (): void => {
-    saveDraft(tournament.id, bracket, userLocalId);
-    setSubmitState("Saved locally.");
-  };
-
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
   const completedKnockouts = Object.keys(bracket.knockoutPredictions).length;
@@ -799,7 +794,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     <div className="bracket-builder">
       <header className="bracket-header">
         <h1>
-          {tournament.name}, Bracket Prophet
+          Call <em>every match</em> of the {tournament.name}.
           {punditStatus.verified && (
             <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
               <PunditBadge status={punditStatus} size={20} />
@@ -807,9 +802,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
           )}
         </h1>
         <p>
-          Predict the outcome of every match. The group standings are computed
-          live from your picks. Save each pick before its match kicks off, you
-          can tweak any pick game by game until then.
+          Group standings update live from your picks. Save each pick before
+          its match kicks off; you can edit any call right up to the whistle.
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
           <strong>{totalCompleted}</strong> of {totalPicks} matches picked
@@ -1040,34 +1034,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
           </ul>
         </details>
       )}
-
-      {/* Mobile-only floating Save & Share CTA. Save persists any
-       * unsaved edits; Share is wired up by the share-card agent -
-       * stub here so the layout/CSS lands now. */}
-      <div className="bracket-mobile-cta" role="group" aria-label="Save and share">
-        <button
-          type="button"
-          className="bracket-mobile-cta-btn bracket-mobile-cta-save"
-          onClick={handleMobileSave}
-        >
-          Save
-        </button>
-        <button
-          type="button"
-          className="bracket-mobile-cta-btn bracket-mobile-cta-share"
-          // TODO(share-card-agent): wire to the share modal once it lands.
-          onClick={() => {
-            track("bracket.share.opened", {
-              tournament_id: tournament.id,
-              surface: "mobile_cta",
-            });
-            setTab("final");
-          }}
-          aria-label="Share, opens the bracket summary"
-        >
-          Share
-        </button>
-      </div>
 
       {showAutoPickConfirm && (
         <div

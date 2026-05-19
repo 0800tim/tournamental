@@ -25,6 +25,20 @@
   src: url("/fonts/Inter-Variable-Italic.woff2") format("woff2");
 }
 
+/* Fraunces variable, the editorial display serif. Single self-hosted
+ * woff2 covering opsz (9-144) + wght (100-900) + SOFT + WONK axes,
+ * Latin Extended subset (~165KB) so it covers our market languages
+ * without shipping the full multi-script payload. The fallback chain
+ * lines up with Georgia/Charter at body sizes so first-paint metrics
+ * stay near-identical when the file is still streaming. */
+@font-face {
+  font-family: "Fraunces";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("/fonts/Fraunces-Variable.woff2") format("woff2");
+}
+
 @layer base {
   /* Theme tokens. The defaults are dark (matching the long-standing
    * design); :root[data-theme="light"] flips the surfaces. The
@@ -773,3 +787,234 @@ section {
 .vt-icon-trophy  { -webkit-mask-image: url("/icons/tournamental/trophy.svg");    mask-image: url("/icons/tournamental/trophy.svg"); }
 .vt-icon-flag    { -webkit-mask-image: url("/icons/tournamental/flag-pole.svg"); mask-image: url("/icons/tournamental/flag-pole.svg"); }
 .vt-icon-ball    { -webkit-mask-image: url("/icons/tournamental/ball-trail.svg"); mask-image: url("/icons/tournamental/ball-trail.svg"); }
+
+/* ----------------------------------------------------------------------
+ * Editorial-sport pass (2026-05-20). New tokens layered on top so legacy
+ * pages stay untouched. The homepage hero opts into these via the
+ * `vt-editorial` scope; everything else continues to use the existing
+ * tokens until polished one-by-one.
+ *
+ * Design intent:
+ *   - One accent: gold, pulled from the new ball mark. The sky-blue and
+ *     flame tokens stay defined for sections below the hero, but the
+ *     hero commits to gold + ink only.
+ *   - Display serif: Fraunces, opsz axis dialled to display sizes so the
+ *     terminals get a magazine-style sharpness at 80-120px.
+ *   - Body sans: Inter, tracked tight, no extra-bold weights in editorial
+ *     content (extra-bold + tight tracking is the Vercel-clone tell).
+ *   - Rhythm: hairlines and whitespace, not gradients and shadows.
+ * -------------------------------------------------------------------- */
+
+:root {
+  /* Gold scale, mirrored from the Tailwind config so non-utility CSS
+   * can reach the same hex without a Tailwind round-trip. */
+  --vt-gold-50:  #fcf2d4;
+  --vt-gold-100: #fcebb2;
+  --vt-gold-200: #f0d27a;
+  --vt-gold-300: #e6bf5e;
+  --vt-gold-400: #dca94b;
+  --vt-gold-500: #c08a26;
+  --vt-gold-600: #9a6a17;
+  --vt-gold-700: #6b4708;
+}
+
+/* `vt-editorial` is a scope class: drop it on a section root and every
+ * descendant inherits the editorial type stack + spacing rules. */
+.vt-editorial {
+  --vt-rule-hair: 1px solid color-mix(in srgb, var(--vt-fg) 18%, transparent);
+  --vt-rule-strong: 3px solid var(--vt-gold-400);
+}
+
+.vt-editorial .vt-dateline {
+  font-family: theme(fontFamily.mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.vt-editorial .vt-dateline::before {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.vt-editorial .vt-headline {
+  font-family: theme(fontFamily.editorial);
+  font-weight: 500;
+  font-style: normal;
+  /* Optical-size axis tells Fraunces to use the display drawing. */
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 0;
+  letter-spacing: -0.018em;
+  line-height: 0.98;
+  color: var(--vt-fg-strong);
+  font-size: clamp(2.75rem, 7vw, 6.25rem);
+}
+
+.vt-editorial .vt-headline em {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+  color: var(--vt-gold-400);
+}
+
+.vt-editorial .vt-section-head {
+  font-family: theme(fontFamily.editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+  letter-spacing: -0.012em;
+  line-height: 1.03;
+  font-size: clamp(1.875rem, 4vw, 3rem);
+  color: var(--vt-fg-strong);
+}
+
+.vt-editorial .vt-lede {
+  font-family: theme(fontFamily.editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: clamp(1.1875rem, 1.6vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--vt-fg);
+  max-width: 60ch;
+}
+.vt-editorial .vt-lede > strong {
+  font-weight: 500;
+  color: var(--vt-fg-strong);
+}
+
+.vt-editorial .vt-rule {
+  height: 0;
+  border: 0;
+  border-top: var(--vt-rule-hair);
+}
+
+.vt-editorial .vt-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1rem, 2vw, 2.5rem);
+  align-items: start;
+}
+.vt-editorial .vt-stat {
+  border-top: var(--vt-rule-hair);
+  padding-top: 0.75rem;
+}
+.vt-editorial .vt-stat-num {
+  font-family: theme(fontFamily.editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  line-height: 0.95;
+  color: var(--vt-gold-400);
+}
+.vt-editorial .vt-stat-label {
+  font-family: theme(fontFamily.mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted);
+  margin-top: 0.5rem;
+}
+
+.vt-editorial .vt-footnote {
+  font-family: theme(fontFamily.mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--vt-fg-muted);
+}
+
+/* Editorial primary CTA: a quieter, more deliberate button than the
+ * default. Ink fill, gold underline, no glow. */
+.vt-editorial .vt-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.85em 1.5em;
+  background: var(--vt-fg-strong);
+  color: var(--vt-bg);
+  border: 1px solid var(--vt-fg-strong);
+  border-radius: 999px;
+  font-family: theme(fontFamily.sans);
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1), background 180ms;
+}
+.vt-editorial .vt-cta-primary:hover {
+  background: var(--vt-gold-400);
+  border-color: var(--vt-gold-400);
+  color: var(--vt-bg);
+  transform: translateY(-1px);
+}
+.vt-editorial .vt-cta-text {
+  font-family: theme(fontFamily.sans);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: var(--vt-fg);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 30%, transparent);
+  padding-bottom: 2px;
+  transition: color 180ms, border-color 180ms;
+}
+.vt-editorial .vt-cta-text:hover {
+  color: var(--vt-gold-400);
+  border-color: var(--vt-gold-400);
+}
+
+/* Reveal choreography for the homepage hero. Single page-load
+ * sequence; all reveals collapse to instant under reduced-motion. */
+@keyframes vt-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes vt-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.vt-editorial [data-reveal] {
+  opacity: 0;
+  animation: vt-rise 700ms cubic-bezier(0.16, 0.84, 0.32, 1) forwards;
+}
+.vt-editorial [data-reveal="dateline"]  { animation-delay: 0ms; }
+.vt-editorial [data-reveal="headline"]  { animation-delay: 80ms; }
+.vt-editorial [data-reveal="rule"]      { animation: vt-fade 600ms ease-out 240ms forwards; }
+.vt-editorial [data-reveal="lede"]      { animation-delay: 320ms; }
+.vt-editorial [data-reveal="stats"]     { animation-delay: 460ms; }
+.vt-editorial [data-reveal="cta"]       { animation-delay: 600ms; }
+.vt-editorial [data-reveal="footnote"]  { animation-delay: 740ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-editorial [data-reveal] {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+/* Brand wordmark, used in the header. Fraunces 500 at display optical
+ * size with mildly negative tracking gives a credible masthead feel
+ * without needing a bespoke logo file. */
+.vt-wordmark {
+  font-family: theme(fontFamily.editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 144, "SOFT" 25;
+  font-size: 1.4rem;
+  line-height: 1;
+  letter-spacing: -0.012em;
+  color: var(--vt-fg-strong);
+}
+.vt-wordmark-meta {
+  font-family: theme(fontFamily.mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted);
+}

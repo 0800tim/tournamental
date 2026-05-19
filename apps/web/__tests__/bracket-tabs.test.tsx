@@ -210,35 +210,6 @@ describe("<BracketBuilder>, round tabs", () => {
     );
   });
 
-  it("renders the floating mobile Save & Share CTA with both buttons", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    const cta = container.querySelector(".bracket-mobile-cta");
-    expect(cta).toBeTruthy();
-    expect(cta!.querySelector(".bracket-mobile-cta-save")?.textContent).toBe(
-      "Save",
-    );
-    expect(cta!.querySelector(".bracket-mobile-cta-share")).toBeTruthy();
-  });
-
-  it("the mobile Save button persists to localStorage", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    // Click a pick first so there's something to save.
-    const groupACard = screen.getAllByText("Group A")[0]!.closest(
-      ".bracket-group",
-    ) as HTMLElement;
-    fireEvent.click(groupACard.querySelector(".mpr-pick-home")!);
-    // Clear the draft to simulate the user wanting to re-save.
-    const beforeKeys = Object.keys(window.localStorage);
-    expect(beforeKeys.length).toBeGreaterThan(0);
-    // Click the floating Save button.
-    fireEvent.click(container.querySelector(".bracket-mobile-cta-save")!);
-    // Draft is still present (no exception thrown).
-    const draftKeys = Object.keys(window.localStorage).filter((k) =>
-      k.startsWith("vtorn:bracket:v2:"),
-    );
-    expect(draftKeys.length).toBe(1);
-  });
-
   it("sticky tab bar is styled with position: sticky (CSS contract)", () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     const tabsEl = container.querySelector(".bracket-tabs");

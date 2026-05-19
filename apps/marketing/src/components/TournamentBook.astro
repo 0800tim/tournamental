@@ -1,0 +1,151 @@
+---
+/**
+ * TournamentBook, the editorial proof strip that replaces the original
+ * "Perfect Bracket Quest" card with the stats card grid.
+ *
+ * Three short stories laid out as a magazine cover trio. No card chrome,
+ * no gradient — hairline rules between columns and generous whitespace
+ * carry the structure. Each story has a dateline-style index, a small
+ * Fraunces section head, a short body paragraph, and a quiet read-more
+ * link.
+ *
+ * Lives under `.vt-editorial` so the type tokens, gold rules, and
+ * dateline treatment all inherit from globals.css.
+ */
+const STORIES = [
+  {
+    index: "01",
+    heading: "The perfect bracket",
+    body:
+      "Twenty-two World Cups. 964 matches. No one has called every result. The 2026 ledger opens today, and every pick is on record from the first whistle.",
+    href: "/world-cup-2026",
+    cta: "Read the rules",
+  },
+  {
+    index: "02",
+    heading: "On-chain settlement",
+    body:
+      "Every prediction lands on a public ledger before kickoff. No one, including us, can change a saved pick once the whistle blows. Trust is structural.",
+    href: "/how-it-works",
+    cta: "Read the spec",
+  },
+  {
+    index: "03",
+    heading: "The global leaderboard",
+    body:
+      "A live, country-tagged ranking of every player. Surface your office, your country, your friend group, all from the same scoreboard.",
+    href: "/leaderboards",
+    cta: "Open the board",
+  },
+] as const;
+---
+<section class="vt-editorial container-page py-16 md:py-24">
+  <header class="mb-10 md:mb-14">
+    <span class="vt-dateline">The tournament book &middot; May 2026</span>
+    <h2 class="vt-section-head mt-3">
+      Three things to know before the first whistle.
+    </h2>
+  </header>
+
+  <ol class="vt-tb-grid">
+    {STORIES.map((s) => (
+      <li class="vt-tb-story">
+        <div class="vt-tb-marker">
+          <span class="vt-tb-index">{s.index}</span>
+          <span class="vt-tb-rule" aria-hidden="true"></span>
+        </div>
+        <h3 class="vt-tb-head">{s.heading}</h3>
+        <p class="vt-tb-body">{s.body}</p>
+        <a class="vt-tb-cta" href={s.href}>
+          {s.cta}
+          <span aria-hidden="true">&nbsp;&rarr;</span>
+        </a>
+      </li>
+    ))}
+  </ol>
+</section>
+
+<style>
+  .vt-tb-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+  @media (min-width: 768px) {
+    .vt-tb-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3.5rem 3rem;
+    }
+  }
+
+  .vt-tb-story {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .vt-tb-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .vt-tb-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+  }
+  .vt-tb-rule {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 18%, transparent);
+  }
+
+  .vt-tb-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 96, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+    font-size: 1.625rem;
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+
+  .vt-tb-body {
+    font-family: inherit;
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    font-size: 1rem;
+    margin: 0;
+    max-width: 38ch;
+  }
+
+  .vt-tb-cta {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--vt-fg-strong);
+    text-decoration: none;
+    margin-top: 0.25rem;
+    border-bottom: 1px solid var(--vt-gold-400);
+    padding-bottom: 3px;
+    align-self: flex-start;
+    transition: color 180ms, border-color 180ms, transform 180ms;
+  }
+  .vt-tb-cta:hover {
+    color: var(--vt-gold-400);
+    border-color: var(--vt-gold-200);
+    transform: translateX(2px);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .vt-tb-cta {
+      transition: none;
+    }
+  }
+</style>

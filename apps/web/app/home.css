@@ -459,3 +459,130 @@
 .vt-home-final-cta {
   text-align: center;
 }
+
+/* ------------------------------------------------------------------ *
+ * Editorial-sport pass (2026-05-20).
+ *
+ * Targeted overrides layered on top of the existing home flow:
+ *   - Hero typography swaps to Fraunces (editorial display serif) at
+ *     display optical size, with `match` highlighted in gold italic.
+ *   - Eyebrow + step tags become quieter dateline-style mono captions
+ *     so the gold pill clutter doesn't compete with the headline.
+ *   - Section dividers go from a solid 1px line to hairlines that
+ *     match the marketing site's editorial scope.
+ *   - Buttons keep their existing geometry but the primary CTA now
+ *     uses an ink-fill with a gold hover, mirroring the marketing
+ *     hero's vt-cta-primary treatment.
+ * ------------------------------------------------------------------ */
+
+.vt-home-eyebrow {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--vt-gold-400);
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-bottom: 24px;
+}
+.vt-home-eyebrow::before {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.vt-home-title {
+  font-family: var(--vt-font-editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 120, "SOFT" 30;
+  letter-spacing: -0.018em;
+  line-height: 1.02;
+  font-size: clamp(2.25rem, 6vw, 4.5rem);
+  margin: 0 auto 24px;
+  max-width: 22ch;
+}
+.vt-home-title em {
+  font-style: italic;
+  font-variation-settings: "opsz" 120, "SOFT" 60, "WONK" 1;
+  color: var(--vt-gold-400);
+}
+
+.vt-home-lede {
+  font-family: var(--vt-font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: clamp(1.0625rem, 1.4vw, 1.25rem);
+  line-height: 1.5;
+  color: #d8def0;
+  max-width: 56ch;
+}
+
+.vt-home-btn-primary {
+  background: #ffffff;
+  color: #0a0e1a;
+  border: 1px solid #ffffff;
+  border-radius: 999px;
+  font-weight: 600;
+}
+.vt-home-btn-primary:hover {
+  background: var(--vt-gold-400);
+  border-color: var(--vt-gold-400);
+  filter: none;
+}
+
+.vt-home-btn-ghost {
+  border-radius: 999px;
+}
+
+.vt-home-step-tag {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--vt-gold-400);
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-weight: 600;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-bottom: 14px;
+}
+.vt-home-step-tag::before {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+.vt-home-step-tag-headline {
+  background: transparent;
+  border: 0;
+  color: var(--vt-gold-300);
+}
+
+.vt-home-h2 {
+  font-family: var(--vt-font-editorial);
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+  letter-spacing: -0.012em;
+  line-height: 1.05;
+  font-size: clamp(1.875rem, 3.5vw, 2.75rem);
+}
+
+.vt-home-section {
+  border-top: 1px solid color-mix(in srgb, #e7ecf7 14%, transparent);
+}
+
+.vt-home-trust li span {
+  color: var(--vt-gold-400);
+}
