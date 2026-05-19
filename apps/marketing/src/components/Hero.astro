@@ -1,125 +1,112 @@
 ---
-const demoUrl = "https://play.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18";
+const syndicateUrl = "https://play.tournamental.com/syndicates/new";
+const leaderboardUrl = "https://play.tournamental.com/leaderboard";
 
-/* Each H1 word is wrapped in a per-word span so we can cascade them
- * with a fade-up motion. The split happens at build-time so the SSR'd
- * HTML is the source of truth, no client JS to mutate the H1, no
- * accessibility tree disruption. Screen readers read the joined text
- * because spans are inline. */
-const HEADLINE: { text: string; accent?: boolean }[] = [
-  { text: "Predict the matches that matter." },
-  { text: "Watch them play out in 3D.", accent: true },
-  { text: "Bring your friends." },
+// Illustrative leaderboard — replaced by live data once the game service ships.
+const LEADERS = [
+  { rank: 1, name: "Nicolás B.", flag: "🇦🇷", score: 3847, piq: 94, streak: 7 },
+  { rank: 2, name: "Priya S.", flag: "🇧🇷", score: 3602, piq: 91, streak: 5 },
+  { rank: 3, name: "James T.", flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", score: 3580, piq: 89, streak: 4 },
+  { rank: 4, name: "Yuki M.", flag: "🇯🇵", score: 3421, piq: 88, streak: 3 },
+  { rank: 5, name: "Ana C.", flag: "🇵🇹", score: 3398, piq: 87, streak: 3 },
 ];
-const PER_WORD_DELAY_MS = 45;
-const PHRASE_GAP_MS = 280;
-let runningDelay = 0;
-const PHRASES = HEADLINE.map((p) => {
-  const words = p.text.split(/(\s+)/); // keep whitespace tokens
-  const wordSpans: { word: string; delay: number; isSpace: boolean }[] = [];
-  for (const w of words) {
-    const isSpace = /^\s+$/.test(w);
-    if (isSpace) {
-      wordSpans.push({ word: w, delay: -1, isSpace: true });
-    } else {
-      wordSpans.push({ word: w, delay: runningDelay, isSpace: false });
-      runningDelay += PER_WORD_DELAY_MS;
-    }
-  }
-  runningDelay += PHRASE_GAP_MS;
-  return { ...p, wordSpans };
-});
 ---
 <section class="container-page pt-16 pb-12 md:pt-24 md:pb-20">
-  <div class="grid lg:grid-cols-2 gap-10 items-center">
+  <div class="grid lg:grid-cols-2 gap-10 items-start">
     <div>
-      <span class="pill mb-6">Live demo: Argentina vs France, 2022 Final</span>
+      <span class="pill mb-6 vt-pill-pulse">
+        <span class="vt-icon-mask vt-icon-trophy size-3.5" aria-hidden="true"></span>
+        World Cup 2026 · June 11
+      </span>
       <p class="font-display text-xl md:text-2xl font-semibold tracking-tight text-accent-400 mb-4">
-        Gamify the tournament. Run private sweepstakes.
+        The global quest starts here.
       </p>
-      {/* Per-word cascade reveal: each word fades up with a small
-          stagger, the highlighted phrase ("Watch them play out in 3D.")
-          carries the accent colour. The H1 is one contiguous text run
-          so it wraps naturally at any viewport width. */}
       <h1 class="vt-hero-h1 font-display text-4xl md:text-5xl xl:text-6xl font-extrabold leading-[1.05] text-white tracking-tight">
-        {PHRASES.map((phrase, pi) => (
-          <Fragment>
-            {pi > 0 && " "}
-            {phrase.wordSpans.map((w) =>
-              w.isSpace ? (
-                w.word
-              ) : (
-                <span
-                  class:list={[
-                    "vt-word",
-                    phrase.accent && "text-accent-400",
-                  ]}
-                  style={`--vt-word-delay: ${w.delay}ms`}
-                >{w.word}</span>
-              ),
-            )}
-          </Fragment>
-        ))}
+        Can you predict<br/>
+        <span class="text-accent-400">every match</span><br/>
+        of the World Cup?
       </h1>
       <p class="vt-hero-sub mt-6 text-lg text-ink-200 max-w-prose">
-        Tournamental is a global tournament prediction game with a verified, 3D match-renderer watch-along. Make a call, see the goals replay, climb the leaderboard. Spin up a private pool at <strong class="text-white">play.tournamental.com/s/yourname</strong> for your office, your group chat, or the world.
+        Nobody has ever called a perfect World Cup. 104 matches, 48 teams, one tournament. Tournamental runs the global leaderboard to find out if anyone can. Set up a syndicate for your office, fan group, or creator audience, and join the race.
       </p>
       <div class="mt-8 flex flex-wrap gap-3">
         <a
-          href={demoUrl}
+          href={syndicateUrl}
           class="btn-primary vt-glow-cta"
           data-analytics="cta"
-          data-analytics-label="Watch the AR-FR replay"
+          data-analytics-label="Start your syndicate"
           data-analytics-surface="hero"
-        >Watch the AR-FR replay</a>
+        >Start your syndicate →</a>
         <a
-          href="/how-it-works"
+          href={leaderboardUrl}
           class="btn-ghost"
           data-analytics="cta"
-          data-analytics-label="How it works"
+          data-analytics-label="View leaderboard"
           data-analytics-surface="hero"
-        >How it works</a>
+        >View the global board</a>
       </div>
-      <p class="mt-6 text-sm text-ink-500">100% open source · Apache 2.0 · contributors share platform revenue.</p>
+      <p class="mt-6 text-sm text-ink-500">Free to play · 100% open source · creators earn revenue share</p>
     </div>
-    {/* The match-card: an outer container that owns the rotating
-        conic-gradient halo (.vt-hero-card) + a tilting inner element
-        (.vt-hero-card-inner) that the parallax script writes to via
-        --vt-tilt-x / --vt-tilt-y custom properties. */}
+
+    {/* Global leaderboard card — the hero visual */}
     <div class="relative" id="vt-hero-tilt-wrapper">
-      <a href={demoUrl} class="block group" aria-label="Open the live AR-FR demo">
+      <a href={leaderboardUrl} class="block group" aria-label="Open the global leaderboard">
         <div class="vt-hero-card rounded-2xl">
           <div class="vt-hero-card-inner">
-            <div class="vt-on-dark aspect-video rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20 relative">
-              <div class="absolute inset-0 bg-gradient-to-br from-emerald-600/40 via-emerald-500/20 to-accent-700/40"></div>
-              <div class="absolute inset-0 grid place-items-center">
-                <div class="text-center px-6">
-                  <div class="font-display text-2xl md:text-3xl font-extrabold text-white tracking-tight">Argentina <span class="text-accent-400">3</span> – <span class="text-flame-400">3</span> France</div>
-                  <div class="text-ink-200 text-sm mt-2">Penalties: 4–2 to Argentina · 18 December 2022</div>
-                  <div class="mt-6 inline-flex items-center gap-2 text-accent-400 group-hover:text-white transition">
-                    <span class="font-semibold">Open the live replay</span>
-                    <span aria-hidden>→</span>
+            <div class="vt-on-dark rounded-2xl border border-ink-700 bg-ink-800 overflow-hidden shadow-2xl shadow-accent-700/20">
+              {/* Card header */}
+              <div class="px-5 pt-5 pb-4 border-b border-ink-700 flex items-center justify-between">
+                <div>
+                  <div class="text-xs font-mono text-ink-500 uppercase tracking-widest mb-1">Global Leaderboard</div>
+                  <div class="text-white font-bold text-lg leading-tight">World Cup 2026</div>
+                </div>
+                <div class="text-right">
+                  <div class="text-xs text-ink-500">Players</div>
+                  <div class="text-accent-400 font-bold text-xl">—</div>
+                </div>
+              </div>
+
+              {/* Leaderboard rows */}
+              <div class="divide-y divide-ink-700/60">
+                {LEADERS.map((p) => (
+                  <div class="px-5 py-3 flex items-center gap-3">
+                    <span class:list={[
+                      "text-sm font-bold w-5 text-center shrink-0",
+                      p.rank === 1 ? "text-yellow-400" : p.rank === 2 ? "text-slate-300" : p.rank === 3 ? "text-amber-500" : "text-ink-500"
+                    ]}>{p.rank}</span>
+                    <span class="text-base">{p.flag}</span>
+                    <span class="flex-1 text-sm font-medium text-white truncate">{p.name}</span>
+                    <span class="text-xs text-ink-500 hidden sm:block">IQ {p.piq}</span>
+                    <span class="text-sm font-mono text-accent-400 font-bold">{p.score.toLocaleString()}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Perfect bracket hook */}
+              <div class="px-5 py-4 bg-gradient-to-r from-accent-700/20 to-transparent border-t border-accent-700/40">
+                <div class="flex items-center gap-2">
+                  <span class="text-yellow-400 text-lg">🏆</span>
+                  <div>
+                    <div class="text-white text-sm font-semibold">Perfect bracket: unclaimed</div>
+                    <div class="text-ink-400 text-xs">104 matches · no one has ever called them all</div>
                   </div>
                 </div>
               </div>
+
               <div class="absolute bottom-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-accent-500/60 to-transparent"></div>
             </div>
           </div>
         </div>
       </a>
       <div class="mt-3 flex items-center gap-2 text-xs text-ink-500">
-        <span class="size-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        Streaming live from this dev server. Click to watch.
+        <span class="size-2 rounded-full bg-accent-400 animate-pulse"></span>
+        Live global standings · updates after every match
       </div>
     </div>
   </div>
 </section>
 
-{/* Parallax, desktop pointer-fine devices follow the mouse with a
-    subtle 4-degree tilt; mobile coarse-pointer devices fall back to
-    DeviceOrientation (gamma/beta) when the page has user gesture
-    permission. The script honours prefers-reduced-motion: reduce by
-    short-circuiting before any listener attaches. */}
+{/* Parallax tilt — desktop mouse, mobile device-orientation */}
 <script is:inline>
   (function () {
     var reduce = window.matchMedia &&
@@ -134,8 +121,6 @@ const PHRASES = HEADLINE.map((p) => {
       window.matchMedia("(pointer: coarse)").matches;
 
     if (!coarse) {
-      // Desktop / fine-pointer path. Track the mouse over the wrapper's
-      // bounding box, normalise to [-1, 1], scale to ±4 deg.
       var raf = 0;
       var nx = 0, ny = 0;
       function loop() {
@@ -154,12 +139,8 @@ const PHRASES = HEADLINE.map((p) => {
         if (!raf) raf = requestAnimationFrame(loop);
       });
     } else if ("DeviceOrientationEvent" in window) {
-      // Coarse pointer: device-tilt fallback. iOS gates this behind a
-      // permission prompt, we only request after first touch so the
-      // page isn't denied immediately on load.
       var attach = function () {
         window.addEventListener("deviceorientation", function (e) {
-          // gamma is left/right tilt, range ~-90..90; beta is front/back.
           var g = Math.max(-30, Math.min(30, e.gamma || 0)) / 30;
           var b = Math.max(-30, Math.min(30, (e.beta || 0) - 30)) / 30;
           wrapper.style.setProperty("--vt-tilt-x", (g * 3).toFixed(2) + "deg");
@@ -172,7 +153,7 @@ const PHRASES = HEADLINE.map((p) => {
           document.removeEventListener("touchstart", once);
           ReqClass.requestPermission().then(function (state) {
             if (state === "granted") attach();
-          }).catch(function () { /* user denied, fail silent */ });
+          }).catch(function () {});
         }, { passive: true, once: true });
       } else {
         attach();

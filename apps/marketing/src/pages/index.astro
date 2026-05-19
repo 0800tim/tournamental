@@ -6,67 +6,102 @@ import SectionHeading from "@/components/SectionHeading.astro";
 <Layout ogImage="/og/index.png">
   <Hero />
 
-  <!-- Three pillars -->
+  <!-- Perfect bracket quest -->
   <section class="container-page py-12">
-    <div class="grid-cards">
-      <article class="card">
-        <div class="text-accent-400 font-mono text-sm">01</div>
-        <h3 class="text-xl font-bold text-white mt-2">Predict</h3>
-        <p class="text-ink-200 mt-3">Pick winners, scorers, scorelines, special markets. Save your predictions, change any one until kickoff. Earn points for accuracy and a Prediction IQ score that only goes up over time.</p>
-      </article>
-      <article class="card">
-        <div class="text-accent-400 font-mono text-sm">02</div>
-        <h3 class="text-xl font-bold text-white mt-2">Watch</h3>
-        <p class="text-ink-200 mt-3">Live 3D replay of the actual match, pitch, players, ball, scoreboard, commentary. Drag the timeline. Jump to the 25th minute. Score updates as you scrub.</p>
-      </article>
-      <article class="card">
-        <div class="text-accent-400 font-mono text-sm">03</div>
-        <h3 class="text-xl font-bold text-white mt-2">Compete</h3>
-        <p class="text-ink-200 mt-3">Global leaderboards by tournament, country, and friend group. Earn badges, win bonus tokens, get personalised goal clips you can share, referrals turn into real platform credit.</p>
-      </article>
+    <div class="rounded-2xl border border-yellow-500/30 bg-gradient-to-br from-yellow-500/10 via-ink-900 to-accent-700/10 p-8 md:p-12">
+      <div class="grid md:grid-cols-2 gap-8 items-center">
+        <div>
+          <span class="pill mb-4" style="color: #f5c542; border-color: rgba(245,197,66,0.4);">🏆 The Perfect Bracket Hunt</span>
+          <h2 class="text-3xl md:text-4xl font-bold text-white tracking-tight leading-tight">
+            104 matches.<br/>Nobody has ever called them all.
+          </h2>
+          <p class="text-ink-200 mt-4 max-w-prose">
+            The FIFA World Cup has never produced a perfect bracket. Not once. Tournamental tracks every prediction across the globe in real time. The first person to call all 104 matches correctly wins the biggest bragging right in football history, and we'll make sure the world knows it.
+          </p>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="https://play.tournamental.com/" class="btn-primary" data-analytics="cta" data-analytics-label="Play free" data-analytics-surface="quest-section">Play free</a>
+            <a href="/leaderboards" class="btn-ghost" data-analytics="cta" data-analytics-label="Leaderboards" data-analytics-surface="quest-section">How scoring works</a>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-white">48</div>
+            <div class="text-ink-400 text-sm mt-1">Teams</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-white">104</div>
+            <div class="text-ink-400 text-sm mt-1">Matches</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-accent-400">0</div>
+            <div class="text-ink-400 text-sm mt-1">Perfect brackets ever</div>
+          </div>
+          <div class="card text-center">
+            <div class="text-3xl font-bold text-accent-400">∞</div>
+            <div class="text-ink-400 text-sm mt-1">Bragging rights</div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Syndicates pitch -->
+  <!-- Syndicates — the creator pitch -->
   <section class="container-page py-12">
     <SectionHeading
       eyebrow="Syndicates"
-      title="Run your own pool at play.tournamental.com/s/yourname"
-      lede="An office sweepstake. A friends' WhatsApp pool. A 5,000-person fan group. Tournamental gives every host their own path, theme, and leaderboard. You handle the money offline however you like, we keep the predictions and the stats."
+      title="Run your own pool. play.tournamental.com/s/yourname"
+      lede="Give your audience, office, or fan group their own branded prediction pool. Free embed widget for any site. Your logo, your leaderboard, your rules. Create yours and it goes live in minutes."
     />
-    <div class="grid md:grid-cols-2 gap-6">
+    <div class="grid md:grid-cols-2 gap-6 mt-8">
       <div class="card">
-        <h3 class="text-lg font-bold text-white">Configurable formats</h3>
-        <p class="text-ink-200 mt-2">Winner-takes-all. Gold/silver/bronze. Season-long ladder. Knockout brackets. Free-to-play with bragging rights, or real-money handled by you.</p>
+        <h3 class="text-lg font-bold text-white">For creators and influencers</h3>
+        <p class="text-ink-200 mt-2">Give your audience a syndicate page at your own URL slug. Every pick, every share card, every leaderboard update carries your brand. You drive traffic; we run the game; Drips Network pays you automatically in ETH.</p>
       </div>
       <div class="card">
-        <h3 class="text-lg font-bold text-white">Branded surfaces</h3>
-        <p class="text-ink-200 mt-2">Your logo, your colours, your tagline, on the leaderboard, the share cards, the email digests. Friends never need to know "Tournamental" exists.</p>
+        <h3 class="text-lg font-bold text-white">For offices and fan groups</h3>
+        <p class="text-ink-200 mt-2">Office sweepstake or 5,000-person fan club, same toolkit. Custom leaderboard, group invite via WhatsApp or Telegram, settlement clip when the winner is declared. Handle money offline however you like.</p>
       </div>
       <div class="card">
-        <h3 class="text-lg font-bold text-white">No platform middleman</h3>
-        <p class="text-ink-200 mt-2">Free for hosts. Real-money pools settle off-platform. We never touch funds we aren't authorised to hold, that's how we stay clean of regulated-gambling territory.</p>
+        <h3 class="text-lg font-bold text-white">Branded share cards</h3>
+        <p class="text-ink-200 mt-2">Every prediction generates a shareable image. Every leaderboard moment earns a clip. Members share to social and your syndicate grows. Network effects built in.</p>
       </div>
       <div class="card">
-        <h3 class="text-lg font-bold text-white">Built-in tooling</h3>
-        <p class="text-ink-200 mt-2">CSV import for entries. One-click invite via Telegram, WhatsApp, email. Auto-generated dispute receipts. Settlement clip you can post in the group on win-day.</p>
+        <h3 class="text-lg font-bold text-white">Premium CRM via Aiva</h3>
+        <p class="text-ink-200 mt-2">$97/month adds a fully-managed HighLevel sub-account: your own SMS, WhatsApp, email, Stripe-backed paid entries, and subdomain hosting. Drips revenue share for hosts who bring real volume.</p>
       </div>
     </div>
     <div class="mt-8 flex gap-3">
-      <a
-        href="/syndicates"
-        class="btn-primary"
-        data-analytics="cta"
-        data-analytics-label="Start a syndicate"
-        data-analytics-surface="syndicates-section"
-      >Start a syndicate</a>
-      <a
-        href="/influencers"
-        class="btn-ghost"
-        data-analytics="cta"
-        data-analytics-label="For influencers"
-        data-analytics-surface="syndicates-section"
-      >For influencers</a>
+      <a href="https://play.tournamental.com/syndicates/new" class="btn-primary" data-analytics="cta" data-analytics-label="Start a syndicate" data-analytics-surface="syndicates-section">Start a syndicate</a>
+      <a href="/influencers" class="btn-ghost" data-analytics="cta" data-analytics-label="For influencers" data-analytics-surface="syndicates-section">For influencers</a>
+    </div>
+  </section>
+
+  <!-- How the game works — three pillars -->
+  <section class="container-page py-12">
+    <SectionHeading
+      eyebrow="How it works"
+      title="Predict. Compete. Share."
+      lede="The game is simple. The competition is global. Sign in, make your calls, and climb."
+    />
+    <div class="grid-cards mt-8">
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">01</div>
+        <h3 class="text-xl font-bold text-white mt-2">Predict</h3>
+        <p class="text-ink-200 mt-3">Pick winners, scorers, scorelines, and special markets. Save any time, change any call until kickoff. Your Prediction IQ score is tracked for life, scored against the closing line so it's impossible to game.</p>
+      </article>
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">02</div>
+        <h3 class="text-xl font-bold text-white mt-2">Compete</h3>
+        <p class="text-ink-200 mt-3">Global, country, syndicate, and friend-group leaderboards update live as matches settle. Streak multipliers, underdog bonuses, and a Brier-score Prediction IQ that follows you across tournaments.</p>
+      </article>
+      <article class="card">
+        <div class="text-accent-400 font-mono text-sm">03</div>
+        <h3 class="text-xl font-bold text-white mt-2">Share</h3>
+        <p class="text-ink-200 mt-3">Earn shareable goal clips, leaderboard cards, and position badges. Referrals turn into bonus tokens. Your syndicate grows every time a member shares a win.</p>
+      </article>
+    </div>
+    <div class="mt-6 text-center">
+      <a href="/how-it-works" class="link text-sm">Full rules and scoring explained →</a>
     </div>
   </section>
 
@@ -80,20 +115,8 @@ import SectionHeading from "@/components/SectionHeading.astro";
           <p class="text-ink-200 mt-3 max-w-prose">Every line of code, every doc, every spec is on GitHub. Build your own predictions product on top, fork the renderer, ship a tournament integration. Merged contributors opt in to a continuous USDC revenue share via the Drips Network.</p>
         </div>
         <div class="flex md:flex-col gap-3">
-          <a
-            href="https://github.com/0800tim/tournamental"
-            class="btn-primary"
-            data-analytics="cta"
-            data-analytics-label="View the repo"
-            data-analytics-surface="open-source-section"
-          >View the repo</a>
-          <a
-            href="/contribute"
-            class="btn-ghost"
-            data-analytics="cta"
-            data-analytics-label="How to contribute"
-            data-analytics-surface="open-source-section"
-          >How to contribute</a>
+          <a href="https://github.com/0800tim/tournamental" class="btn-primary" data-analytics="cta" data-analytics-label="View the repo" data-analytics-surface="open-source-section">View the repo</a>
+          <a href="/contribute" class="btn-ghost" data-analytics="cta" data-analytics-label="How to contribute" data-analytics-surface="open-source-section">How to contribute</a>
         </div>
       </div>
     </div>
@@ -105,26 +128,14 @@ import SectionHeading from "@/components/SectionHeading.astro";
       <div class="md:col-span-2">
         <span class="pill vt-pill-pulse mb-3">
           <span class="vt-icon-mask vt-icon-trophy size-3.5" aria-hidden="true"></span>
-          Coming June 2026
+          Coming June 11, 2026
         </span>
-        <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">The Global World Cup Championship is the perfect time to start.</h3>
-        <p class="mt-4 text-ink-200">Six weeks. 48 teams. 104 matches. One global leaderboard. Set up your syndicate now and you'll be ready when the first whistle blows.</p>
+        <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">Set up your syndicate now. Be ready when the first whistle blows.</h3>
+        <p class="mt-4 text-ink-200">Six weeks. 48 teams. 104 matches. One global leaderboard. The creator, the office, or the fan group that calls the most right will be a legend.</p>
       </div>
       <div class="flex md:flex-col gap-3">
-        <a
-          href="/world-cup-2026"
-          class="btn-primary"
-          data-analytics="cta"
-          data-analytics-label="World Cup playbook"
-          data-analytics-surface="wc2026-section"
-        >World Cup playbook</a>
-        <a
-          href="/start"
-          class="btn-ghost"
-          data-analytics="cta"
-          data-analytics-label="Get started"
-          data-analytics-surface="wc2026-section"
-        >Get started</a>
+        <a href="/world-cup-2026" class="btn-primary" data-analytics="cta" data-analytics-label="World Cup playbook" data-analytics-surface="wc2026-section">World Cup playbook</a>
+        <a href="https://play.tournamental.com/syndicates/new" class="btn-ghost" data-analytics="cta" data-analytics-label="Start your syndicate" data-analytics-surface="wc2026-section">Start your syndicate</a>
       </div>
     </div>
   </section>

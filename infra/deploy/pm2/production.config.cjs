@@ -94,17 +94,21 @@ function nextApp({ name, app, port, instances = 1 }) {
 }
 
 function astroApp({ name, app, port }) {
+  // Uses preview-server.mjs instead of `astro preview` because Astro 4.x's
+  // static-preview-server.js hard-codes the Vite preview config without
+  // allowedHosts, causing 403 errors for every request through the
+  // Cloudflare tunnel (which sends a non-localhost Host header).
   return {
     name,
     cwd: path.join(APPS, app),
-    script: 'node_modules/.bin/astro',
-    args: `preview --host 0.0.0.0 --port ${port}`,
+    script: path.join(APPS, app, 'preview-server.mjs'),
+    interpreter: 'node',
     instances: 1,
     exec_mode: 'fork',
     env: {
       NODE_ENV: 'production',
-      ASTRO_OUT_DIR: path.join(APPS, app, 'dist-prod'),
       PORT: String(port),
+      HOST: '0.0.0.0',
     },
     env_file: path.join(REPO_ROOT, 'apps', app, '.env.production'),
     out_file: `/var/log/vtorn/${name}.out.log`,

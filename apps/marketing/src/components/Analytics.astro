@@ -58,88 +58,86 @@ const isGa4Direct = enabled && gtmId.startsWith("G-");
           gating. Branches on the ID prefix: GTM container vs gtag.js
           direct GA4 install. */}
       <script is:inline define:vars={{ gtmId, isGa4Direct }}>
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('consent', 'default', {
-            analytics_storage: 'granted',
-            ad_storage: 'denied',
-            ad_user_data: 'denied',
-            ad_personalization: 'denied'
-          });
-          if (isGa4Direct) {
-            // gtag.js direct install (G-XXXX). The async src tag was
-            // injected above; we just need the standard init pair.
-            gtag('js', new Date());
-            gtag('config', gtmId);
-          } else {
-            // GTM container install (GTM-XXXX).
-            (function(w,d,s,l,i){
-              w[l]=w[l]||[];
-              w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
-              var f=d.getElementsByTagName(s)[0],
-                  j=d.createElement(s),
-                  dl=l!='dataLayer'?'&l='+l:'';
-              j.async=true;
-              j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-              f.parentNode.insertBefore(j,f);
-            })(window,document,'script','dataLayer',gtmId);
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('consent', 'default', {
+          analytics_storage: 'granted',
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied'
+        });
+        if (isGa4Direct) {
+          // gtag.js direct install (G-XXXX). The async src tag was
+          // injected above; we just need the standard init pair.
+          gtag('js', new Date());
+          gtag('config', gtmId);
+        } else {
+          // GTM container install (GTM-XXXX).
+          (function(w,d,s,l,i){
+            w[l]=w[l]||[];
+            w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
+            var f=d.getElementsByTagName(s)[0],
+                j=d.createElement(s),
+                dl=l!='dataLayer'?'&l='+l:'';
+            j.async=true;
+            j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+            f.parentNode.insertBefore(j,f);
+          })(window,document,'script','dataLayer',gtmId);
+        }
+
+        // ─── Marketing-site bridge ───────────────────────────────────
+        // Expose window.tournamental.track() so Astro islands can fire
+        // events without importing a TS module. Same envelope shape as
+        // the React SDK in apps/web.
+        window.tournamental = window.tournamental || {};
+        window.tournamental.track = function (name, payload) {
+          try {
+            if (!window.dataLayer) window.dataLayer = [];
+            var debug = false;
+            try { debug = localStorage.getItem('tournamental_analytics_debug') === '1'; } catch (e) {}
+            var env = Object.assign({ event: 'tournamental.' + name }, payload || {});
+            if (debug) console.debug('[tournamental.analytics]', env);
+            window.dataLayer.push(env);
+          } catch (e) {
+            console.warn('[tournamental.analytics] push failed', e);
           }
+        };
 
-          // ─── Marketing-site bridge ───────────────────────────────────
-          // Expose window.tournamental.track() so Astro islands can fire
-          // events without importing a TS module. Same envelope shape as
-          // the React SDK in apps/web.
-          window.tournamental = window.tournamental || {};
-          window.tournamental.track = function (name, payload) {
-            try {
-              if (!window.dataLayer) window.dataLayer = [];
-              var debug = false;
-              try { debug = localStorage.getItem('tournamental_analytics_debug') === '1'; } catch (e) {}
-              var env = Object.assign({ event: 'tournamental.' + name }, payload || {});
-              if (debug) console.debug('[tournamental.analytics]', env);
-              window.dataLayer.push(env);
-            } catch (e) {
-              console.warn('[tournamental.analytics] push failed', e);
-            }
-          };
+        // ─── Auto page.view ──────────────────────────────────────────
+        // Fire once per document load. Astro view transitions emit
+        // 'astro:page-load' on every soft nav, listen for that too.
+        function vt_pageview() {
+          try {
+            window.tournamental.track('page.view', {
+              path: location.pathname,
+              title: document.title,
+              host: location.host,
+              referrer: document.referrer || null
+            });
+          } catch (e) {}
+        }
+        if (document.readyState !== 'loading') vt_pageview();
+        else document.addEventListener('DOMContentLoaded', vt_pageview);
+        document.addEventListener('astro:page-load', vt_pageview);
 
-          // ─── Auto page.view ──────────────────────────────────────────
-          // Fire once per document load. Astro view transitions emit
-          // 'astro:page-load' on every soft nav, listen for that too.
-          function vt_pageview() {
-            try {
-              window.tournamental.track('page.view', {
-                path: location.pathname,
-                title: document.title,
-                host: location.host,
-                referrer: document.referrer || null
+        // ─── Auto CTA instrumentation ────────────────────────────────
+        // Any anchor / button with [data-analytics="cta"] fires
+        // tournamental.cta.clicked. Page authors don't need to know
+        // about the SDK.
+        document.addEventListener('click', function (e) {
+          var el = e.target;
+          while (el && el !== document.body) {
+            if (el.dataset && el.dataset.analytics === 'cta') {
+              window.tournamental.track('cta.clicked', {
+                label: (el.dataset.analyticsLabel || el.textContent || '').trim().slice(0, 80),
+                href: el.getAttribute('href') || null,
+                surface: el.dataset.analyticsSurface || location.pathname
               });
-            } catch (e) {}
-          }
-          if (document.readyState !== 'loading') vt_pageview();
-          else document.addEventListener('DOMContentLoaded', vt_pageview);
-          document.addEventListener('astro:page-load', vt_pageview);
-
-          // ─── Auto CTA instrumentation ────────────────────────────────
-          // Any anchor / button with [data-analytics="cta"] fires
-          // tournamental.cta.clicked. Page authors don't need to know
-          // about the SDK.
-          document.addEventListener('click', function (e) {
-            var el = e.target;
-            while (el && el !== document.body) {
-              if (el.dataset && el.dataset.analytics === 'cta') {
-                window.tournamental.track('cta.clicked', {
-                  label: (el.dataset.analyticsLabel || el.textContent || '').trim().slice(0, 80),
-                  href: el.getAttribute('href') || null,
-                  surface: el.dataset.analyticsSurface || location.pathname
-                });
-                return;
-              }
-              el = el.parentNode;
+              return;
             }
-          }, { capture: true });
-        `}
+            el = el.parentNode;
+          }
+        }, { capture: true });
       </script>
     </>
   )

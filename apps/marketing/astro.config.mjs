@@ -10,7 +10,7 @@ export default defineConfig({
   // /blog/ content collection while keeping the rest of the marketing
   // surface as plain Astro. Sitemap auto-discovers the blog index +
   // every generated post slug; nothing to wire by hand.
-  integrations: [tailwind(), mdx(), sitemap()],
+  integrations: [tailwind({ applyBaseStyles: false }), mdx(), sitemap()],
   // Suppress Astro's dev toolbar in built output. The toolbar is a
   // dev-only convenience but the prod build was shipping it into the
   // static HTML — visible on every marketing page at launch.
@@ -21,13 +21,10 @@ export default defineConfig({
   },
   vite: {
     server: {
-      // Dev only: accept any Host header so the cloudflared tunnel
-      // (tournamental.com today, tournamental.com tomorrow) can hit us
-      // without per-host config drift.
-      allowedHosts: true,
+      allowedHosts: ['tournamental.com', '.tournamental.com', 'vtourn.com', '.vtourn.com', 'localhost'],
     },
     preview: {
-      allowedHosts: true,
+      allowedHosts: ['tournamental.com', '.tournamental.com', 'vtourn.com', '.vtourn.com', 'localhost'],
     },
   },
 });
