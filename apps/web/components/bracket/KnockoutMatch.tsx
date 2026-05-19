@@ -208,6 +208,7 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
             groupLabel={knockout.stage.toUpperCase()}
             country={country}
             source="bracket-knockout"
+            hideWhenMock
           />
         </div>
       )}

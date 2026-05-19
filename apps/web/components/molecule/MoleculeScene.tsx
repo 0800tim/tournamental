@@ -19,8 +19,11 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 
+import { useUser } from "@/lib/auth/useUser";
+import { loadServerBracket } from "@/lib/bracket/api";
+import { mergeBrackets } from "@/lib/bracket/merge";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
-import { loadDraft, localUserId } from "@/lib/bracket/storage";
+import { loadDraft, localUserId, saveDraft } from "@/lib/bracket/storage";
 import {
   buildMoleculeLayout,
   type BondStage,
@@ -387,17 +390,43 @@ export function MoleculeScene({
     return () => mq.removeEventListener?.("change", handler);
   }, []);
 
+  const auth = useUser();
   useEffect(() => {
     if (bracketOverride) {
       setBracket(bracketOverride);
       return;
     }
     if (typeof window === "undefined") return;
-    const id = localUserId();
+    // Mirror BracketBuilder: prefer the authed user id when signed in,
+    // otherwise the per-browser guest id. Picks are persisted under the
+    // same key on the bracket page, so reading the guest id alone would
+    // miss a signed-in user's bracket and render the empty petri-dish
+    // state even with a full 104-pick draft on disk.
+    if (auth.loading) return;
+    const authedId = auth.user?.id ?? null;
+    const guestId = localUserId();
+    const id = authedId ?? guestId;
     setUserIdLocal(id);
     const draft = loadDraft(tournament.id, id);
     if (draft) setBracket(draft);
-  }, [tournament.id, bracketOverride]);
+
+    // Best-effort server hydration so a returning user on a fresh
+    // device still sees their picks. Merges into whatever was on disk;
+    // the merged result is written back so the next load is local-fast.
+    let cancelled = false;
+    void (async () => {
+      const remote = await loadServerBracket({ userId: id, tournamentId: tournament.id });
+      if (cancelled || !remote.ok) return;
+      setBracket((current) => {
+        const merged = mergeBrackets(current, remote.bracket);
+        saveDraft(tournament.id, merged, id);
+        return merged;
+      });
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [tournament.id, bracketOverride, auth.loading, auth.user?.id]);
 
   const cascaded = useMemo<CascadedBracket>(
     () => resolveCascade(tournament, bracket, userIdLocal),

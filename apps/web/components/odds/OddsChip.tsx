@@ -44,6 +44,10 @@ export interface OddsChipProps {
   /** When false, render the chip but skip the network call (used by
    * tests + storybook). */
   readonly fetchEnabled?: boolean;
+  /** When true, render nothing until real (non-mock) odds resolve.
+   * Used on knockout cards so we don't surface FIFA-rank placeholder
+   * probabilities for matches whose slots are still predicted. */
+  readonly hideWhenMock?: boolean;
 }
 
 const LONG_PRESS_MS = 500;
@@ -65,6 +69,7 @@ export function OddsChip(props: OddsChipProps) {
     country,
     source,
     fetchEnabled = true,
+    hideWhenMock = false,
   } = props;
 
   const popoverId = useId();
@@ -122,6 +127,13 @@ export function OddsChip(props: OddsChipProps) {
     if (!data) return [];
     return mockOddsHistory(matchNo, data, 14).points;
   }, [data, matchNo]);
+
+  // Knockout cards opt into hiding while data is still placeholder, so
+  // we don't surface FIFA-rank fallbacks for matches whose slots are
+  // still predicted. Reveal as soon as a real (non-mock) source arrives.
+  if (hideWhenMock && (!data || data.source.startsWith("mock-"))) {
+    return null;
+  }
 
   // Fallback team labels if the parent didn't pass full names.
   const hLabel = homeLabel ?? homeTeam;

@@ -21,6 +21,7 @@ import type { Metadata } from "next";
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { BracketBuilder } from "@/components/bracket/BracketBuilder";
+import { EmbedHeightReporter } from "@/components/embed/EmbedHeightReporter";
 import { AppShell } from "@/components/shell";
 import { OverlayServerShim } from "@/components/overlay/OverlayServerShim";
 import { BracketOverlayShell } from "@/components/overlay/BracketOverlayShell";
@@ -66,22 +67,41 @@ export default function WorldCup2026Page({ searchParams }: WorldCup2026PageProps
     baseTournament,
     canonicalTeamsRaw as CanonicalTeamsFile,
   );
+  // Embed mode (?embed=1): hides AppBar + BottomNav + footer so the
+  // page is iframe-ready for partner sites. The `pool` query param
+  // optionally pre-selects a pool for the player to join.
+  const embed = String(searchParams?.embed ?? "") === "1";
+  // Theme propagation for the embed iframe. Partner widgets pass
+  // ?theme=light|dark; only an explicit value lands as `data-theme` on
+  // the bracket page so the light overrides at the bottom of
+  // bracket.css kick in. Standalone /world-cup-2026 (non-embed) leaves
+  // the attribute off and inherits the site-wide shell theme.
+  const themeParam = String(searchParams?.theme ?? "").toLowerCase();
+  const theme: "light" | "dark" | undefined =
+    themeParam === "light" ? "light" : themeParam === "dark" ? "dark" : undefined;
 
   return (
-    <AppShell title="Tournament">
+    <AppShell title="World Cup 2026" embed={embed}>
       <BracketOverlayShell pageLabel="World Cup 2026" pageHref="/world-cup-2026">
-        <main className="bracket-page">
+        <main
+          className="bracket-page"
+          data-embed={embed ? "1" : undefined}
+          data-theme={theme}
+        >
+          {embed && <EmbedHeightReporter />}
           <BracketBuilder tournament={tournament} />
-          <footer className="bracket-page-footer">
-            <p>
-              Engine: <code>@tournamental/bracket-engine</code>. Source data:{" "}
-              <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
-                World Cup 2026
-              </a>{" "}
-              ({baseTournament._meta.schedule_status}). When the official draw is
-              finalised, swap the fixtures JSON.
-            </p>
-          </footer>
+          {!embed && (
+            <footer className="bracket-page-footer">
+              <p>
+                Engine: <code>@tournamental/bracket-engine</code>. Source data:{" "}
+                <a href={baseTournament._meta.source_url} target="_blank" rel="noreferrer">
+                  World Cup 2026
+                </a>{" "}
+                ({baseTournament._meta.schedule_status}). When the official draw is
+                finalised, swap the fixtures JSON.
+              </p>
+            </footer>
+          )}
           <OverlayServerShim searchParams={searchParams} />
         </main>
       </BracketOverlayShell>
