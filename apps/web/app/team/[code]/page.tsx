@@ -101,7 +101,7 @@ export default function TeamPage({ params }: TeamPageProps) {
   }
 
   const primary = canonical.kit?.primary ?? "#fbbf24";
-  const secondary = canonical.kit?.secondary ?? "#0f172a";
+  const secondary = canonical.kit?.secondary ?? "#1c1c22";
 
   const gid = groupForTeam(tournament, upper);
   const opponents = groupOpponents(tournament, upper);

@@ -103,7 +103,7 @@ export function PunditBadge({
           style={{
             position: "absolute",
             transform: `translate(${size * 0.3}px, -${size * 0.55}px)`,
-            background: "#1a2238",
+            background: "#26262c",
             color: "#fff",
             fontSize: Math.max(8, Math.round(size * 0.55)),
             lineHeight: 1,

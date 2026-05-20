@@ -152,11 +152,14 @@ export function InstallPrompt() {
     dismiss();
   };
 
-  const label =
+  // Single-word visible label per Tim 2026-05-21 ("just say Install").
+  // The longer description goes into aria-label so screen readers
+  // still hear the iOS / generic path differentiation.
+  const ariaLabel =
     state.kind === "ios"
-      ? "Install: tap share, then Add to Home Screen"
+      ? "Install Tournamental: tap share, then Add to Home Screen"
       : state.kind === "generic"
-        ? "Install Tournamental: browser menu, Install app"
+        ? "Install Tournamental: open your browser menu, then Install app"
         : "Install Tournamental as an app";
 
   return (
@@ -165,17 +168,29 @@ export function InstallPrompt() {
         type="button"
         className="vt-drawer-install-cta"
         onClick={onClick}
-        aria-label={label}
+        aria-label={ariaLabel}
       >
-        <img
-          src="/icons/icon-192.png?v=ball"
-          alt=""
+        {/* Standard install glyph (downward arrow into tray) per
+         * 2026-05-21 — the gold ball was misread as a generic logo
+         * rather than an install affordance. Inline SVG so the colour
+         * inherits from currentColor and stays on-token. */}
+        <svg
+          className="vt-drawer-install-mark"
+          viewBox="0 0 24 24"
           width={20}
           height={20}
-          decoding="async"
-          className="vt-drawer-install-mark"
-        />
-        <span className="vt-drawer-install-label">{label}</span>
+          fill="none"
+          stroke="currentColor"
+          strokeWidth={2}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 3v12" />
+          <path d="M7 10l5 5 5-5" />
+          <path d="M5 21h14" />
+        </svg>
+        <span className="vt-drawer-install-label">Install</span>
         <span className="vt-drawer-install-arrow" aria-hidden="true">
           →
         </span>

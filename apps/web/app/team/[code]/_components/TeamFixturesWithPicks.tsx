@@ -170,6 +170,6 @@ function fallbackTeam(code: string): Team {
     country: code,
     fifa_rank: 99,
     pre_tournament_implied_win: 0.25,
-    kit: { primary: "#94a3b8", secondary: "#0f172a" },
+    kit: { primary: "#94a3b8", secondary: "#1c1c22" },
   } as Team;
 }

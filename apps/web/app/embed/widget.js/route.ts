@@ -85,36 +85,41 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
   }
 
   // ---- Styles ----
-  // Theme palettes: light is the default for embedding into the
-  // typical white-background partner site; dark for sites whose own
-  // chrome is dark.
+  // Theme palettes. Default is now "dark" per Tim 2026-05-21: the
+  // play app is dark-only and the embed should match. Light still
+  // exists for partner sites whose chrome is bright (newspaper-style
+  // partners pass theme_mode="light" explicitly to opt in).
   var THEMES = {
     light: {
       bg: "#ffffff",
       surface: "#f7f9fc",
       border: "rgba(15,22,38,0.10)",
       borderSoft: "rgba(15,22,38,0.06)",
-      textStrong: "#0a0e1a",
+      textStrong: "#15151a",
       text: "#293041",
       textMuted: "#6b7283",
       iframeBg: "#ffffff",
       shadow: "0 10px 32px rgba(15,22,38,0.10)",
       footerBg: "#f7f9fc",
-      ctaText: "#0a0e1a",
+      ctaText: "#15151a",
       statBg: "rgba(15,22,38,0.04)",
     },
     dark: {
-      bg: "#0a0e1a",
-      surface: "rgba(255,255,255,0.04)",
-      border: "rgba(255,255,255,0.10)",
-      borderSoft: "rgba(255,255,255,0.06)",
+      // Charcoal canvas + gold accents, matching docs/BRAND.md §2.
+      // Surface tokens are warm-neutral rather than navy-tinted so
+      // partner-site embeds read as a piece of the editorial-sport
+      // brand instead of a legacy Tournamental sky-blue widget.
+      bg: "#15151a",
+      surface: "#1c1c22",
+      border: "rgba(255,255,255,0.08)",
+      borderSoft: "rgba(255,255,255,0.05)",
       textStrong: "#ffffff",
-      text: "#cdd5e7",
-      textMuted: "#9aa6c2",
-      iframeBg: "#0a0e1a",
-      shadow: "0 14px 44px rgba(0,0,0,0.45)",
-      footerBg: "rgba(0,0,0,0.3)",
-      ctaText: "#0a0e1a",
+      text: "#e6e6ea",
+      textMuted: "#a3a3ad",
+      iframeBg: "#15151a",
+      shadow: "0 14px 44px rgba(0,0,0,0.55)",
+      footerBg: "rgba(0,0,0,0.35)",
+      ctaText: "#15151a",
       statBg: "rgba(255,255,255,0.04)",
     },
   };
@@ -127,7 +132,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       '.tnm-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; background: linear-gradient(135deg, ' + primary + '14 0%, ' + accent + '14 100%); border-bottom: 1px solid ' + t.borderSoft + '; }',
       '.tnm-logo { width: 40px; height: 40px; border-radius: 10px; background: #ffffff; padding: 5px; box-sizing: border-box; flex: 0 0 40px; display: flex; align-items: center; justify-content: center; border: 1px solid ' + t.borderSoft + '; }',
       '.tnm-logo img { width: 100%; height: 100%; object-fit: contain; }',
-      '.tnm-logo--initial { background: ' + primary + '; color: #0a0e1a; font-weight: 800; font-size: 18px; padding: 0; border: 0; }',
+      '.tnm-logo--initial { background: ' + primary + '; color: #15151a; font-weight: 800; font-size: 18px; padding: 0; border: 0; }',
       '.tnm-title { display: flex; flex-direction: column; min-width: 0; flex: 1; }',
       '.tnm-name { font-size: 15px; font-weight: 700; color: ' + t.textStrong + '; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }',
       '.tnm-tour { font-size: 11px; color: ' + t.textMuted + '; letter-spacing: 0.04em; text-transform: uppercase; }',
@@ -180,7 +185,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
   function renderHub(root, config, authed, currentTab) {
     var primary = (config.branding && config.branding.primary_colour) || "#fbbf24";
     var accent = (config.branding && config.branding.accent_colour) || "#3c8bcf";
-    var theme = config.theme_mode === "dark" ? "dark" : "light";
+    var theme = config.theme_mode === "light" ? "light" : "dark";
     var name = config.name || "Pool";
     var logoUrl = config.branding && config.branding.logo_url ? config.branding.logo_url : null;
     var sponsor = config.sponsor;
@@ -243,7 +248,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
 
   function playPaneMarkup(config, authed) {
     var slug = config.slug;
-    var theme = config.theme_mode === "dark" ? "dark" : "light";
+    var theme = config.theme_mode === "light" ? "light" : "dark";
     if (authed) {
       var src = API_ORIGIN + "/world-cup-2026?embed=1&pool=" + encodeURIComponent(slug) + "&theme=" + theme;
       return '<iframe class="tnm-iframe" src="' + escapeHtml(src) +
@@ -374,7 +379,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       var iframeHeight = (this.getAttribute("height") || "780").trim();
       var iframeSrc = API_ORIGIN + "/world-cup-2026?embed=1&pool=" + encodeURIComponent(slug);
       this.shadowRoot.innerHTML =
-        '<style>:host{display:block;width:100%;}iframe.tnm-iframe{width:100%;height:' + escapeHtml(iframeHeight) + 'px;border:0;border-radius:12px;background:#0a0e1a;display:block;transition:height 180ms ease;}</style>' +
+        '<style>:host{display:block;width:100%;}iframe.tnm-iframe{width:100%;height:' + escapeHtml(iframeHeight) + 'px;border:0;border-radius:12px;background:#15151a;display:block;transition:height 180ms ease;}</style>' +
         '<iframe class="tnm-iframe" src="' + escapeHtml(iframeSrc) + '" allow="clipboard-write *; fullscreen *" loading="lazy" referrerpolicy="origin"></iframe>';
       return;
     }

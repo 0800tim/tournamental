@@ -11,7 +11,7 @@
 
 .td-page {
   --td-primary: #fbbf24;
-  --td-secondary: #0f172a;
+  --td-secondary: #1c1c22;
   --td-bg: #0a0f1c;
   --td-card-bg: #131b2e;
   --td-card-border: rgba(255, 255, 255, 0.08);
@@ -343,7 +343,7 @@
   background: linear-gradient(135deg, #16a34a, #14532d);
 }
 .td-form-d {
-  background: linear-gradient(135deg, #475569, #1e293b);
+  background: linear-gradient(135deg, #52525c, #25252c);
 }
 .td-form-l {
   background: linear-gradient(135deg, #b91c1c, #4c0519);

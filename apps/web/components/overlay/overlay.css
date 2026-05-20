@@ -51,7 +51,7 @@
   width: 100%;
   max-width: 100%;
   max-height: 92vh;
-  background: #0f172a;
+  background: #1c1c22;
   color: #e2e8f0;
   border-top-left-radius: 18px;
   border-top-right-radius: 18px;
@@ -68,7 +68,7 @@
  * match overlays may render on light marketing pages later. */
 [data-theme="light"] .vt-overlay-sheet {
   background: #ffffff;
-  color: #0f172a;
+  color: #1c1c22;
   box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.18);
 }
 

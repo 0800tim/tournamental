@@ -454,6 +454,13 @@ export function MoleculeScene({
     // briefly open the rank-favourite panel and then snap to the user's
     // real champion when localStorage loads.
     if (typeof window === "undefined") return;
+    // Mobile: skip auto-select so the user lands on the bare molecule.
+    // Tapping an atom opens the panel + path chips; that's the
+    // expand-on-tap contract Tim asked for on 2026-05-21.
+    if (window.matchMedia?.("(max-width: 720px)").matches) {
+      autoSelectedRef.current = true;
+      return;
+    }
     // `initialSelectedTeam` wins over the locally-cascaded champion:
     // the share landing passes the server-resolved code here so a
     // stranger viewer lands on the actual predicted winner even when
@@ -696,7 +703,11 @@ export function MoleculeScene({
   }
 
   return (
-    <div className="molecule-root" data-has-picks={layout.hasAnyKnockoutPick ? "true" : "false"}>
+    <div
+      className="molecule-root"
+      data-has-picks={layout.hasAnyKnockoutPick ? "true" : "false"}
+      data-selected={selected ? "true" : "false"}
+    >
       <Canvas
         className="molecule-canvas"
         shadows={false}
@@ -730,9 +741,9 @@ export function MoleculeScene({
           gl.outputColorSpace = THREE.SRGBColorSpace;
         }}
       >
-        <color attach="background" args={["#0a0e1a"]} />
+        <color attach="background" args={["#15151a"]} />
         <ambientLight intensity={0.55} color="#ffffff" />
-        <hemisphereLight args={["#8aa0c8", "#0a0e1a", 0.45]} />
+        <hemisphereLight args={["#8aa0c8", "#15151a", 0.45]} />
         <directionalLight position={[20, 30, 15]} intensity={0.95} color="#fff5d0" />
         <directionalLight position={[-25, -10, -20]} intensity={0.35} color="#7eb6e8" />
 

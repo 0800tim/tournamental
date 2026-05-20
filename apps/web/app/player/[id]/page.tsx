@@ -88,7 +88,7 @@ export default function PlayerPage({ params }: PlayerPageProps) {
   const teamName = team?.name ?? player.code;
   const flagEmoji = team?.flag_emoji;
   const primary = team?.kit?.primary ?? "#fbbf24";
-  const secondary = team?.kit?.secondary ?? "#0f172a";
+  const secondary = team?.kit?.secondary ?? "#1c1c22";
 
   // Person + SportsOrganization JSON-LD for SEO.
   const jsonLd = {

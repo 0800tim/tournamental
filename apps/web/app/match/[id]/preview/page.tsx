@@ -101,9 +101,9 @@ export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
   const away = match.awayCode ? canonicalTeam(match.awayCode) : undefined;
 
   const homePrimary = home?.kit?.primary ?? "#fbbf24";
-  const homeSecondary = home?.kit?.secondary ?? "#0f172a";
+  const homeSecondary = home?.kit?.secondary ?? "#1c1c22";
   const awayPrimary = away?.kit?.primary ?? "#3b82f6";
-  const awaySecondary = away?.kit?.secondary ?? "#0f172a";
+  const awaySecondary = away?.kit?.secondary ?? "#1c1c22";
 
   // Pre-compute everything the tabs need on the server so the client
   // bundle stays tiny (the tabs themselves are pure presentation).

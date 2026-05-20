@@ -2,7 +2,7 @@
  * ShareSavePage stylesheet.
  *
  * Reuses the WC 2026 bracket palette:
- *   bg     #0a0e1a      (--vt-bg)
+ *   bg     #15151a      (--vt-bg)
  *   ink    #cdd5e7      (~--vt-fg)
  *   gold   #f5c542      (the primary brand accent for "Share")
  *   silver #d8dde6
@@ -253,7 +253,7 @@
   border: 0;
   cursor: pointer;
   background: var(--ss-accent);
-  color: #0a0e1a;
+  color: #15151a;
   border-radius: 12px;
   font: inherit;
   font-weight: 600;

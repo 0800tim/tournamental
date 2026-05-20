@@ -20,7 +20,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  /* Charcoal grey canvas (2026-05-20). Was the deep navy #0a0e1a;
+  /* Charcoal grey canvas (2026-05-20). Was the deep navy #15151a;
    * swapped to a neutral charcoal so the gold ball-mark and gold
    * editorial accents read cleanly without a blue cast competing. */
   background: #15151a;
@@ -803,7 +803,7 @@ a {
  *   └──────────────────────────────────────────────────────┘
  *
  * Palette mirrors the molecule view (dark navy + gold + ink-200):
- *   bg dark   #0a0e1a
+ *   bg dark   #15151a
  *   ink-200   #cdd5e7
  *   gold      #f5c542
  *   accent    #7eb6e8

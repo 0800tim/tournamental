@@ -96,13 +96,18 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
             ✕
           </button>
         </header>
+        {/* Install affordance sits at the top of the drawer per Tim
+         * 2026-05-21. The component returns null when the app is
+         * already in standalone mode or the user dismissed within the
+         * last 30 days, so a returning installed visitor doesn't see
+         * a now-pointless prompt. */}
+        <InstallPrompt />
         <div className="vt-drawer-section-label">App</div>
         <DrawerLinks links={DRAWER_PRIMARY} onClick={onClose} />
         <div className="vt-drawer-section-label">World Cup 2026</div>
         <DrawerLinks links={DRAWER_WC2026} onClick={onClose} />
         <div className="vt-drawer-section-label">More</div>
         <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
-        <InstallPrompt />
       </aside>
     </div>
   );

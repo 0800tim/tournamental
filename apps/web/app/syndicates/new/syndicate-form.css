@@ -5,7 +5,7 @@
   padding: 32px 16px 80px;
   display: flex;
   justify-content: center;
-  background: linear-gradient(180deg, #0a0e1a 0%, #0e1424 100%);
+  background: linear-gradient(180deg, #15151a 0%, #16161a 100%);
 }
 
 .syn-container {
@@ -245,7 +245,7 @@
 
 .syn-submit {
   background: linear-gradient(180deg, #6ad4a4 0%, #4ab27f 100%);
-  color: #0a0e1a;
+  color: #15151a;
   border: none;
   border-radius: 12px;
   font-weight: 800;
@@ -302,7 +302,7 @@
   display: flex;
   align-items: stretch;
   gap: 0;
-  background: #0a0e1a;
+  background: #15151a;
   border: 1px solid #2a3149;
   border-radius: 10px;
   overflow: hidden;

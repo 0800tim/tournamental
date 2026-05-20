@@ -52,6 +52,10 @@ export interface GroupCardProps {
   readonly oddsByMatch?: ReadonlyMap<string, MatchOdds>;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
+  /** Optional per-group auto-pick. When provided the header surfaces a
+   * small ⚡ button that fills the 6 matches of this group only,
+   * using the same odds-favourite rule as the page-level Auto-pick. */
+  readonly onAutoPickGroup?: (groupId: string) => void;
 }
 
 const POSITION_LABELS = [
@@ -73,6 +77,7 @@ export function GroupCard(props: GroupCardProps) {
     oddsByMatch,
     onChangeMatch,
     onChangeTiebreaker,
+    onAutoPickGroup,
   } = props;
 
   const groupFixtures = tournament.group_fixtures
@@ -94,26 +99,83 @@ export function GroupCard(props: GroupCardProps) {
         tiebreaker,
       });
 
+  // Mobile-only accordion. Desktop CSS forces the body visible regardless
+  // of this state, so we can safely start collapsed for the SSR pass.
+  const [expanded, setExpanded] = useState(false);
+  const bodyId = `bracket-group-body-${group.id}`;
+
   return (
-    <div className="bracket-group" data-group-id={group.id}>
-      <div className="bracket-group-head">
-        <h3>Group {group.id}</h3>
-        <span className="bracket-group-progress" aria-live="polite">
-          {predictedCount} / {groupFixtures.length} matches predicted
-        </span>
+    <div
+      className="bracket-group"
+      data-group-id={group.id}
+      data-collapsed={expanded ? undefined : "true"}
+    >
+      <div className="bracket-group-head-row">
+        <button
+          type="button"
+          className="bracket-group-head"
+          onClick={() => setExpanded((v) => !v)}
+          aria-expanded={expanded}
+          aria-controls={bodyId}
+        >
+          <h3>
+            <span className="bracket-group-head-label">Group {group.id}</span>
+            <span className="bracket-group-head-teams" aria-hidden="true">
+              {group.team_ids.map((code, i) => (
+                <span key={code} className="bracket-group-head-team">
+                  <img
+                    className="bracket-group-head-flag"
+                    src={`/flags/${code}.svg`}
+                    alt=""
+                    width={16}
+                    height={11}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  <span className="bracket-group-head-team-code">{code}</span>
+                  {i < group.team_ids.length - 1 && (
+                    <span className="bracket-group-head-team-sep">·</span>
+                  )}
+                </span>
+              ))}
+            </span>
+          </h3>
+          <span className="bracket-group-progress" aria-live="polite">
+            {predictedCount} / {groupFixtures.length} predicted
+          </span>
+          <span className="bracket-group-head-chevron" aria-hidden="true">
+            {expanded ? "▼" : "▶"}
+          </span>
+        </button>
+        {onAutoPickGroup ? (
+          <button
+            type="button"
+            className="bracket-group-autopick"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAutoPickGroup(group.id);
+            }}
+            aria-label={`Auto-pick all 6 matches in Group ${group.id}`}
+            title={`Auto-pick Group ${group.id} from live odds`}
+          >
+            <span className="bracket-group-autopick-icon" aria-hidden="true">⚡</span>
+            <span className="bracket-group-autopick-label">Auto-pick group</span>
+          </button>
+        ) : null}
       </div>
 
-      {showOddsChips && (
-        <GroupWinnerChips
-          groupId={group.id}
-          teamCodes={group.team_ids as readonly string[]}
-          teams={teams}
-          country={country}
-        />
-      )}
+      <div id={bodyId} className="bracket-group-body">
+        {showOddsChips && (
+          <GroupWinnerChips
+            groupId={group.id}
+            teamCodes={group.team_ids as readonly string[]}
+            teams={teams}
+            country={country}
+          />
+        )}
 
-      <div className="bracket-group-matches">
-        {groupFixtures.map((f) => {
+        <div className="bracket-group-matches">
+          {groupFixtures.map((f) => {
           const homeCode = group.team_ids[f.home_idx]!;
           const awayCode = group.team_ids[f.away_idx]!;
           const home = teams.get(homeCode);
@@ -135,25 +197,26 @@ export function GroupCard(props: GroupCardProps) {
               onChange={onChangeMatch}
             />
           );
-        })}
-      </div>
+          })}
+        </div>
 
-      <PredictedStandingsPanel
-        standings={standings}
-        teams={teams}
-        complete={complete}
-        ties={ties}
-      />
-
-      {ties.length > 0 && (
-        <TiebreakerControl
-          group={group}
+        <PredictedStandingsPanel
           standings={standings}
+          teams={teams}
+          complete={complete}
           ties={ties}
-          tiebreaker={tiebreaker}
-          onChangeTiebreaker={onChangeTiebreaker}
         />
-      )}
+
+        {ties.length > 0 && (
+          <TiebreakerControl
+            group={group}
+            standings={standings}
+            ties={ties}
+            tiebreaker={tiebreaker}
+            onChangeTiebreaker={onChangeTiebreaker}
+          />
+        )}
+      </div>
     </div>
   );
 }

@@ -263,7 +263,7 @@ export function ManageClient({
             <button
               type="button"
               className="syn-submit"
-              style={{ background: "transparent", color: "var(--ink-400, #94a3b8)", marginTop: "0.5rem", border: "1px solid var(--vt-border, #1e293b)" }}
+              style={{ background: "transparent", color: "var(--ink-400, #94a3b8)", marginTop: "0.5rem", border: "1px solid var(--vt-border, #25252c)" }}
               onClick={() => { setPhase("requesting"); setCode(""); setError(""); }}
             >
               Use a different number

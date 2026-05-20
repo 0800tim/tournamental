@@ -349,7 +349,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           padding: 10px 16px;
           border-radius: 999px;
           background: var(--vt-accent, #fde68a);
-          color: var(--vt-accent-on, #0a0e1a);
+          color: var(--vt-accent-on, #15151a);
           font-weight: 700;
           border: 0;
           cursor: pointer;
@@ -376,7 +376,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           padding: 12px 20px;
           border-radius: 999px;
           background: var(--vt-accent, #fde68a);
-          color: var(--vt-accent-on, #0a0e1a);
+          color: var(--vt-accent-on, #15151a);
           font-weight: 800;
           border: 0;
           cursor: pointer;

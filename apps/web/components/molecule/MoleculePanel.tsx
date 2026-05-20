@@ -92,7 +92,7 @@ const FINAL_STAGE_PILL: Record<FinalStage, { label: string; bg: string; fg: stri
   third_place: { label: "BRONZE", bg: "#d8954f", fg: "#1e1006" },
   fourth_place: { label: "4TH PLACE", bg: "#7c6648", fg: "#fff" },
   qf: { label: "OUT IN QF", bg: "#ff9a3d", fg: "#1e1006" },
-  r16: { label: "OUT IN R16", bg: "#7eb6e8", fg: "#0a0e1a" },
+  r16: { label: "OUT IN R16", bg: "#7eb6e8", fg: "#15151a" },
   r32: { label: "OUT IN R32", bg: "#566787", fg: "#fff" },
   group: { label: "OUT IN GROUP", bg: "#3a4360", fg: "#cdd5e7" },
 };

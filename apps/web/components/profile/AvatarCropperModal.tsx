@@ -115,7 +115,7 @@ export function AvatarCropperModal({
             objectFit="contain"
             restrictPosition
             style={{
-              containerStyle: { background: "#0a0e1a" },
+              containerStyle: { background: "#15151a" },
               cropAreaStyle: {
                 color: "rgba(10, 14, 26, 0.6)",
                 border: "2px solid rgba(251, 191, 36, 0.85)",
@@ -187,7 +187,7 @@ async function cropToBlob(imageUrl: string, area: Area): Promise<Blob> {
   ctx.imageSmoothingQuality = "high";
   // JPEG can't represent transparency; fill with a neutral background
   // first so any alpha pixels in the source flatten predictably.
-  ctx.fillStyle = "#0a0e1a";
+  ctx.fillStyle = "#15151a";
   ctx.fillRect(0, 0, OUTPUT, OUTPUT);
   ctx.drawImage(
     img,

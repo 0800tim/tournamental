@@ -91,11 +91,66 @@
   box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.2);
 }
 
+.bracket-group-head-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 8px;
+}
+
 .bracket-group-head {
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  /* Desktop default treats the row as a static label, not a toggle. The
+   * mobile media query below restyles it as a tappable accordion bar. */
+}
+
+/* Per-group ⚡ Auto-pick. Fills only this group's 6 matches. Visible
+ * inline next to the group label on desktop; on mobile it's hidden
+ * while the group is collapsed and revealed alongside the matches
+ * when the user expands the accordion. */
+.bracket-group-autopick {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 28px;
+  padding: 0 10px;
+  background: transparent;
+  color: var(--vt-gold-400, #dca94b);
+  border: 1px solid rgba(220, 169, 75, 0.4);
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.bracket-group-autopick:hover {
+  background: rgba(220, 169, 75, 0.12);
+  border-color: var(--vt-gold-400, #dca94b);
+}
+
+.bracket-group-autopick:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 169, 75, 0.35);
+}
+
+.bracket-group-autopick-icon {
+  font-size: 13px;
+  line-height: 1;
 }
 
 .bracket-group-head h3 {
@@ -112,6 +167,104 @@
   line-height: 1.1;
   margin: 0;
   color: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.bracket-group-head-label {
+  display: inline-block;
+}
+
+/* Team-code preview chip rendered next to the group label. Hidden on
+ * desktop where the group's content speaks for itself; visible on
+ * mobile when the body is collapsed so the user can see at a glance
+ * which 4 teams are in the group before tapping to expand. */
+.bracket-group-head-teams {
+  font-family: var(--vt-font-sans, system-ui, sans-serif);
+  font-weight: 600;
+  font-variant-caps: normal;
+  letter-spacing: 0.02em;
+  font-size: 11px;
+  color: #a3a3ad;
+  display: none;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+}
+
+.bracket-group-head-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bracket-group-head-flag {
+  width: 16px;
+  height: 11px;
+  border-radius: 1px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.bracket-group-head-team-code {
+  letter-spacing: 0.04em;
+}
+
+.bracket-group-head-team-sep {
+  color: #52525c;
+  margin: 0 2px;
+}
+
+.bracket-group-head-chevron {
+  display: none;
+  font-size: 12px;
+  line-height: 1;
+  color: #a3a3ad;
+  margin-left: 4px;
+}
+
+/* Mobile: turn the head into an accordion toggle, collapse the body
+ * by default, show the teams preview + chevron in the bar. */
+@media (max-width: 768px) {
+  .bracket-group-head {
+    padding: 10px 4px;
+  }
+
+  .bracket-group-head-row {
+    margin-bottom: 0;
+  }
+
+  .bracket-group[data-collapsed="true"] .bracket-group-body {
+    display: none;
+  }
+
+  /* While the group is collapsed the auto-pick is hidden, the user
+   * sees one focused action (tap to expand). On expand the button
+   * reappears at the top of the matches list. */
+  .bracket-group[data-collapsed="true"] .bracket-group-autopick {
+    display: none;
+  }
+
+  .bracket-group-head-teams {
+    display: inline-flex;
+  }
+
+  .bracket-group-head-chevron {
+    display: inline-block;
+  }
+
+  .bracket-group-autopick-label {
+    display: none;
+  }
+
+  .bracket-group-autopick {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
 }
 
 .bracket-lock-btn {
@@ -617,58 +770,6 @@
   .bracket-autopick-subtitle {
     grid-area: subtitle;
     text-align: right;
-  }
-}
-
-/* ---- Mobile-only condensed sticky Auto-pick pill ----
- * When the user has scrolled past the tab strip (so the Final tab is in
- * view), this collapsed pill keeps the Auto-pick CTA reachable without
- * scrolling back up. Same gold/navy language as the main button; 40px
- * tall; sticks below the AppShell top bar (56px). */
-.bracket-autopick-sticky {
-  position: sticky;
-  top: 56px;
-  display: none; /* desktop default, overridden below */
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  align-self: flex-end;
-  margin: 0 8px 8px auto;
-  height: 40px;
-  padding: 0 16px;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  color: #1c1c22;
-  border: 1px solid #f59e0b;
-  border-radius: 999px;
-  font-size: 13px;
-  font-weight: 800;
-  letter-spacing: 0.02em;
-  cursor: pointer;
-  /* Above the tab strip (z=20) but below the AppShell drawer (z=40). */
-  z-index: 25;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35);
-}
-
-.bracket-autopick-sticky:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.55),
-    0 4px 12px rgba(15, 23, 42, 0.35);
-}
-
-.bracket-autopick-sticky:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.bracket-autopick-sticky-icon {
-  font-size: 16px;
-  line-height: 1;
-}
-
-@media (max-width: 767px) {
-  .bracket-autopick-sticky {
-    display: inline-flex;
   }
 }
 

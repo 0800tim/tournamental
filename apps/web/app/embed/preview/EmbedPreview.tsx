@@ -82,7 +82,7 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
           placeholder="your-syndicate-slug"
           style={{
             flex: "1 1 240px",
-            background: "#0a0e1a",
+            background: "#15151a",
             border: "1px solid rgba(255,255,255,0.12)",
             borderRadius: 10,
             color: "#fff",
@@ -135,7 +135,7 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
         </p>
         <pre
           style={{
-            background: "#0a0e1a",
+            background: "#15151a",
             border: "1px solid rgba(255,255,255,0.08)",
             borderRadius: 10,
             padding: 16,
@@ -156,7 +156,7 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
           style={{
             marginTop: 12,
             background: "#fbbf24",
-            color: "#0a0e1a",
+            color: "#15151a",
             border: "none",
             borderRadius: 10,
             padding: "10px 16px",

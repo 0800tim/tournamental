@@ -64,7 +64,7 @@ export function AuthPopupClient({ pool, from }: AuthPopupClientProps) {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
-        background: "#0a0e1a",
+        background: "#15151a",
         color: "#fff",
         padding: 20,
         fontFamily:

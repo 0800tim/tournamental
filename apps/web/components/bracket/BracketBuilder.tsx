@@ -734,6 +734,88 @@ export function BracketBuilder(props: BracketBuilderProps) {
     );
   };
 
+  /**
+   * Per-group auto-pick. Fills only that group's 6 match predictions
+   * + its tiebreaker, using the same odds-favourite rule as the global
+   * Auto-pick. No knockout work, no /api/odds round-trip, the page-level
+   * bulk-fetched oddsByMatch is reused. If the snapshot hasn't landed
+   * yet the user gets a soft message and nothing changes.
+   */
+  const handleAutoPickGroup = (groupId: string): void => {
+    if (!oddsByMatch || oddsByMatch.size === 0) {
+      setSubmitState(
+        `auto-pick group ${groupId}: live odds not loaded yet, try again in a moment.`,
+      );
+      return;
+    }
+    const group = tournament.groups.find((g) => g.id === groupId);
+    if (!group) return;
+    const fixtures = tournament.group_fixtures.filter(
+      (f) => f.group_id === groupId,
+    );
+    if (fixtures.length === 0) return;
+    track("bracket.autopick.group.run", {
+      tournament_id: tournament.id,
+      group_id: groupId,
+    });
+    let next: Bracket = bracket;
+    let added = 0;
+    const ts = new Date().toISOString();
+    for (const f of fixtures) {
+      const id = String(f.match_no);
+      const o = oddsByMatch.get(id);
+      if (!o) continue;
+      const h = o.homeWin;
+      const d = o.draw ?? -1;
+      const a = o.awayWin;
+      const max = Math.max(h, d, a);
+      const outcome: MatchPrediction["outcome"] =
+        max === h ? "home_win" : max === d ? "draw" : "away_win";
+      const prev = next.matchPredictions[id]?.outcome;
+      const oddsAtLock = snapshotOdds(o);
+      next = {
+        ...next,
+        matchPredictions: {
+          ...next.matchPredictions,
+          [id]: { matchId: id, outcome, lockedAt: ts, oddsAtLock },
+        },
+      };
+      appendHistory(tournament.id, userLocalId, {
+        type: "match_pick",
+        id,
+        outcome,
+        prevOutcome: prev,
+        odds: oddsAtLock,
+        ts,
+      });
+      added += 1;
+    }
+    // Tiebreaker by FIFA rank, same convention as the global auto-pick.
+    if (group.team_ids.length === 4) {
+      const ranked = [...group.team_ids].sort((aId, bId) => {
+        const ar = tournament.teams.find((t) => t.id === aId)?.fifa_rank ?? 99;
+        const br = tournament.teams.find((t) => t.id === bId)?.fifa_rank ?? 99;
+        return ar - br;
+      }) as [string, string, string, string];
+      next = {
+        ...next,
+        groupTiebreakers: {
+          ...next.groupTiebreakers,
+          [groupId]: { groupId, rankedTeams: ranked, setAt: ts },
+        },
+      };
+      appendHistory(tournament.id, userLocalId, {
+        type: "tiebreaker_set",
+        id: groupId,
+        ts,
+      });
+    }
+    update(next);
+    setSubmitState(
+      `auto-picked group ${groupId} (${added} matches). Adjust any you disagree with.`,
+    );
+  };
+
   const handleSubmit = async (): Promise<void> => {
     setSubmitState("submitting…");
     const submission: Bracket = {
@@ -954,23 +1036,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
         </p>
       </div>
 
-      {/* Mobile-only condensed sticky pill. Visually identical language
-       * (gold pill, dark navy text) so it reads as the same CTA when the
-       * full row has scrolled out of view. Z-index sits above the tab
-       * strip but below AppShell's drawer (z=40). */}
-      <button
-        type="button"
-        className="bracket-autopick-sticky"
-        data-testid="bracket-autopick-sticky"
-        onClick={() => setShowAutoPickConfirm(true)}
-        aria-label="Auto-pick (sticky shortcut)"
-        title="Auto-pick every match to the current Polymarket favourite"
-        disabled={autoPickDisabled}
-      >
-        <span className="bracket-autopick-sticky-icon" aria-hidden="true">⚡</span>
-        <span className="bracket-autopick-sticky-label">Auto-pick</span>
-      </button>
-
       <nav
         className="bracket-tabs"
         data-testid="bracket-tabs"
@@ -1056,6 +1121,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       oddsByMatch={oddsByMatch}
                       onChangeMatch={onChangeMatch}
                       onChangeTiebreaker={onChangeTiebreaker}
+                      onAutoPickGroup={handleAutoPickGroup}
                     />
                   ))}
                 </div>

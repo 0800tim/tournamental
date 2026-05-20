@@ -45,6 +45,7 @@ export type EventName =
   | "bracket.share.opened"
   | "bracket.share.completed"
   | "bracket.autopick.run"
+  | "bracket.autopick.group.run"
   | "match.opened"
   | "match.cam.angle.changed"
   | "molecule.opened"

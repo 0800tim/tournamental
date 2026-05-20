@@ -4,8 +4,8 @@
  * normal DOM styling.
  *
  * Colour palette mirrors the bracket-share-card.ts canvas palette:
- *   bg dark    #0a0e1a
- *   bg dark 2  #101626
+ *   bg dark    #15151a
+ *   bg dark 2  #1c1c22
  *   ink-200    #cdd5e7
  *   gold       #f5c542
  *   silver     #d8dde6
@@ -19,7 +19,7 @@
   /* v4: compact header is ~48px so the canvas claims more vertical space. */
   height: calc(100vh - 48px);
   min-height: 520px;
-  background: #0a0e1a;
+  background: #15151a;
   color: #cdd5e7;
   overflow: hidden;
 }
@@ -121,7 +121,7 @@
   padding: 1px 5px;
   font: 900 8px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.1em;
-  color: #0a0e1a;
+  color: #15151a;
   background: #cbd5e1;
   border: 1px solid rgba(203, 213, 225, 0.85);
   border-radius: 999px;
@@ -543,9 +543,14 @@
   right: 0;
   bottom: 0;
   width: min(380px, 92vw);
-  background: linear-gradient(180deg, #101626 0%, #0a0e1a 100%);
+  background: linear-gradient(180deg, #1c1c22 0%, #15151a 100%);
   border-left: 1px solid rgba(125, 145, 200, 0.18);
-  z-index: 6;
+  /* Drei <Html> labels portal up to z-index 12 (atoms 0-10, bond chips
+   * 11-12). Panel sits cleanly above both so atom + path-badge chips
+   * never bleed onto the predicted-champion / group-stage panel below.
+   * Per Tim 2026-05-21: the floating chips were painting through the
+   * panel on mobile AND desktop. */
+  z-index: 30;
   display: flex;
   flex-direction: column;
   animation: molecule-panel-in 240ms cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -1081,7 +1086,7 @@
 .molecule-empty-cta {
   display: inline-block;
   background: #f5c542;
-  color: #0a0e1a;
+  color: #15151a;
   font: 800 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   letter-spacing: 0.04em;
   text-decoration: none;
@@ -1102,7 +1107,7 @@
   justify-content: space-between;
   gap: 16px;
   padding: 18px 24px;
-  background: linear-gradient(180deg, #0a0e1a 0%, rgba(10, 14, 26, 0.85) 100%);
+  background: linear-gradient(180deg, #15151a 0%, rgba(10, 14, 26, 0.85) 100%);
   border-bottom: 1px solid rgba(125, 145, 200, 0.12);
   position: sticky;
   top: 0;
@@ -1166,7 +1171,7 @@
 
 .molecule-page-toggle[data-active="true"] {
   background: #f5c542;
-  color: #0a0e1a;
+  color: #15151a;
 }
 
 .molecule-page-toggle:hover {
@@ -1187,7 +1192,9 @@
   width: 320px;
   max-height: calc(100vh - 140px);
   overflow: auto;
-  z-index: 5;
+  /* Above the drei Html label zIndexRange (max 12) so flag chips can't
+   * paint through the pundits leaderboard. */
+  z-index: 25;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -1204,6 +1211,10 @@
 }
 
 @media (max-width: 720px) {
+  /* Mobile: the panel slides up from the bottom as a sheet, and is
+   * hidden entirely until the user taps an atom. The auto-open-on-load
+   * was suppressed in MoleculeScene for mobile so `data-selected="false"`
+   * is the default mount state. */
   .molecule-panel {
     width: 100vw;
     border-left: 0;
@@ -1211,6 +1222,19 @@
     top: auto;
     bottom: 0;
     height: 60vh;
+  }
+  .molecule-root[data-selected="false"] .molecule-panel {
+    display: none;
+  }
+  /* Path-to-victory chips (FINAL vs Spain, SF vs Australia, QF vs ...)
+   * and atom-side VS/KO glyphs are noisy on a small viewport. Until the
+   * user taps an atom they stay hidden so the bare molecule + atom
+   * country codes carry the first impression. */
+  .molecule-root[data-selected="false"] .molecule-match-badge,
+  .molecule-root[data-selected="false"] .molecule-match-arrow,
+  .molecule-root[data-selected="false"] .molecule-label-vs,
+  .molecule-root[data-selected="false"] .molecule-label-ko {
+    display: none !important;
   }
   .molecule-legend {
     /* v6.1: hide the legend on mobile, it competes with the pyramid

@@ -99,3 +99,4 @@ qa-launch-screenshots/
 # this dir is per-installation, not source-controlled content.
 apps/web/public/avatars/*
 !apps/web/public/avatars/.gitkeep
+apps/*/.next-dev/

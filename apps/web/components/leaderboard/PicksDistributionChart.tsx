@@ -73,7 +73,7 @@ export function PicksDistributionChart({
                   fontFamily="Inter, system-ui, sans-serif"
                   fontWeight="700"
                   fontSize="11"
-                  fill="#0a0e1a"
+                  fill="#15151a"
                 >
                   {s.label} {Math.round(s.percent)}%
                 </text>

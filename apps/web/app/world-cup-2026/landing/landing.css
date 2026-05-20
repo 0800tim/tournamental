@@ -2,7 +2,7 @@
  * Lives alongside `bracket.css`; every selector is namespaced under `.wc-*`
  * to avoid collisions with the renderer or bracket builder.
  *
- * Visual language: deep ink background (#0a0e1a), amber accent (#fbbf24),
+ * Visual language: deep ink background (#15151a), amber accent (#fbbf24),
  * emerald (#21a34a) for positive picks, flame (#ff8a3d) for energy. Matches
  * `apps/marketing/tailwind.config.mjs` palette so the marketing site and the
  * app feel like the same brand.
@@ -13,10 +13,10 @@
  */
 
 :root {
-  --wc-ink-900: #0a0e1a;
-  --wc-ink-800: #101626;
-  --wc-ink-700: #1a2238;
-  --wc-ink-600: #293352;
+  --wc-ink-900: #15151a;
+  --wc-ink-800: #1c1c22;
+  --wc-ink-700: #26262c;
+  --wc-ink-600: #3a3a44;
   --wc-text: #e7ecf7;
   --wc-text-dim: #9aa6c2;
   --wc-amber: #fbbf24;

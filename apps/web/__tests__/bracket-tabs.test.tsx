@@ -379,21 +379,15 @@ describe("<BracketBuilder>, prominent Auto-pick row", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
   });
 
-  it("renders the mobile-only sticky Auto-pick shortcut pill", () => {
+  it("no longer renders the mobile-only sticky Auto-pick pill", () => {
+    // Tim 2026-05-21: on mobile the prominent Auto-pick CTA scrolls
+    // away with the page. The duplicate sticky pill that floated over
+    // the tab strip was removed because it covered other menu items.
     const { container } = render(<BracketBuilder tournament={tournament} />);
-    const sticky = container.querySelector(
-      "[data-testid='bracket-autopick-sticky']",
-    );
-    expect(sticky).toBeTruthy();
-    expect(sticky!.getAttribute("aria-label")).toBe(
-      "Auto-pick (sticky shortcut)",
-    );
-    // Sticky pill opens the same confirm modal as the prominent CTA.
-    fireEvent.click(sticky!);
     expect(
-      screen.getByRole("dialog", { name: /Auto-pick the favourite/i }),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
+      container.querySelector("[data-testid='bracket-autopick-sticky']"),
+    ).toBeNull();
+    expect(container.querySelector(".bracket-autopick-sticky")).toBeNull();
   });
 
   it("Auto-pick button is no longer a child of the tab strip nav", () => {
@@ -434,11 +428,13 @@ describe("<BracketBuilder>, mobile viewport (375x812) Auto-pick contract", () =>
     });
   });
 
-  it("the prominent CTA, the subtitle, and the sticky shortcut all render on a 375px viewport", () => {
+  it("the prominent CTA + subtitle render on a 375px viewport (no sticky duplicate)", () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     expect(container.querySelector(".bracket-autopick-cta")).toBeTruthy();
     expect(container.querySelector(".bracket-autopick-subtitle")).toBeTruthy();
-    expect(container.querySelector(".bracket-autopick-sticky")).toBeTruthy();
+    // The sticky shortcut pill was removed per Tim 2026-05-21, the main
+    // CTA scrolls away naturally on mobile.
+    expect(container.querySelector(".bracket-autopick-sticky")).toBeNull();
   });
 });
 
