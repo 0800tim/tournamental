@@ -10,3 +10,8 @@ home/
 
 # Local test-runtime artefacts
 tmp/
+
+# Server-generated OG image cache (rendered on first request, then
+# refreshed by satori). Don't commit the rasterised stamps.
+public/og/syndicate/
+public/og/bracket/
