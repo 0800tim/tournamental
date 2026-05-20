@@ -1,101 +1,325 @@
 ---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
 import Layout from "@/layouts/Layout.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+import StatLine from "@/components/StatLine.astro";
+import PrincipleList from "@/components/PrincipleList.astro";
+
+/**
+ * /world-cup-2026, lifted to editorial calibre.
+ *
+ * The masthead carries dateline ("World Cup 2026, Kickoff 11 June"),
+ * Fraunces headline with a gold italic emphasis word, italic
+ * standfirst, and a single primary CTA + one quiet text link. A
+ * tabular stat row anchors the tournament scale (48 / 104 / 6 / 1).
+ * Below the masthead the three-audience grid (players, hosts,
+ * creators) becomes a PrincipleList stack so each path reads as an
+ * editorial story rather than a card. The closing timeline + tournament
+ * features keep the numbered longform grammar from /how-it-works.
+ */
+
+const SCALE = [
+  { value: "48", label: "Teams" },
+  { value: "104", label: "Matches" },
+  { value: "6", label: "Weeks" },
+  { value: "1", label: "Trophy" },
+];
+
+const AUDIENCES = [
+  {
+    index: "01",
+    heading: "For players",
+    body:
+      "One account, every match. Save the early-stage long-shots first, the underdog multipliers stack hardest there. Daily streak counts from day one of the group stage. You can change any pick right up until that match kicks off.",
+  },
+  {
+    index: "02",
+    heading: "For syndicate hosts",
+    body:
+      "Claim play.tournamental.com/s/yourname in March or April. Pick a format (winner-takes-all reads classic for offices, podium reads kinder to large groups). Bulk-invite by Telegram or WhatsApp bot. The full playbook ships with the page.",
+  },
+  {
+    index: "03",
+    heading: "For creators",
+    body:
+      "Run a public syndicate, post daily call cards on socials, and let the auto-clip pipeline turn every shot you called correctly into a six-second clip with your handle. Affiliate router on partner sportsbooks kicks in once your audience crosses the size threshold.",
+  },
+] as const;
+
+const FEATURES = [
+  {
+    n: "F1",
+    title: "Bracket Prophet",
+    body:
+      "Predict the full bracket from group stage to final, not just match-by-match. Heavier scoring weight on later rounds, partial credit when your team makes it but loses in the round you called.",
+  },
+  {
+    n: "F2",
+    title: "Knockout streak",
+    body:
+      "Call every Round-of-16 result right? Mythic badge. Chain it through quarters and semis? Featured on the global landing for the rest of the tournament.",
+  },
+  {
+    n: "F3",
+    title: "Country pride board",
+    body:
+      "Everyone playing for their country forms a single national average. Watch your country's rank move every match day. Rivalries turned into a real signal, not a vibe.",
+  },
+  {
+    n: "F4",
+    title: "Final-day raffle",
+    body:
+      "Every prediction earns one raffle entry, correct ones earn five. On final day, top-tier sponsors fund a verifiable on-chain prize draw via TournamentalOracle. Closed unless we ship the audit on time, open if we do.",
+  },
+] as const;
+
+const TIMELINE = [
+  {
+    n: "01",
+    title: "March 2026",
+    body:
+      "Marketing site launches. Syndicate path reservations open. SDK and MCP server publish on npm.",
+  },
+  {
+    n: "02",
+    title: "April 2026",
+    body:
+      "Bracket builder live. Affiliate router live. Telegram and WhatsApp bots out of beta.",
+  },
+  {
+    n: "03",
+    title: "May 2026",
+    body:
+      "Dry-run World Cup using a synthetic match. Integration testing with early partner syndicates as they come on board.",
+  },
+  {
+    n: "04",
+    title: "11 June 2026",
+    body:
+      "Opening match. Global board live. Daily clip cycle running. Telegram bot pushes the day's calls to every player.",
+  },
+  {
+    n: "05",
+    title: "19 July 2026",
+    body:
+      "Final. Final-day raffle. Mythic-tier badges drop. Tournament wraps.",
+  },
+] as const;
 ---
 <Layout
   title="Tournamental for the 2026 World Cup"
-  description="Six weeks. 48 teams. 104 matches. One global leaderboard. The playbook for hosts, players, and creators."
+  description="Six weeks, 48 teams, 104 matches, one global leaderboard. The editorial playbook for players, hosts, and creators."
   ogImage="/og/world-cup-2026.png"
 >
-  <section class="container-page pt-16 pb-12">
-    <SectionHeading
-      eyebrow="Coming June 2026"
-      eyebrowPulse
-      eyebrowIcon="trophy"
-      title="The Global World Cup Championship is the perfect way to start."
-      lede="Forty-eight teams, 104 matches, six weeks of saturation attention. Whether you want to play, host a syndicate for your office, or build a creator audience around it, here's the playbook."
-    />
-    <div class="mt-6 flex flex-wrap gap-3 items-center">
-      <a href="https://play.tournamental.com/" class="btn-primary">Play the bracket game →</a>
-      <a href="https://play.tournamental.com/world-cup-2026" class="btn-secondary">Save your picks</a>
-      <a href="https://play.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18" class="link self-center">Watch AR-FR 2022 demo</a>
-    </div>
-  </section>
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="World Cup 2026 · Kickoff 11 June · v1"
+        title=""
+        lede="Forty-eight teams. 104 matches. Six weeks of saturation attention. Whether you want to play, host a syndicate for your office, or build a creator audience around it, the playbook starts here."
+        footnote="Free to play · Apache 2.0 · Save your picks at play.tournamental.com"
+      >
+        <Fragment slot="title">
+          The 2026 <em>book</em> is open.
+        </Fragment>
+      </EditorialPageHeader>
 
-  <section class="container-page pb-12">
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="card">
-        <span class="pill mb-3">Players</span>
-        <h3 class="text-xl font-bold text-white">Sign up before the opener</h3>
-        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
-          <li>One account, every match.</li>
-          <li>Save the early-stage long-shots early, that's where Prediction IQ jumps the most (you can still change picks until kickoff).</li>
-          <li>Daily streak starts from day one of the group stage.</li>
-        </ul>
-        <a href="https://play.tournamental.com/world-cup-2026" class="btn-primary mt-4 inline-block">Play now →</a>
+      <div class="vt-wc-cta-row" data-reveal="cta">
+        <a
+          class="vt-cta-primary"
+          href="https://play.tournamental.com/world-cup-2026"
+          data-analytics="cta"
+          data-analytics-label="Save your picks"
+          data-analytics-surface="wc2026-hero"
+        >
+          Save your picks <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a
+          class="vt-cta-text"
+          href="https://play.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18"
+          data-analytics="cta"
+          data-analytics-label="Watch AR-FR 2022 demo"
+          data-analytics-surface="wc2026-hero"
+        >
+          Watch the AR-FR 2022 demo
+        </a>
       </div>
-      <div class="card">
-        <span class="pill mb-3">Syndicate hosts</span>
-        <h3 class="text-xl font-bold text-white">Have your path ready</h3>
-        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
-          <li>Claim <code>play.tournamental.com/s/yourname</code> in March-April.</li>
-          <li>Set the format (winner-takes-all is a classic for the office; podium is friendlier for big groups).</li>
-          <li>Bulk-invite via the Telegram or WhatsApp bot.</li>
-        </ul>
-        <a href="https://play.tournamental.com/#syndicate" class="btn-secondary mt-4 inline-block">Reserve your syndicate →</a>
-      </div>
-      <div class="card">
-        <span class="pill mb-3">Creators</span>
-        <h3 class="text-xl font-bold text-white">Build your record</h3>
-        <ul class="text-ink-200 mt-3 list-disc pl-5 space-y-1.5">
-          <li>Public syndicate; daily call-cards on socials.</li>
-          <li>Auto-clip pipeline turns every shot you called correctly into a 6s clip with your handle.</li>
-          <li>Affiliate router on partner sportsbooks once you cross the size threshold.</li>
-        </ul>
-        <a href="https://play.tournamental.com/" class="btn-secondary mt-4 inline-block">Start your public bracket →</a>
+
+      <div class="vt-wc-scale" data-reveal="stats">
+        <StatLine stats={SCALE} />
       </div>
     </div>
   </section>
 
-  <section class="container-page pb-12">
-    <h3 class="text-xl font-bold text-white mb-4">Tournament-specific features</h3>
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="card">
-        <h4 class="font-bold text-white">Bracket Prophet</h4>
-        <p class="text-ink-200 mt-2">Predict the full bracket from group stage to final, not just match-by-match. Specific scoring weight on the further-out rounds; partial credit when your team makes it but loses in the round you predicted them to win.</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Knockout streak</h4>
-        <p class="text-ink-200 mt-2">Get every Round-of-16 result right? Mythic badge. Chain it through quarters and semis? Featured on the global landing for the rest of the tournament.</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Country pride leaderboard</h4>
-        <p class="text-ink-200 mt-2">Everyone playing for their country forms a single national average. Watch your country's rank move every match-day. Rivalries turned into a real signal.</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Final-day raffle</h4>
-        <p class="text-ink-200 mt-2">Every prediction made during the tournament earns one raffle entry; correct ones earn 5x. On final day, top-tier sponsors fund a verifiable on-chain prize draw via TournamentalOracle. Closed unless we ship the audit on time, open if we do.</p>
-      </div>
-    </div>
+  <section class="vt-editorial container-page py-14 md:py-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Three audiences · Pick your lane</span>
+      <h2 class="vt-section-head mt-3">
+        Whether you want to play, host, or build a record.
+      </h2>
+    </header>
+    <PrincipleList items={AUDIENCES} />
   </section>
 
-  <section class="container-prose pb-16">
-    <h2 class="text-2xl font-bold text-white">Timeline</h2>
-    <ul class="prose-vt list-disc pl-6 space-y-2">
-      <li><strong>March 2026</strong>: marketing site launches; syndicate path reservations open; SDK + MCP server publish on npm.</li>
-      <li><strong>April 2026</strong>: bracket builder live; affiliate router live; Telegram + WhatsApp bots out of beta.</li>
-      <li><strong>May 2026</strong>: dry-run World Cup using a synthetic match; integration testing with our early partner syndicates as they come on board.</li>
-      <li><strong>11 June 2026</strong>: opening match. Global board live. Daily clip cycle running.</li>
-      <li><strong>19 July 2026</strong>: final. Final-day raffle. Mythic-tier badges drop. Tournament wrap.</li>
-    </ul>
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Tournament features · v1 ship list</span>
+      <h2 class="vt-section-head mt-3">
+        Four mechanics built for the shape of a World Cup.
+      </h2>
+    </header>
 
-    <h2 class="text-2xl font-bold text-white mt-10">How to get involved now</h2>
-    <ol class="prose-vt list-decimal pl-6 space-y-2">
-      <li><strong>Play the bracket game</strong> at <a href="https://play.tournamental.com/" class="link">play.tournamental.com</a>, countdown is running, saving picks early earns the biggest multipliers.</li>
-      <li>Watch the <a href="https://play.tournamental.com/match/fifa-wc-2022-final-arg-fra-2022-12-18" class="link">live AR-FR 2022 demo</a> to see the renderer.</li>
-      <li>Star <a href="https://github.com/0800tim/tournamental" class="link">the repo</a>, that's how we know who's serious.</li>
-      <li>Email <a href="mailto:partners@tournamental.com" class="link">partners@tournamental.com</a> if you're a creator or fan club hosting more than ~250 members.</li>
-      <li>Join the <a href="/start" class="link">Get-started prompt library</a> for the LLM-driven onboarding path.</li>
+    <ol class="vt-wc-grid">
+      {FEATURES.map((f) => (
+        <li class="vt-wc-item">
+          <div class="vt-wc-marker">
+            <span class="vt-wc-index">{f.n}</span>
+            <span class="vt-wc-rule" aria-hidden="true"></span>
+          </div>
+          <h3 class="vt-wc-head">{f.title}</h3>
+          <p class="vt-wc-body">{f.body}</p>
+        </li>
+      ))}
     </ol>
   </section>
+
+  <section class="vt-editorial container-page pb-16 md:pb-24">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Timeline · From launch to lift</span>
+      <h2 class="vt-section-head mt-3">
+        Five dates between now and the trophy.
+      </h2>
+    </header>
+
+    <ol class="vt-wc-timeline" aria-label="Timeline">
+      {TIMELINE.map((t) => (
+        <li class="vt-wc-tl-item">
+          <span class="vt-wc-tl-index">{t.n}</span>
+          <h3 class="vt-wc-tl-head">{t.title}</h3>
+          <p class="vt-wc-tl-body">{t.body}</p>
+        </li>
+      ))}
+    </ol>
+
+    <p class="vt-footnote mt-10 max-w-3xl">
+      Star the repo at{" "}
+      <a class="vt-cta-text" href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>
+      , read the open spec under{" "}
+      <a class="vt-cta-text" href="/open-source">/open-source</a>
+      , or email{" "}
+      <a class="vt-cta-text" href="mailto:partners@tournamental.com">partners@tournamental.com</a>
+      {" "}if you host more than a few hundred members.
+    </p>
+  </section>
 </Layout>
+
+<style>
+  .vt-wc-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 1.75rem;
+  }
+  .vt-wc-scale {
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  }
+
+  .vt-wc-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-wc-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3rem 3.5rem;
+    }
+  }
+  .vt-wc-item { display: grid; gap: 0.85rem; }
+  .vt-wc-marker { display: flex; align-items: center; gap: 0.75rem; }
+  .vt-wc-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+  }
+  .vt-wc-rule {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 18%, transparent);
+  }
+  .vt-wc-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.1;
+    font-size: 1.5rem;
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+  .vt-wc-body {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 44ch;
+  }
+
+  .vt-wc-timeline {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-wc-timeline {
+      grid-template-columns: 4rem 12rem 1fr;
+      column-gap: clamp(1.5rem, 3vw, 3rem);
+      row-gap: 0;
+    }
+    .vt-wc-tl-item {
+      display: contents;
+    }
+    .vt-wc-tl-item + .vt-wc-tl-item .vt-wc-tl-index,
+    .vt-wc-tl-item + .vt-wc-tl-item .vt-wc-tl-head,
+    .vt-wc-tl-item + .vt-wc-tl-item .vt-wc-tl-body {
+      border-top: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+      padding-top: clamp(1rem, 2vw, 1.75rem);
+      margin-top: clamp(1rem, 2vw, 1.75rem);
+    }
+  }
+  .vt-wc-tl-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+    align-self: start;
+  }
+  .vt-wc-tl-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    letter-spacing: -0.01em;
+    line-height: 1.1;
+    font-size: 1.25rem;
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+  .vt-wc-tl-body {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 60ch;
+  }
+</style>
