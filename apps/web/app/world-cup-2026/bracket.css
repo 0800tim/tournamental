@@ -101,9 +101,9 @@
 .bracket-group-head {
   flex: 1 1 auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
   margin: 0;
   padding: 0;
   background: transparent;
@@ -113,6 +113,31 @@
   cursor: pointer;
   /* Desktop default treats the row as a static label, not a toggle. The
    * mobile media query below restyles it as a tappable accordion bar. */
+}
+
+/* Row 1 of the head: group title + progress chip + chevron, all on one
+ * line. Row 2 (the team-flag row) is a sibling below. */
+.bracket-group-head-titlerow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.bracket-group-head-title {
+  /* Editorial Fraunces small-caps for the per-group titles. */
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria,
+    "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+  font-size: 17px;
+  line-height: 1.1;
+  margin: 0;
+  color: #ffffff;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 /* Per-group ⚡ Auto-pick. Fills only this group's 6 matches. Visible
@@ -153,52 +178,28 @@
   line-height: 1;
 }
 
-.bracket-group-head h3 {
-  /* Editorial Fraunces small-caps for the per-group titles. Reads as a
-   * sports-broadsheet section head instead of a generic bold sans label.
-   * `opsz` 72 matches the visual weight at 15-18px. */
-  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria,
-    "Times New Roman", serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 72, "SOFT" 30;
-  font-variant-caps: small-caps;
-  letter-spacing: 0.04em;
-  font-size: 17px;
-  line-height: 1.1;
-  margin: 0;
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  flex: 1 1 auto;
-}
-
-.bracket-group-head-label {
-  display: inline-block;
-}
-
-/* Team-code preview chip rendered next to the group label. Hidden on
- * desktop where the group's content speaks for itself; visible on
- * mobile when the body is collapsed so the user can see at a glance
- * which 4 teams are in the group before tapping to expand. */
+/* Team-flag row, rendered BELOW the title row inside the accordion
+ * head. Wraps to a second visual line when the four chips don't fit
+ * inline (FIFA IOC codes are short but flags + dots crowded the row
+ * on phones). Per Tim 2026-05-21: progress chip stays with the title,
+ * flags live on their own row underneath. */
 .bracket-group-head-teams {
   font-family: var(--vt-font-sans, system-ui, sans-serif);
   font-weight: 600;
   font-variant-caps: normal;
   letter-spacing: 0.02em;
-  font-size: 11px;
-  color: #a3a3ad;
+  font-size: 12px;
+  color: #cdd5e7;
   display: none;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px 6px;
+  gap: 4px 12px;
 }
 
 .bracket-group-head-team {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 4px;
 }
 
 .bracket-group-head-flag {
@@ -211,11 +212,6 @@
 
 .bracket-group-head-team-code {
   letter-spacing: 0.04em;
-}
-
-.bracket-group-head-team-sep {
-  color: #52525c;
-  margin: 0 2px;
 }
 
 .bracket-group-head-chevron {

@@ -118,33 +118,30 @@ export function GroupCard(props: GroupCardProps) {
           aria-expanded={expanded}
           aria-controls={bodyId}
         >
-          <h3>
-            <span className="bracket-group-head-label">Group {group.id}</span>
-            <span className="bracket-group-head-teams" aria-hidden="true">
-              {group.team_ids.map((code, i) => (
-                <span key={code} className="bracket-group-head-team">
-                  <img
-                    className="bracket-group-head-flag"
-                    src={`/flags/${code}.svg`}
-                    alt=""
-                    width={16}
-                    height={11}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                  <span className="bracket-group-head-team-code">{code}</span>
-                  {i < group.team_ids.length - 1 && (
-                    <span className="bracket-group-head-team-sep">·</span>
-                  )}
-                </span>
-              ))}
+          <span className="bracket-group-head-titlerow">
+            <h3 className="bracket-group-head-title">Group {group.id}</h3>
+            <span className="bracket-group-progress" aria-live="polite">
+              {predictedCount} / {groupFixtures.length} predicted
             </span>
-          </h3>
-          <span className="bracket-group-progress" aria-live="polite">
-            {predictedCount} / {groupFixtures.length} predicted
+            <span className="bracket-group-head-chevron" aria-hidden="true">
+              {expanded ? "▼" : "▶"}
+            </span>
           </span>
-          <span className="bracket-group-head-chevron" aria-hidden="true">
-            {expanded ? "▼" : "▶"}
+          <span className="bracket-group-head-teams" aria-hidden="true">
+            {group.team_ids.map((code) => (
+              <span key={code} className="bracket-group-head-team">
+                <img
+                  className="bracket-group-head-flag"
+                  src={`/flags/${code}.svg`}
+                  alt=""
+                  width={16}
+                  height={11}
+                  loading="lazy"
+                  decoding="async"
+                />
+                <span className="bracket-group-head-team-code">{code}</span>
+              </span>
+            ))}
           </span>
         </button>
         {onAutoPickGroup ? (
