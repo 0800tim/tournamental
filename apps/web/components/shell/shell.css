@@ -1,19 +1,24 @@
 /* ---------- Design tokens ---------- */
 /*
- * Tournamental app-shell theme tokens. Light + dark variants live on
- * data-theme="…" on the document root; consumers pick up the values
- * via these CSS variables. Brand palette: sky-blue accent, flame-orange
- * accent, emerald-pitch, ink-greys. No new hues introduced here.
+ * Tournamental app-shell theme tokens. The play app is dark-only as of
+ * 2026-05-21 — the gold + charcoal canvas is the brand surface and a
+ * light-mode shell competed with the editorial gold accents rather than
+ * complementing them. The marketing site (apps/marketing/) keeps its
+ * dual-theme toggle on a paper canvas; only the shell tokens here are
+ * dark-only.
+ *
+ * Per-page `data-theme="light"` on `<main class="bracket-page">` still
+ * works (the bracket page honours `?theme=light` for partner iframes,
+ * see apps/web/app/world-cup-2026/page.tsx). That path scopes its
+ * overrides to `.bracket-page[data-theme="light"]` inside bracket.css,
+ * so the shell-level tokens never participate.
  */
 
-:root,
-[data-theme="dark"] {
-  /* Dark canvas was a deep navy (#0a0e1a). Repalleted to a neutral
-   * charcoal on 2026-05-20 so the new gold ball-mark and the
-   * editorial gold accents pop against a true-grey backdrop rather
-   * than competing with a cool blue cast. The accent tokens stay
-   * (sky / flame / pitch) for components that still reference them
-   * explicitly, but the page is now charcoal across the board. */
+:root {
+  /* Charcoal canvas. The accent tokens are retained because legacy
+   * components still reference --vt-accent (sky-blue), --vt-accent-warm
+   * (flame), and --vt-accent-pitch (emerald). New work should reach for
+   * the gold scale in app/globals.css; see docs/BRAND.md §2. */
   --vt-bg: #15151a;
   --vt-bg-elev: rgba(255, 255, 255, 0.05);
   --vt-bg-elev-2: rgba(255, 255, 255, 0.09);
@@ -23,10 +28,10 @@
   --vt-fg-faint: #67676f;
   --vt-border: rgba(255, 255, 255, 0.07);
   --vt-border-strong: rgba(255, 255, 255, 0.16);
-  --vt-accent: #6cabdd; /* sky-blue */
+  --vt-accent: #6cabdd; /* sky-blue, deprecated */
   --vt-accent-on: #00153a;
-  --vt-accent-warm: #f3b83b; /* flame-orange */
-  --vt-accent-pitch: #4cd680; /* emerald-pitch */
+  --vt-accent-warm: #f3b83b; /* flame-orange, deprecated */
+  --vt-accent-pitch: #4cd680; /* emerald-pitch, deprecated */
   --vt-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   --vt-shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.35);
   --vt-radius-sm: 8px;
@@ -34,25 +39,6 @@
   --vt-radius-lg: 18px;
   --vt-radius-pill: 999px;
   color-scheme: dark;
-}
-
-[data-theme="light"] {
-  --vt-bg: #f5f7fc;
-  --vt-bg-elev: rgba(10, 14, 26, 0.05);
-  --vt-bg-elev-2: rgba(10, 14, 26, 0.08);
-  --vt-bg-overlay: rgba(245, 247, 252, 0.82);
-  --vt-fg: #0f1726;
-  --vt-fg-muted: #4a5468;
-  --vt-fg-faint: #8a93a4;
-  --vt-border: rgba(10, 14, 26, 0.1);
-  --vt-border-strong: rgba(10, 14, 26, 0.22);
-  --vt-accent: #2071b8;
-  --vt-accent-on: #ffffff;
-  --vt-accent-warm: #d97706;
-  --vt-accent-pitch: #16a34a;
-  --vt-shadow: 0 8px 28px rgba(10, 14, 26, 0.12);
-  --vt-shadow-soft: 0 4px 14px rgba(10, 14, 26, 0.08);
-  color-scheme: light;
 }
 
 /* ---------- App shell layout ---------- */

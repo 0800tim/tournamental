@@ -44,10 +44,10 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [
-    { media: "(prefers-color-scheme: dark)", color: "#15151a" },
-    { media: "(prefers-color-scheme: light)", color: "#f5f7fc" },
-  ],
+  // Dark-only canvas (see docs/BRAND.md §2). The play app no longer
+  // ships a light shell, so a single themeColor avoids the browser
+  // chrome flashing on prefers-color-scheme changes.
+  themeColor: "#15151a",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

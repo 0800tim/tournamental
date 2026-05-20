@@ -1,17 +1,23 @@
 "use client";
 
 /**
- * Keeps `<meta name="theme-color">` in sync with the data-theme on
- * <html>. Browsers use this for the title-bar tint on Android and the
- * status-bar tint on iOS PWAs. Watches `prefers-color-scheme` and the
- * data-theme attribute (so a user toggling theme updates the meta tag
- * instantly).
+ * Keeps `<meta name="theme-color">` set for the play app. The play
+ * surface is dark-only as of 2026-05-21 (see docs/BRAND.md §2), so this
+ * component simply pins the charcoal canvas colour at mount. The
+ * previous incarnation watched `prefers-color-scheme` and the
+ * `data-theme` attribute to swap between dark and light shells; that
+ * code has been removed because the shell no longer has a light theme.
+ *
+ * The bracket page (apps/web/app/world-cup-2026/page.tsx) still honours
+ * `?theme=light` on its `<main class="bracket-page">` element for the
+ * partner-iframe path, but that override is scoped per-page and does
+ * not change the browser-chrome tint, so we keep the meta colour
+ * pinned to the play canvas.
  */
 
 import { useEffect } from "react";
 
-const DARK = "#0a0e1a";
-const LIGHT = "#f5f7fc";
+const DARK = "#15151a";
 
 function applyMeta(color: string) {
   if (typeof document === "undefined") return;
@@ -24,40 +30,9 @@ function applyMeta(color: string) {
   el.content = color;
 }
 
-function detect(): "dark" | "light" {
-  if (typeof document === "undefined") return "dark";
-  const data = document.documentElement.dataset.theme;
-  if (data === "light") return "light";
-  if (data === "dark") return "dark";
-  // No explicit theme set, follow the OS.
-  if (typeof window !== "undefined" && window.matchMedia) {
-    if (window.matchMedia("(prefers-color-scheme: light)").matches)
-      return "light";
-  }
-  return "dark";
-}
-
 export function ThemeMeta() {
   useEffect(() => {
-    const sync = () => {
-      applyMeta(detect() === "light" ? LIGHT : DARK);
-    };
-    sync();
-
-    const media = window.matchMedia?.("(prefers-color-scheme: light)");
-    const onChange = () => sync();
-    media?.addEventListener?.("change", onChange);
-
-    const observer = new MutationObserver(sync);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    return () => {
-      media?.removeEventListener?.("change", onChange);
-      observer.disconnect();
-    };
+    applyMeta(DARK);
   }, []);
   return null;
 }
