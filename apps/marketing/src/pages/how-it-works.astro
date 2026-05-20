@@ -1,83 +1,257 @@
 ---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
 import Layout from "@/layouts/Layout.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+import StatLine from "@/components/StatLine.astro";
 
-const steps = [
+/**
+ * /how-it-works, recomposed as a magazine longform.
+ *
+ * Opening masthead carries dateline + headline + italic standfirst,
+ * then seven numbered sections (Fraunces section head + Inter body)
+ * with hairline rules. A tabular stat row sits between the standfirst
+ * and the first section to anchor the scale of the tournament. The
+ * closing footnotes ("What a Prediction IQ is", "What a VStamp is")
+ * keep the same numbered section grammar so the document reads as a
+ * single magazine feature, not a hero + grid + prose stack.
+ */
+
+const STEPS = [
   {
     n: "01",
-    title: "Sign in (it takes 10 seconds)",
-    body: "Telegram, Discord, Google, Apple, or email. Pick whatever you already have. We don't store passwords, ever. Your handle is yours forever.",
+    title: "Sign in, takes ten seconds",
+    body:
+      "Telegram, Discord, Google, Apple, or email, pick whatever you already have. We never store a password. Your handle travels with you across every tournament you play.",
   },
   {
     n: "02",
     title: "Pick a tournament",
-    body: "FIFA World Cup. Six Nations. The Cricket World Cup. Your office's annual fantasy ladder. Browse the public ones, or join a private syndicate by code.",
+    body:
+      "World Cup 2026. Six Nations. The Cricket World Cup. Your office's annual fantasy ladder. Browse the public boards, or join a private syndicate by code.",
   },
   {
     n: "03",
-    title: "Save your predictions, change them any time",
-    body: "Every match has a few core markets, winner, scorer, scoreline, plus syndicate-specific custom ones. Unlike every household-name bracket game (Telegraph, ESPN, Yahoo), we don't lock you in at first kickoff. You can change any pick right up until that specific match kicks off. Each save signs a fresh VStamp and the odds-at-save are what scoring uses, so a late pivot has to overcome a worse price.",
+    title: "Save your picks, change them until kickoff",
+    body:
+      "Every match has a few core markets, winner, scorer, scoreline, plus syndicate-specific custom ones. Telegraph Predictor, ESPN Bracket Challenge and Yahoo Tournament Pick'em all lock you in at first kickoff of the tournament. Tournamental does not. Every match is its own decision window, open until that match kicks off, and each save signs a fresh VStamp at the live odds.",
   },
   {
     n: "04",
-    title: "Stay in the game every day, not just the first day",
-    body: "Daily quizzes, line bets, score-input games, and head-to-head matchday duels run inside the Telegram bot for the full six weeks of the tournament. The traditional bracket pool ends the moment the form is submitted; Tournamental ends the moment the trophy is lifted.",
+    title: "Stay in the game for the whole tournament",
+    body:
+      "Daily quizzes, line bets, score-input games and head-to-head matchday duels run inside the Telegram bot for the full six weeks. The traditional bracket pool ends the moment the form is submitted. Tournamental ends the moment the trophy is lifted.",
   },
   {
     n: "05",
     title: "Watch the 3D replay",
-    body: "Once a match starts, open the replay route to see the pitch, players, and ball in 3D. Drag the timeline to jump to any minute. Score updates as you scrub. Faces, jerseys, and commentary make it feel real. No app install, no geo-block, no broadcaster paywall.",
+    body:
+      "Once a match starts, open the replay route to see the pitch, players and ball in 3D. Drag the timeline to jump to any minute. Score updates as you scrub. Faces, jerseys and commentary make it feel real. No app install, no geo block, no broadcaster paywall.",
   },
   {
     n: "06",
     title: "See the result settle",
-    body: "When the final whistle blows, your predictions settle automatically. Points get added. Your Prediction IQ ticks up if you called it. Bonus tokens, badges, and shareable goal clips drop in.",
+    body:
+      "When the final whistle blows, your predictions settle automatically. Points get added. Your Prediction IQ ticks up if you called it. Bonus tokens, badges, and shareable goal clips drop in.",
   },
   {
     n: "07",
-    title: "Climb the leaderboard. Bring friends.",
-    body: "Compete on the global, country-level, and tournament-specific boards. Top performers get featured. Each share comes with a referral hook, your invited friends earn you bonus tokens.",
+    title: "Climb the leaderboard, bring friends",
+    body:
+      "Compete on the global, country and tournament boards. Top performers get featured. Every share card carries a referral hook, and invited friends earn you bonus tokens.",
   },
+] as const;
+
+const NOTES = [
+  {
+    n: "A",
+    title: "What a Prediction IQ is",
+    body:
+      "A rolling score that measures how good your predictions are <em>relative to the market</em>. If everyone called Argentina to win the 2022 final, calling it doesn't add much. If you called the score 3-3 and France winning on penalties, that's worth a lot. Your IQ is public, auditable from your VStamp ledger, and travels with you across syndicates.",
+  },
+  {
+    n: "B",
+    title: "What a VStamp is",
+    body:
+      "A cryptographically signed receipt of every prediction you submit, timestamped before kickoff. Anyone can verify it without trusting us. It is how Tournamental keeps the leaderboards fair, and how analysts and influencers prove their record over time.",
+  },
+  {
+    n: "C",
+    title: "Why change picks until kickoff matters",
+    body:
+      "Telegraph Predictor, ESPN Bracket Challenge and Yahoo Tournament Pick'em all use the same shape, fill the form before the tournament starts, then watch it play out for four to six weeks. If France look injured on the morning of a quarter final, your bracket from three weeks ago is the one that gets scored. We think that is the wrong shape now that the office is not passing a paper sheet around. Tournamental rewards calls made under real information against the live market, not calls made before the tournament had even started.",
+  },
+  {
+    n: "D",
+    title: "About real money",
+    body:
+      "Tournamental does not handle real-money pools in v0.1. Friends and offices have been pooling cash on tournaments forever, we leave that arrangement between you and your group. The platform tracks predictions, scores and rankings, which is enough for almost everyone. Phase 2 brings audited on-chain prize pools (per the <a class=\"vt-cta-text\" href=\"/open-source\">open spec</a>) for groups that want trustless settlement.",
+  },
+] as const;
+
+const SCALE = [
+  { value: "7", label: "Steps" },
+  { value: "104", label: "Matches" },
+  { value: "48", label: "Teams" },
+  { value: "v1", label: "Rules" },
 ];
 ---
 <Layout
   title="How Tournamental works"
-  description="Six steps from sign-in to a verified prediction record across every tournament that matters."
+  description="Seven steps from sign-in to a verified prediction record. The full ruleset for World Cup 2026, written as a magazine longform."
   ogImage="/og/how-it-works.png"
 >
-  <section class="container-page pt-16 pb-8">
-    <SectionHeading
-      eyebrow="How it works"
-      title="Seven steps. About five minutes the first time."
-      lede="Tournamental is a single product with two faces: the prediction game (you make calls, you earn points, every day for the whole tournament), and the 3D match-renderer watch-along (you see the game play out). The traditional bracket pool ends at first kickoff. We start there."
-    />
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="Rules · World Cup 2026 · v1"
+        title=""
+        lede="Tournamental is a single product with two faces. A prediction game where you make calls, earn points, and stay in every day for six weeks. A 3D match renderer where you watch the game play out. The traditional bracket pool ends at first kickoff. We start there."
+        footnote="Seven steps · About five minutes the first time"
+      >
+        <Fragment slot="title">
+          Seven steps. Five minutes. <em>One ledger.</em>
+        </Fragment>
+      </EditorialPageHeader>
+
+      <div class="vt-howw-scale" data-reveal="stats">
+        <StatLine stats={SCALE} />
+      </div>
+    </div>
   </section>
 
-  <section class="container-page pb-12">
-    <ol class="space-y-4">
-      {steps.map((s) => (
-        <li class="card flex gap-4">
-          <div class="text-accent-400 font-mono text-sm w-8 shrink-0">{s.n}</div>
-          <div>
-            <h3 class="text-xl font-bold text-white">{s.title}</h3>
-            <p class="text-ink-200 mt-2">{s.body}</p>
+  <section class="vt-editorial container-page py-14 md:py-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">The seven steps · From sign-in to settle</span>
+      <h2 class="vt-section-head mt-3">
+        How a player moves through a tournament, start to finish.
+      </h2>
+    </header>
+
+    <ol class="vt-longform" aria-label="The seven steps">
+      {STEPS.map((s) => (
+        <li class="vt-longform-item">
+          <div class="vt-longform-marker">
+            <span class="vt-longform-index">{s.n}</span>
+            <span class="vt-longform-rule" aria-hidden="true"></span>
           </div>
+          <h3 class="vt-longform-head">{s.title}</h3>
+          <p class="vt-longform-body">{s.body}</p>
         </li>
       ))}
     </ol>
   </section>
 
-  <section class="container-prose pb-16">
-    <h2 class="text-2xl font-bold text-white mb-3">What a "Prediction IQ" is</h2>
-    <p class="prose-vt">A rolling score that measures how good your predictions are <em>relative to the market</em>. If everyone called Argentina to win the 2022 final, calling it doesn't add much; if you called the score 3-3 and France winning on penalties, that's worth a lot. Your IQ is public, auditable from your VStamp ledger, and travels with you across syndicates.</p>
+  <section class="vt-editorial container-page pb-16 md:pb-24">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Footnotes · The fine print, plainly written</span>
+      <h2 class="vt-section-head mt-3">
+        Four notes you'll want before your first pick.
+      </h2>
+    </header>
 
-    <h2 class="text-2xl font-bold text-white mt-10 mb-3">What a "VStamp" is</h2>
-    <p class="prose-vt">A cryptographically-signed receipt of every prediction you submit, timestamped before kickoff. Anyone can verify it without trusting us. It's how we keep the leaderboards fair, and how analysts and influencers prove their record over time.</p>
-
-    <h2 class="text-2xl font-bold text-white mt-10 mb-3">Why "change picks until kickoff" matters</h2>
-    <p class="prose-vt">Telegraph Predictor, ESPN Bracket Challenge, and Yahoo Tournament Pick'em all use the same shape: fill the form before the tournament starts, then watch it play out for four to six weeks. If France look injured on the morning of a quarter-final, your bracket from three weeks ago is the one that gets scored. We think that is the wrong shape now that we are not passing a paper sheet around the office. On Tournamental every match is its own decision window, open until that match kicks off. Your Prediction IQ then rewards calls made under real information against the live market, not calls made before the tournament had even started. See the <a href="/why" class="link">full comparison</a>.</p>
-
-    <h2 class="text-2xl font-bold text-white mt-10 mb-3">What about real money?</h2>
-    <p class="prose-vt">Tournamental doesn't handle real-money pools for v0.1. Friends and offices have been pooling cash on tournaments forever, we leave that arrangement between you and your group. The platform tracks predictions, scores, and rankings, and that's enough for almost everyone. Phase 2 brings audited on-chain prize pools (per <a href="/open-source" class="link">our open spec</a>) for groups that want trustless settlement.</p>
+    <ol class="vt-longform vt-longform--notes" aria-label="Footnotes">
+      {NOTES.map((s) => (
+        <li class="vt-longform-item">
+          <div class="vt-longform-marker">
+            <span class="vt-longform-index">{s.n}</span>
+            <span class="vt-longform-rule" aria-hidden="true"></span>
+          </div>
+          <h3 class="vt-longform-head">{s.title}</h3>
+          <p class="vt-longform-body" set:html={s.body} />
+        </li>
+      ))}
+    </ol>
   </section>
 </Layout>
+
+<style>
+  .vt-howw-scale {
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  }
+
+  .vt-longform {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(2rem, 3vw, 3rem);
+  }
+  @media (min-width: 768px) {
+    .vt-longform {
+      grid-template-columns: minmax(0, 18rem) minmax(0, 1fr);
+      column-gap: clamp(2rem, 4vw, 4rem);
+    }
+    /* On wider viewports each step occupies a single row spanning both
+     * tracks. The marker + heading sit in the left rail, the body
+     * paragraph in the right column. */
+    .vt-longform-item {
+      display: contents;
+    }
+    .vt-longform-marker { grid-column: 1; align-self: start; padding-top: 0.35rem; }
+    .vt-longform-head   { grid-column: 1; align-self: start; }
+    .vt-longform-body   { grid-column: 2; align-self: start; }
+    .vt-longform-item + .vt-longform-item .vt-longform-marker,
+    .vt-longform-item + .vt-longform-item .vt-longform-body {
+      border-top: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+      padding-top: clamp(1.5rem, 2.5vw, 2.25rem);
+    }
+    .vt-longform-item + .vt-longform-item .vt-longform-head {
+      margin-top: clamp(1.5rem, 2.5vw, 2.25rem);
+    }
+  }
+
+  .vt-longform-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .vt-longform-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+  }
+  .vt-longform-rule {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 14%, transparent);
+  }
+
+  .vt-longform-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.1;
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    color: var(--vt-fg-strong);
+    margin: 0 0 0.6rem;
+    max-width: 22ch;
+  }
+
+  .vt-longform-body {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+    max-width: 60ch;
+  }
+  .vt-longform-body :global(a) {
+    color: var(--vt-fg-strong);
+    border-bottom: 1px solid var(--vt-gold-400);
+    text-decoration: none;
+  }
+  .vt-longform-body :global(a:hover) {
+    color: var(--vt-gold-400);
+  }
+  .vt-longform-body :global(em) {
+    font-style: italic;
+    color: var(--vt-fg-strong);
+  }
+</style>
