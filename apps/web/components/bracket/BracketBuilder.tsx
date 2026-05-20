@@ -1051,10 +1051,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
             </h2>
             <p className="bracket-modal-body">
               Auto-pick uses live Polymarket odds for the group stage. The
-              knockout rounds don't have Polymarket markets open yet
-              (matchups aren't known until groups conclude), so those fall
-              back to world ranking. <strong>Your existing picks will be
-              overwritten.</strong>
+              knockout rounds don&apos;t have Polymarket markets open yet
+              (matchups aren&apos;t known until groups conclude), so those
+              fall back to world ranking. <strong>Your existing picks will
+              be overwritten.</strong>
             </p>
             <p className="bracket-modal-body">
               You can change any pick afterwards, auto-pick is a starting
