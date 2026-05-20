@@ -1,7 +1,7 @@
 /**
  * Shared layout primitives: card root, brand strip, footer.
  *
- * Every card has the same overall shape:
+ * Every legacy card has the same overall shape:
  *
  *   ┌─────────────────────────────────────────────────────┐
  *   │ [BRAND STRIP — TOURNAMENTAL wordmark + tournament context]│
@@ -13,9 +13,15 @@
  *   │ [FOOTER — @handle • tournamental.com/r/<id>]              │
  *   └─────────────────────────────────────────────────────┘
  *
- * The same component composes for both 1200×630 (`og`) and 1080×1920
+ * The same component composes for both 1200x630 (`og`) and 1080x1920
  * (`story`) — the body is given the remaining vertical space and is
  * expected to use flex to distribute its children.
+ *
+ * @deprecated The sky-blue brand strip + navy chrome pattern is on the
+ * way out. New work should compose `editorialHeadline`, `dateline`,
+ * `tabularStatRow`, and `charcoalCanvas` from `src/editorial.ts`
+ * instead. See `src/presets/` for canonical examples and the
+ * "Migration from sky-blue" section in README.md.
  */
 
 import { el, styles, type SatoriElement } from "./jsdl.js";

@@ -42,7 +42,16 @@ export type {
   TournamentRecapInput,
 } from "./types.js";
 
-export { palette, sizes, referralUrl, referralLabel, wordmark } from "./theme.js";
+export {
+  palette,
+  sizes,
+  referralUrl,
+  referralLabel,
+  poolUrlLabel,
+  wordmark,
+  charcoal,
+  gold,
+} from "./theme.js";
 export type { CardSize } from "./theme.js";
 
 export { buildCard } from "./cards/index.js";
@@ -51,8 +60,40 @@ export { maybePunditBadge, VERIFIED_PUNDIT_TEXT } from "./cards/pundit-badge.js"
 export { renderToSVG, renderToPNG, generateOG } from "./render.js";
 export type { RenderRequest, RenderedCard, SVGRenderResult } from "./render.js";
 
-export { loadDefaultFonts, familyForLocale, isRtl } from "./fonts.js";
-export type { FontSpec } from "./fonts.js";
+export {
+  loadDefaultFonts,
+  loadEditorialFonts,
+  editorialFontSpecs,
+  familyForLocale,
+  isRtl,
+} from "./fonts.js";
+export type { FontSpec, EditorialFontBundle } from "./fonts.js";
+
+// Editorial primitives (gold + charcoal + Fraunces). Use these to build
+// new share-card surfaces; the legacy ink + accent + flame helpers
+// stay exported only so older cards keep typechecking.
+export {
+  charcoalCanvas,
+  dateline,
+  editorialHeadline,
+  editorialScale,
+  footerUrl,
+  goldBall,
+  tabularStatRow,
+  SIZE_DIMENSIONS,
+} from "./editorial.js";
+export type { Size, StatCell, EditorialHeadlineOpts } from "./editorial.js";
+
+// Four named presets (see src/presets/ for individual contracts). The
+// namespace export lets callers do `presets.predictionPick.render(...)`
+// without an extra import line per preset.
+export * as presets from "./presets/index.js";
+export type {
+  PredictionPickArgs,
+  LeaderboardRankUpArgs,
+  PerfectWeekArgs,
+  SyndicateInviteArgs,
+} from "./presets/index.js";
 
 // Canvas-rendered champion-centric bracket share card + animated MP4
 // generator. Tim's brief 2026-05-11: viral-loop social shares.
