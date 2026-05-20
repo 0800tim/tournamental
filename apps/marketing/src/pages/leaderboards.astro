@@ -1,92 +1,166 @@
 ---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
 import Layout from "@/layouts/Layout.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
 import LeaderboardDemo from "@/components/LeaderboardDemo.astro";
+import EditorialStatGrid from "@/components/EditorialStatGrid.astro";
+import PrincipleList from "@/components/PrincipleList.astro";
+
+/**
+ * /leaderboards, lifted to editorial calibre.
+ *
+ * Page opens with an EditorialPageHeader (dateline + Fraunces head +
+ * italic lede + footnote). The existing LeaderboardDemo card sits in
+ * a wider editorial frame: a "Live preview" mono caption above it and
+ * a small dateline caption underneath the card explaining the
+ * placeholder. The Three Scopes admin table is rebuilt as an
+ * EditorialStatGrid (hairline rules, no card chrome, gold masthead
+ * bar). Closing principles use the PrincipleList stack so the
+ * anti-bot + pay-to-win commitments read as part of the editorial
+ * argument rather than a tacked-on prose footer.
+ */
+
+const SCOPE_COLUMNS = ["Scope", "All-time", "Season", "Weekly"] as const;
+const SCOPE_ROWS = [
+  {
+    label: "Global",
+    meta: "Country tagged, public",
+    cells: ["Top 10,000", "Top 10,000", "Top 1,000"],
+  },
+  {
+    label: "Country",
+    meta: "By passport / sign-up flag",
+    cells: ["Top 1,000", "Top 1,000", "Top 250"],
+  },
+  {
+    label: "Tournament",
+    meta: "Scoped to the running event",
+    cells: ["—", "—", "All players"],
+  },
+  {
+    label: "Syndicate",
+    meta: "Private, host-owned",
+    cells: ["All members", "All members", "All members"],
+  },
+] as const;
+
+const COMMITMENTS = [
+  {
+    index: "01",
+    heading: "Anti-bot, pro-fan",
+    body:
+      "A Humanness Score (per the open-source spec) prevents bot accounts from gaming the boards. If we suspect inauthentic behaviour, payouts and badge unlocks clamp until verification. The score reads cross-provider OAuth signals (Telegram, Discord, Apple, Google) plus optional contacts-cluster verification. We never sell who you know.",
+  },
+  {
+    index: "02",
+    heading: "No pay to win",
+    body:
+      "There is no way to buy points. There is no way to buy a leaderboard slot. Bonus tokens come from playing, sharing, and referring. The whole scoring spec is on GitHub, audit it yourself.",
+  },
+  {
+    index: "03",
+    heading: "Scoring you can read",
+    body:
+      "Base points for a correct call, scaled by how unlikely it was at lock-in. Streaks compound. Brier-scored Prediction IQ follows you across tournaments. The exact formulas are in the open spec under /open-source.",
+  },
+] as const;
 ---
 <Layout
   title="Leaderboards · Tournamental"
-  description="Global, country, and friend-group leaderboards across every tournament. Climb. Share. Earn badges. Bonus tokens for referrals."
+  description="Global, country and friend-group leaderboards across every tournament. Live during a tournament, archival between them, all on a single open ledger."
   ogImage="/og/leaderboards.png"
 >
-  <section class="container-page pt-16 pb-12">
-    <SectionHeading
-      eyebrow="Leaderboards"
-      title="Three scopes. Three timeframes. One game."
-      lede="The whole world is on the global board. Your country is on the country board. Your office, your group chat, your fan club is on its own. They all update in real time as matches settle."
-    />
-    <div class="mt-10 max-w-2xl">
-      <LeaderboardDemo />
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="Leaderboards · World Cup 2026 · v1"
+        title=""
+        lede="The whole world is on the global board. Your country is on the country board. Your office, your group chat, your fan club is on its own. They all settle from a single ledger as matches finish."
+        footnote="Updates every minute at kickoff · Archives between tournaments"
+      >
+        <Fragment slot="title">
+          Three scopes. <em>One</em> ledger.
+        </Fragment>
+      </EditorialPageHeader>
     </div>
   </section>
 
-  <section class="container-page pb-12">
-    <div class="overflow-hidden rounded-2xl border border-ink-700">
-      <table class="w-full text-sm">
-        <thead class="bg-ink-800 text-ink-200">
-          <tr>
-            <th class="px-4 py-3 text-left font-semibold">Scope</th>
-            <th class="px-4 py-3 text-left font-semibold">All-time</th>
-            <th class="px-4 py-3 text-left font-semibold">Season</th>
-            <th class="px-4 py-3 text-left font-semibold">Weekly</th>
-          </tr>
-        </thead>
-        <tbody class="text-ink-200">
-          <tr class="border-t border-ink-700">
-            <td class="px-4 py-3 font-medium text-white">Global</td>
-            <td class="px-4 py-3">✓ Top 10,000</td>
-            <td class="px-4 py-3">✓ Top 10,000</td>
-            <td class="px-4 py-3">✓ Top 1,000</td>
-          </tr>
-          <tr class="border-t border-ink-700">
-            <td class="px-4 py-3 font-medium text-white">Country</td>
-            <td class="px-4 py-3">✓ Top 1,000</td>
-            <td class="px-4 py-3">✓ Top 1,000</td>
-            <td class="px-4 py-3">✓ Top 250</td>
-          </tr>
-          <tr class="border-t border-ink-700">
-            <td class="px-4 py-3 font-medium text-white">Tournament</td>
-            <td class="px-4 py-3">-</td>
-            <td class="px-4 py-3">-</td>
-            <td class="px-4 py-3">✓ All</td>
-          </tr>
-          <tr class="border-t border-ink-700">
-            <td class="px-4 py-3 font-medium text-white">Syndicate (private)</td>
-            <td class="px-4 py-3">✓ All</td>
-            <td class="px-4 py-3">✓ All</td>
-            <td class="px-4 py-3">✓ All</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+  <section class="vt-editorial container-page pb-16 md:pb-20">
+    <figure class="vt-lb-figure">
+      <figcaption class="vt-lb-figcap">
+        <span class="vt-dateline">Live preview · Global, World Cup 2026</span>
+        <p class="vt-lede vt-lb-figcap-lede">
+          A snapshot of the global board, fixed at five entries so the
+          page renders the same on every build. The live board opens at
+          the opener and reorders every minute through the final.
+        </p>
+      </figcaption>
+      <div class="vt-lb-frame">
+        <LeaderboardDemo />
+      </div>
+      <figcaption class="vt-footnote vt-lb-footnote">
+        Illustrative data. Reordered from the production schema, no real
+        player handles. The live URL is <code>play.tournamental.com/top</code>.
+      </figcaption>
+    </figure>
   </section>
 
-  <section class="container-page pb-12">
-    <h3 class="text-xl font-bold text-white mb-6">How you score</h3>
-    <div class="grid md:grid-cols-2 gap-6">
-      <div class="card">
-        <h4 class="font-bold text-white">Points per call</h4>
-        <p class="text-ink-200 mt-2">Base points for a correct prediction, scaled by how unlikely the call was at lock-in. Calling a 50/50 nets you base; calling a 7-1 longshot nets you ~7x.</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Streak multipliers</h4>
-        <p class="text-ink-200 mt-2">Daily prediction streak compounds. Match-day streak compounds harder during a tournament. Hot-hand bonus on consecutive correct calls.</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Prediction IQ</h4>
-        <p class="text-ink-200 mt-2">Rolling Brier-score that travels with you. Top IQs get featured on the global landing, and yes, it's hard to game (we score against the closing line).</p>
-      </div>
-      <div class="card">
-        <h4 class="font-bold text-white">Badges + bonus tokens</h4>
-        <p class="text-ink-200 mt-2">Bronze through Mythic. Some are skill-based, some are showing-up based, some are sharing based. Tokens convert to extra entries and cosmetics, never to cash.</p>
-      </div>
-    </div>
+  <section class="vt-editorial container-page pb-16 md:pb-20">
+    <header class="mb-8 md:mb-10">
+      <span class="vt-dateline">Scope table · Read across</span>
+      <h2 class="vt-section-head mt-3">
+        Four scopes, three timeframes, one game.
+      </h2>
+      <p class="vt-lede mt-5">
+        The depth of the board changes with the scope. Global keeps the
+        top ten thousand, country the top thousand, tournament settles a
+        single event, syndicate shows every member of a private pool.
+      </p>
+    </header>
+
+    <EditorialStatGrid columns={SCOPE_COLUMNS} rows={SCOPE_ROWS} />
   </section>
 
-  <section class="container-prose pb-16">
-    <h2 class="text-2xl font-bold text-white">Anti-bot, pro-fan</h2>
-    <p class="prose-vt">A Humanness Score (per the open-source spec) prevents bot accounts from gaming the boards. If we suspect inauthentic behaviour, payouts and badge unlocks clamp until verification. The score is computed from cross-provider OAuth (Telegram, Discord, Apple, Google) plus optional contacts-cluster verification, we never sell who you know.</p>
-
-    <h2 class="text-2xl font-bold text-white mt-10">No pay-to-win</h2>
-    <p class="prose-vt">There's no way to buy points. There's no way to buy a leaderboard slot. Bonus tokens come from playing, sharing, and referring. The whole spec is on <a href="/open-source" class="link">GitHub</a>, audit it yourself.</p>
+  <section class="vt-editorial container-page pb-16 md:pb-24">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Three commitments · Why the board is trusted</span>
+      <h2 class="vt-section-head mt-3">
+        The leaderboard is the product. It earns its place.
+      </h2>
+    </header>
+    <PrincipleList items={COMMITMENTS} />
   </section>
 </Layout>
+
+<style>
+  .vt-lb-figure {
+    margin: 0;
+    display: grid;
+    gap: 1.25rem;
+  }
+  .vt-lb-figcap {
+    display: grid;
+    gap: 0.85rem;
+    max-width: 60ch;
+  }
+  .vt-lb-figcap-lede {
+    margin: 0;
+  }
+  .vt-lb-frame {
+    max-width: 38rem;
+  }
+  .vt-lb-footnote {
+    margin: 0;
+    max-width: 60ch;
+  }
+  .vt-lb-footnote code {
+    background: transparent;
+    color: var(--vt-fg);
+    border-bottom: 1px dotted var(--vt-gold-400);
+    padding: 0;
+    font-size: inherit;
+  }
+</style>
