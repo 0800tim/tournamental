@@ -358,7 +358,6 @@ function formatSavedAt(iso: string): string {
 // ── Syndicate landing ───────────────────────────────────────────────
 
 function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
-  const ogSrc = `/api/og/syndicate?slug=${encodeURIComponent(syndicate.slug)}`;
   const topFive = [...syndicate.members]
     .sort((a, b) => b.points - a.points)
     .slice(0, 5);
@@ -366,31 +365,42 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
   const recentMembers = [...syndicate.members]
     .sort((a, b) => b.joined_at.localeCompare(a.joined_at))
     .slice(0, 12);
+  const memberCount = syndicate.members.length;
+  const sponsor = syndicate.sponsor ?? null;
+  const sponsorPresent =
+    !!sponsor && (!!sponsor.name?.trim() || !!sponsor.logo_url?.trim());
+
+  // Tim 2026-05-21 (editorial rebuild). The dateline is the tournament
+  // label upper-cased + the owner handle, sat in a single mono line
+  // above the headline (matches docs/BRAND.md section 3 "dateline"
+  // pattern). Tournament label is kept lower-noise here; the headline
+  // does the heavy lifting.
+  const datelineTournament = syndicate.tournament_label.toUpperCase();
+
+  // One-line lede that compresses the old "hosted by · X members · Y
+  // picks made" stats triple into the single editorial voice line the
+  // brief asked for. Phrasing varies with member count so a fresh pool
+  // doesn't read like a typo.
+  const lede = buildSyndicateLede({
+    ownerHandle: syndicate.owner_handle,
+    memberCount,
+    picksMade: syndicate.picks_made,
+    tournamentLabel: syndicate.tournament_label,
+  });
 
   return (
-    <section className="vt-share vt-share-syn" data-testid="share-syndicate-landing">
-      <header className="vt-share-hero">
-        <span className="vt-share-hero-eyebrow">{syndicate.tournament_label}</span>
-        <h1 className="vt-share-hero-title vt-share-syn-title">
-          <span className="vt-share-flag" aria-hidden>
-            {syndicate.owner_country_emoji}
-          </span>
-          <span>{syndicate.name}</span>
-        </h1>
-        <p className="vt-share-hero-subhead">
-          hosted by @{syndicate.owner_handle}
+    <section
+      className="vt-share vt-share-syn vt-editorial"
+      data-testid="share-syndicate-landing"
+    >
+      <header className="vt-share-syn-hero">
+        <p className="vt-dateline vt-share-syn-dateline">
+          <span>{datelineTournament}</span>
+          <span aria-hidden className="vt-share-syn-dateline-sep">·</span>
+          <span>@{syndicate.owner_handle}</span>
         </p>
-        <div className="vt-share-stats-row" role="list">
-          <span className="vt-share-stat" role="listitem">
-            <span className="vt-share-stat-value">{syndicate.members.length}</span>{" "}
-            member{syndicate.members.length === 1 ? "" : "s"}
-          </span>
-          <span aria-hidden>·</span>
-          <span className="vt-share-stat" role="listitem">
-            <span className="vt-share-stat-value">{syndicate.picks_made}</span>{" "}
-            pick{syndicate.picks_made === 1 ? "" : "s"} made
-          </span>
-        </div>
+        <h1 className="vt-headline vt-share-syn-headline">{syndicate.name}</h1>
+        <p className="vt-lede vt-share-syn-lede">{lede}</p>
       </header>
 
       {/* The OG preview image used to render inline here, which
@@ -401,16 +411,29 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
 
       <PrizePoolBlock syndicate={syndicate} />
 
-      <div>
-        <h2 className="vt-share-syn-section-title">Leaderboard top 5</h2>
+      <section
+        className="vt-share-syn-section"
+        aria-labelledby="vt-share-leaderboard-title"
+      >
+        <p className="vt-dateline">Leaderboard top 5</p>
+        <h2
+          id="vt-share-leaderboard-title"
+          className="vt-share-syn-section-head"
+        >
+          Standings
+        </h2>
         {allPointsZero ? (
-          <div className="vt-share-leaderboard-empty">
+          <p className="vt-share-leaderboard-empty">
             Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026.
-          </div>
+          </p>
         ) : (
           <ol className="vt-share-leaderboard" aria-label="Leaderboard top 5">
             {topFive.map((m, i) => (
-              <li className="vt-share-leaderboard-row" key={m.handle}>
+              <li
+                className="vt-share-leaderboard-row"
+                key={m.handle}
+                data-rank={i + 1}
+              >
                 <span className="vt-share-leaderboard-rank">{i + 1}</span>
                 <span className="vt-share-leaderboard-flag" aria-hidden>
                   {m.flag_emoji}
@@ -421,21 +444,26 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             ))}
           </ol>
         )}
-      </div>
+      </section>
 
-      <div className="vt-share-ctas">
+      <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
-        <a
-          className="vt-share-cta"
-          data-variant="secondary"
-          href="/world-cup-2026"
-        >
-          Make your bracket first
-        </a>
+        <p className="vt-footnote vt-share-syn-join-note">
+          Free to play, change picks until kickoff.
+        </p>
       </div>
 
-      <div>
-        <h2 className="vt-share-syn-section-title">Recent members</h2>
+      <section
+        className="vt-share-syn-section"
+        aria-labelledby="vt-share-members-title"
+      >
+        <p className="vt-dateline">Recent members</p>
+        <h2
+          id="vt-share-members-title"
+          className="vt-share-syn-section-head vt-share-syn-section-head-quiet"
+        >
+          The pool
+        </h2>
         <div className="vt-share-members-grid" role="list">
           {recentMembers.map((m) => (
             <div className="vt-share-member-tile" key={m.handle} role="listitem">
@@ -446,13 +474,115 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             </div>
           ))}
         </div>
-      </div>
+      </section>
 
-      <footer className="vt-share-footer">
-        Founded {formatSavedAt(syndicate.created_at)}.
+      {sponsorPresent ? (
+        <SponsorLine sponsor={sponsor!} />
+      ) : null}
+
+      <footer className="vt-share-syn-colophon vt-footnote">
+        <span>Founded {formatFoundedDate(syndicate.created_at)}</span>
+        <span aria-hidden className="vt-share-syn-colophon-sep">·</span>
+        <span>play.tournamental.com/s/{syndicate.slug}</span>
       </footer>
     </section>
   );
+}
+
+/**
+ * Compress the old "hosted by · N members · M picks made" stat triple
+ * into one editorial voice line. Cadence rules from docs/BRAND.md §5,
+ * short declarative, numerals not words, no superlatives.
+ */
+function buildSyndicateLede(args: {
+  ownerHandle: string;
+  memberCount: number;
+  picksMade: number;
+  tournamentLabel: string;
+}): string {
+  const { ownerHandle, memberCount, picksMade, tournamentLabel } = args;
+  const memberPhrase =
+    memberCount === 1
+      ? "Just the host so far"
+      : memberCount === 2
+        ? "Two friends"
+        : memberCount === 3
+          ? "Three friends"
+          : `${memberCount} friends`;
+  const tail = picksMade > 0
+    ? `${memberPhrase} predicting every match of ${tournamentLabel}.`
+    : `${memberPhrase} predicting every match of ${tournamentLabel}, picks open now.`;
+  return memberCount === 1
+    ? `${memberPhrase}, hosted by @${ownerHandle}. Predicting every match of ${tournamentLabel}.`
+    : tail;
+}
+
+/**
+ * Editorial "sponsored by" line. NOT a card, NOT a logo wall.
+ * Renders as a mono caption + optional small logo, optionally linked.
+ * Omitted entirely when neither name nor logo is present.
+ */
+function SponsorLine({
+  sponsor,
+}: {
+  sponsor: NonNullable<SyndicateRecord["sponsor"]>;
+}) {
+  const name = sponsor.name?.trim() ?? "";
+  const logo = sponsor.logo_url?.trim() ?? "";
+  const url = sponsor.url?.trim() ?? "";
+
+  const body = (
+    <>
+      <span className="vt-share-sponsor-label">Sponsored by</span>
+      {logo ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={logo}
+          alt={name ? `${name} logo` : "Sponsor logo"}
+          className="vt-share-sponsor-logo"
+          loading="lazy"
+        />
+      ) : null}
+      {name ? <span className="vt-share-sponsor-name">{name}</span> : null}
+    </>
+  );
+
+  return (
+    <aside
+      className="vt-share-sponsor"
+      data-testid="share-sponsor-line"
+      aria-label={name ? `Sponsored by ${name}` : "Sponsored"}
+    >
+      {url ? (
+        <a
+          className="vt-share-sponsor-link"
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer sponsored"
+        >
+          {body}
+        </a>
+      ) : (
+        body
+      )}
+    </aside>
+  );
+}
+
+/**
+ * Shorter colophon date: YYYY-MM-DD only, drops the time-of-day so the
+ * footer reads as a quiet imprint stamp rather than a server timestamp.
+ */
+function formatFoundedDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const y = d.getUTCFullYear();
+    const m = String(d.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(d.getUTCDate()).padStart(2, "0");
+    return `${y}-${m}-${day}`;
+  } catch {
+    return iso;
+  }
 }
 
 // ── Prize-pool block (shared by syndicate landing) ─────────────────
@@ -503,58 +633,85 @@ function PrizePoolBlock({ syndicate }: { syndicate: SyndicateRecord }) {
 
   return (
     <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
-      <h2 id="vt-share-prize-title" className="vt-share-syn-section-title">
-        Prize pool
+      <p className="vt-dateline">Prize pool</p>
+      <h2 id="vt-share-prize-title" className="vt-share-syn-section-head">
+        The pot
       </h2>
-      <div className="vt-share-prize-grid">
-        {fee > 0 && (
-          <div className="vt-share-prize-fee">
-            <span className="vt-share-prize-fee-label">Entry fee</span>
-            <span className="vt-share-prize-fee-value">
-              {formatMoney(fee, currency)}
-            </span>
-            <span className="vt-share-prize-fee-note">
-              per member · pool {formatMoney(pool, currency)} at{" "}
-              {memberCount} member{memberCount === 1 ? "" : "s"}
-            </span>
+      <dl className="vt-share-prize-row" aria-label="Prize pool summary">
+        {fee > 0 ? (
+          <>
+            <div className="vt-share-prize-cell">
+              <dt className="vt-stat-label">Entry</dt>
+              <dd className="vt-share-prize-num">
+                {formatMoney(fee, currency)}
+              </dd>
+            </div>
+            <div className="vt-share-prize-cell">
+              <dt className="vt-stat-label">Pool</dt>
+              <dd className="vt-share-prize-num">
+                {formatMoney(pool, currency)}
+              </dd>
+            </div>
+            <div className="vt-share-prize-cell">
+              <dt className="vt-stat-label">Members</dt>
+              <dd className="vt-share-prize-num">{memberCount}</dd>
+            </div>
+          </>
+        ) : (
+          <div className="vt-share-prize-cell">
+            <dt className="vt-stat-label">Stake</dt>
+            <dd className="vt-share-prize-num vt-share-prize-num-text">
+              Bragging rights
+            </dd>
           </div>
         )}
-        {split && split.length > 0 && (
-          <ol className="vt-share-prize-split" aria-label="Prize split">
-            {[...split]
-              .sort((a, b) => a.rank - b.rank)
-              .map((row) => {
-                const share = fee > 0 ? (pool * row.percent) / 100 : 0;
-                return (
-                  <li className="vt-share-prize-row" key={`${row.rank}-${row.label ?? ""}`}>
-                    <span className="vt-share-prize-rank">
-                      {row.label?.trim() ? row.label : ordinal(row.rank)}
+      </dl>
+
+      {split && split.length > 0 ? (
+        <ol className="vt-share-prize-split" aria-label="Prize split">
+          {[...split]
+            .sort((a, b) => a.rank - b.rank)
+            .map((row) => {
+              const share = fee > 0 ? (pool * row.percent) / 100 : 0;
+              return (
+                <li
+                  className="vt-share-prize-split-row"
+                  key={`${row.rank}-${row.label ?? ""}`}
+                  data-rank={row.rank}
+                >
+                  <span className="vt-share-prize-split-rank">
+                    {row.label?.trim() ? row.label : ordinal(row.rank)}
+                  </span>
+                  <span className="vt-share-prize-split-pct">
+                    {Math.round(row.percent * 10) / 10}%
+                  </span>
+                  {fee > 0 && (
+                    <span className="vt-share-prize-split-amount">
+                      {formatMoney(share, currency)}
                     </span>
-                    <span className="vt-share-prize-pct">
-                      {Math.round(row.percent * 10) / 10}%
-                    </span>
-                    {fee > 0 && (
-                      <span className="vt-share-prize-amount">
-                        {formatMoney(share, currency)}
-                      </span>
-                    )}
-                  </li>
-                );
-              })}
-          </ol>
-        )}
-      </div>
-      {prizeText && !split && (
+                  )}
+                </li>
+              );
+            })}
+        </ol>
+      ) : null}
+
+      {prizeText && !split ? (
         <p className="vt-share-prize-copy">{prizeText}</p>
-      )}
-      {bonus && (
+      ) : null}
+
+      {bonus ? (
         <p className="vt-share-prize-bonus">
-          <span className="vt-share-prize-bonus-label">Bonus prize</span>
-          <span className="vt-share-prize-bonus-text">{bonus}</span>
+          <em>Bonus prize, </em>
+          {bonus}
         </p>
-      )}
+      ) : null}
+
       <p className="vt-share-prize-fineprint">
-        Tournamental doesn&apos;t handle the money. {fee > 0 ? "The host collects entry fees and pays out the pool." : "Bragging rights only."}
+        Tournamental doesn&apos;t handle the money.
+        {fee > 0
+          ? " The host collects entry fees and pays out the pool."
+          : " Bragging rights only."}
       </p>
     </section>
   );

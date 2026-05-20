@@ -45,10 +45,38 @@
 }
 
 /* Wider container on big screens so the molecule canvas + side panel
- * can sit alongside each other comfortably without crowding. */
+ * can sit alongside each other comfortably without crowding. This
+ * applies to the user-bracket landing only; the syndicate landing
+ * stays in its 720px editorial column (see .vt-share-syn override
+ * below). */
 @media (min-width: 1024px) {
-  .vt-share {
+  .vt-share-user {
     max-width: 1280px;
+  }
+}
+
+/* ── Editorial column for the syndicate landing (2026-05-21) ───────
+ *
+ * The syndicate share is the most viral, most editorial surface on
+ * the site; pinning it to a 720px single column lets the headline
+ * breathe and forces every section into one editorial reading order.
+ *
+ * Everything inside .vt-share-syn that overlaps with the
+ * editorial-class system in docs/BRAND.md §3 is named with the
+ * `vt-share-syn-*` prefix so we can drop them without disturbing the
+ * user-landing styles above. */
+.vt-share-syn {
+  max-width: 720px;
+  gap: 44px;
+}
+@media (min-width: 768px) {
+  .vt-share-syn {
+    gap: 56px;
+  }
+}
+@media (min-width: 1024px) {
+  .vt-share-syn {
+    max-width: 720px;
   }
 }
 
@@ -872,138 +900,15 @@
   font-size: 14px;
 }
 
-/* ── Prize pool block (syndicate landing) ───────────────────────── */
-
-.vt-share-prize {
-  background: var(--vt-share-bg-2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 14px;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.vt-share-prize-grid {
-  display: grid;
-  grid-template-columns: minmax(180px, 1fr) minmax(220px, 1.4fr);
-  gap: 20px;
-  align-items: start;
-}
-
-@media (max-width: 540px) {
-  .vt-share-prize-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.vt-share-prize-fee {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 12px 14px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 12px;
-}
-
-.vt-share-prize-fee-label {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--vt-share-ink-muted);
-}
-
-.vt-share-prize-fee-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--vt-share-gold);
-  line-height: 1.1;
-}
-
-.vt-share-prize-fee-note {
-  font-size: 12px;
-  color: var(--vt-share-ink-muted);
-}
-
-.vt-share-prize-split {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.vt-share-prize-row {
-  display: grid;
-  grid-template-columns: 1fr 60px 110px;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  color: var(--vt-share-ink);
-  font-size: 14px;
-}
-
-.vt-share-prize-row:first-child {
-  background: rgba(245, 197, 66, 0.08);
-  border-color: rgba(245, 197, 66, 0.25);
-}
-
-.vt-share-prize-rank {
-  font-weight: 600;
-}
-
-.vt-share-prize-pct {
-  color: var(--vt-share-ink-muted);
-  text-align: right;
-}
-
-.vt-share-prize-amount {
-  font-weight: 700;
-  color: var(--vt-share-ink);
-  text-align: right;
-}
-
-.vt-share-prize-copy {
-  margin: 0;
-  font-size: 14px;
-  color: var(--vt-share-ink);
-}
-
-.vt-share-prize-bonus {
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(126, 182, 232, 0.06);
-  border: 1px solid rgba(126, 182, 232, 0.18);
-}
-
-.vt-share-prize-bonus-label {
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--vt-share-accent);
-  font-weight: 700;
-}
-
-.vt-share-prize-bonus-text {
-  font-size: 14px;
-  color: var(--vt-share-ink);
-}
-
-.vt-share-prize-fineprint {
-  margin: 0;
-  font-size: 11px;
-  color: var(--vt-share-ink-muted);
-  font-style: italic;
-}
+/* ── Prize pool block (syndicate landing) ───────────────────────── *
+ *
+ * The legacy card-chrome prize block was deleted on 2026-05-21 when
+ * the syndicate landing rebuilt onto the editorial column. Live rules
+ * live in the `.vt-share-syn .vt-share-prize` scope at the bottom of
+ * this stylesheet.
+ *
+ * Empty stub kept here as a documentation marker so future readers
+ * don't reintroduce the dual-card pattern; ESLint-friendly. */
 
 /* ------------------------------------------------------------------ *
  * Editorial-sport pass (2026-05-20).
@@ -1012,6 +917,12 @@
  * Fraunces editorial treatment so the page reads as a section-front
  * rather than a SaaS shell. Eyebrow gets a dateline-style mono
  * caption with a leading hairline.
+ *
+ * The user-landing surface (.vt-share-user) still uses the legacy
+ * `.vt-share-hero-eyebrow / -title / -subhead` classes from above —
+ * those rules stay in place. The syndicate landing rebuilt itself
+ * onto the canonical `.vt-editorial` system on 2026-05-21, see the
+ * `vt-share-syn-*` block at the bottom of this stylesheet.
  * ------------------------------------------------------------------ */
 
 .vt-share-hero-eyebrow {
@@ -1033,8 +944,7 @@
   display: inline-block;
 }
 
-.vt-share-hero-title,
-.vt-share-syn-title {
+.vt-share-hero-title {
   font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
   font-weight: 500;
   font-variation-settings: "opsz" 120, "SOFT" 30;
@@ -1050,21 +960,477 @@
   line-height: 1.5;
 }
 
-.vt-share-syn-section-title {
-  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
-  font-weight: 500;
-  font-variation-settings: "opsz" 72, "SOFT" 30;
-  letter-spacing: -0.012em;
-  font-size: 1.5rem;
+/* ------------------------------------------------------------------ *
+ * Syndicate-landing editorial rebuild (2026-05-21).
+ *
+ * The full /s/<slug> syndicate surface is recomposed as a single
+ * 720px editorial column. Type stack uses the BRAND.md class hooks
+ * (.vt-dateline, .vt-headline, .vt-lede, .vt-stat-label, .vt-footnote)
+ * but inlines the variation-settings + sizes locally because the play
+ * app doesn't ship the marketing site's `.vt-editorial` cascade.
+ *
+ * Everything reads top-to-bottom: dateline + headline, lede, prize
+ * pool stat row, leaderboard chart, JOIN CTA + caption, RECENT
+ * MEMBERS chips, optional sponsor line, colophon.
+ * ------------------------------------------------------------------ */
+
+.vt-share-syn {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter",
+    "Segoe UI", Roboto, sans-serif;
 }
 
-.vt-share-leaderboard-rank,
-.vt-share-leaderboard-pts {
+.vt-share-syn .vt-dateline {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin: 0 0 12px;
+}
+.vt-share-syn .vt-dateline::before {
+  content: "";
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
+  display: inline-block;
+}
+
+.vt-share-syn .vt-headline,
+.vt-share-syn-headline {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 0;
+  font-size: clamp(2.5rem, 7vw, 4.75rem);
+  line-height: 0.98;
+  letter-spacing: -0.018em;
+  color: var(--vt-fg-strong, #ffffff);
+  margin: 0;
+  /* Tighter optical balance for two-word pool names. */
+  text-wrap: balance;
+}
+.vt-share-syn .vt-headline em,
+.vt-share-syn-headline em {
+  font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 50, "WONK" 1;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-share-syn .vt-lede,
+.vt-share-syn-lede {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: clamp(1.1875rem, 1.6vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--vt-fg, #e6e6ea);
+  max-width: 60ch;
+  margin: 0;
+}
+
+.vt-share-syn .vt-stat-label {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted, #a3a3ad);
+  margin: 0;
+}
+
+.vt-share-syn .vt-footnote {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+
+/* Hero block: dateline + headline + lede in one editorial cluster. */
+.vt-share-syn-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.vt-share-syn-dateline {
+  /* Mono dateline already comes from .vt-dateline; just keep the
+   * comma between tournament and handle as a hairline separator. */
+  flex-wrap: wrap;
+  margin: 0;
+}
+.vt-share-syn-dateline-sep {
+  opacity: 0.6;
+}
+
+/* Section heads inside the editorial column. These sit BELOW the
+ * mono dateline; the dateline is the section eyebrow, the head is
+ * the human-readable line. */
+.vt-share-syn-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.vt-share-syn-section-head {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 40;
+  letter-spacing: -0.012em;
+  line-height: 1.05;
+  font-size: clamp(1.5rem, 2.6vw, 2rem);
+  color: var(--vt-fg-strong, #ffffff);
+  margin: 0;
+}
+.vt-share-syn-section-head-quiet {
+  font-size: clamp(1.25rem, 2vw, 1.625rem);
+  color: var(--vt-fg, #e6e6ea);
+}
+
+/* ── Prize pool, editorial stat row (no card chrome) ─────────────── */
+
+.vt-share-syn .vt-share-prize {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.vt-share-syn .vt-share-prize::before {
+  content: "";
+  display: block;
+  height: 1px;
+  background: color-mix(in srgb, var(--vt-fg, #e6e6ea) 18%, transparent);
+  margin-bottom: 4px;
+}
+
+.vt-share-prize-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+  margin: 0;
+  padding: 0;
+}
+.vt-share-prize-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  padding-top: 10px;
+}
+.vt-share-prize-cell dt {
+  margin: 0;
+}
+.vt-share-prize-cell dd {
+  margin: 0;
+}
+.vt-share-prize-num {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-size: clamp(1.875rem, 4.5vw, 2.75rem);
+  line-height: 0.95;
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-prize-num-text {
+  font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+  font-style: italic;
+  color: var(--vt-fg, #e6e6ea);
+}
+
+.vt-share-prize-split {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.vt-share-prize-split-row {
+  display: grid;
+  grid-template-columns: 1fr 70px 110px;
+  align-items: baseline;
+  gap: 10px;
+  padding: 12px 0;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  color: var(--vt-fg, #e6e6ea);
+  font-size: 0.95rem;
+}
+.vt-share-prize-split-row:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+}
+.vt-share-prize-split-row[data-rank="1"] .vt-share-prize-split-amount,
+.vt-share-prize-split-row[data-rank="1"] .vt-share-prize-split-rank {
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-prize-split-rank {
+  font-weight: 600;
+}
+.vt-share-prize-split-pct {
+  color: var(--vt-fg-muted, #a3a3ad);
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.85rem;
+  text-align: right;
+}
+.vt-share-prize-split-amount {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 48;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 500;
+  text-align: right;
+}
+
+.vt-share-syn .vt-share-prize-copy {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: 1.0625rem;
+  line-height: 1.5;
+  color: var(--vt-fg, #e6e6ea);
+}
+
+.vt-share-syn .vt-share-prize-bonus {
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-share-syn .vt-share-prize-bonus em {
+  font-style: italic;
+  color: var(--vt-gold-400, #dca94b);
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+}
+
+.vt-share-syn .vt-share-prize-fineprint {
+  margin: 0;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  color: var(--vt-fg-muted, #a3a3ad);
+  font-style: normal;
+}
+
+/* ── Leaderboard top 5, editorial chart treatment ────────────────── */
+
+.vt-share-syn .vt-share-leaderboard {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.vt-share-syn .vt-share-leaderboard-row {
+  display: grid;
+  grid-template-columns: 56px 32px 1fr auto;
+  align-items: baseline;
+  gap: 14px;
+  padding: 12px 0;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  font-size: 1rem;
+}
+.vt-share-syn .vt-share-leaderboard-row:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+}
+
+.vt-share-syn .vt-share-leaderboard-rank {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 96, "tnum" 1;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-weight: 500;
+  font-size: clamp(1.875rem, 4vw, 2.5rem);
+  line-height: 1;
+  color: var(--vt-fg-muted, #a3a3ad);
+  text-align: left;
+}
+/* Gold, silver, bronze medal colours on ranks 1-3 only. */
+.vt-share-syn .vt-share-leaderboard-row[data-rank="1"] .vt-share-leaderboard-rank {
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-syn .vt-share-leaderboard-row[data-rank="2"] .vt-share-leaderboard-rank {
+  /* Silver hex from BRAND.md isn't tokenised yet; pull the closest
+   * existing hex from this stylesheet's --vt-share-silver. */
+  color: #d8dde6;
+}
+.vt-share-syn .vt-share-leaderboard-row[data-rank="3"] .vt-share-leaderboard-rank {
+  color: #d8954f;
+}
+
+.vt-share-syn .vt-share-leaderboard-flag {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.vt-share-syn .vt-share-leaderboard-handle {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter",
+    "Segoe UI", Roboto, sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--vt-fg, #e6e6ea);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-share-syn .vt-share-leaderboard-pts {
   font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
   font-variation-settings: "opsz" 48, "tnum" 1;
   font-feature-settings: "tnum" 1, "lnum" 1;
   font-weight: 500;
-}
-.vt-share-leaderboard-pts {
+  font-size: 1.25rem;
   color: var(--vt-gold-400, #dca94b);
+  text-align: right;
+  min-width: 4ch;
+}
+
+.vt-share-syn .vt-share-leaderboard-empty {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: 1rem;
+  color: var(--vt-fg-muted, #a3a3ad);
+  padding: 8px 0;
+  text-align: left;
+  background: transparent;
+  border: none;
+}
+
+/* ── JOIN CTA + caption ──────────────────────────────────────────── */
+
+.vt-share-syn-join {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+}
+.vt-share-syn-join .vt-share-cta {
+  width: 100%;
+  padding: 18px 26px;
+  font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter",
+    "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  border-radius: 999px;
+  background: var(--vt-gold-400, #dca94b);
+  color: #1a1208;
+  border: 1px solid var(--vt-gold-400, #dca94b);
+  transition: transform 180ms cubic-bezier(0.2, 0.7, 0.2, 1), background 180ms;
+}
+.vt-share-syn-join .vt-share-cta:hover {
+  background: var(--vt-gold-300, #e6bf5e);
+  border-color: var(--vt-gold-300, #e6bf5e);
+  transform: translateY(-1px);
+}
+.vt-share-syn-join-note {
+  text-align: center;
+  margin: 0;
+}
+
+/* ── Recent members, hairline above + chip grid (no card chrome) ── */
+
+.vt-share-syn .vt-share-members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px 12px;
+}
+.vt-share-syn .vt-share-member-tile {
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+.vt-share-syn .vt-share-member-flag {
+  font-size: 20px;
+  line-height: 1;
+}
+.vt-share-syn .vt-share-member-handle {
+  font-family: -apple-system, BlinkMacSystemFont, "Inter Variable", "Inter",
+    "Segoe UI", Roboto, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--vt-fg, #e6e6ea);
+  text-align: left;
+  width: auto;
+}
+
+/* ── Sponsor line (editorial caption, NOT a card) ────────────────── */
+
+.vt-share-sponsor {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+}
+.vt-share-sponsor-link {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+}
+.vt-share-sponsor-link:hover .vt-share-sponsor-name {
+  color: var(--vt-gold-400, #dca94b);
+  border-color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-sponsor-label {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-share-sponsor-label::before {
+  content: "· ";
+}
+.vt-share-sponsor-logo {
+  height: 24px;
+  width: auto;
+  max-width: 120px;
+  object-fit: contain;
+  opacity: 0.85;
+}
+.vt-share-sponsor-name {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 48, "SOFT" 30;
+  font-weight: 500;
+  font-size: 1rem;
+  color: var(--vt-fg, #e6e6ea);
+  border-bottom: 1px solid transparent;
+  transition: color 180ms, border-color 180ms;
+}
+
+/* ── Colophon footer (mono, single line) ─────────────────────────── */
+
+.vt-share-syn-colophon {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 24px;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  margin-top: 0;
+  text-align: left;
+}
+.vt-share-syn-colophon-sep {
+  opacity: 0.6;
 }
