@@ -429,7 +429,7 @@ def regenerate_bracket_engine_fixtures() -> None:
             ),
         },
         "id": "fifa-wc-2026",
-        "name": "FIFA World Cup 2026 (US / Canada / Mexico)",
+        "name": "Football World Cup 2026",
         "start_utc": fix_by_match[1].kickoff_utc,
         "final_utc": fix_by_match[104].kickoff_utc,
         "teams": bracket_teams,

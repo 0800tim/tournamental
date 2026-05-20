@@ -300,7 +300,7 @@ const tournament = {
     ].join(" "),
   },
   id: "fifa-wc-2026",
-  name: "FIFA World Cup 2026 (US / Canada / Mexico)",
+  name: "Football World Cup 2026",
   start_utc: new Date(START_UTC).toISOString(),
   final_utc: FINAL_UTC,
   teams,

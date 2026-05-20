@@ -827,7 +827,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
           onClick={() => setShowAutoPickConfirm(true)}
           aria-label="Auto-pick from live odds"
           aria-describedby="bracket-autopick-subtitle"
-          title="Auto-pick every match to the current Polymarket favourite"
+          title="Auto-pick every match: Polymarket odds for groups, world ranking for knockouts"
           disabled={autoPickDisabled}
         >
           <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
@@ -1050,8 +1050,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
               ⚡ Auto-pick the favourite for every match?
             </h2>
             <p className="bracket-modal-body">
-              Auto-pick uses live Polymarket odds to set every match to the
-              current favourite. <strong>Your existing picks will be
+              Auto-pick uses live Polymarket odds for the group stage. The
+              knockout rounds don't have Polymarket markets open yet
+              (matchups aren't known until groups conclude), so those fall
+              back to world ranking. <strong>Your existing picks will be
               overwritten.</strong>
             </p>
             <p className="bracket-modal-body">
