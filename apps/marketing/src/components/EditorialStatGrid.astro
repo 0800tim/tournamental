@@ -1,0 +1,162 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+/**
+ * EditorialStatGrid, a row-oriented stat grid for editorial pages.
+ *
+ * Used on /leaderboards to replace the admin-spreadsheet scope table
+ * with a typographic grid: a leftmost label cell set in Fraunces,
+ * three numeric cells set in Fraunces with tabular numerals, hairline
+ * rules between every row and a gold masthead rule across the top.
+ * No card chrome, no bordered cells, no zebra stripes.
+ *
+ * The component is intentionally narrower in feature surface than
+ * EditorialTable, which carries comparison copy. This grid is for
+ * stat-heavy content where the digits do the heavy lifting.
+ */
+interface Row {
+  label: string;
+  /**
+   * Optional caption rendered as a small mono note below the label.
+   * Useful for scope qualifiers ("country-tagged", "private only").
+   */
+  meta?: string;
+  /** Stat cells, length must equal the columns prop. */
+  cells: ReadonlyArray<string>;
+}
+interface Props {
+  /** Column-header captions; first slot is the row-label column. */
+  columns: ReadonlyArray<string>;
+  rows: ReadonlyArray<Row>;
+}
+const { columns, rows } = Astro.props as Props;
+const totalCols = columns.length;
+---
+<div class="vt-esg" role="table" style={`--vt-esg-cols: ${totalCols};`}>
+  <div class="vt-esg-row vt-esg-head" role="row">
+    {columns.map((c, i) => (
+      <div
+        class:list={[
+          "vt-esg-cell vt-esg-cell--head",
+          i === 0 ? "vt-esg-cell--left" : "vt-esg-cell--right",
+        ]}
+        role="columnheader"
+      >
+        {c}
+      </div>
+    ))}
+  </div>
+  {rows.map((r) => (
+    <div class="vt-esg-row" role="row">
+      <div class="vt-esg-cell vt-esg-cell--label" role="cell">
+        <span class="vt-esg-label">{r.label}</span>
+        {r.meta && <span class="vt-esg-meta">{r.meta}</span>}
+      </div>
+      {r.cells.map((cell) => (
+        <div class="vt-esg-cell vt-esg-cell--num" role="cell">
+          {cell}
+        </div>
+      ))}
+    </div>
+  ))}
+</div>
+
+<style>
+  .vt-esg {
+    display: grid;
+    grid-template-columns: repeat(var(--vt-esg-cols, 4), minmax(0, 1fr));
+    border-top: 3px solid var(--vt-gold-400);
+  }
+
+  .vt-esg-row {
+    display: contents;
+  }
+
+  .vt-esg-cell {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    color: var(--vt-fg);
+  }
+  .vt-esg-cell:first-child { padding-left: 0; }
+  .vt-esg-cell:last-child { padding-right: 0; }
+
+  .vt-esg-cell--head {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vt-fg-muted);
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+  .vt-esg-cell--left { text-align: left; }
+  .vt-esg-cell--right { text-align: right; }
+
+  .vt-esg-cell--label {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .vt-esg-label {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    font-size: 1.125rem;
+    line-height: 1.1;
+    color: var(--vt-fg-strong);
+  }
+  .vt-esg-meta {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--vt-fg-muted);
+  }
+
+  .vt-esg-cell--num {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-feature-settings: "tnum" 1, "lnum" 1;
+    font-variation-settings: "opsz" 36, "tnum" 1;
+    font-weight: 500;
+    font-size: 1rem;
+    text-align: right;
+    color: var(--vt-gold-400);
+  }
+
+  @media (max-width: 720px) {
+    .vt-esg {
+      grid-template-columns: 1fr 1fr;
+    }
+    .vt-esg-head { display: none; }
+    .vt-esg-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      padding: 1rem 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+      align-items: baseline;
+    }
+    .vt-esg-cell {
+      border-bottom: 0;
+      padding: 0.15rem 0;
+    }
+    .vt-esg-cell--label {
+      grid-column: span 2;
+      margin-bottom: 0.4rem;
+    }
+    .vt-esg-cell--num {
+      text-align: left;
+    }
+    .vt-esg-cell--num::before {
+      content: attr(data-col);
+      display: block;
+      font-family: ui-monospace, Menlo, Monaco, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--vt-fg-muted);
+      margin-bottom: 0.15rem;
+    }
+  }
+</style>

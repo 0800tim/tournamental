@@ -1,0 +1,113 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+/**
+ * PrincipleList, an editorial proof strip used on pitch pages.
+ *
+ * Two or three short "principle" entries laid out as a magazine
+ * argument: a dateline-style index, a Fraunces section head, a single
+ * body paragraph, no card chrome. Hairline rule between rows on
+ * mobile, column rules between rows on desktop.
+ *
+ * Lives under the `.vt-editorial` scope. Borrows the same marker
+ * grammar as TournamentBook so the syndicates and how-it-works pages
+ * read as siblings of the homepage proof strip rather than detours.
+ */
+interface Principle {
+  index: string;
+  heading: string;
+  body: string;
+}
+interface Props {
+  items: ReadonlyArray<Principle>;
+  /**
+   * When provided, sets the `data-reveal` slot for the choreographed
+   * first-paint stagger. Otherwise the list renders without a reveal
+   * hook and inherits the default visible state.
+   */
+  reveal?: string;
+}
+const { items, reveal } = Astro.props as Props;
+const cols = items.length === 2 ? "two" : "three";
+---
+<ol
+  class:list={["vt-principle-list", `vt-principle-list--${cols}`]}
+  {...(reveal ? { "data-reveal": reveal } : {})}
+>
+  {items.map((p) => (
+    <li class="vt-principle">
+      <div class="vt-principle-marker">
+        <span class="vt-principle-index">{p.index}</span>
+        <span class="vt-principle-rule" aria-hidden="true"></span>
+      </div>
+      <h3 class="vt-principle-head">{p.heading}</h3>
+      <p class="vt-principle-body">{p.body}</p>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .vt-principle-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-principle-list--two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3rem;
+    }
+    .vt-principle-list--three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 3.5rem 3rem;
+    }
+  }
+
+  .vt-principle {
+    display: grid;
+    gap: 0.9rem;
+  }
+
+  .vt-principle-marker {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .vt-principle-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+  }
+  .vt-principle-rule {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 18%, transparent);
+  }
+
+  .vt-principle-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 96, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.08;
+    font-size: 1.5rem;
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+
+  .vt-principle-body {
+    font-family: inherit;
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    font-size: 1rem;
+    margin: 0;
+    max-width: 40ch;
+  }
+</style>

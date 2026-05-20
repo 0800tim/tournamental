@@ -1,0 +1,187 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+/**
+ * EditorialTable, a typographic comparison grid in the gold + charcoal
+ * editorial system.
+ *
+ * Replaces the standard `card + grid` SaaS comparison with a
+ * broadsheet stat grid: hairline rules between rows, a single gold
+ * masthead rule above the column heads, row labels in Fraunces, body
+ * cells in Inter. No card chrome, no zebra striping, no shadow.
+ *
+ * Caller passes a column header row and an array of body rows. Each
+ * body row's first cell is the row label and renders in Fraunces; the
+ * remaining cells stay in Inter. The component is read-only, used for
+ * comparison surfaces (leaderboard scopes, syndicate tier
+ * differences). Lives under the `.vt-editorial` scope so it inherits
+ * the gold accent and dateline tokens.
+ */
+interface Column {
+  label: string;
+  /**
+   * Optional align hint; defaults to "left" for the first column and
+   * "left" for subsequent columns. Set "right" on numeric columns.
+   */
+  align?: "left" | "right";
+}
+interface Row {
+  /** First cell, rendered in Fraunces as the row label. */
+  label: string;
+  /** Subsequent cells rendered in Inter, one per non-label column. */
+  cells: ReadonlyArray<string>;
+  /**
+   * Optional dateline annotation rendered as a small muted caption
+   * directly under the row label (useful for tier-tier copy like
+   * "Free forever" / "$97/mo via Aiva").
+   */
+  meta?: string;
+}
+interface Props {
+  /** Caption rendered above the table as a small dateline. */
+  caption?: string;
+  columns: ReadonlyArray<Column>;
+  rows: ReadonlyArray<Row>;
+}
+const { caption, columns, rows } = Astro.props as Props;
+const totalCols = columns.length;
+---
+<div class="vt-etable-wrap">
+  {caption && <p class="vt-etable-caption">{caption}</p>}
+  <div class="vt-etable" role="table" style={`--vt-etable-cols: ${totalCols};`}>
+    <div class="vt-etable-row vt-etable-head" role="row">
+      {columns.map((c) => (
+        <div
+          class:list={["vt-etable-cell", `vt-etable-cell--${c.align ?? "left"}`]}
+          role="columnheader"
+        >
+          {c.label}
+        </div>
+      ))}
+    </div>
+    {rows.map((r) => (
+      <div class="vt-etable-row" role="row">
+        <div class="vt-etable-cell vt-etable-cell--label" role="cell">
+          <span class="vt-etable-label">{r.label}</span>
+          {r.meta && <span class="vt-etable-meta">{r.meta}</span>}
+        </div>
+        {r.cells.map((cell, idx) => {
+          const align = columns[idx + 1]?.align ?? "left";
+          return (
+            <div
+              class:list={["vt-etable-cell", `vt-etable-cell--${align}`]}
+              role="cell"
+            >
+              {cell}
+            </div>
+          );
+        })}
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .vt-etable-wrap {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .vt-etable-caption {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+    margin: 0;
+  }
+
+  .vt-etable {
+    display: grid;
+    grid-template-columns: repeat(var(--vt-etable-cols, 4), minmax(0, 1fr));
+    border-top: 3px solid var(--vt-gold-400);
+  }
+
+  .vt-etable-row {
+    display: contents;
+  }
+
+  .vt-etable-cell {
+    padding: 1rem 0.75rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    color: var(--vt-fg-muted);
+    font-size: 0.95rem;
+    line-height: 1.45;
+  }
+  .vt-etable-cell:first-child { padding-left: 0; }
+  .vt-etable-cell:last-child { padding-right: 0; }
+
+  .vt-etable-cell--right { text-align: right; }
+  .vt-etable-cell--left { text-align: left; }
+
+  .vt-etable-head .vt-etable-cell {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vt-fg-muted);
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .vt-etable-cell--label {
+    display: grid;
+    gap: 0.2rem;
+  }
+  .vt-etable-label {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 60, "SOFT" 30;
+    font-size: 1.125rem;
+    line-height: 1.1;
+    color: var(--vt-fg-strong);
+  }
+  .vt-etable-meta {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+  }
+
+  /* Mobile: collapse to a stacked, label-on-top layout. Each row
+   * becomes a card-shaped block without card chrome; only hairline
+   * separators carry the structure. */
+  @media (max-width: 720px) {
+    .vt-etable {
+      grid-template-columns: 1fr;
+    }
+    .vt-etable-head { display: none; }
+    .vt-etable-row {
+      display: grid;
+      grid-template-columns: 1fr;
+      padding: 1rem 0;
+      border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    }
+    .vt-etable-cell {
+      border-bottom: 0;
+      padding: 0.15rem 0;
+    }
+    .vt-etable-cell--label {
+      margin-bottom: 0.35rem;
+    }
+    .vt-etable-cell:not(.vt-etable-cell--label)::before {
+      content: attr(data-col) "";
+      display: block;
+      font-family: ui-monospace, Menlo, Monaco, monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--vt-fg-muted);
+      margin-bottom: 0.15rem;
+    }
+  }
+</style>

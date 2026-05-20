@@ -1,0 +1,100 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+/**
+ * EditorialPageHeader, the canonical page-front masthead for every
+ * non-homepage editorial surface.
+ *
+ * Mirrors the homepage Hero rhythm at a quieter scale: a mono
+ * dateline, a Fraunces display headline (allowed to carry a single
+ * italic gold emphasis word via `<em>` in the title prop), a single
+ * gold hairline, and an italic Fraunces lede. The choreographed
+ * first-paint reveal uses the same `data-reveal` role tokens as the
+ * homepage Hero so cross-page motion feels familial.
+ *
+ * Headlines stay smaller than the homepage hero on purpose: the
+ * homepage is the cover, these pages are interior section fronts.
+ */
+interface Props {
+  /**
+   * Mono dateline, e.g. "Syndicates  Wellington  May 2026" (use
+   * non-breaking middots `·` between segments). The component
+   * does not add any prefix or suffix.
+   */
+  dateline: string;
+  /**
+   * Headline string. HTML is allowed via the named slot below;
+   * this prop is the plain-text fallback rendered when the slot
+   * isn't filled. The page can pass `<em>word</em>` markers into
+   * the slot to pick up the gold italic emphasis.
+   */
+  title: string;
+  /** Optional italic Fraunces lede; supports inline HTML via slot. */
+  lede?: string;
+  /**
+   * Optional footnote rendered below the lede; mono, gold dot
+   * prefix. Used for kickoff / version / Apache footnotes.
+   */
+  footnote?: string;
+}
+const { dateline, title, lede, footnote } = Astro.props as Props;
+---
+<header class="vt-editorial vt-eph">
+  <p class="vt-dateline" data-reveal="dateline">{dateline}</p>
+
+  <h1 class="vt-eph-head" data-reveal="headline">
+    <slot name="title">
+      <Fragment set:html={title} />
+    </slot>
+  </h1>
+
+  <hr class="vt-rule vt-eph-rule" data-reveal="rule" aria-hidden="true" />
+
+  {lede && (
+    <p class="vt-lede vt-eph-lede" data-reveal="lede">
+      <slot name="lede">
+        <Fragment set:html={lede} />
+      </slot>
+    </p>
+  )}
+
+  {footnote && (
+    <p class="vt-footnote vt-eph-footnote" data-reveal="footnote">
+      {footnote}
+    </p>
+  )}
+</header>
+
+<style>
+  .vt-eph {
+    padding-top: clamp(2.25rem, 5vw, 4.5rem);
+    padding-bottom: clamp(1.5rem, 3.5vw, 3rem);
+  }
+  .vt-eph-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 120, "SOFT" 30, "WONK" 0;
+    letter-spacing: -0.015em;
+    line-height: 1.02;
+    color: var(--vt-fg-strong);
+    font-size: clamp(2.25rem, 5.5vw, 4.5rem);
+    margin: 1.75rem 0 0;
+    max-width: 22ch;
+  }
+  .vt-eph-head :global(em) {
+    font-style: italic;
+    font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+    color: var(--vt-gold-400);
+  }
+  .vt-eph-rule {
+    margin-top: 2.25rem;
+  }
+  .vt-eph-lede {
+    margin-top: 1.75rem;
+  }
+  .vt-eph-footnote {
+    margin-top: 1.5rem;
+  }
+</style>

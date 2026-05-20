@@ -1,53 +1,168 @@
 ---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
 import Layout from "@/layouts/Layout.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+import PrincipleList from "@/components/PrincipleList.astro";
+import EditorialTable from "@/components/EditorialTable.astro";
 
 /**
- * /syndicates — light-touch landing.
+ * /syndicates, the public-facing pitch for hosting a pool.
  *
- * The full syndicate marketing surface (use-cases, pricing, embed
- * snippet, the playbook) lives on play.tournamental.com where the
- * dashboard and creation flow also live. This page is a single-screen
- * primer that explains what a syndicate is and CTAs people to the
- * play app for the rich experience.
+ * Recomposed from a generic SaaS feature grid into an editorial
+ * argument: dateline + Fraunces headline + italic lede, a three-row
+ * "principles" stack, a typographic tier comparison (no card grid),
+ * and a single quiet CTA pair. The full creation flow and the
+ * deeper playbook still live in the play app; this page is the
+ * argument for why a host would want one.
  */
+
+const PRINCIPLES = [
+  {
+    index: "01",
+    heading: "Your brand on every leaderboard",
+    body:
+      "A syndicate is your branded pool inside Tournamental. Office, fan club, school, radio show, creator audience. Same toolkit, your logo on every share card and every weekly rank.",
+  },
+  {
+    index: "02",
+    heading: "Free embed, drop on any site",
+    body:
+      "The free tier ships a branded widget that sits inside Squarespace, WordPress, Shopify, or a hand-rolled site. Members join from your storefront. Picks-saved climbs in your context, not ours.",
+  },
+  {
+    index: "03",
+    heading: "Premium adds the CRM, not the lock-in",
+    body:
+      "Premium adds a fully-managed HighLevel sub-account through Aiva: your own SMS, WhatsApp and email, Stripe-backed paid entries that settle to your bank, and subdomain hosting. The platform itself stays free.",
+  },
+] as const;
+
+const TIER_COLUMNS = [
+  { label: "Tier" },
+  { label: "Embed widget" },
+  { label: "Brand controls" },
+  { label: "Member CRM" },
+  { label: "Paid entries", align: "left" as const },
+];
+
+const TIER_ROWS = [
+  {
+    label: "Free forever",
+    meta: "Self-serve, hosted on play.tournamental.com",
+    cells: [
+      "Drop-in widget for any site",
+      "Logo, colours, slug",
+      "Telegram + WhatsApp bot",
+      "Off-platform, your call",
+    ],
+  },
+  {
+    label: "Premium",
+    meta: "$97 / month via Aiva",
+    cells: [
+      "Subdomain hosting",
+      "Full theme, custom domain",
+      "Managed HighLevel sub-account",
+      "Stripe, settles to your bank",
+    ],
+  },
+];
+
+const startHref = "https://play.tournamental.com/syndicates/new";
+const playbookHref = "https://play.tournamental.com/syndicates/playbook";
 ---
 <Layout
-  title="Run your own pool · Tournamental syndicates"
-  description="Anyone can host a branded tournament prediction pool on Tournamental. Free embed widget for any site, premium tier adds a fully-managed CRM. Create yours on play.tournamental.com."
+  title="Run your own pool, Tournamental syndicates"
+  description="A syndicate is your own branded prediction pool, hosted on Tournamental. Free embed widget for any site. Premium adds a fully-managed CRM through Aiva."
   ogImage="/og/syndicates.png"
 >
-  <section class="container-page pt-16 pb-12">
-    <SectionHeading
-      eyebrow="Syndicates"
-      title="Run your own pool. Brand it your way."
-      lede="A syndicate is your own branded prediction pool, hosted on Tournamental. Drop the embed widget on any site. Free forever; premium adds a fully-managed CRM. Create yours and read the full playbook on the play app."
-    />
-    <div class="flex flex-wrap gap-3">
-      <a href="https://play.tournamental.com/syndicates/new" class="btn-primary">Create your World Cup syndicate →</a>
-      <a href="https://play.tournamental.com/syndicates/playbook" class="btn-ghost">Read the playbook</a>
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="Syndicates · Wellington · May 2026"
+        title=""
+        lede="A syndicate is your branded prediction pool inside Tournamental. The platform runs the game. You bring the audience, the brand, and the prize structure. Free forever to host, with a premium tier when you want the CRM stack alongside it."
+        footnote="Free embed · Premium CRM via Aiva · Open spec"
+      >
+        <Fragment slot="title">
+          Run your <em>own</em> pool. Brand it your way.
+        </Fragment>
+      </EditorialPageHeader>
+
+      <div class="vt-eph-cta-row" data-reveal="cta">
+        <a
+          class="vt-cta-primary"
+          href={startHref}
+          data-analytics="cta"
+          data-analytics-label="Start a syndicate"
+          data-analytics-surface="syndicates-hero"
+        >
+          Start your syndicate <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a
+          class="vt-cta-text"
+          href={playbookHref}
+          data-analytics="cta"
+          data-analytics-label="Read the playbook"
+          data-analytics-surface="syndicates-hero"
+        >
+          Read the playbook
+        </a>
+      </div>
     </div>
   </section>
 
-  <section class="container-page pb-16">
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="card">
-        <h3 class="text-lg font-bold text-white">What it is</h3>
-        <p class="text-ink-200 mt-2 text-sm">Your own branded pool for any tournament. Office, friends, fan club, store, school, radio station, creator audience. Same toolkit, your brand on every leaderboard.</p>
-      </div>
-      <div class="card">
-        <h3 class="text-lg font-bold text-white">Free forever</h3>
-        <p class="text-ink-200 mt-2 text-sm">Branded embed widget you drop on any site (Squarespace, WordPress, Shopify, custom). Members sign up on your site, picks-saved climbs in your storefront, share cards carry your brand.</p>
-      </div>
-      <div class="card">
-        <h3 class="text-lg font-bold text-white">Premium tier</h3>
-        <p class="text-ink-200 mt-2 text-sm">$97/month via <a href="/partners/aiva" class="link">Aiva</a> adds a fully-managed HighLevel CRM sub-account, your own SMS / WhatsApp / email, paid entries via Stripe (funds settle to your bank), and subdomain hosting.</p>
-      </div>
-    </div>
-    <p class="text-ink-300 text-sm mt-8 max-w-2xl">
-      The full freemium pitch, six audience-archetype scenarios, prize-structure templates, sponsor-pitch email templates, and a six-week run-of-show all live in the play app at{" "}
-      <a href="https://play.tournamental.com/syndicates" class="link">play.tournamental.com/syndicates</a>{" "}
-      alongside the creation form and the affiliate dashboard.
+  <section class="vt-editorial container-page py-16 md:py-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">Three principles · Why hosts pick Tournamental</span>
+      <h2 class="vt-section-head mt-3">
+        Built so the brand on the leaderboard is yours, not ours.
+      </h2>
+    </header>
+    <PrincipleList items={PRINCIPLES} />
+  </section>
+
+  <section class="vt-editorial container-page pb-16 md:pb-20">
+    <header class="mb-8 md:mb-10">
+      <span class="vt-dateline">Tier comparison · v0.1</span>
+      <h2 class="vt-section-head mt-3">
+        Free runs the game. Premium runs the back office.
+      </h2>
+      <p class="vt-lede mt-5">
+        Free covers the prediction game itself: the bracket, the
+        scoreboard, the share cards, the bots. Premium adds the
+        member CRM and a way to take paid entries that settle to
+        your bank, for the hosts who want to run their syndicate
+        as a small business.
+      </p>
+    </header>
+
+    <EditorialTable
+      caption="Two tiers · Read across"
+      columns={TIER_COLUMNS}
+      rows={TIER_ROWS}
+    />
+
+    <p class="vt-footnote mt-8 max-w-3xl">
+      The full freemium argument, six audience archetypes, prize
+      templates, sponsor email templates and a six-week run of show
+      live in the play app at{" "}
+      <a class="vt-cta-text" href={playbookHref}>play.tournamental.com/syndicates</a>
+      , next to the creation form and the affiliate dashboard.
     </p>
   </section>
 </Layout>
+
+<style>
+  .vt-eph-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 1.75rem;
+    margin-bottom: 2.25rem;
+  }
+</style>
