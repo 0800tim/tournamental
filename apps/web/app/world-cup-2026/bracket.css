@@ -770,26 +770,43 @@
   outline-offset: 2px;
 }
 
-.mpr-pick.is-dim { opacity: 0.4; filter: grayscale(0.3); }
-.mpr-pick.is-dim:hover { opacity: 0.7; filter: none; }
-
-.mpr-pick.is-selected {
-  transform: translateY(-1px);
+/* Sibling dim once a pick exists in the row, the unpicked side fades to
+ * 0.45 opacity + 0.6 saturation so the user's call reads as the
+ * unmistakable centre of attention. Hover briefly un-dims so a user
+ * who wants to change their pick still has visual feedback. */
+.mpr-pick.is-dim {
+  opacity: 0.45;
+  filter: saturate(0.6);
+}
+.mpr-pick.is-dim:hover,
+.mpr-pick.is-dim:focus-within {
+  opacity: 0.85;
+  filter: saturate(0.95);
 }
 
-/* Glow ring on the selected flag-circle. Unified gold treatment per
- * Tim 2026-05-20: the previous per-team kit-colour ring + glow was
- * visually noisy on a page full of group cards. Now every selected
- * pick reads as the same brand-gold state. */
+.mpr-pick.is-selected {
+  transform: translateY(-2px) scale(1.015);
+}
+
+/* Elevated gold selection (2026-05-21): 4px outer ring + 12-16px gold
+ * halo. The ring lives on the .mpr-pick button container as box-shadow
+ * so the layout doesn't shift when the user picks (no border thrash).
+ * Unified across home/away picks; the draw pill has its own treatment
+ * below. */
 .mpr-pick-home.is-selected,
 .mpr-pick-away.is-selected {
   background: rgba(220, 169, 75, 0.06);
-}
-.mpr-pick-home.is-selected,
-.mpr-pick-away.is-selected {
   box-shadow:
-    inset 0 0 0 2px var(--vt-gold-400, #dca94b),
-    0 0 24px rgba(220, 169, 75, 0.35);
+    inset 0 0 0 4px var(--vt-gold-400, #dca94b),
+    0 0 0 1px rgba(220, 169, 75, 0.45),
+    0 6px 16px rgba(220, 169, 75, 0.35),
+    0 0 28px rgba(220, 169, 75, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mpr-pick.is-selected {
+    transform: none;
+  }
 }
 
 .mpr-pick-code {
@@ -1290,10 +1307,17 @@
 }
 /* Only dim the loser side when a winner has been picked in the same
  * card. Pre-pick both sides read with full punch so the user isn't
- * confused about which side they're choosing. */
+ * confused about which side they're choosing. Dim to opacity 0.45 +
+ * saturate 0.6 to match the group-row treatment (the same rubric used
+ * for `.mpr-pick.is-dim`). */
 .km-card:has(.km-team.is-winner) .km-team:not(.is-winner) {
-  filter: saturate(0.55) brightness(0.6);
-  opacity: 0.78;
+  filter: saturate(0.6);
+  opacity: 0.45;
+}
+.km-card:has(.km-team.is-winner) .km-team:not(.is-winner):hover,
+.km-card:has(.km-team.is-winner) .km-team:not(.is-winner):focus-visible {
+  opacity: 0.85;
+  filter: saturate(0.95);
 }
 
 .km-team:not(.is-winner)::after {
@@ -1305,21 +1329,27 @@
   );
 }
 
-/* Selected: brighter, no desaturation, heavy gold border ring, deep
- * brand-coloured shadow. Unified on --vt-gold-400 so the knockout
- * cells match the group rows after the 2026-05-20 gold-everywhere
- * sweep. The ring is 5px so it reads as a clear, single piece of
- * brand chrome even at small viewports. */
+/* Selected (elevated 2026-05-21): 4px gold inner ring + 12-16px gold
+ * halo + 2px lift. Unified with the group-row treatment so picks read
+ * as one piece of brand chrome from the group stage through the final.
+ * The lift is gated behind `prefers-reduced-motion` further down. */
 .km-team.is-winner {
   color: #ffffff;
   font-weight: 800;
-  border-color: rgba(220, 169, 75, 0.45);
+  border-color: rgba(220, 169, 75, 0.55);
   box-shadow:
-    inset 0 0 0 5px var(--vt-gold-400, #dca94b),
-    0 6px 18px rgba(220, 169, 75, 0.30),
-    0 0 0 1px rgba(220, 169, 75, 0.65);
-  transform: translateZ(0);
+    inset 0 0 0 4px var(--vt-gold-400, #dca94b),
+    0 0 0 1px rgba(220, 169, 75, 0.55),
+    0 8px 22px rgba(220, 169, 75, 0.35),
+    0 0 32px rgba(220, 169, 75, 0.32);
+  transform: translateY(-2px) scale(1.015);
   filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .km-team.is-winner {
+    transform: none;
+  }
 }
 
 .km-team.is-winner::after {
@@ -1329,6 +1359,17 @@
     rgba(0, 0, 0, 0.25) 45%,
     rgba(0, 0, 0, 0.55) 100%
   );
+}
+
+/* Hover on a picked cell, slight extra lift so the call still feels
+ * tactile when the user mouses back over their own choice. */
+.km-team.is-winner:hover {
+  transform: translateY(-3px) scale(1.02);
+}
+@media (prefers-reduced-motion: reduce) {
+  .km-team.is-winner:hover {
+    transform: none;
+  }
 }
 
 /* Hover on an unselected cell un-dims it briefly so the user previews
