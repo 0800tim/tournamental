@@ -103,6 +103,17 @@ const SAMPLE_SYNDICATES: ReadonlyArray<SyndicateRecord> = [
       { handle: "kate_h", country_code: "AUS", flag_emoji: "🇦🇺", joined_at: "2026-04-30T19:37:00Z", points: 0 },
       { handle: "ben_w", country_code: "GBR", flag_emoji: "🇬🇧", joined_at: "2026-05-01T11:22:00Z", points: 0 },
     ],
+    // Sample sponsor metadata so `/s/tim-friends` exercises the
+    // editorial "Sponsored by · NAME" caption + linkout in dev and
+    // preview deploys without a populated DB. Real syndicates pick
+    // sponsor data up from the syndicate_owners row's
+    // `sponsor_name` / `sponsor_url` / `sponsor_logo_url` columns
+    // (2026-05-21 share-landing polish).
+    sponsor: {
+      name: "Growth Spurt",
+      url: "https://growthspurt.agency",
+      logo_url: null,
+    },
   },
   {
     slug: "dunedin-locals",

@@ -518,9 +518,18 @@ function buildSyndicateLede(args: {
 }
 
 /**
- * Editorial "sponsored by" line. NOT a card, NOT a logo wall.
- * Renders as a mono caption + optional small logo, optionally linked.
- * Omitted entirely when neither name nor logo is present.
+ * Editorial "Sponsored by" line. NOT a card, NOT a logo wall.
+ *
+ * Renders as a two-row editorial caption:
+ *
+ *   ── SPONSORED BY      (gold mono dateline, leading hairline)
+ *   [logo] Sponsor Name  (Fraunces italic 500, optional logo)
+ *
+ * Omitted entirely when both sponsor.name and sponsor.logo_url are
+ * empty. The optional sponsor.url wraps the bottom row in an <a>
+ * with rel="noopener noreferrer sponsored", so search engines see
+ * an honest sponsored-relationship signal and the syndicate owner
+ * never inherits the sponsor's reputation by mistake.
  */
 function SponsorLine({
   sponsor,
@@ -531,9 +540,11 @@ function SponsorLine({
   const logo = sponsor.logo_url?.trim() ?? "";
   const url = sponsor.url?.trim() ?? "";
 
-  const body = (
+  // The "interactive" row sits below the SPONSORED BY dateline. We
+  // render logo + name inside it (whichever the owner provided) so
+  // the linkout target is the whole row, not just the text.
+  const innerRow = (
     <>
-      <span className="vt-share-sponsor-label">Sponsored by</span>
       {logo ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -553,6 +564,7 @@ function SponsorLine({
       data-testid="share-sponsor-line"
       aria-label={name ? `Sponsored by ${name}` : "Sponsored"}
     >
+      <span className="vt-share-sponsor-label">Sponsored by</span>
       {url ? (
         <a
           className="vt-share-sponsor-link"
@@ -560,10 +572,10 @@ function SponsorLine({
           target="_blank"
           rel="noopener noreferrer sponsored"
         >
-          {body}
+          {innerRow}
         </a>
       ) : (
-        body
+        <span className="vt-share-sponsor-link">{innerRow}</span>
       )}
     </aside>
   );

@@ -1369,17 +1369,33 @@
   width: auto;
 }
 
-/* ── Sponsor line (editorial caption, NOT a card) ────────────────── */
-
-.vt-share-sponsor {
+/* ── Sponsor line (editorial caption, NOT a card) ────────────────── *
+ *
+ * Renders as a two-line caption inside the editorial column:
+ *
+ *   ── SPONSORED BY  (gold mono dateline, leading hairline rule)
+ *   [logo] Sponsor Name  (Fraunces 500 1rem on the second line)
+ *
+ * The whole line is optionally wrapped in an <a> when sponsor.url is
+ * present. Hover state turns the name gold and underlines it. No
+ * card chrome, no fill, no border (other than the editorial dateline
+ * hairline which matches every other section eyebrow).
+ *
+ * Scoped under .vt-share-syn so the rules don't leak into user
+ * landing or any future surface that ever wants to render a sponsor.
+ */
+.vt-share-syn .vt-share-sponsor {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding-top: 18px;
-  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 0;
+  border: none;
+  /* No top hairline — the surrounding section gap already separates
+   * the sponsor from the recent-members grid. Adding another rule
+   * here would compete with the colophon hairline below. */
 }
-.vt-share-sponsor-link {
+.vt-share-syn .vt-share-sponsor-link {
   display: inline-flex;
   flex-direction: row;
   align-items: center;
@@ -1387,36 +1403,48 @@
   text-decoration: none;
   color: inherit;
 }
-.vt-share-sponsor-link:hover .vt-share-sponsor-name {
+.vt-share-syn .vt-share-sponsor-link:hover .vt-share-sponsor-name {
   color: var(--vt-gold-400, #dca94b);
-  border-color: var(--vt-gold-400, #dca94b);
+  border-bottom-color: var(--vt-gold-400, #dca94b);
 }
-.vt-share-sponsor-label {
+.vt-share-syn .vt-share-sponsor-label {
   font-family: ui-monospace, Menlo, Monaco, monospace;
-  font-size: 0.6875rem;
+  font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--vt-fg-muted, #a3a3ad);
+  color: var(--vt-gold-400, #dca94b);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  /* Scope-local: we don't want the global .vt-share-sponsor-label
+   * style outside .vt-share-syn (there isn't one today, but if a
+   * future surface gets a sponsor it can pick its own treatment). */
 }
-.vt-share-sponsor-label::before {
-  content: "· ";
+.vt-share-syn .vt-share-sponsor-label::before {
+  content: "";
+  display: inline-block;
+  width: 1.6em;
+  height: 1px;
+  background: currentColor;
 }
-.vt-share-sponsor-logo {
+.vt-share-syn .vt-share-sponsor-logo {
   height: 24px;
   width: auto;
   max-width: 120px;
   object-fit: contain;
-  opacity: 0.85;
+  opacity: 0.9;
 }
-.vt-share-sponsor-name {
+.vt-share-syn .vt-share-sponsor-name {
   font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
   font-variation-settings: "opsz" 48, "SOFT" 30;
+  font-style: italic;
   font-weight: 500;
-  font-size: 1rem;
+  font-size: 1.0625rem;
   color: var(--vt-fg, #e6e6ea);
   border-bottom: 1px solid transparent;
   transition: color 180ms, border-color 180ms;
+  padding-bottom: 2px;
 }
 
 /* ── Colophon footer (mono, single line) ─────────────────────────── */
