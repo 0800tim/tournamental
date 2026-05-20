@@ -77,7 +77,9 @@ API references for each service live under [`api/`](api/README.md). Every Fastif
 | --- | --- |
 | [`15-tournamental-brand-and-positioning.md`](15-tournamental-brand-and-positioning.md) | Tournamental brand, taglines, NZ regulatory framing, monetisation overview. |
 | [`23-analytics-and-marketing-insights.md`](23-analytics-and-marketing-insights.md) | Analytics events, KPIs, attribution. |
+| [`27-social-distribution-strategy.md`](27-social-distribution-strategy.md) | Where the bracket gets shared and how the viral loop closes. |
 | [`35-competitor-ux-dossier.md`](35-competitor-ux-dossier.md) | UX teardowns of FIFA+, ESPN, Sleeper, Polymarket, Kalshi. |
+| [`59-football-audience-outreach-playbook.md`](59-football-audience-outreach-playbook.md) | How to contact football YouTubers, clubs, publishers, stats companies, and fan communities. Templates per audience. |
 
 ### Onchain & monetisation
 
