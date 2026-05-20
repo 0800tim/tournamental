@@ -44,31 +44,39 @@
 }
 
 .vt-lb-hero-card {
-  border-radius: 16px;
-  padding: 18px 20px;
-  background: rgba(16, 22, 38, 0.85);
-  border: 1px solid rgba(125, 145, 200, 0.18);
+  border-radius: 14px;
+  padding: 20px 22px;
+  /* Charcoal canvas (2026-05-21). Was a navy-tinted rgba over a darker
+   * navy that read as a different surface entirely from the rest of the
+   * page; the user spotted it as a leftover blue. Matched to the
+   * --vt-bg-elev token so it tracks the dark shell. */
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
 }
 
 .vt-lb-hero-card strong {
-  font-size: 32px;
-  font-weight: 800;
-  color: #f0f3fa;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
+  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  font-size: 2.25rem;
+  letter-spacing: -0.018em;
+  line-height: 1;
+  color: var(--vt-gold-400, #dca94b);
 }
 
 .vt-lb-hero-card span {
-  font-size: 13px;
-  color: #7a8597;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.7rem;
+  color: var(--vt-fg-muted, #a3a3ad);
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  font-weight: 600;
+  letter-spacing: 0.12em;
+  font-weight: 500;
 }
 
 .vt-lb-grid {

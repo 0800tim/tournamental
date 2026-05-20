@@ -545,14 +545,26 @@
   width: 28px;
   height: 28px;
   border-radius: var(--vt-radius-pill);
-  background: var(--vt-accent);
-  color: var(--vt-accent-on);
+  /* Gold ring + dark interior — when the chip falls back to initials,
+   * it reads as a small editorial badge rather than a sky-blue chip. */
+  background: var(--vt-bg-elev-2, rgba(255, 255, 255, 0.08));
+  border: 1.5px solid var(--vt-gold-400, #dca94b);
+  color: var(--vt-gold-400, #dca94b);
   display: grid;
   place-items: center;
-  font-weight: 900;
-  font-size: 13px;
-  letter-spacing: 0;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.02em;
   flex-shrink: 0;
+}
+
+.vt-appbar-auth-avatar.vt-appbar-auth-avatar-img {
+  /* When the avatar img loads, drop the chip chrome so the photo is
+   * borderless inside the gold ring; keep the ring as a subtle frame. */
+  background: transparent;
+  padding: 0;
+  object-fit: cover;
+  display: block;
 }
 
 .vt-appbar-auth-handle {

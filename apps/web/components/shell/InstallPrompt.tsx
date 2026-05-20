@@ -37,7 +37,17 @@ interface BeforeInstallPromptEvent extends Event {
 type InstallState =
   | { kind: "hidden" }
   | { kind: "chromium"; event: BeforeInstallPromptEvent }
-  | { kind: "ios" };
+  | { kind: "ios" }
+  /**
+   * Generic fallback. Surfaces when we are not in standalone, we are
+   * not iOS Safari, and `beforeinstallprompt` hasn't fired yet (Chrome
+   * can withhold the event for engagement reasons, esp. on the first
+   * visit). The CTA opens browser-specific install help rather than
+   * staying invisible. Per Tim 2026-05-21: the affordance must always
+   * be visible in the drawer for non-installed visitors, otherwise the
+   * PWA install path looks broken.
+   */
+  | { kind: "generic" };
 
 function readDismissedAt(): number | null {
   if (typeof window === "undefined") return null;
@@ -102,6 +112,13 @@ export function InstallPrompt() {
     // hint instead, but only if we are actually on iOS Safari.
     if (isIosSafari()) {
       setState({ kind: "ios" });
+    } else {
+      // Generic fallback for every non-iOS browser. If chromium fires
+      // beforeinstallprompt later, the handler upgrades the state to
+      // { kind: "chromium" } which gives us the native install button.
+      // If it never fires, the generic CTA opens the browser's own
+      // menu instructions instead of staying invisible.
+      setState({ kind: "generic" });
     }
 
     return () => {
@@ -118,27 +135,29 @@ export function InstallPrompt() {
   };
 
   const onClick = async () => {
-    if (state.kind !== "chromium") {
-      // iOS path: nothing to fire programmatically. Tapping the line
-      // counts as "saw the hint" so we dismiss it for 30 days.
-      dismiss();
-      return;
-    }
-    try {
-      await state.event.prompt();
-      const choice = await state.event.userChoice;
-      if (choice.outcome === "accepted" || choice.outcome === "dismissed") {
+    if (state.kind === "chromium") {
+      try {
+        await state.event.prompt();
+        const choice = await state.event.userChoice;
+        if (choice.outcome === "accepted" || choice.outcome === "dismissed") {
+          dismiss();
+        }
+      } catch {
         dismiss();
       }
-    } catch {
-      dismiss();
+      return;
     }
+    // iOS + generic paths: no programmatic install API. Tapping the
+    // line counts as "saw the hint" and dismisses for 30 days.
+    dismiss();
   };
 
   const label =
     state.kind === "ios"
       ? "Install: tap share, then Add to Home Screen"
-      : "Install Tournamental as an app";
+      : state.kind === "generic"
+        ? "Install Tournamental: browser menu, Install app"
+        : "Install Tournamental as an app";
 
   return (
     <div className="vt-drawer-install">
