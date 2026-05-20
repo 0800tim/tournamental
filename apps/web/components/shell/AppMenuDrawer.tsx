@@ -24,6 +24,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, type ReactNode } from "react";
 
+import { InstallPrompt } from "./InstallPrompt";
 import {
   DRAWER_PRIMARY,
   DRAWER_WC2026,
@@ -101,6 +102,7 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
         <DrawerLinks links={DRAWER_WC2026} onClick={onClose} />
         <div className="vt-drawer-section-label">More</div>
         <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
+        <InstallPrompt />
       </aside>
     </div>
   );

@@ -15,8 +15,8 @@
  *   - slide-in app-menu drawer, triggered by the hamburger or the
  *     bottom-nav "Menu" tab. The drawer is available on every viewport
  *     size and holds the full nav surface (the desktop bar only
- *     exposes the most-used primaries inline).
- *   - install-prompt toast (once per device)
+ *     exposes the most-used primaries inline). The drawer also hosts
+ *     the PWA install affordance (see InstallPrompt).
  *
  * Variants:
  *   - `"default"`, standard chrome.
@@ -31,7 +31,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { AppBar, type AppBarAction } from "./AppBar";
 import { AppMenuDrawer } from "./AppMenuDrawer";
 import { BottomNav, type BottomNavTab } from "./BottomNav";
-import { InstallPrompt } from "./InstallPrompt";
 import { MicrositeSubNav } from "./MicrositeSubNav";
 import { RegisterSW } from "./RegisterSW";
 import { ThemeMeta } from "./ThemeMeta";
@@ -130,7 +129,6 @@ export function AppShell({
         />
       ) : null}
       <AppMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <InstallPrompt />
     </div>
   );
 }

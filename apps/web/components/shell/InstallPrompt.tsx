@@ -1,115 +1,176 @@
 "use client";
 
 /**
- * "Install Tournamental" toast, appears once per device when the browser
- * fires `beforeinstallprompt`. Stores its dismissal in localStorage so
- * the toast doesn't reappear on every visit.
+ * "Install Tournamental" affordance, rendered as a single line at the
+ * foot of the AppMenuDrawer (NOT a top-of-page banner). The drawer-level
+ * placement keeps the install path discoverable without interrupting
+ * reading.
  *
- * On iOS Safari, where `beforeinstallprompt` is not implemented, this
- * component falls back to a hint about the share-sheet "Add to Home
- * Screen" affordance. The hint is shown once per device.
+ * Behaviour:
+ *   - Listens for `beforeinstallprompt` (Chrome / Edge / Android Chrome)
+ *     and `appinstalled`.
+ *   - On tap, fires the saved prompt and waits for `userChoice`.
+ *   - iOS Safari has no `beforeinstallprompt`; we detect iOS + non-
+ *     standalone and surface a "Tap share, then Add to Home Screen"
+ *     hint instead.
+ *   - Dismissals are persisted in localStorage as an ISO timestamp.
+ *     The affordance suppresses itself for 30 days after a dismissal
+ *     so the menu does not nag returning visitors.
+ *   - Hidden entirely once the page is running in standalone display
+ *     mode (the user already installed).
+ *
+ * Returns null in every "do not show" branch so the drawer can render
+ * <InstallPrompt /> unconditionally and the component decides whether
+ * to occupy any DOM at all.
  */
 
 import { useEffect, useState } from "react";
 
-const DISMISS_KEY = "vt-install-dismissed-v1";
+const DISMISS_KEY = "vt-install-dismissed-at";
+const DISMISS_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+type InstallState =
+  | { kind: "hidden" }
+  | { kind: "chromium"; event: BeforeInstallPromptEvent }
+  | { kind: "ios" };
+
+function readDismissedAt(): number | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage?.getItem(DISMISS_KEY);
+    if (!raw) return null;
+    const parsed = Date.parse(raw);
+    return Number.isFinite(parsed) ? parsed : null;
+  } catch {
+    return null;
+  }
+}
+
+function writeDismissedAt(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage?.setItem(DISMISS_KEY, new Date().toISOString());
+  } catch {
+    // ignore quota / private-mode failures
+  }
+}
+
+function isStandalone(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.matchMedia?.("(display-mode: standalone)").matches) return true;
+  // iOS Safari exposes navigator.standalone on the home-screen instance.
+  // @ts-expect-error iOS Safari specific
+  return window.navigator.standalone === true;
+}
+
+function isIosSafari(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent ?? "";
+  const isIos = /iPad|iPhone|iPod/i.test(ua);
+  const isChromeOrFx = /CriOS|FxiOS/i.test(ua);
+  return isIos && !isChromeOrFx;
+}
+
 export function InstallPrompt() {
-  const [event, setEvent] = useState<BeforeInstallPromptEvent | null>(null);
-  const [iosHint, setIosHint] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [state, setState] = useState<InstallState>({ kind: "hidden" });
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
-    const dismissed = window.localStorage?.getItem(DISMISS_KEY);
-    if (dismissed) return undefined;
 
-    // Already installed in standalone mode? Don't prompt.
-    const isStandalone =
-      window.matchMedia?.("(display-mode: standalone)").matches ||
-      // @ts-expect-error iOS Safari specific
-      window.navigator.standalone === true;
-    if (isStandalone) return undefined;
+    if (isStandalone()) return undefined;
+
+    const dismissedAt = readDismissedAt();
+    if (dismissedAt !== null && Date.now() - dismissedAt < DISMISS_TTL_MS) {
+      return undefined;
+    }
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setEvent(e as BeforeInstallPromptEvent);
-      setVisible(true);
+      setState({ kind: "chromium", event: e as BeforeInstallPromptEvent });
     };
     window.addEventListener("beforeinstallprompt", handler);
 
-    // iOS fallback: show the hint after a short delay if no
-    // beforeinstallprompt fires (it never will on iOS Safari).
-    const ua = window.navigator.userAgent ?? "";
-    const isIos = /iPad|iPhone|iPod/i.test(ua) && !/CriOS|FxiOS/i.test(ua);
-    let iosTimer: ReturnType<typeof setTimeout> | undefined;
-    if (isIos) {
-      iosTimer = setTimeout(() => {
-        setIosHint(true);
-        setVisible(true);
-      }, 4000);
+    const installedHandler = () => setState({ kind: "hidden" });
+    window.addEventListener("appinstalled", installedHandler);
+
+    // iOS Safari never fires beforeinstallprompt. Show the share-sheet
+    // hint instead, but only if we are actually on iOS Safari.
+    if (isIosSafari()) {
+      setState({ kind: "ios" });
     }
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handler);
-      if (iosTimer) clearTimeout(iosTimer);
+      window.removeEventListener("appinstalled", installedHandler);
     };
   }, []);
 
-  if (!visible) return null;
+  if (state.kind === "hidden") return null;
 
   const dismiss = () => {
-    setVisible(false);
-    if (typeof window !== "undefined") {
-      try {
-        window.localStorage?.setItem(DISMISS_KEY, "1");
-      } catch {
-        // ignore storage failures (quota, private mode)
-      }
-    }
+    writeDismissedAt();
+    setState({ kind: "hidden" });
   };
 
-  const install = async () => {
-    if (!event) return;
+  const onClick = async () => {
+    if (state.kind !== "chromium") {
+      // iOS path: nothing to fire programmatically. Tapping the line
+      // counts as "saw the hint" so we dismiss it for 30 days.
+      dismiss();
+      return;
+    }
     try {
-      await event.prompt();
-      const choice = await event.userChoice;
-      if (choice.outcome) dismiss();
+      await state.event.prompt();
+      const choice = await state.event.userChoice;
+      if (choice.outcome === "accepted" || choice.outcome === "dismissed") {
+        dismiss();
+      }
     } catch {
       dismiss();
     }
   };
 
+  const label =
+    state.kind === "ios"
+      ? "Install: tap share, then Add to Home Screen"
+      : "Install Tournamental as an app";
+
   return (
-    <div className="vt-install-toast" role="dialog" aria-label="Install Tournamental">
-      <div className="vt-install-mark" aria-hidden="true">
-        T
-      </div>
-      <div className="vt-install-body">
-        <p className="vt-install-title">Install Tournamental</p>
-        <p className="vt-install-sub">
-          {iosHint
-            ? "Tap share, then \"Add to Home Screen\" for the app experience."
-            : "Get the app experience on your home screen."}
-        </p>
-      </div>
-      {!iosHint && event ? (
-        <button type="button" className="vt-install-cta" onClick={install}>
-          Install
-        </button>
-      ) : null}
+    <div className="vt-drawer-install">
       <button
         type="button"
-        className="vt-install-dismiss"
-        aria-label="Dismiss install prompt"
-        onClick={dismiss}
+        className="vt-drawer-install-cta"
+        onClick={onClick}
+        aria-label={label}
       >
-        x
+        <img
+          src="/icons/icon-192.png?v=ball"
+          alt=""
+          width={20}
+          height={20}
+          decoding="async"
+          className="vt-drawer-install-mark"
+        />
+        <span className="vt-drawer-install-label">{label}</span>
+        <span className="vt-drawer-install-arrow" aria-hidden="true">
+          →
+        </span>
+      </button>
+      <button
+        type="button"
+        className="vt-drawer-install-dismiss"
+        onClick={(e) => {
+          e.stopPropagation();
+          dismiss();
+        }}
+        aria-label="Dismiss install prompt"
+      >
+        ✕
       </button>
     </div>
   );
