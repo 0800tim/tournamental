@@ -1,0 +1,14 @@
+# Sensitive — never commit:
+.env
+.env.local
+cookies.txt
+*_cookies.txt
+youtube_state.json
+cache/oauth_pending.json
+
+# Generated artifacts:
+cache/
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/

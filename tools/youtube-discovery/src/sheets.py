@@ -13,18 +13,56 @@ from .drive import build_drive_client, build_sheets_client
 HEADERS = [
     "rank",
     "channel_name",
+    "custom_url",
     "channel_url",
+    "country",
     "subscribers",
+    "subscriber_tier",
     "total_views",
     "views_per_sub",
     "uploads_per_month",
     "last_upload_date",
+    "days_since_last_upload",
     "primary_language",
-    "contact_email",
     "score",
+    "contact_email",
+    "twitter",
+    "instagram",
+    "facebook",
+    "tiktok",
+    "linkedin",
+    "website",
+    "description_preview",
     "pitch_doc_link",
     "notes",
 ]
+
+
+def _col_letter(idx: int) -> str:
+    """Convert 0-based column index to A1 letter(s). Supports beyond Z."""
+    letters = ""
+    n = idx
+    while True:
+        letters = chr(ord("A") + n % 26) + letters
+        n = n // 26 - 1
+        if n < 0:
+            break
+    return letters
+
+
+def _subscriber_tier(subs: int) -> str:
+    """Human-readable subscriber bucket — useful for sort/filter in the Sheet."""
+    if subs >= 5_000_000:
+        return "megabrand (5M+)"
+    if subs >= 1_000_000:
+        return "large (1M-5M)"
+    if subs >= 250_000:
+        return "mid (250k-1M)"
+    if subs >= 50_000:
+        return "indie (50k-250k)"
+    if subs >= 10_000:
+        return "small indie (10k-50k)"
+    return "micro (<10k)"
 
 
 def create_sheet(outreach_folder_id: str, date_str: str) -> str:
@@ -45,18 +83,30 @@ def write_channels(spreadsheet_id: str, channels: list[dict]) -> None:
 
     rows = [HEADERS]
     for i, ch in enumerate(channels, 1):
+        socials = ch.get("socials", {})
         rows.append([
             i,
             ch.get("channel_name", ""),
+            ch.get("custom_url", ""),
             ch.get("channel_url", ""),
+            ch.get("country", ""),
             ch.get("subscribers", 0),
+            _subscriber_tier(ch.get("subscribers", 0)),
             ch.get("total_views", 0),
             ch.get("views_per_sub", 0),
             ch.get("uploads_per_month", 0),
             ch.get("last_upload_date", ""),
+            ch.get("days_since_last_upload", ""),
             ch.get("primary_language", ""),
-            ch.get("contact_email", ""),
             ch.get("score", 0),
+            ch.get("contact_email", ""),
+            socials.get("twitter", ""),
+            socials.get("instagram", ""),
+            socials.get("facebook", ""),
+            socials.get("tiktok", ""),
+            socials.get("linkedin", ""),
+            socials.get("website", ""),
+            (ch.get("description_preview") or "")[:280],
             ch.get("pitch_doc_link", ""),
             "",  # notes — blank for human use
         ])
@@ -79,7 +129,7 @@ def update_column(
     """Update a single column for specific rows. row_values = [(1-based-row, value)]."""
     sheets = build_sheets_client()
     col_idx = HEADERS.index(col_name)
-    col_letter = chr(ord("A") + col_idx)
+    col_letter = _col_letter(col_idx)
 
     data = []
     for row_num, value in row_values:

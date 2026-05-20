@@ -13,21 +13,21 @@ def create_pitch_doc(
     channel_name: str,
     pitch_body: str,
     pitches_folder_id: str,
+    language: str = "en",
 ) -> str:
     """Create a Google Doc with the pitch text. Returns the Doc URL."""
     drive = build_drive_client()
     docs = build_docs_client()
 
-    # Create empty Doc in the Pitches folder
+    lang_tag = f" [{language}]" if language and language != "en" else ""
     doc_meta = {
-        "name": f"{channel_name} - Pitch",
+        "name": f"{channel_name} - Pitch{lang_tag}",
         "mimeType": "application/vnd.google-apps.document",
         "parents": [pitches_folder_id],
     }
     doc_file = _retry(lambda: drive.files().create(body=doc_meta, fields="id").execute())
     doc_id = doc_file["id"]
 
-    # Insert the pitch body text
     _retry(lambda: docs.documents().batchUpdate(
         documentId=doc_id,
         body={
