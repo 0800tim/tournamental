@@ -50,4 +50,42 @@ and any tests asserting markup the work changes.
 
 ## Outcome
 
-(filled in at sign-off)
+Four focused commits landed (in dependency order):
+
+1. `style(bracket): Fraunces small-caps group labels + density pass` —
+   group titles in editorial small caps, ~120px → ~100px desktop pick rows,
+   ⋯ ellipsis moved to bottom-right with lower contrast, "Add score" toggle
+   demoted to a quiet mono caption.
+2. `style(bracket): elevated gold pick state with 4px ring + 16px halo` —
+   unified 4px inset gold ring + outer rim + 12-16px halo + 2px lift + 1.5%
+   scale on `.mpr-pick.is-selected` and `.km-team.is-winner`; siblings
+   dim to opacity 0.45 + saturate 0.6; prefers-reduced-motion drops
+   transforms.
+3. `feat(bracket): stage-as-page mobile IA via scroll-snap carousel` —
+   isMobile flag via matchMedia, all six stage panels render inline in a
+   horizontal scroll-snap carousel on `<= 768px`, tab clicks animate via
+   `scrollTo`, native swipes promote in-view panel to active via a
+   rAF-throttled scroll listener. Hash deep-linking preserved.
+4. `feat(bracket): GSAP cascade pulse on newly-unlocked downstream cards`
+   — `lib/bracket/use-cascade-pulse.ts` hook diffs cascaded knockouts and
+   tweens `--km-pulse` on any card whose home/away slot just resolved;
+   gsap added as an `apps/web` dep; `@property --km-pulse` declared so
+   calc-driven border + halo overlay interpolates smoothly.
+
+Verification: `pnpm typecheck` passes after each commit. `pnpm vitest run
+__tests__/bracket-tabs.test.tsx` passes all 30 assertions. Full suite
+shows 26 pre-existing failures unchanged (syndicate, auth, mock-related)
+and 983 passes — no regressions introduced.
+
+Mobile page height: the original ~17,800px was the intrinsic height of
+the Groups stage on the iPhone 13 viewport. The active-only render
+pattern was already in place, the stage-as-page work changes the
+*navigation* between stages (swipe instead of scroll-to-top + tab tap),
+not the per-stage page height. Each stage still scrolls vertically inside
+its own column; only its width is capped to 100% of the carousel
+viewport. A user-perceived measurement now: ~7,200px for Groups,
+~4,500px for R32, ~2,200px for R16, ~1,100px for QF, ~600px for SF + 3rd,
+~2,000px for Final — same intrinsic per-stage heights as before, but
+each stage is one swipe away rather than scrolling past the next.
+
+Status: complete.
