@@ -1,121 +1,305 @@
 ---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+/**
+ * Footer, recomposed as a publication-style imprint.
+ *
+ * Three columns (Game, Build, Legal), no card chrome, hairline rules
+ * carry the structure. A small Fraunces wordmark and a masthead-style
+ * imprint replace the "Powered by / Made with care" framing. A
+ * "Next edition" mono caption reads as a print masthead's recurring
+ * fixture, dated to the next World Cup match-day broadcast.
+ *
+ * Lives under the `.vt-editorial` scope so the gold dateline + mono
+ * footnotes inherit the editorial tokens from globals.css. No
+ * Tailwind utility classes are used for the chrome itself, all
+ * spacing is in this stylesheet so the imprint is portable.
+ */
 const year = new Date().getFullYear();
+
+/**
+ * Compute the next "edition" caption. Editions tick forward through
+ * the World Cup 2026 build cycle, anchored to the calendar week. The
+ * caption format is "Edition N · weekday day month year" so it reads
+ * like a print masthead's next-fixture line.
+ */
+function nextEditionLabel(): { number: string; date: string } {
+  const now = new Date();
+  // First edition landed 18 May 2026 alongside the editorial pass;
+  // subsequent editions tick weekly until kickoff (11 June 2026).
+  const epoch = new Date(Date.UTC(2026, 4, 18));
+  const weeks = Math.max(0, Math.floor((now.getTime() - epoch.getTime()) / (7 * 86400 * 1000)));
+  // The "next" edition is one ahead of the current week.
+  const editionNumber = weeks + 2;
+  const next = new Date(epoch.getTime() + (weeks + 1) * 7 * 86400 * 1000);
+  const date = next.toLocaleDateString("en-NZ", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return {
+    number: String(editionNumber).padStart(2, "0"),
+    date,
+  };
+}
+
+const NEXT_EDITION = nextEditionLabel();
+const NEXT_EDITION_LABEL = `Edition ${NEXT_EDITION.number} · ${NEXT_EDITION.date}`;
+
+const GAME = [
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/leaderboards", label: "Leaderboards" },
+  { href: "/syndicates", label: "Syndicates" },
+  { href: "/world-cup-2026", label: "World Cup 2026" },
+];
+
+const BUILD = [
+  { href: "/open-source", label: "Open source" },
+  { href: "/contribute", label: "Contribute" },
+  { href: "https://github.com/0800tim/tournamental", label: "GitHub" },
+  { href: "/blog", label: "Build log" },
+  { href: "/influencers", label: "For creators" },
+];
+
+const LEGAL = [
+  { href: "/legal/terms", label: "Terms" },
+  { href: "/legal/privacy", label: "Privacy" },
+  { href: "/legal/cookies", label: "Cookies" },
+  { href: "/legal", label: "Legal hub" },
+  { href: "/press", label: "Press" },
+];
 ---
-<footer class="mt-24 border-t border-ink-700/70 bg-ink-900/60">
-  <div class="container-page py-14 grid gap-12 md:grid-cols-3 text-sm">
-    {/* Column 1, brand, tagline, socials, live count */}
-    <div>
-      <div class="flex items-center gap-2 font-display font-bold text-white text-base mb-3">
-        <span class="grid place-items-center size-7 rounded-md bg-accent-500 text-ink-900">
-          <span class="vt-icon-mask vt-icon-v size-5" aria-hidden="true"></span>
+<footer class="vt-editorial vt-colophon" role="contentinfo">
+  <div class="container-page vt-colophon-inner">
+    <div class="vt-colophon-masthead">
+      <p class="vt-dateline">Tournamental · Wellington · {year}</p>
+      <p class="vt-colophon-imprint">
+        <span class="vt-wordmark">Tournamental</span>
+        <span class="vt-colophon-imprint-meta">
+          Founded May 2026 in Wellington, Aotearoa. Apache 2.0 code.
+          CC-BY docs. Brand and affiliate codes owned by Tournamental.
         </span>
-        Tournamental
-      </div>
-      <p class="text-ink-200 max-w-xs">Predict the world's biggest matches with your friends. Watch in 3D. Climb a global leaderboard. Run your own pool.</p>
+      </p>
+    </div>
 
-      {/* Live-count pill removed pre-launch. Stay quiet about platform
-          metrics until the leaderboard surfaces real numbers from the
-          game-service; an unattested "12,000+ syndicates running"
-          counter undermines the integrity claim that's central to the
-          whole pitch (blockchain-verified, no fudged stats). Restore
-          this block once /api/version returns real data — keep the
-          fetch script below as a reference. */}
+    <div class="vt-colophon-grid" aria-label="Footer navigation">
+      <section class="vt-colophon-col">
+        <h2 class="vt-colophon-col-head">Game</h2>
+        <ul class="vt-colophon-list">
+          {GAME.map((item) => (
+            <li><a class="vt-colophon-link" href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </section>
 
-      <ul class="mt-6 flex items-center gap-3" aria-label="Social links">
+      <section class="vt-colophon-col">
+        <h2 class="vt-colophon-col-head">Build</h2>
+        <ul class="vt-colophon-list">
+          {BUILD.map((item) => (
+            <li><a class="vt-colophon-link" href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="vt-colophon-col">
+        <h2 class="vt-colophon-col-head">Legal</h2>
+        <ul class="vt-colophon-list">
+          {LEGAL.map((item) => (
+            <li><a class="vt-colophon-link" href={item.href}>{item.label}</a></li>
+          ))}
+        </ul>
+      </section>
+    </div>
+
+    <div class="vt-colophon-foot">
+      <p class="vt-footnote vt-colophon-next">
+        <span class="vt-colophon-next-marker" aria-hidden="true">●</span>
+        Next edition · {NEXT_EDITION_LABEL}
+      </p>
+      <ul class="vt-colophon-social" aria-label="Social channels">
         <li>
-          <a
-            href="https://github.com/0800tim/tournamental"
-            class="vt-icon-btn"
-            aria-label="GitHub"
-            rel="me"
-          >
-            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <a class="vt-colophon-social-link" href="https://github.com/0800tim/tournamental" rel="me" aria-label="GitHub">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 .5C5.65.5.5 5.65.5 12a11.5 11.5 0 0 0 7.86 10.92c.57.1.78-.25.78-.55v-2c-3.2.7-3.87-1.36-3.87-1.36-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.69 1.24 3.34.95.1-.74.4-1.24.72-1.53-2.55-.29-5.23-1.27-5.23-5.66 0-1.25.45-2.27 1.18-3.07-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.17a10.95 10.95 0 0 1 5.74 0c2.18-1.48 3.14-1.17 3.14-1.17.62 1.58.23 2.75.11 3.04.74.8 1.18 1.82 1.18 3.07 0 4.4-2.69 5.36-5.25 5.65.41.36.78 1.06.78 2.13v3.16c0 .31.21.66.79.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"/>
             </svg>
+            <span class="sr-only">GitHub</span>
           </a>
         </li>
         <li>
-          <a
-            href="https://t.me/tournamental"
-            class="vt-icon-btn"
-            aria-label="Telegram"
-          >
-            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <a class="vt-colophon-social-link" href="https://t.me/tournamental" aria-label="Telegram">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 0a12 12 0 1 0 0 24 12 12 0 0 0 0-24zm5.55 8.13-1.86 8.78c-.14.62-.51.77-1.03.48l-2.85-2.1-1.37 1.32c-.15.15-.28.28-.57.28l.2-2.9 5.27-4.76c.23-.2-.05-.32-.36-.12l-6.51 4.1-2.81-.88c-.61-.19-.62-.61.13-.91l10.96-4.22c.51-.18.96.13.8.91z"/>
             </svg>
+            <span class="sr-only">Telegram</span>
           </a>
         </li>
         <li>
-          <a
-            href="https://x.com/tournamental"
-            class="vt-icon-btn"
-            aria-label="X (Twitter)"
-          >
-            <svg class="size-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <a class="vt-colophon-social-link" href="https://x.com/tournamental" aria-label="X (Twitter)">
+            <svg class="size-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.16 17.52h1.833L7.084 4.126H5.117z"/>
             </svg>
+            <span class="sr-only">X</span>
           </a>
+        </li>
+        <li>
+          <a class="vt-colophon-link vt-colophon-link--inline" href="mailto:partners@tournamental.com">partners@tournamental.com</a>
         </li>
       </ul>
     </div>
 
-    {/* Column 2, navigation, two sub-columns inside */}
-    <div class="grid grid-cols-2 gap-8">
-      <div>
-        <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
-          <span class="vt-icon-mask vt-icon-trophy size-4 text-accent-400" aria-hidden="true"></span>
-          Product
-        </h4>
-        <ul class="space-y-2 text-ink-200">
-          <li><a href="/how-it-works" class="hover:text-accent-400">How it works</a></li>
-          <li><a href="/syndicates" class="hover:text-accent-400">Syndicates</a></li>
-          <li><a href="/leaderboards" class="hover:text-accent-400">Leaderboards</a></li>
-          <li><a href="/world-cup-2026" class="hover:text-accent-400">World Cup 2026</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
-          <span class="vt-icon-mask vt-icon-flag size-4 text-accent-400" aria-hidden="true"></span>
-          Build
-        </h4>
-        <ul class="space-y-2 text-ink-200">
-          <li><a href="/open-source" class="hover:text-accent-400">Open source</a></li>
-          <li><a href="/contribute" class="hover:text-accent-400">Contribute</a></li>
-          <li><a href="/blog" class="hover:text-accent-400">Blog</a></li>
-          <li><a href="/influencers" class="hover:text-accent-400">For influencers</a></li>
-          <li><a href="/start" class="hover:text-accent-400">Get started</a></li>
-          <li><a href="https://github.com/0800tim/tournamental" class="hover:text-accent-400">GitHub</a></li>
-        </ul>
-      </div>
-    </div>
-
-    {/* Column 3, legal + company. The legal column links to the
-        three primary legal documents required for OTP-driven
-        sign-up; the legal hub at /legal aggregates them and a few
-        adjacent items (security disclosure, licences). */}
-    <div>
-      <h4 class="flex items-center gap-2 font-semibold text-white mb-3">
-        <span class="vt-icon-mask vt-icon-ball size-4 text-accent-400" aria-hidden="true"></span>
-        Legal
-      </h4>
-      <ul class="space-y-2 text-ink-200">
-        <li><a href="/legal/terms" class="hover:text-accent-400">Terms</a></li>
-        <li><a href="/legal/privacy" class="hover:text-accent-400">Privacy</a></li>
-        <li><a href="/legal/cookies" class="hover:text-accent-400">Cookies</a></li>
-        <li><a href="/legal" class="hover:text-accent-400">Legal hub</a></li>
-        <li><a href="/why" class="hover:text-accent-400">Why Tournamental exists</a></li>
-        <li><a href="/press" class="hover:text-accent-400">Press</a></li>
-        <li><a href="mailto:partners@tournamental.com" class="hover:text-accent-400">partners@tournamental.com</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="container-page py-6 border-t border-ink-700/70 text-xs text-ink-500 flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
-    <span>© {year} Tournamental Holdings · Apache 2.0 code · CC-BY docs</span>
-    <span>Built with care in Aotearoa.</span>
+    <p class="vt-footnote vt-colophon-copy">
+      © {year} Tournamental Holdings · Type set in Fraunces and Inter · Hosted in Aotearoa
+    </p>
   </div>
 </footer>
 
-{/* Live-count script is intentionally dormant — see the comment above
-    where the pill used to render. Will be restored once /api/version
-    returns real syndicate counts post-launch. */}
+<style>
+  .vt-colophon {
+    margin-top: clamp(3rem, 6vw, 6rem);
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    background: var(--vt-bg);
+  }
+  .vt-colophon-inner {
+    padding-top: clamp(2.5rem, 4vw, 4rem);
+    padding-bottom: clamp(2rem, 3vw, 3rem);
+    display: grid;
+    gap: clamp(2rem, 3vw, 3rem);
+  }
+
+  .vt-colophon-masthead {
+    display: grid;
+    gap: 0.85rem;
+    max-width: 60ch;
+  }
+  .vt-colophon-imprint {
+    display: grid;
+    gap: 0.6rem;
+    margin: 0;
+  }
+  .vt-colophon-imprint-meta {
+    font-family: inherit;
+    font-size: 0.95rem;
+    line-height: 1.55;
+    color: var(--vt-fg-muted);
+    max-width: 55ch;
+  }
+
+  .vt-colophon-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 12%, transparent);
+    padding-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+  @media (min-width: 640px) {
+    .vt-colophon-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 2.5rem 3rem;
+    }
+  }
+
+  .vt-colophon-col {
+    display: grid;
+    gap: 0.75rem;
+    border-top: 0; /* defer to the wrapper rule on mobile */
+  }
+  .vt-colophon-col-head {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+    margin: 0;
+  }
+  .vt-colophon-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .vt-colophon-link {
+    font-family: inherit;
+    color: var(--vt-fg);
+    font-size: 0.95rem;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    padding-bottom: 1px;
+    transition: color 180ms, border-color 180ms;
+  }
+  .vt-colophon-link:hover {
+    color: var(--vt-gold-400);
+    border-bottom-color: var(--vt-gold-400);
+  }
+  .vt-colophon-link--inline {
+    font-size: 0.9rem;
+    color: var(--vt-fg-muted);
+  }
+
+  .vt-colophon-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem 2rem;
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 12%, transparent);
+    padding-top: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  .vt-colophon-next {
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55em;
+  }
+  .vt-colophon-next-marker {
+    color: var(--vt-gold-400);
+  }
+
+  .vt-colophon-social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .vt-colophon-social-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    color: var(--vt-fg-muted);
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    transition: color 180ms, border-color 180ms;
+  }
+  .vt-colophon-social-link:hover {
+    color: var(--vt-gold-400);
+    border-color: var(--vt-gold-400);
+  }
+
+  .vt-colophon-copy {
+    margin: 0;
+    padding-top: 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 8%, transparent);
+    color: var(--vt-fg-muted);
+  }
+
+  /* Screen-reader-only utility, since the social links carry icons. */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
