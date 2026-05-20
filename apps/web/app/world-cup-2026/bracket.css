@@ -99,8 +99,19 @@
 }
 
 .bracket-group-head h3 {
-  font-size: 15px;
+  /* Editorial Fraunces small-caps for the per-group titles. Reads as a
+   * sports-broadsheet section head instead of a generic bold sans label.
+   * `opsz` 72 matches the visual weight at 15-18px. */
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria,
+    "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 72, "SOFT" 30;
+  font-variant-caps: small-caps;
+  letter-spacing: 0.04em;
+  font-size: 17px;
+  line-height: 1.1;
   margin: 0;
+  color: #ffffff;
 }
 
 .bracket-lock-btn {
@@ -684,14 +695,24 @@
     "h2h h2h h2h"
     "scores scores scores";
   column-gap: 12px;
-  row-gap: 4px;
+  row-gap: 2px;
   align-items: center;
   justify-items: center;
-  padding: 10px 10px 8px;
+  padding: 8px 10px 4px;
   border-radius: 12px;
   background: #25252c;
   border: 1px solid #3a3a44;
   outline: none;
+}
+
+/* Desktop density: trim the per-row vertical real estate from ~120px
+ * down to ~100px so a full group reads as a compact card without the
+ * picks losing tap-target ergonomics. */
+@media (min-width: 769px) {
+  .mpr-row {
+    padding: 6px 12px 2px;
+    row-gap: 0;
+  }
 }
 
 .mpr-row[data-no-draw="true"] {
@@ -708,23 +729,30 @@
 }
 
 .mpr-pick {
-  /* big tappable button, flag + label + odds % stacked. Generous gap so
-   * the team code doesn't kiss the bottom of the circular flag, and a
-   * top padding wide enough to clear the absolutely-positioned ellipsis
-   * affordance in the row's top-right corner. */
+  /* big tappable button, flag + label + odds % stacked. The ellipsis now
+   * sits in the row's bottom-right corner, so the top padding can drop
+   * and the row reads tighter on desktop. */
   display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  gap: 8px;
-  padding: 14px 6px 6px;
+  gap: 6px;
+  padding: 8px 6px 4px;
   background: transparent;
   border: 0;
   cursor: pointer;
   border-radius: 14px;
   outline: none;
-  transition: opacity 120ms ease, transform 120ms ease;
+  transition: opacity 120ms ease, transform 140ms cubic-bezier(0.16, 0.84, 0.32, 1),
+    box-shadow 160ms ease, filter 160ms ease;
   min-width: 76px;
+}
+
+@media (min-width: 769px) {
+  .mpr-pick {
+    gap: 4px;
+    padding: 6px 6px 2px;
+  }
 }
 
 /* Form dots inline under the percentage. Subtle, compact, never crowding
@@ -810,14 +838,25 @@
   font-size: 11px;
 }
 
+/* "Add score" reads as a quiet mono caption beneath the row, not a button.
+ * Hover/focus lifts the colour to gold so it's clearly interactive. */
 .mpr-scores-toggle {
   background: transparent;
-  border: 1px dashed #52525c;
-  color: #94a3b8;
-  border-radius: 999px;
-  padding: 1px 8px;
+  border: 0;
+  color: rgba(148, 163, 184, 0.6);
+  border-radius: 0;
+  padding: 1px 2px;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
   font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   cursor: pointer;
+  transition: color 120ms ease;
+}
+.mpr-scores-toggle:hover,
+.mpr-scores-toggle:focus-visible {
+  color: var(--vt-gold-400, #dca94b);
+  outline: none;
 }
 
 .mpr-scores {
@@ -1553,25 +1592,30 @@
   position: relative;
 }
 .mpr-view-link {
+  /* Bottom-right placement, smaller, lower contrast. The earlier
+   * top-right position was overlapping the away flag on narrow cards,
+   * and the chromed pill read as a peer of the predictions rather than
+   * a secondary "more" affordance. */
   position: absolute;
-  top: 6px;
-  right: 8px;
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #94a3b8;
+  bottom: 4px;
+  right: 6px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.55);
   text-decoration: none;
-  padding: 4px 8px;
+  padding: 2px 6px;
   border-radius: 999px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: transparent;
+  border: 0;
   z-index: 2;
+  transition: color 120ms ease, background 120ms ease;
 }
 .mpr-view-link:hover,
 .mpr-view-link:focus-visible {
-  color: #ffffff;
-  background: rgba(15, 23, 42, 0.95);
+  color: var(--vt-gold-400, #dca94b);
+  background: rgba(220, 169, 75, 0.08);
   outline: none;
 }
 
