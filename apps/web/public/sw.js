@@ -18,11 +18,13 @@
 
 "use strict";
 
-const VERSION = "vt-shell-v1-2026-05-11";
+const VERSION = "vt-shell-v1-2026-05-21";
 const SHELL_CACHE = `vt-shell-${VERSION}`;
 const STATIC_CACHE = `vt-static-${VERSION}`;
 const RUNTIME_CACHE = `vt-runtime-${VERSION}`;
 const API_CACHE = `vt-api-${VERSION}`;
+
+const OFFLINE_URL = "/offline";
 
 const SHELL_URLS = [
   "/",
@@ -30,9 +32,12 @@ const SHELL_URLS = [
   "/watch",
   "/profile",
   "/leaderboard",
+  "/offline",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/icons/apple-touch-icon.png",
+  "/fonts/Fraunces-Variable.woff2",
 ];
 
 const BRACKET_QUEUE_DB = "vt-bracket-queue";
@@ -90,6 +95,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/_next/static") ||
     url.pathname.startsWith("/icons") ||
     url.pathname.startsWith("/flags") ||
+    url.pathname.startsWith("/fonts") ||
     url.pathname.startsWith("/animations") ||
     url.pathname.startsWith("/models")
   ) {
@@ -163,7 +169,10 @@ async function navigationStrategy(req) {
   } catch (e) {
     const cache = await caches.open(SHELL_CACHE);
     const cached =
-      (await cache.match(req)) ?? (await cache.match("/")) ?? null;
+      (await cache.match(req)) ??
+      (await cache.match(OFFLINE_URL)) ??
+      (await cache.match("/")) ??
+      null;
     if (cached) return cached;
     return new Response("Offline", { status: 503 });
   }
