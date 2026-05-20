@@ -1191,7 +1191,19 @@
  *   - Idle side: dark cell with a faded flag preview on hover/focus
  *     (skipped under `prefers-reduced-motion`).
  */
+/* Register --km-pulse so GSAP can interpolate it cross-browser. Modern
+ * Chromium / Safari honour the @property declaration; Firefox falls back
+ * to plain custom-property handling (GSAP still tweens it via inline
+ * style, so the visual works either way). */
+@property --km-pulse {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
 .km-card {
+  --km-pulse: 0;
+  position: relative;
   background: #1c1c22;
   border: 1px solid #3a3a44;
   border-radius: 16px;
@@ -1208,7 +1220,27 @@
   column-gap: 8px;
   row-gap: 6px;
   align-items: stretch;
-  transition: box-shadow 160ms ease, transform 160ms ease;
+  transition: box-shadow 160ms ease, transform 160ms ease, border-color 160ms ease;
+}
+
+/* Gold cascade pulse, driven by GSAP tweening --km-pulse on the card.
+ * The pulse is purely a border + glow lift; the inner team cells are
+ * untouched so the user's existing pick state (or TBD state) reads
+ * normally underneath the pulse. */
+.km-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 2px solid rgba(220, 169, 75, calc(0.85 * var(--km-pulse, 0)));
+  box-shadow:
+    0 0 0 calc(2px * var(--km-pulse, 0))
+      rgba(220, 169, 75, calc(0.45 * var(--km-pulse, 0))),
+    0 0 24px calc(8px * var(--km-pulse, 0))
+      rgba(220, 169, 75, calc(0.4 * var(--km-pulse, 0)));
+  opacity: var(--km-pulse, 0);
+  z-index: 3;
 }
 
 .km-card-header { grid-area: header; }

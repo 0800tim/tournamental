@@ -58,6 +58,7 @@ import {
   useStickyGroupHeaders,
 } from "@/lib/bracket/mobile-gestures";
 import { track } from "@/lib/analytics";
+import { useCascadePulse } from "@/lib/bracket/use-cascade-pulse";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { loadServerBracket, saveFullBracket, savePerMatchPick } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
@@ -436,6 +437,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }
     return result;
   }, [tournament, bracket, userLocalId]);
+
+  // Gold cascade pulse: when an upstream pick newly populates a
+  // downstream slot, pulse the affected R32 / R16 / QF / SF / Final card
+  // (gold border + scale 1.5%, ~600ms, eased) so the user sees their
+  // call ripple forward. Respects prefers-reduced-motion.
+  useCascadePulse(cascaded);
 
   const update = (next: Bracket): void => {
     setBracket(next);
