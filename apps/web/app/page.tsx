@@ -22,6 +22,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
+import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { CountdownBanner } from "@/components/ui";
 
 import { LiveWidgetDemo } from "./syndicates/LiveWidgetDemo";
@@ -79,7 +80,12 @@ export default function HomePage(): JSX.Element {
         </section>
 
         {/* ============== STEP 1 — PICKS ============== */}
-        <section className="vt-home-section vt-home-step" id="picks">
+        {/* Reveal-on-scroll wrappers below ride the shared motion grammar
+            (8-14px rise + opacity, 600ms power3.out, light stagger). They
+            replace nothing visible: each section was already visible
+            on first paint; the wrapper only opts in once the section
+            crosses the viewport edge. Reduced motion makes it a no-op. */}
+        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
           <div className="vt-home-step-tag">Step 1 · Today</div>
           <h2 className="vt-home-h2">Set your picks now.</h2>
           <p className="vt-home-p">
@@ -110,10 +116,10 @@ export default function HomePage(): JSX.Element {
               Watch the 2022 final replay
             </Link>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ============== STEP 2 — MOLECULE ============== */}
-        <section className="vt-home-section vt-home-step" id="molecule">
+        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="molecule">
           <div className="vt-home-step-tag">Step 2 · As matches play</div>
           <h2 className="vt-home-h2">Watch the World Cup 2026 in 3D.</h2>
           <p className="vt-home-p">
@@ -148,10 +154,10 @@ export default function HomePage(): JSX.Element {
               Browse other matches
             </Link>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ============== STEP 3 — SYNDICATES (FRONT AND CENTRE) ============== */}
-        <section className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
+        <RevealOnScroll as="section" className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
           <div className="vt-home-step-tag vt-home-step-tag-headline">Step 3 · Bring your friends</div>
           <h2 className="vt-home-h2">Run a pool. Brand it your way.</h2>
           <p className="vt-home-claim">
@@ -210,10 +216,10 @@ export default function HomePage(): JSX.Element {
           <p className="vt-home-aside">
             Premium tier is delivered by <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-home-link">Aiva</a>, our CRM and messaging partner. Tournamental never handles entry fees or prize money.
           </p>
-        </section>
+        </RevealOnScroll>
 
         {/* ============== FEATURES STRIP ============== */}
-        <section className="vt-home-section">
+        <RevealOnScroll as="section" className="vt-home-section">
           <h2 className="vt-home-h2 vt-home-h2-centred">Why people stay</h2>
           <div className="vt-home-feature-grid">
             <div className="vt-home-feature">
@@ -233,10 +239,10 @@ export default function HomePage(): JSX.Element {
               <p>StatsBomb open data, Polymarket odds, public team data. We pay our data sources; they share in upside.</p>
             </div>
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* ============== FINAL CTA ============== */}
-        <section className="vt-home-section vt-home-final-cta">
+        <RevealOnScroll as="section" className="vt-home-section vt-home-final-cta">
           <h2 className="vt-home-h2 vt-home-h2-centred">Three steps. Five minutes. Free.</h2>
           <ol className="vt-home-quickstart">
             <li>
@@ -269,7 +275,7 @@ export default function HomePage(): JSX.Element {
               Run a pool
             </Link>
           </div>
-        </section>
+        </RevealOnScroll>
       </main>
     </AppShell>
   );

@@ -21,6 +21,7 @@ import { Billboard, Html } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
+import { useNodeHoverGlow } from "@/lib/motion";
 import type { FinalStage, MoleculeNode } from "@/lib/molecule/layout";
 import { PALETTE } from "@/lib/molecule/layout";
 
@@ -106,7 +107,20 @@ export function TeamAtom(props: TeamAtomProps) {
   } = props;
   const groupRef = useRef<THREE.Group>(null);
   const rimRef = useRef<THREE.Mesh>(null);
+  /**
+   * Material ref for the hover ring, the gold halo that fades in around
+   * the atom on pointer-enter. We tween its `opacity` via the shared
+   * `useNodeHoverGlow` hook so the ring rides the 200ms power2.out
+   * curve the rest of the motion grammar uses. The material is created
+   * inline below; the ref points to it through Three's render graph.
+   */
+  const hoverRingMatRef = useRef<THREE.MeshBasicMaterial>(null);
   const [pulse, setPulse] = useState(0);
+
+  // Gold ring fades to 0.55 on hover and (more strongly) when selected;
+  // stays at 0 otherwise so it doesn't compete with the stage rim.
+  const hoverRingTarget = selected ? 0.65 : hovered ? 0.55 : 0;
+  useNodeHoverGlow(hoverRingMatRef, hoverRingTarget);
 
   const rim = toColour(rimColourFor(node.finalStage, onPath, isPathOpponent));
   const isChampion = node.finalStage === "champion";
@@ -151,6 +165,23 @@ export function TeamAtom(props: TeamAtomProps) {
           color={rim}
           transparent
           opacity={rimOpacity}
+          side={THREE.BackSide}
+          depthWrite={false}
+        />
+      </mesh>
+
+      {/* Hover ring, a slightly larger back-side sphere drawn in gold.
+       * Default opacity is 0; `useNodeHoverGlow` tweens it up to ~0.55
+       * on hover and ~0.65 on selection via gsap.to, then back down on
+       * exit. 200ms power2.out — same motion grammar as the cascade
+       * pulse. Reduced motion snaps to the target without a tween. */}
+      <mesh scale={1.32}>
+        <sphereGeometry args={[node.radius, 24, 24]} />
+        <meshBasicMaterial
+          ref={hoverRingMatRef}
+          color={PATH_GOLD}
+          transparent
+          opacity={0}
           side={THREE.BackSide}
           depthWrite={false}
         />

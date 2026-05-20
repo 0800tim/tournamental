@@ -23,9 +23,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AppShell } from "@/components/shell";
+import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
 import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
+import { SyndicateLeaderboardRows } from "@/components/share-landing/SyndicateLeaderboardRows";
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
@@ -409,9 +411,12 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
        * the editorial header. The 1200x630 PNG belongs in <meta
        * og:image>, not in the visible body. Removed 2026-05-21. */}
 
-      <PrizePoolBlock syndicate={syndicate} />
+      <RevealOnScroll>
+        <PrizePoolBlock syndicate={syndicate} />
+      </RevealOnScroll>
 
-      <section
+      <RevealOnScroll
+        as="section"
         className="vt-share-syn-section"
         aria-labelledby="vt-share-leaderboard-title"
       >
@@ -427,24 +432,15 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026.
           </p>
         ) : (
-          <ol className="vt-share-leaderboard" aria-label="Leaderboard top 5">
-            {topFive.map((m, i) => (
-              <li
-                className="vt-share-leaderboard-row"
-                key={m.handle}
-                data-rank={i + 1}
-              >
-                <span className="vt-share-leaderboard-rank">{i + 1}</span>
-                <span className="vt-share-leaderboard-flag" aria-hidden>
-                  {m.flag_emoji}
-                </span>
-                <span className="vt-share-leaderboard-handle">@{m.handle}</span>
-                <span className="vt-share-leaderboard-pts">{m.points}</span>
-              </li>
-            ))}
-          </ol>
+          <SyndicateLeaderboardRows
+            rows={topFive.map((m) => ({
+              handle: m.handle,
+              points: m.points,
+              flag_emoji: m.flag_emoji,
+            }))}
+          />
         )}
-      </section>
+      </RevealOnScroll>
 
       <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
@@ -453,7 +449,8 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         </p>
       </div>
 
-      <section
+      <RevealOnScroll
+        as="section"
         className="vt-share-syn-section"
         aria-labelledby="vt-share-members-title"
       >
@@ -474,7 +471,7 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             </div>
           ))}
         </div>
-      </section>
+      </RevealOnScroll>
 
       {sponsorPresent ? (
         <SponsorLine sponsor={sponsor!} />

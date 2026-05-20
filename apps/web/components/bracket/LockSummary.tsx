@@ -25,6 +25,7 @@ import {
 } from "@tournamental/bracket-engine";
 
 import { localUserId } from "@/lib/bracket/storage";
+import { useCountUp } from "@/lib/motion";
 import { shareContent, tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
@@ -168,10 +169,16 @@ export function LockSummary(props: LockSummaryProps) {
   // even though the new share-url builder doesn't need it.
   void handle;
 
+  // Count-up the committed-picks total when the lock summary scrolls
+  // into view (final tab on mobile, footer on desktop). Single motion
+  // grammar: 0.9s power2.out via the shared `useCountUp` hook so the
+  // bracket-page and share-landing scoreboard tween read the same.
+  const committedRef = useCountUp<HTMLElement>({ value: committed });
+
   return (
     <aside className="bracket-lock-summary" data-testid="lock-summary">
       <div data-testid="lock-summary-headline">
-        <strong>{committed}</strong> of {totalPicks} picks saved
+        <strong ref={committedRef as React.RefObject<HTMLElement>}>{committed}</strong> of {totalPicks} picks saved
         <span aria-hidden="true"> — {groupPicks}/{totalGroup} group, {knockoutPicks}/{totalKnockout} knockout.</span>
       </div>
       <div>

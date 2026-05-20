@@ -6,9 +6,10 @@
 > public surface. If something here disagrees with the code, the code is
 > wrong, not this doc, fix it in the same PR and link back here.
 
-Last consolidated: 2026-05-21, after the half-applied editorial pass landed
-on `main`. Updates that change visible surface area should bump the
-"Last updated" line and note what changed.
+Last consolidated: 2026-05-21, motion grammar GSAP rollout (count-up,
+reveal-on-scroll, molecule node hover glow) landed under
+`apps/web/lib/motion/`. Updates that change visible surface area should
+bump the "Last updated" line and note what changed.
 
 ## 1. Identity
 
@@ -197,12 +198,50 @@ This pattern fixed the May 2026 launch regression where `opacity: 0`
 sat baked into the stylesheet and the page below the hero rendered as
 an empty canvas for anyone without the observer armed.
 
-### GSAP for complex scroll-linked motion (Phase 3)
+### GSAP for complex scroll-linked motion (Phase 3, live since 2026-05-21)
 
-When the system needs scroll-pinned timelines, scrubbing, or chained
-multi-element choreography, reach for GSAP + ScrollTrigger via the
-`gsap-react` / `gsap-scrolltrigger` skills. Until then, CSS reveals
-plus the observer are sufficient and bundle-cheap.
+The play app's GSAP grammar lives in `apps/web/lib/motion/`:
+
+- `index.ts`, imports gsap once, registers ScrollTrigger lazily via
+  `armScrollTrigger()`, exposes the three hooks below, and exports a
+  `reduceMotion()` helper for any code that needs the same SSR-safe
+  capability check the hooks use.
+- `use-count-up.ts`, tweens a numeric text node from 0 to its target
+  on scroll-into-view. 0.9s `power2.out`. Used by `LockSummary`
+  (bracket final-tab summary) and `SyndicateLeaderboardRows` (the
+  syndicate share-landing top-five points column).
+- `use-reveal-on-scroll.ts`, fade-and-rise the direct children of a
+  container as it crosses the viewport edge. 600ms `power3.out` with
+  a 70ms stagger, same rhythm as the marketing `.vt-reveal`. The play
+  app's home page and the syndicate share landing wrap their sections
+  in the client shim `components/motion/RevealOnScroll.tsx` so server
+  components can reach the hook.
+- `use-node-hover-glow.ts`, GSAP-tweens a three.js material's
+  `opacity` between hover states. Used by `TeamAtom` in the molecule
+  scene to fade in a gold ring around the focused node.
+
+Rules of engagement:
+
+1. Defaults are visible. No baked-in `opacity: 0`. Hooks stamp the
+   hidden start state at runtime, so no-JS visitors, crawlers, and
+   screen recordings always see the page. (Same lesson as the May
+   2026 marketing regression.)
+2. `prefers-reduced-motion: reduce` collapses every animation to
+   instant via the shared `reduceMotion()` helper. SSR-safe.
+3. Durations 200-900ms, easing `power2.out` / `power3.out`. No bounce,
+   no spring, no parallax. The cascade pulse in
+   `lib/bracket/use-cascade-pulse.ts` is the editorial restraint
+   benchmark.
+4. Gold (`var(--vt-gold-400)` / `#fbbf24`) is the only accent. Hooks
+   that need a colour pull from the gold scale, never sky-blue / flame.
+5. ScrollTrigger registers eagerly on production browsers, lazily on
+   first hook use when matchMedia is unavailable at module load (jsdom
+   in vitest, some SSR setups). Hooks treat "register failed" as
+   reduced-motion: the markup stays visible, no tween fires.
+
+The bracket page already uses `useCascadePulse` (a sibling motion
+hook). The `gsap-react` / `gsap-scrolltrigger` skills remain the right
+reference for adding new pinning or scrubbing behaviour.
 
 ### Hover + ambient motion
 
