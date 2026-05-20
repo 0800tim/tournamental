@@ -72,8 +72,19 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
       >
         <header className="vt-drawer-header">
           <span className="vt-drawer-brand">
-            <span className="vt-drawer-brand-mark" aria-hidden="true">T</span>
-            Tournamental
+            {/* Brand mark: gold ball PNG, same source as the AppBar so
+             * one cache-hit covers both surfaces. `?v=ball` cache-bust
+             * mirrors the AppBar change from 2026-05-20 — necessary
+             * because the drawer used to render a sky-blue "T" chip. */}
+            <img
+              src="/icons/icon-192.png?v=ball"
+              alt=""
+              width="28"
+              height="28"
+              decoding="async"
+              className="vt-drawer-brand-mark"
+            />
+            <span className="vt-drawer-brand-name">Tournamental</span>
           </span>
           <button
             type="button"

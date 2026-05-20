@@ -1011,21 +1011,27 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 900;
-  font-size: 18px;
-  color: var(--vt-fg);
+  color: var(--vt-fg-strong, var(--vt-fg));
 }
 
 .vt-drawer-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 32px;
-  height: 32px;
-  background: var(--vt-accent);
-  color: var(--vt-accent-on);
-  border-radius: var(--vt-radius-sm);
-  font-weight: 900;
-  font-size: 18px;
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  object-fit: contain;
+  background: transparent;
+  border-radius: 6px;
+  filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35));
+}
+
+.vt-drawer-brand-name {
+  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 25;
+  font-size: 1.15rem;
+  letter-spacing: -0.012em;
+  line-height: 1;
 }
 
 .vt-drawer-close {
@@ -1086,7 +1092,7 @@
 .vt-drawer-link svg {
   width: 22px;
   height: 22px;
-  color: var(--vt-accent);
+  color: var(--vt-gold-400, #dca94b);
   flex: 0 0 22px;
 }
 

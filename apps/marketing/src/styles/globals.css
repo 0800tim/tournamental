@@ -577,14 +577,33 @@
  * hover/glow effects degrade to colour-only.
  * -------------------------------------------------------------------- */
 
-/* Section fade-up on scroll. The intersection-observer in Layout.astro
- * adds .is-in-view to each <section>; the staggered children pick up the
- * class via the parent selector below. */
+/* Section fade-up on scroll. Per Tim 2026-05-21: this pattern must
+ * default to *visible*, not hidden-with-reveal. The previous rules
+ * set opacity:0 on every `section.vt-reveal` until an
+ * IntersectionObserver flipped it; full-page screenshots, no-JS users,
+ * slow connections, and clients with the observer not yet armed at
+ * page-load all saw the page below the hero as an empty cream
+ * canvas. The new rules:
+ *
+ *   - everything defaults to opacity:1, transform:none (visible).
+ *   - sections that *haven't yet* been observed (`:not(.is-in-view)`)
+ *     and *aren't* the first paint, start at opacity:0 with a small
+ *     translate, transitioning when the observer adds `.is-in-view`.
+ *   - to opt sections OUT of the reveal entirely, the observer can
+ *     stamp `.is-in-view` synchronously at runtime (Layout.astro does
+ *     this for any section already in the initial viewport).
+ *
+ * The net effect: progressive enhancement. If the JS hasn't run yet,
+ * the section renders fully; once JS runs, it gets a tasteful fade.
+ */
 section {
   opacity: 1;
 }
 @media (prefers-reduced-motion: no-preference) {
-  section.vt-reveal {
+  /* Only sections that the observer has explicitly marked as
+   * `data-vt-reveal-pending="1"` get the hidden-then-fade treatment.
+   * Plain `.vt-reveal` (without the pending flag) stays visible. */
+  section.vt-reveal[data-vt-reveal-pending="1"] {
     opacity: 0;
     transform: translateY(20px);
     transition:
@@ -593,14 +612,10 @@ section {
     transition-delay: var(--vt-stagger, 0ms);
     will-change: opacity, transform;
   }
-  section.vt-reveal.is-in-view {
+  section.vt-reveal[data-vt-reveal-pending="1"].is-in-view {
     opacity: 1;
     transform: translateY(0);
   }
-  /* Staggered children, direct grid + card descendants stagger their
-   * entrance behind the section by 80ms each. The runtime script in
-   * Layout.astro assigns --vt-stagger; this is the CSS recipe it leans
-   * on. */
   section.vt-reveal.is-in-view .vt-stagger-child {
     animation: vt-fade-up 500ms cubic-bezier(0.22, 1, 0.36, 1) both;
     animation-delay: var(--vt-child-stagger, 0ms);

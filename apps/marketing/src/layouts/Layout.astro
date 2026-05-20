@@ -204,17 +204,18 @@ const absoluteOgImage = ogImage.startsWith("http")
           return;
         }
 
-        // Tag sections below the fold for the fade-in. Sections already
-        // visible at first paint render with their default opacity:1 so
-        // the page never shows a half-rendered shell if the IO is slow
-        // or JS hits a hiccup. SEO crawlers + screenshotters see real
-        // content. Below-fold sections still fade in once they scroll
-        // into view.
+        // Mark below-fold sections as "pending reveal" so the CSS
+        // hides them. The CSS rule keys on `data-vt-reveal-pending="1"`
+        // — without the attribute, the section renders visible. That
+        // way SEO crawlers, fullPage screenshotters, no-JS clients,
+        // and slow IO runs all see the section painted; the fade is a
+        // progressive enhancement only when JS actually flags it.
         var vh = window.innerHeight || document.documentElement.clientHeight;
-        sections.forEach(function (s, i) {
+        sections.forEach(function (s) {
           var rect = s.getBoundingClientRect();
           if (rect.top >= vh) {
             s.classList.add("vt-reveal");
+            s.dataset.vtRevealPending = "1";
             s.style.setProperty("--vt-stagger", "0ms");
           } else {
             // In-view section: reveal immediately without the fade.

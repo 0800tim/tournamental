@@ -393,16 +393,11 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         </div>
       </header>
 
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        className="vt-share-og"
-        src={ogSrc}
-        alt={`${syndicate.name} on Tournamental`}
-        width={1200}
-        height={630}
-        loading="eager"
-        decoding="async"
-      />
+      {/* The OG preview image used to render inline here, which
+       * read as a duplicate hero ("Tournamental" wordmark + member
+       * count + sky-blue Free-To-Play badge) sitting directly under
+       * the editorial header. The 1200x630 PNG belongs in <meta
+       * og:image>, not in the visible body. Removed 2026-05-21. */}
 
       <PrizePoolBlock syndicate={syndicate} />
 

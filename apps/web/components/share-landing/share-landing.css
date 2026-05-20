@@ -19,7 +19,12 @@
   --vt-share-gold: #f5c542;
   --vt-share-silver: #d8dde6;
   --vt-share-bronze: #d8954f;
-  --vt-share-accent: #7eb6e8;
+  /* Was sky-blue (#7eb6e8). 2026-05-21: switched to brand gold so the
+   * share landing's sub-heads (PRIZE POOL, LEADERBOARD TOP 5, RECENT
+   * MEMBERS) and accent strokes match the rest of the post-editorial
+   * design pass. The original sky-blue still lives in shell.css for
+   * the rest of the play app surfaces. */
+  --vt-share-accent: #dca94b;
 }
 
 .vt-share {
