@@ -1,0 +1,12 @@
+
+# Owner-uploaded syndicate branding (logos, hero images)
+data/branding/
+
+# User-uploaded avatars (PII -- keyed by user_id)
+data/avatars/
+
+# Stray accidental dirs from $HOME path typos
+home/
+
+# Local test-runtime artefacts
+tmp/
