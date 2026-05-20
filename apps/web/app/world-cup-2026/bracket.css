@@ -1969,6 +1969,65 @@
   scroll-margin-top: 60px;
 }
 
+/* Stage-as-page mobile IA (2026-05-21).
+ *
+ * Desktop (>= 769px): the carousel wrapper renders as a regular block;
+ * only the active panel is rendered inside it (the BracketBuilder skips
+ * inactive panels) so vertical scroll inside one stage is the editorial
+ * default.
+ *
+ * Mobile (<= 768px): all six panels render inside a horizontal scroll-
+ * snap carousel. Each panel sizes to 100% of the carousel viewport and
+ * scrolls vertically inside its own column. The user swipes left/right
+ * to switch stages, or taps a tab which programmatically scroll-tos.
+ */
+.bracket-stages {
+  /* Default container, no carousel behaviour on desktop. */
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .bracket-stages.bracket-stages-mobile {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    /* Drag-to-pan with the touchpad / trackpad reads naturally. */
+    scroll-behavior: smooth;
+    /* The carousel is the horizontal container; vertical scroll happens
+     * on the page (body) the way users expect on phones. Each panel
+     * is taller than the viewport, so we let it overflow vertically
+     * outside the carousel via overflow-y: visible would clip, instead
+     * we make the panel its own y-scroll surface. */
+    height: auto;
+  }
+  .bracket-stages.bracket-stages-mobile::-webkit-scrollbar {
+    display: none;
+  }
+  .bracket-stages.bracket-stages-mobile > .bracket-stage-panel {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    /* The carousel column is full-width; the panel scrolls vertically
+     * inside that column. */
+    min-width: 0;
+    width: 100%;
+    /* Padding-bottom keeps the last card from being kissed by any
+     * sticky bottom UI (AppShell bottom nav). */
+    padding-bottom: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bracket-stages.bracket-stages-mobile {
+    scroll-behavior: auto;
+  }
+}
+
 /* ─────────────────────────────────────────────────────────────────────
  * Light-theme overrides for the embed widget.
  *

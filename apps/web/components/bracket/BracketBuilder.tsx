@@ -164,6 +164,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
     () => new Map(),
   );
   const [punditStatus, setPunditStatus] = useState<PunditStatus>(UNVERIFIED);
+  // Mobile viewport flag (<= 768px). Drives the stage-as-page carousel
+  // layout: on mobile all six stage panels render inline in a horizontal
+  // scroll-snap container so the user can swipe between rounds; on
+  // desktop only the active panel renders, preserving the editorial
+  // vertical-scroll experience. Defaults to `false` so SSR + jsdom tests
+  // render desktop-style markup (only the active panel is in the
+  // accessibility tree, matching existing test expectations).
+  const [isMobile, setIsMobile] = useState<boolean>(false);
   const country = useCountry();
 
   // Mobile gesture plumbing, these refs/effects are no-ops on
@@ -178,6 +186,32 @@ export function BracketBuilder(props: BracketBuilderProps) {
   >();
   const prevKnockoutsRef = useRef<readonly CascadedKnockout[] | null>(null);
   const lastEditedRef = useRef<{ kind: "group" | "knockout"; matchId: string } | null>(null);
+  // Carousel container that holds all six stage panels on mobile. We
+  // programmatically scroll it to the active tab on click, and read its
+  // scrollLeft on user swipe to update the active tab.
+  const carouselRef = useRef<HTMLDivElement | null>(null);
+  // Suppress the swipe→tab feedback loop while we're programmatically
+  // scrolling in response to a tab click.
+  const programmaticScrollRef = useRef<boolean>(false);
+
+  // Resolve mobile vs desktop via matchMedia. Re-evaluates on window
+  // resize so a user rotating their device or resizing the window
+  // transitions cleanly between the two layouts.
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return;
+    }
+    const mql = window.matchMedia("(max-width: 768px)");
+    const apply = () => setIsMobile(mql.matches);
+    apply();
+    // Older Safari uses addListener/removeListener.
+    if (typeof mql.addEventListener === "function") {
+      mql.addEventListener("change", apply);
+      return () => mql.removeEventListener("change", apply);
+    }
+    mql.addListener(apply);
+    return () => mql.removeListener(apply);
+  }, []);
 
   // Hash-driven tab routing. On mount, read window.location.hash. We
   // listen for hashchange so back/forward navigation keeps the tab in
@@ -201,7 +235,79 @@ export function BracketBuilder(props: BracketBuilderProps) {
       const url = `${window.location.pathname}${window.location.search}${target}`;
       window.history.replaceState(null, "", url);
     }
+    // Animate the mobile carousel to the new stage. Guarded so it's a
+    // no-op on desktop and during tests without scrollTo support.
+    const carousel = carouselRef.current;
+    if (!carousel || typeof carousel.scrollTo !== "function") return;
+    const idx = TAB_ORDER.indexOf(next);
+    if (idx < 0) return;
+    const width = carousel.clientWidth;
+    if (!width) return;
+    programmaticScrollRef.current = true;
+    carousel.scrollTo({ left: idx * width, behavior: "smooth" });
+    // Release the suppression flag a beat after the smooth-scroll
+    // completes. 600ms covers the worst-case browser easing curve.
+    window.setTimeout(() => {
+      programmaticScrollRef.current = false;
+    }, 600);
   }, []);
+
+  // Sync the active tab to whichever panel is most in-view on the
+  // mobile carousel. Throttled via requestAnimationFrame and
+  // suppressed while we're driving the scroll programmatically.
+  useEffect(() => {
+    const el = carouselRef.current;
+    if (!el || !isMobile) return;
+    let frame: number | null = null;
+    const onScroll = () => {
+      if (programmaticScrollRef.current) return;
+      if (frame !== null) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = null;
+        const width = el.clientWidth;
+        if (!width) return;
+        const idx = Math.round(el.scrollLeft / width);
+        const clamped = Math.max(0, Math.min(TAB_ORDER.length - 1, idx));
+        const nextTab = TAB_ORDER[clamped]!;
+        setTabState((cur) => {
+          if (cur === nextTab) return cur;
+          const target = TABS.find((t) => t.id === nextTab)?.hash ?? "#groups";
+          if (typeof window !== "undefined" && window.location.hash !== target) {
+            const url = `${window.location.pathname}${window.location.search}${target}`;
+            window.history.replaceState(null, "", url);
+          }
+          return nextTab;
+        });
+      });
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (frame !== null) window.cancelAnimationFrame(frame);
+    };
+  }, [isMobile]);
+
+  // When the mobile layout first mounts, jump the carousel to the
+  // active stage (without animation) so #qf deep-links land correctly.
+  useEffect(() => {
+    if (!isMobile) return;
+    const el = carouselRef.current;
+    if (!el) return;
+    const idx = TAB_ORDER.indexOf(tab);
+    if (idx < 0) return;
+    const width = el.clientWidth;
+    if (!width) return;
+    programmaticScrollRef.current = true;
+    el.scrollLeft = idx * width;
+    // Drop the suppression in the next microtask, no animation here.
+    Promise.resolve().then(() => {
+      programmaticScrollRef.current = false;
+    });
+    // We intentionally don't depend on `tab` here, this is the
+    // first-paint sync; subsequent tab clicks call `setTab` which
+    // handles its own scroll.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isMobile]);
 
   useEffect(() => {
     // Wait for auth to settle before deciding identity. "loading" means
@@ -888,139 +994,189 @@ export function BracketBuilder(props: BracketBuilderProps) {
         })}
       </nav>
 
-      {tab === "groups" && (
-        <section
-          id="bracket-panel-groups"
-          role="tabpanel"
-          aria-label="Group stage"
-          className="bracket-panel bracket-groups-section"
-        >
-          <div className="bracket-round-header">
-            <h2>Group stage</h2>
-            <span className="bracket-round-progress">
-              <strong>{groupProgress.picked}</strong> of {groupProgress.total} matches picked
-            </span>
-          </div>
-          <div className="bracket-groups-grid" ref={groupsRootRef}>
-            {tournament.groups.map((g) => (
-              <GroupCard
-                key={g.id}
-                tournament={tournament}
-                group={g}
-                teams={teamMap}
-                matchPredictions={bracket.matchPredictions}
-                tiebreaker={bracket.groupTiebreakers[g.id]}
-                country={country}
-                oddsByMatch={oddsByMatch}
-                onChangeMatch={onChangeMatch}
-                onChangeTiebreaker={onChangeTiebreaker}
-              />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {tab !== "groups" && tab !== "final" && (
-        <section
-          id={`bracket-panel-${tab}`}
-          role="tabpanel"
-          aria-label={TABS.find((t) => t.id === tab)?.aria ?? "Knockouts"}
-          className={`bracket-panel bracket-round-section bracket-round-${tab}`}
-        >
-          <div className="bracket-round-header">
-            <h2>{TABS.find((t) => t.id === tab)?.aria ?? "Knockouts"}</h2>
-            <span className="bracket-round-progress">
-              <strong>{progressByTab[tab].picked}</strong> of {progressByTab[tab].total} picked
-            </span>
-          </div>
-          <p className="bracket-round-help">
-            Tap the team you predict will advance. Slots fill in as you finish
-            the previous round.
-          </p>
-          <div className="km-pinch-wrap" ref={kmContainerRef} data-mobile-pinch="">
-            <div className="km-grid km-grid-single-round" ref={kmTargetRef}>
-              {renderKnockoutGrid(tab)}
-            </div>
-          </div>
-        </section>
-      )}
-
-      {tab === "final" && (
-        <section
-          id="bracket-panel-final"
-          role="tabpanel"
-          aria-label="Final and bracket summary"
-          className="bracket-panel bracket-final-section"
-        >
-          <div className="bracket-round-header">
-            <h2>Final</h2>
-            <span className="bracket-round-progress">
-              <strong>{finalProgress.picked}</strong> of {finalProgress.total} picked
-            </span>
-          </div>
-          <div className="bracket-final-layout">
-            <div className="bracket-final-match km-pinch-wrap" ref={kmContainerRef} data-mobile-pinch="">
-              <div className="km-grid km-grid-final" ref={kmTargetRef}>
-                {renderKnockoutGrid("final")}
-              </div>
-            </div>
-            <div className="bracket-final-sidecol">
-              <LockSummary
-                bracket={bracket}
-                cascaded={cascaded}
-                tournament={tournament}
-                deadline_utc={tournament.start_utc}
-              />
-              <div className="bracket-final-leaderboard">
-                <DraftPreviewBanner />
-                <Leaderboard
-                  title="Global top 10"
-                  members={mockTopN(null, 10)}
-                  density="compact"
-                  showCountryColumn={false}
-                  showSparkline={false}
-                  showMovementColumn
-                  tabs={[]}
-                  totalMembers={24388}
-                />
-              </div>
-            </div>
-          </div>
-          <div className="bracket-lock-counts">
-            <div>
-              <strong>{completedGroupMatches}</strong> / {totalGroupMatches} group matches
-            </div>
-            <div>
-              <strong>{completedKnockouts}</strong> / {totalKnockouts} knockout picks
-            </div>
-            <div>
-              <strong>{Object.keys(bracket.groupTiebreakers).length}</strong> tiebreakers set
-            </div>
-          </div>
-          <div className="bracket-actions">
-            <button
-              type="button"
-              onClick={() => saveDraft(tournament.id, bracket, userLocalId)}
-              className="bracket-btn bracket-btn-secondary"
+      {/* Stage panels.
+       *   - Desktop (>= 769px): only the active panel renders, preserving
+       *     the editorial vertical-scroll experience. Inactive panels are
+       *     not in the DOM at all so accessibility tree + tests see only
+       *     the active one.
+       *   - Mobile (<= 768px): all six panels render inside a horizontal
+       *     scroll-snap carousel. Switching is via tab click (animated
+       *     scroll) or native horizontal swipe; the scroll listener
+       *     promotes the most-in-view panel to active. */}
+      <div
+        ref={carouselRef}
+        className={`bracket-stages ${isMobile ? "bracket-stages-mobile" : ""}`}
+        data-testid="bracket-stages"
+      >
+        {TAB_ORDER.map((panelId) => {
+          const isActiveStage = panelId === tab;
+          // Desktop: skip inactive panels entirely.
+          if (!isMobile && !isActiveStage) return null;
+          // On mobile we render every panel; refs attach only on the
+          // active one so pinch/sticky-header gestures continue to target
+          // the in-view panel.
+          const attachKmRefs = !isMobile || isActiveStage;
+          const attachGroupsRef = !isMobile || isActiveStage;
+          if (panelId === "groups") {
+            return (
+              <section
+                key={panelId}
+                id="bracket-panel-groups"
+                role="tabpanel"
+                aria-label="Group stage"
+                aria-labelledby={undefined}
+                className="bracket-panel bracket-groups-section bracket-stage-panel"
+              >
+                <div className="bracket-round-header">
+                  <h2>Group stage</h2>
+                  <span className="bracket-round-progress">
+                    <strong>{groupProgress.picked}</strong> of {groupProgress.total} matches picked
+                  </span>
+                </div>
+                <div
+                  className="bracket-groups-grid"
+                  ref={attachGroupsRef ? groupsRootRef : null}
+                >
+                  {tournament.groups.map((g) => (
+                    <GroupCard
+                      key={g.id}
+                      tournament={tournament}
+                      group={g}
+                      teams={teamMap}
+                      matchPredictions={bracket.matchPredictions}
+                      tiebreaker={bracket.groupTiebreakers[g.id]}
+                      country={country}
+                      oddsByMatch={oddsByMatch}
+                      onChangeMatch={onChangeMatch}
+                      onChangeTiebreaker={onChangeTiebreaker}
+                    />
+                  ))}
+                </div>
+              </section>
+            );
+          }
+          if (panelId === "final") {
+            return (
+              <section
+                key={panelId}
+                id="bracket-panel-final"
+                role="tabpanel"
+                aria-label="Final and bracket summary"
+                className="bracket-panel bracket-final-section bracket-stage-panel"
+              >
+                <div className="bracket-round-header">
+                  <h2>Final</h2>
+                  <span className="bracket-round-progress">
+                    <strong>{finalProgress.picked}</strong> of {finalProgress.total} picked
+                  </span>
+                </div>
+                <div className="bracket-final-layout">
+                  <div
+                    className="bracket-final-match km-pinch-wrap"
+                    ref={attachKmRefs ? kmContainerRef : null}
+                    data-mobile-pinch=""
+                  >
+                    <div
+                      className="km-grid km-grid-final"
+                      ref={attachKmRefs ? kmTargetRef : null}
+                    >
+                      {renderKnockoutGrid("final")}
+                    </div>
+                  </div>
+                  <div className="bracket-final-sidecol">
+                    <LockSummary
+                      bracket={bracket}
+                      cascaded={cascaded}
+                      tournament={tournament}
+                      deadline_utc={tournament.start_utc}
+                    />
+                    <div className="bracket-final-leaderboard">
+                      <DraftPreviewBanner />
+                      <Leaderboard
+                        title="Global top 10"
+                        members={mockTopN(null, 10)}
+                        density="compact"
+                        showCountryColumn={false}
+                        showSparkline={false}
+                        showMovementColumn
+                        tabs={[]}
+                        totalMembers={24388}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="bracket-lock-counts">
+                  <div>
+                    <strong>{completedGroupMatches}</strong> / {totalGroupMatches} group matches
+                  </div>
+                  <div>
+                    <strong>{completedKnockouts}</strong> / {totalKnockouts} knockout picks
+                  </div>
+                  <div>
+                    <strong>{Object.keys(bracket.groupTiebreakers).length}</strong> tiebreakers set
+                  </div>
+                </div>
+                <div className="bracket-actions">
+                  <button
+                    type="button"
+                    onClick={() => saveDraft(tournament.id, bracket, userLocalId)}
+                    className="bracket-btn bracket-btn-secondary"
+                  >
+                    Save draft locally
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="bracket-btn bracket-btn-primary"
+                  >
+                    Save bracket
+                  </button>
+                  {submitState && <span className="bracket-submit-state">{submitState}</span>}
+                </div>
+                <p className="bracket-final-note">
+                  You can change any pick right up until that match kicks off. Saving
+                  now lets you share your bracket and locks in your odds-at-pick for
+                  scoring.
+                </p>
+              </section>
+            );
+          }
+          // r32 / r16 / qf / sf knockout rounds.
+          const meta = TABS.find((t) => t.id === panelId);
+          return (
+            <section
+              key={panelId}
+              id={`bracket-panel-${panelId}`}
+              role="tabpanel"
+              aria-label={meta?.aria ?? "Knockouts"}
+              className={`bracket-panel bracket-round-section bracket-round-${panelId} bracket-stage-panel`}
             >
-              Save draft locally
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="bracket-btn bracket-btn-primary"
-            >
-              Save bracket
-            </button>
-            {submitState && <span className="bracket-submit-state">{submitState}</span>}
-          </div>
-          <p className="bracket-final-note">
-            You can change any pick right up until that match kicks off. Saving
-            now lets you share your bracket and locks in your odds-at-pick for
-            scoring.
-          </p>
-        </section>
-      )}
+              <div className="bracket-round-header">
+                <h2>{meta?.aria ?? "Knockouts"}</h2>
+                <span className="bracket-round-progress">
+                  <strong>{progressByTab[panelId].picked}</strong> of {progressByTab[panelId].total} picked
+                </span>
+              </div>
+              <p className="bracket-round-help">
+                Tap the team you predict will advance. Slots fill in as you finish
+                the previous round.
+              </p>
+              <div
+                className="km-pinch-wrap"
+                ref={attachKmRefs ? kmContainerRef : null}
+                data-mobile-pinch=""
+              >
+                <div
+                  className="km-grid km-grid-single-round"
+                  ref={attachKmRefs ? kmTargetRef : null}
+                >
+                  {renderKnockoutGrid(panelId)}
+                </div>
+              </div>
+            </section>
+          );
+        })}
+      </div>
 
       {cascaded.warnings.length > 0 && (
         <details className="bracket-warnings">
