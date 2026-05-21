@@ -43,7 +43,7 @@ const embargoedReleases = releases.filter(
 ---
 <Layout
   title="Press, Tournamental"
-  description="Official press releases, embargoed announcements, and the Tournamental press kit. For demos, briefs and access to the session notes, email press@tournamental.com."
+  description="Official press releases, embargoed announcements, and the Tournamental press kit. For demos, briefs and access to the session notes, email play@tournamental.com."
 >
   {/* The edge ingress reads this data attribute and sets the real
       Cache-Control header. Long cache when no embargo is pending,
@@ -53,7 +53,7 @@ const embargoedReleases = releases.filter(
     <SectionHeading
       eyebrow="Press"
       title="Press releases"
-      lede="Official announcements and embargoed releases from Tournamental. Journalists: email press@tournamental.com for a demo, the brief, or access to the founder's session notes."
+      lede="Official announcements and embargoed releases from Tournamental. Journalists: email play@tournamental.com for a demo, the brief, or access to the founder's session notes."
     />
 
     <div class="vt-press-actions">
@@ -61,7 +61,7 @@ const embargoedReleases = releases.filter(
         Download the press kit
       </a>
       <a href="/press/rss.xml" class="link">Subscribe via RSS</a>
-      <a href="mailto:press@tournamental.com" class="link">press@tournamental.com</a>
+      <a href="mailto:play@tournamental.com" class="link">play@tournamental.com</a>
     </div>
 
     {releases.length === 0 && (
