@@ -343,14 +343,83 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     }
   }
 
+  // ---- Auth token store ----
+  //
+  // The widget stores a bearer token in localStorage keyed by the
+  // partner-page origin (i.e. wherever this widget is embedded). The
+  // token is minted by play.tournamental.com/api/v1/auth/widget-token
+  // inside the sign-in popup and posted back to us via postMessage.
+  // We send it as "Authorization: Bearer <token>" on every API call,
+  // which works on every browser regardless of third-party-cookie
+  // policy (Safari ITP, Firefox ETP, partitioned Chrome).
+  //
+  // The cookie path (credentials: "include") is still attempted as a
+  // fallback for the rare browser configurations where it just works
+  // and the partner happens to not have ever logged out -- belt and
+  // braces.
+
+  var TOKEN_STORAGE_KEY = "tnm.widget.token.v1";
+
+  function loadStoredToken() {
+    try {
+      var raw = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+      if (!raw) return null;
+      var data = JSON.parse(raw);
+      if (!data || typeof data.token !== "string") return null;
+      if (typeof data.expires_at === "number" && data.expires_at * 1000 < Date.now()) {
+        try { window.localStorage.removeItem(TOKEN_STORAGE_KEY); } catch (e) { /* ignore */ }
+        return null;
+      }
+      return data;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function storeToken(tokenData) {
+    try {
+      if (!tokenData || !tokenData.token) return;
+      window.localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({
+        token: tokenData.token,
+        expires_at: tokenData.expires_at || 0,
+        user: tokenData.user || null,
+      }));
+    } catch (e) { /* localStorage might be disabled; degrade gracefully */ }
+  }
+
+  function clearStoredToken() {
+    try { window.localStorage.removeItem(TOKEN_STORAGE_KEY); } catch (e) { /* ignore */ }
+  }
+
+  function authHeaders() {
+    var tok = loadStoredToken();
+    return tok ? { Authorization: "Bearer " + tok.token } : {};
+  }
+
   // ---- Auth probe ----
 
   function checkAuth() {
-    // Uses play.tournamental.com/api/v1/auth-status which echoes Origin +
-    // allows credentials, so partner-site embeds can probe the apex
-    // tnm_session cookie without auth-sms needing per-origin CORS rules.
-    return fetch(API_ORIGIN + "/api/v1/auth-status", { credentials: "include" })
-      .then(function (r) { return r.ok ? r.json() : { authenticated: false }; })
+    // Sends both paths:
+    //   - Authorization: Bearer <token> when we have a token from the
+    //     popup (works cross-origin regardless of cookie policy)
+    //   - credentials: "include" so the apex tnm_session cookie is
+    //     attempted as a fallback (works only on browsers that don't
+    //     block third-party cookies)
+    // The server resolves either; the client doesn't need to know
+    // which one succeeded.
+    return fetch(API_ORIGIN + "/api/v1/auth-status", {
+      credentials: "include",
+      headers: authHeaders(),
+    })
+      .then(function (r) {
+        if (r.status === 401) {
+          // Token has been invalidated server-side; clear so we revert
+          // to the unauthenticated CTA cleanly.
+          clearStoredToken();
+          return { authenticated: false };
+        }
+        return r.ok ? r.json() : { authenticated: false };
+      })
       .then(function (j) { return !!(j && j.authenticated); })
       .catch(function () { return false; });
   }
@@ -417,9 +486,24 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
           window.open(url, "tnm_auth", "width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ",resizable=yes,scrollbars=yes");
         });
 
-        // postMessage listener for auth success → re-check auth, swap to play tab.
+        // postMessage listener for auth success → store the bearer
+        // token the popup minted for us, then re-check auth.
+        //
+        // Origin check: only accept messages from the play app origin.
+        // Without this, any third-party iframe on the partner page
+        // could spoof a tournamental-auth message and shove our
+        // widget into authed state. The popup runs on API_ORIGIN
+        // (play.tournamental.com) so we lock the check there.
         window.addEventListener("message", function (ev) {
+          if (ev.origin !== API_ORIGIN) return;
           if (!ev.data || ev.data.type !== "tournamental-auth" || !ev.data.ok) return;
+          if (ev.data.token) {
+            storeToken({
+              token: ev.data.token,
+              expires_at: ev.data.expires_at,
+              user: ev.data.user,
+            });
+          }
           checkAuth().then(function (nowAuthed) {
             renderHub(root, config, nowAuthed, "play");
           });

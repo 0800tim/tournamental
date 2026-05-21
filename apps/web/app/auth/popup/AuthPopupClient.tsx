@@ -31,29 +31,71 @@ export function AuthPopupClient({ pool, from }: AuthPopupClientProps) {
   const auth = useUser();
   const [closing, setClosing] = useState(false);
 
-  // When the user becomes authenticated, postMessage the opener
-  // and close. Use a short delay so they see "Signed in!" before
-  // the window vanishes.
+  // When the user becomes authenticated, mint a widget-scoped bearer
+  // token from this first-party context (where the just-set Lax cookie
+  // still applies) and postMessage it to the opener. The opener (the
+  // widget on the partner page) stores the token in its own
+  // localStorage and sends it as Authorization: Bearer on subsequent
+  // API calls -- this is how we authenticate cross-origin without
+  // depending on third-party cookies that Safari/Firefox/partitioned-
+  // Chrome will block.
   useEffect(() => {
     if (auth.status !== "authenticated" || closing) return;
     setClosing(true);
-    try {
-      if (window.opener) {
-        window.opener.postMessage(
-          { type: "tournamental-auth", ok: true, pool },
-          "*",
-        );
-      }
-    } catch {
-      /* ignore — cross-origin opener might not be reachable */
-    }
-    window.setTimeout(() => {
+
+    let cancelled = false;
+    const mintAndPost = async (): Promise<void> => {
+      let widget:
+        | { token: string; expires_at: number; user: { id: string } }
+        | null = null;
       try {
-        window.close();
+        const res = await fetch("/api/v1/auth/widget-token", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: "{}",
+        });
+        if (res.ok) {
+          widget = (await res.json()) as typeof widget;
+        }
       } catch {
-        /* user can close manually */
+        // Network error minting token; we still postMessage `ok: true`
+        // so the cookie path can try to work on browsers that don't
+        // partition third-party cookies (Chrome non-incognito today).
       }
-    }, 900);
+      if (cancelled) return;
+
+      try {
+        if (window.opener) {
+          window.opener.postMessage(
+            {
+              type: "tournamental-auth",
+              ok: true,
+              pool,
+              token: widget?.token,
+              expires_at: widget?.expires_at,
+              user: widget?.user,
+            },
+            "*",
+          );
+        }
+      } catch {
+        /* cross-origin opener might not be reachable */
+      }
+
+      window.setTimeout(() => {
+        try {
+          window.close();
+        } catch {
+          /* user can close manually */
+        }
+      }, 900);
+    };
+
+    void mintAndPost();
+    return () => {
+      cancelled = true;
+    };
   }, [auth.status, closing, pool]);
 
   return (

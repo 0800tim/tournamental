@@ -33,7 +33,7 @@ export async function OPTIONS(req: NextRequest): Promise<Response> {
     headers: {
       ...corsHeaders(req),
       "Access-Control-Allow-Methods": "GET, OPTIONS",
-      "Access-Control-Allow-Headers": "content-type",
+      "Access-Control-Allow-Headers": "content-type, authorization",
       "Access-Control-Max-Age": "600",
     },
   });

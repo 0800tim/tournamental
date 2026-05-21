@@ -1,28 +1,33 @@
 /**
  * Server-side session verification for Next.js API routes.
  *
- * The auth-sms service mints HS256 JWTs and sets them as the
- * `tnm_session` cookie on `.tournamental.com`. The play app's Next.js
- * API routes (this module's callers) verify those cookies with the
- * same secret to identify the user behind a request.
+ * Two parallel auth paths are accepted (transparent to callers):
  *
- * The cookie format matches `apps/auth-sms/src/jwt.ts` exactly:
- *   - HS256 signature with `AUTH_JWT_SECRET`
- *   - issuer: `tournamental-auth`
- *   - audience: `tournamental`
- *   - sub: user_id
- *   - phone: E.164 or empty
- *   - jti: unique session id
+ *   1. **Cookie**: `tnm_session=<jwt>` minted by `apps/auth-sms` after a
+ *      successful OTP / Telegram / email-link verify. Issuer
+ *      `tournamental-auth`, audience `tournamental`. This is the path
+ *      every browser session uses for first-party play.tournamental.com
+ *      traffic.
  *
- * Why this lives here and not in `@/lib/auth/inbound-login.ts`: that
- * module is a *client* of the auth-sms HTTP API, used by browser
- * components to ask "am I signed in?". This module is the *server-side*
- * cookie verifier, used by route handlers that need to gate an
- * endpoint on a real authenticated session.
+ *   2. **Bearer**: `Authorization: Bearer <jwt>` minted by
+ *      `POST /api/v1/auth/widget-token` (this app). Issuer
+ *      `tournamental-widget`, audience `tournamental`, includes a
+ *      `scope: "widget"` claim. This is the cross-origin path used by
+ *      the embed widget on partner pages where third-party-cookie
+ *      blocking (Safari ITP / Firefox ETP / Chrome's partitioning of
+ *      SameSite=None cookies) stops the cookie path from working.
+ *
+ * Both paths produce the same `SessionUser` shape. `via` lets callers
+ * tighten checks (e.g. refuse a widget token on account-mutation
+ * endpoints).
+ *
+ * Why distinct issuers: a session cookie should never be replayable as
+ * a bearer (and vice versa). The widget JWT has its own issuer string
+ * so jose's verifier rejects cookie tokens passed via Authorization
+ * and rejects widget tokens dropped into a cookie jar.
  *
  * Keep this module's surface tiny: one helper, returns null on any
- * failure (no exceptions for missing/invalid cookies; those are the
- * normal "guest visitor" case).
+ * failure (no exceptions; the unauthenticated case is normal).
  */
 
 import { jwtVerify } from "jose";
@@ -34,9 +39,12 @@ export interface SessionUser {
   readonly phone: string | null;
   /** Unique session id; useful for revocation checks if we ever wire one. */
   readonly jti: string;
+  /** Which transport delivered the credential. */
+  readonly via: "cookie" | "widget";
 }
 
-const ISSUER = "tournamental-auth";
+const COOKIE_ISSUER = "tournamental-auth";
+const WIDGET_ISSUER = "tournamental-widget";
 const AUDIENCE = "tournamental";
 const COOKIE_NAME = "tnm_session";
 
@@ -53,24 +61,16 @@ function readCookie(header: string | null | undefined, name: string): string | n
   return null;
 }
 
-/**
- * Verify the `tnm_session` cookie on a request and return the
- * resolved user, or null if the cookie is absent, invalid, expired,
- * or the secret is unconfigured. Never throws.
- */
-export async function getSessionFromRequest(
-  req: { headers: { get(name: string): string | null } },
-): Promise<SessionUser | null> {
-  const secret = process.env.AUTH_JWT_SECRET;
-  if (!secret || secret.length < 16) return null;
+function readBearer(header: string | null | undefined): string | null {
+  if (!header) return null;
+  const m = /^Bearer\s+([^\s,]+)/i.exec(header);
+  return m ? m[1] : null;
+}
 
-  const cookieHeader = req.headers.get("cookie");
-  const token = readCookie(cookieHeader, COOKIE_NAME);
-  if (!token) return null;
-
+async function verifyAsCookieJwt(secret: string, token: string): Promise<SessionUser | null> {
   try {
     const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
-      issuer: ISSUER,
+      issuer: COOKIE_ISSUER,
       audience: AUDIENCE,
       algorithms: ["HS256"],
     });
@@ -81,8 +81,56 @@ export async function getSessionFromRequest(
         : null;
     const jti = typeof payload.jti === "string" ? payload.jti : "";
     if (!jti) return null;
-    return { userId: payload.sub, phone, jti };
+    return { userId: payload.sub, phone, jti, via: "cookie" };
   } catch {
     return null;
   }
+}
+
+async function verifyAsWidgetJwt(secret: string, token: string): Promise<SessionUser | null> {
+  try {
+    const { payload } = await jwtVerify(token, new TextEncoder().encode(secret), {
+      issuer: WIDGET_ISSUER,
+      audience: AUDIENCE,
+      algorithms: ["HS256"],
+    });
+    if (typeof payload.sub !== "string" || payload.sub.length === 0) return null;
+    if (payload.scope !== "widget") return null;
+    const phone =
+      typeof payload.phone === "string" && payload.phone.length > 0
+        ? payload.phone
+        : null;
+    const jti = typeof payload.jti === "string" ? payload.jti : "";
+    if (!jti) return null;
+    return { userId: payload.sub, phone, jti, via: "widget" };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Resolve the authenticated user for a request. Tries the cookie path
+ * first (zero-latency for first-party traffic) then falls back to a
+ * bearer token (cross-origin widget path). Returns null when neither
+ * path produces a valid session.
+ */
+export async function getSessionFromRequest(
+  req: { headers: { get(name: string): string | null } },
+): Promise<SessionUser | null> {
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!secret || secret.length < 16) return null;
+
+  const cookieToken = readCookie(req.headers.get("cookie"), COOKIE_NAME);
+  if (cookieToken) {
+    const user = await verifyAsCookieJwt(secret, cookieToken);
+    if (user) return user;
+  }
+
+  const bearerToken = readBearer(req.headers.get("authorization"));
+  if (bearerToken) {
+    const user = await verifyAsWidgetJwt(secret, bearerToken);
+    if (user) return user;
+  }
+
+  return null;
 }
