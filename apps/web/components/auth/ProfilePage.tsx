@@ -103,6 +103,33 @@ function InboundProfileEditor({ userId }: { userId: string }) {
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
     null,
   );
+  // Pool count drives the primary action in the profile head row:
+  // 0 pools → "Create a pool" (gold), 1+ → "Manage my pools" (gold,
+  // anchors to #profile-pools). Same call as MyPoolsSection; the
+  // browser cache dedupes the second fetch.
+  const [poolCount, setPoolCount] = useState<number | null>(null);
+  useEffect(() => {
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const r = await fetch("/api/v1/syndicates/mine", {
+          method: "GET",
+          credentials: "include",
+          headers: { Accept: "application/json" },
+          signal: ac.signal,
+        });
+        if (!r.ok) {
+          setPoolCount(0);
+          return;
+        }
+        const body = (await r.json()) as { syndicates?: unknown[] };
+        setPoolCount(body.syndicates?.length ?? 0);
+      } catch {
+        if (!ac.signal.aborted) setPoolCount(0);
+      }
+    })();
+    return () => ac.abort();
+  }, []);
 
   // Initial load.
   useEffect(() => {
@@ -158,15 +185,67 @@ function InboundProfileEditor({ userId }: { userId: string }) {
   const phoneDisplay = serverUser.phone ?? "—";
   const greeting = draft.displayName || draft.firstName || phoneDisplay;
 
+  const onLogout = () => {
+    // Inbound-flow logout: clear the cookie via auth-sms logout
+    // endpoint (best-effort), then reload to the home page.
+    void fetch(
+      (process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? "https://auth.tournamental.com") +
+        "/v1/auth/session/logout",
+      { method: "POST", credentials: "include" },
+    ).finally(() => {
+      document.cookie =
+        "tnm_session=; Path=/; Domain=.tournamental.com; Max-Age=0";
+      window.location.href = "/";
+    });
+  };
+
+  const onManagePoolsClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Smooth-scroll to the My Pools section instead of jumping; honour
+    // prefers-reduced-motion so users with vestibular sensitivity get
+    // an instant jump.
+    e.preventDefault();
+    const target = document.getElementById("profile-pools");
+    if (!target) return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    target.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
+  };
+
   return (
     <>
-      <section className="vt-section">
-        <h2 className="vt-section-title">{greeting}</h2>
-        <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
-          Signed in as <strong>{phoneDisplay}</strong>
-          {serverUser.email ? ` · ${serverUser.email}` : ""} · joined{" "}
-          {new Date(serverUser.createdAt * 1000).toLocaleDateString()}
-        </p>
+      <section className="vt-section vt-profile-head">
+        <div className="vt-profile-head-text">
+          <h2 className="vt-section-title">{greeting}</h2>
+          <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
+            Signed in as <strong>{phoneDisplay}</strong>
+            {serverUser.email ? ` · ${serverUser.email}` : ""} · joined{" "}
+            {new Date(serverUser.createdAt * 1000).toLocaleDateString()}
+          </p>
+        </div>
+        <div className="vt-profile-head-actions">
+          {poolCount === null ? null : poolCount > 0 ? (
+            <a
+              href="#profile-pools"
+              onClick={onManagePoolsClick}
+              className="vt-profile-action vt-profile-action--primary"
+            >
+              Manage my pools
+            </a>
+          ) : (
+            <a
+              href="/syndicates/new"
+              className="vt-profile-action vt-profile-action--primary"
+            >
+              Create a pool
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={onLogout}
+            className="vt-profile-action vt-profile-action--ghost"
+          >
+            Log out
+          </button>
+        </div>
       </section>
 
       <section className="vt-section">
@@ -322,28 +401,9 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         </a>
       </section>
 
-      <section className="vt-section">
-        <button
-          type="button"
-          onClick={() => {
-            // Inbound-flow logout: clear the cookie via auth-sms logout
-            // endpoint (best-effort), then reload to the home page.
-            void fetch(
-              (process.env.NEXT_PUBLIC_AUTH_BASE_URL ?? "https://auth.tournamental.com") +
-                "/v1/auth/session/logout",
-              { method: "POST", credentials: "include" },
-            ).finally(() => {
-              // Belt + braces: also stomp the cookie client-side.
-              document.cookie =
-                "tnm_session=; Path=/; Domain=.tournamental.com; Max-Age=0";
-              window.location.href = "/";
-            });
-          }}
-          className="vt-profile-cta vt-profile-cta--ghost"
-        >
-          Sign out
-        </button>
-      </section>
+      {/* Sign-out moved to the profile-head action row at the top of
+        * the page (Tim 2026-05-22). Anchor still kept for any legacy
+        * deep-link, but the visible CTA is gone. */}
 
       <style jsx>{`
         :global(.vt-profile-cta) {
@@ -397,6 +457,87 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           border: 1px solid rgba(255, 255, 255, 0.12);
           font-size: 13px;
           cursor: pointer;
+        }
+
+        /* Profile-head action row — sits in the top-right of the
+         * greeting section. Equal-width buttons; stacks vertically on
+         * mobile where the section is narrow. */
+        :global(.vt-profile-head) {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        @media (min-width: 720px) {
+          :global(.vt-profile-head) {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+          }
+          :global(.vt-profile-head-text) {
+            flex: 1 1 auto;
+            min-width: 0;
+          }
+        }
+        :global(.vt-profile-head-text) {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        :global(.vt-profile-head-actions) {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          width: 100%;
+        }
+        @media (min-width: 720px) {
+          :global(.vt-profile-head-actions) {
+            flex: 0 0 auto;
+            flex-direction: row;
+            align-items: stretch;
+            width: auto;
+          }
+          :global(.vt-profile-head-actions .vt-profile-action) {
+            min-width: 160px;
+            width: auto;
+          }
+        }
+        :global(.vt-profile-action) {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 11px 16px;
+          border-radius: 10px;
+          border: 0;
+          font-weight: 700;
+          font-size: 14px;
+          letter-spacing: 0.005em;
+          cursor: pointer;
+          text-decoration: none;
+          text-align: center;
+          font-family: inherit;
+          transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+          width: 100%;
+        }
+        :global(.vt-profile-action--primary) {
+          background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+          color: #15151a;
+          font-weight: 800;
+          box-shadow: 0 8px 20px -10px rgba(220, 169, 75, 0.55);
+        }
+        :global(.vt-profile-action--primary:hover) {
+          background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+          transform: translateY(-1px);
+        }
+        :global(.vt-profile-action--ghost) {
+          background: transparent;
+          color: var(--vt-fg, #f4f4f5);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          font-weight: 600;
+        }
+        :global(.vt-profile-action--ghost:hover) {
+          border-color: rgba(255, 255, 255, 0.32);
+          background: rgba(255, 255, 255, 0.04);
         }
       `}</style>
     </>
@@ -457,7 +598,7 @@ function MyPoolsSection() {
   }, []);
 
   return (
-    <section className="vt-section">
+    <section className="vt-section" id="profile-pools">
       <h2 className="vt-section-title">My pools</h2>
       <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
         Pools you run. Click through to invite members, edit branding, or pause
@@ -485,7 +626,7 @@ function MyPoolsSection() {
             {state.pools.map((p) => (
               <li key={p.slug} className="vt-mypools-row">
                 <div className="vt-mypools-row-main">
-                  <a href={`/manage/syndicates/${p.slug}`} className="vt-mypools-name">
+                  <a href={`/dashboard/syndicates/${p.slug}`} className="vt-mypools-name">
                     {p.name}
                   </a>
                   <p className="vt-mypools-meta">
@@ -501,7 +642,7 @@ function MyPoolsSection() {
                     Share
                   </a>
                   <a
-                    href={`/manage/syndicates/${p.slug}`}
+                    href={`/dashboard/syndicates/${p.slug}`}
                     className="vt-profile-cta vt-profile-cta--primary"
                   >
                     Manage
