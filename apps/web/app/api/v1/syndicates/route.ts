@@ -112,6 +112,8 @@ export async function POST(req: NextRequest): Promise<Response> {
       topic: input.topic ?? null,
       marketing_consent: input.marketing_consent,
       share_guid: shareGuid,
+      is_public: input.is_public,
+      requires_approval: input.requires_approval,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

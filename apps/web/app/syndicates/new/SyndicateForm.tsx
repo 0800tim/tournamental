@@ -107,6 +107,11 @@ export function SyndicateForm(): JSX.Element {
   const [topic, setTopic] = useState("");
   const [marketingConsent, setMarketingConsent] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  // Visibility + approval flags. Mutually exclusive: ticking "Public"
+  // disables and unticks "Requires approval" because a public pool by
+  // definition accepts everyone in one tap. (Tim 2026-05-22)
+  const [isPublic, setIsPublic] = useState(false);
+  const [requiresApproval, setRequiresApproval] = useState(false);
 
   const [availability, setAvailability] = useState<AvailabilityState>({ state: "idle" });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -225,6 +230,8 @@ export function SyndicateForm(): JSX.Element {
           topic: topic.trim() || null,
           marketing_consent: marketingConsent,
           terms_accepted: termsAccepted,
+          is_public: isPublic,
+          requires_approval: !isPublic && requiresApproval,
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -558,6 +565,52 @@ export function SyndicateForm(): JSX.Element {
               <span className="syn-error-text">{fieldErrors.topic}</span>
             )}
           </div>
+
+          {/* Visibility + approval (mutually exclusive). Ticking Public
+            * disables + unticks Requires Approval, since public pools
+            * by definition accept everyone in one tap (Tim 2026-05-22). */}
+          <fieldset className="syn-fieldset" aria-label="Pool visibility">
+            <legend className="syn-fieldset-legend">Visibility</legend>
+            <label className="syn-checkbox-row">
+              <input
+                type="checkbox"
+                checked={isPublic}
+                onChange={(e) => {
+                  const next = e.target.checked;
+                  setIsPublic(next);
+                  if (next) setRequiresApproval(false);
+                }}
+              />
+              <span>
+                <strong>Public pool</strong>
+                <span className="syn-checkbox-hint">
+                  Public pools are visible in our pool directory. Anyone can
+                  join them. Useful for brands or influencers who want anyone
+                  to join and grow their audience during the tournament.
+                </span>
+              </span>
+            </label>
+            <label
+              className="syn-checkbox-row"
+              data-disabled={isPublic ? "1" : undefined}
+            >
+              <input
+                type="checkbox"
+                checked={requiresApproval}
+                disabled={isPublic}
+                onChange={(e) => setRequiresApproval(e.target.checked)}
+              />
+              <span>
+                <strong>Requires approval</strong>
+                <span className="syn-checkbox-hint">
+                  You, the pool administrator, must approve any request to
+                  join your pool. Select this option if you&apos;re running
+                  an office sweepstake or a closed &ldquo;friends and
+                  family&rdquo; pool.
+                </span>
+              </span>
+            </label>
+          </fieldset>
 
           {/* Consent */}
           <label className="syn-checkbox-row">

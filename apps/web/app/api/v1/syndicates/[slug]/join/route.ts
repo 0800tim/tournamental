@@ -19,6 +19,7 @@
 import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { getPersistence } from "@/lib/syndicate/persistence";
+import { notifyOwnerOfJoinRequest } from "@/lib/syndicate/notify-join-request";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -116,6 +117,14 @@ export async function POST(
     }
   }
 
+  // Approval-gated pools: insert membership row with status='pending'
+  // so the user shows up in the owner's approval queue. The pool's
+  // public surfaces (landing, member_count) ignore pending rows so the
+  // requester doesn't appear in any leaderboard or grid until the
+  // owner approves (Tim 2026-05-22).
+  const requiresApproval = !!(row as unknown as { requires_approval?: number })
+    .requires_approval;
+
   // Insert (or upsert) member row via the persistence API. The new
   // `addMember` helper carries handle + display_name through and
   // returns whether a fresh row was inserted vs an existing row
@@ -128,6 +137,7 @@ export async function POST(
       role: "member",
       handle,
       display_name: submittedDisplayName ?? session.displayName ?? null,
+      status: requiresApproval ? "pending" : "active",
     });
     inserted = r.inserted;
   } catch (err) {
@@ -149,6 +159,21 @@ export async function POST(
     });
   }
 
+  if (requiresApproval) {
+    // Fire the owner notification best-effort so a SendGrid hiccup
+    // doesn't fail the join request itself. The owner can still find
+    // the request in their dashboard if the email never lands.
+    void notifyOwnerOfJoinRequest({
+      pool: row,
+      requester: {
+        user_id: session.id,
+        handle,
+        display_name: submittedDisplayName ?? session.displayName ?? null,
+      },
+    }).catch(() => undefined);
+    return json({ ok: true, status: "pending" });
+  }
+
   // Bump the cached member_count on the syndicates row. The game
   // service owns the authoritative count; this is an optimistic update
   // so the landing page reflects the new join immediately.
@@ -161,5 +186,5 @@ export async function POST(
     // Non-fatal — member_count is eventually consistent via game service.
   }
 
-  return json({ ok: true, member_count: row.member_count + 1 });
+  return json({ ok: true, status: "active", member_count: row.member_count + 1 });
 }

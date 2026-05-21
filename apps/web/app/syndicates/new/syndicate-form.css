@@ -215,6 +215,50 @@
   color: #6ad4a4;
 }
 
+/* Disabled state for the "Requires approval" row when "Public" is
+ * checked — the public-pool option overrides the approval gate. */
+.syn-checkbox-row[data-disabled="1"] {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+/* Visibility fieldset wraps the two privacy checkboxes so the legend
+ * gives them context without depending on prose nearby. */
+.syn-fieldset {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.syn-fieldset-legend {
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+/* Two-line checkbox label: bold title + muted helper. */
+.syn-checkbox-row > span {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.syn-checkbox-row strong {
+  font-weight: 700;
+  color: #e7ecf7;
+}
+.syn-checkbox-hint {
+  font-size: 12px;
+  color: #94a3b8;
+  line-height: 1.5;
+}
+
 .syn-error-text {
   color: #ff7a7a;
   font-size: 12px;

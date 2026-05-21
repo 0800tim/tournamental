@@ -126,6 +126,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   // whichever lands first (Tim 2026-05-22).
   const [identityEmail, setIdentityEmail] = useState("");
 
+  // Join outcome captured at the end of the verify step so the
+  // success view can render different copy for active vs pending
+  // (approval-gated) joins.
+  const [joinStatus, setJoinStatus] = useState<"active" | "pending">("active");
+
   // Verify step
   const [code, setCode] = useState("");
   const [email, setEmail] = useState("");
@@ -380,8 +385,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
 
   /** Once auth-sms returns a valid session, bind the handle + display
    * name on the user record AND POST /join. Used by both the
-   * code-verify path and the email-verify path. */
-  const bindAndJoin = useCallback(async (): Promise<boolean> => {
+   * code-verify path and the email-verify path. Returns the join
+   * status so the caller can branch (no auto-redirect on pending). */
+  const bindAndJoin = useCallback(async (): Promise<
+    { ok: false } | { ok: true; status: "active" | "pending" }
+  > => {
     // Bind display name on the auth-sms user (PATCH /v1/auth/me).
     try {
       await fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/me`, {
@@ -409,22 +417,26 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
       );
       const j = (await r.json().catch(() => ({}))) as {
         ok?: boolean;
+        status?: "active" | "pending";
         error?: string;
         message?: string;
       };
       if (!r.ok && j.error && j.error !== "already_member") {
         setError(j.message ?? `Couldn't join the pool (${j.error}).`);
-        return false;
+        return { ok: false };
       }
+      const status: "active" | "pending" =
+        j.status === "pending" ? "pending" : "active";
+      setJoinStatus(status);
+      return { ok: true, status };
     } catch (err) {
       setError(
         err instanceof Error
           ? `Network error joining pool: ${err.message}`
           : "Network error joining pool.",
       );
-      return false;
+      return { ok: false };
     }
-    return true;
   }, [slug, handle, displayName]);
 
   const onSubmitCode = useCallback(
@@ -450,15 +462,20 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         setBusy(false);
         return;
       }
-      const ok = await bindAndJoin();
-      if (!ok) {
+      const result = await bindAndJoin();
+      if (!result.ok) {
         setBusy(false);
         return;
       }
       clearPending();
       setStep("success");
-      // Redirect to the pool's share landing in 1.2s so the user sees
-      // the confirmation tick first.
+      // Skip the auto-redirect for approval-gated joins — the success
+      // view stays put with a "Got it" button so the user reads the
+      // "request sent" message and dismisses (Tim 2026-05-22).
+      if (result.status === "pending") {
+        setBusy(false);
+        return;
+      }
       window.setTimeout(() => {
         window.location.replace(`/s/${encodeURIComponent(slug)}`);
       }, 1200);
@@ -510,13 +527,17 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         setBusy(false);
         return;
       }
-      const ok = await bindAndJoin();
-      if (!ok) {
+      const result = await bindAndJoin();
+      if (!result.ok) {
         setBusy(false);
         return;
       }
       clearPending();
       setStep("success");
+      if (result.status === "pending") {
+        setBusy(false);
+        return;
+      }
       window.setTimeout(() => {
         window.location.replace(`/s/${encodeURIComponent(slug)}`);
       }, 1200);
@@ -798,7 +819,27 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
               </div>
             )}
 
-            {step === "success" && (
+            {step === "success" && joinStatus === "pending" && (
+              <div className="vt-join-success">
+                <h2 className="vt-share-modal-title">📨 Request sent</h2>
+                <p className="vt-share-modal-body">
+                  Your request to join <strong>{syndicateName}</strong> has
+                  been sent to the pool administrator. You&apos;ll get a
+                  notification when they accept it.
+                </p>
+                <div className="vt-share-modal-row vt-share-modal-row--single">
+                  <button
+                    type="button"
+                    className="vt-share-cta"
+                    data-variant="primary"
+                    onClick={close}
+                  >
+                    Got it
+                  </button>
+                </div>
+              </div>
+            )}
+            {step === "success" && joinStatus !== "pending" && (
               <div className="vt-join-success">
                 <h2 className="vt-share-modal-title">✅ You&apos;re in!</h2>
                 <p className="vt-share-modal-body">

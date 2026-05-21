@@ -342,20 +342,29 @@ export class SyndicatePersistence {
     );
     this.insertMemberStmt = this.db.prepare(
       `INSERT INTO syndicate_owners_membership
-         (syndicate_id, user_id, role, joined_at, handle, display_name)
-       VALUES (@syndicate_id, @user_id, @role, @joined_at, @handle, @display_name)
+         (syndicate_id, user_id, role, joined_at, handle, display_name, status)
+       VALUES (@syndicate_id, @user_id, @role, @joined_at, @handle, @display_name, @status)
        ON CONFLICT(syndicate_id, user_id) DO UPDATE SET
          handle = COALESCE(excluded.handle, syndicate_owners_membership.handle),
-         display_name = COALESCE(excluded.display_name, syndicate_owners_membership.display_name)`,
+         display_name = COALESCE(excluded.display_name, syndicate_owners_membership.display_name)
+         /* status is intentionally NOT updated on conflict so a denied
+            user can't bypass denial by re-joining, and an existing
+            active member can't be downgraded to pending by a malformed
+            request. Status changes go through the approve/deny
+            endpoints exclusively. */`,
     );
     this.handleTakenStmt = this.db.prepare(
       `SELECT 1 FROM syndicate_owners_membership
         WHERE syndicate_id = ? AND LOWER(handle) = LOWER(?) LIMIT 1`,
     );
+    // Default `getMembers` query excludes pending + denied rows: the
+    // public landing + member-count surfaces should only ever count
+    // confirmed members. Owners use `listPendingMembers` separately.
     this.getMembersBySyndicateStmt = this.db.prepare(
       `SELECT user_id, role, joined_at, handle, display_name
          FROM syndicate_owners_membership
         WHERE syndicate_id = ?
+          AND (status IS NULL OR status = 'active')
         ORDER BY joined_at ASC`,
     );
     this.insertPendingGhlStmt = this.db.prepare(
@@ -459,6 +468,10 @@ export class SyndicatePersistence {
     role?: "owner" | "member";
     handle?: string | null;
     display_name?: string | null;
+    /** Membership state. Defaults to 'active' for the standard flow.
+     * Pass 'pending' for approval-gated joins; the approve/deny
+     * endpoints flip it to 'active' or 'denied' later. */
+    status?: "active" | "pending" | "denied" | null;
     now?: number;
   }): { inserted: boolean } {
     if (!this.insertMemberStmt) this.prepareStatements();
@@ -470,8 +483,80 @@ export class SyndicatePersistence {
       joined_at: args.now ?? Date.now(),
       handle: args.handle ?? null,
       display_name: args.display_name ?? null,
+      status: args.status ?? "active",
     });
     return { inserted: (result.changes ?? 0) > 0 };
+  }
+
+  /** Flip a membership row's status. Used by the approve/deny owner
+   * endpoints to move a 'pending' row to 'active' or 'denied'. Returns
+   * the number of rows affected (0 if the syndicate_id/user_id pair
+   * doesn't exist or the new status is already set). */
+  setMemberStatus(args: {
+    syndicate_id: string;
+    user_id: string;
+    status: "active" | "denied";
+  }): number {
+    const stmt = this.db.prepare(
+      `UPDATE syndicate_owners_membership
+          SET status = ?
+        WHERE syndicate_id = ? AND user_id = ? AND status = 'pending'`,
+    );
+    const r = stmt.run(args.status, args.syndicate_id, args.user_id);
+    return r.changes ?? 0;
+  }
+
+  /** Look up a single pending membership row. Used by the approve/deny
+   * landing page to render the requester's handle / display name. */
+  getPendingMember(
+    syndicate_id: string,
+    user_id: string,
+  ): {
+    user_id: string;
+    role: string;
+    joined_at: number;
+    handle?: string | null;
+    display_name?: string | null;
+  } | null {
+    const row = this.db
+      .prepare(
+        `SELECT user_id, role, joined_at, handle, display_name
+           FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND user_id = ? AND status = 'pending'`,
+      )
+      .get(syndicate_id, user_id) as
+      | {
+          user_id: string;
+          role: string;
+          joined_at: number;
+          handle?: string | null;
+          display_name?: string | null;
+        }
+      | undefined;
+    return row ?? null;
+  }
+
+  /** List pending join requests for a syndicate, oldest first. The
+   * owner manage dashboard renders this as the approval queue. */
+  listPendingMembers(syndicate_id: string): Array<{
+    user_id: string;
+    handle?: string | null;
+    display_name?: string | null;
+    joined_at: number;
+  }> {
+    return this.db
+      .prepare(
+        `SELECT user_id, handle, display_name, joined_at
+           FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND status = 'pending'
+          ORDER BY joined_at ASC`,
+      )
+      .all(syndicate_id) as Array<{
+      user_id: string;
+      handle?: string | null;
+      display_name?: string | null;
+      joined_at: number;
+    }>;
   }
 
   /**

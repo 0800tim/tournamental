@@ -57,6 +57,23 @@ export const createSyndicateInputSchema = z.object({
   terms_accepted: z.literal(true, {
     errorMap: () => ({ message: "You must agree to the terms to continue." }),
   }),
+  /** Whether this pool is visible in the public pool directory. When
+   * true, anyone can join in one tap. Defaults to false (unlisted). */
+  is_public: z.boolean().default(false),
+  /** Whether new joins create a pending request the owner must
+   * approve. Ignored when is_public=true (the route enforces the
+   * invariant server-side as well). Defaults to false. */
+  requires_approval: z.boolean().default(false),
+}).superRefine((val, ctx) => {
+  if (val.is_public && val.requires_approval) {
+    // The form UI prevents this, but reject explicitly so a hand-rolled
+    // request can't sneak both flags through and confuse the join flow.
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["requires_approval"],
+      message: "Public pools can't also require approval; pick one.",
+    });
+  }
 });
 
 export type CreateSyndicateInput = z.infer<typeof createSyndicateInputSchema>;

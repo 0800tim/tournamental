@@ -96,7 +96,28 @@ export async function GET(
 ): Promise<Response> {
   const auth = await authoriseOwner(req, (params.slug ?? "").toLowerCase().trim());
   if (!auth.ok) return auth.response;
-  return jsonResponse({ ok: true, syndicate: projectOwnerRow(auth.row) }, 200);
+  // Surface pending join requests so the dashboard manage view can
+  // render an approval queue alongside the standard owner row.
+  // Tokenised approve/deny links are sent via email separately
+  // (notify-join-request.ts); this list is the in-app fallback for
+  // when the email isn't delivered or the owner prefers the
+  // dashboard (Tim 2026-05-22).
+  let pending_requests: ReturnType<
+    ReturnType<typeof getPersistence>["listPendingMembers"]
+  > = [];
+  try {
+    pending_requests = getPersistence().listPendingMembers(auth.row.id);
+  } catch {
+    /* schema not ready in this environment */
+  }
+  return jsonResponse(
+    {
+      ok: true,
+      syndicate: projectOwnerRow(auth.row),
+      pending_requests,
+    },
+    200,
+  );
 }
 
 // --- PATCH ------------------------------------------------------------------
