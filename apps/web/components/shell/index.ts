@@ -16,7 +16,6 @@ export {
   PRIMARY_DESKTOP,
   MORE_DESKTOP,
   DRAWER_PRIMARY,
-  DRAWER_WC2026,
   DRAWER_SECONDARY,
   isLinkActive,
   pickActiveLink,

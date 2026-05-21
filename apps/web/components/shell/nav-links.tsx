@@ -111,44 +111,33 @@ export const MORE_DESKTOP: readonly NavLink[] = [
 ];
 
 /**
- * Drawer "App" section — same as PRIMARY_DESKTOP but with Home + Profile
- * bookends so the mobile surface still surfaces them prominently.
+ * Drawer "App" section — every player-facing destination, in the order
+ * Tim wireframed on 2026-05-22:
+ *   Home → Predict → 3D Molecule → Leaderboard → Pools → Profile → Share & Save
+ *
+ * The Profile entry's label flips between "My Profile" and "Sign up / in"
+ * inside AppMenuDrawer based on auth status; we keep the canonical entry
+ * here so the renderer always has a stable href + icon to draw.
  */
 export const DRAWER_PRIMARY: readonly NavLink[] = [
-  { label: "Home",    href: "/",                icon: <HomeIcon />,    matchPrefix: "__never__" },
-  { label: "Predict", href: "/world-cup-2026",  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
-  { label: "Profile", href: "/profile",         icon: <ProfileIcon />, matchPrefix: "/profile" },
+  { label: "Home",             href: "/",                          icon: <HomeIcon />,     matchPrefix: "__never__" },
+  { label: "Predict (Bracket)", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
+  { label: "3D Molecule",      href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
+  { label: "Leaderboard",      href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
+  { label: "Pools",            href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "My Profile",       href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
+  { label: "Share & Save",     href: "/world-cup-2026/save-share", icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
 ];
 
 /**
- * Drawer "World Cup 2026" section — microsite cross-links. Molecule
- * restored 2026-05-22 (distinctive 3D atom-map showcase surface).
- * Watch demo stays absent for the WC 2026 push.
- */
-export const DRAWER_WC2026: readonly NavLink[] = [
-  { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
-  { label: "Molecule",              href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
-  { label: "Save & share",          href: "/world-cup-2026/save-share",                       icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
-];
-
-/**
- * Drawer "More" section — everything else. Mirrors MORE_DESKTOP minus
- * the Home item (which lives in DRAWER_PRIMARY for the drawer), plus a
- * dedicated "Engineering log" entry that points at the marketing site's
- * tournamental.com/engineering surface. The engineering log is the
- * audience we want AI agents and human engineers to land on when they
- * tap the drawer's "More" section, so it sits above the catch-all
- * "Open source" GitHub link.
+ * Drawer "Tournamental" section — about/external links only. Everything
+ * player-facing was promoted to DRAWER_PRIMARY in Tim's 2026-05-22 re-IA.
  */
 export const DRAWER_SECONDARY: readonly NavLink[] = [
-  { label: "Leaderboard",   href: "/leaderboard",     icon: <TrophyIcon />,  matchPrefix: "/leaderboard" },
-  { label: "Pools",         href: "/syndicates",      icon: <GroupsIcon />,  matchPrefix: "/syndicates" },
-  { label: "Create a pool", href: "/syndicates/new",  icon: <GroupsIcon />,  matchPrefix: "/syndicates/new", subItem: true },
   { label: "About Tournamental", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
   { label: "How it works",       href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
   { label: "Engineering log",    href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
   { label: "Open source",        href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
-  // Settings removed (Tim 2026-05-22): the route was a stub.
 ];
 
 /**

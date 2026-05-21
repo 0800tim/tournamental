@@ -22,12 +22,13 @@
  */
 
 import Link from "next/link";
-import { useCallback, useEffect, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, type ReactNode } from "react";
+
+import { useUser } from "@/lib/auth/useUser";
 
 import { InstallPrompt } from "./InstallPrompt";
 import {
   DRAWER_PRIMARY,
-  DRAWER_WC2026,
   DRAWER_SECONDARY,
   type NavLink as DrawerLink,
 } from "./nav-links";
@@ -38,6 +39,21 @@ export interface AppMenuDrawerProps {
 }
 
 export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
+  // Auth-aware Profile label — Tim 2026-05-22. The /profile route handles
+  // its own auth wall, so the href stays constant either way; only the
+  // visible label flips.
+  const { status } = useUser();
+  const isAuthed = status === "authenticated";
+  const primaryLinks = useMemo<readonly DrawerLink[]>(
+    () =>
+      DRAWER_PRIMARY.map((l) =>
+        l.href === "/profile"
+          ? { ...l, label: isAuthed ? "My Profile" : "Sign up / in" }
+          : l,
+      ),
+    [isAuthed],
+  );
+
   const handleEsc = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -102,11 +118,9 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
          * last 30 days, so a returning installed visitor doesn't see
          * a now-pointless prompt. */}
         <InstallPrompt />
-        <div className="vt-drawer-section-label">App</div>
-        <DrawerLinks links={DRAWER_PRIMARY} onClick={onClose} />
-        <div className="vt-drawer-section-label">World Cup 2026</div>
-        <DrawerLinks links={DRAWER_WC2026} onClick={onClose} />
-        <div className="vt-drawer-section-label">More</div>
+        <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;</div>
+        <DrawerLinks links={primaryLinks} onClick={onClose} />
+        <div className="vt-drawer-section-label">Tournamental</div>
         <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
       </aside>
     </div>
