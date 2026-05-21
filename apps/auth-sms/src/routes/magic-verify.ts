@@ -130,8 +130,20 @@ function uaFingerprint(req: FastifyRequest): string {
 /**
  * Build the Set-Cookie value for the inbound-flow session cookie.
  * Apex-domain so it's sent on both tournamental.com (marketing) and
- * play.tournamental.com (web app). HttpOnly + Secure + SameSite=Lax
- * is the standard hardening posture.
+ * play.tournamental.com (web app).
+ *
+ * SameSite=None;Secure (was Lax until 2026-05-22): the embed widget on
+ * partner sites (e.g. netpotential.co.nz/about-us/careers) calls
+ * play.tournamental.com/api/v1/* cross-site, and SameSite=Lax blocks
+ * the cookie on those fetches. None+Secure allows the cookie cross-site
+ * while still requiring HTTPS. CSRF risk stays bounded because every
+ * mutating endpoint requires an Origin/Referer check or an explicit
+ * action token, and the embed widget itself only uses GET probes.
+ *
+ * Safari ITP / Firefox ETP will still block this as a "third-party"
+ * cookie by default -- the long-term fix is the postMessage bearer
+ * token bridge (see /api/v1/auth/issue-widget-token, in progress).
+ * SameSite=None unblocks the Chrome majority while that lands.
  */
 export function buildSessionCookie(opts: {
   jwt: string;
@@ -144,7 +156,7 @@ export function buildSessionCookie(opts: {
     'Path=/',
     'HttpOnly',
     'Secure',
-    'SameSite=Lax',
+    'SameSite=None',
     `Max-Age=${opts.ttlSeconds}`,
   ];
   return parts.join('; ');
