@@ -63,7 +63,7 @@ export default function HomePage(): JSX.Element {
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
                   Set my picks →
                 </Link>
-                <Link href="/syndicates/new" className="vt-home-btn vt-home-btn-light">
+                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
                   Run a pool
                 </Link>
               </div>

@@ -152,6 +152,36 @@
   background: #2ee07a;
 }
 
+/* Wraps the WhatsApp button + a small cross-device hint underneath.
+ * Tim 2026-05-22: surfaces the inbound-login "text login to..." path
+ * so users without WhatsApp on this device still have a one-step
+ * route into the app. */
+.vt-signin-whatsapp-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vt-signin-whatsapp-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--vt-fg-muted, #a3a3ad);
+  text-align: center;
+}
+.vt-signin-whatsapp-hint strong {
+  color: var(--vt-fg, #f4f4f5);
+  font-weight: 700;
+}
+.vt-signin-whatsapp-hint a {
+  color: var(--vt-gold-300, #fcd34d);
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.vt-signin-whatsapp-hint a:hover {
+  text-decoration: underline;
+}
+
 /* ---- Code paste section ---- */
 
 .vt-signin-codeblock {
