@@ -677,6 +677,17 @@ export function ShareSavePage({
         )}
       </section>
 
+      {/* Bird's-eye view share — the "whole tournament planner" card.
+        * Renders all 12 groups + the user's gold-path + champion crown in
+        * a single PNG that's ideal for status / Stories. Wired here so a
+        * power user can grab the brag card alongside the podium variant
+        * (Tim 2026-05-22, doc 36 §F item 11). */}
+      <BirdseyeShare
+        bracketId={guid}
+        handle={handle ?? auth.profile?.handle ?? auth.profile?.display_name ?? null}
+      />
+
+
       {/* Platform buttons row (always visible) */}
       <section className="vt-ss-platforms" aria-label="Share to a platform">
         <PlatformButton
@@ -804,6 +815,225 @@ function FacebookIcon(): JSX.Element {
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M22 12.07C22 6.51 17.52 2 12 2S2 6.51 2 12.07C2 17.1 5.66 21.26 10.44 22v-7.02H7.9v-2.91h2.54V9.85c0-2.51 1.49-3.9 3.78-3.9 1.1 0 2.24.2 2.24.2v2.47h-1.26c-1.24 0-1.63.77-1.63 1.57v1.88h2.77l-.44 2.91h-2.33V22C18.34 21.26 22 17.1 22 12.07Z" />
     </svg>
+  );
+}
+
+/**
+ * Bird's-eye share card surface. Two affordances:
+ *   1. Native share with a generated File on browsers that support it
+ *      (Android Chrome / iOS Safari 15+). The user picks the channel.
+ *   2. Open the PNG in a new tab as a fallback so the user can
+ *      long-press / right-click → save.
+ *
+ * The card itself is rendered server-side at /api/og/bracket-birdseye
+ * with the user's share guid; the route resolves their predicted
+ * champion + gold-path from the game service.
+ */
+function BirdseyeShare({
+  bracketId,
+  handle,
+}: {
+  bracketId: string | null;
+  handle: string | null;
+}): JSX.Element {
+  const [busy, setBusy] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
+
+  const buildUrl = (size: "portrait" | "landscape" | "square"): string => {
+    const u = new URLSearchParams();
+    if (bracketId) u.set("bracket_id", bracketId);
+    if (handle) u.set("handle", handle);
+    u.set("size", size);
+    return `/api/og/bracket-birdseye?${u.toString()}`;
+  };
+  const previewUrl = buildUrl("portrait");
+
+  const onShare = async (): Promise<void> => {
+    setBusy(true);
+    try {
+      const w = window as Window & { dataLayer?: Array<Record<string, unknown>> };
+      if (!Array.isArray(w.dataLayer)) w.dataLayer = [];
+      w.dataLayer.push({
+        event: "share_clicked",
+        platform: "birdseye",
+        surface: "save-share",
+      });
+      const nav = navigator as Navigator & {
+        share?: (d: ShareData) => Promise<void>;
+        canShare?: (d: ShareData) => boolean;
+      };
+      const portraitUrl = buildUrl("portrait");
+      const text = "My World Cup 2026 bracket — all 48 teams, full predictions.";
+      const shareLanding = bracketId
+        ? `https://play.tournamental.com/world-cup-2026/share/${encodeURIComponent(bracketId)}`
+        : "https://play.tournamental.com/world-cup-2026/save-share";
+
+      if (typeof nav.share === "function") {
+        try {
+          // Try file-share first (best UX on Android / iOS).
+          const res = await fetch(portraitUrl, { credentials: "include" });
+          if (res.ok && typeof nav.canShare === "function") {
+            const blob = await res.blob();
+            const file = new File([blob], "birdseye-bracket.png", {
+              type: blob.type || "image/png",
+            });
+            const data: ShareData = { title: "My World Cup 2026 bracket", text, url: shareLanding, files: [file] };
+            if (nav.canShare(data)) {
+              await nav.share(data);
+              return;
+            }
+          }
+        } catch {
+          /* fall through to text+url share */
+        }
+        await nav.share({ title: "My World Cup 2026 bracket", text, url: shareLanding });
+        return;
+      }
+      // No native share: open the image in a new tab so the user can save it.
+      window.open(portraitUrl, "_blank", "noopener");
+      setDownloaded(true);
+      window.setTimeout(() => setDownloaded(false), 2500);
+    } catch {
+      /* user cancelled or share failed; non-fatal */
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="vt-ss-birdseye" aria-label="Bird's-eye bracket share">
+      <div className="vt-ss-birdseye-head">
+        <p className="vt-ss-birdseye-eyebrow">Bonus brag-card</p>
+        <h3 className="vt-ss-birdseye-title">Share the whole tournament</h3>
+        <p className="vt-ss-birdseye-sub">
+          All 12 groups + your knockout picks + champion crown in one card.
+          Perfect for WhatsApp status, Instagram Story, or a group chat.
+        </p>
+      </div>
+      <a
+        className="vt-ss-birdseye-preview"
+        href={previewUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Open bird's-eye bracket image"
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={previewUrl} alt="Bird's-eye bracket preview" loading="lazy" />
+      </a>
+      <div className="vt-ss-birdseye-actions">
+        <button
+          type="button"
+          className="vt-ss-birdseye-cta"
+          onClick={() => {
+            void onShare();
+          }}
+          disabled={busy}
+        >
+          {busy ? "Preparing…" : downloaded ? "Opened ↗" : "Share bird's-eye"}
+        </button>
+        <a
+          className="vt-ss-birdseye-link"
+          href={buildUrl("landscape")}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Landscape ↗
+        </a>
+        <a
+          className="vt-ss-birdseye-link"
+          href={buildUrl("square")}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Square ↗
+        </a>
+      </div>
+      <style jsx>{`
+        .vt-ss-birdseye {
+          margin-top: 18px;
+          padding: 20px;
+          background: linear-gradient(180deg, rgba(252, 211, 77, 0.06), rgba(20, 20, 24, 0.6));
+          border: 1px solid rgba(220, 169, 75, 0.22);
+          border-radius: 14px;
+        }
+        .vt-ss-birdseye-eyebrow {
+          margin: 0 0 4px;
+          font-family: "JetBrains Mono", ui-monospace, monospace;
+          font-size: 11px;
+          letter-spacing: 0.18em;
+          text-transform: uppercase;
+          color: var(--vt-gold-400, #dca94b);
+        }
+        .vt-ss-birdseye-title {
+          margin: 0 0 6px;
+          font-family: var(--vt-display, "Fraunces", Georgia, serif);
+          font-size: 22px;
+          font-weight: 500;
+          color: var(--vt-fg, #f4f4f5);
+        }
+        .vt-ss-birdseye-sub {
+          margin: 0 0 14px;
+          color: var(--vt-fg-muted, #a3a3ad);
+          font-size: 13px;
+          line-height: 1.5;
+        }
+        .vt-ss-birdseye-preview {
+          display: block;
+          border-radius: 10px;
+          overflow: hidden;
+          background: #0c0c10;
+          border: 1px solid rgba(220, 169, 75, 0.16);
+          margin-bottom: 14px;
+          max-width: 260px;
+          aspect-ratio: 1080 / 1920;
+        }
+        .vt-ss-birdseye-preview img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .vt-ss-birdseye-actions {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 10px;
+        }
+        .vt-ss-birdseye-cta {
+          appearance: none;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 12px 18px;
+          border-radius: 999px;
+          border: 0;
+          background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+          color: #15151a;
+          font-weight: 800;
+          font-size: 14px;
+          letter-spacing: 0.01em;
+          cursor: pointer;
+          box-shadow: 0 8px 22px -8px rgba(220, 169, 75, 0.55);
+        }
+        .vt-ss-birdseye-cta:hover:not(:disabled) {
+          background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+        }
+        .vt-ss-birdseye-cta:disabled {
+          opacity: 0.6;
+          cursor: progress;
+        }
+        .vt-ss-birdseye-link {
+          color: var(--vt-fg-muted, #a3a3ad);
+          font-size: 13px;
+          text-decoration: none;
+          padding: 6px 10px;
+          border-radius: 6px;
+        }
+        .vt-ss-birdseye-link:hover {
+          color: var(--vt-gold-300, #fcd34d);
+        }
+      `}</style>
+    </section>
   );
 }
 

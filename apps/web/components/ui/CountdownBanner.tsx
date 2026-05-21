@@ -72,19 +72,27 @@ export function CountdownBanner({
         <h2 className="vt-countdown-title">{title}</h2>
       </div>
       <div className="vt-countdown-grid">
-        <Cell value={parts.days} label="Days" />
-        <Cell value={parts.hours} label="Hrs" />
-        <Cell value={parts.minutes} label="Min" />
-        <Cell value={parts.seconds} label="Sec" />
+        <Cell value={parts.days} label="Days" dataKey="day" />
+        <Cell value={parts.hours} label="Hrs" dataKey="hr" />
+        <Cell value={parts.minutes} label="Min" dataKey="min" />
+        <Cell value={parts.seconds} label="Sec" dataKey="sec" />
       </div>
     </section>
   );
 }
 
-function Cell({ value, label }: { value: number; label: string }) {
+function Cell({
+  value,
+  label,
+  dataKey,
+}: {
+  value: number;
+  label: string;
+  dataKey: string;
+}) {
   const padded = String(Math.max(0, value)).padStart(2, "0");
   return (
-    <div className="vt-countdown-cell">
+    <div className="vt-countdown-cell" data-key={dataKey}>
       <span className="vt-countdown-num">{padded}</span>
       <span className="vt-countdown-label">{label}</span>
     </div>

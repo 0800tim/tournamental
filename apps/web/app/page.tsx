@@ -110,7 +110,7 @@ export default function HomePage(): JSX.Element {
           <CountdownBanner
             targetUtc={WC_2026_KICKOFF_UTC}
             eyebrow="Kickoff"
-            title="Mexico vs the world, 11 June 2026"
+            title="Mexico vs South Africa, 11 June 2026"
           />
         </section>
 
