@@ -91,28 +91,26 @@
   box-shadow: 0 0 0 1px rgba(250, 204, 21, 0.2);
 }
 
-.bracket-group-head-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0 0 8px;
-}
-
 .bracket-group-head {
-  flex: 1 1 auto;
+  /* Full-width tap target so the chevron / progress chip / empty space
+   * between the flags all expand the group on tap. Without width:100%
+   * the button shrank to fit its content and only the flag row was
+   * clickable (Tim 2026-05-21). */
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  gap: 4px;
-  margin: 0;
+  gap: 10px;
+  margin: 0 0 6px;
   padding: 0;
   background: transparent;
   border: 0;
   color: inherit;
   text-align: left;
   cursor: pointer;
-  /* Desktop default treats the row as a static label, not a toggle. The
-   * mobile media query below restyles it as a tappable accordion bar. */
+  /* min-height keeps the empty area between rows tappable even on the
+   * narrowest phones. */
+  min-height: 56px;
 }
 
 /* Row 1 of the head: group title + progress chip + chevron, all on one
@@ -140,32 +138,36 @@
   min-width: 0;
 }
 
-/* Per-group ⚡ Auto-pick. Fills only this group's 6 matches. Visible
- * inline next to the group label on desktop; on mobile it's hidden
- * while the group is collapsed and revealed alongside the matches
- * when the user expands the accordion. */
+/* Per-group ⚡ Auto-pick — small lozenge on its own row beneath the
+ * flag chips. Tim 2026-05-21: inline with the head was forcing the
+ * fourth flag onto a second line and the user wanted a confirmation
+ * before it overwrites picks. Mobile keeps it hidden while collapsed. */
+.bracket-group-autopick-row {
+  display: flex;
+  justify-content: flex-end;
+  margin: 0 0 8px;
+}
+
 .bracket-group-autopick {
-  flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  height: 28px;
-  padding: 0 10px;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
   background: transparent;
   color: var(--vt-gold-400, #dca94b);
-  border: 1px solid rgba(220, 169, 75, 0.4);
+  border: 1px solid rgba(220, 169, 75, 0.45);
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
   cursor: pointer;
-  transition: background 120ms ease, border-color 120ms ease;
+  transition: background 120ms ease, border-color 120ms ease,
+    transform 120ms ease;
 }
 
 .bracket-group-autopick:hover {
-  background: rgba(220, 169, 75, 0.12);
+  background: rgba(220, 169, 75, 0.14);
   border-color: var(--vt-gold-400, #dca94b);
+  transform: translateY(-1px);
 }
 
 .bracket-group-autopick:focus-visible {
@@ -174,7 +176,7 @@
 }
 
 .bracket-group-autopick-icon {
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1;
 }
 
@@ -187,31 +189,89 @@
   font-family: var(--vt-font-sans, system-ui, sans-serif);
   font-weight: 600;
   font-variant-caps: normal;
-  letter-spacing: 0.02em;
-  font-size: 12px;
-  color: #cdd5e7;
+  letter-spacing: 0.01em;
+  /* Viewport-derived sizing keeps four chips on one row across phones
+   * AND ignores the system-level font-size scaling Tim ships with on
+   * his device (vw units don't get scaled by Android's font multiplier
+   * the way px/rem do). Caps at 13px so the chip doesn't balloon on
+   * tablets. (Tim 2026-05-21) */
+  font-size: clamp(10px, 3vw, 13px);
+  color: #e6e6ea;
   display: none;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 12px;
-}
-
-.bracket-group-head-team {
-  display: inline-flex;
+  flex-wrap: nowrap;
   align-items: center;
   gap: 4px;
+  width: 100%;
+}
+
+/* All four chips share identical geometry AND flex equally so the four
+ * codes always land on a single row. `min-width: 0` lets the inner
+ * code text shrink if the user has aggressive font-scaling enabled. */
+.bracket-group-head-team {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 2px 6px 2px 2px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  overflow: hidden;
+  transition: opacity 120ms ease, filter 120ms ease, color 120ms ease;
+}
+
+/* Advance halo — pure border + soft outer glow, no inset shadow, so
+ * the chip's outer box stays the same shape and size as the
+ * non-advance siblings. */
+.bracket-group-head-team[data-advance="1"] {
+  border-color: var(--vt-gold-400, #dca94b);
+  background: rgba(220, 169, 75, 0.10);
+  box-shadow: 0 0 10px rgba(220, 169, 75, 0.22);
+  color: #fbe89c;
+}
+
+.bracket-group-head-team[data-advance="2"] {
+  border-color: #c8ccd6;
+  background: rgba(200, 204, 214, 0.06);
+  box-shadow: 0 0 10px rgba(200, 204, 214, 0.18);
+  color: #eef0f6;
+}
+
+/* When the group is fully predicted + ties resolved, the chips that
+ * didn't advance dim out so the eye lands on the two qualifiers — but
+ * stay readable enough that the user can still see who finished 3rd /
+ * 4th at a glance (Tim 2026-05-21 follow-up: the previous 0.55 was too
+ * far gone). */
+.bracket-group-head-teams[data-complete="true"] .bracket-group-head-team:not([data-advance]) {
+  opacity: 0.78;
+  filter: grayscale(0.18);
 }
 
 .bracket-group-head-flag {
-  width: 16px;
-  height: 11px;
-  border-radius: 1px;
+  width: clamp(20px, 5.4vw, 26px);
+  height: clamp(14px, 3.7vw, 18px);
+  border-radius: 2px;
   object-fit: cover;
   box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .bracket-group-head-team-code {
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.bracket-group-head-team[data-advance="1"] .bracket-group-head-flag {
+  box-shadow: 0 0 0 2px var(--vt-gold-400, #dca94b);
+}
+
+.bracket-group-head-team[data-advance="2"] .bracket-group-head-flag {
+  box-shadow: 0 0 0 2px #c8ccd6;
 }
 
 .bracket-group-head-chevron {
@@ -226,11 +286,20 @@
  * by default, show the teams preview + chevron in the bar. */
 @media (max-width: 768px) {
   .bracket-group-head {
-    padding: 10px 4px;
+    /* Symmetric padding around the title + teams stack; the card's own
+     * 12px shrinks to 6px when collapsed (rule below) so the bottom of
+     * the card hugs the flag row instead of leaving 70-80px of empty
+     * space (Tim screenshot 2026-05-21). */
+    padding: 6px 4px;
   }
 
   .bracket-group-head-row {
     margin-bottom: 0;
+  }
+
+  .bracket-group[data-collapsed="true"] {
+    /* Tighter card padding when nothing is expanded below. */
+    padding: 10px 12px;
   }
 
   .bracket-group[data-collapsed="true"] .bracket-group-body {
@@ -250,16 +319,6 @@
 
   .bracket-group-head-chevron {
     display: inline-block;
-  }
-
-  .bracket-group-autopick-label {
-    display: none;
-  }
-
-  .bracket-group-autopick {
-    width: 32px;
-    padding: 0;
-    justify-content: center;
   }
 }
 
@@ -769,6 +828,66 @@
   }
 }
 
+/* ---- Bottom-of-stage "Next round" CTA ----------------------------
+ * Sits below the last card in each stage panel (groups, R32, R16, QF,
+ * SF). The Final panel has its own SaveBracketPanel above instead.
+ * Renders on every viewport — on desktop it's a centred pill with
+ * generous breathing room so it reads as the stage's terminator; on
+ * mobile it spans the full width of the panel. */
+.bracket-next-stage-row {
+  display: flex;
+  justify-content: center;
+  padding: 28px 0 16px;
+  margin-top: 8px;
+  border-top: 1px solid rgba(220, 169, 75, 0.12);
+}
+
+.bracket-next-stage-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 32px;
+  min-height: 52px;
+  min-width: 240px;
+  background: linear-gradient(135deg, var(--vt-gold-400, #dca94b), var(--vt-gold-300, #d49d39));
+  color: #15151a;
+  border: 0;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px rgba(220, 169, 75, 0.55);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.bracket-next-stage-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 28px -10px rgba(220, 169, 75, 0.7);
+}
+
+.bracket-next-stage-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 169, 75, 0.55),
+    0 10px 24px -8px rgba(220, 169, 75, 0.55);
+}
+
+.bracket-next-stage-arrow {
+  font-size: 18px;
+  line-height: 1;
+}
+
+@media (max-width: 640px) {
+  .bracket-next-stage-row {
+    padding: 16px 16px 12px;
+  }
+  .bracket-next-stage-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ---- Match prediction row ---- */
 .bracket-group-progress {
   font-size: 11px;
@@ -867,18 +986,18 @@
   outline-offset: 2px;
 }
 
-/* Sibling dim once a pick exists in the row, the unpicked side fades to
- * 0.45 opacity + 0.6 saturation so the user's call reads as the
- * unmistakable centre of attention. Hover briefly un-dims so a user
- * who wants to change their pick still has visual feedback. */
+/* Sibling dim once a pick exists in the row. Per Tim 2026-05-21 the
+ * previous 0.45 was too aggressive — flags were unreadable, especially
+ * on dark backgrounds. Bumped to 0.7 opacity + 0.8 saturation so the
+ * losing side is clearly secondary but still legible. */
 .mpr-pick.is-dim {
-  opacity: 0.45;
-  filter: saturate(0.6);
+  opacity: 0.7;
+  filter: saturate(0.8);
 }
 .mpr-pick.is-dim:hover,
 .mpr-pick.is-dim:focus-within {
-  opacity: 0.85;
-  filter: saturate(0.95);
+  opacity: 0.95;
+  filter: saturate(1);
 }
 
 .mpr-pick.is-selected {
@@ -924,12 +1043,24 @@
   font-weight: 700;
   font-size: 11px;
   letter-spacing: 0.08em;
-  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+  transition: background 160ms ease, border-color 160ms ease,
+    color 160ms ease, box-shadow 160ms ease;
 }
+/* Selected-draw pill matches the gold language of the home/away rings,
+ * so the pick reads as definitively chosen at a glance (Tim 2026-05-21
+ * — the white-pill-on-charcoal was easy to miss). */
 .mpr-pick-draw.is-selected .mpr-pick-draw-pill {
-  background: #cbd5e1;
-  border-color: #cbd5e1;
-  color: #1c1c22;
+  background: linear-gradient(
+    135deg,
+    var(--vt-gold-400, #dca94b),
+    var(--vt-gold-300, #d49d39)
+  );
+  border-color: var(--vt-gold-400, #dca94b);
+  color: #15151a;
+  box-shadow:
+    0 0 0 1px rgba(220, 169, 75, 0.55),
+    0 6px 16px rgba(220, 169, 75, 0.35),
+    0 0 28px rgba(220, 169, 75, 0.4);
 }
 
 .mpr-pick-pct {
@@ -1224,13 +1355,66 @@
 
 .bracket-tiebreaker-row {
   display: grid;
-  grid-template-columns: 18px 36px 1fr auto;
+  grid-template-columns: 14px 18px 36px 1fr auto;
   gap: 6px;
   align-items: center;
-  padding: 4px 6px;
+  padding: 6px 8px;
   background: #1c1c22;
-  border-radius: 4px;
-  font-size: 11px;
+  border-radius: 6px;
+  font-size: 12px;
+  cursor: grab;
+  user-select: none;
+  border: 1px solid transparent;
+  transition: background 100ms ease, border-color 100ms ease,
+    transform 100ms ease;
+}
+
+.bracket-tiebreaker-row:active {
+  cursor: grabbing;
+}
+
+.bracket-tiebreaker-row[data-dragging="true"] {
+  opacity: 0.5;
+  transform: scale(0.99);
+}
+
+.bracket-tiebreaker-row[data-drop-target="true"] {
+  border-color: var(--vt-gold-400, #dca94b);
+  background: rgba(220, 169, 75, 0.14);
+}
+
+.bracket-tiebreaker-grip {
+  color: #6c6c78;
+  font-size: 14px;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+
+.bracket-tiebreaker-row .bracket-controls {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.bracket-tiebreaker-row .bracket-controls button {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #3a3a44;
+  background: #25252c;
+  color: #cdd5e7;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.bracket-tiebreaker-row .bracket-controls button:hover:not(:disabled) {
+  background: #3a3a44;
+  border-color: #52525c;
+}
+
+.bracket-tiebreaker-row .bracket-controls button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* ---- Knockouts ---- */
@@ -2079,6 +2263,165 @@
   flex-direction: column;
   gap: 16px;
   min-width: 0;
+}
+
+/* ---- Prominent Save & Share panel under the Final card ---------------
+ * Sits inside .bracket-final-layout but always spans full width so on
+ * desktop it tucks under both the match card and the sidecol cleanly,
+ * and on mobile it sits between the match and the sidecol. Tim
+ * 2026-05-21 — needs to read as the unmistakable "lock it in and
+ * share" beat the moment all 104 picks are made. */
+.bracket-save-panel {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 18px;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #1c1c22 0%, #15151a 100%);
+  border: 1px solid #3a3a44;
+  box-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.6);
+}
+
+.bracket-save-panel[data-state="incomplete"] {
+  padding: 14px 18px;
+  border-style: dashed;
+  background: transparent;
+  box-shadow: none;
+}
+
+.bracket-save-panel[data-state="ready"] {
+  border-color: rgba(220, 169, 75, 0.45);
+  background: linear-gradient(
+    180deg,
+    rgba(220, 169, 75, 0.06) 0%,
+    #1c1c22 60%
+  );
+}
+
+.bracket-save-panel[data-state="saved"] {
+  border-color: rgba(110, 198, 134, 0.5);
+  background: linear-gradient(
+    180deg,
+    rgba(110, 198, 134, 0.07) 0%,
+    #1c1c22 60%
+  );
+}
+
+.bracket-save-panel-hint {
+  margin: 0;
+  font-size: 14px;
+  color: #a3a3ad;
+  text-align: center;
+}
+
+.bracket-save-panel-hint strong {
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.bracket-save-panel-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e6e6ea;
+}
+
+.bracket-save-panel-tick {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.bracket-save-panel[data-state="saved"] .bracket-save-panel-tick {
+  color: #6ec686;
+}
+
+.bracket-save-panel-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 22px;
+  background: linear-gradient(
+    135deg,
+    var(--vt-gold-400, #dca94b),
+    var(--vt-gold-300, #d49d39)
+  );
+  color: #15151a;
+  border: 0;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px rgba(220, 169, 75, 0.55);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+
+.bracket-save-panel-cta-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px -12px rgba(220, 169, 75, 0.7);
+}
+
+.bracket-save-panel-cta-primary:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(220, 169, 75, 0.5),
+    0 12px 28px -10px rgba(220, 169, 75, 0.55);
+}
+
+.bracket-save-panel-cta-primary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.bracket-save-panel-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.bracket-save-panel-actions .bracket-save-panel-cta-primary {
+  flex: 1 1 220px;
+}
+
+.bracket-save-panel-cta-secondary {
+  flex: 1 1 220px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 12px 22px;
+  background: transparent;
+  color: #e6e6ea;
+  border: 1px solid #52525c;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+
+.bracket-save-panel-cta-secondary:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: #6c6c78;
+}
+
+.bracket-save-panel-foot {
+  margin: 0;
+  font-size: 12px;
+  color: #a3a3ad;
+  text-align: center;
+}
+
+.bracket-save-panel-status {
+  margin: 0;
+  font-size: 12px;
+  color: #cdd5e7;
+  text-align: center;
 }
 
 .bracket-final-leaderboard {

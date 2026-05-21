@@ -64,6 +64,15 @@ import { loadServerBracket, saveFullBracket, savePerMatchPick } from "@/lib/brac
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
+import { SignupModal } from "@/components/auth/SignupModal";
+import { shareContent } from "@/lib/native";
+import {
+  buildShareText,
+  buildShareTitle,
+  resolveShareGuid,
+  shareUrlFor,
+} from "@/lib/share/share-text";
+import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
 import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
@@ -160,7 +169,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [tab, setTabState] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
+  const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
   const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
+  // SignupModal trigger + "save once the user signs in" handoff. Tim
+  // 2026-05-21: when an anonymous player finishes their 104 picks and
+  // taps "Save my bracket", we open the signup modal first; on success
+  // we run handleSubmit so localStorage picks get merged + saved
+  // server-side in one motion.
+  const [showSignupModal, setShowSignupModal] = useState<boolean>(false);
+  const [pendingSaveAfterAuth, setPendingSaveAfterAuth] = useState<boolean>(false);
   const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
     () => new Map(),
   );
@@ -831,6 +848,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
           ? baseMsg
           : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped, match already started)`,
       );
+      setLastSaveOk(true);
       update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
@@ -842,6 +860,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
     } else if (res.status === "saved_offline") {
       setSubmitState("Saved offline, we'll retry when you're back online.");
+      setLastSaveOk(true);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
         result: "saved_offline",
@@ -849,6 +868,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
     } else {
       setSubmitState(`Save failed: ${res.error ?? "unknown"}, draft saved locally.`);
+      setLastSaveOk(false);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
         result: "error",
@@ -856,6 +876,22 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
     }
   };
+
+  // After an anonymous user kicks off signup from the Save panel, this
+  // effect catches the moment auth flips authenticated and runs the
+  // pending submit. The localStorage → server merge already runs in the
+  // auth-state useEffect (line ~338); this just chains the save on top
+  // so the user lands on the "Saved ✓" state in one motion.
+  useEffect(() => {
+    if (!pendingSaveAfterAuth) return;
+    if (auth.loading) return;
+    if (auth.status !== "authenticated") return;
+    setPendingSaveAfterAuth(false);
+    void handleSubmit();
+    // handleSubmit closes over current bracket — deps below are
+    // intentionally minimal to avoid re-firing on every bracket pick.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingSaveAfterAuth, auth.loading, auth.status]);
 
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
@@ -1125,6 +1161,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                     />
                   ))}
                 </div>
+                <NextStageButton currentTab="groups" setTab={setTab} />
               </section>
             );
           }
@@ -1156,6 +1193,20 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       {renderKnockoutGrid("final")}
                     </div>
                   </div>
+                  <SaveBracketPanel
+                    totalCompleted={totalCompleted}
+                    totalPicks={totalPicks}
+                    authStatus={auth.status}
+                    authLoading={auth.loading}
+                    bracketId={bracket.bracketId ?? null}
+                    saveOk={lastSaveOk}
+                    submitState={submitState}
+                    onSave={handleSubmit}
+                    onRequestSignup={() => {
+                      setPendingSaveAfterAuth(true);
+                      setShowSignupModal(true);
+                    }}
+                  />
                   <div className="bracket-final-sidecol">
                     <LockSummary
                       bracket={bracket}
@@ -1246,6 +1297,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                   {renderKnockoutGrid(panelId)}
                 </div>
               </div>
+              <NextStageButton currentTab={panelId} setTab={setTab} />
             </section>
           );
         })}
@@ -1309,6 +1361,234 @@ export function BracketBuilder(props: BracketBuilderProps) {
           </div>
         </div>
       )}
+
+      <SignupModal
+        open={showSignupModal}
+        onClose={() => {
+          setShowSignupModal(false);
+          // If the user dismissed without authenticating, drop the
+          // pending-save flag so we don't fire on a future unrelated
+          // sign-in event from elsewhere in the app.
+          if (auth.status !== "authenticated") setPendingSaveAfterAuth(false);
+        }}
+      />
+    </div>
+  );
+}
+
+/**
+ * Bottom-of-stage CTA that advances the active tab to the next round in
+ * the bracket flow. Per Tim 2026-05-21: after finishing all groups the
+ * user should hit a clearly-labelled "Round of 32 →" button rather than
+ * needing to find the tab strip again. Renders nothing once the final
+ * panel is in view (Save bracket lives there).
+ */
+function NextStageButton({
+  currentTab,
+  setTab,
+}: {
+  currentTab: TabId;
+  setTab: (id: TabId) => void;
+}) {
+  const next = NEXT_STAGE[currentTab];
+  if (!next) return null;
+  const meta = TABS.find((t) => t.id === next);
+  // `aria` is the full human label ("Round of 32", "Quarter-finals" etc).
+  const label = meta?.aria ?? meta?.label ?? "Next";
+  return (
+    <div className="bracket-next-stage-row">
+      <button
+        type="button"
+        className="bracket-next-stage-btn"
+        onClick={() => {
+          setTab(next);
+          if (typeof window === "undefined") return;
+          // Mobile uses a horizontal scroll-snap carousel for the six
+          // stage panels. setTab() handles the horizontal scroll. The
+          // page's *vertical* scroll position carries over from the
+          // previous stage, so without resetting it the user lands in
+          // a blank gap below the shorter R16/R32/etc column (Tim
+          // 2026-05-21).
+          //
+          // We scroll the page so the carousel's top lines up with the
+          // bottom of the sticky chrome (appbar + tab strip). The
+          // sticky tabs follow the scroll, so visually the user lands
+          // on the first match of the new stage with the tab strip
+          // pinned right above it.
+          const stages = document.querySelector<HTMLElement>(
+            ".bracket-stages",
+          );
+          if (!stages) {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+            return;
+          }
+          const stickyOffset = 110; // appbar 56 + tab strip ~50 + 4
+          const absoluteTop =
+            stages.getBoundingClientRect().top + window.scrollY;
+          window.scrollTo({
+            top: Math.max(0, absoluteTop - stickyOffset),
+            behavior: "smooth",
+          });
+        }}
+        aria-label={`Continue to ${label}`}
+      >
+        <span className="bracket-next-stage-label">Next: {label}</span>
+        <span className="bracket-next-stage-arrow" aria-hidden="true">→</span>
+      </button>
+    </div>
+  );
+}
+
+const NEXT_STAGE: Readonly<Record<TabId, TabId | null>> = {
+  groups: "r32",
+  r32: "r16",
+  r16: "qf",
+  qf: "sf",
+  sf: "final",
+  final: null,
+};
+
+/**
+ * Prominent state-aware Save & Share panel that sits directly under the
+ * final match card. Tim 2026-05-21 — the existing Save bracket button
+ * was buried below LockSummary + leaderboard; viral-loop conversion
+ * needs the save → sign-in → share path to read as one unmistakable
+ * flow the moment the user finishes their 104th pick.
+ *
+ * State machine:
+ *   - incomplete         → "X more picks to lock in" (non-CTA hint)
+ *   - complete + anon    → gold "Save my bracket" + auth pitch; click
+ *                          opens the SignupModal and chains the save
+ *                          via the pendingSaveAfterAuth effect.
+ *   - complete + authed
+ *     - not yet saved    → gold "Save my bracket"
+ *     - saved            → "Bracket saved ✓" + native-share CTA +
+ *                          link to profile photo upload
+ */
+function SaveBracketPanel({
+  totalCompleted,
+  totalPicks,
+  authStatus,
+  authLoading,
+  bracketId,
+  saveOk,
+  submitState,
+  onSave,
+  onRequestSignup,
+}: {
+  totalCompleted: number;
+  totalPicks: number;
+  authStatus: string;
+  authLoading: boolean;
+  bracketId: string | null;
+  saveOk: boolean;
+  submitState: string;
+  onSave: () => void;
+  onRequestSignup: () => void;
+}) {
+  const complete = totalCompleted >= totalPicks;
+  const remaining = Math.max(0, totalPicks - totalCompleted);
+  const isAuthed = !authLoading && authStatus === "authenticated";
+  const saved = saveOk && !!bracketId;
+
+  // Share URL: prefer the persisted server-side share guid (set on
+  // save), fall back to the synthetic guid from bracketId.
+  const [shareGuid, setShareGuid] = useState<string | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!saved) return;
+    // tournament.id is captured by the BracketBuilder closure — we use
+    // the well-known WC2026 key here because this panel only mounts on
+    // /world-cup-2026. Future tournaments will plumb this as a prop.
+    setShareGuid(loadStoredShareGuid("wc2026", "ssr_user"));
+  }, [saved]);
+  const guid = resolveShareGuid({
+    serverShareGuid: shareGuid,
+    authUserId: null,
+    bracketId,
+  });
+  const shareUrl = guid ? shareUrlFor(guid) : null;
+
+  const onShare = async (): Promise<void> => {
+    if (!shareUrl) return;
+    await shareContent({
+      title: buildShareTitle(),
+      text: buildShareText({ champion: "Your champion", guid, isComplete: true }),
+      url: shareUrl,
+    });
+  };
+
+  if (!complete) {
+    return (
+      <div className="bracket-save-panel" data-state="incomplete">
+        <p className="bracket-save-panel-hint">
+          <strong>{remaining}</strong> {remaining === 1 ? "more pick" : "more picks"} to lock in your bracket and share.
+        </p>
+      </div>
+    );
+  }
+
+  if (saved) {
+    return (
+      <div className="bracket-save-panel" data-state="saved">
+        <div className="bracket-save-panel-headline">
+          <span className="bracket-save-panel-tick" aria-hidden="true">✓</span>
+          <span>Bracket saved. You can edit any pick before kickoff.</span>
+        </div>
+        <div className="bracket-save-panel-actions">
+          <button
+            type="button"
+            className="bracket-save-panel-cta-primary"
+            onClick={() => void onShare()}
+            disabled={!shareUrl}
+          >
+            <span aria-hidden="true">↗</span>
+            <span>Share my bracket</span>
+          </button>
+          <a
+            className="bracket-save-panel-cta-secondary"
+            href="/profile"
+          >
+            <span aria-hidden="true">📷</span>
+            <span>Upload a profile photo</span>
+          </a>
+        </div>
+        <p className="bracket-save-panel-foot">
+          Add a profile photo so your friends can spot you on the leaderboard.
+        </p>
+      </div>
+    );
+  }
+
+  // complete + not yet saved
+  return (
+    <div className="bracket-save-panel" data-state="ready">
+      <div className="bracket-save-panel-headline">
+        <span className="bracket-save-panel-tick" aria-hidden="true">🏆</span>
+        <span>All 104 picks made. Lock in your bracket.</span>
+      </div>
+      <button
+        type="button"
+        className="bracket-save-panel-cta-primary"
+        onClick={() => {
+          if (isAuthed) {
+            onSave();
+          } else {
+            onRequestSignup();
+          }
+        }}
+      >
+        <span>Save my bracket</span>
+        <span aria-hidden="true">→</span>
+      </button>
+      <p className="bracket-save-panel-foot">
+        {isAuthed
+          ? "Saves your bracket to your profile so it follows you across devices."
+          : "We'll send a one-time sign-in code (Telegram, WhatsApp, or email). Your picks here will merge into your profile automatically."}
+      </p>
+      {submitState ? (
+        <p className="bracket-save-panel-status">{submitState}</p>
+      ) : null}
     </div>
   );
 }
