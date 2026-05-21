@@ -44,12 +44,23 @@ interface OwnerSyndicate {
   readonly bonus_prize_text: string | null;
 }
 
+interface PendingRequest {
+  user_id: string;
+  handle?: string | null;
+  display_name?: string | null;
+  joined_at: number;
+}
+
 type FetchState =
   | { status: "loading" }
   | { status: "unauth" }
   | { status: "forbidden" }
   | { status: "not_found" }
-  | { status: "ready"; syndicate: OwnerSyndicate }
+  | {
+      status: "ready";
+      syndicate: OwnerSyndicate;
+      pending_requests: PendingRequest[];
+    }
   | { status: "error"; message: string };
 
 const HL_CHECKOUT_URL =
@@ -119,12 +130,19 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
           setState({ status: "error", message: `Server returned ${r.status}` });
           return;
         }
-        const body = (await r.json()) as { syndicate?: OwnerSyndicate };
+        const body = (await r.json()) as {
+          syndicate?: OwnerSyndicate;
+          pending_requests?: PendingRequest[];
+        };
         if (!body.syndicate) {
           setState({ status: "error", message: "Empty response" });
           return;
         }
-        setState({ status: "ready", syndicate: body.syndicate });
+        setState({
+          status: "ready",
+          syndicate: body.syndicate,
+          pending_requests: body.pending_requests ?? [],
+        });
       } catch (e) {
         if (cancelled) return;
         setState({
@@ -241,6 +259,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
   }
 
   const s = state.syndicate;
+  const pendingRequests = state.pending_requests;
 
   return (
     <main className="vt-dash">
@@ -282,6 +301,20 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
           </a>
         </div>
       </header>
+
+      {/* Approve / deny banner from the email-link redirect. The
+        * approve/deny GET routes redirect back here with a
+        * ?request=<status> param so the owner sees confirmation of
+        * the action they took (Tim 2026-05-22). */}
+      <RequestBanner />
+
+      {/* Pending join requests. Only renders when the pool has
+        * `requires_approval=1` AND there are pending rows. Owners can
+        * approve / deny inline; rows fade out optimistically. */}
+      <PendingRequestsPanel
+        slug={s.slug}
+        initialRequests={pendingRequests}
+      />
 
       {/* Tier callout */}
       {s.tier === "free" && (
@@ -358,7 +391,11 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         slug={s.slug}
         initial={s}
         onSaved={(updated) =>
-          setState({ status: "ready", syndicate: { ...s, ...updated } })
+          setState({
+            status: "ready",
+            syndicate: { ...s, ...updated },
+            pending_requests: pendingRequests,
+          })
         }
       />
 
@@ -367,7 +404,11 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         slug={s.slug}
         initial={s}
         onSaved={(updated) =>
-          setState({ status: "ready", syndicate: { ...s, ...updated } })
+          setState({
+            status: "ready",
+            syndicate: { ...s, ...updated },
+            pending_requests: pendingRequests,
+          })
         }
       />
 
@@ -1101,6 +1142,279 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
           )}
         </div>
       </form>
+    </section>
+  );
+}
+
+/* ─── Approve / deny banner ────────────────────────────────────────
+ *
+ * The GET approve/deny email-link routes redirect to this page with a
+ * `?request=approved|denied|already-handled` query param. Render a
+ * dismissible banner so the owner gets confirmation of the action.
+ * Tim 2026-05-22.
+ */
+function RequestBanner(): JSX.Element | null {
+  const [status, setStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const r = params.get("request");
+    if (!r) return;
+    setStatus(r);
+    // Strip the query param from the URL so a refresh doesn't replay
+    // the banner.
+    params.delete("request");
+    const clean =
+      window.location.pathname +
+      (params.toString() ? `?${params.toString()}` : "") +
+      window.location.hash;
+    window.history.replaceState(null, "", clean);
+  }, []);
+
+  if (!status) return null;
+
+  const tone =
+    status === "approved"
+      ? { bg: "rgba(34, 197, 94, 0.12)", border: "rgba(34, 197, 94, 0.6)", icon: "✅", text: "Request approved. The member is now on your leaderboard." }
+      : status === "denied"
+        ? { bg: "rgba(239, 68, 68, 0.12)", border: "rgba(239, 68, 68, 0.6)", icon: "🚫", text: "Request denied. The user can't rejoin under the same account." }
+        : { bg: "rgba(220, 169, 75, 0.10)", border: "rgba(220, 169, 75, 0.45)", icon: "ℹ️", text: "That request was already handled." };
+
+  return (
+    <div
+      role="status"
+      aria-live="polite"
+      style={{
+        background: tone.bg,
+        border: `1px solid ${tone.border}`,
+        borderRadius: 10,
+        padding: "12px 16px",
+        marginBottom: 14,
+        fontSize: 14,
+        color: "var(--vt-fg, #f4f4f5)",
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+      }}
+    >
+      <span aria-hidden>{tone.icon}</span>
+      <span>{tone.text}</span>
+      <button
+        type="button"
+        onClick={() => setStatus(null)}
+        aria-label="Dismiss"
+        style={{
+          marginLeft: "auto",
+          background: "transparent",
+          border: 0,
+          color: "var(--vt-fg-muted, #a3a3ad)",
+          cursor: "pointer",
+          fontSize: 18,
+          lineHeight: 1,
+          padding: 4,
+        }}
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+/* ─── Pending-requests panel ───────────────────────────────────────
+ *
+ * Shows the approval queue for pools where `requires_approval=1`.
+ * Each row has Approve / Deny buttons that POST to the
+ * session-authenticated dashboard endpoint and optimistically remove
+ * the row on success. Empty list → panel hides entirely so unapproved
+ * pools don't see a stale "0 requests" box.
+ */
+function PendingRequestsPanel({
+  slug,
+  initialRequests,
+}: {
+  slug: string;
+  initialRequests: PendingRequest[];
+}): JSX.Element | null {
+  const [requests, setRequests] = useState<PendingRequest[]>(initialRequests);
+  const [busyId, setBusyId] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Keep local list in sync if the parent re-fetches (e.g. after a
+  // branding save). React preserves children state across re-renders
+  // but the initialRequests reference changes when the parent state
+  // refreshes, so we sync on prop change.
+  useEffect(() => {
+    setRequests(initialRequests);
+  }, [initialRequests]);
+
+  if (requests.length === 0) return null;
+
+  const decide = async (
+    userId: string,
+    action: "approve" | "deny",
+  ): Promise<void> => {
+    setBusyId(userId);
+    try {
+      const r = await fetch(
+        `/api/v1/syndicates/${encodeURIComponent(slug)}/join-requests/${encodeURIComponent(userId)}`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action }),
+        },
+      );
+      if (!r.ok) {
+        const body = (await r.json().catch(() => ({}))) as { error?: string };
+        setToast(`Couldn't ${action}: ${body.error ?? `HTTP ${r.status}`}`);
+        window.setTimeout(() => setToast(null), 4000);
+        return;
+      }
+      setRequests((prev) => prev.filter((p) => p.user_id !== userId));
+      setToast(action === "approve" ? "Approved ✓" : "Denied");
+      window.setTimeout(() => setToast(null), 2000);
+    } catch (e) {
+      setToast(
+        e instanceof Error ? `Network error: ${e.message}` : "Network error",
+      );
+      window.setTimeout(() => setToast(null), 4000);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <section
+      className="vt-dash-row"
+      style={{ marginBottom: 16, borderColor: "rgba(220, 169, 75, 0.32)" }}
+      aria-labelledby="vt-pending-title"
+    >
+      <div className="vt-dash-row-head">
+        <div>
+          <h2 className="vt-dash-row-name" id="vt-pending-title">
+            Pending requests
+            <span
+              style={{
+                marginLeft: 10,
+                display: "inline-block",
+                padding: "2px 8px",
+                borderRadius: 999,
+                background: "rgba(252, 211, 77, 0.18)",
+                border: "1px solid rgba(220, 169, 75, 0.45)",
+                color: "#fcd34d",
+                fontSize: 12,
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+              }}
+            >
+              {requests.length}
+            </span>
+          </h2>
+          <p className="vt-dash-row-meta">
+            {requests.length === 1
+              ? "Someone has requested to join your pool. Approve them to add them to the leaderboard."
+              : `${requests.length} people have requested to join your pool. Approve or deny each below.`}
+          </p>
+        </div>
+      </div>
+      <ul
+        style={{
+          listStyle: "none",
+          margin: 0,
+          padding: 0,
+          display: "flex",
+          flexDirection: "column",
+          gap: 8,
+        }}
+      >
+        {requests.map((p) => {
+          const label = p.display_name?.trim()
+            ? `${p.display_name.trim()} · @${p.handle ?? p.user_id.slice(0, 6)}`
+            : `@${p.handle ?? p.user_id.slice(0, 6)}`;
+          const requestedAt = new Date(p.joined_at);
+          const requestedLabel = Number.isFinite(requestedAt.getTime())
+            ? requestedAt.toLocaleString(undefined, {
+                day: "numeric",
+                month: "short",
+                hour: "2-digit",
+                minute: "2-digit",
+              })
+            : "—";
+          return (
+            <li
+              key={p.user_id}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 14px",
+                background: "rgba(255, 255, 255, 0.03)",
+                border: "1px solid rgba(255, 255, 255, 0.08)",
+                borderRadius: 10,
+              }}
+            >
+              <div style={{ flex: "1 1 auto", minWidth: 0 }}>
+                <div
+                  style={{
+                    fontWeight: 700,
+                    color: "var(--vt-fg, #f4f4f5)",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {label}
+                </div>
+                <div
+                  style={{
+                    fontSize: 12,
+                    color: "var(--vt-fg-muted, #a3a3ad)",
+                    marginTop: 2,
+                  }}
+                >
+                  Requested {requestedLabel}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flex: "0 0 auto" }}>
+                <button
+                  type="button"
+                  className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
+                  onClick={() => {
+                    void decide(p.user_id, "deny");
+                  }}
+                  disabled={busyId === p.user_id}
+                >
+                  Deny
+                </button>
+                <button
+                  type="button"
+                  className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
+                  onClick={() => {
+                    void decide(p.user_id, "approve");
+                  }}
+                  disabled={busyId === p.user_id}
+                >
+                  {busyId === p.user_id ? "…" : "Approve"}
+                </button>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {toast && (
+        <p
+          role="status"
+          aria-live="polite"
+          style={{
+            margin: "8px 0 0",
+            fontSize: 13,
+            color: "var(--vt-fg-muted, #a3a3ad)",
+          }}
+        >
+          {toast}
+        </p>
+      )}
     </section>
   );
 }

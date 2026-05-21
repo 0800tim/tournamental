@@ -76,6 +76,20 @@ export function verifyApprovalToken(
 }
 
 export async function notifyOwnerOfJoinRequest(args: NotifyArgs): Promise<void> {
+  // Fire email + WhatsApp in parallel. Each channel is best-effort —
+  // a failure in one doesn't block the other, and neither blocks the
+  // join request itself (the caller already returned to the user).
+  await Promise.all([
+    sendEmailNotification(args).catch((e) =>
+      console.error("[notifyOwnerOfJoinRequest] email error", e),
+    ),
+    sendWhatsAppNotification(args).catch((e) =>
+      console.error("[notifyOwnerOfJoinRequest] whatsapp error", e),
+    ),
+  ]);
+}
+
+async function sendEmailNotification(args: NotifyArgs): Promise<void> {
   const apiKey = process.env.SENDGRID_API_KEY ?? "";
   const fromEmail =
     process.env.SENDGRID_FROM_EMAIL ?? "login@tournamental.com";
@@ -171,4 +185,66 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+/**
+ * WhatsApp notification via the Aiva gateway. We deliberately don't
+ * embed approve/deny links inline here — the message just says "open
+ * your dashboard" and links to /dashboard/syndicates/<slug> where the
+ * owner reviews + approves. Keeping the WhatsApp body short avoids
+ * the gateway truncating long URLs and removes the need for an
+ * inbound "1"/"2" reply parser (Tim 2026-05-22).
+ */
+async function sendWhatsAppNotification(args: NotifyArgs): Promise<void> {
+  const apiKey = process.env.AIVA_SMS_API_KEY ?? "";
+  const sessionId = process.env.AIVA_WA_SESSION_ID ?? "";
+  const baseUrl =
+    process.env.AIVA_SMS_API_URL ?? process.env.AIVA_SMS_URL ?? "";
+
+  if (!apiKey || !sessionId || !baseUrl) {
+    // Dev environments typically don't have the gateway wired; skip
+    // quietly so the join request still succeeds via email + dashboard.
+    return;
+  }
+  if (!args.pool.owner_phone) {
+    return;
+  }
+
+  const requesterLabel =
+    args.requester.display_name?.trim()
+      ? `${args.requester.display_name.trim()} (@${args.requester.handle})`
+      : `@${args.requester.handle}`;
+  const dashboardUrl = `${PLAY_HOST}/dashboard/syndicates/${encodeURIComponent(
+    args.pool.slug,
+  )}`;
+  const body =
+    `🎯 Tournamental: ${requesterLabel} wants to join your pool ` +
+    `"${args.pool.name}".\n\n` +
+    `Open your dashboard to approve or deny:\n${dashboardUrl}`;
+
+  // The Aiva gateway expects E.164 without the leading "+". The
+  // owner_phone is stored in E.164 form, so strip the plus here.
+  const phone = args.pool.owner_phone.replace(/^\+/, "");
+  const url = `${baseUrl.replace(/\/$/, "")}/api/v1/whatsapp/sessions/${encodeURIComponent(
+    sessionId,
+  )}/send`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({ phone, message: body }),
+    });
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      console.error("[notifyOwnerOfJoinRequest] whatsapp non-2xx", {
+        status: res.status,
+        body: text.slice(0, 300),
+      });
+    }
+  } catch (err) {
+    console.error("[notifyOwnerOfJoinRequest] whatsapp transport error", err);
+  }
 }

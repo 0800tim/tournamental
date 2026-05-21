@@ -1,0 +1,99 @@
+/**
+ * POST /api/v1/syndicates/[slug]/join-requests/[userId]
+ *
+ * Owner-authenticated approve / deny endpoint used by the dashboard
+ * manage view. Twin of the GET ...{approve|deny}?t=<token> email-link
+ * routes — same effect, different auth model:
+ *
+ *   - email link path:  HMAC token issued by notify-join-request.ts
+ *   - dashboard path:   tnm_session cookie + owner_user_id match
+ *
+ * Body: { action: "approve" | "deny" }
+ *
+ * 200 → { ok: true, status: "active" | "denied" }
+ * 400 → bad request body
+ * 401 → no session
+ * 403 → session is not the pool owner
+ * 404 → pool not found OR no pending request for that user_id
+ *
+ * Tim 2026-05-22.
+ */
+
+import type { NextRequest } from "next/server";
+import { z } from "zod";
+
+import { getSessionFromRequest } from "@/lib/auth/session";
+import { getPersistence } from "@/lib/syndicate/persistence";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const BodySchema = z.object({
+  action: z.enum(["approve", "deny"]),
+});
+
+function json(body: unknown, status: number): Response {
+  return Response.json(body, {
+    status,
+    headers: { "Cache-Control": "private, no-store" },
+  });
+}
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { slug: string; userId: string } },
+): Promise<Response> {
+  const slug = (params.slug ?? "").toLowerCase().trim();
+  const userId = (params.userId ?? "").trim();
+  if (!slug || !userId) return json({ error: "bad_request" }, 400);
+
+  const session = await getSessionFromRequest(req);
+  if (!session) return json({ error: "unauthorised" }, 401);
+
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    body = null;
+  }
+  const parsed = BodySchema.safeParse(body);
+  if (!parsed.success) return json({ error: "bad_body" }, 400);
+
+  const persistence = getPersistence();
+  const pool = persistence.getBySlug(slug);
+  if (!pool) return json({ error: "not_found" }, 404);
+  if (pool.owner_user_id !== session.userId) {
+    return json({ error: "forbidden" }, 403);
+  }
+
+  const pending = persistence.getPendingMember(pool.id, userId);
+  if (!pending) {
+    // Idempotent: nothing to do, but report it cleanly so the
+    // dashboard can clear the row from its local state.
+    return json({ ok: true, status: "already-handled" }, 200);
+  }
+
+  const newStatus: "active" | "denied" =
+    parsed.data.action === "approve" ? "active" : "denied";
+  persistence.setMemberStatus({
+    syndicate_id: pool.id,
+    user_id: userId,
+    status: newStatus,
+  });
+
+  if (newStatus === "active") {
+    try {
+      (
+        persistence as unknown as {
+          db: { prepare: (s: string) => { run: (...a: unknown[]) => void } };
+        }
+      ).db
+        .prepare(`UPDATE syndicates SET member_count = member_count + 1 WHERE id = ?`)
+        .run(pool.id);
+    } catch {
+      /* non-fatal */
+    }
+  }
+
+  return json({ ok: true, status: newStatus }, 200);
+}
