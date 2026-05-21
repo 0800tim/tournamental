@@ -24,10 +24,15 @@ export function LiveWidgetDemo({ slug }: { slug: string }): JSX.Element {
     el.setAttribute("slug", slug);
     host.appendChild(el);
 
-    // Load the widget bundle once per page.
+    // Load the widget bundle once per page. We append a `bv` (build
+    // version) query so the edge / browser cache doesn't pin an
+    // outdated copy when the widget source ships a fix (e.g. the
+    // 2026-05-21 CORS-credentials fix). Partner sites use the bare
+    // /embed/widget.js URL; this cache-bust is just for the internal
+    // demo where freshness matters.
     if (!document.querySelector('script[data-tnm-embed-bundle]')) {
       const s = document.createElement("script");
-      s.src = "/embed/widget.js";
+      s.src = `/embed/widget.js?bv=${Date.now()}`;
       s.async = true;
       s.setAttribute("data-tnm-embed-bundle", "true");
       document.head.appendChild(s);

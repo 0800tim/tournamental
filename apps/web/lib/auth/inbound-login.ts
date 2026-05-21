@@ -82,11 +82,19 @@ async function postJson<T>(
 /**
  * Verify a 6-digit code pasted by the user. The auth-sms service
  * scans all active OTP rows, matches by HMAC, and mints a session.
+ *
+ * Server returns the raw `{ jwt, expiresAt, user }` shape (no
+ * `ok: true` field) — we wrap it here so the discriminated-union
+ * `InboundVerifyResult` works downstream. Without the wrap every
+ * successful verify fell into the error branch on the client
+ * (Tim 2026-05-22, "codes and magic links just aren't working").
  */
 export async function verifyInboundCode(code: string): Promise<InboundVerifyResult> {
   if (!/^\d{6}$/.test(code)) return { ok: false, error: "bad-body" };
-  const res = await postJson<InboundVerifyOk>("/v1/auth/verify-by-code", { code });
-  if (res.ok && "jwt" in res.body) return res.body;
+  const res = await postJson<Omit<InboundVerifyOk, "ok">>("/v1/auth/verify-by-code", { code });
+  if (res.ok && "jwt" in res.body) {
+    return { ok: true, ...(res.body as Omit<InboundVerifyOk, "ok">) };
+  }
   const err = (res.body as ApiErrorBody).error ?? "unknown";
   return {
     ok: false,
@@ -101,8 +109,10 @@ export async function verifyInboundCode(code: string): Promise<InboundVerifyResu
  */
 export async function verifyMagicToken(token: string): Promise<InboundVerifyResult> {
   if (!/^[a-f0-9]{64}$/i.test(token)) return { ok: false, error: "bad-body" };
-  const res = await postJson<InboundVerifyOk>("/v1/auth/magic-verify", { token });
-  if (res.ok && "jwt" in res.body) return res.body;
+  const res = await postJson<Omit<InboundVerifyOk, "ok">>("/v1/auth/magic-verify", { token });
+  if (res.ok && "jwt" in res.body) {
+    return { ok: true, ...(res.body as Omit<InboundVerifyOk, "ok">) };
+  }
   const err = (res.body as ApiErrorBody).error ?? "unknown";
   return {
     ok: false,
@@ -186,11 +196,13 @@ export async function verifyEmailOtp(
     return { ok: false, error: "bad-body" };
   }
   if (!/^\d{6}$/.test(code)) return { ok: false, error: "bad-body" };
-  const res = await postJson<InboundVerifyOk>("/v1/auth/email/verify", {
+  const res = await postJson<Omit<InboundVerifyOk, "ok">>("/v1/auth/email/verify", {
     email: trimmed,
     code,
   });
-  if (res.ok && "jwt" in res.body) return res.body;
+  if (res.ok && "jwt" in res.body) {
+    return { ok: true, ...(res.body as Omit<InboundVerifyOk, "ok">) };
+  }
   const err = (res.body as ApiErrorBody).error ?? "unknown";
   return {
     ok: false,

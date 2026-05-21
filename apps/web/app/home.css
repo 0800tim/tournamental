@@ -18,6 +18,355 @@
   position: relative;
 }
 
+/* ===== Editorial-sport hero variant (2026-05-21) =====================
+ * Big WC2022 stadium photo underneath with a dark gradient overlay so
+ * the type stays readable. The image spans the FULL VIEWPORT width
+ * (breaks out of the parent .vt-home max-width container) while the
+ * text content inside stays gated to a comfortable reading column.
+ * Photo is CC BY-SA 4.0 (Adnen1985 / Wikimedia Commons). */
+.vt-home-hero--editorial {
+  text-align: left;
+  padding: 0;
+  /* Break the section out of the 1080px .vt-home max-width so the bg
+   * photo spans the full viewport edge-to-edge. The mobile rule below
+   * also absorbs the AppShell's own padding-top so the photo butts
+   * right under the appbar (no black gap). */
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  margin: -24px 0 0 -50vw;
+  isolation: isolate;
+  overflow: hidden;
+  background: #15151a;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.16);
+}
+
+/* Mobile: AppShell adds padding-top: 56px on .vt-shell-main even though
+ * the appbar is sticky-takes-space, which leaves a 56px black band
+ * between the appbar and the hero. Pull the hero up another 56px on
+ * mobile (24 already accounted for in the base rule) so the photo
+ * starts flush under the appbar. (Tim 2026-05-21) */
+@media (max-width: 767px) {
+  .vt-home-hero--editorial {
+    margin-top: -80px;
+  }
+}
+
+.vt-home-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background-image: image-set(
+    url("/hero/wc-stars-banner.webp") type("image/webp"),
+    url("/hero/wc-stars-banner.jpg") type("image/jpeg")
+  );
+  background-size: cover;
+  /* The supplied banner has a dark/gold split: charcoal + gold ball on
+   * the left, player photos on the gold right. Position the dark side
+   * under the text column and the players under the CTA rail. On
+   * narrow viewports we slide further left to keep the gold-ball
+   * silhouette anchored next to the headline. */
+  background-position: center center;
+  background-repeat: no-repeat;
+  /* 2026-05-22: Tim noted light type was hard to read on some parts of
+   * the photo. Dropping image brightness slightly + heavier overlay
+   * below keeps the photo readable as art while improving headline
+   * legibility. */
+  opacity: 0.78;
+  filter: saturate(1);
+}
+
+@media (max-width: 700px) {
+  .vt-home-hero-bg {
+    background-position: 22% center;
+  }
+}
+
+.vt-home-hero--editorial::before {
+  /* Heavier tint than the previous "barely-there" pass so the
+   * headline + lede sit cleanly on top of the gold-rays + player
+   * portraits. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgba(21, 21, 26, 0.45) 0%,
+    rgba(21, 21, 26, 0.6) 45%,
+    rgba(21, 21, 26, 0.9) 80%,
+    #15151a 100%
+  );
+}
+
+.vt-home-hero-inner {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: clamp(56px, 9vw, 112px) clamp(20px, 5vw, 56px) clamp(40px, 7vw, 72px);
+}
+
+/* Grid layout for the headline / CTAs / lede triple.
+ * Mobile: single column, document order = headline → CTAs (50/50 row)
+ *         → lede. So the CTAs sit above the fold without scrolling.
+ * Desktop: 2-col grid — headline in col 1, CTAs in col 2, lede spans
+ *          full width below. (Tim 2026-05-21) */
+.vt-home-hero-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+@media (min-width: 880px) {
+  .vt-home-hero-top {
+    grid-template-columns: minmax(0, 1.5fr) minmax(240px, 280px);
+    grid-template-areas:
+      "headline ctas"
+      "lede     lede";
+    column-gap: clamp(32px, 5vw, 64px);
+    row-gap: 24px;
+  }
+  .vt-home-headline { grid-area: headline; }
+  .vt-home-hero-ctas { grid-area: ctas; align-self: end; padding-bottom: 6px; }
+  .vt-home-hero-lede { grid-area: lede; }
+}
+
+.vt-home-hero-ctas {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  width: 100%;
+}
+
+@media (min-width: 880px) {
+  /* Desktop right-rail: stack vertically, smaller min-width so they
+   * fit the column. */
+  .vt-home-hero-ctas {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.vt-home-dateline {
+  display: block;
+  margin: 0 0 18px;
+  font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-home-headline {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria,
+    "Times New Roman", serif;
+  font-variation-settings: "opsz" 144, "SOFT" 30;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  font-size: clamp(40px, 8vw, 96px);
+  line-height: 0.96;
+  color: #ffffff;
+  margin: 0 0 24px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+}
+
+.vt-home-hero-line {
+  display: block;
+}
+
+.vt-home-headline em {
+  font-style: italic;
+  font-weight: 500;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-home-hero-lede {
+  max-width: 64ch;
+  margin: 0 0 28px;
+  font-size: clamp(15px, 1.6vw, 18px);
+  line-height: 1.55;
+  color: #e6e6ea;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.vt-home-hero-lede strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.vt-home-stat-row {
+  list-style: none;
+  padding: 0;
+  margin: 28px 0 28px;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 24px 36px;
+  border-top: 1px solid rgba(220, 169, 75, 0.22);
+  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
+  padding-block: 18px;
+}
+
+.vt-home-stat-row li {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.vt-home-stat-num {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria,
+    "Times New Roman", serif;
+  font-variation-settings: "opsz" 144;
+  font-size: clamp(28px, 4vw, 48px);
+  line-height: 0.95;
+  color: #ffffff;
+}
+
+.vt-home-stat-label {
+  font: 600 10px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #a3a3ad;
+}
+
+@media (max-width: 640px) {
+  .vt-home-stat-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 24px;
+  }
+}
+
+/* ===== Hero CTA buttons (3D gradient pills) =========================
+ * Set my picks: gold gradient (primary, the action we want clicks on).
+ * Run a pool / Explore public pools: bright white-to-off-white gradient
+ * so they stand out on the photo-backed dark hero (Tim 2026-05-21).
+ * Both share the same drop-shadow + subtle inset highlight so they
+ * read as physical lozenges. */
+.vt-home-btn-pick,
+.vt-home-btn-light {
+  /* 50/50 row-flex on mobile, full-width pill on desktop's right rail. */
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: 0;
+  font: 800 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+  white-space: nowrap;
+}
+
+@media (min-width: 880px) {
+  .vt-home-btn-pick,
+  .vt-home-btn-light {
+    /* Bigger on desktop where they have the right-rail to themselves. */
+    min-height: 52px;
+    padding: 14px 22px;
+    font-size: 15px;
+    gap: 8px;
+  }
+}
+
+.vt-home-btn-pick {
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #15151a;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.18) inset,
+    0 12px 28px -10px rgba(220, 169, 75, 0.65),
+    0 0 0 1px rgba(220, 169, 75, 0.55);
+}
+
+.vt-home-btn-pick:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.18) inset,
+    0 18px 32px -10px rgba(220, 169, 75, 0.8),
+    0 0 0 1px rgba(220, 169, 75, 0.7);
+}
+
+.vt-home-btn-light {
+  background: linear-gradient(180deg, #ffffff 0%, #e7eaf2 100%);
+  color: #15151a;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.95) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.12) inset,
+    0 10px 24px -10px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.vt-home-btn-light:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.02);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 1) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.12) inset,
+    0 16px 30px -10px rgba(0, 0, 0, 0.65),
+    0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+
+.vt-home-btn-pick:active,
+.vt-home-btn-light:active {
+  transform: translateY(1px);
+  filter: brightness(0.98);
+}
+
+.vt-home-btn-pick:focus-visible,
+.vt-home-btn-light:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(220, 169, 75, 0.55),
+    0 12px 28px -10px rgba(220, 169, 75, 0.5);
+}
+
+/* "[read more]" inline link, sits at the end of the hero lede.
+ * Underlined gold so it reads as the editorial in-text link. */
+.vt-home-hero-readmore {
+  white-space: nowrap;
+  color: var(--vt-gold-400, #dca94b);
+  text-decoration: underline;
+  text-decoration-color: rgba(220, 169, 75, 0.55);
+  text-underline-offset: 2px;
+  font-weight: 600;
+}
+
+.vt-home-hero-readmore:hover {
+  color: #fff;
+  text-decoration-color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-home-hero-credit {
+  margin: 22px 0 0;
+  font-size: 11px;
+  color: rgba(205, 213, 231, 0.55);
+  letter-spacing: 0.04em;
+}
+
+.vt-home-hero-credit a {
+  color: rgba(205, 213, 231, 0.85);
+  text-decoration: underline;
+  text-decoration-color: rgba(220, 169, 75, 0.4);
+  text-underline-offset: 2px;
+}
+
+.vt-home-hero-credit a:hover {
+  color: #fff;
+  text-decoration-color: var(--vt-gold-400, #dca94b);
+}
+
 .vt-home-eyebrow {
   display: inline-block;
   padding: 5px 12px;
@@ -352,6 +701,19 @@
   background: rgba(245, 197, 66, 0.16);
   border-color: rgba(245, 197, 66, 0.4);
   color: #fde68a;
+}
+
+.vt-home-tier-tag-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(253, 230, 138, 0.5);
+  text-underline-offset: 2px;
+  font-weight: 800;
+}
+
+.vt-home-tier-tag-link:hover {
+  color: #ffffff;
+  text-decoration-color: #fde68a;
 }
 
 .vt-home-tier-name {

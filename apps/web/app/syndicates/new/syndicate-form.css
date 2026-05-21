@@ -17,7 +17,7 @@
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.06em;
-  color: #6ad4a4;
+  color: var(--vt-gold-400, #dca94b);
   text-transform: uppercase;
   margin: 0 0 6px;
 }
@@ -244,20 +244,27 @@
 }
 
 .syn-submit {
-  background: linear-gradient(180deg, #6ad4a4 0%, #4ab27f 100%);
+  /* Gold gradient + drop-shadow, matching the play-app brand CTA
+   * language (Tim 2026-05-21: legacy green was off-brand). */
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
   color: #15151a;
   border: none;
-  border-radius: 12px;
+  border-radius: 999px;
   font-weight: 800;
   font-size: 16px;
-  padding: 14px;
+  padding: 14px 22px;
   cursor: pointer;
   margin-top: 8px;
-  transition: opacity 120ms ease, transform 120ms ease;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.55) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.18) inset,
+    0 12px 28px -10px rgba(220, 169, 75, 0.65);
+  transition: opacity 120ms ease, transform 120ms ease, filter 120ms ease;
 }
 
 .syn-submit:hover:not(:disabled) {
   transform: translateY(-1px);
+  filter: brightness(1.04);
 }
 
 .syn-submit:disabled {

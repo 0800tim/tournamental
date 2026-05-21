@@ -1,74 +1,85 @@
 ---
 /**
- * Homepage hero, editorial-sport rewrite.
+ * Platform-first marketing hero (2026-05-21 rewrite).
  *
- * Treated as a section front of a Saturday football broadsheet on the
- * eve of a major tournament. Type carries the page: a Fraunces display
- * headline, an italic lede, a tabular stat row, a single confident CTA.
- * No product preview card, no parallax tilt, no competing accents.
+ * Previously this hero pitched the 2026 World Cup directly; that
+ * messaging now lives on play.tournamental.com. tournamental.com is
+ * about the *platform* — bracket prediction with a global ledger,
+ * syndicate pools, the 3D renderer, the open-source story. The 2026
+ * World Cup app gets its own prominent CTA to the right of the main
+ * headline.
  *
- * Lives under the `.vt-editorial` scope so it inherits the editorial
- * tokens defined in globals.css (gold accent, opsz axis, hairline rules,
- * choreographed first-paint reveal). All motion gates on
- * `prefers-reduced-motion` automatically via that scope.
+ * Inherits editorial tokens from globals.css (gold accent, opsz axis,
+ * hairline rules, choreographed reveal). Motion gates on
+ * `prefers-reduced-motion`.
  */
-import StatLine from "@/components/StatLine.astro";
-
 const KICKOFF_LABEL = "Kickoff 11 June 2026";
-const HEADLINE_LINE_1 = "Can you call";
-const HEADLINE_LINE_2 = "every match of";
-const HEADLINE_LINE_3 = "the World Cup?";
+const HEADLINE_LINE_1 = "The open prediction";
+const HEADLINE_LINE_2 = "game for every";
+const HEADLINE_LINE_3 = "tournament.";
 
-const STATS = [
-  { value: "104", label: "Matches" },
-  { value: "48", label: "Teams" },
-  { value: "0", label: "Perfect brackets" },
-  { value: "∞", label: "Claim to glory" },
-];
-
-const startHref = "https://play.tournamental.com/syndicates/new";
-const rulesHref = "/how-it-works";
+const platformHref = "/how-it-works";
+const repoHref = "https://github.com/0800tim/tournamental";
+const playHref = "https://play.tournamental.com/world-cup-2026";
 ---
 <section class="vt-editorial vt-hero">
-  <div class="container-page vt-hero-inner">
-    <p class="vt-dateline" data-reveal="dateline">
-      Tournamental &middot; World Cup 2026 &middot; {KICKOFF_LABEL}
-    </p>
+  <div class="container-page vt-hero-inner vt-hero-grid">
+    <div class="vt-hero-main">
+      <p class="vt-dateline" data-reveal="dateline">
+        Tournamental &middot; Est. 2026 &middot; Apache 2.0
+      </p>
 
-    <h1 class="vt-headline mt-7" data-reveal="headline">
-      <span class="vt-hero-line">{HEADLINE_LINE_1}</span>
-      <span class="vt-hero-line">
-        every <em>match</em> of
-      </span>
-      <span class="vt-hero-line">{HEADLINE_LINE_3}</span>
-    </h1>
+      <h1 class="vt-headline mt-7" data-reveal="headline">
+        <span class="vt-hero-line">{HEADLINE_LINE_1}</span>
+        <span class="vt-hero-line">{HEADLINE_LINE_2}</span>
+        <span class="vt-hero-line">{HEADLINE_LINE_3}</span>
+      </h1>
 
-    <hr class="vt-rule mt-10" data-reveal="rule" aria-hidden="true" />
+      <hr class="vt-rule mt-10" data-reveal="rule" aria-hidden="true" />
 
-    <p class="vt-lede mt-8" data-reveal="lede">
-      <strong>Nobody has ever done it.</strong>
-      Twenty-two World Cups, 964 matches, and the perfect bracket has
-      stayed unclaimed. The 104 matches of 2026 are the next attempt.
-      Tournamental keeps the global ledger and settles every pick on
-      record, so the claim to glory is finally provable.
-    </p>
+      <p class="vt-lede mt-8" data-reveal="lede">
+        Bracket picks, a <strong>global ledger</strong> that settles every call on
+        record, branded <strong>syndicate pools</strong> your audience can join in
+        a tap, and a 3D renderer that watches the match along with you. Free to
+        play, Apache 2.0 from spec to silicon, contributors share platform
+        revenue.
+      </p>
 
-    <div class="mt-12 md:mt-14" data-reveal="stats">
-      <StatLine stats={STATS} />
+      <div class="vt-hero-cta-row mt-12 md:mt-14" data-reveal="cta">
+        <a class="vt-cta-primary" href={platformHref} data-analytics="cta" data-analytics-label="How it works" data-analytics-surface="hero">
+          How it works <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a class="vt-cta-text" href={repoHref} data-analytics="cta" data-analytics-label="View the repo" data-analytics-surface="hero">
+          View the repo
+        </a>
+      </div>
+
+      <p class="vt-footnote mt-10" data-reveal="footnote">
+        Free to play &middot; Verifiable picks &middot; Contributors share platform revenue
+      </p>
     </div>
 
-    <div class="vt-hero-cta-row mt-12 md:mt-16" data-reveal="cta">
-      <a class="vt-cta-primary" href={startHref} data-analytics="cta" data-analytics-label="Start a pool" data-analytics-surface="hero">
-        Start your pool <span aria-hidden="true">&rarr;</span>
+    <aside class="vt-hero-wc-card" data-reveal="wc-card" aria-labelledby="vt-hero-wc-title">
+      <p class="vt-hero-wc-kicker">
+        Playing now &middot; {KICKOFF_LABEL}
+      </p>
+      <h2 id="vt-hero-wc-title" class="vt-hero-wc-title">
+        Play the 2026<br />
+        Football World Cup<br />
+        bracket app
+      </h2>
+      <p class="vt-hero-wc-body">
+        Pick all 104 matches. Live group standings, drag-rank tiebreakers, a 3D
+        molecule of your bracket. Free to play, mobile-first.
+      </p>
+      <a class="vt-hero-wc-cta" href={playHref} data-analytics="cta" data-analytics-label="Play World Cup" data-analytics-surface="hero">
+        Play now <span aria-hidden="true">&rarr;</span>
       </a>
-      <a class="vt-cta-text" href={rulesHref} data-analytics="cta" data-analytics-label="How scoring works" data-analytics-surface="hero">
-        How scoring works
-      </a>
-    </div>
-
-    <p class="vt-footnote mt-10" data-reveal="footnote">
-      Free to play &middot; Apache 2.0 &middot; Contributors share platform revenue
-    </p>
+      <ul class="vt-hero-wc-meta" aria-hidden="true">
+        <li><span>104</span>Matches</li>
+        <li><span>48</span>Teams</li>
+      </ul>
+    </aside>
   </div>
 </section>
 
@@ -94,6 +105,19 @@ const rulesHref = "/how-it-works";
     padding-bottom: clamp(3rem, 7vw, 6rem);
   }
 
+  .vt-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    align-items: start;
+  }
+  @media (min-width: 960px) {
+    .vt-hero-grid {
+      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 360px);
+      gap: 3.5rem;
+    }
+  }
+
   /* Stack the three headline lines so each rises individually. */
   .vt-hero-line {
     display: block;
@@ -104,6 +128,96 @@ const rulesHref = "/how-it-works";
     flex-wrap: wrap;
     align-items: center;
     gap: 1.5rem 2rem;
+  }
+
+  /* World Cup 2026 side card — the explicit cross-link to the play app
+   * that earns its own prominent slot in the hero. Gold border, dark
+   * card, a bigger CTA than the platform's how-it-works link so a
+   * casual visitor sees "right, where do I play?" within the first
+   * scroll. */
+  .vt-hero-wc-card {
+    background: linear-gradient(180deg, rgba(245, 197, 66, 0.06) 0%, rgba(245, 197, 66, 0.0) 60%), rgba(28, 28, 34, 0.85);
+    border: 1px solid rgba(245, 197, 66, 0.35);
+    border-radius: 18px;
+    padding: clamp(20px, 2.5vw, 32px);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    box-shadow: 0 20px 60px -28px rgba(245, 197, 66, 0.4);
+  }
+
+  .vt-hero-wc-kicker {
+    margin: 0 0 12px;
+    font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #fbbf24;
+  }
+
+  .vt-hero-wc-title {
+    margin: 0 0 14px;
+    font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+    font-variation-settings: "opsz" 96;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    font-size: clamp(22px, 2.6vw, 30px);
+    line-height: 1.05;
+    color: #ffffff;
+  }
+
+  .vt-hero-wc-body {
+    margin: 0 0 22px;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(231, 234, 243, 0.78);
+  }
+
+  .vt-hero-wc-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 14px 22px;
+    min-height: 52px;
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    color: #15151a;
+    border-radius: 999px;
+    font: 800 16px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    box-shadow: 0 12px 32px -10px rgba(245, 197, 66, 0.55);
+    transition: transform 120ms ease, box-shadow 120ms ease;
+  }
+  .vt-hero-wc-cta:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 16px 36px -10px rgba(245, 197, 66, 0.7);
+  }
+
+  .vt-hero-wc-meta {
+    list-style: none;
+    padding: 18px 0 0;
+    margin: 18px 0 0;
+    border-top: 1px solid rgba(245, 197, 66, 0.18);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .vt-hero-wc-meta li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font: 600 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(205, 213, 231, 0.6);
+  }
+  .vt-hero-wc-meta li span {
+    display: inline-block;
+    font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+    font-variation-settings: "opsz" 96;
+    font-size: clamp(20px, 2.4vw, 28px);
+    color: #ffffff;
+    letter-spacing: -0.01em;
   }
 
   /* Slightly tighter stat row spacing on the hero specifically. */

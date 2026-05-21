@@ -1566,9 +1566,6 @@
   align-items: center;
   gap: 10px;
   background-color: #25252c;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   border: 1px solid transparent;
   border-radius: 12px;
   padding: 10px 12px;
@@ -1580,6 +1577,27 @@
   overflow: hidden;
   isolation: isolate;
   transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
+}
+
+/* Blurred background flag. The cell-level background-image used to
+ * live on `.km-team` itself, but that left the small foreground
+ * TeamFlag chip sitting on a sharp duplicate of its own flag and
+ * looking visually crowded. Now the full-bleed flag lives on a
+ * `::before` pseudo-element with `filter: blur(...)` so the
+ * underlying colour reads cleanly while the chip stays crisp (Tim
+ * 2026-05-22). The `inset: -10px` overcoats the blur halo so we
+ * don't see soft edges against the card border. */
+.km-team::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: -1;
+  background-image: var(--km-team-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+  transition: filter 160ms ease;
 }
 
 .km-team[disabled] {

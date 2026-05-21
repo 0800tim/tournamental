@@ -23,13 +23,11 @@ import type { ReactNode } from "react";
 import {
   HomeIcon,
   PredictIcon,
-  WatchIcon,
   ProfileIcon,
   TrophyIcon,
   GroupsIcon,
   CodeIcon,
   SettingsIcon,
-  MoleculeIcon,
   ShareIcon,
 } from "./icons";
 
@@ -54,32 +52,21 @@ export interface NavLink {
  * prepended via PRIMARY_DRAWER below, since the desktop bar has its own
  * profile chip and the brand mark already links home).
  */
+// 2026-05-21: play app is bracket-only for the WC 2026 push — Molecule
+// + Watch demo were promoted out of every player-facing surface (still
+// available on the marketing site / dev for future tournaments).
 export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
     label: "Predict",
     href: "/world-cup-2026",
     icon: <PredictIcon />,
-    // Match /world-cup-2026 exactly or /world-cup-2026/(group|knockout|...)
-    // but NOT /world-cup-2026/molecule which has its own entry.
     matchPrefix: "/world-cup-2026",
-  },
-  {
-    label: "3D Molecule",
-    href: "/world-cup-2026/molecule",
-    icon: <MoleculeIcon />,
-    matchPrefix: "/world-cup-2026/molecule",
   },
   {
     label: "Save & share",
     href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
-  },
-  {
-    label: "Watch demo",
-    href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",
-    icon: <WatchIcon />,
-    matchPrefix: "/match/",
   },
   {
     label: "Leaderboard",
@@ -96,7 +83,6 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
 export const MORE_DESKTOP: readonly NavLink[] = [
   { label: "Home",        href: "/",           icon: <HomeIcon />,     matchPrefix: "__never__" },
   { label: "Syndicates",  href: "/syndicates", icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
-  { label: "Watch",       href: "/watch",      icon: <WatchIcon />,    matchPrefix: "/watch" },
   { label: "Settings",    href: "/settings",   icon: <SettingsIcon />, matchPrefix: "/settings" },
   { label: "API keys",    href: "/profile/api-keys", icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
   { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
@@ -110,19 +96,17 @@ export const MORE_DESKTOP: readonly NavLink[] = [
 export const DRAWER_PRIMARY: readonly NavLink[] = [
   { label: "Home",    href: "/",                icon: <HomeIcon />,    matchPrefix: "__never__" },
   { label: "Predict", href: "/world-cup-2026",  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
-  { label: "Watch",   href: "/watch",           icon: <WatchIcon />,   matchPrefix: "/watch" },
   { label: "Profile", href: "/profile",         icon: <ProfileIcon />, matchPrefix: "/profile" },
 ];
 
 /**
  * Drawer "World Cup 2026" section — microsite cross-links retained from
- * the original drawer layout.
+ * the original drawer layout. Molecule + Watch were removed for the
+ * 2026 WC push (bracket-only focus).
  */
 export const DRAWER_WC2026: readonly NavLink[] = [
   { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
-  { label: "3D Molecule",           href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Save & share",          href: "/world-cup-2026/save-share",                       icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
-  { label: "Watch the 2022 final",  href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",     icon: <WatchIcon />,    matchPrefix: "/match/" },
 ];
 
 /**

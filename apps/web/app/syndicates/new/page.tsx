@@ -11,6 +11,7 @@
 
 import type { Metadata } from "next";
 
+import { AppShell } from "@/components/shell/AppShell";
 import { SyndicateForm } from "./SyndicateForm";
 
 export const metadata: Metadata = {
@@ -23,5 +24,9 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default function NewSyndicatePage(): JSX.Element {
-  return <SyndicateForm />;
+  return (
+    <AppShell title="Tournamental">
+      <SyndicateForm />
+    </AppShell>
+  );
 }

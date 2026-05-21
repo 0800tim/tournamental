@@ -81,15 +81,16 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
     "--km-away-accent": awayTeam?.kit?.primary ?? "#3b82f6",
   } as CSSProperties;
 
-  // Apply the flag as the cell background regardless of selection state.
-  // The selected side gets a thicker accent border + brighter scrim; the
-  // unselected side gets a heavier dark scrim + reduced opacity to read
-  // as clearly inactive. (See bracket.css for both treatments.)
-  const homeBgStyle: CSSProperties | undefined = homeTeam
-    ? { backgroundImage: `url(/flags/${homeTeam.id}.svg)` }
+  // Apply the flag as the cell background via a CSS variable. The
+  // bracket.css `::before` pseudo paints it BEHIND the content with
+  // `filter: blur(...)` so the foreground TeamFlag chip stays crisp
+  // (Tim 2026-05-22). Selected/unselected scrim + accent border still
+  // run on the .km-team box itself.
+  const homeBgStyle = homeTeam
+    ? ({ "--km-team-bg": `url(/flags/${homeTeam.id}.svg)` } as CSSProperties)
     : undefined;
-  const awayBgStyle: CSSProperties | undefined = awayTeam
-    ? { backgroundImage: `url(/flags/${awayTeam.id}.svg)` }
+  const awayBgStyle = awayTeam
+    ? ({ "--km-team-bg": `url(/flags/${awayTeam.id}.svg)` } as CSSProperties)
     : undefined;
 
   const homePreview: CSSProperties | undefined = undefined;

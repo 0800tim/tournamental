@@ -3,11 +3,13 @@ import "@/components/shell/shell.css";
 import "@/components/ui/ui.css";
 
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import type { ReactNode } from "react";
 
 import { GtmRoot } from "@/components/analytics/GtmRoot";
 import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
+import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
 
 export const metadata: Metadata = {
   title: {
@@ -51,6 +53,14 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
+  // Region-gate the cookie consent prompt. Cloudflare adds CF-IPCountry
+  // on every tunnel-routed request; we read it server-side at SSR so
+  // non-GDPR visitors never see the banner mount even briefly.
+  // Unknown → treat as GDPR (safer to over-prompt than under-prompt).
+  const h = headers();
+  const cfCountry = h.get("cf-ipcountry");
+  const showConsent = isGdprCountryOrUnknown(cfCountry);
+
   return (
     <html lang="en">
       <head>
@@ -63,7 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
-        <GtmRoot />
+        <GtmRoot showConsentBanner={showConsent} />
         <NativeShellBoot />
         <MagicLinkConsumer />
         {children}

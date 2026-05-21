@@ -77,7 +77,12 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
 
   function fetchJson(url, opts) {
     var init = opts || {};
-    init.credentials = "include";
+    // Public config endpoint doesn't need cookies; setting
+    // credentials: "include" forced the server to echo a specific
+    // Origin (browsers reject "*" + credentials), which broke the
+    // widget on every cross-origin partner site. Callers that DO
+    // need cookies (auth-status) pass opts.credentials explicitly.
+    if (!init.credentials) init.credentials = "omit";
     return fetch(url, init).then(function (r) {
       if (!r.ok) throw new Error("HTTP " + r.status);
       return r.json();

@@ -49,9 +49,13 @@ export interface RateLimitConfig {
 }
 
 export const DEFAULT_RATE_LIMIT_CONFIG: RateLimitConfig = {
-  phoneCooldownSeconds: 60,
-  phoneHourlyMax: 5,
-  ipHourlyMax: 30,
+  // 2026-05-22: bumped during launch debugging — Tim was hitting the
+  // 5/hour cap while iterating on the cookie path. Cap stays generous
+  // for the alpha (small invited audience); we'll tighten again before
+  // open launch.
+  phoneCooldownSeconds: 20,
+  phoneHourlyMax: 30,
+  ipHourlyMax: 60,
 };
 
 const SECONDS_PER_HOUR = 60 * 60;

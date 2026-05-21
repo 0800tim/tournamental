@@ -32,9 +32,9 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
 export const metadata: Metadata = {
-  title: "Tournamental — predict the World Cup, watch it in 3D, run your own syndicate",
+  title: "Tournamental — predict every match of the 2026 World Cup",
   description:
-    "Free-to-play Football World Cup 2026 prediction game with a 3D molecule watch-along, verifiable picks, and a built-in syndicate platform so anyone can run a branded sweepstake for their audience.",
+    "Free-to-play Football World Cup 2026 prediction game. Pick all 104 matches, change any pick up to kickoff, and run a branded pool for your audience. Blockchain-anchored picks so the claim to glory is finally provable.",
 };
 
 export default function HomePage(): JSX.Element {
@@ -42,32 +42,67 @@ export default function HomePage(): JSX.Element {
     <AppShell title="Tournamental">
       <main className="vt-home">
         {/* ============== HERO ============== */}
-        <section className="vt-home-hero">
-          <span className="vt-home-eyebrow">Football World Cup 2026 · Free to play</span>
-          <h1 className="vt-home-title">
-            Predict <em>every match.</em>
-            <br className="vt-home-br" /> Watch it in 3D. Run your own pool.
-          </h1>
-          <p className="vt-home-lede">
-            The open prediction game for the world's biggest tournaments. Save your
-            picks before kickoff, change them up to the whistle, watch every match
-            play out in our 3D molecule, and run a branded pool for your audience.
-            Free forever. Premium adds a fully-managed CRM via Aiva.
-          </p>
-          <div className="vt-home-cta-row">
-            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
-              Set your picks now →
-            </Link>
-            <Link href="/pools" className="vt-home-btn vt-home-btn-ghost">
-              Run a pool
-            </Link>
+        {/* Editorial-sport hero with a tinted 2022 World Cup stadium photo
+         * underneath (CC BY-SA 4.0, Adnen1985 / Wikimedia Commons). The
+         * dark gradient overlay keeps the headline + stats readable on
+         * top while the photo carries the World Cup energy that the
+         * marketing site used to own. Per Tim 2026-05-21. */}
+        <section className="vt-home-hero vt-home-hero--editorial">
+          <div className="vt-home-hero-bg" aria-hidden="true" />
+          <div className="vt-home-hero-inner">
+            <p className="vt-home-dateline">
+              Tournamental · World Cup 2026 · Kickoff 11 June 2026
+            </p>
+            <div className="vt-home-hero-top">
+              <h1 className="vt-home-headline">
+                <span className="vt-home-hero-line">Can you call</span>
+                <span className="vt-home-hero-line">every <em>match</em> of</span>
+                <span className="vt-home-hero-line">the World Cup?</span>
+              </h1>
+              <div className="vt-home-hero-ctas">
+                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
+                  Set my picks →
+                </Link>
+                <Link href="/syndicates/new" className="vt-home-btn vt-home-btn-light">
+                  Run a pool
+                </Link>
+              </div>
+              <p className="vt-home-hero-lede">
+                <strong>Nobody has ever done it.</strong> Twenty-two World Cups,
+                964 matches, and the perfect bracket has stayed unclaimed. The
+                104 matches of 2026 are the next attempt. Tournamental keeps the
+                global ledger and commits every pick to the blockchain before
+                each match kicks off, so your predictions are immutable and the
+                claim to glory is finally provable.{" "}
+                <a
+                  className="vt-home-hero-readmore"
+                  href="https://tournamental.com/blog/2026-05-18-media-blockchain-prize-draws"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  [read more]
+                </a>
+              </p>
+            </div>
+            <ul className="vt-home-stat-row">
+              <li>
+                <span className="vt-home-stat-num">104</span>
+                <span className="vt-home-stat-label">Matches</span>
+              </li>
+              <li>
+                <span className="vt-home-stat-num">48</span>
+                <span className="vt-home-stat-label">Teams</span>
+              </li>
+              <li>
+                <span className="vt-home-stat-num">0</span>
+                <span className="vt-home-stat-label">Perfect brackets</span>
+              </li>
+              <li>
+                <span className="vt-home-stat-num" aria-hidden="true">?</span>
+                <span className="vt-home-stat-label">Claim to glory</span>
+              </li>
+            </ul>
           </div>
-          <ul className="vt-home-trust">
-            <li><span aria-hidden="true">✓</span> No credit card</li>
-            <li><span aria-hidden="true">✓</span> No app install</li>
-            <li><span aria-hidden="true">✓</span> Apache 2.0 open source</li>
-            <li><span aria-hidden="true">✓</span> NZ-built</li>
-          </ul>
         </section>
 
         {/* ============== COUNTDOWN ============== */}
@@ -112,53 +147,17 @@ export default function HomePage(): JSX.Element {
             <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
               Build my bracket →
             </Link>
-            <Link href={`/match/${DEMO_MATCH_ID}`} className="vt-home-btn vt-home-btn-ghost">
-              Watch the 2022 final replay
-            </Link>
           </div>
         </RevealOnScroll>
 
-        {/* ============== STEP 2 — MOLECULE ============== */}
-        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="molecule">
-          <div className="vt-home-step-tag">Step 2 · As matches play</div>
-          <h2 className="vt-home-h2">Watch the World Cup 2026 in 3D.</h2>
-          <p className="vt-home-p">
-            The Tournamental molecule renders every match in the browser at 60 fps on a
-            mid-range phone, no app install, no broadcaster paywall. Drag the timeline,
-            rotate the pitch, zoom into the box, see your saved picks light up as each
-            result settles.
-          </p>
-          <div className="vt-home-feature-grid">
-            <div className="vt-home-feature">
-              <h3>22 players, real positions</h3>
-              <p>Body GLB + jersey textures + Wikidata faces for the 22 starters. Reads StatsBomb open data; SimulatedSports feeds for live.</p>
-            </div>
-            <div className="vt-home-feature">
-              <h3>Scrubable timeline</h3>
-              <p>Jump to any minute. Pause on a goal, share the moment. Your bracket recalculates as the score moves.</p>
-            </div>
-            <div className="vt-home-feature">
-              <h3>No app, no install</h3>
-              <p>Pure WebGL in the browser. Works on iOS Safari, Android Chrome, your laptop. Geo-block-free.</p>
-            </div>
-            <div className="vt-home-feature">
-              <h3>Open the data</h3>
-              <p>The renderer is Apache 2.0. Plug in your own data feed; build your own watch-along; ship it.</p>
-            </div>
-          </div>
-          <div className="vt-home-cta-row">
-            <Link href={`/match/${DEMO_MATCH_ID}`} className="vt-home-btn vt-home-btn-primary">
-              See the 2022 final in 3D →
-            </Link>
-            <Link href="/watch" className="vt-home-btn vt-home-btn-ghost">
-              Browse other matches
-            </Link>
-          </div>
-        </RevealOnScroll>
+        {/* Step 2 (3D Molecule watch-along) and the Watch demo CTAs were
+         * dropped on 2026-05-21 — play app is bracket-only for the
+         * 2026 WC push; the molecule still works on /world-cup-2026/molecule
+         * but it's no longer promoted from the player surfaces. */}
 
-        {/* ============== STEP 3 — SYNDICATES (FRONT AND CENTRE) ============== */}
+        {/* ============== STEP 2 — SYNDICATES (FRONT AND CENTRE) ============== */}
         <RevealOnScroll as="section" className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
-          <div className="vt-home-step-tag vt-home-step-tag-headline">Step 3 · Bring your friends</div>
+          <div className="vt-home-step-tag vt-home-step-tag-headline">Step 2 · Bring your friends</div>
           <h2 className="vt-home-h2">Run a pool. Brand it your way.</h2>
           <p className="vt-home-claim">
             The only World Cup prediction platform where anyone can launch a fully
@@ -198,7 +197,17 @@ export default function HomePage(): JSX.Element {
               </Link>
             </div>
             <div className="vt-home-tier vt-home-tier-premium">
-              <span className="vt-home-tier-tag vt-home-tier-tag-premium">Premium · powered by Aiva</span>
+              <span className="vt-home-tier-tag vt-home-tier-tag-premium">
+                Premium · powered by{" "}
+                <a
+                  href="https://growthspurt.agency"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vt-home-tier-tag-link"
+                >
+                  Growth Spurt
+                </a>
+              </span>
               <h3 className="vt-home-tier-name">$97 <span className="vt-home-tier-price-sub">/ month + usage</span></h3>
               <ul className="vt-home-tier-list">
                 <li>Everything in Free</li>
@@ -255,8 +264,8 @@ export default function HomePage(): JSX.Element {
             <li>
               <span className="vt-home-qs-n">2</span>
               <div>
-                <h3>Watch the matches</h3>
-                <p>World Cup 2026 kicks off 11 June. Every match plays in 3D, every saved pick settles automatically.</p>
+                <h3>Track every match</h3>
+                <p>World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard.</p>
               </div>
             </li>
             <li>

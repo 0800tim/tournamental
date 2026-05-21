@@ -17,12 +17,7 @@
 import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 
-import {
-  PredictIcon,
-  MoleculeIcon,
-  ShareIcon,
-  WatchIcon,
-} from "./icons";
+import { PredictIcon, ShareIcon } from "./icons";
 
 export interface MicrositeSubNavLink {
   readonly label: string;
@@ -34,6 +29,9 @@ export interface MicrositeSubNavLink {
 }
 
 export const WC2026_SUBNAV: readonly MicrositeSubNavLink[] = [
+  // 2026-05-21: play app is bracket-only for the WC 2026 push.
+  // Molecule + Watch-along were removed from the subnav (still mounted
+  // for the marketing site / lab usage, just not promoted to players).
   {
     label: "Predict",
     href: "/world-cup-2026",
@@ -41,22 +39,10 @@ export const WC2026_SUBNAV: readonly MicrositeSubNavLink[] = [
     exact: true,
   },
   {
-    label: "Molecule",
-    href: "/world-cup-2026/molecule",
-    icon: <MoleculeIcon />,
-    matchPrefix: "/world-cup-2026/molecule",
-  },
-  {
     label: "Save & share",
     href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
-  },
-  {
-    label: "Watch demo",
-    href: "/match/fifa-wc-2022-final-arg-fra-2022-12-18",
-    icon: <WatchIcon />,
-    matchPrefix: "/match/",
   },
 ];
 

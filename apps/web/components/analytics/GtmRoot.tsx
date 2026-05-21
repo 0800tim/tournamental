@@ -28,7 +28,18 @@ import { getGtmId } from "@/lib/analytics";
 import { ConsentBanner } from "./ConsentBanner";
 import { PageViewListener } from "./PageViewListener";
 
-export function GtmRoot() {
+/**
+ * `showConsentBanner` defaults to `true` so existing call sites that
+ * don't yet pass the prop (tests, future surfaces) preserve the
+ * pre-2026-05-22 always-on behaviour. The root layout reads
+ * CF-IPCountry server-side and only sets this to `false` for visitors
+ * outside the GDPR / UK GDPR / FADP zone.
+ */
+export interface GtmRootProps {
+  readonly showConsentBanner?: boolean;
+}
+
+export function GtmRoot({ showConsentBanner = true }: GtmRootProps = {}) {
   const gtmId = getGtmId();
   if (!gtmId) return null;
 
@@ -89,7 +100,7 @@ export function GtmRoot() {
         </noscript>
       )}
       <PageViewListener />
-      <ConsentBanner />
+      {showConsentBanner ? <ConsentBanner /> : null}
     </>
   );
 }
