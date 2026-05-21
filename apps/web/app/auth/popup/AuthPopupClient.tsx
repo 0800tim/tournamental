@@ -44,10 +44,9 @@ export function AuthPopupClient({ pool, from }: AuthPopupClientProps) {
     setClosing(true);
 
     let cancelled = false;
+    type WidgetToken = { token: string; expires_at: number; user: { id: string } };
     const mintAndPost = async (): Promise<void> => {
-      let widget:
-        | { token: string; expires_at: number; user: { id: string } }
-        | null = null;
+      let widget: WidgetToken | null = null;
       try {
         const res = await fetch("/api/v1/auth/widget-token", {
           method: "POST",
@@ -56,7 +55,7 @@ export function AuthPopupClient({ pool, from }: AuthPopupClientProps) {
           body: "{}",
         });
         if (res.ok) {
-          widget = (await res.json()) as typeof widget;
+          widget = (await res.json()) as WidgetToken;
         }
       } catch {
         // Network error minting token; we still postMessage `ok: true`
