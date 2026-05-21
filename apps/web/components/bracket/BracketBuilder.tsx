@@ -33,6 +33,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   cascade,
+  isGroupComplete,
   type Bracket,
   type CascadedBracket,
   type CascadedKnockout,
@@ -167,6 +168,17 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const auth = useUser();
   const [userLocalId, setUserLocalId] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
+  // Group-stage auto-expand: on initial mount, find the first group
+  // that doesn't yet have all 6 matches predicted and seed its
+  // accordion as expanded. Frozen at mount time -- we don't re-evaluate
+  // after a pick lands so the user's manual collapse choices are never
+  // overridden. Null when every group is already complete.
+  const [initialOpenGroupId] = useState<string | null>(() => {
+    for (const g of tournament.groups) {
+      if (!isGroupComplete(g, emptyBracket.matchPredictions)) return g.id;
+    }
+    return null;
+  });
   const [tab, setTabState] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
@@ -1158,6 +1170,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       onChangeMatch={onChangeMatch}
                       onChangeTiebreaker={onChangeTiebreaker}
                       onAutoPickGroup={handleAutoPickGroup}
+                      initialExpanded={g.id === initialOpenGroupId}
                     />
                   ))}
                 </div>

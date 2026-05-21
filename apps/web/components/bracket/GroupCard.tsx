@@ -56,6 +56,11 @@ export interface GroupCardProps {
    * small ⚡ button that fills the 6 matches of this group only,
    * using the same odds-favourite rule as the page-level Auto-pick. */
   readonly onAutoPickGroup?: (groupId: string) => void;
+  /** Initial expanded state. Lets the parent auto-expand the first
+   * incomplete group on mount (Tim 2026-05-22). After mount the user
+   * controls the state; changes to this prop are ignored so we don't
+   * fight a user who's manually collapsed an auto-expanded group. */
+  readonly initialExpanded?: boolean;
 }
 
 const POSITION_LABELS = [
@@ -78,6 +83,7 @@ export function GroupCard(props: GroupCardProps) {
     onChangeMatch,
     onChangeTiebreaker,
     onAutoPickGroup,
+    initialExpanded,
   } = props;
 
   const groupFixtures = tournament.group_fixtures
@@ -111,9 +117,11 @@ export function GroupCard(props: GroupCardProps) {
       });
   const needsTiebreaker = tiesIgnoringTiebreaker.length > 0;
 
-  // Mobile-only accordion. Desktop CSS forces the body visible regardless
-  // of this state, so we can safely start collapsed for the SSR pass.
-  const [expanded, setExpanded] = useState(false);
+  // Accordion applies at every viewport (Tim 2026-05-22). The parent
+  // (BracketBuilder) seeds `initialExpanded=true` for the first
+  // incomplete group on mount; everything else starts collapsed for
+  // a clean SSR pass.
+  const [expanded, setExpanded] = useState(initialExpanded ?? false);
   // Confirmation modal for the per-group auto-pick. Tim 2026-05-21:
   // tapping the lightning lozenge must warn first because it overwrites
   // any picks the user has already made in this group.

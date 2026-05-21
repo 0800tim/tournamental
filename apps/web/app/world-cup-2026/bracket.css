@@ -62,21 +62,14 @@
 }
 
 .bracket-groups-grid {
+  /* Single column at every viewport (Tim 2026-05-22). Each group is
+   * an accordion that expands inline; on desktop the expanded body
+   * lays its 6 matches out as a 3x2 grid (see .bracket-group-matches
+   * below) so the page reads as a vertical list of group accordions
+   * regardless of width -- matches the mobile shape. */
   display: grid;
   grid-template-columns: 1fr;
   gap: 12px;
-}
-
-@media (min-width: 600px) {
-  .bracket-groups-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1000px) {
-  .bracket-groups-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
 }
 
 .bracket-group {
@@ -282,43 +275,53 @@
   margin-left: 4px;
 }
 
-/* Mobile: turn the head into an accordion toggle, collapse the body
- * by default, show the teams preview + chevron in the bar. */
-@media (max-width: 768px) {
-  .bracket-group-head {
-    /* Symmetric padding around the title + teams stack; the card's own
-     * 12px shrinks to 6px when collapsed (rule below) so the bottom of
-     * the card hugs the flag row instead of leaving 70-80px of empty
-     * space (Tim screenshot 2026-05-21). */
-    padding: 6px 4px;
-  }
+/* Accordion behaviour, applied at every viewport (Tim 2026-05-22).
+ * Previously scoped to @media (max-width: 768px); desktop showed every
+ * group expanded inline, which forced 2- or 4-column layouts and made
+ * the page hard to scan. Desktop now mirrors mobile: one column of
+ * group accordions, expand to reveal matches. */
+.bracket-group-head {
+  /* Symmetric padding around the title + teams stack; the card's own
+   * 12px shrinks to 6px when collapsed (rule below) so the bottom of
+   * the card hugs the flag row instead of leaving 70-80px of empty
+   * space (Tim screenshot 2026-05-21). */
+  padding: 6px 4px;
+}
 
-  .bracket-group-head-row {
-    margin-bottom: 0;
-  }
+.bracket-group-head-row {
+  margin-bottom: 0;
+}
 
-  .bracket-group[data-collapsed="true"] {
-    /* Tighter card padding when nothing is expanded below. */
-    padding: 10px 12px;
-  }
+.bracket-group[data-collapsed="true"] {
+  /* Tighter card padding when nothing is expanded below. */
+  padding: 10px 12px;
+}
 
-  .bracket-group[data-collapsed="true"] .bracket-group-body {
-    display: none;
-  }
+.bracket-group[data-collapsed="true"] .bracket-group-body {
+  display: none;
+}
 
-  /* While the group is collapsed the auto-pick is hidden, the user
-   * sees one focused action (tap to expand). On expand the button
-   * reappears at the top of the matches list. */
-  .bracket-group[data-collapsed="true"] .bracket-group-autopick {
-    display: none;
-  }
+/* While the group is collapsed the auto-pick is hidden, the user
+ * sees one focused action (tap to expand). On expand the button
+ * reappears at the top of the matches list. */
+.bracket-group[data-collapsed="true"] .bracket-group-autopick {
+  display: none;
+}
 
-  .bracket-group-head-teams {
-    display: inline-flex;
-  }
+.bracket-group-head-teams {
+  display: inline-flex;
+}
 
-  .bracket-group-head-chevron {
-    display: inline-block;
+.bracket-group-head-chevron {
+  display: inline-block;
+}
+
+/* Desktop: the 6 matches inside an expanded group lay out as 3 across
+ * x 2 down (Tim 2026-05-22). Mobile keeps the default 1-column stack. */
+@media (min-width: 900px) {
+  .bracket-group-matches {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
   }
 }
 
