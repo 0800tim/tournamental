@@ -323,6 +323,23 @@
     grid-template-columns: repeat(3, 1fr);
     gap: 8px;
   }
+
+  /* Desktop: bump the collapsed-header team chips up (Tim 2026-05-22).
+   * On mobile the clamp() caps at 13px / 26x18 flag because four chips
+   * have to fit on a narrow row; on desktop there's plenty of space
+   * and the tiny chips were floating in a void. */
+  .bracket-group-head-teams {
+    font-size: 16px;
+    gap: 6px;
+  }
+  .bracket-group-head-team {
+    padding: 4px 12px 4px 4px;
+    gap: 8px;
+  }
+  .bracket-group-head-flag {
+    width: 32px;
+    height: 22px;
+  }
 }
 
 .bracket-lock-btn {
