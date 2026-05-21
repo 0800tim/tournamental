@@ -756,6 +756,7 @@
 }
 
 .vt-share-modal {
+  position: relative;
   background: var(--vt-share-bg-2);
   border-radius: 16px;
   padding: 28px;
@@ -765,6 +766,36 @@
   flex-direction: column;
   gap: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Gold circular close button — top-right of the modal. Replaces the
+ * old Cancel button in the action row (Tim 2026-05-22). */
+.vt-share-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 169, 75, 0.55);
+  background: linear-gradient(180deg, rgba(252, 211, 77, 0.18), rgba(154, 106, 23, 0.18));
+  color: #fcd34d;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  line-height: 1;
+  padding: 0;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.vt-share-modal-close:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(252, 211, 77, 0.32), rgba(154, 106, 23, 0.28));
+  transform: scale(1.05);
+}
+.vt-share-modal-close:disabled {
+  opacity: 0.5;
+  cursor: progress;
 }
 
 .vt-share-modal-title {
@@ -792,6 +823,22 @@
 .vt-share-modal-row {
   display: flex;
   gap: 10px;
+}
+
+/* Single-button row: stretches the submit button full-width so it
+ * doesn't look orphaned without the Cancel companion. */
+.vt-share-modal-row--single .vt-share-cta {
+  flex: 1 1 auto;
+}
+
+/* Small help line under a form field, e.g. the email-fallback hint
+ * under the email input in JoinSyndicate. */
+.vt-join-help {
+  display: block;
+  margin-top: 6px;
+  color: var(--vt-share-ink-muted, #a3a3ad);
+  font-size: 12px;
+  line-height: 1.45;
 }
 
 /* ── JoinSyndicate modal — Tim 2026-05-22 ──────────────────────────
@@ -1176,6 +1223,102 @@
   font-size: 0.7rem;
   letter-spacing: 0.06em;
   color: var(--vt-fg-muted, #a3a3ad);
+}
+
+/* Facebook-style page header for branded pools: banner image fills
+ * the top band; logo chip + name + dateline sit on a charcoal scrim
+ * over the banner. Falls back to .vt-share-syn-hero when neither
+ * logo nor banner is configured (Tim 2026-05-22, ref screenshot). */
+.vt-share-syn-pageheader {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(28, 28, 34, 0.4), rgba(20, 20, 24, 0.8));
+  border: 1px solid rgba(220, 169, 75, 0.16);
+  padding: 28px 24px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 180px;
+}
+.vt-share-syn-pageheader[data-has-banner="1"] {
+  min-height: 240px;
+}
+.vt-share-syn-pageheader-banner {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -2;
+  /* Subtle saturation lift so banner photography still feels alive
+   * once the dark scrim lands on top. */
+  filter: saturate(1.1);
+}
+.vt-share-syn-pageheader-scrim {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(20, 20, 24, 0.45) 0%, rgba(20, 20, 24, 0.92) 100%),
+    radial-gradient(80% 60% at 50% 0%, rgba(220, 169, 75, 0.10), transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+.vt-share-syn-pageheader-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.vt-share-syn-pageheader-logo {
+  width: 84px;
+  height: 84px;
+  flex: 0 0 auto;
+  border-radius: 14px;
+  object-fit: cover;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(220, 169, 75, 0.45);
+  box-shadow: 0 8px 22px -8px rgba(0, 0, 0, 0.55);
+}
+.vt-share-syn-pageheader-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.vt-share-syn-pageheader-eyebrow {
+  margin: 0;
+  flex-wrap: wrap;
+}
+.vt-share-syn-pageheader-name {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.9rem, 4vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--vt-fg-strong, #ffffff);
+}
+.vt-share-syn-pageheader-lede {
+  margin: 0;
+  color: var(--vt-fg-muted, #cbd0dc);
+  font-style: italic;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-size: clamp(1rem, 1.6vw, 1.18rem);
+  line-height: 1.45;
+}
+@media (max-width: 520px) {
+  .vt-share-syn-pageheader {
+    padding: 20px 18px 18px;
+  }
+  .vt-share-syn-pageheader-row {
+    gap: 12px;
+  }
+  .vt-share-syn-pageheader-logo {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+  }
 }
 
 /* Hero block: dateline + headline + lede in one editorial cluster. */

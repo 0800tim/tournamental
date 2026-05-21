@@ -55,6 +55,9 @@ export interface SyndicateRecord {
     readonly url: string | null;
     readonly logo_url: string | null;
   } | null;
+  /** Free-form description set by the pool admin at creation. Used as
+   * the lede on /s/<slug> instead of the auto-generated stats line. */
+  readonly topic?: string | null;
   readonly prize_text?: string | null;
   /** Entry fee (cents). `null` or `0` means "no fee, bragging rights only". */
   readonly entry_fee_cents?: number | null;
@@ -185,6 +188,7 @@ function fromPersistenceRow(row: {
   tournament_id: string;
   owner_user_id: string | null;
   owner_handle: string | null;
+  topic?: string | null;
   created_at: number;
   member_count: number;
   branding_primary_colour?: string | null;
@@ -206,10 +210,16 @@ function fromPersistenceRow(row: {
   // rather than synthesising fake `member_1`, `member_2`, … handles from
   // `member_count`. The cached count can drift (e.g. duplicate self-joins
   // before the count guard landed) so we trust the membership table as
-  // the source of truth. The handle column doesn't exist on that table
-  // yet, so non-owner rows render with a stable short id derived from
-  // their user_id instead of a fabricated counter.
-  let realMembers: Array<{ user_id: string; role: string; joined_at: number }> = [];
+  // the source of truth. The handle column was added 2026-05-22 so new
+  // joiners persist their chosen display handle; legacy rows fall back
+  // to a stable short id derived from the user_id.
+  let realMembers: Array<{
+    user_id: string;
+    role: string;
+    joined_at: number;
+    handle?: string | null;
+    display_name?: string | null;
+  }> = [];
   try {
     realMembers = getPersistence().getMembers(row.id);
   } catch {
@@ -224,6 +234,26 @@ function fromPersistenceRow(row: {
       },
     ];
   }
+  // De-duplicate by handle (case-insensitive) so the owner doesn't show
+  // up twice when they own + later "joined" their own pool (which left
+  // an `anon:<id>` row from the unauthenticated create + a real `u_xxx`
+  // row from the authenticated join). Keep the earliest joined_at to
+  // preserve the founding timestamp. Tim 2026-05-22.
+  const seenHandles = new Set<string>();
+  realMembers = realMembers
+    .slice()
+    .sort((a, b) => a.joined_at - b.joined_at)
+    .filter((m) => {
+      const candidateHandle =
+        m.role === "owner"
+          ? row.owner_handle ?? ""
+          : m.handle ?? "";
+      const key = candidateHandle.toLowerCase().trim();
+      if (!key) return true; // can't de-dupe without a handle; let through
+      if (seenHandles.has(key)) return false;
+      seenHandles.add(key);
+      return true;
+    });
 
   return {
     slug: row.slug,
@@ -237,8 +267,8 @@ function fromPersistenceRow(row: {
     members: realMembers.map((m) => ({
       handle:
         m.role === "owner"
-          ? row.owner_handle ?? "owner"
-          : `member-${shortUserHash(m.user_id)}`,
+          ? row.owner_handle ?? m.handle ?? "owner"
+          : m.handle ?? `member-${shortUserHash(m.user_id)}`,
       country_code: "NZL",
       flag_emoji: "🇳🇿",
       joined_at: new Date(m.joined_at).toISOString(),
@@ -257,6 +287,7 @@ function fromPersistenceRow(row: {
           logo_url: row.sponsor_logo_url ?? null,
         }
       : null,
+    topic: row.topic ?? null,
     prize_text: row.prize_text ?? null,
     entry_fee_cents: row.entry_fee_cents ?? null,
     entry_fee_currency: row.entry_fee_currency ?? null,

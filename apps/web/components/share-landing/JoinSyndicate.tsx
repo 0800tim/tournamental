@@ -120,6 +120,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const [handle, setHandle] = useState("");
   const [handleTouched, setHandleTouched] = useState(false);
   const [phone, setPhone] = useState("");
+  // Email is the WhatsApp-free fallback: either phone or email is
+  // required, both is fine, and when both are provided we send the
+  // one-time code to BOTH channels so the user can verify with
+  // whichever lands first (Tim 2026-05-22).
+  const [identityEmail, setIdentityEmail] = useState("");
 
   // Verify step
   const [code, setCode] = useState("");
@@ -161,8 +166,10 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const handleIsValid = /^[a-zA-Z0-9_]{2,32}$/.test(handle);
   const nameIsValid = displayName.trim().length >= 1;
   const phoneIsValid = /^\+\d{8,15}$/.test(normalisePhone(phone));
-  const canSubmitIdentity =
-    !busy && handleIsValid && nameIsValid && phoneIsValid;
+  const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identityEmail.trim());
+  // At least one contact channel must validate; both is fine.
+  const hasContact = (phone.trim() && phoneIsValid) || (identityEmail.trim() && emailIsValid);
+  const canSubmitIdentity = !busy && handleIsValid && nameIsValid && hasContact;
 
   const onSubmitIdentity = useCallback(
     async (e: React.FormEvent) => {
@@ -193,59 +200,119 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
           return;
         }
 
-        // 2) Phone registration check. If the number already has an
-        //    account we MUST NOT silently sign them in (that would let
-        //    anyone log in as anyone by typing a phone). Point them at
-        //    the WhatsApp login path instead, which still requires the
-        //    one-time code they get back.
-        const normalised = normalisePhone(phone);
-        const regRes = await fetch(
-          `${AUTH_BASE.replace(/\/$/, "")}/v1/auth/phone-registered?phone=${encodeURIComponent(normalised)}`,
-          { method: "GET", headers: { Accept: "application/json" } },
-        );
-        const regJson = (await regRes.json().catch(() => ({}))) as {
-          registered?: boolean;
-          error?: string;
-        };
-        if (regRes.ok && regJson.registered === true) {
-          setError("PHONE_ALREADY_REGISTERED");
-          setBusy(false);
-          return;
+        const wantPhone = !!(phone.trim() && phoneIsValid);
+        const wantEmail = !!(identityEmail.trim() && emailIsValid);
+        const normalised = wantPhone ? normalisePhone(phone) : null;
+        const emailTrim = wantEmail ? identityEmail.trim().toLowerCase() : null;
+
+        // 2) Phone registration check (only when the user supplied a
+        //    phone). Known phones can't be auto-logged-in via this
+        //    flow — that'd let anyone log in as anyone — so we point
+        //    them at the WhatsApp inbound-login path instead.
+        if (wantPhone && normalised) {
+          const regRes = await fetch(
+            `${AUTH_BASE.replace(/\/$/, "")}/v1/auth/phone-registered?phone=${encodeURIComponent(normalised)}`,
+            { method: "GET", headers: { Accept: "application/json" } },
+          );
+          const regJson = (await regRes.json().catch(() => ({}))) as {
+            registered?: boolean;
+            error?: string;
+          };
+          if (regRes.ok && regJson.registered === true) {
+            setError("PHONE_ALREADY_REGISTERED");
+            setBusy(false);
+            return;
+          }
         }
 
-        // 3) Request the WhatsApp OTP (auth-sms returns the masked
-        //    phone + builds the magic-link URL with ?v=&pool=<slug>).
-        const reqRes = await fetch(
-          `${AUTH_BASE.replace(/\/$/, "")}/v1/auth/request`,
-          {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
-            },
-            body: JSON.stringify({
-              phone: normalised,
-              channel: "whatsapp",
-              pool_slug: slug,
-            }),
-          },
-        );
-        const reqJson = (await reqRes.json().catch(() => ({}))) as {
-          ok?: boolean;
+        // 3) Fire the OTP request(s). When BOTH channels are supplied
+        //    we send to both in parallel so the user gets a code on
+        //    whichever they check first. Either request can fail
+        //    independently; we only show an error if BOTH fail.
+        const reqs: Array<Promise<{
+          channel: "whatsapp" | "email";
+          ok: boolean;
           phoneMasked?: string;
           error?: string;
-          reason?: string;
           retryAfterSeconds?: number;
-        };
-        if (!reqRes.ok || reqJson.error) {
-          // Send failed (Baileys not paired, gateway down, etc.). We
-          // still saved the pending-join, so falling back to the
-          // user-initiated WhatsApp deep-link keeps the flow working:
-          // when they DM "login", aiva-sms triggers inbound-login,
-          // they sign in, MagicLinkConsumer picks the pending-join
-          // out of localStorage and adds them to the pool.
-          if (reqJson.error === "send-failed") {
+        }>> = [];
+
+        if (wantPhone && normalised) {
+          reqs.push(
+            fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/request`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({
+                phone: normalised,
+                channel: "whatsapp",
+                pool_slug: slug,
+              }),
+            })
+              .then(async (r) => {
+                const j = (await r.json().catch(() => ({}))) as {
+                  ok?: boolean;
+                  phoneMasked?: string;
+                  error?: string;
+                  retryAfterSeconds?: number;
+                };
+                return {
+                  channel: "whatsapp" as const,
+                  ok: r.ok && !j.error,
+                  phoneMasked: j.phoneMasked,
+                  error: j.error,
+                  retryAfterSeconds: j.retryAfterSeconds,
+                };
+              })
+              .catch((e: unknown) => ({
+                channel: "whatsapp" as const,
+                ok: false,
+                error: e instanceof Error ? e.message : "network",
+              })),
+          );
+        }
+
+        if (wantEmail && emailTrim) {
+          reqs.push(
+            fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/email/request`, {
+              method: "POST",
+              credentials: "include",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ email: emailTrim, pool_slug: slug }),
+            })
+              .then(async (r) => {
+                const j = (await r.json().catch(() => ({}))) as {
+                  ok?: boolean;
+                  error?: string;
+                  retryAfterSeconds?: number;
+                };
+                return {
+                  channel: "email" as const,
+                  ok: r.ok && !j.error,
+                  error: j.error,
+                  retryAfterSeconds: j.retryAfterSeconds,
+                };
+              })
+              .catch((e: unknown) => ({
+                channel: "email" as const,
+                ok: false,
+                error: e instanceof Error ? e.message : "network",
+              })),
+          );
+        }
+
+        const results = await Promise.all(reqs);
+        const phoneRes = results.find((r) => r.channel === "whatsapp");
+        const emailRes = results.find((r) => r.channel === "email");
+        const anyOk = results.some((r) => r.ok);
+
+        if (!anyOk) {
+          // BOTH (or the only) channel failed. If WhatsApp specifically
+          // returned 'send-failed' we still let the user fall through
+          // to the verify step with a hint to message us — the
+          // localStorage pending-join keeps the join intent alive.
+          const sendFailed = phoneRes?.error === "send-failed";
+          if (sendFailed && normalised) {
             savePending({
               slug,
               handle: handle.trim(),
@@ -259,25 +326,35 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
             );
             return;
           }
+          const first = results[0];
           setError(
-            reqJson.error === "rate-limited"
-              ? `Too many recent requests. Try again in ${reqJson.retryAfterSeconds ?? 60}s.`
-              : reqJson.error === "bad-phone"
+            first?.error === "rate-limited"
+              ? `Too many recent requests. Try again in ${first.retryAfterSeconds ?? 60}s.`
+              : first?.error === "bad-phone"
                 ? "That phone number doesn't look right. Include the country code."
-                : "Couldn't request a code. Try again in a moment.",
+                : first?.error === "not-configured"
+                  ? "Email sign-in isn't configured yet. Use WhatsApp instead."
+                  : "Couldn't send a code. Try again in a moment.",
           );
           setBusy(false);
           return;
         }
 
-        // Persist so a same-device reload between request + verify
-        // keeps the join going.
+        // At least one channel sent successfully — persist + advance.
         savePending({
           slug,
           handle: handle.trim(),
           displayName: displayName.trim(),
         });
-        setPhoneMasked(reqJson.phoneMasked ?? normalised);
+        if (phoneRes?.ok && normalised) {
+          setPhoneMasked(phoneRes.phoneMasked ?? normalised);
+        }
+        if (emailRes?.ok && emailTrim) {
+          // Prime the verify step so the email-fallback panel opens
+          // pre-filled with the address the user typed.
+          setEmail(emailTrim);
+          if (!phoneRes?.ok) setUsingEmail(true);
+        }
         setStep("verify");
         setBusy(false);
       } catch (err) {
@@ -289,7 +366,16 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         setBusy(false);
       }
     },
-    [canSubmitIdentity, slug, handle, phone, displayName],
+    [
+      canSubmitIdentity,
+      slug,
+      handle,
+      phone,
+      displayName,
+      identityEmail,
+      phoneIsValid,
+      emailIsValid,
+    ],
   );
 
   /** Once auth-sms returns a valid session, bind the handle + display
@@ -471,6 +557,19 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
           }}
         >
           <div className="vt-share-modal">
+            {/* Gold circular close button. Always available so a user
+              * can dismiss the modal without hunting for a "Cancel"
+              * (which used to live next to the submit button). Tim
+              * 2026-05-22. */}
+            <button
+              type="button"
+              className="vt-share-modal-close"
+              onClick={close}
+              disabled={busy}
+              aria-label="Close"
+            >
+              <span aria-hidden>×</span>
+            </button>
             {step === "identity" && (
               <form
                 onSubmit={onSubmitIdentity}
@@ -481,7 +580,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                 </h2>
                 <p className="vt-share-modal-body">
                   Pick a display name and handle for the leaderboard, then
-                  we&apos;ll send a one-time login code to your WhatsApp.
+                  we&apos;ll send a one-time login code by WhatsApp or email.
                 </p>
                 <label className="vt-join-label">
                   <span>Your name</span>
@@ -522,8 +621,24 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     placeholder="+64 21 535 832"
                     inputMode="tel"
                     autoComplete="tel"
-                    required
                   />
+                </label>
+                <label className="vt-join-label">
+                  <span>Email (optional fallback)</span>
+                  <input
+                    type="email"
+                    className="vt-share-modal-input"
+                    value={identityEmail}
+                    onChange={(e) => setIdentityEmail(e.target.value)}
+                    placeholder="you@example.com"
+                    inputMode="email"
+                    autoComplete="email"
+                  />
+                  <span className="vt-join-help">
+                    If you don&apos;t use WhatsApp, enter your email address
+                    to get a one-time code. Provide either, or both — we
+                    send the code to every channel you give us.
+                  </span>
                 </label>
                 {error === "PHONE_ALREADY_REGISTERED" ? (
                   <div className="vt-join-error vt-join-error--registered">
@@ -546,16 +661,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                 ) : error ? (
                   <p className="vt-join-error">{error}</p>
                 ) : null}
-                <div className="vt-share-modal-row">
-                  <button
-                    type="button"
-                    className="vt-share-cta"
-                    data-variant="secondary"
-                    onClick={close}
-                    disabled={busy}
-                  >
-                    Cancel
-                  </button>
+                <div className="vt-share-modal-row vt-share-modal-row--single">
                   <button
                     type="submit"
                     className="vt-share-cta"
@@ -566,8 +672,8 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   </button>
                 </div>
                 <p className="vt-join-footnote">
-                  By joining you agree to our terms. We only use your phone
-                  number for sign-in — no marketing, no third parties.
+                  By joining you agree to our terms. We only use your contact
+                  details for sign-in — no marketing, no third parties.
                 </p>
               </form>
             )}

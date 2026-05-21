@@ -92,6 +92,15 @@ export interface SyndicateRow {
   about_text: string | null;
   /** Visual theme for the embed widget: "light" (default) or "dark". */
   theme_mode: "light" | "dark" | null;
+  /** Visibility flag. When 1, the pool shows up in the public pool
+   * directory and anyone can join in one tap. When 0 (default), the
+   * pool is unlisted and only reachable via the share link. */
+  is_public: number; // 0 | 1
+  /** Approval gate. When 1, joining puts the requester into a
+   * `pending` membership row and the owner gets a WhatsApp + email
+   * notification to approve or deny. Mutually exclusive with
+   * is_public (public pools accept everyone). */
+  requires_approval: number; // 0 | 1
 }
 
 /** Decoded prize-split entry, as the API and UI both manipulate it. */
@@ -211,7 +220,9 @@ export class SyndicatePersistence {
         entry_fee_cents     INTEGER,
         entry_fee_currency  TEXT DEFAULT 'NZD',
         prize_split_json    TEXT,
-        bonus_prize_text    TEXT
+        bonus_prize_text    TEXT,
+        is_public           INTEGER NOT NULL DEFAULT 0,
+        requires_approval   INTEGER NOT NULL DEFAULT 0
       );
       CREATE INDEX IF NOT EXISTS idx_syndicates_slug ON syndicates(slug);
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
@@ -245,21 +256,32 @@ export class SyndicatePersistence {
   }
 
   /** 2026-05-22: add `handle` + `display_name` to membership for the
-   * pool-scoped join modal. SQLite ADD COLUMN is non-destructive on
-   * the existing rows so the migration runs idempotently. */
+   * pool-scoped join modal, plus `status` for the approval-gated
+   * join flow added later the same day. SQLite ADD COLUMN is
+   * non-destructive on the existing rows so the migration runs
+   * idempotently. Also adds is_public + requires_approval to the
+   * syndicates table for the public-directory + approval-gate
+   * features. */
   private migrateMembershipColumns(): void {
-    const cols = this.db
+    const memCols = this.db
       .prepare(`PRAGMA table_info(syndicate_owners_membership)`)
       .all() as { name: string }[];
-    const has = (n: string) => cols.some((c) => c.name === n);
-    if (!has("handle")) {
+    const hasMem = (n: string) => memCols.some((c) => c.name === n);
+    if (!hasMem("handle")) {
       this.db.exec(
         `ALTER TABLE syndicate_owners_membership ADD COLUMN handle TEXT`,
       );
     }
-    if (!has("display_name")) {
+    if (!hasMem("display_name")) {
       this.db.exec(
         `ALTER TABLE syndicate_owners_membership ADD COLUMN display_name TEXT`,
+      );
+    }
+    if (!hasMem("status")) {
+      // status is NULL for legacy rows (treated as 'active' in queries)
+      // and one of 'active' | 'pending' | 'denied' for new rows.
+      this.db.exec(
+        `ALTER TABLE syndicate_owners_membership ADD COLUMN status TEXT`,
       );
     }
     // Index may not exist yet on legacy DBs that pre-date the schema
@@ -268,6 +290,21 @@ export class SyndicatePersistence {
       `CREATE INDEX IF NOT EXISTS idx_membership_handle
          ON syndicate_owners_membership(syndicate_id, handle COLLATE NOCASE)`,
     );
+
+    const synCols = this.db
+      .prepare(`PRAGMA table_info(syndicates)`)
+      .all() as { name: string }[];
+    const hasSyn = (n: string) => synCols.some((c) => c.name === n);
+    if (!hasSyn("is_public")) {
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN is_public INTEGER NOT NULL DEFAULT 0`,
+      );
+    }
+    if (!hasSyn("requires_approval")) {
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN requires_approval INTEGER NOT NULL DEFAULT 0`,
+      );
+    }
   }
 
   private prepareStatements(): void {
@@ -284,11 +321,13 @@ export class SyndicatePersistence {
       `INSERT INTO syndicates (
         id, slug, name, tournament_id, owner_email, owner_phone,
         owner_user_id, owner_handle, size_band, topic,
-        marketing_consent, created_at, member_count, share_guid
+        marketing_consent, created_at, member_count, share_guid,
+        is_public, requires_approval
       ) VALUES (
         @id, @slug, @name, @tournament_id, @owner_email, @owner_phone,
         @owner_user_id, @owner_handle, @size_band, @topic,
-        @marketing_consent, @created_at, 1, @share_guid
+        @marketing_consent, @created_at, 1, @share_guid,
+        @is_public, @requires_approval
       )`,
     );
     this.getBySlugStmt = this.db.prepare(
@@ -470,6 +509,11 @@ export class SyndicatePersistence {
     topic: string | null;
     marketing_consent: boolean;
     share_guid: string;
+    /** Public pools appear in the directory and accept anyone in one tap. */
+    is_public?: boolean;
+    /** Approval-gated pools queue join requests for the owner. Ignored
+     * when is_public is true. */
+    requires_approval?: boolean;
     now?: number;
   }): SyndicateRow {
     if (!this.insertSyndicateStmt) this.prepareStatements();
@@ -485,6 +529,11 @@ export class SyndicatePersistence {
 
     const txn = this.db.transaction(() => {
       this.upsertUserStmt.run(ownerMemberId, now);
+      // Public pools never require approval — the two flags are
+      // mutually exclusive per the form UI. We enforce that invariant
+      // here too so a misbehaving client can't sneak both flags through.
+      const isPublic = !!input.is_public;
+      const requiresApproval = !isPublic && !!input.requires_approval;
       this.insertSyndicateStmt.run({
         id: input.id,
         slug: input.slug.toLowerCase(),
@@ -499,6 +548,8 @@ export class SyndicatePersistence {
         marketing_consent: input.marketing_consent ? 1 : 0,
         created_at: now,
         share_guid: input.share_guid,
+        is_public: isPublic ? 1 : 0,
+        requires_approval: requiresApproval ? 1 : 0,
       });
       this.insertMemberStmt.run({
         syndicate_id: input.id,

@@ -379,31 +379,86 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
   // does the heavy lifting.
   const datelineTournament = syndicate.tournament_label.toUpperCase();
 
-  // One-line lede that compresses the old "hosted by · X members · Y
-  // picks made" stats triple into the single editorial voice line the
-  // brief asked for. Phrasing varies with member count so a fresh pool
-  // doesn't read like a typo.
-  const lede = buildSyndicateLede({
-    ownerHandle: syndicate.owner_handle,
-    memberCount,
-    picksMade: syndicate.picks_made,
-    tournamentLabel: syndicate.tournament_label,
-  });
+  // Lede priority: pool owner's own description (the `topic` field set
+  // at creation) wins when present. Otherwise fall back to the
+  // auto-generated stats line so empty / legacy pools don't show a
+  // blank space (Tim 2026-05-22).
+  const ownerLede = (syndicate.topic ?? "").trim();
+  const lede =
+    ownerLede ||
+    buildSyndicateLede({
+      ownerHandle: syndicate.owner_handle,
+      memberCount,
+      picksMade: syndicate.picks_made,
+      tournamentLabel: syndicate.tournament_label,
+    });
+
+  // Facebook-style page header: banner image as the tinted background,
+  // logo chip + pool name overlaid. Only renders when at least one of
+  // logo / hero is present so unbranded pools fall back to the plain
+  // editorial header (Tim 2026-05-22, see ref screenshot).
+  const heroUrl = syndicate.branding?.hero_url ?? null;
+  const logoUrl = syndicate.branding?.logo_url ?? null;
+  const hasBrandedHeader = !!heroUrl || !!logoUrl;
 
   return (
     <section
       className="vt-share vt-share-syn vt-editorial"
       data-testid="share-syndicate-landing"
     >
-      <header className="vt-share-syn-hero">
-        <p className="vt-dateline vt-share-syn-dateline">
-          <span>{datelineTournament}</span>
-          <span aria-hidden className="vt-share-syn-dateline-sep">·</span>
-          <span>@{syndicate.owner_handle}</span>
-        </p>
-        <h1 className="vt-headline vt-share-syn-headline">{syndicate.name}</h1>
-        <p className="vt-lede vt-share-syn-lede">{lede}</p>
-      </header>
+      {hasBrandedHeader ? (
+        <header
+          className="vt-share-syn-pageheader"
+          data-has-banner={heroUrl ? "1" : "0"}
+          data-has-logo={logoUrl ? "1" : "0"}
+        >
+          {heroUrl ? (
+            <div
+              className="vt-share-syn-pageheader-banner"
+              role="img"
+              aria-label={`${syndicate.name} banner`}
+              style={{ backgroundImage: `url(${JSON.stringify(heroUrl).slice(1, -1)})` }}
+            />
+          ) : null}
+          <div className="vt-share-syn-pageheader-scrim" aria-hidden />
+          <div className="vt-share-syn-pageheader-row">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                className="vt-share-syn-pageheader-logo"
+                src={logoUrl}
+                alt={`${syndicate.name} logo`}
+                width={84}
+                height={84}
+                loading="eager"
+              />
+            ) : null}
+            <div className="vt-share-syn-pageheader-text">
+              <p className="vt-dateline vt-share-syn-pageheader-eyebrow">
+                <span>{datelineTournament}</span>
+                <span aria-hidden className="vt-share-syn-dateline-sep">·</span>
+                <span>@{syndicate.owner_handle}</span>
+              </p>
+              <h1 className="vt-headline vt-share-syn-pageheader-name">
+                {syndicate.name}
+              </h1>
+            </div>
+          </div>
+          {lede ? (
+            <p className="vt-lede vt-share-syn-pageheader-lede">{lede}</p>
+          ) : null}
+        </header>
+      ) : (
+        <header className="vt-share-syn-hero">
+          <p className="vt-dateline vt-share-syn-dateline">
+            <span>{datelineTournament}</span>
+            <span aria-hidden className="vt-share-syn-dateline-sep">·</span>
+            <span>@{syndicate.owner_handle}</span>
+          </p>
+          <h1 className="vt-headline vt-share-syn-headline">{syndicate.name}</h1>
+          <p className="vt-lede vt-share-syn-lede">{lede}</p>
+        </header>
+      )}
 
       {/* The OG preview image used to render inline here, which
        * read as a duplicate hero ("Tournamental" wordmark + member
