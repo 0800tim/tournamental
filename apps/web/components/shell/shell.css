@@ -15,10 +15,15 @@
  */
 
 :root {
-  /* Charcoal canvas. The accent tokens are retained because legacy
-   * components still reference --vt-accent (sky-blue), --vt-accent-warm
-   * (flame), and --vt-accent-pitch (emerald). New work should reach for
-   * the gold scale in app/globals.css; see docs/BRAND.md §2. */
+  /* Charcoal canvas with the brand gold as the primary accent (Tim 2026-05-22).
+   *
+   * --vt-accent was sky-blue (#6cabdd) through 2026-05-21 and is now the gold
+   * mid-tone -- visually identical to --vt-gold-400 in app/globals.css and to
+   * the gold gradient used by .vt-profile-action--primary etc. The warm/pitch
+   * accents stay defined so legacy callers don't 404 the CSS var, but they're
+   * no longer surfaced anywhere user-facing.
+   *
+   * See docs/BRAND.md §2 for the full scale (vt-gold-50..700). */
   --vt-bg: #15151a;
   --vt-bg-elev: rgba(255, 255, 255, 0.05);
   --vt-bg-elev-2: rgba(255, 255, 255, 0.09);
@@ -28,10 +33,10 @@
   --vt-fg-faint: #67676f;
   --vt-border: rgba(255, 255, 255, 0.07);
   --vt-border-strong: rgba(255, 255, 255, 0.16);
-  --vt-accent: #6cabdd; /* sky-blue, deprecated */
-  --vt-accent-on: #00153a;
-  --vt-accent-warm: #f3b83b; /* flame-orange, deprecated */
-  --vt-accent-pitch: #4cd680; /* emerald-pitch, deprecated */
+  --vt-accent: #dca94b;        /* brand gold (= --vt-gold-400) */
+  --vt-accent-on: #15151a;     /* charcoal — AA-contrast against gold */
+  --vt-accent-warm: #f3b83b;   /* legacy flame -- no longer surfaced */
+  --vt-accent-pitch: #4cd680;  /* legacy emerald -- no longer surfaced */
   --vt-shadow: 0 8px 28px rgba(0, 0, 0, 0.55);
   --vt-shadow-soft: 0 4px 14px rgba(0, 0, 0, 0.35);
   --vt-radius-sm: 8px;

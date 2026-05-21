@@ -437,13 +437,22 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         :global(.vt-profile-save) {
           padding: 12px 20px;
           border-radius: 999px;
-          background: var(--vt-accent, #fde68a);
-          color: var(--vt-accent-on, #15151a);
+          /* Gold gradient -- matches .vt-profile-action--primary and the rest
+           * of the play-app gold CTAs. --vt-accent is the deprecated sky-blue
+           * token (shell.css :root) so don't reach for it here. */
+          background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+          color: #15151a;
           font-weight: 800;
           border: 0;
           cursor: pointer;
           font-size: 15px;
           min-width: 140px;
+          box-shadow: 0 8px 20px -10px rgba(220, 169, 75, 0.55);
+          transition: background 120ms ease, transform 120ms ease;
+        }
+        :global(.vt-profile-save:hover:not([disabled])) {
+          background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+          transform: translateY(-1px);
         }
         :global(.vt-profile-save[disabled]) {
           opacity: 0.45;
@@ -626,7 +635,7 @@ function MyPoolsSection() {
             {state.pools.map((p) => (
               <li key={p.slug} className="vt-mypools-row">
                 <div className="vt-mypools-row-main">
-                  <a href={`/dashboard/syndicates/${p.slug}`} className="vt-mypools-name">
+                  <a href={`/dashboard/pools/${p.slug}`} className="vt-mypools-name">
                     {p.name}
                   </a>
                   <p className="vt-mypools-meta">
@@ -642,7 +651,7 @@ function MyPoolsSection() {
                     Share
                   </a>
                   <a
-                    href={`/dashboard/syndicates/${p.slug}`}
+                    href={`/dashboard/pools/${p.slug}`}
                     className="vt-profile-cta vt-profile-cta--primary"
                   >
                     Manage

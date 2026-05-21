@@ -28,6 +28,7 @@ import {
   GroupsIcon,
   CodeIcon,
   ShareIcon,
+  MoleculeIcon,
 } from "./icons";
 
 export interface NavLink {
@@ -51,15 +52,26 @@ export interface NavLink {
  * prepended via PRIMARY_DRAWER below, since the desktop bar has its own
  * profile chip and the brand mark already links home).
  */
-// 2026-05-21: play app is bracket-only for the WC 2026 push — Molecule
-// + Watch demo were promoted out of every player-facing surface (still
-// available on the marketing site / dev for future tournaments).
+// 2026-05-22: Molecule restored to the inline desktop nav alongside Predict
+// — it's a distinctive showcase surface (3D atom map of the user's bracket)
+// and worth a top-level entry. Watch demo stays absent for the WC 2026 push.
+// Order matters here: Predict must come before Molecule so the active-state
+// resolver picks the deeper /world-cup-2026/molecule match for that route.
 export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
     label: "Predict",
+    // /world-cup-2026/molecule starts with /world-cup-2026 so we have to
+    // pin Predict's match to the exact root + non-molecule subpaths to
+    // avoid both links lighting up on the molecule route.
     href: "/world-cup-2026",
     icon: <PredictIcon />,
     matchPrefix: "/world-cup-2026",
+  },
+  {
+    label: "Molecule",
+    href: "/world-cup-2026/molecule",
+    icon: <MoleculeIcon />,
+    matchPrefix: "/world-cup-2026/molecule",
   },
   {
     label: "Save & share",
@@ -109,12 +121,13 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
 ];
 
 /**
- * Drawer "World Cup 2026" section — microsite cross-links retained from
- * the original drawer layout. Molecule + Watch were removed for the
- * 2026 WC push (bracket-only focus).
+ * Drawer "World Cup 2026" section — microsite cross-links. Molecule
+ * restored 2026-05-22 (distinctive 3D atom-map showcase surface).
+ * Watch demo stays absent for the WC 2026 push.
  */
 export const DRAWER_WC2026: readonly NavLink[] = [
-  { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
+  { label: "Bracket Prophet",       href: "/world-cup-2026",                                  icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
+  { label: "Molecule",              href: "/world-cup-2026/molecule",                         icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Save & share",          href: "/world-cup-2026/save-share",                       icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
 ];
 
