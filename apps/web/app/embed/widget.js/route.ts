@@ -5,7 +5,7 @@
  * JavaScript bundle. Partners drop this on any site with:
  *
  *   <tournamental-pool slug="your-slug"></tournamental-pool>
- *   <script src="https://embed.tournamental.com/widget.js" async></script>
+ *   <script src="https://play.tournamental.com/embed/widget.js" async></script>
  *
  * The widget is a Custom Element with shadow DOM, so its styles
  * cannot leak into or out of the host page.
@@ -24,7 +24,7 @@
  * window.postMessage when sign-in succeeds and the widget refreshes.
  *
  * In production this is reached at:
- *   - https://embed.tournamental.com/widget.js (CNAME → play; future)
+ *   - https://play.tournamental.com/embed/widget.js (CNAME → play; future)
  *   - https://play.tournamental.com/embed/widget.js (current)
  */
 

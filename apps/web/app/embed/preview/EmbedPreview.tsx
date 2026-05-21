@@ -23,14 +23,14 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
     // One-time script load.
     if (document.querySelector('script[data-tnm-embed]')) return;
     const s = document.createElement("script");
-    s.src = "/embed/widget.js";
+    s.src = "/widget.js";
     s.async = true;
     s.setAttribute("data-tnm-embed", "true");
     document.head.appendChild(s);
   }, []);
 
   const snippet = `<tournamental-syndicate slug="${slug || "your-slug"}"></tournamental-syndicate>
-<script src="https://embed.tournamental.com/widget.js" async></script>`;
+<script src="https://play.tournamental.com/widget.js" async></script>`;
 
   const handleCopy = async (): Promise<void> => {
     try {

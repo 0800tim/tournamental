@@ -32,7 +32,7 @@ export function LiveWidgetDemo({ slug }: { slug: string }): JSX.Element {
     // demo where freshness matters.
     if (!document.querySelector('script[data-tnm-embed-bundle]')) {
       const s = document.createElement("script");
-      s.src = `/embed/widget.js?bv=${Date.now()}`;
+      s.src = `/widget.js?bv=${Date.now()}`;
       s.async = true;
       s.setAttribute("data-tnm-embed-bundle", "true");
       document.head.appendChild(s);

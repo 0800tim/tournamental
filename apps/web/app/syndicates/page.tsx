@@ -298,7 +298,7 @@ export default function SyndicatesIndexPage(): JSX.Element {
             </p>
             <pre className="vt-syndicates-snippet">
               <code>{`<tournamental-syndicate slug="your-syndicate"></tournamental-syndicate>
-<script src="https://embed.tournamental.com/widget.js" async></script>`}</code>
+<script src="https://play.tournamental.com/widget.js" async></script>`}</code>
             </pre>
             <p className="vt-syndicates-aside">
               Works on Squarespace, WordPress, Wix, Shopify, Webflow, and any custom site.

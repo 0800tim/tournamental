@@ -91,7 +91,7 @@ function tierLabel(tier: OwnerSyndicate["tier"]): string {
 }
 
 function embedSnippet(slug: string): string {
-  return `<tournamental-syndicate slug="${slug}"></tournamental-syndicate>\n<script src="https://embed.tournamental.com/widget.js" async></script>`;
+  return `<tournamental-syndicate slug="${slug}"></tournamental-syndicate>\n<script src="https://play.tournamental.com/widget.js" async></script>`;
 }
 
 export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
