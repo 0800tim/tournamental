@@ -27,7 +27,6 @@ import {
   TrophyIcon,
   GroupsIcon,
   CodeIcon,
-  SettingsIcon,
   ShareIcon,
 } from "./icons";
 
@@ -74,6 +73,14 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     icon: <TrophyIcon />,
     matchPrefix: "/leaderboard",
   },
+  // Pools (formerly "Syndicates") promoted to top-level — owner-run
+  // prediction pools are the v0.2 launch surface (Tim 2026-05-22).
+  {
+    label: "Pools",
+    href: "/syndicates",
+    icon: <GroupsIcon />,
+    matchPrefix: "/syndicates",
+  },
 ];
 
 /**
@@ -81,12 +88,14 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
  * warrant inline real-estate but should still be one click away.
  */
 export const MORE_DESKTOP: readonly NavLink[] = [
-  { label: "Home",        href: "/",           icon: <HomeIcon />,     matchPrefix: "__never__" },
-  { label: "Syndicates",  href: "/syndicates", icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
-  { label: "Settings",    href: "/settings",   icon: <SettingsIcon />, matchPrefix: "/settings" },
-  { label: "API keys",    href: "/profile/api-keys", icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
-  { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
-  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  // Home + Settings + Syndicates removed (Tim 2026-05-22): the logo
+  // already links home, Settings was a stub, and Pools graduated to
+  // the top-level inline nav.
+  { label: "About Tournamental", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
+  { label: "How it works",       href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
+  { label: "API keys",           href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
+  { label: "Engineering log",    href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
+  { label: "Open source",        href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
 ];
 
 /**
@@ -119,13 +128,14 @@ export const DRAWER_WC2026: readonly NavLink[] = [
  * "Open source" GitHub link.
  */
 export const DRAWER_SECONDARY: readonly NavLink[] = [
-  { label: "Leaderboard", href: "/leaderboard", icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
-  { label: "Syndicates",  href: "/syndicates",  icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
-  { label: "Create a syndicate", href: "/syndicates/new", icon: <GroupsIcon />, matchPrefix: "/syndicates/new", subItem: true },
-  { label: "About Tournamental", href: "https://tournamental.com", icon: <CodeIcon />, external: true },
-  { label: "Engineering log", href: "https://tournamental.com/engineering", icon: <CodeIcon />, external: true },
-  { label: "Open source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
-  { label: "Settings",    href: "/settings",    icon: <SettingsIcon />, matchPrefix: "/settings" },
+  { label: "Leaderboard",   href: "/leaderboard",     icon: <TrophyIcon />,  matchPrefix: "/leaderboard" },
+  { label: "Pools",         href: "/syndicates",      icon: <GroupsIcon />,  matchPrefix: "/syndicates" },
+  { label: "Create a pool", href: "/syndicates/new",  icon: <GroupsIcon />,  matchPrefix: "/syndicates/new", subItem: true },
+  { label: "About Tournamental", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
+  { label: "How it works",       href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
+  { label: "Engineering log",    href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
+  { label: "Open source",        href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  // Settings removed (Tim 2026-05-22): the route was a stub.
 ];
 
 /**
