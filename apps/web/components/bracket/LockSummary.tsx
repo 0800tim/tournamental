@@ -24,6 +24,7 @@ import {
   lockMultiplier,
 } from "@tournamental/bracket-engine";
 
+import { useUser } from "@/lib/auth/useUser";
 import { localUserId } from "@/lib/bracket/storage";
 import { useCountUp } from "@/lib/motion";
 import { shareContent, tapFeedback } from "@/lib/native";
@@ -145,6 +146,8 @@ export function LockSummary(props: LockSummaryProps) {
     isComplete,
   });
 
+  const auth = useUser();
+
   const handleShare = async (): Promise<void> => {
     void tapFeedback("medium");
     if (typeof window !== "undefined") {
@@ -153,9 +156,19 @@ export function LockSummary(props: LockSummaryProps) {
       if (!Array.isArray(w.dataLayer)) w.dataLayer = [];
       w.dataLayer.push({
         event: "share_clicked",
-        platform: "native",
+        platform: auth.user ? "native" : "redirect-signin",
         surface: "lock-summary",
       });
+    }
+    // If the user isn't signed in, route them to the save-share page
+    // which is now auth-gated — they sign in there and then land on the
+    // share surface with the link bound to their real account, not a
+    // throwaway guest uuid (Tim 2026-05-22).
+    if (!auth.loading && !auth.user) {
+      if (typeof window !== "undefined") {
+        window.location.href = "/world-cup-2026/save-share";
+      }
+      return;
     }
     await shareContent({
       title: buildShareTitle(),

@@ -136,6 +136,17 @@ export function Leaderboard({
             </div>
           )}
         </div>
+        {/* "Share my rank" CTA renders when the caller passed a YOU id and
+          * the row is in view. Doc 24 §Sharing names leaderboard_climbed
+          * as a top-3 viral surface. We extract the data from `members`
+          * server-side and bounce navigator.share via /leaderboard/share
+          * which carries OG meta for unfurl previews (Tim 2026-05-22). */}
+        {highlightMemberId && rows.find((r) => r.id === highlightMemberId) && (
+          <ShareMyRankButton
+            member={rows.find((r) => r.id === highlightMemberId)!}
+            totalMembers={totalMembers ?? rows.length}
+          />
+        )}
         {headerExtras}
       </header>
 
@@ -282,6 +293,67 @@ function badgeLabel(b: NonNullable<MockMember["badge"]>): string {
     case "syndicate-owner":
       return "Owner";
   }
+}
+
+function ShareMyRankButton({
+  member,
+  totalMembers,
+}: {
+  member: MockMember;
+  totalMembers: number;
+}) {
+  const [busy, setBusy] = useState(false);
+  const onClick = async () => {
+    if (typeof window === "undefined") return;
+    setBusy(true);
+    try {
+      const percentile = Math.max(
+        1,
+        Math.min(100, Math.round((member.rank / Math.max(1, totalMembers)) * 100)),
+      );
+      const params = new URLSearchParams();
+      params.set("handle", member.handle);
+      params.set("rank", String(member.rank));
+      params.set("points", String(member.points));
+      params.set("percentile", String(percentile));
+      params.set("scope", "GLOBAL");
+      const url = `https://play.tournamental.com/leaderboard/share?${params.toString()}`;
+      const text = `I'm #${member.rank} on the Tournamental Football World Cup 2026 leaderboard. Catch me ⬇`;
+      try {
+        const w = window as Window & { dataLayer?: Array<Record<string, unknown>> };
+        if (!Array.isArray(w.dataLayer)) w.dataLayer = [];
+        w.dataLayer.push({
+          event: "share_clicked",
+          platform: "native",
+          surface: "leaderboard-rank",
+        });
+      } catch {
+        /* analytics best-effort */
+      }
+      const nav = navigator as Navigator & { share?: (d: ShareData) => Promise<void> };
+      if (typeof nav.share === "function") {
+        await nav.share({ title: "My Tournamental rank", text, url });
+      } else {
+        await navigator.clipboard.writeText(`${text} ${url}`);
+        window.alert("Link copied to clipboard!");
+      }
+    } catch {
+      /* user cancelled or share failed; non-fatal */
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <button
+      type="button"
+      className="vt-lb-share-rank"
+      onClick={onClick}
+      disabled={busy}
+      aria-label="Share my rank"
+    >
+      <span aria-hidden="true">↗</span> {busy ? "Sharing…" : "Share my rank"}
+    </button>
+  );
 }
 
 function SkeletonRows({ count }: { count: number }) {

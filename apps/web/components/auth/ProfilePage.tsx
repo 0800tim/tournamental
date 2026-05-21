@@ -309,6 +309,8 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         )}
       </section>
 
+      <MyPoolsSection />
+
       <section className="vt-section">
         <h2 className="vt-section-title">Developer</h2>
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
@@ -398,6 +400,179 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         }
       `}</style>
     </>
+  );
+}
+
+/* ---------------- my pools ---------------- */
+
+interface MyPool {
+  readonly slug: string;
+  readonly name: string;
+  readonly tier: "free" | "premium";
+  readonly member_count: number;
+}
+
+interface MyPoolsState {
+  status: "loading" | "ready" | "error";
+  pools: MyPool[];
+  message?: string;
+}
+
+function MyPoolsSection() {
+  const [state, setState] = useState<MyPoolsState>({
+    status: "loading",
+    pools: [],
+  });
+
+  useEffect(() => {
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const r = await fetch("/api/v1/syndicates/mine", {
+          method: "GET",
+          credentials: "include",
+          headers: { Accept: "application/json" },
+          signal: ac.signal,
+        });
+        if (!r.ok) {
+          setState({
+            status: "error",
+            pools: [],
+            message: r.status === 401 ? "Sign in to see your pools." : `Server returned ${r.status}`,
+          });
+          return;
+        }
+        const body = (await r.json()) as { syndicates?: MyPool[] };
+        setState({ status: "ready", pools: body.syndicates ?? [] });
+      } catch (e) {
+        if (ac.signal.aborted) return;
+        setState({
+          status: "error",
+          pools: [],
+          message: e instanceof Error ? e.message : "Network error",
+        });
+      }
+    })();
+    return () => ac.abort();
+  }, []);
+
+  return (
+    <section className="vt-section">
+      <h2 className="vt-section-title">My pools</h2>
+      <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
+        Pools you run. Click through to invite members, edit branding, or pause
+        the pool.
+      </p>
+      {state.status === "loading" ? (
+        <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>Loading…</p>
+      ) : state.status === "error" ? (
+        <p style={{ color: "var(--vt-danger, #ef4444)", margin: 0, fontSize: 13 }}>
+          {state.message}
+        </p>
+      ) : state.pools.length === 0 ? (
+        <div className="vt-mypools-empty">
+          <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
+            You haven&apos;t set up a pool yet. They&apos;re free for friend
+            groups under 100 members.
+          </p>
+          <a href="/syndicates/new" className="vt-profile-cta vt-profile-cta--primary">
+            Create a pool
+          </a>
+        </div>
+      ) : (
+        <>
+          <ul className="vt-mypools-list">
+            {state.pools.map((p) => (
+              <li key={p.slug} className="vt-mypools-row">
+                <div className="vt-mypools-row-main">
+                  <a href={`/manage/syndicates/${p.slug}`} className="vt-mypools-name">
+                    {p.name}
+                  </a>
+                  <p className="vt-mypools-meta">
+                    {p.member_count} {p.member_count === 1 ? "member" : "members"}
+                    {p.tier === "premium" ? " · Premium" : ""}
+                  </p>
+                </div>
+                <div className="vt-mypools-actions">
+                  <a
+                    href={`/s/${p.slug}`}
+                    className="vt-profile-cta vt-profile-cta--ghost"
+                  >
+                    Share
+                  </a>
+                  <a
+                    href={`/manage/syndicates/${p.slug}`}
+                    className="vt-profile-cta vt-profile-cta--primary"
+                  >
+                    Manage
+                  </a>
+                </div>
+              </li>
+            ))}
+          </ul>
+          <div style={{ marginTop: 12 }}>
+            <a href="/syndicates/new" className="vt-profile-cta vt-profile-cta--ghost">
+              + New pool
+            </a>
+          </div>
+        </>
+      )}
+      <style jsx>{`
+        .vt-mypools-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: grid;
+          gap: 8px;
+        }
+        .vt-mypools-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          padding: 12px 14px;
+          background: var(--vt-surface-1, #1c1c22);
+          border: 1px solid var(--vt-border, #2a2a31);
+          border-radius: 10px;
+        }
+        .vt-mypools-row-main {
+          min-width: 0;
+          flex: 1 1 auto;
+        }
+        .vt-mypools-name {
+          color: var(--vt-fg, #f4f4f5);
+          text-decoration: none;
+          font-weight: 700;
+          font-size: 15px;
+          display: block;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .vt-mypools-name:hover {
+          color: var(--vt-gold-300, #fcd34d);
+        }
+        .vt-mypools-meta {
+          margin: 2px 0 0;
+          color: var(--vt-fg-muted, #9ca3af);
+          font-size: 12px;
+        }
+        .vt-mypools-actions {
+          display: flex;
+          gap: 6px;
+          flex: 0 0 auto;
+        }
+        @media (max-width: 480px) {
+          .vt-mypools-row {
+            flex-direction: column;
+            align-items: stretch;
+          }
+          .vt-mypools-actions {
+            justify-content: flex-end;
+          }
+        }
+      `}</style>
+    </section>
   );
 }
 

@@ -115,6 +115,30 @@
   }
 }
 
+/* FIFA trademark disclaimer — rendered at the bottom of every
+ * AppShell-wrapped page. Sits above the BottomNav with extra
+ * bottom-margin on mobile to clear the nav, hairline rule on top so it
+ * reads as a distinct legal block rather than copy. (Tim 2026-05-22.) */
+.vt-shell-disclaimer {
+  margin: clamp(40px, 6vw, 64px) 16px 24px;
+  padding: 16px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: rgba(205, 213, 231, 0.55);
+  text-align: center;
+  max-width: 60rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+.vt-shell-disclaimer strong {
+  color: rgba(205, 213, 231, 0.78);
+  font-weight: 600;
+}
+.vt-shell-disclaimer p {
+  margin: 0 16px;
+}
+
 /* ---------- AppBar ---------- */
 
 .vt-appbar {
@@ -139,11 +163,47 @@
 .vt-appbar-row-main {
   height: 56px;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto auto;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 0 16px;
   flex: 0 0 auto;
+}
+
+/* Mobile auth chip lives between the title and the hamburger. Hidden
+ * on desktop where DesktopNav owns the AuthChip in the right rail. */
+.vt-appbar-auth-mobile {
+  display: inline-flex;
+}
+@media (min-width: 768px) {
+  .vt-appbar-auth-mobile {
+    display: none;
+  }
+}
+/* Compact the chip variants so they don't crowd the burger on phones. */
+.vt-appbar-auth-mobile .vt-appbar-auth {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+}
+.vt-appbar-auth-mobile .vt-appbar-auth-signin {
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #15151a;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  border: 0;
+  box-shadow: 0 6px 14px -6px rgba(220, 169, 75, 0.55);
+}
+.vt-appbar-auth-mobile .vt-appbar-auth-signin:hover {
+  background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+}
+/* Profile chip on mobile collapses to just the avatar — handle text
+ * would clip the title on a narrow viewport. */
+.vt-appbar-auth-mobile .vt-appbar-auth-profile {
+  padding: 4px;
+}
+.vt-appbar-auth-mobile .vt-appbar-auth-handle {
+  display: none;
 }
 
 .vt-appbar-brand {

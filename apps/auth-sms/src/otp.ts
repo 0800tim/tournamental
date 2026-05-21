@@ -75,11 +75,21 @@ export function formatSmsBody(opts: {
   );
 }
 
-/** WhatsApp message body — no WebOTP suffix needed (different surface). */
+/** WhatsApp message body — no WebOTP suffix needed (different surface).
+ * When a `magicLinkUrl` is supplied we include it inline so a phone
+ * user can tap to sign in instead of typing the code (2026-05-22). */
 export function formatWhatsAppBody(opts: {
   code: string;
   productName?: string;
+  magicLinkUrl?: string;
 }): string {
   const product = opts.productName ?? 'Tournamental';
+  if (opts.magicLinkUrl) {
+    return (
+      `Your ${product} login code is: *${opts.code}*\n\n` +
+      `Tap to sign in instantly:\n${opts.magicLinkUrl}\n\n` +
+      `Or enter the code on the website. Expires in 5 minutes.`
+    );
+  }
   return `Your ${product} code is *${opts.code}*. Expires in 10 minutes.`;
 }

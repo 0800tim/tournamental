@@ -142,6 +142,7 @@ export class SyndicatePersistence {
   private getBySlugStmt!: Statement;
   private getByIdStmt!: Statement;
   private insertMemberStmt!: Statement;
+  private handleTakenStmt!: Statement;
   private getMembersBySyndicateStmt!: Statement;
   private upsertUserStmt!: Statement;
   private insertPendingGhlStmt!: Statement;
@@ -155,6 +156,16 @@ export class SyndicatePersistence {
     this.db.pragma("journal_mode = WAL");
     this.db.pragma("synchronous = NORMAL");
     this.db.pragma("foreign_keys = ON");
+    // Run additive ALTER TABLE migrations BEFORE preparing statements
+    // — `prepareStatements` references handle + display_name columns
+    // on syndicate_owners_membership and would throw if the table
+    // exists with the legacy schema.
+    try {
+      this.migrateMembershipColumns();
+    } catch {
+      /* swallow on a brand-new DB where the table doesn't exist yet —
+       * ensureSchema() will create it with the full schema. */
+    }
     this.prepareStatements();
   }
 
@@ -211,8 +222,12 @@ export class SyndicatePersistence {
         user_id      TEXT NOT NULL,
         role         TEXT NOT NULL DEFAULT 'owner',
         joined_at    INTEGER NOT NULL,
+        handle       TEXT,
+        display_name TEXT,
         PRIMARY KEY (syndicate_id, user_id)
       );
+      CREATE INDEX IF NOT EXISTS idx_membership_handle
+        ON syndicate_owners_membership(syndicate_id, handle COLLATE NOCASE);
       CREATE TABLE IF NOT EXISTS syndicates_pending_ghl (
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         syndicate_id    TEXT NOT NULL,
@@ -225,7 +240,34 @@ export class SyndicatePersistence {
       CREATE INDEX IF NOT EXISTS idx_pending_ghl_next_attempt
         ON syndicates_pending_ghl(next_attempt_at);
     `);
+    this.migrateMembershipColumns();
     this.prepareStatements();
+  }
+
+  /** 2026-05-22: add `handle` + `display_name` to membership for the
+   * pool-scoped join modal. SQLite ADD COLUMN is non-destructive on
+   * the existing rows so the migration runs idempotently. */
+  private migrateMembershipColumns(): void {
+    const cols = this.db
+      .prepare(`PRAGMA table_info(syndicate_owners_membership)`)
+      .all() as { name: string }[];
+    const has = (n: string) => cols.some((c) => c.name === n);
+    if (!has("handle")) {
+      this.db.exec(
+        `ALTER TABLE syndicate_owners_membership ADD COLUMN handle TEXT`,
+      );
+    }
+    if (!has("display_name")) {
+      this.db.exec(
+        `ALTER TABLE syndicate_owners_membership ADD COLUMN display_name TEXT`,
+      );
+    }
+    // Index may not exist yet on legacy DBs that pre-date the schema
+    // bump; recreate it idempotently.
+    this.db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_membership_handle
+         ON syndicate_owners_membership(syndicate_id, handle COLLATE NOCASE)`,
+    );
   }
 
   private prepareStatements(): void {
@@ -261,12 +303,18 @@ export class SyndicatePersistence {
     );
     this.insertMemberStmt = this.db.prepare(
       `INSERT INTO syndicate_owners_membership
-         (syndicate_id, user_id, role, joined_at)
-       VALUES (@syndicate_id, @user_id, @role, @joined_at)
-       ON CONFLICT(syndicate_id, user_id) DO NOTHING`,
+         (syndicate_id, user_id, role, joined_at, handle, display_name)
+       VALUES (@syndicate_id, @user_id, @role, @joined_at, @handle, @display_name)
+       ON CONFLICT(syndicate_id, user_id) DO UPDATE SET
+         handle = COALESCE(excluded.handle, syndicate_owners_membership.handle),
+         display_name = COALESCE(excluded.display_name, syndicate_owners_membership.display_name)`,
+    );
+    this.handleTakenStmt = this.db.prepare(
+      `SELECT 1 FROM syndicate_owners_membership
+        WHERE syndicate_id = ? AND LOWER(handle) = LOWER(?) LIMIT 1`,
     );
     this.getMembersBySyndicateStmt = this.db.prepare(
-      `SELECT user_id, role, joined_at
+      `SELECT user_id, role, joined_at, handle, display_name
          FROM syndicate_owners_membership
         WHERE syndicate_id = ?
         ORDER BY joined_at ASC`,
@@ -335,6 +383,8 @@ export class SyndicatePersistence {
     user_id: string;
     role: string;
     joined_at: number;
+    handle?: string | null;
+    display_name?: string | null;
   }> {
     if (!this.getMembersBySyndicateStmt) this.prepareStatements();
     if (!this.getMembersBySyndicateStmt) return [];
@@ -342,7 +392,47 @@ export class SyndicatePersistence {
       user_id: string;
       role: string;
       joined_at: number;
+      handle?: string | null;
+      display_name?: string | null;
     }>;
+  }
+
+  /** True if another member of this syndicate already claims this
+   * handle (case-insensitive). The join modal calls this BEFORE
+   * sending the OTP so the user can pick again without spending an
+   * OTP attempt. */
+  isHandleTakenInSyndicate(syndicateId: string, handle: string): boolean {
+    if (!this.handleTakenStmt) this.prepareStatements();
+    if (!this.handleTakenStmt) return false;
+    const row = this.handleTakenStmt.get(syndicateId, handle.trim()) as
+      | { 1: number }
+      | undefined;
+    return !!row;
+  }
+
+  /** Insert (or upsert) a pool membership row with optional handle +
+   * display name. Returns `inserted` (true on a new row, false on a
+   * dedupe collision). The owner-create path uses the same stmt
+   * during createSyndicate. */
+  addMember(args: {
+    syndicate_id: string;
+    user_id: string;
+    role?: "owner" | "member";
+    handle?: string | null;
+    display_name?: string | null;
+    now?: number;
+  }): { inserted: boolean } {
+    if (!this.insertMemberStmt) this.prepareStatements();
+    if (!this.insertMemberStmt) throw new Error("syndicate schema not ready");
+    const result = this.insertMemberStmt.run({
+      syndicate_id: args.syndicate_id,
+      user_id: args.user_id,
+      role: args.role ?? "member",
+      joined_at: args.now ?? Date.now(),
+      handle: args.handle ?? null,
+      display_name: args.display_name ?? null,
+    });
+    return { inserted: (result.changes ?? 0) > 0 };
   }
 
   /**
@@ -415,6 +505,8 @@ export class SyndicatePersistence {
         user_id: ownerMemberId,
         role: "owner",
         joined_at: now,
+        handle: input.owner_handle ?? null,
+        display_name: null,
       });
     });
     txn();
@@ -615,11 +707,12 @@ export function getPersistence(): SyndicatePersistence {
   if (_persistence) return _persistence;
   const dbPath = process.env.GAME_DB_PATH ?? "./apps/game/data/game.db";
   _persistence = new SyndicatePersistence({ dbPath });
-  // In test/dev where the game service hasn't run, ensure schema is
-  // present so the web route doesn't blow up on first use.
-  if (!_persistence.isReady()) {
-    _persistence.ensureSchema();
-  }
+  // Always run ensureSchema so additive ALTER-TABLE migrations (e.g.
+  // 2026-05-22's `handle` + `display_name` columns on the membership
+  // table) get applied even when the base tables already exist.
+  // CREATE TABLE IF NOT EXISTS + the explicit migration step are
+  // both idempotent so this is safe to call on every cold start.
+  _persistence.ensureSchema();
   return _persistence;
 }
 

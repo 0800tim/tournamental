@@ -19,6 +19,7 @@
  *   - We never echo the OTP back to the client.
  */
 
+import { randomBytes } from 'node:crypto';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { AuthContext } from '../context.js';
@@ -30,12 +31,20 @@ import {
   formatSmsBody,
   formatWhatsAppBody,
 } from '../otp.js';
+import { buildMagicLinkUrl } from './inbound-login.js';
 import { phoneLogId } from '../storage.js';
 import { truncateUa } from '../audit.js';
 
 const BodySchema = z.object({
   phone: z.string().min(1).max(32),
   channel: z.enum(['sms', 'whatsapp']),
+  /** Optional pool slug to bake into the magic-link URL (`?pool=…`) so
+   * the user lands on the share-landing they came from after sign-in.
+   * Validated as a syndicate slug shape (a-z 0-9 dash, max 64). */
+  pool_slug: z
+    .string()
+    .regex(/^[a-z0-9-]{1,64}$/i)
+    .optional(),
 });
 
 function clientIp(req: FastifyRequest): string {
@@ -49,6 +58,22 @@ export async function registerRequestOtp(
   app: FastifyInstance,
   ctx: AuthContext,
 ): Promise<void> {
+  // GET /v1/auth/phone-registered?phone=… — public probe used by the
+  // join-modal so we can tell a returning user "this number is already
+  // registered, please log in via WhatsApp" before we burn an OTP
+  // attempt on them (Tim 2026-05-22). The endpoint returns a boolean
+  // and nothing else; the audit log records the lookup so abuse is
+  // observable.
+  app.get('/v1/auth/phone-registered', async (req, reply) => {
+    const q = (req.query as { phone?: string }) ?? {};
+    const phone = normalisePhone(q.phone ?? '');
+    if (!phone) {
+      return reply.code(400).send({ error: 'bad-phone' });
+    }
+    const registered = ctx.storage.userExistsByPhone(phone);
+    return reply.code(200).send({ ok: true, registered });
+  });
+
   app.post('/v1/auth/request', async (req, reply) => {
     const parsed = BodySchema.safeParse(req.body);
     if (!parsed.success) {
@@ -102,6 +127,11 @@ export async function registerRequestOtp(
       secret: ctx.config.otpSecret,
     });
     const expiresAt = now + ctx.config.otpTtlSeconds;
+    // Mint a 32-byte magic-link token so the outbound flow ALSO
+    // supports the one-tap link (the inbound flow has always had
+    // this; the outbound /v1/auth/request did code-only until the
+    // join-modal work landed on 2026-05-22).
+    const magicToken = randomBytes(32).toString('hex');
     ctx.storage.upsertOtp({
       phone,
       otp_hash: otpHash,
@@ -109,11 +139,23 @@ export async function registerRequestOtp(
       attempts: 0,
       expires_at: expiresAt,
       created_at: now,
-      challenge: null,
+      challenge: magicToken,
       bound_ip: null,
       bound_ua_fp: null,
       magic_attempts: 0,
     });
+
+    // Build the magic-link URL, optionally with the pool slug so the
+    // user lands back on the syndicate share-landing they came from.
+    let magicLinkUrl = buildMagicLinkUrl(
+      ctx.config.magicLinkBaseUrl,
+      magicToken,
+    );
+    const poolSlug = parsed.data.pool_slug;
+    if (poolSlug) {
+      const sep = magicLinkUrl.includes('?') ? '&' : '?';
+      magicLinkUrl = `${magicLinkUrl}${sep}pool=${encodeURIComponent(poolSlug)}`;
+    }
 
     const body =
       channel === 'sms'
@@ -125,6 +167,7 @@ export async function registerRequestOtp(
         : formatWhatsAppBody({
             code,
             productName: ctx.config.productName,
+            magicLinkUrl,
           });
 
     const result =

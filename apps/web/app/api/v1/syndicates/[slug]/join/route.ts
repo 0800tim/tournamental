@@ -27,6 +27,7 @@ const AUTH_API = process.env.AUTH_API_URL ?? "http://localhost:3330";
 
 const BodySchema = z.object({
   handle: z.string().min(2).max(32).regex(/^[a-zA-Z0-9_]+$/).optional(),
+  display_name: z.string().min(1).max(60).optional(),
 });
 
 function json(body: unknown, status = 200): Response {
@@ -82,30 +83,53 @@ export async function POST(
   }
 
   const parsed = BodySchema.safeParse(body);
-  const handle = parsed.success ? (parsed.data.handle ?? session.displayName ?? null) : session.displayName ?? null;
+  const submittedHandle = parsed.success ? parsed.data.handle : undefined;
+  const submittedDisplayName = parsed.success ? parsed.data.display_name : undefined;
+  const handle = submittedHandle ?? session.displayName ?? null;
 
   if (!handle || handle.length < 2) {
     return json({ error: "bad_handle", message: "A handle is required to join." }, 400);
   }
 
-  // Insert member row. The membership table's PRIMARY KEY (syndicate_id,
-  // user_id) plus ON CONFLICT DO NOTHING means a duplicate self-join is
-  // silently absorbed — `changes` will be 0 in that case. We must check
-  // it explicitly: incrementing member_count unconditionally was the
-  // root cause of the spurious "member_1/2/3" entries on the landing
-  // page, because the renderer used to synthesise members from the
-  // cached count.
-  let inserted = 0;
+  // Handle collision check (per-pool). Skip if the user is rejoining
+  // with the SAME handle they already hold in this pool.
+  if (
+    submittedHandle &&
+    persistence.isHandleTakenInSyndicate(row.id, submittedHandle)
+  ) {
+    const claimedBySomeoneElse = persistence
+      .getMembers(row.id)
+      .some(
+        (m) =>
+          !!m.handle &&
+          m.handle.toLowerCase() === submittedHandle.toLowerCase() &&
+          m.user_id !== session.id,
+      );
+    if (claimedBySomeoneElse) {
+      return json(
+        {
+          error: "handle_taken",
+          message: `Sorry, "${submittedHandle}" is already taken in this pool. Pick a different handle.`,
+        },
+        409,
+      );
+    }
+  }
+
+  // Insert (or upsert) member row via the persistence API. The new
+  // `addMember` helper carries handle + display_name through and
+  // returns whether a fresh row was inserted vs an existing row
+  // upserted.
+  let inserted = false;
   try {
-    const result = (persistence as unknown as {
-      insertMemberStmt: { run: (args: Record<string, unknown>) => { changes: number } };
-    }).insertMemberStmt?.run({
+    const r = persistence.addMember({
       syndicate_id: row.id,
       user_id: session.id,
       role: "member",
-      joined_at: Date.now(),
+      handle,
+      display_name: submittedDisplayName ?? session.displayName ?? null,
     });
-    inserted = result?.changes ?? 0;
+    inserted = r.inserted;
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("UNIQUE constraint failed")) {
@@ -114,10 +138,15 @@ export async function POST(
     throw err;
   }
 
-  if (inserted === 0) {
-    // Already a member (owner re-join or repeat join). Return the
-    // current count untouched.
-    return json({ error: "already_member", member_count: row.member_count }, 409);
+  if (!inserted) {
+    // Already a member (owner re-join or repeat join). Handle /
+    // display_name still update via the UPSERT in addMember, so the
+    // caller's chosen handle wins for future leaderboards.
+    return json({
+      ok: true,
+      already_member: true,
+      member_count: row.member_count,
+    });
   }
 
   // Bump the cached member_count on the syndicates row. The game

@@ -59,6 +59,8 @@ import {
   shareUrlFor,
 } from "@/lib/share/share-text";
 
+import { SignupModal } from "@/components/auth/SignupModal";
+
 import { MoleculeSharePreview } from "./MoleculeSharePreview";
 
 import "./share-save.css";
@@ -551,6 +553,17 @@ export function ShareSavePage({
 
   const lastSaved = formatTimestamp(bracket?.lockedAt);
 
+  // Auth gate: if the user is browsing the save-share page anonymously
+  // they get an anonymous share URL bound to a localStorage uuid that
+  // recipients can't trace back. That's a poor sharing experience, so
+  // we require sign-in. The pretty preview stays parked behind the
+  // SignupModal. Once the user signs in (cookie set by auth-sms +
+  // useUser() refreshes) the auth.user becomes non-null and this gate
+  // unmounts to reveal the share surface (Tim 2026-05-22).
+  if (!auth.loading && !auth.user) {
+    return <ShareSignInGate />;
+  }
+
   return (
     <main className="vt-ss-page" aria-labelledby="vt-ss-title">
       {/* Hero strip */}
@@ -799,5 +812,98 @@ function EmailIcon(): JSX.Element {
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
       <path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 4.2v9.8h16V8.2l-8 5.34L4 8.2ZM4 6l8 5.33L20 6H4Z" />
     </svg>
+  );
+}
+
+/**
+ * Sign-in gate shown when an unauthenticated user lands on the
+ * save-share surface. Tim's launch requirement: every shared bracket
+ * must be tied to a real account so the recipient lands on a page that
+ * names the predictor (Tim 2026-05-22).
+ */
+function ShareSignInGate(): JSX.Element {
+  const [open, setOpen] = useState(true);
+  return (
+    <main className="vt-ss-gate" aria-labelledby="vt-ss-gate-title">
+      <div className="vt-ss-gate-card">
+        <p className="vt-ss-eyebrow">One quick step</p>
+        <h1 id="vt-ss-gate-title" className="vt-ss-gate-title">
+          Sign in to share your bracket
+        </h1>
+        <p className="vt-ss-gate-sub">
+          We attach your share link to your account so friends can see your
+          name, your handle, and your live leaderboard rank when they open it.
+          One tap via WhatsApp or Telegram. No password.
+        </p>
+        <button
+          type="button"
+          className="vt-ss-gate-cta"
+          onClick={() => setOpen(true)}
+        >
+          Sign in to continue →
+        </button>
+        <p className="vt-ss-gate-back">
+          <a href="/world-cup-2026">← Back to the bracket</a>
+        </p>
+      </div>
+      <SignupModal open={open} onClose={() => setOpen(false)} />
+      <style jsx>{`
+        .vt-ss-gate {
+          min-height: 60vh;
+          display: grid;
+          place-items: center;
+          padding: 48px 16px;
+        }
+        .vt-ss-gate-card {
+          max-width: 520px;
+          width: 100%;
+          background: var(--vt-surface-1, #1c1c22);
+          border: 1px solid var(--vt-border, #2a2a31);
+          border-radius: 14px;
+          padding: 32px;
+          text-align: center;
+        }
+        .vt-ss-gate-title {
+          font-family: var(--vt-display, "Fraunces", serif);
+          font-size: clamp(24px, 4vw, 34px);
+          line-height: 1.15;
+          margin: 8px 0 14px;
+          color: var(--vt-fg, #f4f4f5);
+        }
+        .vt-ss-gate-sub {
+          color: var(--vt-fg-muted, #9ca3af);
+          font-size: 14px;
+          line-height: 1.55;
+          margin: 0 0 22px;
+        }
+        .vt-ss-gate-cta {
+          display: inline-block;
+          padding: 14px 22px;
+          background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+          color: #15151a;
+          border: 0;
+          border-radius: 10px;
+          font-weight: 800;
+          font-size: 15px;
+          cursor: pointer;
+          letter-spacing: 0.01em;
+          box-shadow: 0 8px 22px -8px rgba(220, 169, 75, 0.65);
+        }
+        .vt-ss-gate-cta:hover {
+          background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+        }
+        .vt-ss-gate-back {
+          margin: 18px 0 0;
+          font-size: 13px;
+        }
+        .vt-ss-gate-back a {
+          color: var(--vt-fg-muted, #9ca3af);
+          text-decoration: none;
+        }
+        .vt-ss-gate-back a:hover {
+          color: var(--vt-gold-300, #fcd34d);
+        }
+      `}</style>
+    </main>
   );
 }

@@ -19,7 +19,7 @@
 
 import { useEffect, useState } from "react";
 
-import { verifyMagicToken } from "@/lib/auth/inbound-login";
+import { AUTH_BASE, verifyMagicToken } from "@/lib/auth/inbound-login";
 
 type Phase =
   | { state: "idle" }
@@ -28,6 +28,79 @@ type Phase =
   | { state: "error"; message: string };
 
 const MAGIC_TOKEN_PARAM = "v";
+const POOL_PARAM = "pool";
+
+/** Slug shape — must match the syndicate slug regex used server-side. */
+const POOL_SLUG_RE = /^[a-z0-9-]{1,64}$/i;
+
+const LS_PENDING_JOIN = "tnm.pending_join.v1";
+
+interface PendingJoin {
+  readonly slug: string;
+  readonly handle: string;
+  readonly displayName: string;
+}
+
+function loadPendingJoin(): PendingJoin | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = window.localStorage.getItem(LS_PENDING_JOIN);
+    if (!raw) return null;
+    const j = JSON.parse(raw) as PendingJoin;
+    if (j && typeof j.slug === "string") return j;
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+function clearPendingJoin(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.removeItem(LS_PENDING_JOIN);
+  } catch {
+    /* ignore */
+  }
+}
+
+/** After auth-sms mints a session, bind the handle/display_name from a
+ * pending-join localStorage record and POST the pool join. Same-device
+ * code-paste already does this inside JoinSyndicate; this path handles
+ * the magic-link cross-device case. */
+async function applyPendingJoinIfPresent(poolFromUrl: string | null): Promise<string | null> {
+  const pending = loadPendingJoin();
+  // Prefer the slug from the URL ?pool= param when it's present —
+  // that's the source of truth from auth-sms's magicLinkUrl builder.
+  const slug = poolFromUrl ?? pending?.slug ?? null;
+  if (!slug) return null;
+  if (pending && pending.displayName) {
+    try {
+      await fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/me`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ display_name: pending.displayName }),
+      });
+    } catch {
+      /* non-fatal */
+    }
+  }
+  try {
+    await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/join`, {
+      method: "POST",
+      credentials: "include",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        handle: pending?.handle,
+        display_name: pending?.displayName,
+      }),
+    });
+  } catch {
+    /* non-fatal — user lands on /s/<slug> either way */
+  }
+  clearPendingJoin();
+  return slug;
+}
 
 export function MagicLinkConsumer() {
   const [phase, setPhase] = useState<Phase>({ state: "idle" });
@@ -38,13 +111,23 @@ export function MagicLinkConsumer() {
     const token = params.get(MAGIC_TOKEN_PARAM);
     if (!token || !/^[a-f0-9]{64}$/i.test(token)) return;
 
+    // The link may carry `?pool=<slug>` (set by auth-sms's request-otp
+    // when the join modal kicked off the OTP). After successful
+    // verify we land the user on /s/<slug> so the magic-link path
+    // mirrors the same-device code-paste flow (Tim 2026-05-22).
+    const poolRaw = params.get(POOL_PARAM);
+    const pool =
+      poolRaw && POOL_SLUG_RE.test(poolRaw) ? poolRaw.toLowerCase() : null;
+
     setPhase({ state: "busy" });
 
-    void verifyMagicToken(token).then((res) => {
-      // Strip ?v= so a refresh doesn't retry a now-burned token.
+    void verifyMagicToken(token).then(async (res) => {
+      // Strip ?v= (and ?pool=) so a refresh doesn't retry a burned
+      // token. We hold the pool value in the closure for the redirect.
       try {
         const url = new URL(window.location.href);
         url.searchParams.delete(MAGIC_TOKEN_PARAM);
+        url.searchParams.delete(POOL_PARAM);
         const clean = url.pathname + (url.search ? `?${url.searchParams.toString()}` : "") + url.hash;
         window.history.replaceState(null, "", clean || "/");
       } catch {
@@ -52,15 +135,22 @@ export function MagicLinkConsumer() {
       }
 
       if (res.ok) {
+        // If a pending-join is queued in localStorage OR the link
+        // carries ?pool=, bind handle/display_name + add the user to
+        // the pool, then bounce to /s/<slug>.
+        const slug = await applyPendingJoinIfPresent(pool);
         // Show success briefly so the user sees a clear confirmation,
-        // then reload so the auth context picks up the new session
-        // cookie. Replace (not push) so the back button doesn't go
-        // back to the now-burned ?v= URL.
+        // then redirect. Replace (not push) so the back button doesn't
+        // go back to the now-burned ?v= URL.
         setPhase({ state: "success", phone: res.user.phone });
         window.setTimeout(() => {
-          window.location.replace(
-            window.location.pathname + window.location.search + window.location.hash,
-          );
+          if (slug) {
+            window.location.replace(`/s/${encodeURIComponent(slug)}`);
+          } else {
+            window.location.replace(
+              window.location.pathname + window.location.search + window.location.hash,
+            );
+          }
         }, 1200);
         return;
       }

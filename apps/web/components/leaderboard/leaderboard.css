@@ -46,6 +46,36 @@
   gap: 12px;
 }
 
+.vt-lb-share-rank {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  align-self: flex-start;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 0;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #15151a;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 6px 16px -6px rgba(220, 169, 75, 0.55);
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.vt-lb-share-rank:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+  transform: translateY(-1px);
+}
+
+.vt-lb-share-rank:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
 .vt-lb-title {
   font-size: 18px;
   font-weight: 800;

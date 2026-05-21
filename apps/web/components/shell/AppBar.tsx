@@ -26,6 +26,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { AuthChip } from "./AuthChip";
 import { DesktopNav } from "./DesktopNav";
 
 export interface AppBarProps {
@@ -111,9 +112,19 @@ export function AppBar({
             {rightAction.icon}
           </button>
         ) : onMenuClick ? (
-          <button
-            type="button"
-            className="vt-appbar-action vt-appbar-menu"
+          <>
+            {/* Mobile-only auth chip sits LEFT of the hamburger so a
+              * signed-in user can tap to /profile in one move and a
+              * guest gets a small gold sign-in pill (Tim 2026-05-22).
+              * The DesktopNav on >= 768px has its own AuthChip in the
+              * right rail; this duplicate is hidden via the media
+              * query in shell.css. */}
+            <span className="vt-appbar-auth-mobile" aria-hidden={false}>
+              <AuthChip />
+            </span>
+            <button
+              type="button"
+              className="vt-appbar-action vt-appbar-menu"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen ? "true" : "false"}
             data-open={menuOpen ? "1" : "0"}
@@ -144,6 +155,7 @@ export function AppBar({
               )}
             </svg>
           </button>
+          </>
         ) : (
           <span aria-hidden="true" />
         )}

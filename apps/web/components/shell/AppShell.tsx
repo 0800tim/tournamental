@@ -121,6 +121,17 @@ export function AppShell({
       ) : null}
       <main className="vt-shell-main" id="main">
         {children}
+        {/* FIFA trademark disclaimer — Tim 2026-05-22. Nominative fair
+         * use only; we surface the disclaimer site-wide so it sits on
+         * every page that mentions the FIFA World Cup. */}
+        <footer className="vt-shell-disclaimer" role="contentinfo">
+          <p>
+            Tournamental is independent and not affiliated with, endorsed
+            by, or sponsored by FIFA. <strong>FIFA World Cup™</strong> and{" "}
+            <strong>FIFA World Cup 2026™</strong> are trademarks of
+            Fédération Internationale de Football Association.
+          </p>
+        </footer>
       </main>
       {showBottomNav ? (
         <BottomNav

@@ -32,9 +32,9 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
 export const metadata: Metadata = {
-  title: "Tournamental — predict every match of the 2026 World Cup",
+  title: "Tournamental — predict every match of the FIFA World Cup 2026™",
   description:
-    "Free-to-play Football World Cup 2026 prediction game. Pick all 104 matches, change any pick up to kickoff, and run a branded pool for your audience. Blockchain-anchored picks so the claim to glory is finally provable.",
+    "Free-to-play FIFA World Cup 2026™ prediction game. Pick all 104 matches, change any pick up to kickoff, and run a branded pool for your audience. Blockchain-anchored picks so the claim to glory is finally provable. Tournamental is independent and not affiliated with FIFA.",
 };
 
 export default function HomePage(): JSX.Element {
@@ -51,7 +51,7 @@ export default function HomePage(): JSX.Element {
           <div className="vt-home-hero-bg" aria-hidden="true" />
           <div className="vt-home-hero-inner">
             <p className="vt-home-dateline">
-              Tournamental · World Cup 2026 · Kickoff 11 June 2026
+              Tournamental · FIFA World Cup 2026™ · Kickoff 11 June 2026
             </p>
             <div className="vt-home-hero-top">
               <h1 className="vt-home-headline">
@@ -265,7 +265,7 @@ export default function HomePage(): JSX.Element {
               <span className="vt-home-qs-n">2</span>
               <div>
                 <h3>Track every match</h3>
-                <p>World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard.</p>
+                <p>The FIFA World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard.</p>
               </div>
             </li>
             <li>

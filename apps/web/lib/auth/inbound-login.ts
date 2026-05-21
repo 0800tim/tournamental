@@ -211,14 +211,30 @@ export async function verifyEmailOtp(
   };
 }
 
-/** wa.me deep-link with `login` pre-filled. Opens the user's WhatsApp. */
-export function whatsAppLoginDeepLink(): string {
-  return `https://wa.me/${WHATSAPP_NUMBER}?text=login`;
+/** wa.me deep-link with `login` pre-filled. Opens the user's WhatsApp.
+ * When a pool slug is supplied the pre-filled text becomes
+ * `login pool=<slug>`, which the aiva-sms inbound parser can route into
+ * a magic-link URL that carries `?pool=<slug>` so the post-auth bounce
+ * lands on /s/<slug>. The same-device localStorage fallback in
+ * MagicLinkConsumer covers older aiva-sms builds that ignore the
+ * suffix. */
+export function whatsAppLoginDeepLink(poolSlug?: string | null): string {
+  const slug =
+    poolSlug && /^[a-z0-9-]{1,64}$/i.test(poolSlug)
+      ? poolSlug.toLowerCase()
+      : null;
+  const text = slug ? `login pool=${slug}` : "login";
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
 /** sms: deep-link with `login` pre-filled. NZ/AU only. */
-export function smsLoginDeepLink(): string {
-  return `sms:+${SMS_NUMBER}?&body=login`;
+export function smsLoginDeepLink(poolSlug?: string | null): string {
+  const slug =
+    poolSlug && /^[a-z0-9-]{1,64}$/i.test(poolSlug)
+      ? poolSlug.toLowerCase()
+      : null;
+  const body = slug ? `login pool=${slug}` : "login";
+  return `sms:+${SMS_NUMBER}?&body=${encodeURIComponent(body)}`;
 }
 
 /**

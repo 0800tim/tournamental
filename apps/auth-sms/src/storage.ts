@@ -537,6 +537,18 @@ export class Storage {
 
   // ---- Users ----
 
+  /** True if a user row already exists for this normalised phone.
+   * Used by the join-modal flow to short-circuit before sending an
+   * OTP — existing users get pointed at the WhatsApp login path
+   * instead of accidentally trying to register the same number twice
+   * (Tim 2026-05-22). */
+  userExistsByPhone(phone: string): boolean {
+    const row = this.db
+      .prepare(`SELECT 1 FROM user WHERE phone = ? LIMIT 1`)
+      .get(phone) as { 1: number } | undefined;
+    return !!row;
+  }
+
   /** Find by phone, or create a new user. Returns the user. */
   findOrCreateUser(phone: string, now: number): UserRecord {
     const existing = this.db

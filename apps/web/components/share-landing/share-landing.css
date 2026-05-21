@@ -794,6 +794,135 @@
   gap: 10px;
 }
 
+/* ── JoinSyndicate modal — Tim 2026-05-22 ──────────────────────────
+ * Multi-step signup-on-join flow. Reuses .vt-share-modal-* chrome and
+ * adds form-specific spacing + an inline email-fallback row + the
+ * "phone already registered" path. */
+.vt-join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.vt-join-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--vt-share-ink-muted);
+  letter-spacing: 0.02em;
+}
+.vt-join-label > span {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+}
+.vt-join-code-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vt-join-code-input {
+  text-align: center;
+  letter-spacing: 0.4em;
+  font-variant-numeric: tabular-nums;
+  font-size: 22px;
+  font-weight: 700;
+}
+.vt-join-fallback {
+  margin-top: 6px;
+  padding: 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vt-join-fallback-lede {
+  margin: 0;
+  font-size: 13px;
+  color: var(--vt-share-ink-muted);
+}
+.vt-join-fallback-lede strong {
+  color: var(--vt-share-ink);
+}
+.vt-join-fallback-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vt-join-fallback-row .vt-share-modal-input {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.vt-join-error {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(207, 60, 60, 0.15);
+  border: 1px solid rgba(207, 60, 60, 0.4);
+  color: #ff9c9c;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.vt-join-error--registered {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(220, 169, 75, 0.10);
+  border-color: rgba(220, 169, 75, 0.4);
+  color: #fde68a;
+}
+.vt-join-error--registered .vt-share-cta {
+  align-self: flex-start;
+}
+.vt-join-info {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: rgba(110, 198, 134, 0.10);
+  border: 1px solid rgba(110, 198, 134, 0.35);
+  color: #c8e6d3;
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+.vt-join-footnote {
+  margin: 0;
+  font-size: 11.5px;
+  color: var(--vt-share-ink-muted);
+  line-height: 1.55;
+  opacity: 0.7;
+}
+.vt-join-back {
+  background: transparent;
+  border: 0;
+  color: var(--vt-share-ink-muted);
+  padding: 8px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.vt-join-back:hover {
+  color: var(--vt-share-ink);
+}
+.vt-join-inline-link {
+  background: transparent;
+  border: 0;
+  color: var(--vt-gold-400, #dca94b);
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+}
+.vt-join-success {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  text-align: center;
+  padding: 8px 0;
+}
+
 /* ── Embedded molecule (read-only on /s/[guid] user landing) ─────── */
 
 /*

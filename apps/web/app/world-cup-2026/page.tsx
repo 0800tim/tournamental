@@ -38,11 +38,11 @@ export const dynamic = "force-dynamic";
 const SHARE_DEFAULT_OG = "/og/bracket/default.png";
 
 export const metadata: Metadata = {
-  title: "Tournamental Bracket Prophet, Football World Cup 2026",
+  title: "Tournamental Bracket Prophet, FIFA World Cup 2026™",
   description:
     "Predict the full 48-team bracket. Tweak picks match by match, earlier-saved long-shots earn more points. Powered by the Tournamental cascade engine, your downstream tree updates instantly with every pick.",
   openGraph: {
-    title: "Tournamental Bracket Prophet, Football World Cup 2026",
+    title: "Tournamental Bracket Prophet, FIFA World Cup 2026™",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: [{ url: SHARE_DEFAULT_OG, width: 1200, height: 630, alt: "Tournamental Bracket" }],
@@ -50,7 +50,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Tournamental Bracket Prophet, Football World Cup 2026",
+    title: "Tournamental Bracket Prophet, FIFA World Cup 2026™",
     description:
       "Save your bracket. Change any pick until that match kicks off. Earlier-saved long-shots earn the most.",
     images: [SHARE_DEFAULT_OG],
@@ -81,8 +81,8 @@ export default function WorldCup2026Page({ searchParams }: WorldCup2026PageProps
     themeParam === "light" ? "light" : themeParam === "dark" ? "dark" : undefined;
 
   return (
-    <AppShell title="World Cup 2026" embed={embed}>
-      <BracketOverlayShell pageLabel="World Cup 2026" pageHref="/world-cup-2026">
+    <AppShell title="FIFA World Cup 2026™" embed={embed}>
+      <BracketOverlayShell pageLabel="FIFA World Cup 2026™" pageHref="/world-cup-2026">
         <main
           className="bracket-page"
           data-embed={embed ? "1" : undefined}

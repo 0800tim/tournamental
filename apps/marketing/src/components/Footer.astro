@@ -150,6 +150,12 @@ const LEGAL = [
       </ul>
     </div>
 
+    <p class="vt-footnote vt-colophon-disclaimer">
+      Tournamental is independent and not affiliated with, endorsed by, or
+      sponsored by FIFA. <strong>FIFA World Cup™</strong> and
+      <strong>FIFA World Cup 2026™</strong> are trademarks of Fédération
+      Internationale de Football Association.
+    </p>
     <p class="vt-footnote vt-colophon-copy">
       © {year} Tournamental Holdings · Type set in Fraunces and Inter · Hosted in Aotearoa
     </p>
@@ -283,10 +289,23 @@ const LEGAL = [
     border-color: var(--vt-gold-400);
   }
 
-  .vt-colophon-copy {
+  .vt-colophon-disclaimer {
     margin: 0;
     padding-top: 1.25rem;
     border-top: 1px solid color-mix(in srgb, var(--vt-fg) 8%, transparent);
+    color: color-mix(in srgb, var(--vt-fg-muted) 80%, transparent);
+    font-size: 0.78rem;
+    line-height: 1.5;
+    max-width: 56rem;
+  }
+  .vt-colophon-disclaimer strong {
+    color: var(--vt-fg-muted);
+    font-weight: 600;
+  }
+
+  .vt-colophon-copy {
+    margin: 0.75rem 0 0;
+    padding-top: 0;
     color: var(--vt-fg-muted);
   }
 

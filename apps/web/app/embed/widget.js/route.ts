@@ -218,7 +218,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
             : '<div class="tnm-logo tnm-logo--initial">' + escapeHtml((name.charAt(0) || "T").toUpperCase()) + '</div>') +
           '<div class="tnm-title">' +
             '<div class="tnm-name">' + escapeHtml(name) + '</div>' +
-            '<div class="tnm-tour">Football World Cup 2026 Predictor</div>' +
+            '<div class="tnm-tour">FIFA World Cup 2026 Predictor</div>' +
           '</div>' +
         '</div>' +
         '<div class="tnm-tabs" role="tablist">';
