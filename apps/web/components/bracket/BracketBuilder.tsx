@@ -174,10 +174,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // after a pick lands so the user's manual collapse choices are never
   // overridden. Null when every group is already complete.
   const [initialOpenGroupId] = useState<string | null>(() => {
+    // Initial bracket is always empty on first mount (saved-bracket
+    // hydration is a separate post-mount effect). So "first incomplete
+    // group" is always the first group in the tournament order.
+    // We still call the helper for clarity + to stay correct if the
+    // initial-mount bracket ever stops being empty.
+    const emptyPreds: Record<string, MatchPrediction> = {};
     for (const g of tournament.groups) {
-      if (!isGroupComplete(g.id, tournament, emptyBracket.matchPredictions)) {
-        return g.id;
-      }
+      if (!isGroupComplete(g.id, tournament, emptyPreds)) return g.id;
     }
     return null;
   });

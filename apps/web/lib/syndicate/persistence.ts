@@ -643,6 +643,12 @@ export class SyndicatePersistence {
         joined_at: now,
         handle: input.owner_handle ?? null,
         display_name: null,
+        // The owner is always active -- the pending status is only
+        // applied to join requests on private pools (approve/deny
+        // flow). Without this the INSERT throws
+        // "Missing named parameter status" and the whole
+        // createSyndicate transaction rolls back.
+        status: "active",
       });
     });
     txn();
