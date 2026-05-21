@@ -175,7 +175,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // overridden. Null when every group is already complete.
   const [initialOpenGroupId] = useState<string | null>(() => {
     for (const g of tournament.groups) {
-      if (!isGroupComplete(g, emptyBracket.matchPredictions)) return g.id;
+      if (!isGroupComplete(g.id, tournament, emptyBracket.matchPredictions)) {
+        return g.id;
+      }
     }
     return null;
   });
