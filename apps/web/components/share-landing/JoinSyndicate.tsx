@@ -770,9 +770,23 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   Enter your code
                 </h2>
                 <p className="vt-share-modal-body">
-                  We&apos;ve just sent a 6-digit code via WhatsApp to{" "}
-                  <strong>{phoneMasked}</strong>. Tap the link in the message
-                  to sign in instantly, or paste the code here.
+                  {phoneMasked ? (
+                    <>
+                      We&apos;ve just sent a 6-digit code via WhatsApp to{" "}
+                      <strong>{phoneMasked}</strong>. Tap the link in the
+                      message to sign in instantly, or paste the code here.
+                    </>
+                  ) : email ? (
+                    <>
+                      We&apos;ve just sent a 6-digit code by email to{" "}
+                      <strong>{email}</strong>. Paste it below to sign in.
+                    </>
+                  ) : (
+                    <>
+                      We&apos;ve just sent a 6-digit code. Paste it below to
+                      sign in.
+                    </>
+                  )}
                 </p>
 
                 {/* WhatsApp self-trigger fallback (also surfaces when the
@@ -788,8 +802,17 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   <span aria-hidden="true">💬</span> Open WhatsApp &amp; message us
                 </a>
 
-                {/* Primary path: WhatsApp 6-digit code paste. */}
-                <form onSubmit={onSubmitCode} className="vt-join-code-form">
+                {/* 6-digit code paste. Route to email-verify when the
+                  * user requested an email code (the button label flips
+                  * too); otherwise hit the inbound-login phone verifier.
+                  * Tim 2026-05-22: bug was form-submit always going to
+                  * onSubmitCode, so an email-requested code 401'd at
+                  * /v1/auth/verify-by-code even though it was valid in
+                  * the email-OTP table. */}
+                <form
+                  onSubmit={usingEmail ? onSubmitEmailCode : onSubmitCode}
+                  className="vt-join-code-form"
+                >
                   <input
                     type="text"
                     inputMode="numeric"
