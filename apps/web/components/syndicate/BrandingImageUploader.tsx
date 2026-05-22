@@ -29,12 +29,15 @@ interface BrandingImageUploaderProps {
 
 // Target sizes the client resizes to before upload. Server still
 // enforces its own canonical size, so these are just bandwidth saves.
-const TARGETS: Record<BrandingKind, { width: number; height: number; quality: number }> = {
+// Exported so the create-pool form can reuse them for its deferred
+// (no-slug-yet) uploaders without forking the resize logic.
+export const BRANDING_TARGETS: Record<BrandingKind, { width: number; height: number; quality: number }> = {
   logo: { width: 1024, height: 1024, quality: 0.85 },
   hero: { width: 1920, height: 960, quality: 0.82 },
 };
+const TARGETS = BRANDING_TARGETS;
 
-async function resizeToBlob(
+export async function resizeToBlob(
   file: File,
   target: { width: number; height: number; quality: number },
 ): Promise<Blob> {

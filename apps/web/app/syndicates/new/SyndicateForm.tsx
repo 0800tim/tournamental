@@ -18,6 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { deriveSlug, isValidSlugShape } from "@/lib/syndicate/slug";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
+import { resizeToBlob, BRANDING_TARGETS } from "@/components/syndicate/BrandingImageUploader";
 
 import "./syndicate-form.css";
 
@@ -112,6 +113,17 @@ export function SyndicateForm(): JSX.Element {
   // definition accepts everyone in one tap. (Tim 2026-05-22)
   const [isPublic, setIsPublic] = useState(false);
   const [requiresApproval, setRequiresApproval] = useState(false);
+
+  // Branding + prize-pool optional fields. Captured here and applied
+  // after the create POST returns a slug -- the upload + branding-patch
+  // endpoints are slug-scoped so they can't run until the row exists.
+  const [primaryColour, setPrimaryColour] = useState<string>("#fbbf24");
+  const [accentColour, setAccentColour] = useState<string>("#21a34a");
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [heroFile, setHeroFile] = useState<File | null>(null);
+  const [prizeText, setPrizeText] = useState("");
+  const [entryFeeAmount, setEntryFeeAmount] = useState<string>(""); // dollars, as a string for input value
+  const [entryFeeCurrency, setEntryFeeCurrency] = useState<string>("NZD");
 
   const [availability, setAvailability] = useState<AvailabilityState>({ state: "idle" });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
@@ -260,6 +272,63 @@ export function SyndicateForm(): JSX.Element {
         }
         return;
       }
+
+      // Pool row exists. Now apply the optional branding + prize fields
+      // (slug-scoped endpoints, hence the sequencing). All best-effort:
+      // a failure here doesn't undo the pool, the owner can finish in
+      // the manage page. We surface a soft warning but still show
+      // SuccessCard so the user isn't stranded.
+      const created = body as { syndicate?: { slug?: string } } & SuccessPayload;
+      const createdSlug = created?.syndicate?.slug ?? slug;
+      const followups: Promise<unknown>[] = [];
+
+      // 1. Branding + prize PATCH (only fields the user actually touched).
+      const brandingPatch: Record<string, unknown> = {};
+      if (primaryColour !== "#fbbf24") brandingPatch.branding_primary_colour = primaryColour;
+      if (accentColour !== "#21a34a") brandingPatch.branding_accent_colour = accentColour;
+      if (prizeText.trim().length > 0) brandingPatch.prize_text = prizeText.trim();
+      if (entryFeeAmount.trim().length > 0) {
+        const dollars = Number(entryFeeAmount);
+        if (Number.isFinite(dollars) && dollars >= 0) {
+          brandingPatch.entry_fee_cents = Math.round(dollars * 100);
+          brandingPatch.entry_fee_currency = entryFeeCurrency;
+        }
+      }
+      if (Object.keys(brandingPatch).length > 0) {
+        followups.push(
+          fetch(`/api/v1/syndicates/${encodeURIComponent(createdSlug)}/owner`, {
+            method: "PATCH",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(brandingPatch),
+          }),
+        );
+      }
+
+      // 2. Branding image uploads. Each does the client-side canvas
+      // resize so the bytes on the wire are bounded regardless of the
+      // original phone-photo size.
+      const uploadImage = async (kind: "logo" | "hero", file: File): Promise<Response> => {
+        const blob = await resizeToBlob(file, BRANDING_TARGETS[kind]);
+        const fd = new FormData();
+        fd.set("file", new File([blob], `${kind}.jpg`, { type: "image/jpeg" }));
+        return fetch(
+          `/api/v1/syndicates/${encodeURIComponent(createdSlug)}/branding-upload?kind=${kind}`,
+          { method: "POST", credentials: "include", body: fd },
+        );
+      };
+      if (logoFile) followups.push(uploadImage("logo", logoFile));
+      if (heroFile) followups.push(uploadImage("hero", heroFile));
+
+      if (followups.length > 0) {
+        const results = await Promise.allSettled(followups);
+        const failed = results.filter((r) => r.status === "rejected" || (r.status === "fulfilled" && r.value instanceof Response && !r.value.ok));
+        if (failed.length > 0) {
+          // eslint-disable-next-line no-console
+          console.warn(`syndicate post-create followups: ${failed.length}/${followups.length} failed`, failed);
+        }
+      }
+
       setSuccess(body as SuccessPayload);
     } catch (err) {
       setSubmitError("Network error. Please try again.");
@@ -565,6 +634,106 @@ export function SyndicateForm(): JSX.Element {
               <span className="syn-error-text">{fieldErrors.topic}</span>
             )}
           </div>
+
+          {/* Branding (optional) -- logo, banner, colours. Files are
+            * buffered in component state and uploaded after the create
+            * POST returns a slug (the upload endpoint is slug-scoped). */}
+          <fieldset className="syn-fieldset" aria-label="Branding (optional)">
+            <legend className="syn-fieldset-legend">Branding (optional)</legend>
+
+            <div className="syn-field">
+              <label className="syn-label" htmlFor="syn-logo-file">Logo (square; PNG, JPG or WebP)</label>
+              <input
+                id="syn-logo-file"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => setLogoFile(e.target.files?.[0] ?? null)}
+              />
+              {logoFile && (
+                <span className="syn-hint">Selected: {logoFile.name} ({Math.round(logoFile.size / 1024)} KB) <button type="button" onClick={() => setLogoFile(null)} style={{ marginLeft: 6, background: "transparent", border: 0, color: "var(--ink-400,#94a3b8)", cursor: "pointer", textDecoration: "underline" }}>remove</button></span>
+              )}
+            </div>
+
+            <div className="syn-field">
+              <label className="syn-label" htmlFor="syn-hero-file">Banner / hero image (wide; 1200px+)</label>
+              <input
+                id="syn-hero-file"
+                type="file"
+                accept="image/png,image/jpeg,image/webp"
+                onChange={(e) => setHeroFile(e.target.files?.[0] ?? null)}
+              />
+              {heroFile && (
+                <span className="syn-hint">Selected: {heroFile.name} ({Math.round(heroFile.size / 1024)} KB) <button type="button" onClick={() => setHeroFile(null)} style={{ marginLeft: 6, background: "transparent", border: 0, color: "var(--ink-400,#94a3b8)", cursor: "pointer", textDecoration: "underline" }}>remove</button></span>
+              )}
+            </div>
+
+            <div className="syn-field" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              <label className="syn-label" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                Primary colour
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input type="color" value={primaryColour} onChange={(e) => setPrimaryColour(e.target.value)} style={{ width: 40, height: 32, border: 0, padding: 0, background: "transparent", cursor: "pointer" }} />
+                  <input type="text" value={primaryColour} onChange={(e) => setPrimaryColour(e.target.value)} pattern="^#[0-9a-fA-F]{6}$" className="syn-input" style={{ flex: 1 }} />
+                </span>
+              </label>
+              <label className="syn-label" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                Accent colour
+                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <input type="color" value={accentColour} onChange={(e) => setAccentColour(e.target.value)} style={{ width: 40, height: 32, border: 0, padding: 0, background: "transparent", cursor: "pointer" }} />
+                  <input type="text" value={accentColour} onChange={(e) => setAccentColour(e.target.value)} pattern="^#[0-9a-fA-F]{6}$" className="syn-input" style={{ flex: 1 }} />
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          {/* Prize pool (optional) */}
+          <fieldset className="syn-fieldset" aria-label="Prize pool (optional)">
+            <legend className="syn-fieldset-legend">Prize pool (optional)</legend>
+
+            <div className="syn-field">
+              <label className="syn-label" htmlFor="syn-prize-text">Prize copy</label>
+              <input
+                id="syn-prize-text"
+                type="text"
+                className="syn-input"
+                value={prizeText}
+                maxLength={280}
+                placeholder='e.g. "Winner takes a $250 voucher"'
+                onChange={(e) => setPrizeText(e.target.value)}
+              />
+              <span className="syn-hint">Shown on the embed widget + share landing.</span>
+            </div>
+
+            <div className="syn-field" style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+              <label className="syn-label" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                Entry fee (per player)
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  className="syn-input"
+                  value={entryFeeAmount}
+                  placeholder="0 (free)"
+                  onChange={(e) => setEntryFeeAmount(e.target.value)}
+                />
+              </label>
+              <label className="syn-label" style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                Currency
+                <select
+                  className="syn-input"
+                  value={entryFeeCurrency}
+                  onChange={(e) => setEntryFeeCurrency(e.target.value)}
+                >
+                  <option value="NZD">NZD</option>
+                  <option value="AUD">AUD</option>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="EUR">EUR</option>
+                  <option value="CAD">CAD</option>
+                </select>
+              </label>
+            </div>
+            <span className="syn-hint">You collect entry fees yourself; we don&apos;t take a cut and don&apos;t process payments.</span>
+          </fieldset>
 
           {/* Visibility + approval (mutually exclusive). Ticking Public
             * disables + unticks Requires Approval, since public pools
