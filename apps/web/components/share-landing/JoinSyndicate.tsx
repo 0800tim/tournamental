@@ -38,6 +38,7 @@ import {
   verifyInboundCode,
   whatsAppLoginDeepLink,
 } from "@/lib/auth/inbound-login";
+import { useUser } from "@/lib/auth/useUser";
 
 export interface JoinSyndicateProps {
   readonly slug: string;
@@ -112,6 +113,15 @@ function deriveHandleFromName(name: string): string {
 type Step = "identity" | "verify" | "success";
 
 export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
+  // Authenticated users skip the whole identity + OTP + verify flow:
+  // their session already has the handle / phone / display name, so
+  // we POST /join with credentials and jump straight to the success
+  // (or "Request sent" for private pools) view. The modal stays
+  // available for the unauthenticated path which still needs the
+  // identity capture (Tim 2026-05-22).
+  const auth = useUser();
+  const isAuthed = auth.status === "authenticated";
+
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("identity");
 
@@ -167,6 +177,60 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     setError(null);
     setInfo(null);
   }, []);
+
+  /**
+   * Authed fast-path. Skip the identity + OTP modal entirely; POST
+   * directly to /join with the session cookie + bearer fallback. The
+   * server already knows our user_id, display_name and phone -- the
+   * /join endpoint falls back to session.displayName when the body
+   * doesn't supply a handle, so an empty body is enough for an
+   * authed user.
+   *
+   * Open the modal jumped straight to the "success" step so the
+   * existing success / pending UI handles both outcomes without a
+   * separate render path.
+   */
+  const joinAsAuthedUser = useCallback(async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await fetch(
+        `/api/v1/syndicates/${encodeURIComponent(slug)}/join`,
+        {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: "{}",
+        },
+      );
+      const body = (await r.json().catch(() => ({}))) as {
+        status?: "active" | "pending";
+        already_member?: boolean;
+        error?: string;
+        message?: string;
+      };
+      if (!r.ok) {
+        setError(body.message ?? body.error ?? `Server returned ${r.status}`);
+        setOpen(true);
+        setStep("identity"); // surface the error in the modal's identity step
+        return;
+      }
+      setJoinStatus(body.status === "pending" ? "pending" : "active");
+      setOpen(true);
+      setStep("success");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error");
+      setOpen(true);
+      setStep("identity");
+    } finally {
+      setBusy(false);
+    }
+  }, [slug]);
+
+  const handleCtaClick = useCallback(() => {
+    if (isAuthed) void joinAsAuthedUser();
+    else openModal();
+  }, [isAuthed, joinAsAuthedUser, openModal]);
 
   const handleIsValid = /^[a-zA-Z0-9_]{2,32}$/.test(handle);
   const nameIsValid = displayName.trim().length >= 1;
@@ -563,9 +627,10 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         className="vt-share-cta"
         data-variant="primary"
         type="button"
-        onClick={openModal}
+        onClick={handleCtaClick}
+        disabled={busy && isAuthed}
       >
-        Join this pool
+        {busy && isAuthed ? "Joining…" : "Join this pool"}
       </button>
       {open ? (
         <div
