@@ -12,6 +12,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
+import { BrandingImageUploader } from "@/components/syndicate/BrandingImageUploader";
 
 import { HlStatusBanner } from "../HlStatusBanner";
 
@@ -42,6 +43,8 @@ interface OwnerSyndicate {
   readonly entry_fee_currency: string | null;
   readonly prize_split_json: string | null;
   readonly bonus_prize_text: string | null;
+  readonly is_public: boolean;
+  readonly requires_approval: boolean;
 }
 
 interface PendingRequest {
@@ -386,6 +389,19 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         </section>
       )}
 
+      {/* Visibility + access control */}
+      <VisibilityEditor
+        slug={s.slug}
+        initial={s}
+        onSaved={(updated) =>
+          setState({
+            status: "ready",
+            syndicate: { ...s, ...updated },
+            pending_requests: pendingRequests,
+          })
+        }
+      />
+
       {/* Branding editor */}
       <BrandingEditor
         slug={s.slug}
@@ -479,6 +495,141 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
 }
 
 // --- Branding editor -------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// VisibilityEditor — public-vs-private + approval toggle. Mirrors the
+// "Visibility" panel from the create form so owners can flip the same
+// flags later. Tim 2026-05-22.
+// ---------------------------------------------------------------------------
+
+interface VisibilityEditorProps {
+  readonly slug: string;
+  readonly initial: OwnerSyndicate;
+  readonly onSaved: (patch: Partial<OwnerSyndicate>) => void;
+}
+
+function VisibilityEditor({ slug, initial, onSaved }: VisibilityEditorProps): JSX.Element {
+  const [isPublic, setIsPublic] = useState<boolean>(initial.is_public);
+  const [requiresApproval, setRequiresApproval] = useState<boolean>(initial.requires_approval);
+  const [save, setSave] = useState<SaveState>({ status: "idle" });
+
+  const dirty =
+    isPublic !== initial.is_public || requiresApproval !== initial.requires_approval;
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!dirty) return;
+    setSave({ status: "saving" });
+    // Persist the invariant client-side too -- public pools never
+    // require approval; the server enforces this regardless.
+    const body = {
+      is_public: isPublic,
+      requires_approval: isPublic ? false : requiresApproval,
+    };
+    try {
+      const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!r.ok) {
+        const errBody = (await r.json().catch(() => ({}))) as { error?: string };
+        setSave({ status: "error", message: errBody.error ?? `Server returned ${r.status}` });
+        return;
+      }
+      const ok = (await r.json()) as { syndicate?: OwnerSyndicate };
+      if (ok.syndicate) {
+        onSaved({
+          is_public: ok.syndicate.is_public,
+          requires_approval: ok.syndicate.requires_approval,
+        });
+      }
+      setSave({ status: "saved" });
+      window.setTimeout(() => setSave({ status: "idle" }), 2500);
+    } catch (err) {
+      setSave({
+        status: "error",
+        message: err instanceof Error ? err.message : "Network error",
+      });
+    }
+  };
+
+  return (
+    <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
+      <div className="vt-dash-row-head">
+        <div>
+          <h2 className="vt-dash-row-name">Visibility &amp; access</h2>
+          <p className="vt-dash-row-meta">
+            Public pools appear in the directory and anyone can join in one tap.
+            Private pools accept only people you approve.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="vt-brand-form">
+        <label className="vt-brand-field" style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 12 }}>
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            style={{ marginTop: 4 }}
+          />
+          <span>
+            <strong style={{ display: "block", fontWeight: 600 }}>Public pool</strong>
+            <span style={{ color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13, lineHeight: 1.4 }}>
+              Listed in the pool directory. Anyone with the link or a directory hit can join
+              immediately, no approval needed.
+            </span>
+          </span>
+        </label>
+
+        <label
+          className="vt-brand-field"
+          style={{
+            display: "flex",
+            gap: 10,
+            alignItems: "flex-start",
+            opacity: isPublic ? 0.45 : 1,
+            cursor: isPublic ? "not-allowed" : "default",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={!isPublic && requiresApproval}
+            disabled={isPublic}
+            onChange={(e) => setRequiresApproval(e.target.checked)}
+            style={{ marginTop: 4 }}
+          />
+          <span>
+            <strong style={{ display: "block", fontWeight: 600 }}>Requires approval</strong>
+            <span style={{ color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13, lineHeight: 1.4 }}>
+              {isPublic
+                ? "Disabled for public pools — anyone can join."
+                : "Join requests queue here for you to approve or deny. Best for office sweepstakes and closed family pools."}
+            </span>
+          </span>
+        </label>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
+          <button
+            type="submit"
+            disabled={!dirty || save.status === "saving"}
+            className="vt-dash-action vt-dash-action-primary"
+          >
+            {save.status === "saving" ? "Saving…" : dirty ? "Save changes" : "Saved"}
+          </button>
+          {save.status === "saved" && (
+            <span style={{ color: "var(--vt-gold-400, #dca94b)", fontSize: 13 }}>✓ Saved</span>
+          )}
+          {save.status === "error" && (
+            <span style={{ color: "#f87171", fontSize: 13 }}>{save.message}</span>
+          )}
+        </div>
+      </form>
+    </section>
+  );
+}
 
 interface BrandingEditorProps {
   readonly slug: string;
@@ -696,28 +847,33 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
           </label>
         </div>
 
+        {/* File uploaders -- replaced the URL inputs (Tim 2026-05-22).
+            Each component does an in-browser canvas resize, POSTs the
+            blob to /api/v1/syndicates/<slug>/branding-upload?kind=…,
+            and calls onChange with the canonical /branding/<slug>/...
+            URL the server stored. We then patch the DB with that URL
+            on the next "Save changes" via the existing PATCH flow. */}
         <div className="vt-brand-grid">
-          <label className="vt-brand-field">
-            <span className="vt-brand-label">Logo URL (square, 256px+)</span>
-            <input
-              type="url"
-              value={logoUrl}
-              onChange={(e) => setLogoUrl(e.target.value)}
-              placeholder="https://yourbrand.com/logo.png"
-              className="vt-brand-input"
+          <div className="vt-brand-field">
+            <BrandingImageUploader
+              slug={slug}
+              kind="logo"
+              currentUrl={logoUrl || null}
+              onChange={(u) => setLogoUrl(u ?? "")}
+              label="Logo (square, 256px+)"
+              hint="PNG or JPG. We square-crop and resize to 512x512."
             />
-          </label>
-
-          <label className="vt-brand-field">
-            <span className="vt-brand-label">Hero image URL (wide, 1200px+)</span>
-            <input
-              type="url"
-              value={heroUrl}
-              onChange={(e) => setHeroUrl(e.target.value)}
-              placeholder="https://yourbrand.com/hero.jpg"
-              className="vt-brand-input"
+          </div>
+          <div className="vt-brand-field">
+            <BrandingImageUploader
+              slug={slug}
+              kind="hero"
+              currentUrl={heroUrl || null}
+              onChange={(u) => setHeroUrl(u ?? "")}
+              label="Hero / banner (wide, 1200px+)"
+              hint="Lands behind your pool name on the embed widget + share landing."
             />
-          </label>
+          </div>
         </div>
 
         <details className="vt-brand-sponsor-details">

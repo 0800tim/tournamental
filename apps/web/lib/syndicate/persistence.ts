@@ -128,6 +128,12 @@ export interface SyndicateBrandingPatch {
   bonus_prize_text?: string | null;
   about_text?: string | null;
   theme_mode?: "light" | "dark" | null;
+  /** Public pools appear in the directory and anyone can join in one tap. */
+  is_public?: boolean;
+  /** Approval-gated pools queue join requests for the owner. The route
+   * enforces the invariant that requires_approval is ignored when
+   * is_public=true. */
+  requires_approval?: boolean;
 }
 
 export interface PendingGhlRow {
@@ -815,6 +821,23 @@ export class SyndicatePersistence {
         patch.entry_fee_cents === null
           ? null
           : Math.max(0, Math.round(patch.entry_fee_cents));
+    }
+    // Visibility flags. Mirror the createSyndicate invariant: public
+    // pools never require approval, so when the patch flips is_public=true
+    // we also clear requires_approval. Honoured even when only one of
+    // the two fields is in the patch (we read the latest values across
+    // the merged state).
+    const nextIsPublic =
+      patch.is_public !== undefined ? patch.is_public : existing.is_public === 1;
+    const nextRequiresApproval =
+      patch.requires_approval !== undefined
+        ? patch.requires_approval
+        : existing.requires_approval === 1;
+    if (patch.is_public !== undefined) {
+      updates.is_public = nextIsPublic ? 1 : 0;
+    }
+    if (patch.requires_approval !== undefined || patch.is_public !== undefined) {
+      updates.requires_approval = !nextIsPublic && nextRequiresApproval ? 1 : 0;
     }
     if (Object.keys(updates).length === 0) return existing;
 
