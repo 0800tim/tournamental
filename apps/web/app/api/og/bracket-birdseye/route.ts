@@ -144,6 +144,41 @@ async function readFirstOptional(
   return null;
 }
 
+/** Flag SVG cache. Each entry is a base64-encoded `data:image/svg+xml`
+ * URI safe to drop into a `backgroundImage: url(...)` declaration on
+ * the satori-side render. Populated lazily by `loadFlagDataUris()`.
+ * The cache key is the upper-case ISO team code (e.g. "ARG"). A miss
+ * (e.g. unknown code, file not on disk) returns null which the
+ * renderer treats as "no flag, fall back to the plain charcoal
+ * circle". Tim 2026-05-22. */
+const flagCache = new Map<string, string | null>();
+
+async function loadFlagDataUri(code: string): Promise<string | null> {
+  if (flagCache.has(code)) return flagCache.get(code) ?? null;
+  const path = join(process.cwd(), "public", "flags", `${code}.svg`);
+  try {
+    const data = await fs.readFile(path);
+    const b64 = data.toString("base64");
+    const uri = `data:image/svg+xml;base64,${b64}`;
+    flagCache.set(code, uri);
+    return uri;
+  } catch {
+    flagCache.set(code, null);
+    return null;
+  }
+}
+
+async function loadFlagDataUris(codes: readonly string[]): Promise<Map<string, string>> {
+  const unique = Array.from(new Set(codes.filter(Boolean)));
+  await Promise.all(unique.map(loadFlagDataUri));
+  const out = new Map<string, string>();
+  for (const c of unique) {
+    const v = flagCache.get(c);
+    if (v) out.set(c, v);
+  }
+  return out;
+}
+
 interface KoPick {
   stage: "r16" | "qf" | "sf" | "final" | "tp";
   opponent: string;
@@ -287,6 +322,15 @@ export async function GET(req: NextRequest): Promise<Response> {
 async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const { width, height } = SIZES[args.size];
   const fonts = await loadFonts();
+  // Preload flag SVGs for every team referenced in the KO ladder +
+  // podium so the satori tree can drop them straight into
+  // backgroundImage URLs without further async work. Tim 2026-05-22.
+  const flagCodes: string[] = [];
+  for (const p of args.ko) flagCodes.push(p.opponent);
+  if (args.champion) flagCodes.push(args.champion);
+  if (args.runnerUp) flagCodes.push(args.runnerUp);
+  if (args.third) flagCodes.push(args.third);
+  const flagsByCode = await loadFlagDataUris(flagCodes);
   const isPortrait = args.size === "portrait";
   const isLandscape = args.size === "landscape";
 
@@ -464,6 +508,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     codeFont: koCodeFont,
                     flagFont: koFlagFont,
                     scale,
+                    flagsByCode,
                   }),
                 },
               },
@@ -475,6 +520,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                 font: championFont,
                 stageLabelFont,
                 scale,
+                flagsByCode,
               }),
             ],
           },
@@ -628,6 +674,7 @@ function renderKoLadder(args: {
   codeFont: number;
   flagFont: number;
   scale: number;
+  flagsByCode: Map<string, string>;
 }): unknown[] {
   const stages: Array<{ key: KoPick["stage"]; label: string }> = [
     { key: "r16", label: "R16" },
@@ -635,8 +682,10 @@ function renderKoLadder(args: {
     { key: "sf", label: "SF" },
     { key: "final", label: "FINAL" },
   ];
+  const circleSize = Math.round(86 * args.scale);
   return stages.map((s) => {
     const opponent = args.koByStage.get(s.key) ?? "—";
+    const flag = opponent === "—" ? null : args.flagsByCode.get(opponent) ?? null;
     return {
       type: "div",
       props: {
@@ -661,27 +710,13 @@ function renderKoLadder(args: {
               children: s.label,
             },
           },
-          {
-            type: "div",
-            props: {
-              style: {
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                width: Math.round(86 * args.scale),
-                height: Math.round(86 * args.scale),
-                borderRadius: 999,
-                background: opponent === "—" ? "rgba(255,255,255,0.03)" : COLOUR_BG,
-                border: `2px solid ${opponent === "—" ? COLOUR_BORDER : COLOUR_BORDER_STRONG}`,
-                fontFamily: "Fraunces",
-                fontSize: args.codeFont,
-                fontWeight: 700,
-                color: COLOUR_FG_STRONG,
-                boxShadow: `0 0 16px ${opponent === "—" ? "transparent" : "rgba(220,169,75,0.35)"}`,
-              },
-              children: opponent,
-            },
-          },
+          renderFlagCircle({
+            code: opponent,
+            flag,
+            size: circleSize,
+            codeFont: args.codeFont,
+            scrim: "rgba(0,0,0,0.55)",
+          }),
           {
             type: "div",
             props: {
@@ -700,6 +735,79 @@ function renderKoLadder(args: {
   });
 }
 
+/** A circular cell with the team's flag behind a dark scrim and the
+ * 3-letter code centred on top. Falls back to the original
+ * charcoal-fill circle when a flag isn't available (unknown code or
+ * SVG missing from public/flags/). Used by both the KO ladder and a
+ * larger variant by the champion panel.
+ *
+ * Style props are built up via separate objects so we don't hand
+ * satori `undefined` values (its CSS parser barfs on those in some
+ * paths). Tim 2026-05-22.
+ */
+function renderFlagCircle(args: {
+  code: string;
+  flag: string | null;
+  size: number;
+  codeFont: number;
+  scrim: string;
+}): unknown {
+  const isEmpty = args.code === "—";
+  const hasFlag = !isEmpty && !!args.flag;
+
+  const outerBase: Record<string, unknown> = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: args.size,
+    height: args.size,
+    borderRadius: 999,
+    border: `2px solid ${isEmpty ? COLOUR_BORDER : COLOUR_BORDER_STRONG}`,
+    boxShadow: `0 0 16px ${isEmpty ? "transparent" : "rgba(220,169,75,0.35)"}`,
+    overflow: "hidden",
+  };
+  if (hasFlag) {
+    outerBase.backgroundImage = `url("${args.flag}")`;
+    outerBase.backgroundSize = "cover";
+    outerBase.backgroundPosition = "center";
+  } else {
+    outerBase.background = isEmpty ? "rgba(255,255,255,0.03)" : COLOUR_BG;
+  }
+
+  const innerBase: Record<string, unknown> = {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: args.size,
+    height: args.size,
+    borderRadius: 999,
+    fontFamily: "Fraunces",
+    fontSize: args.codeFont,
+    fontWeight: 700,
+    color: COLOUR_FG_STRONG,
+  };
+  if (hasFlag) {
+    innerBase.background = args.scrim;
+    innerBase.textShadow = "0 1px 4px rgba(0,0,0,0.55)";
+  }
+
+  return {
+    type: "div",
+    props: {
+      style: outerBase,
+      children: [
+        {
+          type: "div",
+          props: {
+            style: innerBase,
+            children: args.code,
+          },
+        },
+      ],
+    },
+  };
+}
+
 function renderChampionPanel(args: {
   champion: string | null;
   runnerUp: string | null;
@@ -707,74 +815,132 @@ function renderChampionPanel(args: {
   font: number;
   stageLabelFont: number;
   scale: number;
+  flagsByCode: Map<string, string>;
 }): unknown {
   const champ = args.champion ?? "—";
+  const flag = args.champion ? args.flagsByCode.get(args.champion) ?? null : null;
+  const hasFlag = !!flag;
+  const scrim =
+    "linear-gradient(180deg, rgba(20,20,24,0.62), rgba(20,20,24,0.84))";
+  const fallbackBg =
+    "linear-gradient(180deg, rgba(252,211,77,0.10), rgba(154,106,23,0.06))";
+
+  const outerBase: Record<string, unknown> = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: Math.round(6 * args.scale),
+    padding: Math.round(22 * args.scale),
+    border: `2px solid ${COLOUR_BORDER_STRONG}`,
+    borderRadius: Math.round(14 * args.scale),
+    minWidth: Math.round(200 * args.scale),
+    overflow: "hidden",
+  };
+  if (hasFlag) {
+    outerBase.backgroundImage = `url("${flag}")`;
+    outerBase.backgroundSize = "cover";
+    outerBase.backgroundPosition = "center";
+  } else {
+    outerBase.background = fallbackBg;
+  }
+
+  if (!hasFlag) {
+    return {
+      type: "div",
+      props: {
+        style: outerBase,
+        children: championPanelChildren(args, champ),
+      },
+    };
+  }
+
   return {
     type: "div",
     props: {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        gap: Math.round(6 * args.scale),
-        padding: Math.round(22 * args.scale),
-        background: "linear-gradient(180deg, rgba(252,211,77,0.10), rgba(154,106,23,0.06))",
-        border: `2px solid ${COLOUR_BORDER_STRONG}`,
-        borderRadius: Math.round(14 * args.scale),
-        minWidth: Math.round(200 * args.scale),
-      },
+      style: outerBase,
       children: [
         {
           type: "div",
           props: {
             style: {
-              fontFamily: "DejaVuMono",
-              fontSize: args.stageLabelFont,
-              color: COLOUR_GOLD,
-              letterSpacing: "0.18em",
-              textTransform: "uppercase",
-              fontWeight: 700,
-            },
-            children: "CHAMPION",
-          },
-        },
-        {
-          type: "div",
-          props: {
-            style: {
-              fontFamily: "Fraunces",
-              fontSize: args.font,
-              fontWeight: 700,
-              color: COLOUR_GOLD_BRIGHT,
-              lineHeight: 1,
-              letterSpacing: "-0.02em",
-              textShadow: "0 0 30px rgba(252, 211, 77, 0.45)",
-            },
-            children: champ,
-          },
-        },
-        {
-          type: "div",
-          props: {
-            style: {
               display: "flex",
-              gap: Math.round(16 * args.scale),
-              marginTop: Math.round(6 * args.scale),
-              fontFamily: "DejaVuMono",
-              fontSize: Math.round(args.stageLabelFont * 0.9),
-              color: COLOUR_FG_MUTED,
-              letterSpacing: "0.12em",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: Math.round(6 * args.scale),
+              padding: Math.round(22 * args.scale),
+              width: "100%",
+              background: scrim,
+              borderRadius: Math.round(14 * args.scale),
             },
-            children: [
-              `🥈 ${args.runnerUp ?? "—"}`,
-              `🥉 ${args.third ?? "—"}`,
-            ],
+            children: championPanelChildren(args, champ),
           },
         },
       ],
     },
   };
+}
+
+function championPanelChildren(
+  args: {
+    runnerUp: string | null;
+    third: string | null;
+    font: number;
+    stageLabelFont: number;
+    scale: number;
+  },
+  champ: string,
+): unknown[] {
+  return [
+    {
+      type: "div",
+      props: {
+        style: {
+          fontFamily: "DejaVuMono",
+          fontSize: args.stageLabelFont,
+          color: COLOUR_GOLD,
+          letterSpacing: "0.18em",
+          textTransform: "uppercase",
+          fontWeight: 700,
+        },
+        children: "CHAMPION",
+      },
+    },
+    {
+      type: "div",
+      props: {
+        style: {
+          fontFamily: "Fraunces",
+          fontSize: args.font,
+          fontWeight: 700,
+          color: COLOUR_GOLD_BRIGHT,
+          lineHeight: 1,
+          letterSpacing: "-0.02em",
+          textShadow: "0 2px 14px rgba(0,0,0,0.65), 0 0 30px rgba(252, 211, 77, 0.45)",
+        },
+        children: champ,
+      },
+    },
+    {
+      type: "div",
+      props: {
+        style: {
+          display: "flex",
+          gap: Math.round(16 * args.scale),
+          marginTop: Math.round(6 * args.scale),
+          fontFamily: "DejaVuMono",
+          fontSize: Math.round(args.stageLabelFont * 0.9),
+          color: COLOUR_FG_MUTED,
+          letterSpacing: "0.12em",
+        },
+        children: [
+          `🥈 ${args.runnerUp ?? "—"}`,
+          `🥉 ${args.third ?? "—"}`,
+        ],
+      },
+    },
+  ];
 }
 
 function renderGoldBall(size: number): unknown {

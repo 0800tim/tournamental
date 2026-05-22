@@ -541,7 +541,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         return;
       }
       window.setTimeout(() => {
-        window.location.replace(`/s/${encodeURIComponent(slug)}`);
+        // Redirect to the bracket builder so the user lands on the
+        // picks page they actually need to fill out (Tim 2026-05-22:
+        // hanging-on-success was caused by redirecting back to the
+        // share landing they just came from, which reloads to itself).
+        window.location.replace("/world-cup-2026");
       }, 1200);
     },
     [busy, code, bindAndJoin, slug],
@@ -603,7 +607,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         return;
       }
       window.setTimeout(() => {
-        window.location.replace(`/s/${encodeURIComponent(slug)}`);
+        // Redirect to the bracket builder so the user lands on the
+        // picks page they actually need to fill out (Tim 2026-05-22:
+        // hanging-on-success was caused by redirecting back to the
+        // share landing they just came from, which reloads to itself).
+        window.location.replace("/world-cup-2026");
       }, 1200);
     },
     [busy, code, email, bindAndJoin, slug],

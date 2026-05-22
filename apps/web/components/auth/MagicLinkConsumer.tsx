@@ -145,7 +145,11 @@ export function MagicLinkConsumer() {
         setPhase({ state: "success", phone: res.user.phone });
         window.setTimeout(() => {
           if (slug) {
-            window.location.replace(`/s/${encodeURIComponent(slug)}`);
+            // The user just joined a pool via the magic-link
+            // cross-device path; send them to the bracket builder so
+            // they land on the picks they need to make, not back to
+            // the share landing they came from (Tim 2026-05-22).
+            window.location.replace("/world-cup-2026");
           } else {
             window.location.replace(
               window.location.pathname + window.location.search + window.location.hash,
