@@ -28,7 +28,7 @@ import { isReservedSlug } from "@/lib/syndicate/reserved-slugs";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { buildGhlContactPayload, pushToGhl, type GhlStatus } from "@/lib/syndicate/ghl";
 import { newShareGuid, newSyndicateId } from "@/lib/syndicate/ids";
-import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
+import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

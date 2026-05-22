@@ -23,7 +23,7 @@ import {
   type SyndicateBrandingPatch,
   type SyndicateRow,
 } from "@/lib/syndicate/persistence";
-import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
+import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

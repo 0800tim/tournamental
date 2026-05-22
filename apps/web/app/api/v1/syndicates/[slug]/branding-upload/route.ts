@@ -25,7 +25,7 @@ import sharp from "sharp";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { getPersistence } from "@/lib/syndicate/persistence";
-import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
+import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

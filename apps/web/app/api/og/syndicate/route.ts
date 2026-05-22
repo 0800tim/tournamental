@@ -51,6 +51,10 @@ import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 
 import { loadSyndicateBySlug, type SyndicateRecord } from "@/lib/syndicate/store";
+import {
+  readSyndicateOgCache,
+  writeSyndicateOgCache,
+} from "@/lib/og/syndicate-cache";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -683,49 +687,23 @@ function formatCount(n: number): string {
   return `${Math.round(n / 1000)}k`;
 }
 
-const OG_CACHE_DIR = join(process.cwd(), "public", "og", "syndicate");
-
+// Cache helpers moved to lib/og/syndicate-cache.ts so the save paths
+// can import the invalidator without violating Next.js's "route files
+// can only export GET/POST/etc." rule. Local aliases keep the call
+// sites in this file unchanged.
 async function tryDiskCache(
   safeSlug: string,
   size: SyndicateSize,
   png: Buffer,
 ): Promise<string | null> {
-  const file = join(OG_CACHE_DIR, `${safeSlug}-${size}.png`);
-  try {
-    await fs.mkdir(OG_CACHE_DIR, { recursive: true });
-    await fs.writeFile(file, png);
-    return file;
-  } catch {
-    return null;
-  }
+  return writeSyndicateOgCache(safeSlug, size, png);
 }
 
 async function readDiskCache(
   safeSlug: string,
   size: SyndicateSize,
 ): Promise<Buffer | null> {
-  const file = join(OG_CACHE_DIR, `${safeSlug}-${size}.png`);
-  try {
-    return await fs.readFile(file);
-  } catch {
-    return null;
-  }
-}
-
-/**
- * Delete every cached OG variant for a pool slug. Call this from any
- * write path that changes the rendered output (pool create, branding
- * patch, branding image upload) so the next share-crawler hit re-
- * renders against the fresh data. Best-effort; failures are silent
- * because the cache is a perf optimisation, not a correctness guarantee.
- */
-export async function invalidateSyndicateOgCache(slug: string): Promise<void> {
-  const safeSlug = safeSlugify(slug);
-  await Promise.allSettled(
-    Array.from(ALLOWED_SIZES).map((size) =>
-      fs.rm(join(OG_CACHE_DIR, `${safeSlug}-${size}.png`), { force: true }),
-    ),
-  );
+  return readSyndicateOgCache(safeSlug, size);
 }
 
 function renderFallbackPng(): Buffer {
