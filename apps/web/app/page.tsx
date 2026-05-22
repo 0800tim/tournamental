@@ -32,7 +32,7 @@ const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
 export const metadata: Metadata = {
-  title: "Tournamental — predict every match of the FIFA World Cup 2026™",
+  title: "Tournamental, predict every match of the FIFA World Cup 2026™",
   description:
     "Free-to-play FIFA World Cup 2026™ prediction game. Pick all 104 matches, change any pick up to kickoff, and run a branded pool for your audience. Blockchain-anchored picks so the claim to glory is finally provable. Tournamental is independent and not affiliated with FIFA.",
 };
@@ -68,20 +68,20 @@ export default function HomePage(): JSX.Element {
                 </Link>
               </div>
               <p className="vt-home-hero-lede">
-                <strong>Nobody has ever done it.</strong> Twenty-two World Cups,
-                964 matches, and the perfect bracket has stayed unclaimed. The
-                104 matches of 2026 are the next attempt. Tournamental keeps the
-                global ledger and commits every pick to the blockchain before
-                each match kicks off, so your predictions are immutable and the
-                claim to glory is finally provable.{" "}
-                <a
-                  className="vt-home-hero-readmore"
-                  href="https://tournamental.com/blog/2026-05-18-media-blockchain-prize-draws"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
+                <strong>Nobody has ever done it,</strong> and they probably
+                never will because of the astronomical{" "}
+                <Link href="/odds" className="vt-home-hero-readmore">
+                  odds of getting all 104 matches right
+                </Link>
+                . Twenty-two World Cups, 964 matches, and the perfect bracket
+                has stayed unclaimed. The 104 matches of 2026 are the next
+                attempt. Tournamental keeps the global ledger and commits every
+                pick to the blockchain before each match kicks off, so your
+                predictions are immutable and any claim to glory is finally
+                provable.{" "}
+                <Link href="/odds" className="vt-home-hero-readmore">
                   [read more]
-                </a>
+                </Link>
               </p>
             </div>
             <ul className="vt-home-stat-row">

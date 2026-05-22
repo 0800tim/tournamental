@@ -1,0 +1,197 @@
+/* /odds page styling. Editorial-sport voice; gold accents on a
+ * charcoal canvas. Mobile-first; the tables horizontally scroll on
+ * narrow viewports rather than reflowing into card stacks because
+ * the columns are the whole point. (Tim 2026-05-22) */
+
+.vt-odds {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  color: var(--vt-fg, #f4f4f5);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.vt-odds-hero {
+  margin: 0 0 28px;
+  padding: 0 0 24px;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.18);
+}
+
+.vt-odds-eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  margin: 0 0 10px;
+}
+
+.vt-odds-title {
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0 0 18px;
+  color: var(--vt-fg-strong, #ffffff);
+}
+
+.vt-odds-lede {
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-style: italic;
+  font-size: clamp(16px, 2vw, 19px);
+  line-height: 1.55;
+  color: var(--vt-fg-muted, #a3a3ad);
+  margin: 0;
+}
+
+.vt-odds-section {
+  margin: 36px 0;
+}
+
+.vt-odds-section h2 {
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 30px);
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  margin: 0 0 14px;
+  color: var(--vt-fg-strong, #ffffff);
+}
+
+.vt-odds-section p {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.65;
+}
+
+.vt-odds-section strong {
+  color: var(--vt-fg-strong, #ffffff);
+  font-weight: 700;
+}
+
+.vt-odds-section em {
+  font-style: italic;
+  color: var(--vt-fg-strong, #ffffff);
+}
+
+/* Tables: scroll on narrow viewports; the columns are the data. */
+.vt-odds-table-wrap {
+  margin: 18px -6px 22px;
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  background: rgba(255, 255, 255, 0.02);
+}
+.vt-odds-table {
+  width: 100%;
+  min-width: 540px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.vt-odds-table thead {
+  background: rgba(220, 169, 75, 0.08);
+}
+.vt-odds-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  font-weight: 700;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
+}
+.vt-odds-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--vt-fg, #f4f4f5);
+  vertical-align: top;
+}
+.vt-odds-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.vt-odds-row-highlight {
+  background: linear-gradient(180deg, rgba(252, 211, 77, 0.06), rgba(154, 106, 23, 0.04));
+}
+.vt-odds-row-highlight td {
+  color: var(--vt-fg-strong, #ffffff);
+}
+
+.vt-odds-blockquote {
+  margin: 18px 0;
+  padding: 14px 18px;
+  border-left: 3px solid var(--vt-gold-400, #dca94b);
+  background: rgba(220, 169, 75, 0.05);
+  border-radius: 0 8px 8px 0;
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-style: italic;
+  font-size: 15px;
+  color: var(--vt-fg, #f4f4f5);
+}
+.vt-odds-blockquote-pull {
+  font-size: clamp(17px, 2.3vw, 21px);
+  line-height: 1.5;
+  padding: 22px 24px;
+}
+
+.vt-odds-list {
+  margin: 14px 0 14px 22px;
+  padding: 0;
+}
+.vt-odds-list li {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.vt-odds-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 36px 0 24px;
+}
+
+.vt-odds-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 22px;
+  border-radius: 10px;
+  font-weight: 800;
+  font-size: 15px;
+  text-decoration: none;
+  letter-spacing: 0.01em;
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+}
+
+.vt-odds-btn-primary {
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #15151a;
+  box-shadow: 0 8px 22px -8px rgba(220, 169, 75, 0.55);
+}
+.vt-odds-btn-primary:hover {
+  background: linear-gradient(180deg, #ffe084 0%, #ffae31 100%);
+  transform: translateY(-1px);
+}
+
+.vt-odds-btn-ghost {
+  background: transparent;
+  color: var(--vt-fg, #f4f4f5);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+.vt-odds-btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.32);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vt-odds-disclaimer {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 12px;
+  color: var(--vt-fg-muted, #a3a3ad);
+  line-height: 1.5;
+}
