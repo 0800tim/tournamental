@@ -25,7 +25,6 @@ import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { CountdownBanner } from "@/components/ui";
 
-import { LiveWidgetDemo } from "./syndicates/LiveWidgetDemo";
 import "./home.css";
 
 const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
@@ -171,12 +170,15 @@ export default function HomePage(): JSX.Element {
             keep it free for bragging rights. Tournamental never touches the money.
           </p>
 
-          <div className="vt-home-demo-wrap">
-            <div className="vt-home-demo-badge">Live preview of the pool widget</div>
-            <LiveWidgetDemo slug="tournamental-demo" />
-            <p className="vt-home-demo-note">
-              This is the exact widget partners drop on their own sites. Two lines of
-              code; renders branded; works anywhere.
+          <div className="vt-home-demo-cta">
+            <Link
+              href="/syndicates"
+              className="vt-home-btn vt-home-btn-light vt-home-demo-cta-btn"
+            >
+              Run a pool
+            </Link>
+            <p className="vt-home-demo-cta-note">
+              See the embed widget, snippet, and prize-split mechanics on the pools page.
             </p>
           </div>
 

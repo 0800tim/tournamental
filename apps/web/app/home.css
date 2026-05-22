@@ -657,6 +657,37 @@
   color: #9aa6c2;
 }
 
+/* Replacement for the old widget-preview block on the home page
+ * (Tim 2026-05-23). A single CTA link + a small descriptive note,
+ * centred so it reads as a deliberate signpost rather than a
+ * broken-widget container. */
+.vt-home-demo-cta {
+  margin: 24px auto;
+  padding: 28px 20px;
+  background: rgba(16, 22, 38, 0.5);
+  border: 1px dashed rgba(245, 197, 66, 0.32);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  max-width: 560px;
+}
+
+.vt-home-demo-cta-btn {
+  align-self: center;
+  padding: 14px 28px;
+  font-size: 15px;
+}
+
+.vt-home-demo-cta-note {
+  margin: 0;
+  max-width: 56ch;
+  text-align: center;
+  font: 400 13px/1.5 -apple-system, system-ui, sans-serif;
+  color: #9aa6c2;
+}
+
 /* ---- Tiers ---- */
 .vt-home-tiers {
   display: grid;

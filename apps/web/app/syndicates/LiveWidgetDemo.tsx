@@ -18,9 +18,16 @@ export function LiveWidgetDemo({ slug }: { slug: string }): JSX.Element {
     if (!host) return;
 
     // Inject the widget element. If we're hot-reloading, clear first
-    // so we don't stack duplicates.
+    // so we don't stack duplicates. Tim 2026-05-23: switched from the
+    // backward-compat `tournamental-syndicate` alias to the primary
+    // `tournamental-pool` tag — the alias is registered as a
+    // function-based custom element (Reflect.construct) which doesn't
+    // upgrade reliably when the DOM node is created before the bundle
+    // loads, which is exactly our race here. The primary tag uses the
+    // same pattern but is the one that's actually exercised by
+    // partner sites, so we keep that path warm.
     host.innerHTML = "";
-    const el = document.createElement("tournamental-syndicate");
+    const el = document.createElement("tournamental-pool");
     el.setAttribute("slug", slug);
     host.appendChild(el);
 
