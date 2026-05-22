@@ -53,8 +53,19 @@ export async function resizeToBlob(
     const ctx = canvas.getContext("2d");
     if (!ctx) throw new Error("canvas-context-failed");
     ctx.drawImage(img, 0, 0, w, h);
+    // PNG inputs get LOSSLESS webp (quality 1.0). Lossy webp at q=0.85
+    // introduces visible alpha-channel artifacts on logos with hard
+    // edges -- Tim 2026-05-22 reported a checkered-pattern halo around
+    // transparent areas of an uploaded PNG. Lossless preserves the
+    // alpha bit-exact. JPEG inputs have no alpha to preserve so they
+    // stay on lossy webp at the configured quality.
+    const isLossless = file.type === "image/png";
     const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob(resolve, "image/webp", target.quality),
+      canvas.toBlob(
+        resolve,
+        "image/webp",
+        isLossless ? 1.0 : target.quality,
+      ),
     );
     if (!blob) throw new Error("canvas-encode-failed");
     return blob;

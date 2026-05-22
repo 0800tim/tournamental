@@ -504,6 +504,15 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         </p>
       </div>
 
+      {/* Pool-owner share row. Same competitive-psychology line goes
+        * into both the OG image (rendered server-side) and the share
+        * text body, so what people see in their inbox / WhatsApp
+        * matches what they see on the page (Tim 2026-05-22). */}
+      <ShareActions
+        shareTitle={`${syndicate.name} on Tournamental`}
+        shareText={`Do you think you can predict the outcome of the FIFA World Cup better than I can? Join my pool "${syndicate.name}" and let's find out.`}
+      />
+
       <RevealOnScroll
         as="section"
         className="vt-share-syn-section"

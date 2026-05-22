@@ -239,6 +239,26 @@ export async function GET(req: NextRequest): Promise<Response> {
 
   const size = parseSize(req);
 
+  // FAST PATH: serve the disk cache if it exists. The cache is invalidated
+  // (deleted) by invalidateSyndicateOgCache on every pool create / branding
+  // update / branding upload, so a cache hit means the image is current.
+  // First-render-after-save is dynamic (~600ms); every subsequent share-
+  // crawler hit is a flat-file read (~3ms).
+  const safeSlug = safeSlugify(slug);
+  const cached = await readDiskCache(safeSlug, size);
+  if (cached) {
+    return new Response(cached as unknown as BodyInit, {
+      status: 200,
+      headers: {
+        "content-type": "image/png",
+        "content-disposition": `inline; filename="syndicate-${safeSlug}-${size}.png"`,
+        "cache-control": "public, s-maxage=60, stale-while-revalidate=600",
+        "x-vtorn-og-size": size,
+        "x-vtorn-og-cache": "hit",
+      },
+    });
+  }
+
   // Resolution order: store lookup -> query-param fallback -> never 404.
   let args: RenderArgs;
   try {
@@ -260,6 +280,7 @@ export async function GET(req: NextRequest): Promise<Response> {
         // ~1 minute once the syndicate lands in the canonical store.
         "cache-control": "public, s-maxage=60, stale-while-revalidate=600",
         "x-vtorn-og-size": args.size,
+        "x-vtorn-og-cache": "miss",
       },
     });
   } catch (err) {
@@ -405,6 +426,30 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     flexWrap: "wrap",
                   },
                   children: args.name,
+                },
+              },
+              // Competitive-psychology hook (Tim 2026-05-22). Italic
+              // Fraunces, ~38% the title size, slightly muted so it
+              // reads as a sub-line rather than competing with the
+              // pool name. Same line goes into every share-text body.
+              {
+                type: "div",
+                props: {
+                  style: {
+                    fontFamily: "Fraunces",
+                    fontSize: Math.round(titleFont * 0.34),
+                    fontWeight: 500,
+                    fontStyle: "italic",
+                    letterSpacing: "0.005em",
+                    lineHeight: 1.25,
+                    color: COLOUR_FG_STRONG,
+                    opacity: 0.88,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    maxWidth: width - padding * 2,
+                  },
+                  children:
+                    "Do you think you can predict the outcome of the FIFA World Cup better than I can?",
                 },
               },
             ],
@@ -638,20 +683,49 @@ function formatCount(n: number): string {
   return `${Math.round(n / 1000)}k`;
 }
 
+const OG_CACHE_DIR = join(process.cwd(), "public", "og", "syndicate");
+
 async function tryDiskCache(
   safeSlug: string,
   size: SyndicateSize,
   png: Buffer,
 ): Promise<string | null> {
-  const dir = join(process.cwd(), "public", "og", "syndicate");
-  const file = join(dir, `${safeSlug}-${size}.png`);
+  const file = join(OG_CACHE_DIR, `${safeSlug}-${size}.png`);
   try {
-    await fs.mkdir(dir, { recursive: true });
+    await fs.mkdir(OG_CACHE_DIR, { recursive: true });
     await fs.writeFile(file, png);
     return file;
   } catch {
     return null;
   }
+}
+
+async function readDiskCache(
+  safeSlug: string,
+  size: SyndicateSize,
+): Promise<Buffer | null> {
+  const file = join(OG_CACHE_DIR, `${safeSlug}-${size}.png`);
+  try {
+    return await fs.readFile(file);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Delete every cached OG variant for a pool slug. Call this from any
+ * write path that changes the rendered output (pool create, branding
+ * patch, branding image upload) so the next share-crawler hit re-
+ * renders against the fresh data. Best-effort; failures are silent
+ * because the cache is a perf optimisation, not a correctness guarantee.
+ */
+export async function invalidateSyndicateOgCache(slug: string): Promise<void> {
+  const safeSlug = safeSlugify(slug);
+  await Promise.allSettled(
+    Array.from(ALLOWED_SIZES).map((size) =>
+      fs.rm(join(OG_CACHE_DIR, `${safeSlug}-${size}.png`), { force: true }),
+    ),
+  );
 }
 
 function renderFallbackPng(): Buffer {

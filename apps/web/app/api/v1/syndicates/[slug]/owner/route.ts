@@ -23,6 +23,7 @@ import {
   type SyndicateBrandingPatch,
   type SyndicateRow,
 } from "@/lib/syndicate/persistence";
+import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -231,6 +232,10 @@ export async function PATCH(
   if (!updated) {
     return jsonResponse({ error: "not_found" }, 404);
   }
+
+  // Branding fields drive the OG render -- pop the cache so the next
+  // share-crawler hit re-renders against the patched row.
+  void invalidateSyndicateOgCache(slug);
 
   return jsonResponse({ ok: true, syndicate: projectOwnerRow(updated) }, 200);
 }

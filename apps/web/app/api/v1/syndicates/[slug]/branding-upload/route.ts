@@ -25,6 +25,7 @@ import sharp from "sharp";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { getPersistence } from "@/lib/syndicate/persistence";
+import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -86,6 +87,15 @@ export async function POST(
   let resized: Buffer;
   try {
     const pipeline = sharp(buf, { failOn: "error" }).rotate();
+    // Detect alpha BEFORE we resize -- sharp's metadata() reads from the
+    // original buffer cheaply and is the only honest signal of "did the
+    // user upload a transparent logo". hasAlpha:true triggers lossless
+    // webp instead of lossy q=85; lossy webp+alpha produced a checkered
+    // halo around transparent regions on real-world logos (Tim
+    // 2026-05-22). Output stays as .webp -- the asset-serving route is
+    // keyed on the .webp extension and lossless webp is browser-native.
+    const meta = await sharp(buf).metadata();
+    const hasAlpha = !!meta.hasAlpha;
     resized =
       kind === "logo"
         ? await pipeline
@@ -93,11 +103,11 @@ export async function POST(
               fit: "contain",
               background: { r: 0, g: 0, b: 0, alpha: 0 },
             })
-            .webp({ quality: 85 })
+            .webp(hasAlpha ? { lossless: true } : { quality: 85 })
             .toBuffer()
         : await pipeline
             .resize(1600, 800, { fit: "cover", position: "centre" })
-            .webp({ quality: 80 })
+            .webp(hasAlpha ? { lossless: true } : { quality: 80 })
             .toBuffer();
   } catch {
     return json({ error: "image_decode_failed" }, 400);
@@ -119,6 +129,9 @@ export async function POST(
   } catch {
     /* non-fatal — file is saved, preview already works via URL */
   }
+
+  // New logo / hero changes the rendered OG image -- pop the cache.
+  void invalidateSyndicateOgCache(slug);
 
   return json({
     ok: true,

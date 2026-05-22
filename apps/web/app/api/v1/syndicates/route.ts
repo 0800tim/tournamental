@@ -28,6 +28,7 @@ import { isReservedSlug } from "@/lib/syndicate/reserved-slugs";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { buildGhlContactPayload, pushToGhl, type GhlStatus } from "@/lib/syndicate/ghl";
 import { newShareGuid, newSyndicateId } from "@/lib/syndicate/ids";
+import { invalidateSyndicateOgCache } from "@/app/api/og/syndicate/route";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -132,6 +133,12 @@ export async function POST(req: NextRequest): Promise<Response> {
     console.error("syndicate create failed", err);
     return jsonResponse({ error: "persist_failed" }, 500);
   }
+
+  // Pop any stale OG image for this slug so the first share-crawler
+  // hit re-renders against the freshly-created row. Best-effort; we
+  // don't await the operation because OG cache state can never block
+  // a successful create.
+  void invalidateSyndicateOgCache(row.slug);
 
   // GHL push, best-effort, never blocks the response.
   let ghlStatus: GhlStatus = "queued";
