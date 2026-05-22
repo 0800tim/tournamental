@@ -157,6 +157,13 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       '.tnm-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 36px 18px; text-align: center; }',
       '.tnm-empty h3 { margin: 0; font-size: 18px; font-weight: 800; color: ' + t.textStrong + '; }',
       '.tnm-empty p { margin: 0; color: ' + t.text + '; max-width: 36ch; font-size: 13px; }',
+      // Soft sign-in nudge for anonymous guests on a public pool. Sits
+      // above the bracket iframe; non-blocking, non-modal. The button
+      // shares the .tnm-cta data-action="login" handler so the existing
+      // popup-flow listener picks it up.
+      '.tnm-anon-nudge { padding: 10px 14px; background: ' + t.statBg + '; border-bottom: 1px solid ' + t.borderSoft + '; color: ' + t.textMuted + '; font-size: 12px; line-height: 1.45; }',
+      '.tnm-nudge-link { background: transparent; border: 0; color: ' + primary + '; font: inherit; font-weight: 700; cursor: pointer; padding: 0; text-decoration: underline; text-underline-offset: 2px; }',
+      '.tnm-nudge-link:hover { filter: brightness(1.1); }',
       '.tnm-stat-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }',
       '.tnm-stat { background: ' + t.statBg + '; border: 1px solid ' + t.borderSoft + '; padding: 10px 14px; border-radius: 10px; min-width: 130px; }',
       '.tnm-stat-label { font-size: 11px; color: ' + t.textMuted + '; letter-spacing: 0.05em; text-transform: uppercase; }',
@@ -201,8 +208,12 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       { id: "leaderboard", label: "Leaderboard" },
       { id: "about", label: "About" },
     ];
-    // Default tab: Play when authed, About when not.
-    var tab = currentTab || (authed ? "play" : "about");
+    // Default tab: Play when the user can actually play (authed, OR
+    // anonymous on a public pool). About otherwise (i.e. private pool
+    // + anon, where Play is just an access-request CTA).
+    var poolIsPublic = config.is_public !== false;
+    var canPlayNow = authed || poolIsPublic;
+    var tab = currentTab || (canPlayNow ? "play" : "about");
 
     // Resolve logo (might be a relative /branding/... URL).
     var absLogo = null;
@@ -254,17 +265,49 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
   function playPaneMarkup(config, authed) {
     var slug = config.slug;
     var theme = config.theme_mode === "light" ? "light" : "dark";
-    if (authed) {
-      var src = API_ORIGIN + "/world-cup-2026?embed=1&pool=" + encodeURIComponent(slug) + "&theme=" + theme;
-      return '<iframe class="tnm-iframe" src="' + escapeHtml(src) +
-        '" allow="clipboard-write *; fullscreen *" loading="lazy" referrerpolicy="origin"></iframe>';
-    }
     var name = escapeHtml(config.name || "this pool");
-    return '<div class="tnm-empty">' +
-      '<h3>Sign in to play ' + name + '</h3>' +
-      '<p>Build your bracket, lock your picks, and climb the leaderboard. Sign in with WhatsApp, Telegram, SMS or email — takes one tap.</p>' +
-      '<button type="button" class="tnm-cta" data-action="login">Log in to play</button>' +
-      '</div>';
+    var isPublic = config.is_public !== false; // default-open if older config payload omits the flag
+    var requiresApproval = !isPublic && config.requires_approval === true;
+
+    // PRIVATE + unauthenticated -> hard gate. We do NOT show the iframe
+    // because the bracket save flow can't attach anonymous picks to a
+    // not-yet-existent member row. Owner approval is required.
+    if (requiresApproval && !authed) {
+      return '<div class="tnm-empty">' +
+        '<h3>' + name + ' is a private pool</h3>' +
+        '<p>The pool owner approves who plays. Sign up to request access -- you can build your bracket once they approve you.</p>' +
+        '<button type="button" class="tnm-cta" data-action="login">Sign up &amp; request access</button>' +
+        '</div>';
+    }
+
+    // PRIVATE + authed but still waiting on owner approval. config._joinState
+    // is "pending" when the post-auth join POST returned status=pending,
+    // "active" when accepted on the spot. Anything else falls through to
+    // the iframe (legacy approved members from before this flag landed).
+    if (requiresApproval && authed && config._joinState === "pending") {
+      return '<div class="tnm-empty">' +
+        '<h3>Waiting for owner approval</h3>' +
+        '<p>We sent your request to the pool owner. You\'ll be able to build your bracket as soon as they approve you -- reload this page after that to start picking.</p>' +
+        '</div>';
+    }
+
+    // PUBLIC (or unrestricted) -> drop the iframe in regardless of auth.
+    // Anonymous players' picks persist in localStorage on the partner
+    // origin via the iframe page's own anon-storage path. Login is
+    // nudged from the Save & share + Leaderboard surfaces, not here.
+    var src = API_ORIGIN + "/world-cup-2026?embed=1&pool=" + encodeURIComponent(slug) + "&theme=" + theme;
+    var iframe = '<iframe class="tnm-iframe" src="' + escapeHtml(src) +
+      '" allow="clipboard-write *; fullscreen *" loading="lazy" referrerpolicy="origin"></iframe>';
+
+    // Soft sign-in nudge above the iframe for unauthenticated public
+    // visitors -- no friction, but signals that login unlocks saving
+    // across devices + the official leaderboard.
+    if (!authed) {
+      return '<div class="tnm-anon-nudge">' +
+        '<span>Playing as a guest. <button type="button" class="tnm-nudge-link" data-action="login">Sign in</button> to save across devices and join the official leaderboard.</span>' +
+        '</div>' + iframe;
+    }
+    return iframe;
   }
 
   function leaderboardPaneMarkup(config) {
@@ -505,6 +548,31 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
             });
           }
           checkAuth().then(function (nowAuthed) {
+            // Private pool: now that the user is authed, POST a join
+            // request so the owner gets notified. The response tells
+            // us whether they were immediately accepted ("active") or
+            // are still waiting ("pending"); we surface that in the
+            // Play tab via the joinState attached to config.
+            var privatePool =
+              config.is_public === false && config.requires_approval === true;
+            if (nowAuthed && privatePool) {
+              fetch(
+                API_ORIGIN + "/api/v1/syndicates/" + encodeURIComponent(slug) + "/join",
+                {
+                  method: "POST",
+                  credentials: "include",
+                  headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
+                  body: "{}",
+                },
+              )
+                .then(function (r) { return r.ok ? r.json() : null; })
+                .catch(function () { return null; })
+                .then(function (res) {
+                  config._joinState = res && res.status ? res.status : "pending";
+                  renderHub(root, config, true, "play");
+                });
+              return;
+            }
             renderHub(root, config, nowAuthed, "play");
           });
         });

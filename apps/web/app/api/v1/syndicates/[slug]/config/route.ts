@@ -126,6 +126,15 @@ export async function GET(
         public_landing_url: publicLandingUrl,
         join_url: joinUrl,
         hide_tournamental_footer: hideFooter,
+        // Privacy flags so the embed widget can branch its UX:
+        //   - is_public=true  -> anyone can play anonymously, login is
+        //     optional and only nudged for "Save & share" / leaderboard.
+        //   - is_public=false + requires_approval=true -> picks UI is
+        //     gated until the user signs in AND is approved by the
+        //     owner. The widget routes them through the existing
+        //     join-request flow on click.
+        is_public: row.is_public === 1,
+        requires_approval: row.requires_approval === 1,
       },
     },
     200,
