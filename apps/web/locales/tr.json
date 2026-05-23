@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Açılış düdüğüne kadar Tournamental'ı 22 dilde sunmak için ana dil konuşurlarıyla çalışıyoruz. İlk geçiş makine destekli; ana dil konuşurlarının pull request'leri her yerelleştirmeyi gerçekten iyi yapan şey.",
   "languages.hero.intro2": "Geçiş yapmak için aşağıdan bir dile dokunun. Tercihinizi bu cihazda bir yıl boyunca hatırlıyoruz.",
   "languages.grid_aria": "Bir dil seçin",
-  "languages.contribute_link": "Tournamental'ı kendi dilinize çevirmemize yardım edin"
+  "languages.contribute_link": "Tournamental'ı kendi dilinize çevirmemize yardım edin",
+  "home.stat.matches": "Maç",
+  "home.stat.teams": "Takım",
+  "home.stat.perfect_brackets": "Kusursuz fişler",
+  "home.stat.claim_to_glory": "Şan iddiası",
+  "home.final.headline": "Üç adım. Beş dakika. Ücretsiz.",
+  "home.final.q1_title": "Tahminlerini gir",
+  "home.final.q1_body": "Fişi aç ve Dünya Kupası'nı kaydet. İlk seferinde yaklaşık beş dakika.",
+  "home.final.q2_title": "Her maçı takip et",
+  "home.final.q2_body": "FIFA Dünya Kupası 2026, 11 Haziran'da başlıyor. Bir kez kaydet, açılış düdüğüne kadar herhangi bir tahmini değiştir, tahmin IQ'nun küresel sıralamada nasıl yükseldiğini izle.",
+  "home.final.q3_title": "Kendi havuzunu aç",
+  "home.final.q3_body": "Beğendin mi? Bir havuz aç, kendi markanı koy, arkadaşlarını veya kitleni davet et. Ücretsiz veya premium.",
+  "home.final.cta_primary": "Tahminlerimi gir",
+  "home.final.cta_secondary": "Havuz aç"
 }

@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Wir arbeiten mit Muttersprachlerinnen und Muttersprachlern, damit Tournamental bis zum Anpfiff in 22 Sprachen läuft. Der erste Durchgang ist maschinell unterstützt; Pull-Requests von Native Speakern machen jede Lokalisierung erst richtig gut.",
   "languages.hero.intro2": "Tippe unten auf eine Sprache, um zu wechseln. Deine Wahl bleibt ein Jahr lang auf diesem Gerät gespeichert.",
   "languages.grid_aria": "Wähle eine Sprache",
-  "languages.contribute_link": "Hilf uns, Tournamental in deine Sprache zu übersetzen"
+  "languages.contribute_link": "Hilf uns, Tournamental in deine Sprache zu übersetzen",
+  "home.stat.matches": "Spiele",
+  "home.stat.teams": "Mannschaften",
+  "home.stat.perfect_brackets": "Perfekte Tippscheine",
+  "home.stat.claim_to_glory": "Anspruch auf Ruhm",
+  "home.final.headline": "Drei Schritte. Fünf Minuten. Kostenlos.",
+  "home.final.q1_title": "Gib deine Tipps ab",
+  "home.final.q1_body": "Öffne das Tableau und speichere deine WM. Beim ersten Mal etwa fünf Minuten.",
+  "home.final.q2_title": "Verfolge jedes Spiel",
+  "home.final.q2_body": "Die FIFA Fussball-WM 2026 startet am 11. Juni. Einmal speichern, jeden Tipp bis zum Anpfiff ändern, und deinen Tipp-IQ in der globalen Rangliste klettern sehen.",
+  "home.final.q3_title": "Eröffne deinen eigenen Pool",
+  "home.final.q3_body": "Gefällt dir das? Starte einen Pool, branding nach deinem Geschmack, lade Freunde oder dein Publikum ein. Kostenlos oder Premium.",
+  "home.final.cta_primary": "Tipps abgeben",
+  "home.final.cta_secondary": "Pool eröffnen"
 }

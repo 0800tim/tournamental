@@ -129,16 +129,27 @@ export function middleware(req: NextRequest) {
  * Tim 2026-05-24.
  */
 function withLocaleHint(req: NextRequest): NextResponse {
-  const res = NextResponse.next();
   const path = req.nextUrl.pathname;
+  const search = req.nextUrl.search;
   const prefix = path.split("/")[1] ?? "";
   const fromPrefix: Locale | null = isSupportedLocale(prefix) ? prefix : null;
   const cookie = req.cookies.get("vt_locale")?.value;
   const fromCookie: Locale | null = isSupportedLocale(cookie) ? cookie : null;
 
-  if (fromPrefix && fromCookie !== fromPrefix) {
-    // URL is the source of truth when it's prefixed; keep the
-    // cookie in sync so the next bare-URL visit gets the same lang.
+  // URL-prefix routing: when the path is /<supported-locale>/<rest>,
+  // (a) write the cookie so it sticks for subsequent un-prefixed visits,
+  // (b) rewrite the request internally to /<rest> so we don't need a
+  //     duplicated `app/[locale]/` route tree. The page that renders is
+  //     identical to the bare URL, but getRequestConfig reads the cookie
+  //     we just stamped and ships the matching catalogue.
+  //
+  // Browsers retain the visible /<locale>/<rest> in the URL bar, which
+  // makes deep-linking ("share my Spanish bracket") work.
+  if (fromPrefix) {
+    const rewrittenPath = path.slice(fromPrefix.length + 1) || "/";
+    const rewriteUrl = new URL(req.url);
+    rewriteUrl.pathname = rewrittenPath;
+    const res = NextResponse.rewrite(rewriteUrl);
     res.cookies.set("vt_locale", fromPrefix, {
       path: "/",
       domain: ".tournamental.com",
@@ -148,6 +159,8 @@ function withLocaleHint(req: NextRequest): NextResponse {
     });
     return res;
   }
+
+  const res = NextResponse.next();
   if (fromCookie) return res;
 
   // Auto-detect for the first visit.

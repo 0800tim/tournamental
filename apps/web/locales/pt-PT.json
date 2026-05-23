@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Estamos a trabalhar com falantes nativos para lançar a Tournamental em 22 idiomas até ao apito inicial. A primeira tradução é apoiada por máquina; os pull requests de falantes nativos são o que torna cada localização verdadeiramente boa.",
   "languages.hero.intro2": "Toca num idioma em baixo para mudar. A tua escolha fica memorizada durante um ano neste dispositivo.",
   "languages.grid_aria": "Escolhe um idioma",
-  "languages.contribute_link": "Ajuda-nos a traduzir a Tournamental para o teu idioma"
+  "languages.contribute_link": "Ajuda-nos a traduzir a Tournamental para o teu idioma",
+  "home.stat.matches": "Jogos",
+  "home.stat.teams": "Selecções",
+  "home.stat.perfect_brackets": "Boletins perfeitos",
+  "home.stat.claim_to_glory": "Pretensão de glória",
+  "home.final.headline": "Três passos. Cinco minutos. Grátis.",
+  "home.final.q1_title": "Faz os teus prognósticos",
+  "home.final.q1_body": "Abre o quadro e guarda o teu Mundial. Demora uns cinco minutos na primeira vez.",
+  "home.final.q2_title": "Acompanha cada jogo",
+  "home.final.q2_body": "O Mundial FIFA 2026 arranca a 11 de Junho. Guarda uma vez, muda qualquer prognóstico até ao apito inicial e vê o teu QI de prognosticador a subir na classificação global.",
+  "home.final.q3_title": "Cria o teu próprio pool",
+  "home.final.q3_body": "Gostaste? Põe um pool a andar, dá-lhe a tua marca e convida os teus amigos ou o teu público. Grátis ou premium.",
+  "home.final.cta_primary": "Fazer os meus prognósticos",
+  "home.final.cta_secondary": "Criar um pool"
 }

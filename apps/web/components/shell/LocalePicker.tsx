@@ -139,15 +139,37 @@ export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Ele
     writeCookieLocale(code);
     setCurrent(code);
     setOpen(false);
-    // Phase 1: just persist the cookie + reload the current URL.
-    // The /<locale>/* URL segments aren't wired yet (Phase 2 work)
-    // so redirecting to /fr etc. 404s. Once Phase 2 lands the
-    // cookie is read in middleware and rewrites to the prefixed
-    // path server-side. Until then, cookie + reload is the right
-    // behaviour. Tim 2026-05-24.
-    if (typeof window !== "undefined") {
-      window.location.reload();
-    }
+    if (typeof window === "undefined") return;
+    // Wipe any client-side caches keyed to the previous locale (the
+    // SHELL_CACHE / RUNTIME_CACHE were the cause of "I picked a language
+    // and nothing changed" on prod), then redirect to the locale-prefixed
+    // URL so:
+    //   - the URL bar reflects the active language (`/es/world-cup-2026`)
+    //     and is shareable,
+    //   - middleware rewrites the request server-side, stamps the cookie,
+    //     and renders the right catalogue.
+    // English (DEFAULT_LOCALE) doesn't prefix; we just drop the prefix so
+    // bookmarks stay clean.
+    Promise.resolve()
+      .then(async () => {
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+        } catch {
+          /* best-effort */
+        }
+      })
+      .finally(() => {
+        const u = new URL(window.location.href);
+        u.searchParams.delete("_l");
+        const stripped = stripLocalePrefix(u.pathname);
+        const newPath =
+          code === DEFAULT_LOCALE ? stripped : `/${code}${stripped === "/" ? "" : stripped}`;
+        u.pathname = newPath;
+        window.location.assign(u.toString());
+      });
   };
 
   const currentMeta: LocaleMeta =

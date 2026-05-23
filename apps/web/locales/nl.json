@@ -103,5 +103,18 @@
   "languages.hero.intro1": "We werken met moedertaalsprekers om Tournamental tegen de aftrap in 22 talen op te leveren. De eerste vertaling is machine-ondersteund; pull requests van native speakers maken elke lokalisatie pas écht goed.",
   "languages.hero.intro2": "Tik hieronder op een taal om te wisselen. Je keuze blijft een jaar op dit apparaat onthouden.",
   "languages.grid_aria": "Kies een taal",
-  "languages.contribute_link": "Help ons Tournamental in jouw taal te vertalen"
+  "languages.contribute_link": "Help ons Tournamental in jouw taal te vertalen",
+  "home.stat.matches": "Wedstrijden",
+  "home.stat.teams": "Landen",
+  "home.stat.perfect_brackets": "Perfecte brackets",
+  "home.stat.claim_to_glory": "Aanspraak op roem",
+  "home.final.headline": "Drie stappen. Vijf minuten. Gratis.",
+  "home.final.q1_title": "Vul je voorspellingen in",
+  "home.final.q1_body": "Open het bracket en bewaar je WK. Duurt de eerste keer zo'n vijf minuten.",
+  "home.final.q2_title": "Volg elke wedstrijd",
+  "home.final.q2_body": "Het FIFA WK 2026 begint op 11 juni. Eén keer opslaan, elke voorspelling tot de aftrap wijzigen, en je voorspel-IQ in de mondiale ranglijst zien klimmen.",
+  "home.final.q3_title": "Start je eigen pool",
+  "home.final.q3_body": "Bevalt het? Start een pool, geef het je eigen branding, nodig vrienden of je publiek uit. Gratis of premium.",
+  "home.final.cta_primary": "Mijn voorspellingen invullen",
+  "home.final.cta_secondary": "Een pool starten"
 }

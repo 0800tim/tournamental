@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Trabalhamos com falantes nativos pra entregar o Tournamental em 22 idiomas até o apito inicial. A primeira passada é feita com ajuda de máquina; os pull requests de falantes nativos são o que deixa cada localização realmente boa.",
   "languages.hero.intro2": "Toque num idioma abaixo pra trocar. A gente lembra a sua escolha por um ano neste dispositivo.",
   "languages.grid_aria": "Escolha um idioma",
-  "languages.contribute_link": "Ajude a traduzir o Tournamental para o seu idioma"
+  "languages.contribute_link": "Ajude a traduzir o Tournamental para o seu idioma",
+  "home.stat.matches": "Jogos",
+  "home.stat.teams": "Seleções",
+  "home.stat.perfect_brackets": "Gabaritos perfeitos",
+  "home.stat.claim_to_glory": "Pretensão de glória",
+  "home.final.headline": "Três passos. Cinco minutos. De graça.",
+  "home.final.q1_title": "Faça seus palpites",
+  "home.final.q1_body": "Abra o chaveamento e salve a sua Copa. Leva uns cinco minutos da primeira vez.",
+  "home.final.q2_title": "Acompanhe cada jogo",
+  "home.final.q2_body": "A Copa do Mundo FIFA 2026 começa em 11 de junho. Salve uma vez, mude qualquer palpite até o apito inicial e veja o seu QI de palpiteiro subir no ranking global.",
+  "home.final.q3_title": "Crie o seu próprio bolão",
+  "home.final.q3_body": "Curtiu? Monte um bolão, marque com a sua cara e convide os seus amigos ou o seu público. De graça ou premium.",
+  "home.final.cta_primary": "Fazer meus palpites",
+  "home.final.cta_secondary": "Criar um bolão"
 }

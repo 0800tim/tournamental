@@ -103,5 +103,18 @@
   "languages.hero.intro1": "キックオフまでに22言語でTournamentalを提供できるよう、ネイティブスピーカーと一緒に作業しています。最初のパスは機械翻訳の手助けで、ネイティブからのプルリクエストが、それぞれのローカリゼーションを本当に良いものにします。",
   "languages.hero.intro2": "下から言語をタップして切り替えてください。選択はこの端末で1年間記憶します。",
   "languages.grid_aria": "言語を選んでください",
-  "languages.contribute_link": "Tournamentalをあなたの言語に翻訳するのを手伝ってください"
+  "languages.contribute_link": "Tournamentalをあなたの言語に翻訳するのを手伝ってください",
+  "home.stat.matches": "試合",
+  "home.stat.teams": "代表",
+  "home.stat.perfect_brackets": "完璧な予想",
+  "home.stat.claim_to_glory": "栄光への主張",
+  "home.final.headline": "3ステップ。5分。無料。",
+  "home.final.q1_title": "予想を入力",
+  "home.final.q1_body": "ブラケットを開いてワールドカップを保存。初回は5分ほどです。",
+  "home.final.q2_title": "全試合を追う",
+  "home.final.q2_body": "FIFAワールドカップ2026は6月11日にキックオフ。一度保存したら、試合開始前ならいつでも予想を変更できて、グローバルランキングで予想力IQが上がっていくのを見守れます。",
+  "home.final.q3_title": "自分のプールを開く",
+  "home.final.q3_body": "気に入りましたか？プールを立ち上げて、ブランディングして、友達や視聴者を招待しましょう。無料またはプレミアム。",
+  "home.final.cta_primary": "予想を入力する",
+  "home.final.cta_secondary": "プールを開く"
 }

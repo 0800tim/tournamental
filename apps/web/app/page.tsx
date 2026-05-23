@@ -61,6 +61,15 @@ export default async function HomePage(): Promise<JSX.Element> {
     readMore,
     countdownEyebrow,
     countdownTitle,
+    statMatches,
+    statTeams,
+    statPerfectBrackets,
+    statClaimToGlory,
+    finalHeadline,
+    finalQ1Title, finalQ1Body,
+    finalQ2Title, finalQ2Body,
+    finalQ3Title, finalQ3Body,
+    finalCtaPrimary, finalCtaSecondary,
   ] = await Promise.all([
     safeT("home.hero.headline_a", "Can you predict the entire World Cup?"),
     safeT("home.hero.cta_predict", "Set my picks"),
@@ -73,6 +82,19 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.hero.read_more", "[read more]"),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
+    safeT("home.stat.matches", "Matches"),
+    safeT("home.stat.teams", "Teams"),
+    safeT("home.stat.perfect_brackets", "Perfect brackets"),
+    safeT("home.stat.claim_to_glory", "Claim to glory"),
+    safeT("home.final.headline", "Three steps. Five minutes. Free."),
+    safeT("home.final.q1_title", "Set your picks"),
+    safeT("home.final.q1_body", "Open the bracket, save your World Cup. Takes about five minutes the first time."),
+    safeT("home.final.q2_title", "Track every match"),
+    safeT("home.final.q2_body", "The FIFA World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard."),
+    safeT("home.final.q3_title", "Run your own pool"),
+    safeT("home.final.q3_body", "Like the experience? Spin up a pool, brand it, invite your friends or your audience. Free or premium."),
+    safeT("home.final.cta_primary", "Set your picks now"),
+    safeT("home.final.cta_secondary", "Run a pool"),
   ]);
 
   // Split the lede on the {odds_link} placeholder so we can interpolate
@@ -127,19 +149,19 @@ export default async function HomePage(): Promise<JSX.Element> {
             <ul className="vt-home-stat-row">
               <li>
                 <span className="vt-home-stat-num">104</span>
-                <span className="vt-home-stat-label">Matches</span>
+                <span className="vt-home-stat-label">{statMatches}</span>
               </li>
               <li>
                 <span className="vt-home-stat-num">48</span>
-                <span className="vt-home-stat-label">Teams</span>
+                <span className="vt-home-stat-label">{statTeams}</span>
               </li>
               <li>
                 <span className="vt-home-stat-num">0</span>
-                <span className="vt-home-stat-label">Perfect brackets</span>
+                <span className="vt-home-stat-label">{statPerfectBrackets}</span>
               </li>
               <li>
                 <span className="vt-home-stat-num" aria-hidden="true">?</span>
-                <span className="vt-home-stat-label">Claim to glory</span>
+                <span className="vt-home-stat-label">{statClaimToGlory}</span>
               </li>
             </ul>
           </div>
@@ -295,36 +317,36 @@ export default async function HomePage(): Promise<JSX.Element> {
 
         {/* ============== FINAL CTA ============== */}
         <RevealOnScroll as="section" className="vt-home-section vt-home-final-cta">
-          <h2 className="vt-home-h2 vt-home-h2-centred">Three steps. Five minutes. Free.</h2>
+          <h2 className="vt-home-h2 vt-home-h2-centred">{finalHeadline}</h2>
           <ol className="vt-home-quickstart">
             <li>
               <span className="vt-home-qs-n">1</span>
               <div>
-                <h3>Set your picks</h3>
-                <p>Open the bracket, save your World Cup. Takes about five minutes the first time.</p>
+                <h3>{finalQ1Title}</h3>
+                <p>{finalQ1Body}</p>
               </div>
             </li>
             <li>
               <span className="vt-home-qs-n">2</span>
               <div>
-                <h3>Track every match</h3>
-                <p>The FIFA World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard.</p>
+                <h3>{finalQ2Title}</h3>
+                <p>{finalQ2Body}</p>
               </div>
             </li>
             <li>
               <span className="vt-home-qs-n">3</span>
               <div>
-                <h3>Run your own pool</h3>
-                <p>Like the experience? Spin up a pool, brand it, invite your friends or your audience. Free or premium.</p>
+                <h3>{finalQ3Title}</h3>
+                <p>{finalQ3Body}</p>
               </div>
             </li>
           </ol>
           <div className="vt-home-cta-row vt-home-cta-row-centred">
             <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
-              Set your picks now →
+              {finalCtaPrimary} →
             </Link>
             <Link href="/pools" className="vt-home-btn vt-home-btn-ghost">
-              Run a pool
+              {finalCtaSecondary}
             </Link>
           </div>
         </RevealOnScroll>

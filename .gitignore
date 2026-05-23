@@ -104,3 +104,4 @@ apps/*/.next-dev-test/
 
 # Local agent-runtime state (lock files etc) outside the worktrees subtree.
 .claude/scheduled_tasks.lock
+apps/*/.next-typecheck/

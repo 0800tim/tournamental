@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Tournamentalni hushtak chalinguncha 22 tilda taqdim etish uchun ona tili sohiblari bilan ishlayapmiz. Birinchi bosqich mashina yordamida; ona tili sohiblarining pull requestlari har bir mahalliylashtirishni haqiqatan ham yaxshi qiladi.",
   "languages.hero.intro2": "Almashtirish uchun pastdagi tilga teging. Tanlovingiz bu qurilmada bir yil saqlanadi.",
   "languages.grid_aria": "Tilni tanlang",
-  "languages.contribute_link": "Tournamentalni oʻz tilingizga tarjima qilishga yordam bering"
+  "languages.contribute_link": "Tournamentalni oʻz tilingizga tarjima qilishga yordam bering",
+  "home.stat.matches": "Oʻyinlar",
+  "home.stat.teams": "Terma jamoalar",
+  "home.stat.perfect_brackets": "Mukammal kuponlar",
+  "home.stat.claim_to_glory": "Shon-shuhratga daʼvo",
+  "home.final.headline": "Uch qadam. Besh daqiqa. Bepul.",
+  "home.final.q1_title": "Bashoratlarni kiriting",
+  "home.final.q1_body": "Setkani oching va Jahon chempionatingizni saqlang. Birinchi marta taxminan besh daqiqa.",
+  "home.final.q2_title": "Har bir oʻyinni kuzating",
+  "home.final.q2_body": "FIFA Jahon chempionati 2026 11-iyunda boshlanadi. Bir marta saqlang, har qanday bashoratni hushtak chalinguncha oʻzgartiring va bashoratchilik IQ ingiz global reytingda qanday koʻtarilayotganini koʻring.",
+  "home.final.q3_title": "Oʻz poolingizni oching",
+  "home.final.q3_body": "Yoqdimi? Pool oching, oʻz brendingiz bilan bezating, doʻstlaringizni yoki auditoriyangizni taklif qiling. Bepul yoki premium.",
+  "home.final.cta_primary": "Bashoratlarimni kiritish",
+  "home.final.cta_secondary": "Pool ochish"
 }

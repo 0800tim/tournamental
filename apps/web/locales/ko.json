@@ -103,5 +103,18 @@
   "languages.hero.intro1": "킥오프까지 Tournamental을 22개 언어로 제공하기 위해 원어민들과 함께 작업하고 있습니다. 첫 번째 패스는 기계 보조이며, 원어민의 풀 리퀘스트가 각 로컬라이제이션을 진짜 좋게 만듭니다.",
   "languages.hero.intro2": "아래에서 언어를 탭하여 전환하세요. 이 기기에서 선택은 1년 동안 기억됩니다.",
   "languages.grid_aria": "언어를 선택하세요",
-  "languages.contribute_link": "Tournamental을 여러분의 언어로 번역하는 데 함께해 주세요"
+  "languages.contribute_link": "Tournamental을 여러분의 언어로 번역하는 데 함께해 주세요",
+  "home.stat.matches": "경기",
+  "home.stat.teams": "대표팀",
+  "home.stat.perfect_brackets": "완벽한 브래킷",
+  "home.stat.claim_to_glory": "영광에 대한 권리",
+  "home.final.headline": "세 단계. 5분. 무료.",
+  "home.final.q1_title": "예측 입력하기",
+  "home.final.q1_body": "브래킷을 열고 월드컵을 저장하세요. 처음에는 약 5분 걸립니다.",
+  "home.final.q2_title": "모든 경기 추적",
+  "home.final.q2_body": "FIFA 월드컵 2026은 6월 11일에 시작됩니다. 한 번 저장하고, 킥오프 전까지 언제든 예측을 변경하고, 글로벌 리더보드에서 예측 IQ가 올라가는 걸 지켜보세요.",
+  "home.final.q3_title": "나만의 풀 운영",
+  "home.final.q3_body": "마음에 드셨나요? 풀을 만들고, 브랜딩하고, 친구나 시청자를 초대하세요. 무료 또는 프리미엄.",
+  "home.final.cta_primary": "예측 입력하기",
+  "home.final.cta_secondary": "풀 열기"
 }

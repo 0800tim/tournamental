@@ -102,5 +102,18 @@
   "languages.hero.intro1": "We're working with native speakers to ship Tournamental in 22 languages by kickoff. First-pass copy is machine-assisted; native-speaker pull requests are how every locale becomes really good.",
   "languages.hero.intro2": "Tap a language below to switch. Your choice is remembered for a year on this device.",
   "languages.grid_aria": "Pick a language",
-  "languages.contribute_link": "Help us translate Tournamental into your language"
+  "languages.contribute_link": "Help us translate Tournamental into your language",
+  "home.stat.matches": "Matches",
+  "home.stat.teams": "Teams",
+  "home.stat.perfect_brackets": "Perfect brackets",
+  "home.stat.claim_to_glory": "Claim to glory",
+  "home.final.headline": "Three steps. Five minutes. Free.",
+  "home.final.q1_title": "Set your picks",
+  "home.final.q1_body": "Open the bracket, save your World Cup. Takes about five minutes the first time.",
+  "home.final.q2_title": "Track every match",
+  "home.final.q2_body": "The FIFA World Cup 2026 kicks off 11 June. Save once, change any pick right up to kickoff, watch your prediction IQ climb the global leaderboard.",
+  "home.final.q3_title": "Run your own pool",
+  "home.final.q3_body": "Like the experience? Spin up a pool, brand it, invite your friends or your audience. Free or premium.",
+  "home.final.cta_primary": "Set your picks now",
+  "home.final.cta_secondary": "Run a pool"
 }

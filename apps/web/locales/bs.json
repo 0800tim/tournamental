@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Sarađujemo s izvornim govornicima kako bi Tournamental do prvog početnog udarca radio na 22 jezika. Prvi prolaz je mašinski potpomognut; pull requestovi izvornih govornika čine svaku lokalizaciju zaista dobrom.",
   "languages.hero.intro2": "Dotakni jezik ispod za promjenu. Tvoj izbor pamtimo godinu dana na ovom uređaju.",
   "languages.grid_aria": "Odaberi jezik",
-  "languages.contribute_link": "Pomozi nam da prevedemo Tournamental na tvoj jezik"
+  "languages.contribute_link": "Pomozi nam da prevedemo Tournamental na tvoj jezik",
+  "home.stat.matches": "Utakmice",
+  "home.stat.teams": "Reprezentacije",
+  "home.stat.perfect_brackets": "Savršeni listići",
+  "home.stat.claim_to_glory": "Zahtjev za slavom",
+  "home.final.headline": "Tri koraka. Pet minuta. Besplatno.",
+  "home.final.q1_title": "Unesi svoje tipove",
+  "home.final.q1_body": "Otvori ljestvicu i sačuvaj svoje SP. Prvi put traje oko pet minuta.",
+  "home.final.q2_title": "Prati svaku utakmicu",
+  "home.final.q2_body": "Svjetsko prvenstvo FIFA 2026. počinje 11. juna. Jednom sačuvaj, mijenjaj svaki tip do prvog početnog udarca i gledaj svoj IQ prognostičara kako se penje na globalnoj ljestvici.",
+  "home.final.q3_title": "Pokreni svoj pool",
+  "home.final.q3_body": "Sviđa ti se iskustvo? Otvori pool, brendiraj ga po svom ukusu, pozovi prijatelje ili publiku. Besplatno ili premium.",
+  "home.final.cta_primary": "Unesi moje tipove",
+  "home.final.cta_secondary": "Otvori pool"
 }

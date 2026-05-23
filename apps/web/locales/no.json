@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Vi jobber med folk med språket som morsmål for å få Tournamental opp på 22 språk innen avspark. Første runde er maskinassistert; pull requests fra folk med språket som morsmål er det som gjør hver lokalisering virkelig god.",
   "languages.hero.intro2": "Trykk på et språk under for å bytte. Vi husker valget ditt i ett år på denne enheten.",
   "languages.grid_aria": "Velg et språk",
-  "languages.contribute_link": "Hjelp oss å oversette Tournamental til ditt språk"
+  "languages.contribute_link": "Hjelp oss å oversette Tournamental til ditt språk",
+  "home.stat.matches": "Kamper",
+  "home.stat.teams": "Lag",
+  "home.stat.perfect_brackets": "Perfekte kuponger",
+  "home.stat.claim_to_glory": "Krav på heder",
+  "home.final.headline": "Tre steg. Fem minutter. Gratis.",
+  "home.final.q1_title": "Legg inn tippene dine",
+  "home.final.q1_body": "Åpne cup-treet og lagre VM-et ditt. Tar omtrent fem minutter første gangen.",
+  "home.final.q2_title": "Følg hver kamp",
+  "home.final.q2_body": "Fotball-VM 2026 starter 11. juni. Lagre én gang, endre hvilken som helst tipp helt fram til avspark, og se tipp-IQ-en din klatre på den globale rankingen.",
+  "home.final.q3_title": "Start din egen pool",
+  "home.final.q3_body": "Likte du det? Start en pool, gi den din egen branding, inviter venner eller publikum. Gratis eller premium.",
+  "home.final.cta_primary": "Legg inn tippene mine",
+  "home.final.cta_secondary": "Start en pool"
 }

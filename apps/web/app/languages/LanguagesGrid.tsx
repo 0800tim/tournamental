@@ -50,13 +50,25 @@ export function LanguagesGrid(): JSX.Element {
   const select = (code: Locale): void => {
     setBusy(code);
     writeCookieLocale(code);
-    if (typeof window !== "undefined") {
-      // Phase 1: cookie + bounce home. Locale-prefixed URLs aren't
-      // wired yet (Phase 2 work) so we just send the visitor to /
-      // and let the cookie carry the preference forward. Tim
-      // 2026-05-24.
-      window.location.assign("/");
-    }
+    if (typeof window === "undefined") return;
+    // Cache wipe + redirect to the locale-prefixed home so the URL
+    // bar reflects the active language and is shareable. English
+    // (DEFAULT_LOCALE) drops the prefix to keep bookmarks clean.
+    Promise.resolve()
+      .then(async () => {
+        try {
+          if ("caches" in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map((k) => caches.delete(k)));
+          }
+        } catch {
+          /* best-effort */
+        }
+      })
+      .finally(() => {
+        const target = code === DEFAULT_LOCALE ? "/" : `/${code}`;
+        window.location.assign(target);
+      });
   };
 
   return (

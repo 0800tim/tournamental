@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Spolupracujeme s rodilými mluvčími, abychom Tournamental do výkopu spustili ve 22 jazycích. První průchod dělá stroj; pull requesty od rodilých mluvčích jsou to, co každou lokalizaci posune k opravdu dobré.",
   "languages.hero.intro2": "Klepni na jazyk níže pro přepnutí. Tvou volbu si na tomto zařízení pamatujeme rok.",
   "languages.grid_aria": "Vyber jazyk",
-  "languages.contribute_link": "Pomoz nám přeložit Tournamental do tvého jazyka"
+  "languages.contribute_link": "Pomoz nám přeložit Tournamental do tvého jazyka",
+  "home.stat.matches": "Zápasy",
+  "home.stat.teams": "Týmy",
+  "home.stat.perfect_brackets": "Perfektní tikety",
+  "home.stat.claim_to_glory": "Nárok na slávu",
+  "home.final.headline": "Tři kroky. Pět minut. Zdarma.",
+  "home.final.q1_title": "Zadej své tipy",
+  "home.final.q1_body": "Otevři pavouka a ulož své MS. Poprvé to zabere asi pět minut.",
+  "home.final.q2_title": "Sleduj každý zápas",
+  "home.final.q2_body": "Mistrovství světa FIFA 2026 startuje 11. června. Jednou ulož, měň jakýkoli tip až do výkopu a sleduj, jak ti stoupá tipařské IQ v globálním žebříčku.",
+  "home.final.q3_title": "Rozjeď svůj pool",
+  "home.final.q3_body": "Líbí se ti to? Spusť pool, dej mu vlastní branding, pozvi přátele nebo publikum. Zdarma nebo premium.",
+  "home.final.cta_primary": "Zadat mé tipy",
+  "home.final.cta_secondary": "Otevřít pool"
 }

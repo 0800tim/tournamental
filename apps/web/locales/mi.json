@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Kei te mahi tahi mātou ki ngā kaikōrero matatini ki te whakarewa i a Tournamental ki ngā reo 22 hei te whakaaranga. Ka āwhinatia te tukunga tuatahi e te mīhini; ko ngā tono kume nā ngā kaikōrero matatini ka tino pai ai ia whakareo.",
   "languages.hero.intro2": "Pātōngia he reo i raro nei hei whakawhiti. Ka mahara mātou ki tō kōwhiringa mō te kotahi tau ki tēnei pūrere.",
   "languages.grid_aria": "Tīpakohia he reo",
-  "languages.contribute_link": "Āwhinahia mai mātou ki te whakamāori i a Tournamental ki tō reo"
+  "languages.contribute_link": "Āwhinahia mai mātou ki te whakamāori i a Tournamental ki tō reo",
+  "home.stat.matches": "Kēmu",
+  "home.stat.teams": "Kapa",
+  "home.stat.perfect_brackets": "Pukapuka tika",
+  "home.stat.claim_to_glory": "Te kōrero kororia",
+  "home.final.headline": "Toru hīkoi. Rima meneti. Utukore.",
+  "home.final.q1_title": "Tukua ngā matapae",
+  "home.final.q1_body": "Whakatuwheratia te tūtohi, tiakina tō Ipu Whutuporo o te Ao. Mō te rima meneti i te wā tuatahi.",
+  "home.final.q2_title": "Aroturuki i ia kēmu",
+  "home.final.q2_body": "Ka tīmata te Ipu Whutuporo o te Ao FIFA 2026 i te 11 o Pipiri. Tiakina kotahi, panonihia he matapae i mua i te whakaaranga, ka mātakihia tō IQ matapae e piki ana i te pae arataki o te ao.",
+  "home.final.q3_title": "Whakahaeretia tō puna ake",
+  "home.final.q3_body": "I rata koe? Whakatūria he puna, waitohutia, karangahia ō hoa, tō hunga whakarongo rānei. Utu kore, utu nui rānei.",
+  "home.final.cta_primary": "Tukua aku matapae",
+  "home.final.cta_secondary": "Whakatūria he puna"
 }

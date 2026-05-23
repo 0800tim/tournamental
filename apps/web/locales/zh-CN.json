@@ -103,5 +103,18 @@
   "languages.hero.intro1": "我们正在与母语者一起合作，让 Tournamental 在开赛前支持 22 种语言。第一轮由机器辅助翻译；母语者的 pull request 才是让每种本地化真正过硬的关键。",
   "languages.hero.intro2": "点击下面的语言切换。你的选择会在本设备上保留一年。",
   "languages.grid_aria": "选择一种语言",
-  "languages.contribute_link": "帮我们把 Tournamental 翻译成你的语言"
+  "languages.contribute_link": "帮我们把 Tournamental 翻译成你的语言",
+  "home.stat.matches": "场比赛",
+  "home.stat.teams": "支球队",
+  "home.stat.perfect_brackets": "完美预测",
+  "home.stat.claim_to_glory": "对荣耀的主张",
+  "home.final.headline": "三步。五分钟。免费。",
+  "home.final.q1_title": "填写你的预测",
+  "home.final.q1_body": "打开赛程，保存你的世界杯。第一次大约花五分钟。",
+  "home.final.q2_title": "追踪每一场比赛",
+  "home.final.q2_body": "2026 国际足联世界杯于 6 月 11 日开赛。保存一次，开球前可随时修改任何预测，看着你的预测 IQ 在全球排行榜上不断攀升。",
+  "home.final.q3_title": "开你自己的竞猜池",
+  "home.final.q3_body": "玩得开心？建一个竞猜池，打上你的品牌，邀请你的朋友或观众。免费或高级版。",
+  "home.final.cta_primary": "填写我的预测",
+  "home.final.cta_secondary": "开一个竞猜池"
 }

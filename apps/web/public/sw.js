@@ -18,7 +18,11 @@
 
 "use strict";
 
-const VERSION = "vt-shell-v1-2026-05-21";
+// Bumped 2026-05-24 to wipe i18n-blind cached HTML. The previous SHELL_CACHE
+// precached /, /world-cup-2026 etc. before any vt_locale cookie existed, so
+// every visitor's app shell stayed English even after they picked a different
+// language. Bumping VERSION forces activate() to drop the old caches.
+const VERSION = "vt-shell-v2-2026-05-24-i18n";
 const SHELL_CACHE = `vt-shell-${VERSION}`;
 const STATIC_CACHE = `vt-static-${VERSION}`;
 const RUNTIME_CACHE = `vt-runtime-${VERSION}`;
@@ -162,9 +166,16 @@ async function staleWhileRevalidate(req, cacheName) {
 
 async function navigationStrategy(req) {
   try {
-    const res = await fetch(req);
-    const cache = await caches.open(SHELL_CACHE);
-    if (res.ok) cache.put(req, res.clone()).catch(() => {});
+    // Force-bypass the HTTP cache so a locale-cookie change is reflected
+    // on the very next reload (default fetch may use cached responses
+    // when the SHELL_CACHE precache primed them earlier in the session).
+    const res = await fetch(req, { cache: "no-store" });
+    // Do NOT cache HTML responses anymore. SSR output depends on the
+    // vt_locale cookie, so a single cached HTML would lie to every
+    // subsequent visitor regardless of their language pick. The
+    // SHELL_CACHE precache (install handler) still primes the
+    // navigationStrategy's offline fallback, but we never overwrite it
+    // with locale-specific responses.
     return res;
   } catch (e) {
     const cache = await caches.open(SHELL_CACHE);

@@ -103,5 +103,18 @@
   "languages.hero.intro1": "نعمل مع متحدثين أصليين لإطلاق Tournamental بـ22 لغة بحلول صافرة البداية. التمرير الأول مُساعَد آليًا؛ طلبات السحب من المتحدثين الأصليين هي ما يجعل كل توطين جيدًا فعلًا.",
   "languages.hero.intro2": "اضغط على لغة أدناه للتبديل. نتذكّر اختيارك على هذا الجهاز لمدة عام.",
   "languages.grid_aria": "اختر لغة",
-  "languages.contribute_link": "ساعدنا في ترجمة Tournamental إلى لغتك"
+  "languages.contribute_link": "ساعدنا في ترجمة Tournamental إلى لغتك",
+  "home.stat.matches": "مباراة",
+  "home.stat.teams": "منتخب",
+  "home.stat.perfect_brackets": "توقع مثالي",
+  "home.stat.claim_to_glory": "ادعاء المجد",
+  "home.final.headline": "ثلاث خطوات. خمس دقائق. مجانًا.",
+  "home.final.q1_title": "أضف توقعاتك",
+  "home.final.q1_body": "افتح البطاقة واحفظ كأس العالم خاصتك. تستغرق خمس دقائق أول مرة.",
+  "home.final.q2_title": "تابع كل مباراة",
+  "home.final.q2_body": "ينطلق كأس العالم FIFA 2026 في 11 يونيو. احفظ مرة، غيّر أي توقع حتى صافرة البداية، وراقب IQ توقعاتك يصعد في لوحة الصدارة العالمية.",
+  "home.final.q3_title": "افتح بولك الخاص",
+  "home.final.q3_body": "أعجبتك التجربة؟ افتح بولًا، علم عليه، وادعُ أصدقاءك أو جمهورك. مجاني أو مميز.",
+  "home.final.cta_primary": "أضف توقعاتي",
+  "home.final.cta_secondary": "أنشئ بولًا"
 }

@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Anyanyelvi beszélőkkel dolgozunk, hogy a Tournamental kezdő sípszóra 22 nyelven menjen. Az első kör gépi segítséggel készül; az anyanyelvi pull requestek teszik igazán jóvá az egyes lokalizációkat.",
   "languages.hero.intro2": "Koppints lentebb egy nyelvre a váltáshoz. A választást egy évig megjegyezzük ezen az eszközön.",
   "languages.grid_aria": "Válassz nyelvet",
-  "languages.contribute_link": "Segíts lefordítani a Tournamentalt a saját nyelvedre"
+  "languages.contribute_link": "Segíts lefordítani a Tournamentalt a saját nyelvedre",
+  "home.stat.matches": "Mérkőzés",
+  "home.stat.teams": "Válogatott",
+  "home.stat.perfect_brackets": "Tökéletes tipp",
+  "home.stat.claim_to_glory": "Igény a dicsőségre",
+  "home.final.headline": "Három lépés. Öt perc. Ingyen.",
+  "home.final.q1_title": "Add meg a tippjeid",
+  "home.final.q1_body": "Nyisd meg a táblát és mentsd el a vébéd. Elsőre kb. öt perc.",
+  "home.final.q2_title": "Kövess minden meccset",
+  "home.final.q2_body": "A FIFA-vébé 2026 június 11-én kezdődik. Egyszer mentesz, bármikor változtatsz a sípszóig, és nézed, ahogy a tippelő IQ-d kúszik felfelé a globális ranglistán.",
+  "home.final.q3_title": "Indíts saját tippjátékot",
+  "home.final.q3_body": "Tetszett? Indíts egy tippjátékot, brandeld a saját arcoddal, hívd a barátaidat vagy a közönséged. Ingyen vagy prémium.",
+  "home.final.cta_primary": "Megadom a tippjeim",
+  "home.final.cta_secondary": "Indítok egy tippjátékot"
 }

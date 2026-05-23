@@ -35,7 +35,8 @@
     ".next-staging/types/**/*.ts",
     ".next-dev/types/**/*.ts",
     ".next-prod/types/**/*.ts",
-    ".next-dev-test/types/**/*.ts"
+    ".next-dev-test/types/**/*.ts",
+    ".next-typecheck/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

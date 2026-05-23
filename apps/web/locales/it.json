@@ -103,5 +103,18 @@
   "languages.hero.intro1": "Stiamo lavorando con madrelingua per portare Tournamental in 22 lingue entro il fischio d'inizio. La prima passata è assistita da IA; le pull request dei madrelingua sono ciò che rende ogni localizzazione davvero buona.",
   "languages.hero.intro2": "Tocca una lingua qui sotto per cambiare. Ricordiamo la tua scelta per un anno su questo dispositivo.",
   "languages.grid_aria": "Scegli una lingua",
-  "languages.contribute_link": "Aiutaci a tradurre Tournamental nella tua lingua"
+  "languages.contribute_link": "Aiutaci a tradurre Tournamental nella tua lingua",
+  "home.stat.matches": "Partite",
+  "home.stat.teams": "Nazionali",
+  "home.stat.perfect_brackets": "Schedine perfette",
+  "home.stat.claim_to_glory": "Pretesa di gloria",
+  "home.final.headline": "Tre passi. Cinque minuti. Gratis.",
+  "home.final.q1_title": "Fai i tuoi pronostici",
+  "home.final.q1_body": "Apri il tabellone e salva il tuo Mondiale. Bastano cinque minuti la prima volta.",
+  "home.final.q2_title": "Segui ogni partita",
+  "home.final.q2_body": "I Mondiali FIFA 2026 iniziano l'11 giugno. Salvi una volta, cambi qualsiasi pronostico fino al fischio d'inizio, e vedi il tuo QI di pronosticatore salire in classifica globale.",
+  "home.final.q3_title": "Avvia il tuo pool",
+  "home.final.q3_body": "Ti è piaciuto? Lancia un pool, brandizzalo a tuo gusto, invita amici o pubblico. Gratis o premium.",
+  "home.final.cta_primary": "Fare i miei pronostici",
+  "home.final.cta_secondary": "Aprire un pool"
 }
