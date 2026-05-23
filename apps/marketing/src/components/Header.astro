@@ -114,8 +114,8 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
 
       <a
         href="https://play.tournamental.com/"
-        class="hidden md:inline-flex btn-primary vt-glow-cta text-sm"
-      >Play World Cup 2026 →</a>
+        class="hidden md:inline-flex vt-cta-gold vt-glow-cta text-sm"
+      >Play FIFA WC 2026 →</a>
 
       <button
         id="mobile-menu-toggle"
@@ -155,6 +155,14 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
     </button>
   </div>
   <nav class="vt-mobile-menu-nav" aria-label="Primary mobile navigation">
+    {/* Primary CTA pinned to the top of the drawer (Tim 2026-05-23).
+        Gold gradient so it dominates the column without being lost in
+        the menu, full-width so it never pushes other items off-screen
+        on narrow viewports. */}
+    <a
+      href="https://play.tournamental.com/"
+      class="vt-mobile-cta-gold"
+    >Play FIFA WC 2026 →</a>
     {primaryLinks.map((l) => (
       <a
         href={l.href}
@@ -195,10 +203,9 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
       <span class="vt-mobile-theme-label">Theme: system</span>
       <span aria-hidden="true">↻</span>
     </button>
-    <a
-      href="https://play.tournamental.com/"
-      class="btn-primary vt-glow-cta vt-mobile-cta"
-    >Play World Cup 2026 →</a>
+    {/* Bottom CTA removed (Tim 2026-05-23) -- the Play CTA now sits at
+        the top of the drawer where it dominates the column. The footer
+        still hosts the theme toggle. */}
   </div>
 </aside>
 
