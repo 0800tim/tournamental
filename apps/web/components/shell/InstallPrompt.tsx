@@ -143,6 +143,32 @@ export function InstallPrompt() {
       return undefined;
     }
 
+    // If the user already installed Tournamental as a PWA, Chrome
+    // never fires `beforeinstallprompt` -- so the prompt would stay
+    // stuck on the "generic" / manual-instructions path forever. Use
+    // the Chrome-only getInstalledRelatedApps() to detect that case
+    // and hide the install affordance entirely (Tim 2026-05-24:
+    // clicking Install was opening the instructions panel even though
+    // he already had it installed). Best-effort: not all browsers
+    // expose this API.
+    let cancelled = false;
+    const nav = navigator as Navigator & {
+      getInstalledRelatedApps?: () => Promise<unknown[]>;
+    };
+    if (typeof nav.getInstalledRelatedApps === "function") {
+      nav
+        .getInstalledRelatedApps()
+        .then((apps) => {
+          if (cancelled) return;
+          if (Array.isArray(apps) && apps.length > 0) {
+            setState({ kind: "hidden" });
+          }
+        })
+        .catch(() => {
+          /* ignore; falls through to the standard prompt flow */
+        });
+    }
+
     const handler = (e: Event) => {
       e.preventDefault();
       setState({ kind: "chromium", event: e as BeforeInstallPromptEvent });
@@ -166,6 +192,7 @@ export function InstallPrompt() {
     }
 
     return () => {
+      cancelled = true;
       window.removeEventListener("beforeinstallprompt", handler);
       window.removeEventListener("appinstalled", installedHandler);
     };

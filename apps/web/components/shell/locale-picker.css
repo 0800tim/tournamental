@@ -97,11 +97,24 @@
 }
 
 .vt-locale-picker--drawer .vt-locale-picker-menu {
-  position: static;
+  /* Force the menu to flow inline within the drawer column rather
+   * than floating out as an overlay (Tim 2026-05-24 reported the
+   * menu sliding off to the right, which happens when the base
+   * `position: absolute; right: 0` styling leaks through e.g. via
+   * cached CSS). Belt-and-braces overrides of every base property
+   * that could anchor it. */
+  position: static !important;
+  inset: auto !important;
+  top: auto !important;
+  right: auto !important;
+  left: auto !important;
+  bottom: auto !important;
   margin-top: 8px;
   width: 100%;
+  min-width: 0 !important;
   max-width: none;
   max-height: none;
+  z-index: auto;
 }
 
 .vt-locale-picker-group {
