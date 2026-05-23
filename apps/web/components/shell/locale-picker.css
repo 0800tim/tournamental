@@ -13,6 +13,17 @@
   align-items: center;
 }
 
+/* Drawer variant: become a block-level row so the open menu (which uses
+ * width:100% to flow inline beneath the trigger, not float as an
+ * overlay) actually fills the row width instead of collapsing to the
+ * inline-flex container's content width (~170px). Without this the
+ * open language list sat off to the right edge and looked like it
+ * was pushing the menu around (Tim 2026-05-24). */
+.vt-locale-picker--drawer {
+  display: block;
+  width: 100%;
+}
+
 .vt-locale-picker-trigger {
   appearance: none;
   background: transparent;
