@@ -15,6 +15,7 @@
 
 import {
   computeGroupStandings,
+  isGroupComplete,
   type Bracket,
   type BracketPrediction,
   type Tournament,
@@ -26,9 +27,19 @@ export function bracketToCascadeInput(
   user_id: string,
 ): BracketPrediction {
   // Compute standings once per group; reuse for both per-group order and
-  // the cross-group best-thirds wildcard ranking.
+  // the cross-group best-thirds wildcard ranking. Gate the order behind
+  // every fixture in the group being predicted, otherwise the standings
+  // engine breaks ties alphabetically when teams are all tied at 0 and
+  // the cascade leaks fake R32 matchups before the user has predicted
+  // anything (Tim 2026-05-23: brand-new sessions saw teams in R32 with
+  // zero group picks). Incomplete groups now emit empty `order`, which
+  // makes the cascade resolve every dependent R32 slot to null and the
+  // UI render the "to be determined" placeholder.
   const standingsByGroup = new Map<string, ReturnType<typeof computeGroupStandings>>();
+  const completeByGroup = new Map<string, boolean>();
   const groups = tournament.groups.map((g) => {
+    const complete = isGroupComplete(g.id, tournament, bracket.matchPredictions);
+    completeByGroup.set(g.id, complete);
     const tiebreaker = bracket.groupTiebreakers[g.id];
     const standings = computeGroupStandings(
       g.id,
@@ -39,20 +50,31 @@ export function bracketToCascadeInput(
     standingsByGroup.set(g.id, standings);
     return {
       group_id: g.id,
-      order: standings.map((s) => s.teamCode),
+      // Only emit the order when the group is fully predicted. Anything
+      // less than fully-predicted means the standings rely on the
+      // alphabetical / tiebreaker fallback for teams that haven't
+      // played enough matches, which produces misleading downstream
+      // KO matchups.
+      order: complete ? standings.map((s) => s.teamCode) : [],
     };
   });
 
   // World Cup 2026: 12 groups × 4 teams. Top 2 from each group + best 8
-  // third-placed teams advance to R32. Rank the 12 third-placed teams by
-  // points → goal-diff → goals-for → team code (deterministic last-resort
-  // tiebreak). Take top 8 to fill best-third R32 slots.
-  const thirdPlacers = tournament.groups
-    .map((g) => {
-      const s = standingsByGroup.get(g.id);
-      return s && s.length >= 3 ? s[2] : null;
-    })
-    .filter((s): s is NonNullable<typeof s> => s !== null);
+  // third-placed teams advance to R32. The best-thirds pool is a
+  // cross-group ranking, so we can only derive it once EVERY group is
+  // complete. Until then, emit an empty `best_thirds` array and let the
+  // cascade leave those R32 slots empty.
+  const allGroupsComplete = tournament.groups.every((g) =>
+    completeByGroup.get(g.id) === true,
+  );
+  const thirdPlacers = allGroupsComplete
+    ? tournament.groups
+        .map((g) => {
+          const s = standingsByGroup.get(g.id);
+          return s && s.length >= 3 ? s[2] : null;
+        })
+        .filter((s): s is NonNullable<typeof s> => s !== null)
+    : [];
   thirdPlacers.sort((a, b) => {
     if (a.points !== b.points) return b.points - a.points;
     if (a.goalDiff !== b.goalDiff) return b.goalDiff - a.goalDiff;
