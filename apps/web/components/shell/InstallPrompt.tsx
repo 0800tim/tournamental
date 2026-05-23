@@ -86,8 +86,52 @@ function isIosSafari(): boolean {
   return isIos && !isChromeOrFx;
 }
 
+/** Browser-specific instruction copy shown when we can't trigger the
+ * native install dialog. Falls back to a generic step list when we
+ * can't sniff the UA. Tim 2026-05-23: clicking Install used to call
+ * dismiss() and close the drawer with no install path; this state
+ * now expands the row to show what to do. */
+function instructionSteps(state: InstallState): readonly string[] {
+  if (state.kind === "ios") {
+    return [
+      "Tap the Share icon at the bottom of Safari.",
+      "Scroll the share sheet and tap “Add to Home Screen”.",
+      "Tap Add. Tournamental opens like a normal app from your home screen.",
+    ];
+  }
+  if (typeof window !== "undefined") {
+    const ua = window.navigator.userAgent ?? "";
+    if (/Android.*Chrome/i.test(ua)) {
+      return [
+        "Tap the three-dot menu at the top right of Chrome.",
+        "Tap “Install app” (or “Add to Home screen”).",
+        "Confirm to install. Tournamental launches from your home screen with no browser chrome.",
+      ];
+    }
+    if (/Edg\//i.test(ua)) {
+      return [
+        "Click the three-dot menu at the top right of Edge.",
+        "Choose Apps → Install Tournamental.",
+        "Confirm. Tournamental opens in its own window.",
+      ];
+    }
+    if (/Chrome/i.test(ua) && !/Mobile/i.test(ua)) {
+      return [
+        "Click the install icon in the address bar (small box with a downward arrow), or open the three-dot menu and choose Cast, save, and share → Install Tournamental.",
+        "Confirm. Tournamental opens in its own window.",
+      ];
+    }
+  }
+  return [
+    "Open your browser’s main menu (usually three dots or a hamburger icon).",
+    "Look for “Install app”, “Add to Home Screen”, or “Install Tournamental”.",
+    "Confirm. Tournamental launches as a standalone app.",
+  ];
+}
+
 export function InstallPrompt() {
   const [state, setState] = useState<InstallState>({ kind: "hidden" });
+  const [showSteps, setShowSteps] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -139,17 +183,28 @@ export function InstallPrompt() {
       try {
         await state.event.prompt();
         const choice = await state.event.userChoice;
-        if (choice.outcome === "accepted" || choice.outcome === "dismissed") {
+        if (choice.outcome === "accepted") {
           dismiss();
+          return;
         }
+        // outcome === "dismissed": Chrome will refuse to fire the
+        // same prompt event again, so fall through to the instructions
+        // hint instead of silently re-dismissing. The user clicked
+        // Install for a reason; give them a path that still works.
+        setShowSteps(true);
       } catch {
-        dismiss();
+        // event.prompt() can throw if the saved event has been
+        // consumed already (the browser only lets prompt() fire once
+        // per engagement). Show instructions in that case too.
+        setShowSteps(true);
       }
       return;
     }
-    // iOS + generic paths: no programmatic install API. Tapping the
-    // line counts as "saw the hint" and dismisses for 30 days.
-    dismiss();
+    // iOS + generic paths: no programmatic install API; expand to
+    // show browser-specific instructions instead of dismissing the
+    // affordance (Tim 2026-05-23 — clicking Install used to close
+    // the drawer without anything happening).
+    setShowSteps((v) => !v);
   };
 
   // Single-word visible label per Tim 2026-05-21 ("just say Install").
@@ -162,13 +217,19 @@ export function InstallPrompt() {
         ? "Install Tournamental: open your browser menu, then Install app"
         : "Install Tournamental as an app";
 
+  const steps = showSteps ? instructionSteps(state) : null;
+
   return (
-    <div className="vt-drawer-install">
+    <div
+      className="vt-drawer-install"
+      data-expanded={showSteps ? "1" : undefined}
+    >
       <button
         type="button"
         className="vt-drawer-install-cta"
         onClick={onClick}
         aria-label={ariaLabel}
+        aria-expanded={showSteps}
       >
         {/* Standard install glyph (downward arrow into tray) per
          * 2026-05-21 — the gold ball was misread as a generic logo
@@ -206,6 +267,13 @@ export function InstallPrompt() {
       >
         ✕
       </button>
+      {steps && (
+        <ol className="vt-drawer-install-steps" aria-live="polite">
+          {steps.map((s, i) => (
+            <li key={i}>{s}</li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }

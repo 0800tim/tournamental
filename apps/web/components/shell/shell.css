@@ -786,12 +786,34 @@
    * + bottom safe-area margin from the old foot position are dropped;
    * a leading hairline rule under the drawer header is enough
    * separation. The element stays a flex row so the dismiss X can
-   * sit alongside the CTA. */
+   * sit alongside the CTA; the optional instruction list (Tim
+   * 2026-05-23) wraps onto a new row below when shown. */
   display: flex;
   align-items: stretch;
   gap: 4px;
   margin: 8px 16px 16px;
   padding: 0;
+  flex-wrap: wrap;
+}
+
+.vt-drawer-install-steps {
+  flex-basis: 100%;
+  margin: 8px 0 0;
+  padding: 12px 14px 12px 32px;
+  list-style: decimal;
+  background: rgba(192, 138, 38, 0.08);
+  border: 1px solid rgba(192, 138, 38, 0.32);
+  border-radius: var(--vt-radius-md, 10px);
+  color: var(--vt-fg, #f4f4f5);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.vt-drawer-install-steps li {
+  margin: 0 0 6px;
+}
+.vt-drawer-install-steps li:last-child {
+  margin-bottom: 0;
 }
 
 .vt-drawer-install-cta {
