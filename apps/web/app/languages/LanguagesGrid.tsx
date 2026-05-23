@@ -51,13 +51,11 @@ export function LanguagesGrid(): JSX.Element {
     setBusy(code);
     writeCookieLocale(code);
     if (typeof window !== "undefined") {
-      // After selection bounce to the homepage in the chosen locale
-      // so the next render fully reflects the new language; many
-      // visitors landing here will be on a deep-link they want to
-      // revisit in their language.
-      const target =
-        code === DEFAULT_LOCALE ? "/" : `/${code}`;
-      window.location.assign(target);
+      // Phase 1: cookie + bounce home. Locale-prefixed URLs aren't
+      // wired yet (Phase 2 work) so we just send the visitor to /
+      // and let the cookie carry the preference forward. Tim
+      // 2026-05-24.
+      window.location.assign("/");
     }
   };
 

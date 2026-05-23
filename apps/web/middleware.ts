@@ -49,6 +49,18 @@ const DEPRECATED_HOSTS = new Set([
   "app.tournamental.com",
 ]);
 
+/**
+ * Legal pages live on the marketing site (apps/marketing). Anyone who
+ * lands on the play app at /terms, /privacy or /cookies gets 301'd to
+ * the canonical /legal/<doc> URL on tournamental.com.
+ */
+const LEGAL_REDIRECT_MAP: Record<string, string> = {
+  "/terms": "/legal/terms",
+  "/privacy": "/legal/privacy",
+  "/cookies": "/legal/cookies",
+  "/legal": "/legal",
+};
+
 function isPlayHost(host: string): boolean {
   return PLAY_HOSTS.has(host);
 }
@@ -69,6 +81,19 @@ export function middleware(req: NextRequest) {
   }
 
   if (isPlayHost(host)) {
+    // Legal pages live on the marketing site (apps/marketing). When a
+    // user lands on play.tournamental.com/terms (linked from the
+    // syndicate signup, the legal-block footer, etc.) we 301 across
+    // to the canonical /legal/<doc> URL on tournamental.com. Tim
+    // 2026-05-24: the bare /terms link from /syndicates/new was 404'ing
+    // because no terms page exists in the play app.
+    const legalRedirect = LEGAL_REDIRECT_MAP[path];
+    if (legalRedirect) {
+      return NextResponse.redirect(
+        new URL(`https://tournamental.com${legalRedirect}${search}`),
+        301,
+      );
+    }
     // Apex `/` renders the sales-flow home (apps/web/app/page.tsx) —
     // the previous rewrite to /world-cup-2026 was removed 2026-05-13
     // so the home page can front-and-centre syndicates, the 3D

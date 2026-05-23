@@ -123,15 +123,14 @@ export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Ele
     writeCookieLocale(code);
     setCurrent(code);
     setOpen(false);
-    // Reload with the new locale prefix so server-rendered strings
-    // come back in the chosen language on the next request.
+    // Phase 1: just persist the cookie + reload the current URL.
+    // The /<locale>/* URL segments aren't wired yet (Phase 2 work)
+    // so redirecting to /fr etc. 404s. Once Phase 2 lands the
+    // cookie is read in middleware and rewrites to the prefixed
+    // path server-side. Until then, cookie + reload is the right
+    // behaviour. Tim 2026-05-24.
     if (typeof window !== "undefined") {
-      const bare = stripLocalePrefix(window.location.pathname);
-      const next =
-        code === DEFAULT_LOCALE
-          ? bare
-          : `/${code}${bare === "/" ? "" : bare}`;
-      window.location.assign(next + window.location.search + window.location.hash);
+      window.location.reload();
     }
   };
 
