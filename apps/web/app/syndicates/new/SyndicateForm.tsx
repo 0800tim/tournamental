@@ -799,7 +799,15 @@ export function SyndicateForm(): JSX.Element {
               aria-invalid={Boolean(fieldErrors.terms)}
             />
             <span>
-              I agree to the <a href="/terms">Tournamental terms</a>.
+              I agree to the{" "}
+              <a
+                href="https://tournamental.com/legal/terms"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Tournamental terms
+              </a>
+              .
             </span>
           </label>
           {fieldErrors.terms && <span className="syn-error-text">{fieldErrors.terms}</span>}
