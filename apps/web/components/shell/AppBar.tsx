@@ -27,9 +27,6 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { AuthChip } from "./AuthChip";
-import { LocalePicker } from "./LocalePicker";
-
-import "./locale-picker.css";
 import { DesktopNav } from "./DesktopNav";
 
 export interface AppBarProps {
@@ -121,10 +118,13 @@ export function AppBar({
               * guest gets a small gold sign-in pill (Tim 2026-05-22).
               * The DesktopNav on >= 768px has its own AuthChip in the
               * right rail; this duplicate is hidden via the media
-              * query in shell.css. */}
-            <span className="vt-appbar-locale" aria-hidden={false}>
-              <LocalePicker variant="appbar" />
-            </span>
+              * query in shell.css.
+              *
+              * The LocalePicker used to sit here too -- it was forcing
+              * the wordmark to truncate and pushed the hamburger to a
+              * second row on narrow phones (Tim 2026-05-23 screenshot).
+              * Moved entirely into AppMenuDrawer; it already renders
+              * the variant="drawer" picker there. */}
             <span className="vt-appbar-auth-mobile" aria-hidden={false}>
               <AuthChip />
             </span>
