@@ -41,11 +41,17 @@ const trailingSlashPlugin = {
   },
 }
 
+// Read the build output dir from MARKETING_OUT_DIR (set in pm2 env
+// to `dist-prod`, the orchestrator's prod slot). Falls back to the
+// conventional `dist/` so local `pnpm start` after a vanilla
+// `pnpm build` still works without env-var fiddling.
+const outDirName = process.env.MARKETING_OUT_DIR || 'dist'
+
 await preview({
   configFile: false,
   root,
   appType: 'mpa',
-  build: { outDir: resolve(root, 'dist') },
+  build: { outDir: resolve(root, outDirName) },
   plugins: [trailingSlashPlugin],
   preview: {
     host,
