@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "locale": "pt-BR",
+    "native": "Português (Brasil)",
+    "english": "Portuguese (Brazil)",
+    "translators": [
+      "Awaiting first-pass — community PRs welcome"
+    ],
+    "last_updated_utc": "2026-05-24",
+    "completeness_pct": 5,
+    "note": "Stub locale. Keys not present here fall back to en.json. See docs/CONTRIBUTING-TRANSLATIONS.md."
+  }
+}

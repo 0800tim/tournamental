@@ -131,6 +131,25 @@ export function AppShell({
             <strong>FIFA World Cup 2026™</strong> are trademarks of
             Fédération Internationale de Football Association.
           </p>
+          <p className="vt-shell-disclaimer-links">
+            <a href="/languages">Languages</a>
+            <span aria-hidden> · </span>
+            <a
+              href="https://github.com/0800tim/tournamental/blob/main/docs/CONTRIBUTING-TRANSLATIONS.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Translate
+            </a>
+            <span aria-hidden> · </span>
+            <a
+              href="https://github.com/0800tim/tournamental"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Open source
+            </a>
+          </p>
         </footer>
       </main>
       {showBottomNav ? (

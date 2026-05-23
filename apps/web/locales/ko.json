@@ -1,0 +1,13 @@
+{
+  "_meta": {
+    "locale": "ko",
+    "native": "한국어",
+    "english": "Korean",
+    "translators": [
+      "Awaiting first-pass — community PRs welcome"
+    ],
+    "last_updated_utc": "2026-05-24",
+    "completeness_pct": 5,
+    "note": "Stub locale. Keys not present here fall back to en.json. See docs/CONTRIBUTING-TRANSLATIONS.md."
+  }
+}

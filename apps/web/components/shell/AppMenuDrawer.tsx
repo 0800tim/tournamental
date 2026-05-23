@@ -27,6 +27,9 @@ import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 import { useUser } from "@/lib/auth/useUser";
 
 import { InstallPrompt } from "./InstallPrompt";
+import { LocalePicker } from "./LocalePicker";
+
+import "./locale-picker.css";
 import {
   DRAWER_PRIMARY,
   DRAWER_SECONDARY,
@@ -118,6 +121,9 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
          * last 30 days, so a returning installed visitor doesn't see
          * a now-pointless prompt. */}
         <InstallPrompt />
+        <div className="vt-drawer-locale-row">
+          <LocalePicker variant="drawer" />
+        </div>
         <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;</div>
         <DrawerLinks links={primaryLinks} onClick={onClose} />
         <div className="vt-drawer-section-label">Tournamental</div>

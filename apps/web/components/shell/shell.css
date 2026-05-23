@@ -143,6 +143,26 @@
 .vt-shell-disclaimer p {
   margin: 0 16px;
 }
+.vt-shell-disclaimer-links {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+}
+.vt-shell-disclaimer-links a {
+  color: rgba(220, 169, 75, 0.85);
+  text-decoration: none;
+}
+.vt-shell-disclaimer-links a:hover {
+  color: var(--vt-gold-300, #fcd34d);
+  text-decoration: underline;
+}
+.vt-shell-disclaimer-links span {
+  color: rgba(205, 213, 231, 0.42);
+}
 
 /* ---------- AppBar ---------- */
 

@@ -1,0 +1,185 @@
+/* /languages page styling. Editorial-sport voice; flag-driven grid
+ * with native names that dominate the tile. Mobile-first; tiles
+ * scale from 2 columns at narrow widths up to 4 columns on desktop.
+ *
+ * Tim 2026-05-24. */
+
+.vt-languages {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 20px 64px;
+  color: var(--vt-fg, #f4f4f5);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.6;
+}
+
+.vt-languages-hero {
+  max-width: 760px;
+  margin: 0 auto 32px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.18);
+}
+
+.vt-languages-eyebrow {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  margin: 0 0 10px;
+}
+
+.vt-languages-title {
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-size: clamp(28px, 5vw, 44px);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0 0 16px;
+  color: var(--vt-fg-strong, #ffffff);
+}
+
+.vt-languages-lede {
+  margin: 0 0 14px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--vt-fg-muted, #cbd0dc);
+}
+.vt-languages-lede a {
+  color: var(--vt-gold-300, #fcd34d);
+  text-decoration: none;
+  font-weight: 600;
+}
+.vt-languages-lede a:hover {
+  text-decoration: underline;
+}
+
+/* Grid: mobile starts at 2 columns; scales up. */
+.vt-languages-grid-wrap {
+  margin: 0 -8px;
+}
+.vt-languages-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (min-width: 540px) {
+  .vt-languages-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+}
+@media (min-width: 820px) {
+  .vt-languages-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+/* Tile — flag dominates, native name large, English name muted. */
+.vt-languages-tile {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 14px 18px;
+  background: linear-gradient(180deg, rgba(28, 28, 34, 0.92), rgba(20, 20, 24, 0.92));
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 14px;
+  color: var(--vt-fg, #f4f4f5);
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+  transition: transform 140ms ease, border-color 140ms ease, background 140ms ease;
+  position: relative;
+  min-height: 168px;
+}
+.vt-languages-tile:hover {
+  transform: translateY(-2px);
+  border-color: rgba(220, 169, 75, 0.55);
+  background: linear-gradient(180deg, rgba(36, 36, 44, 0.95), rgba(24, 24, 28, 0.95));
+}
+.vt-languages-tile:active {
+  transform: translateY(0);
+}
+.vt-languages-tile:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+.vt-languages-tile:focus-visible {
+  outline: 2px solid var(--vt-gold-300, #fcd34d);
+  outline-offset: 2px;
+}
+
+.vt-languages-tile-flag {
+  font-size: 56px;
+  line-height: 1;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+@media (min-width: 540px) {
+  .vt-languages-tile-flag {
+    font-size: 68px;
+  }
+}
+
+.vt-languages-tile-native {
+  font-family: var(--vt-display, "Fraunces", Georgia, serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--vt-fg-strong, #ffffff);
+}
+@media (min-width: 540px) {
+  .vt-languages-tile-native {
+    font-size: 26px;
+  }
+}
+
+.vt-languages-tile-english {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-languages-tile-busy {
+  position: absolute;
+  bottom: 8px;
+  font-size: 11px;
+  color: var(--vt-fg-muted, #a3a3ad);
+  letter-spacing: 0.04em;
+}
+
+/* RTL tiles keep their text-align centre; only the language tag
+ * inside the button switches direction. */
+.vt-languages-tile[data-rtl="1"] .vt-languages-tile-native {
+  direction: rtl;
+}
+
+.vt-languages-footer {
+  margin: 40px auto 0;
+  max-width: 760px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 14px;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-languages-footer a {
+  color: var(--vt-gold-300, #fcd34d);
+  text-decoration: none;
+}
+.vt-languages-footer a:hover {
+  text-decoration: underline;
+}
+.vt-languages-disclaimer {
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+}

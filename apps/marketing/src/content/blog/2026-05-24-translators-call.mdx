@@ -1,0 +1,137 @@
+---
+title: "Tournamental is going multilingual. We need 22 native-speaker contributors."
+description: "From this week the play app speaks 22 languages, every World Cup nation's tongue plus a few we asked nicely for. The first draft was written by Claude. The right answer is native speakers, and we're opening the doors. Apache 2.0, credit in the repo, plus a Drips revenue share for sustained contributors."
+pubDate: 2026-05-24
+author: "Tim"
+tags:
+  - "i18n"
+  - "open source"
+  - "contributors"
+  - "world cup 2026"
+  - "translations"
+heroImage: "/og/media-hero.svg"
+heroImageAlt: "Tournamental's pool widget rendered in nine languages side by side, one tile per language, gold accents on a charcoal canvas."
+heroImageCredit: "Illustration for Tournamental, 2026"
+---
+
+## We just shipped 22 languages
+
+From this week, [play.tournamental.com](https://play.tournamental.com) detects where you are landing from and serves the right language automatically. The dropdown in the top bar lets you override.
+
+The 22 we support today:
+
+🇬🇧 **English** · 🇪🇸 **Español** · 🇧🇷 **Português (Brasil)** · 🇵🇹 **Português (Portugal)** · 🇫🇷 **Français** · 🇩🇪 **Deutsch** · 🇮🇹 **Italiano** · 🇳🇱 **Nederlands** · 🇯🇵 **日本語** · 🇰🇷 **한국어** · 🇸🇦 **العربية** · 🇨🇳 **中文 (简体)** · 🇮🇷 **فارسی** · 🇹🇷 **Türkçe** · 🇭🇷 **Hrvatski** · 🇧🇦 **Bosanski** · 🇨🇿 **Čeština** · 🇸🇪 **Svenska** · 🇳🇴 **Norsk** · 🇺🇿 **Oʻzbekcha** · 🇭🇺 **Magyar** · 🇳🇿 **Te Reo Māori**
+
+That covers every one of the 48 nations qualified for the FIFA World Cup 2026™, plus Hungarian (a big diaspora and a personal request from a few mates) and Te Reo Māori (the second official language of Aotearoa, where Tournamental was built).
+
+Arabic and Persian get full right-to-left layout. Czech gets four plural forms. Japanese gets polite-plain register, not the office-formal one that machine translation usually defaults to.
+
+## The honest bit
+
+The first draft of every language was written by [Claude](https://claude.ai). That's the AI model the rest of Tournamental is built with too. It produces sharper, more idiomatic UI translations than the public translation APIs we tried, and the marginal cost is zero. Done in one batch session, committed to the repo.
+
+That's a fine starting point. It's not a finishing point.
+
+**A native speaker will always read those strings and catch what the AI couldn't.** A Brazilian who shouts at TV during a Flamengo match knows that "técnico" beats "treinador". A Magyar grandmother knows that Hungarian agglutinates suffixes and the button label needs to be shorter. A French Canadian knows that what reads natural in Paris reads slightly off in Montreal.
+
+So we're opening the doors.
+
+## We are calling for contributors
+
+If you natively speak any of these 22 languages, especially the ones that are far from English in structure (Japanese, Korean, Arabic, Persian, Hungarian, Czech, Te Reo Māori), open a PR.
+
+You don't have to translate the whole site. You can fix one button label, one helper text line, one plural form. If you spot something that reads weird, the four-line contribution is:
+
+1. Open the repo at https://github.com/0800tim/tournamental.
+2. Edit `apps/web/locales/<your-locale>.json`.
+3. Change the value (not the key).
+4. Open a PR titled `i18n(<locale>): fix <thing>`.
+
+The full step-by-step lives at [docs/CONTRIBUTING-TRANSLATIONS.md](https://github.com/0800tim/tournamental/blob/main/docs/CONTRIBUTING-TRANSLATIONS.md). Includes per-locale style rules, the ICU plural formats, what NOT to translate (brand names, FIFA, sponsor marks), and the validation script that catches the common mistakes before CI does.
+
+If you've never opened a PR before, that doc walks you through it. If you're an experienced OSS contributor, the validator output should tell you everything you need.
+
+## How we're handling football terminology
+
+This was the area we had to get right.
+
+| Language | R16 | QF | SF | F |
+| --- | --- | --- | --- | --- |
+| English | Round of 16 | Quarter-final | Semi-final | Final |
+| Español | Octavos de final | Cuartos de final | Semifinal | Final |
+| Português (BR) | Oitavas de final | Quartas de final | Semifinal | Final |
+| Français | Huitièmes de finale | Quarts de finale | Demi-finales | Finale |
+| Deutsch | Achtelfinale | Viertelfinale | Halbfinale | Finale |
+| Italiano | Ottavi di finale | Quarti di finale | Semifinali | Finale |
+| 日本語 | ベスト16 | 準々決勝 | 準決勝 | 決勝 |
+| 한국어 | 16강 | 8강 | 4강 | 결승 |
+| العربية | دور الستة عشر | ربع النهائي | نصف النهائي | النهائي |
+
+The 2026 World Cup is the **first ever to have a Round of 32**, so the terminology around "Round of 32" varies even within football communities. We default to literal expansions ("Round of 32" → "Octavos de 32 equipos" → "Dernier 32" → "Sechzehntelfinale") and welcome native-speaker PRs that improve them. This is exactly the kind of cultural calibration only humans can do.
+
+## What we are NOT translating, and why
+
+A few things stay in English in every language:
+
+- **"Tournamental"**. It's a brand, not a noun.
+- **"FIFA World Cup 2026™"** on first reference. After that you can localise to "la Coupe du Monde" / "la Copa Mundial" / etc.
+- **Three-letter team codes** (ARG, BRA, MEX, JPN, ...). These are international shorthand and switching them per locale breaks every comparison across leaderboards.
+- **Sponsor names**. They sign off their own brand mark; we don't second-guess.
+
+The full not-translated list is in the contributor guide.
+
+## What's in it for the contributor
+
+Honest answer: an open-source line on your CV and the satisfaction of seeing your name shipped on the next deploy.
+
+Slightly less-honest but also true: **sustained contributors are eligible for the Drips Network revenue share.** Tournamental is open source under Apache 2.0; we route a percentage of platform revenue back to the contributors who built the platform, including the translators. The architecture for this is in [docs/19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md). The short version: serious effort gets paid in the medium term, not the short term, but the door is open.
+
+Every merged PR also automatically updates `THANKS.md` with your handle. The translator-of-record line for each locale will appear in the language picker dropdown after the next release. If you become the primary maintainer for a locale, we'll tag you on every i18n PR that touches your file going forward. Native-speaker reviewers, in our experience, become the kindest gatekeepers of language quality on a project.
+
+## A short FAQ
+
+**Q: My language isn't on the list. Can I propose it?**
+Yes. Open a GitHub Discussion ("Proposing &lt;language&gt; as a supported locale"). Once green-lit, the architecture explicitly supports unlimited additional locales; the doc walks through how to add one.
+
+**Q: What if my translation is better than Claude's?**
+Then merge it. The whole point of this post is that we expect native speakers to outperform the AI initial draft. We don't gatekeep that.
+
+**Q: Will my PR be auto-merged?**
+No. Native-speaker reviewers eyeball every i18n PR for a quick sanity pass + the validator output. Most translation PRs from genuine native speakers merge within 24 hours.
+
+**Q: I don't want to make a GitHub account.**
+Email the issue to `i18n@tournamental.com` and someone on the team will open the PR on your behalf with credit in the commit body. The GitHub flow is faster but we're not gatekeeping on tooling.
+
+**Q: What if the AI translation in my language is genuinely bad?**
+Please tell us. The bar is "good enough to ship", not "perfect". If you find a string that reads as a literal mistranslation, that's a critical bug, not a style preference. Open the PR or email; either is fast.
+
+## Going forward
+
+The launch of multi-language Tournamental is the start, not the end. Things we know are coming:
+
+1. **The OG share cards localise next.** Right now `/api/og/bracket-birdseye` etc. render English labels (R32, QF, SF, CHAMPION) regardless of locale. Once the play app strings are stable, the satori-rendered cards pick up locale-aware labels too.
+2. **The marketing site (this blog!) gets the same treatment.** [tournamental.com](https://tournamental.com) is currently English-only; Astro's built-in i18n is being wired in next.
+3. **The Telegram bot is already speaking the user's locale via auth-sms's locale lookup**, so the OTP message reads in your language as well.
+4. **A future translator dashboard** at `/i18n/coverage` will surface, per locale, which strings are still falling back to English and which ones the validator flagged. Volunteer translators can use it as a worklist.
+
+If you want to be the first contributor for your language, the link is:
+
+[**github.com/0800tim/tournamental** · `apps/web/locales/`](https://github.com/0800tim/tournamental/tree/main/apps/web/locales)
+
+And the contributor guide:
+
+[**docs/CONTRIBUTING-TRANSLATIONS.md**](https://github.com/0800tim/tournamental/blob/main/docs/CONTRIBUTING-TRANSLATIONS.md)
+
+## Credits
+
+The 22-language launch was built between sessions with [Claude](https://claude.ai), the same model that contributes to the rest of the codebase. It produced the first-pass translations of every locale in the repo. Improvements from this point forward are the work of human native-speakers, and that's exactly the right division of labour.
+
+Special thanks to the early contributors who reviewed the first-pass translations before launch:
+
+- (this list updates on every merged PR; if you're reading this and your name isn't here yet, that's because we haven't shipped your PR yet. Open one.)
+
+Tournamental is open source under Apache 2.0. The docs are CC-BY 4.0. Translations contributed under PR are licensed under the same terms as the codebase.
+
+---
+
+*Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association.*

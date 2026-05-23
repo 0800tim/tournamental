@@ -27,6 +27,9 @@ import Link from "next/link";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { AuthChip } from "./AuthChip";
+import { LocalePicker } from "./LocalePicker";
+
+import "./locale-picker.css";
 import { DesktopNav } from "./DesktopNav";
 
 export interface AppBarProps {
@@ -119,6 +122,9 @@ export function AppBar({
               * The DesktopNav on >= 768px has its own AuthChip in the
               * right rail; this duplicate is hidden via the media
               * query in shell.css. */}
+            <span className="vt-appbar-locale" aria-hidden={false}>
+              <LocalePicker variant="appbar" />
+            </span>
             <span className="vt-appbar-auth-mobile" aria-hidden={false}>
               <AuthChip />
             </span>

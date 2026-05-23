@@ -1,0 +1,184 @@
+/* LocalePicker styling. Two variants:
+ *
+ *   .vt-locale-picker--appbar: compact pill (flag + 2-letter code +
+ *     chevron). Lives in the AppBar to the left of the hamburger.
+ *   .vt-locale-picker--drawer: full row with native name spelled out
+ *     so the burger drawer reads clearly.
+ *
+ * Tim 2026-05-24. */
+
+.vt-locale-picker {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.vt-locale-picker-trigger {
+  appearance: none;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: var(--vt-fg, #f4f4f5);
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font: inherit;
+  line-height: 1;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.vt-locale-picker-trigger:hover {
+  border-color: rgba(220, 169, 75, 0.45);
+  background: rgba(255, 255, 255, 0.04);
+}
+.vt-locale-picker[data-open="1"] .vt-locale-picker-trigger {
+  border-color: rgba(220, 169, 75, 0.55);
+  background: rgba(220, 169, 75, 0.08);
+}
+
+.vt-locale-picker--appbar .vt-locale-picker-trigger {
+  padding: 6px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.vt-locale-picker--drawer .vt-locale-picker-trigger {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border-color: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.03);
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.vt-locale-picker-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+.vt-locale-picker--drawer .vt-locale-picker-flag {
+  font-size: 20px;
+}
+
+.vt-locale-picker-code {
+  color: var(--vt-fg, #f4f4f5);
+}
+
+.vt-locale-picker-native {
+  flex: 1 1 auto;
+  text-align: left;
+  color: var(--vt-fg-muted, #a3a3ad);
+  font-weight: 500;
+}
+
+.vt-locale-picker-chevron {
+  opacity: 0.6;
+  font-size: 10px;
+  margin-left: auto;
+}
+
+/* ---- Menu ---- */
+.vt-locale-picker-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 280px;
+  max-width: 320px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--vt-bg-elev, #1c1c22);
+  border: 1px solid rgba(220, 169, 75, 0.32);
+  border-radius: 12px;
+  box-shadow: 0 18px 40px -16px rgba(0, 0, 0, 0.62);
+  padding: 6px 0;
+  z-index: 120;
+}
+
+.vt-locale-picker--drawer .vt-locale-picker-menu {
+  position: static;
+  margin-top: 8px;
+  width: 100%;
+  max-width: none;
+  max-height: none;
+}
+
+.vt-locale-picker-group {
+  padding: 6px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.vt-locale-picker-group:last-of-type {
+  border-bottom: 0;
+}
+
+.vt-locale-picker-group-label {
+  font-family: "JetBrains Mono", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  padding: 4px 10px 6px;
+  margin: 0;
+}
+
+.vt-locale-picker-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.vt-locale-picker-option {
+  width: 100%;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  color: var(--vt-fg, #f4f4f5);
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  cursor: pointer;
+  font: inherit;
+}
+.vt-locale-picker-option:hover {
+  background: rgba(220, 169, 75, 0.10);
+}
+.vt-locale-picker-option[data-selected="1"] {
+  background: rgba(220, 169, 75, 0.16);
+  color: var(--vt-gold-300, #fcd34d);
+}
+
+.vt-locale-picker-native-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vt-locale-picker-english-name {
+  color: var(--vt-fg-muted, #a3a3ad);
+  font-size: 12px;
+}
+
+.vt-locale-picker-footer {
+  padding: 10px 14px;
+  margin: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+}
+.vt-locale-picker-footer a {
+  color: var(--vt-gold-300, #fcd34d);
+  text-decoration: none;
+}
+.vt-locale-picker-footer a:hover {
+  text-decoration: underline;
+}
+
+/* Drawer row that hosts the LocalePicker in the burger menu. Same
+ * horizontal padding as the InstallPrompt above it so the column
+ * reads as one consistent stack. */
+.vt-drawer-locale-row {
+  margin: 0 16px 8px;
+}
