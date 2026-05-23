@@ -6,11 +6,11 @@
   "healthzPath": "/",
   "smoke": [
     { "url": "/", "label": "homepage", "maxMs": 1500 },
-    { "url": "/about", "label": "about", "maxMs": 1500 }
+    { "url": "/why", "label": "why", "maxMs": 1500 }
   ],
   "cacheWarm": [
     "/",
-    "/about",
+    "/why",
     "/blog"
   ],
   "warmBase": "https://tournamental.com"
