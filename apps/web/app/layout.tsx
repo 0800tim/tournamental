@@ -15,6 +15,15 @@ import { LOCALES, type Locale } from "@/i18n/config";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
 
 export const metadata: Metadata = {
+  // Anchor every page's relative og:image / canonical URL to the
+  // public origin instead of letting Next default to
+  // http://localhost:<PORT>. Without this, the share-landing OG image
+  // resolves to `http://localhost:3300/api/og/bracket?...` in
+  // production, which WhatsApp / X / Telegram crawlers can't fetch,
+  // so they fall back to a generic glyph (Tim 2026-05-24).
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_PLAY_ORIGIN ?? "https://play.tournamental.com",
+  ),
   title: {
     default: "Tournamental · FWC2026, Predict the matches that matter",
     template: "%s · Tournamental · FWC2026",
