@@ -1024,19 +1024,45 @@
   transform: translateY(-2px) scale(1.015);
 }
 
-/* Elevated gold selection (2026-05-21): 4px outer ring + 12-16px gold
+/* Elevated gold selection (2026-05-21): inset gold ring + outer gold
  * halo. The ring lives on the .mpr-pick button container as box-shadow
  * so the layout doesn't shift when the user picks (no border thrash).
  * Unified across home/away picks; the draw pill has its own treatment
- * below. */
+ * below.
+ *
+ * Tim 2026-05-23: the previous 14px corners + 8px-4px padding made
+ * the gold rectangle look pinched against the flag at the top. Top
+ * corners now arch (44px) so the gold flows into the circular flag's
+ * curve; padding-top is bumped so the flag has breathing room rather
+ * than touching the inner ring.
+ */
 .mpr-pick-home.is-selected,
 .mpr-pick-away.is-selected {
   background: rgba(220, 169, 75, 0.06);
+  padding-top: 14px;
+  padding-bottom: 8px;
+  border-top-left-radius: 44px;
+  border-top-right-radius: 44px;
   box-shadow:
     inset 0 0 0 4px var(--vt-gold-400, #dca94b),
     0 0 0 1px rgba(220, 169, 75, 0.45),
     0 6px 16px rgba(220, 169, 75, 0.35),
     0 0 28px rgba(220, 169, 75, 0.32);
+}
+
+/* Force the flag's selection ring to be gold (matching the wrap's
+ * inset) and add a softer outer glow when the pick is selected. The
+ * TeamFlag component sets the ring inline already, but routing it
+ * through bracket.css gives us the glow layer + lets the gold colour
+ * cascade if a future refactor moves the inline style out. The
+ * [data-selection-ring="true"] hook is exposed by TeamFlag.tsx. */
+.mpr-pick.is-selected [data-selection-ring="true"] {
+  outline: 4px solid var(--vt-gold-400, #dca94b) !important;
+  outline-offset: 3px;
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 0 22px rgba(220, 169, 75, 0.45),
+    0 0 44px rgba(220, 169, 75, 0.22) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {
