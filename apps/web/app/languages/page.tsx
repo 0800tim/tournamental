@@ -66,7 +66,7 @@ export default function LanguagesPage(): JSX.Element {
 
         <footer className="vt-languages-footer">
           <p>
-            Don't see your language? Open a{" "}
+            Don&apos;t see your language? Open a{" "}
             <a href="https://github.com/0800tim/tournamental/discussions" target="_blank" rel="noopener noreferrer">
               discussion on GitHub
             </a>{" "}
