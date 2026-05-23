@@ -236,11 +236,21 @@ export async function registerBracketByGuidRoutes(
     }
 
     // Primary lookup: by the persisted share_guid column.
-    // Fallback: if the guid looks like a UUID v4, treat it as a userId
+    // Fallback: if the guid looks like a user id, treat it as a userId
     // and return that user's most-recent bracket. This is what makes
     // `/s/<userId>` a working share URL — the canonical short form.
+    // Two userId shapes are accepted:
+    //   - UUID v4: the local-browser guest id minted client-side.
+    //   - `u_<16-32 hex>`: the auth-sms server-side user id (issued to
+    //     signed-in users). Web client mints share URLs with this id
+    //     when the user is signed in, so without this fallback every
+    //     signed-in share link 404'd (Tim 2026-05-24).
     let row = deps.store.getBracketByShareGuid(guid);
-    if (!row && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(guid)) {
+    if (
+      !row &&
+      (/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(guid) ||
+        /^u_[0-9a-f]{16,32}$/i.test(guid))
+    ) {
       row = deps.store.getLatestBracketByUser(guid);
     }
     if (!row) {

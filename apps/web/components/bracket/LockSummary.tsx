@@ -31,6 +31,7 @@ import { shareContent, tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
 import {
   buildShareText,
+  buildShareTextBody,
   buildShareTitle,
   resolveShareGuid,
   shareUrlFor,
@@ -140,11 +141,15 @@ export function LockSummary(props: LockSummaryProps) {
     bracketId,
   });
   const shareUrl = shareUrlFor(guid);
-  const shareText = buildShareText({
+  // Body for navigator.share (URL passed separately so we don't render
+  // the link twice in WhatsApp / iMessage). buildShareText (with the
+  // URL inline) is still used for the deep-link fallbacks below.
+  const shareTextBody = buildShareTextBody({
     champion: shareWinner,
     guid,
     isComplete,
   });
+  void buildShareText; // referenced by deep-link helpers, kept for fallbacks
 
   const auth = useUser();
 
@@ -172,7 +177,7 @@ export function LockSummary(props: LockSummaryProps) {
     }
     await shareContent({
       title: buildShareTitle(),
-      text: shareText,
+      text: shareTextBody,
       url: shareUrl,
     });
   };

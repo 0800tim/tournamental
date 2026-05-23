@@ -88,7 +88,18 @@ export async function generateMetadata(
   }
   if (resolved.kind === "user") {
     const b = resolved.bracket;
-    const ogUrl = `/api/og/bracket?bracket_id=${encodeURIComponent(b.bracket_id)}&handle=${encodeURIComponent(b.handle)}&winner=${encodeURIComponent(b.champion.name)}`;
+    // Pass champion + runner-up + third codes so the OG renderer paints
+    // the actual predicted podium in social previews. Without these, the
+    // unfurl falls back to a generic football glyph (Tim 2026-05-24).
+    const ogParams = new URLSearchParams({
+      bracket_id: b.bracket_id,
+      handle: b.handle,
+      winner: b.champion.code,
+      runner_up: b.runner_up.code,
+      third: b.third_place.code,
+    });
+    if (b.avatar_url) ogParams.set("avatar", b.avatar_url);
+    const ogUrl = `/api/og/bracket?${ogParams.toString()}`;
     const title = `@${b.handle} picked ${b.champion.name} to lift the ${b.tournament_label} trophy`;
     return {
       title,

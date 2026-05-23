@@ -70,7 +70,7 @@ export function buildShareText(input: ShareCopyInput): string {
   const url = shareUrlFor(input.guid);
   if (input.isComplete && input.champion && input.champion !== "—" && input.champion !== "TBD") {
     return (
-      `Just locked in my Football World Cup 2026 bracket on Tournamental — ` +
+      `Just locked in my Football World Cup 2026 bracket on Tournamental, ` +
       `I've got ${input.champion} taking the trophy. Pick yours: ${url}`
     );
   }
@@ -78,6 +78,30 @@ export function buildShareText(input: ShareCopyInput): string {
     `I'm building my Football World Cup 2026 bracket on Tournamental. ` +
     `Build yours: ${PLAY_ORIGIN.replace(/^https?:\/\//, "")}/world-cup-2026`
   );
+}
+
+/**
+ * Share-text body WITHOUT the URL. For `navigator.share({text, url})`
+ * paths where the host OS attaches the URL itself, embedding it in
+ * `text` too causes WhatsApp / iMessage to render it twice (Tim
+ * 2026-05-24). Use this for navigator.share and any other surface that
+ * passes the URL as a separate field. Keep `buildShareText` for
+ * deep-link fallbacks (wa.me/?text=, mailto?body=) which need the URL
+ * inline in the body to render a preview.
+ */
+export function buildShareTextBody(input: ShareCopyInput): string {
+  if (
+    input.isComplete &&
+    input.champion &&
+    input.champion !== "—" &&
+    input.champion !== "TBD"
+  ) {
+    return (
+      `Just locked in my Football World Cup 2026 bracket on Tournamental, ` +
+      `I've got ${input.champion} taking the trophy. Can you predict it better?`
+    );
+  }
+  return `I'm building my Football World Cup 2026 bracket on Tournamental. Pick yours.`;
 }
 
 /** Short title used by navigator.share. */

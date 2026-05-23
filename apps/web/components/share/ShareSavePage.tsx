@@ -53,6 +53,7 @@ import {
   buildOgImageUrl,
   buildShareLinks,
   buildShareText,
+  buildShareTextBody,
   buildShareTitle,
   resolveShareGuid,
   shareDisplayUrlFor,
@@ -342,10 +343,15 @@ export function ShareSavePage({
   );
   const shareUrl = useMemo(() => shareUrlFor(guid), [guid]);
   const shareDisplay = useMemo(() => shareDisplayUrlFor(guid), [guid]);
-  const shareText = useMemo(
-    () => buildShareText({ champion, guid, isComplete }),
+  // Body-only text for navigator.share (URL passed separately so the
+  // URL doesn't appear twice in WhatsApp / iMessage previews — Tim
+  // 2026-05-24). buildShareText (with URL inline) is still consumed
+  // by buildShareLinks for the deep-link fallbacks below.
+  const shareTextBody = useMemo(
+    () => buildShareTextBody({ champion, guid, isComplete }),
     [champion, guid, isComplete],
   );
+  void buildShareText;
   const shareLinks = useMemo(
     () => buildShareLinks({ champion, guid, isComplete }),
     [champion, guid, isComplete],
@@ -495,7 +501,7 @@ export function ShareSavePage({
             await nav.share({
               files: [file],
               title: buildShareTitle(),
-              text: shareText,
+              text: shareTextBody,
               url: shareUrl,
             });
             return;
@@ -511,7 +517,7 @@ export function ShareSavePage({
         try {
           await nav.share({
             title: buildShareTitle(),
-            text: shareText,
+            text: shareTextBody,
             url: shareUrl,
           });
           return;
@@ -526,7 +532,7 @@ export function ShareSavePage({
     } finally {
       setPrimaryBusy(false);
     }
-  }, [primaryBusy, performCapture, size, shareText, shareUrl]);
+  }, [primaryBusy, performCapture, size, shareTextBody, shareUrl]);
 
   const handleDownload = useCallback(
     async (s: DomCaptureSize): Promise<void> => {

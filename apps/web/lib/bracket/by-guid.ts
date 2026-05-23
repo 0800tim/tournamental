@@ -39,10 +39,18 @@ import type { CanonicalTeamsFile } from "@/lib/bracket/enrich";
 const UUID_V4_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const NANOID_RE = /^[a-zA-Z0-9_-]{16}$/;
+/**
+ * auth-sms user id shape: `u_<16-32 hex>`. The web client mints share
+ * URLs with this id when the user is signed in (it's the stable per-user
+ * key the game-service stores brackets under), so the resolver must
+ * recognise it as a valid share-guid shape. Without this, every signed-in
+ * user's share link 404s (Tim 2026-05-24).
+ */
+const AUTHSMS_USER_RE = /^u_[0-9a-f]{16,32}$/i;
 
 export function isShareGuidShape(guid: string): boolean {
   if (typeof guid !== "string") return false;
-  return UUID_V4_RE.test(guid) || NANOID_RE.test(guid);
+  return UUID_V4_RE.test(guid) || NANOID_RE.test(guid) || AUTHSMS_USER_RE.test(guid);
 }
 
 export interface PathToGoldEntry {

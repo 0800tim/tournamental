@@ -69,6 +69,7 @@ import { SignupModal } from "@/components/auth/SignupModal";
 import { shareContent } from "@/lib/native";
 import {
   buildShareText,
+  buildShareTextBody,
   buildShareTitle,
   resolveShareGuid,
   shareUrlFor,
@@ -1225,6 +1226,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       setPendingSaveAfterAuth(true);
                       setShowSignupModal(true);
                     }}
+                    championName={(() => {
+                      const f = cascaded.knockouts.find((k) => k.stage === "f");
+                      const code = f?.effective_winner ?? f?.predicted_winner ?? null;
+                      if (!code) return null;
+                      return (
+                        tournament.teams.find((t) => t.id === code)?.name ?? code
+                      );
+                    })()}
                   />
                   <div className="bracket-final-sidecol">
                     <LockSummary
@@ -1494,6 +1503,7 @@ function SaveBracketPanel({
   submitState,
   onSave,
   onRequestSignup,
+  championName,
 }: {
   totalCompleted: number;
   totalPicks: number;
@@ -1504,6 +1514,11 @@ function SaveBracketPanel({
   submitState: string;
   onSave: () => void;
   onRequestSignup: () => void;
+  /** Actual predicted champion country (e.g. "Argentina"). Null when
+   *  the cascade hasn't resolved a winner yet. Plumbed so the share
+   *  text reads with the real pick instead of the literal "Your
+   *  champion" placeholder (Tim 2026-05-24). */
+  championName: string | null;
 }) {
   const complete = totalCompleted >= totalPicks;
   const remaining = Math.max(0, totalPicks - totalCompleted);
@@ -1532,7 +1547,14 @@ function SaveBracketPanel({
     if (!shareUrl) return;
     await shareContent({
       title: buildShareTitle(),
-      text: buildShareText({ champion: "Your champion", guid, isComplete: true }),
+      // Body only, no URL inline. shareContent passes `url` separately
+      // and the host OS attaches it; embedding it in the text too causes
+      // WhatsApp / iMessage to render the URL twice (Tim 2026-05-24).
+      text: buildShareTextBody({
+        champion: championName ?? null,
+        guid,
+        isComplete: true,
+      }),
       url: shareUrl,
     });
   };
