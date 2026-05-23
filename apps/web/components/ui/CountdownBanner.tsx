@@ -9,7 +9,22 @@
  * the optional `pastLabel` instead of the eyebrow.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 export interface CountdownBannerProps {
   readonly targetUtc: string;
@@ -44,6 +59,7 @@ export function CountdownBanner({
   eyebrow = "Tournament countdown",
   pastLabel = "Tournament is live",
 }: CountdownBannerProps) {
+  const t = useTranslations();
   const targetMs = Date.parse(targetUtc);
   const [now, setNow] = useState<number>(() =>
     Number.isFinite(targetMs) ? Date.now() : 0,
@@ -72,10 +88,10 @@ export function CountdownBanner({
         <h2 className="vt-countdown-title">{title}</h2>
       </div>
       <div className="vt-countdown-grid">
-        <Cell value={parts.days} label="Days" dataKey="day" />
-        <Cell value={parts.hours} label="Hrs" dataKey="hr" />
-        <Cell value={parts.minutes} label="Min" dataKey="min" />
-        <Cell value={parts.seconds} label="Sec" dataKey="sec" />
+        <Cell value={parts.days}    label={safeT(t, "countdown.unit_days",    "Days")} dataKey="day" />
+        <Cell value={parts.hours}   label={safeT(t, "countdown.unit_hours",   "Hrs")}  dataKey="hr" />
+        <Cell value={parts.minutes} label={safeT(t, "countdown.unit_minutes", "Min")}  dataKey="min" />
+        <Cell value={parts.seconds} label={safeT(t, "countdown.unit_seconds", "Sec")}  dataKey="sec" />
       </div>
     </section>
   );

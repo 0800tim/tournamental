@@ -4,11 +4,14 @@ import "@/components/ui/ui.css";
 
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale, getMessages } from "next-intl/server";
 import type { ReactNode } from "react";
 
 import { GtmRoot } from "@/components/analytics/GtmRoot";
 import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
+import { LOCALES, type Locale } from "@/i18n/config";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
 
 export const metadata: Metadata = {
@@ -52,7 +55,7 @@ export const viewport: Viewport = {
   themeColor: "#15151a",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
   // Region-gate the cookie consent prompt. Cloudflare adds CF-IPCountry
   // on every tunnel-routed request; we read it server-side at SSR so
   // non-GDPR visitors never see the banner mount even briefly.
@@ -61,8 +64,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   const cfCountry = h.get("cf-ipcountry");
   const showConsent = isGdprCountryOrUnknown(cfCountry);
 
+  // i18n: locale is resolved by i18n/request.ts from the vt_locale
+  // cookie (set by middleware.ts based on CF-IPCountry + Accept-Language
+  // on first visit and by the LocalePicker on user select). messages
+  // come from apps/web/locales/<code>.json.
+  const locale = (await getLocale()) as Locale;
+  const messages = await getMessages();
+  const meta = LOCALES.find((l) => l.code === locale) ?? LOCALES[0]!;
+
   return (
-    <html lang="en">
+    <html lang={locale} dir={meta.rtl ? "rtl" : "ltr"}>
       <head>
         {/* iOS standalone web-app behaviour. The Next metadata API
             covers most of these but the meta tags are still required by
@@ -73,10 +84,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body>
-        <GtmRoot showConsentBanner={showConsent} />
-        <NativeShellBoot />
-        <MagicLinkConsumer />
-        {children}
+        <NextIntlClientProvider locale={locale} messages={messages}>
+          <GtmRoot showConsentBanner={showConsent} />
+          <NativeShellBoot />
+          <MagicLinkConsumer />
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

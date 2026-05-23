@@ -39,6 +39,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   useCallback,
   useEffect,
@@ -86,6 +87,8 @@ export function DesktopNav() {
 }
 
 function NavPill({ link, active }: { link: NavLink; active: boolean }) {
+  const t = useTranslations();
+  const label = safeT(t, link.i18nKey, link.label);
   const className = "vt-appbar-nav-link";
   const dataActive = active ? "1" : "0";
   if (link.external) {
@@ -98,7 +101,7 @@ function NavPill({ link, active }: { link: NavLink; active: boolean }) {
         rel="noreferrer"
         aria-current={active ? "page" : undefined}
       >
-        {link.label}
+        {label}
       </a>
     );
   }
@@ -109,9 +112,30 @@ function NavPill({ link, active }: { link: NavLink; active: boolean }) {
       data-active={dataActive}
       aria-current={active ? "page" : undefined}
     >
-      {link.label}
+      {label}
     </Link>
   );
+}
+
+/**
+ * Translation lookup that swallows MISSING_MESSAGE errors and falls
+ * back to the supplied English string. Lets us roll out i18n
+ * incrementally without throwing when a locale file is missing a key
+ * we just added on `main`.
+ */
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    // next-intl returns the key itself when not found; treat that as a miss.
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
 }
 
 function MoreDropdown({
@@ -121,6 +145,8 @@ function MoreDropdown({
   links: readonly NavLink[];
   activeHref: string | null;
 }) {
+  const t = useTranslations();
+  const moreLabel = safeT(t, "nav.more", "More");
   const [open, setOpen] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -193,7 +219,7 @@ function MoreDropdown({
         aria-expanded={open ? "true" : "false"}
         onClick={() => setOpen((o) => !o)}
       >
-        More
+        {moreLabel}
         <Caret open={open} />
       </button>
       {open ? (
@@ -230,6 +256,8 @@ function MoreItem({
   active: boolean;
   onSelect: () => void;
 }): ReactNode {
+  const t = useTranslations();
+  const label = safeT(t, link.i18nKey, link.label);
   const cls = "vt-appbar-more-item";
   const dataActive = active ? "1" : "0";
   if (link.external) {
@@ -246,7 +274,7 @@ function MoreItem({
         <span className="vt-appbar-more-icon" aria-hidden="true">
           {link.icon}
         </span>
-        <span>{link.label}</span>
+        <span>{label}</span>
         <span className="vt-appbar-more-external" aria-hidden="true">
           ↗
         </span>

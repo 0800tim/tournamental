@@ -3,11 +3,12 @@
     "locale": "fr",
     "native": "Français",
     "english": "French",
-    "translators": ["Claude (première passe), relecture native-speaker à venir"],
+    "translators": [
+      "Claude (première passe), relecture native-speaker à venir"
+    ],
     "last_updated_utc": "2026-05-24",
     "completeness_pct": 100
   },
-
   "nav.predict": "Pronostiquer",
   "nav.molecule": "Molécule",
   "nav.save_share": "Enregistrer & partager",
@@ -19,10 +20,8 @@
   "nav.api_keys": "Clés API",
   "nav.engineering_log": "Journal technique",
   "nav.open_source": "Open source",
-
   "authchip.sign_in_up": "Connexion / Inscription",
   "authchip.profile": "Profil",
-
   "locale_picker.label": "Langue",
   "locale_picker.aria_open": "Choisis ta langue",
   "locale_picker.region.americas": "Amériques",
@@ -30,7 +29,6 @@
   "locale_picker.region.asia-pacific": "Asie-Pacifique",
   "locale_picker.region.middle-east-africa": "Moyen-Orient & Afrique",
   "locale_picker.contribute": "Aide-nous à traduire Tournamental dans ta langue",
-
   "home.hero.headline_a": "Peux-tu pronostiquer toute la Coupe du Monde ?",
   "home.hero.headline_b": "Vingt-deux Coupes du Monde, 964 matchs, aucun grand chelem.",
   "home.hero.cta_predict": "Faire mes pronos",
@@ -38,14 +36,12 @@
   "home.hero.lede": "Personne ne l'a jamais fait, et personne ne le fera probablement à cause des {odds_link} astronomiques. Vingt-deux Coupes du Monde, 964 matchs, et le pronostic parfait reste à réclamer. Les 104 matchs de 2026 sont la prochaine tentative. Tournamental tient le registre mondial et inscrit chaque pronostic dans la blockchain avant le coup d'envoi de chaque match, tes prédictions sont donc immuables et toute prétention à la gloire devient enfin prouvable.",
   "home.hero.lede_link": "chances de réussir les 104 matchs",
   "home.hero.read_more": "[en savoir plus]",
-
   "countdown.eyebrow": "Coup d'envoi",
   "countdown.title_default": "Mexique vs Afrique du Sud, 11 juin 2026",
   "countdown.unit_days": "Jours",
   "countdown.unit_hours": "Hr",
   "countdown.unit_minutes": "Min",
   "countdown.unit_seconds": "Sec",
-
   "join.modal.title": "Rejoindre {pool_name}",
   "join.modal.body": "Choisis un nom et un pseudo pour le classement, on t'enverra un code à usage unique par WhatsApp ou par e-mail.",
   "join.modal.field_name": "Ton nom",
@@ -66,13 +62,11 @@
   "join.error.phone_registered_strong": "Ce numéro est déjà enregistré.",
   "join.error.phone_registered_body": "Si c'est le tien, connecte-toi plutôt par WhatsApp, tu recevras le code à usage unique et un lien de connexion en un tap, puis on t'ajoute à {pool_name} automatiquement.",
   "join.error.whatsapp_login": "Se connecter via WhatsApp →",
-
   "odds.eyebrow": "Les maths",
   "odds.title": "Personne ne va pronostiquer correctement les 104 matchs de la Coupe du Monde. Jamais.",
   "odds.lede": "Le cumul te tue, les matchs à pile ou face fixent un plancher que l'info ne peut pas franchir, et les jeux où tu verrouilles tout au début sont mathématiquement cassés avant le premier coup de sifflet. Voici les chiffres.",
   "odds.cta_predict": "Faire mes pronos",
   "odds.cta_pool": "Lancer un pool",
-
   "stage.r32": "Trente-deuxièmes de finale",
   "stage.r16": "Huitièmes de finale",
   "stage.qf": "Quarts de finale",
@@ -80,7 +74,6 @@
   "stage.tp": "Petite finale",
   "stage.f": "Finale",
   "stage.groups": "Phase de groupes",
-
   "syndicate.members": "{count, plural, =0 {Aucun membre pour l'instant} one {# membre} other {# membres}}",
   "syndicate.picks_made": "{count, plural, =0 {Aucun prono fait} one {# prono fait} other {# pronos faits}}",
   "syndicate.section_prize_pool": "Cagnotte des prix",
@@ -89,8 +82,25 @@
   "syndicate.cta_join": "Rejoindre ce pool",
   "syndicate.cta_share": "Partager ce pool",
   "syndicate.join_footnote": "Gratuit, modifie tes pronos jusqu'au coup d'envoi.",
-
   "footer.fifa_disclaimer": "Tournamental est indépendant et n'a aucun lien avec la FIFA, la Coupe du Monde de la FIFA ni aucun de ses sponsors. FIFA World Cup 2026™ est une marque déposée de la Fédération Internationale de Football Association.",
   "footer.open_source": "Open source sous licence Apache 2.0",
-  "footer.contribute_translation": "Aide-nous à traduire Tournamental dans ta langue : {link}"
+  "footer.contribute_translation": "Aide-nous à traduire Tournamental dans ta langue : {link}",
+  "nav.home": "Accueil",
+  "nav.predict_bracket": "Pronostiquer (Tableau)",
+  "nav.molecule_3d": "Molécule 3D",
+  "nav.profile_my": "Mon profil",
+  "nav.share_save": "Enregistrer et partager",
+  "nav.section_app": "Appli",
+  "nav.section_brand": "Tournamental",
+  "nav.install": "Installer",
+  "common.see_all_languages": "Voir toutes les langues →",
+  "footer.languages": "Langues",
+  "footer.translate": "Traduire",
+  "footer.open_source_link": "Code source ouvert",
+  "languages.hero.eyebrow": "Langues",
+  "languages.hero.headline": "Tournamental, dans votre langue",
+  "languages.hero.intro1": "Nous travaillons avec des locuteurs natifs pour livrer Tournamental en 22 langues d'ici le coup d'envoi. La première passe est assistée par machine ; les pull requests de natifs sont ce qui rend chaque localisation vraiment bonne.",
+  "languages.hero.intro2": "Touchez une langue ci-dessous pour changer. Votre choix est mémorisé pendant un an sur cet appareil.",
+  "languages.grid_aria": "Choisissez une langue",
+  "languages.contribute_link": "Aidez-nous à traduire Tournamental dans votre langue"
 }

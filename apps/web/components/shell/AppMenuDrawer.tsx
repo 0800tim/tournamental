@@ -22,6 +22,7 @@
  */
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
@@ -46,12 +47,17 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
   // its own auth wall, so the href stays constant either way; only the
   // visible label flips.
   const { status } = useUser();
+  const t = useTranslations();
   const isAuthed = status === "authenticated";
   const primaryLinks = useMemo<readonly DrawerLink[]>(
     () =>
       DRAWER_PRIMARY.map((l) =>
         l.href === "/profile"
-          ? { ...l, label: isAuthed ? "My Profile" : "Sign up / in" }
+          ? {
+              ...l,
+              label: isAuthed ? "My Profile" : "Sign up / in",
+              i18nKey: isAuthed ? "nav.profile_my" : "authchip.sign_in_up",
+            }
           : l,
       ),
     [isAuthed],
@@ -126,7 +132,7 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
         </div>
         <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;</div>
         <DrawerLinks links={primaryLinks} onClick={onClose} />
-        <div className="vt-drawer-section-label">Tournamental</div>
+        <div className="vt-drawer-section-label">{safeT(t, "nav.section_brand", "Tournamental")}</div>
         <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
       </aside>
     </div>
@@ -140,38 +146,61 @@ function DrawerLinks({
   links: readonly DrawerLink[];
   onClick: () => void;
 }): ReactNode {
+  const t = useTranslations();
   return (
     <ul className="vt-drawer-list">
-      {links.map((link) => (
-        <li key={link.href}>
-          {link.external ? (
-            <a
-              href={link.href}
-              className="vt-drawer-link"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-subitem={link.subItem ? "1" : undefined}
-              onClick={onClick}
-            >
-              {link.icon}
-              <span>{link.label}</span>
-              <span className="vt-drawer-external-icon" aria-hidden="true">↗</span>
-            </a>
-          ) : (
-            <Link
-              href={link.href}
-              className="vt-drawer-link"
-              data-subitem={link.subItem ? "1" : undefined}
-              onClick={onClick}
-            >
-              {link.icon}
-              <span>{link.label}</span>
-            </Link>
-          )}
-        </li>
-      ))}
+      {links.map((link) => {
+        const label = safeT(t, link.i18nKey, link.label);
+        return (
+          <li key={link.href}>
+            {link.external ? (
+              <a
+                href={link.href}
+                className="vt-drawer-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-subitem={link.subItem ? "1" : undefined}
+                onClick={onClick}
+              >
+                {link.icon}
+                <span>{label}</span>
+                <span className="vt-drawer-external-icon" aria-hidden="true">↗</span>
+              </a>
+            ) : (
+              <Link
+                href={link.href}
+                className="vt-drawer-link"
+                data-subitem={link.subItem ? "1" : undefined}
+                onClick={onClick}
+              >
+                {link.icon}
+                <span>{label}</span>
+              </Link>
+            )}
+          </li>
+        );
+      })}
     </ul>
   );
+}
+
+/**
+ * Safe translation lookup. Returns the supplied English fallback when
+ * the key is missing from the active locale's catalogue so a stub
+ * locale never renders an empty pill.
+ */
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
 }
 
 /**

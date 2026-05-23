@@ -20,12 +20,23 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { CountdownBanner } from "@/components/ui";
 
 import "./home.css";
+
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
 
 const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
@@ -36,7 +47,39 @@ export const metadata: Metadata = {
     "Free-to-play FIFA World Cup 2026™ prediction game. Pick all 104 matches, change any pick up to kickoff, and run a branded pool for your audience. Blockchain-anchored picks so the claim to glory is finally provable. Tournamental is independent and not affiliated with FIFA.",
 };
 
-export default function HomePage(): JSX.Element {
+export default async function HomePage(): Promise<JSX.Element> {
+  // i18n: only the hero copy + countdown labels are wired in this pass.
+  // The rest of the home page sections will follow as we extract their
+  // strings into the catalogue. The hero is the visitor's first paint
+  // so it carries the biggest visible language change.
+  const [
+    headlineA,
+    ctaPredict,
+    ctaPool,
+    lede,
+    ledeLink,
+    readMore,
+    countdownEyebrow,
+    countdownTitle,
+  ] = await Promise.all([
+    safeT("home.hero.headline_a", "Can you predict the entire World Cup?"),
+    safeT("home.hero.cta_predict", "Set my picks"),
+    safeT("home.hero.cta_pool", "Run a pool"),
+    safeT(
+      "home.hero.lede",
+      "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed.",
+    ),
+    safeT("home.hero.lede_link", "odds of getting all 104 matches right"),
+    safeT("home.hero.read_more", "[read more]"),
+    safeT("countdown.eyebrow", "Kickoff"),
+    safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
+  ]);
+
+  // Split the lede on the {odds_link} placeholder so we can interpolate
+  // the inline <Link>. Falls back gracefully when the placeholder is
+  // missing — render the bare translated lede.
+  const ledeParts = lede.split("{odds_link}");
+
   return (
     <AppShell title="Tournamental">
       <main className="vt-home">
@@ -50,36 +93,34 @@ export default function HomePage(): JSX.Element {
           <div className="vt-home-hero-bg" aria-hidden="true" />
           <div className="vt-home-hero-inner">
             <p className="vt-home-dateline">
-              Tournamental · FIFA World Cup 2026™ · Kickoff 11 June 2026
+              Tournamental · FIFA World Cup 2026™ · {countdownTitle}
             </p>
             <div className="vt-home-hero-top">
               <h1 className="vt-home-headline">
-                <span className="vt-home-hero-line">Can you call</span>
-                <span className="vt-home-hero-line">every <em>match</em> of</span>
-                <span className="vt-home-hero-line">the World Cup?</span>
+                <span className="vt-home-hero-line">{headlineA}</span>
               </h1>
               <div className="vt-home-hero-ctas">
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
-                  Set my picks →
+                  {ctaPredict} →
                 </Link>
                 <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
-                  Run a pool
+                  {ctaPool}
                 </Link>
               </div>
               <p className="vt-home-hero-lede">
-                <strong>Nobody has ever done it,</strong> and they probably
-                never will because of the astronomical{" "}
+                {ledeParts.length === 2 ? (
+                  <>
+                    {ledeParts[0]}
+                    <Link href="/odds" className="vt-home-hero-readmore">
+                      {ledeLink}
+                    </Link>
+                    {ledeParts[1]}
+                  </>
+                ) : (
+                  lede
+                )}{" "}
                 <Link href="/odds" className="vt-home-hero-readmore">
-                  odds of getting all 104 matches right
-                </Link>
-                . Twenty-two World Cups, 964 matches, and the perfect bracket
-                has stayed unclaimed. The 104 matches of 2026 are the next
-                attempt. Tournamental keeps the global ledger and commits every
-                pick to the blockchain before each match kicks off, so your
-                predictions are immutable and any claim to glory is finally
-                provable.{" "}
-                <Link href="/odds" className="vt-home-hero-readmore">
-                  [read more]
+                  {readMore}
                 </Link>
               </p>
             </div>
@@ -108,8 +149,8 @@ export default function HomePage(): JSX.Element {
         <section className="vt-home-section">
           <CountdownBanner
             targetUtc={WC_2026_KICKOFF_UTC}
-            eyebrow="Kickoff"
-            title="Mexico vs South Africa, 11 June 2026"
+            eyebrow={countdownEyebrow}
+            title={countdownTitle}
           />
         </section>
 

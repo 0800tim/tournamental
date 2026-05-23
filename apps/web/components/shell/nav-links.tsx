@@ -32,7 +32,13 @@ import {
 } from "./icons";
 
 export interface NavLink {
+  /** English fallback label. Always present so a missing translation
+   *  doesn't render an empty pill. */
   readonly label: string;
+  /** Translation key in the messages catalogue. When present, consumers
+   *  should render `t(i18nKey)` and fall back to `label` only if the
+   *  translator hook isn't available. */
+  readonly i18nKey: string;
   readonly href: string;
   readonly icon: ReactNode;
   readonly external?: boolean;
@@ -60,6 +66,7 @@ export interface NavLink {
 export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
     label: "Predict",
+    i18nKey: "nav.predict",
     // /world-cup-2026/molecule starts with /world-cup-2026 so we have to
     // pin Predict's match to the exact root + non-molecule subpaths to
     // avoid both links lighting up on the molecule route.
@@ -69,18 +76,21 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
   },
   {
     label: "Molecule",
+    i18nKey: "nav.molecule",
     href: "/world-cup-2026/molecule",
     icon: <MoleculeIcon />,
     matchPrefix: "/world-cup-2026/molecule",
   },
   {
     label: "Save & share",
+    i18nKey: "nav.save_share",
     href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
   },
   {
     label: "Leaderboard",
+    i18nKey: "nav.leaderboard",
     href: "/leaderboard",
     icon: <TrophyIcon />,
     matchPrefix: "/leaderboard",
@@ -89,6 +99,7 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
   // prediction pools are the v0.2 launch surface (Tim 2026-05-22).
   {
     label: "Pools",
+    i18nKey: "nav.pools",
     href: "/syndicates",
     icon: <GroupsIcon />,
     matchPrefix: "/syndicates",
@@ -103,11 +114,11 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   // Home + Settings + Syndicates removed (Tim 2026-05-22): the logo
   // already links home, Settings was a stub, and Pools graduated to
   // the top-level inline nav.
-  { label: "About Tournamental", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
-  { label: "How it works",       href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
-  { label: "API keys",           href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
-  { label: "Engineering log",    href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
-  { label: "Open source",        href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  { label: "About Tournamental", i18nKey: "nav.about", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
+  { label: "How it works",       i18nKey: "nav.how_it_works", href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
+  { label: "API keys",           i18nKey: "nav.api_keys", href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
+  { label: "Engineering log",    i18nKey: "nav.engineering_log", href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
+  { label: "Open source",        i18nKey: "nav.open_source", href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
 ];
 
 /**
@@ -120,13 +131,13 @@ export const MORE_DESKTOP: readonly NavLink[] = [
  * here so the renderer always has a stable href + icon to draw.
  */
 export const DRAWER_PRIMARY: readonly NavLink[] = [
-  { label: "Home",             href: "/",                          icon: <HomeIcon />,     matchPrefix: "__never__" },
-  { label: "Predict (Bracket)", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
-  { label: "3D Molecule",      href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
-  { label: "Leaderboard",      href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
-  { label: "Pools",            href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
-  { label: "My Profile",       href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
-  { label: "Share & Save",     href: "/world-cup-2026/save-share", icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
+  { label: "Home",             i18nKey: "nav.home",            href: "/",                          icon: <HomeIcon />,     matchPrefix: "__never__" },
+  { label: "Predict (Bracket)", i18nKey: "nav.predict_bracket", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
+  { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
+  { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
+  { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "My Profile",       i18nKey: "nav.profile_my",      href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
+  { label: "Share & Save",     i18nKey: "nav.share_save",      href: "/world-cup-2026/save-share", icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
 ];
 
 /**
@@ -134,10 +145,10 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
  * player-facing was promoted to DRAWER_PRIMARY in Tim's 2026-05-22 re-IA.
  */
 export const DRAWER_SECONDARY: readonly NavLink[] = [
-  { label: "About Tournamental", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
-  { label: "How it works",       href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
-  { label: "Engineering log",    href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
-  { label: "Open source",        href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
+  { label: "About Tournamental", i18nKey: "nav.about",          href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
+  { label: "How it works",       i18nKey: "nav.how_it_works",   href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
+  { label: "Engineering log",    i18nKey: "nav.engineering_log",href: "https://tournamental.com/engineering",  icon: <CodeIcon />, external: true },
+  { label: "Open source",        i18nKey: "nav.open_source",    href: "https://github.com/0800tim/tournamental", icon: <CodeIcon />, external: true },
 ];
 
 /**

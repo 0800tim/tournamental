@@ -25,6 +25,7 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 import { SignupModal } from "@/components/auth/SignupModal";
@@ -58,8 +59,18 @@ function initialsFrom(profile: { display_name?: string | null; handle?: string |
 
 export function AuthChip() {
   const { status, profile, user, loading } = useUser();
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [avatarFailed, setAvatarFailed] = useState(false);
+
+  const signInLabel = (() => {
+    try {
+      const out = t("authchip.sign_in_up");
+      return out === "authchip.sign_in_up" ? "Sign In/Up" : out;
+    } catch {
+      return "Sign In/Up";
+    }
+  })();
 
   // Unauthenticated default — show a "Sign in" chip. We render this for
   // `loading` too because the chip is small and a flashing skeleton at
@@ -79,7 +90,7 @@ export function AuthChip() {
           aria-label="Sign in or sign up"
           onClick={() => setOpen(true)}
         >
-          Sign In/Up
+          {signInLabel}
         </button>
         <SignupModal open={open} onClose={() => setOpen(false)} />
       </>

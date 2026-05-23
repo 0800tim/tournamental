@@ -3,11 +3,12 @@
     "locale": "en",
     "native": "English",
     "english": "English",
-    "translators": ["Claude (first-pass) + Tournamental maintainers"],
+    "translators": [
+      "Claude (first-pass) + Tournamental maintainers"
+    ],
     "last_updated_utc": "2026-05-24",
     "completeness_pct": 100
   },
-
   "nav.predict": "Predict",
   "nav.molecule": "Molecule",
   "nav.save_share": "Save & share",
@@ -19,10 +20,8 @@
   "nav.api_keys": "API keys",
   "nav.engineering_log": "Engineering log",
   "nav.open_source": "Open source",
-
   "authchip.sign_in_up": "Sign in/up",
   "authchip.profile": "Profile",
-
   "locale_picker.label": "Language",
   "locale_picker.aria_open": "Choose your language",
   "locale_picker.region.americas": "Americas",
@@ -30,7 +29,6 @@
   "locale_picker.region.asia-pacific": "Asia-Pacific",
   "locale_picker.region.middle-east-africa": "Middle East & Africa",
   "locale_picker.contribute": "Help us translate Tournamental into your language",
-
   "home.hero.headline_a": "Can you predict the entire World Cup?",
   "home.hero.headline_b": "Twenty-two World Cups, 964 matches, zero perfect brackets.",
   "home.hero.cta_predict": "Set my picks",
@@ -38,14 +36,12 @@
   "home.hero.lede": "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed. The 104 matches of 2026 are the next attempt. Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable.",
   "home.hero.lede_link": "odds of getting all 104 matches right",
   "home.hero.read_more": "[read more]",
-
   "countdown.eyebrow": "Kickoff",
   "countdown.title_default": "Mexico vs South Africa, 11 June 2026",
   "countdown.unit_days": "Days",
   "countdown.unit_hours": "Hrs",
   "countdown.unit_minutes": "Min",
   "countdown.unit_seconds": "Sec",
-
   "join.modal.title": "Join {pool_name}",
   "join.modal.body": "Pick a display name and handle for the leaderboard, then we'll send a one-time login code by WhatsApp or email.",
   "join.modal.field_name": "Your name",
@@ -66,13 +62,11 @@
   "join.error.phone_registered_strong": "That phone is already registered.",
   "join.error.phone_registered_body": "If it's yours, log in via WhatsApp instead, you'll get the one-time code and a tap-to-sign-in link, then we add you to {pool_name} automatically.",
   "join.error.whatsapp_login": "Log in via WhatsApp →",
-
   "odds.eyebrow": "The maths",
   "odds.title": "Nobody will pick all 104 matches of the World Cup correctly. Ever.",
   "odds.lede": "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first whistle. Here's the working.",
   "odds.cta_predict": "Set my picks",
   "odds.cta_pool": "Run a pool",
-
   "stage.r32": "Round of 32",
   "stage.r16": "Round of 16",
   "stage.qf": "Quarter-final",
@@ -80,7 +74,6 @@
   "stage.tp": "Third-place play-off",
   "stage.f": "Final",
   "stage.groups": "Group stage",
-
   "syndicate.members": "{count, plural, =0 {No members yet} one {# member} other {# members}}",
   "syndicate.picks_made": "{count, plural, =0 {No picks made yet} one {# pick made} other {# picks made}}",
   "syndicate.section_prize_pool": "Prize pool",
@@ -89,8 +82,25 @@
   "syndicate.cta_join": "Join this pool",
   "syndicate.cta_share": "Share this pool",
   "syndicate.join_footnote": "Free to play, change picks until kickoff.",
-
   "footer.fifa_disclaimer": "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association.",
   "footer.open_source": "Open source under Apache 2.0",
-  "footer.contribute_translation": "Help translate Tournamental into your language: {link}"
+  "footer.contribute_translation": "Help translate Tournamental into your language: {link}",
+  "nav.home": "Home",
+  "nav.predict_bracket": "Predict (Bracket)",
+  "nav.molecule_3d": "3D Molecule",
+  "nav.profile_my": "My Profile",
+  "nav.share_save": "Share & Save",
+  "nav.section_app": "App",
+  "nav.section_brand": "Tournamental",
+  "nav.install": "Install",
+  "common.see_all_languages": "See all languages →",
+  "footer.languages": "Languages",
+  "footer.translate": "Translate",
+  "footer.open_source_link": "Open source",
+  "languages.hero.eyebrow": "Languages",
+  "languages.hero.headline": "Tournamental, in your language",
+  "languages.hero.intro1": "We're working with native speakers to ship Tournamental in 22 languages by kickoff. First-pass copy is machine-assisted; native-speaker pull requests are how every locale becomes really good.",
+  "languages.hero.intro2": "Tap a language below to switch. Your choice is remembered for a year on this device.",
+  "languages.grid_aria": "Pick a language",
+  "languages.contribute_link": "Help us translate Tournamental into your language"
 }

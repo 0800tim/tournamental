@@ -26,6 +26,7 @@
  *     true full-screen, e.g. the match renderer).
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { AppBar, type AppBarAction } from "./AppBar";
@@ -73,6 +74,7 @@ export function AppShell({
   suppressMicrositeNav,
   embed = false,
 }: AppShellProps) {
+  const t = useTranslations();
   const [menuOpen, setMenuOpen] = useState(false);
   const [autoSubNav, setAutoSubNav] = useState<ReactNode>(null);
 
@@ -125,21 +127,16 @@ export function AppShell({
          * use only; we surface the disclaimer site-wide so it sits on
          * every page that mentions the FIFA World Cup. */}
         <footer className="vt-shell-disclaimer" role="contentinfo">
-          <p>
-            Tournamental is independent and not affiliated with, endorsed
-            by, or sponsored by FIFA. <strong>FIFA World Cup™</strong> and{" "}
-            <strong>FIFA World Cup 2026™</strong> are trademarks of
-            Fédération Internationale de Football Association.
-          </p>
+          <p>{shellSafeT(t, "footer.fifa_disclaimer", "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association.")}</p>
           <p className="vt-shell-disclaimer-links">
-            <a href="/languages">Languages</a>
+            <a href="/languages">{shellSafeT(t, "footer.languages", "Languages")}</a>
             <span aria-hidden> · </span>
             <a
               href="https://github.com/0800tim/tournamental/blob/main/docs/CONTRIBUTING-TRANSLATIONS.md"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Translate
+              {shellSafeT(t, "footer.translate", "Translate")}
             </a>
             <span aria-hidden> · </span>
             <a
@@ -147,7 +144,7 @@ export function AppShell({
               target="_blank"
               rel="noopener noreferrer"
             >
-              Open source
+              {shellSafeT(t, "footer.open_source_link", "Open source")}
             </a>
           </p>
         </footer>
@@ -161,4 +158,19 @@ export function AppShell({
       <AppMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
+}
+
+/** Local safeT used in AppShell. See DesktopNav.safeT for rationale. */
+function shellSafeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
 }

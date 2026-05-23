@@ -16,6 +16,7 @@
  * See docs/60-i18n-architecture.md for the full design.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 
 import {
@@ -24,6 +25,20 @@ import {
   type Locale,
   type LocaleMeta,
 } from "@/i18n/config";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 const COOKIE_NAME = "vt_locale";
 const COOKIE_MAX_AGE_SECONDS = 60 * 60 * 24 * 365; // 1 year
@@ -75,6 +90,7 @@ export interface LocalePickerProps {
 }
 
 export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Element {
+  const t = useTranslations();
   const [open, setOpen] = useState(false);
   const [current, setCurrent] = useState<Locale>(DEFAULT_LOCALE);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -139,10 +155,10 @@ export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Ele
 
   // Group locales by region for the menu.
   const groups: Array<{ id: LocaleMeta["region"]; label: string; items: LocaleMeta[] }> = [
-    { id: "americas", label: "Americas", items: [] },
-    { id: "europe", label: "Europe", items: [] },
-    { id: "asia-pacific", label: "Asia-Pacific", items: [] },
-    { id: "middle-east-africa", label: "Middle East & Africa", items: [] },
+    { id: "americas",           label: safeT(t, "locale_picker.region.americas", "Americas"),                items: [] },
+    { id: "europe",             label: safeT(t, "locale_picker.region.europe", "Europe"),                    items: [] },
+    { id: "asia-pacific",       label: safeT(t, "locale_picker.region.asia-pacific", "Asia-Pacific"),        items: [] },
+    { id: "middle-east-africa", label: safeT(t, "locale_picker.region.middle-east-africa", "Middle East & Africa"), items: [] },
   ];
   for (const meta of LOCALES) {
     const g = groups.find((g) => g.id === meta.region);
@@ -160,7 +176,7 @@ export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Ele
         className="vt-locale-picker-trigger"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label="Choose your language"
+        aria-label={safeT(t, "locale_picker.aria_open", "Choose your language")}
         onClick={() => setOpen((v) => !v)}
       >
         <span className="vt-locale-picker-flag" aria-hidden="true">
@@ -212,7 +228,7 @@ export function LocalePicker({ variant = "appbar" }: LocalePickerProps): JSX.Ele
             ),
           )}
           <p className="vt-locale-picker-footer">
-            <a href="/languages">See all languages →</a>
+            <a href="/languages">{safeT(t, "common.see_all_languages", "See all languages →")}</a>
           </p>
         </div>
       )}
