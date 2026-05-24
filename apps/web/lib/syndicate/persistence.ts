@@ -234,6 +234,7 @@ export class SyndicatePersistence {
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
       CREATE INDEX IF NOT EXISTS idx_syndicates_tier ON syndicates(tier);
       CREATE INDEX IF NOT EXISTS idx_syndicates_owner_user_id ON syndicates(owner_user_id);
+      CREATE INDEX IF NOT EXISTS idx_syndicates_public_created ON syndicates(is_public, created_at DESC);
       CREATE TABLE IF NOT EXISTS syndicate_owners_membership (
         syndicate_id TEXT NOT NULL,
         user_id      TEXT NOT NULL,
@@ -714,6 +715,45 @@ export class SyndicatePersistence {
          ORDER BY created_at DESC`,
       )
       .all(userId) as SyndicateRow[];
+    return rows.map((r) => this.withRealMemberCount(r));
+  }
+
+  /**
+   * List public syndicates for the public pool directory (`/pools`).
+   * Only `is_public = 1` rows; newest first. An optional `search` does a
+   * case-insensitive substring match across name, slug, and topic. Paged
+   * via limit/offset (limit clamped 1..100).
+   */
+  listPublic(opts: { search?: string; limit?: number; offset?: number } = {}): SyndicateRow[] {
+    if (!this.isReady()) return [];
+    const limit = Math.min(Math.max(Math.trunc(opts.limit ?? 60), 1), 100);
+    const offset = Math.max(Math.trunc(opts.offset ?? 0), 0);
+    const search = opts.search?.trim();
+    let rows: SyndicateRow[];
+    if (search) {
+      // Escape LIKE wildcards in user input so "%" / "_" are literal.
+      const like = `%${search.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
+      rows = this.db
+        .prepare(
+          `SELECT * FROM syndicates
+            WHERE is_public = 1
+              AND (name LIKE ? ESCAPE '\\'
+                   OR slug LIKE ? ESCAPE '\\'
+                   OR topic LIKE ? ESCAPE '\\')
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?`,
+        )
+        .all(like, like, like, limit, offset) as SyndicateRow[];
+    } else {
+      rows = this.db
+        .prepare(
+          `SELECT * FROM syndicates
+            WHERE is_public = 1
+            ORDER BY created_at DESC
+            LIMIT ? OFFSET ?`,
+        )
+        .all(limit, offset) as SyndicateRow[];
+    }
     return rows.map((r) => this.withRealMemberCount(r));
   }
 
