@@ -788,7 +788,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         )}
       </dl>
 
-      {split && split.length > 0 ? (
+      {split && split.length > 0 && fee > 0 ? (
         <ol className="vt-share-prize-split" aria-label="Prize split">
           {[...split]
             .sort((a, b) => a.rank - b.rank)
@@ -817,7 +817,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         </ol>
       ) : null}
 
-      {prizeText && !split ? (
+      {prizeText ? (
         <div className="vt-share-prize-award">
           <p className="vt-stat-label">Prize</p>
           <p className="vt-share-prize-copy">{prizeText}</p>
