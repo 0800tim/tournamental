@@ -1,0 +1,220 @@
+/* Public pool directory (/pools). Dark editorial surface + gold accents,
+   matching the share-landing aesthetic. */
+
+.vt-pools {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 32px 20px 96px;
+  color: var(--vt-fg, #e6e6ea);
+}
+
+.vt-pools-head {
+  margin-bottom: 28px;
+}
+.vt-pools-eyebrow {
+  margin: 0 0 8px;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-pools-title {
+  margin: 0 0 10px;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, serif;
+  font-size: clamp(1.9rem, 4vw, 2.8rem);
+  line-height: 1.05;
+  color: var(--vt-fg-strong, #fff);
+}
+.vt-pools-lede {
+  margin: 0 0 18px;
+  max-width: 52ch;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-pools-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+.vt-pools-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7em 1.3em;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  color: #1a1205;
+  background: linear-gradient(180deg, #ffe9a8 0%, #fcd34d 42%, #f59e0b 100%);
+  border: 1px solid #e8a200;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 2px 6px rgba(245, 158, 11, 0.35);
+  transition: transform 160ms ease;
+}
+.vt-pools-cta:hover {
+  transform: translateY(-1px);
+}
+.vt-pools-link {
+  color: var(--vt-fg, #e6e6ea);
+  font-size: 0.95rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: color-mix(in srgb, var(--vt-fg) 35%, transparent);
+}
+.vt-pools-link:hover {
+  color: var(--vt-gold-400, #dca94b);
+}
+
+/* Search bar */
+.vt-pools-searchbar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.vt-pools-search {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.8em 1em;
+  border-radius: 12px;
+  background: var(--vt-bg-elev, #1a1a20);
+  border: 1px solid var(--vt-border, #2a2a31);
+  color: var(--vt-fg, #e6e6ea);
+  font-size: 1rem;
+}
+.vt-pools-search:focus {
+  outline: none;
+  border-color: var(--vt-gold-400, #dca94b);
+}
+.vt-pools-count {
+  flex: 0 0 auto;
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.78rem;
+  color: var(--vt-fg-muted, #a3a3ad);
+  white-space: nowrap;
+}
+
+/* Grid + cards */
+.vt-pools-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+.vt-pool-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  height: 100%;
+  padding: 18px;
+  border-radius: 16px;
+  background: var(--vt-bg-elev, #16161b);
+  border: 1px solid var(--vt-border, #26262c);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.vt-pool-card:hover {
+  border-color: var(--vt-gold-400, #dca94b);
+  transform: translateY(-2px);
+}
+.vt-pool-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vt-pool-card-logo,
+.vt-pool-card-monogram {
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: var(--vt-bg-elev-2, #26262c);
+}
+.vt-pool-card-monogram {
+  display: grid;
+  place-items: center;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-weight: 600;
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-pool-card-titles {
+  min-width: 0;
+}
+.vt-pool-card-name {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.2;
+  color: var(--vt-fg-strong, #fff);
+  overflow-wrap: anywhere;
+}
+.vt-pool-card-tournament {
+  margin: 2px 0 0;
+  font-size: 0.78rem;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-pool-card-blurb {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--vt-fg-muted, #b8b8c0);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.vt-pool-card-foot {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.vt-pool-card-members {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.76rem;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-pool-card-tags {
+  display: inline-flex;
+  gap: 6px;
+}
+.vt-pool-tag {
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+}
+.vt-pool-tag-free {
+  color: var(--vt-fg-muted, #a3a3ad);
+  border-color: var(--vt-border, #2a2a31);
+}
+.vt-pool-tag-prize {
+  color: #1a1205;
+  background: var(--vt-gold-400, #dca94b);
+}
+
+/* Empty state */
+.vt-pools-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 56px 20px;
+  text-align: center;
+  color: var(--vt-fg-muted, #a3a3ad);
+}
+.vt-pools-empty-sub {
+  margin: 0 0 12px;
+  font-size: 0.9rem;
+}

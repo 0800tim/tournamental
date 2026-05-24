@@ -100,9 +100,9 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
     label: "Pools",
     i18nKey: "nav.pools",
-    href: "/syndicates",
+    href: "/pools",
     icon: <GroupsIcon />,
-    matchPrefix: "/syndicates",
+    matchPrefix: "/pools",
   },
 ];
 
