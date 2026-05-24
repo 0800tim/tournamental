@@ -295,7 +295,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
             </a>
           )}
           <a
-            href={`/s/${s.share_guid}`}
+            href={`/s/${s.slug}`}
             target="_blank"
             rel="noreferrer"
             className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
@@ -466,7 +466,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
           </div>
         </div>
         <div className="vt-dash-row-actions">
-          <Link href={`/s/${s.share_guid}`} className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
+          <Link href={`/s/${s.slug}`} className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
             Public page →
           </Link>
           <Link href="/syndicates/playbook" className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
