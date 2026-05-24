@@ -160,6 +160,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   // Whether the authed viewer is already a member of this pool. Drives
   // the CTA: Join (not a member) vs Exit (already a member).
   const [isMember, setIsMember] = useState(false);
+  // The pool owner manages from the dashboard, not the public CTA — hide
+  // Join/Exit for them entirely.
+  const [isOwner, setIsOwner] = useState(false);
 
   // Verify step
   const [code, setCode] = useState("");
@@ -273,8 +276,14 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
           { credentials: "include", signal: ac.signal },
         );
         if (!r.ok) return;
-        const j = (await r.json().catch(() => ({}))) as { is_member?: boolean };
-        if (!ac.signal.aborted) setIsMember(!!j.is_member);
+        const j = (await r.json().catch(() => ({}))) as {
+          is_member?: boolean;
+          is_owner?: boolean;
+        };
+        if (!ac.signal.aborted) {
+          setIsMember(!!j.is_member);
+          setIsOwner(!!j.is_owner);
+        }
       } catch {
         /* best-effort — default to Join on failure */
       }
@@ -706,29 +715,31 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
 
   return (
     <>
-      <button
-        className="vt-share-cta"
-        data-variant={isMember ? "ghost" : "primary"}
-        type="button"
-        onClick={
-          isMember
-            ? () => {
-                setError(null);
-                setStep("exit");
-                setOpen(true);
-              }
-            : handleCtaClick
-        }
-        disabled={busy && isAuthed}
-      >
-        {busy && isAuthed
-          ? isMember
-            ? safeT(t, "join.button_leaving", "Leaving…")
-            : safeT(t, "join.button_joining", "Joining…")
-          : isMember
-            ? safeT(t, "syndicate.cta_exit", "Exit this pool")
-            : safeT(t, "syndicate.cta_join", "Join this pool")}
-      </button>
+      {!isOwner && (
+        <button
+          className="vt-share-cta"
+          data-variant={isMember ? "ghost" : "primary"}
+          type="button"
+          onClick={
+            isMember
+              ? () => {
+                  setError(null);
+                  setStep("exit");
+                  setOpen(true);
+                }
+              : handleCtaClick
+          }
+          disabled={busy && isAuthed}
+        >
+          {busy && isAuthed
+            ? isMember
+              ? safeT(t, "join.button_leaving", "Leaving…")
+              : safeT(t, "join.button_joining", "Joining…")
+            : isMember
+              ? safeT(t, "syndicate.cta_exit", "Exit this pool")
+              : safeT(t, "syndicate.cta_join", "Join this pool")}
+        </button>
+      )}
       {open ? (
         <div
           className="vt-share-modal-backdrop"
