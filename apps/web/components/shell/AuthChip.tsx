@@ -24,7 +24,7 @@
 
 "use client";
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
 

@@ -23,7 +23,7 @@
  * blur and no opaque fill.
  */
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { AuthChip } from "./AuthChip";

@@ -37,7 +37,7 @@
  *     the row is independent of auth state.
  */
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {

@@ -18,7 +18,7 @@
  * internal links reference it; can delete later).
  */
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 
@@ -52,32 +52,11 @@ export default async function HomePage(): Promise<JSX.Element> {
   // The rest of the home page sections will follow as we extract their
   // strings into the catalogue. The hero is the visitor's first paint
   // so it carries the biggest visible language change.
-  const [
-    headlineA,
-    ctaPredict,
-    ctaPool,
-    lede,
-    ledeLink,
-    readMore,
-    countdownEyebrow,
-    countdownTitle,
-    statMatches,
-    statTeams,
-    statPerfectBrackets,
-    statClaimToGlory,
-    finalHeadline,
-    finalQ1Title, finalQ1Body,
-    finalQ2Title, finalQ2Body,
-    finalQ3Title, finalQ3Body,
-    finalCtaPrimary, finalCtaSecondary,
-  ] = await Promise.all([
+  const keys = await Promise.all([
     safeT("home.hero.headline_a", "Can you predict the entire World Cup?"),
     safeT("home.hero.cta_predict", "Set my picks"),
     safeT("home.hero.cta_pool", "Run a pool"),
-    safeT(
-      "home.hero.lede",
-      "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed.",
-    ),
+    safeT("home.hero.lede", "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed."),
     safeT("home.hero.lede_link", "odds of getting all 104 matches right"),
     safeT("home.hero.read_more", "[read more]"),
     safeT("countdown.eyebrow", "Kickoff"),
@@ -86,6 +65,47 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.stat.teams", "Teams"),
     safeT("home.stat.perfect_brackets", "Perfect brackets"),
     safeT("home.stat.claim_to_glory", "Claim to glory"),
+    safeT("home.step1.tag", "Step 1 · Today"),
+    safeT("home.step1.headline", "Set your picks now."),
+    safeT("home.step1.lede", "104 matches, 48 teams, one bracket. Pick winners, draw amounts, and group standings. Save once, then tweak every match right up until kickoff. Earlier saves earn a bigger multiplier; lock everything in when you're ready and watch your prediction IQ climb."),
+    safeT("home.step1.b1_strong", "Change picks until kickoff."),
+    safeT("home.step1.b1_body", "Unlike Telegraph, ESPN, or Yahoo, nothing locks at the first whistle. Every match is its own decision."),
+    safeT("home.step1.b2_strong", "Early-save multiplier."),
+    safeT("home.step1.b2_body", "Call Argentina to win the final today and the points are worth more than calling it the night before."),
+    safeT("home.step1.b3_strong", "Punter IQ ladder."),
+    safeT("home.step1.b3_body", "Each prediction is timestamped and signed (a VStamp). Your record is yours, transferable across syndicates."),
+    safeT("home.step1.cta", "Build my bracket"),
+    safeT("home.step2.tag", "Step 2 · Bring your friends"),
+    safeT("home.step2.headline", "Run a pool. Brand it your way."),
+    safeT("home.step2.claim", "The only World Cup prediction platform where anyone can launch a fully branded, embeddable pool with custom prize splits and verifiable on-chain settlement, in minutes."),
+    safeT("home.step2.lede", "A pool is your own branded prediction pool. Pick a name, drop the embed widget on any site (Squarespace, WordPress, Shopify, your blog), and run a six-week sweepstake for your audience. Set an entry fee and prize splits, or keep it free for bragging rights. Tournamental never touches the money."),
+    safeT("home.step2.cta_note", "See the embed widget, snippet, and prize-split mechanics on the pools page."),
+    safeT("home.tier_free.tag", "Free forever"),
+    safeT("home.tier_free.name", "Branded embed widget"),
+    safeT("home.tier_free.b1", "Drop one snippet on any site, any CMS"),
+    safeT("home.tier_free.b2", "Brand it with your logo, colours, prize copy"),
+    safeT("home.tier_free.b3", "Country + city + global leaderboard slices"),
+    safeT("home.tier_free.b4", "Off-platform entry money (you handle the cash)"),
+    safeT("home.tier_free.b5", "Sponsor block on every share card"),
+    safeT("home.tier_free.cta", "Start free in 60 seconds"),
+    safeT("home.tier_premium.tag_prefix", "Premium · powered by"),
+    safeT("home.tier_premium.price_sub", "/ month + usage"),
+    safeT("home.tier_premium.b1", "Everything in Free"),
+    safeT("home.tier_premium.b2", "Fully-managed HighLevel CRM sub-account"),
+    safeT("home.tier_premium.b3", "Your own phone number for SMS + WhatsApp at scale"),
+    safeT("home.tier_premium.b4", "Stripe Checkout for paid entries (funds to your bank)"),
+    safeT("home.tier_premium.b5", "Subdomain hosting + footer-free embed"),
+    safeT("home.tier_premium.cta", "See what premium unlocks"),
+    safeT("home.tier_aside", "Premium tier is delivered by Aiva, our CRM and messaging partner. Tournamental never handles entry fees or prize money."),
+    safeT("home.features.headline", "Why people stay"),
+    safeT("home.features.f1_title", "Verifiable predictions"),
+    safeT("home.features.f1_body", "Every pick gets a cryptographic VStamp before kickoff. Your record is portable, public, and yours for life."),
+    safeT("home.features.f2_title", "Free, open, no lock-in"),
+    safeT("home.features.f2_body", "Apache 2.0 code, CC-BY docs, contributor revenue share via Drips. Fork it, host it yourself, or stay with us."),
+    safeT("home.features.f3_title", "Daily engagement"),
+    safeT("home.features.f3_body", "Match-day quizzes, line bets, score-input games via the Telegram bot. Six weeks of touchpoints, not five minutes of form-fill."),
+    safeT("home.features.f4_title", "Built on global data"),
+    safeT("home.features.f4_body", "StatsBomb open data, Polymarket odds, public team data. We pay our data sources; they share in upside."),
     safeT("home.final.headline", "Three steps. Five minutes. Free."),
     safeT("home.final.q1_title", "Set your picks"),
     safeT("home.final.q1_body", "Open the bracket, save your World Cup. Takes about five minutes the first time."),
@@ -96,6 +116,20 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.final.cta_primary", "Set your picks now"),
     safeT("home.final.cta_secondary", "Run a pool"),
   ]);
+  const [
+    headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
+    countdownEyebrow, countdownTitle,
+    statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
+    step1Tag, step1Headline, step1Lede,
+    step1B1Strong, step1B1Body, step1B2Strong, step1B2Body, step1B3Strong, step1B3Body, step1Cta,
+    step2Tag, step2Headline, step2Claim, step2Lede, step2CtaNote,
+    tierFreeTag, tierFreeName, tierFreeB1, tierFreeB2, tierFreeB3, tierFreeB4, tierFreeB5, tierFreeCta,
+    tierPremiumTagPrefix, tierPremiumPriceSub, tierPremiumB1, tierPremiumB2, tierPremiumB3, tierPremiumB4, tierPremiumB5, tierPremiumCta,
+    tierAside,
+    featHead, feat1T, feat1B, feat2T, feat2B, feat3T, feat3B, feat4T, feat4B,
+    finalHeadline, finalQ1Title, finalQ1Body, finalQ2Title, finalQ2Body, finalQ3Title, finalQ3Body,
+    finalCtaPrimary, finalCtaSecondary,
+  ] = keys;
 
   // Split the lede on the {odds_link} placeholder so we can interpolate
   // the inline <Link>. Falls back gracefully when the placeholder is
@@ -183,31 +217,17 @@ export default async function HomePage(): Promise<JSX.Element> {
             on first paint; the wrapper only opts in once the section
             crosses the viewport edge. Reduced motion makes it a no-op. */}
         <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
-          <div className="vt-home-step-tag">Step 1 · Today</div>
-          <h2 className="vt-home-h2">Set your picks now.</h2>
-          <p className="vt-home-p">
-            104 matches, 48 teams, one bracket. Pick winners, draw amounts, and group
-            standings. Save once, then tweak every match right up until kickoff. Earlier
-            saves earn a bigger multiplier; lock everything in when you're ready and watch
-            your prediction IQ climb.
-          </p>
+          <div className="vt-home-step-tag">{step1Tag}</div>
+          <h2 className="vt-home-h2">{step1Headline}</h2>
+          <p className="vt-home-p">{step1Lede}</p>
           <ul className="vt-home-bullets">
-            <li>
-              <strong>Change picks until kickoff.</strong> Unlike Telegraph, ESPN, or
-              Yahoo, nothing locks at the first whistle. Every match is its own decision.
-            </li>
-            <li>
-              <strong>Early-save multiplier.</strong> Call Argentina to win the final
-              today and the points are worth more than calling it the night before.
-            </li>
-            <li>
-              <strong>Punter IQ ladder.</strong> Each prediction is timestamped and
-              signed (a VStamp). Your record is yours, transferable across syndicates.
-            </li>
+            <li><strong>{step1B1Strong}</strong> {step1B1Body}</li>
+            <li><strong>{step1B2Strong}</strong> {step1B2Body}</li>
+            <li><strong>{step1B3Strong}</strong> {step1B3Body}</li>
           </ul>
           <div className="vt-home-cta-row">
             <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
-              Build my bracket →
+              {step1Cta} →
             </Link>
           </div>
         </RevealOnScroll>
@@ -219,51 +239,40 @@ export default async function HomePage(): Promise<JSX.Element> {
 
         {/* ============== STEP 2 — SYNDICATES (FRONT AND CENTRE) ============== */}
         <RevealOnScroll as="section" className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
-          <div className="vt-home-step-tag vt-home-step-tag-headline">Step 2 · Bring your friends</div>
-          <h2 className="vt-home-h2">Run a pool. Brand it your way.</h2>
-          <p className="vt-home-claim">
-            The only World Cup prediction platform where anyone can launch a fully
-            branded, embeddable syndicate with custom prize splits and verifiable
-            on-chain settlement — in minutes.
-          </p>
-          <p className="vt-home-p">
-            A pool is your own branded prediction pool. Pick a name, drop the embed
-            widget on any site (Squarespace, WordPress, Shopify, your blog), and run a
-            six-week sweepstake for your audience. Set an entry fee and prize splits, or
-            keep it free for bragging rights. Tournamental never touches the money.
-          </p>
+          <div className="vt-home-step-tag vt-home-step-tag-headline">{step2Tag}</div>
+          <h2 className="vt-home-h2">{step2Headline}</h2>
+          <p className="vt-home-claim">{step2Claim}</p>
+          <p className="vt-home-p">{step2Lede}</p>
 
           <div className="vt-home-demo-cta">
             <Link
               href="/syndicates"
               className="vt-home-btn vt-home-btn-light vt-home-demo-cta-btn"
             >
-              Run a pool
+              {ctaPool}
             </Link>
-            <p className="vt-home-demo-cta-note">
-              See the embed widget, snippet, and prize-split mechanics on the pools page.
-            </p>
+            <p className="vt-home-demo-cta-note">{step2CtaNote}</p>
           </div>
 
           {/* Tiered pitch */}
           <div className="vt-home-tiers">
             <div className="vt-home-tier">
-              <span className="vt-home-tier-tag">Free forever</span>
-              <h3 className="vt-home-tier-name">Branded embed widget</h3>
+              <span className="vt-home-tier-tag">{tierFreeTag}</span>
+              <h3 className="vt-home-tier-name">{tierFreeName}</h3>
               <ul className="vt-home-tier-list">
-                <li>Drop one snippet on any site, any CMS</li>
-                <li>Brand it with your logo, colours, prize copy</li>
-                <li>Country + city + global leaderboard slices</li>
-                <li>Off-platform entry money (you handle the cash)</li>
-                <li>Sponsor block on every share card</li>
+                <li>{tierFreeB1}</li>
+                <li>{tierFreeB2}</li>
+                <li>{tierFreeB3}</li>
+                <li>{tierFreeB4}</li>
+                <li>{tierFreeB5}</li>
               </ul>
               <Link href="/pools/new" className="vt-home-btn vt-home-btn-primary vt-home-btn-block">
-                Start free in 60 seconds →
+                {tierFreeCta} →
               </Link>
             </div>
             <div className="vt-home-tier vt-home-tier-premium">
               <span className="vt-home-tier-tag vt-home-tier-tag-premium">
-                Premium · powered by{" "}
+                {tierPremiumTagPrefix}{" "}
                 <a
                   href="https://growthspurt.agency"
                   target="_blank"
@@ -273,44 +282,42 @@ export default async function HomePage(): Promise<JSX.Element> {
                   Growth Spurt
                 </a>
               </span>
-              <h3 className="vt-home-tier-name">$97 <span className="vt-home-tier-price-sub">/ month + usage</span></h3>
+              <h3 className="vt-home-tier-name">$97 <span className="vt-home-tier-price-sub">{tierPremiumPriceSub}</span></h3>
               <ul className="vt-home-tier-list">
-                <li>Everything in Free</li>
-                <li>Fully-managed HighLevel CRM sub-account</li>
-                <li>Your own phone number for SMS + WhatsApp at scale</li>
-                <li>Stripe Checkout for paid entries (funds to your bank)</li>
-                <li>Subdomain hosting + footer-free embed</li>
+                <li>{tierPremiumB1}</li>
+                <li>{tierPremiumB2}</li>
+                <li>{tierPremiumB3}</li>
+                <li>{tierPremiumB4}</li>
+                <li>{tierPremiumB5}</li>
               </ul>
               <Link href="/pools#pricing" className="vt-home-btn vt-home-btn-ghost vt-home-btn-block">
-                See what premium unlocks
+                {tierPremiumCta}
               </Link>
             </div>
           </div>
 
-          <p className="vt-home-aside">
-            Premium tier is delivered by <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-home-link">Aiva</a>, our CRM and messaging partner. Tournamental never handles entry fees or prize money.
-          </p>
+          <p className="vt-home-aside">{tierAside}</p>
         </RevealOnScroll>
 
         {/* ============== FEATURES STRIP ============== */}
         <RevealOnScroll as="section" className="vt-home-section">
-          <h2 className="vt-home-h2 vt-home-h2-centred">Why people stay</h2>
+          <h2 className="vt-home-h2 vt-home-h2-centred">{featHead}</h2>
           <div className="vt-home-feature-grid">
             <div className="vt-home-feature">
-              <h3>Verifiable predictions</h3>
-              <p>Every pick gets a cryptographic VStamp before kickoff. Your record is portable, public, and yours for life.</p>
+              <h3>{feat1T}</h3>
+              <p>{feat1B}</p>
             </div>
             <div className="vt-home-feature">
-              <h3>Free, open, no lock-in</h3>
-              <p>Apache 2.0 code, CC-BY docs, contributor revenue share via Drips. Fork it, host it yourself, or stay with us.</p>
+              <h3>{feat2T}</h3>
+              <p>{feat2B}</p>
             </div>
             <div className="vt-home-feature">
-              <h3>Daily engagement</h3>
-              <p>Match-day quizzes, line bets, score-input games via the Telegram bot. Six weeks of touchpoints, not five minutes of form-fill.</p>
+              <h3>{feat3T}</h3>
+              <p>{feat3B}</p>
             </div>
             <div className="vt-home-feature">
-              <h3>Built on global data</h3>
-              <p>StatsBomb open data, Polymarket odds, public team data. We pay our data sources; they share in upside.</p>
+              <h3>{feat4T}</h3>
+              <p>{feat4B}</p>
             </div>
           </div>
         </RevealOnScroll>

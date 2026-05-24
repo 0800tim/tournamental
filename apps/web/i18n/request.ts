@@ -40,15 +40,23 @@ async function loadMessages(locale: Locale): Promise<Messages> {
 }
 
 function resolveLocale(): Locale {
+  // 1. Middleware-set request header (set on every URL-prefixed visit
+  //    so /es/foo always wins, even before the cookie roundtrip).
+  const h = headers();
+  const fromMiddleware = h.get("x-vt-locale");
+  if (isSupportedLocale(fromMiddleware)) return fromMiddleware;
+
+  // 2. Existing vt_locale cookie (user already picked).
   const cookieStore = cookies();
   const fromCookie = cookieStore.get("vt_locale")?.value;
   if (isSupportedLocale(fromCookie)) return fromCookie;
 
-  const h = headers();
+  // 3. Cloudflare country → locale fallback.
   const cf = h.get("cf-ipcountry");
   const fromCountry = localeForCountry(cf);
   if (fromCountry) return fromCountry;
 
+  // 4. Accept-Language.
   const accept = h.get("accept-language") ?? "";
   const fromAccept = pickFromAcceptLanguage(accept);
   if (fromAccept) return fromAccept;

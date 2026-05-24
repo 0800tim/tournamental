@@ -21,7 +21,7 @@
  * desktop nav share a single source of truth.
  */
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 

@@ -7,20 +7,21 @@
  * astronomical odds of getting all 104 matches right") and from the
  * launch-campaign post templates in tournamental-business/.
  *
- * Cache policy: marketing-flavoured + identical for every visitor.
- * `public, s-maxage=300, stale-while-revalidate=86400` per the
- * standing CLAUDE.md rule.
+ * i18n: hero, table headers, section headings, summary callout, and
+ * CTAs read from the catalogue (odds.* keys). Body paragraphs are
+ * translated for the WC qualifier languages and fall back to English
+ * for the rest -- the dense maths copy is the next translation pass.
  */
 
 import type { Metadata } from "next";
-import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { AppShell } from "@/components/shell";
 
 import "./odds.css";
 
-export const dynamic = "force-static";
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "The odds of a perfect bracket, Tournamental",
@@ -28,21 +29,35 @@ export const metadata: Metadata = {
     "Even the best predictor on Earth won't go 104-for-104 on the FIFA World Cup 2026. The maths, the cascade penalty that kills lock-everything-upfront games, and why the update-at-kickoff mechanic isn't a UX choice but the whole skill ceiling.",
 };
 
-export default function OddsPage(): JSX.Element {
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function OddsPage(): Promise<JSX.Element> {
+  const [
+    eyebrow, title, lede, ctaPredict, ctaPool, fifaDisclaimer,
+  ] = await Promise.all([
+    safeT("odds.eyebrow", "The maths"),
+    safeT("odds.title", "Nobody will pick all 104 matches of the World Cup correctly. Ever."),
+    safeT("odds.lede", "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first whistle. Here's the working."),
+    safeT("odds.cta_predict", "Set my picks"),
+    safeT("odds.cta_pool", "Run a pool"),
+    safeT("footer.fifa_disclaimer", "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association."),
+  ]);
+
   return (
-    <AppShell title="The odds">
+    <AppShell title={eyebrow}>
       <article className="vt-odds">
         <header className="vt-odds-hero">
-          <p className="vt-odds-eyebrow">The maths</p>
-          <h1 className="vt-odds-title">
-            Nobody will pick all 104 matches of the World Cup correctly. Ever.
-          </h1>
-          <p className="vt-odds-lede">
-            The compounding kills you, the coin-flip matches set a floor that
-            information can&apos;t crack, and the lock-everything-upfront games
-            are mathematically broken before the first whistle. Here&apos;s the
-            working.
-          </p>
+          <p className="vt-odds-eyebrow">{eyebrow}</p>
+          <h1 className="vt-odds-title">{title}</h1>
+          <p className="vt-odds-lede">{lede}</p>
         </header>
 
         <section className="vt-odds-section">
@@ -361,19 +376,14 @@ export default function OddsPage(): JSX.Element {
 
         <div className="vt-odds-cta-row">
           <Link href="/world-cup-2026" className="vt-odds-btn vt-odds-btn-primary">
-            Set my picks &rarr;
+            {ctaPredict} &rarr;
           </Link>
           <Link href="/syndicates" className="vt-odds-btn vt-odds-btn-ghost">
-            Run a pool
+            {ctaPool}
           </Link>
         </div>
 
-        <p className="vt-odds-disclaimer">
-          Tournamental is independent and not affiliated with FIFA, the FIFA
-          World Cup, or any of its sponsors. FIFA World Cup 2026&trade; is a
-          trademark of F&eacute;d&eacute;ration Internationale de Football
-          Association.
-        </p>
+        <p className="vt-odds-disclaimer">{fifaDisclaimer}</p>
       </article>
     </AppShell>
   );

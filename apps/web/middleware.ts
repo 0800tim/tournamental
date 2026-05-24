@@ -149,7 +149,32 @@ function withLocaleHint(req: NextRequest): NextResponse {
     const rewrittenPath = path.slice(fromPrefix.length + 1) || "/";
     const rewriteUrl = new URL(req.url);
     rewriteUrl.pathname = rewrittenPath;
-    const res = NextResponse.rewrite(rewriteUrl);
+    // Forward the locale to downstream server components via BOTH a
+    // request header (so getRequestConfig sees it this request) AND
+    // the response cookie (so future bare-URL visits keep the lang).
+    // Without the header path, the rewrite would arrive at the RSC
+    // with the visitor's pre-existing cookie value (or none), and
+    // getMessages() would ship the wrong catalogue, producing a
+    // visible "I picked Spanish and got English" bug -- exactly what
+    // Tim saw 2026-05-24.
+    const reqHeaders = new Headers(req.headers);
+    reqHeaders.set("x-vt-locale", fromPrefix);
+    // Patch the Cookie header too so libs that read cookies via the
+    // raw header (rather than next/headers cookies()) also see the
+    // current pick.
+    const existingCookie = reqHeaders.get("cookie") ?? "";
+    const stripped = existingCookie
+      .split(";")
+      .map((c) => c.trim())
+      .filter((c) => c && !c.startsWith("vt_locale="))
+      .join("; ");
+    reqHeaders.set(
+      "cookie",
+      stripped ? `${stripped}; vt_locale=${fromPrefix}` : `vt_locale=${fromPrefix}`,
+    );
+    const res = NextResponse.rewrite(rewriteUrl, {
+      request: { headers: reqHeaders },
+    });
     res.cookies.set("vt_locale", fromPrefix, {
       path: "/",
       domain: ".tournamental.com",
