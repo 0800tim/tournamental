@@ -134,8 +134,21 @@
 .vt-home-hero-ctas {
   display: flex;
   flex-direction: row;
+  flex-wrap: wrap;
   gap: 10px;
   width: 100%;
+}
+
+/* Long translations (German "Meine Tipps abgeben", Māori
+ * "Whakatūria he puna" etc.) were spilling off the right edge on
+ * narrow phones. Cap the min-width and let the button text wrap rather
+ * than overflowing the viewport (Tim 2026-05-24). */
+.vt-home-hero-ctas > a {
+  min-width: 0;
+  flex: 1 1 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 @media (min-width: 880px) {
@@ -163,11 +176,18 @@
   font-variation-settings: "opsz" 144, "SOFT" 30;
   font-weight: 500;
   letter-spacing: -0.02em;
-  font-size: clamp(40px, 8vw, 96px);
-  line-height: 0.96;
+  /* Drop the lower bound for long translations -- German "Kannst du die
+   * gesamte WM tippen?" and Māori "Ka taea e koe te matapae i te Ipu
+   * Whutuporo o te Ao katoa?" were cropping on the right edge of narrow
+   * phones (Tim 2026-05-24). The clamp top stays at 96px so English /
+   * Spanish hero impact is unchanged. */
+  font-size: clamp(32px, 7.2vw, 96px);
+  line-height: 1.02;
   color: #ffffff;
   margin: 0 0 24px;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);
+  overflow-wrap: anywhere;
+  hyphens: auto;
 }
 
 .vt-home-hero-line {

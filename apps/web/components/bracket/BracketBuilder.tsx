@@ -30,6 +30,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 
 import {
   cascade,
@@ -83,6 +84,18 @@ import type { StageId } from "@tournamental/bracket-engine";
 
 const KO_PICK_STAGES: readonly StageId[] = ["r32", "r16", "qf", "sf", "tp", "f"] as const;
 
+// Helper to build translated TABS array
+function getTabs(t: ReturnType<typeof useTranslations>): readonly TabMeta[] {
+  return [
+    { id: "groups", label: t("tab_groups"), hash: "#groups", aria: t("tab_aria_groups") },
+    { id: "r32", label: t("tab_r32"), hash: "#r32", aria: t("tab_aria_r32") },
+    { id: "r16", label: t("tab_r16"), hash: "#r16", aria: t("tab_aria_r16") },
+    { id: "qf", label: t("tab_qf"), hash: "#qf", aria: t("tab_aria_qf") },
+    { id: "sf", label: t("tab_sf"), hash: "#sf", aria: t("tab_aria_sf") },
+    { id: "final", label: t("tab_final"), hash: "#final", aria: t("tab_aria_final") },
+  ];
+}
+
 export interface BracketBuilderProps {
   readonly tournament: Tournament;
 }
@@ -102,7 +115,9 @@ interface TabMeta {
   readonly aria: string;
 }
 
-const TABS: readonly TabMeta[] = [
+// Note: TABS is now populated dynamically with translations in the component
+// This placeholder is kept for reference; see getTabs() below.
+const TABS_STATIC: readonly TabMeta[] = [
   { id: "groups", label: "Groups", hash: "#groups", aria: "Group stage matches" },
   { id: "r32", label: "R32", hash: "#r32", aria: "Round of 32" },
   { id: "r16", label: "R16", hash: "#r16", aria: "Round of 16" },
@@ -118,8 +133,8 @@ function hashToTab(raw: string | undefined | null): TabId {
   // don't drop the user on a 404-feeling blank tab.
   if (cleaned === "knockouts") return "r32";
   if (cleaned === "lock") return "final";
-  const found = TABS.find((t) => t.id === cleaned);
-  return found ? found.id : "groups";
+  const validTabs: readonly TabId[] = ["groups", "r32", "r16", "qf", "sf", "final"];
+  return (validTabs as readonly string[]).includes(cleaned) ? (cleaned as TabId) : "groups";
 }
 
 function emptyBracket(): Bracket {
@@ -158,6 +173,7 @@ function knockoutCountFor(
 
 export function BracketBuilder(props: BracketBuilderProps) {
   const { tournament } = props;
+  const t = useTranslations("bracket");
   // Identity hierarchy for bracket ownership:
   //   1. Authed `tnm_session` user id (e.g. `u_<22 hex>`) when signed in.
   //      Game-service verifies the cookie + stores brackets under this id,
@@ -189,6 +205,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [tab, setTabState] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
+
+  // Build translated tabs once
+  const tabs = useMemo(() => getTabs(t), [t]);
   const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
   // SignupModal trigger + "save once the user signs in" handoff. Tim
   // 2026-05-21: when an anonymous player finishes their 104 picks and
@@ -264,7 +283,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const setTab = useCallback((next: TabId) => {
     setTabState(next);
     if (typeof window === "undefined") return;
-    const target = TABS.find((t) => t.id === next)?.hash ?? "#groups";
+    const target = tabs.find((t) => t.id === next)?.hash ?? "#groups";
     // Use history.replaceState so we don't pollute the back stack on
     // every tab nudge; we still fire a synthetic hashchange so any
     // sibling components listening pick it up.
@@ -308,7 +327,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         const nextTab = TAB_ORDER[clamped]!;
         setTabState((cur) => {
           if (cur === nextTab) return cur;
-          const target = TABS.find((t) => t.id === nextTab)?.hash ?? "#groups";
+          const target = tabs.find((t) => t.id === nextTab)?.hash ?? "#groups";
           if (typeof window !== "undefined" && window.location.hash !== target) {
             const url = `${window.location.pathname}${window.location.search}${target}`;
             window.history.replaceState(null, "", url);
@@ -968,7 +987,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (matches.length === 0) {
       return (
         <p className="bracket-empty-state">
-          Make your group-stage picks first, slots fill in here as you pick.
+          {t("empty_state")}
         </p>
       );
     }
@@ -982,9 +1001,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
           {sf.length > 0 && (
             <section
               className="bracket-round-subgroup"
-              aria-label="Semi-finals"
+              aria-label={t("round_header_sf")}
             >
-              <h3 className="bracket-round-subgroup-title">Semi-finals</h3>
+              <h3 className="bracket-round-subgroup-title">{t("round_header_sf")}</h3>
               <div className="bracket-round-grid">
                 {sf.map((k) => (
                   <KnockoutMatch
@@ -1002,9 +1021,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
           {tp.length > 0 && (
             <section
               className="bracket-round-subgroup"
-              aria-label="3rd-place play-off"
+              aria-label={t("round_header_tp")}
             >
-              <h3 className="bracket-round-subgroup-title">3rd-place play-off</h3>
+              <h3 className="bracket-round-subgroup-title">{t("round_header_tp")}</h3>
               <div className="bracket-round-grid">
                 {tp.map((k) => (
                   <KnockoutMatch
@@ -1044,7 +1063,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     <div className="bracket-builder">
       <header className="bracket-header">
         <h1>
-          Call <em>every match</em> of the {tournament.name}.
+          {t("title")}
           {punditStatus.verified && (
             <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
               <PunditBadge status={punditStatus} size={20} />
@@ -1052,11 +1071,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
           )}
         </h1>
         <p>
-          Group standings update live from your picks. Save each pick before
-          its match kicks off; you can edit any call right up to the whistle.
+          {t("subtitle")}
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
-          <strong>{totalCompleted}</strong> of {totalPicks} matches picked
+          <strong>{totalCompleted}</strong> {t("progress_of")} {totalPicks} {t("progress_label")}
         </p>
       </header>
 
@@ -1075,13 +1093,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
           type="button"
           className="bracket-autopick-cta"
           onClick={() => setShowAutoPickConfirm(true)}
-          aria-label="Auto-pick from live odds"
+          aria-label={t("autopick_aria")}
           aria-describedby="bracket-autopick-subtitle"
-          title="Auto-pick every match: Polymarket odds for groups, world ranking for knockouts"
+          title={t("autopick_title_attr")}
           disabled={autoPickDisabled}
         >
           <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
-          <span className="bracket-autopick-cta-label">Auto-pick</span>
+          <span className="bracket-autopick-cta-label">{t("autopick_cta")}</span>
         </button>
         <p
           id="bracket-autopick-subtitle"
@@ -1095,9 +1113,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
         className="bracket-tabs"
         data-testid="bracket-tabs"
         role="tablist"
-        aria-label="Bracket rounds"
+        aria-label={t("tab_aria_groups")}
       >
-        {TABS.map((t) => {
+        {tabs.map((t) => {
           const p = progressByTab[t.id];
           const isActive = tab === t.id;
           return (
@@ -1155,9 +1173,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 className="bracket-panel bracket-groups-section bracket-stage-panel"
               >
                 <div className="bracket-round-header">
-                  <h2>Group stage</h2>
+                  <h2>{t("round_header_group")}</h2>
                   <span className="bracket-round-progress">
-                    <strong>{groupProgress.picked}</strong> of {groupProgress.total} matches picked
+                    <strong>{groupProgress.picked}</strong> {t("progress_of")} {groupProgress.total} {t("round_progress")}
                   </span>
                 </div>
                 <div
@@ -1195,9 +1213,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 className="bracket-panel bracket-final-section bracket-stage-panel"
               >
                 <div className="bracket-round-header">
-                  <h2>Final</h2>
+                  <h2>{t("round_header_final")}</h2>
                   <span className="bracket-round-progress">
-                    <strong>{finalProgress.picked}</strong> of {finalProgress.total} picked
+                    <strong>{finalProgress.picked}</strong> {t("progress_of")} {finalProgress.total} {t("round_progress")}
                   </span>
                 </div>
                 <div className="bracket-final-layout">
@@ -1259,7 +1277,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 </div>
                 <div className="bracket-lock-counts">
                   <div>
-                    <strong>{completedGroupMatches}</strong> / {totalGroupMatches} group matches
+                    <strong>{completedGroupMatches}</strong> / {totalGroupMatches} {t("round_header_group").toLowerCase()}
                   </div>
                   <div>
                     <strong>{completedKnockouts}</strong> / {totalKnockouts} knockout picks
@@ -1281,20 +1299,18 @@ export function BracketBuilder(props: BracketBuilderProps) {
                     onClick={handleSubmit}
                     className="bracket-btn bracket-btn-primary"
                   >
-                    Save bracket
+                    {t("save_button")}
                   </button>
                   {submitState && <span className="bracket-submit-state">{submitState}</span>}
                 </div>
                 <p className="bracket-final-note">
-                  You can change any pick right up until that match kicks off. Saving
-                  now lets you share your bracket and locks in your odds-at-pick for
-                  scoring.
+                  {t("final_note")}
                 </p>
               </section>
             );
           }
           // r32 / r16 / qf / sf knockout rounds.
-          const meta = TABS.find((t) => t.id === panelId);
+          const meta = tabs.find((t) => t.id === panelId);
           return (
             <section
               key={panelId}
@@ -1306,12 +1322,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
               <div className="bracket-round-header">
                 <h2>{meta?.aria ?? "Knockouts"}</h2>
                 <span className="bracket-round-progress">
-                  <strong>{progressByTab[panelId].picked}</strong> of {progressByTab[panelId].total} picked
+                  <strong>{progressByTab[panelId].picked}</strong> {t("progress_of")} {progressByTab[panelId].total} {t("round_progress")}
                 </span>
               </div>
               <p className="bracket-round-help">
-                Tap the team you predict will advance. Slots fill in as you finish
-                the previous round.
+                {t("round_help_knockout")}
               </p>
               <div
                 className="km-pinch-wrap"
@@ -1356,18 +1371,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
         >
           <div className="bracket-modal">
             <h2 id="autopick-confirm-title" className="bracket-modal-title">
-              ⚡ Auto-pick the favourite for every match?
+              ⚡ {t("modal_title_autopick_confirm")}
             </h2>
             <p className="bracket-modal-body">
-              Auto-pick uses live Polymarket odds for the group stage. The
-              knockout rounds don&apos;t have Polymarket markets open yet
-              (matchups aren&apos;t known until groups conclude), so those
-              fall back to world ranking. <strong>Your existing picks will
-              be overwritten.</strong>
+              {t("modal_body_autopick_confirm")}
             </p>
             <p className="bracket-modal-body">
-              You can change any pick afterwards, auto-pick is a starting
-              point, not a final answer. Picks save as you tweak them.
+              {t("modal_body_autopick_confirm_2")}
             </p>
             <div className="bracket-modal-actions">
               <button
@@ -1375,7 +1385,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 className="bracket-btn bracket-btn-secondary"
                 onClick={() => setShowAutoPickConfirm(false)}
               >
-                Cancel
+                {t("modal_cta_cancel")}
               </button>
               <button
                 type="button"
@@ -1383,7 +1393,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 onClick={handleAutoPick}
                 autoFocus
               >
-                Yes, auto-pick favourites
+                {t("modal_cta_confirm")}
               </button>
             </div>
           </div>
@@ -1418,9 +1428,11 @@ function NextStageButton({
   currentTab: TabId;
   setTab: (id: TabId) => void;
 }) {
+  const t = useTranslations("bracket");
+  const tabs = useMemo(() => getTabs(t), [t]);
   const next = NEXT_STAGE[currentTab];
   if (!next) return null;
-  const meta = TABS.find((t) => t.id === next);
+  const meta = tabs.find((t) => t.id === next);
   // `aria` is the full human label ("Round of 32", "Quarter-finals" etc).
   const label = meta?.aria ?? meta?.label ?? "Next";
   return (
@@ -1520,6 +1532,7 @@ function SaveBracketPanel({
    *  champion" placeholder (Tim 2026-05-24). */
   championName: string | null;
 }) {
+  const t = useTranslations("bracket");
   const complete = totalCompleted >= totalPicks;
   const remaining = Math.max(0, totalPicks - totalCompleted);
   const isAuthed = !authLoading && authStatus === "authenticated";
@@ -1563,7 +1576,7 @@ function SaveBracketPanel({
     return (
       <div className="bracket-save-panel" data-state="incomplete">
         <p className="bracket-save-panel-hint">
-          <strong>{remaining}</strong> {remaining === 1 ? "more pick" : "more picks"} to lock in your bracket and share.
+          <strong>{remaining}</strong> {remaining === 1 ? t("save_incomplete_singular") : t("save_incomplete_plural")} to lock in your bracket and share.
         </p>
       </div>
     );
@@ -1574,7 +1587,7 @@ function SaveBracketPanel({
       <div className="bracket-save-panel" data-state="saved">
         <div className="bracket-save-panel-headline">
           <span className="bracket-save-panel-tick" aria-hidden="true">✓</span>
-          <span>Bracket saved. You can edit any pick before kickoff.</span>
+          <span>{t("save_saved_headline")}</span>
         </div>
         <div className="bracket-save-panel-actions">
           <button
@@ -1584,18 +1597,18 @@ function SaveBracketPanel({
             disabled={!shareUrl}
           >
             <span aria-hidden="true">↗</span>
-            <span>Share my bracket</span>
+            <span>{t("save_share_button")}</span>
           </button>
           <a
             className="bracket-save-panel-cta-secondary"
             href="/profile"
           >
             <span aria-hidden="true">📷</span>
-            <span>Upload a profile photo</span>
+            <span>{t("save_profile_button")}</span>
           </a>
         </div>
         <p className="bracket-save-panel-foot">
-          Add a profile photo so your friends can spot you on the leaderboard.
+          {t("save_profile_hint")}
         </p>
       </div>
     );
@@ -1606,7 +1619,7 @@ function SaveBracketPanel({
     <div className="bracket-save-panel" data-state="ready">
       <div className="bracket-save-panel-headline">
         <span className="bracket-save-panel-tick" aria-hidden="true">🏆</span>
-        <span>All 104 picks made. Lock in your bracket.</span>
+        <span>{t("save_complete_headline")}</span>
       </div>
       <button
         type="button"
@@ -1619,13 +1632,13 @@ function SaveBracketPanel({
           }
         }}
       >
-        <span>Save my bracket</span>
+        <span>{t("save_button")}</span>
         <span aria-hidden="true">→</span>
       </button>
       <p className="bracket-save-panel-foot">
         {isAuthed
-          ? "Saves your bracket to your profile so it follows you across devices."
-          : "We'll send a one-time sign-in code (Telegram, WhatsApp, or email). Your picks here will merge into your profile automatically."}
+          ? t("save_complete_authed")
+          : t("save_complete_anon")}
       </p>
       {submitState ? (
         <p className="bracket-save-panel-status">{submitState}</p>

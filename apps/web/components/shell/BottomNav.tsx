@@ -19,9 +19,24 @@
  */
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { track } from "@/lib/analytics";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import {
   HomeIcon,
@@ -34,6 +49,9 @@ import {
 
 export interface BottomNavTab {
   readonly label: string;
+  /** Translation key in the messages catalogue. When present, consumers
+   *  render the catalogue value and fall back to `label`. */
+  readonly i18nKey?: string;
   readonly href: string;
   readonly icon: ReactNode;
   /** Match the route prefix instead of an exact path equality. */
@@ -52,16 +70,18 @@ export interface BottomNavProps {
 }
 
 export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
-  { label: "Home", href: "/", icon: <HomeIcon /> },
+  { label: "Home", i18nKey: "nav.home", href: "/", icon: <HomeIcon /> },
   {
     label: "Predict",
+    i18nKey: "nav.predict",
     href: "/world-cup-2026",
     icon: <PredictIcon />,
     matchPrefix: "/world-cup-2026",
   },
-  { label: "Watch", href: "/watch", icon: <WatchIcon />, matchPrefix: "/watch" },
+  { label: "Watch", i18nKey: "nav.watch", href: "/watch", icon: <WatchIcon />, matchPrefix: "/watch" },
   {
     label: "Profile",
+    i18nKey: "nav.profile",
     href: "/profile",
     icon: <ProfileIcon />,
     matchPrefix: "/profile",
@@ -73,6 +93,7 @@ export function BottomNav({
   autoHide = true,
   onMenuClick,
 }: BottomNavProps) {
+  const t = useTranslations();
   const [pathname, setPathname] = useState<string>("/");
   const [hidden, setHidden] = useState(false);
   const lastY = useRef(0);
@@ -125,6 +146,7 @@ export function BottomNav({
     >
       {tabs.map((tab) => {
         const isActive = isTabActive(tab, pathname);
+        const label = tab.i18nKey ? safeT(t, tab.i18nKey, tab.label) : tab.label;
         return (
           <Link
             key={tab.href}
@@ -141,7 +163,7 @@ export function BottomNav({
             }}
           >
             <span className="vt-bottomnav-icon">{tab.icon}</span>
-            <span>{tab.label}</span>
+            <span>{label}</span>
           </Link>
         );
       })}
@@ -153,11 +175,11 @@ export function BottomNav({
             track("nav.menu.opened", { surface: "bottomnav" });
             onMenuClick();
           }}
-          aria-label="Open menu"
+          aria-label={safeT(t, "nav.open_menu", "Open menu")}
           aria-haspopup="dialog"
         >
           <span className="vt-bottomnav-icon"><MenuIcon /></span>
-          <span>Menu</span>
+          <span>{safeT(t, "nav.menu", "Menu")}</span>
         </button>
       ) : null}
     </nav>

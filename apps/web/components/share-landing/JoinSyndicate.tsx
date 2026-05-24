@@ -30,6 +30,21 @@
  */
 
 import { useCallback, useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import {
   AUTH_BASE,
@@ -119,6 +134,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   // (or "Request sent" for private pools) view. The modal stays
   // available for the unauthenticated path which still needs the
   // identity capture (Tim 2026-05-22).
+  const t = useTranslations();
   const auth = useUser();
   const isAuthed = auth.status === "authenticated";
 
@@ -638,7 +654,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         onClick={handleCtaClick}
         disabled={busy && isAuthed}
       >
-        {busy && isAuthed ? "Joining…" : "Join this pool"}
+        {busy && isAuthed
+          ? safeT(t, "join.button_joining", "Joining...")
+          : safeT(t, "join.button_join", "Join this pool")}
       </button>
       {open ? (
         <div
@@ -673,24 +691,31 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   Join {syndicateName}
                 </h2>
                 <p className="vt-share-modal-body">
-                  Pick a display name and handle for the leaderboard, then
-                  we&apos;ll send a one-time login code by WhatsApp or email.
+                  {safeT(
+                    t,
+                    "join.modal.body",
+                    "Pick a display name and handle for the leaderboard, then we'll send a one-time login code by WhatsApp or email.",
+                  )}
                 </p>
                 <label className="vt-join-label">
-                  <span>Your name</span>
+                  <span>{safeT(t, "join.modal.field_name", "Your name")}</span>
                   <input
                     type="text"
                     className="vt-share-modal-input"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="e.g. Tim Thomas"
+                    placeholder={safeT(
+                      t,
+                      "join.modal.field_name_placeholder",
+                      "e.g. Tim Thomas",
+                    )}
                     autoFocus
                     maxLength={60}
                     required
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Handle (shown on the leaderboard)</span>
+                  <span>{safeT(t, "join.modal.field_handle", "Handle (shown on the leaderboard)")}</span>
                   <input
                     type="text"
                     className="vt-share-modal-input"
@@ -699,14 +724,18 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                       setHandle(e.target.value);
                       setHandleTouched(true);
                     }}
-                    placeholder="tim_thomas"
+                    placeholder={safeT(
+                      t,
+                      "join.modal.field_handle_placeholder",
+                      "tim_thomas",
+                    )}
                     maxLength={32}
                     pattern="[a-zA-Z0-9_]{2,32}"
                     required
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Mobile number (for WhatsApp login)</span>
+                  <span>{safeT(t, "join.modal.field_phone", "Mobile number (for WhatsApp login)")}</span>
                   <input
                     type="tel"
                     className="vt-share-modal-input"
@@ -718,7 +747,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Email (optional fallback)</span>
+                  <span>{safeT(t, "join.modal.field_email", "Email (optional fallback)")}</span>
                   <input
                     type="email"
                     className="vt-share-modal-input"
@@ -729,18 +758,28 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     autoComplete="email"
                   />
                   <span className="vt-join-help">
-                    If you don&apos;t use WhatsApp, enter your email address
-                    to get a one-time code. Provide either, or both — we
-                    send the code to every channel you give us.
+                    {safeT(
+                      t,
+                      "join.modal.field_email_help",
+                      "If you don't use WhatsApp, enter your email address to get a one-time code. Provide either, or both, we send the code to every channel you give us.",
+                    )}
                   </span>
                 </label>
                 {error === "PHONE_ALREADY_REGISTERED" ? (
                   <div className="vt-join-error vt-join-error--registered">
                     <p>
-                      <strong>That phone is already registered.</strong> If
-                      it&apos;s yours, log in via WhatsApp instead — you&apos;ll get
-                      the one-time code and a tap-to-sign-in link, then we
-                      add you to {syndicateName} automatically.
+                      <strong>
+                        {safeT(
+                          t,
+                          "join.error.phone_registered_strong",
+                          "That phone is already registered.",
+                        )}
+                      </strong>{" "}
+                      {safeT(
+                        t,
+                        "join.error.phone_registered_body",
+                        "If it's yours, log in via WhatsApp instead, you'll get the one-time code and a tap-to-sign-in link, then we add you to {pool_name} automatically.",
+                      ).replace("{pool_name}", syndicateName)}
                     </p>
                     <a
                       className="vt-share-cta"
@@ -749,7 +788,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Log in via WhatsApp →
+                      {safeT(
+                        t,
+                        "join.error.whatsapp_login",
+                        "Log in via WhatsApp →",
+                      )}
                     </a>
                   </div>
                 ) : error ? (
@@ -762,12 +805,17 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     data-variant="primary"
                     disabled={!canSubmitIdentity}
                   >
-                    {busy ? "Sending…" : "Send login code"}
+                    {busy
+                      ? safeT(t, "join.modal.cta_sending", "Sending…")
+                      : safeT(t, "join.modal.cta_send_code", "Send login code")}
                   </button>
                 </div>
                 <p className="vt-join-footnote">
-                  By joining you agree to our terms. We only use your contact
-                  details for sign-in — no marketing, no third parties.
+                  {safeT(
+                    t,
+                    "join.modal.footnote",
+                    "By joining you agree to our terms. We only use your contact details for sign-in, no marketing, no third parties.",
+                  )}
                 </p>
               </form>
             )}
@@ -775,7 +823,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
             {step === "verify" && (
               <div className="vt-join-form">
                 <h2 className="vt-share-modal-title" id="vt-join-modal-title">
-                  Enter your code
+                  {safeT(t, "join.verify.title", "Enter your code")}
                 </h2>
                 <p className="vt-share-modal-body">
                   {phoneMasked ? (
@@ -917,11 +965,15 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
 
             {step === "success" && joinStatus === "pending" && (
               <div className="vt-join-success">
-                <h2 className="vt-share-modal-title">📨 Request sent</h2>
+                <h2 className="vt-share-modal-title">
+                  {safeT(t, "join.success.title_pending", "📨 Request sent")}
+                </h2>
                 <p className="vt-share-modal-body">
-                  Your request to join <strong>{syndicateName}</strong> has
-                  been sent to the pool administrator. You&apos;ll get a
-                  notification when they accept it.
+                  {safeT(
+                    t,
+                    "join.success.body_pending",
+                    "Your request to join {pool_name} has been sent to the pool administrator. You'll get a notification when they accept it.",
+                  ).replace("{pool_name}", syndicateName)}
                 </p>
                 <div className="vt-share-modal-row vt-share-modal-row--single">
                   <button
@@ -930,16 +982,22 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     data-variant="primary"
                     onClick={close}
                   >
-                    Got it
+                    {safeT(t, "join.success.cta_pending", "Got it")}
                   </button>
                 </div>
               </div>
             )}
             {step === "success" && joinStatus !== "pending" && (
               <div className="vt-join-success">
-                <h2 className="vt-share-modal-title">✅ You&apos;re in!</h2>
+                <h2 className="vt-share-modal-title">
+                  {safeT(t, "join.success.title_active", "✅ You're in!")}
+                </h2>
                 <p className="vt-share-modal-body">
-                  Welcome to {syndicateName}. Loading your bracket…
+                  {safeT(
+                    t,
+                    "join.success.body_active",
+                    "Welcome to {pool_name}. Loading your bracket…",
+                  ).replace("{pool_name}", syndicateName)}
                 </p>
               </div>
             )}

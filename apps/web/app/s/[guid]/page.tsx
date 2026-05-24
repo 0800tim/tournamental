@@ -21,6 +21,7 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
@@ -39,6 +40,19 @@ import "@/components/share-landing/share-landing.css";
 // clicks) hit the CDN; the bracket owner's re-saves bust the cache
 // inside a minute.
 export const revalidate = 60;
+
+// Force dynamic rendering to ensure locale resolution per-request.
+export const dynamic = "force-dynamic";
+
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
 
 interface PageProps {
   readonly params: { readonly guid: string };
@@ -65,19 +79,28 @@ export async function generateMetadata(
   if (resolved.kind === "syndicate") {
     const s = resolved.syndicate;
     const ogUrl = `/api/og/syndicate?slug=${encodeURIComponent(s.slug)}`;
+    const title = await safeT(
+      "share_landing.syndicate.og_title",
+      `${s.name} on Tournamental`,
+    );
+    const memberWord = s.members.length === 1 ? " member" : " members";
+    const description = await safeT(
+      "share_landing.syndicate.og_description",
+      `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+    );
     return {
-      title: `${s.name} on Tournamental`,
-      description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+      title: title.replace("{name}", s.name).replace("{count}", String(s.members.length)).replace("{s}", memberWord),
+      description: description.replace("{count}", String(s.members.length)).replace("{tournament}", s.tournament_label).replace("{s}", memberWord),
       openGraph: {
-        title: `${s.name} on Tournamental`,
-        description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+        title: title.replace("{name}", s.name).replace("{count}", String(s.members.length)).replace("{s}", memberWord),
+        description: description.replace("{count}", String(s.members.length)).replace("{tournament}", s.tournament_label).replace("{s}", memberWord),
         images: [{ url: ogUrl, width: 1200, height: 630, alt: s.name }],
         type: "website",
       },
       twitter: {
         card: "summary_large_image",
-        title: `${s.name} on Tournamental`,
-        description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+        title: title.replace("{name}", s.name).replace("{count}", String(s.members.length)).replace("{s}", memberWord),
+        description: description.replace("{count}", String(s.members.length)).replace("{tournament}", s.tournament_label).replace("{s}", memberWord),
         images: [ogUrl],
       },
       other: {
@@ -88,9 +111,6 @@ export async function generateMetadata(
   }
   if (resolved.kind === "user") {
     const b = resolved.bracket;
-    // Pass champion + runner-up + third codes so the OG renderer paints
-    // the actual predicted podium in social previews. Without these, the
-    // unfurl falls back to a generic football glyph (Tim 2026-05-24).
     const ogParams = new URLSearchParams({
       bracket_id: b.bracket_id,
       handle: b.handle,
@@ -100,13 +120,28 @@ export async function generateMetadata(
     });
     if (b.avatar_url) ogParams.set("avatar", b.avatar_url);
     const ogUrl = `/api/og/bracket?${ogParams.toString()}`;
-    const title = `@${b.handle} picked ${b.champion.name} to lift the ${b.tournament_label} trophy`;
+    const titleTemplate = await safeT(
+      "share_landing.user.og_title",
+      `@${b.handle} picked ${b.champion.name} to lift the ${b.tournament_label} trophy`,
+    );
+    const title = titleTemplate
+      .replace("{handle}", b.handle)
+      .replace("{champion}", b.champion.name)
+      .replace("{tournament}", b.tournament_label);
+    const descTemplate = await safeT(
+      "share_landing.user.og_description",
+      `Predicted podium: ${b.champion.name} • ${b.runner_up.name} • ${b.third_place.name}. Build your own bracket on Tournamental.`,
+    );
+    const description = descTemplate
+      .replace("{champion}", b.champion.name)
+      .replace("{runner_up}", b.runner_up.name)
+      .replace("{third}", b.third_place.name);
     return {
       title,
-      description: `Predicted podium: ${b.champion.name} • ${b.runner_up.name} • ${b.third_place.name}. Build your own bracket on Tournamental.`,
+      description,
       openGraph: {
         title,
-        description: `Predicted podium: ${b.champion.name} • ${b.runner_up.name} • ${b.third_place.name}. Build your own bracket on Tournamental.`,
+        description,
         images: [
           { url: ogUrl, width: 1200, height: 630, alt: `${b.handle}'s bracket` },
         ],
@@ -115,7 +150,7 @@ export async function generateMetadata(
       twitter: {
         card: "summary_large_image",
         title,
-        description: `Predicted podium: ${b.champion.name} • ${b.runner_up.name} • ${b.third_place.name}.`,
+        description,
         images: [ogUrl],
       },
       other: {
@@ -124,9 +159,17 @@ export async function generateMetadata(
       },
     };
   }
+  const notFoundTitle = await safeT(
+    "share_landing.not_found.title",
+    "Share link not found, Tournamental",
+  );
+  const notFoundDesc = await safeT(
+    "share_landing.not_found.body",
+    "This share link doesn't resolve. Pick a fresh bracket.",
+  );
   return {
-    title: "Share link not found, Tournamental",
-    description: "This share link doesn't resolve. Pick a fresh bracket.",
+    title: notFoundTitle,
+    description: notFoundDesc,
   };
 }
 

@@ -38,8 +38,33 @@ async function safeT(key: string, fallback: string): Promise<string> {
   }
 }
 
+/**
+ * Returns the raw template string for a translation key, including any
+ * ICU placeholders like `{odds_link}`. Useful when the caller wants to
+ * split on a placeholder and interpolate React children rather than
+ * letting next-intl format the value (which would throw on missing
+ * placeholder args).
+ */
+async function safeTRaw(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t.raw(key);
+    if (typeof out !== "string" || out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
+
 const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
+
+// Force dynamic so the locale resolution runs per-request. Without
+// this Next.js pre-renders the home statically with the default
+// locale's messages, then the client provider hydrates with the
+// real locale's messages and React throws a #425 text-content
+// mismatch on every visit to /es, /fr etc.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Tournamental, predict every match of the FIFA World Cup 2026™",
@@ -56,7 +81,7 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.hero.headline_a", "Can you predict the entire World Cup?"),
     safeT("home.hero.cta_predict", "Set my picks"),
     safeT("home.hero.cta_pool", "Run a pool"),
-    safeT("home.hero.lede", "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed."),
+    safeTRaw("home.hero.lede", "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed."),
     safeT("home.hero.lede_link", "odds of getting all 104 matches right"),
     safeT("home.hero.read_more", "[read more]"),
     safeT("countdown.eyebrow", "Kickoff"),
