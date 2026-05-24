@@ -733,10 +733,14 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
   const split = syndicate.prize_split ?? null;
   const bonus = syndicate.bonus_prize_text?.trim() || null;
   const prizeText = syndicate.prize_text?.trim() || null;
+  // A free-to-enter pool can still award a (sponsor-funded) prize, so
+  // "no entry fee" must not be conflated with "no prize" — the sponsor /
+  // store-voucher model depends on exactly that case.
+  const hasPrize = Boolean((split && split.length > 0) || bonus || prizeText);
 
   // Nothing configured → don't render at all. The owner is still in free
   // tier with no fee, no split, no bonus, no prize copy.
-  if (fee <= 0 && (!split || split.length === 0) && !bonus && !prizeText) {
+  if (fee <= 0 && !hasPrize) {
     return null;
   }
 
@@ -747,7 +751,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
     <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
       <p className="vt-dateline">{prizeEyebrow}</p>
       <h2 id="vt-share-prize-title" className="vt-share-syn-section-head">
-        The pot
+        {fee > 0 ? "The pot" : "The prize"}
       </h2>
       <dl className="vt-share-prize-row" aria-label="Prize pool summary">
         {fee > 0 ? (
@@ -771,9 +775,9 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
           </>
         ) : (
           <div className="vt-share-prize-cell">
-            <dt className="vt-stat-label">Stake</dt>
+            <dt className="vt-stat-label">{hasPrize ? "Entry" : "Stake"}</dt>
             <dd className="vt-share-prize-num vt-share-prize-num-text">
-              Bragging rights
+              {hasPrize ? "Free to enter" : "Bragging rights"}
             </dd>
           </div>
         )}
@@ -823,7 +827,9 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         Tournamental doesn&apos;t handle the money.
         {fee > 0
           ? " The host collects entry fees and pays out the pool."
-          : " Bragging rights only."}
+          : hasPrize
+            ? " Free to enter; the prize is put up by the host or sponsor."
+            : " Bragging rights only."}
       </p>
     </section>
   );
