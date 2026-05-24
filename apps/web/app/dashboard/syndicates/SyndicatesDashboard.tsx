@@ -264,7 +264,7 @@ export function SyndicatesDashboard(): JSX.Element {
 
             <div className="vt-dash-row-actions">
               <a
-                href={`/s/${s.share_guid}`}
+                href={`/s/${s.slug}`}
                 target="_blank"
                 rel="noreferrer"
                 className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
