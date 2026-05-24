@@ -402,8 +402,11 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         }
       />
 
-      {/* Branding editor */}
-      <BrandingEditor
+      {/* Prize pool editor (above branding so owners find it before
+       * scrolling past logo/hero uploads). Tim 2026-05-24: the prize
+       * editor was buried below branding which made setting fees /
+       * splits / bonuses harder to discover than it should be. */}
+      <PrizePoolEditor
         slug={s.slug}
         initial={s}
         onSaved={(updated) =>
@@ -415,8 +418,8 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         }
       />
 
-      {/* Prize pool editor */}
-      <PrizePoolEditor
+      {/* Branding editor */}
+      <BrandingEditor
         slug={s.slug}
         initial={s}
         onSaved={(updated) =>

@@ -738,12 +738,11 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
   // store-voucher model depends on exactly that case.
   const hasPrize = Boolean((split && split.length > 0) || bonus || prizeText);
 
-  // Nothing configured → don't render at all. The owner is still in free
-  // tier with no fee, no split, no bonus, no prize copy.
-  if (fee <= 0 && !hasPrize) {
-    return null;
-  }
-
+  // Tim 2026-05-24: previously this block hid entirely when there was
+  // no fee AND no prize. That made free pools feel half-finished on
+  // the public landing -- no signal of who's in or how to compete.
+  // Now we always render a minimal "Stake / Members" pair so the
+  // public page reads as a real pool even on day-one creation.
   const memberCount = Math.max(1, syndicate.members.length);
   const pool = fee > 0 ? fee * memberCount : 0;
 
@@ -751,7 +750,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
     <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
       <p className="vt-dateline">{prizeEyebrow}</p>
       <h2 id="vt-share-prize-title" className="vt-share-syn-section-head">
-        {fee > 0 ? "The pot" : "The prize"}
+        {fee > 0 ? "The pot" : hasPrize ? "The prize" : "The pool"}
       </h2>
       <dl className="vt-share-prize-row" aria-label="Prize pool summary">
         {fee > 0 ? (
@@ -774,12 +773,18 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
             </div>
           </>
         ) : (
-          <div className="vt-share-prize-cell">
-            <dt className="vt-stat-label">Stake</dt>
-            <dd className="vt-share-prize-num vt-share-prize-num-text">
-              {hasPrize ? "Free to enter" : "Bragging rights"}
-            </dd>
-          </div>
+          <>
+            <div className="vt-share-prize-cell">
+              <dt className="vt-stat-label">Stake</dt>
+              <dd className="vt-share-prize-num vt-share-prize-num-text">
+                {hasPrize ? "Free to enter" : "Bragging rights"}
+              </dd>
+            </div>
+            <div className="vt-share-prize-cell">
+              <dt className="vt-stat-label">Members</dt>
+              <dd className="vt-share-prize-num">{memberCount}</dd>
+            </div>
+          </>
         )}
       </dl>
 
