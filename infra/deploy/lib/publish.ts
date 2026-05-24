@@ -228,6 +228,7 @@ export async function publish(config: PublishConfig): Promise<PublishResult> {
       const r = await reloadOrRestart({
         name: config.pm2Name,
         ecosystemFile: config.ecosystemFile,
+        env: config.env,
         log,
       });
       log(`  pm2 ${r.action} (${r.durationMs}ms)`);
@@ -295,6 +296,7 @@ export async function publish(config: PublishConfig): Promise<PublishResult> {
           await reloadOrRestart({
             name: config.pm2Name,
             ecosystemFile: config.ecosystemFile,
+            env: config.env,
             log,
           });
           outcome = 'rolled-back';
