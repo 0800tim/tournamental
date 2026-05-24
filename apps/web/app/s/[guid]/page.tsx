@@ -775,9 +775,9 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
           </>
         ) : (
           <div className="vt-share-prize-cell">
-            <dt className="vt-stat-label">{hasPrize ? "Entry fee" : "Stake"}</dt>
+            <dt className="vt-stat-label">Stake</dt>
             <dd className="vt-share-prize-num vt-share-prize-num-text">
-              {hasPrize ? "Free" : "Bragging rights"}
+              {hasPrize ? "Free to enter" : "Bragging rights"}
             </dd>
           </div>
         )}
@@ -813,7 +813,10 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
       ) : null}
 
       {prizeText && !split ? (
-        <p className="vt-share-prize-copy">{prizeText}</p>
+        <div className="vt-share-prize-award">
+          <p className="vt-stat-label">Prize</p>
+          <p className="vt-share-prize-copy">{prizeText}</p>
+        </div>
       ) : null}
 
       {bonus ? (
@@ -824,12 +827,13 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
       ) : null}
 
       <p className="vt-share-prize-fineprint">
-        Tournamental doesn&apos;t handle the money.
-        {fee > 0
-          ? " The host collects entry fees and pays out the pool."
-          : hasPrize
-            ? " Free to enter; the prize is put up by the host or sponsor."
-            : " Bragging rights only."}
+        Tournamental doesn&apos;t handle any money or prize-promise
+        contracts. Pool and syndicate admins must collect any money and
+        honour prizes independently.{" "}
+        <a className="vt-share-prize-terms-link" href="/terms">
+          Read the terms
+        </a>
+        .
       </p>
     </section>
   );

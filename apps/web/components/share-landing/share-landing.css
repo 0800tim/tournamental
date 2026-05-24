@@ -1466,6 +1466,23 @@
   color: var(--vt-fg, #e6e6ea);
 }
 
+/* Labelled prize block: a "PRIZE" eyebrow above the prize copy, so a
+   free-to-enter pool reads STAKE: Free to enter / PRIZE: <the prize>. */
+.vt-share-syn .vt-share-prize-award {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vt-share-syn .vt-share-prize-terms-link {
+  color: var(--vt-gold-400, #dca94b);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.vt-share-syn .vt-share-prize-terms-link:hover {
+  color: var(--vt-gold-300, #e8c170);
+}
+
 .vt-share-syn .vt-share-prize-bonus {
   margin: 0;
   padding: 0;
