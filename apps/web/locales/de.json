@@ -191,7 +191,8 @@
       "button_cancel": "Abbrechen",
       "fallback_lede": "Sie nutzen WhatsApp nicht? Erhalten Sie den Code per Email stattdessen.",
       "fallback_sent": "Email-Code gesendet. Verwenden Sie die obige Eingabe, um ihn einzugeben, dann tippen Sie auf Email-Code verifizieren.",
-      "email_sent": "Code an {email} gesendet. Überprüfen Sie Ihren Posteingang (und Spam)."
+      "email_sent": "Code an {email} gesendet. Überprüfen Sie Ihren Posteingang (und Spam).",
+      "button_verifying": "Wird geprüft…"
     },
     "button_join": "Diesem Pool beitreten",
     "button_joining": "Tritt bei..."

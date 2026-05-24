@@ -191,7 +191,8 @@
       "button_cancel": "Otkaži",
       "fallback_lede": "Ne koristiš WhatsApp? Dobij kod putem e-pošte.",
       "fallback_sent": "Kod e-pošte poslan. Koristi unos gore da ga uneseš, zatim dodirni Provjeri kod e-pošte.",
-      "email_sent": "Kod poslan na {email}. Provjeri tvoju primarnu mapu (i spam)."
+      "email_sent": "Kod poslan na {email}. Provjeri tvoju primarnu mapu (i spam).",
+      "button_verifying": "Provjeravanje…"
     },
     "button_join": "Pridruži se ovoj grupi",
     "button_joining": "Pridruzujem se..."

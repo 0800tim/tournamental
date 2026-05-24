@@ -191,7 +191,8 @@
       "button_cancel": "Cancelar",
       "fallback_lede": "Não usas WhatsApp? Obtém o código por email em seu lugar.",
       "fallback_sent": "Código de email enviado. Usa a entrada acima para o inserir, depois toca Verificar código de email.",
-      "email_sent": "Código enviado para {email}. Verifica a tua caixa de entrada (e spam)."
+      "email_sent": "Código enviado para {email}. Verifica a tua caixa de entrada (e spam).",
+      "button_verifying": "A verificar…"
     },
     "button_join": "Junta-te a este palpite",
     "button_joining": "A entrar..."

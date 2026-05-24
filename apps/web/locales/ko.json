@@ -191,7 +191,8 @@
       "button_cancel": "취소",
       "fallback_lede": "WhatsApp을 사용하지 않으세요? 대신 이메일로 코드를 받으세요.",
       "fallback_sent": "이메일 코드 전송됨. 위의 입력을 사용하여 입력한 다음 이메일 코드 확인을 탭하세요.",
-      "email_sent": "코드가 {email}로 전송되었습니다. 받은 편지함(및 스팸)을 확인하세요."
+      "email_sent": "코드가 {email}로 전송되었습니다. 받은 편지함(및 스팸)을 확인하세요.",
+      "button_verifying": "확인 중…"
     },
     "button_join": "이 풀에 참여",
     "button_joining": "참여 중..."

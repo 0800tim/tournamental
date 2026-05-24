@@ -191,7 +191,8 @@
       "button_cancel": "Zrušit",
       "fallback_lede": "Nepoužíváte WhatsApp? Obdržejte kód e-mailem.",
       "fallback_sent": "Kód e-mailu odeslán. Pomocí výše uvedeného vstupu jej zadejte a poté klepnutím ověřte kód e-mailu.",
-      "email_sent": "Kód odeslán na {email}. Zkontrolujte doručenou poštu (a spam)."
+      "email_sent": "Kód odeslán na {email}. Zkontrolujte doručenou poštu (a spam).",
+      "button_verifying": "Ověřuji…"
     },
     "button_join": "Připojte se k této skupině",
     "button_joining": "Připojuji se..."

@@ -191,7 +191,8 @@
       "button_cancel": "Avbryt",
       "fallback_lede": "Använder du inte WhatsApp? Få koden via e-post istället.",
       "fallback_sent": "E-postkod skickad. Använd inmatningen ovan för att ange den, tryck sedan på Verifiera e-postkod.",
-      "email_sent": "Kod skickad till {email}. Kontrollera din inkorg (och skräppost)."
+      "email_sent": "Kod skickad till {email}. Kontrollera din inkorg (och skräppost).",
+      "button_verifying": "Verifierar…"
     },
     "button_join": "Gå med i denna pool",
     "button_joining": "Går med..."

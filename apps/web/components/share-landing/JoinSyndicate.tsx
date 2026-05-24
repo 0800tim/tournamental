@@ -789,30 +789,18 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
             {step === "verify" && (
               <div className="vt-join-form">
                 <h2 className="vt-share-modal-title" id="vt-join-modal-title">
-                  Enter your code
+                  {safeT(t, "join.verify.title", "Enter your code")}
                 </h2>
                 <p className="vt-share-modal-body">
-                  {phoneMasked ? (
-                    <>
-                      We&apos;ve just sent a 6-digit code via WhatsApp to{" "}
-                      <strong>{phoneMasked}</strong>. Tap the link in the
-                      message to sign in instantly, or paste the code here.
-                    </>
-                  ) : email ? (
-                    <>
-                      We&apos;ve just sent a 6-digit code by email to{" "}
-                      <strong>{email}</strong>. Paste it below to sign in.
-                    </>
-                  ) : (
-                    <>
-                      We&apos;ve just sent a 6-digit code. Paste it below to
-                      sign in.
-                    </>
-                  )}
+                  {phoneMasked
+                    ? safeT(t, "join.verify.label_whatsapp", "We've just sent a 6-digit code via WhatsApp to {phone}. Tap the link in the message to sign in instantly, or paste the code here.").replace("{phone}", phoneMasked)
+                    : email
+                      ? safeT(t, "join.verify.label_email", "We've just sent a 6-digit code by email to {email}. Paste it below to sign in.").replace("{email}", email)
+                      : safeT(t, "join.verify.label_generic", "We've just sent a 6-digit code. Paste it below to sign in.")}
                 </p>
 
                 {/* WhatsApp self-trigger fallback (also surfaces when the
-                  * outbound send failed at submit-time — info message
+                  * outbound send failed at submit-time, info message
                   * above directs the user here). */}
                 <a
                   className="vt-share-cta vt-join-wa-btn"
@@ -821,7 +809,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <span aria-hidden="true">💬</span> Open WhatsApp &amp; message us
+                  {safeT(t, "join.verify.button_whatsapp", "💬 Open WhatsApp & message us")}
                 </a>
 
                 {/* 6-digit code paste. Route to email-verify when the
@@ -854,7 +842,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     data-variant="primary"
                     disabled={busy || code.length !== 6}
                   >
-                    {busy ? "Verifying…" : usingEmail ? "Verify email code" : "Sign in with code"}
+                    {busy
+                      ? safeT(t, "join.verify.button_verifying", "Verifying…")
+                      : usingEmail
+                        ? safeT(t, "join.verify.button_verify_email", "Verify email code")
+                        : safeT(t, "join.verify.button_verify_code", "Sign in with code")}
                   </button>
                 </form>
 
@@ -863,7 +855,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   * can switch immediately). */}
                 <div className="vt-join-fallback">
                   <p className="vt-join-fallback-lede">
-                    Don&apos;t use WhatsApp? <strong>Get the code by email instead.</strong>
+                    {safeT(t, "join.verify.fallback_lede", "Don't use WhatsApp? Get the code by email instead.")}
                   </p>
                   <div className="vt-join-fallback-row">
                     <input
@@ -882,20 +874,12 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                       onClick={onRequestEmailCode}
                       disabled={busy || !email.includes("@")}
                     >
-                      Send email code
+                      {safeT(t, "join.verify.button_send_email", "Send email code")}
                     </button>
                   </div>
                   {usingEmail && (
                     <p className="vt-join-info">
-                      Email code sent. Use the input above to enter it, then
-                      tap <button
-                        type="button"
-                        className="vt-join-inline-link"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          void onSubmitEmailCode(e as unknown as React.FormEvent);
-                        }}
-                      >Verify email code</button>.
+                      {safeT(t, "join.verify.fallback_sent", "Email code sent. Use the input above to enter it, then tap Verify email code.")}
                     </p>
                   )}
                 </div>
@@ -910,7 +894,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     onClick={close}
                     disabled={busy}
                   >
-                    Cancel
+                    {safeT(t, "join.verify.button_cancel", "Cancel")}
                   </button>
                   <button
                     type="button"
@@ -923,7 +907,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     }}
                     disabled={busy}
                   >
-                    ← Edit details
+                    {safeT(t, "join.verify.button_edit", "← Edit details")}
                   </button>
                 </div>
               </div>
@@ -931,11 +915,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
 
             {step === "success" && joinStatus === "pending" && (
               <div className="vt-join-success">
-                <h2 className="vt-share-modal-title">📨 Request sent</h2>
+                <h2 className="vt-share-modal-title">{safeT(t, "join.success.title_pending", "📨 Request sent")}</h2>
                 <p className="vt-share-modal-body">
-                  Your request to join <strong>{syndicateName}</strong> has
-                  been sent to the pool administrator. You&apos;ll get a
-                  notification when they accept it.
+                  {safeT(t, "join.success.body_pending", "Your request to join {pool_name} has been sent to the pool administrator. You'll get a notification when they accept it.").replace("{pool_name}", syndicateName)}
                 </p>
                 <div className="vt-share-modal-row vt-share-modal-row--single">
                   <button
@@ -944,16 +926,16 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     data-variant="primary"
                     onClick={close}
                   >
-                    Got it
+                    {safeT(t, "join.success.cta_pending", "Got it")}
                   </button>
                 </div>
               </div>
             )}
             {step === "success" && joinStatus !== "pending" && (
               <div className="vt-join-success">
-                <h2 className="vt-share-modal-title">✅ You&apos;re in!</h2>
+                <h2 className="vt-share-modal-title">{safeT(t, "join.success.title_active", "✅ You're in!")}</h2>
                 <p className="vt-share-modal-body">
-                  Welcome to {syndicateName}. Loading your bracket…
+                  {safeT(t, "join.success.body_active", "Welcome to {pool_name}. Loading your bracket…").replace("{pool_name}", syndicateName)}
                 </p>
               </div>
             )}

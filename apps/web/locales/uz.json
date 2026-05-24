@@ -191,7 +191,8 @@
       "button_cancel": "Bekor qilish",
       "fallback_lede": "WhatsApp ishlatmayapsizmi? Buning o'rniga kodini elektron pochta orqali oling.",
       "fallback_sent": "Elektron pochta kodi yuborildi. Yuqoridagi kiritilishdan foydalanib, uni kiriting, so'ng Elektron pochta kodini tekshirish tugmasini bosing.",
-      "email_sent": "Kod {email}ga yuborildi. Sizning kiruvchi qutiying (va spam) ni tekshiring."
+      "email_sent": "Kod {email}ga yuborildi. Sizning kiruvchi qutiying (va spam) ni tekshiring.",
+      "button_verifying": "Tekshirilmoqda…"
     },
     "button_join": "Bu ligaga qo'shiling",
     "button_joining": "Qo'shilmoqda..."

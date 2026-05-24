@@ -191,7 +191,8 @@
       "button_cancel": "Annuleren",
       "fallback_lede": "Gebruik je WhatsApp niet? Krijg de code via email.",
       "fallback_sent": "Emailcode verzonden. Gebruik de invoer hierboven om deze in te voeren, tik vervolgens op Emailcode verifiëren.",
-      "email_sent": "Code verzonden naar {email}. Controleer je inbox (en spam)."
+      "email_sent": "Code verzonden naar {email}. Controleer je inbox (en spam).",
+      "button_verifying": "Aan het verifiëren…"
     },
     "button_join": "Sluit je aan bij deze pool",
     "button_joining": "Aanmelden..."

@@ -190,7 +190,8 @@
       "button_cancel": "Cancelar",
       "fallback_lede": "¿No usas WhatsApp? Obtén el código por correo en su lugar.",
       "fallback_sent": "Código de correo enviado. Usa la entrada anterior para ingresar, luego toca Verifica código de correo.",
-      "email_sent": "Código enviado a {email}. Revisa tu bandeja (y spam)."
+      "email_sent": "Código enviado a {email}. Revisa tu bandeja (y spam).",
+      "button_verifying": "Verificando…"
     },
     "button_join": "Únete a esta piscina",
     "button_joining": "Uniéndose..."

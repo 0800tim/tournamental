@@ -191,7 +191,8 @@
       "button_cancel": "Mégse",
       "fallback_lede": "Nem használod a WhatsAppot? Kapd meg a kódot e-mailben.",
       "fallback_sent": "Email-kód elküldve. A fenti bemeneti mezővel írd be, majd koppintson az Email-kód ellenőrzése gombra.",
-      "email_sent": "Kód elküldve ide: {email}. Ellenőrizd a beérkezett üzeneteidet (és a spamot)."
+      "email_sent": "Kód elküldve ide: {email}. Ellenőrizd a beérkezett üzeneteidet (és a spamot).",
+      "button_verifying": "Ellenőrzés…"
     },
     "button_join": "Csatlakozz ehhez a csoporthoz",
     "button_joining": "Csatlakozás..."

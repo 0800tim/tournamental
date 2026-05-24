@@ -191,7 +191,8 @@
       "button_cancel": "Whakakore",
       "fallback_lede": "Kaore koe e whakamahi WhatsApp? Toro i te tohu ma te imera.",
       "fallback_sent": "Kua tonua te tohu imera. Whakamahia te whakauru i runga ki te whakaihu, ka panga ki te Whakatupato i te tohu imera.",
-      "email_sent": "Kua tonua te tohu ki a {email}. Tirotiroia au pouaka (me te hereheretanga)."
+      "email_sent": "Kua tonua te tohu ki a {email}. Tirotiroia au pouaka (me te hereheretanga).",
+      "button_verifying": "E whakaū ana…"
     },
     "button_join": "Haere mai ki tenei roopu",
     "button_joining": "E haere mai ana..."

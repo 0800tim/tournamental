@@ -192,7 +192,8 @@
       "button_cancel": "Cancel",
       "fallback_lede": "Don't use WhatsApp? Get the code by email instead.",
       "fallback_sent": "Email code sent. Use the input above to enter it, then tap Verify email code.",
-      "email_sent": "Code sent to {email}. Check your inbox (and spam)."
+      "email_sent": "Code sent to {email}. Check your inbox (and spam).",
+      "button_verifying": "Verifying…"
     }
   },
   "odds": {

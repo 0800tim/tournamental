@@ -190,7 +190,8 @@
       "button_cancel": "Annuler",
       "fallback_lede": "N'utilisez pas WhatsApp? Obtenez le code par email à la place.",
       "fallback_sent": "Code email envoyé. Utilisez l'entrée ci-dessus pour l'entrer, puis appuyez sur Vérifier le code email.",
-      "email_sent": "Code envoyé à {email}. Vérifiez votre boîte de réception (et les spams)."
+      "email_sent": "Code envoyé à {email}. Vérifiez votre boîte de réception (et les spams).",
+      "button_verifying": "Vérification…"
     },
     "button_join": "Rejoignez ce groupe",
     "button_joining": "En train de rejoindre..."

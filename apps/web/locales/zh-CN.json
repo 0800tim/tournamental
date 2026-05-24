@@ -191,7 +191,8 @@
       "button_cancel": "取消",
       "fallback_lede": "不使用WhatsApp？改为通过电子邮件获取代码。",
       "fallback_sent": "电子邮件代码已发送。使用上面的输入输入它，然后点击验证电子邮件代码。",
-      "email_sent": "代码已发送到{email}。检查您的收件箱（和垃圾邮件）。"
+      "email_sent": "代码已发送到{email}。检查您的收件箱（和垃圾邮件）。",
+      "button_verifying": "验证中…"
     },
     "button_join": "加入此联赛",
     "button_joining": "正在加入..."

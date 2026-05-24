@@ -191,7 +191,8 @@
       "button_cancel": "Annulla",
       "fallback_lede": "Non usi WhatsApp? Ottieni il codice via email.",
       "fallback_sent": "Codice email inviato. Usa l'input sopra per inserirlo, poi tocca Verifica codice email.",
-      "email_sent": "Codice inviato a {email}. Controlla la tua inbox (e lo spam)."
+      "email_sent": "Codice inviato a {email}. Controlla la tua inbox (e lo spam).",
+      "button_verifying": "Verifica in corso…"
     },
     "button_join": "Unisciti a questo pool",
     "button_joining": "In corso..."

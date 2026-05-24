@@ -21,8 +21,19 @@
 
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/shell";
+
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
@@ -38,7 +49,11 @@ import "@/components/share-landing/share-landing.css";
 // `s-maxage=60`. Re-shares (the common case, one tweet -> thousands of
 // clicks) hit the CDN; the bracket owner's re-saves bust the cache
 // inside a minute.
-export const revalidate = 60;
+// Force dynamic so the locale resolves per request. The page was
+// revalidate=60 before i18n, but a single cached HTML can't serve
+// 22 locales -- per-locale cache keys would multiply the cache by
+// 22x for little gain.
+export const dynamic = "force-dynamic";
 
 interface PageProps {
   readonly params: { readonly guid: string };
@@ -150,7 +165,7 @@ export default async function SharePage({ params }: PageProps) {
   if (resolved.kind === "syndicate") {
     return (
       <AppShell title="Tournamental">
-        <SyndicateLanding syndicate={resolved.syndicate} />
+        {await SyndicateLanding({ syndicate: resolved.syndicate })}
       </AppShell>
     );
   }
@@ -370,7 +385,20 @@ function formatSavedAt(iso: string): string {
 
 // ── Syndicate landing ───────────────────────────────────────────────
 
-function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
+async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
+  const [
+    leaderboardEyebrow, standings, leaderboardEmpty,
+    joinFootnote, recentMembersEyebrow, thePool,
+    prizeEyebrow,
+  ] = await Promise.all([
+    safeT("share_landing.syndicate.leaderboard_dateline", "Leaderboard top 5"),
+    safeT("share_landing.syndicate.leaderboard_title", "Standings"),
+    safeT("share_landing.syndicate.leaderboard_empty", "Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026."),
+    safeT("syndicate.join_footnote", "Free to play, change picks until kickoff."),
+    safeT("share_landing.syndicate.members_dateline", "Recent members"),
+    safeT("share_landing.syndicate.members_title", "The pool"),
+    safeT("share_landing.syndicate.prize_dateline", "Prize pool"),
+  ]);
   const topFive = [...syndicate.members]
     .sort((a, b) => b.points - a.points)
     .slice(0, 5);
@@ -478,7 +506,7 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
        * og:image>, not in the visible body. Removed 2026-05-21. */}
 
       <RevealOnScroll>
-        <PrizePoolBlock syndicate={syndicate} />
+        <PrizePoolBlock syndicate={syndicate} prizeEyebrow={prizeEyebrow} />
       </RevealOnScroll>
 
       <RevealOnScroll
@@ -486,16 +514,16 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         className="vt-share-syn-section"
         aria-labelledby="vt-share-leaderboard-title"
       >
-        <p className="vt-dateline">Leaderboard top 5</p>
+        <p className="vt-dateline">{leaderboardEyebrow}</p>
         <h2
           id="vt-share-leaderboard-title"
           className="vt-share-syn-section-head"
         >
-          Standings
+          {standings}
         </h2>
         {allPointsZero ? (
           <p className="vt-share-leaderboard-empty">
-            Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026.
+            {leaderboardEmpty}
           </p>
         ) : (
           <SyndicateLeaderboardRows
@@ -511,7 +539,7 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
         <p className="vt-footnote vt-share-syn-join-note">
-          Free to play, change picks until kickoff.
+          {joinFootnote}
         </p>
       </div>
 
@@ -529,12 +557,12 @@ function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         className="vt-share-syn-section"
         aria-labelledby="vt-share-members-title"
       >
-        <p className="vt-dateline">Recent members</p>
+        <p className="vt-dateline">{recentMembersEyebrow}</p>
         <h2
           id="vt-share-members-title"
           className="vt-share-syn-section-head vt-share-syn-section-head-quiet"
         >
-          The pool
+          {thePool}
         </h2>
         <div className="vt-share-members-grid" role="list">
           {recentMembers.map((m) => (
@@ -699,7 +727,7 @@ function ordinal(rank: number): string {
   }
 }
 
-function PrizePoolBlock({ syndicate }: { syndicate: SyndicateRecord }) {
+function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecord; prizeEyebrow: string }) {
   const fee = syndicate.entry_fee_cents ?? 0;
   const currency = syndicate.entry_fee_currency ?? "NZD";
   const split = syndicate.prize_split ?? null;
@@ -717,7 +745,7 @@ function PrizePoolBlock({ syndicate }: { syndicate: SyndicateRecord }) {
 
   return (
     <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
-      <p className="vt-dateline">Prize pool</p>
+      <p className="vt-dateline">{prizeEyebrow}</p>
       <h2 id="vt-share-prize-title" className="vt-share-syn-section-head">
         The pot
       </h2>

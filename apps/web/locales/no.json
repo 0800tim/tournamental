@@ -191,7 +191,8 @@
       "button_cancel": "Avbryt",
       "fallback_lede": "Bruker du ikke WhatsApp? Få koden via e-post i stedet.",
       "fallback_sent": "E-postkode sendt. Bruk innskriften ovenfor for å skrive inn den, trykk deretter på Bekreft e-postkode.",
-      "email_sent": "Kode sendt til {email}. Sjekk inboksen din (og spam)."
+      "email_sent": "Kode sendt til {email}. Sjekk inboksen din (og spam).",
+      "button_verifying": "Verifiserer…"
     },
     "button_join": "Bli med i denne puljen",
     "button_joining": "Blir med..."

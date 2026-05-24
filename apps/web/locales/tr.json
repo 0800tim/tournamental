@@ -191,7 +191,8 @@
       "button_cancel": "İptal et",
       "fallback_lede": "WhatsApp kullanmıyor musunuz? Bunun yerine kodu e-posta yoluyla alın.",
       "fallback_sent": "E-posta kodu gönderildi. Bunu girmek için yukarıdaki girişi kullanın, ardından E-posta kodunu doğrula'ya dokunun.",
-      "email_sent": "Kod {email} adresine gönderildi. Gelen kutunuzu kontrol edin (ve istenmeyen posta)."
+      "email_sent": "Kod {email} adresine gönderildi. Gelen kutunuzu kontrol edin (ve istenmeyen posta).",
+      "button_verifying": "Doğrulanıyor…"
     },
     "button_join": "Bu havuza katılın",
     "button_joining": "Katılıyor..."
