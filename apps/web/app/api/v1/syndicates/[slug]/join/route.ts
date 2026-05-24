@@ -188,3 +188,52 @@ export async function POST(
 
   return json({ ok: true, status: "active", member_count: row.member_count + 1 });
 }
+
+/**
+ * GET — membership status for the authed viewer. Returns
+ * `{ is_member }` (false when there's no session, no pool, or the user
+ * isn't a member). Used by the share page CTA to show Join vs Exit.
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { slug: string } },
+): Promise<Response> {
+  const slug = (params.slug ?? "").toLowerCase().trim();
+  if (!slug) return json({ is_member: false });
+  const session = await resolveSession(req);
+  if (!session) return json({ is_member: false });
+  const persistence = getPersistence();
+  const row = persistence.getBySlug(slug);
+  if (!row) return json({ is_member: false });
+  return json({ is_member: persistence.isMember(row.id, session.id) });
+}
+
+/**
+ * DELETE — the authed user leaves the pool. Owners can't leave their own
+ * pool (protected in removeMember). Decrements the cached member_count.
+ */
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { slug: string } },
+): Promise<Response> {
+  const slug = (params.slug ?? "").toLowerCase().trim();
+  if (!slug) return json({ error: "bad_slug" }, 400);
+  const session = await resolveSession(req);
+  if (!session) return json({ error: "no_session" }, 401);
+  const persistence = getPersistence();
+  const row = persistence.getBySlug(slug);
+  if (!row) return json({ error: "not_found" }, 404);
+
+  const { removed } = persistence.removeMember(row.id, session.id);
+  if (removed) {
+    try {
+      (persistence as unknown as { db: { prepare: (s: string) => { run: (...a: unknown[]) => void } } })
+        .db
+        .prepare(`UPDATE syndicates SET member_count = MAX(0, member_count - 1) WHERE id = ?`)
+        .run(row.id);
+    } catch {
+      // Non-fatal — member_count is eventually consistent via game service.
+    }
+  }
+  return json({ ok: true, left: removed });
+}
