@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Offline elmentve, újrapróbáljuk amint visszakerülsz online."
+    },
+    "subheading": {
+      "semifinals": "Elődöntők",
+      "knockouts": "Kieséses szakasz"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Nem találjuk ezt a tippet vagy csoportot. Válassz egy új tippet, a kezdés közelebb van, mint gondolnád.",
       "cta": "Hozz létre egy új tippet"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Tippjátékok"
+  },
+  "leaderboard": {
+    "page_title": "Ranglista"
+  },
+  "save_share": {
+    "page_title": "Mentés és megosztás"
+  },
+  "molecule": {
+    "page_title": "3D molekula"
   }
 }

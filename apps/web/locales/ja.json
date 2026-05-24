@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "オフラインで保存しました。オンラインに戻ったら再試行します。"
+    },
+    "subheading": {
+      "semifinals": "準決勝",
+      "knockouts": "決勝トーナメント"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "その予測またはプールが見つかりませんでした。新しい予測を選択してください。キックオフはあなたが思っているより近いです。",
       "cta": "新しい予測を作成する"
     }
+  },
+  "profile": {
+    "page_title": "プロフィール"
+  },
+  "syndicates": {
+    "page_title": "プール"
+  },
+  "leaderboard": {
+    "page_title": "ランキング"
+  },
+  "save_share": {
+    "page_title": "保存・シェア"
+  },
+  "molecule": {
+    "page_title": "3Dモルキュール"
   }
 }

@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Spremljeno izvan mreže, pokušat ćemo opet kad se vratiš online."
+    },
+    "subheading": {
+      "semifinals": "Polufinale",
+      "knockouts": "Nokaut"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Nismo mogli naći tu prognozу ili grupu. Odaberi novu prognozу, početak je bliži nego što misliš.",
       "cta": "Kreiraj novu prognozу"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Poolovi"
+  },
+  "leaderboard": {
+    "page_title": "Ljestvica"
+  },
+  "save_share": {
+    "page_title": "Spremi i podijeli"
+  },
+  "molecule": {
+    "page_title": "3D molekula"
   }
 }

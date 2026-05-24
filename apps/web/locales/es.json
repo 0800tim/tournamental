@@ -479,6 +479,10 @@
     },
     "submit": {
       "saved_offline": "Guardado sin conexión, lo reintentamos cuando vuelvas a estar en línea."
+    },
+    "subheading": {
+      "semifinals": "Semifinales",
+      "knockouts": "Eliminatorias"
     }
   },
   "share_landing": {
@@ -518,5 +522,20 @@
       "body": "No pudimos encontrar esa predicción o piscina. Elige un nuevo pronóstico, el inicio es más cercano de lo que crees.",
       "cta": "Hacer un nuevo pronóstico"
     }
+  },
+  "profile": {
+    "page_title": "Perfil"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Clasificación"
+  },
+  "save_share": {
+    "page_title": "Guardar y compartir"
+  },
+  "molecule": {
+    "page_title": "Molécula 3D"
   }
 }

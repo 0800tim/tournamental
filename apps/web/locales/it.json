@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Salvato offline, riproviamo quando torni online."
+    },
+    "subheading": {
+      "semifinals": "Semifinali",
+      "knockouts": "Eliminazione diretta"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Non abbiamo potuto trovare quella previsione o quel pool. Scegli una nuova previsione, il fischio iniziale è più vicino di quanto pensi.",
       "cta": "Crea una nuova previsione"
     }
+  },
+  "profile": {
+    "page_title": "Profilo"
+  },
+  "syndicates": {
+    "page_title": "Pool"
+  },
+  "leaderboard": {
+    "page_title": "Classifica"
+  },
+  "save_share": {
+    "page_title": "Salva e condividi"
+  },
+  "molecule": {
+    "page_title": "Molecola 3D"
   }
 }

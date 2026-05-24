@@ -479,6 +479,10 @@
     },
     "submit": {
       "saved_offline": "Enregistré hors ligne, on réessaie quand tu reviens en ligne."
+    },
+    "subheading": {
+      "semifinals": "Demi-finales",
+      "knockouts": "Phase à élimination"
     }
   },
   "share_landing": {
@@ -518,5 +522,20 @@
       "body": "Nous n'avons pas pu trouver cette prédiction ou ce groupe. Choisissez une nouvelle prédiction, le coup d'envoi est plus proche que vous le pensez.",
       "cta": "Faire une nouvelle prédiction"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Classement"
+  },
+  "save_share": {
+    "page_title": "Enregistrer et partager"
+  },
+  "molecule": {
+    "page_title": "Molécule 3D"
   }
 }

@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "已离线保存，回到线上后会重试。"
+    },
+    "subheading": {
+      "semifinals": "半决赛",
+      "knockouts": "淘汰赛"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "我们找不到该预测或联赛。选择一个新的预测，开球比您想象的要近。",
       "cta": "进行新的预测"
     }
+  },
+  "profile": {
+    "page_title": "个人资料"
+  },
+  "syndicates": {
+    "page_title": "竞猜池"
+  },
+  "leaderboard": {
+    "page_title": "排行榜"
+  },
+  "save_share": {
+    "page_title": "保存与分享"
+  },
+  "molecule": {
+    "page_title": "3D 分子图"
   }
 }

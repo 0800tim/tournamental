@@ -16,6 +16,7 @@
  */
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
@@ -26,7 +27,11 @@ import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/en
 
 import { MoleculePageClient } from "./_components/MoleculePageClient";
 
-export const revalidate = 600;
+// Force dynamic so the AppShell title localises per request. Previously
+// revalidate=600 worked for English-only; with 22 locales a single
+// cached HTML would lie to non-English visitors. The Three/R3F scene
+// itself is client-only and doesn't depend on this.
+export const dynamic = "force-dynamic";
 
 const OG_IMAGE = "/og/bracket/default.png";
 
@@ -48,15 +53,26 @@ export const metadata: Metadata = {
   },
 };
 
-export default function WorldCup2026MoleculePage() {
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function WorldCup2026MoleculePage() {
   const base = loadFixtures2026();
   const tournament = enrichTournamentTeams(
     base,
     canonicalTeamsRaw as CanonicalTeamsFile,
   );
+  const title = await safeT("molecule.page_title", "Molecule");
 
   return (
-    <AppShell title="Molecule" showBottomNav>
+    <AppShell title={title} showBottomNav>
       <RouteEvent name="molecule.opened" />
       <MoleculePageClient tournament={tournament} />
     </AppShell>

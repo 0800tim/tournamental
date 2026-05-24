@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Kua tiakina i te wā kāhore he hononga, ka whakamātauhia anō ina hoki mai koe."
+    },
+    "subheading": {
+      "semifinals": "Whiringa Hauwhā",
+      "knockouts": "Whakanoa"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Kaore i kitea e matou tena whakamoemoe, tena roopu ranei. Tohunga he whakamoemoe hou, kua tata te timata i tou whakaaro.",
       "cta": "Hangaia he whakamoemoe hou"
     }
+  },
+  "profile": {
+    "page_title": "Kōtaha"
+  },
+  "syndicates": {
+    "page_title": "Ngā Puna"
+  },
+  "leaderboard": {
+    "page_title": "Pae arataki"
+  },
+  "save_share": {
+    "page_title": "Tiaki & Tohaina"
+  },
+  "molecule": {
+    "page_title": "Ngota 3D"
   }
 }

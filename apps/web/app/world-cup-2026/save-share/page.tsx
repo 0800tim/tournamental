@@ -21,6 +21,7 @@
  */
 
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
@@ -37,15 +38,26 @@ export const metadata: Metadata = {
     "Share your Football World Cup 2026 bracket. Copy the link, share to WhatsApp / Telegram / X / Facebook / Email, or download the card image.",
 };
 
-export default function SaveSharePageRoute(): JSX.Element {
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function SaveSharePageRoute(): Promise<JSX.Element> {
   const baseTournament = loadFixtures2026();
   const tournament = enrichTournamentTeams(
     baseTournament,
     canonicalTeamsRaw as CanonicalTeamsFile,
   );
+  const title = await safeT("save_share.page_title", "Save & share");
 
   return (
-    <AppShell title="Save & share">
+    <AppShell title={title}>
       <ShareSavePage tournament={tournament} />
     </AppShell>
   );

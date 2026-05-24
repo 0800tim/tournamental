@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Offline gespeichert, wir versuchen es erneut, sobald du wieder online bist."
+    },
+    "subheading": {
+      "semifinals": "Halbfinale",
+      "knockouts": "K.-o.-Phase"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Wir konnten diese Prognose oder diesen Pool nicht finden. Wählen Sie eine neue Prognose, der Anpfiff ist näher als Sie denken.",
       "cta": "Neue Prognose erstellen"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Rangliste"
+  },
+  "save_share": {
+    "page_title": "Speichern & teilen"
+  },
+  "molecule": {
+    "page_title": "3D-Molekül"
   }
 }

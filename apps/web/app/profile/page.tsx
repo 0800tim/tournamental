@@ -6,6 +6,8 @@
  * subscribe. The shell stays cheap to render on first paint.
  */
 
+import { getTranslations } from "next-intl/server";
+
 import { AppShell } from "@/components/shell";
 import { ProfilePage } from "@/components/auth/ProfilePage";
 
@@ -16,9 +18,20 @@ export const metadata = {
 // /profile is user-specific.
 export const dynamic = "force-dynamic";
 
-export default function Page() {
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
+
+export default async function Page() {
+  const title = await safeT("profile.page_title", "Profile");
   return (
-    <AppShell title="Profile">
+    <AppShell title={title}>
       <div className="vt-page-content">
         <ProfilePage />
       </div>

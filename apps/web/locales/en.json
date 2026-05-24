@@ -517,6 +517,25 @@
     },
     "submit": {
       "saved_offline": "Saved offline, we'll retry when you're back online."
+    },
+    "subheading": {
+      "semifinals": "Semi-finals",
+      "knockouts": "Knockouts"
     }
+  },
+  "profile": {
+    "page_title": "Profile"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Leaderboard"
+  },
+  "save_share": {
+    "page_title": "Save & share"
+  },
+  "molecule": {
+    "page_title": "3D Molecule"
   }
 }

@@ -1003,9 +1003,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
           {sf.length > 0 && (
             <section
               className="bracket-round-subgroup"
-              aria-label="Semi-finals"
+              aria-label={safeT(t, "bracket.subheading.semifinals", "Semi-finals")}
             >
-              <h3 className="bracket-round-subgroup-title">Semi-finals</h3>
+              <h3 className="bracket-round-subgroup-title">{safeT(t, "bracket.subheading.semifinals", "Semi-finals")}</h3>
               <div className="bracket-round-grid">
                 {sf.map((k) => (
                   <KnockoutMatch
@@ -1329,11 +1329,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
               key={panelId}
               id={`bracket-panel-${panelId}`}
               role="tabpanel"
-              aria-label={meta?.aria ?? "Knockouts"}
+              aria-label={meta?.aria ?? safeT(t, "bracket.subheading.knockouts", "Knockouts")}
               className={`bracket-panel bracket-round-section bracket-round-${panelId} bracket-stage-panel`}
             >
               <div className="bracket-round-header">
-                <h2>{meta?.aria ?? "Knockouts"}</h2>
+                <h2>{meta?.aria ?? safeT(t, "bracket.subheading.knockouts", "Knockouts")}</h2>
                 <span className="bracket-round-progress">
                   <strong>{progressByTab[panelId].picked}</strong> of {progressByTab[panelId].total} picked
                 </span>

@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Çevrimdışı kaydedildi, çevrimiçi olduğunda yeniden deneyeceğiz."
+    },
+    "subheading": {
+      "semifinals": "Yarı finaller",
+      "knockouts": "Eleme"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Bu tahmini veya havuzu bulamadık. Yeni bir tahmin seçin, başlangıç düşündüğünüzden daha yakın.",
       "cta": "Yeni bir tahmin yapın"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Havuzlar"
+  },
+  "leaderboard": {
+    "page_title": "Sıralama"
+  },
+  "save_share": {
+    "page_title": "Kaydet ve paylaş"
+  },
+  "molecule": {
+    "page_title": "3D Molekül"
   }
 }

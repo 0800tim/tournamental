@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Sparat offline, vi försöker igen när du är tillbaka online."
+    },
+    "subheading": {
+      "semifinals": "Semifinaler",
+      "knockouts": "Slutspel"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Vi kunde inte hitta denna prognos eller pool. Välj en ny prognos, matchstart är närmare än du tror.",
       "cta": "Gör en ny prognos"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Poolar"
+  },
+  "leaderboard": {
+    "page_title": "Topplista"
+  },
+  "save_share": {
+    "page_title": "Spara & dela"
+  },
+  "molecule": {
+    "page_title": "3D-molekyl"
   }
 }

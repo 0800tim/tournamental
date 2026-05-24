@@ -16,9 +16,22 @@
 
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/shell";
 import { RouteEvent } from "@/components/analytics/RouteEvent";
+
+async function safeT(key: string, fallback: string): Promise<string> {
+  try {
+    const t = await getTranslations();
+    const out = t(key);
+    return out === key ? fallback : out;
+  } catch {
+    return fallback;
+  }
+}
+
+export const dynamic = "force-dynamic";
 
 import { LiveWidgetDemo } from "./LiveWidgetDemo";
 import "./syndicates.css";
@@ -104,9 +117,10 @@ const PREMIUM_FEATURES: readonly string[] = [
   "Priority support + onboarding call",
 ];
 
-export default function SyndicatesIndexPage(): JSX.Element {
+export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
+  const title = await safeT("syndicates.page_title", "Pools");
   return (
-    <AppShell title="Syndicates" showBottomNav>
+    <AppShell title={title} showBottomNav>
       <RouteEvent name="page.view" />
 
       <div className="vt-syndicates-page">

@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Uloženo offline, zkusíme to znovu, až budeš opět online."
+    },
+    "subheading": {
+      "semifinals": "Semifinále",
+      "knockouts": "Vyřazovací část"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Nemohli jsme najít tuto předpověď nebo skupinu. Vyberte si novou předpověď, zahájení je blíže, než si myslíte.",
       "cta": "Vytvořit novou předpověď"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Pooly"
+  },
+  "leaderboard": {
+    "page_title": "Žebříček"
+  },
+  "save_share": {
+    "page_title": "Uložit a sdílet"
+  },
+  "molecule": {
+    "page_title": "3D Molekula"
   }
 }

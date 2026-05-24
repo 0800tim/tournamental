@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Oflayn saqlandi, online qaytganingizda qayta urinamiz."
+    },
+    "subheading": {
+      "semifinals": "Yarim final",
+      "knockouts": "Pley-off"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Biz bu bashorativni yoki ligani topa olmadik. Yangi bashorat tanlang, boshlang'ich siz o'ylayotgatingizdan yaqinroq.",
       "cta": "Yangi bashorat yarating"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Poollar"
+  },
+  "leaderboard": {
+    "page_title": "Reyting"
+  },
+  "save_share": {
+    "page_title": "Saqlash va ulashish"
+  },
+  "molecule": {
+    "page_title": "3D molekula"
   }
 }

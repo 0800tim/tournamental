@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Offline opgeslagen, we proberen het opnieuw zodra je weer online bent."
+    },
+    "subheading": {
+      "semifinals": "Halve finales",
+      "knockouts": "Knock-outs"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "We konden die voorspelling of pool niet vinden. Kies een nieuwe voorspelling, aftrap is dichterbij dan je denkt.",
       "cta": "Maak een nieuwe voorspelling"
     }
+  },
+  "profile": {
+    "page_title": "Profiel"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Klassement"
+  },
+  "save_share": {
+    "page_title": "Opslaan & delen"
+  },
+  "molecule": {
+    "page_title": "3D-molecuul"
   }
 }

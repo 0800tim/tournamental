@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Guardado offline, voltamos a tentar quando estiveres online."
+    },
+    "subheading": {
+      "semifinals": "Meias-finais",
+      "knockouts": "Fase a eliminar"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Não conseguimos encontrar esse palpite ou grupo. Escolhe um novo palpite, o início está mais próximo do que pensas.",
       "cta": "Fazer um novo palpite"
     }
+  },
+  "profile": {
+    "page_title": "Perfil"
+  },
+  "syndicates": {
+    "page_title": "Pools"
+  },
+  "leaderboard": {
+    "page_title": "Classificação"
+  },
+  "save_share": {
+    "page_title": "Guardar e partilhar"
+  },
+  "molecule": {
+    "page_title": "Molécula 3D"
   }
 }

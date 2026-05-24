@@ -480,6 +480,10 @@
     },
     "submit": {
       "saved_offline": "Lagret offline, vi prøver igjen når du er online."
+    },
+    "subheading": {
+      "semifinals": "Semifinaler",
+      "knockouts": "Utslagsrunde"
     }
   },
   "share_landing": {
@@ -519,5 +523,20 @@
       "body": "Vi kunne ikke finne denne spådommen eller puljen. Velg en ny spådom, sparket er nærmere enn du tror.",
       "cta": "Lag en ny spådom"
     }
+  },
+  "profile": {
+    "page_title": "Profil"
+  },
+  "syndicates": {
+    "page_title": "Pooler"
+  },
+  "leaderboard": {
+    "page_title": "Resultatliste"
+  },
+  "save_share": {
+    "page_title": "Lagre & del"
+  },
+  "molecule": {
+    "page_title": "3D-molekyl"
   }
 }
