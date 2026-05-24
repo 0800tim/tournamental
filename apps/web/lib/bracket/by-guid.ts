@@ -279,6 +279,43 @@ function resolveAuthApiBase(): string {
   );
 }
 
+/**
+ * Resolve a friendly handle (slugified display_name) to the owner's
+ * auth-sms user id. Used by the /s/<handle> resolver to fall through
+ * to the existing user-id bracket lookup. Returns the id only on hit,
+ * null on miss / timeout / network error so the resolver can keep
+ * walking the chain.
+ *
+ * Cache: relies on auth-sms's `Cache-Control: s-maxage=60` on the
+ * upstream response; Next's fetch cache respects that.
+ */
+export async function lookupUserIdByHandle(
+  handle: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<string | null> {
+  const base = resolveAuthApiBase().replace(/\/+$/, "");
+  if (!base) return null;
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 600);
+  try {
+    const res = await fetchImpl(
+      `${base}/v1/auth/users/by-handle/${encodeURIComponent(handle)}`,
+      {
+        signal: ctrl.signal,
+        next: { revalidate: 60 },
+        headers: { accept: "application/json" },
+      } as RequestInit,
+    );
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const body = (await res.json()) as { user?: { id?: string } };
+    return body?.user?.id ?? null;
+  } catch {
+    clearTimeout(timer);
+    return null;
+  }
+}
+
 async function loadOwnerProfile(
   userId: string,
   fetchImpl: typeof fetch,

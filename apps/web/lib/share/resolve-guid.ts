@@ -1,24 +1,28 @@
 /**
  * Resolver for the `/s/<guid>` universal share path.
  *
- * Resolution order (matches the contract Tim laid out 2026-05-11):
- *   1. If the guid is a valid (non-reserved) syndicate slug AND a
- *      syndicate exists in the store under that slug → "syndicate".
- *   2. Else if the guid is a valid share-guid shape (UUID v4 or
- *      16-char nanoid) AND a bracket loads → "user".
- *   3. Else → "not_found".
+ * Resolution order:
+ *   1. Syndicate slug (e.g. `/s/argentina-pool`) → "syndicate"
+ *   2. Share guid shape (UUID v4 / 16-char nanoid / `u_<hex>+`) → "user"
+ *      (this is the immutable permalink form — what `Save & share` shows
+ *      in the copy-link field, and what every previously-sent share URL
+ *      still uses; never breaks)
+ *   3. Friendly handle (slugified display_name) → "user" via auth-sms
+ *      lookup → game-service latest-bracket-by-user-id (Tim 2026-05-24,
+ *      the `/s/0800tim` shape)
+ *   4. → "not_found"
  *
- * Crucially, reserved slugs never short-circuit to either branch:
- *   `/s/play`, `/s/api`, `/s/world-cup` always 404 in this resolver.
- *   The parallel signup agent (#70) refuses these at registration.
+ * Reserved slugs (`/s/play`, `/s/api`, `/s/world-cup`) never resolve
+ * via syndicate or handle branches; they fall through to 404.
  *
- * This file is pure logic over the two store stubs so it's trivially
- * unit-testable. See `__tests__/s-guid-resolver.test.ts`.
+ * Pure-logic over the store + lookup helpers so the unit test in
+ * `__tests__/s-guid-resolver.test.ts` can stub each branch independently.
  */
 
 import {
   loadBracketFromGuid,
   isShareGuidShape,
+  lookupUserIdByHandle,
   type BracketByGuid,
 } from "@/lib/bracket/by-guid";
 import { loadSyndicateBySlug, type SyndicateRecord } from "@/lib/syndicate/store";
@@ -26,6 +30,7 @@ import {
   isReservedSlug,
   isValidSlugShape,
 } from "@/lib/syndicate/reserved-slugs";
+import { isHandleShape } from "@/lib/share/handle-slug";
 
 export type ResolvedShare =
   | { readonly kind: "syndicate"; readonly syndicate: SyndicateRecord }
@@ -56,12 +61,28 @@ export async function resolveShareGuid(
     if (syndicate) return { kind: "syndicate", syndicate };
   }
 
-  // Step 2, user share guid. UUID v4 or 16-char nanoid.
+  // Step 2, share-guid shape (UUID v4, 16-char nanoid, or auth-sms
+  // `u_<hex>`). Permalink path; the saved-bracket form everyone has
+  // already shared resolves here.
   if (isShareGuidShape(guid)) {
     const bracket = await loadBracketFromGuid(guid, {
       includePayload: opts.includePayload,
     });
     if (bracket) return { kind: "user", bracket };
+  }
+
+  // Step 3, friendly handle (slugified display_name). Ask auth-sms
+  // which user_id this handle maps to, then reuse the existing
+  // by-user-id fallback in loadBracketFromGuid (which accepts the
+  // `u_<hex>` shape after PR 4059281).
+  if (isHandleShape(guid) && !isReservedSlug(guid)) {
+    const userId = await lookupUserIdByHandle(guid);
+    if (userId) {
+      const bracket = await loadBracketFromGuid(userId, {
+        includePayload: opts.includePayload,
+      });
+      if (bracket) return { kind: "user", bracket };
+    }
   }
 
   return { kind: "not_found", attempted: guid };

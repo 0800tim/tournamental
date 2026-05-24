@@ -28,10 +28,13 @@ import { isReservedSlug } from "@/lib/syndicate/reserved-slugs";
  *  when the result is too short, too long, or reserved. */
 export function slugifyDisplayName(displayName: string | null | undefined): string | null {
   if (!displayName) return null;
+  // Normalise to NFKD so accented characters decompose into base + combining
+  // mark (é → e + U+0301); the combining marks are then stripped by the
+  // final [^a-z0-9_-] character-class filter alongside spaces, punctuation,
+  // emoji, etc. Net effect: "Tim Thomás" → "timthomas".
   const normalised = displayName
     .toLowerCase()
-    .normalize("NFKD")              // strip accents (é → e)
-    .replace(/[̀-ͯ]/g, "") // combining marks
+    .normalize("NFKD")
     .replace(/[^a-z0-9_-]/g, "");
   if (normalised.length < 2 || normalised.length > 32) return null;
   if (isReservedSlug(normalised)) return null;

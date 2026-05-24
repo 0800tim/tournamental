@@ -756,6 +756,43 @@ export class Storage {
     return row ?? null;
   }
 
+  /**
+   * Find a user whose display_name slugifies to `handle`. Slugification
+   * is lower-case + strip everything that isn't [a-z0-9_-]; the same
+   * rule is applied client-side when minting friendly share URLs (see
+   * apps/web/lib/share/handle-slug.ts). This is the inverse lookup.
+   *
+   * Collisions: when two users slugify to the same handle, the
+   * most-recently-active wins (last_seen_at DESC). v0.1 acceptable
+   * because we have <100 active users; a dedicated handle column with
+   * uniqueness enforced at signup is the v0.2 path (Tim 2026-05-24).
+   *
+   * Returns `null` when no match or the handle is blank/reserved.
+   */
+  getUserByHandle(handle: string): UserRecord | null {
+    // NFKD-normalise + strip non-handle chars so accented display_names
+    // and the incoming handle compare identically (see
+    // apps/web/lib/share/handle-slug.ts for the rule, both ends must
+    // apply the same transform).
+    const slug = (s: string | null | undefined): string =>
+      (s ?? '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9_-]/g, '');
+    const norm = slug(handle);
+    if (!norm || norm.length < 2 || norm.length > 32) return null;
+    // SQLite doesn't have regex_replace built-in; we scan the (small)
+    // candidate set in Node. Bounded by display_name IS NOT NULL so we
+    // don't walk every row.
+    const rows = this.db
+      .prepare(
+        `SELECT * FROM user WHERE display_name IS NOT NULL
+         ORDER BY last_seen_at DESC`,
+      )
+      .all() as UserRecord[];
+    for (const row of rows) {
+      if (slug(row.display_name) === norm) return row;
+    }
+    return null;
+  }
+
   // ---- Sessions ----
 
   insertSession(rec: SessionRecord): void {

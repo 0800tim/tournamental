@@ -223,7 +223,20 @@ export function resolveShareGuid(opts: {
   readonly serverShareGuid?: string | null;
   readonly authUserId?: string | null;
   readonly bracketId?: string | null;
+  /**
+   * Friendly handle (slugified display_name) for the signed-in user.
+   * When present, takes top precedence so the share URL renders as
+   * `/s/0800tim` instead of `/s/a84d5bffc486a0c7`. Pass `null` when
+   * the user is anonymous, or when the display_name doesn't slugify
+   * to a clean handle (see lib/share/handle-slug.ts). The existing
+   * server-share-guid + bracket-id + user-id chain stays as the
+   * permalink fallback when the handle is absent or contested.
+   * Tim 2026-05-24.
+   */
+  readonly authHandle?: string | null;
 }): string {
+  const handle = (opts.authHandle ?? "").trim();
+  if (handle) return handle;
   const server = (opts.serverShareGuid ?? "").trim();
   if (server) return server;
   const auth = (opts.authUserId ?? "").trim();

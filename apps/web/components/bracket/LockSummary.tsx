@@ -29,6 +29,7 @@ import { localUserId } from "@/lib/bracket/storage";
 import { useCountUp } from "@/lib/motion";
 import { shareContent, tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
 import {
   buildShareText,
   buildShareTextBody,
@@ -135,9 +136,15 @@ export function LockSummary(props: LockSummaryProps) {
   useEffect(() => {
     setStoredShareGuid(loadStoredShareGuid(tournament.id, localUserId()));
   }, [tournament.id]);
+  // Hook auth here (and reuse below) so we can mint the friendly
+  // `/s/<handle>` URL when the user is signed in and their
+  // display_name slugifies to a clean handle (Tim 2026-05-24).
+  const auth = useUser();
+  const authHandle = slugifyDisplayName(auth.profile?.display_name ?? null);
   const guid = resolveShareGuid({
     serverShareGuid: storedShareGuid,
     authUserId: null,
+    authHandle,
     bracketId,
   });
   const shareUrl = shareUrlFor(guid);
@@ -150,8 +157,6 @@ export function LockSummary(props: LockSummaryProps) {
     isComplete,
   });
   void buildShareText; // referenced by deep-link helpers, kept for fallbacks
-
-  const auth = useUser();
 
   const handleShare = async (): Promise<void> => {
     void tapFeedback("medium");

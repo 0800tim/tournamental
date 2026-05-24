@@ -131,6 +131,30 @@ export async function registerSession(
     return reply.send({ user: serialiseUserPublic(user) });
   });
 
+  // Resolve a friendly handle (slugified display_name) to a user.
+  // Powers /s/<handle> short share URLs on play.tournamental.com.
+  // Public, no-auth, edge-cached briefly (handles can change when a
+  // user renames their display_name, but rename is rare). Returns the
+  // same public-profile shape as /:id/public so the web caller can
+  // hand off straight to the share-landing renderer.
+  // Tim 2026-05-24, see docs/61 and apps/web/lib/share/handle-slug.ts.
+  app.get<{ Params: { handle: string } }>(
+    '/v1/auth/users/by-handle/:handle',
+    async (req, reply) => {
+      const handle = (req.params.handle ?? '').trim();
+      if (!handle || !/^[a-zA-Z0-9_-]{2,32}$/.test(handle)) {
+        return reply.code(400).send({ error: 'bad_handle' });
+      }
+      const user = ctx.storage.getUserByHandle(handle);
+      if (!user) return reply.code(404).send({ error: 'not_found' });
+      reply.header(
+        'Cache-Control',
+        'public, s-maxage=60, stale-while-revalidate=300',
+      );
+      return reply.send({ user: serialiseUserPublic(user) });
+    },
+  );
+
   app.get('/v1/auth/me', async (req, reply) => {
     const authed = await authenticate(ctx, req);
     if (!authed) return reply.code(401).send({ error: 'unauthorized' });

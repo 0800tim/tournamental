@@ -90,6 +90,7 @@ import {
   shareUrlFor,
 } from "@/lib/share/share-text";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
 import { useCountry } from "@/lib/odds/use-country";
 import type { MatchOdds } from "@/lib/odds/types";
 import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
@@ -1564,9 +1565,15 @@ function SaveBracketPanel({
     // /world-cup-2026. Future tournaments will plumb this as a prop.
     setShareGuid(loadStoredShareGuid("wc2026", "ssr_user"));
   }, [saved]);
+  // Friendly handle for signed-in users so the share URL renders as
+  // `/s/0800tim` instead of `/s/<random-guid>`. Falls through to the
+  // server share guid when handle is null or contested (Tim 2026-05-24).
+  const panelAuth = useUser();
+  const authHandle = slugifyDisplayName(panelAuth.profile?.display_name ?? null);
   const guid = resolveShareGuid({
     serverShareGuid: shareGuid,
     authUserId: null,
+    authHandle,
     bracketId,
   });
   const shareUrl = guid ? shareUrlFor(guid) : null;

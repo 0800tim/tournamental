@@ -48,6 +48,7 @@ import type {
 } from "@/lib/molecule/dom-capture";
 import { tapFeedback } from "@/lib/native";
 import { loadStoredShareGuid } from "@/lib/share/share-guid-storage";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
 import {
   type OgSize,
   buildOgImageUrl,
@@ -332,14 +333,20 @@ export function ShareSavePage({
   // Stable share guid + URLs. `useMemo` ensures the URL doesn't change
   // on every render, important because the `<img>`'s src would otherwise
   // re-fetch.
+  // Friendly handle for the signed-in user. Top precedence in the
+  // resolver chain so the share URL renders as `/s/0800tim` instead of
+  // `/s/<random-guid>` (Tim 2026-05-24). Falls through to the guid
+  // form when handle is null / contested.
+  const authHandle = slugifyDisplayName(auth.profile?.display_name ?? null);
   const guid = useMemo(
     () =>
       resolveShareGuid({
         serverShareGuid: storedShareGuid,
         authUserId,
+        authHandle,
         bracketId: bracket?.bracketId ?? userIdent,
       }),
-    [storedShareGuid, authUserId, bracket?.bracketId, userIdent],
+    [storedShareGuid, authUserId, authHandle, bracket?.bracketId, userIdent],
   );
   const shareUrl = useMemo(() => shareUrlFor(guid), [guid]);
   const shareDisplay = useMemo(() => shareDisplayUrlFor(guid), [guid]);
