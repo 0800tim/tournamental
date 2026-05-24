@@ -29,7 +29,22 @@
  * Step 2 keeps the join going.
  */
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useState } from "react";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import {
   AUTH_BASE,
@@ -113,6 +128,7 @@ function deriveHandleFromName(name: string): string {
 type Step = "identity" | "verify" | "success";
 
 export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
+  const t = useTranslations();
   // Authenticated users skip the whole identity + OTP + verify flow:
   // their session already has the handle / phone / display name, so
   // we POST /join with credentials and jump straight to the success
@@ -638,7 +654,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         onClick={handleCtaClick}
         disabled={busy && isAuthed}
       >
-        {busy && isAuthed ? "Joining…" : "Join this pool"}
+        {busy && isAuthed
+          ? safeT(t, "join.button_joining", "Joining…")
+          : safeT(t, "syndicate.cta_join", "Join this pool")}
       </button>
       {open ? (
         <div
@@ -762,7 +780,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     data-variant="primary"
                     disabled={!canSubmitIdentity}
                   >
-                    {busy ? "Sending…" : "Send login code"}
+                    {busy
+                      ? safeT(t, "join.modal.cta_sending", "Sending…")
+                      : safeT(t, "join.modal.cta_send_code", "Send login code")}
                   </button>
                 </div>
                 <p className="vt-join-footnote">
