@@ -15,7 +15,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
 
 import {
   computeGroupStandings,
@@ -87,8 +86,6 @@ export function GroupCard(props: GroupCardProps) {
     initialExpanded,
   } = props;
 
-  const t = useTranslations("bracket");
-
   const groupFixtures = tournament.group_fixtures
     .filter((f) => f.group_id === group.id)
     .sort((a, b) => a.match_no - b.match_no);
@@ -155,7 +152,7 @@ export function GroupCard(props: GroupCardProps) {
         <span className="bracket-group-head-titlerow">
           <h3 className="bracket-group-head-title">Group {group.id}</h3>
           <span className="bracket-group-progress" aria-live="polite">
-            {predictedCount} / {groupFixtures.length} {t("group_progress")}
+            {predictedCount} / {groupFixtures.length} predicted
           </span>
           <span className="bracket-group-head-chevron" aria-hidden="true">
             {expanded ? "▼" : "▶"}
@@ -200,8 +197,8 @@ export function GroupCard(props: GroupCardProps) {
             type="button"
             className="bracket-group-autopick"
             onClick={() => setShowAutoPickConfirm(true)}
-            aria-label={t("group_autopick_aria") + ` ${group.id}`}
-            title={t("group_autopick_title") + ` ${group.id}`}
+            aria-label={`Auto-pick all 6 matches in Group ${group.id}`}
+            title={`Auto-pick Group ${group.id} from live odds`}
           >
             <span className="bracket-group-autopick-icon" aria-hidden="true">⚡</span>
           </button>
@@ -249,7 +246,6 @@ export function GroupCard(props: GroupCardProps) {
           teams={teams}
           complete={complete}
           ties={ties}
-          t={t}
         />
 
         {/* Only show the tiebreaker UI when there's an actual tie to
@@ -266,7 +262,6 @@ export function GroupCard(props: GroupCardProps) {
             standings={standings}
             tiebreaker={tiebreaker}
             onChangeTiebreaker={onChangeTiebreaker}
-            t={t}
           />
         )}
       </div>
@@ -286,10 +281,13 @@ export function GroupCard(props: GroupCardProps) {
               id={`group-${group.id}-autopick-title`}
               className="bracket-modal-title"
             >
-              ⚡ {t("group_autopick_modal_title") + ` ${group.id}`}?
+              ⚡ Auto-pick Group {group.id}?
             </h3>
             <p className="bracket-modal-body">
-              {t("group_autopick_modal_body") + ` ${group.id}`}
+              This will <strong>clear any picks you&apos;ve already made in
+              Group {group.id}</strong> and replace them with the favourites
+              from live Polymarket odds. The rest of your bracket stays
+              untouched. You can edit any pick afterwards.
             </p>
             <div className="bracket-modal-actions">
               <button
@@ -297,7 +295,7 @@ export function GroupCard(props: GroupCardProps) {
                 className="bracket-btn bracket-btn-secondary"
                 onClick={() => setShowAutoPickConfirm(false)}
               >
-                {t("group_autopick_cancel")}
+                Cancel
               </button>
               <button
                 type="button"
@@ -308,7 +306,7 @@ export function GroupCard(props: GroupCardProps) {
                 }}
                 autoFocus
               >
-                {t("group_autopick_confirm")}
+                Continue
               </button>
             </div>
           </div>
@@ -323,18 +321,17 @@ interface StandingsPanelProps {
   readonly teams: ReadonlyMap<string, Team>;
   readonly complete: boolean;
   readonly ties: ReturnType<typeof detectTiesNeedingTiebreaker>;
-  readonly t: ReturnType<typeof useTranslations>;
 }
 
-function PredictedStandingsPanel({ standings, teams, complete, ties, t }: StandingsPanelProps) {
+function PredictedStandingsPanel({ standings, teams, complete, ties }: StandingsPanelProps) {
   const tiePositions = new Set<number>();
   for (const t of ties) for (const p of t.positions) tiePositions.add(p);
 
   return (
-    <div className="bracket-standings" aria-label={t("standings_header")}>
-      <h4>{t("standings_header")}</h4>
+    <div className="bracket-standings" aria-label="Predicted standings">
+      <h4>Predicted standings</h4>
       {standings.length === 0 ? (
-        <p className="bracket-standings-hint">{t("standings_hint_empty")}</p>
+        <p className="bracket-standings-hint">Pick the outcomes of each match to see predicted standings.</p>
       ) : (
         <ol className="bracket-standings-list">
           {standings.map((s, i) => {
@@ -364,7 +361,7 @@ function PredictedStandingsPanel({ standings, teams, complete, ties, t }: Standi
                   {s.goalsFor}:{s.goalsAgainst}
                 </span>
                 <span className="bracket-pos-tag">
-                  {advancing ? t("standings_advances") : wildcard ? t("standings_best_thirds") : t("standings_out")}
+                  {advancing ? "advances" : wildcard ? "best-thirds pool" : "out"}
                 </span>
                 {tied && <span className="bracket-tie-flag" aria-label="Tied, needs tiebreaker">tied</span>}
               </li>
@@ -374,7 +371,7 @@ function PredictedStandingsPanel({ standings, teams, complete, ties, t }: Standi
       )}
       {!complete && standings.some((s) => s.played > 0) && (
         <p className="bracket-standings-hint">
-          {t("standings_hint_incomplete")}
+          Standings update live as you pick. Predict all 6 matches for a final order.
         </p>
       )}
     </div>
@@ -388,7 +385,6 @@ interface TiebreakerControlProps {
   readonly tiedBlocks: ReturnType<typeof detectTiesNeedingTiebreaker>;
   readonly tiebreaker?: GroupTiebreaker;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
-  readonly t: ReturnType<typeof useTranslations>;
 }
 
 function TiebreakerControl({
@@ -397,7 +393,6 @@ function TiebreakerControl({
   tiedBlocks,
   tiebreaker,
   onChangeTiebreaker,
-  t,
 }: TiebreakerControlProps) {
   // The full 4-team order, derived from the live standings each render.
   // The tiebreaker only resolves ties WITHIN a block, so non-tied teams'
@@ -431,13 +426,13 @@ function TiebreakerControl({
     <div
       className="bracket-tiebreaker"
       role="group"
-      aria-label={t("tiebreaker_aria")}
+      aria-label="Tiebreaker, rank tied teams"
     >
-      <h4>{t("tiebreaker_header")}</h4>
+      <h4>Tiebreaker, rank tied teams</h4>
       <p className="bracket-tiebreaker-hint">
         {tiedBlocks.length === 1
           ? `${tiedBlocks[0]!.teamCodes.join(", ")} are tied on points + goal difference. Drag (desktop) or use the arrows to rank them.`
-          : t("tiebreaker_hint_multiple")}
+          : "Multiple ties detected. Rank each tied block below."}
       </p>
       {tiedBlocks.map((block, bIdx) => (
         <TiebreakerBlock
@@ -446,7 +441,6 @@ function TiebreakerControl({
           block={block}
           tiebreaker={tiebreaker}
           onCommit={commitBlockOrder}
-          t={t}
         />
       ))}
     </div>
@@ -458,10 +452,9 @@ interface TiebreakerBlockProps {
   readonly block: { readonly positions: readonly number[]; readonly teamCodes: readonly string[] };
   readonly tiebreaker?: GroupTiebreaker;
   readonly onCommit: (blockTeams: readonly string[]) => void;
-  readonly t: ReturnType<typeof useTranslations>;
 }
 
-function TiebreakerBlock({ standings, block, tiebreaker, onCommit, t }: TiebreakerBlockProps) {
+function TiebreakerBlock({ standings, block, tiebreaker, onCommit }: TiebreakerBlockProps) {
   // Order this block by current standings (which already honour any saved
   // tiebreaker), so the visible order matches "Predicted standings".
   const ordered = standings
@@ -539,7 +532,7 @@ function TiebreakerBlock({ standings, block, tiebreaker, onCommit, t }: Tiebreak
                   move(i, i - 1);
                 }}
                 disabled={isFirst}
-                aria-label={t("tiebreaker_rank_higher") + ` ${code}`}
+                aria-label={`Rank ${code} higher`}
               >
                 &uarr;
               </button>
@@ -552,7 +545,7 @@ function TiebreakerBlock({ standings, block, tiebreaker, onCommit, t }: Tiebreak
                   move(i, i + 1);
                 }}
                 disabled={isLast}
-                aria-label={t("tiebreaker_rank_lower") + ` ${code}`}
+                aria-label={`Rank ${code} lower`}
               >
                 &darr;
               </button>

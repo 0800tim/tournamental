@@ -2,6 +2,13 @@
 
 > Help us speak every World Cup nation's language. This is the human-translator guide. The architectural plan lives in [60-i18n-architecture.md](60-i18n-architecture.md); that one explains the system. This one explains how to add a translation, improve an existing one, or add a new locale we don't ship yet.
 
+## What's live (2026-05-24)
+
+- 22 locales: `en, es, pt-BR, pt-PT, fr, de, it, nl, hr, bs, cs, sv, no, hu, ja, ko, zh-CN, uz, mi, ar, fa, tr`.
+- ~390 leaf keys per locale, covering the home page, /odds, /syndicates landing, /s/[guid] share landing, /world-cup-2026 bracket builder, the chrome (AppBar, drawer, footer, BottomNav, locale picker), and the join-pool flow.
+- URL-prefix routing: `play.tournamental.com/es/world-cup-2026` renders Spanish; the picker writes that URL automatically and a cookie keeps the preference sticky across navigation.
+- RTL flips for `ar` and `fa` (the `<html dir="rtl">` is set server-side by the layout).
+
 ## Quick start
 
 1. Fork the repo on GitHub: https://github.com/0800tim/tournamental
@@ -17,41 +24,59 @@ That's it. The rest of this doc is rules + tips so your PR lands cleanly.
 
 ## The locale file format
 
-Every locale is a JSON file with the same key set. The values are localised strings. Example:
+Every locale is a NESTED JSON file with the same key tree. Values are localised strings. The catalogue is nested (not flat with dotted keys) because next-intl walks the object by dots: `t("home.hero.headline_a")` resolves to `messages.home.hero.headline_a`.
 
 ```json
 // apps/web/locales/en.json (source of truth)
 {
-  "nav.predict": "Predict",
-  "nav.save_share": "Save & share",
-  "nav.leaderboard": "Leaderboard",
-  "nav.pools": "Pools",
-  "home.hero.headline": "Can you predict every match of the World Cup?",
-  "home.hero.cta_predict": "Set my picks",
-  "home.hero.cta_pool": "Run a pool",
-  "join.modal.title": "Join {pool_name}",
-  "join.modal.members": "{count, plural, =0 {No members yet} one {# member} other {# members}}",
-  "join.modal.cta_send_code": "Send login code",
-  ...
+  "_meta": { "locale": "en", "native": "English", "english": "English", ... },
+  "nav": {
+    "predict": "Predict",
+    "save_share": "Save & share",
+    "leaderboard": "Leaderboard",
+    "pools": "Pools"
+  },
+  "home": {
+    "hero": {
+      "headline_a": "Can you predict the entire World Cup?",
+      "cta_predict": "Set my picks",
+      "cta_pool": "Run a pool",
+      "lede": "Nobody has ever done it ... {odds_link}. Twenty-two World Cups, 964 matches, ..."
+    }
+  },
+  "join": {
+    "modal": {
+      "title": "Join {pool_name}",
+      "cta_send_code": "Send login code"
+    }
+  },
+  "syndicate": {
+    "members": "{count, plural, =0 {No members yet} one {# member} other {# members}}"
+  }
 }
 ```
 
 ```json
 // apps/web/locales/fr.json
 {
-  "nav.predict": "Pronostiquer",
-  "nav.save_share": "Enregistrer & partager",
-  "nav.leaderboard": "Classement",
-  "nav.pools": "Pools",
-  "home.hero.headline": "Peux-tu pronostiquer chaque match de la Coupe du Monde ?",
-  "home.hero.cta_predict": "Faire mes pronos",
-  "home.hero.cta_pool": "Lancer un pool",
-  "join.modal.title": "Rejoindre {pool_name}",
-  "join.modal.members": "{count, plural, =0 {Aucun membre pour l'instant} one {# membre} other {# membres}}",
-  "join.modal.cta_send_code": "Envoyer le code de connexion",
-  ...
+  "_meta": { "locale": "fr", "native": "Français", ... },
+  "nav": {
+    "predict": "Pronostiquer",
+    "save_share": "Enregistrer & partager",
+    "leaderboard": "Classement",
+    "pools": "Pools"
+  },
+  "home": {
+    "hero": {
+      "headline_a": "Peux-tu pronostiquer la Coupe du Monde entière ?",
+      "cta_predict": "Fais mes pronostics",
+      "cta_pool": "Lancer un pool"
+    }
+  }
 }
 ```
+
+The `_meta` block at the top of each file carries locale metadata (native name, completeness, translators). Don't change its `locale` field; translator names can be added to its `translators` array.
 
 The rules:
 
