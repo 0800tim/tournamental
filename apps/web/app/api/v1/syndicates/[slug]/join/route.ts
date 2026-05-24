@@ -205,7 +205,10 @@ export async function GET(
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
   if (!row) return json({ is_member: false });
-  return json({ is_member: persistence.isMember(row.id, session.id) });
+  return json({
+    is_member: persistence.isMember(row.id, session.id),
+    is_owner: row.owner_user_id === session.id,
+  });
 }
 
 /**
