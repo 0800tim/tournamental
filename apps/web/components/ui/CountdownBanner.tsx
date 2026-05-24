@@ -109,7 +109,13 @@ function Cell({
   const padded = String(Math.max(0, value)).padStart(2, "0");
   return (
     <div className="vt-countdown-cell" data-key={dataKey}>
-      <span className="vt-countdown-num">{padded}</span>
+      {/* The countdown is computed from Date.now() at render, so the SSR
+          value and the client-hydration value differ by the elapsed seconds.
+          Suppress the inevitable text mismatch so React patches this one node
+          instead of bailing the whole root to client rendering. */}
+      <span className="vt-countdown-num" suppressHydrationWarning>
+        {padded}
+      </span>
       <span className="vt-countdown-label">{label}</span>
     </div>
   );
