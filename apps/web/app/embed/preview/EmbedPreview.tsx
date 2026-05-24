@@ -42,6 +42,59 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
     }
   };
 
+  // Rendered both at the top (so the snippet is grabbable immediately) and
+  // below the live preview.
+  const snippetSection = () => (
+    <section style={{ marginBottom: 24 }}>
+      <p
+        style={{
+          fontSize: 11,
+          textTransform: "uppercase",
+          letterSpacing: "0.12em",
+          color: "#9aa6c2",
+          margin: "0 0 8px",
+        }}
+      >
+        Paste this snippet on your site
+      </p>
+      <pre
+        style={{
+          background: "#15151a",
+          border: "1px solid rgba(255,255,255,0.08)",
+          borderRadius: 10,
+          padding: 16,
+          color: "#fde68a",
+          fontSize: 12,
+          fontFamily: "ui-monospace, Menlo, Consolas, monospace",
+          overflowX: "auto",
+          margin: 0,
+        }}
+      >
+        <code>{snippet}</code>
+      </pre>
+      <button
+        type="button"
+        onClick={() => {
+          void handleCopy();
+        }}
+        style={{
+          marginTop: 12,
+          background: "#fbbf24",
+          color: "#15151a",
+          border: "none",
+          borderRadius: 10,
+          padding: "10px 16px",
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: "pointer",
+          fontFamily: "inherit",
+        }}
+      >
+        {copied ? "Copied!" : "Copy snippet"}
+      </button>
+    </section>
+  );
+
   return (
     <main
       style={{
@@ -93,6 +146,8 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
         />
       </div>
 
+      {snippetSection()}
+
       <section
         style={{
           marginBottom: 32,
@@ -121,54 +176,7 @@ export function EmbedPreview({ slug: initialSlug }: { slug: string }): JSX.Eleme
         )}
       </section>
 
-      <section>
-        <p
-          style={{
-            fontSize: 11,
-            textTransform: "uppercase",
-            letterSpacing: "0.12em",
-            color: "#9aa6c2",
-            margin: "0 0 8px",
-          }}
-        >
-          Paste this snippet on your site
-        </p>
-        <pre
-          style={{
-            background: "#15151a",
-            border: "1px solid rgba(255,255,255,0.08)",
-            borderRadius: 10,
-            padding: 16,
-            color: "#fde68a",
-            fontSize: 12,
-            fontFamily: "ui-monospace, Menlo, Consolas, monospace",
-            overflowX: "auto",
-            margin: 0,
-          }}
-        >
-          <code>{snippet}</code>
-        </pre>
-        <button
-          type="button"
-          onClick={() => {
-            void handleCopy();
-          }}
-          style={{
-            marginTop: 12,
-            background: "#fbbf24",
-            color: "#15151a",
-            border: "none",
-            borderRadius: 10,
-            padding: "10px 16px",
-            fontSize: 14,
-            fontWeight: 600,
-            cursor: "pointer",
-            fontFamily: "inherit",
-          }}
-        >
-          {copied ? "Copied!" : "Copy snippet"}
-        </button>
-      </section>
+      {snippetSection()}
     </main>
   );
 }
