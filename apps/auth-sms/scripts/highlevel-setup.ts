@@ -30,12 +30,25 @@ const DEFAULT_BASE_URL = 'https://services.leadconnectorhq.com';
 
 /** name -> derived fieldKey GHL produces (lowercased, spaces→underscores). */
 const DESIRED_FIELDS: Array<{ name: string; key: string; dataType: string }> = [
+  // Player / identity
   { name: 'Vtourn User Id', key: 'contact.vtourn_user_id', dataType: 'TEXT' },
   { name: 'Vtourn Admin Url', key: 'contact.vtourn_admin_url', dataType: 'TEXT' },
   { name: 'Vtourn Pool Ids', key: 'contact.vtourn_pool_ids', dataType: 'TEXT' },
+  // Syndicate / pool
   { name: 'Syndicate Slug', key: 'contact.syndicate_slug', dataType: 'TEXT' },
   { name: 'Syndicate Role', key: 'contact.syndicate_role', dataType: 'TEXT' },
   { name: 'Syndicate Tournament', key: 'contact.syndicate_tournament', dataType: 'TEXT' },
+  // Premium / commercial (runbook: highlevel-setup-runbook.md). Booleans
+  // are stored as TEXT 'true'/'false' for create-API simplicity.
+  { name: 'Syndicate Tier', key: 'contact.syndicate_tier', dataType: 'TEXT' },
+  { name: 'Marketing Opt In', key: 'contact.marketing_opt_in', dataType: 'TEXT' },
+  { name: 'Sponsor Contact Consent', key: 'contact.sponsor_contact_consent', dataType: 'TEXT' },
+  // Affiliate / referral (see docs/64-affiliate-highlevel.md). The affiliate
+  // signup product is not built yet; these fields are provisioned ahead so
+  // the eventual sync just works.
+  { name: 'Vtourn Affiliate Code', key: 'contact.vtourn_affiliate_code', dataType: 'TEXT' },
+  { name: 'Vtourn Affiliate Url', key: 'contact.vtourn_affiliate_url', dataType: 'TEXT' },
+  { name: 'Vtourn Referred By', key: 'contact.vtourn_referred_by', dataType: 'TEXT' },
 ];
 
 interface GhlField {

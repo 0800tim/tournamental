@@ -315,3 +315,11 @@
     font-size: 20px;
   }
 }
+
+/* Onboarding popup (ProfileCompletionGate): centre the avatar uploader
+   above the name/email form. */
+.vt-onboard-avatar {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 14px;
+}
