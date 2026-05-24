@@ -39,7 +39,7 @@ const AUDIENCES = [
     index: "02",
     heading: "For syndicate hosts",
     body:
-      "Claim play.tournamental.com/s/yourname in March or April. Pick a format (winner-takes-all reads classic for offices, podium reads kinder to large groups). Bulk-invite by Telegram or WhatsApp bot. The full playbook ships with the page.",
+      "Claim play.tournamental.com/s/yourname ahead of kickoff. Pick a format (winner-takes-all reads classic for offices, podium reads kinder to large groups). Bulk-invite by Telegram or WhatsApp bot. The full playbook ships with the page.",
   },
   {
     index: "03",
@@ -70,42 +70,36 @@ const FEATURES = [
   },
   {
     n: "F4",
-    title: "Final-day raffle",
+    title: "Your own prize pool",
     body:
-      "Every prediction earns one raffle entry, correct ones earn five. On final day, top-tier sponsors fund a verifiable on-chain prize draw via TournamentalOracle. Closed unless we ship the audit on time, open if we do.",
+      "Run your syndicate as a sweepstakes: set an entry and a prize split for your group, or keep it free for bragging rights. Tournamental never touches the money, hosts settle directly, so there is no platform cut and no custody.",
   },
 ] as const;
 
 const TIMELINE = [
   {
     n: "01",
-    title: "March 2026",
+    title: "Built in May 2026",
     body:
-      "Marketing site launches. Syndicate path reservations open. SDK and MCP server publish on npm.",
+      "First commit on 11 May 2026. In about two weeks the whole stack came together in the open: a browser match-renderer, the bracket builder, syndicate tooling, Telegram and WhatsApp sign-in, and a published SDK.",
   },
   {
     n: "02",
-    title: "April 2026",
+    title: "Open source",
     body:
-      "Bracket builder live. Affiliate router live. Telegram and WhatsApp bots out of beta.",
+      "Apache 2.0 from the first commit. The spec, renderer, bots and SDK are all public, and contributors share platform revenue via Drips. The commit history is the roadmap, read it if you want the detail.",
   },
   {
     n: "03",
-    title: "May 2026",
-    body:
-      "Dry-run World Cup using a synthetic match. Integration testing with early partner syndicates as they come on board.",
-  },
-  {
-    n: "04",
     title: "11 June 2026",
     body:
       "Opening match. Global board live. Daily clip cycle running. Telegram bot pushes the day's calls to every player.",
   },
   {
-    n: "05",
+    n: "04",
     title: "19 July 2026",
     body:
-      "Final. Final-day raffle. Mythic-tier badges drop. Tournament wraps.",
+      "Final. Mythic-tier badges drop. Tournament wraps.",
   },
 ] as const;
 ---
@@ -188,9 +182,9 @@ const TIMELINE = [
 
   <section class="vt-editorial container-page pb-16 md:pb-24">
     <header class="mb-10 md:mb-12">
-      <span class="vt-dateline">Timeline · From launch to lift</span>
+      <span class="vt-dateline">Timeline · From first commit to kickoff</span>
       <h2 class="vt-section-head mt-3">
-        Five dates between now and the trophy.
+        Built fast, in the open, in time for the trophy.
       </h2>
     </header>
 
