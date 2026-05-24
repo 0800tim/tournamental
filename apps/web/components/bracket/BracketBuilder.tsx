@@ -948,8 +948,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // detail of auto-pick, not a user-initiated action.
   const hasAnyPicks = totalCompleted > 0;
   const autoPickSubtitle = hasAnyPicks
-    ? "Refresh empty picks using live consensus odds."
-    : "Fill your bracket using live consensus odds, you can edit any pick before kickoff.";
+    ? safeT(t, "bracket.autopick.subtitle_consensus", "Refresh empty picks using live consensus odds.")
+    : safeT(t, "bracket.autopick.subtitle_default", "Fill your bracket using live consensus odds, you can edit any pick before kickoff.");
 
   // The auto-pick button has no "no available matches" condition in
   // practice (any unsaved match is a candidate), but we still wire a
@@ -1065,19 +1065,30 @@ export function BracketBuilder(props: BracketBuilderProps) {
     <div className="bracket-builder">
       <header className="bracket-header">
         <h1>
-          Call <em>every match</em> of the {tournament.name}.
-          {punditStatus.verified && (
-            <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
-              <PunditBadge status={punditStatus} size={20} />
-            </span>
-          )}
+          {(() => {
+            const headline = safeT(t, "bracket.hero.headline", "Call every match of the {tournament}.");
+            const tournamentName = tournament.name;
+            const [pre, post] = headline.split("{tournament}");
+            return (
+              <>
+                {pre ?? headline}
+                {post !== undefined && <>{tournamentName}{post}</>}
+                {punditStatus.verified && (
+                  <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
+                    <PunditBadge status={punditStatus} size={20} />
+                  </span>
+                )}
+              </>
+            );
+          })()}
         </h1>
         <p>
-          Group standings update live from your picks. Save each pick before
-          its match kicks off; you can edit any call right up to the whistle.
+          {safeT(t, "bracket.hero.lede", "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.")}
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
-          <strong>{totalCompleted}</strong> of {totalPicks} matches picked
+          {safeT(t, "bracket.hero.progress", "{picked} of {total} matches picked")
+            .replace("{picked}", String(totalCompleted))
+            .replace("{total}", String(totalPicks))}
         </p>
       </header>
 
@@ -1096,13 +1107,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
           type="button"
           className="bracket-autopick-cta"
           onClick={() => setShowAutoPickConfirm(true)}
-          aria-label="Auto-pick from live odds"
+          aria-label={safeT(t, "bracket.autopick.aria", "Auto-pick from live odds")}
           aria-describedby="bracket-autopick-subtitle"
-          title="Auto-pick every match: Polymarket odds for groups, world ranking for knockouts"
+          title={safeT(t, "bracket.autopick.title", "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts")}
           disabled={autoPickDisabled}
         >
           <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
-          <span className="bracket-autopick-cta-label">Auto-pick</span>
+          <span className="bracket-autopick-cta-label">{safeT(t, "bracket.autopick.label", "Auto-pick")}</span>
         </button>
         <p
           id="bracket-autopick-subtitle"
@@ -1179,14 +1190,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 key={panelId}
                 id="bracket-panel-groups"
                 role="tabpanel"
-                aria-label="Group stage"
+                aria-label={safeT(t, "bracket.group_stage.heading", "Group stage")}
                 aria-labelledby={undefined}
                 className="bracket-panel bracket-groups-section bracket-stage-panel"
               >
                 <div className="bracket-round-header">
-                  <h2>Group stage</h2>
+                  <h2>{safeT(t, "bracket.group_stage.heading", "Group stage")}</h2>
                   <span className="bracket-round-progress">
-                    <strong>{groupProgress.picked}</strong> of {groupProgress.total} matches picked
+                    {safeT(t, "bracket.group_stage.progress", "{picked} of {total} matches picked")
+                      .replace("{picked}", String(groupProgress.picked))
+                      .replace("{total}", String(groupProgress.total))}
                   </span>
                 </div>
                 <div

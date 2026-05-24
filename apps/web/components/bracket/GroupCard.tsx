@@ -14,7 +14,22 @@
 
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import {
   computeGroupStandings,
@@ -86,6 +101,7 @@ export function GroupCard(props: GroupCardProps) {
     initialExpanded,
   } = props;
 
+  const t = useTranslations();
   const groupFixtures = tournament.group_fixtures
     .filter((f) => f.group_id === group.id)
     .sort((a, b) => a.match_no - b.match_no);
@@ -150,7 +166,7 @@ export function GroupCard(props: GroupCardProps) {
         aria-controls={bodyId}
       >
         <span className="bracket-group-head-titlerow">
-          <h3 className="bracket-group-head-title">Group {group.id}</h3>
+          <h3 className="bracket-group-head-title">{safeT(t, "bracket.group.label", "Group {id}").replace("{id}", group.id)}</h3>
           <span className="bracket-group-progress" aria-live="polite">
             {predictedCount} / {groupFixtures.length} predicted
           </span>
@@ -324,12 +340,13 @@ interface StandingsPanelProps {
 }
 
 function PredictedStandingsPanel({ standings, teams, complete, ties }: StandingsPanelProps) {
+  const t = useTranslations();
   const tiePositions = new Set<number>();
-  for (const t of ties) for (const p of t.positions) tiePositions.add(p);
+  for (const tie of ties) for (const p of tie.positions) tiePositions.add(p);
 
   return (
-    <div className="bracket-standings" aria-label="Predicted standings">
-      <h4>Predicted standings</h4>
+    <div className="bracket-standings" aria-label={safeT(t, "bracket.standings.heading", "PREDICTED STANDINGS")}>
+      <h4>{safeT(t, "bracket.standings.heading", "PREDICTED STANDINGS")}</h4>
       {standings.length === 0 ? (
         <p className="bracket-standings-hint">Pick the outcomes of each match to see predicted standings.</p>
       ) : (

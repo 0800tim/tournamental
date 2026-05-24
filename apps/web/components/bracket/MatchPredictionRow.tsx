@@ -16,7 +16,22 @@
 
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState, type CSSProperties, type KeyboardEvent } from "react";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import type { MatchPrediction, Team } from "@tournamental/bracket-engine";
 
@@ -83,6 +98,7 @@ function pctLabel(p: number | null | undefined): string {
 }
 
 export function MatchPredictionRow(props: MatchPredictionRowProps) {
+  const t = useTranslations();
   const {
     matchId,
     homeTeam,
@@ -297,7 +313,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           onClick={() => choose("draw")}
           disabled={locked}
         >
-          <span className="mpr-pick-draw-pill">DRAW</span>
+          <span className="mpr-pick-draw-pill">{safeT(t, "bracket.match.draw", "DRAW")}</span>
           <span className="mpr-pick-pct" data-outcome="draw">
             {pctLabel(odds?.draw)}
           </span>
@@ -335,7 +351,9 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           aria-expanded={showScores}
           onClick={() => setShowScores((v) => !v)}
         >
-          {showScores ? "Hide scores" : "Add score"}
+          {showScores
+            ? safeT(t, "bracket.match.hide_scores", "Hide scores")
+            : safeT(t, "bracket.match.add_score", "Add score")}
         </button>
         {showScores && (
           <div className="mpr-scores">

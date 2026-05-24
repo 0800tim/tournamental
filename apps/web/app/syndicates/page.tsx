@@ -118,7 +118,142 @@ const PREMIUM_FEATURES: readonly string[] = [
 ];
 
 export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
-  const title = await safeT("syndicates.page_title", "Pools");
+  const [
+    title,
+    eyebrow,
+    hero_title,
+    hero_claim,
+    hero_lede,
+    quickstart_step1,
+    quickstart_step2,
+    quickstart_step3,
+    quickstart_time,
+    cta_primary,
+    cta_secondary,
+    trust_no_card,
+    trust_no_app,
+    trust_open_source,
+    trust_nz_built,
+    usecases_title,
+    usecases_aside,
+    flow_title,
+    flow_step1_n,
+    flow_step1_title,
+    flow_step1_body,
+    flow_step2_n,
+    flow_step2_title,
+    flow_step2_body,
+    flow_step3_n,
+    flow_step3_title,
+    flow_step3_body,
+    pricing_title,
+    tier_free_eyebrow,
+    tier_free_name,
+    tier_free_blurb,
+    tier_free_cta,
+    tier_free_footer,
+    tier_premium_eyebrow,
+    tier_premium_price,
+    tier_premium_price_sub,
+    tier_premium_blurb_prefix,
+    tier_premium_blurb_middle,
+    tier_premium_cta,
+    pricing_aside,
+    embed_title,
+    embed_intro,
+    embed_badge,
+    embed_snippet_intro,
+    embed_aside,
+    faq_title,
+    faq_q1,
+    faq_a1,
+    faq_q2,
+    faq_a2,
+    faq_q3,
+    faq_a3,
+    faq_q4,
+    faq_a4,
+    faq_q5,
+    faq_a5,
+    faq_q6,
+    faq_a6,
+    faq_q7,
+    faq_a7,
+    faq_q8,
+    faq_a8,
+    faq_github_link,
+    cta_final_title,
+    cta_final_body,
+    card_prize_label,
+  ] = await Promise.all([
+    safeT("syndicates.page_title", "Pools"),
+    safeT("syndicates_page.eyebrow", "Syndicates · Free forever"),
+    safeT("syndicates_page.hero_title", "The whole tournament, gamified for your audience."),
+    safeT("syndicates_page.hero_claim", "The only World Cup prediction platform where anyone can launch a fully branded, embeddable syndicate with custom prize splits and verifiable on-chain settlement in minutes."),
+    safeT("syndicates_page.hero_lede", "A syndicate is your own branded prediction pool. Drop the embed widget on any site, run a six-week game with your own prize. Free forever; premium adds a fully-managed CRM, your own messaging, and paid-entry handling."),
+    safeT("syndicates_page.quickstart_step1", "Pick your slug"),
+    safeT("syndicates_page.quickstart_step2", "Paste the embed"),
+    safeT("syndicates_page.quickstart_step3", "Invite your audience"),
+    safeT("syndicates_page.quickstart_time", "≈ 60 seconds"),
+    safeT("syndicates_page.cta_primary", "Start free in 60 seconds →"),
+    safeT("syndicates_page.cta_secondary", "Read the playbook"),
+    safeT("syndicates_page.trust_no_card", "No credit card"),
+    safeT("syndicates_page.trust_no_app", "No app install"),
+    safeT("syndicates_page.trust_open_source", "Apache 2.0 open source"),
+    safeT("syndicates_page.trust_nz_built", "NZ-built"),
+    safeT("syndicates_page.usecases_title", "Six audiences, six prize models"),
+    safeT("syndicates_page.usecases_aside", "Each scenario gets a recruit-email template, week-by-week run-of-show, sponsor-pitch template, and prize-structure menu in the syndicate playbook."),
+    safeT("syndicates_page.flow_title", "How it lands on your audience"),
+    safeT("syndicates_page.flow_step1_n", "01"),
+    safeT("syndicates_page.flow_step1_title", "Drop the widget"),
+    safeT("syndicates_page.flow_step1_body", "One script tag on any page. Squarespace, WordPress, Shopify, Webflow, or hand-rolled HTML. Renders your branded bracket, leaderboard, and sign-up form inline."),
+    safeT("syndicates_page.flow_step2_n", "02"),
+    safeT("syndicates_page.flow_step2_title", "Members join in seconds"),
+    safeT("syndicates_page.flow_step2_body", "They enter on your site, no bounce to ours. We create the account, save their picks, surface them on your leaderboard."),
+    safeT("syndicates_page.flow_step3_n", "03"),
+    safeT("syndicates_page.flow_step3_title", "Engage every match-day"),
+    safeT("syndicates_page.flow_step3_body", "Daily reminders, leaderboard climbs, share cards, and the 3D watch-along run for six weeks. Premium adds your own SMS/WhatsApp/email via your CRM."),
+    safeT("syndicates_page.pricing_title", "Freemium, on purpose"),
+    safeT("syndicates_page.tier_free.eyebrow", "Free"),
+    safeT("syndicates_page.tier_free.name", "Branded embed"),
+    safeT("syndicates_page.tier_free.blurb", "Embed the widget on any site you own. Leaderboards, share cards, prediction game. Forever free."),
+    safeT("syndicates_page.tier_free.cta", "Start free →"),
+    safeT("syndicates_page.tier_free.footer", "No credit card. Cancel anytime (it's free)."),
+    safeT("syndicates_page.tier_premium.eyebrow", "Premium · powered by Aiva"),
+    safeT("syndicates_page.tier_premium.price", "$97"),
+    safeT("syndicates_page.tier_premium.price_sub", "/ month + usage"),
+    safeT("syndicates_page.tier_premium.blurb_prefix", "Our CRM partner"),
+    safeT("syndicates_page.tier_premium.blurb_middle", "provisions a dedicated HighLevel sub-account, pre-configured for Tournamental-style workflows. BYO HighLevel via Aiva's affiliate link is supported."),
+    safeT("syndicates_page.tier_premium.cta", "See what premium unlocks"),
+    safeT("syndicates_page.pricing_aside", "Premium tier is delivered by Aiva. Tournamental never handles entry fees or prize money; Stripe sits inside your CRM sub-account and funds settle directly to your bank."),
+    safeT("syndicates_page.embed_title", "One snippet, any site"),
+    safeT("syndicates_page.embed_intro", "Drop these two lines anywhere on your site. The widget reads your syndicate slug, fetches your branding, and renders. Here's the same widget running against a demo syndicate, live on this page:"),
+    safeT("syndicates_page.embed_badge", "Live preview"),
+    safeT("syndicates_page.embed_snippet_intro", "That widget is rendered by exactly this snippet (substitute your slug):"),
+    safeT("syndicates_page.embed_aside", "Works on Squarespace, WordPress, Wix, Shopify, Webflow, and any custom site. No iframe required, no host-CSS bleed, cached at the edge."),
+    safeT("syndicates_page.faq_title", "Common questions"),
+    safeT("syndicates_page.faq_q1", "Is it really free? What's the catch?"),
+    safeT("syndicates_page.faq_a1", "Genuinely free, no card needed, no trial timer. You can run a syndicate, brand it, embed it, and watch your audience play for the whole tournament without paying us a cent. Premium ($97/mo via Aiva) is an optional upgrade for hosts who want a managed CRM, paid entries via Stripe, and outbound SMS / WhatsApp at scale. Most syndicates run free forever."),
+    safeT("syndicates_page.faq_q2", "How do members find my syndicate?"),
+    safeT("syndicates_page.faq_a2", "Two ways. Either you embed the widget on your site (Squarespace, WordPress, Shopify, custom) and members join straight from your page, or you share the public landing link (play.tournamental.com/s/yourname) directly on social, email, group chats, posters. Most hosts do both."),
+    safeT("syndicates_page.faq_q3", "Do my members need a Tournamental account?"),
+    safeT("syndicates_page.faq_a3", "They sign up via your widget or landing page with email or phone. The experience is yours; the technology is ours. No app install required."),
+    safeT("syndicates_page.faq_q4", "Who handles the prize money?"),
+    safeT("syndicates_page.faq_a4", "You do, always. Tournamental does not touch money. On free, you settle however you already do (PayPal, bank transfer, an envelope at the post-final pub). On premium, Aiva's HighLevel sub-account gives you a Stripe-Connect checkout and the funds land in your bank account directly. We never have custody."),
+    safeT("syndicates_page.faq_q5", "Can I brand the widget without paying?"),
+    safeT("syndicates_page.faq_a5", "Yes. Logo, colours, hero image, prize copy, and a sponsor block are all free. Premium removes the small 'Powered by Tournamental' footer and adds the managed CRM on top."),
+    safeT("syndicates_page.faq_q6", "Can I run this for tournaments other than the World Cup?"),
+    safeT("syndicates_page.faq_a6", "Soon. Six Nations, Cricket World Cup, college brackets, your office annual ladder, the same toolkit applies. The World Cup 2026 setup is the launch tournament; new ones light up as the seasons roll."),
+    safeT("syndicates_page.faq_q7", "What if I cancel premium?"),
+    safeT("syndicates_page.faq_a7", "Your syndicate stays live on the free tier. Your members are yours. Aiva keeps your CRM data accessible for 30 days so you can export it. There is no lock-in."),
+    safeT("syndicates_page.faq_q8", "Is the code open source?"),
+    safeT("syndicates_page.faq_a8", "Yes, Apache 2.0. The whole platform is in the public GitHub repo. Contributors share platform revenue via the Drips Network."),
+    safeT("syndicates_page.faq_github_link", "public GitHub repo"),
+    safeT("syndicates_page.cta_final_title", "Bring your tournament"),
+    safeT("syndicates_page.cta_final_body", "Office, friends, fan club, school, store, creator audience. Same toolkit. 60 seconds to a branded path. Free forever."),
+    safeT("syndicates_page.card_prize_label", "Sample prize"),
+  ]);
+
   return (
     <AppShell title={title} showBottomNav>
       <RouteEvent name="page.view" />
@@ -126,110 +261,100 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
       <div className="vt-syndicates-page">
         {/* Hero */}
         <section className="vt-syndicates-hero">
-          <span className="vt-syndicates-eyebrow">Syndicates · Free forever</span>
-          <h1 className="vt-syndicates-title">The whole tournament, gamified for your audience.</h1>
+          <span className="vt-syndicates-eyebrow">{eyebrow}</span>
+          <h1 className="vt-syndicates-title">{hero_title}</h1>
           <p className="vt-syndicates-claim">
-            The only World Cup prediction platform where anyone can launch a fully
-            branded, embeddable syndicate with custom prize splits and verifiable
-            on-chain settlement — in minutes.
+            {hero_claim}
           </p>
           <p className="vt-syndicates-lede">
-            A syndicate is your own branded prediction pool. Drop the embed widget on any site,
-            run a six-week game with your own prize. Free forever; premium adds a fully-managed
-            CRM, your own messaging, and paid-entry handling.
+            {hero_lede}
           </p>
 
           {/* The 60-second start strip */}
           <div className="vt-syndicates-quickstart">
             <div className="vt-syndicates-qs-step">
               <span className="vt-syndicates-qs-n">1</span>
-              <span>Pick your slug</span>
+              <span>{quickstart_step1}</span>
             </div>
             <div className="vt-syndicates-qs-arrow">→</div>
             <div className="vt-syndicates-qs-step">
               <span className="vt-syndicates-qs-n">2</span>
-              <span>Paste the embed</span>
+              <span>{quickstart_step2}</span>
             </div>
             <div className="vt-syndicates-qs-arrow">→</div>
             <div className="vt-syndicates-qs-step">
               <span className="vt-syndicates-qs-n">3</span>
-              <span>Invite your audience</span>
+              <span>{quickstart_step3}</span>
             </div>
-            <div className="vt-syndicates-qs-time">≈ 60 seconds</div>
+            <div className="vt-syndicates-qs-time">{quickstart_time}</div>
           </div>
 
           <div className="vt-syndicates-cta-row">
             <Link href="/syndicates/new" className="vt-syndicates-cta-primary">
-              Start free in 60 seconds →
+              {cta_primary}
             </Link>
             <Link href="/syndicates/playbook" className="vt-syndicates-cta-ghost">
-              Read the playbook
+              {cta_secondary}
             </Link>
           </div>
 
           {/* Reassurance row */}
           <ul className="vt-syndicates-trust-row">
-            <li><span aria-hidden="true">✓</span> No credit card</li>
-            <li><span aria-hidden="true">✓</span> No app install</li>
-            <li><span aria-hidden="true">✓</span> Apache 2.0 open source</li>
-            <li><span aria-hidden="true">✓</span> NZ-built</li>
+            <li><span aria-hidden="true">✓</span> {trust_no_card}</li>
+            <li><span aria-hidden="true">✓</span> {trust_no_app}</li>
+            <li><span aria-hidden="true">✓</span> {trust_open_source}</li>
+            <li><span aria-hidden="true">✓</span> {trust_nz_built}</li>
           </ul>
         </section>
 
         {/* Use cases */}
         <section className="vt-syndicates-section">
-          <h2 className="vt-syndicates-section-title">Six audiences, six prize models</h2>
+          <h2 className="vt-syndicates-section-title">{usecases_title}</h2>
           <ul className="vt-syndicates-grid">
             {USE_CASES.map((uc) => (
               <li key={uc.title} className="vt-syndicates-card">
                 <span className="vt-syndicates-card-icon" aria-hidden="true">{uc.icon}</span>
                 <h3 className="vt-syndicates-card-title">{uc.title}</h3>
                 <p className="vt-syndicates-card-body">{uc.body}</p>
-                <p className="vt-syndicates-card-prize-label">Sample prize</p>
+                <p className="vt-syndicates-card-prize-label">{card_prize_label}</p>
                 <p className="vt-syndicates-card-prize">{uc.prize}</p>
               </li>
             ))}
           </ul>
           <p className="vt-syndicates-aside">
-            Each scenario gets a recruit-email template, week-by-week run-of-show,
-            sponsor-pitch template, and prize-structure menu in the{" "}
+            {usecases_aside}{" "}
             <Link href="/syndicates/playbook" className="vt-syndicates-link">syndicate playbook</Link>.
           </p>
         </section>
 
         {/* How it lands */}
         <section className="vt-syndicates-section">
-          <h2 className="vt-syndicates-section-title">How it lands on your audience</h2>
+          <h2 className="vt-syndicates-section-title">{flow_title}</h2>
           <ol className="vt-syndicates-steps">
             <li>
-              <span className="vt-syndicates-step-n">01</span>
+              <span className="vt-syndicates-step-n">{flow_step1_n}</span>
               <div>
-                <h3 className="vt-syndicates-step-title">Drop the widget</h3>
+                <h3 className="vt-syndicates-step-title">{flow_step1_title}</h3>
                 <p className="vt-syndicates-step-body">
-                  One script tag on any page. Squarespace, WordPress, Shopify,
-                  Webflow, or hand-rolled HTML. Renders your branded bracket,
-                  leaderboard, and sign-up form inline.
+                  {flow_step1_body}
                 </p>
               </div>
             </li>
             <li>
-              <span className="vt-syndicates-step-n">02</span>
+              <span className="vt-syndicates-step-n">{flow_step2_n}</span>
               <div>
-                <h3 className="vt-syndicates-step-title">Members join in seconds</h3>
+                <h3 className="vt-syndicates-step-title">{flow_step2_title}</h3>
                 <p className="vt-syndicates-step-body">
-                  They enter on your site, no bounce to ours. We create the
-                  account, save their picks, surface them on your leaderboard.
+                  {flow_step2_body}
                 </p>
               </div>
             </li>
             <li>
-              <span className="vt-syndicates-step-n">03</span>
+              <span className="vt-syndicates-step-n">{flow_step3_n}</span>
               <div>
-                <h3 className="vt-syndicates-step-title">Engage every match-day</h3>
+                <h3 className="vt-syndicates-step-title">{flow_step3_title}</h3>
                 <p className="vt-syndicates-step-body">
-                  Daily reminders, leaderboard climbs, share cards, and the 3D
-                  watch-along run for six weeks. Premium adds your own
-                  SMS/WhatsApp/email via your CRM.
+                  {flow_step3_body}
                 </p>
               </div>
             </li>
@@ -238,14 +363,13 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
 
         {/* Pricing */}
         <section className="vt-syndicates-section" id="pricing">
-          <h2 className="vt-syndicates-section-title">Freemium, on purpose</h2>
+          <h2 className="vt-syndicates-section-title">{pricing_title}</h2>
           <div className="vt-syndicates-tiers">
             <div className="vt-syndicates-tier">
-              <p className="vt-syndicates-tier-eyebrow">Free</p>
-              <h3 className="vt-syndicates-tier-name">Branded embed</h3>
+              <p className="vt-syndicates-tier-eyebrow">{tier_free_eyebrow}</p>
+              <h3 className="vt-syndicates-tier-name">{tier_free_name}</h3>
               <p className="vt-syndicates-tier-blurb">
-                Embed the widget on any site you own. Leaderboards, share cards, prediction game.
-                Forever free.
+                {tier_free_blurb}
               </p>
               <ul className="vt-syndicates-tier-list">
                 {FREE_FEATURES.map((f) => (
@@ -256,20 +380,19 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
                 ))}
               </ul>
               <Link href="/syndicates/new" className="vt-syndicates-cta-primary vt-syndicates-cta-inline">
-                Start free →
+                {tier_free_cta}
               </Link>
-              <p className="vt-syndicates-tier-foot">No credit card. Cancel anytime (it&apos;s free).</p>
+              <p className="vt-syndicates-tier-foot">{tier_free_footer}</p>
             </div>
 
             <div className="vt-syndicates-tier vt-syndicates-tier-premium">
-              <p className="vt-syndicates-tier-eyebrow">Premium · powered by Aiva</p>
+              <p className="vt-syndicates-tier-eyebrow">{tier_premium_eyebrow}</p>
               <h3 className="vt-syndicates-tier-name">
-                $97 <span className="vt-syndicates-tier-price-sub">/ month + usage</span>
+                {tier_premium_price} <span className="vt-syndicates-tier-price-sub">{tier_premium_price_sub}</span>
               </h3>
               <p className="vt-syndicates-tier-blurb">
-                Our CRM partner <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-syndicates-link">Aiva</a>{" "}
-                provisions a dedicated HighLevel sub-account, pre-configured for Tournamental-style
-                workflows. BYO HighLevel via Aiva's affiliate link is supported.
+                {tier_premium_blurb_prefix} <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-syndicates-link">Aiva</a>{" "}
+                {tier_premium_blurb_middle}
               </p>
               <ul className="vt-syndicates-tier-list">
                 {PREMIUM_FEATURES.map((f) => (
@@ -280,115 +403,95 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
                 ))}
               </ul>
               <Link href="/syndicates/playbook#premium" className="vt-syndicates-cta-primary vt-syndicates-cta-inline">
-                See what premium unlocks
+                {tier_premium_cta}
               </Link>
             </div>
           </div>
           <p className="vt-syndicates-aside">
             Premium tier is delivered by{" "}
             <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-syndicates-link">Aiva</a>.
-            Tournamental never handles entry fees or prize money; Stripe sits inside your CRM
-            sub-account and funds settle directly to your bank.
+            {" "}{pricing_aside}
           </p>
         </section>
 
         {/* Embed snippet preview + live demo widget */}
         <section className="vt-syndicates-section" id="embed">
-          <h2 className="vt-syndicates-section-title">One snippet, any site</h2>
+          <h2 className="vt-syndicates-section-title">{embed_title}</h2>
           <p className="vt-syndicates-card-body" style={{ maxWidth: "64ch" }}>
-            Drop these two lines anywhere on your site. The widget reads
-            your syndicate slug, fetches your branding, and renders. Here&apos;s
-            the same widget running against a demo syndicate, live on this page:
+            {embed_intro}
           </p>
 
           <div className="vt-syndicates-demo-wrap">
-            <div className="vt-syndicates-demo-badge">Live preview</div>
+            <div className="vt-syndicates-demo-badge">{embed_badge}</div>
             <LiveWidgetDemo slug="tournamental-demo" />
           </div>
 
           <div className="vt-syndicates-snippet-wrap">
             <p className="vt-syndicates-card-body">
-              That widget is rendered by exactly this snippet (substitute your slug):
+              {embed_snippet_intro}
             </p>
             <pre className="vt-syndicates-snippet">
               <code>{`<tournamental-syndicate slug="your-syndicate"></tournamental-syndicate>
 <script src="https://play.tournamental.com/widget.js" async></script>`}</code>
             </pre>
             <p className="vt-syndicates-aside">
-              Works on Squarespace, WordPress, Wix, Shopify, Webflow, and any custom site.
-              No iframe required, no host-CSS bleed, cached at the edge.
+              {embed_aside}
             </p>
           </div>
         </section>
 
         {/* Common questions */}
         <section className="vt-syndicates-section">
-          <h2 className="vt-syndicates-section-title">Common questions</h2>
+          <h2 className="vt-syndicates-section-title">{faq_title}</h2>
           <div className="vt-syndicates-faq">
             <details className="vt-syndicates-faq-item">
-              <summary>Is it really free? What's the catch?</summary>
+              <summary>{faq_q1}</summary>
               <p>
-                Genuinely free, no card needed, no trial timer. You can run a syndicate, brand
-                it, embed it, and watch your audience play for the whole tournament without
-                paying us a cent. Premium ($97/mo via Aiva) is an optional upgrade for hosts
-                who want a managed CRM, paid entries via Stripe, and outbound SMS / WhatsApp
-                at scale. Most syndicates run free forever.
+                {faq_a1}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>How do members find my syndicate?</summary>
+              <summary>{faq_q2}</summary>
               <p>
-                Two ways. Either you embed the widget on your site (Squarespace, WordPress,
-                Shopify, custom) and members join straight from your page, or you share the
-                public landing link (<code>play.tournamental.com/s/yourname</code>) directly
-                on social, email, group chats, posters. Most hosts do both.
+                {faq_a2}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>Do my members need a Tournamental account?</summary>
+              <summary>{faq_q3}</summary>
               <p>
-                They sign up via your widget or landing page with email or phone. The
-                experience is yours; the technology is ours. No app install required.
+                {faq_a3}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>Who handles the prize money?</summary>
+              <summary>{faq_q4}</summary>
               <p>
-                You do, always. Tournamental does not touch money. On free, you settle however
-                you already do (PayPal, bank transfer, an envelope at the post-final pub).
-                On premium, Aiva's HighLevel sub-account gives you a Stripe-Connect checkout
-                and the funds land in your bank account directly. We never have custody.
+                {faq_a4}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>Can I brand the widget without paying?</summary>
+              <summary>{faq_q5}</summary>
               <p>
-                Yes. Logo, colours, hero image, prize copy, and a sponsor block are all free.
-                Premium removes the small "Powered by Tournamental" footer and adds the
-                managed CRM on top.
+                {faq_a5}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>Can I run this for tournaments other than the World Cup?</summary>
+              <summary>{faq_q6}</summary>
               <p>
-                Soon. Six Nations, Cricket World Cup, college brackets, your office annual
-                ladder — the same toolkit applies. The World Cup 2026 setup is the launch
-                tournament; new ones light up as the seasons roll.
+                {faq_a6}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>What if I cancel premium?</summary>
+              <summary>{faq_q7}</summary>
               <p>
-                Your syndicate stays live on the free tier. Your members are yours. Aiva keeps
-                your CRM data accessible for 30 days so you can export it. There is no lock-in.
+                {faq_a7}
               </p>
             </details>
             <details className="vt-syndicates-faq-item">
-              <summary>Is the code open source?</summary>
+              <summary>{faq_q8}</summary>
               <p>
-                Yes, Apache 2.0. The whole platform is in the{" "}
+                {faq_a8}{" "}
                 <a href="https://github.com/0800tim/tournamental" target="_blank" rel="noreferrer" className="vt-syndicates-link">
-                  public GitHub repo
+                  {faq_github_link}
                 </a>
                 . Contributors share platform revenue via the Drips Network.
               </p>
@@ -398,10 +501,9 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
 
         {/* Final CTA */}
         <section className="vt-syndicates-section vt-syndicates-cta-block">
-          <h2 className="vt-syndicates-section-title">Bring your tournament</h2>
+          <h2 className="vt-syndicates-section-title">{cta_final_title}</h2>
           <p className="vt-syndicates-cta-body">
-            Office, friends, fan club, school, store, creator audience. Same toolkit.
-            60 seconds to a branded path. Free forever.
+            {cta_final_body}
           </p>
           <div className="vt-syndicates-cta-row">
             <Link href="/syndicates/new" className="vt-syndicates-cta-primary">

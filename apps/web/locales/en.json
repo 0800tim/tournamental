@@ -521,6 +521,34 @@
     "subheading": {
       "semifinals": "Semi-finals",
       "knockouts": "Knockouts"
+    },
+    "hero": {
+      "headline": "Call every match of the {tournament}.",
+      "lede": "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.",
+      "progress": "{picked} of {total} matches picked"
+    },
+    "autopick": {
+      "subtitle_consensus": "Refresh empty picks using live consensus odds.",
+      "subtitle_default": "Don't know the teams? Auto-pick the favourites from live odds in one tap.",
+      "label": "Auto-pick",
+      "aria": "Auto-pick from live odds",
+      "title": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts"
+    },
+    "group_stage": {
+      "heading": "Group stage",
+      "progress": "{picked} of {total} matches picked"
+    },
+    "match": {
+      "draw": "DRAW",
+      "add_score": "Add score",
+      "hide_scores": "Hide scores"
+    },
+    "standings": {
+      "heading": "PREDICTED STANDINGS"
+    },
+    "group": {
+      "label": "Group {id}",
+      "picks_count": "{picked} / {total} predicted"
     }
   },
   "profile": {
