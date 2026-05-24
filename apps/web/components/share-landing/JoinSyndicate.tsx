@@ -688,27 +688,26 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                 className="vt-join-form"
               >
                 <h2 className="vt-share-modal-title" id="vt-join-modal-title">
-                  Join {syndicateName}
+                  {safeT(t, "join.modal.title", "Join {pool_name}").replace("{pool_name}", syndicateName)}
                 </h2>
                 <p className="vt-share-modal-body">
-                  Pick a display name and handle for the leaderboard, then
-                  we&apos;ll send a one-time login code by WhatsApp or email.
+                  {safeT(t, "join.modal.body", "Pick a display name and handle for the leaderboard, then we'll send a one-time login code by WhatsApp or email.")}
                 </p>
                 <label className="vt-join-label">
-                  <span>Your name</span>
+                  <span>{safeT(t, "join.modal.field_name", "Your name")}</span>
                   <input
                     type="text"
                     className="vt-share-modal-input"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="e.g. Tim Thomas"
+                    placeholder={safeT(t, "join.modal.field_name_placeholder", "e.g. Tim Thomas")}
                     autoFocus
                     maxLength={60}
                     required
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Handle (shown on the leaderboard)</span>
+                  <span>{safeT(t, "join.modal.field_handle", "Handle (shown on the leaderboard)")}</span>
                   <input
                     type="text"
                     className="vt-share-modal-input"
@@ -717,14 +716,14 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                       setHandle(e.target.value);
                       setHandleTouched(true);
                     }}
-                    placeholder="tim_thomas"
+                    placeholder={safeT(t, "join.modal.field_handle_placeholder", "tim_thomas")}
                     maxLength={32}
                     pattern="[a-zA-Z0-9_]{2,32}"
                     required
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Mobile number (for WhatsApp login)</span>
+                  <span>{safeT(t, "join.modal.field_phone", "Mobile number (for WhatsApp login)")}</span>
                   <input
                     type="tel"
                     className="vt-share-modal-input"
@@ -736,7 +735,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   />
                 </label>
                 <label className="vt-join-label">
-                  <span>Email (optional fallback)</span>
+                  <span>{safeT(t, "join.modal.field_email", "Email (optional fallback)")}</span>
                   <input
                     type="email"
                     className="vt-share-modal-input"
@@ -747,18 +746,14 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                     autoComplete="email"
                   />
                   <span className="vt-join-help">
-                    If you don&apos;t use WhatsApp, enter your email address
-                    to get a one-time code. Provide either, or both — we
-                    send the code to every channel you give us.
+                    {safeT(t, "join.modal.field_email_help", "If you don't use WhatsApp, enter your email address to get a one-time code. Provide either, or both, we send the code to every channel you give us.")}
                   </span>
                 </label>
                 {error === "PHONE_ALREADY_REGISTERED" ? (
                   <div className="vt-join-error vt-join-error--registered">
                     <p>
-                      <strong>That phone is already registered.</strong> If
-                      it&apos;s yours, log in via WhatsApp instead — you&apos;ll get
-                      the one-time code and a tap-to-sign-in link, then we
-                      add you to {syndicateName} automatically.
+                      <strong>{safeT(t, "join.error.phone_registered_strong", "That phone is already registered.")}</strong>{" "}
+                      {safeT(t, "join.error.phone_registered_body", "If it's yours, log in via WhatsApp instead, you'll get the one-time code and a tap-to-sign-in link, then we add you to {pool_name} automatically.").replace("{pool_name}", syndicateName)}
                     </p>
                     <a
                       className="vt-share-cta"
@@ -767,7 +762,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      Log in via WhatsApp →
+                      {safeT(t, "join.error.whatsapp_login", "Log in via WhatsApp →")}
                     </a>
                   </div>
                 ) : error ? (
@@ -786,8 +781,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   </button>
                 </div>
                 <p className="vt-join-footnote">
-                  By joining you agree to our terms. We only use your contact
-                  details for sign-in — no marketing, no third parties.
+                  {safeT(t, "join.modal.footnote", "By joining you agree to our terms. We only use your contact details for sign-in, no marketing, no third parties.")}
                 </p>
               </form>
             )}
