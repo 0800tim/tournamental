@@ -125,7 +125,7 @@ function deriveHandleFromName(name: string): string {
     .slice(0, 32);
 }
 
-type Step = "identity" | "verify" | "success";
+type Step = "identity" | "verify" | "success" | "exit";
 
 export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const t = useTranslations();
@@ -156,6 +156,10 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   // success view can render different copy for active vs pending
   // (approval-gated) joins.
   const [joinStatus, setJoinStatus] = useState<"active" | "pending">("active");
+
+  // Whether the authed viewer is already a member of this pool. Drives
+  // the CTA: Join (not a member) vs Exit (already a member).
+  const [isMember, setIsMember] = useState(false);
 
   // Verify step
   const [code, setCode] = useState("");
@@ -253,6 +257,55 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     if (isAuthed) void joinAsAuthedUser();
     else openModal();
   }, [isAuthed, joinAsAuthedUser, openModal]);
+
+  // Detect existing membership for the authed viewer so the CTA shows
+  // Exit instead of Join.
+  useEffect(() => {
+    if (!isAuthed) {
+      setIsMember(false);
+      return;
+    }
+    const ac = new AbortController();
+    void (async () => {
+      try {
+        const r = await fetch(
+          `/api/v1/syndicates/${encodeURIComponent(slug)}/join`,
+          { credentials: "include", signal: ac.signal },
+        );
+        if (!r.ok) return;
+        const j = (await r.json().catch(() => ({}))) as { is_member?: boolean };
+        if (!ac.signal.aborted) setIsMember(!!j.is_member);
+      } catch {
+        /* best-effort — default to Join on failure */
+      }
+    })();
+    return () => ac.abort();
+  }, [isAuthed, slug]);
+
+  // Leave the pool (DELETE membership), then reload so the member count
+  // and leaderboard reflect the departure.
+  const handleLeave = useCallback(async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await fetch(
+        `/api/v1/syndicates/${encodeURIComponent(slug)}/join`,
+        { method: "DELETE", credentials: "include", headers: { Accept: "application/json" } },
+      );
+      if (!r.ok) {
+        const j = (await r.json().catch(() => ({}))) as { message?: string; error?: string };
+        setError(j.message ?? j.error ?? `Server returned ${r.status}`);
+        return;
+      }
+      setIsMember(false);
+      setOpen(false);
+      window.location.reload();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Network error");
+    } finally {
+      setBusy(false);
+    }
+  }, [slug]);
 
   const handleIsValid = /^[a-zA-Z0-9_]{2,32}$/.test(handle);
   const nameIsValid = displayName.trim().length >= 1;
@@ -655,14 +708,26 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     <>
       <button
         className="vt-share-cta"
-        data-variant="primary"
+        data-variant={isMember ? "ghost" : "primary"}
         type="button"
-        onClick={handleCtaClick}
+        onClick={
+          isMember
+            ? () => {
+                setError(null);
+                setStep("exit");
+                setOpen(true);
+              }
+            : handleCtaClick
+        }
         disabled={busy && isAuthed}
       >
         {busy && isAuthed
-          ? safeT(t, "join.button_joining", "Joining…")
-          : safeT(t, "syndicate.cta_join", "Join this pool")}
+          ? isMember
+            ? safeT(t, "join.button_leaving", "Leaving…")
+            : safeT(t, "join.button_joining", "Joining…")
+          : isMember
+            ? safeT(t, "syndicate.cta_exit", "Exit this pool")
+            : safeT(t, "syndicate.cta_join", "Join this pool")}
       </button>
       {open ? (
         <div
@@ -688,6 +753,42 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
             >
               <span aria-hidden>×</span>
             </button>
+            {step === "exit" && (
+              <div className="vt-join-form">
+                <h2 className="vt-share-modal-title" id="vt-join-modal-title">
+                  {safeT(t, "join.exit.title", "Leave {pool_name}?").replace("{pool_name}", syndicateName)}
+                </h2>
+                <p className="vt-share-modal-body">
+                  {safeT(
+                    t,
+                    "join.exit.body",
+                    "Are you sure you want to leave {pool_name}? You can rejoin any time before kickoff.",
+                  ).replace("{pool_name}", syndicateName)}
+                </p>
+                {error && <p className="vt-join-error">{error}</p>}
+                <div className="vt-share-modal-row vt-share-modal-row--single">
+                  <button
+                    type="button"
+                    className="vt-share-cta"
+                    data-variant="primary"
+                    onClick={() => void handleLeave()}
+                    disabled={busy}
+                  >
+                    {busy
+                      ? safeT(t, "join.button_leaving", "Leaving…")
+                      : safeT(t, "join.exit.confirm", "Leave pool")}
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  className="vt-join-footnote vt-join-exit-cancel"
+                  onClick={close}
+                  disabled={busy}
+                >
+                  {safeT(t, "join.exit.cancel", "Cancel, stay in the pool")}
+                </button>
+              </div>
+            )}
             {step === "identity" && (
               <form
                 onSubmit={onSubmitIdentity}

@@ -501,6 +501,33 @@ export class SyndicatePersistence {
     return { inserted: (result.changes ?? 0) > 0 };
   }
 
+  /** True when the user holds an active membership in this pool. */
+  isMember(syndicateId: string, userId: string): boolean {
+    if (!this.db) return false;
+    const row = this.db
+      .prepare(
+        `SELECT 1 FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND user_id = ? AND status = 'active'
+          LIMIT 1`,
+      )
+      .get(syndicateId, userId);
+    return !!row;
+  }
+
+  /** Remove a member from a pool (a user leaving). Owners cannot leave
+   * their own pool this way (role = 'owner' rows are protected). Returns
+   * whether a row was removed. */
+  removeMember(syndicateId: string, userId: string): { removed: boolean } {
+    if (!this.db) return { removed: false };
+    const r = this.db
+      .prepare(
+        `DELETE FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND user_id = ? AND role != 'owner'`,
+      )
+      .run(syndicateId, userId);
+    return { removed: (r.changes ?? 0) > 0 };
+  }
+
   /** Flip a membership row's status. Used by the approve/deny owner
    * endpoints to move a 'pending' row to 'active' or 'denied'. Returns
    * the number of rows affected (0 if the syndicate_id/user_id pair
