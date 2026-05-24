@@ -23,8 +23,23 @@
  * Mounted once in the root layout next to <MagicLinkConsumer/>.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import { AvatarUploader } from "@/components/profile/AvatarUploader";
 import {
@@ -39,6 +54,7 @@ const SKIP_KEY = "vtourn_name_prompt_skipped";
 
 export function ProfileCompletionGate() {
   const { status, user } = useUser();
+  const t = useTranslations();
   const [show, setShow] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -99,12 +115,12 @@ export function ProfileCompletionGate() {
     if (!result.ok) {
       const msg =
         result.error === "email-taken"
-          ? "That email is already on another account."
+          ? safeT(t, "profile_gate.err_email_taken", "That email is already on another account.")
           : result.error === "bad-email"
-            ? "That email doesn't look right."
+            ? safeT(t, "profile_gate.err_bad_email", "That email doesn't look right.")
             : result.error === "network"
-              ? "Network hiccup — try again."
-              : "Couldn't save that — try again.";
+              ? safeT(t, "profile_gate.err_network", "Network hiccup, try again.")
+              : safeT(t, "profile_gate.err_generic", "Couldn't save that, try again.");
       setError(msg);
       return;
     }
@@ -127,17 +143,16 @@ export function ProfileCompletionGate() {
           <button
             type="button"
             className="vt-signup-close"
-            aria-label="Skip for now"
+            aria-label={safeT(t, "profile_gate.cta_skip", "Skip for now")}
             onClick={dismiss}
           >
             ×
           </button>
           <h2 id="vt-name-title" className="vt-signup-title">
-            Set up your profile
+            {safeT(t, "profile_gate.title", "Set up your profile")}
           </h2>
           <p className="vt-signup-sub">
-            Add a photo and a display name — this is how you&apos;ll appear on
-            the leaderboards and in shared pools.
+            {safeT(t, "profile_gate.sub", "Add a photo and a display name, this is how you'll appear on the leaderboards and in shared pools.")}
           </p>
 
           <div className="vt-onboard-avatar">
@@ -146,11 +161,11 @@ export function ProfileCompletionGate() {
 
           <form className="vt-signup-form" onSubmit={onSubmit}>
             <input
-              aria-label="Display name"
+              aria-label={safeT(t, "profile_gate.display_name", "Display name (shown on leaderboards)")}
               name="display_name"
               type="text"
               autoComplete="nickname"
-              placeholder="Display name (shown on leaderboards)"
+              placeholder={safeT(t, "profile_gate.display_name", "Display name (shown on leaderboards)")}
               className="auth-input"
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
@@ -159,11 +174,11 @@ export function ProfileCompletionGate() {
               disabled={busy}
             />
             <input
-              aria-label="First name (optional)"
+              aria-label={safeT(t, "profile_gate.first_name", "First name (optional)")}
               name="first_name"
               type="text"
               autoComplete="given-name"
-              placeholder="First name (optional)"
+              placeholder={safeT(t, "profile_gate.first_name", "First name (optional)")}
               className="auth-input"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
@@ -172,12 +187,12 @@ export function ProfileCompletionGate() {
             />
             {needEmail && (
               <input
-                aria-label="Email (optional)"
+                aria-label={safeT(t, "profile_gate.email", "Email (optional)")}
                 name="email"
                 type="email"
                 inputMode="email"
                 autoComplete="email"
-                placeholder="Email (optional)"
+                placeholder={safeT(t, "profile_gate.email", "Email (optional)")}
                 className="auth-input"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -195,7 +210,7 @@ export function ProfileCompletionGate() {
               className="auth-submit"
               disabled={busy || !displayName.trim()}
             >
-              {busy ? "Saving…" : "Save"}
+              {busy ? safeT(t, "profile_gate.cta_saving", "Saving…") : safeT(t, "profile_gate.cta_save", "Save")}
             </button>
             <button
               type="button"
@@ -203,7 +218,7 @@ export function ProfileCompletionGate() {
               onClick={dismiss}
               disabled={busy}
             >
-              Skip for now
+              {safeT(t, "profile_gate.cta_skip", "Skip for now")}
             </button>
           </form>
         </div>

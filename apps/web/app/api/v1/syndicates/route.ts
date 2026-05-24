@@ -29,6 +29,7 @@ import { getPersistence } from "@/lib/syndicate/persistence";
 import { buildGhlContactPayload, pushToGhl, type GhlStatus } from "@/lib/syndicate/ghl";
 import { newShareGuid, newSyndicateId } from "@/lib/syndicate/ids";
 import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
+import { getSessionFromRequest } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -98,6 +99,17 @@ export async function POST(req: NextRequest): Promise<Response> {
   const syndicateId = newSyndicateId();
   const shareGuid = newShareGuid();
 
+  // Bind the syndicate to the signed-in user when a session is present
+  // so /v1/profile/syndicates can list it as "owned" without needing
+  // anon-handle reconciliation. The route is intentionally still
+  // openable without a session (signup form embedded on the marketing
+  // site, etc.); in that case ownership reconciles via handle match
+  // in the listing query (Tim 2026-05-24: previously every pool got
+  // owner_user_id=null and only "the-crate" -- created before the
+  // signed-in flow regressed -- showed under My pools).
+  const session = await getSessionFromRequest(req);
+  const ownerUserId = session?.userId ?? null;
+
   let row;
   try {
     row = persistence.createSyndicate({
@@ -107,7 +119,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       tournament_id: input.tournament_id,
       owner_email: input.owner_email,
       owner_phone: input.owner_phone,
-      owner_user_id: null, // No auth on the public signup yet.
+      owner_user_id: ownerUserId,
       owner_handle: input.owner_handle ?? null,
       size_band: input.size_band,
       topic: input.topic ?? null,

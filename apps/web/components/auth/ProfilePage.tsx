@@ -24,6 +24,7 @@
  * last_seen_at by mashing buttons.
  */
 
+import { useTranslations } from "next-intl";
 import { useEffect, useMemo, useState } from "react";
 
 import { browserClient } from "@/lib/auth/supabase";
@@ -48,15 +49,30 @@ import { SignupModal } from "./SignupModal";
 import "@/components/profile/team-picker.css";
 import "@/components/profile/avatar-uploader.css";
 
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
+
 export function ProfilePage() {
+  const t = useTranslations();
   const { status, user, loading } = useUser();
   const [showModal, setShowModal] = useState(false);
 
   if (loading) {
     return (
       <section className="vt-section">
-        <h2 className="vt-section-title">Profile</h2>
-        <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>Loading…</p>
+        <h2 className="vt-section-title">{safeT(t, "profile_page.profile_section_title", "Profile")}</h2>
+        <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>{safeT(t, "profile_page.loading", "Loading…")}</p>
       </section>
     );
   }
@@ -65,17 +81,16 @@ export function ProfilePage() {
     return (
       <>
         <section className="vt-section">
-          <h2 className="vt-section-title">Save your bracket</h2>
+          <h2 className="vt-section-title">{safeT(t, "profile_page.guest_section_title", "Save your bracket")}</h2>
           <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>
-            Sign in to keep your picks across devices, follow friends, and
-            track your rank on the global leaderboard.
+            {safeT(t, "profile_page.guest_section_lede", "Sign in to keep your picks across devices, follow friends, and track your rank on the global leaderboard.")}
           </p>
           <button
             type="button"
             onClick={() => setShowModal(true)}
             className="vt-profile-cta"
           >
-            Sign In/Up
+            {safeT(t, "profile_page.guest_cta_sign_in_up", "Sign In/Up")}
           </button>
         </section>
         <SignupModal open={showModal} onClose={() => setShowModal(false)} />
@@ -154,11 +169,13 @@ function InboundProfileEditor({ userId }: { userId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverUser]);
 
+  const t = useTranslations();
+
   if (!serverUser || !draft) {
     return (
       <section className="vt-section">
-        <h2 className="vt-section-title">Profile</h2>
-        <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>Loading profile…</p>
+        <h2 className="vt-section-title">{safeT(t, "profile_page.profile_section_title", "Profile")}</h2>
+        <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>{safeT(t, "profile_page.profile_loading", "Loading profile…")}</p>
       </section>
     );
   }
@@ -172,7 +189,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
     const res = await updateInboundProfile(diff);
     setSaving(false);
     if (!res.ok) {
-      setToast({ kind: "err", text: humaniseError(res.error) });
+      setToast({ kind: "err", text: humaniseError(res.error, t) });
       window.setTimeout(() => setToast(null), 3500);
       return;
     }
@@ -216,8 +233,8 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         <div className="vt-profile-head-text">
           <h2 className="vt-section-title">{greeting}</h2>
           <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
-            Signed in as <strong>{phoneDisplay}</strong>
-            {serverUser.email ? ` · ${serverUser.email}` : ""} · joined{" "}
+            {safeT(t, "profile_page.signed_in_as", "Signed in as")} <strong>{phoneDisplay}</strong>
+            {serverUser.email ? ` · ${serverUser.email}` : ""} · {safeT(t, "profile_page.joined", "joined")}{" "}
             {new Date(serverUser.createdAt * 1000).toLocaleDateString()}
           </p>
         </div>
@@ -228,14 +245,14 @@ function InboundProfileEditor({ userId }: { userId: string }) {
               onClick={onManagePoolsClick}
               className="vt-profile-action vt-profile-action--primary"
             >
-              Manage my pools
+              {safeT(t, "profile_page.manage_my_pools", "Manage my pools")}
             </a>
           ) : (
             <a
               href="/syndicates/new"
               className="vt-profile-action vt-profile-action--primary"
             >
-              Create a pool
+              {safeT(t, "profile_page.create_a_pool", "Create a pool")}
             </a>
           )}
           <button
@@ -243,23 +260,22 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             onClick={onLogout}
             className="vt-profile-action vt-profile-action--ghost"
           >
-            Log out
+            {safeT(t, "profile_page.log_out", "Log out")}
           </button>
         </div>
       </section>
 
       <section className="vt-section">
-        <h2 className="vt-section-title">Avatar</h2>
+        <h2 className="vt-section-title">{safeT(t, "profile_page.avatar_section_title", "Avatar")}</h2>
         <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
-          Shows on your share cards, leaderboard rows, and syndicate
-          tiles. Square images work best; we crop to a circle.
+          {safeT(t, "profile_page.avatar_description", "Shows on your share cards, leaderboard rows, and syndicate tiles. Square images work best; we crop to a circle.")}
         </p>
         <AvatarUploader userId={userId} />
       </section>
 
       <section className="vt-section">
-        <h2 className="vt-section-title">Details</h2>
-        <Field label="First name">
+        <h2 className="vt-section-title">{safeT(t, "profile_page.details_section_title", "Details")}</h2>
+        <Field label={safeT(t, "profile_page.field_first_name", "First name")}>
           <input
             className="auth-input"
             type="text"
@@ -269,7 +285,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             autoComplete="given-name"
           />
         </Field>
-        <Field label="Last name">
+        <Field label={safeT(t, "profile_page.field_last_name", "Last name")}>
           <input
             className="auth-input"
             type="text"
@@ -279,17 +295,17 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             autoComplete="family-name"
           />
         </Field>
-        <Field label="Display name (shown on leaderboards)">
+        <Field label={safeT(t, "profile_page.field_display_name", "Display name (shown on leaderboards)")}>
           <input
             className="auth-input"
             type="text"
             value={draft.displayName}
             onChange={(e) => setDraft({ ...draft, displayName: e.target.value })}
             maxLength={80}
-            placeholder={draft.firstName || "Your handle"}
+            placeholder={draft.firstName || safeT(t, "profile_page.placeholder_handle", "Your handle")}
           />
         </Field>
-        <Field label="Email">
+        <Field label={safeT(t, "profile_page.field_email", "Email")}>
           <input
             className="auth-input"
             type="email"
@@ -298,31 +314,31 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             onChange={(e) => setDraft({ ...draft, email: e.target.value })}
             maxLength={254}
             autoComplete="email"
-            placeholder="you@example.com"
+            placeholder={safeT(t, "profile_page.placeholder_email", "you@example.com")}
           />
         </Field>
-        <Field label="Mobile">
+        <Field label={safeT(t, "profile_page.field_mobile", "Mobile")}>
           <input
             className="auth-input"
             type="tel"
             value={phoneDisplay}
             readOnly
             aria-readonly="true"
-            title="This is the phone number you signed in with. Contact support to change it."
+            title={safeT(t, "profile_page.field_mobile_title", "This is the phone number you signed in with. Contact support to change it.")}
             style={{ opacity: 0.7 }}
           />
         </Field>
       </section>
 
       <section className="vt-section">
-        <h2 className="vt-section-title">Location</h2>
-        <Field label="Country">
+        <h2 className="vt-section-title">{safeT(t, "profile_page.location_section_title", "Location")}</h2>
+        <Field label={safeT(t, "profile_page.field_country", "Country")}>
           <select
             className="auth-input"
             value={draft.country}
             onChange={(e) => setDraft({ ...draft, country: e.target.value })}
           >
-            <option value="">Select country…</option>
+            <option value="">{safeT(t, "profile_page.placeholder_country", "Select country…")}</option>
             {COUNTRIES.map((c) => (
               <option key={c.code} value={c.code}>
                 {c.name}
@@ -330,25 +346,25 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             ))}
           </select>
         </Field>
-        <Field label="City">
+        <Field label={safeT(t, "profile_page.field_city", "City")}>
           <input
             className="auth-input"
             type="text"
             value={draft.city}
             onChange={(e) => setDraft({ ...draft, city: e.target.value })}
             maxLength={80}
-            placeholder="Auckland"
+            placeholder={safeT(t, "profile_page.placeholder_city", "Auckland")}
             autoComplete="address-level2"
           />
         </Field>
       </section>
 
       <section className="vt-section">
-        <h2 className="vt-section-title">Favourite team</h2>
+        <h2 className="vt-section-title">{safeT(t, "profile_page.favourite_team_section_title", "Favourite team")}</h2>
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
           {draft.favouriteTeamCode
-            ? `Selected: ${findTeamByCode(draft.favouriteTeamCode)?.name ?? draft.favouriteTeamCode}`
-            : "Tap a flag to choose your favourite. Sorted by world ranking."}
+            ? safeT(t, "profile_page.favourite_team_selected", "Selected: {team}").replace("{team}", findTeamByCode(draft.favouriteTeamCode)?.name ?? draft.favouriteTeamCode)
+            : safeT(t, "profile_page.favourite_team_help", "Tap a flag to choose your favourite. Sorted by world ranking.")}
         </p>
         <TeamPicker
           value={draft.favouriteTeamCode}
@@ -363,7 +379,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           onClick={() => void onSave()}
           disabled={!dirty || saving}
         >
-          {saving ? "Saving…" : dirty ? "Save changes" : "Saved"}
+          {saving ? safeT(t, "profile_page.save_btn_saving", "Saving…") : dirty ? safeT(t, "profile_page.save_btn_save_changes", "Save changes") : safeT(t, "profile_page.save_btn_saved", "Saved")}
         </button>
         {dirty && !saving && (
           <button
@@ -371,7 +387,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             className="vt-profile-revert"
             onClick={() => setDraft(initialDraft(serverUser))}
           >
-            Discard
+            {safeT(t, "profile_page.discard_btn", "Discard")}
           </button>
         )}
         {toast && (
@@ -391,13 +407,12 @@ function InboundProfileEditor({ userId }: { userId: string }) {
       <MyPoolsSection />
 
       <section className="vt-section">
-        <h2 className="vt-section-title">Developer</h2>
+        <h2 className="vt-section-title">{safeT(t, "profile_page.developer_section_title", "Developer")}</h2>
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
-          Mint a personal API key to call the Tournamental REST API or to act
-          as a user-tier key against the MCP server.
+          {safeT(t, "profile_page.developer_description", "Mint a personal API key to call the Tournamental REST API or to act as a user-tier key against the MCP server.")}
         </p>
         <a href="/profile/api-keys" className="vt-profile-cta vt-profile-cta--ghost">
-          Manage API keys
+          {safeT(t, "profile_page.developer_manage_api_keys", "Manage API keys")}
         </a>
       </section>
 
@@ -569,6 +584,7 @@ interface MyPoolsState {
 }
 
 function MyPoolsSection() {
+  const t = useTranslations();
   const [state, setState] = useState<MyPoolsState>({
     status: "loading",
     pools: [],
@@ -588,7 +604,7 @@ function MyPoolsSection() {
           setState({
             status: "error",
             pools: [],
-            message: r.status === 401 ? "Sign in to see your pools." : `Server returned ${r.status}`,
+            message: r.status === 401 ? safeT(t, "profile_page.error_sign_in_to_pools", "Sign in to see your pools.") : `Server returned ${r.status}`,
           });
           return;
         }
@@ -604,17 +620,16 @@ function MyPoolsSection() {
       }
     })();
     return () => ac.abort();
-  }, []);
+  }, [t]);
 
   return (
     <section className="vt-section" id="profile-pools">
-      <h2 className="vt-section-title">My pools</h2>
+      <h2 className="vt-section-title">{safeT(t, "profile_page.my_pools_section_title", "My pools")}</h2>
       <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
-        Pools you run. Click through to invite members, edit branding, or pause
-        the pool.
+        {safeT(t, "profile_page.my_pools_description", "Pools you run. Click through to invite members, edit branding, or pause the pool.")}
       </p>
       {state.status === "loading" ? (
-        <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>Loading…</p>
+        <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>{safeT(t, "profile_page.my_pools_loading", "Loading…")}</p>
       ) : state.status === "error" ? (
         <p style={{ color: "var(--vt-danger, #ef4444)", margin: 0, fontSize: 13 }}>
           {state.message}
@@ -622,11 +637,10 @@ function MyPoolsSection() {
       ) : state.pools.length === 0 ? (
         <div className="vt-mypools-empty">
           <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
-            You haven&apos;t set up a pool yet. They&apos;re free for friend
-            groups under 100 members.
+            {safeT(t, "profile_page.my_pools_empty", "You haven't set up a pool yet. They're free for friend groups under 100 members.")}
           </p>
           <a href="/syndicates/new" className="vt-profile-cta vt-profile-cta--primary">
-            Create a pool
+            {safeT(t, "profile_page.create_a_pool", "Create a pool")}
           </a>
         </div>
       ) : (
@@ -639,8 +653,8 @@ function MyPoolsSection() {
                     {p.name}
                   </a>
                   <p className="vt-mypools-meta">
-                    {p.member_count} {p.member_count === 1 ? "member" : "members"}
-                    {p.tier === "premium" ? " · Premium" : ""}
+                    {p.member_count} {p.member_count === 1 ? safeT(t, "profile_page.my_pools_member_singular", "member") : safeT(t, "profile_page.my_pools_member_plural", "members")}
+                    {p.tier === "premium" ? ` · ${safeT(t, "profile_page.my_pools_premium", "Premium")}` : ""}
                   </p>
                 </div>
                 <div className="vt-mypools-actions">
@@ -648,13 +662,13 @@ function MyPoolsSection() {
                     href={`/s/${p.slug}`}
                     className="vt-profile-cta vt-profile-cta--ghost"
                   >
-                    Share
+                    {safeT(t, "profile_page.my_pools_share", "Share")}
                   </a>
                   <a
                     href={`/dashboard/pools/${p.slug}`}
                     className="vt-profile-cta vt-profile-cta--primary"
                   >
-                    Manage
+                    {safeT(t, "profile_page.my_pools_manage", "Manage")}
                   </a>
                 </div>
               </li>
@@ -662,7 +676,7 @@ function MyPoolsSection() {
           </ul>
           <div style={{ marginTop: 12 }}>
             <a href="/syndicates/new" className="vt-profile-cta vt-profile-cta--ghost">
-              + New pool
+              {safeT(t, "profile_page.my_pools_new_pool_btn", "+ New pool")}
             </a>
           </div>
         </>
@@ -772,18 +786,18 @@ function diffDraft(server: InboundUser, draft: DraftProfile): InboundProfilePatc
   return out;
 }
 
-function humaniseError(err: string): string {
+function humaniseError(err: string, t: ReturnType<typeof useTranslations>): string {
   switch (err) {
     case "bad-email":
-      return "That email doesn't look right.";
+      return safeT(t, "profile_page.error_bad_email", "That email doesn't look right.");
     case "email-taken":
-      return "That email is already linked to another account.";
+      return safeT(t, "profile_page.error_email_taken", "That email is already linked to another account.");
     case "unauthorized":
-      return "Your session expired. Sign in again to save changes.";
+      return safeT(t, "profile_page.error_unauthorized", "Your session expired. Sign in again to save changes.");
     case "network":
-      return "Couldn't reach the profile service. Check your connection.";
+      return safeT(t, "profile_page.error_network", "Couldn't reach the profile service. Check your connection.");
     default:
-      return "Couldn't save changes. Try again.";
+      return safeT(t, "profile_page.error_generic", "Couldn't save changes. Try again.");
   }
 }
 
@@ -814,14 +828,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
  * branch goes away.
  */
 function SupabaseProfileNotice() {
+  const t = useTranslations();
   const sb = useMemo(() => browserClient(), []);
   return (
     <section className="vt-section">
-      <h2 className="vt-section-title">Profile</h2>
+      <h2 className="vt-section-title">{safeT(t, "profile_page.supabase_notice_title", "Profile")}</h2>
       <p style={{ color: "var(--vt-fg-muted)", margin: 0 }}>
-        You signed in through the legacy email flow. The new profile editor
-        is only wired into the WhatsApp / SMS sign-in for now. Sign out and
-        sign back in with WhatsApp to use it.
+        {safeT(t, "profile_page.supabase_notice_lede", "You signed in through the legacy email flow. The new profile editor is only wired into the WhatsApp / SMS sign-in for now. Sign out and sign back in with WhatsApp to use it.")}
       </p>
       <button
         type="button"
@@ -830,7 +843,7 @@ function SupabaseProfileNotice() {
           if (sb) void signOut();
         }}
       >
-        Sign out
+        {safeT(t, "profile_page.supabase_notice_sign_out", "Sign out")}
       </button>
     </section>
   );
