@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 
 import { GtmRoot } from "@/components/analytics/GtmRoot";
 import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
+import { ProfileCompletionGate } from "@/components/auth/ProfileCompletionGate";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 import { LOCALES, type Locale } from "@/i18n/config";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
@@ -97,6 +98,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <GtmRoot showConsentBanner={showConsent} />
           <NativeShellBoot />
           <MagicLinkConsumer />
+          <ProfileCompletionGate />
           {children}
         </NextIntlClientProvider>
       </body>
