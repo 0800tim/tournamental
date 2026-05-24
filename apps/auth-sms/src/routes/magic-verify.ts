@@ -39,6 +39,7 @@ import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import type { AuthContext } from '../context.js';
+import { syncUserToHighLevel } from '../highlevel.js';
 import { phoneLogId } from '../storage.js';
 import { signSessionJwt } from '../jwt.js';
 import { truncateUa } from '../audit.js';
@@ -209,6 +210,8 @@ export async function bindAndMintSession(opts: {
   }
 
   const user = ctx.storage.findOrCreateUser(phone, now);
+  // Mirror into HighLevel as a `player` contact (fire-and-forget).
+  void syncUserToHighLevel(ctx.storage, user, { now, log: ctx.log });
   const signed = await signSessionJwt({
     secret: ctx.config.jwtSecret,
     userId: user.id,

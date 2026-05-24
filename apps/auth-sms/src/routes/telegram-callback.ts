@@ -27,6 +27,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import type { AuthContext } from '../context.js';
+import { syncUserToHighLevel } from '../highlevel.js';
 import { signSessionJwt } from '../jwt.js';
 import {
   TelegramLoginVerifyError,
@@ -103,6 +104,9 @@ export async function registerTelegramCallback(
       phone: linkedPhone,
       now: nowSeconds,
     });
+
+    // Mirror into HighLevel as a `player` contact (fire-and-forget).
+    void syncUserToHighLevel(ctx.storage, user, { now: nowSeconds, log: ctx.log });
 
     const signed = await signSessionJwt({
       secret: ctx.config.jwtSecret,

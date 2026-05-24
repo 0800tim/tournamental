@@ -28,6 +28,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 
 import type { AuthContext } from '../context.js';
+import { syncUserToHighLevel } from '../highlevel.js';
 import { generateOtp, OTP_LENGTH } from '../otp.js';
 import { signSessionJwt } from '../jwt.js';
 import { buildSessionCookie } from './magic-verify.js';
@@ -310,6 +311,8 @@ export async function registerEmailOtp(
 
     // Match! Upsert the user, mint session, set cookie, delete OTP.
     const user = ctx.storage.findOrCreateEmailUser(email, now);
+    // Mirror into HighLevel as a `player` contact (fire-and-forget).
+    void syncUserToHighLevel(ctx.storage, user, { now, log: ctx.log });
     const signed = await signSessionJwt({
       secret: ctx.config.jwtSecret,
       userId: user.id,
