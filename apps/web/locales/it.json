@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Pronostico automatico",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {Ancora # pronostico} other {Ancora # pronostici}} per bloccare il tabellone e condividere.",
+      "saved": "Tabellone salvato. Puoi modificare ogni pronostico fino al fischio d'inizio.",
+      "share_cta": "Condividi il mio tabellone",
+      "upload_photo": "Carica foto profilo",
+      "saved_foot": "Aggiungi una foto profilo così i tuoi amici ti riconoscono in classifica.",
+      "complete_headline": "104 pronostici fatti. Blocca il tuo tabellone.",
+      "cta": "Salva il mio tabellone",
+      "foot_authed": "Salva il tabellone sul tuo profilo per averlo su tutti i tuoi dispositivi.",
+      "foot_anon": "Ti mandiamo un codice di accesso unico (Telegram, WhatsApp o email). I tuoi pronostici finiscono nel profilo in automatico."
+    },
+    "submit": {
+      "saved_offline": "Salvato offline, riproviamo quando torni online."
+    }
   },
   "share_landing": {
     "user": {

@@ -380,7 +380,7 @@
     "autopick_cta": "Selection automatique",
     "autopick_subtitle_empty": "Remplissez votre bracket avec les cotes de consensus en direct, vous pouvez modifier n'importe quelle prediction avant le coup d'envoi.",
     "autopick_subtitle_partial": "Actualisez les predictions vides avec les cotes de consensus en direct.",
-    "autopick_aria": "Selection automatique avec les cotes en direct",
+    "autopick_aria": "Pronostic automatique",
     "autopick_title_attr": "Selection automatique de tous les matchs: cotes Polymarket pour les groupes, classement mondial pour les phases elimatoires",
     "tab_groups": "Groupes",
     "tab_r32": "R32",
@@ -464,7 +464,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {Encore # pronostic} other {Encore # pronostics}} pour verrouiller ton tableau et partager.",
+      "saved": "Tableau enregistré. Tu peux modifier n'importe quel pronostic avant le coup d'envoi.",
+      "share_cta": "Partager mon tableau",
+      "upload_photo": "Téléverser une photo de profil",
+      "saved_foot": "Ajoute une photo de profil pour que tes amis te repèrent au classement.",
+      "complete_headline": "104 pronostics faits. Verrouille ton tableau.",
+      "cta": "Enregistrer mon tableau",
+      "foot_authed": "Enregistre ton tableau sur ton profil pour qu'il te suive sur tous tes appareils.",
+      "foot_anon": "On t'envoie un code de connexion unique (Telegram, WhatsApp ou email). Tes pronostics passent dans ton profil automatiquement."
+    },
+    "submit": {
+      "saved_offline": "Enregistré hors ligne, on réessaie quand tu reviens en ligne."
+    }
   },
   "share_landing": {
     "user": {

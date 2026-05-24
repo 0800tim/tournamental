@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Auto-tipp",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {# tipp igjen} other {# tipp igjen}} for å låse cup-treet og dele.",
+      "saved": "Cup-treet lagret. Du kan endre alle tipp fram til avspark.",
+      "share_cta": "Del cup-treet mitt",
+      "upload_photo": "Last opp profilbilde",
+      "saved_foot": "Legg til et profilbilde så vennene dine kjenner deg igjen på rankingen.",
+      "complete_headline": "104 tipp lagt inn. Lås cup-treet ditt.",
+      "cta": "Lagre cup-treet",
+      "foot_authed": "Lagrer cup-treet på profilen din så det følger deg mellom enheter.",
+      "foot_anon": "Vi sender en engangskode (Telegram, WhatsApp eller e-post). Tippene dine kobles automatisk til profilen din."
+    },
+    "submit": {
+      "saved_offline": "Lagret offline, vi prøver igjen når du er online."
+    }
   },
   "share_landing": {
     "user": {

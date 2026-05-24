@@ -418,7 +418,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Auto-pick",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -502,6 +502,20 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {# more pick} other {# more picks}} to lock in your bracket and share.",
+      "saved": "Bracket saved. You can edit any pick before kickoff.",
+      "share_cta": "Share my bracket",
+      "upload_photo": "Upload a profile photo",
+      "saved_foot": "Add a profile photo so your friends can spot you on the leaderboard.",
+      "complete_headline": "All 104 picks made. Lock in your bracket.",
+      "cta": "Save my bracket",
+      "foot_authed": "Saves your bracket to your profile so it follows you across devices.",
+      "foot_anon": "We'll send a one-time sign-in code (Telegram, WhatsApp, or email). Your picks here will merge into your profile automatically."
+    },
+    "submit": {
+      "saved_offline": "Saved offline, we'll retry when you're back online."
+    }
   }
 }

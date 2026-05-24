@@ -899,7 +899,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         result: "ok",
       });
     } else if (res.status === "saved_offline") {
-      setSubmitState("Saved offline, we'll retry when you're back online.");
+      setSubmitState(safeT(t, "bracket.submit.saved_offline", "Saved offline, we'll retry when you're back online."));
       setLastSaveOk(true);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
@@ -1090,7 +1090,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         className="bracket-autopick-row"
         data-testid="bracket-autopick-row"
         role="group"
-        aria-label="Auto-pick"
+        aria-label={safeT(t, "bracket.autopick_aria", "Auto-pick")}
       >
         <button
           type="button"
@@ -1549,6 +1549,7 @@ function SaveBracketPanel({
    *  champion" placeholder (Tim 2026-05-24). */
   championName: string | null;
 }) {
+  const t = useTranslations();
   const complete = totalCompleted >= totalPicks;
   const remaining = Math.max(0, totalPicks - totalCompleted);
   const isAuthed = !authLoading && authStatus === "authenticated";
@@ -1595,11 +1596,15 @@ function SaveBracketPanel({
   };
 
   if (!complete) {
+    let remainingText: string;
+    try {
+      remainingText = t("bracket.save.remaining", { count: remaining });
+    } catch {
+      remainingText = `${remaining} ${remaining === 1 ? "more pick" : "more picks"} to lock in your bracket and share.`;
+    }
     return (
       <div className="bracket-save-panel" data-state="incomplete">
-        <p className="bracket-save-panel-hint">
-          <strong>{remaining}</strong> {remaining === 1 ? "more pick" : "more picks"} to lock in your bracket and share.
-        </p>
+        <p className="bracket-save-panel-hint">{remainingText}</p>
       </div>
     );
   }
@@ -1609,7 +1614,7 @@ function SaveBracketPanel({
       <div className="bracket-save-panel" data-state="saved">
         <div className="bracket-save-panel-headline">
           <span className="bracket-save-panel-tick" aria-hidden="true">✓</span>
-          <span>Bracket saved. You can edit any pick before kickoff.</span>
+          <span>{safeT(t, "bracket.save.saved", "Bracket saved. You can edit any pick before kickoff.")}</span>
         </div>
         <div className="bracket-save-panel-actions">
           <button
@@ -1619,18 +1624,18 @@ function SaveBracketPanel({
             disabled={!shareUrl}
           >
             <span aria-hidden="true">↗</span>
-            <span>Share my bracket</span>
+            <span>{safeT(t, "bracket.save.share_cta", "Share my bracket")}</span>
           </button>
           <a
             className="bracket-save-panel-cta-secondary"
             href="/profile"
           >
             <span aria-hidden="true">📷</span>
-            <span>Upload a profile photo</span>
+            <span>{safeT(t, "bracket.save.upload_photo", "Upload a profile photo")}</span>
           </a>
         </div>
         <p className="bracket-save-panel-foot">
-          Add a profile photo so your friends can spot you on the leaderboard.
+          {safeT(t, "bracket.save.saved_foot", "Add a profile photo so your friends can spot you on the leaderboard.")}
         </p>
       </div>
     );
@@ -1641,7 +1646,7 @@ function SaveBracketPanel({
     <div className="bracket-save-panel" data-state="ready">
       <div className="bracket-save-panel-headline">
         <span className="bracket-save-panel-tick" aria-hidden="true">🏆</span>
-        <span>All 104 picks made. Lock in your bracket.</span>
+        <span>{safeT(t, "bracket.save.complete_headline", "All 104 picks made. Lock in your bracket.")}</span>
       </div>
       <button
         type="button"
@@ -1654,13 +1659,13 @@ function SaveBracketPanel({
           }
         }}
       >
-        <span>Save my bracket</span>
+        <span>{safeT(t, "bracket.save.cta", "Save my bracket")}</span>
         <span aria-hidden="true">→</span>
       </button>
       <p className="bracket-save-panel-foot">
         {isAuthed
-          ? "Saves your bracket to your profile so it follows you across devices."
-          : "We'll send a one-time sign-in code (Telegram, WhatsApp, or email). Your picks here will merge into your profile automatically."}
+          ? safeT(t, "bracket.save.foot_authed", "Saves your bracket to your profile so it follows you across devices.")
+          : safeT(t, "bracket.save.foot_anon", "We'll send a one-time sign-in code (Telegram, WhatsApp, or email). Your picks here will merge into your profile automatically.")}
       </p>
       {submitState ? (
         <p className="bracket-save-panel-status">{submitState}</p>

@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Automatski tip",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {Još # tip} few {Još # tipa} other {Još # tipova}} da zaključaš svoju ljestvicu i podijeliš.",
+      "saved": "Ljestvica spremljena. Možeš mijenjati svaki tip do prvog početnog udarca.",
+      "share_cta": "Podijeli moju ljestvicu",
+      "upload_photo": "Učitaj profilnu fotografiju",
+      "saved_foot": "Dodaj profilnu fotografiju kako bi te prijatelji prepoznali na ljestvici.",
+      "complete_headline": "104 tipa dana. Zaključaj svoju ljestvicu.",
+      "cta": "Spremi moju ljestvicu",
+      "foot_authed": "Sprema ljestvicu na tvoj profil pa te prati među uređajima.",
+      "foot_anon": "Šaljemo jednokratni kod za prijavu (Telegram, WhatsApp ili e-mail). Tvoji tipovi se automatski spajaju s profilom."
+    },
+    "submit": {
+      "saved_offline": "Spremljeno izvan mreže, pokušat ćemo opet kad se vratiš online."
+    }
   },
   "share_landing": {
     "user": {

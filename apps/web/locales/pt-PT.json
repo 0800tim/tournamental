@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Prognóstico automático",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {# prognóstico em falta} other {# prognósticos em falta}} para fechar o teu quadro e partilhar.",
+      "saved": "Quadro guardado. Podes mudar qualquer prognóstico até ao apito inicial.",
+      "share_cta": "Partilhar o meu quadro",
+      "upload_photo": "Carregar foto de perfil",
+      "saved_foot": "Adiciona uma foto de perfil para os teus amigos te identificarem na classificação.",
+      "complete_headline": "104 prognósticos feitos. Fecha o teu quadro.",
+      "cta": "Guardar o meu quadro",
+      "foot_authed": "Guarda o quadro no teu perfil para te seguir entre dispositivos.",
+      "foot_anon": "Enviamos um código de acesso único (Telegram, WhatsApp ou email). Os teus prognósticos passam para o teu perfil automaticamente."
+    },
+    "submit": {
+      "saved_offline": "Guardado offline, voltamos a tentar quando estiveres online."
+    }
   },
   "share_landing": {
     "user": {

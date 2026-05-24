@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "اختيار تلقائي",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, zero {لا توقعات متبقية} one {توقع واحد متبقي} two {توقعان متبقيان} few {# توقعات متبقية} many {# توقعًا متبقيًا} other {# توقع متبقي}} لتثبيت بطاقتك ومشاركتها.",
+      "saved": "تم حفظ البطاقة. يمكنك تعديل أي توقع حتى صافرة البداية.",
+      "share_cta": "شارك بطاقتي",
+      "upload_photo": "رفع صورة الملف الشخصي",
+      "saved_foot": "أضف صورة لملفك الشخصي ليتعرّف عليك أصدقاؤك في لوحة الصدارة.",
+      "complete_headline": "تم تسجيل جميع التوقعات الـ104. ثبّت بطاقتك.",
+      "cta": "احفظ بطاقتي",
+      "foot_authed": "تحفظ البطاقة في ملفك الشخصي لتنتقل معك بين الأجهزة.",
+      "foot_anon": "نرسل لك رمز دخول لمرة واحدة (Telegram أو WhatsApp أو البريد). تنتقل توقعاتك إلى ملفك الشخصي تلقائيًا."
+    },
+    "submit": {
+      "saved_offline": "تم الحفظ دون اتصال، سنعيد المحاولة عندما تعود إلى الإنترنت."
+    }
   },
   "share_landing": {
     "user": {

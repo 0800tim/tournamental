@@ -381,7 +381,7 @@
     "autopick_cta": "Auto-pick",
     "autopick_subtitle_empty": "Fill your bracket using live consensus odds, you can edit any pick before kickoff.",
     "autopick_subtitle_partial": "Refresh empty picks using live consensus odds.",
-    "autopick_aria": "Auto-pick from live odds",
+    "autopick_aria": "Automatikus tipp",
     "autopick_title_attr": "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts",
     "tab_groups": "Groups",
     "tab_r32": "R32",
@@ -465,7 +465,21 @@
     "knockout_match_aria_pending": "to be determined",
     "knockout_match_aria_picked": "currently picked to advance",
     "knockout_match_aria_unpicked": "pick to advance",
-    "knockout_slot_tbd": "TBD"
+    "knockout_slot_tbd": "TBD",
+    "save": {
+      "remaining": "{count, plural, one {Még # tipp} other {Még # tipp}} a tábla lezárásáig és megosztásig.",
+      "saved": "Tábla mentve. A sípszóig bármelyik tippet módosíthatod.",
+      "share_cta": "Tábla megosztása",
+      "upload_photo": "Profilkép feltöltése",
+      "saved_foot": "Tölts fel egy profilképet, hogy a barátaid felismerjenek a ranglistán.",
+      "complete_headline": "104 tipp megvan. Zárd le a tábládat.",
+      "cta": "Tábla mentése",
+      "foot_authed": "A táblát a profilodra menti, így minden eszközön ott van.",
+      "foot_anon": "Küldünk egy egyszer használatos belépési kódot (Telegram, WhatsApp vagy email). A tippjeid automatikusan átkerülnek a profilodra."
+    },
+    "submit": {
+      "saved_offline": "Offline elmentve, újrapróbáljuk amint visszakerülsz online."
+    }
   },
   "share_landing": {
     "user": {
