@@ -3,9 +3,10 @@
  * funnel.
  *
  * What it does: forwards owner contact details + custom fields to
- * GHL's v2 REST API (`POST /contacts/`) and tags the contact as
+ * GHL's v2 REST API (`POST /contacts/upsert`) and tags the contact as
  * `syndicate_owner`. The tag is what drips / automations in GHL hang
- * off.
+ * off. Upsert (not create) so an owner who already exists as a `player`
+ * contact is merged rather than rejected as a duplicate.
  *
  * What it does NOT do: block the user-facing signup. The route wraps
  * this call in try/catch with a 3-second timeout; failures are written
@@ -37,8 +38,14 @@ export interface GhlPushResult {
   error?: string;
 }
 
-const GHL_API_BASE_URL =
-  process.env.GHL_API_BASE_URL ?? "https://services.leadconnectorhq.com";
+// Use `||` not `??`: GHL_API_BASE_URL is sometimes present-but-empty in
+// the deployed env, and `""` must fall back to the default rather than
+// produce a relative `/contacts/` URL (which throws in fetch and silently
+// queued every signup for retry). Trailing slashes are stripped so the
+// `/contacts/upsert` suffix can never double up to `//contacts/upsert`.
+const GHL_API_BASE_URL = (
+  process.env.GHL_API_BASE_URL || "https://services.leadconnectorhq.com"
+).replace(/\/+$/, "");
 const GHL_VERSION_HEADER = "2021-07-28";
 const GHL_PUSH_TIMEOUT_MS = 3_000;
 
@@ -61,20 +68,26 @@ export function buildGhlContactPayload(row: SyndicateRow): {
   tags: string[];
 } {
   const tournamentTag = `tournament:${row.tournament_id}`;
+  // `has_pool` segments every contact who owns at least one pool, so GHL
+  // workflows can target pool admins regardless of how they signed up.
+  // `vtourn_pool_ids` carries the pool slug so the admin dashboard can
+  // resolve the contact straight to the pool they created.
+  const tags = ["syndicate_owner", "has_pool", tournamentTag];
   return {
     body: {
       email: row.owner_email,
       phone: row.owner_phone,
       locationId: process.env.GHL_LOCATION_ID ?? "",
-      tags: ["syndicate_owner", tournamentTag],
+      tags,
       source: "syndicate_signup",
       customFields: [
         { key: "syndicate_slug", field_value: row.slug },
         { key: "syndicate_role", field_value: "owner" },
         { key: "syndicate_tournament", field_value: row.tournament_id },
+        { key: "vtourn_pool_ids", field_value: row.slug },
       ],
     },
-    tags: ["syndicate_owner", tournamentTag],
+    tags,
   };
 }
 
@@ -105,7 +118,12 @@ export async function pushToGhl(
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetchImpl(`${GHL_API_BASE_URL}/contacts/`, {
+    // `/contacts/upsert` (create-or-merge by email/phone) rather than
+    // `/contacts/` (create-only). Since registered users are now created
+    // as GHL contacts at first sign-in, a syndicate owner often already
+    // exists; the plain create endpoint would 400 ("duplicated contact")
+    // and queue forever. Upsert is idempotent and merges the owner tags.
+    const res = await fetchImpl(`${GHL_API_BASE_URL}/contacts/upsert`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,

@@ -16,6 +16,7 @@
 
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { AuthContext } from '../context.js';
+import { syncUserToHighLevel } from '../highlevel.js';
 import { verifySessionJwt, signSessionJwt } from '../jwt.js';
 
 interface AuthedRequest {
@@ -192,6 +193,15 @@ export async function registerSession(
       throw err;
     }
     if (!updated) return reply.code(404).send({ error: 'not-found' });
+
+    // Re-sync to HighLevel when an identity field changed (name, country,
+    // email). Fire-and-forget; the contact-id writeback only touches the
+    // highlevel_* columns, which aren't identity fields, so this can't loop.
+    const identityKeys = ['display_name', 'first_name', 'last_name', 'country', 'email'] as const;
+    if (identityKeys.some((k) => k in patch)) {
+      void syncUserToHighLevel(ctx.storage, updated, { now, log: ctx.log });
+    }
+
     reply.header('Cache-Control', 'private, no-store');
     return reply.send({ user: serialiseUser(updated) });
   });

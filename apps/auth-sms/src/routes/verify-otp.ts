@@ -32,6 +32,7 @@
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import type { AuthContext } from '../context.js';
+import { syncUserToHighLevel } from '../highlevel.js';
 import { normalisePhone } from '../phone.js';
 import { hashOtp, safeEqualHex, OTP_LENGTH } from '../otp.js';
 import { phoneLogId } from '../storage.js';
@@ -163,6 +164,10 @@ export async function registerVerifyOtp(
     clearPhoneFailures({ storage: ctx.storage, phone });
 
     const user = ctx.storage.findOrCreateUser(phone, now);
+
+    // Mirror the user into HighLevel as a `player` contact. Fire-and-forget:
+    // never blocks the login response, never throws (see highlevel.ts).
+    void syncUserToHighLevel(ctx.storage, user, { now, log: ctx.log });
 
     const signed = await signSessionJwt({
       secret: ctx.config.jwtSecret,
