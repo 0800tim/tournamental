@@ -154,7 +154,7 @@ const PatchSchema = z
     sponsor_name: z.string().max(120).nullable().optional(),
     sponsor_url: HttpsUrl.optional(),
     sponsor_logo_url: HttpsUrl.optional(),
-    prize_text: z.string().max(280).nullable().optional(),
+    prize_text: z.string().max(600).nullable().optional(),
     /** Cents. 0 or null means "no fee". */
     entry_fee_cents: z.number().int().min(0).max(100_000_000).nullable().optional(),
     entry_fee_currency: z.string().length(3).nullable().optional(),

@@ -777,13 +777,15 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
 
           <label className="vt-brand-field">
             <span className="vt-brand-label">Prize copy</span>
-            <input
-              type="text"
+            <textarea
               value={prizeText}
               onChange={(e) => setPrizeText(e.target.value)}
-              maxLength={280}
-              placeholder='e.g. "Win a $250 store voucher"'
-              className="vt-brand-input"
+              maxLength={600}
+              rows={4}
+              placeholder={
+                "List your prizes, one per line. e.g.\n$250 voucher for 1st\n$100 for 2nd\n$50 for 3rd"
+              }
+              className="vt-brand-input vt-brand-textarea"
             />
           </label>
         </div>

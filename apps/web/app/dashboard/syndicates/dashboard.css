@@ -259,6 +259,13 @@
   border-color: var(--wc-amber, #fbbf24);
 }
 
+/* Multi-line prize copy box: owners list multiple prizes one per line. */
+.vt-brand-textarea {
+  resize: vertical;
+  min-height: 88px;
+  line-height: 1.45;
+}
+
 .vt-brand-colour-row {
   display: flex;
   gap: 8px;

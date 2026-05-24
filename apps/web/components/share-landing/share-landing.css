@@ -1464,6 +1464,9 @@
   font-size: 1.0625rem;
   line-height: 1.5;
   color: var(--vt-fg, #e6e6ea);
+  /* Owners list multiple prizes one per line in the multi-line prize box;
+     preserve those line breaks. */
+  white-space: pre-line;
 }
 
 /* Labelled prize block: a "PRIZE" eyebrow above the prize copy, so a

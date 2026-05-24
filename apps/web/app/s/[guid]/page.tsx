@@ -788,7 +788,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         )}
       </dl>
 
-      {split && split.length > 0 && fee > 0 ? (
+      {split && split.length > 0 ? (
         <ol className="vt-share-prize-split" aria-label="Prize split">
           {[...split]
             .sort((a, b) => a.rank - b.rank)
