@@ -775,9 +775,9 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
           </>
         ) : (
           <div className="vt-share-prize-cell">
-            <dt className="vt-stat-label">{hasPrize ? "Entry" : "Stake"}</dt>
+            <dt className="vt-stat-label">{hasPrize ? "Entry fee" : "Stake"}</dt>
             <dd className="vt-share-prize-num vt-share-prize-num-text">
-              {hasPrize ? "Free to enter" : "Bragging rights"}
+              {hasPrize ? "Free" : "Bragging rights"}
             </dd>
           </div>
         )}
