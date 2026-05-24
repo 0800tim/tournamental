@@ -234,6 +234,12 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
       setJoinStatus(body.status === "pending" ? "pending" : "active");
       setOpen(true);
       setStep("success");
+      // Active joins land straight in the bracket. Brief delay so the
+      // "You're in!" confirmation is seen before the reload. Pending
+      // (approval-gated) joins stay on the success/pending message.
+      if (body.status !== "pending") {
+        window.setTimeout(() => window.location.replace("/world-cup-2026"), 1200);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Network error");
       setOpen(true);
