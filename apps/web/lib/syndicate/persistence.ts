@@ -719,6 +719,86 @@ export class SyndicatePersistence {
   }
 
   /**
+   * Like listByOwnerUserId but reconciles two legacy ownership shapes
+   * for pools created before the create-route learned to set
+   * owner_user_id from the session:
+   *
+   *   - owner_user_id IS NULL/empty AND owner_email matches (the
+   *     auth-sms email is OTP-verified so this is verified-email
+   *     == typed-email)
+   *   - owner_user_id IS NULL AND syndicate_owners_membership has a
+   *     row with role='owner', user_id LIKE 'anon:%', and the
+   *     `handle` column slugifies to the user's display_name slug
+   *
+   * `emailLower` and `handleSlug` should already be normalised by the
+   * caller (lower-case email, slugified handle). Either may be null
+   * when the upstream lookup didn't yield anything; in that case the
+   * corresponding reconciliation path is skipped.
+   *
+   * Returned rows are de-duped by syndicate id; ownership wins over
+   * any other classification. Order: most recent first.
+   * (Tim 2026-05-24: My pools page was only showing The Crate because
+   * his other three pools all live in the anon-owner bucket.)
+   */
+  listOwnedByUserIdOrLegacyHints(
+    userId: string,
+    hints: { emailLower: string | null; handleSlug: string | null },
+  ): SyndicateRow[] {
+    if (!this.isReady()) return [];
+    const byId = this.db
+      .prepare(
+        `SELECT * FROM syndicates
+         WHERE owner_user_id = ?
+         ORDER BY created_at DESC`,
+      )
+      .all(userId) as SyndicateRow[];
+    const byEmail = hints.emailLower
+      ? (this.db
+          .prepare(
+            `SELECT * FROM syndicates
+             WHERE (owner_user_id IS NULL OR owner_user_id = '')
+               AND LOWER(owner_email) = ?
+             ORDER BY created_at DESC`,
+          )
+          .all(hints.emailLower) as SyndicateRow[])
+      : [];
+    const byHandle = hints.handleSlug
+      ? (this.db
+          .prepare(
+            `SELECT s.*
+             FROM syndicate_owners_membership m
+             JOIN syndicates s ON s.id = m.syndicate_id
+             WHERE m.role = 'owner'
+               AND m.user_id LIKE 'anon:%'
+               AND m.handle IS NOT NULL
+               AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(m.handle, ' ', ''), '.', ''), '-', ''), '_', ''))
+                   = LOWER(REPLACE(REPLACE(REPLACE(REPLACE(?, ' ', ''), '.', ''), '-', ''), '_', ''))
+               AND ((s.owner_user_id IS NULL) OR (s.owner_user_id = ''))
+             ORDER BY s.created_at DESC`,
+          )
+          .all(hints.handleSlug) as SyndicateRow[])
+      : [];
+    const seen = new Set<string>();
+    const merged: SyndicateRow[] = [];
+    for (const r of byId) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      merged.push(r);
+    }
+    for (const r of byEmail) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      merged.push(r);
+    }
+    for (const r of byHandle) {
+      if (seen.has(r.id)) continue;
+      seen.add(r.id);
+      merged.push(r);
+    }
+    return merged.map((r) => this.withRealMemberCount(r));
+  }
+
+  /**
    * List public syndicates for the public pool directory (`/pools`).
    * Only `is_public = 1` rows; newest first. An optional `search` does a
    * case-insensitive substring match across name, slug, and topic. Paged
