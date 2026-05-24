@@ -80,6 +80,17 @@ fields by their short key (GHL maps `vtourn_user_id` → `contact.vtourn_user_id
 | `syndicate_slug`        | `contact.syndicate_slug`      | Pool slug (syndicate funnel).                 |
 | `syndicate_role`        | `contact.syndicate_role`      | `owner` \| `member`.                          |
 | `syndicate_tournament`  | `contact.syndicate_tournament`| Tournament id of the pool.                    |
+| `syndicate_tier`        | `contact.syndicate_tier`      | `free` \| `premium` \| `past_due` (HL-owned). |
+| `marketing_opt_in`      | `contact.marketing_opt_in`    | Marketing consent (`true`/`false`).           |
+| `sponsor_contact_consent` | `contact.sponsor_contact_consent` | Sponsor-share consent (`true`/`false`).  |
+| `vtourn_affiliate_code` | `contact.vtourn_affiliate_code` | Affiliate's referral code (see [64](64-affiliate-highlevel.md)). |
+| `vtourn_affiliate_url`  | `contact.vtourn_affiliate_url`| Affiliate's shareable referral URL.           |
+| `vtourn_referred_by`    | `contact.vtourn_referred_by`  | Referral code that referred this contact.     |
+
+All 12 fields are **provisioned live** in the location (run
+`scripts/highlevel-setup.ts` to (re)create any missing). The affiliate
+fields are groundwork — no affiliate data flows yet (the affiliate product
+is not built; see [64](64-affiliate-highlevel.md)).
 
 ## 4. When syncs fire
 
@@ -149,10 +160,17 @@ messaging via the **Aiva SMS / WhatsApp** gateway integrated with HighLevel.
 The same filter governs the backfill, so re-runs never re-introduce junk.
 
 > Real numbers are intentionally retained even before a display name is set,
-> because the phone is the messaging handle. **Name capture at signup** is a
-> separate front-end task (prompt for display/first name on first sign-in);
-> the backend already re-syncs names to HighLevel on profile edit (§4), so
-> no backend change is needed once the signup UI collects them.
+> because the phone is the messaging handle.
+
+### Name capture at signup (built)
+
+`apps/web/components/auth/ProfileCompletionGate.tsx` (mounted in the root
+layout) shows a one-time popup after an inbound user signs in with an empty
+profile. It collects avatar (via `AvatarUploader`), **display name**
+("how you'll appear on leaderboards"), first name, and email (when missing).
+It PATCHes `/v1/auth/me`, which triggers the profile-edit re-sync in §4 — so
+the name/email land on the HighLevel contact automatically. Phone is not
+captured here (it's a login credential needing OTP, not a free-text field).
 
 ## 6. Known gaps / next phase
 
@@ -168,3 +186,53 @@ The same filter governs the backfill, so re-runs never re-introduce junk.
 - **crm-bridge duplication.** `web/lib/syndicate/ghl.ts` is a deliberately
   narrow copy of the crm-bridge client (see its header). Post-launch, route
   the syndicate push through crm-bridge and delete the copy.
+
+## 7. Operator setup — automated vs manual
+
+GHL's API lets us automate contacts, tags, and custom fields, but **not**
+pipelines, workflows, products, or sub-account provisioning — those are
+UI/agency-only. Here's the split.
+
+### ✅ Automated / already live (no action needed)
+
+- **12 custom fields** provisioned in the location (`scripts/highlevel-setup.ts`).
+- **Contact sync**: registration → `player`, profile edits, pool owners →
+  `syndicate_owner`/`has_pool` — live on the `auth-sms` service.
+- **Backfill** of existing players: done (one-off, re-runnable).
+- **Bogus-number filter**: live; junk test contacts removed.
+- **Name-capture popup**: built (ships with the next `web` deploy).
+
+### 🔧 Manual — you do these in the HighLevel dashboard
+
+The API can't create these. Each has a detailed spec; work through them in
+order:
+
+1. **Pipelines + stages** — build "Pool Owner Nurture" (6 stages) and
+   optionally "Player Activation". Spec: [63 §3](63-highlevel-nurture-and-pipelines.md).
+2. **Workflows** — W1–W6 (welcome, grow-your-pool, thriving/referral,
+   at-risk, pre-tournament, player activation), with email/SMS templates.
+   Spec: [63 §5](63-highlevel-nurture-and-pipelines.md) + the private
+   runbook (`tournamental-business/commercial/highlevel-setup-runbook.md`).
+3. **Smart lists** — empty-pool owners, owners-by-tournament, players-no-pool.
+   Spec: [63 §6](63-highlevel-nurture-and-pipelines.md).
+4. **Premium $97 product + order form + SaaS/agency billing** — commercial;
+   needs the **agency API key**. Spec: the private runbook +
+   `tournamental-business/commercial/highlevel-premium-form-and-product.md`.
+5. **Opportunity hook (code)** — once Pipeline A exists, copy its
+   `pipelineId` + stage id into env and wire opportunity creation on pool
+   signup. Snippet: [63 §4](63-highlevel-nurture-and-pipelines.md).
+6. **Affiliate workflows** — only once the affiliate product is designed +
+   built. Spec: [64](64-affiliate-highlevel.md).
+
+A single consolidated, tick-box version of this manual list (including the
+commercial steps) lives privately at
+`tournamental-business/commercial/highlevel-manual-setup-checklist.md`.
+
+## 8. Deployment status (2026-05-24)
+
+- **`auth-sms`** (registration/profile sync): **deployed live** — one shared
+  process (`vtorn-auth-sms`) serves dev + prod, restarted with GHL creds.
+- **`apps/web`** (syndicate upsert fix + name-capture popup): merged to
+  `main`, **not yet deployed** — pending a clean `web` build/deploy.
+- **GHL account**: custom fields + backfilled contacts are live (one
+  location, no dev/prod split).
