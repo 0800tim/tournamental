@@ -31,6 +31,22 @@ function safeT(
   }
 }
 
+function safeTRaw(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const fn = (t as unknown as { raw?: (k: string) => unknown }).raw;
+    if (typeof fn !== "function") return fallback;
+    const out = fn.call(t, key);
+    if (typeof out !== "string" || out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
+
 import {
   computeGroupStandings,
   detectTiesNeedingTiebreaker,
@@ -166,7 +182,13 @@ export function GroupCard(props: GroupCardProps) {
         aria-controls={bodyId}
       >
         <span className="bracket-group-head-titlerow">
-          <h3 className="bracket-group-head-title">{safeT(t, "bracket.group.label", "Group {id}").replace("{id}", group.id)}</h3>
+          <h3 className="bracket-group-head-title">{(() => {
+            try {
+              const out = t("bracket.group.label", { id: group.id });
+              if (typeof out === "string" && out !== "bracket.group.label") return out;
+            } catch { /* fall through */ }
+            return `Group ${group.id}`;
+          })()}</h3>
           <span className="bracket-group-progress" aria-live="polite">
             {predictedCount} / {groupFixtures.length} predicted
           </span>

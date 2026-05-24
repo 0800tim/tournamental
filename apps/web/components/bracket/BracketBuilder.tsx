@@ -46,6 +46,29 @@ function safeT(
   }
 }
 
+/**
+ * Variant of safeT that pulls the literal template string via t.raw(),
+ * so keys containing `{placeholder}` tokens don't make next-intl throw
+ * "missing value" -- the caller does its own `.replace("{name}", ...)`
+ * interpolation. Use this for any key with embedded React children
+ * (the headline) or where the caller manages substitution itself.
+ */
+function safeTRaw(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const fn = (t as unknown as { raw?: (k: string) => unknown }).raw;
+    if (typeof fn !== "function") return fallback;
+    const out = fn.call(t, key);
+    if (typeof out !== "string" || out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
+
 import {
   cascade,
   isGroupComplete,
@@ -1066,13 +1089,21 @@ export function BracketBuilder(props: BracketBuilderProps) {
       <header className="bracket-header">
         <h1>
           {(() => {
-            const headline = safeT(t, "bracket.hero.headline", "Call every match of the {tournament}.");
-            const tournamentName = tournament.name;
-            const [pre, post] = headline.split("{tournament}");
+            // Use t() with the placeholder VALUE so next-intl interpolates
+            // without throwing. The IIFE catches any failure and falls back
+            // to English. This is one of the only ways to render a
+            // translation that contains a brand-string substitution inline
+            // in JSX while staying SSR-safe across all 22 locales.
+            let rendered = "Call every match of the " + tournament.name + ".";
+            try {
+              const out = t("bracket.hero.headline", { tournament: tournament.name });
+              if (typeof out === "string" && out !== "bracket.hero.headline") rendered = out;
+            } catch {
+              // fall through to the English default above
+            }
             return (
               <>
-                {pre ?? headline}
-                {post !== undefined && <>{tournamentName}{post}</>}
+                {rendered}
                 {punditStatus.verified && (
                   <span style={{ marginLeft: 10, display: "inline-flex", verticalAlign: "middle" }}>
                     <PunditBadge status={punditStatus} size={20} />
@@ -1086,9 +1117,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
           {safeT(t, "bracket.hero.lede", "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.")}
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
-          {safeT(t, "bracket.hero.progress", "{picked} of {total} matches picked")
-            .replace("{picked}", String(totalCompleted))
-            .replace("{total}", String(totalPicks))}
+          {(() => {
+            try {
+              const out = t("bracket.hero.progress", { picked: totalCompleted, total: totalPicks });
+              if (typeof out === "string" && out !== "bracket.hero.progress") return out;
+            } catch { /* fall through */ }
+            return `${totalCompleted} of ${totalPicks} matches picked`;
+          })()}
         </p>
       </header>
 
@@ -1197,9 +1232,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 <div className="bracket-round-header">
                   <h2>{safeT(t, "bracket.group_stage.heading", "Group stage")}</h2>
                   <span className="bracket-round-progress">
-                    {safeT(t, "bracket.group_stage.progress", "{picked} of {total} matches picked")
-                      .replace("{picked}", String(groupProgress.picked))
-                      .replace("{total}", String(groupProgress.total))}
+                    {(() => {
+                      try {
+                        const out = t("bracket.group_stage.progress", { picked: groupProgress.picked, total: groupProgress.total });
+                        if (typeof out === "string" && out !== "bracket.group_stage.progress") return out;
+                      } catch { /* fall through */ }
+                      return `${groupProgress.picked} of ${groupProgress.total} matches picked`;
+                    })()}
                   </span>
                 </div>
                 <div
