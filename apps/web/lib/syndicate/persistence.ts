@@ -483,11 +483,17 @@ export class SyndicatePersistence {
   }): { inserted: boolean } {
     if (!this.insertMemberStmt) this.prepareStatements();
     if (!this.insertMemberStmt) throw new Error("syndicate schema not ready");
+    const now = args.now ?? Date.now();
+    // The membership table foreign-keys to users(id). A member who hasn't
+    // saved a bracket yet has no users row, so the insert would throw a FK
+    // violation (surfacing as a 500 on /join). Ensure the user row exists
+    // first — mirrors the owner-creation flow.
+    this.upsertUserStmt.run(args.user_id, now);
     const result = this.insertMemberStmt.run({
       syndicate_id: args.syndicate_id,
       user_id: args.user_id,
       role: args.role ?? "member",
-      joined_at: args.now ?? Date.now(),
+      joined_at: now,
       handle: args.handle ?? null,
       display_name: args.display_name ?? null,
       status: args.status ?? "active",
