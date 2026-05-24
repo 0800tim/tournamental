@@ -29,7 +29,22 @@
 
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
 
 import {
   cascade,
@@ -158,6 +173,11 @@ function knockoutCountFor(
 
 export function BracketBuilder(props: BracketBuilderProps) {
   const { tournament } = props;
+  // i18n: resolve every translation via safeT(t, key, englishFallback)
+  // so a missing message never crashes the page. The catalogue lives
+  // at apps/web/locales/<code>.json under "stage.*" + "bracket.*"
+  // (added 2026-05-24).
+  const t = useTranslations();
   // Identity hierarchy for bracket ownership:
   //   1. Authed `tnm_session` user id (e.g. `u_<22 hex>`) when signed in.
   //      Game-service verifies the cookie + stores brackets under this id,
@@ -1097,20 +1117,28 @@ export function BracketBuilder(props: BracketBuilderProps) {
         role="tablist"
         aria-label="Bracket rounds"
       >
-        {TABS.map((t) => {
-          const p = progressByTab[t.id];
-          const isActive = tab === t.id;
+        {TABS.map((tab_) => {
+          const p = progressByTab[tab_.id];
+          const isActive = tab === tab_.id;
+          const labelKey =
+            tab_.id === "groups" ? "stage.groups" :
+            tab_.id === "r32"    ? "stage.r32" :
+            tab_.id === "r16"    ? "stage.r16" :
+            tab_.id === "qf"     ? "stage.qf" :
+            tab_.id === "sf"     ? "stage.sf" :
+            tab_.id === "final"  ? "stage.f" : "";
+          const label = labelKey ? safeT(t, labelKey, tab_.label) : tab_.label;
           return (
             <button
-              key={t.id}
+              key={tab_.id}
               type="button"
               role="tab"
               aria-selected={isActive}
-              aria-controls={`bracket-panel-${t.id}`}
+              aria-controls={`bracket-panel-${tab_.id}`}
               className={`bracket-tab ${isActive ? "is-active" : ""}`}
-              onClick={() => setTab(t.id)}
+              onClick={() => setTab(tab_.id)}
             >
-              <span className="bracket-tab-label">{t.label}</span>
+              <span className="bracket-tab-label">{label}</span>
               {p.total > 0 && (
                 <span className="bracket-tab-count" aria-label={`${p.picked} of ${p.total} picked`}>
                   {p.picked}/{p.total}

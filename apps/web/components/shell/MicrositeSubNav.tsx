@@ -14,13 +14,29 @@
  *, uses momentum scrolling on touch).
  */
 
-import Link from "next/link";
+import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
+import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { PredictIcon, ShareIcon } from "./icons";
 
+function safeT(
+  t: ReturnType<typeof useTranslations>,
+  key: string,
+  fallback: string,
+): string {
+  try {
+    const out = t(key);
+    if (out === key) return fallback;
+    return out;
+  } catch {
+    return fallback;
+  }
+}
+
 export interface MicrositeSubNavLink {
   readonly label: string;
+  readonly i18nKey?: string;
   readonly href: string;
   readonly icon: ReactNode;
   readonly matchPrefix?: string;
@@ -34,12 +50,14 @@ export const WC2026_SUBNAV: readonly MicrositeSubNavLink[] = [
   // for the marketing site / lab usage, just not promoted to players).
   {
     label: "Predict",
+    i18nKey: "nav.predict",
     href: "/world-cup-2026",
     icon: <PredictIcon />,
     exact: true,
   },
   {
     label: "Save & share",
+    i18nKey: "nav.save_share",
     href: "/world-cup-2026/save-share",
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
@@ -55,6 +73,7 @@ export function MicrositeSubNav({
   links = WC2026_SUBNAV,
   eyebrow = "WC 2026",
 }: MicrositeSubNavProps) {
+  const t = useTranslations();
   const [pathname, setPathname] = useState<string>("/");
 
   useEffect(() => {
@@ -84,7 +103,7 @@ export function MicrositeSubNav({
               role="listitem"
             >
               <span className="vt-microsite-subnav-icon">{link.icon}</span>
-              <span>{link.label}</span>
+              <span>{link.i18nKey ? safeT(t, link.i18nKey, link.label) : link.label}</span>
             </Link>
           );
         })}
