@@ -287,7 +287,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     if (requiresApproval && authed && config._joinState === "pending") {
       return '<div class="tnm-empty">' +
         '<h3>Waiting for owner approval</h3>' +
-        '<p>We sent your request to the pool owner. You\'ll be able to build your bracket as soon as they approve you -- reload this page after that to start picking.</p>' +
+        '<p>We sent your request to the pool owner. You will be able to build your bracket as soon as they approve you -- reload this page after that to start picking.</p>' +
         '</div>';
     }
 
