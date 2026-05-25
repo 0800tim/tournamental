@@ -11,11 +11,11 @@
  * cannot leak into or out of the host page.
  *
  * Modes (attribute `mode="..."`):
- *   - "hub"  (default) — branded shell with tabs (My Predictions /
+ *   - "hub"  (default) - branded shell with tabs (My Predictions /
  *                        Leaderboard / About), login CTA when not
  *                        authed, "Powered by Tournamental" footer.
- *   - "play" — full-bleed iframe of the bracket builder, no chrome.
- *   - "card" — legacy promotional card layout.
+ *   - "play" - full-bleed iframe of the bracket builder, no chrome.
+ *   - "card" - legacy promotional card layout.
  *
  * The auth state is checked via a CORS GET to /v1/auth/me on
  * auth.tournamental.com. When the user is logged out, the My
@@ -182,6 +182,19 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       '.tnm-footer a { color: ' + primary + '; text-decoration: none; font-weight: 600; }',
       '.tnm-loading { padding: 40px 18px; text-align: center; color: ' + t.textMuted + '; font-size: 13px; }',
       '.tnm-error { padding: 30px 18px; text-align: center; color: #d63b3b; font-size: 13px; }',
+      // Inline OTP sign-in form (shown in-place, no popup, no cookies).
+      '.tnm-auth { display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 320px; margin: 6px auto 0; text-align: left; }',
+      '.tnm-auth h3 { margin: 0; font-size: 16px; font-weight: 800; color: ' + t.textStrong + '; text-align: center; }',
+      '.tnm-auth p { margin: 0; font-size: 12.5px; color: ' + t.textMuted + '; text-align: center; max-width: none; }',
+      '.tnm-auth-input { width: 100%; box-sizing: border-box; padding: 12px 14px; border-radius: 10px; border: 1px solid ' + t.border + '; background: ' + t.surface + '; color: ' + t.textStrong + '; font: inherit; font-size: 15px; }',
+      '.tnm-auth-input:focus { outline: none; border-color: ' + primary + '; box-shadow: 0 0 0 3px ' + primary + '33; }',
+      '.tnm-auth-input[data-field="code"] { letter-spacing: 0.4em; text-align: center; font-weight: 700; font-size: 22px; }',
+      '.tnm-auth-actions { display: flex; flex-direction: column; align-items: center; gap: 8px; margin-top: 2px; }',
+      '.tnm-auth-actions .tnm-cta { width: 100%; }',
+      '.tnm-auth-link { background: transparent; border: 0; color: ' + t.textMuted + '; font: inherit; font-size: 12px; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; padding: 2px; }',
+      '.tnm-auth-link:hover { color: ' + primary + '; }',
+      '.tnm-auth-note { font-size: 12px; padding: 8px 10px; border-radius: 8px; background: ' + primary + '1f; color: ' + t.textStrong + '; text-align: center; }',
+      '.tnm-cta[disabled] { opacity: 0.6; cursor: default; }',
     ].join("");
   }
 
@@ -191,6 +204,23 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
   function errorMarkup(msg) {
     return '<div class="tnm-error">' + escapeHtml(msg) + '</div>';
   }
+
+  // ---- Inline sign-in state ----
+  //
+  // The widget signs users in *inline* (no popup, no third-party cookies):
+  // they request a one-time code by email or SMS and type it straight into
+  // the widget. We POST to play.tournamental.com/api/v1/auth/widget-otp
+  // (CORS-open) which proxies to auth-sms and, on a correct code, returns a
+  // widget bearer token we stash in first-party localStorage. Module-scoped
+  // because the typical embed is one widget per page.
+  var authState = {
+    open: false,        // form revealed?
+    step: "id",         // "id" (enter email/phone) | "code" (enter the code)
+    channel: "email",   // "email" | "phone"
+    identifier: "",     // the email/phone the code was sent to
+    note: "",           // inline status / error message
+    busy: false,        // in-flight request -> disable the button
+  };
 
   // ---- Hub rendering ----
 
@@ -208,12 +238,11 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       { id: "leaderboard", label: "Leaderboard" },
       { id: "about", label: "About" },
     ];
-    // Default tab: Play when the user can actually play (authed, OR
-    // anonymous on a public pool). About otherwise (i.e. private pool
-    // + anon, where Play is just an access-request CTA).
-    var poolIsPublic = config.is_public !== false;
-    var canPlayNow = authed || poolIsPublic;
-    var tab = currentTab || (canPlayNow ? "play" : "about");
+    // Default tab is always Play: it holds the bracket (public / authed),
+    // the guest nudge (public + anon), OR the inline sign-in + request-
+    // access form (private + anon). Putting the sign-in form first is the
+    // whole point of the embed, so it must be visible without a tab click.
+    var tab = currentTab || "play";
 
     // Resolve logo (might be a relative /branding/... URL).
     var absLogo = null;
@@ -275,8 +304,8 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     if (requiresApproval && !authed) {
       return '<div class="tnm-empty">' +
         '<h3>' + name + ' is a private pool</h3>' +
-        '<p>The pool owner approves who plays. Sign up to request access -- you can build your bracket once they approve you.</p>' +
-        '<button type="button" class="tnm-cta" data-action="login">Sign up &amp; request access</button>' +
+        '<p>The pool owner approves who plays. Sign in to request access, then build your bracket once they approve you.</p>' +
+        authFormMarkup(config) +
         '</div>';
     }
 
@@ -287,7 +316,26 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     if (requiresApproval && authed && config._joinState === "pending") {
       return '<div class="tnm-empty">' +
         '<h3>Waiting for owner approval</h3>' +
-        '<p>We sent your request to the pool owner. You will be able to build your bracket as soon as they approve you -- reload this page after that to start picking.</p>' +
+        '<p>We sent your request to the pool owner. You will be able to build your bracket as soon as they approve you. Reload this page after that to start picking.</p>' +
+        '</div>';
+    }
+
+    // PRIVATE + authed but the owner declined the request.
+    if (requiresApproval && authed && config._joinState === "denied") {
+      return '<div class="tnm-empty">' +
+        '<h3>Request not approved</h3>' +
+        '<p>The pool owner has not approved your request to join ' + name + '. Get in touch with them if you think this is a mistake.</p>' +
+        '</div>';
+    }
+
+    // PRIVATE + authed (e.g. signed in on another pool's embed) but not yet
+    // a member of THIS pool -> one-tap request-access CTA. No auto-join on
+    // load, so the owner is not re-notified on every page view.
+    if (requiresApproval && authed && config._joinState === "none") {
+      return '<div class="tnm-empty">' +
+        '<h3>Join ' + name + '</h3>' +
+        '<p>You are signed in. Request access and the pool owner will approve you.</p>' +
+        '<button type="button" class="tnm-cta" data-action="request-access">Request access</button>' +
         '</div>';
     }
 
@@ -303,11 +351,58 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     // visitors -- no friction, but signals that login unlocks saving
     // across devices + the official leaderboard.
     if (!authed) {
-      return '<div class="tnm-anon-nudge">' +
-        '<span>Playing as a guest. <button type="button" class="tnm-nudge-link" data-action="login">Sign in</button> to save across devices and join the official leaderboard.</span>' +
-        '</div>' + iframe;
+      var nudge = authState.open
+        ? '<div class="tnm-anon-nudge">' + authFormMarkup(config) + '</div>'
+        : '<div class="tnm-anon-nudge">' +
+            '<span>Playing as a guest. <button type="button" class="tnm-nudge-link" data-action="auth-open">Sign in</button> to save across devices and join the official leaderboard.</span>' +
+          '</div>';
+      return nudge + iframe;
     }
     return iframe;
+  }
+
+  // Inline OTP sign-in form. Two steps: enter your email/phone, then
+  // enter the 6-digit code. No popup, no cookies -- the verify call
+  // returns a bearer token directly.
+  function authFormMarkup(config) {
+    var s = authState;
+    var poolName = escapeHtml(config.name || "this pool");
+    var note = s.note ? '<div class="tnm-auth-note">' + escapeHtml(s.note) + '</div>' : "";
+
+    if (s.step === "code") {
+      return '<div class="tnm-auth">' +
+        '<h3>Enter your code</h3>' +
+        '<p>We sent a 6-digit code to <strong>' + escapeHtml(s.identifier) + '</strong>.</p>' +
+        note +
+        '<input class="tnm-auth-input" data-field="code" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="------" aria-label="Sign-in code" />' +
+        '<div class="tnm-auth-actions">' +
+          '<button type="button" class="tnm-cta" data-action="otp-verify"' + (s.busy ? " disabled" : "") + '>' +
+            (s.busy ? "Signing in…" : "Sign in") +
+          '</button>' +
+          '<button type="button" class="tnm-auth-link" data-action="otp-resend">Resend code</button>' +
+          '<button type="button" class="tnm-auth-link" data-action="otp-change">Use a different ' + (s.channel === "phone" ? "number" : "email") + '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    var emailMode = s.channel !== "phone";
+    var field = emailMode
+      ? '<input class="tnm-auth-input" data-field="email" type="email" autocomplete="email" placeholder="you@example.com" value="' + escapeHtml(s.identifier) + '" aria-label="Email" />'
+      : '<input class="tnm-auth-input" data-field="phone" type="tel" autocomplete="tel" placeholder="+64 21 123 4567" value="' + escapeHtml(s.identifier) + '" aria-label="Phone number" />';
+    return '<div class="tnm-auth">' +
+      '<h3>Sign in to ' + poolName + '</h3>' +
+      '<p>Get a one-time code, no password needed.</p>' +
+      note +
+      field +
+      '<div class="tnm-auth-actions">' +
+        '<button type="button" class="tnm-cta" data-action="otp-request"' + (s.busy ? " disabled" : "") + '>' +
+          (s.busy ? "Sending…" : "Get my code") +
+        '</button>' +
+        '<button type="button" class="tnm-auth-link" data-action="otp-toggle">' +
+          (emailMode ? "Use phone instead" : "Use email instead") +
+        '</button>' +
+      '</div>' +
+    '</div>';
   }
 
   function leaderboardPaneMarkup(config) {
@@ -515,28 +610,225 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
       .then(function (results) {
         var config = results[0];
         var authed = results[1];
-        renderHub(root, config, authed, null);
+        function isPrivatePool() {
+          return config.is_public === false && config.requires_approval === true;
+        }
 
-        // Click handler: "Log in to play" CTA opens the auth popup.
+        // Normalise a server join/status value into the _joinState the
+        // play pane reads: owner/active both render the bracket.
+        function applyJoinState(status) {
+          var st = status || "none";
+          config._joinState = (st === "owner" || st === "active") ? "active" : st;
+        }
+
+        // Render, resolving the private-pool membership state via a
+        // NON-mutating status GET. Used on first load + reload so a
+        // pending / denied / not-yet-member viewer sees the right screen
+        // without the widget re-submitting a join (which would re-notify
+        // the owner on every page view).
+        function renderResolved(authed) {
+          if (!(authed && isPrivatePool())) {
+            renderHub(root, config, authed, "play");
+            return;
+          }
+          fetch(
+            API_ORIGIN + "/api/v1/syndicates/" + encodeURIComponent(slug) + "/join",
+            { credentials: "include", headers: authHeaders() },
+          )
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; })
+            .then(function (res) {
+              applyJoinState(res && res.status);
+              renderHub(root, config, true, "play");
+            });
+        }
+
+        // Submit (or re-submit) an access request for a private pool, then
+        // render. The server notifies the owner only on the first insert.
+        function submitJoin() {
+          fetch(
+            API_ORIGIN + "/api/v1/syndicates/" + encodeURIComponent(slug) + "/join",
+            {
+              method: "POST",
+              credentials: "include",
+              headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
+              body: "{}",
+            },
+          )
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .catch(function () { return null; })
+            .then(function (res) {
+              applyJoinState((res && res.status) || "pending");
+              renderHub(root, config, true, "play");
+            });
+        }
+
+        // Post-sign-in path (fresh OTP verify or legacy popup). For a
+        // private pool, signing in == requesting access in one step.
+        function onAuthenticated() {
+          checkAuth().then(function (nowAuthed) {
+            if (nowAuthed && isPrivatePool()) { submitJoin(); return; }
+            renderHub(root, config, nowAuthed, "play");
+          });
+        }
+
+        // Initial paint. Resolves pending/active for an already-authed
+        // private-pool viewer (stored bearer) before showing anything.
+        renderResolved(authed);
+
+        // Map an auth-sms / proxy error payload to a friendly line.
+        function friendlyAuthError(j, status) {
+          var e = (j && j.error) || "";
+          if (e === "cooldown" || e === "hourly-cap" || e === "rate-limited" || e === "ip-throttled" || status === 429) {
+            return "Too many attempts just now. Wait a minute and try again.";
+          }
+          if (e === "unknown-or-expired") return "That code is wrong or expired. Use Resend code to get a new one.";
+          if (e === "send-failed" || e === "not-configured" || e === "request_failed") {
+            return "We could not send a code right now. Try the other method.";
+          }
+          if (e === "bad-phone" || e === "phone_required") return "That phone number does not look right.";
+          if (e === "bad_body" || e === "email_required") return "Check what you entered and try again.";
+          return "Something went wrong. Try again.";
+        }
+
+        // POST the inline OTP request (send a code out-of-band).
+        function requestCode() {
+          var body = { action: "request", channel: authState.channel === "phone" ? "sms" : "email" };
+          if (authState.channel === "phone") { body.phone = authState.identifier; body.pool_slug = slug; }
+          else { body.email = authState.identifier; }
+          return fetch(API_ORIGIN + "/api/v1/auth/widget-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) {
+              return r.ok && j.ok ? { ok: true } : { ok: false, message: friendlyAuthError(j, r.status) };
+            });
+          }).catch(function () { return { ok: false, message: "Network error. Try again." }; });
+        }
+
+        // POST the inline OTP verify -> widget bearer token on success.
+        function verifyCode(code) {
+          var body = { action: "verify", channel: authState.channel === "phone" ? "sms" : "email", code: code };
+          if (authState.channel === "phone") { body.phone = authState.identifier; }
+          else { body.email = authState.identifier; }
+          return fetch(API_ORIGIN + "/api/v1/auth/widget-otp", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(body),
+          }).then(function (r) {
+            return r.json().catch(function () { return {}; }).then(function (j) {
+              if (r.ok && j.ok && j.token) {
+                return { ok: true, token: j.token, expires_at: j.expires_at, user: j.user };
+              }
+              return { ok: false, message: friendlyAuthError(j, r.status) };
+            });
+          }).catch(function () { return { ok: false, message: "Network error. Try again." }; });
+        }
+
+        function focusAuthField() {
+          try {
+            var el = root.querySelector(".tnm-auth-input");
+            if (el) el.focus();
+          } catch (e) { /* ignore */ }
+        }
+
+        // The inline form only appears in the Play pane, so re-render there.
+        function rerenderAuth() {
+          renderHub(root, config, false, "play");
+          focusAuthField();
+        }
+
+        // Click handler for the inline sign-in form (+ legacy popup CTA).
         root.addEventListener("click", function (ev) {
           var target = ev.target;
-          if (!target || target.getAttribute("data-action") !== "login") return;
-          ev.preventDefault();
-          var url = API_ORIGIN + "/auth/popup?pool=" + encodeURIComponent(slug) + "&from=embed";
-          var w = 520, h = 720;
-          var left = (window.screen.width - w) / 2;
-          var top = (window.screen.height - h) / 2;
-          window.open(url, "tnm_auth", "width=" + w + ",height=" + h + ",top=" + top + ",left=" + left + ",resizable=yes,scrollbars=yes");
+          if (!target || !target.getAttribute) return;
+          var action = target.getAttribute("data-action");
+          if (!action) return;
+
+          if (action === "auth-open" || action === "login") {
+            ev.preventDefault();
+            authState.open = true; authState.step = "id"; authState.note = ""; authState.busy = false;
+            rerenderAuth();
+            return;
+          }
+          if (action === "request-access") {
+            // Authed viewer who isn't yet a member taps "Request access".
+            ev.preventDefault();
+            submitJoin();
+            return;
+          }
+          if (action === "otp-toggle") {
+            ev.preventDefault();
+            authState.channel = authState.channel === "phone" ? "email" : "phone";
+            authState.note = "";
+            rerenderAuth();
+            return;
+          }
+          if (action === "otp-change") {
+            ev.preventDefault();
+            authState.step = "id"; authState.note = "";
+            rerenderAuth();
+            return;
+          }
+          if (action === "otp-request" || action === "otp-resend") {
+            ev.preventDefault();
+            if (action === "otp-request") {
+              var input = root.querySelector('[data-field="email"], [data-field="phone"]');
+              var val = input ? input.value.trim() : "";
+              if (!val) {
+                authState.note = "Enter your " + (authState.channel === "phone" ? "phone number" : "email") + " first.";
+                rerenderAuth();
+                return;
+              }
+              authState.identifier = val;
+            }
+            authState.busy = true; authState.note = "";
+            rerenderAuth();
+            requestCode().then(function (res) {
+              authState.busy = false;
+              if (res.ok) { authState.step = "code"; authState.note = "Code sent. It expires shortly."; }
+              else { authState.note = res.message; }
+              rerenderAuth();
+            });
+            return;
+          }
+          if (action === "otp-verify") {
+            ev.preventDefault();
+            var codeInput = root.querySelector('[data-field="code"]');
+            var code = codeInput ? codeInput.value.replace(/\\D/g, "") : "";
+            if (code.length < 4) {
+              authState.note = "Enter the code we sent you.";
+              rerenderAuth();
+              return;
+            }
+            authState.busy = true; authState.note = "";
+            rerenderAuth();
+            verifyCode(code).then(function (res) {
+              authState.busy = false;
+              if (!res.ok) { authState.note = res.message; rerenderAuth(); return; }
+              storeToken({ token: res.token, expires_at: res.expires_at, user: res.user });
+              authState.open = false; authState.step = "id"; authState.identifier = ""; authState.note = "";
+              onAuthenticated();
+            });
+            return;
+          }
         });
 
-        // postMessage listener for auth success → store the bearer
-        // token the popup minted for us, then re-check auth.
-        //
-        // Origin check: only accept messages from the play app origin.
-        // Without this, any third-party iframe on the partner page
-        // could spoof a tournamental-auth message and shove our
-        // widget into authed state. The popup runs on API_ORIGIN
-        // (play.tournamental.com) so we lock the check there.
+        // Enter key submits the visible field.
+        root.addEventListener("keydown", function (ev) {
+          if (ev.key !== "Enter") return;
+          var f = ev.target && ev.target.getAttribute && ev.target.getAttribute("data-field");
+          if (!f) return;
+          ev.preventDefault();
+          var sel = f === "code" ? '[data-action="otp-verify"]' : '[data-action="otp-request"]';
+          var btn = root.querySelector(sel);
+          if (btn) btn.click();
+        });
+
+        // postMessage listener: the legacy popup flow still works as a
+        // fallback. Origin-locked to the play app so a rogue iframe on
+        // the partner page can't spoof an auth message.
         window.addEventListener("message", function (ev) {
           if (ev.origin !== API_ORIGIN) return;
           if (!ev.data || ev.data.type !== "tournamental-auth" || !ev.data.ok) return;
@@ -547,34 +839,7 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
               user: ev.data.user,
             });
           }
-          checkAuth().then(function (nowAuthed) {
-            // Private pool: now that the user is authed, POST a join
-            // request so the owner gets notified. The response tells
-            // us whether they were immediately accepted ("active") or
-            // are still waiting ("pending"); we surface that in the
-            // Play tab via the joinState attached to config.
-            var privatePool =
-              config.is_public === false && config.requires_approval === true;
-            if (nowAuthed && privatePool) {
-              fetch(
-                API_ORIGIN + "/api/v1/syndicates/" + encodeURIComponent(slug) + "/join",
-                {
-                  method: "POST",
-                  credentials: "include",
-                  headers: Object.assign({ "Content-Type": "application/json" }, authHeaders()),
-                  body: "{}",
-                },
-              )
-                .then(function (r) { return r.ok ? r.json() : null; })
-                .catch(function () { return null; })
-                .then(function (res) {
-                  config._joinState = res && res.status ? res.status : "pending";
-                  renderHub(root, config, true, "play");
-                });
-              return;
-            }
-            renderHub(root, config, nowAuthed, "play");
-          });
+          onAuthenticated();
         });
       })
       .catch(function (err) {
