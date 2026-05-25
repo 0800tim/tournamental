@@ -168,6 +168,11 @@ export function useMatchPick(
       const res = await fetchImpl(url, {
         method: "GET",
         headers: { "x-user-id": userId },
+        // Forward the .tournamental.com tnm_session cookie cross-origin
+        // so the game-service identifies the caller (without this the
+        // server falls through to x-user-id dev-fallback which is
+        // disabled in prod -> 401 missing_user). Tim 2026-05-25.
+        credentials: "include",
         cache: "no-store",
       });
       if (res.status === 404) {
@@ -255,6 +260,7 @@ export function useMatchPick(
                 "x-user-id": userId,
               },
               body: JSON.stringify(body),
+              credentials: "include",
               cache: "no-store",
             })
           : null;
@@ -311,6 +317,7 @@ export function useMatchPick(
         ? await fetchImpl(url, {
             method: "DELETE",
             headers: { "x-user-id": userId },
+            credentials: "include",
             cache: "no-store",
           })
         : null;

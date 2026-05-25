@@ -305,7 +305,7 @@ function PoolHeader({
         />
       )}
       <p style={{ color: "#9aa6c2", letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 11, margin: 0 }}>
-        You're invited to join
+        You&apos;re invited to join
       </p>
       <h1 style={{ fontSize: 24, margin: 0 }}>{name}</h1>
     </div>
@@ -808,7 +808,7 @@ function DoneStep({ kind, primary }: { kind: DoneKind; primary: string }): JSX.E
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 12 }}>
         <h2 style={{ fontSize: 20, margin: 0 }}>Request sent</h2>
         <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0 }}>
-          The pool owner will approve you. You'll be able to enter your picks once
+          The pool owner will approve you. You&apos;ll be able to enter your picks once
           they do.
         </p>
       </div>
