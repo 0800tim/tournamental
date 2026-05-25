@@ -501,17 +501,43 @@ export class SyndicatePersistence {
     return { inserted: (result.changes ?? 0) > 0 };
   }
 
-  /** True when the user holds an active membership in this pool. */
+  /** True when the user holds an active membership in this pool. Legacy
+   * rows predate the `status` column and store NULL; those are treated
+   * as active (consistent with the getMembers query). */
   isMember(syndicateId: string, userId: string): boolean {
     if (!this.db) return false;
     const row = this.db
       .prepare(
         `SELECT 1 FROM syndicate_owners_membership
-          WHERE syndicate_id = ? AND user_id = ? AND status = 'active'
+          WHERE syndicate_id = ? AND user_id = ?
+            AND (status IS NULL OR status = 'active')
           LIMIT 1`,
       )
       .get(syndicateId, userId);
     return !!row;
+  }
+
+  /** The caller's membership status in this pool: 'active' | 'pending' |
+   * 'denied', or 'none' when there's no row. Legacy rows with NULL status
+   * count as 'active'. Ownership lives on the syndicates row, not here, so
+   * callers fold that in separately. Non-mutating: safe to call on every
+   * page load without re-triggering owner notifications. */
+  getMembershipStatus(
+    syndicateId: string,
+    userId: string,
+  ): "active" | "pending" | "denied" | "none" {
+    if (!this.db) return "none";
+    const row = this.db
+      .prepare(
+        `SELECT status FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND user_id = ? LIMIT 1`,
+      )
+      .get(syndicateId, userId) as { status?: string | null } | undefined;
+    if (!row) return "none";
+    if (row.status == null || row.status === "active") return "active";
+    if (row.status === "pending") return "pending";
+    if (row.status === "denied") return "denied";
+    return "none";
   }
 
   /** Remove a member from a pool (a user leaving). Owners cannot leave

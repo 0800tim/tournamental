@@ -20,6 +20,7 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { notifyOwnerOfJoinRequest } from "@/lib/syndicate/notify-join-request";
+import { getSessionFromRequest } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -31,35 +32,84 @@ const BodySchema = z.object({
   display_name: z.string().min(1).max(60).optional(),
 });
 
-function json(body: unknown, status = 200): Response {
-  return Response.json(body, {
-    status,
-    headers: { "Cache-Control": "no-store" },
-  });
+/**
+ * CORS-open: the embed widget calls these routes from partner origins.
+ * The embed sends a bearer token (and, as a fallback, credentials), so we
+ * echo the request Origin and allow credentials rather than using "*".
+ * Every response still requires a valid session, so an echoed Origin
+ * grants nothing on its own.
+ */
+function corsHeaders(req: NextRequest): Record<string, string> {
+  const origin = req.headers.get("origin") ?? "*";
+  return {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Credentials": "true",
+    "Vary": "Origin",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization",
+    "Cache-Control": "no-store",
+  };
 }
 
-/** Probe the tnm_session cookie via auth-sms /v1/auth/me. */
+function json(req: NextRequest, body: unknown, status = 200): Response {
+  return Response.json(body, { status, headers: corsHeaders(req) });
+}
+
+export function OPTIONS(req: NextRequest): Response {
+  return new Response(null, { status: 204, headers: corsHeaders(req) });
+}
+
+/**
+ * Resolve the caller's identity. Two paths:
+ *
+ *  1. tnm_session cookie (first-party browsing on play.tournamental.com) -
+ *     probed via auth-sms /v1/auth/me, which also yields the display name.
+ *  2. Bearer widget-token (embedded widget on a third-party site, where the
+ *     cookie is partitioned/blocked) - verified locally by
+ *     getSessionFromRequest. The token carries no display name, so callers
+ *     on this path must supply a handle, or one is derived below.
+ */
 async function resolveSession(req: NextRequest): Promise<{
   id: string;
   phone: string | null;
   displayName: string | null;
 } | null> {
   const cookie = req.cookies.get("tnm_session")?.value;
-  if (!cookie) return null;
-  try {
-    const res = await fetch(`${AUTH_API}/v1/auth/me`, {
-      headers: { Cookie: `tnm_session=${cookie}` },
-    });
-    if (!res.ok) return null;
-    const j = (await res.json()) as {
-      user?: { id?: string; phone?: string | null; displayName?: string | null };
-    };
-    const u = j.user;
-    if (!u?.id) return null;
-    return { id: u.id, phone: u.phone ?? null, displayName: u.displayName ?? null };
-  } catch {
-    return null;
+  if (cookie) {
+    try {
+      const res = await fetch(`${AUTH_API}/v1/auth/me`, {
+        headers: { Cookie: `tnm_session=${cookie}` },
+      });
+      if (res.ok) {
+        const j = (await res.json()) as {
+          user?: { id?: string; phone?: string | null; displayName?: string | null };
+        };
+        const u = j.user;
+        if (u?.id) {
+          return { id: u.id, phone: u.phone ?? null, displayName: u.displayName ?? null };
+        }
+      }
+    } catch {
+      // Fall through to the Bearer path.
+    }
   }
+
+  // Bearer widget-token (cross-origin embed). Verified against AUTH_JWT_SECRET.
+  const viaJwt = await getSessionFromRequest(req);
+  if (viaJwt) {
+    return {
+      id: viaJwt.userId,
+      phone: viaJwt.phone ?? null,
+      displayName: (viaJwt as { displayName?: string | null }).displayName ?? null,
+    };
+  }
+  return null;
+}
+
+/** Derive a placeholder handle from a user id when none is supplied. */
+function fallbackHandle(userId: string): string {
+  const slug = userId.replace(/[^a-zA-Z0-9]/g, "");
+  return `player_${slug.slice(-6) || "0000"}`;
 }
 
 export async function POST(
@@ -67,14 +117,29 @@ export async function POST(
   { params }: { params: { slug: string } },
 ): Promise<Response> {
   const slug = (params.slug ?? "").toLowerCase().trim();
-  if (!slug) return json({ error: "bad_slug" }, 400);
+  if (!slug) return json(req, { error: "bad_slug" }, 400);
 
   const session = await resolveSession(req);
-  if (!session) return json({ error: "no_session" }, 401);
+  if (!session) return json(req, { error: "no_session" }, 401);
 
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
-  if (!row) return json({ error: "not_found" }, 404);
+  if (!row) return json(req, { error: "not_found" }, 404);
+
+  // Already standing in this pool? Don't manufacture a fresh "pending"
+  // request. The owner (tracked authoritatively on the syndicates row)
+  // and any existing active member should be reported as active so the
+  // embed renders the bracket rather than "waiting for approval". This
+  // matters because addMember upserts (ON CONFLICT DO UPDATE), so its
+  // `inserted` flag is true even for a re-join.
+  if (row.owner_user_id === session.id || persistence.isMember(row.id, session.id)) {
+    return json(req, {
+      ok: true,
+      status: "active",
+      already_member: true,
+      member_count: row.member_count,
+    });
+  }
 
   let body: unknown;
   try {
@@ -86,10 +151,10 @@ export async function POST(
   const parsed = BodySchema.safeParse(body);
   const submittedHandle = parsed.success ? parsed.data.handle : undefined;
   const submittedDisplayName = parsed.success ? parsed.data.display_name : undefined;
-  const handle = submittedHandle ?? session.displayName ?? null;
+  const handle = submittedHandle ?? session.displayName ?? fallbackHandle(session.id);
 
   if (!handle || handle.length < 2) {
-    return json({ error: "bad_handle", message: "A handle is required to join." }, 400);
+    return json(req, { error: "bad_handle", message: "A handle is required to join." }, 400);
   }
 
   // Handle collision check (per-pool). Skip if the user is rejoining
@@ -107,7 +172,7 @@ export async function POST(
           m.user_id !== session.id,
       );
     if (claimedBySomeoneElse) {
-      return json(
+      return json(req, 
         {
           error: "handle_taken",
           message: `Sorry, "${submittedHandle}" is already taken in this pool. Pick a different handle.`,
@@ -143,7 +208,7 @@ export async function POST(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg.includes("UNIQUE constraint failed")) {
-      return json({ error: "already_member" }, 409);
+      return json(req, { error: "already_member" }, 409);
     }
     throw err;
   }
@@ -152,7 +217,7 @@ export async function POST(
     // Already a member (owner re-join or repeat join). Handle /
     // display_name still update via the UPSERT in addMember, so the
     // caller's chosen handle wins for future leaderboards.
-    return json({
+    return json(req, {
       ok: true,
       already_member: true,
       member_count: row.member_count,
@@ -171,7 +236,7 @@ export async function POST(
         display_name: submittedDisplayName ?? session.displayName ?? null,
       },
     }).catch(() => undefined);
-    return json({ ok: true, status: "pending" });
+    return json(req, { ok: true, status: "pending" });
   }
 
   // Bump the cached member_count on the syndicates row. The game
@@ -183,14 +248,14 @@ export async function POST(
       .prepare(`UPDATE syndicates SET member_count = member_count + 1 WHERE id = ?`)
       .run(row.id);
   } catch {
-    // Non-fatal — member_count is eventually consistent via game service.
+    // Non-fatal - member_count is eventually consistent via game service.
   }
 
-  return json({ ok: true, status: "active", member_count: row.member_count + 1 });
+  return json(req, { ok: true, status: "active", member_count: row.member_count + 1 });
 }
 
 /**
- * GET — membership status for the authed viewer. Returns
+ * GET - membership status for the authed viewer. Returns
  * `{ is_member }` (false when there's no session, no pool, or the user
  * isn't a member). Used by the share page CTA to show Join vs Exit.
  */
@@ -199,20 +264,26 @@ export async function GET(
   { params }: { params: { slug: string } },
 ): Promise<Response> {
   const slug = (params.slug ?? "").toLowerCase().trim();
-  if (!slug) return json({ is_member: false });
+  if (!slug) return json(req, { is_member: false });
   const session = await resolveSession(req);
-  if (!session) return json({ is_member: false });
+  if (!session) return json(req, { is_member: false, status: "none" });
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
-  if (!row) return json({ is_member: false });
-  return json({
-    is_member: persistence.isMember(row.id, session.id),
-    is_owner: row.owner_user_id === session.id,
+  if (!row) return json(req, { is_member: false, status: "none" });
+  const isOwner = row.owner_user_id === session.id;
+  // `status` lets the embed decide what to show on load without mutating
+  // anything: owner/active -> bracket, pending -> waiting screen, denied
+  // -> declined, none -> request-access CTA.
+  const status = isOwner ? "owner" : persistence.getMembershipStatus(row.id, session.id);
+  return json(req, {
+    is_member: isOwner || persistence.isMember(row.id, session.id),
+    is_owner: isOwner,
+    status,
   });
 }
 
 /**
- * DELETE — the authed user leaves the pool. Owners can't leave their own
+ * DELETE - the authed user leaves the pool. Owners can't leave their own
  * pool (protected in removeMember). Decrements the cached member_count.
  */
 export async function DELETE(
@@ -220,12 +291,12 @@ export async function DELETE(
   { params }: { params: { slug: string } },
 ): Promise<Response> {
   const slug = (params.slug ?? "").toLowerCase().trim();
-  if (!slug) return json({ error: "bad_slug" }, 400);
+  if (!slug) return json(req, { error: "bad_slug" }, 400);
   const session = await resolveSession(req);
-  if (!session) return json({ error: "no_session" }, 401);
+  if (!session) return json(req, { error: "no_session" }, 401);
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
-  if (!row) return json({ error: "not_found" }, 404);
+  if (!row) return json(req, { error: "not_found" }, 404);
 
   const { removed } = persistence.removeMember(row.id, session.id);
   if (removed) {
@@ -235,8 +306,8 @@ export async function DELETE(
         .prepare(`UPDATE syndicates SET member_count = MAX(0, member_count - 1) WHERE id = ?`)
         .run(row.id);
     } catch {
-      // Non-fatal — member_count is eventually consistent via game service.
+      // Non-fatal - member_count is eventually consistent via game service.
     }
   }
-  return json({ ok: true, left: removed });
+  return json(req, { ok: true, left: removed });
 }
