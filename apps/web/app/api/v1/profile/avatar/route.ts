@@ -2,15 +2,16 @@
  * POST /api/v1/profile/avatar
  *
  * Filesystem-backed avatar upload. Stores an 800×800 JPEG @ 80% to
- * `apps/web/public/avatars/<userId>.jpg` keyed on the authenticated
- * user. The URL is deterministic: `/avatars/<userId>.jpg` works as
+ * `apps/web/data/avatars/<userId>.jpg` keyed on the authenticated
+ * user (served by app/avatars/[filename]/route.ts). The URL is
+ * deterministic: `/avatars/<userId>.jpg` works as
  * long as the file exists, and clients fall back to a silhouette
  * when a 404 happens (share card, syndicate UI, etc.).
  *
  * Tim 2026-05-14: clients resize + JPEG-encode in-browser before
  * upload (see `components/profile/AvatarCropperModal.tsx`), so the
- * server only ever sees ~30–120 KB. We still run sharp on the way
- * in to enforce the canonical 800×800 / 80% target — a malicious
+ * server only ever sees ~30-120 KB. We still run sharp on the way
+ * in to enforce the canonical 800×800 / 80% target - a malicious
  * client could otherwise upload a 12 MB JPEG and waste disk.
  *
  *   - Auth required: tnm_session cookie. 401 otherwise.
@@ -36,8 +37,14 @@ import { getSessionFromRequest } from "@/lib/auth/session";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const AVATAR_DIR = join(process.cwd(), "public", "avatars");
-// Generous cap — clients resize to 800×800 JPEG @ 80% before uploading,
+// Must match the serve route (app/avatars/[filename]/route.ts), which
+// reads from `data/avatars`. Next caches public/ at startup, so a file
+// written there at runtime is silently 404'd -- the serve handler reads
+// `data/avatars` from disk per request instead. (Tim 2026-05-25: the two
+// routes had drifted -- uploads went to public/, serving read data/, so
+// every uploaded avatar 404'd.)
+const AVATAR_DIR = join(process.cwd(), "data", "avatars");
+// Generous cap - clients resize to 800×800 JPEG @ 80% before uploading,
 // so legitimate requests sit well under 1 MB. The 12 MiB ceiling
 // guards against a malicious upload that bypasses the client.
 const MAX_BYTES = 12 * 1024 * 1024;
@@ -101,7 +108,7 @@ export async function POST(req: NextRequest): Promise<Response> {
   // we don't serve a stale image when clients probe the legacy path.
   const legacyWebp = join(AVATAR_DIR, `${userId}.webp`);
   fs.unlink(legacyWebp).catch(() => {
-    /* file didn't exist — fine */
+    /* file didn't exist - fine */
   });
 
   return jsonResponse(

@@ -1,8 +1,10 @@
 /**
- * Avatar URL helpers — single source of truth for "where does a user's
+ * Avatar URL helpers - single source of truth for "where does a user's
  * avatar live on the web". The bytes are stored at
- * `public/avatars/<userId>.jpg` (see app/api/v1/profile/avatar/route.ts)
- * and served via Next's static handler, so the URL is deterministic.
+ * `data/avatars/<userId>.jpg` (written by app/api/v1/profile/avatar and
+ * served by app/avatars/[filename]/route.ts, which reads from disk per
+ * request so runtime uploads are visible immediately), so the URL is
+ * deterministic.
  *
  * `DEFAULT_AVATAR_DATA_URI` is a 96×96 silhouette inlined as a data URI
  * so the share card / member tiles never flash a broken-image placeholder
