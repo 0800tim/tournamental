@@ -58,9 +58,11 @@ const RequestSchema = z.object({
 
 const VerifySchema = z.object({
   action: z.literal("verify"),
-  channel: z.enum(["email", "sms", "whatsapp"]),
+  // Code is all that's required. With `email`, we verify the email OTP.
+  // Without it, we verify-by-code against active inbound WhatsApp/SMS OTPs
+  // (the code-paste path: the user got the code on WhatsApp and pastes it
+  // here, on a different page, without retyping their number).
   email: z.string().email().max(254).optional(),
-  phone: z.string().min(1).max(32).optional(),
   code: z.string().min(4).max(10).regex(/^\d+$/),
 });
 
@@ -96,12 +98,10 @@ export async function POST(req: NextRequest): Promise<Response> {
   if (!parsed.success) return json(req, { error: "bad_body" }, 400);
   const data = parsed.data;
 
-  // Resolve the auth-sms endpoint + payload for this channel.
-  const isEmail = data.channel === "email";
-  if (isEmail && !data.email) return json(req, { error: "email_required" }, 400);
-  if (!isEmail && !data.phone) return json(req, { error: "phone_required" }, 400);
-
   if (data.action === "request") {
+    const isEmail = data.channel === "email";
+    if (isEmail && !data.email) return json(req, { error: "email_required" }, 400);
+    if (!isEmail && !data.phone) return json(req, { error: "phone_required" }, 400);
     const path = isEmail ? "/v1/auth/email/request" : "/v1/auth/request";
     const payload = isEmail
       ? { email: data.email }
@@ -131,10 +131,13 @@ export async function POST(req: NextRequest): Promise<Response> {
     return json(req, { error: "auth_unconfigured" }, 503);
   }
 
-  const path = isEmail ? "/v1/auth/email/verify" : "/v1/auth/verify";
-  const payload = isEmail
+  // With an email -> verify the email OTP. Without -> verify-by-code, which
+  // matches the bare code against active inbound WhatsApp/SMS OTPs, so the
+  // user pastes only the code they got on WhatsApp.
+  const path = data.email ? "/v1/auth/email/verify" : "/v1/auth/verify-by-code";
+  const payload = data.email
     ? { email: data.email, code: data.code }
-    : { phone: data.phone, code: data.code };
+    : { code: data.code };
 
   let user: { id?: string } | undefined;
   try {
@@ -148,7 +151,10 @@ export async function POST(req: NextRequest): Promise<Response> {
       error?: string;
       user?: { id?: string };
     };
-    if (!res.ok || !out.ok || !out.user?.id) {
+    // Success = a 200 carrying a user id. We do NOT require `ok: true`:
+    // email/verify returns it, but verify-by-code (bindAndMintSession)
+    // returns just { jwt, expiresAt, user } with no `ok` field.
+    if (!res.ok || !out.user?.id) {
       return json(req, { error: out.error ?? "verify_failed" }, res.status === 200 ? 401 : res.status);
     }
     user = out.user;
