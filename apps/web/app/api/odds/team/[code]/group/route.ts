@@ -35,6 +35,10 @@ export async function GET(req: NextRequest, ctx: RouteContext): Promise<NextResp
     groupId,
     groupTeamCodes,
     skipStub: true,
+    // Server-only upstream so the browser uses this same-origin proxy
+    // (no CORS) while the server reaches odds-ingest. Falls back to the
+    // public NEXT_PUBLIC_ODDS_API_URL when ODDS_API_URL is unset.
+    upstreamBaseUrl: process.env.ODDS_API_URL || undefined,
   });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 502 });
