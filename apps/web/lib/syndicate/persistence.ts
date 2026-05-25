@@ -92,6 +92,9 @@ export interface SyndicateRow {
   about_text: string | null;
   /** Visual theme for the embed widget: "light" (default) or "dark". */
   theme_mode: "light" | "dark" | null;
+  /** Admin-authored terms & payment instructions shown on the join flow
+   * for paid pools (Tournamental never handles the money). Free-form. */
+  join_fee_terms_text: string | null;
   /** Visibility flag. When 1, the pool shows up in the public pool
    * directory and anyone can join in one tap. When 0 (default), the
    * pool is unlisted and only reachable via the share link. */
@@ -128,6 +131,7 @@ export interface SyndicateBrandingPatch {
   bonus_prize_text?: string | null;
   about_text?: string | null;
   theme_mode?: "light" | "dark" | null;
+  join_fee_terms_text?: string | null;
   /** Public pools appear in the directory and anyone can join in one tap. */
   is_public?: boolean;
   /** Approval-gated pools queue join requests for the owner. The route
@@ -227,6 +231,7 @@ export class SyndicatePersistence {
         entry_fee_currency  TEXT DEFAULT 'NZD',
         prize_split_json    TEXT,
         bonus_prize_text    TEXT,
+        join_fee_terms_text TEXT,
         is_public           INTEGER NOT NULL DEFAULT 0,
         requires_approval   INTEGER NOT NULL DEFAULT 0
       );
@@ -310,6 +315,11 @@ export class SyndicatePersistence {
     if (!hasSyn("requires_approval")) {
       this.db.exec(
         `ALTER TABLE syndicates ADD COLUMN requires_approval INTEGER NOT NULL DEFAULT 0`,
+      );
+    }
+    if (!hasSyn("join_fee_terms_text")) {
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN join_fee_terms_text TEXT`,
       );
     }
   }
@@ -985,6 +995,7 @@ export class SyndicatePersistence {
       "bonus_prize_text",
       "about_text",
       "theme_mode",
+      "join_fee_terms_text",
     ];
     for (const f of stringFields) {
       if (patch[f] !== undefined) {

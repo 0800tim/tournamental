@@ -63,6 +63,7 @@ function projectOwnerRow(row: SyndicateRow): Record<string, unknown> {
     entry_fee_currency: row.entry_fee_currency,
     prize_split_json: row.prize_split_json,
     bonus_prize_text: row.bonus_prize_text,
+    join_fee_terms_text: row.join_fee_terms_text,
     is_public: row.is_public === 1,
     requires_approval: row.requires_approval === 1,
   };
@@ -164,6 +165,9 @@ const PatchSchema = z
      */
     prize_split: z.array(PrizeSplitEntry).max(20).nullable().optional(),
     bonus_prize_text: z.string().max(280).nullable().optional(),
+    /** Admin-authored terms + payment instructions for paid pools, shown
+     * on the join flow. Tournamental never handles the money. */
+    join_fee_terms_text: z.string().max(2000).nullable().optional(),
     /** Visibility toggles. The persistence layer enforces public-and-
      * requires-approval are mutually exclusive; sending both is fine,
      * is_public wins. */

@@ -123,6 +123,7 @@ export async function GET(
             : null,
         prize_split: prizeSplit,
         bonus_prize_text: row.bonus_prize_text,
+        join_fee_terms_text: row.join_fee_terms_text ?? null,
         public_landing_url: publicLandingUrl,
         join_url: joinUrl,
         hide_tournamental_footer: hideFooter,
