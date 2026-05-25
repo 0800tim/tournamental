@@ -180,7 +180,7 @@ async function loadFlagDataUris(codes: readonly string[]): Promise<Map<string, s
 }
 
 interface KoPick {
-  stage: "r16" | "qf" | "sf" | "final" | "tp";
+  stage: "r32" | "r16" | "qf" | "sf" | "final" | "tp";
   opponent: string;
 }
 
@@ -209,7 +209,7 @@ function parseKoParam(raw: string | null): KoPick[] {
       const s = (stage ?? "").toLowerCase();
       const c = isoCode(code ?? null);
       if (!c) return null;
-      if (!["r16", "qf", "sf", "final", "tp"].includes(s)) return null;
+      if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(s)) return null;
       return { stage: s as KoPick["stage"], opponent: c };
     })
     .filter((x): x is KoPick => x !== null);
@@ -273,7 +273,7 @@ async function enrichFromGameService(
           const stage = typeof r.stage === "string" ? r.stage.toLowerCase() : null;
           const opp = isoCode(r.opponent_code as string | undefined);
           if (!stage || !opp) return null;
-          if (!["r16", "qf", "sf", "final", "tp"].includes(stage)) return null;
+          if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(stage)) return null;
           return { stage: stage as KoPick["stage"], opponent: opp };
         })
         .filter((x): x is KoPick => x !== null);
@@ -322,15 +322,21 @@ export async function GET(req: NextRequest): Promise<Response> {
 async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const { width, height } = SIZES[args.size];
   const fonts = await loadFonts();
-  // Preload flag SVGs for every team referenced in the KO ladder +
-  // podium so the satori tree can drop them straight into
-  // backgroundImage URLs without further async work. Tim 2026-05-22.
+  // Preload flag SVGs for every team referenced anywhere on the card:
+  // all 48 group-stage teams (so each group card can paint flag cells)
+  // + the KO opponents at each stage + the champion / runner-up /
+  // third-place picks for the podium. Tim 2026-05-22, expanded
+  // 2026-05-25 to cover the 48 group flags too -- previously the
+  // group section showed only 3-letter codes which read as
+  // unbranded text on social shares.
   const flagCodes: string[] = [];
+  for (const codes of Object.values(GROUPS)) for (const c of codes) flagCodes.push(c);
   for (const p of args.ko) flagCodes.push(p.opponent);
   if (args.champion) flagCodes.push(args.champion);
   if (args.runnerUp) flagCodes.push(args.runnerUp);
   if (args.third) flagCodes.push(args.third);
   const flagsByCode = await loadFlagDataUris(flagCodes);
+  const iconMarkUri = await loadIconMark();
   const isPortrait = args.size === "portrait";
   const isLandscape = args.size === "landscape";
 
@@ -350,8 +356,8 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const stageLabelFont = Math.round(16 * scale);
   const koCodeFont = Math.round(28 * scale);
   const koFlagFont = Math.round(34 * scale);
-  const championFont = Math.round(96 * scale);
-  const ballSize = Math.round(72 * scale);
+  const championFont = Math.round(128 * scale);
+  const ballSize = Math.round(96 * scale);
 
   const dateline = `${args.tournament} · BRACKET · @${args.handle.toUpperCase()}`;
 
@@ -395,7 +401,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     gap: Math.round(20 * scale),
                   },
                   children: [
-                    renderGoldBall(ballSize),
+                    renderGoldBall(ballSize, iconMarkUri),
                     {
                       type: "div",
                       props: {
@@ -467,6 +473,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                 widthPct: 100 / groupCols,
                 gap: groupGap,
                 cols: groupCols,
+                flagsByCode,
               }),
             ),
           },
@@ -589,11 +596,15 @@ function renderGroupCard(args: {
   widthPct: number;
   gap: number;
   cols: number;
+  flagsByCode: Map<string, string>;
 }): unknown {
   // Compute pixel-width approximation for flex item. satori's flexbox
   // engine handles `width: <pct>` by referencing the parent's content
   // box, so we shrink each cell to fit cols + (cols-1) gap segments.
   const gapAllowance = args.gap * (args.cols - 1);
+  // Small flag chips sized to the code-font cap height so the row
+  // reads as flag + 3-letter ABBR without wrapping.
+  const flagDiameter = Math.round(args.codeFont * 1.05);
   return {
     type: "div",
     props: {
@@ -628,37 +639,57 @@ function renderGroupCard(args: {
             style: {
               display: "flex",
               flexDirection: "column",
-              gap: Math.round(3 * args.scale),
+              gap: Math.round(4 * args.scale),
             },
-            children: args.codes.map((code, idx) => ({
-              type: "div",
-              props: {
-                style: {
-                  display: "flex",
-                  alignItems: "center",
-                  gap: Math.round(8 * args.scale),
-                  fontFamily: "Fraunces",
-                  fontSize: args.codeFont,
-                  color: idx < 2 ? COLOUR_FG_STRONG : COLOUR_FG_MUTED,
-                  fontWeight: idx < 2 ? 700 : 500,
-                },
-                children: [
-                  {
-                    type: "div",
-                    props: {
-                      style: {
-                        fontFamily: "DejaVuMono",
-                        fontSize: Math.round(args.codeFont * 0.55),
-                        color: COLOUR_GOLD_DEEP,
-                        width: Math.round(14 * args.scale),
-                      },
-                      children: String(idx + 1),
-                    },
+            children: args.codes.map((code, idx) => {
+              const flag = args.flagsByCode.get(code) ?? null;
+              const flagChild: Record<string, unknown> = {
+                display: "flex",
+                width: flagDiameter,
+                height: flagDiameter,
+                borderRadius: "50%",
+                border: `1px solid ${COLOUR_BORDER}`,
+                overflow: "hidden",
+                flexShrink: 0,
+              };
+              if (flag) {
+                flagChild.backgroundImage = `url("${flag}")`;
+                flagChild.backgroundSize = "cover";
+                flagChild.backgroundPosition = "center";
+              } else {
+                flagChild.background = "#1a1a1f";
+              }
+              return {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    alignItems: "center",
+                    gap: Math.round(8 * args.scale),
+                    fontFamily: "Fraunces",
+                    fontSize: args.codeFont,
+                    color: idx < 2 ? COLOUR_FG_STRONG : COLOUR_FG_MUTED,
+                    fontWeight: idx < 2 ? 700 : 500,
                   },
-                  code,
-                ],
-              },
-            })),
+                  children: [
+                    {
+                      type: "div",
+                      props: {
+                        style: {
+                          fontFamily: "DejaVuMono",
+                          fontSize: Math.round(args.codeFont * 0.55),
+                          color: COLOUR_GOLD_DEEP,
+                          width: Math.round(14 * args.scale),
+                        },
+                        children: String(idx + 1),
+                      },
+                    },
+                    { type: "div", props: { style: flagChild, children: "" } },
+                    code,
+                  ],
+                },
+              };
+            }),
           },
         },
       ],
@@ -677,6 +708,7 @@ function renderKoLadder(args: {
   flagsByCode: Map<string, string>;
 }): unknown[] {
   const stages: Array<{ key: KoPick["stage"]; label: string }> = [
+    { key: "r32", label: "R32" },
     { key: "r16", label: "R16" },
     { key: "qf", label: "QF" },
     { key: "sf", label: "SF" },
@@ -943,7 +975,39 @@ function championPanelChildren(
   ];
 }
 
-function renderGoldBall(size: number): unknown {
+/**
+ * Brand-mark loader. Reads `public/icon-mark.png` from disk once and
+ * caches as a base64 data URI, so the satori tree can drop it straight
+ * into an `<img>` without further async work. The mark is the gold
+ * soccer ball used across play.tournamental.com (see header). Tim
+ * 2026-05-25 — replaces the previous handcrafted SVG approximation.
+ */
+let iconMarkCache: string | null = null;
+async function loadIconMark(): Promise<string | null> {
+  if (iconMarkCache !== null) return iconMarkCache || null;
+  const path = join(process.cwd(), "public", "icon-mark.png");
+  try {
+    const data = await fs.readFile(path);
+    iconMarkCache = `data:image/png;base64,${data.toString("base64")}`;
+    return iconMarkCache;
+  } catch {
+    iconMarkCache = "";
+    return null;
+  }
+}
+
+function renderGoldBall(size: number, dataUri: string | null): unknown {
+  if (dataUri) {
+    return {
+      type: "img",
+      props: {
+        src: dataUri,
+        width: size,
+        height: size,
+      },
+    };
+  }
+  // Fallback: stylised gold ball when the PNG can't be loaded.
   const svg = `
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <defs>
