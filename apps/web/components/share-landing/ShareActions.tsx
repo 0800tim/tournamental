@@ -4,7 +4,7 @@
  * Share-action CTAs for the `/s/<guid>` user-landing surface.
  *
  * Renders:
- *   - "Share this prediction" button, tries `navigator.share()` and
+ *   - "Share This Pool" button, tries `navigator.share()` and
  *     falls back to a row of platform-specific deep-links if Web Share
  *     isn't available (desktop Chrome, Firefox).
  *
@@ -71,7 +71,7 @@ export function ShareActions({ shareTitle, shareText }: ShareActionsProps) {
     <div className="vt-share-ctas-wrap">
       <div className="vt-share-ctas">
         <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
-          Make your bracket
+          Enter Your Picks
         </a>
         <button
           className="vt-share-cta"
@@ -80,7 +80,7 @@ export function ShareActions({ shareTitle, shareText }: ShareActionsProps) {
           onClick={onShare}
           aria-expanded={fallbackOpen}
         >
-          Share this prediction
+          Share This Pool
         </button>
       </div>
       {fallbackOpen ? (
