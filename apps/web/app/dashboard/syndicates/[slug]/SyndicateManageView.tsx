@@ -43,6 +43,7 @@ interface OwnerSyndicate {
   readonly entry_fee_currency: string | null;
   readonly prize_split_json: string | null;
   readonly bonus_prize_text: string | null;
+  readonly join_fee_terms_text: string | null;
   readonly is_public: boolean;
   readonly requires_approval: boolean;
 }
@@ -73,7 +74,7 @@ const HL_ADMIN_BASE = "https://app.gohighlevel.com/location";
 
 function formatDate(epochMs: number): string {
   const d = new Date(epochMs);
-  if (Number.isNaN(d.getTime())) return "—";
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleDateString(undefined, {
     day: "numeric",
     month: "short",
@@ -500,7 +501,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
 // --- Branding editor -------------------------------------------------------
 
 // ---------------------------------------------------------------------------
-// VisibilityEditor — public-vs-private + approval toggle. Mirrors the
+// VisibilityEditor - public-vs-private + approval toggle. Mirrors the
 // "Visibility" panel from the create form so owners can flip the same
 // flags later. Tim 2026-05-22.
 // ---------------------------------------------------------------------------
@@ -608,7 +609,7 @@ function VisibilityEditor({ slug, initial, onSaved }: VisibilityEditorProps): JS
             <strong style={{ display: "block", fontWeight: 600 }}>Requires approval</strong>
             <span style={{ color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13, lineHeight: 1.4 }}>
               {isPublic
-                ? "Disabled for public pools — anyone can join."
+                ? "Disabled for public pools - anyone can join."
                 : "Join requests queue here for you to approve or deny. Best for office sweepstakes and closed family pools."}
             </span>
           </span>
@@ -1023,6 +1024,9 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
   const [bonusText, setBonusText] = useState<string>(
     initial.bonus_prize_text ?? "",
   );
+  const [feeTerms, setFeeTerms] = useState<string>(
+    initial.join_fee_terms_text ?? "",
+  );
   const [save, setSave] = useState<SaveState>({ status: "idle" });
 
   const totalPercent = useMemo(
@@ -1041,8 +1045,9 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
     const newJson = splits.length > 0 ? JSON.stringify(splits) : null;
     if (newJson !== (initial.prize_split_json ?? null)) return true;
     if (bonusText.trim() !== (initial.bonus_prize_text ?? "").trim()) return true;
+    if (feeTerms.trim() !== (initial.join_fee_terms_text ?? "").trim()) return true;
     return false;
-  }, [entryEnabled, entryDollars, currency, splits, bonusText, initial]);
+  }, [entryEnabled, entryDollars, currency, splits, bonusText, feeTerms, initial]);
 
   const applyPreset = (preset: (typeof DEFAULT_PRESETS)[number]): void => {
     setSplits(preset.split.map((s) => ({ ...s })));
@@ -1099,6 +1104,9 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
     if (bonusText.trim() !== (initial.bonus_prize_text ?? "").trim()) {
       body.bonus_prize_text = bonusText.trim() || null;
     }
+    if (feeTerms.trim() !== (initial.join_fee_terms_text ?? "").trim()) {
+      body.join_fee_terms_text = feeTerms.trim() || null;
+    }
 
     try {
       const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
@@ -1122,6 +1130,7 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
           entry_fee_currency: ok.syndicate.entry_fee_currency,
           prize_split_json: ok.syndicate.prize_split_json,
           bonus_prize_text: ok.syndicate.bonus_prize_text,
+          join_fee_terms_text: ok.syndicate.join_fee_terms_text,
         });
       }
       setSave({ status: "saved" });
@@ -1141,7 +1150,7 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
           <h2 className="vt-dash-row-name">Prize pool & entry fee</h2>
           <p className="vt-dash-row-meta">
             Optional. Advertise an entry fee and how the pool splits. Tournamental
-            never handles the money — on free, you collect and pay out yourself; on
+            never handles the money - on free, you collect and pay out yourself; on
             premium, Stripe inside your Growth Spurt-managed HighLevel sub-account handles
             the cash and the funds settle to your bank.
           </p>
@@ -1285,6 +1294,32 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
             placeholder='e.g. "Longest correct-streak gets a $50 gift card"'
             className="vt-brand-input"
           />
+        </label>
+
+        {/* Joining fee terms + payment instructions. Shown to joiners on
+            the /s/<slug>/join flow for paid pools. Tournamental never
+            handles the money; the owner collects it directly. */}
+        <label className="vt-brand-field">
+          <span className="vt-brand-label">Joining fee terms &amp; payment instructions</span>
+          <textarea
+            value={feeTerms}
+            onChange={(e) => setFeeTerms(e.target.value)}
+            maxLength={2000}
+            rows={6}
+            placeholder={
+              "How to pay and any terms. e.g.\n\n" +
+              "Pay $10 to bank 12-3456-7890123-00, reference your handle.\n" +
+              "Entry closes at kickoff. Prizes paid out within 7 days of the final."
+            }
+            className="vt-brand-input vt-brand-textarea"
+          />
+          <span
+            className="vt-brand-label"
+            style={{ fontSize: 11, opacity: 0.75, marginTop: 4 }}
+          >
+            Shown to joiners on paid pools. Tournamental never handles the money,
+            you collect and pay out yourself.
+          </span>
         </label>
 
         <div className="vt-brand-actions">
@@ -1501,7 +1536,7 @@ function PendingRequestsPanel({
                 hour: "2-digit",
                 minute: "2-digit",
               })
-            : "—";
+            : "-";
           return (
             <li
               key={p.user_id}

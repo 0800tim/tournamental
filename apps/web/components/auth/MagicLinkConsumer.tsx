@@ -19,7 +19,7 @@
 
 import { useEffect, useState } from "react";
 
-import { AUTH_BASE, verifyMagicToken } from "@/lib/auth/inbound-login";
+import { verifyMagicToken } from "@/lib/auth/inbound-login";
 
 type Phase =
   | { state: "idle" }
@@ -30,7 +30,7 @@ type Phase =
 const MAGIC_TOKEN_PARAM = "v";
 const POOL_PARAM = "pool";
 
-/** Slug shape — must match the syndicate slug regex used server-side. */
+/** Slug shape - must match the syndicate slug regex used server-side. */
 const POOL_SLUG_RE = /^[a-z0-9-]{1,64}$/i;
 
 const LS_PENDING_JOIN = "tnm.pending_join.v1";
@@ -63,41 +63,21 @@ function clearPendingJoin(): void {
   }
 }
 
-/** After auth-sms mints a session, bind the handle/display_name from a
- * pending-join localStorage record and POST the pool join. Same-device
- * code-paste already does this inside JoinSyndicate; this path handles
- * the magic-link cross-device case. */
-async function applyPendingJoinIfPresent(poolFromUrl: string | null): Promise<string | null> {
+/** Resolve which pool the user is signing in to join, preferring the
+ * URL `?pool=` param (the source of truth from auth-sms's magicLinkUrl
+ * builder) and falling back to any same-device pending-join record.
+ *
+ * The actual join is now handled by the dedicated /s/<slug>/join page:
+ * after this consumer mints the session it bounces the user there, and
+ * that page walks them through onboarding (handle, name, avatar, and
+ * payment terms on paid pools) before POSTing the join. So we no longer
+ * silently auto-join here. We still clear the legacy pending-join record
+ * so a stale entry can't trigger a surprise join on some later page. */
+function resolvePoolToJoin(poolFromUrl: string | null): string | null {
   const pending = loadPendingJoin();
-  // Prefer the slug from the URL ?pool= param when it's present —
-  // that's the source of truth from auth-sms's magicLinkUrl builder.
   const slug = poolFromUrl ?? pending?.slug ?? null;
-  if (!slug) return null;
-  if (pending && pending.displayName) {
-    try {
-      await fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/me`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ display_name: pending.displayName }),
-      });
-    } catch {
-      /* non-fatal */
-    }
-  }
-  try {
-    await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/join`, {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        handle: pending?.handle,
-        display_name: pending?.displayName,
-      }),
-    });
-  } catch {
-    /* non-fatal — user lands on /s/<slug> either way */
-  }
+  // Clear the legacy same-device record regardless; the join page owns
+  // the join from here on.
   clearPendingJoin();
   return slug;
 }
@@ -135,21 +115,20 @@ export function MagicLinkConsumer() {
       }
 
       if (res.ok) {
-        // If a pending-join is queued in localStorage OR the link
-        // carries ?pool=, bind handle/display_name + add the user to
-        // the pool, then bounce to /s/<slug>.
-        const slug = await applyPendingJoinIfPresent(pool);
+        // If the link carries ?pool=<slug> (or a same-device pending
+        // record names one), bounce the now-signed-in user to the
+        // dedicated join page, which walks them through onboarding and
+        // then joins the pool. We no longer silently auto-join here.
+        const slug = resolvePoolToJoin(pool);
         // Show success briefly so the user sees a clear confirmation,
         // then redirect. Replace (not push) so the back button doesn't
         // go back to the now-burned ?v= URL.
         setPhase({ state: "success", phone: res.user.phone });
         window.setTimeout(() => {
           if (slug) {
-            // The user just joined a pool via the magic-link
-            // cross-device path; send them to the bracket builder so
-            // they land on the picks they need to make, not back to
-            // the share landing they came from (Tim 2026-05-22).
-            window.location.replace("/world-cup-2026");
+            // Land on the join flow; the user is signed in, so it picks
+            // up at onboarding -> (payment) -> join (Tim 2026-05-25).
+            window.location.replace(`/s/${encodeURIComponent(slug)}/join`);
           } else {
             window.location.replace(
               window.location.pathname + window.location.search + window.location.hash,
