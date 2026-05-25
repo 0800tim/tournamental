@@ -13,7 +13,11 @@ module.exports = {
       node_args: ["--enable-source-maps"],
       env: {
         NODE_ENV: "production",
-        ODDS_INGEST_PORT: "3341",
+        ODDS_INGEST_PORT: "3340",
+        // 3340 = the same-origin /api/odds proxy port (dev + prod). NOT 3341:
+        // odds.tournamental.com routes to 3341 and is consumed browser-direct
+        // by the OLD prod build, whose client cannot parse the new wire shape
+        // (renders NaN). Keep it off 3341 until prod web ships the client fix.
         ODDS_INGEST_BIND: "127.0.0.1",
         ODDS_INGEST_DB_PATH: "./data/odds-ingest.sqlite",
         LOG_LEVEL: "info",
