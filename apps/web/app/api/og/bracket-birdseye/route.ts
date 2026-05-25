@@ -375,7 +375,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const groupCodeFont = Math.round(22 * scale);
   const groupFlagFont = Math.round(28 * scale);
   const stageLabelFont = Math.round(16 * scale);
-  const koCodeFont = Math.round(28 * scale);
+  const koCodeFont = Math.round(40 * scale);
   const koFlagFont = Math.round(34 * scale);
   const championFont = Math.round(128 * scale);
   const ballSize = Math.round(96 * scale);
@@ -500,7 +500,13 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
           },
         },
 
-        // ─── Knockout cascade + champion.
+        // ─── Knockout cascade + champion. The cascade group takes
+        // whatever vertical space is left after header + groups +
+        // footer; inside, both the KO ladder and the champion panel
+        // size to their own content and align tight to the top. The
+        // earlier "flex: 1 1 auto" on the KO ladder itself stretched
+        // it vertically and left a huge gap above the champion (Tim
+        // 2026-05-25).
         {
           type: "div",
           props: {
@@ -508,8 +514,9 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
               display: "flex",
               flexDirection: isLandscape ? "row" : "column",
               alignItems: "stretch",
-              gap: Math.round(16 * scale),
-              flex: "1 1 auto",
+              justifyContent: "flex-start",
+              gap: Math.round(18 * scale),
+              flex: "0 0 auto",
             },
             children: [
               // KO ladder
@@ -522,11 +529,11 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     justifyContent: "space-between",
                     alignItems: "center",
                     gap: Math.round(10 * scale),
-                    padding: Math.round(18 * scale),
+                    padding: Math.round(22 * scale),
                     background: "rgba(255, 255, 255, 0.02)",
                     border: `1px solid ${COLOUR_BORDER}`,
                     borderRadius: Math.round(14 * scale),
-                    flex: "1 1 auto",
+                    flex: "0 0 auto",
                   },
                   children: renderKoLadder({
                     koByStage,
@@ -566,7 +573,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
               fontSize: Math.round(18 * scale),
               color: COLOUR_FG_MUTED,
               letterSpacing: "0.08em",
-              marginTop: "auto",
+              marginTop: Math.round(24 * scale),
             },
             children: [
               "play.tournamental.com",
@@ -735,7 +742,10 @@ function renderKoLadder(args: {
     { key: "sf", label: "SF" },
     { key: "final", label: "FINAL" },
   ];
-  const circleSize = Math.round(86 * args.scale);
+  // Bumped 2026-05-25: previous 86px circles read very small at
+  // portrait scale; the share card needs each opponent's flag legible
+  // at a glance on a phone share preview.
+  const circleSize = Math.round(132 * args.scale);
   return stages.map((s) => {
     const opponent = args.koByStage.get(s.key) ?? "—";
     const flag = opponent === "—" ? null : args.flagsByCode.get(opponent) ?? null;
