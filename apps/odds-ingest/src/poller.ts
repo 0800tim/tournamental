@@ -8,7 +8,11 @@ import { setTimeout as sleep } from "node:timers/promises";
 import type { Logger } from "pino";
 
 import { mockMarketForFixture, mockTournamentWinners } from "./sources/mock.js";
-import { gammaMarketToInternal, PolymarketGammaClient } from "./sources/polymarket.js";
+import {
+  gammaEventToInternal,
+  gammaMarketToInternal,
+  PolymarketGammaClient,
+} from "./sources/polymarket.js";
 import { OddsApiClient, oddsApiEventToInternal } from "./sources/the-odds-api.js";
 import type { Config } from "./config.js";
 import type { DataPack } from "./data.js";
@@ -95,8 +99,29 @@ export class IngestPoller {
   async pollGammaOnce(now: number = Date.now()): Promise<number> {
     if (!this.gamma) return 0;
     try {
-      const raw = await this.gamma.fetchMarketsByTagSlugs(this.config.polymarket.tagSlugs);
       let count = 0;
+      // Events first: this is the only query shape that exposes group-winner
+      // and per-match moneyline markets (each as nested child binaries).
+      // Isolated try/catch so an events-API hiccup never blocks the flat
+      // tournament-winner backstop below.
+      if (typeof this.gamma.fetchEventsByTagSlugs === "function") {
+        try {
+          const events = await this.gamma.fetchEventsByTagSlugs(this.config.polymarket.tagSlugs);
+          for (const e of events) {
+            for (const internal of gammaEventToInternal(e, this.data, now)) {
+              this.store.upsertMarket(internal.market);
+              for (const t of internal.ticks) this.store.insertTick(t);
+              count += 1;
+            }
+          }
+        } catch (e) {
+          this.log.warn({ err: e }, "polymarket gamma events poll failed");
+        }
+      }
+      // Flat markets second: backstop for tournament-winner binaries that
+      // carry the tag directly. Won't clobber an event-sourced market for the
+      // same id because the kinds + ids line up (both write wc2026:winner:<CODE>).
+      const raw = await this.gamma.fetchMarketsByTagSlugs(this.config.polymarket.tagSlugs);
       for (const m of raw) {
         const internal = gammaMarketToInternal(m, this.data, now);
         if (!internal) continue;
