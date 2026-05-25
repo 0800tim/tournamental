@@ -46,6 +46,14 @@ import { checkOtpRequestLimit } from '../rate-limit.js';
 const BodySchema = z.object({
   phone: z.string().min(1).max(32),
   channel: z.enum(['sms', 'whatsapp']),
+  /** Optional pool slug parsed by the gateway from a `login pool=<slug>`
+   * inbound message. Baked into the magic-link URL as `?pool=<slug>` so the
+   * post-auth consumer (web MagicLinkConsumer) auto-joins that pool. Mirrors
+   * the outbound /v1/auth/request flow. Validated as a syndicate slug shape. */
+  pool_slug: z
+    .string()
+    .regex(/^[a-z0-9-]{1,64}$/i)
+    .optional(),
 });
 
 function clientIp(req: FastifyRequest): string {
@@ -106,7 +114,7 @@ export async function registerInboundLogin(
     // Per-phone rate limits prevent SMS/WhatsApp flooding of any one
     // number: 60-second cooldown between requests + 5 requests per
     // phone per hour. We deliberately disable the per-IP cap on this
-    // endpoint — the gateway is the only legitimate caller (proven by
+    // endpoint - the gateway is the only legitimate caller (proven by
     // the shared-secret header above) and every legitimate inbound
     // request arrives from the same IP, so a per-IP cap would
     // throttle the gateway itself. Public IPs hit /v1/auth/request
@@ -172,18 +180,28 @@ export async function registerInboundLogin(
     });
 
     // Build the full magic-link URL the gateway should paste into the
-    // outbound reply. Single source of truth — change MAGIC_LINK_BASE_URL
+    // outbound reply. Single source of truth - change MAGIC_LINK_BASE_URL
     // here and every channel picks it up on next request.
-    const magicLinkUrl = buildMagicLinkUrl(
+    let magicLinkUrl = buildMagicLinkUrl(
       ctx.config.magicLinkBaseUrl,
       magicToken,
     );
+    // Carry the pool slug through so a tapped magic link lands on the pool
+    // and the web consumer auto-joins it (active, or pending + owner-notify
+    // for moderated pools). The code-paste path joins via the embed widget
+    // instead, so the slug is belt-and-braces there.
+    const poolSlug = parsed.data.pool_slug;
+    if (poolSlug) {
+      const sep = magicLinkUrl.includes('?') ? '&' : '?';
+      magicLinkUrl = `${magicLinkUrl}${sep}pool=${encodeURIComponent(poolSlug)}`;
+    }
 
     return reply.code(200).send({
       success: true,
       code,
       magicToken,
       magicLinkUrl,
+      ...(poolSlug ? { pool: poolSlug } : {}),
     });
   });
 }
