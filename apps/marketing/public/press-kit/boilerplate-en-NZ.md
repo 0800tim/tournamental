@@ -22,7 +22,7 @@ Tournamental is an open-source tournament-prediction platform built around three
 
 The product launches for the FIFA World Cup 2026 with a 3D match renderer driven by StatsBomb open data, a molecule pyramid visualisation of every player's bracket, path-based syndicates at `play.tournamental.com/s/<slug>`, and a podium share card pipeline that auto-generates on every save. The full codebase is at [github.com/0800tim/tournamental](https://github.com/0800tim/tournamental) under Apache 2.0, the documentation pack is CC-BY 4.0, and the Drips contract that pays contributors is public.
 
-The platform is operated by Tournamental Holdings, registered in New Zealand. There is no venture capital backing, no equity table, no contributor licence agreement.
+The platform is operated by Growth Spurt Ltd, a New Zealand company headquartered in Auckland. There is no venture capital backing, no equity table, no contributor licence agreement.
 
 ---
 

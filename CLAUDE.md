@@ -6,6 +6,10 @@
 
 **Tournamental** (tournamental.com) — a tournament prediction game built around a free-to-play core, with a 3D match-renderer watch-along, blockchain-verified prediction receipts, and a Telegram bot identity. Open source under Apache 2.0; brand and affiliate codes owned by **Tournamental**; contributors share platform revenue via Drips Network.
 
+## Legal entity (load-bearing for legal/contact copy)
+
+Tournamental is a **subsidiary of Growth Spurt Ltd**, a New Zealand company headquartered in **Auckland**. Single project contact: **info@tournamental.com**. Anywhere user-facing copy mentions the operating entity, registered office, or contact email, it MUST use this trio. Do not write "Tournamental Holdings" or "Wellington" anywhere user-facing. Do not split contacts into privacy@ / legal@ / hello@ / 0800tim@ etc. — single info@ mailbox.
+
 Read [Tournamental Pitch.md](Tournamental%20Pitch.md) for the marketing one-pager. Read [README.md](README.md) for the repo layout and doc index. Read [REVIEW.md](REVIEW.md) for the current state of the design pack.
 
 ## Right now (the AR-FR 2022 critical path)
