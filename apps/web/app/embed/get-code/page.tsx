@@ -9,10 +9,11 @@
  * page (the widget verifies via /api/v1/auth/widget-otp).
  *
  * Two ways to get a code:
- *   1. WhatsApp (primary): a wa.me deep-link carrying `login pool=<slug>`.
- *      The user messages the bot and gets a 6-digit code (+ a magic link
- *      that, if tapped, lands on the pool). Nothing is posted back -- the
- *      widget verifies the bare code via verify-by-code.
+ *   1. WhatsApp (primary): a wa.me deep-link pre-filling the bare keyword
+ *      `login` (the inbound gateway does not parse a pool-slug suffix). The
+ *      user messages the bot and gets a 6-digit code. Nothing is posted
+ *      back -- the widget verifies the bare code via verify-by-code, and it
+ *      already knows which pool to join.
  *   2. Email (option): we send a code and postMessage the address back to
  *      the opener so the widget knows to verify the email OTP.
  *
@@ -50,7 +51,12 @@ export default function GetCodePage(): JSX.Element {
   const [note, setNote] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [sent, setSent] = useState(false);
 
-  const waLink = useMemo(() => whatsAppLoginDeepLink(pool), [pool]);
+  // Plain "login" only. The inbound gateway matches the bare keyword and
+  // does NOT parse a "login pool=<slug>" suffix -- sending that gets no
+  // reply (Tim 2026-05-25). We don't need the slug here anyway: the user
+  // pastes the code back into the embed, which already knows its pool and
+  // verifies + joins there. `pool` is still used for the on-screen copy.
+  const waLink = useMemo(() => whatsAppLoginDeepLink(), []);
 
   // Tell the opener (the widget) which address the code went to so it can
   // verify the email OTP. Targeted at the partner origin when we trust it.
