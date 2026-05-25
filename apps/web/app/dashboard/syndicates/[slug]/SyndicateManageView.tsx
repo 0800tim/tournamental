@@ -327,7 +327,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
               <h2 className="vt-dash-row-name">Upgrade to Premium</h2>
               <p className="vt-dash-row-meta">
                 Premium adds a fully-managed CRM, your own SMS/WhatsApp/email, paid entries via
-                Stripe, and removes the Tournamental footer. Delivered by Aiva, our CRM partner.
+                Stripe, and removes the Tournamental footer. Delivered by Growth Spurt, our CRM partner.
               </p>
             </div>
           </div>
@@ -336,15 +336,15 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
               href={`/dashboard/syndicates/${s.slug}/connect`}
               className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
             >
-              Upgrade to Premium ($97/mo via Aiva) →
+              Upgrade to Premium ($97/mo via Growth Spurt) →
             </Link>
             <a
-              href="https://tournamental.com/partners/aiva"
+              href="https://tournamental.com/partners/growth-spurt"
               target="_blank"
               rel="noreferrer"
               className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
             >
-              Learn about Aiva →
+              Learn about Growth Spurt →
             </a>
           </div>
         </section>
@@ -356,7 +356,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
             <div>
               <h2 className="vt-dash-row-name">Premium active</h2>
               <p className="vt-dash-row-meta">
-                Aiva provisioned your HighLevel sub-account on{" "}
+                Growth Spurt provisioned your HighLevel sub-account on{" "}
                 {s.hl_premium_since ? formatDate(s.hl_premium_since) : "the activation date"}.
                 Manage workflows, send broadcasts, and view subscription state inside HighLevel.
               </p>
@@ -482,12 +482,12 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         <p className="vt-dash-sub">
           Premium tier is delivered by{" "}
           <a
-            href="https://tournamental.com/partners/aiva"
+            href="https://tournamental.com/partners/growth-spurt"
             target="_blank"
             rel="noreferrer"
             className="vt-dash-link"
           >
-            Aiva
+            Growth Spurt
           </a>
           , our CRM and messaging partner. Billing and CRM provisioning happen inside
           HighLevel; Tournamental never handles your subscription or entry-fee revenue.
@@ -1142,7 +1142,7 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
           <p className="vt-dash-row-meta">
             Optional. Advertise an entry fee and how the pool splits. Tournamental
             never handles the money — on free, you collect and pay out yourself; on
-            premium, Stripe inside your Aiva-managed HighLevel sub-account handles
+            premium, Stripe inside your Growth Spurt-managed HighLevel sub-account handles
             the cash and the funds settle to your bank.
           </p>
         </div>

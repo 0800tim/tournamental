@@ -7,8 +7,8 @@
  * the freemium pitch, six audience use-cases with sample prizes, the
  * Free vs Premium tier comparison, and the embed-widget snippet.
  *
- * The Aiva premium tier is named explicitly; pricing copy points to the
- * Aiva partner page at https://tournamental.com/partners/aiva.
+ * The Growth Spurt premium tier is named explicitly; pricing copy points to the
+ * Growth Spurt partner page at https://tournamental.com/partners/growth-spurt.
  *
  * Cache: revalidate every 5 minutes so a freshly-created public
  * syndicate shows up in the directory without a manual rebuild.
@@ -39,10 +39,10 @@ import "./syndicates.css";
 export const metadata: Metadata = {
   title: "Syndicates · Tournamental",
   description:
-    "Run your own World Cup prediction pool. Office sweepstakes, e-commerce engagement campaigns, radio sponsorships, school fundraisers, creator audiences. Free branded embed widget; premium tier delivered by Aiva.",
+    "Run your own World Cup prediction pool. Office sweepstakes, e-commerce engagement campaigns, radio sponsorships, school fundraisers, creator audiences. Free branded embed widget; premium tier delivered by Growth Spurt.",
   openGraph: {
     title: "Syndicates · Tournamental",
-    description: "Anyone can host. Anyone can join. Free embed widget on any site; premium adds a fully-managed CRM via Aiva.",
+    description: "Anyone can host. Anyone can join. Free embed widget on any site; premium adds a fully-managed CRM via Growth Spurt.",
     images: ["/og/syndicates.png"],
     type: "website",
   },
@@ -107,7 +107,7 @@ const FREE_FEATURES: readonly string[] = [
 
 const PREMIUM_FEATURES: readonly string[] = [
   "Everything in Free",
-  "Dedicated HighLevel CRM sub-account, managed by Aiva",
+  "Dedicated HighLevel CRM sub-account, managed by Growth Spurt",
   "Your own number for SMS and WhatsApp at scale",
   "Email campaigns, nurture workflows, behavioural triggers",
   "Stripe Checkout for paid entries (funds to your bank)",
@@ -219,13 +219,13 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     safeT("syndicates_page.tier_free.blurb", "Embed the widget on any site you own. Leaderboards, share cards, prediction game. Forever free."),
     safeT("syndicates_page.tier_free.cta", "Start free →"),
     safeT("syndicates_page.tier_free.footer", "No credit card. Cancel anytime (it's free)."),
-    safeT("syndicates_page.tier_premium.eyebrow", "Premium · powered by Aiva"),
+    safeT("syndicates_page.tier_premium.eyebrow", "Premium · powered by Growth Spurt"),
     safeT("syndicates_page.tier_premium.price", "$97"),
     safeT("syndicates_page.tier_premium.price_sub", "/ month + usage"),
     safeT("syndicates_page.tier_premium.blurb_prefix", "Our CRM partner"),
-    safeT("syndicates_page.tier_premium.blurb_middle", "provisions a dedicated HighLevel sub-account, pre-configured for Tournamental-style workflows. BYO HighLevel via Aiva's affiliate link is supported."),
+    safeT("syndicates_page.tier_premium.blurb_middle", "provisions a dedicated HighLevel sub-account, pre-configured for Tournamental-style workflows. BYO HighLevel via Growth Spurt's affiliate link is supported."),
     safeT("syndicates_page.tier_premium.cta", "See what premium unlocks"),
-    safeT("syndicates_page.pricing_aside", "Premium tier is delivered by Aiva. Tournamental never handles entry fees or prize money; Stripe sits inside your CRM sub-account and funds settle directly to your bank."),
+    safeT("syndicates_page.pricing_aside", "Premium tier is delivered by Growth Spurt. Tournamental never handles entry fees or prize money; Stripe sits inside your CRM sub-account and funds settle directly to your bank."),
     safeT("syndicates_page.embed_title", "One snippet, any site"),
     safeT("syndicates_page.embed_intro", "Drop these two lines anywhere on your site. The widget reads your syndicate slug, fetches your branding, and renders. Here's the same widget running against a demo syndicate, live on this page:"),
     safeT("syndicates_page.embed_badge", "Live preview"),
@@ -233,19 +233,19 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     safeT("syndicates_page.embed_aside", "Works on Squarespace, WordPress, Wix, Shopify, Webflow, and any custom site. No iframe required, no host-CSS bleed, cached at the edge."),
     safeT("syndicates_page.faq_title", "Common questions"),
     safeT("syndicates_page.faq_q1", "Is it really free? What's the catch?"),
-    safeT("syndicates_page.faq_a1", "Genuinely free, no card needed, no trial timer. You can run a syndicate, brand it, embed it, and watch your audience play for the whole tournament without paying us a cent. Premium ($97/mo via Aiva) is an optional upgrade for hosts who want a managed CRM, paid entries via Stripe, and outbound SMS / WhatsApp at scale. Most syndicates run free forever."),
+    safeT("syndicates_page.faq_a1", "Genuinely free, no card needed, no trial timer. You can run a syndicate, brand it, embed it, and watch your audience play for the whole tournament without paying us a cent. Premium ($97/mo via Growth Spurt) is an optional upgrade for hosts who want a managed CRM, paid entries via Stripe, and outbound SMS / WhatsApp at scale. Most syndicates run free forever."),
     safeT("syndicates_page.faq_q2", "How do members find my syndicate?"),
     safeT("syndicates_page.faq_a2", "Two ways. Either you embed the widget on your site (Squarespace, WordPress, Shopify, custom) and members join straight from your page, or you share the public landing link (play.tournamental.com/s/yourname) directly on social, email, group chats, posters. Most hosts do both."),
     safeT("syndicates_page.faq_q3", "Do my members need a Tournamental account?"),
     safeT("syndicates_page.faq_a3", "They sign up via your widget or landing page with email or phone. The experience is yours; the technology is ours. No app install required."),
     safeT("syndicates_page.faq_q4", "Who handles the prize money?"),
-    safeT("syndicates_page.faq_a4", "You do, always. Tournamental does not touch money. On free, you settle however you already do (PayPal, bank transfer, an envelope at the post-final pub). On premium, Aiva's HighLevel sub-account gives you a Stripe-Connect checkout and the funds land in your bank account directly. We never have custody."),
+    safeT("syndicates_page.faq_a4", "You do, always. Tournamental does not touch money. On free, you settle however you already do (PayPal, bank transfer, an envelope at the post-final pub). On premium, Growth Spurt's HighLevel sub-account gives you a Stripe-Connect checkout and the funds land in your bank account directly. We never have custody."),
     safeT("syndicates_page.faq_q5", "Can I brand the widget without paying?"),
     safeT("syndicates_page.faq_a5", "Yes. Logo, colours, hero image, prize copy, and a sponsor block are all free. Premium removes the small 'Powered by Tournamental' footer and adds the managed CRM on top."),
     safeT("syndicates_page.faq_q6", "Can I run this for tournaments other than the World Cup?"),
     safeT("syndicates_page.faq_a6", "Soon. Six Nations, Cricket World Cup, college brackets, your office annual ladder, the same toolkit applies. The World Cup 2026 setup is the launch tournament; new ones light up as the seasons roll."),
     safeT("syndicates_page.faq_q7", "What if I cancel premium?"),
-    safeT("syndicates_page.faq_a7", "Your syndicate stays live on the free tier. Your members are yours. Aiva keeps your CRM data accessible for 30 days so you can export it. There is no lock-in."),
+    safeT("syndicates_page.faq_a7", "Your syndicate stays live on the free tier. Your members are yours. Growth Spurt keeps your CRM data accessible for 30 days so you can export it. There is no lock-in."),
     safeT("syndicates_page.faq_q8", "Is the code open source?"),
     safeT("syndicates_page.faq_a8", "Yes, Apache 2.0. The whole platform is in the public GitHub repo. Contributors share platform revenue via the Drips Network."),
     safeT("syndicates_page.faq_github_link", "public GitHub repo"),
@@ -391,7 +391,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
                 {tier_premium_price} <span className="vt-syndicates-tier-price-sub">{tier_premium_price_sub}</span>
               </h3>
               <p className="vt-syndicates-tier-blurb">
-                {tier_premium_blurb_prefix} <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-syndicates-link">Aiva</a>{" "}
+                {tier_premium_blurb_prefix} <a href="https://tournamental.com/partners/growth-spurt" target="_blank" rel="noreferrer" className="vt-syndicates-link">Growth Spurt</a>{" "}
                 {tier_premium_blurb_middle}
               </p>
               <ul className="vt-syndicates-tier-list">
@@ -409,7 +409,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
           </div>
           <p className="vt-syndicates-aside">
             Premium tier is delivered by{" "}
-            <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-syndicates-link">Aiva</a>.
+            <a href="https://tournamental.com/partners/growth-spurt" target="_blank" rel="noreferrer" className="vt-syndicates-link">Growth Spurt</a>.
             {" "}{pricing_aside}
           </p>
         </section>

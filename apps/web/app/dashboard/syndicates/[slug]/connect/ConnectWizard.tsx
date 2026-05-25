@@ -167,12 +167,12 @@ export function ConnectWizard({ slug }: { slug: string }): JSX.Element {
         <p className="vt-dash-sub">
           Premium is $97/month + usage, delivered by{" "}
           <a
-            href="https://tournamental.com/partners/aiva"
+            href="https://tournamental.com/partners/growth-spurt"
             target="_blank"
             rel="noreferrer"
             className="vt-dash-link"
           >
-            Aiva
+            Growth Spurt
           </a>
           . You get a dedicated HighLevel CRM sub-account, paid-entry handling via Stripe,
           SMS / WhatsApp / email at scale, subdomain hosting, and your own brand on every
@@ -218,7 +218,7 @@ export function ConnectWizard({ slug }: { slug: string }): JSX.Element {
             </div>
             <p className="vt-connect-step-body">
               We use HighLevel's hosted Stripe Checkout for the $97/month subscription.
-              Your card is charged by Stripe, funds settle to Aiva's account; Tournamental
+              Your card is charged by Stripe, funds settle to Growth Spurt's account; Tournamental
               never sees the money or your card details.
             </p>
             {!state.awaitingPoll && (
@@ -284,7 +284,7 @@ export function ConnectWizard({ slug }: { slug: string }): JSX.Element {
               <h2 className="vt-connect-step-title">Check email for CRM login</h2>
             </div>
             <p className="vt-connect-step-body">
-              Aiva sends your HighLevel login to the email on this syndicate. From there
+              Growth Spurt sends your HighLevel login to the email on this syndicate. From there
               you can send broadcasts, edit workflows, watch leaderboard climbs in real
               time, and onboard sponsors.
             </p>
@@ -294,7 +294,7 @@ export function ConnectWizard({ slug }: { slug: string }): JSX.Element {
 
       <footer className="vt-dash-foot">
         <p className="vt-dash-sub">
-          Questions? Aiva's team handles premium onboarding directly — they'll get in
+          Questions? Growth Spurt's team handles premium onboarding directly — they'll get in
           touch within a business day of your first payment. The Tournamental side
           (this dashboard, your embed widget, your public landing) keeps working
           unchanged through the upgrade.

@@ -121,7 +121,7 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.tier_premium.b4", "Stripe Checkout for paid entries (funds to your bank)"),
     safeT("home.tier_premium.b5", "Subdomain hosting + footer-free embed"),
     safeT("home.tier_premium.cta", "See what premium unlocks"),
-    safeT("home.tier_aside", "Premium tier is delivered by Aiva, our CRM and messaging partner. Tournamental never handles entry fees or prize money."),
+    safeT("home.tier_aside", "Premium tier is delivered by Growth Spurt, our CRM and messaging partner. Tournamental never handles entry fees or prize money."),
     safeT("home.features.headline", "Why people stay"),
     safeT("home.features.f1_title", "Verifiable predictions"),
     safeT("home.features.f1_body", "Every pick gets a cryptographic VStamp before kickoff. Your record is portable, public, and yours for life."),

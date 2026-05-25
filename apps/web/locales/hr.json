@@ -116,7 +116,7 @@
       "b5": "Hosting na poddomeni + embed bez footera",
       "cta": "Vidi što otključava premium"
     },
-    "tier_aside": "Premium sloj isporučuje Aiva, naš CRM i messaging partner. Tournamental nikad ne barata ulozima ni nagradama.",
+    "tier_aside": "Premium sloj isporučuje Growth Spurt, naš CRM i messaging partner. Tournamental nikad ne barata ulozima ni nagradama.",
     "features": {
       "headline": "Zašto ljudi ostaju",
       "f1_title": "Provjerljivi tipovi",
@@ -327,13 +327,13 @@
       "footer": "Bez kreditne kartice. Otkažite kad god (besplatno je)."
     },
     "tier_premium": {
-      "eyebrow": "Premium - pokreće ga Aiva",
+      "eyebrow": "Premium - pokreće ga Growth Spurt",
       "price": "$97",
       "price_sub": "/ mjesec + korištenje",
       "blurb_prefix": "Naš CRM partner",
-      "blurb_middle": "daje namjenski HighLevel podračun, unaprijed konfiguriran za Tournamental-style workflow-ove. Podržano je i dovođenje vlastitog HighLevel-a putem Aiva affiliate veze.",
+      "blurb_middle": "daje namjenski HighLevel podračun, unaprijed konfiguriran za Tournamental-style workflow-ove. Podržano je i dovođenje vlastitog HighLevel-a putem Growth Spurt affiliate veze.",
       "f1": "Sve iz Besplatnog",
-      "f2": "Namjenski HighLevel CRM podračun, kojim upravlja Aiva",
+      "f2": "Namjenski HighLevel CRM podračun, kojim upravlja Growth Spurt",
       "f3": "Vaš vlastiti broj za SMS i WhatsApp u opsegu",
       "f4": "E-mail kampanje, automatizacije njege, ponašajni okidači",
       "f5": "Stripe Checkout za plaćene prijave (sredstva na vaš račun)",
@@ -342,9 +342,9 @@
       "f8": "Uklonite Tournamental podnožje iz svog embeda",
       "f9": "Prioritetna podrška + uvodni poziv",
       "cta": "Pogledajte što premium otključava",
-      "link": "Aiva"
+      "link": "Growth Spurt"
     },
-    "pricing_aside": "Premium tier isporučuje Aiva. Tournamental nikada ne obrađuje naknadu za prijave ili novac za nagrade; Stripe se nalazi unutar vašeg CRM podračuna, a sredstva se direktno prebacuju na vaš bankovni račun.",
+    "pricing_aside": "Premium tier isporučuje Growth Spurt. Tournamental nikada ne obrađuje naknadu za prijave ili novac za nagrade; Stripe se nalazi unutar vašeg CRM podračuna, a sredstva se direktno prebacuju na vaš bankovni račun.",
     "embed_title": "Jedan isječak, bilo koja web-stranica",
     "embed_intro": "Stavite ova dva retka bilo gdje na vašu web-stranicu. Widget čita vaš sindikatski slug, dohvaća vaš brend i prikazuje. Evo istog widgeta koji radi s demo sindikatom, uživo na ovoj stranici:",
     "embed_badge": "Pregled uživo",
@@ -365,7 +365,7 @@
     "faq_q6": "Mogu li ovo pokrenuti za turnire osim Svjetskog kupa?",
     "faq_a6": "Uskoro. Six Nations, Cricket World Cup, college bracket-i, vaša godišnja uredska ljestvica - isti alat se primjenjuje. World Cup 2026 je pokretački turnir; novi se pale kako sezone napreduju.",
     "faq_q7": "Što se dogodi ako otkanem premium?",
-    "faq_a7": "Vaš sindikat ostaje aktivan na besplatnom nivou. Vaši članovi su vaši. Aiva čuva vaše CRM podatke dostupnima 30 dana kako biste ih mogli izvesti. Nema zaključavanja.",
+    "faq_a7": "Vaš sindikat ostaje aktivan na besplatnom nivou. Vaši članovi su vaši. Growth Spurt čuva vaše CRM podatke dostupnima 30 dana kako biste ih mogli izvesti. Nema zaključavanja.",
     "faq_q8": "Je li kod otvoreni kod?",
     "faq_a8": "Da, Apache 2.0. Cijela platforma je u javnom GitHub repozitoriju. Suradnici dijele prihod platforme putem Drips Network-a.",
     "faq_github_link": "javni GitHub repozitorij",

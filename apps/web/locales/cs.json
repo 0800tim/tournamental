@@ -116,7 +116,7 @@
       "b5": "Hosting na subdoméně + embed bez patičky",
       "cta": "Co premium odemyká"
     },
-    "tier_aside": "Premium úroveň dodává Aiva, náš CRM a messaging partner. Tournamental nikdy nedrží vstupné ani výhry.",
+    "tier_aside": "Premium úroveň dodává Growth Spurt, náš CRM a messaging partner. Tournamental nikdy nedrží vstupné ani výhry.",
     "features": {
       "headline": "Proč lidé zůstávají",
       "f1_title": "Ověřitelné tipy",
@@ -327,11 +327,11 @@
       "footer": "Bez kreditní karty. Zrušit kdykoli (je to zdarma)."
     },
     "tier_premium": {
-      "eyebrow": "Premium - pohání ho Aiva",
+      "eyebrow": "Premium - pohání ho Growth Spurt",
       "price": "$97",
       "price_sub": "/ měsíc + použití",
       "blurb_prefix": "Náš CRM partner",
-      "blurb_middle": "poskytuje vyhrazený dílčí účet HighLevel, předkonfigurovaný pro Tournamental-style workflows. Přineste si vlastní HighLevel prostřednictvím affiliate odkazu Aiva je podporován.",
+      "blurb_middle": "poskytuje vyhrazený dílčí účet HighLevel, předkonfigurovaný pro Tournamental-style workflows. Přineste si vlastní HighLevel prostřednictvím affiliate odkazu Growth Spurt je podporován.",
       "f1": "Vše v Zdarma",
       "f2": "Vyhrazený CRM dílčí účet HighLevel, spravovaný Aivou",
       "f3": "Vaše vlastní číslo pro SMS a WhatsApp ve velkém měřítku",
@@ -342,7 +342,7 @@
       "f8": "Odebrat Tournamental zápatí z vašeho vložení",
       "f9": "Prioritní podpora + call onboarding",
       "cta": "Podívejte se, co premium odemyká",
-      "link": "Aiva"
+      "link": "Growth Spurt"
     },
     "pricing_aside": "Premium vrstva je dodávána Aivou. Tournamental nikdy nezpracovává vstupné nebo peníze na ceny; Stripe se nachází v rámci vašeho dílčího účtu CRM a prostředky se vypořádávají přímo na váš bankovní účet.",
     "embed_title": "Jeden fragment, libovolný web",
@@ -365,7 +365,7 @@
     "faq_q6": "Mohu to spustit pro turnaje jiné než Světový pohár?",
     "faq_a6": "Brzy. Six Nations, Cricket World Cup, firemní ligy, váš roční kancelářský žebříček, stejná sada nástrojů platí. Nastavení World Cup 2026 je startovní turnaj; nové se rozsvěcují, jak sezony plují dál.",
     "faq_q7": "Co se stane, když zruším premium?",
-    "faq_a7": "Váš syndikát zůstane živý na bezplatné vrstvě. Vaši členové jsou vaši. Aiva uchovává vaše CRM data přístupná po 30 dní, abyste je mohli exportovat. Neexistuje zámek.",
+    "faq_a7": "Váš syndikát zůstane živý na bezplatné vrstvě. Vaši členové jsou vaši. Growth Spurt uchovává vaše CRM data přístupná po 30 dní, abyste je mohli exportovat. Neexistuje zámek.",
     "faq_q8": "Je kód otevřený zdroj?",
     "faq_a8": "Ano, Apache 2.0. Celá platforma je ve veřejném úložišti GitHub. Přispěvatelé sdílejí příjmy platformy prostřednictvím sítě Drips.",
     "faq_github_link": "veřejné úložiště GitHub",
