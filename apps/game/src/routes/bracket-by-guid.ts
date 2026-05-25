@@ -79,6 +79,7 @@ const STAGE_PREFIXES: ReadonlyArray<{
   { stage: "sf", test: (id) => /^(?:sf|semi)(?:[_:\-]|$)/i.test(id) },
   { stage: "qf", test: (id) => /^(?:qf|quart)(?:[_:\-]|$)/i.test(id) },
   { stage: "r16", test: (id) => /^(?:r16|round-?16)(?:[_:\-]|$)/i.test(id) },
+  { stage: "r32", test: (id) => /^(?:r32|round-?32)(?:[_:\-]|$)/i.test(id) },
 ];
 
 function legacyStageFor(matchId: string): KnockoutPathEntry["stage"] | null {
@@ -109,6 +110,7 @@ function summariseLegacyIds(bracket: Bracket): {
     sf: [],
     qf: [],
     r16: [],
+    r32: [],
   };
 
   for (const pred of Object.values(bracket.knockoutPredictions ?? {})) {
@@ -130,6 +132,7 @@ function summariseLegacyIds(bracket: Bracket): {
   const sfPick = byStage.sf?.[0] ?? null;
   const qfPick = byStage.qf?.[0] ?? null;
   const r16Pick = byStage.r16?.[0] ?? null;
+  const r32Pick = byStage.r32?.[0] ?? null;
 
   function winnerCode(p: MatchPrediction | null): string | null {
     if (!p) return null;
@@ -164,6 +167,7 @@ function summariseLegacyIds(bracket: Bracket): {
 
   const knockout_path: KnockoutPathEntry[] = (
     [
+      { stage: "r32" as const, pick: r32Pick },
       { stage: "r16" as const, pick: r16Pick },
       { stage: "qf" as const, pick: qfPick },
       { stage: "sf" as const, pick: sfPick },

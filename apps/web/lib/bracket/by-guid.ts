@@ -54,7 +54,7 @@ export function isShareGuidShape(guid: string): boolean {
 }
 
 export interface PathToGoldEntry {
-  readonly stage: "r16" | "qf" | "sf" | "final";
+  readonly stage: "r32" | "r16" | "qf" | "sf" | "final";
   readonly stage_label: string;
   readonly opponent_code: string;
   readonly opponent_name: string;
@@ -105,6 +105,7 @@ function teamLite(code: string | null | undefined): TeamLite {
 }
 
 const STAGE_LABEL: Record<PathToGoldEntry["stage"], string> = {
+  r32: "Round of 32",
   r16: "Round of 16",
   qf: "Quarter-final",
   sf: "Semi-final",
@@ -369,6 +370,7 @@ function normaliseUpstream(
   for (const k of b.knockout_path) byStage.set(k.stage, k);
 
   const stages: ReadonlyArray<PathToGoldEntry["stage"]> = [
+    "r32",
     "r16",
     "qf",
     "sf",

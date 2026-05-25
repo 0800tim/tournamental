@@ -37,6 +37,8 @@ import type { NextRequest } from "next/server";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 
+import { resolveShareGuid } from "@/lib/share/resolve-guid";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -244,28 +246,49 @@ async function enrichFromGameService(
   inline: RenderArgs,
 ): Promise<RenderArgs> {
   if (!/^[a-zA-Z0-9_-]{3,64}$/.test(bracketId)) return inline;
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  // Use the same share-guid resolver the /s/[guid] page uses so the OG
+  // endpoint accepts a friendly handle ("0800tim"), a raw share guid
+  // (UUID / nanoid / `u_<hex>`), or a syndicate slug. The previous
+  // hand-rolled fetch only handled raw share guids, so anyone calling
+  // ?bracket_id=<handle> got an empty card. Tim 2026-05-25.
   try {
-    const res = await fetch(
-      `${GAME_BASE}/v1/bracket/by-guid/${encodeURIComponent(bracketId)}`,
-      {
-        headers: { accept: "application/json" },
-        signal: controller.signal,
-        cache: "no-store",
-      },
+    const resolved = await resolveShareGuid(bracketId);
+    if (resolved.kind !== "user") return inline;
+    const b = resolved.bracket as unknown as Record<string, unknown>;
+    const championCode = isoCode(
+      (b.champion as { code?: string } | undefined)?.code ??
+        (b.champion_code as string | undefined),
     );
-    if (!res.ok) return inline;
-    const body = (await res.json()) as unknown;
-    if (!body || typeof body !== "object") return inline;
-    const root = body as Record<string, unknown>;
-    const b = (root.bracket as Record<string, unknown> | undefined) ?? null;
-    if (!b) return inline;
-    const champion = inline.champion ?? isoCode(b.champion_code as string | undefined);
-    const runnerUp = inline.runnerUp ?? isoCode(b.runner_up_code as string | undefined);
-    const third = inline.third ?? isoCode(b.third_place_code as string | undefined);
+    const runnerUpCode = isoCode(
+      (b.runner_up as { code?: string } | undefined)?.code ??
+        (b.runner_up_code as string | undefined),
+    );
+    const thirdCode = isoCode(
+      (b.third_place as { code?: string } | undefined)?.code ??
+        (b.third_place_code as string | undefined),
+    );
+    const champion = inline.champion ?? championCode;
+    const runnerUp = inline.runnerUp ?? runnerUpCode;
+    const third = inline.third ?? thirdCode;
     let ko = inline.ko;
+    if (ko.length === 0 && Array.isArray(b.path_to_gold)) {
+      // Newer schema: path_to_gold = [{stage, opponent: {code, name, ...}}, ...]
+      ko = (b.path_to_gold as unknown[])
+        .map((e) => {
+          if (!e || typeof e !== "object") return null;
+          const r = e as Record<string, unknown>;
+          const stage = typeof r.stage === "string" ? r.stage.toLowerCase() : null;
+          const oppObj = r.opponent as { code?: string } | undefined;
+          const opp =
+            isoCode(oppObj?.code) ?? isoCode(r.opponent_code as string | undefined);
+          if (!stage || !opp) return null;
+          if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(stage)) return null;
+          return { stage: stage as KoPick["stage"], opponent: opp };
+        })
+        .filter((x): x is KoPick => x !== null);
+    }
     if (ko.length === 0 && Array.isArray(b.knockout_path)) {
+      // Legacy schema fallback.
       ko = (b.knockout_path as unknown[])
         .map((e) => {
           if (!e || typeof e !== "object") return null;
@@ -281,8 +304,6 @@ async function enrichFromGameService(
     return { ...inline, champion, runnerUp, third, ko };
   } catch {
     return inline;
-  } finally {
-    clearTimeout(timer);
   }
 }
 

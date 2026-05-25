@@ -38,8 +38,11 @@ import {
  * has zero route-layer dependencies — keeps the unit tests trivial.
  */
 export interface KnockoutPathEntry {
-  /** Stage label as the web client expects ("r16", "qf", "sf", "final"). */
-  readonly stage: "r16" | "qf" | "sf" | "final";
+  /** Stage label as the web client expects ("r32", "r16", "qf", "sf",
+   *  "final"). The 2026 FIFA WC has 48 teams + a Round-of-32 play-in,
+   *  so r32 is surfaced alongside the four traditional rounds (Tim
+   *  2026-05-25). */
+  readonly stage: "r32" | "r16" | "qf" | "sf" | "final";
   /** Opponent team code. Null when the prior round hasn't been picked. */
   readonly opponent_code: string | null;
   readonly result: "win" | "loss" | "tbd";
@@ -47,6 +50,7 @@ export interface KnockoutPathEntry {
 
 /** Stages the share landing renders, in order. */
 const PUBLIC_PATH_STAGES: ReadonlyArray<KnockoutPathEntry["stage"]> = [
+  "r32",
   "r16",
   "qf",
   "sf",
@@ -56,13 +60,15 @@ const PUBLIC_PATH_STAGES: ReadonlyArray<KnockoutPathEntry["stage"]> = [
 /**
  * Map the bracket-engine's knockout stage codes onto the public-share
  * stages. The engine uses r32/r16/qf/sf/tp/f; the share UI surfaces
- * only the four "round-of" stages most viewers care about (and ignores
- * the r32 entry play-in for now, matching the design's 4-row table).
+ * five "round-of" stages (r32 added 2026-05-25 since the 2026 FIFA WC
+ * uses a 48-team Round of 32 as its play-in).
  */
 function publicStageFor(
   k: CascadedKnockout,
 ): KnockoutPathEntry["stage"] | null {
   switch (k.stage) {
+    case "r32":
+      return "r32";
     case "r16":
       return "r16";
     case "qf":
