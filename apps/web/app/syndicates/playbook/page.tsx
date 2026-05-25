@@ -9,7 +9,7 @@
  * Content: six audience archetypes with recruit copy, six prize
  * structures, two sponsor-pitch email templates, and a six-week
  * run-of-show cadence guide. Premium-tier upgrade triggers section
- * names Aiva as the CRM partner.
+ * names Growth Spurt as the CRM partner.
  */
 
 import Link from "next/link";
@@ -211,23 +211,23 @@ export default function SyndicatesPlaybookPage(): JSX.Element {
             <li>Sponsor thank-you email and prize-handover content within 48 hours.</li>
           </ul>
 
-          <h2 id="premium">When to upgrade to Premium (powered by Aiva)</h2>
-          <p>Premium tier is delivered by <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-pb-link">Aiva</a>, our CRM and messaging partner. Free covers everything a smaller host needs. Upgrade when:</p>
+          <h2 id="premium">When to upgrade to Premium (powered by Growth Spurt)</h2>
+          <p>Premium tier is delivered by <a href="https://tournamental.com/partners/growth-spurt" target="_blank" rel="noreferrer" className="vt-pb-link">Growth Spurt</a>, our CRM and messaging partner. Free covers everything a smaller host needs. Upgrade when:</p>
           <ul>
             <li><strong>You want paid entries</strong> via Stripe Checkout (funds to your bank, not ours).</li>
             <li><strong>You want SMS or WhatsApp at scale</strong> through your own number, branded in your name.</li>
-            <li><strong>You want a real CRM</strong> with workflows, nurture sequences, segmentation, lead-scoring. Aiva provisions a HighLevel sub-account, configures it for your tournament, and hands you the keys.</li>
+            <li><strong>You want a real CRM</strong> with workflows, nurture sequences, segmentation, lead-scoring. Growth Spurt provisions a HighLevel sub-account, configures it for your tournament, and hands you the keys.</li>
             <li><strong>You want the subdomain</strong> yourname.tournamental.com as a full-page experience.</li>
             <li><strong>You want your own brand on every surface</strong> — premium removes the Tournamental footer.</li>
           </ul>
 
-          <p>Two paths into premium, both via Aiva:</p>
+          <p>Two paths into premium, both via Growth Spurt:</p>
           <ol>
-            <li><strong>Managed: $97/month flat.</strong> Aiva provisions and runs the HighLevel sub-account. Cancel any time; you keep the contact list when you leave.</li>
-            <li><strong>BYO HighLevel via Aiva's affiliate link.</strong> Best for high-volume hosts already paying HighLevel rates.</li>
+            <li><strong>Managed: $97/month flat.</strong> Growth Spurt provisions and runs the HighLevel sub-account. Cancel any time; you keep the contact list when you leave.</li>
+            <li><strong>BYO HighLevel via Growth Spurt's affiliate link.</strong> Best for high-volume hosts already paying HighLevel rates.</li>
           </ol>
 
-          <p>Detail on the partnership: <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-pb-link">tournamental.com/partners/aiva</a>.</p>
+          <p>Detail on the partnership: <a href="https://tournamental.com/partners/growth-spurt" target="_blank" rel="noreferrer" className="vt-pb-link">tournamental.com/partners/growth-spurt</a>.</p>
 
           <h2 id="next">Ready to start</h2>
           <p>

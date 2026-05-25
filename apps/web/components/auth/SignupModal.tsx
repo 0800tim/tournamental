@@ -7,7 +7,7 @@
  *
  *   1. Telegram Login Widget (blue button, renders inline). Free,
  *      worldwide, one-tap. Verified directly by auth-sms against the
- *      bot token, no Supabase / Aiva in the loop.
+ *      bot token, no Supabase / Growth Spurt in the loop.
  *   2. WhatsApp deep-link (green button). User taps, WhatsApp opens
  *      with "login" pre-typed, they send, auth-sms replies with a code
  *      + magic link.

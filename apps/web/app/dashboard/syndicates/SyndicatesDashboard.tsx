@@ -11,7 +11,7 @@
  *
  * The premium-upgrade CTA links out to `NEXT_PUBLIC_HL_CHECKOUT_URL`
  * if configured. That URL is HighLevel's hosted Stripe Checkout for
- * the $97/mo Aiva-managed plan; Tim configures it once in HL and we
+ * the $97/mo Growth Spurt-managed plan; Tim configures it once in HL and we
  * just open it in a new tab. Per the architecture: the codebase
  * never sees Stripe; HL owns billing.
  */
@@ -278,14 +278,14 @@ export function SyndicatesDashboard(): JSX.Element {
                   rel="noreferrer"
                   className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
                 >
-                  Upgrade to Premium ($97/mo via Aiva) →
+                  Upgrade to Premium ($97/mo via Growth Spurt) →
                 </a>
               )}
               {s.tier === "premium" && (
                 <span className="vt-dash-premium-note">
                   Premium active since{" "}
                   {s.hl_premium_since ? formatDate(s.hl_premium_since) : "recently"}.
-                  CRM access via Aiva.
+                  CRM access via Growth Spurt.
                 </span>
               )}
               {s.tier === "past_due" && (
@@ -306,8 +306,8 @@ export function SyndicatesDashboard(): JSX.Element {
       <footer className="vt-dash-foot">
         <p className="vt-dash-sub">
           Premium tier is delivered by{" "}
-          <a href="https://tournamental.com/partners/aiva" target="_blank" rel="noreferrer" className="vt-dash-link">
-            Aiva
+          <a href="https://tournamental.com/partners/growth-spurt" target="_blank" rel="noreferrer" className="vt-dash-link">
+            Growth Spurt
           </a>
           , our CRM and messaging partner. Billing, contracts, and CRM
           provisioning happen inside HighLevel; Tournamental never

@@ -25,9 +25,9 @@ Both are operated by Growth Spurt Ltd (trading as Tournamental). No other deploy
 
 ## The premium tier and partner relationships
 
-The Tournamental premium-tier offer (managed HighLevel CRM sub-accounts, messaging infrastructure, paid-entry handling) is delivered by **Aiva**, a separate company that partners with Growth Spurt Ltd for these services. Aiva's offer is not part of this open-source repository; it is a commercial service available to syndicate hosts who use Tournamental.
+The Tournamental premium-tier offer (managed HighLevel CRM sub-accounts, messaging infrastructure, paid-entry handling) is delivered by **Growth Spurt Ltd**, the CRM agency operating Tournamental. The premium offer is not part of this open-source repository; it is a commercial service available to syndicate hosts who use Tournamental. (Messaging is delivered through Aiva SMS, one of the tools Growth Spurt uses.)
 
-Forks of this codebase do not inherit any partnership with Aiva, any HighLevel agency-partner status, or any commercial agreements that Growth Spurt Ltd has with third parties. Operators of forks are responsible for their own commercial arrangements.
+Forks of this codebase do not inherit any HighLevel agency-partner status or any commercial agreements that Growth Spurt Ltd has with third parties. Operators of forks are responsible for their own commercial arrangements.
 
 ## Contributing
 
