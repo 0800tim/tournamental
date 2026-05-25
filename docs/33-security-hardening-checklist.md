@@ -172,7 +172,7 @@ Per `docs/21-onchain-sweepstakes-oracle.md`:
 - [ ] Reentrancy guards on every state mutation
 - [ ] Withdrawal pull-pattern (no push transfers)
 - [ ] Time-locked oracle inputs
-- [ ] Multi-sig for treasury (minimum 2/3 with Tournamental Holdings + Tim + auditor)
+- [ ] Multi-sig for treasury (minimum 2/3 with Growth Spurt Ltd + Tim + auditor)
 - [ ] Documented incident-response runbook
 
 ## F. Build pipeline

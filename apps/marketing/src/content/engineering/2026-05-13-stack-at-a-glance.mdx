@@ -54,7 +54,7 @@ You are a **prospective contributor** trying to work out whether the codebase is
 
 This post answers one question: **what is in this repo, what is the contract surface, and where do I plug in?**
 
-The whole codebase is open source. Apache 2.0 for the code, CC-BY 4.0 for the docs. The brand and the official Drips list are owned by Tournamental Holdings. Everything else is up for grabs. Fork it, embed it, ship a plugin against it, propose a better scoring formula. The repo is a brain dump. This post is the page-one index.
+The whole codebase is open source. Apache 2.0 for the code, CC-BY 4.0 for the docs. The brand and the official Drips list are owned by Growth Spurt Ltd. Everything else is up for grabs. Fork it, embed it, ship a plugin against it, propose a better scoring formula. The repo is a brain dump. This post is the page-one index.
 
 A note on tone before we begin. This is the engineering log, not the marketing site. The voice is direct, NZ English, no em-dashes. Where something is half-built I will say so. Where I have not figured it out yet I will say that too. The repo is shipped with the warts on, this log is shipped with the warts on. If you wanted a polished pitch you wanted [the product blog](/blog).
 
@@ -133,7 +133,7 @@ Now the stack has four layers. Read them top to bottom.
 │  VStamp contract   prediction receipt anchoring                     │
 │  Pool oracle       trustless tournament pool settlement             │
 │  Drips list        contributor revenue stream                       │
-│  Tournamental Holdings governance multisig                          │
+│  Growth Spurt Ltd governance multisig                          │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -287,7 +287,7 @@ The **Pool oracle** ([21-onchain-sweepstakes-oracle.md](https://github.com/0800t
 
 The **Drips list** ([40-drips-network-integration.md](https://github.com/0800tim/tournamental/blob/main/docs/40-drips-network-integration.md)) routes a fixed fraction of every paid integration's revenue to contributors. Each contributor's share is set by a public formula. The contract is on-chain and transparent: you can read it, you can verify it, you can fork it and propose a better split.
 
-The **Tournamental Holdings multisig** ([19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md)) holds the brand and the affiliate-router operator keys. It is not in the loop on user predictions or pools, it just holds the bits that need a legal entity to own them.
+The **Growth Spurt Ltd multisig** ([19-open-source-and-contributor-revenue.md](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md)) holds the brand and the affiliate-router operator keys. It is not in the loop on user predictions or pools, it just holds the bits that need a legal entity to own them.
 
 ### The spec
 
@@ -494,7 +494,7 @@ If your app is itself agent-driven, you can skip the iframe and go through MCP. 
 
 File a PR back into the upstream Tournamental repo with whatever you built. If it lands on `main`, you are in the Drips list. The Drips contract pays you a fraction of every dollar that flows through the affiliate router, the Pro subscriptions, the B2B partnerships, the data licensing, all of it. The split formula is on-chain and public. There is no contract to sign. There is no fund in Menlo Park taking a cut. The whole thing is described in [doc 19](https://github.com/0800tim/tournamental/blob/main/docs/19-open-source-and-contributor-revenue.md).
 
-If you do not want to upstream your work, that is fine. Apache 2.0 lets you fork and run your own instance. The brand and the official Drips list are owned by Tournamental Holdings and are not licensed for forks (see `TRADEMARK.md`), but the protocol, the code, and the docs are yours to take.
+If you do not want to upstream your work, that is fine. Apache 2.0 lets you fork and run your own instance. The brand and the official Drips list are owned by Growth Spurt Ltd and are not licensed for forks (see `TRADEMARK.md`), but the protocol, the code, and the docs are yours to take.
 
 ## Observability, performance and caching
 
@@ -614,7 +614,7 @@ The **clip pipeline's destination plugins** are still in design. We can render a
 
 The **news aggregator's** category taxonomy is still in flux. We are using an LLM to categorise feeds and the category names are getting refactored as we find ones that don't work. If you are building on top of the categorised feed, fetch the taxonomy from `/api/v1/news/taxonomy` rather than hard-coding it.
 
-The **drips-bridge contract's split formula** is on-chain but the version on chain at the time of writing is `0.3`. We expect to ship `1.0` before the launch. The contract is upgradeable via the Tournamental Holdings multisig. Any change is announced two weeks ahead via the engineering log (this blog).
+The **drips-bridge contract's split formula** is on-chain but the version on chain at the time of writing is `0.3`. We expect to ship `1.0` before the launch. The contract is upgradeable via the Growth Spurt Ltd multisig. Any change is announced two weeks ahead via the engineering log (this blog).
 
 ## Running the stack locally
 
@@ -714,9 +714,9 @@ The Tournamental Drips list is at a public address listed in `docs/40-drips-netw
 - Vulnerability disclosures that land a CVE.
 - Smart-contract reviews that turn into a patch.
 
-The formula is public. The contributor scoring script that drives the formula is in `tools/drips/score.ts`. We re-score every two weeks and propose a new split via the Tournamental Holdings multisig; the proposal has a seven-day timelock before it lands on chain, so contributors can object.
+The formula is public. The contributor scoring script that drives the formula is in `tools/drips/score.ts`. We re-score every two weeks and propose a new split via the Growth Spurt Ltd multisig; the proposal has a seven-day timelock before it lands on chain, so contributors can object.
 
-### Tournamental Holdings multisig
+### Growth Spurt Ltd multisig
 
 The multisig is a 3-of-5 Gnosis Safe on Polygon. The signers are the entity's directors and one independent technical reviewer. The multisig holds the brand assets, the affiliate-router operator keys, and the Drips list owner key. It does not hold user funds; it cannot ever hold user funds because the only contract that takes user funds (the Pool oracle) does not have a recoverable owner.
 
@@ -792,7 +792,7 @@ There are four places.
 
 **The call-for-help blog posts** dropping over the next few days, where I ask the community to come help with specific gnarly bits. They cover translations, designer help, smart-contract review and the renderer plugin spec. The first lands tomorrow. Watch [the build log](/blog) or subscribe to the RSS feed.
 
-**Email me directly** at hello@tournamental.com if your question is private or commercial. I read every one.
+**Email me directly** at info@tournamental.com if your question is private or commercial. I read every one.
 
 What I will not do: maintain a private Slack or Discord. The point of the engineering log is that the answers are public and Googleable forever. If you ask a question in private I will answer it and then ask if I can post the answer in Discussions, anonymised if you prefer.
 
@@ -827,11 +827,11 @@ A handful of terms turn up often in this post and across the docs. Bookmarking t
 
 ## A note on licensing for integrators
 
-Because the codebase mixes Apache 2.0 (code) and CC-BY 4.0 (docs) and the brand is owned by Tournamental Holdings, the licensing question comes up often. Short version:
+Because the codebase mixes Apache 2.0 (code) and CC-BY 4.0 (docs) and the brand is owned by Growth Spurt Ltd, the licensing question comes up often. Short version:
 
 - **Code: Apache 2.0.** You can fork the entire repo, run your own instance, set your own affiliate destinations, and build whatever you want on top of it. You must preserve the NOTICE file and the LICENSE file. You cannot sue us over patent claims; we cannot sue you. You do not have to upstream your changes.
 - **Docs: CC-BY 4.0.** You can lift any of the architecture docs into your own design pack, including verbatim, as long as you credit Tournamental as the source. Helpful if you are writing a thesis on tournament-prediction systems, building a competing product whose design owes something to ours, or just want the doc text in your own internal wiki.
-- **Brand and the official Drips list: not licensed.** The Tournamental name, the wordmark, the official `@TournamentalBot` Telegram identity, and the on-chain Drips list controlled by Tournamental Holdings are not licensed for forks. You can fork the protocol and call your fork whatever you like, but you cannot call it Tournamental. `TRADEMARK.md` has the detail.
+- **Brand and the official Drips list: not licensed.** The Tournamental name, the wordmark, the official `@TournamentalBot` Telegram identity, and the on-chain Drips list controlled by Growth Spurt Ltd are not licensed for forks. You can fork the protocol and call your fork whatever you like, but you cannot call it Tournamental. `TRADEMARK.md` has the detail.
 - **Asset packs (avatars, jersey textures, stadium models): each has its own license.** The framework itself ships with no copyrighted assets. The procedural body GLB in `packages/avatar/` is original work and Apache 2.0. The jersey textures are generated at runtime from team colour palettes (no copyrighted logos). Wikimedia Commons faces use the underlying file's license; the proxy in `apps/web/` records the attribution per face.
 
 If you are an operator running a fork in a regulated jurisdiction, see the disclaimer in the README plus `docs/15-tournamental-brand-and-positioning.md`. The framework displays public market odds for scoring difficulty; it does not facilitate real-money wagers; it does not custody funds. Your fork is your responsibility.

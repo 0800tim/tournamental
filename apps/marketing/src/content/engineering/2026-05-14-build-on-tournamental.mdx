@@ -53,7 +53,7 @@ The rest of this post is a step-by-step walkthrough of each one, an honest pass 
 
 A simple mental model. The npm packages are the **engine**. The REST API is the **canonical state**. The MCP server is the **agent surface**. Build a thing locally that does not need anybody else's data: npm only. Build a thing that needs the live platform's data or wants to write to it: REST. Build a thing where an AI agent does the work for you on the fly: MCP. You can mix all three in one app and that is in fact the point of the worked example near the end of this post, fetch via REST, render via npm, debug via MCP-in-your-editor.
 
-Two notes before we start. First, the brand and the official Drips revshare list belong to Tournamental Holdings; everything else (the code, the docs, the types, the prompts, the design pack) is open under Apache 2.0 (code) and CC-BY 4.0 (docs). Second, this is the engineering log, not the product blog. The voice is direct, the warts are visible, and where something is half-built I will say so.
+Two notes before we start. First, the brand and the official Drips revshare list belong to Growth Spurt Ltd; everything else (the code, the docs, the types, the prompts, the design pack) is open under Apache 2.0 (code) and CC-BY 4.0 (docs). Second, this is the engineering log, not the product blog. The voice is direct, the warts are visible, and where something is half-built I will say so.
 
 ## The access model (read this before you build anything)
 
@@ -834,7 +834,7 @@ A few specifics that the brief above does not spell out.
 
 **Plugins are reviewed.** Every `@tournamental-plugin/*` package PR is reviewed by the core reviewer agent against the verification checklist in [`CONTRIBUTING.md`](https://github.com/0800tim/tournamental/blob/main/CONTRIBUTING.md). Permission creep (a renderer plugin asking for network access it does not need), large copy-pasted external code without a licence-compat check, secrets in commits, these are auto-flagged.
 
-**Forks are blessed.** If you fork the platform under the Apache licence and run a parallel instance, you do not need our permission. If you want to redirect the Drips list to your own contributors, that is also fine, the list reference is config-driven. The trademark "Tournamental" stays with Tournamental Holdings, but the code, the docs, and the design pack do not.
+**Forks are blessed.** If you fork the platform under the Apache licence and run a parallel instance, you do not need our permission. If you want to redirect the Drips list to your own contributors, that is also fine, the list reference is config-driven. The trademark "Tournamental" stays with Growth Spurt Ltd, but the code, the docs, and the design pack do not.
 
 ## What's not in this post yet (and where to ask)
 

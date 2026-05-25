@@ -57,7 +57,7 @@ export interface BuiltMcpServer {
 export const SERVER_INFO = {
   name: 'tournamental-mcp',
   version: '0.1.0',
-  vendor: 'Tournamental Holdings',
+  vendor: 'Growth Spurt Ltd',
 };
 
 function shapeOf(schema: ZodTypeAny): ZodRawShape {

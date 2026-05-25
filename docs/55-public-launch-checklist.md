@@ -72,7 +72,7 @@ The four pre-flip items are independent of each other and can ship in parallel. 
 
 ### Watch-window (24 hours after flip)
 
-- [ ] Inbox watch on `0800tim@gmail.com` for security disclosures (24h acknowledge SLA per [SECURITY.md](../SECURITY.md))
+- [ ] Inbox watch on `info@tournamental.com` for security disclosures (24h acknowledge SLA per [SECURITY.md](../SECURITY.md))
 - [ ] PR watch on the public repo (first community PRs are usually grammar fixes; reviewer agent should pick them up but Tim sanity-checks the first one)
 - [ ] Rate-limit watch on Cloudflare for `auth-sms` and the API portal (OTP abuse is the most likely first attack)
 - [ ] Discussions watch (first "I am stuck" posts get a same-day response from a maintainer)

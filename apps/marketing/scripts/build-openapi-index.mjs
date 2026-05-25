@@ -187,8 +187,9 @@ function mergeBundle(specs) {
         url: "https://www.apache.org/licenses/LICENSE-2.0",
       },
       contact: {
-        name: "Tournamental Holdings",
+        name: "Growth Spurt Ltd",
         url: "https://tournamental.com",
+        email: "info@tournamental.com",
       },
     },
     servers: [
