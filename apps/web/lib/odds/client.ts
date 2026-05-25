@@ -117,6 +117,78 @@ function isWellFormedMatchOdds(x: unknown): x is MatchOdds {
 }
 
 /**
+ * Wire shape returned by the live `apps/odds-ingest` service on
+ * `GET /v1/odds/match/:matchNo`. It differs from this app's `MatchOdds`
+ * (nested `{prob}` objects, `ts` epoch ms, no `homeWin`/`updatedAt`), so we
+ * translate it here rather than leaking the upstream shape into the UI.
+ */
+interface IngestMatchResponse {
+  match_no: number;
+  kickoff: string | null;
+  source: string | null;
+  ts: number | null;
+  home: { code: string; name: string; prob: number | null };
+  draw: { prob: number | null } | null;
+  away: { code: string; name: string; prob: number | null };
+}
+
+function isIngestMatchResponse(x: unknown): x is IngestMatchResponse {
+  if (!x || typeof x !== "object") return false;
+  const o = x as Record<string, unknown>;
+  const side = (v: unknown) =>
+    !!v && typeof v === "object" && "prob" in (v as Record<string, unknown>);
+  return side(o.home) && side(o.away) && "match_no" in o;
+}
+
+/** Map the odds-ingest source string onto this app's OddsSource union. */
+function mapIngestSource(s: string | null | undefined): MatchOdds["source"] {
+  return s === "polymarket" ? "polymarket" : "mock-fifa-rank";
+}
+
+/**
+ * Wire shape returned by odds-ingest on the team winner/group endpoints:
+ * `GET /v1/odds/team/:code/{winner,group}`. `prob` is null when no market
+ * has been ingested yet.
+ */
+interface IngestTeamResponse {
+  market_id: string;
+  kind: string;
+  team_name: string;
+  source: string | null;
+  ts?: number | null;
+  prob: number | null;
+  note?: string;
+}
+
+/**
+ * Translate the odds-ingest `/v1/odds/match/:matchNo` payload into this
+ * app's `MatchOdds`. Returns null when the upstream has no live probability
+ * yet (so the caller falls through to the next tier rather than rendering
+ * empty bars).
+ */
+function ingestMatchToMatchOdds(
+  raw: IngestMatchResponse,
+  matchNo: string,
+  homeTeam: string,
+  awayTeam: string,
+): MatchOdds | null {
+  const homeWin = raw.home?.prob;
+  const awayWin = raw.away?.prob;
+  if (typeof homeWin !== "number" || typeof awayWin !== "number") return null;
+  const draw = raw.draw && typeof raw.draw.prob === "number" ? raw.draw.prob : null;
+  return {
+    matchNo,
+    homeTeam: raw.home?.code || homeTeam,
+    awayTeam: raw.away?.code || awayTeam,
+    homeWin,
+    draw,
+    awayWin,
+    source: mapIngestSource(raw.source),
+    updatedAt: raw.ts ? new Date(raw.ts).toISOString() : new Date().toISOString(),
+  };
+}
+
+/**
  * Fetch odds for a single match. Walks the three-tier fallback ladder
  * and returns the first successful response. Throws nothing, every
  * path resolves to a stable result the UI can render.
@@ -135,8 +207,14 @@ export async function fetchMatchOdds(
       const r = await fetchWithTimeout(fetchImpl, url, signal);
       if (r.ok) {
         const j = (await r.json()) as unknown;
+        // Accept either this app's MatchOdds shape (from the Next.js stub
+        // proxy) or the odds-ingest wire shape (nested {prob}, ts).
         if (isWellFormedMatchOdds(j)) {
           return { ok: true, data: j, tier: "live" };
+        }
+        if (isIngestMatchResponse(j)) {
+          const mapped = ingestMatchToMatchOdds(j, matchNo, homeTeam, awayTeam);
+          if (mapped) return { ok: true, data: mapped, tier: "live" };
         }
       }
     } catch {
@@ -217,8 +295,25 @@ export async function fetchTeamWinnerSummary(
         signal,
       );
       if (r.ok) {
-        const j = (await r.json()) as TeamWinnerSummary;
-        return { ok: true, data: j, tier: "live" };
+        const raw = (await r.json()) as Partial<TeamWinnerSummary> & IngestTeamResponse;
+        // Accept the app shape (from the Next.js stub proxy)…
+        if (typeof raw.tournamentWinnerProb === "number") {
+          return { ok: true, data: raw as TeamWinnerSummary, tier: "live" };
+        }
+        // …or the odds-ingest wire shape { prob, source, ts }.
+        if (typeof raw.prob === "number") {
+          return {
+            ok: true,
+            tier: "live",
+            data: {
+              teamCode,
+              tournamentWinnerProb: raw.prob,
+              groupWinnerProb: null,
+              source: mapIngestSource(raw.source),
+              updatedAt: raw.ts ? new Date(raw.ts).toISOString() : new Date().toISOString(),
+            },
+          };
+        }
       }
     } catch { /* fall through */ }
   }
@@ -282,8 +377,25 @@ export async function fetchTeamGroupSummary(
         signal,
       );
       if (r.ok) {
-        const j = (await r.json()) as TeamGroupSummary;
-        return { ok: true, data: j, tier: "live" };
+        const raw = (await r.json()) as Partial<TeamGroupSummary> & IngestTeamResponse;
+        // Accept the app shape (from the Next.js stub proxy)…
+        if (typeof raw.groupWinnerProb === "number") {
+          return { ok: true, data: raw as TeamGroupSummary, tier: "live" };
+        }
+        // …or the odds-ingest wire shape { prob, source, ts }.
+        if (typeof raw.prob === "number") {
+          return {
+            ok: true,
+            tier: "live",
+            data: {
+              teamCode,
+              groupId,
+              groupWinnerProb: raw.prob,
+              source: mapIngestSource(raw.source),
+              updatedAt: raw.ts ? new Date(raw.ts).toISOString() : new Date().toISOString(),
+            },
+          };
+        }
       }
     } catch { /* fall through */ }
   }

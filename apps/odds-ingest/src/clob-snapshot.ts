@@ -71,6 +71,15 @@ export class ClobSnapshotter {
   }
 }
 
+/**
+ * Maximum bid-ask spread (in probability points) for a CLOB mid-price to be
+ * trusted. Far-out World Cup markets often have a near-empty book (e.g. best
+ * bid 0.01 / best ask 0.99), whose 0.50 mid is meaningless and would clobber
+ * the accurate de-vigged price from Gamma's `outcomePrices`. When the spread
+ * is wider than this we skip the tick and let the Gamma value stand.
+ */
+export const MAX_TRUSTED_CLOB_SPREAD = 0.1;
+
 export function bookToTick(
   marketId: string,
   outcomeLabel: string,
@@ -80,6 +89,8 @@ export function bookToTick(
   if (snap.best_bid == null && snap.best_ask == null) return null;
   let mid: number;
   if (snap.best_bid != null && snap.best_ask != null) {
+    // Reject illiquid books whose mid is uninformative.
+    if (Math.abs(snap.best_ask - snap.best_bid) > MAX_TRUSTED_CLOB_SPREAD) return null;
     mid = (snap.best_bid + snap.best_ask) / 2;
   } else {
     mid = (snap.best_bid ?? snap.best_ask)!;

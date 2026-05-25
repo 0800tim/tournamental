@@ -4,6 +4,7 @@ import { loadDataPack } from "../src/data.js";
 import { bookToTick } from "../src/clob-snapshot.js";
 import {
   PolymarketGammaClient,
+  gammaEventToInternal,
   gammaMarketToInternal,
   parseStringifiedArray,
 } from "../src/sources/polymarket.js";
@@ -19,7 +20,7 @@ describe("parseStringifiedArray", () => {
   });
 });
 
-describe("gammaMarketToInternal — tournament winner", () => {
+describe("gammaMarketToInternal - tournament winner", () => {
   it("maps 'Will Argentina win the 2026 FIFA World Cup?' to wc2026:winner:ARG", () => {
     const raw = {
       conditionId: "0xdeadbeef",
@@ -45,7 +46,7 @@ describe("gammaMarketToInternal — tournament winner", () => {
   });
 });
 
-describe("gammaMarketToInternal — group winner", () => {
+describe("gammaMarketToInternal - group winner", () => {
   it("maps 'Will Brazil win Group C?' to wc2026:group:BRA", () => {
     const raw = {
       conditionId: "g-bra-c",
@@ -61,7 +62,7 @@ describe("gammaMarketToInternal — group winner", () => {
   });
 });
 
-describe("gammaMarketToInternal — match moneyline", () => {
+describe("gammaMarketToInternal - match moneyline", () => {
   it("maps a real fixture pair to wc2026:match:<n>", () => {
     // Match #1 in fixtures.json is MEX vs RSA.
     const raw = {
@@ -89,7 +90,7 @@ describe("gammaMarketToInternal — match moneyline", () => {
   });
 });
 
-describe("gammaMarketToInternal — top scorer", () => {
+describe("gammaMarketToInternal - top scorer", () => {
   it("classifies 'Top scorer' markets even without a player table", () => {
     const raw = {
       conditionId: "ts-1",
@@ -101,6 +102,89 @@ describe("gammaMarketToInternal — top scorer", () => {
     expect(out).not.toBeNull();
     expect(out!.market.kind).toBe("top_scorer");
     expect(out!.market.id.startsWith("wc2026:topscorer:")).toBe(true);
+  });
+});
+
+describe("gammaEventToInternal - per-match moneyline from nested children", () => {
+  it("de-vigs Mexico vs South Africa into home/draw/away ticks on wc2026:match:1", () => {
+    // Mirrors the live Polymarket event shape: three Yes/No child binaries.
+    const event = {
+      id: "ev-mex-rsa",
+      title: "Mexico vs. South Africa",
+      startDate: "2026-06-11T19:00:00Z",
+      closed: false,
+      volume24hr: 50000,
+      markets: [
+        {
+          question: "Will Mexico win on 2026-06-11?",
+          groupItemTitle: "Mexico",
+          outcomes: '["Yes","No"]',
+          outcomePrices: '["0.665","0.335"]',
+          clobTokenIds: '["mex-yes","mex-no"]',
+        },
+        {
+          question: "Will Mexico vs. South Africa end in a draw?",
+          groupItemTitle: "Draw (Mexico vs. South Africa)",
+          outcomes: '["Yes","No"]',
+          outcomePrices: '["0.215","0.785"]',
+          clobTokenIds: '["draw-yes","draw-no"]',
+        },
+        {
+          question: "Will South Africa win on 2026-06-11?",
+          groupItemTitle: "South Africa",
+          outcomes: '["Yes","No"]',
+          outcomePrices: '["0.125","0.875"]',
+          clobTokenIds: '["rsa-yes","rsa-no"]',
+        },
+      ],
+    };
+    const out = gammaEventToInternal(event, data, 1_700_000_000_000);
+    expect(out.length).toBe(1);
+    const { market, ticks } = out[0]!;
+    expect(market.id).toBe("wc2026:match:1");
+    expect(market.kind).toBe("match_moneyline");
+    expect(market.source).toBe("polymarket");
+    // Three de-vigged ticks summing to 1.
+    const map = new Map(ticks.map((t) => [t.outcome_label, t.implied_prob]));
+    expect(map.get("Mexico")).toBeCloseTo(0.665 / 1.005, 3);
+    expect(map.get("Draw")).toBeCloseTo(0.215 / 1.005, 3);
+    expect(map.get("South Africa")).toBeCloseTo(0.125 / 1.005, 3);
+    const sum = [...map.values()].reduce((a, b) => a + b, 0);
+    expect(sum).toBeCloseTo(1, 5);
+    // The home/away outcomes carry their Yes CLOB token for snapshotting.
+    expect(market.outcomes.find((o) => o.label === "Mexico")?.source_token_id).toBe("mex-yes");
+  });
+
+  it("maps a 'Group A Winner' event into one wc2026:group:<CODE> per team", () => {
+    const event = {
+      id: "ev-grp-a",
+      title: "FIFA World Cup Group A Winner",
+      markets: [
+        {
+          conditionId: "ga-mex",
+          question: "Will Mexico win Group A in the 2026 FIFA World Cup?",
+          groupItemTitle: "Mexico",
+          outcomes: '["Yes","No"]',
+          outcomePrices: '["0.52","0.48"]',
+          clobTokenIds: '["t1","t2"]',
+        },
+        {
+          conditionId: "ga-rsa",
+          question: "Will South Africa win Group A in the 2026 FIFA World Cup?",
+          groupItemTitle: "South Africa",
+          outcomes: '["Yes","No"]',
+          outcomePrices: '["0.0565","0.9435"]',
+          clobTokenIds: '["t3","t4"]',
+        },
+      ],
+    };
+    const out = gammaEventToInternal(event, data);
+    expect(out.length).toBe(2);
+    const mex = out.find((o) => o.market.id === "wc2026:group:MEX");
+    expect(mex).toBeDefined();
+    expect(mex!.market.kind).toBe("group_winner");
+    expect(mex!.ticks[0]!.outcome_label).toBe("Yes");
+    expect(mex!.ticks[0]!.implied_prob).toBeCloseTo(0.52, 5);
   });
 });
 
@@ -184,6 +268,19 @@ describe("bookToTick", () => {
         "x",
         "Yes",
         { token_id: "t", best_bid: null, best_ask: null, last_trade_price: null },
+        0,
+      ),
+    ).toBeNull();
+  });
+
+  it("rejects an illiquid wide-spread book so the Gamma price stands", () => {
+    // Far-out WC markets often show best_bid 0.01 / best_ask 0.99; the 0.50
+    // mid is meaningless and must not clobber the de-vigged Gamma value.
+    expect(
+      bookToTick(
+        "wc2026:match:1",
+        "Mexico",
+        { token_id: "t", best_bid: 0.01, best_ask: 0.99, last_trade_price: null },
         0,
       ),
     ).toBeNull();
