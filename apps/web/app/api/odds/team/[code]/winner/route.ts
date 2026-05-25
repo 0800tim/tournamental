@@ -23,7 +23,12 @@ export async function GET(_req: NextRequest, ctx: RouteContext): Promise<NextRes
   const { code } = ctx.params;
   if (!code) return NextResponse.json({ error: "team code required" }, { status: 400 });
   // skipStub: prevent the route from calling itself.
-  const result = await fetchTeamWinnerSummary({ teamCode: code, skipStub: true });
+  // Server-only upstream (see group route) so the browser stays same-origin.
+  const result = await fetchTeamWinnerSummary({
+    teamCode: code,
+    skipStub: true,
+    upstreamBaseUrl: process.env.ODDS_API_URL || undefined,
+  });
   if (!result.ok) {
     return NextResponse.json({ error: result.error }, { status: 502 });
   }
