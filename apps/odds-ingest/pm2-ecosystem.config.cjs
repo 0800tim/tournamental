@@ -13,10 +13,16 @@ module.exports = {
       node_args: ["--enable-source-maps"],
       env: {
         NODE_ENV: "production",
-        ODDS_INGEST_PORT: "3340",
-        ODDS_INGEST_BIND: "0.0.0.0",
+        ODDS_INGEST_PORT: "3341",
+        ODDS_INGEST_BIND: "127.0.0.1",
         ODDS_INGEST_DB_PATH: "./data/odds-ingest.sqlite",
         LOG_LEVEL: "info",
+        // Serve REAL Polymarket odds only: mock off, The Odds API off
+        // (no key), Polymarket on under the live WC2026 tag.
+        SOURCE_POLYMARKET_ENABLED: "true",
+        SOURCE_MOCK_ENABLED: "false",
+        SOURCE_THE_ODDS_API_ENABLED: "false",
+        POLYMARKET_TAG_SLUGS: "fifa-world-cup",
       },
       max_memory_restart: "512M",
       autorestart: true,
