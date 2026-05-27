@@ -377,7 +377,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const stageLabelFont = Math.round(16 * scale);
   const koCodeFont = Math.round(40 * scale);
   const koFlagFont = Math.round(34 * scale);
-  const championFont = Math.round(128 * scale);
+  const championFont = Math.round(148 * scale);
   const ballSize = Math.round(96 * scale);
 
   const dateline = `${args.tournament} · BRACKET · @${args.handle.toUpperCase()}`;
@@ -467,6 +467,28 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     lineHeight: 1.05,
                   },
                   children: "My World Cup 2026.",
+                },
+              },
+              // Dynamic subtitle: names the predicted champion so the
+              // share image telegraphs the call in a single glance
+              // even when the receiver only sees the top third of the
+              // image in their preview pane (Tim 2026-05-26).
+              {
+                type: "div",
+                props: {
+                  style: {
+                    fontFamily: "Fraunces",
+                    fontSize: Math.round(titleFont * 0.42),
+                    fontWeight: 500,
+                    fontStyle: "italic",
+                    letterSpacing: "0.01em",
+                    color: COLOUR_FG_MUTED,
+                    lineHeight: 1.2,
+                    marginTop: Math.round(2 * scale),
+                  },
+                  children: args.champion
+                    ? `${args.champion} to lift the trophy. 104 picks, locked.`
+                    : "48 teams. 104 picks. My gold path.",
                 },
               },
             ],
@@ -561,27 +583,50 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
           },
         },
 
-        // Footer
+        // Footer with a faint gold rule above to anchor it visually
+        // against the dense panels above (Tim 2026-05-26).
         {
           type: "div",
           props: {
             style: {
               display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              fontFamily: "DejaVuMono",
-              fontSize: Math.round(18 * scale),
-              color: COLOUR_FG_MUTED,
-              letterSpacing: "0.08em",
+              flexDirection: "column",
+              gap: Math.round(14 * scale),
               marginTop: Math.round(24 * scale),
             },
             children: [
-              "play.tournamental.com",
               {
                 type: "div",
                 props: {
-                  style: { color: COLOUR_GOLD, fontWeight: 700 },
-                  children: "BUILD YOURS →",
+                  style: {
+                    width: "100%",
+                    height: 1,
+                    background: COLOUR_BORDER,
+                  },
+                },
+              },
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    fontFamily: "DejaVuMono",
+                    fontSize: Math.round(18 * scale),
+                    color: COLOUR_FG_MUTED,
+                    letterSpacing: "0.08em",
+                  },
+                  children: [
+                    "play.tournamental.com",
+                    {
+                      type: "div",
+                      props: {
+                        style: { color: COLOUR_GOLD, fontWeight: 700 },
+                        children: "BUILD YOURS →",
+                      },
+                    },
+                  ],
                 },
               },
             ],
@@ -630,9 +675,10 @@ function renderGroupCard(args: {
   // engine handles `width: <pct>` by referencing the parent's content
   // box, so we shrink each cell to fit cols + (cols-1) gap segments.
   const gapAllowance = args.gap * (args.cols - 1);
-  // Small flag chips sized to the code-font cap height so the row
-  // reads as flag + 3-letter ABBR without wrapping.
-  const flagDiameter = Math.round(args.codeFont * 1.05);
+  // Small flag chips sized slightly larger than code-font cap height
+  // so the colour of each country reads at a glance even in the
+  // 12-card birdseye view (Tim 2026-05-26).
+  const flagDiameter = Math.round(args.codeFont * 1.18);
   return {
     type: "div",
     props: {
@@ -746,10 +792,38 @@ function renderKoLadder(args: {
   // portrait scale; the share card needs each opponent's flag legible
   // at a glance on a phone share preview.
   const circleSize = Math.round(132 * args.scale);
-  return stages.map((s) => {
+
+  // Render cells interleaved with thin gold chevron separators so the
+  // ladder reads left-to-right as a progression (Tim 2026-05-26).
+  // Earlier version used a per-cell "BEAT" caption — redundant on a
+  // share card where each row already implies progression.
+  const out: unknown[] = [];
+  stages.forEach((s, idx) => {
+    if (idx > 0) {
+      out.push({
+        type: "div",
+        props: {
+          style: {
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontFamily: "Fraunces",
+            fontSize: Math.round(56 * args.scale),
+            color: COLOUR_GOLD,
+            // Lift the chevron so it sits visually mid-circle, not
+            // mid-label-block.
+            marginTop: Math.round(args.stageLabelFont * 1.4),
+            fontWeight: 500,
+            flex: "0 0 auto",
+            opacity: 0.95,
+          },
+          children: "›",
+        },
+      });
+    }
     const opponent = args.koByStage.get(s.key) ?? "—";
     const flag = opponent === "—" ? null : args.flagsByCode.get(opponent) ?? null;
-    return {
+    out.push({
       type: "div",
       props: {
         style: {
@@ -766,9 +840,10 @@ function renderKoLadder(args: {
               style: {
                 fontFamily: "DejaVuMono",
                 fontSize: args.stageLabelFont,
-                color: COLOUR_FG_MUTED,
+                color: COLOUR_GOLD,
                 letterSpacing: "0.16em",
                 textTransform: "uppercase",
+                fontWeight: 700,
               },
               children: s.label,
             },
@@ -780,22 +855,11 @@ function renderKoLadder(args: {
             codeFont: args.codeFont,
             scrim: "rgba(0,0,0,0.55)",
           }),
-          {
-            type: "div",
-            props: {
-              style: {
-                fontFamily: "DejaVuMono",
-                fontSize: Math.round(args.stageLabelFont * 0.85),
-                color: COLOUR_GOLD_DEEP,
-                letterSpacing: "0.14em",
-              },
-              children: opponent === "—" ? "" : "BEAT",
-            },
-          },
         ],
       },
-    };
+    });
   });
+  return out;
 }
 
 /** A circular cell with the team's flag behind a dark scrim and the
@@ -882,6 +946,8 @@ function renderChampionPanel(args: {
 }): unknown {
   const champ = args.champion ?? "—";
   const flag = args.champion ? args.flagsByCode.get(args.champion) ?? null : null;
+  const runnerFlag = args.runnerUp ? args.flagsByCode.get(args.runnerUp) ?? null : null;
+  const thirdFlag = args.third ? args.flagsByCode.get(args.third) ?? null : null;
   const hasFlag = !!flag;
   const scrim =
     "linear-gradient(180deg, rgba(20,20,24,0.62), rgba(20,20,24,0.84))";
@@ -908,12 +974,22 @@ function renderChampionPanel(args: {
     outerBase.background = fallbackBg;
   }
 
+  const childArgs = {
+    runnerUp: args.runnerUp,
+    third: args.third,
+    font: args.font,
+    stageLabelFont: args.stageLabelFont,
+    scale: args.scale,
+    runnerFlag,
+    thirdFlag,
+  };
+
   if (!hasFlag) {
     return {
       type: "div",
       props: {
         style: outerBase,
-        children: championPanelChildren(args, champ),
+        children: championPanelChildren(childArgs, champ),
       },
     };
   }
@@ -932,12 +1008,12 @@ function renderChampionPanel(args: {
               alignItems: "center",
               justifyContent: "center",
               gap: Math.round(6 * args.scale),
-              padding: Math.round(22 * args.scale),
+              padding: Math.round(28 * args.scale),
               width: "100%",
               background: scrim,
               borderRadius: Math.round(14 * args.scale),
             },
-            children: championPanelChildren(args, champ),
+            children: championPanelChildren(childArgs, champ),
           },
         },
       ],
@@ -952,22 +1028,87 @@ function championPanelChildren(
     font: number;
     stageLabelFont: number;
     scale: number;
+    runnerFlag: string | null;
+    thirdFlag: string | null;
   },
   champ: string,
 ): unknown[] {
+  const podiumChipSize = Math.round(34 * args.scale);
+  function podiumChip(label: string, code: string | null, flag: string | null): unknown {
+    const has = !!flag;
+    const circle: Record<string, unknown> = {
+      display: "flex",
+      width: podiumChipSize,
+      height: podiumChipSize,
+      borderRadius: "50%",
+      border: `1px solid ${COLOUR_BORDER_STRONG}`,
+      overflow: "hidden",
+      flexShrink: 0,
+    };
+    if (has) {
+      circle.backgroundImage = `url("${flag}")`;
+      circle.backgroundSize = "cover";
+      circle.backgroundPosition = "center";
+    } else {
+      circle.background = "rgba(255,255,255,0.06)";
+    }
+    return {
+      type: "div",
+      props: {
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: Math.round(10 * args.scale),
+        },
+        children: [
+          {
+            type: "div",
+            props: {
+              style: {
+                fontFamily: "DejaVuMono",
+                fontSize: Math.round(args.stageLabelFont * 0.95),
+                color: COLOUR_GOLD,
+                letterSpacing: "0.16em",
+                fontWeight: 700,
+              },
+              children: label,
+            },
+          },
+          { type: "div", props: { style: circle, children: "" } },
+          {
+            type: "div",
+            props: {
+              style: {
+                fontFamily: "Fraunces",
+                fontSize: Math.round(args.stageLabelFont * 1.5),
+                color: COLOUR_FG_STRONG,
+                fontWeight: 700,
+                letterSpacing: "0.02em",
+              },
+              children: code ?? "—",
+            },
+          },
+        ],
+      },
+    };
+  }
+
   return [
     {
       type: "div",
       props: {
         style: {
           fontFamily: "DejaVuMono",
-          fontSize: args.stageLabelFont,
-          color: COLOUR_GOLD,
-          letterSpacing: "0.18em",
+          fontSize: Math.round(args.stageLabelFont * 1.15),
+          color: COLOUR_GOLD_BRIGHT,
+          letterSpacing: "0.24em",
           textTransform: "uppercase",
           fontWeight: 700,
+          marginBottom: Math.round(4 * args.scale),
+          textShadow:
+            "0 2px 6px rgba(0,0,0,0.75), 0 0 14px rgba(0,0,0,0.5)",
         },
-        children: "CHAMPION",
+        children: "WORLD CHAMPION",
       },
     },
     {
@@ -990,16 +1131,13 @@ function championPanelChildren(
       props: {
         style: {
           display: "flex",
-          gap: Math.round(16 * args.scale),
-          marginTop: Math.round(6 * args.scale),
-          fontFamily: "DejaVuMono",
-          fontSize: Math.round(args.stageLabelFont * 0.9),
-          color: COLOUR_FG_MUTED,
-          letterSpacing: "0.12em",
+          gap: Math.round(28 * args.scale),
+          marginTop: Math.round(14 * args.scale),
+          alignItems: "center",
         },
         children: [
-          `🥈 ${args.runnerUp ?? "—"}`,
-          `🥉 ${args.third ?? "—"}`,
+          podiumChip("SILVER", args.runnerUp, args.runnerFlag),
+          podiumChip("BRONZE", args.third, args.thirdFlag),
         ],
       },
     },
