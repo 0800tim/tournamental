@@ -1,5 +1,18 @@
 /**
- * PM2 process descriptor. Run from this directory:
+ * PM2 process descriptor for odds-ingest.
+ *
+ * Kept as a standalone ecosystem so the service can be brought up
+ * outside the full repo orchestrator (e.g. before any other vtorn
+ * service is wired). For day-to-day deploys, prefer
+ *   pnpm --filter @vtorn/cicd-tools run publish-all --env=production --apps=odds-ingest
+ * which uses the same slot pattern (.deploy/config.json) and the
+ * orchestrator's atomic swap (dist-staging -> dist-prod -> dist-prev).
+ *
+ * Script path is `dist-prod/index.js` to match the slot pattern;
+ * a `dist -> dist-prod` symlink is maintained as a back-compat
+ * fallback for any tooling that still expects `dist/`.
+ *
+ * Run from this directory:
  *   pm2 start pm2-ecosystem.config.cjs
  *   pm2 save
  */
@@ -8,7 +21,7 @@ module.exports = {
     {
       name: "odds-ingest",
       cwd: __dirname,
-      script: "dist/index.js",
+      script: "dist-prod/index.js",
       interpreter: "node",
       node_args: ["--enable-source-maps"],
       env: {

@@ -41,6 +41,14 @@ export interface PublishConfig {
   port: number;
   /** Smoke port (private). Default 3099 + offset. Must not clash with prod. */
   smokePort?: number;
+  /**
+   * Extra env vars to inject into the smoke server alongside the
+   * default { NODE_ENV, PORT, HOST }. Use for apps that read a custom
+   * port/bind env name (e.g. odds-ingest reads ODDS_INGEST_PORT
+   * instead of PORT). `${SMOKE_PORT}` is substituted with the chosen
+   * smoke port at runtime; bare strings pass through verbatim.
+   */
+  smokeEnv?: Record<string, string>;
   /** PM2 process name for the prod slot. */
   pm2Name: string;
   /** Environment: staging or production. */
@@ -190,10 +198,18 @@ export async function publish(config: PublishConfig): Promise<PublishResult> {
         return;
       }
       const ssc = smokeStartCommand({ kind: config.buildKind, appDir: config.appDir }, slots, smokePort);
+      // Merge the app's custom smokeEnv on top so apps that read a
+      // bespoke port var (ODDS_INGEST_PORT, etc.) get the smoke port
+      // wired. `${SMOKE_PORT}` template is the only placeholder we
+      // expand; everything else passes through verbatim.
+      const smokeEnv: Record<string, string> = { ...ssc.env };
+      for (const [k, v] of Object.entries(config.smokeEnv ?? {})) {
+        smokeEnv[k] = String(v).replace(/\$\{SMOKE_PORT\}/g, String(smokePort));
+      }
       smokeResult = await smoke({
         startCmd: ssc.cmd,
         cwd: config.appDir,
-        env: ssc.env,
+        env: smokeEnv,
         port: smokePort,
         asserts: config.smoke,
         log,

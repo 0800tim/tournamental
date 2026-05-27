@@ -10,9 +10,37 @@
  * for each kind of app we deploy.
  */
 
+import * as fs from 'node:fs';
 import * as path from 'node:path';
 
 export type BuildKind = 'next' | 'astro' | 'node' | 'fastify';
+
+/**
+ * Resolve the entry file basename for a node/fastify app.
+ *
+ * tsc lays the source tree out under `dist/` 1:1, so an entry at
+ * `src/server.ts` becomes `dist/server.js`. The orchestrator used to
+ * hard-code `index.js`, which broke `apps/game` (entry is `server.ts`).
+ * We now read `package.json#main` and take its basename as the source
+ * of truth -- the app already declares it for `pnpm start`.
+ *
+ * Falls back to `index.js` if `package.json` is missing the field or
+ * unreadable; that matches the historical behaviour for apps whose
+ * entry actually is `dist/index.js` (e.g. odds-ingest, auth-sms).
+ */
+function fastifyEntryBasename(appDir: string): string {
+  try {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(appDir, 'package.json'), 'utf8'),
+    ) as { main?: string };
+    if (typeof pkg.main === 'string' && pkg.main.length > 0) {
+      return path.basename(pkg.main);
+    }
+  } catch {
+    /* fall through */
+  }
+  return 'index.js';
+}
 
 export interface SlotPaths {
   /** Where the new build is written. Always rebuilt fresh per deploy. */
@@ -141,11 +169,13 @@ export function startCommand(
         env: { NODE_ENV: 'production', ASTRO_OUT_DIR: slots.prod },
       };
     case 'node':
-    case 'fastify':
+    case 'fastify': {
+      const entry = fastifyEntryBasename(spec.appDir);
       return {
-        cmd: `node --enable-source-maps ${slots.prod}/index.js`,
+        cmd: `node --enable-source-maps ${slots.prod}/${entry}`,
         env: { NODE_ENV: 'production' },
       };
+    }
   }
 }
 
@@ -170,10 +200,16 @@ export function smokeStartCommand(
         env: { NODE_ENV: 'production', ASTRO_OUT_DIR: slots.staging },
       };
     case 'node':
-    case 'fastify':
+    case 'fastify': {
+      const entry = fastifyEntryBasename(spec.appDir);
+      // PORT + HOST are the convention. Apps that read custom env var
+      // names (e.g. odds-ingest reads ODDS_INGEST_PORT) can declare
+      // them via .deploy/config.json `smokeEnv`, which the publish.ts
+      // orchestrator merges in on top of the defaults below.
       return {
-        cmd: `node --enable-source-maps ${slots.staging}/index.js`,
+        cmd: `node --enable-source-maps ${slots.staging}/${entry}`,
         env: { NODE_ENV: 'production', PORT: String(smokePort), HOST: '127.0.0.1' },
       };
+    }
   }
 }

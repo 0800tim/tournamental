@@ -137,7 +137,18 @@ module.exports = {
     fastifyAppTsx({ name: 'vtorn-game-prod', app: 'game', port: 3360, instances: 1 }),
     fastifyApp({ name: 'vtorn-auth-sms-prod', app: 'auth-sms', port: 3330 }),
     // fastifyApp({ name: 'vtorn-dm-otp-prod', app: 'dm-otp', port: 3331 }),
-    // fastifyApp({ name: 'vtorn-odds-ingest-prod', app: 'odds-ingest', port: 3341 }),
+    // odds-ingest matches the standalone pm2-ecosystem.config.cjs name
+    // ('odds-ingest', no vtorn- prefix) so `pm2 reload odds-ingest`
+    // hits the existing live process. .deploy/config.json pins this via
+    // pm2NameFromEnv so the orchestrator finds the same name. The
+    // service reads ODDS_INGEST_PORT (not PORT) — smokeEnv in the
+    // deploy config remaps the smoke port; the prod env_file declares
+    // the real one. Single instance: it's mostly a poll-loop on a
+    // SQLite cache.
+    Object.assign(
+      fastifyApp({ name: 'odds-ingest', app: 'odds-ingest', port: 3341 }),
+      { env: { NODE_ENV: 'production', ODDS_INGEST_PORT: '3341', ODDS_INGEST_BIND: '127.0.0.1' } },
+    ),
     // fastifyApp({ name: 'vtorn-stream-server-prod', app: 'stream-server', port: 4002, instances: 2 }),
     // fastifyApp({ name: 'vtorn-affiliate-router-prod', app: 'affiliate-router', port: 3370 }),
     // fastifyApp({ name: 'vtorn-vstamp-prod', app: 'vstamp', port: 3390 }),

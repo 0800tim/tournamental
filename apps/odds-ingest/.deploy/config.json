@@ -1,0 +1,26 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "fastify",
+  "port": 3341,
+  "smokePort": 3094,
+  "healthzPath": "/healthz",
+  "smoke": [
+    { "url": "/healthz", "label": "health", "maxMs": 500 }
+  ],
+  "cacheWarm": [
+    "/healthz"
+  ],
+  "warmBase": "https://odds.tournamental.com",
+  "pm2NameFromEnv": {
+    "staging": "odds-ingest",
+    "production": "odds-ingest"
+  },
+  "smokeEnv": {
+    "ODDS_INGEST_PORT": "${SMOKE_PORT}",
+    "ODDS_INGEST_BIND": "127.0.0.1",
+    "ODDS_INGEST_DB_PATH": "./data/odds-ingest.sqlite",
+    "SOURCE_POLYMARKET_ENABLED": "false",
+    "SOURCE_MOCK_ENABLED": "false",
+    "SOURCE_THE_ODDS_API_ENABLED": "false"
+  }
+}

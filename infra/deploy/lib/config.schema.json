@@ -56,6 +56,11 @@
         "production": { "type": "string" }
       },
       "description": "Optional explicit pm2 names per env. Defaults to vtorn-<app>-<staging|prod>."
+    },
+    "smokeEnv": {
+      "type": "object",
+      "additionalProperties": { "type": "string" },
+      "description": "Extra env vars for the smoke server. Use ${SMOKE_PORT} as a placeholder for the chosen smoke port. Example: { \"ODDS_INGEST_PORT\": \"${SMOKE_PORT}\", \"ODDS_INGEST_BIND\": \"127.0.0.1\" }."
     }
   }
 }
