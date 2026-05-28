@@ -17,7 +17,7 @@ const SESSION_COOKIE = process.env.NODE_ENV === "production" ? "__Host-admin" : 
 const PUBLIC_PATHS = [
   "/login",
   "/api/auth/request",
-  "/api/auth/callback",
+  "/api/auth/verify",
   "/api/auth/logout",
   "/_next",
   "/favicon.ico",

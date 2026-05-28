@@ -107,47 +107,11 @@ export function can(role: Role | undefined, perm: Permission): boolean {
   return MATRIX[role]?.has(perm) ?? false;
 }
 
-/**
- * Parse `ADMIN_ROLES` env var: "a@b.com:mod,c@d.com:super-admin".
- * Unknown roles are dropped silently (default-deny).
- */
-export function parseRoleMap(raw: string | undefined): Map<string, Role> {
-  const map = new Map<string, Role>();
-  if (!raw) return map;
-  for (const entry of raw.split(",")) {
-    const [email, role] = entry.split(":").map((s) => s.trim().toLowerCase());
-    if (!email || !role) continue;
-    if (role === "super-admin" || role === "mod" || role === "viewer") {
-      map.set(email, role);
-    }
-  }
-  return map;
-}
-
-/**
- * Resolve a role for an email. Always falls back to "viewer" when the
- * email is in the admin allowlist but unmapped, and undefined otherwise.
- */
-export function roleFor(
-  email: string,
-  allowlist: ReadonlySet<string>,
-  roleMap: ReadonlyMap<string, Role>,
-): Role | undefined {
-  const k = email.trim().toLowerCase();
-  if (!allowlist.has(k)) return undefined;
-  return roleMap.get(k) ?? "viewer";
-}
-
-/**
- * Build the admin email allowlist from env. Empty allowlist means
- * the dashboard is locked — no one can log in.
- */
-export function parseAllowlist(raw: string | undefined): Set<string> {
-  if (!raw) return new Set();
-  return new Set(
-    raw
-      .split(",")
-      .map((s) => s.trim().toLowerCase())
-      .filter(Boolean),
-  );
-}
+// Note: the previous email allowlist + role-map helpers
+// (parseAllowlist / parseRoleMap / roleFor) were removed when the admin
+// gate moved from magic-link sign-in to WhatsApp-OTP step-up. The new
+// allowlist is `ADMIN_ALLOWED_USER_IDS` and is consumed directly by
+// `lib/auth.ts::getAllowedUserIds`. For now every authed admin operates
+// at "super-admin"; the role matrix above is kept intact so we can
+// reintroduce multi-tier RBAC by mapping userIds → roles in a single
+// helper later.

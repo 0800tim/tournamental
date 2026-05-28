@@ -1,13 +1,25 @@
+/**
+ * POST /api/auth/request — kick off a WhatsApp OTP for the admin gate.
+ *
+ * Body: (none). The phone is hardcoded server-side via `ADMIN_PHONE_E164`
+ * so an attacker who clears Cloudflare Access still can't direct OTPs
+ * to a number they control.
+ *
+ * Forwards to `apps/auth-sms` `/v1/auth/request` with
+ * `{ phone, channel: "whatsapp" }`. The browser only ever sees an
+ * opaque `{ ok }` response — no confirmation of which number was used.
+ *
+ * Rate limiting: auth-sms already enforces per-phone cooldown +
+ * hourly cap; we add a per-IP burst guard so a buggy form auto-submitter
+ * can't waste OTP budget.
+ */
+
 import { NextResponse, type NextRequest } from "next/server";
-import { createMagicLink, isLoginEnabled } from "@/lib/auth";
-import { sendMagicLink } from "@/lib/mailer";
+import { getAdminPhone, getAuthSmsBase, isLoginEnabled } from "@/lib/auth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-// In-memory throttle. Per-IP, 5 requests / 60 seconds. Light defence;
-// the real rate limiter is at the Cloudflare edge, but we still want a
-// bound on accidental spam from a buggy form auto-submitter.
 const RATE: Map<string, number[]> = new Map();
 const WINDOW_MS = 60_000;
 const MAX_PER_WINDOW = 5;
@@ -21,40 +33,46 @@ function rateLimited(key: string): boolean {
   return false;
 }
 
+function clientIp(req: NextRequest): string {
+  return (
+    req.headers.get("cf-connecting-ip") ??
+    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
+    "unknown"
+  );
+}
+
 export async function POST(req: NextRequest) {
-  // Defence-in-depth: shut the door if the dashboard is locked.
   if (!isLoginEnabled()) {
     return NextResponse.json({ error: "login_disabled" }, { status: 503 });
   }
-
-  const ip = req.headers.get("cf-connecting-ip")
-    ?? req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
-    ?? "unknown";
-  if (rateLimited(`ip:${ip}`)) {
+  if (rateLimited(`ip:${clientIp(req)}`)) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
-  let body: { email?: string; next?: string };
+  const phone = getAdminPhone();
+  if (!phone) {
+    return NextResponse.json({ error: "login_disabled" }, { status: 503 });
+  }
+
+  const url = `${getAuthSmsBase()}/v1/auth/request`;
+  let upstream: Response;
   try {
-    body = await req.json();
+    upstream = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ phone, channel: "whatsapp" }),
+      cache: "no-store",
+    });
   } catch {
-    return NextResponse.json({ error: "bad_json" }, { status: 400 });
-  }
-  const email = String(body.email ?? "").trim().toLowerCase();
-  if (!email || !/.+@.+\..+/.test(email)) {
-    return NextResponse.json({ error: "bad_email" }, { status: 400 });
+    return NextResponse.json({ error: "upstream_unreachable" }, { status: 502 });
   }
 
-  // Always pretend success to defeat enumeration. createMagicLink returns
-  // null when the email isn't on the allowlist; we still respond 200.
-  const link = await createMagicLink(email);
-  if (link) {
-    const r = await sendMagicLink({ to: email, url: link.url, expiresAt: link.expiresAt });
-    if (!r.ok) {
-      // eslint-disable-next-line no-console
-      console.error("[admin/auth] mailer error:", r.error);
-    }
+  if (!upstream.ok) {
+    return NextResponse.json(
+      { error: "upstream_error", status: upstream.status },
+      { status: upstream.status === 429 ? 429 : 502 },
+    );
   }
 
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, channel: "whatsapp" });
 }

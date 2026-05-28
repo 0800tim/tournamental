@@ -4,7 +4,8 @@ import LoginPage from "@/app/login/page";
 
 describe("LoginPage", () => {
   beforeEach(() => {
-    process.env.ADMIN_EMAILS = "";
+    process.env.ADMIN_PHONE_E164 = "";
+    process.env.ADMIN_ALLOWED_USER_IDS = "";
   });
 
   it("renders the brand heading", () => {
@@ -12,26 +13,21 @@ describe("LoginPage", () => {
     expect(screen.getByText("Tournamental Admin")).toBeInTheDocument();
   });
 
-  it("warns when login is disabled (empty ADMIN_EMAILS)", () => {
-    process.env.ADMIN_EMAILS = "";
+  it("warns when login is disabled (no phone / allowlist)", () => {
     render(<LoginPage searchParams={{}} />);
     expect(screen.getByRole("alert")).toHaveTextContent(/login is disabled/i);
   });
 
-  it("does not warn when ADMIN_EMAILS is set", () => {
-    process.env.ADMIN_EMAILS = "tim@tournamental.com";
+  it("does not warn when both phone and allowlist are set", () => {
+    process.env.ADMIN_PHONE_E164 = "+6421535832";
+    process.env.ADMIN_ALLOWED_USER_IDS = "u_test_tim";
     render(<LoginPage searchParams={{}} />);
     expect(screen.queryByRole("alert")).toBeNull();
   });
 
-  it("shows a sent confirmation when sent=1", () => {
-    process.env.ADMIN_EMAILS = "tim@tournamental.com";
-    render(<LoginPage searchParams={{ sent: "1" }} />);
-    expect(screen.getByRole("status")).toHaveTextContent(/sign-in link/i);
-  });
-
-  it("shows error for expired link", () => {
-    process.env.ADMIN_EMAILS = "tim@tournamental.com";
+  it("shows error for expired session", () => {
+    process.env.ADMIN_PHONE_E164 = "+6421535832";
+    process.env.ADMIN_ALLOWED_USER_IDS = "u_test_tim";
     render(<LoginPage searchParams={{ error: "expired" }} />);
     expect(screen.getByRole("alert")).toHaveTextContent(/expired/i);
   });

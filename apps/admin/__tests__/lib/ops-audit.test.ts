@@ -57,6 +57,7 @@ describe("ops audit-log integration", () => {
     );
     await audit.writeAudit(
       {
+        userId: "u_test_tim",
         email: "tim@tournamental.com",
         role: "super-admin",
         iat: 0,
