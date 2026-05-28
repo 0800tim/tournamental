@@ -254,6 +254,93 @@ preview. Send all 5 DMs by EOD.
 
 ---
 
+## Playbook D2: Football clubs (non-commercial, member fun)
+
+**One sentence:** Every NZ football club from your son's primary
+school team through to senior Northern League sides loves the WC
+already; offer them a free, branded "bragging rights" pool with
+zero ask back from the platform.
+
+**Why it works in this window:** Football clubs are the WARMEST
+possible audience for a WC prediction game. Their members are
+already going to watch the matches; you're just giving them a
+shared scoreboard to argue over at training. Zero consulting
+angle here — this is non-commercial outreach, deliberately. The
+reason it's still worth your time is that **every football club
+member is one degree from an office sweepstake user** (their
+workplaces are exactly the brands Playbook A targets), so they
+become an organic distribution layer that doesn't need you cold-
+emailing the office.
+
+**Target list (built by parallel sub-agent, see
+`tools/outreach-lists/nz-football-clubs.md`):**
+- Senior amateur clubs across NZ Football's 6 federations
+  (Northern, WaiBOP, Central, Capital, Mainland, Southern).
+- School-level: every NZ secondary school football programme
+  (NZSS Football directory + College Sport regional bodies).
+- University football clubs (Auckland AFC, Vic Uni, Canterbury,
+  Otago, Massey, AUT, Waikato).
+- Country-specific fan communities (Brazilian / Argentine /
+  English / Croatian / Serbian / Greek expat communities — each
+  organises watch parties).
+
+**Pitch (email to club secretary, deliberately casual):**
+
+> Subject: free WC2026 prediction pool for [Club Name] members
+>
+> Hi [first name],
+>
+> Built a free WC2026 prediction game and wanted to offer your
+> club a pool. Members tap a link, make their picks for all 104
+> matches, see a live leaderboard for the tournament. Bragging
+> rights only — no money involved, no entry fee, no app to
+> download, free forever.
+>
+> I'd just set up "[Club Name] WC2026" with your club crest, then
+> you'd share the link in your usual member comms (FB group,
+> WhatsApp, email newsletter — whatever you use).
+>
+> Want me to spin it up? Just say yes and I'll send the link
+> within an hour.
+>
+> Tim
+> (just a football fan in Auckland who built this for fun)
+
+**Note the voice shift:** signature deliberately does NOT mention
+Growth Spurt. This is the one playbook where the consulting frame
+would feel wrong — club secretaries are volunteers and will
+recoil from anything that smells like a sales pitch.
+
+**The asset:**
+- One per club: branded pool with their crest (find on club's
+  website or FB), club name, entry fee = 0, prize = "bragging
+  rights & a virtual trophy in the WhatsApp group."
+- Loom screencast OPTIONAL for football clubs (most won't watch);
+  the email is short enough to land without it.
+
+**Effort / output:** ~3 min per send (template). Reply rate
+likely 25%+ because the pain is real and the ask is zero.
+Average club: 80-300 members. **100 club sends → ~25 clubs running
+→ ~2,000-7,500 new players** (and crucially, each of those players
+is in an office somewhere that becomes a Playbook A target).
+
+**Today's first action:** Wait for the sub-agent's NZ football
+club list to land (running in background). Once it's there, send
+the first 10 emails to the largest Auckland metro clubs by EOD.
+
+**Sub-list to target FIRST (Tim's personal angle):**
+- Tim's son's school football team (whichever school). This is
+  the highest-conversion send of all because Tim writes it
+  personally and the recipient already knows him.
+- Whatever club Tim or family members already play at.
+
+These first 2-3 personally-sent invites should go BEFORE the
+mass cold-send, because the testimonials you get back ("set it
+up for our U13s in 5 minutes, kids loved it") become the social
+proof that makes the cold sends 3x more effective.
+
+---
+
 ## Playbook D: Social clubs + rugby clubs as host network
 
 **One sentence:** Every rugby/football club, RSA, Lions, and Rotary
@@ -407,6 +494,108 @@ in this list.**
 pitches by EOD.
 
 ---
+
+---
+
+## Playbook F2: Corporate "social club" leaders on LinkedIn
+
+**One sentence:** Every large NZ corporate has an informal "social
+club" or "fun committee" run by 1-3 enthusiastic staff members
+who plan office events; LinkedIn DM them directly because they
+have the warmest ground-floor mandate to launch internal pools
+without HR / marketing sign-off.
+
+**Why it works in this window:** Going to a CMO or comms director
+at a big company means a procurement process, a vendor onboarding,
+a legal review. Going to **Jenny in Accounts who runs the social
+club** means a one-line "yes that's fun, send me the link" reply
+the same day. The social club leader has soft authority over
+employee-engagement initiatives and routinely launches things like
+this with zero internal approval.
+
+**Why it's distinct from Playbook A:** Playbook A targets People
+& Culture / EAs / Office Managers as the BUYER. Playbook F2
+targets the **employee-side enthusiast** who already runs the
+office quiz, organises Christmas drinks, and would run a WC
+sweepstake regardless of whether the company sanctions it. Lower
+barrier, higher reply rate, slightly smaller per-pool size (just
+the social-club distribution list, not the full staff list).
+
+**Target list (LinkedIn Sales Navigator, 30 min):**
+
+LinkedIn filter:
+- NZ
+- Companies: 500+ employees (where social clubs are formal enough
+  to have a leader)
+- Title keywords: "social club", "fun committee", "employee
+  experience", "culture lead", "wellbeing committee"
+- OR: "Chair, [Company] Social Club" / "President, [Company]
+  Sports Club" / "Sports Captain"
+- Comms / Communications Coordinator at a 500+ company often
+  doubles as the social club organiser too — bonus target.
+
+Companies to seed the search with (big NZ employers with active
+internal social culture):
+- Banks: ASB, ANZ, BNZ, Westpac, Kiwibank, Heartland
+- Insurance: IAG, Tower, AA, Vero
+- Telco: Spark, One NZ, 2degrees
+- Retail: Foodstuffs, Woolworths NZ, The Warehouse, Briscoe, Mitre 10
+- Construction: Fletcher, Downer NZ, Naylor Love, Hawkins
+- Logistics: NZ Post, Mainfreight, Move Logistics
+- Utilities: Watercare, Auckland Transport, Vector, Genesis,
+  Contact, Mercury
+- Tech: Xero, Pushpay, IRD (gov but huge), Datacom
+- Hospo / Tourism: Air NZ, SkyCity, Tourism NZ
+- Universities: AUT, Auckland Uni, Vic, Canterbury, Otago staff
+  social clubs
+
+100-150 targets is realistic in a 30-min Sales Nav session.
+
+**Pitch (LinkedIn DM, deliberately short and casual):**
+
+> Hi [first name],
+>
+> Saw you run the [Company Name] social club. I built a free
+> WC2026 prediction pool you could launch for your members in
+> 5 minutes — no app, no money, just a leaderboard for bragging
+> rights. Members tap a link, pick all 104 matches, see who's
+> winning after each match.
+>
+> Happy to pre-brand a "[Company] WC2026" pool with your colours +
+> logo so you can preview before deciding. Want me to send the
+> preview?
+>
+> Tim
+> (free side project, no upsell — play.tournamental.com)
+
+**Note:** This pitch deliberately downplays Growth Spurt because
+the recipient is an employee acting on their own initiative, not
+a buyer with a budget. They want a fun thing for their colleagues,
+not a vendor relationship. The consulting funnel still works —
+after they launch and tell their manager "look at this thing the
+Tournamental guy built for us," the manager is the one who
+reaches out about a real engagement.
+
+**The asset:**
+- Pre-branded preview pool (same as Playbook A asset, but
+  branded to the company colours / wordmark — pull from their
+  website in 30 seconds).
+- 30-sec cut of the VSL (Playbook G), inlined as a LinkedIn video
+  post in the DM. **LinkedIn DMs with native video preview get
+  ~3x reply rate.**
+
+**Effort / output:** ~4 min per DM (find them on Sales Nav, click
+through to profile, send personalised DM with preview link).
+150 DMs = ~10 hours over a week. Reply rate likely 15-25% (much
+higher than C because no procurement process). Average pool: ~50
+social-club members. **150 DMs → 25 pools → ~1,250 players,
+plus 5-10 indirect manager-level conversations from the
+"look-what-they-built" effect that ARE consulting leads.**
+
+**Today's first action:** Run the Sales Nav search. Send first
+10 DMs by EOD. Hand-pick the first 10 from companies where you
+already know someone at any level — adds a "mentioned by mutual
+connection" line to the opener that lifts reply rate further.
 
 ---
 

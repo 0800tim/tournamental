@@ -85,6 +85,15 @@ export function buildGhlContactPayload(row: SyndicateRow): {
         { key: "syndicate_role", field_value: "owner" },
         { key: "syndicate_tournament", field_value: row.tournament_id },
         { key: "vtourn_pool_ids", field_value: row.slug },
+        // pool_created_at drives the Playbook H workflow in HL: 7 days
+        // after this field is set on a contact, send the "how's it
+        // going + consulting opener" email. ISO date string (HL DATE
+        // type accepts ISO 8601). Tim 2026-05-28, see
+        // docs/64-highlevel-playbook-h-setup.md.
+        {
+          key: "pool_created_at",
+          field_value: new Date(row.created_at).toISOString(),
+        },
       ],
     },
     tags,
