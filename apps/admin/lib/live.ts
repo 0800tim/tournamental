@@ -372,25 +372,40 @@ export function liveSyndicate(slug: string):
     .get(slug) as SyndicateDbRow | undefined;
   if (!r) return null;
 
-  const members = gdb
+  const rawMembers = gdb
     .prepare(
-      `SELECT m.user_id AS id, COALESCE(u.display_name, u.id) AS handle, b.score_total AS rank
+      `SELECT m.user_id AS id, b.score_total AS rank
        FROM syndicate_members m
-       LEFT JOIN users u ON u.id = m.user_id
        LEFT JOIN brackets b ON b.user_id = m.user_id AND b.tournament_id = ?
        WHERE m.syndicate_id = ?
        ORDER BY m.joined_at ASC
        LIMIT 100`,
     )
-    .all(r.tournament_id, r.id) as { id: string; handle: string; rank: number | null }[];
+    .all(r.tournament_id, r.id) as { id: string; rank: number | null }[];
+
+  // Look up display names in auth.db (cross-DB join not possible from
+  // a single read-only sqlite open, so we batch on the admin app side).
+  const adb = authDb();
+  const handles = new Map<string, string>();
+  if (adb && rawMembers.length > 0) {
+    const placeholders = rawMembers.map(() => "?").join(",");
+    const rows = adb
+      .prepare(
+        `SELECT id, display_name FROM user WHERE id IN (${placeholders})`,
+      )
+      .all(...rawMembers.map((m) => m.id)) as { id: string; display_name: string | null }[];
+    for (const row of rows) {
+      handles.set(row.id, row.display_name ?? row.id.slice(0, 8));
+    }
+  }
 
   return {
     ...mapSyndicateRow(r),
     owner_email: r.owner_email,
     owner_phone: r.owner_phone,
-    members_list: members.map((m) => ({
+    members_list: rawMembers.map((m) => ({
       id: m.id,
-      handle: m.handle ?? m.id.slice(0, 8),
+      handle: handles.get(m.id) ?? m.id.slice(0, 8),
       rank: m.rank ?? 0,
     })),
   };
@@ -429,6 +444,42 @@ export function liveApiKeys(): { rows: ApiKeyRow[] } | null {
       revoked: r.revoked_at !== null,
     })),
   };
+}
+
+// ---------------- audit log --------------------------------------------
+
+import { existsSync as _existsSync, readFileSync as _readFileSync } from "node:fs";
+import { resolve as _resolve } from "node:path";
+
+interface AuditEntryLive {
+  id: string;
+  ts: string;
+  actor: string;
+  action: string;
+  target: string;
+  before?: unknown;
+  after?: unknown;
+}
+
+export function liveAuditLog(): { rows: AuditEntryLive[] } | null {
+  const p =
+    process.env.ADMIN_AUDIT_LOG_PATH ??
+    _resolve(process.cwd(), ".admin-audit.jsonl");
+  if (!_existsSync(p)) return { rows: [] };
+  const raw = _readFileSync(p, "utf-8");
+  const rows: AuditEntryLive[] = [];
+  for (const line of raw.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      rows.push(JSON.parse(trimmed) as AuditEntryLive);
+    } catch {
+      // Skip malformed line — the rest of the file is still useful.
+    }
+  }
+  // Newest first; cap to last 500.
+  rows.reverse();
+  return { rows: rows.slice(0, 500) };
 }
 
 // ---------------- tournaments ------------------------------------------

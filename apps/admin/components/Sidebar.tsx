@@ -26,6 +26,7 @@ const ITEMS: {
   { href: "/feature-flags", label: "Feature flags", group: "system" },
   { href: "/api-keys", label: "API keys", group: "system", minRole: "super-admin" },
   { href: "/audit-log", label: "Audit log", group: "system" },
+  { href: "/system", label: "System health", group: "system" },
   { href: "/settings", label: "Settings", group: "system", minRole: "super-admin" },
 ];
 

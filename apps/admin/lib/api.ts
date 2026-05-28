@@ -250,10 +250,11 @@ export const Api = {
     L.liveApiKeys() ??
     (await get<{ rows: ApiKeyRow[] }>(s, "/v1/admin/api-keys", M.mockApiKeys())),
 
-  auditLog: (s: AdminSession, from = "", to = "") =>
-    get<{ rows: AuditEntry[] }>(
+  auditLog: async (s: AdminSession, from = "", to = "") =>
+    L.liveAuditLog() ??
+    (await get<{ rows: AuditEntry[] }>(
       s,
       `/v1/admin/audit-log?from=${from}&to=${to}`,
       M.mockAuditLog(),
-    ),
+    )),
 };
