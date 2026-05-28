@@ -273,16 +273,29 @@ become an organic distribution layer that doesn't need you cold-
 emailing the office.
 
 **Target list (built by parallel sub-agent, see
-`tools/outreach-lists/nz-football-clubs.md`):**
-- Senior amateur clubs across NZ Football's 6 federations
-  (Northern, WaiBOP, Central, Capital, Mainland, Southern).
-- School-level: every NZ secondary school football programme
-  (NZSS Football directory + College Sport regional bodies).
-- University football clubs (Auckland AFC, Vic Uni, Canterbury,
-  Otago, Massey, AUT, Waikato).
-- Country-specific fan communities (Brazilian / Argentine /
-  English / Croatian / Serbian / Greek expat communities — each
-  organises watch parties).
+`tools/outreach-lists/nz-football-clubs.md` — 260 rows + 7
+federation contacts at the top):**
+
+The list is deliberately ordered to make the federation-first
+play obvious. **Send to the 7 federations FIRST, before any
+individual club.** One email to each = ~250 clubs reached via
+their existing forward chains:
+
+| Send order | Tier | Contacts |
+|---|---|---|
+| **1** | NZ Football (national governing body) | 1 |
+| **2** | 6 regional federations (Northern, WaiBOP, Central, Capital, Mainland, Southern) | 6 |
+| 3 | Top 25 senior clubs in Auckland metro (largest membership = fastest visible leaderboards) | 25 |
+| 4 | NZSS Football + 4 regional College Sport bodies (Auckland / Wellington / Canterbury / Waikato) | 5 |
+| 5 | University football clubs (UoA, AUT, Waikato, Massey, Vic, Canterbury, Otago + 1) | 8 |
+| 6 | Cultural / supporter groups (Greek, Croatian, Serbian, fan trusts) | 12 |
+| 7 | Long-tail senior clubs across all 6 federations | ~140 |
+
+**Why federation-first matters in this window:** one federation
+forward to its affiliated club secretaries reaches 30-50 clubs
+in one hop. Doing this BEFORE the individual sends means by the
+time the individual sends land, the secretary has already heard
+of you from their federation — much higher reply rate.
 
 **Pitch (email to club secretary, deliberately casual):**
 
@@ -324,9 +337,12 @@ Average club: 80-300 members. **100 club sends → ~25 clubs running
 → ~2,000-7,500 new players** (and crucially, each of those players
 is in an office somewhere that becomes a Playbook A target).
 
-**Today's first action:** Wait for the sub-agent's NZ football
-club list to land (running in background). Once it's there, send
-the first 10 emails to the largest Auckland metro clubs by EOD.
+**Today's first action:** send the 7 federation emails (NZF +
+the 6 regionals — all 7 addresses in the outreach list file).
+That's the highest single-day-impact move on the entire 14-day
+calendar. Send Tim's son's school + any clubs Tim plays at as
+the first two personal sends (those generate testimonials that
+make every subsequent cold send 3x more effective).
 
 **Sub-list to target FIRST (Tim's personal angle):**
 - Tim's son's school football team (whichever school). This is
@@ -338,6 +354,17 @@ These first 2-3 personally-sent invites should go BEFORE the
 mass cold-send, because the testimonials you get back ("set it
 up for our U13s in 5 minutes, kids loved it") become the social
 proof that makes the cold sends 3x more effective.
+
+**International extension (running 2026-05-28):** the same
+federation-first pattern works for every football culture. Parallel
+sub-agents are building federation + club lists for UK, Brazil,
+Portugal, Spain, Argentina, Mexico, Germany, Italy, France, the
+Netherlands, plus a Tier 0 master list of ~90 national + 6
+confederation FAs at `tools/outreach-lists/global-football-
+federations.md`. **Each country's regional federations are listed
+first in its file** for the same reason: one email = whole-country
+reach. The pitch template translates 1:1 — Tournamental is
+multilingual, so the only edit per country is the language.
 
 ---
 

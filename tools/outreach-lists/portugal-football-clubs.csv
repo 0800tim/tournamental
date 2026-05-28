@@ -1,0 +1,160 @@
+name,tier,region,website,best_contact_email,best_contact_role,why_target,notes
+Associação de Futebol do Algarve,AF Algarve,Faro,https://afalgarve.fpf.pt/,geral@afalgarve.pt,Secretaria-Geral,Governs all amateur football in Algarve - fans out to ~60 affiliated clubs; tourist-region fan base loves a free prediction pool,FPF subdomain; main number +351 289 803 690
+Associação de Futebol de Aveiro,AF Aveiro,Aveiro,https://afaveiro.fpf.pt/,geral@afaveiro.pt,Secretaria-Geral,Industrial-coast district with ~150 affiliated clubs and big youth pyramid; ideal multiplier,Email pattern geral@af<region>.pt; +351 234 422 222
+Associação de Futebol de Beja,AF Beja,Beja,https://afbeja.fpf.pt/,geral@afbeja.pt,Secretaria-Geral,Alentejo south - smaller pyramid (~30 clubs) but tight-knit; AF Beja regularly broadcasts initiatives,FPF subdomain
+Associação de Futebol de Braga,AF Braga,Braga,https://afbraga.pt/,geral@afbraga.pt,Secretaria-Geral,One of the four biggest district FAs (>200 clubs) - Minho is a football hotbed,Own domain; +351 253 200 530
+Associação de Futebol de Bragança,AF Bragança,Bragança,https://afbraganca.fpf.pt/,geral@afbraganca.pt,Secretaria-Geral,Rural Trás-os-Montes - ~25 clubs but high diaspora ties (France/Switzerland Portuguese),FPF subdomain
+Associação de Futebol de Castelo Branco,AF Castelo Branco,Castelo Branco,https://afcastelobranco.fpf.pt/,geral@afcastelobranco.pt,Secretaria-Geral,Interior-centre with ~40 clubs; AFCB very active on Facebook,Facebook /AFCasteloBranco
+Associação de Futebol de Coimbra,AF Coimbra,Coimbra,https://afcoimbra.fpf.pt/,geral@afcoimbra.pt,Secretaria-Geral,~120 affiliated clubs; Coimbra is also a major university town - double-leverage,FPF subdomain
+Associação de Futebol de Évora,AF Évora,Évora,https://afevora.fpf.pt/,geral@afevora.pt,Secretaria-Geral,Central Alentejo - ~35 clubs; cultural heritage region with strong amateur base,FPF subdomain
+Associação de Futebol da Guarda,AF Guarda,Guarda,https://afguarda.fpf.pt/,geral@afguarda.pt,Secretaria-Geral,Highland district ~30 clubs - large diaspora footprint in Luxembourg/France,FPF subdomain
+Associação de Futebol de Leiria,AF Leiria,Leiria,https://afleiria.pt/,geral@afleiria.pt,Secretaria-Geral,~110 affiliated clubs; AF Leiria runs an active comms team and a strong distrital championship,Own domain
+Associação de Futebol de Lisboa,AF Lisboa,Lisboa,https://afl.pt/,direcao@afl.pt,Direcção,Largest district FA with 400+ affiliated clubs; single highest-leverage email in the country,Own domain; comms@ also available; +351 213 224 870
+Associação de Futebol de Portalegre,AF Portalegre,Portalegre,https://afportalegre.fpf.pt/,geral@afportalegre.pt,Secretaria-Geral,Smallest mainland AF (~25 clubs) but a key border-region multiplier,FPF subdomain
+Associação de Futebol do Porto,AF Porto,Porto,https://afporto.pt/,geral@afporto.pt,Secretaria-Geral,Second-largest AF after Lisboa - ~250 affiliated clubs; the most important multiplier outside the capital,Own domain; +351 226 056 700
+Associação de Futebol de Santarém,AF Santarém,Santarém,https://afsantarem.fpf.pt/,geral@afsantarem.pt,Secretaria-Geral,Ribatejo - ~90 clubs and strong youth structure,FPF subdomain
+Associação de Futebol de Setúbal,AF Setúbal,Setúbal,https://afsetubal.pt/,geral@afsetubal.pt,Secretaria-Geral,~120 affiliated clubs; sister-bay to AFL with big working-class fan base,Own domain
+Associação de Futebol de Viana do Castelo,AF Viana do Castelo,Viana do Castelo,https://afviana.fpf.pt/,geral@afviana.pt,Secretaria-Geral,Minho coastal district - ~40 clubs; emigrants/cousins worldwide,FPF subdomain
+Associação de Futebol de Vila Real,AF Vila Real,Vila Real,https://afvilareal.fpf.pt/,geral@afvilareal.pt,Secretaria-Geral,Trás-os-Montes - ~35 clubs; gateway to interior-north,FPF subdomain
+Associação de Futebol de Viseu,AF Viseu,Viseu,https://afviseu.fpf.pt/,geral@afviseu.pt,Secretaria-Geral,~90 affiliated clubs in Dão/Lafões region - very active distrital championship,FPF subdomain
+Associação de Futebol da Madeira,AF Madeira,Funchal (Madeira),https://afmadeira.fpf.pt/,geral@afmadeira.pt,Secretaria-Geral,Island federation - tight community around Marítimo/Nacional/Camacha; high social engagement,FPF subdomain
+Associação de Futebol de Angra do Heroísmo,AF Angra,Angra do Heroísmo (Açores),https://afaheroismo.fpf.pt/,geral@afangra.pt,Secretaria-Geral,Azores central group (Terceira/Graciosa) - small but ferociously loyal football culture,FPF subdomain
+Associação de Futebol da Horta,AF Horta,Horta (Açores),https://afhorta.fpf.pt/,geral@afhorta.pt,Secretaria-Geral,Azores western group (Faial/Pico/Flores/Corvo) - smallest AF but very high participation rate,FPF subdomain
+Associação de Futebol de Ponta Delgada,AF Ponta Delgada,Ponta Delgada (Açores),https://afpontadelgada.fpf.pt/,geral@afpontadelgada.pt,Secretaria-Geral,Azores eastern group (São Miguel/Santa Maria) - includes Santa Clara's youth catchment,FPF subdomain
+Federação Portuguesa de Futebol,FPF,Cruz Quebrada (Oeiras),https://www.fpf.pt/,info@fpf.pt,Secretariado Geral,Central governing body - one greenlight here could cascade to all 22 AFs and the leagues,Av. das Seleções 1495-433 Cruz Quebrada-Dafundo; +351 213 252 700
+FPF - Departamento de Competições Nacionais Não Profissionais,FPF,Cruz Quebrada,https://www.fpf.pt/,competicoes@fpf.pt,Departamento de Competições,Owns Liga 3 and Campeonato de Portugal - direct route to ~80 semi-amateur clubs,Sub-department of FPF
+FPF - Departamento de Comunicação e Marketing,FPF,Cruz Quebrada,https://www.fpf.pt/,comunicacao@fpf.pt,Departamento de Comunicação,Brand & social - the right doorway for a free-to-play fan campaign,Sub-department of FPF
+FPF - Departamento de Futebol Feminino,FPF,Cruz Quebrada,https://www.fpf.pt/,futebolfeminino@fpf.pt,Departamento de Futebol Feminino,Women's game growing fast in PT and underserved by prediction games,Sub-department of FPF
+FPF - Departamento de Futsal,FPF,Cruz Quebrada,https://www.fpf.pt/,futsal@fpf.pt,Departamento de Futsal,Futsal is huge in Portugal - separate audience from football fans,Sub-department of FPF
+Liga Portuguesa de Futebol Profissional,Liga,Porto,https://www.ligaportugal.pt/,geral@ligaportugal.pt,Secretariado,Runs Liga Portugal Betclic + Liga Portugal 2 - probably won't engage but worth a courtesy ping,Av. Fontes Pereira de Melo Porto
+Académico de Viseu FC,Liga 2,Viseu,https://academicodeviseu.com.pt/,geral@academicodeviseu.com.pt,Director-Geral,Liga 2 - mid-size city with strong local fan engagement,
+SL Benfica B,Liga 2,Seixal,https://www.slbenfica.pt/,benfica@slbenfica.pt,Comunicação,Big-club B team - access to Benfica fan ecosystem,Through main Benfica comms
+GD Chaves,Liga 2,Chaves,https://www.gdchaves.pt/,geral@gdchaves.pt,Director Executivo,Trás-os-Montes side with cult following in diaspora,
+SC Farense,Liga 2,Faro,https://www.scfarense.pt/,geral@scfarense.pt,Director de Comunicação,Algarve's only senior side - tourism-fan crossover,
+CD Feirense,Liga 2,Santa Maria da Feira,https://cdfeirense.pt/,geral@cdfeirense.pt,Director Executivo,Historic Liga 2 side - active social channels,
+FC Felgueiras 1932,Liga 2,Felgueiras,https://fcfelgueiras1932.pt/,geral@fcfelgueiras1932.pt,Director,Recently promoted - hungry for fan-growth initiatives,
+Leixões SC,Liga 2,Matosinhos,https://leixoessc.pt/,geral@leixoessc.pt,Director de Comunicação,Porto-region historic side with passionate Matosinhos base,
+Lusitânia FC de Lourosa,Liga 2,Lourosa (Santa Maria da Feira),https://lusitanialourosafc.pt/,geral@lusitanialourosafc.pt,Director,Smaller club - perfect candidate for free fan tool,
+CS Marítimo,Liga 2,Funchal (Madeira),https://www.csmaritimo.pt/,geral@csmaritimo.pt,Director de Comunicação,Madeira's flag club - island engagement is huge,
+UD Oliveirense,Liga 2,Oliveira de Azeméis,https://udoliveirense.pt/,geral@udoliveirense.pt,Director,Local roots - typical mid-Liga 2 audience,
+FC Paços de Ferreira,Liga 2,Paços de Ferreira,https://www.fcpf.pt/,geral@fcpf.pt,Director de Comunicação,Ex-top flight - retains a Liga-1 fan footprint,
+FC Penafiel,Liga 2,Penafiel,https://www.fcpenafiel.pt/,geral@fcpenafiel.pt,Director,Solid Liga 2 staple - regional pride angle,
+Portimonense SC,Liga 2,Portimão,https://www.portimonensesc.pt/,geral@portimonense.pt,Director de Comunicação,Algarve side with Japanese-fan diaspora (Nakajima/Shoya era),
+FC Porto B,Liga 2,Vila Nova de Gaia,https://www.fcporto.pt/,fcporto@fcporto.pt,Comunicação,B-team - access via main FC Porto comms,
+Sporting CP B,Liga 2,Alcochete,https://www.sporting.pt/,sporting@sporting.pt,Comunicação,B-team - access via main Sporting comms,
+SC União Torreense,Liga 2,Torres Vedras,https://scuniaotorreense.pt/,geral@scuniaotorreense.pt,Director,Recently promoted - growing fan base,
+União de Leiria,Liga 2,Leiria,https://uniaodeleiria.pt/,geral@uniaodeleiria.pt,Director de Comunicação,Heritage club back in Liga 2 - strong nostalgia engagement,
+FC Vizela,Liga 2,Vizela,https://www.fcvizela.pt/,geral@fcvizela.pt,Director de Comunicação,Minho side - close-knit fan base,
+Vitória SC B,Liga 3,Guimarães,https://www.vitoriasc.pt/,vsc@vitoriasc.pt,Comunicação,B-team via Vitória SC main comms,
+FC Amarante,Liga 3,Amarante,https://fcamarante.pt/,geral@fcamarante.pt,Director,Liga 3 Série A - tight community club,
+CD Trofense,Liga 3,Trofa,https://cdtrofense.com/,geral@cdtrofense.com,Director,Trofa - active distrital pyramid feeder,
+Varzim SC,Liga 3,Póvoa de Varzim,https://varzimsc.pt/,geral@varzimsc.pt,Director,Heritage club - massive Póvoa pride,
+USC Paredes,Liga 3,Paredes,https://uscparedes.pt/,geral@uscparedes.pt,Director,Liga 3 Série A,
+SC Braga B,Liga 3,Braga,https://scbraga.pt/,scbraga@scbraga.pt,Comunicação,B-team via SC Braga main comms,
+AD Fafe,Liga 3,Fafe,https://adfafe.pt/,geral@adfafe.pt,Director,Minho fan-engagement candidate,
+AD Marco 09,Liga 3,Marco de Canaveses,https://admarco09.pt/,geral@admarco09.pt,Director,Liga 3 Série A,
+SC São João de Ver,Liga 3,Santa Maria da Feira,https://scsaojoaodever.pt/,geral@scsaojoaodever.pt,Director,Liga 3 Série A - village-team identity,
+AD Sanjoanense,Liga 3,São João da Madeira,https://adsanjoanense.pt/,geral@adsanjoanense.pt,Director,Liga 3 Série A - has legalised claque,
+CF Os Belenenses,Liga 3,Lisboa,https://www.osbelenenses.com/,geral@osbelenenses.com,Director,Heritage Lisboa club - cult fan base,
+CD Mafra,Liga 3,Mafra,https://cdmafra.pt/,geral@cdmafra.pt,Director,Liga 3 Série B - growing club,
+Académica de Coimbra OAF,Liga 3,Coimbra,https://www.academica-oaf.pt/,geral@academica-oaf.pt,Director,Liga 3 Série B - university-town flagship,
+União de Santarém,Liga 3,Santarém,https://uniaodesantarem.pt/,geral@uniaodesantarem.pt,Director,Liga 3 Série B - regional pride,
+Atlético Clube de Portugal,Liga 3,Lisboa,https://atleticocp.pt/,geral@atleticocp.pt,Director,Lisboa heritage club - very loyal small fan base,
+Lusitano GC Évora,Liga 3,Évora,https://lusitanogc.pt/,geral@lusitanogc.pt,Director,Évora flagship - Alentejo pride,
+Amora FC,Liga 3,Amora (Seixal),https://amorafc.pt/,geral@amorafc.pt,Director,South-Tagus historic side,
+Caldas SC,Liga 3,Caldas da Rainha,https://caldassc.pt/,geral@caldassc.pt,Director,Liga 3 Série B - has legalised claque,
+SU 1º Dezembro,Liga 3,Sintra,https://su1dezembro.com/,geral@su1dezembro.com,Director,Sintra historic club,
+SC Covilhã,Liga 3,Covilhã,https://sccovilha.pt/,geral@sccovilha.pt,Director,Beira-Interior flagship,
+GD Bragança,Campeonato de Portugal,Bragança,https://gdbraganca.pt/,geral@gdbraganca.pt,Director,CP Série A - district capital club,
+Vianense,Campeonato de Portugal,Viana do Castelo,https://sc-vianense.pt/,geral@sc-vianense.pt,Director,CP Série A - Minho coastal,
+GD Tirsense,Campeonato de Portugal,Santo Tirso,https://gdtirsense.pt/,geral@gdtirsense.pt,Director,CP Série A - has legalised claque,
+CS Camacha,Campeonato de Portugal,Camacha (Madeira),https://cscamacha.pt/,geral@cscamacha.pt,Director,Madeira CP entrant,
+CD Mirandela,Campeonato de Portugal,Mirandela,https://cdmirandela.pt/,geral@cdmirandela.pt,Director,CP Série A - Trás-os-Montes,
+Vilaverdense FC,Campeonato de Portugal,Vila Verde,https://vilaverdensefc.pt/,geral@vilaverdensefc.pt,Director,CP Série A - Minho,
+SC Beira-Mar,Campeonato de Portugal,Aveiro,https://scbeiramar.pt/,geral@scbeiramar.pt,Director,Aveiro heritage club - has legalised claque; great brand recall,
+SC Salgueiros,Campeonato de Portugal,Porto,https://scsalgueiros.pt/,geral@scsalgueiros.pt,Director,Porto cult-status club rebuilt by fans,
+Anadia FC,Campeonato de Portugal,Anadia,https://anadiafc.pt/,geral@anadiafc.pt,Director,Centre-Portugal CP Série B,
+SC Mirandês (S. Martinho),Campeonato de Portugal,Vila Nova de Famalicão,https://scmirandes.pt/,geral@scmirandes.pt,Director,CP Série A,
+GD Gouveia,Campeonato de Portugal,Gouveia,https://gdgouveia.pt/,geral@gdgouveia.pt,Director,Serra da Estrela - village pride,
+União Desportiva Vilafranquense,Campeonato de Portugal,Vila Franca de Xira,https://udvilafranquense.pt/,geral@udvilafranquense.pt,Director,Lisboa-Norte side,
+SCU Torreense Sub-23,Campeonato de Portugal,Torres Vedras,https://scuniaotorreense.pt/,geral@scuniaotorreense.pt,Director,B-team,
+SCP Sub-23,Campeonato de Portugal,Lisboa,https://www.sporting.pt/,sporting@sporting.pt,Comunicação,B-team via Sporting comms,
+Oliveira do Hospital,Campeonato de Portugal,Oliveira do Hospital,https://odhfc.pt/,geral@odhfc.pt,Director,Interior centre - village rivalry strong,
+SL Benfica de Castelo Branco,Campeonato de Portugal,Castelo Branco,https://slbcastelobranco.pt/,geral@slbcastelobranco.pt,Director,Independent club despite Benfica name,
+SCU Torreense / União Desportiva de Fátima,Campeonato de Portugal,Fátima,https://udfatima.pt/,geral@udfatima.pt,Director,Religious-tourism town with diaspora cousin clubs,
+CD Peniche,Campeonato de Portugal,Peniche,https://cdpeniche.pt/,geral@cdpeniche.pt,Director,Coastal CP Série C,
+GS Loures / Sintrense,Campeonato de Portugal,Sintra,https://sintrense.pt/,geral@sintrense.pt,Director,Greater-Lisboa side,
+SC Olhanense,Campeonato de Portugal,Olhão,https://scolhanense.pt/,geral@scolhanense.pt,Director,Algarve heritage side,
+Louletano DC,Campeonato de Portugal,Loulé,https://louletano.pt/,geral@louletano.pt,Director,Algarve CP Série D,
+CD Malveira,Campeonato de Portugal,Malveira,https://cdmalveira.pt/,geral@cdmalveira.pt,Director,Greater-Lisboa CP Série D,
+Alverca B,Campeonato de Portugal,Alverca,https://fcalverca.pt/,geral@fcalverca.pt,Director,B-team via FC Alverca,
+GD Alcochetense,Campeonato de Portugal,Alcochete,https://gdalcochetense.pt/,geral@gdalcochetense.pt,Director,South-Tagus CP Série D,
+FC Lagoa,Campeonato de Portugal,Lagoa (Algarve),https://fclagoa.pt/,geral@fclagoa.pt,Director,Algarve CP Série D,
+O Elvas CAD,Campeonato de Portugal,Elvas,https://oelvas.pt/,geral@oelvas.pt,Director,Alto-Alentejo border town,
+SC Serpa,Campeonato de Portugal,Serpa,https://scserpa.pt/,geral@scserpa.pt,Director,Baixo-Alentejo CP Série D,
+Oriental Dragon FC,Campeonato de Portugal,Lisboa,https://orientaldragon.pt/,geral@orientaldragon.pt,Director,Lisboa east side - has Asian-diaspora link,
+Moncarapachense,Campeonato de Portugal,Moncarapacho (Olhão),https://moncarapachense.pt/,geral@moncarapachense.pt,Director,Algarve village club,
+União Comércio e Indústria,Campeonato de Portugal,Setúbal,https://uciset.pt/,geral@uciset.pt,Director,South-bank club,
+Vasco da Gama Vidigueira,Campeonato de Portugal,Vidigueira,https://vgvidigueira.pt/,geral@vgvidigueira.pt,Director,Alentejo village club,
+Associação Académica de Coimbra (secção de futebol),Universidade,Coimbra,https://academica.pt/,futebol@academica.pt,Coordenador Desportivo,Student association - Portugal's oldest sports body; entire univ. ecosystem,Plays in AF Coimbra distrital division
+Associação Académica da Universidade do Minho (AAUM) - Futebol,Universidade,Braga / Guimarães,https://www.aaum.pt/,desporto@aaum.pt,Coordenador Desportivo,University of Minho - huge campus reach across Braga & Guimarães,
+Associação Académica do ISCTE-IUL,Universidade,Lisboa,https://www.aeiscte-iul.pt/,desporto@aeiscte-iul.pt,Coordenador Desportivo,Business school - growing sports calendar,
+Associação dos Estudantes do Instituto Superior Técnico (AEIST),Universidade,Lisboa,https://www.aeist.pt/,desporto@aeist.pt,Coordenador Desportivo,IST Lisboa engineering school - massive student body,
+Federação Académica do Desporto Universitário (FADU),Universidade,Lisboa,https://www.fadu.pt/,geral@fadu.pt,Secretariado,National body for university sport - one email reaches every academic club,Coordinates CNU football
+Associação Académica da Universidade de Lisboa,Universidade,Lisboa,https://www.aaul.pt/,desporto@aaul.pt,Coordenador Desportivo,Univ. of Lisbon umbrella - several faculties have football teams,
+Associação Académica do Porto (FAP),Universidade,Porto,https://www.fap.pt/,geral@fap.pt,Secretariado,Porto federation of student associations - covers FEUP/FLUP/etc.,
+Associação Académica da Universidade de Aveiro (AAUAv),Universidade,Aveiro,https://www.aauav.pt/,desporto@aauav.pt,Coordenador Desportivo,UA has strong sports section - Aveiro is a football-heavy district,
+Associação Académica da Universidade da Beira Interior,Universidade,Covilhã,https://www.aaubi.pt/,desporto@aaubi.pt,Coordenador Desportivo,UBI Covilhã - interior university with active sports body,
+Associação de Estudantes da Universidade de Trás-os-Montes e Alto Douro (AEUTAD),Universidade,Vila Real,https://aeutad.pt/,desporto@aeutad.pt,Coordenador Desportivo,UTAD - rural-region anchor university,
+Associação Académica da Universidade dos Açores,Universidade,Ponta Delgada,https://aauac.pt/,desporto@aauac.pt,Coordenador Desportivo,Azores - small but very engaged campus,
+Associação Académica da Universidade da Madeira,Universidade,Funchal,https://aauma.pt/,desporto@aauma.pt,Coordenador Desportivo,Madeira island campus,
+Associação Académica da Universidade do Algarve,Universidade,Faro,https://aacua.pt/,desporto@aacua.pt,Coordenador Desportivo,Faro - tourism-region campus,
+Associação Académica da Universidade de Évora (AAUE),Universidade,Évora,https://www.aaue.pt/,desporto@aaue.pt,Coordenador Desportivo,UÉvora - heritage city campus,
+Associação de Estudantes da Universidade Nova de Lisboa,Universidade,Lisboa,https://www.aenova.pt/,desporto@aenova.pt,Coordenador Desportivo,NOVA Lisboa - growing internationally,
+Sporting CP - Futsal,Futsal Liga,Lisboa,https://www.sporting.pt/,sporting@sporting.pt,Comunicação,Top-tier futsal champion - reach via main Sporting comms,
+SL Benfica - Futsal,Futsal Liga,Lisboa,https://www.slbenfica.pt/,benfica@slbenfica.pt,Comunicação,Top-tier futsal - reach via main Benfica comms,
+SC Braga / AAUM - Futsal,Futsal Liga,Braga,https://scbraga.pt/,scbraga@scbraga.pt,Comunicação,Top-tier futsal - Minho region,
+Quinta dos Lombos,Futsal Liga,Carcavelos (Cascais),https://quintadoslombos.pt/,geral@quintadoslombos.pt,Director,Historic futsal side - Lisboa coast,
+Leões de Porto Salvo,Futsal Liga,Porto Salvo (Oeiras),https://leoesportosalvo.pt/,geral@leoesportosalvo.pt,Director,Oeiras-based futsal regular,
+Fundão,Futsal Liga,Fundão,https://fundaofutsal.pt/,geral@fundaofutsal.pt,Director,Beira-Interior futsal flagship,
+Caxinas,Futsal Liga,Vila do Conde,https://caxinasfutsal.pt/,geral@caxinasfutsal.pt,Director,Porto-region futsal club,
+Modicus Sandim,Futsal Liga,Vila Nova de Gaia,https://modicus.pt/,geral@modicus.pt,Director,Gaia futsal side,
+Eléctrico FC,Futsal Liga,Ponte de Sor,https://electricofc.pt/,geral@electricofc.pt,Director,Alentejo futsal club,
+Burinhosa,Futsal Liga,Alcobaça,https://burinhosa.pt/,geral@burinhosa.pt,Director,Centre-region futsal,
+GD Chaves Futsal,Futsal,Chaves,https://www.gdchaves.pt/,geral@gdchaves.pt,Director,Trás-os-Montes futsal,
+Belenenses Futsal,Futsal,Lisboa,https://www.osbelenenses.com/,geral@osbelenenses.com,Director,Heritage Lisboa club's futsal,
+No Name Boys,Claque,Lisboa (Benfica),N/A - Facebook only,N/A,Coordenador,Largest Benfica claque - reach via Benfica or social DMs only,Public FB; contact only via private channels
+Diabos Vermelhos,Claque,Lisboa (Benfica),N/A - Facebook only,N/A,Coordenador,Second main Benfica claque - active across diaspora,Public FB
+Super Dragões,Claque,Porto,N/A - Facebook only,N/A,Coordenador,FC Porto's main claque - ~4000 registered members; largest in PT,Legalised; reach via FCP comms
+Colectivo Ultras 95,Claque,Porto,N/A - Facebook only,N/A,Coordenador,FC Porto secondary claque,Public FB
+Juventude Leonina,Claque,Lisboa (Sporting),N/A - Facebook only,N/A,Coordenador,Largest Sporting claque - 1632 registered,Legalised; reach via SCP comms
+Brigada Ultras Sporting (Directivo XXI),Claque,Lisboa (Sporting),N/A - Facebook only,N/A,Coordenador,Sporting second claque,Legalised
+Pantera Negra,Claque,Madeira (CS Marítimo),N/A - Facebook only,N/A,Coordenador,Marítimo claque - tight Madeira community,Public FB
+Insular,Claque,Madeira (CD Nacional),N/A - Facebook only,N/A,Coordenador,Nacional claque - island base,Public FB
+Furacão Camponês,Claque,Famalicão,N/A - Facebook only,N/A,Coordenador,FC Famalicão claque - 51 registered,Legalised
+Panteras Negras,Claque,Boavista (Porto),N/A - Facebook only,N/A,Coordenador,Boavista claque - 281 registered,Legalised
+Loucos do Marquês,Claque,Estrela da Amadora,N/A - Facebook only,N/A,Coordenador,Estrela Amadora - 157 registered,Legalised
+Brigada do Rio,Claque,Rio Ave (Vila do Conde),N/A - Facebook only,N/A,Coordenador,Rio Ave claque - 56 registered,Legalised
+Os Tigres,Claque,Gil Vicente (Barcelos),N/A - Facebook only,N/A,Coordenador,Gil Vicente claque - 46 registered,Legalised
+VIII Exército,Claque,Setúbal (Vitória FC),N/A - Facebook only,N/A,Coordenador,Vitória Setúbal claque - heritage,Legalised
+Ultras Grupo 1910,Claque,Setúbal (Vitória FC),N/A - Facebook only,N/A,Coordenador,Vitória Setúbal secondary,Legalised
+Casa do Benfica em Auckland,Diáspora,Auckland (NZ),N/A,casabenficaauckland@gmail.com,Presidente,NZ Portuguese community - direct overlap with Tournamental HQ,Local NZ outreach
+Casa do Benfica em Luxemburgo,Diáspora,Luxemburgo,https://casabenfica.lu/,geral@casabenfica.lu,Presidente,Largest Casa do Benfica outside PT - 100k+ Portuguese in Luxembourg,
+Casa do Benfica em Paris,Diáspora,Paris (França),https://casabenficaparis.fr/,contact@casabenficaparis.fr,Presidente,~600k Portuguese in Île-de-France,
+Casa do Benfica em Toronto,Diáspora,Toronto (Canadá),https://casabenfica.ca/,info@casabenfica.ca,Presidente,Toronto's Little Portugal,
+Casa do Benfica em Newark,Diáspora,Newark (EUA),https://casabenficanj.com/,info@casabenficanj.com,Presidente,Ironbound District - largest US Portuguese hub,
+Casa do Benfica em Joanesburgo,Diáspora,Joanesburgo (RSA),N/A - Facebook only,N/A,Presidente,SA Portuguese community,
+Casa do Benfica em Caracas,Diáspora,Caracas (Venezuela),N/A - Facebook only,N/A,Presidente,Madeiran-descent Venezuelan community,
+Casa do Benfica em São Paulo,Diáspora,São Paulo (Brasil),N/A - Facebook only,N/A,Presidente,Brazil's Portuguese community,
+Federação das Casas de Benfica,Diáspora,Lisboa,https://www.slbenfica.pt/,casas@slbenfica.pt,Coordenador,Central body for all 200+ Casas do Benfica worldwide,One email cascades to all
+Federação das Casas do Sporting,Diáspora,Lisboa,https://www.sporting.pt/,casassporting@sporting.pt,Coordenador,Central body for all Casas do Sporting worldwide,
+Federação das Casas do FC Porto,Diáspora,Porto,https://www.fcporto.pt/,casasfcporto@fcporto.pt,Coordenador,Central body for Casas do FC Porto,
+Federação Cabo-verdiana de Futebol,Diáspora / CPLP,Praia (Cabo Verde),https://fcf.cv/,fcf@fcf.cv,Secretariado,Cape Verde football federation - Portuguese-speaking,FIFA member; CPLP
+Federação Moçambicana de Futebol,Diáspora / CPLP,Maputo (Moçambique),https://www.fmf.co.mz/,geral@fmf.co.mz,Secretariado,Mozambique federation - Portuguese-language outreach,FIFA member
+Federação Angolana de Futebol,Diáspora / CPLP,Luanda (Angola),https://www.fafutebol.ao/,geral@fafutebol.ao,Secretariado,Angola federation,FIFA member
+Federação Guineense de Futebol,Diáspora / CPLP,Bissau (Guiné-Bissau),https://fgfutebol.gw/,fgf@fgfutebol.gw,Secretariado,Guinea-Bissau federation,FIFA member
+Federação Santomense de Futebol,Diáspora / CPLP,São Tomé,N/A,fsf@cstome.net,Secretariado,São Tomé e Príncipe federation,FIFA member
+Federação de Futebol de Timor-Leste,Diáspora / CPLP,Dili (Timor-Leste),https://fftl.tl/,info@fftl.tl,Secretariado,East Timor federation - Portuguese is co-official,FIFA member
+Associação de Futebol de Macau,Diáspora / CPLP,Macau,https://www.macaufa.com/,info@macaufa.com,Secretariado,Macau federation - Portuguese minority,FIFA member; AFC
+Sport Lisboa e Benfica de Macau,Diáspora,Macau,N/A - Facebook only,N/A,Coordenador,Macau heritage club - Portuguese-Macanese diaspora,
+Federação Portuguesa de Futebol Popular,Misc,Lisboa,N/A,N/A,Coordenador,Amateur/recreational federation - very broad reach,Workplace and community leagues
