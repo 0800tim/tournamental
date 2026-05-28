@@ -50,15 +50,18 @@ Code:
 
 | Route                       | Data source                                          |
 | --------------------------- | ---------------------------------------------------- |
-| `/`                         | Overview, real counts from auth.db + game.db         |
-| `/users`                    | auth-sms users (display, phone, country, joined)     |
-| `/users/[id]`               | auth-sms user + game.db brackets + customer-360 stub |
-| `/syndicates`               | game.db syndicates: visibility, tier, prize, owner   |
-| `/syndicates/[slug]`        | + members (joined via auth.db for display names)     |
+| `/`                         | Overview, real counts from auth.db + game.db, plus a one-line summary + recent signups / pools |
+| `/users`                    | auth-sms users (display, phone, country, joined); CSV export |
+| `/users/[id]`               | auth-sms user + game.db brackets + pools owned/joined + customer-360 |
+| `/syndicates`               | game.db syndicates: visibility, tier, prize, owner; CSV export |
+| `/syndicates/[slug]`        | + members from `syndicate_owners_membership` (joined via auth.db for display names) |
+| `/pundits`                  | Top brackets by score for a given tournament         |
 | `/broadcast`                | Pick pools + playbook → WhatsApp/email (dry-run live)|
 | `/tournaments`              | game.db tournaments                                  |
 | `/fixtures`                 | mocks (Tournament fixtures - speculative)            |
 | `/content`                  | mocks                                                |
+| `/highlevel`                | GHL CRM live snapshot: total contacts, drift, tag breakdown, recent contacts |
+| `/market`                   | Polymarket tournament-winner probabilities (via apps/odds-ingest) |
 | `/affiliate`                | mocks                                                |
 | `/operators`                | mocks                                                |
 | `/advertisers`              | mocks                                                |
@@ -155,8 +158,26 @@ pm2 restart vtorn-admin-prod --update-env
 ## 10. Follow-ups
 
 - Cloudflare Access policy on the perimeter (Tim).
-- `auth-sms /v1/auth/send-broadcast` so live sends work.
+- `auth-sms /v1/auth/send-broadcast` so live broadcast sends work
+  end-to-end (today's dry-run is fully functional).
+- Bracket-engine cascade in `/market` so we can render "community pick"
+  histogram alongside the Polymarket favourites.
+- Cloudflare Zone Analytics on `/system` once the CF token gains the
+  `Zone.Analytics:Read` scope.
+- One-click "resync to HighLevel" button on user detail (needs a
+  matching admin route in auth-sms).
 - Real data for the remaining mock surfaces (operators, advertisers,
   affiliate, analytics) when the upstream services ship.
 - Member growth chart on the syndicate detail page.
 - Global cmd+k search across users and pools.
+
+## 11. Integrations wired
+
+| Integration         | Surface(s)                  | Auth                                   |
+| ------------------- | --------------------------- | -------------------------------------- |
+| auth-sms user DB    | overview, users, broadcast  | direct sqlite read (co-located)        |
+| game-service DB     | overview, syndicates, pundits, api-keys, broadcast | direct sqlite read (co-located) |
+| HighLevel CRM       | `/highlevel`                | `GHL_API_KEY` Bearer + Version 2021-07-28 |
+| Polymarket (mirror) | `/market`                   | direct sqlite read of `apps/odds-ingest/data/odds-ingest.sqlite` |
+| WhatsApp OTP        | login + `/broadcast` send   | auth-sms `/v1/auth/request` + verify  |
+| Service health      | `/system`                   | HTTPS HEAD with 4.5s timeout          |
