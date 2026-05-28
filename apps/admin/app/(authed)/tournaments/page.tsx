@@ -29,19 +29,28 @@ export default async function TournamentsPage() {
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((t) => (
-              <tr key={t.id} className="border-t border-ink-700 hover:bg-ink-700/40">
-                <td className="px-4 py-2">{t.name}</td>
-                <td className="px-4 py-2 text-xs uppercase">{t.status}</td>
-                <td className="px-4 py-2">{t.entries.toLocaleString()}</td>
-                <td className="px-4 py-2 text-xs text-ink-200">
-                  {new Date(t.lock_at).toLocaleString()}
-                </td>
-                <td className="px-4 py-2 text-xs text-ink-500">
-                  Edit not yet wired (super-admin only)
+            {data.rows.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-sm text-ink-500 text-center">
+                  No tournaments yet. Add the first one via{" "}
+                  <code className="text-xs">apps/game</code> migrations.
                 </td>
               </tr>
-            ))}
+            ) : (
+              data.rows.map((t) => (
+                <tr key={t.id} className="border-t border-ink-700 hover:bg-ink-700/40">
+                  <td className="px-4 py-2">{t.name}</td>
+                  <td className="px-4 py-2 text-xs uppercase">{t.status}</td>
+                  <td className="px-4 py-2">{t.entries.toLocaleString()}</td>
+                  <td className="px-4 py-2 text-xs text-ink-200">
+                    {new Date(t.lock_at).toLocaleString()}
+                  </td>
+                  <td className="px-4 py-2 text-xs text-ink-500">
+                    Edit not yet wired (super-admin only)
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

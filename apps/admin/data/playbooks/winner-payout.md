@@ -1,6 +1,7 @@
 ---
 name: Winner + prize payout (post-tournament)
 description: Sent to owners after the tournament settles. Confirms the pool winner and walks the owner through the prize claim flow.
+subject: "{{tournament}} is settled, here is your winner + payout"
 default_channels:
   - whatsapp
   - email

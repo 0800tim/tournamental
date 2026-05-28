@@ -59,8 +59,8 @@ export function OperatorsTable({
         header: "Allow",
         cell: ({ row }) => (
           <span className="text-xs font-mono">
-            {row.original.geo_allow.length} country
-            {row.original.geo_allow.length === 1 ? "" : "s"}
+            {row.original.geo_allow.length}{" "}
+            {row.original.geo_allow.length === 1 ? "country" : "countries"}
           </span>
         ),
       },

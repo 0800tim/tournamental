@@ -23,6 +23,10 @@ interface ExtendedSyndicate {
   entry_fee_cents?: number | null;
   entry_fee_currency?: string | null;
   tournament_id?: string;
+  /** Cached counter from `syndicates.member_count`. Diverges from the
+   *  real membership table when an anonymous user clicks join but never
+   *  completes signup. */
+  members_cached?: number;
 }
 
 function maskPhone(p?: string): string {
@@ -58,7 +62,15 @@ export default async function SyndicateDetailPage({
       </header>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="Members" value={s.members} />
+        <StatCard
+          label="Members"
+          value={s.members}
+          hint={
+            typeof s.members_cached === "number" && s.members_cached !== s.members
+              ? `Public counter says ${s.members_cached}; drift from anonymous join clicks`
+              : undefined
+          }
+        />
         <StatCard label="Visibility" value={visibility} />
         <StatCard label="Tier" value={(s.tier ?? "free").toUpperCase()} />
         <StatCard label="Entry fee" value={entryFee} />

@@ -337,14 +337,19 @@ export function liveSyndicates(
   }
   const where = filters.length ? `WHERE ${filters.join(" AND ")}` : "";
 
+  // Use the authoritative count from syndicate_owners_membership rather
+  // than syndicates.member_count, which drifts from anonymous joins.
   const rows = gdb
     .prepare(
-      `SELECT id, slug, name, tournament_id, owner_user_id, owner_handle,
-              owner_email, owner_phone, member_count, created_at, is_public,
-              tier, prize_text, entry_fee_cents, entry_fee_currency
-       FROM syndicates
-       ${where}
-       ORDER BY created_at DESC
+      `SELECT s.id, s.slug, s.name, s.tournament_id, s.owner_user_id, s.owner_handle,
+              s.owner_email, s.owner_phone,
+              COALESCE((SELECT COUNT(*) FROM syndicate_owners_membership som
+                        WHERE som.syndicate_id = s.id), s.member_count) AS member_count,
+              s.created_at, s.is_public,
+              s.tier, s.prize_text, s.entry_fee_cents, s.entry_fee_currency
+       FROM syndicates s
+       ${where.replace(/\b(?=slug|name|owner_|is_public)/g, "s.")}
+       ORDER BY s.created_at DESC
        LIMIT 200`,
     )
     .all(params) as SyndicateDbRow[];
@@ -372,42 +377,86 @@ export function liveSyndicate(slug: string):
     .get(slug) as SyndicateDbRow | undefined;
   if (!r) return null;
 
+  // The canonical members table is `syndicate_owners_membership`, NOT
+  // `syndicate_members`. The latter is a vestigial table the early join
+  // flow wrote to and nothing writes to it now; the live join flow
+  // (owners + members) writes to `syndicate_owners_membership` with a
+  // role column distinguishing them. We surface owner + member rows
+  // alike — the dashboard reader doesn't care, the operator can see
+  // role per row. (Tim 2026-05-29: the-crate showed 10 members on the
+  // card but 0 in the list because we were reading the wrong table.)
   const rawMembers = gdb
     .prepare(
-      `SELECT m.user_id AS id, b.score_total AS rank
-       FROM syndicate_members m
-       LEFT JOIN brackets b ON b.user_id = m.user_id AND b.tournament_id = ?
-       WHERE m.syndicate_id = ?
-       ORDER BY m.joined_at ASC
+      `SELECT som.user_id AS id,
+              som.role,
+              som.handle,
+              som.display_name,
+              som.joined_at,
+              b.score_total AS rank
+       FROM syndicate_owners_membership som
+       LEFT JOIN brackets b ON b.user_id = som.user_id AND b.tournament_id = ?
+       WHERE som.syndicate_id = ?
+       ORDER BY som.role = 'owner' DESC, som.joined_at ASC
        LIMIT 100`,
     )
-    .all(r.tournament_id, r.id) as { id: string; rank: number | null }[];
+    .all(r.tournament_id, r.id) as {
+    id: string;
+    role: string;
+    handle: string | null;
+    display_name: string | null;
+    joined_at: number;
+    rank: number | null;
+  }[];
 
-  // Look up display names in auth.db (cross-DB join not possible from
-  // a single read-only sqlite open, so we batch on the admin app side).
+  // Augment display names from auth.db for any signed-in users whose
+  // owners_membership row didn't capture a handle yet. The
+  // `anon:<uuid>` ids are legacy guest joins; we leave those as-is.
   const adb = authDb();
   const handles = new Map<string, string>();
-  if (adb && rawMembers.length > 0) {
-    const placeholders = rawMembers.map(() => "?").join(",");
+  const realIds = rawMembers
+    .map((m) => m.id)
+    .filter((id) => id.startsWith("u_") || /^[0-9a-f-]{36}$/.test(id));
+  if (adb && realIds.length > 0) {
+    const placeholders = realIds.map(() => "?").join(",");
     const rows = adb
       .prepare(
         `SELECT id, display_name FROM user WHERE id IN (${placeholders})`,
       )
-      .all(...rawMembers.map((m) => m.id)) as { id: string; display_name: string | null }[];
+      .all(...realIds) as { id: string; display_name: string | null }[];
     for (const row of rows) {
-      handles.set(row.id, row.display_name ?? row.id.slice(0, 8));
+      if (row.display_name) handles.set(row.id, row.display_name);
     }
+  }
+
+  function labelFor(m: (typeof rawMembers)[number]): string {
+    if (m.display_name && m.display_name.trim()) return m.display_name;
+    if (m.handle && m.handle.trim()) return m.handle;
+    const h = handles.get(m.id);
+    if (h) return h;
+    if (m.id.startsWith("anon:")) return `Guest ${m.id.slice(5, 13)}`;
+    return m.id.slice(0, 12);
   }
 
   return {
     ...mapSyndicateRow(r),
     owner_email: r.owner_email,
     owner_phone: r.owner_phone,
+    // Override the cached `member_count` with the authoritative count
+    // from the membership table. The cached column drifts because the
+    // public-page join counter increments without writing the row when
+    // a user bails before signup.
+    members: rawMembers.length,
+    members_cached: r.member_count,
     members_list: rawMembers.map((m) => ({
       id: m.id,
-      handle: handles.get(m.id) ?? m.id.slice(0, 8),
+      handle: m.role === "owner" ? `${labelFor(m)} (owner)` : labelFor(m),
       rank: m.rank ?? 0,
     })),
+  } as SyndicateLiveRow & {
+    members_list: { id: string; handle: string; rank: number }[];
+    owner_email: string;
+    owner_phone: string;
+    members_cached: number;
   };
 }
 

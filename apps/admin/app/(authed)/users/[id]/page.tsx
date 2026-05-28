@@ -9,6 +9,14 @@ import { Customer360Tabs } from "./Customer360Tabs";
 
 export const dynamic = "force-dynamic";
 
+/** Tolerant date renderer: epoch-0 / null / unparsable → "unknown". */
+function fmtDate(iso: string | null | undefined): string {
+  if (!iso) return "unknown";
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t) || t < 86_400_000) return "unknown";
+  return new Date(t).toLocaleDateString();
+}
+
 export default async function UserDetailPage({
   params,
 }: {
@@ -103,8 +111,7 @@ export default async function UserDetailPage({
           </div>
         </div>
         <div className="text-xs text-ink-500">
-          Joined {new Date(u.joined_at).toLocaleDateString()} · Last seen{" "}
-          {new Date(u.last_seen).toLocaleDateString()}
+          Joined {fmtDate(u.joined_at)} · Last seen {fmtDate(u.last_seen)}
         </div>
       </header>
 

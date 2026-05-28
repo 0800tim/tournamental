@@ -17,12 +17,20 @@ export default async function UsersPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <header>
-        <h1 className="text-2xl font-display font-semibold">Users</h1>
-        <p className="text-sm text-ink-200">
-          {data.total.toLocaleString()} accounts. Search by id, email, or display name.
-          Humanness from docs/20.
-        </p>
+      <header className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-display font-semibold">Users</h1>
+          <p className="text-sm text-ink-200">
+            {data.total.toLocaleString()} accounts. Search by id, email, or display name.
+            Humanness from docs/20.
+          </p>
+        </div>
+        <a
+          href="/api/admin/export/users"
+          className="text-xs text-accent-400 hover:underline whitespace-nowrap"
+        >
+          Export CSV ↓
+        </a>
       </header>
 
       <UsersTable initial={data.rows} role={session.role} />

@@ -28,6 +28,10 @@ export interface PlaybookTemplate {
   readonly recommended: boolean;
   /** Front-matter `default_channels` (defaults to ["whatsapp"]). */
   readonly defaultChannels: ReadonlyArray<BroadcastChannel>;
+  /** Front-matter `subject` (optional). Used as the email subject when
+   *  the email channel is selected; falls back to `deriveSubject` when
+   *  unset. */
+  readonly subject?: string;
   /** Markdown body with `{{var}}` placeholders, unrendered. */
   readonly body: string;
 }
@@ -170,6 +174,7 @@ export async function loadPlaybooks(
         typeof meta.description === "string" ? meta.description : "",
       recommended: meta.recommended === true,
       defaultChannels: coerceChannels(meta.default_channels),
+      subject: typeof meta.subject === "string" ? meta.subject : undefined,
       body,
     });
   }
@@ -258,21 +263,28 @@ export function renderForRecipient(args: {
   body: string;
   recipient: BroadcastRecipient;
   channels: ReadonlyArray<BroadcastChannel>;
+  /** Explicit subject override (from playbook front-matter). When set,
+   *  variable substitution is applied to it just like the body. */
+  subject?: string;
 }): RenderedBroadcast {
-  const rendered = substituteVariables(args.body, {
+  const vars = {
     poolName: args.recipient.poolName,
     ownerHandle: args.recipient.ownerHandle,
     tournament: args.recipient.tournament,
     memberCount: args.recipient.memberCount,
-  });
+  };
+  const rendered = substituteVariables(args.body, vars);
   const { kept, skipped } = filterChannels(args.channels, args.recipient);
+  const subject = args.subject
+    ? substituteVariables(args.subject, vars)
+    : deriveSubject(rendered, args.recipient.poolName);
   return {
     slug: args.recipient.slug,
     poolName: args.recipient.poolName,
     ownerHandle: args.recipient.ownerHandle,
     channels: kept,
     skippedChannels: skipped,
-    subject: deriveSubject(rendered, args.recipient.poolName),
+    subject,
     body: rendered,
   };
 }

@@ -1,6 +1,7 @@
 ---
 name: Kickoff reminder (day before)
 description: Sent to owners the day before tournament kickoff. Reminds them to chase the last predictions before lock.
+subject: "{{tournament}} kicks off tomorrow, chase the last predictions"
 default_channels:
   - whatsapp
 ---

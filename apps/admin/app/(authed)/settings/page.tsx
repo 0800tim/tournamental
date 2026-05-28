@@ -10,7 +10,7 @@ export default async function SettingsPage() {
   const authBase = getAuthSmsBase();
   const authDbPath = process.env.ADMIN_AUTH_DB_PATH ?? "(auto-resolve from cwd)";
   const gameDbPath = process.env.ADMIN_GAME_DB_PATH ?? "(auto-resolve from cwd)";
-  const apiBase = process.env.VTORN_API_BASE || "(unset — using direct sqlite + mocks)";
+  const apiBase = process.env.VTORN_API_BASE || "(unset, using direct sqlite + mocks)";
   const nodeEnv = process.env.NODE_ENV ?? "development";
 
   return (

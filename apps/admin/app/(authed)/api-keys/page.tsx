@@ -30,25 +30,34 @@ export default async function ApiKeysPage() {
             </tr>
           </thead>
           <tbody>
-            {data.rows.map((k) => (
-              <tr key={k.id} className="border-t border-ink-700 hover:bg-ink-700/40">
-                <td className="px-4 py-2">{k.label}</td>
-                <td className="px-4 py-2 font-mono text-xs">{k.prefix}_••••••••</td>
-                <td className="px-4 py-2 text-xs text-ink-200">
-                  {new Date(k.created_at).toLocaleDateString()}
-                </td>
-                <td className="px-4 py-2 text-xs text-ink-200">
-                  {k.last_used ? new Date(k.last_used).toLocaleDateString() : "—"}
-                </td>
-                <td className="px-4 py-2 text-xs uppercase">
-                  {k.revoked ? (
-                    <span className="text-danger-500">revoked</span>
-                  ) : (
-                    <span className="text-emerald-500">active</span>
-                  )}
+            {data.rows.length === 0 ? (
+              <tr>
+                <td colSpan={5} className="px-4 py-6 text-sm text-ink-500 text-center">
+                  No API keys yet. Users mint these from{" "}
+                  <code className="text-xs">/profile/api-keys</code> on play.tournamental.com.
                 </td>
               </tr>
-            ))}
+            ) : (
+              data.rows.map((k) => (
+                <tr key={k.id} className="border-t border-ink-700 hover:bg-ink-700/40">
+                  <td className="px-4 py-2">{k.label}</td>
+                  <td className="px-4 py-2 font-mono text-xs">{k.prefix}_••••••••</td>
+                  <td className="px-4 py-2 text-xs text-ink-200">
+                    {new Date(k.created_at).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-2 text-xs text-ink-200">
+                    {k.last_used ? new Date(k.last_used).toLocaleDateString() : "—"}
+                  </td>
+                  <td className="px-4 py-2 text-xs uppercase">
+                    {k.revoked ? (
+                      <span className="text-danger-500">revoked</span>
+                    ) : (
+                      <span className="text-emerald-500">active</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

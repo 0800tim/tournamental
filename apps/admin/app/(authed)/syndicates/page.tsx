@@ -15,14 +15,22 @@ export default async function SyndicatesPage({
 
   return (
     <div className="flex flex-col gap-4">
-      <header>
-        <h1 className="text-2xl font-display font-semibold">Syndicates</h1>
-        <p className="text-sm text-ink-200">
-          Friend-graph and creator-cohort prediction pools. Filter:{" "}
-          <Link href="/syndicates" className="text-accent-400 hover:underline">All</Link>{" · "}
-          <Link href="/syndicates?status=public" className="text-accent-400 hover:underline">Public</Link>{" · "}
-          <Link href="/syndicates?status=private" className="text-accent-400 hover:underline">Private</Link>
-        </p>
+      <header className="flex items-end justify-between">
+        <div>
+          <h1 className="text-2xl font-display font-semibold">Syndicates</h1>
+          <p className="text-sm text-ink-200">
+            Friend-graph and creator-cohort prediction pools. Filter:{" "}
+            <Link href="/syndicates" className="text-accent-400 hover:underline">All</Link>{" · "}
+            <Link href="/syndicates?status=public" className="text-accent-400 hover:underline">Public</Link>{" · "}
+            <Link href="/syndicates?status=private" className="text-accent-400 hover:underline">Private</Link>
+          </p>
+        </div>
+        <a
+          href="/api/admin/export/syndicates"
+          className="text-xs text-accent-400 hover:underline whitespace-nowrap"
+        >
+          Export CSV ↓
+        </a>
       </header>
 
       <SyndicatesTable rows={data.rows as unknown as Parameters<typeof SyndicatesTable>[0]["rows"]} />

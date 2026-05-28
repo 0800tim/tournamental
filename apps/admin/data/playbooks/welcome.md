@@ -2,6 +2,7 @@
 name: Welcome (new pool owner)
 description: Sent to owners of freshly created pools. Walks them through inviting members and setting their first prize.
 recommended: true
+subject: Your Tournamental pool is live, here is how to fill it
 default_channels:
   - whatsapp
   - email

@@ -69,7 +69,14 @@ async function probe(p: Probe): Promise<ProbeResult> {
     });
     clearTimeout(timer);
     const latency = Date.now() - started;
-    const ok = res.status >= 200 && res.status < 500;
+    // 200-299 → green; 301/302/304 → green (redirects are alive);
+    // everything else (including 404 / 5xx / opaque) → red. Earlier
+    // logic treated 4xx as alive which masked a real prod miss.
+    const ok =
+      (res.status >= 200 && res.status < 300) ||
+      res.status === 301 ||
+      res.status === 302 ||
+      res.status === 304;
     return { ...p, status: res.status, latency_ms: latency, ok };
   } catch (err) {
     clearTimeout(timer);

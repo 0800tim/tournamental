@@ -140,6 +140,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   // up the template by id.
   let messageBody: string;
   let templateLabel: string;
+  let templateSubject: string | undefined;
   if (typeof body.customBody === "string" && body.customBody.trim().length > 0) {
     messageBody = body.customBody;
     templateLabel = "custom";
@@ -150,6 +151,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "template_not_found" }, { status: 400 });
     }
     messageBody = tpl.body;
+    templateSubject = tpl.subject;
     templateLabel = `playbook:${tpl.id}`;
   } else {
     return NextResponse.json({ error: "no_body" }, { status: 400 });
@@ -187,7 +189,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // Render all messages.
   const rendered = recipients.map((r) =>
-    renderForRecipient({ body: messageBody, recipient: r, channels }),
+    renderForRecipient({
+      body: messageBody,
+      recipient: r,
+      channels,
+      subject: templateSubject,
+    }),
   );
 
   if (dryRun) {
