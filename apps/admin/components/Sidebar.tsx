@@ -15,6 +15,7 @@ const ITEMS: {
   { href: "/", label: "Overview", group: "ops" },
   { href: "/users", label: "Users", group: "ops" },
   { href: "/syndicates", label: "Syndicates", group: "ops" },
+  { href: "/pundits", label: "Pundits", group: "ops" },
   { href: "/broadcast", label: "Broadcast", group: "ops", minRole: "super-admin" },
   { href: "/tournaments", label: "Tournaments", group: "ops", minRole: "mod" },
   { href: "/fixtures", label: "Fixtures", group: "ops", minRole: "mod" },

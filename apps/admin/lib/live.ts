@@ -635,6 +635,79 @@ export function liveAuditLog(): { rows: AuditEntryLive[] } | null {
   return { rows: rows.slice(0, 500) };
 }
 
+// ---------------- pundit leaderboard -----------------------------------
+
+export interface PunditRow {
+  readonly user_id: string;
+  readonly display_name: string;
+  readonly country: string | null;
+  readonly score: number;
+  readonly locked_at: string;
+}
+
+/** Top brackets by `score_total` for a given tournament. Joins with
+ *  auth.db on the admin side because the two databases live in
+ *  separate sqlite files. Caps at 50. */
+export function livePundits(
+  tournamentId = "fifa-wc-2026",
+  limit = 25,
+): PunditRow[] | null {
+  const gdb = gameDb();
+  if (!gdb) return null;
+  const rows = gdb
+    .prepare(
+      `SELECT user_id, score_total, locked_at
+       FROM brackets
+       WHERE tournament_id = ?
+       ORDER BY score_total DESC, locked_at ASC
+       LIMIT ?`,
+    )
+    .all(tournamentId, limit) as {
+    user_id: string;
+    score_total: number;
+    locked_at: number;
+  }[];
+  if (rows.length === 0) return [];
+
+  // Look up names from auth.db (batched).
+  const adb = authDb();
+  const names = new Map<string, { display_name: string; country: string | null }>();
+  if (adb) {
+    const ids = rows.map((r) => r.user_id);
+    const placeholders = ids.map(() => "?").join(",");
+    const userRows = adb
+      .prepare(
+        `SELECT id, display_name, country, phone, email FROM user WHERE id IN (${placeholders})`,
+      )
+      .all(...ids) as {
+      id: string;
+      display_name: string | null;
+      country: string | null;
+      phone: string | null;
+      email: string | null;
+    }[];
+    for (const u of userRows) {
+      const label =
+        u.display_name?.trim() ||
+        u.email ||
+        u.phone ||
+        u.id.slice(0, 8);
+      names.set(u.id, { display_name: label, country: u.country });
+    }
+  }
+
+  return rows.map((r) => {
+    const meta = names.get(r.user_id);
+    return {
+      user_id: r.user_id,
+      display_name: meta?.display_name ?? r.user_id.slice(0, 8),
+      country: meta?.country ?? null,
+      score: r.score_total,
+      locked_at: new Date(r.locked_at).toISOString(),
+    };
+  });
+}
+
 // ---------------- market odds (polymarket via odds-ingest) -------------
 
 export interface MarketFavourite {
