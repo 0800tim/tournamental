@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Api } from "@/lib/api";
 import { requireAuth } from "@/lib/auth";
 import { fetchCustomer360 } from "@/lib/customer360";
+import { liveUserPools } from "@/lib/live";
 import { HumannessChip } from "@/components/HumannessChip";
 import { PunditChip } from "@/components/PunditChip";
 import { StatCard } from "@/components/StatCard";
@@ -27,6 +28,8 @@ export default async function UserDetailPage({
     Api.user(session, params.id),
     fetchCustomer360(params.id),
   ]);
+  const userPools = liveUserPools(params.id) ?? [];
+  const ownedSlugs = userPools.filter((p) => p.role === "owner").map((p) => p.slug);
 
   // The original "Profile" view (kept verbatim) becomes the body of the
   // Profile tab; the new tabs surface predictions, syndicates, revenue, and
@@ -47,14 +50,56 @@ export default async function UserDetailPage({
       <section>
         <h2 className="text-sm uppercase tracking-wider text-ink-500 mb-2">Brackets</h2>
         <div className="rounded-lg ring-1 ring-ink-700 bg-ink-800 divide-y divide-ink-700">
-          {u.brackets.map((b) => (
-            <div key={b.id} className="px-4 py-3 flex justify-between text-sm">
-              <span>{b.tournament}</span>
-              <span className="text-ink-200">
-                Rank <span className="font-mono">#{b.rank}</span>
-              </span>
+          {u.brackets.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-ink-500">No brackets yet.</div>
+          ) : (
+            u.brackets.map((b) => (
+              <div key={b.id} className="px-4 py-3 flex justify-between text-sm">
+                <span>{b.tournament}</span>
+                <span className="text-ink-200">
+                  Rank <span className="font-mono">#{b.rank}</span>
+                </span>
+              </div>
+            ))
+          )}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-end justify-between mb-2">
+          <h2 className="text-sm uppercase tracking-wider text-ink-500">
+            Pools ({userPools.length})
+          </h2>
+          {ownedSlugs.length > 0 && (
+            <Link
+              href={`/broadcast?${ownedSlugs.map((s) => `slug=${encodeURIComponent(s)}`).join("&")}`}
+              className="text-xs text-accent-400 hover:underline"
+            >
+              Message all owned pools →
+            </Link>
+          )}
+        </div>
+        <div className="rounded-lg ring-1 ring-ink-700 bg-ink-800 divide-y divide-ink-700">
+          {userPools.length === 0 ? (
+            <div className="px-4 py-3 text-sm text-ink-500">
+              This user doesn't belong to any pools yet.
             </div>
-          ))}
+          ) : (
+            userPools.map((p) => (
+              <div key={p.slug} className="px-4 py-2 flex justify-between text-sm">
+                <Link
+                  href={`/syndicates/${p.slug}`}
+                  className="text-ink-50 hover:text-accent-400"
+                >
+                  {p.name}
+                </Link>
+                <span className="text-xs text-ink-500">
+                  {p.role === "owner" ? "owner" : "member"} ·{" "}
+                  {p.is_public ? "public" : "private"}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </section>
 

@@ -223,6 +223,40 @@ export function liveUsers(
   };
 }
 
+export interface UserPoolEntry {
+  readonly slug: string;
+  readonly name: string;
+  readonly role: "owner" | "member";
+  readonly is_public: boolean;
+}
+
+/** Pools where this user appears in `syndicate_owners_membership`, with
+ *  their role (owner vs member). Used by the user detail page. */
+export function liveUserPools(userId: string): UserPoolEntry[] | null {
+  const gdb = gameDb();
+  if (!gdb) return null;
+  const rows = gdb
+    .prepare(
+      `SELECT s.slug, s.name, som.role, s.is_public
+       FROM syndicate_owners_membership som
+       JOIN syndicates s ON s.id = som.syndicate_id
+       WHERE som.user_id = ?
+       ORDER BY som.role = 'owner' DESC, s.created_at DESC`,
+    )
+    .all(userId) as {
+    slug: string;
+    name: string;
+    role: string;
+    is_public: number;
+  }[];
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    role: r.role === "owner" ? ("owner" as const) : ("member" as const),
+    is_public: r.is_public === 1,
+  }));
+}
+
 export function liveUser(
   id: string,
 ): (UserRow & { brackets: { id: string; tournament: string; rank: number }[] }) | null {
