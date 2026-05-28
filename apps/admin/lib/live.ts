@@ -495,6 +495,76 @@ export function liveApiKeys(): { rows: ApiKeyRow[] } | null {
   };
 }
 
+// ---------------- recent activity --------------------------------------
+
+export interface RecentSignup {
+  readonly id: string;
+  readonly display_name: string;
+  readonly country: string;
+  readonly joined_at: string;
+}
+
+export interface RecentPool {
+  readonly slug: string;
+  readonly name: string;
+  readonly owner_handle: string | null;
+  readonly is_public: boolean;
+  readonly created_at: string;
+}
+
+export function liveRecentSignups(limit = 10): RecentSignup[] | null {
+  const adb = authDb();
+  if (!adb) return null;
+  const rows = adb
+    .prepare(
+      `SELECT id, display_name, country, email, phone, created_at
+       FROM user
+       ORDER BY created_at DESC
+       LIMIT ?`,
+    )
+    .all(limit) as {
+    id: string;
+    display_name: string | null;
+    country: string | null;
+    email: string | null;
+    phone: string | null;
+    created_at: number;
+  }[];
+  return rows.map((r) => ({
+    id: r.id,
+    display_name:
+      r.display_name?.trim() || r.email || r.phone || r.id.slice(0, 8),
+    country: r.country ?? "XX",
+    joined_at: new Date(r.created_at).toISOString(),
+  }));
+}
+
+export function liveRecentPools(limit = 10): RecentPool[] | null {
+  const gdb = gameDb();
+  if (!gdb) return null;
+  const rows = gdb
+    .prepare(
+      `SELECT slug, name, owner_handle, is_public, created_at
+       FROM syndicates
+       ORDER BY created_at DESC
+       LIMIT ?`,
+    )
+    .all(limit) as {
+    slug: string;
+    name: string;
+    owner_handle: string | null;
+    is_public: number;
+    created_at: number;
+  }[];
+  return rows.map((r) => ({
+    slug: r.slug,
+    name: r.name,
+    owner_handle: r.owner_handle,
+    is_public: r.is_public === 1,
+    created_at: new Date(r.created_at).toISOString(),
+  }));
+}
+
 // ---------------- audit log --------------------------------------------
 
 import { existsSync as _existsSync, readFileSync as _readFileSync } from "node:fs";

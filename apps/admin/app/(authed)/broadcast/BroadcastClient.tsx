@@ -43,6 +43,9 @@ interface PlaybookForClient {
 export interface BroadcastClientProps {
   pools: PoolSummary[];
   playbooks: PlaybookForClient[] | PlaybookTemplate[];
+  /** Slugs to pre-select on first render. Used by the
+   *  `/broadcast?slug=the-crate` deep link from the pool detail page. */
+  preselect?: ReadonlyArray<string>;
 }
 
 interface DryRunResponse {
@@ -69,9 +72,14 @@ const SOURCE_TEMPLATE = "template" as const;
 const SOURCE_CUSTOM = "custom" as const;
 type Source = typeof SOURCE_TEMPLATE | typeof SOURCE_CUSTOM;
 
-export function BroadcastClient({ pools, playbooks }: BroadcastClientProps) {
+export function BroadcastClient({ pools, playbooks, preselect }: BroadcastClientProps) {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const validPreselect = (preselect ?? []).filter((s) =>
+    pools.some((p) => p.slug === s),
+  );
+  const [selected, setSelected] = useState<Set<string>>(
+    () => new Set(validPreselect),
+  );
 
   const recommended = playbooks.find((p) => p.recommended) ?? playbooks[0];
   const [source, setSource] = useState<Source>(

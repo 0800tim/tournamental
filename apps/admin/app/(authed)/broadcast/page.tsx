@@ -13,12 +13,22 @@ import { BroadcastClient } from "./BroadcastClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function BroadcastPage() {
+export default async function BroadcastPage({
+  searchParams,
+}: {
+  searchParams: { slug?: string | string[] };
+}) {
   const session = await requireAuth();
   const [syndicates, playbooks] = await Promise.all([
     Api.syndicates(session, "", ""),
     loadPlaybooks(),
   ]);
+
+  // Allow a deep link from the pool detail page: `/broadcast?slug=the-crate`
+  // pre-selects that pool. Repeat the param to seed multiple.
+  const preselect: string[] = [];
+  if (Array.isArray(searchParams.slug)) preselect.push(...searchParams.slug);
+  else if (typeof searchParams.slug === "string") preselect.push(searchParams.slug);
 
   // Pass only the fields the client needs; keeps the wire payload lean
   // and avoids leaking owner_email / owner_phone to the browser. The
@@ -50,7 +60,7 @@ export default async function BroadcastPage() {
         </p>
       </header>
 
-      <BroadcastClient pools={pools} playbooks={playbooks} />
+      <BroadcastClient pools={pools} playbooks={playbooks} preselect={preselect} />
     </div>
   );
 }
