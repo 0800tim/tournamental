@@ -1,3 +1,0 @@
-{"id":"a_mppfrylb_aqwike","ts":"2026-05-28T11:55:21.695Z","actor":"+64****5832","role":"super-admin","action":"broadcast.dry-run","target":"syndicate:sdeal","after":{"template":"playbook:welcome","channels":["whatsapp","email"],"skipped":[]}}
-{"id":"a_mppfs08o_jf6g6w","ts":"2026-05-28T11:55:23.832Z","actor":"+64****5832","role":"super-admin","action":"broadcast.dry-run","target":"syndicate:sdeal","after":{"template":"playbook:welcome","channels":["whatsapp","email"],"skipped":[]}}
-{"id":"a_mppfs08o_0o325o","ts":"2026-05-28T11:55:23.832Z","actor":"+64****5832","role":"super-admin","action":"broadcast.dry-run","target":"syndicate:fifa","after":{"template":"playbook:welcome","channels":["whatsapp","email"],"skipped":[]}}
