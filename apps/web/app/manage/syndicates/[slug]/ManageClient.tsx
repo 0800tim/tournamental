@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { InviteWizard } from "@/components/syndicate/invite/InviteWizard";
 
 interface SyndicateData {
@@ -65,6 +65,60 @@ export function ManageClient({
     const digits = phoneLocal.replace(/\D+/g, "").replace(/^0+/, "");
     return digits ? `${dialCode}${digits}` : "";
   }, [dialCode, phoneLocal]);
+
+  // Admin impersonation: when the URL carries `?admin_token=` (issued
+  // by the Tournamental admin app via /api/admin/syndicates/[slug]
+  // /impersonate), use it as the manage token and skip the OTP phase.
+  // The token is verified server-side on every subsequent call, so a
+  // tampered URL just lands on a 403 from /manage-owner.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const url = new URL(window.location.href);
+    const adminToken = url.searchParams.get("admin_token");
+    if (!adminToken || token) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/v1/syndicates/${encodeURIComponent(slug)}/manage-owner`,
+          {
+            headers: { Authorization: `Bearer ${adminToken}` },
+            cache: "no-store",
+          },
+        );
+        if (cancelled) return;
+        if (!res.ok) {
+          setError("Admin impersonation token rejected or expired.");
+          return;
+        }
+        const body = (await res.json()) as {
+          syndicate?: SyndicateData;
+        };
+        if (!body.syndicate) {
+          setError("Admin impersonation: pool not found.");
+          return;
+        }
+        setToken(adminToken);
+        setSyndicate(body.syndicate);
+        setEditName(body.syndicate.name);
+        setEditTopic(body.syndicate.topic ?? "");
+        setPhase("managing");
+        // Strip the token from the URL so a copy-paste link doesn't
+        // leak the token to the next person; the in-memory state
+        // still has it.
+        url.searchParams.delete("admin_token");
+        window.history.replaceState({}, "", url.toString());
+      } catch {
+        if (!cancelled) setError("Network error while opening as admin.");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // We deliberately only run this once on mount; if the token were
+    // to change, the operator just reloads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function requestOtp() {
     setError("");

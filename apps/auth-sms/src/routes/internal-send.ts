@@ -102,11 +102,23 @@ export async function registerInternalSend(
     // ---- WhatsApp ----
     if (phone) {
       const normalised = normalisePhone(phone);
-      if (!normalised) {
+      // Belt-and-braces validation: require E.164 shape AND reject
+      // obvious junk (all-same-digit, starts with reserved +9xx where
+      // x ∈ {99}, etc.). The Aiva gateway accepts these upstream and
+      // wastes our send budget; we'd rather refuse them here and log
+      // the bad CSV row.
+      const validE164 = normalised !== null && /^\+[1-9]\d{7,14}$/.test(normalised);
+      const digits = normalised?.slice(1) ?? '';
+      const allSameDigit = /^(.)\1+$/.test(digits);
+      // ITU reserves +999 as a global service code (not assignable to
+      // subscribers). Any number starting +99[8-9] is invalid for a
+      // person-to-person send.
+      const reservedPrefix = /^\+99\d/.test(normalised ?? '');
+      if (!validE164 || allSameDigit || reservedPrefix) {
         out.whatsapp = { status: 'skipped', error: 'bad-phone' };
       } else {
         try {
-          const result = await ctx.waSender.send({ to: normalised, body });
+          const result = await ctx.waSender.send({ to: normalised!, body });
           if (result.ok) {
             out.whatsapp = { status: 'sent' };
           } else {

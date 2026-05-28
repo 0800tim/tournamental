@@ -63,10 +63,11 @@ export default async function SyndicateDetailPage({
         </div>
         <div className="flex flex-col gap-1 items-end whitespace-nowrap">
           <a
-            href={`https://play.tournamental.com/manage/syndicates/${encodeURIComponent(s.slug)}`}
+            href={`/api/admin/syndicates/${encodeURIComponent(s.slug)}/impersonate`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-accent-400 hover:underline"
+            title="Mints a 30-minute manage token and opens the public pool manage page"
           >
             Send bulk invites ↗
           </a>
