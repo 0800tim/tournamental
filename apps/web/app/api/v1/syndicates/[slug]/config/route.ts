@@ -99,6 +99,11 @@ export async function GET(
         tournament_id: row.tournament_id,
         tier: row.tier,
         member_count: row.member_count,
+        // Owner-typed lede + handle so the public surfaces (join page,
+        // embed widget header) can render the same rich page-header the
+        // /s/<slug> share-landing uses. Tim 2026-05-28.
+        topic: row.topic ?? null,
+        owner_handle: row.owner_handle ?? null,
         branding: {
           primary_colour: row.branding_primary_colour ?? "#fbbf24",
           accent_colour: row.branding_accent_colour ?? "#21a34a",

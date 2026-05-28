@@ -212,11 +212,48 @@ export interface PhoneRequestErr {
 export type PhoneRequestResult = PhoneRequestOk | PhoneRequestErr;
 
 /**
+ * Best-effort normalise a phone number to E.164 client-side.
+ *
+ * The auth-sms `normalisePhone` server-side is strict: it requires a
+ * leading "+" or it returns null (and a 400 "bad-phone"). CRM exports
+ * often hold local-format numbers (`021535832`, `04 1234 5678`) so
+ * the warm-invite flow needs to apply a sensible default country
+ * before we hit the server. Per Tim's call (2026-05-28): assume NZ
+ * when there's no obvious country code.
+ *
+ *   "021535832"    -> "+6421535832"  (drop leading 0, prepend +64)
+ *   "+6421535832"  -> "+6421535832"  (already E.164, pass through)
+ *   "6421535832"   -> "+6421535832"  (treat as missing the +)
+ *   "+1 555 ..."   -> "+15554...."   (any explicit + is honoured)
+ *
+ * Returns the raw input untouched when we can't confidently normalise
+ * (e.g. obviously-international `00...` prefix, or non-digit gunk) —
+ * the server's stricter check will reject those with a clear error.
+ */
+export function normalisePhoneE164(input: string): string {
+  const stripped = (input ?? "").replace(/[\s\-() ]/g, "");
+  if (!stripped) return stripped;
+  if (stripped.startsWith("+")) return stripped;
+  // "00" international prefix → swap to "+"
+  if (stripped.startsWith("00")) return `+${stripped.slice(2)}`;
+  // NZ mobile shape (`02x...`) and NZ landline (`03..0`/`04`/`06`/`07`/`09`)
+  // — drop the trunk zero and prepend +64.
+  if (/^0[2-9]\d{6,12}$/.test(stripped)) return `+64${stripped.slice(1)}`;
+  // Looks like an already-CC'd number without the +; honour it.
+  if (/^[1-9]\d{7,14}$/.test(stripped)) return `+${stripped}`;
+  return stripped;
+}
+
+/**
  * Ask auth-sms to send a 6-digit OTP to a phone via SMS or WhatsApp.
  * Used by the CRM-invite warm-join flow where we already know the
  * user's mobile number (passed in via ?mobile=... query string) and
  * want to bootstrap them straight to a code-entry screen without
  * making them re-type their number.
+ *
+ * Phone is normalised to E.164 client-side (default country NZ) so
+ * common CRM export shapes (`021535832`) work without making the
+ * recipient retype.
  *
  * Tim 2026-05-28.
  */
@@ -225,7 +262,7 @@ export async function requestPhoneOtp(
   channel: "sms" | "whatsapp",
   poolSlug?: string | null,
 ): Promise<PhoneRequestResult> {
-  const trimmed = (phone ?? "").trim();
+  const trimmed = normalisePhoneE164(phone ?? "");
   if (!trimmed) return { ok: false, error: "bad-phone" };
   const body: Record<string, unknown> = { phone: trimmed, channel };
   if (poolSlug && /^[a-z0-9-]{1,64}$/i.test(poolSlug)) body.pool_slug = poolSlug;

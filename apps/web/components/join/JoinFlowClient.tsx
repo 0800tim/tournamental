@@ -88,8 +88,13 @@ interface EntryFee {
 
 interface PoolConfig {
   readonly name: string;
+  readonly tournament_id?: string;
+  readonly topic?: string | null;
+  readonly owner_handle?: string | null;
+  readonly member_count?: number;
   readonly branding: {
     readonly logo_url: string | null;
+    readonly hero_url?: string | null;
     readonly primary_colour: string | null;
     readonly accent_colour: string | null;
   };
@@ -363,20 +368,151 @@ function PoolHeader({
 }): JSX.Element {
   const name = config?.name ?? initialName;
   const logo = config?.branding.logo_url ?? null;
+  const hero = config?.branding.hero_url ?? null;
+  const topic = (config?.topic ?? "").trim() || null;
+  const ownerHandle = (config?.owner_handle ?? "").trim() || null;
+  const tournament =
+    config?.tournament_id === "fifa-wc-2026"
+      ? "FIFA World Cup 2026™ Predictor"
+      : "Tournamental";
+
+  // Branded page-header mirrors the share-landing surface at /s/<slug>:
+  // hero banner background → scrim → logo chip + dateline + name +
+  // lede. Falls back to a clean centred logo+name when no branding is
+  // configured so a fresh free pool still reads as inviting. Inline
+  // styles (no global CSS) so the join page stays self-contained.
+  // Tim 2026-05-28.
+  if (!hero && !logo) {
+    return (
+      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
+        <p style={{ color: "#9aa6c2", letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 11, margin: 0 }}>
+          You&apos;re invited to join
+        </p>
+        <h1 style={{ fontSize: 28, margin: 0, fontFamily: "Fraunces, Georgia, serif", letterSpacing: "-0.01em" }}>
+          {name}
+        </h1>
+        {topic && (
+          <p style={{ color: "#c7d0e6", fontSize: 14, fontStyle: "italic", margin: "4px 0 0", fontFamily: "Fraunces, Georgia, serif" }}>
+            {topic}
+          </p>
+        )}
+      </div>
+    );
+  }
+
   return (
-    <div style={{ textAlign: "center", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-      {logo && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src={logo}
-          alt=""
-          style={{ width: 72, height: 72, objectFit: "contain", borderRadius: 12 }}
+    <div
+      style={{
+        position: "relative",
+        borderRadius: 16,
+        overflow: "hidden",
+        marginBottom: 4,
+        background: "#15151a",
+        border: "1px solid rgba(255,255,255,0.06)",
+        minHeight: 180,
+      }}
+    >
+      {hero && (
+        <div
+          role="img"
+          aria-label={`${name} banner`}
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `url(${JSON.stringify(hero).slice(1, -1)})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
         />
       )}
-      <p style={{ color: "#9aa6c2", letterSpacing: "0.14em", textTransform: "uppercase", fontSize: 11, margin: 0 }}>
-        You&apos;re invited to join
-      </p>
-      <h1 style={{ fontSize: 24, margin: 0 }}>{name}</h1>
+      {/* Scrim so light hero images don't wash out the text */}
+      <div
+        aria-hidden
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(180deg, rgba(15,15,20,0.55) 0%, rgba(15,15,20,0.92) 100%)",
+        }}
+      />
+      <div
+        style={{
+          position: "relative",
+          padding: "20px 18px 22px",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          {logo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={logo}
+              alt=""
+              style={{
+                width: 64,
+                height: 64,
+                objectFit: "contain",
+                borderRadius: 10,
+                background: "#fff",
+                padding: 4,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                flexShrink: 0,
+              }}
+            />
+          )}
+          <div style={{ minWidth: 0, flex: 1 }}>
+            <p
+              style={{
+                color: "#dca94b",
+                fontFamily:
+                  '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+                fontSize: 11,
+                letterSpacing: "0.18em",
+                textTransform: "uppercase",
+                margin: 0,
+              }}
+            >
+              <span aria-hidden style={{ marginRight: 8 }}>—</span>
+              {tournament}
+              {ownerHandle && (
+                <>
+                  <span aria-hidden style={{ margin: "0 8px" }}>·</span>
+                  <span>@{ownerHandle}</span>
+                </>
+              )}
+            </p>
+            <h1
+              style={{
+                fontFamily: "Fraunces, Georgia, serif",
+                fontWeight: 500,
+                fontSize: "clamp(28px, 6vw, 40px)",
+                lineHeight: 1.05,
+                letterSpacing: "-0.01em",
+                color: "#ffffff",
+                margin: "6px 0 0",
+              }}
+            >
+              {name}
+            </h1>
+          </div>
+        </div>
+        {topic && (
+          <p
+            style={{
+              fontFamily: "Fraunces, Georgia, serif",
+              fontStyle: "italic",
+              fontSize: 15,
+              lineHeight: 1.45,
+              color: "#e6e6ea",
+              margin: "8px 2px 0",
+            }}
+          >
+            {topic}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
@@ -715,7 +851,20 @@ function WarmInviteStep({
   const handleVerify = useCallback(async (): Promise<void> => {
     setError(null);
     setBusy(true);
-    const res = await verifyInboundCode(code);
+    // Email + phone OTPs live in DIFFERENT auth-sms tables, so the
+    // /v1/auth/verify-by-code endpoint (which scans phone OTPs) misses
+    // email codes and returns "unknown-or-expired". Try the email path
+    // first when we have an email address; if that fails, fall through
+    // to the inbound (phone) scan. The user enters whichever code
+    // arrived first; the verifier figures out which row to match.
+    let res: Awaited<ReturnType<typeof verifyInboundCode>> | null = null;
+    if (invite.email) {
+      const r = await verifyEmailOtp(invite.email, code);
+      if (r.ok) res = r;
+    }
+    if (!res) {
+      res = await verifyInboundCode(code);
+    }
     if (!res.ok) {
       setBusy(false);
       setError(verifyErrorMessage(res.error));
