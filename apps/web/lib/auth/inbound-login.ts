@@ -186,6 +186,74 @@ export async function requestEmailOtp(email: string): Promise<EmailRequestResult
   };
 }
 
+// ---- Outbound phone OTP (SMS / WhatsApp) ----------------------------
+
+export interface PhoneRequestOk {
+  readonly ok: true;
+  readonly channel: "sms" | "whatsapp";
+  readonly phoneMasked: string;
+  readonly expiresInSeconds: number;
+}
+
+export interface PhoneRequestErr {
+  readonly ok: false;
+  readonly error:
+    | "bad-body"
+    | "bad-phone"
+    | "bad-channel"
+    | "rate-limited"
+    | "send-failed"
+    | "not-configured"
+    | "network"
+    | "unknown";
+  readonly retryAfterSeconds?: number;
+}
+
+export type PhoneRequestResult = PhoneRequestOk | PhoneRequestErr;
+
+/**
+ * Ask auth-sms to send a 6-digit OTP to a phone via SMS or WhatsApp.
+ * Used by the CRM-invite warm-join flow where we already know the
+ * user's mobile number (passed in via ?mobile=... query string) and
+ * want to bootstrap them straight to a code-entry screen without
+ * making them re-type their number.
+ *
+ * Tim 2026-05-28.
+ */
+export async function requestPhoneOtp(
+  phone: string,
+  channel: "sms" | "whatsapp",
+  poolSlug?: string | null,
+): Promise<PhoneRequestResult> {
+  const trimmed = (phone ?? "").trim();
+  if (!trimmed) return { ok: false, error: "bad-phone" };
+  const body: Record<string, unknown> = { phone: trimmed, channel };
+  if (poolSlug && /^[a-z0-9-]{1,64}$/i.test(poolSlug)) body.pool_slug = poolSlug;
+  const res = await postJson<PhoneRequestOk>("/v1/auth/request", body);
+  if (res.ok && "expiresInSeconds" in (res.body as object)) {
+    return res.body as PhoneRequestOk;
+  }
+  const errBody = res.body as ApiErrorBody;
+  const raw = errBody.error ?? "unknown";
+  const allowed: PhoneRequestErr["error"][] = [
+    "bad-body",
+    "bad-phone",
+    "bad-channel",
+    "rate-limited",
+    "send-failed",
+    "not-configured",
+    "network",
+  ];
+  const code = (allowed as string[]).includes(raw)
+    ? (raw as PhoneRequestErr["error"])
+    : "unknown";
+  return {
+    ok: false,
+    error: code,
+    retryAfterSeconds: errBody.retryAfterSeconds,
+  };
+}
+
 /** Verify the emailed 6-digit code and mint a session (cookie set apex-wide). */
 export async function verifyEmailOtp(
   email: string,

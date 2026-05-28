@@ -24,6 +24,7 @@ import {
   detectSmsCountry,
   fetchInboundUser,
   requestEmailOtp,
+  requestPhoneOtp,
   smsLoginDeepLink,
   updateInboundProfile,
   verifyEmailOtp,
@@ -41,7 +42,44 @@ export interface JoinFlowClientProps {
   readonly initialName: string;
 }
 
-type FlowState = "loading" | "signin" | "onboarding" | "payment" | "done";
+type FlowState =
+  | "loading"
+  | "warm-invite"
+  | "signin"
+  | "onboarding"
+  | "payment"
+  | "done";
+
+/** Pre-fill fields parsed from the CRM-invite query string. Any subset
+ *  may be present. When `mobile` or `email` is set, the join page kicks
+ *  off the OTP send automatically and skips the manual sign-in step.
+ *  Tim 2026-05-28. */
+interface WarmInvite {
+  readonly firstname: string | null;
+  readonly surname: string | null;
+  readonly mobile: string | null;
+  readonly email: string | null;
+}
+
+function parseWarmInvite(search: string): WarmInvite | null {
+  if (typeof window === "undefined") return null;
+  const params = new URLSearchParams(search);
+  const pick = (k: string): string | null => {
+    const v = params.get(k);
+    if (!v) return null;
+    const trimmed = v.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  };
+  // Accept either spelling for each field so CRM exports with slightly
+  // different column headers still work without an integration step.
+  const firstname = pick("firstname") ?? pick("first_name") ?? pick("first") ?? null;
+  const surname =
+    pick("surname") ?? pick("lastname") ?? pick("last_name") ?? pick("last") ?? null;
+  const mobile = pick("mobile") ?? pick("phone") ?? null;
+  const email = pick("email") ?? null;
+  if (!firstname && !surname && !mobile && !email) return null;
+  return { firstname, surname, mobile, email };
+}
 
 interface EntryFee {
   readonly cents: number;
@@ -87,6 +125,12 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
   const [user, setUser] = useState<InboundUser | null>(null);
   const [doneKind, setDoneKind] = useState<DoneKind>("active");
   const [loadError, setLoadError] = useState<string | null>(null);
+  // CRM-invite pre-fill from query string. Captured once on mount so
+  // a later history.replaceState() (we strip the params after sending
+  // so they don't leak via referrer / share) doesn't lose them.
+  const [warmInvite] = useState<WarmInvite | null>(() =>
+    typeof window === "undefined" ? null : parseWarmInvite(window.location.search),
+  );
 
   const primary = config?.branding.primary_colour || DEFAULT_PRIMARY;
 
@@ -120,6 +164,14 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
       const u = await fetchInboundUser();
       if (cancelled) return;
       if (!u) {
+        // CRM-invite path: when the URL carried at least an email
+        // or mobile, jump straight to the warm-invite step which
+        // auto-sends the OTP and only asks for the code. Otherwise
+        // fall through to the standard sign-in step.
+        if (warmInvite && (warmInvite.email || warmInvite.mobile)) {
+          setFlow("warm-invite");
+          return;
+        }
         setFlow("signin");
         return;
       }
@@ -169,6 +221,23 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
     return (
       <Shell primary={primary}>
         <p style={{ color: "#9aa6c2" }}>Loading…</p>
+      </Shell>
+    );
+  }
+
+  if (flow === "warm-invite" && warmInvite) {
+    return (
+      <Shell primary={primary}>
+        <PoolHeader config={config} initialName={initialName} />
+        <PrizeSummary config={config} />
+        {loadError && <p style={errorTextStyle}>{loadError}</p>}
+        <WarmInviteStep
+          slug={slug}
+          primary={primary}
+          invite={warmInvite}
+          onSignedIn={handleSignedIn}
+          onFallback={() => setFlow("signin")}
+        />
       </Shell>
     );
   }
@@ -566,6 +635,181 @@ function verifyErrorMessage(error: string): string {
     default:
       return "Sign-in failed. Try again, or use WhatsApp.";
   }
+}
+
+// --- Warm-invite step (CRM pre-fill) ----------------------------------
+
+/**
+ * CRM-invite landing. When the join URL carries pre-filled contact
+ * details (`?firstname=...&surname=...&mobile=...&email=...`) we skip
+ * the manual sign-in form and:
+ *
+ *   1. Auto-dispatch the OTP on mount: WhatsApp to mobile if present
+ *      AND email to address if present (both fire in parallel).
+ *   2. Greet the recipient by name.
+ *   3. Show ONE code input. `verifyInboundCode` matches any active
+ *      OTP regardless of channel, so the recipient enters whichever
+ *      code arrived first.
+ *   4. After verify, write firstname / surname / email back to the
+ *      profile so the onboarding step is already filled in.
+ *
+ * Tim 2026-05-28.
+ */
+function WarmInviteStep({
+  slug,
+  primary,
+  invite,
+  onSignedIn,
+  onFallback,
+}: {
+  slug: string;
+  primary: string;
+  invite: WarmInvite;
+  onSignedIn: (user: InboundUser | null) => void | Promise<void>;
+  onFallback: () => void;
+}): JSX.Element {
+  const greetName = [invite.firstname, invite.surname].filter(Boolean).join(" ").trim();
+  const [sendState, setSendState] = useState<"sending" | "sent" | "error">("sending");
+  const [sentVia, setSentVia] = useState<{ email: boolean; whatsapp: boolean }>(
+    { email: false, whatsapp: false },
+  );
+  const [code, setCode] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fire the OTP sends once on mount. We don't wait for either to
+  // succeed before showing the code input; if both fail we surface
+  // a clear error + a fallback link to the manual sign-in step.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const results = await Promise.allSettled([
+        invite.email ? requestEmailOtp(invite.email) : Promise.resolve(null),
+        invite.mobile
+          ? requestPhoneOtp(invite.mobile, "whatsapp", slug)
+          : Promise.resolve(null),
+      ]);
+      if (cancelled) return;
+      const emailOk =
+        results[0]?.status === "fulfilled" && (results[0]?.value as { ok?: boolean } | null)?.ok === true;
+      const phoneOk =
+        results[1]?.status === "fulfilled" && (results[1]?.value as { ok?: boolean } | null)?.ok === true;
+      setSentVia({ email: emailOk, whatsapp: phoneOk });
+      if (emailOk || phoneOk) setSendState("sent");
+      else setSendState("error");
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const channelLine = useMemo(() => {
+    const bits: string[] = [];
+    if (sentVia.whatsapp) bits.push("WhatsApp");
+    if (sentVia.email) bits.push("email");
+    if (bits.length === 0) return "Sending you a code…";
+    return `Code sent via ${bits.join(" + ")}. Enter it below to join.`;
+  }, [sentVia]);
+
+  const handleVerify = useCallback(async (): Promise<void> => {
+    setError(null);
+    setBusy(true);
+    const res = await verifyInboundCode(code);
+    if (!res.ok) {
+      setBusy(false);
+      setError(verifyErrorMessage(res.error));
+      return;
+    }
+    // Profile pre-fill: write the invite-provided name + email back
+    // so the onboarding step already has them filled in. Best-effort;
+    // a failure here doesn't block sign-in.
+    const displayName = [invite.firstname, invite.surname].filter(Boolean).join(" ").trim();
+    const patch: Record<string, string> = {};
+    if (invite.firstname) patch.first_name = invite.firstname;
+    if (invite.surname) patch.last_name = invite.surname;
+    if (invite.email) patch.email = invite.email;
+    if (displayName) patch.display_name = displayName;
+    try {
+      if (Object.keys(patch).length > 0) {
+        await updateInboundProfile(patch as Parameters<typeof updateInboundProfile>[0]);
+      }
+    } catch {
+      /* swallow: not fatal */
+    }
+    setBusy(false);
+    void onSignedIn({
+      id: res.user.id,
+      phone: res.user.phone,
+      email: invite.email,
+      displayName: displayName || res.user.displayName,
+      firstName: invite.firstname,
+      lastName: invite.surname,
+      country: res.user.country,
+      city: null,
+      favouriteTeamCode: null,
+      telegramUsername: null,
+      createdAt: 0,
+      lastSeenAt: 0,
+    });
+  }, [code, invite, onSignedIn]);
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+      {greetName && (
+        <p style={{ fontSize: 18, color: "#e6e6ea", margin: 0, fontWeight: 600 }}>
+          Welcome, {greetName}.
+        </p>
+      )}
+      <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0 }}>
+        {sendState === "sending"
+          ? "Sending you a one-time code…"
+          : sendState === "error"
+            ? "We couldn't send the code automatically. Use the sign-in below."
+            : channelLine}
+      </p>
+
+      {error && <p style={errorTextStyle}>{error}</p>}
+
+      <input
+        type="text"
+        inputMode="numeric"
+        autoComplete="one-time-code"
+        maxLength={6}
+        placeholder="6-digit code"
+        value={code}
+        onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+        style={inputStyle}
+        autoFocus
+        disabled={sendState === "error"}
+      />
+      <button
+        type="button"
+        onClick={() => void handleVerify()}
+        disabled={busy || code.length !== 6 || sendState === "error"}
+        style={primaryButtonStyle(primary)}
+      >
+        {busy ? "Joining…" : "Join the pool"}
+      </button>
+
+      <button
+        type="button"
+        onClick={onFallback}
+        style={{
+          background: "transparent",
+          border: 0,
+          color: "#9aa6c2",
+          fontSize: 13,
+          textDecoration: "underline",
+          padding: 4,
+          marginTop: 4,
+          cursor: "pointer",
+        }}
+      >
+        {sendState === "error" ? "Sign in manually" : "Use a different sign-in method"}
+      </button>
+    </div>
+  );
 }
 
 // --- Onboarding step --------------------------------------------------
