@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { InviteWizard } from "@/components/syndicate/invite/InviteWizard";
 
 interface SyndicateData {
   slug: string;
@@ -303,6 +304,16 @@ export function ManageClient({
             <a className="syn-cta" href={tgHref} target="_blank" rel="noopener noreferrer">Telegram</a>
             <a className="syn-cta" href={mailHref}>Email</a>
           </div>
+        </div>
+
+        {/* Bulk invite (CSV upload + per-contact warm-invite URL) */}
+        <div className="syn-success-card" style={{ marginTop: "1rem" }}>
+          <InviteWizard
+            slug={syndicate.slug}
+            poolName={syndicate.name}
+            shareUrl={syndicate.share_url}
+            manageToken={token}
+          />
         </div>
 
         {/* Stats */}

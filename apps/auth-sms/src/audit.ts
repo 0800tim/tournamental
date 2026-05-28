@@ -43,7 +43,9 @@ export type AuditAction =
   | 'inbound.magic.fingerprint-mismatch'
   | 'inbound.code.ok'
   | 'inbound.code.no-match'
-  | 'inbound.code.ip-throttled';
+  | 'inbound.code.ip-throttled'
+  // Internal broadcast / invite send.
+  | 'internal.send.dispatched';
 
 export interface AuditFields {
   ts: string;

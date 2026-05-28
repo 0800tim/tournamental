@@ -32,6 +32,9 @@ const nextConfig = {
       // it server-side.
       "@napi-rs/canvas",
       "@tournamental/social-cards",
+      // better-sqlite3 has native bindings; used by lib/invite/store.ts
+      // for the bulk-invite queue (Tim 2026-05-29).
+      "better-sqlite3",
     ],
   },
   transpilePackages: [

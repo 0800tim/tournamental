@@ -61,14 +61,24 @@ export default async function SyndicateDetailPage({
             <span className="uppercase">{s.tier ?? "free"}</span>
           </div>
         </div>
-        <a
-          href={`https://play.tournamental.com/s/${encodeURIComponent(s.slug)}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-xs text-accent-400 hover:underline whitespace-nowrap"
-        >
-          View public page ↗
-        </a>
+        <div className="flex flex-col gap-1 items-end whitespace-nowrap">
+          <a
+            href={`https://play.tournamental.com/manage/syndicates/${encodeURIComponent(s.slug)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-accent-400 hover:underline"
+          >
+            Send bulk invites ↗
+          </a>
+          <a
+            href={`https://play.tournamental.com/s/${encodeURIComponent(s.slug)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-xs text-accent-400 hover:underline"
+          >
+            View public page ↗
+          </a>
+        </div>
       </header>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">

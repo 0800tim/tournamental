@@ -1,5 +1,5 @@
 {
-  "builtAt": "2026-05-24T01:48:49.001Z",
+  "builtAt": "2026-05-27T04:08:43.235Z",
   "services": [
     {
       "slug": "game",
@@ -68,7 +68,7 @@
       "source": "apps/odds-ingest",
       "pkg": "@tournamental/odds-ingest",
       "auth": "public",
-      "mode": "snapshot",
+      "mode": "live",
       "paths": 6
     },
     {
