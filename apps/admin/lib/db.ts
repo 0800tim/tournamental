@@ -30,6 +30,7 @@ function resolveDbPath(envKey: string, fallback: string): string {
 
 let _authDb: DB | null = null;
 let _gameDb: DB | null = null;
+let _oddsDb: DB | null = null;
 
 export function authDb(): DB | null {
   if (_authDb) return _authDb;
@@ -56,6 +57,22 @@ export function gameDb(): DB | null {
   _gameDb = new Database(p, { readonly: true, fileMustExist: true });
   _gameDb.pragma("journal_mode = WAL");
   return _gameDb;
+}
+
+export function oddsDb(): DB | null {
+  if (_oddsDb) return _oddsDb;
+  const p = resolveDbPath(
+    "ADMIN_ODDS_DB_PATH",
+    "apps/odds-ingest/data/odds-ingest.sqlite",
+  );
+  if (!existsSync(p)) {
+    // eslint-disable-next-line no-console
+    console.warn(`[admin/db] odds-ingest.sqlite not found at ${p}`);
+    return null;
+  }
+  _oddsDb = new Database(p, { readonly: true, fileMustExist: true });
+  _oddsDb.pragma("journal_mode = WAL");
+  return _oddsDb;
 }
 
 /** Convenience: epoch-ms threshold for "today" (UTC) at the host's clock. */

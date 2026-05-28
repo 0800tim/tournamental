@@ -8,7 +8,7 @@
  * handles; mutating actions go through the owning service's HTTP API.
  */
 
-import { authDb, gameDb, nDaysAgoMs, startOfTodayMs } from "./db";
+import { authDb, gameDb, oddsDb, nDaysAgoMs, startOfTodayMs } from "./db";
 import type {
   ApiKeyRow,
   OverviewStats,
@@ -633,6 +633,108 @@ export function liveAuditLog(): { rows: AuditEntryLive[] } | null {
   // Newest first; cap to last 500.
   rows.reverse();
   return { rows: rows.slice(0, 500) };
+}
+
+// ---------------- market odds (polymarket via odds-ingest) -------------
+
+export interface MarketFavourite {
+  readonly team_code: string;
+  readonly question: string;
+  readonly implied_prob: number;
+  readonly source: string;
+  readonly tick_ts: string;
+}
+
+/**
+ * Top `limit` tournament-winner favourites by latest implied
+ * probability. Reads `odds_market` + `odds_tick` from
+ * `apps/odds-ingest/data/odds-ingest.sqlite`. Returns null when the
+ * odds DB isn't reachable.
+ */
+export function liveMarketFavourites(limit = 10): MarketFavourite[] | null {
+  const db = oddsDb();
+  if (!db) return null;
+  // Take the most-recent tick per market, then sort by probability.
+  const rows = db
+    .prepare(
+      `WITH latest AS (
+         SELECT t.market_id, MAX(t.ts) AS ts
+         FROM odds_tick t
+         WHERE t.outcome_label = 'Yes'
+         GROUP BY t.market_id
+       )
+       SELECT m.id, m.question, m.source, t.implied_prob, t.ts,
+              json_extract(m.outcomes_json, '$[0].our_team_code') AS team_code
+       FROM odds_market m
+       JOIN latest l ON l.market_id = m.id
+       JOIN odds_tick t ON t.market_id = m.id AND t.ts = l.ts AND t.outcome_label = 'Yes'
+       WHERE m.kind = 'tournament_winner'
+         AND t.implied_prob IS NOT NULL
+         -- Filter junk: no team is > 50% to win the whole tournament.
+         -- The odds-ingest mirror has a known "Yes"/"No" label swap on
+         -- some long-shot markets that flips the probability to ~99.9%.
+         AND t.implied_prob > 0.005
+         AND t.implied_prob < 0.5
+       ORDER BY t.implied_prob DESC
+       LIMIT ?`,
+    )
+    .all(limit) as {
+    id: string;
+    question: string;
+    source: string;
+    implied_prob: number;
+    ts: number;
+    team_code: string | null;
+  }[];
+  return rows
+    .filter((r) => r.team_code)
+    .map((r) => ({
+      team_code: r.team_code as string,
+      question: r.question,
+      implied_prob: r.implied_prob,
+      source: r.source,
+      tick_ts: new Date(r.ts).toISOString(),
+    }));
+}
+
+// ---------------- bracket-pick consensus (champion histogram) ----------
+
+interface BracketPayloadRow {
+  payload_json: string;
+}
+
+interface BracketShape {
+  knockoutPredictions?: Record<
+    string,
+    { matchId?: string; outcome?: string; teams?: [string, string] }
+  >;
+}
+
+/**
+ * Rough community-champion picks. The bracket payload doesn't embed
+ * team codes in the canonical `matchId: 'final'` form, so we fall back
+ * to the `groupTiebreakers` field (which orders teams per group, with
+ * the first two advancing) only if needed. For an exact cascade you'd
+ * run @tournamental/bracket-engine; the rough version below is good
+ * enough for an admin "vibe check" without pulling in the engine.
+ *
+ * In practice we just count brackets where matchId === 'final' is
+ * marked home_win vs away_win; without engine cascade we don't know
+ * which team is home/away. So this returns null and the page surfaces
+ * "engine cascade required" instead of a misleading half-answer.
+ *
+ * TODO: import @tournamental/bracket-engine to surface the real picks.
+ */
+export function liveCommunityChampions(): Record<string, number> | null {
+  const gdb = gameDb();
+  if (!gdb) return null;
+  // Placeholder: just count brackets so the page can render *something*
+  // honest while we wire the engine.
+  const total = (
+    gdb.prepare("SELECT COUNT(*) AS c FROM brackets").get() as { c: number }
+  ).c;
+  // Use a sentinel key the UI hides; signals "data unresolved".
+  return { __total__: total };
 }
 
 // ---------------- tournaments ------------------------------------------

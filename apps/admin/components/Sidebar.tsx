@@ -19,6 +19,8 @@ const ITEMS: {
   { href: "/tournaments", label: "Tournaments", group: "ops", minRole: "mod" },
   { href: "/fixtures", label: "Fixtures", group: "ops", minRole: "mod" },
   { href: "/content", label: "Content", group: "ops", minRole: "mod" },
+  { href: "/highlevel", label: "HighLevel", group: "growth" },
+  { href: "/market", label: "Market", group: "growth" },
   { href: "/affiliate", label: "Affiliate", group: "growth" },
   { href: "/operators", label: "Operators", group: "growth" },
   { href: "/advertisers", label: "Advertisers", group: "growth" },
