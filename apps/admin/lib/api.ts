@@ -148,26 +148,34 @@ export interface OverviewStats {
 // ---------------- mock fallbacks ----------------------------------------
 
 import * as M from "./mocks";
+import * as L from "./live";
 
 // ---------------- public functions --------------------------------------
+//
+// Each entry tries the live readers first (direct sqlite reads against
+// auth.db + game.db, see lib/live.ts). When live returns null the
+// data file isn't present on this host and we fall back to mocks so
+// the UI stays useful in dev environments without seed data.
 
 export const Api = {
-  overview: (s: AdminSession) =>
-    get<OverviewStats>(s, "/v1/admin/overview", M.mockOverview()),
+  overview: async (s: AdminSession): Promise<OverviewStats> =>
+    L.liveOverview() ?? (await get<OverviewStats>(s, "/v1/admin/overview", M.mockOverview())),
 
-  users: (s: AdminSession, q = "", page = 1) =>
-    get<{ rows: UserRow[]; total: number }>(
+  users: async (s: AdminSession, q = "", page = 1) =>
+    L.liveUsers(q, page) ??
+    (await get<{ rows: UserRow[]; total: number }>(
       s,
       `/v1/admin/users?q=${encodeURIComponent(q)}&page=${page}`,
       M.mockUsers(q, page),
-    ),
+    )),
 
-  user: (s: AdminSession, id: string) =>
-    get<UserRow & { brackets: { id: string; tournament: string; rank: number }[] }>(
+  user: async (s: AdminSession, id: string) =>
+    L.liveUser(id) ??
+    (await get<UserRow & { brackets: { id: string; tournament: string; rank: number }[] }>(
       s,
       `/v1/admin/users/${encodeURIComponent(id)}`,
       M.mockUser(id),
-    ),
+    )),
 
   banUser: (s: AdminSession, id: string, reason: string) =>
     post<{ ok: boolean }>(s, `/v1/admin/users/${encodeURIComponent(id)}/ban`, { reason }, { ok: true }),
@@ -175,26 +183,29 @@ export const Api = {
   unbanUser: (s: AdminSession, id: string) =>
     post<{ ok: boolean }>(s, `/v1/admin/users/${encodeURIComponent(id)}/unban`, {}, { ok: true }),
 
-  syndicates: (s: AdminSession, q = "", status = "") =>
-    get<{ rows: SyndicateRow[] }>(
+  syndicates: async (s: AdminSession, q = "", status = "") =>
+    L.liveSyndicates(q, status) ??
+    (await get<{ rows: SyndicateRow[] }>(
       s,
       `/v1/admin/syndicates?q=${encodeURIComponent(q)}&status=${encodeURIComponent(status)}`,
       M.mockSyndicates(q, status),
-    ),
+    )),
 
-  syndicate: (s: AdminSession, slug: string) =>
-    get<SyndicateRow & { members_list: { id: string; handle: string; rank: number }[] }>(
+  syndicate: async (s: AdminSession, slug: string) =>
+    L.liveSyndicate(slug) ??
+    (await get<SyndicateRow & { members_list: { id: string; handle: string; rank: number }[] }>(
       s,
       `/v1/admin/syndicates/${encodeURIComponent(slug)}`,
       M.mockSyndicate(slug),
-    ),
+    )),
 
-  tournaments: (s: AdminSession) =>
-    get<{ rows: { id: string; name: string; status: string; entries: number; lock_at: string }[] }>(
+  tournaments: async (s: AdminSession) =>
+    L.liveTournaments() ??
+    (await get<{ rows: { id: string; name: string; status: string; entries: number; lock_at: string }[] }>(
       s,
       "/v1/admin/tournaments",
       M.mockTournaments(),
-    ),
+    )),
 
   fixtures: (s: AdminSession) =>
     get<{ rows: { id: string; tournament: string; teams: string; kickoff: string; status: string }[] }>(
@@ -235,8 +246,9 @@ export const Api = {
       { ok: true },
     ),
 
-  apiKeys: (s: AdminSession) =>
-    get<{ rows: ApiKeyRow[] }>(s, "/v1/admin/api-keys", M.mockApiKeys()),
+  apiKeys: async (s: AdminSession) =>
+    L.liveApiKeys() ??
+    (await get<{ rows: ApiKeyRow[] }>(s, "/v1/admin/api-keys", M.mockApiKeys())),
 
   auditLog: (s: AdminSession, from = "", to = "") =>
     get<{ rows: AuditEntry[] }>(

@@ -6,37 +6,58 @@ import { RevenueChart } from "@/components/RevenueChart";
 
 export const dynamic = "force-dynamic";
 
+interface ExtendedOverview {
+  dau: number;
+  signups_today: number;
+  predictions_today: number;
+  active_tournaments: number;
+  concurrent_viewers: number;
+  share_clicks_today: number;
+  affiliate_clickouts_today: number;
+  revenue_units_today: number;
+  by_country: { country: string; users: number }[];
+  signups_7d: { day: string; count: number }[];
+  total_users?: number;
+  total_pools?: number;
+  public_pools?: number;
+  private_pools?: number;
+  pools_with_prizes?: number;
+}
+
 export default async function OverviewPage() {
   const session = await requireAuth();
-  const stats = await Api.overview(session);
+  const stats = (await Api.overview(session)) as unknown as ExtendedOverview;
+
+  const totalUsers = stats.total_users ?? 0;
+  const totalPools = stats.total_pools ?? 0;
+  const publicPools = stats.public_pools ?? 0;
+  const privatePools = stats.private_pools ?? 0;
+  const poolsWithPrizes = stats.pools_with_prizes ?? 0;
 
   return (
     <div className="flex flex-col gap-6">
       <header>
         <h1 className="text-2xl font-display font-semibold">Overview</h1>
         <p className="text-sm text-ink-200">
-          Live and today metrics. Live counters update every minute via
-          /v1/admin/overview (Redis-fanout, see docs/23).
+          Live counts from auth.db (users) and game.db (pools, brackets).
+          Refresh the page to recompute.
         </p>
       </header>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard label="DAU" value={stats.dau} delta={{ sign: "up", pct: 12.4, window: "vs 7d avg" }} />
-        <StatCard label="Signups today" value={stats.signups_today} delta={{ sign: "up", pct: 4.2 }} />
-        <StatCard label="Predictions today" value={stats.predictions_today} delta={{ sign: "up", pct: 8.1 }} />
+        <StatCard label="Total users" value={totalUsers} />
+        <StatCard label="Signups today" value={stats.signups_today} tone="good" />
+        <StatCard label="Active in last 24h" value={stats.dau} />
+        <StatCard label="Brackets locked today" value={stats.predictions_today} />
+        <StatCard label="Total pools" value={totalPools} tone="good" />
+        <StatCard label="Public pools" value={publicPools} />
+        <StatCard label="Private pools" value={privatePools} />
+        <StatCard label="Pools with prizes" value={poolsWithPrizes} />
         <StatCard label="Active tournaments" value={stats.active_tournaments} />
         <StatCard
-          label="Concurrent viewers"
-          value={stats.concurrent_viewers}
-          tone="good"
-          hint="Live, last minute"
-        />
-        <StatCard label="Share clicks today" value={stats.share_clicks_today} />
-        <StatCard label="Affiliate clickouts" value={stats.affiliate_clickouts_today} delta={{ sign: "up", pct: 22.7, window: "wow" }} />
-        <StatCard
-          label="Revenue today"
+          label="Pool entry-fee total"
           value={`${stats.revenue_units_today.toLocaleString()} units`}
-          tone="good"
+          hint="Sum across all pools (NZD)"
         />
       </section>
 

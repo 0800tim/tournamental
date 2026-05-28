@@ -18,15 +18,14 @@ export default async function SyndicatesPage({
       <header>
         <h1 className="text-2xl font-display font-semibold">Syndicates</h1>
         <p className="text-sm text-ink-200">
-          Friend-graph and creator-cohort prediction pools. Filter by status.{" "}
+          Friend-graph and creator-cohort prediction pools. Filter:{" "}
           <Link href="/syndicates" className="text-accent-400 hover:underline">All</Link>{" · "}
-          <Link href="/syndicates?status=active" className="text-accent-400 hover:underline">Active</Link>{" · "}
-          <Link href="/syndicates?status=pending" className="text-accent-400 hover:underline">Pending</Link>{" · "}
-          <Link href="/syndicates?status=closed" className="text-accent-400 hover:underline">Closed</Link>
+          <Link href="/syndicates?status=public" className="text-accent-400 hover:underline">Public</Link>{" · "}
+          <Link href="/syndicates?status=private" className="text-accent-400 hover:underline">Private</Link>
         </p>
       </header>
 
-      <SyndicatesTable rows={data.rows} />
+      <SyndicatesTable rows={data.rows as unknown as Parameters<typeof SyndicatesTable>[0]["rows"]} />
     </div>
   );
 }
