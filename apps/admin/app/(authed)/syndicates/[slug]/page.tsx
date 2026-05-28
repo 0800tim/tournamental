@@ -50,15 +50,25 @@ export default async function SyndicateDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <header>
-        <Link href="/syndicates" className="text-xs text-accent-400 hover:underline">
-          ← All syndicates
-        </Link>
-        <h1 className="text-2xl font-display font-semibold mt-1">{s.name}</h1>
-        <div className="text-sm text-ink-200">
-          <span className="font-mono text-xs">{s.slug}</span> · {visibility} ·{" "}
-          <span className="uppercase">{s.tier ?? "free"}</span>
+      <header className="flex items-start justify-between">
+        <div>
+          <Link href="/syndicates" className="text-xs text-accent-400 hover:underline">
+            ← All syndicates
+          </Link>
+          <h1 className="text-2xl font-display font-semibold mt-1">{s.name}</h1>
+          <div className="text-sm text-ink-200">
+            <span className="font-mono text-xs">{s.slug}</span> · {visibility} ·{" "}
+            <span className="uppercase">{s.tier ?? "free"}</span>
+          </div>
         </div>
+        <a
+          href={`https://play.tournamental.com/s/${encodeURIComponent(s.slug)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs text-accent-400 hover:underline whitespace-nowrap"
+        >
+          View public page ↗
+        </a>
       </header>
 
       <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
