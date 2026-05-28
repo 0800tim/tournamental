@@ -1,120 +1,162 @@
-# 62 — Admin dashboard (PLAN — not yet built)
+# 62 - Admin dashboard
 
-> **Status: PLAN ONLY. No code exists for this yet.** This document is the
-> design to execute later. It also specifies the HighLevel deep-link target
-> that [61-highlevel-integration.md](61-highlevel-integration.md) already
-> writes into the `vtourn_admin_url` custom field, and the "pools as GHL
-> Custom Objects" upgrade.
+> **Status: SHIPPED 2026-05-28.** Live at https://admin.tournamental.com.
+> Auth is WhatsApp-OTP step-up; perimeter Cloudflare Access is queued
+> (Tim) for a follow-up day. Data is read directly from auth.db +
+> game.db via better-sqlite3 - apps/api is **not** in the loop.
 
 ## 1. Why
 
-We have real users registering and creating pools, but no internal surface
-to **see and manage them**. Today the only window is the GHL contact list.
-We need an admin area to:
+We have real users registering and creating pools, but no internal
+surface to see and manage them at a glance. This dashboard is that
+surface: who's signing up, which pools exist, which are public vs
+private, what prizes are on the line, and a one-click "ack of life"
+across every Tournamental service.
 
-- Look up a user (by phone / email / name / id) and see their profile,
-  pools, predictions, humanness score, and HighLevel sync state.
-- See every pool, its owner, members, size band, tournament and status.
-- Act: rename/flag a user, soft-disable a pool, resync to HighLevel,
-  resend an auth link.
-- Be the **landing target** for the `vtourn_admin_url` link on every GHL
-  contact, so a marketer in HighLevel can click straight through to the
-  Tournamental record.
+## 2. Auth
 
-## 2. Who can access
+Two-layer gate:
 
-Admins only. The allowlist primitive already exists: `TNM_ADMIN_USER_IDS`
-(used by `apps/web/app/api/v1/admin/hl-status/route.ts`). Reuse it; do not
-invent a second admin model. All admin routes are `private, no-store` and
-gated server-side on the authenticated session's user id ∈ allowlist.
+1. **(Future) Cloudflare Access** on `admin.tournamental.com` - gates
+   the perimeter via Tim's Google/GitHub OIDC. Not yet configured;
+   Tim will add the policy in the CF dashboard when he next sits
+   down. Until then the OTP gate alone is the security boundary.
+2. **In-app WhatsApp OTP step-up**. The flow:
+   - Visit `/login` → "Send code" button (no inputs; phone is
+     hardcoded server-side so an attacker who clears CF Access still
+     can't direct OTPs to a number they control).
+   - The admin server POSTs `/v1/auth/request` on `auth-sms` with the
+     hardcoded phone (`ADMIN_PHONE_E164`) and `channel: whatsapp`.
+   - WhatsApp delivers a 6-digit code.
+   - Operator enters the code; admin POSTs `/v1/auth/verify-by-code`
+     server-side, checks the returned `user.id` against
+     `ADMIN_ALLOWED_USER_IDS`, mints an `admin_session` JWT (HS256,
+     24h ttl) and sets it as `__Host-admin` (prod) / `admin-session`
+     (dev).
+   - On cookie expiry → bounce back to `/login`.
 
-## 3. Surface (routes)
+The auth-sms response cookie (`tnm_session`) is intentionally not
+propagated to the browser: admin is a separate authority domain. A
+user signed into `play.tournamental.com` must not automatically
+become admin, and vice versa.
 
-Proposed under `apps/web/app/admin/*` (server components) with a thin
-`apps/web/app/api/v1/admin/*` data layer.
+Code:
+- `apps/admin/lib/auth.ts` - JWT issue / read / require + helpers
+- `apps/admin/app/api/auth/request/route.ts` - proxy to auth-sms
+- `apps/admin/app/api/auth/verify/route.ts` - proxy + allowlist gate
+- `apps/admin/middleware.ts` - public-path list + redirect to /login
 
-| Route                      | Purpose                                                    |
-| -------------------------- | ---------------------------------------------------------- |
-| `/admin`                   | Overview: counts (users, pools, synced %), recent signups. |
-| `/admin/users`             | Searchable, paginated user list.                           |
-| `/admin/users/:id`         | **The `vtourn_admin_url` target.** Profile + pools + sync. |
-| `/admin/pools`             | Pool list with owner, tournament, size, status.            |
-| `/admin/pools/:slug`       | Pool detail: members, settings, owner contact.             |
+## 3. Surfaces
 
-**Deep-link contract (already emitted, keep stable):**
+| Route                       | Data source                                          |
+| --------------------------- | ---------------------------------------------------- |
+| `/`                         | Overview, real counts from auth.db + game.db         |
+| `/users`                    | auth-sms users (display, phone, country, joined)     |
+| `/users/[id]`               | auth-sms user + game.db brackets + customer-360 stub |
+| `/syndicates`               | game.db syndicates: visibility, tier, prize, owner   |
+| `/syndicates/[slug]`        | + members (joined via auth.db for display names)     |
+| `/broadcast`                | Pick pools + playbook → WhatsApp/email (dry-run live)|
+| `/tournaments`              | game.db tournaments                                  |
+| `/fixtures`                 | mocks (Tournament fixtures - speculative)            |
+| `/content`                  | mocks                                                |
+| `/affiliate`                | mocks                                                |
+| `/operators`                | mocks                                                |
+| `/advertisers`              | mocks                                                |
+| `/analytics`                | mocks (Funnel chart - speculative)                   |
+| `/feature-flags`            | mocks                                                |
+| `/api-keys`                 | game.db user_api_keys                                |
+| `/audit-log`                | `.admin-audit.jsonl` (append-only on disk)           |
+| `/system`                   | live ping of each tournamental.com service           |
+| `/settings`                 | env config readout (phone, allowlist, DB paths)      |
+
+## 4. Data architecture
+
+The admin app reads sqlite files **directly** in read-only mode via
+better-sqlite3 (`apps/admin/lib/db.ts`). This is allowed by the
+co-located-services exception in CLAUDE.md §"Cross-service reads":
+auth-sms, game-service, and the admin app all run on the same host
+in production, and the indirection through apps/api would not pay
+for itself for a read-mostly operator tool.
+
+Writes go through the canonical service's HTTP API. The admin app
+never mutates a foreign DB itself.
+
+Connections are cached at module scope; one read-only handle per file.
+
+## 5. Broadcast
+
+Operator picks one or many syndicates, selects a playbook template
+(seed templates: welcome, kickoff, winner-payout) or writes a custom
+markdown body, previews the rendered message per recipient, and
+sends via WhatsApp + optionally email to each pool's owner.
+
+**Status of live send**: auth-sms does not yet expose a generic
+`send-broadcast` endpoint. Dry-run is fully wired; the live send path
+returns `not_implemented_yet` while still writing one `writeAudit`
+row per intended recipient so the action is logged. When auth-sms
+ships the broadcast endpoint, the admin route swaps in the live
+transport with no UI changes.
+
+Templates: `apps/admin/data/playbooks/<name>.md`, YAML front-matter
+(`name`, `description`, `recommended`, `default_channels`) plus a
+markdown body with `{{pool_name}}`, `{{owner_handle}}`,
+`{{tournament}}`, `{{member_count}}` substitution slots.
+
+## 6. System health
+
+`/system` pings each Tournamental service (play, game, auth,
+marketing, admin) with a 4.5s timeout and shows status + latency.
+Refresh re-probes. Red rows are degraded. Useful first stop when
+diagnosing anything.
+
+## 7. Environment
+
+Required in production (`apps/admin/.env.production`, gitignored):
+
+```bash
+ADMIN_PHONE_E164=+6421535832
+ADMIN_ALLOWED_USER_IDS=u_be5a445cff4347f6ae6089
+ADMIN_JWT_SECRET=<64+ random chars>
+ADMIN_AUTH_SMS_BASE_URL=https://auth.tournamental.com
+ADMIN_AUTH_DB_PATH=/home/.../apps/auth-sms/data/auth.db
+ADMIN_GAME_DB_PATH=/home/.../apps/game/data/game.db
 ```
-vtourn_admin_url = {ADMIN_DASHBOARD_URL}/users/{userId}
-                   default ADMIN_DASHBOARD_URL = https://play.tournamental.com/admin
+
+Adding a new operator: append their auth-sms user id to
+`ADMIN_ALLOWED_USER_IDS` and restart `vtorn-admin-prod`. There's no
+in-app surface for this on purpose; editing it would create a
+privilege-escalation hazard.
+
+## 8. Deployment
+
+- pm2: `vtorn-admin-prod` on port 3340 (entry registered with
+  `pm2 save` 2026-05-28).
+- Cloudflared tunnel: ingress `admin.tournamental.com → http://localhost:3340`,
+  added via the CF tunnel-configurations API.
+- DNS: `admin` CNAME → `<tunnel-id>.cfargotunnel.com`, proxied.
+
+Rebuild + redeploy:
+```bash
+cd apps/admin && pnpm exec next build
+pm2 restart vtorn-admin-prod --update-env
 ```
-If the admin app is later hosted on its own origin (e.g.
-`admin.tournamental.com`), set `ADMIN_DASHBOARD_URL` in `apps/auth-sms`
-env — the custom-field value follows automatically. Do not change the path
-shape (`/users/:id`) without re-backfilling the field.
 
-## 4. Data sources
+## 9. What's deliberately not built
 
-The admin app is read-mostly and aggregates across services:
+- **No in-app allowlist editor.** Adds a privilege-escalation vector.
+- **No mass-user-banning UI.** Per-user ban exists; bulk operations
+  go through a CLI to make audit obvious.
+- **No write-through API for `apps/api`.** The BFF chain in the
+  original scaffold was nice for type-safety but slow to build out;
+  direct sqlite reads were the cheaper path for shipping in one
+  night. If we ever need a *foreign* admin client (mobile?), the
+  BFF can be revived later.
 
-| Data            | Source                                             |
-| --------------- | -------------------------------------------------- |
-| Users / profile | `apps/auth-sms` `user` table (auth.db).            |
-| Pools           | syndicate persistence (`apps/game` sqlite).        |
-| Predictions/rank| `apps/game` + crm-bridge aggregate.                |
-| Humanness score | identity service (doc 20).                         |
-| HL sync state   | `highlevel_contact_id` / `highlevel_synced_at`.    |
+## 10. Follow-ups
 
-Cross-service reads should go through each service's HTTP API, not direct
-DB reach-in, except where a service is co-located. Respect the caching
-rules in [22-deployment-and-tunnels.md](22-deployment-and-tunnels.md):
-admin list endpoints are `private, no-store`.
-
-## 5. Prerequisite fix: link pool → user in our own DB
-
-Today `POST /api/v1/syndicates` sets `owner_user_id: null` ("No auth on the
-public signup yet"). For the admin pool→owner join to work natively (not
-just via the shared GHL contact), the signup must capture the authenticated
-user id:
-
-1. Require an authenticated session on pool creation (the form already
-   gates on auth; the route must read and persist the session user id).
-2. Persist `owner_user_id` on the syndicate row.
-3. Backfill existing rows where the owner email/phone matches a `user`.
-
-This is the same "create account before pool" invariant the product owner
-expects; the code doesn't currently enforce it at the route.
-
-## 6. Pools as GHL Custom Objects (upgrade)
-
-Today a pool is mirrored as **tags + custom fields on the owner's contact**
-(`has_pool`, `vtourn_pool_ids`, `syndicate_*`). That's enough to segment
-and deep-link, but it can't represent a pool as its own record with members
-and its own lifecycle.
-
-The richer model uses **GHL Custom Objects**:
-
-- Define a `pool` custom object on the location (fields: slug, name,
-  tournament, size band, status, member count, created date).
-- Create/associate a `pool` record per syndicate, **related to** the owner
-  contact (and later, member contacts).
-- The admin pool page links out to the GHL custom-object record, and vice
-  versa.
-
-**Why gated:** Custom Objects need schema design + a migration of existing
-pools, and they're only worth it once the admin UI consumes them. Build the
-admin app first, then upgrade pools from contact-fields to Custom Objects.
-Until then, the contact-field model in doc 61 stands.
-
-## 7. Build sequence (when greenlit)
-
-1. **Admin shell + auth gate** (`/admin`, allowlist, layout).
-2. **Users**: list + detail, reading auth.db via auth-sms API. Wire the
-   `vtourn_admin_url` target so HighLevel click-through lands correctly.
-3. **Pool → user link fix** (section 5) so pools attach to owners.
-4. **Pools**: list + detail.
-5. **Actions**: resync-to-HL, resend-auth-link, flag/disable (audited).
-6. **Pools-as-Custom-Objects** upgrade (section 6).
-
-## 8. Out of scope for this plan
-
-Billing/premium management (handled by the GHL premium webhook, doc 61 §2),
-and any end-user-facing surface. This is an internal operator tool only.
+- Cloudflare Access policy on the perimeter (Tim).
+- `auth-sms /v1/auth/send-broadcast` so live sends work.
+- Real data for the remaining mock surfaces (operators, advertisers,
+  affiliate, analytics) when the upstream services ship.
+- Member growth chart on the syndicate detail page.
+- Global cmd+k search across users and pools.

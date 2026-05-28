@@ -23,7 +23,7 @@ interface Probe {
 const PROBES: Probe[] = [
   {
     name: "play.tournamental.com",
-    url: "https://play.tournamental.com/api/health",
+    url: "https://play.tournamental.com/api/healthz",
     purpose: "Predict + share app (Next.js)",
   },
   {
