@@ -37,6 +37,14 @@ import { AvatarUploader } from "@/components/profile/AvatarUploader";
 const DEFAULT_PRIMARY = "#fbbf24";
 const HANDLE_RE = /^[a-zA-Z0-9_]{2,32}$/;
 
+/**
+ * Dedupe key -> epoch-ms of the last warm-invite OTP burst we fired.
+ * Module-level (not useRef) so React StrictMode's mount-unmount-mount
+ * dance in dev doesn't double-fire the per-phone rate-limited OTP
+ * endpoint. Cleared automatically by the TTL check in WarmInviteStep.
+ */
+const WARM_INVITE_FIRED_AT = new Map<string, number>();
+
 export interface JoinFlowClientProps {
   readonly slug: string;
   readonly initialName: string;
@@ -813,10 +821,29 @@ function WarmInviteStep({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fire the OTP sends once on mount. We don't wait for either to
-  // succeed before showing the code input; if both fail we surface
-  // a clear error + a fallback link to the manual sign-in step.
+  // Fire the OTP sends once per (slug + email + mobile) tuple. The
+  // dedupe map is MODULE-level on purpose: React StrictMode dev runs
+  // every effect twice with a full unmount+remount in between, so a
+  // useRef would reset. Without this guard each load fired 2 sends
+  // per channel, tripping the per-phone 20s cooldown immediately
+  // (Tim 2026-05-28 — saw 4 duplicate /v1/auth/request calls).
   useEffect(() => {
+    const key = `${slug}|${invite.email ?? ""}|${invite.mobile ?? ""}`;
+    const now = Date.now();
+    const lastFiredAt = WARM_INVITE_FIRED_AT.get(key) ?? 0;
+    if (now - lastFiredAt < 30_000) {
+      // Already dispatched recently. Skip the network call but still
+      // surface "sent" so the UI doesn't sit in the sending spinner
+      // forever on the StrictMode remount.
+      setSendState("sent");
+      setSentVia({
+        email: !!invite.email,
+        whatsapp: !!invite.mobile,
+      });
+      return;
+    }
+    WARM_INVITE_FIRED_AT.set(key, now);
+
     let cancelled = false;
     void (async () => {
       const results = await Promise.allSettled([
