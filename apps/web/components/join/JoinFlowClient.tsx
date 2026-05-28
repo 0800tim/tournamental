@@ -866,7 +866,17 @@ function WarmInviteStep({
       if (invite.mobile) {
         const wa = await requestPhoneOtp(invite.mobile, "whatsapp", slug);
         if (!cancelled) waOk = (wa as { ok?: boolean } | null)?.ok === true;
-        if (!waOk && !cancelled) {
+        // SMS fallback is intentionally GATED OFF until the Aiva-SMS
+        // gateway ships tenant-scoped API keys + a Tournamental SIM
+        // enrolment (see docs/aiva-sms-tenant-scoping-brief.md).
+        // Until then, our admin-scoped key sends SMS from SDEAL's or
+        // MyFurbaby's number, which would actively confuse recipients
+        // and break the brand audit trail. Email + WhatsApp cover the
+        // happy path; WhatsApp is reliable enough that the fallback
+        // shouldn't fire in practice anyway. Re-enable by flipping
+        // this constant once the brief is closed out (Tim 2026-05-28).
+        const SMS_FALLBACK_ENABLED = false;
+        if (!waOk && !cancelled && SMS_FALLBACK_ENABLED) {
           const sms = await requestPhoneOtp(invite.mobile, "sms", slug);
           if (!cancelled) smsOk = (sms as { ok?: boolean } | null)?.ok === true;
         }
