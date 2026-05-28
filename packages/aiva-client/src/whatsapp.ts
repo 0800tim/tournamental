@@ -87,7 +87,10 @@ export class AivaWhatsAppClient implements WhatsAppSender {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${this.apiKey}`,
+          // Aiva gateway expects x-api-key for server-to-server calls.
+          // The Bearer path is reserved for JWT (dashboard auth) and
+          // 401s for plain API keys (Tim's sysadmin 2026-05-28).
+          'x-api-key': this.apiKey,
         },
         body: JSON.stringify({ phone, message: req.body }),
       });
@@ -126,7 +129,7 @@ export class AivaWhatsAppClient implements WhatsAppSender {
     let res: Response;
     try {
       res = await this.fetchImpl(url, {
-        headers: { Authorization: `Bearer ${this.apiKey}` },
+        headers: { 'x-api-key': this.apiKey },
       });
     } catch {
       return null;

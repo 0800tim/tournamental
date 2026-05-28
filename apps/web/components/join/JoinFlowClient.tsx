@@ -814,9 +814,11 @@ function WarmInviteStep({
 }): JSX.Element {
   const greetName = [invite.firstname, invite.surname].filter(Boolean).join(" ").trim();
   const [sendState, setSendState] = useState<"sending" | "sent" | "error">("sending");
-  const [sentVia, setSentVia] = useState<{ email: boolean; whatsapp: boolean }>(
-    { email: false, whatsapp: false },
-  );
+  const [sentVia, setSentVia] = useState<{
+    email: boolean;
+    whatsapp: boolean;
+    sms: boolean;
+  }>({ email: false, whatsapp: false, sms: false });
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -834,11 +836,15 @@ function WarmInviteStep({
     if (now - lastFiredAt < 30_000) {
       // Already dispatched recently. Skip the network call but still
       // surface "sent" so the UI doesn't sit in the sending spinner
-      // forever on the StrictMode remount.
+      // forever on the StrictMode remount. We don't know which channel
+      // actually landed last time so claim email + the first phone
+      // channel (whatsapp); the user sees one accurate channel and the
+      // verifier matches whichever code they paste.
       setSendState("sent");
       setSentVia({
         email: !!invite.email,
         whatsapp: !!invite.mobile,
+        sms: false,
       });
       return;
     }
@@ -846,19 +852,32 @@ function WarmInviteStep({
 
     let cancelled = false;
     void (async () => {
-      const results = await Promise.allSettled([
-        invite.email ? requestEmailOtp(invite.email) : Promise.resolve(null),
-        invite.mobile
-          ? requestPhoneOtp(invite.mobile, "whatsapp", slug)
-          : Promise.resolve(null),
-      ]);
+      // Email always fires in parallel — it's the most reliable channel
+      // and recipients often prefer it. The phone path is sequential:
+      // try WhatsApp first; if it fails, fall back to SMS so the user
+      // never misses the code because the WhatsApp delivery had a
+      // transient hiccup (Tim 2026-05-28).
+      const emailP = invite.email
+        ? requestEmailOtp(invite.email)
+        : Promise.resolve(null);
+
+      let waOk = false;
+      let smsOk = false;
+      if (invite.mobile) {
+        const wa = await requestPhoneOtp(invite.mobile, "whatsapp", slug);
+        if (!cancelled) waOk = (wa as { ok?: boolean } | null)?.ok === true;
+        if (!waOk && !cancelled) {
+          const sms = await requestPhoneOtp(invite.mobile, "sms", slug);
+          if (!cancelled) smsOk = (sms as { ok?: boolean } | null)?.ok === true;
+        }
+      }
+
+      const emailRes = await emailP;
       if (cancelled) return;
-      const emailOk =
-        results[0]?.status === "fulfilled" && (results[0]?.value as { ok?: boolean } | null)?.ok === true;
-      const phoneOk =
-        results[1]?.status === "fulfilled" && (results[1]?.value as { ok?: boolean } | null)?.ok === true;
-      setSentVia({ email: emailOk, whatsapp: phoneOk });
-      if (emailOk || phoneOk) setSendState("sent");
+      const emailOk = (emailRes as { ok?: boolean } | null)?.ok === true;
+
+      setSentVia({ email: emailOk, whatsapp: waOk, sms: smsOk });
+      if (emailOk || waOk || smsOk) setSendState("sent");
       else setSendState("error");
     })();
     return () => {
@@ -870,6 +889,7 @@ function WarmInviteStep({
   const channelLine = useMemo(() => {
     const bits: string[] = [];
     if (sentVia.whatsapp) bits.push("WhatsApp");
+    else if (sentVia.sms) bits.push("SMS");
     if (sentVia.email) bits.push("email");
     if (bits.length === 0) return "Sending you a code…";
     return `Code sent via ${bits.join(" + ")}. Enter it below to join.`;

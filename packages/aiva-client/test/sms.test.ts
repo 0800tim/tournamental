@@ -82,7 +82,7 @@ describe('aivaSmsConfigFromEnv', () => {
 });
 
 describe('AivaSmsClient.send', () => {
-  it('POSTs to the gateway with bearer auth and recipient + message body', async () => {
+  it('POSTs to the gateway with x-api-key and recipient + message body', async () => {
     const captured = captureFetch(async () =>
       jsonResponse(200, { id: 'msg-1' }),
     );
@@ -104,7 +104,7 @@ describe('AivaSmsClient.send', () => {
     );
     expect(call.init.method).toBe('POST');
     const headers = call.init.headers as Record<string, string>;
-    expect(headers.Authorization).toBe('Bearer tok-abc');
+    expect(headers['x-api-key']).toBe('tok-abc');
     expect(headers['Content-Type']).toBe('application/json');
     expect(JSON.parse(call.init.body as string)).toEqual({
       message: 'hello',

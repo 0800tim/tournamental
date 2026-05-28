@@ -69,7 +69,7 @@ describe('aivaWhatsAppConfigFromEnv', () => {
 });
 
 describe('AivaWhatsAppClient.send', () => {
-  it('POSTs to the WA endpoint with bearer + normalised phone', async () => {
+  it('POSTs to the WA endpoint with x-api-key + normalised phone', async () => {
     const captured = captureFetch(async () => jsonResponse(200, { id: 'wa-1' }));
     const client = new AivaWhatsAppClient({
       baseUrl: 'https://sms.aiva.nz/',
@@ -91,7 +91,7 @@ describe('AivaWhatsAppClient.send', () => {
       message: 'kia ora',
     });
     const headers = call.init.headers as Record<string, string>;
-    expect(headers.Authorization).toBe('Bearer tok');
+    expect(headers['x-api-key']).toBe('tok');
   });
 
   it('returns ok:false with http-<status> on non-2xx', async () => {
