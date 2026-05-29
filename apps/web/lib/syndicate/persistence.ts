@@ -132,6 +132,8 @@ export interface SyndicateBrandingPatch {
   about_text?: string | null;
   theme_mode?: "light" | "dark" | null;
   join_fee_terms_text?: string | null;
+  /** Pool intro / description shown under the title on /s/<slug>. */
+  topic?: string | null;
   /** Public pools appear in the directory and anyone can join in one tap. */
   is_public?: boolean;
   /** Approval-gated pools queue join requests for the owner. The route
@@ -996,6 +998,7 @@ export class SyndicatePersistence {
       "about_text",
       "theme_mode",
       "join_fee_terms_text",
+      "topic",
     ];
     for (const f of stringFields) {
       if (patch[f] !== undefined) {
