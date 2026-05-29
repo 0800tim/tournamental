@@ -1,27 +1,26 @@
 /**
  * LockSummary — running "X of 104 picks saved" + countdown + predicted
- * champion + early-save-multiplier table + (placeholder) "back your
- * boldest pick" CTA. Pure render; takes per-match bracket + cascade
+ * champion + share CTA. Pure render; takes per-match bracket + cascade
  * output.
+ *
+ * 2026-05-29 (Tim): dropped the user-visible multiplier table and the
+ * boldest-pick CTA. Scoring is now simple: count of correct picks. The
+ * scoring-engine helpers still exist for now (they're untouched), but
+ * we don't surface any multiplier language to users on this panel.
  *
  * Naming note: the file + exported symbol are `LockSummary` for now —
  * callers and tests reference it. All user-visible copy in this
- * component reads as "Save" / "Saved". Internally, `lockedAt`,
- * `oddsAtLock`, and `lockMultiplier()` are still the canonical
- * field/function names — they're consumed by the scoring engine. A
- * follow-up refactor can rename the file to `SaveSummary` if we want
- * the file name to track the user-facing verb.
+ * component reads as "Save" / "Saved".
  */
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   type Bracket,
   type CascadedBracket,
   type Tournament,
-  lockMultiplier,
 } from "@tournamental/bracket-engine";
 
 import { useUser } from "@/lib/auth/useUser";
@@ -85,38 +84,6 @@ export function LockSummary(props: LockSummaryProps) {
   // Predicted champion: cascade's effective_winner of the Final.
   const final = cascaded.knockouts.find((k) => k.stage === "f");
   const champion = teamName(tournament, final?.effective_winner ?? final?.predicted_winner ?? null);
-
-  // Lock-multiplier rows: each pick's multiplier from its lockedAt timestamp
-  // against the bracket's window-to-tournament-start.
-  const tableRows = useMemo(() => {
-    const tournamentStart = Date.parse(tournament.start_utc);
-    const windowSeconds = Math.max(1, (tournamentStart - Date.parse(bracket.lockedAt ?? new Date().toISOString())) / 1000);
-    const all = [
-      ...Object.values(bracket.matchPredictions).map((p) => ({
-        kind: "group" as const,
-        matchId: p.matchId,
-        outcome: p.outcome,
-        lockedAt: p.lockedAt,
-      })),
-      ...Object.values(bracket.knockoutPredictions).map((p) => ({
-        kind: "knockout" as const,
-        matchId: p.matchId,
-        outcome: p.outcome,
-        lockedAt: p.lockedAt,
-      })),
-    ];
-    const nowMs = Date.now();
-    const enriched = all.map((p) => {
-      const sinceLock = (nowMs - Date.parse(p.lockedAt)) / 1000;
-      const mult = lockMultiplier(Math.max(0, sinceLock), windowSeconds);
-      return { ...p, multiplier: mult };
-    });
-    enriched.sort((a, b) => b.multiplier - a.multiplier);
-    return enriched;
-  }, [bracket, tournament]);
-
-  const topMultRows = tableRows.slice(0, 5);
-  const boldestPick = tableRows.find((r) => r.multiplier > 2.5);
 
   // Build the canonical share URL for the user's bracket. Uses the
   // play.tournamental.com/s/<guid> short-link form, which matches the
@@ -205,7 +172,7 @@ export function LockSummary(props: LockSummaryProps) {
         <span aria-hidden="true"> — {groupPicks}/{totalGroup} group, {knockoutPicks}/{totalKnockout} knockout.</span>
       </div>
       <div>
-        Save the rest before {new Date(deadline_utc).toUTCString().replace("GMT", "UTC")} for max points. Tweak any pick game-by-game until kickoff.
+        Save the rest before {new Date(deadline_utc).toUTCString().replace("GMT", "UTC")}. Tweak any pick game-by-game until kickoff.
       </div>
       <div className="bracket-countdown">
         <span aria-label="time-to-deadline">{formatCountdown(now, deadline)}</span> remaining
@@ -214,39 +181,9 @@ export function LockSummary(props: LockSummaryProps) {
       <hr className="bracket-lock-divider" />
 
       <div className="bracket-predicted-champion" data-testid="predicted-champion">
-        <span className="bracket-predicted-champion__label">Your predicted champion</span>
+        <span className="bracket-predicted-champion__label">Your predicted champion: </span>
         <strong className="bracket-predicted-champion__team">{champion}</strong>
       </div>
-
-      {topMultRows.length > 0 && (
-        <div className="bracket-multiplier-table" data-testid="lock-multiplier-table">
-          <h4>Top early-save multipliers</h4>
-          <table>
-            <thead>
-              <tr><th>Pick</th><th>Stage</th><th>Multiplier</th></tr>
-            </thead>
-            <tbody>
-              {topMultRows.map((r) => (
-                <tr key={`${r.kind}:${r.matchId}`}>
-                  <td>{r.matchId}</td>
-                  <td>{r.kind === "group" ? "Group" : "KO"}</td>
-                  <td><strong>{r.multiplier.toFixed(2)}×</strong></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {boldestPick && (
-        <a
-          className="btn-primary bracket-affiliate-cta"
-          data-testid="boldest-pick-cta"
-          href={`https://play.tournamental.com/odds/${boldestPick.matchId}`}
-        >
-          Back your boldest pick →
-        </a>
-      )}
 
       <div className="bracket-share-actions">
         <button

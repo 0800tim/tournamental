@@ -611,6 +611,7 @@
   margin-top: 14px;
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 10px;
 }
 
@@ -619,6 +620,10 @@
   border: 0;
   cursor: pointer;
   width: 100%;
+  /* Tim 2026-05-29: cap the share button on desktop so it doesn't
+   * stretch the full width of the LockSummary aside (it looked chunky).
+   * Mobile still gets the full-width tap target via width:100%. */
+  max-width: 360px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2449,15 +2454,21 @@
 .bracket-save-panel-actions {
   display: flex;
   flex-wrap: wrap;
+  /* Tim 2026-05-29: keep the action buttons compact on desktop instead
+   * of stretching across the whole panel; center them so the panel
+   * reads as a focused call-to-action rather than a row of slabs. */
+  justify-content: center;
   gap: 10px;
 }
 
 .bracket-save-panel-actions .bracket-save-panel-cta-primary {
-  flex: 1 1 220px;
+  flex: 0 1 280px;
+  max-width: 320px;
 }
 
 .bracket-save-panel-cta-secondary {
-  flex: 1 1 220px;
+  flex: 0 1 240px;
+  max-width: 280px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2477,6 +2488,21 @@
 .bracket-save-panel-cta-secondary:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: #6c6c78;
+}
+
+/* Avatar-thumb variant of the secondary CTA (Tim 2026-05-29): when the
+ * user already uploaded a profile photo, the secondary CTA renders the
+ * photo + "Change photo" label instead of the generic 📷 emoji. */
+.bracket-save-panel-cta-avatar {
+  padding-left: 8px;
+}
+.bracket-save-panel-avatar-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .bracket-save-panel-foot {
