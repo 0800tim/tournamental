@@ -293,7 +293,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
             <Link href="/syndicates/new" className="vt-syndicates-cta-primary">
               {cta_primary}
             </Link>
-            <Link href="/syndicates/playbook" className="vt-syndicates-cta-ghost">
+            <Link href="/pools/playbook" className="vt-syndicates-cta-ghost">
               {cta_secondary}
             </Link>
           </div>
@@ -323,7 +323,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
           </ul>
           <p className="vt-syndicates-aside">
             {usecases_aside}{" "}
-            <Link href="/syndicates/playbook" className="vt-syndicates-link">syndicate playbook</Link>.
+            <Link href="/pools/playbook" className="vt-syndicates-link">syndicate playbook</Link>.
           </p>
         </section>
 
@@ -402,7 +402,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
                   </li>
                 ))}
               </ul>
-              <Link href="/syndicates/playbook#premium" className="vt-syndicates-cta-primary vt-syndicates-cta-inline">
+              <Link href="/pools/playbook#premium" className="vt-syndicates-cta-primary vt-syndicates-cta-inline">
                 {tier_premium_cta}
               </Link>
             </div>
@@ -509,7 +509,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
             <Link href="/syndicates/new" className="vt-syndicates-cta-primary">
               Create a syndicate
             </Link>
-            <Link href="/syndicates/playbook" className="vt-syndicates-cta-ghost">
+            <Link href="/pools/playbook" className="vt-syndicates-cta-ghost">
               Read the playbook
             </Link>
           </div>
