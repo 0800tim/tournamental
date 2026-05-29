@@ -10,6 +10,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
+import { countriesFromAllowed } from "@/lib/syndicate/country-gate";
 import {
   type PublicPoolDto,
   tournamentLabel,
@@ -20,8 +21,29 @@ function monogram(name: string): string {
   return (letters.join("") || name[0] || "?").toUpperCase();
 }
 
+/** Country-gate badge text + tooltip text per spec §3:
+ *   1 country  → "🇳🇿 NZ only"
+ *   2 countries→ "🇳🇿🇦🇺 NZ + AU only"
+ *   3-4        → "🇳🇿🇦🇺🇬🇧 NZ + AU + UK only"
+ *   5+         → "🇳🇿🇦🇺🇬🇧🇮🇪 +N countries only" (tooltip lists all)
+ * Empty allow-list returns null so the badge is hidden entirely. */
+function formatCountryBadge(dialCodes: string[]): { label: string; tooltip: string } | null {
+  if (!dialCodes.length) return null;
+  const countries = countriesFromAllowed(dialCodes);
+  if (!countries.length) return null;
+  const isoLabel = (n: number) => countries.slice(0, n).map((c) => c.iso).join(" + ");
+  const flags4 = countries.slice(0, 4).map((c) => c.flag).join("");
+  const tooltip = `${countries.map((c) => `${c.flag} ${c.name}`).join(", ")} only`;
+  if (countries.length <= 4) {
+    const flags = countries.map((c) => c.flag).join("");
+    return { label: `${flags} ${isoLabel(countries.length)} only`, tooltip };
+  }
+  return { label: `${flags4} +${countries.length} countries only`, tooltip };
+}
+
 function PoolCard({ pool }: { pool: PublicPoolDto }) {
   const blurb = pool.prize_text?.trim() || pool.topic?.trim() || null;
+  const country = formatCountryBadge(pool.allowed_phone_countries);
   return (
     <Link href={pool.share_url} className="vt-pool-card" prefetch={false}>
       <div className="vt-pool-card-head">
@@ -48,13 +70,31 @@ function PoolCard({ pool }: { pool: PublicPoolDto }) {
         <span className="vt-pool-card-tags">
           {pool.is_free ? <span className="vt-pool-tag vt-pool-tag-free">Free to enter</span> : null}
           {pool.has_prize ? <span className="vt-pool-tag vt-pool-tag-prize">Prize</span> : null}
+          {country ? (
+            <span
+              className="vt-pool-tag vt-pool-tag-country"
+              title={country.tooltip}
+              aria-label={country.tooltip}
+            >
+              {country.label}
+            </span>
+          ) : null}
         </span>
       </div>
     </Link>
   );
 }
 
-export function PoolDirectory({ initialPools }: { initialPools: PublicPoolDto[] }) {
+export function PoolDirectory({
+  initialPools,
+  eligibleFor,
+}: {
+  initialPools: PublicPoolDto[];
+  /** Forwarded when the page was loaded with ?eligible_for=<phone>.
+   * Search queries keep the same filter applied so the directory
+   * never bounces back to "all pools" mid-typing. */
+  eligibleFor?: string;
+}) {
   const [query, setQuery] = useState("");
   const [pools, setPools] = useState<PublicPoolDto[]>(initialPools);
   const [loading, setLoading] = useState(false);
@@ -75,10 +115,10 @@ export function PoolDirectory({ initialPools }: { initialPools: PublicPoolDto[] 
       const ac = new AbortController();
       acRef.current = ac;
       try {
-        const res = await fetch(
-          `/api/v1/syndicates/public?search=${encodeURIComponent(q)}`,
-          { signal: ac.signal },
-        );
+        const url = eligibleFor
+          ? `/api/v1/syndicates/public?search=${encodeURIComponent(q)}&eligible_for=${encodeURIComponent(eligibleFor)}`
+          : `/api/v1/syndicates/public?search=${encodeURIComponent(q)}`;
+        const res = await fetch(url, { signal: ac.signal });
         if (!res.ok) throw new Error(String(res.status));
         const data = (await res.json()) as { pools: PublicPoolDto[] };
         setPools(data.pools);
@@ -89,7 +129,7 @@ export function PoolDirectory({ initialPools }: { initialPools: PublicPoolDto[] 
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [query, initialPools]);
+  }, [query, initialPools, eligibleFor]);
 
   return (
     <main className="vt-pools">
@@ -109,6 +149,39 @@ export function PoolDirectory({ initialPools }: { initialPools: PublicPoolDto[] 
           </Link>
         </div>
       </header>
+
+      <section className="vt-pools-types" aria-labelledby="vt-pools-types-h2">
+        <p className="vt-pools-types-eyebrow">Run your own pool</p>
+        <h2 id="vt-pools-types-h2" className="vt-pools-types-h2">
+          Anyone can start one. Live in 5 minutes.
+        </h2>
+        <div className="vt-pools-types-grid">
+          <article className="vt-pools-type">
+            <h3 className="vt-pools-type-name">Private</h3>
+            <p className="vt-pools-type-blurb">
+              For your family or friends. Invite-only. No fee, no fuss, bragging
+              rights for the winner.
+            </p>
+          </article>
+          <article className="vt-pools-type">
+            <h3 className="vt-pools-type-name">Office sweepstake</h3>
+            <p className="vt-pools-type-blurb">
+              Set an entry fee and a prize pool. Members chip in, you run it
+              your way. We handle the bracket, scoring, and leaderboard.
+            </p>
+          </article>
+          <article className="vt-pools-type">
+            <h3 className="vt-pools-type-name">Open / brand</h3>
+            <p className="vt-pools-type-blurb">
+              Public to all. Use it to engage your audience or attract new
+              signups around your prize. Branded with your logo and colours.
+            </p>
+          </article>
+        </div>
+        <Link href="/syndicates/new" className="vt-pools-types-cta">
+          Start your pool →
+        </Link>
+      </section>
 
       <div className="vt-pools-searchbar">
         <input

@@ -30,6 +30,8 @@ import { dirname, resolve } from "node:path";
 import Database from "better-sqlite3";
 import type { Database as DatabaseT, Statement } from "better-sqlite3";
 
+import { serialiseAllowedCountries } from "./country-gate";
+
 export type SyndicateTier = "free" | "premium" | "past_due";
 
 export interface SyndicateRow {
@@ -104,6 +106,11 @@ export interface SyndicateRow {
    * notification to approve or deny. Mutually exclusive with
    * is_public (public pools accept everyone). */
   requires_approval: number; // 0 | 1
+  /** Optional country allow-list as a CSV of bare E.164 dial codes
+   * (e.g. "64" for NZ-only, "64,61" for ANZAC). NULL = no
+   * restriction. Verified at join time against the joiner's
+   * WhatsApp-OTP-verified phone. Spec: docs/68-country-gated-pools.md. */
+  allowed_phone_countries: string | null;
 }
 
 /** Decoded prize-split entry, as the API and UI both manipulate it. */
@@ -140,6 +147,10 @@ export interface SyndicateBrandingPatch {
    * enforces the invariant that requires_approval is ignored when
    * is_public=true. */
   requires_approval?: boolean;
+  /** Allow-list of bare E.164 dial codes (e.g. ["64","61"]). The
+   * settings PATCH route accepts the array form here; persistence
+   * canonicalises to CSV via serialiseAllowedCountries before write. */
+  allowed_phone_countries?: readonly string[];
 }
 
 export interface PendingGhlRow {
@@ -235,7 +246,8 @@ export class SyndicatePersistence {
         bonus_prize_text    TEXT,
         join_fee_terms_text TEXT,
         is_public           INTEGER NOT NULL DEFAULT 0,
-        requires_approval   INTEGER NOT NULL DEFAULT 0
+        requires_approval   INTEGER NOT NULL DEFAULT 0,
+        allowed_phone_countries TEXT
       );
       CREATE INDEX IF NOT EXISTS idx_syndicates_slug ON syndicates(slug);
       CREATE INDEX IF NOT EXISTS idx_syndicates_share_guid ON syndicates(share_guid);
@@ -324,6 +336,14 @@ export class SyndicatePersistence {
         `ALTER TABLE syndicates ADD COLUMN join_fee_terms_text TEXT`,
       );
     }
+    if (!hasSyn("allowed_phone_countries")) {
+      // 2026-05-29: country-gated public pools. Stored as CSV of bare
+      // E.164 dial codes, NULL = no restriction. See migration
+      // 0011_syndicates_country_gate.sql and docs/68-country-gated-pools.md.
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN allowed_phone_countries TEXT`,
+      );
+    }
   }
 
   private prepareStatements(): void {
@@ -341,12 +361,12 @@ export class SyndicatePersistence {
         id, slug, name, tournament_id, owner_email, owner_phone,
         owner_user_id, owner_handle, size_band, topic,
         marketing_consent, created_at, member_count, share_guid,
-        is_public, requires_approval
+        is_public, requires_approval, allowed_phone_countries
       ) VALUES (
         @id, @slug, @name, @tournament_id, @owner_email, @owner_phone,
         @owner_user_id, @owner_handle, @size_band, @topic,
         @marketing_consent, @created_at, 1, @share_guid,
-        @is_public, @requires_approval
+        @is_public, @requires_approval, @allowed_phone_countries
       )`,
     );
     this.getBySlugStmt = this.db.prepare(
@@ -677,6 +697,9 @@ export class SyndicatePersistence {
     /** Approval-gated pools queue join requests for the owner. Ignored
      * when is_public is true. */
     requires_approval?: boolean;
+    /** Optional country allow-list as bare E.164 dial codes
+     * (e.g. ["64","61"]). Empty/undefined = no restriction. */
+    allowed_phone_countries?: readonly string[];
     now?: number;
   }): SyndicateRow {
     if (!this.insertSyndicateStmt) this.prepareStatements();
@@ -713,6 +736,9 @@ export class SyndicatePersistence {
         share_guid: input.share_guid,
         is_public: isPublic ? 1 : 0,
         requires_approval: requiresApproval ? 1 : 0,
+        allowed_phone_countries: serialiseAllowedCountries(
+          input.allowed_phone_countries ?? [],
+        ),
       });
       this.insertMemberStmt.run({
         syndicate_id: input.id,
@@ -875,7 +901,19 @@ export class SyndicatePersistence {
    * case-insensitive substring match across name, slug, and topic. Paged
    * via limit/offset (limit clamped 1..100).
    */
-  listPublic(opts: { search?: string; limit?: number; offset?: number } = {}): SyndicateRow[] {
+  listPublic(opts: {
+    search?: string;
+    limit?: number;
+    offset?: number;
+    /** Optional E.164 phone (e.g. "+447700900123") OR bare dial code
+     * (e.g. "44"). When set, the listing is post-filtered to pools
+     * the visitor with this phone can join: pools with no country
+     * restriction PLUS pools whose allow-list matches. Used by the
+     * /pools?eligible_for=... query to back the join-flow upsell.
+     * Filtering happens in-memory because the allow-list lives in a
+     * CSV column; v1 directory caps at 60 rows so this is cheap. */
+    eligibleFor?: string | null;
+  } = {}): SyndicateRow[] {
     if (!this.isReady()) return [];
     const limit = Math.min(Math.max(Math.trunc(opts.limit ?? 60), 1), 100);
     const offset = Math.max(Math.trunc(opts.offset ?? 0), 0);
@@ -905,7 +943,22 @@ export class SyndicatePersistence {
         )
         .all(limit, offset) as SyndicateRow[];
     }
-    return rows.map((r) => this.withRealMemberCount(r));
+    let withCounts = rows.map((r) => this.withRealMemberCount(r));
+    if (opts.eligibleFor) {
+      // Lazy import to keep the persistence module's hot path free of
+      // a circular dep on country-gate (which already imports types
+      // from here).
+      const { parseAllowedCountries, phoneMatchesAllowed } = require("./country-gate") as typeof import("./country-gate");
+      const raw = opts.eligibleFor.trim();
+      // Accept either a full E.164 phone or a bare dial code. Bare
+      // dial codes get a leading + so phoneMatchesAllowed treats them
+      // uniformly.
+      const phoneish = raw.startsWith("+") ? raw : `+${raw.replace(/\D/g, "")}`;
+      withCounts = withCounts.filter((r) =>
+        phoneMatchesAllowed(phoneish, parseAllowedCountries(r.allowed_phone_countries)),
+      );
+    }
+    return withCounts;
   }
 
   /**

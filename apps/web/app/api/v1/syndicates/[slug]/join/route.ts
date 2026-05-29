@@ -21,6 +21,10 @@ import { z } from "zod";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { notifyOwnerOfJoinRequest } from "@/lib/syndicate/notify-join-request";
 import { getSessionFromRequest } from "@/lib/auth/session";
+import {
+  parseAllowedCountries,
+  phoneMatchesAllowed,
+} from "@/lib/syndicate/country-gate";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -155,6 +159,38 @@ export async function POST(
 
   if (!handle || handle.length < 2) {
     return json(req, { error: "bad_handle", message: "A handle is required to join." }, 400);
+  }
+
+  // Country gate. If the pool restricts entries by phone-country
+  // (allowed_phone_countries CSV is non-empty), reject joiners whose
+  // verified phone does NOT carry one of the allowed dial codes.
+  // Owners are exempt: a Sydney-HQ brand can administer a NZ-only pool
+  // from their +61 number. Spec: docs/68-country-gated-pools.md.
+  const allowed = parseAllowedCountries(row.allowed_phone_countries);
+  if (allowed.length > 0) {
+    const isOwnerForExemption = row.owner_user_id === session.id;
+    if (!isOwnerForExemption && !phoneMatchesAllowed(session.phone, allowed)) {
+      // 403 with structured payload so the JoinFlowClient can route
+      // straight to the friendly CountryRestrictedScreen + upsell.
+      // We surface the allow-list so the screen can render the right
+      // flags without re-fetching the pool.
+      return json(
+        req,
+        {
+          ok: false,
+          reason: "country_restricted",
+          allowed_countries: allowed,
+          // The directory page accepts ?eligible_for=<dial> to filter
+          // to pools the visitor CAN join. If the visitor has no
+          // verified phone yet (edge case), omit the filter so the
+          // directory shows everything.
+          directory_url: session.phone
+            ? `/pools?eligible_for=${encodeURIComponent(session.phone)}`
+            : `/pools`,
+        },
+        403,
+      );
+    }
   }
 
   // Handle collision check (per-pool). Skip if the user is rejoining

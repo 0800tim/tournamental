@@ -64,6 +64,20 @@ export const createSyndicateInputSchema = z.object({
    * approve. Ignored when is_public=true (the route enforces the
    * invariant server-side as well). Defaults to false. */
   requires_approval: z.boolean().default(false),
+  /** Optional country allow-list. Each entry is a bare E.164 dial
+   * code (no plus): ["64"] means NZ-only, ["64","61"] means NZ+AU.
+   * Empty (the default) means no restriction. Verified against the
+   * joiner's WhatsApp-OTP-verified phone at join time. Spec:
+   * docs/68-country-gated-pools.md. */
+  allowed_phone_countries: z
+    .array(
+      z
+        .string()
+        .regex(/^[1-9]\d{0,3}$/, "Invalid dial code"),
+    )
+    .max(10, "Maximum 10 countries per pool")
+    .optional()
+    .default([]),
 }).superRefine((val, ctx) => {
   if (val.is_public && val.requires_approval) {
     // The form UI prevents this, but reject explicitly so a hand-rolled

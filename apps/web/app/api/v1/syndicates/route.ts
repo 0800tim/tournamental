@@ -127,6 +127,7 @@ export async function POST(req: NextRequest): Promise<Response> {
       share_guid: shareGuid,
       is_public: input.is_public,
       requires_approval: input.requires_approval,
+      allowed_phone_countries: input.allowed_phone_countries,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);

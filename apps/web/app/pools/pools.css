@@ -203,6 +203,17 @@
   color: #1a1205;
   background: var(--vt-gold-400, #dca94b);
 }
+/* Country-gate badge: a public pool restricted to one or more
+ * countries (verified by joiner's WhatsApp-OTP phone country code).
+ * Heavier visual treatment than the free/prize tags because it
+ * affects eligibility, not just pricing. */
+.vt-pool-tag-country {
+  color: var(--vt-fg, #e8e8ed);
+  background: rgba(94, 122, 255, 0.16);
+  border-color: rgba(94, 122, 255, 0.55);
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 /* Empty state */
 .vt-pools-empty {
@@ -217,4 +228,80 @@
 .vt-pools-empty-sub {
   margin: 0 0 12px;
   font-size: 0.9rem;
+}
+
+/* "Run your own pool" prompt: three pool-type cards above the
+   directory grid, surfacing the fact that the visitor can be the
+   creator, not just a joiner. Tim 2026-05-29. */
+.vt-pools-types {
+  margin: 8px 0 28px;
+  padding: 22px 22px 18px;
+  border: 1px solid var(--vt-border, rgba(220, 169, 75, 0.22));
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, rgba(220, 169, 75, 0.07), rgba(220, 169, 75, 0.02));
+}
+.vt-pools-types-eyebrow {
+  margin: 0 0 6px;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  font-weight: 700;
+}
+.vt-pools-types-h2 {
+  margin: 0 0 16px;
+  font-size: 1.45rem;
+  line-height: 1.2;
+  color: var(--vt-fg-strong, #fff);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.vt-pools-types-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.vt-pools-type {
+  padding: 14px 14px;
+  border: 1px solid var(--vt-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+.vt-pools-type-name {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  color: var(--vt-gold-400, #dca94b);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.vt-pools-type-blurb {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: var(--vt-fg, #e6e6ea);
+}
+.vt-pools-types-cta {
+  display: inline-block;
+  padding: 9px 16px;
+  background: var(--vt-gold-400, #dca94b);
+  color: #15151a;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: transform 0.1s ease, background 0.15s ease;
+}
+.vt-pools-types-cta:hover {
+  background: var(--vt-gold-500, #c9963c);
+  transform: translateY(-1px);
+}
+@media (max-width: 720px) {
+  .vt-pools-types-grid {
+    grid-template-columns: 1fr;
+  }
+  .vt-pools-types-h2 {
+    font-size: 1.2rem;
+  }
 }

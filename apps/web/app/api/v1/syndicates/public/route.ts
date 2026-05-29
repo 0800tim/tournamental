@@ -30,8 +30,14 @@ export async function GET(req: NextRequest): Promise<Response> {
   const search = params.get("search")?.slice(0, 100) ?? undefined;
   const limit = intParam(params.get("limit"), 60);
   const offset = intParam(params.get("offset"), 0);
+  // `eligible_for` accepts either an E.164 phone or a bare dial code
+  // and filters the listing to pools the visitor can actually join
+  // (no restriction OR phone-country matches the allow-list). Used
+  // by the join-flow upsell when someone is bounced from a country-
+  // gated pool. Cached separately per value via the URL.
+  const eligibleFor = params.get("eligible_for")?.slice(0, 24) ?? null;
 
-  const rows = getPersistence().listPublic({ search, limit, offset });
+  const rows = getPersistence().listPublic({ search, limit, offset, eligibleFor });
   const pools = rows.map(toPublicPoolDto);
 
   return Response.json(

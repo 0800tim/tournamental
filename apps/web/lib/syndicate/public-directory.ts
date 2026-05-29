@@ -5,6 +5,7 @@
  * fields — never owner_email / owner_phone / hl_* / sponsor internals.
  */
 
+import { parseAllowedCountries } from "./country-gate";
 import type { SyndicateRow } from "./persistence";
 
 export interface PublicPoolDto {
@@ -25,6 +26,10 @@ export interface PublicPoolDto {
   is_free: boolean;
   /** Relative landing/share URL. */
   share_url: string;
+  /** Country allow-list as bare E.164 dial codes (["64","61"] etc.).
+   * Empty array means the pool accepts joiners from any country.
+   * The directory card renders a flag badge from this. */
+  allowed_phone_countries: string[];
 }
 
 export function toPublicPoolDto(row: SyndicateRow): PublicPoolDto {
@@ -45,6 +50,7 @@ export function toPublicPoolDto(row: SyndicateRow): PublicPoolDto {
     has_prize: hasPrize,
     is_free: !row.entry_fee_cents || row.entry_fee_cents <= 0,
     share_url: `/s/${row.slug}`,
+    allowed_phone_countries: parseAllowedCountries(row.allowed_phone_countries),
   };
 }
 
