@@ -78,12 +78,17 @@ export default async function HomePage(): Promise<JSX.Element> {
   // strings into the catalogue. The hero is the visitor's first paint
   // so it carries the biggest visible language change.
   const keys = await Promise.all([
-    safeT("home.hero.headline_a", "Can you predict the entire World Cup?"),
+    safeT("home.hero.headline_a", "Don't just watch the FIFA World Cup™"),
     safeT("home.hero.cta_predict", "Set my picks"),
     safeT("home.hero.cta_pool", "Run a pool"),
-    safeTRaw("home.hero.lede", "Nobody has ever done it, and they probably never will because of the astronomical {odds_link}. Twenty-two World Cups, 964 matches, and the perfect bracket has stayed unclaimed."),
+    safeTRaw("home.hero.lede", "Nobody will correctly predict all 104 matches, and they probably never will because of the astronomical {odds_link}. Tournamental is the global predictions ledger looking for the person(s) in the world that will get the most correct picks. Could that be you?"),
     safeT("home.hero.lede_link", "odds of getting all 104 matches right"),
     safeT("home.hero.read_more", "[read more]"),
+    // Tim 2026-05-29: second line of the headline ('Play it.') + the
+    // immutability paragraph beneath the lede. Wired in after PR #243
+    // which set the marketing-site Hero.astro to the same copy.
+    safeT("home.hero.headline_b", "Play it."),
+    safeT("home.hero.lede_2", "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable."),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
     safeT("home.stat.matches", "Matches"),
@@ -143,6 +148,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   ]);
   const [
     headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
+    headlineB, lede2,
     countdownEyebrow, countdownTitle,
     statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
     step1Tag, step1Headline, step1Lede,
@@ -179,6 +185,7 @@ export default async function HomePage(): Promise<JSX.Element> {
             <div className="vt-home-hero-top">
               <h1 className="vt-home-headline">
                 <span className="vt-home-hero-line">{headlineA}</span>
+                <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
               <div className="vt-home-hero-ctas">
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
@@ -203,6 +210,9 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <Link href="/odds" className="vt-home-hero-readmore">
                   {readMore}
                 </Link>
+              </p>
+              <p className="vt-home-hero-lede vt-home-hero-lede-2">
+                {lede2}
               </p>
             </div>
             <ul className="vt-home-stat-row">
