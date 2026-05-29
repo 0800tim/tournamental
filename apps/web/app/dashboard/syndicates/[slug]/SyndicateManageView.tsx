@@ -470,7 +470,7 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
           <Link href={`/s/${s.slug}`} className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
             Public page →
           </Link>
-          <Link href="/syndicates/playbook" className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
+          <Link href="/pools/playbook" className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">
             Read the playbook →
           </Link>
           <Link href="/syndicates" className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm">

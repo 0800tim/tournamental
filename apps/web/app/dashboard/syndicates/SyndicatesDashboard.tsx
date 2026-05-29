@@ -194,7 +194,7 @@ export function SyndicatesDashboard(): JSX.Element {
             <a href="/syndicates/new" className="vt-dash-btn vt-dash-btn-primary">
               Create my first syndicate
             </a>
-            <a href="https://tournamental.com/syndicates/playbook" target="_blank" rel="noreferrer" className="vt-dash-btn vt-dash-btn-ghost">
+            <a href="https://tournamental.com/pools/playbook" target="_blank" rel="noreferrer" className="vt-dash-btn vt-dash-btn-ghost">
               Read the playbook
             </a>
           </div>
@@ -222,7 +222,7 @@ export function SyndicatesDashboard(): JSX.Element {
           <a href="/syndicates/new" className="vt-dash-btn vt-dash-btn-primary">
             + New syndicate
           </a>
-          <a href="https://tournamental.com/syndicates/playbook" target="_blank" rel="noreferrer" className="vt-dash-btn vt-dash-btn-ghost">
+          <a href="https://tournamental.com/pools/playbook" target="_blank" rel="noreferrer" className="vt-dash-btn vt-dash-btn-ghost">
             Playbook
           </a>
         </div>
