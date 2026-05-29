@@ -148,6 +148,8 @@ const PrizeSplitEntry = z.object({
 const PatchSchema = z
   .object({
     name: z.string().min(1).max(80).optional(),
+    /** Pool intro / description shown under the title on /s/<slug>. */
+    topic: z.string().max(600).nullable().optional(),
     branding_primary_colour: HexColour.optional(),
     branding_accent_colour: HexColour.optional(),
     branding_logo_url: HttpsUrl.optional(),

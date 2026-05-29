@@ -665,6 +665,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
   const [sponsorUrl, setSponsorUrl] = useState(initial.sponsor_url ?? "");
   const [sponsorLogoUrl, setSponsorLogoUrl] = useState(initial.sponsor_logo_url ?? "");
   const [prizeText, setPrizeText] = useState(initial.prize_text ?? "");
+  const [topic, setTopic] = useState(initial.topic ?? "");
   const [save, setSave] = useState<SaveState>({ status: "idle" });
 
   const dirty = useMemo(() => {
@@ -677,9 +678,10 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       sponsorName !== (initial.sponsor_name ?? "") ||
       sponsorUrl !== (initial.sponsor_url ?? "") ||
       sponsorLogoUrl !== (initial.sponsor_logo_url ?? "") ||
-      prizeText !== (initial.prize_text ?? "")
+      prizeText !== (initial.prize_text ?? "") ||
+      topic !== (initial.topic ?? "")
     );
-  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, initial]);
+  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, topic, initial]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -709,6 +711,8 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       body.sponsor_logo_url = trimmedOrNull(sponsorLogoUrl);
     if (prizeText !== (initial.prize_text ?? ""))
       body.prize_text = trimmedOrNull(prizeText);
+    if (topic !== (initial.topic ?? ""))
+      body.topic = trimmedOrNull(topic);
 
     try {
       const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
@@ -737,6 +741,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
           sponsor_url: ok.syndicate.sponsor_url,
           sponsor_logo_url: ok.syndicate.sponsor_logo_url,
           prize_text: ok.syndicate.prize_text,
+          topic: ok.syndicate.topic,
         });
       }
       setSave({ status: "saved" });
@@ -773,6 +778,23 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
               maxLength={80}
               required
               className="vt-brand-input"
+            />
+          </label>
+
+          <label className="vt-brand-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="vt-brand-label">
+              Intro / description
+              <span style={{ color: "#9aa6c2", fontWeight: 400, marginLeft: 6 }}>
+                shown under your pool title on the share page
+              </span>
+            </span>
+            <textarea
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              maxLength={600}
+              rows={3}
+              placeholder="A line or two about your pool. e.g. Office syndicate, World Cup 2026. Bragging rights and the trophy on the line."
+              className="vt-brand-input vt-brand-textarea"
             />
           </label>
 
