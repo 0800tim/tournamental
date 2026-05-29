@@ -1039,7 +1039,9 @@
 .mpr-pick-home.is-selected,
 .mpr-pick-away.is-selected {
   background: rgba(220, 169, 75, 0.06);
-  padding-top: 14px;
+  /* Tim 2026-05-29: dropped padding-top from 14px to 8px so the gold
+   * ring arches flush around the flag instead of leaving a visible gap. */
+  padding-top: 8px;
   padding-bottom: 8px;
   border-top-left-radius: 44px;
   border-top-right-radius: 44px;
@@ -1059,8 +1061,11 @@
 .mpr-pick.is-selected [data-selection-ring="true"] {
   outline: 4px solid var(--vt-gold-400, #dca94b) !important;
   outline-offset: 3px;
+  /* Tim 2026-05-29: dropped the `0 0 0 1px rgba(255,255,255,0.08)` halo
+   * that drew a visible thin white border around the flag inside the
+   * gold ring. The .flagWrap inset white shadow is also nulled (below)
+   * for the same reason. */
   box-shadow:
-    0 0 0 1px rgba(255, 255, 255, 0.08),
     0 0 22px rgba(220, 169, 75, 0.45),
     0 0 44px rgba(220, 169, 75, 0.22) !important;
 }
