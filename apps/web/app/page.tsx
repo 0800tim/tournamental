@@ -195,25 +195,31 @@ export default async function HomePage(): Promise<JSX.Element> {
                   {ctaPool}
                 </Link>
               </div>
-              <p className="vt-home-hero-lede">
-                {ledeParts.length === 2 ? (
-                  <>
-                    {ledeParts[0]}
-                    <Link href="/odds" className="vt-home-hero-readmore">
-                      {ledeLink}
-                    </Link>
-                    {ledeParts[1]}
-                  </>
-                ) : (
-                  lede
-                )}{" "}
-                <Link href="/odds" className="vt-home-hero-readmore">
-                  {readMore}
-                </Link>
-              </p>
-              <p className="vt-home-hero-lede vt-home-hero-lede-2">
-                {lede2}
-              </p>
+              {/* Tim 2026-05-29: wrap both lede paragraphs in a single
+                * grid-area cell. Without the wrapper, .vt-home-hero-lede
+                * { grid-area: lede; } in home.css places both <p>s into
+                * the same cell on desktop and they overlap. */}
+              <div className="vt-home-hero-lede-stack">
+                <p className="vt-home-hero-lede">
+                  {ledeParts.length === 2 ? (
+                    <>
+                      {ledeParts[0]}
+                      <Link href="/odds" className="vt-home-hero-readmore">
+                        {ledeLink}
+                      </Link>
+                      {ledeParts[1]}
+                    </>
+                  ) : (
+                    lede
+                  )}{" "}
+                  <Link href="/odds" className="vt-home-hero-readmore">
+                    {readMore}
+                  </Link>
+                </p>
+                <p className="vt-home-hero-lede vt-home-hero-lede-2">
+                  {lede2}
+                </p>
+              </div>
             </div>
             <ul className="vt-home-stat-row">
               <li>

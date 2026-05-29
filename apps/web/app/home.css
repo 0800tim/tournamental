@@ -128,7 +128,18 @@
   }
   .vt-home-headline { grid-area: headline; }
   .vt-home-hero-ctas { grid-area: ctas; align-self: end; padding-bottom: 6px; }
-  .vt-home-hero-lede { grid-area: lede; }
+  /* Tim 2026-05-29: the lede slot is now a wrapper around two <p>s so
+   * both paragraphs (intro + immutability) share one grid cell and
+   * stack as normal block flow instead of colliding in the same cell. */
+  .vt-home-hero-lede-stack { grid-area: lede; }
+}
+
+/* The lede wrapper itself is layout-only; the paragraphs inside keep
+ * their existing typography rules. Tighten the gap between the two
+ * paragraphs so they read as a single voice instead of disconnected
+ * slabs (the first paragraph already has margin-bottom:28px). */
+.vt-home-hero-lede-stack > .vt-home-hero-lede + .vt-home-hero-lede {
+  margin-top: -6px;
 }
 
 .vt-home-hero-ctas {
