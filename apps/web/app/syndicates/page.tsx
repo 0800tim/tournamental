@@ -307,6 +307,45 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
           </ul>
         </section>
 
+        {/* Three high-level types: the simplest "who runs a pool?"
+            answer before the deeper Six-audiences breakdown.
+            Added 2026-05-29 (Tim) - the page was dense; visitors
+            needed an at-a-glance "this could be me" callout. */}
+        <section className="vt-syndicates-section vt-syndicates-types">
+          <h2 className="vt-syndicates-section-title">Three ways to use a pool</h2>
+          <p className="vt-syndicates-section-lede">
+            Anyone can start one. Pick the path that fits your audience.
+          </p>
+          <ul className="vt-syndicates-types-grid">
+            <li className="vt-syndicates-type">
+              <h3 className="vt-syndicates-type-name">Private</h3>
+              <p className="vt-syndicates-type-blurb">
+                For your family or friends. Invite-only. No fee, no fuss,
+                bragging rights for the winner.
+              </p>
+            </li>
+            <li className="vt-syndicates-type">
+              <h3 className="vt-syndicates-type-name">Office sweepstake</h3>
+              <p className="vt-syndicates-type-blurb">
+                Set an entry fee and a prize pool. Members chip in, you run
+                it your way. We handle the bracket, scoring, and leaderboard.
+              </p>
+            </li>
+            <li className="vt-syndicates-type">
+              <h3 className="vt-syndicates-type-name">Open / brand</h3>
+              <p className="vt-syndicates-type-blurb">
+                Public to all. Use it to engage your audience or attract new
+                signups around your prize. Branded with your logo and colours.
+              </p>
+            </li>
+          </ul>
+          <div className="vt-syndicates-types-cta-row">
+            <Link href="/syndicates/new" className="vt-syndicates-cta-primary">
+              Start your pool →
+            </Link>
+          </div>
+        </section>
+
         {/* Use cases */}
         <section className="vt-syndicates-section">
           <h2 className="vt-syndicates-section-title">{usecases_title}</h2>

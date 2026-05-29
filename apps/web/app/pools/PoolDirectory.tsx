@@ -150,39 +150,6 @@ export function PoolDirectory({
         </div>
       </header>
 
-      <section className="vt-pools-types" aria-labelledby="vt-pools-types-h2">
-        <p className="vt-pools-types-eyebrow">Run your own pool</p>
-        <h2 id="vt-pools-types-h2" className="vt-pools-types-h2">
-          Anyone can start one. Live in 5 minutes.
-        </h2>
-        <div className="vt-pools-types-grid">
-          <article className="vt-pools-type">
-            <h3 className="vt-pools-type-name">Private</h3>
-            <p className="vt-pools-type-blurb">
-              For your family or friends. Invite-only. No fee, no fuss, bragging
-              rights for the winner.
-            </p>
-          </article>
-          <article className="vt-pools-type">
-            <h3 className="vt-pools-type-name">Office sweepstake</h3>
-            <p className="vt-pools-type-blurb">
-              Set an entry fee and a prize pool. Members chip in, you run it
-              your way. We handle the bracket, scoring, and leaderboard.
-            </p>
-          </article>
-          <article className="vt-pools-type">
-            <h3 className="vt-pools-type-name">Open / brand</h3>
-            <p className="vt-pools-type-blurb">
-              Public to all. Use it to engage your audience or attract new
-              signups around your prize. Branded with your logo and colours.
-            </p>
-          </article>
-        </div>
-        <Link href="/syndicates/new" className="vt-pools-types-cta">
-          Start your pool →
-        </Link>
-      </section>
-
       <div className="vt-pools-searchbar">
         <input
           type="search"
