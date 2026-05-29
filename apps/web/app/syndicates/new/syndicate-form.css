@@ -243,6 +243,72 @@
   color: var(--vt-gold-400, #dca94b);
 }
 
+/* Country-lock section, deliberately heavier visual treatment than
+ * the other fieldsets because it gates prize eligibility, not just
+ * presentation. Spec docs/68. */
+.syn-country-lock {
+  border: 1.5px solid rgba(94, 122, 255, 0.55);
+  background: rgba(94, 122, 255, 0.06);
+}
+.syn-country-lock-legend {
+  color: #b4c1ff;
+  font-size: 12px;
+}
+.syn-country-lock-toggle {
+  padding: 4px 0;
+}
+.syn-country-lock-chips {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+}
+.syn-country-lock-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.syn-country-lock-add {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.syn-country-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 6px 6px 10px;
+  background: rgba(94, 122, 255, 0.18);
+  border: 1px solid rgba(94, 122, 255, 0.45);
+  border-radius: 999px;
+  color: #e7ecf7;
+  font-size: 13px;
+}
+.syn-country-chip-dial {
+  color: #94a3b8;
+  font-variant-numeric: tabular-nums;
+}
+.syn-country-chip-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e7ecf7;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+.syn-country-chip-remove:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
 /* Two-line checkbox label: bold title + muted helper. */
 .syn-checkbox-row > span {
   display: flex;

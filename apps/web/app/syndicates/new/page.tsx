@@ -10,6 +10,7 @@
  */
 
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 
 import { AppShell } from "@/components/shell/AppShell";
 import { SyndicateForm } from "./SyndicateForm";
@@ -24,9 +25,15 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default function NewSyndicatePage(): JSX.Element {
+  // Read Cloudflare's geo-IP hint from the request headers so the
+  // "Lock entries to my country" toggle in the form can pre-fill with
+  // a sensible default. The form falls back to the admin's verified
+  // phone country code (and then NZ) when this is missing.
+  const h = headers();
+  const cfIpCountry = h.get("cf-ipcountry") ?? h.get("x-vercel-ip-country") ?? null;
   return (
     <AppShell title="Tournamental">
-      <SyndicateForm />
+      <SyndicateForm cfIpCountry={cfIpCountry} />
     </AppShell>
   );
 }

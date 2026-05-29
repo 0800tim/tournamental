@@ -19,6 +19,9 @@ import { deriveSlug, isValidSlugShape } from "@/lib/syndicate/slug";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
 import { resizeToBlob, BRANDING_TARGETS } from "@/components/syndicate/BrandingImageUploader";
+import { COUNTRIES, bareDialCode, type CountryEntry } from "@/lib/syndicate/countries";
+import { detectAdminCountry } from "@/lib/syndicate/detect-country";
+import { MAX_ALLOWED_COUNTRIES } from "@/lib/syndicate/country-gate";
 
 import "./syndicate-form.css";
 
@@ -80,7 +83,15 @@ type FieldErrors = Partial<{
  * inbound-login fallback produces (e.g. "+64…1234"). */
 const HANDLE_RE = /^[a-zA-Z0-9_]{2,32}$/;
 
-export function SyndicateForm(): JSX.Element {
+export function SyndicateForm({
+  cfIpCountry = null,
+}: {
+  /** Cloudflare's CF-IPCountry header (ISO-2), forwarded from the
+   * server wrapper so the "Lock entries" toggle can pre-detect the
+   * admin's country. Null when missing (the form falls back to the
+   * admin's verified phone country, then to NZ). */
+  cfIpCountry?: string | null;
+} = {}): JSX.Element {
   const auth = useUser();
   const prefillEmail = auth.user?.email ?? "";
   const prefillPhone = auth.user?.phone ?? "";
@@ -113,6 +124,56 @@ export function SyndicateForm(): JSX.Element {
   // definition accepts everyone in one tap. (Tim 2026-05-22)
   const [isPublic, setIsPublic] = useState(false);
   const [requiresApproval, setRequiresApproval] = useState(false);
+
+  // Country-gate state, see docs/68. Default OFF (open to all); when
+  // flipped ON the picker pre-selects the detected admin country so
+  // it's a one-click lock for the common "brand giving away a local
+  // prize" path.
+  const [lockCountries, setLockCountries] = useState<boolean>(false);
+  const [allowedCountries, setAllowedCountries] = useState<string[]>([]);
+  const detectedCountry = useMemo<CountryEntry>(
+    () =>
+      detectAdminCountry({
+        cfIpCountry,
+        ownerPhoneE164: dialCode && phoneLocal ? `${dialCode}${phoneLocal}` : null,
+      }),
+    [cfIpCountry, dialCode, phoneLocal],
+  );
+  const detectedDial = useMemo(() => bareDialCode(detectedCountry.dial), [detectedCountry]);
+  const lockedToggleLabel = `Only people from ${detectedCountry.flag} ${detectedCountry.name} can enter`;
+  // Removing the last chip while the toggle is ON forces it OFF so
+  // the invariant "locked => at least 1 country" holds.
+  useEffect(() => {
+    if (lockCountries && allowedCountries.length === 0) {
+      setLockCountries(false);
+    }
+  }, [lockCountries, allowedCountries]);
+  // Toggle ON, populate with the detected country if empty.
+  const onToggleLock = useCallback(
+    (next: boolean) => {
+      setLockCountries(next);
+      if (next && allowedCountries.length === 0) {
+        setAllowedCountries([detectedDial]);
+      }
+    },
+    [allowedCountries.length, detectedDial],
+  );
+  const addCountry = useCallback(
+    (dial: string) => {
+      if (!dial) return;
+      if (allowedCountries.includes(dial)) return;
+      if (allowedCountries.length >= MAX_ALLOWED_COUNTRIES) return;
+      setAllowedCountries((cur) => [...cur, dial]);
+    },
+    [allowedCountries],
+  );
+  const removeCountry = useCallback((dial: string) => {
+    setAllowedCountries((cur) => cur.filter((c) => c !== dial));
+  }, []);
+  const availableToAdd = useMemo(
+    () => COUNTRIES.filter((c) => !allowedCountries.includes(bareDialCode(c.dial))),
+    [allowedCountries],
+  );
 
   // Branding + prize-pool optional fields. Captured here and applied
   // after the create POST returns a slug -- the upload + branding-patch
@@ -244,6 +305,10 @@ export function SyndicateForm(): JSX.Element {
           terms_accepted: termsAccepted,
           is_public: isPublic,
           requires_approval: !isPublic && requiresApproval,
+          // Country lock: send only when the admin has actually ticked
+          // the toggle AND chosen at least one country. Empty array
+          // (the schema default) means "no restriction".
+          allowed_phone_countries: lockCountries ? allowedCountries : [],
         }),
       });
       const body = await res.json().catch(() => ({}));
@@ -733,6 +798,97 @@ export function SyndicateForm(): JSX.Element {
               </label>
             </div>
             <span className="syn-hint">You collect entry fees yourself; we don&apos;t take a cut and don&apos;t process payments.</span>
+          </fieldset>
+
+          {/* Country lock (entry eligibility). Prominent visual
+            * treatment because most brand-sponsored prize pools will
+            * want this on (local-shipping-only e-commerce, in-country
+            * experiences, local liquor laws). Default OFF, but the
+            * toggle label auto-fills with the detected admin country
+            * so locking is a single click. Multi-country picker
+            * exposed once toggled. Spec: docs/68-country-gated-pools.md. */}
+          <fieldset className="syn-fieldset syn-country-lock" aria-label="Lock entries by country">
+            <legend className="syn-fieldset-legend syn-country-lock-legend">
+              <span aria-hidden="true">🔒</span> Lock entries to one or more countries
+            </legend>
+            <label className="syn-checkbox-row syn-country-lock-toggle">
+              <input
+                type="checkbox"
+                checked={lockCountries}
+                onChange={(e) => onToggleLock(e.target.checked)}
+              />
+              <span>
+                <strong>{lockedToggleLabel}</strong>
+                <span className="syn-checkbox-hint">
+                  Most brands lock entries when prizes can&apos;t ship overseas or
+                  are local experiences. We verify with the joiner&apos;s
+                  WhatsApp-OTP mobile country code (+64, +44, +61, etc).
+                  Leave off to keep the pool open to the world.
+                </span>
+              </span>
+            </label>
+            {lockCountries ? (
+              <div className="syn-country-lock-chips">
+                <div className="syn-country-lock-list">
+                  {allowedCountries.length === 0 ? (
+                    <span className="syn-hint">No countries selected. Add one to keep the lock.</span>
+                  ) : null}
+                  {allowedCountries.map((dial) => {
+                    const country = COUNTRIES.find((c) => bareDialCode(c.dial) === dial);
+                    return (
+                      <span key={dial} className="syn-country-chip">
+                        <span aria-hidden="true">{country?.flag ?? "🌐"}</span>
+                        <span>{country?.name ?? `+${dial}`}</span>
+                        <span className="syn-country-chip-dial">+{dial}</span>
+                        <button
+                          type="button"
+                          className="syn-country-chip-remove"
+                          aria-label={`Remove ${country?.name ?? dial}`}
+                          onClick={() => removeCountry(dial)}
+                        >
+                          ×
+                        </button>
+                      </span>
+                    );
+                  })}
+                </div>
+                {availableToAdd.length > 0 && allowedCountries.length < MAX_ALLOWED_COUNTRIES ? (
+                  <div className="syn-country-lock-add">
+                    <label className="syn-label" htmlFor="syn-country-add">Add country</label>
+                    <select
+                      id="syn-country-add"
+                      className="syn-input"
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          addCountry(e.target.value);
+                        }
+                      }}
+                    >
+                      <option value="" disabled>
+                        {allowedCountries.length === 0 ? "Pick a country…" : "+ Add another country…"}
+                      </option>
+                      {availableToAdd.map((c) => (
+                        <option key={c.iso} value={bareDialCode(c.dial)}>
+                          {c.flag} {c.name} ({c.dial})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                ) : null}
+                {allowedCountries.length >= MAX_ALLOWED_COUNTRIES ? (
+                  <span className="syn-hint">
+                    Maximum {MAX_ALLOWED_COUNTRIES} countries per pool. Remove one to add another.
+                  </span>
+                ) : null}
+                <span className="syn-hint">
+                  Note: this is a phone-country proxy, not a residency check.
+                  A NZ expat using a +64 SIM abroad can still join a NZ-only
+                  pool. For most brand promotions this is a reasonable proxy
+                  and is much lower friction than ID verification.
+                </span>
+              </div>
+            ) : null}
           </fieldset>
 
           {/* Visibility + approval (mutually exclusive). Ticking Public

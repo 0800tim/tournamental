@@ -33,6 +33,7 @@ import {
   type InboundUser,
 } from "@/lib/auth/inbound-login";
 import { AvatarUploader } from "@/components/profile/AvatarUploader";
+import { countriesFromAllowed } from "@/lib/syndicate/country-gate";
 
 const DEFAULT_PRIMARY = "#fbbf24";
 const HANDLE_RE = /^[a-zA-Z0-9_]{2,32}$/;
@@ -56,7 +57,16 @@ type FlowState =
   | "signin"
   | "onboarding"
   | "payment"
+  | "country-blocked"
   | "done";
+
+/** Payload bundled with a `country_restricted` rejection so the
+ * blocking screen can render the right flags + upsell link without
+ * a round-trip back to the API. */
+interface CountryBlockedPayload {
+  allowedCountries: string[];
+  directoryUrl: string;
+}
 
 /** Pre-fill fields parsed from the CRM-invite query string. Any subset
  *  may be present. When `mobile` or `email` is set, the join page kicks
@@ -113,6 +123,11 @@ interface PoolConfig {
   readonly requires_approval: boolean;
   readonly is_public: boolean;
   readonly join_fee_terms_text: string | null;
+  /** Country allow-list (bare E.164 dial codes). Empty = no
+   * restriction. Used to render the up-front "NZ residents only"
+   * notice on the phone-entry step + the CountryRestrictedScreen
+   * if the post-OTP join is rejected. Spec docs/68. */
+  readonly allowed_phone_countries: string[];
 }
 
 interface PrizeSplitEntry {
@@ -138,6 +153,19 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
   const [user, setUser] = useState<InboundUser | null>(null);
   const [doneKind, setDoneKind] = useState<DoneKind>("active");
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [countryBlocked, setCountryBlocked] = useState<CountryBlockedPayload | null>(null);
+  const handleJoinResult = useCallback(
+    (status: "active" | "pending" | "country_restricted", payload?: CountryBlockedPayload) => {
+      if (status === "country_restricted") {
+        setCountryBlocked(payload ?? { allowedCountries: [], directoryUrl: "/pools" });
+        setFlow("country-blocked");
+        return;
+      }
+      setDoneKind(status === "pending" ? "pending" : "active");
+      setFlow("done");
+    },
+    [],
+  );
   // CRM-invite pre-fill from query string. Captured once on mount so
   // a later history.replaceState() (we strip the params after sending
   // so they don't leak via referrer / share) doesn't lose them.
@@ -242,6 +270,7 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
     return (
       <Shell primary={primary}>
         <PoolHeader config={config} initialName={initialName} />
+        <CountryGateNotice config={config} />
         <PrizeSummary config={config} />
         {loadError && <p style={errorTextStyle}>{loadError}</p>}
         <WarmInviteStep
@@ -259,6 +288,7 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
     return (
       <Shell primary={primary}>
         <PoolHeader config={config} initialName={initialName} />
+        <CountryGateNotice config={config} />
         <PrizeSummary config={config} />
         {loadError && <p style={errorTextStyle}>{loadError}</p>}
         <SignInStep slug={slug} primary={primary} onSignedIn={handleSignedIn} />
@@ -270,16 +300,14 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
     return (
       <Shell primary={primary}>
         <PoolHeader config={config} initialName={initialName} />
+        <CountryGateNotice config={config} />
         <OnboardingStep
           slug={slug}
           primary={primary}
           user={user}
           config={config}
           onPayment={() => setFlow("payment")}
-          onJoined={(status) => {
-            setDoneKind(status === "pending" ? "pending" : "active");
-            setFlow("done");
-          }}
+          onJoined={handleJoinResult}
         />
       </Shell>
     );
@@ -289,15 +317,26 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
     return (
       <Shell primary={primary}>
         <PoolHeader config={config} initialName={initialName} />
+        <CountryGateNotice config={config} />
         <PaymentStep
           slug={slug}
           primary={primary}
           config={config}
           user={user}
-          onJoined={(status) => {
-            setDoneKind(status === "pending" ? "pending" : "active");
-            setFlow("done");
-          }}
+          onJoined={handleJoinResult}
+        />
+      </Shell>
+    );
+  }
+
+  if (flow === "country-blocked") {
+    return (
+      <Shell primary={primary}>
+        <PoolHeader config={config} initialName={initialName} />
+        <CountryRestrictedScreen
+          allowed={countryBlocked?.allowedCountries ?? []}
+          directoryUrl={countryBlocked?.directoryUrl ?? "/pools"}
+          primary={primary}
         />
       </Shell>
     );
@@ -1033,7 +1072,13 @@ function OnboardingStep({
   user: InboundUser;
   config: PoolConfig | null;
   onPayment: () => void;
-  onJoined: (status: "active" | "pending") => void;
+  /** Status callback. "country_restricted" routes the parent to the
+   * CountryRestrictedScreen with the rejection payload (allow-list +
+   * filtered-directory URL) returned by the API. */
+  onJoined: (
+    status: "active" | "pending" | "country_restricted",
+    payload?: { allowedCountries: string[]; directoryUrl: string },
+  ) => void;
 }): JSX.Element {
   const [handle, setHandle] = useState("");
   const [displayName, setDisplayName] = useState(user.displayName ?? "");
@@ -1101,6 +1146,11 @@ function OnboardingStep({
     setBusy(false);
     if (res.ok) {
       onJoined(res.status);
+    } else if (res.reason === "country_restricted") {
+      onJoined("country_restricted", {
+        allowedCountries: res.allowed_countries ?? [],
+        directoryUrl: res.directory_url ?? "/pools",
+      });
     } else {
       setError(res.message);
     }
@@ -1190,7 +1240,13 @@ function PaymentStep({
   primary: string;
   config: PoolConfig;
   user: InboundUser | null;
-  onJoined: (status: "active" | "pending") => void;
+  /** Status callback. "country_restricted" routes the parent to the
+   * CountryRestrictedScreen with the rejection payload (allow-list +
+   * filtered-directory URL) returned by the API. */
+  onJoined: (
+    status: "active" | "pending" | "country_restricted",
+    payload?: { allowedCountries: string[]; directoryUrl: string },
+  ) => void;
 }): JSX.Element {
   const [agreed, setAgreed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -1204,6 +1260,11 @@ function PaymentStep({
     setBusy(false);
     if (res.ok) {
       onJoined(res.status);
+    } else if (res.reason === "country_restricted") {
+      onJoined("country_restricted", {
+        allowedCountries: res.allowed_countries ?? [],
+        directoryUrl: res.directory_url ?? "/pools",
+      });
     } else {
       setError(res.message);
     }
@@ -1280,7 +1341,16 @@ function DoneStep({ kind, primary }: { kind: DoneKind; primary: string }): JSX.E
 
 type JoinResult =
   | { ok: true; status: "active" | "pending" }
-  | { ok: false; message: string };
+  | {
+      ok: false;
+      /** Structured rejection reason. "country_restricted" routes the
+       * caller to the friendly CountryRestrictedScreen with the
+       * allow-list + filtered-directory URL surfaced by the API. */
+      reason?: "country_restricted";
+      allowed_countries?: string[];
+      directory_url?: string;
+      message: string;
+    };
 
 async function joinPool(
   slug: string,
@@ -1299,6 +1369,9 @@ async function joinPool(
       status?: "active" | "pending";
       already_member?: boolean;
       error?: string;
+      reason?: string;
+      allowed_countries?: string[];
+      directory_url?: string;
       message?: string;
     };
     if (r.ok && j.ok) {
@@ -1307,6 +1380,15 @@ async function joinPool(
     }
     if (r.status === 401) {
       return { ok: false, message: "Your session expired. Refresh and sign in again." };
+    }
+    if (r.status === 403 && j.reason === "country_restricted") {
+      return {
+        ok: false,
+        reason: "country_restricted",
+        allowed_countries: Array.isArray(j.allowed_countries) ? j.allowed_countries : [],
+        directory_url: typeof j.directory_url === "string" ? j.directory_url : "/pools",
+        message: "This pool is restricted to specific countries.",
+      };
     }
     if (j.error === "handle_taken") {
       return { ok: false, message: j.message ?? "That handle is taken in this pool." };
@@ -1393,6 +1475,134 @@ function Divider({ label }: { label: string }): JSX.Element {
         {label}
       </span>
       <span style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.1)" }} />
+    </div>
+  );
+}
+
+
+// --- Country gate UI ---------------------------------------------------
+
+/** Compact "NZ residents only" notice rendered above the OTP step on
+ *  pools that restrict by phone country. Set expectation BEFORE the
+ *  visitor invests typing + verifying their phone. Spec docs/68. */
+function CountryGateNotice({ config }: { config: PoolConfig | null }): JSX.Element | null {
+  const allowed = config?.allowed_phone_countries ?? [];
+  if (!allowed.length) return null;
+  const countries = countriesFromAllowed(allowed);
+  if (!countries.length) return null;
+  const flagRow = countries.slice(0, 4).map((c) => c.flag).join("");
+  const dialList = countries.map((c) => c.dial).join(", ");
+  const label =
+    countries.length === 1
+      ? `${countries[0].flag} ${countries[0].name} residents only`
+      : countries.length <= 4
+        ? `${flagRow} ${countries.map((c) => c.iso).join(" + ")} residents only`
+        : `${flagRow} +${countries.length} countries only`;
+  return (
+    <div
+      role="note"
+      style={{
+        border: "1px solid rgba(94, 122, 255, 0.55)",
+        background: "rgba(94, 122, 255, 0.10)",
+        borderRadius: 12,
+        padding: "10px 14px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+      }}
+      title={countries.map((c) => `${c.flag} ${c.name}`).join(", ")}
+    >
+      <span style={{ color: "#b4c1ff", fontWeight: 600, fontSize: 14 }}>{label}</span>
+      <span style={{ color: "#94a3b8", fontSize: 12 }}>
+        You&apos;ll need a verified {dialList} mobile to join.
+      </span>
+    </div>
+  );
+}
+
+/** Full-screen friendly stop shown after a country-gated 403. Lists
+ *  the allowed countries and links to the directory filtered to
+ *  pools the visitor's phone can join. Spec docs/68 sec 4. */
+function CountryRestrictedScreen({
+  allowed,
+  directoryUrl,
+  primary,
+}: {
+  allowed: string[];
+  directoryUrl: string;
+  primary: string;
+}): JSX.Element {
+  const countries = countriesFromAllowed(allowed);
+  const heading =
+    countries.length === 1
+      ? `This pool is for ${countries[0].flag} ${countries[0].name} residents.`
+      : countries.length > 0
+        ? `This pool is for residents of ${countries.map((c) => c.name).join(", ")}.`
+        : "This pool is restricted by country.";
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 18, padding: "12px 0", textAlign: "center" }}>
+      <div style={{ fontSize: 42, lineHeight: 1 }}>🌏</div>
+      <h2 style={{ fontSize: 20, margin: 0 }}>{heading}</h2>
+      <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, lineHeight: 1.5 }}>
+        We use your mobile country code to keep prize eligibility fair.
+        Your verified number isn&apos;t from one of the allowed countries:
+      </p>
+      {countries.length > 0 ? (
+        <ul
+          style={{
+            listStyle: "none",
+            margin: 0,
+            padding: 0,
+            display: "flex",
+            flexWrap: "wrap",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          {countries.map((c) => (
+            <li
+              key={c.iso}
+              style={{
+                padding: "6px 12px",
+                border: "1px solid rgba(94, 122, 255, 0.45)",
+                background: "rgba(94, 122, 255, 0.10)",
+                borderRadius: 999,
+                color: "#e7ecf7",
+                fontSize: 13,
+                display: "inline-flex",
+                gap: 6,
+                alignItems: "center",
+              }}
+            >
+              <span aria-hidden="true">{c.flag}</span>
+              <span>{c.name}</span>
+              <span style={{ color: "#94a3b8" }}>{c.dial}</span>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+      <p style={{ color: "#c7d0e6", fontSize: 14, margin: "8px 0 0" }}>
+        Good news, there are pools open to you. We&apos;ve filtered the
+        directory:
+      </p>
+      <a
+        href={directoryUrl}
+        style={{
+          display: "inline-block",
+          padding: "10px 18px",
+          borderRadius: 10,
+          background: primary,
+          color: "#15151a",
+          fontWeight: 600,
+          textDecoration: "none",
+        }}
+      >
+        Browse pools you can join →
+      </a>
+      <p style={{ color: "#94a3b8", fontSize: 12, margin: "8px 0 0" }}>
+        Or sign in again with a verified mobile from one of the allowed
+        countries.
+      </p>
     </div>
   );
 }

@@ -141,6 +141,21 @@ export async function GET(
         //     join-request flow on click.
         is_public: row.is_public === 1,
         requires_approval: row.requires_approval === 1,
+        // Country gate: array of bare E.164 dial codes (e.g. ["64"]).
+        // Empty array = no restriction. The join client renders an
+        // up-front "NZ residents only" notice on the phone-entry
+        // step when this is non-empty so visitors aren't surprised
+        // by the post-OTP rejection. Spec: docs/68-country-gated-pools.md.
+        allowed_phone_countries: (() => {
+          // Lazy parse inline to avoid pulling country-gate into this
+          // edge-friendly route's static surface.
+          const csv = row.allowed_phone_countries;
+          if (!csv) return [] as string[];
+          return csv
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => /^[1-9]\d{0,3}$/.test(s));
+        })(),
       },
     },
     200,
