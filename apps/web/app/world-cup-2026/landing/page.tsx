@@ -105,10 +105,10 @@ export default function LandingPage() {
           </h1>
           <p className="wc-hero-sub">
             Tournamental is the open-source prediction game for the 2026
-            Football World Cup. Free to play, free to syndicate, free to share.
-            Save your bracket now and tweak it match by match, the
-            earlier your saved pick, the bigger the multiplier. You can
-            change any pick right up until that match kicks off.
+            Football World Cup. Free to play, free to pool, free to share.
+            Save your bracket now and tweak it match by match. Scoring is
+            simple: one point per correct pick. You can change any pick
+            right up until that match kicks off.
           </p>
           <Countdown initial={initialCountdown} />
           <div className="wc-cta-row">

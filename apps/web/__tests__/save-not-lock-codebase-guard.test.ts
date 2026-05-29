@@ -141,7 +141,7 @@ describe("Lock → Save rename, codebase guard", () => {
     expect(src).not.toMatch(/"Lock it in"/);
   });
 
-  it("LockSummary user-facing strings read 'Save', 'Saved', 'early-save'", () => {
+  it("LockSummary user-facing strings read 'Save'/'Saved' (no multiplier copy)", () => {
     const file = path.join(
       __dirname,
       "..",
@@ -152,9 +152,13 @@ describe("Lock → Save rename, codebase guard", () => {
     const src = fs.readFileSync(file, "utf8");
     expect(src).toMatch(/picks saved/);
     expect(src).toMatch(/Save the rest before/);
-    expect(src).toMatch(/Top early-save multipliers/);
+    // Tim 2026-05-29: dropped the early-save multiplier table. Scoring
+    // is now simple count-of-correct, no multiplier language in the UI.
+    expect(src).not.toMatch(/Top early-save multipliers/);
     expect(src).not.toMatch(/Top lock multipliers/);
     expect(src).not.toMatch(/Lock the rest before/);
+    expect(src).not.toMatch(/for max points/);
+    expect(src).not.toMatch(/Back your boldest pick/);
   });
 
   it("the world-cup-2026 landing page reads 'save'/'saved' in user copy", () => {

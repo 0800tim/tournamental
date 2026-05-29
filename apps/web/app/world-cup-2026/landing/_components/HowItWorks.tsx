@@ -1,13 +1,14 @@
 /**
  * The three-step explainer: predict, save early, watch the world react.
- * Step 2 has a tiny inline bar chart showing the early-save multiplier
- * decay (5.0× -> 1.0×). Pure SVG; no JS animation.
+ *
+ * Tim 2026-05-29: dropped the early-save multiplier story (and the
+ * 5.0×→1.0× decay bars). Scoring is now pure count-of-correct: one
+ * point per right call, no time bonus, no multiplier. Step 2 is now
+ * just "save early so you don't forget; you can change picks any time
+ * before kickoff."
  */
 
 import Link from "next/link";
-
-const DECAY: readonly number[] = [5.0, 4.2, 3.4, 2.7, 2.1, 1.6, 1.3, 1.1, 1.0];
-const DECAY_MAX = 5.0;
 
 export function HowItWorks() {
   return (
@@ -15,9 +16,9 @@ export function HowItWorks() {
       <div className="wc-step" data-step="1">
         <h3>Predict every match.</h3>
         <p>
-          Win, draw, or lose for all 104 games, group stage to final.
-          Reorder your group standings and your knockout bracket cascades
-          downstream automatically.{" "}
+          Win, draw, or lose for all 72 group games; winner for every
+          knockout match through the final. Reorder your group standings
+          and your knockout bracket cascades downstream automatically.{" "}
           <Link href="/world-cup-2026">Open the bracket builder →</Link>
         </p>
       </div>
@@ -27,32 +28,18 @@ export function HowItWorks() {
         <p>
           Unlike Telegraph, ESPN or Yahoo bracket games, nothing locks
           at first kickoff. You can change any pick until that specific
-          match kicks off. The earlier you save a long-shot the bigger
-          the multiplier when it pays off; wait until kickoff and you
-          score flat. Every save resets the clock, so a late pivot
-          costs you a little of that early conviction bonus.
-        </p>
-        <div className="wc-step-decay" aria-label="Early-save multiplier decay 5x to 1x">
-          {DECAY.map((m, i) => (
-            <span
-              key={i}
-              className="wc-step-decay-bar"
-              style={{ height: `${(m / DECAY_MAX) * 100}%` }}
-              aria-hidden="true"
-            />
-          ))}
-        </div>
-        <p style={{ marginTop: 6, fontSize: 11 }}>
-          5.0× today &nbsp;&middot;&nbsp; 1.0× by kickoff.
+          match kicks off. Save early so you don&apos;t forget, then
+          tweak match-by-match as form and team news shift.
         </p>
       </div>
 
       <div className="wc-step" data-step="3">
-        <h3>Watch the world react.</h3>
+        <h3>One point per correct pick.</h3>
         <p>
-          Every Polymarket tick streams into the app. Compare your saved
-          picks against global consensus, pile-on early underdog stories,
-          and watch your country&apos;s leaderboard climb in real time.
+          Group-stage win/lose/draw scores a point; knockout-stage
+          winner scores a point. That&apos;s it. If you call 16 of the
+          first 18 right and nobody&apos;s on 18, you sit equal-first on
+          the leaderboard. Simple, transparent, and very hard to top.
         </p>
       </div>
     </div>

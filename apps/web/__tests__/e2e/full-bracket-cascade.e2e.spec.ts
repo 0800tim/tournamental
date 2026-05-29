@@ -15,10 +15,12 @@
  *     placeholders or localStorage doesn't persist, the test fails with a
  *     diagnostic message that the orchestrator can hand to a follow-up
  *     fix PR.
- *   - Steps that probe nice-to-have surfaces (the multiplier table, the
- *     "Back your boldest pick" CTA, the "Predicted tournament winner"
- *     panel) use `expect.soft()` so the rest of the test still runs and
- *     reports them as failures rather than hard-aborting.
+ *   - Steps that probe nice-to-have surfaces (the "Predicted tournament
+ *     winner" panel) use `expect.soft()` so the rest of the test still
+ *     runs and reports them as failures rather than hard-aborting. The
+ *     multiplier table + boldest-pick CTA were dropped 2026-05-29 once
+ *     scoring went pure count-of-correct (no multipliers); their probes
+ *     have been removed.
  */
 
 import { mkdir } from "node:fs/promises";
@@ -288,26 +290,22 @@ test.describe("Full WC2026 bracket cascade", () => {
       )
       .toContainText(/winner|champion|wins it|champions/i);
 
+    // Tim 2026-05-29: multiplier table + boldest-pick CTA removed,
+    // scoring is now a simple count of correct picks, no multipliers in
+    // the UI. Assert they're absent so we don't regress.
     const multiplierTable = lockSection.locator(
-      "table, .bracket-multiplier-table, [data-testid='lock-multiplier-table']",
+      ".bracket-multiplier-table, [data-testid='lock-multiplier-table']",
     );
-    await expect
-      .soft(
-        multiplierTable.first(),
-        "Final/save section should expose an early-save multiplier table",
-      )
-      .toBeVisible();
+    expect.soft(
+      await multiplierTable.count(),
+      "Final/save section should NOT show a multiplier table (scoring is count-of-correct)",
+    ).toBe(0);
 
     const ctaBoldest = page.getByRole("link", { name: /back your boldest/i });
-    const ctaMarket = page.getByRole("link", { name: /view market/i });
-    const ctaCount =
-      (await ctaBoldest.count()) + (await ctaMarket.count());
-    expect
-      .soft(
-        ctaCount,
-        "Final/save section should expose a 'Back your boldest pick' (or 'view market') CTA",
-      )
-      .toBeGreaterThan(0);
+    expect.soft(
+      await ctaBoldest.count(),
+      "Final/save section should NOT show a 'Back your boldest pick' CTA",
+    ).toBe(0);
 
     await snap(page, SCREENSHOTS.lockSummary);
 

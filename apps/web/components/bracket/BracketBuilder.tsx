@@ -1368,8 +1368,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 </div>
                 <p className="bracket-final-note">
                   You can change any pick right up until that match kicks off. Saving
-                  now lets you share your bracket and locks in your odds-at-pick for
-                  scoring.
+                  now lets you share your bracket. Scoring is one point per correct
+                  pick (group win/lose/draw, knockout winner).
                 </p>
               </section>
             );
@@ -1558,6 +1558,109 @@ const NEXT_STAGE: Readonly<Record<TabId, TabId | null>> = {
 };
 
 /**
+ * Saved-state body of the Save & Share panel. Lifted into its own
+ * component so we can call hooks (useState/useEffect) for the avatar
+ * probe without breaking the rules-of-hooks in the parent's
+ * if-saved-then-return branch.
+ *
+ * Avatar logic (Tim 2026-05-29): probe `/avatars/<userId>.jpg`. If it
+ * resolves, render the user's current photo + a "Change photo" button.
+ * Otherwise fall back to the existing "Upload a profile photo" empty
+ * state. Probe is cheap (one img request, cached after first load).
+ */
+function BracketSavePanelSaved({
+  t,
+  userId,
+  shareUrl,
+  onShare,
+}: {
+  t: ReturnType<typeof useTranslations>;
+  userId: string | null;
+  shareUrl: string | null;
+  onShare: () => Promise<void>;
+}) {
+  const [avatarStatus, setAvatarStatus] = useState<
+    "unknown" | "exists" | "missing"
+  >("unknown");
+  const avatarSrc = userId
+    ? `/avatars/${encodeURIComponent(userId)}.jpg`
+    : null;
+
+  useEffect(() => {
+    if (!avatarSrc) {
+      setAvatarStatus("missing");
+      return;
+    }
+    let cancelled = false;
+    const img = new window.Image();
+    img.onload = () => {
+      if (!cancelled) setAvatarStatus("exists");
+    };
+    img.onerror = () => {
+      if (!cancelled) setAvatarStatus("missing");
+    };
+    // Cache-bust so the probe sees the actual current state after an
+    // upload-then-back navigation in the same tab.
+    img.src = `${avatarSrc}?_probe=${Date.now()}`;
+    return () => {
+      cancelled = true;
+    };
+  }, [avatarSrc]);
+
+  const hasAvatar = avatarStatus === "exists";
+
+  return (
+    <div className="bracket-save-panel" data-state="saved">
+      <div className="bracket-save-panel-headline">
+        <span className="bracket-save-panel-tick" aria-hidden="true">✓</span>
+        <span>{safeT(t, "bracket.save.saved", "Bracket saved. You can edit any pick before kickoff.")}</span>
+      </div>
+      <div className="bracket-save-panel-actions">
+        <button
+          type="button"
+          className="bracket-save-panel-cta-primary"
+          onClick={() => void onShare()}
+          disabled={!shareUrl}
+        >
+          <span aria-hidden="true">↗</span>
+          <span>{safeT(t, "bracket.save.share_cta", "Share my bracket")}</span>
+        </button>
+        {hasAvatar && avatarSrc ? (
+          <a
+            className="bracket-save-panel-cta-secondary bracket-save-panel-cta-avatar"
+            href="/profile"
+            aria-label="Change profile photo"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              className="bracket-save-panel-avatar-thumb"
+              src={avatarSrc}
+              alt=""
+              width={28}
+              height={28}
+            />
+            <span>{safeT(t, "bracket.save.change_photo", "Change photo")}</span>
+          </a>
+        ) : (
+          <a
+            className="bracket-save-panel-cta-secondary"
+            href="/profile"
+          >
+            <span aria-hidden="true">📷</span>
+            <span>{safeT(t, "bracket.save.upload_photo", "Upload a profile photo")}</span>
+          </a>
+        )}
+      </div>
+      {!hasAvatar ? (
+        <p className="bracket-save-panel-foot">
+          {safeT(t, "bracket.save.saved_foot", "Add a profile photo so your friends can spot you on the leaderboard.")}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
+/**
  * Prominent state-aware Save & Share panel that sits directly under the
  * final match card. Tim 2026-05-21 — the existing Save bracket button
  * was buried below LockSummary + leaderboard; viral-loop conversion
@@ -1662,34 +1765,20 @@ function SaveBracketPanel({
   }
 
   if (saved) {
+    // Avatar probe: HEAD the user's avatar URL to decide whether to
+    // render the current photo + "Change photo" button, or the empty-
+    // state "Upload a profile photo" CTA. We use a hidden Image probe
+    // (cheaper than fetch + works on stale-while-revalidate). Tim
+    // 2026-05-29: if the user already uploaded a photo, show it here
+    // and just offer a Change button instead of pretending they haven't.
+    const userId = panelAuth.user?.id ?? null;
     return (
-      <div className="bracket-save-panel" data-state="saved">
-        <div className="bracket-save-panel-headline">
-          <span className="bracket-save-panel-tick" aria-hidden="true">✓</span>
-          <span>{safeT(t, "bracket.save.saved", "Bracket saved. You can edit any pick before kickoff.")}</span>
-        </div>
-        <div className="bracket-save-panel-actions">
-          <button
-            type="button"
-            className="bracket-save-panel-cta-primary"
-            onClick={() => void onShare()}
-            disabled={!shareUrl}
-          >
-            <span aria-hidden="true">↗</span>
-            <span>{safeT(t, "bracket.save.share_cta", "Share my bracket")}</span>
-          </button>
-          <a
-            className="bracket-save-panel-cta-secondary"
-            href="/profile"
-          >
-            <span aria-hidden="true">📷</span>
-            <span>{safeT(t, "bracket.save.upload_photo", "Upload a profile photo")}</span>
-          </a>
-        </div>
-        <p className="bracket-save-panel-foot">
-          {safeT(t, "bracket.save.saved_foot", "Add a profile photo so your friends can spot you on the leaderboard.")}
-        </p>
-      </div>
+      <BracketSavePanelSaved
+        t={t}
+        userId={userId}
+        shareUrl={shareUrl}
+        onShare={onShare}
+      />
     );
   }
 
