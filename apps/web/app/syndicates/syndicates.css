@@ -569,52 +569,53 @@
 }
 
 /* Three high-level use-types (Private / Office / Open) callout.
-   Sits between hero and the six-audience cards. Tim 2026-05-29. */
-.vt-syndicates-types {
-  border: 1px solid rgba(220, 169, 75, 0.22);
-  border-radius: 14px;
-  background:
-    linear-gradient(180deg, rgba(220, 169, 75, 0.07), rgba(220, 169, 75, 0.02));
-  padding: 22px;
+   Lives INSIDE the hero between the lede and the 60-second quickstart
+   strip, so its visual weight is tuned tighter than a standalone
+   section (no big gold border, no extra title). Tim 2026-05-30 moved
+   it up here after seeing it below the trust row was too far down. */
+.vt-syndicates-types-inline {
+  margin: 18px 0 4px;
 }
-.vt-syndicates-section-lede {
-  margin: 4px 0 18px;
-  color: var(--vt-fg-muted, #a3a3ad);
-  font-size: 0.98rem;
-  line-height: 1.5;
+.vt-syndicates-types-inline-eyebrow {
+  margin: 0 0 10px;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+  font-weight: 700;
 }
 .vt-syndicates-types-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
-  margin: 0 0 18px;
+  gap: 10px;
+  margin: 0;
   padding: 0;
   list-style: none;
 }
 .vt-syndicates-type {
-  padding: 14px 16px;
+  padding: 12px 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.02);
 }
 .vt-syndicates-type-name {
-  margin: 0 0 6px;
-  font-size: 1rem;
+  margin: 0 0 5px;
+  font-size: 0.95rem;
   color: var(--vt-gold-400, #dca94b);
   font-weight: 700;
   letter-spacing: 0.02em;
 }
 .vt-syndicates-type-blurb {
   margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.5;
+  font-size: 0.85rem;
+  line-height: 1.45;
   color: var(--vt-fg, #e6e6ea);
-}
-.vt-syndicates-types-cta-row {
-  display: flex;
 }
 @media (max-width: 720px) {
   .vt-syndicates-types-grid {
     grid-template-columns: 1fr;
+  }
+  .vt-syndicates-types-inline {
+    margin: 14px 0 4px;
   }
 }
