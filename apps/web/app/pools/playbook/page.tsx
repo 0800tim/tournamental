@@ -42,21 +42,51 @@ export default function PoolsPlaybookPage(): JSX.Element {
 
       <article className="vt-pb">
         <header className="vt-pb-hero">
-          <span className="vt-pb-eyebrow">Pool playbook</span>
-          <h1 className="vt-pb-title">A six-week game your audience won't stop opening.</h1>
+          <span className="vt-pb-eyebrow">Pool playbook · 100% free for FIFA World Cup 2026</span>
+          <h1 className="vt-pb-title">
+            Turn your existing audience into 5 weeks of daily engagement during the FIFA World Cup.
+          </h1>
           <p className="vt-pb-lede">
-            Tournamental pools work for any audience, whether or not they care about
-            the sport. The prediction game is the engagement engine; the prize is the hook;
-            your brand or your sponsor's brand sits on every share. This is the playbook
-            for running one well.
+            You bring the audience. Your CRM does the sending. Tournamental gives you the
+            branded prediction game, the live leaderboard your members can't stop refreshing,
+            and a full playbook of match-day messaging your team can copy-paste. From kick-off
+            on 11 June to the trophy lift on 19 July, your list is permanently engaged with
+            your brand sitting on every leaderboard view, every share card, every push.
           </p>
+
+          <ul className="vt-pb-stack">
+            <li>A branded prediction pool your audience joins in <strong>one tap</strong> from any email, SMS, or WhatsApp. No app, no signup form, no typing of personal details.</li>
+            <li>5 weeks of <strong>match-day messaging templates</strong> for your CRM. We write the copy and the cadence; you press send.</li>
+            <li>Live leaderboard members refresh constantly across <strong>104 matches</strong>. Every refresh is a brand impression.</li>
+            <li>Share cards that <strong>put your brand on every social post</strong> a member makes about their picks.</li>
+            <li>A real reason for every member of your list to <strong>open every email you send</strong> during the tournament.</li>
+            <li>Ongoing tips and tricks from us to keep engagement climbing across the full 5 weeks. We have skin in the game; we want you to win.</li>
+          </ul>
+
+          <div className="vt-pb-scarcity">
+            <h2 className="vt-pb-scarcity-title">Why this is 100% free, and why now</h2>
+            <p>
+              Tournamental is the engagement platform we're building for every future tournament.
+              We're giving it away for the FIFA World Cup 2026 to prove what it does at scale.
+              No fees. No entry costs. No platform take. No data resale. No catch.
+              We never touch the prize money; you settle that directly with your winner.
+            </p>
+            <p>
+              After this World Cup, future tournaments will likely move to a paid model.
+              <strong> The FIFA WC2026 launch is the one-off free-for-everyone window.</strong> Get
+              your pool live this week and lock in 5 weeks of free, automated, daily customer
+              engagement you couldn't otherwise buy for any price. We don't expect a window
+              like this to come around again.
+            </p>
+          </div>
+
           <div className="vt-pb-cta-row">
             <Link href="/pools/new" className="vt-pb-btn vt-pb-btn-primary">
-              Create a pool
+              Create your free pool (5 minutes)
             </Link>
-            <Link href="/pools" className="vt-pb-btn vt-pb-btn-ghost">
-              ← Back to pools
-            </Link>
+            <a href="#deep-link-signup" className="vt-pb-btn vt-pb-btn-ghost">
+              How the one-tap signup works ↓
+            </a>
           </div>
         </header>
 
@@ -64,6 +94,7 @@ export default function PoolsPlaybookPage(): JSX.Element {
           <p className="vt-pb-toc-label">In this playbook</p>
           <ul>
             <li><a href="#shape" className="vt-pb-link">The shape of a pool</a></li>
+            <li><a href="#deep-link-signup" className="vt-pb-link">One-tap signup with your CRM</a></li>
             <li><a href="#ecommerce" className="vt-pb-link">E-commerce store</a></li>
             <li><a href="#radio" className="vt-pb-link">Radio station</a></li>
             <li><a href="#football-club" className="vt-pb-link">Football club</a></li>
@@ -86,6 +117,41 @@ export default function PoolsPlaybookPage(): JSX.Element {
             <li><strong>Tournamental never touches money.</strong> On free, the host settles offline. On premium, the host's own Stripe-connected CRM handles paid entries.</li>
             <li><strong>Members must opt in</strong> before a sponsor sees their contact details. Aggregate stats are visible to the host by default; personal contact details are not.</li>
           </ol>
+
+          <h2 id="deep-link-signup">One-tap signup with your CRM</h2>
+          <p>The single biggest reason members don't sign up to things is signup forms. Tournamental ships a deep-link join flow that removes the form entirely: you mail-merge a unique URL per recipient from whatever CRM or email tool you already use, the recipient taps once, and they are in the pool.</p>
+          <p>Each link carries the recipient's contact details as query-string parameters, so the join page already knows who they are. It looks like this:</p>
+          <pre className="vt-pb-code"><code>https://play.tournamental.com/s/your-pool-slug/join?firstname=Sam&amp;surname=Brown&amp;mobile=+64211234567&amp;email=sam@example.co.nz</code></pre>
+          <p>The recipient experience:</p>
+          <ol>
+            <li>They get your email or text with their personalised link.</li>
+            <li>They tap the link. The join page greets them by name.</li>
+            <li>A one-time code arrives on their WhatsApp and email within 10 seconds.</li>
+            <li>They paste the code. They are in your pool with their handle pre-set.</li>
+          </ol>
+          <p>No app to install. No account to create. No typing of name, email, or phone. From inbox to "make your first pick" in under 30 seconds.</p>
+
+          <h3>What you need to send</h3>
+          <p>A CSV exported from your existing system, with at least these four columns:</p>
+          <ul>
+            <li><code>firstname</code></li>
+            <li><code>surname</code></li>
+            <li><code>mobile</code> (in international format, e.g. +64211234567)</li>
+            <li><code>email</code></li>
+          </ul>
+          <p>Every customer-list-aware CRM has this export already. Then mail-merge one link per recipient through your normal sender. The query-string parameters are URL-encoded; almost every modern email tool handles that automatically.</p>
+
+          <h3>Works out of the box with</h3>
+          <ul>
+            <li><strong>E-commerce:</strong> Shopify Email, Klaviyo, Omnisend, Mailchimp.</li>
+            <li><strong>General CRM:</strong> HighLevel, HubSpot, ActiveCampaign, MailerLite, Brevo (Sendinblue), Salesforce Marketing Cloud.</li>
+            <li><strong>Transactional / dev:</strong> SendGrid, Mailgun, Resend, Amazon SES; you build the URL in your template and ship.</li>
+            <li><strong>Telegram, WhatsApp, SMS:</strong> the same link works in any channel. SMS senders can mail-merge from the same CSV via Twilio, MessageBird, or Aiva.</li>
+            <li><strong>No CRM yet?</strong> A Gmail "mail merge" plugin plus a Google Sheet (with the four columns) gets you 90% of the way there for a list under a few hundred.</li>
+          </ul>
+
+          <h3>Why this matters for the maths</h3>
+          <p>Typical sign-up-form completion rates sit around 5 to 15 percent of recipients. A deep-link flow with no typing routinely lands in the 30 to 50 percent range for warm lists. For a 5,000-customer e-commerce list, that's the difference between 500 members and 2,000 members in your pool, with the same outbound effort. Every one of those members is a touchpoint with your brand for the full six weeks of the tournament.</p>
 
           <h2 id="ecommerce">1. E-commerce store</h2>
           <p><strong>Audience.</strong> Your customer list, social followers, and email subscribers. They probably don't care about football.</p>
