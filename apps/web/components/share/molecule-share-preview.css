@@ -17,13 +17,33 @@
   background: #15151a;
   border: 1px solid rgba(255, 255, 255, 0.06);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4);
+  margin: 0 auto;
+  transition: aspect-ratio 200ms ease, max-width 200ms ease;
+}
+
+/* Aspect-ratio per-size, driven by the data-size attribute the
+ * preview component sets. Portrait + square shrink the max-width so
+ * the preview doesn't tower the entire screen height when the user
+ * flips off landscape (Tim 2026-06-01). */
+.vt-ss-bracket-preview[data-size="portrait"] {
+  aspect-ratio: 1080 / 1350;
+  max-width: 400px;
+}
+.vt-ss-bracket-preview[data-size="square"] {
+  aspect-ratio: 1 / 1;
+  max-width: 480px;
 }
 
 .vt-ss-bracket-preview-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  /* contain (not cover) so portrait+square images aren't cropped to
+   * fit the frame. The container's aspect-ratio already matches the
+   * image's native ratio per-size, so contain renders edge-to-edge
+   * without distortion. */
+  object-fit: contain;
   display: block;
+  background: #15151a;
 }
 
 .vt-ss-bracket-preview-placeholder {

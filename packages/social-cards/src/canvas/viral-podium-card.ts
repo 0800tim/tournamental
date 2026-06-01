@@ -223,7 +223,14 @@ async function paintPodium(
     const flagW = Math.round(tileWidth * ts.flagFraction);
     const flagH = flagW * (2 / 3);
     const pillH = Math.round(ts.pillPx * 1.9);
-    const bottomPad = 30;
+    // Bottom pad needs to comfortably clear the team-name baseline.
+    // Previously used raw namePx as if it were the rendered height,
+    // which under-counts the descender on tall names like
+    // "New Zealand" and clipped the bottom border (Tim 2026-06-01).
+    // Use 1.35x for proper line-height + descender, plus a slightly
+    // larger bottomPad so even xl-name strings have headroom.
+    const bottomPad = 36;
+    const nameLineH = Math.round(ts.namePx * 1.35);
     return (
       ts.topPad +
       flagH +
@@ -231,7 +238,7 @@ async function paintPodium(
       Math.round(ts.codePx * 0.55) +
       pillH +
       14 +
-      ts.namePx +
+      nameLineH +
       bottomPad
     );
   }

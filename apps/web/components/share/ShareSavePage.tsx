@@ -541,20 +541,11 @@ export function ShareSavePage({
     }
   }, [primaryBusy, performCapture, size, shareTextBody, shareUrl]);
 
-  const handleDownload = useCallback(
-    async (s: DomCaptureSize): Promise<void> => {
-      pushAnalytics("download");
-      try {
-        const result = await performCapture(s);
-        triggerDownload(result.objectUrl, result.filename);
-      } catch {
-        // Swallow: the size-button is the user's last-resort, the
-        // primary share CTA already showed the popover if capture
-        // can't run for some reason.
-      }
-    },
-    [performCapture],
-  );
+  // Note: the previous per-size handleDownload() callback was removed
+  // 2026-06-01 in favour of an anchor that opens the image in a new tab
+  // using the currently-selected `size` toggle. The new flow plays
+  // nicely with iOS Safari which silently blocked programmatic
+  // <a download> on hosted PNGs.
 
   useEffect(() => {
     return () => {
@@ -624,6 +615,7 @@ export function ShareSavePage({
               ? `/avatars/${authUserId ?? auth.user?.id}.jpg`
               : null
           }
+          size={size}
         />
         <div
           className="vt-ss-size-chips"
@@ -735,25 +727,57 @@ export function ShareSavePage({
         />
       </section>
 
-      {/* Download row */}
-      <section className="vt-ss-downloads" aria-label="Download bracket image">
-        <h2 className="vt-ss-section-title">Download as image</h2>
-        <div className="vt-ss-download-grid">
-          {(["portrait", "landscape", "square"] as const).map((s) => (
-            <button
-              key={s}
-              type="button"
-              className="vt-ss-download-btn"
-              data-testid={`vt-ss-download-${s}`}
-              onClick={() => {
-                void handleDownload(s);
-              }}
-            >
-              <span className="vt-ss-download-size">{s[0].toUpperCase() + s.slice(1)}</span>
-              <span className="vt-ss-download-hint">{sizeDimensions(s)}</span>
-            </button>
-          ))}
-        </div>
+      {/* Download row. The 3-button per-size grid was replaced with a
+        * single CTA that opens the image at the CURRENTLY SELECTED size
+        * (driven by the format toggle above the preview) in a new tab.
+        * Programmatic <a download> was unreliable on iOS Safari and
+        * the user-controlled "right-click / long-press → Save Image"
+        * flow works on every platform. Tim 2026-06-01. */}
+      <section className="vt-ss-downloads" aria-label="Save bracket image">
+        <h2 className="vt-ss-section-title">Save your bracket image</h2>
+        <p className="vt-ss-download-instructions">
+          Opens the <strong>{size[0].toUpperCase() + size.slice(1)}</strong>{" "}
+          version ({sizeDimensions(size)}) in a new tab. Right-click and{" "}
+          <em>Save Image As</em> on desktop, or long-press and{" "}
+          <em>Save to Photos</em> on mobile. Switch format above first if
+          you want Portrait or Square instead.
+        </p>
+        <a
+          className="vt-ss-download-open-cta"
+          href={(() => {
+            const finalK = cascaded?.knockouts.find((k) => k.stage === "f");
+            const runnerCode = finalK
+              ? finalK.effective_winner === finalK.home.team
+                ? finalK.away.team
+                : finalK.effective_winner === finalK.away.team
+                  ? finalK.home.team
+                  : null
+              : null;
+            const tpK = cascaded?.knockouts.find((k) => k.stage === "tp");
+            const thirdCode = tpK?.effective_winner ?? tpK?.predicted_winner ?? null;
+            const effectiveHandle =
+              handle ?? auth.profile?.display_name ?? auth.profile?.handle ?? null;
+            return buildOgImageUrl({
+              bracketId: guid,
+              handle: effectiveHandle,
+              winner: championCode ?? null,
+              runnerUp: runnerCode ?? null,
+              third: thirdCode ?? null,
+              avatarUrl:
+                authUserId ?? auth.user?.id
+                  ? `/avatars/${authUserId ?? auth.user?.id}.jpg`
+                  : null,
+              size,
+            });
+          })()}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid="vt-ss-download-open"
+          onClick={() => pushAnalytics("download")}
+        >
+          <span aria-hidden="true">↗</span>
+          <span>Open {size[0].toUpperCase() + size.slice(1)} image in new tab</span>
+        </a>
       </section>
 
       {/* Embed snippet, collapsible. The molecule capture is per-pose
@@ -946,11 +970,19 @@ function BirdseyeShare({
         </button>
         <a
           className="vt-ss-birdseye-link"
+          href={buildUrl("portrait")}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Open Portrait ↗
+        </a>
+        <a
+          className="vt-ss-birdseye-link"
           href={buildUrl("landscape")}
           target="_blank"
           rel="noopener noreferrer"
         >
-          Landscape ↗
+          Open Landscape ↗
         </a>
         <a
           className="vt-ss-birdseye-link"
@@ -958,9 +990,14 @@ function BirdseyeShare({
           target="_blank"
           rel="noopener noreferrer"
         >
-          Square ↗
+          Open Square ↗
         </a>
       </div>
+      <p className="vt-ss-birdseye-save-note">
+        Each "Open" link opens the full image in a new tab. Right-click and{" "}
+        <em>Save Image As</em> on desktop, or long-press and{" "}
+        <em>Save to Photos</em> on mobile.
+      </p>
       <style jsx>{`
         .vt-ss-birdseye {
           margin-top: 18px;
@@ -1044,6 +1081,17 @@ function BirdseyeShare({
         }
         .vt-ss-birdseye-link:hover {
           color: var(--vt-gold-300, #fcd34d);
+        }
+        .vt-ss-birdseye-save-note {
+          margin: 12px 0 0;
+          font-size: 12px;
+          color: var(--vt-fg-muted, #a3a3ad);
+          line-height: 1.5;
+        }
+        .vt-ss-birdseye-save-note em {
+          color: var(--vt-fg, #f4f4f5);
+          font-style: normal;
+          font-weight: 600;
         }
       `}</style>
     </section>

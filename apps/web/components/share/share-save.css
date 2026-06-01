@@ -432,6 +432,54 @@
   letter-spacing: 0.06em;
 }
 
+/* New single "Open image in new tab" CTA (Tim 2026-06-01): replaces
+ * the per-size 3-button grid. Uses the currently-selected format
+ * toggle to decide which size opens, with a save-instruction line
+ * above. Big gold CTA so it reads as the primary save action. */
+.vt-ss-download-instructions {
+  margin: 0 0 14px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--ss-ink-faint);
+}
+.vt-ss-download-instructions strong {
+  color: var(--ss-accent);
+  font-weight: 700;
+}
+.vt-ss-download-instructions em {
+  font-style: normal;
+  font-weight: 600;
+  color: #fff;
+}
+.vt-ss-download-open-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 20px;
+  border-radius: 12px;
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.16), rgba(245, 197, 66, 0.08));
+  border: 1px solid rgba(245, 197, 66, 0.45);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.01em;
+  transition: background 140ms ease, border-color 140ms ease, transform 80ms ease;
+}
+.vt-ss-download-open-cta:hover {
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.24), rgba(245, 197, 66, 0.14));
+  border-color: rgba(245, 197, 66, 0.7);
+}
+.vt-ss-download-open-cta:active {
+  transform: translateY(1px);
+}
+.vt-ss-download-open-cta:focus-visible {
+  outline: 2px solid var(--ss-accent);
+  outline-offset: 2px;
+}
+
 /* ---------- Embed ---------- */
 
 .vt-ss-embed details {

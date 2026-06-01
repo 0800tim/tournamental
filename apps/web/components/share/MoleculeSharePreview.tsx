@@ -24,7 +24,7 @@ import { cascade } from "@tournamental/bracket-engine";
 
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 
-import { buildOgImageUrl, resolveShareGuid } from "@/lib/share/share-text";
+import { buildOgImageUrl, resolveShareGuid, type OgSize } from "@/lib/share/share-text";
 
 import "./molecule-share-preview.css";
 
@@ -38,6 +38,11 @@ export interface MoleculeSharePreviewProps {
   readonly handle?: string | null;
   /** Avatar URL (absolute or /avatars/<id>.jpg). */
   readonly avatarUrl?: string | null;
+  /** Which aspect ratio to request from the OG endpoint AND apply to the
+   * on-page preview frame. Drives the Portrait/Landscape/Square toggle
+   * in ShareSavePage so the preview matches what the user downloads.
+   * Defaults to "landscape" for back-compat with embed surfaces. */
+  readonly size?: OgSize;
 }
 
 export function MoleculeSharePreview({
@@ -46,6 +51,7 @@ export function MoleculeSharePreview({
   authUserId,
   handle,
   avatarUrl,
+  size = "landscape",
 }: MoleculeSharePreviewProps): JSX.Element {
   // Re-run the cascade locally so we can pass the predicted podium
   // codes to the OG endpoint. The renderer can also derive these from
@@ -74,27 +80,40 @@ export function MoleculeSharePreview({
       runnerUp: podium.runnerUp,
       third: podium.third,
       avatarUrl: avatarUrl ?? null,
-      size: "landscape",
+      size,
     });
-  }, [guid, handle, podium, avatarUrl]);
+  }, [guid, handle, podium, avatarUrl, size]);
+
+  // Native pixel dimensions per aspect ratio. Used as the <img> width/height
+  // attributes so the browser reserves the correct aspect-ratio slot before
+  // the PNG arrives (no layout shift when the toggle switches).
+  const dims = (() => {
+    if (size === "portrait") return { w: 1080, h: 1350 };
+    if (size === "square") return { w: 1080, h: 1080 };
+    return { w: 1200, h: 630 };
+  })();
 
   return (
     <div
       className="vt-ss-bracket-preview"
       data-testid="vt-ss-bracket-preview"
+      data-size={size}
       aria-label="Your share card preview"
     >
       {bracket ? (
         // The OG endpoint always responds with a renderable PNG even
         // when fields are sparse, so the preview never sits on a
         // broken-image icon during early hydration. Loading=eager so
-        // the preview slot doesn't flash empty.
+        // the preview slot doesn't flash empty. The key forces a fresh
+        // <img> on size change so the browser doesn't reuse the old
+        // landscape bitmap while the new aspect ratio fetches.
         // eslint-disable-next-line @next/next/no-img-element
         <img
+          key={size}
           src={ogUrl}
           alt="Your bracket share card"
-          width={1200}
-          height={630}
+          width={dims.w}
+          height={dims.h}
           loading="eager"
           decoding="async"
           className="vt-ss-bracket-preview-img"
