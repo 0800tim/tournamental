@@ -82,12 +82,20 @@ async function browserFetch(
   | { ok: false; status: number; error: string }
 > {
   // Playwright is optional + only used for ESPN-style JS-rendered
-  // sources. We dynamic-import via a non-statically-resolvable
-  // specifier so apps that don't install playwright still typecheck +
-  // build. The cast lets TypeScript stay happy without a hard dep.
+  // sources. We resolve it through `Function('return import(...)')`
+  // because every other dodge (dynamic specifier cast, magic
+  // comments) is still walked by Next.js webpack at build time and
+  // fails the build when playwright isn't installed. The Function
+  // constructor is opaque to webpack's module graph, so the import
+  // only resolves at runtime inside Node, where playwright either
+  // exists (operator installed it) or throws cleanly.
   let pw: { chromium: { launch: (opts: { headless: boolean }) => Promise<unknown> } };
   try {
-    pw = (await import(/* @vite-ignore */ "playwright" as string)) as typeof pw;
+    const dynamicImport = new Function(
+      "spec",
+      "return import(spec);",
+    ) as (spec: string) => Promise<unknown>;
+    pw = (await dynamicImport("playwright")) as typeof pw;
   } catch {
     return { ok: false, status: 0, error: "playwright-not-installed" };
   }
