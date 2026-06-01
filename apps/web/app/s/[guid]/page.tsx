@@ -45,6 +45,7 @@ import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
 import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
 import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
 
 import "@/components/share-landing/share-landing.css";
 
@@ -600,12 +601,27 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             // the enrichment confirmed the file exists on disk -
             // otherwise we fall back to the neutral silhouette.
             const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
-            return (
-              <div
-                className="vt-share-member-card"
-                key={m.user_id ?? m.handle}
-                role="listitem"
-              >
+            // Resolve the prettiest URL that will route to this user's
+            // bracket landing. Priority:
+            //   1. friendly handle slug (slugifyDisplayName(display_name)
+            //      or membership.handle) - resolves via /s/<handle>
+            //      auth-sms display-name lookup
+            //   2. user_id permalink (u_<hex>) - always resolves
+            //   3. no link for anon: (legacy un-authenticated joins)
+            const slug =
+              slugifyDisplayName(m.display_name) ??
+              slugifyDisplayName(m.handle) ??
+              null;
+            const isPermalinkUser =
+              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
+            const profileHref = slug
+              ? `/s/${slug}`
+              : isPermalinkUser
+                ? `/s/${m.user_id}`
+                : null;
+            const cardKey = m.user_id ?? m.handle;
+            const inner = (
+              <>
                 <div className="vt-share-member-avatar-wrap">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -636,6 +652,25 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
                 {m.display_name && (
                   <span className="vt-share-member-handle">@{m.handle}</span>
                 )}
+              </>
+            );
+            return profileHref ? (
+              <a
+                key={cardKey}
+                className="vt-share-member-card vt-share-member-card--link"
+                href={profileHref}
+                role="listitem"
+                aria-label={`View ${label}'s bracket`}
+              >
+                {inner}
+              </a>
+            ) : (
+              <div
+                key={cardKey}
+                className="vt-share-member-card"
+                role="listitem"
+              >
+                {inner}
               </div>
             );
           })}

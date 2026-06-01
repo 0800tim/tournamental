@@ -1669,6 +1669,26 @@
   text-align: center;
   gap: 8px;
 }
+.vt-share-syn a.vt-share-member-card--link {
+  text-decoration: none;
+  color: inherit;
+  border-radius: 12px;
+  transition: transform 140ms ease, background-color 140ms ease;
+}
+.vt-share-syn a.vt-share-member-card--link:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  transform: translateY(-2px);
+}
+.vt-share-syn a.vt-share-member-card--link:hover .vt-share-member-avatar {
+  border-color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-syn a.vt-share-member-card--link:hover .vt-share-member-name {
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-syn a.vt-share-member-card--link:focus-visible {
+  outline: 2px solid var(--vt-gold-400, #dca94b);
+  outline-offset: 4px;
+}
 .vt-share-syn .vt-share-member-avatar-wrap {
   position: relative;
   width: 96px;
