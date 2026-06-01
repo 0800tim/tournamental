@@ -414,7 +414,7 @@
   },
   "bracket": {
     "title": "Call every match of the FIFA World Cup 2026™",
-    "subtitle": "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.",
+    "subtitle": "Group standings update live from your picks. Edit any pick right up to kick-off.",
     "progress_label": "matches picked",
     "progress_of": "of",
     "autopick_cta": "Auto-pick",
@@ -526,7 +526,10 @@
     },
     "hero": {
       "headline": "Call every match of the {tournament}.",
-      "lede": "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.",
+      "lede": "Group standings update live from your picks.",
+      "edit_anytime_heading": "Flexible to change throughout the tournament",
+      "edit_anytime_lead": "Enter all match predictions now, so your followers can see how you predict your team's path to victory.",
+      "edit_anytime_detail": "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!",
       "progress": "{picked} of {total} matches picked"
     },
     "autopick": {

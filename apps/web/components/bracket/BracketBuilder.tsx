@@ -1116,15 +1116,27 @@ export function BracketBuilder(props: BracketBuilderProps) {
         <p>
           {safeT(t, "bracket.hero.lede", "Group standings update live from your picks.")}
         </p>
-        <p className="bracket-edit-anytime" role="note">
-          <span className="bracket-edit-anytime-icon" aria-hidden="true">🔄</span>
-          <span>
-            <strong>
+        <aside className="bracket-edit-anytime" role="note" aria-labelledby="bracket-edit-anytime-heading">
+          <div className="bracket-edit-anytime-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
+              <path d="M21 3v5h-5" />
+              <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
+              <path d="M3 21v-5h5" />
+            </svg>
+          </div>
+          <div className="bracket-edit-anytime-body">
+            <h2 id="bracket-edit-anytime-heading" className="bracket-edit-anytime-heading">
+              {safeT(t, "bracket.hero.edit_anytime_heading", "Flexible to change throughout the tournament")}
+            </h2>
+            <p className="bracket-edit-anytime-lead">
               {safeT(t, "bracket.hero.edit_anytime_lead", "Enter all match predictions now, so your followers can see how you predict your team's path to victory.")}
-            </strong>{" "}
-            {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
-          </span>
-        </p>
+            </p>
+            <p className="bracket-edit-anytime-detail">
+              {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
+            </p>
+          </div>
+        </aside>
         <p className="bracket-header-running-total" aria-live="polite">
           {(() => {
             try {

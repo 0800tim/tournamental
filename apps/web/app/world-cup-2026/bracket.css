@@ -39,32 +39,85 @@
   line-height: 1.55;
 }
 
-/* "Lock in now, change later" callout. Tim 2026-06-01: brands selling
- * the platform to their audiences need the "no fear of regret" promise
- * front and centre, not buried in the muted lede. Heavier visual
- * treatment (accent border + warm fill + emoji marker) so first-time
- * visitors immediately understand they can keep editing as the
- * tournament evolves. */
+/* "Flexible to change throughout the tournament" callout. Tim 2026-06-01:
+ * brands selling the platform to their audiences need the "no fear of
+ * regret" promise front and centre. Spruced 2026-06-01-pm: switched
+ * from a flat blue-border pill to a proper card with a gold accent
+ * stripe, real SVG refresh icon, and a tight heading + lead + detail
+ * type hierarchy so it reads as a designed component rather than a
+ * casual notice. */
 .bracket-edit-anytime {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 14px 0 4px;
-  padding: 12px 14px;
-  border: 1px solid var(--vt-gold-400, #dca94b);
-  background: rgba(220, 169, 75, 0.08);
-  border-radius: 10px;
-  color: #e6edf3;
-  line-height: 1.5;
+  --vt-edit-accent: var(--vt-gold-400, #dca94b);
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px 1fr;
+  gap: 16px;
+  align-items: start;
+  margin: 18px 0 8px;
+  padding: 18px 20px 18px 20px;
   max-width: 64ch;
-}
-.bracket-edit-anytime strong {
-  color: #ffffff;
+  background: linear-gradient(180deg, rgba(220, 169, 75, 0.07), rgba(220, 169, 75, 0.03));
+  border: 1px solid rgba(220, 169, 75, 0.35);
+  border-radius: 14px;
+  box-shadow:
+    inset 4px 0 0 0 var(--vt-edit-accent),
+    0 1px 0 0 rgba(0, 0, 0, 0.25);
+  color: #e6edf3;
 }
 .bracket-edit-anytime-icon {
-  font-size: 18px;
-  line-height: 1.25;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: rgba(220, 169, 75, 0.14);
+  color: var(--vt-edit-accent);
   flex-shrink: 0;
+}
+.bracket-edit-anytime-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+.bracket-edit-anytime-heading {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 24, "SOFT" 30;
+  font-size: clamp(17px, 2.2vw, 20px);
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: #ffffff;
+}
+.bracket-edit-anytime-lead {
+  margin: 2px 0 0;
+  font-size: 15px;
+  line-height: 1.5;
+  color: #f5f6f8;
+  font-weight: 500;
+}
+.bracket-edit-anytime-detail {
+  margin: 4px 0 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #b9c1cd;
+}
+
+/* Tighten on small screens: stack the icon row above the body so the
+ * card stays readable on phones without the icon stealing half the
+ * horizontal real estate. */
+@media (max-width: 480px) {
+  .bracket-edit-anytime {
+    grid-template-columns: 1fr;
+    padding: 16px 16px;
+    gap: 10px;
+  }
+  .bracket-edit-anytime-icon {
+    width: 36px;
+    height: 36px;
+  }
 }
 
 /* ---- Lock summary ---- */
