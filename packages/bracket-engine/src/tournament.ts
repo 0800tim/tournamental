@@ -251,6 +251,24 @@ export interface MatchPrediction {
     readonly source: string;
     readonly capturedAt: string;
   };
+  /**
+   * Where this pick came from. Default 'live' = saved on Tournamental
+   * before kickoff via the bracket builder (the standard path).
+   * 'imported' = mirrored in from a rival platform's bracket page (see
+   * docs/69-bracket-import.md). The server-side kickoff backstop in
+   * apps/game/src/routes/bracket.ts bypasses the lockedAt < kickoff
+   * check for imported picks, since the source platform already locked
+   * them at first-match kickoff and the import is the proof.
+   */
+  readonly source?: "live" | "imported";
+  /**
+   * For imported picks: the ISO timestamp we believe the user locked
+   * their pick on the source platform. Falls back to (kickoff - 1ms)
+   * for already-played matches when the source doesn't expose a
+   * per-pick timestamp. Used for forensics and post-hoc dispute
+   * resolution; not used by the scoring engine.
+   */
+  readonly originalLockedAt?: string;
 }
 
 /**
