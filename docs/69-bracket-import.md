@@ -9,7 +9,11 @@
 > - Marketing page names competitors directly ("Import from Telegraph"
 >   etc.) for SEO + clarity, with a "not affiliated with" footer
 >   disclaimer.
-> - Permissive retroactive credit by default, per-pool toggle to opt out.
+> - Imports are universally trusted, no per-pool toggle. The source
+>   platforms we parse all lock picks at first-match kickoff, so a
+>   successful scrape proves the picks existed before kickoff. Pool
+>   admins who allow late joins accept that risk; closed pools that
+>   need stricter control simply close enrolment before kickoff.
 > - Wizard at `play.tournamental.com/import` + marketing page at
 >   `tournamental.com/switch`.
 
@@ -82,10 +86,16 @@ CREATE TABLE IF NOT EXISTS bracket_import_audit (
 );
 CREATE INDEX IF NOT EXISTS idx_bracket_import_audit_user ON bracket_import_audit(user_id, fetched_at DESC);
 
--- Pool-owner toggle. Default ON for warm pools (the launch buzz pitch).
--- Sweepstake-with-money pools can switch off.
-ALTER TABLE syndicates ADD COLUMN accept_imports_after_kickoff INTEGER NOT NULL DEFAULT 1;
 ```
+
+No syndicate-level changes. The original design carried a
+per-pool `accept_imports_after_kickoff` toggle so prize pools could
+opt out of retroactive credit; dropped 2026-06-01 because (a) a user
+typically belongs to multiple pools and one opt-out shouldn't gate
+the import for the others, and (b) the parsers we ship only support
+sources that already lock picks at first-match kickoff, so a
+successful scrape is itself the proof-of-lock-in. Pool admins who
+need stricter control simply close enrolment before kickoff.
 
 ### 3.2. `@tournamental/spec` change
 
@@ -111,14 +121,15 @@ interface MatchPrediction {
 ### 3.3. Server-side backstop adjustment
 
 `apps/game/src/routes/bracket.ts::filterPredictionsByKickoff` currently
-rejects any pick whose `lockedAt >= kickoff`. We extend it: imported picks
-bypass that check, BUT only when:
+rejects any pick whose `lockedAt >= kickoff`. We extend it: imported
+picks bypass that check whenever they carry `source='imported'` and
+the bracket has an `imported_source` set (so we know it's a real
+import-context save, not a forged client claim). No pool-level
+condition. The bracket-level provenance + the audit row are the
+guards.
 
-- The bracket's `imported_source` is set (so we know it's an import-context save).
-- The pool's `accept_imports_after_kickoff = 1` (or the bracket has no pool yet, the user's own personal bracket).
-
-Live picks (no `source` field, or `source='live'`) still go through the
-existing kickoff backstop.
+Live picks (no `source` field, or `source='live'`) still go through
+the existing kickoff backstop unchanged.
 
 ## 4. The parsers
 
@@ -195,20 +206,29 @@ export function normaliseTeamName(raw: string): TeamCode | null;
 Backed by a comprehensive alias table. Test against samples from each
 parser's fixture HTML.
 
-## 6. Anti-cheat for v1 (permissive default)
+## 6. Anti-cheat for v1
 
-Per Tim's decision: lenient but auditable.
+Where the trust comes from: every supported source platform (Telegraph,
+ESPN, BBC Predictor, FIFA app) locks picks at first-match kickoff.
+A bracket page on those sources can only show picks the user committed
+to before kickoff. A successful scrape is therefore proof-of-lock-in.
+The LLM screenshot path inherits the same trust because the user
+attests the screenshot is from one of the same supported platforms.
+
+Concrete safeguards:
 
 - Server-side fetch only. Never trust client-supplied HTML.
-- One import per Tournamental bracket (no re-import).
-- Pool-owner toggle `accept_imports_after_kickoff` lets prize pools opt out.
-- Every import logs to `bracket_import_audit` with raw HTML on disk.
+- One import per Tournamental bracket (no re-import overwriting earlier
+  imports or live picks).
+- Every import logs to `bracket_import_audit` with raw HTML on disk,
+  so post-hoc dispute resolution is possible.
 - Per-IP + per-user rate limit on the import API (5/hour, 20/day).
-- Marketing copy frames it as "switching" not "back-dating": positions
-  the feature as goodwill, not exploit.
+- Marketing copy frames it as "switching" rather than "back-dating":
+  positions the feature as goodwill, not exploit.
 
-Fast-follow (post-launch buzz): Wayback corroboration on
-`web.archive.org` for high-stakes pools.
+Fast-follow (post-launch): Wayback corroboration on `web.archive.org`
+becomes possible if we ever need to investigate a specific dispute.
+Not built in v1.
 
 ## 7. Marketing page (`tournamental.com/switch`)
 
@@ -248,10 +268,13 @@ Sections:
 | 5 | Marketing page at `tournamental.com/switch` | 1 day |
 | 6 | Pool-owner toggle on manage page | ½ day |
 | 7 | LLM screenshot fallback (promoted to v1) | 1 day |
-| 8 | Wayback corroboration | ½ day (post-launch) |
+| 8 | Wayback corroboration | ½ day (post-launch, only if needed) |
 
-Total to ship-able v1 (all four parsers + LLM + marketing page + pool
-toggle): **~7 days of focused work**, gated by phase sign-off.
+Phase 7 (the per-pool toggle) was dropped 2026-06-01 with the
+trust-the-source simplification.
+
+Total to ship-able v1 (all four parsers + LLM + marketing page):
+**~6 days of focused work**, gated by phase sign-off.
 
 Phase 1-2 ship the foundation (schema + first parser end-to-end) so
 the wizard preview can be demoed internally before parsers 2-4 land.
