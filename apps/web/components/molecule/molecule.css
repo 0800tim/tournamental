@@ -1052,51 +1052,143 @@
   color: #f5c542;
 }
 
-/* --- Empty state --- */
+/* --- Petri-dish modal --- */
+/* Tim 2026-06-01: replaced the bottom-left "molecule-empty-state"
+ * tucked-corner nudge with a centred modal that surfaces on page
+ * load. Users were missing the original (it sat below the fold on
+ * smaller viewports). The modal also handles the "incomplete bracket"
+ * case (0 < picks < 104), not just the fully-empty case. Dismissable
+ * by backdrop click, X button, or the "Keep exploring" secondary. */
 
-.molecule-empty-state {
+.molecule-petri-modal-backdrop {
   position: absolute;
-  bottom: 32px;
-  left: 32px;
-  z-index: 4;
-  max-width: 360px;
-  background: rgba(16, 22, 38, 0.88);
-  border: 1px solid rgba(245, 197, 66, 0.35);
-  border-radius: 16px;
-  padding: 18px 20px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  animation: molecule-panel-in 360ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(8, 10, 18, 0.62);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: molecule-petri-fade 220ms ease-out;
 }
 
-.molecule-empty-title {
-  font: 800 17px/1.2 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+.molecule-petri-modal {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  background: linear-gradient(180deg, rgba(22, 28, 46, 0.98) 0%, rgba(16, 22, 38, 0.98) 100%);
+  border: 1px solid rgba(245, 197, 66, 0.32);
+  border-radius: 20px;
+  padding: 28px 26px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+  animation: molecule-petri-pop 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  text-align: center;
+}
+
+.molecule-petri-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 0;
+  color: rgba(231, 235, 250, 0.6);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 120ms ease, color 120ms ease;
+}
+.molecule-petri-modal-close:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #f1f5fb;
+}
+
+.molecule-petri-modal-icon {
+  font-size: 36px;
+  line-height: 1;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 4px 8px rgba(245, 197, 66, 0.35));
+}
+
+.molecule-petri-modal-title {
+  font: 800 20px/1.25 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
   color: #f5c542;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
 }
 
-.molecule-empty-body {
-  font-size: 13px;
-  line-height: 1.45;
+.molecule-petri-modal-body {
+  font-size: 14px;
+  line-height: 1.55;
   color: #cdd5e7;
-  margin: 0 0 14px;
+  margin: 0 0 20px;
+}
+.molecule-petri-modal-body strong {
+  color: #f8fafc;
+  font-weight: 700;
 }
 
-.molecule-empty-cta {
+.molecule-petri-modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.molecule-petri-modal-cta {
   display: inline-block;
   background: #f5c542;
   color: #15151a;
-  font: 800 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
-  letter-spacing: 0.04em;
+  font: 800 14px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.02em;
   text-decoration: none;
-  padding: 10px 16px;
+  padding: 13px 22px;
   border-radius: 999px;
+  text-align: center;
+  transition: background 120ms ease, transform 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 10px 28px rgba(245, 197, 66, 0.28);
 }
-
-.molecule-empty-cta:hover {
+.molecule-petri-modal-cta:hover {
   background: #ffd861;
   transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(245, 197, 66, 0.38);
+}
+
+.molecule-petri-modal-dismiss {
+  background: transparent;
+  color: #9aa3b8;
+  border: 0;
+  padding: 8px 12px;
+  font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: color 120ms ease, background 120ms ease;
+}
+.molecule-petri-modal-dismiss:hover {
+  color: #e7ebfa;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+@keyframes molecule-petri-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes molecule-petri-pop {
+  from { opacity: 0; transform: scale(0.94) translateY(8px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .molecule-petri-modal-backdrop,
+  .molecule-petri-modal {
+    animation: none;
+  }
 }
 
 /* --- Header above the canvas (provided by page.tsx) --- */
@@ -1244,11 +1336,13 @@
      * available on tablet+ where there's room for it. */
     display: none;
   }
-  .molecule-empty-state {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
-    max-width: none;
+  /* Tim 2026-06-01: petri-dish modal is centred + already responsive
+   * via padding/max-width; no separate mobile override needed. */
+  .molecule-petri-modal {
+    padding: 22px 20px 18px;
+  }
+  .molecule-petri-modal-title {
+    font-size: 18px;
   }
   .molecule-page-header {
     flex-direction: column;

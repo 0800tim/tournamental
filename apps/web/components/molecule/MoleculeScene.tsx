@@ -362,6 +362,12 @@ export function MoleculeScene({
   const [userIdLocal, setUserIdLocal] = useState<string>("ssr_user");
   const [bracket, setBracket] = useState<Bracket>(emptyBracket);
   const [selected, setSelected] = useState<string | null>(null);
+  // Petri-dish modal: opens on mount when the bracket is empty or
+  // incomplete, telling the user the molecule won't render fully
+  // until all 104 matches are picked. Dismissable, but suppressed
+  // entirely in read-only contexts (share-landing) where the viewer
+  // isn't the bracket owner. Tim 2026-06-01.
+  const [petriModalDismissed, setPetriModalDismissed] = useState<boolean>(false);
   const [hovered, setHovered] = useState<string | null>(null);
   /** Per-team toggle: when off, clicking this team does NOT replace the gold path. */
   const [highlightOverridesByTeam, setHighlightOverridesByTeam] = useState<
@@ -821,19 +827,90 @@ export function MoleculeScene({
         </div>
       ) : null}
 
-      {!layout.hasAnyKnockoutPick ? (
-        <div className="molecule-empty-state" role="status">
-          <h2 className="molecule-empty-title">Your molecule is still in the petri dish.</h2>
-          <p className="molecule-empty-body">
-            Pick at least one knockout match to see your tournament molecule
-            crystallise, group winners cluster on the outer ring, your
-            predicted champion sits at the heart.
-          </p>
-          <a href="/world-cup-2026" className="molecule-empty-cta">
-            Open bracket →
-          </a>
-        </div>
-      ) : null}
+      {(() => {
+        // Petri-dish modal. Two states:
+        //   - empty (no group picks AND no knockout picks): the user
+        //     hasn't started; nudge them into the bracket builder.
+        //   - incomplete (some picks but < 104): tell them how many
+        //     they have, how many remain, and link them back to finish.
+        // No modal when the bracket is complete OR when the scene is
+        // running in read-only mode (share landings show someone else's
+        // bracket and the viewer can't go fill it in).
+        if (readOnly) return null;
+        const groupPicks = Object.keys(bracket.matchPredictions).length;
+        const knockoutPicks = Object.keys(bracket.knockoutPredictions).length;
+        const totalPicks = groupPicks + knockoutPicks;
+        const totalRequired =
+          tournament.group_fixtures.length + tournament.knockouts.length;
+        const isComplete = totalPicks >= totalRequired;
+        if (isComplete) return null;
+        if (petriModalDismissed) return null;
+        const isEmpty = totalPicks === 0;
+        const remaining = Math.max(0, totalRequired - totalPicks);
+        return (
+          <div
+            className="molecule-petri-modal-backdrop"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="molecule-petri-title"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setPetriModalDismissed(true);
+            }}
+          >
+            <div className="molecule-petri-modal">
+              <button
+                type="button"
+                className="molecule-petri-modal-close"
+                aria-label="Dismiss"
+                onClick={() => setPetriModalDismissed(true)}
+              >
+                ×
+              </button>
+              <div className="molecule-petri-modal-icon" aria-hidden="true">
+                🧫
+              </div>
+              <h2 id="molecule-petri-title" className="molecule-petri-modal-title">
+                {isEmpty
+                  ? "Your molecule is still in the petri dish."
+                  : "Your molecule is incomplete."}
+              </h2>
+              <p className="molecule-petri-modal-body">
+                {isEmpty ? (
+                  <>
+                    The 3D molecule comes alive once you've picked every match.
+                    Group winners cluster on the outer ring; your predicted
+                    champion sits at the heart. Pick all{" "}
+                    <strong>{totalRequired}</strong> matches to see the full
+                    crystallisation.
+                  </>
+                ) : (
+                  <>
+                    You've picked{" "}
+                    <strong>
+                      {totalPicks} of {totalRequired}
+                    </strong>{" "}
+                    matches. Pick the remaining{" "}
+                    <strong>{remaining}</strong> to see your tournament molecule
+                    fully crystallise.
+                  </>
+                )}
+              </p>
+              <div className="molecule-petri-modal-actions">
+                <a href="/world-cup-2026" className="molecule-petri-modal-cta">
+                  {isEmpty ? "Start my bracket →" : "Complete my bracket →"}
+                </a>
+                <button
+                  type="button"
+                  className="molecule-petri-modal-dismiss"
+                  onClick={() => setPetriModalDismissed(true)}
+                >
+                  Keep exploring
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Hover tooltip, desktop only. */}
       {hoveredNode && hoveredNode.teamCode !== selected ? (
