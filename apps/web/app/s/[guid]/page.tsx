@@ -43,6 +43,8 @@ import { SyndicateLeaderboardRows } from "@/components/share-landing/SyndicateLe
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
+import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
+import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
 
 import "@/components/share-landing/share-landing.css";
 
@@ -409,15 +411,27 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
     safeT("share_landing.syndicate.leaderboard_title", "Standings"),
     safeT("share_landing.syndicate.leaderboard_empty", "Leaderboard activates at kickoff, first match Mexico vs the world, 11 Jun 2026."),
     safeT("syndicate.join_footnote", "Free to play, change picks until kickoff."),
-    safeT("share_landing.syndicate.members_dateline", "Recent members"),
+    safeT("share_landing.syndicate.members_dateline", "Pool members"),
     safeT("share_landing.syndicate.members_title", "The pool"),
     safeT("share_landing.syndicate.prize_dateline", "Prize pool"),
   ]);
-  const topFive = [...syndicate.members]
+  // Tim 2026-06-02: enrich each member with avatar + display_name +
+  // predicted-winner + favourite-team + ISO-2 country so the pool-
+  // members section can show a real flag (priority chain: predicted
+  // winner > favourite team > country of origin) and a real profile
+  // photo. Inline so the page stays one DB round-trip away from a
+  // cold render.
+  const enrichedMembers = enrichSyndicateMembers({
+    members: syndicate.members,
+    tournamentId: syndicate.tournament_id,
+  });
+  const topFive = [...enrichedMembers]
     .sort((a, b) => b.points - a.points)
     .slice(0, 5);
   const allPointsZero = topFive.every((m) => m.points === 0);
-  const recentMembers = [...syndicate.members]
+  // "Recent members" is now "Pool members" (Tim 2026-06-02). Sorted by
+  // joined_at descending so the most recent joiner heads the grid.
+  const poolMembers = [...enrichedMembers]
     .sort((a, b) => b.joined_at.localeCompare(a.joined_at))
     .slice(0, 12);
   const memberCount = syndicate.members.length;
@@ -579,14 +593,52 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           {thePool}
         </h2>
         <div className="vt-share-members-grid" role="list">
-          {recentMembers.map((m) => (
-            <div className="vt-share-member-tile" key={m.handle} role="listitem">
-              <span className="vt-share-member-flag" aria-hidden>
-                {m.flag_emoji}
-              </span>
-              <span className="vt-share-member-handle">@{m.handle}</span>
-            </div>
-          ))}
+          {poolMembers.map((m) => {
+            const label = m.display_name?.trim() || m.handle;
+            // Pre-rendered avatar; the route serves a 404 when the
+            // user hasn't uploaded one, so we only emit the URL when
+            // the enrichment confirmed the file exists on disk -
+            // otherwise we fall back to the neutral silhouette.
+            const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
+            return (
+              <div
+                className="vt-share-member-card"
+                key={m.user_id ?? m.handle}
+                role="listitem"
+              >
+                <div className="vt-share-member-avatar-wrap">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    className="vt-share-member-avatar"
+                    src={avatarSrc}
+                    alt=""
+                    width={96}
+                    height={96}
+                    loading="lazy"
+                  />
+                  <span
+                    className="vt-share-member-flag-badge"
+                    aria-hidden="true"
+                    title={
+                      m.predicted_winner_code
+                        ? `Predicted winner: ${m.predicted_winner_code}`
+                        : m.favourite_team_code
+                          ? `Favourite team: ${m.favourite_team_code}`
+                          : m.country_iso2
+                            ? `From ${m.country_iso2}`
+                            : "Country"
+                    }
+                  >
+                    {m.flag_emoji}
+                  </span>
+                </div>
+                <span className="vt-share-member-name">{label}</span>
+                {m.display_name && (
+                  <span className="vt-share-member-handle">@{m.handle}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </RevealOnScroll>
 

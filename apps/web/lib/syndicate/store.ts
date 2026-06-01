@@ -24,6 +24,20 @@ export interface SyndicateMember {
   readonly joined_at: string; // ISO-8601
   /** Points-on-the-board once the tournament starts. Pre-kickoff = 0. */
   readonly points: number;
+  // Optional enrichment fields, populated by enrichSyndicateMembers().
+  // Older code paths that build SyndicateRecord directly leave these
+  // empty; the pool-members render then falls back to country/flag_emoji.
+  readonly user_id?: string;
+  /** Friendly display name from auth-sms users table (preferred over handle for the card label). */
+  readonly display_name?: string | null;
+  /** `/avatars/<user_id>.jpg` when a profile photo exists on disk; null otherwise. */
+  readonly avatar_url?: string | null;
+  /** Their predicted tournament champion (team code, e.g. "ARG"). Null until they've cascaded a winner. */
+  readonly predicted_winner_code?: string | null;
+  /** Their declared favourite team (from auth-sms users.favourite_team_code). */
+  readonly favourite_team_code?: string | null;
+  /** Their country (ISO-2 like "NZ" from auth-sms users.country). */
+  readonly country_iso2?: string | null;
 }
 
 export interface SyndicatePrizeSplitEntry {
@@ -265,10 +279,12 @@ function fromPersistenceRow(row: {
     created_at: new Date(row.created_at).toISOString(),
     picks_made: 0,
     members: realMembers.map((m) => ({
+      user_id: m.user_id,
       handle:
         m.role === "owner"
           ? row.owner_handle ?? m.handle ?? "owner"
           : m.handle ?? `member-${shortUserHash(m.user_id)}`,
+      display_name: m.display_name ?? null,
       country_code: "NZL",
       flag_emoji: "🇳🇿",
       joined_at: new Date(m.joined_at).toISOString(),
