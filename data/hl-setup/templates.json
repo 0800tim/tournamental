@@ -1,0 +1,22 @@
+{
+  "WC26 - Clubs - EN": {
+    "id": "6a1d34400d3622573e7101c2",
+    "subject": "A 5-minute branded prediction pool for {{contact.company_name}} during WC2026"
+  },
+  "WC26 - Federations - EN": {
+    "id": "6a1d344125033dcc131fbed1",
+    "subject": "Free WC2026 prediction pool for {{contact.company_name}} member clubs"
+  },
+  "WC26 - Media - EN": {
+    "id": "6a1d3442eae4d227f1fa1dca",
+    "subject": "A co-branded WC2026 prediction pool for {{contact.company_name}} listeners"
+  },
+  "WC26 - Academies - EN": {
+    "id": "6a1d3444ce86eaa957072d23",
+    "subject": "Free family-friendly WC2026 prediction pool for {{contact.company_name}} kids"
+  },
+  "WC26 - Stores - EN": {
+    "id": "6a1d34450d362227a47101ee",
+    "subject": "A 5-minute branded WC2026 prediction pool for {{contact.company_name}}"
+  }
+}
