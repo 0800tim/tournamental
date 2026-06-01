@@ -82,7 +82,7 @@
       "headline": "Set your picks now.",
       "lede": "104 matches, 48 teams, one bracket. Pick winners in the group stage, then the match outcome in every knockout round. Save once, tweak every match right up until kickoff, and watch your correct-pick count climb the leaderboard.",
       "b1_strong": "Change picks until kickoff.",
-      "b1_body": "Unlike Telegraph, ESPN, or Yahoo, nothing locks at the first whistle. Every match is its own decision.",
+      "b1_body": "Unlike Telegraph, ESPN, or Yahoo, nothing locks at the first kick-off. Every match is its own decision.",
       "b2_strong": "One point per correct pick.",
       "b2_body": "Simple scoring: group-stage win/lose/draw, knockout-stage winner. The more you call right, the higher you climb.",
       "b3_strong": "Punter IQ ladder.",
@@ -200,7 +200,7 @@
   "odds": {
     "eyebrow": "The maths",
     "title": "Nobody will pick all 104 matches of the World Cup correctly. Ever.",
-    "lede": "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first whistle. Here's the working.",
+    "lede": "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first kick-off. Here's the working.",
     "cta_predict": "Set my picks",
     "cta_pool": "Run a pool"
   },

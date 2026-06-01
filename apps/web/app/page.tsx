@@ -99,7 +99,7 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.step1.headline", "Set your picks now."),
     safeT("home.step1.lede", "104 matches, 48 teams, one bracket. Pick winners, draw amounts, and group standings. Save once, then tweak every match right up until kickoff. Earlier saves earn a bigger multiplier; lock everything in when you're ready and watch your prediction IQ climb."),
     safeT("home.step1.b1_strong", "Change picks until kickoff."),
-    safeT("home.step1.b1_body", "Unlike Telegraph, ESPN, or Yahoo, nothing locks at the first whistle. Every match is its own decision."),
+    safeT("home.step1.b1_body", "Unlike Telegraph, ESPN, or Yahoo, nothing locks at the first kick-off. Every match is its own decision."),
     safeT("home.step1.b2_strong", "Early-save multiplier."),
     safeT("home.step1.b2_body", "Call Argentina to win the final today and the points are worth more than calling it the night before."),
     safeT("home.step1.b3_strong", "Punter IQ ladder."),

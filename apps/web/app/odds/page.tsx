@@ -45,7 +45,7 @@ export default async function OddsPage(): Promise<JSX.Element> {
   ] = await Promise.all([
     safeT("odds.eyebrow", "The maths"),
     safeT("odds.title", "Nobody will pick all 104 matches of the World Cup correctly. Ever."),
-    safeT("odds.lede", "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first whistle. Here's the working."),
+    safeT("odds.lede", "The compounding kills you, the coin-flip matches set a floor information can't crack, and the lock-everything-upfront games are mathematically broken before the first kick-off. Here's the working."),
     safeT("odds.cta_predict", "Set my picks"),
     safeT("odds.cta_pool", "Run a pool"),
     safeT("footer.fifa_disclaimer", "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association."),
