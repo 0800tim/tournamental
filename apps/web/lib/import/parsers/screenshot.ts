@@ -112,8 +112,10 @@ export async function parseScreenshot(
   const doFetch: FetchLike =
     options?.fetchImpl ??
     ((url, init) =>
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (globalThis.fetch as unknown as FetchLike)(url, init as any));
+      (globalThis.fetch as unknown as FetchLike)(
+        url,
+        init as Parameters<FetchLike>[1],
+      ));
 
   const body = JSON.stringify({
     model: ANTHROPIC_MODEL,
