@@ -53,9 +53,8 @@
   grid-template-columns: 40px 1fr;
   gap: 16px;
   align-items: start;
-  margin: 18px 0 8px;
+  margin: 0;
   padding: 18px 20px 18px 20px;
-  max-width: 64ch;
   background: linear-gradient(180deg, rgba(220, 169, 75, 0.07), rgba(220, 169, 75, 0.03));
   border: 1px solid rgba(220, 169, 75, 0.35);
   border-radius: 14px;
@@ -2284,15 +2283,106 @@
   white-space: nowrap;
 }
 
-.bracket-header-running-total {
-  font-size: 13px;
-  color: #94a3b8;
-  margin: 6px 0 0;
+/* Two-column lower section of the header. Left column carries the
+ * "Flexible to change" callout, right column carries the Auto-pick
+ * button + the now-prominent matches-picked stat counter. Stacks on
+ * narrow viewports. Tim 2026-06-01-pm. */
+.bracket-header-lower {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(300px, 38%, 440px);
+  gap: 28px;
+  align-items: start;
+  margin: 18px 0 0;
+}
+.bracket-header-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+/* The auto-pick row brought its own margin from the old standalone
+ * placement. Inside the header aside, the flex gap drives spacing
+ * instead so we collapse the row's own margins. */
+.bracket-header-aside .bracket-autopick-row {
+  margin: 0;
+  padding: 0;
+}
+/* Override the desktop "subtitle | button" 2-col layout for the
+ * autopick-row when it lives inside the aside. We want the subtitle
+ * directly under the button so the right column reads top-to-bottom:
+ * BUTTON, subtitle, then big stat counter. */
+@media (min-width: 768px) {
+  .bracket-header-aside .bracket-autopick-row {
+    grid-template-columns: 1fr;
+    grid-template-areas: "button" "subtitle";
+    gap: 6px;
+  }
+  .bracket-header-aside .bracket-autopick-cta {
+    justify-self: stretch;
+    width: 100%;
+  }
+  .bracket-header-aside .bracket-autopick-subtitle {
+    text-align: right;
+  }
 }
 
+/* "X / Y matches picked" stat. Big Fraunces serif numbers tied to a
+ * small uppercase label, right-aligned to balance the callout on the
+ * left. Previously a tiny grey paragraph that Tim flagged as
+ * underweight (2026-06-01-pm). */
+.bracket-header-running-total {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  text-align: right;
+}
+.bracket-header-running-total-numbers {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  font-weight: 500;
+  font-size: clamp(38px, 5vw, 52px);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
 .bracket-header-running-total strong {
   color: #facc15;
-  font-feature-settings: "tnum" 1;
+  font-weight: 500;
+}
+.bracket-header-running-total-divider {
+  color: #6b7280;
+  font-size: 0.62em;
+  font-weight: 300;
+  padding: 0 2px;
+}
+.bracket-header-running-total-label {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+/* Stack the two columns on tablet/phone widths; the callout sits on
+ * top, then the auto-pick row, then the big stat counter centred. */
+@media (max-width: 880px) {
+  .bracket-header-lower {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  .bracket-header-running-total {
+    align-items: center;
+    text-align: center;
+  }
+  .bracket-header-running-total-numbers {
+    font-size: clamp(32px, 8vw, 44px);
+  }
 }
 
 /* Per-round header (title + progress counter). */

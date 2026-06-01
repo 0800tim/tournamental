@@ -1116,68 +1116,73 @@ export function BracketBuilder(props: BracketBuilderProps) {
         <p>
           {safeT(t, "bracket.hero.lede", "Group standings update live from your picks.")}
         </p>
-        <aside className="bracket-edit-anytime" role="note" aria-labelledby="bracket-edit-anytime-heading">
-          <div className="bracket-edit-anytime-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
-              <path d="M21 3v5h-5" />
-              <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
-              <path d="M3 21v-5h5" />
-            </svg>
-          </div>
-          <div className="bracket-edit-anytime-body">
-            <h2 id="bracket-edit-anytime-heading" className="bracket-edit-anytime-heading">
-              {safeT(t, "bracket.hero.edit_anytime_heading", "Flexible to change throughout the tournament")}
-            </h2>
-            <p className="bracket-edit-anytime-lead">
-              {safeT(t, "bracket.hero.edit_anytime_lead", "Enter all match predictions now, so your followers can see how you predict your team's path to victory.")}
-            </p>
-            <p className="bracket-edit-anytime-detail">
-              {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
-            </p>
-          </div>
-        </aside>
-        <p className="bracket-header-running-total" aria-live="polite">
-          {(() => {
-            try {
-              const out = t("bracket.hero.progress", { picked: totalCompleted, total: totalPicks });
-              if (typeof out === "string" && out !== "bracket.hero.progress") return out;
-            } catch { /* fall through */ }
-            return `${totalCompleted} of ${totalPicks} matches picked`;
-          })()}
-        </p>
-      </header>
+        <div className="bracket-header-lower">
+          <aside className="bracket-edit-anytime" role="note" aria-labelledby="bracket-edit-anytime-heading">
+            <div className="bracket-edit-anytime-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
+                <path d="M21 3v5h-5" />
+                <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
+                <path d="M3 21v-5h5" />
+              </svg>
+            </div>
+            <div className="bracket-edit-anytime-body">
+              <h2 id="bracket-edit-anytime-heading" className="bracket-edit-anytime-heading">
+                {safeT(t, "bracket.hero.edit_anytime_heading", "Flexible to change throughout the tournament")}
+              </h2>
+              <p className="bracket-edit-anytime-lead">
+                {safeT(t, "bracket.hero.edit_anytime_lead", "Enter all match predictions now, so your followers can see how you predict your team's path to victory.")}
+              </p>
+              <p className="bracket-edit-anytime-detail">
+                {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
+              </p>
+            </div>
+          </aside>
 
-      {/* Auto-pick lives in its own row above the tab strip. On mobile
-       * the tab strip scrolls horizontally and historically buried this
-       * CTA off-screen; hoisting it keeps it visible at every viewport
-       * size. The button is full-width on phones, right-aligned and
-       * compact-but-bold on desktop. */}
-      <div
-        className="bracket-autopick-row"
-        data-testid="bracket-autopick-row"
-        role="group"
-        aria-label={safeT(t, "bracket.autopick_aria", "Auto-pick")}
-      >
-        <button
-          type="button"
-          className="bracket-autopick-cta"
-          onClick={() => setShowAutoPickConfirm(true)}
-          aria-label={safeT(t, "bracket.autopick.aria", "Auto-pick from live odds")}
-          aria-describedby="bracket-autopick-subtitle"
-          title={safeT(t, "bracket.autopick.title", "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts")}
-          disabled={autoPickDisabled}
-        >
-          <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
-          <span className="bracket-autopick-cta-label">{safeT(t, "bracket.autopick.label", "Auto-pick")}</span>
-        </button>
-        <p
-          id="bracket-autopick-subtitle"
-          className="bracket-autopick-subtitle"
-        >
-          {autoPickSubtitle}
-        </p>
-      </div>
+          {/* Right column: auto-pick CTA stacked above a prominent
+            * "X of Y matches picked" stat counter. Auto-pick lives here
+            * rather than in its old standalone row so it sits visually
+            * alongside the callout (Tim 2026-06-01-pm) instead of
+            * dropping to its own row below. */}
+          <div className="bracket-header-aside">
+            <div
+              className="bracket-autopick-row"
+              data-testid="bracket-autopick-row"
+              role="group"
+              aria-label={safeT(t, "bracket.autopick_aria", "Auto-pick")}
+            >
+              <button
+                type="button"
+                className="bracket-autopick-cta"
+                onClick={() => setShowAutoPickConfirm(true)}
+                aria-label={safeT(t, "bracket.autopick.aria", "Auto-pick from live odds")}
+                aria-describedby="bracket-autopick-subtitle"
+                title={safeT(t, "bracket.autopick.title", "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts")}
+                disabled={autoPickDisabled}
+              >
+                <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
+                <span className="bracket-autopick-cta-label">{safeT(t, "bracket.autopick.label", "Auto-pick")}</span>
+              </button>
+              <p
+                id="bracket-autopick-subtitle"
+                className="bracket-autopick-subtitle"
+              >
+                {autoPickSubtitle}
+              </p>
+            </div>
+            <p className="bracket-header-running-total" aria-live="polite">
+              <span className="bracket-header-running-total-numbers">
+                <strong>{totalCompleted}</strong>
+                <span className="bracket-header-running-total-divider" aria-hidden="true">/</span>
+                <strong>{totalPicks}</strong>
+              </span>
+              <span className="bracket-header-running-total-label">
+                {safeT(t, "bracket.hero.progress_label", "matches picked")}
+              </span>
+            </p>
+          </div>
+        </div>
+      </header>
 
       <nav
         className="bracket-tabs"
