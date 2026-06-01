@@ -133,26 +133,30 @@ export function LockSummary(props: LockSummaryProps) {
       if (!Array.isArray(w.dataLayer)) w.dataLayer = [];
       w.dataLayer.push({
         event: "share_clicked",
-        platform: auth.user ? "native" : "redirect-signin",
+        platform: "redirect-save-share",
         surface: "lock-summary",
       });
     }
-    // If the user isn't signed in, route them to the save-share page
-    // which is now auth-gated — they sign in there and then land on the
-    // share surface with the link bound to their real account, not a
-    // throwaway guest uuid (Tim 2026-05-22).
-    if (!auth.loading && !auth.user) {
-      if (typeof window !== "undefined") {
-        window.location.href = "/world-cup-2026/save-share";
-      }
-      return;
+    // Tim 2026-06-01: all in-page share buttons now route to the
+    // curated /world-cup-2026/save-share surface rather than firing
+    // navigator.share inline. The save-share page owns the visual
+    // preview, the format toggle (Portrait/Landscape/Square), the
+    // open-in-new-tab download, the platform-specific deep links,
+    // and the canonical /s/<guid> URL the recipient lands on. Doing
+    // it from there means every share originates from a consistent,
+    // proof-read surface rather than from whatever page the user
+    // happened to be on. The shareUrl + shareTextBody plumbing below
+    // is retained because the public surface props haven't changed;
+    // the body builders are also still consumed by the deep-link
+    // helpers in the save-share page.
+    if (typeof window !== "undefined") {
+      window.location.href = "/world-cup-2026/save-share";
     }
-    await shareContent({
-      title: buildShareTitle(),
-      text: shareTextBody,
-      url: shareUrl,
-    });
   };
+  void shareUrl;
+  void shareTextBody;
+  void shareContent;
+  void buildShareTitle;
 
   // Suppress the no-unused-vars warning — `handle` is still part of the
   // public prop surface for forward-compat with the auth/handle wiring,
@@ -186,23 +190,20 @@ export function LockSummary(props: LockSummaryProps) {
       </div>
 
       <div className="bracket-share-actions">
-        <button
-          type="button"
+        {/* Primary share CTA now navigates to the curated save-share
+          * page rather than firing navigator.share inline. The
+          * secondary "More share options" link was removed (same
+          * destination, redundant). Tim 2026-06-01. */}
+        <a
           className="bracket-share-cta-primary"
           data-testid="share-bracket-cta"
+          href="/world-cup-2026/save-share"
           onClick={() => {
             void handleShare();
           }}
         >
           <span aria-hidden="true" className="bracket-share-cta-icon">↗</span>
           Share my bracket
-        </button>
-        <a
-          className="bracket-share-cta-secondary"
-          data-testid="open-save-share"
-          href="/world-cup-2026/save-share"
-        >
-          More share options →
         </a>
       </div>
     </aside>

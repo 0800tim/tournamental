@@ -1864,15 +1864,23 @@ function BracketSavePanelSaved({
         <span>{safeT(t, "bracket.save.saved", "Bracket saved. You can edit any pick before kickoff.")}</span>
       </div>
       <div className="bracket-save-panel-actions">
-        <button
-          type="button"
+        {/* Tim 2026-06-01: "Share my bracket" now navigates to the
+          * curated /world-cup-2026/save-share surface rather than
+          * firing navigator.share inline. The save-share page owns
+          * the consistent preview + Portrait/Landscape/Square toggle
+          * + open-in-new-tab download + platform deep links, so every
+          * share originates from one proof-read surface. The legacy
+          * onShare prop is preserved on the public component API but
+          * is no longer invoked from this button. */}
+        <a
           className="bracket-save-panel-cta-primary"
-          onClick={() => void onShare()}
-          disabled={!shareUrl}
+          href="/world-cup-2026/save-share"
+          aria-disabled={!shareUrl}
+          data-disabled={!shareUrl ? "1" : undefined}
         >
           <span aria-hidden="true">↗</span>
           <span>{safeT(t, "bracket.save.share_cta", "Share my bracket")}</span>
-        </button>
+        </a>
         {hasAvatar && avatarSrc ? (
           <a
             className="bracket-save-panel-cta-secondary bracket-save-panel-cta-avatar"

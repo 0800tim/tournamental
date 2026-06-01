@@ -728,6 +728,14 @@
   transform: translateY(1px);
 }
 
+/* The "Share my bracket" CTA in LockSummary is now an <a> (it
+ * navigates to /world-cup-2026/save-share rather than firing
+ * navigator.share). Strip the anchor's default underline so the
+ * gold-pill button visual stays clean. Tim 2026-06-01. */
+a.bracket-share-cta-primary {
+  text-decoration: none;
+}
+
 .bracket-share-cta-icon {
   display: inline-flex;
   align-items: center;
@@ -2645,10 +2653,20 @@
     0 12px 28px -10px rgba(220, 169, 75, 0.55);
 }
 
-.bracket-save-panel-cta-primary:disabled {
+.bracket-save-panel-cta-primary:disabled,
+.bracket-save-panel-cta-primary[data-disabled="1"],
+.bracket-save-panel-cta-primary[aria-disabled="true"] {
   opacity: 0.55;
   cursor: not-allowed;
+  pointer-events: none;
   box-shadow: none;
+}
+/* The "Share my bracket" CTA was a <button> before 2026-06-01; it's
+ * now an <a> (it navigates to /world-cup-2026/save-share rather than
+ * firing navigator.share). Anchor defaults to text-decoration:
+ * underline so we strip that to keep the gold-button visual. */
+a.bracket-save-panel-cta-primary {
+  text-decoration: none;
 }
 
 .bracket-save-panel-actions {
