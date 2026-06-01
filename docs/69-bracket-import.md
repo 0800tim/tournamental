@@ -1,9 +1,17 @@
 # 69. Bracket import from competing platforms
 
-> **Status: design.** No code yet. Tim greenlit the build 2026-06-01;
-> all-four parsers (Telegraph + ESPN + BBC + FIFA app) + permissive
-> retroactive credit + wizard at `play.tournamental.com/import` +
-> marketing page at `tournamental.com/switch`.
+> **Status: design.** No code yet. Tim greenlit the build 2026-06-01.
+>
+> **Scope v1 (locked):**
+> - All four parsers (Telegraph + ESPN + BBC + FIFA app) ship together,
+>   no incremental partial launch.
+> - LLM screenshot fallback **is in v1**, not Phase 2.
+> - Marketing page names competitors directly ("Import from Telegraph"
+>   etc.) for SEO + clarity, with a "not affiliated with" footer
+>   disclaimer.
+> - Permissive retroactive credit by default, per-pool toggle to opt out.
+> - Wizard at `play.tournamental.com/import` + marketing page at
+>   `tournamental.com/switch`.
 
 ## 1. Why
 
@@ -157,13 +165,18 @@ Fetcher is a wrapper:
 Each parser ships with unit tests against three fixture HTML snapshots
 captured live + frozen under `apps/web/lib/import/parsers/__fixtures__/`.
 
-### 4.2. LLM screenshot fallback (Phase 2)
+### 4.2. LLM screenshot fallback (in v1)
 
-If a user is on an unsupported platform, the wizard offers a
-"Upload a screenshot of your bracket" path. The screenshot goes to
-Anthropic API with a structured-output prompt that returns the same
-`ParseResult` shape. Cost: ~$0.02 per import. Not in v1 but the
-wizard's Step 1 carries the "Other" option that explains it's coming.
+If a user is on an unsupported platform, or one of our parsers fails
+to extract picks, the wizard offers a "Upload a screenshot of your
+bracket" path. The screenshot goes to the Anthropic API with a
+structured-output prompt that returns the same `ParseResult` shape.
+
+Cost budget: ~$0.02 per import. Capped to one image per import in
+v1; multi-screenshot ESPN brackets become a fast-follow.
+
+Promoted into v1 from Phase 2 (Tim 2026-06-01) so day-one coverage
+spans every platform, not just the four with custom parsers.
 
 ## 5. Team-name normalisation
 
@@ -204,9 +217,15 @@ Astro page in `apps/marketing/src/pages/switch.astro`.
 Sections:
 
 1. **Hero**: "Switch to Tournamental in 60 seconds. Keep every pick.
-   Change the rest." Subhead names the pain: "Stuck with a bracket on
-   Telegraph / ESPN / BBC / FIFA app that locked at the first kickoff?
-   Bring it over."
+   Change the rest." Subhead names the pain directly: "Stuck with a
+   bracket on Telegraph / ESPN / BBC Predictor / FIFA app that locked
+   at the first kickoff? Bring it over."
+   Competitors are named directly throughout the page for SEO
+   ("telegraph bracket import" etc.) + clarity. Footer disclaimer:
+   "Tournamental is not affiliated with Telegraph, ESPN, BBC, FIFA,
+   or any other named platform. We use these names to describe
+   interoperability." (Nominative fair use; standard for any
+   "import from X" feature.)
 2. **How it works**: 4 steps, illustrated.
 3. **Per-platform instructions**: collapsible blocks, one per source,
    each showing how to find the public bracket URL on that platform.
@@ -228,11 +247,15 @@ Sections:
 | 4 | BBC + FIFA + ESPN parsers (extend tests) | 2-3 days |
 | 5 | Marketing page at `tournamental.com/switch` | 1 day |
 | 6 | Pool-owner toggle on manage page | ½ day |
-| 7 | LLM screenshot fallback | 1 day (post-launch) |
+| 7 | LLM screenshot fallback (promoted to v1) | 1 day |
 | 8 | Wayback corroboration | ½ day (post-launch) |
 
-Total to ship-able with Telegraph only: ~3 days.
-Total to four-parsers + marketing page: ~6 days.
+Total to ship-able v1 (all four parsers + LLM + marketing page + pool
+toggle): **~7 days of focused work**, gated by phase sign-off.
+
+Phase 1-2 ship the foundation (schema + first parser end-to-end) so
+the wizard preview can be demoed internally before parsers 2-4 land.
+No partial public launch.
 
 ## 9. Open questions
 
