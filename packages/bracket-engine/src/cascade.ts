@@ -71,7 +71,10 @@ export interface CascadeWarning {
     | "duplicate_team_in_group"
     | "team_not_in_group"
     | "winner_not_in_match"
-    | "withdrawn_team_advancing";
+    | "withdrawn_team_advancing"
+    | "annex_c_third_pool_incomplete"
+    | "annex_c_lookup_missing"
+    | "annex_c_no_third_for_group_winner";
   readonly message: string;
   readonly key?: string;
 }
@@ -195,6 +198,20 @@ export function cascade(
     });
   }
 
+  // -- 1b. Index 3rd-placed team -> source group ------------------------
+  // Used by the Annex C resolver: each entry in `predictions.best_thirds`
+  // is a TeamId, but the Annex C key is built from the *groups* whose
+  // 3rd-placed team advanced. We map team -> group via the effective
+  // group standings.
+  const thirdPlacerToGroup = new Map<TeamId, GroupId>();
+  for (const group of tournament.groups) {
+    const order = groupEffective.get(group.id) ?? [];
+    if (order.length >= 3) {
+      const third = order[2];
+      if (third) thirdPlacerToGroup.set(third, group.id);
+    }
+  }
+
   // -- 2. Build wildcard pools (best-thirds, best-fourths) ----------------
   // Effective wildcard ordering: actual results override user picks where settled.
   // Where a wildcard slot's source group isn't fully settled, fall back to the
@@ -288,6 +305,50 @@ export function cascade(
               ? upstream.away.team
               : null;
         return { source, team: loser, from_actual: !!findKnockoutActual(completedResults, upstream.id) };
+      }
+      case "annex_c_third": {
+        // Map each user-picked 3rd-placer back to its source group.
+        // We deliberately ignore unmappable entries (silently): a team
+        // that no longer finishes 3rd in any group surfaces elsewhere as
+        // a warning when we discover the pool is incomplete.
+        const advancingGroups: GroupId[] = [];
+        for (const teamId of predictions.best_thirds) {
+          const g = thirdPlacerToGroup.get(teamId);
+          if (g) advancingGroups.push(g);
+        }
+        if (advancingGroups.length !== 8) {
+          // Either too few or too many best-third picks. Cascade leaves
+          // the slot empty; the bracket UI gates the R32 tab on having
+          // exactly 8 picked, so this is mostly a programming guard.
+          warnings.push({
+            code: "annex_c_third_pool_incomplete",
+            message: `FIFA Annex C routing requires exactly 8 best-third picks (got ${advancingGroups.length}).`,
+            key: `slot:annex_c_third:1${source.group_winner}`,
+          });
+          return { source, team: null, from_actual: false };
+        }
+        const key = [...advancingGroups].sort().join(",");
+        const lookup = tournament.annex_c_assignments?.[key];
+        if (!lookup) {
+          warnings.push({
+            code: "annex_c_lookup_missing",
+            message: `No FIFA Annex C entry for combination "${key}".`,
+            key: `slot:annex_c_third:1${source.group_winner}`,
+          });
+          return { source, team: null, from_actual: false };
+        }
+        const sourceGroup = lookup[`1${source.group_winner}`];
+        if (!sourceGroup) {
+          warnings.push({
+            code: "annex_c_no_third_for_group_winner",
+            message: `FIFA Annex C key "${key}" has no entry for group winner 1${source.group_winner}.`,
+            key: `slot:annex_c_third:1${source.group_winner}`,
+          });
+          return { source, team: null, from_actual: false };
+        }
+        const sourceOrder = groupEffective.get(sourceGroup) ?? [];
+        const team = sourceOrder.length >= 3 ? sourceOrder[2] ?? null : null;
+        return { source, team, from_actual: false };
       }
     }
   }

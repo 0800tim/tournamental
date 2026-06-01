@@ -35,6 +35,14 @@ export const bracketSchema = z.object({
   bracketId: z.string().min(1).max(128),
   matchPredictions: z.record(z.string(), matchPredictionSchema),
   groupTiebreakers: z.record(z.string(), groupTiebreakerSchema),
+  /**
+   * 2026-06-01: user's "Top 8 3rd Place" picks (the 8 best 3rd-placed
+   * teams that advance to R32). Optional for back-compat with brackets
+   * saved before the new stage was introduced. The cascade engine
+   * tolerates an empty / absent value (R32 best-third slots resolve to
+   * null until the user fills the new stage).
+   */
+  bestThirds: z.array(z.string().min(1).max(16)).max(16).optional(),
   knockoutPredictions: z.record(z.string(), matchPredictionSchema),
   lockedAt: z.string().optional(),
   version: z.number().int().min(0),

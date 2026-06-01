@@ -206,16 +206,23 @@ describe("scoreBracket — full-bracket scoring", () => {
   });
 
   it("awards points for correctly predicted settled matches", () => {
+    // Pick the team that actually fills r32_01's home slot in the
+    // current FIFA-correct fixture (e.g. group A's runner-up for r32_01
+    // which is 2A vs 2B in the FIFA 2026 R32 structure).
     const base = fullPrediction();
-    const groupA = tournament.groups.find((g) => g.id === "A")!;
-    const groupB = tournament.groups.find((g) => g.id === "B")!;
+    const r32_01_fix = tournament.knockouts.find((k) => k.id === "r32_01")!;
+    if (r32_01_fix.home.kind !== "group_position") {
+      throw new Error("test expects r32_01.home to be a group_position slot");
+    }
+    const homeGroup = tournament.groups.find((g) => g.id === r32_01_fix.home.group)!;
+    const homeTeam = homeGroup.team_ids[r32_01_fix.home.position - 1]!;
     const pred: BracketPrediction = {
       ...base,
-      knockouts: [{ match_id: "r32_01", winner: groupA.team_ids[0] }],
+      knockouts: [{ match_id: "r32_01", winner: homeTeam }],
     };
     const completed = {
       groups: [],
-      knockouts: [{ match_id: "r32_01", winner: groupA.team_ids[0], settled: true }],
+      knockouts: [{ match_id: "r32_01", winner: homeTeam, settled: true }],
     };
     const c = cascade(tournament, pred, completed);
     const summary = scoreBracket({
@@ -227,7 +234,6 @@ describe("scoreBracket — full-bracket scoring", () => {
     expect(summary.correct_count).toBe(1);
     expect(summary.settled_count).toBe(1);
     expect(summary.total_points).toBeGreaterThan(0);
-    void groupB; // intentional: include vars in scope without warnings
   });
 
   it("incorrect predictions on settled matches earn zero but are counted as settled", () => {

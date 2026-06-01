@@ -59,29 +59,17 @@ export function bracketToCascadeInput(
     };
   });
 
-  // World Cup 2026: 12 groups × 4 teams. Top 2 from each group + best 8
-  // third-placed teams advance to R32. The best-thirds pool is a
-  // cross-group ranking, so we can only derive it once EVERY group is
-  // complete. Until then, emit an empty `best_thirds` array and let the
-  // cascade leave those R32 slots empty.
-  const allGroupsComplete = tournament.groups.every((g) =>
-    completeByGroup.get(g.id) === true,
-  );
-  const thirdPlacers = allGroupsComplete
-    ? tournament.groups
-        .map((g) => {
-          const s = standingsByGroup.get(g.id);
-          return s && s.length >= 3 ? s[2] : null;
-        })
-        .filter((s): s is NonNullable<typeof s> => s !== null)
-    : [];
-  thirdPlacers.sort((a, b) => {
-    if (a.points !== b.points) return b.points - a.points;
-    if (a.goalDiff !== b.goalDiff) return b.goalDiff - a.goalDiff;
-    if (a.goalsFor !== b.goalsFor) return b.goalsFor - a.goalsFor;
-    return a.teamCode.localeCompare(b.teamCode);
-  });
-  const best_thirds = thirdPlacers.slice(0, 8).map((s) => s.teamCode);
+  // World Cup 2026: top 2 of each group + 8 best 3rd-placed teams
+  // advance to R32. We do NOT auto-derive the 8 from standings: outcome
+  // predictions don't carry score lines, so the points-only ranking has
+  // ties we can't break. The user picks 8 explicitly via the "Top 8
+  // 3rd Place" stage in BracketBuilder; we pass the picks straight
+  // through to the cascade. Empty array until the user fills it; the
+  // cascade resolves all annex_c_third slots to null in that case.
+  // Used to live here as a sort-by-points-with-zero-GD-tiebreak path
+  // (Tim 2026-06-01: outcome-only predictions can't deterministically
+  // rank thirds beyond points, so user must choose).
+  const best_thirds = bracket.bestThirds ?? [];
 
   const knockouts = Object.values(bracket.knockoutPredictions).flatMap((p) => {
     // The cascade-engine "winner" is whichever side the user picked. The

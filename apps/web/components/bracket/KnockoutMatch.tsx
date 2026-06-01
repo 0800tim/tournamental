@@ -224,6 +224,8 @@ function describeSource(s: CascadedKnockout["home"]["source"]): string {
       return `Best 3rd #${s.rank}`;
     case "best_fourth":
       return `Best 4th #${s.rank}`;
+    case "annex_c_third":
+      return `Best 3rd (vs 1${s.group_winner})`;
     case "knockout_winner":
       return `Winner ${s.match_id}`;
     case "knockout_loser":

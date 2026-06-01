@@ -34,6 +34,10 @@ beforeEach(() => {
 
 const ROUND_TABS = [
   { name: /^Groups/, label: "Groups" },
+  // FIFA 2026: a "Top 8 3rds" stage sits between Groups and R32 so the
+  // user can consciously select the 8 best 3rd-placed teams (cascade
+  // engine then routes them via FIFA Annex C).
+  { name: /^Top 8 3rds/, label: "Top 8 3rds" },
   { name: /^R32/, label: "R32" },
   { name: /^R16/, label: "R16" },
   { name: /^QF/, label: "QF" },
@@ -42,7 +46,7 @@ const ROUND_TABS = [
 ];
 
 describe("<BracketBuilder>, round tabs", () => {
-  it("renders all six round tabs", () => {
+  it("renders all seven round tabs", () => {
     render(<BracketBuilder tournament={tournament} />);
     for (const t of ROUND_TABS) {
       expect(screen.getByRole("tab", { name: t.name })).toBeTruthy();

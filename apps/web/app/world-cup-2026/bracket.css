@@ -2978,3 +2978,181 @@
 .bracket-page[data-theme="light"] .bracket-tree-line {
   stroke: #cbd5e1;
 }
+
+/* ---------------------------------------------------------------- *
+ * "Top 8 3rd Place" stage (between Group Stage and Round of 32).
+ * ---------------------------------------------------------------- */
+
+.bracket-thirds-section {
+  padding-block: 0;
+}
+
+.bracket-thirds-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+}
+
+.bracket-thirds-empty-note {
+  color: var(--vt-muted-text, #6b7280);
+  font-size: 0.9rem;
+}
+
+.bracket-thirds-explainer {
+  background: var(--vt-surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--vt-border, rgba(255, 255, 255, 0.08));
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-block-end: 18px;
+}
+
+.bracket-thirds-explainer-heading {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--vt-gold, #c9a14a);
+}
+
+.bracket-thirds-explainer p {
+  margin: 0;
+  padding: 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.bracket-thirds-explainer p + p { margin-top: 8px; }
+
+.bracket-thirds-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block-end: 14px;
+  flex-wrap: wrap;
+}
+
+.bracket-thirds-count {
+  font-size: 1rem;
+  color: var(--vt-text, #e4e4e7);
+}
+
+.bracket-thirds-count[data-complete="true"] {
+  color: var(--vt-gold, #c9a14a);
+  font-weight: 600;
+}
+
+.bracket-thirds-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bracket-btn-text {
+  background: transparent;
+  border: none;
+  color: var(--vt-muted-text, #9ca3af);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 6px 10px;
+}
+.bracket-btn-text:disabled { opacity: 0.4; cursor: default; }
+.bracket-btn-text:hover:not(:disabled) { color: var(--vt-text, #e4e4e7); }
+
+.bracket-thirds-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.bracket-thirds-tile {
+  display: grid;
+  grid-template-columns: auto 28px 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 6px 10px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 12px;
+  background: var(--vt-surface-2, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--vt-border, rgba(255, 255, 255, 0.08));
+  border-radius: 10px;
+  cursor: pointer;
+  color: inherit;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.bracket-thirds-tile:hover:not(.is-disabled) {
+  background: var(--vt-surface-3, rgba(255, 255, 255, 0.08));
+  border-color: var(--vt-gold, #c9a14a);
+}
+
+.bracket-thirds-tile.is-selected {
+  background: rgba(201, 161, 74, 0.14);
+  border-color: var(--vt-gold, #c9a14a);
+  box-shadow: 0 0 0 1px var(--vt-gold, #c9a14a) inset;
+}
+
+.bracket-thirds-tile.is-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bracket-thirds-tile-group {
+  grid-row: 1 / span 2;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--vt-muted-text, #9ca3af);
+  letter-spacing: 0.04em;
+}
+
+.bracket-thirds-tile-flag {
+  grid-row: 1 / span 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bracket-thirds-tile-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  line-height: 1.1;
+}
+
+.bracket-thirds-tile-record {
+  grid-column: 3 / 4;
+  display: flex;
+  flex-direction: column;
+  font-size: 0.78rem;
+  color: var(--vt-muted-text, #9ca3af);
+}
+
+.bracket-thirds-tile-record-sub {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+}
+
+.bracket-thirds-tile-rank {
+  grid-row: 1 / span 2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--vt-muted-text, #9ca3af);
+  letter-spacing: 0.04em;
+}
+
+.bracket-thirds-tile-check {
+  position: absolute;
+  font-weight: 700;
+  color: var(--vt-gold, #c9a14a);
+}
+
+.bracket-thirds-hint {
+  margin-top: 14px;
+  color: var(--vt-muted-text, #9ca3af);
+  font-size: 0.9rem;
+  text-align: center;
+}

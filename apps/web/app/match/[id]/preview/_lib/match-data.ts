@@ -117,6 +117,8 @@ function describeSlot(s: KnockoutFixture["home"] | KnockoutFixture["away"]): str
       return `Best 3rd #${s.rank}`;
     case "best_fourth":
       return `Best 4th #${s.rank}`;
+    case "annex_c_third":
+      return `Best 3rd (FIFA Annex C routed for 1${s.group_winner})`;
     case "knockout_winner":
       return `Winner of ${s.match_id.toUpperCase()}`;
     case "knockout_loser":

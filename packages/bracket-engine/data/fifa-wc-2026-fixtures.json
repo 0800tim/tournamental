@@ -1,7 +1,7 @@
 {
   "_meta": {
     "fetched_at_utc": "2026-05-09T00:00:00Z",
-    "notes": "12 groups of 4 (FIFA-official 2026 format). 72 group matches + 16 R32 + 8 R16 + 4 QF + 2 SF + 1 third-place + 1 final = 32 knockouts; total 104 matches. Group composition reflects the real Final Draw (Kennedy Center, Washington D.C., 5 December 2025) and the March 2026 UEFA + intercontinental play-off winners.",
+    "notes": "12 groups of 4 (FIFA-official 2026 format). 72 group matches + 16 R32 + 8 R16 + 4 QF + 2 SF + 1 third-place + 1 final = 32 knockouts; total 104 matches. Group composition reflects the real Final Draw (Kennedy Center, Washington D.C., 5 December 2025) and the March 2026 UEFA + intercontinental play-off winners. // 2026-06-01: R32 home/away slot sources rewritten to FIFA-official 2026 structure (Annex C-routed thirds in 8 matches, 2-vs-2 runner-up pairings in 4 matches, group-winner-vs-runner-up in 4 matches).",
     "schedule_status": "official",
     "source": "Wikipedia per-group articles + FIFA Final Draw 2025-12-05",
     "source_url": "https://en.wikipedia.org/wiki/2026_FIFA_World_Cup"
@@ -776,14 +776,14 @@
   "knockouts": [
     {
       "away": {
-        "group": "C",
         "kind": "group_position",
+        "group": "B",
         "position": 2
       },
       "home": {
-        "group": "A",
         "kind": "group_position",
-        "position": 1
+        "group": "A",
+        "position": 2
       },
       "host": "US",
       "id": "r32_01",
@@ -794,13 +794,12 @@
     },
     {
       "away": {
-        "group": "F",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "E"
       },
       "home": {
-        "group": "B",
         "kind": "group_position",
+        "group": "E",
         "position": 1
       },
       "host": "US",
@@ -812,13 +811,13 @@
     },
     {
       "away": {
-        "group": "A",
         "kind": "group_position",
+        "group": "C",
         "position": 2
       },
       "home": {
-        "group": "C",
         "kind": "group_position",
+        "group": "F",
         "position": 1
       },
       "host": "CA",
@@ -830,13 +829,13 @@
     },
     {
       "away": {
-        "group": "E",
         "kind": "group_position",
+        "group": "F",
         "position": 2
       },
       "home": {
-        "group": "D",
         "kind": "group_position",
+        "group": "C",
         "position": 1
       },
       "host": "US",
@@ -848,13 +847,12 @@
     },
     {
       "away": {
-        "group": "D",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "I"
       },
       "home": {
-        "group": "E",
         "kind": "group_position",
+        "group": "I",
         "position": 1
       },
       "host": "US",
@@ -866,14 +864,14 @@
     },
     {
       "away": {
-        "group": "B",
         "kind": "group_position",
+        "group": "I",
         "position": 2
       },
       "home": {
-        "group": "F",
         "kind": "group_position",
-        "position": 1
+        "group": "E",
+        "position": 2
       },
       "host": "US",
       "id": "r32_06",
@@ -884,13 +882,12 @@
     },
     {
       "away": {
-        "group": "H",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "A"
       },
       "home": {
-        "group": "G",
         "kind": "group_position",
+        "group": "A",
         "position": 1
       },
       "host": "US",
@@ -902,13 +899,12 @@
     },
     {
       "away": {
-        "group": "G",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "L"
       },
       "home": {
-        "group": "H",
         "kind": "group_position",
+        "group": "L",
         "position": 1
       },
       "host": "MX",
@@ -920,13 +916,12 @@
     },
     {
       "away": {
-        "group": "L",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "D"
       },
       "home": {
-        "group": "I",
         "kind": "group_position",
+        "group": "D",
         "position": 1
       },
       "host": "US",
@@ -938,13 +933,12 @@
     },
     {
       "away": {
-        "group": "K",
-        "kind": "group_position",
-        "position": 2
+        "kind": "annex_c_third",
+        "group_winner": "G"
       },
       "home": {
-        "group": "J",
         "kind": "group_position",
+        "group": "G",
         "position": 1
       },
       "host": "US",
@@ -956,14 +950,14 @@
     },
     {
       "away": {
-        "group": "J",
         "kind": "group_position",
+        "group": "L",
         "position": 2
       },
       "home": {
-        "group": "K",
         "kind": "group_position",
-        "position": 1
+        "group": "K",
+        "position": 2
       },
       "host": "MX",
       "id": "r32_11",
@@ -974,13 +968,13 @@
     },
     {
       "away": {
-        "group": "I",
         "kind": "group_position",
+        "group": "J",
         "position": 2
       },
       "home": {
-        "group": "L",
         "kind": "group_position",
+        "group": "H",
         "position": 1
       },
       "host": "US",
@@ -992,40 +986,13 @@
     },
     {
       "away": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 2
+        "kind": "annex_c_third",
+        "group_winner": "B"
       },
       "home": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 1
+        "kind": "group_position",
+        "group": "B",
+        "position": 1
       },
       "host": "US",
       "id": "r32_13",
@@ -1036,40 +1003,14 @@
     },
     {
       "away": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 4
+        "kind": "group_position",
+        "group": "H",
+        "position": 2
       },
       "home": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 3
+        "kind": "group_position",
+        "group": "J",
+        "position": 1
       },
       "host": "US",
       "id": "r32_14",
@@ -1080,40 +1021,13 @@
     },
     {
       "away": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 6
+        "kind": "annex_c_third",
+        "group_winner": "K"
       },
       "home": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 5
+        "kind": "group_position",
+        "group": "K",
+        "position": 1
       },
       "host": "US",
       "id": "r32_15",
@@ -1124,40 +1038,14 @@
     },
     {
       "away": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 8
+        "kind": "group_position",
+        "group": "G",
+        "position": 2
       },
       "home": {
-        "eligible_groups": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F",
-          "G",
-          "H",
-          "I",
-          "J",
-          "K",
-          "L"
-        ],
-        "kind": "best_third",
-        "rank": 7
+        "kind": "group_position",
+        "group": "D",
+        "position": 2
       },
       "host": "MX",
       "id": "r32_16",
@@ -1534,7 +1422,7 @@
       "country": "CUW",
       "fifa_rank": 82,
       "id": "CUW",
-      "name": "Cura\u00e7ao",
+      "name": "Curaçao",
       "placeholder": false,
       "pre_tournament_implied_win": 0.0006
     },

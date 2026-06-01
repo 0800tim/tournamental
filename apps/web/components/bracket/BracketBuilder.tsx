@@ -83,6 +83,7 @@ import {
 import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
+import { ThirdsPicker, autoPickTop8Thirds } from "./ThirdsPicker";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
@@ -130,9 +131,9 @@ export interface BracketBuilderProps {
  * One tab per round, plus the final-round tab also hosts the
  * "save & share" summary. `groups` is the default landing tab.
  */
-type TabId = "groups" | "r32" | "r16" | "qf" | "sf" | "final";
+type TabId = "groups" | "thirds" | "r32" | "r16" | "qf" | "sf" | "final";
 
-const TAB_ORDER: readonly TabId[] = ["groups", "r32", "r16", "qf", "sf", "final"];
+const TAB_ORDER: readonly TabId[] = ["groups", "thirds", "r32", "r16", "qf", "sf", "final"];
 
 interface TabMeta {
   readonly id: TabId;
@@ -143,6 +144,12 @@ interface TabMeta {
 
 const TABS: readonly TabMeta[] = [
   { id: "groups", label: "Groups", hash: "#groups", aria: "Group stage matches" },
+  // FIFA 2026: top 2 of each group + 8 best 3rd-placers advance to R32.
+  // We can't deterministically rank the 12 thirds from outcome-only
+  // predictions (no score lines), so the user picks 8 explicitly here.
+  // The cascade engine then routes them via the FIFA Annex C lookup
+  // table (packages/bracket-engine/data/fifa-2026-annex-c-assignments.json).
+  { id: "thirds", label: "Top 8 3rds", hash: "#thirds", aria: "Best 3rd-placed teams that advance" },
   { id: "r32", label: "R32", hash: "#r32", aria: "Round of 32" },
   { id: "r16", label: "R16", hash: "#r16", aria: "Round of 16" },
   { id: "qf", label: "QF", hash: "#qf", aria: "Quarter-finals" },
@@ -166,8 +173,32 @@ function emptyBracket(): Bracket {
     bracketId: "",
     matchPredictions: {},
     groupTiebreakers: {},
+    bestThirds: [],
     knockoutPredictions: {},
-    version: 2,
+    version: 3,
+  };
+}
+
+/**
+ * One-time migration for drafts saved before the FIFA Annex C R32 fix
+ * (2026-06-01). Pre-fix drafts hold knockout picks against a now-wrong
+ * R32 structure (parallel mini-bracket of 4 thirds-vs-thirds matches).
+ * Post-fix, those matchups don't exist any more, so the picks are
+ * stale references. We wipe `knockoutPredictions` once on load when
+ * a v<3 bracket is detected; group picks survive untouched.
+ */
+function migrateBracket(b: Bracket | null): { bracket: Bracket | null; wiped: boolean } {
+  if (!b) return { bracket: null, wiped: false };
+  if ((b.version ?? 0) >= 3) return { bracket: b, wiped: false };
+  const knockoutCount = Object.keys(b.knockoutPredictions ?? {}).length;
+  return {
+    bracket: {
+      ...b,
+      bestThirds: [],
+      knockoutPredictions: {},
+      version: 3,
+    },
+    wiped: knockoutCount > 0,
   };
 }
 
@@ -417,6 +448,18 @@ export function BracketBuilder(props: BracketBuilderProps) {
       // Load whatever's in localStorage for THIS identity. May be null
       // for a first-time authed user; we hydrate from the server below.
       let starting = loadDraft(tournament.id, id);
+      // One-time migration: drafts saved before the FIFA Annex C R32
+      // fix hold knockout picks against a now-wrong R32 routing. Wipe
+      // those (group picks survive) and surface a one-line notice so
+      // the user knows to re-run knockouts. Tim 2026-06-01.
+      const migr = migrateBracket(starting);
+      starting = migr.bracket;
+      if (migr.wiped) {
+        setSubmitState(
+          "We updated the 2026 Round-of-32 routing to match FIFA's Annex C rules. Your group picks were preserved, but your knockout picks were cleared — please re-pick R32 onwards (auto-pick will do it instantly).",
+        );
+        saveDraft(tournament.id, starting!, id);
+      }
       if (!starting) starting = { ...emptyBracket(), bracketId: id };
       setBracket(starting);
 
@@ -787,6 +830,22 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
     }
 
+    // ---------- Top 8 3rd Place ----------
+    // The cascade can only resolve `annex_c_third` R32 slots once the
+    // user has supplied 8 best-third picks. AutoPick picks the 8 with
+    // the strongest FIFA rank so the downstream R32 cascade routes
+    // through actual teams rather than nulls.
+    {
+      const picks = autoPickTop8Thirds(
+        tournament,
+        next.matchPredictions,
+        next.groupTiebreakers,
+      );
+      if (picks.length === 8) {
+        next = { ...next, bestThirds: picks };
+      }
+    }
+
     // ---------- Knockouts: stage-by-stage with re-cascade ----------
     for (const stage of KO_PICK_STAGES) {
       const legacy = bracketToCascadeInput(tournament, next, userLocalId);
@@ -1037,6 +1096,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
   // Per-tab progress counter labels.
   const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
+  const thirdsProgress = {
+    picked: (bracket.bestThirds ?? []).length,
+    total: 8,
+  };
   const r32Progress = knockoutCountFor("r32", cascaded, bracket.knockoutPredictions);
   const r16Progress = knockoutCountFor("r16", cascaded, bracket.knockoutPredictions);
   const qfProgress = knockoutCountFor("qf", cascaded, bracket.knockoutPredictions);
@@ -1045,6 +1108,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
   const progressByTab: Record<TabId, { picked: number; total: number }> = {
     groups: groupProgress,
+    thirds: thirdsProgress,
     r32: r32Progress,
     r16: r16Progress,
     qf: qfProgress,
@@ -1056,6 +1120,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
     if (id === "sf") return ["sf", "tp"];
     if (id === "final") return ["f"];
     if (id === "groups") return [];
+    if (id === "thirds") return [];
     return [id as StageId];
   };
 
@@ -1300,6 +1365,43 @@ export function BracketBuilder(props: BracketBuilderProps) {
           // the in-view panel.
           const attachKmRefs = !isMobile || isActiveStage;
           const attachGroupsRef = !isMobile || isActiveStage;
+          if (panelId === "thirds") {
+            return (
+              <section
+                key={panelId}
+                id="bracket-panel-thirds"
+                role="tabpanel"
+                aria-label="Top 8 third-placed teams"
+                className="bracket-panel bracket-thirds-section bracket-stage-panel"
+              >
+                <div className="bracket-round-header">
+                  <h2>Top 8 3rd Place</h2>
+                  <span className="bracket-round-progress">
+                    <strong>{thirdsProgress.picked}</strong> of {thirdsProgress.total} picked
+                  </span>
+                </div>
+                <ThirdsPicker
+                  tournament={tournament}
+                  bracket={bracket}
+                  onChange={(next) => {
+                    update({ ...bracket, bestThirds: next });
+                  }}
+                  onAutoPick={() => {
+                    const picks = autoPickTop8Thirds(
+                      tournament,
+                      bracket.matchPredictions,
+                      bracket.groupTiebreakers,
+                    );
+                    update({ ...bracket, bestThirds: picks });
+                  }}
+                  onClear={() => {
+                    update({ ...bracket, bestThirds: [] });
+                  }}
+                />
+                <NextStageButton currentTab="thirds" setTab={setTab} />
+              </section>
+            );
+          }
           if (panelId === "groups") {
             return (
               <section
@@ -1650,7 +1752,8 @@ function NextStageButton({
 }
 
 const NEXT_STAGE: Readonly<Record<TabId, TabId | null>> = {
-  groups: "r32",
+  groups: "thirds",
+  thirds: "r32",
   r32: "r16",
   r16: "qf",
   qf: "sf",

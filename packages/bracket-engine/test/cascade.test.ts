@@ -80,24 +80,31 @@ describe("cascade — partial predictions", () => {
   });
 
   it("populates downstream R16 slots from R32 predicted winners", () => {
-    // Pick winners for r32_01 and r32_02. r16_01 depends on these.
+    // Pick winners for r32_01 and r32_02. r16_01 depends on these. Each
+    // R32 home slot is a `group_position`; we read the slot's group +
+    // position to figure out which team in the canonical fullGroupPicks
+    // order fills it, then predict that team as the winner.
     const r32_01 = tournament.knockouts.find((k) => k.id === "r32_01")!;
     const r32_02 = tournament.knockouts.find((k) => k.id === "r32_02")!;
-    // Pick the home team of each r32 match as the winner (deterministic).
-    const r32_01_home = tournament.groups.find((g) => g.id === (r32_01.home as { group?: string }).group)!;
-    const r32_02_home = tournament.groups.find((g) => g.id === (r32_02.home as { group?: string }).group)!;
+    const homeAt = (slot: typeof r32_01.home): string => {
+      if (slot.kind !== "group_position") throw new Error("expected group_position slot");
+      const g = tournament.groups.find((gr) => gr.id === slot.group)!;
+      return g.team_ids[slot.position - 1]!;
+    };
+    const winner_r32_01 = homeAt(r32_01.home);
+    const winner_r32_02 = homeAt(r32_02.home);
     const pred: BracketPrediction = {
       ...emptyPrediction(),
       groups: fullGroupPicks(),
       knockouts: [
-        { match_id: "r32_01", winner: r32_01_home.team_ids[0] },
-        { match_id: "r32_02", winner: r32_02_home.team_ids[0] },
+        { match_id: "r32_01", winner: winner_r32_01 },
+        { match_id: "r32_02", winner: winner_r32_02 },
       ],
     };
     const c = cascade(tournament, pred);
     const r16_01 = c.knockouts.find((k) => k.id === "r16_01")!;
-    expect(r16_01.home.team).toBe(r32_01_home.team_ids[0]);
-    expect(r16_01.away.team).toBe(r32_02_home.team_ids[0]);
+    expect(r16_01.home.team).toBe(winner_r32_01);
+    expect(r16_01.away.team).toBe(winner_r32_02);
   });
 });
 
@@ -181,16 +188,24 @@ describe("cascade — committed-team tally", () => {
 
 describe("cascade — withdrawal & edge cases", () => {
   it("flags matches affected by withdrawals", () => {
-    const groupA = tournament.groups.find((g) => g.id === "A")!;
+    // r32_01's home slot is whichever group/position the fixture data
+    // assigns. Pick a withdrawal target that's actually resolvable in
+    // that slot.
+    const r32_01_fix = tournament.knockouts.find((k) => k.id === "r32_01")!;
+    if (r32_01_fix.home.kind !== "group_position") {
+      throw new Error("test expects r32_01.home to be a group_position slot");
+    }
+    const homeGroup = tournament.groups.find((g) => g.id === r32_01_fix.home.group)!;
+    const homeTeam = homeGroup.team_ids[r32_01_fix.home.position - 1]!;
     const pred: BracketPrediction = {
       ...emptyPrediction(),
       groups: fullGroupPicks(),
-      knockouts: [{ match_id: "r32_01", winner: groupA.team_ids[0] }],
+      knockouts: [{ match_id: "r32_01", winner: homeTeam }],
     };
     const completed: CompletedResults = {
       groups: [],
       knockouts: [],
-      withdrawn: [groupA.team_ids[0]],
+      withdrawn: [homeTeam],
     };
     const c = cascade(tournament, pred, completed);
     const r32_01 = c.knockouts.find((k) => k.id === "r32_01")!;
@@ -275,32 +290,84 @@ describe("cascade — withdrawal & edge cases", () => {
   });
 });
 
-describe("cascade — wildcard pools", () => {
-  it("uses explicit best_thirds picks when supplied", () => {
-    const groupA = tournament.groups.find((g) => g.id === "A")!;
+describe("cascade — wildcard pools (FIFA Annex C routing)", () => {
+  it("routes a best third via FIFA Annex C when the user picks 8", () => {
+    // Pick the 3rd-placed teams from groups A..H as the 8 advancing
+    // thirds. For the canonical fullGroupPicks(), each group's
+    // team_ids[2] is the 3rd-placer.
+    const advancingGroups = ["A", "B", "C", "D", "E", "F", "G", "H"] as const;
+    const bestThirds = advancingGroups.map(
+      (gid) => tournament.groups.find((g) => g.id === gid)!.team_ids[2]!,
+    );
     const pred: BracketPrediction = {
       ...emptyPrediction(),
       groups: fullGroupPicks(),
-      best_thirds: [groupA.team_ids[2]],
+      best_thirds: bestThirds,
     };
     const c = cascade(tournament, pred);
-    // First R32 match whose home slot is a `best_third` — find it
-    // dynamically since slot ordering depends on the FIFA bracket layout.
-    const firstBestThirdMatch = c.knockouts.find(
-      (k) => k.stage === "r32" && k.home.source.kind === "best_third",
+    // Find an annex_c_third slot and verify the resolved team came
+    // from the source group named in the Annex C assignment.
+    const annexSlot = c.knockouts.find(
+      (k) => k.stage === "r32" && k.away.source.kind === "annex_c_third",
     )!;
-    expect(firstBestThirdMatch.home.team).toBe(groupA.team_ids[2]);
+    const slot = annexSlot.away.source;
+    if (slot.kind !== "annex_c_third") throw new Error("expected annex_c_third");
+    const expectedSourceGroup = tournament.annex_c_assignments?.[
+      [...advancingGroups].sort().join(",")
+    ]?.[`1${slot.group_winner}`];
+    expect(expectedSourceGroup).toBeTruthy();
+    const expectedTeam = tournament.groups.find((g) => g.id === expectedSourceGroup)!
+      .team_ids[2];
+    expect(annexSlot.away.team).toBe(expectedTeam);
   });
 
-  it("warns when wildcard slots are unfilled", () => {
+  it("warns when the best-thirds pool isn't exactly 8 picks", () => {
     const pred: BracketPrediction = {
       ...emptyPrediction(),
-      groups: tournament.groups.map((g) => ({
-        group_id: g.id,
-        order: [...g.team_ids].slice(0, 2), // only top-2 picked, no 3rd or 4th
-      })),
+      groups: fullGroupPicks(),
+      best_thirds: [], // user hasn't done the "Top 8 3rd Place" stage yet
     };
     const c = cascade(tournament, pred);
-    expect(c.warnings.some((w) => w.code === "missing_wildcard_pick")).toBe(true);
+    expect(
+      c.warnings.some((w) => w.code === "annex_c_third_pool_incomplete"),
+    ).toBe(true);
+    // And every annex_c_third away slot resolves to null.
+    const annexSlots = c.knockouts.filter(
+      (k) => k.stage === "r32" && k.away.source.kind === "annex_c_third",
+    );
+    expect(annexSlots.length).toBe(8);
+    for (const k of annexSlots) expect(k.away.team).toBe(null);
+  });
+
+  it("matches the captured Annex C entry for combination A,B,C,D,E,H,I,J", () => {
+    // The combination Tim screenshotted in the kickoff conversation:
+    // "key":"A,B,C,D,E,H,I,J",
+    // "assignment":{ "1A":"3H","1B":"3J","1D":"3B","1E":"3C",
+    //                "1G":"3A","1I":"3D","1K":"3E","1L":"3I" }
+    const advancingGroups = ["A", "B", "C", "D", "E", "H", "I", "J"] as const;
+    const bestThirds = advancingGroups.map(
+      (gid) => tournament.groups.find((g) => g.id === gid)!.team_ids[2]!,
+    );
+    const pred: BracketPrediction = {
+      ...emptyPrediction(),
+      groups: fullGroupPicks(),
+      best_thirds: bestThirds,
+    };
+    const c = cascade(tournament, pred);
+    // Verify every Annex C-routed R32 slot resolved to the team from
+    // the source group the published assignment names.
+    const expected: Record<string, string> = {
+      A: "H", B: "J", D: "B", E: "C", G: "A", I: "D", K: "E", L: "I",
+    };
+    for (const [groupWinner, sourceGroup] of Object.entries(expected)) {
+      const match = c.knockouts.find((k) => {
+        if (k.stage !== "r32" || k.away.source.kind !== "annex_c_third") return false;
+        return k.away.source.group_winner === groupWinner;
+      });
+      expect(match, `R32 slot for 1${groupWinner}`).toBeTruthy();
+      const expectedTeam = tournament.groups.find((g) => g.id === sourceGroup)!
+        .team_ids[2];
+      expect(match!.away.team).toBe(expectedTeam);
+    }
   });
 });

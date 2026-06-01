@@ -130,6 +130,24 @@ export type SlotSource =
   | {
       readonly kind: "knockout_loser";
       readonly match_id: string;
+    }
+  /**
+   * FIFA 2026 Annex C routing. The R32 features 8 matches in which a
+   * group winner faces one of the 8 best 3rd-placed teams. Which 3rd
+   * comes from which group depends on the combination of which 8 groups
+   * produced the advancing thirds; FIFA publishes a fixed lookup table
+   * (Annex C of the 2026 Competition Regulations) covering all
+   * C(12,8) = 495 combinations. The cascade resolves this slot at
+   * runtime by reading `predictions.best_thirds`, mapping each pick to
+   * its source group, sorting the eight groups alphabetically to form
+   * the lookup key, and reading `tournament.annex_c_assignments[key]`
+   * to find the source group of the 3rd-placer that opposes
+   * `group_winner` in this match.
+   */
+  | {
+      readonly kind: "annex_c_third";
+      /** The group winner this slot is paired with in R32, e.g. "A". */
+      readonly group_winner: GroupId;
     };
 
 export interface KnockoutFixture {
@@ -160,6 +178,24 @@ export interface Tournament {
    * when group_position slots reference a position > N.
    */
   readonly advancement: AdvancementRules;
+  /**
+   * FIFA Annex C-style routing for slots whose source group depends on
+   * which combination of teams qualifies as the wildcard pool. Required
+   * if any KnockoutFixture has a `kind: "annex_c_third"` slot.
+   *
+   * Outer key: the alphabetically-sorted comma-joined list of the
+   *   GroupIds whose Nth-placed team advanced (e.g. "A,B,C,D,E,F,G,H").
+   * Inner key: the group winner the slot is paired with, prefixed with
+   *   "1" (so "1A", "1B", ...).
+   * Value: the source GroupId of the 3rd-placer assigned to that slot.
+   *
+   * For the FIFA 2026 World Cup this is the 495-entry table in Annex C
+   * of the Competition Regulations; see
+   * `data/fifa-2026-annex-c-assignments.json`.
+   */
+  readonly annex_c_assignments?: Readonly<
+    Record<string, Readonly<Record<string, GroupId>>>
+  >;
 }
 
 export interface AdvancementRules {
@@ -300,6 +336,16 @@ export interface Bracket {
   readonly matchPredictions: Record<string, MatchPrediction>;
   /** groupId → user-supplied tiebreaker; absent unless a tie needs breaking. */
   readonly groupTiebreakers: Record<string, GroupTiebreaker>;
+  /**
+   * User-selected set of best 3rd-placed teams that advance from the
+   * group stage. For tournaments that route wildcards through FIFA
+   * Annex C-style assignment, the cascade needs exactly N team-ids
+   * (eg 8 for the 2026 World Cup). Order is not significant. Optional
+   * for back-compat — absent / empty means "user hasn't done the
+   * Top 8 3rd Place stage yet" and the cascade leaves the affected
+   * R32 slots null.
+   */
+  readonly bestThirds?: readonly TeamId[];
   /** matchId → prediction for knockout matches (R32/R16/QF/SF/F/3rd-place). */
   readonly knockoutPredictions: Record<string, MatchPrediction>;
   /** ISO-8601 timestamp; set when the user submits the bracket as final. */
