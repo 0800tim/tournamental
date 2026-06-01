@@ -39,6 +39,34 @@
   line-height: 1.55;
 }
 
+/* "Lock in now, change later" callout. Tim 2026-06-01: brands selling
+ * the platform to their audiences need the "no fear of regret" promise
+ * front and centre, not buried in the muted lede. Heavier visual
+ * treatment (accent border + warm fill + emoji marker) so first-time
+ * visitors immediately understand they can keep editing as the
+ * tournament evolves. */
+.bracket-edit-anytime {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 14px 0 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--vt-gold-400, #dca94b);
+  background: rgba(220, 169, 75, 0.08);
+  border-radius: 10px;
+  color: #e6edf3;
+  line-height: 1.5;
+  max-width: 64ch;
+}
+.bracket-edit-anytime strong {
+  color: #ffffff;
+}
+.bracket-edit-anytime-icon {
+  font-size: 18px;
+  line-height: 1.25;
+  flex-shrink: 0;
+}
+
 /* ---- Lock summary ---- */
 .bracket-lock-summary {
   background: linear-gradient(180deg, #25252c, #1c1c22);

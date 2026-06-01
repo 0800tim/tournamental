@@ -1114,7 +1114,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
           })()}
         </h1>
         <p>
-          {safeT(t, "bracket.hero.lede", "Group standings update live from your picks. Save each pick before its match kicks off; you can edit any call right up to the whistle.")}
+          {safeT(t, "bracket.hero.lede", "Group standings update live from your picks.")}
+        </p>
+        <p className="bracket-edit-anytime" role="note">
+          <span className="bracket-edit-anytime-icon" aria-hidden="true">🔄</span>
+          <span>
+            <strong>
+              {safeT(t, "bracket.hero.edit_anytime_lead", "Lock in every pick now. Change them any time, right up to kick-off of each match.")}
+            </strong>{" "}
+            {safeT(t, "bracket.hero.edit_anytime_detail", "Your picks aren't final until the whistle blows. Tweak as form changes, as injuries land, as the group stage reshapes the bracket.")}
+          </span>
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
           {(() => {
