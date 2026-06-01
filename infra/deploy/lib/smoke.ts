@@ -78,6 +78,20 @@ export async function smoke(opts: SmokeOptions): Promise<SmokeResult> {
     stdio: 'pipe',
     detached: false,
   });
+  // Forward child output so smoke failures are debuggable; without this
+  // a crash-on-startup looks like "server exited prematurely" with no
+  // useful context. Prefixed so the orchestrator's own logs stay
+  // distinguishable from the smoke server's own output.
+  if (child.stdout) {
+    child.stdout.on('data', (b: Buffer) =>
+      process.stderr.write(`[smoke:stdout] ${b}`),
+    );
+  }
+  if (child.stderr) {
+    child.stderr.on('data', (b: Buffer) =>
+      process.stderr.write(`[smoke:stderr] ${b}`),
+    );
+  }
 
   const cleanup = async () => {
     if (child.pid && !child.killed) {
