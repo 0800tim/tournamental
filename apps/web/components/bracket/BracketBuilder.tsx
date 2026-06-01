@@ -1120,9 +1120,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
           <span className="bracket-edit-anytime-icon" aria-hidden="true">🔄</span>
           <span>
             <strong>
-              {safeT(t, "bracket.hero.edit_anytime_lead", "Lock in every pick now. Change them any time, right up to kick-off of each match.")}
+              {safeT(t, "bracket.hero.edit_anytime_lead", "Enter all match predictions now, so your followers can see how you predict your team's path to victory.")}
             </strong>{" "}
-            {safeT(t, "bracket.hero.edit_anytime_detail", "Your picks aren't final until the whistle blows. Tweak as form changes, as injuries land, as the group stage reshapes the bracket.")}
+            {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
           </span>
         </p>
         <p className="bracket-header-running-total" aria-live="polite">
