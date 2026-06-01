@@ -92,8 +92,10 @@ function resolveGameDbPath(): string | null {
 }
 
 function resolveAvatarOnDiskPath(userId: string): string {
-  const root = resolve(process.cwd(), "..", "..");
-  return resolve(root, "apps/web/data/avatars", `${userId}.jpg`);
+  const dir =
+    process.env.AVATARS_DIR ??
+    resolve(process.cwd(), "..", "..", "apps/web/data/avatars");
+  return resolve(dir, `${userId}.jpg`);
 }
 
 interface AuthRow {
