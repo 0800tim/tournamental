@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<!--
+  Synthesised ESPN Tournament Challenge fixture: a bracket the user
+  has opened but not yet filled in. No picks marked as winners.
+
+  Verifies that parseHtml() returns an empty matches array (the wizard
+  treats this as 'no-picks-found') rather than throwing or fabricating
+  picks. Both the JSON path and the DOM fallback should agree the
+  bracket is empty.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FIFA World Cup 2026 Bracket Challenge - ESPN</title>
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <span class="entry-name">new_player</span>
+      </header>
+      <main class="bracket">
+        <ul class="rounds">
+          <li class="matchup" data-matchup-id="R16-1" data-kickoff="2026-06-30T18:00:00Z">
+            <span class="team" data-team="Argentina">
+              <span class="team-name">Argentina</span>
+            </span>
+            <span class="team" data-team="Netherlands">
+              <span class="team-name">Netherlands</span>
+            </span>
+          </li>
+          <li class="matchup" data-matchup-id="R16-2" data-kickoff="2026-06-30T22:00:00Z">
+            <span class="team" data-team="Portugal">
+              <span class="team-name">Portugal</span>
+            </span>
+            <span class="team" data-team="France">
+              <span class="team-name">France</span>
+            </span>
+          </li>
+        </ul>
+      </main>
+    </div>
+    <script>
+      window.__INITIAL_STATE__ = {
+        "entry": { "handle": "new_player" },
+        "bracket": { "matches": [] }
+      };
+    </script>
+  </body>
+</html>

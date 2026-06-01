@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8" />
+<title>World Cup 2026 Predictor, The Telegraph</title>
+</head>
+<body>
+<main>
+<div class="bracket-predictor" data-tournament="fifa-wc-2026" data-user-handle="Sam Wallace">
+  <header>
+    <h1>World Cup 2026 Predictor</h1>
+    <p>Sam Wallace's picks, group stage only.</p>
+  </header>
+
+  <!-- Group A: 3 picks, including a draw. -->
+  <section class="bracket-predictor__group" data-group="A">
+    <article class="bracket-predictor__match" data-match-id="grpA-m1" data-kickoff="2026-06-11T20:00:00Z">
+      <div class="bracket-predictor__team bracket-predictor__team--home bracket-predictor__team--selected" data-team="Mexico">Mexico</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away" data-team="Canada">Canada</div>
+    </article>
+    <article class="bracket-predictor__match" data-match-id="grpA-m2" data-kickoff="2026-06-12T20:00:00Z">
+      <div class="bracket-predictor__team bracket-predictor__team--home" data-team="USA">USA</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away bracket-predictor__team--selected" data-team="Egypt">Egypt</div>
+    </article>
+    <!-- Drawn match. Telegraph adds an advance ribbon with data-team="draw" -->
+    <article class="bracket-predictor__match" data-match-id="grpA-m3" data-kickoff="2026-06-15T17:00:00Z" data-winner="draw">
+      <div class="bracket-predictor__team bracket-predictor__team--home" data-team="Mexico">Mexico</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away" data-team="USA">USA</div>
+    </article>
+  </section>
+
+  <!-- Group B: one pick set, one left blank (no team marked selected). -->
+  <section class="bracket-predictor__group" data-group="B">
+    <article class="bracket-predictor__match" data-match-id="grpB-m1" data-kickoff="2026-06-13T17:00:00Z">
+      <div class="bracket-predictor__team bracket-predictor__team--home bracket-predictor__team--selected" data-team="Argentina">Argentina</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away" data-team="Saudi Arabia">Saudi Arabia</div>
+    </article>
+    <article class="bracket-predictor__match" data-match-id="grpB-m2" data-kickoff="2026-06-14T17:00:00Z">
+      <div class="bracket-predictor__team bracket-predictor__team--home" data-team="France">France</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away" data-team="Norway">Norway</div>
+    </article>
+  </section>
+
+  <!-- Knockouts: empty placeholders. None of these should produce picks. -->
+  <section class="bracket-predictor__knockout" data-stage="round-of-16">
+    <article class="bracket-predictor__match" data-stage="round-of-16" data-match-id="ro16-1">
+      <div class="bracket-predictor__team bracket-predictor__team--home" data-team="">TBD</div>
+      <div class="bracket-predictor__team bracket-predictor__team--away" data-team="">TBD</div>
+    </article>
+  </section>
+
+  <footer class="bracket-predictor__final">
+    <div data-role="champion" data-team="">No pick yet</div>
+    <div data-role="runner-up" data-team="">No pick yet</div>
+  </footer>
+</div>
+</main>
+</body>
+</html>

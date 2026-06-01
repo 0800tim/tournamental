@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<!--
+  Synthesised ESPN Tournament Challenge fixture: a user who has filled
+  in only the group-stage picks (no knockouts yet).
+
+  Mirrors what apps/web/lib/import/fetcher.ts returns after Playwright
+  waits for networkidle: hydrated DOM plus the JSON rehydration blob
+  ESPN inlines under window.__INITIAL_STATE__. The parser prefers the
+  JSON path when it is present and well-formed; the DOM markup below
+  is intentionally sparse to verify the JSON path is taken.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FIFA World Cup 2026 Bracket Challenge - ESPN</title>
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <span class="entry-name">tim_nz</span>
+      </header>
+      <main>
+        <!-- DOM rendering elided; the JSON blob below is authoritative. -->
+        <section class="bracket-empty-shell"></section>
+      </main>
+    </div>
+    <script>
+      window.__INITIAL_STATE__ = {
+        "entry": { "handle": "tim_nz", "displayName": "Tim NZ" },
+        "bracket": {
+          "matches": [
+            { "id": "G1", "home": "Argentina", "away": "Saudi Arabia", "pick": "Argentina", "kickoff": "2026-06-12T18:00:00Z", "round": "group" },
+            { "id": "G2", "home": "France", "away": "Australia", "pick": "France", "kickoff": "2026-06-13T18:00:00Z", "round": "group" },
+            { "id": "G3", "home": "England", "away": "USA", "pick": "draw", "isDraw": true, "kickoff": "2026-06-14T18:00:00Z", "round": "group" },
+            { "id": "G4", "home": "Brazil", "away": "Switzerland", "pick": "Brazil", "kickoff": "2026-06-15T18:00:00Z", "round": "group" }
+          ]
+        }
+      };
+    </script>
+  </body>
+</html>

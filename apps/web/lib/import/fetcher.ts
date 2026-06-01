@@ -129,21 +129,8 @@ async function browserFetch(
   }
 }
 
-/**
- * Test-only fetcher that returns canned HTML for a given URL prefix.
- * Used by the parser unit tests so we don't hit the network.
- */
-export function staticFetcher(
-  byUrlPrefix: Record<string, string>,
-): Fetcher {
-  return {
-    async fetch({ url }) {
-      for (const [prefix, html] of Object.entries(byUrlPrefix)) {
-        if (url.startsWith(prefix)) {
-          return { ok: true, html, status: 200, finalUrl: url };
-        }
-      }
-      return { ok: false, status: 404, error: "no-stub" };
-    },
-  };
-}
+// Test-only `staticFetcher` lives in `./static-fetcher.ts` so test
+// suites can import it without dragging in the lazy Playwright
+// dynamic-import above. Re-exported here for compatibility with any
+// code that imports `staticFetcher` from `fetcher.ts`.
+export { staticFetcher } from "./static-fetcher";

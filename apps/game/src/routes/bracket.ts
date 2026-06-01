@@ -91,6 +91,17 @@ function filterPredictionsByKickoff(
       continue;
     }
     if (lockedMs >= kickoffMs) {
+      // Bracket-import bypass (docs/69-bracket-import.md): picks
+      // carrying source='imported' come from a rival platform's
+      // public bracket page, which already locked them at first-match
+      // kickoff. The successful scrape is the proof-of-lock-in, so we
+      // accept the pick despite the late lockedAt timestamp. Live
+      // picks (no source field, or source='live') still go through
+      // the standard kickoff backstop and get rejected.
+      if (pred.source === "imported") {
+        kept[key] = pred;
+        continue;
+      }
       rejected.push({
         matchId: pred.matchId,
         error: "match_already_started",

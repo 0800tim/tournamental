@@ -1,0 +1,669 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+import Layout from "@/layouts/Layout.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+
+/**
+ * /switch, the bracket-import conversion page.
+ *
+ * Target audience: a player who has already locked in a bracket on
+ * Telegraph, ESPN, BBC Predictor or the FIFA app and is searching
+ * "telegraph bracket import" / "espn bracket switch" mid-tournament
+ * looking for a way out. The page sells the simple promise: bring
+ * every pick across, keep scoring the ones that have already played,
+ * and unlock the rest so they can be changed up to each match's own
+ * kickoff.
+ *
+ * Competitors are named directly for SEO + clarity. The footer
+ * disclaimer covers nominative fair use, the same shape every "import
+ * from X" feature ships with. Design source: docs/69-bracket-import.md
+ * section 7.
+ */
+
+const STEPS = [
+  {
+    n: "01",
+    title: "Sign up in ten seconds",
+    body:
+      "One-tap OTP via WhatsApp or email, no password to remember, no account on a third-party identity provider you don't already use. Your handle travels across every tournament you ever play.",
+  },
+  {
+    n: "02",
+    title: "Paste your public bracket URL",
+    body:
+      "Open your bracket on Telegraph, ESPN, BBC Predictor or the FIFA app, copy the share link, paste it into the wizard. We read the public page only. We never ask for your password and we never log into your account.",
+  },
+  {
+    n: "03",
+    title: "Preview every pick we found",
+    body:
+      "We show every match in your bracket side by side: the team names the source uses, the team codes we use, and which way you called it. If anything looks wrong, you fix it before saving. Nothing is committed until you confirm.",
+  },
+  {
+    n: "04",
+    title: "Confirm and keep playing",
+    body:
+      "Picks for matches that have already kicked off lock immediately and score against the real result. Picks for matches still to come stay editable, right up to each match's own kickoff. You're back in the game.",
+  },
+] as const;
+
+const PLATFORMS = [
+  {
+    id: "telegraph",
+    name: "Telegraph Predictor",
+    summary:
+      "The Telegraph's World Cup Predictor lives on telegraph.co.uk under the sports section. Every player gets a public share URL the moment they save their first bracket.",
+    steps: [
+      "Sign in to telegraph.co.uk and open the World Cup Predictor.",
+      'Tap the share icon at the top right of your bracket. Choose "Copy link" rather than a specific social network.',
+      "The URL looks like telegraph.co.uk/sport/predictor/<tournament>/<your-id>. Paste it into the Tournamental import wizard.",
+    ],
+  },
+  {
+    id: "espn",
+    name: "ESPN Bracket Challenge",
+    summary:
+      "ESPN's Bracket Challenge sits inside the Fantasy section on espn.com. Public brackets share via a stable entry URL once the tournament starts.",
+    steps: [
+      "Sign in to espn.com and open Fantasy, then Tournament Challenge / Bracket Challenge.",
+      'Open your entry, then look for "Share Bracket" or the chain-link icon next to your entry name.',
+      "Copy the URL. It looks like fantasy.espn.com/tournament-challenge-bracket/<year>/en/entry?entryID=<id>. Paste it into the wizard.",
+    ],
+  },
+  {
+    id: "bbc",
+    name: "BBC Predictor",
+    summary:
+      "BBC Sport's Predictor lives on bbc.co.uk/sport. Share URLs are server-rendered, so a copy-paste of the page address is enough.",
+    steps: [
+      "Sign in to bbc.co.uk and open Sport, then the World Cup Predictor.",
+      'Open your bracket. Look for the "Share my bracket" button under the final.',
+      "Copy the URL. It looks like bbc.co.uk/sport/football/world-cup/predictor/<your-id>. Paste it into the wizard.",
+    ],
+  },
+  {
+    id: "fifa",
+    name: "FIFA app (Official)",
+    summary:
+      "FIFA's own bracket lives inside the FIFA+ app. Every bracket has a deep-link share URL that opens the same page on the web.",
+    steps: [
+      "Open the FIFA+ app on your phone and sign in.",
+      'Tap "My Bracket" inside the World Cup hub, then the share icon at the top right.',
+      'Choose "Copy link". The URL opens to fifa.com/fifaplus/<locale>/predictor/<your-id>. Paste it into the wizard.',
+    ],
+  },
+] as const;
+
+const TRUST_DO = [
+  "Read only the public share URL you paste in.",
+  "Store your name, email, phone, and the picks we extracted.",
+  "Keep an audit row with a hash of the page we fetched, so disputes can be investigated cleanly later.",
+  "Delete everything on request to info@tournamental.com, end to end.",
+] as const;
+
+const TRUST_DONT = [
+  "Ask for your password on any source platform.",
+  "Log in to your account on Telegraph, ESPN, BBC or FIFA on your behalf.",
+  "Post anything from your account on any source platform.",
+  "Sell or share your data with any third party.",
+] as const;
+
+const importHref = "https://play.tournamental.com/import";
+const poolHref = "/syndicates";
+---
+<Layout
+  title="Import your World Cup bracket from Telegraph, ESPN, BBC, FIFA - Tournamental"
+  description="Bring your existing World Cup bracket from Telegraph, ESPN, BBC Predictor, or the FIFA app into Tournamental. Keep every pick. Change the rest. Free."
+  ogImage="/og/index.png"
+>
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="Switch · Auckland · June 2026"
+        title=""
+        lede="Stuck with a bracket on Telegraph, ESPN, BBC Predictor, or the FIFA app that locked at the first kickoff? Bring it over and unlock the rest. Picks for matches that have already played stay locked and score immediately. Picks for matches still to come go back to being editable, right up to each match's own kickoff."
+        footnote="Free · Public share URL only · Apache 2.0"
+      >
+        <Fragment slot="title">
+          Switch in 60 seconds. Keep every pick. <em>Change the rest.</em>
+        </Fragment>
+      </EditorialPageHeader>
+
+      <div class="vt-eph-cta-row" data-reveal="cta">
+        <a
+          class="vt-cta-primary"
+          href={importHref}
+          data-analytics="cta"
+          data-analytics-label="Start your switch"
+          data-analytics-surface="switch-hero"
+        >
+          Start your switch <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a
+          class="vt-cta-text"
+          href={poolHref}
+          data-analytics="cta"
+          data-analytics-label="What's a Tournamental pool"
+          data-analytics-surface="switch-hero"
+        >
+          What's a Tournamental pool?
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="vt-editorial container-page py-14 md:py-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">How it works · Four steps · About sixty seconds</span>
+      <h2 class="vt-section-head mt-3">
+        From bracket-locked elsewhere to playing on Tournamental.
+      </h2>
+    </header>
+
+    <ol class="vt-switch-steps" aria-label="Four steps to import your bracket">
+      {STEPS.map((s) => (
+        <li class="vt-switch-step">
+          <div class="vt-switch-step-marker">
+            <span class="vt-switch-step-index">{s.n}</span>
+            <svg
+              class="vt-switch-step-glyph"
+              aria-hidden="true"
+              width="40"
+              height="40"
+              viewBox="0 0 40 40"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <circle cx="20" cy="20" r="18" stroke="currentColor" stroke-width="1.5" opacity="0.4" />
+              <text
+                x="20"
+                y="25"
+                text-anchor="middle"
+                font-family="Fraunces, Georgia, serif"
+                font-size="14"
+                font-style="italic"
+                fill="currentColor"
+              >{s.n}</text>
+            </svg>
+          </div>
+          <div class="vt-switch-step-body">
+            <h3 class="vt-switch-step-head">{s.title}</h3>
+            <p class="vt-switch-step-prose">{s.body}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-8 md:mb-10">
+      <span class="vt-dateline">Per-platform · Where to find your share URL</span>
+      <h2 class="vt-section-head mt-3">
+        Four platforms supported on day one. Tap to expand.
+      </h2>
+      <p class="vt-lede mt-5">
+        Each block walks you through finding the public share URL for
+        your bracket on that platform. The instructions are step by
+        step. No screenshots, so the page stays fast on mid-range
+        mobile. If your platform isn't listed, the wizard also accepts
+        a screenshot of your bracket.
+      </p>
+    </header>
+
+    <div class="vt-switch-platforms">
+      {PLATFORMS.map((p, i) => (
+        <details class="vt-switch-platform" open={i === 0}>
+          <summary class="vt-switch-platform-summary">
+            <span class="vt-switch-platform-name">{p.name}</span>
+            <span class="vt-switch-platform-hint" aria-hidden="true">+</span>
+          </summary>
+          <div class="vt-switch-platform-body">
+            <p class="vt-switch-platform-prose">{p.summary}</p>
+            <ol class="vt-switch-platform-steps">
+              {p.steps.map((step) => (
+                <li>{step}</li>
+              ))}
+            </ol>
+          </div>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-8 md:mb-10">
+      <span class="vt-dateline">The advantage · Each match locks at its own kickoff</span>
+      <h2 class="vt-section-head mt-3">
+        The bracket is open until each whistle blows, not until the first one.
+      </h2>
+    </header>
+
+    <div class="vt-switch-compare">
+      <article class="vt-switch-compare-col vt-switch-compare-col--rivals">
+        <span class="vt-switch-tag">Rival platforms</span>
+        <h3 class="vt-switch-compare-head">Lock at first kickoff</h3>
+        <p class="vt-switch-compare-prose">
+          Telegraph, ESPN, BBC Predictor and the FIFA app all lock
+          your entire bracket the moment the first match of the
+          tournament kicks off. The bracket you filled out three weeks
+          ago is the one that gets scored, even if a key player gets
+          injured on the morning of the final.
+        </p>
+        <ul class="vt-switch-compare-list vt-switch-compare-list--no">
+          <li>Every match locked at the first whistle of the tournament.</li>
+          <li>No way to react to injuries, form, or weather as the bracket plays out.</li>
+          <li>One bracket, one shape, for six weeks.</li>
+        </ul>
+      </article>
+
+      <article class="vt-switch-compare-col vt-switch-compare-col--ours">
+        <span class="vt-switch-tag vt-switch-tag--gold">Tournamental</span>
+        <h3 class="vt-switch-compare-head">Lock at each match's own kickoff</h3>
+        <p class="vt-switch-compare-prose">
+          Every match has its own decision window. Imported picks for
+          games that have already played stay locked and credit you
+          the points you earned. Imported picks for games still to
+          come go back to being editable, right up to that match's
+          own kickoff. You stay in the game for the full six weeks.
+        </p>
+        <ul class="vt-switch-compare-list vt-switch-compare-list--yes">
+          <li>Played matches: locked, scored, your points credited.</li>
+          <li>Upcoming matches: editable until that match's own kickoff.</li>
+          <li>Daily quizzes and head-to-head duels keep the tournament alive.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-8 md:mb-10">
+      <span class="vt-dateline">Trust · Plain English</span>
+      <h2 class="vt-section-head mt-3">
+        What we do. What we don't.
+      </h2>
+      <p class="vt-lede mt-5">
+        Every line below is auditable. The import server reads the
+        public share URL you paste in, nothing else. The code is open
+        source under Apache 2.0; you can read the parsers yourself in
+        the repo.
+      </p>
+    </header>
+
+    <div class="vt-switch-trust">
+      <article class="vt-switch-trust-col vt-switch-trust-col--do">
+        <span class="vt-switch-tag vt-switch-tag--gold">We do</span>
+        <ul class="vt-switch-trust-list">
+          {TRUST_DO.map((line) => (
+            <li>{line}</li>
+          ))}
+        </ul>
+      </article>
+      <article class="vt-switch-trust-col vt-switch-trust-col--dont">
+        <span class="vt-switch-tag">We don't</span>
+        <ul class="vt-switch-trust-list vt-switch-trust-list--no">
+          {TRUST_DONT.map((line) => (
+            <li>{line}</li>
+          ))}
+        </ul>
+      </article>
+    </div>
+
+    <p class="vt-footnote mt-8 max-w-3xl">
+      Full deletion of every record we hold about you, including the
+      cached source HTML, is handled by emailing
+      {" "}<a class="vt-cta-text" href="mailto:info@tournamental.com">info@tournamental.com</a>.
+      We confirm in writing within seven days.
+    </p>
+  </section>
+
+  <section class="vt-editorial container-page pb-20">
+    <div class="vt-switch-final">
+      <h2 class="vt-switch-final-head">
+        Ready to bring your bracket over?
+      </h2>
+      <p class="vt-switch-final-prose">
+        Free forever. Open source. Your picks, kept honest by a
+        cryptographic receipt for every save.
+      </p>
+      <div class="vt-eph-cta-row">
+        <a
+          class="vt-cta-primary"
+          href={importHref}
+          data-analytics="cta"
+          data-analytics-label="Start your switch"
+          data-analytics-surface="switch-final"
+        >
+          Start your switch <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a
+          class="vt-cta-text"
+          href={poolHref}
+          data-analytics="cta"
+          data-analytics-label="What's a Tournamental pool"
+          data-analytics-surface="switch-final"
+        >
+          What's a Tournamental pool?
+        </a>
+      </div>
+    </div>
+
+    <p class="vt-switch-disclaimer">
+      Tournamental is not affiliated with Telegraph, The Telegraph
+      Media Group, ESPN, the BBC, FIFA, or any other named platform
+      on this page. We use these names to describe interoperability
+      (nominative fair use).
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .vt-eph-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 1.75rem;
+    margin-bottom: 2.25rem;
+  }
+
+  /* --- How it works · four steps --- */
+
+  .vt-switch-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1.5rem, 3vw, 2.25rem);
+  }
+  @media (min-width: 768px) {
+    .vt-switch-steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(2rem, 4vw, 3.5rem);
+    }
+  }
+  .vt-switch-step {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+  }
+  .vt-switch-step-marker {
+    color: var(--vt-gold-400);
+    display: flex;
+    align-items: flex-start;
+  }
+  .vt-switch-step-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    color: var(--vt-gold-400);
+    display: none;
+  }
+  .vt-switch-step-glyph {
+    color: var(--vt-gold-400);
+    flex: none;
+  }
+  .vt-switch-step-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+    font-size: clamp(1.25rem, 1.8vw, 1.5rem);
+    color: var(--vt-fg-strong);
+    margin: 0 0 0.5rem;
+    max-width: 22ch;
+  }
+  .vt-switch-step-prose {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* --- Per-platform · collapsible blocks --- */
+
+  .vt-switch-platforms {
+    display: grid;
+    gap: 0.75rem;
+    max-width: 56rem;
+  }
+  .vt-switch-platform {
+    border-top: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    padding: 1rem 0 0.5rem;
+  }
+  .vt-switch-platform:last-child {
+    border-bottom: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    padding-bottom: 1rem;
+  }
+  .vt-switch-platform-summary {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    cursor: pointer;
+    list-style: none;
+    padding: 0.25rem 0;
+  }
+  .vt-switch-platform-summary::-webkit-details-marker {
+    display: none;
+  }
+  .vt-switch-platform-name {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    font-size: clamp(1.25rem, 1.8vw, 1.625rem);
+    color: var(--vt-fg-strong);
+    line-height: 1.2;
+  }
+  .vt-switch-platform-hint {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 1.25rem;
+    color: var(--vt-gold-400);
+    transition: transform 200ms ease;
+    line-height: 1;
+  }
+  .vt-switch-platform[open] .vt-switch-platform-hint {
+    transform: rotate(45deg);
+  }
+  .vt-switch-platform-body {
+    padding: 1rem 0 0.5rem;
+    max-width: 60ch;
+  }
+  .vt-switch-platform-prose {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    margin: 0 0 0.9rem;
+  }
+  .vt-switch-platform-steps {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    margin: 0;
+    padding-left: 1.25rem;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .vt-switch-platform-steps li::marker {
+    color: var(--vt-gold-400);
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.85rem;
+  }
+
+  /* --- Compare: rivals vs Tournamental --- */
+
+  .vt-switch-compare {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-switch-compare {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+  .vt-switch-compare-col {
+    padding: 1.5rem 1.5rem 1.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    background: color-mix(in srgb, var(--vt-fg) 3%, transparent);
+  }
+  .vt-switch-compare-col--ours {
+    border-color: color-mix(in srgb, var(--vt-gold-400) 55%, transparent);
+    background: color-mix(in srgb, var(--vt-gold-400) 6%, transparent);
+  }
+  .vt-switch-compare-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.15;
+    font-size: clamp(1.375rem, 2vw, 1.75rem);
+    color: var(--vt-fg-strong);
+    margin: 0.75rem 0 0.75rem;
+    max-width: 18ch;
+  }
+  .vt-switch-compare-prose {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    margin: 0 0 1rem;
+    max-width: 52ch;
+  }
+  .vt-switch-compare-list {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.55rem;
+  }
+  .vt-switch-compare-list li {
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  .vt-switch-compare-list--no li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.85rem;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 35%, transparent);
+  }
+  .vt-switch-compare-list--yes li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.5em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--vt-gold-400);
+  }
+
+  /* --- Trust block --- */
+
+  .vt-switch-trust {
+    display: grid;
+    gap: 1.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-switch-trust {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+  }
+  .vt-switch-trust-col {
+    padding: 1.5rem 1.5rem 1.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    background: color-mix(in srgb, var(--vt-fg) 3%, transparent);
+  }
+  .vt-switch-trust-list {
+    color: var(--vt-fg-muted);
+    line-height: 1.6;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 0.65rem;
+  }
+  .vt-switch-trust-list li {
+    padding-left: 1.5rem;
+    position: relative;
+  }
+  .vt-switch-trust-list li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0.55em;
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    background: var(--vt-gold-400);
+  }
+  .vt-switch-trust-list--no li::before {
+    background: transparent;
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 35%, transparent);
+  }
+
+  /* --- Shared tag pill --- */
+
+  .vt-switch-tag {
+    display: inline-block;
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--vt-fg) 55%, transparent);
+    padding: 0.25rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 22%, transparent);
+    border-radius: 999px;
+  }
+  .vt-switch-tag--gold {
+    color: var(--vt-gold-400);
+    border-color: color-mix(in srgb, var(--vt-gold-400) 55%, transparent);
+  }
+
+  /* --- Final CTA --- */
+
+  .vt-switch-final {
+    border-top: 3px solid var(--vt-gold-400);
+    padding-top: 2.25rem;
+    margin-top: 0;
+    max-width: 48rem;
+  }
+  .vt-switch-final-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 120, "SOFT" 30;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+    font-size: clamp(2rem, 4vw, 3rem);
+    color: var(--vt-fg-strong);
+    margin: 0 0 1rem;
+    max-width: 22ch;
+  }
+  .vt-switch-final-prose {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0 0 1.5rem;
+    max-width: 52ch;
+    font-size: 1.05rem;
+  }
+  .vt-switch-disclaimer {
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    color: color-mix(in srgb, var(--vt-fg) 55%, transparent);
+    font-size: 0.78rem;
+    line-height: 1.55;
+    max-width: 60rem;
+  }
+</style>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--
+  Synthesised ESPN Tournament Challenge fixture: a user with a fully
+  filled-out bracket through to a champion.
+
+  This fixture intentionally omits the JSON rehydration blob so the
+  parser is forced down the DOM-fallback path. The markup mirrors the
+  shape ESPN ships in production: a list of `.matchup` containers,
+  each with two `.team` slots, one carrying `is-winner` for the user's
+  pick. Mixed input shapes (data-team attribute vs .team-name span)
+  verify both code paths in teamLabel().
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FIFA World Cup 2026 Bracket Challenge - ESPN</title>
+  </head>
+  <body>
+    <div id="root">
+      <header>
+        <span class="entry-name">Lionel_M</span>
+      </header>
+      <main class="bracket">
+        <ul class="rounds">
+          <!-- Round of 16 -->
+          <li class="matchup" data-matchup-id="R16-1" data-kickoff="2026-06-30T18:00:00Z">
+            <span class="team is-winner" data-team="Argentina">
+              <span class="team-name">Argentina</span>
+            </span>
+            <span class="team" data-team="Netherlands">
+              <span class="team-name">Netherlands</span>
+            </span>
+          </li>
+          <li class="matchup" data-matchup-id="R16-2" data-kickoff="2026-06-30T22:00:00Z">
+            <span class="team" data-team="Portugal">
+              <span class="team-name">Portugal</span>
+            </span>
+            <span class="team is-winner" data-team="France">
+              <span class="team-name">France</span>
+            </span>
+          </li>
+          <li class="matchup" data-matchup-id="R16-3" data-kickoff="2026-07-01T18:00:00Z">
+            <span class="team is-winner" data-team="Brazil">
+              <span class="team-name">Brazil</span>
+            </span>
+            <span class="team" data-team="Croatia">
+              <span class="team-name">Croatia</span>
+            </span>
+          </li>
+          <li class="matchup" data-matchup-id="R16-4" data-kickoff="2026-07-01T22:00:00Z">
+            <span class="team" data-team="Morocco">
+              <span class="team-name">Morocco</span>
+            </span>
+            <span class="team is-winner" data-team="England">
+              <span class="team-name">England</span>
+            </span>
+          </li>
+
+          <!-- Quarter-finals -->
+          <li class="matchup" data-matchup-id="QF-1" data-kickoff="2026-07-05T18:00:00Z">
+            <span class="team is-winner" data-team="Argentina">
+              <span class="team-name">Argentina</span>
+            </span>
+            <span class="team" data-team="France">
+              <span class="team-name">France</span>
+            </span>
+          </li>
+          <li class="matchup" data-matchup-id="QF-2" data-kickoff="2026-07-05T22:00:00Z">
+            <span class="team is-winner" data-team="Brazil">
+              <span class="team-name">Brazil</span>
+            </span>
+            <span class="team" data-team="England">
+              <span class="team-name">England</span>
+            </span>
+          </li>
+
+          <!-- Semi-final (using aria-selected variant to exercise the
+               alternative winner marker) -->
+          <li class="matchup" data-matchup-id="SF-1" data-kickoff="2026-07-09T18:00:00Z">
+            <span class="team" aria-selected="false" data-team="Argentina">
+              <span class="team-name">Argentina</span>
+            </span>
+            <span class="team" aria-selected="true" data-team="Brazil">
+              <span class="team-name">Brazil</span>
+            </span>
+          </li>
+
+          <!-- Final -->
+          <li class="matchup" data-matchup-id="F-1" data-kickoff="2026-07-12T20:00:00Z">
+            <span class="team is-winner" data-team="Brazil">
+              <span class="team-name">Brazil</span>
+            </span>
+            <span class="team" data-team="France">
+              <span class="team-name">France</span>
+            </span>
+          </li>
+        </ul>
+
+        <aside class="winners">
+          <div data-role="champion" data-team="Brazil">Brazil</div>
+          <div data-role="runner-up" data-team="France">France</div>
+        </aside>
+      </main>
+    </div>
+  </body>
+</html>

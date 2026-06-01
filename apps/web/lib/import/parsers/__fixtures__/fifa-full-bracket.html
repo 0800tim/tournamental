@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <title>Mi Predictor - Copa Mundial</title>
+</head>
+<body>
+  <main>
+    <section data-role="predictor">
+      <h1>Mi Bracket</h1>
+
+      <!-- Group stage card, server-rendered, picked side highlighted -->
+      <div class="predictor-match" data-match-id="wc26-grp-a-mex-can" data-stage="group" data-kickoff="2026-06-11T20:00:00Z">
+        <div data-side="home" class="is-pick">
+          <span data-team-name>México</span>
+        </div>
+        <div data-side="away">
+          <span data-team-name>Canadá</span>
+        </div>
+      </div>
+
+      <div class="predictor-match" data-match-id="wc26-grp-b-eng-sui" data-stage="group" data-kickoff="2026-06-12T18:00:00Z">
+        <div data-side="home">
+          <span data-team-name>Inglaterra</span>
+        </div>
+        <div data-side="away">
+          <span data-team-name>Suiza</span>
+        </div>
+        <div data-side="draw" class="is-pick">
+          <span data-team-name>Empate</span>
+        </div>
+      </div>
+
+      <!-- Round of 16 -->
+      <div class="predictor-match" data-match-id="wc26-r16-1" data-stage="r16" data-kickoff="2026-06-29T17:00:00Z">
+        <div data-side="home" class="is-pick">
+          <span data-team-name>Argentina</span>
+        </div>
+        <div data-side="away">
+          <span data-team-name>South Korea</span>
+        </div>
+      </div>
+
+      <!-- Quarterfinal -->
+      <div class="predictor-match" data-match-id="wc26-qf-1" data-stage="qf" data-kickoff="2026-07-04T19:00:00Z">
+        <div data-side="home" class="is-pick">
+          <span data-team-name>Argentina</span>
+        </div>
+        <div data-side="away">
+          <span data-team-name>Brazil</span>
+        </div>
+      </div>
+
+      <!-- Semifinal -->
+      <div class="predictor-match" data-match-id="wc26-sf-1" data-stage="sf" data-kickoff="2026-07-09T19:00:00Z">
+        <div data-side="home">
+          <span data-team-name>Argentina</span>
+        </div>
+        <div data-side="away" class="is-pick">
+          <span data-team-name>France</span>
+        </div>
+      </div>
+
+      <!-- Final -->
+      <div class="predictor-match" data-match-id="wc26-final" data-stage="final" data-kickoff="2026-07-19T19:00:00Z">
+        <div data-side="home" class="is-pick">
+          <span data-team-name>France</span>
+        </div>
+        <div data-side="away">
+          <span data-team-name>Brazil</span>
+        </div>
+      </div>
+    </section>
+
+    <section data-role="champion">
+      <h2>Campeón</h2>
+      <span data-team-name>France</span>
+    </section>
+
+    <section data-role="runner-up">
+      <h2>Subcampeón</h2>
+      <span data-team-name>Brazil</span>
+    </section>
+
+    <meta name="fifa:user-handle" content="lalo_predictor" />
+  </main>
+</body>
+</html>
