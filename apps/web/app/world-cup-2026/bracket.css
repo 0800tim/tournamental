@@ -2001,6 +2001,35 @@
 .bracket-modal-body strong {
   color: #f8fafc;
 }
+/* Tim 2026-06-01: opt-in checkbox for the auto-pick modal's
+ * 'Overwrite existing picks' toggle. Defaults to unchecked so users
+ * who have already picked some matches by hand don't lose them. */
+.bracket-modal-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 4px 0 0 0;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #cbd5e1;
+  font-size: 14px;
+  user-select: none;
+  transition: background 120ms ease, border-color 120ms ease;
+}
+.bracket-modal-checkbox:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.bracket-modal-checkbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--vt-gold-400, #dca94b);
+  cursor: pointer;
+}
 .bracket-modal-actions {
   display: flex;
   gap: 10px;
