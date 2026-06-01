@@ -834,15 +834,21 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // The cascade can only resolve `annex_c_third` R32 slots once the
     // user has supplied 8 best-third picks. AutoPick picks the 8 with
     // the strongest FIFA rank so the downstream R32 cascade routes
-    // through actual teams rather than nulls.
+    // through actual teams rather than nulls. Respects the preserve-
+    // existing toggle: skip if the user has already chosen 8 and the
+    // user opted not to overwrite.
     {
-      const picks = autoPickTop8Thirds(
-        tournament,
-        next.matchPredictions,
-        next.groupTiebreakers,
-      );
-      if (picks.length === 8) {
-        next = { ...next, bestThirds: picks };
+      const existing = next.bestThirds ?? [];
+      const shouldPick = overwrite || existing.length < 8;
+      if (shouldPick) {
+        const picks = autoPickTop8Thirds(
+          tournament,
+          next.matchPredictions,
+          next.groupTiebreakers,
+        );
+        if (picks.length === 8) {
+          next = { ...next, bestThirds: picks };
+        }
       }
     }
 
