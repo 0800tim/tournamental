@@ -35,6 +35,7 @@ async function safeT(key: string, fallback: string): Promise<string> {
   }
 }
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
+import { BracketPosterCallout } from "@/components/share-landing/BracketPosterCallout";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
 import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
@@ -268,6 +269,19 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
           ))}
         </ul>
       </div>
+
+      {/* Bracket poster CTA. Tim 2026-06-01: every shared bracket is by
+        * definition fully saved (104 picks), so this surface always shows
+        * the download button. The /api/og/bracket-poster route renders
+        * a 2400×3600 light-theme A3 print-quality PNG keyed by
+        * bracket_id; the thumbnail uses the same URL via the browser's
+        * native image scaling. Clicking "Download" opens the full-res
+        * PNG in a new tab where the user can right-click → save. */}
+      <BracketPosterCallout
+        bracketId={bracket.bracket_id}
+        handle={handle}
+        championName={champion.name}
+      />
 
       <ShareActions
         shareTitle={`@${handle}'s ${tournament_label} bracket`}
