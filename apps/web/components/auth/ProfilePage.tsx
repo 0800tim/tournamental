@@ -573,7 +573,7 @@ function InboundProfileEditor({ userId }: { userId: string }) {
 interface MyPool {
   readonly slug: string;
   readonly name: string;
-  readonly tier: "free" | "premium";
+  readonly role: "owner" | "member";
   readonly member_count: number;
 }
 
@@ -594,7 +594,11 @@ function MyPoolsSection() {
     const ac = new AbortController();
     void (async () => {
       try {
-        const r = await fetch("/api/v1/syndicates/mine", {
+        // Tim 2026-06-02: switched from /v1/syndicates/mine (owner-only)
+        // to /v1/profile/syndicates which also returns pools the user
+        // joined as a member. The owner-only list left users wondering
+        // why pools they joined never showed up here.
+        const r = await fetch("/api/v1/profile/syndicates", {
           method: "GET",
           credentials: "include",
           headers: { Accept: "application/json" },
@@ -624,9 +628,9 @@ function MyPoolsSection() {
 
   return (
     <section className="vt-section" id="profile-pools">
-      <h2 className="vt-section-title">{safeT(t, "profile_page.my_pools_section_title", "My pools")}</h2>
+      <h2 className="vt-section-title">{safeT(t, "profile_page.my_pools_section_title", "Pools I'm in")}</h2>
       <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
-        {safeT(t, "profile_page.my_pools_description", "Pools you run. Click through to invite members, edit branding, or pause the pool.")}
+        {safeT(t, "profile_page.my_pools_description", "Pools you run or have joined. Owners can manage; members can view the leaderboard and other picks.")}
       </p>
       {state.status === "loading" ? (
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>{safeT(t, "profile_page.my_pools_loading", "Loading…")}</p>
@@ -646,33 +650,51 @@ function MyPoolsSection() {
       ) : (
         <>
           <ul className="vt-mypools-list">
-            {state.pools.map((p) => (
-              <li key={p.slug} className="vt-mypools-row">
-                <div className="vt-mypools-row-main">
-                  <a href={`/dashboard/pools/${p.slug}`} className="vt-mypools-name">
-                    {p.name}
-                  </a>
-                  <p className="vt-mypools-meta">
-                    {p.member_count} {p.member_count === 1 ? safeT(t, "profile_page.my_pools_member_singular", "member") : safeT(t, "profile_page.my_pools_member_plural", "members")}
-                    {p.tier === "premium" ? ` · ${safeT(t, "profile_page.my_pools_premium", "Premium")}` : ""}
-                  </p>
-                </div>
-                <div className="vt-mypools-actions">
-                  <a
-                    href={`/s/${p.slug}`}
-                    className="vt-profile-cta vt-profile-cta--ghost"
-                  >
-                    {safeT(t, "profile_page.my_pools_share", "Share")}
-                  </a>
-                  <a
-                    href={`/dashboard/pools/${p.slug}`}
-                    className="vt-profile-cta vt-profile-cta--primary"
-                  >
-                    {safeT(t, "profile_page.my_pools_manage", "Manage")}
-                  </a>
-                </div>
-              </li>
-            ))}
+            {state.pools.map((p) => {
+              const isOwner = p.role === "owner";
+              const nameHref = isOwner ? `/dashboard/pools/${p.slug}` : `/s/${p.slug}`;
+              return (
+                <li key={p.slug} className="vt-mypools-row">
+                  <div className="vt-mypools-row-main">
+                    <a href={nameHref} className="vt-mypools-name">
+                      {p.name}
+                    </a>
+                    <p className="vt-mypools-meta">
+                      {p.member_count} {p.member_count === 1 ? safeT(t, "profile_page.my_pools_member_singular", "member") : safeT(t, "profile_page.my_pools_member_plural", "members")}
+                      {" · "}
+                      {isOwner
+                        ? safeT(t, "profile_page.my_pools_role_owner", "Owner")
+                        : safeT(t, "profile_page.my_pools_role_member", "Member")}
+                    </p>
+                  </div>
+                  <div className="vt-mypools-actions">
+                    {isOwner ? (
+                      <>
+                        <a
+                          href={`/s/${p.slug}`}
+                          className="vt-profile-cta vt-profile-cta--ghost"
+                        >
+                          {safeT(t, "profile_page.my_pools_share", "Share")}
+                        </a>
+                        <a
+                          href={`/dashboard/pools/${p.slug}`}
+                          className="vt-profile-cta vt-profile-cta--primary"
+                        >
+                          {safeT(t, "profile_page.my_pools_manage", "Manage")}
+                        </a>
+                      </>
+                    ) : (
+                      <a
+                        href={`/s/${p.slug}`}
+                        className="vt-profile-cta vt-profile-cta--primary"
+                      >
+                        {safeT(t, "profile_page.my_pools_view", "View pool")}
+                      </a>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
           <div style={{ marginTop: 12 }}>
             <a href="/syndicates/new" className="vt-profile-cta vt-profile-cta--ghost">

@@ -130,6 +130,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     quickstart_time,
     cta_primary,
     cta_secondary,
+    cta_view_my_pools,
     trust_no_card,
     trust_no_app,
     trust_open_source,
@@ -197,6 +198,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     safeT("syndicates_page.quickstart_time", "≈ 60 seconds"),
     safeT("syndicates_page.cta_primary", "Start free in 60 seconds →"),
     safeT("syndicates_page.cta_secondary", "Read the playbook"),
+    safeT("syndicates_page.cta_view_my_pools", "View pools I'm in"),
     safeT("syndicates_page.trust_no_card", "No credit card"),
     safeT("syndicates_page.trust_no_app", "No app install"),
     safeT("syndicates_page.trust_open_source", "Apache 2.0 open source"),
@@ -325,6 +327,17 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
             </Link>
             <Link href="/pools/playbook" className="vt-syndicates-cta-ghost">
               {cta_secondary}
+            </Link>
+            {/* Tim 2026-06-02: users who landed here looking for the
+                pools they've already joined should be able to jump
+                straight to their list. Anchors directly to the
+                MyPoolsSection on /profile so they see owner + member
+                pools without scrolling for it. */}
+            <Link
+              href="/profile#profile-pools"
+              className="vt-syndicates-cta-ghost"
+            >
+              {cta_view_my_pools}
             </Link>
           </div>
 
