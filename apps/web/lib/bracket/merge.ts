@@ -78,6 +78,16 @@ export function mergeBrackets(local: Bracket, remote: Bracket): Bracket {
       local.groupTiebreakers ?? {},
       remote.groupTiebreakers ?? {},
     ),
+    // bestThirds is a set of 8 user-selected team ids with no
+    // per-item timestamps. Whichever side has more picks wins; on a
+    // tie (typical: both 0 or both 8), local takes precedence since
+    // the user's most recent action is the local edit. Clearing
+    // (8 → 0) needs an explicit server round-trip to land on the
+    // server side too, otherwise the longer remote would persist.
+    bestThirds:
+      (local.bestThirds ?? []).length >= (remote.bestThirds ?? []).length
+        ? (local.bestThirds ?? [])
+        : (remote.bestThirds ?? []),
     knockoutPredictions: mergePredictionMap(
       local.knockoutPredictions ?? {},
       remote.knockoutPredictions ?? {},

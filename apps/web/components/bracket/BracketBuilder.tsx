@@ -663,6 +663,38 @@ export function BracketBuilder(props: BracketBuilderProps) {
     [tournament.id, userLocalId],
   );
 
+  /**
+   * Persist a bestThirds change to the server. There is no per-third
+   * save endpoint (and 8 picks is too few to justify one), so we push
+   * the full bracket. Debounced so a rapid sequence of picks coalesces
+   * into one round-trip. Tim 2026-06-01: without this, bestThirds only
+   * reached the server on the next bulk save, so reloading the bracket
+   * page before a bulk save lost the user's picks to the merge.
+   */
+  const bestThirdsSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const persistBestThirdsToServer = useCallback(
+    (next: Bracket): void => {
+      if (userLocalId === "ssr_user") return;
+      if (bestThirdsSaveTimer.current) clearTimeout(bestThirdsSaveTimer.current);
+      bestThirdsSaveTimer.current = setTimeout(() => {
+        void saveFullBracket({
+          userId: userLocalId,
+          tournamentId: tournament.id,
+          bracket: next,
+        }).then((res) => {
+          if (!res.ok) {
+            // eslint-disable-next-line no-console
+            console.warn("[bracket] bestThirds save failed", {
+              code: res.code,
+              status: res.status,
+            });
+          }
+        });
+      }, 400);
+    },
+    [tournament.id, userLocalId],
+  );
+
   const onChangeMatch = (next: MatchPrediction): void => {
     const prev = bracket.matchPredictions[next.matchId];
     const isOutcomeChange = !prev || prev.outcome !== next.outcome;
@@ -1390,7 +1422,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
                   tournament={tournament}
                   bracket={bracket}
                   onChange={(next) => {
-                    update({ ...bracket, bestThirds: next });
+                    const updated = { ...bracket, bestThirds: next };
+                    update(updated);
+                    persistBestThirdsToServer(updated);
                   }}
                   onAutoPick={() => {
                     const picks = autoPickTop8Thirds(
@@ -1398,10 +1432,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       bracket.matchPredictions,
                       bracket.groupTiebreakers,
                     );
-                    update({ ...bracket, bestThirds: picks });
+                    const updated = { ...bracket, bestThirds: picks };
+                    update(updated);
+                    persistBestThirdsToServer(updated);
                   }}
                   onClear={() => {
-                    update({ ...bracket, bestThirds: [] });
+                    const updated = { ...bracket, bestThirds: [] };
+                    update(updated);
+                    persistBestThirdsToServer(updated);
                   }}
                 />
                 <NextStageButton currentTab="thirds" setTab={setTab} />
