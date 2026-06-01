@@ -106,3 +106,17 @@ apps/*/.next-dev-test/
 .claude/scheduled_tasks.lock
 apps/*/.next-typecheck/
 .admin-audit.jsonl
+
+# --- Internal-only artefacts (do not commit) ----------------------------------
+# Tim 2026-06-01: marketing playbooks, outreach lists with prospect emails,
+# and HighLevel campaign setup state must stay off git. They live on disk at
+# docs/internal/* and sync to Drive (parent 1bQg04rzrYXtx3QMocASP1dVnmSqtK1rH).
+# See docs/internal/README.md for the policy.
+docs/internal/
+
+# Also block historical paths these files used to live at, in case someone
+# accidentally recreates them. Move new ones to docs/internal/<path> instead.
+tools/outreach-lists/
+data/hl-setup/
+data/form-drafts/
+data/form-screenshots/
