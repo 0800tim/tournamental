@@ -79,6 +79,12 @@ export interface SyndicateRecord {
   /** Decoded prize split. `null` means owner hasn't defined one. */
   readonly prize_split?: ReadonlyArray<SyndicatePrizeSplitEntry> | null;
   readonly bonus_prize_text?: string | null;
+  /** Admin-authored T&Cs for paid-pool entry. Rendered on /s/<slug>
+   * below the paid-pool block. */
+  readonly join_fee_terms_text?: string | null;
+  /** Admin-authored T&Cs for brand / giveaway prizes. Rendered on
+   * /s/<slug> below the prize-copy block. Tim 2026-06-02. */
+  readonly prize_terms_text?: string | null;
 }
 
 // Three sample syndicates so the route renders something during the
@@ -217,6 +223,8 @@ function fromPersistenceRow(row: {
   entry_fee_currency?: string | null;
   prize_split_json?: string | null;
   bonus_prize_text?: string | null;
+  join_fee_terms_text?: string | null;
+  prize_terms_text?: string | null;
 }): SyndicateRecord {
   const sponsorPresent = !!(row.sponsor_name || row.sponsor_logo_url);
 
@@ -309,6 +317,8 @@ function fromPersistenceRow(row: {
     entry_fee_currency: row.entry_fee_currency ?? null,
     prize_split: parsePrizeSplit(row.prize_split_json ?? null),
     bonus_prize_text: row.bonus_prize_text ?? null,
+    join_fee_terms_text: row.join_fee_terms_text ?? null,
+    prize_terms_text: row.prize_terms_text ?? null,
   };
 }
 

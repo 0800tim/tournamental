@@ -44,6 +44,7 @@ interface OwnerSyndicate {
   readonly prize_split_json: string | null;
   readonly bonus_prize_text: string | null;
   readonly join_fee_terms_text: string | null;
+  readonly prize_terms_text: string | null;
   readonly is_public: boolean;
   readonly requires_approval: boolean;
 }
@@ -665,6 +666,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
   const [sponsorUrl, setSponsorUrl] = useState(initial.sponsor_url ?? "");
   const [sponsorLogoUrl, setSponsorLogoUrl] = useState(initial.sponsor_logo_url ?? "");
   const [prizeText, setPrizeText] = useState(initial.prize_text ?? "");
+  const [prizeTerms, setPrizeTerms] = useState(initial.prize_terms_text ?? "");
   const [topic, setTopic] = useState(initial.topic ?? "");
   const [save, setSave] = useState<SaveState>({ status: "idle" });
 
@@ -679,9 +681,10 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       sponsorUrl !== (initial.sponsor_url ?? "") ||
       sponsorLogoUrl !== (initial.sponsor_logo_url ?? "") ||
       prizeText !== (initial.prize_text ?? "") ||
+      prizeTerms !== (initial.prize_terms_text ?? "") ||
       topic !== (initial.topic ?? "")
     );
-  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, topic, initial]);
+  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, prizeTerms, topic, initial]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -711,6 +714,8 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       body.sponsor_logo_url = trimmedOrNull(sponsorLogoUrl);
     if (prizeText !== (initial.prize_text ?? ""))
       body.prize_text = trimmedOrNull(prizeText);
+    if (prizeTerms !== (initial.prize_terms_text ?? ""))
+      body.prize_terms_text = trimmedOrNull(prizeTerms);
     if (topic !== (initial.topic ?? ""))
       body.topic = trimmedOrNull(topic);
 
@@ -741,6 +746,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
           sponsor_url: ok.syndicate.sponsor_url,
           sponsor_logo_url: ok.syndicate.sponsor_logo_url,
           prize_text: ok.syndicate.prize_text,
+          prize_terms_text: ok.syndicate.prize_terms_text,
           topic: ok.syndicate.topic,
         });
       }
@@ -758,11 +764,11 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
     <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
       <div className="vt-dash-row-head">
         <div>
-          <h2 className="vt-dash-row-name">Branding</h2>
+          <h2 className="vt-dash-row-name">Branding &amp; Prize Giveaways</h2>
           <p className="vt-dash-row-meta">
             Customise how your syndicate appears in the embed widget and on its public landing
-            page. All fields optional; we fall back to Tournamental defaults if you leave them
-            blank.
+            page, and advertise any brand or sponsor prize giveaways (non-monetary). All fields
+            optional; we fall back to Tournamental defaults if you leave them blank.
           </p>
         </div>
       </div>
@@ -807,6 +813,32 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
               rows={4}
               placeholder={
                 "List your prizes, one per line. e.g.\n$250 voucher for 1st\n$100 for 2nd\n$50 for 3rd"
+              }
+              className="vt-brand-input vt-brand-textarea"
+            />
+          </label>
+
+          {/* Tim 2026-06-02: T&Cs for sponsored / giveaway prizes
+              (e.g. eligibility, expiry, redemption). Rendered on the
+              public landing under the prize copy. Separate from the
+              paid-pool join-fee terms in the section above. */}
+          <label className="vt-brand-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="vt-brand-label">
+              Prize terms &amp; conditions
+              <span style={{ color: "#9aa6c2", fontWeight: 400, marginLeft: 6 }}>
+                shown on the share page under the prize copy
+              </span>
+            </span>
+            <textarea
+              value={prizeTerms}
+              onChange={(e) => setPrizeTerms(e.target.value)}
+              maxLength={2000}
+              rows={5}
+              placeholder={
+                "Eligibility, expiry, redemption etc. e.g.\n\n" +
+                "Only NZ residents may enter. Register with a valid NZ mobile number.\n" +
+                "Prizes are not transferable for store credit or cash.\n" +
+                "Winners notified by WhatsApp within 7 days of the final."
               }
               className="vt-brand-input vt-brand-textarea"
             />
@@ -1169,12 +1201,14 @@ function PrizePoolEditor({ slug, initial, onSaved }: PrizePoolEditorProps): JSX.
     <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
       <div className="vt-dash-row-head">
         <div>
-          <h2 className="vt-dash-row-name">Prize pool & entry fee</h2>
+          <h2 className="vt-dash-row-name">Paid Pool Entry Fee and Takings Split</h2>
           <p className="vt-dash-row-meta">
-            Optional. Advertise an entry fee and how the pool splits. Tournamental
-            never handles the money - on free, you collect and pay out yourself; on
-            premium, Stripe inside your Growth Spurt-managed HighLevel sub-account handles
-            the cash and the funds settle to your bank.
+            Optional. This section is for paid pools like office sweepstakes. Use the
+            &ldquo;Branding &amp; Prize Giveaways&rdquo; section below for brands and
+            sponsors giving away non-monetary prizes (e.g. store vouchers, products).
+            Tournamental never handles the money - on free, you collect and pay out
+            yourself; on premium, Stripe inside your Growth Spurt-managed HighLevel
+            sub-account handles the cash and the funds settle to your bank.
           </p>
         </div>
       </div>

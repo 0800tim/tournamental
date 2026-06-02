@@ -1513,6 +1513,23 @@
   font-weight: 600;
 }
 
+/* Owner-authored T&Cs (prize terms + entry terms). Compact block,
+   small label + multi-line copy with white-space: pre-line so the
+   owner's line breaks survive. Tim 2026-06-02. */
+.vt-share-syn .vt-share-prize-terms {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+}
+.vt-share-syn .vt-share-prize-terms-copy {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--vt-fg-muted, #a3a3ad);
+  white-space: pre-line;
+}
+
 /* Labelled prize block: a "PRIZE" eyebrow above the prize copy, so a
    free-to-enter pool reads STAKE: Free to enter / PRIZE: <the prize>. */
 .vt-share-syn .vt-share-prize-award {

@@ -932,6 +932,31 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         </p>
       ) : null}
 
+      {/* Owner-authored T&Cs. Two separate sources because a pool can
+          advertise BOTH paid-entry terms and brand-giveaway terms
+          (Tim 2026-06-02):
+            - join_fee_terms_text: paid-pool entry / payment terms
+            - prize_terms_text:    brand / sponsor prize giveaway T&Cs
+          Each rendered with the same compact "Terms" header so the
+          two blocks read as a single conditions section on the page. */}
+      {syndicate.prize_terms_text?.trim() ? (
+        <div className="vt-share-prize-terms">
+          <p className="vt-stat-label">Prize terms</p>
+          <p className="vt-share-prize-terms-copy">
+            {syndicate.prize_terms_text}
+          </p>
+        </div>
+      ) : null}
+
+      {syndicate.join_fee_terms_text?.trim() ? (
+        <div className="vt-share-prize-terms">
+          <p className="vt-stat-label">Entry terms</p>
+          <p className="vt-share-prize-terms-copy">
+            {syndicate.join_fee_terms_text}
+          </p>
+        </div>
+      ) : null}
+
       <p className="vt-share-prize-fineprint">
         Tournamental doesn&apos;t handle any money or prize-promise
         contracts. Pool and syndicate admins must collect any money and

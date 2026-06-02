@@ -111,6 +111,11 @@ export interface SyndicateRow {
    * restriction. Verified at join time against the joiner's
    * WhatsApp-OTP-verified phone. Spec: docs/68-country-gated-pools.md. */
   allowed_phone_countries: string | null;
+  /** T&Cs for sponsored / giveaway prizes. Rendered on /s/<slug>
+   * under the prize copy. Separate from join_fee_terms_text so a
+   * pool can advertise paid-entry terms AND brand-giveaway terms
+   * without conflating them. Tim 2026-06-02. */
+  prize_terms_text: string | null;
 }
 
 /** Decoded prize-split entry, as the API and UI both manipulate it. */
@@ -139,6 +144,7 @@ export interface SyndicateBrandingPatch {
   about_text?: string | null;
   theme_mode?: "light" | "dark" | null;
   join_fee_terms_text?: string | null;
+  prize_terms_text?: string | null;
   /** Pool intro / description shown under the title on /s/<slug>. */
   topic?: string | null;
   /** Public pools appear in the directory and anyone can join in one tap. */
@@ -245,6 +251,7 @@ export class SyndicatePersistence {
         prize_split_json    TEXT,
         bonus_prize_text    TEXT,
         join_fee_terms_text TEXT,
+        prize_terms_text    TEXT,
         is_public           INTEGER NOT NULL DEFAULT 0,
         requires_approval   INTEGER NOT NULL DEFAULT 0,
         allowed_phone_countries TEXT
@@ -342,6 +349,15 @@ export class SyndicatePersistence {
       // 0011_syndicates_country_gate.sql and docs/68-country-gated-pools.md.
       this.db.exec(
         `ALTER TABLE syndicates ADD COLUMN allowed_phone_countries TEXT`,
+      );
+    }
+    if (!hasSyn("prize_terms_text")) {
+      // 2026-06-02: T&Cs for sponsored / giveaway prizes (the Branding
+      // section's "terms" field). Separate from join_fee_terms_text
+      // (which is paid-pool entry T&Cs) so a pool can advertise both
+      // a paid entry split AND brand-giveaway terms without conflating.
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN prize_terms_text TEXT`,
       );
     }
   }
@@ -1051,6 +1067,7 @@ export class SyndicatePersistence {
       "about_text",
       "theme_mode",
       "join_fee_terms_text",
+      "prize_terms_text",
       "topic",
     ];
     for (const f of stringFields) {
