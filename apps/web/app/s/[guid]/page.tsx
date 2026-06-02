@@ -921,7 +921,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
       {prizeText ? (
         <div className="vt-share-prize-award">
           <p className="vt-stat-label">Prize</p>
-          <p className="vt-share-prize-copy">{prizeText}</p>
+          <PrizeTextLines text={prizeText} />
         </div>
       ) : null}
 
@@ -942,6 +942,37 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
         .
       </p>
     </section>
+  );
+}
+
+/**
+ * Render the owner-supplied free-text prize copy as styled rows that
+ * match the prize-split block above. Each line break in the textarea
+ * becomes its own row with a hairline divider; the first row is
+ * gold-coloured (mirrors the data-rank="1" treatment in the split
+ * block). A single-line prize renders as a plain paragraph - no
+ * hairlines, no list. Tim 2026-06-02.
+ */
+function PrizeTextLines({ text }: { text: string }): JSX.Element {
+  const lines = text
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+  if (lines.length <= 1) {
+    return <p className="vt-share-prize-copy">{lines[0] ?? text}</p>;
+  }
+  return (
+    <ol className="vt-share-prize-lines" aria-label="Prizes">
+      {lines.map((line, idx) => (
+        <li
+          key={idx}
+          className="vt-share-prize-lines-row"
+          data-rank={idx + 1}
+        >
+          {line}
+        </li>
+      ))}
+    </ol>
   );
 }
 

@@ -1484,6 +1484,35 @@
   white-space: pre-line;
 }
 
+/* Multi-line prize-copy block. Each non-empty line in the owner's
+   free-text PRIZE COPY textarea becomes a row that visually matches
+   the prize-split list above: top hairline on every row, bottom
+   hairline on the last row, first row in gold. Single-line input
+   falls back to .vt-share-prize-copy (handled in PrizeTextLines).
+   Tim 2026-06-02. */
+.vt-share-syn .vt-share-prize-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.vt-share-syn .vt-share-prize-lines-row {
+  padding: 12px 0;
+  border-top: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+  color: var(--vt-fg, #e6e6ea);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+.vt-share-syn .vt-share-prize-lines-row:last-child {
+  border-bottom: 1px solid color-mix(in srgb, var(--vt-fg, #e6e6ea) 14%, transparent);
+}
+.vt-share-syn .vt-share-prize-lines-row[data-rank="1"] {
+  color: var(--vt-gold-400, #dca94b);
+  font-weight: 600;
+}
+
 /* Labelled prize block: a "PRIZE" eyebrow above the prize copy, so a
    free-to-enter pool reads STAKE: Free to enter / PRIZE: <the prize>. */
 .vt-share-syn .vt-share-prize-award {
