@@ -377,7 +377,17 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
   const stageLabelFont = Math.round(16 * scale);
   const koCodeFont = Math.round(40 * scale);
   const koFlagFont = Math.round(34 * scale);
-  const championFont = Math.round(148 * scale);
+  // Champion font sized per layout (Tim 2026-06-03): landscape and
+  // portrait both had leftover bottom space because the champion panel
+  // sized to its content (148*scale ~ 103px landscape, 148px portrait).
+  // Bumping the champion type and letting the cascade flex-fill the
+  // remaining height makes the panel dominate the bottom half of the
+  // canvas the way the share preview leads visitors to expect.
+  const championFont = isLandscape
+    ? Math.round(180 * scale) // landscape: 126px, was 103px
+    : isPortrait
+      ? Math.round(220 * scale) // portrait: 220px, was 148px
+      : Math.round(160 * scale); // square: 138px, was 127px
   const ballSize = Math.round(96 * scale);
 
   const dateline = `${args.tournament} · BRACKET · @${args.handle.toUpperCase()}`;
@@ -522,13 +532,16 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
           },
         },
 
-        // ─── Knockout cascade + champion. The cascade group takes
-        // whatever vertical space is left after header + groups +
-        // footer; inside, both the KO ladder and the champion panel
-        // size to their own content and align tight to the top. The
-        // earlier "flex: 1 1 auto" on the KO ladder itself stretched
-        // it vertically and left a huge gap above the champion (Tim
-        // 2026-05-25).
+        // ─── Knockout cascade + champion. Tim 2026-06-03: the
+        // cascade now FILLS the remaining vertical space after the
+        // header + groups (flex: 1 1 auto) so the champion banner is
+        // the visual anchor of the bottom half of the card. On
+        // landscape the KO ladder + champion sit side-by-side and
+        // both stretch to the row height; on portrait/square they
+        // stack with the champion getting the lion's share of the
+        // leftover height. Previously the cascade was 0/0/auto so it
+        // shrunk to natural content and the bottom of the canvas was
+        // dead space.
         {
           type: "div",
           props: {
@@ -536,12 +549,15 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
               display: "flex",
               flexDirection: isLandscape ? "row" : "column",
               alignItems: "stretch",
-              justifyContent: "flex-start",
+              justifyContent: "center",
               gap: Math.round(18 * scale),
-              flex: "0 0 auto",
+              flex: "1 1 auto",
+              minHeight: 0,
             },
             children: [
-              // KO ladder
+              // KO ladder. On landscape it shares the row width with
+              // the champion (1:1); on portrait/square it sizes to its
+              // own content above the dominant champion panel.
               {
                 type: "div",
                 props: {
@@ -555,7 +571,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                     background: "rgba(255, 255, 255, 0.02)",
                     border: `1px solid ${COLOUR_BORDER}`,
                     borderRadius: Math.round(14 * scale),
-                    flex: "0 0 auto",
+                    flex: isLandscape ? "1 1 0" : "0 0 auto",
                   },
                   children: renderKoLadder({
                     koByStage,
@@ -569,22 +585,39 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                   }),
                 },
               },
-              // Champion crown panel
-              renderChampionPanel({
-                champion: args.champion,
-                runnerUp: args.runnerUp,
-                third: args.third,
-                font: championFont,
-                stageLabelFont,
-                scale,
-                flagsByCode,
-              }),
+              // Champion crown panel. Wrapped in a flex-grow div so
+              // it physically expands to fill the leftover canvas
+              // height (portrait/square) or share the row (landscape).
+              // The panel itself centres its content vertically.
+              {
+                type: "div",
+                props: {
+                  style: {
+                    display: "flex",
+                    flex: isLandscape ? "1 1 0" : "1 1 auto",
+                    minHeight: 0,
+                  },
+                  children: renderChampionPanel({
+                    champion: args.champion,
+                    runnerUp: args.runnerUp,
+                    third: args.third,
+                    font: championFont,
+                    stageLabelFont,
+                    scale,
+                    flagsByCode,
+                  }),
+                },
+              },
             ],
           },
         },
 
         // Footer with a faint gold rule above to anchor it visually
-        // against the dense panels above (Tim 2026-05-26).
+        // against the dense panels above (Tim 2026-05-26). flex: 0 0
+        // auto keeps it at natural height while the cascade above
+        // grows; explicit marginTop survives even when the cascade
+        // flex-fills, so the footer never collides with the champion
+        // panel (Tim 2026-06-03).
         {
           type: "div",
           props: {
@@ -593,6 +626,7 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
               flexDirection: "column",
               gap: Math.round(14 * scale),
               marginTop: Math.round(24 * scale),
+              flex: "0 0 auto",
             },
             children: [
               {
@@ -964,6 +998,11 @@ function renderChampionPanel(args: {
     border: `2px solid ${COLOUR_BORDER_STRONG}`,
     borderRadius: Math.round(14 * args.scale),
     minWidth: Math.round(200 * args.scale),
+    // Fill the flex-grow wrapper introduced 2026-06-03 so the panel
+    // stretches to the bottom of the canvas instead of sitting at
+    // natural content height with a dead-space pocket below.
+    width: "100%",
+    height: "100%",
     overflow: "hidden",
   };
   if (hasFlag) {
@@ -1010,6 +1049,7 @@ function renderChampionPanel(args: {
               gap: Math.round(6 * args.scale),
               padding: Math.round(28 * args.scale),
               width: "100%",
+              height: "100%",
               background: scrim,
               borderRadius: Math.round(14 * args.scale),
             },
