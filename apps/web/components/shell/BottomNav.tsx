@@ -41,7 +41,7 @@ function safeT(
 import {
   HomeIcon,
   PredictIcon,
-  WatchIcon,
+  GroupsIcon,
   ProfileIcon,
   PlusIcon,
   MenuIcon,
@@ -72,13 +72,25 @@ export interface BottomNavProps {
 export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
   { label: "Home", i18nKey: "nav.home", href: "/", icon: <HomeIcon /> },
   {
-    label: "Predict",
-    i18nKey: "nav.predict",
+    // Tim 2026-06-03: short "Play" in the dock; the desktop/drawer
+    // nav uses the longer "Play (Predict)" via nav.predict.
+    label: "Play",
+    i18nKey: "nav.play",
     href: "/world-cup-2026",
     icon: <PredictIcon />,
     matchPrefix: "/world-cup-2026",
   },
-  { label: "Watch", i18nKey: "nav.watch", href: "/watch", icon: <WatchIcon />, matchPrefix: "/watch" },
+  // "Watch" tab dropped from the dock for the WC2026 launch - the
+  // dedicated watch surface isn't player-facing yet. Replaced with
+  // Pools (multi-person GroupsIcon) since pools are the v0.2 hook
+  // (Tim 2026-06-03).
+  {
+    label: "Pools",
+    i18nKey: "nav.pools",
+    href: "/pools",
+    icon: <GroupsIcon />,
+    matchPrefix: "/pools",
+  },
   {
     label: "Profile",
     i18nKey: "nav.profile",

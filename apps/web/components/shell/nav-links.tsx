@@ -65,7 +65,10 @@ export interface NavLink {
 // resolver picks the deeper /world-cup-2026/molecule match for that route.
 export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
-    label: "Predict",
+    // Tim 2026-06-03: "Play (Predict)" reads more inviting to new
+    // visitors than the bare verb "Predict". Bottom-nav still uses
+    // the short "Play" form (see DEFAULT_BOTTOM_NAV_TABS).
+    label: "Play (Predict)",
     i18nKey: "nav.predict",
     // /world-cup-2026/molecule starts with /world-cup-2026 so we have to
     // pin Predict's match to the exact root + non-molecule subpaths to
@@ -132,7 +135,7 @@ export const MORE_DESKTOP: readonly NavLink[] = [
  */
 export const DRAWER_PRIMARY: readonly NavLink[] = [
   { label: "Home",             i18nKey: "nav.home",            href: "/",                          icon: <HomeIcon />,     matchPrefix: "__never__" },
-  { label: "Predict (Bracket)", i18nKey: "nav.predict_bracket", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
+  { label: "Play (Predict)",    i18nKey: "nav.predict_bracket", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
   { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
   { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },

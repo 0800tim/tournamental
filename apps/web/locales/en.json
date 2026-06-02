@@ -10,7 +10,8 @@
     "completeness_pct": 100
   },
   "nav": {
-    "predict": "Predict",
+    "predict": "Play (Predict)",
+    "play": "Play",
     "molecule": "Molecule",
     "save_share": "Save & share",
     "leaderboard": "Leaderboard",
@@ -22,7 +23,7 @@
     "engineering_log": "Engineering log",
     "open_source": "Open source",
     "home": "Home",
-    "predict_bracket": "Predict (Bracket)",
+    "predict_bracket": "Play (Predict)",
     "molecule_3d": "3D Molecule",
     "profile_my": "My Profile",
     "share_save": "Share & Save",
