@@ -45,6 +45,7 @@ import { findTeamByCode } from "@/lib/profile/teams";
 import { TeamPicker } from "@/components/profile/TeamPicker";
 import { AvatarUploader } from "@/components/profile/AvatarUploader";
 import { SignupModal } from "./SignupModal";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
 
 import "@/components/profile/team-picker.css";
 import "@/components/profile/avatar-uploader.css";
@@ -118,29 +119,41 @@ function InboundProfileEditor({ userId }: { userId: string }) {
   const [toast, setToast] = useState<{ kind: "ok" | "err"; text: string } | null>(
     null,
   );
-  // Pool count drives the primary action in the profile head row:
-  // 0 pools → "Create a pool" (gold), 1+ → "Manage my pools" (gold,
-  // anchors to #profile-pools). Same call as MyPoolsSection; the
-  // browser cache dedupes the second fetch.
-  const [poolCount, setPoolCount] = useState<number | null>(null);
+  // Pool counts drive the primary CTA copy + visibility:
+  //   - owned > 0                     → "View/Manage pools"  (owner badge)
+  //   - owned = 0 && member > 0       → "View pools"         (member-only)
+  //   - both 0                        → "Create a pool"      (empty state)
+  // Tim 2026-06-02: previously fetched /v1/syndicates/mine (owner-only)
+  // so member-only users saw "Create a pool" even though they had pools
+  // to view. Switched to /v1/profile/syndicates which returns role per
+  // row; same endpoint MyPoolsSection consumes so the browser dedupes.
+  const [poolCounts, setPoolCounts] = useState<{
+    owned: number;
+    member: number;
+  } | null>(null);
   useEffect(() => {
     const ac = new AbortController();
     void (async () => {
       try {
-        const r = await fetch("/api/v1/syndicates/mine", {
+        const r = await fetch("/api/v1/profile/syndicates", {
           method: "GET",
           credentials: "include",
           headers: { Accept: "application/json" },
           signal: ac.signal,
         });
         if (!r.ok) {
-          setPoolCount(0);
+          setPoolCounts({ owned: 0, member: 0 });
           return;
         }
-        const body = (await r.json()) as { syndicates?: unknown[] };
-        setPoolCount(body.syndicates?.length ?? 0);
+        const body = (await r.json()) as {
+          syndicates?: Array<{ role?: string }>;
+        };
+        const rows = body.syndicates ?? [];
+        const owned = rows.filter((p) => p.role === "owner").length;
+        const member = rows.filter((p) => p.role !== "owner").length;
+        setPoolCounts({ owned, member });
       } catch {
-        if (!ac.signal.aborted) setPoolCount(0);
+        if (!ac.signal.aborted) setPoolCounts({ owned: 0, member: 0 });
       }
     })();
     return () => ac.abort();
@@ -239,13 +252,21 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           </p>
         </div>
         <div className="vt-profile-head-actions">
-          {poolCount === null ? null : poolCount > 0 ? (
+          {poolCounts === null ? null : poolCounts.owned > 0 ? (
             <a
               href="#profile-pools"
               onClick={onManagePoolsClick}
               className="vt-profile-action vt-profile-action--primary"
             >
-              {safeT(t, "profile_page.manage_my_pools", "Manage my pools")}
+              {safeT(t, "profile_page.view_manage_pools", "View/Manage pools")}
+            </a>
+          ) : poolCounts.member > 0 ? (
+            <a
+              href="#profile-pools"
+              onClick={onManagePoolsClick}
+              className="vt-profile-action vt-profile-action--primary"
+            >
+              {safeT(t, "profile_page.view_pools", "View pools")}
             </a>
           ) : (
             <a
@@ -255,6 +276,22 @@ function InboundProfileEditor({ userId }: { userId: string }) {
               {safeT(t, "profile_page.create_a_pool", "Create a pool")}
             </a>
           )}
+          {/* "View my public page" - takes the user to their own bracket
+              share landing (/s/<handle>). Always rendered when there's
+              a slugifiable handle; only the owner-only "Manage" surface
+              changes per role. */}
+          {(() => {
+            const slug = slugifyDisplayName(draft.displayName);
+            if (!slug) return null;
+            return (
+              <a
+                href={`/s/${slug}`}
+                className="vt-profile-action vt-profile-action--ghost"
+              >
+                {safeT(t, "profile_page.view_public_page", "View my public page")}
+              </a>
+            );
+          })()}
           <button
             type="button"
             onClick={onLogout}
