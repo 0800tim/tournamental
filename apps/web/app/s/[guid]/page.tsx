@@ -534,6 +534,19 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
        * the editorial header. The 1200x630 PNG belongs in <meta
        * og:image>, not in the visible body. Removed 2026-05-21. */}
 
+      {/* Owner-authored long-form description. Renders directly under
+          the banner, above the prize block. Tim 2026-06-03: split out
+          from the old `topic` field so the banner overlay (still
+          `topic`) can stay short while this carries the paragraph(s)
+          of pool / brand detail. */}
+      {syndicate.description_text?.trim() ? (
+        <RevealOnScroll as="section" className="vt-share-syn-description">
+          <p className="vt-share-syn-description-copy">
+            {syndicate.description_text}
+          </p>
+        </RevealOnScroll>
+      ) : null}
+
       <RevealOnScroll>
         <PrizePoolBlock syndicate={syndicate} prizeEyebrow={prizeEyebrow} />
       </RevealOnScroll>

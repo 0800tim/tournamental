@@ -45,6 +45,7 @@ interface OwnerSyndicate {
   readonly bonus_prize_text: string | null;
   readonly join_fee_terms_text: string | null;
   readonly prize_terms_text: string | null;
+  readonly description_text: string | null;
   readonly is_public: boolean;
   readonly requires_approval: boolean;
 }
@@ -668,6 +669,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
   const [prizeText, setPrizeText] = useState(initial.prize_text ?? "");
   const [prizeTerms, setPrizeTerms] = useState(initial.prize_terms_text ?? "");
   const [topic, setTopic] = useState(initial.topic ?? "");
+  const [description, setDescription] = useState(initial.description_text ?? "");
   const [save, setSave] = useState<SaveState>({ status: "idle" });
 
   const dirty = useMemo(() => {
@@ -682,9 +684,10 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       sponsorLogoUrl !== (initial.sponsor_logo_url ?? "") ||
       prizeText !== (initial.prize_text ?? "") ||
       prizeTerms !== (initial.prize_terms_text ?? "") ||
-      topic !== (initial.topic ?? "")
+      topic !== (initial.topic ?? "") ||
+      description !== (initial.description_text ?? "")
     );
-  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, prizeTerms, topic, initial]);
+  }, [name, primary, accent, logoUrl, heroUrl, sponsorName, sponsorUrl, sponsorLogoUrl, prizeText, prizeTerms, topic, description, initial]);
 
   const handleSubmit = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
@@ -718,6 +721,8 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
       body.prize_terms_text = trimmedOrNull(prizeTerms);
     if (topic !== (initial.topic ?? ""))
       body.topic = trimmedOrNull(topic);
+    if (description !== (initial.description_text ?? ""))
+      body.description_text = trimmedOrNull(description);
 
     try {
       const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
@@ -747,6 +752,7 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
           sponsor_logo_url: ok.syndicate.sponsor_logo_url,
           prize_text: ok.syndicate.prize_text,
           prize_terms_text: ok.syndicate.prize_terms_text,
+          description_text: ok.syndicate.description_text,
           topic: ok.syndicate.topic,
         });
       }
@@ -787,19 +793,40 @@ function BrandingEditor({ slug, initial, onSaved }: BrandingEditorProps): JSX.El
             />
           </label>
 
+          {/* Tim 2026-06-03: split the old "Intro / description" into
+              two fields. Intro stays short - it overlays the banner -
+              while the new Description (below) gets the longer brand
+              or pool detail and renders under the banner. */}
           <label className="vt-brand-field" style={{ gridColumn: "1 / -1" }}>
             <span className="vt-brand-label">
-              Intro / description
+              Intro
               <span style={{ color: "#9aa6c2", fontWeight: 400, marginLeft: 6 }}>
-                shown under your pool title on the share page
+                short promo, overlaid on the banner image
               </span>
             </span>
             <textarea
               value={topic}
               onChange={(e) => setTopic(e.target.value)}
-              maxLength={600}
-              rows={3}
-              placeholder="A line or two about your pool. e.g. Office syndicate, World Cup 2026. Bragging rights and the trophy on the line."
+              maxLength={240}
+              rows={2}
+              placeholder="One short line highlighting the prize. e.g. Play and win your share of $800 worth of BADER products!"
+              className="vt-brand-input vt-brand-textarea"
+            />
+          </label>
+
+          <label className="vt-brand-field" style={{ gridColumn: "1 / -1" }}>
+            <span className="vt-brand-label">
+              Description
+              <span style={{ color: "#9aa6c2", fontWeight: 400, marginLeft: 6 }}>
+                extended info about your pool or brand, shown under the banner
+              </span>
+            </span>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              maxLength={2000}
+              rows={5}
+              placeholder="A paragraph or two of brand or pool detail. Who you are, why people should join, what the prize means."
               className="vt-brand-input vt-brand-textarea"
             />
           </label>

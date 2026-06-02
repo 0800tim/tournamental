@@ -116,6 +116,10 @@ export interface SyndicateRow {
    * pool can advertise paid-entry terms AND brand-giveaway terms
    * without conflating them. Tim 2026-06-02. */
   prize_terms_text: string | null;
+  /** Long-form description rendered directly under the banner on
+   * /s/<slug>, above the prize-pool block. Separate from `topic`
+   * (short promo overlaid on the banner image). Tim 2026-06-03. */
+  description_text: string | null;
 }
 
 /** Decoded prize-split entry, as the API and UI both manipulate it. */
@@ -145,6 +149,7 @@ export interface SyndicateBrandingPatch {
   theme_mode?: "light" | "dark" | null;
   join_fee_terms_text?: string | null;
   prize_terms_text?: string | null;
+  description_text?: string | null;
   /** Pool intro / description shown under the title on /s/<slug>. */
   topic?: string | null;
   /** Public pools appear in the directory and anyone can join in one tap. */
@@ -252,6 +257,7 @@ export class SyndicatePersistence {
         bonus_prize_text    TEXT,
         join_fee_terms_text TEXT,
         prize_terms_text    TEXT,
+        description_text    TEXT,
         is_public           INTEGER NOT NULL DEFAULT 0,
         requires_approval   INTEGER NOT NULL DEFAULT 0,
         allowed_phone_countries TEXT
@@ -358,6 +364,16 @@ export class SyndicatePersistence {
       // a paid entry split AND brand-giveaway terms without conflating.
       this.db.exec(
         `ALTER TABLE syndicates ADD COLUMN prize_terms_text TEXT`,
+      );
+    }
+    if (!hasSyn("description_text")) {
+      // 2026-06-03: long-form description that renders under the banner
+      // on /s/<slug>. Separate from `topic`, which is the short promo
+      // overlaid on the banner image. Splitting them lets the owner
+      // keep the banner copy tight while pasting a paragraph or two
+      // of brand/pool detail below.
+      this.db.exec(
+        `ALTER TABLE syndicates ADD COLUMN description_text TEXT`,
       );
     }
   }
@@ -1068,6 +1084,7 @@ export class SyndicatePersistence {
       "theme_mode",
       "join_fee_terms_text",
       "prize_terms_text",
+      "description_text",
       "topic",
     ];
     for (const f of stringFields) {

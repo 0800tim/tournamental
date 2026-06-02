@@ -85,6 +85,10 @@ export interface SyndicateRecord {
   /** Admin-authored T&Cs for brand / giveaway prizes. Rendered on
    * /s/<slug> below the prize-copy block. Tim 2026-06-02. */
   readonly prize_terms_text?: string | null;
+  /** Long-form description rendered directly under the banner on
+   * /s/<slug>, above the prize-pool block. Separate from `topic`
+   * (the short promo overlaid on the banner). Tim 2026-06-03. */
+  readonly description_text?: string | null;
 }
 
 // Three sample syndicates so the route renders something during the
@@ -225,6 +229,7 @@ function fromPersistenceRow(row: {
   bonus_prize_text?: string | null;
   join_fee_terms_text?: string | null;
   prize_terms_text?: string | null;
+  description_text?: string | null;
 }): SyndicateRecord {
   const sponsorPresent = !!(row.sponsor_name || row.sponsor_logo_url);
 
@@ -319,6 +324,7 @@ function fromPersistenceRow(row: {
     bonus_prize_text: row.bonus_prize_text ?? null,
     join_fee_terms_text: row.join_fee_terms_text ?? null,
     prize_terms_text: row.prize_terms_text ?? null,
+    description_text: row.description_text ?? null,
   };
 }
 

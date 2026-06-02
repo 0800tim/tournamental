@@ -1513,6 +1513,23 @@
   font-weight: 600;
 }
 
+/* Owner-authored long-form description. Renders under the banner,
+   above the prize block. Tim 2026-06-03. Fraunces 1.05rem to match
+   the lede treatment, line-height 1.6 for paragraph readability.
+   Pre-line so the owner's paragraph breaks survive. */
+.vt-share-syn .vt-share-syn-description {
+  margin-block: 8px 16px;
+}
+.vt-share-syn .vt-share-syn-description-copy {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
+  font-variation-settings: "opsz" 36, "SOFT" 50;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: var(--vt-fg, #e6e6ea);
+  white-space: pre-line;
+}
+
 /* Owner-authored T&Cs (prize terms + entry terms). Compact block,
    small label + multi-line copy with white-space: pre-line so the
    owner's line breaks survive. Tim 2026-06-02. */
