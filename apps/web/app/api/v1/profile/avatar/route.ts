@@ -33,6 +33,7 @@ import type { NextRequest } from "next/server";
 import sharp from "sharp";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { purgeCloudflare } from "@/lib/cloudflare/purge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -111,6 +112,13 @@ export async function POST(req: NextRequest): Promise<Response> {
     /* file didn't exist - fine */
   });
 
+  // Fire-and-forget Cloudflare edge purge so other visitors don't see
+  // a stale avatar. The route serves with short max-age + ETag now, so
+  // worst-case staleness without the purge is ~60s on a browser cache
+  // and however long CF keeps the response (which respects max-age=60
+  // too, so also ~60s). The purge collapses that to "instant".
+  void purgeCloudflare([`/avatars/${filename}`]);
+
   return jsonResponse(
     { ok: true, url: `/avatars/${filename}?v=${Date.now()}` },
     200,
@@ -128,6 +136,12 @@ export async function DELETE(req: NextRequest): Promise<Response> {
   await Promise.allSettled([
     fs.unlink(join(AVATAR_DIR, `${userId}.jpg`)),
     fs.unlink(join(AVATAR_DIR, `${userId}.webp`)),
+  ]);
+  // Purge edge so the removed avatar is gone for everyone (matches the
+  // POST behaviour above).
+  void purgeCloudflare([
+    `/avatars/${userId}.jpg`,
+    `/avatars/${userId}.webp`,
   ]);
   return jsonResponse({ ok: true }, 200);
 }

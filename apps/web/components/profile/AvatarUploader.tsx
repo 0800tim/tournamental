@@ -21,6 +21,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { avatarUrlFor, DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
 import { AvatarCropperModal } from "./AvatarCropperModal";
+import { AVATAR_UPDATED_EVENT, type AvatarUpdatedDetail } from "./AvatarImage";
+
+function broadcastAvatarUpdate(userId: string): void {
+  if (typeof window === "undefined") return;
+  const detail: AvatarUpdatedDetail = { userId };
+  window.dispatchEvent(new CustomEvent(AVATAR_UPDATED_EVENT, { detail }));
+}
 
 export interface AvatarUploaderProps {
   readonly userId: string;
@@ -98,6 +105,11 @@ export function AvatarUploader({ userId, onChange }: AvatarUploaderProps): JSX.E
       }
       const next = Date.now();
       setVersion(next);
+      // Live-refresh every AvatarImage on the page for this user
+      // (nav chip, share preview, dashboard card etc.) so they
+      // pick up the new bitmap without a page reload. AvatarImage
+      // listens on AVATAR_UPDATED_EVENT.
+      broadcastAvatarUpdate(userId);
       onChange?.(`${avatarUrlFor(userId)}?v=${next}`);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Upload failed");
@@ -116,6 +128,7 @@ export function AvatarUploader({ userId, onChange }: AvatarUploaderProps): JSX.E
       });
       if (res.ok) {
         setVersion(0);
+        broadcastAvatarUpdate(userId);
         onChange?.(null);
       }
     } finally {

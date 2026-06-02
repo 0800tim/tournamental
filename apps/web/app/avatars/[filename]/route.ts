@@ -37,7 +37,7 @@ function notFound(): Response {
 }
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { filename: string } },
 ): Promise<Response> {
   const filename = (params.filename ?? "").trim();
@@ -47,10 +47,32 @@ export async function GET(
   if (!candidate.startsWith(AVATAR_DIR)) return notFound();
 
   let bytes: Buffer;
+  let mtimeMs: number;
   try {
+    const stat = await fs.stat(candidate);
+    mtimeMs = stat.mtimeMs;
     bytes = await fs.readFile(candidate);
   } catch {
     return notFound();
+  }
+
+  // Strong ETag from file mtime + size. Cheap and changes the moment a
+  // new upload lands. Combined with `must-revalidate` this lets the
+  // browser short-circuit to a 304 on unchanged content (saves the
+  // JPEG bytes on the wire) but always asks the origin, so the user
+  // sees a new upload immediately — no manual cache flush required.
+  // Tim 2026-06-03: this used to be `max-age=86400 stale-while-revalidate=604800`
+  // which meant the browser held the old avatar for 24h after upload.
+  const etag = `W/"${Math.floor(mtimeMs)}-${bytes.length}"`;
+  const ifNoneMatch = req.headers.get("if-none-match");
+  if (ifNoneMatch && ifNoneMatch === etag) {
+    return new Response(null, {
+      status: 304,
+      headers: {
+        ETag: etag,
+        "Cache-Control": "public, max-age=60, must-revalidate",
+      },
+    });
   }
 
   return new Response(bytes as unknown as BodyInit, {
@@ -58,8 +80,9 @@ export async function GET(
     headers: {
       "Content-Type": "image/jpeg",
       "Content-Length": String(bytes.length),
-      "Cache-Control":
-        "public, max-age=86400, stale-while-revalidate=604800",
+      "Cache-Control": "public, max-age=60, must-revalidate",
+      ETag: etag,
+      "Last-Modified": new Date(mtimeMs).toUTCString(),
     },
   });
 }

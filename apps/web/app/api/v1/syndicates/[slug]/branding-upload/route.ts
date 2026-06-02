@@ -26,6 +26,7 @@ import sharp from "sharp";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
+import { purgeCloudflare } from "@/lib/cloudflare/purge";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -133,6 +134,13 @@ export async function POST(
   // New logo / hero changes the rendered OG image -- pop the cache.
   void invalidateSyndicateOgCache(slug);
 
+  // Fire-and-forget Cloudflare edge purge so the new logo / hero is
+  // visible immediately to every visitor (not just the uploader, who
+  // sees the `?v=<ts>` URL in the response above). Without this an
+  // owner has to manually flush CF on every upload, which Tim hit
+  // 2026-06-03 — see the cache-headers fix on the GET route too.
+  void purgeCloudflare([stableUrl]);
+
   return json({
     ok: true,
     url: `${stableUrl}?v=${Date.now()}`,
@@ -169,5 +177,8 @@ export async function DELETE(
   } catch {
     /* non-fatal */
   }
+  // Purge edge so visitors don't keep seeing the removed image.
+  void invalidateSyndicateOgCache(slug);
+  void purgeCloudflare([`/branding/${slug}/${kind}.webp`]);
   return json({ ok: true });
 }

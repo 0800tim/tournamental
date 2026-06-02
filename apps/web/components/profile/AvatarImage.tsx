@@ -2,11 +2,35 @@
 
 /**
  * Avatar image with fallback to a text initial.
+ *
  * Serves from /avatars/<userId>.jpg — the route handler returns the
  * file from data/avatars/ on every request so runtime uploads work.
+ *
+ * Live-refresh on self-upload (Tim 2026-06-03): the upload component
+ * dispatches a `vt:avatar-updated` CustomEvent with the affected
+ * userId after a successful POST. Every AvatarImage mounted on the
+ * page listens for the event, and if the userId matches its own,
+ * bumps a local counter that's appended as `?v=<n>` to the src. The
+ * browser sees a different URL, fetches fresh, the page updates
+ * without a reload.
+ *
+ * Why both the SW bypass + new cache headers AND this client
+ * broadcast are needed: the cache changes ensure NEW visitors see
+ * fresh content within ~60s of an upload. The broadcast ensures the
+ * UPLOADER sees their own change immediately on the same page, even
+ * though their browser has the old bitmap in its image-decoder cache
+ * (which `no-store` doesn't always evict mid-session).
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+export const AVATAR_UPDATED_EVENT = "vt:avatar-updated";
+
+export interface AvatarUpdatedDetail {
+  /** The user id whose avatar changed. AvatarImage instances that don't
+   * match this id ignore the event. */
+  userId: string;
+}
 
 interface AvatarImageProps {
   userId: string;
@@ -17,7 +41,27 @@ interface AvatarImageProps {
 
 export function AvatarImage({ userId, fallback, size = 32, className }: AvatarImageProps) {
   const [errored, setErrored] = useState(false);
-  const src = `/avatars/${encodeURIComponent(userId)}.jpg`;
+  const [version, setVersion] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    const onChange = (e: Event) => {
+      const detail = (e as CustomEvent<AvatarUpdatedDetail>).detail;
+      if (!detail) return;
+      if (detail.userId !== userId) return;
+      // Clear any previous error state — a fresh upload might fix a
+      // 404 (user had no avatar, now they do).
+      setErrored(false);
+      setVersion((v) => v + 1);
+    };
+    window.addEventListener(AVATAR_UPDATED_EVENT, onChange);
+    return () => window.removeEventListener(AVATAR_UPDATED_EVENT, onChange);
+  }, [userId]);
+
+  const src =
+    version === 0
+      ? `/avatars/${encodeURIComponent(userId)}.jpg`
+      : `/avatars/${encodeURIComponent(userId)}.jpg?v=${version}-${Date.now()}`;
 
   if (errored) {
     return <>{fallback}</>;

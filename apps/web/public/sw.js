@@ -18,11 +18,12 @@
 
 "use strict";
 
-// Bumped 2026-05-24 to wipe i18n-blind cached HTML. The previous SHELL_CACHE
-// precached /, /world-cup-2026 etc. before any vt_locale cookie existed, so
-// every visitor's app shell stayed English even after they picked a different
-// language. Bumping VERSION forces activate() to drop the old caches.
-const VERSION = "vt-shell-v2-2026-05-24-i18n";
+// Bumped 2026-06-03 to drop stale user-uploaded media (avatars, pool
+// logo + hero) that the previous SW had captured under the catch-all
+// stale-while-revalidate. New SW explicitly bypasses /avatars/ and
+// /branding/ so user-uploaded images always hit the origin.
+// Previous bump 2026-05-24 — wiped i18n-blind cached HTML.
+const VERSION = "vt-shell-v3-2026-06-03-avatar-fresh";
 const SHELL_CACHE = `vt-shell-${VERSION}`;
 const STATIC_CACHE = `vt-static-${VERSION}`;
 const RUNTIME_CACHE = `vt-runtime-${VERSION}`;
@@ -93,6 +94,19 @@ self.addEventListener("fetch", (event) => {
   }
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
+
+  // User-uploaded media (avatars + pool branding) must NEVER be served
+  // from the SW cache — uploading a new image must be visible
+  // immediately. Let the request pass straight through to the network,
+  // honour origin Cache-Control headers (avatar route serves `no-store`,
+  // branding serves `max-age=60 must-revalidate` with an ETag). Tim
+  // 2026-06-03.
+  if (
+    url.pathname.startsWith("/avatars/") ||
+    url.pathname.startsWith("/branding/")
+  ) {
+    return; // no respondWith → browser handles the fetch normally
+  }
 
   // Cache-first for hashed static assets.
   if (
