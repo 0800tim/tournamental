@@ -82,6 +82,20 @@
   }
 }
 
+/* Desktop ≥768px: fit the banner to the viewport width without
+ * cropping vertically (`cover` was zooming-cropping the image so the
+ * players' faces were getting clipped at the top). 100%-auto sizing
+ * + top anchor keeps the full banner artwork visible; the section's
+ * own fade-to-dark gradient (.vt-home-hero--editorial::before) covers
+ * any dark space below the image when the hero is taller than the
+ * rendered banner. Tim 2026-06-03. */
+@media (min-width: 768px) {
+  .vt-home-hero-bg {
+    background-size: 100% auto;
+    background-position: top center;
+  }
+}
+
 .vt-home-hero--editorial::before {
   /* Heavier tint than the previous "barely-there" pass so the
    * headline + lede sit cleanly on top of the gold-rays + player
@@ -102,7 +116,13 @@
 .vt-home-hero-inner {
   max-width: 1180px;
   margin: 0 auto;
-  padding: clamp(56px, 9vw, 112px) clamp(20px, 5vw, 56px) clamp(40px, 7vw, 72px);
+  /* Tim 2026-06-03: top padding clamp lowered from (56,9vw,112) to
+   * (40,6vw,64). The previous max of 112px was making the hero quite
+   * tall on desktop and forcing the cover-cropped banner to lose its
+   * top + bottom edges. Lower top padding + the new 100%-auto bg
+   * sizing on desktop keeps the players' faces visible without
+   * needing the section to grow as tall. */
+  padding: clamp(40px, 6vw, 64px) clamp(20px, 5vw, 56px) clamp(40px, 7vw, 72px);
 }
 
 /* Grid layout for the headline / CTAs / lede triple.
