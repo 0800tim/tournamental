@@ -188,7 +188,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     card_prize_label,
   ] = await Promise.all([
     safeT("syndicates.page_title", "Pools"),
-    safeT("syndicates_page.eyebrow", "Syndicates · Free forever"),
+    safeT("syndicates_page.eyebrow", "Pools · Free forever"),
     safeT("syndicates_page.hero_title", "The whole tournament, gamified for your audience."),
     safeT("syndicates_page.hero_claim", "The only World Cup prediction platform where anyone can launch a fully branded, embeddable syndicate with custom prize splits and verifiable on-chain settlement in minutes."),
     safeT("syndicates_page.hero_lede", "A syndicate is your own branded prediction pool. Drop the embed widget on any site, run a six-week game with your own prize. Free forever; premium adds a fully-managed CRM, your own messaging, and paid-entry handling."),
