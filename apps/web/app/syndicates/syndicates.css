@@ -14,11 +14,60 @@
 }
 
 .vt-syndicates-hero {
+  position: relative;
   padding: 28px 0 4px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   text-align: left;
+}
+
+/* Top-right "My Pools" affordance. Positioned absolutely inside
+   the hero so it floats above the eyebrow + headline area without
+   stealing real-estate from the lede or CTA row. Mobile drops it
+   to a normal inline button at the top of the hero so it doesn't
+   overlap the headline on narrow screens. Tim 2026-06-03. */
+.vt-syndicates-hero-corner-cta {
+  position: absolute;
+  top: 28px;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  color: #f4f4f5;
+  font: 600 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+  z-index: 1;
+}
+.vt-syndicates-hero-corner-cta::after {
+  content: "→";
+  font-size: 14px;
+  line-height: 1;
+}
+.vt-syndicates-hero-corner-cta:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(245, 197, 66, 0.6);
+  color: #fde68a;
+}
+.vt-syndicates-hero-corner-cta:focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  /* On narrow screens, drop the floating corner CTA into the
+     natural flow so it can't overlap the headline. Aligns to the
+     right edge of the hero column. */
+  .vt-syndicates-hero-corner-cta {
+    position: static;
+    align-self: flex-end;
+    margin-bottom: 4px;
+  }
 }
 
 .vt-syndicates-eyebrow {

@@ -198,7 +198,7 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     safeT("syndicates_page.quickstart_time", "≈ 60 seconds"),
     safeT("syndicates_page.cta_primary", "Start free in 60 seconds →"),
     safeT("syndicates_page.cta_secondary", "Read the playbook"),
-    safeT("syndicates_page.cta_view_my_pools", "View pools I'm in"),
+    safeT("syndicates_page.cta_view_my_pools", "My Pools"),
     safeT("syndicates_page.trust_no_card", "No credit card"),
     safeT("syndicates_page.trust_no_app", "No app install"),
     safeT("syndicates_page.trust_open_source", "Apache 2.0 open source"),
@@ -263,6 +263,20 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
       <div className="vt-syndicates-page">
         {/* Hero */}
         <section className="vt-syndicates-hero">
+          {/* Top-right "My Pools" affordance for visitors who already
+              own or have joined a pool, so they can jump straight to
+              the list without scrolling. Anchors into the existing
+              MyPoolsSection on /profile (owner + member rows).
+              Tim 2026-06-03: moved out of the bottom CTA row up to
+              the hero's top-right corner; renamed to a tight "My
+              Pools" since space is at a premium there. */}
+          <Link
+            href="/profile#profile-pools"
+            className="vt-syndicates-hero-corner-cta"
+            aria-label={cta_view_my_pools}
+          >
+            {cta_view_my_pools}
+          </Link>
           <span className="vt-syndicates-eyebrow">{eyebrow}</span>
           <h1 className="vt-syndicates-title">{hero_title}</h1>
           <p className="vt-syndicates-claim">
@@ -327,17 +341,6 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
             </Link>
             <Link href="/pools/playbook" className="vt-syndicates-cta-ghost">
               {cta_secondary}
-            </Link>
-            {/* Tim 2026-06-02: users who landed here looking for the
-                pools they've already joined should be able to jump
-                straight to their list. Anchors directly to the
-                MyPoolsSection on /profile so they see owner + member
-                pools without scrolling for it. */}
-            <Link
-              href="/profile#profile-pools"
-              className="vt-syndicates-cta-ghost"
-            >
-              {cta_view_my_pools}
             </Link>
           </div>
 
