@@ -312,6 +312,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // programmatically scroll it to the active tab on click, and read its
   // scrollLeft on user swipe to update the active tab.
   const carouselRef = useRef<HTMLDivElement | null>(null);
+  // The tab-strip element. Used to scroll the page so the active
+  // stage's top is in view after a tab change (Tim 2026-06-02: switching
+  // from group-stage scrolled-to-bottom to a shorter stage left the
+  // user staring at empty space below the new panel's actual content).
+  const tabsRef = useRef<HTMLElement | null>(null);
+  // Guards the tab→scroll effect on initial mount + hash hydration so
+  // we don't snap the user back to the top on first paint when their
+  // deep-link or session restored them mid-page.
+  const tabScrollSkipMountRef = useRef<boolean>(true);
   // Suppress the swipe→tab feedback loop while we're programmatically
   // scrolling in response to a tab click.
   const programmaticScrollRef = useRef<boolean>(false);
@@ -430,6 +439,34 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // handles its own scroll.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
+
+  // Scroll the tab strip to the top of the viewport on every tab
+  // change. Without this, navigating from a long stage (group stage
+  // scrolled to bottom) to a shorter one leaves the user staring at
+  // empty space - the page is still scrolled past the new panel's
+  // content. Skips on initial mount so a deep-link to #r16 doesn't
+  // override the browser's own hash-restore scroll. Smooth except
+  // for users who prefer reduced motion.
+  useEffect(() => {
+    if (tabScrollSkipMountRef.current) {
+      tabScrollSkipMountRef.current = false;
+      return;
+    }
+    if (typeof window === "undefined") return;
+    const el = tabsRef.current;
+    if (!el) return;
+    const prefersReducedMotion =
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Align the tab strip just below the (sticky) AppBar so the active
+    // tab + the first row of the new panel are visible together.
+    const rect = el.getBoundingClientRect();
+    const targetY = window.scrollY + rect.top - 8;
+    window.scrollTo({
+      top: Math.max(0, targetY),
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    });
+  }, [tab]);
 
   useEffect(() => {
     // Wait for auth to settle before deciding identity. "loading" means
@@ -1343,6 +1380,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       </header>
 
       <nav
+        ref={tabsRef}
         className="bracket-tabs"
         data-testid="bracket-tabs"
         role="tablist"
