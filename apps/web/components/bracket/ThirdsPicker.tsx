@@ -12,7 +12,7 @@
  * tiles by FIFA rank so the most plausible picks surface first.
  */
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 
 import type {
   Bracket,
@@ -87,7 +87,34 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
     return { rows: out, groupsComplete: allComplete };
   }, [tournament, bracket.matchPredictions, bracket.groupTiebreakers]);
 
-  const selected = new Set<TeamId>(bracket.bestThirds ?? []);
+  // The current set of valid 3rd-placer team-ids (one per complete
+  // group). A team-id that's in `bracket.bestThirds` but NOT in this
+  // set is a stale pick: the user picked it as a 3rd-placer, then
+  // edited a group-stage result that bumped the team out of 3rd. The
+  // cascade can't route a stale pick through Annex C, so we surface
+  // it via the count + auto-prune so the UI counter and the cascade
+  // agree on how many picks are usable. Tim 2026-06-02: the symptom
+  // was "8 / 8 selected" displayed while the cascade emitted
+  // annex_c_third_pool_incomplete (got 7).
+  const validThirdIds = useMemo(
+    () => new Set<TeamId>(rows.map((r) => r.teamId)),
+    [rows],
+  );
+  const rawSelected = bracket.bestThirds ?? [];
+  const validSelected = rawSelected.filter((t) => validThirdIds.has(t));
+  const staleCount = rawSelected.length - validSelected.length;
+
+  // Auto-prune stale picks the moment we detect them. Running this in
+  // an effect (instead of inside render) keeps the React lifecycle
+  // happy and only fires when there's a real mismatch.
+  useEffect(() => {
+    if (staleCount > 0 && rows.length > 0) {
+      onChange(validSelected);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [staleCount, rows.length]);
+
+  const selected = new Set<TeamId>(validSelected);
   const selectedCount = selected.size;
   const atLimit = selectedCount >= REQUIRED;
 
