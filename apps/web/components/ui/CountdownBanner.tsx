@@ -61,12 +61,20 @@ export function CountdownBanner({
 }: CountdownBannerProps) {
   const t = useTranslations();
   const targetMs = Date.parse(targetUtc);
+  // Seed `now` with `targetMs` (a stable, deterministic value) so the
+  // server and the client's first render produce identical HTML. We
+  // bump it to the real Date.now() inside useEffect, AFTER hydration,
+  // so React doesn't see a mismatch. Without this seed every render
+  // logged "Text content did not match. Server: '07' Client: '06'" on
+  // the home page (Tim 2026-06-02).
   const [now, setNow] = useState<number>(() =>
-    Number.isFinite(targetMs) ? Date.now() : 0,
+    Number.isFinite(targetMs) ? targetMs : 0,
   );
 
   useEffect(() => {
     if (!Number.isFinite(targetMs)) return undefined;
+    // Snap to the real wall-clock the moment we hydrate.
+    setNow(Date.now());
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;

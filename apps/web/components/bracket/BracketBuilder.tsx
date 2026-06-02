@@ -646,8 +646,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
       if (k.id === lastEdited.matchId) return false;
       const before = prevById.get(k.id);
       if (!before) return false;
+      // Optional-chain so a malformed cascade entry (missing home/away
+      // ResolvedSlot) doesn't crash the whole BracketBuilder render.
       return (
-        before.home.team !== k.home.team || before.away.team !== k.away.team
+        (before.home?.team ?? null) !== (k.home?.team ?? null) ||
+        (before.away?.team ?? null) !== (k.away?.team ?? null)
       );
     });
     if (!changed) return;

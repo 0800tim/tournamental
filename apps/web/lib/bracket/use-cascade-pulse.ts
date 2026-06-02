@@ -72,9 +72,14 @@ export function useCascadePulse(cascaded: CascadedBracket): void {
   useEffect(() => {
     const snapshot = new Map<string, { home: string | null; away: string | null }>();
     for (const k of cascaded.knockouts) {
+      // Defensive: a malformed cascade entry (missing home/away
+      // ResolvedSlot) used to crash the page; treat it as "no
+      // resolved team" so the hook is a no-op for that match. Tim
+      // 2026-06-02: dev users with stale local state saw the whole
+      // bracket page error out on this line.
       snapshot.set(k.id, {
-        home: k.home.team ?? null,
-        away: k.away.team ?? null,
+        home: k.home?.team ?? null,
+        away: k.away?.team ?? null,
       });
     }
 
