@@ -30,6 +30,7 @@ import { resolve } from "node:path";
 import {
   cascade,
   loadFixtures2026,
+  type Bracket,
   type BracketPrediction,
   type Tournament,
 } from "@tournamental/bracket-engine";
@@ -129,6 +130,49 @@ function loadAuthRows(userIds: string[]): Map<string, AuthRow> {
   return out;
 }
 
+/**
+ * Resolve the user's predicted tournament champion from their saved
+ * Bracket payload. Mirrors BracketBuilder.handleAutoPick's multi-pass
+ * cascade: cascade once to resolve R32 slot teams, overlay the user's
+ * outcome (home_win / away_win) onto each round's resolved slots, and
+ * re-cascade. Iterate until no new winners resolve (or 6 passes).
+ *
+ * Returns the team-id of the final's effective_winner, or null if the
+ * user hasn't picked through to a final.
+ */
+function resolveChampionFromBracket(
+  tournament: Tournament,
+  bracket: Bracket,
+  userId: string,
+): string | null {
+  const input: BracketPrediction = bracketToCascadeInput(
+    tournament,
+    bracket,
+    userId,
+  );
+  let cascaded = cascade(tournament, input);
+  for (let pass = 0; pass < 6; pass += 1) {
+    const overlays: Array<{ match_id: string; winner: string }> = [];
+    for (const p of Object.values(bracket.knockoutPredictions ?? {})) {
+      const k = cascaded.knockouts.find((x) => x.id === p.matchId);
+      if (!k) continue;
+      const team =
+        p.outcome === "home_win"
+          ? k.home.team
+          : p.outcome === "away_win"
+            ? k.away.team
+            : null;
+      if (team) overlays.push({ match_id: p.matchId, winner: team });
+    }
+    const before = cascaded.knockouts.filter((k) => k.effective_winner).length;
+    cascaded = cascade(tournament, { ...input, knockouts: overlays });
+    const after = cascaded.knockouts.filter((k) => k.effective_winner).length;
+    if (after === before) break;
+  }
+  const final = cascaded.knockouts.find((k) => k.stage === "f");
+  return final?.effective_winner ?? final?.predicted_winner ?? null;
+}
+
 function loadBracketChampions(
   userIds: string[],
   tournament: Tournament,
@@ -155,15 +199,18 @@ function loadBracketChampions(
     for (const r of rows) {
       try {
         const bracket = JSON.parse(r.payload_json);
-        const input: BracketPrediction = bracketToCascadeInput(
+        // `bracketToCascadeInput` deliberately emits `knockouts: []`
+        // (the comment in cascade-bridge.ts says "the bridge consumer
+        // populates them from the cascade"). To resolve the user's
+        // predicted champion we have to do the same multi-pass dance
+        // that BracketBuilder.handleAutoPick uses: cascade once to
+        // resolve R32 slots, then iteratively overlay the user's
+        // home/away picks until no new winners get resolved.
+        const champion = resolveChampionFromBracket(
           tournament,
           bracket,
           r.user_id,
         );
-        const cascaded = cascade(tournament, input);
-        const final = cascaded.knockouts.find((k) => k.stage === "f");
-        const champion =
-          final?.effective_winner ?? final?.predicted_winner ?? null;
         out.set(r.user_id, champion);
       } catch {
         out.set(r.user_id, null);
