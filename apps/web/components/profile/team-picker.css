@@ -102,3 +102,133 @@
     width: 48px;
   }
 }
+
+/* ---------------------------------------------------------------- *
+ * Pill (closed) + modal (open) for the compact dropdown variant.
+ * Tim 2026-06-02: replaces the always-visible grid with a closed
+ * dropdown that opens a popover so the profile page stays compact.
+ * ---------------------------------------------------------------- */
+
+.vt-team-picker-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  color: var(--vt-fg, #e6e6ea);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+  text-align: left;
+  max-width: 100%;
+}
+.vt-team-picker-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.24);
+}
+.vt-team-picker-pill:focus-visible {
+  outline: 2px solid var(--vt-gold-400, #dca94b);
+  outline-offset: 3px;
+}
+.vt-team-picker-pill[data-empty="1"] {
+  color: var(--vt-fg-muted, #9ca3af);
+  font-weight: 500;
+}
+.vt-team-picker-pill-flag {
+  width: 28px;
+  height: 20px;
+  border-radius: 3px;
+  object-fit: cover;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.4);
+}
+.vt-team-picker-pill-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+.vt-team-picker-pill-code {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.78rem;
+  color: var(--vt-fg-muted, #9ca3af);
+  margin-left: 2px;
+}
+.vt-team-picker-pill-placeholder {
+  flex: 1 1 auto;
+}
+.vt-team-picker-pill-chevron {
+  margin-left: auto;
+  font-size: 0.78rem;
+  color: var(--vt-fg-muted, #9ca3af);
+  line-height: 1;
+}
+
+.vt-team-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.62);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+  overflow-y: auto;
+  backdrop-filter: blur(4px);
+}
+@media (max-width: 480px) {
+  .vt-team-picker-backdrop {
+    padding: 16px 8px;
+    align-items: stretch;
+  }
+}
+
+.vt-team-picker-modal {
+  width: min(640px, 100%);
+  background: var(--vt-surface-1, #11151f);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 64px);
+  overflow: hidden;
+}
+.vt-team-picker-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.vt-team-picker-modal-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--vt-fg, #e6e6ea);
+}
+.vt-team-picker-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--vt-fg, #e6e6ea);
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.vt-team-picker-modal-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.vt-team-picker-modal .vt-team-picker-head {
+  padding: 12px 16px 8px;
+}
+.vt-team-picker-modal .vt-team-picker-grid {
+  padding: 8px 16px 16px;
+  overflow-y: auto;
+}
