@@ -48,6 +48,12 @@ export interface NavLink {
   /** Optional explicit match prefix for active-route highlighting. When
    *  omitted, the surface uses `pathname === href || pathname.startsWith(href + "/")`. */
   readonly matchPrefix?: string;
+  /** Renders the link with the Tournamental gold call-to-action
+   *  treatment (gold fill, dark text). Used to make the "Play" entry
+   *  pop on the desktop nav. Drawer + mobile dock ignore this flag -
+   *  the dock has its own emphasis pattern (raised tab) and the
+   *  drawer reads better as a flat list. Tim 2026-06-03. */
+  readonly emphasis?: "gold";
 }
 
 /**
@@ -67,7 +73,9 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
   {
     // Tim 2026-06-03: "Play (Predict)" reads more inviting to new
     // visitors than the bare verb "Predict". Bottom-nav still uses
-    // the short "Play" form (see DEFAULT_BOTTOM_NAV_TABS).
+    // the short "Play" form (see DEFAULT_BOTTOM_NAV_TABS). On desktop
+    // only this gets the gold-fill emphasis so it pops as the primary
+    // call-to-action in the top bar.
     label: "Play (Predict)",
     i18nKey: "nav.predict",
     // /world-cup-2026/molecule starts with /world-cup-2026 so we have to
@@ -76,6 +84,7 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     href: "/world-cup-2026",
     icon: <PredictIcon />,
     matchPrefix: "/world-cup-2026",
+    emphasis: "gold",
   },
   {
     label: "Molecule",

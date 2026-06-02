@@ -479,6 +479,41 @@
   background: var(--vt-accent-warm);
 }
 
+/* Gold call-to-action treatment - applied to the "Play" entry on
+   desktop so it pops as the primary action. Drawer + bottom-dock
+   render the same link without this attribute. Tim 2026-06-03. */
+.vt-appbar-nav-link[data-emphasis="gold"] {
+  background: var(--vt-gold-400, #f5c542);
+  color: #161616;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 6px 16px;
+  margin: 0 2px;
+  transition: background-color 140ms ease, transform 140ms ease, box-shadow 140ms ease;
+  box-shadow: 0 0 0 1px rgba(245, 197, 66, 0.4);
+}
+.vt-appbar-nav-link[data-emphasis="gold"]:hover {
+  background: var(--vt-gold-300, #fbd970);
+  color: #0b0b0b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 197, 66, 0.35);
+}
+.vt-appbar-nav-link[data-emphasis="gold"]:focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 3px;
+}
+/* When the gold link is also the active route, swap the underline
+   accent for a slightly darker fill ring so the active+emphasis
+   combo stays legible (otherwise the gold underline blends into the
+   gold fill). */
+.vt-appbar-nav-link[data-emphasis="gold"][data-active="1"] {
+  box-shadow: inset 0 0 0 2px rgba(0, 0, 0, 0.25);
+  color: #000;
+}
+.vt-appbar-nav-link[data-emphasis="gold"][data-active="1"]::after {
+  display: none;
+}
+
 /* "More" dropdown */
 
 .vt-appbar-more {

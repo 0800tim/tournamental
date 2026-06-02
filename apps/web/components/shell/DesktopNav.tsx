@@ -91,12 +91,16 @@ function NavPill({ link, active }: { link: NavLink; active: boolean }) {
   const label = safeT(t, link.i18nKey, link.label);
   const className = "vt-appbar-nav-link";
   const dataActive = active ? "1" : "0";
+  // Tim 2026-06-03: gold-fill treatment for the primary "Play" entry.
+  // The styling lives in shell.css under [data-emphasis="gold"].
+  const dataEmphasis = link.emphasis ?? undefined;
   if (link.external) {
     return (
       <a
         href={link.href}
         className={className}
         data-active={dataActive}
+        data-emphasis={dataEmphasis}
         target="_blank"
         rel="noreferrer"
         aria-current={active ? "page" : undefined}
@@ -110,6 +114,7 @@ function NavPill({ link, active }: { link: NavLink; active: boolean }) {
       href={link.href}
       className={className}
       data-active={dataActive}
+      data-emphasis={dataEmphasis}
       aria-current={active ? "page" : undefined}
     >
       {label}
