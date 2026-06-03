@@ -20,7 +20,7 @@ const dateLabel = new Intl.DateTimeFormat("en-NZ", {
   month: "short",
   year: "numeric",
 }).format(data.pubDate);
-const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const heroSrc = data.heroImage;
 
 // Human-readable label for the `area` enum value. Kept in sync with
 // the index-page AREAS list manually; if it drifts the only damage is

@@ -44,7 +44,7 @@ const embargoLabel = data.embargoUntil
   ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.embargoUntil)
   : "";
 
-const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const heroSrc = data.heroImage;
 const canonical = new URL(`/press/${release.slug}`, Astro.site ?? "https://tournamental.com").toString();
 const ogImage = heroSrc
   ? heroSrc.startsWith("http")

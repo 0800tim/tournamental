@@ -16,7 +16,7 @@ const dateLabel = new Intl.DateTimeFormat("en-NZ", {
   month: "short",
   year: "numeric",
 }).format(data.pubDate);
-const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const heroSrc = data.heroImage;
 ---
 <article class="vt-blog-card group">
   <a href={href} class="vt-blog-card-media" aria-hidden="true" tabindex="-1">

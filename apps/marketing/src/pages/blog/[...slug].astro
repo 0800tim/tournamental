@@ -36,7 +36,7 @@ const updatedLabel = data.updated
   ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.updated)
   : null;
 
-const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const heroSrc = data.heroImage;
 
 // Pull two related posts for the footer "More from the blog" strip.
 const others = (await getCollection("blog", ({ data }) => !data.draft))

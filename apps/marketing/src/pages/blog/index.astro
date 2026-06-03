@@ -22,11 +22,7 @@ const rest = posts.filter((p) => p.slug !== hero?.slug);
 const heroDate = hero
   ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(hero.data.pubDate)
   : "";
-const heroSrc = hero
-  ? typeof hero.data.heroImage === "string"
-    ? hero.data.heroImage
-    : hero.data.heroImage?.src
-  : undefined;
+const heroSrc = hero?.data.heroImage;
 ---
 <Layout
   title="Blog, Tournamental"

@@ -46,7 +46,7 @@ const updatedLabel = data.updated
   ? new Intl.DateTimeFormat("en-NZ", { day: "numeric", month: "long", year: "numeric" }).format(data.updated)
   : null;
 
-const heroSrc = typeof data.heroImage === "string" ? data.heroImage : data.heroImage?.src;
+const heroSrc = data.heroImage;
 
 // Pull up to two related engineering posts for the bottom strip.
 const others = (await getCollection("engineering", ({ data }) => !data.draft))
