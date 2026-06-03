@@ -1,95 +1,50 @@
 /**
- * /api/og/bracket-poster, the printable bracket poster.
+ * /api/og/bracket-poster, the printable Etsy-style FIFA WC26 wall poster.
  *
- * Light-theme A3-print-quality (2400×3600 portrait, ~200dpi) PNG of
- * the user's full 104-pick bracket. Designed for download + print +
- * wall display. Tim 2026-06-01.
+ * Tim 2026-06-01 (v2): rewritten as a pure-SVG generator after the
+ * Satori first-pass missed the layout. The reference is the Etsy
+ * "FIFA World Cup 2026 A1 wall poster" design:
  *
- * Derived from /api/og/bracket-birdseye (which is the 1080×1920
- * dark-theme social-share variant). The poster swaps:
- *   - palette: cream paper + dark navy + muted gold + FIFA-magenta accent
- *   - size: 2400×3600 portrait by default (A3 @ ~200dpi)
- *   - title: FIFA WC26 + host-nation dateline instead of "My World Cup"
- *   - cache: long edge TTL (1h) + immutable, since user content is
- *     keyed by bracket_id and only changes on bracket save.
+ *   - Dark purple-to-red radial gradient background.
+ *   - "FIFA WORLD CUP 2026" hero title + subtitle banner.
+ *   - 12 groups in two outer columns (A-F on the left, G-L on the
+ *     right), each group a stack of 4 team rows with flag + name.
+ *   - Centre: classic converging knockout bracket diagram with proper
+ *     connector lines from R32 to R16 to QF to SF to FINAL, mirrored
+ *     on both sides.
+ *   - Gold trophy icon above the Final, red "FINAL" badge below it.
  *
- * Original birdseye docstring:
+ * Output: pure SVG by default (Content-Type: image/svg+xml). Vector
+ * scales infinitely so the same file prints A4 / A3 / A1 cleanly. Add
+ * ?format=png to rasterise via @resvg/resvg-js at 2400x3600.
  *
- * Renders the entire 48-team Football World Cup 2026 surface in one
- * frame: 12 group cards (flag emojis + ABBR) above a knockout
- * cascade that traces the user's gold-path (R16 → QF → SF → Final →
- * Champion). Shareable as a single PNG to WhatsApp / Insta / X /
- * Telegram as the "this is my whole bracket" brag (Tim 2026-05-22,
- * doc 36 §F item 11).
+ * Query params:
+ *   - bracket_id    Optional; if present we fetch the user's saved
+ *                   bracket to overlay actual picked teams.
+ *   - handle        Display handle on the footer.
+ *   - champion,
+ *     runner_up,
+ *     third         3-letter ISO codes (overrides bracket_id picks).
+ *   - format        svg (default) | png
  *
- * Sizes:
- *   - portrait (1080×1920) - STORY-shaped, the default for share menus.
- *   - landscape (1200×630) - X / FB / Telegram unfurl.
- *   - square (1080×1080)   - Insta square / Slack / WhatsApp thumb.
- *
- * Query params (all optional, render-safe placeholders if absent):
- *   - bracket_id (preferred), the user's share guid; if present we
- *     fetch /v1/bracket/by-guid/<id> from the game service to resolve
- *     champion + runner-up + third + knockout_path.
- *   - champion, runner_up, third - 3-letter codes (fallback when no id).
- *   - ko - pipe-delimited path "r16:MEX|qf:BRA|sf:GER|final:FRA" of the
- *     opponents the user predicted to beat at each stage.
- *   - handle - the predictor's display handle (shown in the dateline).
- *   - tournament - defaults to "FWC2026".
- *   - size - portrait | landscape | square.
- *
- * Rendering: satori (JSX → SVG) + @resvg/resvg-js (SVG → PNG). Fonts
- * (Fraunces + DejaVu mono fallback for the flag emojis and dateline)
- * are cached in module scope. Caching: short edge TTL + SWR so a
- * re-saved bracket refreshes within ~1 minute.
+ * Caching: long edge TTL + 24h SWR, immutable per (bracket_id, format).
  */
 
 import { promises as fs } from "node:fs";
 import { join } from "node:path";
 
 import type { NextRequest } from "next/server";
-import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
-
-import { resolveShareGuid } from "@/lib/share/resolve-guid";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-type Size = "portrait" | "landscape" | "square";
+// ─── Constants ──────────────────────────────────────────────────────
 
-const SIZES: Readonly<Record<Size, { width: number; height: number }>> = {
-  portrait: { width: 2400, height: 3600 }, // A3 @ ~200dpi, print-quality
-  landscape: { width: 3600, height: 2400 }, // A3 landscape
-  square: { width: 2400, height: 2400 }, // square print
-};
+const POSTER_W = 2400;
+const POSTER_H = 3600;
 
-// Light-theme palette for the printable poster. FIFA WC26 official
-// colour palette is purple + magenta + neon green; we use a muted
-// cream background + dark navy text for a poster that prints crisp on
-// A3 and reads well from across a room. The FIFA accent (a muted
-// magenta) is used sparingly on the title + Champion border.
-const COLOUR_BG = "#faf6ec";          // warm cream paper background
-const COLOUR_FG_STRONG = "#0f172a";   // dark navy text
-const COLOUR_FG_MUTED = "#6b7280";    // muted grey for 3rd/4th rows
-const COLOUR_GOLD = "#a87c14";        // deep muted gold for "GROUP A" labels
-const COLOUR_GOLD_BRIGHT = "#c89a2a"; // brighter gold for Champion glyph
-const COLOUR_GOLD_DEEP = "#7a5808";   // deepest gold for rank numerals
-const COLOUR_BORDER = "rgba(168, 124, 20, 0.22)";
-const COLOUR_BORDER_STRONG = "rgba(168, 124, 20, 0.58)";
-const COLOUR_CHIP_BG = "rgba(255, 250, 235, 0.65)";
-const COLOUR_FIFA_ACCENT = "#c04668"; // FIFA 26 magenta, used on title/Champion only
-
-const GAME_BASE =
-  process.env.VTORN_GAME_URL ??
-  process.env.NEXT_PUBLIC_VTORN_GAME_URL ??
-  "https://game.tournamental.com";
-
-const FETCH_TIMEOUT_MS = 750;
-
-/** Canonical 2026 World Cup group layout, derived once from the
- * fixtures file at module load and cached. Keeps the OG render hot
- * path off the disk. */
+// 12-group canonical 2026 layout. Same as bracket-birdseye.
 const GROUPS: Readonly<Record<string, readonly string[]>> = {
   A: ["MEX", "RSA", "KOR", "CZE"],
   B: ["CAN", "QAT", "BIH", "SUI"],
@@ -105,95 +60,85 @@ const GROUPS: Readonly<Record<string, readonly string[]>> = {
   L: ["ENG", "GHA", "CRO", "PAN"],
 };
 
-interface FontBundle {
-  readonly fraunces500: ArrayBuffer;
-  readonly fraunces700: ArrayBuffer;
-  readonly mono: ArrayBuffer;
-  readonly emoji: ArrayBuffer | null;
-}
-let fontCache: FontBundle | null = null;
+const TEAM_NAMES: Readonly<Record<string, string>> = {
+  ALG: "Algeria", ARG: "Argentina", AUS: "Australia", AUT: "Austria",
+  BEL: "Belgium", BIH: "Bosnia and Herzegovina", BRA: "Brazil",
+  CAN: "Canada", CIV: "Ivory Coast", COD: "DR Congo", COL: "Colombia",
+  CPV: "Cape Verde", CRO: "Croatia", CUW: "Curacao", CZE: "Czechia",
+  ECU: "Ecuador", EGY: "Egypt", ENG: "England", ESP: "Spain",
+  FRA: "France", GER: "Germany", GHA: "Ghana", HAI: "Haiti",
+  IRN: "Iran", IRQ: "Iraq", JOR: "Jordan", JPN: "Japan",
+  KOR: "South Korea", KSA: "Saudi Arabia", MAR: "Morocco", MEX: "Mexico",
+  NED: "Netherlands", NOR: "Norway", NZL: "New Zealand", PAN: "Panama",
+  PAR: "Paraguay", POR: "Portugal", QAT: "Qatar", RSA: "South Africa",
+  SCO: "Scotland", SEN: "Senegal", SUI: "Switzerland", SWE: "Sweden",
+  TUN: "Tunisia", TUR: "Turkey", URU: "Uruguay", USA: "United States",
+  UZB: "Uzbekistan",
+};
 
-async function loadFonts(): Promise<FontBundle> {
-  if (fontCache) return fontCache;
-  const fontDir = join(process.cwd(), "public", "fonts");
-  const monoCandidates = [
-    "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-  ];
-  const emojiCandidates = [
-    "/usr/share/fonts/truetype/noto/NotoColorEmoji.ttf",
-    "/usr/share/fonts/truetype/noto-emoji/NotoColorEmoji.ttf",
-  ];
-  const [fraunces500, fraunces700, mono, emoji] = await Promise.all([
-    readBuffer(join(fontDir, "Fraunces-500.ttf")),
-    readBuffer(join(fontDir, "Fraunces-700.ttf")),
-    readFirst(monoCandidates),
-    readFirstOptional(emojiCandidates),
-  ]);
-  fontCache = { fraunces500, fraunces700, mono, emoji };
-  return fontCache;
+// Flag SVG cache (raw inline SVG markup so we can embed inside <svg>).
+const flagInlineCache = new Map<string, string | null>();
+
+interface FlagAsset {
+  /** The original viewBox attribute value (e.g. "0 0 800 500"). */
+  readonly viewBox: string;
+  /** The inner XML of the source <svg> (without the wrapping tag). */
+  readonly inner: string;
 }
 
-async function readBuffer(path: string): Promise<ArrayBuffer> {
-  const data = await fs.readFile(path);
-  return data.buffer.slice(
-    data.byteOffset,
-    data.byteOffset + data.byteLength,
-  ) as ArrayBuffer;
-}
+const flagCache = new Map<string, FlagAsset | null>();
 
-async function readFirst(paths: readonly string[]): Promise<ArrayBuffer> {
-  for (const p of paths) {
-    try {
-      return await readBuffer(p);
-    } catch {
-      /* try next */
-    }
-  }
-  throw new Error("no mono font available for satori");
-}
-
-async function readFirstOptional(
-  paths: readonly string[],
-): Promise<ArrayBuffer | null> {
-  for (const p of paths) {
-    try {
-      return await readBuffer(p);
-    } catch {
-      /* try next */
-    }
-  }
-  return null;
-}
-
-/** Flag SVG cache. Each entry is a base64-encoded `data:image/svg+xml`
- * URI safe to drop into a `backgroundImage: url(...)` declaration on
- * the satori-side render. Populated lazily by `loadFlagDataUris()`.
- * The cache key is the upper-case ISO team code (e.g. "ARG"). A miss
- * (e.g. unknown code, file not on disk) returns null which the
- * renderer treats as "no flag, fall back to the plain charcoal
- * circle". Tim 2026-05-22. */
-const flagCache = new Map<string, string | null>();
-
-async function loadFlagDataUri(code: string): Promise<string | null> {
+async function loadFlag(code: string): Promise<FlagAsset | null> {
+  // Reads the flag SVG once per process; returns the viewBox + the
+  // inner markup so we can emit it as a <symbol> in <defs> and
+  // reference it with <use href="#flag-CODE" /> from each cell.
+  // This works in both browser SVG rendering AND resvg-js (whereas
+  // <image href="data:image/svg+xml;..."> fails in resvg).
   if (flagCache.has(code)) return flagCache.get(code) ?? null;
   const path = join(process.cwd(), "public", "flags", `${code}.svg`);
   try {
-    const data = await fs.readFile(path);
-    const b64 = data.toString("base64");
-    const uri = `data:image/svg+xml;base64,${b64}`;
-    flagCache.set(code, uri);
-    return uri;
+    const data = await fs.readFile(path, "utf8");
+    const stripped = data.replace(/<\?xml[^>]*\?>\s*/i, "");
+    const openMatch = stripped.match(/<svg\b([^>]*)>/i);
+    if (!openMatch) {
+      flagCache.set(code, null);
+      return null;
+    }
+    const attrs = openMatch[1];
+    let viewBox = "0 0 3 2";
+    const vbMatch = attrs.match(/viewBox\s*=\s*"([^"]+)"/i);
+    if (vbMatch) {
+      viewBox = vbMatch[1];
+    } else {
+      const wMatch = attrs.match(/width\s*=\s*"?([\d.]+)/i);
+      const hMatch = attrs.match(/height\s*=\s*"?([\d.]+)/i);
+      if (wMatch && hMatch) viewBox = `0 0 ${wMatch[1]} ${hMatch[1]}`;
+    }
+    let inner = stripped
+      .replace(/^[\s\S]*?<svg[^>]*>/i, "")
+      .replace(/<\/svg>\s*$/i, "");
+    // Strip any non-SVG namespace attributes (inkscape:, sodipodi:, etc.)
+    // and the matching xmlns declarations.  resvg-js rejects unknown
+    // namespace prefixes outright, and the browser SVG renderer ignores
+    // them anyway, so the safe move is to remove them on read.
+    inner = inner.replace(/\s(?:inkscape|sodipodi|rdf|cc|dc):[\w-]+="[^"]*"/g, "");
+    inner = inner.replace(/\sxmlns:(?:inkscape|sodipodi|rdf|cc|dc)="[^"]*"/g, "");
+    // Strip any <metadata>, <defs id="namedview">, or <sodipodi:namedview> blocks
+    inner = inner.replace(/<metadata\b[\s\S]*?<\/metadata>/gi, "");
+    inner = inner.replace(/<sodipodi:namedview\b[\s\S]*?\/>/gi, "");
+    const asset: FlagAsset = { viewBox, inner };
+    flagCache.set(code, asset);
+    return asset;
   } catch {
     flagCache.set(code, null);
     return null;
   }
 }
 
-async function loadFlagDataUris(codes: readonly string[]): Promise<Map<string, string>> {
+async function loadAllFlags(codes: readonly string[]): Promise<Map<string, FlagAsset>> {
   const unique = Array.from(new Set(codes.filter(Boolean)));
-  await Promise.all(unique.map(loadFlagDataUri));
-  const out = new Map<string, string>();
+  await Promise.all(unique.map(loadFlag));
+  const out = new Map<string, FlagAsset>();
   for (const c of unique) {
     const v = flagCache.get(c);
     if (v) out.set(c, v);
@@ -201,1031 +146,669 @@ async function loadFlagDataUris(codes: readonly string[]): Promise<Map<string, s
   return out;
 }
 
-interface KoPick {
-  stage: "r32" | "r16" | "qf" | "sf" | "final" | "tp";
-  opponent: string;
+// ─── SVG helpers ────────────────────────────────────────────────────
+
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
 
 interface RenderArgs {
-  readonly champion: string | null;
-  readonly runnerUp: string | null;
-  readonly third: string | null;
-  readonly ko: readonly KoPick[];
-  readonly handle: string;
-  readonly tournament: string;
-  readonly size: Size;
-}
-
-function isoCode(raw: string | null | undefined): string | null {
-  if (typeof raw !== "string") return null;
-  const s = raw.trim().toUpperCase();
-  return /^[A-Z]{2,4}$/.test(s) ? s : null;
-}
-
-function parseKoParam(raw: string | null): KoPick[] {
-  if (!raw) return [];
-  return raw
-    .split(/[|,]/)
-    .map((seg) => {
-      const [stage, code] = seg.split(":");
-      const s = (stage ?? "").toLowerCase();
-      const c = isoCode(code ?? null);
-      if (!c) return null;
-      if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(s)) return null;
-      return { stage: s as KoPick["stage"], opponent: c };
-    })
-    .filter((x): x is KoPick => x !== null);
-}
-
-function parseSize(req: NextRequest): Size {
-  const raw = new URL(req.url).searchParams.get("size");
-  if (raw === "landscape" || raw === "square") return raw;
-  return "portrait";
-}
-
-function parseArgs(req: NextRequest, size: Size): RenderArgs {
-  const url = new URL(req.url);
-  const handle =
-    (url.searchParams.get("handle") ?? "").trim().slice(0, 24) || "Predictor";
-  const tournament =
-    (url.searchParams.get("tournament") ?? "FWC2026").trim().slice(0, 16).toUpperCase() ||
-    "FWC2026";
-  return {
-    champion: isoCode(url.searchParams.get("champion")),
-    runnerUp: isoCode(url.searchParams.get("runner_up")),
-    third: isoCode(url.searchParams.get("third")),
-    ko: parseKoParam(url.searchParams.get("ko")),
-    handle,
-    tournament,
-    size,
-  };
-}
-
-async function enrichFromGameService(
-  bracketId: string,
-  inline: RenderArgs,
-): Promise<RenderArgs> {
-  if (!/^[a-zA-Z0-9_-]{3,64}$/.test(bracketId)) return inline;
-  // Use the same share-guid resolver the /s/[guid] page uses so the OG
-  // endpoint accepts a friendly handle ("0800tim"), a raw share guid
-  // (UUID / nanoid / `u_<hex>`), or a syndicate slug. The previous
-  // hand-rolled fetch only handled raw share guids, so anyone calling
-  // ?bracket_id=<handle> got an empty card. Tim 2026-05-25.
-  try {
-    const resolved = await resolveShareGuid(bracketId);
-    if (resolved.kind !== "user") return inline;
-    const b = resolved.bracket as unknown as Record<string, unknown>;
-    const championCode = isoCode(
-      (b.champion as { code?: string } | undefined)?.code ??
-        (b.champion_code as string | undefined),
-    );
-    const runnerUpCode = isoCode(
-      (b.runner_up as { code?: string } | undefined)?.code ??
-        (b.runner_up_code as string | undefined),
-    );
-    const thirdCode = isoCode(
-      (b.third_place as { code?: string } | undefined)?.code ??
-        (b.third_place_code as string | undefined),
-    );
-    const champion = inline.champion ?? championCode;
-    const runnerUp = inline.runnerUp ?? runnerUpCode;
-    const third = inline.third ?? thirdCode;
-    let ko = inline.ko;
-    if (ko.length === 0 && Array.isArray(b.path_to_gold)) {
-      // Newer schema: path_to_gold = [{stage, opponent: {code, name, ...}}, ...]
-      ko = (b.path_to_gold as unknown[])
-        .map((e) => {
-          if (!e || typeof e !== "object") return null;
-          const r = e as Record<string, unknown>;
-          const stage = typeof r.stage === "string" ? r.stage.toLowerCase() : null;
-          const oppObj = r.opponent as { code?: string } | undefined;
-          const opp =
-            isoCode(oppObj?.code) ?? isoCode(r.opponent_code as string | undefined);
-          if (!stage || !opp) return null;
-          if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(stage)) return null;
-          return { stage: stage as KoPick["stage"], opponent: opp };
-        })
-        .filter((x): x is KoPick => x !== null);
-    }
-    if (ko.length === 0 && Array.isArray(b.knockout_path)) {
-      // Legacy schema fallback.
-      ko = (b.knockout_path as unknown[])
-        .map((e) => {
-          if (!e || typeof e !== "object") return null;
-          const r = e as Record<string, unknown>;
-          const stage = typeof r.stage === "string" ? r.stage.toLowerCase() : null;
-          const opp = isoCode(r.opponent_code as string | undefined);
-          if (!stage || !opp) return null;
-          if (!["r32", "r16", "qf", "sf", "final", "tp"].includes(stage)) return null;
-          return { stage: stage as KoPick["stage"], opponent: opp };
-        })
-        .filter((x): x is KoPick => x !== null);
-    }
-    return { ...inline, champion, runnerUp, third, ko };
-  } catch {
-    return inline;
-  }
-}
-
-export async function GET(req: NextRequest): Promise<Response> {
-  const size = parseSize(req);
-  let args = parseArgs(req, size);
-  const bracketId = (new URL(req.url).searchParams.get("bracket_id") ?? "").trim();
-  if (bracketId) args = await enrichFromGameService(bracketId, args);
-
-  try {
-    const png = await renderPNG(args);
-    return new Response(png as unknown as BodyInit, {
-      status: 200,
-      headers: {
-        "content-type": "image/png",
-        "content-disposition": `inline; filename="birdseye-${args.size}.png"`,
-        "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400, immutable",
-        "x-vtorn-og-size": args.size,
-      },
-    });
-  } catch (err) {
-    return new Response(renderFallbackPng() as unknown as BodyInit, {
-      status: 200,
-      headers: {
-        "content-type": "image/png",
-        "cache-control": "no-store",
-        "x-og-fallback": "1",
-        "x-og-error":
-          err instanceof Error ? err.message.slice(0, 200) : "render_failed",
-      },
-    });
-  }
-}
-
-// ─── Render ─────────────────────────────────────────────────────────
-
-async function renderPNG(args: RenderArgs): Promise<Buffer> {
-  const { width, height } = SIZES[args.size];
-  const fonts = await loadFonts();
-  // Preload flag SVGs for every team referenced anywhere on the card:
-  // all 48 group-stage teams (so each group card can paint flag cells)
-  // + the KO opponents at each stage + the champion / runner-up /
-  // third-place picks for the podium. Tim 2026-05-22, expanded
-  // 2026-05-25 to cover the 48 group flags too -- previously the
-  // group section showed only 3-letter codes which read as
-  // unbranded text on social shares.
-  const flagCodes: string[] = [];
-  for (const codes of Object.values(GROUPS)) for (const c of codes) flagCodes.push(c);
-  for (const p of args.ko) flagCodes.push(p.opponent);
-  if (args.champion) flagCodes.push(args.champion);
-  if (args.runnerUp) flagCodes.push(args.runnerUp);
-  if (args.third) flagCodes.push(args.third);
-  const flagsByCode = await loadFlagDataUris(flagCodes);
-  const iconMarkUri = await loadIconMark();
-  const isPortrait = args.size === "portrait";
-  const isLandscape = args.size === "landscape";
-
-  // Per-size paddings + scale.
-  const padding = isPortrait ? 124 : isLandscape ? 96 : 110; // generous margin for print
-  const scale = isPortrait ? 2.22 : isLandscape ? 2.0 : 2.0; // 2.22x = 2400/1080 for the print-poster portrait
-
-  // KO stage picks indexed by stage.
-  const koByStage = new Map(args.ko.map((p) => [p.stage, p.opponent] as const));
-
-  const datelineFont = Math.round(22 * scale);
-  const titleFont = Math.round(72 * scale); // bigger headline for print poster
-  const handleFont = Math.round(32 * scale);
-  const groupLetterFont = Math.round(22 * scale);
-  const groupCodeFont = Math.round(22 * scale);
-  const groupFlagFont = Math.round(28 * scale);
-  const stageLabelFont = Math.round(16 * scale);
-  const koCodeFont = Math.round(40 * scale);
-  const koFlagFont = Math.round(34 * scale);
-  const championFont = Math.round(100 * scale); // dampened from 148 to keep champion contained in print layout
-  const ballSize = Math.round(96 * scale);
-
-  const dateline = `11 JUN - 19 JUL 2026 · USA · MEXICO · CANADA · @${args.handle.toUpperCase()}`;
-
-  // Groups grid: 4 columns x 3 rows on portrait/square, 6x2 on landscape.
-  const groupCols = isLandscape ? 6 : 4;
-  const groupGap = Math.round(10 * scale);
-  const groupEntries = Object.entries(GROUPS) as ReadonlyArray<[string, readonly string[]]>;
-
-  const tree = {
-    type: "div",
-    props: {
-      style: {
-        width,
-        height,
-        display: "flex",
-        flexDirection: "column",
-        background: COLOUR_BG,
-        padding,
-        color: COLOUR_FG_STRONG,
-        fontFamily: "Fraunces",
-        position: "relative",
-        gap: Math.round(24 * scale),
-      },
-      children: [
-        // ─── Header: gold ball + dateline + headline + handle.
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              gap: Math.round(10 * scale),
-            },
-            children: [
-              {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    gap: Math.round(20 * scale),
-                  },
-                  children: [
-                    renderGoldBall(ballSize, iconMarkUri),
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.7em",
-                          fontFamily: "DejaVuMono",
-                          fontSize: datelineFont,
-                          color: COLOUR_GOLD,
-                          letterSpacing: "0.14em",
-                          textTransform: "uppercase",
-                          fontWeight: 500,
-                        },
-                        children: [
-                          {
-                            type: "div",
-                            props: {
-                              style: {
-                                width: Math.round(36 * scale),
-                                height: 1,
-                                background: COLOUR_GOLD,
-                              },
-                            },
-                          },
-                          dateline,
-                        ],
-                      },
-                    },
-                  ],
-                },
-              },
-              {
-                type: "div",
-                props: {
-                  style: {
-                    fontFamily: "Fraunces",
-                    fontSize: titleFont,
-                    fontWeight: 500,
-                    letterSpacing: "-0.02em",
-                    color: COLOUR_FG_STRONG,
-                    lineHeight: 1.05,
-                  },
-                  children: "FIFA WORLD CUP 26™",
-                },
-              },
-              // Dynamic subtitle: names the predicted champion so the
-              // share image telegraphs the call in a single glance
-              // even when the receiver only sees the top third of the
-              // image in their preview pane (Tim 2026-05-26).
-              {
-                type: "div",
-                props: {
-                  style: {
-                    fontFamily: "Fraunces",
-                    fontSize: Math.round(titleFont * 0.42),
-                    fontWeight: 500,
-                    fontStyle: "italic",
-                    letterSpacing: "0.01em",
-                    color: COLOUR_FG_MUTED,
-                    lineHeight: 1.2,
-                    marginTop: Math.round(2 * scale),
-                  },
-                  children: args.champion
-                    ? `${args.champion} to lift the trophy.`
-                    : "48 teams. 104 matches. One predicted champion.",
-                },
-              },
-            ],
-          },
-        },
-
-        // ─── 12 group cards. satori doesn't support CSS grid, so we
-        // emulate with a wrapping flex row + explicit per-cell width.
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexWrap: "wrap",
-              gap: groupGap,
-            },
-            children: groupEntries.map(([letter, codes]) =>
-              renderGroupCard({
-                letter,
-                codes,
-                letterFont: groupLetterFont,
-                codeFont: groupCodeFont,
-                flagFont: groupFlagFont,
-                scale,
-                widthPct: 100 / groupCols,
-                gap: groupGap,
-                cols: groupCols,
-                flagsByCode,
-              }),
-            ),
-          },
-        },
-
-        // ─── Knockout cascade + champion. The cascade group takes
-        // whatever vertical space is left after header + groups +
-        // footer; inside, both the KO ladder and the champion panel
-        // size to their own content and align tight to the top. The
-        // earlier "flex: 1 1 auto" on the KO ladder itself stretched
-        // it vertically and left a huge gap above the champion (Tim
-        // 2026-05-25).
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexDirection: isLandscape ? "row" : "column",
-              alignItems: "stretch",
-              justifyContent: "flex-start",
-              gap: Math.round(18 * scale),
-              flex: "0 0 auto",
-            },
-            children: [
-              // KO ladder
-              {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    gap: Math.round(10 * scale),
-                    padding: Math.round(22 * scale),
-                    background: "rgba(255, 255, 255, 0.02)",
-                    border: `1px solid ${COLOUR_BORDER}`,
-                    borderRadius: Math.round(14 * scale),
-                    flex: "0 0 auto",
-                  },
-                  children: renderKoLadder({
-                    koByStage,
-                    champion: args.champion,
-                    runnerUp: args.runnerUp,
-                    stageLabelFont,
-                    codeFont: koCodeFont,
-                    flagFont: koFlagFont,
-                    scale,
-                    flagsByCode,
-                  }),
-                },
-              },
-              // Champion crown panel
-              renderChampionPanel({
-                champion: args.champion,
-                runnerUp: args.runnerUp,
-                third: args.third,
-                font: championFont,
-                stageLabelFont,
-                scale,
-                flagsByCode,
-              }),
-            ],
-          },
-        },
-
-        // Footer with a faint gold rule above to anchor it visually
-        // against the dense panels above (Tim 2026-05-26).
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              gap: Math.round(14 * scale),
-              marginTop: Math.round(24 * scale),
-            },
-            children: [
-              {
-                type: "div",
-                props: {
-                  style: {
-                    width: "100%",
-                    height: 1,
-                    background: COLOUR_BORDER,
-                  },
-                },
-              },
-              {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    fontFamily: "DejaVuMono",
-                    fontSize: Math.round(18 * scale),
-                    color: COLOUR_FG_MUTED,
-                    letterSpacing: "0.08em",
-                  },
-                  children: [
-                    "play.tournamental.com",
-                    {
-                      type: "div",
-                      props: {
-                        style: { color: COLOUR_GOLD, fontWeight: 700 },
-                        children: "BUILD YOURS →",
-                      },
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        },
-      ],
-    },
-  } as const;
-
-  const fontList: Array<{ name: string; data: ArrayBuffer; weight?: 400 | 500 | 700; style?: "normal" | "italic" }> = [
-    { name: "Fraunces", data: fonts.fraunces500, weight: 500, style: "normal" },
-    { name: "Fraunces", data: fonts.fraunces700, weight: 700, style: "normal" },
-    { name: "DejaVuMono", data: fonts.mono, weight: 400, style: "normal" },
-    { name: "DejaVuMono", data: fonts.mono, weight: 500, style: "normal" },
-  ];
-
-  const svg = await satori(
-    tree as unknown as Parameters<typeof satori>[0],
-    {
-      width,
-      height,
-      fonts: fontList,
-    },
-  );
-  const png = new Resvg(svg, { fitTo: { mode: "width", value: width } })
-    .render()
-    .asPng();
-  return Buffer.from(png);
-}
-
-// ─── Pieces ────────────────────────────────────────────────────────
-
-function renderGroupCard(args: {
-  letter: string;
-  codes: readonly string[];
-  letterFont: number;
-  codeFont: number;
-  flagFont: number;
-  scale: number;
-  widthPct: number;
-  gap: number;
-  cols: number;
-  flagsByCode: Map<string, string>;
-}): unknown {
-  // Compute pixel-width approximation for flex item. satori's flexbox
-  // engine handles `width: <pct>` by referencing the parent's content
-  // box, so we shrink each cell to fit cols + (cols-1) gap segments.
-  const gapAllowance = args.gap * (args.cols - 1);
-  // Small flag chips sized slightly larger than code-font cap height
-  // so the colour of each country reads at a glance even in the
-  // 12-card birdseye view (Tim 2026-05-26).
-  const flagDiameter = Math.round(args.codeFont * 1.18);
-  return {
-    type: "div",
-    props: {
-      style: {
-        display: "flex",
-        flexDirection: "column",
-        gap: Math.round(6 * args.scale),
-        padding: Math.round(12 * args.scale),
-        background: COLOUR_CHIP_BG,
-        border: `1px solid ${COLOUR_BORDER}`,
-        borderRadius: Math.round(10 * args.scale),
-        // Flex-basis with gap subtracted so cols fit exactly.
-        width: `calc(${args.widthPct}% - ${Math.round(gapAllowance / args.cols)}px)`,
-      },
-      children: [
-        {
-          type: "div",
-          props: {
-            style: {
-              fontFamily: "DejaVuMono",
-              fontSize: args.letterFont,
-              color: COLOUR_GOLD,
-              fontWeight: 700,
-              letterSpacing: "0.14em",
-            },
-            children: `GROUP ${args.letter}`,
-          },
-        },
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              gap: Math.round(4 * args.scale),
-            },
-            children: args.codes.map((code, idx) => {
-              const flag = args.flagsByCode.get(code) ?? null;
-              const flagChild: Record<string, unknown> = {
-                display: "flex",
-                width: flagDiameter,
-                height: flagDiameter,
-                borderRadius: "50%",
-                border: `1px solid ${COLOUR_BORDER}`,
-                overflow: "hidden",
-                flexShrink: 0,
-              };
-              if (flag) {
-                flagChild.backgroundImage = `url("${flag}")`;
-                flagChild.backgroundSize = "cover";
-                flagChild.backgroundPosition = "center";
-              } else {
-                flagChild.background = "rgba(168, 124, 20, 0.10)"; // light cream chip for missing flag
-              }
-              return {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    alignItems: "center",
-                    gap: Math.round(8 * args.scale),
-                    fontFamily: "Fraunces",
-                    fontSize: args.codeFont,
-                    color: idx < 2 ? COLOUR_FG_STRONG : COLOUR_FG_MUTED,
-                    fontWeight: idx < 2 ? 700 : 500,
-                  },
-                  children: [
-                    {
-                      type: "div",
-                      props: {
-                        style: {
-                          fontFamily: "DejaVuMono",
-                          fontSize: Math.round(args.codeFont * 0.55),
-                          color: COLOUR_GOLD_DEEP,
-                          width: Math.round(14 * args.scale),
-                        },
-                        children: String(idx + 1),
-                      },
-                    },
-                    { type: "div", props: { style: flagChild, children: "" } },
-                    code,
-                  ],
-                },
-              };
-            }),
-          },
-        },
-      ],
-    },
-  };
-}
-
-function renderKoLadder(args: {
-  koByStage: Map<KoPick["stage"], string>;
-  champion: string | null;
-  runnerUp: string | null;
-  stageLabelFont: number;
-  codeFont: number;
-  flagFont: number;
-  scale: number;
-  flagsByCode: Map<string, string>;
-}): unknown[] {
-  const stages: Array<{ key: KoPick["stage"]; label: string }> = [
-    { key: "r32", label: "R32" },
-    { key: "r16", label: "R16" },
-    { key: "qf", label: "QF" },
-    { key: "sf", label: "SF" },
-    { key: "final", label: "FINAL" },
-  ];
-  // Bumped 2026-05-25: previous 86px circles read very small at
-  // portrait scale; the share card needs each opponent's flag legible
-  // at a glance on a phone share preview.
-  const circleSize = Math.round(132 * args.scale);
-
-  // Render cells interleaved with thin gold chevron separators so the
-  // ladder reads left-to-right as a progression (Tim 2026-05-26).
-  // Earlier version used a per-cell "BEAT" caption - redundant on a
-  // share card where each row already implies progression.
-  const out: unknown[] = [];
-  stages.forEach((s, idx) => {
-    if (idx > 0) {
-      out.push({
-        type: "div",
-        props: {
-          style: {
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontFamily: "Fraunces",
-            fontSize: Math.round(56 * args.scale),
-            color: COLOUR_GOLD,
-            // Lift the chevron so it sits visually mid-circle, not
-            // mid-label-block.
-            marginTop: Math.round(args.stageLabelFont * 1.4),
-            fontWeight: 500,
-            flex: "0 0 auto",
-            opacity: 0.95,
-          },
-          children: "›",
-        },
-      });
-    }
-    const opponent = args.koByStage.get(s.key) ?? " - ";
-    const flag = opponent === " - " ? null : args.flagsByCode.get(opponent) ?? null;
-    out.push({
-      type: "div",
-      props: {
-        style: {
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: Math.round(8 * args.scale),
-          flex: "1 1 0",
-        },
-        children: [
-          {
-            type: "div",
-            props: {
-              style: {
-                fontFamily: "DejaVuMono",
-                fontSize: args.stageLabelFont,
-                color: COLOUR_GOLD,
-                letterSpacing: "0.16em",
-                textTransform: "uppercase",
-                fontWeight: 700,
-              },
-              children: s.label,
-            },
-          },
-          renderFlagCircle({
-            code: opponent,
-            flag,
-            size: circleSize,
-            codeFont: args.codeFont,
-            scrim: "rgba(15,23,42,0.32)", // softened scrim for the light champion panel
-          }),
-        ],
-      },
-    });
-  });
-  return out;
-}
-
-/** A circular cell with the team's flag behind a dark scrim and the
- * 3-letter code centred on top. Falls back to the original
- * charcoal-fill circle when a flag isn't available (unknown code or
- * SVG missing from public/flags/). Used by both the KO ladder and a
- * larger variant by the champion panel.
- *
- * Style props are built up via separate objects so we don't hand
- * satori `undefined` values (its CSS parser barfs on those in some
- * paths). Tim 2026-05-22.
- */
-function renderFlagCircle(args: {
-  code: string;
-  flag: string | null;
-  size: number;
-  codeFont: number;
-  scrim: string;
-}): unknown {
-  const isEmpty = args.code === " - ";
-  const hasFlag = !isEmpty && !!args.flag;
-
-  const outerBase: Record<string, unknown> = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: args.size,
-    height: args.size,
-    borderRadius: 999,
-    border: `2px solid ${isEmpty ? COLOUR_BORDER : COLOUR_BORDER_STRONG}`,
-    boxShadow: `0 0 16px ${isEmpty ? "transparent" : "rgba(220,169,75,0.35)"}`,
-    overflow: "hidden",
-  };
-  if (hasFlag) {
-    outerBase.backgroundImage = `url("${args.flag}")`;
-    outerBase.backgroundSize = "cover";
-    outerBase.backgroundPosition = "center";
-  } else {
-    outerBase.background = isEmpty ? "rgba(255,255,255,0.03)" : COLOUR_BG;
-  }
-
-  const innerBase: Record<string, unknown> = {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: args.size,
-    height: args.size,
-    borderRadius: 999,
-    fontFamily: "Fraunces",
-    fontSize: args.codeFont,
-    fontWeight: 700,
-    color: COLOUR_FG_STRONG,
-  };
-  if (hasFlag) {
-    innerBase.background = args.scrim;
-    innerBase.textShadow = "0 1px 2px rgba(15,23,42,0.18)";
-  }
-
-  return {
-    type: "div",
-    props: {
-      style: outerBase,
-      children: [
-        {
-          type: "div",
-          props: {
-            style: innerBase,
-            children: args.code,
-          },
-        },
-      ],
-    },
-  };
-}
-
-function renderChampionPanel(args: {
   champion: string | null;
   runnerUp: string | null;
   third: string | null;
-  font: number;
-  stageLabelFont: number;
-  scale: number;
-  flagsByCode: Map<string, string>;
-}): unknown {
-  const champ = args.champion ?? " - ";
-  const flag = args.champion ? args.flagsByCode.get(args.champion) ?? null : null;
-  const runnerFlag = args.runnerUp ? args.flagsByCode.get(args.runnerUp) ?? null : null;
-  const thirdFlag = args.third ? args.flagsByCode.get(args.third) ?? null : null;
-  const hasFlag = !!flag;
-  const scrim =
-    "linear-gradient(180deg, rgba(20,20,24,0.62), rgba(20,20,24,0.84))";
-  const fallbackBg =
-    "linear-gradient(180deg, rgba(252,211,77,0.10), rgba(154,106,23,0.06))";
-
-  const outerBase: Record<string, unknown> = {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: Math.round(6 * args.scale),
-    padding: Math.round(22 * args.scale),
-    border: `2px solid ${COLOUR_BORDER_STRONG}`,
-    borderRadius: Math.round(14 * args.scale),
-    minWidth: Math.round(200 * args.scale),
-    overflow: "hidden",
-  };
-  if (hasFlag) {
-    outerBase.backgroundImage = `url("${flag}")`;
-    outerBase.backgroundSize = "cover";
-    outerBase.backgroundPosition = "center";
-  } else {
-    outerBase.background = fallbackBg;
-  }
-
-  const childArgs = {
-    runnerUp: args.runnerUp,
-    third: args.third,
-    font: args.font,
-    stageLabelFont: args.stageLabelFont,
-    scale: args.scale,
-    runnerFlag,
-    thirdFlag,
-  };
-
-  if (!hasFlag) {
-    return {
-      type: "div",
-      props: {
-        style: outerBase,
-        children: championPanelChildren(childArgs, champ),
-      },
-    };
-  }
-
-  return {
-    type: "div",
-    props: {
-      style: outerBase,
-      children: [
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: Math.round(6 * args.scale),
-              padding: Math.round(28 * args.scale),
-              width: "100%",
-              background: scrim,
-              borderRadius: Math.round(14 * args.scale),
-            },
-            children: championPanelChildren(childArgs, champ),
-          },
-        },
-      ],
-    },
-  };
+  handle: string;
+  tournament: string;
 }
 
-function championPanelChildren(
-  args: {
-    runnerUp: string | null;
-    third: string | null;
-    font: number;
-    stageLabelFont: number;
-    scale: number;
-    runnerFlag: string | null;
-    thirdFlag: string | null;
-  },
-  champ: string,
-): unknown[] {
-  const podiumChipSize = Math.round(34 * args.scale);
-  function podiumChip(label: string, code: string | null, flag: string | null): unknown {
-    const has = !!flag;
-    const circle: Record<string, unknown> = {
-      display: "flex",
-      width: podiumChipSize,
-      height: podiumChipSize,
-      borderRadius: "50%",
-      border: `1px solid ${COLOUR_BORDER_STRONG}`,
-      overflow: "hidden",
-      flexShrink: 0,
-    };
-    if (has) {
-      circle.backgroundImage = `url("${flag}")`;
-      circle.backgroundSize = "cover";
-      circle.backgroundPosition = "center";
-    } else {
-      circle.background = "rgba(255,255,255,0.06)";
-    }
-    return {
-      type: "div",
-      props: {
-        style: {
-          display: "flex",
-          alignItems: "center",
-          gap: Math.round(10 * args.scale),
-        },
-        children: [
-          {
-            type: "div",
-            props: {
-              style: {
-                fontFamily: "DejaVuMono",
-                fontSize: Math.round(args.stageLabelFont * 0.95),
-                color: COLOUR_GOLD,
-                letterSpacing: "0.16em",
-                fontWeight: 700,
-              },
-              children: label,
-            },
-          },
-          { type: "div", props: { style: circle, children: "" } },
-          {
-            type: "div",
-            props: {
-              style: {
-                fontFamily: "Fraunces",
-                fontSize: Math.round(args.stageLabelFont * 1.5),
-                color: COLOUR_FG_STRONG,
-                fontWeight: 700,
-                letterSpacing: "0.02em",
-              },
-              children: code ?? " - ",
-            },
-          },
-        ],
-      },
-    };
-  }
+async function parseArgs(req: NextRequest): Promise<RenderArgs> {
+  const url = new URL(req.url);
+  const q = url.searchParams;
+  const champion = q.get("champion")?.toUpperCase() || null;
+  const runnerUp = q.get("runner_up")?.toUpperCase() || null;
+  const third = q.get("third")?.toUpperCase() || null;
+  const handle = (q.get("handle") || "tournamental").toLowerCase();
+  const tournament = q.get("tournament") || "FIFA WORLD CUP 2026";
+  return { champion, runnerUp, third, handle, tournament };
+}
 
-  return [
-    {
-      type: "div",
-      props: {
-        style: {
-          fontFamily: "DejaVuMono",
-          fontSize: Math.round(args.stageLabelFont * 1.15),
-          color: COLOUR_GOLD_BRIGHT,
-          letterSpacing: "0.24em",
-          textTransform: "uppercase",
-          fontWeight: 700,
-          marginBottom: Math.round(4 * args.scale),
-          textShadow:
-            "0 1px 3px rgba(15,23,42,0.22)",
-        },
-        children: "WORLD CHAMPION",
-      },
-    },
-    {
-      type: "div",
-      props: {
-        style: {
-          fontFamily: "Fraunces",
-          fontSize: args.font,
-          fontWeight: 700,
-          color: COLOUR_GOLD_BRIGHT,
-          lineHeight: 1,
-          letterSpacing: "-0.02em",
-          textShadow: "0 2px 6px rgba(15,23,42,0.20), 0 0 24px rgba(200, 154, 42, 0.35)",
-        },
-        children: champ,
-      },
-    },
-    {
-      type: "div",
-      props: {
-        style: {
-          display: "flex",
-          gap: Math.round(28 * args.scale),
-          marginTop: Math.round(14 * args.scale),
-          alignItems: "center",
-        },
-        children: [
-          podiumChip("SILVER", args.runnerUp, args.runnerFlag),
-          podiumChip("BRONZE", args.third, args.thirdFlag),
-        ],
-      },
-    },
-  ];
+// ─── SVG composition ────────────────────────────────────────────────
+
+/**
+ * Renders a single team row inside a group card.  Etsy-style:
+ * tall row, big flag, bold uppercase 3-letter code, team name beside,
+ * alternating row backgrounds for legibility.  The left ribbon
+ * indicates advancement status (gold = 1st/2nd advance to R32,
+ * amber = 3rd may advance via best-third lookup, muted = 4th out).
+ */
+function svgTeamRow(args: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  code: string;
+  flagSvg: FlagAsset | null;
+  rank: number;
+}): string {
+  const { x, y, w, h, code, flagSvg, rank } = args;
+  const padding = 10;
+  const flagW = Math.round(h * 0.78);
+  const flagH = Math.round((flagW * 2) / 3);
+  const flagY = y + Math.round((h - flagH) / 2);
+  // Top-2 advance is the structural promise of the group stage;
+  // rank 3 may go via best-third, rank 4 is out.  Visual hierarchy:
+  // gold ribbon for 1st (champion of group), bright gold for 2nd,
+  // amber for 3rd, charcoal for 4th.
+  const accent =
+    rank === 1 ? "#fbbf24" : rank === 2 ? "#d6a23e" : rank === 3 ? "#8b6a14" : "#3b3046";
+  const teamName = TEAM_NAMES[code] || code;
+  // Alternating row backgrounds (rank 1+3 dark, 2+4 slightly lighter)
+  // for better legibility on the gradient background.
+  const rowBg = rank % 2 === 1 ? "rgba(11, 6, 18, 0.85)" : "rgba(22, 12, 32, 0.85)";
+  const flagUse = flagSvg
+    ? `<use href="#flag-${code}" x="${x + padding + 6}" y="${flagY}" width="${flagW}" height="${flagH}" />`
+    : `<rect x="${x + padding + 6}" y="${flagY}" width="${flagW}" height="${flagH}" fill="#3b3046" />`;
+  return (
+    `<g class="team-row">` +
+      `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${rowBg}" />` +
+      `<rect x="${x}" y="${y}" width="6" height="${h}" fill="${accent}" />` +
+      flagUse +
+      // 3-letter code in heavy uppercase, sits right after the flag.
+      `<text x="${x + padding + 6 + flagW + 12}" y="${y + h / 2 + 8}" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="24" letter-spacing="1" fill="#fafafa">${esc(code)}</text>` +
+      // Full name, smaller, beside the code (truncated visually by font sizing).
+      `<text x="${x + padding + 6 + flagW + 12 + 70}" y="${y + h / 2 + 7}" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="500" font-size="16" fill="#cfd5e3">${esc(teamName)}</text>` +
+    `</g>`
+  );
+}
+
+/** One group card: a red banner header + a 4-row stack of teams. */
+function svgGroupCard(args: {
+  x: number;
+  y: number;
+  w: number;
+  letter: string;
+  codes: readonly string[];
+  flags: Map<string, FlagAsset>;
+}): string {
+  const { x, y, w, letter, codes, flags } = args;
+  const labelH = 38;
+  const rowH = 56;
+  const cards = codes.map((code, i) =>
+    svgTeamRow({
+      x: x,
+      y: y + labelH + i * rowH,
+      w,
+      h: rowH,
+      code,
+      flagSvg: flags.get(code) ?? null,
+      rank: i + 1,
+    }),
+  ).join("");
+  const cardH = labelH + rowH * 4;
+  return (
+    `<g class="group group-${letter}">` +
+      // Outer frame for the whole card (thin gold border).
+      `<rect x="${x}" y="${y}" width="${w}" height="${cardH}" fill="none" stroke="rgba(251,191,36,0.42)" stroke-width="1.5" />` +
+      // Red banner header with the group letter.
+      `<rect x="${x}" y="${y}" width="${w}" height="${labelH}" fill="url(#group-header-grad)" />` +
+      `<text x="${x + w / 2}" y="${y + labelH / 2 + 9}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="22" letter-spacing="6" fill="#fde68a">GROUP ${letter}</text>` +
+      cards +
+    `</g>`
+  );
+}
+
+/** A bracket match cell. Etsy-style: dark cell, two team rows with
+ *  flag + 3-letter code, match number + date below in cream type. */
+function svgMatchCell(args: {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  matchNo: number;
+  dateLabel: string;
+  team1?: string | null;
+  team2?: string | null;
+  flags: Map<string, FlagAsset>;
+}): string {
+  const { x, y, w, h, matchNo, dateLabel, team1, team2, flags } = args;
+  const rowH = (h - 4) / 2;
+  const renderRow = (team: string | null | undefined, rowY: number): string => {
+    const flagAsset = team ? flags.get(team) ?? null : null;
+    const flagW = 26;
+    const flagH = Math.round((flagW * 2) / 3);
+    const flagFy = rowY + Math.round((rowH - flagH) / 2);
+    const flagX = x + 8;
+    return (
+      `<g>` +
+        (flagAsset
+          ? `<use href="#flag-${team}" x="${flagX}" y="${flagFy}" width="${flagW}" height="${flagH}" />`
+          : `<rect x="${flagX}" y="${flagFy}" width="${flagW}" height="${flagH}" fill="#3b3046" />`) +
+        `<text x="${flagX + flagW + 8}" y="${rowY + rowH / 2 + 6}" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="${team ? 800 : 500}" font-size="17" letter-spacing="1" fill="${team ? "#fafafa" : "#5a4c66"}">${esc(team || "TBD")}</text>` +
+      `</g>`
+    );
+  };
+  return (
+    `<g class="match-cell">` +
+      `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="rgba(13,8,20,0.88)" stroke="rgba(251,191,36,0.32)" stroke-width="1" />` +
+      renderRow(team1, y + 2) +
+      `<line x1="${x + 4}" y1="${y + 2 + rowH}" x2="${x + w - 4}" y2="${y + 2 + rowH}" stroke="rgba(251,191,36,0.18)" stroke-width="0.8" />` +
+      renderRow(team2, y + 2 + rowH) +
+      `<text x="${x + w / 2}" y="${y + h + 13}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="700" font-size="10" letter-spacing="2" fill="#fde68a">MATCH ${matchNo}</text>` +
+      `<text x="${x + w / 2}" y="${y + h + 24}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="500" font-size="9" letter-spacing="1" fill="#cfa8c5">${esc(dateLabel)}</text>` +
+    `</g>`
+  );
+}
+
+/** Bracket connector L-shape from one match cell into the next. */
+function svgConnector(args: {
+  fromX: number;
+  fromY: number;
+  midX: number;
+  toY: number;
+  toX: number;
+}): string {
+  const { fromX, fromY, midX, toY, toX } = args;
+  return (
+    `<path d="M ${fromX} ${fromY} L ${midX} ${fromY} L ${midX} ${toY} L ${toX} ${toY}" ` +
+    `fill="none" stroke="rgba(251,191,36,0.45)" stroke-width="2.2" />`
+  );
+}
+
+/** y-coordinate (top) of the i-th cell in a vertically-spread stage. */
+function stageCellY(i: number, n: number, top: number, bottom: number, cellH: number): number {
+  const usable = bottom - top - cellH;
+  const step = n > 1 ? usable / (n - 1) : 0;
+  return Math.round(top + i * step);
 }
 
 /**
- * Brand-mark loader. Reads `public/icon-mark.png` from disk once and
- * caches as a base64 data URI, so the satori tree can drop it straight
- * into an `<img>` without further async work. The mark is the gold
- * soccer ball used across play.tournamental.com (see header). Tim
- * 2026-05-25 - replaces the previous handcrafted SVG approximation.
+ * Build the full converging bracket diagram. Returns SVG markup.
+ * Layout (per side):
+ *   8 R32 cells -> 4 R16 cells -> 2 QF cells -> 1 SF cell -> FINAL (centre).
  */
-let iconMarkCache: string | null = null;
-async function loadIconMark(): Promise<string | null> {
-  if (iconMarkCache !== null) return iconMarkCache || null;
-  const path = join(process.cwd(), "public", "icon-mark.png");
-  try {
-    const data = await fs.readFile(path);
-    iconMarkCache = `data:image/png;base64,${data.toString("base64")}`;
-    return iconMarkCache;
-  } catch {
-    iconMarkCache = "";
-    return null;
+function svgBracketDiagram(args: {
+  bracketX: number;
+  bracketY: number;
+  bracketW: number;
+  bracketH: number;
+  flags: Map<string, FlagAsset>;
+  champion: string | null;
+  runnerUp: string | null;
+}): string {
+  const { bracketX, bracketY, bracketW, bracketH, flags, champion, runnerUp } = args;
+  const cellW = 200;
+  const cellH = 60;
+  const colCount = 9;
+  const colXs: number[] = [];
+  for (let i = 0; i < colCount; i += 1) {
+    const colStep = (bracketW - cellW) / (colCount - 1);
+    colXs.push(Math.round(bracketX + colStep * i));
   }
+
+  const top = bracketY;
+  const bottom = bracketY + bracketH;
+  let svg = "";
+
+  // Left R16 (4 cells, spread evenly across the bracket height) -- we
+  // position the R16 cells FIRST, then place each R32 pair as two cells
+  // tight to either side of their parent R16's vertical centre.  This
+  // gives the bracket the canonical "pair gathering into pair" shape
+  // instead of all 8 R32 cells spread evenly with massive air between
+  // pairs.
+  const r16BandH = (bottom - top) / 4;
+  const r16PairGap = 28; // vertical gap between the two R32 cells in a pair
+  const leftR16Ys: number[] = [];
+  for (let i = 0; i < 4; i += 1) {
+    const r16Centre = top + r16BandH * (i + 0.5);
+    const cy = Math.round(r16Centre - cellH / 2);
+    leftR16Ys.push(cy);
+    svg += svgMatchCell({
+      x: colXs[1], y: cy, w: cellW, h: cellH,
+      matchNo: 89 + i, dateLabel: "JUL 4", flags,
+      team1: null, team2: null,
+    });
+  }
+  // Left R32 (8 cells, paired around each R16)
+  const leftR32Ys: number[] = [];
+  for (let i = 0; i < 4; i += 1) {
+    const r16Centre = leftR16Ys[i] + cellH / 2;
+    const aY = Math.round(r16Centre - r16PairGap / 2 - cellH);
+    const bY = Math.round(r16Centre + r16PairGap / 2);
+    leftR32Ys.push(aY, bY);
+    svg += svgMatchCell({
+      x: colXs[0], y: aY, w: cellW, h: cellH,
+      matchNo: 73 + i * 2, dateLabel: "JUN 28", flags,
+      team1: null, team2: null,
+    });
+    svg += svgMatchCell({
+      x: colXs[0], y: bY, w: cellW, h: cellH,
+      matchNo: 74 + i * 2, dateLabel: "JUN 28", flags,
+      team1: null, team2: null,
+    });
+    const midX = (colXs[0] + cellW + colXs[1]) / 2;
+    svg += svgConnector({ fromX: colXs[0] + cellW, fromY: aY + cellH / 2, midX, toY: leftR16Ys[i] + cellH / 2, toX: colXs[1] });
+    svg += svgConnector({ fromX: colXs[0] + cellW, fromY: bY + cellH / 2, midX, toY: leftR16Ys[i] + cellH / 2, toX: colXs[1] });
+  }
+  // Left QF (2): position each at the midpoint of its two parent R16 cells.
+  const leftQfYs: number[] = [];
+  for (let i = 0; i < 2; i += 1) {
+    const r16a = leftR16Ys[i * 2];
+    const r16b = leftR16Ys[i * 2 + 1];
+    const cy = Math.round((r16a + r16b) / 2);
+    leftQfYs.push(cy);
+    svg += svgMatchCell({
+      x: colXs[2], y: cy, w: cellW, h: cellH,
+      matchNo: 97 + i, dateLabel: "JUL 9", flags,
+      team1: null, team2: null,
+    });
+    const midX = (colXs[1] + cellW + colXs[2]) / 2;
+    svg += svgConnector({ fromX: colXs[1] + cellW, fromY: r16a + cellH / 2, midX, toY: cy + cellH / 2, toX: colXs[2] });
+    svg += svgConnector({ fromX: colXs[1] + cellW, fromY: r16b + cellH / 2, midX, toY: cy + cellH / 2, toX: colXs[2] });
+  }
+  // Left SF (1) - vertically centred between the two QF cells.
+  const leftSfY = Math.round((leftQfYs[0] + leftQfYs[1]) / 2);
+  svg += svgMatchCell({
+    x: colXs[3], y: leftSfY, w: cellW, h: cellH,
+    matchNo: 101, dateLabel: "JUL 14", flags,
+    team1: null, team2: null,
+  });
+  {
+    const midX = (colXs[2] + cellW + colXs[3]) / 2;
+    svg += svgConnector({ fromX: colXs[2] + cellW, fromY: leftQfYs[0] + cellH / 2, midX, toY: leftSfY + cellH / 2, toX: colXs[3] });
+    svg += svgConnector({ fromX: colXs[2] + cellW, fromY: leftQfYs[1] + cellH / 2, midX, toY: leftSfY + cellH / 2, toX: colXs[3] });
+  }
+
+  // Right side, mirrored: R16 first, then paired R32s.
+  const rightR16Ys: number[] = [];
+  for (let i = 0; i < 4; i += 1) {
+    const r16Centre = top + r16BandH * (i + 0.5);
+    const cy = Math.round(r16Centre - cellH / 2);
+    rightR16Ys.push(cy);
+    svg += svgMatchCell({
+      x: colXs[7], y: cy, w: cellW, h: cellH,
+      matchNo: 93 + i, dateLabel: "JUL 4", flags,
+      team1: null, team2: null,
+    });
+  }
+  const rightR32Ys: number[] = [];
+  for (let i = 0; i < 4; i += 1) {
+    const r16Centre = rightR16Ys[i] + cellH / 2;
+    const aY = Math.round(r16Centre - r16PairGap / 2 - cellH);
+    const bY = Math.round(r16Centre + r16PairGap / 2);
+    rightR32Ys.push(aY, bY);
+    svg += svgMatchCell({
+      x: colXs[8], y: aY, w: cellW, h: cellH,
+      matchNo: 81 + i * 2, dateLabel: "JUN 28", flags,
+      team1: null, team2: null,
+    });
+    svg += svgMatchCell({
+      x: colXs[8], y: bY, w: cellW, h: cellH,
+      matchNo: 82 + i * 2, dateLabel: "JUN 28", flags,
+      team1: null, team2: null,
+    });
+    const midX = (colXs[8] + colXs[7] + cellW) / 2;
+    svg += svgConnector({ fromX: colXs[8], fromY: aY + cellH / 2, midX, toY: rightR16Ys[i] + cellH / 2, toX: colXs[7] + cellW });
+    svg += svgConnector({ fromX: colXs[8], fromY: bY + cellH / 2, midX, toY: rightR16Ys[i] + cellH / 2, toX: colXs[7] + cellW });
+  }
+  const rightQfYs: number[] = [];
+  for (let i = 0; i < 2; i += 1) {
+    const r16a = rightR16Ys[i * 2];
+    const r16b = rightR16Ys[i * 2 + 1];
+    const cy = Math.round((r16a + r16b) / 2);
+    rightQfYs.push(cy);
+    svg += svgMatchCell({
+      x: colXs[6], y: cy, w: cellW, h: cellH,
+      matchNo: 99 + i, dateLabel: "JUL 9", flags,
+      team1: null, team2: null,
+    });
+    const midX = (colXs[7] + colXs[6] + cellW) / 2;
+    svg += svgConnector({ fromX: colXs[7], fromY: r16a + cellH / 2, midX, toY: cy + cellH / 2, toX: colXs[6] + cellW });
+    svg += svgConnector({ fromX: colXs[7], fromY: r16b + cellH / 2, midX, toY: cy + cellH / 2, toX: colXs[6] + cellW });
+  }
+  const rightSfY = Math.round((rightQfYs[0] + rightQfYs[1]) / 2);
+  svg += svgMatchCell({
+    x: colXs[5], y: rightSfY, w: cellW, h: cellH,
+    matchNo: 102, dateLabel: "JUL 14", flags,
+    team1: null, team2: null,
+  });
+  {
+    const midX = (colXs[6] + colXs[5] + cellW) / 2;
+    svg += svgConnector({ fromX: colXs[6], fromY: rightQfYs[0] + cellH / 2, midX, toY: rightSfY + cellH / 2, toX: colXs[5] + cellW });
+    svg += svgConnector({ fromX: colXs[6], fromY: rightQfYs[1] + cellH / 2, midX, toY: rightSfY + cellH / 2, toX: colXs[5] + cellW });
+  }
+
+  // Centre column: trophy + Final badge. (No cell-shape here; the
+  // trophy + badge IS the Final visual, as in the Etsy reference.)
+  const centreX = bracketX + bracketW / 2;
+  const trophyTop = (leftSfY + rightSfY) / 2 - 320;
+  svg += svgTrophy({ cx: centreX, cy: trophyTop, h: 520 });
+  svg += svgFinalBadge({
+    cx: centreX,
+    cy: trophyTop + 540,
+    champion,
+    runnerUp,
+  });
+  // Visual flourish: SF -> Final connectors.
+  svg += svgConnector({
+    fromX: colXs[3] + cellW,
+    fromY: leftSfY + cellH / 2,
+    midX: centreX - 200,
+    toY: trophyTop + 400,
+    toX: centreX - 130,
+  });
+  svg += svgConnector({
+    fromX: colXs[5],
+    fromY: rightSfY + cellH / 2,
+    midX: centreX + 200,
+    toY: trophyTop + 400,
+    toX: centreX + 130,
+  });
+
+  // Stage header strip: sits just above the first cell row of the
+  // bracket, well clear of the schedule banner.  Bigger chip + bolder
+  // typography so it reads from across the room on a printed wall poster.
+  const stageY = bracketY - 60;
+  const stageChipW = 200;
+  const stageChipH = 42;
+  const stageLabels = [
+    { x: colXs[0] + cellW / 2, label: "ROUND OF 32" },
+    { x: colXs[1] + cellW / 2, label: "ROUND OF 16" },
+    { x: colXs[2] + cellW / 2, label: "QUARTER FINAL" },
+    { x: colXs[3] + cellW / 2, label: "SEMI FINAL" },
+    { x: centreX,                label: "FINAL" },
+    { x: colXs[5] + cellW / 2, label: "SEMI FINAL" },
+    { x: colXs[6] + cellW / 2, label: "QUARTER FINAL" },
+    { x: colXs[7] + cellW / 2, label: "ROUND OF 16" },
+    { x: colXs[8] + cellW / 2, label: "ROUND OF 32" },
+  ];
+  for (const { x, label } of stageLabels) {
+    svg += (
+      `<rect x="${x - stageChipW / 2}" y="${stageY}" width="${stageChipW}" height="${stageChipH}" rx="6" fill="rgba(13,8,20,0.92)" stroke="rgba(251,191,36,0.55)" stroke-width="1.5" />` +
+      `<text x="${x}" y="${stageY + stageChipH / 2 + 7}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="16" letter-spacing="2" fill="#fbbf24">${label}</text>`
+    );
+  }
+
+  return svg;
 }
 
-function renderGoldBall(size: number, dataUri: string | null): unknown {
-  if (dataUri) {
-    return {
-      type: "img",
-      props: {
-        src: dataUri,
-        width: size,
-        height: size,
-      },
-    };
-  }
-  // Fallback: stylised gold ball when the PNG can't be loaded.
-  const svg = `
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+/** Gold trophy graphic. Stylised Jules-Rimet-ish silhouette:
+ *  globe-on-top above two figures, narrow waist, broad base. */
+function svgTrophy(args: { cx: number; cy: number; h: number }): string {
+  const { cx, cy, h } = args;
+  const w = h * 0.58;
+  const top = cy;
+  return `
+    <g class="trophy">
       <defs>
-        <radialGradient id="ball" cx="38%" cy="32%" r="80%">
-          <stop offset="0%" stop-color="#f0d27a" />
-          <stop offset="55%" stop-color="${COLOUR_GOLD}" />
-          <stop offset="100%" stop-color="${COLOUR_GOLD_DEEP}" />
+        <linearGradient id="trophy-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#fef3c7" />
+          <stop offset="22%" stop-color="#fde68a" />
+          <stop offset="50%" stop-color="#f5c542" />
+          <stop offset="78%" stop-color="#c89a2a" />
+          <stop offset="100%" stop-color="#6b4a0c" />
+        </linearGradient>
+        <linearGradient id="trophy-rim" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#c89a2a" />
+          <stop offset="50%" stop-color="#fde68a" />
+          <stop offset="100%" stop-color="#c89a2a" />
+        </linearGradient>
+        <radialGradient id="trophy-shine" cx="0.32" cy="0.30" r="0.55">
+          <stop offset="0%" stop-color="rgba(255,255,255,0.62)" />
+          <stop offset="60%" stop-color="rgba(255,255,255,0)" />
         </radialGradient>
       </defs>
-      <circle cx="50" cy="50" r="46" fill="url(#ball)" stroke="#6b4708" stroke-width="2" />
-      <polygon points="50,30 65,42 60,60 40,60 35,42" fill="#0f172a" opacity="0.55" />
-      <polygon points="20,38 33,32 38,44 28,52 18,46" fill="#0f172a" opacity="0.32" />
-      <polygon points="82,38 87,46 78,52 68,44 73,32" fill="#0f172a" opacity="0.32" />
-      <polygon points="50,72 60,80 50,90 40,80" fill="#0f172a" opacity="0.32" />
-    </svg>
-  `.trim();
-  return {
-    type: "img",
-    props: {
-      src: `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`,
-      width: size,
-      height: size,
-    },
-  };
+      <!-- Globe (top sphere) -->
+      <circle cx="${cx}" cy="${top + h * 0.15}" r="${w * 0.18}" fill="url(#trophy-grad)" stroke="#6b4a0c" stroke-width="2" />
+      <ellipse cx="${cx}" cy="${top + h * 0.15}" rx="${w * 0.16}" ry="${w * 0.05}" fill="none" stroke="#6b4a0c" stroke-width="1" opacity="0.55" />
+      <line x1="${cx}" y1="${top + h * 0.15 - w * 0.18}" x2="${cx}" y2="${top + h * 0.15 + w * 0.18}" stroke="#6b4a0c" stroke-width="1" opacity="0.55" />
+      <!-- Cup body (two figures wrapping a stem). Stylised as a slim
+           hourglass with two converging curves. -->
+      <path d="
+        M ${cx - w * 0.28} ${top + h * 0.30}
+        Q ${cx - w * 0.36} ${top + h * 0.42}, ${cx - w * 0.18} ${top + h * 0.55}
+        Q ${cx - w * 0.08} ${top + h * 0.62}, ${cx - w * 0.08} ${top + h * 0.72}
+        L ${cx + w * 0.08} ${top + h * 0.72}
+        Q ${cx + w * 0.08} ${top + h * 0.62}, ${cx + w * 0.18} ${top + h * 0.55}
+        Q ${cx + w * 0.36} ${top + h * 0.42}, ${cx + w * 0.28} ${top + h * 0.30}
+        Z" fill="url(#trophy-grad)" stroke="#6b4a0c" stroke-width="2" />
+      <!-- Rim cap under the globe -->
+      <rect x="${cx - w * 0.30}" y="${top + h * 0.26}" width="${w * 0.60}" height="${h * 0.05}" rx="2"
+            fill="url(#trophy-rim)" stroke="#6b4a0c" stroke-width="1.5" />
+      <!-- Base disc + plinth -->
+      <rect x="${cx - w * 0.34}" y="${top + h * 0.72}" width="${w * 0.68}" height="${h * 0.06}" rx="2"
+            fill="url(#trophy-grad)" stroke="#6b4a0c" stroke-width="1.5" />
+      <rect x="${cx - w * 0.42}" y="${top + h * 0.78}" width="${w * 0.84}" height="${h * 0.10}" rx="3"
+            fill="url(#trophy-grad)" stroke="#6b4a0c" stroke-width="2" />
+      <rect x="${cx - w * 0.32}" y="${top + h * 0.86}" width="${w * 0.64}" height="${h * 0.06}" rx="2"
+            fill="#5b3f0a" />
+      <!-- Highlight shine on the cup -->
+      <ellipse cx="${cx - w * 0.08}" cy="${top + h * 0.45}" rx="${w * 0.10}" ry="${h * 0.18}" fill="url(#trophy-shine)" />
+      <ellipse cx="${cx - w * 0.06}" cy="${top + h * 0.15}" rx="${w * 0.06}" ry="${w * 0.06}" fill="rgba(255,255,255,0.42)" />
+    </g>
+  `;
 }
 
-function renderFallbackPng(): Buffer {
-  return Buffer.from(
-    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-    "base64",
-  );
+/** Red "FINAL" badge below the trophy. */
+function svgFinalBadge(args: {
+  cx: number;
+  cy: number;
+  champion: string | null;
+  runnerUp: string | null;
+}): string {
+  const { cx, cy, champion } = args;
+  const w = 380;
+  const h = 150;
+  const x = cx - w / 2;
+  const y = cy;
+  let centreText = "MATCH 104";
+  let subText = "SUN, JUL 19, 3PM ET";
+  if (champion) {
+    const cname = TEAM_NAMES[champion] || champion;
+    centreText = `${cname.toUpperCase()}`;
+    subText = "PREDICTED CHAMPION";
+  }
+  return `
+    <g class="final-badge">
+      <defs>
+        <linearGradient id="final-grad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#dc2626" />
+          <stop offset="100%" stop-color="#7f1d1d" />
+        </linearGradient>
+      </defs>
+      <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="6" fill="url(#final-grad)" stroke="#fbbf24" stroke-width="2" />
+      <text x="${cx}" y="${y + 40}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="36" letter-spacing="6" fill="#fbbf24">FINAL</text>
+      <line x1="${x + 40}" y1="${y + 58}" x2="${x + w - 40}" y2="${y + 58}" stroke="rgba(251,191,36,0.55)" stroke-width="1.5" />
+      <text x="${cx}" y="${y + 98}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="26" letter-spacing="1" fill="#fafafa">${esc(centreText)}</text>
+      <text x="${cx}" y="${y + 128}" text-anchor="middle" font-family="Inter, Helvetica, Arial, sans-serif" font-weight="600" font-size="14" letter-spacing="3" fill="#fde68a">${esc(subText)}</text>
+    </g>
+  `;
+}
+
+/** Build the full poster SVG. */
+function buildPosterSvg(args: {
+  flags: Map<string, FlagAsset>;
+  champion: string | null;
+  runnerUp: string | null;
+  third: string | null;
+  handle: string;
+  tournament: string;
+}): string {
+  const { flags, champion, runnerUp, handle, tournament } = args;
+
+  // Layout zones.
+  const groupColW = 360;
+  const groupColXLeft = 60;
+  const groupColXRight = POSTER_W - 60 - groupColW;
+  const titleBlockY = 60;
+  const titleBlockH = 240;
+  const bodyTop = titleBlockY + titleBlockH + 60;
+
+  // Group cards: 6 per column, stacked vertically.
+  const lettersLeft = ["A", "B", "C", "D", "E", "F"];
+  const lettersRight = ["G", "H", "I", "J", "K", "L"];
+  const usableH = POSTER_H - bodyTop - 200;
+  // Card geometry: 38px banner + 4 rows of 56px = 262px tall.
+  const cardH = 38 + 4 * 56;
+  const cardGap = (usableH - cardH * 6) / 5;
+  const groupCards: string[] = [];
+  lettersLeft.forEach((L, i) => {
+    groupCards.push(svgGroupCard({
+      x: groupColXLeft,
+      y: bodyTop + i * (cardH + cardGap),
+      w: groupColW,
+      letter: L,
+      codes: GROUPS[L],
+      flags,
+    }));
+  });
+  lettersRight.forEach((L, i) => {
+    groupCards.push(svgGroupCard({
+      x: groupColXRight,
+      y: bodyTop + i * (cardH + cardGap),
+      w: groupColW,
+      letter: L,
+      codes: GROUPS[L],
+      flags,
+    }));
+  });
+
+  // Bracket diagram occupies the middle column between the two group columns.
+  const bracketX = groupColXLeft + groupColW + 40;
+  const bracketW = groupColXRight - bracketX - 40;
+  const bracketY = bodyTop + 200; // leaves room for the cream schedule banner + stage labels above the cells
+  const bracketH = usableH - 250;
+
+  const bracketSvg = svgBracketDiagram({
+    bracketX, bracketY, bracketW, bracketH, flags, champion, runnerUp,
+  });
+
+  // Schedule banner above the bracket.
+  const bannerY = bodyTop;
+  const bannerH = 84;
+  const bannerX = bracketX + 40;
+  const bannerW = bracketW - 80;
+
+  // Build <symbol> defs for every flag we'll reference.
+  const flagSymbols = Array.from(flags.entries())
+    .map(([code, asset]) =>
+      `<symbol id="flag-${code}" viewBox="${asset.viewBox}" preserveAspectRatio="xMidYMid slice">${asset.inner}</symbol>`,
+    )
+    .join("\n    ");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="${POSTER_W}" height="${POSTER_H}" viewBox="0 0 ${POSTER_W} ${POSTER_H}"
+     preserveAspectRatio="xMidYMid meet">
+  <defs>
+    <radialGradient id="bg-grad" cx="0.5" cy="0.55" r="0.85">
+      <stop offset="0%"   stop-color="#c4264e" />
+      <stop offset="45%"  stop-color="#5a1d5b" />
+      <stop offset="100%" stop-color="#1a0f2e" />
+    </radialGradient>
+    <linearGradient id="title-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fffefa" />
+      <stop offset="100%" stop-color="#fde68a" />
+    </linearGradient>
+    <linearGradient id="group-header-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#b91c1c" />
+      <stop offset="100%" stop-color="#7f1d1d" />
+    </linearGradient>
+    <linearGradient id="banner-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fdfbf2" />
+      <stop offset="100%" stop-color="#f5e6b3" />
+    </linearGradient>
+    ${flagSymbols}
+  </defs>
+  <rect width="${POSTER_W}" height="${POSTER_H}" fill="#1a0f2e" />
+  <rect width="${POSTER_W}" height="${POSTER_H}" fill="url(#bg-grad)" />
+  <rect width="${POSTER_W}" height="${POSTER_H}" fill="rgba(0,0,0,0.18)" />
+
+  <!-- Title block -->
+  <text x="${POSTER_W / 2}" y="${titleBlockY + 130}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="148"
+        letter-spacing="8" fill="url(#title-grad)">${esc(tournament)}</text>
+  <text x="${POSTER_W / 2}" y="${titleBlockY + 190}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="500" font-size="28"
+        letter-spacing="14" fill="#fde68a" opacity="0.85">11 JUNE   ·   19 JULY   ·   USA   ·   MEXICO   ·   CANADA</text>
+
+  <!-- Schedule banner above the bracket - cream with red text -->
+  <rect x="${bannerX}" y="${bannerY}" width="${bannerW}" height="${bannerH}" rx="8"
+        fill="url(#banner-grad)" stroke="#fbbf24" stroke-width="2.5" />
+  <text x="${bannerX + bannerW / 2}" y="${bannerY + bannerH / 2 + 14}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="36"
+        letter-spacing="4" fill="#7f1d1d">2026 WORLD CUP MATCH SCHEDULE</text>
+
+  <text x="${groupColXLeft + groupColW / 2}" y="${bodyTop - 16}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="20"
+        letter-spacing="6" fill="#fde68a">GROUP STAGE</text>
+  <text x="${groupColXRight + groupColW / 2}" y="${bodyTop - 16}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="900" font-size="20"
+        letter-spacing="6" fill="#fde68a">GROUP STAGE</text>
+
+  ${groupCards.join("\n")}
+
+  ${bracketSvg}
+
+  <text x="${POSTER_W / 2}" y="${POSTER_H - 60}" text-anchor="middle"
+        font-family="Inter, Helvetica, Arial, sans-serif" font-weight="700" font-size="22"
+        letter-spacing="4" fill="#fde68a" opacity="0.78">PLAY.TOURNAMENTAL.COM/S/${esc(handle.toUpperCase())}</text>
+</svg>`;
+}
+
+// ─── GET handler ────────────────────────────────────────────────────
+
+export async function GET(req: NextRequest): Promise<Response> {
+  const args = await parseArgs(req);
+  const format = (new URL(req.url).searchParams.get("format") || "svg").toLowerCase();
+
+  // Preload every flag we will reference.
+  const codes: string[] = [];
+  for (const c of Object.values(GROUPS)) for (const code of c) codes.push(code);
+  if (args.champion) codes.push(args.champion);
+  if (args.runnerUp) codes.push(args.runnerUp);
+  if (args.third) codes.push(args.third);
+  const flags = await loadAllFlags(codes);
+
+  const svg = buildPosterSvg({
+    flags,
+    champion: args.champion,
+    runnerUp: args.runnerUp,
+    third: args.third,
+    handle: args.handle,
+    tournament: args.tournament,
+  });
+
+  if (format === "png") {
+    try {
+      const resvg = new Resvg(svg, { fitTo: { mode: "width", value: POSTER_W } });
+      const png = resvg.render().asPng();
+      return new Response(png as unknown as BodyInit, {
+        status: 200,
+        headers: {
+          "content-type": "image/png",
+          "content-disposition": `inline; filename="tournamental-wc26-poster.png"`,
+          "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400, immutable",
+        },
+      });
+    } catch (err) {
+      return new Response(
+        `<!-- PNG render failed: ${err instanceof Error ? err.message : "unknown"} -->\n${svg}`,
+        {
+          status: 200,
+          headers: {
+            "content-type": "image/svg+xml; charset=utf-8",
+            "cache-control": "no-store",
+          },
+        },
+      );
+    }
+  }
+
+  return new Response(svg, {
+    status: 200,
+    headers: {
+      "content-type": "image/svg+xml; charset=utf-8",
+      "content-disposition": `inline; filename="tournamental-wc26-poster.svg"`,
+      "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400, immutable",
+    },
+  });
 }
