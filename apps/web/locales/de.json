@@ -584,18 +584,23 @@
     "page_title": "3D-Molekül"
   },
   "profile_gate": {
-    "title": "Richte dein Profil ein",
-    "sub": "Füge ein Foto und einen Namen hinzu, so erscheinst du in der Rangliste und in geteilten Pools.",
-    "display_name": "Name (in der Rangliste sichtbar)",
+    "title": "Wähle deinen @handle",
+    "sub": "Das ist dein Name auf Tournamental. Er erscheint in jeder Rangliste, wird zu deiner Share-URL (tournamental.com/s/deinname) und kann später nicht geändert werden. Wähle etwas, zu dem du öffentlich stehen möchtest.",
+    "cta_save": "@handle sichern",
+    "cta_saving": "Speichern…",
+    "display_name": "Dein @handle (dauerhaft)",
+    "placeholder": "deinname",
+    "hint_format": "3-32 Zeichen. Buchstaben, Zahlen, Unterstriche. Spätere Änderung nicht möglich.",
+    "preview_url": "Deine Share-URL: ",
     "first_name": "Vorname (optional)",
     "email": "E-Mail (optional)",
-    "cta_save": "Speichern",
-    "cta_saving": "Speichern…",
-    "cta_skip": "Vorerst überspringen",
-    "err_email_taken": "Diese E-Mail gehört bereits zu einem anderen Konto.",
-    "err_bad_email": "Diese E-Mail sieht nicht richtig aus.",
-    "err_network": "Netzwerkproblem, versuche es erneut.",
-    "err_generic": "Konnte nicht gespeichert werden, versuche es erneut."
+    "err_bad_email": "Diese E-Mail sieht nicht gültig aus.",
+    "err_email_taken": "Diese E-Mail gehört zu einem anderen Konto.",
+    "err_generic": "Konnte nicht gespeichert werden, bitte erneut versuchen.",
+    "err_network": "Netzwerkfehler, bitte erneut versuchen.",
+    "err_reserved": "Dieser @handle ist reserviert. Bitte einen anderen wählen.",
+    "err_taken": "Dieser @handle ist bereits vergeben. Bitte einen anderen wählen.",
+    "err_invalid_format": "@handles brauchen 3-32 Zeichen aus Buchstaben, Zahlen und Unterstrichen."
   },
   "profile_page": {
     "loading": "Wird geladen…",

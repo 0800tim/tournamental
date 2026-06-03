@@ -584,18 +584,23 @@
     "page_title": "3D Molekula"
   },
   "profile_gate": {
-    "title": "Nastav si profil",
-    "sub": "Přidej fotku a jméno, takhle se objevíš v žebříčku a ve sdílených poolech.",
-    "display_name": "Jméno (zobrazené v žebříčku)",
-    "first_name": "Křestní jméno (volitelné)",
-    "email": "E-mail (volitelný)",
-    "cta_save": "Uložit",
+    "title": "Vyber si svůj @handle",
+    "sub": "Tohle je tvé jméno na Tournamental. Objevuje se v každém žebříčku, stane se tvou URL pro sdílení (tournamental.com/s/tvejmeno), a později ho nelze změnit. Vyber něco, k čemu se rád veřejně přihlásíš.",
+    "cta_save": "Zabrat @handle",
     "cta_saving": "Ukládám…",
-    "cta_skip": "Přeskočit zatím",
-    "err_email_taken": "Tenhle e-mail už je na jiném účtu.",
-    "err_bad_email": "Tenhle e-mail nevypadá správně.",
+    "display_name": "Tvůj @handle (trvalý)",
+    "placeholder": "tvejmeno",
+    "hint_format": "3-32 znaků. Písmena, čísla, podtržítka. Později nelze změnit.",
+    "preview_url": "Tvá URL pro sdílení: ",
+    "first_name": "Křestní jméno (volitelné)",
+    "email": "Email (volitelný)",
+    "err_bad_email": "Tento email nevypadá správně.",
+    "err_email_taken": "Tento email je už na jiném účtu.",
+    "err_generic": "Nepodařilo se uložit, zkus to znovu.",
     "err_network": "Problém se sítí, zkus to znovu.",
-    "err_generic": "Uložení se nezdařilo, zkus to znovu."
+    "err_reserved": "Tento @handle je rezervovaný. Vyber jiný.",
+    "err_taken": "Tento @handle je už obsazený. Zkus jiný.",
+    "err_invalid_format": "@handles musí mít 3-32 znaků, písmena, čísla a podtržítka."
   },
   "profile_page": {
     "loading": "Načítání…",

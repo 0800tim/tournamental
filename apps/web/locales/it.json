@@ -584,18 +584,23 @@
     "page_title": "Molecola 3D"
   },
   "profile_gate": {
-    "title": "Configura il tuo profilo",
-    "sub": "Aggiungi una foto e un nome, così appari in classifica e nei pool condivisi.",
-    "display_name": "Nome (visibile in classifica)",
+    "title": "Scegli il tuo @handle",
+    "sub": "Questo è il tuo nome su Tournamental. Appare in ogni classifica, diventa il tuo URL di condivisione (tournamental.com/s/iltuonome), e non puoi cambiarlo dopo. Scegli qualcosa che sei felice di portare pubblicamente.",
+    "cta_save": "Riserva @handle",
+    "cta_saving": "Salvataggio…",
+    "display_name": "Il tuo @handle (permanente)",
+    "placeholder": "iltuonome",
+    "hint_format": "Da 3 a 32 caratteri. Lettere, numeri, underscore. Non modificabile in seguito.",
+    "preview_url": "Il tuo URL di condivisione: ",
     "first_name": "Nome (opzionale)",
     "email": "Email (opzionale)",
-    "cta_save": "Salva",
-    "cta_saving": "Salvataggio…",
-    "cta_skip": "Salta per ora",
-    "err_email_taken": "Quell'email è già su un altro account.",
-    "err_bad_email": "Quell'email non sembra corretta.",
+    "err_bad_email": "Questa email non sembra valida.",
+    "err_email_taken": "Questa email è già su un altro account.",
+    "err_generic": "Impossibile salvare, riprova.",
     "err_network": "Problema di rete, riprova.",
-    "err_generic": "Salvataggio non riuscito, riprova."
+    "err_reserved": "Quel @handle è riservato. Scegline un altro.",
+    "err_taken": "Quel @handle è già in uso. Provane un altro.",
+    "err_invalid_format": "Gli @handle hanno da 3 a 32 caratteri con lettere, numeri e underscore."
   },
   "profile_page": {
     "loading": "Caricamento…",
