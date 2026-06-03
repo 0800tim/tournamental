@@ -28,14 +28,12 @@ import { existsSync } from "node:fs";
 import { resolve } from "node:path";
 
 import {
-  cascade,
   loadFixtures2026,
   type Bracket,
-  type BracketPrediction,
   type Tournament,
 } from "@tournamental/bracket-engine";
 
-import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
+import { cascadeWithUserPicks } from "@/lib/bracket/cascade-iter";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import { avatarUrlFor } from "@/lib/profile/avatar";
 
@@ -156,30 +154,10 @@ function resolveChampionFromBracket(
   bracket: Bracket,
   userId: string,
 ): string | null {
-  const input: BracketPrediction = bracketToCascadeInput(
-    tournament,
-    bracket,
-    userId,
-  );
-  let cascaded = cascade(tournament, input);
-  for (let pass = 0; pass < 6; pass += 1) {
-    const overlays: Array<{ match_id: string; winner: string }> = [];
-    for (const p of Object.values(bracket.knockoutPredictions ?? {})) {
-      const k = cascaded.knockouts.find((x) => x.id === p.matchId);
-      if (!k) continue;
-      const team =
-        p.outcome === "home_win"
-          ? k.home.team
-          : p.outcome === "away_win"
-            ? k.away.team
-            : null;
-      if (team) overlays.push({ match_id: p.matchId, winner: team });
-    }
-    const before = cascaded.knockouts.filter((k) => k.effective_winner).length;
-    cascaded = cascade(tournament, { ...input, knockouts: overlays });
-    const after = cascaded.knockouts.filter((k) => k.effective_winner).length;
-    if (after === before) break;
-  }
+  // Shared iterative-cascade helper, also used by the client-side
+  // ReadOnlyBracket. Kept in @/lib/bracket/cascade-iter so the two
+  // can't drift. Tim 2026-06-04.
+  const cascaded = cascadeWithUserPicks(tournament, bracket, userId);
   const final = cascaded.knockouts.find((k) => k.stage === "f");
   return final?.effective_winner ?? final?.predicted_winner ?? null;
 }
