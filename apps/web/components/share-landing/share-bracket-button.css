@@ -1,0 +1,82 @@
+/* "Share my predictions" button on the /s/<handle> hero.
+ * Matches the gold gradient + pill shape of .rob-manage-cta so the
+ * two yellow CTAs (share above, manage-bracket inside the read-only
+ * bracket section) read as a consistent visual family.
+ * Tim 2026-06-04. */
+
+.vt-share-bracket-wrap {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  position: relative;
+}
+
+/* Inside .vt-share-owner (the avatar + name + handle row), push the
+ * button to the trailing edge so it reads as a hero-level action
+ * rather than something attached to the username. Allows the row to
+ * wrap on narrow viewports so the button drops below the identity
+ * instead of squishing it. */
+.vt-share-owner {
+  flex-wrap: wrap;
+}
+.vt-share-owner > .vt-share-bracket-wrap {
+  margin-left: auto;
+}
+
+.vt-share-bracket-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1305;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.88rem;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  box-shadow: 0 12px 28px -10px rgba(245, 197, 66, 0.55);
+  transition: transform 120ms ease, box-shadow 120ms ease, filter 120ms ease;
+}
+.vt-share-bracket-btn:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow: 0 16px 32px -12px rgba(245, 197, 66, 0.7);
+}
+.vt-share-bracket-btn:active {
+  transform: translateY(0);
+  filter: brightness(0.96);
+}
+.vt-share-bracket-btn:focus-visible {
+  outline: 2px solid #fde68a;
+  outline-offset: 2px;
+}
+
+.vt-share-bracket-btn svg {
+  flex-shrink: 0;
+}
+
+.vt-share-bracket-toast {
+  font-size: 0.78rem;
+  line-height: 1.3;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(251, 191, 36, 0.12);
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  color: #fde68a;
+}
+.vt-share-bracket-toast[data-tone="err"] {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+}
+
+@media (max-width: 640px) {
+  .vt-share-bracket-btn {
+    padding: 9px 16px;
+    font-size: 0.82rem;
+  }
+}

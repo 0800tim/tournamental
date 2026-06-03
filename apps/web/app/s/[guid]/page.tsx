@@ -84,6 +84,13 @@ const BracketPosterCallout = nextDynamic(
     ),
   { ssr: false, loading: () => null },
 );
+const ShareBracketButton = nextDynamic(
+  () =>
+    import("@/components/share-landing/ShareBracketButton").then(
+      (mod) => mod.ShareBracketButton,
+    ),
+  { ssr: false, loading: () => null },
+);
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
@@ -251,6 +258,7 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
     handle,
     display_name,
     avatar_url,
+    user_id,
     champion,
     runner_up,
     third_place,
@@ -277,6 +285,12 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
             ) : null}
             <span className="vt-share-hero-eyebrow">{tournament_label}</span>
           </div>
+          <ShareBracketButton
+            ownerUserId={user_id}
+            handle={handle}
+            championName={champion.name}
+            tournamentLabel={tournament_label}
+          />
         </div>
         <h1 className="vt-share-hero-title">
           <span className="vt-share-flag" aria-hidden>
