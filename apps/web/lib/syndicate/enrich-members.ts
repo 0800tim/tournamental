@@ -106,6 +106,14 @@ interface AuthRow {
   readonly display_name: string | null;
 }
 
+/**
+ * SEC-PII-08: chunk the IN-clause so SQLite never sees an unbounded
+ * placeholder list (default SQLITE_MAX_VARIABLE_NUMBER is 999, but
+ * past that point the planner also gets slower). 100 keeps us well
+ * under any sane limit; results merge cleanly into one Map.
+ */
+const AUTH_ROW_CHUNK = 100;
+
 function loadAuthRows(userIds: string[]): Map<string, AuthRow> {
   const out = new Map<string, AuthRow>();
   if (userIds.length === 0) return out;
@@ -114,15 +122,18 @@ function loadAuthRows(userIds: string[]): Map<string, AuthRow> {
   try {
     const db = new Database(path, { readonly: true, fileMustExist: true });
     db.pragma("query_only = ON");
-    const placeholders = userIds.map(() => "?").join(",");
-    const rows = db
-      .prepare(
-        `SELECT id, country, favourite_team_code, display_name
-           FROM user
-          WHERE id IN (${placeholders})`,
-      )
-      .all(...userIds) as AuthRow[];
-    for (const r of rows) out.set(r.id, r);
+    for (let i = 0; i < userIds.length; i += AUTH_ROW_CHUNK) {
+      const slice = userIds.slice(i, i + AUTH_ROW_CHUNK);
+      const placeholders = slice.map(() => "?").join(",");
+      const rows = db
+        .prepare(
+          `SELECT id, country, favourite_team_code, display_name
+             FROM user
+            WHERE id IN (${placeholders})`,
+        )
+        .all(...slice) as AuthRow[];
+      for (const r of rows) out.set(r.id, r);
+    }
     db.close();
   } catch {
     // best-effort: fall back to country/flag defaults
