@@ -280,20 +280,29 @@ function resolveAuthApiBase(): string {
   );
 }
 
+/** Tiny public-profile shape returned by /v1/auth/users/by-handle. */
+export interface HandleLookup {
+  readonly id: string;
+  readonly displayName: string | null;
+}
+
 /**
  * Resolve a friendly handle (slugified display_name) to the owner's
- * auth-sms user id. Used by the /s/<handle> resolver to fall through
- * to the existing user-id bracket lookup. Returns the id only on hit,
- * null on miss / timeout / network error so the resolver can keep
- * walking the chain.
+ * auth-sms user. Used by the /s/<handle> resolver to fall through to
+ * the existing user-id bracket lookup, and to display the owner's name
+ * in the "no bracket yet" fallback when the handle is valid but they
+ * haven't saved a bracket.
+ *
+ * Returns the {id, displayName} pair on hit, null on miss / timeout /
+ * network error so the resolver can keep walking the chain.
  *
  * Cache: relies on auth-sms's `Cache-Control: s-maxage=60` on the
  * upstream response; Next's fetch cache respects that.
  */
-export async function lookupUserIdByHandle(
+export async function lookupUserByHandle(
   handle: string,
   fetchImpl: typeof fetch = fetch,
-): Promise<string | null> {
+): Promise<HandleLookup | null> {
   const base = resolveAuthApiBase().replace(/\/+$/, "");
   if (!base) return null;
   const ctrl = new AbortController();
@@ -309,12 +318,28 @@ export async function lookupUserIdByHandle(
     );
     clearTimeout(timer);
     if (!res.ok) return null;
-    const body = (await res.json()) as { user?: { id?: string } };
-    return body?.user?.id ?? null;
+    const body = (await res.json()) as {
+      user?: { id?: string; displayName?: string | null };
+    };
+    const id = body?.user?.id;
+    if (!id) return null;
+    return {
+      id,
+      displayName: body.user?.displayName ?? null,
+    };
   } catch {
     clearTimeout(timer);
     return null;
   }
+}
+
+/** @deprecated use {@link lookupUserByHandle} — kept for back-compat. */
+export async function lookupUserIdByHandle(
+  handle: string,
+  fetchImpl: typeof fetch = fetch,
+): Promise<string | null> {
+  const hit = await lookupUserByHandle(handle, fetchImpl);
+  return hit?.id ?? null;
 }
 
 async function loadOwnerProfile(

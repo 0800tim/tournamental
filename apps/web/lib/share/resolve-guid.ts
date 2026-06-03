@@ -22,7 +22,7 @@
 import {
   loadBracketFromGuid,
   isShareGuidShape,
-  lookupUserIdByHandle,
+  lookupUserByHandle,
   type BracketByGuid,
 } from "@/lib/bracket/by-guid";
 import { loadSyndicateBySlug, type SyndicateRecord } from "@/lib/syndicate/store";
@@ -35,6 +35,18 @@ import { isHandleShape } from "@/lib/share/handle-slug";
 export type ResolvedShare =
   | { readonly kind: "syndicate"; readonly syndicate: SyndicateRecord }
   | { readonly kind: "user"; readonly bracket: BracketByGuid }
+  | {
+      /**
+       * Handle resolved to a real auth-sms user, but that user has
+       * not yet saved a bracket on the game-service. We render a
+       * friendly "they haven't shared a bracket yet" view instead of
+       * the generic 404 so the visitor knows whose link they followed.
+       */
+      readonly kind: "user_no_bracket";
+      readonly handle: string;
+      readonly userId: string;
+      readonly displayName: string | null;
+    }
   | { readonly kind: "not_found"; readonly attempted: string };
 
 export interface ResolveOptions {
@@ -76,12 +88,21 @@ export async function resolveShareGuid(
   // by-user-id fallback in loadBracketFromGuid (which accepts the
   // `u_<hex>` shape after PR 4059281).
   if (isHandleShape(guid) && !isReservedSlug(guid)) {
-    const userId = await lookupUserIdByHandle(guid);
-    if (userId) {
-      const bracket = await loadBracketFromGuid(userId, {
+    const hit = await lookupUserByHandle(guid);
+    if (hit) {
+      const bracket = await loadBracketFromGuid(hit.id, {
         includePayload: opts.includePayload,
       });
       if (bracket) return { kind: "user", bracket };
+      // Handle is real but no saved bracket; surface a friendly view
+      // so the visitor sees who they were looking for and the nudge
+      // to share their own picks.
+      return {
+        kind: "user_no_bracket",
+        handle: guid,
+        userId: hit.id,
+        displayName: hit.displayName,
+      };
     }
   }
 

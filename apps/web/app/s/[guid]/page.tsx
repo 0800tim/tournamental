@@ -149,6 +149,13 @@ export async function generateMetadata(
       },
     };
   }
+  if (resolved.kind === "user_no_bracket") {
+    const name = resolved.displayName?.trim() || `@${resolved.handle}`;
+    return {
+      title: `${name} hasn't shared a bracket yet, Tournamental`,
+      description: `${name} hasn't locked in their World Cup picks yet. Build your own bracket in 60 seconds.`,
+    };
+  }
   if (resolved.kind === "user") {
     const b = resolved.bracket;
     // Pass champion + runner-up + third codes so the OG renderer paints
@@ -201,6 +208,17 @@ export default async function SharePage({ params }: PageProps) {
   const resolved = await resolveShareGuid(normaliseGuid(params.guid), {
     includePayload: true,
   });
+
+  if (resolved.kind === "user_no_bracket") {
+    return (
+      <AppShell title="Tournamental">
+        <UserNoBracketView
+          handle={resolved.handle}
+          displayName={resolved.displayName}
+        />
+      </AppShell>
+    );
+  }
 
   if (resolved.kind === "not_found") {
     return (
@@ -1070,6 +1088,38 @@ function PrizeTextLines({ text }: { text: string }): JSX.Element {
         </li>
       ))}
     </ol>
+  );
+}
+
+// ── User exists, no saved bracket ──────────────────────────────────
+
+function UserNoBracketView({
+  handle,
+  displayName,
+}: {
+  readonly handle: string;
+  readonly displayName: string | null;
+}) {
+  const niceName = displayName?.trim() || `@${handle}`;
+  return (
+    <section
+      className="vt-share vt-share-404"
+      data-testid="share-user-no-bracket"
+    >
+      <div className="vt-share-404-emoji" aria-hidden>
+        ⏳
+      </div>
+      <h1 className="vt-share-404-title">
+        {niceName} hasn&apos;t locked in their picks yet
+      </h1>
+      <p className="vt-share-404-body">
+        Their bracket will appear here once they save it. Beat them to it,
+        share your own picks first.
+      </p>
+      <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
+        Make your bracket
+      </a>
+    </section>
   );
 }
 
