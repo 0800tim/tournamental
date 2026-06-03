@@ -22,7 +22,6 @@
 import { useMemo, useState } from "react";
 
 import {
-  cascade,
   isGroupComplete,
   loadFixtures2026,
   type Bracket,
@@ -38,7 +37,7 @@ import {
   type CanonicalTeamsFile,
 } from "@/lib/bracket/enrich";
 import { useUser } from "@/lib/auth/useUser";
-import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
+import { cascadeWithUserPicks } from "@/lib/bracket/cascade-iter";
 
 import "./read-only-bracket.css";
 
@@ -103,12 +102,15 @@ export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
     !!auth.user?.id &&
     auth.user.id === ownerUserId;
 
-  // Run the cascade so we know who plays whom at each KO stage,
-  // independent of which slots the owner picked.  Wrapped in try/catch
-  // so a malformed payload (missing matchPredictions, partial groups,
-  // legacy schema, etc.) degrades to a "knockouts not predicted yet"
-  // empty state instead of throwing and breaking the page.  Tim
-  // 2026-06-03: defensive after a runtime crash on /s/0800tim.
+  // Iteratively cascade the owner's picks so every knockout stage
+  // resolves, not just R32. A single-pass cascade only fills R32 (the
+  // first stage whose teams come from group standings); R16 / QF /
+  // SF / F need the previous round's winners overlaid and the cascade
+  // re-run.  Tim 2026-06-04: /s/0800tim showed R32 fully populated
+  // then every later round all-TBD on a fully-picked bracket because
+  // of this. Wrapped in try/catch so a malformed payload degrades to
+  // a "knockouts not predicted yet" empty state instead of throwing
+  // and breaking the page (Tim 2026-06-03).
   const cascaded = useMemo(() => {
     try {
       const safeBracket: Bracket = {
@@ -117,8 +119,7 @@ export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
         groupTiebreakers: bracket.groupTiebreakers ?? {},
         bestThirds: bracket.bestThirds,
       } as Bracket;
-      const input = bracketToCascadeInput(tournament, safeBracket, "share-viewer");
-      return cascade(tournament, input);
+      return cascadeWithUserPicks(tournament, safeBracket, "share-viewer");
     } catch {
       return { knockouts: [] as CascadedKnockout[] };
     }
