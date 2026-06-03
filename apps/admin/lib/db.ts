@@ -30,6 +30,7 @@ function resolveDbPath(envKey: string, fallback: string): string {
 
 let _authDb: DB | null = null;
 let _gameDb: DB | null = null;
+let _gameDbRw: DB | null = null;
 let _oddsDb: DB | null = null;
 
 export function authDb(): DB | null {
@@ -57,6 +58,30 @@ export function gameDb(): DB | null {
   _gameDb = new Database(p, { readonly: true, fileMustExist: true });
   _gameDb.pragma("journal_mode = WAL");
   return _gameDb;
+}
+
+/**
+ * Writable game.db connection, used by the small set of admin actions
+ * that mutate game-service state directly (currently: approve/deny pool
+ * join requests). Kept as a separate connection from {@link gameDb} so
+ * the read path stays read-only and any accidental mutation through the
+ * read handle fails fast.
+ *
+ * SQLite + WAL safely supports multiple connections to the same file
+ * from a single process; the writable handle uses the same journal mode.
+ * Returns null when the database file doesn't exist (mock-mode dev).
+ */
+export function gameDbWritable(): DB | null {
+  if (_gameDbRw) return _gameDbRw;
+  const p = resolveDbPath("ADMIN_GAME_DB_PATH", "apps/game/data/game.db");
+  if (!existsSync(p)) {
+    // eslint-disable-next-line no-console
+    console.warn(`[admin/db] game.db not found at ${p}; admin writes disabled`);
+    return null;
+  }
+  _gameDbRw = new Database(p, { readonly: false, fileMustExist: true });
+  _gameDbRw.pragma("journal_mode = WAL");
+  return _gameDbRw;
 }
 
 export function oddsDb(): DB | null {

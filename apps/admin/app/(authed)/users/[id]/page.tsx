@@ -18,6 +18,25 @@ function fmtDate(iso: string | null | undefined): string {
   return new Date(t).toLocaleDateString();
 }
 
+/**
+ * Mirror of apps/web/lib/share/handle-slug.ts. Lowercase, decompose
+ * accents, drop everything outside [a-z0-9_-], must be 2..32 chars and
+ * not collide with the guid / u_<hex> shapes the resolver handles
+ * separately. Inlined here so admin doesn't cross-import from the web
+ * app. Returns null when the display_name is empty or too short.
+ */
+function slugifyDisplayName(name: string | null | undefined): string | null {
+  if (!name) return null;
+  const s = name
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[^a-z0-9_-]/g, "");
+  if (s.length < 2 || s.length > 32) return null;
+  if (/^[0-9a-f]{16}$/.test(s)) return null;
+  if (/^u_[0-9a-f]{16,32}$/.test(s)) return null;
+  return s;
+}
+
 export default async function UserDetailPage({
   params,
 }: {
@@ -30,6 +49,13 @@ export default async function UserDetailPage({
   ]);
   const userPools = liveUserPools(params.id) ?? [];
   const ownedSlugs = userPools.filter((p) => p.role === "owner").map((p) => p.slug);
+
+  // Friendly /s/<handle> share link. Falls back to the immutable
+  // /s/<userId> path when display_name can't be cleanly slugified, so
+  // every user has a clickable public profile from the admin view.
+  const handle = slugifyDisplayName(u.display_name);
+  const profileSlug = handle ?? u.id;
+  const profileUrl = `https://play.tournamental.com/s/${encodeURIComponent(profileSlug)}`;
 
   // The original "Profile" view (kept verbatim) becomes the body of the
   // Profile tab; the new tabs surface predictions, syndicates, revenue, and
@@ -146,13 +172,30 @@ export default async function UserDetailPage({
           <Link href="/users" className="text-xs text-accent-400 hover:underline">
             ← All users
           </Link>
-          <h1 className="text-2xl font-display font-semibold mt-1">{u.display_name}</h1>
-          <div className="text-sm text-ink-200 flex items-center gap-2">
+          <h1 className="text-2xl font-display font-semibold mt-1">
+            {u.display_name}
+            {handle && (
+              <span className="ml-2 text-base font-normal text-ink-500">
+                @{handle}
+              </span>
+            )}
+          </h1>
+          <div className="text-sm text-ink-200 flex items-center gap-2 flex-wrap">
             <span className="font-mono text-xs">{u.id}</span>
             <span>· {u.email}</span>
             <span>· {u.country}</span>
             <HumannessChip score={u.humanness} />
             <PunditChip status={customer360.pundit} />
+          </div>
+          <div className="mt-2 text-sm">
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="text-accent-400 hover:underline break-all"
+            >
+              {profileUrl} ↗
+            </a>
           </div>
         </div>
         <div className="text-xs text-ink-500">

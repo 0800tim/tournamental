@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Api } from "@/lib/api";
 import { requireAuth } from "@/lib/auth";
 import { StatCard } from "@/components/StatCard";
+import type { PendingJoinRequest } from "@/lib/live";
+import { PendingMembersPanel } from "./PendingMembersPanel";
 
 export const dynamic = "force-dynamic";
 
@@ -13,6 +15,7 @@ interface ExtendedSyndicate {
   created_at: string;
   total_stake_units: number;
   members_list: { id: string; handle: string; rank: number }[];
+  pending_members?: PendingJoinRequest[];
   is_public?: boolean;
   tier?: string;
   prize_text?: string | null;
@@ -128,6 +131,20 @@ export default async function SyndicateDetailPage({
               Open owner profile →
             </Link>
           )}
+        </div>
+      </section>
+
+      <section>
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm uppercase tracking-wider text-ink-500">
+            Pending join requests ({(s.pending_members ?? []).length})
+          </h2>
+        </div>
+        <div className="rounded-lg ring-1 ring-amber-700/40 bg-ink-800">
+          <PendingMembersPanel
+            slug={s.slug}
+            pending={s.pending_members ?? []}
+          />
         </div>
       </section>
 

@@ -4,11 +4,26 @@
  * null when its source DB isn't reachable so callers can transparently
  * fall back to mock data.
  *
- * Read-only by contract. The admin app never writes through these
- * handles; mutating actions go through the owning service's HTTP API.
+ * Read-only by contract for the most part. The admin app never writes
+ * through the {@link gameDb}/{@link authDb} handles; mutating actions
+ * go through the owning service's HTTP API.
+ *
+ * Exception: a small set of approval-queue actions (currently pool
+ * join-request approve/deny) use {@link gameDbWritable} to mutate
+ * game.db directly. These are colocated with the read path because the
+ * write is a single UPDATE + counter bump and routing it through
+ * apps/api would add a JWT bridge for no correctness benefit while
+ * both services live on the same box.
  */
 
-import { authDb, gameDb, oddsDb, nDaysAgoMs, startOfTodayMs } from "./db";
+import {
+  authDb,
+  gameDb,
+  gameDbWritable,
+  oddsDb,
+  nDaysAgoMs,
+  startOfTodayMs,
+} from "./db";
 import type {
   ApiKeyRow,
   OverviewStats,
@@ -391,9 +406,18 @@ export function liveSyndicates(
   return { rows: rows.map(mapSyndicateRow) };
 }
 
+export interface PendingJoinRequest {
+  user_id: string;
+  display_name: string;
+  handle: string | null;
+  joined_at: number;
+}
+
 export function liveSyndicate(slug: string):
   | (SyndicateLiveRow & {
+      id: string;
       members_list: { id: string; handle: string; rank: number }[];
+      pending_members: PendingJoinRequest[];
       owner_email: string;
       owner_phone: string;
     })
@@ -419,12 +443,17 @@ export function liveSyndicate(slug: string):
   // alike — the dashboard reader doesn't care, the operator can see
   // role per row. (Tim 2026-05-29: the-crate showed 10 members on the
   // card but 0 in the list because we were reading the wrong table.)
+  // `status` is NULL for legacy rows (treated as 'active') or one of
+  // 'active' | 'pending' | 'denied' for rows created under the
+  // approval-gated join flow. We split into active vs pending below so
+  // the admin page can render an approval queue + a members list.
   const rawMembers = gdb
     .prepare(
       `SELECT som.user_id AS id,
               som.role,
               som.handle,
               som.display_name,
+              som.status,
               som.joined_at,
               b.score_total AS rank
        FROM syndicate_owners_membership som
@@ -438,6 +467,7 @@ export function liveSyndicate(slug: string):
     role: string;
     handle: string | null;
     display_name: string | null;
+    status: string | null;
     joined_at: number;
     rank: number | null;
   }[];
@@ -471,26 +501,107 @@ export function liveSyndicate(slug: string):
     return m.id.slice(0, 12);
   }
 
+  const activeMembers = rawMembers.filter(
+    (m) => m.status === null || m.status === "active",
+  );
+  const pendingMembers = rawMembers.filter((m) => m.status === "pending");
+
   return {
     ...mapSyndicateRow(r),
+    id: r.id,
     owner_email: r.owner_email,
     owner_phone: r.owner_phone,
     // Override the cached `member_count` with the authoritative count
     // from the membership table. The cached column drifts because the
     // public-page join counter increments without writing the row when
     // a user bails before signup.
-    members: rawMembers.length,
+    members: activeMembers.length,
     members_cached: r.member_count,
-    members_list: rawMembers.map((m) => ({
+    members_list: activeMembers.map((m) => ({
       id: m.id,
       handle: m.role === "owner" ? `${labelFor(m)} (owner)` : labelFor(m),
       rank: m.rank ?? 0,
     })),
+    pending_members: pendingMembers.map((m) => ({
+      user_id: m.id,
+      display_name: labelFor(m),
+      handle: m.handle,
+      joined_at: m.joined_at,
+    })),
   } as SyndicateLiveRow & {
+    id: string;
     members_list: { id: string; handle: string; rank: number }[];
+    pending_members: PendingJoinRequest[];
     owner_email: string;
     owner_phone: string;
     members_cached: number;
+  };
+}
+
+// ---------------- syndicate mutations ---------------------------------
+
+/**
+ * Approve or deny a pending pool join request. Mirrors the side-effects
+ * of the owner-side approve endpoint at
+ * `apps/web/app/api/v1/syndicates/[slug]/join-requests/[userId]/approve/route.ts`:
+ *
+ *   - flips `syndicate_owners_membership.status` from 'pending' to
+ *     'active' (approve) or 'denied' (deny)
+ *   - on approve, bumps `syndicates.member_count` so the public landing
+ *     counter reflects the new active member without waiting for any
+ *     game-service backfill
+ *
+ * Returns an object describing the outcome so the caller can write a
+ * useful audit entry and surface a clear status banner. Idempotent: a
+ * second call for the same (slug, userId) is a no-op once the row has
+ * left 'pending' state.
+ */
+export type JoinRequestAction = "approve" | "deny";
+
+export interface JoinRequestOutcome {
+  status: "applied" | "already_handled" | "syndicate_not_found";
+  /** Resolved syndicate id, present when the slug was found. */
+  syndicate_id?: string;
+}
+
+export function applyJoinRequestAction(
+  slug: string,
+  userId: string,
+  action: JoinRequestAction,
+): JoinRequestOutcome {
+  const gdb = gameDbWritable();
+  if (!gdb) return { status: "syndicate_not_found" };
+
+  const syn = gdb
+    .prepare(`SELECT id FROM syndicates WHERE slug = ?`)
+    .get(slug) as { id: string } | undefined;
+  if (!syn) return { status: "syndicate_not_found" };
+
+  const nextStatus = action === "approve" ? "active" : "denied";
+  const txn = gdb.transaction(() => {
+    const update = gdb
+      .prepare(
+        `UPDATE syndicate_owners_membership
+            SET status = ?
+          WHERE syndicate_id = ? AND user_id = ? AND status = 'pending'`,
+      )
+      .run(nextStatus, syn.id, userId);
+    if (update.changes > 0 && action === "approve") {
+      gdb
+        .prepare(
+          `UPDATE syndicates
+              SET member_count = member_count + 1
+            WHERE id = ?`,
+        )
+        .run(syn.id);
+    }
+    return update.changes;
+  });
+
+  const changes = txn();
+  return {
+    status: changes > 0 ? "applied" : "already_handled",
+    syndicate_id: syn.id,
   };
 }
 
