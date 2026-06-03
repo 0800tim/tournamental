@@ -17,7 +17,11 @@ import { startInviteRunner } from "@/lib/invite/runner";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET = process.env.AUTH_JWT_SECRET ?? "";
+// Tim 2026-06-04: dual-secret verify. ADMIN_MANAGE_JWT_SECRET signs
+// admin-impersonate manage tokens; AUTH_JWT_SECRET signs user-issued
+// manage tokens via /manage-auth.
+const ADMIN_JWT_SECRET = process.env.ADMIN_MANAGE_JWT_SECRET ?? "";
+const USER_JWT_SECRET = process.env.AUTH_JWT_SECRET ?? "";
 
 const BodySchema = z.object({
   action: z.enum(["pause", "resume", "cancel"]),
@@ -36,19 +40,26 @@ async function verifyManageToken(
 ): Promise<boolean> {
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token || !JWT_SECRET) return false;
-  try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    // SEC-WEB-02: scope verification to manage issuer+audience.
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: "tournamental-manage",
-      audience: "tournamental",
-    });
-    const claims = payload as unknown as { slug?: string; type?: string };
-    return claims.type === "manage" && claims.slug === slug;
-  } catch {
-    return false;
-  }
+  if (!token || (!ADMIN_JWT_SECRET && !USER_JWT_SECRET)) return false;
+  const tryVerify = async (
+    secretStr: string,
+  ): Promise<{ slug?: string; type?: string } | null> => {
+    if (!secretStr) return null;
+    try {
+      const secret = new TextEncoder().encode(secretStr);
+      // SEC-WEB-02: scope verification to manage issuer+audience.
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: "tournamental-manage",
+        audience: "tournamental",
+      });
+      return payload as unknown as { slug?: string; type?: string };
+    } catch {
+      return null;
+    }
+  };
+  const claims = (await tryVerify(ADMIN_JWT_SECRET)) ?? (await tryVerify(USER_JWT_SECRET));
+  if (!claims) return false;
+  return claims.type === "manage" && claims.slug === slug;
 }
 
 export async function POST(

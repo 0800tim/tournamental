@@ -41,7 +41,11 @@ import { startInviteRunner } from "@/lib/invite/runner";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const JWT_SECRET = process.env.AUTH_JWT_SECRET ?? "";
+// Tim 2026-06-04: dual-secret verify. ADMIN_MANAGE_JWT_SECRET signs
+// admin-impersonate manage tokens; AUTH_JWT_SECRET signs user-issued
+// manage tokens via /manage-auth.
+const ADMIN_JWT_SECRET = process.env.ADMIN_MANAGE_JWT_SECRET ?? "";
+const USER_JWT_SECRET = process.env.AUTH_JWT_SECRET ?? "";
 const PUBLIC_HOST = process.env.NEXT_PUBLIC_PLAY_HOST ?? "https://play.tournamental.com";
 
 const ContactSchema = z.object({
@@ -75,28 +79,33 @@ async function verifyManageToken(
 ): Promise<{ ok: true; phone: string } | { ok: false; response: Response }> {
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
-  if (!token || !JWT_SECRET) {
+  if (!token || (!ADMIN_JWT_SECRET && !USER_JWT_SECRET)) {
     return { ok: false, response: json({ error: "unauthorised" }, 401) };
   }
-  try {
-    const secret = new TextEncoder().encode(JWT_SECRET);
-    // SEC-WEB-02: scope verification to manage issuer+audience.
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: "tournamental-manage",
-      audience: "tournamental",
-    });
-    const claims = payload as unknown as {
-      slug?: string;
-      phone?: string;
-      type?: string;
-    };
-    if (claims.type !== "manage" || claims.slug !== slug) {
-      return { ok: false, response: json({ error: "forbidden" }, 403) };
+  const tryVerify = async (
+    secretStr: string,
+  ): Promise<{ slug?: string; phone?: string; type?: string } | null> => {
+    if (!secretStr) return null;
+    try {
+      const secret = new TextEncoder().encode(secretStr);
+      // SEC-WEB-02: scope verification to manage issuer+audience.
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: "tournamental-manage",
+        audience: "tournamental",
+      });
+      return payload as unknown as { slug?: string; phone?: string; type?: string };
+    } catch {
+      return null;
     }
-    return { ok: true, phone: claims.phone ?? "unknown" };
-  } catch {
+  };
+  const claims = (await tryVerify(ADMIN_JWT_SECRET)) ?? (await tryVerify(USER_JWT_SECRET));
+  if (!claims) {
     return { ok: false, response: json({ error: "invalid_token" }, 401) };
   }
+  if (claims.type !== "manage" || claims.slug !== slug) {
+    return { ok: false, response: json({ error: "forbidden" }, 403) };
+  }
+  return { ok: true, phone: claims.phone ?? "unknown" };
 }
 
 export async function POST(
