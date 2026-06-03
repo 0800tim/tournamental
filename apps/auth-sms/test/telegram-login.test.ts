@@ -394,7 +394,7 @@ describe('POST /v1/auth/telegram/callback', () => {
     }
   });
 
-  it('phone link — accepts phone_number and stores it on the user', async () => {
+  it('SEC-AUTH-07: phone_number in the widget payload is IGNORED (Telegram does not verify it)', async () => {
     const nowSec = Math.floor(h.now.value / 1000);
     const payload = signTelegramPayload(
       { id: 99, first_name: 'Bob', auth_date: nowSec },
@@ -406,6 +406,10 @@ describe('POST /v1/auth/telegram/callback', () => {
       payload: { ...payload, phone_number: '+6421000999' },
     });
     expect(res.statusCode).toBe(200);
-    expect(res.json().user.phone).toBe('+6421000999');
+    // The widget payload's phone_number is attacker-controlled (Telegram
+    // does not verify phone ownership), so the callback MUST NOT trust it.
+    // Phone-linking lives behind the OTP-verified
+    // /v1/internal/telegram-link-phone endpoint instead.
+    expect(res.json().user.phone).toBeNull();
   });
 });

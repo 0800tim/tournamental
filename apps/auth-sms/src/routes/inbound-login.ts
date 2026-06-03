@@ -170,6 +170,18 @@ export async function registerInboundLogin(
       magic_attempts: 0,
     });
 
+    // Per-IP issuance marker (gateway IP — rarely matches the verifying
+    // user's IP) plus a global "an inbound issuance happened recently"
+    // marker so the verify-by-code device-freshness gate (SEC-AUTH-01)
+    // doesn't lock out legitimate users whose desktop IP differs from
+    // the gateway IP. The /v1/auth/inbound-login route is itself secret-
+    // gated, so the global marker can only be set by an authenticated
+    // gateway call.
+    const issueWindow = 600;
+    const issueBucket = Math.floor(now / issueWindow) * issueWindow;
+    ctx.storage.bumpRateBucket(`ip:${ip}:otp-issued`, issueBucket);
+    ctx.storage.bumpRateBucket('ip-issued-any', issueBucket);
+
     ctx.audit.write({
       action: 'inbound.login.issued',
       phoneId: pid,

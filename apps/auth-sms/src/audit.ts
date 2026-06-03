@@ -41,9 +41,21 @@ export type AuditAction =
   | 'inbound.magic.expired'
   | 'inbound.magic.attempts-exceeded'
   | 'inbound.magic.fingerprint-mismatch'
+  | 'inbound.magic.replay'
   | 'inbound.code.ok'
   | 'inbound.code.no-match'
   | 'inbound.code.ip-throttled'
+  | 'inbound.code.replay'
+  // Email-OTP flow.
+  | 'email.request.ok'
+  | 'email.request.cooldown'
+  | 'email.request.hourly-cap'
+  | 'email.request.send-failed'
+  | 'email.verify.ok'
+  | 'email.verify.unknown'
+  | 'email.verify.bad-code'
+  | 'email.verify.attempts-exceeded'
+  | 'email.verify.ip-throttled'
   // Internal broadcast / invite send.
   | 'internal.send.dispatched';
 

@@ -19,6 +19,7 @@
  */
 
 import type { FastifyInstance } from 'fastify';
+import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import type { AuthContext } from '../context.js';
 import { normalisePhone } from '../phone.js';
@@ -28,18 +29,39 @@ const BodySchema = z.object({
   phone: z.string().min(5).max(32),
 });
 
+/** Constant-time string equality. False on length mismatch (cheap path)
+ *  without leaking length via timing. Mirrors the helper in
+ *  inbound-login.ts; we copy rather than export to keep the module pure
+ *  for tree-shaking. */
+function safeStringEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const ab = Buffer.from(a, 'utf8');
+  const bb = Buffer.from(b, 'utf8');
+  try {
+    return timingSafeEqual(ab, bb);
+  } catch {
+    return false;
+  }
+}
+
 export async function registerInternalLinkPhone(
   app: FastifyInstance,
   ctx: AuthContext,
 ): Promise<void> {
   app.post('/v1/internal/telegram-link-phone', async (req, reply) => {
     const secret = process.env.TOURNAMENTAL_INTERNAL_SECRET ?? '';
+    // SEC-AUTH-03 / SEC-ADMIN-06: when the secret is unset we return 404
+    // (the route doesn't exist as far as the caller knows) rather than
+    // 503 (which doubles as an "endpoint exists, just not configured"
+    // existence oracle).
     if (!secret) {
-      return reply.code(503).send({ error: 'not-configured' });
+      return reply.code(404).send({ error: 'not-found' });
     }
     const auth = req.headers.authorization ?? '';
     const presented = auth.startsWith('Bearer ') ? auth.slice(7).trim() : '';
-    if (presented !== secret) {
+    // SEC-AUTH-03: constant-time compare avoids timing-leaks of the
+    // shared secret.
+    if (!safeStringEqual(presented, secret)) {
       return reply.code(401).send({ error: 'unauthorized' });
     }
 

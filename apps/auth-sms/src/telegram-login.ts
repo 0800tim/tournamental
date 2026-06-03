@@ -25,8 +25,18 @@
 
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
-/** Maximum age of an `auth_date` we accept, in seconds (24 h). */
-export const TELEGRAM_AUTH_MAX_AGE_SECONDS = 24 * 60 * 60;
+/**
+ * Maximum age of an `auth_date` we accept, in seconds.
+ *
+ * SEC-AUTH-14: Telegram's own docs recommend a SHORT window (their
+ * sample code uses 86400 only as an upper bound for "long-lived
+ * session" use cases). For an OTP-style login widget, 5 minutes is
+ * generous and matches the practical "user opens widget, clicks,
+ * navigates back" timeline. A wider window let attackers exfiltrate a
+ * widget payload from any source (browser history, server logs, MITM
+ * on an old session) and replay it within 24 h.
+ */
+export const TELEGRAM_AUTH_MAX_AGE_SECONDS = 5 * 60;
 
 /** Tolerance for `auth_date` in the future, in seconds. */
 export const TELEGRAM_AUTH_FUTURE_SKEW_SECONDS = 60;

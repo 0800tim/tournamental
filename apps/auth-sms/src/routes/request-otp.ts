@@ -70,6 +70,24 @@ export async function registerRequestOtp(
     if (!phone) {
       return reply.code(400).send({ error: 'bad-phone' });
     }
+    // SEC-AUTH-06: this endpoint is a registration oracle (true = the
+    // number is on file). Cap per-IP at 10 checks per minute so an
+    // attacker can't enumerate the whole NZ mobile space cheaply.
+    // Real users hit it 1-2× per login flow.
+    const ip = clientIp(req);
+    const now = Math.floor(ctx.now() / 1000);
+    const window = 60;
+    const bucketStart = Math.floor(now / window) * window;
+    const key = `ip:${ip}:phone-registered`;
+    const count = ctx.storage.bumpRateBucket(key, bucketStart);
+    if (count > 10) {
+      const retryAfter = bucketStart + window - now;
+      reply.header('Retry-After', String(retryAfter));
+      return reply.code(429).send({
+        error: 'rate-limited',
+        retryAfterSeconds: retryAfter,
+      });
+    }
     const registered = ctx.storage.userExistsByPhone(phone);
     return reply.code(200).send({ ok: true, registered });
   });
@@ -200,6 +218,15 @@ export async function registerRequestOtp(
         reason: result.errorCode ?? 'unknown',
       });
     }
+
+    // Record an "OTP issued from this IP" marker so /v1/auth/verify-by-code
+    // can confirm a recent issuance from the verifying IP before walking
+    // the active OTP set (SEC-AUTH-01). 600s window matches the default
+    // OTP TTL; verify-by-code checks current + previous bucket so the
+    // gate is a true rolling window.
+    const issueWindow = 600;
+    const issueBucket = Math.floor(now / issueWindow) * issueWindow;
+    ctx.storage.bumpRateBucket(`ip:${ip}:otp-issued`, issueBucket);
 
     ctx.log.info(
       { phoneId: pid, channel, expiresAt },

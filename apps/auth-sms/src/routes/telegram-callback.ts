@@ -33,7 +33,6 @@ import {
   TelegramLoginVerifyError,
   verifyTelegramLogin,
 } from '../telegram-login.js';
-import { normalisePhone } from '../phone.js';
 import { buildSessionCookie } from './magic-verify.js';
 
 const BodySchema = z.object({
@@ -44,6 +43,11 @@ const BodySchema = z.object({
   photo_url: z.string().url().max(512).optional(),
   auth_date: z.number().int().positive(),
   hash: z.string().regex(/^[0-9a-f]{64}$/),
+  // SEC-AUTH-07: the Telegram Login Widget does NOT verify phone ownership;
+  // `phone_number` is attacker-controlled. We still ACCEPT the field for
+  // backward-compatibility with older widget payloads, but we IGNORE its
+  // value. Phone-linking goes through the OTP-verified
+  // /v1/internal/telegram-link-phone path instead.
   phone_number: z.string().min(1).max(32).optional(),
 });
 
@@ -83,13 +87,12 @@ export async function registerTelegramCallback(
       throw err;
     }
 
-    // Optional phone link. We accept whatever the bot supplied as long as
-    // it normalises to E.164; if it doesn't, we just drop it rather than
-    // failing the login.
-    const linkedPhone =
-      verified.phoneNumber !== null
-        ? normalisePhone(verified.phoneNumber)
-        : null;
+    // SEC-AUTH-07: the widget's `phone_number` field is NOT verified by
+    // Telegram (no proof of phone ownership). Drop it on the floor here.
+    // Phone-linking lives behind the OTP-verified
+    // /v1/internal/telegram-link-phone endpoint, where the bot has already
+    // received a verified share_contact action from the user.
+    const linkedPhone: string | null = null;
 
     const displayName =
       [verified.firstName, verified.lastName]

@@ -63,6 +63,38 @@ function ipFailureBucket(ip: string, now: number, windowSeconds: number): {
   return { key: `ip:${ip}:inbound-code-nomatch`, bucketStart };
 }
 
+/**
+ * Window (seconds) during which a recent OTP-issuance from the requesting
+ * IP qualifies as a "device freshness" proof for /verify-by-code. Without
+ * a recent issuance, the code-paste route is gated, which stops an
+ * attacker who has never even loaded the site from blind-guessing the
+ * 1M code space against an active OTP they did not request (SEC-AUTH-01).
+ *
+ * 600s matches the default OTP TTL so a legitimate user who just received
+ * a code is always inside the window; we check the current + previous
+ * bucket to make it a true rolling window.
+ */
+const ISSUANCE_WINDOW_SECONDS = 600;
+
+function ipHasRecentIssuance(opts: {
+  ctx: AuthContext;
+  ip: string;
+  now: number;
+}): boolean {
+  const { ctx, ip, now } = opts;
+  const current = Math.floor(now / ISSUANCE_WINDOW_SECONDS) * ISSUANCE_WINDOW_SECONDS;
+  const previous = current - ISSUANCE_WINDOW_SECONDS;
+  for (const b of [current, previous]) {
+    if (ctx.storage.getRateBucket(`ip:${ip}:otp-issued`, b) > 0) return true;
+    // The inbound-login flow uses a different (gateway) IP at issuance
+    // than the user's verifying IP, so we also accept a global recent-
+    // inbound marker. This still blocks attackers who have never
+    // triggered an issuance at all.
+    if (ctx.storage.getRateBucket('ip-issued-any', b) > 0) return true;
+  }
+  return false;
+}
+
 export async function registerVerifyByCode(
   app: FastifyInstance,
   ctx: AuthContext,
@@ -104,11 +136,49 @@ export async function registerVerifyByCode(
       });
     }
 
+    // Dedupe replay: was this exact code consumed by the same
+    // fingerprint AND IP in the last 60s? If so, mint a fresh session
+    // rather than erroring (user double-tapped Submit, network retried,
+    // React Strict Mode fired twice). IP must match too — a UA-only
+    // check let an attacker on a different network replay a captured
+    // code within 60s (SEC-AUTH-02).
+    const replay = findRecentVerify(code, now);
+    if (replay && replay.uaFp === uaFp && replay.ip === ip) {
+      return mintReplaySession({
+        ctx,
+        req,
+        reply,
+        userId: replay.userId,
+        phone: replay.phone,
+        ip,
+        pid: replay.phone ? phoneLogId(replay.phone) : '',
+        source: 'code',
+      });
+    }
+
+    // Device-freshness gate (SEC-AUTH-01): the requesting IP must have
+    // had a recent OTP issuance (or the inbound flow must have produced
+    // a code recently). Without this, an attacker who never even loaded
+    // the site can blind-guess against any active OTP they didn't request.
+    if (!ipHasRecentIssuance({ ctx, ip, now })) {
+      ctx.storage.bumpRateBucket(bucket.key, bucket.bucketStart);
+      ctx.audit.write({
+        action: 'inbound.code.no-match',
+        phoneId: '',
+        ip,
+        ua: undefined,
+        reason: 'no-issuance',
+      });
+      return reply.code(401).send({ error: 'unknown-or-expired' });
+    }
+
     // Linear scan over active inbound OTP rows. Each row's hash is
     // bound to (phone, channel, code), so we recompute per-row.
-    // Constant-time compare per row so timing does not leak which
-    // row matched (in practice the OTP set is tiny — 10s of rows —
-    // so the overall verify time is bounded at ~ms regardless).
+    // Stop at the first match. The earlier "walk every row for constant
+    // timing" loop was a self-inflicted brute-force amplifier: it ran
+    // bindAndMintSession against whichever row matched a guessed code
+    // even when the attacker held their own active OTP, without ever
+    // incrementing the per-IP no-match bucket (SEC-AUTH-01).
     const active = ctx.storage.listActiveInboundOtps(now);
     let match = null as { phone: string; channel: 'sms' | 'whatsapp' } | null;
     for (const row of active) {
@@ -120,32 +190,15 @@ export async function registerVerifyByCode(
       });
       if (safeEqualHex(candidate, row.otp_hash)) {
         match = { phone: row.phone, channel: row.channel };
-        // No `break` — we walk all rows so timing is constant
-        // regardless of where the match sits. (Tiny perf cost; big
-        // attacker-confusion win.)
+        break;
       }
     }
 
     if (!match) {
-      // Dedupe replay: was this exact code consumed by this same
-      // fingerprint in the last 60s? If so, mint a fresh session
-      // rather than erroring — the user double-tapped Submit, or the
-      // network retried, or React fired the handler twice. Bumping
-      // the IP-failure bucket here would also be wrong: the user is
-      // legitimate, they just clicked twice.
-      const replay = findRecentVerify(code, now);
-      if (replay && replay.uaFp === uaFp) {
-        return mintReplaySession({
-          ctx,
-          req,
-          reply,
-          userId: replay.userId,
-          phone: replay.phone,
-          ip,
-          pid: replay.phone ? phoneLogId(replay.phone) : '',
-          source: 'code',
-        });
-      }
+      // Always charge the per-IP failure bucket on a failed verification
+      // (SEC-AUTH-01). The previous gate-only-on-no-match behaviour let
+      // an attacker who held their own active OTP guess codes against
+      // every active row without ever paying.
       ctx.storage.bumpRateBucket(bucket.key, bucket.bucketStart);
       ctx.audit.write({
         action: 'inbound.code.no-match',

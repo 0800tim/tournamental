@@ -190,6 +190,16 @@ export async function registerEmailOtp(
       productName: ctx.config.productName,
       ttlMinutes,
     });
+
+    // SEC-AUTH-11: charge the rate-limit budget BEFORE attempting send.
+    // If we only charged on success, an attacker (or a flaky SendGrid)
+    // could trigger unlimited send attempts because each 502 didn't
+    // consume a slot. Burning a slot on a failed send costs the user one
+    // 60s wait or one of 5 hourly slots — acceptable cost for the
+    // attacker-control benefit.
+    ctx.storage.bumpRateBucket(cooldownKey, cooldownBucket);
+    ctx.storage.bumpRateBucket(hourlyKey, hourlyBucket);
+
     const result = await ctx.emailSender.send({
       to: email,
       subject:
@@ -216,8 +226,6 @@ export async function registerEmailOtp(
       return reply.code(502).send({ error: 'send-failed' });
     }
 
-    ctx.storage.bumpRateBucket(cooldownKey, cooldownBucket);
-    ctx.storage.bumpRateBucket(hourlyKey, hourlyBucket);
     ctx.audit.write({
       action: 'email.request.ok',
       phoneId: emailLogId(email),

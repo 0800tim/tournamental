@@ -26,6 +26,8 @@ import { registerVerifyOtp } from './routes/verify-otp.js';
 import { registerSession } from './routes/session.js';
 import { registerWhatsAppPairing } from './routes/whatsapp-pairing.js';
 import { registerTelegramCallback } from './routes/telegram-callback.js';
+import { registerTelegramLink } from './routes/telegram-link.js';
+import { registerInternalLinkPhone } from './routes/internal-link-phone.js';
 import { registerInboundLogin } from './routes/inbound-login.js';
 import { registerMagicVerify } from './routes/magic-verify.js';
 import { registerVerifyByCode } from './routes/verify-by-code.js';
@@ -53,6 +55,13 @@ const corsOrigins = (
   .map((s) => s.trim())
   .filter(Boolean);
 
+/**
+ * Fail-loud env loader for required secrets. The service refuses to
+ * start when the secret is missing, too short, or matches a known
+ * placeholder pattern (`CHANGE_ME`, `INSECURE`, `replace-me`, etc.). All
+ * production secrets MUST be routed through this — silently falling
+ * back to dev defaults was the SEC-AUTH-04 / -10 / -15 finding.
+ */
 function envOrFail(key: string): string {
   const v = process.env[key];
   if (!v || v.length < 32) {
@@ -60,19 +69,12 @@ function envOrFail(key: string): string {
       `${key} is required and must be at least 32 chars; set in .env`,
     );
   }
-  return v;
-}
-
-function envOrDevDefault(key: string, prefix: string): string {
-  const v = process.env[key];
-  if (v && v.length >= 32) return v;
-  if (process.env.NODE_ENV === 'production') {
+  if (/CHANGE_?ME|INSECURE|REPLACE[_-]?ME|example|placeholder/i.test(v)) {
     throw new Error(
-      `${key} is required in production and must be at least 32 chars`,
+      `${key} looks like a placeholder ("${v.slice(0, 24)}…"); generate a real secret with \`openssl rand -hex 32\` and set it in .env`,
     );
   }
-  // Dev-only insecure default — clearly marked.
-  return `${prefix}-INSECURE-DEV-ONLY-DO-NOT-USE-IN-PROD-${'x'.repeat(16)}`;
+  return v;
 }
 
 export interface BuildOptions {
@@ -135,6 +137,8 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerSession(app, ctx);
   await registerWhatsAppPairing(app, ctx);
   await registerTelegramCallback(app, ctx);
+  await registerTelegramLink(app, ctx);
+  await registerInternalLinkPhone(app, ctx);
   await registerInboundLogin(app, ctx);
   await registerMagicVerify(app, ctx);
   await registerVerifyByCode(app, ctx);
@@ -221,11 +225,19 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
     emailSender,
     audit,
     config: {
-      otpSecret: envOrDevDefault('AUTH_OTP_SECRET', 'otp'),
-      jwtSecret: envOrDevDefault('AUTH_JWT_SECRET', 'jwt'),
+      // SEC-AUTH-04 / -10 / -15: every authentication secret is fail-loud
+      // via envOrFail. Missing, too-short (<32 chars), or placeholder
+      // values crash the service at startup instead of silently falling
+      // back to a dev default. `AUTH_ADMIN_TOKEN` is optional (empty
+      // string disables the pairing-qr endpoint) but if set it must
+      // also be fail-loud.
+      otpSecret: envOrFail('AUTH_OTP_SECRET'),
+      jwtSecret: envOrFail('AUTH_JWT_SECRET'),
       appHost: process.env.AUTH_APP_HOST ?? 'tournamental.com',
       productName: process.env.AUTH_PRODUCT_NAME ?? 'Tournamental',
-      adminToken: process.env.AUTH_ADMIN_TOKEN ?? '',
+      adminToken: process.env.AUTH_ADMIN_TOKEN
+        ? envOrFail('AUTH_ADMIN_TOKEN')
+        : '',
       otpTtlSeconds: Number(process.env.AUTH_OTP_TTL_SECONDS ?? 600),
       maxVerifyAttempts: Number(
         process.env.AUTH_MAX_VERIFY_ATTEMPTS ?? 5,
@@ -236,7 +248,9 @@ function buildDefaultContext(app: FastifyInstance): AuthContext {
       telegramBotToken: process.env.TELEGRAM_BOT_TOKEN ?? '',
       telegramBotUsername:
         process.env.TELEGRAM_BOT_USERNAME ?? 'TournamentalBot',
-      inboundLoginSecret: process.env.INBOUND_LOGIN_SECRET ?? '',
+      inboundLoginSecret: process.env.INBOUND_LOGIN_SECRET
+        ? envOrFail('INBOUND_LOGIN_SECRET')
+        : '',
       inboundMagicMaxAttempts: Number(
         process.env.INBOUND_MAGIC_MAX_ATTEMPTS ?? 5,
       ),
@@ -274,7 +288,3 @@ async function start() {
 if (import.meta.url === `file://${process.argv[1]}`) {
   start();
 }
-
-// Reference unused symbol so linters don't flag it; CI also ensures
-// envOrFail is wired into a future strict-prod path.
-void envOrFail;

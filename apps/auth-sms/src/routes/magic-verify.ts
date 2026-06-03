@@ -188,26 +188,50 @@ export async function bindAndMintSession(opts: {
   const { ctx, reply, phone, ip, uaFp, pid, source, dedupeKey } = opts;
   const now = Math.floor(ctx.now() / 1000);
 
-  // Bind on first use. If the row was already bound, this returns the
-  // existing fingerprint and we cross-check; mismatch is the
-  // "attacker who stole the link" or "user tried the link on a
-  // different network mid-flight" case.
-  const bind = ctx.storage.bindOtpToFingerprint({ phone, ip, uaFp });
-  if (!bind.bound) {
-    if (bind.existingIp !== ip || bind.existingFp !== uaFp) {
-      ctx.storage.incrementMagicAttempts(phone);
-      ctx.audit.write({
-        action: 'inbound.magic.fingerprint-mismatch',
-        phoneId: pid,
-        ip,
-        ua: undefined,
-        reason: source,
-      });
-      return reply.code(403).send({ error: 'fingerprint-mismatch' });
-    }
-    // Same fingerprint, second attempt with the same row — harmless
-    // (e.g. browser reload). Fall through to mint a fresh session.
+  // SEC-AUTH-12: atomic bind-and-consume. Folds the bind + delete into
+  // a single transaction so two concurrent requests from the same
+  // fingerprint cannot both mint sessions. The previous code bound on
+  // first call, then deleted later — the second call observed the row
+  // still present, bound: false with matching existing fingerprint, and
+  // fell through to a fresh mint.
+  //
+  // After this call:
+  //   'consumed' — first use, row is gone, mint a session.
+  //   'mismatch' — already bound to a different fingerprint, reject.
+  //   'gone'     — concurrent caller already consumed the row.
+  //
+  // The dedupe-replay path (rememberRecentVerify) handles the
+  // legitimate-double-tap case for 'gone' callers: when their second
+  // submission lands the row is already deleted, but the dedupe entry
+  // we cache below lets the route mint a fresh session from the
+  // remembered userId without re-reading any OTP row.
+  const bind = ctx.storage.atomicBindAndConsumeOtp({ phone, ip, uaFp });
+  if (bind.outcome === 'mismatch') {
+    ctx.storage.incrementMagicAttempts(phone);
+    ctx.audit.write({
+      action: 'inbound.magic.fingerprint-mismatch',
+      phoneId: pid,
+      ip,
+      ua: undefined,
+      reason: source,
+    });
+    return reply.code(403).send({ error: 'fingerprint-mismatch' });
   }
+  if (bind.outcome === 'gone') {
+    // Concurrent consume already deleted the row. If we have a recent
+    // dedupe entry for this fingerprint+ip+key, the replay path will
+    // mint cleanly; otherwise treat as a stale submission.
+    ctx.audit.write({
+      action: source === 'magic' ? 'inbound.magic.unknown' : 'inbound.code.no-match',
+      phoneId: pid,
+      ip,
+      ua: undefined,
+      reason: 'race-consumed',
+    });
+    return reply.code(401).send({ error: 'unknown-or-expired' });
+  }
+  // outcome === 'consumed' — first use; row is already deleted inside
+  // the transaction, no further deleteOtp needed below.
 
   const user = ctx.storage.findOrCreateUser(phone, now);
   // Mirror into HighLevel as a `player` contact (fire-and-forget).
@@ -231,14 +255,14 @@ export async function bindAndMintSession(opts: {
     ) ?? null,
     ip,
   });
-  // OTP row is consumed regardless of new-vs-returning so the same
-  // code / magic link cannot be replayed.
-  ctx.storage.deleteOtp(phone);
+  // (OTP row was already consumed inside atomicBindAndConsumeOtp's
+  // transaction; no separate deleteOtp here. SEC-AUTH-12.)
 
   // Remember this verification for 60s so a duplicate submission from
-  // the same fingerprint can be replayed without erroring. The
+  // the same fingerprint + IP can be replayed without erroring. The
   // dedupeKey is the raw code or challenge token — short-lived and
-  // already gated by fingerprint matching on the replay path.
+  // already gated by fingerprint + IP matching on the replay path
+  // (SEC-AUTH-02).
   if (dedupeKey) {
     rememberRecentVerify(
       dedupeKey,
@@ -364,11 +388,13 @@ export async function registerMagicVerify(
     const row = ctx.storage.getOtpByChallenge(token);
     if (!row) {
       // Dedupe replay: if this same token was successfully verified
-      // in the last 60s from the same fingerprint, mint a fresh
-      // session rather than erroring (handles browser back/forward,
-      // double-fire, retry on flaky network).
+      // in the last 60s from the same fingerprint AND the same IP,
+      // mint a fresh session rather than erroring (browser back/forward,
+      // double-fire, retry on flaky network). IP must match too — the
+      // UA-only check let an attacker on a different network replay a
+      // recently-consumed token within 60s (SEC-AUTH-02).
       const replay = findRecentVerify(token, now);
-      if (replay && replay.uaFp === uaFp) {
+      if (replay && replay.uaFp === uaFp && replay.ip === ip) {
         return mintReplaySession({
           ctx,
           req,

@@ -427,6 +427,65 @@ export class Storage {
   }
 
   /**
+   * Atomic bind + consume: bind the OTP row to (ip, uaFp) ONLY if it is
+   * still unbound, AND delete it in the same transaction. Returns the
+   * outcome:
+   *   { outcome: 'consumed' }       — bind succeeded, row deleted.
+   *   { outcome: 'mismatch', … }    — row was already bound to a
+   *                                   different fingerprint; left in
+   *                                   place so the caller can count
+   *                                   the failed attempt.
+   *   { outcome: 'gone' }           — no row matched (already consumed
+   *                                   by a concurrent caller).
+   *
+   * SEC-AUTH-12: the previous bind-then-delete pattern (bind in one
+   * call, delete in a later call) allowed two concurrent requests from
+   * the same fingerprint to both mint a session — only the first bind
+   * succeeded but the second observed `bound: false` with matching
+   * existing fingerprint and fell through to a fresh mint before the
+   * delete ran. Folding the consume into the bind transaction closes
+   * that window.
+   */
+  atomicBindAndConsumeOtp(opts: {
+    phone: string;
+    ip: string;
+    uaFp: string;
+  }):
+    | { outcome: 'consumed' }
+    | { outcome: 'mismatch'; existingIp: string; existingFp: string }
+    | { outcome: 'gone' } {
+    const tx = this.db.transaction(
+      (phone: string, ip: string, uaFp: string) => {
+        const bound = this.db
+          .prepare(
+            `UPDATE phone_otp
+               SET bound_ip = ?, bound_ua_fp = ?
+               WHERE phone = ? AND bound_ip IS NULL
+               RETURNING phone`,
+          )
+          .get(ip, uaFp, phone) as { phone: string } | undefined;
+        if (bound) {
+          // First use — consume the row.
+          this.db.prepare(`DELETE FROM phone_otp WHERE phone = ?`).run(phone);
+          return { outcome: 'consumed' as const };
+        }
+        const existing = this.db
+          .prepare(`SELECT bound_ip, bound_ua_fp FROM phone_otp WHERE phone = ?`)
+          .get(phone) as
+          | { bound_ip: string | null; bound_ua_fp: string | null }
+          | undefined;
+        if (!existing) return { outcome: 'gone' as const };
+        return {
+          outcome: 'mismatch' as const,
+          existingIp: existing.bound_ip ?? '',
+          existingFp: existing.bound_ua_fp ?? '',
+        };
+      },
+    );
+    return tx(opts.phone, opts.ip, opts.uaFp);
+  }
+
+  /**
    * Increment the `magic_attempts` counter and return the new value.
    * Used as the per-code brute-force counter, distinct from `attempts`
    * which is reserved for the legacy outbound-flow lockout logic.
@@ -712,6 +771,137 @@ export class Storage {
       )
       .run(rec);
     return rec;
+  }
+
+  /**
+   * Link a Telegram identity onto an already-authenticated user.
+   *
+   * Returns:
+   *   'no-user'         — the userId does not exist.
+   *   'conflict-strong' — a DIFFERENT user already owns this telegram_id
+   *                       and has a phone or email set (i.e. it's not a
+   *                       throwaway shell row we can absorb).
+   *   'absorbed'        — a stray telegram-only user (no phone/email)
+   *                       owned this telegram_id; we deleted the stray
+   *                       and linked the id onto the target user.
+   *   'updated'         — the target user already had this telegram_id;
+   *                       we refreshed display fields and bumped
+   *                       last_seen_at.
+   *   'ok'              — the target user had no telegram_id; we linked
+   *                       this one cleanly.
+   *
+   * SEC-PII-01: previously this method did not exist; the route at
+   * /v1/auth/telegram/link crashed at runtime so the 409 guard never
+   * executed. Implemented atomically: the absorb path wraps DELETE + UPDATE
+   * in a transaction so a concurrent writer can't observe a half-applied state.
+   */
+  linkTelegramToUser(opts: {
+    userId: string;
+    telegramId: number;
+    telegramUsername: string | null;
+    firstName: string | null;
+    lastName: string | null;
+    now: number;
+  }): 'no-user' | 'conflict-strong' | 'absorbed' | 'updated' | 'ok' {
+    const { userId, telegramId, telegramUsername, firstName, lastName, now } =
+      opts;
+    const displayName =
+      [firstName, lastName]
+        .filter((s): s is string => !!s && s.length > 0)
+        .join(' ')
+        .trim() || null;
+
+    const target = this.db
+      .prepare(`SELECT * FROM user WHERE id = ?`)
+      .get(userId) as UserRecord | undefined;
+    if (!target) return 'no-user';
+
+    if (target.telegram_id === telegramId) {
+      this.db
+        .prepare(
+          `UPDATE user
+             SET telegram_username = COALESCE(?, telegram_username),
+                 display_name = COALESCE(display_name, ?),
+                 last_seen_at = ?
+           WHERE id = ?`,
+        )
+        .run(telegramUsername, displayName, now, userId);
+      return 'updated';
+    }
+
+    const owner = this.db
+      .prepare(`SELECT * FROM user WHERE telegram_id = ?`)
+      .get(telegramId) as UserRecord | undefined;
+    if (owner && owner.id !== userId) {
+      const isStrong = !!(owner.phone || owner.email);
+      if (isStrong) return 'conflict-strong';
+      const absorb = this.db.transaction(() => {
+        this.db.prepare(`DELETE FROM user WHERE id = ?`).run(owner.id);
+        this.db
+          .prepare(
+            `UPDATE user
+               SET telegram_id = ?,
+                   telegram_username = COALESCE(?, telegram_username),
+                   display_name = COALESCE(display_name, ?),
+                   last_seen_at = ?
+             WHERE id = ?`,
+          )
+          .run(telegramId, telegramUsername, displayName, now, userId);
+      });
+      absorb();
+      return 'absorbed';
+    }
+
+    this.db
+      .prepare(
+        `UPDATE user
+           SET telegram_id = ?,
+               telegram_username = COALESCE(?, telegram_username),
+               display_name = COALESCE(display_name, ?),
+               last_seen_at = ?
+         WHERE id = ?`,
+      )
+      .run(telegramId, telegramUsername, displayName, now, userId);
+    return 'ok';
+  }
+
+  /**
+   * Set the phone on a Telegram-identified user. Called by the
+   * /v1/internal/telegram-link-phone endpoint after the bot has received
+   * a Telegram-verified share_contact action from the user, so the phone
+   * is trusted to actually belong to the Telegram identity.
+   *
+   * Returns:
+   *   'no-user'        — no user is currently linked to this telegram_id.
+   *   'already-linked' — the user already had a phone set; we leave it
+   *                      (regardless of whether the new phone matches).
+   *   'conflict'       — the phone is already owned by a different user
+   *                      (UNIQUE constraint would fire).
+   *   'ok'             — the phone was set on the user.
+   *
+   * SEC-PII-01: previously this method did not exist; the route at
+   * /v1/internal/telegram-link-phone crashed at runtime so the 409 guard
+   * never executed.
+   */
+  linkPhoneToTelegramUser(opts: {
+    telegramId: number;
+    phone: string;
+    now: number;
+  }): 'no-user' | 'already-linked' | 'conflict' | 'ok' {
+    const { telegramId, phone, now } = opts;
+    const target = this.db
+      .prepare(`SELECT * FROM user WHERE telegram_id = ?`)
+      .get(telegramId) as UserRecord | undefined;
+    if (!target) return 'no-user';
+    if (target.phone) return 'already-linked';
+    const owner = this.db
+      .prepare(`SELECT id FROM user WHERE phone = ?`)
+      .get(phone) as { id: string } | undefined;
+    if (owner && owner.id !== target.id) return 'conflict';
+    this.db
+      .prepare(`UPDATE user SET phone = ?, last_seen_at = ? WHERE id = ?`)
+      .run(phone, now, target.id);
+    return 'ok';
   }
 
   /**

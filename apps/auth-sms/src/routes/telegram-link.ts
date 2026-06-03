@@ -119,13 +119,16 @@ export async function registerTelegramLink(
     );
 
     reply.header('Cache-Control', 'private, no-store');
+    // SEC-PII-04: omit phone + email from the link response. The caller
+    // is the authenticated user themselves, but the response can be
+    // captured by client telemetry / RUM agents on the page, and there's
+    // no UI need to echo phone/email back here — the client already has
+    // the values from the existing /v1/auth/me cache.
     return reply.send({
       ok: true,
       outcome,
       user: {
         id: user.id,
-        phone: user.phone,
-        email: user.email,
         displayName: user.display_name,
         telegramId: user.telegram_id,
         telegramUsername: user.telegram_username,

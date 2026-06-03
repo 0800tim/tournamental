@@ -15,19 +15,37 @@
  */
 
 import type { FastifyInstance } from 'fastify';
+import { timingSafeEqual } from 'node:crypto';
 import type { AuthContext } from '../context.js';
+
+/** Constant-time string equality; mirrors the helper used in
+ *  inbound-login.ts and internal-link-phone.ts. */
+function safeStringEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  const ab = Buffer.from(a, 'utf8');
+  const bb = Buffer.from(b, 'utf8');
+  try {
+    return timingSafeEqual(ab, bb);
+  } catch {
+    return false;
+  }
+}
 
 export async function registerWhatsAppPairing(
   app: FastifyInstance,
   ctx: AuthContext,
 ): Promise<void> {
   app.get('/v1/auth/whatsapp/pairing-qr', async (req, reply) => {
+    // SEC-ADMIN-06: when no admin token is configured we 404 (the route
+    // doesn't exist as far as callers know) rather than expose a 401
+    // existence oracle.
+    if (!ctx.config.adminToken) {
+      return reply.code(404).send({ error: 'not-found' });
+    }
+    // SEC-AUTH-05: constant-time compare on the admin token avoids
+    // timing-leaks. Length check via safeStringEqual.
     const tok = req.headers['x-admin-token'];
-    if (
-      !ctx.config.adminToken ||
-      typeof tok !== 'string' ||
-      tok !== ctx.config.adminToken
-    ) {
+    if (typeof tok !== 'string' || !safeStringEqual(tok, ctx.config.adminToken)) {
       return reply.code(401).send({ error: 'unauthorized' });
     }
     const qr = await ctx.waSender.pairingQr();

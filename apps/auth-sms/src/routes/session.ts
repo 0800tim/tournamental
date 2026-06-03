@@ -19,6 +19,27 @@ import type { AuthContext } from '../context.js';
 import { syncUserToHighLevel } from '../highlevel.js';
 import { verifySessionJwt, signSessionJwt } from '../jwt.js';
 
+/**
+ * Slugify a display_name into a handle (lowercase, [a-z0-9_-] only,
+ * 2-32 chars). Mirrors apps/web/lib/share/handle-slug.ts; both ends MUST
+ * apply the same transform so the inverse lookup (getUserByHandle)
+ * round-trips. We duplicate rather than import because auth-sms is a
+ * standalone service and we don't want a cross-app dep.
+ */
+function slugifyDisplayName(displayName: string | null | undefined): string | null {
+  if (!displayName) return null;
+  const normalised = displayName
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9_-]/g, '');
+  if (normalised.length < 2 || normalised.length > 32) return null;
+  // Avoid handle shapes that collide with share-guid / auth-sms user-id
+  // shapes — the resolver dispatches on shape first.
+  if (/^[0-9a-f]{16}$/.test(normalised)) return null;
+  if (/^u_[0-9a-f]{16,32}$/.test(normalised)) return null;
+  return normalised;
+}
+
 interface AuthedRequest {
   userId: string;
   phone: string;
@@ -145,6 +166,24 @@ export async function registerSession(
       if (!handle || !/^[a-zA-Z0-9_-]{2,32}$/.test(handle)) {
         return reply.code(400).send({ error: 'bad_handle' });
       }
+      // SEC-AUTH-13: per-IP rate limit so this endpoint can't be used to
+      // enumerate display names (it's a public oracle on user identity).
+      // 60 requests/min is generous for legitimate share-page traffic
+      // (each /s/<handle> load fires one lookup, edge-cached for 60s).
+      const ip = (req.ip || '').trim() || '0.0.0.0';
+      const nowSec = Math.floor(ctx.now() / 1000);
+      const win = 60;
+      const bucketStart = Math.floor(nowSec / win) * win;
+      const rlKey = `ip:${ip}:by-handle`;
+      const count = ctx.storage.bumpRateBucket(rlKey, bucketStart);
+      if (count > 60) {
+        const retryAfter = bucketStart + win - nowSec;
+        reply.header('Retry-After', String(retryAfter));
+        return reply.code(429).send({
+          error: 'rate-limited',
+          retryAfterSeconds: retryAfter,
+        });
+      }
       const user = ctx.storage.getUserByHandle(handle);
       if (!user) return reply.code(404).send({ error: 'not_found' });
       reply.header(
@@ -195,13 +234,40 @@ export async function registerSession(
 
     if (patch.country) patch.country = patch.country.toUpperCase();
     if (patch.favourite_team_code) patch.favourite_team_code = patch.favourite_team_code.toUpperCase();
-    if (patch.email) {
-      const e = patch.email.toLowerCase();
-      // Tight format check; the server rejects rather than the client.
-      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
-        return reply.code(400).send({ error: 'bad-email' });
+
+    // SEC-AUTH-09: email changes cannot land via PATCH /v1/auth/me. The
+    // previous behaviour let a phone-registered user claim any
+    // unregistered email (silently) and surfaced a 409 on collisions
+    // (which is itself an enumeration oracle). Email writes now require
+    // going through /v1/auth/email/request → /v1/auth/email/verify, then
+    // a server-side merge of the verified email onto the user row.
+    // Reject email keys here with a generic verification-required status
+    // (don't differentiate "taken" vs "not taken" — both are info leaks).
+    if ('email' in patch) {
+      if (patch.email) {
+        const e = patch.email.toLowerCase();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) {
+          return reply.code(400).send({ error: 'bad-email' });
+        }
       }
-      patch.email = e;
+      // Drop the email key — the rest of the patch can still apply.
+      delete (patch as Record<string, string | null>).email;
+      // Tell the client to start the verification flow.
+      reply.header('X-Email-Verification-Required', '1');
+    }
+
+    // SEC-PII-03: reject display-name changes whose slug collides with
+    // another user. Without this, two users with display_name "Tim Thomas"
+    // share /s/timthomas — most-recently-active wins, which lets a fresh
+    // signup hijack an established user's share URL.
+    if ('display_name' in patch && patch.display_name) {
+      const slug = slugifyDisplayName(patch.display_name);
+      if (slug) {
+        const owner = ctx.storage.getUserByHandle(slug);
+        if (owner && owner.id !== authed.userId) {
+          return reply.code(409).send({ error: 'display_name_taken' });
+        }
+      }
     }
 
     // Tim 2026-06-04: explicit pre-check for email collision.  The
@@ -263,12 +329,13 @@ export async function registerSession(
     try {
       updated = ctx.storage.updateUser(authed.userId, patch, now);
     } catch (err) {
-      // Most likely cause: duplicate email (unique constraint).
+      // SEC-AUTH-09: don't differentiate UNIQUE-email errors from other
+      // failures — a 409 'email-taken' here is an enumeration oracle.
+      // (We no longer write email via this route, but defensively keep
+      // a generic 500 in case of unexpected unique-constraint hits.)
       const msg = err instanceof Error ? err.message : String(err);
-      if (/UNIQUE constraint failed.*email/.test(msg)) {
-        return reply.code(409).send({ error: 'email-taken' });
-      }
-      throw err;
+      ctx.log.warn({ err: msg, userId: authed.userId }, 'auth: PATCH /me failed');
+      return reply.code(500).send({ error: 'update_failed' });
     }
     if (!updated) return reply.code(404).send({ error: 'not-found' });
 
