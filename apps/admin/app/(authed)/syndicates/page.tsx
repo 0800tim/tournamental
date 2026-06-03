@@ -5,11 +5,12 @@ import { SyndicatesTable } from "./SyndicatesTable";
 
 export const dynamic = "force-dynamic";
 
-export default async function SyndicatesPage({
-  searchParams,
-}: {
-  searchParams: { q?: string; status?: string };
-}) {
+export default async function SyndicatesPage(
+  props: {
+    searchParams: Promise<{ q?: string; status?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const session = await requireAuth();
   const data = await Api.syndicates(session, searchParams.q ?? "", searchParams.status ?? "");
 

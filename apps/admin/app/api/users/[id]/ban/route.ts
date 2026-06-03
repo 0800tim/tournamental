@@ -7,7 +7,8 @@ import { can } from "@/lib/perms";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "users.ban")) return NextResponse.json({ error: "forbidden" }, { status: 403 });

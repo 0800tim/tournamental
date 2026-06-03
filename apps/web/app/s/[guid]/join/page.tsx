@@ -20,10 +20,11 @@ import { JoinFlowClient } from "@/components/join/JoinFlowClient";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  readonly params: { readonly guid: string };
+  readonly params: Promise<{ readonly guid: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   const resolved = await resolveShareGuid((params.guid ?? "").toLowerCase().trim());
   const name = resolved.kind === "syndicate" ? resolved.syndicate.name : "a pool";
   return {
@@ -33,7 +34,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function JoinPage({ params }: PageProps): Promise<JSX.Element> {
+export default async function JoinPage(props: PageProps): Promise<JSX.Element> {
+  const params = await props.params;
   const resolved = await resolveShareGuid((params.guid ?? "").toLowerCase().trim());
   if (resolved.kind !== "syndicate") notFound();
   return <JoinFlowClient slug={resolved.syndicate.slug} initialName={resolved.syndicate.name} />;

@@ -23,11 +23,12 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default function NewSyndicateSuccessPage({
-  searchParams,
-}: {
-  searchParams: { slug?: string };
-}): JSX.Element {
+export default async function NewSyndicateSuccessPage(
+  props: {
+    searchParams: Promise<{ slug?: string }>;
+  }
+): Promise<JSX.Element> {
+  const searchParams = await props.searchParams;
   const slug = (searchParams.slug ?? "").toString();
   return <SyndicateSuccessClient slug={slug} />;
 }

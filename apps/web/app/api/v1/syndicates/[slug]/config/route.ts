@@ -51,10 +51,8 @@ export function OPTIONS(): Response {
   return new Response(null, { status: 204, headers: CORS_HEADERS });
 }
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(_req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug || !/^[a-z0-9-]{1,64}$/.test(slug)) {
     return jsonResponse({ error: "bad_slug" }, 400, { "Cache-Control": "no-store" });

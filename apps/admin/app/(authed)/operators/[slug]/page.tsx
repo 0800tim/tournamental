@@ -7,11 +7,12 @@ import { OperatorEditForm } from "./OperatorEditForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function OperatorDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function OperatorDetailPage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+) {
+  const params = await props.params;
   const session = await requireAuth();
   const op = await getOperator(params.slug);
   if (!op) notFound();

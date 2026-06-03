@@ -26,11 +26,12 @@ export const metadata: Metadata = {
   title: "Upgrade to Premium · Tournamental",
 };
 
-export default function ConnectPage({
-  params,
-}: {
-  params: { slug: string };
-}): JSX.Element {
+export default async function ConnectPage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+): Promise<JSX.Element> {
+  const params = await props.params;
   return (
     <AppShell title="Upgrade to Premium">
       <ConnectWizard slug={params.slug} />

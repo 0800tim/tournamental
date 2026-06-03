@@ -37,11 +37,12 @@ function slugifyDisplayName(name: string | null | undefined): string | null {
   return s;
 }
 
-export default async function UserDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function UserDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const session = await requireAuth();
   const [u, customer360] = await Promise.all([
     Api.user(session, params.id),

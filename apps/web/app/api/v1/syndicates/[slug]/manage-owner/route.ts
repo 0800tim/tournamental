@@ -79,10 +79,8 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   const auth = await verifyManageToken(req, slug);
   if (!auth.ok) return auth.response;
@@ -113,10 +111,8 @@ const PatchSchema = z.object({
   topic: z.string().max(280).nullable().optional(),
 }).strict();
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   const auth = await verifyManageToken(req, slug);
   if (!auth.ok) return auth.response;

@@ -18,7 +18,7 @@ export const dynamic = "force-dynamic";
 export const revalidate = 30;
 
 export interface RouteContext {
-  readonly params: { readonly matchNo: string };
+  readonly params: Promise<{ readonly matchNo: string }>;
 }
 
 const CACHE_HEADERS = {
@@ -26,7 +26,7 @@ const CACHE_HEADERS = {
 };
 
 export async function GET(req: NextRequest, ctx: RouteContext): Promise<NextResponse> {
-  const { matchNo } = ctx.params;
+  const { matchNo } = (await ctx.params);
   if (!matchNo) {
     return NextResponse.json({ error: "matchNo required" }, { status: 400 });
   }

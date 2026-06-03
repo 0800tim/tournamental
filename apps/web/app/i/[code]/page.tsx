@@ -22,10 +22,11 @@ import { readPublicConfig } from "@/lib/auth/config";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  readonly params: { code: string };
+  readonly params: Promise<{ code: string }>;
 }
 
-export default async function ClaimInvite({ params }: PageProps) {
+export default async function ClaimInvite(props: PageProps) {
+  const params = await props.params;
   const code = (params.code || "").toLowerCase().slice(0, 16);
   if (!code) redirect("/world-cup-2026");
 
@@ -36,8 +37,8 @@ export default async function ClaimInvite({ params }: PageProps) {
     redirect("/world-cup-2026?invited=1");
   }
 
-  const cookieStore = cookies();
-  const _headers = headers();
+  const cookieStore = await cookies();
+  const _headers = await headers();
   void _headers;
 
   const sb = serverActionClient({

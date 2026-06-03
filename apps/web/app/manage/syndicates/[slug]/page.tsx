@@ -8,13 +8,14 @@ export const metadata: Metadata = {
   robots: "noindex",
 };
 
-export default function ManageSyndicatePage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: { phone?: string };
-}): JSX.Element {
+export default async function ManageSyndicatePage(
+  props: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<{ phone?: string }>;
+  }
+): Promise<JSX.Element> {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   return (
     <ManageClient
       slug={params.slug}

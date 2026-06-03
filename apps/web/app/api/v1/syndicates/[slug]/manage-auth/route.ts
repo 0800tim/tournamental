@@ -55,10 +55,8 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json({ error: "bad_slug" }, 400);
 

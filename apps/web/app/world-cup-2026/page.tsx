@@ -58,10 +58,11 @@ export const metadata: Metadata = {
 };
 
 interface WorldCup2026PageProps {
-  searchParams?: Record<string, string | string[] | undefined>;
+  searchParams?: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default function WorldCup2026Page({ searchParams }: WorldCup2026PageProps) {
+export default async function WorldCup2026Page(props: WorldCup2026PageProps) {
+  const searchParams = await props.searchParams;
   const baseTournament = loadFixtures2026();
   const tournament = enrichTournamentTeams(
     baseTournament,

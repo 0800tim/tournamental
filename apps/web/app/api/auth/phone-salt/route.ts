@@ -24,7 +24,7 @@ export async function GET() {
   if (!salt) {
     return NextResponse.json({ error: "unconfigured" }, { status: 503 });
   }
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sb = serverActionClient({
     get: (name) => {
       const c = cookieStore.get(name);

@@ -145,7 +145,7 @@ export async function issueSessionCookie(args: {
 }
 
 export async function readSession(): Promise<AdminSession | null> {
-  const cookie = cookies().get(SESSION_COOKIE);
+  const cookie = (await cookies()).get(SESSION_COOKIE);
   if (!cookie?.value) return null;
   try {
     const { payload } = await jwtVerify(cookie.value, getSecret(), {
@@ -178,7 +178,7 @@ export async function readSession(): Promise<AdminSession | null> {
 export async function requireAuth(): Promise<AdminSession> {
   const s = await readSession();
   if (!s) {
-    const next = headers().get("x-admin-path") ?? "/";
+    const next = (await headers()).get("x-admin-path") ?? "/";
     redirect(`/login?next=${encodeURIComponent(next)}`);
   }
   return s!;

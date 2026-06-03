@@ -37,11 +37,12 @@ function maskPhone(p?: string): string {
   return `${p.slice(0, 3)}${"*".repeat(p.length - 7)}${p.slice(-4)}`;
 }
 
-export default async function SyndicateDetailPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default async function SyndicateDetailPage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+) {
+  const params = await props.params;
   const session = await requireAuth();
   const s = (await Api.syndicate(session, params.slug)) as unknown as ExtendedSyndicate;
 

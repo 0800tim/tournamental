@@ -28,7 +28,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/auth?reason=missing-code", req.url));
   }
 
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sb = serverActionClient({
     get: (name) => {
       const c = cookieStore.get(name);

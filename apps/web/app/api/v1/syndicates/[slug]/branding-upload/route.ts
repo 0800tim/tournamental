@@ -48,10 +48,8 @@ function safeSlug(raw: string): string | null {
   return /^[a-z0-9][a-z0-9-]{1,62}[a-z0-9]$/.test(raw) ? raw : null;
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = safeSlug((params.slug ?? "").toLowerCase().trim());
   if (!slug) return json({ error: "bad_slug" }, 400);
 
@@ -156,10 +154,8 @@ export async function POST(
   });
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = safeSlug((params.slug ?? "").toLowerCase().trim());
   if (!slug) return json({ error: "bad_slug" }, 400);
   const url = new URL(req.url);

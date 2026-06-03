@@ -24,9 +24,9 @@ const GUID_RE = /^[a-zA-Z0-9_-]{3,64}$/;
 
 export async function GET(
   req: NextRequest,
-  ctx: { params: { guid: string } },
+  ctx: { params: Promise<{ guid: string }> },
 ): Promise<Response> {
-  const guid = ctx.params.guid;
+  const guid = (await ctx.params).guid;
   if (!guid || !GUID_RE.test(guid)) {
     return new Response("invalid guid", { status: 400 });
   }

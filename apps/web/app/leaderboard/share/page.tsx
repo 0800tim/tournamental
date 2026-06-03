@@ -15,37 +15,40 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
 
+type SearchParams = {
+  handle?: string;
+  rank?: string;
+  points?: string;
+  percentile?: string;
+  scope?: string;
+  tournament?: string;
+};
+
 interface Params {
-  readonly searchParams: {
-    handle?: string;
-    rank?: string;
-    points?: string;
-    percentile?: string;
-    scope?: string;
-    tournament?: string;
-  };
+  readonly searchParams: Promise<SearchParams>;
 }
 
-function ogUrl(p: Params, size: "landscape" | "portrait" | "square"): string {
+function ogUrl(sp: SearchParams, size: "landscape" | "portrait" | "square"): string {
   const u = new URLSearchParams();
   u.set("size", size);
-  if (p.searchParams.handle) u.set("handle", p.searchParams.handle);
-  if (p.searchParams.rank) u.set("rank", p.searchParams.rank);
-  if (p.searchParams.points) u.set("points", p.searchParams.points);
-  if (p.searchParams.percentile) u.set("percentile", p.searchParams.percentile);
-  if (p.searchParams.scope) u.set("scope", p.searchParams.scope);
-  if (p.searchParams.tournament) u.set("tournament", p.searchParams.tournament);
+  if (sp.handle) u.set("handle", sp.handle);
+  if (sp.rank) u.set("rank", sp.rank);
+  if (sp.points) u.set("points", sp.points);
+  if (sp.percentile) u.set("percentile", sp.percentile);
+  if (sp.scope) u.set("scope", sp.scope);
+  if (sp.tournament) u.set("tournament", sp.tournament);
   return `/api/og/leaderboard?${u.toString()}`;
 }
 
-export function generateMetadata(p: Params): Metadata {
-  const handle = p.searchParams.handle ?? "Predictor";
-  const rank = p.searchParams.rank ?? "?";
-  const scope = (p.searchParams.scope ?? "global").toLowerCase();
+export async function generateMetadata(p: Params): Promise<Metadata> {
+  const sp = await p.searchParams;
+  const handle = sp.handle ?? "Predictor";
+  const rank = sp.rank ?? "?";
+  const scope = (sp.scope ?? "global").toLowerCase();
   const title = `@${handle} is #${rank} on the ${scope} leaderboard`;
   const description = `Tournamental Football World Cup 2026 prediction game. Catch them.`;
-  const landscape = ogUrl(p, "landscape");
-  const square = ogUrl(p, "square");
+  const landscape = ogUrl(sp, "landscape");
+  const square = ogUrl(sp, "square");
   return {
     title,
     description,
@@ -67,10 +70,11 @@ export function generateMetadata(p: Params): Metadata {
   };
 }
 
-export default function LeaderboardSharePage(p: Params) {
-  const handle = p.searchParams.handle ?? "Predictor";
-  const rank = p.searchParams.rank ?? "?";
-  const points = p.searchParams.points ? Number(p.searchParams.points) : null;
+export default async function LeaderboardSharePage(p: Params) {
+  const sp = await p.searchParams;
+  const handle = sp.handle ?? "Predictor";
+  const rank = sp.rank ?? "?";
+  const points = sp.points ? Number(sp.points) : null;
   return (
     <AppShell title="Leaderboard rank">
       <main
@@ -92,7 +96,7 @@ export default function LeaderboardSharePage(p: Params) {
         )}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={ogUrl(p, "landscape")}
+          src={ogUrl(sp, "landscape")}
           alt={`@${handle} is rank ${rank}`}
           width={1200}
           height={630}

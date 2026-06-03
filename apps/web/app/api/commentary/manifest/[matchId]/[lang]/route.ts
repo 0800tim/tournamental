@@ -22,8 +22,9 @@ export const runtime = "nodejs";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { matchId: string; lang: string } },
+  props: { params: Promise<{ matchId: string; lang: string }> }
 ): Promise<NextResponse> {
+  const params = await props.params;
   return NextResponse.json(
     {
       match: params.matchId,

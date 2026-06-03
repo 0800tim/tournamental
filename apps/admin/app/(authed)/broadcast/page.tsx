@@ -13,11 +13,12 @@ import { BroadcastClient } from "./BroadcastClient";
 
 export const dynamic = "force-dynamic";
 
-export default async function BroadcastPage({
-  searchParams,
-}: {
-  searchParams: { slug?: string | string[] };
-}) {
+export default async function BroadcastPage(
+  props: {
+    searchParams: Promise<{ slug?: string | string[] }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const session = await requireAuth();
   const [syndicates, playbooks] = await Promise.all([
     Api.syndicates(session, "", ""),

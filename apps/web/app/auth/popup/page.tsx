@@ -8,11 +8,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function AuthPopupPage({
-  searchParams,
-}: {
-  searchParams: { pool?: string; from?: string };
-}): JSX.Element {
+export default async function AuthPopupPage(
+  props: {
+    searchParams: Promise<{ pool?: string; from?: string }>;
+  }
+): Promise<JSX.Element> {
+  const searchParams = await props.searchParams;
   return (
     <AuthPopupClient
       pool={searchParams.pool ?? null}

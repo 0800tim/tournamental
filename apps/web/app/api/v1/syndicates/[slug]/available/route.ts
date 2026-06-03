@@ -38,9 +38,9 @@ function jsonResponse(
 
 export async function GET(
   _req: NextRequest,
-  ctx: { params: { slug: string } },
+  ctx: { params: Promise<{ slug: string }> },
 ): Promise<Response> {
-  const slug = (ctx.params?.slug ?? "").trim();
+  const slug = ((await ctx.params)?.slug ?? "").trim();
   const shape = validateSlug(slug);
   if (!shape.ok) {
     // 200 (not 4xx) so the form's fetch never throws, the body

@@ -66,10 +66,11 @@ export function generateStaticParams() {
 }
 
 interface TeamPageProps {
-  params: { code: string };
+  params: Promise<{ code: string }>;
 }
 
-export function generateMetadata({ params }: TeamPageProps): Metadata {
+export async function generateMetadata(props: TeamPageProps): Promise<Metadata> {
+  const params = await props.params;
   const upper = params.code.toUpperCase();
   const c = canonicalTeamByCode(upper);
   if (!c) {
@@ -86,7 +87,8 @@ export function generateMetadata({ params }: TeamPageProps): Metadata {
   };
 }
 
-export default function TeamPage({ params }: TeamPageProps) {
+export default async function TeamPage(props: TeamPageProps) {
+  const params = await props.params;
   const upper = params.code.toUpperCase();
   const baseTournament = loadFixtures2026();
   const tournament = enrichTournamentTeams(

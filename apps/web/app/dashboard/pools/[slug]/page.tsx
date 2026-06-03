@@ -18,11 +18,12 @@ export const metadata: Metadata = {
   title: "Manage pool · Tournamental",
 };
 
-export default function PoolManagePage({
-  params,
-}: {
-  params: { slug: string };
-}): JSX.Element {
+export default async function PoolManagePage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+): Promise<JSX.Element> {
+  const params = await props.params;
   return (
     <AppShell title="Manage pool">
       <SyndicateManageView slug={params.slug} />

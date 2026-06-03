@@ -11,11 +11,12 @@ import { livePundits } from "@/lib/live";
 
 export const dynamic = "force-dynamic";
 
-export default async function PunditsPage({
-  searchParams,
-}: {
-  searchParams: { tournament?: string };
-}) {
+export default async function PunditsPage(
+  props: {
+    searchParams: Promise<{ tournament?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   await requireAuth();
   const tournament = searchParams.tournament ?? "fifa-wc-2026";
   const rows = livePundits(tournament, 50) ?? [];

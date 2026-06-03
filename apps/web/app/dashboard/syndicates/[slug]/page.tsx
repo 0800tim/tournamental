@@ -27,11 +27,12 @@ export const metadata: Metadata = {
   title: "Manage syndicate · Tournamental",
 };
 
-export default function SyndicateManagePage({
-  params,
-}: {
-  params: { slug: string };
-}): JSX.Element {
+export default async function SyndicateManagePage(
+  props: {
+    params: Promise<{ slug: string }>;
+  }
+): Promise<JSX.Element> {
+  const params = await props.params;
   return (
     <AppShell title="Manage syndicate">
       <SyndicateManageView slug={params.slug} />

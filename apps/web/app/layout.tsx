@@ -70,7 +70,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   // on every tunnel-routed request; we read it server-side at SSR so
   // non-GDPR visitors never see the banner mount even briefly.
   // Unknown → treat as GDPR (safer to over-prompt than under-prompt).
-  const h = headers();
+  const h = await headers();
   const cfCountry = h.get("cf-ipcountry");
   const showConsent = isGdprCountryOrUnknown(cfCountry);
 

@@ -15,4 +15,5 @@
  * working without an update.
  */
 
-export { GET, runtime, dynamic } from "../embed/widget.js/route";
+export { /* @next-codemod-error `GET` export is re-exported. Check if this component uses `params` or `searchParams`*/
+GET, runtime, dynamic } from "../embed/widget.js/route";

@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
   }
 
   // Identify the caller from the session cookie.
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sb = serverActionClient({
     get: (name) => {
       const c = cookieStore.get(name);

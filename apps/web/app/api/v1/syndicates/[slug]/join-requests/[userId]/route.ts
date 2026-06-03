@@ -48,8 +48,9 @@ function json(body: unknown, status: number): Response {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string; userId: string } },
+  props: { params: Promise<{ slug: string; userId: string }> }
 ): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   // SEC-POOL-13: the URL param is now an opaque approval token issued
   // by listPendingMembers, NOT the raw user id. Reject obviously

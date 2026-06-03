@@ -33,10 +33,8 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug || !/^[a-z0-9-]{1,64}$/.test(slug)) {
     return json({ error: "bad_slug" }, 400);

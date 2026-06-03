@@ -20,16 +20,16 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface RouteContext {
-  params: { bracket: string };
+  params: Promise<{ bracket: string }>;
 }
 
 export async function GET(req: NextRequest, ctx: RouteContext): Promise<Response> {
-  const raw = decodeURIComponent(ctx.params.bracket);
+  const raw = decodeURIComponent((await ctx.params).bracket);
   // Strip a stray .png/.mp4 if the caller forgot to use the bare id.
   const stripped = raw.replace(/\.(png|mp4)$/, "");
   if (!isValidBracketId(stripped)) {
     return new Response(
-      JSON.stringify({ error: "invalid_bracket_id", segment: ctx.params.bracket }),
+      JSON.stringify({ error: "invalid_bracket_id", segment: (await ctx.params).bracket }),
       { status: 400, headers: { "content-type": "application/json", "cache-control": "no-store" } },
     );
   }

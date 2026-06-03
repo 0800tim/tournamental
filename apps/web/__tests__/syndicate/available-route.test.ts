@@ -15,7 +15,7 @@ function call(slug: string): Promise<Response> {
   const fakeReq = new Request(
     `http://localhost/api/v1/syndicates/${slug}/available`,
   ) as unknown as Parameters<typeof GET>[0];
-  return GET(fakeReq, { params: { slug } });
+  return GET(fakeReq, { params: Promise.resolve({ slug }) });
 }
 
 beforeEach(() => {

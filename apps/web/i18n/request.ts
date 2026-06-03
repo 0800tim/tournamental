@@ -39,15 +39,15 @@ async function loadMessages(locale: Locale): Promise<Messages> {
   }
 }
 
-function resolveLocale(): Locale {
+async function resolveLocale(): Promise<Locale> {
   // 1. Middleware-set request header (set on every URL-prefixed visit
   //    so /es/foo always wins, even before the cookie roundtrip).
-  const h = headers();
+  const h = await headers();
   const fromMiddleware = h.get("x-vt-locale");
   if (isSupportedLocale(fromMiddleware)) return fromMiddleware;
 
   // 2. Existing vt_locale cookie (user already picked).
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const fromCookie = cookieStore.get("vt_locale")?.value;
   if (isSupportedLocale(fromCookie)) return fromCookie;
 
@@ -65,7 +65,7 @@ function resolveLocale(): Locale {
 }
 
 export default getRequestConfig(async () => {
-  const locale = resolveLocale();
+  const locale = await resolveLocale();
   const messages = await loadMessages(locale);
   return { locale, messages };
 });

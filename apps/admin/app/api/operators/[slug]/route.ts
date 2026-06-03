@@ -24,7 +24,8 @@ const PATCHABLE_KEYS = new Set<keyof OperatorRecord>([
   "notes",
 ]);
 
-export async function GET(_req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "operators.read"))
@@ -34,7 +35,8 @@ export async function GET(_req: NextRequest, { params }: { params: { slug: strin
   return NextResponse.json(op);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "operators.write"))

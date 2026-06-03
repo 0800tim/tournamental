@@ -4,11 +4,12 @@ import { StatCard } from "@/components/StatCard";
 
 export const dynamic = "force-dynamic";
 
-export default async function AffiliatePage({
-  searchParams,
-}: {
-  searchParams: { period?: string };
-}) {
+export default async function AffiliatePage(
+  props: {
+    searchParams: Promise<{ period?: string }>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const session = await requireAuth();
   const period = searchParams.period ?? "7d";
   const data = await Api.affiliateClicks(session, period);

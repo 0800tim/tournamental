@@ -7,11 +7,12 @@ import { AdvertiserEditForm } from "./AdvertiserEditForm";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdvertiserDetailPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function AdvertiserDetailPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const session = await requireAuth();
   const adv = await getAdvertiser(params.id);
   if (!adv) notFound();

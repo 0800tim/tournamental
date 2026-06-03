@@ -108,10 +108,8 @@ async function verifyManageToken(
   return { ok: true, phone: claims.phone ?? "unknown" };
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json({ error: "bad_slug" }, 400);
 
@@ -189,10 +187,8 @@ export async function POST(
   return json({ ok: true, job_id: jobId, total });
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json({ error: "bad_slug" }, 400);
 

@@ -29,7 +29,7 @@ import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import "@/components/player/player.css";
 
 interface PlayerPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 interface CanonicalTeam {
@@ -58,7 +58,8 @@ export function generateStaticParams() {
   return allPlayerIds().map((id) => ({ id }));
 }
 
-export function generateMetadata({ params }: PlayerPageProps): Metadata {
+export async function generateMetadata(props: PlayerPageProps): Promise<Metadata> {
+  const params = await props.params;
   const player = findPlayer(params.id);
   if (!player) {
     return { title: "Player not found - Tournamental" };
@@ -80,7 +81,8 @@ export function generateMetadata({ params }: PlayerPageProps): Metadata {
   };
 }
 
-export default function PlayerPage({ params }: PlayerPageProps) {
+export default async function PlayerPage(props: PlayerPageProps) {
+  const params = await props.params;
   const player = findPlayer(params.id);
   if (!player) notFound();
 

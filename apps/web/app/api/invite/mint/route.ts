@@ -43,7 +43,7 @@ interface Body {
 }
 
 export async function POST(req: NextRequest) {
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const sb = serverActionClient({
     get: (name) => {
       const c = cookieStore.get(name);

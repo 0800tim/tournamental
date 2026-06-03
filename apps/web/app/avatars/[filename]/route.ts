@@ -36,10 +36,8 @@ function notFound(): Response {
   });
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { filename: string } },
-): Promise<Response> {
+export async function GET(req: Request, props: { params: Promise<{ filename: string }> }): Promise<Response> {
+  const params = await props.params;
   const filename = (params.filename ?? "").trim();
   if (!FILENAME_RE.test(filename)) return notFound();
   // Defence-in-depth: ensure the resolved path stays inside the dir.
@@ -89,10 +87,11 @@ export async function GET(
 
 export async function HEAD(
   req: Request,
-  args: { params: { filename: string } },
+  args: { params: Promise<{ filename: string }> },
 ): Promise<Response> {
   // Re-use the GET path so the file-existence check is identical;
-  // strip the body before returning.
+  // strip the body before returning. GET also accepts the Promise-typed
+  // `args.params` (Next 15 async dynamic API), so passing through is safe.
   const res = await GET(req, args);
   return new Response(null, { status: res.status, headers: res.headers });
 }

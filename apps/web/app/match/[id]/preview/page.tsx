@@ -57,10 +57,11 @@ import "./match-preview.css";
 export const dynamic = "force-static";
 
 interface MatchPreviewPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
-export function generateMetadata({ params }: MatchPreviewPageProps): Metadata {
+export async function generateMetadata(props: MatchPreviewPageProps): Promise<Metadata> {
+  const params = await props.params;
   const tournament = enrichTournamentTeams(
     loadFixtures2026(),
     canonicalTeamsRaw as CanonicalTeamsFile,
@@ -87,7 +88,8 @@ export function generateMetadata({ params }: MatchPreviewPageProps): Metadata {
   };
 }
 
-export default function MatchPreviewPage({ params }: MatchPreviewPageProps) {
+export default async function MatchPreviewPage(props: MatchPreviewPageProps) {
+  const params = await props.params;
   const baseTournament = loadFixtures2026();
   const tournament = enrichTournamentTeams(
     baseTournament,

@@ -96,10 +96,8 @@ async function authoriseOwner(
   return { ok: true, row, userId: session.userId };
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const auth = await authoriseOwner(req, (params.slug ?? "").toLowerCase().trim());
   if (!auth.ok) return auth.response;
   // Surface pending join requests so the dashboard manage view can
@@ -196,10 +194,8 @@ const PatchSchema = z
   })
   .strict();
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   const auth = await authoriseOwner(req, slug);
   if (!auth.ok) return auth.response;

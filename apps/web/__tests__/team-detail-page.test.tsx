@@ -34,7 +34,7 @@ import TeamPage from "../app/team/[code]/page";
 
 describe("/team/[code] page", () => {
   it("renders Argentina (ARG), name, FIFA rank, group J", () => {
-    const { container } = render(<TeamPage params={{ code: "ARG" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Argentina");
     // FIFA #1, comes from data file.
@@ -44,33 +44,33 @@ describe("/team/[code] page", () => {
   });
 
   it("renders Mexico (MEX), name + Group A", () => {
-    const { container } = render(<TeamPage params={{ code: "MEX" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "MEX" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Mexico");
     expect(html).toContain("Group A");
   });
 
   it("accepts lowercase codes", () => {
-    const { container } = render(<TeamPage params={{ code: "usa" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "usa" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("United States");
   });
 
   it("returns 404 for unknown codes", () => {
     expect(() => {
-      render(<TeamPage params={{ code: "XYZ" }} />);
+      render(<TeamPage params={Promise.resolve({ code: "XYZ" })} />);
     }).toThrow(/NEXT_NOT_FOUND/);
   });
 
   it("renders a quick-pick CTA pointing into the bracket", () => {
-    const { container } = render(<TeamPage params={{ code: "ARG" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     const cta = container.querySelector('[data-testid="td-quick-pick"]') as HTMLAnchorElement | null;
     expect(cta).not.toBeNull();
     expect(cta!.getAttribute("href")).toMatch(/^\/world-cup-2026(#match-\d+)?$/);
   });
 
   it("renders the real player-card squad grid for teams with player data", () => {
-    const { container } = render(<TeamPage params={{ code: "ARG" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     // ARG is fully populated in apps/web/data/players-2026.json, uses
     // <PlayerCard /> grid, not the stub `.td-squad-card`.
     const realCards = container.querySelectorAll('[data-testid="player-card"]');
@@ -84,13 +84,13 @@ describe("/team/[code] page", () => {
     // Pick a code that's in canonical teams.json but has no entries in
     // players-2026.json. ALG has no seed players (seed only covers 24
     // marquee teams).
-    const { container } = render(<TeamPage params={{ code: "ALG" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "ALG" })} />);
     const stub = container.querySelectorAll(".td-squad-card");
     expect(stub.length).toBeGreaterThan(0);
   });
 
   it("renders 5 recent-form dots", () => {
-    const { container } = render(<TeamPage params={{ code: "BRA" }} />);
+    const { container } = render(<TeamPage params={Promise.resolve({ code: "BRA" })} />);
     const dots = container.querySelectorAll(".td-form-dot");
     expect(dots.length).toBe(5);
   });

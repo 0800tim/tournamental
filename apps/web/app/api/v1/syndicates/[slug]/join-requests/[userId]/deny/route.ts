@@ -29,8 +29,9 @@ function redirectToManage(slug: string, status: string): Response {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { slug: string; userId: string } },
+  props: { params: Promise<{ slug: string; userId: string }> }
 ): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   const userId = (params.userId ?? "").trim();
   const token = new URL(req.url).searchParams.get("t") ?? "";

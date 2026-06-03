@@ -7,7 +7,8 @@ import { can } from "@/lib/perms";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-export async function POST(req: NextRequest, { params }: { params: { key: string } }) {
+export async function POST(req: NextRequest, props: { params: Promise<{ key: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "feature-flags.write"))

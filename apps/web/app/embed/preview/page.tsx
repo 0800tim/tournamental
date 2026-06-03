@@ -20,11 +20,12 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function EmbedPreviewPage({
-  searchParams,
-}: {
-  searchParams?: { slug?: string };
-}): JSX.Element {
+export default async function EmbedPreviewPage(
+  props: {
+    searchParams?: Promise<{ slug?: string }>;
+  }
+): Promise<JSX.Element> {
+  const searchParams = await props.searchParams;
   const slug = (searchParams?.slug ?? "").toLowerCase().trim();
   return <EmbedPreview slug={slug} />;
 }

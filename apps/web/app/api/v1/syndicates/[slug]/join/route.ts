@@ -183,10 +183,8 @@ function fallbackHandle(userId: string): string {
   return `player_${slug.slice(-6) || "0000"}`;
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function POST(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json(req, { error: "bad_slug" }, 400);
 
@@ -372,10 +370,8 @@ export async function POST(
  * `{ is_member }` (false when there's no session, no pool, or the user
  * isn't a member). Used by the share page CTA to show Join vs Exit.
  */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json(req, { is_member: false });
   const session = await resolveSession(req);
@@ -399,10 +395,8 @@ export async function GET(
  * DELETE - the authed user leaves the pool. Owners can't leave their own
  * pool (protected in removeMember). Decrements the cached member_count.
  */
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json(req, { error: "bad_slug" }, 400);
   const session = await resolveSession(req);

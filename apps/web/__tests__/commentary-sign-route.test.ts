@@ -67,7 +67,7 @@ describe("POST /api/commentary/sign", () => {
 describe("GET /api/commentary/manifest/:matchId/:lang", () => {
   it("returns an empty stub manifest", async () => {
     const res = await manifestRoute({} as Request, {
-      params: { matchId: "fifa-2022-final", lang: "en" },
+      params: Promise.resolve({ matchId: "fifa-2022-final", lang: "en" }),
     });
     const body = await res.json();
     expect(body.match).toBe("fifa-2022-final");
@@ -78,7 +78,7 @@ describe("GET /api/commentary/manifest/:matchId/:lang", () => {
 
   it("sets a public s-maxage cache header", async () => {
     const res = await manifestRoute({} as Request, {
-      params: { matchId: "m", lang: "en" },
+      params: Promise.resolve({ matchId: "m", lang: "en" }),
     });
     const cacheControl = res.headers.get("Cache-Control");
     expect(cacheControl).toContain("public");

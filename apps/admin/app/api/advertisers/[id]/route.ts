@@ -27,7 +27,8 @@ const PATCHABLE_KEYS = new Set<keyof AdvertiserRecord>([
   "notes",
 ]);
 
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(_req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "advertisers.read"))
@@ -37,7 +38,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   return NextResponse.json(adv);
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await readSession();
   if (!session) return NextResponse.json({ error: "unauth" }, { status: 401 });
   if (!can(session.role, "advertisers.write"))

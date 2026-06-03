@@ -33,8 +33,9 @@ const ALLOWED_ACTIONS: ReadonlySet<JoinRequestAction> = new Set([
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string; userId: string } },
+  props: { params: Promise<{ slug: string; userId: string }> }
 ): Promise<NextResponse> {
+  const params = await props.params;
   const session = await readSession();
   if (!session) {
     return NextResponse.json({ error: "unauth" }, { status: 401 });

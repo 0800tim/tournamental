@@ -34,10 +34,8 @@ function notFound(): Response {
   });
 }
 
-export async function GET(
-  req: Request,
-  { params }: { params: { slug: string; kind: string } },
-): Promise<Response> {
+export async function GET(req: Request, props: { params: Promise<{ slug: string; kind: string }> }): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").trim();
   const kindFile = (params.kind ?? "").trim();
   if (!SLUG_RE.test(slug)) return notFound();
@@ -82,8 +80,10 @@ export async function GET(
 
 export async function HEAD(
   req: Request,
-  args: { params: { slug: string; kind: string } },
+  args: { params: Promise<{ slug: string; kind: string }> },
 ): Promise<Response> {
+  // GET also accepts the Promise-typed `args.params` (Next 15 async
+  // dynamic API), so passing through is safe.
   const res = await GET(req, args);
   return new Response(null, { status: res.status, headers: res.headers });
 }

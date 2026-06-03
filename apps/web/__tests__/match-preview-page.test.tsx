@@ -46,7 +46,7 @@ import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 describe("/match/[id]/preview server component", () => {
   it("renders match #1 (group A: MEX vs RSA), both teams + Group A", () => {
-    const { container } = render(<MatchPreviewPage params={{ id: "1" }} />);
+    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Mexico");
     expect(html).toContain("South Africa");
@@ -54,7 +54,7 @@ describe("/match/[id]/preview server component", () => {
   });
 
   it("renders the final by knockout id", () => {
-    const { container } = render(<MatchPreviewPage params={{ id: "final" }} />);
+    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "final" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Final");
     // Final's slot occupants are unresolved (no picks) → labelled TBD.
@@ -62,19 +62,19 @@ describe("/match/[id]/preview server component", () => {
   });
 
   it("renders an R32 match by id", () => {
-    const { container } = render(<MatchPreviewPage params={{ id: "r32_01" }} />);
+    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "r32_01" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Round of 32");
   });
 
   it("returns 404 for unknown ids", () => {
     expect(() => {
-      render(<MatchPreviewPage params={{ id: "not-a-match" }} />);
+      render(<MatchPreviewPage params={Promise.resolve({ id: "not-a-match" })} />);
     }).toThrow(/NEXT_NOT_FOUND/);
   });
 
   it("renders all 5 tab buttons", () => {
-    const { container } = render(<MatchPreviewPage params={{ id: "1" }} />);
+    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
     const tabs = container.querySelectorAll('[role="tab"]');
     expect(tabs.length).toBe(5);
     const labels = Array.from(tabs).map((t) => (t.textContent ?? "").trim());

@@ -64,8 +64,9 @@ async function verifyManageToken(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { slug: string; jobId: string } },
+  props: { params: Promise<{ slug: string; jobId: string }> }
 ): Promise<Response> {
+  const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!(await verifyManageToken(req, slug))) {
     return json({ error: "unauthorised" }, 401);

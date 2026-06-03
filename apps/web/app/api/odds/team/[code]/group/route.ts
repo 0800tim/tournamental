@@ -17,11 +17,11 @@ const CACHE_HEADERS = {
 };
 
 export interface RouteContext {
-  readonly params: { readonly code: string };
+  readonly params: Promise<{ readonly code: string }>;
 }
 
 export async function GET(req: NextRequest, ctx: RouteContext): Promise<NextResponse> {
-  const { code } = ctx.params;
+  const { code } = (await ctx.params);
   if (!code) {
     return NextResponse.json({ error: "team code required" }, { status: 400 });
   }

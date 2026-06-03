@@ -48,14 +48,14 @@ const ALLOWED_SIZES = new Set<CanvasCardSize>(["portrait", "landscape", "square"
 const ALLOWED_FORMATS = new Set<VideoFormat>(["instagram", "tiktok", "twitter"]);
 
 interface RouteContext {
-  params: { bracket: string };
+  params: Promise<{ bracket: string }>;
 }
 
 export async function GET(req: NextRequest, ctx: RouteContext): Promise<Response> {
-  const parsed = parseBracketSegment(ctx.params.bracket);
+  const parsed = parseBracketSegment((await ctx.params).bracket);
   if (!parsed) {
     return new Response(
-      JSON.stringify({ error: "invalid_bracket_segment", segment: ctx.params.bracket }),
+      JSON.stringify({ error: "invalid_bracket_segment", segment: (await ctx.params).bracket }),
       { status: 400, headers: { "content-type": "application/json", "cache-control": "no-store" } },
     );
   }

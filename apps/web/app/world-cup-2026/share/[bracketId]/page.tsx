@@ -11,43 +11,47 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
 
+type SearchParams = {
+  handle?: string;
+  winner?: string;
+  locked?: string;
+  /** Optional path / kit / podium overrides forwarded to the canvas renderer. */
+  path?: string;
+  kit?: string;
+  runner_up?: string;
+  third?: string;
+  tournament?: string;
+  pundit?: string;
+};
+
 interface Params {
-  readonly params: { bracketId: string };
-  readonly searchParams: {
-    handle?: string;
-    winner?: string;
-    locked?: string;
-    /** Optional path / kit / podium overrides forwarded to the canvas renderer. */
-    path?: string;
-    kit?: string;
-    runner_up?: string;
-    third?: string;
-    tournament?: string;
-    pundit?: string;
-  };
+  readonly params: Promise<{ bracketId: string }>;
+  readonly searchParams: Promise<SearchParams>;
 }
 
-function ogUrl(p: Params, size: "landscape" | "portrait" | "square"): string {
+function ogUrl(bracketId: string, sp: SearchParams, size: "landscape" | "portrait" | "square"): string {
   const u = new URLSearchParams();
-  u.set("bracket_id", p.params.bracketId);
+  u.set("bracket_id", bracketId);
   u.set("size", size);
-  if (p.searchParams.handle) u.set("handle", p.searchParams.handle);
-  if (p.searchParams.winner) u.set("winner", p.searchParams.winner);
-  if (p.searchParams.locked) u.set("locked", p.searchParams.locked);
-  if (p.searchParams.path) u.set("path", p.searchParams.path);
-  if (p.searchParams.kit) u.set("kit", p.searchParams.kit);
-  if (p.searchParams.runner_up) u.set("runner_up", p.searchParams.runner_up);
-  if (p.searchParams.third) u.set("third", p.searchParams.third);
-  if (p.searchParams.tournament) u.set("tournament", p.searchParams.tournament);
-  if (p.searchParams.pundit) u.set("pundit", p.searchParams.pundit);
+  if (sp.handle) u.set("handle", sp.handle);
+  if (sp.winner) u.set("winner", sp.winner);
+  if (sp.locked) u.set("locked", sp.locked);
+  if (sp.path) u.set("path", sp.path);
+  if (sp.kit) u.set("kit", sp.kit);
+  if (sp.runner_up) u.set("runner_up", sp.runner_up);
+  if (sp.third) u.set("third", sp.third);
+  if (sp.tournament) u.set("tournament", sp.tournament);
+  if (sp.pundit) u.set("pundit", sp.pundit);
   return `/api/og/bracket?${u.toString()}`;
 }
 
-export function generateMetadata(p: Params): Metadata {
-  const handle = p.searchParams.handle ?? "Anonymous";
-  const winner = p.searchParams.winner ?? "TBD";
-  const ogLandscape = ogUrl(p, "landscape");
-  const ogSquare = ogUrl(p, "square");
+export async function generateMetadata(p: Params): Promise<Metadata> {
+  const sp = await p.searchParams;
+  const { bracketId } = await p.params;
+  const handle = sp.handle ?? "Anonymous";
+  const winner = sp.winner ?? "TBD";
+  const ogLandscape = ogUrl(bracketId, sp, "landscape");
+  const ogSquare = ogUrl(bracketId, sp, "square");
   return {
     title: `@${handle}'s World Cup 2026 bracket, Tournamental`,
     description: `${handle} picked ${winner} to lift the trophy. Save yours before kickoff.`,
@@ -72,9 +76,11 @@ export function generateMetadata(p: Params): Metadata {
   };
 }
 
-export default function SharePage(p: Params) {
-  const handle = p.searchParams.handle ?? "Anonymous";
-  const winner = p.searchParams.winner ?? "TBD";
+export default async function SharePage(p: Params) {
+  const sp = await p.searchParams;
+  const { bracketId } = await p.params;
+  const handle = sp.handle ?? "Anonymous";
+  const winner = sp.winner ?? "TBD";
   return (
     <AppShell title="Shared bracket">
       <main style={{ padding: 32, color: "var(--vt-fg)", maxWidth: 720, margin: "0 auto" }}>
@@ -82,7 +88,7 @@ export default function SharePage(p: Params) {
         <p>Picked <strong>{winner}</strong> to lift the trophy.</p>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={ogUrl(p, "landscape")}
+          src={ogUrl(bracketId, sp, "landscape")}
           alt={`@${handle}'s bracket`}
           width={1200}
           height={630}

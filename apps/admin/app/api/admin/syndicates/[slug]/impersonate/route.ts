@@ -38,10 +38,8 @@ export const dynamic = "force-dynamic";
 
 const MANAGE_TTL_SECONDS = 30 * 60; // 30 minutes
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { slug: string } },
-): Promise<Response> {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
+  const params = await props.params;
   const session = await readSession();
   if (!session) {
     return NextResponse.json({ error: "unauth" }, { status: 401 });
