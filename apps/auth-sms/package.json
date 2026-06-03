@@ -32,7 +32,7 @@
     "@vtorn/aiva-client": "workspace:*",
     "@whiskeysockets/baileys": "^6.7.9",
     "better-sqlite3": "^11.5.0",
-    "fastify": "^5.0.0",
+    "fastify": "^5.8.3",
     "jose": "^5.9.6",
     "pino": "^9.5.0",
     "qrcode": "^1.5.4",

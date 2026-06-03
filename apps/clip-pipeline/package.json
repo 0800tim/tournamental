@@ -24,9 +24,9 @@
     "@fastify/swagger": "^9.7.0",
     "@fastify/swagger-ui": "^5.2.6",
     "@tournamental/spec": "workspace:*",
-    "fastify": "^5.1.0",
+    "fastify": "^5.8.3",
     "pino": "^9.5.0",
-    "ws": "^8.18.0"
+    "ws": "^8.20.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
