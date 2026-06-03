@@ -36,6 +36,7 @@ async function safeT(key: string, fallback: string): Promise<string> {
 }
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { BracketPosterCallout } from "@/components/share-landing/BracketPosterCallout";
+import { ReadOnlyBracket } from "@/components/share-landing/ReadOnlyBracket";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
 import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
@@ -272,6 +273,20 @@ function UserLanding({ bracket }: { bracket: BracketByGuid }) {
           ))}
         </ul>
       </div>
+
+      {/* Read-only full bracket. Tim 2026-06-03: under the molecule +
+        * path-to-gold summary, show every match the owner predicted as
+        * a static view (group stage + thirds + R32 -> Final). The
+        * "Manage my bracket" CTA at the top only renders when the
+        * viewer is the bracket owner (useUser() === bracket.user_id);
+        * everyone else just sees the read-only view. */}
+      {bracket.payload ? (
+        <ReadOnlyBracket
+          bracket={bracket.payload}
+          ownerUserId={bracket.user_id}
+          ownerHandle={handle}
+        />
+      ) : null}
 
       {/* Bracket poster CTA. Tim 2026-06-01: every shared bracket is by
         * definition fully saved (104 picks), so this surface always shows
