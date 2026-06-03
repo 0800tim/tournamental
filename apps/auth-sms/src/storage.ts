@@ -1000,6 +1000,21 @@ export class Storage {
     return row ?? null;
   }
 
+  /**
+   * Look up a user by E.164 phone. The phone UNIQUE index makes this
+   * O(log n). Used by the phone-link verify flow to refuse hijacking
+   * a phone that is already linked to a different account. Tim
+   * 2026-06-04.
+   */
+  getUserByPhone(phone: string): UserRecord | null {
+    const p = (phone ?? '').trim();
+    if (!p) return null;
+    const row = this.db
+      .prepare(`SELECT * FROM user WHERE phone = ?`)
+      .get(p) as UserRecord | undefined;
+    return row ?? null;
+  }
+
   // ---- Sessions ----
 
   insertSession(rec: SessionRecord): void {

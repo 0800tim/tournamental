@@ -411,10 +411,16 @@ export interface InboundUpdateOk {
 }
 export interface InboundUpdateErr {
   readonly ok: false;
-  readonly error: "unauthorized" | "bad-email" | "email-taken" | "network" | "unknown";
+  readonly error:
+    | "unauthorized"
+    | "bad-email"
+    | "email-taken"
+    | "display_name_taken"
+    | "network"
+    | "unknown";
 }
 
-/** PATCH /v1/auth/me — applies the patch and returns the updated user. */
+/** PATCH /v1/auth/me, applies the patch and returns the updated user. */
 export async function updateInboundProfile(
   patch: InboundProfilePatch,
 ): Promise<InboundUpdateOk | InboundUpdateErr> {
@@ -431,10 +437,97 @@ export async function updateInboundProfile(
     };
     if (r.ok && j.user) return { ok: true, user: j.user };
     const err = j.error ?? "unknown";
-    if (err === "bad-email" || err === "email-taken" || err === "unauthorized") {
+    if (
+      err === "bad-email" ||
+      err === "email-taken" ||
+      err === "display_name_taken" ||
+      err === "unauthorized"
+    ) {
       return { ok: false, error: err };
     }
     return { ok: false, error: "unknown" };
+  } catch {
+    return { ok: false, error: "network" };
+  }
+}
+
+// ---- Phone-link (verify inbound OTP and attach phone to authed user) ----
+
+export interface PhoneLinkOk {
+  readonly ok: true;
+  readonly alreadyLinked?: boolean;
+  readonly user: InboundUser;
+}
+
+export interface PhoneLinkErr {
+  readonly ok: false;
+  readonly error:
+    | "bad-body"
+    | "unauthorized"
+    | "unknown-or-expired"
+    | "phone-taken"
+    | "ip-throttled"
+    | "network"
+    | "unknown";
+  readonly retryAfterSeconds?: number;
+}
+
+export type PhoneLinkResult = PhoneLinkOk | PhoneLinkErr;
+
+/**
+ * POST /v1/auth/phone-link/verify, pastes a 6-digit code received
+ * via inbound WhatsApp into the modal on the profile page. The
+ * auth-sms service matches the code against any active inbound OTP
+ * and, on match, attaches the verified phone number to the
+ * currently-signed-in user (rather than minting a new session like
+ * /v1/auth/verify-by-code does).
+ *
+ * Refuses 409 phone-taken if the verified phone already belongs to a
+ * different account; the other user keeps the phone.
+ */
+export async function linkPhoneByCode(code: string): Promise<PhoneLinkResult> {
+  if (!/^\d{6}$/.test(code)) return { ok: false, error: "bad-body" };
+  try {
+    const r = await fetch(
+      AUTH_BASE.replace(/\/$/, "") + "/v1/auth/phone-link/verify",
+      {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ code }),
+      },
+    );
+    const j = (await r.json().catch(() => ({}))) as {
+      ok?: boolean;
+      alreadyLinked?: boolean;
+      user?: InboundUser;
+      error?: string;
+      retryAfterSeconds?: number;
+    };
+    if (r.ok && j.user) {
+      return {
+        ok: true,
+        alreadyLinked: j.alreadyLinked ?? false,
+        user: j.user,
+      };
+    }
+    const err = j.error ?? "unknown";
+    const allowed: PhoneLinkErr["error"][] = [
+      "bad-body",
+      "unauthorized",
+      "unknown-or-expired",
+      "phone-taken",
+      "ip-throttled",
+      "network",
+    ];
+    const errCode = (allowed as string[]).includes(err)
+      ? (err as PhoneLinkErr["error"])
+      : "unknown";
+    return {
+      ok: false,
+      error: errCode,
+      retryAfterSeconds: j.retryAfterSeconds,
+    };
   } catch {
     return { ok: false, error: "network" };
   }

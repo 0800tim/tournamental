@@ -14,10 +14,11 @@
  * if it hasn't expired yet.
  */
 
-import type { FastifyInstance, FastifyRequest } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import type { AuthContext } from '../context.js';
+import { authenticate } from '../auth-middleware.js';
 import { syncUserToHighLevel } from '../highlevel.js';
-import { verifySessionJwt, signSessionJwt } from '../jwt.js';
+import { signSessionJwt } from '../jwt.js';
 
 /**
  * Slugify a display_name into a handle (lowercase, [a-z0-9_-] only,
@@ -34,65 +35,10 @@ function slugifyDisplayName(displayName: string | null | undefined): string | nu
     .replace(/[^a-z0-9_-]/g, '');
   if (normalised.length < 2 || normalised.length > 32) return null;
   // Avoid handle shapes that collide with share-guid / auth-sms user-id
-  // shapes — the resolver dispatches on shape first.
+  // shapes, the resolver dispatches on shape first.
   if (/^[0-9a-f]{16}$/.test(normalised)) return null;
   if (/^u_[0-9a-f]{16,32}$/.test(normalised)) return null;
   return normalised;
-}
-
-interface AuthedRequest {
-  userId: string;
-  phone: string;
-  jti: string;
-}
-
-/**
- * Pull the JWT out of either an `Authorization: Bearer <jwt>` header
- * (the original SDK path) or the `tnm_session` cookie set by the
- * inbound-login flow at /v1/auth/magic-verify and /v1/auth/verify-by-code.
- * Cookies take precedence when both are present so the browser-driven
- * flow doesn't get masked by a stale Authorization header.
- */
-function extractJwt(req: FastifyRequest): string | null {
-  const cookieHeader = req.headers.cookie;
-  if (typeof cookieHeader === 'string' && cookieHeader.length > 0) {
-    for (const part of cookieHeader.split(';')) {
-      const [name, ...rest] = part.trim().split('=');
-      if (name === 'tnm_session' && rest.length > 0) {
-        const value = rest.join('=').trim();
-        if (value) return decodeURIComponent(value);
-      }
-    }
-  }
-  const header = req.headers.authorization;
-  if (typeof header === 'string') {
-    const m = /^Bearer\s+(\S+)$/.exec(header);
-    if (m) return m[1];
-  }
-  return null;
-}
-
-async function authenticate(
-  ctx: AuthContext,
-  req: FastifyRequest,
-): Promise<AuthedRequest | null> {
-  const token = extractJwt(req);
-  if (!token) return null;
-  let claims;
-  try {
-    claims = await verifySessionJwt({
-      secret: ctx.config.jwtSecret,
-      token,
-    });
-  } catch {
-    return null;
-  }
-  // Revocation check.
-  const session = ctx.storage.getSessionByJti(claims.jti);
-  if (!session) return null;
-  const now = Math.floor(ctx.now() / 1000);
-  if (session.expires_at < now) return null;
-  return { userId: claims.sub, phone: claims.phone, jti: claims.jti };
 }
 
 /**
@@ -270,59 +216,10 @@ export async function registerSession(
       }
     }
 
-    // Tim 2026-06-04: explicit pre-check for email collision.  The
-    // user.email UNIQUE index is still the source of truth (the catch
-    // below handles races between check and write), but resolving the
-    // collision before the UPDATE means a clean 409 + no audit-log
-    // noise from a near-miss INSERT.  Phone isn't reachable through
-    // this handler at all (no stringField for it), so the only way to
-    // change a phone number is the verified-OTP signup flow, which
-    // upserts on verified possession, so it cannot be used to hijack.
-    if (
-      'email' in patch &&
-      patch.email !== null &&
-      typeof patch.email === 'string' &&
-      patch.email.length > 0
-    ) {
-      const me = ctx.storage.getUser(authed.userId);
-      if (patch.email !== (me?.email ?? null)) {
-        const collider = ctx.storage.getUserByEmail(patch.email);
-        if (collider && collider.id !== authed.userId) {
-          return reply.code(409).send({ error: 'email-taken' });
-        }
-      }
-    }
-
-    // Tim 2026-06-04: enforce display-name uniqueness server-side.
-    // The /s/<handle> share routes use slugifyDisplayName(display_name)
-    // as the URL key; if two users slugify to the same handle the
-    // resolver picks "most recently active wins" which silently
-    // hijacks someone else's pretty URL.  Block at write time instead.
-    // Slug rule mirrors apps/web/lib/share/handle-slug.ts.
-    if (
-      'display_name' in patch &&
-      patch.display_name !== null &&
-      typeof patch.display_name === 'string'
-    ) {
-      const slug = (s: string | null | undefined): string =>
-        (s ?? '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9_-]/g, '');
-      const proposed = slug(patch.display_name);
-      // Empty / too-short proposals can't collide with a handle-shaped
-      // value, so they skip the check.
-      if (proposed.length >= 2 && proposed.length <= 32) {
-        const me = ctx.storage.getUser(authed.userId);
-        const myCurrentSlug = slug(me?.display_name ?? null);
-        // Only check when the proposed slug actually changes; users
-        // updating capitalisation or whitespace keep resolving to the
-        // same handle and shouldn't trip the check.
-        if (proposed !== myCurrentSlug) {
-          const collider = ctx.storage.getUserByHandle(proposed);
-          if (collider && collider.id !== authed.userId) {
-            return reply.code(409).send({ error: 'display-name-taken' });
-          }
-        }
-      }
-    }
+    // (Email pre-check + display-name pre-check from PR #263 are now
+    // superseded by main's SEC-AUTH-09 (email PATCH disabled, must go
+    // through /v1/auth/email/verify) and SEC-PII-03 (display-name
+    // collision check above), so they're removed here.)
 
     const now = Math.floor(ctx.now() / 1000);
     let updated;
