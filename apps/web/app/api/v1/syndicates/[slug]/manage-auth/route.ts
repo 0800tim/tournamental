@@ -25,6 +25,7 @@ import { SignJWT } from "jose";
 import { z } from "zod";
 
 import { getPersistence } from "@/lib/syndicate/persistence";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit/in-memory";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -61,6 +62,21 @@ export async function POST(
   const slug = (params.slug ?? "").toLowerCase().trim();
   if (!slug) return json({ error: "bad_slug" }, 400);
 
+  // SEC-POOL-04: IP+slug bucketed rate limit (5/10min) so an attacker
+  // can't iterate through OTP codes or scrape OTP-send churn for a
+  // particular pool.
+  const ip = clientIp(req);
+  const rl = checkRateLimit(`manage-auth:${ip}:${slug}`, 5, 10 * 60_000);
+  if (!rl.ok) {
+    return json(
+      {
+        error: "rate_limited",
+        retry_after_seconds: Math.ceil(rl.retryAfterMs / 1000),
+      },
+      429,
+    );
+  }
+
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
   if (!row) return json({ error: "not_found" }, 404);
@@ -87,8 +103,19 @@ export async function POST(
 
   if (data.action === "request") {
     if (!ownerPhone || ownerPhone !== data.phone) {
-      // Constant-time-ish: always call auth-sms with a dummy phone so
-      // the response time doesn't leak whether the syndicate exists.
+      // SEC-POOL-04: defeat the phone-mismatch timing oracle by always
+      // making an upstream call (with a dummy phone that won't actually
+      // dispatch an SMS at the gateway) so the response time matches
+      // the success path. The result is discarded.
+      try {
+        await fetch(`${AUTH_API}/v1/auth/request`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phone: "+10000000000", channel: "sms" }),
+        }).catch(() => undefined);
+      } catch {
+        /* ignore - timing-equalisation only */
+      }
       return json({ error: "phone_mismatch" }, 400);
     }
 
@@ -113,7 +140,34 @@ export async function POST(
   }
 
   // action === "verify"
+
+  // SEC-POOL-04: tighter per-slug lockout on verify so an attacker
+  // can't brute-force OTPs (5 attempts per 10min per IP+slug, applied
+  // BEFORE upstream verify so failures are counted even when
+  // auth-sms is in a degraded state).
+  const verifyRl = checkRateLimit(`manage-auth-verify:${ip}:${slug}`, 5, 10 * 60_000);
+  if (!verifyRl.ok) {
+    return json(
+      {
+        error: "verify_lockout",
+        retry_after_seconds: Math.ceil(verifyRl.retryAfterMs / 1000),
+      },
+      429,
+    );
+  }
+
   if (!ownerPhone || ownerPhone !== data.phone) {
+    // SEC-POOL-04: same timing-equalisation dummy upstream call so
+    // a wrong-phone verify isn't distinguishable from a real one.
+    try {
+      await fetch(`${AUTH_API}/v1/auth/verify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: "+10000000000", code: "000000" }),
+      }).catch(() => undefined);
+    } catch {
+      /* ignore */
+    }
     return json({ error: "phone_mismatch" }, 400);
   }
 

@@ -183,6 +183,16 @@ const PatchSchema = z
      * is_public wins. */
     is_public: z.boolean().optional(),
     requires_approval: z.boolean().optional(),
+    /**
+     * SEC-POOL-11: country allow-list patch. Each entry is a bare
+     * E.164 dial code (1–3 digits, no "+"). `null` clears the
+     * restriction. Capped at 10 entries.
+     */
+    allowed_phone_countries: z
+      .array(z.string().regex(/^\d{1,3}$/))
+      .max(10)
+      .nullable()
+      .optional(),
   })
   .strict();
 

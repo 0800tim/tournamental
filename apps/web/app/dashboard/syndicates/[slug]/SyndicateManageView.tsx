@@ -51,7 +51,12 @@ interface OwnerSyndicate {
 }
 
 interface PendingRequest {
-  user_id: string;
+  /**
+   * SEC-POOL-13: opaque approval token instead of the raw user_id.
+   * The dashboard uses this in the approve/deny URL; the server maps
+   * the token back to the user id internally.
+   */
+  approval_token: string;
   handle?: string | null;
   display_name?: string | null;
   joined_at: number;
@@ -1530,13 +1535,16 @@ function PendingRequestsPanel({
   if (requests.length === 0) return null;
 
   const decide = async (
-    userId: string,
+    approvalToken: string,
     action: "approve" | "deny",
   ): Promise<void> => {
-    setBusyId(userId);
+    setBusyId(approvalToken);
     try {
+      // SEC-POOL-13: URL carries the opaque approval token, not the
+      // raw user id. The server resolves the token back to a user id
+      // scoped to this pool.
       const r = await fetch(
-        `/api/v1/syndicates/${encodeURIComponent(slug)}/join-requests/${encodeURIComponent(userId)}`,
+        `/api/v1/syndicates/${encodeURIComponent(slug)}/join-requests/${encodeURIComponent(approvalToken)}`,
         {
           method: "POST",
           credentials: "include",
@@ -1550,7 +1558,7 @@ function PendingRequestsPanel({
         window.setTimeout(() => setToast(null), 4000);
         return;
       }
-      setRequests((prev) => prev.filter((p) => p.user_id !== userId));
+      setRequests((prev) => prev.filter((p) => p.approval_token !== approvalToken));
       setToast(action === "approve" ? "Approved ✓" : "Denied");
       window.setTimeout(() => setToast(null), 2000);
     } catch (e) {
@@ -1608,9 +1616,13 @@ function PendingRequestsPanel({
         }}
       >
         {requests.map((p) => {
+          // SEC-POOL-13: short fallback label uses the approval-token
+          // prefix when there's no handle/display name — never the raw
+          // user id (which the server no longer exposes).
+          const shortKey = p.approval_token.slice(0, 6);
           const label = p.display_name?.trim()
-            ? `${p.display_name.trim()} · @${p.handle ?? p.user_id.slice(0, 6)}`
-            : `@${p.handle ?? p.user_id.slice(0, 6)}`;
+            ? `${p.display_name.trim()} · @${p.handle ?? shortKey}`
+            : `@${p.handle ?? shortKey}`;
           const requestedAt = new Date(p.joined_at);
           const requestedLabel = Number.isFinite(requestedAt.getTime())
             ? requestedAt.toLocaleString(undefined, {
@@ -1622,7 +1634,7 @@ function PendingRequestsPanel({
             : "-";
           return (
             <li
-              key={p.user_id}
+              key={p.approval_token}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -1660,9 +1672,9 @@ function PendingRequestsPanel({
                   type="button"
                   className="vt-dash-btn vt-dash-btn-ghost vt-dash-btn-sm"
                   onClick={() => {
-                    void decide(p.user_id, "deny");
+                    void decide(p.approval_token, "deny");
                   }}
-                  disabled={busyId === p.user_id}
+                  disabled={busyId === p.approval_token}
                 >
                   Deny
                 </button>
@@ -1670,11 +1682,11 @@ function PendingRequestsPanel({
                   type="button"
                   className="vt-dash-btn vt-dash-btn-primary vt-dash-btn-sm"
                   onClick={() => {
-                    void decide(p.user_id, "approve");
+                    void decide(p.approval_token, "approve");
                   }}
-                  disabled={busyId === p.user_id}
+                  disabled={busyId === p.approval_token}
                 >
-                  {busyId === p.user_id ? "…" : "Approve"}
+                  {busyId === p.approval_token ? "…" : "Approve"}
                 </button>
               </div>
             </li>

@@ -16,6 +16,7 @@ import type { NextRequest } from "next/server";
 
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { verifyApprovalToken } from "@/lib/syndicate/notify-join-request";
+import { getSessionFromRequest } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,6 +47,25 @@ export async function GET(
 
   if (!verifyApprovalToken(pool.id, userId, "deny", token)) {
     return Response.json({ error: "bad_token" }, { status: 403 });
+  }
+
+  // SEC-POOL-07: same defence-in-depth check as the approve route —
+  // logged-in non-owner sessions can't trigger a deny, and null-owner-
+  // user-id pools fall back to verified phone match (require dashboard
+  // path otherwise).
+  const session = await getSessionFromRequest(req);
+  if (session) {
+    if (pool.owner_user_id) {
+      if (session.userId !== pool.owner_user_id) {
+        return redirectToManage(slug, "forbidden");
+      }
+    } else if (pool.owner_phone) {
+      if (session.phone && session.phone !== pool.owner_phone) {
+        return redirectToManage(slug, "forbidden");
+      }
+    } else {
+      return redirectToManage(slug, "needs-dashboard");
+    }
   }
 
   const pending = persistence.getPendingMember(pool.id, userId);

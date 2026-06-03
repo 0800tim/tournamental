@@ -108,6 +108,10 @@ async function resolveSession(req: NextRequest): Promise<{
   id: string;
   phone: string | null;
   displayName: string | null;
+  /** SEC-POOL-05: tracks the credential channel so the country gate
+   *  can re-verify the bearer-token user's phone (the JWT could be
+   *  hand-rolled with a forged phone claim if the secret ever leaks). */
+  via: "cookie" | "widget";
 } | null> {
   // SEC-WEB-10: only the session cookie is forwarded — the inbound
   // request can carry analytics + third-party cookies that have no
@@ -124,7 +128,12 @@ async function resolveSession(req: NextRequest): Promise<{
         };
         const u = j.user;
         if (u?.id) {
-          return { id: u.id, phone: u.phone ?? null, displayName: u.displayName ?? null };
+          return {
+            id: u.id,
+            phone: u.phone ?? null,
+            displayName: u.displayName ?? null,
+            via: "cookie",
+          };
         }
       }
     } catch {
@@ -139,9 +148,33 @@ async function resolveSession(req: NextRequest): Promise<{
       id: viaJwt.userId,
       phone: viaJwt.phone ?? null,
       displayName: (viaJwt as { displayName?: string | null }).displayName ?? null,
+      via: "widget",
     };
   }
   return null;
+}
+
+/**
+ * SEC-POOL-05: when the country gate applies and the caller is on the
+ * widget bearer path, the phone claim in the JWT isn't a strong
+ * statement (it can only be as good as the mint route's verification —
+ * and clients pass it back to us in their own session). Re-check
+ * against auth-sms /v1/auth/me using the bearer token so the gate sees
+ * the authoritative server-side phone rather than the client claim.
+ */
+async function reverifyWidgetPhone(req: NextRequest): Promise<string | null> {
+  const auth = req.headers.get("authorization") ?? "";
+  if (!auth.toLowerCase().startsWith("bearer ")) return null;
+  try {
+    const res = await fetch(`${AUTH_API}/v1/auth/me`, {
+      headers: { Authorization: auth },
+    });
+    if (!res.ok) return null;
+    const j = (await res.json()) as { user?: { phone?: string | null } };
+    return j?.user?.phone ?? null;
+  } catch {
+    return null;
+  }
 }
 
 /** Derive a placeholder handle from a user id when none is supplied. */
@@ -203,7 +236,17 @@ export async function POST(
   const allowed = parseAllowedCountries(row.allowed_phone_countries);
   if (allowed.length > 0) {
     const isOwnerForExemption = row.owner_user_id === session.id;
-    if (!isOwnerForExemption && !phoneMatchesAllowed(session.phone, allowed)) {
+    // SEC-POOL-05: re-verify the widget-bearer caller's phone against
+    // auth-sms before applying the gate so a hand-rolled JWT can't
+    // smuggle a phone claim that bypasses the country restriction.
+    let phoneForGate = session.phone;
+    if (!isOwnerForExemption && session.via === "widget") {
+      phoneForGate = await reverifyWidgetPhone(req);
+      if (!phoneForGate) {
+        return json(req, { error: "phone_unverified" }, 403);
+      }
+    }
+    if (!isOwnerForExemption && !phoneMatchesAllowed(phoneForGate, allowed)) {
       // 403 with structured payload so the JoinFlowClient can route
       // straight to the friendly CountryRestrictedScreen + upsell.
       // We surface the allow-list so the screen can render the right

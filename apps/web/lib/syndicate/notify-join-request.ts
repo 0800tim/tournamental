@@ -41,20 +41,54 @@ const SENDGRID_ENDPOINT = "https://api.sendgrid.com/v3/mail/send";
 const PLAY_HOST =
   process.env.NEXT_PUBLIC_PLAY_HOST ?? "https://play.tournamental.com";
 
+/**
+ * SEC-POOL-03 / SEC-WEB-04: approve/deny tokens used to be deterministic
+ * HMACs over AUTH_JWT_SECRET with no `exp`. Two consequences:
+ *
+ *   - A leaked token never expired and a single secret rotation took
+ *     out the entire OTP pathway alongside the approval flow.
+ *   - The token format was identical across the lifetime of a pool
+ *     so an attacker who saw one stale approve link could replay it
+ *     forever.
+ *
+ * The new shape:
+ *
+ *   token = base64url(`${iat}.${mac}`)
+ *
+ * where `mac` is HMAC-SHA256(`${iat}:${syndicate_id}:${user_id}:${action}`)
+ * keyed on a dedicated `APPROVAL_TOKEN_SECRET`. Verification rejects
+ * tokens whose `iat` is older than 72 hours.
+ *
+ * The dedicated env var means the AUTH_JWT_SECRET can rotate without
+ * invalidating any pending approve/deny link, and vice versa.
+ */
+const APPROVAL_TOKEN_TTL_MS = 72 * 60 * 60 * 1000;
+
+function approvalSecret(): string | null {
+  const s = process.env.APPROVAL_TOKEN_SECRET ?? "";
+  return s ? s : null;
+}
+
 export function signApprovalToken(
   syndicate_id: string,
   user_id: string,
   action: "approve" | "deny",
 ): string {
-  const secret = process.env.AUTH_JWT_SECRET ?? "";
+  const secret = approvalSecret();
   if (!secret) {
     // Returning empty token disables approve/deny via link until the
     // env var is wired; the owner can still approve from the dashboard.
+    console.warn(
+      "[signApprovalToken] APPROVAL_TOKEN_SECRET not set; approve/deny email link disabled. " +
+        "Owner can still approve from the dashboard.",
+    );
     return "";
   }
-  return createHmac("sha256", secret)
-    .update(`${syndicate_id}:${user_id}:${action}`)
+  const iat = Date.now();
+  const mac = createHmac("sha256", secret)
+    .update(`${iat}:${syndicate_id}:${user_id}:${action}`)
     .digest("hex");
+  return Buffer.from(`${iat}.${mac}`, "utf8").toString("base64url");
 }
 
 export function verifyApprovalToken(
@@ -63,10 +97,26 @@ export function verifyApprovalToken(
   action: "approve" | "deny",
   token: string,
 ): boolean {
-  const expected = signApprovalToken(syndicate_id, user_id, action);
-  if (!expected || !token) return false;
+  if (!token) return false;
+  const secret = approvalSecret();
+  if (!secret) return false;
+  let raw: string;
+  try {
+    raw = Buffer.from(token, "base64url").toString("utf8");
+  } catch {
+    return false;
+  }
+  const dot = raw.indexOf(".");
+  if (dot < 0) return false;
+  const iat = Number.parseInt(raw.slice(0, dot), 10);
+  const mac = raw.slice(dot + 1);
+  if (!Number.isFinite(iat) || !mac) return false;
+  if (Date.now() - iat > APPROVAL_TOKEN_TTL_MS) return false;
+  const expected = createHmac("sha256", secret)
+    .update(`${iat}:${syndicate_id}:${user_id}:${action}`)
+    .digest("hex");
   const a = Buffer.from(expected, "hex");
-  const b = Buffer.from(token, "hex");
+  const b = Buffer.from(mac, "hex");
   if (a.length !== b.length) return false;
   try {
     return timingSafeEqual(a, b);

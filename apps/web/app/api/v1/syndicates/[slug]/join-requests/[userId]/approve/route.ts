@@ -25,6 +25,7 @@ import type { NextRequest } from "next/server";
 
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { verifyApprovalToken } from "@/lib/syndicate/notify-join-request";
+import { getSessionFromRequest } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,6 +56,31 @@ export async function GET(
 
   if (!verifyApprovalToken(pool.id, userId, "approve", token)) {
     return Response.json({ error: "bad_token" }, { status: 403 });
+  }
+
+  // SEC-POOL-07: defence in depth. If the visitor IS logged in, refuse
+  // to act when their session isn't the pool owner. For null-owner-
+  // user-id legacy pools, fall back to a verified phone match against
+  // owner_phone — if even that's missing, refuse and require the
+  // dashboard path. Incident 2026-06-03 was the trigger here: a
+  // denormalised owner_email pointed at the requester so SendGrid
+  // delivered the approve link to them; they clicked and the row
+  // flipped without any owner involvement.
+  const session = await getSessionFromRequest(req);
+  if (session) {
+    if (pool.owner_user_id) {
+      if (session.userId !== pool.owner_user_id) {
+        return redirectToManage(slug, "forbidden");
+      }
+    } else if (pool.owner_phone) {
+      if (session.phone && session.phone !== pool.owner_phone) {
+        return redirectToManage(slug, "forbidden");
+      }
+    } else {
+      // No owner_user_id AND no owner_phone — can't verify ownership
+      // server-side. Require the dashboard path.
+      return redirectToManage(slug, "needs-dashboard");
+    }
   }
 
   // Look up the pending row so we can confirm + display useful info.

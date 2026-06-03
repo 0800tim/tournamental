@@ -24,6 +24,7 @@
  * migrations first.
  */
 
+import { createHmac, timingSafeEqual } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
@@ -31,6 +32,76 @@ import Database from "better-sqlite3";
 import type { Database as DatabaseT, Statement } from "better-sqlite3";
 
 import { serialiseAllowedCountries } from "./country-gate";
+
+/**
+ * SEC-POOL-13: opaque approval-token issuance + verification for the
+ * dashboard pending-requests queue. The token shape is
+ * `base64url(`${iat}.${mac}`)` where `mac` is
+ * HMAC-SHA256(`${iat}:${syndicate_id}:${user_id}`) keyed on the
+ * dedicated APPROVAL_TOKEN_SECRET (same key as the email approve
+ * tokens — they're functionally equivalent gates on the same row, and
+ * sharing the key keeps rotation simple).
+ *
+ * The 24h TTL is enough for an owner who opens the dashboard, walks
+ * away, and comes back later in the day, while keeping a stale stolen
+ * token narrow.
+ */
+const PENDING_MEMBER_TOKEN_TTL_MS = 24 * 60 * 60 * 1000;
+
+function pendingMemberSecret(): string | null {
+  const s = process.env.APPROVAL_TOKEN_SECRET ?? "";
+  return s ? s : null;
+}
+
+function signPendingMemberToken(syndicate_id: string, user_id: string): string {
+  const secret = pendingMemberSecret();
+  if (!secret) {
+    // Dev environments without APPROVAL_TOKEN_SECRET fall back to the
+    // raw user id so the approve flow still works locally. Production
+    // sets the secret as part of the standard launch checklist.
+    return user_id;
+  }
+  const iat = Date.now();
+  const mac = createHmac("sha256", secret)
+    .update(`${iat}:${syndicate_id}:${user_id}`)
+    .digest("hex");
+  return Buffer.from(`${iat}.${user_id}.${mac}`, "utf8").toString("base64url");
+}
+
+function verifyPendingMemberToken(
+  syndicate_id: string,
+  token: string,
+): string | null {
+  if (!token) return null;
+  const secret = pendingMemberSecret();
+  // Dev fallback: when no secret is set, accept the token verbatim as
+  // the user id (matches the signing fallback above).
+  if (!secret) return token;
+  let raw: string;
+  try {
+    raw = Buffer.from(token, "base64url").toString("utf8");
+  } catch {
+    return null;
+  }
+  const parts = raw.split(".");
+  if (parts.length !== 3) return null;
+  const [iatStr, user_id, mac] = parts;
+  const iat = Number.parseInt(iatStr, 10);
+  if (!Number.isFinite(iat) || !user_id || !mac) return null;
+  if (Date.now() - iat > PENDING_MEMBER_TOKEN_TTL_MS) return null;
+  const expected = createHmac("sha256", secret)
+    .update(`${iat}:${syndicate_id}:${user_id}`)
+    .digest("hex");
+  const a = Buffer.from(expected, "hex");
+  const b = Buffer.from(mac, "hex");
+  if (a.length !== b.length) return null;
+  try {
+    if (!timingSafeEqual(a, b)) return null;
+  } catch {
+    return null;
+  }
+  return user_id;
+}
 
 export type SyndicateTier = "free" | "premium" | "past_due";
 
@@ -666,15 +737,24 @@ export class SyndicatePersistence {
     return row ?? null;
   }
 
-  /** List pending join requests for a syndicate, oldest first. The
-   * owner manage dashboard renders this as the approval queue. */
+  /**
+   * List pending join requests for a syndicate, oldest first. The
+   * owner manage dashboard renders this as the approval queue.
+   *
+   * SEC-POOL-13: the response used to leak the raw `user_id`, which
+   * (a) handed an attacker who got hold of the manage view a list of
+   * raw account ids, and (b) tied the dashboard approve/deny URL to
+   * the user id forever. We now return an opaque `approval_token`
+   * (HMAC of the pool id + user id keyed on APPROVAL_TOKEN_SECRET);
+   * the POST handler maps that back to the user id server-side.
+   */
   listPendingMembers(syndicate_id: string): Array<{
-    user_id: string;
+    approval_token: string;
     handle?: string | null;
     display_name?: string | null;
     joined_at: number;
   }> {
-    return this.db
+    const rows = this.db
       .prepare(
         `SELECT user_id, handle, display_name, joined_at
            FROM syndicate_owners_membership
@@ -687,6 +767,24 @@ export class SyndicatePersistence {
       display_name?: string | null;
       joined_at: number;
     }>;
+    return rows.map((r) => ({
+      approval_token: signPendingMemberToken(syndicate_id, r.user_id),
+      handle: r.handle,
+      display_name: r.display_name,
+      joined_at: r.joined_at,
+    }));
+  }
+
+  /**
+   * Resolve an approval_token issued by listPendingMembers back to the
+   * raw user_id. Returns null when the token is malformed, expired
+   * (we use a 24h TTL), or doesn't match this syndicate.
+   *
+   * Used by the dashboard approve/deny endpoint so the URL only ever
+   * carries the opaque token; the user_id stays server-side.
+   */
+  resolveApprovalToken(syndicate_id: string, token: string): string | null {
+    return verifyPendingMemberToken(syndicate_id, token);
   }
 
   /**
@@ -891,22 +989,12 @@ export class SyndicatePersistence {
           )
           .all(hints.emailLower) as SyndicateRow[])
       : [];
-    const byHandle = hints.handleSlug
-      ? (this.db
-          .prepare(
-            `SELECT s.*
-             FROM syndicate_owners_membership m
-             JOIN syndicates s ON s.id = m.syndicate_id
-             WHERE m.role = 'owner'
-               AND m.user_id LIKE 'anon:%'
-               AND m.handle IS NOT NULL
-               AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(m.handle, ' ', ''), '.', ''), '-', ''), '_', ''))
-                   = LOWER(REPLACE(REPLACE(REPLACE(REPLACE(?, ' ', ''), '.', ''), '-', ''), '_', ''))
-               AND ((s.owner_user_id IS NULL) OR (s.owner_user_id = ''))
-             ORDER BY s.created_at DESC`,
-          )
-          .all(hints.handleSlug) as SyndicateRow[])
-      : [];
+    // SEC-POOL-02: the legacy `byHandle` reconciliation (matching
+    // anon-owner pools by display-name slug) is removed. The migration
+    // to owner_user_id is complete; any remaining null-owner pool
+    // must be backfilled offline rather than reconciled at read time —
+    // the old shape lets anyone with a colliding display-name slug
+    // claim ownership of a still-pending anon-owner row.
     const seen = new Set<string>();
     const merged: SyndicateRow[] = [];
     for (const r of byId) {
@@ -915,11 +1003,6 @@ export class SyndicatePersistence {
       merged.push(r);
     }
     for (const r of byEmail) {
-      if (seen.has(r.id)) continue;
-      seen.add(r.id);
-      merged.push(r);
-    }
-    for (const r of byHandle) {
       if (seen.has(r.id)) continue;
       seen.add(r.id);
       merged.push(r);

@@ -110,40 +110,60 @@ export async function POST(req: NextRequest): Promise<Response> {
   const session = await getSessionFromRequest(req);
   const ownerUserId = session?.userId ?? null;
 
+  // SEC-POOL-10: share_guid is UNIQUE; a (rare) collision used to bubble
+  // out as a 500 from the catch-all below. Retry up to 3 times with a
+  // fresh guid before giving up so a legitimate creator isn't punished
+  // for an unlucky nanoid.
   let row;
-  try {
-    row = persistence.createSyndicate({
-      id: syndicateId,
-      slug: input.slug,
-      name: input.name,
-      tournament_id: input.tournament_id,
-      owner_email: input.owner_email,
-      owner_phone: input.owner_phone,
-      owner_user_id: ownerUserId,
-      owner_handle: input.owner_handle ?? null,
-      size_band: input.size_band,
-      topic: input.topic ?? null,
-      marketing_consent: input.marketing_consent,
-      share_guid: shareGuid,
-      is_public: input.is_public,
-      requires_approval: input.requires_approval,
-      allowed_phone_countries: input.allowed_phone_countries,
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    // SQLite UNIQUE constraint on slug → race with another creator.
-    if (/UNIQUE.*slug/i.test(message)) {
-      return jsonResponse(
-        {
-          error: "slug_unavailable",
-          reason: "taken",
-          message: "That syndicate name was just taken. Try another.",
-        },
-        409,
-      );
+  let shareGuidAttempt = shareGuid;
+  let lastErr: unknown = null;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      row = persistence.createSyndicate({
+        id: syndicateId,
+        slug: input.slug,
+        name: input.name,
+        tournament_id: input.tournament_id,
+        owner_email: input.owner_email,
+        owner_phone: input.owner_phone,
+        owner_user_id: ownerUserId,
+        owner_handle: input.owner_handle ?? null,
+        size_band: input.size_band,
+        topic: input.topic ?? null,
+        marketing_consent: input.marketing_consent,
+        share_guid: shareGuidAttempt,
+        is_public: input.is_public,
+        requires_approval: input.requires_approval,
+        allowed_phone_countries: input.allowed_phone_countries,
+      });
+      break;
+    } catch (err) {
+      lastErr = err;
+      const message = err instanceof Error ? err.message : String(err);
+      // SQLite UNIQUE constraint on slug → race with another creator.
+      if (/UNIQUE.*slug/i.test(message)) {
+        return jsonResponse(
+          {
+            error: "slug_unavailable",
+            reason: "taken",
+            message: "That syndicate name was just taken. Try another.",
+          },
+          409,
+        );
+      }
+      // SEC-POOL-10: share_guid collision → mint a fresh guid and retry.
+      if (/UNIQUE.*share_guid/i.test(message) && attempt < 2) {
+        shareGuidAttempt = newShareGuid();
+        continue;
+      }
+      // eslint-disable-next-line no-console
+      console.error("syndicate create failed", err);
+      return jsonResponse({ error: "persist_failed" }, 500);
     }
+  }
+  if (!row) {
     // eslint-disable-next-line no-console
-    console.error("syndicate create failed", err);
+    console.error("syndicate create exhausted share_guid retries", lastErr);
     return jsonResponse({ error: "persist_failed" }, 500);
   }
 

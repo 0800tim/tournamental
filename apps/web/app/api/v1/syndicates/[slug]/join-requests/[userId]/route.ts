@@ -51,9 +51,20 @@ export async function POST(
   { params }: { params: { slug: string; userId: string } },
 ): Promise<Response> {
   const slug = (params.slug ?? "").toLowerCase().trim();
-  const userId = (params.userId ?? "").trim();
-  if (!slug || !userId) return json({ error: "bad_request" }, 400);
-  if (!USER_ID_RE.test(userId)) return json({ error: "bad_user_id" }, 400);
+  // SEC-POOL-13: the URL param is now an opaque approval token issued
+  // by listPendingMembers, NOT the raw user id. Reject obviously
+  // malformed input (raw user id format is still accepted in dev when
+  // APPROVAL_TOKEN_SECRET isn't set — see persistence.ts).
+  const tokenOrId = (params.userId ?? "").trim();
+  if (!slug || !tokenOrId) return json({ error: "bad_request" }, 400);
+  // Loose-shape guard: token is base64url; raw user id matches the
+  // legacy regex.
+  if (
+    !/^[A-Za-z0-9_-]{1,256}$/.test(tokenOrId) &&
+    !USER_ID_RE.test(tokenOrId)
+  ) {
+    return json({ error: "bad_user_id" }, 400);
+  }
 
   const session = await getSessionFromRequest(req);
   if (!session) return json({ error: "unauthorised" }, 401);
@@ -72,6 +83,16 @@ export async function POST(
   if (!pool) return json({ error: "not_found" }, 404);
   if (pool.owner_user_id !== session.userId) {
     return json({ error: "forbidden" }, 403);
+  }
+
+  // SEC-POOL-13: resolve the opaque approval-token (or legacy raw
+  // user id when APPROVAL_TOKEN_SECRET isn't set in dev) to the real
+  // user id, scoped to this pool. Mismatched or expired tokens land
+  // here as "not_found" so probing tokens doesn't yield more info
+  // than probing user ids did before.
+  const userId = persistence.resolveApprovalToken(pool.id, tokenOrId);
+  if (!userId) {
+    return json({ error: "not_found" }, 404);
   }
 
   const pending = persistence.getPendingMember(pool.id, userId);

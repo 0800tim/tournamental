@@ -65,7 +65,14 @@ export async function POST(
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
   if (!row) return json({ error: "not_found" }, 404);
-  if (row.owner_user_id !== session.userId && row.owner_phone !== session.phone) {
+  // SEC-WEB-06 / SEC-POOL-01: strict owner_user_id match only. The
+  // legacy `owner_phone === session.phone` fallback is removed because
+  // (a) it lets anyone who owns a number that happens to collide with
+  // an old null-owner pool seize branding control and (b) every active
+  // pool now has owner_user_id set (the create route binds it on every
+  // path). Null-owner pools that pre-date that change must be backfilled
+  // or use the manage-JWT path via /manage-auth instead.
+  if (row.owner_user_id !== session.userId) {
     return json({ error: "forbidden" }, 403);
   }
 
@@ -164,7 +171,14 @@ export async function DELETE(
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
   if (!row) return json({ error: "not_found" }, 404);
-  if (row.owner_user_id !== session.userId && row.owner_phone !== session.phone) {
+  // SEC-WEB-06 / SEC-POOL-01: strict owner_user_id match only. The
+  // legacy `owner_phone === session.phone` fallback is removed because
+  // (a) it lets anyone who owns a number that happens to collide with
+  // an old null-owner pool seize branding control and (b) every active
+  // pool now has owner_user_id set (the create route binds it on every
+  // path). Null-owner pools that pre-date that change must be backfilled
+  // or use the manage-JWT path via /manage-auth instead.
+  if (row.owner_user_id !== session.userId) {
     return json({ error: "forbidden" }, 403);
   }
 

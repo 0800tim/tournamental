@@ -113,45 +113,19 @@ export async function GET(req: NextRequest): Promise<Response> {
       )
       .all(userId) as SyndicateBasicRow[];
 
-    // 1b) Syndicates created via the public signup before the route
-    //     learned to set owner_user_id from the session. We trust the
-    //     email match here because the user's auth-sms profile email
-    //     is itself OTP-verified (so this is a verified-email ==
-    //     typed-email comparison, not a free-text claim).
-    const ownedByEmailRows = email
-      ? (db
-          .prepare(
-            `SELECT slug, name, share_guid, member_count, tournament_id
-             FROM syndicates
-             WHERE (owner_user_id IS NULL OR owner_user_id = '')
-               AND LOWER(owner_email) = LOWER(?)`,
-          )
-          .all(email) as SyndicateBasicRow[])
-      : [];
-
-    // 2) Anon-owner reconciliation by handle. The membership table
-    //    stores a `handle` column on every row; for pools where the
-    //    owner created while signed out, user_id starts with `anon:`
-    //    and handle holds their typed display_name. SQLite can do
-    //    LOWER() + REPLACE() inline so we mirror a coarse subset of
-    //    the slugifyDisplayName rule (lowercase, strip spaces/dots/
-    //    hyphens) -- exact match would need a callback function we
-    //    can't register here, but the coarse match is enough for
-    //    the common cases ("0800tim", "Tim Thomas", "Molly Thomas").
-    const anonOwnedByHandleRows = handleSlug
-      ? (db
-          .prepare(
-            `SELECT s.slug, s.name, s.share_guid, s.member_count, s.tournament_id
-             FROM syndicate_owners_membership m
-             JOIN syndicates s ON s.id = m.syndicate_id
-             WHERE m.role = 'owner'
-               AND m.user_id LIKE 'anon:%'
-               AND m.handle IS NOT NULL
-               AND LOWER(REPLACE(REPLACE(REPLACE(REPLACE(m.handle, ' ', ''), '.', ''), '-', ''), '_', ''))
-                   = LOWER(REPLACE(REPLACE(REPLACE(REPLACE(?, ' ', ''), '.', ''), '-', ''), '_', ''))`,
-          )
-          .all(handleSlug) as SyndicateBasicRow[])
-      : [];
+    // SEC-POOL-08 / SEC-POOL-02 (2026-06-04): the legacy
+    // owner-by-email + owner-by-handle reconciliation paths are
+    // removed. They opened up two squatting vectors:
+    //   - email squat: PATCH /v1/auth/me email-change lets a user
+    //     claim ownership of any pool whose denormalised
+    //     `owner_email` matches.
+    //   - handle squat: any user whose display-name slug collides
+    //     with an anon-owner pool's `handle` could see (and via
+    //     other code paths approach) administrative control.
+    // The migration to owner_user_id is complete; any pool still
+    // missing it must be backfilled offline.
+    void email;
+    void handleSlug;
 
     // 3) Direct membership rows.
     const membershipRows = db
@@ -169,18 +143,6 @@ export async function GET(req: NextRequest): Promise<Response> {
     for (const r of ownedRows) {
       seen.add(r.slug);
       syndicates.push({ ...r, role: "owner" });
-    }
-    for (const r of ownedByEmailRows) {
-      if (!seen.has(r.slug)) {
-        seen.add(r.slug);
-        syndicates.push({ ...r, role: "owner" });
-      }
-    }
-    for (const r of anonOwnedByHandleRows) {
-      if (!seen.has(r.slug)) {
-        seen.add(r.slug);
-        syndicates.push({ ...r, role: "owner" });
-      }
     }
     for (const r of membershipRows) {
       if (!seen.has(r.slug)) {

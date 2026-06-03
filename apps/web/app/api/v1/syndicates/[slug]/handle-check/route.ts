@@ -18,6 +18,8 @@
 
 import type { NextRequest } from "next/server";
 import { getPersistence } from "@/lib/syndicate/persistence";
+import { getSessionFromRequest } from "@/lib/auth/session";
+import { checkRateLimit, clientIp } from "@/lib/rate-limit/in-memory";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,6 +42,17 @@ export async function GET(
     return json({ error: "bad_slug" }, 400);
   }
 
+  // SEC-POOL-09: per-IP rate limit (30/min) so this can't be used as
+  // a name-enumeration channel against a popular pool.
+  const ip = clientIp(req);
+  const rl = checkRateLimit(`handle-check:${ip}`, 30, 60_000);
+  if (!rl.ok) {
+    return json(
+      { error: "rate_limited", retry_after_seconds: Math.ceil(rl.retryAfterMs / 1000) },
+      429,
+    );
+  }
+
   const url = new URL(req.url);
   const handle = (url.searchParams.get("handle") ?? "").trim();
   if (!handle || !HANDLE_RE.test(handle)) {
@@ -49,6 +62,18 @@ export async function GET(
   const persistence = getPersistence();
   const row = persistence.getBySlug(slug);
   if (!row) return json({ error: "not_found" }, 404);
+
+  // SEC-POOL-09: for non-public pools require an authenticated session
+  // that is either a member or the owner before answering. Public
+  // pools remain probeable so the join modal still works pre-auth.
+  if (row.is_public !== 1) {
+    const session = await getSessionFromRequest(req);
+    const isOwner = !!session && row.owner_user_id === session.userId;
+    const isMember = !!session && persistence.isMember(row.id, session.userId);
+    if (!isOwner && !isMember) {
+      return json({ error: "forbidden" }, 403);
+    }
+  }
 
   const taken = persistence.isHandleTakenInSyndicate(row.id, handle);
   return json({ ok: true, available: !taken });

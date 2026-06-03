@@ -16,6 +16,7 @@ import type { NextRequest } from "next/server";
 
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { toPublicPoolDto } from "@/lib/syndicate/public-directory";
+import { COUNTRIES } from "@/lib/syndicate/countries";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,6 +37,30 @@ export async function GET(req: NextRequest): Promise<Response> {
   // by the join-flow upsell when someone is bounced from a country-
   // gated pool. Cached separately per value via the URL.
   const eligibleFor = params.get("eligible_for")?.slice(0, 24) ?? null;
+
+  // SEC-POOL-12: validate `eligible_for` against the known dial-code
+  // list before forwarding to the persistence layer. The previous
+  // shape silently accepted arbitrary strings, which fell through to
+  // phoneMatchesAllowed and produced a confusing empty result rather
+  // than a clear 400.
+  if (eligibleFor) {
+    const cleaned = eligibleFor.startsWith("+")
+      ? eligibleFor.slice(1).replace(/\D/g, "")
+      : eligibleFor.replace(/\D/g, "");
+    if (!cleaned) {
+      return Response.json({ error: "bad_eligible_for" }, { status: 400 });
+    }
+    const knownPrefixes = new Set(
+      COUNTRIES.map((c) => c.dial.replace(/^\+/, "")),
+    );
+    const matched = [...knownPrefixes].some((p) => cleaned.startsWith(p));
+    if (!matched) {
+      return Response.json(
+        { error: "unknown_country_code" },
+        { status: 400 },
+      );
+    }
+  }
 
   const rows = getPersistence().listPublic({ search, limit, offset, eligibleFor });
   const pools = rows.map(toPublicPoolDto);
