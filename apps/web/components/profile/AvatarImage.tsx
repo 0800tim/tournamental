@@ -58,10 +58,21 @@ export function AvatarImage({ userId, fallback, size = 32, className }: AvatarIm
     return () => window.removeEventListener(AVATAR_UPDATED_EVENT, onChange);
   }, [userId]);
 
+  // Pass the fallback initial to the /avatars/ route. When the user has
+  // no uploaded photo on disk, the route returns a 200 SVG placeholder
+  // rendering that initial on a deterministic colour, instead of a 404.
+  // That keeps the browser console + Next dev overlay free of noise on
+  // every render. Users who have uploaded a real photo are served the
+  // JPEG; the `initial` param is ignored on that path.
+  const initial = (fallback ?? "").trim().charAt(0);
+  const initialQuery = initial ? `initial=${encodeURIComponent(initial)}` : "";
+  const baseSrc = `/avatars/${encodeURIComponent(userId)}.jpg`;
   const src =
     version === 0
-      ? `/avatars/${encodeURIComponent(userId)}.jpg`
-      : `/avatars/${encodeURIComponent(userId)}.jpg?v=${version}-${Date.now()}`;
+      ? initialQuery
+        ? `${baseSrc}?${initialQuery}`
+        : baseSrc
+      : `${baseSrc}?v=${version}-${Date.now()}${initialQuery ? `&${initialQuery}` : ""}`;
 
   if (errored) {
     return <>{fallback}</>;

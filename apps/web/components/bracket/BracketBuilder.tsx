@@ -1922,8 +1922,14 @@ function BracketSavePanelSaved({
       if (!cancelled) setAvatarStatus("missing");
     };
     // Cache-bust so the probe sees the actual current state after an
-    // upload-then-back navigation in the same tab.
-    img.src = `${avatarSrc}?_probe=${Date.now()}`;
+    // upload-then-back navigation in the same tab. `strict=1` opts
+    // back into the legacy 404 behaviour for missing avatars (the
+    // /avatars/ route now serves a 200 SVG placeholder by default to
+    // silence the dev-overlay 404 noise for the ambient AvatarImage
+    // + AuthChip renders — but THIS probe specifically needs to
+    // distinguish "real photo" from "no photo" to drive the empty
+    // state UI below).
+    img.src = `${avatarSrc}?_probe=${Date.now()}&strict=1`;
     return () => {
       cancelled = true;
     };

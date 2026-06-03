@@ -102,11 +102,16 @@ export function AuthChip() {
   const display = profile?.display_name ?? handle;
   const initials = initialsFrom(profile);
   // /avatars/<id>.jpg is the canonical avatar URL (see
-  // apps/web/app/avatars/[filename]/route.ts). Falls back to initials
-  // when the file is missing or 404s. A query string lets a fresh
-  // upload bust the cache; we only need one consistent value per page
-  // load, so the user id itself is fine.
-  const avatarSrc = user?.id ? `/avatars/${user.id}.jpg` : null;
+  // apps/web/app/avatars/[filename]/route.ts). The route now returns a
+  // 200 SVG placeholder (carrying our initials on a deterministic
+  // colour) when the file is missing, so the dev-overlay + browser
+  // console don't log a 404 on every render for users without an
+  // uploaded photo. We still wire onError below as a belt-and-braces
+  // fallback in case the route handler itself errors out.
+  const initialChar = (initials ?? "").trim().charAt(0);
+  const avatarSrc = user?.id
+    ? `/avatars/${user.id}.jpg${initialChar ? `?initial=${encodeURIComponent(initialChar)}` : ""}`
+    : null;
   const showAvatar = !!avatarSrc && !avatarFailed;
   return (
     <Link

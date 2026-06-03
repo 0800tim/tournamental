@@ -18,8 +18,21 @@
  * Security: the filename is validated against the avatar shape
  * (auth user id + `.jpg` extension). Anything else returns 404 so
  * a `../etc/passwd` traversal attempt never reaches the fs.
+ *
+ * Missing-file handling (Tim 2026-06-04): the default response for a
+ * non-existent avatar is a 200 SVG placeholder, not a 404. This kills
+ * the dev-overlay + browser-console noise the Next 15 upgrade exposed
+ * (every page with the bottom nav was logging a 404 per logged-in
+ * user without an uploaded photo). The placeholder honours an
+ * optional `?initial=<letter>` query param so AvatarImage / AuthChip
+ * can render a proper initial circle; without it the SVG shows a
+ * generic silhouette. Callers that NEED the 404 signal (e.g. the
+ * BracketSavePanel probe that decides whether to show an "Upload"
+ * empty state) can pass `?strict=1` to opt back in to the legacy
+ * 404 behaviour.
  */
 
+import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { join, normalize } from "node:path";
 
@@ -36,6 +49,54 @@ function notFound(): Response {
   });
 }
 
+// Deterministic pastel-ish HSL colour from the filename, so the same
+// user always sees the same placeholder colour.
+function colourFor(seed: string): string {
+  const hash = createHash("sha1").update(seed).digest();
+  const hue = hash[0] * 360 / 256;
+  return `hsl(${hue.toFixed(0)} 55% 45%)`;
+}
+
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
+function placeholderSvg(seed: string, initial: string | null): string {
+  const bg = colourFor(seed);
+  // Strip to a single visible glyph; fall back to a dot if nothing usable
+  // (avoids a giant emoji or a multi-codepoint script spilling out of the
+  // viewBox). Uppercased for the typographic convention; SVG renders
+  // whatever code-point it's given, so any locale's first letter works.
+  const raw = (initial ?? "").trim();
+  const letter = raw.length > 0 ? Array.from(raw)[0]!.toUpperCase() : "·";
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="64" height="64" fill="${bg}"/>
+  <text x="50%" y="50%" text-anchor="middle" dominant-baseline="central" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="32" font-weight="600" fill="#ffffff">${escapeXml(letter)}</text>
+</svg>`;
+}
+
+function placeholderResponse(seed: string, initial: string | null): Response {
+  const svg = placeholderSvg(seed, initial);
+  return new Response(svg, {
+    status: 200,
+    headers: {
+      "Content-Type": "image/svg+xml; charset=utf-8",
+      // Short cache: as soon as the user uploads a real photo the URL
+      // is shared with the JPEG response, so we don't want the SVG
+      // placeholder pinned at the edge for long. 60s matches the JPEG
+      // path's max-age so a successful upload propagates quickly.
+      "Cache-Control": "public, max-age=60, must-revalidate",
+      "X-Avatar-Source": "placeholder",
+    },
+  });
+}
+
 export async function GET(req: Request, props: { params: Promise<{ filename: string }> }): Promise<Response> {
   const params = await props.params;
   const filename = (params.filename ?? "").trim();
@@ -44,6 +105,10 @@ export async function GET(req: Request, props: { params: Promise<{ filename: str
   const candidate = normalize(join(AVATAR_DIR, filename));
   if (!candidate.startsWith(AVATAR_DIR)) return notFound();
 
+  const url = new URL(req.url);
+  const strict = url.searchParams.get("strict") === "1";
+  const initial = url.searchParams.get("initial");
+
   let bytes: Buffer;
   let mtimeMs: number;
   try {
@@ -51,7 +116,13 @@ export async function GET(req: Request, props: { params: Promise<{ filename: str
     mtimeMs = stat.mtimeMs;
     bytes = await fs.readFile(candidate);
   } catch {
-    return notFound();
+    // File missing: in strict mode, preserve the legacy 404 signal
+    // (used by BracketSavePanel.tsx to decide whether to render the
+    // "Upload a profile photo" empty state). Otherwise serve a 200
+    // SVG placeholder so the browser doesn't log the request as an
+    // error and the Next 15 dev overlay stays quiet.
+    if (strict) return notFound();
+    return placeholderResponse(filename, initial);
   }
 
   // Strong ETag from file mtime + size. Cheap and changes the moment a
