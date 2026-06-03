@@ -56,6 +56,13 @@ export type AuditAction =
   | 'email.verify.bad-code'
   | 'email.verify.attempts-exceeded'
   | 'email.verify.ip-throttled'
+  // Phone-link flow (attach verified phone to an authed account).
+  | 'phone-link.ok'
+  | 'phone-link.no-match'
+  | 'phone-link.ip-throttled'
+  | 'phone-link.attempts-exceeded'
+  | 'phone-link.taken'
+  | 'phone-link.already-linked'
   // Internal broadcast / invite send.
   | 'internal.send.dispatched';
 

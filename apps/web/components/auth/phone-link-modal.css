@@ -1,0 +1,225 @@
+/* PhoneLinkModal: profile-page "Add phone via WhatsApp" overlay.
+ * Tim 2026-06-04: complements the existing sign-in WhatsApp UI
+ * (signup-modal.css) but lives in its own stylesheet so the profile
+ * page doesn't pull the whole sign-in surface. */
+
+.vt-phone-link-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 16px;
+}
+
+.vt-phone-link-card {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  background: #15151a;
+  color: var(--vt-fg, #f4f4f5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 28px 22px 22px;
+  box-shadow: 0 28px 60px -16px rgba(0, 0, 0, 0.7);
+}
+
+.vt-phone-link-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(231, 234, 243, 0.5);
+  border: none;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.vt-phone-link-close:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--vt-fg, #f4f4f5);
+}
+.vt-phone-link-close:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.vt-phone-link-title {
+  font-family: "Fraunces", ui-serif, Charter, Georgia, serif;
+  font-variation-settings: "opsz" 60;
+  font-weight: 500;
+  font-size: 1.35rem;
+  letter-spacing: -0.01em;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.vt-phone-link-sub {
+  margin: 0 0 18px;
+  font-size: 0.85rem;
+  color: rgba(231, 234, 243, 0.6);
+  text-align: center;
+}
+
+.vt-phone-link-steps {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vt-phone-link-steps li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.86rem;
+  color: rgba(231, 234, 243, 0.7);
+  transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+}
+.vt-phone-link-steps li[data-active="true"] {
+  background: rgba(251, 191, 36, 0.08);
+  border-color: rgba(251, 191, 36, 0.3);
+  color: var(--vt-fg, #f4f4f5);
+}
+.vt-phone-link-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(231, 234, 243, 0.8);
+  font: 800 0.72rem/1 -apple-system, "Inter", system-ui, sans-serif;
+  flex-shrink: 0;
+}
+.vt-phone-link-steps li[data-active="true"] .vt-phone-link-step-num {
+  background: #fbbf24;
+  color: #1a1305;
+}
+
+.vt-phone-link-step-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vt-phone-link-wa-btn {
+  justify-content: center;
+}
+
+.vt-phone-link-already,
+.vt-phone-link-back {
+  margin: 0;
+  font-size: 0.82rem;
+  color: rgba(231, 234, 243, 0.6);
+  text-align: center;
+}
+
+.vt-phone-link-pool-note {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.4;
+  color: rgba(231, 234, 243, 0.5);
+  text-align: center;
+  padding: 8px 4px 0;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+}
+
+.vt-phone-link-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #fcd34d;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+.vt-phone-link-link:hover:not(:disabled) {
+  text-decoration: underline;
+}
+.vt-phone-link-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vt-phone-link-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(231, 234, 243, 0.6);
+}
+
+.vt-phone-link-code-input {
+  font: 700 1.4rem/1 "JetBrains Mono", "SF Mono", Menlo, monospace;
+  letter-spacing: 0.4em;
+  text-align: center;
+  padding: 14px;
+}
+
+.vt-phone-link-verify-btn {
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+  color: #1a1305;
+  font-weight: 800;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 18px;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.vt-phone-link-verify-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px -12px rgba(245, 197, 66, 0.55);
+}
+.vt-phone-link-verify-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vt-phone-link-error {
+  margin: 0;
+  padding: 8px 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 8px;
+  color: #fca5a5;
+  font-size: 0.82rem;
+}
+
+/* Profile-page button that opens this modal. Sits next to the read-
+ * only phone field so the user understands the change-phone vector. */
+.vt-profile-add-phone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #25d366;
+  color: #15151a;
+  border: 1px solid #1eb456;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: background 120ms ease, transform 120ms ease;
+}
+.vt-profile-add-phone-btn:hover {
+  background: #2ee07a;
+  transform: translateY(-1px);
+}
+.vt-profile-add-phone-btn svg {
+  flex-shrink: 0;
+}
