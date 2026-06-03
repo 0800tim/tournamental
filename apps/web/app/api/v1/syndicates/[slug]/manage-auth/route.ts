@@ -139,9 +139,14 @@ export async function POST(
   }
 
   const secret = new TextEncoder().encode(JWT_SECRET);
+  // SEC-WEB-02: pin issuer + audience so a leaked tnm_session JWT
+  // (which uses `tournamental-auth`) can never be replayed as a manage
+  // token, even if it happens to carry `type: "manage"` in the future.
   const token = await new SignJWT({ slug, phone: data.phone, type: "manage" })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
+    .setIssuer("tournamental-manage")
+    .setAudience("tournamental")
     .setExpirationTime(`${MANAGE_TOKEN_TTL_HOURS}h`)
     .sign(secret);
 

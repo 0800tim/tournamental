@@ -50,6 +50,45 @@ const DEPRECATED_HOSTS = new Set([
 ]);
 
 /**
+ * CSRF / same-origin guard for state-changing /api/v1/** routes
+ * (SEC-WEB-01). The `tnm_session` cookie is `SameSite=None; Secure`
+ * (so the embed widget on a partner site can carry it cross-origin),
+ * which means a plain SameSite check is not enough — we additionally
+ * require the inbound Origin header on every mutating call to be one
+ * of a known-good first-party origin.
+ *
+ * The widget-token mint route + widget-OTP + the bearer-token
+ * `/api/v1/syndicates/[slug]/join` flow are EXEMPT: they auth via
+ * `Authorization: Bearer ...` (not a cookie) so an attacker can't
+ * forge a cross-origin POST in a victim's browser that carries the
+ * bearer token — the partner-page widget reads the token from its
+ * own first-party localStorage and attaches it explicitly.
+ */
+const CSRF_ALLOWED_ORIGINS = new Set([
+  "https://play.tournamental.com",
+  "https://play-dev.tournamental.com",
+  "http://localhost:3499",
+  "http://localhost:3300",
+]);
+
+/** Routes that authenticate via bearer token, not cookies → exempt from
+ *  the Origin check. Pattern matches the request pathname. */
+const CSRF_EXEMPT_PATHS: ReadonlyArray<RegExp> = [
+  /^\/api\/v1\/syndicates\/[^/]+\/join$/,
+  /^\/api\/v1\/auth\/widget-token$/,
+  /^\/api\/v1\/auth\/widget-otp$/,
+];
+
+const MUTATING_METHODS = new Set(["POST", "PATCH", "PUT", "DELETE"]);
+
+function isCsrfExemptPath(path: string): boolean {
+  for (const re of CSRF_EXEMPT_PATHS) {
+    if (re.test(path)) return true;
+  }
+  return false;
+}
+
+/**
  * Legal pages live on the marketing site (apps/marketing). Anyone who
  * lands on the play app at /terms, /privacy or /cookies gets 301'd to
  * the canonical /legal/<doc> URL on tournamental.com.
@@ -73,6 +112,28 @@ export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
   const path = req.nextUrl.pathname;
   const search = req.nextUrl.search;
+
+  // SEC-WEB-01: Origin/Referer enforcement on mutating /api/v1/** routes.
+  // The session cookie is SameSite=None so the browser will attach it on
+  // cross-origin POSTs; the Origin header is our only signal that the
+  // request actually originated from a first-party surface. Bearer-token
+  // widget routes are exempted (they don't rely on cookie creds).
+  if (
+    path.startsWith("/api/v1/") &&
+    MUTATING_METHODS.has(req.method) &&
+    !isCsrfExemptPath(path)
+  ) {
+    const origin = req.headers.get("origin");
+    if (!origin || !CSRF_ALLOWED_ORIGINS.has(origin)) {
+      return new NextResponse(
+        JSON.stringify({ error: "bad_origin" }),
+        {
+          status: 403,
+          headers: { "content-type": "application/json", "cache-control": "no-store" },
+        },
+      );
+    }
+  }
 
   // Deprecated WC hosts → 301 to play.tournamental.com (preserve path + query).
   if (isDeprecatedHost(host)) {

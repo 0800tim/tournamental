@@ -80,7 +80,11 @@ async function verifyManageToken(
   }
   try {
     const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
+    // SEC-WEB-02: scope verification to manage issuer+audience.
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: "tournamental-manage",
+      audience: "tournamental",
+    });
     const claims = payload as unknown as {
       slug?: string;
       phone?: string;

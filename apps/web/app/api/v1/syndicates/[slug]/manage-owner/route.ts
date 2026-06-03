@@ -42,7 +42,12 @@ async function verifyManageToken(
 
   try {
     const secret = new TextEncoder().encode(JWT_SECRET);
-    const { payload } = await jwtVerify(token, secret);
+    // SEC-WEB-02: enforce manage-token issuer + audience so a leaked
+    // session/widget cookie can't be replayed as a manage token.
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: "tournamental-manage",
+      audience: "tournamental",
+    });
     const claims = payload as unknown as ManageClaims;
 
     if (claims.type !== "manage" || claims.slug !== slug) {

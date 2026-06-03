@@ -42,7 +42,10 @@ export const dynamic = "force-dynamic";
 
 const WIDGET_ISSUER = "tournamental-widget";
 const AUDIENCE = "tournamental";
-const TTL_SECONDS = 24 * 60 * 60; // 24h -- shorter than the multi-day session cookie.
+// SEC-WEB-08: short-lived bearer; the short TTL is the revocation
+// mechanism in lieu of a JTI store. Widgets re-mint after expiry by
+// hitting /auth/popup or /widget-otp again.
+const TTL_SECONDS = 60 * 60; // 1h
 
 function json(body: unknown, status = 200): Response {
   return Response.json(body, {

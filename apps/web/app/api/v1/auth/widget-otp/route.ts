@@ -46,7 +46,9 @@ export const dynamic = "force-dynamic";
 const AUTH_API = process.env.AUTH_API_URL ?? "http://localhost:3330";
 const WIDGET_ISSUER = "tournamental-widget";
 const AUDIENCE = "tournamental";
-const TTL_SECONDS = 24 * 60 * 60; // 24h, matches /widget-token.
+// SEC-WEB-08: 1h TTL — matches /widget-token; the short lifetime is
+// the revocation mechanism in lieu of a JTI store.
+const TTL_SECONDS = 60 * 60;
 
 const RequestSchema = z.object({
   action: z.literal("request"),

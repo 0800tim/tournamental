@@ -37,22 +37,53 @@ const BodySchema = z.object({
 });
 
 /**
- * CORS-open: the embed widget calls these routes from partner origins.
- * The embed sends a bearer token (and, as a fallback, credentials), so we
- * echo the request Origin and allow credentials rather than using "*".
- * Every response still requires a valid session, so an echoed Origin
- * grants nothing on its own.
+ * SEC-WEB-05: the previous version echoed any request Origin with
+ * `Access-Control-Allow-Credentials: true`, which let any partner page
+ * read this endpoint's responses while sending the victim's session
+ * cookie. Embed widget calls use a Bearer token (not the cookie), so
+ * credentials aren't needed for that case at all. We now:
+ *
+ *   - Allow only `*.tournamental.com` + `*.aiva.nz` + the dev hosts.
+ *   - Strip `Access-Control-Allow-Credentials` for everyone (bearer
+ *     auth doesn't need it, first-party cookie auth uses same-origin
+ *     fetch which doesn't need CORS at all).
+ *   - When the Origin isn't on the allowlist, omit
+ *     `Access-Control-Allow-Origin` so the browser CORS check fails
+ *     and the response is unreadable.
  */
+const CORS_ALLOWED_SUFFIXES = [".tournamental.com", ".aiva.nz"];
+const CORS_ALLOWED_EXACT = new Set([
+  "https://tournamental.com",
+  "https://aiva.nz",
+  "http://localhost:3300",
+  "http://localhost:3499",
+]);
+
+function isAllowedOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  if (CORS_ALLOWED_EXACT.has(origin)) return true;
+  try {
+    const host = new URL(origin).hostname.toLowerCase();
+    return CORS_ALLOWED_SUFFIXES.some(
+      (suf) => host === suf.slice(1) || host.endsWith(suf),
+    );
+  } catch {
+    return false;
+  }
+}
+
 function corsHeaders(req: NextRequest): Record<string, string> {
-  const origin = req.headers.get("origin") ?? "*";
-  return {
-    "Access-Control-Allow-Origin": origin,
-    "Access-Control-Allow-Credentials": "true",
+  const origin = req.headers.get("origin");
+  const headers: Record<string, string> = {
     "Vary": "Origin",
     "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Cache-Control": "no-store",
   };
+  if (origin && isAllowedOrigin(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+  return headers;
 }
 
 function json(req: NextRequest, body: unknown, status = 200): Response {
