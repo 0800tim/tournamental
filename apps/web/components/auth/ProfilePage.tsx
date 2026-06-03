@@ -871,6 +871,8 @@ function humaniseError(err: string, t: ReturnType<typeof useTranslations>): stri
       return safeT(t, "profile_page.error_bad_email", "That email doesn't look right.");
     case "email-taken":
       return safeT(t, "profile_page.error_email_taken", "That email is already linked to another account.");
+    case "display-name-taken":
+      return safeT(t, "profile_page.error_display_name_taken", "Someone else already uses that display name. Pick a different one.");
     case "unauthorized":
       return safeT(t, "profile_page.error_unauthorized", "Your session expired. Sign in again to save changes.");
     case "network":

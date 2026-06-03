@@ -793,6 +793,23 @@ export class Storage {
     return null;
   }
 
+  /**
+   * Look up a user by email address. The email UNIQUE index makes this
+   * O(log n) and the routes layer uses it as an explicit pre-check
+   * before PATCH /v1/auth/me so a collision returns a clean 409 rather
+   * than relying on the UNIQUE-constraint exception path. Email is
+   * stored lower-cased on write, so the lookup lower-cases too.
+   * Tim 2026-06-04.
+   */
+  getUserByEmail(email: string): UserRecord | null {
+    const e = (email ?? '').trim().toLowerCase();
+    if (!e) return null;
+    const row = this.db
+      .prepare(`SELECT * FROM user WHERE email = ?`)
+      .get(e) as UserRecord | undefined;
+    return row ?? null;
+  }
+
   // ---- Sessions ----
 
   insertSession(rec: SessionRecord): void {
