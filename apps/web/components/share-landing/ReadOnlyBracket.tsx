@@ -104,20 +104,34 @@ export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
     auth.user.id === ownerUserId;
 
   // Run the cascade so we know who plays whom at each KO stage,
-  // independent of which slots the owner picked.  The same cascade
-  // engine that drives the bracket builder.
+  // independent of which slots the owner picked.  Wrapped in try/catch
+  // so a malformed payload (missing matchPredictions, partial groups,
+  // legacy schema, etc.) degrades to a "knockouts not predicted yet"
+  // empty state instead of throwing and breaking the page.  Tim
+  // 2026-06-03: defensive after a runtime crash on /s/0800tim.
   const cascaded = useMemo(() => {
-    const input = bracketToCascadeInput(tournament, bracket, "share-viewer");
-    return cascade(tournament, input);
+    try {
+      const safeBracket: Bracket = {
+        matchPredictions: bracket.matchPredictions ?? {},
+        knockoutPredictions: bracket.knockoutPredictions ?? {},
+        groupTiebreakers: bracket.groupTiebreakers ?? {},
+        bestThirds: bracket.bestThirds,
+      } as Bracket;
+      const input = bracketToCascadeInput(tournament, safeBracket, "share-viewer");
+      return cascade(tournament, input);
+    } catch {
+      return { knockouts: [] as CascadedKnockout[] };
+    }
   }, [tournament, bracket]);
 
-  // Group-stage standings: which 2 advance per group, who's 3rd.
-  // The Bracket payload only stores per-match outcomes; standings are
-  // derived during the cascade.  We re-use the cascade's output.
+  // Group knockouts by stage. The cascade output's `knockouts` array
+  // may be empty (no picks yet, or the catch branch above) and that's
+  // fine: the KO sections just render with all-TBD rows.
   const koByStage = useMemo(() => {
     const out = new Map<StageId, CascadedKnockout[]>();
     for (const stage of KO_STAGES_IN_ORDER) out.set(stage, []);
-    for (const k of cascaded.knockouts) {
+    const list = (cascaded.knockouts ?? []) as readonly CascadedKnockout[];
+    for (const k of list) {
       const arr = out.get(k.stage);
       if (arr) arr.push(k);
     }

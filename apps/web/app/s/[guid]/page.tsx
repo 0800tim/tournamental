@@ -629,23 +629,28 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             // the enrichment confirmed the file exists on disk -
             // otherwise we fall back to the neutral silhouette.
             const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
-            // Resolve the prettiest URL that will route to this user's
-            // bracket landing. Priority:
-            //   1. friendly handle slug (slugifyDisplayName(display_name)
-            //      or membership.handle) - resolves via /s/<handle>
-            //      auth-sms display-name lookup
-            //   2. user_id permalink (u_<hex>) - always resolves
-            //   3. no link for anon: (legacy un-authenticated joins)
+            // Resolve a URL that ALWAYS routes to this member's bracket
+            // landing.  Priority (Tim 2026-06-03 fix): use the
+            // immutable user_id permalink first, fall back to the
+            // slugified handle / display_name only when no user_id is
+            // present (anon join).  The slug path used to be the
+            // primary, but it broke whenever a user renamed
+            // themselves: pool tiles were built from the
+            // join-time display_name slug, while the resolver looked
+            // up the user's CURRENT display_name slug.  Permalink
+            // form resolves via the share-guid branch and never
+            // depends on the renderer-and-resolver agreeing on a
+            // mutable string.
+            const isPermalinkUser =
+              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
             const slug =
               slugifyDisplayName(m.display_name) ??
               slugifyDisplayName(m.handle) ??
               null;
-            const isPermalinkUser =
-              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
-            const profileHref = slug
-              ? `/s/${slug}`
-              : isPermalinkUser
-                ? `/s/${m.user_id}`
+            const profileHref = isPermalinkUser
+              ? `/s/${m.user_id}`
+              : slug
+                ? `/s/${slug}`
                 : null;
             const cardKey = m.user_id ?? m.handle;
             const inner = (
