@@ -86,7 +86,7 @@ export interface GroupCardProps {
   /** Optional per-group auto-pick. When provided the header surfaces a
    * small ⚡ button that fills the 6 matches of this group only,
    * using the same odds-favourite rule as the page-level Auto-pick. */
-  readonly onAutoPickGroup?: (groupId: string) => void;
+  readonly onAutoPickGroup?: (groupId: string) => void | Promise<void>;
   /** Initial expanded state. Lets the parent auto-expand the first
    * incomplete group on mount (Tim 2026-05-22). After mount the user
    * controls the state; changes to this prop are ignored so we don't

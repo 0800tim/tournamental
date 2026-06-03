@@ -1004,6 +1004,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
         `auto-picked ${groupAdded} group + ${knockoutAdded} knockout + ${tiebreakersSet} tiebreakers, kept ${totalSkipped} of your existing picks (source: ${snap.source ?? "mock"}).`,
       );
     }
+    // Auto-pick previously only mutated localStorage, so a signed-in
+    // user who auto-picked and shared their /s/<handle> URL would 404
+    // because game-service had no bracket row for them. Persist server-
+    // side now so the share link resolves on the very first share.
+    if (auth.status === "authenticated" && totalAdded > 0) {
+      await persistBracketToServer(next);
+    }
   };
 
   /**
@@ -1013,7 +1020,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
    * bulk-fetched oddsByMatch is reused. If the snapshot hasn't landed
    * yet the user gets a soft message and nothing changes.
    */
-  const handleAutoPickGroup = (groupId: string): void => {
+  const handleAutoPickGroup = async (groupId: string): Promise<void> => {
     if (!oddsByMatch || oddsByMatch.size === 0) {
       setSubmitState(
         `auto-pick group ${groupId}: live odds not loaded yet, try again in a moment.`,
@@ -1086,15 +1093,62 @@ export function BracketBuilder(props: BracketBuilderProps) {
     setSubmitState(
       `auto-picked group ${groupId} (${added} matches). Adjust any you disagree with.`,
     );
+    if (auth.status === "authenticated" && added > 0) {
+      await persistBracketToServer(next);
+    }
+  };
+
+  /**
+   * Send a bracket up to the game-service and reflect the server's
+   * response back into local state. Shared between the explicit Save
+   * button and the auto-pick flows so that auto-picking while signed
+   * in actually persists the bracket (previously it only updated
+   * localStorage, which is why /s/<handle> 404'd for users who
+   * auto-picked and shared without ever clicking Save).
+   *
+   * Caller is responsible for `setSubmitState` messaging; this helper
+   * only mutates the last-save success flag + the bracket state.
+   */
+  const persistBracketToServer = async (
+    toSubmit: Bracket,
+  ): Promise<Awaited<ReturnType<typeof submitBracket>>> => {
+    const submission: Bracket = {
+      ...toSubmit,
+      lockedAt: new Date().toISOString(),
+    };
+    const res = await submitBracket(tournament.id, submission, userLocalId);
+    if (res.ok) {
+      setLastSaveOk(true);
+      update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        bracket_id: res.bracket_id ?? null,
+        match_predictions: Object.keys(submission.matchPredictions).length,
+        knockout_predictions: Object.keys(submission.knockoutPredictions).length,
+        rejected: (res.rejected ?? []).length,
+        result: "ok",
+      });
+    } else if (res.status === "saved_offline") {
+      setLastSaveOk(true);
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        result: "saved_offline",
+        error: res.error ?? "unknown",
+      });
+    } else {
+      setLastSaveOk(false);
+      track("bracket.bracket.saved", {
+        tournament_id: tournament.id,
+        result: "error",
+        error: res.error ?? "unknown",
+      });
+    }
+    return res;
   };
 
   const handleSubmit = async (): Promise<void> => {
     setSubmitState("submitting…");
-    const submission: Bracket = {
-      ...bracket,
-      lockedAt: new Date().toISOString(),
-    };
-    const res = await submitBracket(tournament.id, submission, userLocalId);
+    const res = await persistBracketToServer(bracket);
     if (res.ok) {
       const rejected = res.rejected ?? [];
       const baseMsg = "Bracket saved. You can change any pick before kickoff.";
@@ -1103,32 +1157,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
           ? baseMsg
           : `${baseMsg} (${rejected.length} pick${rejected.length === 1 ? "" : "s"} skipped, match already started)`,
       );
-      setLastSaveOk(true);
-      update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
-      track("bracket.bracket.saved", {
-        tournament_id: tournament.id,
-        bracket_id: res.bracket_id ?? null,
-        match_predictions: Object.keys(submission.matchPredictions).length,
-        knockout_predictions: Object.keys(submission.knockoutPredictions).length,
-        rejected: rejected.length,
-        result: "ok",
-      });
     } else if (res.status === "saved_offline") {
       setSubmitState(safeT(t, "bracket.submit.saved_offline", "Saved offline, we'll retry when you're back online."));
-      setLastSaveOk(true);
-      track("bracket.bracket.saved", {
-        tournament_id: tournament.id,
-        result: "saved_offline",
-        error: res.error ?? "unknown",
-      });
     } else {
       setSubmitState(`Save failed: ${res.error ?? "unknown"}, draft saved locally.`);
-      setLastSaveOk(false);
-      track("bracket.bracket.saved", {
-        tournament_id: tournament.id,
-        result: "error",
-        error: res.error ?? "unknown",
-      });
     }
   };
 
