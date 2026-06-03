@@ -357,4 +357,148 @@ export async function registerBracketByGuidRoutes(
 
     return reply.code(200).send(body);
   });
+
+  // ── GET /v1/bracket/by-handle/:handle ────────────────────────────────
+  //
+  // Resolves a friendly handle (slugified display_name from auth-sms)
+  // to the user's latest saved bracket, then returns the same shape
+  // as `/v1/bracket/by-guid/:guid`. This is the public-profile
+  // entry point used by `/s/<handle>` share landings.
+  //
+  // Threat model vs the closed `/v1/bracket/by-guid/u_<user_id>`
+  // enumeration path (SEC-BRK-05):
+  //
+  //   - The lookup key is a handle (intentionally public, scrapeable
+  //     from leaderboards), not the auth-sms canonical user_id.
+  //   - Handle resolution goes through auth-sms's by-handle endpoint,
+  //     which already enforces a per-IP rate limit (60 req/min) on
+  //     handle enumeration (SEC-AUTH-13).
+  //   - The response never echoes `user_id`. Same redactions as the
+  //     by-guid handler (`user_handle: null`, SEC-BRK-05/06).
+  //   - Authenticated owner gets `private, no-store`; everyone else
+  //     gets the same short-TTL public cache as the by-guid path.
+  //
+  // The handle is upper-bounded to 32 chars + alphanumeric / _- per
+  // apps/web/lib/share/handle-slug.ts so junk values short-circuit
+  // before the auth-sms round-trip.
+  //
+  // Tim 2026-06-04: prod regression after SEC-BRK-05 closed the
+  // legacy `u_<user_id>` fallback that `/s/<handle>` was leaning on.
+  // The web's resolver now hits this endpoint instead.
+  app.get("/v1/bracket/by-handle/:handle", async (req, reply) => {
+    const params = req.params as { handle?: string };
+    const query = req.query as { include?: string };
+    const handle = (params.handle ?? "").trim();
+    const includePayload = (query.include ?? "")
+      .split(",")
+      .map((s) => s.trim().toLowerCase())
+      .includes("payload");
+
+    if (!handle || !/^[a-zA-Z0-9_-]{2,32}$/.test(handle)) {
+      reply.header("Cache-Control", CACHE_HEADER);
+      return reply.code(404).send({ ok: false, error: "not_found" });
+    }
+
+    const authBase = (
+      process.env.AUTH_API_BASE ??
+      process.env.AUTH_BASE_URL ??
+      "http://localhost:3330"
+    ).replace(/\/+$/, "");
+
+    let userId: string | null = null;
+    let displayName: string | null = null;
+    try {
+      const ctrl = new AbortController();
+      const t = setTimeout(() => ctrl.abort(), 800);
+      const r = await fetch(
+        `${authBase}/v1/auth/users/by-handle/${encodeURIComponent(handle)}`,
+        {
+          signal: ctrl.signal,
+          headers: { accept: "application/json" },
+        },
+      );
+      clearTimeout(t);
+      if (r.ok) {
+        const body = (await r.json().catch(() => null)) as {
+          user?: { id?: string; displayName?: string | null };
+        } | null;
+        userId = body?.user?.id ?? null;
+        displayName = body?.user?.displayName ?? null;
+      }
+    } catch {
+      // auth-sms unreachable or timed out, treat as miss. The
+      // share-landing page will render the friendly not-found view.
+    }
+
+    if (!userId) {
+      reply.header("Cache-Control", CACHE_HEADER);
+      return reply.code(404).send({ ok: false, error: "not_found" });
+    }
+
+    const row = deps.store.getLatestBracketByUser(userId);
+    if (!row || !row.share_guid) {
+      reply.header("Cache-Control", CACHE_HEADER);
+      return reply.code(404).send({
+        ok: false,
+        error: "no_bracket",
+        // Surface enough for the share-landing page to render the
+        // friendly "they haven't shared a bracket yet" view without
+        // a second round-trip back to auth-sms.
+        user_handle: handle,
+        display_name: displayName,
+      });
+    }
+
+    let payload: Bracket;
+    try {
+      payload = JSON.parse(row.payload_json) as Bracket;
+    } catch {
+      reply.header("Cache-Control", CACHE_HEADER);
+      return reply.code(404).send({ ok: false, error: "not_found" });
+    }
+
+    let isOwner = false;
+    if (includePayload) {
+      const callerId = resolveCallerId(req, {
+        devAuth: process.env.GAME_DEV_AUTH === "1",
+        jwtSecret: process.env.SUPABASE_JWT_SECRET ?? null,
+        authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
+      });
+      if (callerId && callerId === row.user_id) {
+        isOwner = true;
+      }
+    }
+
+    const tournament =
+      row.tournament_id === FIXTURES_2026.id ? FIXTURES_2026 : FIXTURES_2026;
+    const summary = summariseBracket(payload, tournament);
+
+    const body: { ok: true; bracket: BracketByGuidPayload } = {
+      ok: true,
+      bracket: {
+        share_guid: row.share_guid,
+        // We DO surface the public handle here: the caller already
+        // knew it, so we're not leaking new identity. The web hero
+        // reads this for the title/avatar lookup.
+        user_handle: handle,
+        tournament_id: row.tournament_id,
+        champion_code: summary.champion_code,
+        runner_up_code: summary.runner_up_code,
+        third_place_code: summary.third_place_code,
+        knockout_path: summary.knockout_path,
+        locked_at: row.locked_at ? new Date(row.locked_at).toISOString() : null,
+        ...(includePayload ? { payload } : {}),
+      },
+    };
+
+    if (includePayload && isOwner) {
+      reply.header("Cache-Control", "private, no-store");
+    } else if (includePayload) {
+      reply.header("Cache-Control", PAYLOAD_PUBLIC_CACHE_HEADER);
+    } else {
+      reply.header("Cache-Control", CACHE_HEADER);
+    }
+
+    return reply.code(200).send(body);
+  });
 }
