@@ -416,6 +416,9 @@ export interface InboundUpdateErr {
     | "bad-email"
     | "email-taken"
     | "display_name_taken"
+    | "display_name_reserved"
+    | "display_name_invalid"
+    | "display_name_locked"
     | "network"
     | "unknown";
 }
@@ -441,9 +444,12 @@ export async function updateInboundProfile(
       err === "bad-email" ||
       err === "email-taken" ||
       err === "display_name_taken" ||
+      err === "display_name_reserved" ||
+      err === "display_name_invalid" ||
+      err === "display_name_locked" ||
       err === "unauthorized"
     ) {
-      return { ok: false, error: err };
+      return { ok: false, error: err as InboundUpdateErr["error"] };
     }
     return { ok: false, error: "unknown" };
   } catch {

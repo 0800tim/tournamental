@@ -323,3 +323,30 @@
   justify-content: center;
   margin: 4px 0 14px;
 }
+
+/* First-time @handle gate (ProfileCompletionGate). The slug-preview
+ * box previews exactly what /s/<handle> will look like before the
+ * user claims it; the hint sits underneath the input with the same
+ * vertical rhythm as the other auth fields. */
+.vt-signup-preview {
+  font-size: 13px;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: -6px;
+  margin-bottom: 8px;
+}
+.vt-signup-preview code {
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 13px;
+  color: var(--vt-gold-soft, #f6c64f);
+}
+.vt-signup-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: -8px;
+  margin-bottom: 10px;
+}

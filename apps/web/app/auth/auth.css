@@ -209,3 +209,13 @@
   min-height: 44px;
 }
 
+
+/* Inline hint that sits under a read-only field (e.g. the locked
+ * display_name on the profile page). Smaller + dimmer than the
+ * default copy so it reads as supplementary. */
+.auth-field-hint {
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.55);
+  margin: 4px 0 0;
+}

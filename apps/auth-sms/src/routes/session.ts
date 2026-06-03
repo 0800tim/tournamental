@@ -207,23 +207,40 @@ export async function registerSession(
     // half the share-page bugs traced back to users renaming their
     // display_name and breaking links other people had already shared.
     // The first-set case (existing user has no display_name yet) is still
-    // allowed so the post-signup name capture flow works.
+    // allowed so the first-time name-capture modal works.
     if ('display_name' in patch && patch.display_name) {
       const current = ctx.storage.getUser(authed.userId);
       const currentName = (current?.display_name ?? '').trim();
       if (currentName && currentName !== patch.display_name) {
         return reply.code(403).send({ error: 'display_name_locked' });
       }
+      // Format check: 3-32 chars of letters/numbers/underscores after
+      // slugifying. The visible display_name can carry spaces ("Tim
+      // Thomas") but the slug it produces is what matters for the
+      // /s/<handle> URL, so enforce against the slug.
+      const slug = slugifyDisplayName(patch.display_name);
+      if (!slug || slug.length < 3 || slug.length > 32) {
+        return reply.code(400).send({ error: 'display_name_invalid' });
+      }
+      // Reserved-handle blocklist. These are paths/labels used by the
+      // app itself; letting a user squat them would either break routes
+      // or allow impersonation of official accounts.
+      const RESERVED = new Set<string>([
+        'admin', 'administrator', 'api', 'www', 'play', 'you', 'me',
+        'anonymous', 'anon', 'deleted', 'support', 'help', 'tournamental',
+        'official', 'staff', 'team', 'mod', 'moderator', 'root', 'system',
+        'tim', 'null', 'undefined',
+      ]);
+      if (RESERVED.has(slug)) {
+        return reply.code(409).send({ error: 'display_name_reserved' });
+      }
       // SEC-PII-03: reject display-name changes whose slug collides with
       // another user. Without this, two users with display_name "Tim Thomas"
       // share /s/timthomas — most-recently-active wins, which lets a fresh
       // signup hijack an established user's share URL.
-      const slug = slugifyDisplayName(patch.display_name);
-      if (slug) {
-        const owner = ctx.storage.getUserByHandle(slug);
-        if (owner && owner.id !== authed.userId) {
-          return reply.code(409).send({ error: 'display_name_taken' });
-        }
+      const owner = ctx.storage.getUserByHandle(slug);
+      if (owner && owner.id !== authed.userId) {
+        return reply.code(409).send({ error: 'display_name_taken' });
       }
     }
 
