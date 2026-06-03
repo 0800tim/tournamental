@@ -258,7 +258,10 @@ function ReadOnlyGroupCard({
                 <span className="rob-flag" aria-hidden>{home.flag}</span>
                 <span className="rob-team-code">{home.code}</span>
               </span>
-              <span className="rob-fixture-vs">
+              <span
+                className="rob-fixture-vs"
+                data-picked={outcome === "draw" ? "draw" : "no"}
+              >
                 {outcome === "draw" ? "DRAW" : "vs"}
               </span>
               <span
