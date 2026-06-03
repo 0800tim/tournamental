@@ -94,7 +94,7 @@ export function MatchScene({ source, matchId }: MatchSceneProps) {
             toneMappingExposure: 0.85,
             outputColorSpace: THREE.SRGBColorSpace,
           }}
-          onCreated={({ gl }) => {
+          onCreated={({ gl }: { gl: THREE.WebGLRenderer }) => {
             gl.shadowMap.type = THREE.PCFSoftShadowMap;
             // Defensive: a few R3F versions don't honour `gl.toneMapping`
             // when passed through the prop, so re-assert here. Exposure
