@@ -22,6 +22,14 @@
   text-align: left;
 }
 
+/* Tim 2026-06-03: tighter top padding on mobile so the eyebrow +
+   corner CTA sit just below the AppBar with no large empty band. */
+@media (max-width: 640px) {
+  .vt-syndicates-hero {
+    padding-top: 16px;
+  }
+}
+
 /* Top-right "My Pools" affordance. Positioned absolutely inside
    the hero so it floats above the eyebrow + headline area without
    stealing real-estate from the lede or CTA row. Mobile drops it
@@ -68,13 +76,20 @@
   outline-offset: 3px;
 }
 @media (max-width: 640px) {
-  /* On narrow screens, drop the floating corner CTA into the
-     natural flow so it can't overlap the headline. Aligns to the
-     right edge of the hero column. */
+  /* Tim 2026-06-03: previously dropped the corner CTA into the flow
+     on narrow screens, which made it consume its own full-width row
+     above the eyebrow and added a noticeable empty band at the top
+     of the hero. Stay absolute-positioned so the button sits on the
+     same row as the eyebrow ("POOLS · FREE FOREVER"), shrunk a
+     touch so a longer eyebrow has room. */
   .vt-syndicates-hero-corner-cta {
-    position: static;
-    align-self: flex-end;
-    margin-bottom: 4px;
+    top: 22px;
+    right: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  .vt-syndicates-hero-corner-cta::after {
+    font-size: 13px;
   }
 }
 
