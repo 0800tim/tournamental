@@ -18,12 +18,15 @@
 
 "use strict";
 
-// Bumped 2026-06-03 to drop stale user-uploaded media (avatars, pool
-// logo + hero) that the previous SW had captured under the catch-all
-// stale-while-revalidate. New SW explicitly bypasses /avatars/ and
-// /branding/ so user-uploaded images always hit the origin.
-// Previous bump 2026-05-24 — wiped i18n-blind cached HTML.
-const VERSION = "vt-shell-v3-2026-06-03-avatar-fresh";
+// Bumped 2026-06-04 to flush any client state captured before the
+// /s/<handle> resolver hardening + display-name uniqueness landed
+// (PR #263, #264). A user who tested handle collisions before the
+// fix could end up with their own bracket re-rendered on someone
+// else's /s/<handle> page when client-side state hung around in
+// runtime caches; bumping the SW version drops those caches.
+// Previous bump 2026-06-03, dropped stale avatars + pool branding.
+// Previous bump 2026-05-24, wiped i18n-blind cached HTML.
+const VERSION = "vt-shell-v4-2026-06-04-share-state-flush";
 const SHELL_CACHE = `vt-shell-${VERSION}`;
 const STATIC_CACHE = `vt-static-${VERSION}`;
 const RUNTIME_CACHE = `vt-runtime-${VERSION}`;
