@@ -291,7 +291,16 @@ export function enrichSyndicateMembers(args: {
       : null;
     const favouriteTeam = auth?.favourite_team_code ?? null;
     const countryIso2 = auth?.country ?? null;
-    const displayName = m.display_name ?? auth?.display_name ?? null;
+    // Tim 2026-06-04: prefer the live auth-sms display_name over the
+    // snapshot stored on the syndicate-membership row. The snapshot
+    // is set at join-time and never updated, so a member who renames
+    // themselves later kept showing their old name on every pool
+    // tile (Tim hit this with Molly renaming from "Molly" to "Molly
+    // (Tournamental Oracle)": the tile still linked to /s/molly,
+    // which no longer resolved to her current handle slug). The
+    // snapshot is now only a fallback for members who have no
+    // auth-sms row at all, anon members or deleted accounts.
+    const displayName = auth?.display_name ?? m.display_name ?? null;
     const avatarOnDisk = userId
       ? existsSync(resolveAvatarOnDiskPath(userId))
       : false;
