@@ -1,13 +1,11 @@
-import dynamic from "next/dynamic";
-
-const MatchScene = dynamic(
-  () => import("@/components/MatchScene").then((m) => m.MatchScene),
-  { ssr: false },
-);
+// MatchScene is client-only (Three.js needs a real DOM and WebGL
+// context). Next 15 forbids `ssr: false` on `next/dynamic` inside a
+// server component, so the dynamic-import lives in MatchSceneClient.
+import { MatchScene } from "@/components/MatchSceneClient";
 
 interface ReplayPageProps {
-  params: { id: string };
-  searchParams: { src?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ src?: string }>;
 }
 
 /**
@@ -16,7 +14,9 @@ interface ReplayPageProps {
  * without a running producer. A real archive manifest URL can be passed
  * via `?src=...`.
  */
-export default function ReplayPage({ params, searchParams }: ReplayPageProps) {
+export default async function ReplayPage(props: ReplayPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const source = searchParams.src ?? "synthetic";
   return <MatchScene source={source} matchId={params.id} />;
 }

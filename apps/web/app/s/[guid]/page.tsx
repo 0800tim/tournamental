@@ -35,9 +35,6 @@ async function safeT(key: string, fallback: string): Promise<string> {
   }
 }
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
-// Aliased to avoid colliding with the route-level `export const dynamic`
-// (Next.js segment-config flag) further down.
-import nextDynamic from "next/dynamic";
 
 import { ShareActions } from "@/components/share-landing/ShareActions";
 
@@ -49,48 +46,19 @@ import { ShareActions } from "@/components/share-landing/ShareActions";
 // confirmed the chunk-split bug affects every large client component
 // on this page, not just one. Isolating each in its own client chunk
 // after hydration sidesteps it without changing the components.
-const ReadOnlyBracket = nextDynamic(
-  () =>
-    import("@/components/share-landing/ReadOnlyBracket").then(
-      (mod) => mod.ReadOnlyBracket,
-    ),
-  { ssr: false, loading: () => null },
-);
-const ShareMoleculeEmbed = nextDynamic(
-  () =>
-    import("@/components/share-landing/ShareMoleculeEmbed").then(
-      (mod) => mod.ShareMoleculeEmbed,
-    ),
-  { ssr: false, loading: () => null },
-);
-const JoinSyndicate = nextDynamic(
-  () =>
-    import("@/components/share-landing/JoinSyndicate").then(
-      (mod) => mod.JoinSyndicate,
-    ),
-  { ssr: false, loading: () => null },
-);
-const SyndicateLeaderboardRows = nextDynamic(
-  () =>
-    import("@/components/share-landing/SyndicateLeaderboardRows").then(
-      (mod) => mod.SyndicateLeaderboardRows,
-    ),
-  { ssr: false, loading: () => null },
-);
-const BracketPosterCallout = nextDynamic(
-  () =>
-    import("@/components/share-landing/BracketPosterCallout").then(
-      (mod) => mod.BracketPosterCallout,
-    ),
-  { ssr: false, loading: () => null },
-);
-const ShareBracketButton = nextDynamic(
-  () =>
-    import("@/components/share-landing/ShareBracketButton").then(
-      (mod) => mod.ShareBracketButton,
-    ),
-  { ssr: false, loading: () => null },
-);
+//
+// Next 15 forbids `ssr: false` on `next/dynamic` inside a server
+// component, so the actual `nextDynamic(...)` calls live in the
+// `"use client"`-marked `./ClientChunks` module. From here it looks
+// like a normal `import { Foo } from "./ClientChunks"`.
+import {
+  ReadOnlyBracket,
+  ShareMoleculeEmbed,
+  JoinSyndicate,
+  SyndicateLeaderboardRows,
+  BracketPosterCallout,
+  ShareBracketButton,
+} from "./ClientChunks";
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
@@ -111,7 +79,7 @@ import "@/components/share-landing/share-landing.css";
 export const dynamic = "force-dynamic";
 
 interface PageProps {
-  readonly params: { readonly guid: string };
+  readonly params: Promise<{ readonly guid: string }>;
 }
 
 // ── Metadata ────────────────────────────────────────────────────────
@@ -127,9 +95,8 @@ function normaliseGuid(raw: string): string {
   return m ? m[1] : raw;
 }
 
-export async function generateMetadata(
-  { params }: PageProps,
-): Promise<Metadata> {
+export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const params = await props.params;
   // Metadata fetch doesn't need the heavy payload; just the summary.
   const resolved = await resolveShareGuid(normaliseGuid(params.guid));
   if (resolved.kind === "syndicate") {
@@ -209,7 +176,8 @@ export async function generateMetadata(
 
 // ── Page ────────────────────────────────────────────────────────────
 
-export default async function SharePage({ params }: PageProps) {
+export default async function SharePage(props: PageProps) {
+  const params = await props.params;
   // The page (not the metadata) is the one that needs the full
   // bracket payload — the molecule embed lives in the page body.
   const resolved = await resolveShareGuid(normaliseGuid(params.guid), {
@@ -413,7 +381,7 @@ function UserAvatar({ src, alt }: { src: string | null; alt: string }) {
     <span className="vt-share-owner-avatar" data-has-image={src ? "1" : "0"}>
       {src ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img src={src} alt={alt} width={96} height={96} loading="eager" />
+        (<img src={src} alt={alt} width={96} height={96} loading="eager" />)
       ) : (
         <svg
           viewBox="0 0 96 96"
@@ -582,14 +550,14 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           <div className="vt-share-syn-pageheader-row">
             {logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img
+              (<img
                 className="vt-share-syn-pageheader-logo"
                 src={logoUrl}
                 alt={`${syndicate.name} logo`}
                 width={84}
                 height={84}
                 loading="eager"
-              />
+              />)
             ) : null}
             <div className="vt-share-syn-pageheader-text">
               <p className="vt-dateline vt-share-syn-pageheader-eyebrow">
@@ -617,13 +585,11 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           <p className="vt-lede vt-share-syn-lede">{lede}</p>
         </header>
       )}
-
       {/* The OG preview image used to render inline here, which
        * read as a duplicate hero ("Tournamental" wordmark + member
        * count + sky-blue Free-To-Play badge) sitting directly under
        * the editorial header. The 1200x630 PNG belongs in <meta
        * og:image>, not in the visible body. Removed 2026-05-21. */}
-
       {/* Owner-authored long-form description. Renders directly under
           the banner, above the prize block. Tim 2026-06-03: split out
           from the old `topic` field so the banner overlay (still
@@ -636,11 +602,9 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           </p>
         </RevealOnScroll>
       ) : null}
-
       <RevealOnScroll>
         <PrizePoolBlock syndicate={syndicate} prizeEyebrow={prizeEyebrow} />
       </RevealOnScroll>
-
       <RevealOnScroll
         as="section"
         className="vt-share-syn-section"
@@ -667,14 +631,12 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           />
         )}
       </RevealOnScroll>
-
       <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
         <p className="vt-footnote vt-share-syn-join-note">
           {joinFootnote}
         </p>
       </div>
-
       {/* Pool-owner share row. Same competitive-psychology line goes
         * into both the OG image (rendered server-side) and the share
         * text body, so what people see in their inbox / WhatsApp
@@ -683,7 +645,6 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         shareTitle={`${syndicate.name} on Tournamental`}
         shareText={`Do you think you can predict the outcome of the FIFA World Cup better than I can? Join my pool "${syndicate.name}" and let's find out.`}
       />
-
       <RevealOnScroll
         as="section"
         className="vt-share-syn-section"
@@ -780,11 +741,9 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           })}
         </div>
       </RevealOnScroll>
-
       {sponsorPresent ? (
         <SponsorLine sponsor={sponsor!} />
       ) : null}
-
       <footer className="vt-share-syn-colophon vt-footnote">
         <span>Founded {formatFoundedDate(syndicate.created_at)}</span>
         <span aria-hidden className="vt-share-syn-colophon-sep">·</span>
@@ -852,12 +811,12 @@ function SponsorLine({
     <>
       {logo ? (
         // eslint-disable-next-line @next/next/no-img-element
-        <img
+        (<img
           src={logo}
           alt={name ? `${name} logo` : "Sponsor logo"}
           className="vt-share-sponsor-logo"
           loading="lazy"
-        />
+        />)
       ) : null}
       {name ? <span className="vt-share-sponsor-name">{name}</span> : null}
     </>

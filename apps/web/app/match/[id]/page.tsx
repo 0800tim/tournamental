@@ -1,17 +1,13 @@
-import dynamic from "next/dynamic";
-
 import { RouteEvent } from "@/components/analytics/RouteEvent";
 import { AppShell } from "@/components/shell";
-
-// MatchScene is client-only, Three.js needs a real DOM and WebGL context.
-const MatchScene = dynamic(
-  () => import("@/components/MatchScene").then((m) => m.MatchScene),
-  { ssr: false },
-);
+// MatchScene is client-only (Three.js needs a real DOM and WebGL
+// context). Next 15 forbids `ssr: false` on `next/dynamic` inside a
+// server component, so the dynamic-import lives in MatchSceneClient.
+import { MatchScene } from "@/components/MatchSceneClient";
 
 interface MatchPageProps {
-  params: { id: string };
-  searchParams: { src?: string; manifest?: string };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ src?: string; manifest?: string }>;
 }
 
 const ARFR_DEFAULT_MANIFEST =
@@ -31,7 +27,9 @@ const ARFR_DEFAULT_MANIFEST =
  * canvas stays full-bleed under a translucent app-bar; the bottom nav
  * is hidden so the renderer keeps the full viewport.
  */
-export default function MatchPage({ params, searchParams }: MatchPageProps) {
+export default async function MatchPage(props: MatchPageProps) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const { src, manifest } = searchParams;
   const envUrl = process.env.NEXT_PUBLIC_VTORN_WS_URL;
   const isArFrDemo = params.id.startsWith("fifa-wc-2022-final");
