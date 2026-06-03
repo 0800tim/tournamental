@@ -76,7 +76,7 @@ export function RevealOnScroll(props: PropsWithChildren<RevealOnScrollProps>) {
   // The cast is fine: every supported tag accepts a ref<HTMLElement>.
   return (
     <Tag
-      ref={ref as React.Ref<never>}
+      ref={ref as unknown as React.Ref<never>}
       className={className}
       id={id}
       style={style}

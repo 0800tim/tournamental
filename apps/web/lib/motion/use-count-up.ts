@@ -71,7 +71,7 @@ function defaultFormat(n: number): string {
  */
 export function useCountUp<T extends HTMLElement = HTMLElement>(
   options: CountUpOptions,
-): React.RefObject<T> {
+): React.RefObject<T | null> {
   const elRef = useRef<T>(null);
   const {
     value,

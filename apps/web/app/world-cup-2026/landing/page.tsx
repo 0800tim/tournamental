@@ -77,16 +77,16 @@ const FIFA_TO_CF_COUNTRY: Record<string, string> = {
   ZA: "RSA",
 };
 
-function deriveCountry(): string {
+async function deriveCountry(): Promise<string> {
   // Cloudflare sets `cf-ipcountry`; the tunnel forwards it through.
-  const h = headers();
+  const h = await headers();
   const cf = h.get("cf-ipcountry") ?? h.get("x-vercel-ip-country") ?? "";
   return FIFA_TO_CF_COUNTRY[cf.toUpperCase()] ?? "NZL";
 }
 
-export default function LandingPage() {
+export default async function LandingPage() {
   const initialCountdown = countdownTo(TOURNAMENT_KICKOFF_UTC);
-  const country = deriveCountry();
+  const country = await deriveCountry();
 
   // Marquee day count for the headline. Pluralisation friendly.
   const days = initialCountdown.days;

@@ -48,8 +48,10 @@ export interface NodeHoverGlowOptions {
  * material ref (e.g. via `useRef<THREE.MeshBasicMaterial>`).
  */
 export function useNodeHoverGlow(
+  // React 19 typings: useRef<T>(null) now yields RefObject<T | null>,
+  // so accept the nullable variant rather than the never-null one.
   materialRef: React.RefObject<
-    THREE.Material & { opacity: number; transparent?: boolean }
+    (THREE.Material & { opacity: number; transparent?: boolean }) | null
   >,
   target: number,
   options: NodeHoverGlowOptions = {},

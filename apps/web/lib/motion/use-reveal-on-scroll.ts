@@ -72,7 +72,9 @@ export interface RevealOnScrollOptions {
  */
 export function useRevealOnScroll<T extends HTMLElement = HTMLElement>(
   options: RevealOnScrollOptions = {},
-): React.RefObject<T> {
+): React.RefObject<T | null> {
+  // React 19 typings make useRef<T>(null) return RefObject<T | null>;
+  // reflect that in the return type so callers don't get a mismatched type.
   const containerRef = useRef<T>(null);
   const {
     distance = 14,
