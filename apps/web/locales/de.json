@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Tippe jedes Spiel der {tournament}.",
       "lede": "Die Gruppenränge aktualisieren sich live mit deinen Tipps. Speichere jeden Tipp vor Anpfiff des Spiels; du kannst jeden Tipp bis zum Schlusspfiff ändern.",
+      "edit_anytime_heading": "Flexibel anpassbar während des ganzen Turniers",
+      "edit_anytime_lead": "Gib jetzt alle Tipps ab, damit deine Follower sehen können, wie du den Weg deines Teams zum Titel voraussagst.",
+      "edit_anytime_detail": "Ändere sie jederzeit, bis zum Anpfiff jedes Spiels - dann wird der Tipp gesperrt. Passe an, wenn sich die Form ändert, Verletzungen auftreten oder jede Phase das Turnier neu mischt. Wir bestrafen dich nicht für frühe Fehltipps wie andere Bracket-Apps!",
       "progress": "{picked} von {total} Spielen getippt"
     },
     "autopick": {

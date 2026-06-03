@@ -487,6 +487,9 @@
     "hero": {
       "headline": "Pronostica cada partido del {tournament}.",
       "lede": "La clasificación de cada grupo se actualiza en vivo con tus pronósticos. Guarda cada pronóstico antes del pitido inicial; puedes editar cualquier pronóstico hasta el silbato.",
+      "edit_anytime_heading": "Flexible para cambiar durante todo el torneo",
+      "edit_anytime_lead": "Haz todos los pronósticos ahora para que tus seguidores vean cómo predices el camino de tu equipo a la gloria.",
+      "edit_anytime_detail": "Cámbialos cuando quieras, hasta el silbato inicial de cada partido; en ese momento ese pronóstico se bloquea. Ajusta a medida que cambia el estado de forma, llegan lesiones y cada fase reconfigura el cuadro. ¡No te penalizamos por aciertos tardíos como otras apps de brackets!",
       "progress": "{picked} de {total} partidos pronosticados"
     },
     "autopick": {

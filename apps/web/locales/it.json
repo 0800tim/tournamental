@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Pronostica ogni partita della {tournament}.",
       "lede": "La classifica dei gironi si aggiorna in diretta con i tuoi pronostici. Salva ogni pronostico prima del fischio d'inizio della partita; puoi cambiare ogni pronostico fino al fischio.",
+      "edit_anytime_heading": "Flessibile da modificare per tutto il torneo",
+      "edit_anytime_lead": "Inserisci subito tutti i pronostici, così i tuoi follower possono vedere come prevedi il cammino della tua squadra fino alla gloria.",
+      "edit_anytime_detail": "Cambiali quando vuoi, fino al fischio d'inizio di ogni partita; in quel momento il pronostico si blocca. Aggiusta quando cambia la forma, quando arrivano gli infortuni, quando ogni turno ridisegna il tabellone. Non ti puniamo per i pronostici sbagliati anticipati come fanno altre app!",
       "progress": "{picked} su {total} partite pronosticate"
     },
     "autopick": {

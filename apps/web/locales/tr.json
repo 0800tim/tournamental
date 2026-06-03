@@ -488,6 +488,9 @@
     "hero": {
       "headline": "{tournament} her maçını tahmin et.",
       "lede": "Grup sıralaması tahminlerine göre canlı olarak güncellenir. Her tahmini maçın başlama düdüğünden önce kaydet; bitiş düdüğüne kadar her tahmini düzenleyebilirsin.",
+      "edit_anytime_heading": "Turnuva boyunca esnek bir şekilde değiştirilebilir",
+      "edit_anytime_lead": "Tüm tahminleri şimdi gir, böylece takipçilerin takımının zafere giden yolunu nasıl öngördüğünü görsün.",
+      "edit_anytime_detail": "İstediğin zaman değiştir, her maçın başlama düdüğüne kadar; o anda o tahmin kilitlenir. Form değişince, sakatlıklar gelince, her tur grafiği yeniden çizince ayarla. Diğer bracket uygulamaları gibi erken hatalı tahminler için seni cezalandırmıyoruz!",
       "progress": "{total} maçtan {picked} tanesi tahmin edildi"
     },
     "autopick": {

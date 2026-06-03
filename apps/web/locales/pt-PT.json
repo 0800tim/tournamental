@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Prognostica cada jogo do {tournament}.",
       "lede": "A classificação dos grupos atualiza-se ao vivo com os teus prognósticos. Guarda cada prognóstico antes do apito inicial; podes mudar qualquer prognóstico até ao apito.",
+      "edit_anytime_heading": "Flexível para mudar durante todo o torneio",
+      "edit_anytime_lead": "Faz todos os palpites agora para os teus seguidores verem como prevês o caminho da tua equipa até à glória.",
+      "edit_anytime_detail": "Muda quando quiseres, até ao apito inicial de cada jogo; nesse momento, aquele palpite fica fechado. Ajusta conforme a forma muda, conforme há lesões, conforme cada fase redesenha o quadro. Não te penalizamos por palpites errados feitos cedo como as outras apps fazem!",
       "progress": "{picked} de {total} jogos prognosticados"
     },
     "autopick": {

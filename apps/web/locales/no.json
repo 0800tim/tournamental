@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Tipp hver kamp i {tournament}.",
       "lede": "Gruppestillingen oppdateres direkte fra tippene dine. Lagre hvert tipp før kampen starter; du kan endre tipp helt fram til slutten av kampen.",
+      "edit_anytime_heading": "Fleksibel å endre gjennom hele turneringen",
+      "edit_anytime_lead": "Legg inn alle kamptips nå, så følgerne dine ser hvordan du spår laget ditt til seier.",
+      "edit_anytime_detail": "Endre dem når du vil, helt frem til avspark for hver kamp; da låses tippet. Juster når formen endrer seg, når skader kommer, når hver runde tegner bracketen på nytt. Vi straffer deg ikke for tidlige feiltips slik andre bracket-apper gjør!",
       "progress": "{picked} av {total} kamper tippet"
     },
     "autopick": {

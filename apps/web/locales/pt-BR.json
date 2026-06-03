@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Palpita em cada jogo da {tournament}.",
       "lede": "A classificação dos grupos atualiza ao vivo com os seus palpites. Salve cada palpite antes do apito inicial; pode mudar qualquer palpite até o apito.",
+      "edit_anytime_heading": "Flexível pra mudar durante todo o torneio",
+      "edit_anytime_lead": "Faça todos os palpites agora pra que seus amigos vejam como você prevê o caminho do seu time até a glória.",
+      "edit_anytime_detail": "Mude quando quiser, até o apito inicial de cada jogo; nesse momento, aquele palpite trava. Ajuste conforme a fase do time muda, conforme lesões aparecem, conforme cada rodada redesenha o chaveamento. A gente não pune palpites errados feitos cedo como os outros apps fazem!",
       "progress": "{picked} de {total} jogos palpitados"
     },
     "autopick": {

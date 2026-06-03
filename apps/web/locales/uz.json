@@ -488,6 +488,9 @@
     "hero": {
       "headline": "{tournament}ning har bir oʻyinini bashorat qiling.",
       "lede": "Guruh jadvali sizning bashoratlaringizga koʻra real vaqtda yangilanadi. Har bir bashoratni oʻyin boshlanishidan oldin saqlang; har qanday bashoratni yakuniy hushtakgacha oʻzgartirishingiz mumkin.",
+      "edit_anytime_heading": "Butun turnir davomida o'zgartirish mumkin",
+      "edit_anytime_lead": "Barcha bashoratlarni hozir kiriting, shunda kuzatuvchilaringiz jamoangizning shon-sharafga yo'lini qanday tasavvur qilayotganingizni ko'rishadi.",
+      "edit_anytime_detail": "Har qachon o'zgartiring, har bir o'yinning hushtak chalishigacha; o'sha lahzada bashorat qulflanadi. Forma o'zgarsa, jarohatlar paydo bo'lsa, har bosqich panjarani qayta tarzsa, sozlang. Boshqa bracket ilovalari kabi erta noto'g'ri tanlovlar uchun jazo bermaymiz!",
       "progress": "{total} oʻyindan {picked} ta bashorat qilindi"
     },
     "autopick": {

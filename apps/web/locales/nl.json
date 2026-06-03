@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Voorspel elke wedstrijd van het {tournament}.",
       "lede": "De groepsstand wordt live bijgewerkt met je voorspellingen. Sla elke voorspelling op voor de aftrap; je kunt elke voorspelling tot aan het laatste fluitsignaal wijzigen.",
+      "edit_anytime_heading": "Flexibel om aan te passen tijdens het hele toernooi",
+      "edit_anytime_lead": "Voer nu al je voorspellingen in, zodat je volgers kunnen zien hoe jij het pad van je team naar de glorie voorziet.",
+      "edit_anytime_detail": "Pas ze aan wanneer je wilt, tot het beginsignaal van elke wedstrijd; op dat moment wordt die voorspelling vastgezet. Verander mee met de vorm, met blessures, met elke ronde die het schema opnieuw bepaalt. We straffen je niet voor vroege foutieve picks zoals andere bracket-apps doen!",
       "progress": "{picked} van {total} wedstrijden voorspeld"
     },
     "autopick": {

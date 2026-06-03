@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Tippelj a {tournament} minden meccsére.",
       "lede": "A csoporttabella élőben frissül a tippjeidből. Mentsd minden tippet a meccs kezdő sípszava előtt; bármelyik tippet módosíthatod a záró sípszóig.",
+      "edit_anytime_heading": "Rugalmasan változtatható az egész torna alatt",
+      "edit_anytime_lead": "Adja meg most az összes meccs tippjét, hogy a követői lássák, hogyan jósolja meg csapata útját a dicsőségig.",
+      "edit_anytime_detail": "Bármikor megváltoztathatja, egészen az egyes meccsek kezdő sípszójáig; abban a pillanatban az a tipp rögzül. Igazítsa, ahogy változik a forma, ahogy jönnek a sérülések, ahogy minden kör átírja a tablót. Nem büntetjük a korai téves tippeket, ahogy más bracket appok teszik!",
       "progress": "{picked} a {total} meccsből tippelve"
     },
     "autopick": {

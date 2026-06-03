@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Matapaehia ia kēmu o te {tournament}.",
       "lede": "Ka whakahōuhia ngā tūnga rōpū i ō matapae i te wā tūturu. Tiakina ia matapae i mua i te whakaaranga; ka taea te whakatika i ngā matapae tae noa ki te whīra whakamutunga.",
+      "edit_anytime_heading": "Ngāwari ki te whakarerekē i te wā o te whakataetae",
+      "edit_anytime_lead": "Whakaurua katoa ngā matakitaki ināianei, kia kite ai ō kaiwhai i tō tirohanga mō te ara o tō kapa ki te toa.",
+      "edit_anytime_detail": "Whakarerekē ai ahakoa āwhea, tae noa ki te whana tuatahi o ia tākaro; i taua wā ka kati tērā matakitaki. Whakatika ai i te rerekētanga o te āhua, i te urutanga mai o ngā whara, i te wā ka huri ngā wāhanga ki te tuhi anō i te whakaaturanga. Kāore mātou e whiu i a koe mō ngā matakitaki hē moata pēnei i ētahi atu pūmanawa bracket!",
       "progress": "{picked} o ngā {total} kēmu kua matapaetia"
     },
     "autopick": {

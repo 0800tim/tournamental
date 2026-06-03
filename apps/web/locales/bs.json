@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Pogodi svaku utakmicu na {tournament}.",
       "lede": "Poredak po grupama ažurira se uživo prema tvojim tipovima. Sačuvaj svaki tip prije početka utakmice; svaki tip možeš mijenjati do prvog zvižduka.",
+      "edit_anytime_heading": "Fleksibilno za promjene tokom cijelog turnira",
+      "edit_anytime_lead": "Unesite sve tipove sada, da vaši pratioci vide kako predviđate put vašeg tima do slave.",
+      "edit_anytime_detail": "Mijenjajte ih kad god želite, sve do prvog zvižduka svake utakmice; tada se taj tip zaključava. Prilagodite se kako se mijenja forma, kako stižu povrede, kako svaka faza preuređuje grafikon. Ne kažnjavamo vas za rane pogrešne tipove kao druge bracket aplikacije!",
       "progress": "{picked} od {total} utakmica tipovano"
     },
     "autopick": {

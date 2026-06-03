@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Tippa varje match i {tournament}.",
       "lede": "Gruppställningen uppdateras live från dina tipp. Spara varje tipp innan matchen sparkar igång; du kan ändra valfritt tipp ända fram till slutsignalen.",
+      "edit_anytime_heading": "Flexibel att ändra under hela turneringen",
+      "edit_anytime_lead": "Lägg in alla matchtips nu så att dina följare ser hur du tror att ditt lag tar sig till glansen.",
+      "edit_anytime_detail": "Ändra dem när du vill, ända fram till avspark i varje match; då låses tipset. Justera när formen ändras, när skador kommer, när varje omgång gör om bracketen. Vi straffar dig inte för tidiga felaktiga tips som andra bracket-appar gör!",
       "progress": "{picked} av {total} matcher tippade"
     },
     "autopick": {

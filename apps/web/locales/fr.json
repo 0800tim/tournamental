@@ -487,6 +487,9 @@
     "hero": {
       "headline": "Pronostique chaque match de la {tournament}.",
       "lede": "Le classement des groupes se met à jour en direct avec tes pronostics. Enregistre chaque pronostic avant le coup d'envoi du match ; tu peux modifier n'importe quel pronostic jusqu'au coup de sifflet.",
+      "edit_anytime_heading": "Flexible jusqu'à la fin du tournoi",
+      "edit_anytime_lead": "Faites tous vos pronostics maintenant, pour que vos amis voient comment vous imaginez le parcours de votre équipe.",
+      "edit_anytime_detail": "Modifiez-les à tout moment, jusqu'au coup d'envoi de chaque match : à cet instant, le pronostic se verrouille. Ajustez quand la forme change, quand les blessures tombent, quand chaque tour redessine le tableau. On ne vous punit pas pour les mauvais choix anticipés, contrairement aux autres apps de brackets !",
       "progress": "{picked} sur {total} matchs pronostiqués"
     },
     "autopick": {

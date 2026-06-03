@@ -488,6 +488,9 @@
     "hero": {
       "headline": "Tipuj každý zápas {tournament}.",
       "lede": "Pořadí ve skupinách se aktualizuje živě podle tvých tipů. Ulož každý tip před výkopem zápasu; každý tip můžeš měnit až do posledního hvizdu.",
+      "edit_anytime_heading": "Flexibilní pro úpravy během celého turnaje",
+      "edit_anytime_lead": "Zadejte všechny tipy hned teď, ať vaši sledující vidí, jak předpovídáte cestu vašeho týmu za slávou.",
+      "edit_anytime_detail": "Měňte je kdykoli, až do výkopu každého zápasu; v tu chvíli se tip uzamkne. Upravujte podle formy, podle zranění, podle toho, jak každé kolo přepisuje pavouka. Netrestáme vás za rané chybné tipy jako jiné bracket aplikace!",
       "progress": "{picked} z {total} zápasů otipovaných"
     },
     "autopick": {
