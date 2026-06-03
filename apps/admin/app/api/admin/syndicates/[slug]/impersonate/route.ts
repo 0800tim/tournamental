@@ -17,6 +17,14 @@
  * `https://play.tournamental.com/manage/syndicates/<slug>?admin_token=<jwt>`
  * so the operator can click "Send bulk invites ↗" and land directly
  * in the manage UI.
+ *
+ * Signing secret: `ADMIN_MANAGE_JWT_SECRET` (NOT the auth-sms
+ * `AUTH_JWT_SECRET`). Splitting the secret means a compromised admin
+ * surface can mint manage tokens but cannot forge `tnm_session`
+ * cookies, and rotating admin-side impersonation does not require
+ * rotating the user-session secret. The web app's `verifyManageToken`
+ * consumers accept both secrets during the rotation window so this
+ * change is forward-compatible. Tracked: SEC-ADMIN-02.
  */
 
 import { NextResponse, type NextRequest } from "next/server";
@@ -46,10 +54,14 @@ export async function GET(
     return NextResponse.json({ error: "bad_slug" }, { status: 400 });
   }
 
-  const secret = process.env.AUTH_JWT_SECRET;
+  // The admin-only manage-token signing key. Distinct from
+  // AUTH_JWT_SECRET so impersonation can be rotated independently
+  // of user sessions. The web app verifies manage tokens against
+  // both secrets during the rotation window.
+  const secret = process.env.ADMIN_MANAGE_JWT_SECRET;
   if (!secret || secret.length < 32) {
     return NextResponse.json(
-      { error: "auth_jwt_secret_missing" },
+      { error: "admin_manage_jwt_secret_missing" },
       { status: 503 },
     );
   }

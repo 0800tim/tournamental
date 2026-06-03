@@ -9,19 +9,30 @@ Internal operations console. Next.js 14 + Tailwind, dark theme by default.
 
 ## Configuring auth
 
+Admin sign-in is a WhatsApp-OTP step-up gate behind Cloudflare Access.
+The legacy magic-link / log-mailer / Resend / `ADMIN_EMAILS` flow has
+been removed: the only way in is a WhatsApp OTP delivered to the
+hard-coded `ADMIN_PHONE_E164` and verified against the
+`ADMIN_ALLOWED_USER_IDS` allowlist.
+
 Copy `.env.example` to `.env` and set:
 
 ```bash
-ADMIN_EMAILS=tim@tournamental.com,ops@tournamental.com
-ADMIN_ROLES=tim@tournamental.com:super-admin,ops@tournamental.com:mod
+ADMIN_PHONE_E164=+64XXXXXXXXXX
+ADMIN_ALLOWED_USER_IDS=u_be5a445cff4347f6ae6089
 ADMIN_JWT_SECRET=$(openssl rand -base64 48)
-ADMIN_MAILER=resend
-RESEND_API_KEY=re_xxx
+ADMIN_MANAGE_JWT_SECRET=$(openssl rand -base64 48)
+ADMIN_AUTH_SMS_BASE_URL=https://auth.tournamental.com
 ```
 
-If `ADMIN_EMAILS` is empty the dashboard is locked — login form refuses
-input and the request endpoint responds 503. This is the default for a
-fresh checkout.
+If either `ADMIN_PHONE_E164` or `ADMIN_ALLOWED_USER_IDS` is empty the
+dashboard is locked: the login form refuses input and the request
+endpoint responds 503. This is the default for a fresh checkout.
+
+`ADMIN_MANAGE_JWT_SECRET` is used to sign admin-minted manage JWTs
+issued by `/api/admin/syndicates/[slug]/impersonate`. It is deliberately
+distinct from `AUTH_JWT_SECRET` (which auth-sms uses for `tnm_session`)
+so a compromised admin surface cannot forge user sessions.
 
 ## RBAC
 

@@ -210,6 +210,50 @@ describe("dispatch — source agnosticism", () => {
     expect(r[0].text).toContain("Jasons Office");
     expect(r[0].text).toContain("top 3 share");
   });
+
+  it("/syndicate join refuses invite-only syndicates and does not add a member", async () => {
+    const deps = freshDeps();
+    deps.storage.upsertUser({ chat_id: 7, user_id: "u_joiner" });
+    deps.storage.createSyndicate({
+      id: "x",
+      slug: "private-office",
+      name: "Private Office",
+      owner_user_id: "u_owner",
+      format: "points",
+      privacy: "invite_only",
+    });
+    const r = await dispatch(
+      {
+        source: "telegram",
+        sourceId: 7,
+        text: "/syndicate join private-office",
+      },
+      deps,
+    );
+    expect(r[0].text).toContain("invite-only");
+    const members = deps.storage.listMembers("x").map((m) => m.user_id);
+    expect(members).not.toContain("u_joiner");
+  });
+
+  it("/syndicate join still works for public syndicates", async () => {
+    const deps = freshDeps();
+    deps.storage.upsertUser({ chat_id: 8, user_id: "u_joiner_2" });
+    deps.storage.createSyndicate({
+      id: "y",
+      slug: "open-office",
+      name: "Open Office",
+      owner_user_id: "u_owner",
+      format: "points",
+      privacy: "public",
+    });
+    const r = await dispatch(
+      { source: "telegram", sourceId: 8, text: "/syndicate join open-office" },
+      deps,
+    );
+    expect(r[0].text).toContain("Joined");
+    const members = deps.storage.listMembers("y").map((m) => m.user_id);
+    expect(members).toContain("u_joiner_2");
+  });
 });
 
 describe("formatLeaderboard", () => {

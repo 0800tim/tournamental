@@ -121,6 +121,17 @@ export async function handleSyndicate(
       });
       return;
     }
+    // Invite-only syndicates can only be joined via the /start deep-link
+    // path the owner shares (e.g. `https://t.me/<bot>?start=syn_<slug>`).
+    // Bare `/syndicate join <slug>` would otherwise let anyone walk in
+    // by guessing a slug. Tracked: SEC-ADMIN-10.
+    if (syn.privacy === "invite_only") {
+      await ctx.reply(
+        `*${syn.name}* is invite-only. Ask the owner for an invite link.`,
+        { parse_mode: "Markdown" },
+      );
+      return;
+    }
     deps.storage.addMember(syn.id, user.user_id, "member");
     await ctx.reply(`Joined *${syn.name}*. /leaderboard ${syn.slug} to see standings.`, {
       parse_mode: "Markdown",

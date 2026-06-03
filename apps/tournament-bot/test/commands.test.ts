@@ -215,6 +215,25 @@ describe("/syndicate", () => {
     expect(lastReply(h.calls)).toContain("Joined");
   });
 
+  it("join refuses invite-only syndicates and does not add a member", async () => {
+    const h = makeHarness();
+    h.storage.upsertUser({ chat_id: 2, user_id: "u_joiner" });
+    h.storage.createSyndicate({
+      id: "x",
+      slug: "private-office",
+      name: "Private Office",
+      owner_user_id: "u_a",
+      format: "points",
+      privacy: "invite_only",
+    });
+    await h.feed(
+      makeMessageUpdate({ chat_id: 2, text: "/syndicate join private-office" }),
+    );
+    const members = h.storage.listMembers("x").map((m) => m.user_id);
+    expect(members).not.toContain("u_joiner");
+    expect(lastReply(h.calls)).toContain("invite-only");
+  });
+
   it("leave removes the caller", async () => {
     const h = makeHarness();
     h.storage.upsertUser({ chat_id: 2, user_id: "u_joiner" });

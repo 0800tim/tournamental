@@ -4,7 +4,11 @@
  * Body: { code: "123456" }
  *
  * Flow:
- *   1. Forwards `{ code }` to `apps/auth-sms` `/v1/auth/verify-by-code`.
+ *   1. Forwards `{ phone: ADMIN_PHONE_E164, code }` to `apps/auth-sms`
+ *      `/v1/auth/verify` (the phone-scoped endpoint). Pinning the phone
+ *      server-side means the verify call only consumes the admin's own
+ *      OTP budget, so a concurrent OTP-holder for a different phone
+ *      cannot exhaust the admin's 5-attempt budget through this route.
  *   2. On 200, the upstream returns `{ jwt, expiresAt, user }`.
  *   3. We check `user.id` against `ADMIN_ALLOWED_USER_IDS`. Mismatch →
  *      403 `not_admin`, no cookie set. (The verified user is a real
@@ -22,6 +26,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   SESSION_COOKIE_NAME,
   SESSION_TTL_SECONDS,
+  getAdminPhone,
   getAllowedUserIds,
   getAuthSmsBase,
   isLoginEnabled,
@@ -33,8 +38,9 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 interface VerifyOk {
-  jwt: string;
-  expiresAt: number;
+  jwt?: string;
+  ok?: boolean;
+  expiresAt?: number;
   user: { id: string; phone: string | null; displayName: string | null };
 }
 
@@ -78,13 +84,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "bad_code" }, { status: 400 });
   }
 
-  const url = `${getAuthSmsBase()}/v1/auth/verify-by-code`;
+  // Pin the verify call to the configured admin phone. This scopes the
+  // OTP brute-force budget on auth-sms to the admin's own phone row,
+  // not the global "most recent unconsumed OTP" used by /verify-by-code.
+  const phone = getAdminPhone();
+  if (!phone) {
+    return NextResponse.json({ error: "login_disabled" }, { status: 503 });
+  }
+
+  const url = `${getAuthSmsBase()}/v1/auth/verify`;
   let upstream: Response;
   try {
     upstream = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code }),
+      body: JSON.stringify({ phone, code }),
       cache: "no-store",
     });
   } catch {
