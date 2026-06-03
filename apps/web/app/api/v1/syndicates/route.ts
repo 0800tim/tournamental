@@ -30,6 +30,7 @@ import { buildGhlContactPayload, pushToGhl, type GhlStatus } from "@/lib/syndica
 import { newShareGuid, newSyndicateId } from "@/lib/syndicate/ids";
 import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { loadUserContact } from "@/lib/auth/contact-lookup";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -99,16 +100,43 @@ export async function POST(req: NextRequest): Promise<Response> {
   const syndicateId = newSyndicateId();
   const shareGuid = newShareGuid();
 
-  // Bind the syndicate to the signed-in user when a session is present
-  // so /v1/profile/syndicates can list it as "owned" without needing
-  // anon-handle reconciliation. The route is intentionally still
-  // openable without a session (signup form embedded on the marketing
-  // site, etc.); in that case ownership reconciles via handle match
-  // in the listing query (Tim 2026-05-24: previously every pool got
-  // owner_user_id=null and only "the-crate" -- created before the
-  // signed-in flow regressed -- showed under My pools).
+  // Bind the syndicate to the signed-in user. A session is now required
+  // for create so we can ALWAYS resolve owner_email/owner_phone from the
+  // creator's verified auth-sms profile rather than trusting whatever
+  // the form submitted (incident 2026-06-03: a denormalised owner_email
+  // pointed at the requester, who self-approved via the email link).
   const session = await getSessionFromRequest(req);
-  const ownerUserId = session?.userId ?? null;
+  if (!session) {
+    return jsonResponse(
+      {
+        error: "no_session",
+        message: "Sign in to create a pool.",
+      },
+      401,
+    );
+  }
+  const ownerUserId = session.userId;
+
+  // Email-on-file gate: pool owners need an email so we can notify them
+  // of join requests (the WhatsApp channel is best-effort and not every
+  // owner has it wired). Friendly message for the WhatsApp-only signup
+  // path that lands here without an email on their auth profile yet.
+  const ownerContact = loadUserContact(ownerUserId);
+  const ownerVerifiedEmail = ownerContact?.email ?? null;
+  if (!ownerVerifiedEmail) {
+    return jsonResponse(
+      {
+        error: "email_required",
+        message:
+          "Add an email to your profile before creating a pool. We use it " +
+          "to notify you when someone wants to join.",
+        profile_url: "/profile",
+      },
+      400,
+    );
+  }
+  // Owner phone is best-effort — keep null when the user hasn't added one.
+  const ownerVerifiedPhone = ownerContact?.phone ?? null;
 
   // SEC-POOL-10: share_guid is UNIQUE; a (rare) collision used to bubble
   // out as a 500 from the catch-all below. Retry up to 3 times with a
@@ -124,8 +152,11 @@ export async function POST(req: NextRequest): Promise<Response> {
         slug: input.slug,
         name: input.name,
         tournament_id: input.tournament_id,
-        owner_email: input.owner_email,
-        owner_phone: input.owner_phone,
+        // Always use the auth-bound email; form input is ignored so the
+        // owner can't (accidentally or otherwise) record someone else's
+        // address as the moderation contact.
+        owner_email: ownerVerifiedEmail,
+        owner_phone: ownerVerifiedPhone ?? input.owner_phone,
         owner_user_id: ownerUserId,
         owner_handle: input.owner_handle ?? null,
         size_band: input.size_band,

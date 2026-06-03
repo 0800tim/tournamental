@@ -323,6 +323,24 @@ export function SyndicateForm({
         }
         return;
       }
+      if (res.status === 401) {
+        setSubmitError("Sign in to create a pool, then try again.");
+        return;
+      }
+      const errorCode = (body as { error?: string }).error;
+      if (errorCode === "email_required") {
+        // WhatsApp-only signups land here. Friendly nudge to the
+        // profile page so they can add an email, then come back.
+        const msg =
+          (body as { message?: string }).message ??
+          "Add an email to your profile before creating a pool.";
+        setFieldErrors({ owner_email: msg });
+        setSubmitError(
+          "We need an email on your profile so we can notify you of join " +
+            "requests. Open your profile to add one, then come back to finish.",
+        );
+        return;
+      }
       if (!res.ok) {
         const issues = (body as { issues?: { path: string; message: string }[] }).issues ?? [];
         if (issues.length > 0) {

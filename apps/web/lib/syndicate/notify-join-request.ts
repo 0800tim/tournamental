@@ -25,6 +25,8 @@
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 
+import { loadUserContacts } from "@/lib/auth/contact-lookup";
+
 import type { SyndicateRow } from "@/lib/syndicate/persistence";
 
 interface NotifyArgs {
@@ -153,10 +155,47 @@ async function sendEmailNotification(args: NotifyArgs): Promise<void> {
     );
     return;
   }
-  if (!args.pool.owner_email) {
-    console.warn("[notifyOwnerOfJoinRequest] pool has no owner_email", {
+
+  // Resolve the owner's *current* verified contact from auth.db rather
+  // than trusting the denormalised `pool.owner_email` (incident
+  // 2026-06-03: a stale owner_email column pointed at the requester so
+  // SendGrid delivered the approve link to them; they self-approved).
+  // Look up the requester at the same time so the defence-in-depth
+  // check below fires before any send.
+  const contacts = loadUserContacts([args.pool.owner_user_id, args.requester.user_id]);
+  const ownerEmail = args.pool.owner_user_id
+    ? contacts.get(args.pool.owner_user_id)?.email ?? null
+    : null;
+  const requesterEmail = contacts.get(args.requester.user_id)?.email ?? null;
+  const toEmail = ownerEmail ?? args.pool.owner_email;
+
+  if (!toEmail) {
+    console.warn("[notifyOwnerOfJoinRequest] no resolvable owner email", {
       pool: args.pool.slug,
+      owner_user_id: args.pool.owner_user_id,
     });
+    return;
+  }
+
+  // Defence in depth: never send the approve link to the same address
+  // as the requester. If we land here it means `owner_user_id` is
+  // missing / mismatched and the denormalised column points at the
+  // requester. Fail loud so the bound contact gets corrected rather
+  // than silently emailing an approve link to the wrong inbox.
+  if (
+    requesterEmail &&
+    requesterEmail.toLowerCase() === toEmail.trim().toLowerCase()
+  ) {
+    console.error(
+      "[notifyOwnerOfJoinRequest] aborting email: resolved owner email " +
+        "matches requester email. Pool owner_user_id is likely unset or " +
+        "wrong; the requester would otherwise be able to self-approve.",
+      {
+        pool: args.pool.slug,
+        owner_user_id: args.pool.owner_user_id,
+        requester_user_id: args.requester.user_id,
+      },
+    );
     return;
   }
 
@@ -207,7 +246,7 @@ async function sendEmailNotification(args: NotifyArgs): Promise<void> {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: args.pool.owner_email }] }],
+        personalizations: [{ to: [{ email: toEmail }] }],
         from: { email: fromEmail, name: fromName },
         subject,
         content: [
@@ -256,7 +295,31 @@ async function sendWhatsAppNotification(args: NotifyArgs): Promise<void> {
     // quietly so the join request still succeeds via email + dashboard.
     return;
   }
-  if (!args.pool.owner_phone) {
+
+  // Prefer the owner's verified phone from auth.db. Same denormalised
+  // -column hazard as email; silent skip if we can't resolve a real
+  // phone. Also abort if the resolved owner phone matches the
+  // requester's verified phone (parallel of the email defence above).
+  const contacts = loadUserContacts([args.pool.owner_user_id, args.requester.user_id]);
+  const ownerPhone = args.pool.owner_user_id
+    ? contacts.get(args.pool.owner_user_id)?.phone ?? null
+    : null;
+  const requesterPhone = contacts.get(args.requester.user_id)?.phone ?? null;
+  const toPhone = ownerPhone ?? args.pool.owner_phone;
+  if (!toPhone) {
+    return;
+  }
+  if (requesterPhone && requesterPhone === toPhone) {
+    console.error(
+      "[notifyOwnerOfJoinRequest] aborting whatsapp: resolved owner " +
+        "phone matches requester phone. Pool owner_user_id likely unset " +
+        "or wrong.",
+      {
+        pool: args.pool.slug,
+        owner_user_id: args.pool.owner_user_id,
+        requester_user_id: args.requester.user_id,
+      },
+    );
     return;
   }
 
@@ -274,7 +337,7 @@ async function sendWhatsAppNotification(args: NotifyArgs): Promise<void> {
 
   // The Aiva gateway expects E.164 without the leading "+". The
   // owner_phone is stored in E.164 form, so strip the plus here.
-  const phone = args.pool.owner_phone.replace(/^\+/, "");
+  const phone = toPhone.replace(/^\+/, "");
   const url = `${baseUrl.replace(/\/$/, "")}/api/v1/whatsapp/sessions/${encodeURIComponent(
     sessionId,
   )}/send`;
