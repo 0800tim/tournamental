@@ -76,12 +76,27 @@
   cursor: progress;
 }
 
+.vt-lb-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
 .vt-lb-title {
   font-size: 18px;
   font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0;
   color: #f0f3fa;
+}
+
+.vt-lb-subtitle {
+  font-size: 12px;
+  font-weight: 500;
+  margin: 0;
+  color: rgba(240, 243, 250, 0.55);
+  letter-spacing: 0.01em;
 }
 
 .vt-lb-tabs {
@@ -320,6 +335,13 @@
   color: #f0f3fa;
   text-align: right;
   letter-spacing: -0.01em;
+}
+
+.vt-lb-points-denom {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(240, 243, 250, 0.5);
+  margin-left: 1px;
 }
 
 .vt-lb-movement {

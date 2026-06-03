@@ -63,6 +63,11 @@ export interface LeaderboardProps {
   readonly tabs?: readonly LeaderboardTab[];
   readonly activeTab?: LeaderboardScope;
   readonly onTabChange?: (id: LeaderboardScope) => void;
+  /** Matches played so far in the tournament. When set, rows render
+   *  their points as "X/{matchesPlayed}" (one point per correct match
+   *  prediction, the live scoring model) and a "Current standings
+   *  after N matches" subtitle appears under the title. */
+  readonly matchesPlayed?: number;
   /** Optional filter for badge type, e.g. show pundits only. */
   readonly badgeFilter?: MockMember["badge"];
   /** Optional extra content rendered at the top of the card body. */
@@ -91,6 +96,7 @@ export function Leaderboard({
   tabs = DEFAULT_TABS,
   activeTab = "top50",
   onTabChange,
+  matchesPlayed,
   badgeFilter,
   headerExtras,
   skipSkeleton = false,
@@ -118,7 +124,15 @@ export function Leaderboard({
     >
       <header className="vt-lb-header">
         <div className="vt-lb-header-row">
-          <h3 className="vt-lb-title">{title}</h3>
+          <div className="vt-lb-title-block">
+            <h3 className="vt-lb-title">{title}</h3>
+            {typeof matchesPlayed === "number" && matchesPlayed > 0 && (
+              <p className="vt-lb-subtitle">
+                Current standings after {matchesPlayed}{" "}
+                {matchesPlayed === 1 ? "match" : "matches"}
+              </p>
+            )}
+          </div>
           {tabs.length > 0 && (
             <div className="vt-lb-tabs" role="tablist" aria-label={`${title} scope`}>
               {tabs.map((t) => (
@@ -169,6 +183,7 @@ export function Leaderboard({
               showCountry={showCountryColumn}
               showStreak={showStreakColumn}
               showSparkline={showSparkline}
+              matchesPlayed={matchesPlayed}
             />
           ))}
         </ol>
@@ -193,6 +208,7 @@ interface LeaderboardRowProps {
   readonly showCountry: boolean;
   readonly showStreak: boolean;
   readonly showSparkline: boolean;
+  readonly matchesPlayed?: number;
 }
 
 function LeaderboardRow({
@@ -202,6 +218,7 @@ function LeaderboardRow({
   showCountry,
   showStreak,
   showSparkline,
+  matchesPlayed,
 }: LeaderboardRowProps) {
   const m = member;
   const avatarSrc = pickAvatar(m.handle);
@@ -258,7 +275,23 @@ function LeaderboardRow({
         />
       )}
       <span className="vt-lb-rhs">
-        <span className="vt-lb-points">{m.points.toLocaleString()}</span>
+        <span
+          className="vt-lb-points"
+          aria-label={
+            typeof matchesPlayed === "number"
+              ? `${m.points} correct out of ${matchesPlayed}`
+              : `${m.points} points`
+          }
+        >
+          {typeof matchesPlayed === "number" && matchesPlayed > 0 ? (
+            <>
+              {m.points}
+              <span className="vt-lb-points-denom">/{matchesPlayed}</span>
+            </>
+          ) : (
+            m.points.toLocaleString()
+          )}
+        </span>
         {showMovement && (
           <MovementIndicator value={m.movement} />
         )}

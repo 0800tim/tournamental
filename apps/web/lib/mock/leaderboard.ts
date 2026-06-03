@@ -9,6 +9,14 @@
  * `<Leaderboard>` component shape is intentionally identical to what
  * we expect from the real endpoint.
  *
+ * Scoring model (Tim 2026-06-04): the live game scores 1 point per
+ * correctly predicted match outcome — no odds-based multipliers, no
+ * partial credit. Demo leaderboards now reflect that contract: a row's
+ * `points` is the number of correct picks (0..matchesPlayed), and the
+ * UI renders it as "X/Y" so visitors don't think we're using a
+ * different system before launch. The mock pretends the tournament is
+ * roughly halfway through, see {@link DEMO_MATCHES_PLAYED}.
+ *
  * Determinism contract:
  *   mockLeaderboardMembers("x", 50) === mockLeaderboardMembers("x", 50)
  *   for all renders, processes, and snapshot tests.
@@ -16,6 +24,15 @@
 
 import { MOCK_NAMES } from "./names";
 import { pickInt, seededRng, shuffle } from "./rng";
+
+/**
+ * Match-progress the demo pretends we're at. FIFA WC 2026 runs 104
+ * matches over the tournament; 54 puts us roughly midway through (end
+ * of round of 32, start of round of 16). Picked deliberately so the
+ * top row reads "48/54" rather than "281 pts", which used to mislead
+ * visitors into thinking we score by odds.
+ */
+export const DEMO_MATCHES_PLAYED = 54;
 
 export interface MockMember {
   /** Stable hash of name+country, usable as a React key. */
@@ -28,7 +45,8 @@ export interface MockMember {
   readonly flag: string;
   /** 1-indexed leaderboard rank. */
   readonly rank: number;
-  /** Total points this round. */
+  /** Correct picks so far (0..matchesPlayed). Rendered as "X/Y" in
+   *  the UI alongside a per-leaderboard matchesPlayed denominator. */
   readonly points: number;
   /** Position change vs the previous round (positive = climbed). */
   readonly movement: number;
@@ -62,24 +80,28 @@ export function mockLeaderboardMembers(
 
   const pool = shuffle(MOCK_NAMES, rng).slice(0, cap);
 
-  // Top rank gets a high anchor (~280); from rank 2 onwards we apply a
-  // mild 1/√rank decay with a per-row jitter so the chart looks alive.
-  const topPoints = 278 + pickInt(rng, -3, 5);
+  // Binary-pick scoring: top entrant is at roughly 85-91% accuracy
+  // (5-8 misses out of DEMO_MATCHES_PLAYED), and each subsequent rank
+  // either ties or drops 1-2 correct picks. The 30%-ish chance of a
+  // zero drop produces realistic clusters of ties near the top — the
+  // pattern Tim asked for ("48/54, 48/54, 47/54 …").
+  const matchesPlayed = DEMO_MATCHES_PLAYED;
+  const topCorrect = matchesPlayed - pickInt(rng, 5, 8);
+  // Floor a tail entrant at ~30% accuracy so the gap from top to tail
+  // is plausible without the chart turning into a row of zeros.
+  const floorCorrect = Math.max(1, Math.round(matchesPlayed * 0.3));
+  let running = topCorrect;
   const members: MockMember[] = pool.map((person, idx) => {
     const rank = idx + 1;
-    let points: number;
-    if (rank === 1) {
-      points = topPoints;
-    } else if (rank <= 3) {
-      // Tight gaps at the very top, 5 to 15 pts behind the previous.
-      const gap = pickInt(rng, 5, 15);
-      points = topPoints - gap * (rank - 1);
-    } else {
-      // 1/√rank decay with jitter.
-      const decay = Math.round((topPoints * 0.9) / Math.sqrt(rank));
-      const jitter = pickInt(rng, -4, 6);
-      points = Math.max(20, decay + jitter);
+    if (rank > 1) {
+      // Drop distribution: 30% tie, 55% -1, 15% -2. Tightens ranks at
+      // the top, accelerates the decay further down where the running
+      // counter is already near the floor.
+      const roll = rng();
+      const drop = roll < 0.3 ? 0 : roll < 0.85 ? 1 : 2;
+      running = Math.max(floorCorrect, running - drop);
     }
+    const points = running;
 
     // Movement: mostly +/-3, occasional bigger jump, zero ~20% of rows.
     const mRoll = rng();

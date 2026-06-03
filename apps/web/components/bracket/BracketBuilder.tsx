@@ -87,7 +87,7 @@ import { ThirdsPicker, autoPickTop8Thirds } from "./ThirdsPicker";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
-import { mockTopN } from "@/lib/mock/leaderboard";
+import { mockTopN, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
 import {
@@ -1602,6 +1602,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                         showMovementColumn
                         tabs={[]}
                         totalMembers={24388}
+                        matchesPlayed={DEMO_MATCHES_PLAYED}
                       />
                     </div>
                   </div>

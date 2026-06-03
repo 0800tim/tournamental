@@ -23,7 +23,7 @@ import {
   fetchOddsSnapshotMap,
 } from "@/lib/molecule/odds-consensus";
 import type { MatchOdds } from "@/lib/odds/types";
-import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
+import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 
 import "@/components/molecule/molecule.css";
 
@@ -160,6 +160,7 @@ export function MoleculePageClient({ tournament }: MoleculePageClientProps) {
           showCountryColumn={false}
           showSparkline={false}
           tabs={[]}
+          matchesPlayed={DEMO_MATCHES_PLAYED}
         />
       </aside>
     </div>

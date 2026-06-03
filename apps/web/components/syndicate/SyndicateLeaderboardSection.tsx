@@ -10,7 +10,7 @@ import { useMemo, useState } from "react";
 
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
-import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
+import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import type { MockSyndicate } from "@/lib/mock/syndicate";
 
 type Scope = "pool" | "global" | "friends";
@@ -53,6 +53,7 @@ export function SyndicateLeaderboardSection({
         showStreakColumn
         density="comfortable"
         totalMembers={syndicate.memberCount}
+        matchesPlayed={DEMO_MATCHES_PLAYED}
         tabs={[
           { id: "top50", label: "This pool" },
           { id: "this-week", label: "Global" },

@@ -703,6 +703,27 @@ function MyPoolsSection() {
     pools: [],
   });
 
+  // Deep-link scroll. The whole ProfilePage is a client component, so
+  // by the time the <section id="profile-pools"> exists in the DOM the
+  // browser has already given up on resolving the URL hash. Re-do the
+  // scroll manually once after the section mounts. Honour
+  // prefers-reduced-motion to match the in-page Manage button.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.location.hash !== "#profile-pools") return;
+    const reduced = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    // One animation frame defer so the surrounding layout has settled
+    // before we measure the section's position.
+    const raf = window.requestAnimationFrame(() => {
+      const target = document.getElementById("profile-pools");
+      target?.scrollIntoView({
+        behavior: reduced ? "auto" : "smooth",
+        block: "start",
+      });
+    });
+    return () => window.cancelAnimationFrame(raf);
+  }, []);
+
   useEffect(() => {
     const ac = new AbortController();
     void (async () => {
@@ -787,7 +808,7 @@ function MyPoolsSection() {
                           href={`/s/${p.slug}`}
                           className="vt-profile-cta vt-profile-cta--ghost"
                         >
-                          {safeT(t, "profile_page.my_pools_share", "Share")}
+                          {safeT(t, "profile_page.my_pools_share", "View")}
                         </a>
                         <a
                           href={`/dashboard/pools/${p.slug}`}

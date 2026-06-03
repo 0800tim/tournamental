@@ -23,7 +23,7 @@ import { StageProgressChart } from "@/components/leaderboard/StageProgressChart"
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { DraftWatermark } from "@/components/mock/DraftWatermark";
 import { AppShell, PillTabs } from "@/components/shell";
-import { mockLeaderboardMembers } from "@/lib/mock/leaderboard";
+import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import {
   mockPointsHistory,
   mockPoolAverage,
@@ -99,6 +99,7 @@ export default function LeaderboardPage() {
               activeTab={scope}
               onTabChange={setScope}
               totalMembers={24388}
+              matchesPlayed={DEMO_MATCHES_PLAYED}
             />
           </DraftWatermark>
 
@@ -131,6 +132,7 @@ export default function LeaderboardPage() {
               showCountryColumn
               density="comfortable"
               tabs={[]}
+              matchesPlayed={DEMO_MATCHES_PLAYED}
             />
           </aside>
         </section>
