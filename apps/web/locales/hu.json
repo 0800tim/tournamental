@@ -33,7 +33,8 @@
     "watch": "Nézés",
     "menu": "Menü",
     "profile": "Profil",
-    "open_menu": "Menü megnyitása"
+    "open_menu": "Menü megnyitása",
+    "play": "Játék"
   },
   "authchip": {
     "sign_in_up": "Belépés / Regisztráció",
@@ -58,7 +59,8 @@
       "cta_pool": "Indítok egy tippjátékot",
       "lede": "Még senkinek nem sikerült, és a {odds_link} csillagászati nagysága miatt valószínűleg soha senkinek nem is fog. Huszonkét vébé, 964 meccs, és a tökéletes tippsor még mindig gazdátlan. 2026 104 mérkőzése a következő próbálkozás. A Tournamental vezeti a globális főkönyvet, és minden tippet a sípszó előtt a blokkláncba ír, így a tippjeid változtathatatlanok, és a dicsőségre vonatkozó bármilyen igény végre bizonyítható.",
       "lede_link": "esély, hogy mind a 104 meccset eltaláld",
-      "read_more": "[bővebben]"
+      "read_more": "[bővebben]",
+      "lede_2": "A Tournamental vezeti a globális főkönyvet, és minden tippet a blockchainre rögzít a mérkőzés kezdete előtt, így a tippeid változtathatatlanok, és minden dicsőségre szóló igény végre bizonyítható."
     },
     "stat": {
       "matches": "Mérkőzés",
@@ -195,7 +197,14 @@
       "button_verifying": "Ellenőrzés…"
     },
     "button_join": "Csatlakozz ehhez a tippjátékhoz",
-    "button_joining": "Csatlakozás..."
+    "button_joining": "Csatlakozás...",
+    "button_leaving": "Kilépés…",
+    "exit": {
+      "title": "Kilépsz a(z) {pool_name}-ból?",
+      "body": "Biztosan kilépsz a(z) {pool_name}-ból? A kezdés előtt bármikor visszacsatlakozhatsz.",
+      "confirm": "Kilépés a tippjátékból",
+      "cancel": "Mégse, maradok"
+    }
   },
   "odds": {
     "eyebrow": "A matek",
@@ -221,7 +230,8 @@
     "section_recent_members": "Új tagok",
     "cta_join": "Csatlakozás ehhez a tippjátékhoz",
     "cta_share": "A tippjáték megosztása",
-    "join_footnote": "Ingyenes, a sípszóig bármikor változtathatsz."
+    "join_footnote": "Ingyenes, a sípszóig bármikor változtathatsz.",
+    "cta_exit": "Kilépés ebből a tippjátékból"
   },
   "footer": {
     "fifa_disclaimer": "A Tournamental független, nem áll kapcsolatban a FIFA-val, a FIFA-világbajnoksággal vagy azok bármely szponzorával, és tőlük sem támogatást, sem jóváhagyást nem kap. A FIFA World Cup 2026™ a Fédération Internationale de Football Association bejegyzett védjegye.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Hozza el a versenyét",
     "cta_final_body": "Iroda, barátok, rajongó klub, iskola, üzlet, teremtő közönség. Ugyanaz az eszközkészlet. 60 másodperc egy márkás úthoz. Örökké ingyenes.",
     "card_prize_label": "Minta díj",
-    "sample_prize_code": "play.tournamental.com/s/andneve"
+    "sample_prize_code": "play.tournamental.com/s/andneve",
+    "cta_view_my_pools": "Saját tippjátékaim"
   },
   "bracket": {
     "title": "Tippelj a FIFA World Cup 2026™ minden meccsére",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tipp megvan. Zárd le a tábládat.",
       "cta": "Tábla mentése",
       "foot_authed": "A táblát a profilodra menti, így minden eszközön ott van.",
-      "foot_anon": "Küldünk egy egyszer használatos belépési kódot (Telegram, WhatsApp vagy email). A tippjeid automatikusan átkerülnek a profilodra."
+      "foot_anon": "Küldünk egy egyszer használatos belépési kódot (Telegram, WhatsApp vagy email). A tippjeid automatikusan átkerülnek a profilodra.",
+      "change_photo": "Fénykép cseréje"
     },
     "submit": {
       "saved_offline": "Offline elmentve, újrapróbáljuk amint visszakerülsz online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Rugalmasan változtatható az egész torna alatt",
       "edit_anytime_lead": "Adja meg most az összes meccs tippjét, hogy a követői lássák, hogyan jósolja meg csapata útját a dicsőségig.",
       "edit_anytime_detail": "Bármikor megváltoztathatja, egészen az egyes meccsek kezdő sípszójáig; abban a pillanatban az a tipp rögzül. Igazítsa, ahogy változik a forma, ahogy jönnek a sérülések, ahogy minden kör átírja a tablót. Nem büntetjük a korai téves tippeket, ahogy más bracket appok teszik!",
-      "progress": "{picked} a {total} meccsből tippelve"
+      "progress": "{picked} a {total} meccsből tippelve",
+      "progress_label": "kiválasztott mérkőzés"
     },
     "autopick": {
       "subtitle_consensus": "Frissítsd az üres tippeket az élő konszenzusos szorzók alapján.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Jelentkezz be a tippjátékaidat megtekintéséhez.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Az örökölt e-mail áramlás segítségével jelentkeztél be. Az új profileditor egyelőre csak a WhatsApp / SMS bejelentkezéshez csatlakozik. Jelentkezz ki és jelentkezz be újra a WhatsApp segítségével a használatához.",
-    "supabase_notice_sign_out": "Kijelentkezés"
+    "supabase_notice_sign_out": "Kijelentkezés",
+    "favourite_team_note": "Ez eltérhet az általad megjósolt győztestől, pl. a saját válogatottad vagy a tornán kedvenc csapatod, még ha esetleg nem is nyernek!",
+    "my_pools_role_member": "Tag",
+    "my_pools_role_owner": "Tulajdonos",
+    "my_pools_view": "Tippjáték megnyitása",
+    "view_manage_pools": "Tippjátékok megtekintése/kezelése",
+    "view_pools": "Tippjátékok megtekintése",
+    "view_public_page": "Nyilvános oldalam megtekintése",
+    "add_phone_btn": "Telefonszám hozzáadása",
+    "add_phone_title": "Küldj 'login' üzenetet a WhatsApp-számunkra, hogy elmentsd a telefonszámodat a profilodba.",
+    "error_display_name_taken": "Ezt a megjelenítendő nevet már valaki más használja. Válassz másikat.",
+    "field_email_readonly_title": "Az e-mail módosítása hamarosan elérhető lesz. Egyelőre fordulj az ügyfélszolgálathoz az e-mail-cím frissítéséhez.",
+    "placeholder_no_phone": "Még nincs csatolt telefonszám"
   }
 }

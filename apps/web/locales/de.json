@@ -33,7 +33,8 @@
     "watch": "Schauen",
     "menu": "Menü",
     "profile": "Profil",
-    "open_menu": "Menü öffnen"
+    "open_menu": "Menü öffnen",
+    "play": "Spielen"
   },
   "authchip": {
     "sign_in_up": "Anmelden / Registrieren",
@@ -58,7 +59,8 @@
       "cta_pool": "Pool eröffnen",
       "lede": "Niemand hat es je geschafft, und niemand wird es wegen der astronomischen {odds_link} wahrscheinlich je schaffen. Zweiundzwanzig Weltmeisterschaften, 964 Spiele, und der perfekte Tippschein bleibt ungekrönt. Die 104 Spiele 2026 sind der nächste Versuch. Tournamental führt das globale Register und schreibt jeden Tipp vor jedem Anpfiff in die Blockchain, deine Vorhersagen sind also unveränderlich und jeder Anspruch auf Ruhm wird endlich beweisbar.",
       "lede_link": "Chancen, alle 104 Spiele richtig zu tippen",
-      "read_more": "[mehr lesen]"
+      "read_more": "[mehr lesen]",
+      "lede_2": "Tournamental führt das globale Register und schreibt jeden Tipp vor dem Anpfiff in die Blockchain. So sind deine Vorhersagen unveränderlich und jeder Anspruch auf Ruhm endlich beweisbar."
     },
     "stat": {
       "matches": "Spiele",
@@ -195,7 +197,14 @@
       "button_verifying": "Wird geprüft…"
     },
     "button_join": "Diesem Pool beitreten",
-    "button_joining": "Tritt bei..."
+    "button_joining": "Tritt bei...",
+    "button_leaving": "Verlasse…",
+    "exit": {
+      "title": "{pool_name} verlassen?",
+      "body": "Möchtest du {pool_name} wirklich verlassen? Du kannst jederzeit vor dem Anpfiff wieder beitreten.",
+      "confirm": "Pool verlassen",
+      "cancel": "Abbrechen, im Pool bleiben"
+    }
   },
   "odds": {
     "eyebrow": "Die Mathematik",
@@ -221,7 +230,8 @@
     "section_recent_members": "Neueste Mitglieder",
     "cta_join": "Diesem Pool beitreten",
     "cta_share": "Diesen Pool teilen",
-    "join_footnote": "Kostenlos, ändere deine Tipps bis zum Anpfiff."
+    "join_footnote": "Kostenlos, ändere deine Tipps bis zum Anpfiff.",
+    "cta_exit": "Diesen Pool verlassen"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental ist unabhängig und steht in keiner Verbindung zur FIFA, zur FIFA Fussball-Weltmeisterschaft oder einem ihrer Sponsoren. FIFA World Cup 2026™ ist eine eingetragene Marke der Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Bring dein Turnier",
     "cta_final_body": "Büro, Freunde, Fan-Club, Schule, Shop, Creator-Publikum. Gleiches Toolkit. 60 Sekunden zu einem gebrandeten Pool. Für immer kostenlos.",
     "card_prize_label": "Beispielpreis",
-    "sample_prize_code": "play.tournamental.com/s/deinname"
+    "sample_prize_code": "play.tournamental.com/s/deinname",
+    "cta_view_my_pools": "Meine Pools"
   },
   "bracket": {
     "title": "Tippe alle Spiele der FIFA Weltmeisterschaft 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 Tipps abgegeben. Schliesse dein Tableau ab.",
       "cta": "Tableau speichern",
       "foot_authed": "Speichert dein Tableau auf deinem Profil und macht es geräteübergreifend verfügbar.",
-      "foot_anon": "Wir senden dir einen Einmal-Login (Telegram, WhatsApp oder E-Mail). Deine Tipps wandern automatisch in dein Profil."
+      "foot_anon": "Wir senden dir einen Einmal-Login (Telegram, WhatsApp oder E-Mail). Deine Tipps wandern automatisch in dein Profil.",
+      "change_photo": "Foto ändern"
     },
     "submit": {
       "saved_offline": "Offline gespeichert, wir versuchen es erneut, sobald du wieder online bist."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Flexibel anpassbar während des ganzen Turniers",
       "edit_anytime_lead": "Gib jetzt alle Tipps ab, damit deine Follower sehen können, wie du den Weg deines Teams zum Titel voraussagst.",
       "edit_anytime_detail": "Ändere sie jederzeit, bis zum Anpfiff jedes Spiels - dann wird der Tipp gesperrt. Passe an, wenn sich die Form ändert, Verletzungen auftreten oder jede Phase das Turnier neu mischt. Wir bestrafen dich nicht für frühe Fehltipps wie andere Bracket-Apps!",
-      "progress": "{picked} von {total} Spielen getippt"
+      "progress": "{picked} von {total} Spielen getippt",
+      "progress_label": "Spiele getippt"
     },
     "autopick": {
       "subtitle_consensus": "Aktualisiere leere Tipps mit dem Live-Konsens der Quoten.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Melde dich an, um deine Pools zu sehen.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Du hast dich über den Legacy-E-Mail-Flow angemeldet. Der neue Profil-Editor ist derzeit nur an die WhatsApp / SMS-Anmeldung angebunden. Melde dich ab und melde dich erneut mit WhatsApp an, um ihn zu verwenden.",
-    "supabase_notice_sign_out": "Abmelden"
+    "supabase_notice_sign_out": "Abmelden",
+    "favourite_team_note": "Das kann sich von deinem vorhergesagten Sieger unterscheiden, z. B. deine Nationalmannschaft oder dein Lieblingsteam im Turnier, auch wenn sie vielleicht nicht gewinnen!",
+    "my_pools_role_member": "Mitglied",
+    "my_pools_role_owner": "Inhaber",
+    "my_pools_view": "Pool ansehen",
+    "view_manage_pools": "Pools ansehen/verwalten",
+    "view_pools": "Pools ansehen",
+    "view_public_page": "Meine öffentliche Seite ansehen",
+    "add_phone_btn": "Telefon hinzufügen",
+    "add_phone_title": "Sende 'login' an unseren WhatsApp, um deine Telefonnummer in deinem Profil zu speichern.",
+    "error_display_name_taken": "Diesen Anzeigenamen verwendet bereits jemand. Wähle einen anderen.",
+    "field_email_readonly_title": "Das Ändern der E-Mail-Adresse kommt bald. Wende dich vorerst an den Support, um sie zu aktualisieren.",
+    "placeholder_no_phone": "Noch kein Telefon verknüpft"
   }
 }

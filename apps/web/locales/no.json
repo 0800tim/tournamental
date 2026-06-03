@@ -33,7 +33,8 @@
     "watch": "Se",
     "menu": "Meny",
     "profile": "Profil",
-    "open_menu": "Åpne meny"
+    "open_menu": "Åpne meny",
+    "play": "Spill"
   },
   "authchip": {
     "sign_in_up": "Logg inn / Registrer",
@@ -58,7 +59,8 @@
       "cta_pool": "Start en pool",
       "lede": "Ingen har klart det før, og fordi {odds_link} er astronomiske, kommer trolig ingen til å klare det. Tjueto VM, 964 kamper, og den perfekte kupongen er fortsatt uten eier. De 104 kampene i 2026 er neste forsøk. Tournamental fører den globale hovedboka og skriver hver tipp inn i blokkjeden før avspark i hver kamp, slik at tippene dine ikke kan endres og ethvert krav på heder endelig blir mulig å bevise.",
       "lede_link": "sjansen for å treffe alle 104 kampene",
-      "read_more": "[les mer]"
+      "read_more": "[les mer]",
+      "lede_2": "Tournamental fører det globale registeret og skriver hvert tips inn på blokkjeden før hver kamp starter, så tipsene dine er uforanderlige og enhver påstand om ære endelig er beviselig."
     },
     "stat": {
       "matches": "Kamper",
@@ -195,7 +197,14 @@
       "button_verifying": "Verifiserer…"
     },
     "button_join": "Bli med i denne puljen",
-    "button_joining": "Blir med..."
+    "button_joining": "Blir med...",
+    "button_leaving": "Forlater…",
+    "exit": {
+      "title": "Forlate {pool_name}?",
+      "body": "Er du sikker på at du vil forlate {pool_name}? Du kan bli med igjen når som helst før avspark.",
+      "confirm": "Forlat pool",
+      "cancel": "Avbryt, bli i poolen"
+    }
   },
   "odds": {
     "eyebrow": "Regnestykket",
@@ -221,7 +230,8 @@
     "section_recent_members": "Nye medlemmer",
     "cta_join": "Bli med i denne poolen",
     "cta_share": "Del denne poolen",
-    "join_footnote": "Gratis, endre tipp fram til avspark."
+    "join_footnote": "Gratis, endre tipp fram til avspark.",
+    "cta_exit": "Forlat denne poolen"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental er uavhengig og er ikke tilknyttet, sponset eller godkjent av FIFA, FIFA World Cup eller noen av sponsorene deres. FIFA World Cup 2026™ er et registrert varemerke som tilhører Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Bring din turnering",
     "cta_final_body": "Kontor, venner, vifteklubb, skole, butikk, skaperpublikum. Samme verktøysett. 60 sekunder til en merkevarebetegnet sti. Alltid gratis.",
     "card_prize_label": "Eksempelpris",
-    "sample_prize_code": "play.tournamental.com/s/dittnavnet"
+    "sample_prize_code": "play.tournamental.com/s/dittnavnet",
+    "cta_view_my_pools": "Mine pooler"
   },
   "bracket": {
     "title": "Tipp hver kamp i FIFA Verdensmesterskapet 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tipp lagt inn. Lås cup-treet ditt.",
       "cta": "Lagre cup-treet",
       "foot_authed": "Lagrer cup-treet på profilen din så det følger deg mellom enheter.",
-      "foot_anon": "Vi sender en engangskode (Telegram, WhatsApp eller e-post). Tippene dine kobles automatisk til profilen din."
+      "foot_anon": "Vi sender en engangskode (Telegram, WhatsApp eller e-post). Tippene dine kobles automatisk til profilen din.",
+      "change_photo": "Bytt bilde"
     },
     "submit": {
       "saved_offline": "Lagret offline, vi prøver igjen når du er online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Fleksibel å endre gjennom hele turneringen",
       "edit_anytime_lead": "Legg inn alle kamptips nå, så følgerne dine ser hvordan du spår laget ditt til seier.",
       "edit_anytime_detail": "Endre dem når du vil, helt frem til avspark for hver kamp; da låses tippet. Juster når formen endrer seg, når skader kommer, når hver runde tegner bracketen på nytt. Vi straffer deg ikke for tidlige feiltips slik andre bracket-apper gjør!",
-      "progress": "{picked} av {total} kamper tippet"
+      "progress": "{picked} av {total} kamper tippet",
+      "progress_label": "kamper valgt"
     },
     "autopick": {
       "subtitle_consensus": "Oppdater tomme tipp med live-konsensus fra odds.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Logg inn for å se poolene dine.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Du logget inn via den eldre e-postflyten. Den nye profilredigereren er for øyeblikket bare koblet til WhatsApp / SMS-pålogging. Logg ut og logg inn igjen med WhatsApp for å bruke det.",
-    "supabase_notice_sign_out": "Logg ut"
+    "supabase_notice_sign_out": "Logg ut",
+    "favourite_team_note": "Dette kan være forskjellig fra vinneren du har tippet, f.eks. landslaget ditt eller favorittlaget i turneringen, selv om de kanskje ikke vinner!",
+    "my_pools_role_member": "Medlem",
+    "my_pools_role_owner": "Eier",
+    "my_pools_view": "Vis pool",
+    "view_manage_pools": "Vis/Administrer pooler",
+    "view_pools": "Vis pooler",
+    "view_public_page": "Vis min offentlige side",
+    "add_phone_btn": "Legg til telefon",
+    "add_phone_title": "Send 'login' til vår WhatsApp for å lagre telefonnummeret i profilen din.",
+    "error_display_name_taken": "Noen andre bruker allerede det visningsnavnet. Velg et annet.",
+    "field_email_readonly_title": "Endring av e-post kommer snart. Inntil videre, ta kontakt med support for å oppdatere e-posten.",
+    "placeholder_no_phone": "Ingen telefon koblet til ennå"
   }
 }

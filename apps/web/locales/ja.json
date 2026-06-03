@@ -33,7 +33,8 @@
     "watch": "観る",
     "menu": "メニュー",
     "profile": "プロフィール",
-    "open_menu": "メニューを開く"
+    "open_menu": "メニューを開く",
+    "play": "プレイ"
   },
   "authchip": {
     "sign_in_up": "ログイン / 登録",
@@ -58,7 +59,8 @@
       "cta_pool": "プールを開く",
       "lede": "今まで誰もできていません。{odds_link}が天文学的な数字だから、これからもおそらく誰にもできません。22回のワールドカップ、964試合、完璧なブラケットはずっと誰のものでもありません。2026年の104試合が次の挑戦です。Tournamentalはグローバルな台帳を管理し、すべての予想を試合開始前にブロックチェーンに刻みます。だから予想は改ざんできず、栄光の主張がついに証明可能になります。",
       "lede_link": "104試合全てを当てる確率",
-      "read_more": "[続きを読む]"
+      "read_more": "[続きを読む]",
+      "lede_2": "Tournamentalはグローバル台帳を管理し、各試合のキックオフ前にすべての予想をブロックチェーンに記録します。だからあなたの予想は改ざんできず、栄光の主張がついに証明可能になります。"
     },
     "stat": {
       "matches": "試合",
@@ -195,7 +197,14 @@
       "button_verifying": "確認中…"
     },
     "button_join": "このプールに参加",
-    "button_joining": "参加中..."
+    "button_joining": "参加中...",
+    "button_leaving": "退出中…",
+    "exit": {
+      "title": "{pool_name} を退出しますか？",
+      "body": "{pool_name} を本当に退出しますか？キックオフ前ならいつでも再参加できます。",
+      "confirm": "プールを退出",
+      "cancel": "キャンセル、プールに残る"
+    }
   },
   "odds": {
     "eyebrow": "数学の話",
@@ -221,7 +230,8 @@
     "section_recent_members": "新しいメンバー",
     "cta_join": "このプールに参加",
     "cta_share": "このプールをシェア",
-    "join_footnote": "無料、キックオフまで予想を変更できます。"
+    "join_footnote": "無料、キックオフまで予想を変更できます。",
+    "cta_exit": "このプールを退出"
   },
   "footer": {
     "fifa_disclaimer": "TournamentalはFIFA、FIFAワールドカップ、およびそのスポンサーとは独立した存在であり、提携・後援・承認関係はありません。FIFA World Cup 2026™は国際サッカー連盟（Fédération Internationale de Football Association）の商標です。",
@@ -372,7 +382,8 @@
     "cta_final_title": "あなたのトーナメントを始めましょう",
     "cta_final_body": "オフィス、友人、ファンクラブ、学校、ストア、クリエイター視聴者。同じツールキット。ブランド化されたパスへ60秒。永遠に無料。",
     "card_prize_label": "サンプル賞",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "マイプール"
   },
   "bracket": {
     "title": "FIFA World Cup 2026™の全試合を予想しよう",
@@ -476,7 +487,8 @@
       "complete_headline": "104件すべての予想を入力済み。ブラケットを確定しましょう。",
       "cta": "ブラケットを保存",
       "foot_authed": "ブラケットをプロフィールに保存して、デバイスをまたいで持ち歩けるようにします。",
-      "foot_anon": "ワンタイムサインインコード（Telegram、WhatsApp、またはメール）を送ります。予想は自動的にプロフィールに統合されます。"
+      "foot_anon": "ワンタイムサインインコード（Telegram、WhatsApp、またはメール）を送ります。予想は自動的にプロフィールに統合されます。",
+      "change_photo": "写真を変更"
     },
     "submit": {
       "saved_offline": "オフラインで保存しました。オンラインに戻ったら再試行します。"
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "大会期間中いつでも変更可能",
       "edit_anytime_lead": "まず全試合の予想を入れて、フォロワーがあなたの予想する優勝への道筋を見られるようにしましょう。",
       "edit_anytime_detail": "各試合のキックオフの直前まで、何度でも変更できます。キックオフの瞬間にその予想はロックされます。調子の変化、怪我、各ラウンドのトーナメント再構成に合わせて調整しましょう。他のブラケットアプリのように、早い段階での予想ミスをペナルティにすることはありません!",
-      "progress": "{total}試合中{picked}試合予想済み"
+      "progress": "{total}試合中{picked}試合予想済み",
+      "progress_label": "試合を選択済み"
     },
     "autopick": {
       "subtitle_consensus": "ライブのコンセンサスオッズで未入力の予想を埋めます。",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "ログインしてプールを確認してください。",
     "supabase_notice_title": "プロフィール",
     "supabase_notice_lede": "従来のメールフローでログインしました。新しいプロフィールエディタは現在、WhatsApp/SMSログインのみに対応しています。ログアウトして WhatsApp で再度ログインしてください。",
-    "supabase_notice_sign_out": "ログアウト"
+    "supabase_notice_sign_out": "ログアウト",
+    "favourite_team_note": "これは予想した優勝チームと違っていてもかまいません。たとえばあなたの代表チームや大会のお気に入りのチームでも、優勝しないかもしれません！",
+    "my_pools_role_member": "メンバー",
+    "my_pools_role_owner": "オーナー",
+    "my_pools_view": "プールを見る",
+    "view_manage_pools": "プールを表示／管理",
+    "view_pools": "プールを表示",
+    "view_public_page": "公開ページを見る",
+    "add_phone_btn": "電話番号を追加",
+    "add_phone_title": "電話番号をプロフィールに保存するには、当社のWhatsAppに「login」とメッセージしてください。",
+    "error_display_name_taken": "その表示名はすでに他のユーザーが使用しています。別のものを選んでください。",
+    "field_email_readonly_title": "メール変更は近日対応予定です。今のところ、メールの更新はサポートにお問い合わせください。",
+    "placeholder_no_phone": "電話番号はまだ連携されていません"
   }
 }

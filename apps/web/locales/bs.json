@@ -33,7 +33,8 @@
     "watch": "Gledaj",
     "menu": "Meni",
     "profile": "Profil",
-    "open_menu": "Otvori meni"
+    "open_menu": "Otvori meni",
+    "play": "Igraj"
   },
   "authchip": {
     "sign_in_up": "Prijava / Registracija",
@@ -58,7 +59,8 @@
       "cta_pool": "Otvori pool",
       "lede": "Niko to još nije uspio, a zbog astronomskih {odds_link} vjerovatno nikada neće. Dvadeset dva Svjetska prvenstva, 964 utakmice, savršeni listić i dalje je bez vlasnika. 104 utakmice 2026. sljedeći su pokušaj. Tournamental vodi globalnu knjigu i upisuje svaki tip u blockchain prije početka svake utakmice, pa su tvoja predviđanja nepromjenjiva, a svaki zahtjev za slavom napokon dokaziv.",
       "lede_link": "izgledi da pogodiš svih 104 utakmice",
-      "read_more": "[čitaj više]"
+      "read_more": "[čitaj više]",
+      "lede_2": "Tournamental vodi globalni registar i upisuje svaki tip u blockchain prije početka svake utakmice, pa su tvoja predviđanja nepromjenjiva i svaka pretenzija na slavu konačno dokaziva."
     },
     "stat": {
       "matches": "Utakmice",
@@ -195,7 +197,14 @@
       "button_verifying": "Provjera…"
     },
     "button_join": "Pridruži se ovom pool-u",
-    "button_joining": "Pridružujem se..."
+    "button_joining": "Pridružujem se...",
+    "button_leaving": "Izlazak…",
+    "exit": {
+      "title": "Napustiti {pool_name}?",
+      "body": "Sigurno želiš napustiti {pool_name}? Možeš se ponovo pridružiti bilo kada prije početka.",
+      "confirm": "Napusti pool",
+      "cancel": "Otkaži, ostani u poolu"
+    }
   },
   "odds": {
     "eyebrow": "Matematika",
@@ -221,7 +230,8 @@
     "section_recent_members": "Novi članovi",
     "cta_join": "Pridruži se ovom pool-u",
     "cta_share": "Podijeli ovaj pool",
-    "join_footnote": "Besplatno, mijenjaj tipove do početka utakmice."
+    "join_footnote": "Besplatno, mijenjaj tipove do početka utakmice.",
+    "cta_exit": "Izađi iz ovog poola"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental je nezavisan i nije povezan s FIFA-om, FIFA Svjetskim prvenstvom niti s ijednim njihovim sponzorom, niti od njih dobiva podršku ili odobrenje. FIFA World Cup 2026™ registrovan je žig Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Dovedite svoj turnir",
     "cta_final_body": "Ured, prijatelji, navijački klub, škola, trgovina, publika kreatora. Isti alat. 60 sekundi do brendirane putanje. Zauvijek besplatno.",
     "card_prize_label": "Primjer nagrade",
-    "sample_prize_code": "play.tournamental.com/s/vaseime"
+    "sample_prize_code": "play.tournamental.com/s/vaseime",
+    "cta_view_my_pools": "Moji poolovi"
   },
   "bracket": {
     "title": "Pogodi svaku utakmicu na FIFA Svjetskom prvenstvu 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tipa sačuvana. Zaključaj svoju listicu.",
       "cta": "Sačuvaj moju listicu",
       "foot_authed": "Čuva listicu na tvom profilu pa te prati među uređajima.",
-      "foot_anon": "Šaljemo jednokratni kod za prijavu (Telegram, WhatsApp ili e-mail). Tvoji tipovi se automatski spajaju s profilom."
+      "foot_anon": "Šaljemo jednokratni kod za prijavu (Telegram, WhatsApp ili e-mail). Tvoji tipovi se automatski spajaju s profilom.",
+      "change_photo": "Promijeni fotografiju"
     },
     "submit": {
       "saved_offline": "Sačuvano van mreže, pokušaćemo opet kad se vratiš online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Fleksibilno za promjene tokom cijelog turnira",
       "edit_anytime_lead": "Unesite sve tipove sada, da vaši pratioci vide kako predviđate put vašeg tima do slave.",
       "edit_anytime_detail": "Mijenjajte ih kad god želite, sve do prvog zvižduka svake utakmice; tada se taj tip zaključava. Prilagodite se kako se mijenja forma, kako stižu povrede, kako svaka faza preuređuje grafikon. Ne kažnjavamo vas za rane pogrešne tipove kao druge bracket aplikacije!",
-      "progress": "{picked} od {total} utakmica tipovano"
+      "progress": "{picked} od {total} utakmica tipovano",
+      "progress_label": "odabranih utakmica"
     },
     "autopick": {
       "subtitle_consensus": "Osvježi prazne tipove uz konsenzus kvota uživo.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Prijavi se da vidiš svoje poolove.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Prijavio si se putem starog toka e-maila. Novi uređivač profila je trenutno samo povezan na prijavu putem WhatsApp-a / SMS-a. Odjavi se i ponovno se prijavi s WhatsApp-om da ga koristiš.",
-    "supabase_notice_sign_out": "Odjava"
+    "supabase_notice_sign_out": "Odjava",
+    "favourite_team_note": "Ovo se može razlikovati od tvog predviđenog pobjednika, npr. tvoje reprezentacije ili omiljenog tima u turniru, čak i ako ne osvoje naslov!",
+    "my_pools_role_member": "Član",
+    "my_pools_role_owner": "Vlasnik",
+    "my_pools_view": "Pogledaj pool",
+    "view_manage_pools": "Pregled/Upravljanje poolovima",
+    "view_pools": "Pogledaj poolove",
+    "view_public_page": "Pogledaj moju javnu stranicu",
+    "add_phone_btn": "Dodaj broj",
+    "add_phone_title": "Pošalji 'login' na naš WhatsApp da sačuvaš svoj broj telefona u profilu.",
+    "error_display_name_taken": "Neko drugi već koristi to ime za prikaz. Odaberi drugo.",
+    "field_email_readonly_title": "Promjena e-pošte uskoro dolazi. Zasad kontaktiraj podršku za izmjenu e-pošte.",
+    "placeholder_no_phone": "Nijedan broj još nije povezan"
   }
 }

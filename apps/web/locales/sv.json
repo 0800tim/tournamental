@@ -33,7 +33,8 @@
     "watch": "Titta",
     "menu": "Meny",
     "profile": "Profil",
-    "open_menu": "Öppna menyn"
+    "open_menu": "Öppna menyn",
+    "play": "Spela"
   },
   "authchip": {
     "sign_in_up": "Logga in / Registrera",
@@ -58,7 +59,8 @@
       "cta_pool": "Starta en pool",
       "lede": "Ingen har lyckats förut, och troligen kommer ingen att lyckas eftersom {odds_link} är astronomiska. Tjugotvå VM, 964 matcher, det perfekta tippet är fortfarande hemlöst. De 104 matcherna 2026 är nästa försök. Tournamental för den globala loggboken och skriver in varje tipp i blockkedjan före varje avspark, så att dina tippningar är oföränderliga och alla anspråk på äran äntligen blir bevisbara.",
       "lede_link": "chansen att pricka alla 104 matcher",
-      "read_more": "[läs mer]"
+      "read_more": "[läs mer]",
+      "lede_2": "Tournamental för den globala liggaren och skriver varje tips till blockkedjan innan varje match börjar, så dina förutsägelser är oföränderliga och varje anspråk på ära äntligen bevisbart."
     },
     "stat": {
       "matches": "Matcher",
@@ -195,7 +197,14 @@
       "button_verifying": "Verifierar…"
     },
     "button_join": "Gå med i denna pool",
-    "button_joining": "Går med..."
+    "button_joining": "Går med...",
+    "button_leaving": "Lämnar…",
+    "exit": {
+      "title": "Lämna {pool_name}?",
+      "body": "Är du säker på att du vill lämna {pool_name}? Du kan gå med igen när som helst före avspark.",
+      "confirm": "Lämna pool",
+      "cancel": "Avbryt, stanna i poolen"
+    }
   },
   "odds": {
     "eyebrow": "Matematiken",
@@ -221,7 +230,8 @@
     "section_recent_members": "Nya medlemmar",
     "cta_join": "Gå med i den här poolen",
     "cta_share": "Dela den här poolen",
-    "join_footnote": "Gratis, ändra tipp ända fram till avspark."
+    "join_footnote": "Gratis, ändra tipp ända fram till avspark.",
+    "cta_exit": "Lämna denna pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental är oberoende och inte associerat med, sponsrat av eller godkänt av FIFA, FIFA World Cup eller någon av deras sponsorer. FIFA World Cup 2026™ är ett registrerat varumärke som tillhör Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Hämta din turnering",
     "cta_final_body": "Kontor, vänner, fanklubb, skola, butik, skaparpublik. Samma verktygsuppsättning. 60 sekunder till en märkt väg. Alltid gratis.",
     "card_prize_label": "Exempel pris",
-    "sample_prize_code": "play.tournamental.com/s/dittnamn"
+    "sample_prize_code": "play.tournamental.com/s/dittnamn",
+    "cta_view_my_pools": "Mina pooler"
   },
   "bracket": {
     "title": "Tippa varje match i FIFA World Cup 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tipp lagda. Lås ditt slagschema.",
       "cta": "Spara mitt slagschema",
       "foot_authed": "Sparar slagschemat på din profil så det följer dig mellan enheter.",
-      "foot_anon": "Vi skickar en engångskod (Telegram, WhatsApp eller mejl). Dina tipp läggs in på din profil automatiskt."
+      "foot_anon": "Vi skickar en engångskod (Telegram, WhatsApp eller mejl). Dina tipp läggs in på din profil automatiskt.",
+      "change_photo": "Byt foto"
     },
     "submit": {
       "saved_offline": "Sparat offline, vi försöker igen när du är tillbaka online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Flexibel att ändra under hela turneringen",
       "edit_anytime_lead": "Lägg in alla matchtips nu så att dina följare ser hur du tror att ditt lag tar sig till glansen.",
       "edit_anytime_detail": "Ändra dem när du vill, ända fram till avspark i varje match; då låses tipset. Justera när formen ändras, när skador kommer, när varje omgång gör om bracketen. Vi straffar dig inte för tidiga felaktiga tips som andra bracket-appar gör!",
-      "progress": "{picked} av {total} matcher tippade"
+      "progress": "{picked} av {total} matcher tippade",
+      "progress_label": "matcher valda"
     },
     "autopick": {
       "subtitle_consensus": "Uppdatera tomma tipp med live-konsensus från oddsen.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Logga in för att se dina pooler.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Du loggade in via det äldre e-postflödet. Den nya profilredigeraren är för närvarande endast ansluten till WhatsApp / SMS-inloggning. Logga ut och logga in igen med WhatsApp för att använda det.",
-    "supabase_notice_sign_out": "Logga ut"
+    "supabase_notice_sign_out": "Logga ut",
+    "favourite_team_note": "Detta kan skilja sig från din tippade vinnare, t.ex. ditt landslag eller favoritlag i turneringen, även om de kanske inte vinner!",
+    "my_pools_role_member": "Medlem",
+    "my_pools_role_owner": "Ägare",
+    "my_pools_view": "Visa pool",
+    "view_manage_pools": "Visa/Hantera pooler",
+    "view_pools": "Visa pooler",
+    "view_public_page": "Visa min publika sida",
+    "add_phone_btn": "Lägg till telefon",
+    "add_phone_title": "Skicka 'login' till vår WhatsApp för att spara ditt telefonnummer i din profil.",
+    "error_display_name_taken": "Någon annan använder redan det visningsnamnet. Välj ett annat.",
+    "field_email_readonly_title": "Ändring av e-post är på väg. För tillfället, kontakta supporten för att uppdatera din e-post.",
+    "placeholder_no_phone": "Inget telefonnummer kopplat ännu"
   }
 }

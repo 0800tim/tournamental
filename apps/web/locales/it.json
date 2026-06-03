@@ -33,7 +33,8 @@
     "watch": "Guarda",
     "menu": "Menu",
     "profile": "Profilo",
-    "open_menu": "Apri menu"
+    "open_menu": "Apri menu",
+    "play": "Gioca"
   },
   "authchip": {
     "sign_in_up": "Entra / Registrati",
@@ -58,7 +59,8 @@
       "cta_pool": "Aprire un pool",
       "lede": "Nessuno c'è mai riuscito, e probabilmente nessuno ci riuscirà a causa delle {odds_link} astronomiche. Ventidue Mondiali, 964 partite, e la schedina perfetta resta senza padrone. Le 104 partite del 2026 sono il prossimo tentativo. Tournamental tiene il registro globale e iscrive ogni pronostico nella blockchain prima di ogni fischio d'inizio, le tue previsioni quindi sono immutabili e qualsiasi pretesa di gloria diventa finalmente dimostrabile.",
       "lede_link": "probabilità di indovinare tutte le 104 partite",
-      "read_more": "[continua]"
+      "read_more": "[continua]",
+      "lede_2": "Tournamental tiene il registro globale e annota ogni pronostico sulla blockchain prima del fischio d'inizio di ogni partita: le tue previsioni sono immutabili e ogni rivendicazione di gloria è finalmente dimostrabile."
     },
     "stat": {
       "matches": "Partite",
@@ -195,7 +197,14 @@
       "button_verifying": "Verifica in corso…"
     },
     "button_join": "Unisciti a questo pool",
-    "button_joining": "In corso..."
+    "button_joining": "In corso...",
+    "button_leaving": "Uscita in corso…",
+    "exit": {
+      "title": "Uscire da {pool_name}?",
+      "body": "Sicuro di voler uscire da {pool_name}? Puoi rientrare in qualsiasi momento prima del fischio d'inizio.",
+      "confirm": "Esci dal pool",
+      "cancel": "Annulla, resta nel pool"
+    }
   },
   "odds": {
     "eyebrow": "La matematica",
@@ -221,7 +230,8 @@
     "section_recent_members": "Membri recenti",
     "cta_join": "Unisciti a questo pool",
     "cta_share": "Condividi questo pool",
-    "join_footnote": "Gratis, cambia i pronostici fino al fischio d'inizio."
+    "join_footnote": "Gratis, cambia i pronostici fino al fischio d'inizio.",
+    "cta_exit": "Esci da questo pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental è indipendente e non è affiliata, sponsorizzata o approvata dalla FIFA, dalla Coppa del Mondo FIFA o da nessuno dei suoi sponsor. FIFA World Cup 2026™ è marchio registrato della Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Porta il tuo torneo",
     "cta_final_body": "Ufficio, amici, fan club, scuola, negozio, pubblico creator. Stesso toolkit. 60 secondi per un pool brandizzato. Sempre gratuito.",
     "card_prize_label": "Premio di esempio",
-    "sample_prize_code": "play.tournamental.com/s/iltuonome"
+    "sample_prize_code": "play.tournamental.com/s/iltuonome",
+    "cta_view_my_pools": "I miei pool"
   },
   "bracket": {
     "title": "Pronostica ogni partita della Coppa del Mondo FIFA 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 pronostici fatti. Blocca il tuo tabellone.",
       "cta": "Salva il mio tabellone",
       "foot_authed": "Salva il tabellone sul tuo profilo per averlo su tutti i tuoi dispositivi.",
-      "foot_anon": "Ti mandiamo un codice di accesso unico (Telegram, WhatsApp o email). I tuoi pronostici finiscono nel profilo in automatico."
+      "foot_anon": "Ti mandiamo un codice di accesso unico (Telegram, WhatsApp o email). I tuoi pronostici finiscono nel profilo in automatico.",
+      "change_photo": "Cambia foto"
     },
     "submit": {
       "saved_offline": "Salvato offline, riproviamo quando torni online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Flessibile da modificare per tutto il torneo",
       "edit_anytime_lead": "Inserisci subito tutti i pronostici, così i tuoi follower possono vedere come prevedi il cammino della tua squadra fino alla gloria.",
       "edit_anytime_detail": "Cambiali quando vuoi, fino al fischio d'inizio di ogni partita; in quel momento il pronostico si blocca. Aggiusta quando cambia la forma, quando arrivano gli infortuni, quando ogni turno ridisegna il tabellone. Non ti puniamo per i pronostici sbagliati anticipati come fanno altre app!",
-      "progress": "{picked} su {total} partite pronosticate"
+      "progress": "{picked} su {total} partite pronosticate",
+      "progress_label": "partite selezionate"
     },
     "autopick": {
       "subtitle_consensus": "Aggiorna i pronostici vuoti con il consenso di quote in diretta.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Accedi per vedere i tuoi pool.",
     "supabase_notice_title": "Profilo",
     "supabase_notice_lede": "Hai effettuato l'accesso tramite il flusso email legacy. Il nuovo editor di profilo è collegato solo all'accesso WhatsApp / SMS per ora. Esci e accedi di nuovo con WhatsApp per usarlo.",
-    "supabase_notice_sign_out": "Esci"
+    "supabase_notice_sign_out": "Esci",
+    "favourite_team_note": "Può differire dal vincitore che hai pronosticato, ad esempio la tua nazionale o la tua squadra preferita del torneo, anche se magari non vinceranno!",
+    "my_pools_role_member": "Membro",
+    "my_pools_role_owner": "Proprietario",
+    "my_pools_view": "Vedi pool",
+    "view_manage_pools": "Vedi/Gestisci pool",
+    "view_pools": "Vedi pool",
+    "view_public_page": "Vedi la mia pagina pubblica",
+    "add_phone_btn": "Aggiungi telefono",
+    "add_phone_title": "Invia 'login' al nostro WhatsApp per salvare il tuo numero di telefono sul profilo.",
+    "error_display_name_taken": "Quel nome visualizzato è già usato da qualcun altro. Scegline un altro.",
+    "field_email_readonly_title": "La modifica dell'email arriva presto. Per ora, contatta il supporto per aggiornare il tuo indirizzo.",
+    "placeholder_no_phone": "Nessun telefono collegato"
   }
 }

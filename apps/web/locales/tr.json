@@ -33,7 +33,8 @@
     "watch": "İzle",
     "menu": "Menü",
     "profile": "Profil",
-    "open_menu": "Menüyü aç"
+    "open_menu": "Menüyü aç",
+    "play": "Oyna"
   },
   "authchip": {
     "sign_in_up": "Giriş yap / Kaydol",
@@ -58,7 +59,8 @@
       "cta_pool": "Havuz aç",
       "lede": "Şimdiye kadar kimse başaramadı ve {odds_link} astronomik olduğu için muhtemelen kimse de başaramayacak. Yirmi iki Dünya Kupası, 964 maç, ve kusursuz fişin sahibi hâlâ yok. 2026'nın 104 maçı bir sonraki deneme. Tournamental küresel kayıt defterini tutuyor ve her tahmini ilk düdükten önce blockchain'e işliyor, böylece tahminlerin değiştirilemez kalıyor ve şana dair her iddia nihayet ispatlanabilir hale geliyor.",
       "lede_link": "104 maçın tamamını tutturma ihtimali",
-      "read_more": "[devamını oku]"
+      "read_more": "[devamını oku]",
+      "lede_2": "Tournamental küresel kayıt defterini tutar ve her maçın başlama düdüğünden önce her tahmini blockchain'e işler, böylece tahminleriniz değiştirilemez ve şana her hak iddiası nihayet kanıtlanabilir olur."
     },
     "stat": {
       "matches": "Maç",
@@ -195,7 +197,14 @@
       "button_verifying": "Doğrulanıyor…"
     },
     "button_join": "Bu havuza katılın",
-    "button_joining": "Katılıyor..."
+    "button_joining": "Katılıyor...",
+    "button_leaving": "Çıkılıyor…",
+    "exit": {
+      "title": "{pool_name} havuzundan çıkılsın mı?",
+      "body": "{pool_name} havuzundan çıkmak istediğine emin misin? Başlama düdüğüne kadar istediğin zaman tekrar katılabilirsin.",
+      "confirm": "Havuzdan çık",
+      "cancel": "İptal, havuzda kal"
+    }
   },
   "odds": {
     "eyebrow": "Matematik",
@@ -221,7 +230,8 @@
     "section_recent_members": "Yeni üyeler",
     "cta_join": "Bu havuza katıl",
     "cta_share": "Bu havuzu paylaş",
-    "join_footnote": "Ücretsiz, ilk düdüğe kadar tahminleri değiştirebilirsin."
+    "join_footnote": "Ücretsiz, ilk düdüğe kadar tahminleri değiştirebilirsin.",
+    "cta_exit": "Bu havuzdan çık"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental bağımsızdır; FIFA, FIFA Dünya Kupası veya onların sponsorlarıyla ortaklığı, sponsorluğu ya da onayı yoktur. FIFA World Cup 2026™, Fédération Internationale de Football Association'ın tescilli markasıdır.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Turnuvanızı getirin",
     "cta_final_body": "Ofis, arkadaşlar, hayran kulübü, okul, mağaza, yaratıcı izleyici. Aynı araç seti. Markalı bir yola 60 saniye. Sonsuza kadar ücretsiz.",
     "card_prize_label": "Örnek ödül",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "Havuzlarım"
   },
   "bracket": {
     "title": "FIFA Dünya Kupası 2026™ maçlarını tahmin et",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tahmin tamam. Fişini kilitle.",
       "cta": "Fişimi kaydet",
       "foot_authed": "Fişini profiline kaydeder, cihazların arasında seninle gelir.",
-      "foot_anon": "Tek kullanımlık giriş kodu gönderiyoruz (Telegram, WhatsApp veya e-posta). Tahminlerin otomatik olarak profiline aktarılır."
+      "foot_anon": "Tek kullanımlık giriş kodu gönderiyoruz (Telegram, WhatsApp veya e-posta). Tahminlerin otomatik olarak profiline aktarılır.",
+      "change_photo": "Fotoğrafı değiştir"
     },
     "submit": {
       "saved_offline": "Çevrimdışı kaydedildi, çevrimiçi olduğunda yeniden deneyeceğiz."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Turnuva boyunca esnek bir şekilde değiştirilebilir",
       "edit_anytime_lead": "Tüm tahminleri şimdi gir, böylece takipçilerin takımının zafere giden yolunu nasıl öngördüğünü görsün.",
       "edit_anytime_detail": "İstediğin zaman değiştir, her maçın başlama düdüğüne kadar; o anda o tahmin kilitlenir. Form değişince, sakatlıklar gelince, her tur grafiği yeniden çizince ayarla. Diğer bracket uygulamaları gibi erken hatalı tahminler için seni cezalandırmıyoruz!",
-      "progress": "{total} maçtan {picked} tanesi tahmin edildi"
+      "progress": "{total} maçtan {picked} tanesi tahmin edildi",
+      "progress_label": "maç seçildi"
     },
     "autopick": {
       "subtitle_consensus": "Canlı uzlaşı oranlarıyla boş tahminleri yenile.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Havuzlarını görmek için giriş yap.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Eski e-posta akışı üzerinden giriş yaptın. Yeni profil editörü şu anda sadece WhatsApp / SMS girişine bağlı. Kullanmak için çıkış yap ve WhatsApp ile yeniden giriş yap.",
-    "supabase_notice_sign_out": "Çıkış yap"
+    "supabase_notice_sign_out": "Çıkış yap",
+    "favourite_team_note": "Bu, tahmin ettiğin şampiyondan farklı olabilir; örneğin millî takımın ya da turnuvadaki favori takımın, kazanmasalar bile!",
+    "my_pools_role_member": "Üye",
+    "my_pools_role_owner": "Sahip",
+    "my_pools_view": "Havuzu görüntüle",
+    "view_manage_pools": "Havuzları görüntüle/yönet",
+    "view_pools": "Havuzları görüntüle",
+    "view_public_page": "Herkese açık sayfamı görüntüle",
+    "add_phone_btn": "Telefon ekle",
+    "add_phone_title": "Telefon numaranı profiline kaydetmek için WhatsApp'ımıza 'login' yaz.",
+    "error_display_name_taken": "Bu görünen adı başka biri zaten kullanıyor. Farklı bir tane seç.",
+    "field_email_readonly_title": "E-posta değişikliği yakında geliyor. Şimdilik e-postanı güncellemek için destek ile iletişime geç.",
+    "placeholder_no_phone": "Henüz bağlı telefon yok"
   }
 }

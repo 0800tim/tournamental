@@ -33,7 +33,8 @@
     "watch": "Mātakitaki",
     "menu": "Tahua",
     "profile": "Kōtaha",
-    "open_menu": "Whakatuwhera te tahua"
+    "open_menu": "Whakatuwhera te tahua",
+    "play": "Tākaro"
   },
   "authchip": {
     "sign_in_up": "Takiuru / Rēhita",
@@ -58,7 +59,8 @@
       "cta_pool": "Whakatūria he puna",
       "lede": "Kāhore tētahi i tutuki, ā, nā te nui rawa o ngā {odds_link}, kāhore pea e tutuki ake. E rua tekau mā rua ngā Ipu o te Ao FIFA, 964 ngā kēmu, kāhore anō kia kitea he pukapuka tino tika. Ko ngā kēmu 104 o 2026 te whakamātau hou. Ka pupuri a Tournamental i te pukapuka taupū o te ao, ka tuhia ia matapae ki te poraka mua i te whakaaranga o ia kēmu, nō reira kāhore e taea te whakarerekē, ā, ka taea anō te whakamana i te kōrero kororia.",
       "lede_link": "ngā āheinga ki te tika i ngā kēmu 104 katoa",
-      "read_more": "[pānuihia atu]"
+      "read_more": "[pānuihia atu]",
+      "lede_2": "Ka pupuri a Tournamental i te rēhita o te ao, ā, ka tāuru i ia matapae ki te paorohia i mua i te tīmatanga o ia whakataetae, nō reira e kore e taea te whakarerekē ō matapae me ka taea te whakapūmau i te kerēme korōria."
     },
     "stat": {
       "matches": "Kēmu",
@@ -195,7 +197,14 @@
       "button_verifying": "E whakaū ana..."
     },
     "button_join": "Haere mai ki tēnei rōpū",
-    "button_joining": "E haere mai ana..."
+    "button_joining": "E haere mai ana...",
+    "button_leaving": "E wehe ana…",
+    "exit": {
+      "title": "Wehe atu i {pool_name}?",
+      "body": "Kei te tino pīrangi koe ki te wehe i {pool_name}? Ka taea te hono anō i ngā wā katoa i mua i te tīmatanga.",
+      "confirm": "Wehe i te puna",
+      "cancel": "Whakakore, kia noho ki te puna"
+    }
   },
   "odds": {
     "eyebrow": "Te pāngarau",
@@ -221,7 +230,8 @@
     "section_recent_members": "Ngā mema hou",
     "cta_join": "Hono atu ki tēnei puna",
     "cta_share": "Tohaina tēnei puna",
-    "join_footnote": "Utu kore, taea te whakarerekē i ngā matapae tae noa ki te whakaaranga."
+    "join_footnote": "Utu kore, taea te whakarerekē i ngā matapae tae noa ki te whakaaranga.",
+    "cta_exit": "Wehe i tēnei puna"
   },
   "footer": {
     "fifa_disclaimer": "He motuhake a Tournamental, kāhore e hono ana, kāhore e tautokona ana, kāhore e whakaaetia ana e FIFA, e te Ipu o te Ao FIFA, e tētahi o ō rātou kaitautoko hoki. He tohu hokohoko rēhita a FIFA World Cup 2026™ nō te Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Kamatua i ō whakataetae",
     "cta_final_body": "Te mahi, ngā hoa, te kāinga kaitiaki, te kura, te toa, te iwi kaituhi kaupapa. Ko te kete taputapu ōrite. 60 hēkona ki te ara whākaaro. Kore nei tonutanga.",
     "card_prize_label": "Te tohu tauira",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "Ōku puna"
   },
   "bracket": {
     "title": "Matapaehia ia kēmu o te Ipu o te Ao FIFA 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 ngā matapae kua oti. Rakatia tō tūtohi.",
       "cta": "Tiaki taku tūtohi",
       "foot_authed": "Ka tiaki i tō tūtohi ki tō kōtaha kia haere tahi tonu me koe i ngā pūrere katoa.",
-      "foot_anon": "Ka tukuna he waehere takiuru kotahi (Telegram, WhatsApp, īmēra rānei). Ka hono aunoa ō matapae ki tō kōtaha."
+      "foot_anon": "Ka tukuna he waehere takiuru kotahi (Telegram, WhatsApp, īmēra rānei). Ka hono aunoa ō matapae ki tō kōtaha.",
+      "change_photo": "Whakarerekē whakaahua"
     },
     "submit": {
       "saved_offline": "Kua tiakina i te wā kāhore he hononga, ka whakamātauhia anō ina hoki mai koe."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Ngāwari ki te whakarerekē i te wā o te whakataetae",
       "edit_anytime_lead": "Whakaurua katoa ngā matakitaki ināianei, kia kite ai ō kaiwhai i tō tirohanga mō te ara o tō kapa ki te toa.",
       "edit_anytime_detail": "Whakarerekē ai ahakoa āwhea, tae noa ki te whana tuatahi o ia tākaro; i taua wā ka kati tērā matakitaki. Whakatika ai i te rerekētanga o te āhua, i te urutanga mai o ngā whara, i te wā ka huri ngā wāhanga ki te tuhi anō i te whakaaturanga. Kāore mātou e whiu i a koe mō ngā matakitaki hē moata pēnei i ētahi atu pūmanawa bracket!",
-      "progress": "{picked} o ngā {total} kēmu kua matapaetia"
+      "progress": "{picked} o ngā {total} kēmu kua matapaetia",
+      "progress_label": "ngā whakataetae kua kōwhiria"
     },
     "autopick": {
       "subtitle_consensus": "Whakahōuhia ngā matapae kāore anō kia tukuna ki ngā tūponotanga tūturu kua whakaaetia.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Whakauru kia kite ai i āu puna.",
     "supabase_notice_title": "Kōtaha",
     "supabase_notice_lede": "I whakauru koe mā te rerenga īmēra tawhito. Ko te kaiwhakarika kōtaha hou e hono ana ki te whakauru WhatsApp / SMS i tēnei wā. Whakaputu kia whakauru anō i roto i a WhatsApp.",
-    "supabase_notice_sign_out": "Whakaputu"
+    "supabase_notice_sign_out": "Whakaputu",
+    "favourite_team_note": "Ka taea tēnei te rerekē mai i tō toa i matapaehia, hei tauira, tō kapa motu, tō kapa tino pai rānei o te whakataetae, ahakoa kāore pea rātou e toa!",
+    "my_pools_role_member": "Mema",
+    "my_pools_role_owner": "Rangatira",
+    "my_pools_view": "Tirohia te puna",
+    "view_manage_pools": "Tirohia/Whakahaeretia ngā puna",
+    "view_pools": "Tirohia ngā puna",
+    "view_public_page": "Tirohia tōku whārangi tūmatanui",
+    "add_phone_btn": "Tāpiri waea",
+    "add_phone_title": "Tukuna te 'login' ki tā mātou WhatsApp hei pupuri i tō nama waea ki tō kōtaha.",
+    "error_display_name_taken": "Kua whakamahia kē e tētahi atu taua ingoa whakaatu. Kōwhiria tētahi atu.",
+    "field_email_readonly_title": "Ka tae mai te whakarerekē īmēra ākuanei. Mō tēnei wā, whakapā atu ki te tautoko hei whakahōu i tō īmēra.",
+    "placeholder_no_phone": "Kāore anō tētahi waea kia honoa"
   }
 }

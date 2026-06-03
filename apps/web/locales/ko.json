@@ -33,7 +33,8 @@
     "watch": "보기",
     "menu": "메뉴",
     "profile": "프로필",
-    "open_menu": "메뉴 열기"
+    "open_menu": "메뉴 열기",
+    "play": "플레이"
   },
   "authchip": {
     "sign_in_up": "로그인 / 가입",
@@ -58,7 +59,8 @@
       "cta_pool": "풀 열기",
       "lede": "지금까지 누구도 해낸 적이 없고, 천문학적인 {odds_link} 때문에 앞으로도 아마 아무도 해내지 못할 겁니다. 스물두 번의 월드컵, 964경기, 완벽한 브래킷의 주인은 여전히 없습니다. 2026년의 104경기가 다음 도전입니다. Tournamental은 전 세계 장부를 보관하고, 모든 예측을 경기 시작 전에 블록체인에 기록합니다. 그래서 여러분의 예측은 변경할 수 없고, 영광의 주장이 마침내 증명 가능해집니다.",
       "lede_link": "104경기를 모두 맞힐 확률",
-      "read_more": "[더 읽기]"
+      "read_more": "[더 읽기]",
+      "lede_2": "Tournamental은 글로벌 원장을 관리하며 매 경기 킥오프 전에 모든 예측을 블록체인에 기록합니다. 그래서 당신의 예측은 변경 불가능하며 영광에 대한 주장이 마침내 증명 가능합니다."
     },
     "stat": {
       "matches": "경기",
@@ -195,7 +197,14 @@
       "button_verifying": "확인 중…"
     },
     "button_join": "이 풀에 참여",
-    "button_joining": "참여 중..."
+    "button_joining": "참여 중...",
+    "button_leaving": "나가는 중…",
+    "exit": {
+      "title": "{pool_name}에서 나가시겠습니까?",
+      "body": "정말 {pool_name}에서 나가시겠습니까? 킥오프 전이라면 언제든 다시 참여할 수 있습니다.",
+      "confirm": "풀 나가기",
+      "cancel": "취소, 풀에 남기"
+    }
   },
   "odds": {
     "eyebrow": "수학",
@@ -221,7 +230,8 @@
     "section_recent_members": "최근 멤버",
     "cta_join": "이 풀에 참여하기",
     "cta_share": "이 풀 공유하기",
-    "join_footnote": "무료, 킥오프 전까지 예측을 변경할 수 있습니다."
+    "join_footnote": "무료, 킥오프 전까지 예측을 변경할 수 있습니다.",
+    "cta_exit": "이 풀 나가기"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental은 FIFA, FIFA 월드컵, 그리고 그 스폰서들과 독립된 서비스이며, 제휴·후원·승인 관계가 없습니다. FIFA World Cup 2026™은 Fédération Internationale de Football Association의 상표입니다.",
@@ -372,7 +382,8 @@
     "cta_final_title": "토너먼트를 가져오세요",
     "cta_final_body": "사무실, 친구, 팬 클럽, 학교, 상점, 크리에이터 청중. 동일한 도구 세트. 브랜드 경로까지 60초. 영원히 무료.",
     "card_prize_label": "샘플 상품",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "내 풀"
   },
   "bracket": {
     "title": "FIFA 월드컵 2026™ 전 경기를 예측하세요",
@@ -476,7 +487,8 @@
       "complete_headline": "104개 예측 완료. 브래킷을 잠그세요.",
       "cta": "내 브래킷 저장",
       "foot_authed": "브래킷을 프로필에 저장해 기기 간에 따라다니게 합니다.",
-      "foot_anon": "일회용 로그인 코드(Telegram, WhatsApp, 이메일)를 보내드립니다. 예측은 자동으로 프로필에 통합돼요."
+      "foot_anon": "일회용 로그인 코드(Telegram, WhatsApp, 이메일)를 보내드립니다. 예측은 자동으로 프로필에 통합돼요.",
+      "change_photo": "사진 변경"
     },
     "submit": {
       "saved_offline": "오프라인으로 저장되었습니다. 다시 온라인 상태가 되면 재시도해요."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "토너먼트 내내 자유롭게 변경 가능",
       "edit_anytime_lead": "지금 모든 경기 예측을 입력해서 팔로워들이 당신이 응원하는 팀의 우승 경로를 어떻게 예측하는지 볼 수 있게 하세요.",
       "edit_anytime_detail": "각 경기 킥오프 직전까지 언제든 변경할 수 있고, 킥오프 순간 해당 예측이 잠깁니다. 컨디션 변화, 부상 발생, 각 라운드별 대진표 재편성에 맞춰 조정하세요. 다른 브라켓 앱들처럼 이른 시점의 잘못된 픽에 대해 페널티를 주지 않습니다!",
-      "progress": "{total}경기 중 {picked}경기 예측 완료"
+      "progress": "{total}경기 중 {picked}경기 예측 완료",
+      "progress_label": "경기 선택됨"
     },
     "autopick": {
       "subtitle_consensus": "라이브 컨센서스 배당률로 비어 있는 예측을 채우세요.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "로그인하여 풀을 확인하세요.",
     "supabase_notice_title": "프로필",
     "supabase_notice_lede": "기존 이메일 흐름을 통해 로그인했습니다. 새 프로필 편집기는 현재 WhatsApp / SMS 로그인에만 연결되어 있습니다. 로그아웃하고 WhatsApp으로 다시 로그인하여 사용하세요.",
-    "supabase_notice_sign_out": "로그아웃"
+    "supabase_notice_sign_out": "로그아웃",
+    "favourite_team_note": "이것은 당신이 예측한 우승팀과 다를 수 있습니다. 예를 들어 본인의 국가대표팀이나 대회에서 좋아하는 팀일 수 있고, 우승하지 못해도 괜찮습니다!",
+    "my_pools_role_member": "회원",
+    "my_pools_role_owner": "소유자",
+    "my_pools_view": "풀 보기",
+    "view_manage_pools": "풀 보기/관리",
+    "view_pools": "풀 보기",
+    "view_public_page": "내 공개 페이지 보기",
+    "add_phone_btn": "전화번호 추가",
+    "add_phone_title": "프로필에 전화번호를 저장하려면 저희 WhatsApp으로 'login'을 보내주세요.",
+    "error_display_name_taken": "다른 사람이 이미 그 표시 이름을 사용 중입니다. 다른 이름을 선택해 주세요.",
+    "field_email_readonly_title": "이메일 변경 기능은 곧 제공됩니다. 지금은 이메일 변경을 위해 지원팀에 문의해 주세요.",
+    "placeholder_no_phone": "아직 연결된 전화번호가 없습니다"
   }
 }

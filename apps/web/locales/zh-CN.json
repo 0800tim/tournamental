@@ -33,7 +33,8 @@
     "watch": "观看",
     "menu": "菜单",
     "profile": "个人资料",
-    "open_menu": "打开菜单"
+    "open_menu": "打开菜单",
+    "play": "开玩"
   },
   "authchip": {
     "sign_in_up": "登录 / 注册",
@@ -58,7 +59,8 @@
       "cta_pool": "开一个竞猜池",
       "lede": "从来没有人做到过，而且因为{odds_link}是天文数字，大概率以后也不会有人做到。22 届世界杯，964 场比赛，完美预测至今无人认领。2026 年的 104 场比赛是下一次尝试。Tournamental 维护全球账本，并在每场比赛开赛前把每条预测写入区块链，因此你的预测无法被篡改，任何对荣耀的主张终于可以被证明。",
       "lede_link": "全中 104 场比赛的概率",
-      "read_more": "[阅读更多]"
+      "read_more": "[阅读更多]",
+      "lede_2": "Tournamental 维护全球账本，并在每场比赛开球前将每个预测写入区块链，因此你的预测不可更改，任何对荣耀的宣称终于可以被证明。"
     },
     "stat": {
       "matches": "场比赛",
@@ -195,7 +197,14 @@
       "button_verifying": "验证中…"
     },
     "button_join": "加入此联赛",
-    "button_joining": "正在加入..."
+    "button_joining": "正在加入...",
+    "button_leaving": "正在退出…",
+    "exit": {
+      "title": "要离开 {pool_name} 吗？",
+      "body": "确定要离开 {pool_name} 吗？开赛前你可以随时重新加入。",
+      "confirm": "退出竞猜池",
+      "cancel": "取消，留在竞猜池中"
+    }
   },
   "odds": {
     "eyebrow": "数学",
@@ -221,7 +230,8 @@
     "section_recent_members": "最新成员",
     "cta_join": "加入此竞猜池",
     "cta_share": "分享此竞猜池",
-    "join_footnote": "免费，开球前可以随时修改预测。"
+    "join_footnote": "免费，开球前可以随时修改预测。",
+    "cta_exit": "退出此竞猜池"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental 是独立平台，与国际足联（FIFA）、FIFA 世界杯及其任何赞助商均无关联、未受其支持或认可。FIFA World Cup 2026™ 是国际足联（Fédération Internationale de Football Association）的注册商标。",
@@ -372,7 +382,8 @@
     "cta_final_title": "开启你的竞猜",
     "cta_final_body": "办公室、朋友、粉丝俱乐部、学校、商店、创作者观众。相同的工具包。60 秒到品牌路径。永远免费。",
     "card_prize_label": "样品奖",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "我的竞猜池"
   },
   "bracket": {
     "title": "预测 FIFA 世界杯 2026™ 每一场比赛",
@@ -476,7 +487,8 @@
       "complete_headline": "104 个预测全部完成。锁定你的赛程表。",
       "cta": "保存我的赛程表",
       "foot_authed": "把赛程表保存到你的账户，方便跨设备使用。",
-      "foot_anon": "我们发送一次性登录代码（Telegram、WhatsApp 或邮箱）。你的预测会自动合并到你的账户。"
+      "foot_anon": "我们发送一次性登录代码（Telegram、WhatsApp 或邮箱）。你的预测会自动合并到你的账户。",
+      "change_photo": "更换照片"
     },
     "submit": {
       "saved_offline": "已离线保存，回到线上后会重试。"
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "整个赛事期间灵活更改",
       "edit_anytime_lead": "现在就输入所有比赛的预测，让你的关注者看到你预测自己球队通往荣耀的路线。",
       "edit_anytime_detail": "随时都可以更改，一直到每场比赛开球的那一刻——开球瞬间那场比赛的预测就被锁定。根据球队状态、伤病情况、每一轮淘汰赛重新洗牌的对阵调整。我们不会像其他对阵图应用那样惩罚你早期的错误选择!",
-      "progress": "已预测 {total} 场中的 {picked} 场"
+      "progress": "已预测 {total} 场中的 {picked} 场",
+      "progress_label": "已选比赛"
     },
     "autopick": {
       "subtitle_consensus": "用实时共识赔率刷新空白预测。",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "登录以查看你的竞猜池。",
     "supabase_notice_title": "资料",
     "supabase_notice_lede": "你通过旧版电子邮件流程登录。新的资料编辑器目前只连接到 WhatsApp / SMS 登录。退出登录并使用 WhatsApp 重新登录来使用它。",
-    "supabase_notice_sign_out": "登出"
+    "supabase_notice_sign_out": "登出",
+    "favourite_team_note": "这可以和你预测的冠军不同，比如你的国家队或你在本届赛事中最喜欢的球队，即使他们最终可能不会夺冠！",
+    "my_pools_role_member": "成员",
+    "my_pools_role_owner": "拥有者",
+    "my_pools_view": "查看竞猜池",
+    "view_manage_pools": "查看/管理竞猜池",
+    "view_pools": "查看竞猜池",
+    "view_public_page": "查看我的公开页面",
+    "add_phone_btn": "添加手机号",
+    "add_phone_title": "向我们的 WhatsApp 发送 'login' 即可将手机号保存到你的个人资料。",
+    "error_display_name_taken": "该显示名已被他人使用。请换一个。",
+    "field_email_readonly_title": "邮箱修改功能即将上线。目前请联系客服来更新你的邮箱。",
+    "placeholder_no_phone": "尚未绑定手机号"
   }
 }

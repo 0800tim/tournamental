@@ -196,6 +196,13 @@
       "fallback_sent": "Email code sent. Use the input above to enter it, then tap Verify email code.",
       "email_sent": "Code sent to {email}. Check your inbox (and spam).",
       "button_verifying": "Verifying…"
+    },
+    "button_leaving": "Leaving…",
+    "exit": {
+      "title": "Leave {pool_name}?",
+      "body": "Are you sure you want to leave {pool_name}? You can rejoin any time before kickoff.",
+      "confirm": "Leave pool",
+      "cancel": "Cancel, stay in the pool"
     }
   },
   "odds": {
@@ -222,7 +229,8 @@
     "section_recent_members": "Recent members",
     "cta_join": "Join this pool",
     "cta_share": "Share this pool",
-    "join_footnote": "Free to play, change picks until kickoff."
+    "join_footnote": "Free to play, change picks until kickoff.",
+    "cta_exit": "Exit this pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association.",
@@ -373,7 +381,8 @@
     "cta_final_title": "Bring your tournament",
     "cta_final_body": "Office, friends, fan club, school, store, creator audience. Same toolkit. 60 seconds to a branded path. Free forever.",
     "card_prize_label": "Sample prize",
-    "sample_prize_code": "play.tournamental.com/s/yourname"
+    "sample_prize_code": "play.tournamental.com/s/yourname",
+    "cta_view_my_pools": "My Pools"
   },
   "share_landing": {
     "user": {
@@ -650,6 +659,11 @@
     "error_sign_in_to_pools": "Sign in to see your pools.",
     "supabase_notice_title": "Profile",
     "supabase_notice_lede": "You signed in through the legacy email flow. The new profile editor is only wired into the WhatsApp / SMS sign-in for now. Sign out and sign back in with WhatsApp to use it.",
-    "supabase_notice_sign_out": "Sign out"
+    "supabase_notice_sign_out": "Sign out",
+    "add_phone_btn": "Add phone",
+    "add_phone_title": "Message 'login' to our WhatsApp to save your phone number to your profile.",
+    "error_display_name_taken": "Someone else already uses that display name. Pick a different one.",
+    "field_email_readonly_title": "Email changes are coming soon. For now, contact support to update your email.",
+    "placeholder_no_phone": "No phone linked yet"
   }
 }

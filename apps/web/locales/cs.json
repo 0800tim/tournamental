@@ -33,7 +33,8 @@
     "watch": "Sledovat",
     "menu": "Menu",
     "profile": "Profil",
-    "open_menu": "Otevřít menu"
+    "open_menu": "Otevřít menu",
+    "play": "Hraj"
   },
   "authchip": {
     "sign_in_up": "Přihlásit / Registrovat",
@@ -58,7 +59,8 @@
       "cta_pool": "Otevřít pool",
       "lede": "Nikomu se to ještě nepovedlo a kvůli astronomickým {odds_link} se to pravděpodobně nikdy nepovede. Dvacet dva mistrovství světa, 964 zápasů, perfektní tiket stále bez majitele. 104 zápasů v roce 2026 je další pokus. Tournamental vede globální knihu a zapisuje každý tip do blockchainu před výkopem každého zápasu, takže tvé tipy jsou nezměnitelné a jakýkoli nárok na slávu konečně doložitelný.",
       "lede_link": "šance trefit všech 104 zápasů",
-      "read_more": "[číst dál]"
+      "read_more": "[číst dál]",
+      "lede_2": "Tournamental vede globální registr a každý tip zapisuje do blockchainu před začátkem každého zápasu, takže tvé předpovědi jsou neměnné a nárok na slávu je konečně prokazatelný."
     },
     "stat": {
       "matches": "Zápasy",
@@ -195,7 +197,14 @@
       "button_verifying": "Ověřuji…"
     },
     "button_join": "Připojte se k této skupině",
-    "button_joining": "Připojuji se..."
+    "button_joining": "Připojuji se...",
+    "button_leaving": "Odcházím…",
+    "exit": {
+      "title": "Opustit {pool_name}?",
+      "body": "Opravdu chceš opustit {pool_name}? Můžeš se kdykoli vrátit před výkopem.",
+      "confirm": "Opustit pool",
+      "cancel": "Zrušit, zůstat v poolu"
+    }
   },
   "odds": {
     "eyebrow": "Matematika",
@@ -221,7 +230,8 @@
     "section_recent_members": "Noví členové",
     "cta_join": "Připoj se k tomuto poolu",
     "cta_share": "Sdílet tento pool",
-    "join_footnote": "Zdarma, tipy můžeš měnit až do výkopu."
+    "join_footnote": "Zdarma, tipy můžeš měnit až do výkopu.",
+    "cta_exit": "Opustit tento pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental je nezávislý a není spojen s FIFA, FIFA Mistrovstvím světa ani s žádným jejich sponzorem, ani jimi sponzorován či podpořen. FIFA World Cup 2026™ je registrovaná ochranná známka Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Přineste svůj turnaj",
     "cta_final_body": "Kancelář, přátelé, fanouškovský klub, škola, obchod, tvůrce publikum. Stejná sada nástrojů. 60 sekund na značenou cestu. Navždy zdarma.",
     "card_prize_label": "Vzorová cena",
-    "sample_prize_code": "play.tournamental.com/s/vasejmeno"
+    "sample_prize_code": "play.tournamental.com/s/vasejmeno",
+    "cta_view_my_pools": "Moje pooly"
   },
   "bracket": {
     "title": "Tipuj každý zápas na FIFA Mistrovství světa 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 tipů zadáno. Uzamkni svoji tabulku.",
       "cta": "Uložit tabulku",
       "foot_authed": "Uloží tabulku do tvého profilu a vezme ji s tebou napříč zařízeními.",
-      "foot_anon": "Pošleme ti jednorázový přihlašovací kód (Telegram, WhatsApp nebo email). Tipy přejdou do profilu automaticky."
+      "foot_anon": "Pošleme ti jednorázový přihlašovací kód (Telegram, WhatsApp nebo email). Tipy přejdou do profilu automaticky.",
+      "change_photo": "Změnit fotku"
     },
     "submit": {
       "saved_offline": "Uloženo offline, zkusíme to znovu, až budeš opět online."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Flexibilní pro úpravy během celého turnaje",
       "edit_anytime_lead": "Zadejte všechny tipy hned teď, ať vaši sledující vidí, jak předpovídáte cestu vašeho týmu za slávou.",
       "edit_anytime_detail": "Měňte je kdykoli, až do výkopu každého zápasu; v tu chvíli se tip uzamkne. Upravujte podle formy, podle zranění, podle toho, jak každé kolo přepisuje pavouka. Netrestáme vás za rané chybné tipy jako jiné bracket aplikace!",
-      "progress": "{picked} z {total} zápasů otipovaných"
+      "progress": "{picked} z {total} zápasů otipovaných",
+      "progress_label": "vybraných zápasů"
     },
     "autopick": {
       "subtitle_consensus": "Obnov prázdné tipy podle živého konsenzu kurzů.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Přihláš se, aby jsi viděl své pooly.",
     "supabase_notice_title": "Profil",
     "supabase_notice_lede": "Přihlásil jsi se prostřednictvím staršího toku e-mailu. Nový editor profilu je prozatím pouze připojen k přihlášení WhatsApp / SMS. Odhlaste se a přihlaste se zpět pomocí WhatsApp, aby jste jej mohli používat.",
-    "supabase_notice_sign_out": "Odhlášení"
+    "supabase_notice_sign_out": "Odhlášení",
+    "favourite_team_note": "Tohle se může lišit od tebou předpovězeného vítěze, např. tvého národního týmu nebo oblíbeného týmu na turnaji, i když nakonec nevyhrají!",
+    "my_pools_role_member": "Člen",
+    "my_pools_role_owner": "Vlastník",
+    "my_pools_view": "Zobrazit pool",
+    "view_manage_pools": "Zobrazit/Spravovat pooly",
+    "view_pools": "Zobrazit pooly",
+    "view_public_page": "Zobrazit moji veřejnou stránku",
+    "add_phone_btn": "Přidat telefon",
+    "add_phone_title": "Napiš 'login' na náš WhatsApp, abys uložil své telefonní číslo do profilu.",
+    "error_display_name_taken": "Toto zobrazované jméno už někdo používá. Zvol jiné.",
+    "field_email_readonly_title": "Změny e-mailu budou brzy. Zatím prosím kontaktuj podporu pro úpravu e-mailu.",
+    "placeholder_no_phone": "Žádné telefonní číslo zatím nepřipojeno"
   }
 }

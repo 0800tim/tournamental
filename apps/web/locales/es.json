@@ -32,7 +32,8 @@
     "watch": "Ver",
     "menu": "Menú",
     "profile": "Perfil",
-    "open_menu": "Abrir menú"
+    "open_menu": "Abrir menú",
+    "play": "Jugar"
   },
   "authchip": {
     "sign_in_up": "Entrar / Registrarse",
@@ -57,7 +58,8 @@
       "cta_pool": "Crear un pool",
       "lede": "Nadie lo ha conseguido nunca, y probablemente nadie lo conseguirá por las astronómicas {odds_link}. Veintidós Mundiales, 964 partidos, y el pleno perfecto sigue sin reclamar. Los 104 partidos de 2026 son el próximo intento. Tournamental lleva el registro global y graba cada pronóstico en blockchain antes de cada pitido inicial, así tus apuestas son inmutables y cualquier reclamo de gloria queda finalmente demostrable.",
       "lede_link": "probabilidades de acertar los 104 partidos",
-      "read_more": "[leer más]"
+      "read_more": "[leer más]",
+      "lede_2": "Tournamental mantiene el registro global y graba cada pronóstico en la blockchain antes del inicio de cada partido, así tus predicciones son inmutables y cualquier reclamo de gloria es por fin demostrable."
     },
     "stat": {
       "matches": "Partidos",
@@ -194,7 +196,14 @@
       "button_verifying": "Verificando…"
     },
     "button_join": "Únete a este pool",
-    "button_joining": "Uniéndose..."
+    "button_joining": "Uniéndose...",
+    "button_leaving": "Saliendo…",
+    "exit": {
+      "title": "¿Salir de {pool_name}?",
+      "body": "¿Seguro que quieres salir de {pool_name}? Puedes volver a unirte en cualquier momento antes del inicio.",
+      "confirm": "Salir del pool",
+      "cancel": "Cancelar, seguir en el pool"
+    }
   },
   "odds": {
     "eyebrow": "Las matemáticas",
@@ -220,7 +229,8 @@
     "section_recent_members": "Miembros recientes",
     "cta_join": "Unirme a este pool",
     "cta_share": "Compartir este pool",
-    "join_footnote": "Gratis, cambia tus pronósticos hasta el pitido inicial."
+    "join_footnote": "Gratis, cambia tus pronósticos hasta el pitido inicial.",
+    "cta_exit": "Salir de este pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental es independiente y no está afiliado con la FIFA, la Copa Mundial de la FIFA ni ninguno de sus patrocinadores. FIFA World Cup 2026™ es marca registrada de la Fédération Internationale de Football Association.",
@@ -371,7 +381,8 @@
     "cta_final_title": "Trae tu torneo",
     "cta_final_body": "Oficina, amigos, club de fans, escuela, tienda, audiencia creadora. Mismo kit de herramientas. 60 segundos para una ruta branded. Gratis para siempre.",
     "card_prize_label": "Premio de muestra",
-    "sample_prize_code": "play.tournamental.com/s/tunombre"
+    "sample_prize_code": "play.tournamental.com/s/tunombre",
+    "cta_view_my_pools": "Mis pools"
   },
   "bracket": {
     "title": "Predice todos los partidos de la Copa Mundial de la FIFA 2026™",
@@ -475,7 +486,8 @@
       "complete_headline": "Has hecho los 104 pronósticos. Bloquea tu cuadro.",
       "cta": "Guardar mi cuadro",
       "foot_authed": "Guarda tu cuadro en tu perfil para que te siga entre dispositivos.",
-      "foot_anon": "Te enviamos un código de acceso único (Telegram, WhatsApp o email). Tus pronósticos se asociarán a tu perfil automáticamente."
+      "foot_anon": "Te enviamos un código de acceso único (Telegram, WhatsApp o email). Tus pronósticos se asociarán a tu perfil automáticamente.",
+      "change_photo": "Cambiar foto"
     },
     "submit": {
       "saved_offline": "Guardado sin conexión, lo reintentamos cuando vuelvas a estar en línea."
@@ -490,7 +502,8 @@
       "edit_anytime_heading": "Flexible para cambiar durante todo el torneo",
       "edit_anytime_lead": "Haz todos los pronósticos ahora para que tus seguidores vean cómo predices el camino de tu equipo a la gloria.",
       "edit_anytime_detail": "Cámbialos cuando quieras, hasta el silbato inicial de cada partido; en ese momento ese pronóstico se bloquea. Ajusta a medida que cambia el estado de forma, llegan lesiones y cada fase reconfigura el cuadro. ¡No te penalizamos por aciertos tardíos como otras apps de brackets!",
-      "progress": "{picked} de {total} partidos pronosticados"
+      "progress": "{picked} de {total} partidos pronosticados",
+      "progress_label": "partidos elegidos"
     },
     "autopick": {
       "subtitle_consensus": "Rellena los pronósticos vacíos con el consenso de cuotas en vivo.",
@@ -639,6 +652,18 @@
     "error_sign_in_to_pools": "Inicia sesión para ver tus pools.",
     "supabase_notice_title": "Perfil",
     "supabase_notice_lede": "Iniciaste sesión mediante el flujo de email heredado. El nuevo editor de perfil solo está conectado al inicio de sesión por WhatsApp / SMS por ahora. Cierra sesión e inicia de nuevo con WhatsApp para usarlo.",
-    "supabase_notice_sign_out": "Cerrar sesión"
+    "supabase_notice_sign_out": "Cerrar sesión",
+    "favourite_team_note": "Esto puede diferir de tu ganador previsto, p. ej. tu selección nacional o equipo favorito del torneo, ¡aunque quizá no ganen!",
+    "my_pools_role_member": "Miembro",
+    "my_pools_role_owner": "Propietario",
+    "my_pools_view": "Ver pool",
+    "view_manage_pools": "Ver/Gestionar pools",
+    "view_pools": "Ver pools",
+    "view_public_page": "Ver mi página pública",
+    "add_phone_btn": "Añadir teléfono",
+    "add_phone_title": "Envía 'login' a nuestro WhatsApp para guardar tu número de teléfono en tu perfil.",
+    "error_display_name_taken": "Alguien más ya usa ese nombre visible. Elige uno distinto.",
+    "field_email_readonly_title": "El cambio de email llegará pronto. Por ahora, contacta con soporte para actualizar tu correo.",
+    "placeholder_no_phone": "Aún no hay teléfono vinculado"
   }
 }

@@ -33,7 +33,8 @@
     "watch": "Kijken",
     "menu": "Menu",
     "profile": "Profiel",
-    "open_menu": "Menu openen"
+    "open_menu": "Menu openen",
+    "play": "Spelen"
   },
   "authchip": {
     "sign_in_up": "Inloggen / Registreren",
@@ -58,7 +59,8 @@
       "cta_pool": "Een pool starten",
       "lede": "Niemand is het ooit gelukt, en waarschijnlijk lukt het ook niemand vanwege de astronomische {odds_link}. Tweeëntwintig WK's, 964 wedstrijden, en het perfecte bracket blijft onopgeëist. De 104 wedstrijden van 2026 zijn de volgende poging. Tournamental houdt het wereldwijde grootboek bij en schrijft elke voorspelling vóór de aftrap op de blockchain, jouw voorspellingen zijn dus onveranderlijk en elke claim op roem wordt eindelijk bewijsbaar.",
       "lede_link": "kans om alle 104 wedstrijden goed te hebben",
-      "read_more": "[lees meer]"
+      "read_more": "[lees meer]",
+      "lede_2": "Tournamental beheert het wereldwijde grootboek en legt elke voorspelling vóór elke aftrap vast op de blockchain, zodat je voorspellingen onveranderlijk zijn en elke claim op roem eindelijk bewijsbaar is."
     },
     "stat": {
       "matches": "Wedstrijden",
@@ -195,7 +197,14 @@
       "button_verifying": "Aan het verifiëren…"
     },
     "button_join": "Sluit je aan bij deze pool",
-    "button_joining": "Aanmelden..."
+    "button_joining": "Aanmelden...",
+    "button_leaving": "Verlaten…",
+    "exit": {
+      "title": "{pool_name} verlaten?",
+      "body": "Weet je zeker dat je {pool_name} wilt verlaten? Je kunt voor de aftrap altijd weer meedoen.",
+      "confirm": "Pool verlaten",
+      "cancel": "Annuleren, in de pool blijven"
+    }
   },
   "odds": {
     "eyebrow": "De wiskunde",
@@ -221,7 +230,8 @@
     "section_recent_members": "Nieuwste leden",
     "cta_join": "Doe mee aan deze pool",
     "cta_share": "Deel deze pool",
-    "join_footnote": "Gratis, wijzig je voorspellingen tot aan de aftrap."
+    "join_footnote": "Gratis, wijzig je voorspellingen tot aan de aftrap.",
+    "cta_exit": "Verlaat deze pool"
   },
   "footer": {
     "fifa_disclaimer": "Tournamental is onafhankelijk en niet aangesloten bij, gesponsord of goedgekeurd door FIFA, het FIFA Wereldkampioenschap of een van hun sponsors. FIFA World Cup 2026™ is een handelsmerk van de Fédération Internationale de Football Association.",
@@ -372,7 +382,8 @@
     "cta_final_title": "Start je eigen toernooi",
     "cta_final_body": "Kantoor, vrienden, fanclub, school, winkel, maker-publiek. Dezelfde toolkit. 60 seconden naar een gebrandmerkt pad. Altijd gratis.",
     "card_prize_label": "Voorbeeldprijs",
-    "sample_prize_code": "play.tournamental.com/s/jouwnaaam"
+    "sample_prize_code": "play.tournamental.com/s/jouwnaaam",
+    "cta_view_my_pools": "Mijn pools"
   },
   "bracket": {
     "title": "Voorspel elke wedstrijd van het FIFA World Cup 2026™",
@@ -476,7 +487,8 @@
       "complete_headline": "104 voorspellingen gedaan. Zet je bracket vast.",
       "cta": "Mijn bracket opslaan",
       "foot_authed": "Slaat je bracket op je profiel op zodat ie meereist tussen apparaten.",
-      "foot_anon": "We sturen een eenmalige inlogcode (Telegram, WhatsApp of e-mail). Je voorspellingen worden automatisch aan je profiel gekoppeld."
+      "foot_anon": "We sturen een eenmalige inlogcode (Telegram, WhatsApp of e-mail). Je voorspellingen worden automatisch aan je profiel gekoppeld.",
+      "change_photo": "Foto wijzigen"
     },
     "submit": {
       "saved_offline": "Offline opgeslagen, we proberen het opnieuw zodra je weer online bent."
@@ -491,7 +503,8 @@
       "edit_anytime_heading": "Flexibel om aan te passen tijdens het hele toernooi",
       "edit_anytime_lead": "Voer nu al je voorspellingen in, zodat je volgers kunnen zien hoe jij het pad van je team naar de glorie voorziet.",
       "edit_anytime_detail": "Pas ze aan wanneer je wilt, tot het beginsignaal van elke wedstrijd; op dat moment wordt die voorspelling vastgezet. Verander mee met de vorm, met blessures, met elke ronde die het schema opnieuw bepaalt. We straffen je niet voor vroege foutieve picks zoals andere bracket-apps doen!",
-      "progress": "{picked} van {total} wedstrijden voorspeld"
+      "progress": "{picked} van {total} wedstrijden voorspeld",
+      "progress_label": "wedstrijden gekozen"
     },
     "autopick": {
       "subtitle_consensus": "Vul lege voorspellingen aan met de live consensus odds.",
@@ -640,6 +653,18 @@
     "error_sign_in_to_pools": "Log in om je pools te zien.",
     "supabase_notice_title": "Profiel",
     "supabase_notice_lede": "Je bent ingelogd via de oude e-mailstroom. De nieuwe profieleditor is voorlopig alleen gekoppeld aan WhatsApp / SMS-aanmelding. Log uit en meld je opnieuw aan met WhatsApp om het te gebruiken.",
-    "supabase_notice_sign_out": "Uitloggen"
+    "supabase_notice_sign_out": "Uitloggen",
+    "favourite_team_note": "Dit kan afwijken van je voorspelde winnaar, bijv. je nationale team of favoriete team in het toernooi, ook al winnen ze misschien niet!",
+    "my_pools_role_member": "Lid",
+    "my_pools_role_owner": "Eigenaar",
+    "my_pools_view": "Pool bekijken",
+    "view_manage_pools": "Pools bekijken/beheren",
+    "view_pools": "Pools bekijken",
+    "view_public_page": "Mijn openbare pagina bekijken",
+    "add_phone_btn": "Telefoon toevoegen",
+    "add_phone_title": "Stuur 'login' naar onze WhatsApp om je telefoonnummer in je profiel op te slaan.",
+    "error_display_name_taken": "Iemand anders gebruikt die weergavenaam al. Kies een andere.",
+    "field_email_readonly_title": "E-mailwijzigingen komen binnenkort. Neem voor nu contact op met support om je e-mail bij te werken.",
+    "placeholder_no_phone": "Nog geen telefoon gekoppeld"
   }
 }
