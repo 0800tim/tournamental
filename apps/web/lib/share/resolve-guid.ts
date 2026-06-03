@@ -21,6 +21,7 @@
 
 import {
   loadBracketFromGuid,
+  loadBracketByHandle,
   isShareGuidShape,
   lookupUserByHandle,
   type BracketByGuid,
@@ -83,20 +84,31 @@ export async function resolveShareGuid(
     if (bracket) return { kind: "user", bracket };
   }
 
-  // Step 3, friendly handle (slugified display_name). Ask auth-sms
-  // which user_id this handle maps to, then reuse the existing
-  // by-user-id fallback in loadBracketFromGuid (which accepts the
-  // `u_<hex>` shape after PR 4059281).
+  // Step 3, friendly handle (slugified display_name).
+  //
+  // First ask auth-sms which user_id this handle maps to (so we have
+  // it available for both the owner-stitch on the bracket response
+  // AND the friendly "no bracket yet" fallback). Then hit the
+  // game-service's by-handle endpoint, which resolves the handle
+  // through auth-sms a second time on its side and returns the
+  // owner's latest bracket.
+  //
+  // The legacy "look the bracket up by user_id" path was the
+  // enumeration vector closed by SEC-BRK-05; we now go through
+  // handles end-to-end.  Tim 2026-06-04, prod regression fix.
   if (isHandleShape(guid) && !isReservedSlug(guid)) {
     const hit = await lookupUserByHandle(guid);
     if (hit) {
-      const bracket = await loadBracketFromGuid(hit.id, {
+      const result = await loadBracketByHandle(guid, hit.id, {
         includePayload: opts.includePayload,
       });
-      if (bracket) return { kind: "user", bracket };
-      // Handle is real but no saved bracket; surface a friendly view
-      // so the visitor sees who they were looking for and the nudge
-      // to share their own picks.
+      if (result.kind === "user") {
+        return { kind: "user", bracket: result.bracket };
+      }
+      // Handle is real but no saved bracket (game-service returned
+      // `no_bracket`, or the call timed out and we have an
+      // auth-sms-confirmed user_id to fall back on). Surface a
+      // friendly view so the visitor sees who they were looking for.
       return {
         kind: "user_no_bracket",
         handle: guid,

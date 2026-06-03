@@ -256,6 +256,124 @@ export async function loadBracketFromGuid(
   }
 }
 
+/**
+ * Outcome of a `/v1/bracket/by-handle/:handle` call. Wider than
+ * `loadBracketFromGuid` because the new endpoint can distinguish
+ * "handle is unknown" from "handle exists but no bracket yet", and
+ * the resolver renders different views for each.
+ */
+export type BracketByHandleResult =
+  | { readonly kind: "user"; readonly bracket: BracketByGuid }
+  | {
+      readonly kind: "no_bracket";
+      readonly userHandle: string;
+      readonly displayName: string | null;
+    }
+  | { readonly kind: "miss" };
+
+/**
+ * Fetch a bracket by the owner's friendly handle (slugified
+ * display_name). Replaces the old `loadBracketFromGuid(user_id)`
+ * fallback that SEC-BRK-05 closed on the game-service.
+ *
+ * The new endpoint resolves the handle through auth-sms (rate-limited
+ * there), then looks up the latest bracket for that user_id from the
+ * local game-service store. The user_id is stitched in here so the
+ * share-landing hero can compose the avatar URL (`/avatars/<id>.jpg`)
+ * without leaking the user_id through the public game-service
+ * response payload.
+ *
+ * Tim 2026-06-04: prod-fix after SEC-BRK-05 removed the user_id
+ * fallback from `/v1/bracket/by-guid`.
+ */
+export async function loadBracketByHandle(
+  handle: string,
+  ownerUserIdHint: string | null,
+  opts: {
+    readonly fetchImpl?: typeof fetch;
+    readonly baseUrl?: string;
+    readonly timeoutMs?: number;
+    readonly includePayload?: boolean;
+  } = {},
+): Promise<BracketByHandleResult> {
+  if (!handle || !/^[a-zA-Z0-9_-]{2,32}$/.test(handle)) {
+    return { kind: "miss" };
+  }
+  const fetchImpl =
+    opts.fetchImpl ?? (typeof fetch !== "undefined" ? fetch : null);
+  if (!fetchImpl) return { kind: "miss" };
+
+  const base = (opts.baseUrl ?? resolveGameApiBase()).replace(/\/+$/, "");
+  const query = opts.includePayload ? "?include=payload" : "";
+  const url = `${base}/v1/bracket/by-handle/${encodeURIComponent(handle)}${query}`;
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(
+    () => ctrl.abort(),
+    opts.timeoutMs ?? FETCH_TIMEOUT_MS,
+  );
+
+  try {
+    const res = await fetchImpl(url, {
+      signal: ctrl.signal,
+      cache: "no-store",
+      headers: { accept: "application/json" },
+    });
+    clearTimeout(timer);
+
+    if (res.status === 404) {
+      // Game-service distinguishes "handle unknown" from "handle
+      // valid but no bracket on file" via the response body. Both
+      // surface as HTTP 404 (the public-by-design contract) but the
+      // body carries the disambiguator we need to pick the right
+      // landing view.
+      try {
+        const body = (await res.json()) as {
+          ok?: boolean;
+          error?: string;
+          user_handle?: string | null;
+          display_name?: string | null;
+        };
+        if (body && body.error === "no_bracket" && body.user_handle) {
+          return {
+            kind: "no_bracket",
+            userHandle: body.user_handle,
+            displayName: body.display_name ?? null,
+          };
+        }
+      } catch {
+        // Fall through to "miss" if the body isn't JSON.
+      }
+      return { kind: "miss" };
+    }
+
+    if (!res.ok) return { kind: "miss" };
+
+    const data = (await res.json()) as UpstreamResponse | null;
+    if (!data || !data.ok || !data.bracket) return { kind: "miss" };
+
+    // SEC-BRK-05: the game-service response intentionally omits
+    // `user_id`. The resolver passed the owner's id from its auth-sms
+    // call; stitch it back in so the hero can render the avatar URL
+    // and the read-only-bracket viewer-is-owner check still works.
+    const upstreamWithOwner: UpstreamBracket = {
+      ...data.bracket,
+      user_id: ownerUserIdHint ?? data.bracket.user_id,
+    };
+
+    const ownerProfile = upstreamWithOwner.user_id
+      ? await loadOwnerProfile(upstreamWithOwner.user_id, fetchImpl)
+      : null;
+    return {
+      kind: "user",
+      bracket: normaliseUpstream(upstreamWithOwner, ownerProfile),
+    };
+  } catch {
+    clearTimeout(timer);
+    return { kind: "miss" };
+  }
+}
+
 interface OwnerPublicProfile {
   readonly displayName: string | null;
   readonly firstName: string | null;
