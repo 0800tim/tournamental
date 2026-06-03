@@ -39,15 +39,16 @@ import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 // (Next.js segment-config flag) further down.
 import nextDynamic from "next/dynamic";
 
-import { BracketPosterCallout } from "@/components/share-landing/BracketPosterCallout";
 import { ShareActions } from "@/components/share-landing/ShareActions";
 
-// Tim 2026-06-04: load ReadOnlyBracket client-side only.  The
-// component triggered a webpack `options.factory` runtime error on
-// /s/<handle> share landings when bundled as part of the page-level
-// client chunk.  Switching to `nextDynamic({ ssr: false })` isolates
-// it in its own chunk that loads after hydration, which sidesteps the
-// chunk-split issue without changing the component's contents.
+// Tim 2026-06-04: every heavy client component on this page loads
+// via `nextDynamic({ ssr: false })`. The first pass wrapped only
+// `ReadOnlyBracket` to fix the webpack `options.factory` runtime
+// error on /s/<handle> landings; Tim then hit the same crash on
+// /s/mollytournamentaloracle with the molecule rendering, which
+// confirmed the chunk-split bug affects every large client component
+// on this page, not just one. Isolating each in its own client chunk
+// after hydration sidesteps it without changing the components.
 const ReadOnlyBracket = nextDynamic(
   () =>
     import("@/components/share-landing/ReadOnlyBracket").then(
@@ -55,9 +56,34 @@ const ReadOnlyBracket = nextDynamic(
     ),
   { ssr: false, loading: () => null },
 );
-import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
-import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
-import { SyndicateLeaderboardRows } from "@/components/share-landing/SyndicateLeaderboardRows";
+const ShareMoleculeEmbed = nextDynamic(
+  () =>
+    import("@/components/share-landing/ShareMoleculeEmbed").then(
+      (mod) => mod.ShareMoleculeEmbed,
+    ),
+  { ssr: false, loading: () => null },
+);
+const JoinSyndicate = nextDynamic(
+  () =>
+    import("@/components/share-landing/JoinSyndicate").then(
+      (mod) => mod.JoinSyndicate,
+    ),
+  { ssr: false, loading: () => null },
+);
+const SyndicateLeaderboardRows = nextDynamic(
+  () =>
+    import("@/components/share-landing/SyndicateLeaderboardRows").then(
+      (mod) => mod.SyndicateLeaderboardRows,
+    ),
+  { ssr: false, loading: () => null },
+);
+const BracketPosterCallout = nextDynamic(
+  () =>
+    import("@/components/share-landing/BracketPosterCallout").then(
+      (mod) => mod.BracketPosterCallout,
+    ),
+  { ssr: false, loading: () => null },
+);
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
