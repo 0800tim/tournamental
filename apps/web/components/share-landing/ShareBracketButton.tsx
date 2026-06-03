@@ -54,31 +54,35 @@ export function ShareBracketButton(props: ShareBracketButtonProps) {
       ? `I picked ${championName} to lift the trophy. See my full bracket:`
       : `@${handle} picked ${championName} to lift the trophy. See the full bracket:`;
 
-    const nav: Navigator | undefined =
-      typeof navigator !== "undefined" ? navigator : undefined;
-
-    if (nav && "share" in nav) {
-      try {
-        await nav.share({ title, text, url });
-        return;
-      } catch {
-        // User cancelled the share sheet, treat as no-op.
+    // Independent `navigator` references per branch so TS doesn't
+    // cross-narrow `navigator` to `never` after the share branch
+    // returns (the DOM-lib `Navigator.share` is non-optional, which
+    // makes a captured-variable form unfriendly to flow analysis).
+    try {
+      if (typeof navigator !== "undefined" && navigator.share) {
+        await navigator.share({ title, text, url });
         return;
       }
+    } catch {
+      // User cancelled the share sheet; treat as no-op.
+      return;
     }
 
     // Copy-link fallback for desktop browsers without Web Share.
-    if (nav?.clipboard) {
-      try {
-        await nav.clipboard.writeText(url);
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard?.writeText
+      ) {
+        await navigator.clipboard.writeText(url);
         setToast("copied");
         window.setTimeout(() => setToast(null), 2200);
         return;
-      } catch {
-        setToast("error");
-        window.setTimeout(() => setToast(null), 2200);
-        return;
       }
+    } catch {
+      setToast("error");
+      window.setTimeout(() => setToast(null), 2200);
+      return;
     }
 
     setToast("error");
