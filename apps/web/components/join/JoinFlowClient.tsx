@@ -485,26 +485,26 @@ function PoolHeader({
       <div
         style={{
           position: "relative",
-          padding: "20px 18px 22px",
+          padding: "32px 28px 36px",
           display: "flex",
           flexDirection: "column",
-          gap: 6,
+          gap: 10,
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           {logo && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={logo}
               alt=""
               style={{
-                width: 64,
-                height: 64,
+                width: 96,
+                height: 96,
                 objectFit: "contain",
-                borderRadius: 10,
+                borderRadius: 14,
                 background: "#fff",
-                padding: 4,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.35)",
+                padding: 6,
+                boxShadow: "0 4px 14px rgba(0,0,0,0.4)",
                 flexShrink: 0,
               }}
             />
@@ -515,13 +515,13 @@ function PoolHeader({
                 color: "#dca94b",
                 fontFamily:
                   '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
-                fontSize: 11,
+                fontSize: 12,
                 letterSpacing: "0.18em",
                 textTransform: "uppercase",
                 margin: 0,
               }}
             >
-              <span aria-hidden style={{ marginRight: 8 }}>—</span>
+              <span aria-hidden style={{ marginRight: 8 }}>·</span>
               {tournament}
               {ownerHandle && (
                 <>
@@ -530,15 +530,20 @@ function PoolHeader({
                 </>
               )}
             </p>
+            {/* Tim 2026-06-03: match (and slightly exceed) the
+              * /s/<slug> pool landing hero size — the join page was
+              * dwarfed at 28-40px while the landing was 40-76px. New
+              * range 44-88px (+15-20% on top of landing) so both
+              * surfaces feel like a proper editorial header. */}
             <h1
               style={{
                 fontFamily: "Fraunces, Georgia, serif",
                 fontWeight: 500,
-                fontSize: "clamp(28px, 6vw, 40px)",
-                lineHeight: 1.05,
-                letterSpacing: "-0.01em",
+                fontSize: "clamp(2.75rem, 7.5vw, 5.5rem)",
+                lineHeight: 0.98,
+                letterSpacing: "-0.018em",
                 color: "#ffffff",
-                margin: "6px 0 0",
+                margin: "8px 0 0",
               }}
             >
               {name}
@@ -550,10 +555,11 @@ function PoolHeader({
             style={{
               fontFamily: "Fraunces, Georgia, serif",
               fontStyle: "italic",
-              fontSize: 15,
+              fontSize: "clamp(1.25rem, 1.8vw, 1.625rem)",
               lineHeight: 1.45,
               color: "#e6e6ea",
-              margin: "8px 2px 0",
+              margin: "12px 2px 0",
+              maxWidth: "60ch",
             }}
           >
             {topic}
