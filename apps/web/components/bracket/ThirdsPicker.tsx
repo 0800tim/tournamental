@@ -12,6 +12,7 @@
  * tiles by FIFA rank so the most plausible picks surface first.
  */
 
+import type React from "react";
 import { useEffect, useMemo } from "react";
 
 import type {
@@ -202,6 +203,13 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
         {rows.map((r) => {
           const isSelected = selected.has(r.teamId);
           const disabled = !isSelected && atLimit;
+          // Inline the team's flag URL as a CSS custom property so
+          // the tile's ::before pseudo can render it as a blurred,
+          // full-bleed background (matches the .km-team treatment on
+          // the knockout-stage cards). Tim 2026-06-03.
+          const style = {
+            "--km-team-bg": `url(/flags/${r.teamId}.svg)`,
+          } as React.CSSProperties;
           return (
             <li key={r.teamId}>
               <button
@@ -210,25 +218,20 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
                 aria-selected={isSelected}
                 aria-disabled={disabled || undefined}
                 className={`bracket-thirds-tile ${isSelected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}`}
+                style={style}
                 onClick={() => toggle(r.teamId)}
               >
                 <span className="bracket-thirds-tile-group">3{r.groupId}</span>
-                <span className="bracket-thirds-tile-flag" aria-hidden="true">
-                  <TeamFlag code={r.teamId} size="md" />
-                </span>
-                <span className="bracket-thirds-tile-name">{r.teamName}</span>
-                <span className="bracket-thirds-tile-record">
-                  {r.points} pt{r.points === 1 ? "" : "s"}
-                  <span className="bracket-thirds-tile-record-sub">
-                    GD {r.goalDiff >= 0 ? "+" : ""}{r.goalDiff} · GF {r.goalsFor}
-                  </span>
-                </span>
                 <span
                   className="bracket-thirds-tile-rank"
                   aria-label={`FIFA rank ${r.fifaRank}`}
                 >
                   FR {r.fifaRank}
                 </span>
+                <span className="bracket-thirds-tile-flag" aria-hidden="true">
+                  <TeamFlag code={r.teamId} size="md" />
+                </span>
+                <span className="bracket-thirds-tile-name">{r.teamName}</span>
                 <span className="bracket-thirds-tile-check" aria-hidden="true">
                   {isSelected ? "✓" : ""}
                 </span>

@@ -399,28 +399,25 @@ function InboundProfileEditor({ userId }: { userId: string }) {
       <section className="vt-section">
         <h2 className="vt-section-title">
           {safeT(t, "profile_page.favourite_team_section_title", "Favourite team")}
-          {/* Tim 2026-06-03: small inline note clarifying that the
-              favourite-team field is editorial / sentiment, not the
-              same as the user's predicted-winner pick in the bracket
-              cascade. Renders right after the section title in muted
-              grey italic at ~70% the title size. */}
-          <span
-            style={{
-              fontSize: "0.6em",
-              fontWeight: 400,
-              fontStyle: "italic",
-              color: "var(--vt-fg-muted)",
-              marginLeft: 8,
-              letterSpacing: 0,
-            }}
-          >
-            ({safeT(
-              t,
-              "profile_page.favourite_team_note",
-              "This can differ from your predicted winner, e.g. your national team or favourite team in the tournament, even though they may not win!",
-            )})
-          </span>
         </h2>
+        {/* Tim 2026-06-03: standard-size, non-bold clarifying note
+            sat as a separate paragraph below the heading instead of
+            jammed inline at 0.6em. */}
+        <p
+          style={{
+            color: "var(--vt-fg-muted)",
+            margin: "2px 0 8px",
+            fontSize: 14,
+            fontWeight: 400,
+            fontStyle: "normal",
+          }}
+        >
+          ({safeT(
+            t,
+            "profile_page.favourite_team_note",
+            "This can differ from your predicted winner, e.g. your national team or favourite team in the tournament, even though they may not win!",
+          )})
+        </p>
         <p style={{ color: "var(--vt-fg-muted)", margin: 0, fontSize: 13 }}>
           {draft.favouriteTeamCode
             ? safeT(t, "profile_page.favourite_team_selected", "Selected: {team}").replace("{team}", findTeamByCode(draft.favouriteTeamCode)?.name ?? draft.favouriteTeamCode)
