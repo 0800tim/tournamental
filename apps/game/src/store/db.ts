@@ -209,15 +209,20 @@ export class GameStore {
     this.listMatchResultsStmt = this.db.prepare(
       `SELECT * FROM match_results WHERE tournament_id = ?`,
     );
+    // SEC-BRK-06 / leaderboard linkage: surface `share_guid` so the
+    // web leaderboard rows can deep-link to the public-profile page
+    // (`/u/<share_guid>`). The share_guid is the public-share token
+    // and is already exposed by `/v1/bracket/by-guid`; it's the
+    // navigable identity for a row that no longer carries `user_id`.
     this.leaderboardStmt = this.db.prepare(
-      `SELECT id AS bracket_id, user_id, score_total
+      `SELECT id, user_id, score_total, share_guid
          FROM brackets
         WHERE tournament_id = ?
         ORDER BY score_total DESC, locked_at ASC, user_id ASC
         LIMIT ?`,
     );
     this.leaderboardSyndicateStmt = this.db.prepare(
-      `SELECT b.id AS bracket_id, b.user_id, b.score_total
+      `SELECT b.id, b.user_id, b.score_total, b.share_guid
          FROM brackets b
          INNER JOIN syndicate_members sm
            ON sm.user_id = b.user_id

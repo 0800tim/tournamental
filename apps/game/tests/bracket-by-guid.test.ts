@@ -283,7 +283,15 @@ describe("game-service / share guid round-trip", () => {
     }
   });
 
-  it("GET /v1/bracket/by-guid/<guid>?include=payload requires owner auth (SEC-BRK-05)", async () => {
+  it("GET /v1/bracket/by-guid/<guid>?include=payload is public; owner gets no-store, others get a short public cache", async () => {
+    // The share_guid IS the public-share token: anyone with the URL
+    // is allowed to see the full bracket payload (powers the share-
+    // landing molecule embed AND the public-profile read-only view).
+    // The enumeration vector closed in SEC-BRK-05 lived in the now-
+    // removed `u_<user_id>` fallback path; this test just covers
+    // that share-guid payload reads succeed for everyone and that the
+    // owner gets a `private, no-store` cache header so their own
+    // profile page reflects every save immediately.
     const { app } = await built;
     const submit = await app.inject({
       method: "POST",
@@ -301,7 +309,8 @@ describe("game-service / share guid round-trip", () => {
     expect(submit.statusCode).toBe(201);
     const guid = submit.json().share_guid;
 
-    // Authenticated as the bracket owner → payload is included.
+    // Authenticated as the bracket owner → payload is included AND
+    // the response is uncacheable (private, no-store).
     const ownerLookup = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}?include=payload`,
@@ -313,31 +322,41 @@ describe("game-service / share guid round-trip", () => {
     expect(ownerBody.bracket.payload).toBeTruthy();
     expect(ownerBody.bracket.payload.matchPredictions["1"].outcome).toBe("home_win");
     expect(ownerBody.bracket.payload.matchPredictions["2"].outcome).toBe("away_win");
-    // SEC-BRK-05: owner-only payloads are never edge-cached.
     expect(ownerLookup.headers["cache-control"]).toContain("private");
+    expect(ownerLookup.headers["cache-control"]).toContain("no-store");
     // SEC-BRK-05/06: never echo the raw user_id back to any caller.
     expect(ownerBody.bracket.user_id).toBeUndefined();
 
-    // Unauthenticated caller requesting payload gets metadata only,
-    // not the full bracket — public share URLs reveal the podium card
-    // and knockout path, never the per-match picks.
+    // Unauthenticated caller requesting payload ALSO gets the full
+    // payload — the share_guid is the public-share token. Cache is
+    // a short public TTL with SWR.
     const anonLookup = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}?include=payload`,
     });
     expect(anonLookup.statusCode).toBe(200);
-    expect(anonLookup.json().bracket.payload).toBeUndefined();
+    const anonBody = anonLookup.json();
+    expect(anonBody.bracket.payload).toBeTruthy();
+    expect(anonBody.bracket.payload.matchPredictions["1"].outcome).toBe("home_win");
+    expect(anonLookup.headers["cache-control"]).toContain("public");
+    expect(anonLookup.headers["cache-control"]).toContain("max-age=60");
+    expect(anonLookup.headers["cache-control"]).toContain("stale-while-revalidate");
+    expect(anonBody.bracket.user_id).toBeUndefined();
 
-    // A DIFFERENT authenticated user is also denied the payload.
+    // A DIFFERENT authenticated user also sees the full payload —
+    // the share guid is public by design, so non-owner reads behave
+    // identically to anon reads.
     const otherLookup = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}?include=payload`,
       headers: { "x-user-id": "u_intruder" },
     });
     expect(otherLookup.statusCode).toBe(200);
-    expect(otherLookup.json().bracket.payload).toBeUndefined();
+    expect(otherLookup.json().bracket.payload).toBeTruthy();
+    expect(otherLookup.headers["cache-control"]).toContain("public");
 
-    // Without the include flag the payload is omitted (no auth).
+    // Without the include flag the payload is omitted; the response
+    // is the narrow metadata view on the standard 60s edge cache.
     const naked = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}`,
@@ -345,6 +364,7 @@ describe("game-service / share guid round-trip", () => {
     expect(naked.statusCode).toBe(200);
     expect(naked.json().bracket.payload).toBeUndefined();
     expect(naked.json().bracket.user_id).toBeUndefined();
+    expect(naked.headers["cache-control"]).toContain("s-maxage=60");
   });
 
   it("GET /v1/bracket/by-guid/<guid> returns 404 for an unknown guid", async () => {

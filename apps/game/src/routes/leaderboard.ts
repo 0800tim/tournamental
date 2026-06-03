@@ -79,6 +79,7 @@ export async function registerLeaderboardRoutes(
     const out: LeaderboardRow[] = rows.map((r, i) => ({
       rank: i + 1,
       user_handle: hashUserHandle(r.user_id),
+      share_guid: r.share_guid,
       score_total: r.score_total,
       bracket_id: r.id,
     }));
@@ -118,6 +119,7 @@ export async function registerLeaderboardRoutes(
       const out: LeaderboardRow[] = rows.map((r, i) => ({
         rank: i + 1,
         user_handle: hashUserHandle(r.user_id),
+        share_guid: r.share_guid,
         score_total: r.score_total,
         bracket_id: r.id,
       }));

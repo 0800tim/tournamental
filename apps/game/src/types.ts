@@ -64,10 +64,19 @@ export interface LockReceipt {
  * `user_handle` — the first 8 hex chars of an HMAC over the user
  * id keyed by a server secret — so the UI still has a stable
  * identity for animations/highlighting without leaking the real id.
+ *
+ * `share_guid` is the public-share token (also exposed by the
+ * bracket-by-guid endpoint). It's safe to emit on the leaderboard
+ * because it's already the token anybody-with-the-URL uses to
+ * resolve the bracket. The web team links from leaderboard rows
+ * to the public-profile page using this value. May be `null` for
+ * legacy rows that pre-date the share_guid migration (in practice
+ * every row written after migration 0004 has one).
  */
 export interface LeaderboardRow {
   readonly rank: number;
   readonly user_handle: string;
+  readonly share_guid: string | null;
   readonly score_total: number;
   readonly bracket_id: string;
 }

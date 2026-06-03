@@ -1,24 +1,36 @@
 /**
  * GET /v1/bracket/by-guid/:guid — public bracket lookup by share guid.
  *
- * Powers the `/s/<guid>` universal share-landing route in apps/web.
- * Anyone with the URL can resolve it — share links are public by
- * design (think Twitter / X public-tweet visibility).
+ * Powers the `/s/<guid>` universal share-landing route in apps/web,
+ * and the public-profile pages that render any user's bracket in
+ * read-only mode. The share_guid IS the public-share token: anyone
+ * with the URL can resolve it (think Twitter / X public-tweet
+ * visibility). The enumeration vector closed in SEC-BRK-05 was the
+ * separate `u_<user_id>` fallback path, which let any caller pivot
+ * from a known auth-sms user_id to "give me that user's latest
+ * bracket". That fallback is gone; only the explicit `share_guid`
+ * column resolves here.
  *
- * The default response is intentionally narrow: champion + podium +
- * path to gold + locked-at. Pass `?include=payload` to additionally
- * return the full persisted `Bracket` JSON — used by the share page's
- * embedded 3D molecule scene, which renders the saved picks in
- * read-only mode. Anyone with the share URL is already allowed to see
- * the full prediction (the molecule reveals every pick), so the
- * privacy surface of the opt-in payload field matches the rest of the
- * landing.
+ * The default response is the narrow metadata view — champion +
+ * podium + path to gold + locked-at. Pass `?include=payload` to
+ * additionally return the full persisted `Bracket` JSON, used by
+ * both the share-landing molecule embed and the public-profile
+ * page. The payload is public-by-design (the molecule reveals every
+ * pick anyway), so unauthenticated callers may request it.
  *
- * Caching: `public, s-maxage=60, stale-while-revalidate=600`. The
- * bracket can change on every save, but a 60-second edge cache makes
- * re-shares (the common case — a single tweet that thousands of people
- * click) cheap. SWR=600 keeps the previous response warm for ten
- * minutes after a revalidation kicks off.
+ * Caching:
+ *   - Metadata-only response: `public, s-maxage=60, swr=600`. The
+ *     bracket can change on every save, but a 60-second edge cache
+ *     makes re-shares (the common case — a single tweet that
+ *     thousands of people click) cheap.
+ *   - Payload response for the bracket owner (cookie-authed): `private,
+ *     no-store`. The owner's "my profile" page must reflect every save
+ *     immediately; we don't want their edge node to serve a stale copy
+ *     to them after they've just changed a pick.
+ *   - Payload response for any other caller (anon / different user):
+ *     `public, max-age=60, swr=300`. The payload is effectively
+ *     public data — a 60s TTL keeps it cacheable but reflects pick
+ *     changes promptly for share-link recipients.
  *
  * Resolution of the champion / podium / path:
  *   - Primary: run the full `@tournamental/bracket-engine` cascade against
@@ -65,10 +77,13 @@ export interface BracketByGuidPayload {
   readonly knockout_path: ReadonlyArray<KnockoutPathEntry>;
   readonly locked_at: string | null;
   /**
-   * Full persisted bracket payload — only included when the caller
-   * passes `?include=payload` AND is authenticated as the bracket
-   * owner (SEC-BRK-05). The share-landing page uses this to drive
-   * the read-only 3D molecule embed underneath the podium card.
+   * Full persisted bracket payload — included whenever the caller
+   * passes `?include=payload`. The share_guid is itself the public-
+   * share token, so payload reads keyed on it are public-by-design.
+   * Powers both the share-landing molecule embed and the read-only
+   * public-profile page. (The legacy `/v1/bracket/by-guid/<user_id>`
+   * enumeration vector that SEC-BRK-05 closed is unrelated to this
+   * field — that path no longer resolves at all.)
    */
   readonly payload?: Bracket;
 }
@@ -226,6 +241,10 @@ export interface BracketByGuidRoutesDeps {
 }
 
 const CACHE_HEADER = "public, s-maxage=60, stale-while-revalidate=600";
+// Payload responses for anon / non-owner callers. Slightly shorter
+// SWR window than metadata because saved-pick changes are higher-
+// signal for the share-landing molecule than for the podium card.
+const PAYLOAD_PUBLIC_CACHE_HEADER = "public, max-age=60, stale-while-revalidate=300";
 
 // Loaded once at module scope: the canonical fixture set is read-only
 // and ~100KB of JSON; we don't need to re-parse it per request.
@@ -273,13 +292,17 @@ export async function registerBracketByGuidRoutes(
       return reply.code(404).send({ ok: false, error: "not_found" });
     }
 
-    // SEC-BRK-05: `include=payload` reveals every group + knockout
-    // pick. That's "public" by design only for the bracket owner —
-    // anyone else gets the metadata-only response (champion + podium
-    // + knockout path). The owner check resolves the caller's
-    // identity via the same path the bracket-submit handler uses
-    // (tnm_session cookie / Bearer JWT / dev-fallback header).
-    let payloadAllowed = false;
+    // The share_guid IS the public-share token, so `include=payload`
+    // is allowed for any caller — share-landing recipients and the
+    // public-profile page both need the full bracket to render the
+    // read-only molecule. The enumeration vector that SEC-BRK-05
+    // closed lived in the separate `u_<user_id>` lookup path, which
+    // is now gone (only the explicit share_guid column resolves at
+    // all). We still resolve caller identity so the owner gets a
+    // `private, no-store` cache policy — their "my profile" page must
+    // reflect every save immediately rather than seeing a 60s-stale
+    // edge copy.
+    let isOwner = false;
     if (includePayload) {
       const callerId = resolveCallerId(req, {
         devAuth: process.env.GAME_DEV_AUTH === "1",
@@ -287,7 +310,7 @@ export async function registerBracketByGuidRoutes(
         authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
       });
       if (callerId && callerId === row.user_id) {
-        payloadAllowed = true;
+        isOwner = true;
       }
     }
 
@@ -313,16 +336,21 @@ export async function registerBracketByGuidRoutes(
         third_place_code: summary.third_place_code,
         knockout_path: summary.knockout_path,
         locked_at: row.locked_at ? new Date(row.locked_at).toISOString() : null,
-        ...(payloadAllowed ? { payload } : {}),
+        ...(includePayload ? { payload } : {}),
       },
     };
 
-    // SEC-BRK-05: when payload is included we return a per-user view
-    // and must NOT let it land on the public edge cache. Without the
-    // payload the response is purely public-share metadata and the
-    // 60s edge cache is fine.
-    if (payloadAllowed) {
+    // Cache policy:
+    //   - Owner reading their own bracket with payload: never cache.
+    //     The owner's "my profile" page must reflect every save.
+    //   - Anyone else reading payload: short public TTL (60s) + SWR.
+    //     The payload is public-by-design (share_guid IS the public
+    //     token); the short TTL keeps pick changes visible quickly.
+    //   - No payload requested: the standard 60s edge cache.
+    if (includePayload && isOwner) {
       reply.header("Cache-Control", "private, no-store");
+    } else if (includePayload) {
+      reply.header("Cache-Control", PAYLOAD_PUBLIC_CACHE_HEADER);
     } else {
       reply.header("Cache-Control", CACHE_HEADER);
     }

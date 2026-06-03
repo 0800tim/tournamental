@@ -49,6 +49,20 @@ describe("game-service / leaderboard", () => {
     expect(body.tournament_id).toBe("fifa-wc-2026");
     expect(body.rows.length).toBeGreaterThanOrEqual(3);
     expect(body.rows.every((r: { score_total: number }) => r.score_total === 0)).toBe(true);
+    // Every row carries the public-share token so the leaderboard can
+    // deep-link to the public-profile page (`/u/<share_guid>`).
+    expect(
+      body.rows.every((r: { share_guid: string | null }) =>
+        typeof r.share_guid === "string" && r.share_guid.length > 0,
+      ),
+    ).toBe(true);
+    // bracket_id must be a concrete string (regression: a prior alias
+    // bug left this `undefined` on every row).
+    expect(
+      body.rows.every((r: { bracket_id: string }) =>
+        typeof r.bracket_id === "string" && r.bracket_id.length > 0,
+      ),
+    ).toBe(true);
     expect(res.headers["cache-control"]).toContain("public");
     expect(res.headers["cache-control"]).toContain("max-age=30");
     expect(res.headers["x-cache"]).toBe("MISS");
