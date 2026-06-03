@@ -338,15 +338,42 @@ function InboundProfileEditor({ userId }: { userId: string }) {
             autoComplete="family-name"
           />
         </Field>
-        <Field label={safeT(t, "profile_page.field_display_name", "Display name (shown on leaderboards)")}>
-          <input
-            className="auth-input"
-            type="text"
-            value={draft.displayName}
-            onChange={(e) => setDraft({ ...draft, displayName: e.target.value })}
-            maxLength={80}
-            placeholder={draft.firstName || safeT(t, "profile_page.placeholder_handle", "Your handle")}
-          />
+        <Field label={safeT(t, "profile_page.field_display_name", "Display name (your permanent @handle)")}>
+          {/* Tim 2026-06-04: display_name is the user's public identity AND
+            * the source of their /s/<handle> share URL. Once set it's
+            * immutable server-side (auth-sms returns 403 display_name_locked
+            * on PATCH). Render read-only with a note so the UX matches.
+            * First-time signup still hits this field with displayName="" so
+            * we keep editing enabled in that case. */}
+          {(serverUser?.displayName ?? "").trim() ? (
+            <>
+              <input
+                className="auth-input"
+                type="text"
+                value={draft.displayName}
+                readOnly
+                disabled
+                aria-readonly
+                maxLength={80}
+              />
+              <p className="auth-field-hint">
+                {safeT(
+                  t,
+                  "profile_page.hint_display_name_locked",
+                  "Your display name is your permanent @handle on Tournamental. It can't be changed once it's set.",
+                )}
+              </p>
+            </>
+          ) : (
+            <input
+              className="auth-input"
+              type="text"
+              value={draft.displayName}
+              onChange={(e) => setDraft({ ...draft, displayName: e.target.value })}
+              maxLength={80}
+              placeholder={draft.firstName || safeT(t, "profile_page.placeholder_handle", "Your handle")}
+            />
+          )}
         </Field>
         <Field label={safeT(t, "profile_page.field_email", "Email")}>
           {/* Tim 2026-06-04: email changes require server-side

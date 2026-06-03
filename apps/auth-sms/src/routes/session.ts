@@ -202,11 +202,22 @@ export async function registerSession(
       reply.header('X-Email-Verification-Required', '1');
     }
 
-    // SEC-PII-03: reject display-name changes whose slug collides with
-    // another user. Without this, two users with display_name "Tim Thomas"
-    // share /s/timthomas — most-recently-active wins, which lets a fresh
-    // signup hijack an established user's share URL.
+    // Display name is the user's public identity and the source for their
+    // /s/<handle> URL. Once set, it's immutable — Tim's rule, 2026-06-04:
+    // half the share-page bugs traced back to users renaming their
+    // display_name and breaking links other people had already shared.
+    // The first-set case (existing user has no display_name yet) is still
+    // allowed so the post-signup name capture flow works.
     if ('display_name' in patch && patch.display_name) {
+      const current = ctx.storage.getUser(authed.userId);
+      const currentName = (current?.display_name ?? '').trim();
+      if (currentName && currentName !== patch.display_name) {
+        return reply.code(403).send({ error: 'display_name_locked' });
+      }
+      // SEC-PII-03: reject display-name changes whose slug collides with
+      // another user. Without this, two users with display_name "Tim Thomas"
+      // share /s/timthomas — most-recently-active wins, which lets a fresh
+      // signup hijack an established user's share URL.
       const slug = slugifyDisplayName(patch.display_name);
       if (slug) {
         const owner = ctx.storage.getUserByHandle(slug);

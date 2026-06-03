@@ -607,34 +607,11 @@ export function SyndicateForm({
             </div>
           </div>
 
-          {/* Handle */}
-          <div className="syn-field">
-            <label className="syn-label syn-required" htmlFor="syn-handle">
-              Your player handle
-            </label>
-            <input
-              id="syn-handle"
-              className={`syn-input ${fieldErrors.owner_handle ? "is-error" : ""}`}
-              type="text"
-              autoComplete="username"
-              value={handle}
-              maxLength={32}
-              placeholder="your_handle"
-              onChange={(e) => setHandle(e.target.value.replace(/[^a-zA-Z0-9_]/g, "").toLowerCase())}
-              aria-invalid={Boolean(fieldErrors.owner_handle)}
-              readOnly={handleLocked}
-              disabled={handleLocked}
-              aria-readonly={handleLocked || undefined}
-            />
-            <span className="syn-hint">
-              {handleLocked
-                ? "Locked to your account handle — handles can't be changed once they're registered."
-                : "Shown to pool members as your display name."}
-            </span>
-            {fieldErrors.owner_handle && (
-              <span className="syn-error-text">{fieldErrors.owner_handle}</span>
-            )}
-          </div>
+          {/* Handle is the user's permanent @handle (= display_name). It's
+            * set during signup and immutable from there on, so we don't
+            * surface a visible field here — the form auto-uses the value
+            * from the signed-in profile. (Tim 2026-06-04.) Submission
+            * still passes the handle through via `owner_handle` below. */}
 
           {/* Email */}
           <div className="syn-field">
