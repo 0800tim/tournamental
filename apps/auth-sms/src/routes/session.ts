@@ -204,6 +204,60 @@ export async function registerSession(
       patch.email = e;
     }
 
+    // Tim 2026-06-04: explicit pre-check for email collision.  The
+    // user.email UNIQUE index is still the source of truth (the catch
+    // below handles races between check and write), but resolving the
+    // collision before the UPDATE means a clean 409 + no audit-log
+    // noise from a near-miss INSERT.  Phone isn't reachable through
+    // this handler at all (no stringField for it), so the only way to
+    // change a phone number is the verified-OTP signup flow, which
+    // upserts on verified possession, so it cannot be used to hijack.
+    if (
+      'email' in patch &&
+      patch.email !== null &&
+      typeof patch.email === 'string' &&
+      patch.email.length > 0
+    ) {
+      const me = ctx.storage.getUser(authed.userId);
+      if (patch.email !== (me?.email ?? null)) {
+        const collider = ctx.storage.getUserByEmail(patch.email);
+        if (collider && collider.id !== authed.userId) {
+          return reply.code(409).send({ error: 'email-taken' });
+        }
+      }
+    }
+
+    // Tim 2026-06-04: enforce display-name uniqueness server-side.
+    // The /s/<handle> share routes use slugifyDisplayName(display_name)
+    // as the URL key; if two users slugify to the same handle the
+    // resolver picks "most recently active wins" which silently
+    // hijacks someone else's pretty URL.  Block at write time instead.
+    // Slug rule mirrors apps/web/lib/share/handle-slug.ts.
+    if (
+      'display_name' in patch &&
+      patch.display_name !== null &&
+      typeof patch.display_name === 'string'
+    ) {
+      const slug = (s: string | null | undefined): string =>
+        (s ?? '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9_-]/g, '');
+      const proposed = slug(patch.display_name);
+      // Empty / too-short proposals can't collide with a handle-shaped
+      // value, so they skip the check.
+      if (proposed.length >= 2 && proposed.length <= 32) {
+        const me = ctx.storage.getUser(authed.userId);
+        const myCurrentSlug = slug(me?.display_name ?? null);
+        // Only check when the proposed slug actually changes; users
+        // updating capitalisation or whitespace keep resolving to the
+        // same handle and shouldn't trip the check.
+        if (proposed !== myCurrentSlug) {
+          const collider = ctx.storage.getUserByHandle(proposed);
+          if (collider && collider.id !== authed.userId) {
+            return reply.code(409).send({ error: 'display-name-taken' });
+          }
+        }
+      }
+    }
+
     const now = Math.floor(ctx.now() / 1000);
     let updated;
     try {

@@ -35,9 +35,26 @@ async function safeT(key: string, fallback: string): Promise<string> {
   }
 }
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
+// Aliased to avoid colliding with the route-level `export const dynamic`
+// (Next.js segment-config flag) further down.
+import nextDynamic from "next/dynamic";
+
 import { BracketPosterCallout } from "@/components/share-landing/BracketPosterCallout";
-import { ReadOnlyBracket } from "@/components/share-landing/ReadOnlyBracket";
 import { ShareActions } from "@/components/share-landing/ShareActions";
+
+// Tim 2026-06-04: load ReadOnlyBracket client-side only.  The
+// component triggered a webpack `options.factory` runtime error on
+// /s/<handle> share landings when bundled as part of the page-level
+// client chunk.  Switching to `nextDynamic({ ssr: false })` isolates
+// it in its own chunk that loads after hydration, which sidesteps the
+// chunk-split issue without changing the component's contents.
+const ReadOnlyBracket = nextDynamic(
+  () =>
+    import("@/components/share-landing/ReadOnlyBracket").then(
+      (mod) => mod.ReadOnlyBracket,
+    ),
+  { ssr: false, loading: () => null },
+);
 import { JoinSyndicate } from "@/components/share-landing/JoinSyndicate";
 import { ShareMoleculeEmbed } from "@/components/share-landing/ShareMoleculeEmbed";
 import { SyndicateLeaderboardRows } from "@/components/share-landing/SyndicateLeaderboardRows";
@@ -629,28 +646,24 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
             // the enrichment confirmed the file exists on disk -
             // otherwise we fall back to the neutral silhouette.
             const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
-            // Resolve a URL that ALWAYS routes to this member's bracket
-            // landing.  Priority (Tim 2026-06-03 fix): use the
-            // immutable user_id permalink first, fall back to the
-            // slugified handle / display_name only when no user_id is
-            // present (anon join).  The slug path used to be the
-            // primary, but it broke whenever a user renamed
-            // themselves: pool tiles were built from the
-            // join-time display_name slug, while the resolver looked
-            // up the user's CURRENT display_name slug.  Permalink
-            // form resolves via the share-guid branch and never
-            // depends on the renderer-and-resolver agreeing on a
-            // mutable string.
-            const isPermalinkUser =
-              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
+            // Resolve a pretty URL that routes to this member's bracket
+            // landing.  Tim 2026-06-04: prefer the slugified display
+            // name (pretty URL) over the u_<hex> permalink.  Trade-off
+            // accepted: a user who renames will break any old shared
+            // /s/<oldname> links, but display-name uniqueness is
+            // enforced server-side at PATCH /v1/auth/me time so the
+            // current-name slug always resolves cleanly.  Permalink
+            // form is the fallback for legacy anon joins (no user_id).
             const slug =
               slugifyDisplayName(m.display_name) ??
               slugifyDisplayName(m.handle) ??
               null;
-            const profileHref = isPermalinkUser
-              ? `/s/${m.user_id}`
-              : slug
-                ? `/s/${slug}`
+            const isPermalinkUser =
+              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
+            const profileHref = slug
+              ? `/s/${slug}`
+              : isPermalinkUser
+                ? `/s/${m.user_id}`
                 : null;
             const cardKey = m.user_id ?? m.handle;
             const inner = (
