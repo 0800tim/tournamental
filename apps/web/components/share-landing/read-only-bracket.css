@@ -167,6 +167,13 @@
   color: rgba(231, 234, 243, 0.46);
   padding: 0 4px;
 }
+/* Picked DRAW reads in gold so it visually matches a picked winner.
+ * Tim 2026-06-04, was the same muted grey as the "vs" connector, so
+ * a draw pick read like an unanswered match. */
+.rob-fixture-vs[data-picked="draw"] {
+  color: #fbbf24;
+  font-weight: 800;
+}
 
 /* ── Best 8 3rd-placed teams list ───────────────────────────────── */
 
