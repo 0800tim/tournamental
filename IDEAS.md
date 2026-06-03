@@ -52,6 +52,7 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 - [2026-05-10, doc 13] Inline-keyboard pick flow for /picks (3–4 tap predict tree per doc 13). v0 deep-links to web. (open)
 - [2026-05-10, doc 13] `@TournamentalAnnounce` channel for tournament-wide broadcasts; bot posts pinned headlines at draw / kickoff / final. (open)
 - [2026-05-10, doc 13] Group-leaderboard mode — install bot in a group, `/setup` binds the group ID to a private leaderboard. (open)
+- [2026-06-04, profile email-change UX] Build a verify-and-merge email change flow: new auth-sms endpoint that takes an authed session + a verified OTP for a new email, and merges that email onto the current user row (instead of minting a fresh session via findOrCreateEmailUser). Until that lands, the Profile email field is readOnly. Affected: apps/auth-sms/src/routes/email-otp.ts (new POST /v1/auth/email/link), apps/web/components/auth/ProfilePage.tsx (re-enable Email field), apps/web/lib/auth/inbound-login.ts (new client helper). (open)
 
 ### Verification / Prediction IQ
 - [2026-05-09, doc 17] Bitcoin-only OpenTimestamps tier marketing badge once Bitcoin proof completes. (open)

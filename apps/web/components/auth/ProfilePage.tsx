@@ -349,15 +349,28 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           />
         </Field>
         <Field label={safeT(t, "profile_page.field_email", "Email")}>
+          {/* Tim 2026-06-04: email changes require server-side
+            * verify-and-merge against the current session, which the
+            * auth-sms email-OTP flow doesn't yet support (it mints a
+            * fresh session for the verified address instead). Gate the
+            * field readOnly with a tooltip until the merge endpoint
+            * lands. IDEAS.md tracks the follow-up. */}
           <input
             className="auth-input"
             type="email"
             inputMode="email"
             value={draft.email}
-            onChange={(e) => setDraft({ ...draft, email: e.target.value })}
+            readOnly
+            aria-readonly="true"
             maxLength={254}
             autoComplete="email"
             placeholder={safeT(t, "profile_page.placeholder_email", "you@example.com")}
+            title={safeT(
+              t,
+              "profile_page.field_email_readonly_title",
+              "Email changes are coming soon. For now, contact support to update your email.",
+            )}
+            style={{ opacity: 0.7, cursor: "not-allowed" }}
           />
         </Field>
         <Field label={safeT(t, "profile_page.field_mobile", "Mobile")}>
@@ -901,7 +914,11 @@ function diffDraft(server: InboundUser, draft: DraftProfile): InboundProfilePatc
   cmp(server.firstName, draft.firstName, "first_name");
   cmp(server.lastName, draft.lastName, "last_name");
   cmp(server.displayName, draft.displayName, "display_name");
-  cmp(server.email, draft.email, "email");
+  // Tim 2026-06-04: email is intentionally NOT diffed. The auth-sms
+  // PATCH /v1/auth/me silently strips email (SEC-AUTH-09) and the
+  // verify-and-merge path doesn't exist yet, so submitting it here
+  // would just be a wasted field. The Email input is rendered readOnly
+  // above; tracked in IDEAS.md.
   cmp(server.country, draft.country, "country");
   cmp(server.city, draft.city, "city");
   cmp(server.favouriteTeamCode, draft.favouriteTeamCode, "favourite_team_code");
