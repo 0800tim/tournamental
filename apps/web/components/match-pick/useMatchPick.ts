@@ -167,11 +167,9 @@ export function useMatchPick(
       const url = `${base}/v1/picks/${encodeURIComponent(userId)}/${encodeURIComponent(matchId)}?tournament_id=${encodeURIComponent(tournamentId)}`;
       const res = await fetchImpl(url, {
         method: "GET",
-        headers: { "x-user-id": userId },
-        // Forward the .tournamental.com tnm_session cookie cross-origin
-        // so the game-service identifies the caller (without this the
-        // server falls through to x-user-id dev-fallback which is
-        // disabled in prod -> 401 missing_user). Tim 2026-05-25.
+        // SEC-WEB-03: cookie-only identity. The .tournamental.com
+        // tnm_session cookie is forwarded via credentials: include;
+        // game-service trusts only that signal in prod.
         credentials: "include",
         cache: "no-store",
       });
@@ -255,9 +253,9 @@ export function useMatchPick(
         res = fetchImpl
           ? await fetchImpl(url, {
               method: "PUT",
+              // SEC-WEB-03: cookie-only identity (no x-user-id).
               headers: {
                 "content-type": "application/json",
-                "x-user-id": userId,
               },
               body: JSON.stringify(body),
               credentials: "include",
@@ -316,7 +314,7 @@ export function useMatchPick(
       const res = fetchImpl
         ? await fetchImpl(url, {
             method: "DELETE",
-            headers: { "x-user-id": userId },
+            // SEC-WEB-03: cookie-only identity.
             credentials: "include",
             cache: "no-store",
           })

@@ -162,12 +162,14 @@ export async function savePerMatchPick(
   };
   const timer = opts.signal ? null : abortAfter(opts.timeoutMs ?? DEFAULT_TIMEOUT_MS);
   try {
+    // SEC-WEB-03: drop `x-user-id`. game-service identifies the caller
+    // via the session cookie (forwarded via credentials: include); the
+    // dev-fallback header would have been ignored in prod anyway.
     const res = await fetchImpl(url, {
       method: "PUT",
       credentials: "include",
       headers: {
         "content-type": "application/json",
-        "x-user-id": input.userId,
       },
       body: JSON.stringify(body),
       cache: "no-store",
@@ -244,8 +246,8 @@ export async function saveFullBracket(
       method: "POST",
       credentials: "include",
       headers: {
+        // SEC-WEB-03: cookie-only identity; no x-user-id forwarded.
         "content-type": "application/json",
-        "x-user-id": args.userId,
       },
       body: JSON.stringify({
         tournament_id: args.tournamentId,
@@ -320,7 +322,7 @@ export async function loadServerBracket(
     const res = await fetchImpl(url, {
       method: "GET",
       credentials: "include",
-      headers: { "x-user-id": args.userId },
+      // SEC-WEB-03: cookie-only identity.
       cache: "no-store",
       signal: opts.signal ?? timer?.signal,
     });

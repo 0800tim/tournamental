@@ -21,6 +21,7 @@
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { getSessionFromRequest } from "@/lib/auth/session";
 import { buildPreview } from "@/lib/import/commit";
 import { defaultFetcher } from "@/lib/import/fetcher";
 import { parseScreenshot } from "@/lib/import/parsers/screenshot";
@@ -69,26 +70,14 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+/**
+ * SEC-WEB-07: local JWT verification rather than a cookie-forwarding
+ * round trip to auth-sms. Removes the SSRF-via-AUTH_API_URL risk and
+ * shaves a hop off the hot path.
+ */
 async function resolveUser(req: NextRequest): Promise<{ userId: string } | null> {
-  const base = (
-    process.env.AUTH_API_BASE ??
-    process.env.AUTH_API_URL ??
-    process.env.NEXT_PUBLIC_AUTH_BASE_URL ??
-    "https://auth.tournamental.com"
-  ).replace(/\/+$/, "");
-  const cookie = req.headers.get("cookie") ?? "";
-  if (!cookie.includes("tnm_session=")) return null;
-  try {
-    const res = await fetch(`${base}/v1/auth/me`, {
-      headers: { cookie, accept: "application/json" },
-      signal: AbortSignal.timeout(4000),
-    });
-    if (!res.ok) return null;
-    const body = (await res.json()) as { user?: { id?: string } };
-    return body?.user?.id ? { userId: body.user.id } : null;
-  } catch {
-    return null;
-  }
+  const session = await getSessionFromRequest(req);
+  return session ? { userId: session.userId } : null;
 }
 
 export async function POST(req: NextRequest): Promise<Response> {

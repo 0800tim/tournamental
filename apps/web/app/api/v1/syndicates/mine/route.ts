@@ -75,10 +75,13 @@ async function meFromAuthSms(req: NextRequest): Promise<{
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 600);
   try {
-    const cookie = req.headers.get("cookie") ?? "";
+    // SEC-WEB-10: forward only tnm_session to auth-sms, not the full
+    // cookie jar (analytics + third-party cookies have no business
+    // crossing the internal service boundary).
+    const sessionValue = req.cookies.get("tnm_session")?.value ?? "";
     const res = await fetch(`${base}/v1/auth/me`, {
       signal: ctrl.signal,
-      headers: { accept: "application/json", cookie },
+      headers: { accept: "application/json", cookie: `tnm_session=${sessionValue}` },
     });
     clearTimeout(timer);
     if (!res.ok) return { userId: null, emailLower: null, handleSlug: null };

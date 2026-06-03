@@ -40,6 +40,8 @@ import type { NextRequest } from "next/server";
 import { SignJWT } from "jose";
 import { z } from "zod";
 
+import { checkRateLimit, clientIp } from "@/lib/rate-limit/in-memory";
+
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -99,6 +101,25 @@ export async function POST(req: NextRequest): Promise<Response> {
   const parsed = BodySchema.safeParse(raw);
   if (!parsed.success) return json(req, { error: "bad_body" }, 400);
   const data = parsed.data;
+
+  // SEC-WEB-12: rate-limit by IP+identifier so an open widget endpoint
+  // can't be used as an OTP-spam amplifier. The key composes the
+  // request action with the phone/email so a flood from one IP across
+  // many phone numbers is still throttled (5/10min).
+  const ip = clientIp(req);
+  const ident =
+    ("email" in data && data.email) ||
+    ("phone" in data && data.phone) ||
+    ip;
+  const rlKey = `widget-otp:${data.action}:${ip}:${ident}`;
+  const rl = checkRateLimit(rlKey, 5, 10 * 60_000);
+  if (!rl.ok) {
+    return json(
+      req,
+      { error: "rate_limited", retry_after_seconds: Math.ceil(rl.retryAfterMs / 1000) },
+      429,
+    );
+  }
 
   if (data.action === "request") {
     const isEmail = data.channel === "email";

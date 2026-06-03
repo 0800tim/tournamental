@@ -15,6 +15,7 @@
 import { type NextRequest } from "next/server";
 import { z } from "zod";
 
+import { getSessionFromRequest } from "@/lib/auth/session";
 import {
   bracketAlreadyImported,
   markBracketImported,
@@ -61,26 +62,15 @@ function json(body: unknown, status = 200): Response {
   });
 }
 
+/**
+ * SEC-WEB-07: resolve the user via local JWT verification rather than
+ * proxying the cookie to auth-sms /v1/auth/me. Cheaper, removes the
+ * SSRF-via-AUTH_API_URL risk, and matches every other route in this
+ * app.
+ */
 async function resolveUser(req: NextRequest): Promise<{ userId: string } | null> {
-  const base = (
-    process.env.AUTH_API_BASE ??
-    process.env.AUTH_API_URL ??
-    process.env.NEXT_PUBLIC_AUTH_BASE_URL ??
-    "https://auth.tournamental.com"
-  ).replace(/\/+$/, "");
-  const cookie = req.headers.get("cookie") ?? "";
-  if (!cookie.includes("tnm_session=")) return null;
-  try {
-    const res = await fetch(`${base}/v1/auth/me`, {
-      headers: { cookie, accept: "application/json" },
-      signal: AbortSignal.timeout(4000),
-    });
-    if (!res.ok) return null;
-    const body = (await res.json()) as { user?: { id?: string } };
-    return body?.user?.id ? { userId: body.user.id } : null;
-  } catch {
-    return null;
-  }
+  const session = await getSessionFromRequest(req);
+  return session ? { userId: session.userId } : null;
 }
 
 function gameApiBase(): string {
@@ -139,16 +129,21 @@ export async function POST(req: NextRequest): Promise<Response> {
 
   // Look up the user's existing bracket id (if any) so we can enforce
   // one-import-per-bracket. We do this by calling game-service's
-  // /v1/bracket/me?tournament_id=... endpoint with the X-User-Id
-  // header (dev) / Authorization cookie (prod).
+  // /v1/bracket/me?tournament_id=... endpoint.
+  //
+  // SEC-WEB-03: do not forward `x-user-id` — game-service uses the
+  // session cookie as its sole identity signal. SEC-WEB-10: forward
+  // only the `tnm_session` cookie rather than the full inbound jar
+  // (which contains analytics + third-party cookies the internal
+  // service has no business reading).
+  const sessionCookie = req.cookies.get("tnm_session")?.value ?? "";
   const bracketRes = await fetch(
     `${gameApiBase()}/v1/bracket/me?tournament_id=${encodeURIComponent(tournamentId)}`,
     {
       method: "GET",
       headers: {
         accept: "application/json",
-        "x-user-id": user.userId,
-        cookie: req.headers.get("cookie") ?? "",
+        cookie: `tnm_session=${sessionCookie}`,
       },
       cache: "no-store",
     },
@@ -177,8 +172,8 @@ export async function POST(req: NextRequest): Promise<Response> {
     headers: {
       "Content-Type": "application/json",
       accept: "application/json",
-      "x-user-id": user.userId,
-      cookie: req.headers.get("cookie") ?? "",
+      // SEC-WEB-03/10: cookie-only auth, scoped to tnm_session.
+      cookie: `tnm_session=${sessionCookie}`,
     },
     body: JSON.stringify({
       tournament_id: tournamentId,

@@ -32,6 +32,13 @@ const BodySchema = z.object({
   action: z.enum(["approve", "deny"]),
 });
 
+/**
+ * SEC-WEB-09: the userId path param feeds straight into SQL lookups +
+ * audit log entries; enforce the shape we actually use (`u_<hex>` or
+ * `anon:<hex>`) before touching the DB.
+ */
+const USER_ID_RE = /^(u_[0-9a-f]{16,}|anon:[0-9a-f]{8,})$/i;
+
 function json(body: unknown, status: number): Response {
   return Response.json(body, {
     status,
@@ -46,6 +53,7 @@ export async function POST(
   const slug = (params.slug ?? "").toLowerCase().trim();
   const userId = (params.userId ?? "").trim();
   if (!slug || !userId) return json({ error: "bad_request" }, 400);
+  if (!USER_ID_RE.test(userId)) return json({ error: "bad_user_id" }, 400);
 
   const session = await getSessionFromRequest(req);
   if (!session) return json({ error: "unauthorised" }, 401);

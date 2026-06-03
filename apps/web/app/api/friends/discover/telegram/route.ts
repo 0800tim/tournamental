@@ -13,6 +13,8 @@
  * telegram_id back to the browser.
  */
 
+import { timingSafeEqual } from "node:crypto";
+
 import { NextResponse, type NextRequest } from "next/server";
 
 import { serviceRoleClient } from "@/lib/auth/supabase";
@@ -38,8 +40,14 @@ export async function POST(req: NextRequest) {
   if (!secret) {
     return NextResponse.json({ error: "internal_secret_missing" }, { status: 503 });
   }
-  const presented = req.headers.get(INTERNAL_HEADER);
-  if (!presented || presented !== secret) {
+  // SEC-ADMIN-07: constant-time compare so an attacker can't probe the
+  // shared secret one byte at a time via response-time differences.
+  const presented = req.headers.get(INTERNAL_HEADER) ?? "";
+  const a = Buffer.from(presented);
+  const b = Buffer.from(secret);
+  const equal =
+    a.length === b.length && timingSafeEqual(a, b);
+  if (!equal) {
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 

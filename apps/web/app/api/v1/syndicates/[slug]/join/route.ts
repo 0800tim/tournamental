@@ -109,6 +109,9 @@ async function resolveSession(req: NextRequest): Promise<{
   phone: string | null;
   displayName: string | null;
 } | null> {
+  // SEC-WEB-10: only the session cookie is forwarded — the inbound
+  // request can carry analytics + third-party cookies that have no
+  // business crossing the internal service boundary.
   const cookie = req.cookies.get("tnm_session")?.value;
   if (cookie) {
     try {
