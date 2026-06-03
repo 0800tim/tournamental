@@ -22,7 +22,7 @@
     "@react-three/rapier": "1.5.0",
     "@resvg/resvg-js": "^2.6.2",
     "@supabase/ssr": "^0.10.3",
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/supabase-js": "^2.107.0",
     "@tournamental/bracket-engine": "workspace:*",
     "@tournamental/social-cards": "workspace:*",
     "@tournamental/spec": "workspace:*",
@@ -46,7 +46,7 @@
     "zustand": "^4.5.5"
   },
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "^1.60.0",
     "@testing-library/react": "^16.0.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20.16.11",
