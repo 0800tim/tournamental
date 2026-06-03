@@ -13,7 +13,7 @@
  * drop both the banner and the watermark wrappers.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   Leaderboard,
@@ -40,13 +40,38 @@ export default function LeaderboardPage() {
   // "You" pinned to mid-pack so the highlight row is visibly demoed.
   const youId = members[12]?.id;
 
+  // Days-to-kickoff is a live countdown to the FIFA WC 2026 opening
+  // match (2026-06-11T19:00:00Z, Mexico City). Initialised to `null` so
+  // SSR doesn't disagree with the client's clock; the post-mount effect
+  // fills it in and refreshes every minute so leaving the tab open
+  // across midnight still reads correctly. Tim 2026-06-04 caught it
+  // stuck on the original hardcoded "31 days" demo value.
+  const [daysToKickoff, setDaysToKickoff] = useState<number | null>(null);
+  useEffect(() => {
+    const kickoffMs = Date.UTC(2026, 5, 11, 19, 0, 0);
+    const recompute = () => {
+      const remaining = Math.ceil((kickoffMs - Date.now()) / 86_400_000);
+      setDaysToKickoff(Math.max(0, remaining));
+    };
+    recompute();
+    const timer = setInterval(recompute, 60_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const kickoffLabel = useMemo(() => {
+    if (daysToKickoff === null) return "Soon";
+    if (daysToKickoff === 0) return "Live";
+    if (daysToKickoff === 1) return "1 day";
+    return `${daysToKickoff} days`;
+  }, [daysToKickoff]);
+
   const heroStats = useMemo(
     () => [
       { value: "24,388", label: "brackets locked" },
       { value: "1,204", label: "syndicates running" },
-      { value: "31 days", label: "to kickoff" },
+      { value: kickoffLabel, label: "to kickoff" },
     ],
-    [],
+    [kickoffLabel],
   );
 
   // For the "you vs the pool" chart, seed from the highlighted member.
