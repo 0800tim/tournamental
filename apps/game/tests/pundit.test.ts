@@ -61,6 +61,7 @@ async function submitBracket(
   const res = await app.inject({
     method: "POST",
     url: "/v1/bracket/submit",
+    headers: { "x-user-id": userId },
     payload: { tournament_id: tournamentId, user_id: userId, bracket },
   });
   expect(res.statusCode).toBe(201);

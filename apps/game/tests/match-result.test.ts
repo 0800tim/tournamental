@@ -25,6 +25,7 @@ describe("game-service / match result + scoring", () => {
     const aliceRes = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_alice" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_alice",
@@ -40,6 +41,7 @@ describe("game-service / match result + scoring", () => {
     const bobRes = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_bob" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_bob",

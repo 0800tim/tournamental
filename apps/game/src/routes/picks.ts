@@ -51,9 +51,11 @@ import { resolveUserId as resolveCallerId } from "./identity.js";
 
 // ---------- helpers ----------
 
+// SEC-BRK-09: the dev-fallback `X-User-Id` header is enabled ONLY
+// when `GAME_DEV_AUTH=1`. See the matching note in bracket.ts.
 function resolveUserId(req: FastifyRequest): string | null {
   return resolveCallerId(req, {
-    devAuth: process.env.GAME_DEV_AUTH === "1" || process.env.NODE_ENV !== "production",
+    devAuth: process.env.GAME_DEV_AUTH === "1",
     jwtSecret: process.env.SUPABASE_JWT_SECRET ?? null,
     authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
   });

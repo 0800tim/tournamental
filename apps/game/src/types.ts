@@ -54,10 +54,20 @@ export interface LockReceipt {
   readonly version: number;
 }
 
-/** Leaderboard row served to clients. */
+/**
+ * Leaderboard row served to clients.
+ *
+ * SEC-BRK-06: the raw `user_id` was previously returned for every
+ * top-N entry. That id is the auth-sms canonical id which the
+ * `/v1/bracket/by-guid/<user_id>` enumeration vector was happy to
+ * accept (see SEC-BRK-05). The public surface now emits an opaque
+ * `user_handle` — the first 8 hex chars of an HMAC over the user
+ * id keyed by a server secret — so the UI still has a stable
+ * identity for animations/highlighting without leaking the real id.
+ */
 export interface LeaderboardRow {
   readonly rank: number;
-  readonly user_id: string;
+  readonly user_handle: string;
   readonly score_total: number;
   readonly bracket_id: string;
 }

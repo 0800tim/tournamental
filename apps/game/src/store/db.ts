@@ -376,20 +376,28 @@ export class GameStore {
   }
 
   /**
-   * Returns true iff the share guid is already used by a row OTHER
-   * than the one identified by `(userId, tournamentId)`. The save
-   * endpoint uses this to reject client-supplied guids that collide
-   * with somebody else's bracket. Re-using your own guid on a re-save
-   * of your own bracket is fine — that's the whole point.
+   * Returns true iff the share guid is already used by a different
+   * USER. The save endpoint uses this to reject client-supplied guids
+   * that collide with somebody else's bracket. Re-using your own guid
+   * is always fine — that's the whole point of a stable share URL
+   * across re-saves (and, after SEC-BRK-10, across tournaments too:
+   * if userA happens to re-use their own guid for a future
+   * tournament, that's their choice and not a collision).
+   *
+   * SEC-BRK-10: the prior implementation also flagged a conflict when
+   * the same user re-used their own guid for a different tournament,
+   * which made the API contract confusing without preventing any
+   * actual overwrite (the upsert path keys on user+tournament). The
+   * `_tournamentId` parameter is retained for call-site stability.
    */
   isShareGuidTakenByOther(
     shareGuid: string,
     userId: string,
-    tournamentId: string,
+    _tournamentId: string,
   ): boolean {
     const row = this.getBracketByShareGuid(shareGuid);
     if (!row) return false;
-    return row.user_id !== userId || row.tournament_id !== tournamentId;
+    return row.user_id !== userId;
   }
 
   getBracketForUser(

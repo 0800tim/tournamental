@@ -8,9 +8,27 @@
  */
 
 import type { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { timingSafeEqual } from "node:crypto";
 
 export interface AdminGuardOptions {
   readonly token: string | null;
+}
+
+/**
+ * SEC-BRK-04 / SEC-ADMIN-05: constant-time string compare. Returns
+ * false unless both inputs are the same byte length AND every byte
+ * matches. We pre-screen the length so `timingSafeEqual` (which
+ * throws on length mismatch) never sees an unequal pair — the boolean
+ * length check itself leaks no more than what an attacker already
+ * knows from the token format. The plain `!==` previously used here
+ * was a timing side channel against admin surfaces (match-result,
+ * syndicate writes, tournament settle).
+ */
+function safeCompareToken(presented: string, expected: string): boolean {
+  const a = Buffer.from(presented, "utf8");
+  const b = Buffer.from(expected, "utf8");
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(a, b);
 }
 
 export function makeAdminGuard(opts: AdminGuardOptions) {
@@ -26,7 +44,7 @@ export function makeAdminGuard(opts: AdminGuardOptions) {
       return reply.code(401).send({ error: "missing_bearer" });
     }
     const presented = header.slice("Bearer ".length).trim();
-    if (presented !== opts.token) {
+    if (!safeCompareToken(presented, opts.token)) {
       return reply.code(403).send({ error: "bad_token" });
     }
   };

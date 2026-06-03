@@ -88,9 +88,10 @@ export async function registerUserApiKeyRoutes(
   deps: UserApiKeyRoutesDeps,
 ): Promise<void> {
   const now = deps.nowMs ?? (() => Date.now());
-  const devAuth =
-    deps.devAuth ??
-    (process.env.GAME_DEV_AUTH === "1" || process.env.NODE_ENV !== "production");
+  // SEC-BRK-09: `X-User-Id` dev fallback is gated solely by
+  // GAME_DEV_AUTH=1. Dropping the NODE_ENV shortcut so production
+  // never accidentally re-enables the unsigned-header path.
+  const devAuth = deps.devAuth ?? process.env.GAME_DEV_AUTH === "1";
   const jwtSecret = deps.jwtSecret ?? process.env.SUPABASE_JWT_SECRET ?? null;
 
   /**

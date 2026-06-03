@@ -9,11 +9,23 @@ describe("game-service / bracket submit + retrieve", () => {
     await app.close();
   });
 
-  it("rejects an empty body with 400 invalid_payload", async () => {
+  it("rejects an unauthenticated POST with 401 missing_user (SEC-BRK-01)", async () => {
     const { app } = await built;
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      payload: {},
+    });
+    expect(res.statusCode).toBe(401);
+    expect(res.json().error).toBe("missing_user");
+  });
+
+  it("rejects an empty body with 400 invalid_payload (when authenticated)", async () => {
+    const { app } = await built;
+    const res = await app.inject({
+      method: "POST",
+      url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_1" },
       payload: {},
     });
     expect(res.statusCode).toBe(400);
@@ -26,6 +38,7 @@ describe("game-service / bracket submit + retrieve", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_1" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_1",
@@ -47,6 +60,7 @@ describe("game-service / bracket submit + retrieve", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_1" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_1",
@@ -68,6 +82,25 @@ describe("game-service / bracket submit + retrieve", () => {
     expect(res.statusCode).toBe(400);
   });
 
+  it("rejects a body whose user_id != caller id with 403 (SEC-BRK-01)", async () => {
+    const { app } = await built;
+    const bracket = makeBracket("bk_mismatch", {
+      "1": makeMatchPrediction("1", "home_win"),
+    });
+    const res = await app.inject({
+      method: "POST",
+      url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_attacker" },
+      payload: {
+        tournament_id: "fifa-wc-2026",
+        user_id: "u_victim",
+        bracket,
+      },
+    });
+    expect(res.statusCode).toBe(403);
+    expect(res.json().error).toBe("user_mismatch");
+  });
+
   it("accepts a valid bracket and returns 201 + a lock receipt", async () => {
     const { app } = await built;
     const bracket = makeBracket("bk_alpha", {
@@ -77,6 +110,7 @@ describe("game-service / bracket submit + retrieve", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_alpha" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_alpha",
@@ -101,6 +135,7 @@ describe("game-service / bracket submit + retrieve", () => {
     const first = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_beta" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_beta",
@@ -116,6 +151,7 @@ describe("game-service / bracket submit + retrieve", () => {
     const second = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_beta" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_beta",

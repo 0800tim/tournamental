@@ -15,6 +15,7 @@
  */
 
 import type { FastifyInstance } from "fastify";
+import { createHmac } from "node:crypto";
 
 import {
   globalKey,
@@ -26,6 +27,31 @@ import type { LeaderboardRow } from "../types.js";
 
 const TOP_N = 100;
 const PUBLIC_CACHE_HEADER = "public, max-age=30, stale-while-revalidate=60";
+
+/**
+ * SEC-BRK-06: opaque per-user identifier emitted in place of the raw
+ * `user_id`. HMAC keyed by `LEADERBOARD_HANDLE_SECRET` (or the admin
+ * token as a sane fallback so dev / unit tests get a stable hash
+ * without extra env vars). 8 hex chars = 32 bits — collisions are
+ * possible at 65k entries (birthday) but the surface only needs
+ * stability within a single leaderboard render, and the hash is one-
+ * way so it can't be reversed into the auth-sms user id consumed by
+ * the `/v1/bracket/by-guid/<user_id>` enumeration vector.
+ */
+function leaderboardHandleSecret(): string {
+  return (
+    process.env.LEADERBOARD_HANDLE_SECRET ||
+    process.env.GAME_ADMIN_TOKEN ||
+    "leaderboard-handle-dev-secret"
+  );
+}
+
+function hashUserHandle(userId: string): string {
+  return createHmac("sha256", leaderboardHandleSecret())
+    .update(userId)
+    .digest("hex")
+    .slice(0, 8);
+}
 
 export interface LeaderboardRoutesDeps {
   readonly store: GameStore;
@@ -52,7 +78,7 @@ export async function registerLeaderboardRoutes(
     const rows = deps.store.topN(tournamentId, TOP_N);
     const out: LeaderboardRow[] = rows.map((r, i) => ({
       rank: i + 1,
-      user_id: r.user_id,
+      user_handle: hashUserHandle(r.user_id),
       score_total: r.score_total,
       bracket_id: r.id,
     }));
@@ -91,7 +117,7 @@ export async function registerLeaderboardRoutes(
       const rows = deps.store.topNForSyndicate(tournamentId, syndicateId, TOP_N);
       const out: LeaderboardRow[] = rows.map((r, i) => ({
         rank: i + 1,
-        user_id: r.user_id,
+        user_handle: hashUserHandle(r.user_id),
         score_total: r.score_total,
         bracket_id: r.id,
       }));

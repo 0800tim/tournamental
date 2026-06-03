@@ -34,9 +34,15 @@ import {
 import type { MatchPrediction } from "@tournamental/bracket-engine";
 import { resolveUserId as resolveCallerId } from "./identity.js";
 
+// SEC-BRK-09: the dev-fallback `X-User-Id` header is enabled ONLY
+// when `GAME_DEV_AUTH=1`. Production previously also activated it
+// via `NODE_ENV !== "production"`, which is footgun-flavoured: a
+// missing/misspelled NODE_ENV in any environment (CI, staging, a
+// container without an explicit env) would silently re-enable the
+// unsigned-header path. Single explicit opt-in only.
 function resolveUserId(req: FastifyRequest): string | null {
   return resolveCallerId(req, {
-    devAuth: process.env.GAME_DEV_AUTH === "1" || process.env.NODE_ENV !== "production",
+    devAuth: process.env.GAME_DEV_AUTH === "1",
     jwtSecret: process.env.SUPABASE_JWT_SECRET ?? null,
     authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
   });
@@ -124,6 +130,19 @@ export async function registerBracketRoutes(
 
   app.post("/v1/bracket/submit", async (req, reply) => {
     reply.header("Cache-Control", "private, no-store");
+
+    // SEC-BRK-01: resolve the caller's identity BEFORE trusting the
+    // body's `user_id`. The route previously upserted whatever
+    // `user_id` the body carried, which let any authenticated caller
+    // overwrite a victim's bracket. We now require a verified
+    // session (tnm_session cookie / Bearer JWT / personal API key —
+    // or the dev-header fallback when GAME_DEV_AUTH=1) and 403 if
+    // the body claims a different user.
+    const callerId = resolveUserId(req);
+    if (!callerId) {
+      return reply.code(401).send({ error: "missing_user" });
+    }
+
     const parsed = submitBracketBodySchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.code(400).send({
@@ -137,6 +156,9 @@ export async function registerBracketRoutes(
     }
 
     const { tournament_id, user_id, bracket, share_guid } = parsed.data;
+    if (user_id !== callerId) {
+      return reply.code(403).send({ error: "user_mismatch" });
+    }
     const lookup = registry.forTournament(tournament_id);
 
     // If the client supplied a share_guid, ensure it isn't already

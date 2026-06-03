@@ -50,6 +50,7 @@ describe("game-service / kickoff lockout", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_late" },
       payload: {
         tournament_id: TOURNAMENT,
         user_id: "u_late",
@@ -77,6 +78,7 @@ describe("game-service / kickoff lockout", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_early" },
       payload: {
         tournament_id: TOURNAMENT,
         user_id: "u_early",
@@ -126,6 +128,7 @@ describe("game-service / kickoff lockout", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_mixed" },
       payload: {
         tournament_id: TOURNAMENT,
         user_id: "u_mixed",
@@ -163,6 +166,7 @@ describe("game-service / kickoff lockout", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_unknown" },
       payload: {
         tournament_id: "some-other-tournament",
         user_id: "u_unknown",

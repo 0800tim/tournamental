@@ -22,6 +22,7 @@ describe("game-service / leaderboard", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": userId },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: userId,
@@ -124,6 +125,7 @@ describe("game-service / syndicate leaderboard", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": userId },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: userId,
@@ -179,11 +181,21 @@ describe("game-service / syndicate leaderboard", () => {
     const alphaBody = alpha.json();
     expect(alphaBody.syndicate_id).toBe("syn-alpha");
     expect(alphaBody.rows.length).toBe(2);
-    const userIds = alphaBody.rows.map((r: { user_id: string }) => r.user_id);
-    expect(userIds.sort()).toEqual(["u_s1_a", "u_s1_b"]);
-    // u_s1_a is rank 1 with > 0 points.
-    expect(alphaBody.rows[0].user_id).toBe("u_s1_a");
+    // SEC-BRK-06: public leaderboard surface emits an opaque
+    // `user_handle` (8-char HMAC) instead of `user_id`. We assert
+    // shape + score ordering only — the test no longer round-trips
+    // the raw user id through this endpoint.
+    expect(
+      alphaBody.rows.every((r: { user_id?: string }) => r.user_id === undefined),
+    ).toBe(true);
+    expect(
+      alphaBody.rows.every((r: { user_handle: string }) =>
+        /^[0-9a-f]{8}$/.test(r.user_handle),
+      ),
+    ).toBe(true);
+    // Top row is the correct picker; the other syn-alpha member is 0.
     expect(alphaBody.rows[0].score_total).toBeGreaterThan(0);
+    expect(alphaBody.rows[1].score_total).toBe(0);
 
     const beta = await app.inject({
       method: "GET",
@@ -192,7 +204,8 @@ describe("game-service / syndicate leaderboard", () => {
     expect(beta.statusCode).toBe(200);
     const betaBody = beta.json();
     expect(betaBody.rows.length).toBe(1);
-    expect(betaBody.rows[0].user_id).toBe("u_s2_a");
+    expect(betaBody.rows[0].user_id).toBeUndefined();
+    expect(/^[0-9a-f]{8}$/.test(betaBody.rows[0].user_handle)).toBe(true);
   });
 
   it("unknown syndicate returns an empty list, not an error", async () => {

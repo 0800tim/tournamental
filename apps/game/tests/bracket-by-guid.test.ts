@@ -31,6 +31,7 @@ describe("game-service / share guid round-trip", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share1" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share1",
@@ -48,6 +49,7 @@ describe("game-service / share guid round-trip", () => {
     const first = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share2" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share2",
@@ -62,6 +64,7 @@ describe("game-service / share guid round-trip", () => {
     const second = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share2" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share2",
@@ -81,6 +84,7 @@ describe("game-service / share guid round-trip", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share3" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share3",
@@ -100,6 +104,7 @@ describe("game-service / share guid round-trip", () => {
     const first = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share_owner" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share_owner",
@@ -114,6 +119,7 @@ describe("game-service / share guid round-trip", () => {
     const second = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_share_intruder" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_share_intruder",
@@ -134,6 +140,7 @@ describe("game-service / share guid round-trip", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_tim" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_tim",
@@ -165,10 +172,13 @@ describe("game-service / share guid round-trip", () => {
     expect(body.bracket.champion_code).toBe("ARG");
     expect(body.bracket.runner_up_code).toBe("FRA");
     expect(body.bracket.third_place_code).toBe("BRA");
-    expect(body.bracket.knockout_path.length).toBe(4);
-    expect(body.bracket.knockout_path[3].stage).toBe("final");
-    expect(body.bracket.knockout_path[3].opponent_code).toBe("FRA");
-    expect(body.bracket.knockout_path[3].result).toBe("win");
+    // 2026-05-25: knockout_path now surfaces 5 stages (r32 was added
+    // for the FIFA WC 2026 48-team format). Legacy test data above
+    // only provides r16+ picks so r32 is a TBD placeholder.
+    expect(body.bracket.knockout_path.length).toBe(5);
+    expect(body.bracket.knockout_path[4].stage).toBe("final");
+    expect(body.bracket.knockout_path[4].opponent_code).toBe("FRA");
+    expect(body.bracket.knockout_path[4].result).toBe("win");
     expect(lookup.headers["cache-control"]).toContain("public");
     expect(lookup.headers["cache-control"]).toContain("s-maxage=60");
   });
@@ -237,6 +247,7 @@ describe("game-service / share guid round-trip", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_tim_canonical" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_tim_canonical",
@@ -264,18 +275,20 @@ describe("game-service / share guid round-trip", () => {
     // assert it's a real ISO-3 code (not null, not "TBD").
     expect(body.bracket.champion_code).toMatch(/^[A-Z]{3}$/);
     expect(body.bracket.runner_up_code).toMatch(/^[A-Z]{3}$/);
-    expect(body.bracket.knockout_path.length).toBe(4);
+    // 2026-05-25: 5 stages (r32, r16, qf, sf, final) — see note above.
+    expect(body.bracket.knockout_path.length).toBe(5);
     // Every opponent should be a real ISO-3 code, not null.
     for (const entry of body.bracket.knockout_path) {
       expect(entry.opponent_code).toMatch(/^[A-Z]{3}$/);
     }
   });
 
-  it("GET /v1/bracket/by-guid/<guid>?include=payload returns the full bracket JSON", async () => {
+  it("GET /v1/bracket/by-guid/<guid>?include=payload requires owner auth (SEC-BRK-05)", async () => {
     const { app } = await built;
     const submit = await app.inject({
       method: "POST",
       url: "/v1/bracket/submit",
+      headers: { "x-user-id": "u_payload" },
       payload: {
         tournament_id: "fifa-wc-2026",
         user_id: "u_payload",
@@ -288,24 +301,50 @@ describe("game-service / share guid round-trip", () => {
     expect(submit.statusCode).toBe(201);
     const guid = submit.json().share_guid;
 
-    const lookup = await app.inject({
+    // Authenticated as the bracket owner → payload is included.
+    const ownerLookup = await app.inject({
+      method: "GET",
+      url: `/v1/bracket/by-guid/${guid}?include=payload`,
+      headers: { "x-user-id": "u_payload" },
+    });
+    expect(ownerLookup.statusCode).toBe(200);
+    const ownerBody = ownerLookup.json();
+    expect(ownerBody.ok).toBe(true);
+    expect(ownerBody.bracket.payload).toBeTruthy();
+    expect(ownerBody.bracket.payload.matchPredictions["1"].outcome).toBe("home_win");
+    expect(ownerBody.bracket.payload.matchPredictions["2"].outcome).toBe("away_win");
+    // SEC-BRK-05: owner-only payloads are never edge-cached.
+    expect(ownerLookup.headers["cache-control"]).toContain("private");
+    // SEC-BRK-05/06: never echo the raw user_id back to any caller.
+    expect(ownerBody.bracket.user_id).toBeUndefined();
+
+    // Unauthenticated caller requesting payload gets metadata only,
+    // not the full bracket — public share URLs reveal the podium card
+    // and knockout path, never the per-match picks.
+    const anonLookup = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}?include=payload`,
     });
-    expect(lookup.statusCode).toBe(200);
-    const body = lookup.json();
-    expect(body.ok).toBe(true);
-    expect(body.bracket.payload).toBeTruthy();
-    expect(body.bracket.payload.matchPredictions["1"].outcome).toBe("home_win");
-    expect(body.bracket.payload.matchPredictions["2"].outcome).toBe("away_win");
+    expect(anonLookup.statusCode).toBe(200);
+    expect(anonLookup.json().bracket.payload).toBeUndefined();
 
-    // Without the include flag the payload is omitted.
+    // A DIFFERENT authenticated user is also denied the payload.
+    const otherLookup = await app.inject({
+      method: "GET",
+      url: `/v1/bracket/by-guid/${guid}?include=payload`,
+      headers: { "x-user-id": "u_intruder" },
+    });
+    expect(otherLookup.statusCode).toBe(200);
+    expect(otherLookup.json().bracket.payload).toBeUndefined();
+
+    // Without the include flag the payload is omitted (no auth).
     const naked = await app.inject({
       method: "GET",
       url: `/v1/bracket/by-guid/${guid}`,
     });
     expect(naked.statusCode).toBe(200);
     expect(naked.json().bracket.payload).toBeUndefined();
+    expect(naked.json().bracket.user_id).toBeUndefined();
   });
 
   it("GET /v1/bracket/by-guid/<guid> returns 404 for an unknown guid", async () => {

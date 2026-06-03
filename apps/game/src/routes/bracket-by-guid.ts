@@ -36,6 +36,7 @@ import { loadFixtures2026, type Tournament } from "@tournamental/bracket-engine"
 import type { GameStore } from "../store/db.js";
 import type { Bracket } from "../types.js";
 import type { MatchPrediction } from "@tournamental/bracket-engine";
+import { resolveUserId as resolveCallerId } from "./identity.js";
 
 import {
   resolveCascadeForSummary,
@@ -45,9 +46,17 @@ import {
 
 export type { KnockoutPathEntry } from "./bracket-cascade-summary.js";
 
+/**
+ * SEC-BRK-05 / SEC-BRK-06: the public-by-design response shape does
+ * NOT carry `user_id`. Exposing the raw auth-sms user id here would
+ * (a) leak the canonical ID for every shared bracket and (b) feed
+ * the `/v1/bracket/by-guid/<user_id>` enumeration chain that lets
+ * any guid lookup pivot to "latest bracket by this user". An opaque
+ * `user_handle` carries the UX-facing display name when one exists
+ * (currently always null until the handles table lands).
+ */
 export interface BracketByGuidPayload {
   readonly share_guid: string;
-  readonly user_id: string;
   readonly user_handle: string | null;
   readonly tournament_id: string;
   readonly champion_code: string | null;
@@ -57,8 +66,9 @@ export interface BracketByGuidPayload {
   readonly locked_at: string | null;
   /**
    * Full persisted bracket payload — only included when the caller
-   * passes `?include=payload`. The share-landing page uses this to
-   * drive the read-only 3D molecule embed underneath the podium card.
+   * passes `?include=payload` AND is authenticated as the bracket
+   * owner (SEC-BRK-05). The share-landing page uses this to drive
+   * the read-only 3D molecule embed underneath the podium card.
    */
   readonly payload?: Bracket;
 }
@@ -233,31 +243,22 @@ export async function registerBracketByGuidRoutes(
       .split(",")
       .map((s) => s.trim().toLowerCase())
       .includes("payload");
-    reply.header("Cache-Control", CACHE_HEADER);
 
     if (!guid || guid.length < 8 || guid.length > 64) {
+      reply.header("Cache-Control", CACHE_HEADER);
       return reply.code(404).send({ ok: false, error: "not_found" });
     }
 
-    // Primary lookup: by the persisted share_guid column.
-    // Fallback: if the guid looks like a user id, treat it as a userId
-    // and return that user's most-recent bracket. This is what makes
-    // `/s/<userId>` a working share URL — the canonical short form.
-    // Two userId shapes are accepted:
-    //   - UUID v4: the local-browser guest id minted client-side.
-    //   - `u_<16-32 hex>`: the auth-sms server-side user id (issued to
-    //     signed-in users). Web client mints share URLs with this id
-    //     when the user is signed in, so without this fallback every
-    //     signed-in share link 404'd (Tim 2026-05-24).
-    let row = deps.store.getBracketByShareGuid(guid);
-    if (
-      !row &&
-      (/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(guid) ||
-        /^u_[0-9a-f]{16,32}$/i.test(guid))
-    ) {
-      row = deps.store.getLatestBracketByUser(guid);
-    }
+    // SEC-BRK-05: the legacy "guid looks like a user id → fall through
+    // to that user's latest bracket" path enabled a public lookup by
+    // raw auth-sms user_id (`/v1/bracket/by-guid/u_<hex>`), which was
+    // the second half of the bracket-payload enumeration vector. Only
+    // resolve by the explicit `share_guid` column. The web client now
+    // mints + persists a stable share_guid for every signed-in user
+    // (handled by the WEB side; the share-link UX is unchanged).
+    const row = deps.store.getBracketByShareGuid(guid);
     if (!row) {
+      reply.header("Cache-Control", CACHE_HEADER);
       return reply.code(404).send({ ok: false, error: "not_found" });
     }
 
@@ -268,7 +269,26 @@ export async function registerBracketByGuidRoutes(
       // Corrupt payload — surface as 404 to the public so we don't leak
       // an internal-server-error to a share recipient. The bracket
       // owner can re-save to repair their row.
+      reply.header("Cache-Control", CACHE_HEADER);
       return reply.code(404).send({ ok: false, error: "not_found" });
+    }
+
+    // SEC-BRK-05: `include=payload` reveals every group + knockout
+    // pick. That's "public" by design only for the bracket owner —
+    // anyone else gets the metadata-only response (champion + podium
+    // + knockout path). The owner check resolves the caller's
+    // identity via the same path the bracket-submit handler uses
+    // (tnm_session cookie / Bearer JWT / dev-fallback header).
+    let payloadAllowed = false;
+    if (includePayload) {
+      const callerId = resolveCallerId(req, {
+        devAuth: process.env.GAME_DEV_AUTH === "1",
+        jwtSecret: process.env.SUPABASE_JWT_SECRET ?? null,
+        authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
+      });
+      if (callerId && callerId === row.user_id) {
+        payloadAllowed = true;
+      }
     }
 
     // Pick the right tournament fixture set. For 2026 we have one; if
@@ -283,7 +303,9 @@ export async function registerBracketByGuidRoutes(
       ok: true,
       bracket: {
         share_guid: row.share_guid ?? guid,
-        user_id: row.user_id,
+        // SEC-BRK-05 / SEC-BRK-06: never echo `user_id` to the public.
+        // `user_handle` is reserved for a future display-name lookup
+        // (handles table) — null until that ships.
         user_handle: null,
         tournament_id: row.tournament_id,
         champion_code: summary.champion_code,
@@ -291,9 +313,19 @@ export async function registerBracketByGuidRoutes(
         third_place_code: summary.third_place_code,
         knockout_path: summary.knockout_path,
         locked_at: row.locked_at ? new Date(row.locked_at).toISOString() : null,
-        ...(includePayload ? { payload } : {}),
+        ...(payloadAllowed ? { payload } : {}),
       },
     };
+
+    // SEC-BRK-05: when payload is included we return a per-user view
+    // and must NOT let it land on the public edge cache. Without the
+    // payload the response is purely public-share metadata and the
+    // 60s edge cache is fine.
+    if (payloadAllowed) {
+      reply.header("Cache-Control", "private, no-store");
+    } else {
+      reply.header("Cache-Control", CACHE_HEADER);
+    }
 
     return reply.code(200).send(body);
   });
