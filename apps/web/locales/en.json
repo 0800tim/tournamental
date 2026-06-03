@@ -583,18 +583,23 @@
     "page_title": "3D Molecule"
   },
   "profile_gate": {
-    "title": "Set up your profile",
-    "sub": "Add a photo and a display name, this is how you'll appear on the leaderboards and in shared pools.",
-    "display_name": "Display name (shown on leaderboards)",
+    "title": "Pick your @handle",
+    "sub": "This is your name on Tournamental. It appears on every leaderboard, becomes your share URL (tournamental.com/s/yourname), and you cannot change it later. Pick something you're happy to own publicly.",
+    "cta_save": "Claim @handle",
+    "cta_saving": "Saving…",
+    "display_name": "Your @handle (permanent)",
+    "placeholder": "yourname",
+    "hint_format": "3-32 characters. Letters, numbers, underscores. Cannot be changed later.",
+    "preview_url": "Your share URL: ",
     "first_name": "First name (optional)",
     "email": "Email (optional)",
-    "cta_save": "Save",
-    "cta_saving": "Saving…",
-    "cta_skip": "Skip for now",
-    "err_email_taken": "That email is already on another account.",
     "err_bad_email": "That email doesn't look right.",
+    "err_email_taken": "That email is already on another account.",
+    "err_generic": "Couldn't save that, try again.",
     "err_network": "Network hiccup, try again.",
-    "err_generic": "Couldn't save that, try again."
+    "err_reserved": "That handle is reserved. Please choose another.",
+    "err_taken": "That handle is already taken. Try another.",
+    "err_invalid_format": "Handles need 3 to 32 characters, made of letters, numbers, and underscores."
   },
   "profile_page": {
     "loading": "Loading…",

@@ -584,18 +584,23 @@
     "page_title": "3D molekula"
   },
   "profile_gate": {
-    "title": "Profilingizni sozlang",
-    "sub": "Rasm va ism qoʻshing. Reyting jadvalida va ulashilgan poollarda shu nom koʻrinadi.",
-    "display_name": "Ism (reyting jadvalida koʻrinadi)",
+    "title": "@handle'ingizni tanlang",
+    "sub": "Bu Tournamental'dagi ismingiz. Har bir reytingda ko'rinadi, ulashish URL'ingiz bo'ladi (tournamental.com/s/ismingiz), va keyin uni o'zgartira olmaysiz. Ochiq egalik qilishdan xursand bo'ladigan narsani tanlang.",
+    "cta_save": "@handle'ni olish",
+    "cta_saving": "Saqlanmoqda…",
+    "display_name": "Sizning @handle'ingiz (doimiy)",
+    "placeholder": "ismingiz",
+    "hint_format": "3-32 belgi. Harflar, raqamlar, ostki chiziq. Keyin o'zgartirib bo'lmaydi.",
+    "preview_url": "Sizning ulashish URL'ingiz: ",
     "first_name": "Ism (ixtiyoriy)",
     "email": "Email (ixtiyoriy)",
-    "cta_save": "Saqlash",
-    "cta_saving": "Saqlanmoqda…",
-    "cta_skip": "Hozircha oʻtkazib yuborish",
+    "err_bad_email": "Bu email noto'g'ri ko'rinadi.",
     "err_email_taken": "Bu email allaqachon boshqa hisobda.",
-    "err_bad_email": "Bu email togʻri koʻrinmaydi.",
-    "err_network": "Tarmoq xatosi, qayta urinib koʻring.",
-    "err_generic": "Saqlab boʻlmadi, qayta urinib koʻring."
+    "err_generic": "Saqlab bo'lmadi, qayta urinib ko'ring.",
+    "err_network": "Tarmoq xatosi, qayta urinib ko'ring.",
+    "err_reserved": "Bu @handle band qilingan. Boshqa tanlang.",
+    "err_taken": "Bu @handle allaqachon olingan. Boshqasini sinab ko'ring.",
+    "err_invalid_format": "@handles 3-32 belgi bo'lishi kerak, harf, raqam va ostki chiziq."
   },
   "profile_page": {
     "loading": "Yuklanmoqda…",

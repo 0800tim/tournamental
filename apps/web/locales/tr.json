@@ -584,18 +584,23 @@
     "page_title": "3D Molekül"
   },
   "profile_gate": {
-    "title": "Profilini ayarla",
-    "sub": "Bir fotoğraf ve görünür isim ekle. Sıralamada ve paylaşılan havuzlarda bu isimle görünürsün.",
-    "display_name": "Görünür isim (sıralamada görünür)",
+    "title": "@handle'ını seç",
+    "sub": "Bu, Tournamental'deki adın. Her sıralamada görünür, paylaşım URL'in olur (tournamental.com/s/adin), ve sonradan değiştirilemez. Açıkça sahiplenmekten mutlu olacağın bir şey seç.",
+    "cta_save": "@handle'ı al",
+    "cta_saving": "Kaydediliyor…",
+    "display_name": "@handle'ın (kalıcı)",
+    "placeholder": "adin",
+    "hint_format": "3-32 karakter. Harfler, rakamlar, alt çizgi. Sonradan değiştirilemez.",
+    "preview_url": "Paylaşım URL'in: ",
     "first_name": "Ad (isteğe bağlı)",
     "email": "E-posta (isteğe bağlı)",
-    "cta_save": "Kaydet",
-    "cta_saving": "Kaydediliyor…",
-    "cta_skip": "Şimdilik atla",
-    "err_email_taken": "Bu e-posta başka bir hesapta kayıtlı.",
-    "err_bad_email": "Bu e-posta doğru görünmüyor.",
-    "err_network": "Ağ sorunu, tekrar dene.",
-    "err_generic": "Kaydedilemedi, tekrar dene."
+    "err_bad_email": "Bu e-posta geçerli görünmüyor.",
+    "err_email_taken": "Bu e-posta başka bir hesapta kullanılıyor.",
+    "err_generic": "Kaydedilemedi, tekrar dene.",
+    "err_network": "Ağ hatası, tekrar dene.",
+    "err_reserved": "Bu @handle ayrılmış. Başkasını seç.",
+    "err_taken": "Bu @handle zaten alınmış. Başkasını dene.",
+    "err_invalid_format": "@handles 3-32 karakter olmalı, harf, rakam ve alt çizgi içermeli."
   },
   "profile_page": {
     "loading": "Yükleniyor…",

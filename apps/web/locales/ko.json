@@ -584,18 +584,23 @@
     "page_title": "3D 분자"
   },
   "profile_gate": {
-    "title": "프로필 설정",
-    "sub": "사진과 표시 이름을 추가하세요. 리더보드와 공유 풀에 표시되는 이름이에요.",
-    "display_name": "표시 이름 (리더보드에 표시)",
+    "title": "@handle을 선택하세요",
+    "sub": "이것은 Tournamental에서 사용하는 이름입니다. 모든 순위표에 표시되고, 공유 URL (tournamental.com/s/yourname)이 되며, 나중에 변경할 수 없습니다. 공개적으로 떳떳하게 사용할 수 있는 것을 선택하세요.",
+    "cta_save": "@handle 받기",
+    "cta_saving": "저장 중…",
+    "display_name": "당신의 @handle (영구)",
+    "placeholder": "yourname",
+    "hint_format": "3-32자. 영문자, 숫자, 밑줄. 나중에 변경할 수 없습니다.",
+    "preview_url": "당신의 공유 URL: ",
     "first_name": "이름 (선택)",
     "email": "이메일 (선택)",
-    "cta_save": "저장",
-    "cta_saving": "저장 중…",
-    "cta_skip": "지금 건너뛰기",
-    "err_email_taken": "이 이메일은 다른 계정에서 사용 중입니다.",
-    "err_bad_email": "이메일 형식이 올바르지 않은 것 같아요.",
-    "err_network": "네트워크 문제, 다시 시도해 주세요.",
-    "err_generic": "저장에 실패했습니다, 다시 시도해 주세요."
+    "err_bad_email": "이메일이 올바르지 않은 것 같습니다.",
+    "err_email_taken": "이 이메일은 이미 다른 계정에 있습니다.",
+    "err_generic": "저장할 수 없습니다, 다시 시도하세요.",
+    "err_network": "네트워크 문제입니다, 다시 시도하세요.",
+    "err_reserved": "이 @handle은 예약되어 있습니다. 다른 것을 선택하세요.",
+    "err_taken": "이 @handle은 이미 사용 중입니다. 다른 것을 시도하세요.",
+    "err_invalid_format": "@handle은 3-32자의 영문자, 숫자, 밑줄이어야 합니다."
   },
   "profile_page": {
     "loading": "로딩 중…",

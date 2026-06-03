@@ -584,18 +584,23 @@
     "page_title": "3D-molecuul"
   },
   "profile_gate": {
-    "title": "Stel je profiel in",
-    "sub": "Voeg een foto en een naam toe, zo verschijn je op het klassement en in gedeelde pools.",
-    "display_name": "Naam (zichtbaar op klassement)",
+    "title": "Kies je @handle",
+    "sub": "Dit is je naam op Tournamental. Hij verschijnt op elk klassement, wordt je share-URL (tournamental.com/s/jenaam), en je kunt hem later niet meer veranderen. Kies iets waar je publiekelijk achter staat.",
+    "cta_save": "@handle claimen",
+    "cta_saving": "Opslaan…",
+    "display_name": "Jouw @handle (permanent)",
+    "placeholder": "jenaam",
+    "hint_format": "3-32 tekens. Letters, cijfers, underscores. Niet meer wijzigbaar.",
+    "preview_url": "Jouw share-URL: ",
     "first_name": "Voornaam (optioneel)",
     "email": "E-mail (optioneel)",
-    "cta_save": "Opslaan",
-    "cta_saving": "Opslaan…",
-    "cta_skip": "Sla nu over",
-    "err_email_taken": "Dat e-mailadres staat al op een ander account.",
-    "err_bad_email": "Dat e-mailadres lijkt niet correct.",
-    "err_network": "Netwerk hapert, probeer opnieuw.",
-    "err_generic": "Kon niet opslaan, probeer opnieuw."
+    "err_bad_email": "Dat e-mailadres lijkt niet juist.",
+    "err_email_taken": "Dat e-mailadres is al gekoppeld aan een ander account.",
+    "err_generic": "Kon dat niet opslaan, probeer het opnieuw.",
+    "err_network": "Netwerkprobleempje, probeer het opnieuw.",
+    "err_reserved": "Die @handle is gereserveerd. Kies een andere.",
+    "err_taken": "Die @handle is al in gebruik. Kies een andere.",
+    "err_invalid_format": "@handles moeten 3-32 tekens lang zijn met letters, cijfers en underscores."
   },
   "profile_page": {
     "loading": "Laden…",

@@ -584,18 +584,23 @@
     "page_title": "3D molekula"
   },
   "profile_gate": {
-    "title": "Állítsd be a profilodat",
-    "sub": "Tölts fel egy képet és egy nevet, így jelensz meg a ranglistán és a megosztott tippjátékokban.",
-    "display_name": "Név (a ranglistán látszik)",
+    "title": "Válassz @handle-t",
+    "sub": "Ez a neved a Tournamental-en. Minden ranglistán megjelenik, ez lesz a megosztási URL-ed (tournamental.com/s/aneved), és később nem változtatható meg. Válassz olyat, amit szívesen vállalsz nyilvánosan.",
+    "cta_save": "@handle igénylése",
+    "cta_saving": "Mentés…",
+    "display_name": "A @handle-d (állandó)",
+    "placeholder": "aneved",
+    "hint_format": "3-32 karakter. Betűk, számok, alulvonás. Később nem módosítható.",
+    "preview_url": "A megosztási URL-ed: ",
     "first_name": "Keresztnév (opcionális)",
     "email": "Email (opcionális)",
-    "cta_save": "Mentés",
-    "cta_saving": "Mentés…",
-    "cta_skip": "Most átugrom",
+    "err_bad_email": "Ez az email nem tűnik érvényesnek.",
     "err_email_taken": "Ez az email már egy másik fiókhoz tartozik.",
-    "err_bad_email": "Ez az email nem tűnik helyesnek.",
+    "err_generic": "Nem sikerült menteni, próbáld újra.",
     "err_network": "Hálózati hiba, próbáld újra.",
-    "err_generic": "Nem sikerült menteni, próbáld újra."
+    "err_reserved": "Ez a @handle foglalt. Válassz másikat.",
+    "err_taken": "Ez a @handle már foglalt. Próbálj másikat.",
+    "err_invalid_format": "A @handle 3-32 karakter, betűk, számok és alulvonás."
   },
   "profile_page": {
     "loading": "Betöltés…",
