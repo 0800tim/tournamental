@@ -1,11 +1,11 @@
 /* eslint-disable react/no-unescaped-entities */
 /**
- * Home page — sales / landing flow for play.tournamental.com.
+ * Home page, sales / landing flow for play.tournamental.com.
  *
  * Tim's brief 2026-05-13: the home page must be a sales page, not a
  * news feed. Flow:
  *   1. Hero with the platform's one-line pitch + primary CTAs.
- *   2. "Set your picks now" — the core game, single big CTA into the
+ *   2. "Set your picks now", the core game, single big CTA into the
  *      bracket builder.
  *   3. 3D molecule callout (watch-along + interactive bracket
  *      molecule) with features and benefits.
@@ -172,7 +172,7 @@ export default async function HomePage(): Promise<JSX.Element> {
 
   // Split the lede on the {odds_link} placeholder so we can interpolate
   // the inline <Link>. Falls back gracefully when the placeholder is
-  // missing — render the bare translated lede.
+  // missing, render the bare translated lede.
   const ledeParts = lede.split("{odds_link}");
 
   return (
@@ -258,16 +258,14 @@ export default async function HomePage(): Promise<JSX.Element> {
                 />
               </div>
             </div>
-            <hr className="vt-home-stats-rule" aria-hidden="true" />
           </div>
         </section>
 
         {/* ============== BET FEATURE ============== */}
         {/* Tim 2026-06-05: dramatic image-overlay feature card directly
-          * below the hero stats hairline. The --bet modifier kills the
-          * section's own border-top (the .vt-home-stats-rule above is
-          * the single divider) and tightens the section's top padding
-          * so the card lands above the fold on most viewports. */}
+          * below the hero stats row. The --bet modifier kills the
+          * default section border-top and zeroes top padding so the
+          * card lands tight under the stats with no divider. */}
         <section className="vt-home-section vt-home-section--bet">
           <article className="vt-bet-feature" aria-label="The bet">
             <div className="vt-bet-feature-bg" aria-hidden="true" />
@@ -310,7 +308,7 @@ export default async function HomePage(): Promise<JSX.Element> {
           </article>
         </section>
 
-        {/* ============== STEP 1 — PICKS ============== */}
+        {/* ============== STEP 1, PICKS ============== */}
         {/* Reveal-on-scroll wrappers below ride the shared motion grammar
             (8-14px rise + opacity, 600ms power3.out, light stagger). They
             replace nothing visible: each section was already visible
@@ -333,11 +331,11 @@ export default async function HomePage(): Promise<JSX.Element> {
         </RevealOnScroll>
 
         {/* Step 2 (3D Molecule watch-along) and the Watch demo CTAs were
-         * dropped on 2026-05-21 — play app is bracket-only for the
+         * dropped on 2026-05-21, play app is bracket-only for the
          * 2026 WC push; the molecule still works on /world-cup-2026/molecule
          * but it's no longer promoted from the player surfaces. */}
 
-        {/* ============== STEP 2 — SYNDICATES (FRONT AND CENTRE) ============== */}
+        {/* ============== STEP 2, SYNDICATES (FRONT AND CENTRE) ============== */}
         <RevealOnScroll as="section" className="vt-home-section vt-home-step vt-home-step-syndicates" id="syndicates">
           <div className="vt-home-step-tag vt-home-step-tag-headline">{step2Tag}</div>
           <h2 className="vt-home-h2">{step2Headline}</h2>

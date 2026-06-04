@@ -146,7 +146,7 @@
 /* Grid layout for the headline / CTAs / lede triple.
  * Mobile: single column, document order = headline → CTAs (50/50 row)
  *         → lede. So the CTAs sit above the fold without scrolling.
- * Desktop: 2-col grid — headline in col 1, CTAs in col 2, lede spans
+ * Desktop: 2-col grid, headline in col 1, CTAs in col 2, lede spans
  *          full width below. (Tim 2026-05-21) */
 .vt-home-hero-top {
   display: grid;
@@ -281,7 +281,7 @@
   /* Tim 2026-06-05: top + bottom hairlines removed so the stats row
    * lives inside the hero rhythm with no chrome of its own. The single
    * gold divider between this row and the bet feature card comes from
-   * the new .vt-home-stats-rule below — that's the only horizontal
+   * the new .vt-home-stats-rule below, that's the only horizontal
    * line in this area now. */
   padding-block: 0;
 }
@@ -1233,7 +1233,7 @@
 }
 /* The image background. image-set picks WebP first then falls back to
  * JPG. If the file is missing the layer is transparent and the
- * underlying #15151a + gradient takes over — section still ships. */
+ * underlying #15151a + gradient takes over, section still ships. */
 .vt-bet-feature-bg {
   position: absolute;
   inset: 0;
@@ -1294,12 +1294,12 @@
 }
 .vt-bet-feature-headline em {
   font-style: italic;
-  /* Make "mental?" (the italic emphasis) WHITE per Tim 2026-06-05
-   * while the design is still in this state. The question mark sits
-   * inside the <em> so it picks up the italic + colour automatically.
-   * Slight WONK kicks the serif's swash details up. */
+  /* Gold italic, matches the /the-bet header treatment so "mental?"
+   * reads as the brand pun on both surfaces. Subtle text-shadow lifts
+   * the gold off the dark photo scrim. Tim 2026-06-05. */
   font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
-  color: #ffffff;
+  color: #f6c64f;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 }
 .vt-bet-feature-shrug {
   font-family: Fraunces, ui-serif, Georgia, serif;
@@ -1437,11 +1437,10 @@
     column-gap: clamp(32px, 5vw, 64px);
   }
 }
-.vt-home-stats-rule {
-  border: none;
-  border-top: 1px solid rgba(245, 197, 66, 0.22);
-  margin: clamp(20px, 3vw, 28px) 0 0;
-}
+/* .vt-home-stats-rule retired 2026-06-05, Tim wanted the divider
+ * between the stats row and the bet feature card gone entirely.
+ * Selector kept so any legacy markup still renders to nothing. */
+.vt-home-stats-rule { display: none; }
 .vt-home-stats-countdown {
   /* The compact countdown sits in its own grid cell so it can right-
    * align cleanly against the stats row on desktop. */
@@ -1457,10 +1456,11 @@
  * above the fold on most desktop viewports. */
 .vt-home-section--bet {
   border-top: none !important;
-  padding-top: clamp(16px, 2vw, 24px);
+  padding-top: 0 !important;
+  margin-top: clamp(12px, 1.5vw, 20px);
 }
 
-/* Compact countdown variant — used inline next to the stats row. */
+/* Compact countdown variant, used inline next to the stats row. */
 .vt-countdown--compact {
   padding: 0;
   background: none;
