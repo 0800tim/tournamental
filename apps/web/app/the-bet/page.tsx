@@ -48,6 +48,17 @@ export default function TheBetPage(): JSX.Element {
               2026 World Cup, I&apos;ll sign over what&apos;s left of
               my equity.
             </p>
+            {/* Tim 2026-06-05: press release lives in
+              * apps/web/public/press/. Anchor target=_blank, not next/link,
+              * because this is a static PDF download / new-tab read. */}
+            <a
+              href="/press/tournamental-press-release-2026-06-05.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vt-bet-header-cta"
+            >
+              Read Press Release <span aria-hidden="true">→</span>
+            </a>
             <p className="vt-bet-footnote">
               Free to enter. Picks lock at each match&apos;s kickoff.
             </p>

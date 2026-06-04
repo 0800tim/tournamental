@@ -289,6 +289,19 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <Link href="/the-bet" className="vt-bet-feature-cta">
                   Read the bet <span aria-hidden="true">→</span>
                 </Link>
+                {/* Tim 2026-06-05: press release lives as a static PDF
+                  * under apps/web/public/press/, so an anchor with
+                  * target=_blank is the right primitive (Next Link is
+                  * for client-side route transitions; this is a file
+                  * download / new-tab read). */}
+                <a
+                  href="/press/tournamental-press-release-2026-06-05.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vt-bet-feature-cta vt-bet-feature-cta--white"
+                >
+                  Read Press Release <span aria-hidden="true">→</span>
+                </a>
                 <p className="vt-bet-feature-fine">
                   Open globally · 18+ · Mobile phone verified
                 </p>
