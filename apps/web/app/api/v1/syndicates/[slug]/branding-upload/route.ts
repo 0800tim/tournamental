@@ -24,6 +24,7 @@ import type { NextRequest } from "next/server";
 import sharp from "sharp";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { invalidateSyndicateOgCache } from "@/lib/og/syndicate-cache";
 import { purgeCloudflare } from "@/lib/cloudflare/purge";
@@ -70,7 +71,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
   // pool now has owner_user_id set (the create route binds it on every
   // path). Null-owner pools that pre-date that change must be backfilled
   // or use the manage-JWT path via /manage-auth instead.
-  if (row.owner_user_id !== session.userId) {
+  if (row.owner_user_id !== session.userId && !isSuperAdmin(session)) {
     return json({ error: "forbidden" }, 403);
   }
 
@@ -174,7 +175,7 @@ export async function DELETE(req: NextRequest, props: { params: Promise<{ slug: 
   // pool now has owner_user_id set (the create route binds it on every
   // path). Null-owner pools that pre-date that change must be backfilled
   // or use the manage-JWT path via /manage-auth instead.
-  if (row.owner_user_id !== session.userId) {
+  if (row.owner_user_id !== session.userId && !isSuperAdmin(session)) {
     return json({ error: "forbidden" }, 403);
   }
 

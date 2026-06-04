@@ -23,6 +23,7 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
 
 export const runtime = "nodejs";
@@ -82,7 +83,7 @@ export async function POST(
   const persistence = getPersistence();
   const pool = persistence.getBySlug(slug);
   if (!pool) return json({ error: "not_found" }, 404);
-  if (pool.owner_user_id !== session.userId) {
+  if (pool.owner_user_id !== session.userId && !isSuperAdmin(session)) {
     return json({ error: "forbidden" }, 403);
   }
 

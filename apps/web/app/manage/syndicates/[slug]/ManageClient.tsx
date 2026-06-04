@@ -66,6 +66,50 @@ export function ManageClient({
     return digits ? `${dialCode}${digits}` : "";
   }, [dialCode, phoneLocal]);
 
+  // Super-admin native session: a logged-in caller that the server
+  // recognises as super-admin (SUPER_ADMIN_USER_IDS / SUPER_ADMIN_PHONES
+  // env) can hit /manage-owner directly with the tnm_session cookie and
+  // skip the OTP phase. We probe by calling GET with no Bearer token —
+  // if the server says 200 it accepted the session; otherwise we fall
+  // through to the OTP UI as normal. Tim 2026-06-04.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (token) return;
+    // If the URL carries ?admin_token=, the explicit admin-impersonate
+    // path takes precedence. Don't probe.
+    const url = new URL(window.location.href);
+    if (url.searchParams.has("admin_token")) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          `/api/v1/syndicates/${encodeURIComponent(slug)}/manage-owner`,
+          { credentials: "include", cache: "no-store" },
+        );
+        if (cancelled) return;
+        if (!res.ok) return;
+        const body = (await res.json()) as { syndicate?: SyndicateData };
+        if (!body.syndicate) return;
+        // Server accepted the session as super-admin. Use a sentinel
+        // "session:cookie" marker so the rest of the component knows
+        // we're already authorised; the Bearer header it sends with
+        // that sentinel is ignored server-side because the session
+        // check runs before the JWT check.
+        setToken("session:cookie");
+        setSyndicate(body.syndicate);
+        setEditName(body.syndicate.name);
+        setEditTopic(body.syndicate.topic ?? "");
+        setPhase("managing");
+      } catch {
+        // Network hiccup -> just fall through to the OTP UI.
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Admin impersonation: when the URL carries `?admin_token=` (issued
   // by the Tournamental admin app via /api/admin/syndicates/[slug]
   // /impersonate), use it as the manage token and skip the OTP phase.

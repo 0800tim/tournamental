@@ -24,6 +24,8 @@ import { type NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { z } from "zod";
 
+import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import {
   buildWarmInviteUrl,
@@ -77,6 +79,12 @@ async function verifyManageToken(
   req: NextRequest,
   slug: string,
 ): Promise<{ ok: true; phone: string } | { ok: false; response: Response }> {
+  // Super-admin native session bypass (Tim 2026-06-04).
+  const session = await getSessionFromRequest(req);
+  if (session && isSuperAdmin(session)) {
+    return { ok: true, phone: session.phone ?? "" };
+  }
+
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
   if (!token || (!ADMIN_JWT_SECRET && !USER_JWT_SECRET)) {

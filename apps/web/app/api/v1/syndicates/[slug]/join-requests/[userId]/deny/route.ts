@@ -17,6 +17,7 @@ import type { NextRequest } from "next/server";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { verifyApprovalToken } from "@/lib/syndicate/notify-join-request";
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -55,7 +56,7 @@ export async function GET(
   // user-id pools fall back to verified phone match (require dashboard
   // path otherwise).
   const session = await getSessionFromRequest(req);
-  if (session) {
+  if (session && !isSuperAdmin(session)) {
     if (pool.owner_user_id) {
       if (session.userId !== pool.owner_user_id) {
         return redirectToManage(slug, "forbidden");
