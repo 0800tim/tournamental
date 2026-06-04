@@ -1089,24 +1089,30 @@
 .vt-home-mental {
   margin: 0;
   padding: clamp(20px, 2.8vw, 28px) clamp(22px, 3vw, 32px);
-  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  /* Muted prestige-gold gradient (Tim 2026-06-05 dialled it down from
+   * the bright traffic-light yellow). Brushed champagne / antique-gold
+   * tones rather than 'highlighter' yellow. The dark interior of the
+   * page already carries the visual energy; the strap just needs to be
+   * recognisable as the premium callout, not the loudest pixel on
+   * the screen. */
+  background: linear-gradient(180deg, #d9b463 0%, #b08530 100%);
   border: none;
-  border-radius: 16px;
+  border-radius: 14px;
   box-shadow:
-    0 24px 48px -16px rgba(245, 158, 11, 0.55),
-    0 4px 14px -4px rgba(245, 158, 11, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    0 12px 28px -16px rgba(140, 100, 30, 0.55),
+    0 2px 6px -2px rgba(140, 100, 30, 0.25),
+    inset 0 1px 0 rgba(255, 240, 200, 0.35);
   color: #15151a;
   position: relative;
   isolation: isolate;
   overflow: hidden;
 }
-/* Subtle inner glow so the gold reads as 3D rather than a flat slab. */
+/* Restrained inner highlight, smaller and softer than the prior bloom. */
 .vt-home-mental::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.35) 0%, transparent 70%);
+  background: radial-gradient(120% 50% at 50% 0%, rgba(255, 250, 230, 0.22) 0%, transparent 65%);
   pointer-events: none;
   z-index: 0;
 }

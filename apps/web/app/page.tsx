@@ -209,9 +209,10 @@ export default async function HomePage(): Promise<JSX.Element> {
                   Tourna<em>mental</em>? <span className="vt-home-mental-shrug">Maybe.</span>
                 </p>
                 <p className="vt-home-mental-body">
-                  I&apos;m betting <strong>my house</strong> no-one
-                  nails all 104 picks. About <strong>NZ$600,000</strong>{" "}
-                  cash to the winner.
+                  I&apos;m betting my{" "}
+                  <strong>NZ$1.4 million dollar house</strong> that
+                  no-one nails all 104 picks. If you do, it&apos;s
+                  yours!
                 </p>
                 <Link href="/the-bet" className="vt-home-mental-cta">
                   Read the bet <span aria-hidden="true">→</span>
