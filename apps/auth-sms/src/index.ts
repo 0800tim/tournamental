@@ -33,6 +33,7 @@ import { registerMagicVerify } from './routes/magic-verify.js';
 import { registerVerifyByCode } from './routes/verify-by-code.js';
 import { registerEmailOtp } from './routes/email-otp.js';
 import { registerPhoneLink } from './routes/phone-link.js';
+import { registerChannels } from './routes/channels.js';
 import { registerInternalSend } from './routes/internal-send.js';
 import { registerSwagger } from './swagger.js';
 import type { AuthContext } from './context.js';
@@ -145,6 +146,7 @@ export async function buildServer(opts: BuildOptions = {}): Promise<FastifyInsta
   await registerVerifyByCode(app, ctx);
   await registerEmailOtp(app, ctx);
   await registerPhoneLink(app, ctx);
+  await registerChannels(app, ctx);
   await registerInternalSend(app, ctx);
 
   app.addHook('onClose', async () => {
