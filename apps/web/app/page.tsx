@@ -187,6 +187,29 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineA}</span>
                 <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
+
+              {/* Tim 2026-06-05: brand-pun strap directly under the H1.
+                * Leans into the "mental" in Tournamental ("am I mental
+                * for betting my house on it? Yeah, a bit"). The CTA
+                * pulls everyone who scans the wordplay straight to the
+                * full bet article on /the-bet. Sits ABOVE the existing
+                * platform CTAs so the bet is the first thing a viral
+                * visitor sees after the headline. */}
+              <aside className="vt-home-mental" aria-label="The bet">
+                <p className="vt-home-mental-eyebrow">The bet</p>
+                <p className="vt-home-mental-headline">
+                  Tourna<em>mental</em>? <span className="vt-home-mental-shrug">Maybe.</span>
+                </p>
+                <p className="vt-home-mental-body">
+                  I&apos;m betting <strong>my house</strong> no-one
+                  nails all 104 picks. About <strong>NZ$600,000</strong>{" "}
+                  cash to the winner.
+                </p>
+                <Link href="/the-bet" className="vt-home-mental-cta">
+                  Read the bet <span aria-hidden="true">→</span>
+                </Link>
+              </aside>
+
               <div className="vt-home-hero-ctas">
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
                   {ctaPredict} →
@@ -195,10 +218,6 @@ export default async function HomePage(): Promise<JSX.Element> {
                   {ctaPool}
                 </Link>
               </div>
-              {/* Tim 2026-05-29: wrap both lede paragraphs in a single
-                * grid-area cell. Without the wrapper, .vt-home-hero-lede
-                * { grid-area: lede; } in home.css places both <p>s into
-                * the same cell on desktop and they overlap. */}
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
                   {ledeParts.length === 2 ? (
@@ -221,6 +240,7 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </p>
               </div>
             </div>
+
             <ul className="vt-home-stat-row">
               <li>
                 <span className="vt-home-stat-num">104</span>

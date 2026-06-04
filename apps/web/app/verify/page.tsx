@@ -23,6 +23,8 @@ import { join } from "node:path";
 
 import type { Metadata } from "next";
 
+import { AppShell } from "@/components/shell";
+
 import "./verify.css";
 
 export const dynamic = "force-dynamic";
@@ -75,10 +77,11 @@ export default async function VerifyPage(): Promise<JSX.Element> {
   const latest = entries[0];
 
   return (
-    <main className="vt-verify">
-      <article className="vt-verify-card">
+    <AppShell title="Audit trail">
+      <main className="vt-verify">
+        <article className="vt-verify-card">
         <header>
-          <p className="vt-verify-eyebrow">Audit trail · Open source · Bitcoin-anchored</p>
+          <p className="vt-verify-eyebrow">Audit trail · Open source · Bitcoin-blockchain anchored</p>
           <h1>How we prove picks aren&apos;t changed after kickoff</h1>
         </header>
 
@@ -86,10 +89,11 @@ export default async function VerifyPage(): Promise<JSX.Element> {
           <p>
             At every match kickoff, and once a day in between, Tournamental
             computes a SHA-256 hash of the predictions database and commits
-            that hash to Bitcoin via OpenTimestamps. The hash chain is
-            public. The script that produces it is open-source. Together
-            those two facts prove that picks present at time T cannot be
-            changed after T without leaving an unmissable on-chain trail.
+            that hash to the Bitcoin blockchain via OpenTimestamps. The
+            hash chain is public. The script that produces it is
+            open-source. Together those two facts prove that picks present
+            at time T cannot be changed after T without leaving an
+            unmissable on-chain trail.
           </p>
           <p>
             <strong>The raw snapshots are private.</strong> They contain
@@ -165,10 +169,10 @@ export default async function VerifyPage(): Promise<JSX.Element> {
           <h2>Verify the timestamping</h2>
           <p>
             Anyone with a laptop and the OpenTimestamps client can confirm
-            that the hash above was committed to Bitcoin at the time we
-            claim. You don&apos;t need the snapshot itself to do this —
-            the receipt alone proves the hash is sealed into Bitcoin&apos;s
-            proof-of-work chain.
+            that the hash above was committed to the Bitcoin blockchain
+            at the time we claim. You don&apos;t need the snapshot itself
+            to do this, the receipt alone proves the hash is sealed into
+            Bitcoin&apos;s proof-of-work chain.
           </p>
           <p>
             One anchor on the ledger is also flagged as a{" "}
@@ -185,10 +189,10 @@ pip install opentimestamps-client
 curl -O https://play.tournamental.com${latest?.receipt ?? "/verify/<ts>/snapshot.db.ots"}
 
 # 3. inspect the receipt structure (shows which calendars / Bitcoin
-#    transactions the hash is anchored against)
+#    blockchain transactions the hash is anchored against)
 ots info snapshot.db.ots
 
-# 4. for full Bitcoin-chain verification you'd need a file whose
+# 4. for full Bitcoin-blockchain verification you'd need a file whose
 #    sha256 matches the receipt. That file is the private snapshot.
 #    Request it via the dispute process below.`}</pre>
         </section>
@@ -222,7 +226,8 @@ ots info snapshot.db.ots
               You can then verify offline:{" "}
               <code>sha256sum snapshot.db</code> must match the hash on
               this page, and <code>ots verify snapshot.db.ots</code> must
-              return the Bitcoin block height anchoring that hash.
+              return the Bitcoin blockchain block height anchoring that
+              hash.
             </li>
           </ol>
           <p>
@@ -292,5 +297,6 @@ ots info snapshot.db.ots
         </section>
       </article>
     </main>
+    </AppShell>
   );
 }

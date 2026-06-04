@@ -1030,3 +1030,115 @@
 .vt-home-trust li span {
   color: var(--vt-gold-400);
 }
+
+/* House-bet hero variants (Tim 2026-06-05).
+ *
+ * The hero leads with "I'm betting / my house. / Win it." in three
+ * stacked lines, with the third line picking up the gold italic
+ * emphasis that the rest of the editorial-sport pages use. The
+ * previous "Don't just watch / Play it." headline moves down to be
+ * an H2 above the matches/teams/perfect-bracket stats row, where it
+ * acts as the section opener for the in-tournament value-prop. */
+.vt-home-headline--bet {
+  /* No structural changes vs the base .vt-home-headline; the modifier
+   * just exists as a hook in case we need bet-specific size tweaks. */
+}
+.vt-home-hero-line--accent {
+  font-style: italic;
+  font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+  color: #dca94b;
+}
+.vt-home-h2-watchplay {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -0.01em;
+  font-size: clamp(28px, 4.5vw, 48px);
+  line-height: 1.05;
+  color: #ffffff;
+  margin: clamp(40px, 6vw, 64px) 0 clamp(24px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.vt-home-h2-line {
+  display: block;
+}
+.vt-home-h2-line--accent {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #dca94b;
+}
+
+/* Brand-pun "mental" strap under the hero H1 (Tim 2026-06-05).
+ *
+ * Sits between the localised H1 and the original platform CTAs. Leans
+ * into the wordplay (Tournamental → mental) and surfaces the house-bet
+ * as the prominent click. The strap is its own card with a gold
+ * border so it reads as a distinct callout rather than getting lost
+ * inside the editorial-sport hero rhythm. */
+.vt-home-mental {
+  margin: clamp(24px, 3.5vw, 36px) 0 clamp(20px, 2.5vw, 28px);
+  padding: clamp(18px, 2.5vw, 24px) clamp(20px, 3vw, 28px);
+  background: linear-gradient(135deg, rgba(220, 169, 75, 0.10) 0%, rgba(220, 169, 75, 0.02) 100%);
+  border: 1px solid rgba(220, 169, 75, 0.42);
+  border-radius: 14px;
+  box-shadow: 0 18px 48px -28px rgba(220, 169, 75, 0.45);
+  max-width: 640px;
+}
+.vt-home-mental-eyebrow {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #dca94b;
+}
+.vt-home-mental-headline {
+  margin: 8px 0 6px;
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -0.01em;
+  font-size: clamp(26px, 4vw, 38px);
+  line-height: 1.05;
+  color: #ffffff;
+}
+.vt-home-mental-headline em {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #dca94b;
+}
+.vt-home-mental-shrug {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.82em;
+}
+.vt-home-mental-body {
+  margin: 0 0 14px;
+  font-size: clamp(15px, 1.6vw, 17px);
+  line-height: 1.55;
+  color: rgba(231, 234, 243, 0.92);
+}
+.vt-home-mental-body strong {
+  color: #ffffff;
+}
+.vt-home-mental-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: #dca94b;
+  color: #15151a;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.vt-home-mental-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px -10px rgba(220, 169, 75, 0.6);
+}
