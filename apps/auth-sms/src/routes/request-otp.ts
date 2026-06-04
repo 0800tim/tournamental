@@ -26,6 +26,11 @@ import type { AuthContext } from '../context.js';
 import { normalisePhone, maskPhone } from '../phone.js';
 import { checkOtpRequestLimit } from '../rate-limit.js';
 import {
+  getWhatsAppAvailability,
+  recordWhatsAppSend,
+  WA_THROTTLE_DEFAULTS,
+} from '../wa-throttle.js';
+import {
   generateOtp,
   hashOtp,
   formatSmsBody,
@@ -110,6 +115,27 @@ export async function registerRequestOtp(
         : undefined,
     );
     const pid = phoneLogId(phone);
+
+    // Tim 2026-06-04: WhatsApp channel may be disabled by admin
+    // (e.g. before a TV spike) or auto-disabled by the throttle if
+    // we're getting close to Meta's Baileys-account ban window.
+    // Surface a 503 with a discriminator so the client can re-render
+    // the modal with WhatsApp hidden and prompt for email instead.
+    if (channel === 'whatsapp') {
+      const wa = getWhatsAppAvailability({
+        storage: ctx.storage,
+        config: WA_THROTTLE_DEFAULTS,
+        nowSeconds: () => now,
+        log: (msg, meta) => ctx.log.info(meta ?? {}, msg),
+      });
+      if (!wa.enabled) {
+        return reply.code(503).send({
+          error: 'channel-unavailable',
+          channel: 'whatsapp',
+          reason: wa.reason,
+        });
+      }
+    }
 
     // Prune expired OTPs opportunistically.
     ctx.storage.pruneExpiredOtps(now);
@@ -227,6 +253,19 @@ export async function registerRequestOtp(
     const issueWindow = 600;
     const issueBucket = Math.floor(now / issueWindow) * issueWindow;
     ctx.storage.bumpRateBucket(`ip:${ip}:otp-issued`, issueBucket);
+
+    // Tim 2026-06-04: increment the WhatsApp send counter on successful
+    // sends so the auto-throttle can flip the channel off if we're
+    // creeping toward Meta's Baileys-account flagging window. We only
+    // record on success; failed sends won't drive a real ban risk.
+    if (channel === 'whatsapp') {
+      recordWhatsAppSend({
+        storage: ctx.storage,
+        config: WA_THROTTLE_DEFAULTS,
+        nowSeconds: () => now,
+        log: (msg, meta) => ctx.log.info(meta ?? {}, msg),
+      });
+    }
 
     ctx.log.info(
       { phoneId: pid, channel, expiresAt },

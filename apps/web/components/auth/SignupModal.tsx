@@ -36,6 +36,11 @@ import {
   whatsAppLoginDeepLink,
   WHATSAPP_NUMBER,
 } from "@/lib/auth/inbound-login";
+import {
+  fetchChannelsState,
+  DEFAULT_CHANNELS,
+  type ChannelsState,
+} from "@/lib/auth/channels";
 import "./signup-modal.css";
 // Reuse the auth-page primitives (auth-input, auth-submit, auth-error).
 import "@/app/auth/auth.css";
@@ -117,11 +122,22 @@ export function SignupModal({ open, onClose }: SignupModalProps) {
 // ---------------- Single-screen sign-in options ----------------
 
 function SignInOptions() {
+  // Tim 2026-06-04: email leads, WhatsApp follows, Telegram lives
+  // below the fold. WhatsApp can be hidden entirely when the channel
+  // is throttled (admin button or auto-throttle on Baileys traffic).
+  // We re-fetch the channels state every time the modal opens; the
+  // edge cache (s-maxage=10) absorbs the thundering-herd cost.
+  const [channels, setChannels] = useState<ChannelsState>(DEFAULT_CHANNELS);
+  useEffect(() => {
+    const ac = new AbortController();
+    fetchChannelsState(ac.signal).then(setChannels);
+    return () => ac.abort();
+  }, []);
   return (
     <div className="vt-signin-stack">
-      <TelegramButton />
-      <WhatsAppButton />
       <EmailBlock />
+      {channels.whatsapp.available ? <WhatsAppButton /> : null}
+      <TelegramButton />
       <CodePasteForm />
       <SmsFooter />
     </div>

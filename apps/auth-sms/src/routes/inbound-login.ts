@@ -42,6 +42,7 @@ import { normalisePhone } from '../phone.js';
 import { generateOtp, hashOtp } from '../otp.js';
 import { phoneLogId } from '../storage.js';
 import { checkOtpRequestLimit } from '../rate-limit.js';
+import { recordWhatsAppSend, WA_THROTTLE_DEFAULTS } from '../wa-throttle.js';
 
 const BodySchema = z.object({
   phone: z.string().min(1).max(32),
@@ -206,6 +207,20 @@ export async function registerInboundLogin(
     if (poolSlug) {
       const sep = magicLinkUrl.includes('?') ? '&' : '?';
       magicLinkUrl = `${magicLinkUrl}${sep}pool=${encodeURIComponent(poolSlug)}`;
+    }
+
+    // Tim 2026-06-04: count the WhatsApp reply for throttle telemetry
+    // even though we don't gate inbound flows (the user already
+    // messaged us; refusing to reply is worse UX than risking a flag).
+    // The auto-throttle uses this count to decide whether to flip
+    // future OUTBOUND sends off.
+    if (channel === 'whatsapp') {
+      recordWhatsAppSend({
+        storage: ctx.storage,
+        config: WA_THROTTLE_DEFAULTS,
+        nowSeconds: () => now,
+        log: (msg, meta) => ctx.log.info(meta ?? {}, msg),
+      });
     }
 
     return reply.code(200).send({

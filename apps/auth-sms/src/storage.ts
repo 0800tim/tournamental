@@ -96,6 +96,33 @@ export interface SessionRecord {
   ip: string | null;
 }
 
+/**
+ * Public representation of a channel's availability. Read on every
+ * OTP-send and exposed by the public /v1/auth/channels endpoint.
+ * Tim 2026-06-04.
+ */
+export interface ChannelState {
+  readonly channel: string;
+  readonly enabled: boolean;
+  /** Free-form reason, e.g. "auto: 25 sends in last hour" or "admin: TV night". */
+  readonly reason: string | null;
+  readonly source: "boot" | "admin" | "auto_throttle";
+  readonly changedAt: number;
+  /** When auto_throttle disabled the channel, the time after which it
+   *  re-enables automatically. NULL means the disable is sticky. */
+  readonly autoReEnableAt: number | null;
+}
+
+/** Internal row shape from SQLite. `enabled` is stored as 0/1. */
+interface ChannelStateRow {
+  channel: string;
+  enabled: number;
+  reason: string | null;
+  source: string | null;
+  changed_at: number;
+  auto_re_enable_at: number | null;
+}
+
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS phone_otp (
   phone TEXT PRIMARY KEY,
@@ -173,6 +200,25 @@ CREATE TABLE IF NOT EXISTS email_otp (
   attempts INTEGER NOT NULL DEFAULT 0,
   expires_at INTEGER NOT NULL,
   created_at INTEGER NOT NULL
+);
+
+-- Channel availability state. One row per channel (whatsapp, sms,
+-- telegram, email). Shared across cluster workers via SQLite so an
+-- admin button or the auto-throttle in one worker is visible to all.
+-- Tim 2026-06-04: we run Baileys on a personal WhatsApp account
+-- (not WhatsApp Business API) which can be banned by Meta at much
+-- lower send volumes than the Business tier, so we need the ability
+-- to shed WA traffic in real time without a redeploy.
+CREATE TABLE IF NOT EXISTS channel_state (
+  channel TEXT PRIMARY KEY,
+  enabled INTEGER NOT NULL DEFAULT 1,
+  reason TEXT,
+  source TEXT,           -- "boot" | "admin" | "auto_throttle"
+  changed_at INTEGER NOT NULL,
+  -- When "auto_throttle" disabled the channel, this is the unix-
+  -- seconds timestamp after which the auto layer will re-enable.
+  -- NULL means the disable is sticky until admin flips it back.
+  auto_re_enable_at INTEGER
 );
 `;
 
@@ -1076,6 +1122,76 @@ export class Storage {
         .prepare(`DELETE FROM rate_limit WHERE bucket_start < ?`)
         .run(olderThan).changes ?? 0
     );
+  }
+
+  // ---- Channel state (Tim 2026-06-04) ----
+  //
+  // Live availability flag for each OTP channel; read on every send,
+  // written by the admin button or the auto-throttle. SQLite-backed
+  // so the flag is shared across all PM2 cluster workers.
+
+  getChannelState(channel: string): ChannelState | null {
+    const row = this.db
+      .prepare(
+        `SELECT channel, enabled, reason, source, changed_at, auto_re_enable_at
+           FROM channel_state WHERE channel = ?`,
+      )
+      .get(channel) as ChannelStateRow | undefined;
+    if (!row) return null;
+    return {
+      channel: row.channel,
+      enabled: row.enabled === 1,
+      reason: row.reason ?? null,
+      source: (row.source ?? "boot") as ChannelState["source"],
+      changedAt: row.changed_at,
+      autoReEnableAt: row.auto_re_enable_at ?? null,
+    };
+  }
+
+  upsertChannelState(state: {
+    channel: string;
+    enabled: boolean;
+    reason: string | null;
+    source: ChannelState["source"];
+    changedAt: number;
+    autoReEnableAt: number | null;
+  }): void {
+    this.db
+      .prepare(
+        `INSERT INTO channel_state
+            (channel, enabled, reason, source, changed_at, auto_re_enable_at)
+          VALUES (@channel, @enabled_int, @reason, @source, @changedAt, @autoReEnableAt)
+          ON CONFLICT(channel) DO UPDATE SET
+            enabled = excluded.enabled,
+            reason = excluded.reason,
+            source = excluded.source,
+            changed_at = excluded.changed_at,
+            auto_re_enable_at = excluded.auto_re_enable_at`,
+      )
+      .run({
+        channel: state.channel,
+        enabled_int: state.enabled ? 1 : 0,
+        reason: state.reason,
+        source: state.source,
+        changedAt: state.changedAt,
+        autoReEnableAt: state.autoReEnableAt,
+      });
+  }
+
+  /**
+   * Atomically bump the per-channel send counter for the current
+   * rolling-hour bucket. Returns the new count. Used by the auto-
+   * throttle to know how many WhatsApp sends have been issued in
+   * the last hour without keeping per-worker in-process state.
+   */
+  bumpChannelSendCounter(channel: string, nowSeconds: number): number {
+    const bucketStart = Math.floor(nowSeconds / 3600) * 3600;
+    return this.bumpRateBucket(`channel_send:${channel}`, bucketStart);
+  }
+
+  getChannelSendCount(channel: string, nowSeconds: number): number {
+    const bucketStart = Math.floor(nowSeconds / 3600) * 3600;
+    return this.getRateBucket(`channel_send:${channel}`, bucketStart);
   }
 }
 
