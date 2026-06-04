@@ -56,7 +56,15 @@ async function safeTRaw(key: string, fallback: string): Promise<string> {
   }
 }
 
-const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
+// Canonical kickoff for the FIFA 2026 opening match (MEX vs RSA at the
+// Estadio Azteca), from data/fifa-wc-2026/fixtures.json match #1.
+// Same value mirrored in apps/web/app/world-cup-2026/landing/_lib/countdown.ts
+// (TOURNAMENT_KICKOFF_UTC). If you ever change one, change both,
+// or dedupe by importing from a shared lib.
+// Tim 2026-06-05: the previous value here was "2026-06-11T18:00:00-06:00"
+// (= 00:00 UTC June 12), 5 hours later than reality. Home countdown
+// was running ahead vs Google's published kickoff time.
+const WC_2026_KICKOFF_UTC = "2026-06-11T19:00:00Z";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
 // Force dynamic so the locale resolution runs per-request. Without
