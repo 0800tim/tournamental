@@ -1,0 +1,265 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+import Layout from "@/layouts/Layout.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+
+/**
+ * /odds, the maths explainer behind /the-bet.
+ *
+ * Companion to the house-prize promotion at /the-bet. Walks through the
+ * raw combinatorial number (3^104), the historical comparison to ESPN's
+ * March Madness bracket challenge (millions of entries since 1998, zero
+ * perfect brackets at 63 games), and the realistic-skill adjustment
+ * (even a sharp predictor barely dents the headline number). Written
+ * for a sports reporter or journalist who wants the maths on one page.
+ */
+
+const TITLE = "The odds · Tournamental";
+const DESCRIPTION =
+  "How hard is it to predict every match of the FIFA World Cup correctly? Approximately 1 in 1.6 x 10^49. The maths behind the bet.";
+
+const POW3_104_FULL =
+  "1,605,602,019,469,381,635,366,932,485,058,082,725,617,170,318,977,067,309";
+const POW3_104_SCI = "1.6 × 10⁴⁹";
+---
+<Layout title={TITLE} description={DESCRIPTION}>
+  <article class="vt-editorial container-page">
+    <EditorialPageHeader
+      dateline="The maths · Auckland · World Cup 2026"
+      title="The odds against a <em>perfect bracket</em>."
+      lede="There are 104 matches at the FIFA World Cup 2026. Each match has three outcomes that count as a pick: home win, draw, or away win. The maths is not subtle."
+      footnote="Companion to the house-prize promotion at /the-bet."
+    />
+
+    <section class="vt-odds-body">
+      <h2 class="vt-odds-h2">The headline number</h2>
+      <p>
+        Three to the power of one hundred and four.
+      </p>
+      <p class="vt-odds-figure">
+        <span class="vt-odds-figure-sci">{POW3_104_SCI}</span>
+        <span class="vt-odds-figure-label">approximately one in</span>
+      </p>
+      <p class="vt-odds-figure-full" aria-label="The number written out in full">
+        <code>{POW3_104_FULL}</code>
+      </p>
+      <p>
+        That's how many distinct ways a 104-match bracket can be filled
+        in if you randomly assign home win / draw / away win to each
+        match. Picking the right one by chance is roughly 1 in 1.6 ×
+        10<sup>49</sup>.
+      </p>
+      <p>
+        For scale: that number has 50 digits. The visible universe is
+        estimated to contain about 10<sup>80</sup> atoms in total. A
+        litre of water contains about 3 × 10<sup>25</sup> molecules.
+        You'd run out of atoms in your kitchen long before you ran out
+        of bracket permutations.
+      </p>
+
+      <h2 class="vt-odds-h2">Why "1 in 10⁴⁹" undersells how hard this is</h2>
+      <p>
+        The raw 3<sup>104</sup> number assumes random picks. Most people
+        don't pick randomly. They know Brazil will beat Tahiti. They know
+        France usually doesn't lose to Tunisia in the group stage. Smart
+        picks narrow the field.
+      </p>
+      <p>
+        But "narrowing the field" doesn't mean what intuition says. Even
+        if a skilled predictor gets the easy matches right 90% of the
+        time and the hard ones right 50% of the time, the probability of
+        all 104 being right is still:
+      </p>
+      <p class="vt-odds-figure">
+        <span class="vt-odds-figure-sci">~1 in 10²⁰</span>
+        <span class="vt-odds-figure-label">very generous skill assumption</span>
+      </p>
+      <p>
+        That's still ten followed by twenty zeroes. If every person on
+        Earth submitted one perfect-skill bracket every day for the
+        lifetime of the universe, the expected number of perfect brackets
+        produced would be approximately zero.
+      </p>
+
+      <h2 class="vt-odds-h2">The historical comparison</h2>
+      <p>
+        ESPN have run the March Madness bracket challenge since 1998.
+        Roughly 20 million entries per year. 63 games to predict.
+      </p>
+      <p>
+        Number of verified perfect brackets in 27 years of millions of
+        entries: <strong>zero</strong>.
+      </p>
+      <p>
+        The longest verified streak in the public database is 49
+        consecutive correct picks, by Gregg Nigl in 2019. He missed game
+        50.
+      </p>
+      <p>
+        FIFA World Cup 2026 is 104 picks. Not 63. Not 49. 104.
+      </p>
+
+      <h2 class="vt-odds-h2">What about knockout matches?</h2>
+      <p>
+        Knockout matches don't have a "draw" outcome (the team that
+        progresses is recorded as the win). That tightens the picking
+        slightly: 32 knockout matches with 2 outcomes each instead of 3.
+      </p>
+      <p>
+        Maths:
+      </p>
+      <ul class="vt-odds-list">
+        <li>Group stage: 72 matches with 3 outcomes each → 3<sup>72</sup></li>
+        <li>Knockouts: 32 matches with 2 outcomes each → 2<sup>32</sup></li>
+        <li>Combined: 3<sup>72</sup> × 2<sup>32</sup> ≈ <strong>9.6 × 10³⁴ × 4.3 × 10⁹</strong> ≈ 4.1 × 10⁴⁴</li>
+      </ul>
+      <p>
+        So the "tighter" version still gives 1 in approximately
+        10<sup>44</sup>. That's a five-orders-of-magnitude improvement
+        over the 10<sup>49</sup> headline number, and still completely
+        outside the realm of "a thing that happens."
+      </p>
+
+      <h2 class="vt-odds-h2">Net-net</h2>
+      <p>
+        Nobody is going to win Tim's house.
+      </p>
+      <p>
+        That's not arrogance, it's arithmetic. Tournamental's promotion
+        is unhedged, uninsured, and personally backed because the maths
+        is overwhelming. The publicity is real, the bet is real, the
+        payout is almost certainly not.
+      </p>
+      <p>
+        If you want to be the first verified perfect bracket in the
+        history of sports prediction games, free to enter at
+        <a href="https://play.tournamental.com/world-cup-2026">play.tournamental.com/world-cup-2026</a>.
+        We'll see you on the leaderboard.
+      </p>
+
+      <div class="vt-odds-cta-row">
+        <a class="vt-odds-cta-primary" href="https://play.tournamental.com/world-cup-2026">
+          Start your bracket →
+        </a>
+        <a class="vt-odds-cta-ghost" href="/the-bet">
+          Read the bet
+        </a>
+      </div>
+    </section>
+  </article>
+</Layout>
+
+<style>
+  .vt-odds-body {
+    max-width: 36rem;
+    margin: 0 auto;
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+    font-family: "Inter", system-ui, sans-serif;
+    color: var(--vt-fg, #e7ecf7);
+    font-size: 1.0625rem;
+    line-height: 1.75;
+  }
+  .vt-odds-body p {
+    margin: 0 0 1.25rem;
+  }
+  .vt-odds-h2 {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 80, "SOFT" 30;
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    color: var(--vt-fg-strong, #ffffff);
+    margin: 2.5rem 0 1rem;
+  }
+  .vt-odds-body a {
+    color: var(--vt-gold-400, #dca94b);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+  }
+  .vt-odds-body strong {
+    color: var(--vt-fg-strong, #ffffff);
+  }
+  .vt-odds-body code {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: var(--vt-gold-soft, #f6c64f);
+    word-break: break-all;
+  }
+  .vt-odds-figure {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+    margin: 1.25rem 0 1.5rem !important;
+    padding: 1rem 1.25rem;
+    background: rgba(220, 169, 75, 0.07);
+    border-left: 3px solid var(--vt-gold-400, #dca94b);
+    border-radius: 6px;
+  }
+  .vt-odds-figure-sci {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-size: 1.875rem;
+    color: var(--vt-fg-strong, #ffffff);
+    line-height: 1.1;
+  }
+  .vt-odds-figure-label {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-size: 0.72rem;
+    color: var(--vt-gold-400, #dca94b);
+  }
+  .vt-odds-figure-full {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 0.75rem 1rem;
+    border-radius: 4px;
+    margin-bottom: 1.5rem;
+    overflow-wrap: anywhere;
+  }
+  .vt-odds-list {
+    list-style: none;
+    padding: 0 0 0 1rem;
+    margin: 0 0 1.5rem;
+  }
+  .vt-odds-list li {
+    margin: 0.5rem 0;
+    padding-left: 1rem;
+    border-left: 2px solid rgba(220, 169, 75, 0.4);
+  }
+  .vt-odds-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 2.5rem;
+  }
+  .vt-odds-cta-primary,
+  .vt-odds-cta-ghost {
+    display: inline-block;
+    padding: 0.875rem 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none !important;
+    transition: transform 100ms ease;
+  }
+  .vt-odds-cta-primary {
+    background: var(--vt-gold-400, #dca94b);
+    color: #15151a;
+  }
+  .vt-odds-cta-primary:hover {
+    transform: translateY(-1px);
+  }
+  .vt-odds-cta-ghost {
+    background: transparent;
+    color: var(--vt-fg, #e7ecf7) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .vt-odds-cta-ghost:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+</style>
