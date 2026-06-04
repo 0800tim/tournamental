@@ -93,7 +93,14 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         <meta name="apple-mobile-web-app-title" content="Tournamental" />
         <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body>
+      {/* suppressHydrationWarning: browser extensions (ColorZilla,
+        * Grammarly, password managers, dark-mode toggles) inject extra
+        * attributes onto <body> before React hydrates. React then logs a
+        * loud SSR/CSR-mismatch warning even though nothing is actually
+        * broken. The suppress applies only to attributes on <body>
+        * itself, not its children, so legitimate hydration mismatches
+        * elsewhere still surface. Tim 2026-06-04. */}
+      <body suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
           <GtmRoot showConsentBanner={showConsent} />
           <NativeShellBoot />
