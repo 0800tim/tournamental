@@ -394,7 +394,10 @@ function Shell({
       <div
         style={{
           width: "100%",
-          maxWidth: 420,
+          // Tim 2026-06-04: bumped from 420 → 640 so the join surface
+          // doesn't read as a skinny mobile sliver on desktop. Stays
+          // 100% on narrow viewports because the 640 cap never bites.
+          maxWidth: 640,
           display: "flex",
           flexDirection: "column",
           gap: 18,

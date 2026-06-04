@@ -74,6 +74,24 @@
    * legibility. */
   opacity: 0.78;
   filter: saturate(1);
+  /* Tim 2026-06-05: soft fade-to-transparent on the bottom edge so
+   * the banner doesn't bump up against the lede paragraph with a
+   * hard horizontal line where the player photos end. The dark
+   * overlay above still keeps the headline readable. */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 68%,
+    rgba(0, 0, 0, 0.4) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 68%,
+    rgba(0, 0, 0, 0.4) 88%,
+    transparent 100%
+  );
 }
 
 @media (max-width: 700px) {
@@ -162,6 +180,14 @@
   margin-top: -6px;
 }
 
+/* Tim 2026-06-05: gentle breathing room above the lede so the first
+ * paragraph never bumps against the bottom of the banner photos.
+ * Pairs with the banner's bottom mask fade above; either alone is
+ * subtle, together they read clean. */
+.vt-home-hero-lede-stack {
+  padding-top: 10px;
+}
+
 .vt-home-hero-ctas {
   display: flex;
   flex-direction: row;
@@ -248,13 +274,16 @@
 .vt-home-stat-row {
   list-style: none;
   padding: 0;
-  margin: 28px 0 28px;
+  margin: 0;
   display: grid;
   grid-template-columns: repeat(4, auto);
   gap: 24px 36px;
-  border-top: 1px solid rgba(220, 169, 75, 0.22);
-  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
-  padding-block: 18px;
+  /* Tim 2026-06-05: top + bottom hairlines removed so the stats row
+   * lives inside the hero rhythm with no chrome of its own. The single
+   * gold divider between this row and the bet feature card comes from
+   * the new .vt-home-stats-rule below — that's the only horizontal
+   * line in this area now. */
+  padding-block: 0;
 }
 
 .vt-home-stat-row li {
@@ -1029,4 +1058,417 @@
 
 .vt-home-trust li span {
   color: var(--vt-gold-400);
+}
+
+/* House-bet hero variants (Tim 2026-06-05).
+ *
+ * The hero leads with "I'm betting / my house. / Win it." in three
+ * stacked lines, with the third line picking up the gold italic
+ * emphasis that the rest of the editorial-sport pages use. The
+ * previous "Don't just watch / Play it." headline moves down to be
+ * an H2 above the matches/teams/perfect-bracket stats row, where it
+ * acts as the section opener for the in-tournament value-prop. */
+.vt-home-headline--bet {
+  /* No structural changes vs the base .vt-home-headline; the modifier
+   * just exists as a hook in case we need bet-specific size tweaks. */
+}
+.vt-home-hero-line--accent {
+  font-style: italic;
+  font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+  color: #dca94b;
+}
+.vt-home-h2-watchplay {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -0.01em;
+  font-size: clamp(28px, 4.5vw, 48px);
+  line-height: 1.05;
+  color: #ffffff;
+  margin: clamp(40px, 6vw, 64px) 0 clamp(24px, 3vw, 36px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.vt-home-h2-line {
+  display: block;
+}
+.vt-home-h2-line--accent {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #dca94b;
+}
+
+/* DEPRECATED 2026-06-05: the in-hero gold strap was replaced by the
+ * vt-bet-feature image-overlay section below. Class definitions are
+ * kept for now so any third-party copy referencing them doesn't break
+ * (the JSX no longer renders them). Will be deleted in the design
+ * refresh pass. */
+.vt-home-mental {
+  margin: 0;
+  padding: clamp(20px, 2.8vw, 28px) clamp(22px, 3vw, 32px);
+  /* Muted prestige-gold gradient (Tim 2026-06-05 dialled it down from
+   * the bright traffic-light yellow). Brushed champagne / antique-gold
+   * tones rather than 'highlighter' yellow. The dark interior of the
+   * page already carries the visual energy; the strap just needs to be
+   * recognisable as the premium callout, not the loudest pixel on
+   * the screen. */
+  background: linear-gradient(180deg, #d9b463 0%, #b08530 100%);
+  border: none;
+  border-radius: 14px;
+  box-shadow:
+    0 12px 28px -16px rgba(140, 100, 30, 0.55),
+    0 2px 6px -2px rgba(140, 100, 30, 0.25),
+    inset 0 1px 0 rgba(255, 240, 200, 0.35);
+  color: #15151a;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+/* Restrained inner highlight, smaller and softer than the prior bloom. */
+.vt-home-mental::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 50% at 50% 0%, rgba(255, 250, 230, 0.22) 0%, transparent 65%);
+  pointer-events: none;
+  z-index: 0;
+}
+.vt-home-mental > * {
+  position: relative;
+  z-index: 1;
+}
+.vt-home-mental-eyebrow {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #15151a;
+  font-weight: 700;
+  opacity: 0.85;
+}
+.vt-home-mental-headline {
+  margin: 6px 0 8px;
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "opsz" 96, "SOFT" 30;
+  letter-spacing: -0.01em;
+  font-size: clamp(28px, 4.5vw, 44px);
+  line-height: 1.02;
+  color: #0a0a0e;
+}
+.vt-home-mental-headline em {
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #0a0a0e;
+  /* gold strap means we can't use gold for emphasis. underline keeps
+   * the visual hit without losing legibility. */
+  text-decoration: underline wavy rgba(10, 10, 14, 0.45);
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
+}
+.vt-home-mental-shrug {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(10, 10, 14, 0.7);
+  font-size: 0.8em;
+}
+.vt-home-mental-body {
+  margin: 0 0 16px;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.5;
+  color: #15151a;
+  font-weight: 500;
+}
+.vt-home-mental-body strong {
+  color: #0a0a0e;
+  font-weight: 800;
+}
+.vt-home-mental-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: #0a0a0e;
+  color: #ffffff;
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.35);
+}
+.vt-home-mental-cta:hover {
+  transform: translateY(-1px);
+  background: #15151a;
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.45);
+}
+.vt-home-mental-cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+/* Bet feature card (Tim 2026-06-05).
+ *
+ * A standalone two-column section between the countdown banner and
+ * Step 1. Background image at /hero/the-bet-hero.{webp,jpg} with a
+ * dark gradient scrim so the overlay text reads against any photo
+ * variant. Content-width-bounded (sits inside .vt-home-section, no
+ * full-bleed), rounded card so the silhouette reads as premium and
+ * doesn't look like a second hero. Two-column on desktop with text
+ * left + CTA right, single column on mobile. */
+.vt-bet-feature {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  min-height: clamp(260px, 36vw, 420px);
+  display: flex;
+  align-items: center;
+  background: #15151a;
+  box-shadow: 0 24px 64px -28px rgba(0, 0, 0, 0.55);
+}
+/* The image background. image-set picks WebP first then falls back to
+ * JPG. If the file is missing the layer is transparent and the
+ * underlying #15151a + gradient takes over — section still ships. */
+.vt-bet-feature-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: image-set(
+    url("/hero/the-bet-hero.webp") type("image/webp"),
+    url("/hero/the-bet-hero.jpg") type("image/jpeg")
+  );
+  background-size: cover;
+  background-position: center;
+  background-color: #1e1e26;
+}
+/* Scrim. Dark left-to-right gradient so the text column stays
+ * readable; gold accent glow upper-right plays off whatever silhouette
+ * sits in that part of the photo. */
+.vt-bet-feature-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(15, 15, 22, 0.92) 0%, rgba(15, 15, 22, 0.6) 55%, rgba(15, 15, 22, 0.2) 100%),
+    radial-gradient(60% 90% at 90% 10%, rgba(217, 180, 99, 0.18) 0%, transparent 70%);
+}
+.vt-bet-feature-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 3vw, 36px);
+  align-items: center;
+  padding: clamp(28px, 5vw, 56px);
+  width: 100%;
+}
+@media (min-width: 760px) {
+  .vt-bet-feature-inner {
+    grid-template-columns: minmax(0, 1.65fr) minmax(220px, 280px);
+    column-gap: clamp(28px, 4vw, 56px);
+  }
+}
+.vt-bet-feature-eyebrow {
+  margin: 0 0 14px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #d9b463;
+  font-weight: 700;
+}
+.vt-bet-feature-headline {
+  margin: 0 0 18px;
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 120, "SOFT" 30, "WONK" 0;
+  letter-spacing: -0.015em;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.02;
+  color: #ffffff;
+}
+.vt-bet-feature-headline em {
+  font-style: italic;
+  /* Make "mental?" (the italic emphasis) WHITE per Tim 2026-06-05
+   * while the design is still in this state. The question mark sits
+   * inside the <em> so it picks up the italic + colour automatically.
+   * Slight WONK kicks the serif's swash details up. */
+  font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+  color: #ffffff;
+}
+.vt-bet-feature-shrug {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.82em;
+}
+.vt-bet-feature-body {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.35;
+  color: #e7ecf7;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.vt-bet-feature-body strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.vt-bet-feature-body em {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #f5e1a9;
+}
+.vt-bet-feature-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+@media (min-width: 760px) {
+  .vt-bet-feature-action {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+.vt-bet-feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  /* Tim 2026-06-05: were 16px 28px / 17px font, too chunky on every
+   * viewport. Trimmed across the board; mobile shrinks further
+   * via the @media block at the bottom of this file's bet section. */
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: clamp(14px, 1.3vw, 15px);
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 10px 24px -10px rgba(245, 158, 11, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  white-space: nowrap;
+}
+.vt-bet-feature-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 38px -10px rgba(245, 158, 11, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* White variant for a secondary CTA in the same row (Tim 2026-06-05:
+ * "Read Press Release" sits under the gold "Read the bet" button).
+ * Same shape so they pair visually; flatter shadow because white
+ * doesn't need the warm glow. */
+.vt-bet-feature-cta--white {
+  background: #fafafa;
+  color: #0a0a0e;
+  box-shadow:
+    0 10px 24px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.vt-bet-feature-cta--white:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow:
+    0 14px 30px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.vt-bet-feature-fine {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(231, 234, 243, 0.6);
+}
+
+/* Mobile shrink (Tim 2026-06-05): the two CTAs were too tall and
+ * mismatched widths because each pill hugged its own text. Force
+ * both to fill the action column (so 'Read the bet' matches the
+ * wider 'Read Press Release'), shrink the padding + type, and drop
+ * the "Open globally · 18+ ·" fine print which isn't worth the
+ * vertical space on phones. */
+@media (max-width: 759px) {
+  .vt-bet-feature-action {
+    align-self: stretch;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .vt-bet-feature-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+  .vt-bet-feature-fine {
+    display: none;
+  }
+}
+
+/* Hero stats strip with inline countdown (Tim 2026-06-05).
+ *
+ * Stats (104 / 48 / 0 / ?) on the left, countdown digits on the right,
+ * same row on desktop. Stacks single-column on mobile so the digits
+ * don't get crushed under a phone width. A full-width gold hairline
+ * sits directly below the strip, then the bet feature card lands
+ * above the fold. */
+.vt-home-stats-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+@media (min-width: 880px) {
+  .vt-home-stats-strip {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: clamp(32px, 5vw, 64px);
+  }
+}
+.vt-home-stats-rule {
+  border: none;
+  border-top: 1px solid rgba(245, 197, 66, 0.22);
+  margin: clamp(20px, 3vw, 28px) 0 0;
+}
+.vt-home-stats-countdown {
+  /* The compact countdown sits in its own grid cell so it can right-
+   * align cleanly against the stats row on desktop. */
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Bet-feature section modifier (Tim 2026-06-05).
+ *
+ * Kills the default .vt-home-section border-top because the single
+ * gold .vt-home-stats-rule above the section is the only divider we
+ * want here. Tightens top padding so the bet feature card lands
+ * above the fold on most desktop viewports. */
+.vt-home-section--bet {
+  border-top: none !important;
+  padding-top: clamp(16px, 2vw, 24px);
+}
+
+/* Compact countdown variant — used inline next to the stats row. */
+.vt-countdown--compact {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.vt-countdown--compact .vt-countdown-grid {
+  /* Slightly tighter spacing than the standalone banner so the four
+   * cells fit comfortably alongside the four stat cells. */
+  gap: clamp(10px, 1.4vw, 18px);
 }

@@ -135,6 +135,22 @@ export function CodeIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/**
+ * House-on-stack-of-coins glyph for "The Bet" nav entry. The literal
+ * subject of the bet is Tim's house, so the icon leans on that visual.
+ * Tim 2026-06-05.
+ */
+export function HouseStackIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M4 11.5 12 5l8 6.5" />
+      <path d="M6 11v6h4v-4h4v4h4v-6" />
+      <path d="M3 19h18" />
+      <path d="M3 21h18" />
+    </svg>
+  );
+}
+
 export function MoleculeIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...baseProps} {...props}>

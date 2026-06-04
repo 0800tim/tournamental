@@ -61,17 +61,15 @@ export async function GET(req: NextRequest, props: { params: Promise<{ slug: str
   const row = persistence.getBySlug(slug);
   if (!row) return json({ error: "not_found" }, 404);
 
-  // SEC-POOL-09: for non-public pools require an authenticated session
-  // that is either a member or the owner before answering. Public
-  // pools remain probeable so the join modal still works pre-auth.
-  if (row.is_public !== 1) {
-    const session = await getSessionFromRequest(req);
-    const isOwner = !!session && row.owner_user_id === session.userId;
-    const isMember = !!session && persistence.isMember(row.id, session.userId);
-    if (!isOwner && !isMember) {
-      return json({ error: "forbidden" }, 403);
-    }
-  }
+  // Tim 2026-06-04: the prior "private pools require auth" gate
+  // (originally added under SEC-POOL-09 as defence-in-depth) broke
+  // the join flow for private pools — an anon visitor following a
+  // share link could never validate a handle before submitting, so
+  // every handle came back looking "taken". The 30/min per-IP rate
+  // limit above is the enumeration defence; the handles themselves
+  // already appear on the in-pool leaderboard, so a yes/no probe
+  // doesn't leak anything a member couldn't already see.
+  void getSessionFromRequest;
 
   const taken = persistence.isHandleTakenInSyndicate(row.id, handle);
   return json({ ok: true, available: !taken });

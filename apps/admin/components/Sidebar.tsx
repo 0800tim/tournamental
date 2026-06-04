@@ -27,6 +27,7 @@ const ITEMS: {
   { href: "/advertisers", label: "Advertisers", group: "growth" },
   { href: "/analytics", label: "Analytics", group: "growth" },
   { href: "/feature-flags", label: "Feature flags", group: "system" },
+  { href: "/channels", label: "OTP channels", group: "system" },
   { href: "/api-keys", label: "API keys", group: "system", minRole: "super-admin" },
   { href: "/audit-log", label: "Audit log", group: "system" },
   { href: "/system", label: "System health", group: "system" },

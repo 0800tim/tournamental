@@ -4,6 +4,7 @@ import { requireAuth } from "@/lib/auth";
 import { StatCard } from "@/components/StatCard";
 import type { PendingJoinRequest } from "@/lib/live";
 import { PendingMembersPanel } from "./PendingMembersPanel";
+import { RemoveMemberButton } from "./RemoveMemberButton";
 
 export const dynamic = "force-dynamic";
 
@@ -166,17 +167,24 @@ export default async function SyndicateDetailPage(
             <div className="px-4 py-3 text-sm text-ink-500">No members yet.</div>
           ) : (
             s.members_list.map((m) => (
-              <div key={m.id} className="px-4 py-2 flex justify-between text-sm">
+              <div key={m.id} className="px-4 py-2 flex justify-between items-center text-sm">
                 <span>
                   <span className="font-mono text-xs text-ink-500 mr-2">#{m.rank}</span>
                   {m.handle}
                 </span>
-                <Link
-                  href={`/users/${m.id}`}
-                  className="text-accent-400 hover:underline text-xs"
-                >
-                  Open user
-                </Link>
+                <span className="flex items-center gap-4">
+                  <Link
+                    href={`/users/${m.id}`}
+                    className="text-accent-400 hover:underline text-xs"
+                  >
+                    Open user
+                  </Link>
+                  <RemoveMemberButton
+                    slug={s.slug}
+                    userId={m.id}
+                    handle={m.handle}
+                  />
+                </span>
               </div>
             ))
           )}

@@ -56,7 +56,15 @@ async function safeTRaw(key: string, fallback: string): Promise<string> {
   }
 }
 
-const WC_2026_KICKOFF_UTC = "2026-06-11T18:00:00-06:00";
+// Canonical kickoff for the FIFA 2026 opening match (MEX vs RSA at the
+// Estadio Azteca), from data/fifa-wc-2026/fixtures.json match #1.
+// Same value mirrored in apps/web/app/world-cup-2026/landing/_lib/countdown.ts
+// (TOURNAMENT_KICKOFF_UTC). If you ever change one, change both,
+// or dedupe by importing from a shared lib.
+// Tim 2026-06-05: the previous value here was "2026-06-11T18:00:00-06:00"
+// (= 00:00 UTC June 12), 5 hours later than reality. Home countdown
+// was running ahead vs Google's published kickoff time.
+const WC_2026_KICKOFF_UTC = "2026-06-11T19:00:00Z";
 const DEMO_MATCH_ID = "fifa-wc-2022-final-arg-fra-2022-12-18";
 
 // Force dynamic so the locale resolution runs per-request. Without
@@ -187,6 +195,7 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineA}</span>
                 <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
+
               <div className="vt-home-hero-ctas">
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
                   {ctaPredict} →
@@ -195,60 +204,110 @@ export default async function HomePage(): Promise<JSX.Element> {
                   {ctaPool}
                 </Link>
               </div>
-              {/* Tim 2026-05-29: wrap both lede paragraphs in a single
-                * grid-area cell. Without the wrapper, .vt-home-hero-lede
-                * { grid-area: lede; } in home.css places both <p>s into
-                * the same cell on desktop and they overlap. */}
+
+              {/* Tim 2026-06-05: single lede paragraph replaces the
+                * previous "Nobody will correctly predict..." + global
+                * ledger pair. The bet page (/the-bet) now carries all
+                * the astronomical-odds talk, so the hero just needs to
+                * explain WHAT Tournamental is and tease the bet. */}
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
-                  {ledeParts.length === 2 ? (
-                    <>
-                      {ledeParts[0]}
-                      <Link href="/odds" className="vt-home-hero-readmore">
-                        {ledeLink}
-                      </Link>
-                      {ledeParts[1]}
-                    </>
-                  ) : (
-                    lede
-                  )}{" "}
-                  <Link href="/odds" className="vt-home-hero-readmore">
-                    {readMore}
+                  Tournamental is a &lsquo;bracket&rsquo; app that keeps
+                  a global ledger of user match predictions and commits
+                  every pick to the blockchain before each match kicks
+                  off, so your predictions are immutable and any claim
+                  to glory is finally provable. Our quest is to find
+                  the person (or animal!) that can predict the most
+                  correct outcomes. Predict all 104 correctly and{" "}
+                  <Link href="/the-bet" className="vt-home-hero-readmore">
+                    I&apos;ll give you my house!
                   </Link>
-                </p>
-                <p className="vt-home-hero-lede vt-home-hero-lede-2">
-                  {lede2}
                 </p>
               </div>
             </div>
-            <ul className="vt-home-stat-row">
-              <li>
-                <span className="vt-home-stat-num">104</span>
-                <span className="vt-home-stat-label">{statMatches}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num">48</span>
-                <span className="vt-home-stat-label">{statTeams}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num">0</span>
-                <span className="vt-home-stat-label">{statPerfectBrackets}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num" aria-hidden="true">?</span>
-                <span className="vt-home-stat-label">{statClaimToGlory}</span>
-              </li>
-            </ul>
+
+            {/* Stats + inline countdown share one row, separated by a
+              * full-width hairline. The bet feature card sits directly
+              * below the hairline so it lands above the fold on most
+              * viewports. (Tim 2026-06-05) */}
+            <div className="vt-home-stats-strip">
+              <ul className="vt-home-stat-row">
+                <li>
+                  <span className="vt-home-stat-num">104</span>
+                  <span className="vt-home-stat-label">{statMatches}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num">48</span>
+                  <span className="vt-home-stat-label">{statTeams}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num">0</span>
+                  <span className="vt-home-stat-label">{statPerfectBrackets}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num" aria-hidden="true">?</span>
+                  <span className="vt-home-stat-label">{statClaimToGlory}</span>
+                </li>
+              </ul>
+              <div className="vt-home-stats-countdown">
+                <CountdownBanner
+                  targetUtc={WC_2026_KICKOFF_UTC}
+                  eyebrow={countdownEyebrow}
+                  title={countdownTitle}
+                  compact
+                />
+              </div>
+            </div>
+            <hr className="vt-home-stats-rule" aria-hidden="true" />
           </div>
         </section>
 
-        {/* ============== COUNTDOWN ============== */}
-        <section className="vt-home-section">
-          <CountdownBanner
-            targetUtc={WC_2026_KICKOFF_UTC}
-            eyebrow={countdownEyebrow}
-            title={countdownTitle}
-          />
+        {/* ============== BET FEATURE ============== */}
+        {/* Tim 2026-06-05: dramatic image-overlay feature card directly
+          * below the hero stats hairline. The --bet modifier kills the
+          * section's own border-top (the .vt-home-stats-rule above is
+          * the single divider) and tightens the section's top padding
+          * so the card lands above the fold on most viewports. */}
+        <section className="vt-home-section vt-home-section--bet">
+          <article className="vt-bet-feature" aria-label="The bet">
+            <div className="vt-bet-feature-bg" aria-hidden="true" />
+            <div className="vt-bet-feature-scrim" aria-hidden="true" />
+            <div className="vt-bet-feature-inner">
+              <div className="vt-bet-feature-text">
+                <p className="vt-bet-feature-eyebrow">The Bet</p>
+                <h2 className="vt-bet-feature-headline">
+                  Tourna<em>mental?</em>{" "}
+                  <span className="vt-bet-feature-shrug">Maybe.</span>
+                </h2>
+                <p className="vt-bet-feature-body">
+                  I&apos;m betting my{" "}
+                  <strong>NZ$1.5 million dollar house</strong> that
+                  no-one nails all 104 picks. <em>If you do, it&apos;s yours!</em>
+                </p>
+              </div>
+              <div className="vt-bet-feature-action">
+                <Link href="/the-bet" className="vt-bet-feature-cta">
+                  Read the bet <span aria-hidden="true">→</span>
+                </Link>
+                {/* Tim 2026-06-05: press release lives as a static PDF
+                  * under apps/web/public/press/, so an anchor with
+                  * target=_blank is the right primitive (Next Link is
+                  * for client-side route transitions; this is a file
+                  * download / new-tab read). */}
+                <a
+                  href="/press/tournamental-press-release-2026-06-05.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vt-bet-feature-cta vt-bet-feature-cta--white"
+                >
+                  Read Press Release <span aria-hidden="true">→</span>
+                </a>
+                <p className="vt-bet-feature-fine">
+                  Open globally · 18+ · Mobile phone verified
+                </p>
+              </div>
+            </div>
+          </article>
         </section>
 
         {/* ============== STEP 1 — PICKS ============== */}

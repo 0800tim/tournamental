@@ -120,3 +120,10 @@ tools/outreach-lists/
 data/hl-setup/
 data/form-drafts/
 data/form-screenshots/
+
+# Audit snapshot binaries — written by infra/audit/anchor.sh. The
+# ledger.json IS committed (the append-only hash chain is the audit
+# value); the binary snapshot.db + snapshot.db.ots files are served
+# from disk by /verify/[ts]/[file]/route.ts. Tim 2026-06-04.
+apps/web/data/audit/*/snapshot.db
+apps/web/data/audit/*/snapshot.db.ots

@@ -1,0 +1,3 @@
+# Runtime audit log. Each call writes a JSONL row; the file rotates by
+# date and grows linearly with traffic.
+data/

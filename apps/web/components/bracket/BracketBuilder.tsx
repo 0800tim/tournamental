@@ -105,6 +105,7 @@ import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
+import { BracketAutoSave } from "./BracketAutoSave";
 import { shareContent } from "@/lib/native";
 import {
   buildShareText,
@@ -177,6 +178,21 @@ function emptyBracket(): Bracket {
     knockoutPredictions: {},
     version: 3,
   };
+}
+
+/**
+ * Fingerprint of the "user pick" surface of a bracket; used by the
+ * autosave dirty-detector. Deliberately ignores `bracketId`, `lockedAt`
+ * and `version` so a round-trip through the server (which may stamp
+ * those) doesn't show up as a dirty diff. Tim 2026-06-05.
+ */
+function bracketSignature(b: Bracket): string {
+  return JSON.stringify({
+    m: b.matchPredictions ?? {},
+    k: b.knockoutPredictions ?? {},
+    g: b.groupTiebreakers ?? {},
+    t: b.bestThirds ?? [],
+  });
 }
 
 /**
@@ -264,6 +280,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [tab, setTabState] = useState<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
+  // Tim 2026-06-05: dirty-detect + autosave. lastSavedSig is the
+  // signature of whatever bracket state the server last accepted
+  // (seeded after the auth-load effect at line ~545, bumped after
+  // every successful persistBracketToServer). isDirty derives from
+  // current bracket signature !== lastSavedSig.
+  const [lastSavedSig, setLastSavedSig] = useState<string | null>(null);
+  const [autoSaveState, setAutoSaveState] = useState<
+    "idle" | "dirty" | "saving" | "saved" | "error"
+  >("idle");
+  const autoSaveInFlightRef = useRef(false);
   const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
   /**
    * Auto-pick: preserve existing picks by default. Tim 2026-06-01:
@@ -546,6 +572,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
       setBracket((current) => {
         const merged = mergeBrackets(current, remote.bracket);
         saveDraft(tournament.id, merged, id);
+        // Tim 2026-06-05: the merged bracket reflects what the server
+        // currently holds (plus any local edits we just folded in).
+        // Seed the autosave dirty-detector baseline so the floating
+        // Save button only lights up when the user makes a NEW
+        // change on top of this.
+        setLastSavedSig(bracketSignature(merged));
         return merged;
       });
     })();
@@ -1119,6 +1151,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
     const res = await submitBracket(tournament.id, submission, userLocalId);
     if (res.ok) {
       setLastSaveOk(true);
+      // Tim 2026-06-05: snapshot what we just sent so the autosave
+      // dirty-detector treats it as the new clean baseline.
+      setLastSavedSig(bracketSignature(submission));
       update(res.bracket_id ? { ...submission, bracketId: res.bracket_id } : submission);
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
@@ -1130,6 +1165,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
     } else if (res.status === "saved_offline") {
       setLastSaveOk(true);
+      // Offline save lives in localStorage and will replay on
+      // reconnect; treat as clean for the dirty-detector so the
+      // floating button stops nagging.
+      setLastSavedSig(bracketSignature(submission));
       track("bracket.bracket.saved", {
         tournament_id: tournament.id,
         result: "saved_offline",
@@ -1179,6 +1218,83 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // intentionally minimal to avoid re-firing on every bracket pick.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingSaveAfterAuth, auth.loading, auth.status]);
+
+  // Tim 2026-06-05: autosave + floating-save state machine.
+  //
+  // Derived "isDirty" from the current bracket signature vs the
+  // last-saved baseline. While the component is mounted AND the
+  // user is authenticated, a 30s interval fires the save if the
+  // bracket is dirty and no save is currently in-flight. Server
+  // load (~once per session) is unaffected because lastSavedSig is
+  // seeded after the merge.
+  //
+  // autoSaveState transitions:
+  //   idle  -> dirty   (user makes a pick, signature diverges)
+  //   dirty -> saving  (autosave timer fires OR floating button click)
+  //   saving -> saved  (persist returns ok)
+  //   saving -> error  (persist returns error)
+  //   saved -> idle    (3s timeout in the effect below)
+  //   error -> dirty   (3s timeout, lets user retry without UI noise)
+  const currentSig = useMemo(() => bracketSignature(bracket), [bracket]);
+  const isDirty =
+    auth.status === "authenticated" &&
+    lastSavedSig !== null &&
+    currentSig !== lastSavedSig;
+
+  // Keep the visible state in sync with the derived dirty flag while
+  // we're not in a transient "saving" / "saved" / "error" phase.
+  useEffect(() => {
+    setAutoSaveState((prev) => {
+      if (prev === "saving" || prev === "saved" || prev === "error") {
+        return prev;
+      }
+      return isDirty ? "dirty" : "idle";
+    });
+  }, [isDirty]);
+
+  const doAutoSave = useCallback(async (): Promise<void> => {
+    if (autoSaveInFlightRef.current) return;
+    if (auth.status !== "authenticated") return;
+    autoSaveInFlightRef.current = true;
+    setAutoSaveState("saving");
+    try {
+      const res = await persistBracketToServer(bracket);
+      autoSaveInFlightRef.current = false;
+      if (res.ok || res.status === "saved_offline") {
+        setAutoSaveState("saved");
+        window.setTimeout(() => {
+          // Drop back to the derived state. The effect above will
+          // promote to "dirty" again if the user has since edited.
+          setAutoSaveState((cur) => (cur === "saved" ? "idle" : cur));
+        }, 3000);
+      } else {
+        setAutoSaveState("error");
+        window.setTimeout(() => {
+          setAutoSaveState((cur) => (cur === "error" ? "dirty" : cur));
+        }, 3000);
+      }
+    } catch {
+      autoSaveInFlightRef.current = false;
+      setAutoSaveState("error");
+      window.setTimeout(() => {
+        setAutoSaveState((cur) => (cur === "error" ? "dirty" : cur));
+      }, 3000);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [bracket, auth.status]);
+
+  useEffect(() => {
+    if (auth.status !== "authenticated") return;
+    const id = window.setInterval(() => {
+      if (autoSaveInFlightRef.current) return;
+      // Re-evaluate dirty fresh; the effect captures the latest via
+      // doAutoSave's closure.
+      if (currentSig !== lastSavedSig && lastSavedSig !== null) {
+        void doAutoSave();
+      }
+    }, 30000);
+    return () => window.clearInterval(id);
+  }, [auth.status, currentSig, lastSavedSig, doAutoSave]);
 
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
@@ -1316,6 +1432,10 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
   return (
     <div className="bracket-builder">
+      {/* Tim 2026-06-05: floating Save button (when dirty) and "Saved ✓"
+        * toast (3s, post-save). Renders nothing while bracket is clean
+        * and not in a transient state. */}
+      <BracketAutoSave state={autoSaveState} onSaveClick={doAutoSave} />
       <header className="bracket-header">
         <h1>
           {(() => {
