@@ -142,12 +142,17 @@
     grid-template-columns: minmax(0, 1.5fr) minmax(240px, 280px);
     grid-template-areas:
       "headline ctas"
+      "mental   mental"
       "lede     lede";
     column-gap: clamp(32px, 5vw, 64px);
     row-gap: 24px;
   }
   .vt-home-headline { grid-area: headline; }
   .vt-home-hero-ctas { grid-area: ctas; align-self: end; padding-bottom: 6px; }
+  /* Tim 2026-06-05: the brand-pun strap sits between the H1 + CTA row
+   * and the lede on desktop, full-width across both columns. On mobile
+   * source order takes care of it (single-column grid). */
+  .vt-home-mental { grid-area: mental; }
   /* Tim 2026-05-29: the lede slot is now a wrapper around two <p>s so
    * both paragraphs (intro + immutability) share one grid cell and
    * stack as normal block flow instead of colliding in the same cell. */
@@ -1070,75 +1075,114 @@
   color: #dca94b;
 }
 
-/* Brand-pun "mental" strap under the hero H1 (Tim 2026-06-05).
+/* Brand-pun "mental" strap directly under the hero H1 (Tim 2026-06-05).
  *
- * Sits between the localised H1 and the original platform CTAs. Leans
- * into the wordplay (Tournamental → mental) and surfaces the house-bet
- * as the prominent click. The strap is its own card with a gold
- * border so it reads as a distinct callout rather than getting lost
- * inside the editorial-sport hero rhythm. */
+ * Bright shiny gold panel — same gradient as the .vt-home-btn-pick
+ * "Set my picks" button so it visually inherits the brand's most
+ * confident colour. Black text throughout so the contrast hits. The
+ * "Read the bet" CTA inside is inverted (solid black with white text)
+ * to read as the most clickable element on the entire hero.
+ *
+ * Grid-positioned via .vt-home-hero-top to land between H1+CTAs and
+ * the lede paragraphs on desktop; source order keeps it correct on
+ * mobile. */
 .vt-home-mental {
-  margin: clamp(24px, 3.5vw, 36px) 0 clamp(20px, 2.5vw, 28px);
-  padding: clamp(18px, 2.5vw, 24px) clamp(20px, 3vw, 28px);
-  background: linear-gradient(135deg, rgba(220, 169, 75, 0.10) 0%, rgba(220, 169, 75, 0.02) 100%);
-  border: 1px solid rgba(220, 169, 75, 0.42);
-  border-radius: 14px;
-  box-shadow: 0 18px 48px -28px rgba(220, 169, 75, 0.45);
-  max-width: 640px;
+  margin: 0;
+  padding: clamp(20px, 2.8vw, 28px) clamp(22px, 3vw, 32px);
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  border: none;
+  border-radius: 16px;
+  box-shadow:
+    0 24px 48px -16px rgba(245, 158, 11, 0.55),
+    0 4px 14px -4px rgba(245, 158, 11, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  color: #15151a;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+/* Subtle inner glow so the gold reads as 3D rather than a flat slab. */
+.vt-home-mental::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.35) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.vt-home-mental > * {
+  position: relative;
+  z-index: 1;
 }
 .vt-home-mental-eyebrow {
   margin: 0;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-size: 11px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  color: #dca94b;
+  color: #15151a;
+  font-weight: 700;
+  opacity: 0.85;
 }
 .vt-home-mental-headline {
-  margin: 8px 0 6px;
+  margin: 6px 0 8px;
   font-family: Fraunces, ui-serif, Georgia, serif;
-  font-weight: 500;
+  font-weight: 600;
   font-variation-settings: "opsz" 96, "SOFT" 30;
   letter-spacing: -0.01em;
-  font-size: clamp(26px, 4vw, 38px);
-  line-height: 1.05;
-  color: #ffffff;
+  font-size: clamp(28px, 4.5vw, 44px);
+  line-height: 1.02;
+  color: #0a0a0e;
 }
 .vt-home-mental-headline em {
   font-style: italic;
   font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
-  color: #dca94b;
+  color: #0a0a0e;
+  /* gold strap means we can't use gold for emphasis. underline keeps
+   * the visual hit without losing legibility. */
+  text-decoration: underline wavy rgba(10, 10, 14, 0.45);
+  text-underline-offset: 6px;
+  text-decoration-thickness: 2px;
 }
 .vt-home-mental-shrug {
   font-family: Fraunces, ui-serif, Georgia, serif;
   font-style: italic;
-  color: rgba(255, 255, 255, 0.66);
-  font-size: 0.82em;
+  font-weight: 400;
+  color: rgba(10, 10, 14, 0.7);
+  font-size: 0.8em;
 }
 .vt-home-mental-body {
-  margin: 0 0 14px;
-  font-size: clamp(15px, 1.6vw, 17px);
-  line-height: 1.55;
-  color: rgba(231, 234, 243, 0.92);
+  margin: 0 0 16px;
+  font-size: clamp(15px, 1.7vw, 18px);
+  line-height: 1.5;
+  color: #15151a;
+  font-weight: 500;
 }
 .vt-home-mental-body strong {
-  color: #ffffff;
+  color: #0a0a0e;
+  font-weight: 800;
 }
 .vt-home-mental-cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
+  gap: 10px;
+  padding: 12px 22px;
   border-radius: 999px;
-  background: #dca94b;
-  color: #15151a;
+  background: #0a0a0e;
+  color: #ffffff;
   font-weight: 700;
   text-decoration: none;
-  font-size: 14px;
+  font-size: 15px;
   letter-spacing: 0.02em;
-  transition: transform 120ms ease, box-shadow 120ms ease;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+  box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.35);
 }
 .vt-home-mental-cta:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 28px -10px rgba(220, 169, 75, 0.6);
+  background: #15151a;
+  box-shadow: 0 10px 24px -4px rgba(0, 0, 0, 0.45);
+}
+.vt-home-mental-cta:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
 }

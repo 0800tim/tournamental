@@ -188,13 +188,21 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
 
-              {/* Tim 2026-06-05: brand-pun strap directly under the H1.
-                * Leans into the "mental" in Tournamental ("am I mental
-                * for betting my house on it? Yeah, a bit"). The CTA
-                * pulls everyone who scans the wordplay straight to the
-                * full bet article on /the-bet. Sits ABOVE the existing
-                * platform CTAs so the bet is the first thing a viral
-                * visitor sees after the headline. */}
+              <div className="vt-home-hero-ctas">
+                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
+                  {ctaPredict} →
+                </Link>
+                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
+                  {ctaPool}
+                </Link>
+              </div>
+
+              {/* Tim 2026-06-05: brand-pun strap sits directly under the
+                * H1 (via grid-area: mental, see home.css) and immediately
+                * before the lede paragraphs. Bright gold-on-black so it
+                * pops as the first scroll-stopper a viral visitor sees.
+                * Leans into the "mental" inside "Tournamental". The
+                * inverted black CTA reads as the click. */}
               <aside className="vt-home-mental" aria-label="The bet">
                 <p className="vt-home-mental-eyebrow">The bet</p>
                 <p className="vt-home-mental-headline">
@@ -210,14 +218,6 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </Link>
               </aside>
 
-              <div className="vt-home-hero-ctas">
-                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
-                  {ctaPredict} →
-                </Link>
-                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
-                  {ctaPool}
-                </Link>
-              </div>
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
                   {ledeParts.length === 2 ? (
