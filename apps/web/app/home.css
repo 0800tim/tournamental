@@ -74,6 +74,24 @@
    * legibility. */
   opacity: 0.78;
   filter: saturate(1);
+  /* Tim 2026-06-05: soft fade-to-transparent on the bottom edge so
+   * the banner doesn't bump up against the lede paragraph with a
+   * hard horizontal line where the player photos end. The dark
+   * overlay above still keeps the headline readable. */
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 68%,
+    rgba(0, 0, 0, 0.4) 88%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    180deg,
+    #000 0%,
+    #000 68%,
+    rgba(0, 0, 0, 0.4) 88%,
+    transparent 100%
+  );
 }
 
 @media (max-width: 700px) {
@@ -160,6 +178,14 @@
  * slabs (the first paragraph already has margin-bottom:28px). */
 .vt-home-hero-lede-stack > .vt-home-hero-lede + .vt-home-hero-lede {
   margin-top: -6px;
+}
+
+/* Tim 2026-06-05: gentle breathing room above the lede so the first
+ * paragraph never bumps against the bottom of the banner photos.
+ * Pairs with the banner's bottom mask fade above; either alone is
+ * subtle, together they read clean. */
+.vt-home-hero-lede-stack {
+  padding-top: 10px;
 }
 
 .vt-home-hero-ctas {
