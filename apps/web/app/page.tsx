@@ -255,13 +255,12 @@ export default async function HomePage(): Promise<JSX.Element> {
         </section>
 
         {/* ============== BET FEATURE ============== */}
-        {/* Tim 2026-06-05: dramatic image-overlay feature card between
-          * the countdown and the "Step 1" section. Two-column on
-          * desktop (text left, CTA right), stacks on mobile. The
-          * background image at /hero/the-bet-hero.{webp,jpg} drops in
-          * automatically when present; until then a dark + antique-gold
-          * gradient fills the space so the section never looks broken. */}
-        <section className="vt-home-section">
+        {/* Tim 2026-06-05: dramatic image-overlay feature card directly
+          * below the hero stats hairline. The --bet modifier kills the
+          * section's own border-top (the .vt-home-stats-rule above is
+          * the single divider) and tightens the section's top padding
+          * so the card lands above the fold on most viewports. */}
+        <section className="vt-home-section vt-home-section--bet">
           <article className="vt-bet-feature" aria-label="The bet">
             <div className="vt-bet-feature-bg" aria-hidden="true" />
             <div className="vt-bet-feature-scrim" aria-hidden="true" />
@@ -274,7 +273,7 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </h2>
                 <p className="vt-bet-feature-body">
                   I&apos;m betting my{" "}
-                  <strong>NZ$1.4 million dollar house</strong> that
+                  <strong>NZ$1.5 million dollar house</strong> that
                   no-one nails all 104 picks. <em>If you do, it&apos;s yours!</em>
                 </p>
               </div>
@@ -283,7 +282,7 @@ export default async function HomePage(): Promise<JSX.Element> {
                   Read the bet <span aria-hidden="true">→</span>
                 </Link>
                 <p className="vt-bet-feature-fine">
-                  NZ residents 18+ · Free to enter
+                  Open globally · 18+ · Mobile phone verified
                 </p>
               </div>
             </div>

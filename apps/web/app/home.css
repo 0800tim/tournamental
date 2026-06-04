@@ -248,13 +248,16 @@
 .vt-home-stat-row {
   list-style: none;
   padding: 0;
-  margin: 28px 0 28px;
+  margin: 0;
   display: grid;
   grid-template-columns: repeat(4, auto);
   gap: 24px 36px;
-  border-top: 1px solid rgba(220, 169, 75, 0.22);
-  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
-  padding-block: 18px;
+  /* Tim 2026-06-05: top + bottom hairlines removed so the stats row
+   * lives inside the hero rhythm with no chrome of its own. The single
+   * gold divider between this row and the bet feature card comes from
+   * the new .vt-home-stats-rule below — that's the only horizontal
+   * line in this area now. */
+  padding-block: 0;
 }
 
 .vt-home-stat-row li {
@@ -1373,6 +1376,17 @@
    * align cleanly against the stats row on desktop. */
   display: flex;
   justify-content: flex-end;
+}
+
+/* Bet-feature section modifier (Tim 2026-06-05).
+ *
+ * Kills the default .vt-home-section border-top because the single
+ * gold .vt-home-stats-rule above the section is the only divider we
+ * want here. Tightens top padding so the bet feature card lands
+ * above the fold on most desktop viewports. */
+.vt-home-section--bet {
+  border-top: none !important;
+  padding-top: clamp(16px, 2vw, 24px);
 }
 
 /* Compact countdown variant — used inline next to the stats row. */

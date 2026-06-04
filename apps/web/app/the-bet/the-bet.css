@@ -7,7 +7,11 @@
   line-height: 1.55;
 }
 .vt-bet-article {
-  max-width: 640px;
+  /* Tim 2026-06-05: outer wrap goes up to 1170px so the hero image +
+   * heading get more breathing room on desktop. The article body
+   * underneath stays at 780px (see .vt-bet-body) so prose lines stay
+   * comfortable to read. */
+  max-width: 1170px;
   margin: 0 auto;
 }
 .vt-bet-header {
@@ -61,7 +65,10 @@
 .vt-bet-header-content {
   position: relative;
   z-index: 2;
-  max-width: 720px;
+  /* Tim 2026-06-05: bumped from 720px so the heading can breathe in
+   * the new 1170px hero. The Fraunces display headline reads better
+   * with a few extra characters per line at this size. */
+  max-width: 1000px;
 }
 @media (min-width: 720px) {
   .vt-bet-header--hero {
@@ -120,6 +127,10 @@
 .vt-bet-body {
   font-size: 17px;
   line-height: 1.75;
+  /* Article body stays at a comfortable reading column even when the
+   * outer .vt-bet-article goes wider for the hero. Tim 2026-06-05. */
+  max-width: 780px;
+  margin: 0 auto;
 }
 .vt-bet-body p {
   margin: 0 0 20px;

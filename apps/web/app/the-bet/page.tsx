@@ -22,7 +22,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "I'm betting my house on it · Tournamental",
   description:
-    "Predict all 104 FIFA World Cup match outcomes correctly and I'll sell my house, pay off the mortgage, and wire you the residual — roughly NZ$600,000 cash. Open to New Zealand residents 18+. Free to enter.",
+    "Predict all 104 FIFA World Cup match outcomes correctly and I'll sell my house, pay off the mortgage, and wire you the residual, roughly NZ$700,000 cash. Open globally. 18+. Free to enter.",
   robots: { index: true, follow: true },
 };
 
@@ -43,15 +43,13 @@ export default function TheBetPage(): JSX.Element {
               <br />
               Am I <em>mental</em> for betting my house on it?
             </h1>
-            <hr className="vt-bet-rule" aria-hidden="true" />
             <p className="vt-bet-lede">
               If you can predict every one of the 104 matches at the
               2026 World Cup, I&apos;ll sign over what&apos;s left of
               my equity.
             </p>
             <p className="vt-bet-footnote">
-              Open to New Zealand residents 18 and over. Free to enter.
-              Picks lock at each match&apos;s kickoff.
+              Free to enter. Picks lock at each match&apos;s kickoff.
             </p>
           </div>
         </header>
@@ -67,7 +65,7 @@ export default function TheBetPage(): JSX.Element {
             matches at the 2026 World Cup correctly, I&apos;ll sign over
             my house.
           </p>
-          <p>It&apos;s worth NZ$1.4 million.</p>
+          <p>It&apos;s worth NZ$1.5 million.</p>
 
           <div className="vt-bet-callout">
             <p className="vt-bet-callout-head">Quick honesty break.</p>
@@ -75,7 +73,7 @@ export default function TheBetPage(): JSX.Element {
               I still owe the bank NZ$800,000 on the mortgage. So the
               actual prize is the equity. I sell the house, settle the
               mortgage, you walk away with roughly{" "}
-              <strong>NZ$600,000 cash</strong>.
+              <strong>NZ$700,000 cash</strong>.
             </p>
             <p>
               That&apos;s still life-changing money. It&apos;s also
@@ -85,16 +83,19 @@ export default function TheBetPage(): JSX.Element {
           </div>
 
           <p>
-            Open to NZ residents 18 and over. Free to enter. No catch
-            except this: your picks lock at the kickoff of each match.
-            You can&apos;t watch the goal go in and change your mind.
+            Open globally to anyone 18 and over. Free to enter. The only
+            condition: you must register with a valid mobile phone number
+            and verify the one-time code we send you so we can confirm
+            your eligibility if you win. Your picks lock at the kickoff
+            of each match. You can&apos;t watch the goal go in and
+            change your mind.
           </p>
           <p>
-            If one person, anywhere in this country, predicts every one of
+            If one person, anywhere in the world, predicts every one of
             the 104 matches correctly through{" "}
             <a href="https://play.tournamental.com">Tournamental.com</a>,
-            I list the house, settle the bank, and wire the rest to their
-            account.
+            I list the house, settle the bank, and wire the rest to
+            their account.
           </p>
 
           <h2 className="vt-bet-h2">You&apos;re not locked in at the start.</h2>
@@ -243,14 +244,17 @@ export default function TheBetPage(): JSX.Element {
             Full terms at <Link href="/terms/house-prize">/terms/house-prize</Link>.
           </p>
           <p>
-            Short version: NZ residents 18+, one bracket per person, you
-            must register with a valid NZ mobile phone number. Picks lock
-            at each match&apos;s kickoff. The prize is the{" "}
+            Short version: open globally, 18+, one bracket per person.
+            You must register with a valid mobile phone number and
+            verify the one-time code we send you — that&apos;s the
+            eligibility check. Picks lock at each match&apos;s
+            kickoff. The prize is the{" "}
             <strong>net cash proceeds from the sale of the house</strong>{" "}
             after the mortgage and conveyance costs are settled,
-            approximately <strong>NZ$600,000</strong> at today&apos;s
-            valuation and mortgage balance. Taxes and fees on the winner.
-            If two people somehow both go 104-for-104, the proceeds split.
+            approximately <strong>NZ$700,000</strong> at today&apos;s
+            valuation and mortgage balance. Taxes and fees on the
+            winner. If two people somehow both go 104-for-104, the
+            proceeds split.
           </p>
           <p>
             Tournamental is run by <strong>Growth Spurt Ltd</strong>,
