@@ -1,0 +1,139 @@
+.vt-verify {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 48px 20px 96px;
+  line-height: 1.55;
+}
+
+.vt-verify-card {
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.vt-verify h1 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(28px, 4vw, 40px);
+  letter-spacing: -0.01em;
+  margin: 6px 0 0;
+  line-height: 1.15;
+}
+
+.vt-verify-eyebrow {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.vt-verify h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 22px;
+  margin: 0 0 12px;
+  letter-spacing: -0.005em;
+}
+
+.vt-verify p {
+  margin: 0 0 12px;
+  color: #c7d0e6;
+}
+
+.vt-verify code {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  color: #f6c64f;
+}
+
+.vt-verify a {
+  color: #dca94b;
+}
+.vt-verify a:hover {
+  text-decoration: underline;
+}
+
+.vt-verify-latest {
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.vt-verify-latest dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 20px;
+  margin: 8px 0 0;
+}
+
+.vt-verify-latest dl > div {
+  display: contents;
+}
+
+.vt-verify-latest dt {
+  color: #9aa6c2;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding-top: 4px;
+}
+
+.vt-verify-latest dd {
+  margin: 0;
+  word-break: break-all;
+}
+
+.vt-verify-hash {
+  font-size: 12px;
+}
+
+.vt-verify-code {
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  color: #cbd5e1;
+  white-space: pre;
+}
+
+.vt-verify-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.vt-verify-table th,
+.vt-verify-table td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vt-verify-table th {
+  color: #9aa6c2;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+}
+
+.vt-verify-hash-short {
+  font-size: 12px;
+}
+
+.vt-verify-empty {
+  color: #6b7280;
+  font-style: italic;
+}
