@@ -29,6 +29,7 @@ import {
   CodeIcon,
   ShareIcon,
   MoleculeIcon,
+  HouseStackIcon,
 } from "./icons";
 
 export interface NavLink {
@@ -116,6 +117,16 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     icon: <GroupsIcon />,
     matchPrefix: "/pools",
   },
+  // "The Bet" sits after Pools so the headline-grabbing hook is one
+  // click away on every page (Tim 2026-06-05). The page itself is
+  // `/the-bet` (the long-form letter and the NZ$1.5M house wager).
+  {
+    label: "The Bet",
+    i18nKey: "nav.the_bet",
+    href: "/the-bet",
+    icon: <HouseStackIcon />,
+    matchPrefix: "/the-bet",
+  },
 ];
 
 /**
@@ -148,6 +159,7 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
   { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
   { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "The Bet",          i18nKey: "nav.the_bet",         href: "/the-bet",                   icon: <HouseStackIcon />, matchPrefix: "/the-bet" },
   { label: "My Profile",       i18nKey: "nav.profile_my",      href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
   { label: "Share & Save",     i18nKey: "nav.share_save",      href: "/world-cup-2026/save-share", icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
 ];
