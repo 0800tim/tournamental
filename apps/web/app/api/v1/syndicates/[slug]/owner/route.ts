@@ -18,6 +18,7 @@ import type { NextRequest } from "next/server";
 import { z } from "zod";
 
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import {
   getPersistence,
   type SyndicateBrandingPatch,
@@ -90,7 +91,7 @@ async function authoriseOwner(
   if (!row) {
     return { ok: false, response: jsonResponse({ error: "not_found" }, 404) };
   }
-  if (row.owner_user_id !== session.userId) {
+  if (row.owner_user_id !== session.userId && !isSuperAdmin(session)) {
     return { ok: false, response: jsonResponse({ error: "forbidden" }, 403) };
   }
   return { ok: true, row, userId: session.userId };

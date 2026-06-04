@@ -15,6 +15,8 @@ import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 import { z } from "zod";
 
+import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
 
 export const runtime = "nodejs";
@@ -39,6 +41,25 @@ async function verifyManageToken(
   req: NextRequest,
   slug: string,
 ): Promise<{ ok: true; claims: ManageClaims } | { ok: false; response: Response }> {
+  // Native super-admin path. Tim 2026-06-04: a logged-in super-admin
+  // (env-pinned SUPER_ADMIN_USER_IDS / SUPER_ADMIN_PHONES) is allowed
+  // to manage any pool without going through the OTP/admin-token
+  // mint. Skips the admin.tournamental.com round-trip entirely and
+  // works even if ADMIN_MANAGE_JWT_SECRET hasn't been propagated to
+  // the prod web env. The session check uses the same tnm_session
+  // cookie the rest of the app already trusts.
+  const session = await getSessionFromRequest(req);
+  if (session && isSuperAdmin(session)) {
+    return {
+      ok: true,
+      claims: {
+        slug,
+        phone: session.phone ?? "",
+        type: "manage",
+      },
+    };
+  }
+
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.startsWith("Bearer ") ? auth.slice(7) : "";
 
