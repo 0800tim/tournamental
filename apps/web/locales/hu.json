@@ -670,6 +670,7 @@
     "add_phone_title": "Küldj 'login' üzenetet a WhatsApp-számunkra, hogy elmentsd a telefonszámodat a profilodba.",
     "error_display_name_taken": "Ezt a megjelenítendő nevet már valaki más használja. Válassz másikat.",
     "field_email_readonly_title": "Az e-mail módosítása hamarosan elérhető lesz. Egyelőre fordulj az ügyfélszolgálathoz az e-mail-cím frissítéséhez.",
-    "placeholder_no_phone": "Még nincs csatolt telefonszám"
+    "placeholder_no_phone": "Még nincs csatolt telefonszám",
+    "hint_display_name_locked": "A neved a Tournamental-en a végleges @handle-d. Mentés után nem módosítható."
   }
 }

@@ -670,6 +670,7 @@
     "add_phone_title": "Send 'login' til vår WhatsApp for å lagre telefonnummeret i profilen din.",
     "error_display_name_taken": "Noen andre bruker allerede det visningsnavnet. Velg et annet.",
     "field_email_readonly_title": "Endring av e-post kommer snart. Inntil videre, ta kontakt med support for å oppdatere e-posten.",
-    "placeholder_no_phone": "Ingen telefon koblet til ennå"
+    "placeholder_no_phone": "Ingen telefon koblet til ennå",
+    "hint_display_name_locked": "Navnet ditt er din permanente @handle på Tournamental. Kan ikke endres etter lagring."
   }
 }

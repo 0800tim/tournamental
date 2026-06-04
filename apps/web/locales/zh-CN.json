@@ -670,6 +670,7 @@
     "add_phone_title": "向我们的 WhatsApp 发送 'login' 即可将手机号保存到你的个人资料。",
     "error_display_name_taken": "该显示名已被他人使用。请换一个。",
     "field_email_readonly_title": "邮箱修改功能即将上线。目前请联系客服来更新你的邮箱。",
-    "placeholder_no_phone": "尚未绑定手机号"
+    "placeholder_no_phone": "尚未绑定手机号",
+    "hint_display_name_locked": "您的名字是您在 Tournamental 上永久的 @handle。保存后无法更改。"
   }
 }

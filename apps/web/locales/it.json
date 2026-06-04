@@ -670,6 +670,7 @@
     "add_phone_title": "Invia 'login' al nostro WhatsApp per salvare il tuo numero di telefono sul profilo.",
     "error_display_name_taken": "Quel nome visualizzato è già usato da qualcun altro. Scegline un altro.",
     "field_email_readonly_title": "La modifica dell'email arriva presto. Per ora, contatta il supporto per aggiornare il tuo indirizzo.",
-    "placeholder_no_phone": "Nessun telefono collegato"
+    "placeholder_no_phone": "Nessun telefono collegato",
+    "hint_display_name_locked": "Il tuo nome è il tuo @handle permanente su Tournamental. Non modificabile dopo il salvataggio."
   }
 }

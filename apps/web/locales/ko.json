@@ -670,6 +670,7 @@
     "add_phone_title": "프로필에 전화번호를 저장하려면 저희 WhatsApp으로 'login'을 보내주세요.",
     "error_display_name_taken": "다른 사람이 이미 그 표시 이름을 사용 중입니다. 다른 이름을 선택해 주세요.",
     "field_email_readonly_title": "이메일 변경 기능은 곧 제공됩니다. 지금은 이메일 변경을 위해 지원팀에 문의해 주세요.",
-    "placeholder_no_phone": "아직 연결된 전화번호가 없습니다"
+    "placeholder_no_phone": "아직 연결된 전화번호가 없습니다",
+    "hint_display_name_locked": "당신의 이름은 Tournamental에서 영구적인 @handle입니다. 저장 후 변경할 수 없습니다."
   }
 }

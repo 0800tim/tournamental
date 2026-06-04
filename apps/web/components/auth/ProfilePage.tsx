@@ -720,6 +720,7 @@ interface MyPool {
 interface MyPoolsState {
   status: "loading" | "ready" | "error";
   pools: MyPool[];
+  isSuperAdmin: boolean;
   message?: string;
 }
 
@@ -728,6 +729,7 @@ function MyPoolsSection() {
   const [state, setState] = useState<MyPoolsState>({
     status: "loading",
     pools: [],
+    isSuperAdmin: false,
   });
 
   // Deep-link scroll. The whole ProfilePage is a client component, so
@@ -769,17 +771,26 @@ function MyPoolsSection() {
           setState({
             status: "error",
             pools: [],
+            isSuperAdmin: false,
             message: r.status === 401 ? safeT(t, "profile_page.error_sign_in_to_pools", "Sign in to see your pools.") : `Server returned ${r.status}`,
           });
           return;
         }
-        const body = (await r.json()) as { syndicates?: MyPool[] };
-        setState({ status: "ready", pools: body.syndicates ?? [] });
+        const body = (await r.json()) as {
+          syndicates?: MyPool[];
+          is_super_admin?: boolean;
+        };
+        setState({
+          status: "ready",
+          pools: body.syndicates ?? [],
+          isSuperAdmin: !!body.is_super_admin,
+        });
       } catch (e) {
         if (ac.signal.aborted) return;
         setState({
           status: "error",
           pools: [],
+          isSuperAdmin: false,
           message: e instanceof Error ? e.message : "Network error",
         });
       }
@@ -813,7 +824,13 @@ function MyPoolsSection() {
           <ul className="vt-mypools-list">
             {state.pools.map((p) => {
               const isOwner = p.role === "owner";
-              const nameHref = isOwner ? `/dashboard/pools/${p.slug}` : `/s/${p.slug}`;
+              // Super-admin gets the same affordances as the owner, on
+              // every pool they're shown in this list. The server gates
+              // are already wired to accept super-admin via session, so
+              // a click into /dashboard/pools/<slug> works the same way
+              // as if they owned it. Tim 2026-06-04.
+              const canManage = isOwner || state.isSuperAdmin;
+              const nameHref = canManage ? `/dashboard/pools/${p.slug}` : `/s/${p.slug}`;
               return (
                 <li key={p.slug} className="vt-mypools-row">
                   <div className="vt-mypools-row-main">
@@ -829,7 +846,7 @@ function MyPoolsSection() {
                     </p>
                   </div>
                   <div className="vt-mypools-actions">
-                    {isOwner ? (
+                    {canManage ? (
                       <>
                         <a
                           href={`/s/${p.slug}`}

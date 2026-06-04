@@ -669,6 +669,7 @@
     "add_phone_title": "Envía 'login' a nuestro WhatsApp para guardar tu número de teléfono en tu perfil.",
     "error_display_name_taken": "Alguien más ya usa ese nombre visible. Elige uno distinto.",
     "field_email_readonly_title": "El cambio de email llegará pronto. Por ahora, contacta con soporte para actualizar tu correo.",
-    "placeholder_no_phone": "Aún no hay teléfono vinculado"
+    "placeholder_no_phone": "Aún no hay teléfono vinculado",
+    "hint_display_name_locked": "Tu nombre es tu @handle permanente en Tournamental. No se puede cambiar después de guardar."
   }
 }

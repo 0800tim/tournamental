@@ -670,6 +670,7 @@
     "add_phone_title": "Napiš 'login' na náš WhatsApp, abys uložil své telefonní číslo do profilu.",
     "error_display_name_taken": "Toto zobrazované jméno už někdo používá. Zvol jiné.",
     "field_email_readonly_title": "Změny e-mailu budou brzy. Zatím prosím kontaktuj podporu pro úpravu e-mailu.",
-    "placeholder_no_phone": "Žádné telefonní číslo zatím nepřipojeno"
+    "placeholder_no_phone": "Žádné telefonní číslo zatím nepřipojeno",
+    "hint_display_name_locked": "Tvé jméno je tvůj trvalý @handle na Tournamental. Po uložení nelze změnit."
   }
 }
