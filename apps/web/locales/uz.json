@@ -670,6 +670,7 @@
     "add_phone_title": "Telefon raqamingizni profilingizga saqlash uchun WhatsApp orqali 'login' deb yozing.",
     "error_display_name_taken": "Bu koʻrsatiladigan nomdan boshqa birov foydalanmoqda. Iltimos, boshqa nom tanlang.",
     "field_email_readonly_title": "Email oʻzgartirish tez orada qoʻshiladi. Hozircha emailingizni yangilash uchun qoʻllab-quvvatlash xizmati bilan bogʻlaning.",
-    "placeholder_no_phone": "Hozircha bogʻlangan telefon yoʻq"
+    "placeholder_no_phone": "Hozircha bogʻlangan telefon yoʻq",
+    "hint_display_name_locked": "Ismingiz Tournamental'dagi doimiy @handle'ingiz. Saqlangach o'zgartirib bo'lmaydi."
   }
 }

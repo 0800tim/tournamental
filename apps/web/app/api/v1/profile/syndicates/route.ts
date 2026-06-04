@@ -17,6 +17,7 @@
 
 import type { NextRequest } from "next/server";
 import { getSessionFromRequest } from "@/lib/auth/session";
+import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
 
@@ -105,11 +106,19 @@ export async function GET(req: NextRequest): Promise<Response> {
   try {
     const { db } = getPersistence();
 
-    // 1) Syndicates the user owns by id.
+    // 1) Syndicates the user owns by id. member_count is computed
+    // live from syndicate_owners_membership rather than read from the
+    // cached column — Tim 2026-06-04 caught the cached value drifting
+    // (e.g. The Crate showed 12 with 6 actual members). The cached
+    // column is reconciled by a separate script; until then this
+    // subquery keeps the profile list honest.
     const ownedRows = db
       .prepare(
-        `SELECT slug, name, share_guid, member_count, tournament_id
-         FROM syndicates WHERE owner_user_id = ?`,
+        `SELECT s.slug, s.name, s.share_guid, s.tournament_id,
+                (SELECT COUNT(*) FROM syndicate_owners_membership m
+                 WHERE m.syndicate_id = s.id) AS member_count
+         FROM syndicates s
+         WHERE s.owner_user_id = ?`,
       )
       .all(userId) as SyndicateBasicRow[];
 
@@ -127,10 +136,12 @@ export async function GET(req: NextRequest): Promise<Response> {
     void email;
     void handleSlug;
 
-    // 3) Direct membership rows.
+    // 3) Direct membership rows. member_count is live (see ownedRows).
     const membershipRows = db
       .prepare(
-        `SELECT s.slug, s.name, s.share_guid, s.member_count, s.tournament_id, m.role
+        `SELECT s.slug, s.name, s.share_guid, s.tournament_id, m.role,
+                (SELECT COUNT(*) FROM syndicate_owners_membership m2
+                 WHERE m2.syndicate_id = s.id) AS member_count
          FROM syndicate_owners_membership m
          JOIN syndicates s ON s.id = m.syndicate_id
          WHERE m.user_id = ?`,
@@ -158,8 +169,8 @@ export async function GET(req: NextRequest): Promise<Response> {
       }
     }
 
-    return json({ syndicates });
+    return json({ syndicates, is_super_admin: isSuperAdmin(session) });
   } catch {
-    return json({ syndicates: [] });
+    return json({ syndicates: [], is_super_admin: isSuperAdmin(session) });
   }
 }

@@ -670,6 +670,7 @@
     "add_phone_title": "Telefon numaranı profiline kaydetmek için WhatsApp'ımıza 'login' yaz.",
     "error_display_name_taken": "Bu görünen adı başka biri zaten kullanıyor. Farklı bir tane seç.",
     "field_email_readonly_title": "E-posta değişikliği yakında geliyor. Şimdilik e-postanı güncellemek için destek ile iletişime geç.",
-    "placeholder_no_phone": "Henüz bağlı telefon yok"
+    "placeholder_no_phone": "Henüz bağlı telefon yok",
+    "hint_display_name_locked": "Adın, Tournamental'deki kalıcı @handle'ın. Kaydedildikten sonra değiştirilemez."
   }
 }

@@ -670,6 +670,7 @@
     "add_phone_title": "電話番号をプロフィールに保存するには、当社のWhatsAppに「login」とメッセージしてください。",
     "error_display_name_taken": "その表示名はすでに他のユーザーが使用しています。別のものを選んでください。",
     "field_email_readonly_title": "メール変更は近日対応予定です。今のところ、メールの更新はサポートにお問い合わせください。",
-    "placeholder_no_phone": "電話番号はまだ連携されていません"
+    "placeholder_no_phone": "電話番号はまだ連携されていません",
+    "hint_display_name_locked": "あなたの名前は Tournamental での永続的な @handle です。保存後は変更できません。"
   }
 }

@@ -670,6 +670,7 @@
     "add_phone_title": "Tukuna te 'login' ki tā mātou WhatsApp hei pupuri i tō nama waea ki tō kōtaha.",
     "error_display_name_taken": "Kua whakamahia kē e tētahi atu taua ingoa whakaatu. Kōwhiria tētahi atu.",
     "field_email_readonly_title": "Ka tae mai te whakarerekē īmēra ākuanei. Mō tēnei wā, whakapā atu ki te tautoko hei whakahōu i tō īmēra.",
-    "placeholder_no_phone": "Kāore anō tētahi waea kia honoa"
+    "placeholder_no_phone": "Kāore anō tētahi waea kia honoa",
+    "hint_display_name_locked": "Ko tō ingoa tō @handle tūturu i runga i a Tournamental. Kāore e taea te whakarerekē i muri i te tiaki."
   }
 }

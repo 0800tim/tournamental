@@ -670,6 +670,7 @@
     "add_phone_title": "Pošalji 'login' na naš WhatsApp da sačuvaš svoj broj telefona u profilu.",
     "error_display_name_taken": "Neko drugi već koristi to ime za prikaz. Odaberi drugo.",
     "field_email_readonly_title": "Promjena e-pošte uskoro dolazi. Zasad kontaktiraj podršku za izmjenu e-pošte.",
-    "placeholder_no_phone": "Nijedan broj još nije povezan"
+    "placeholder_no_phone": "Nijedan broj još nije povezan",
+    "hint_display_name_locked": "Tvoje ime je tvoj trajni @handle na Tournamentalu. Ne može se mijenjati nakon spremanja."
   }
 }

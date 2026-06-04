@@ -670,6 +670,7 @@
     "add_phone_title": "Stuur 'login' naar onze WhatsApp om je telefoonnummer in je profiel op te slaan.",
     "error_display_name_taken": "Iemand anders gebruikt die weergavenaam al. Kies een andere.",
     "field_email_readonly_title": "E-mailwijzigingen komen binnenkort. Neem voor nu contact op met support om je e-mail bij te werken.",
-    "placeholder_no_phone": "Nog geen telefoon gekoppeld"
+    "placeholder_no_phone": "Nog geen telefoon gekoppeld",
+    "hint_display_name_locked": "Je naam is je permanente @handle op Tournamental. Niet meer wijzigbaar na opslaan."
   }
 }

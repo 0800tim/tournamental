@@ -669,6 +669,7 @@
     "add_phone_title": "Message 'login' to our WhatsApp to save your phone number to your profile.",
     "error_display_name_taken": "Someone else already uses that display name. Pick a different one.",
     "field_email_readonly_title": "Email changes are coming soon. For now, contact support to update your email.",
-    "placeholder_no_phone": "No phone linked yet"
+    "placeholder_no_phone": "No phone linked yet",
+    "hint_display_name_locked": "Your display name is your permanent @handle on Tournamental. It can't be changed once it's set."
   }
 }
