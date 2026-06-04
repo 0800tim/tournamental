@@ -1363,6 +1363,25 @@
     0 20px 38px -10px rgba(245, 158, 11, 0.65),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
+
+/* White variant for a secondary CTA in the same row (Tim 2026-06-05:
+ * "Read Press Release" sits under the gold "Read the bet" button).
+ * Same shape so they pair visually; flatter shadow because white
+ * doesn't need the warm glow. */
+.vt-bet-feature-cta--white {
+  background: #fafafa;
+  color: #0a0a0e;
+  box-shadow:
+    0 10px 24px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.vt-bet-feature-cta--white:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow:
+    0 14px 30px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
 .vt-bet-feature-fine {
   margin: 0;
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;

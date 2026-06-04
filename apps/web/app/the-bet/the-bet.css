@@ -116,6 +116,37 @@
   color: #c7d0e6;
   margin: 24px 0 0;
 }
+/* Press-release CTA in the banner, between the lede and the
+ * "Free to enter" footnote. Tournamental gold pill, black text;
+ * matches the home page's "Read the bet" affordance so the two
+ * surfaces stay visually paired. Tim 2026-06-05. */
+.vt-bet-header-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e !important;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.02em;
+  text-decoration: none !important;
+  box-shadow:
+    0 12px 26px -10px rgba(245, 158, 11, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  white-space: nowrap;
+}
+.vt-bet-header-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 18px 32px -10px rgba(245, 158, 11, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
 .vt-bet-footnote {
   font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   font-size: 12px;
