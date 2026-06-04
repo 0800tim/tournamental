@@ -605,6 +605,56 @@ export function applyJoinRequestAction(
   };
 }
 
+export interface RemoveMemberOutcome {
+  status: "removed" | "not_in_pool" | "syndicate_not_found";
+  syndicate_id?: string;
+}
+
+/**
+ * Remove a member from a syndicate. Both the membership row and the
+ * cached member_count counter are touched in one transaction so the
+ * profile and admin UIs stay consistent. Returns `not_in_pool` when
+ * the user wasn't a member to begin with (idempotent). Tim 2026-06-04
+ * for the admin syndicate detail page's "Remove user" affordance.
+ */
+export function removeMemberFromSyndicate(
+  slug: string,
+  userId: string,
+): RemoveMemberOutcome {
+  const gdb = gameDbWritable();
+  if (!gdb) return { status: "syndicate_not_found" };
+
+  const syn = gdb
+    .prepare(`SELECT id FROM syndicates WHERE slug = ?`)
+    .get(slug) as { id: string } | undefined;
+  if (!syn) return { status: "syndicate_not_found" };
+
+  const txn = gdb.transaction(() => {
+    const del = gdb
+      .prepare(
+        `DELETE FROM syndicate_owners_membership
+          WHERE syndicate_id = ? AND user_id = ?`,
+      )
+      .run(syn.id, userId);
+    if (del.changes > 0) {
+      gdb
+        .prepare(
+          `UPDATE syndicates
+              SET member_count = MAX(0, member_count - 1)
+            WHERE id = ?`,
+        )
+        .run(syn.id);
+    }
+    return del.changes;
+  });
+
+  const changes = txn();
+  return {
+    status: changes > 0 ? "removed" : "not_in_pool",
+    syndicate_id: syn.id,
+  };
+}
+
 // ---------------- API keys ---------------------------------------------
 
 interface ApiKeyDbRow {
