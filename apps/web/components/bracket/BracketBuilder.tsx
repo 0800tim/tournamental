@@ -100,7 +100,14 @@ import {
 import { track } from "@/lib/analytics";
 import { useCascadePulse } from "@/lib/bracket/use-cascade-pulse";
 import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
-import { loadServerBracket, saveFullBracket, savePerMatchPick } from "@/lib/bracket/api";
+// savePerMatchPick removed 2026-06-05: every flag click was firing a
+// PUT /v1/picks/<user>/<match> which under TV-spike load (1000+
+// concurrent users clicking 5+ picks/sec) would have hammered the
+// single-process game-service. The new path is local-only on the
+// click; durability is the 30s autosave + manual Save + localStorage
+// fallback (the previous per-match save was already best-effort
+// fire-and-forget for the same reasons). See BracketAutoSave.tsx.
+import { loadServerBracket, saveFullBracket } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
@@ -701,39 +708,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return () => cancel(handle as number);
   }, [cascaded.knockouts, tab]);
 
-  /**
-   * Fire-and-forget per-match save. Doesn't block the UI, the local
-   * state update happens synchronously. If the API call fails the
-   * localStorage write in `update()` keeps the pick alive locally; the
-   * next bulk submit (or page reload merge) will reconcile.
-   */
-  const persistPickToServer = useCallback(
-    (next: MatchPrediction): void => {
-      if (userLocalId === "ssr_user") return;
-      void savePerMatchPick({
-        userId: userLocalId,
-        matchId: next.matchId,
-        tournamentId: tournament.id,
-        outcome: next.outcome,
-        ...(next.homeScore !== undefined ? { homeScore: next.homeScore } : {}),
-        ...(next.awayScore !== undefined ? { awayScore: next.awayScore } : {}),
-        ...(next.oddsAtLock ? { oddsAtLock: next.oddsAtLock } : {}),
-      }).then((res) => {
-        if (!res.ok) {
-          // Soft failure: stay quiet on transport errors (the user is
-          // probably offline and we don't want to surface a banner per
-          // click), but log a structured warning for observability.
-          // eslint-disable-next-line no-console
-          console.warn("[bracket] per-match save failed", {
-            matchId: next.matchId,
-            code: res.code,
-            status: res.status,
-          });
-        }
-      });
-    },
-    [tournament.id, userLocalId],
-  );
+  // Tim 2026-06-05: persistPickToServer / savePerMatchPick removed.
+  // Per-click PUT /v1/picks was fire-and-forget but still single-
+  // process Fastify → SQLite write under the hood, so at TV-spike
+  // load (~5 picks/sec/user × thousands of users) it would saturate
+  // the game-service event loop. Durability now comes from:
+  //   1. update() writes to localStorage on every pick (already does)
+  //   2. BracketAutoSave's 30s timer bulk-saves the full bracket
+  //   3. The Save button at the end of the bracket page
+  // See BracketAutoSave.tsx for the dirty-detect + interval.
 
   /**
    * Persist a bestThirds change to the server. There is no per-third
@@ -787,7 +770,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
       ...bracket,
       matchPredictions: { ...bracket.matchPredictions, [next.matchId]: next },
     });
-    persistPickToServer(next);
+    // Per-click server save removed 2026-06-05, see comment above the
+    // (deleted) persistPickToServer block. The next BracketAutoSave
+    // tick (≤30s) or a manual Save will bulk-persist.
   };
 
   const onChangeTiebreaker = (next: GroupTiebreaker): void => {
@@ -819,7 +804,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
       ...bracket,
       knockoutPredictions: { ...bracket.knockoutPredictions, [next.matchId]: next },
     });
-    persistPickToServer(next);
+    // Per-click server save removed 2026-06-05, see comment above the
+    // (deleted) persistPickToServer block. The next BracketAutoSave
+    // tick (≤30s) or a manual Save will bulk-persist.
   };
 
   /**
