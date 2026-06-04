@@ -1,0 +1,108 @@
+/* Human-friendly cascade warnings surface. Replaces the previous
+ * `details > summary` block that just dumped engine codes.
+ * Tim 2026-06-05. */
+
+.bracket-cascade-warnings {
+  margin-top: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Top banner, shown on later tabs (R32 onward) when a prior stage
+ * is the actual cause of the empty slots. Calmer styling than the
+ * old red error block; we want it informative, not alarming. */
+.bracket-cascade-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: rgba(220, 169, 75, 0.08);
+  border: 1px solid rgba(220, 169, 75, 0.32);
+  border-radius: 10px;
+  color: #f5e1a9;
+}
+.bracket-cascade-banner-text {
+  flex: 1;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.bracket-cascade-banner-cta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e;
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow:
+    0 8px 18px -8px rgba(245, 158, 11, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  white-space: nowrap;
+}
+.bracket-cascade-banner-cta:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 12px 22px -10px rgba(245, 158, 11, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Collapsible details list. Sits below the banner; lets a curious
+ * user expand to see each distinct outstanding action without us
+ * shouting at every page render. */
+.bracket-cascade-details {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+.bracket-cascade-details > summary {
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  color: #e7ecf7;
+  padding: 4px 0;
+}
+.bracket-cascade-details > summary::-webkit-details-marker {
+  display: none;
+}
+.bracket-cascade-details > summary::before {
+  content: "▸ ";
+  display: inline-block;
+  width: 1em;
+  transition: transform 120ms ease;
+}
+.bracket-cascade-details[open] > summary::before {
+  content: "▾ ";
+}
+.bracket-cascade-details ul {
+  margin: 8px 0 4px;
+  padding: 0 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  line-height: 1.45;
+}
+.bracket-cascade-details li {
+  list-style: disc;
+}
+
+@media (max-width: 640px) {
+  .bracket-cascade-banner {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: left;
+  }
+  .bracket-cascade-banner-cta {
+    justify-content: center;
+  }
+}
