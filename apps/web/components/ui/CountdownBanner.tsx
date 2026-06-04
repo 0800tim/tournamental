@@ -31,6 +31,13 @@ export interface CountdownBannerProps {
   readonly title: string;
   readonly eyebrow?: string;
   readonly pastLabel?: string;
+  /**
+   * Tim 2026-06-05: when true, suppresses the head (eyebrow + title)
+   * and renders only the digit grid. Used on the home page where the
+   * countdown sits inline next to the stats row and the head would be
+   * redundant. Defaults to false so existing callers are unaffected.
+   */
+  readonly compact?: boolean;
 }
 
 interface Parts {
@@ -58,6 +65,7 @@ export function CountdownBanner({
   title,
   eyebrow = "Tournament countdown",
   pastLabel = "Tournament is live",
+  compact = false,
 }: CountdownBannerProps) {
   const t = useTranslations();
   const targetMs = Date.parse(targetUtc);
@@ -90,11 +98,16 @@ export function CountdownBanner({
   const parts = computeParts(targetMs, now);
 
   return (
-    <section className="vt-countdown" aria-live="polite">
-      <div className="vt-countdown-head">
-        <p className="vt-countdown-eyebrow">{parts.elapsed ? pastLabel : eyebrow}</p>
-        <h2 className="vt-countdown-title">{title}</h2>
-      </div>
+    <section
+      className={compact ? "vt-countdown vt-countdown--compact" : "vt-countdown"}
+      aria-live="polite"
+    >
+      {!compact && (
+        <div className="vt-countdown-head">
+          <p className="vt-countdown-eyebrow">{parts.elapsed ? pastLabel : eyebrow}</p>
+          <h2 className="vt-countdown-title">{title}</h2>
+        </div>
+      )}
       <div className="vt-countdown-grid">
         <Cell value={parts.days}    label={safeT(t, "countdown.unit_days",    "Days")} dataKey="day" />
         <Cell value={parts.hours}   label={safeT(t, "countdown.unit_hours",   "Hrs")}  dataKey="hr" />

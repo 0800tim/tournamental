@@ -1342,3 +1342,48 @@
   text-transform: uppercase;
   color: rgba(231, 234, 243, 0.6);
 }
+
+/* Hero stats strip with inline countdown (Tim 2026-06-05).
+ *
+ * Stats (104 / 48 / 0 / ?) on the left, countdown digits on the right,
+ * same row on desktop. Stacks single-column on mobile so the digits
+ * don't get crushed under a phone width. A full-width gold hairline
+ * sits directly below the strip, then the bet feature card lands
+ * above the fold. */
+.vt-home-stats-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+  align-items: center;
+  margin-top: clamp(32px, 5vw, 48px);
+}
+@media (min-width: 880px) {
+  .vt-home-stats-strip {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: clamp(32px, 5vw, 64px);
+  }
+}
+.vt-home-stats-rule {
+  border: none;
+  border-top: 1px solid rgba(245, 197, 66, 0.22);
+  margin: clamp(20px, 3vw, 28px) 0 0;
+}
+.vt-home-stats-countdown {
+  /* The compact countdown sits in its own grid cell so it can right-
+   * align cleanly against the stats row on desktop. */
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Compact countdown variant — used inline next to the stats row. */
+.vt-countdown--compact {
+  padding: 0;
+  background: none;
+  border: none;
+  box-shadow: none;
+}
+.vt-countdown--compact .vt-countdown-grid {
+  /* Slightly tighter spacing than the standalone banner so the four
+   * cells fit comfortably alongside the four stat cells. */
+  gap: clamp(10px, 1.4vw, 18px);
+}

@@ -197,57 +197,61 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </Link>
               </div>
 
+              {/* Tim 2026-06-05: single lede paragraph replaces the
+                * previous "Nobody will correctly predict..." + global
+                * ledger pair. The bet page (/the-bet) now carries all
+                * the astronomical-odds talk, so the hero just needs to
+                * explain WHAT Tournamental is and tease the bet. */}
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
-                  {ledeParts.length === 2 ? (
-                    <>
-                      {ledeParts[0]}
-                      <Link href="/odds" className="vt-home-hero-readmore">
-                        {ledeLink}
-                      </Link>
-                      {ledeParts[1]}
-                    </>
-                  ) : (
-                    lede
-                  )}{" "}
-                  <Link href="/odds" className="vt-home-hero-readmore">
-                    {readMore}
+                  Tournamental is a &lsquo;bracket&rsquo; app that keeps
+                  a global ledger of user match predictions and commits
+                  every pick to the blockchain before each match kicks
+                  off, so your predictions are immutable and any claim
+                  to glory is finally provable. Our quest is to find
+                  the person (or animal!) that can predict the most
+                  correct outcomes. Predict all 104 correctly and{" "}
+                  <Link href="/the-bet" className="vt-home-hero-readmore">
+                    I&apos;ll give you my house!
                   </Link>
-                </p>
-                <p className="vt-home-hero-lede vt-home-hero-lede-2">
-                  {lede2}
                 </p>
               </div>
             </div>
 
-            <ul className="vt-home-stat-row">
-              <li>
-                <span className="vt-home-stat-num">104</span>
-                <span className="vt-home-stat-label">{statMatches}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num">48</span>
-                <span className="vt-home-stat-label">{statTeams}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num">0</span>
-                <span className="vt-home-stat-label">{statPerfectBrackets}</span>
-              </li>
-              <li>
-                <span className="vt-home-stat-num" aria-hidden="true">?</span>
-                <span className="vt-home-stat-label">{statClaimToGlory}</span>
-              </li>
-            </ul>
+            {/* Stats + inline countdown share one row, separated by a
+              * full-width hairline. The bet feature card sits directly
+              * below the hairline so it lands above the fold on most
+              * viewports. (Tim 2026-06-05) */}
+            <div className="vt-home-stats-strip">
+              <ul className="vt-home-stat-row">
+                <li>
+                  <span className="vt-home-stat-num">104</span>
+                  <span className="vt-home-stat-label">{statMatches}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num">48</span>
+                  <span className="vt-home-stat-label">{statTeams}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num">0</span>
+                  <span className="vt-home-stat-label">{statPerfectBrackets}</span>
+                </li>
+                <li>
+                  <span className="vt-home-stat-num" aria-hidden="true">?</span>
+                  <span className="vt-home-stat-label">{statClaimToGlory}</span>
+                </li>
+              </ul>
+              <div className="vt-home-stats-countdown">
+                <CountdownBanner
+                  targetUtc={WC_2026_KICKOFF_UTC}
+                  eyebrow={countdownEyebrow}
+                  title={countdownTitle}
+                  compact
+                />
+              </div>
+            </div>
+            <hr className="vt-home-stats-rule" aria-hidden="true" />
           </div>
-        </section>
-
-        {/* ============== COUNTDOWN ============== */}
-        <section className="vt-home-section">
-          <CountdownBanner
-            targetUtc={WC_2026_KICKOFF_UTC}
-            eyebrow={countdownEyebrow}
-            title={countdownTitle}
-          />
         </section>
 
         {/* ============== BET FEATURE ============== */}
