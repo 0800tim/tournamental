@@ -31,22 +31,29 @@ export default function TheBetPage(): JSX.Element {
     <AppShell title="The Bet">
       <main className="vt-bet">
         <article className="vt-bet-article">
-        <header className="vt-bet-header">
-          <p className="vt-bet-dateline">
-            The bet · Auckland · World Cup 2026
-          </p>
-          <h1 className="vt-bet-title">
-            I&apos;m betting <em>my house</em> on it.
-          </h1>
-          <hr className="vt-bet-rule" aria-hidden="true" />
-          <p className="vt-bet-lede">
-            If you can predict every one of the 104 matches at the 2026
-            World Cup, I&apos;ll sign over what&apos;s left of my equity.
-          </p>
-          <p className="vt-bet-footnote">
-            Open to New Zealand residents 18 and over. Free to enter.
-            Picks lock at each match&apos;s kickoff.
-          </p>
+        <header className="vt-bet-header vt-bet-header--hero">
+          <div className="vt-bet-header-bg" aria-hidden="true" />
+          <div className="vt-bet-header-scrim" aria-hidden="true" />
+          <div className="vt-bet-header-content">
+            <p className="vt-bet-dateline">
+              The bet · Auckland · World Cup 2026
+            </p>
+            <h1 className="vt-bet-title">
+              I&apos;m all in on Tourna<em>mental</em>.
+              <br />
+              Am I <em>mental</em> for betting my house on it?
+            </h1>
+            <hr className="vt-bet-rule" aria-hidden="true" />
+            <p className="vt-bet-lede">
+              If you can predict every one of the 104 matches at the
+              2026 World Cup, I&apos;ll sign over what&apos;s left of
+              my equity.
+            </p>
+            <p className="vt-bet-footnote">
+              Open to New Zealand residents 18 and over. Free to enter.
+              Picks lock at each match&apos;s kickoff.
+            </p>
+          </div>
         </header>
 
         <section className="vt-bet-body">

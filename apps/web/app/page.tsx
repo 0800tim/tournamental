@@ -197,28 +197,6 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </Link>
               </div>
 
-              {/* Tim 2026-06-05: brand-pun strap sits directly under the
-                * H1 (via grid-area: mental, see home.css) and immediately
-                * before the lede paragraphs. Bright gold-on-black so it
-                * pops as the first scroll-stopper a viral visitor sees.
-                * Leans into the "mental" inside "Tournamental". The
-                * inverted black CTA reads as the click. */}
-              <aside className="vt-home-mental" aria-label="The bet">
-                <p className="vt-home-mental-eyebrow">The bet</p>
-                <p className="vt-home-mental-headline">
-                  Tourna<em>mental</em>? <span className="vt-home-mental-shrug">Maybe.</span>
-                </p>
-                <p className="vt-home-mental-body">
-                  I&apos;m betting my{" "}
-                  <strong>NZ$1.4 million dollar house</strong> that
-                  no-one nails all 104 picks. If you do, it&apos;s
-                  yours!
-                </p>
-                <Link href="/the-bet" className="vt-home-mental-cta">
-                  Read the bet <span aria-hidden="true">→</span>
-                </Link>
-              </aside>
-
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
                   {ledeParts.length === 2 ? (
@@ -270,6 +248,42 @@ export default async function HomePage(): Promise<JSX.Element> {
             eyebrow={countdownEyebrow}
             title={countdownTitle}
           />
+        </section>
+
+        {/* ============== BET FEATURE ============== */}
+        {/* Tim 2026-06-05: dramatic image-overlay feature card between
+          * the countdown and the "Step 1" section. Two-column on
+          * desktop (text left, CTA right), stacks on mobile. The
+          * background image at /hero/the-bet-hero.{webp,jpg} drops in
+          * automatically when present; until then a dark + antique-gold
+          * gradient fills the space so the section never looks broken. */}
+        <section className="vt-home-section">
+          <article className="vt-bet-feature" aria-label="The bet">
+            <div className="vt-bet-feature-bg" aria-hidden="true" />
+            <div className="vt-bet-feature-scrim" aria-hidden="true" />
+            <div className="vt-bet-feature-inner">
+              <div className="vt-bet-feature-text">
+                <p className="vt-bet-feature-eyebrow">The Bet</p>
+                <h2 className="vt-bet-feature-headline">
+                  Tourna<em>mental?</em>{" "}
+                  <span className="vt-bet-feature-shrug">Maybe.</span>
+                </h2>
+                <p className="vt-bet-feature-body">
+                  I&apos;m betting my{" "}
+                  <strong>NZ$1.4 million dollar house</strong> that
+                  no-one nails all 104 picks. <em>If you do, it&apos;s yours!</em>
+                </p>
+              </div>
+              <div className="vt-bet-feature-action">
+                <Link href="/the-bet" className="vt-bet-feature-cta">
+                  Read the bet <span aria-hidden="true">→</span>
+                </Link>
+                <p className="vt-bet-feature-fine">
+                  NZ residents 18+ · Free to enter
+                </p>
+              </div>
+            </div>
+          </article>
         </section>
 
         {/* ============== STEP 1 — PICKS ============== */}
