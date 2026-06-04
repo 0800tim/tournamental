@@ -279,72 +279,135 @@
 
 /* All four chips share identical geometry AND flex equally so the four
  * codes always land on a single row. `min-width: 0` lets the inner
- * code text shrink if the user has aggressive font-scaling enabled. */
+ * code text shrink if the user has aggressive font-scaling enabled.
+ *
+ * Tim 2026-06-05: restyled to mirror the Top 8 Thirds tile, blurred
+ * full-bleed flag background + dark scrim + crisp foreground flag
+ * chip + bold code. Mobile keeps 4-on-a-row at a smaller size; desktop
+ * gets a bigger tile, see the @media (min-width: 900px) block below. */
 .bracket-group-head-team {
+  position: relative;
   flex: 1 1 0;
   min-width: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 2px 6px 2px 2px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
+  gap: 6px;
+  padding: 8px 8px 8px 6px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: #25252c;
+  color: #e6e6ea;
   overflow: hidden;
-  transition: opacity 120ms ease, filter 120ms ease, color 120ms ease;
+  isolation: isolate;
+  min-height: 44px;
+  transition: border-color 120ms ease, box-shadow 120ms ease,
+    opacity 120ms ease, filter 120ms ease;
 }
 
-/* Advance halo — pure border + soft outer glow, no inset shadow, so
- * the chip's outer box stays the same shape and size as the
- * non-advance siblings. */
+/* Blurred full-bleed flag, same trick as .bracket-thirds-tile::before.
+ * The URL comes from the inline `--km-team-bg` custom property set in
+ * GroupCard.tsx. */
+.bracket-group-head-team::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  z-index: -1;
+  background-image: var(--km-team-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+}
+
+/* Dark scrim so the small foreground flag + code stay legible on top
+ * of any flag colour. Lighter on advancing tiles so the gold/silver
+ * border reads cleanly. */
+.bracket-group-head-team::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.5) 0%,
+    rgba(0, 0, 0, 0.62) 50%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  transition: background 160ms ease;
+}
+
+.bracket-group-head-team > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 1st place tile, gold ring + glow (matches .bracket-thirds-tile.is-selected). */
 .bracket-group-head-team[data-advance="1"] {
-  border-color: var(--vt-gold-400, #dca94b);
-  background: rgba(220, 169, 75, 0.10);
-  box-shadow: 0 0 10px rgba(220, 169, 75, 0.22);
+  border-color: rgba(220, 169, 75, 0.7);
+  box-shadow:
+    inset 0 0 0 2px var(--vt-gold-400, #dca94b),
+    0 0 14px rgba(220, 169, 75, 0.35);
   color: #fbe89c;
 }
 
+/* 2nd place, silver ring. */
 .bracket-group-head-team[data-advance="2"] {
-  border-color: #c8ccd6;
-  background: rgba(200, 204, 214, 0.06);
-  box-shadow: 0 0 10px rgba(200, 204, 214, 0.18);
+  border-color: rgba(200, 204, 214, 0.7);
+  box-shadow:
+    inset 0 0 0 2px #c8ccd6,
+    0 0 12px rgba(200, 204, 214, 0.25);
   color: #eef0f6;
 }
 
+/* Lighter scrim on advancing tiles so the highlight + bright code
+ * colour read against the flag background. */
+.bracket-group-head-team[data-advance]::after {
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.32) 0%,
+    rgba(0, 0, 0, 0.45) 50%,
+    rgba(0, 0, 0, 0.62) 100%
+  );
+}
+
 /* When the group is fully predicted + ties resolved, the chips that
- * didn't advance dim out so the eye lands on the two qualifiers — but
+ * didn't advance dim out so the eye lands on the two qualifiers, but
  * stay readable enough that the user can still see who finished 3rd /
- * 4th at a glance (Tim 2026-05-21 follow-up: the previous 0.55 was too
- * far gone). */
+ * 4th at a glance. */
 .bracket-group-head-teams[data-complete="true"] .bracket-group-head-team:not([data-advance]) {
-  opacity: 0.78;
-  filter: grayscale(0.18);
+  opacity: 0.72;
+  filter: grayscale(0.22);
 }
 
 .bracket-group-head-flag {
-  width: clamp(20px, 5.4vw, 26px);
-  height: clamp(14px, 3.7vw, 18px);
+  width: 22px;
+  height: 16px;
   border-radius: 2px;
   object-fit: cover;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
   flex-shrink: 0;
 }
 
 .bracket-group-head-team-code {
   letter-spacing: 0.02em;
+  font-weight: 700;
+  font-size: clamp(11px, 3.2vw, 14px);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
-.bracket-group-head-team[data-advance="1"] .bracket-group-head-flag {
-  box-shadow: 0 0 0 2px var(--vt-gold-400, #dca94b);
-}
-
+/* Drop the old per-flag ring; the tile body now carries the advance
+ * border + glow. Kept as null overrides so the cascade doesn't
+ * reintroduce ghost shadows on legacy class combos. */
+.bracket-group-head-team[data-advance="1"] .bracket-group-head-flag,
 .bracket-group-head-team[data-advance="2"] .bracket-group-head-flag {
-  box-shadow: 0 0 0 2px #c8ccd6;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
 }
 
 .bracket-group-head-chevron {
@@ -404,21 +467,25 @@
     gap: 8px;
   }
 
-  /* Desktop: bump the collapsed-header team chips up (Tim 2026-05-22).
-   * On mobile the clamp() caps at 13px / 26x18 flag because four chips
-   * have to fit on a narrow row; on desktop there's plenty of space
-   * and the tiny chips were floating in a void. */
+  /* Desktop: scale up the new tile-style chips (Tim 2026-06-05).
+   * On mobile the chip sits at ~44px tall to fit four-on-a-row at
+   * 360px screens; on desktop there's plenty of horizontal space so
+   * we let them grow to ~56px with a larger flag chip + code, matching
+   * the look of the Top 8 Thirds tiles. */
   .bracket-group-head-teams {
-    font-size: 16px;
-    gap: 6px;
-  }
-  .bracket-group-head-team {
-    padding: 4px 12px 4px 4px;
     gap: 8px;
   }
+  .bracket-group-head-team {
+    padding: 12px 14px;
+    min-height: 56px;
+    gap: 10px;
+  }
   .bracket-group-head-flag {
-    width: 32px;
-    height: 22px;
+    width: 30px;
+    height: 21px;
+  }
+  .bracket-group-head-team-code {
+    font-size: 17px;
   }
 }
 

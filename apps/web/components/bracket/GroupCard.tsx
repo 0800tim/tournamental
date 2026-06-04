@@ -15,6 +15,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import type React from "react";
 import { useState } from "react";
 
 function safeT(
@@ -208,11 +209,20 @@ export function GroupCard(props: GroupCardProps) {
                 : code === secondPlaceCode
                   ? "2"
                   : undefined;
+            // Tim 2026-06-05: the chip's ::before pseudo paints the
+            // flag SVG as a blurred full-bleed background (same trick
+            // as .bracket-thirds-tile and .km-team). Inline the URL
+            // as a custom property so the pseudo can resolve it
+            // without per-team CSS rules.
+            const tileStyle = {
+              "--km-team-bg": `url(/flags/${code}.svg)`,
+            } as React.CSSProperties;
             return (
               <span
                 key={code}
                 className="bracket-group-head-team"
                 data-advance={advance}
+                style={tileStyle}
               >
                 <img
                   className="bracket-group-head-flag"
