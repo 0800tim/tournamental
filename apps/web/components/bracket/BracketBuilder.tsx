@@ -107,12 +107,13 @@ import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 // click; durability is the 30s autosave + manual Save + localStorage
 // fallback (the previous per-match save was already best-effort
 // fire-and-forget for the same reasons). See BracketAutoSave.tsx.
-import { loadServerBracket, saveFullBracket } from "@/lib/bracket/api";
+import { GAME_API_BASE, loadServerBracket, saveFullBracket } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
 import { BracketAutoSave } from "./BracketAutoSave";
+import { CascadeWarnings, type BracketTabId as CascadeTab } from "./CascadeWarnings";
 import { shareContent } from "@/lib/native";
 import {
   buildShareText,
@@ -1283,6 +1284,74 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return () => window.clearInterval(id);
   }, [auth.status, currentSig, lastSavedSig, doAutoSave]);
 
+  // Tim 2026-06-05: best-effort save on page exit. Two trigger paths:
+  //   1. window.beforeunload, fires on tab close, reload, external
+  //      link, or browser back/forward.
+  //   2. useEffect cleanup, fires on internal Next.js navigation
+  //      (clicking Pools, Profile, the app drawer, etc.).
+  // Both call fetch with `keepalive: true` so the request survives
+  // the page tear-down. Body is ~5-10KB so we're well under the 64KB
+  // keepalive cap.
+  // Latest bracket / dirty / auth values come through refs so the
+  // listener (installed once via empty deps) always reads current
+  // state instead of the snapshot at install time.
+  const exitSaveBracketRef = useRef(bracket);
+  const exitSaveIsDirtyRef = useRef(isDirty);
+  const exitSaveAuthRef = useRef(auth.status);
+  const exitSaveUserIdRef = useRef(userLocalId);
+  const exitSaveTournamentIdRef = useRef(tournament.id);
+  useEffect(() => {
+    exitSaveBracketRef.current = bracket;
+    exitSaveIsDirtyRef.current = isDirty;
+    exitSaveAuthRef.current = auth.status;
+    exitSaveUserIdRef.current = userLocalId;
+    exitSaveTournamentIdRef.current = tournament.id;
+  });
+  useEffect(() => {
+    const flushOnExit = (): void => {
+      if (autoSaveInFlightRef.current) return;
+      if (exitSaveAuthRef.current !== "authenticated") return;
+      if (!exitSaveIsDirtyRef.current) return;
+      if (exitSaveUserIdRef.current === "ssr_user") return;
+      try {
+        const submission: Bracket = {
+          ...exitSaveBracketRef.current,
+          lockedAt: new Date().toISOString(),
+        };
+        const base = GAME_API_BASE.replace(/\/+$/, "");
+        // fire-and-forget: browser keeps the fetch alive past unload.
+        void fetch(`${base}/v1/bracket/submit`, {
+          method: "POST",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            tournament_id: exitSaveTournamentIdRef.current,
+            user_id: exitSaveUserIdRef.current,
+            bracket: submission,
+          }),
+          keepalive: true,
+          cache: "no-store",
+        }).catch(() => {
+          // Unloading; can't surface anyway.
+        });
+      } catch {
+        /* swallow, exit path */
+      }
+    };
+    const onBeforeUnload = (): void => {
+      flushOnExit();
+      // Deliberately NOT calling preventDefault, no "leave site?"
+      // prompt; we just save quietly and let the navigation complete.
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", onBeforeUnload);
+      // Internal Next.js navigation: this cleanup fires when the
+      // BracketBuilder unmounts (e.g. user clicks Pools).
+      flushOnExit();
+    };
+  }, []);
+
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
   const completedKnockouts = Object.keys(bracket.knockoutPredictions).length;
@@ -1820,18 +1889,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
         })}
       </div>
 
-      {cascaded.warnings.length > 0 && (
-        <details className="bracket-warnings">
-          <summary>{cascaded.warnings.length} cascade warnings</summary>
-          <ul>
-            {cascaded.warnings.map((w, i) => (
-              <li key={`${w.code}-${i}`}>
-                <code>{w.code}</code> {w.message}
-              </li>
-            ))}
-          </ul>
-        </details>
-      )}
+      {/* Tim 2026-06-05: cascade warnings rendered through a
+        * dedicated component that translates engine codes to plain
+        * English and surfaces a contextual "go back to <prior tab>"
+        * banner when the user is downstream of an incomplete stage. */}
+      <CascadeWarnings
+        warnings={cascaded.warnings}
+        currentTab={tab as CascadeTab}
+        onJumpToTab={(target) => setTab(target as TabId)}
+      />
+
 
       {showAutoPickConfirm && (
         <div
