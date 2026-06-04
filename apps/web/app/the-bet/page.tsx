@@ -1,5 +1,5 @@
 /**
- * /the-bet — the house-prize promotion long-form, on the play app.
+ * /the-bet, the house-prize promotion long-form, on the play app.
  *
  * Lives on play.tournamental.com because the bet is FIFA-WC-bracket
  * specific and ties to the predictions database that the play app
@@ -44,9 +44,8 @@ export default function TheBetPage(): JSX.Element {
               Am I <em>mental</em> for betting my house on it?
             </h1>
             <p className="vt-bet-lede">
-              If you can predict every one of the 104 matches at the
-              2026 World Cup, I&apos;ll sign over what&apos;s left of
-              my equity.
+              If you can predict the correct outcome of all 104 matches at the
+              2026 World Cup, I&apos;ll give you my house.
             </p>
             {/* Tim 2026-06-05: press release lives in
               * apps/web/public/press/. Anchor target=_blank, not next/link,
@@ -67,7 +66,7 @@ export default function TheBetPage(): JSX.Element {
 
         <section className="vt-bet-body">
           <p className="vt-bet-lead">
-            I&apos;m Tim Thomas. New Zealand engineer. Twenty-six years
+            I&apos;m Tim Thomas. New Zealand entrepreneur. Twenty-six years
             building websites and apps. The last three weeks of those
             years, I built a FIFA World Cup prediction game.
           </p>
@@ -76,7 +75,7 @@ export default function TheBetPage(): JSX.Element {
             matches at the 2026 World Cup correctly, I&apos;ll sign over
             my house.
           </p>
-          <p>It&apos;s worth NZ$1.5 million.</p>
+          <h2 className="vt-bet-h2">It&apos;s worth NZ$1.5 million.</h2>
 
           <div className="vt-bet-callout">
             <p className="vt-bet-callout-head">Quick honesty break.</p>
@@ -103,8 +102,7 @@ export default function TheBetPage(): JSX.Element {
           </p>
           <p>
             If one person, anywhere in the world, predicts every one of
-            the 104 matches correctly through{" "}
-            <a href="https://play.tournamental.com">Tournamental.com</a>,
+            the 104 matches correctly through play.tournamental.com,
             I list the house, settle the bank, and wire the rest to
             their account.
           </p>
@@ -121,14 +119,17 @@ export default function TheBetPage(): JSX.Element {
             need every pick locked in by the kickoff of its own match.
           </p>
 
-          <h2 className="vt-bet-h2">Worried? No.</h2>
+          <h2 className="vt-bet-h2">Worried? No.<br/>Risky? Hardly.</h2>
           <p>
-            104 matches. Three outcomes each that count as a pick: home
-            win, draw, away win.
+            104 matches in total. The group stage has 72 matches, each
+            with three possible outcomes (home win, draw, away win). The
+            knockout rounds have 32 matches, each with two outcomes (the
+            team that progresses, or the team that doesn&apos;t).
           </p>
           <p>
-            Three to the power of one hundred and four is a number with{" "}
-            <strong>fifty digits</strong>.{" "}
+            Multiply that out: 3<sup>72</sup> &times; 2<sup>32</sup>. The
+            answer is a number with{" "}
+            <strong>44 digits</strong>, roughly 9.7 followed by 43 zeros.{" "}
             <Link href="/odds">See the maths</Link>.
           </p>
           <p>
@@ -169,7 +170,7 @@ export default function TheBetPage(): JSX.Element {
           </h2>
           <p>
             Smart question. You shouldn&apos;t trust me; you should trust
-            the code, it&apos;s 100% open-source.
+            the code, it&apos;s 100% open-source on <Link href="https://github.com/0800tim/tournamental" target="_blank">GitHub</Link>. 
           </p>
           <p>
             Every match kickoff, Tournamental hashes the predictions
@@ -197,23 +198,28 @@ export default function TheBetPage(): JSX.Element {
             prediction game is the perfect engagement vehicle.
             Tournamental is the best one I could possibly build.
           </p>
-          <p>I&apos;m proud of it. I want people to play it.</p>
+          <p>I&apos;m proud of it. I want people to play it. </p>
+          <p>I've built it to handle 100,000+ concurrent users and want to put it to the test. </p>            
           <p>
             The fastest way for one Kiwi developer to be heard above five
             thousand other product launches in June 2026 is to put my
             house on the line and mean it. Done.
           </p>
+          <p>Yes, it's a publicity stunt, but it's a bloody good story isn't it? 
+          Will it work? I don't know. We'll see.
+          </p>
+          <p>I'm a little bit torn doing this, and maybe mental. It's all in the name, I'm Tournamental.</p>
           <p>
-            Side note: I built this in three weeks. That part
+            I built this in three weeks. That part
             shouldn&apos;t be possible either. AI coding tools changed
             what one developer can ship. The whole thing, sign-in,
             brackets, leaderboards, the 3D match renderer, 21 languages,
             the Bitcoin-blockchain audit trail, was one person at a laptop.
           </p>
           <p>
-            If you&apos;re in the New Zealand tech industry and
-            you&apos;re reading this thinking &ldquo;wait, three
-            weeks?&rdquo;, yes. Three weeks. Welcome to 2026.
+            If you&apos;re reading this thinking &ldquo;wait, three
+            weeks?&rdquo;, yes. Three weeks.  It would have taken 6 months and 6 figures to build this for the 2022 World Cup. 
+            Welcome to 2026. Maybe there'll be a team of Optimuls robots playing in the 2030 World Cup? Elon?
           </p>
 
           <h2 className="vt-bet-h2">How to enter</h2>
@@ -257,7 +263,7 @@ export default function TheBetPage(): JSX.Element {
           <p>
             Short version: open globally, 18+, one bracket per person.
             You must register with a valid mobile phone number and
-            verify the one-time code we send you — that&apos;s the
+            verify the one-time code we send you, that&apos;s the
             eligibility check. Picks lock at each match&apos;s
             kickoff. The prize is the{" "}
             <strong>net cash proceeds from the sale of the house</strong>{" "}
@@ -267,25 +273,20 @@ export default function TheBetPage(): JSX.Element {
             winner. If two people somehow both go 104-for-104, the
             proceeds split.
           </p>
-          <p>
-            Tournamental is run by <strong>Growth Spurt Ltd</strong>,
-            Auckland.
-          </p>
+         
 
           <p className="vt-bet-signoff">See you on the leaderboard.</p>
           <p className="vt-bet-byline">
-            <strong>Tim Thomas</strong>, Tournamental
+            <strong>Tim Thomas</strong>,<br/>Tournamental
             <br />
             <a href="mailto:info@tournamental.com">info@tournamental.com</a>
           </p>
 
           <div className="vt-bet-cta-row">
             <Link href="/world-cup-2026" className="vt-bet-cta-primary">
-              Pick your bracket →
+              Pick your bracket to enter →
             </Link>
-            <Link href="/odds" className="vt-bet-cta-ghost">
-              Show me the maths
-            </Link>
+           
           </div>
         </section>
       </article>
