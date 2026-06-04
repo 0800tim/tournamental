@@ -1,0 +1,111 @@
+/* Floating save / saved pill in the top-right of the bracket page.
+ * Anchored to the viewport corner so it's reachable on every tab and
+ * doesn't fight with the scrollable bracket area underneath.
+ * Tim 2026-06-05. */
+
+.vt-bracket-autosave {
+  position: fixed;
+  top: 70px; /* clear of the app bar */
+  right: 16px;
+  z-index: 50;
+  pointer-events: none; /* container is just an anchor; child re-enables */
+}
+
+@media (max-width: 760px) {
+  .vt-bracket-autosave {
+    top: 64px;
+    right: 12px;
+  }
+}
+
+.vt-bracket-autosave > * {
+  pointer-events: auto;
+}
+
+/* The dirty / saving button. */
+.vt-bracket-autosave-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow:
+    0 10px 24px -10px rgba(245, 158, 11, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 140ms ease, box-shadow 140ms ease, filter 140ms ease;
+}
+.vt-bracket-autosave-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+  box-shadow:
+    0 14px 30px -10px rgba(245, 158, 11, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.vt-bracket-autosave-btn:disabled {
+  cursor: progress;
+  opacity: 0.85;
+}
+
+/* The post-save toast. Glows then fades after 3s; the consumer flips
+ * state back to "idle" on the same timer so the element unmounts. */
+.vt-bracket-autosave-toast {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  animation: vt-bracket-autosave-fade 3000ms ease forwards;
+}
+.vt-bracket-autosave-toast[data-tone="ok"] {
+  background: rgba(34, 197, 94, 0.18);
+  color: #bbf7d0;
+  border: 1px solid rgba(34, 197, 94, 0.5);
+  box-shadow:
+    0 0 24px rgba(34, 197, 94, 0.45),
+    inset 0 0 12px rgba(34, 197, 94, 0.2);
+}
+.vt-bracket-autosave-toast[data-tone="err"] {
+  background: rgba(239, 68, 68, 0.16);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.35);
+}
+
+@keyframes vt-bracket-autosave-fade {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  75% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vt-bracket-autosave-toast {
+    animation: none;
+  }
+  .vt-bracket-autosave-btn {
+    transition: none;
+  }
+}
