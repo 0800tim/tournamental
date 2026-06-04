@@ -23,9 +23,38 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const TS_RE = /^\d{4}-\d{2}-\d{2}T\d{2}-\d{2}-\d{2}Z$/;
-const FILE_RE = /^snapshot\.db(\.ots)?$/;
+// Receipts (.ots) are always public. snapshot.db serving is gated on
+// the ledger entry's `public_sample` flag — by default false (raw
+// picks aren't given to anyone without a formal audit request); a
+// hand-marked sample anchor stays downloadable so visitors to /verify
+// can see what the audit flow looks like end-to-end.
+const FILE_RE = /^snapshot\.db(?:\.ots)?$/;
 
 const AUDIT_ROOT = join(process.cwd(), "data", "audit");
+
+interface LedgerEntry {
+  ts: string;
+  public_sample?: boolean;
+}
+
+async function isPublicSample(ts: string): Promise<boolean> {
+  try {
+    const raw = await fs.readFile(join(AUDIT_ROOT, "ledger.json"), "utf8");
+    for (const line of raw.split("\n")) {
+      const t = line.trim();
+      if (!t) continue;
+      try {
+        const entry = JSON.parse(t) as LedgerEntry;
+        if (entry.ts === ts) return entry.public_sample === true;
+      } catch {
+        /* skip malformed lines */
+      }
+    }
+  } catch {
+    /* missing ledger.json → treat as private */
+  }
+  return false;
+}
 
 export async function GET(
   _req: Request,
@@ -34,8 +63,31 @@ export async function GET(
   const params = await props.params;
   const ts = params.ts ?? "";
   const file = params.file ?? "";
+
   if (!TS_RE.test(ts) || !FILE_RE.test(file)) {
     return new Response("not found", { status: 404 });
+  }
+
+  // snapshot.db is gated by the ledger's public_sample flag. Receipts
+  // (.ots) are always public.
+  if (file === "snapshot.db") {
+    const allowed = await isPublicSample(ts);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({
+          error: "audit_request_required",
+          message:
+            "The raw predictions snapshot is released only on written audit request, when a dispute would benefit from inspecting the underlying picks. The OpenTimestamps receipt (snapshot.db.ots) is publicly available and proves the snapshot's hash is anchored to Bitcoin. To request the snapshot, email info@tournamental.com with subject line 'Audit request'.",
+        }),
+        {
+          status: 403,
+          headers: {
+            "Content-Type": "application/json",
+            "Cache-Control": "no-store",
+          },
+        },
+      );
+    }
   }
 
   const candidate = normalize(join(AUDIT_ROOT, ts, file));

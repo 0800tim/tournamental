@@ -107,9 +107,13 @@ if [ ! -f "${SNAP}.ots" ]; then
 fi
 
 # Append to the public ledger. Each line is a self-contained record so
-# even a partial-read of the file is parseable (NDJSON style).
+# even a partial-read of the file is parseable (NDJSON style). The
+# `public_sample` flag controls whether the snapshot.db itself is
+# downloadable from /verify; defaults to false (Tim 2026-06-04, raw
+# predictions are released only under formal audit request). Flip a
+# specific entry to true to mark it as a worked example for visitors.
 LEDGER_ENTRY=$(cat <<EOF
-{"ts":"${TS}","reason":"${REASON}","sha256":"${HASH}","size_bytes":${SIZE_BYTES},"snapshot":"/verify/${TS}/snapshot.db","receipt":"/verify/${TS}/snapshot.db.ots"}
+{"ts":"${TS}","reason":"${REASON}","sha256":"${HASH}","size_bytes":${SIZE_BYTES},"snapshot":"/verify/${TS}/snapshot.db","receipt":"/verify/${TS}/snapshot.db.ots","public_sample":false}
 EOF
 )
 mkdir -p "${AUDIT_ROOT}"
