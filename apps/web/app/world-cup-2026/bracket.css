@@ -2851,11 +2851,16 @@ a.bracket-save-panel-cta-primary {
     overscroll-behavior-x: contain;
     /* Drag-to-pan with the touchpad / trackpad reads naturally. */
     scroll-behavior: smooth;
-    /* The carousel is the horizontal container; vertical scroll happens
-     * on the page (body) the way users expect on phones. Each panel
-     * is taller than the viewport, so we let it overflow vertically
-     * outside the carousel via overflow-y: visible would clip, instead
-     * we make the panel its own y-scroll surface. */
+    /* Tim 2026-06-05: align-items: start so each panel column keeps its
+     * natural content height instead of stretching to fill the
+     * (max-of-all-panels) row height. Combined with the JS ResizeObserver
+     * in BracketBuilder that sets this container's height to the ACTIVE
+     * panel's offsetHeight, the page no longer has hundreds of pixels of
+     * empty space below short stages like the Final. */
+    align-items: start;
+    /* `height` is set dynamically by JS to match the active panel.
+     * `auto` is the safe fallback during the brief window before the
+     * observer runs (initial paint, panel swap mid-flight). */
     height: auto;
   }
   .bracket-stages.bracket-stages-mobile::-webkit-scrollbar {
@@ -2868,6 +2873,14 @@ a.bracket-save-panel-cta-primary {
      * inside that column. */
     min-width: 0;
     width: 100%;
+    /* Each panel is itself a grid (display: grid; gap: 16px). Without
+     * align-content: start, the rows distribute to fill whatever height
+     * the panel ends up with — which previously inflated the round
+     * header from ~40px to 252px and pushed the actual picker hundreds
+     * of pixels below the fold. Lock the rows to start so children
+     * stack tight at the top with only the declared 16px gap between
+     * them. */
+    align-content: start;
     /* Padding-bottom keeps the last card from being kissed by any
      * sticky bottom UI (AppShell bottom nav). */
     padding-bottom: 24px;

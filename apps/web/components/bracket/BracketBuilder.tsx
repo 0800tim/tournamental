@@ -494,6 +494,37 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
+  // Track the active panel's natural height and apply it to the
+  // carousel container. Without this, the carousel sizes to the TALLEST
+  // panel (group stage, ~3000px) and every other stage shows hundreds
+  // of pixels of empty space below its content (Tim 2026-06-05). With
+  // align-items: start on the carousel (set in CSS), each panel keeps
+  // its natural content height; this effect makes the carousel itself
+  // resize to whichever panel is currently active.
+  useEffect(() => {
+    if (!isMobile) return;
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const activePanel = carousel.querySelector(
+      `#bracket-panel-${tab}`,
+    ) as HTMLElement | null;
+    if (!activePanel) return;
+
+    const apply = () => {
+      const h = activePanel.getBoundingClientRect().height;
+      if (h > 0) carousel.style.height = `${Math.ceil(h)}px`;
+    };
+    apply();
+    // Re-apply whenever the panel's content changes height (picks
+    // toggled, warnings banner appears/disappears, etc.).
+    const ro =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(apply) : null;
+    ro?.observe(activePanel);
+    return () => {
+      ro?.disconnect();
+    };
+  }, [isMobile, tab]);
+
   // Scroll the tab strip to the top of the viewport on every tab
   // change. Without this, navigating from a long stage (group stage
   // scrolled to bottom) to a shorter one leaves the user staring at
