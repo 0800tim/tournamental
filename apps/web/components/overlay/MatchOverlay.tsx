@@ -1,19 +1,19 @@
 /**
  * MatchOverlay, bottom-sheet card with the compact match-preview view.
  *
- * Renders a slimmed-down version of `/match/[id]/preview`: kickoff
+ * Renders a slimmed-down version of the match-preview surface: kickoff
  * label + venue, both team flags, and quick links to each team's
- * overlay (replaces self) plus a "View full preview" link to the real
- * route.
+ * overlay (replaces self).
  *
- * Like TeamOverlay, this doesn't import the full preview component -
- * it builds its own compact view from pure helpers so the overlay opens
- * instantly.
+ * Tim 2026-06-05: the "Full page →" header CTA and the "Open full
+ * preview (Predict / H2H / Form / Lineup / Stats) →" footer CTA were
+ * removed because the underlying `/match/[id]/preview` route doesn't
+ * exist as a publishable surface yet. The overlay IS the preview
+ * surface for now.
  */
 
 "use client";
 
-import Link from "next/link";
 import { useMemo } from "react";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
@@ -66,20 +66,8 @@ export function MatchOverlay(props: MatchOverlayProps) {
   const home = match.homeCode ? canonicalTeam(match.homeCode) : undefined;
   const away = match.awayCode ? canonicalTeam(match.awayCode) : undefined;
 
-  const fullPageHref = `/match/${match.matchId}/preview`;
   const homeName = home?.name ?? match.homeCode ?? "TBD";
   const awayName = away?.name ?? match.awayCode ?? "TBD";
-
-  const headerSlot = (
-    <Link
-      href={fullPageHref}
-      className="vt-overlay-fullpage-cta"
-      onClick={() => overlay.closeAll()}
-      aria-label="Open the full match preview page"
-    >
-      Full page →
-    </Link>
-  );
 
   const kickoff = new Date(match.kickoffUtc);
   const kickoffLabel = formatKickoff(kickoff);
@@ -87,7 +75,6 @@ export function MatchOverlay(props: MatchOverlayProps) {
   return (
     <Sheet
       title={`${homeName} vs ${awayName}`}
-      headerSlot={headerSlot}
       depth={depth}
       onClose={overlay.close}
       idHint={`match-${match.matchId}`}
@@ -118,16 +105,6 @@ export function MatchOverlay(props: MatchOverlayProps) {
             onOpenTeam={(code) => overlay.replace("team", { code })}
           />
         </div>
-
-        <footer className="vt-match-overlay-actions">
-          <Link
-            href={fullPageHref}
-            className="vt-overlay-fullpage-cta"
-            onClick={() => overlay.closeAll()}
-          >
-            Open full preview (Predict / H2H / Form / Lineup / Stats) →
-          </Link>
-        </footer>
       </div>
     </Sheet>
   );

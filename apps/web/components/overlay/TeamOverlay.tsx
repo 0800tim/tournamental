@@ -3,13 +3,14 @@
  *
  * Pulls a compact set of fields from the canonical teams JSON + the
  * tournament fixture data so the overlay is light enough to open
- * instantly. The "View full team page" CTA in the header navigates to
- * the real `/team/[code]` route for the deeper detail view.
+ * instantly. The overlay IS the team-detail surface for now.
  *
- * Note: we deliberately don't import the full team page component -
- * it's a server component with its own data dependencies. Instead we
- * hand-roll a compact card view here that mirrors the same data
- * surface (flag, name, world rank, group, manager, fixtures).
+ * Tim 2026-06-05: the "Full page →" header CTA, the "View match
+ * preview" button in the Next-Match section, and the "Open full team
+ * page →" footer CTA were removed because the underlying `/team/[code]`
+ * route doesn't exist as a publishable surface yet. Fixture rows below
+ * the Next-Match section still open the MatchOverlay (not a route), so
+ * navigation between team + match overlays continues to work.
  */
 
 "use client";
@@ -82,22 +83,9 @@ export function TeamOverlay(props: TeamOverlayProps) {
 
   const primary = canonical.kit?.primary ?? "#fbbf24";
 
-  const fullPageHref = `/team/${upper}`;
-  const headerSlot = (
-    <Link
-      href={fullPageHref}
-      className="vt-overlay-fullpage-cta"
-      onClick={() => overlay.closeAll()}
-      aria-label={`Open the full ${canonical.name} team page`}
-    >
-      Full page →
-    </Link>
-  );
-
   return (
     <Sheet
       title={canonical.name}
-      headerSlot={headerSlot}
       depth={depth}
       onClose={overlay.close}
       idHint={`team-${upper}`}
@@ -146,16 +134,6 @@ export function TeamOverlay(props: TeamOverlayProps) {
               </time>
               {upcoming.venue && <span>, {upcoming.venue}</span>}
             </p>
-            <button
-              type="button"
-              className="vt-overlay-fullpage-cta"
-              onClick={() =>
-                overlay.replace("match", { id: upcoming.matchId })
-              }
-              aria-label="Open match preview"
-            >
-              View match preview
-            </button>
           </section>
         )}
 
@@ -195,16 +173,6 @@ export function TeamOverlay(props: TeamOverlayProps) {
             </ul>
           </section>
         )}
-
-        <footer className="vt-team-overlay-actions">
-          <Link
-            href={fullPageHref}
-            className="vt-overlay-fullpage-cta"
-            onClick={() => overlay.closeAll()}
-          >
-            Open full team page →
-          </Link>
-        </footer>
       </div>
     </Sheet>
   );
