@@ -1,17 +1,27 @@
 /**
- * DELETE /api/users/[id]/data — soft-delete a user's data.
+ * DELETE /api/users/[id]/data — HARD delete a user across auth.db +
+ * game.db. Gated to super-admin and audited.
  *
- * Gated to super-admin. The actual delete propagates to apps/api (which is
- * responsible for cascading the soft-delete across game-service, crm-bridge,
- * social-publisher etc. — the dashboard never deletes upstream data
- * directly). The dashboard simply records the request in its audit log and
- * forwards to apps/api `/v1/admin/users/:id/data`.
+ * Previously this was a soft-delete forwarder to apps/api (which is a
+ * stub), so the button on the user-detail page did nothing meaningful.
+ * Tim 2026-06-05: real testing of the WhatsApp pool-join flow requires
+ * being able to repeatedly recycle the same phone number, so we now do
+ * the hard delete locally via `hardDeleteUser` in lib/live.ts. Mirrors
+ * the SQL pattern used by the one-off shell delete that triggered this.
+ *
+ * Wipe scope:
+ *   - auth.db: session, phone_otp (by phone), rate_limit (by phone), user
+ *   - game.db: brackets, syndicate_owners_membership
+ *   - game.db: syndicates.member_count -1 per *active* membership removed
+ *
+ * Irreversible. The confirm modal on the client requires typing the
+ * user_id verbatim before the button fires.
  */
 
 import { NextResponse, type NextRequest } from "next/server";
 import { writeAudit } from "@/lib/audit";
 import { readSession } from "@/lib/auth";
-import { upstreamGet } from "@/lib/upstream-fetch";
+import { hardDeleteUser } from "@/lib/live";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -26,34 +36,25 @@ export async function DELETE(_req: NextRequest, props: { params: Promise<{ id: s
     return NextResponse.json({ error: "forbidden" }, { status: 403 });
   }
 
-  const apiBase = process.env.VTORN_API_BASE ?? "http://localhost:3310";
-  // We use upstreamGet only for its swallowing semantics — but a DELETE needs
-  // an explicit fetch. Inline the same swallow-on-error pattern.
-  let upstreamOk = true;
-  try {
-    const r = await fetch(
-      `${apiBase}/v1/admin/users/${encodeURIComponent(params.id)}/data`,
-      { method: "DELETE", cache: "no-store" },
-    );
-    upstreamOk = r.ok;
-  } catch {
-    upstreamOk = false;
+  const userId = (params.id ?? "").trim();
+  if (!userId) {
+    return NextResponse.json({ error: "bad_request" }, { status: 400 });
   }
-  // Reference upstreamGet so the import isn't dead while we keep its
-  // signature available for future GET-based health checks.
-  void upstreamGet;
+
+  const outcome = hardDeleteUser(userId);
 
   await writeAudit(session, {
-    action: "user.data.delete",
-    target: params.id,
-    after: { soft_deleted: true, upstream_ok: upstreamOk },
+    action: "user.hard_delete",
+    target: userId,
+    after: {
+      status: outcome.status,
+      deleted: outcome.deleted,
+      member_count_decrements: outcome.member_count_decrements,
+    },
   });
 
-  if (!upstreamOk) {
-    return NextResponse.json(
-      { ok: false, error: "upstream_unavailable", queued: true },
-      { status: 202 },
-    );
-  }
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({
+    ok: outcome.status === "deleted",
+    ...outcome,
+  });
 }

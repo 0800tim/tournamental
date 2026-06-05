@@ -18,6 +18,7 @@
 
 import {
   authDb,
+  authDbWritable,
   gameDb,
   gameDbWritable,
   oddsDb,
@@ -652,6 +653,155 @@ export function removeMemberFromSyndicate(
   return {
     status: changes > 0 ? "removed" : "not_in_pool",
     syndicate_id: syn.id,
+  };
+}
+
+// ---------------- user hard-delete ------------------------------------
+
+export interface DeletedCounts {
+  user: number;
+  sessions: number;
+  phone_otp: number;
+  rate_limit: number;
+  brackets: number;
+  pool_memberships: number;
+}
+
+export interface DeleteUserOutcome {
+  status: "deleted" | "not_found";
+  user_id: string;
+  phone: string | null;
+  deleted: DeletedCounts;
+  /** Pools whose cached member_count was decremented because the user
+   *  had an *active* membership row in them. Pending / denied rows
+   *  don't bump the counter on insert so they don't decrement here. */
+  member_count_decrements: Array<{ slug: string; new_count: number }>;
+}
+
+/**
+ * Hard-delete a user across auth.db + game.db. The button in the admin
+ * user-detail page calls this through `/api/users/[id]/data`. Use with
+ * care — irreversible. The flow Tim's testing repeatedly during the
+ * pool-join debug needed this because phone numbers are unique-per-user
+ * and the old soft-delete left rows that blocked re-test.
+ *
+ * Cleanup matrix (in transaction per DB):
+ *   auth.session                   → DELETE WHERE user_id
+ *   auth.phone_otp                 → DELETE WHERE phone
+ *   auth.rate_limit                → DELETE WHERE key LIKE phone digits
+ *   auth.user                      → DELETE WHERE id
+ *   game.brackets                  → DELETE WHERE user_id
+ *   game.syndicate_owners_membership → DELETE WHERE user_id
+ *   game.syndicates.member_count   → -1 per active membership row deleted
+ *
+ * Tables we deliberately DON'T touch:
+ *   - game.users (legacy view) — unused write path
+ *   - game.bracket_import_audit / user_api_keys — not joined by user_id
+ *     on the deletion contract; safe to keep as historical record
+ *   - auth.email_otp — phone-keyed flow only for now
+ */
+export function hardDeleteUser(userId: string): DeleteUserOutcome {
+  const adb = authDbWritable();
+  const gdb = gameDbWritable();
+  const counts: DeletedCounts = {
+    user: 0,
+    sessions: 0,
+    phone_otp: 0,
+    rate_limit: 0,
+    brackets: 0,
+    pool_memberships: 0,
+  };
+  const decrements: Array<{ slug: string; new_count: number }> = [];
+
+  // Resolve phone first; we need it for phone-keyed cleanups even after
+  // the `user` row is gone.
+  let phone: string | null = null;
+  if (adb) {
+    const row = adb
+      .prepare(`SELECT phone FROM user WHERE id = ?`)
+      .get(userId) as { phone: string | null } | undefined;
+    phone = row?.phone?.trim() || null;
+  }
+
+  // game.db cleanup runs first so we can capture which pools owe a
+  // member_count decrement. Pending / denied rows don't count.
+  if (gdb) {
+    const txn = gdb.transaction(() => {
+      // Find active memberships before deleting them so we know which
+      // syndicate counters to decrement.
+      const activeMemberships = gdb
+        .prepare(
+          `SELECT s.id AS syndicate_id, s.slug
+             FROM syndicate_owners_membership m
+             JOIN syndicates s ON s.id = m.syndicate_id
+            WHERE m.user_id = ?
+              AND (m.status IS NULL OR m.status = 'active')`,
+        )
+        .all(userId) as Array<{ syndicate_id: string; slug: string }>;
+
+      counts.brackets = gdb
+        .prepare(`DELETE FROM brackets WHERE user_id = ?`)
+        .run(userId).changes ?? 0;
+
+      counts.pool_memberships = gdb
+        .prepare(`DELETE FROM syndicate_owners_membership WHERE user_id = ?`)
+        .run(userId).changes ?? 0;
+
+      // Decrement member_count for each active membership we just removed.
+      const decStmt = gdb.prepare(
+        `UPDATE syndicates
+            SET member_count = MAX(0, member_count - 1)
+          WHERE id = ?
+        RETURNING slug, member_count`,
+      );
+      for (const m of activeMemberships) {
+        const r = decStmt.get(m.syndicate_id) as
+          | { slug: string; member_count: number }
+          | undefined;
+        if (r) decrements.push({ slug: r.slug, new_count: r.member_count });
+      }
+    });
+    txn();
+  }
+
+  // auth.db cleanup. Phone-keyed rows clear regardless of user-row hit
+  // so we don't leak OTP / rate-limit state on a no-op delete.
+  if (adb) {
+    const txn = adb.transaction(() => {
+      counts.sessions = adb
+        .prepare(`DELETE FROM session WHERE user_id = ?`)
+        .run(userId).changes ?? 0;
+      if (phone) {
+        counts.phone_otp = adb
+          .prepare(`DELETE FROM phone_otp WHERE phone = ?`)
+          .run(phone).changes ?? 0;
+        // rate_limit.key is shaped like 'phone:642...:otp-issued'; LIKE
+        // matches without anchoring the wrapping prefix/suffix.
+        const phoneDigits = phone.replace(/^\+/, "");
+        counts.rate_limit = adb
+          .prepare(`DELETE FROM rate_limit WHERE key LIKE ?`)
+          .run(`%${phoneDigits}%`).changes ?? 0;
+      }
+      counts.user = adb
+        .prepare(`DELETE FROM user WHERE id = ?`)
+        .run(userId).changes ?? 0;
+    });
+    txn();
+  }
+
+  const hit =
+    counts.user +
+      counts.brackets +
+      counts.pool_memberships +
+      counts.sessions >
+    0;
+
+  return {
+    status: hit ? "deleted" : "not_found",
+    user_id: userId,
+    phone,
+    deleted: counts,
+    member_count_decrements: decrements,
   };
 }
 

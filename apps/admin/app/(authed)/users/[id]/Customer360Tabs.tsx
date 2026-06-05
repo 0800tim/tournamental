@@ -80,7 +80,7 @@ export function Customer360Tabs({ userId, data, role, profileSlot }: Customer360
               className="text-xs px-2 py-1 rounded bg-danger-600 hover:bg-danger-500 text-ink-50"
               data-testid="delete-data-btn"
             >
-              Delete data
+              Delete user
             </button>
           )}
         </div>
@@ -128,10 +128,10 @@ export function Customer360Tabs({ userId, data, role, profileSlot }: Customer360
 
       {confirmDelete && (
         <ConfirmDialog
-          title="Delete user data?"
-          body={`Soft-deletes the user record, predictions, and personal data for ${userId}.\n\nThis is reversible within 30 days via the audit log; after that the row is hard-purged.`}
+          title="Delete user permanently?"
+          body={`HARD deletes ${userId} across auth.db + game.db: the user row, all sessions, OTP + rate-limit state for their phone, every bracket they've saved, and every pool membership (with member_count decremented for any active pools).\n\nThis cannot be undone. Type the user id below to confirm.`}
           confirmPhrase={userId}
-          confirmLabel={busy ? "Deleting..." : "Delete data"}
+          confirmLabel={busy ? "Deleting…" : "Delete user"}
           destructive
           onCancel={() => setConfirmDelete(false)}
           onConfirm={async () => {
@@ -142,10 +142,16 @@ export function Customer360Tabs({ userId, data, role, profileSlot }: Customer360
                 method: "DELETE",
               });
               if (!r.ok) {
-                setError(`Delete failed (${r.status}).`);
+                const body = (await r.json().catch(() => ({}))) as {
+                  error?: string;
+                };
+                setError(`Delete failed (${r.status}${body.error ? `: ${body.error}` : ""}).`);
                 return;
               }
               setConfirmDelete(false);
+              // Bounce to the users list — the detail page would 404
+              // immediately on this id anyway.
+              window.location.href = "/users";
             } finally {
               setBusy(false);
             }

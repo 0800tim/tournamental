@@ -29,6 +29,7 @@ function resolveDbPath(envKey: string, fallback: string): string {
 }
 
 let _authDb: DB | null = null;
+let _authDbRw: DB | null = null;
 let _gameDb: DB | null = null;
 let _gameDbRw: DB | null = null;
 let _oddsDb: DB | null = null;
@@ -82,6 +83,25 @@ export function gameDbWritable(): DB | null {
   _gameDbRw = new Database(p, { readonly: false, fileMustExist: true });
   _gameDbRw.pragma("journal_mode = WAL");
   return _gameDbRw;
+}
+
+/**
+ * Writable auth.db connection. Mirrors {@link gameDbWritable}'s
+ * rationale: kept separate from the readonly handle so accidental
+ * writes through the read path still fail fast. Used by admin actions
+ * that delete user records (see hardDeleteUser in lib/live.ts).
+ */
+export function authDbWritable(): DB | null {
+  if (_authDbRw) return _authDbRw;
+  const p = resolveDbPath("ADMIN_AUTH_DB_PATH", "apps/auth-sms/data/auth.db");
+  if (!existsSync(p)) {
+    // eslint-disable-next-line no-console
+    console.warn(`[admin/db] auth.db not found at ${p}; admin writes disabled`);
+    return null;
+  }
+  _authDbRw = new Database(p, { readonly: false, fileMustExist: true });
+  _authDbRw.pragma("journal_mode = WAL");
+  return _authDbRw;
 }
 
 export function oddsDb(): DB | null {
