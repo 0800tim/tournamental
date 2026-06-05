@@ -74,22 +74,22 @@
    * legibility. */
   opacity: 0.78;
   filter: saturate(1);
-  /* Tim 2026-06-05: soft fade-to-transparent on the bottom edge so
-   * the banner doesn't bump up against the lede paragraph with a
-   * hard horizontal line where the player photos end. The dark
-   * overlay above still keeps the headline readable. */
+  /* Tim 2026-06-05 (rev 2): fade the bottom 20% of the banner to
+   * transparent so the lede paragraph that sits under the banner
+   * blends in instead of butting against a hard horizontal line
+   * where the player photos end. Clean linear ramp: opaque to
+   * 80%, fully transparent at the bottom. The dark overlay above
+   * still keeps the headline readable through the upper 80%. */
   -webkit-mask-image: linear-gradient(
     180deg,
     #000 0%,
-    #000 68%,
-    rgba(0, 0, 0, 0.4) 88%,
+    #000 80%,
     transparent 100%
   );
   mask-image: linear-gradient(
     180deg,
     #000 0%,
-    #000 68%,
-    rgba(0, 0, 0, 0.4) 88%,
+    #000 80%,
     transparent 100%
   );
 }
