@@ -96,7 +96,8 @@ export function AppBar({
             className="vt-appbar-brand-mark"
           />
           <span className="vt-appbar-wordmark vt-wordmark" aria-hidden="true">
-            Tournamental <span className="vt-appbar-wordmark-sub">FWC2026</span>
+            Tournamental<sup className="vt-appbar-wordmark-tm">™</sup>{" "}
+            <span className="vt-appbar-wordmark-sub">FWC2026</span>
           </span>
         </Link>
         <h1 className="vt-appbar-title" aria-live="polite">

@@ -275,6 +275,29 @@
   letter-spacing: 0.005em;
   font-size: 1.7rem;
 }
+/* Unregistered-trademark notice rendered as superscript just to
+ * the right of "Tournamental". Tim 2026-06-05: we are asserting
+ * common-law trademark rights ahead of formal IPONZ registration
+ * (no ® until that's granted). Sized as a notice, not a glyph:
+ * small enough that the eye reads it as a footnote on the mark
+ * rather than as a letter. Gold-tinted to subordinate it. */
+.vt-appbar-wordmark-tm,
+.vt-drawer-brand-tm {
+  font-size: 0.35em;
+  font-weight: 400;
+  color: var(--vt-gold-400, #dca94b);
+  margin-left: 0.05em;
+  /* `<sup>` already raises the baseline, but the variable Saira
+   * face combined with the larger 1.7rem wordmark needs a small
+   * extra lift so the TM tracks the cap height, not the x-height. */
+  vertical-align: 0.85em;
+  line-height: 0;
+  letter-spacing: 0;
+  /* The TM ligature in many fonts has an optional small-caps style
+   * via `tnm` -- leaving the font's default rendering. */
+  font-feature-settings: normal;
+}
+
 .vt-appbar-wordmark-sub {
   /* "FWC2026" subtitle next to the brand wordmark. Reads as a
    * mono caption in muted gold so the Saira wordmark stays the

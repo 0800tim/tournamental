@@ -110,7 +110,9 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
               decoding="async"
               className="vt-drawer-brand-mark"
             />
-            <span className="vt-drawer-brand-name">Tournamental</span>
+            <span className="vt-drawer-brand-name">
+              Tournamental<sup className="vt-drawer-brand-tm">™</sup>
+            </span>
           </span>
           <button
             type="button"
