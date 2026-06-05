@@ -551,16 +551,24 @@ export function BracketBuilder(props: BracketBuilderProps) {
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+    // Target the ACTIVE panel, not the tab strip. The tab strip is
+    // position:sticky (top: 56px) so its getBoundingClientRect().top
+    // is permanently ~56 once scrolled — using it as a scroll target
+    // only nudges the page by ~48px regardless of how far down the
+    // user was. scrollIntoView on the panel + scroll-margin-top in CSS
+    // (sized to clear the appbar + sticky tabs stack) gives the
+    // browser the right pivot.
     let raf1 = 0;
     let raf2 = 0;
     raf1 = window.requestAnimationFrame(() => {
       raf2 = window.requestAnimationFrame(() => {
-        const el = tabsRef.current;
-        if (!el) return;
-        const rect = el.getBoundingClientRect();
-        const targetY = window.scrollY + rect.top - 8;
-        window.scrollTo({
-          top: Math.max(0, targetY),
+        const carousel = carouselRef.current;
+        const panel = carousel?.querySelector(
+          `#bracket-panel-${tab}`,
+        ) as HTMLElement | null;
+        if (!panel) return;
+        panel.scrollIntoView({
+          block: "start",
           behavior: prefersReducedMotion ? "auto" : "smooth",
         });
       });

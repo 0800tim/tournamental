@@ -2818,7 +2818,11 @@ a.bracket-save-panel-cta-primary {
 
 /* Give the panel some breathing room below the sticky bar. */
 .bracket-panel {
-  scroll-margin-top: 60px;
+  /* Clears the sticky stack: AppBar (~56px) + sticky .bracket-tabs strip
+   * (~48-56px depending on count badges) + a little breathing room.
+   * Used by scrollIntoView({block:'start'}) on tab change so the new
+   * panel's first row lands just below the tabs, not behind them. */
+  scroll-margin-top: 120px;
 }
 
 /* Stage-as-page mobile IA (2026-05-21).
