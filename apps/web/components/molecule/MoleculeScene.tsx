@@ -838,7 +838,19 @@ export function MoleculeScene({
         // bracket and the viewer can't go fill it in).
         if (readOnly) return null;
         const groupPicks = Object.keys(bracket.matchPredictions).length;
-        const knockoutPicks = Object.keys(bracket.knockoutPredictions).length;
+        // Tim 2026-06-05: cascade-aware knockout count. The raw
+        // predictions map keeps picks for matches with one TBD side,
+        // so it overstated "remaining" -- e.g. with 6 of 8 thirds
+        // picked the modal would have read "0 remaining" but the
+        // bracket isn't actually finishable until the thirds are in.
+        const knockoutPicks = cascaded.knockouts.reduce(
+          (n, k) =>
+            n +
+            (k.home.team !== null && k.away.team !== null && k.effective_winner !== null
+              ? 1
+              : 0),
+          0,
+        );
         const totalPicks = groupPicks + knockoutPicks;
         const totalRequired =
           tournament.group_fixtures.length + tournament.knockouts.length;

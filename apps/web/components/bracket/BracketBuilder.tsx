@@ -229,11 +229,23 @@ function migrateBracket(b: Bracket | null): { bracket: Bracket | null; wiped: bo
 /**
  * Count picks for a given knockout stage so the per-tab progress
  * indicator reads "x of N picked".
+ *
+ * Tim 2026-06-05: previously this counted any cascaded knockout that
+ * had a stored pick, including matches where one slot was still TBD
+ * (e.g. a Best-3rd opponent that hadn't been resolved because the
+ * user only filled in 6 of 8 thirds). The engine keeps the user's
+ * stored pick for those half-resolved matches and only nulls it out
+ * when both slots resolve to teams that exclude it -- which inflated
+ * the counter. We now require both slots to be resolved AND the
+ * engine-computed `effective_winner` to be non-null. That handles
+ * three categories of stored-but-not-actually-picked state in one
+ * check: (a) only one slot resolved, (b) zero slots resolved, and
+ * (c) both resolved but the pick references a team no longer in the
+ * matchup (engine sets effective_winner=null + emits a warning).
  */
 function knockoutCountFor(
   stage: TabId,
   cascaded: CascadedBracket,
-  picks: Record<string, MatchPrediction>,
 ): { picked: number; total: number } {
   const stageIds =
     stage === "sf"
@@ -246,7 +258,15 @@ function knockoutCountFor(
   );
   const total = matches.length;
   let picked = 0;
-  for (const m of matches) if (picks[m.id]) picked += 1;
+  for (const m of matches) {
+    if (
+      m.home.team !== null &&
+      m.away.team !== null &&
+      m.effective_winner !== null
+    ) {
+      picked += 1;
+    }
+  }
   return { picked, total };
 }
 
@@ -1354,7 +1374,20 @@ export function BracketBuilder(props: BracketBuilderProps) {
 
   const totalGroupMatches = tournament.group_fixtures.length;
   const completedGroupMatches = Object.keys(bracket.matchPredictions).length;
-  const completedKnockouts = Object.keys(bracket.knockoutPredictions).length;
+  // See `knockoutCountFor` above: a knockout match counts as "picked"
+  // only when both slots have resolved teams AND the engine has a
+  // valid effective_winner. Tim 2026-06-05 caught the header reading
+  // 104/104 with only 6 of 8 thirds picked, because the previous
+  // count was `Object.keys(bracket.knockoutPredictions).length` which
+  // includes picks for matches whose other side is still TBD.
+  const completedKnockouts = cascaded.knockouts.reduce(
+    (n, k) =>
+      n +
+      (k.home.team !== null && k.away.team !== null && k.effective_winner !== null
+        ? 1
+        : 0),
+    0,
+  );
   const totalKnockouts = tournament.knockouts.length;
   const totalPicks = totalGroupMatches + totalKnockouts;
   const totalCompleted = completedGroupMatches + completedKnockouts;
@@ -1382,11 +1415,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
     picked: (bracket.bestThirds ?? []).length,
     total: 8,
   };
-  const r32Progress = knockoutCountFor("r32", cascaded, bracket.knockoutPredictions);
-  const r16Progress = knockoutCountFor("r16", cascaded, bracket.knockoutPredictions);
-  const qfProgress = knockoutCountFor("qf", cascaded, bracket.knockoutPredictions);
-  const sfProgress = knockoutCountFor("sf", cascaded, bracket.knockoutPredictions);
-  const finalProgress = knockoutCountFor("final", cascaded, bracket.knockoutPredictions);
+  const r32Progress = knockoutCountFor("r32", cascaded);
+  const r16Progress = knockoutCountFor("r16", cascaded);
+  const qfProgress = knockoutCountFor("qf", cascaded);
+  const sfProgress = knockoutCountFor("sf", cascaded);
+  const finalProgress = knockoutCountFor("final", cascaded);
 
   const progressByTab: Record<TabId, { picked: number; total: number }> = {
     groups: groupProgress,

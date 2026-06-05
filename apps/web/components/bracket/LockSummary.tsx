@@ -74,11 +74,24 @@ export function LockSummary(props: LockSummaryProps) {
   const deadline = Date.parse(deadline_utc);
 
   // Per-match counts (group + knockout = up to 104 for World Cup 2026).
+  // Tim 2026-06-05: knockout picks are counted off the cascaded view
+  // (both slots resolved AND engine has a valid effective_winner), not
+  // off the raw bracket.knockoutPredictions map. The raw map keeps
+  // stored picks for matches whose other side is still TBD (e.g. a
+  // Best-3rd opponent the user hasn't picked), and those should not
+  // count toward "X of 104 picks saved".
   const totalGroup = tournament.group_fixtures.length;
   const totalKnockout = tournament.knockouts.length;
   const totalPicks = totalGroup + totalKnockout;
   const groupPicks = Object.keys(bracket.matchPredictions).length;
-  const knockoutPicks = Object.keys(bracket.knockoutPredictions).length;
+  const knockoutPicks = cascaded.knockouts.reduce(
+    (n, k) =>
+      n +
+      (k.home.team !== null && k.away.team !== null && k.effective_winner !== null
+        ? 1
+        : 0),
+    0,
+  );
   const committed = groupPicks + knockoutPicks;
 
   // Predicted champion: cascade's effective_winner of the Final.
@@ -95,10 +108,10 @@ export function LockSummary(props: LockSummaryProps) {
   // synthetic stub that PR #140 generated before the backend lookup
   // existed.
   const shareWinner = champion === "—" ? "TBD" : champion;
-  const isComplete =
-    Object.keys(bracket.matchPredictions).length +
-      Object.keys(bracket.knockoutPredictions).length >=
-    totalPicks;
+  // Same cascade-aware semantics as `committed` above: the bracket is
+  // complete only when every group AND every knockout match has a
+  // genuine pick that the engine accepts.
+  const isComplete = committed >= totalPicks;
   const [storedShareGuid, setStoredShareGuid] = useState<string | null>(null);
   useEffect(() => {
     setStoredShareGuid(loadStoredShareGuid(tournament.id, localUserId()));

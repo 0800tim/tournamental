@@ -322,7 +322,22 @@ export function ShareSavePage({
   const totalKnockout = tournament.knockouts.length;
   const totalPicks = totalGroup + totalKnockout;
   const groupPicks = bracket ? Object.keys(bracket.matchPredictions).length : 0;
-  const knockoutPicks = bracket ? Object.keys(bracket.knockoutPredictions).length : 0;
+  // Tim 2026-06-05: same cascade-aware semantics as BracketBuilder /
+  // LockSummary. The raw `bracket.knockoutPredictions` map keeps picks
+  // for matches whose other side is still TBD, so counting its keys
+  // inflated the "X of 104" readout (104/104 with only 6 of 8 thirds
+  // picked). A knockout match counts as picked only when both slots
+  // are resolved AND the engine accepted a winner.
+  const knockoutPicks = cascaded
+    ? cascaded.knockouts.reduce(
+        (n, k) =>
+          n +
+          (k.home.team !== null && k.away.team !== null && k.effective_winner !== null
+            ? 1
+            : 0),
+        0,
+      )
+    : 0;
   const committed = groupPicks + knockoutPicks;
   const isComplete = committed === totalPicks;
 
