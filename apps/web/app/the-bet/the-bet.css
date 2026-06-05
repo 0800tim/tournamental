@@ -271,9 +271,13 @@
   text-decoration: none !important;
   transition: transform 100ms ease;
 }
+/* `!important` because `.vt-bet-body a` (the body-link colour rule
+ * higher up in this file) is more specific than this class on its
+ * own, which made the CTA render as gold text on a gold pill.
+ * Tim 2026-06-05. */
 .vt-bet-cta-primary {
   background: #dca94b;
-  color: #15151a;
+  color: #15151a !important;
 }
 .vt-bet-cta-primary:hover {
   transform: translateY(-1px);
