@@ -1757,6 +1757,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
                     <strong>{finalProgress.picked}</strong> of {finalProgress.total} picked
                   </span>
                 </div>
+                {/* Top banner: same hoist treatment as the KO rounds
+                  * (Tim 2026-06-05) so the user sees the upstream-fix
+                  * CTA without scrolling past the final-match card. */}
+                <CascadeWarnings
+                  warnings={cascaded.warnings}
+                  currentTab="final"
+                  onJumpToTab={(target) => setTab(target as TabId)}
+                  mode="banner"
+                />
                 <div className="bracket-final-layout">
                   <div
                     className="bracket-final-match km-pinch-wrap"
@@ -1871,6 +1880,16 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 Tap the team you predict will advance. Slots fill in as you finish
                 the previous round.
               </p>
+              {/* Tim 2026-06-05: hoist the upstream-cascade banner to
+                * the top of the round so mobile users see it before
+                * scrolling through empty slots; the details list still
+                * renders at the bottom of the whole tabpanel grid. */}
+              <CascadeWarnings
+                warnings={cascaded.warnings}
+                currentTab={panelId as CascadeTab}
+                onJumpToTab={(target) => setTab(target as TabId)}
+                mode="banner"
+              />
               <div
                 className="km-pinch-wrap"
                 ref={attachKmRefs ? kmContainerRef : null}
@@ -1889,14 +1908,15 @@ export function BracketBuilder(props: BracketBuilderProps) {
         })}
       </div>
 
-      {/* Tim 2026-06-05: cascade warnings rendered through a
-        * dedicated component that translates engine codes to plain
-        * English and surfaces a contextual "go back to <prior tab>"
-        * banner when the user is downstream of an incomplete stage. */}
+      {/* Tim 2026-06-05: details-only at the bottom. The contextual
+        * "Go to <prior tab>" banner is hoisted to the top of each
+        * round panel above so it's visible without scrolling; the
+        * collapsible details list stays here as a reference. */}
       <CascadeWarnings
         warnings={cascaded.warnings}
         currentTab={tab as CascadeTab}
         onJumpToTab={(target) => setTab(target as TabId)}
+        mode="details"
       />
 
 
