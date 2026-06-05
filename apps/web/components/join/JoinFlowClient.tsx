@@ -18,7 +18,7 @@
  * just the invite, no global CSS dependency.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import {
   detectSmsCountry,
@@ -32,7 +32,6 @@ import {
   whatsAppLoginDeepLink,
   type InboundUser,
 } from "@/lib/auth/inbound-login";
-import { AvatarUploader } from "@/components/profile/AvatarUploader";
 import { countriesFromAllowed } from "@/lib/syndicate/country-gate";
 
 const DEFAULT_PRIMARY = "#fbbf24";
@@ -1067,6 +1066,19 @@ function WarmInviteStep({
 }
 
 // --- Onboarding step --------------------------------------------------
+//
+// Tim 2026-06-05: there's only ONE name field for a user now —
+// `display_name`, which doubles as the @handle. Capturing it is the
+// global ProfileCompletionGate's job (mounted in the root layout, fires
+// on every page when display_name is missing). This step used to ALSO
+// capture handle + display name + avatar, which meant a first-time user
+// going through pool-join was shown TWO overlapping forms: the gate
+// first, then this same set of fields again underneath. Both wrote to
+// the same profile.
+//
+// New behaviour: this step has no form. It waits for the user to have a
+// display_name on file (either already, or after the gate dismisses)
+// then auto-joins. Paid pools still route through PaymentStep first.
 
 function OnboardingStep({
   slug,
@@ -1089,124 +1101,123 @@ function OnboardingStep({
     payload?: { allowedCountries: string[]; directoryUrl: string },
   ) => void;
 }): JSX.Element {
-  const [handle, setHandle] = useState("");
-  const [displayName, setDisplayName] = useState(user.displayName ?? "");
-  const [available, setAvailable] = useState<boolean | null>(null);
-  const [checking, setChecking] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Live display_name. Seeded from the parent's user; re-polled in
+  // the effect below in case the global ProfileCompletionGate hasn't
+  // dismissed yet (it's an overlay on the same page and writes
+  // display_name when the user picks their @handle).
+  const [liveDisplayName, setLiveDisplayName] = useState<string>(
+    (user.displayName ?? "").trim(),
+  );
+  // Bump to force the auto-join effect to re-run after a failed attempt.
+  const [retryNonce, setRetryNonce] = useState(0);
+  // Guard against the auto-join effect firing twice per nonce (React
+  // StrictMode in dev double-invokes effects; we only want one POST).
+  const firedRef = useRef(false);
 
-  const handleValid = HANDLE_RE.test(handle);
-
-  // Debounced availability check.
   useEffect(() => {
-    if (!handleValid) {
-      setAvailable(null);
-      return;
-    }
     let cancelled = false;
-    setChecking(true);
-    const t = window.setTimeout(async () => {
-      try {
-        const r = await fetch(
-          `/api/v1/syndicates/${encodeURIComponent(slug)}/handle-check?handle=${encodeURIComponent(handle)}`,
-          { headers: { Accept: "application/json" } },
-        );
-        if (cancelled) return;
-        if (r.ok) {
-          const j = (await r.json()) as { available?: boolean };
-          setAvailable(j.available ?? null);
-        } else {
-          setAvailable(null);
-        }
-      } catch {
-        if (!cancelled) setAvailable(null);
-      } finally {
-        if (!cancelled) setChecking(false);
+    let pollTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const runOnce = async (): Promise<void> => {
+      if (cancelled) return;
+      if (firedRef.current) return;
+
+      // Re-read inbound user so we pick up the gate's write the moment
+      // it lands. We don't depend on a parent prop or useUser hook
+      // because both can lag behind the gate's PATCH by one render.
+      const fresh = await fetchInboundUser();
+      if (cancelled) return;
+      const name = (fresh?.displayName ?? "").trim();
+      if (!name) {
+        // Gate's still up. Poll every 1s.
+        setLiveDisplayName("");
+        pollTimer = setTimeout(() => void runOnce(), 1000);
+        return;
       }
-    }, 350);
+      setLiveDisplayName(name);
+
+      firedRef.current = true;
+      setError(null);
+      setBusy(true);
+
+      // Paid pool with admin terms → route through payment first; the
+      // payment step does its own joinPool call after acceptance.
+      const hasFee = !!config?.entry_fee && config.entry_fee.cents > 0;
+      const hasTerms = !!(
+        config?.join_fee_terms_text && config.join_fee_terms_text.trim()
+      );
+      if (hasFee && hasTerms) {
+        if (cancelled) return;
+        setBusy(false);
+        onPayment();
+        return;
+      }
+
+      // Omit handle + display_name from the body — the server now ALWAYS
+      // uses session.displayName for both, so the membership row carries
+      // the same @handle the user sees everywhere else. One identity per
+      // user, never per-pool.
+      const res = await joinPool(slug, undefined, undefined);
+      if (cancelled) return;
+      setBusy(false);
+      if (res.ok) {
+        onJoined(res.status);
+        return;
+      }
+      if (res.reason === "country_restricted") {
+        onJoined("country_restricted", {
+          allowedCountries: res.allowed_countries ?? [],
+          directoryUrl: res.directory_url ?? "/pools",
+        });
+        return;
+      }
+      setError(res.message);
+    };
+
+    void runOnce();
+
     return () => {
       cancelled = true;
-      window.clearTimeout(t);
+      if (pollTimer) clearTimeout(pollTimer);
     };
-  }, [handle, handleValid, slug]);
-
-  const canSubmit = handleValid && available !== false && displayName.trim().length > 0 && !busy;
-
-  const submit = async (): Promise<void> => {
-    setError(null);
-    setBusy(true);
-
-    // Persist the display name on the user profile (best-effort).
-    if (displayName.trim() && displayName.trim() !== (user.displayName ?? "")) {
-      await updateInboundProfile({ display_name: displayName.trim() });
-    }
-
-    // Paid pool with admin terms -> route through payment first.
-    const hasFee = !!config?.entry_fee && config.entry_fee.cents > 0;
-    const hasTerms = !!(config?.join_fee_terms_text && config.join_fee_terms_text.trim());
-    if (hasFee && hasTerms) {
-      setBusy(false);
-      onPayment();
-      return;
-    }
-
-    const res = await joinPool(slug, handle, displayName.trim());
-    setBusy(false);
-    if (res.ok) {
-      onJoined(res.status);
-    } else if (res.reason === "country_restricted") {
-      onJoined("country_restricted", {
-        allowedCountries: res.allowed_countries ?? [],
-        directoryUrl: res.directory_url ?? "/pools",
-      });
-    } else {
-      setError(res.message);
-    }
-  };
+  }, [slug, config, onJoined, onPayment, retryNonce]);
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-      <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
-        Set up your player profile to join.
-      </p>
-      {error && <p style={errorTextStyle}>{error}</p>}
-
-      <label style={fieldStyle}>
-        <span style={labelStyle}>Handle</span>
-        <input
-          type="text"
-          placeholder="your_handle"
-          value={handle}
-          onChange={(e) => setHandle(e.target.value)}
-          style={inputStyle}
-          autoComplete="off"
-        />
-        <span style={{ fontSize: 12, minHeight: 16, color: handleHintColour(handle, handleValid, available, checking) }}>
-          {handleHint(handle, handleValid, available, checking)}
-        </span>
-      </label>
-
-      <label style={fieldStyle}>
-        <span style={labelStyle}>Display name</span>
-        <input
-          type="text"
-          placeholder="How you'll show on the leaderboard"
-          value={displayName}
-          onChange={(e) => setDisplayName(e.target.value)}
-          maxLength={60}
-          style={inputStyle}
-        />
-      </label>
-
-      <div style={fieldStyle}>
-        <span style={labelStyle}>Avatar (optional)</span>
-        <AvatarUploader userId={user.id} onChange={() => undefined} />
-      </div>
-
-      <button type="button" onClick={() => void submit()} disabled={!canSubmit} style={primaryButtonStyle(primary)}>
-        {busy ? "Joining…" : "Continue"}
-      </button>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 12,
+        alignItems: "center",
+        padding: "12px 4px",
+      }}
+    >
+      {!liveDisplayName ? (
+        <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
+          Setting up your profile…
+        </p>
+      ) : busy ? (
+        <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
+          Joining as <strong>@{liveDisplayName}</strong>…
+        </p>
+      ) : error ? (
+        <>
+          <p style={errorTextStyle}>{error}</p>
+          <button
+            type="button"
+            onClick={() => {
+              firedRef.current = false;
+              setError(null);
+              setRetryNonce((n) => n + 1);
+            }}
+            style={primaryButtonStyle(primary)}
+          >
+            Try again
+          </button>
+        </>
+      ) : null}
     </div>
   );
 }

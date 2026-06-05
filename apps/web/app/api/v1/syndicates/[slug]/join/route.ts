@@ -217,11 +217,15 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
     body = {};
   }
 
-  const parsed = BodySchema.safeParse(body);
-  const submittedHandle = parsed.success ? parsed.data.handle : undefined;
-  const submittedDisplayName = parsed.success ? parsed.data.display_name : undefined;
-  const handle = submittedHandle ?? session.displayName ?? fallbackHandle(session.id);
-
+  // Tim 2026-06-05: ONE name per user, never per-pool. The body schema
+  // still accepts `handle` / `display_name` for backward-compat with
+  // older clients, but we IGNORE both fields: the membership row's
+  // handle + display_name are always the user's profile values from
+  // session.displayName (set globally by ProfileCompletionGate before
+  // any join can happen). A signed-in user without a display_name on
+  // file is rejected so the gate can capture it first.
+  void BodySchema.safeParse(body); // parse-and-discard; schema is a no-op now
+  const handle = session.displayName ?? fallbackHandle(session.id);
   if (!handle || handle.length < 2) {
     return json(req, { error: "bad_handle", message: "A handle is required to join." }, 400);
   }
@@ -268,30 +272,10 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
     }
   }
 
-  // Handle collision check (per-pool). Skip if the user is rejoining
-  // with the SAME handle they already hold in this pool.
-  if (
-    submittedHandle &&
-    persistence.isHandleTakenInSyndicate(row.id, submittedHandle)
-  ) {
-    const claimedBySomeoneElse = persistence
-      .getMembers(row.id)
-      .some(
-        (m) =>
-          !!m.handle &&
-          m.handle.toLowerCase() === submittedHandle.toLowerCase() &&
-          m.user_id !== session.id,
-      );
-    if (claimedBySomeoneElse) {
-      return json(req, 
-        {
-          error: "handle_taken",
-          message: `Sorry, "${submittedHandle}" is already taken in this pool. Pick a different handle.`,
-        },
-        409,
-      );
-    }
-  }
+  // Per-pool handle collision check removed 2026-06-05: handles are
+  // universal now (one identity per user), so there's no per-pool
+  // claim to contest. Uniqueness is enforced at signup via the global
+  // display_name reservation in auth-sms.
 
   // Approval-gated pools: insert membership row with status='pending'
   // so the user shows up in the owner's approval queue. The pool's
@@ -312,7 +296,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
       user_id: session.id,
       role: "member",
       handle,
-      display_name: submittedDisplayName ?? session.displayName ?? null,
+      display_name: session.displayName ?? null,
       status: requiresApproval ? "pending" : "active",
     });
     inserted = r.inserted;
@@ -344,7 +328,7 @@ export async function POST(req: NextRequest, props: { params: Promise<{ slug: st
       requester: {
         user_id: session.id,
         handle,
-        display_name: submittedDisplayName ?? session.displayName ?? null,
+        display_name: session.displayName ?? null,
       },
     }).catch(() => undefined);
     return json(req, { ok: true, status: "pending" });
