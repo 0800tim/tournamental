@@ -532,25 +532,43 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // content. Skips on initial mount so a deep-link to #r16 doesn't
   // override the browser's own hash-restore scroll. Smooth except
   // for users who prefer reduced motion.
+  //
+  // Tim 2026-06-05: defer the scroll by two animation frames. The tab
+  // change fires the active-panel ResizeObserver above, which mutates
+  // the carousel's height — the document gets shorter mid-scroll. If
+  // we scroll synchronously, the browser clamps the smooth-scroll
+  // target to the (shrinking) max scrollY and the user ends up stuck
+  // wherever the new max is, often near the bottom of the new panel.
+  // Two rAFs ensures layout has settled and ResizeObserver has fired
+  // before we ask the browser to animate.
   useEffect(() => {
     if (tabScrollSkipMountRef.current) {
       tabScrollSkipMountRef.current = false;
       return;
     }
     if (typeof window === "undefined") return;
-    const el = tabsRef.current;
-    if (!el) return;
     const prefersReducedMotion =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Align the tab strip just below the (sticky) AppBar so the active
-    // tab + the first row of the new panel are visible together.
-    const rect = el.getBoundingClientRect();
-    const targetY = window.scrollY + rect.top - 8;
-    window.scrollTo({
-      top: Math.max(0, targetY),
-      behavior: prefersReducedMotion ? "auto" : "smooth",
+
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        const el = tabsRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const targetY = window.scrollY + rect.top - 8;
+        window.scrollTo({
+          top: Math.max(0, targetY),
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+      });
     });
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
   }, [tab]);
 
   useEffect(() => {
@@ -2089,34 +2107,14 @@ function NextStageButton({
         type="button"
         className="bracket-next-stage-btn"
         onClick={() => {
+          // setTab triggers BracketBuilder's `[tab]` effect which
+          // double-rAFs and scroll-aligns the tab strip to the top of
+          // the viewport (handles vertical scroll, ResizeObserver-
+          // driven carousel resize, and reduced-motion preference).
+          // We deliberately do NOT scroll inline here — competing
+          // smooth scrolls against the effect left users clamped near
+          // the bottom of the previous stage (Tim 2026-06-05).
           setTab(next);
-          if (typeof window === "undefined") return;
-          // Mobile uses a horizontal scroll-snap carousel for the six
-          // stage panels. setTab() handles the horizontal scroll. The
-          // page's *vertical* scroll position carries over from the
-          // previous stage, so without resetting it the user lands in
-          // a blank gap below the shorter R16/R32/etc column (Tim
-          // 2026-05-21).
-          //
-          // We scroll the page so the carousel's top lines up with the
-          // bottom of the sticky chrome (appbar + tab strip). The
-          // sticky tabs follow the scroll, so visually the user lands
-          // on the first match of the new stage with the tab strip
-          // pinned right above it.
-          const stages = document.querySelector<HTMLElement>(
-            ".bracket-stages",
-          );
-          if (!stages) {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
-          }
-          const stickyOffset = 110; // appbar 56 + tab strip ~50 + 4
-          const absoluteTop =
-            stages.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({
-            top: Math.max(0, absoluteTop - stickyOffset),
-            behavior: "smooth",
-          });
         }}
         aria-label={`Continue to ${label}`}
       >
