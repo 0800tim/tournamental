@@ -262,13 +262,23 @@
 .vt-appbar-wordmark {
   color: var(--vt-fg-strong, #ffffff);
   white-space: nowrap;
-  /* On the narrowest phones the title text occupies the centre cell;
-   * hide the wordmark there so the brand mark + title pair stays
-   * within the 56px row. */
+  /* Tim 2026-06-05: swap the editorial Fraunces face out of the
+   * appbar wordmark only. Archivo Black is a heavy geometric sans
+   * designed as a Helvetica-Bold-adjacent face, which sits as a
+   * logotype next to the gold ball mark in the Pantone tradition.
+   * Uppercase + tighter tracking + reduced size so the wordmark
+   * keeps its 56px row budget without overflowing. The body
+   * editorial Fraunces is untouched; only this rule is overridden. */
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 400 !important;
+  font-variation-settings: normal !important;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.95rem;
 }
 .vt-appbar-wordmark-sub {
   /* "FWC2026" subtitle next to the brand wordmark. Reads as a
-   * mono caption in muted gold so the editorial Fraunces wordmark
+   * mono caption in muted gold so the Archivo Black wordmark
    * stays the primary mark. */
   font-family: ui-monospace, Menlo, Monaco, monospace;
   font-size: 0.62em;
@@ -1146,11 +1156,15 @@
 }
 
 .vt-drawer-brand-name {
-  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
-  font-weight: 500;
-  font-variation-settings: "opsz" 96, "SOFT" 25;
-  font-size: 1.15rem;
-  letter-spacing: -0.012em;
+  /* Matches the appbar wordmark face so the drawer logo reads as
+   * the same brand mark, not as a second editorial heading. Tim
+   * 2026-06-05. */
+  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 400;
+  font-variation-settings: normal;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  font-size: 0.95rem;
   line-height: 1;
 }
 
