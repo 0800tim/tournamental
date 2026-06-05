@@ -297,6 +297,18 @@
   font-feature-settings: normal;
 }
 
+/* Desktop-only tweak: the larger 1.7rem appbar wordmark on a wide
+ * viewport lets the TM sit a touch lower and still read flush
+ * with the cap-line. Mobile keeps the 1.1em lift so the smaller
+ * rendered wordmark doesn't make the TM look detached.
+ * Threshold matches the existing 540px split used to hide the
+ * FWC2026 sub on narrow viewports. Tim 2026-06-05. */
+@media (min-width: 541px) {
+  .vt-appbar-wordmark-tm {
+    vertical-align: 0.8em;
+  }
+}
+
 .vt-appbar-wordmark-sub {
   /* "FWC2026" subtitle next to the brand wordmark. Reads as a
    * mono caption in muted gold so the Saira wordmark stays the
