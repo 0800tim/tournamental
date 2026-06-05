@@ -3228,12 +3228,16 @@ a.bracket-save-panel-cta-primary {
 }
 
 /* Selected: matches the .km-team.is-winner treatment - gold inner
- * ring + halo + a brighter scrim so the picked tile pops. */
+ * ring + halo + a brighter scrim so the picked tile pops. Tim
+ * 2026-06-05: bumped to a 5px solid-gold inset with a soft inner
+ * highlight + larger outer glow; the previous 3px ring wasn't
+ * reading strongly enough against the unselected tiles. */
 .bracket-thirds-tile.is-selected {
-  border-color: rgba(220, 169, 75, 0.6);
+  border-color: #dca94b;
   box-shadow:
-    inset 0 0 0 3px var(--vt-gold-400, #dca94b),
-    0 0 14px rgba(220, 169, 75, 0.35);
+    inset 0 0 0 5px var(--vt-gold-400, #dca94b),
+    inset 0 0 0 6px rgba(255, 220, 130, 0.35),
+    0 0 24px rgba(220, 169, 75, 0.55);
 }
 .bracket-thirds-tile.is-selected::after {
   background: linear-gradient(
