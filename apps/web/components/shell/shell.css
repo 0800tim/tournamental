@@ -262,19 +262,18 @@
 .vt-appbar-wordmark {
   color: var(--vt-fg-strong, #ffffff);
   white-space: nowrap;
-  /* Tim 2026-06-05: swap the editorial Fraunces face out of the
-   * appbar wordmark only. Archivo Black is a heavy geometric sans
-   * designed as a Helvetica-Bold-adjacent face, which sits as a
-   * logotype next to the gold ball mark in the Pantone tradition.
-   * Uppercase + tighter tracking + reduced size so the wordmark
-   * keeps its 56px row budget without overflowing. The body
-   * editorial Fraunces is untouched; only this rule is overridden. */
-  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif !important;
-  font-weight: 400 !important;
+  /* Tim 2026-06-05: Saira variable, light weight (300), regular
+   * width, sentence case. Variable axis is preserved so DevTools
+   * weight scrubbing actually moves the rendered weight. The
+   * `!important` flags beat the editorial `.vt-wordmark` utility
+   * still applied on the same span; body Fraunces is unaffected. */
+  font-family: "Saira", "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 300 !important;
+  font-stretch: 100%;
   font-variation-settings: normal !important;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: 0.005em;
+  font-size: 1.1rem;
 }
 .vt-appbar-wordmark-sub {
   /* "FWC2026" subtitle next to the brand wordmark. Reads as a
@@ -1159,12 +1158,13 @@
   /* Matches the appbar wordmark face so the drawer logo reads as
    * the same brand mark, not as a second editorial heading. Tim
    * 2026-06-05. */
-  font-family: "Archivo Black", "Helvetica Neue", Arial, sans-serif;
-  font-weight: 400;
+  font-family: "Saira", "Helvetica Neue", Arial, sans-serif;
+  font-weight: 300;
+  font-stretch: 100%;
   font-variation-settings: normal;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  font-size: 0.95rem;
+  text-transform: none;
+  letter-spacing: 0.005em;
+  font-size: 1.1rem;
   line-height: 1;
 }
 
