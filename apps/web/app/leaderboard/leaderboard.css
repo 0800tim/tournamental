@@ -79,6 +79,59 @@
   font-weight: 500;
 }
 
+/* Mini countdown that sits in the third hero slot in place of the
+ * old static "N days / to kickoff" readout. Three cells (D / H / M),
+ * borrowing the home page's countdown-cell aesthetic but scaled down
+ * to match the surrounding tile rhythm. Tim 2026-06-05. */
+.vt-lb-hero-card--countdown {
+  /* Same outer chrome as siblings; we just swap the contents. The
+   * faint inner gold wash echoes the home-page countdown banner so
+   * the eye reads them as the same component. */
+  background:
+    radial-gradient(120% 80% at 8% 50%, rgba(220, 169, 75, 0.08), transparent 55%),
+    radial-gradient(80% 70% at 92% 50%, rgba(245, 158, 11, 0.05), transparent 60%),
+    var(--vt-bg-elev);
+}
+
+.vt-lb-mini-countdown {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.vt-lb-mini-countdown-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 2px 5px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(0, 0, 0, 0.18));
+  border: 1px solid rgba(220, 169, 75, 0.16);
+}
+
+.vt-lb-mini-countdown-num {
+  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: 1.5rem;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  color: var(--vt-gold-300, #fcd34d);
+  text-shadow: 0 0 14px rgba(252, 211, 77, 0.28);
+}
+
+.vt-lb-mini-countdown-label {
+  font-family: ui-monospace, Menlo, Monaco, monospace;
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted, #a3a3ad);
+  line-height: 1;
+}
+
 .vt-lb-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 400px;

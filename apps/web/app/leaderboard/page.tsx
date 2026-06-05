@@ -40,38 +40,17 @@ export default function LeaderboardPage() {
   // "You" pinned to mid-pack so the highlight row is visibly demoed.
   const youId = members[12]?.id;
 
-  // Days-to-kickoff is a live countdown to the FIFA WC 2026 opening
-  // match (2026-06-11T19:00:00Z, Mexico City). Initialised to `null` so
-  // SSR doesn't disagree with the client's clock; the post-mount effect
-  // fills it in and refreshes every minute so leaving the tab open
-  // across midnight still reads correctly. Tim 2026-06-04 caught it
-  // stuck on the original hardcoded "31 days" demo value.
-  const [daysToKickoff, setDaysToKickoff] = useState<number | null>(null);
-  useEffect(() => {
-    const kickoffMs = Date.UTC(2026, 5, 11, 19, 0, 0);
-    const recompute = () => {
-      const remaining = Math.ceil((kickoffMs - Date.now()) / 86_400_000);
-      setDaysToKickoff(Math.max(0, remaining));
-    };
-    recompute();
-    const timer = setInterval(recompute, 60_000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const kickoffLabel = useMemo(() => {
-    if (daysToKickoff === null) return "Soon";
-    if (daysToKickoff === 0) return "Live";
-    if (daysToKickoff === 1) return "1 day";
-    return `${daysToKickoff} days`;
-  }, [daysToKickoff]);
-
+  // Static stats (kickoff tile is rendered separately as a mini
+  // countdown). Tim 2026-06-05: the third tile used to show a coarse
+  // "7 days" rounded-up readout which read as wrong at the boundary
+  // (six days and change reads as "7 days" by ceil). Swapped for a
+  // mini days/hours/minutes countdown that mirrors the home page.
   const heroStats = useMemo(
     () => [
       { value: "24,388", label: "brackets locked" },
       { value: "1,204", label: "syndicates running" },
-      { value: kickoffLabel, label: "to kickoff" },
     ],
-    [kickoffLabel],
+    [],
   );
 
   // For the "you vs the pool" chart, seed from the highlighted member.
@@ -112,6 +91,9 @@ export default function LeaderboardPage() {
               </article>
             </DraftWatermark>
           ))}
+          <DraftWatermark key="countdown" tileWidth={180}>
+            <MiniCountdownTile />
+          </DraftWatermark>
         </section>
 
         <section className="vt-lb-grid">
@@ -163,5 +145,65 @@ export default function LeaderboardPage() {
         </section>
       </div>
     </AppShell>
+  );
+}
+
+/**
+ * Mini countdown tile, sits in the third slot of the leaderboard hero
+ * row in place of the old static "N days / to kickoff" readout. Three
+ * cells (D / H / M) styled to match the home page's countdown banner
+ * at tile-scale; no seconds, so a one-minute tick is plenty and the
+ * SSR/CSR text-mismatch surface is much smaller. The kickoff instant
+ * is the FIFA WC 2026 opener (2026-06-11T19:00:00Z, Mexico City), the
+ * same target the home page uses.
+ *
+ * Tim 2026-06-05.
+ */
+function MiniCountdownTile() {
+  const KICKOFF_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
+  // Seed with the target so SSR + first client render agree; effect
+  // snaps to wall-clock and ticks every minute (no seconds shown).
+  const [now, setNow] = useState<number>(() => KICKOFF_MS);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  const diff = Math.max(0, KICKOFF_MS - now);
+  const days = Math.floor(diff / 86_400_000);
+  const hours = Math.floor(diff / 3_600_000) % 24;
+  const minutes = Math.floor(diff / 60_000) % 60;
+  const live = diff === 0;
+
+  return (
+    <article className="vt-lb-hero-card vt-lb-hero-card--countdown" aria-live="polite">
+      {live ? (
+        <strong>Live</strong>
+      ) : (
+        <div className="vt-lb-mini-countdown">
+          <MiniCell value={days} label="Days" />
+          <MiniCell value={hours} label="Hrs" />
+          <MiniCell value={minutes} label="Min" />
+        </div>
+      )}
+      <span>to kickoff</span>
+    </article>
+  );
+}
+
+function MiniCell({ value, label }: { value: number; label: string }) {
+  const padded = String(Math.max(0, value)).padStart(2, "0");
+  return (
+    <div className="vt-lb-mini-countdown-cell">
+      {/* SSR-seeded `now` equals the target until hydration, so the
+        * server emits "00" for every cell and the client patches to
+        * the real values on first effect run. Suppress the expected
+        * text-mismatch on just this node. */}
+      <span className="vt-lb-mini-countdown-num" suppressHydrationWarning>
+        {padded}
+      </span>
+      <span className="vt-lb-mini-countdown-label">{label}</span>
+    </div>
   );
 }
