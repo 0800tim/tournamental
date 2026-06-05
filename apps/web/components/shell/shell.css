@@ -78,7 +78,14 @@
 .vt-shell-main {
   position: relative;
   min-height: 100vh;
-  padding-top: var(--vt-shell-appbar-h);
+  /* Tim 2026-06-05: removed `padding-top: var(--vt-shell-appbar-h)`.
+   * It was load-bearing back when .vt-appbar was `position: fixed`
+   * (taking zero flow space), but the appbar has been `position:
+   * sticky; top: 0` for a while now — it already reserves its own 56px
+   * in normal flow, so this padding was doubling up and pushing every
+   * page's content 56px lower than it should be (visible as a fat
+   * empty band between the appbar/subheader and the first row of
+   * content). */
   padding-bottom: calc(var(--vt-shell-bottomnav-h) + env(safe-area-inset-bottom, 0px) + 16px);
   animation: vt-page-fade 120ms ease-out;
 }
