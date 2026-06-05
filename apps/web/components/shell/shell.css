@@ -283,18 +283,17 @@
  * rather than as a letter. Gold-tinted to subordinate it. */
 .vt-appbar-wordmark-tm,
 .vt-drawer-brand-tm {
-  font-size: 0.35em;
+  /* Tim 2026-06-05: bumped size up, white not gold, lifted higher
+   * above the baseline so it sits flush with the cap-line. The
+   * previous 0.35em / gold / 0.85em superscript read as a tucked-
+   * away footnote; this reads as a deliberate brand notice. */
+  font-size: 0.5em;
   font-weight: 400;
-  color: var(--vt-gold-400, #dca94b);
-  margin-left: 0.05em;
-  /* `<sup>` already raises the baseline, but the variable Saira
-   * face combined with the larger 1.7rem wordmark needs a small
-   * extra lift so the TM tracks the cap height, not the x-height. */
-  vertical-align: 0.85em;
+  color: var(--vt-fg-strong, #ffffff);
+  margin-left: 0.08em;
+  vertical-align: 1.1em;
   line-height: 0;
   letter-spacing: 0;
-  /* The TM ligature in many fonts has an optional small-caps style
-   * via `tnm` -- leaving the font's default rendering. */
   font-feature-settings: normal;
 }
 
