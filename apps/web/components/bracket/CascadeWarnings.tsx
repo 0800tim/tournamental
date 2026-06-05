@@ -50,6 +50,17 @@ export interface CascadeWarningsProps {
    * decides what "go back" means (typically `setTab(targetTab)`).
    */
   readonly onJumpToTab: (target: BracketTabId) => void;
+  /**
+   * Which surfaces to render. Tim 2026-06-05 split the banner from
+   * the details list so the banner can hoist to the top of a round
+   * (it's the actionable bit) while the long-form details stay at
+   * the bottom (the curious-user reference).
+   *
+   * - `"full"` (default): renders both.
+   * - `"banner"`: just the contextual "go back to <prior tab>" CTA.
+   * - `"details"`: just the collapsible list.
+   */
+  readonly mode?: "full" | "banner" | "details";
 }
 
 /**
@@ -162,6 +173,7 @@ export function CascadeWarnings({
   warnings,
   currentTab,
   onJumpToTab,
+  mode = "full",
 }: CascadeWarningsProps): JSX.Element | null {
   if (warnings.length === 0) return null;
 
@@ -177,9 +189,13 @@ export function CascadeWarnings({
   const friendlyList = Array.from(uniqueByCode.entries());
   const banner = pickBannerWarning(warnings, currentTab);
 
+  // In banner-only mode, render nothing when there's no upstream
+  // banner to show; the parent doesn't need an empty wrapper.
+  if (mode === "banner" && banner === null) return null;
+
   return (
     <div className="bracket-cascade-warnings">
-      {banner ? (
+      {mode !== "details" && banner ? (
         <div className="bracket-cascade-banner" role="status">
           <span className="bracket-cascade-banner-text">{banner.message}</span>
           <button
@@ -192,18 +208,20 @@ export function CascadeWarnings({
         </div>
       ) : null}
 
-      <details className="bracket-cascade-details">
-        <summary>
-          {friendlyList.length === 1
-            ? "Heads up about your picks"
-            : `${friendlyList.length} things still need picking`}
-        </summary>
-        <ul>
-          {friendlyList.map(([code, msg]) => (
-            <li key={code}>{msg}</li>
-          ))}
-        </ul>
-      </details>
+      {mode !== "banner" ? (
+        <details className="bracket-cascade-details">
+          <summary>
+            {friendlyList.length === 1
+              ? "Heads up about your picks"
+              : `${friendlyList.length} things still need picking`}
+          </summary>
+          <ul>
+            {friendlyList.map(([code, msg]) => (
+              <li key={code}>{msg}</li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </div>
   );
 }
