@@ -57,6 +57,12 @@ import {
 import { useUser } from "@/lib/auth/useUser";
 
 import "@/components/profile/avatar-uploader.css";
+// The signup-modal.css is normally loaded transitively via SignupModal,
+// but bare routes like /s/[guid]/join don't include SignupModal so the
+// gate would render unstyled there (Tim 2026-06-05: confirmed broken
+// on the join page). Importing it directly here makes the gate
+// self-contained regardless of which route mounts it.
+import "./signup-modal.css";
 
 /** Slug derivation that mirrors the auth-sms server's slugifyDisplayName.
  * Lowercase, strip punctuation, collapse separators to underscore. */
@@ -72,12 +78,16 @@ function slugify(input: string): string {
 
 /** Mirror of the server-side reserved list. The server is the source of
  * truth; this is just for the client-side preview so we don't ship users
- * to a 409 after they hit Save. */
+ * to a 409 after they hit Save.
+ *
+ * Tim 2026-06-05: 'tim' removed — uniqueness collision check on the
+ * server side handles squatting; this list is for paths the app itself
+ * uses, not first-name blocks. */
 const RESERVED_HANDLES = new Set<string>([
   "admin", "administrator", "api", "www", "play", "you", "me",
   "anonymous", "anon", "deleted", "support", "help", "tournamental",
   "official", "staff", "team", "mod", "moderator", "root", "system",
-  "tim", "null", "undefined",
+  "null", "undefined",
 ]);
 
 interface LocalError {
@@ -93,8 +103,7 @@ export function ProfileCompletionGate() {
 
   const [displayName, setDisplayName] = useState("");
   const [firstName, setFirstName] = useState("");
-  const [email, setEmail] = useState("");
-  const [needEmail, setNeedEmail] = useState(false);
+  const [lastName, setLastName] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<LocalError | null>(null);
 
@@ -118,8 +127,7 @@ export function ProfileCompletionGate() {
       if (ac.signal.aborted || !u) return;
       if (!u.displayName) {
         setFirstName(u.firstName ?? "");
-        // Offer email only when we don't already have one.
-        setNeedEmail(!u.email);
+        setLastName(u.lastName ?? "");
         setShow(true);
       } else {
         setShow(false);
@@ -171,9 +179,8 @@ export function ProfileCompletionGate() {
     const patch: Parameters<typeof updateInboundProfile>[0] = {
       display_name: name,
       first_name: firstName.trim() || null,
+      last_name: lastName.trim() || null,
     };
-    const trimmedEmail = email.trim();
-    if (needEmail && trimmedEmail) patch.email = trimmedEmail;
 
     const result = await updateInboundProfile(patch);
     setBusy(false);
@@ -348,29 +355,26 @@ export function ProfileCompletionGate() {
               maxLength={80}
               disabled={busy}
             />
-            {needEmail && (
-              <input
-                aria-label={safeT(
-                  t,
-                  "profile_gate.email",
-                  "Email (optional)",
-                )}
-                name="email"
-                type="email"
-                inputMode="email"
-                autoComplete="email"
-                placeholder={safeT(
-                  t,
-                  "profile_gate.email",
-                  "Email (optional)",
-                )}
-                className="auth-input"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                maxLength={254}
-                disabled={busy}
-              />
-            )}
+            <input
+              aria-label={safeT(
+                t,
+                "profile_gate.last_name",
+                "Last name (optional)",
+              )}
+              name="last_name"
+              type="text"
+              autoComplete="family-name"
+              placeholder={safeT(
+                t,
+                "profile_gate.last_name",
+                "Last name (optional)",
+              )}
+              className="auth-input"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              maxLength={80}
+              disabled={busy}
+            />
             {error && (
               <div className="auth-error" role="alert">
                 {error.message}

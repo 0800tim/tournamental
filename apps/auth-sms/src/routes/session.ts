@@ -225,11 +225,16 @@ export async function registerSession(
       // Reserved-handle blocklist. These are paths/labels used by the
       // app itself; letting a user squat them would either break routes
       // or allow impersonation of official accounts.
+      // Path/label squat-list. We deliberately do NOT block first-name
+      // squats like 'tim' here (Tim 2026-06-05) — uniqueness is already
+      // enforced by the SEC-PII-03 collision check below, so whoever
+      // claims 'tim' first owns it. Blocking it here silently 409'd
+      // every legitimate Tim/Tom/Sam trying to use their own name.
       const RESERVED = new Set<string>([
         'admin', 'administrator', 'api', 'www', 'play', 'you', 'me',
         'anonymous', 'anon', 'deleted', 'support', 'help', 'tournamental',
         'official', 'staff', 'team', 'mod', 'moderator', 'root', 'system',
-        'tim', 'null', 'undefined',
+        'null', 'undefined',
       ]);
       if (RESERVED.has(slug)) {
         return reply.code(409).send({ error: 'display_name_reserved' });
