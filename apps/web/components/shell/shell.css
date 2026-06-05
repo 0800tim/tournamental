@@ -273,14 +273,14 @@
   font-variation-settings: normal !important;
   text-transform: none;
   letter-spacing: 0.005em;
-  font-size: 1.1rem;
+  font-size: 1.7rem;
 }
 .vt-appbar-wordmark-sub {
   /* "FWC2026" subtitle next to the brand wordmark. Reads as a
-   * mono caption in muted gold so the Archivo Black wordmark
-   * stays the primary mark. */
+   * mono caption in muted gold so the Saira wordmark stays the
+   * primary mark. */
   font-family: ui-monospace, Menlo, Monaco, monospace;
-  font-size: 0.62em;
+  font-size: 0.5em;
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--vt-gold-400, #dca94b);
