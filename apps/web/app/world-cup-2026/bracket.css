@@ -1198,9 +1198,12 @@ a.bracket-share-cta-primary {
  */
 .mpr-pick-home.is-selected,
 .mpr-pick-away.is-selected {
-  background: rgba(220, 169, 75, 0.06);
-  /* Tim 2026-05-29: dropped padding-top from 14px to 8px so the gold
-   * ring arches flush around the flag instead of leaving a visible gap. */
+  /* Tim 2026-06-06: solid yellow fill instead of a 6%-alpha tint so
+   * the chosen pick reads as definitively picked rather than just
+   * "ringed". Matches the focus-ring colour (#fbbf24) the rest of
+   * the bracket already uses. Inset gold ring + outer halo retained
+   * so the flag chip still sits cleanly inside. */
+  background: #fbbf24;
   padding-top: 8px;
   padding-bottom: 8px;
   border-top-left-radius: 44px;
@@ -1280,8 +1283,12 @@ a.bracket-share-cta-primary {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
 }
+/* Tim 2026-06-06: selected pick now has a solid yellow fill, so the
+ * team code AND the W/D/L percentage flip to near-black for contrast
+ * (#15151a matches the selected DRAW pill text). */
+.mpr-pick.is-selected .mpr-pick-code,
 .mpr-pick.is-selected .mpr-pick-pct {
-  color: #e6edf3;
+  color: #15151a;
   font-weight: 700;
 }
 
