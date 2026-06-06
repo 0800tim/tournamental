@@ -286,9 +286,9 @@ function splitTimeAndZone(
         return acc + (prevLiteral?.value ?? "") + p.value;
       }, "")
       .trim();
-    return { time: timeOnly || "—", zone: tzPart?.value ?? "" };
+    return { time: timeOnly || "-", zone: tzPart?.value ?? "" };
   } catch {
-    return { time: "—", zone: "" };
+    return { time: "-", zone: "" };
   }
 }
 
