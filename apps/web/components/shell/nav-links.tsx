@@ -30,6 +30,7 @@ import {
   ShareIcon,
   MoleculeIcon,
   HouseStackIcon,
+  CalendarIcon,
 } from "./icons";
 
 export interface NavLink {
@@ -137,6 +138,9 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   // Home + Settings + Syndicates removed (Tim 2026-05-22): the logo
   // already links home, Settings was a stub, and Pools graduated to
   // the top-level inline nav.
+  // Calendar (Tim 2026-06-06): flat list of all 104 matches in
+  // chronological order. Lives at /world-cup-2026/calendar.
+  { label: "Match calendar", i18nKey: "nav.calendar", href: "/world-cup-2026/calendar", icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
   { label: "About Tournamental", i18nKey: "nav.about", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
   { label: "How it works",       i18nKey: "nav.how_it_works", href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
   { label: "API keys",           i18nKey: "nav.api_keys", href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
@@ -158,6 +162,7 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
   { label: "Play (Predict)",    i18nKey: "nav.predict_bracket", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
   { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
+  { label: "Match calendar",   i18nKey: "nav.calendar",        href: "/world-cup-2026/calendar",   icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
   { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
   { label: "The Bet",          i18nKey: "nav.the_bet",         href: "/the-bet",                   icon: <HouseStackIcon />, matchPrefix: "/the-bet" },
   { label: "My Profile",       i18nKey: "nav.profile_my",      href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },

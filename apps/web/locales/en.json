@@ -34,7 +34,8 @@
     "menu": "Menu",
     "profile": "Profile",
     "open_menu": "Open menu",
-    "the_bet": "The Bet"
+    "the_bet": "The Bet",
+    "calendar": "Match calendar"
   },
   "authchip": {
     "sign_in_up": "Sign in/up",
