@@ -261,6 +261,12 @@ export function ProfileCompletionGate() {
       return;
     }
     // Saved. The auth service mirrors the new details to HighLevel.
+    // Broadcast to anything that reads `useUser` (AuthChip, the join
+    // page's OnboardingStep, etc.) so they pick up the new
+    // display_name + first/last without a hard reload (Tim 2026-06-06).
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("tnm:auth-changed"));
+    }
     setShow(false);
   };
 
