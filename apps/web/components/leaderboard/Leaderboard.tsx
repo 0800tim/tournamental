@@ -275,23 +275,41 @@ function LeaderboardRow({
         />
       )}
       <span className="vt-lb-rhs">
-        <span
-          className="vt-lb-points"
-          aria-label={
-            typeof matchesPlayed === "number"
-              ? `${m.points} correct out of ${matchesPlayed}`
-              : `${m.points} points`
-          }
-        >
-          {typeof matchesPlayed === "number" && matchesPlayed > 0 ? (
-            <>
-              {m.points}
-              <span className="vt-lb-points-denom">/{matchesPlayed}</span>
-            </>
-          ) : (
-            m.points.toLocaleString()
-          )}
-        </span>
+        {/* Tim 2026-06-07: the denominator is now per-row when the
+          * caller supplies `matchesAvailable`. Late joiners legitimately
+          * have a smaller Y than early joiners — `5 / 10` vs `1 / 1`
+          * etc. We fall back to the leaderboard-wide `matchesPlayed`
+          * prop for mock data and pre-tournament views where every row
+          * shares the same Y. */}
+        {(() => {
+          const denom =
+            typeof m.matchesAvailable === "number"
+              ? m.matchesAvailable
+              : typeof matchesPlayed === "number"
+                ? matchesPlayed
+                : null;
+          const ariaLabel =
+            denom !== null
+              ? `${m.points} correct out of ${denom}`
+              : `${m.points} points`;
+          return (
+            <span className="vt-lb-points" aria-label={ariaLabel}>
+              {denom !== null && denom > 0 ? (
+                <>
+                  {m.points}
+                  <span className="vt-lb-points-denom">/{denom}</span>
+                </>
+              ) : denom === 0 ? (
+                <>
+                  {m.points}
+                  <span className="vt-lb-points-denom">/0</span>
+                </>
+              ) : (
+                m.points.toLocaleString()
+              )}
+            </span>
+          );
+        })()}
         {showMovement && (
           <MovementIndicator value={m.movement} />
         )}
