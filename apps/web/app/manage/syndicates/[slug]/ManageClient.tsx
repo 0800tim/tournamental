@@ -12,23 +12,30 @@ interface SyndicateData {
   share_guid: string;
   topic: string | null;
   size_band: string;
+  /** Bare E.164 dial codes ("64", "61", ...). Empty array means
+   * "no country restriction". Added Tim 2026-06-06 so the manage
+   * page can edit the list post-creation. */
+  allowed_phone_countries: readonly string[];
   created_at: number;
 }
 
 type Phase = "requesting" | "verifying" | "managing";
 
 const COUNTRY_CODES = [
-  { iso: "NZ", dial: "+64", name: "New Zealand" },
-  { iso: "AU", dial: "+61", name: "Australia" },
-  { iso: "GB", dial: "+44", name: "United Kingdom" },
-  { iso: "US", dial: "+1", name: "United States" },
-  { iso: "IE", dial: "+353", name: "Ireland" },
-  { iso: "ZA", dial: "+27", name: "South Africa" },
-  { iso: "IN", dial: "+91", name: "India" },
-  { iso: "BR", dial: "+55", name: "Brazil" },
-  { iso: "DE", dial: "+49", name: "Germany" },
-  { iso: "FR", dial: "+33", name: "France" },
+  { iso: "NZ", dial: "+64", name: "New Zealand", flag: "🇳🇿" },
+  { iso: "AU", dial: "+61", name: "Australia", flag: "🇦🇺" },
+  { iso: "GB", dial: "+44", name: "United Kingdom", flag: "🇬🇧" },
+  { iso: "US", dial: "+1", name: "United States", flag: "🇺🇸" },
+  { iso: "IE", dial: "+353", name: "Ireland", flag: "🇮🇪" },
+  { iso: "ZA", dial: "+27", name: "South Africa", flag: "🇿🇦" },
+  { iso: "IN", dial: "+91", name: "India", flag: "🇮🇳" },
+  { iso: "BR", dial: "+55", name: "Brazil", flag: "🇧🇷" },
+  { iso: "DE", dial: "+49", name: "Germany", flag: "🇩🇪" },
+  { iso: "FR", dial: "+33", name: "France", flag: "🇫🇷" },
 ] as const;
+
+/** Cap mirrors the server's MAX_ALLOWED_COUNTRIES (10). */
+const MAX_ALLOWED_COUNTRIES = 10;
 
 export function ManageClient({
   slug,
@@ -57,6 +64,14 @@ export function ManageClient({
   // Edit state
   const [editName, setEditName] = useState("");
   const [editTopic, setEditTopic] = useState("");
+  // Country lock editor. We keep the current allow-list as a separate
+  // `editAllowedCountries` array so the user can toggle / add / remove
+  // without round-tripping to the server. `editCountriesLocked` mirrors
+  // the SyndicateForm pattern: a checkbox toggle, distinct from the
+  // array being empty, so the user can clear the list (-> 'no
+  // restriction') AND toggle the lock off without ambiguity.
+  const [editAllowedCountries, setEditAllowedCountries] = useState<string[]>([]);
+  const [editCountriesLocked, setEditCountriesLocked] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const [copied, setCopied] = useState(false);
@@ -224,6 +239,9 @@ export function ManageClient({
       setSyndicate(syn);
       setEditName(syn.name);
       setEditTopic(syn.topic ?? "");
+      const initialCountries = (syn.allowed_phone_countries ?? []).slice();
+      setEditAllowedCountries(initialCountries);
+      setEditCountriesLocked(initialCountries.length > 0);
       setPhase("managing");
     } catch {
       setError("Network error. Please try again.");
@@ -237,6 +255,11 @@ export function ManageClient({
     setSaving(true);
     setSaveMsg("");
     try {
+      // When the lock toggle is OFF, send an empty array to clear
+      // the restriction server-side. When it's ON, send whatever
+      // codes the user has chipped in (the server enforces a 10-code
+      // cap and a dial-code regex on each entry).
+      const allowedToSend = editCountriesLocked ? editAllowedCountries : [];
       const res = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/manage-owner`, {
         method: "PATCH",
         headers: {
@@ -246,12 +269,33 @@ export function ManageClient({
         body: JSON.stringify({
           name: editName.trim() || undefined,
           topic: editTopic.trim() || null,
+          allowed_phone_countries: allowedToSend,
         }),
       });
       if (res.ok) {
-        const body = await res.json() as { syndicate?: { name: string; topic: string | null } };
+        const body = await res.json() as {
+          syndicate?: {
+            name: string;
+            topic: string | null;
+            allowed_phone_countries?: readonly string[];
+          };
+        };
         if (body.syndicate) {
-          setSyndicate((prev) => prev ? { ...prev, name: body.syndicate!.name, topic: body.syndicate!.topic } : prev);
+          const nextCountries = body.syndicate.allowed_phone_countries ?? [];
+          setSyndicate((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  name: body.syndicate!.name,
+                  topic: body.syndicate!.topic,
+                  allowed_phone_countries: nextCountries,
+                }
+              : prev,
+          );
+          // Re-sync the editor in case the server normalised our list
+          // (deduped, dropped invalid entries, etc).
+          setEditAllowedCountries(nextCountries.slice());
+          setEditCountriesLocked(nextCountries.length > 0);
         }
         setSaveMsg("Saved.");
         setTimeout(() => setSaveMsg(""), 2000);
@@ -472,6 +516,127 @@ export function ManageClient({
                 onChange={(e) => setEditTopic(e.target.value)}
               />
             </div>
+
+            {/* Country lock editor. Mirrors the create form's picker
+              * (apps/web/app/syndicates/new/SyndicateForm.tsx). Toggle
+              * controls whether the lock is on at all; when off, the
+              * server clears `allowed_phone_countries` so the join
+              * page stops showing the "<flag> residents only" banner.
+              * Tim 2026-06-06. */}
+            <fieldset className="syn-fieldset" style={{ marginTop: "0.5rem" }}>
+              <legend className="syn-label">
+                <span aria-hidden="true">🔒</span> Lock entries by country
+              </legend>
+              <label className="syn-checkbox-row" style={{ marginTop: "0.25rem" }}>
+                <input
+                  type="checkbox"
+                  checked={editCountriesLocked}
+                  onChange={(e) => {
+                    const next = e.target.checked;
+                    setEditCountriesLocked(next);
+                    // First time the toggle goes ON without any
+                    // chips in the list, seed with NZ so the user
+                    // has something to remove rather than staring
+                    // at an empty box.
+                    if (next && editAllowedCountries.length === 0) {
+                      setEditAllowedCountries(["64"]);
+                    }
+                  }}
+                />
+                <span>
+                  <strong>Restrict joiners by phone country code</strong>
+                  <span className="syn-hint">
+                    We verify the joiner&apos;s WhatsApp / SMS country code (+64, +44, +61, etc).
+                    Leave off to accept the world. Email-only signups bypass this gate.
+                  </span>
+                </span>
+              </label>
+              {editCountriesLocked && (
+                <div style={{ marginTop: "0.5rem" }}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                    {editAllowedCountries.length === 0 ? (
+                      <span className="syn-hint">No countries selected. Add one to keep the lock active.</span>
+                    ) : (
+                      editAllowedCountries.map((dial) => {
+                        const country = COUNTRY_CODES.find((c) => c.dial === `+${dial}`);
+                        return (
+                          <span
+                            key={dial}
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.35rem",
+                              padding: "0.25rem 0.6rem",
+                              borderRadius: "9999px",
+                              background: "rgba(255,255,255,0.06)",
+                              border: "1px solid rgba(255,255,255,0.1)",
+                              fontSize: "0.85rem",
+                            }}
+                          >
+                            <span aria-hidden="true">{country?.flag ?? "🌐"}</span>
+                            <span>{country?.name ?? `+${dial}`}</span>
+                            <span style={{ opacity: 0.6 }}>+{dial}</span>
+                            <button
+                              type="button"
+                              aria-label={`Remove ${country?.name ?? dial}`}
+                              onClick={() =>
+                                setEditAllowedCountries((cur) => cur.filter((c) => c !== dial))
+                              }
+                              style={{
+                                background: "transparent",
+                                border: 0,
+                                color: "inherit",
+                                cursor: "pointer",
+                                fontSize: "1rem",
+                                lineHeight: 1,
+                                padding: 0,
+                                marginLeft: "0.15rem",
+                              }}
+                            >
+                              ×
+                            </button>
+                          </span>
+                        );
+                      })
+                    )}
+                  </div>
+                  {editAllowedCountries.length < MAX_ALLOWED_COUNTRIES && (
+                    <div style={{ marginTop: "0.5rem" }}>
+                      <select
+                        className="syn-select"
+                        value=""
+                        onChange={(e) => {
+                          const dial = e.target.value;
+                          if (!dial) return;
+                          setEditAllowedCountries((cur) =>
+                            cur.includes(dial) ? cur : [...cur, dial],
+                          );
+                        }}
+                      >
+                        <option value="" disabled>
+                          {editAllowedCountries.length === 0
+                            ? "Pick a country…"
+                            : "+ Add another country…"}
+                        </option>
+                        {COUNTRY_CODES.filter(
+                          (c) => !editAllowedCountries.includes(c.dial.slice(1)),
+                        ).map((c) => (
+                          <option key={c.iso} value={c.dial.slice(1)}>
+                            {c.flag} {c.name} ({c.dial})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  {editAllowedCountries.length >= MAX_ALLOWED_COUNTRIES && (
+                    <span className="syn-hint" style={{ display: "block", marginTop: "0.4rem" }}>
+                      Maximum {MAX_ALLOWED_COUNTRIES} countries per pool. Remove one to add another.
+                    </span>
+                  )}
+                </div>
+              )}
+            </fieldset>
+
             <button
               type="button"
               className="syn-submit"

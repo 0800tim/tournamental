@@ -18,6 +18,7 @@ import { z } from "zod";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { getPersistence } from "@/lib/syndicate/persistence";
+import { parseAllowedCountries } from "@/lib/syndicate/country-gate";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -122,6 +123,11 @@ export async function GET(req: NextRequest, props: { params: Promise<{ slug: str
       size_band: row.size_band,
       branding_primary_colour: row.branding_primary_colour,
       branding_accent_colour: row.branding_accent_colour,
+      // Tim 2026-06-06: surface the country allow-list so the
+      // manage page can render a 'lock entries' editor. Returned
+      // as an array of bare dial codes ("64", "61", ...); empty
+      // array means "no restriction".
+      allowed_phone_countries: parseAllowedCountries(row.allowed_phone_countries),
       created_at: row.created_at,
     },
   });
@@ -130,6 +136,17 @@ export async function GET(req: NextRequest, props: { params: Promise<{ slug: str
 const PatchSchema = z.object({
   name: z.string().min(3).max(80).optional(),
   topic: z.string().max(280).nullable().optional(),
+  /**
+   * SEC-POOL-11 / Tim 2026-06-06: country allow-list edit. Each entry
+   * is a bare E.164 dial code (1–3 digits, no "+"). Empty array =
+   * no restriction (anyone with a verified phone can join). Capped
+   * at 10 entries so the bracket-join UI doesn't render a wall of
+   * flags.
+   */
+  allowed_phone_countries: z
+    .array(z.string().regex(/^\d{1,3}$/))
+    .max(10)
+    .optional(),
 }).strict();
 
 export async function PATCH(req: NextRequest, props: { params: Promise<{ slug: string }> }): Promise<Response> {
@@ -160,6 +177,7 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ slug: s
       slug: updated.slug,
       name: updated.name,
       topic: updated.topic,
+      allowed_phone_countries: parseAllowedCountries(updated.allowed_phone_countries),
     },
   });
 }
