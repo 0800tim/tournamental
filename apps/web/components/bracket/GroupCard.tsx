@@ -170,6 +170,17 @@ export function GroupCard(props: GroupCardProps) {
   const firstPlaceCode = headerHighlightsResolved ? standings[0]?.teamCode ?? null : null;
   const secondPlaceCode = headerHighlightsResolved ? standings[1]?.teamCode ?? null : null;
 
+  // Position-indicator pip per team chip in the group header. Built
+  // from the live standings (index+1) so the number reflects the
+  // user's *current* predicted order, including any tiebreaker
+  // resolution. Tim 2026-06-06: show as soon as any matches are
+  // predicted; before that the standings are all-zero and a 1/2/3/4
+  // would be misleadingly stub-ordered.
+  const positionByCode = new Map<string, number>();
+  if (predictedCount > 0) {
+    standings.forEach((s, i) => positionByCode.set(s.teamCode, i + 1));
+  }
+
   return (
     <div
       className="bracket-group"
@@ -218,6 +229,7 @@ export function GroupCard(props: GroupCardProps) {
             const tileStyle = {
               "--km-team-bg": `url(/flags/${code}.svg)`,
             } as React.CSSProperties;
+            const position = positionByCode.get(code);
             return (
               <span
                 key={code}
@@ -235,6 +247,15 @@ export function GroupCard(props: GroupCardProps) {
                   decoding="async"
                 />
                 <span className="bracket-group-head-team-code">{code}</span>
+                {position && (
+                  <span
+                    className="bracket-group-head-team-pos"
+                    data-pos={position}
+                    aria-hidden="true"
+                  >
+                    {position}
+                  </span>
+                )}
               </span>
             );
           })}

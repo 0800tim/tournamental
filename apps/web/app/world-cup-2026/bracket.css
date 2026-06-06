@@ -402,6 +402,45 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
+/* Predicted-standings position pip, top-right of each group-header
+ * chip. Brand yellow (#fbbf24) circle with the position digit (1..4)
+ * in near-black for contrast. Tim 2026-06-06: gives an at-a-glance
+ * "who am I currently predicting to finish 1st / 2nd / 3rd / 4th"
+ * cue without scrolling down to the predicted-standings panel.
+ * Shown only when the user has made at least one pick in the group
+ * (positionByCode is empty before that). */
+.bracket-group-head-team-pos {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #15151a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  /* The .bracket-group-head-team > * rule above lifts every direct
+   * child to z-index: 1; this pip rides on top of the flag + code
+   * stack at the same layer, which is correct (no double-stack). */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .bracket-group-head-team-pos {
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+}
+
 /* Drop the old per-flag ring; the tile body now carries the advance
  * border + glow. Kept as null overrides so the cascade doesn't
  * reintroduce ghost shadows on legacy class combos. */
