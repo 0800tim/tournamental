@@ -230,10 +230,29 @@ export function useUser(): UseUserReturn {
       );
     });
 
+    // Inbound-login (WhatsApp / SMS / email OTP) sets the
+    // `tnm_session` cookie but doesn't fire Supabase auth events, so
+    // useUser would stay on its pre-auth state until a hard reload.
+    // The JoinFlowClient and other inbound-aware components dispatch
+    // a `tnm:auth-changed` window event after a successful inbound
+    // sign-in; we re-probe here so the ProfileCompletionGate +
+    // AuthChip + anything else that reads useUser flip to
+    // authenticated without a page reload. Tim 2026-06-06.
+    const onInboundAuthChanged = (): void => {
+      if (cancelled || !mountedRef.current) return;
+      void applyGuestOrInbound(GUEST);
+    };
+    if (typeof window !== "undefined") {
+      window.addEventListener("tnm:auth-changed", onInboundAuthChanged);
+    }
+
     return () => {
       cancelled = true;
       ac.abort();
       subscription.unsubscribe();
+      if (typeof window !== "undefined") {
+        window.removeEventListener("tnm:auth-changed", onInboundAuthChanged);
+      }
     };
     // We intentionally depend on cfgKey (a string) rather than the cfg
     // object so this effect runs once per provisioned project, not on

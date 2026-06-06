@@ -402,6 +402,45 @@
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.55);
 }
 
+/* Predicted-standings position pip, top-right of each group-header
+ * chip. Brand yellow (#fbbf24) circle with the position digit (1..4)
+ * in near-black for contrast. Tim 2026-06-06: gives an at-a-glance
+ * "who am I currently predicting to finish 1st / 2nd / 3rd / 4th"
+ * cue without scrolling down to the predicted-standings panel.
+ * Shown only when the user has made at least one pick in the group
+ * (positionByCode is empty before that). */
+.bracket-group-head-team-pos {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #fbbf24;
+  color: #15151a;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  /* The .bracket-group-head-team > * rule above lifts every direct
+   * child to z-index: 1; this pip rides on top of the flag + code
+   * stack at the same layer, which is correct (no double-stack). */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+@media (min-width: 900px) {
+  .bracket-group-head-team-pos {
+    min-width: 18px;
+    height: 18px;
+    font-size: 11px;
+  }
+}
+
 /* Drop the old per-flag ring; the tile body now carries the advance
  * border + glow. Kept as null overrides so the cascade doesn't
  * reintroduce ghost shadows on legacy class combos. */
@@ -1089,7 +1128,7 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "home draw away"
     "h2h h2h h2h"
-    "scores scores scores";
+    "venue venue venue";
   column-gap: 12px;
   row-gap: 2px;
   align-items: center;
@@ -1116,7 +1155,7 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "home away"
     "h2h h2h"
-    "scores scores";
+    "venue venue";
 }
 
 .mpr-row:focus-visible {
@@ -1198,9 +1237,12 @@ a.bracket-share-cta-primary {
  */
 .mpr-pick-home.is-selected,
 .mpr-pick-away.is-selected {
-  background: rgba(220, 169, 75, 0.06);
-  /* Tim 2026-05-29: dropped padding-top from 14px to 8px so the gold
-   * ring arches flush around the flag instead of leaving a visible gap. */
+  /* Tim 2026-06-06: solid yellow fill instead of a 6%-alpha tint so
+   * the chosen pick reads as definitively picked rather than just
+   * "ringed". Matches the focus-ring colour (#fbbf24) the rest of
+   * the bracket already uses. Inset gold ring + outer halo retained
+   * so the flag chip still sits cleanly inside. */
+  background: #fbbf24;
   padding-top: 8px;
   padding-bottom: 8px;
   border-top-left-radius: 44px;
@@ -1280,56 +1322,126 @@ a.bracket-share-cta-primary {
   font-variant-numeric: tabular-nums;
   font-weight: 500;
 }
+/* Tim 2026-06-06: selected pick now has a solid yellow fill, so the
+ * team code AND the W/D/L percentage flip to near-black for contrast
+ * (#15151a matches the selected DRAW pill text). */
+.mpr-pick.is-selected .mpr-pick-code,
 .mpr-pick.is-selected .mpr-pick-pct {
-  color: #e6edf3;
+  color: #15151a;
   font-weight: 700;
 }
 
-.mpr-scores-wrap {
-  grid-area: scores;
+/* Venue lozenge, replaces the old "Add score" toggle at the bottom
+ * of each match row (FIFA WC 2026 is a W/D/L-only game, scores are
+ * not collected). Neutral charcoal pill so it sits quietly beneath
+ * the picks; the gold info icon picks up the same accent language
+ * as the selected flags and DRAW pill, hinting tappability without
+ * overpowering the row.
+ *
+ * Entire pill is a single <a> styled as a button. Tapping anywhere
+ * opens the MatchOverlay (or, outside the overlay shell, navigates
+ * to the standalone match-preview page). */
+.mpr-venue-footer {
+  grid-area: venue;
   justify-self: center;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-}
-
-/* "Add score" reads as a quiet mono caption beneath the row, not a button.
- * Hover/focus lifts the colour to gold so it's clearly interactive. */
-.mpr-scores-toggle {
-  background: transparent;
-  border: 0;
-  color: rgba(148, 163, 184, 0.6);
-  border-radius: 0;
-  padding: 1px 2px;
-  font-family: ui-monospace, Menlo, Monaco, monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 120ms ease;
-}
-.mpr-scores-toggle:hover,
-.mpr-scores-toggle:focus-visible {
-  color: var(--vt-gold-400, #dca94b);
-  outline: none;
-}
-
-.mpr-scores {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 10px;
+  width: min(420px, 92%);
+  min-height: 36px;
+  margin-top: 2px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #1c1c22;
+  border: 1px solid rgba(82, 82, 92, 0.55);
+  color: #cbd5e1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease,
+    box-shadow 160ms ease, transform 140ms ease;
 }
 
-.mpr-scores input {
-  width: 38px;
-  background: #1c1c22;
-  border: 1px solid #3a3a44;
-  color: #e6edf3;
-  padding: 2px 4px;
-  border-radius: 4px;
+@media (max-width: 768px) {
+  .mpr-venue-footer {
+    min-height: 40px;
+  }
+}
+
+.mpr-venue-footer:hover {
+  background: #22222a;
+  border-color: rgba(220, 169, 75, 0.45);
+}
+
+.mpr-venue-footer:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--vt-gold-400, #dca94b);
+}
+
+.mpr-venue-footer:active {
+  transform: scale(0.99);
+}
+
+/* Knockout cards are visually denser than group rows (smaller box,
+ * full-bleed flag art) so the lozenge tightens up inside them: less
+ * padding, lower min-height, narrower width band. The team
+ * rectangles keep the visual weight; the lozenge sits underneath
+ * as a quiet caption (Tim 2026-06-06). */
+.km-card .mpr-venue-footer {
+  width: min(280px, 96%);
+  min-height: 28px;
+  margin-top: 4px;
+  padding: 4px 12px;
+  gap: 6px;
+}
+@media (max-width: 768px) {
+  .km-card .mpr-venue-footer {
+    min-height: 32px;
+  }
+}
+.km-card .mpr-venue-footer-text {
   font-size: 11px;
-  text-align: center;
+  gap: 6px;
+}
+.km-card .mpr-venue-footer-info {
+  width: 12px;
+  height: 12px;
+}
+
+.mpr-venue-footer-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mpr-venue-footer-date {
+  color: #cbd5e1;
+}
+
+.mpr-venue-footer-sep {
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.mpr-venue-footer-time {
+  color: #cbd5e1;
+}
+
+.mpr-venue-footer-info {
+  display: inline-block;
+  color: var(--vt-gold-400, #dca94b);
+  filter: drop-shadow(0 0 6px rgba(220, 169, 75, 0.35));
+  flex: 0 0 auto;
+  transition: color 160ms ease;
+}
+
+.mpr-venue-footer:hover .mpr-venue-footer-info,
+.mpr-venue-footer:focus-visible .mpr-venue-footer-info {
+  color: var(--vt-gold-300, #e6bf5e);
 }
 
 .sr-only {
@@ -1708,7 +1820,8 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "header header header"
     "home   conn   away"
-    "odds   odds   odds";
+    "odds   odds   odds"
+    "venue  venue  venue";
   column-gap: 8px;
   row-gap: 6px;
   align-items: stretch;
@@ -1779,12 +1892,17 @@ a.bracket-share-cta-primary {
   background-color: #25252c;
   border: 1px solid transparent;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   cursor: pointer;
   font-size: 13px;
   color: #cbd5e1;
   text-align: left;
-  min-height: 56px;
+  /* Bumped from 56px to 76px (Tim 2026-06-06) so the blurred flag
+   * background has more vertical room to read clearly. With the
+   * new venue lozenge sitting underneath, the card gained vertical
+   * stack height; this redistributes that gain back into the team
+   * rectangles where the flag art actually lives. */
+  min-height: 76px;
   overflow: hidden;
   isolation: isolate;
   transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;
@@ -2022,11 +2140,15 @@ a.bracket-share-cta-primary {
   display: none;
 }
 /* Drop the third grid row entirely when the odds slot is hidden, so the
- * row-gap above it doesn't leave a phantom strip under the team cells. */
+ * row-gap above it doesn't leave a phantom strip under the team cells.
+ * Keep the venue row (Tim 2026-06-06), otherwise the venue lozenge
+ * falls into an implicit auto-placed cell at the bottom-right instead
+ * of spanning the full card width under the picks. */
 .km-card:has(.km-odds:empty) {
   grid-template-areas:
     "header header header"
-    "home   conn   away";
+    "home   conn   away"
+    "venue  venue  venue";
 }
 
 .bracket-group-winner-chips {
@@ -2197,38 +2319,11 @@ a.bracket-share-cta-primary {
   text-align: center;
 }
 
-/* "View match" link affordance on a MatchPredictionRow. Sits absolutely
- * positioned in the row's top-right corner so it doesn't shift the
- * existing grid layout. */
+/* `.mpr-view-link` removed Tim 2026-06-06; see the matching note
+ * further down by `.km-view-link`. The new `.mpr-venue-footer`
+ * lozenge is the single tap target into the match overlay. */
 .mpr-row {
   position: relative;
-}
-.mpr-view-link {
-  /* Bottom-right placement, smaller, lower contrast. The earlier
-   * top-right position was overlapping the away flag on narrow cards,
-   * and the chromed pill read as a peer of the predictions rather than
-   * a secondary "more" affordance. */
-  position: absolute;
-  bottom: 4px;
-  right: 6px;
-  font-size: 11px;
-  line-height: 1;
-  letter-spacing: 0;
-  font-weight: 600;
-  color: rgba(148, 163, 184, 0.55);
-  text-decoration: none;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: transparent;
-  border: 0;
-  z-index: 2;
-  transition: color 120ms ease, background 120ms ease;
-}
-.mpr-view-link:hover,
-.mpr-view-link:focus-visible {
-  color: var(--vt-gold-400, #dca94b);
-  background: rgba(220, 169, 75, 0.08);
-  outline: none;
 }
 
 /* "..." popup trigger sits to the left of "View match". Same pill
@@ -2257,43 +2352,10 @@ a.bracket-share-cta-primary {
   outline: none;
 }
 
-/* Same affordance for KnockoutMatch, the card's header is already a
- * flex row so we just plug it in as another item. Small icon-style chip
- * (arrow + "View") keeps the visual weight on the team picks themselves,
- * not on the secondary navigation. */
-.km-view-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #94a3b8;
-  text-decoration: none;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
-}
-.km-view-link:hover,
-.km-view-link:focus-visible {
-  color: #ffffff;
-  background: rgba(15, 23, 42, 0.95);
-  outline: none;
-  transform: translateX(1px);
-}
-.km-view-link-label {
-  /* Hide the label on very narrow viewports, the arrow alone reads as
-   * "go to match preview" and we save horizontal space for the team
-   * picks. */
-}
-@media (max-width: 380px) {
-  .km-view-link-label {
-    display: none;
-  }
-}
+/* `.km-view-link` removed Tim 2026-06-06 along with the row-level
+ * `.mpr-view-link`. Both top-right ellipsis affordances were folded
+ * into the new full-width `.mpr-venue-footer` lozenge at the bottom
+ * of each card. */
 
 /* ---- Team-info chip (overlay opener) ----
  *
@@ -3066,7 +3128,6 @@ a.bracket-save-panel-cta-primary {
 }
 
 .bracket-page[data-theme="light"] .km-no,
-.bracket-page[data-theme="light"] .km-view-link,
 .bracket-page[data-theme="light"] .km-team-name {
   color: #1f2937;
 }

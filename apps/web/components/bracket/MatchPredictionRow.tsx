@@ -9,6 +9,13 @@
  * DRAW pill → draw (group stage only). Selected option gets a glow
  * ring + bright label; unselected options dim.
  *
+ * Below the picks sits a single `MatchVenueFooter` lozenge showing
+ * the user's local kickoff date/time + a gold info icon. Tapping it
+ * opens the existing MatchOverlay with full venue + timing detail.
+ * (FIFA WC 2026 doesn't collect predicted scores, so the previous
+ * "Add score" toggle and the top-right "⋯" link were folded into
+ * this single, much larger tap target. Tim 2026-06-06.)
+ *
  * Keyboard: 1/H = home, 2/D = draw, 3/A = away. Arrow keys cycle.
  *
  * Pure controlled component; parent owns prediction state.
@@ -18,6 +25,9 @@
 
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type CSSProperties, type KeyboardEvent } from "react";
+
+import type { HostCity } from "@/lib/host-cities";
+import { MatchVenueFooter } from "./MatchVenueFooter";
 
 function safeT(
   t: ReturnType<typeof useTranslations>,
@@ -44,7 +54,6 @@ import {
 import { recentFormResults } from "@/lib/team-form";
 import { FormDots, type FormResult } from "@/components/shared/FormDots";
 import { HeadToHeadPill } from "@/components/shared/HeadToHeadPill";
-import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
 import { MatchPickPopup } from "@/components/match-pick/MatchPickPopup";
 import { TeamFlag } from "./TeamFlag";
 
@@ -79,6 +88,12 @@ export interface MatchPredictionRowProps {
    * up from the bundled stub. Pass `null` explicitly to suppress the pill.
    */
   readonly headToHead?: HeadToHeadCounts | null;
+  /** Resolved host-city record (city, country, stadium, capacity,
+   * IANA timezone). Plumbed through to `MatchVenueFooter` so the
+   * lozenge can format the kickoff date/time in the user's local
+   * timezone on the client and in the venue's timezone during SSR.
+   * Parents resolve it via `hostCityById(fixture.host_city_id)`. */
+  readonly hostCity?: HostCity;
   readonly onChange: (next: MatchPrediction) => void;
 }
 
@@ -111,11 +126,9 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     homeForm,
     awayForm,
     headToHead,
+    hostCity,
     onChange,
   } = props;
-  const [showScores, setShowScores] = useState<boolean>(
-    prediction?.homeScore !== undefined || prediction?.awayScore !== undefined,
-  );
   const [now, setNow] = useState<number>(() => Date.now());
   const [popupOpen, setPopupOpen] = useState<boolean>(false);
 
@@ -146,20 +159,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       awayScore: prediction?.awayScore,
       lockedAt: nowIso(),
       oddsAtLock: snapshotOdds(odds),
-    });
-  };
-
-  const setScore = (side: "home" | "away", value: string): void => {
-    if (locked) return;
-    const n = value === "" ? undefined : Math.max(0, Math.min(99, Number(value)));
-    if (value !== "" && Number.isNaN(n)) return;
-    onChange({
-      matchId,
-      outcome: prediction?.outcome ?? "home_win",
-      homeScore: side === "home" ? n : prediction?.homeScore,
-      awayScore: side === "away" ? n : prediction?.awayScore,
-      lockedAt: nowIso(),
-      oddsAtLock: prediction?.oddsAtLock ?? snapshotOdds(odds),
     });
   };
 
@@ -196,26 +195,6 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const isDraw = prediction?.outcome === "draw";
   const isAway = prediction?.outcome === "away_win";
 
-  // Optional overlay router, when present, tapping the small "info"
-  // chip below a flag opens the team overlay; tapping the "View match"
-  // link opens the match overlay. When absent (e.g. in tests or pages
-  // outside the bracket shell) these fall back to plain links.
-  const overlay = useOptionalOverlay();
-  const openTeamOverlay = (code: string) => (e: React.MouseEvent): void => {
-    if (!overlay) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    overlay.open("team", { code });
-  };
-  const openMatchOverlay = (e: React.MouseEvent): void => {
-    if (!overlay) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    overlay.open("match", { id: matchId });
-  };
-
   // Resolve form + h2h from props or fall back to the bundled stub. We
   // recompute these on every render, the underlying lookups are pure
   // synchronous reads from a small map so the cost is negligible relative
@@ -245,22 +224,10 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           Sorry, this match has already started. You can&apos;t change it now.
         </div>
       )}
-      {/* Single ellipsis link opens the match preview overlay. The
-       * previous "View match" text label + popup-trigger pair was
-       * cluttering the top-right of the row and overlapping the
-       * circular flag on tight viewports. */}
-      <a
-        href={`/match/${matchId}/preview`}
-        className="mpr-view-link"
-        aria-label={`View more details for ${homeTeam.name} vs ${awayTeam.name}`}
-        title="View match details"
-        onClick={(e) => {
-          e.stopPropagation();
-          openMatchOverlay(e);
-        }}
-      >
-        <span aria-hidden="true">⋯</span>
-      </a>
+      {/* The previous top-right "⋯" link (Tim 2026-06-06) was folded
+       * into the new full-width MatchVenueFooter lozenge below. One
+       * single, easy tap target instead of a small icon in the
+       * corner. */}
       {popupOpen && (
         <MatchPickPopup
           matchId={matchId}
@@ -344,47 +311,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         </span>
       </button>
 
-      <div className="mpr-scores-wrap">
-        <button
-          type="button"
-          className="mpr-scores-toggle"
-          aria-expanded={showScores}
-          onClick={() => setShowScores((v) => !v)}
-        >
-          {showScores
-            ? safeT(t, "bracket.match.hide_scores", "Hide scores")
-            : safeT(t, "bracket.match.add_score", "Add score")}
-        </button>
-        {showScores && (
-          <div className="mpr-scores">
-            <label>
-              <span className="sr-only">{homeTeam.name} score</span>
-              <input
-                type="number"
-                min={0}
-                max={99}
-                value={prediction?.homeScore ?? ""}
-                onChange={(e) => setScore("home", e.target.value)}
-                disabled={locked}
-                aria-label={`${homeTeam.name} score`}
-              />
-            </label>
-            <span aria-hidden="true">–</span>
-            <label>
-              <span className="sr-only">{awayTeam.name} score</span>
-              <input
-                type="number"
-                min={0}
-                max={99}
-                value={prediction?.awayScore ?? ""}
-                onChange={(e) => setScore("away", e.target.value)}
-                disabled={locked}
-                aria-label={`${awayTeam.name} score`}
-              />
-            </label>
-          </div>
-        )}
-      </div>
+      {kickoffIso && (
+        <MatchVenueFooter
+          matchId={matchId}
+          homeName={homeTeam.name}
+          awayName={awayTeam.name}
+          kickoffIso={kickoffIso}
+          hostCity={hostCity}
+        />
+      )}
     </div>
   );
 }

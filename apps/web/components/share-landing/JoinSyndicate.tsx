@@ -30,7 +30,7 @@
  */
 
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 function safeT(
   t: ReturnType<typeof useTranslations>,
@@ -62,8 +62,10 @@ export interface JoinSyndicateProps {
 
 interface PendingJoin {
   readonly slug: string;
-  readonly handle: string;
+  /** The user's @handle. Per Tim 2026-06-05, display_name IS the @handle. */
   readonly displayName: string;
+  readonly firstName: string;
+  readonly lastName: string;
 }
 
 const LS_PENDING_JOIN = "tnm.pending_join.v1";
@@ -81,9 +83,23 @@ function loadPending(): PendingJoin | null {
   try {
     const raw = window.localStorage.getItem(LS_PENDING_JOIN);
     if (!raw) return null;
-    const j = JSON.parse(raw) as PendingJoin;
-    if (j && typeof j.slug === "string" && typeof j.handle === "string") return j;
-    return null;
+    const j = JSON.parse(raw) as Partial<PendingJoin> & { handle?: string };
+    if (!j || typeof j.slug !== "string") return null;
+    // Tolerant load: the v1 schema stored a separate `handle`. v2 uses
+    // displayName as the @handle directly. Migrate old saves so an
+    // upgraded user with a stale pending row doesn't lose state.
+    const displayName =
+      typeof j.displayName === "string" && j.displayName.length > 0
+        ? j.displayName
+        : typeof j.handle === "string"
+          ? j.handle
+          : "";
+    return {
+      slug: j.slug,
+      displayName,
+      firstName: typeof j.firstName === "string" ? j.firstName : "",
+      lastName: typeof j.lastName === "string" ? j.lastName : "",
+    };
   } catch {
     return null;
   }
@@ -116,14 +132,29 @@ function normalisePhone(raw: string): string {
   return t;
 }
 
-function deriveHandleFromName(name: string): string {
-  return name
-    .trim()
+/** Mirror of `slugify` in ProfileCompletionGate.tsx and the auth-sms
+ * server's slugifyDisplayName. The form's @handle field is what becomes
+ * the user's display_name, and the server slugifies it on save, so the
+ * client-side preview here only exists to give early validation feedback
+ * before submit. */
+function slugifyHandle(input: string): string {
+  return input
     .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9_]+/g, "_")
-    .replace(/^_+|_+$/g, "")
-    .slice(0, 32);
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
 }
+
+/** Mirror of the gate's RESERVED_HANDLES list. Server is the source of
+ * truth; this is for early UI feedback only. */
+const RESERVED_HANDLES = new Set<string>([
+  "admin", "administrator", "api", "www", "play", "you", "me",
+  "anonymous", "anon", "deleted", "support", "help", "tournamental",
+  "official", "staff", "team", "mod", "moderator", "root", "system",
+  "null", "undefined",
+]);
 
 type Step = "identity" | "verify" | "success" | "exit";
 
@@ -141,10 +172,16 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("identity");
 
-  // Identity step
+  // Identity step. Per Tim 2026-06-05 (cffa1d3 / 2f52efe), display_name
+  // IS the user's permanent @handle (URL-safe), and first_name / last_name
+  // are the separate human-readable name fields. Before this rewrite the
+  // modal asked for a `displayName` (= human name) + a separate `handle`
+  // (= slug), and PATCHed the human name into auth-sms as display_name,
+  // locking it as the user's @handle. Tim hit the resulting "my full name
+  // is now my handle and it's locked" trap 2026-06-06.
   const [displayName, setDisplayName] = useState("");
-  const [handle, setHandle] = useState("");
-  const [handleTouched, setHandleTouched] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   // Email is the WhatsApp-free fallback: either phone or email is
   // required, both is fine, and when both are provided we send the
@@ -175,13 +212,10 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
-  // Auto-derive a handle from the display name until the user edits
-  // the handle field directly.
-  useEffect(() => {
-    if (!handleTouched) {
-      setHandle(deriveHandleFromName(displayName));
-    }
-  }, [displayName, handleTouched]);
+  // Live-slugified preview of the @handle. The user types what they
+  // want; we show the resulting slug as a hint, and the server
+  // slugifies again on save (it's the source of truth).
+  const handleSlug = useMemo(() => slugifyHandle(displayName), [displayName]);
 
   // Reset state when the modal closes.
   const close = useCallback(() => {
@@ -316,13 +350,18 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     }
   }, [slug]);
 
-  const handleIsValid = /^[a-zA-Z0-9_]{2,32}$/.test(handle);
-  const nameIsValid = displayName.trim().length >= 1;
+  // @handle validity, must slugify cleanly to 3..32 chars and not be on
+  // the reserved list. Same rule the ProfileCompletionGate enforces;
+  // the server re-validates on PATCH /v1/auth/me.
+  const handleIsValid =
+    handleSlug.length >= 3 &&
+    handleSlug.length <= 32 &&
+    !RESERVED_HANDLES.has(handleSlug);
   const phoneIsValid = /^\+\d{8,15}$/.test(normalisePhone(phone));
   const emailIsValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identityEmail.trim());
   // At least one contact channel must validate; both is fine.
   const hasContact = (phone.trim() && phoneIsValid) || (identityEmail.trim() && emailIsValid);
-  const canSubmitIdentity = !busy && handleIsValid && nameIsValid && hasContact;
+  const canSubmitIdentity = !busy && handleIsValid && hasContact;
 
   const onSubmitIdentity = useCallback(
     async (e: React.FormEvent) => {
@@ -333,9 +372,12 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
       setInfo(null);
 
       try {
-        // 1) Handle availability check (cheap, no OTP consumed).
+        // 1) @handle availability check against the slugified value (cheap,
+        //    no OTP consumed). Server-side uniqueness lives in auth-sms
+        //    `display_name`; this endpoint is a quick lookahead so the
+        //    user finds out before they paste an OTP.
         const checkRes = await fetch(
-          `/api/v1/syndicates/${encodeURIComponent(slug)}/handle-check?handle=${encodeURIComponent(handle)}`,
+          `/api/v1/syndicates/${encodeURIComponent(slug)}/handle-check?handle=${encodeURIComponent(handleSlug)}`,
           { method: "GET", headers: { Accept: "application/json" } },
         );
         const checkJson = (await checkRes.json().catch(() => ({}))) as {
@@ -346,8 +388,8 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         if (!checkRes.ok || checkJson.error || checkJson.available !== true) {
           setError(
             checkJson.error === "bad_handle"
-              ? "That handle isn't valid. Letters, numbers, and underscores, 2–32 chars."
-              : `Sorry, "${handle}" is already taken. Pick a different handle.`,
+              ? "That handle isn't valid. Letters, numbers, and underscores, 3 to 32 chars."
+              : `Sorry, "${handleSlug}" is already taken. Pick a different handle.`,
           );
           setBusy(false);
           return;
@@ -468,8 +510,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
           if (sendFailed && normalised) {
             savePending({
               slug,
-              handle: handle.trim(),
-              displayName: displayName.trim(),
+              displayName: handleSlug,
+              firstName: firstName.trim(),
+              lastName: lastName.trim(),
             });
             setPhoneMasked(normalised);
             setStep("verify");
@@ -496,8 +539,9 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
         // At least one channel sent successfully — persist + advance.
         savePending({
           slug,
-          handle: handle.trim(),
-          displayName: displayName.trim(),
+          displayName: handleSlug,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
         });
         if (phoneRes?.ok && normalised) {
           setPhoneMasked(phoneRes.phoneMasked ?? normalised);
@@ -522,9 +566,11 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     [
       canSubmitIdentity,
       slug,
-      handle,
       phone,
       displayName,
+      handleSlug,
+      firstName,
+      lastName,
       identityEmail,
       phoneIsValid,
       emailIsValid,
@@ -538,18 +584,30 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
   const bindAndJoin = useCallback(async (): Promise<
     { ok: false } | { ok: true; status: "active" | "pending" }
   > => {
-    // Bind display name on the auth-sms user (PATCH /v1/auth/me).
+    // Bind the user's @handle (display_name) + first/last name on the
+    // auth-sms record. Per Tim 2026-06-05 display_name IS the @handle;
+    // first/last are the separate human-readable fields. We slugify
+    // client-side for early validation and again before send so the
+    // saved value matches what the user previewed.
+    const handleForSave = slugifyHandle(displayName);
     try {
       await fetch(`${AUTH_BASE.replace(/\/$/, "")}/v1/auth/me`, {
         method: "PATCH",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ display_name: displayName.trim() }),
+        body: JSON.stringify({
+          display_name: handleForSave,
+          first_name: firstName.trim() || null,
+          last_name: lastName.trim() || null,
+        }),
       });
     } catch {
       /* non-fatal; user can edit later */
     }
-    // Add to the pool (handle + display_name).
+    // Add to the pool. The /join route ignores the body's handle /
+    // display_name and uses session.displayName as the membership
+    // handle (per the 2026-06-05 'one identity per user' rule), but we
+    // still send them for older clients / log clarity.
     try {
       const r = await fetch(
         `/api/v1/syndicates/${encodeURIComponent(slug)}/join`,
@@ -558,8 +616,8 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            handle: handle.trim(),
-            display_name: displayName.trim(),
+            handle: handleForSave,
+            display_name: handleForSave,
           }),
         },
       );
@@ -585,7 +643,7 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
       );
       return { ok: false };
     }
-  }, [slug, handle, displayName]);
+  }, [slug, displayName, firstName, lastName]);
 
   const onSubmitCode = useCallback(
     async (e: React.FormEvent) => {
@@ -708,8 +766,8 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
     const p = loadPending();
     if (p && p.slug === slug) {
       setDisplayName(p.displayName);
-      setHandle(p.handle);
-      setHandleTouched(true);
+      setFirstName(p.firstName);
+      setLastName(p.lastName);
     }
   }, [open, slug]);
 
@@ -809,37 +867,57 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
                   {safeT(t, "join.modal.title", "Join {pool_name}").replace("{pool_name}", syndicateName)}
                 </h2>
                 <p className="vt-share-modal-body">
-                  {safeT(t, "join.modal.body", "Pick a display name and handle for the leaderboard, then we'll send a one-time login code by WhatsApp or email.")}
+                  {safeT(t, "join.modal.body", "Pick your @handle for the leaderboard, then we'll send a one-time login code by WhatsApp or email.")}
                 </p>
                 <label className="vt-join-label">
-                  <span>{safeT(t, "join.modal.field_name", "Your name")}</span>
+                  <span>{safeT(t, "join.modal.field_handle_v2", "Your @handle (permanent)")}</span>
                   <input
                     type="text"
                     className="vt-share-modal-input"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder={safeT(t, "join.modal.field_name_placeholder", "e.g. Tim Thomas")}
+                    placeholder={safeT(t, "join.modal.field_handle_placeholder_v2", "e.g. tim_thomas")}
                     autoFocus
                     maxLength={60}
                     required
+                    aria-describedby="vt-join-handle-help"
                   />
+                  <span id="vt-join-handle-help" className="vt-join-help">
+                    {handleSlug && handleSlug !== displayName.toLowerCase()
+                      ? safeT(t, "join.modal.field_handle_preview", "Will be saved as: ").concat(`@${handleSlug}`)
+                      : safeT(
+                          t,
+                          "join.modal.field_handle_help",
+                          "3 to 32 characters. Letters, numbers, and underscores. Can't be changed once set.",
+                        )}
+                  </span>
                 </label>
-                <label className="vt-join-label">
-                  <span>{safeT(t, "join.modal.field_handle", "Handle (shown on the leaderboard)")}</span>
-                  <input
-                    type="text"
-                    className="vt-share-modal-input"
-                    value={handle}
-                    onChange={(e) => {
-                      setHandle(e.target.value);
-                      setHandleTouched(true);
-                    }}
-                    placeholder={safeT(t, "join.modal.field_handle_placeholder", "tim_thomas")}
-                    maxLength={32}
-                    pattern="[a-zA-Z0-9_]{2,32}"
-                    required
-                  />
-                </label>
+                <div className="vt-share-modal-row vt-share-modal-row--two">
+                  <label className="vt-join-label">
+                    <span>{safeT(t, "join.modal.field_first_name", "First name")}</span>
+                    <input
+                      type="text"
+                      className="vt-share-modal-input"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder={safeT(t, "join.modal.field_first_name_placeholder", "Tim")}
+                      maxLength={40}
+                      autoComplete="given-name"
+                    />
+                  </label>
+                  <label className="vt-join-label">
+                    <span>{safeT(t, "join.modal.field_last_name", "Last name")}</span>
+                    <input
+                      type="text"
+                      className="vt-share-modal-input"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder={safeT(t, "join.modal.field_last_name_placeholder", "Thomas")}
+                      maxLength={40}
+                      autoComplete="family-name"
+                    />
+                  </label>
+                </div>
                 <label className="vt-join-label">
                   <span>{safeT(t, "join.modal.field_phone", "Mobile number (for WhatsApp login)")}</span>
                   <input

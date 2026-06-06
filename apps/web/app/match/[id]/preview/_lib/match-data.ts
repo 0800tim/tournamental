@@ -94,6 +94,11 @@ export interface ResolvedMatch {
   readonly awaySlotLabel?: string;
   readonly kickoffUtc: string;
   readonly venue?: string;
+  /** Canonical host-city id (e.g. "mexico_city"), used to look up the
+   * rich `HostCity` record (city, country, stadium, capacity, IANA
+   * timezone). Optional because future tournaments may not have
+   * host-city data loaded yet. */
+  readonly hostCityId?: string;
   /** Original group_id for group matches ("A".."L"). */
   readonly groupId?: string;
   /** Match number (1..104), useful for the share URL and OG image. */
@@ -176,6 +181,7 @@ function resolveGroupFixture(
   const grp = tournament.groups.find((g) => g.id === f.group_id);
   const homeCode = grp?.team_ids[f.home_idx];
   const awayCode = grp?.team_ids[f.away_idx];
+  const cf = canonicalFixtureByMatchNumber(f.match_no);
   return {
     matchId: String(f.match_no),
     matchNo: f.match_no,
@@ -186,6 +192,7 @@ function resolveGroupFixture(
     awayCode,
     kickoffUtc: f.kickoff_utc,
     venue: f.venue,
+    hostCityId: cf?.host_city_id,
   };
 }
 
@@ -205,6 +212,7 @@ function resolveKnockoutFixture(
   const homeCode = c?.home.team ?? undefined;
   const awayCode = c?.away.team ?? undefined;
   const stageKey = ko.stage as ResolvedMatch["stage"];
+  const cf = canonicalFixtureByMatchNumber(ko.match_no);
 
   return {
     matchId: ko.id,
@@ -217,6 +225,7 @@ function resolveKnockoutFixture(
     awaySlotLabel: awayCode ? undefined : describeSlot(ko.away),
     kickoffUtc: ko.kickoff_utc,
     venue: ko.venue,
+    hostCityId: cf?.host_city_id,
   };
 }
 

@@ -1,9 +1,23 @@
 /**
  * MatchOverlay, bottom-sheet card with the compact match-preview view.
  *
- * Renders a slimmed-down version of the match-preview surface: kickoff
- * label + venue, both team flags, and quick links to each team's
- * overlay (replaces self).
+ * Layout (top → bottom):
+ *   - Stage chip: "Group A · Match 1" or "Round of 32 · Match 73",
+ *     small gold-bordered lozenge.
+ *   - Two team side-cards (unchanged): both flags, names, codes,
+ *     tappable into the team overlay.
+ *   - When block: full date, large user-local kickoff time, smaller
+ *     venue-local kickoff time. When the user's timezone matches the
+ *     venue timezone, collapses to a single line.
+ *   - Where block: city + host-country flag + country name, real
+ *     stadium name, FIFA tournament name in quotes + formatted
+ *     stadium capacity.
+ *
+ * The When block formats date/time client-side via `Intl.DateTimeFormat`
+ * using the runtime-resolved locale + timezone. On first paint
+ * (SSR / pre-hydration) we render both lines in the venue timezone so
+ * the markup is deterministic; a `useEffect` swaps to the user's
+ * resolved timezone after mount.
  *
  * Tim 2026-06-05: the "Full page →" header CTA and the "Open full
  * preview (Predict / H2H / Form / Lineup / Stats) →" footer CTA were
@@ -14,12 +28,13 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
+import { hostCityById, type HostCity } from "@/lib/host-cities";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
 import {
@@ -69,8 +84,15 @@ export function MatchOverlay(props: MatchOverlayProps) {
   const homeName = home?.name ?? match.homeCode ?? "TBD";
   const awayName = away?.name ?? match.awayCode ?? "TBD";
 
-  const kickoff = new Date(match.kickoffUtc);
-  const kickoffLabel = formatKickoff(kickoff);
+  const hostCity = hostCityById(match.hostCityId);
+  const stageChipText = `${match.stageLabel} · Match ${match.matchNo}`;
+  const someTbd = !match.homeCode || !match.awayCode;
+  const bothTbd = !match.homeCode && !match.awayCode;
+  const tbdNote = someTbd
+    ? bothTbd
+      ? "Teams shown once the previous stage closes"
+      : "Opponent shown once the previous stage closes"
+    : null;
 
   return (
     <Sheet
@@ -80,10 +102,11 @@ export function MatchOverlay(props: MatchOverlayProps) {
       idHint={`match-${match.matchId}`}
     >
       <div className="vt-match-overlay">
+        {tbdNote && (
+          <p className="vt-match-overlay-tbd-note">({tbdNote})</p>
+        )}
         <header className="vt-match-overlay-meta">
-          <span className="vt-match-overlay-stage">{match.stageLabel}</span>
-          <time dateTime={match.kickoffUtc}>{kickoffLabel}</time>
-          {match.venue && <span className="vt-match-overlay-venue">{match.venue}</span>}
+          <span className="vt-match-overlay-stage-chip">{stageChipText}</span>
         </header>
 
         <div className="vt-match-overlay-row">
@@ -105,6 +128,12 @@ export function MatchOverlay(props: MatchOverlayProps) {
             onOpenTeam={(code) => overlay.replace("team", { code })}
           />
         </div>
+
+        {match.kickoffUtc && (
+          <WhenBlock kickoffUtc={match.kickoffUtc} hostCity={hostCity} />
+        )}
+
+        {hostCity && <WhereBlock hostCity={hostCity} />}
       </div>
     </Sheet>
   );
@@ -131,10 +160,19 @@ function SideCard(props: SideCardProps) {
       </div>
     );
   }
+  // Inline a CSS variable carrying the team's flag URL so the
+  // `.vt-match-overlay-side[data-team-bg]::before` pseudo can paint a
+  // blurred full-bleed flag behind the circular chip + name. Same
+  // pattern the bracket's `.km-team` cells use.
+  const bgStyle: CSSProperties = {
+    ["--vt-side-bg" as string]: `url(/flags/${code}.svg)`,
+  };
   return (
     <button
       type="button"
       className="vt-match-overlay-side"
+      data-team-bg=""
+      style={bgStyle}
       onClick={() => onOpenTeam(code)}
       aria-label={`Open ${name} team overlay`}
     >
@@ -152,14 +190,166 @@ function SideCard(props: SideCardProps) {
   );
 }
 
-function formatKickoff(d: Date): string {
-  return d.toLocaleString("en-NZ", {
+// ---------- When block ----------
+
+interface WhenBlockProps {
+  readonly kickoffUtc: string;
+  readonly hostCity?: HostCity;
+}
+
+function WhenBlock(props: WhenBlockProps) {
+  const { kickoffUtc, hostCity } = props;
+  const venueTz = hostCity?.timezone ?? "UTC";
+
+  // SSR: render both lines in venue TZ for a deterministic first
+  // paint. Client: swap the "your time" line to the user's resolved
+  // TZ via `Intl`. Layout (two lines) is identical pre/post hydration.
+  const [userTz, setUserTz] = useState<string>(venueTz);
+  const [hydrated, setHydrated] = useState<boolean>(false);
+  useEffect(() => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || venueTz;
+      setUserTz(tz);
+    } catch {
+      // ignore; venue TZ stays as the user TZ
+    }
+    setHydrated(true);
+  }, [venueTz]);
+
+  const d = new Date(kickoffUtc);
+  const dateLabel = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     day: "numeric",
     month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    timeZone: "UTC",
-    timeZoneName: "short",
-  });
+    year: "numeric",
+    timeZone: userTz,
+  }).format(d);
+  const userTime = splitTimeAndZone(d, userTz);
+  const venueTime = splitTimeAndZone(d, venueTz);
+
+  // Same-zone collapse: only meaningful after hydration, so the
+  // server still emits the two-line shape.
+  const sameZone = hydrated && userTz === venueTz;
+
+  return (
+    <section className="vt-match-overlay-when" aria-label="Kickoff time">
+      <div className="vt-match-overlay-when-date">{dateLabel}</div>
+      <div className="vt-match-overlay-when-row vt-match-overlay-when-primary">
+        <span className="vt-match-overlay-when-time">{userTime.time}</span>
+        <span className="vt-match-overlay-when-tz">{userTime.zone}</span>
+        <span className="vt-match-overlay-when-caption">
+          {sameZone ? "kickoff" : "your time"}
+        </span>
+      </div>
+      {!sameZone && (
+        <div className="vt-match-overlay-when-row vt-match-overlay-when-secondary">
+          <span className="vt-match-overlay-when-time">{venueTime.time}</span>
+          <span className="vt-match-overlay-when-tz">{venueTime.zone}</span>
+          <span className="vt-match-overlay-when-caption">local kickoff</span>
+        </div>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Split an Intl `timeZoneName: "short"` rendering into the bare
+ * time ("08:00", "8:00 AM") and the zone label ("GMT+12", "CDT").
+ * Used by the When block so the large primary line shows the time
+ * at heading size and the zone label drops to caption size next to
+ * it (per Tim 2026-06-06).
+ */
+function splitTimeAndZone(
+  d: Date,
+  timezone: string,
+): { time: string; zone: string } {
+  try {
+    const parts = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: timezone,
+      timeZoneName: "short",
+    }).formatToParts(d);
+    const tzPart = parts.find((p) => p.type === "timeZoneName");
+    const timeOnly = parts
+      .filter((p) => p.type !== "timeZoneName" && p.type !== "literal")
+      .reduce<string>((acc, p, i, arr) => {
+        // Re-emit literals between non-tz parts to keep colons and
+        // AM/PM spacing intact ("8:00 AM" not "800AM").
+        if (i === 0) return p.value;
+        const prevLiteral = parts.find(
+          (q, qi) =>
+            qi > parts.indexOf(arr[i - 1]!) &&
+            qi < parts.indexOf(p) &&
+            q.type === "literal",
+        );
+        return acc + (prevLiteral?.value ?? "") + p.value;
+      }, "")
+      .trim();
+    return { time: timeOnly || "-", zone: tzPart?.value ?? "" };
+  } catch {
+    return { time: "-", zone: "" };
+  }
+}
+
+// ---------- Where block ----------
+
+interface WhereBlockProps {
+  readonly hostCity: HostCity;
+}
+
+function WhereBlock(props: WhereBlockProps) {
+  const { hostCity } = props;
+  const countryFlag = countryFlagEmoji(hostCity.country);
+  const countryName = countryDisplayName(hostCity.country);
+  const stadiumDiffers =
+    hostCity.stadium_tournament_name !== hostCity.stadium;
+  const capacityFormatted = new Intl.NumberFormat(undefined).format(
+    hostCity.capacity,
+  );
+
+  return (
+    <section className="vt-match-overlay-where" aria-label="Venue">
+      <div className="vt-match-overlay-where-city">
+        <span className="vt-match-overlay-where-flag" aria-hidden="true">
+          {countryFlag}
+        </span>
+        <span>
+          {hostCity.city}, {countryName}
+        </span>
+      </div>
+      <div className="vt-match-overlay-where-stadium">{hostCity.stadium}</div>
+      <div className="vt-match-overlay-where-meta">
+        {stadiumDiffers && (
+          <>
+            Officially &ldquo;{hostCity.stadium_tournament_name}&rdquo;
+            <span aria-hidden="true"> · </span>
+          </>
+        )}
+        {capacityFormatted} seats
+      </div>
+    </section>
+  );
+}
+
+// ---------- helpers ----------
+
+function countryFlagEmoji(iso2: string): string {
+  if (iso2.length !== 2) return "";
+  const a = iso2.toUpperCase().charCodeAt(0);
+  const b = iso2.toUpperCase().charCodeAt(1);
+  if (a < 65 || a > 90 || b < 65 || b > 90) return "";
+  return String.fromCodePoint(0x1f1e6 + (a - 65), 0x1f1e6 + (b - 65));
+}
+
+function countryDisplayName(iso2: string): string {
+  try {
+    return (
+      new Intl.DisplayNames(undefined, { type: "region" }).of(
+        iso2.toUpperCase(),
+      ) ?? iso2
+    );
+  } catch {
+    return iso2;
+  }
 }

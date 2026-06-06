@@ -26,7 +26,12 @@ import type { CSSProperties, MouseEvent } from "react";
 import type { CascadedKnockout, MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
+import {
+  hostCityByMatchNumber,
+  kickoffIsoByMatchNumber,
+} from "@/lib/host-cities";
 import { OddsChip } from "../odds/OddsChip";
+import { MatchVenueFooter } from "./MatchVenueFooter";
 import { TeamFlag } from "./TeamFlag";
 
 export interface KnockoutMatchProps {
@@ -56,13 +61,14 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
     e.stopPropagation();
     overlay.open("team", { code });
   };
-  const openMatchOverlay = (e: MouseEvent): void => {
-    if (!overlay) return;
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
-    e.preventDefault();
-    e.stopPropagation();
-    overlay.open("match", { id: knockout.id });
-  };
+
+  // The previous top-right "⋯" link (per Tim 2026-06-06) was folded
+  // into the new full-width MatchVenueFooter lozenge below. The
+  // overlay-open behaviour now lives inside that component.
+  const kickoffIso = kickoffIsoByMatchNumber(knockout.match_no);
+  const hostCity = hostCityByMatchNumber(knockout.match_no);
+  const homeNameForFooter = homeTeam?.name ?? "TBD";
+  const awayNameForFooter = awayTeam?.name ?? "TBD";
 
   const choose = (side: "home" | "away"): void => {
     if (!slotsKnown) return;
@@ -102,18 +108,6 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
         <span className="km-no" aria-label={`${knockout.stage.toUpperCase()} match number`}>
           {knockout.stage.toUpperCase()} #{knockout.match_no}
         </span>
-        <a
-          href={`/match/${knockout.id}/preview`}
-          className="km-view-link"
-          aria-label={`View match details for ${knockout.id.toUpperCase()}`}
-          title="View match details"
-          onClick={(e) => {
-            e.stopPropagation();
-            openMatchOverlay(e);
-          }}
-        >
-          <span aria-hidden="true">⋯</span>
-        </a>
       </header>
       <button
         type="button"
@@ -211,6 +205,15 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
             hideWhenMock
           />
         </div>
+      )}
+      {kickoffIso && (
+        <MatchVenueFooter
+          matchId={knockout.id}
+          homeName={homeNameForFooter}
+          awayName={awayNameForFooter}
+          kickoffIso={kickoffIso}
+          hostCity={hostCity}
+        />
       )}
     </div>
   );

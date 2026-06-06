@@ -1202,6 +1202,21 @@ export class SyndicatePersistence {
     if (patch.requires_approval !== undefined || patch.is_public !== undefined) {
       updates.requires_approval = !nextIsPublic && nextRequiresApproval ? 1 : 0;
     }
+
+    // SEC-POOL-11 / Tim 2026-06-06: country allow-list edit. createSyndicate
+    // serialises this through `serialiseAllowedCountries`, but updateBranding
+    // was silently dropping the field for the first ~year because it
+    // wasn't in `stringFields` and had no special case. That meant the
+    // /owner PATCH accepted `allowed_phone_countries` in its schema but
+    // never persisted it (and the manage page had no UI for it either).
+    // Reuse the create-time serialiser so empty arrays → NULL ("no
+    // restriction"), and non-empty arrays → comma-joined CSV.
+    if (patch.allowed_phone_countries !== undefined) {
+      updates.allowed_phone_countries = serialiseAllowedCountries(
+        patch.allowed_phone_countries,
+      );
+    }
+
     if (Object.keys(updates).length === 0) return existing;
 
     // `name` is NOT NULL in the schema; reject a clear-attempt rather
