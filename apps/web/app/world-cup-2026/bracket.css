@@ -1336,6 +1336,32 @@ a.bracket-share-cta-primary {
   transform: scale(0.99);
 }
 
+/* Knockout cards are visually denser than group rows (smaller box,
+ * full-bleed flag art) so the lozenge tightens up inside them: less
+ * padding, lower min-height, narrower width band. The team
+ * rectangles keep the visual weight; the lozenge sits underneath
+ * as a quiet caption (Tim 2026-06-06). */
+.km-card .mpr-venue-footer {
+  width: min(280px, 96%);
+  min-height: 28px;
+  margin-top: 4px;
+  padding: 4px 12px;
+  gap: 6px;
+}
+@media (max-width: 768px) {
+  .km-card .mpr-venue-footer {
+    min-height: 32px;
+  }
+}
+.km-card .mpr-venue-footer-text {
+  font-size: 11px;
+  gap: 6px;
+}
+.km-card .mpr-venue-footer-info {
+  width: 12px;
+  height: 12px;
+}
+
 .mpr-venue-footer-text {
   display: inline-flex;
   align-items: baseline;
@@ -1820,12 +1846,17 @@ a.bracket-share-cta-primary {
   background-color: #25252c;
   border: 1px solid transparent;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 12px 12px;
   cursor: pointer;
   font-size: 13px;
   color: #cbd5e1;
   text-align: left;
-  min-height: 56px;
+  /* Bumped from 56px to 76px (Tim 2026-06-06) so the blurred flag
+   * background has more vertical room to read clearly. With the
+   * new venue lozenge sitting underneath, the card gained vertical
+   * stack height; this redistributes that gain back into the team
+   * rectangles where the flag art actually lives. */
+  min-height: 76px;
   overflow: hidden;
   isolation: isolate;
   transition: transform 120ms ease, border-color 120ms ease, background-color 120ms ease;

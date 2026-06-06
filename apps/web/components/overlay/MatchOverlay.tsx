@@ -28,7 +28,7 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
@@ -86,6 +86,13 @@ export function MatchOverlay(props: MatchOverlayProps) {
 
   const hostCity = hostCityById(match.hostCityId);
   const stageChipText = `${match.stageLabel} · Match ${match.matchNo}`;
+  const someTbd = !match.homeCode || !match.awayCode;
+  const bothTbd = !match.homeCode && !match.awayCode;
+  const tbdNote = someTbd
+    ? bothTbd
+      ? "Teams shown once the previous stage closes"
+      : "Opponent shown once the previous stage closes"
+    : null;
 
   return (
     <Sheet
@@ -95,6 +102,9 @@ export function MatchOverlay(props: MatchOverlayProps) {
       idHint={`match-${match.matchId}`}
     >
       <div className="vt-match-overlay">
+        {tbdNote && (
+          <p className="vt-match-overlay-tbd-note">({tbdNote})</p>
+        )}
         <header className="vt-match-overlay-meta">
           <span className="vt-match-overlay-stage-chip">{stageChipText}</span>
         </header>
@@ -150,10 +160,19 @@ function SideCard(props: SideCardProps) {
       </div>
     );
   }
+  // Inline a CSS variable carrying the team's flag URL so the
+  // `.vt-match-overlay-side[data-team-bg]::before` pseudo can paint a
+  // blurred full-bleed flag behind the circular chip + name. Same
+  // pattern the bracket's `.km-team` cells use.
+  const bgStyle: CSSProperties = {
+    ["--vt-side-bg" as string]: `url(/flags/${code}.svg)`,
+  };
   return (
     <button
       type="button"
       className="vt-match-overlay-side"
+      data-team-bg=""
+      style={bgStyle}
       onClick={() => onOpenTeam(code)}
       aria-label={`Open ${name} team overlay`}
     >
@@ -205,18 +224,8 @@ function WhenBlock(props: WhenBlockProps) {
     year: "numeric",
     timeZone: userTz,
   }).format(d);
-  const userTimeLabel = new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: userTz,
-    timeZoneName: "short",
-  }).format(d);
-  const venueTimeLabel = new Intl.DateTimeFormat(undefined, {
-    hour: "numeric",
-    minute: "2-digit",
-    timeZone: venueTz,
-    timeZoneName: "short",
-  }).format(d);
+  const userTime = splitTimeAndZone(d, userTz);
+  const venueTime = splitTimeAndZone(d, venueTz);
 
   // Same-zone collapse: only meaningful after hydration, so the
   // server still emits the two-line shape.
@@ -226,19 +235,61 @@ function WhenBlock(props: WhenBlockProps) {
     <section className="vt-match-overlay-when" aria-label="Kickoff time">
       <div className="vt-match-overlay-when-date">{dateLabel}</div>
       <div className="vt-match-overlay-when-row vt-match-overlay-when-primary">
-        <span className="vt-match-overlay-when-time">{userTimeLabel}</span>
+        <span className="vt-match-overlay-when-time">{userTime.time}</span>
+        <span className="vt-match-overlay-when-tz">{userTime.zone}</span>
         <span className="vt-match-overlay-when-caption">
           {sameZone ? "kickoff" : "your time"}
         </span>
       </div>
       {!sameZone && (
         <div className="vt-match-overlay-when-row vt-match-overlay-when-secondary">
-          <span className="vt-match-overlay-when-time">{venueTimeLabel}</span>
+          <span className="vt-match-overlay-when-time">{venueTime.time}</span>
+          <span className="vt-match-overlay-when-tz">{venueTime.zone}</span>
           <span className="vt-match-overlay-when-caption">local kickoff</span>
         </div>
       )}
     </section>
   );
+}
+
+/**
+ * Split an Intl `timeZoneName: "short"` rendering into the bare
+ * time ("08:00", "8:00 AM") and the zone label ("GMT+12", "CDT").
+ * Used by the When block so the large primary line shows the time
+ * at heading size and the zone label drops to caption size next to
+ * it (per Tim 2026-06-06).
+ */
+function splitTimeAndZone(
+  d: Date,
+  timezone: string,
+): { time: string; zone: string } {
+  try {
+    const parts = new Intl.DateTimeFormat(undefined, {
+      hour: "numeric",
+      minute: "2-digit",
+      timeZone: timezone,
+      timeZoneName: "short",
+    }).formatToParts(d);
+    const tzPart = parts.find((p) => p.type === "timeZoneName");
+    const timeOnly = parts
+      .filter((p) => p.type !== "timeZoneName" && p.type !== "literal")
+      .reduce<string>((acc, p, i, arr) => {
+        // Re-emit literals between non-tz parts to keep colons and
+        // AM/PM spacing intact ("8:00 AM" not "800AM").
+        if (i === 0) return p.value;
+        const prevLiteral = parts.find(
+          (q, qi) =>
+            qi > parts.indexOf(arr[i - 1]!) &&
+            qi < parts.indexOf(p) &&
+            q.type === "literal",
+        );
+        return acc + (prevLiteral?.value ?? "") + p.value;
+      }, "")
+      .trim();
+    return { time: timeOnly || "—", zone: tzPart?.value ?? "" };
+  } catch {
+    return { time: "—", zone: "" };
+  }
 }
 
 // ---------- Where block ----------

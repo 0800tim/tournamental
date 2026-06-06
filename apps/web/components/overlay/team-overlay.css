@@ -186,19 +186,66 @@
 }
 
 .vt-match-overlay-side {
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
   align-items: center;
   text-align: center;
-  padding: 14px 8px;
+  padding: 16px 10px;
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   color: inherit;
   font: inherit;
   cursor: pointer;
+  overflow: hidden;
+  isolation: isolate;
   transition: background 120ms ease-out, border-color 120ms ease-out;
+}
+
+/* Blurred full-bleed flag behind the circular chip + name. Only
+ * present when the side has a known team — the .vt-match-overlay-
+ * side-tbd modifier (knockout cards with unresolved slots) skips
+ * the background entirely (Tim 2026-06-06). Same visual vocabulary
+ * as `.km-team::before` so the knockout cards and group popups
+ * read as one piece of brand chrome. */
+.vt-match-overlay-side[data-team-bg]::before {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  z-index: -1;
+  background-image: var(--vt-side-bg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: blur(8px);
+}
+.vt-match-overlay-side[data-team-bg]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.45) 55%,
+    rgba(0, 0, 0, 0.7) 100%
+  );
+}
+.vt-match-overlay-side[data-team-bg] > * {
+  position: relative;
+  z-index: 1;
+}
+[data-theme="light"] .vt-match-overlay-side[data-team-bg]::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 255, 255, 0.4) 55%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
 }
 
 .vt-match-overlay-side:hover,
@@ -266,7 +313,7 @@
 .vt-match-overlay-when-row {
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
   font-variant-numeric: tabular-nums;
 }
 
@@ -282,10 +329,30 @@
   opacity: 0.85;
 }
 
+/* TZ abbreviation sits next to the big time but at caption size so
+ * the eye reads "08:00" as the headline number and "GMT+12 your time"
+ * as the supporting detail (Tim 2026-06-06). */
+.vt-match-overlay-when-tz {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  opacity: 0.7;
+}
+
 .vt-match-overlay-when-caption {
   font-size: 11px;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
+/* Small dimmed caption rendered under the Sheet title when one or
+ * both teams are still TBD (knockout cascade hasn't resolved yet).
+ * Lives inside the overlay body, above the stage chip, in italic so
+ * it reads as a parenthetical note rather than copy. */
+.vt-match-overlay-tbd-note {
+  margin: -8px 0 0;
+  font-size: 12px;
+  font-style: italic;
   opacity: 0.6;
 }
 
