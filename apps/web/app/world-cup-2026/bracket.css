@@ -1089,7 +1089,7 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "home draw away"
     "h2h h2h h2h"
-    "scores scores scores";
+    "venue venue venue";
   column-gap: 12px;
   row-gap: 2px;
   align-items: center;
@@ -1116,7 +1116,7 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "home away"
     "h2h h2h"
-    "scores scores";
+    "venue venue";
 }
 
 .mpr-row:focus-visible {
@@ -1285,51 +1285,91 @@ a.bracket-share-cta-primary {
   font-weight: 700;
 }
 
-.mpr-scores-wrap {
-  grid-area: scores;
+/* Venue lozenge, replaces the old "Add score" toggle at the bottom
+ * of each match row (FIFA WC 2026 is a W/D/L-only game, scores are
+ * not collected). Neutral charcoal pill so it sits quietly beneath
+ * the picks; the gold info icon picks up the same accent language
+ * as the selected flags and DRAW pill, hinting tappability without
+ * overpowering the row.
+ *
+ * Entire pill is a single <a> styled as a button. Tapping anywhere
+ * opens the MatchOverlay (or, outside the overlay shell, navigates
+ * to the standalone match-preview page). */
+.mpr-venue-footer {
+  grid-area: venue;
   justify-self: center;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-}
-
-/* "Add score" reads as a quiet mono caption beneath the row, not a button.
- * Hover/focus lifts the colour to gold so it's clearly interactive. */
-.mpr-scores-toggle {
-  background: transparent;
-  border: 0;
-  color: rgba(148, 163, 184, 0.6);
-  border-radius: 0;
-  padding: 1px 2px;
-  font-family: ui-monospace, Menlo, Monaco, monospace;
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 120ms ease;
-}
-.mpr-scores-toggle:hover,
-.mpr-scores-toggle:focus-visible {
-  color: var(--vt-gold-400, #dca94b);
-  outline: none;
-}
-
-.mpr-scores {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: 10px;
+  width: min(420px, 92%);
+  min-height: 36px;
+  margin-top: 2px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: #1c1c22;
+  border: 1px solid rgba(82, 82, 92, 0.55);
+  color: #cbd5e1;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease,
+    box-shadow 160ms ease, transform 140ms ease;
 }
 
-.mpr-scores input {
-  width: 38px;
-  background: #1c1c22;
-  border: 1px solid #3a3a44;
-  color: #e6edf3;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 11px;
-  text-align: center;
+@media (max-width: 768px) {
+  .mpr-venue-footer {
+    min-height: 40px;
+  }
+}
+
+.mpr-venue-footer:hover {
+  background: #22222a;
+  border-color: rgba(220, 169, 75, 0.45);
+}
+
+.mpr-venue-footer:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--vt-gold-400, #dca94b);
+}
+
+.mpr-venue-footer:active {
+  transform: scale(0.99);
+}
+
+.mpr-venue-footer-text {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mpr-venue-footer-date {
+  color: #cbd5e1;
+}
+
+.mpr-venue-footer-sep {
+  color: rgba(148, 163, 184, 0.75);
+}
+
+.mpr-venue-footer-time {
+  color: #cbd5e1;
+}
+
+.mpr-venue-footer-info {
+  display: inline-block;
+  color: var(--vt-gold-400, #dca94b);
+  filter: drop-shadow(0 0 6px rgba(220, 169, 75, 0.35));
+  flex: 0 0 auto;
+  transition: color 160ms ease;
+}
+
+.mpr-venue-footer:hover .mpr-venue-footer-info,
+.mpr-venue-footer:focus-visible .mpr-venue-footer-info {
+  color: var(--vt-gold-300, #e6bf5e);
 }
 
 .sr-only {
@@ -1708,7 +1748,8 @@ a.bracket-share-cta-primary {
   grid-template-areas:
     "header header header"
     "home   conn   away"
-    "odds   odds   odds";
+    "odds   odds   odds"
+    "venue  venue  venue";
   column-gap: 8px;
   row-gap: 6px;
   align-items: stretch;
@@ -2197,38 +2238,11 @@ a.bracket-share-cta-primary {
   text-align: center;
 }
 
-/* "View match" link affordance on a MatchPredictionRow. Sits absolutely
- * positioned in the row's top-right corner so it doesn't shift the
- * existing grid layout. */
+/* `.mpr-view-link` removed Tim 2026-06-06; see the matching note
+ * further down by `.km-view-link`. The new `.mpr-venue-footer`
+ * lozenge is the single tap target into the match overlay. */
 .mpr-row {
   position: relative;
-}
-.mpr-view-link {
-  /* Bottom-right placement, smaller, lower contrast. The earlier
-   * top-right position was overlapping the away flag on narrow cards,
-   * and the chromed pill read as a peer of the predictions rather than
-   * a secondary "more" affordance. */
-  position: absolute;
-  bottom: 4px;
-  right: 6px;
-  font-size: 11px;
-  line-height: 1;
-  letter-spacing: 0;
-  font-weight: 600;
-  color: rgba(148, 163, 184, 0.55);
-  text-decoration: none;
-  padding: 2px 6px;
-  border-radius: 999px;
-  background: transparent;
-  border: 0;
-  z-index: 2;
-  transition: color 120ms ease, background 120ms ease;
-}
-.mpr-view-link:hover,
-.mpr-view-link:focus-visible {
-  color: var(--vt-gold-400, #dca94b);
-  background: rgba(220, 169, 75, 0.08);
-  outline: none;
 }
 
 /* "..." popup trigger sits to the left of "View match". Same pill
@@ -2257,43 +2271,10 @@ a.bracket-share-cta-primary {
   outline: none;
 }
 
-/* Same affordance for KnockoutMatch, the card's header is already a
- * flex row so we just plug it in as another item. Small icon-style chip
- * (arrow + "View") keeps the visual weight on the team picks themselves,
- * not on the secondary navigation. */
-.km-view-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  font-size: 9px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: #94a3b8;
-  text-decoration: none;
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  transition: background 120ms ease, color 120ms ease, transform 120ms ease;
-}
-.km-view-link:hover,
-.km-view-link:focus-visible {
-  color: #ffffff;
-  background: rgba(15, 23, 42, 0.95);
-  outline: none;
-  transform: translateX(1px);
-}
-.km-view-link-label {
-  /* Hide the label on very narrow viewports, the arrow alone reads as
-   * "go to match preview" and we save horizontal space for the team
-   * picks. */
-}
-@media (max-width: 380px) {
-  .km-view-link-label {
-    display: none;
-  }
-}
+/* `.km-view-link` removed Tim 2026-06-06 along with the row-level
+ * `.mpr-view-link`. Both top-right ellipsis affordances were folded
+ * into the new full-width `.mpr-venue-footer` lozenge at the bottom
+ * of each card. */
 
 /* ---- Team-info chip (overlay opener) ----
  *
@@ -3049,7 +3030,6 @@ a.bracket-save-panel-cta-primary {
 }
 
 .bracket-page[data-theme="light"] .km-no,
-.bracket-page[data-theme="light"] .km-view-link,
 .bracket-page[data-theme="light"] .km-team-name {
   color: #1f2937;
 }

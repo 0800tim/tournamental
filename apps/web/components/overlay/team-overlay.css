@@ -160,6 +160,24 @@
   color: #fbbf24;
 }
 
+/* Stage chip, single rounded lozenge anchored at the top of the
+ * sheet. Replaces the older bare `.vt-match-overlay-stage` span and
+ * mirrors the visual vocabulary of the bracket's team chips and DRAW
+ * pill so the overlay reads as in-family. */
+.vt-match-overlay-stage-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(220, 169, 75, 0.08);
+  border: 1px solid rgba(220, 169, 75, 0.4);
+  color: #dca94b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .vt-match-overlay-row {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -220,6 +238,88 @@
 
 .vt-match-overlay-venue {
   font-weight: 500;
+}
+
+/* ---------- When block (dual-timezone kickoff) ---------- */
+
+.vt-match-overlay-when {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+[data-theme="light"] .vt-match-overlay-when {
+  border-top-color: rgba(15, 23, 42, 0.06);
+  border-bottom-color: rgba(15, 23, 42, 0.06);
+}
+
+.vt-match-overlay-when-date {
+  font-size: 13px;
+  opacity: 0.75;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.vt-match-overlay-when-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vt-match-overlay-when-primary .vt-match-overlay-when-time {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.vt-match-overlay-when-secondary .vt-match-overlay-when-time {
+  font-size: 14px;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.vt-match-overlay-when-caption {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+}
+
+/* ---------- Where block (venue detail) ---------- */
+
+.vt-match-overlay-where {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vt-match-overlay-where-city {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  opacity: 0.75;
+  letter-spacing: 0.02em;
+}
+
+.vt-match-overlay-where-flag {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.vt-match-overlay-where-stadium {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.vt-match-overlay-where-meta {
+  font-size: 12px;
+  opacity: 0.65;
 }
 
 .vt-match-overlay-actions {

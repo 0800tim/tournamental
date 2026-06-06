@@ -61,6 +61,7 @@ import {
 } from "@tournamental/bracket-engine";
 
 import { groupMatchId } from "@/lib/bracket/match-ids";
+import { hostCityByMatchNumber } from "@/lib/host-cities";
 import type { MatchOdds } from "@/lib/odds/types";
 import { GroupWinnerChips } from "../odds/GroupWinnerChips";
 import { MatchPredictionRow } from "./MatchPredictionRow";
@@ -283,6 +284,7 @@ export function GroupCard(props: GroupCardProps) {
               country={country}
               showOddsChip={showOddsChips}
               odds={oddsByMatch?.get(id) ?? null}
+              hostCity={hostCityByMatchNumber(f.match_no)}
               onChange={onChangeMatch}
             />
           );
