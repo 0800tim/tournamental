@@ -79,4 +79,19 @@ export interface LeaderboardRow {
   readonly share_guid: string | null;
   readonly score_total: number;
   readonly bracket_id: string;
+  /**
+   * Count of tournament fixtures whose kickoff_utc has elapsed AND
+   * landed strictly after this user's "registered at" timestamp.
+   * Denominator for the "X / Y" display: how many matches has this
+   * particular user actually been around to score on?
+   *
+   *   - For syndicate scope: registered_at = syndicate_members.joined_at.
+   *   - For global scope: registered_at = brackets.locked_at (the
+   *     first time the user committed predictions to the tournament).
+   *
+   * 0 before any fixture has kicked off (the entire tournament is
+   * pre-kickoff today). Renders as `0 / 0` until the first match
+   * starts, then ticks up. Tim 2026-06-07.
+   */
+  readonly matches_available_to_user: number;
 }

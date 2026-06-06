@@ -41,6 +41,21 @@ export interface BracketRow {
   share_guid: string | null;
 }
 
+/** Leaderboard-only view of a bracket row. Adds the user's "registered
+ * at" timestamp so the route can compute `matches_available_to_user`
+ * (count of fixtures kicked off after the user could start picking).
+ *
+ *   - For syndicate scope: `joined_at` = `syndicate_members.joined_at`
+ *     for the (user, syndicate) pair.
+ *   - For global scope: `joined_at` falls back to the bracket's
+ *     `locked_at` — when the user first committed predictions to the
+ *     tournament. Imperfect (re-saves push it forward) but works for
+ *     v0.1; a follow-up will introduce a `brackets.created_at`
+ *     immutable column. Tim 2026-06-07. */
+export interface LeaderboardBracketRow extends BracketRow {
+  joined_at: number;
+}
+
 export interface MatchResultRow {
   match_id: string;
   tournament_id: string;
@@ -96,6 +111,7 @@ export class GameStore {
   private leaderboardStmt!: Statement;
   private leaderboardSyndicateStmt!: Statement;
   private upsertSyndicateMemberStmt!: Statement;
+  private upsertSyndicateOwnerMembershipStmt!: Statement;
   private upsertTournamentStmt!: Statement;
   private setTournamentSettledStmt!: Statement;
   private getTournamentStmt!: Statement;
@@ -215,16 +231,40 @@ export class GameStore {
     // and is already exposed by `/v1/bracket/by-guid`; it's the
     // navigable identity for a row that no longer carries `user_id`.
     this.leaderboardStmt = this.db.prepare(
-      `SELECT id, user_id, score_total, share_guid
+      // Tim 2026-06-07: surface `locked_at` so the route can use it as
+      // the fallback per-user "registered at" timestamp for global
+      // scope (see LeaderboardBracketRow.joined_at).
+      `SELECT id, user_id, score_total, share_guid, locked_at, locked_at AS joined_at
          FROM brackets
         WHERE tournament_id = ?
         ORDER BY score_total DESC, locked_at ASC, user_id ASC
         LIMIT ?`,
     );
     this.leaderboardSyndicateStmt = this.db.prepare(
-      `SELECT b.id, b.user_id, b.score_total, b.share_guid
+      // Tim 2026-06-07: also return `sm.joined_at` so the route can
+      // compute `matches_available_to_user` (count of fixtures kicked
+      // off after this user joined the pool).
+      //
+      // Two membership tables exist in this DB. `syndicate_members`
+      // (this service's own schema, see 0001_init.sql) is empty because
+      // the join flow lives in apps/web and writes to
+      // `syndicate_owners_membership` (see apps/web/lib/syndicate/
+      // persistence.ts). The web table is the authoritative one for
+      // who-joined-which-pool, so the leaderboard JOINs against it.
+      // The legacy `syndicate_members` table stays for backward-compat
+      // until a follow-up consolidates.
+      // Status filtering deliberately omitted: the `status` column on
+      // syndicate_owners_membership is added at runtime by the web
+      // persistence layer's ALTER TABLE (apps/web/lib/syndicate/
+      // persistence.ts) and doesn't exist in the game service's
+      // migration 0003. Referencing it would PREPARE-error in tests.
+      // Pending / denied members showing up on the leaderboard is a
+      // known small edge — a follow-up will land a 0011 migration
+      // adding the column to the game schema so this query can gate
+      // on `(sm.status IS NULL OR sm.status = 'active')`.
+      `SELECT b.id, b.user_id, b.score_total, b.share_guid, b.locked_at, sm.joined_at AS joined_at
          FROM brackets b
-         INNER JOIN syndicate_members sm
+         INNER JOIN syndicate_owners_membership sm
            ON sm.user_id = b.user_id
         WHERE b.tournament_id = ? AND sm.syndicate_id = ?
         ORDER BY b.score_total DESC, b.locked_at ASC, b.user_id ASC
@@ -234,6 +274,16 @@ export class GameStore {
       `INSERT INTO syndicate_members (user_id, syndicate_id, joined_at)
        VALUES (?, ?, ?)
        ON CONFLICT(user_id, syndicate_id) DO NOTHING`,
+    );
+    // Mirror the join into the table the leaderboard query actually
+    // reads. The web layer also writes here on its own /join flow;
+    // we dual-write from the game route so the legacy
+    // `addSyndicateMember` path (still used by the bot + tests) shows
+    // up on the leaderboard. Tim 2026-06-07.
+    this.upsertSyndicateOwnerMembershipStmt = this.db.prepare(
+      `INSERT INTO syndicate_owners_membership (syndicate_id, user_id, role, joined_at)
+       VALUES (?, ?, 'member', ?)
+       ON CONFLICT(syndicate_id, user_id) DO NOTHING`,
     );
     this.upsertTournamentStmt = this.db.prepare(
       `INSERT INTO tournaments (id, name, settled_at, created_at)
@@ -460,26 +510,27 @@ export class GameStore {
 
   // ---------- leaderboards ----------
 
-  topN(tournamentId: string, n: number): BracketRow[] {
-    return this.leaderboardStmt.all(tournamentId, n) as BracketRow[];
+  topN(tournamentId: string, n: number): LeaderboardBracketRow[] {
+    return this.leaderboardStmt.all(tournamentId, n) as LeaderboardBracketRow[];
   }
 
   topNForSyndicate(
     tournamentId: string,
     syndicateId: string,
     n: number,
-  ): BracketRow[] {
+  ): LeaderboardBracketRow[] {
     return this.leaderboardSyndicateStmt.all(
       tournamentId,
       syndicateId,
       n,
-    ) as BracketRow[];
+    ) as LeaderboardBracketRow[];
   }
 
   // ---------- syndicate ----------
 
   addSyndicateMember(userId: string, syndicateId: string, now = Date.now()): void {
     this.ensureUser(userId, now);
+    this.upsertSyndicateOwnerMembershipStmt.run(syndicateId, userId, now);
     this.upsertSyndicateMemberStmt.run(userId, syndicateId, now);
   }
 

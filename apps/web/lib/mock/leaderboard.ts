@@ -54,6 +54,14 @@ export interface MockMember {
   readonly badge?: "pundit" | "creator" | "syndicate-owner";
   /** Days the member has placed a pick in a row. */
   readonly streakDays?: number;
+  /**
+   * Per-row denominator for the "X / Y" display. When set, overrides
+   * the leaderboard's global `matchesPlayed` prop for this row.
+   * Populated from the API's `matches_available_to_user` field so
+   * late joiners show `1 / 1` while early joiners show `5 / 10`.
+   * Tim 2026-06-07.
+   */
+  readonly matchesAvailable?: number;
 }
 
 function memberId(handle: string, country: string): string {

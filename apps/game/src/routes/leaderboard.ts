@@ -17,6 +17,8 @@
 import type { FastifyInstance } from "fastify";
 import { createHmac } from "node:crypto";
 
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
+
 import {
   globalKey,
   syndicateKey,
@@ -27,6 +29,50 @@ import type { LeaderboardRow } from "../types.js";
 
 const TOP_N = 100;
 const PUBLIC_CACHE_HEADER = "public, max-age=30, stale-while-revalidate=60";
+
+/**
+ * Per-tournament catalogue of fixture kickoff epoch-ms, sorted ascending.
+ * Used to compute `matches_available_to_user` = count of fixtures whose
+ * kickoff has happened AND landed strictly after the user's
+ * `registered_at` timestamp. Cached for the process lifetime; FIFA
+ * 2026 fixtures don't change.
+ */
+const kickoffCatalogueCache = new Map<string, readonly number[]>();
+
+function kickoffCatalogue(tournamentId: string): readonly number[] {
+  const cached = kickoffCatalogueCache.get(tournamentId);
+  if (cached) return cached;
+  const kickoffs: number[] = [];
+  if (tournamentId === "fifa-wc-2026") {
+    const tournament = loadFixtures2026();
+    for (const f of tournament.group_fixtures) {
+      const ms = Date.parse(f.kickoff_utc);
+      if (!Number.isNaN(ms)) kickoffs.push(ms);
+    }
+    for (const k of tournament.knockouts) {
+      if (!k.kickoff_utc) continue;
+      const ms = Date.parse(k.kickoff_utc);
+      if (!Number.isNaN(ms)) kickoffs.push(ms);
+    }
+    kickoffs.sort((a, b) => a - b);
+  }
+  kickoffCatalogueCache.set(tournamentId, kickoffs);
+  return kickoffs;
+}
+
+/** Count of fixtures whose kickoff is <= `now` and > `registeredAt`. */
+function matchesAvailableTo(
+  tournamentId: string,
+  registeredAt: number,
+  now: number,
+): number {
+  const kickoffs = kickoffCatalogue(tournamentId);
+  let count = 0;
+  for (const k of kickoffs) {
+    if (k <= now && k > registeredAt) count += 1;
+  }
+  return count;
+}
 
 /**
  * SEC-BRK-06: opaque per-user identifier emitted in place of the raw
@@ -76,12 +122,18 @@ export async function registerLeaderboardRoutes(
       return { tournament_id: tournamentId, rows: cached };
     }
     const rows = deps.store.topN(tournamentId, TOP_N);
+    const now = Date.now();
     const out: LeaderboardRow[] = rows.map((r, i) => ({
       rank: i + 1,
       user_handle: hashUserHandle(r.user_id),
       share_guid: r.share_guid,
       score_total: r.score_total,
       bracket_id: r.id,
+      matches_available_to_user: matchesAvailableTo(
+        tournamentId,
+        r.joined_at,
+        now,
+      ),
     }));
     deps.cache.set(key, out);
     reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
@@ -116,12 +168,18 @@ export async function registerLeaderboardRoutes(
         };
       }
       const rows = deps.store.topNForSyndicate(tournamentId, syndicateId, TOP_N);
+      const now = Date.now();
       const out: LeaderboardRow[] = rows.map((r, i) => ({
         rank: i + 1,
         user_handle: hashUserHandle(r.user_id),
         share_guid: r.share_guid,
         score_total: r.score_total,
         bracket_id: r.id,
+        matches_available_to_user: matchesAvailableTo(
+          tournamentId,
+          r.joined_at,
+          now,
+        ),
       }));
       deps.cache.set(key, out);
       reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
