@@ -771,6 +771,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
       );
     });
     if (!changed) return;
+    // Tim 2026-06-06: only scroll when the cascaded change is in the
+    // CURRENT tab's stage. Without this, picking a team in R32 (which
+    // populates a downstream R16 slot via the cascade) would scroll
+    // the carousel to the R16 panel, snapping the user off the round
+    // they were still picking on.
+    const tabStages: readonly string[] =
+      tab === "final" ? ["f", "tp"] : [tab];
+    if (!tabStages.includes(changed.stage)) return;
     const raf =
       typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
         ? window.requestAnimationFrame
