@@ -306,6 +306,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return null;
   });
   const [tab, setTabState] = useState<TabId>("groups");
+  // Mirror of `tab` for callbacks that need to read the current value
+  // outside of React's render cycle (e.g. the carousel scroll handler,
+  // which used to read it via a setTabState updater + side effect, which
+  // is an anti-pattern and triggered the "Cannot update Router while
+  // rendering BracketBuilder" warning. Tim 2026-06-06.).
+  const tabRef = useRef<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
   // Tim 2026-06-05: dirty-detect + autosave. lastSavedSig is the
@@ -437,6 +443,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }, 600);
   }, []);
 
+  // Keep tabRef in sync with tab. Used by the carousel scroll handler
+  // so it can read the current tab without going through a setTabState
+  // updater (which must be pure — see Tim 2026-06-06 note on tabRef).
+  useEffect(() => {
+    tabRef.current = tab;
+  }, [tab]);
+
   // Sync the active tab to whichever panel is most in-view on the
   // mobile carousel. Throttled via requestAnimationFrame and
   // suppressed while we're driving the scroll programmatically.
@@ -454,15 +467,24 @@ export function BracketBuilder(props: BracketBuilderProps) {
         const idx = Math.round(el.scrollLeft / width);
         const clamped = Math.max(0, Math.min(TAB_ORDER.length - 1, idx));
         const nextTab = TAB_ORDER[clamped]!;
-        setTabState((cur) => {
-          if (cur === nextTab) return cur;
+        // Tim 2026-06-06: side effects (history.replaceState) MUST NOT
+        // live inside a setTabState updater. React 18+ may invoke an
+        // updater twice in StrictMode + dev, and an observable side
+        // effect there schedules a Router state update mid-render
+        // ("Cannot update a component while rendering" warning), which
+        // in turn drops the rAF-deferred scroll-to-top and occasionally
+        // leaves `tab` flipped one stage ahead. Read current tab from
+        // a ref, then update state + URL outside the setter.
+        if (tabRef.current === nextTab) return;
+        tabRef.current = nextTab;
+        setTabState(nextTab);
+        if (typeof window !== "undefined") {
           const target = TABS.find((t) => t.id === nextTab)?.hash ?? "#groups";
-          if (typeof window !== "undefined" && window.location.hash !== target) {
+          if (window.location.hash !== target) {
             const url = `${window.location.pathname}${window.location.search}${target}`;
             window.history.replaceState(null, "", url);
           }
-          return nextTab;
-        });
+        }
       });
     };
     el.addEventListener("scroll", onScroll, { passive: true });
@@ -567,8 +589,20 @@ export function BracketBuilder(props: BracketBuilderProps) {
           `#bracket-panel-${tab}`,
         ) as HTMLElement | null;
         if (!panel) return;
-        panel.scrollIntoView({
-          block: "start",
+        // Tim 2026-06-06: was panel.scrollIntoView({block:"start"}) but
+        // that ALSO adjusts the horizontal scroll position to bring the
+        // panel into view inside the carousel. When the user reaches
+        // r16 by SWIPING left/right (carousel scrollLeft animating),
+        // scrollIntoView fights the carousel's snap and the page never
+        // makes it to the top of the new stage. Compute the vertical
+        // target manually and use window.scrollTo so we only touch
+        // scrollY, leaving the carousel's scrollLeft alone.
+        const rect = panel.getBoundingClientRect();
+        const scrollMarginTop =
+          parseFloat(window.getComputedStyle(panel).scrollMarginTop) || 0;
+        const target = Math.max(0, rect.top + window.scrollY - scrollMarginTop);
+        window.scrollTo({
+          top: target,
           behavior: prefersReducedMotion ? "auto" : "smooth",
         });
       });
