@@ -248,6 +248,22 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
   /** Called by the sign-in step after a successful inline verify. */
   const handleSignedIn = useCallback(
     async (verifiedUser: InboundUser | null): Promise<void> => {
+      // Tim 2026-06-06: hard-reload on verify is the reliable path.
+      // The previous in-place flow (setUser + dispatch tnm:auth-
+      // changed + routeSignedIn) raced with the browser's cookie
+      // commit on some clients, leaving the ProfileCompletionGate
+      // unmounted on the freshly-authenticated page and stranding
+      // the OnboardingStep on "Setting up your profile…" until the
+      // user noticed they had to refresh. A reload lets the page
+      // come up clean with the tnm_session cookie already in the
+      // jar, so useUser's init() picks it up on first paint and the
+      // gate fires (or the user auto-joins) deterministically.
+      if (typeof window !== "undefined") {
+        window.location.reload();
+        return;
+      }
+      // Server-side or test invocations: fall back to the original
+      // in-place flow so the surrounding code keeps working.
       if (verifiedUser) setUser(verifiedUser);
       const fresh = verifiedUser ?? (await fetchInboundUser());
       if (fresh) setUser(fresh);
@@ -1144,6 +1160,18 @@ function OnboardingStep({
       if (!name) {
         // Gate's still up. Poll every 1s.
         setLiveDisplayName("");
+        // Tim 2026-06-06: re-broadcast tnm:auth-changed every poll
+        // when we've confirmed the inbound cookie works (probe
+        // returned a user object) but the user hasn't picked a
+        // display_name yet. Belt-and-braces: handleSignedIn's
+        // original dispatch can race with the cookie commit on some
+        // browsers, leaving useUser stuck on 'guest' and the gate
+        // unmounted. This second source guarantees the gate gets the
+        // signal within at most 1s and shows the @handle picker
+        // without a manual reload.
+        if (fresh && typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("tnm:auth-changed"));
+        }
         pollTimer = setTimeout(() => void runOnce(), 1000);
         return;
       }
@@ -1206,9 +1234,20 @@ function OnboardingStep({
       }}
     >
       {!liveDisplayName ? (
-        <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
-          Setting up your profile…
-        </p>
+        <>
+          <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
+            Setting up your profile…
+          </p>
+          {/* Tim 2026-06-06: an explicit fallback while we track down
+            * the auto-redirect race. The ProfileCompletionGate sometimes
+            * doesn't pick up the inbound session until a reload (the
+            * tnm:auth-changed event isn't always landing in useUser).
+            * Telling the user how to unstick themselves is better than
+            * leaving them on a spinner. */}
+          <p style={{ color: "rgba(199, 208, 230, 0.6)", fontSize: 12, margin: 0, textAlign: "center" }}>
+            (Refresh this page if you&apos;re not auto-redirected.)
+          </p>
+        </>
       ) : busy ? (
         <p style={{ color: "#c7d0e6", fontSize: 14, margin: 0, textAlign: "center" }}>
           Joining as <strong>@{liveDisplayName}</strong>…
