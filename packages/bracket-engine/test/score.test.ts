@@ -211,11 +211,14 @@ describe("scoreBracket — full-bracket scoring", () => {
     // which is 2A vs 2B in the FIFA 2026 R32 structure).
     const base = fullPrediction();
     const r32_01_fix = tournament.knockouts.find((k) => k.id === "r32_01")!;
-    if (r32_01_fix.home.kind !== "group_position") {
+    // Bind to a local const so TS preserves the discriminated-union
+    // narrowing across the next two property reads (Tim 2026-06-06).
+    const r32_01_home = r32_01_fix.home;
+    if (r32_01_home.kind !== "group_position") {
       throw new Error("test expects r32_01.home to be a group_position slot");
     }
-    const homeGroup = tournament.groups.find((g) => g.id === r32_01_fix.home.group)!;
-    const homeTeam = homeGroup.team_ids[r32_01_fix.home.position - 1]!;
+    const homeGroup = tournament.groups.find((g) => g.id === r32_01_home.group)!;
+    const homeTeam = homeGroup.team_ids[r32_01_home.position - 1]!;
     const pred: BracketPrediction = {
       ...base,
       knockouts: [{ match_id: "r32_01", winner: homeTeam }],
