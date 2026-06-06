@@ -54,10 +54,11 @@ export default async function CalendarPage(props: CalendarPageProps) {
             <p className="vt-calendar-eyebrow">FIFA World Cup 2026</p>
             <h1 className="vt-calendar-title">Match calendar</h1>
             <p className="vt-calendar-lede">
-              All 104 matches in order, from Match #1 (Mexico vs the
-              Group A opener) to the final on 19 July. Group stages
-              show the confirmed teams; knockouts show TBD vs TBD until
-              the bracket cascade resolves them on the predict page.
+              All 104 matches in order, from Match #1 (Mexico vs South
+              Africa opener) to the final on 19 July. Group stages show
+              the confirmed teams; knockouts show TBD vs TBD until each
+              preceding stage closes, and the next stage matches are
+              known.
             </p>
           </header>
           <CalendarList rows={rows} />
