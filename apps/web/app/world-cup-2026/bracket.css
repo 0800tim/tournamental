@@ -2094,11 +2094,15 @@ a.bracket-share-cta-primary {
   display: none;
 }
 /* Drop the third grid row entirely when the odds slot is hidden, so the
- * row-gap above it doesn't leave a phantom strip under the team cells. */
+ * row-gap above it doesn't leave a phantom strip under the team cells.
+ * Keep the venue row (Tim 2026-06-06), otherwise the venue lozenge
+ * falls into an implicit auto-placed cell at the bottom-right instead
+ * of spanning the full card width under the picks. */
 .km-card:has(.km-odds:empty) {
   grid-template-areas:
     "header header header"
-    "home   conn   away";
+    "home   conn   away"
+    "venue  venue  venue";
 }
 
 .bracket-group-winner-chips {
