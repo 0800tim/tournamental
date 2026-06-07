@@ -185,6 +185,46 @@ export class SwarmClaimStore {
   }
 
   /**
+   * Aggregate totals across every swarm-claim row. Drives the
+   * `/v1/swarm/totals` endpoint that the /bot-arena marketing page
+   * polls (60s cache server-side, so cheap to call). Returns:
+   *   total_bots      sum of `total_bots` across all rows
+   *   total_swarms    number of distinct (node_id, run_id) rows
+   *   total_devices   number of distinct node_ids
+   *
+   * The "still perfect" count is intentionally NOT aggregated here:
+   * it depends on per-bot regeneration against settled match results,
+   * which the client computes against its own IndexedDB (the
+   * regenerate-on-demand contract documented in
+   * docs/30-browser-swarm-architecture.md). The /bot-arena page only
+   * surfaces the device-local perfect count for the current viewer.
+   * Tim 2026-06-08.
+   */
+  totals(): {
+    total_bots: number;
+    total_swarms: number;
+    total_devices: number;
+  } {
+    const row = this.db
+      .prepare(
+        `SELECT COALESCE(SUM(total_bots), 0) AS total_bots,
+                COUNT(*)                     AS total_swarms,
+                COUNT(DISTINCT node_id)      AS total_devices
+           FROM swarm_claims`,
+      )
+      .get() as {
+      total_bots: number;
+      total_swarms: number;
+      total_devices: number;
+    };
+    return {
+      total_bots: Number(row.total_bots) || 0,
+      total_swarms: Number(row.total_swarms) || 0,
+      total_devices: Number(row.total_devices) || 0,
+    };
+  }
+
+  /**
    * Roll-up of every claim still waiting on a Bitcoin attestation.
    * The scheduler scans this list every poll cycle and tries to
    * upgrade each one. Returns rows that haven't been polled in the

@@ -181,6 +181,53 @@ export async function registerSwarmRoutes(
     });
   });
 
+  /**
+   * GET /v1/swarm/totals
+   *
+   * Aggregate counts across the global swarm-claims table. Drives the
+   * "N bots in the arena" chip on /bot-arena and gives every device
+   * the same headline number within a 60s cache window. Tim 2026-06-08.
+   *
+   * Cache strategy:
+   *   - In-memory result cache, 60s TTL: avoids a SQLite COUNT/SUM scan
+   *     on every poll. The page polls every ~30s so the cache absorbs
+   *     all but ~1 query per minute regardless of viewer count.
+   *   - HTTP `Cache-Control: public, max-age=30, stale-while-revalidate=60`
+   *     so the Cloudflare edge / browser also de-dups concurrent loads
+   *     across the same device.
+   */
+  let totalsCache: {
+    at_ms: number;
+    body: {
+      total_bots: number;
+      total_swarms: number;
+      total_devices: number;
+      cached_at_utc: string;
+    };
+  } | null = null;
+  const TOTALS_TTL_MS = 60_000;
+
+  app.get("/v1/swarm/totals", async (_req, reply) => {
+    const now = Date.now();
+    if (!totalsCache || now - totalsCache.at_ms > TOTALS_TTL_MS) {
+      const t = deps.store.swarmClaims.totals();
+      totalsCache = {
+        at_ms: now,
+        body: {
+          total_bots: t.total_bots,
+          total_swarms: t.total_swarms,
+          total_devices: t.total_devices,
+          cached_at_utc: new Date(now).toISOString(),
+        },
+      };
+    }
+    reply.header(
+      "Cache-Control",
+      "public, max-age=30, stale-while-revalidate=60",
+    );
+    return totalsCache.body;
+  });
+
   app.get("/v1/swarm/leaderboard", async (req, reply) => {
     const parsedQuery = LeaderboardQuerySchema.safeParse(req.query ?? {});
     if (!parsedQuery.success) {

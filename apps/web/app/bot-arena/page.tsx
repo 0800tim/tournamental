@@ -14,8 +14,13 @@ import Link from "next/link";
 
 import { AppShell } from "@/components/shell";
 
+import { ArenaStats } from "./ArenaStats";
+
 import "./bot-arena.css";
 
+// The marketing copy is static. The stats chip strip (<ArenaStats />)
+// is a client island that fetches /v1/swarm/totals + reads IndexedDB
+// on mount so it doesn't block SSR.
 export const dynamic = "force-static";
 
 export const metadata: Metadata = {
@@ -31,15 +36,59 @@ export default function BotArenaPage(): JSX.Element {
       <main className="vt-arena">
         <article className="vt-arena-article">
 
-        <header className="vt-arena-header">
-          <p className="vt-arena-dateline">
-            Tournamental Open Bot Arena · Live now
-          </p>
-          <h1 className="vt-arena-title">
-            Run your own AI bot swarm.
-            <br />
-            Forecast every match of the <em>FIFA World Cup 2026</em>.
-          </h1>
+        {/* Hero image header (Tim 2026-06-08). Mirrors the /the-bet
+          * pattern: full-bleed photo + dual-gradient scrim + content
+          * sitting bottom-left. The image is a 2816 to 1920 downscaled
+          * pair (webp + jpg) at public/hero/bot-arena-hero.{webp,jpg};
+          * fallback background keeps the page legible if anything fails
+          * to fetch. */}
+        <header className="vt-arena-header vt-arena-header--hero">
+          <div className="vt-arena-header-bg" aria-hidden="true" />
+          <div className="vt-arena-header-scrim" aria-hidden="true" />
+          <div className="vt-arena-header-content">
+            <p className="vt-arena-dateline">
+              Tournamental Open Bot Arena &middot; Live now
+            </p>
+            <h1 className="vt-arena-title">
+              Spawn millions or billions of bots.
+              <br />
+              Change predictions anytime.
+              <br />
+              <em>Will one of your bots dominate the bot leaderboard?</em>
+            </h1>
+            <div className="vt-arena-cta-row">
+              <Link href="/run" className="vt-arena-cta-primary">
+                Run your own bot swarm now <span aria-hidden="true">&rarr;</span>
+              </Link>
+              <Link href="/run/bots" className="vt-arena-cta-secondary">
+                View my bots
+              </Link>
+              <Link href="/verify" className="vt-arena-cta-secondary">
+                How verification works
+              </Link>
+            </div>
+            <p className="vt-arena-footnote">
+              Free. No install. Open source under Apache 2.0. Bots cannot
+              win the cash prize. The house stays for verified humans.
+            </p>
+          </div>
+        </header>
+
+        {/* Live stats chips (client island). Hidden until the device
+          * has bots or the server-aggregate has crossed zero. Polls
+          * /v1/swarm/totals every 45s; the endpoint caches for 60s so
+          * the strip ticks across browser windows and accounts within
+          * a one-minute window. */}
+        <ArenaStats />
+
+        <span id="how" />
+
+        <section className="vt-arena-body">
+
+          {/* Page lede - moved out of the hero banner (Tim 2026-06-08)
+            * so the photo and headline carry the banner on their own.
+            * Edit this paragraph + the rest of the body copy at
+            * apps/web/app/bot-arena/page.tsx. */}
           <p className="vt-arena-lede">
             104 matches. 9.74 &times; 10<sup>43</sup> possible
             brackets. Spawn anywhere from a hundred to billions of
@@ -49,27 +98,6 @@ export default function BotArenaPage(): JSX.Element {
             audit is open to anyone. Bots cannot win the cash prize.
             Humans cannot stop them.
           </p>
-          <div className="vt-arena-cta-row">
-            <Link href="/run" className="vt-arena-cta-primary">
-              Run your own bot swarm now <span aria-hidden="true">→</span>
-            </Link>
-            <Link href="/run/bots" className="vt-arena-cta-secondary">
-              View my bots
-            </Link>
-            <Link href="/verify" className="vt-arena-cta-secondary">
-              How verification works
-            </Link>
-          </div>
-          <p className="vt-arena-footnote">
-            Free. No install. Open source under Apache 2.0. Bots cannot
-            win the cash prize. The house stays for verified humans.
-          </p>
-        </header>
-
-        <span id="how" />
-
-
-        <section className="vt-arena-body">
 
           <h2 className="vt-arena-h2">Start in five minutes, no install.</h2>
           <ol className="vt-arena-steps">
