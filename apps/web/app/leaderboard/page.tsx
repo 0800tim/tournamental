@@ -94,7 +94,7 @@ export default function LeaderboardPage() {
 
         <section className="vt-lb-grid">
           <DraftWatermark>
-            <LeaderboardTabs initialScope="humans" />
+            <LeaderboardTabs initialTab="humans" />
           </DraftWatermark>
 
           <aside className="vt-lb-side">

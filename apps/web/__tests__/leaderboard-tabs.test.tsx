@@ -1,10 +1,13 @@
 /**
- * Vitest, /leaderboard audience tab triplet.
+ * Vitest, /leaderboard single-row tab strip.
  *
  * Spec: docs/superpowers/specs/2026-06-07-bot-arena-design.md §5
- * Three tabs (Humans / Bots / My Pools); Humans is the default landing;
- * clicking a tab switches `aria-selected`. Roving-tabindex pattern means
- * only the active tab has tabIndex=0.
+ * Five tabs in one row (Humans / Bots / Global / Country / My Pools);
+ * Humans is the default landing; clicking a tab switches
+ * `aria-selected`. Roving-tabindex pattern means only the active tab
+ * has tabIndex=0. End jumps to the last tab. My Pools renders three
+ * mock pools with View-pool links to /s/<slug>; falls back to the
+ * empty state when no pools are present.
  */
 
 import { describe, it, expect } from "vitest";
@@ -21,18 +24,25 @@ function tabByName(container: HTMLElement, label: RegExp): HTMLButtonElement {
 }
 
 describe("<LeaderboardTabs>", () => {
-  it("renders three tabs with Humans active by default", () => {
+  it("renders five tabs with Humans active by default", () => {
     const { container } = render(<LeaderboardTabs />);
-    const humans = tabByName(container, /humans/i);
-    const bots = tabByName(container, /bots/i);
-    const pools = tabByName(container, /my pools/i);
-    expect(humans.getAttribute("aria-selected")).toBe("true");
-    expect(bots.getAttribute("aria-selected")).toBe("false");
-    expect(pools.getAttribute("aria-selected")).toBe("false");
+    const expected: ReadonlyArray<RegExp> = [
+      /humans/i,
+      /bots/i,
+      /global/i,
+      /country/i,
+      /my pools/i,
+    ];
+    for (const re of expected) {
+      // throws if missing
+      tabByName(container, re);
+    }
+    expect(tabByName(container, /humans/i).getAttribute("aria-selected")).toBe("true");
+    expect(tabByName(container, /bots/i).getAttribute("aria-selected")).toBe("false");
   });
 
-  it("honours initialScope", () => {
-    const { container } = render(<LeaderboardTabs initialScope="bots" />);
+  it("honours initialTab", () => {
+    const { container } = render(<LeaderboardTabs initialTab="bots" />);
     expect(tabByName(container, /humans/i).getAttribute("aria-selected")).toBe(
       "false",
     );
@@ -43,8 +53,8 @@ describe("<LeaderboardTabs>", () => {
 
   it("switches active tab on click", () => {
     const { container } = render(<LeaderboardTabs />);
-    fireEvent.click(tabByName(container, /bots/i));
-    expect(tabByName(container, /bots/i).getAttribute("aria-selected")).toBe(
+    fireEvent.click(tabByName(container, /global/i));
+    expect(tabByName(container, /global/i).getAttribute("aria-selected")).toBe(
       "true",
     );
     expect(tabByName(container, /humans/i).getAttribute("aria-selected")).toBe(
@@ -52,12 +62,12 @@ describe("<LeaderboardTabs>", () => {
     );
   });
 
-  it("renders My Pools empty-state with deep link to /pools", () => {
+  it("renders My Pools with at least one View pool link to /s/<slug>", () => {
     const { container } = render(<LeaderboardTabs />);
     fireEvent.click(tabByName(container, /my pools/i));
-    expect(container.textContent).toMatch(/aren't in any Pools yet/i);
-    const link = container.querySelector("a[href='/pools']");
+    const link = container.querySelector("a[href^='/s/']");
     expect(link).toBeTruthy();
+    expect(link?.textContent ?? "").toMatch(/view pool/i);
   });
 
   it("ArrowRight moves selection to the next tab (keyboard nav)", () => {
@@ -69,7 +79,7 @@ describe("<LeaderboardTabs>", () => {
     );
   });
 
-  it("End jumps to the last tab", () => {
+  it("End jumps to My Pools (the last tab)", () => {
     const { container } = render(<LeaderboardTabs />);
     const humans = tabByName(container, /humans/i);
     fireEvent.keyDown(humans, { key: "End" });
@@ -82,6 +92,8 @@ describe("<LeaderboardTabs>", () => {
     const { container } = render(<LeaderboardTabs />);
     expect(tabByName(container, /humans/i).tabIndex).toBe(0);
     expect(tabByName(container, /bots/i).tabIndex).toBe(-1);
+    expect(tabByName(container, /global/i).tabIndex).toBe(-1);
+    expect(tabByName(container, /country/i).tabIndex).toBe(-1);
     expect(tabByName(container, /my pools/i).tabIndex).toBe(-1);
   });
 });

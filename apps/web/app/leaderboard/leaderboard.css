@@ -356,47 +356,21 @@
   color: var(--vt-text-muted, #b8c0d4);
 }
 
-/* ----- Comparison-scope row (Global / Friends / Country) -----
- * Sits inside the audience block, above the audience tablist. Uses a
- * slightly more restrained chip so it visually defers to the bigger
- * Humans/Bots/My Pools row below it. Tim 2026-06-07. */
+/* ----- Single-row tab strip (Tim 2026-06-07) -----
+ * Five tabs (Humans / Bots / Global / Country / My Pools) all on one
+ * row. On narrow screens the row scrolls horizontally rather than
+ * wrapping so the pill rhythm stays intact. */
 
-.vt-lb-compare-tablist {
-  display: inline-flex;
-  align-self: flex-start;
-  gap: 4px;
-  padding: 3px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--vt-border);
-  border-radius: 999px;
+.vt-lb-audience-tablist {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
 
-.vt-lb-compare-tab {
-  font: inherit;
-  color: var(--vt-text-muted, #b8c0d4);
-  background: transparent;
-  border: none;
-  padding: 5px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  font-weight: 500;
-  font-size: 12.5px;
-  letter-spacing: 0.01em;
-  transition: background 120ms ease, color 120ms ease;
+.vt-lb-audience-tablist::-webkit-scrollbar {
+  display: none;
 }
 
-.vt-lb-compare-tab:hover {
-  color: var(--vt-text, #e7ecf7);
-}
-
-.vt-lb-compare-tab[data-active="1"] {
-  background: rgba(241, 196, 71, 0.18);
-  color: var(--vt-text, #e7ecf7);
-  border: 1px solid rgba(241, 196, 71, 0.45);
-  padding: 4px 13px;
-}
-
-.vt-lb-compare-tab:focus-visible {
-  outline: 2px solid var(--vt-accent, #f1c447);
-  outline-offset: 2px;
+.vt-lb-audience-tab {
+  white-space: nowrap;
 }
