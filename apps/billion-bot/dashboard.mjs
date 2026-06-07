@@ -277,43 +277,52 @@ function sampleHostLoad() {
   } catch {}
 }
 
-// Container worker CPU: sum utime+stime jiffies of all live worker pids
-// across a sample window, divide by elapsed wall clock and host cores.
-let workersPrev = null;
+// Container CPU: read the whole container's cgroup CPU accounting and
+// take the delta over wall-clock. This is accurate regardless of the
+// per-batch worker process churn (each batch spawns a fresh `generate`
+// process, so summing per-PID utime resets to 0 every batch and the old
+// approach read ~0%). cgroup v2 exposes cpu.stat (usage_usec); v1 uses
+// cpuacct.usage (nanoseconds). Result is % of total host cores.
+let containerCpuPrev = null; // { ts, usageUsec }
 let workersPct = 0;
 
-function sampleWorkersCpu() {
+function readContainerUsageUsec() {
+  // cgroup v2
   try {
-    let ticks = 0;
-    let pids = 0;
-    for (const w of state.workers) {
-      const proc = w.proc;
-      if (!proc || proc.killed || proc.exitCode != null) continue;
-      const pid = proc.pid;
-      try {
-        const stat = readFileSync(`/proc/${pid}/stat`, "utf8");
-        // Field 14 = utime, 15 = stime. comm field can contain spaces; split by last ')'.
-        const after = stat.slice(stat.lastIndexOf(")") + 2).trim().split(/\s+/);
-        // after[0] = state. utime is field 14 overall = after[11]; stime = after[12].
-        const utime = Number(after[11]);
-        const stime = Number(after[12]);
-        if (Number.isFinite(utime) && Number.isFinite(stime)) {
-          ticks += utime + stime;
-          pids += 1;
-        }
-      } catch {}
-    }
-    const now = Date.now();
-    if (workersPrev && now > workersPrev.ts) {
-      const dTicks = ticks - workersPrev.ticks;
-      const dSec = (now - workersPrev.ts) / 1000;
-      const cpuSec = dTicks / CLK_TCK;
-      workersPct = dSec > 0 ? Math.max(0, (cpuSec / dSec / TOTAL_HOST_CORES) * 100) : workersPct;
-    }
-    workersPrev = { ts: now, ticks, pids };
+    const stat = readFileSync("/sys/fs/cgroup/cpu.stat", "utf8");
+    const m = stat.match(/usage_usec\s+(\d+)/);
+    if (m) return Number(m[1]);
   } catch {
-    workersPct = -1;
+    /* not v2; fall through */
   }
+  // cgroup v1 (nanoseconds -> microseconds)
+  try {
+    const ns = Number(
+      readFileSync("/sys/fs/cgroup/cpuacct/cpuacct.usage", "utf8").trim(),
+    );
+    if (Number.isFinite(ns)) return ns / 1000;
+  } catch {
+    /* neither available */
+  }
+  return null;
+}
+
+function sampleWorkersCpu() {
+  const usageUsec = readContainerUsageUsec();
+  if (usageUsec == null) {
+    workersPct = -1;
+    return;
+  }
+  const now = Date.now();
+  if (containerCpuPrev && now > containerCpuPrev.ts) {
+    const dUsec = usageUsec - containerCpuPrev.usageUsec;
+    const dWallUsec = (now - containerCpuPrev.ts) * 1000;
+    workersPct =
+      dWallUsec > 0
+        ? Math.max(0, (dUsec / dWallUsec / TOTAL_HOST_CORES) * 100)
+        : workersPct;
+  }
+  containerCpuPrev = { ts: now, usageUsec };
 }
 
 setInterval(() => {
@@ -554,11 +563,12 @@ const HTML = `<!doctype html>
 </head>
 <body>
   <h1>Tournamental Billion Bot</h1>
-  <div class="sub">node label <strong>${NODE_LABEL}</strong> &middot; dry-run (no central POSTs) &middot; host <strong>${TOTAL_HOST_CORES} cores</strong></div>
+  <div class="sub">node label <strong>${NODE_LABEL}</strong> &middot; <span id="fed_mode">${publishState.enabled ? `publishing to <strong>${(()=>{try{return new URL(publishState.endpoint).host}catch{return "central"}})()}</strong>` : "dry-run (no central POSTs)"}</span> &middot; host <strong>${TOTAL_HOST_CORES} cores</strong></div>
 
   <div class="status-row">
     <div id="status" class="status stopped"><span class="pulse off"></span>stopped</div>
     <div>Elapsed: <span class="elapsed" id="elapsed">00:00:00</span></div>
+    <div id="sync" style="font-size:12px; color:#71717a;">connecting…</div>
     <div id="errCount" style="color:#fca5a5; font-size:12px;"></div>
   </div>
 
@@ -626,7 +636,7 @@ const HTML = `<!doctype html>
   <div class="meta">
     JSON: <a href="/api/stats">/api/stats</a> &middot;
     Configure: <code>POST /api/configure {workers, batch_size}</code> &middot;
-    Federation: dry-run only. Picks stay in this container.
+    Federation: ${publishState.enabled ? `auto-publishing aggregate to <code>${(()=>{try{return new URL(publishState.endpoint).host + new URL(publishState.endpoint).pathname}catch{return publishState.endpoint || ""}})()}</code>` : "dry-run only, picks stay in this container."}
   </div>
 
 <script>
@@ -660,10 +670,34 @@ function cpuClass(pct) {
 
 let lastTotal = 0;
 let lastSeenAt = 0;
+let lastSyncAt = 0;
+
+// Staleness ticker: runs every second independent of fetches, so if the
+// connection drops the user sees "stale 8s / reconnecting" instead of a
+// frozen page that silently looks live. Tim 2026-06-08.
+setInterval(function () {
+  const el = document.getElementById("sync");
+  if (!el) return;
+  if (lastSyncAt === 0) return; // still on "connecting…"
+  const age = Math.round((Date.now() - lastSyncAt) / 1000);
+  if (age <= 3) {
+    el.textContent = "live · synced " + age + "s ago";
+    el.style.color = "#34d399";
+  } else if (age <= 10) {
+    el.textContent = "synced " + age + "s ago";
+    el.style.color = "#facc15";
+  } else {
+    el.textContent = "stale " + age + "s · reconnecting…";
+    el.style.color = "#fb7185";
+  }
+}, 1000);
+
 async function refresh() {
   try {
-    const r = await fetch("/api/stats");
+    const r = await fetch("/api/stats", { cache: "no-store" });
+    if (!r.ok) throw new Error("HTTP " + r.status);
     const s = await r.json();
+    lastSyncAt = Date.now();
 
     const statusEl = document.getElementById("status");
     statusEl.className = "status " + (s.running ? "running" : "stopped");
@@ -718,7 +752,7 @@ async function refresh() {
       const [label, cls] = stateMap[p.last_status] || ["pending", ""];
       pStatusEl.textContent = label;
       pStatusEl.className = "value " + cls;
-      document.getElementById("pub_endpoint").textContent = (p.endpoint || "").replace(/^https?:\/\//, "");
+      document.getElementById("pub_endpoint").textContent = (p.endpoint || "").split("://").pop();
     }
     document.getElementById("pub_total").textContent = fmt(p.last_total_published || 0);
     document.getElementById("pub_last_at").textContent =
