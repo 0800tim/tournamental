@@ -30,6 +30,7 @@
  * the summary without re-running the workers.
  */
 
+import { MASTER_SEED } from "./regenerate";
 import type {
   CommitLogRow,
   NodeCredentials,
@@ -222,7 +223,12 @@ export class FederationClient {
       const summary: SwarmSummary = {
         node_id: creds.node_id,
         run_id: runId,
-        master_seed: `auto:${creds.node_id}`,
+        // Tim 2026-06-07: canonical browser MASTER_SEED so the
+        // server can deterministically regenerate bots from
+        // (master_seed, bot_index, strategy) during audit. The old
+        // "auto:<node_id>" placeholder broke the regenerate-on-demand
+        // promise documented in docs/30-browser-swarm-architecture.md.
+        master_seed: MASTER_SEED,
         strategy: "chalk-v1",
         total_bots: row.bot_count,
         merkle_root: row.merkle_root,

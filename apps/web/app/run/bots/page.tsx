@@ -85,7 +85,12 @@ export default function BotsListPage(): JSX.Element {
       typeof indexedDB !== "undefined" ? indexedDbPersistence : noopPersistence;
     persist
       .loadSwarmState()
-      .then((s) => {
+      .then((load) => {
+        // A6 wraps state under `.state` and flags fixture-version wipes
+        // via `reset_for_version_change`. We don't surface the toast on
+        // this list page (BrowserSwarm.tsx handles it), but the rows
+        // here should now be empty after a wipe rather than dangling.
+        const s = load.state;
         setTotal(s.total_bots_generated);
         debug("loaded swarm_state.total_bots_generated", s.total_bots_generated);
       })

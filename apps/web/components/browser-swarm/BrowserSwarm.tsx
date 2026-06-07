@@ -53,7 +53,7 @@ import {
   defaultPersistence,
   type Persistence,
 } from "./persistence";
-import { MASTER_SEED } from "./regenerate";
+import { MASTER_SEED, buildDemoMatches } from "./regenerate";
 import {
   probeSupabase,
   SUPABASE_SCHEMA_SQL,
@@ -94,52 +94,12 @@ type WorkerMessage =
   | WorkerSliceDoneMessage
   | WorkerErrorMessage;
 
-/**
- * A small synthetic World Cup 2026 group-stage fixture set used as the
- * demo data when the user hits "Start swarm" before the real fixtures
- * are wired into the run page. The real flow will feed
- * `defaultMatches` from `apps/web/lib/match-stats.ts` once that exposes
- * the full 104-match list. For the WIRED-demo screenshot we just want
- * the worker spinning on something realistic.
- */
-function buildDemoMatches(): MatchSpec[] {
-  const teams = [
-    "argentina",
-    "france",
-    "brazil",
-    "england",
-    "germany",
-    "spain",
-    "portugal",
-    "netherlands",
-    "uruguay",
-    "croatia",
-    "morocco",
-    "japan",
-  ];
-  const matches: MatchSpec[] = [];
-  let count = 0;
-  for (let i = 0; i < teams.length; i++) {
-    for (let j = i + 1; j < teams.length; j++) {
-      count++;
-      matches.push({
-        match_id: `wc26-demo-${count.toString().padStart(3, "0")}`,
-        tournament_id: "fifa-wc-2026",
-        home_team: teams[i]!,
-        away_team: teams[j]!,
-        kickoff_utc: new Date(Date.now() + count * 3_600_000).toISOString(),
-        allows_draw: count <= 36,
-        odds: {
-          home_win: 0.45 - ((count * 0.013) % 0.2),
-          draw: 0.25,
-          away_win: 0.3 + ((count * 0.011) % 0.2),
-        },
-      });
-      if (matches.length >= 64) return matches;
-    }
-  }
-  return matches;
-}
+// Tim 2026-06-07: real WC 2026 fixtures (72 group + 32 knockout = 104
+// matches) come from `./regenerate.buildDemoMatches()`. The previous
+// local 12-team round-robin stub here was generating 64 fake fixtures
+// and biasing every bot toward the same top-3 winners. Deleted; the
+// imported version uses A1's loadFixtures2026() + FIFA-rank-derived
+// odds + per-bot "darling team" variety nudge.
 
 const INITIAL_PROGRESS: SwarmProgress = {
   phase: "idle",
@@ -334,8 +294,12 @@ export default function BrowserSwarm({
     let cancelled = false;
     persistenceRef.current
       .loadSwarmState()
-      .then((s) => {
+      .then((load) => {
         if (cancelled) return;
+        // A6 (Tim 2026-06-07) wrapped the flat state under `.state` so
+        // the loader can also signal a fixture-version wipe via
+        // `reset_for_version_change`. Unpack here.
+        const s = load.state;
         nextBotIndexRef.current = s.next_bot_index;
         setSwarmTotal(s.total_bots_generated);
         setBatchesCommitted(s.batches_committed);
