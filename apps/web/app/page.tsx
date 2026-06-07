@@ -327,11 +327,39 @@ export default async function HomePage(): Promise<JSX.Element> {
           </div>
         </section>
 
+        {/* ============== STEP 1, PICKS ============== */}
+        {/* Tim 2026-06-08: moved up to sit between the 2-col CTA row
+            and the Tournamental? Maybe bet card, so the "Set your picks"
+            CTA flows straight into the explainer of what setting picks
+            actually means.
+          *
+          * Reveal-on-scroll wrappers ride the shared motion grammar
+            (8-14px rise + opacity, 600ms power3.out, light stagger). They
+            replace nothing visible: each section was already visible
+            on first paint; the wrapper only opts in once the section
+            crosses the viewport edge. Reduced motion makes it a no-op. */}
+        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
+          <div className="vt-home-step-tag">{step1Tag}</div>
+          <h2 className="vt-home-h2">{step1Headline}</h2>
+          <p className="vt-home-p">{step1Lede}</p>
+          <ul className="vt-home-bullets">
+            <li><strong>{step1B1Strong}</strong> {step1B1Body}</li>
+            <li><strong>{step1B2Strong}</strong> {step1B2Body}</li>
+            <li><strong>{step1B3Strong}</strong> {step1B3Body}</li>
+          </ul>
+          <div className="vt-home-cta-row">
+            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
+              {step1Cta} →
+            </Link>
+          </div>
+        </RevealOnScroll>
+
         {/* ============== BET FEATURE ============== */}
-        {/* Tim 2026-06-05: dramatic image-overlay feature card directly
-          * below the hero stats row. The --bet modifier kills the
-          * default section border-top and zeroes top padding so the
-          * card lands tight under the stats with no divider. */}
+        {/* Tim 2026-06-05: dramatic image-overlay feature card. Was
+          * directly below the hero stats row; as of 2026-06-08 it sits
+          * after the Step 1 picks block so the "set picks" CTA flows
+          * naturally into the "and by the way, here's my house on the
+          * line" hook. */}
         <section className="vt-home-section vt-home-section--bet">
           <article className="vt-bet-feature" aria-label="The bet">
             <div className="vt-bet-feature-bg" aria-hidden="true" />
@@ -373,28 +401,6 @@ export default async function HomePage(): Promise<JSX.Element> {
             </div>
           </article>
         </section>
-
-        {/* ============== STEP 1, PICKS ============== */}
-        {/* Reveal-on-scroll wrappers below ride the shared motion grammar
-            (8-14px rise + opacity, 600ms power3.out, light stagger). They
-            replace nothing visible: each section was already visible
-            on first paint; the wrapper only opts in once the section
-            crosses the viewport edge. Reduced motion makes it a no-op. */}
-        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
-          <div className="vt-home-step-tag">{step1Tag}</div>
-          <h2 className="vt-home-h2">{step1Headline}</h2>
-          <p className="vt-home-p">{step1Lede}</p>
-          <ul className="vt-home-bullets">
-            <li><strong>{step1B1Strong}</strong> {step1B1Body}</li>
-            <li><strong>{step1B2Strong}</strong> {step1B2Body}</li>
-            <li><strong>{step1B3Strong}</strong> {step1B3Body}</li>
-          </ul>
-          <div className="vt-home-cta-row">
-            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
-              {step1Cta} →
-            </Link>
-          </div>
-        </RevealOnScroll>
 
         {/* Step 2 (3D Molecule watch-along) and the Watch demo CTAs were
          * dropped on 2026-05-21, play app is bracket-only for the
