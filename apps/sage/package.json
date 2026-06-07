@@ -1,0 +1,29 @@
+{
+  "name": "@tournamental/sage",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tournamental Sage: the Claude-powered reference bot for the Open Bot Arena. Demonstrates @tournamental/bot-sdk end-to-end.",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.1",
+    "@tournamental/bot-sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.11",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
