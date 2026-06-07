@@ -21,7 +21,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Bot Arena · Tournamental",
   description:
-    "Spawn a million unique AI bracket predictions in your browser. Tune the swarm. Watch it compete against humans on the live 2026 FIFA World Cup leaderboard. Free. No install. Five minutes to start.",
+    "Launching 9 June 2026. Spawn a million unique AI bracket predictions in your browser. Tune the swarm. Lock in billions of predictions before kickoff on 11 June and compete against humans on the live 2026 FIFA World Cup leaderboard. Sign up now and we will alert you the moment the swarm builder goes live.",
   robots: { index: true, follow: true },
 };
 
@@ -33,7 +33,7 @@ export default function BotArenaPage(): JSX.Element {
 
         <header className="vt-arena-header">
           <p className="vt-arena-dateline">
-            Tournamental Open Bot Arena · World Cup 2026
+            Tournamental Open Bot Arena · Swarm builder goes live 9 June 2026
           </p>
           <h1 className="vt-arena-title">
             Spawn a <em>million unique bots</em>.
@@ -41,26 +41,74 @@ export default function BotArenaPage(): JSX.Element {
             Right in your browser.
           </h1>
           <p className="vt-arena-lede">
-            Sign up, save your own bracket, then build a swarm of AI bots
-            that predicts every match alongside you. Slide the bot count
-            up. Tune the strategy. Hit go. Your laptop&apos;s CPU
-            generates a guaranteed-unique bracket for every bot, hashes
-            them, commits the merkle root to the blockchain, and puts
-            them on the live leaderboard. Who tops it, your bot or a
-            human? Five weeks until we know.
+            The Tournamental swarm builder launches on{" "}
+            <strong>9 June 2026</strong>, one day before the opening
+            match. Sign up now, save your own human bracket, and we will
+            send you the alert the moment the builder goes live. From
+            9 June you will be able to lock in <strong>billions of AI
+            bracket predictions</strong> before kickoff on 11 June, and
+            compete against humans on the live global leaderboard for
+            the full five weeks of the tournament.
           </p>
           <div className="vt-arena-cta-row">
-            <Link href="/run" className="vt-arena-cta-primary">
-              Spawn a swarm in your browser →
+            <Link href="/world-cup-2026" className="vt-arena-cta-primary">
+              Sign up + reserve your spot →
             </Link>
-            <Link href="/bots/keys" className="vt-arena-cta-secondary">
-              Or get an API key for the SDK
+            <Link href="#how" className="vt-arena-cta-secondary">
+              What you will be able to do
             </Link>
           </div>
           <p className="vt-arena-footnote">
             Free. No install. Bots cannot win the cash prize. The house stays for verified humans.
           </p>
         </header>
+
+        <section className="vt-arena-launch-banner">
+          <p className="vt-arena-launch-eyebrow">Launch timing</p>
+          <h2 className="vt-arena-launch-title">
+            Two windows to lock in. Today, and from 9 June.
+          </h2>
+          <div className="vt-arena-launch-grid">
+            <div className="vt-arena-launch-card">
+              <p className="vt-arena-launch-when">
+                <strong>Today, all the way through to 9 June</strong>
+              </p>
+              <p>
+                Sign in at{" "}
+                <Link href="/world-cup-2026">play.tournamental.com</Link>{" "}
+                with a phone, email, or Telegram. Save your{" "}
+                <strong>own human bracket</strong> on the predict page.
+                That bracket competes for the founder&apos;s NZ$1.5
+                million house. The earlier you save it, the longer your
+                pick history is on the blockchain audit trail.
+              </p>
+            </div>
+            <div className="vt-arena-launch-card">
+              <p className="vt-arena-launch-when">
+                <strong>From 9 June, two days before kickoff</strong>
+              </p>
+              <p>
+                The swarm builder goes live at{" "}
+                <Link href="/run">play.tournamental.com/run</Link>. We
+                send the alert to every signed-up account. You spawn
+                anywhere from 100 to a few million unique AI bracket
+                predictions straight in your browser, or run billions
+                via the{" "}
+                <Link href="/bots/node">federated Node operator</Link>{" "}
+                path on your own server. All bot predictions lock in
+                before kickoff on <strong>11 June</strong>.
+              </p>
+            </div>
+          </div>
+          <p className="vt-arena-launch-footnote">
+            You do not need to install anything in advance. Just sign
+            up, save your human bracket, and watch your email or in-app
+            notifications for the 9 June swarm-builder go-live.
+          </p>
+        </section>
+
+        <span id="how" />
+
 
         <section className="vt-arena-body">
 

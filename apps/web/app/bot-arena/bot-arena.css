@@ -171,6 +171,75 @@
   border-radius: 4px;
 }
 
+/* ---------- launch-timing banner ---------- */
+
+.vt-arena-launch-banner {
+  margin: 40px 0;
+  padding: 28px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(220, 169, 75, 0.08) 0%,
+    rgba(220, 169, 75, 0.03) 100%
+  );
+  border: 1px solid rgba(220, 169, 75, 0.32);
+  border-radius: 14px;
+}
+.vt-arena-launch-eyebrow {
+  color: #f6c64f;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.vt-arena-launch-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 28px);
+  color: #ffffff;
+  margin: 0 0 18px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.vt-arena-launch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .vt-arena-launch-grid { grid-template-columns: 1fr; }
+}
+.vt-arena-launch-card {
+  background: rgba(8, 8, 12, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 18px;
+}
+.vt-arena-launch-when {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  margin: 0 0 8px;
+}
+.vt-arena-launch-when strong {
+  color: #f6c64f;
+  font-weight: 600;
+}
+.vt-arena-launch-card p:not(.vt-arena-launch-when) {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #d8def0;
+  margin: 0;
+}
+.vt-arena-launch-footnote {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 18px 0 0;
+  font-style: italic;
+}
+
 /* ---------- 4-way grid + slider grid ---------- */
 
 .vt-arena-grid {
