@@ -17,6 +17,20 @@
 
 import { getPersistence } from "./persistence";
 
+/** Load each member's correct_picks count from the brackets table.
+ * Wraps `getPersistence().getCorrectPicksByUser` so the store doesn't
+ * import the persistence type directly from this module. */
+function loadMemberCorrectPicks(
+  tournamentId: string,
+  userIds: readonly string[],
+): Map<string, number> {
+  try {
+    return getPersistence().getCorrectPicksByUser(tournamentId, userIds);
+  } catch {
+    return new Map();
+  }
+}
+
 export interface SyndicateMember {
   readonly handle: string;
   readonly country_code: string; // ISO-3 (e.g. "ARG", "NZL", "USA")
@@ -282,6 +296,16 @@ function fromPersistenceRow(row: {
       return true;
     });
 
+  // Tim 2026-06-07: load each member's correct_picks count from the
+  // brackets table so the /s/<slug> leaderboard reflects live scores.
+  // Falls back to an empty map if the column isn't present yet (prod
+  // hasn't run migration 0011 yet, dev has). Same DB the game service
+  // reads/writes — both live in GAME_DB_PATH. */
+  const memberPoints = loadMemberCorrectPicks(
+    row.tournament_id,
+    realMembers.map((m) => m.user_id).filter((id): id is string => !!id),
+  );
+
   return {
     slug: row.slug,
     name: row.name,
@@ -301,7 +325,7 @@ function fromPersistenceRow(row: {
       country_code: "NZL",
       flag_emoji: "🇳🇿",
       joined_at: new Date(m.joined_at).toISOString(),
-      points: 0,
+      points: memberPoints.get(m.user_id) ?? 0,
     })),
     branding: {
       primary_colour: row.branding_primary_colour ?? null,

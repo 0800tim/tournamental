@@ -587,6 +587,41 @@ export class SyndicatePersistence {
     }>;
   }
 
+  /**
+   * Per-user correct_picks count from the brackets table, scoped to
+   * `tournament_id`. Used by the /s/<slug> page to render live
+   * leaderboard rows server-side without going through the
+   * game-service HTTP API. Returns a Map<user_id, correct_picks>.
+   *
+   * Missing column (prod hasn't migrated yet) is handled gracefully:
+   * the SELECT throws, we catch, and the caller gets an empty map →
+   * every member shows 0 points, which is the same fallback the page
+   * used to render unconditionally. Tim 2026-06-07. */
+  getCorrectPicksByUser(
+    tournamentId: string,
+    userIds: readonly string[],
+  ): Map<string, number> {
+    const out = new Map<string, number>();
+    if (userIds.length === 0) return out;
+    try {
+      const placeholders = userIds.map(() => "?").join(",");
+      const stmt = this.db.prepare(
+        `SELECT user_id, correct_picks FROM brackets
+          WHERE tournament_id = ? AND user_id IN (${placeholders})`,
+      );
+      const rows = stmt.all(tournamentId, ...userIds) as Array<{
+        user_id: string;
+        correct_picks: number | null;
+      }>;
+      for (const r of rows) {
+        out.set(r.user_id, r.correct_picks ?? 0);
+      }
+    } catch {
+      /* column not present, fall through to empty map */
+    }
+    return out;
+  }
+
   /** True if another member of this syndicate already claims this
    * handle (case-insensitive). The join modal calls this BEFORE
    * sending the OTP so the user can pick again without spending an
