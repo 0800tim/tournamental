@@ -109,52 +109,11 @@ interface ErrorPayload {
 
 type WorkerMessage = SliceDonePayload | ProgressPayload | ErrorPayload;
 
-/**
- * A small synthetic World Cup 2026 group-stage fixture set used as the
- * demo data when the user hits "Start swarm" before the real fixtures
- * are wired into the run page. The real flow will feed
- * `defaultMatches` from `apps/web/lib/match-stats.ts` once that exposes
- * the full 104-match list. For the WIRED-demo screenshot we just want
- * the worker spinning on something realistic.
- */
-function buildDemoMatches(): MatchSpec[] {
-  const teams = [
-    "argentina",
-    "france",
-    "brazil",
-    "england",
-    "germany",
-    "spain",
-    "portugal",
-    "netherlands",
-    "uruguay",
-    "croatia",
-    "morocco",
-    "japan",
-  ];
-  const matches: MatchSpec[] = [];
-  let count = 0;
-  for (let i = 0; i < teams.length; i++) {
-    for (let j = i + 1; j < teams.length; j++) {
-      count++;
-      matches.push({
-        match_id: `wc26-demo-${count.toString().padStart(3, "0")}`,
-        tournament_id: "fifa-wc-2026",
-        home_team: teams[i]!,
-        away_team: teams[j]!,
-        kickoff_utc: new Date(Date.now() + count * 3_600_000).toISOString(),
-        allows_draw: count <= 36,
-        odds: {
-          home_win: 0.45 - ((count * 0.013) % 0.2),
-          draw: 0.25,
-          away_win: 0.3 + ((count * 0.011) % 0.2),
-        },
-      });
-      if (matches.length >= 64) return matches;
-    }
-  }
-  return matches;
-}
+// Tim 2026-06-07: real 104-match WC 2026 fixtures now plumbed through
+// regenerate.ts (single source of truth shared with /run/bots list +
+// detail pages). The worker generates 104 picks per bot, the list +
+// detail pages regenerate the same 104 picks from the bot index.
+import { buildDemoMatches } from "./regenerate";
 
 const INITIAL_PROGRESS: SwarmProgress = {
   phase: "idle",

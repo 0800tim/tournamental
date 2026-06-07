@@ -25,43 +25,65 @@ import type { MatchOdds, MatchSpec, Outcome } from "./types";
  */
 export const MASTER_SEED = "tournamental-browser-v1";
 
-export function buildDemoMatches(): MatchSpec[] {
-  const teams = [
-    "argentina",
-    "france",
-    "brazil",
-    "england",
-    "germany",
-    "spain",
-    "portugal",
-    "netherlands",
-    "uruguay",
-    "croatia",
-    "morocco",
-    "japan",
-  ];
-  const matches: MatchSpec[] = [];
-  let count = 0;
-  for (let i = 0; i < teams.length; i++) {
-    for (let j = i + 1; j < teams.length; j++) {
-      count++;
-      matches.push({
-        match_id: `wc26-demo-${count.toString().padStart(3, "0")}`,
-        tournament_id: "fifa-wc-2026",
-        home_team: teams[i]!,
-        away_team: teams[j]!,
-        kickoff_utc: new Date(Date.now() + count * 3_600_000).toISOString(),
-        allows_draw: count <= 36,
-        odds: {
-          home_win: 0.45 - ((count * 0.013) % 0.2),
-          draw: 0.25,
-          away_win: 0.3 + ((count * 0.011) % 0.2),
-        },
-      });
-      if (matches.length >= 64) return matches;
-    }
+/**
+ * Real 2026 FIFA World Cup fixtures, all 104 matches in match-number
+ * order. Group-stage rows carry the real 3-letter team codes (MEX,
+ * RSA, KOR, CZE etc.). Knockouts carry placeholder slot codes (1B,
+ * 2F, W101, ...) which the bracket cascade will resolve per-bot in
+ * Phase 2. For pick generation the slot labels are fine because the
+ * bot is still picking home_win / draw / away_win and the merkle
+ * commitment doesn't care about the human-readable team name.
+ *
+ * Vendored from `data/fifa-wc-2026/fixtures.json` at build time via
+ * a static import so the file ships in the client bundle without
+ * a fetch.
+ */
+import fixturesJson from "../../../../data/fifa-wc-2026/fixtures.json";
+
+interface RawFixture {
+  match_number: number;
+  stage: string;
+  home_team_slot: string;
+  away_team_slot: string;
+  kickoff_utc: string;
+  host_city_id?: string;
+}
+
+interface RawFixturesFile {
+  fixtures: RawFixture[];
+}
+
+const REAL_FIXTURES: RawFixture[] = (fixturesJson as unknown as RawFixturesFile).fixtures;
+
+function buildFairOddsForStage(stage: string, matchNumber: number): { home_win: number; draw: number; away_win: number } {
+  // Naive uniform-ish odds skewed slightly toward the favourite. The
+  // real Polymarket pull happens in Phase 2; for Phase 1 we just need
+  // SOMETHING that produces non-degenerate ranked alternatives so the
+  // gold/silver/bronze UI has variation.
+  if (stage.startsWith("group_")) {
+    const homeBias = 0.35 + ((matchNumber * 0.013) % 0.15);
+    const awayBias = 0.25 + ((matchNumber * 0.011) % 0.15);
+    const draw = 1 - homeBias - awayBias;
+    return { home_win: homeBias, draw, away_win: awayBias };
   }
-  return matches;
+  // Knockouts: stronger home-bias (slot 1 usually higher seed)
+  const homeBias = 0.55 + ((matchNumber * 0.007) % 0.15);
+  return { home_win: homeBias, draw: 0, away_win: 1 - homeBias };
+}
+
+export function buildDemoMatches(): MatchSpec[] {
+  return REAL_FIXTURES.map((f) => {
+    const isGroup = f.stage.startsWith("group_");
+    return {
+      match_id: `wc26-${f.match_number.toString().padStart(3, "0")}`,
+      tournament_id: "fifa-wc-2026",
+      home_team: f.home_team_slot,
+      away_team: f.away_team_slot,
+      kickoff_utc: f.kickoff_utc,
+      allows_draw: isGroup,
+      odds: buildFairOddsForStage(f.stage, f.match_number),
+    };
+  });
 }
 
 const FNV_OFFSET = 0x811c9dc5;
