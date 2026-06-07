@@ -453,3 +453,56 @@
     padding: 28px 20px;
   }
 }
+
+/* ---------- how-to: throughput table + answer list ---------- */
+
+.vt-run-perf-table {
+  margin: 18px 0 24px;
+  overflow-x: auto;
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 10px;
+}
+.vt-run-perf-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.vt-run-perf-table thead {
+  background: rgba(220, 169, 75, 0.08);
+}
+.vt-run-perf-table th,
+.vt-run-perf-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.vt-run-perf-table th {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  font-weight: 500;
+}
+.vt-run-perf-table td {
+  color: #d8def0;
+}
+.vt-run-perf-table tr:last-child td {
+  border-bottom: none;
+}
+.vt-run-perf-table strong {
+  color: #ffffff;
+}
+
+.vt-run-list {
+  margin: 14px 0 22px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-run-list li {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+.vt-run-list strong {
+  color: #ffffff;
+}
