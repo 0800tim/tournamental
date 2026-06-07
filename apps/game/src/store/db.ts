@@ -17,6 +17,10 @@ import Database from "better-sqlite3";
 import type { Database as DatabaseT, Statement } from "better-sqlite3";
 
 import type { Bracket } from "../types.js";
+import { ApiKeyStore } from "./api-keys.js";
+import { BotOwnerStore } from "./bot-owners.js";
+import { QuotaStore } from "./quotas.js";
+import { FederatedNodeStore } from "./federated-nodes.js";
 
 export interface GameStoreOptions {
   /** Filesystem path to the SQLite file. ":memory:" for tests. */
@@ -95,6 +99,12 @@ export class GameStore {
   readonly db: DatabaseT;
   private readonly migrationsDir: string;
 
+  // Bot Arena DAOs (Phase 1 + Phase 2 forward-compat).
+  readonly apiKeys!: ApiKeyStore;
+  readonly botOwners!: BotOwnerStore;
+  readonly quotas!: QuotaStore;
+  readonly federatedNodes!: FederatedNodeStore;
+
   // Prepared statements
   private upsertUserStmt!: Statement;
   private insertBracketStmt!: Statement;
@@ -109,6 +119,8 @@ export class GameStore {
   private getMatchResultStmt!: Statement;
   private listMatchResultsStmt!: Statement;
   private leaderboardStmt!: Statement;
+  private leaderboardHumansStmt!: Statement;
+  private leaderboardBotsStmt!: Statement;
   private leaderboardSyndicateStmt!: Statement;
   private upsertSyndicateMemberStmt!: Statement;
   private upsertSyndicateOwnerMembershipStmt!: Statement;
@@ -138,6 +150,17 @@ export class GameStore {
     this.migrationsDir = opts.migrationsDir ?? defaultMigrationsDir();
     this.applyMigrations();
     this.prepareStatements();
+
+    // Bot Arena DAOs are wired here so the rest of the service does
+    // not need to know which file the underlying SQLite lives in or
+    // which migration laid the tables down.
+    (this as { apiKeys: ApiKeyStore }).apiKeys = new ApiKeyStore(this.db);
+    (this as { botOwners: BotOwnerStore }).botOwners = new BotOwnerStore(
+      this.db,
+    );
+    (this as { quotas: QuotaStore }).quotas = new QuotaStore(this.db);
+    (this as { federatedNodes: FederatedNodeStore }).federatedNodes =
+      new FederatedNodeStore(this.db);
   }
 
   // ---------- migrations ----------
@@ -238,6 +261,27 @@ export class GameStore {
          FROM brackets
         WHERE tournament_id = ?
         ORDER BY score_total DESC, locked_at ASC, user_id ASC
+        LIMIT ?`,
+    );
+    // Bot Arena scope filters. Each tab on /leaderboard hits one of
+    // these so the SQL plan is stable and the cache key partitions
+    // cleanly. idx_users_is_bot keeps the JOIN cheap.
+    this.leaderboardHumansStmt = this.db.prepare(
+      `SELECT b.id, b.user_id, b.score_total, b.share_guid, b.locked_at,
+              b.locked_at AS joined_at
+         FROM brackets b
+         JOIN users u ON u.id = b.user_id
+        WHERE b.tournament_id = ? AND u.is_bot = 0
+        ORDER BY b.score_total DESC, b.locked_at ASC, b.user_id ASC
+        LIMIT ?`,
+    );
+    this.leaderboardBotsStmt = this.db.prepare(
+      `SELECT b.id, b.user_id, b.score_total, b.share_guid, b.locked_at,
+              b.locked_at AS joined_at
+         FROM brackets b
+         JOIN users u ON u.id = b.user_id
+        WHERE b.tournament_id = ? AND u.is_bot = 1
+        ORDER BY b.score_total DESC, b.locked_at ASC, b.user_id ASC
         LIMIT ?`,
     );
     this.leaderboardSyndicateStmt = this.db.prepare(
@@ -512,6 +556,35 @@ export class GameStore {
 
   topN(tournamentId: string, n: number): LeaderboardBracketRow[] {
     return this.leaderboardStmt.all(tournamentId, n) as LeaderboardBracketRow[];
+  }
+
+  /**
+   * Scope-filtered top-N for the Bot Arena.
+   *
+   *   scope = "humans" , the public default; filters u.is_bot = 0.
+   *   scope = "bots"   , the new Bots tab; filters u.is_bot = 1.
+   *   scope = "all"    , everyone, identical to topN().
+   *
+   * Spec: docs/superpowers/specs/2026-06-07-bot-arena-design.md §5.2
+   */
+  topNByScope(
+    tournamentId: string,
+    scope: "humans" | "bots" | "all",
+    n: number,
+  ): LeaderboardBracketRow[] {
+    if (scope === "humans") {
+      return this.leaderboardHumansStmt.all(
+        tournamentId,
+        n,
+      ) as LeaderboardBracketRow[];
+    }
+    if (scope === "bots") {
+      return this.leaderboardBotsStmt.all(
+        tournamentId,
+        n,
+      ) as LeaderboardBracketRow[];
+    }
+    return this.topN(tournamentId, n);
   }
 
   topNForSyndicate(
