@@ -25,6 +25,8 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
 
+import { VerifySwarmCard } from "./VerifySwarmCard";
+
 import "./verify.css";
 
 export const dynamic = "force-dynamic";
@@ -164,6 +166,8 @@ export default async function VerifyPage(): Promise<JSX.Element> {
             </dl>
           </section>
         )}
+
+        <VerifySwarmCard />
 
         <section>
           <h2>Verify the timestamping</h2>
