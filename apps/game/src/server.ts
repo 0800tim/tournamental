@@ -32,6 +32,7 @@ import { registerSyndicateRoutes } from "./routes/syndicate.js";
 import { registerPunditRoutes } from "./routes/pundit.js";
 import { registerPickRoutes } from "./routes/picks.js";
 import { registerPicksBulkRoute } from "./routes/picks-bulk.js";
+import { registerNodesRoutes } from "./routes/nodes.js";
 import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
@@ -143,6 +144,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
     kickoffs: opts.kickoffs,
   });
   await registerPicksBulkRoute(app, { store, nowMs: opts.nowMs });
+  await registerNodesRoutes(app, { store, nowMs: opts.nowMs });
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });
