@@ -337,18 +337,23 @@ function LeaderboardRow({
 }
 
 function MovementIndicator({ value }: { value: number }) {
+  // Tim 2026-06-07: a single match result moves any one bracket by at
+  // most one position relative to its neighbours, so the displayed
+  // delta is capped at ±1. The underlying `value` may carry a wider
+  // signal for sort tie-breaks (e.g. how far ahead the next clump is),
+  // but the leaderboard chip itself reads as just direction + "1".
   const dir: "up" | "down" | "flat" = value > 0 ? "up" : value < 0 ? "down" : "flat";
   const glyph = dir === "up" ? "▲" : dir === "down" ? "▼" : "·";
   const label =
     dir === "up"
-      ? `Up ${value} positions`
+      ? "Up 1 position"
       : dir === "down"
-      ? `Down ${Math.abs(value)} positions`
+      ? "Down 1 position"
       : "No change";
   return (
     <span className="vt-lb-movement" data-dir={dir} aria-label={label}>
       <span aria-hidden="true">{glyph}</span>
-      <span>{value === 0 ? "" : Math.abs(value)}</span>
+      <span>{dir === "flat" ? "" : "1"}</span>
     </span>
   );
 }

@@ -113,6 +113,112 @@
   margin: 0;
 }
 
+/* ---------- hero variant (Tim 2026-06-08) ----------
+ *
+ * Mirrors /the-bet's hero treatment: full-bleed photo, dual-gradient
+ * scrim, content sits bottom-left of the image. The article column
+ * stays 820px otherwise; the hero alone breaks out via negative side
+ * margins on mobile and rounds to a card on tablet+. Image lives at
+ * public/hero/bot-arena-hero.{webp,jpg} (1920x1047 each, lossy from
+ * the 2816x1536 original). */
+.vt-arena-header--hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 18px;
+  margin: -24px -20px 28px;
+  padding: clamp(48px, 8vw, 96px) clamp(24px, 4vw, 56px) clamp(36px, 5vw, 64px);
+  border-bottom: none;
+  background: #15151a;
+  min-height: clamp(360px, 50vw, 540px);
+  display: flex;
+  align-items: flex-end;
+}
+.vt-arena-header-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: image-set(
+    url("/hero/bot-arena-hero.webp") type("image/webp"),
+    url("/hero/bot-arena-hero.jpg") type("image/jpeg")
+  );
+  background-size: cover;
+  background-position: center;
+  background-color: #1e1e26;
+}
+.vt-arena-header-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Vertical gradient anchors the headline at the bottom against the
+   * stadium roof; horizontal gradient keeps the right edge of the
+   * photo readable (it's a packed crowd, busy already). */
+  background:
+    linear-gradient(180deg, rgba(15, 15, 22, 0.25) 0%, rgba(15, 15, 22, 0.55) 55%, rgba(15, 15, 22, 0.92) 100%),
+    linear-gradient(90deg, rgba(15, 15, 22, 0.55) 0%, rgba(15, 15, 22, 0.15) 60%, rgba(15, 15, 22, 0.0) 100%);
+}
+.vt-arena-header-content {
+  position: relative;
+  z-index: 2;
+  max-width: 920px;
+}
+@media (min-width: 720px) {
+  .vt-arena-header--hero {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 24px;
+  }
+}
+
+/* ---------- live stats chips (Tim 2026-06-08) ----------
+ *
+ * Three-up row beneath the hero. Hidden by the component until the
+ * device has bots or the arena total is non-zero. Wraps to a column
+ * on narrow viewports. */
+.vt-arena-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0 0 32px;
+}
+.vt-arena-stat {
+  border-radius: 12px;
+  padding: 14px 16px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(220, 169, 75, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.vt-arena-stat[data-tone="gold"] {
+  background: linear-gradient(180deg, rgba(246, 198, 79, 0.18) 0%, rgba(220, 169, 75, 0.06) 100%);
+  border-color: rgba(246, 198, 79, 0.55);
+}
+.vt-arena-stat-label {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c7b283;
+}
+.vt-arena-stat-value {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(26px, 4.4vw, 34px);
+  line-height: 1.05;
+  color: #ffffff;
+  letter-spacing: -0.018em;
+}
+.vt-arena-stat[data-tone="gold"] .vt-arena-stat-value {
+  color: #f6c64f;
+  text-shadow: 0 2px 14px rgba(246, 198, 79, 0.35);
+}
+.vt-arena-stat-sub {
+  font-size: 12px;
+  color: #98a0b7;
+}
+
 /* ---------- body ---------- */
 
 .vt-arena-body {
