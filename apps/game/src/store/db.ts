@@ -21,6 +21,7 @@ import { ApiKeyStore } from "./api-keys.js";
 import { BotOwnerStore } from "./bot-owners.js";
 import { QuotaStore } from "./quotas.js";
 import { FederatedNodeStore } from "./federated-nodes.js";
+import { SwarmClaimStore } from "./swarm-claims.js";
 
 export interface GameStoreOptions {
   /** Filesystem path to the SQLite file. ":memory:" for tests. */
@@ -104,6 +105,7 @@ export class GameStore {
   readonly botOwners!: BotOwnerStore;
   readonly quotas!: QuotaStore;
   readonly federatedNodes!: FederatedNodeStore;
+  readonly swarmClaims!: SwarmClaimStore;
 
   // Prepared statements
   private upsertUserStmt!: Statement;
@@ -161,6 +163,9 @@ export class GameStore {
     (this as { quotas: QuotaStore }).quotas = new QuotaStore(this.db);
     (this as { federatedNodes: FederatedNodeStore }).federatedNodes =
       new FederatedNodeStore(this.db);
+    (this as { swarmClaims: SwarmClaimStore }).swarmClaims = new SwarmClaimStore(
+      this.db,
+    );
   }
 
   // ---------- migrations ----------
