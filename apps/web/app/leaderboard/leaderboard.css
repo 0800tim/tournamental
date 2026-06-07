@@ -39,6 +39,13 @@
    * dev screenshot. */
   gap: 10px;
   padding-bottom: 48px;
+  /* Defence-in-depth (Tim 2026-06-08): any child that goes wider than
+   * the page (typically the audience tablist on narrow phones) gets
+   * clipped here so the body never grows a horizontal scrollbar. The
+   * tablist itself still scrolls internally via its own overflow-x. */
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Cancel the legacy 16px bottom margin that DraftPreviewBanner ships
@@ -174,8 +181,12 @@
 }
 
 @media (max-width: 960px) {
+  /* Tim 2026-06-08: `1fr` lets a wide child push the track past the
+   * viewport (e.g. the 5-tab single-row strip). minmax(0, 1fr) clamps
+   * the track to the available width so children must shrink instead
+   * of triggering page-level horizontal scroll. */
   .vt-lb-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .vt-lb-hero {
     grid-template-columns: repeat(3, 1fr);
@@ -200,6 +211,11 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
+  /* Tim 2026-06-08: caps the column at its parent's width so the
+   * inline-flex tablist below cannot push past the viewport and
+   * cause page-level horizontal scroll on mobile. */
+  min-width: 0;
+  max-width: 100%;
 }
 
 .vt-lb-audience-tablist {
@@ -210,6 +226,10 @@
   border-radius: 999px;
   padding: 4px;
   gap: 2px;
+  /* Constrain to parent width so the tablist's own overflow-x: auto
+   * (set below) actually clips the 5 tabs rather than letting them
+   * blow out the page. Tim 2026-06-08. */
+  max-width: 100%;
 }
 
 .vt-lb-audience-tab {
