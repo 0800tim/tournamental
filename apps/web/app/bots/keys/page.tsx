@@ -52,11 +52,14 @@ export default async function BotKeysPage(): Promise<JSX.Element> {
             <h1 className="vt-keys-title">Bot API keys</h1>
             <p className="vt-keys-lede">
               Issue a key, name it, copy the secret. Use it in the{" "}
-              <Link href="/bots/sdk">Tournamental Bot SDK</Link> as
-              <code>TOURNAMENTAL_API_KEY</code>. Default quota is 1,000
-              bots and 100,000 picks per hour; academic emails (.edu,
-              .ac.uk, .ac.nz, .edu.au, .ac.za) ship with 10x quota out
-              of the box.
+              <Link href="/bots/sdk">Tournamental Bot SDK</Link> as{" "}
+              <code>TOURNAMENTAL_API_KEY</code>. Default quota is
+              1,000 bots and 100,000 picks per hour; academic emails
+              (.edu, .ac.uk, .ac.nz, .edu.au, .ac.za) ship with 10x
+              quota out of the box. Just experimenting in your
+              browser? You don&apos;t need a key for that, head to{" "}
+              <Link href="/run">/run</Link>. Keys are for SDK users
+              and federated bot-node operators.
             </p>
           </header>
 
