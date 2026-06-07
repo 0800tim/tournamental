@@ -33,6 +33,7 @@ import { registerPunditRoutes } from "./routes/pundit.js";
 import { registerPickRoutes } from "./routes/picks.js";
 import { registerPicksBulkRoute } from "./routes/picks-bulk.js";
 import { registerNodesRoutes } from "./routes/nodes.js";
+import { registerSwarmRoutes } from "./routes/swarm.js";
 import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
@@ -44,6 +45,14 @@ export interface BuildServerOptions {
   dbPath?: string;
   /** Override migrations dir for tests. */
   migrationsDir?: string;
+  /** Disable real OTS calendar submission (tests). */
+  disableOts?: boolean;
+  /** Override OTS calendar set (tests). */
+  otsCalendars?: readonly string[];
+  /** Inject fetch for OTS submission (tests). */
+  otsFetch?: typeof fetch;
+  /** Public base URL used to build absolute swarm-proof links. */
+  publicBaseUrl?: string;
   /** Override the admin token (tests pass a known one). Falls back to env. */
   adminToken?: string | null;
   /** Override leaderboard cache TTL in milliseconds (tests). Falls back to env. */
@@ -145,6 +154,14 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   });
   await registerPicksBulkRoute(app, { store, nowMs: opts.nowMs });
   await registerNodesRoutes(app, { store, nowMs: opts.nowMs });
+  await registerSwarmRoutes(app, {
+    store,
+    nowMs: opts.nowMs,
+    disableOts: opts.disableOts ?? process.env.OTS_DISABLE === "1",
+    otsCalendars: opts.otsCalendars,
+    otsFetch: opts.otsFetch,
+    publicBaseUrl: opts.publicBaseUrl ?? process.env.GAME_PUBLIC_BASE_URL,
+  });
   await registerMatchRoutes(app, { store, cache, adminToken, nowMs: opts.nowMs });
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });
