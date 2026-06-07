@@ -35,6 +35,10 @@ export interface BracketRow {
   payload_json: string;
   locked_at: number;
   score_total: number;
+  /** Count of correctly predicted match outcomes (1 per right match,
+   * no partial credit). Persisted alongside score_total by the match-
+   * result rescore hook. Added by migration 0011. */
+  correct_picks: number;
   /** Public opaque share guid (added by migration 0004). Always present
    *  on rows written after migration; rows that pre-date the migration
    *  have it backfilled with a 16-char hex string. */
@@ -210,7 +214,11 @@ export class GameStore {
       `SELECT * FROM brackets WHERE tournament_id = ?`,
     );
     this.updateBracketScoreStmt = this.db.prepare(
-      `UPDATE brackets SET score_total = ? WHERE id = ?`,
+      // Tim 2026-06-07: also persist correct_picks (count of right
+      // picks) so the leaderboard's numerator is the count rather
+      // than the multiplier-weighted score_total. Both columns are
+      // updated atomically by the same rescore pass.
+      `UPDATE brackets SET score_total = ?, correct_picks = ? WHERE id = ?`,
     );
     this.upsertMatchResultStmt = this.db.prepare(
       `INSERT INTO match_results (match_id, tournament_id, outcome, recorded_at)
@@ -233,11 +241,13 @@ export class GameStore {
     this.leaderboardStmt = this.db.prepare(
       // Tim 2026-06-07: surface `locked_at` so the route can use it as
       // the fallback per-user "registered at" timestamp for global
-      // scope (see LeaderboardBracketRow.joined_at).
-      `SELECT id, user_id, score_total, share_guid, locked_at, locked_at AS joined_at
+      // scope (see LeaderboardBracketRow.joined_at). Sort by
+      // correct_picks (count of right picks) per Tim's spec, ties by
+      // locked_at to reward the earlier lock-in.
+      `SELECT id, user_id, score_total, correct_picks, share_guid, locked_at, locked_at AS joined_at
          FROM brackets
         WHERE tournament_id = ?
-        ORDER BY score_total DESC, locked_at ASC, user_id ASC
+        ORDER BY correct_picks DESC, locked_at ASC, user_id ASC
         LIMIT ?`,
     );
     this.leaderboardSyndicateStmt = this.db.prepare(
@@ -262,12 +272,12 @@ export class GameStore {
       // known small edge — a follow-up will land a 0011 migration
       // adding the column to the game schema so this query can gate
       // on `(sm.status IS NULL OR sm.status = 'active')`.
-      `SELECT b.id, b.user_id, b.score_total, b.share_guid, b.locked_at, sm.joined_at AS joined_at
+      `SELECT b.id, b.user_id, b.score_total, b.correct_picks, b.share_guid, b.locked_at, sm.joined_at AS joined_at
          FROM brackets b
          INNER JOIN syndicate_owners_membership sm
            ON sm.user_id = b.user_id
         WHERE b.tournament_id = ? AND sm.syndicate_id = ?
-        ORDER BY b.score_total DESC, b.locked_at ASC, b.user_id ASC
+        ORDER BY b.correct_picks DESC, b.locked_at ASC, b.user_id ASC
         LIMIT ?`,
     );
     this.upsertSyndicateMemberStmt = this.db.prepare(
@@ -474,8 +484,12 @@ export class GameStore {
     return this.listBracketsByTournamentStmt.all(tournamentId) as BracketRow[];
   }
 
-  updateBracketScore(bracketId: string, score: number): void {
-    this.updateBracketScoreStmt.run(score, bracketId);
+  updateBracketScore(
+    bracketId: string,
+    score: number,
+    correctPicks: number,
+  ): void {
+    this.updateBracketScoreStmt.run(score, correctPicks, bracketId);
   }
 
   // ---------- match results ----------

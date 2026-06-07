@@ -29,11 +29,23 @@ const DEFAULT_IMPLIED = 0.5;
 /**
  * Compute the user's total score for a tournament given the latest
  * recorded outcomes. Pure function — no I/O.
+ *
+ * Returns both:
+ *   - `total`: multiplier-weighted points (legacy display + analytics)
+ *   - `correctPicks`: simple count of picks that earned > 0 points.
+ *     This is the number shown on the leaderboard's "X" column,
+ *     matching Tim's spec: 1 per correctly predicted match outcome,
+ *     no partial credit. (`mock/leaderboard.ts` already documents
+ *     this contract.)
  */
 export function computeBracketScore(args: {
   bracket: Bracket;
   results: ReadonlyMap<string, MatchOutcome>;
-}): { total: number; perMatch: ReadonlyArray<{ matchId: string; points: number }> } {
+}): {
+  total: number;
+  correctPicks: number;
+  perMatch: ReadonlyArray<{ matchId: string; points: number }>;
+} {
   let total = 0;
   const perMatch: { matchId: string; points: number }[] = [];
 
@@ -92,5 +104,5 @@ export function computeBracketScore(args: {
     }
   }
 
-  return { total, perMatch };
+  return { total, correctPicks: perMatch.length, perMatch };
 }
