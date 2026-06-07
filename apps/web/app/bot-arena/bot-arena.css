@@ -540,3 +540,70 @@
   padding-top: 28px;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* ---------- storage-cost table (Tim 2026-06-08) ----------
+ *
+ * Sits inside the "How much disk does a swarm need?" section. Mono
+ * digits for the bot/disk columns so the powers of 10 line up; gold
+ * border + subtle row stripes to match the rest of the editorial
+ * tone. Scrolls horizontally on mobile rather than wrapping. */
+.vt-arena-table {
+  width: 100%;
+  margin: 24px 0 12px;
+  border-collapse: collapse;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(220, 169, 75, 0.22);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.vt-arena-table-caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: 12px 4px 0;
+  color: #98a0b7;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-style: italic;
+}
+.vt-arena-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c7b283;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.25);
+  background: rgba(220, 169, 75, 0.05);
+}
+.vt-arena-table tbody td {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e7ecf7;
+  vertical-align: top;
+}
+.vt-arena-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.vt-arena-table tbody td:first-child,
+.vt-arena-table tbody td:nth-child(2) {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.vt-arena-table tbody td:nth-child(3) {
+  color: #98a0b7;
+  font-style: italic;
+}
+.vt-arena-table--storage {
+  display: block;
+  overflow-x: auto;
+}
+.vt-arena-table-footnote {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 4px 0 0;
+  line-height: 1.55;
+}

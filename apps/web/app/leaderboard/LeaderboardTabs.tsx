@@ -32,11 +32,49 @@
  * Refs: docs/superpowers/specs/2026-06-07-bot-arena-design.md §5
  */
 
-import { useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import { MOCK_SYNDICATES } from "@/lib/mock/syndicate";
+
+/**
+ * Real bot count from central, fed by /v1/swarm/totals. The
+ * leaderboard rows themselves stay fictitious until first match
+ * results (kickoff 11 Jun 2026) but the header bot count goes
+ * live as soon as any browser tab or Docker container federates a
+ * swarm summary. Tim 2026-06-08.
+ *
+ * The endpoint caches for 60s server-side; we poll every 45s so
+ * the displayed number ticks within a one-minute window when other
+ * devices commit. Hook returns `null` until the first fetch lands
+ * so the caller can fall back to its mock total.
+ */
+function useArenaBotTotal(): number | null {
+  const [total, setTotal] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOnce = async () => {
+      try {
+        const res = await fetch("/v1/swarm/totals", { cache: "no-store" });
+        if (!res.ok) return;
+        const body = (await res.json()) as { total_bots?: number };
+        if (!cancelled && typeof body.total_bots === "number") {
+          setTotal(body.total_bots);
+        }
+      } catch {
+        /* silent: the chip falls back to mock total */
+      }
+    };
+    void fetchOnce();
+    const id = window.setInterval(fetchOnce, 45_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
+  return total;
+}
 
 export type LeaderboardTabId =
   | "humans"
@@ -164,6 +202,13 @@ function ScopedBoard({
 }: {
   tab: Exclude<LeaderboardTabId, "mypools">;
 }) {
+  // Live bot count from central (browser swarms + Docker containers
+  // both fold in via /v1/swarm/totals). Falls back to the mock 18,000
+  // until the first fetch lands. Rows themselves stay fictitious
+  // until kickoff. Tim 2026-06-08.
+  const liveBotTotal = useArenaBotTotal();
+  const botCount = liveBotTotal ?? 18_000;
+
   const wiring = (() => {
     switch (tab) {
       case "humans":
@@ -180,7 +225,7 @@ function ScopedBoard({
           members: mockLeaderboardMembers("bots", 50),
           scope: "bots" as const,
           showStreak: false,
-          total: 18_000,
+          total: botCount,
         };
       case "global":
         return {
@@ -188,7 +233,7 @@ function ScopedBoard({
           members: mockLeaderboardMembers(null, 50),
           scope: undefined,
           showStreak: true,
-          total: 24_388 + 18_000,
+          total: 24_388 + botCount,
         };
       case "country":
         return {

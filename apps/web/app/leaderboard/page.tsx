@@ -54,12 +54,42 @@ export default function LeaderboardPage() {
   // the side rails.
   const youId = members[12]?.id;
 
+  // Live bot count from central via /v1/swarm/totals. Browser swarms
+  // and Docker containers both fold in. The number ticks within a
+  // one-minute cache window. Mock fallback (18,000) shows until the
+  // first fetch lands so the tile never renders blank. Tim 2026-06-08.
+  const [liveBotTotal, setLiveBotTotal] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOnce = async () => {
+      try {
+        const res = await fetch("/v1/swarm/totals", { cache: "no-store" });
+        if (!res.ok) return;
+        const body = (await res.json()) as { total_bots?: number };
+        if (!cancelled && typeof body.total_bots === "number") {
+          setLiveBotTotal(body.total_bots);
+        }
+      } catch {
+        /* silent: tile keeps last good value */
+      }
+    };
+    void fetchOnce();
+    const id = window.setInterval(fetchOnce, 45_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
+
   const heroStats = useMemo(
     () => [
       { value: "24,388", label: "humans locked in" },
-      { value: "18,000", label: "bots competing" },
+      {
+        value: (liveBotTotal ?? 18_000).toLocaleString(),
+        label: "bots competing",
+      },
     ],
-    [],
+    [liveBotTotal],
   );
 
   const memberSeries = useMemo(
