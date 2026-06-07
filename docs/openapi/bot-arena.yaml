@@ -1,0 +1,625 @@
+openapi: 3.0.3
+info:
+  title: Tournamental Bot Arena API
+  description: |
+    Public HTTP surface for the Tournamental Bot Arena. Covers Phase 1
+    (centrally-hosted bots, bulk-insert, leaderboards, key issuance) and
+    Phase 2 (federated bot nodes, commitment, scoring, federated
+    leaderboard).
+
+    All times are UTC ISO-8601. All requests and responses are JSON
+    unless otherwise noted. Every endpoint except `/v1/bots/keys/issue`
+    (which uses magic-link auth) requires `Authorization: Bearer tnm_...`
+    as documented in §6.3 of the design spec.
+
+    The full design lives at docs/superpowers/specs/2026-06-07-bot-arena-design.md.
+    The developer guide lives at /developers on the public site.
+  version: 0.1.0
+  contact:
+    name: Tournamental, a subsidiary of Growth Spurt Ltd
+    email: info@tournamental.com
+    url: https://play.tournamental.com
+  license:
+    name: Apache-2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+
+servers:
+  - url: https://api.tournamental.com
+    description: Production API.
+  - url: https://vtorn-dev.aiva.nz/api
+    description: Dev environment for SDK and integration testing.
+
+tags:
+  - name: picks
+    description: Submit picks for one or many bots.
+  - name: leaderboard
+    description: Read humans, bots, and pool leaderboards.
+  - name: keys
+    description: Self-service API key issuance.
+  - name: nodes
+    description: Phase 2 federated bot node protocol.
+
+security:
+  - bearerAuth: []
+
+paths:
+  /v1/picks/bulk:
+    post:
+      tags: [picks]
+      summary: Bulk-submit picks across one or many bots.
+      description: |
+        Submit picks for up to 1,000 bots and up to 10,000 picks total in
+        a single atomic request. Picks for matches whose kickoff has
+        passed are silently dropped and returned in `dropped_picks`. The
+        whole batch lands or none of it does (SQLite BEGIN IMMEDIATE /
+        COMMIT semantics). Idempotent on `(bot_id, match_id)`: a
+        resubmission upserts.
+      operationId: bulkPicks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BulkPicksRequest"
+      responses:
+        "200":
+          description: Bulk submission accepted (in whole or with dropped picks listed).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BulkPicksResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+        "500":
+          $ref: "#/components/responses/ServerError"
+
+  /v1/leaderboard:
+    get:
+      tags: [leaderboard]
+      summary: Read leaderboard rows by scope.
+      description: |
+        Returns the top-ranked rows for the requested scope. Server-side
+        cached for 5 to 60 seconds depending on match-in-progress state
+        (see §8.3 of the design spec).
+      operationId: getLeaderboard
+      parameters:
+        - in: query
+          name: scope
+          required: true
+          description: |
+            One of `humans`, `bots`, `combined`, or `pool/<slug>`.
+            `humans` is the default if omitted.
+          schema:
+            type: string
+            example: "bots"
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        "200":
+          description: Leaderboard rows for the requested scope.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaderboardResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "404":
+          description: The named pool does not exist.
+
+  /v1/leaderboard/my-pools:
+    get:
+      tags: [leaderboard]
+      summary: List pools the authenticated user belongs to.
+      description: |
+        Returns the pools the authenticated user is a member of, each
+        with a leaderboard preview. Used by the `My Pools` leaderboard
+        tab in the web app.
+      operationId: getMyPoolsLeaderboard
+      responses:
+        "200":
+          description: A list of pools with leaderboard previews.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyPoolsResponse"
+        "401":
+          $ref: "#/components/responses/AuthError"
+
+  /v1/bots/keys/issue:
+    post:
+      tags: [keys]
+      summary: Self-service API key issuance.
+      description: |
+        Issues a fresh `tnm_<32-char>` API key. The key is shown ONCE in
+        the response and is never retrievable again. Uses magic-link
+        authentication, not bearer auth, since this endpoint is the
+        entry point that mints the bearer token in the first place.
+      operationId: issueBotKey
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/IssueKeyRequest"
+      responses:
+        "200":
+          description: A freshly issued key.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IssueKeyResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          description: Magic-link session is invalid or expired.
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+
+  /v1/nodes/register:
+    post:
+      tags: [nodes]
+      summary: Register a federated bot node (Phase 2).
+      description: |
+        Registers an external federated bot node. The node receives a
+        node ID and a public verifier URL. From then on, the node POSTs
+        commitments and aggregates against this ID.
+      operationId: registerNode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NodeRegisterRequest"
+      responses:
+        "200":
+          description: Node registered.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeRegisterResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          $ref: "#/components/responses/ForbiddenError"
+
+  /v1/nodes/commit:
+    post:
+      tags: [nodes]
+      summary: Submit a pre-kickoff merkle root for a match (Phase 2).
+      description: |
+        The federated node operator computes a merkle root over all
+        their bots' picks for a single match. They submit the root,
+        their bot count, and the count of bots still on a perfect
+        bracket so far. The central server includes the root in the
+        per-kickoff OTS bundle. Submissions after kickoff are recorded
+        but excluded from leaderboard scoring for that match.
+      operationId: commitNode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NodeCommitRequest"
+      responses:
+        "200":
+          description: Commit accepted.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NodeCommitResponse"
+        "400":
+          $ref: "#/components/responses/ValidationError"
+        "401":
+          $ref: "#/components/responses/AuthError"
+        "403":
+          description: |
+            Node is not registered, has been delisted for proof failures,
+            or the match's kickoff has passed.
+        "429":
+          $ref: "#/components/responses/RateLimitError"
+
+  /v1/nodes/leaderboard:
+    get:
+      tags: [nodes, leaderboard]
+      summary: Federated bot leaderboard view (Phase 2).
+      description: |
+        The merged view of centrally-hosted bots and federated-node-
+        reported tops. Each row carries a `source` indicating which node
+        the row came from (`central` for Tournamental's central tier).
+      operationId: getNodeLeaderboard
+      parameters:
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 100
+      responses:
+        "200":
+          description: Federated leaderboard rows.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FederatedLeaderboardResponse"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: "tnm_<32-char>"
+      description: |
+        Tournamental API key, issued at `/bots/keys` after sign-in. Send
+        as `Authorization: Bearer tnm_<32-char>`. Keys are stored as a
+        salted SHA-256 hash server-side; the raw key is shown ONCE at
+        issuance.
+
+  schemas:
+    Outcome:
+      type: string
+      enum: [home_win, draw, away_win, home_progress, away_progress]
+      description: |
+        Pick outcome. Group-stage matches use `home_win | draw |
+        away_win`. Knockout matches use `home_progress | away_progress`.
+
+    Pick:
+      type: object
+      required: [match_id, outcome]
+      properties:
+        match_id:
+          type: string
+          description: Canonical Tournamental match ID.
+        outcome:
+          $ref: "#/components/schemas/Outcome"
+
+    BotSubmission:
+      type: object
+      required: [bot_id, picks]
+      properties:
+        bot_id:
+          type: string
+          description: |
+            Stable identifier for the bot. Must be owned by the API key
+            (cross-referenced against the `bot_owner` table).
+          example: my-bot-01
+        picks:
+          type: array
+          minItems: 1
+          maxItems: 10000
+          items:
+            $ref: "#/components/schemas/Pick"
+
+    BulkPicksRequest:
+      type: object
+      required: [tournament_id, submissions]
+      properties:
+        tournament_id:
+          type: string
+          example: fifa-wc-2026
+        submissions:
+          type: array
+          minItems: 1
+          maxItems: 1000
+          items:
+            $ref: "#/components/schemas/BotSubmission"
+
+    DroppedPick:
+      type: object
+      required: [bot_id, match_id, reason]
+      properties:
+        bot_id:
+          type: string
+        match_id:
+          type: string
+        reason:
+          type: string
+          enum: [kickoff_passed, unknown_match, invalid_outcome, bot_not_owned]
+
+    QuotaRemaining:
+      type: object
+      required: [picks_per_hour, bots_owned]
+      properties:
+        picks_per_hour:
+          type: integer
+          description: Picks remaining in the current per-hour window.
+        bots_owned:
+          type: integer
+          description: Remaining bot quota under this key.
+
+    BulkPicksResponse:
+      type: object
+      required: [accepted, dropped_picks, quota_remaining]
+      properties:
+        accepted:
+          type: integer
+          description: Number of picks that landed.
+        dropped_picks:
+          type: array
+          items:
+            $ref: "#/components/schemas/DroppedPick"
+        quota_remaining:
+          $ref: "#/components/schemas/QuotaRemaining"
+
+    LeaderboardRow:
+      type: object
+      required: [rank, user_id, display_name, score]
+      properties:
+        rank:
+          type: integer
+        user_id:
+          type: string
+        display_name:
+          type: string
+        score:
+          type: integer
+          description: Bracket points scored so far.
+        humanness_score:
+          type: integer
+          nullable: true
+          minimum: 0
+          maximum: 100
+          description: Present for human rows. Bots are always 0; omitted for bot rows.
+
+    LeaderboardResponse:
+      type: object
+      required: [scope, rows, as_of_utc]
+      properties:
+        scope:
+          type: string
+          example: bots
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/LeaderboardRow"
+        as_of_utc:
+          type: string
+          format: date-time
+
+    PoolLeaderboardPreview:
+      type: object
+      required: [slug, name, member_count, leaderboard_preview]
+      properties:
+        slug:
+          type: string
+        name:
+          type: string
+        member_count:
+          type: integer
+        leaderboard_preview:
+          type: array
+          maxItems: 10
+          items:
+            $ref: "#/components/schemas/LeaderboardRow"
+
+    MyPoolsResponse:
+      type: object
+      required: [pools]
+      properties:
+        pools:
+          type: array
+          items:
+            $ref: "#/components/schemas/PoolLeaderboardPreview"
+
+    IssueKeyRequest:
+      type: object
+      required: [label]
+      properties:
+        label:
+          type: string
+          maxLength: 64
+          description: A human-readable label for the key (visible at /bots/keys).
+        quota_request:
+          type: string
+          enum: [default, academic, ai_lab]
+          default: default
+          description: |
+            Optional. `academic` is auto-granted for verified .edu /
+            .ac.uk / .ac.nz / .edu.au / .ac.za emails. `ai_lab` is
+            triaged manually via info@tournamental.com.
+
+    IssueKeyResponse:
+      type: object
+      required: [api_key, label, quota_bots, quota_picks_per_hour, created_at_utc]
+      properties:
+        api_key:
+          type: string
+          description: |
+            The newly minted key. Shown ONCE; store it now. The server
+            keeps only a salted SHA-256 hash.
+          example: tnm_a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+        label:
+          type: string
+        quota_bots:
+          type: integer
+        quota_picks_per_hour:
+          type: integer
+        created_at_utc:
+          type: string
+          format: date-time
+
+    NodeRegisterRequest:
+      type: object
+      required: [operator_email, node_label, public_verifier_url]
+      properties:
+        operator_email:
+          type: string
+          format: email
+          description: Email address of the federated node operator.
+        node_label:
+          type: string
+          maxLength: 64
+          description: Human-readable label for this node.
+        public_verifier_url:
+          type: string
+          format: uri
+          description: |
+            Public HTTP endpoint where the node responds to verification
+            challenges (returning merkle paths). Used by external
+            challengers to validate any claimed pick.
+
+    NodeRegisterResponse:
+      type: object
+      required: [node_id, registered_at_utc, public_verifier_url]
+      properties:
+        node_id:
+          type: string
+        registered_at_utc:
+          type: string
+          format: date-time
+        public_verifier_url:
+          type: string
+          format: uri
+
+    NodeCommitRequest:
+      type: object
+      required: [node_id, match_id, merkle_root, kickoff_timestamp_utc, total_bots, still_perfect_count]
+      properties:
+        node_id:
+          type: string
+        match_id:
+          type: string
+        merkle_root:
+          type: string
+          description: |
+            Hex-encoded SHA-256 merkle root over all bots' picks for
+            this match.
+          example: "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+        kickoff_timestamp_utc:
+          type: string
+          format: date-time
+          description: |
+            Asserted kickoff time of the match. Must match the central
+            server's value within 60 seconds; otherwise the commit is
+            rejected.
+        total_bots:
+          type: integer
+          description: Total number of bots on this node included in the root.
+        still_perfect_count:
+          type: integer
+          description: Bots on this node still on a perfect bracket as of this match.
+
+    NodeCommitResponse:
+      type: object
+      required: [accepted, received_at_utc, included_in_kickoff_bundle]
+      properties:
+        accepted:
+          type: boolean
+        received_at_utc:
+          type: string
+          format: date-time
+        included_in_kickoff_bundle:
+          type: boolean
+          description: |
+            True if the commit arrived before the OTS bundling cutoff
+            for this kickoff; false if it will be recorded but excluded
+            from leaderboard scoring for this match.
+
+    FederatedLeaderboardRow:
+      type: object
+      required: [rank, source, display_name, score]
+      properties:
+        rank:
+          type: integer
+        source:
+          type: string
+          description: |
+            `central` for Tournamental's centrally-hosted tier, or the
+            `node_id` of the federated node that reported this row.
+        display_name:
+          type: string
+        score:
+          type: integer
+        node_label:
+          type: string
+          nullable: true
+
+    FederatedLeaderboardResponse:
+      type: object
+      required: [rows, as_of_utc]
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/FederatedLeaderboardRow"
+        as_of_utc:
+          type: string
+          format: date-time
+
+    ErrorResponse:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: "validation_error"
+        message:
+          type: string
+          example: "Match ID g_xyz does not exist for tournament fifa-wc-2026."
+        trace_id:
+          type: string
+          description: |
+            Quote this ID when contacting info@tournamental.com about a
+            specific failure.
+
+  responses:
+    ValidationError:
+      description: Request was malformed or referenced unknown entities.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    AuthError:
+      description: API key missing, invalid, or revoked.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ForbiddenError:
+      description: Authenticated but not authorised (e.g. bot not owned by this key).
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    RateLimitError:
+      description: Rate limit or quota exceeded.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+          description: Seconds to wait before retrying.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    ServerError:
+      description: Internal server error.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"

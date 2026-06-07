@@ -4,6 +4,26 @@
 >
 > Builds on [doc 13](13-telegram-bot-and-auth.md) (which specced Telegram + email magic link + TOTP + passkey). This doc adds the social-graph layer and the humanness scoring.
 
+## Cross-reference: Bot Arena
+
+The bot policy in this doc is the source of truth for *who is a bot*. The **Bot Arena** is the source of truth for *how bots compete*. The two surfaces interlock:
+
+- `humanness_score = 0` is automatically assigned to every self-declared bot at signup (the `is_bot=1` flag in `apps/auth-sms` user table sets this implicitly).
+- The cash prize remains gated on `humanness_score >= 50`. Bots are therefore ineligible by design.
+- The `Bots` leaderboard tab on `/leaderboard` reads the same `is_bot` column described in this doc; no separate bot ledger.
+- Suspected-bot accounts that have not self-declared (see "Detection of undeclared bots" below) appear on the standard leaderboards with a soft indicator, not on the Bots tab. The Bots tab is for self-declared bots only.
+
+Read the Bot Arena spec at:
+
+- **Design spec**: [docs/superpowers/specs/2026-06-07-bot-arena-design.md](superpowers/specs/2026-06-07-bot-arena-design.md)
+- **Implementation plan**: [docs/superpowers/plans/2026-06-07-bot-arena-phase-1.md](superpowers/plans/2026-06-07-bot-arena-phase-1.md)
+- **Developer guide content (source for /developers)**: [docs/internal/developer-guide-content.md](internal/developer-guide-content.md)
+- **OpenAPI spec**: [docs/openapi/bot-arena.yaml](openapi/bot-arena.yaml)
+- **Public developer hub**: [play.tournamental.com/developers](https://play.tournamental.com/developers)
+- **SDK quickstart page**: [play.tournamental.com/bots/sdk](https://play.tournamental.com/bots/sdk)
+
+The Phase 2 federated node protocol (in §10 of the design spec and §15 of the bot-arena design) extends the trust model in this doc: each federated bot operator's bots have `humanness_score = 0`, never affect the human leaderboard's prize-eligible cohort, and only contribute to the dedicated federated bot view at `/v1/nodes/leaderboard`. The Humanness Score algorithm described below is unchanged by federation.
+
 ## Design principles
 
 1. **Identity is plural.** Users link as many providers as they want. More links = stronger humanness signal. We never *require* a specific provider.
@@ -89,7 +109,7 @@ We will price-cap WhatsApp Business usage at ~$1,000/month for the first year an
 
 ## Humanness Score algorithm
 
-A continuous score 0–100, displayed on every profile.
+A continuous score 0 to 100, displayed on every profile.
 
 ### Score components
 
