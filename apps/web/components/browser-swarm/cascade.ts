@@ -52,6 +52,7 @@ import {
 } from "@tournamental/bracket-engine";
 
 import { loadTournament, regenerateBotPick } from "./regenerate";
+import { buildDeviationTable, perturbedOutcome } from "./uniqueness";
 import type { MatchSpec, Outcome } from "./types";
 
 /**
@@ -172,18 +173,26 @@ export function bracketPredictionForBot(
   const matchById = new Map<string, MatchSpec>();
   for (const m of matches) matchById.set(m.match_id, m);
 
-  // Resolve the bot's pick for every fixture (group + knockout).
-  for (const m of matches) {
-    const pick = regenerateBotPick(masterSeed, botIndex, m);
+  // Resolve the bot's pick for every fixture (group + knockout). We
+  // use the within-swarm-unique perturbation so the cascade matches
+  // exactly what the worker commits. The chalk-blended PRNG sample is
+  // still consulted (via `regenerateBotPick`) as a diagnostic
+  // fallback, but the perturbation overrides on every match.
+  const deviationTable = buildDeviationTable(matches);
+  for (let mi = 0; mi < matches.length; mi++) {
+    const m = matches[mi]!;
+    const fallback = regenerateBotPick(masterSeed, botIndex, m);
+    const outcome: Outcome =
+      perturbedOutcome(deviationTable, botIndex, mi) ?? fallback.chosen;
     if (m.allows_draw) {
       groupPredictionsByMatch[m.match_id] = predictionFromOutcome(
         m.match_id,
-        pick.chosen,
+        outcome,
       );
     } else {
       knockoutPredictionsByMatch[m.match_id] = predictionFromOutcome(
         m.match_id,
-        pick.chosen,
+        outcome,
       );
     }
   }
