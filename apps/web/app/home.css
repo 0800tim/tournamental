@@ -1502,7 +1502,7 @@
   z-index: 1;
   background:
     linear-gradient(90deg, rgba(11, 14, 24, 0.94) 0%, rgba(11, 14, 24, 0.6) 55%, rgba(11, 14, 24, 0.18) 100%),
-    radial-gradient(60% 90% at 90% 10%, rgba(99, 144, 217, 0.22) 0%, transparent 70%);
+    radial-gradient(60% 90% at 90% 10%, rgba(246, 198, 79, 0.22) 0%, transparent 70%);
 }
 .vt-bots-feature-inner {
   position: relative;
@@ -1526,7 +1526,7 @@
   font-size: 11px;
   letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: #7fb4ff;
+  color: #d9b463;
   font-weight: 700;
 }
 .vt-bots-feature-headline {
@@ -1542,9 +1542,9 @@
 .vt-bots-feature-headline em {
   font-style: italic;
   font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
-  /* Cool blue/cyan to mirror the gold treatment on the bet card while
-   * staying on the bots colour story. */
-  color: #93c5fd;
+  /* Brand gold to match the bet card and /the-bet header so the
+   * two feature cards read as the same family. Tim 2026-06-08. */
+  color: #f6c64f;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
 }
 .vt-bots-feature-body {
@@ -1563,7 +1563,7 @@
   font-family: Fraunces, ui-serif, Georgia, serif;
   font-style: italic;
   font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
-  color: #bfd8ff;
+  color: #f5e1a9;
 }
 .vt-bots-feature-action {
   display: flex;
@@ -1583,15 +1583,16 @@
   gap: 10px;
   padding: 12px 22px;
   border-radius: 999px;
-  /* Cool blue primary so it doesn't fight the gold bet CTA below. */
-  background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 100%);
-  color: #0a0f1e;
+  /* Brand gold, identical to .vt-bet-feature-cta so the two feature
+   * cards share a single CTA treatment. Tim 2026-06-08. */
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e;
   font-weight: 800;
   text-decoration: none;
   font-size: clamp(14px, 1.3vw, 15px);
   letter-spacing: 0.02em;
   box-shadow:
-    0 10px 24px -10px rgba(59, 130, 246, 0.55),
+    0 10px 24px -10px rgba(245, 158, 11, 0.55),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transition: transform 140ms ease, box-shadow 140ms ease;
   white-space: nowrap;
@@ -1599,7 +1600,7 @@
 .vt-bots-feature-cta:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 20px 38px -10px rgba(59, 130, 246, 0.65),
+    0 20px 38px -10px rgba(245, 158, 11, 0.65),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 .vt-bots-feature-cta--white {
