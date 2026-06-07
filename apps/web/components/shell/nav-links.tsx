@@ -141,6 +141,12 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   // Calendar (Tim 2026-06-06): flat list of all 104 matches in
   // chronological order. Lives at /world-cup-2026/calendar.
   { label: "Match calendar", i18nKey: "nav.calendar", href: "/world-cup-2026/calendar", icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
+  // Bot Arena (Tim 2026-06-07): the Open Bot Arena hub. Links to the
+  // /developers landing which routes onward to /bots/sdk, /bots/node,
+  // /bots/keys, /run, GitHub, NPM, MCP. Lives under More so we don't
+  // crowd the top bar but stays one click away for AI / research
+  // visitors during the launch push.
+  { label: "Bot Arena",      i18nKey: "nav.bots", href: "/developers", icon: <CodeIcon />, matchPrefix: "/developers" },
   { label: "About Tournamental", i18nKey: "nav.about", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
   { label: "How it works",       i18nKey: "nav.how_it_works", href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
   { label: "API keys",           i18nKey: "nav.api_keys", href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },
