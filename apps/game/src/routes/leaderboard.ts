@@ -188,18 +188,14 @@ export async function registerLeaderboardRoutes(
           return deps.store.federatedNodes.listFederatedTopK(TOP_N);
         }
         const rows = deps.store.topNByScope(tournamentId, scope, TOP_N);
-        const now = Date.now();
+        const recorded = recordedMatchKickoffs(deps.store, tournamentId);
         return rows.map((r, i) => ({
           rank: i + 1,
           user_handle: hashUserHandle(r.user_id),
           share_guid: r.share_guid,
           score_total: r.score_total,
           bracket_id: r.id,
-          matches_available_to_user: matchesAvailableTo(
-            tournamentId,
-            r.joined_at,
-            now,
-          ),
+          matches_available_to_user: matchesAvailableTo(recorded, r.joined_at),
         }));
       });
       reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
