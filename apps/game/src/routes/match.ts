@@ -106,8 +106,11 @@ export async function registerMatchRoutes(
           const touchesGroup = !!bracket.matchPredictions?.[matchId];
           const touchesKnockout = !!bracket.knockoutPredictions?.[matchId];
           if (!touchesGroup && !touchesKnockout) continue;
-          const { total } = computeBracketScore({ bracket, results: resultsMap });
-          deps.store.updateBracketScore(row.id, total);
+          const { total, correctPicks } = computeBracketScore({
+            bracket,
+            results: resultsMap,
+          });
+          deps.store.updateBracketScore(row.id, total, correctPicks);
           rescored++;
         }
       });
