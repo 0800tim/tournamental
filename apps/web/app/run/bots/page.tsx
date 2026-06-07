@@ -9,6 +9,16 @@
  *
  * All in-browser. No network. The list scales from zero to billions
  * because we never materialise the picks, we just enumerate indices.
+ *
+ * Tim 2026-06-07: rewired onto the real WC 2026 fixtures
+ * (`@tournamental/bracket-engine`'s `loadFixtures2026()`). Each row
+ * now shows a deterministic FIFA-flag persona, the bot's sentimental
+ * "darling team" as the gold pick (which is what drives variety
+ * across the list, without which the chalk strategy clusters every
+ * confident bot onto the rank-1 favourite), and the bot's two
+ * next-highest-confidence real-team picks across the 72 group
+ * matches as silver/bronze. Knockouts use slot labels pre-tournament
+ * so they're excluded from the medal columns.
  */
 
 "use client";
@@ -23,8 +33,11 @@ import {
   buildDemoMatches,
   botIdFromIndex,
   chalkScoreForBot,
+  darlingTeamForBot,
   regenerateBotPick,
+  teamMeta,
 } from "@/components/browser-swarm/regenerate";
+import { personaForBot } from "@/components/browser-swarm/personas";
 import { debug } from "@/components/browser-swarm/debug-log";
 
 import "./bots.css";
@@ -35,8 +48,19 @@ interface BotRowSummary {
   readonly index: number;
   readonly bot_id: string;
   readonly chalk_score: number;
-  /** Top 3 cup-winner candidates for this bot, ranked gold/silver/bronze. */
-  readonly top3: ReadonlyArray<{ team: string; probability: number }>;
+  readonly persona_name: string;
+  readonly persona_handle: string;
+  readonly persona_flag: string;
+  readonly persona_country: string;
+  /** Champion pick (gold): the bot's sentimental darling team. */
+  readonly champion: { team: string; team_name: string };
+  /** Silver/bronze: the bot's next two highest-confidence real-team
+   *  picks across the group stage. */
+  readonly top_supporting: ReadonlyArray<{ team: string; team_name: string; probability: number }>;
+}
+
+function teamDisplayName(code: string): string {
+  return teamMeta(code)?.name ?? code;
 }
 
 export default function BotsListPage(): JSX.Element {
@@ -46,6 +70,14 @@ export default function BotsListPage(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
 
   const matches = useMemo(() => buildDemoMatches(), []);
+  // Only group fixtures carry real team codes pre-tournament; knockout
+  // slot labels are placeholders until the cascade resolves. The
+  // silver/bronze "high-confidence pick" columns therefore look at
+  // group matches only so they always render a recognisable team.
+  const groupMatches = useMemo(
+    () => matches.filter((m) => m.allows_draw),
+    [matches],
+  );
 
   // Load cumulative count once.
   useEffect(() => {
@@ -83,27 +115,52 @@ export default function BotsListPage(): JSX.Element {
       for (; i < chunkEnd; i++) {
         const bot_id = botIdFromIndex(MASTER_SEED, i);
         const chalk_score = chalkScoreForBot(MASTER_SEED, i);
-        // The "cup-winner candidates" for the demo are the home_win
-        // teams of the first 3 matches the bot has highest confidence
-        // on. We pick by the bot's blended-probability on its chosen
-        // outcome, then take the home team.
-        const sorted = matches
+        const persona = personaForBot(MASTER_SEED, i);
+        const darling = darlingTeamForBot(MASTER_SEED, i);
+
+        // Silver/bronze: scan group matches, pick the two highest-
+        // confidence non-draw outcomes that land on a real team code.
+        const picks = groupMatches
           .map((m) => {
             const pick = regenerateBotPick(MASTER_SEED, i, m);
-            return { match: m, pick };
+            const team =
+              pick.chosen === "home_win"
+                ? m.home_team
+                : pick.chosen === "away_win"
+                  ? m.away_team
+                  : null;
+            return { team, probability: pick.chosenProbability };
           })
-          .sort((a, b) => b.pick.chosenProbability - a.pick.chosenProbability)
-          .slice(0, 3);
-        const top3 = sorted.map((s) => ({
-          team:
-            s.pick.chosen === "home_win"
-              ? s.match.home_team
-              : s.pick.chosen === "away_win"
-                ? s.match.away_team
-                : "draw",
-          probability: s.pick.chosenProbability,
-        }));
-        computed.push({ index: i, bot_id, chalk_score, top3 });
+          .filter((p): p is { team: string; probability: number } => p.team !== null)
+          .sort((a, b) => b.probability - a.probability);
+
+        // De-dup so we don't show the same team three times. The
+        // chalk strategy concentrates probability on the favourite
+        // across all of that team's three group games.
+        const seen = new Set<string>([darling]);
+        const top_supporting: Array<{ team: string; team_name: string; probability: number }> = [];
+        for (const p of picks) {
+          if (seen.has(p.team)) continue;
+          seen.add(p.team);
+          top_supporting.push({
+            team: p.team,
+            team_name: teamDisplayName(p.team),
+            probability: p.probability,
+          });
+          if (top_supporting.length >= 2) break;
+        }
+
+        computed.push({
+          index: i,
+          bot_id,
+          chalk_score,
+          persona_name: persona.name,
+          persona_handle: persona.handle,
+          persona_flag: persona.flag,
+          persona_country: persona.country,
+          champion: { team: darling, team_name: teamDisplayName(darling) },
+          top_supporting,
+        });
       }
       if (i < endIdx) {
         requestAnimationFrame(tick);
@@ -117,7 +174,7 @@ export default function BotsListPage(): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [page, total, matches]);
+  }, [page, total, groupMatches]);
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -136,6 +193,9 @@ export default function BotsListPage(): JSX.Element {
               deterministically from the bot&apos;s index in roughly 3
               milliseconds, so we do not store the picks themselves,
               which is how this scales to a billion bots in your tab.
+              Brackets cover the full 104-match FIFA 2026 schedule (72
+              group + 32 knockout) loaded from{" "}
+              <code>@tournamental/bracket-engine</code>.
             </p>
             <div className="vt-bots-summary">
               <div>
@@ -178,15 +238,16 @@ export default function BotsListPage(): JSX.Element {
                 <thead>
                   <tr>
                     <th>#</th>
+                    <th>Persona</th>
                     <th>Bot ID</th>
                     <th>Chalk score</th>
                     <th>
                       <span className="vt-bots-medal vt-bots-medal--gold" aria-label="gold">🥇</span>{" "}
-                      Highest-confidence pick
+                      Champion pick
                     </th>
                     <th>
                       <span className="vt-bots-medal vt-bots-medal--silver" aria-label="silver">🥈</span>{" "}
-                      2nd pick
+                      Next pick
                     </th>
                     <th>
                       <span className="vt-bots-medal vt-bots-medal--bronze" aria-label="bronze">🥉</span>{" "}
@@ -200,20 +261,33 @@ export default function BotsListPage(): JSX.Element {
                     <tr key={row.index}>
                       <td>{row.index.toLocaleString("en-NZ")}</td>
                       <td>
+                        <span className="vt-bots-pick">
+                          <span aria-hidden="true">{row.persona_flag}</span>{" "}
+                          <strong>{row.persona_name}</strong>{" "}
+                          <span className="vt-bots-prob">{row.persona_country}</span>
+                        </span>
+                      </td>
+                      <td>
                         <code className="vt-bots-bot-id">{row.bot_id}</code>
                       </td>
                       <td>{row.chalk_score.toFixed(3)}</td>
-                      {[0, 1, 2].map((medalIdx) => (
+                      <td>
+                        <span className="vt-bots-pick">
+                          <strong>{row.champion.team_name}</strong>{" "}
+                          <span className="vt-bots-prob">darling</span>
+                        </span>
+                      </td>
+                      {[0, 1].map((medalIdx) => (
                         <td key={medalIdx}>
-                          {row.top3[medalIdx] ? (
+                          {row.top_supporting[medalIdx] ? (
                             <span className="vt-bots-pick">
-                              <strong>{row.top3[medalIdx]!.team}</strong>{" "}
+                              <strong>{row.top_supporting[medalIdx]!.team_name}</strong>{" "}
                               <span className="vt-bots-prob">
-                                {Math.round(row.top3[medalIdx]!.probability * 100)}%
+                                {Math.round(row.top_supporting[medalIdx]!.probability * 100)}%
                               </span>
                             </span>
                           ) : (
-                            <span className="vt-bots-pick-empty">,</span>
+                            <span className="vt-bots-pick-empty">-</span>
                           )}
                         </td>
                       ))}
