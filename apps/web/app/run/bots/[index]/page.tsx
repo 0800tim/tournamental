@@ -37,6 +37,10 @@ import {
   teamMeta,
 } from "@/components/browser-swarm/regenerate";
 import { personaForBot } from "@/components/browser-swarm/personas";
+import {
+  resolveBotBracket,
+  resolvedKnockoutSlots,
+} from "@/components/browser-swarm/cascade";
 
 import "../bots.css";
 
@@ -62,6 +66,14 @@ export default function BotDetailPage(): JSX.Element {
     () => regenerateBotBracket(MASTER_SEED, botIndex, matches),
     [botIndex, matches],
   );
+  // Resolve every knockout slot to a concrete team id (winner of group
+  // A becomes "France" when this bot's group A standings put France
+  // first, etc.). Powers the real-team-name rendering in the knockout
+  // table below.
+  const resolved = useMemo(
+    () => resolveBotBracket(MASTER_SEED, botIndex, matches),
+    [botIndex, matches],
+  );
 
   const botId = botIdFromIndex(MASTER_SEED, botIndex);
   const chalkScore = chalkScoreForBot(MASTER_SEED, botIndex);
@@ -71,6 +83,20 @@ export default function BotDetailPage(): JSX.Element {
 
   const groupMatches = bracket.filter((b) => b.match.allows_draw);
   const knockoutMatches = bracket.filter((b) => !b.match.allows_draw);
+
+  // Look up the resolved (home, away) team ids for a knockout match,
+  // falling back to the raw slot label if the cascade left the slot
+  // unresolved (e.g. mid-build or pre-Annex-C).
+  function resolvedTeams(matchId: string, rawHome: string, rawAway: string): {
+    home: string;
+    away: string;
+  } {
+    const lookup = resolvedKnockoutSlots(resolved.cascaded, matchId);
+    return {
+      home: lookup?.home ?? rawHome,
+      away: lookup?.away ?? rawAway,
+    };
+  }
 
   return (
     <AppShell title={`Bot #${botIndex}`}>
@@ -159,9 +185,10 @@ export default function BotDetailPage(): JSX.Element {
 
           <h2 className="vt-bots-h2">Knockouts ({knockoutMatches.length} matches)</h2>
           <p style={{ color: "#98a0b7", fontSize: 13, marginBottom: 12 }}>
-            Pre-tournament: knockout slots show their cascade label
-            (winner of group X, best-third paired with group Y) until
-            results resolve them to real teams.
+            Cascade resolved: every knockout slot is projected onto a
+            concrete team using this bot&apos;s group standings and the
+            FIFA Annex C routing table. Click through the rounds to see
+            how the bot expects each tie to play out.
           </p>
           <table className="vt-bots-table">
             <thead>
@@ -173,30 +200,46 @@ export default function BotDetailPage(): JSX.Element {
               </tr>
             </thead>
             <tbody>
-              {knockoutMatches.map(({ match, pick }) => (
-                <tr key={match.match_id}>
-                  <td>
-                    <code style={{ fontSize: 12, color: "#98a0b7" }}>
-                      {match.match_id}
-                    </code>
-                  </td>
-                  <td>
-                    <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.home_team)}</span>{" "}
-                    <span style={{ color: "#98a0b7" }}>vs</span>{" "}
-                    <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.away_team)}</span>
-                  </td>
-                  {pick.ranking.slice(0, 2).map((r, idx) => (
-                    <td key={idx}>
-                      <span className="vt-bots-pick">
-                        <strong>{outcomeLabel(r.outcome, match)}</strong>{" "}
-                        <span className="vt-bots-prob">
-                          {Math.round(r.probability * 100)}%
-                        </span>
+              {knockoutMatches.map(({ match, pick }) => {
+                const teams = resolvedTeams(
+                  match.match_id,
+                  match.home_team,
+                  match.away_team,
+                );
+                const resolvedMatch = {
+                  ...match,
+                  home_team: teams.home,
+                  away_team: teams.away,
+                };
+                return (
+                  <tr key={match.match_id}>
+                    <td>
+                      <code style={{ fontSize: 12, color: "#98a0b7" }}>
+                        {match.match_id}
+                      </code>
+                    </td>
+                    <td>
+                      <span style={{ color: "#e7ecf7" }}>
+                        {teamDisplay(teams.home)}
+                      </span>{" "}
+                      <span style={{ color: "#98a0b7" }}>vs</span>{" "}
+                      <span style={{ color: "#e7ecf7" }}>
+                        {teamDisplay(teams.away)}
                       </span>
                     </td>
-                  ))}
-                </tr>
-              ))}
+                    {pick.ranking.slice(0, 2).map((r, idx) => (
+                      <td key={idx}>
+                        <span className="vt-bots-pick">
+                          <strong>{outcomeLabel(r.outcome, resolvedMatch)}</strong>{" "}
+                          <span className="vt-bots-prob">
+                            {Math.round(r.probability * 100)}%
+                          </span>
+                        </span>
+                      </td>
+                    ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
