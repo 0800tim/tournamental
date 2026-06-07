@@ -84,6 +84,18 @@ const nextConfig = {
     const gameBase = process.env.GAME_BASE_URL ?? "http://127.0.0.1:3361";
     return [
       { source: "/v1/swarm/:path*", destination: `${gameBase}/v1/swarm/:path*` },
+      // White papers live as static HTML under public/whitepaper/<slug>/index.html
+      // so the build doesn't need to know about each one. Next.js doesn't
+      // auto-resolve index.html for directories in /public, so rewrite the
+      // clean URLs to the file. Tim 2026-06-08.
+      {
+        source: "/whitepaper/:slug",
+        destination: "/whitepaper/:slug/index.html",
+      },
+      {
+        source: "/whitepaper/:slug/",
+        destination: "/whitepaper/:slug/index.html",
+      },
     ];
   },
   webpack: (config, { isServer }) => {
