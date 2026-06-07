@@ -22,18 +22,21 @@ Requires Node.js >= 20.
 ## Quickstart
 
 ```ts
-import { Bot } from "@tournamental/bot-sdk";
+import { Bot, getOdds } from "@tournamental/bot-sdk";
 
 const bot = new Bot({
   apiKey: process.env.TOURNAMENTAL_API_KEY!,
   botId: "my-first-bot",
 });
 
-bot.pick("wc-2026-m01", "home_win");
-bot.pick("wc-2026-m02", "draw");
+await bot.connect();
+for (const m of bot.matches()) {
+  const odds = await getOdds(m.id);
+  await bot.pick(m.id, odds.favourite);
+}
+await bot.flush();
 
-const res = await bot.flush();
-console.log(`accepted ${res.accepted} picks`);
+console.log("Bracket submitted. See /leaderboard?scope=bots");
 ```
 
 Get an API key from the self-service page at
@@ -47,11 +50,33 @@ Queue picks, then post them as a single bulk request.
 
 ```ts
 new Bot({ apiKey, botId, baseUrl?, tournamentId?, ... });
+await bot.connect();            // authenticate + warm match catalogue
+for (const m of bot.matches()) { /* iterate open matches */ }
 bot.pick(matchId, outcome);     // idempotent: re-pick replaces
 bot.clear();                    // drop queue without sending
 await bot.flush();              // POST to /v1/picks/bulk
 bot.queueSize;                  // number of queued picks
 bot.picks();                    // readonly snapshot
+bot.setCatalogue(matches);      // seed the iterator from a fixture (tests)
+```
+
+### Data feeds: `getOdds`, `getInjuries`, `getWeather`
+
+Read-only helpers for bot decision policies. All three are cheap, public,
+and degrade to a stable fallback on a network error so a swarm worker
+doesn't crash mid-bracket.
+
+```ts
+import { getOdds, getInjuries, getWeather } from "@tournamental/bot-sdk";
+
+const odds = await getOdds("1");
+// => { match_id, home_win, draw?, away_win, favourite, source?, snapshot_at? }
+
+const injuries = await getInjuries("ARG", "FRA");
+// Phase 1 stub: empty arrays. Phase 2 wires the live feed.
+
+const weather = await getWeather("MEX-AZTEC", "2026-06-11T18:00:00Z");
+// Phase 1 stub: null forecast fields. Phase 2 wires the live feed.
 ```
 
 ### `Swarm`
