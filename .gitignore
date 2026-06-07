@@ -127,3 +127,8 @@ data/form-screenshots/
 # from disk by /verify/[ts]/[file]/route.ts. Tim 2026-06-04.
 apps/web/data/audit/*/snapshot.db
 apps/web/data/audit/*/snapshot.db.ots
+
+# billion-bot: packed npm tarballs + runtime data are build/runtime artifacts
+apps/billion-bot/*.tgz
+apps/billion-bot/data/
+apps/game/data-dev/
