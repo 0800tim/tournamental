@@ -21,7 +21,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Bot Arena · Tournamental",
   description:
-    "Run AI swarms in your browser to forecast every match of the FIFA World Cup 2026. 104 matches, 1 in 10^49 chance of a random perfect bracket. Every pick anchored to Bitcoin via OpenTimestamps. Free, open-source, US$0 anchor cost. Bots cannot win the cash prize; that stays with verified humans.",
+    "Run your own AI bot swarm in your browser to forecast every match of the FIFA World Cup 2026. 104 matches, 9.74 x 10^43 possible brackets. Every pick anchored to Bitcoin via OpenTimestamps. Free, open-source, US$0 anchor cost. Bots cannot win the cash prize; that stays with verified humans.",
   robots: { index: true, follow: true },
 };
 
@@ -33,90 +33,38 @@ export default function BotArenaPage(): JSX.Element {
 
         <header className="vt-arena-header">
           <p className="vt-arena-dateline">
-            Tournamental Open Bot Arena · Swarm builder goes live 9 June 2026
+            Tournamental Open Bot Arena · Live now
           </p>
           <h1 className="vt-arena-title">
-            Run AI swarms in your browser.
+            Run your own AI bot swarm.
             <br />
             Forecast every match of the <em>FIFA World Cup 2026</em>.
           </h1>
           <p className="vt-arena-lede">
-            104 matches. 9.74 &times; 10<sup>43</sup> possible brackets.
-            Roughly <strong>1 in 10<sup>49</sup></strong> chance of a
-            random perfect bracket. The Tournamental swarm builder
-            launches on <strong>9 June 2026</strong>, two days before
-            the opening match. Sign up now, save your own human
-            bracket, and from 9 June lock in billions of AI bracket
-            predictions before kickoff on 11 June. Every pick, human
-            and bot, is anchored to the Bitcoin blockchain via
-            OpenTimestamps. The anchor cost is US$0. The audit is open
-            to anyone.
+            104 matches. 9.74 &times; 10<sup>43</sup> possible
+            brackets. Spawn anywhere from a hundred to billions of
+            unique AI bracket predictions, straight in your browser,
+            using your own CPU. Every pick is anchored to the Bitcoin
+            blockchain via OpenTimestamps. The anchor cost is US$0. The
+            audit is open to anyone. Bots cannot win the cash prize.
+            Humans cannot stop them.
           </p>
           <div className="vt-arena-cta-row">
             <Link href="/run" className="vt-arena-cta-primary">
-              Start a swarm <span aria-hidden="true">→</span>
+              Run your own bot swarm now <span aria-hidden="true">→</span>
+            </Link>
+            <Link href="/run/bots" className="vt-arena-cta-secondary">
+              View my bots
             </Link>
             <Link href="/verify" className="vt-arena-cta-secondary">
               How verification works
             </Link>
-            <a
-              href="/press/2026-06-07.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="vt-arena-cta-secondary"
-            >
-              Read the press release <span aria-hidden="true">↗</span>
-            </a>
           </div>
           <p className="vt-arena-footnote">
             Free. No install. Open source under Apache 2.0. Bots cannot
             win the cash prize. The house stays for verified humans.
           </p>
         </header>
-
-        <section className="vt-arena-launch-banner">
-          <p className="vt-arena-launch-eyebrow">Launch timing</p>
-          <h2 className="vt-arena-launch-title">
-            Two windows to lock in. Today, and from 9 June.
-          </h2>
-          <div className="vt-arena-launch-grid">
-            <div className="vt-arena-launch-card">
-              <p className="vt-arena-launch-when">
-                <strong>Today, all the way through to 9 June</strong>
-              </p>
-              <p>
-                Sign in at{" "}
-                <Link href="/world-cup-2026">play.tournamental.com</Link>{" "}
-                with a phone, email, or Telegram. Save your{" "}
-                <strong>own human bracket</strong> on the predict page.
-                That bracket competes for the founder&apos;s NZ$1.5
-                million house. The earlier you save it, the longer your
-                pick history is on the blockchain audit trail.
-              </p>
-            </div>
-            <div className="vt-arena-launch-card">
-              <p className="vt-arena-launch-when">
-                <strong>From 9 June, two days before kickoff</strong>
-              </p>
-              <p>
-                The swarm builder goes live at{" "}
-                <Link href="/run">play.tournamental.com/run</Link>. We
-                send the alert to every signed-up account. You spawn
-                anywhere from 100 to a few million unique AI bracket
-                predictions straight in your browser, or run billions
-                via the{" "}
-                <Link href="/bots/node">federated Node operator</Link>{" "}
-                path on your own server. All bot predictions lock in
-                before kickoff on <strong>11 June</strong>.
-              </p>
-            </div>
-          </div>
-          <p className="vt-arena-launch-footnote">
-            You do not need to install anything in advance. Just sign
-            up, save your human bracket, and watch your email or in-app
-            notifications for the 9 June swarm-builder go-live.
-          </p>
-        </section>
 
         <span id="how" />
 
@@ -152,12 +100,11 @@ export default function BotArenaPage(): JSX.Element {
           </ol>
 
           <p>
-            That is the whole setup. The first time you open{" "}
-            <code>/run</code> the page walks you through a 30-second
-            free-Supabase sign-up if you want your bots to persist
-            across browser sessions. Skip it and your swarm lives in
-            your browser&apos;s local storage; close the tab and it is
-            gone. Either way, the merkle commitments to our central
+            That is the whole setup. Your swarm persists in your
+            browser&apos;s IndexedDB by default, the count survives a
+            tab close, a browser restart, and a laptop reboot. Sign up
+            for a free Supabase project at any point to mirror it to a
+            second device. The merkle commitments to our central
             server are immutable on the blockchain regardless.
           </p>
 
