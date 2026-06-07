@@ -60,7 +60,7 @@ export function LeaderboardTabs({
     btn?.focus();
   };
 
-  const onKeyDown = (e: KeyboardEvent<HTMLDivElement>, index: number) => {
+  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     switch (e.key) {
       case "ArrowRight":
         e.preventDefault();
