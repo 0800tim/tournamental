@@ -35,6 +35,7 @@ import { registerPicksBulkRoute } from "./routes/picks-bulk.js";
 import { registerNodesRoutes } from "./routes/nodes.js";
 import { registerSwarmRoutes } from "./routes/swarm.js";
 import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
+import { registerBotsKeysIssueRoute } from "./routes/bots-keys-issue.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
 import { recomputeVerifiedPundits } from "./pundit/compute.js";
@@ -166,6 +167,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   await registerLeaderboardRoutes(app, { store, cache });
   await registerSyndicateRoutes(app, { store, adminToken });
   await registerUserApiKeyRoutes(app, { store, nowMs: opts.nowMs });
+  await registerBotsKeysIssueRoute(app, { store, nowMs: opts.nowMs });
   await registerPunditRoutes(app, {
     store,
     adminToken,

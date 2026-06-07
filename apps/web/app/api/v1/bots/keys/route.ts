@@ -88,15 +88,24 @@ export async function POST(req: NextRequest): Promise<Response> {
     );
   }
 
+  // Shared-secret service-to-service auth. The upstream
+  // /v1/bots/keys/issue endpoint validates this header against the same
+  // env var on the game-service side. Falls back to the legacy
+  // X-Tournamental-Service header for backwards compatibility with
+  // older game-service builds that haven't pulled the shared-secret
+  // change yet.
+  const sharedSecret = process.env.GAME_BOT_KEYS_SHARED_SECRET ?? "";
+
   let upstreamRes: Response;
   try {
     upstreamRes = await fetch(`${upstream}/v1/bots/keys/issue`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        // Internal service-to-service auth header. The game-service
-        // checks this against an allowlist of trusted callers.
         "X-Tournamental-Service": "web",
+        ...(sharedSecret
+          ? { "x-bot-keys-shared-secret": sharedSecret }
+          : {}),
       },
       body: JSON.stringify({
         owner_email: email,
