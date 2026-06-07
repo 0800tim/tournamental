@@ -1,0 +1,29 @@
+[
+  {
+    "match_id": "wc2026-grp-a-01",
+    "tournament_id": "fifa-wc-2026",
+    "home_team": "Mexico",
+    "away_team": "TBD",
+    "kickoff_utc": "2027-06-11T20:00:00Z",
+    "allows_draw": true,
+    "odds": { "home_win": 0.55, "draw": 0.25, "away_win": 0.20 }
+  },
+  {
+    "match_id": "wc2026-grp-b-01",
+    "tournament_id": "fifa-wc-2026",
+    "home_team": "Canada",
+    "away_team": "TBD",
+    "kickoff_utc": "2027-06-12T18:00:00Z",
+    "allows_draw": true,
+    "odds": { "home_win": 0.48, "draw": 0.27, "away_win": 0.25 }
+  },
+  {
+    "match_id": "wc2026-grp-c-01",
+    "tournament_id": "fifa-wc-2026",
+    "home_team": "USA",
+    "away_team": "TBD",
+    "kickoff_utc": "2027-06-12T22:00:00Z",
+    "allows_draw": true,
+    "odds": { "home_win": 0.50, "draw": 0.26, "away_win": 0.24 }
+  }
+]

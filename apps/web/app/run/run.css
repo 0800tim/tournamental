@@ -1,0 +1,770 @@
+/**
+ * /run page styling.
+ *
+ * Editorial brand match with /the-bet and /odds: Fraunces display
+ * headlines on a near-black background, gold-accent dateline, system
+ * sans for body. Swarm console is built from straight-edge cards on a
+ * subtle ink grid so the page feels like a control panel without
+ * shipping a fully designed design system.
+ */
+
+.vt-run {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 48px 20px 96px;
+  line-height: 1.55;
+}
+
+.vt-run-article {
+  max-width: 1170px;
+  margin: 0 auto;
+}
+
+.vt-run-header {
+  padding: clamp(36px, 6vw, 80px) clamp(20px, 4vw, 56px);
+  background:
+    radial-gradient(60% 80% at 75% 15%, rgba(220, 169, 75, 0.18) 0%, rgba(15, 15, 22, 0) 60%),
+    linear-gradient(135deg, #131318 0%, #1b1b22 100%);
+  border-radius: 18px;
+  margin-bottom: 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.vt-run-header::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.vt-run-header > * {
+  position: relative;
+  z-index: 1;
+}
+
+.vt-run-dateline {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.vt-run-title {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(36px, 6vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+  margin: 20px 0 0;
+  color: #ffffff;
+  max-width: 900px;
+}
+
+.vt-run-title em {
+  color: #dca94b;
+  font-style: italic;
+}
+
+.vt-run-lede {
+  margin-top: 20px;
+  max-width: 720px;
+  font-size: clamp(17px, 2vw, 20px);
+  color: #c3cad8;
+}
+
+.vt-run-pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.vt-run-pill {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #c3cad8;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vt-run-body {
+  max-width: 980px;
+  margin: 0 auto;
+}
+
+.vt-run-h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(24px, 3vw, 32px);
+  letter-spacing: -0.01em;
+  margin: 56px 0 20px;
+  color: #ffffff;
+}
+
+.vt-run-tutorial {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.vt-run-tut-card {
+  background: #16161c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.vt-run-tut-step {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  color: #dca94b;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.vt-run-tut-title {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 20px;
+  margin: 12px 0 8px;
+  color: #ffffff;
+}
+
+.vt-run-tut-body {
+  color: #c3cad8;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.vt-run-tut-body code {
+  background: rgba(255, 255, 255, 0.06);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+/* Swarm console (BrowserSwarm.tsx) */
+
+.vt-swarm {
+  margin-top: 32px;
+}
+
+/* Tim 2026-06-08: incognito / private browsing banner. IndexedDB is
+ * wiped when the last private window closes, so the user's bot picks
+ * vanish along with any audit trail. The warning sits above the
+ * Storage card and is dismissible. */
+.vt-swarm-incognito-warning {
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  background: linear-gradient(180deg, rgba(220, 60, 60, 0.10) 0%, rgba(220, 60, 60, 0.04) 100%);
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 12px;
+  color: #fecaca;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.vt-swarm-incognito-warning-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.vt-swarm-incognito-warning-head strong {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 17px;
+  color: #fde68a;
+  letter-spacing: -0.01em;
+}
+.vt-swarm-incognito-warning p {
+  margin: 6px 0 0;
+}
+.vt-swarm-incognito-warning code {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+.vt-swarm-incognito-ack {
+  margin-top: 10px;
+  background: transparent;
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.vt-swarm-incognito-ack:hover {
+  background: rgba(248, 113, 113, 0.15);
+}
+.vt-swarm-incognito-cleared {
+  margin-top: 10px !important;
+  color: #86efac;
+  font-weight: 500;
+}
+.vt-swarm-start-blocked {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: #fca5a5;
+  line-height: 1.5;
+}
+
+.vt-swarm-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.vt-swarm-card {
+  background: #14141a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 18px 18px 20px;
+  margin: 0;
+}
+
+.vt-swarm-card-legend {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #dca94b;
+  padding: 0 8px;
+}
+
+.vt-swarm-card-sub {
+  color: #8a93a6;
+  font-size: 13.5px;
+  margin: 4px 0 16px;
+  line-height: 1.5;
+}
+
+.vt-swarm-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vt-swarm-label {
+  font-size: 13px;
+  color: #c3cad8;
+  display: block;
+}
+
+.vt-swarm-hint {
+  color: #6c7484;
+  font-size: 12px;
+  margin-left: 6px;
+}
+
+.vt-swarm-input,
+.vt-swarm-sql {
+  background: #0e0e14;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #e7ecf7;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.vt-swarm-input:focus,
+.vt-swarm-sql:focus {
+  outline: 2px solid #dca94b;
+  outline-offset: 1px;
+}
+
+.vt-swarm-sql {
+  margin-top: 10px;
+  resize: vertical;
+  white-space: pre;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.vt-swarm-details {
+  margin-top: 8px;
+  font-size: 13px;
+}
+
+.vt-swarm-details summary {
+  cursor: pointer;
+  color: #c3cad8;
+  padding: 6px 0;
+}
+
+.vt-swarm-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.vt-swarm-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition:
+    transform 0.05s ease,
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.vt-swarm-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.vt-swarm-button--primary {
+  background: #dca94b;
+  color: #1a1410;
+}
+
+.vt-swarm-button--primary:not(:disabled):hover {
+  background: #e8bb5e;
+}
+
+.vt-swarm-button--ghost {
+  background: transparent;
+  color: #e7ecf7;
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+.vt-swarm-button--ghost:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.vt-swarm-slider {
+  width: 100%;
+  accent-color: #dca94b;
+}
+
+.vt-swarm-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.vt-swarm-chip {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #c3cad8;
+  cursor: pointer;
+}
+
+.vt-swarm-chip:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.vt-swarm-badge {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.vt-swarm-badge--untested {
+  background: rgba(255, 255, 255, 0.06);
+  color: #8a93a6;
+}
+
+.vt-swarm-badge--ok {
+  background: rgba(74, 188, 116, 0.16);
+  color: #6ee29a;
+}
+
+.vt-swarm-badge--error {
+  background: rgba(232, 86, 86, 0.16);
+  color: #ff8b8b;
+}
+
+.vt-swarm-badge--checking {
+  background: rgba(220, 169, 75, 0.16);
+  color: #f0c977;
+}
+
+/* Live panel */
+
+.vt-swarm-live {
+  margin-top: 32px;
+  background: #14141a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.vt-swarm-h2 {
+  font-family: Fraunces, Georgia, serif;
+  margin: 0 0 16px;
+  font-size: 22px;
+  color: #ffffff;
+}
+
+.vt-swarm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.vt-swarm-stats--secondary {
+  margin-top: 16px;
+  margin-bottom: 0;
+}
+
+.vt-swarm-stat {
+  background: #0e0e14;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vt-swarm-stat-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #8a93a6;
+}
+
+.vt-swarm-stat-value {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.vt-swarm-progress {
+  background: #0e0e14;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.vt-swarm-progress-fill {
+  background: linear-gradient(90deg, #dca94b 0%, #f0c977 100%);
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.vt-swarm-errors {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0 0;
+  color: #ff8b8b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+}
+
+.vt-swarm-errors li {
+  padding: 6px 10px;
+  background: rgba(232, 86, 86, 0.08);
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.vt-swarm-creds {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #8a93a6;
+}
+
+.vt-swarm-creds code {
+  color: #dca94b;
+  background: rgba(220, 169, 75, 0.08);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@media (max-width: 720px) {
+  .vt-run {
+    padding: 32px 16px 64px;
+  }
+  .vt-run-header {
+    padding: 28px 20px;
+  }
+}
+
+/* ---------- how-to: throughput table + answer list ---------- */
+
+.vt-run-perf-table {
+  margin: 18px 0 24px;
+  overflow-x: auto;
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 10px;
+}
+.vt-run-perf-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.vt-run-perf-table thead {
+  background: rgba(220, 169, 75, 0.08);
+}
+.vt-run-perf-table th,
+.vt-run-perf-table td {
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+.vt-run-perf-table th {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  font-weight: 500;
+}
+.vt-run-perf-table td {
+  color: #d8def0;
+}
+.vt-run-perf-table tr:last-child td {
+  border-bottom: none;
+}
+.vt-run-perf-table strong {
+  color: #ffffff;
+}
+
+.vt-run-list {
+  margin: 14px 0 22px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-run-list li {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+.vt-run-list strong {
+  color: #ffffff;
+}
+
+/* ---------- cumulative swarm banner (Tim 2026-06-07) ---------- */
+
+.vt-swarm-cumulative {
+  margin: 0 0 24px;
+  padding: 22px 24px;
+  background: linear-gradient(180deg, rgba(220, 169, 75, 0.12) 0%, rgba(220, 169, 75, 0.04) 100%);
+  border: 1px solid rgba(220, 169, 75, 0.45);
+  border-radius: 12px;
+}
+.vt-swarm-cumulative-row {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vt-swarm-cumulative-label {
+  margin: 0 0 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+}
+.vt-swarm-cumulative-count {
+  margin: 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 500;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.015em;
+}
+.vt-swarm-cumulative-count span {
+  font-size: 18px;
+  color: #c7d0e6;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  margin-left: 6px;
+}
+.vt-swarm-cumulative-meta {
+  flex: 1;
+  min-width: 240px;
+}
+.vt-swarm-cumulative-meta p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #c7d0e6;
+}
+.vt-swarm-cumulative-meta strong {
+  color: #f6c64f;
+  font-weight: 500;
+}
+
+/* ---------- storage: always-on IndexedDB + Supabase tick (Tim 2026-06-07 evening) ---------- */
+
+.vt-swarm-storage-primary {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: rgba(56, 178, 119, 0.12);
+  border: 1px solid rgba(56, 178, 119, 0.45);
+  border-radius: 10px;
+}
+.vt-swarm-storage-badge {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #38b277;
+  color: #0e0e12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+.vt-swarm-storage-name {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+}
+.vt-swarm-storage-detail {
+  margin: 0;
+  font-size: 13px;
+  color: #c7d0e6;
+  line-height: 1.55;
+}
+
+.vt-swarm-checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+  margin: 6px 0;
+  cursor: pointer;
+  color: #e7ecf7;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.vt-swarm-checkbox-row input[type="checkbox"] {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: #dca94b;
+  cursor: pointer;
+}
+.vt-swarm-checkbox-row input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.vt-swarm-checkbox-row strong {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.vt-swarm-helper {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #98a0b7;
+  line-height: 1.5;
+}
+.vt-swarm-helper a {
+  color: #dca94b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vt-swarm-odds-source {
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid rgba(220, 169, 75, 0.25);
+  border-radius: 6px;
+  background: rgba(220, 169, 75, 0.06);
+  color: #c7d0e6;
+}
+.vt-swarm-odds-source strong {
+  color: #f6c64f;
+  font-weight: 600;
+}
+
+.vt-swarm-faq-list {
+  margin: 12px 0;
+  padding-left: 22px;
+  color: #c7d0e6;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.vt-swarm-faq-list li {
+  margin: 0 0 8px;
+}
+.vt-swarm-faq-list strong {
+  color: #ffffff;
+}
+.vt-swarm-faq-list a {
+  color: #dca94b;
+}
+.vt-swarm-faq-list code {
+  background: rgba(220, 169, 75, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  color: #dca94b;
+}
+.vt-swarm-faq-detail {
+  margin: 12px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #98a0b7;
+  line-height: 1.5;
+}
+
+/* ---------- loop mode (Tim 2026-06-07 evening) ---------- */
+
+.vt-swarm-loop-warning {
+  margin: 8px 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #ffeeb8;
+  background: rgba(220, 169, 75, 0.12);
+  border: 1px solid rgba(220, 169, 75, 0.45);
+  border-radius: 8px;
+}
+
+.vt-swarm-loop-meta {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #98a0b7;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+.vt-swarm-loop-meta strong {
+  color: #f6c64f;
+}

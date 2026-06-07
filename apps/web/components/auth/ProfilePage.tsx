@@ -47,6 +47,7 @@ import { AvatarUploader } from "@/components/profile/AvatarUploader";
 import { SignupModal } from "./SignupModal";
 import { PhoneLinkModal } from "./PhoneLinkModal";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
+import { indexedDbPersistence } from "@/components/browser-swarm/persistence";
 
 import "@/components/profile/team-picker.css";
 import "@/components/profile/avatar-uploader.css";
@@ -307,6 +308,8 @@ function InboundProfileEditor({ userId }: { userId: string }) {
           </button>
         </div>
       </section>
+
+      <MyBotSwarmCard />
 
       <section className="vt-section">
         <h2 className="vt-section-title">{safeT(t, "profile_page.avatar_section_title", "Avatar")}</h2>
@@ -1021,6 +1024,208 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       {label}
       {children}
     </label>
+  );
+}
+
+/* ---------------- My bot swarm card ---------------- */
+
+/**
+ * Surfaces the operator's own swarm aggregate (total_bots, best_bot_score)
+ * on the main /profile page. Pulls the operator API key from IndexedDB
+ * (set in /run), hashes it to the operator_id the server keys by, and
+ * fetches /api/v1/swarms/<operator_id>.
+ *
+ * Renders nothing for users who have never run a swarm (no key on file)
+ * to keep the profile clean for non-operators.
+ *
+ * Refreshes every 30s while the page is visible so the count grows as
+ * the user's /run tab (or Docker node) keeps committing.
+ */
+function MyBotSwarmCard() {
+  const t = useTranslations();
+  const [operatorId, setOperatorId] = useState<string | null>(null);
+  const [summary, setSummary] = useState<{
+    total_bots: number;
+    best_bot_score: number;
+    generated_at: number;
+  } | null>(null);
+  const [loaded, setLoaded] = useState(false);
+
+  // Resolve operator_id from the local API key once.
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        const key = await indexedDbPersistence.loadOperatorApiKey();
+        if (!key) {
+          if (!cancelled) setLoaded(true);
+          return;
+        }
+        if (typeof crypto === "undefined" || !crypto.subtle) {
+          if (!cancelled) setLoaded(true);
+          return;
+        }
+        const buf = await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(key),
+        );
+        const view = new Uint8Array(buf);
+        let hex = "";
+        for (let i = 0; i < view.length; i++)
+          hex += view[i]!.toString(16).padStart(2, "0");
+        if (!cancelled) {
+          setOperatorId(hex);
+          setLoaded(true);
+        }
+      } catch {
+        if (!cancelled) setLoaded(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Poll the aggregate every 30s while visible.
+  useEffect(() => {
+    if (!operatorId) return;
+    let cancelled = false;
+    let timer: number | null = null;
+    const fetchOnce = async () => {
+      try {
+        const r = await fetch(`/api/v1/swarms/${operatorId}`, {
+          method: "GET",
+          headers: { Accept: "application/json" },
+        });
+        if (!r.ok) return;
+        const j = (await r.json()) as {
+          total_bots?: number;
+          best_bot_score?: number;
+          generated_at?: number;
+        };
+        if (
+          !cancelled &&
+          typeof j.total_bots === "number" &&
+          typeof j.best_bot_score === "number"
+        ) {
+          setSummary({
+            total_bots: j.total_bots,
+            best_bot_score: j.best_bot_score,
+            generated_at: j.generated_at ?? Date.now(),
+          });
+        }
+      } catch {
+        // network blip: leave whatever we have on screen.
+      }
+    };
+    const schedule = () => {
+      if (cancelled) return;
+      void fetchOnce().finally(() => {
+        if (cancelled) return;
+        timer = window.setTimeout(schedule, 30_000);
+      });
+    };
+    schedule();
+    const onVis = () => {
+      if (document.visibilityState === "visible") void fetchOnce();
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      if (timer != null) window.clearTimeout(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [operatorId]);
+
+  if (!loaded) return null;
+
+  // Operator with no key yet: tiny CTA pointing to /run.
+  if (!operatorId) {
+    return (
+      <section className="vt-section">
+        <h2 className="vt-section-title">
+          {safeT(t, "profile_page.bot_swarm_title", "Your bot swarm")}
+        </h2>
+        <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
+          {safeT(
+            t,
+            "profile_page.bot_swarm_no_key",
+            "Run a swarm in your browser to start counting bots on your profile.",
+          )}
+        </p>
+        <a href="/run" className="vt-profile-action vt-profile-action--primary">
+          {safeT(t, "profile_page.bot_swarm_cta_start", "Start a swarm at /run")}
+        </a>
+      </section>
+    );
+  }
+
+  const total = summary?.total_bots ?? 0;
+  const best = summary?.best_bot_score ?? 0;
+
+  return (
+    <section className="vt-section">
+      <h2 className="vt-section-title">
+        {safeT(t, "profile_page.bot_swarm_title", "Your bot swarm")}
+      </h2>
+      <p style={{ color: "var(--vt-fg-muted)", margin: "0 0 12px", fontSize: 13 }}>
+        {safeT(
+          t,
+          "profile_page.bot_swarm_lede",
+          "Live aggregate of every bot committed under your operator key, across browser tabs and bot-node containers.",
+        )}
+      </p>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+          gap: 12,
+          marginBottom: 12,
+        }}
+      >
+        <div
+          style={{
+            background: "var(--vt-bg-surface, #15151a)",
+            border: "1px solid var(--vt-border, #27272a)",
+            borderRadius: 8,
+            padding: 14,
+          }}
+        >
+          <div style={{ color: "var(--vt-fg-muted)", fontSize: 11, letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 4 }}>
+            {safeT(t, "profile_page.bot_swarm_total", "Bots committed")}
+          </div>
+          <div style={{ fontSize: 22, color: "var(--vt-gold, #facc15)", fontVariantNumeric: "tabular-nums" }}>
+            {total.toLocaleString()}
+          </div>
+        </div>
+        <div
+          style={{
+            background: "var(--vt-bg-surface, #15151a)",
+            border: "1px solid var(--vt-border, #27272a)",
+            borderRadius: 8,
+            padding: 14,
+          }}
+        >
+          <div style={{ color: "var(--vt-fg-muted)", fontSize: 11, letterSpacing: ".08em", textTransform: "uppercase", marginBottom: 4 }}>
+            {safeT(t, "profile_page.bot_swarm_best", "Top bot")}
+          </div>
+          <div style={{ fontSize: 22, color: "var(--vt-fg, #fafafa)", fontVariantNumeric: "tabular-nums" }}>
+            {best} / 104
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <a
+          href={`/profile/${operatorId}/swarm`}
+          className="vt-profile-action vt-profile-action--primary"
+        >
+          {safeT(t, "profile_page.bot_swarm_view_tab", "View my swarm tab")}
+        </a>
+        <a href="/run" className="vt-profile-action vt-profile-action--ghost">
+          {safeT(t, "profile_page.bot_swarm_run_more", "Run more bots")}
+        </a>
+      </div>
+    </section>
   );
 }
 

@@ -1,0 +1,11 @@
+{
+  "name": "@vtorn/billion-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Tournamental billion-bot dashboard - wraps @tournamental/bot-node",
+  "dependencies": {
+    "@tournamental/bot-node": "file:./tournamental-bot-node-0.3.0.tgz",
+    "better-sqlite3": "11.3.0"
+  }
+}

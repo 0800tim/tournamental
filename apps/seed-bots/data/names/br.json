@@ -1,0 +1,29 @@
+{
+  "_source": "Brasil IBGE/civil registry frequently occurring names (public domain)",
+  "first": [
+    "Miguel", "Arthur", "Bernardo", "Heitor", "Davi", "Lorenzo", "Theo", "Pedro", "Gabriel", "Enzo",
+    "Matheus", "Lucas", "Benjamin", "Nicolas", "Guilherme", "Rafael", "Joaquim", "Samuel", "Enzo Gabriel", "Joao",
+    "Joao Miguel", "Henrique", "Gustavo", "Murilo", "Pedro Henrique", "Pietro", "Lucca", "Felipe", "Joao Pedro", "Isaac",
+    "Benicio", "Daniel", "Anthony", "Leonardo", "Davi Lucca", "Bryan", "Eduardo", "Joao Lucas", "Victor", "Joao Gabriel",
+    "Cauã", "Antonio", "Vicente", "Caio", "Diego", "Tiago", "Marcelo", "Alexandre", "Andre", "Bruno",
+    "Helena", "Alice", "Laura", "Maria Alice", "Sophia", "Manuela", "Maria Julia", "Valentina", "Heloisa", "Luiza",
+    "Maria Luiza", "Lara", "Maria Eduarda", "Beatriz", "Marina", "Mariana", "Giovanna", "Gabriela", "Rafaela", "Isabella",
+    "Maria Clara", "Sarah", "Lavinia", "Cecilia", "Eloah", "Esther", "Ana Clara", "Yasmin", "Maitê", "Ana Julia",
+    "Bianca", "Ana Laura", "Ana", "Olivia", "Maria", "Antonella", "Maria Fernanda", "Larissa", "Maria Cecilia", "Elisa",
+    "Liz", "Pietra", "Stella", "Maria Helena", "Catarina", "Lorena", "Carolina", "Vitoria", "Agatha", "Mirella",
+    "Joana", "Aurora", "Maria Sophia", "Alana", "Antonia"
+  ],
+  "last": [
+    "Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes",
+    "Costa", "Ribeiro", "Martins", "Carvalho", "Almeida", "Lopes", "Soares", "Fernandes", "Vieira", "Barbosa",
+    "Rocha", "Dias", "Nascimento", "Andrade", "Moreira", "Nunes", "Marques", "Machado", "Mendes", "Freitas",
+    "Cardoso", "Ramos", "Goncalves", "Santana", "Teixeira", "Correia", "Cavalcanti", "Castro", "Campos", "Araujo",
+    "Cunha", "Reis", "Pinto", "Moraes", "Melo", "Sousa", "Borges", "Monteiro", "Cardoso", "Brito",
+    "Sales", "Aragão", "Bezerra", "Câmara", "Coelho", "Diniz", "Drumond", "Esteves", "Furtado", "Galvão",
+    "Guerra", "Ibrahim", "Jardim", "Junqueira", "Knust", "Lacerda", "Magalhães", "Neves", "Negrão", "Otero",
+    "Pessoa", "Quevedo", "Rangel", "Sá", "Tavares", "Uchôa", "Vargas", "Watanabe", "Xavier", "Zanetti",
+    "Avila", "Brandão", "Carneiro", "Damasceno", "Eufrásio", "Falcão", "Garcia", "Hirsch", "Iglesias", "Júlio",
+    "Kawasaki", "Lourenço", "Maia", "Nazário", "Ortiz", "Padilha", "Queiroz", "Resende", "Sant'Anna", "Trindade",
+    "Ulhôa", "Velasco", "Westphal", "Yamamoto", "Zampieri"
+  ]
+}

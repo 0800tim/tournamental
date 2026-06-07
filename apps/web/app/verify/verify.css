@@ -137,3 +137,98 @@
   color: #6b7280;
   font-style: italic;
 }
+
+/* Swarm-claim verifier card (A3 — federation + OTS). */
+.vt-verify-swarm {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vt-verify-swarm h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.vt-verify-form {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 10px 14px;
+  align-items: center;
+}
+
+.vt-verify-input {
+  background: #0e0e12;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 6px;
+  padding: 8px 10px;
+  color: #e7ecf7;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+}
+
+.vt-verify-btn {
+  grid-column: 1 / span 2;
+  background: #f6c64f;
+  color: #0e0e12;
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  justify-self: start;
+}
+
+.vt-verify-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.vt-verify-ok {
+  color: #67d59a;
+}
+
+.vt-verify-bad {
+  color: #f4737e;
+}
+
+.vt-verify-pending {
+  color: #f6c64f;
+}
+
+.vt-verify-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.vt-verify-proof {
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vt-verify-download {
+  color: #67d59a;
+}
+
+.vt-verify-bracket-details summary {
+  cursor: pointer;
+  color: #9aa6c2;
+}
+
+.vt-verify-bracket {
+  margin: 10px 0 0 18px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}

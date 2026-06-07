@@ -1,0 +1,11 @@
+Vendored synthetic-face set lands here.
+
+The seed-bots avatar picker references URLs of the form
+`/avatars/faces/face-NNNN.webp` for the 33% of bots assigned the "face"
+pool. The renderer expects 6,000 images named `face-0001.webp` through
+`face-6000.webp` (4-digit, zero-padded, 1-indexed).
+
+These images are CC0 / public-domain-equivalent synthetic faces (no real
+subjects). Tim provisions the set out-of-band so the source files do not
+land in the seed-bots PR diff. The seed CLI itself does not read these
+files; it only writes URL pointers.

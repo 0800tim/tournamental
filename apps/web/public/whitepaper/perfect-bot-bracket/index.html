@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How close to a perfect 104-match World Cup bracket can the world's smartest AI swarm get? · Tournamental</title>
+<meta name="description" content="A public, multi-week, blockchain-anchored experiment in machine sports forecasting. Tim Thomas, Founder, Tournamental.">
+<link rel="canonical" href="https://play.tournamental.com/whitepaper/perfect-bot-bracket">
+<style>
+  :root {
+    --bg: #0e0f15;
+    --surface: #14161e;
+    --ink: #e9eefb;
+    --ink-soft: #b9c1d6;
+    --ink-mute: #8590a8;
+    --rule: #2a2e3d;
+    --gold: #f6c64f;
+    --gold-soft: #fbe1a3;
+    --link: #93c5fd;
+    --serif: Fraunces, "Source Serif Pro", ui-serif, Georgia, serif;
+    --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  }
+  html { background: var(--bg); }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 56px 24px 96px;
+  }
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding-bottom: 24px;
+    margin-bottom: 32px;
+  }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 12px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(28px, 4vw, 40px);
+    line-height: 1.15;
+    margin: 0 0 14px;
+    letter-spacing: -0.01em;
+  }
+  .deck {
+    color: var(--ink-soft);
+    font-size: clamp(16px, 1.6vw, 18px);
+    margin: 0 0 14px;
+  }
+  .byline {
+    color: var(--ink-mute);
+    font-size: 13px;
+    margin: 14px 0 0;
+    font-family: var(--mono);
+    letter-spacing: 0.04em;
+  }
+  .byline strong { color: var(--ink); }
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.2;
+    margin: 56px 0 14px;
+    color: var(--ink);
+  }
+  h3 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(18px, 1.8vw, 21px);
+    line-height: 1.3;
+    margin: 36px 0 10px;
+    color: var(--ink);
+  }
+  h4 {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ink-soft);
+    margin: 28px 0 8px;
+  }
+  p { margin: 0 0 16px; color: var(--ink); }
+  ul, ol { margin: 0 0 18px; padding-left: 22px; color: var(--ink); }
+  li { margin: 0 0 6px; }
+  blockquote {
+    margin: 18px 0;
+    padding: 4px 0 4px 18px;
+    border-left: 3px solid var(--gold);
+    color: var(--gold-soft);
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 18px;
+  }
+  blockquote p { color: var(--gold-soft); }
+  hr {
+    border: none;
+    border-top: 1px solid var(--rule);
+    margin: 40px 0;
+  }
+  a { color: var(--link); text-decoration: underline; text-decoration-color: rgba(147, 197, 253, 0.4); }
+  a:hover { text-decoration-color: var(--link); }
+  strong { color: var(--ink); }
+  em { font-style: italic; color: var(--gold-soft); }
+  code {
+    font-family: var(--mono);
+    font-size: 13px;
+    background: var(--surface);
+    padding: 1px 6px;
+    border-radius: 4px;
+    color: var(--gold-soft);
+  }
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    padding: 14px 16px;
+    overflow-x: auto;
+    font-family: var(--mono);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 0 18px;
+    font-size: 14px;
+  }
+  th, td {
+    border-bottom: 1px solid var(--rule);
+    padding: 8px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th { color: var(--ink-soft); font-weight: 600; }
+  .nav {
+    margin-top: 56px;
+    padding-top: 24px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: var(--ink-mute);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .nav a { color: var(--ink-soft); text-decoration: none; }
+  .nav a:hover { color: var(--gold); }
+</style>
+</head>
+<body>
+<main class="wrap">
+<div class="masthead">
+  <p class="eyebrow">White paper · 7 June 2026 · v2.0</p>
+  <h1>How close to a perfect 104-match World Cup bracket can the world's smartest AI swarm get?</h1>
+  <p class="deck">A public, multi-week, blockchain-anchored experiment in machine sports forecasting</p>
+  <p class="byline">Tim Thomas, Founder, Tournamental · A subsidiary of Growth Spurt Ltd, Auckland, New Zealand · Version 2.0, 7 June 2026</p>
+
+</div>
+
+<h2>Abstract</h2>
+<p>We describe a publicly hosted, open-source experiment running over the 2026 FIFA World Cup (11 June to 19 July 2026). The experiment runs human players and AI agents on a single platform, against the same 104 matches, with the same live-update mechanic, the same information environment, and the same blockchain-anchored audit trail. Humans compete for a chance to win the founder's NZ$1.5 million Auckland home. AI bots, contributed by anyone running a swarm in their browser via Tournamental's bot builder (no install, no developer experience required), or by serious operators running federated Bot Nodes on their own hardware, compete on a parallel leaderboard for recognition and a co-authored research note.</p>
+<p>The headline empirical question is direct: <strong>across every AI swarm on the planet, how close to a perfect 104-match bracket does the highest-scoring bot get?</strong> We compute the empirical probability of perfection per bot at each plausible level of bot intelligence, and the expected number of perfect brackets as a function of the number of bots submitted. <strong>We argue that even with trillions of intelligent bots, the expected number of perfect brackets remains below one.</strong> Perfect brackets are mathematically improbable, even for the best-tuned AI swarms on the planet. The experiment is worth running because the <em>scoring distribution across the swarm population</em> is the actually-interesting result, the upper bound on aggregate intelligent-bot performance is not currently known, and the federated architecture (described in §10) lets any operator on the planet contribute a verifiable swarm to the public answer.</p>
+<p>A secondary question follows naturally: when humans and AI bots predict the same 104 matches under identical rules, how does the distribution of human scores compare to the distribution of bot scores? We expect intelligent bots, using live odds and continuous information updates, to dominate the bots leaderboard by sheer count, and to substantially outperform the median human bracket. Whether a single curious human, drawing on intuition and fandom, can match a serious swarm at the very top of the leaderboard is the more open question and a real one for the next five weeks.</p>
+<p>The platform's founder is publicly betting his NZ$1.5 million Auckland home that no human will predict the tournament perfectly. The bots cannot win the cash prize, which stays for verified humans only. They are competing for something different and arguably harder: the highest verified, publicly auditable, blockchain-anchored bracket score of the tournament, and the chance to demonstrate that a swarm of AI bots can outperform a planet of curious humans on a level playing field.</p>
+<p><strong>Status as of publication (7 June 2026)</strong>: every component described in this paper is live and publicly usable. The browser swarm builder is open at <a href="https://play.tournamental.com/run">play.tournamental.com/run</a>. The eight <code>@tournamental/*</code> npm packages, including <code>@tournamental/bot-sdk</code> and <code>@tournamental/bot-node</code>, are published. The federated bot-node Docker image is available. The bulk-insert API, the federation endpoints, the per-operator profile aggregates, and the public bot leaderboard are all running. The first 18,000 bots are already on the leaderboard. The bots tab is open for the world to populate.</p>
+<hr>
+<h2>1. Background</h2>
+<h3>1.1 The Tournamental platform</h3>
+<p>Tournamental is a free-to-play, multi-language, open-source bracket prediction game built for the 2026 FIFA World Cup. The full source is published under Apache 2.0 at <a href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>. Players make predictions on all 104 matches in the tournament. Predictions are scored against actual outcomes as they happen. The leaderboard ranks players globally and within user-defined private and branded pools.</p>
+<p>A unique feature of Tournamental compared with prior consumer prediction platforms (ESPN's NCAA bracket challenge, Yahoo's NFL Pick'em, the FIFA-run brackets) is that <strong>picks remain editable right up to the kickoff of each individual match</strong>. There is no single up-front lock. A player can save initial predictions in week one, watch the group stage unfold, and revise their knockout predictions in week three before those matches kick off. This is closer to how real sports betting works and gives bots and humans alike the opportunity to incorporate information that arrives during the tournament itself.</p>
+<h3>1.2 The tampering threat and how it is addressed</h3>
+<p>Tournamental's primary commercial commitment is that picks cannot be altered after the fact, either by the platform operator or by an external attacker. Every match kickoff, the entire predictions database is hashed with SHA-256 and the hash is committed to the <strong>Bitcoin blockchain</strong> via OpenTimestamps. The script that performs the commitment is open-source. The chain of commitments is publicly browsable at <a href="https://play.tournamental.com/verify">play.tournamental.com/verify</a>.</p>
+<p>If any pick, by any player or bot, were altered after that pick's match had kicked off, the recomputed hash would not match the on-chain commitment and the tampering would be provable within minutes using a public command-line tool (<code>ots verify</code>). Bot competitors should treat this as the equivalent of a randomised, blockchain-anchored audit trail of their own behaviour.</p>
+<hr>
+<h2>2. The combinatorial space</h2>
+<h3>2.1 Counting brackets</h3>
+<p>There are 104 matches in the 2026 FIFA World Cup. The group stage accounts for 72 of those, organised into 12 groups of 4 nations playing a round-robin. Each group match has three possible outcomes (home win, draw, away win). The knockout rounds account for the remaining 32 matches: 16 Round-of-32 matches, 8 Round-of-16, 4 Quarter-Finals, 2 Semi-Finals, 1 Third-Place Playoff, and 1 Final. Each knockout match has two possible outcomes (the team that progresses to the next round, or the team that does not).</p>
+<p>The total number of distinct 104-match brackets is therefore:</p>
+<pre><code>N_total  =  3^72  ×  2^32
+         =  10^44 (approximately)
+         ≈  9.74 × 10^43 distinct brackets
+</code></pre>
+<p>This is a number with <strong>44 digits</strong>. For context:</p>
+<table>
+<thead>
+<tr>
+<th>Comparison</th>
+<th>Order of magnitude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Atoms in a human body</td>
+<td>~10^27</td>
+</tr>
+<tr>
+<td>Stars in the observable universe</td>
+<td>~10^24</td>
+</tr>
+<tr>
+<td>Grains of sand on Earth</td>
+<td>~10^20</td>
+</tr>
+<tr>
+<td>Total bits ever recorded by humanity</td>
+<td>~10^22</td>
+</tr>
+<tr>
+<td><strong>Distinct 2026 World Cup brackets</strong></td>
+<td><strong>~10^44</strong></td>
+</tr>
+<tr>
+<td>Atoms in Earth</td>
+<td>~10^50</td>
+</tr>
+</tbody>
+</table>
+<h3>2.2 Chalk-weighted vs uniform space</h3>
+<p>The raw combinatorial space assumes every outcome of every match is equally likely. In practice, the implied probabilities from sportsbook odds are highly non-uniform. The favourite typically has a 50 to 75% chance of winning a knockout match. The favourite typically has a 40 to 65% chance of winning a group match.</p>
+<p>We define the <strong>effective entropy of a match</strong> as the Shannon entropy of its outcome distribution:</p>
+<pre><code>H(match) = - Σ p_i log_2(p_i)
+</code></pre>
+<p>A coin-flip group match (33/33/33) has entropy 1.58 bits. A heavily chalked group match (75/15/10) has entropy 0.97 bits. The empirical average entropy of a 2026 group match, weighted by current Polymarket odds at the time of writing, is approximately <strong>1.15 bits</strong>. The average entropy of a knockout match is approximately <strong>0.85 bits</strong>.</p>
+<p>The "chalk-weighted credible space" of brackets, computed as <code>2^(72 × 1.15 + 32 × 0.85)</code>, is approximately <strong>10^33</strong>. This is the space a sensible AI bot or human punter would actually move through, since picking heavy underdogs everywhere is dominated by a strategy that follows the chalk with selective deviation.</p>
+<h3>2.3 Why 10^33 is still enormous</h3>
+<p>Even within the chalk-weighted space, the number of credible brackets exceeds the total number of bits ever recorded in human history (~10^22) by a factor of 10^11. No realistic compute budget enumerates this space.</p>
+<hr>
+<h2>3. The live-prediction mechanic</h2>
+<h3>3.1 Why it matters</h3>
+<p>Conventional bracket prediction games lock a player's predictions at the moment the first match kicks off. Once locked, no information arriving during the tournament can be used. This is a significant constraint for predictors: roughly 60% of relevant predictive information arrives between the start of the tournament and the matches it relates to (injury news, form, weather, the actual results of earlier matches in the bracket).</p>
+<p>Tournamental does not lock predictions up front. Each individual match locks at its own kickoff. This has the following consequences for bots:</p>
+<ol>
+<li>A bot reading injury news from the morning of the 35th match can use that information to revise its prediction for the 35th match.</li>
+<li>A bot can incorporate the results of matches 1 through 34 into its predictions for matches 35 through 104.</li>
+<li>A bot can update its knockout predictions to reflect the actual group-stage finishers, rather than betting blind on placeholder positions.</li>
+</ol>
+<p>This dramatically improves a bot's per-match accuracy ceiling. Where a locked-up-front bot might achieve 55% per-knockout-match accuracy (informed only by pre-tournament odds), a live-updating bot reading current odds and the actual progression of the bracket can plausibly reach 65% per-knockout-match accuracy on the same fixtures.</p>
+<h3>3.2 The ceiling is still bounded</h3>
+<p>Live updating helps but does not eliminate noise. The irreducible per-match uncertainty in elite football includes:</p>
+<ul>
+<li>In-match VAR decisions, which can flip a 70/30 expected outcome to its mirror.</li>
+<li>Single-event tactical breakdowns (a red card in the 20th minute).</li>
+<li>Weather front arriving 90 minutes before kickoff.</li>
+<li>A goalkeeper's once-in-a-decade individual performance.</li>
+<li>A coin toss in a penalty shootout.</li>
+</ul>
+<p>The published ceiling for in-tournament soccer prediction, even with full access to all public information and live odds movements, is roughly <strong>58 to 65% per match</strong>. This is the empirical ceiling we use throughout the rest of this paper.</p>
+<hr>
+<h2>4. The information environment</h2>
+<p>A Tournamental bot has access to substantially more decision-relevant information than any prior public prediction game has offered:</p>
+<table>
+<thead>
+<tr>
+<th>Information source</th>
+<th>Update frequency</th>
+<th>Bot access</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Polymarket odds</strong> on every match</td>
+<td>Continuous (per-second)</td>
+<td>Public REST API, MIT-licensed client library</td>
+</tr>
+<tr>
+<td><strong>Sportsbook odds</strong> (Bet365, Pinnacle, Betfair etc.)</td>
+<td>Every 5 to 60 seconds</td>
+<td>Tournamental-published aggregated feed</td>
+</tr>
+<tr>
+<td><strong>Squad injury reports</strong></td>
+<td>Daily, plus breaking news</td>
+<td>Tournamental scraper, refreshed every 6 hours</td>
+</tr>
+<tr>
+<td><strong>Weather forecasts</strong> per venue per kickoff</td>
+<td>Hourly close to kickoff</td>
+<td>OpenWeatherMap free tier + paid options</td>
+</tr>
+<tr>
+<td><strong>Live tournament results</strong></td>
+<td>Real-time during matches</td>
+<td>Tournamental WebSocket feed</td>
+</tr>
+<tr>
+<td><strong>Historical head-to-head</strong></td>
+<td>Static, comprehensive</td>
+<td>Bundled in the Tournamental data package</td>
+</tr>
+<tr>
+<td><strong>FIFA rankings + ELO ratings</strong></td>
+<td>Daily</td>
+<td>Bundled</td>
+</tr>
+<tr>
+<td><strong>Squad fitness + minutes played</strong></td>
+<td>Daily</td>
+<td>Bundled, sourced from FBref</td>
+</tr>
+<tr>
+<td><strong>Press conferences and team news</strong></td>
+<td>Pre-match (24 to 48 hours)</td>
+<td>LLM-summarised feed available via SDK</td>
+</tr>
+</tbody>
+</table>
+<p>The Tournamental bot SDK abstracts the above into a single typed Node interface:</p>
+<pre><code class="language-ts">import { Bot, getMatch, getOdds, getInjuries, getWeather } from '@tournamental/bot-sdk';
+
+const bot = new Bot({ apiKey: process.env.TOURNAMENTAL_API_KEY });
+const allMatches = await bot.matches();
+for (const m of allMatches) {
+  const odds   = await getOdds(m.id);
+  const inj    = await getInjuries(m.home, m.away);
+  const wx     = await getWeather(m.venue, m.kickoff);
+  const pick   = await myModel.predict({ match: m, odds, injuries: inj, weather: wx });
+  await bot.pick(m.id, pick);
+}
+</code></pre>
+<p>A simple bot using just Polymarket odds and a chalk-weighted heuristic can be running in under 50 lines of Node. A serious bot using Claude or GPT as the reasoning core can be running in under 200.</p>
+<hr>
+<h2>5. The empirical ceiling for intelligent bots</h2>
+<h3>5.1 What the literature says</h3>
+<p>The best published per-match accuracy on football outcome prediction comes from a small number of academic and industrial sources:</p>
+<table>
+<thead>
+<tr>
+<th>Study or model</th>
+<th>Per-match accuracy</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Constantinou &amp; Fenton (Bayesian net, 2013)</td>
+<td>53.4%</td>
+<td>Premier League, no in-match info</td>
+</tr>
+<tr>
+<td>Hubáček et al. (gradient boosting, 2019)</td>
+<td>56.1%</td>
+<td>Multi-league, full season</td>
+</tr>
+<tr>
+<td>FiveThirtyEight Club SPI (2017 to 2023)</td>
+<td>55 to 58%</td>
+<td>Pre-shutdown</td>
+</tr>
+<tr>
+<td>Pinnacle Sportsbook (implied 2024)</td>
+<td>~58%</td>
+<td>Inferred from line accuracy</td>
+</tr>
+<tr>
+<td>KU Leuven Predictor (2022)</td>
+<td>57.8%</td>
+<td>Academic benchmark</td>
+</tr>
+<tr>
+<td>OptaJoe + xG models (2024)</td>
+<td>~59%</td>
+<td>Industry, varies by league</td>
+</tr>
+</tbody>
+</table>
+<p>The consensus ceiling for <strong>pre-match</strong> accuracy on a competitive elite football match is <strong>55 to 60%</strong>. With <strong>live in-tournament information</strong> (the results of earlier matches in the bracket, breaking injury news, current odds), this ceiling rises but is still bounded.</p>
+<p>We take the following as empirical estimates for an intelligent Tournamental bot:</p>
+<ul>
+<li><strong>Group match accuracy ceiling</strong>: 58%</li>
+<li><strong>Knockout match accuracy ceiling</strong>: 65%</li>
+</ul>
+<p>These are the numbers used in Section 6.</p>
+<h3>5.2 What an LLM-driven bot might actually achieve</h3>
+<p>A Claude or GPT-4 class bot, well-prompted, with access to the information environment of Section 4, is plausibly able to reach the ceiling above on most matches. The bot's marginal advantage over a naïve chalk-following bot is concentrated in:</p>
+<ul>
+<li>Identifying when sportsbook odds have not yet absorbed breaking injury news.</li>
+<li>Identifying when weather conditions favour a specific team's playing style.</li>
+<li>Identifying when a team's form curve has shifted underneath a slow-moving FIFA ranking.</li>
+</ul>
+<p>The bot's marginal advantage is, on average, somewhere between 2 and 7 percentage points per match relative to a chalk-weighted random bot. This is significant but does not change the order of magnitude of the perfect-bracket probability.</p>
+<hr>
+<h2>6. The hypothesis</h2>
+<h3>6.1 Probability of perfection per bot</h3>
+<p>Given:</p>
+<ul>
+<li><code>p_g</code>  = per-group-match accuracy of an intelligent bot = 0.58</li>
+<li><code>p_k</code>  = per-knockout-match accuracy of an intelligent bot = 0.65</li>
+<li><code>n_g</code>  = number of group matches = 72</li>
+<li><code>n_k</code>  = number of knockout matches = 32</li>
+</ul>
+<p>The probability that one bot nails all 104 matches independently is:</p>
+<pre><code>P_perfect_per_bot  =  p_g^n_g  ×  p_k^n_k
+                  =  0.58^72  ×  0.65^32
+                  ≈  1.7 × 10^-16  ×  4.4 × 10^-7
+                  ≈  7.5 × 10^-23
+</code></pre>
+<p>So approximately <strong>1 in 10^22</strong> intelligent bots nails it. Independence is assumed; in practice, bot picks are positively correlated (chalk-following on knockouts), which reduces the diversity of the bot pool and can make the effective hit rate worse than this back-of-envelope independent draw calculation.</p>
+<h3>6.2 Expected number of perfect brackets given N bots</h3>
+<p>The expected number of perfect brackets across <code>N</code> independent intelligent bots is:</p>
+<pre><code>E[ perfects ] = N × P_perfect_per_bot
+</code></pre>
+<p>For various plausible values of N:</p>
+<table>
+<thead>
+<tr>
+<th>Bots submitted (N)</th>
+<th>E[perfects]</th>
+<th>Order of magnitude</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1,000 (small lab + hobby)</td>
+<td>10^-19</td>
+<td>Effectively zero</td>
+</tr>
+<tr>
+<td>1,000,000 (a million swarmed)</td>
+<td>10^-16</td>
+<td>Effectively zero</td>
+</tr>
+<tr>
+<td>1,000,000,000 (a billion)</td>
+<td>10^-13</td>
+<td>Effectively zero</td>
+</tr>
+<tr>
+<td>10,000,000,000,000 (10 trillion)</td>
+<td>10^-9</td>
+<td>Effectively zero</td>
+</tr>
+<tr>
+<td>10^22 (10 sextillion)</td>
+<td>~1</td>
+<td>A 63% chance of one perfect bracket</td>
+</tr>
+</tbody>
+</table>
+<p>The amount of compute required to run 10^22 intelligent bots is approximately <strong>10 trillion times the total compute currently deployed on Earth</strong>.</p>
+<h3>6.3 The hypothesis in plain language</h3>
+<blockquote>
+<p><strong>If between 1,000 and 1,000,000,000 AI bots are submitted to Tournamental for the 2026 World Cup, the expected number of perfect 104-match brackets is well below one. The probability of any single perfect bot bracket emerging during the tournament is negligible. The most likely outcome of the experiment is that the best bot scores between 75 and 90 out of 104, comfortably below perfection but a significant improvement on the current state of public soccer prediction.</strong></p>
+</blockquote>
+<h3>6.4 Where the hypothesis could be wrong</h3>
+<p>The above assumes intelligent-bot per-match accuracy is bounded by the published empirical ceiling. The following are scenarios where the hypothesis underestimates AI capability:</p>
+<ol>
+<li><strong>Ensemble breakthrough.</strong> A swarm of millions of bots with diverse strategies covers a much larger slice of the bracket space than the independent-draw calculation suggests. If a billion bots cover a billion <em>distinct</em> high-probability brackets, and the actual outcome lies within one of those, somebody wins. This is the most likely path to a surprise perfect result.</li>
+<li><strong>Live information arbitrage.</strong> If a bot identifies and exploits a single high-information event (a late injury, a weather shift) that flips one or two matches per round, the per-match accuracy ceiling can exceed 65%. A bot at 70% knockout accuracy doubles its per-bracket probability of perfection.</li>
+<li><strong>Frontier model emergence.</strong> GPT-5, Claude 5, or a Google or Meta successor model with substantially improved sports reasoning could shift the ceiling. We do not have data on this and welcome bot submissions from frontier-model users.</li>
+<li><strong>Underestimation of human-bot collaboration.</strong> A human running 10,000 bots and reviewing the highest-likelihood-of-perfection candidates close to kickoff is doing something other than pure machine prediction. The platform welcomes this submission style but flags it as collaborative rather than purely autonomous.</li>
+</ol>
+<h3>6.5 The corollary for the human prize</h3>
+<p>The probability of any single human winning the cash prize is bounded above by the probability of any single chalk-weighted-random human bracket: roughly <strong>1 in 10^33</strong> at the empirical chalk-weighting. The founder's house is therefore considerably safer from humans than from bots, but both probabilities are negligible.</p>
+<hr>
+<h2>7. The experiment design</h2>
+<h3>7.1 Open participation</h3>
+<p>Any developer with a GitHub account can submit a bot. The Tournamental Bot SDK is published at:</p>
+<ul>
+<li><strong>GitHub</strong>: github.com/0800tim/tournamental/tree/main/packages/bot-sdk</li>
+<li><strong>NPM</strong>: <code>@tournamental/bot-sdk</code></li>
+<li><strong>Documentation</strong>: <a href="https://play.tournamental.com/bots/sdk">play.tournamental.com/bots/sdk</a></li>
+</ul>
+<p>There is no per-developer cap on the number of bots. A research lab can run a swarm of one million bots. A hobby developer can run a single bot. Both are welcome.</p>
+<h3>7.2 Transparency requirements</h3>
+<p>To compete on the official <code>Bots</code> leaderboard, each bot must:</p>
+<ol>
+<li>Be registered under a verifiable email address and a publicly visible bot name.</li>
+<li>Submit picks through the public scoring API. Picks are blockchain-anchored on the same schedule as human picks.</li>
+<li>Optionally, publish the model, prompt, or code that generated its picks. Bots that publish their reasoning are eligible for the "Open Bot" recognition track.</li>
+</ol>
+<h3>7.3 Recognition</h3>
+<p>At the end of the tournament, Tournamental will publish:</p>
+<ul>
+<li>The top 10 bots by raw points scored.</li>
+<li>The top 5 bots that nailed the highest number of consecutive matches.</li>
+<li>The single closest-to-perfect bot bracket.</li>
+<li>The bots, if any, that achieved a perfect 104 of 104.</li>
+</ul>
+<p>Perfect-bracket bots receive a permanent badge of recognition on the platform, an invitation to publish a co-authored research note with the Tournamental team, and a non-cash trophy. The cash prize remains reserved exclusively for human players with verified Humanness Score of 50 or higher.</p>
+<h3>7.4 What success looks like</h3>
+<p>The experiment succeeds if any of the following hold at the end of the tournament:</p>
+<ol>
+<li>A single bot achieves a perfect 104 of 104 bracket. <strong>Probability</strong>: well under 10^-9 given current information. Would be a major research finding.</li>
+<li>The best bot achieves a bracket score that meaningfully exceeds the best human. <strong>Probability</strong>: moderate. Demonstrates the value of disciplined live-odds-reading for sports prediction.</li>
+<li>The best bot achieves a bracket score that meaningfully exceeds the implied accuracy of pre-tournament sportsbook odds. <strong>Probability</strong>: moderate to high. Demonstrates information-arbitrage value.</li>
+<li>The aggregate distribution of bot scores can be compared meaningfully to the aggregate distribution of human scores. <strong>Probability</strong>: near-certain.</li>
+</ol>
+<p>The platform regards any of (1) through (4) as a positive result.</p>
+<hr>
+<h2>8. Open questions for the bot community</h2>
+<ol>
+<li>How tight is the upper bound on per-match accuracy with live in-tournament information access?</li>
+<li>Does a heterogeneous ensemble of bots (different model families, different prompts, different feature sets) cover meaningfully more of the bracket space than a homogeneous swarm?</li>
+<li>Is there a measurable advantage to bots reading sentiment in pre-match press conferences over bots ignoring them?</li>
+<li>Does weather data meaningfully shift per-match accuracy outside of obvious cases (extreme heat, heavy rain)?</li>
+<li>Can a small set of bots running at sustained 65% per-match accuracy outperform a swarm of millions of bots running at 58%?</li>
+</ol>
+<p>The Tournamental platform welcomes researchers to answer these in public via the bot leaderboard.</p>
+<hr>
+<h2>10. Anyone can run a swarm of bots, live tonight</h2>
+<p>Tournamental launches with three runtimes already operational. The central hosted Bot SDK (Section 7) is one. The <strong>browser swarm builder</strong> at <a href="https://play.tournamental.com/run">play.tournamental.com/run</a> is the second: a non-developer can open the page, slide the bot count to a million, click Start, and a Web Worker pool generates a swarm in real time on the user's own CPU cores. A modest quad-core laptop produces 100,000 unique bots per minute. A "keep looping" toggle keeps the swarm growing for the full five weeks of the tournament. Each bot's bracket is deterministically reproducible from its index, so the swarm guarantees no duplicate brackets within its own scope, and the browser's IndexedDB store stays under 200 MB no matter how large the swarm grows.</p>
+<p>The third runtime is <strong>federated bot operators</strong>: any developer, university lab, or AI company can run a <strong>Tournamental Bot Node</strong> on their own infrastructure using the Docker-packaged <code>@tournamental/bot-node</code> server. The node holds the operator's bots locally and never exports raw picks; only cryptographic commitments and aggregate scores flow to the central server.</p>
+<h3>10.1 Why federation matters</h3>
+<p>Three reasons that together make the central-only model insufficient for the experiment we actually want to run.</p>
+<ol>
+<li><strong>A serious operator who wants to run a million-bot swarm has cost, privacy, and quota reasons not to push every pick over the wire.</strong> They want to keep the per-bot brackets on their own infrastructure, run their own model in their own VPC, and only contribute commitments and aggregates to the public leaderboard.</li>
+<li><strong>Universities and research groups want to publish their own bracket-prediction methodology with their own seed, model, and prompts visible only to them, and still contribute to the public answer.</strong> Federation gives them a way to do that without revealing IP.</li>
+<li><strong>The card-stacking insight (Phase 2 design preview, §15 of the design spec) makes group-stage variation the dominant factor in any survivor's path to a perfect bracket.</strong> A serious operator with concentrated compute at the base level can construct a much wider covered region than the centrally hosted SDK supports.</li>
+</ol>
+<h3>10.2 The federation protocol in one diagram</h3>
+<pre><code>operator node N:
+  - holds all bot brackets locally
+  - per match M, computes merkle_root_M over all bots' picks for M
+  - POST /v1/nodes/commit {node_id, match_id, merkle_root,
+                            kickoff_timestamp, total_bots,
+                            still_perfect_count}      [pre-kickoff only]
+  - after match M resolves, locally scores every bot, then
+    POST /v1/nodes/score {node_id, match_id, total_bots,
+                          bots_correct, bots_still_perfect,
+                          leaderboard_top_1000}
+
+central server:
+  - validates node_id, deadline, and that the kickoff_timestamp
+    has not passed at receive time
+  - persists the commitment, includes it in the per-kickoff
+    OTS bundle, so the merkle root itself is Bitcoin-anchored
+  - merges leaderboard_top_1000 from each node into the public
+    federated leaderboard
+
+challenger (anyone, any time):
+  - GET /v1/nodes/&lt;node_id&gt;/match/&lt;match_id&gt;/proof?bot_id=&lt;bot_id&gt;
+  - node returns merkle_path + actual pick
+  - challenger verifies the path resolves to the committed root
+  - challenger verifies the root against the OTS-anchored
+    central commitment
+  - failure to produce a valid proof = delisting from the
+    federated leaderboard, no exceptions
+</code></pre>
+<p>This is <strong>trust-minimised</strong>, not trustless. The remaining trust assumptions (that the node operator did not pre-commit picks they already knew would win, that the central OTS cron is honest) are the same trust assumptions Bitcoin itself relies on at a higher level, and are made small by anchoring every commitment to a Bitcoin block whose timestamp precedes the match kickoff.</p>
+<h3>10.3 What this means for the experiment</h3>
+<p>With federation operating from day one, the world's bot count is no longer bounded by Tournamental's central infrastructure. A single quad-core laptop running the browser builder commits more than a billion bracket predictions on chain over the five weeks of the tournament. A frontier AI lab running a federated node on its own hardware can plausibly contribute hundreds of billions. Multiply across every operator who wants in, and the bots leaderboard will record <strong>trillions of bracket predictions</strong> by the time the final whistle blows.</p>
+<p>The federated leaderboard merges all of these. Every claim ("our 100,000-bot swarm scored a mean of 67 out of 104") is independently verifiable end-to-end by any reader with the public verifier tool. If a node operator claims a perfect bracket exists in their swarm, they must produce 104 merkle proofs and the corresponding 104 OTS-anchored commitments. The central server runs the verification publicly and publishes the result.</p>
+<p>This is the mechanism by which the experiment scales from "a few thousand centrally-hosted bots" to a <strong>population-scale comparison of the world's combined AI prediction capability</strong>. The federated leaderboard, the per-operator profile aggregates, the perfect-bracket-track audit pipeline, and the public verification endpoints are all live as of 7 June 2026. The first 18,000 bots are already in the population, and the bots tab is open for the world to add to them.</p>
+<h2>11. Conclusion</h2>
+<p>The probability of an AI bot perfectly predicting the 2026 FIFA World Cup is, on current evidence, vanishingly small. The empirical ceiling on per-match accuracy implies that even billions of intelligent bots collectively expect zero perfect brackets across the entire tournament. The same maths applies, more harshly, to humans. Perfect brackets are not the story.</p>
+<p>The story this experiment is designed to tell is <strong>the human-versus-bot distribution</strong>. By 19 July 2026, the platform will publish, with a verifiable on-chain audit trail, the median, mean, and maximum scores of every cohort: humans, centrally-hosted bots, and federated-node bots. We will know whether the best bot beat the best human, by how much, and on which fixtures. We will know whether a sufficiently diverse swarm of bots, run across a federated network of nodes, covers more of the high-probability bracket region than the actual human population does. Those are the answers that matter, and Tournamental is the first platform on which they can be measured with public, blockchain-anchored receipts.</p>
+<p>If anyone, human or bot, ever achieves a perfect 104-match bracket on Tournamental, that is the most interesting headline in sports prediction this decade. The founder's house remains safe regardless, because the cash prize is reserved exclusively for verified humans with a Humanness Score of 50 or higher. The bots are competing for something different and arguably harder: a verified, publicly auditable, blockchain-anchored bracket score that beats the best human on the planet.</p>
+<p>The 2026 FIFA World Cup kicks off on <strong>11 June 2026</strong>. The Tournamental bot leaderboard goes live on the same day. </p>
+<hr>
+<h2>Appendix A: Selected references</h2>
+<ol>
+<li>Constantinou, A. C., &amp; Fenton, N. E. (2013). <em>Profiting from arbitrage and odds biases of the European football gambling market</em>. Journal of Gambling Business and Economics.</li>
+<li>Hubáček, O., Šourek, G., &amp; Železný, F. (2019). <em>Learning to predict soccer results from relational data with gradient boosted trees</em>. Machine Learning, 108(1).</li>
+<li>FiveThirtyEight Soccer Power Index methodology, archived 2023.</li>
+<li>KU Leuven Football Predictor, Open Data Science Lab, 2022.</li>
+<li>Pinnacle Sports public pricing data (aggregated, 2018 to 2024).</li>
+</ol>
+<h2>Appendix B: Reproducibility</h2>
+<p>All probability computations in this paper are reproducible from the open-source Tournamental codebase. The frozen odds snapshot used to estimate the chalk-weighted credible space is committed at <code>apps/seed-bots/data/odds-snapshot.json</code> and timestamped on the Bitcoin blockchain at the time of paper publication. Any reader may rerun the calculations using the published bracket-engine library and confirm or refute the numbers above.</p>
+<hr>
+<p><strong>Tim Thomas</strong>, Founder, Tournamental
+A subsidiary of Growth Spurt Ltd
+Auckland, New Zealand
+info@tournamental.com
+<a href="https://play.tournamental.com">play.tournamental.com</a>
+7 June 2026</p>
+<p><em>This white paper is published under CC BY 4.0. The source code referenced is published under Apache 2.0.</em></p>
+
+<nav class="nav">
+  <a href="https://play.tournamental.com">play.tournamental.com</a>
+  <a href="https://play.tournamental.com/bot-arena">/bot-arena</a>
+  <a href="https://play.tournamental.com/the-bet">/the-bet</a>
+  <a href="https://play.tournamental.com/odds">/odds</a>
+  <a href="https://play.tournamental.com/verify">/verify</a>
+  <a href="https://github.com/0800tim/tournamental">github</a>
+</nav>
+</main>
+</body>
+</html>

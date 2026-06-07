@@ -1,6 +1,6 @@
 {
   "name": "@tournamental/spec",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Canonical SimulatedSports message spec: MatchInit, StateFrame, EventMessage types shared by every Tournamental producer and renderer.",
   "keywords": [
     "tournamental",
@@ -40,7 +40,6 @@
   },
   "publishConfig": {
     "access": "public",
-    "provenance": true,
     "main": "./dist/index.js",
     "module": "./dist/index.mjs",
     "types": "./dist/index.d.ts",

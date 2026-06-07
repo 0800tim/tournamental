@@ -1,0 +1,280 @@
+/*
+ * /bots/sdk, developer documentation for the Open Bot Arena.
+ *
+ * Editorial style consistent with /the-bet. Dark canvas, comfortable
+ * reading column, generous section spacing, monospace code blocks with
+ * a subtle gold-keyword treatment so the API surface reads as the
+ * thing of value on the page.
+ */
+
+.vt-sdk {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 48px 20px 96px;
+  line-height: 1.55;
+}
+
+.vt-sdk-article {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.vt-sdk-header {
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vt-sdk-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f1c447;
+  margin: 0 0 16px;
+}
+
+.vt-sdk-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.08;
+  margin: 0 0 20px;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.vt-sdk-title em {
+  color: #f1c447;
+  font-style: italic;
+}
+
+.vt-sdk-lede {
+  font-size: clamp(17px, 1.6vw, 20px);
+  color: #b8c0d4;
+  max-width: 60ch;
+  margin: 0 0 24px;
+}
+
+.vt-sdk-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.vt-sdk-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+.vt-sdk-cta--primary {
+  background: #f1c447;
+  color: #0e0e12;
+}
+
+.vt-sdk-cta--primary:hover {
+  background: #f6d76e;
+  transform: translateY(-1px);
+}
+
+.vt-sdk-cta--ghost {
+  background: transparent;
+  color: #e7ecf7;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.vt-sdk-cta--ghost:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vt-sdk-toc {
+  margin: 24px 0 0;
+  padding: 16px 18px;
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #b8c0d4;
+}
+
+.vt-sdk-toc strong {
+  color: #fff;
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: 0.04em;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.vt-sdk-toc ol {
+  list-style: decimal;
+  padding-left: 22px;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 16px;
+}
+
+.vt-sdk-toc a {
+  color: #b8c0d4;
+  text-decoration: none;
+}
+
+.vt-sdk-toc a:hover {
+  color: #f1c447;
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .vt-sdk-toc ol {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vt-sdk-section {
+  margin: 48px 0;
+  scroll-margin-top: 80px;
+}
+
+.vt-sdk-section h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(24px, 3vw, 32px);
+  margin: 0 0 16px;
+  color: #fff;
+}
+
+.vt-sdk-section h3 {
+  font-size: 17px;
+  font-weight: 700;
+  margin: 24px 0 8px;
+  color: #fff;
+}
+
+.vt-sdk-section p,
+.vt-sdk-section li {
+  font-size: 16px;
+  color: #d6dbe8;
+}
+
+.vt-sdk-section ul,
+.vt-sdk-section ol {
+  padding-left: 22px;
+}
+
+.vt-sdk-section a {
+  color: #f1c447;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vt-sdk-section a:hover {
+  text-decoration: none;
+}
+
+.vt-sdk-code {
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 20px;
+  overflow-x: auto;
+  margin: 16px 0;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: #e7ecf7;
+}
+
+.vt-sdk-code code {
+  white-space: pre;
+}
+
+.vt-sdk-kbd {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.9em;
+  background: rgba(241, 196, 71, 0.10);
+  color: #f1c447;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.vt-sdk-callout {
+  border-left: 3px solid #f1c447;
+  padding: 12px 16px;
+  margin: 18px 0;
+  background: rgba(241, 196, 71, 0.05);
+  border-radius: 0 8px 8px 0;
+}
+
+.vt-sdk-callout strong {
+  color: #f1c447;
+}
+
+.vt-sdk-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0;
+}
+
+.vt-sdk-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.vt-sdk-table th,
+.vt-sdk-table td {
+  text-align: left;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  color: #d6dbe8;
+}
+
+.vt-sdk-table th {
+  font-weight: 700;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.vt-sdk-faq details {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin: 10px 0;
+  background: #15151a;
+}
+
+.vt-sdk-faq summary {
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  list-style: none;
+}
+
+.vt-sdk-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.vt-sdk-faq summary::after {
+  content: "+";
+  float: right;
+  color: #f1c447;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.vt-sdk-faq details[open] summary::after {
+  content: "−";
+}
+
+.vt-sdk-faq details p {
+  margin: 12px 0 0;
+  color: #d6dbe8;
+}

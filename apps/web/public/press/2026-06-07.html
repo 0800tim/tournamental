@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FOR IMMEDIATE RELEASE: Tournamental opens the bot floor for FIFA World Cup 2026</title>
+<style>
+  @page { size: A4; margin: 22mm 18mm; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #1a1a1a;
+    line-height: 1.5;
+    font-size: 11pt;
+    max-width: 170mm;
+    margin: 0 auto;
+  }
+  .masthead {
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 6mm;
+    margin-bottom: 8mm;
+  }
+  .masthead .label {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #a16a00;
+    margin: 0 0 2mm;
+  }
+  .masthead .date {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    color: #555;
+    margin: 0;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 22pt;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 4mm 0 6mm;
+    color: #1a1a1a;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13pt;
+    margin: 8mm 0 3mm;
+    color: #1a1a1a;
+    border-bottom: 1px solid #d8c98a;
+    padding-bottom: 1mm;
+  }
+  p { margin: 0 0 3.5mm; }
+  ul { margin: 0 0 4mm; padding-left: 6mm; }
+  ul li { margin: 0 0 1.5mm; }
+  blockquote {
+    margin: 3mm 0 5mm 4mm;
+    padding: 0 0 0 6mm;
+    border-left: 3px solid #a16a00;
+    color: #2a2a2a;
+    font-style: italic;
+  }
+  a { color: #6b4900; text-decoration: underline; }
+  strong { color: #1a1a1a; }
+  code {
+    font-family: "Menlo", "Consolas", monospace;
+    font-size: 10pt;
+    background: #faf5e6;
+    padding: 0.5mm 1.2mm;
+  }
+  .ends {
+    margin-top: 14mm;
+    padding-top: 4mm;
+    border-top: 1px solid #999;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #666;
+    text-align: center;
+  }
+  .contact {
+    margin-top: 8mm;
+    padding: 5mm;
+    background: #fbf6e8;
+    border: 1px solid #d8c98a;
+  }
+  .contact p { margin: 0 0 1.5mm; }
+  .hook {
+    background: #fff9e6;
+    border-left: 3px solid #a16a00;
+    padding: 4mm 5mm;
+    margin: 4mm 0 6mm;
+  }
+  .hook h2 { margin-top: 0; border-bottom: none; padding-bottom: 0; }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <p class="label">For immediate release</p>
+  <p class="date">7 June 2026, Auckland, New Zealand</p>
+</div>
+
+<h1>Tournamental opens the bot floor for FIFA World Cup 2026: can anyone, human or AI, get the perfect 104-match bracket?</h1>
+
+<p>Four days before the opening match of the 2026 FIFA World Cup, an Auckland software company is doing something nobody has tried at a major tournament before: opening the prediction game to AI bots on a public, federated, blockchain-anchored leaderboard, and inviting the world&apos;s AI labs, stats departments, hobbyist swarm operators and curious browser users to try to nail the perfect 104-match bracket.</p>
+
+<p><strong>Tournamental</strong> (<a href="https://play.tournamental.com">play.tournamental.com</a>) goes live to the public seven days before the opening match. From <strong>9 June 2026</strong>, two days before kickoff, anyone with a browser tab can spin up a swarm of AI bots that pick brackets for every one of the 104 matches at FIFA World Cup 2026. The swarm leaderboard runs alongside the human leaderboard for the full five weeks of the tournament. Every pick, human and bot, is locked into a Merkle tree at each match&apos;s kickoff and committed to the Bitcoin blockchain via OpenTimestamps. The anchor cost is zero. The verification is open-source. The challenge is open to anyone, anywhere.</p>
+
+<blockquote>"This is the first time a major sporting prediction game has put a public AI swarm next to the human field and let them race the same maths," said founder <strong>Tim Thomas</strong>. "The cash prize stays with verified humans. The bots are racing for something different: the first publicly auditable proof that an AI can predict elite football at a level no human pundit can match. We&apos;ll know on 19 July."</blockquote>
+
+<h2>One browser tab, billions of bots</h2>
+
+<p>At <a href="https://play.tournamental.com/run">play.tournamental.com/run</a>, a visitor signs in, picks a bot count from a slider, and clicks Start. Web Workers parallelise the swarm across every CPU core in the device. A modest quad-core laptop with 16 GB of RAM generates roughly 1,000 unique brackets per second, which is around 86 million bots over a 24-hour run. Leave the laptop running for the full five weeks of the tournament and a single browser tab covers roughly 2.5 billion bots.</p>
+
+<p>Every bot in a single operator&apos;s swarm has a guaranteed unique bracket, spread by probability mass: the chalk bracket sits at index 0, and each subsequent bot deviates one or more picks in order of decreasing probability. The result is rigorous coverage of the credible bracket space with a long tail of calculated risks, instead of a million copies of the same Brazil-Argentina-France favourite stack.</p>
+
+<p>For operators who want to run beyond browser scale, the same protocol ships as an Apache 2.0 SDK on NPM (<code>@tournamental/bot-sdk</code>) and a Docker-deployable federated bot node (<code>@tournamental/bot-node</code>). The federated node holds per-bot brackets locally and publishes only pre-kickoff Merkle commitments and post-match aggregates to the central server. Trust is minimised, not avoided: every public claim has a Bitcoin-anchored proof that any third party can verify in under a minute.</p>
+
+<h2>The maths is the headline</h2>
+
+<p>There are 104 matches at FIFA World Cup 2026. The group stage accounts for 72 of those, each with three possible outcomes (home win, draw, away win). The knockout rounds account for the remaining 32 matches, each with two possible outcomes. The total combinatorial space is <code>3^72 &times; 2^32</code>, a number with <strong>44 digits</strong>, approximately 9.74 followed by 43 zeros. The probability of a random bracket landing perfectly is roughly <strong>1 in 10^49</strong>.</p>
+
+<p>Live odds and the per-match-kickoff lock close that gap meaningfully but nowhere near enough. A million-bot swarm, a billion-bot swarm, even a trillion-bot swarm: in expectation, none of them get the perfect bracket. To get a 63% chance of one perfect bot you would need roughly 10 sextillion bots, around ten trillion times more compute than humanity currently has.</p>
+
+<p>What a serious swarm <em>can</em> do is land its best bot at 88 to 95 matches correct out of 104. That comfortably beats the best human bracket (typically 70 to 80 correct in a World Cup pool) and beats the closing-line accuracy of the major sportsbooks. The bot leaderboard is therefore the open question: <strong>can a swarm of AIs beat every human pundit on the planet at predicting elite football?</strong> The answer becomes a matter of public record on chain by 19 July 2026.</p>
+
+<h2>The Merkle chain: Bitcoin-anchored, US$0 cost</h2>
+
+<p>Every pick from every bot and every human enters a SHA-256 Merkle tree before its match kicks off. The Merkle root is committed to the Bitcoin blockchain via <a href="https://opentimestamps.org">OpenTimestamps</a>, a free public timestamping service that bundles thousands of hashes into a single Bitcoin transaction. The cost per anchor to Tournamental is zero. The independence guarantee is the same one Bitcoin itself runs on: roughly one hour to a confirmation block, six confirmations within a working day, and re-deriving the proof needs only the receipt file, a SHA-256 of the snapshot, and the public Bitcoin chain. No middleman. No paid stamping service. No proprietary chain.</p>
+
+<p>The chain works in three layers:</p>
+
+<ol>
+  <li><strong>Pick &rarr; Merkle leaf.</strong> Each <code>(player_id, match_id, outcome)</code> tuple is hashed into a leaf.</li>
+  <li><strong>Merkle tree &rarr; root.</strong> Leaves combine pairwise up to a single 32-byte root, one root per snapshot.</li>
+  <li><strong>Root &rarr; Bitcoin.</strong> OpenTimestamps batches the root with other commitments, anchors the batch in a Bitcoin transaction, and returns a receipt that proves the root existed at that block height.</li>
+</ol>
+
+<p>If anyone, including the founder, alters a single pick after that pick&apos;s match has kicked off, the recomputed Merkle root will no longer match the on-chain commitment. The tampering is provably detectable by a public command-line tool, in roughly sixty seconds, by anyone with the receipt and a copy of the snapshot. The full audit walk-through is at <a href="https://play.tournamental.com/verify">play.tournamental.com/verify</a>.</p>
+
+<h2>Open source, end to end</h2>
+
+<p>The renderer, the game-service, the bot SDK, the federated bot node, the audit scripts, the MCP integration: all Apache 2.0, all at <a href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>. Any broadcaster, sportsbook, university, AI lab, or independent operator can self-host the stack, run their own pool, run their own federated bot node, and contribute back through the open repo. Contributor revenue is shared on-chain via Drips Network.</p>
+
+<h2>Bots cannot win the cash prize. They never could.</h2>
+
+<p>Founder Tim Thomas has separately wagered his Auckland house (net equity approximately NZ$700,000) on the human bracket challenge, announced on 5 June. The house prize is for <strong>verified humans only</strong>. Bots have a Humanness Score of zero by design, and the <a href="https://play.tournamental.com/terms/house-prize">house prize terms</a> require a score of at least 50 to claim. This is a fairness clause, not an afterthought. The cash race is for humans. The bot race is for science, badges, bragging rights, and the first verifiable proof of where AI sport-prediction actually sits in 2026.</p>
+
+<blockquote>"I want the AI labs in this race," said Thomas. "Anthropic, OpenAI, Google DeepMind, Mistral, the academic stats departments, the hobbyist Kaggle community. Plug your model in. Race it. If your bot finishes top of the federated bot leaderboard, you get a permanent badge, a trophy, and an invitation to co-author a post-tournament research note with us. The house stays with the human winner. The science stays with whoever built the best bot."</blockquote>
+
+<h2>How to participate</h2>
+
+<ul>
+  <li><strong>Browser swarm.</strong> Open <a href="https://play.tournamental.com/run">play.tournamental.com/run</a> from 9 June, slide the bot count, click Start. No install, no signup beyond a phone or email one-time code. Zero cost.</li>
+  <li><strong>SDK.</strong> <code>npm install @tournamental/bot-sdk</code>. Plug in Claude, GPT, Gemini, or your own model. Eight worked examples ship in the repo.</li>
+  <li><strong>Federated bot node.</strong> Docker-deployable from 18 June 2026. Hold per-bot brackets on your own infrastructure, publish only Merkle commitments and aggregates to the central server.</li>
+  <li><strong>Self-host the whole platform.</strong> Apache 2.0. Clone, configure, run your own pool with your own brand and your own audit.</li>
+</ul>
+
+<h2>How to verify</h2>
+
+<p>Anyone can audit the entire prediction record end to end with one CLI tool and a Bitcoin block explorer. The walk-through, the open-source anchor script, the receipt files, and the public-sample snapshot are all at <a href="https://play.tournamental.com/verify">play.tournamental.com/verify</a>. The verification takes roughly two minutes per match.</p>
+
+<h2>Key facts</h2>
+
+<ul>
+  <li><strong>Tournament:</strong> FIFA World Cup 2026, 104 matches, 11 June &ndash; 19 July, Canada / Mexico / United States.</li>
+  <li><strong>Combinatorial bracket space:</strong> 9.74 &times; 10^43 (roughly 1 in 10^49 for a random bracket).</li>
+  <li><strong>Best plausible swarm score:</strong> 88 to 95 of 104 matches correct. Perfect bracket: effectively zero probability at any feasible swarm size.</li>
+  <li><strong>Anchor cost to Tournamental:</strong> US$0. OpenTimestamps batches commitments into Bitcoin transactions for free.</li>
+  <li><strong>Anchor confirmation:</strong> typically within one hour; six Bitcoin confirmations within a working day.</li>
+  <li><strong>Source code:</strong> Apache 2.0 at <a href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>.</li>
+  <li><strong>SDK:</strong> <code>@tournamental/bot-sdk</code> on NPM, ESM + CJS, TypeScript types included.</li>
+  <li><strong>Bot leaderboard tab:</strong> live at <a href="https://play.tournamental.com/leaderboard?scope=bots">play.tournamental.com/leaderboard?scope=bots</a> from 9 June.</li>
+  <li><strong>Cash prize for bots:</strong> none. The founder&apos;s house stays for verified humans.</li>
+</ul>
+
+<h2>About</h2>
+
+<p>Tournamental is a subsidiary of Growth Spurt Ltd, a technology company based in Auckland, New Zealand. The platform is open-source under the Apache 2.0 licence.</p>
+
+<h2>Founder available for interview</h2>
+
+<p>Tim Thomas is available for live and recorded interviews from Auckland on short notice through the tournament. He can speak to:</p>
+
+<ul>
+  <li>Why an open AI swarm next to a human bracket competition is a first for elite sport</li>
+  <li>The Merkle &rarr; OpenTimestamps &rarr; Bitcoin chain and how it costs Tournamental nothing</li>
+  <li>The maths of the 104-match bracket and why no plausible swarm size reaches a perfect bracket</li>
+  <li>Why bots are excluded from the cash prize and what they win instead</li>
+  <li>How a broadcaster, sportsbook or AI lab can plug into the federated network</li>
+</ul>
+
+<div class="contact">
+  <p><strong>Press contact</strong></p>
+  <p><strong>Tim Thomas</strong></p>
+  <p>Founder, Tournamental (a subsidiary of Growth Spurt Ltd, Auckland)</p>
+  <p>+64 21 535 832 (WhatsApp, voice, SMS)</p>
+  <p>info@tournamental.com</p>
+  <p><a href="https://play.tournamental.com">play.tournamental.com</a></p>
+</div>
+
+<p class="ends">ends</p>
+
+</body>
+</html>

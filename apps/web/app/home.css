@@ -1460,6 +1460,188 @@
   margin-top: clamp(12px, 1.5vw, 20px);
 }
 
+/* ====================================================================
+ * BOT ARENA FEATURE (Tim 2026-06-08)
+ *
+ * Mirrors .vt-bet-feature but sits above the fold as the top hero on
+ * the home page. Same image-overlay rounded-card layout; new copy +
+ * different hero image + cool-blue scrim instead of gold so the two
+ * cards read as a related pair without competing.
+ * ==================================================================== */
+.vt-home-section--bots {
+  border-top: none !important;
+  padding-top: 0 !important;
+  margin-top: clamp(12px, 1.5vw, 20px);
+}
+.vt-bots-feature {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 24px;
+  min-height: clamp(260px, 36vw, 420px);
+  display: flex;
+  align-items: center;
+  background: #0e1322;
+  box-shadow: 0 24px 64px -28px rgba(0, 0, 0, 0.55);
+}
+.vt-bots-feature-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: image-set(
+    url("/hero/bot-arena-hero.webp") type("image/webp"),
+    url("/hero/bot-arena-hero.jpg") type("image/jpeg")
+  );
+  background-size: cover;
+  background-position: center;
+  background-color: #0e1322;
+}
+.vt-bots-feature-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(11, 14, 24, 0.94) 0%, rgba(11, 14, 24, 0.6) 55%, rgba(11, 14, 24, 0.18) 100%),
+    radial-gradient(60% 90% at 90% 10%, rgba(246, 198, 79, 0.22) 0%, transparent 70%);
+}
+.vt-bots-feature-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(20px, 3vw, 36px);
+  align-items: center;
+  padding: clamp(28px, 5vw, 56px);
+  width: 100%;
+}
+@media (min-width: 760px) {
+  .vt-bots-feature-inner {
+    grid-template-columns: minmax(0, 1.65fr) minmax(220px, 280px);
+    column-gap: clamp(28px, 4vw, 56px);
+  }
+}
+.vt-bots-feature-eyebrow {
+  margin: 0 0 14px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #d9b463;
+  font-weight: 700;
+}
+.vt-bots-feature-headline {
+  margin: 0 0 18px;
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "opsz" 120, "SOFT" 30, "WONK" 0;
+  letter-spacing: -0.015em;
+  font-size: clamp(36px, 6vw, 64px);
+  line-height: 1.02;
+  color: #ffffff;
+}
+.vt-bots-feature-headline em {
+  font-style: italic;
+  font-variation-settings: "opsz" 120, "SOFT" 50, "WONK" 1;
+  /* Brand gold to match the bet card and /the-bet header so the
+   * two feature cards read as the same family. Tim 2026-06-08. */
+  color: #f6c64f;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+.vt-bots-feature-body {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 28px);
+  line-height: 1.35;
+  color: #e7ecf7;
+  font-weight: 400;
+  letter-spacing: -0.005em;
+}
+.vt-bots-feature-body strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+.vt-bots-feature-body em {
+  font-family: Fraunces, ui-serif, Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "opsz" 96, "SOFT" 50, "WONK" 1;
+  color: #f5e1a9;
+}
+.vt-bots-feature-action {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+@media (min-width: 760px) {
+  .vt-bots-feature-action {
+    align-items: flex-end;
+    text-align: right;
+  }
+}
+.vt-bots-feature-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  /* Brand gold, identical to .vt-bet-feature-cta so the two feature
+   * cards share a single CTA treatment. Tim 2026-06-08. */
+  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  color: #0a0a0e;
+  font-weight: 800;
+  text-decoration: none;
+  font-size: clamp(14px, 1.3vw, 15px);
+  letter-spacing: 0.02em;
+  box-shadow:
+    0 10px 24px -10px rgba(245, 158, 11, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 140ms ease, box-shadow 140ms ease;
+  white-space: nowrap;
+}
+.vt-bots-feature-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 38px -10px rgba(245, 158, 11, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.vt-bots-feature-cta--white {
+  background: #fafafa;
+  color: #0a0a0e;
+  box-shadow:
+    0 10px 24px -10px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.vt-bots-feature-cta--white:hover {
+  transform: translateY(-2px);
+  background: #ffffff;
+  box-shadow:
+    0 14px 30px -10px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+.vt-bots-feature-fine {
+  margin: 0;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(231, 234, 243, 0.6);
+}
+@media (max-width: 759px) {
+  .vt-bots-feature-action {
+    align-self: stretch;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .vt-bots-feature-cta {
+    width: 100%;
+    justify-content: center;
+    padding: 11px 18px;
+    font-size: 14px;
+  }
+  .vt-bots-feature-fine {
+    display: none;
+  }
+}
+
 /* Compact countdown variant, used inline next to the stats row. */
 .vt-countdown--compact {
   padding: 0;

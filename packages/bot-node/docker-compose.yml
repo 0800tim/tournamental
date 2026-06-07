@@ -1,0 +1,21 @@
+services:
+  bot-node:
+    image: tournamental/bot-node:0.1.0
+    build:
+      context: .
+    container_name: tournamental-bot-node
+    restart: unless-stopped
+    environment:
+      TOURNAMENTAL_NODE_DB: /app/data/bot-node.db
+      TOURNAMENTAL_CENTRAL_URL: ${TOURNAMENTAL_CENTRAL_URL:-https://api.tournamental.com}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "4080:4080"
+    command: ["serve"]
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:4080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

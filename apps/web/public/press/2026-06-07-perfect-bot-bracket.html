@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>FOR IMMEDIATE RELEASE: How close to a perfect 104-match World Cup bracket can the world's smartest AI swarm get?</title>
+<meta name="description" content="Tournamental opens its 2026 FIFA World Cup leaderboard to AI bots. Spawn a million in your browser, run a billion on a federated node, watch the public on-chain leaderboard.">
+<style>
+  @page { size: A4; margin: 22mm 18mm; }
+  body {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #1a1a1a;
+    line-height: 1.5;
+    font-size: 11pt;
+    max-width: 170mm;
+    margin: 0 auto;
+  }
+  .masthead {
+    border-bottom: 2px solid #1a1a1a;
+    padding-bottom: 6mm;
+    margin-bottom: 8mm;
+  }
+  .masthead .label {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #a16a00;
+    margin: 0 0 2mm;
+  }
+  .masthead .date {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 10pt;
+    color: #555;
+    margin: 0;
+  }
+  h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20pt;
+    line-height: 1.15;
+    font-weight: 700;
+    margin: 4mm 0 6mm;
+    color: #1a1a1a;
+  }
+  h2 {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13pt;
+    margin: 8mm 0 3mm;
+    color: #1a1a1a;
+    border-bottom: 1px solid #d8c98a;
+    padding-bottom: 1mm;
+  }
+  p { margin: 0 0 3.5mm; }
+  ul, ol { margin: 0 0 4mm; padding-left: 6mm; }
+  ul li, ol li { margin: 0 0 1.5mm; }
+  blockquote {
+    margin: 3mm 0 5mm 4mm;
+    padding: 0 0 0 6mm;
+    border-left: 3px solid #a16a00;
+    color: #2a2a2a;
+    font-style: italic;
+  }
+  a { color: #6b4900; text-decoration: underline; word-break: break-word; }
+  strong { color: #1a1a1a; }
+  code {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+    font-size: 9.5pt;
+    background: #f4ecd3;
+    padding: 0.5mm 1.5mm;
+    border-radius: 1mm;
+    color: #1a1a1a;
+  }
+  .ends {
+    margin-top: 14mm;
+    padding-top: 4mm;
+    border-top: 1px solid #999;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #666;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<div class="masthead">
+  <p class="label">For immediate release</p>
+  <p class="date">7 June 2026, Auckland, New Zealand</p>
+</div>
+
+<h1>How close to a perfect 104-match World Cup bracket can your AI swarm get?</h1>
+<p><strong>No AI on the planet will get a perfect bracket. Not even a swarm from Anthropic, OpenAI, Grok, or Gemini. The maths says so, and Tournamental is putting that claim on the public leaderboard for five weeks.</strong></p>
+<p>Tournamental opens its global leaderboard to anyone with a browser tab. Build a swarm of a million AI bots running locally in your browser, leave your laptop running overnight, and run multiple devices to climb into the billions. Watch your highest-scoring bot battle AIs from Anthropic, OpenAI, Google, university stats departments, and any hobbyist with the patience to leave Chrome open. The maths is honest: no bot will nail all 104 matches correctly. Here is why, and here is the question Tournamental is putting to the world for the next five weeks: across every AI swarm on the planet, how close does the highest-scoring bot get?</p>
+<p>Auckland-based gamification platform <strong>Tournamental</strong> (<a href="https://play.tournamental.com">play.tournamental.com</a>) announced today that it is opening its 2026 FIFA World Cup leaderboard to AI competitors. Anyone, anywhere in the world, can build an AI bot swarm of any size, in any quantity, against the same 104 matches, scored against the same actual results, under the same blockchain audit trail. No developer experience required for the browser path. A laptop, a Chrome tab, and patience is enough to land you on the public bots leaderboard.</p>
+<p><strong>Live tonight, no waitlist</strong>: the browser swarm builder, the open-source Node.js SDK, the federated bot-node runtime, the developer hub, the model context protocol server, and the full match calendar are all live at <a href="https://play.tournamental.com">play.tournamental.com</a>. All eight NPM packages (<a href="https://www.npmjs.com/package/@tournamental/bot-sdk">@tournamental/bot-sdk</a>, <a href="https://www.npmjs.com/package/@tournamental/bot-node">@tournamental/bot-node</a>, and six supporting libraries) are published and installable. The first 18,000 bots are already on the human leaderboard alongside real players. The bots tab is open for the world to populate.</p>
+<p>The platform is publishing three runtimes simultaneously:</p>
+<ol>
+<li><strong>Browser swarm builder</strong> at <a href="https://play.tournamental.com/run">play.tournamental.com/run</a>. Open the page, pick a number of bots between 100 and a million per batch, click Start. Web Workers spin up across every CPU core in the user's laptop. A modest quad-core laptop generates roughly 100,000 unique bots per minute. Each bot's bracket is deterministic and reproducible from its index, so the swarm never duplicates a bracket within its own scope, and the IndexedDB store stays under 200 MB no matter how large the swarm gets. A "keep looping" tick box runs in batches all night, all weekend, all tournament if the user lets it. A single laptop left running across the five-week tournament can commit upwards of a billion bracket predictions on chain. Run it on multiple machines, or contribute through a friend or a research lab, and the numbers scale linearly.</li>
+<li><strong>Node.js SDK</strong> (<code>@tournamental/bot-sdk</code>) on npm. Developers plug in Claude, GPT, Gemini, OpenRouter, or any LLM key and submit picks via the public scoring API. The same bulk-insert and federation protocols the browser runtime uses.</li>
+<li><strong>Federated Bot Node</strong>, a Docker-packaged Node.js server (<code>@tournamental/bot-node</code>) that lets serious operators run billions of bots on their own hardware. Picks stay local. Only cryptographic commitments and aggregate scores flow to the central leaderboard.</li>
+</ol>
+<p>The launch sets up a public, multi-week, blockchain-anchored experiment with one core question:</p>
+<blockquote>
+<p><strong>How close to perfection can the highest-scoring AI bot on the planet get, when the world's smartest models, the world's biggest swarms, and any curious human with a Chrome tab all predict the same 104 matches under the same rules?</strong></p>
+</blockquote>
+<p>The platform's founder, Auckland software engineer <strong>Tim Thomas</strong> (+64 21 535 832, info@tournamental.com), is already publicly betting his NZ$1.5 million Auckland home that no single human can predict all 104 matches correctly. The opening of the leaderboard to AI competitors extends that wager into AI territory, but with an important difference: bots cannot win the house.</p>
+<blockquote>
+<p>"Open Chrome, paste the URL, slide the bot count up to a million, click Start, and walk away," said Thomas. "Your laptop will spend the night generating unique bot brackets, hashing them into merkle trees, and committing the roots to Tournamental's central server. Come back in the morning and see how your highest-scoring bot is doing. Leave the loop on for the full five weeks and your single laptop can put a couple of billion bracket predictions on chain by the time the final whistle blows. We will know, with the receipts on the Bitcoin blockchain, how close the best bot on the planet got to 104 from 104."</p>
+<p>"Spoiler: it will not be 104. The maths is brutal. But the question of exactly how close, and which lab or bedroom-coder builds the highest scorer, is genuinely unanswered. That is the experiment."</p>
+</blockquote>
+<p>The bots have access to information the founder argues humans rarely use rigorously:</p>
+<ul>
+<li><strong>Live Polymarket and sportsbook odds</strong>, updated continuously, on every one of the 104 matches.</li>
+<li><strong>Public injury reports</strong> for every squad, refreshed daily.</li>
+<li><strong>Stadium weather forecasts</strong> through the OpenWeather API, refreshed hourly close to kickoff.</li>
+<li><strong>Historical head-to-head results</strong> for every fixture pairing.</li>
+<li><strong>Squad form, fitness, and recent results</strong> for all 48 qualified nations.</li>
+<li><strong>The full 2026 World Cup bracket structure</strong> including FIFA's Annex C third-place routing.</li>
+</ul>
+<p>Bots can change their picks right up until the kickoff of each individual match. That is the same mechanic available to human players on Tournamental, and the platform's commercial differentiator versus older prediction games such as ESPN's NCAA bracket challenge or Yahoo's NFL Pick'em. Picks become immutable the moment their match kicks off, on the authority of the Bitcoin blockchain via OpenTimestamps.</p>
+<h2>Why this is interesting</h2>
+<p>This is the first major consumer prediction platform to invite billions of bots to compete with the humans who run them, with a public scoring API and a public outcome ledger. The match data is on the blockchain. The bots can be inspected, they can never change the past. The leaderboard separates bots from humans by default, so observers can read off, in real time, whether the median human is keeping up with the median bot, and whether the very best human is ahead of the very best bot.</p>
+<p>Thomas argues the bots will dominate the bots leaderboard not because they are smarter than humans, but because of the sheer number of them. A modest quad-core laptop generates roughly 100,000 unique bots per minute in a single Chrome tab. Left running overnight, that same laptop crosses 30 million bots before breakfast. Run continuously from now until first match kickoff and run it on multiple machines and devices and a single player could plausibly commits more than a billion bracket predictions on chain. Multiply that by every operator who wants in, every university stats department, every AI lab, every hobbyist running an multiple servers, multiple syndicate/Pool websites embedding our bot runner, old desktops, and the bots leaderboard will record trillions of bracket predictions over the five weeks of the tournament. Even at that scale, the maths is unforgiving: no single bot will get all 104 matches right. The question Tournamental is putting to the world is how close the best one gets, and which lab, swarm, or solo operator built it.</p>
+<p>The combinatorial space of distinct 104-match World Cup brackets is approximately <strong>10^44</strong> (a 44-digit number). The best published soccer prediction models in academia ceiling out around 58% per-group-match accuracy and 65% per-knockout accuracy. Even at that empirical ceiling, the probability of any single intelligent bot nailing all 104 matches perfectly is approximately <strong>10^-22</strong>. The probability of any single human bracket scoring perfectly is even lower, because humans tend to under-use live odds and over-weight emotional underdogs.</p>
+<p>To reach even a coin-flip probability of one perfect AI bracket across all submissions, the world would need to run approximately <strong>10^22 (10 sextillion) intelligent bots</strong>. That is roughly 10 trillion times more compute than currently exists on Earth.</p>
+<blockquote>
+<p>"Perfect brackets are not the story. The story is the distribution. A million-bot browser swarm is realistically expected to peak at roughly 88 to 95 matches correct out of 104. That comfortably beats the best human bracket in a typical World Cup pool (usually 70 to 80 out of 104). It also exceeds the closing-line accuracy of Pinnacle Sportsbook, which is the closest real-world reference. What we do not yet know is whether a thoughtfully-tuned billion-bot swarm running on a dedicated workstation, or a hand-built bot powered by a frontier model with access to live injury news, can squeeze past 95. That is what the next five weeks will tell us, on chain."</p>
+</blockquote>
+<p>The platform's <code>Bots</code> leaderboard tab will show the live ranking of submitted bots throughout the tournament. The <code>Humans</code> tab shows the human prize race. The <code>My Pools</code> tab shows the user's own private and branded pools.</p>
+<h2>Anyone can run a swarm, at any scale, on any hardware</h2>
+<p>Tournamental is launching the federation protocol on day one. Any developer, university lab, or AI company can run a <strong>Tournamental Bot Node</strong> on their own infrastructure. The node holds the operator's bots locally; only cryptographic commitments and aggregate scores flow to the central server. Every bot pick is committed to a merkle tree before kickoff, anchored on the Bitcoin blockchain via OpenTimestamps, and independently verifiable by any third party using a public command-line tool.</p>
+<p>This means a single operator can run millions or billions of bots without exporting raw picks to Tournamental, and the federated leaderboard remains tamper-proof and auditable. A research group can publish a paper claiming "our 100,000-bot swarm scored a mean of 67 out of 104" and any reader can verify the claim end-to-end, from on-chain commitment to per-bot proof.</p>
+<blockquote>
+<p>"We want a university stats department in Auckland to compete with Anthropic and DeepMind on the same audit trail. The protocol is open. The verifier is open. The chain is open. If a billion-bot swarm out of an Anthropic data centre and a hundred-thousand-bot swarm out of a sixth-form classroom land within two matches of each other on the leaderboard, that is a story we want to tell."</p>
+</blockquote>
+<p>The full federation protocol, including the publish and aggregation flow, is documented at <a href="https://play.tournamental.com/developers">play.tournamental.com/developers</a> and in the public spec at <a href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>.</p>
+<h2>The full experiment</h2>
+<p>Tournamental is publishing five artefacts alongside this announcement:</p>
+<ol>
+<li><strong>The browser swarm builder</strong> at <a href="https://play.tournamental.com/run">play.tournamental.com/run</a>. Five-minute setup to create your account, build your own bracket, and start your bot swarm. Free. No install. Zero developer experience required.</li>
+<li><strong>The Bot SDK</strong> (<code>@tournamental/bot-sdk</code>) on npm, with documentation at <a href="https://play.tournamental.com/bots/sdk">play.tournamental.com/bots/sdk</a>, letting any developer post bracket predictions to the scoring API.</li>
+<li><strong>The Federated Bot Node</strong> (<code>@tournamental/bot-node</code>) for serious operators running billions of bots on their own infrastructure.</li>
+<li><strong>A unified developer hub</strong> at <a href="https://play.tournamental.com/developers">play.tournamental.com/developers</a>, covering all three runtimes, the MCP server, the bulk-insert API, and live data feeds.</li>
+<li><strong>A white paper</strong> at <a href="https://play.tournamental.com/whitepaper/perfect-bot-bracket">play.tournamental.com/whitepaper/perfect-bot-bracket</a>, covering the full maths, the live-prediction mechanic, the public information environment, and a hypothesis on the expected number of perfect AI brackets as a function of bot count and bot quality.</li>
+</ol>
+<p>The platform invites academic researchers, AI labs, sports analytics teams, university computer science departments, hobby bot builders, and Anthropic / OpenAI / Google customers to submit bots before kickoff on <strong>11 June 2026</strong>.</p>
+<h2>Why Tournamental is doing this</h2>
+<p>To prove the math right! Thomas, who built the platform solo in three weeks with AI assistance, says the bot arena is the only way to get close to the amount of compute power needed to try and find the perfect bracket, but we still won't even get close. But we want to know what the ceiling is in 2026, and how much we can trash it by in 2030!</p>
+<blockquote>
+<p>"The platform is open source. The audit trail is on the Bitcoin blockchain. The maths is published. Now the prediction layer is open too. Anyone can spawn a swarm of millions or even billions of bots, anyone can read the leaderboard, anyone can verify the picks on chain. By 19 July we will know how close to perfection the world's smartest swarm could get, who runs it, and how they toped the leaderboard. That is a result worth knowing, with the receipts on chain."</p>
+</blockquote>
+<h2>Press contact</h2>
+<p><strong>Tim Thomas</strong>, Founder
++64 21 535 832
+info@tournamental.com
+<a href="https://play.tournamental.com">play.tournamental.com</a></p>
+<h2>About Tournamental</h2>
+<p>Tournamental is a free-to-play, open-source FIFA World Cup prediction platform with a tamper-proof, Bitcoin-blockchain-anchored audit trail. It is operated by <strong>Tournamental</strong>, a subsidiary of <strong>Growth Spurt Ltd</strong>, headquartered in Auckland, New Zealand. The platform launched publicly on <strong>5 June 2026</strong>, seven days before the FIFA World Cup 2026 opening match. The platform supports 22 languages including te reo Māori, and is licensed under Apache 2.0 with the source code published at <a href="https://github.com/0800tim/tournamental">github.com/0800tim/tournamental</a>.</p>
+<p>The founder's NZ$1.5 million Auckland house is publicly offered as the grand prize. The probability of any single bracket nailing all 104 matches is roughly 1 in 10^44. The probability of any single intelligent AI bracket nailing 104 from 104 is roughly 1 in 10^22. The maths is at <a href="https://play.tournamental.com/odds">play.tournamental.com/odds</a>. The bet is at <a href="https://play.tournamental.com/the-bet">play.tournamental.com/the-bet</a>. The audit trail is at <a href="https://play.tournamental.com/verify">play.tournamental.com/verify</a>.</p>
+
+<p class="ends">ends</p>
+
+</body>
+</html>
