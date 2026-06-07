@@ -196,14 +196,11 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
 
-              <div className="vt-home-hero-ctas">
-                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
-                  {ctaPredict} →
-                </Link>
-                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
-                  {ctaPool}
-                </Link>
-              </div>
+              {/* Tim 2026-06-08: the Set picks + Run pool CTAs that used to
+                * sit here have been promoted into a standalone 2-col row
+                * that lives between the new Bot Arena feature card and
+                * the existing bet feature card. Hero now reads as
+                * headline + lede only, with action below. */}
 
               {/* Tim 2026-06-05: single lede paragraph replaces the
                 * previous "Nobody will correctly predict..." + global
@@ -258,6 +255,75 @@ export default async function HomePage(): Promise<JSX.Element> {
                 />
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* ============== BOT ARENA FEATURE ============== */}
+        {/* Tim 2026-06-08: dramatic image-overlay feature card mirroring
+          * the bet card pattern but sitting first under the hero stats
+          * row. Promotes the perfect-bot-bracket experiment: spawn a
+          * swarm of bots in the browser and battle for the bracket.
+          * Press release + white paper published 2026-06-07. */}
+        <section className="vt-home-section vt-home-section--bots">
+          <article className="vt-bots-feature" aria-label="The Bot Arena">
+            <div className="vt-bots-feature-bg" aria-hidden="true" />
+            <div className="vt-bots-feature-scrim" aria-hidden="true" />
+            <div className="vt-bots-feature-inner">
+              <div className="vt-bots-feature-text">
+                <p className="vt-bots-feature-eyebrow">The Bot Arena</p>
+                <h2 className="vt-bots-feature-headline">
+                  Send <em>millions of bots</em> into battle.
+                </h2>
+                <p className="vt-bots-feature-body">
+                  Spawn a <strong>swarm of AI bots</strong> in your browser,
+                  forge their World Cup brackets, and pit them against
+                  every other swarm on Earth. <em>How close can your bots get to perfect?</em>
+                </p>
+              </div>
+              <div className="vt-bots-feature-action">
+                <Link href="/bot-arena" className="vt-bots-feature-cta">
+                  Enter the Bot Arena <span aria-hidden="true">→</span>
+                </Link>
+                <a
+                  href="/press/tournamental-press-release-2026-06-07.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vt-bots-feature-cta vt-bots-feature-cta--white"
+                >
+                  Read Press Release <span aria-hidden="true">→</span>
+                </a>
+                <p className="vt-bots-feature-fine">
+                  <Link
+                    href="/whitepaper/perfect-bot-bracket"
+                    style={{ color: "inherit", textDecoration: "underline" }}
+                  >
+                    Read the white paper
+                  </Link>{" "}
+                  · 104 matches · 0 perfect brackets
+                </p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        {/* ============== 2-COL CTA ROW (Tim 2026-06-08) ============== */}
+        {/* Replaces the in-hero Set picks + Run pool CTAs. Sits between
+          * the new Bot Arena card and the existing bet feature card so
+          * both flagship surfaces still get a clear path in. */}
+        <section className="vt-home-section vt-home-section--ctapair">
+          <div className="vt-home-ctapair">
+            <Link
+              href="/world-cup-2026"
+              className="vt-home-ctapair-btn vt-home-ctapair-btn--gold"
+            >
+              {ctaPredict} <span aria-hidden="true">→</span>
+            </Link>
+            <Link
+              href="/syndicates"
+              className="vt-home-ctapair-btn vt-home-ctapair-btn--ghost"
+            >
+              {ctaPool} <span aria-hidden="true">→</span>
+            </Link>
           </div>
         </section>
 
