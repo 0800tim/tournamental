@@ -1,0 +1,299 @@
+/*
+ * /bots/keys, the issuance page styles.
+ *
+ * Same editorial canvas as /bots/sdk so the two pages read as one
+ * micro-site. Form treatment is intentionally restrained: a single
+ * input, a single button, and a result panel that visually shouts
+ * "copy this NOW".
+ */
+
+.vt-keys {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 48px 20px 96px;
+  line-height: 1.55;
+}
+
+.vt-keys-article {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.vt-keys-header {
+  padding-bottom: 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  margin-bottom: 32px;
+}
+
+.vt-keys-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f1c447;
+  margin: 0 0 14px;
+}
+
+.vt-keys-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(32px, 4.5vw, 48px);
+  line-height: 1.1;
+  margin: 0 0 16px;
+  color: #fff;
+  letter-spacing: -0.01em;
+}
+
+.vt-keys-lede {
+  font-size: 17px;
+  color: #b8c0d4;
+  margin: 0;
+}
+
+.vt-keys-lede code {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.92em;
+  background: rgba(241, 196, 71, 0.10);
+  color: #f1c447;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.vt-keys-signedin {
+  background: rgba(241, 196, 71, 0.08);
+  color: #f1c447;
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin: 0 0 24px;
+  font-size: 14px;
+}
+
+.vt-keys-signedin strong {
+  color: #fff;
+}
+
+.vt-keys-form-card {
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 28px 28px 24px;
+}
+
+.vt-keys-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.vt-keys-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.vt-keys-hint {
+  font-weight: 400;
+  color: #b8c0d4;
+  font-size: 13px;
+}
+
+.vt-keys-hint em {
+  color: #f1c447;
+  font-style: normal;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.9em;
+  background: rgba(241, 196, 71, 0.10);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.vt-keys-input {
+  font: inherit;
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #e7ecf7;
+  padding: 11px 14px;
+  border-radius: 10px;
+  font-size: 15px;
+}
+
+.vt-keys-input:focus {
+  outline: 2px solid #f1c447;
+  outline-offset: 1px;
+  border-color: transparent;
+}
+
+.vt-keys-submit {
+  font: inherit;
+  background: #f1c447;
+  color: #0e0e12;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  align-self: flex-start;
+}
+
+.vt-keys-submit:hover:not(:disabled) {
+  background: #f6d76e;
+}
+
+.vt-keys-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vt-keys-error {
+  margin-top: 16px;
+  color: #ff8a8a;
+  background: rgba(255, 80, 80, 0.10);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.vt-keys-result {
+  margin-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 20px;
+}
+
+.vt-keys-result-headline {
+  margin: 0 0 14px;
+  color: #e7ecf7;
+  font-size: 14px;
+}
+
+.vt-keys-result-headline strong {
+  color: #f1c447;
+}
+
+.vt-keys-result-row {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.vt-keys-result-key {
+  flex: 1;
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 14px;
+  background: #0a0a0d;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 12px 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+  color: #f1c447;
+}
+
+.vt-keys-copy {
+  font: inherit;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: #e7ecf7;
+  padding: 0 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.vt-keys-copy:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vt-keys-result-meta {
+  margin: 14px 0 0;
+  font-size: 13px;
+  color: #b8c0d4;
+}
+
+.vt-keys-result-meta code {
+  font-family: "SF Mono", "Menlo", "Consolas", monospace;
+  font-size: 0.92em;
+  background: rgba(241, 196, 71, 0.10);
+  color: #f1c447;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.vt-keys-aside {
+  margin-top: 36px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 24px;
+}
+
+.vt-keys-aside h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  color: #fff;
+  margin: 18px 0 8px;
+}
+
+.vt-keys-aside p {
+  color: #d6dbe8;
+  font-size: 15px;
+  margin: 0 0 8px;
+}
+
+.vt-keys-aside a {
+  color: #f1c447;
+  text-decoration: underline;
+}
+
+.vt-keys-gate {
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 32px;
+}
+
+.vt-keys-gate h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 24px;
+  color: #fff;
+  margin: 0 0 12px;
+}
+
+.vt-keys-gate p {
+  color: #d6dbe8;
+  font-size: 15px;
+  margin: 0 0 18px;
+}
+
+.vt-keys-gate a {
+  color: #f1c447;
+}
+
+.vt-keys-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.vt-keys-cta--primary {
+  background: #f1c447;
+  color: #0e0e12;
+}
+
+.vt-keys-cta--primary:hover {
+  background: #f6d76e;
+}
+
+.vt-keys-gate-foot {
+  margin: 18px 0 0;
+  font-size: 13px;
+  color: #b8c0d4;
+}
