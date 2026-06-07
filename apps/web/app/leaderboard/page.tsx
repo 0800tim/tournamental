@@ -31,7 +31,7 @@ import { PerfectTrackBadge } from "@/components/leaderboard/PerfectTrackBadge";
 import { StageProgressChart } from "@/components/leaderboard/StageProgressChart";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { DraftWatermark } from "@/components/mock/DraftWatermark";
-import { AppShell, PillTabs } from "@/components/shell";
+import { AppShell } from "@/components/shell";
 import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import {
   mockPointsHistory,
@@ -43,8 +43,11 @@ import { LeaderboardTabs } from "./LeaderboardTabs";
 import "./leaderboard.css";
 
 export default function LeaderboardPage() {
-  const [tab, setTab] = useState<"global" | "friends" | "country">("global");
-
+  // Tim 2026-06-07: the Global/Friends/Country chooser used to live in
+  // the AppShell subHeader pill row. It now sits inside the leaderboard
+  // card next to the Humans/Bots/My Pools audience tabs, so the page
+  // padding can compress and both decisions live next to the list they
+  // filter.
   const members = useMemo(() => mockLeaderboardMembers(null, 50), []);
 
   // "You" pinned to mid-pack so the highlight row is visibly demoed in
@@ -69,27 +72,11 @@ export default function LeaderboardPage() {
   );
 
   return (
-    <AppShell
-      title="Leaderboard"
-      subHeader={
-        <PillTabs
-          ariaLabel="Leaderboard scope"
-          tabs={[
-            { id: "global", label: "Global" },
-            { id: "friends", label: "Friends" },
-            { id: "country", label: "Country" },
-          ]}
-          active={tab}
-          onChange={(id) => setTab(id as typeof tab)}
-        />
-      }
-    >
+    <AppShell title="Leaderboard">
       <div className="vt-page-content vt-lb-page">
         <DraftPreviewBanner />
 
-        <div style={{ marginBottom: 16 }}>
-          <PerfectTrackBadge />
-        </div>
+        <PerfectTrackBadge />
 
         <section className="vt-lb-hero">
           {heroStats.map((s) => (

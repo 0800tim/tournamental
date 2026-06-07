@@ -33,8 +33,19 @@
 .vt-lb-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  /* Tim 2026-06-07: tightened from 18 → 10 so the Preview-data banner
+   * sits snug against the PerfectTrack chip and hero tiles below it
+   * instead of a half-inch of negative space the user flagged on the
+   * dev screenshot. */
+  gap: 10px;
   padding-bottom: 48px;
+}
+
+/* Cancel the legacy 16px bottom margin that DraftPreviewBanner ships
+ * with so the page's own gap (above) is the single source of truth
+ * for vertical rhythm here. */
+.vt-lb-page > .vt-draft-banner {
+  margin-bottom: 0;
 }
 
 .vt-lb-hero {
@@ -239,7 +250,10 @@
   border-radius: 14px;
   background: var(--vt-bg-elev);
   border: 1px solid var(--vt-border);
-  padding: 32px 28px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .vt-lb-mypools-empty {
@@ -257,4 +271,132 @@
 
 .vt-lb-mypools-link:hover {
   text-decoration: none;
+}
+
+/* ----- "My Pools" rows (Tim 2026-06-07) ----- */
+
+.vt-lb-mypools-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-lb-mypools-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--vt-border);
+}
+
+.vt-lb-mypools-row-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vt-lb-mypools-rank {
+  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--vt-gold-400, #dca94b);
+  min-width: 44px;
+  text-align: center;
+}
+
+.vt-lb-mypools-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vt-lb-mypools-name {
+  font-weight: 600;
+  color: var(--vt-text, #e7ecf7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-lb-mypools-members {
+  font-size: 0.78rem;
+  color: var(--vt-text-muted, #b8c0d4);
+}
+
+.vt-lb-mypools-view {
+  flex-shrink: 0;
+  color: var(--vt-accent, #f1c447);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 196, 71, 0.35);
+  transition: background 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+
+.vt-lb-mypools-view:hover {
+  background: rgba(241, 196, 71, 0.12);
+  border-color: rgba(241, 196, 71, 0.55);
+}
+
+.vt-lb-mypools-footnote {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--vt-text-muted, #b8c0d4);
+}
+
+/* ----- Comparison-scope row (Global / Friends / Country) -----
+ * Sits inside the audience block, above the audience tablist. Uses a
+ * slightly more restrained chip so it visually defers to the bigger
+ * Humans/Bots/My Pools row below it. Tim 2026-06-07. */
+
+.vt-lb-compare-tablist {
+  display: inline-flex;
+  align-self: flex-start;
+  gap: 4px;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--vt-border);
+  border-radius: 999px;
+}
+
+.vt-lb-compare-tab {
+  font: inherit;
+  color: var(--vt-text-muted, #b8c0d4);
+  background: transparent;
+  border: none;
+  padding: 5px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 12.5px;
+  letter-spacing: 0.01em;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.vt-lb-compare-tab:hover {
+  color: var(--vt-text, #e7ecf7);
+}
+
+.vt-lb-compare-tab[data-active="1"] {
+  background: rgba(241, 196, 71, 0.18);
+  color: var(--vt-text, #e7ecf7);
+  border: 1px solid rgba(241, 196, 71, 0.45);
+  padding: 4px 13px;
+}
+
+.vt-lb-compare-tab:focus-visible {
+  outline: 2px solid var(--vt-accent, #f1c447);
+  outline-offset: 2px;
 }
