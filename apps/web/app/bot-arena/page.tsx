@@ -55,7 +55,7 @@ export default function BotArenaPage(): JSX.Element {
               * text-wrap: balance on .vt-arena-title gives graceful
               * line breaks if it still has to wrap on narrow widths. */}
             <h1 className="vt-arena-title">
-              Spawn a million bots. Take on the world&rsquo;s best AI.
+              Spawn a million bots to predict the FIFA World Cup.
               <br />
               <em>Will yours top the leaderboard?</em>
             </h1>
