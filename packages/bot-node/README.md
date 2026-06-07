@@ -164,6 +164,66 @@ pnpm --filter @tournamental/bot-node build
 pnpm --filter @tournamental/bot-node test
 ```
 
+## Updating to a new release
+
+Tournamental publishes strategy and protocol updates regularly. Running an
+out-of-date bot-node still posts to the leaderboard, but your picks will trail
+real-world signal. The most recent release, **v0.2.0**, fixes a calibration bug
+where chalk-blended group matches resolved to all-draws and the cup-winner
+cascade favoured longshots. Full changelog at
+`https://github.com/0800tim/tournamental/releases`.
+
+### Check the current version
+
+```bash
+docker exec tournamental-bot-node tournamental-bot-node --version
+```
+
+### Update via Docker (preferred)
+
+Pull the new image and recreate the container in place. The named-volume bot
+data is preserved across the upgrade (the SQLite DBs survive container
+recreate).
+
+```bash
+cd path/to/your/docker-compose-dir
+docker compose pull
+docker compose up -d --force-recreate
+```
+
+### Update via npm (if you embedded the SDK directly)
+
+```bash
+npm install @tournamental/bot-node@latest
+# or pin a specific version:
+npm install @tournamental/bot-node@0.2.0
+```
+
+### Verify the update worked
+
+- Hit the node's `/stats` endpoint and confirm the version field reflects the
+  new release. If your build doesn't expose `version` on `/stats` yet, rely on
+  the CLI `--version` output instead.
+- Open a sample bot's bracket on
+  `play.tournamental.com/run/bots/<index>` and confirm group matches no longer
+  all resolve to `Draw`, and the cup-winner pick is not a tournament longshot.
+
+### Versioning policy
+
+- Tournamental uses semver.
+- `0.x.x` is pre-1.0. Strategy and protocol semantics may change with a minor
+  bump, so `0.1 → 0.2` is a breaking strategy change.
+- Pin major + minor in production: `@tournamental/bot-node@^0.2.0`.
+- Subscribe to GitHub releases at
+  `https://github.com/0800tim/tournamental/releases` for changelogs.
+
+### Got bots running on an old version?
+
+Previously-generated bot brackets stay on the leaderboard. The commits are
+immutable, so nothing you already published gets rewritten. Only new batches go
+through the new strategy. Recommended sequence: stop the swarm, update,
+restart. No bot-history loss.
+
 ## Licence
 
 Apache 2.0. See `LICENSE`. Submit issues and PRs at

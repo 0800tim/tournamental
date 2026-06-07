@@ -353,6 +353,22 @@ Postgres 16 + Redis 7, both Dockerised, brought up via `bash infra/scripts/db-up
 
 Migrations: builders pick the migration tool that fits their stack (Prisma for Node TS surfaces, plain SQL for the producer if it ever writes). Whichever tool, **migrations live in `apps/<service>/migrations/` and are checked in.** Reviewer agent rejects PRs that mutate schema without a migration.
 
+## SDK release process (mandatory when bumping `@tournamental/bot-node`)
+
+External users install the bot SDK via `npm i @tournamental/bot-node` or run `npx tournamental-bot-node`. **Any change to `packages/bot-node/` must follow this checklist or the published SDK drifts behind the source.** The version published to npm is the version users get; nothing automatic mirrors the source bump.
+
+1. **Bump the version** in `packages/bot-node/package.json`. Semver: patch for bugfix, minor for additive API, **major (with a SCHEMA migration note) for any storage-layer change**. The schema is breaking by default — operators upgrading minor versions should not have to wipe their data volume.
+2. **Update tests** in `packages/bot-node/test/`. `pnpm --filter @tournamental/bot-node test` must be green before publishing.
+3. **Build + pack** locally: `cd packages/bot-node && pnpm run build && pnpm pack`. Produces `tournamental-bot-node-<ver>.tgz`.
+4. **Smoke the dependents** (any package that consumes the tarball directly):
+   - `apps/billion-bot/` — edit `package.json` + `Dockerfile` to reference the new `tournamental-bot-node-<ver>.tgz`, then `rm -rf node_modules && pnpm install && docker compose build --no-cache && docker compose up -d`. Confirm `/stats` on port 4080 reports the new version.
+   - Any other consumer the orchestrator names in the session note.
+5. **Publish to npm**: `npm publish --access public` from `packages/bot-node/`. Requires a token with `@tournamental/*` write scope in `~/.npmrc`. If `npm whoami` returns 401 or publish returns 404 on the scope, **stop and escalate to Tim** — do not skip this step or external users will install a stale version.
+6. **Commit** the version bump + new tarball reference + updated docs in one PR titled `feat(bot-node): vX.Y.Z — <what changed>`. The body must list: the schema delta, whether operators need to wipe their data volume, and the rollback story.
+7. **Announce** in `IDEAS.md` (or the launch channel post-launch) so operators know to update their `npm i` / pull the new docker image.
+
+A schema migration that requires a wipe (e.g. v0.3.0's regenerate-on-demand collapse) **must** include an `infra/scripts/migrate-bot-node-<from>-to-<to>.md` runbook covering: (a) what to back up first, (b) the wipe commands, (c) the verification steps post-restart.
+
 ## Three things to remember
 
 1. **Ship the AR-FR demo first.** Everything else is enabled by it.

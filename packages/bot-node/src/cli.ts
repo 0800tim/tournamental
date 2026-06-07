@@ -236,8 +236,9 @@ function runGenerate(
     },
   });
   process.stdout.write(
-    `generated ${result.bots_inserted} bots, ` +
-      `${result.picks_inserted} picks in ${result.elapsed_ms}ms\n`,
+    `generated ${result.bots_generated} new bots ` +
+      `(swarm total: ${result.total_bots_after}), ` +
+      `${result.picks_generated} picks hashed in ${result.elapsed_ms}ms\n`,
   );
   return 0;
 }
@@ -300,8 +301,14 @@ async function runScore(
   }
   const central = dryRun ? undefined : centralClient(storage);
   const creds = storage.loadCredentials();
+  // v0.3.0: scoreMatch regenerates picks on demand, so it needs the
+  // match catalogue to know the home/away/odds/allows_draw for the
+  // settled match plus every other settled match (to walk the
+  // still-perfect set).
+  const matches = loadMatches(values);
   const summary = await scoreMatch({
     storage,
+    matches,
     result: {
       match_id,
       outcome,

@@ -5,12 +5,22 @@
  */
 
 export * from "./types.js";
-export { Storage, type StorageOptions } from "./storage.js";
-export { generateBots, type GeneratorOptions, type GenerationResult } from "./generator.js";
+export {
+  Storage,
+  type StorageOptions,
+  type SwarmRunRow,
+  type MatchScoreSummary,
+} from "./storage.js";
+export {
+  generateBots,
+  regenerateBotPickForMatch,
+  leafForBotPick,
+  type GeneratorOptions,
+  type GenerationResult,
+} from "./generator.js";
 export {
   commitMatch,
   pendingMatches,
-  pickLeaf,
   type CommitMatchOptions,
   type CommitResult,
   type PendingMatch,
@@ -34,6 +44,8 @@ export { createServer, type ServerOptions, type CreatedServer } from "./server.j
 export {
   chalkStrategy,
   defaultChalkScore,
+  defaultDarlingTeam,
+  DARLING_TEAM_POOL,
 } from "./strategy/chalk.js";
 export type { Strategy, StrategyContext, PickDecision } from "./strategy/index.js";
 export {

@@ -1,7 +1,5 @@
 import Fastify, { type FastifyInstance } from "fastify";
 
-import { merkleProof } from "./merkle.js";
-import { pickLeaf } from "./scheduler.js";
 import type { Storage } from "./storage.js";
 
 export interface ServerOptions {
@@ -18,6 +16,19 @@ export interface CreatedServer {
   stop: () => Promise<void>;
 }
 
+/**
+ * Status server for the bot node.
+ *
+ * v0.3.0 (Tim 2026-06-08): per-bot proof endpoint removed.
+ *
+ * The v0.2.0 server exposed /v1/proof/:match_id/:bot_id which
+ * walked the bot_pick table and built a merkle inclusion proof for
+ * a single bot. v0.3.0 no longer stores picks; a proof for any bot
+ * is regeneratable on demand from the bot index by anyone holding
+ * the swarm's master_seed + bot count + the match catalogue. The
+ * tournamental-bot-node CLI gains a `proof <swarm_run_seed>
+ * <bot_index> <match_id>` subcommand for that (added in cli.ts).
+ */
 export function createServer(opts: ServerOptions): CreatedServer {
   const app = Fastify({ logger: { level: process.env.LOG_LEVEL ?? "info" } });
   const storage = opts.storage;
@@ -27,6 +38,7 @@ export function createServer(opts: ServerOptions): CreatedServer {
   app.get("/stats", async () => {
     const creds = storage.loadCredentials();
     const bots = storage.countBots();
+    const swarms = storage.listSwarmRuns();
     const commitRows = storage.db
       .prepare<[], { c: number }>("SELECT COUNT(*) AS c FROM commit_log")
       .get();
@@ -38,57 +50,39 @@ export function createServer(opts: ServerOptions): CreatedServer {
         "SELECT COUNT(*) AS c FROM match_result WHERE scored_at_utc IS NOT NULL",
       )
       .get();
-    const stillPerfect = storage.countBotsStillPerfect();
+    // Still-perfect: take the latest per-swarm match_score_summary
+    // row and sum bots_still_perfect across swarms. Pre-kickoff this
+    // is zero (no matches scored); after each match it ticks down.
+    const perfectRows = storage.db
+      .prepare<
+        [],
+        { c: number }
+      >(
+        `SELECT COALESCE(SUM(bots_still_perfect), 0) AS c
+           FROM match_score_summary s
+           WHERE s.scored_at_utc = (
+             SELECT MAX(scored_at_utc) FROM match_score_summary
+             WHERE run_seed = s.run_seed AND strategy = s.strategy
+           )`,
+      )
+      .get();
     return {
       node_id: creds?.node_id ?? null,
       label: opts.node_label ?? null,
       registered: creds !== null,
       bots,
+      swarms: swarms.length,
+      swarm_breakdown: swarms.map((s) => ({
+        run_seed_prefix: s.run_seed.slice(0, 12),
+        strategy: s.strategy,
+        total_bots: s.total_bots,
+        committed_matches: Object.keys(s.per_match_roots).length,
+      })),
       commits: commitRows?.c ?? 0,
       matches_scored: scoredRows?.c ?? 0,
-      bots_still_perfect: stillPerfect,
+      bots_still_perfect: perfectRows?.c ?? 0,
     };
   });
-
-  app.get<{ Params: { match_id: string; bot_id: string } }>(
-    "/v1/proof/:match_id/:bot_id",
-    async (req, reply) => {
-      const { match_id, bot_id } = req.params;
-      const picks = storage.listPicksForMatch(match_id);
-      if (picks.length === 0) {
-        return reply.code(404).send({ error: "match_not_committed" });
-      }
-      const idx = picks.findIndex((p) => p.bot_id === bot_id);
-      if (idx === -1) {
-        return reply.code(404).send({ error: "bot_not_found_in_match" });
-      }
-      const leaves = picks.map((p) =>
-        pickLeaf(
-          p.bot_id,
-          p.match_id,
-          p.outcome,
-          p.chalk_score,
-          p.locked_at_utc,
-        ),
-      );
-      const proof = merkleProof(leaves, idx);
-      const commit = storage.db
-        .prepare<
-          [string],
-          { merkle_root: string; bot_count: number; committed_at_utc: number }
-        >(
-          "SELECT merkle_root, bot_count, committed_at_utc FROM commit_log WHERE match_id = ?",
-        )
-        .get(match_id);
-      return {
-        match_id,
-        bot_id,
-        pick: picks[idx]!,
-        proof,
-        commit,
-      };
-    },
-  );
 
   return {
     app,

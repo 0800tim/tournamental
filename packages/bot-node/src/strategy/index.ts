@@ -5,6 +5,13 @@ export interface StrategyContext {
   seed: string;
   /** The bot's chalk score in [0, 1]: high = follow the favourite. */
   chalk_score: number;
+  /**
+   * Optional sentimental favourite. When set, the strategy adds a small
+   * additive bonus to the side whose `home_team` or `away_team` code
+   * matches this string before re-normalising. Leave undefined to disable
+   * the darling bias entirely (the v0.1 behaviour).
+   */
+  darling_team?: string;
 }
 
 export interface PickDecision {
@@ -21,4 +28,9 @@ export interface Strategy {
   decide(match: MatchSpec, context: StrategyContext): PickDecision;
 }
 
-export { chalkStrategy } from "./chalk.js";
+export {
+  chalkStrategy,
+  defaultChalkScore,
+  defaultDarlingTeam,
+  DARLING_TEAM_POOL,
+} from "./chalk.js";
