@@ -2,22 +2,19 @@
  * /run/bots/[index], a single bot's full bracket detail view.
  *
  * Regenerates the bot's 104 FIFA WC 2026 picks deterministically from
- * its index. Each match row shows the bot's pick (gold), the second-
- * most likely outcome (silver), and, for group matches, the third
- * (bronze).
+ * its index. Each match row shows the bot's pick alongside the
+ * matchup and, only when it carries genuine signal (probability above
+ * 15%), a subdued alternative line for the second-place outcome.
  *
  * Pure browser. No network. ~3ms regen per bot makes this render
  * instant even on a billion-bot swarm because we only ever look at
  * one bot at a time.
  *
- * Tim 2026-06-07: rewired onto real fixtures from
- * `@tournamental/bracket-engine`. Group matches show real team names
- * (France, Argentina, ...); knockout matches show slot labels
- * pre-tournament (winner_grpA, annex_third_vs_grpB) because the
- * cascade isn't resolved until results land. The bot's "darling team"
- * is also surfaced at the top so the user can see why this bot's
- * cup-winner pick differs from the next bot's, even when chalk scores
- * are similar.
+ * Tim 2026-06-08: trimmed the silver/bronze columns (mathematically
+ * redundant once the chalk pick dominates) and gated the darling-team
+ * label so it only appears when the favoured team is genuinely a
+ * top-16 contender, avoiding the "darling: Cape Verde" longshot
+ * noise that made the persona header feel uncredible.
  */
 
 "use client";
@@ -43,6 +40,15 @@ import {
 } from "@/components/browser-swarm/cascade";
 
 import "../bots.css";
+
+/**
+ * Probability threshold for surfacing the second-place outcome as a
+ * subdued "or X 18%" line below the dominant pick. Below this, the
+ * silver is noise (typically a 5%-7% sliver next to an 89% favourite)
+ * and is hidden. Above it, the matchup is genuinely tight and the
+ * alternative carries real signal.
+ */
+const ALT_THRESHOLD = 0.15;
 
 function outcomeLabel(
   outcome: "home_win" | "draw" | "away_win",
@@ -83,7 +89,15 @@ export default function BotDetailPage(): JSX.Element {
   const chalkScore = chalkScoreForBot(MASTER_SEED, botIndex);
   const persona = useMemo(() => personaForBot(MASTER_SEED, botIndex), [botIndex]);
   const darling = useMemo(() => darlingTeamForBot(MASTER_SEED, botIndex), [botIndex]);
-  const darlingName = teamDisplay(darling);
+  const darlingMeta = teamMeta(darling);
+  const darlingName = darlingMeta?.name ?? darling;
+  // Only surface the "darling team" label when it actually adds
+  // information: the team has to be a real FIFA top-16 side. Below
+  // that threshold the label feels uncredible (Iraq, Cape Verde) and
+  // is hidden entirely.
+  const TOP_RANK_THRESHOLD = 16;
+  const showDarling =
+    darlingMeta !== null && darlingMeta.fifa_rank <= TOP_RANK_THRESHOLD;
 
   const groupMatches = bracket.filter((b) => b.match.allows_draw);
   const knockoutMatches = bracket.filter((b) => !b.match.allows_draw);
@@ -122,21 +136,20 @@ export default function BotDetailPage(): JSX.Element {
               <span style={{ marginLeft: 12, color: "#98a0b7" }}>
                 chalk score <strong>{chalkScore.toFixed(3)}</strong>
               </span>
-              <span style={{ marginLeft: 12, color: "#f6c64f" }}>
-                darling team <strong>{darlingName}</strong>
-              </span>
+              {showDarling ? (
+                <span style={{ marginLeft: 12, color: "#f6c64f" }}>
+                  darling team <strong>{darlingName}</strong>
+                </span>
+              ) : null}
             </p>
             <p style={{ color: "#c7d0e6", fontSize: 14 }}>
               This bracket was just regenerated in your browser from the
               bot&apos;s index using the same chalk-weighted algorithm
               the worker uses at generation time. Identical inputs,
-              identical picks, no storage required. Gold flag is the
-              bot&apos;s chosen outcome. Silver is the second-most
-              likely. Bronze (group matches only) is the third. The
-              <strong> darling team</strong> nudges this bot toward a
-              long-shot sentimental pick so cup-winner distributions
-              spread out across the 48-team field instead of clustering
-              on the rank-1 favourite.
+              identical picks, no storage required. Pick is what this
+              bot expects to happen. A subdued alternative shows only
+              when the second-place outcome carries genuine signal
+              (probability above 15%).
             </p>
             <div className="vt-bots-summary-actions" style={{ marginTop: 18 }}>
               <Link href="/run/bots" className="vt-bots-button">
@@ -154,36 +167,45 @@ export default function BotDetailPage(): JSX.Element {
               <tr>
                 <th>Match</th>
                 <th>Matchup</th>
-                <th>🥇 Pick</th>
-                <th>🥈 2nd</th>
-                <th>🥉 3rd</th>
+                <th>Pick</th>
               </tr>
             </thead>
             <tbody>
-              {groupMatches.map(({ match, pick }) => (
-                <tr key={match.match_id}>
-                  <td>
-                    <code style={{ fontSize: 12, color: "#98a0b7" }}>
-                      {match.match_id}
-                    </code>
-                  </td>
-                  <td>
-                    <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.home_team)}</span>{" "}
-                    <span style={{ color: "#98a0b7" }}>vs</span>{" "}
-                    <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.away_team)}</span>
-                  </td>
-                  {pick.ranking.slice(0, 3).map((r, idx) => (
-                    <td key={idx}>
-                      <span className="vt-bots-pick">
-                        <strong>{outcomeLabel(r.outcome, match)}</strong>{" "}
-                        <span className="vt-bots-prob">
-                          {Math.round(r.probability * 100)}%
-                        </span>
-                      </span>
+              {groupMatches.map(({ match, pick }) => {
+                const top = pick.ranking[0];
+                const alt = pick.ranking[1];
+                const showAlt = alt !== undefined && alt.probability > ALT_THRESHOLD;
+                return (
+                  <tr key={match.match_id}>
+                    <td>
+                      <code style={{ fontSize: 12, color: "#98a0b7" }}>
+                        {match.match_id}
+                      </code>
                     </td>
-                  ))}
-                </tr>
-              ))}
+                    <td>
+                      <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.home_team)}</span>{" "}
+                      <span style={{ color: "#98a0b7" }}>vs</span>{" "}
+                      <span style={{ color: "#e7ecf7" }}>{teamDisplay(match.away_team)}</span>
+                    </td>
+                    <td>
+                      {top !== undefined ? (
+                        <span className="vt-bots-pick">
+                          <strong>{outcomeLabel(top.outcome, match)}</strong>{" "}
+                          <span className="vt-bots-prob">
+                            {Math.round(top.probability * 100)}%
+                          </span>
+                        </span>
+                      ) : null}
+                      {showAlt ? (
+                        <div className="vt-bots-pick-alt">
+                          or {outcomeLabel(alt.outcome, match)}{" "}
+                          {Math.round(alt.probability * 100)}%
+                        </div>
+                      ) : null}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -199,8 +221,7 @@ export default function BotDetailPage(): JSX.Element {
               <tr>
                 <th>Match</th>
                 <th>Matchup</th>
-                <th>🥇 Pick</th>
-                <th>🥈 2nd</th>
+                <th>Pick</th>
               </tr>
             </thead>
             <tbody>
@@ -215,6 +236,9 @@ export default function BotDetailPage(): JSX.Element {
                   home_team: teams.home,
                   away_team: teams.away,
                 };
+                const top = pick.ranking[0];
+                const alt = pick.ranking[1];
+                const showAlt = alt !== undefined && alt.probability > ALT_THRESHOLD;
                 return (
                   <tr key={match.match_id}>
                     <td>
@@ -231,16 +255,22 @@ export default function BotDetailPage(): JSX.Element {
                         {teamDisplay(teams.away)}
                       </span>
                     </td>
-                    {pick.ranking.slice(0, 2).map((r, idx) => (
-                      <td key={idx}>
+                    <td>
+                      {top !== undefined ? (
                         <span className="vt-bots-pick">
-                          <strong>{outcomeLabel(r.outcome, resolvedMatch)}</strong>{" "}
+                          <strong>{outcomeLabel(top.outcome, resolvedMatch)}</strong>{" "}
                           <span className="vt-bots-prob">
-                            {Math.round(r.probability * 100)}%
+                            {Math.round(top.probability * 100)}%
                           </span>
                         </span>
-                      </td>
-                    ))}
+                      ) : null}
+                      {showAlt ? (
+                        <div className="vt-bots-pick-alt">
+                          or {outcomeLabel(alt.outcome, resolvedMatch)}{" "}
+                          {Math.round(alt.probability * 100)}%
+                        </div>
+                      ) : null}
+                    </td>
                   </tr>
                 );
               })}

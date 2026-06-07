@@ -38,6 +38,7 @@ import { registerSwarmsRoutes } from "./routes/swarms.js";
 import { registerPerfectTrackRoutes } from "./routes/perfect-track.js";
 import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
 import { registerBotsKeysIssueRoute } from "./routes/bots-keys-issue.js";
+import { registerOddsRoutes } from "./routes/odds.js";
 import { GameStore } from "./store/db.js";
 import { LeaderboardCache } from "./scoring/cache.js";
 import { recomputeVerifiedPundits } from "./pundit/compute.js";
@@ -172,6 +173,7 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   await registerSyndicateRoutes(app, { store, adminToken });
   await registerUserApiKeyRoutes(app, { store, nowMs: opts.nowMs });
   await registerBotsKeysIssueRoute(app, { store, nowMs: opts.nowMs });
+  await registerOddsRoutes(app, {});
   await registerPunditRoutes(app, {
     store,
     adminToken,

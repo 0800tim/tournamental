@@ -53,7 +53,12 @@ import {
   defaultPersistence,
   type Persistence,
 } from "./persistence";
-import { MASTER_SEED, buildDemoMatches } from "./regenerate";
+import {
+  MASTER_SEED,
+  buildDemoMatches,
+  setLiveOddsByMatchId,
+  type LiveOddsEntry,
+} from "./regenerate";
 import {
   ANCHOR_LABEL_BY_MODE,
   ANCHOR_TOURNAMENT_ID,
@@ -109,6 +114,84 @@ type WorkerMessage =
 // and biasing every bot toward the same top-3 winners. Deleted; the
 // imported version uses A1's loadFixtures2026() + FIFA-rank-derived
 // odds + per-bot "darling team" variety nudge.
+
+/**
+ * Polymarket / live-odds snapshot endpoint. Game-service exposes the
+ * full per-match override map at /v1/odds/snapshot; Next.js proxies it
+ * at /api/v1/odds/snapshot with a 60s edge cache. The swarm fetches
+ * this once on mount and again right before each onStart so a long-
+ * lived tab picks up newer Polymarket signals between batches without
+ * spamming the upstream.
+ *
+ * Cache strategy: per-tab module-scoped TTL keyed off wall-clock. The
+ * server already does s-maxage=60 so the per-tab cache and the edge
+ * cache work together. We intentionally don't share across tabs; a
+ * fresh tab will pay one ~50ms request to warm itself.
+ */
+const ODDS_SNAPSHOT_URL = "/api/v1/odds/snapshot";
+const ODDS_TTL_MS = 60_000;
+const ODDS_FETCH_TIMEOUT_MS = 4_000;
+
+interface OddsSnapshot {
+  readonly matches: Record<string, LiveOddsEntry & { updated_at?: number }>;
+  readonly generated_at: number;
+  readonly source: string;
+}
+
+interface OddsCacheEntry {
+  readonly snapshot: OddsSnapshot;
+  readonly fetched_at: number;
+}
+
+let oddsCache: OddsCacheEntry | null = null;
+
+/**
+ * Fetch the live-odds snapshot with a short timeout and silent failure.
+ * Returns null on any non-200 / parse error / timeout; the strategy
+ * falls back to the FIFA-rank-derived odds baked into MatchSpec when
+ * the override map is empty or undefined.
+ *
+ * The TTL check is cheap: returning the cached entry without a fetch
+ * keeps repeated Start presses snappy. `force = true` bypasses the
+ * cache (used by the mount effect when the user explicitly lands on
+ * the page).
+ */
+async function fetchOddsSnapshot(
+  force: boolean,
+): Promise<OddsSnapshot | null> {
+  const now = Date.now();
+  if (
+    !force &&
+    oddsCache &&
+    now - oddsCache.fetched_at < ODDS_TTL_MS
+  ) {
+    return oddsCache.snapshot;
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ODDS_FETCH_TIMEOUT_MS);
+  try {
+    const res = await fetch(ODDS_SNAPSHOT_URL, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+      signal: controller.signal,
+    });
+    if (!res.ok) return null;
+    const json = (await res.json()) as OddsSnapshot;
+    if (!json || typeof json !== "object" || !json.matches) return null;
+    oddsCache = { snapshot: json, fetched_at: now };
+    return json;
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+type OddsSourceStatus =
+  | { kind: "loading" }
+  | { kind: "live"; generated_at: number; matches: number }
+  | { kind: "fallback" };
 
 const INITIAL_PROGRESS: SwarmProgress = {
   phase: "idle",
@@ -234,6 +317,23 @@ function formatDuration(ms: number): string {
 }
 
 /**
+ * Short relative-time label for the live-odds pill: "just now",
+ * "2 min ago", "1 hr ago". Capped to "1 day+ ago" because anything
+ * older means the snapshot is stale enough that we shouldn't be
+ * showing it as "live" in the first place.
+ */
+function formatRelativeTime(epochMs: number): string {
+  const diff = Math.max(0, Date.now() - epochMs);
+  if (diff < 30_000) return "just now";
+  const minutes = Math.floor(diff / 60_000);
+  if (minutes < 1) return "just now";
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours} hr ago`;
+  return "1 day+ ago";
+}
+
+/**
  * Combine per-worker hashing snapshots into one swarm-wide snapshot
  * the live panel renders.
  *
@@ -314,6 +414,59 @@ export default function BrowserSwarm({
 }: BrowserSwarmProps): JSX.Element {
   const demoMatches = useMemo(() => matches ?? buildDemoMatches(), [matches]);
 
+  // Tim 2026-06-08: incognito / private-browsing detection. If we are
+  // in an ephemeral browsing mode, IndexedDB clears the moment the
+  // last private window closes, meaning the user's bot picks vanish
+  // along with any audit trail. Two cheap heuristics:
+  //   1. navigator.storage.estimate(): incognito Chromium reports a
+  //      quota well under 500 MB; regular sessions report tens of GB.
+  //   2. localStorage.setItem smoke test: Safari private mode throws
+  //      QuotaExceededError; older Firefox private windows do too.
+  // False positives on tiny storage devices are possible; we surface
+  // the warning rather than block, and let the user dismiss it.
+  const [incognitoWarning, setIncognitoWarning] = useState<
+    null | "likely" | "confirmed"
+  >(null);
+  const [incognitoAcknowledged, setIncognitoAcknowledged] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      let likely = false;
+      let confirmed = false;
+      try {
+        if (
+          typeof navigator !== "undefined" &&
+          navigator.storage?.estimate
+        ) {
+          const est = await navigator.storage.estimate();
+          if (
+            typeof est.quota === "number" &&
+            est.quota > 0 &&
+            est.quota < 500_000_000
+          ) {
+            likely = true;
+          }
+        }
+      } catch {
+        /* feature missing; fall through */
+      }
+      try {
+        const k = "__tnm_incognito_probe__";
+        window.localStorage.setItem(k, "1");
+        window.localStorage.removeItem(k);
+      } catch {
+        // localStorage rejected the write: Safari / older Firefox private mode.
+        confirmed = true;
+      }
+      if (cancelled) return;
+      if (confirmed) setIncognitoWarning("confirmed");
+      else if (likely) setIncognitoWarning("likely");
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Tim 2026-06-07 evening: IndexedDB is the source of truth, Supabase
   // is an OPTIONAL replication mirror. Default off; user ticks to opt in.
   const [replicateToSupabase, setReplicateToSupabase] = useState(false);
@@ -342,6 +495,33 @@ export default function BrowserSwarm({
   const [loopMode, setLoopMode] = useState(false);
   const [loopIterations, setLoopIterations] = useState(0);
   const stopRequestedRef = useRef<boolean>(false);
+
+  // Tim 2026-06-07 late: rate-limit auto-commits to the central
+  // /v1/swarms/<id>/summary endpoint so a tight loop of 10k-batch runs
+  // doesn't hammer the game-service. The window is per-tab; the server
+  // payload is idempotent on (operator_id, kickoff_at) so a coalesced
+  // publish is still correct, it just covers more bots.
+  //
+  // Behaviour:
+  //   - lastPublishAtRef holds the wall-clock ms of the last successful
+  //     publish.
+  //   - latestPayloadRef holds the most recent payload generated by a
+  //     finished batch, waiting to publish.
+  //   - publishTimerRef is the in-flight setTimeout, if any.
+  //   - pendingPublishRef is the beforeunload trigger: true the instant
+  //     a batch finishes with un-ACKed work, false the instant a
+  //     publish resolves.
+  const PUBLISH_MIN_INTERVAL_MS = 30_000;
+  const lastPublishAtRef = useRef<number>(0);
+  const latestPayloadRef = useRef<{
+    apiKey: string;
+    payload: Parameters<FederationClient["publishOperatorSummary"]>[1];
+  } | null>(null);
+  const publishTimerRef = useRef<number | null>(null);
+  const pendingPublishRef = useRef<boolean>(false);
+  // Holds the latest FederationClient so a deferred publish 30s after
+  // the batch finished can still call into it.
+  const federationRef = useRef<FederationClient | null>(null);
 
   const [progress, setProgress] = useState<SwarmProgress>(INITIAL_PROGRESS);
   const [stats, setStats] = useState<SwarmStats>(INITIAL_STATS);
@@ -438,6 +618,39 @@ export default function BrowserSwarm({
     }
   }, [operatorApiKey]);
 
+  // Polymarket live-odds snapshot. Fetched once on mount and again
+  // before each Start press if the cache is older than ODDS_TTL_MS.
+  // Drives the "Odds source:" pill so the user can see at a glance
+  // whether the swarm is running on real market odds or the FIFA-rank
+  // fallback. The strategy itself reads from the module-scoped override
+  // map populated via setLiveOddsByMatchId() below; the picker never
+  // touches state, so the source pill is purely informational.
+  const [oddsSourceStatus, setOddsSourceStatus] = useState<OddsSourceStatus>({
+    kind: "loading",
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const snap = await fetchOddsSnapshot(true);
+      if (cancelled) return;
+      if (snap) {
+        setLiveOddsByMatchId(snap.matches);
+        setOddsSourceStatus({
+          kind: "live",
+          generated_at: snap.generated_at,
+          matches: Object.keys(snap.matches).length,
+        });
+      } else {
+        setLiveOddsByMatchId(undefined);
+        setOddsSourceStatus({ kind: "fallback" });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Tim 2026-06-07: load the persistent swarm cursor on mount so each
   // press of Start picks up where the last one left off (across tab
   // close + reopen).
@@ -518,8 +731,28 @@ export default function BrowserSwarm({
     setCompletionPayload(null);
     setCopiedRoot(false);
 
+    // Refresh the Polymarket live-odds snapshot if the cache is older
+    // than 60s. setLiveOddsByMatchId() populates the module-scoped
+    // override map that regenerate.ts → effectiveOdds() consults; the
+    // strategy falls back to FIFA-rank-derived odds automatically when
+    // the map is undefined or missing a match, so a fetch failure here
+    // is silent and non-blocking.
+    const oddsSnap = await fetchOddsSnapshot(false);
+    if (oddsSnap) {
+      setLiveOddsByMatchId(oddsSnap.matches);
+      setOddsSourceStatus({
+        kind: "live",
+        generated_at: oddsSnap.generated_at,
+        matches: Object.keys(oddsSnap.matches).length,
+      });
+    } else {
+      setLiveOddsByMatchId(undefined);
+      setOddsSourceStatus({ kind: "fallback" });
+    }
+
     // Register / re-use credentials.
     const fed = new FederationClient({ dry_run: dryRun });
+    federationRef.current = fed;
     let creds = credentials;
     if (!creds) {
       const reg = await fed.register(null);
@@ -803,19 +1036,21 @@ export default function BrowserSwarm({
           n: idx + 1,
           alive_count: newTotalEverGeneratedForA13, // pre-kickoff stub
         }));
-        // Fire-and-forget; failures must not block the user-visible
-        // post-run state.
-        void fed
-          .publishOperatorSummary(operatorKey, {
-            total_bots: newTotalEverGeneratedForA13,
-            bots_alive_after_match_n: aliveAfterMatch,
-            best_bot_score: Math.round(bestScore),
-            top_k: topKSource,
-            merkle_root: swarmMerkleRoot,
-            kickoff_at: kickoffAt,
-            generated_at: Date.now(),
-          })
-          .catch(() => undefined);
+        // 2026-06-07 late: rate-limited auto-commit. schedulePublish
+        // coalesces back-to-back batches into one POST per 30s per
+        // operator so a tight loop of 10k-batch runs doesn't hammer
+        // game-service. The /v1/swarms/<id>/summary endpoint is
+        // idempotent on (operator_id, kickoff_at) so a coalesced
+        // publish just covers more bots.
+        schedulePublish(operatorKey, {
+          total_bots: newTotalEverGeneratedForA13,
+          bots_alive_after_match_n: aliveAfterMatch,
+          best_bot_score: Math.round(bestScore),
+          top_k: topKSource,
+          merkle_root: swarmMerkleRoot,
+          kickoff_at: kickoffAt,
+          generated_at: Date.now(),
+        });
       }
     } catch {
       // Silent: operator publish is best-effort.
@@ -937,11 +1172,144 @@ export default function BrowserSwarm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progress.phase, loopMode]);
 
+  // schedulePublish: rate-limited auto-commit to /v1/swarms/<id>/summary.
+  // - First call after the 30s cooldown publishes immediately.
+  // - Within the cooldown window, the payload is queued and a single
+  //   timer fires at cooldown-end with whatever the latest payload is.
+  // - Back-to-back batches collapse into one publish per 30s window.
+  // - pendingPublishRef flips true the moment we have un-ACKed work and
+  //   flips false on a successful publish; beforeunload reads it.
+  const schedulePublish = useCallback(
+    (
+      apiKey: string,
+      payload: Parameters<FederationClient["publishOperatorSummary"]>[1],
+    ) => {
+      latestPayloadRef.current = { apiKey, payload };
+      pendingPublishRef.current = true;
+      const fire = () => {
+        const queued = latestPayloadRef.current;
+        if (!queued) return;
+        latestPayloadRef.current = null;
+        publishTimerRef.current = null;
+        const fedClient = federationRef.current;
+        if (!fedClient) return;
+        void fedClient
+          .publishOperatorSummary(queued.apiKey, queued.payload)
+          .then(() => {
+            lastPublishAtRef.current = Date.now();
+            // Only clear pending if no new payload arrived while we
+            // were in-flight.
+            if (!latestPayloadRef.current) {
+              pendingPublishRef.current = false;
+            } else {
+              // A new batch finished mid-flight; reschedule.
+              schedulePublish(
+                latestPayloadRef.current.apiKey,
+                latestPayloadRef.current.payload,
+              );
+            }
+          })
+          .catch(() => {
+            // Network failure: leave pending true so beforeunload still
+            // warns and the next batch's schedulePublish retries.
+          });
+      };
+      if (publishTimerRef.current != null) {
+        // Already queued; the eventual fire will pick up the latest payload.
+        return;
+      }
+      const elapsed = Date.now() - lastPublishAtRef.current;
+      if (elapsed >= PUBLISH_MIN_INTERVAL_MS) {
+        fire();
+      } else {
+        publishTimerRef.current = window.setTimeout(
+          fire,
+          PUBLISH_MIN_INTERVAL_MS - elapsed,
+        );
+      }
+    },
+    [],
+  );
+
+  // beforeunload: warn the user only when there's un-ACKed batch work
+  // sitting in the publish queue. Loop mode that is actively iterating
+  // counts as "in flight" so we warn either way until the queue drains.
+  useEffect(() => {
+    const handler = (event: BeforeUnloadEvent) => {
+      if (!pendingPublishRef.current) return;
+      event.preventDefault();
+      event.returnValue = "";
+      return "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => {
+      window.removeEventListener("beforeunload", handler);
+      if (publishTimerRef.current != null) {
+        window.clearTimeout(publishTimerRef.current);
+        publishTimerRef.current = null;
+      }
+    };
+  }, []);
+
   const cores = useMemo(() => workerCount(), []);
   const elapsedMs = progress.started_at ? Date.now() - progress.started_at : 0;
 
+  // Block Start in a private / incognito browser until the user either
+  // acknowledges the no-persistence risk or turns on Supabase
+  // replication (which survives the window closing). Tim 2026-06-08.
+  const incognitoBlocked =
+    !!incognitoWarning && !incognitoAcknowledged && !replicateToSupabase;
+
   return (
     <section className="vt-swarm" aria-label="Browser bot swarm console">
+      {incognitoWarning && (
+        <div
+          className="vt-swarm-incognito-warning"
+          role="alert"
+          aria-live="polite"
+        >
+          <div className="vt-swarm-incognito-warning-head">
+            <strong>
+              {incognitoWarning === "confirmed"
+                ? "Private / incognito browser detected"
+                : "Looks like a private / incognito browser"}
+            </strong>
+          </div>
+          <p>
+            Bot picks generated here are written to IndexedDB on this
+            device. In a private / incognito window, the browser wipes
+            IndexedDB the moment the last private window closes. Your
+            bots will be lost, and if a result is ever disputed there
+            will be no local record to verify the merkle root against.
+          </p>
+          <p>
+            <strong>Recommended:</strong> close this window and open
+            <code> play.tournamental.com/run </code> in a regular browser
+            session, OR tick the &ldquo;Also replicate to Supabase&rdquo;
+            box below before you start so the swarm survives the window
+            close.
+          </p>
+          {replicateToSupabase ? (
+            <p className="vt-swarm-incognito-cleared">
+              Supabase replication is on, so your swarm will survive this
+              window closing. You are good to start.
+            </p>
+          ) : incognitoAcknowledged ? (
+            <p className="vt-swarm-incognito-cleared">
+              Acknowledged. Starting will generate bots that are not
+              guaranteed to survive this window closing.
+            </p>
+          ) : (
+            <button
+              type="button"
+              className="vt-swarm-incognito-ack"
+              onClick={() => setIncognitoAcknowledged(true)}
+            >
+              I understand, let me run without saving
+            </button>
+          )}
+        </div>
+      )}
       <div className="vt-swarm-grid">
         <FieldsetCard
           title="1. Storage"
@@ -1104,6 +1472,25 @@ export default function BrowserSwarm({
           title="2. Strategy"
           subtitle="Free chalk-weighted heuristic by default. Bring your own LLM key for an Anthropic, OpenAI, OpenRouter, or Google model to elevate the champion bots in your swarm."
         >
+          <p className="vt-swarm-odds-source vt-swarm-helper">
+            {oddsSourceStatus.kind === "loading" && (
+              <>Odds source: <strong>checking live feed</strong></>
+            )}
+            {oddsSourceStatus.kind === "live" && (
+              <>
+                Odds source: <strong>Polymarket live</strong>
+                {" "}&middot; {formatNumber(oddsSourceStatus.matches)} matches priced
+                {" "}&middot; updated {formatRelativeTime(oddsSourceStatus.generated_at)}
+              </>
+            )}
+            {oddsSourceStatus.kind === "fallback" && (
+              <>
+                Odds source: <strong>FIFA rank derived</strong>
+                {" "}&middot; live odds unavailable
+              </>
+            )}
+          </p>
+
           <label className="vt-swarm-label" htmlFor="vt-vendor">
             LLM vendor
           </label>
@@ -1299,6 +1686,7 @@ export default function BrowserSwarm({
             className="vt-swarm-button vt-swarm-button--primary"
             onClick={onStart}
             disabled={
+              incognitoBlocked ||
               progress.phase === "generating" ||
               progress.phase === "hashing" ||
               progress.phase === "committing" ||
@@ -1311,6 +1699,13 @@ export default function BrowserSwarm({
                 : `Start swarm (${formatNumber(botCount)} bots)`
               : PHASE_LABEL[progress.phase]}
           </button>
+          {incognitoBlocked && (
+            <p className="vt-swarm-start-blocked" role="status">
+              Start is disabled in a private / incognito window. Acknowledge
+              the storage warning above, or enable Supabase replication, to
+              run anyway.
+            </p>
+          )}
           {(progress.phase !== "idle" && progress.phase !== "done") && (
             <button
               type="button"

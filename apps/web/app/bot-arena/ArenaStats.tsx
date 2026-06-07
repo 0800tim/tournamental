@@ -52,7 +52,14 @@ interface LocalState {
 
 const POLL_MS = 45_000;
 
-export function ArenaStats() {
+export function ArenaStats({
+  variant,
+}: {
+  /** "hero" renders the strip inside the hero scrim with a more
+   *  compact, transparent treatment that sits well on a photo bg.
+   *  Default is the standalone strip used elsewhere on the page. */
+  variant?: "hero";
+} = {}) {
   const [local, setLocal] = useState<LocalState | null>(null);
   const [totals, setTotals] = useState<TotalsBody | null>(null);
 
@@ -104,8 +111,10 @@ export function ArenaStats() {
   const arenaTotal = totals?.total_bots ?? 0;
   if (myTotal === 0 && arenaTotal === 0) return null;
 
+  const sectionClass =
+    "vt-arena-stats" + (variant === "hero" ? " vt-arena-stats--hero" : "");
   return (
-    <section className="vt-arena-stats" aria-label="Bot arena live stats">
+    <section className={sectionClass} aria-label="Bot arena live stats">
       {myTotal > 0 && (
         <ArenaStat
           label="My swarm"

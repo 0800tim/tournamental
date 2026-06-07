@@ -209,6 +209,13 @@
   color: #4a5066;
   font-size: 12px;
 }
+.vt-bots-pick-alt {
+  margin-top: 2px;
+  color: #6e7693;
+  font-size: 11px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.01em;
+}
 
 /* ---------- pagination ---------- */
 

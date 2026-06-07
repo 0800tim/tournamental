@@ -170,6 +170,14 @@ export default function DevelopersHubPage(): JSX.Element {
               infrastructure, head straight to{" "}
               <Link href="/bots/node">/bots/node</Link>.
             </p>
+            <p className="vt-dev-lede">
+              Running a node already? See{" "}
+              <Link href="/bots/node#updating">
+                Updating your bot-node
+              </Link>{" "}
+              for the v0.2.0 strategy recalibration and the
+              <code> docker compose pull</code> upgrade path.
+            </p>
           </header>
 
           <section className="vt-dev-section" aria-labelledby="dev-section-on">

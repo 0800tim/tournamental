@@ -61,29 +61,56 @@ let cachedTeamsById: Map<string, Team> | null = null;
 let cachedTournament: Tournament | null = null;
 
 /**
- * Convert a FIFA-rank-style number into a notional implied win
- * probability. Lower rank = stronger. The curve is intentionally soft:
- * a rank-1 side caps around ~0.55 and the rank-48 side floors around
- * ~0.12 so the chalk strategy still has signal but isn't so peaked
- * that every bot picks the same favourite.
+ * Convert a FIFA-rank-style number into a notional team strength on
+ * [0, 1]. Lower rank = stronger. Calibrated against actual WC group-
+ * stage outcomes: a rank-1 side sits near 0.95, a rank-14 side near
+ * 0.56, a rank-30 side near 0.30, and the long tail floors at 0.10 so
+ * even rank-80 minnows still register a non-zero combat weight (this
+ * keeps draws from ballooning to 50%+ in minnow-vs-minnow matches).
+ *
+ * The previous curve `1 / (1 + ln(r))` collapsed far too slowly,
+ * leaving rank-14 at 0.27 and rank-48 at 0.21. That made the draw
+ * column the implied favourite for almost every group game and
+ * spiked the chalk strategy to "Draw 90%" on every screen.
  */
 function rankToStrength(rank: number): number {
   const r = Math.max(1, rank);
-  // 1 / (1 + ln(r)). r=1 → 1.0; r=10 → ~0.30; r=48 → ~0.21.
-  return 1 / (1 + Math.log(r));
+  return Math.max(0.10, 0.95 * Math.exp(-0.04 * (r - 1)));
 }
 
 /**
- * Group-stage odds derivation: blend home strength vs away strength.
- * Draws sit between the two with a baseline weight so even a one-sided
- * match gives a draw ~20% implied probability (FIFA group-stage matches
- * draw at roughly that rate historically).
+ * Strength multiplier applied to the home side. WC matches in a "home"
+ * confederation reliably trend ~1.5-1.7x in implied win share relative
+ * to a neutral-venue knockout, even for top-tier matchups. We use 1.7
+ * for the group stage to land Argentina vs France at ~52/22/26 instead
+ * of the ~44/26/30 a perfectly neutral model would produce.
+ */
+const GROUP_HOME_ADVANTAGE = 1.7;
+
+/**
+ * Group-stage odds derivation. Returns a normalised (home, draw, away)
+ * triple. Draw weight is calibrated to peak at ~0.28 for evenly-matched
+ * mid-tier sides (the historical FIFA group-stage rate) and to drop on
+ * both extremes: elite-vs-elite games are tactical and decisive, total
+ * mismatches end in routs, both of which suppress draws.
  */
 function deriveGroupOdds(homeRank: number, awayRank: number): MatchOdds {
-  const home = rankToStrength(homeRank);
+  const rawHome = rankToStrength(homeRank);
   const away = rankToStrength(awayRank);
-  const drawWeight = 0.25 + 0.15 * (1 - Math.abs(home - away));
-  const total = home + away + drawWeight;
+  const home = rawHome * GROUP_HOME_ADVANTAGE;
+  const gap = Math.abs(rawHome - away);
+  const avg = (rawHome + away) / 2;
+  // Eliteness: how strong is the average side in this match. Pulls draw
+  // share down on top-tier games where decisive players show up.
+  const eliteness = Math.max(0, avg - 0.5);
+  // Evenness: how close in raw strength the sides are.
+  const evenness = 1 - Math.min(1, gap / 0.85);
+  // drawShare lives in [0.10, 0.28]. Even mid-tier match → ~0.28. Top
+  // match → ~0.20. Total mismatch → ~0.10.
+  const drawShare = Math.max(0.10, Math.min(0.28, 0.10 + 0.18 * evenness - 0.12 * eliteness));
+  const combat = home + away;
+  const drawWeight = (combat * drawShare) / (1 - drawShare);
+  const total = combat + drawWeight;
   return {
     home_win: home / total,
     draw: drawWeight / total,
@@ -92,9 +119,9 @@ function deriveGroupOdds(homeRank: number, awayRank: number): MatchOdds {
 }
 
 /**
- * Knockout odds derivation: similar to groups but with no draw column
- * (knockouts go straight to ET + pens in real life). Normalised across
- * just two outcomes.
+ * Knockout odds derivation. No draw column (knockouts resolve in ET +
+ * pens) and no home advantage (knockout venues are neutral by FIFA
+ * design). Normalised across just two outcomes.
  */
 function deriveKnockoutOdds(homeRank: number, awayRank: number): MatchOdds {
   const home = rankToStrength(homeRank);
@@ -294,8 +321,68 @@ function clamp01(n: number): number {
   return n;
 }
 
+/**
+ * Polymarket / live-odds override payload. Agent B's game-service ships
+ * `GET /v1/odds/<match_id>` returning a `LiveOddsEntry` shape; the /run
+ * page fetches the full set once at swarm-prep time and stuffs it into
+ * `LIVE_ODDS_BY_MATCH_ID` BEFORE bot generation begins. The strategy
+ * itself never fetches: it just consults the map and falls back to the
+ * FIFA-derived odds baked into `MatchSpec.odds` when no entry exists.
+ *
+ * `source` is informational (it never feeds the picker) and lets the
+ * detail page show "this match is sourced from Polymarket" vs "fallback
+ * to FIFA rank model" without an extra lookup.
+ */
+export interface LiveOddsEntry {
+  readonly home_win: number;
+  readonly draw: number;
+  readonly away_win: number;
+  readonly source: "polymarket" | "fifa_fallback";
+}
+
+/**
+ * Module-scoped override map. Nullable: when undefined the strategy
+ * falls back to the FIFA-derived odds. Cleared between runs by calling
+ * `setLiveOddsByMatchId(undefined)` so a stale map from a previous user
+ * session cannot leak across re-renders.
+ *
+ * The map is intentionally a plain Record (not a Map) so the /run page
+ * can dump the API response in one statement without an extra new Map().
+ */
+let LIVE_ODDS_BY_MATCH_ID: Record<string, LiveOddsEntry> | undefined;
+
+export function setLiveOddsByMatchId(
+  odds: Record<string, LiveOddsEntry> | undefined,
+): void {
+  LIVE_ODDS_BY_MATCH_ID = odds;
+}
+
+export function getLiveOddsByMatchId():
+  | Record<string, LiveOddsEntry>
+  | undefined {
+  return LIVE_ODDS_BY_MATCH_ID;
+}
+
+/**
+ * Resolve effective odds for a match. Prefers the live-odds override
+ * map (Polymarket / game-service) when populated; falls back to the
+ * FIFA-derived odds baked into the MatchSpec. The picker never knows
+ * or cares which source was used.
+ */
+function effectiveOdds(match: MatchSpec): MatchOdds | undefined {
+  const override = LIVE_ODDS_BY_MATCH_ID?.[match.match_id];
+  if (override) {
+    return {
+      home_win: override.home_win,
+      draw: override.draw,
+      away_win: override.away_win,
+    };
+  }
+  return match.odds;
+}
+
 function pickImplied(match: MatchSpec, outcomes: Outcome[]): number[] {
-  const odds: MatchOdds | undefined = match.odds;
+  const odds = effectiveOdds(match);
   if (!odds) {
     const equal = 1 / outcomes.length;
     return outcomes.map(() => equal);
@@ -331,26 +418,55 @@ export function botIdFromIndex(masterSeed: string, index: number): string {
   return `bot_${hash.toString(16).padStart(8, "0")}`;
 }
 
+/**
+ * Each bot's chalk score, in [0.05, 0.95]. We bucket the swarm into
+ * three tiers so the diversity surface (a chalk-follower majority plus
+ * a meaningful contrarian minority) is visible at small bot counts
+ * instead of only emerging in the long tail.
+ *
+ *   50% chalk-followers   → [0.70, 0.90]
+ *   30% moderates         → [0.40, 0.70]
+ *   20% contrarians       → [0.05, 0.40]
+ *
+ * Two independent seeded fractions: one chooses the tier, one chooses
+ * the value inside the tier. Determinism survives (same seed → same
+ * tier → same value), and the audit invariant in spec §15.3 holds.
+ */
 export function chalkScoreForBot(masterSeed: string, index: number): number {
   const seed = botIdFromIndex(masterSeed, index);
-  const f = seededFraction(seed, "chalk_score");
-  return 0.65 + f * 0.25;
+  const tierRoll = seededFraction(seed, "tier");
+  const innerRoll = seededFraction(seed, "chalk_score");
+  if (tierRoll < 0.5) {
+    return 0.7 + innerRoll * 0.2;
+  }
+  if (tierRoll < 0.8) {
+    return 0.4 + innerRoll * 0.3;
+  }
+  return 0.05 + innerRoll * 0.35;
 }
+
+/**
+ * Number of FIFA-ranked teams the darling-team picker draws from. We
+ * restrict to the top 16 because anything below that produces obvious
+ * absurdities ("bot 308006 has Cape Verde winning the cup") that
+ * undermine the prediction game's credibility. The top-16 cohort is
+ * exactly the set of plausible cup winners across recent World Cups.
+ */
+const DARLING_POOL_SIZE = 16;
 
 /**
  * The "darling team" each bot sentimentally favours. The chalk-only
  * strategy collapses every confident bot onto the same chalk leader,
- * which is why Tim sees the same top-3 winners repeated. The darling
- * gives each bot a deterministic long-shot bias so the cup-winner
- * distribution fans out across the favourites and a few dark horses
- * instead of clustering on the rank-1 side.
+ * which is why we used to see the same top-3 winners repeated. The
+ * darling gives each bot a deterministic mild bias toward one of the
+ * sixteen real contenders so the cup-winner distribution fans across
+ * the favourites instead of clustering on the rank-1 side.
  *
- * Weighting is 1 / sqrt(rank), so a rank-1 side has weight 1 and a
- * rank-48 side has weight ~0.14: top sides still dominate but the tail
- * gets meaningful representation.
+ * Weighting is 1 / sqrt(rank) within the top-16 cohort so rank-1 still
+ * dominates but rank-16 still gets meaningful representation.
  */
 export function darlingTeamForBot(masterSeed: string, botIndex: number): string {
-  const teams = rankedTeams();
+  const teams = rankedTeams().slice(0, DARLING_POOL_SIZE);
   if (teams.length === 0) return "ARG";
   const weights = teams.map((t) => 1 / Math.sqrt(Math.max(1, t.rank)));
   const total = weights.reduce((s, x) => s + x, 0);
@@ -366,9 +482,11 @@ export function darlingTeamForBot(masterSeed: string, botIndex: number): string 
 /**
  * Bonus the bot gives to its darling team when picking the winner.
  * Acts as an additive shift on the favourite-outcome side of the
- * probability blend before normalisation.
+ * probability blend before normalisation. Lowered from 0.18 to 0.10
+ * so the darling nudges rather than dominates: longshot crownings now
+ * sit well under 5% of the swarm.
  */
-const DARLING_BONUS = 0.18;
+const DARLING_BONUS = 0.10;
 
 /**
  * Regenerate a bot's pick for a single match, with the ranking of
