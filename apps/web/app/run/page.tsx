@@ -267,6 +267,42 @@ export default function RunPage(): JSX.Element {
               swarm left off.
             </p>
 
+            <h2 className="vt-run-h2">Multiple browsers, one account</h2>
+            <p>
+              The throughput numbers above are <strong>per browser tab
+              on one device</strong>. Nothing stops you from running
+              swarms across many devices under the same Tournamental
+              account. Sign in on your laptop, your desktop, your old
+              MacBook gathering dust in the cupboard, a Chromebook,
+              even a phone, and each tab spins up its own independent
+              swarm. All commits flow to the same merkle log under
+              your handle. All scores aggregate on a single
+              leaderboard row.
+            </p>
+            <p>
+              Concretely: an evening with a quad-core laptop (~30
+              million bots / 24h), a hex-core desktop (~45 million),
+              and an M2 Pro you borrow from a flatmate (~60 million)
+              puts <strong>roughly 135 million unique bracket
+              predictions</strong> under your handle every day. Run
+              that across the five weeks of the tournament and your
+              swarm crosses the <strong>4 billion</strong> mark on
+              consumer hardware alone, no cloud bill, no install, no
+              code.
+            </p>
+            <p>
+              Each tab generates its bots from a different deterministic
+              seed range, so duplicates within your own swarm never
+              occur, even across devices. The merkle protocol is
+              eventual-consistent over the per-match commit window:
+              every tab independently builds its local merkle root,
+              POSTs it before kickoff, and the central server merges
+              roots under your account. Lose Wi-Fi on one device for an
+              hour, the other devices keep going, and the offline tab
+              syncs as soon as it reconnects (provided kickoff
+              hasn&apos;t passed).
+            </p>
+
             <h2 className="vt-run-h2">Five-step setup</h2>
             <div className="vt-run-tutorial">
               {TUTORIAL_STEPS.map((step) => (
@@ -378,6 +414,26 @@ export default function RunPage(): JSX.Element {
               answered <em>yes</em> on chain by 19 July 2026. The
               second one stays an open mathematical puzzle for the next
               decade.
+            </p>
+
+            <h2 className="vt-run-h2">Where the proofs live</h2>
+            <p>
+              Every kickoff your tab builds a merkle root over its
+              bots&apos; picks for that match and POSTs it to the
+              central server. The server batches all federated roots
+              into one super-root and commits it to the Bitcoin
+              blockchain via OpenTimestamps. Anchor cost: zero. The
+              receipt and the verification walk-through both live at{" "}
+              <Link href="/verify">/verify</Link>. The broader story
+              and the press release are at{" "}
+              <a
+                href="/press/2026-06-07.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                /press/2026-06-07.html
+              </a>
+              .
             </p>
 
             <h2 className="vt-run-h2">What happens next</h2>
