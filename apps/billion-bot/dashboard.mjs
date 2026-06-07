@@ -200,16 +200,32 @@ function stopAll() {
 }
 
 function countAllBots() {
+  // v0.3.0 regenerate-on-demand: bots are NOT stored as rows. The
+  // count lives in the swarm_run table's total_bots column. Each
+  // worker writes one swarm_run row per (seed, strategy) and bumps
+  // total_bots on each generate batch. The legacy v0.2.0 path
+  // (SELECT COUNT(*) FROM bot) is kept as a fallback so an
+  // operator with mixed schemas during an upgrade doesn't see
+  // zero. Tim 2026-06-08.
   let total = 0;
   for (const w of state.workers) {
     try {
       if (existsSync(w.dbPath)) {
         const db = new Database(w.dbPath, { readonly: true, fileMustExist: true });
         try {
-          const row = db.prepare("SELECT COUNT(*) AS c FROM bot").get();
+          // v0.3.0 first
+          const row = db
+            .prepare("SELECT COALESCE(SUM(total_bots), 0) AS c FROM swarm_run")
+            .get();
           total += row?.c ?? 0;
         } catch {
-          // schema not yet there
+          try {
+            // v0.2.0 fallback
+            const legacy = db.prepare("SELECT COUNT(*) AS c FROM bot").get();
+            total += legacy?.c ?? 0;
+          } catch {
+            // schema not yet there
+          }
         }
         db.close();
       }
