@@ -1641,67 +1641,6 @@
   }
 }
 
-/* ====================================================================
- * COMPACT TWO-UP CTA ROW (Tim 2026-06-08)
- *
- * Sits between the bot arena hero and the bet feature card. Two equal
- * pills, "Set your picks" + "Run a pool", condensed compared to the
- * old hero CTAs. Single-column stack below 560px.
- * ==================================================================== */
-.vt-home-section--ctapair {
-  border-top: none !important;
-  padding-top: 0 !important;
-  margin-top: clamp(10px, 1.2vw, 16px);
-}
-.vt-home-ctapair {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-@media (min-width: 560px) {
-  .vt-home-ctapair {
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-  }
-}
-.vt-home-ctapair-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 16px 22px;
-  border-radius: 14px;
-  font-family: var(--vt-font-display, "Inter"), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-weight: 700;
-  font-size: clamp(15px, 1.3vw, 17px);
-  text-decoration: none;
-  letter-spacing: -0.005em;
-  transition: transform 140ms ease, box-shadow 140ms ease, background 140ms ease;
-}
-.vt-home-ctapair-btn--gold {
-  background: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
-  color: #0a0a0e;
-  box-shadow:
-    0 10px 24px -10px rgba(245, 158, 11, 0.5),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-.vt-home-ctapair-btn--gold:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 18px 32px -10px rgba(245, 158, 11, 0.6),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-.vt-home-ctapair-btn--ghost {
-  background: rgba(255, 255, 255, 0.06);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-}
-.vt-home-ctapair-btn--ghost:hover {
-  transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.32);
-}
-
 /* Compact countdown variant, used inline next to the stats row. */
 .vt-countdown--compact {
   padding: 0;
