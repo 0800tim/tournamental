@@ -102,6 +102,16 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
   },
+  // Bot Arena (Tim 2026-06-07 evening): promoted to first-class primary
+  // nav. Bot Arena is the differentiating story this week and deserves
+  // to sit right after Save & share. The Bet drops to More.
+  {
+    label: "Bot Arena",
+    i18nKey: "nav.bot_arena",
+    href: "/bot-arena",
+    icon: <CodeIcon />,
+    matchPrefix: "/bot-arena",
+  },
   {
     label: "Leaderboard",
     i18nKey: "nav.leaderboard",
@@ -109,7 +119,7 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     icon: <TrophyIcon />,
     matchPrefix: "/leaderboard",
   },
-  // Pools (formerly "Syndicates") promoted to top-level — owner-run
+  // Pools (formerly "Syndicates") promoted to top-level, owner-run
   // prediction pools are the v0.2 launch surface (Tim 2026-05-22).
   {
     label: "Pools",
@@ -117,16 +127,6 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     href: "/pools",
     icon: <GroupsIcon />,
     matchPrefix: "/pools",
-  },
-  // "The Bet" sits after Pools so the headline-grabbing hook is one
-  // click away on every page (Tim 2026-06-05). The page itself is
-  // `/the-bet` (the long-form letter and the NZ$1.5M house wager).
-  {
-    label: "The Bet",
-    i18nKey: "nav.the_bet",
-    href: "/the-bet",
-    icon: <HouseStackIcon />,
-    matchPrefix: "/the-bet",
   },
 ];
 
@@ -141,13 +141,10 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   // Calendar (Tim 2026-06-06): flat list of all 104 matches in
   // chronological order. Lives at /world-cup-2026/calendar.
   { label: "Match calendar", i18nKey: "nav.calendar", href: "/world-cup-2026/calendar", icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
-  // Bot Arena (Tim 2026-06-07): browser-first marketing landing for the
-  // Open Bot Arena. Lives at /bot-arena. The page itself routes onward
-  // to /run (browser swarm), /bots/sdk (Node SDK), /bots/node (federated
-  // operator), /developers (full dev guide), /bots/keys (issue an API
-  // key), and the leaderboard. Single entry point under More so the
-  // top bar stays uncluttered.
-  { label: "Bot Arena", i18nKey: "nav.bot_arena", href: "/bot-arena", icon: <CodeIcon />, matchPrefix: "/bot-arena" },
+  // The Bet (moved from PRIMARY_DESKTOP to More, Tim 2026-06-07 evening
+  // when Bot Arena graduated to primary nav). The headline house wager
+  // long-form letter lives at /the-bet.
+  { label: "The Bet", i18nKey: "nav.the_bet", href: "/the-bet", icon: <HouseStackIcon />, matchPrefix: "/the-bet" },
   { label: "About Tournamental", i18nKey: "nav.about", href: "https://tournamental.com",              icon: <CodeIcon />, external: true },
   { label: "How it works",       i18nKey: "nav.how_it_works", href: "https://tournamental.com/how-it-works", icon: <CodeIcon />, external: true },
   { label: "API keys",           i18nKey: "nav.api_keys", href: "/profile/api-keys",                     icon: <CodeIcon />, matchPrefix: "/profile/api-keys" },

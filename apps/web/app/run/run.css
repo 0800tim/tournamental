@@ -560,3 +560,135 @@
   color: #f6c64f;
   font-weight: 500;
 }
+
+/* ---------- storage: always-on IndexedDB + Supabase tick (Tim 2026-06-07 evening) ---------- */
+
+.vt-swarm-storage-primary {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  background: rgba(56, 178, 119, 0.12);
+  border: 1px solid rgba(56, 178, 119, 0.45);
+  border-radius: 10px;
+}
+.vt-swarm-storage-badge {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #38b277;
+  color: #0e0e12;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+}
+.vt-swarm-storage-name {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+}
+.vt-swarm-storage-detail {
+  margin: 0;
+  font-size: 13px;
+  color: #c7d0e6;
+  line-height: 1.55;
+}
+
+.vt-swarm-checkbox-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 10px 0;
+  margin: 6px 0;
+  cursor: pointer;
+  color: #e7ecf7;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.vt-swarm-checkbox-row input[type="checkbox"] {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: #dca94b;
+  cursor: pointer;
+}
+.vt-swarm-checkbox-row input[type="checkbox"]:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.vt-swarm-checkbox-row strong {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.vt-swarm-helper {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #98a0b7;
+  line-height: 1.5;
+}
+.vt-swarm-helper a {
+  color: #dca94b;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vt-swarm-faq-list {
+  margin: 12px 0;
+  padding-left: 22px;
+  color: #c7d0e6;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.vt-swarm-faq-list li {
+  margin: 0 0 8px;
+}
+.vt-swarm-faq-list strong {
+  color: #ffffff;
+}
+.vt-swarm-faq-list a {
+  color: #dca94b;
+}
+.vt-swarm-faq-list code {
+  background: rgba(220, 169, 75, 0.08);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  color: #dca94b;
+}
+.vt-swarm-faq-detail {
+  margin: 12px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: #98a0b7;
+  line-height: 1.5;
+}
+
+/* ---------- loop mode (Tim 2026-06-07 evening) ---------- */
+
+.vt-swarm-loop-warning {
+  margin: 8px 0;
+  padding: 10px 12px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: #ffeeb8;
+  background: rgba(220, 169, 75, 0.12);
+  border: 1px solid rgba(220, 169, 75, 0.45);
+  border-radius: 8px;
+}
+
+.vt-swarm-loop-meta {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: #98a0b7;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+.vt-swarm-loop-meta strong {
+  color: #f6c64f;
+}
