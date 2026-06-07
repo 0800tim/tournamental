@@ -196,11 +196,18 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineB}</span>
               </h1>
 
-              {/* Tim 2026-06-08: the Set picks + Run pool CTAs that used to
-                * sit here have been promoted into a standalone 2-col row
-                * that lives between the new Bot Arena feature card and
-                * the existing bet feature card. Hero now reads as
-                * headline + lede only, with action below. */}
+              {/* Tim 2026-06-08: CTAs stay overlaid on the hero banner
+                * (this matches prod). Earlier attempt to extract them
+                * into a standalone 2-col row pushed them way down past
+                * the Bot Arena card and broke the at-a-glance read. */}
+              <div className="vt-home-hero-ctas">
+                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
+                  {ctaPredict} →
+                </Link>
+                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
+                  {ctaPool}
+                </Link>
+              </div>
 
               {/* Tim 2026-06-05: single lede paragraph replaces the
                 * previous "Nobody will correctly predict..." + global
@@ -304,27 +311,6 @@ export default async function HomePage(): Promise<JSX.Element> {
               </div>
             </div>
           </article>
-        </section>
-
-        {/* ============== 2-COL CTA ROW (Tim 2026-06-08) ============== */}
-        {/* Replaces the in-hero Set picks + Run pool CTAs. Sits between
-          * the new Bot Arena card and the existing bet feature card so
-          * both flagship surfaces still get a clear path in. */}
-        <section className="vt-home-section vt-home-section--ctapair">
-          <div className="vt-home-ctapair">
-            <Link
-              href="/world-cup-2026"
-              className="vt-home-ctapair-btn vt-home-ctapair-btn--gold"
-            >
-              {ctaPredict} <span aria-hidden="true">→</span>
-            </Link>
-            <Link
-              href="/syndicates"
-              className="vt-home-ctapair-btn vt-home-ctapair-btn--ghost"
-            >
-              {ctaPool} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
         </section>
 
         {/* ============== STEP 1, PICKS ============== */}
