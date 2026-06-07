@@ -1,0 +1,9 @@
+# PM2 log output created at runtime by ecosystem.config.cjs.
+logs/
+
+# Real env values live in the deployment secret store, never in git.
+.env
+.env.local
+
+# PM2 dump file, if pm2 save is run from this directory.
+dump.pm2

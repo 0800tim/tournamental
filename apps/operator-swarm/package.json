@@ -1,0 +1,38 @@
+{
+  "name": "@tournamental/operator-swarm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PM2 + ops wrapper for Tim's 1M-bot federated swarm node, riding on top of @tournamental/bot-node for the Open Bot Arena.",
+  "type": "module",
+  "scripts": {
+    "register": "bash scripts/register.sh",
+    "start": "pm2 start ecosystem.config.cjs",
+    "stop": "pm2 stop ecosystem.config.cjs",
+    "restart": "pm2 restart ecosystem.config.cjs",
+    "reload": "pm2 reload ecosystem.config.cjs",
+    "status": "pm2 status tournamental-bot-node",
+    "logs": "pm2 logs tournamental-bot-node",
+    "health": "bash scripts/health-check.sh",
+    "save": "pm2 save",
+    "delete": "pm2 delete ecosystem.config.cjs",
+    "lint": "exit 0",
+    "test": "exit 0",
+    "typecheck": "exit 0",
+    "build": "exit 0"
+  },
+  "dependencies": {
+    "@tournamental/bot-node": "workspace:*"
+  },
+  "devDependencies": {
+    "pm2": "^5.4.2"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/0800tim/tournamental.git",
+    "directory": "apps/operator-swarm"
+  }
+}
