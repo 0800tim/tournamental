@@ -180,12 +180,16 @@ export default function BotArenaPage(): JSX.Element {
             </div>
 
             <div className="vt-arena-slider-card">
-              <p className="vt-arena-slider-name">Update cadence</p>
+              <p className="vt-arena-slider-name">Bracket bias</p>
               <p>
-                How often the swarm re-reads live odds and revises picks.
-                Hourly, every 6 hours, daily, or once. Faster cadence
-                catches breaking injury news, costs you more browser
-                compute.
+                Anchor your swarm to your own human bracket. Save your
+                picks on the{" "}
+                <Link href="/world-cup-2026">predict page</Link> first,
+                then slide low for a wide explore around your view and
+                high to keep most bots close to your picks. Your swarm
+                becomes an army of variations on your own theme, with
+                the bookmaker odds and the other sliders shaping how
+                far each bot strays. Default 0.5.
               </p>
             </div>
 
