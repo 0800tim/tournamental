@@ -167,6 +167,21 @@ export interface SwarmState {
    * check before returning. Tim 2026-06-07.
    */
   fixture_version: string;
+  /**
+   * User-anchored swarm slider weight in [0, 1]. Default 0 = pure
+   * chalk + uniqueness; 0.4 = soft, 0.75 = strong, 1.0 = lockstep.
+   * Persisted across tab close so the slider position survives. A11
+   * Phase 2, 2026-06-07.
+   */
+  anchor_weight: number;
+  /**
+   * SHA256-ish hash of the user's bracket as captured at the most
+   * recent batch generation time. Recorded so the UI can show "this
+   * batch was anchored to bracket version <hash>". Each NEW batch
+   * captures whatever bracket is live at that moment; committed
+   * batches stay locked to the snapshot they used.
+   */
+  last_anchor_hash: string | null;
 }
 
 /**
@@ -289,6 +304,8 @@ export const indexedDbPersistence: Persistence = {
       last_run_at_utc: null,
       batches_committed: 0,
       fixture_version: SWARM_FIXTURE_VERSION,
+      anchor_weight: 0,
+      last_anchor_hash: null,
     };
     if (!isIndexedDBAvailable()) {
       return {
@@ -338,6 +355,9 @@ export const indexedDbPersistence: Persistence = {
         last_run_at_utc: row.last_run_at_utc ?? null,
         batches_committed: row.batches_committed ?? 0,
         fixture_version: row.fixture_version,
+        anchor_weight: typeof row.anchor_weight === "number" ? row.anchor_weight : 0,
+        last_anchor_hash:
+          typeof row.last_anchor_hash === "string" ? row.last_anchor_hash : null,
       },
       reset_for_version_change: false,
       current_fixture_version: SWARM_FIXTURE_VERSION,
@@ -436,6 +456,8 @@ export const noopPersistence: Persistence = {
         last_run_at_utc: null,
         batches_committed: 0,
         fixture_version: SWARM_FIXTURE_VERSION,
+        anchor_weight: 0,
+        last_anchor_hash: null,
       },
       reset_for_version_change: false,
       current_fixture_version: SWARM_FIXTURE_VERSION,
