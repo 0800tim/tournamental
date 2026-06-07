@@ -33,7 +33,14 @@
 
 import { chalkDecide, defaultChalkScore, CHALK_STRATEGY_NAME } from "./strategies/chalk";
 import { merkleRoot } from "./merkle";
-import type { BotPick, BotRecord, MatchSpec, Outcome, StrategyName } from "./types";
+import type {
+  BotPick,
+  BotRecord,
+  MatchSpec,
+  Outcome,
+  StrategyName,
+  WorkerOutboundMessage,
+} from "./types";
 
 declare const self: DedicatedWorkerGlobalScope;
 
@@ -50,44 +57,10 @@ interface GenerateMessage {
   readonly skip_merkle?: boolean;
 }
 
-interface ProgressMessage {
-  readonly kind: "progress";
-  readonly worker_index: number;
-  readonly bots_generated: number;
-  readonly picks_made: number;
-  readonly current_match_id: string | null;
-}
-
-interface SliceDoneMessage {
-  readonly kind: "slice_done";
-  readonly worker_index: number;
-  readonly run_id: string;
-  /** Local merkle root per match for this worker's slice. The main
-   *  thread combines worker-roots into the global per-match root. */
-  readonly merkle_roots_by_match: Record<string, string>;
-  /** Best score across this slice (max correct so far is unknown until
-   *  match results land, so this returns the chalk_score of the bot
-   *  with the highest cumulative implied probability). */
-  readonly best_bot_score: number;
-  readonly bots_generated: number;
-  readonly picks_made: number;
-  readonly elapsed_ms: number;
-  /** A small sample of bots + picks the main thread can persist as a
-   *  representative slice. We never ship the full 1M bot set across
-   *  the postMessage boundary because the structured-clone cost would
-   *  defeat the parallelism. The main thread reconstructs full rows
-   *  from the deterministic seeds at persistence time. */
-  readonly sample_bots: BotRecord[];
-  readonly sample_picks: BotPick[];
-}
-
-interface ErrorMessage {
-  readonly kind: "error";
-  readonly worker_index: number;
-  readonly message: string;
-}
-
-type OutboundMessage = ProgressMessage | SliceDoneMessage | ErrorMessage;
+/** Throttle for hashing progress posts: at most one message every
+ *  `HASHING_THROTTLE_MS` per worker so we don't flood the main thread.
+ *  ~120ms = ~8Hz, safely under the <10Hz limit Tim asked for. */
+const HASHING_THROTTLE_MS = 120;
 
 self.onmessage = (event: MessageEvent<GenerateMessage>) => {
   const msg = event.data;
@@ -200,25 +173,54 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
       // workers to stall on 100k+ leaves because every match held a
       // 200k-string scratch array simultaneously. Sequential keeps
       // peak memory per worker at one match's worth of leaves.
+      const sliceTotal = matches.length;
       let mDone = 0;
-      for (const m of matches) {
+      let lastHashPost = 0;
+      for (let si = 0; si < matches.length; si++) {
+        const m = matches[si]!;
         const leaves = compactLeavesByMatch.get(m.match_id) ?? [];
-        rootsByMatch[m.match_id] = await merkleRoot(leaves);
+
+        // Tim 2026-06-07: stream hashing progress per-batch through the
+        // merkleRoot callback so the UI no longer goes quiet during the
+        // hashing phase. We throttle to ~8Hz per worker so a 1M-leaf
+        // build doesn't drown the postMessage channel.
+        rootsByMatch[m.match_id] = await merkleRoot(leaves, (hp) => {
+          const now = performance.now();
+          if (now - lastHashPost < HASHING_THROTTLE_MS) return;
+          lastHashPost = now;
+          post({
+            kind: "hashing",
+            worker_index,
+            slice_index: si,
+            slice_total: sliceTotal,
+            level: hp.level,
+            total_levels: hp.total_levels,
+            leaves_remaining: hp.leaves_remaining,
+            level_size: hp.level_size,
+          });
+        });
+
         // Free this match's leaves immediately so peak memory stays
         // at one match's worth.
         compactLeavesByMatch.delete(m.match_id);
         mDone++;
-        // Emit a progress beat between matches so the UI can show the
-        // merkle phase actually moving. We reuse the `progress` shape
-        // and set `current_match_id` to the match just finished.
+        // Emit a final "this match is done" hashing beat with
+        // leaves_remaining=0 so the UI's per-slice counter always
+        // ticks even if the throttle ate the last batch.
         post({
-          kind: "progress",
+          kind: "hashing",
           worker_index,
-          bots_generated: totalBots,
-          picks_made: picksMade,
-          current_match_id: `${m.match_id} (merkle ${mDone}/${matches.length})`,
+          slice_index: si,
+          slice_total: sliceTotal,
+          level: 0,
+          total_levels: 0,
+          leaves_remaining: 0,
+          level_size: 0,
         });
       }
+      // Reference mDone so the compiler doesn't drop the loop var if we
+      // ever stop using it; also helps debug logs in future.
+      void mDone;
     }
 
     post({
@@ -242,7 +244,7 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
   }
 }
 
-function post(message: OutboundMessage): void {
+function post(message: WorkerOutboundMessage): void {
   self.postMessage(message);
 }
 

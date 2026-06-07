@@ -88,19 +88,74 @@ export async function emptyRoot(): Promise<string> {
 
 const BATCH_SIZE = 4096;
 
-async function hashAllInBatches(values: string[]): Promise<string[]> {
+/**
+ * Optional progress callback fired during a merkle build so the UI can
+ * surface live progress through the (otherwise opaque) hashing phase.
+ *
+ * Fired:
+ *   - Once per BATCH while hashing the leaf layer (level 0).
+ *   - Once per BATCH while folding each subsequent level.
+ *   - Once after the last hash of a level resolves.
+ *
+ * The worker throttles emissions to <10Hz before posting to the main
+ * thread; the callback itself is called eagerly so the worker decides
+ * what to drop.
+ */
+export interface MerkleProgress {
+  /** 0 = leaf hashing pass, 1 = first pair-fold layer, etc. */
+  readonly level: number;
+  /** Total levels in this tree (including the leaf-hash pass). */
+  readonly total_levels: number;
+  /** Items remaining at THIS level (in-flight + queued). */
+  readonly leaves_remaining: number;
+  /** Total items at THIS level when it started. */
+  readonly level_size: number;
+}
+
+export type MerkleProgressFn = (p: MerkleProgress) => void;
+
+/**
+ * ceil(log2(n)) for n >= 1; used to estimate total tree levels at the
+ * start of a build so the UI can show "level X of Y".
+ */
+function ceilLog2(n: number): number {
+  if (n <= 1) return 0;
+  return Math.ceil(Math.log2(n));
+}
+
+async function hashAllInBatches(
+  values: string[],
+  level: number,
+  totalLevels: number,
+  onProgress?: MerkleProgressFn,
+): Promise<string[]> {
   const out: string[] = new Array(values.length);
+  const levelSize = values.length;
   for (let start = 0; start < values.length; start += BATCH_SIZE) {
     const end = Math.min(start + BATCH_SIZE, values.length);
     const slice = values.slice(start, end);
     const hashes = await Promise.all(slice.map((v) => sha256Hex(v)));
     for (let i = 0; i < hashes.length; i++) out[start + i] = hashes[i]!;
+    if (onProgress) {
+      onProgress({
+        level,
+        total_levels: totalLevels,
+        leaves_remaining: Math.max(0, values.length - end),
+        level_size: levelSize,
+      });
+    }
   }
   return out;
 }
 
-async function hashAllPairsInBatches(layer: string[]): Promise<string[]> {
+async function hashAllPairsInBatches(
+  layer: string[],
+  level: number,
+  totalLevels: number,
+  onProgress?: MerkleProgressFn,
+): Promise<string[]> {
   const next: string[] = [];
+  const levelSize = layer.length;
   for (let start = 0; start < layer.length; start += BATCH_SIZE * 2) {
     const end = Math.min(start + BATCH_SIZE * 2, layer.length);
     const pairs: Array<Promise<string>> = [];
@@ -115,16 +170,34 @@ async function hashAllPairsInBatches(layer: string[]): Promise<string[]> {
     }
     const resolved = await Promise.all(pairs);
     for (const v of resolved) next.push(v);
+    if (onProgress) {
+      onProgress({
+        level,
+        total_levels: totalLevels,
+        leaves_remaining: Math.max(0, layer.length - end),
+        level_size: levelSize,
+      });
+    }
   }
   return next;
 }
 
-export async function merkleRoot(leaves: string[]): Promise<string> {
+export async function merkleRoot(
+  leaves: string[],
+  onProgress?: MerkleProgressFn,
+): Promise<string> {
   if (leaves.length === 0) return emptyRoot();
 
-  let layer: string[] = await hashAllInBatches(leaves);
+  // Total levels = the initial leaf-hash pass (level 0) + ceil(log2(n))
+  // pair-fold layers. We pass this through so callers can show
+  // "level X of Y" without recomputing.
+  const totalLevels = 1 + ceilLog2(leaves.length);
+
+  let level = 0;
+  let layer: string[] = await hashAllInBatches(leaves, level, totalLevels, onProgress);
   while (layer.length > 1) {
-    layer = await hashAllPairsInBatches(layer);
+    level++;
+    layer = await hashAllPairsInBatches(layer, level, totalLevels, onProgress);
   }
   return layer[0]!;
 }
