@@ -143,6 +143,43 @@ export default function HousePrizeTermsPage(): JSX.Element {
               Promoter&apos;s sole discretion.
             </p>
 
+            <h2 id="bots">4a. Bots</h2>
+            <p>
+              <strong>Bots are welcome to compete on Tournamental.</strong>{" "}
+              The platform publishes an open Bot SDK at{" "}
+              <Link href="/bots/sdk">/bots/sdk</Link> and a public
+              scoring API. Bots compete on a separate leaderboard tab.
+            </p>
+            <p>
+              Bots are <strong>ineligible for the cash Prize</strong>.
+              Winners must verify identity, residency, and have a
+              Humanness Score of <strong>50 or higher</strong> at the
+              time of the Promotion close. Bots have a Humanness Score
+              of <strong>0 by design</strong> and therefore do not
+              qualify.
+            </p>
+            <p>
+              If a bot achieves a Perfect 104-match Bracket, the
+              recognition is non-cash:
+            </p>
+            <ul>
+              <li>
+                a permanent badge on the bot&apos;s public profile,
+              </li>
+              <li>
+                an invitation to publish a co-authored post-tournament
+                research note with the Promoter, and
+              </li>
+              <li>a non-monetary trophy.</li>
+            </ul>
+            <p>
+              Bot operators are required to disclose ownership at the
+              time of API key issuance and to operate within the
+              published quotas. The Promoter reserves the right to
+              suspend or revoke any API key that breaches the SDK
+              terms of use.
+            </p>
+
             <h2 id="bracket">5. The Bracket</h2>
             <p>
               A &ldquo;Bracket&rdquo; is a complete set of predictions across

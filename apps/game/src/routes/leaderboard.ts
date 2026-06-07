@@ -24,6 +24,7 @@ import {
   syndicateKey,
   type LeaderboardCache,
 } from "../scoring/cache.js";
+import { LeaderboardCache as BotArenaLeaderboardCache } from "../services/leaderboard-cache.js";
 import type { GameStore } from "../store/db.js";
 import type { LeaderboardRow } from "../types.js";
 
@@ -104,16 +105,80 @@ export interface LeaderboardRoutesDeps {
   readonly cache: LeaderboardCache;
 }
 
+/**
+ * Bot Arena cache , partitioned per (tournament, scope, source). Lives
+ * alongside the existing LeaderboardCache so the global syndicate and
+ * tournament reads keep their current behaviour while the new
+ * ?scope=humans|bots|all and ?source=federated paths get their own TTL
+ * + prefix invalidation surface.
+ */
+const botArenaCache = new BotArenaLeaderboardCache({ defaultTtlMs: 30_000 });
+
+/** Test helper , drop every Bot Arena cache entry. */
+export function _resetBotArenaCache(): void {
+  botArenaCache.clear();
+}
+
 export async function registerLeaderboardRoutes(
   app: FastifyInstance,
   deps: LeaderboardRoutesDeps,
 ): Promise<void> {
   app.get("/v1/leaderboard/:tournament_id", async (req, reply) => {
     const params = req.params as { tournament_id?: string };
+    const query = req.query as {
+      scope?: string;
+      source?: string;
+    };
     const tournamentId = (params.tournament_id ?? "").trim();
     if (!tournamentId) {
       return reply.code(400).send({ error: "invalid_tournament_id" });
     }
+
+    // Bot Arena scope filter. When the caller asks for humans|bots|all
+    // we route through the partitioned cache + scope-aware store
+    // query and skip the legacy global cache + LeaderboardRow handle
+    // path. Default (no scope param) preserves the v0.1 contract.
+    const scopeRaw = (query?.scope ?? "").trim().toLowerCase();
+    const source = (query?.source ?? "").trim().toLowerCase();
+    if (
+      source === "federated" ||
+      scopeRaw === "humans" ||
+      scopeRaw === "bots" ||
+      scopeRaw === "all"
+    ) {
+      const scope: "humans" | "bots" | "all" =
+        scopeRaw === "humans" || scopeRaw === "bots" || scopeRaw === "all"
+          ? scopeRaw
+          : "all";
+      const key = `lb:${tournamentId}:${scope}:${source || "central"}`;
+      const out = await botArenaCache.get(key, async () => {
+        if (source === "federated") {
+          return deps.store.federatedNodes.listFederatedTopK(TOP_N);
+        }
+        const rows = deps.store.topNByScope(tournamentId, scope, TOP_N);
+        const now = Date.now();
+        return rows.map((r, i) => ({
+          rank: i + 1,
+          user_handle: hashUserHandle(r.user_id),
+          share_guid: r.share_guid,
+          score_total: r.score_total,
+          bracket_id: r.id,
+          matches_available_to_user: matchesAvailableTo(
+            tournamentId,
+            r.joined_at,
+            now,
+          ),
+        }));
+      });
+      reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
+      return {
+        tournament_id: tournamentId,
+        scope,
+        source: source || "central",
+        rows: out,
+      };
+    }
+
     const key = globalKey(tournamentId, TOP_N);
     const cached = deps.cache.get(key);
     if (cached) {
