@@ -127,7 +127,16 @@ function ApiKeysEditor() {
 
   const handleMint = async () => {
     const sb = browserClient();
-    if (!sb) return;
+    // Tim 2026-06-07 evening: silent exit was eating the failure when
+    // Supabase env is not configured (vtorn-dev signs you in via SMS
+    // OTP / Telegram, not Supabase). Surface it so the user sees
+    // something instead of a dead button.
+    if (!sb) {
+      setError(
+        "Supabase auth client is not initialised on this build. Try the new self-serve flow at /bots/keys instead, or ask Tim to set NEXT_PUBLIC_SUPABASE_URL on this environment.",
+      );
+      return;
+    }
     const trimmed = label.trim();
     if (!trimmed) {
       setError("Give your key a label so you can identify it later.");
