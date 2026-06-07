@@ -290,6 +290,78 @@ export default function BotArenaPage(): JSX.Element {
             .
           </p>
 
+          <h2 className="vt-arena-h2">How much disk does a swarm need?</h2>
+          <p>
+            Almost none. Every bot is regenerated on demand from{" "}
+            <code>(master_seed, bot_index, strategy)</code>, so the
+            browser only persists ~32 bytes per bot (the merkle leaf).
+            That makes the storage cost of even a hundred-million-bot
+            swarm trivial compared with one decent screenshot.
+          </p>
+          <table className="vt-arena-table vt-arena-table--storage">
+            <caption className="vt-arena-table-caption">
+              Disk needed per bot count, browser-swarm
+              regenerate-on-demand contract. Numbers are the
+              IndexedDB footprint on your device; merkle commits to
+              central are an additional ~80 bytes per swarm-run
+              regardless of bot count.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Bots in your swarm</th>
+                <th scope="col">Disk on your device</th>
+                <th scope="col">For context</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1,000</td>
+                <td>32 KB</td>
+                <td>One small email</td>
+              </tr>
+              <tr>
+                <td>10,000</td>
+                <td>320 KB</td>
+                <td>One JPEG photo</td>
+              </tr>
+              <tr>
+                <td>100,000</td>
+                <td>3.2 MB</td>
+                <td>One MP3 song</td>
+              </tr>
+              <tr>
+                <td>1,000,000</td>
+                <td>32 MB</td>
+                <td>One short video clip</td>
+              </tr>
+              <tr>
+                <td>10,000,000</td>
+                <td>320 MB</td>
+                <td>One movie at 480p</td>
+              </tr>
+              <tr>
+                <td>100,000,000</td>
+                <td>3.2 GB</td>
+                <td>One movie at 4K</td>
+              </tr>
+              <tr>
+                <td>1,000,000,000</td>
+                <td>32 GB</td>
+                <td>A modern game install</td>
+              </tr>
+            </tbody>
+          </table>
+          <p className="vt-arena-table-footnote">
+            Browsers will start asking your permission to keep more
+            storage somewhere between 1 and 10 GB depending on the
+            browser and the free space on your disk, so a swarm
+            larger than ~100 million bots is best run from the{" "}
+            <Link href="/developers">Node CLI or Docker container</Link>
+            {" "}where there&apos;s no quota. The Tournamental Bot Node
+            uses the same regenerate-on-demand contract, so the disk
+            numbers above hold there too.
+          </p>
+
           <h2 className="vt-arena-h2">Merkle &rarr; OpenTimestamps &rarr; Bitcoin.</h2>
           <p>
             Every pick by every player and every bot enters a SHA-256
