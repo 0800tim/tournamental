@@ -131,6 +131,66 @@ const INITIAL_STATS: SwarmStats = {
 
 const CORES_FALLBACK = 4;
 
+// Tim 2026-06-07 evening: BYO-LLM vendor cascade. Vendor → model list
+// → key URL → placeholder. Used by the Strategy card.
+type VendorId = "anthropic" | "openai" | "openrouter" | "google";
+interface ModelOption { readonly id: string; readonly label: string }
+
+const MODELS_BY_VENDOR: Readonly<Record<VendorId, readonly ModelOption[]>> = {
+  anthropic: [
+    { id: "claude-opus-4-7", label: "Claude Opus 4.7 (most capable)" },
+    { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6 (fast + strong)" },
+    { id: "claude-haiku-4-5-20251001", label: "Claude Haiku 4.5 (cheapest)" },
+  ],
+  openai: [
+    { id: "gpt-4o", label: "GPT-4o (recommended)" },
+    { id: "gpt-4o-mini", label: "GPT-4o mini (cheap)" },
+    { id: "o1-mini", label: "o1-mini (reasoning)" },
+  ],
+  openrouter: [
+    { id: "meta-llama/llama-3.1-405b-instruct", label: "Llama 3.1 405B" },
+    { id: "deepseek/deepseek-r1", label: "DeepSeek R1 (reasoning)" },
+    { id: "mistralai/mistral-large", label: "Mistral Large" },
+  ],
+  google: [
+    { id: "gemini-2.0-flash", label: "Gemini 2.0 Flash" },
+    { id: "gemini-1.5-pro", label: "Gemini 1.5 Pro" },
+  ],
+};
+
+const MODEL_DEFAULTS: Readonly<Record<VendorId, string>> = {
+  anthropic: "claude-sonnet-4-6",
+  openai: "gpt-4o",
+  openrouter: "meta-llama/llama-3.1-405b-instruct",
+  google: "gemini-2.0-flash",
+};
+
+const VENDOR_KEY_LABEL: Readonly<Record<VendorId, string>> = {
+  anthropic: "Anthropic API key",
+  openai: "OpenAI API key",
+  openrouter: "OpenRouter API key",
+  google: "Google AI Studio API key",
+};
+
+const VENDOR_KEY_PLACEHOLDER: Readonly<Record<VendorId, string>> = {
+  anthropic: "sk-ant-...",
+  openai: "sk-proj-...",
+  openrouter: "sk-or-v1-...",
+  google: "AIza...",
+};
+
+const VENDOR_KEY_URL: Readonly<Record<VendorId, string>> = {
+  anthropic: "https://console.anthropic.com/settings/keys",
+  openai: "https://platform.openai.com/api-keys",
+  openrouter: "https://openrouter.ai/keys",
+  google: "https://aistudio.google.com/apikey",
+};
+
+// Tim 2026-06-07 evening: warn the user if they kick off a loop or
+// single batch at a count that will make the laptop hot. 100k is the
+// threshold where chunked rAF stops feeling instant on a quad-core.
+const HIGH_LOAD_BOT_COUNT = 100_000;
+
 /**
  * Reverse-map a stored anchor_weight (0 / 0.4 / 0.75 / 1) back to its
  * AnchorMode enum value. Anything in between snaps to the closest
@@ -254,19 +314,34 @@ export default function BrowserSwarm({
 }: BrowserSwarmProps): JSX.Element {
   const demoMatches = useMemo(() => matches ?? buildDemoMatches(), [matches]);
 
+  // Tim 2026-06-07 evening: IndexedDB is the source of truth, Supabase
+  // is an OPTIONAL replication mirror. Default off; user ticks to opt in.
+  const [replicateToSupabase, setReplicateToSupabase] = useState(false);
   const [supabaseUrl, setSupabaseUrl] = useState("");
   const [supabaseKey, setSupabaseKey] = useState("");
   const [supabaseStatus, setSupabaseStatus] = useState<
     "untested" | "ok" | "error" | "checking"
   >("untested");
 
-  const [apiVendor, setApiVendor] = useState<"none" | "anthropic" | "openai">(
-    "none",
-  );
+  // Tim 2026-06-07 evening: vendor + model + key cascade so users can
+  // bring their own LLM. Supports Anthropic, OpenAI, OpenRouter
+  // (which forwards to most labs), and Google Gemini. "none" keeps
+  // the free chalk-weighted heuristic.
+  const [apiVendor, setApiVendor] = useState<
+    "none" | "anthropic" | "openai" | "openrouter" | "google"
+  >("none");
+  const [apiModel, setApiModel] = useState<string>("");
   const [apiKey, setApiKey] = useState("");
 
   const [botCount, setBotCount] = useState(10_000);
   const [strategy, setStrategy] = useState<StrategyName>("chalk-v1");
+
+  // Tim 2026-06-07 evening: loop mode generates the same batch size
+  // again and again until the user stops. Warning popup if botCount
+  // is high enough that the laptop will warm up noticeably.
+  const [loopMode, setLoopMode] = useState(false);
+  const [loopIterations, setLoopIterations] = useState(0);
+  const stopRequestedRef = useRef<boolean>(false);
 
   const [progress, setProgress] = useState<SwarmProgress>(INITIAL_PROGRESS);
   const [stats, setStats] = useState<SwarmStats>(INITIAL_STATS);
@@ -745,10 +820,35 @@ export default function BrowserSwarm({
   );
 
   const onStop = useCallback(() => {
+    // Tim 2026-06-07 evening: also tell the loop driver to stop after
+    // this iteration completes. Without this, the current batch
+    // finishes and the loop immediately kicks off the next one.
+    stopRequestedRef.current = true;
     for (const w of workersRef.current) w.terminate();
     workersRef.current = [];
     setProgress((p) => ({ ...p, phase: "idle" }));
   }, []);
+
+  // Tim 2026-06-07 evening: when loopMode is on and a run finishes
+  // cleanly, kick off the next iteration automatically. Bumps the
+  // iteration counter so the user sees progress.
+  useEffect(() => {
+    if (!loopMode) return;
+    if (progress.phase !== "done") return;
+    if (stopRequestedRef.current) {
+      stopRequestedRef.current = false;
+      return;
+    }
+    const handle = window.setTimeout(() => {
+      setLoopIterations((n) => n + 1);
+      void onStart();
+    }, 250);
+    return () => window.clearTimeout(handle);
+    // onStart is intentionally NOT in deps; it would re-trigger this on
+    // every render. We rely on the closure capturing the latest one via
+    // the ref-based pattern the component already uses internally.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [progress.phase, loopMode]);
 
   const cores = useMemo(() => workerCount(), []);
   const elapsedMs = progress.started_at ? Date.now() - progress.started_at : 0;
@@ -758,102 +858,202 @@ export default function BrowserSwarm({
       <div className="vt-swarm-grid">
         <FieldsetCard
           title="1. Storage"
-          subtitle="Pick where your bots live. IndexedDB is private to this browser; Supabase is shareable across devices."
+          subtitle="Your swarm lives in IndexedDB on this device by default. Tick the box to also replicate to your own free Supabase project."
         >
-          <label className="vt-swarm-label" htmlFor="vt-supabase-url">
-            Supabase URL <span className="vt-swarm-hint">optional</span>
-          </label>
-          <input
-            id="vt-supabase-url"
-            className="vt-swarm-input"
-            placeholder="https://abcdefgh.supabase.co"
-            value={supabaseUrl}
-            onChange={(e) => setSupabaseUrl(e.target.value)}
-          />
-          <label className="vt-swarm-label" htmlFor="vt-supabase-key">
-            Supabase anon key
-          </label>
-          <input
-            id="vt-supabase-key"
-            className="vt-swarm-input"
-            placeholder="eyJhbGc..."
-            value={supabaseKey}
-            onChange={(e) => setSupabaseKey(e.target.value)}
-          />
-          <div className="vt-swarm-row">
-            <button
-              type="button"
-              className="vt-swarm-button vt-swarm-button--ghost"
-              disabled={!supabaseConfig || supabaseStatus === "checking"}
-              onClick={onTestSupabase}
-            >
-              Test connection
-            </button>
-            <SupabaseBadge status={supabaseStatus} />
+          <div className="vt-swarm-storage-primary">
+            <div className="vt-swarm-storage-badge" aria-hidden="true">
+              ✓
+            </div>
+            <div>
+              <p className="vt-swarm-storage-name">IndexedDB (this device)</p>
+              <p className="vt-swarm-storage-detail">
+                Default and always on. Your swarm persists across tab close,
+                browser restart, and laptop reboot. Private to this browser.
+              </p>
+            </div>
           </div>
-          <details className="vt-swarm-details">
-            <summary>Schema SQL (paste into Supabase SQL editor)</summary>
-            <textarea
-              className="vt-swarm-sql"
-              readOnly
-              value={SUPABASE_SCHEMA_SQL}
-              rows={10}
+
+          <label className="vt-swarm-checkbox-row">
+            <input
+              type="checkbox"
+              checked={replicateToSupabase}
+              onChange={(e) => setReplicateToSupabase(e.target.checked)}
             />
-            <button
-              type="button"
-              className="vt-swarm-button vt-swarm-button--ghost"
-              onClick={onCopySql}
-            >
-              Copy SQL
-            </button>
-          </details>
+            <span>
+              <strong>Also replicate to Supabase</strong>
+              <span className="vt-swarm-hint">
+                {" "}
+                so you can browse the swarm from a second device.
+              </span>
+            </span>
+          </label>
+
+          {replicateToSupabase && (
+            <>
+              <label className="vt-swarm-label" htmlFor="vt-supabase-url">
+                Supabase URL
+              </label>
+              <input
+                id="vt-supabase-url"
+                className="vt-swarm-input"
+                placeholder="https://abcdefgh.supabase.co"
+                value={supabaseUrl}
+                onChange={(e) => setSupabaseUrl(e.target.value)}
+              />
+              <label className="vt-swarm-label" htmlFor="vt-supabase-key">
+                Supabase anon key
+              </label>
+              <input
+                id="vt-supabase-key"
+                className="vt-swarm-input"
+                placeholder="eyJhbGc..."
+                value={supabaseKey}
+                onChange={(e) => setSupabaseKey(e.target.value)}
+              />
+              <div className="vt-swarm-row">
+                <button
+                  type="button"
+                  className="vt-swarm-button vt-swarm-button--ghost"
+                  disabled={!supabaseConfig || supabaseStatus === "checking"}
+                  onClick={onTestSupabase}
+                >
+                  Test connection
+                </button>
+                <SupabaseBadge status={supabaseStatus} />
+              </div>
+              <details className="vt-swarm-details">
+                <summary>How to set up your free Supabase project</summary>
+                <ol className="vt-swarm-faq-list">
+                  <li>
+                    Go to{" "}
+                    <a
+                      href="https://supabase.com/dashboard"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      supabase.com/dashboard
+                    </a>{" "}
+                    and create a free account (30 seconds, no credit card).
+                  </li>
+                  <li>
+                    Click <strong>New project</strong>, name it
+                    {" "}<code>tournamental-bots</code>, choose a region near
+                    you. Wait ~1 minute for it to provision.
+                  </li>
+                  <li>
+                    From the project dashboard, copy{" "}
+                    <strong>Project URL</strong> and{" "}
+                    <strong>anon public key</strong> from{" "}
+                    <em>Project Settings → API</em>. Paste them above.
+                  </li>
+                  <li>
+                    Expand the <strong>Schema SQL</strong> below and paste
+                    it into the Supabase <em>SQL Editor</em> tab. Hit Run.
+                    That creates the four tables we replicate to.
+                  </li>
+                </ol>
+                <p className="vt-swarm-faq-detail">
+                  We only use the public anon key. We never ask for your
+                  service-role key. Replication is fire-and-forget; if your
+                  Supabase quota is hit, IndexedDB keeps working unaffected.
+                </p>
+                <textarea
+                  className="vt-swarm-sql"
+                  readOnly
+                  value={SUPABASE_SCHEMA_SQL}
+                  rows={10}
+                />
+                <button
+                  type="button"
+                  className="vt-swarm-button vt-swarm-button--ghost"
+                  onClick={onCopySql}
+                >
+                  Copy SQL
+                </button>
+              </details>
+            </>
+          )}
         </FieldsetCard>
 
         <FieldsetCard
           title="2. Strategy"
-          subtitle="Chalk-weighted heuristic runs entirely in your browser at zero cost. Drop in an LLM key to elevate champion bots."
+          subtitle="Free chalk-weighted heuristic by default. Bring your own LLM key for an Anthropic, OpenAI, OpenRouter, or Google model to elevate the champion bots in your swarm."
         >
-          <label className="vt-swarm-label" htmlFor="vt-strategy">
-            Strategy
+          <label className="vt-swarm-label" htmlFor="vt-vendor">
+            LLM vendor
           </label>
           <select
-            id="vt-strategy"
+            id="vt-vendor"
             className="vt-swarm-input"
-            value={strategy}
-            onChange={(e) => setStrategy(e.target.value as StrategyName)}
+            value={apiVendor}
+            onChange={(e) => {
+              const v = e.target.value as typeof apiVendor;
+              setApiVendor(v);
+              // Reset the model on vendor change so we never carry a
+              // stale model id that the new vendor cannot serve.
+              setApiModel(v === "none" ? "" : MODEL_DEFAULTS[v]);
+              setStrategy(v === "none" ? "chalk-v1" : (v as StrategyName));
+            }}
           >
-            <option value="chalk-v1">Chalk-weighted (default, free)</option>
-            <option value="claude-3-5-sonnet">Claude 3.5 Sonnet (your key)</option>
-            <option value="gpt-4o">GPT-4o (your key)</option>
+            <option value="none">None (free chalk-weighted heuristic)</option>
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI (GPT)</option>
+            <option value="openrouter">OpenRouter (Llama, DeepSeek, Mistral, +100)</option>
+            <option value="google">Google (Gemini)</option>
           </select>
-          {strategy !== "chalk-v1" && (
+
+          {apiVendor !== "none" && (
             <>
-              <label className="vt-swarm-label" htmlFor="vt-vendor">
-                Vendor
+              <label className="vt-swarm-label" htmlFor="vt-model">
+                Model
               </label>
-              <select
-                id="vt-vendor"
-                className="vt-swarm-input"
-                value={apiVendor}
-                onChange={(e) =>
-                  setApiVendor(e.target.value as typeof apiVendor)
-                }
-              >
-                <option value="none">Skip (use chalk instead)</option>
-                <option value="anthropic">Anthropic</option>
-                <option value="openai">OpenAI</option>
-              </select>
+              {apiVendor === "openrouter" ? (
+                <input
+                  id="vt-model"
+                  className="vt-swarm-input"
+                  placeholder="e.g. meta-llama/llama-3.1-70b-instruct"
+                  value={apiModel}
+                  onChange={(e) => setApiModel(e.target.value)}
+                />
+              ) : (
+                <select
+                  id="vt-model"
+                  className="vt-swarm-input"
+                  value={apiModel}
+                  onChange={(e) => setApiModel(e.target.value)}
+                >
+                  {MODELS_BY_VENDOR[apiVendor].map((m) => (
+                    <option key={m.id} value={m.id}>
+                      {m.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+
               <label className="vt-swarm-label" htmlFor="vt-api-key">
-                API key <span className="vt-swarm-hint">never leaves this tab</span>
+                {VENDOR_KEY_LABEL[apiVendor]}
+                {" "}
+                <span className="vt-swarm-hint">never leaves this tab</span>
               </label>
               <input
                 id="vt-api-key"
                 className="vt-swarm-input"
-                placeholder="sk-..."
+                placeholder={VENDOR_KEY_PLACEHOLDER[apiVendor]}
                 type="password"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
               />
+              <p className="vt-swarm-helper">
+                Get a key at{" "}
+                <a
+                  href={VENDOR_KEY_URL[apiVendor]}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {VENDOR_KEY_URL[apiVendor]}
+                </a>
+                . Your key stays in this browser tab, we never see it.
+              </p>
             </>
           )}
         </FieldsetCard>
@@ -939,6 +1139,36 @@ export default function BrowserSwarm({
           title="5. Run"
           subtitle="Workers spin up in parallel. Tab stays responsive."
         >
+          <label className="vt-swarm-checkbox-row">
+            <input
+              type="checkbox"
+              checked={loopMode}
+              onChange={(e) => setLoopMode(e.target.checked)}
+              disabled={
+                progress.phase === "generating" ||
+                progress.phase === "hashing" ||
+                progress.phase === "committing" ||
+                progress.phase === "federating"
+              }
+            />
+            <span>
+              <strong>∞ Keep looping</strong>
+              <span className="vt-swarm-hint">
+                {" "}
+                generate {formatNumber(botCount)} bots, commit, repeat until I stop.
+              </span>
+            </span>
+          </label>
+          {loopMode && botCount >= HIGH_LOAD_BOT_COUNT && (
+            <p className="vt-swarm-loop-warning" role="alert">
+              ⚠ Loop mode at {formatNumber(botCount)} bots per batch will
+              keep all your CPU cores busy continuously. Your laptop will
+              warm up and other apps may feel slow. Leave it overnight
+              for the best results, or drop the bot count for a lighter
+              touch.
+            </p>
+          )}
+
           <button
             type="button"
             className="vt-swarm-button vt-swarm-button--primary"
@@ -951,17 +1181,25 @@ export default function BrowserSwarm({
             }
           >
             {progress.phase === "idle" || progress.phase === "done"
-              ? `Start swarm (${formatNumber(botCount)} bots)`
+              ? loopMode
+                ? `∞ Start loop (${formatNumber(botCount)} per batch)`
+                : `Start swarm (${formatNumber(botCount)} bots)`
               : PHASE_LABEL[progress.phase]}
           </button>
-          {progress.phase !== "idle" && progress.phase !== "done" && (
+          {(progress.phase !== "idle" && progress.phase !== "done") && (
             <button
               type="button"
               className="vt-swarm-button vt-swarm-button--ghost"
               onClick={onStop}
             >
-              Stop
+              {loopMode ? "Stop loop" : "Stop"}
             </button>
+          )}
+          {loopMode && loopIterations > 0 && (
+            <p className="vt-swarm-loop-meta">
+              Iterations completed this session:{" "}
+              <strong>{formatNumber(loopIterations)}</strong>
+            </p>
           )}
         </FieldsetCard>
       </div>
