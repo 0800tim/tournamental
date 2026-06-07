@@ -1,0 +1,328 @@
+/**
+ * /bot-arena page styles. Editorial-sport tone matching /the-bet.
+ * Charcoal canvas, Fraunces display serif, gold accents.
+ */
+
+.vt-arena {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: clamp(20px, 4vw, 48px) clamp(14px, 3vw, 28px) 96px;
+  line-height: 1.65;
+}
+
+.vt-arena-article {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* ---------- header ---------- */
+
+.vt-arena-header {
+  padding-bottom: 36px;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
+  margin-bottom: 40px;
+}
+
+.vt-arena-dateline {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.vt-arena-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(32px, 5.5vw, 56px);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+}
+.vt-arena-title em {
+  font-style: italic;
+  color: #f6c64f;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+.vt-arena-lede {
+  font-family: Fraunces, Georgia, serif;
+  font-style: italic;
+  font-size: clamp(17px, 2vw, 19px);
+  line-height: 1.55;
+  color: #c7d0e6;
+  margin: 24px 0 0;
+  max-width: 64ch;
+}
+
+.vt-arena-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 16px;
+}
+
+.vt-arena-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f6c64f 0%, #dca94b 100%);
+  color: #15151a;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 8px 30px rgba(220, 169, 75, 0.25);
+}
+.vt-arena-cta-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 36px rgba(220, 169, 75, 0.35);
+  text-decoration: none;
+}
+
+.vt-arena-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 169, 75, 0.55);
+  background: transparent;
+  color: #e7ecf7;
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.vt-arena-cta-secondary:hover {
+  border-color: #dca94b;
+  background: rgba(220, 169, 75, 0.08);
+  text-decoration: none;
+}
+
+.vt-arena-footnote {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #98a0b7;
+  margin: 0;
+}
+
+/* ---------- body ---------- */
+
+.vt-arena-body {
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.vt-arena-h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 48px 0 14px;
+}
+
+.vt-arena-body p {
+  margin: 0 0 14px;
+  color: #d8def0;
+}
+
+.vt-arena-body strong {
+  color: #ffffff;
+}
+
+.vt-arena-body a {
+  color: #f6c64f;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.vt-arena-body a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.vt-arena-body code {
+  background: rgba(220, 169, 75, 0.08);
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  color: #f6c64f;
+}
+
+.vt-arena-pullquote {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(18px, 2.6vw, 22px);
+  line-height: 1.4;
+  color: #ffffff;
+  padding: 18px 24px;
+  margin: 18px 0;
+  border-left: 3px solid #dca94b;
+  background: rgba(220, 169, 75, 0.06);
+  border-radius: 4px;
+}
+
+/* ---------- 4-way grid + slider grid ---------- */
+
+.vt-arena-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 20px 0 28px;
+}
+.vt-arena-grid-tight {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 920px) {
+  .vt-arena-grid-tight { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .vt-arena-grid { grid-template-columns: 1fr; }
+  .vt-arena-grid-tight { grid-template-columns: 1fr; }
+}
+
+.vt-arena-slider-card {
+  background: rgba(220, 169, 75, 0.05);
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 10px;
+  padding: 16px;
+}
+.vt-arena-slider-name {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  margin: 0 0 6px;
+}
+.vt-arena-slider-card p:not(.vt-arena-slider-name) {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c7d0e6;
+  margin: 0;
+}
+
+.vt-arena-list {
+  margin: 14px 0 18px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-arena-list li {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+.vt-arena-list strong {
+  color: #ffffff;
+}
+
+.vt-arena-card {
+  background: linear-gradient(180deg, #15151a 0%, #111116 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+}
+.vt-arena-card:hover {
+  border-color: rgba(220, 169, 75, 0.32);
+}
+
+.vt-arena-card-eyebrow {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.vt-arena-card-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.vt-arena-card p {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #c7d0e6;
+  margin: 0 0 14px;
+}
+
+.vt-arena-card-cta {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  text-decoration: none;
+  align-self: flex-start;
+}
+.vt-arena-card-cta:hover {
+  text-decoration: underline;
+}
+
+/* ---------- steps ---------- */
+
+.vt-arena-steps {
+  margin: 18px 0 24px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-arena-steps li {
+  margin: 0 0 12px;
+  line-height: 1.65;
+}
+.vt-arena-steps strong {
+  color: #ffffff;
+}
+
+/* ---------- signoff ---------- */
+
+.vt-arena-signoff {
+  font-family: Fraunces, Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #c7d0e6;
+  margin: 36px 0 14px;
+}
+
+.vt-arena-byline {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 0 0 36px;
+}
+.vt-arena-byline strong {
+  color: #e7ecf7;
+}
+.vt-arena-byline a {
+  color: #f6c64f;
+  text-decoration: none;
+}
+.vt-arena-byline a:hover {
+  text-decoration: underline;
+}
+
+.vt-arena-cta-final {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 0;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
