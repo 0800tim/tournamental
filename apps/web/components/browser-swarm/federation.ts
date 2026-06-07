@@ -120,6 +120,9 @@ async function postJson(
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
+    // Tim 2026-06-08: tnm_session cookie travels so /v1/swarm/commit
+    // can resolve the owning user. Anonymous commits 401 server-side.
+    credentials: "include",
   });
   let json: unknown = null;
   try {

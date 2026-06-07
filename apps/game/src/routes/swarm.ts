@@ -34,6 +34,7 @@ import {
 } from "../lib/ots-calendar.js";
 import type { GameStore } from "../store/db.js";
 import type { PendingCalendarBlob } from "../store/swarm-claims.js";
+import { resolveUserId } from "./identity.js";
 
 const HEX_64 = /^[0-9a-f]{64}$/;
 // Browser tabs prefix node_id with "browser-" (see federation.ts
@@ -125,6 +126,26 @@ export async function registerSwarmRoutes(
   app.post("/v1/swarm/commit", async (req: FastifyRequest, reply) => {
     reply.header("Cache-Control", "private, no-store");
 
+    // Tim 2026-06-08: require a signed-in user before accepting any
+    // browser-swarm commit. Anonymous submissions (the previous
+    // node_id="browser-..." escape hatch) inflated the public bot
+    // counter with unowned rows that nobody could authenticate.
+    // The Docker container / federated-node bearer auth path is
+    // unchanged; this gate only fires when there's no authenticated
+    // session AND no valid Bearer token on the request.
+    const userId = resolveUserId(req, {
+      authSmsJwtSecret: process.env.AUTH_JWT_SECRET ?? null,
+      store: deps.store,
+    });
+    if (!userId) {
+      return reply.code(401).send({
+        error: "auth_required",
+        detail:
+          "swarm commits require a signed-in user. Sign in at " +
+          "play.tournamental.com first, then re-spawn from /run.",
+      });
+    }
+
     const parsed = CommitSchema.safeParse(req.body);
     if (!parsed.success) {
       return reply.code(400).send({
@@ -168,6 +189,7 @@ export async function registerSwarmRoutes(
       pending_calendar_blobs: pending,
       ots_status: otsStatus,
       now: now(),
+      user_id: userId,
     });
 
     return reply.code(201).send({

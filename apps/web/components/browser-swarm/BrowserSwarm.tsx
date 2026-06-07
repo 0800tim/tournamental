@@ -47,6 +47,9 @@ import {
   type CSSProperties,
 } from "react";
 
+import { useUser } from "@/lib/auth/useUser";
+import { whatsAppLoginDeepLink } from "@/lib/auth/inbound-login";
+
 import { FederationClient } from "./federation";
 import { merkleRoot } from "./merkle";
 import {
@@ -413,6 +416,17 @@ export default function BrowserSwarm({
   dryRun = false,
 }: BrowserSwarmProps): JSX.Element {
   const demoMatches = useMemo(() => matches ?? buildDemoMatches(), [matches]);
+
+  // Tim 2026-06-08: gate the entire Start button on sign-in. The
+  // swarm's bots are now bound to a user_id on /v1/swarm/commit and
+  // the public counter only includes owned rows, so an anonymous
+  // spawn is wasted work (and was inflating /v1/swarm/totals with
+  // orphan rows before this gate landed). Loading state shows a
+  // disabled button so the page doesn't flash sign-in CTAs on a
+  // refresh of an already-authed user.
+  const authState = useUser();
+  const isSignedIn = authState.status === "authenticated";
+  const authLoading = authState.status === "loading";
 
   // Tim 2026-06-08: incognito / private-browsing detection. If we are
   // in an ephemeral browsing mode, IndexedDB clears the moment the
@@ -1686,6 +1700,8 @@ export default function BrowserSwarm({
             className="vt-swarm-button vt-swarm-button--primary"
             onClick={onStart}
             disabled={
+              !isSignedIn ||
+              authLoading ||
               incognitoBlocked ||
               progress.phase === "generating" ||
               progress.phase === "hashing" ||
@@ -1693,13 +1709,35 @@ export default function BrowserSwarm({
               progress.phase === "federating"
             }
           >
-            {progress.phase === "idle" || progress.phase === "done"
-              ? loopMode
-                ? `∞ Start loop (${formatNumber(botCount)} per batch)`
-                : `Start swarm (${formatNumber(botCount)} bots)`
-              : PHASE_LABEL[progress.phase]}
+            {!isSignedIn && !authLoading
+              ? "Sign in to spawn bots"
+              : progress.phase === "idle" || progress.phase === "done"
+                ? loopMode
+                  ? `∞ Start loop (${formatNumber(botCount)} per batch)`
+                  : `Start swarm (${formatNumber(botCount)} bots)`
+                : PHASE_LABEL[progress.phase]}
           </button>
-          {incognitoBlocked && (
+          {/* Tim 2026-06-08: explain why Start is disabled when not
+            * signed in. The deep-link drops the user into WhatsApp
+            * with the word "login" pre-filled, the same flow used by
+            * the magic-link expired/dead-code recovery surface. */}
+          {!isSignedIn && !authLoading && (
+            <p className="vt-swarm-start-blocked" role="status">
+              Bots are owned by the signed-in user that spawned them, so
+              your swarm rolls up into one profile across browsers and
+              devices. Sign in first:{" "}
+              <a
+                href={whatsAppLoginDeepLink()}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: "#fbbf24", textDecoration: "underline" }}
+              >
+                Text &ldquo;login&rdquo; to Tournamental on WhatsApp
+              </a>
+              , or use the sign-in pill in the top-right.
+            </p>
+          )}
+          {incognitoBlocked && isSignedIn && (
             <p className="vt-swarm-start-blocked" role="status">
               Start is disabled in a private / incognito window. Acknowledge
               the storage warning above, or enable Supabase replication, to

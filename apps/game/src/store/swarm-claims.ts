@@ -53,6 +53,16 @@ export interface UpsertClaimParams {
   pending_calendar_blobs: readonly PendingCalendarBlob[];
   ots_status?: OtsStatus;
   now?: number;
+  /**
+   * The signed-in user that owns this swarm. Required for browser
+   * submissions on /v1/swarm/commit (Tim 2026-06-08); the route
+   * resolves it from the `tnm_session` cookie before calling upsert
+   * and rejects anonymous submissions outright. Migration
+   * 0016_swarm_claims_user.sql added the column nullable for
+   * backward compatibility with any in-flight rows; the totals()
+   * aggregator filters those out.
+   */
+  user_id: string;
 }
 
 export interface LeaderboardRow {
@@ -80,12 +90,12 @@ export class SwarmClaimStore {
             started_at, finished_at, submitted_at,
             ots_status, pending_calendar_blobs,
             upgraded_ots_hex, upgraded_calendar_url, upgraded_at,
-            last_upgrade_attempt_at)
+            last_upgrade_attempt_at, user_id)
          VALUES (@node_id, @run_id, @master_seed, @strategy, @total_bots,
                  @merkle_root, @top_n_claim_json, @claimed_score,
                  @started_at, @finished_at, @submitted_at,
                  @ots_status, @pending_calendar_blobs,
-                 NULL, NULL, NULL, NULL)
+                 NULL, NULL, NULL, NULL, @user_id)
          ON CONFLICT(node_id, run_id) DO UPDATE SET
            master_seed     = excluded.master_seed,
            strategy        = excluded.strategy,
@@ -97,7 +107,8 @@ export class SwarmClaimStore {
            finished_at     = excluded.finished_at,
            submitted_at    = excluded.submitted_at,
            ots_status      = excluded.ots_status,
-           pending_calendar_blobs = excluded.pending_calendar_blobs`,
+           pending_calendar_blobs = excluded.pending_calendar_blobs,
+           user_id         = excluded.user_id`,
       )
       .run({
         node_id: p.node_id,
@@ -113,6 +124,7 @@ export class SwarmClaimStore {
         submitted_at,
         ots_status: status,
         pending_calendar_blobs: JSON.stringify(p.pending_calendar_blobs ?? []),
+        user_id: p.user_id,
       });
     return this.getByCompositeKey(p.node_id, p.run_id) as SwarmClaimRow;
   }
@@ -205,12 +217,18 @@ export class SwarmClaimStore {
     total_swarms: number;
     total_devices: number;
   } {
+    // Tim 2026-06-08: only count rows bound to a signed-in user. The
+    // /v1/swarm/commit handler refuses anonymous submissions outright,
+    // but the WHERE clause defends against legacy null-user rows that
+    // pre-date migration 0016 (the migration also wipes them, so in
+    // practice this should be a no-op filter).
     const row = this.db
       .prepare(
         `SELECT COALESCE(SUM(total_bots), 0) AS total_bots,
                 COUNT(*)                     AS total_swarms,
                 COUNT(DISTINCT node_id)      AS total_devices
-           FROM swarm_claims`,
+           FROM swarm_claims
+          WHERE user_id IS NOT NULL`,
       )
       .get() as {
       total_bots: number;
