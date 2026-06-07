@@ -140,6 +140,18 @@ export default function RunPage(): JSX.Element {
 
           <section className="vt-run-body">
 
+            <h2 className="vt-run-h2" id="builder">Build your swarm</h2>
+            <p>
+              Tap <strong>Start swarm</strong> below to spawn bots in
+              this browser tab. Each press <strong>adds</strong> to
+              your cumulative swarm, the count persists in IndexedDB
+              between sessions. Close the tab and come back tomorrow,
+              your swarm picks up exactly where you left it. Keep
+              pressing to grow it from millions to billions.
+            </p>
+
+            <BrowserSwarm />
+
             <h2 className="vt-run-h2">Bots vs humans, in 60 seconds</h2>
             <p>
               Tournamental is a free-to-play FIFA World Cup 2026
@@ -265,15 +277,6 @@ export default function RunPage(): JSX.Element {
                 </article>
               ))}
             </div>
-
-            <h2 className="vt-run-h2">Console</h2>
-            <p>
-              All four panels below are independent. Hit{" "}
-              <strong>Start swarm</strong> the moment you land if you
-              just want to see workers light up.
-            </p>
-
-            <BrowserSwarm />
 
             <h2 className="vt-run-h2">Can a million bots get a perfect bracket?</h2>
             <p>

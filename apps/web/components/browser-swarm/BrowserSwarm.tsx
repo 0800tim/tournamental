@@ -228,6 +228,15 @@ export default function BrowserSwarm({
   const [stats, setStats] = useState<SwarmStats>(INITIAL_STATS);
   const [credentials, setCredentials] = useState<NodeCredentials | null>(null);
 
+  // Tim 2026-06-07: persistent cumulative swarm cursor. Each press of
+  // Start ADDS botCount bots starting from next_bot_index, then writes
+  // back so the next press continues. Survives tab close + reopen via
+  // the IndexedDB swarm_state object store.
+  const [swarmTotal, setSwarmTotal] = useState<number>(0);
+  const [batchesCommitted, setBatchesCommitted] = useState<number>(0);
+  const [lastRunAt, setLastRunAt] = useState<string | null>(null);
+  const nextBotIndexRef = useRef<number>(0);
+
   const persistenceRef = useRef<Persistence>(defaultPersistence());
   const workersRef = useRef<Worker[]>([]);
   const runIdRef = useRef<string>("");
@@ -242,6 +251,26 @@ export default function BrowserSwarm({
       .loadCredentials()
       .then((c) => {
         if (!cancelled && c) setCredentials(c);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Tim 2026-06-07: load the persistent swarm cursor on mount so each
+  // press of Start picks up where the last one left off (across tab
+  // close + reopen).
+  useEffect(() => {
+    let cancelled = false;
+    persistenceRef.current
+      .loadSwarmState()
+      .then((s) => {
+        if (cancelled) return;
+        nextBotIndexRef.current = s.next_bot_index;
+        setSwarmTotal(s.total_bots_generated);
+        setBatchesCommitted(s.batches_committed);
+        setLastRunAt(s.last_run_at_utc);
       })
       .catch(() => {});
     return () => {
@@ -361,9 +390,15 @@ export default function BrowserSwarm({
         }
       };
 
+      // Tim 2026-06-07: offset every worker's bot index range by
+      // nextBotIndexRef.current so successive presses of Start
+      // accumulate rather than overwrite. Bot 0 is the first bot the
+      // user EVER generated on this device; bot N+1 is generated on
+      // the next press after N.
+      const offset = nextBotIndexRef.current;
       for (let i = 0; i < cores; i++) {
-        const start = i * perWorker;
-        const end = Math.min(botCount, start + perWorker);
+        const start = offset + i * perWorker;
+        const end = offset + Math.min(botCount, (i + 1) * perWorker);
         if (start >= end) {
           finished++;
           continue;
@@ -493,6 +528,27 @@ export default function BrowserSwarm({
       merkle_root: topMerkle,
       federation_rank: federationRank,
     });
+
+    // Tim 2026-06-07: advance the persistent swarm cursor + bump the
+    // visible cumulative total. The next press of Start picks up from
+    // here.
+    const newNextIndex = nextBotIndexRef.current + totalBots;
+    const newTotalEverGenerated = newNextIndex; // bot 0 is the first ever generated
+    const newBatchesCommitted = batchesCommitted + 1;
+    const runAt = new Date().toISOString();
+    nextBotIndexRef.current = newNextIndex;
+    setSwarmTotal(newTotalEverGenerated);
+    setBatchesCommitted(newBatchesCommitted);
+    setLastRunAt(runAt);
+    await persistenceRef.current
+      .saveSwarmState({
+        next_bot_index: newNextIndex,
+        total_bots_generated: newTotalEverGenerated,
+        last_run_at_utc: runAt,
+        batches_committed: newBatchesCommitted,
+      })
+      .catch(() => {});
+
     setProgress((p) => ({
       ...p,
       phase: "done",
@@ -500,6 +556,7 @@ export default function BrowserSwarm({
       picks_made: totalPicks,
     }));
   }, [
+    batchesCommitted,
     botCount,
     credentials,
     demoMatches,
@@ -684,8 +741,37 @@ export default function BrowserSwarm({
         </FieldsetCard>
       </div>
 
+      <div className="vt-swarm-cumulative">
+        <div className="vt-swarm-cumulative-row">
+          <div>
+            <p className="vt-swarm-cumulative-label">Your swarm so far</p>
+            <p className="vt-swarm-cumulative-count">
+              {formatNumber(swarmTotal)} <span>bots</span>
+            </p>
+          </div>
+          <div className="vt-swarm-cumulative-meta">
+            <p>
+              <strong>{batchesCommitted}</strong> batches committed
+              {lastRunAt && (
+                <>
+                  {" "}· last run {new Date(lastRunAt).toLocaleString()}
+                </>
+              )}
+            </p>
+            <p>
+              Stored in <strong>IndexedDB</strong> on this device
+              {supabaseConfig && supabaseStatus === "ok" && (
+                <> + your Supabase project</>
+              )}.
+              Press <strong>Start swarm</strong> again to add more.
+              Close the tab and the count persists.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="vt-swarm-live" aria-live="polite">
-        <h2 className="vt-swarm-h2">Live</h2>
+        <h2 className="vt-swarm-h2">Live (this run)</h2>
         <div className="vt-swarm-stats">
           <Stat label="Phase" value={PHASE_LABEL[progress.phase]} />
           <Stat

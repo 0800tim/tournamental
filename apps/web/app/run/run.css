@@ -506,3 +506,57 @@
 .vt-run-list strong {
   color: #ffffff;
 }
+
+/* ---------- cumulative swarm banner (Tim 2026-06-07) ---------- */
+
+.vt-swarm-cumulative {
+  margin: 0 0 24px;
+  padding: 22px 24px;
+  background: linear-gradient(180deg, rgba(220, 169, 75, 0.12) 0%, rgba(220, 169, 75, 0.04) 100%);
+  border: 1px solid rgba(220, 169, 75, 0.45);
+  border-radius: 12px;
+}
+.vt-swarm-cumulative-row {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.vt-swarm-cumulative-label {
+  margin: 0 0 4px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+}
+.vt-swarm-cumulative-count {
+  margin: 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(36px, 6vw, 56px);
+  font-weight: 500;
+  line-height: 1;
+  color: #ffffff;
+  letter-spacing: -0.015em;
+}
+.vt-swarm-cumulative-count span {
+  font-size: 18px;
+  color: #c7d0e6;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+  margin-left: 6px;
+}
+.vt-swarm-cumulative-meta {
+  flex: 1;
+  min-width: 240px;
+}
+.vt-swarm-cumulative-meta p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.55;
+  color: #c7d0e6;
+}
+.vt-swarm-cumulative-meta strong {
+  color: #f6c64f;
+  font-weight: 500;
+}

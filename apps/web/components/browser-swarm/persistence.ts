@@ -25,12 +25,16 @@ import type {
 } from "./types";
 
 const DB_NAME = "tournamental-browser-swarm";
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORE_BOT = "bot";
 const STORE_PICK = "bot_pick";
 const STORE_COMMIT = "commit_log";
 const STORE_CREDS = "node_creds";
+// Tim 2026-06-07: persistent counter for cumulative swarm across button
+// presses + tab reopens. Single row keyed "swarm" with next_bot_index +
+// total_bots_generated + last_committed_at.
+const STORE_SWARM_STATE = "swarm_state";
 
 function isIndexedDBAvailable(): boolean {
   return typeof indexedDB !== "undefined";
@@ -60,6 +64,9 @@ function openDb(): Promise<IDBDatabase> {
       }
       if (!db.objectStoreNames.contains(STORE_CREDS)) {
         db.createObjectStore(STORE_CREDS, { keyPath: "node_id" });
+      }
+      if (!db.objectStoreNames.contains(STORE_SWARM_STATE)) {
+        db.createObjectStore(STORE_SWARM_STATE, { keyPath: "key" });
       }
     };
     req.onsuccess = () => resolve(req.result);
@@ -120,6 +127,19 @@ async function clearStore(storeName: string): Promise<void> {
   }
 }
 
+export interface SwarmState {
+  /** Index of the next bot to generate (0 on a fresh DB). Each run
+   * starts from here and writes back next_bot_index = previous + run_size. */
+  next_bot_index: number;
+  /** Cumulative count of bots ever generated in this swarm. Mirrors
+   * next_bot_index but kept separately for clarity in UI. */
+  total_bots_generated: number;
+  /** ISO timestamp of last successful batch persist. */
+  last_run_at_utc: string | null;
+  /** Total committed batches (post-kickoff merkle roots posted). */
+  batches_committed: number;
+}
+
 export interface Persistence {
   saveBots(bots: readonly BotRecord[]): Promise<void>;
   savePicks(picks: readonly BotPick[]): Promise<void>;
@@ -128,6 +148,10 @@ export interface Persistence {
   loadCredentials(): Promise<NodeCredentials | null>;
   countBots(): Promise<number>;
   countPicks(): Promise<number>;
+  /** Read the persistent swarm cursor. Returns zeros on a fresh DB. */
+  loadSwarmState(): Promise<SwarmState>;
+  /** Persist the swarm cursor after a successful run. */
+  saveSwarmState(state: SwarmState): Promise<void>;
   reset(): Promise<void>;
 }
 
@@ -156,10 +180,39 @@ export const indexedDbPersistence: Persistence = {
     const all = await readAll<BotPick>(STORE_PICK);
     return all.length;
   },
+  async loadSwarmState() {
+    if (!isIndexedDBAvailable()) {
+      return { next_bot_index: 0, total_bots_generated: 0, last_run_at_utc: null, batches_committed: 0 };
+    }
+    const db = await openDb();
+    try {
+      const row = await new Promise<any>((resolve, reject) => {
+        const tx = db.transaction(STORE_SWARM_STATE, "readonly");
+        const req = tx.objectStore(STORE_SWARM_STATE).get("swarm");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error ?? new Error("IndexedDB read failed"));
+      });
+      if (!row) {
+        return { next_bot_index: 0, total_bots_generated: 0, last_run_at_utc: null, batches_committed: 0 };
+      }
+      return {
+        next_bot_index: row.next_bot_index ?? 0,
+        total_bots_generated: row.total_bots_generated ?? 0,
+        last_run_at_utc: row.last_run_at_utc ?? null,
+        batches_committed: row.batches_committed ?? 0,
+      };
+    } finally {
+      db.close();
+    }
+  },
+  async saveSwarmState(state) {
+    await writeMany(STORE_SWARM_STATE, [{ key: "swarm", ...state }]);
+  },
   async reset() {
     await clearStore(STORE_BOT);
     await clearStore(STORE_PICK);
     await clearStore(STORE_COMMIT);
+    await clearStore(STORE_SWARM_STATE);
     // Deliberately preserve credentials so a returning user keeps their node_id.
   },
 };
@@ -183,6 +236,10 @@ export const noopPersistence: Persistence = {
   async countPicks() {
     return 0;
   },
+  async loadSwarmState() {
+    return { next_bot_index: 0, total_bots_generated: 0, last_run_at_utc: null, batches_committed: 0 };
+  },
+  async saveSwarmState() {},
   async reset() {},
 };
 
