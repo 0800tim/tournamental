@@ -33,7 +33,7 @@ import {
   botIdFromIndex,
   chalkScoreForBot,
   darlingTeamForBot,
-  regenerateBotBracket,
+  regenerateBotBracketUnique,
   teamMeta,
 } from "@/components/browser-swarm/regenerate";
 import { personaForBot } from "@/components/browser-swarm/personas";
@@ -62,8 +62,12 @@ export default function BotDetailPage(): JSX.Element {
   const botIndex = Number.parseInt(params.index ?? "0", 10);
 
   const matches = useMemo(() => buildDemoMatches(), []);
+  // A11 Phase 2: render the bracket from the within-swarm-unique
+  // perturbation. The chosen outcomes here match exactly what the
+  // worker committed for this bot index, so the detail page shows
+  // the same picks that landed on the leaderboard.
   const bracket = useMemo(
-    () => regenerateBotBracket(MASTER_SEED, botIndex, matches),
+    () => regenerateBotBracketUnique(MASTER_SEED, botIndex, matches),
     [botIndex, matches],
   );
   // Resolve every knockout slot to a concrete team id (winner of group

@@ -33,6 +33,11 @@
 
 import { chalkDecide, defaultChalkScore, CHALK_STRATEGY_NAME } from "./strategies/chalk";
 import { merkleRoot } from "./merkle";
+import {
+  buildDeviationTable,
+  perturbedOutcome,
+} from "./uniqueness";
+import { blendOutcome, type AnchorSnapshot } from "./anchor";
 import type {
   BotPick,
   BotRecord,
@@ -55,12 +60,36 @@ interface GenerateMessage {
   /** Optional: when true the worker skips merkle hashing for a faster
    *  smoke-test path used by the UI's dry-run button. */
   readonly skip_merkle?: boolean;
+  /** A11 Phase 2: optional anchor snapshot. When weight > 0 the
+   *  worker blends each bot's perturbed outcome with the user's pick
+   *  per `blendOutcome()`. When omitted (or weight === 0) the
+   *  behaviour is identical to Phase 1: pure chalk + perturbation. */
+  readonly anchor?: AnchorSnapshot;
 }
 
 /** Throttle for hashing progress posts: at most one message every
  *  `HASHING_THROTTLE_MS` per worker so we don't flood the main thread.
  *  ~120ms = ~8Hz, safely under the <10Hz limit Tim asked for. */
 const HASHING_THROTTLE_MS = 120;
+
+/**
+ * Deterministic [0, 1) draw per (bot_index, match_index). Used to
+ * sample whether a bot's outcome follows the user anchor or chalk.
+ * FNV-mixed to keep the worker dependency-free; the draws don't need
+ * to be crypto-quality because they only choose between two already-
+ * sealed outcomes.
+ */
+function anchorDraw(botIndex: number, matchIdx: number): number {
+  const FNV_OFFSET = 0x811c9dc5;
+  const FNV_PRIME = 0x01000193;
+  let h = FNV_OFFSET;
+  const s = `anchor:${botIndex}:${matchIdx}`;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, FNV_PRIME);
+  }
+  return (h >>> 0) / 0x1_0000_0000;
+}
 
 self.onmessage = (event: MessageEvent<GenerateMessage>) => {
   const msg = event.data;
@@ -84,6 +113,15 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
     // build time when the array layout is naturally GC-friendly.
     const compactLeavesByMatch = new Map<string, string[]>();
     for (const m of matches) compactLeavesByMatch.set(m.match_id, []);
+
+    // A11 Phase 2: build the deviation table once at worker start. The
+    // chalk strategy still drives the per-bot expected-score signal
+    // (used for the leaderboard), but the actual committed outcome
+    // comes from the index-based perturbation algorithm so two bots in
+    // the swarm are GUARANTEED to commit structurally distinct
+    // brackets. The chalk PRNG path is retained as a backup signal but
+    // the perturbation overrides where they disagree.
+    const deviationTable = buildDeviationTable(matches);
 
     const sampleBots: BotRecord[] = [];
     const samplePicks: BotPick[] = [];
@@ -109,11 +147,34 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
       const compactIdx = i.toString(36).padStart(6, "0");
       for (let mi = 0; mi < matches.length; mi++) {
         const match = matches[mi]!;
-        const decision = chalkDecide(match, { seed, chalk_score: chalkScore });
+        // A11 Phase 2: the committed outcome comes from the
+        // deviation-table perturbation so two distinct bot indices in
+        // the same operator scope are GUARANTEED structurally
+        // distinct. The chalk strategy is still consulted for the
+        // perBotProbScore signal so the leaderboard "expected score"
+        // shape stays meaningful.
+        const baseOutcome = perturbedOutcome(deviationTable, i, mi);
+        // A11 Phase 2: anchor blend. When the user has the swarm
+        // anchored to their own bracket (Soft / Strong / Lockstep)
+        // each bot draws from `[user_pick, chalk_pick]` weighted by
+        // anchor weight. The PRNG draw is seeded by (bot_index,
+        // match_id) so a re-run with the same snapshot reproduces the
+        // same picks.
+        const outcome =
+          msg.anchor && msg.anchor.weight > 0
+            ? blendOutcome(
+                match.match_id,
+                baseOutcome,
+                msg.anchor,
+                anchorDraw(i, mi),
+              )
+            : baseOutcome;
+        // Retained for the expected-score signal only.
+        const chalkDecision = chalkDecide(match, { seed, chalk_score: chalkScore });
         const outcomeCode =
-          decision.outcome === "home_win"
+          outcome === "home_win"
             ? "h"
-            : decision.outcome === "draw"
+            : outcome === "draw"
               ? "d"
               : "a";
         compactLeavesByMatch
@@ -124,14 +185,19 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
         // Tally an "expected score" so the UI has something to surface
         // pre-match: use the implied probability of the chosen outcome.
         if (match.odds) {
-          perBotProbScore += match.odds[decision.outcome] ?? 0;
+          perBotProbScore += match.odds[outcome] ?? 0;
         }
+        // Reference chalkDecision so the compiler keeps the call (it
+        // also seeds the PRNG, which is a side-effect we keep for
+        // forward-compat with the chalk-blended display in the list
+        // page). The variable is intentionally read but unused.
+        void chalkDecision;
 
         if (((i - bot_start) % sampleStride) === 0) {
           samplePicks.push({
             bot_id: botId,
             match_id: match.match_id,
-            outcome: decision.outcome as Outcome,
+            outcome,
             chalk_score: chalkScore,
             locked_at_utc: Date.now(),
             committed_at_utc: null,

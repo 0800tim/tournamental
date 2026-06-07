@@ -31,6 +31,11 @@ import type {
 } from "@tournamental/bracket-engine";
 
 import type { MatchOdds, MatchSpec, Outcome } from "./types";
+import {
+  buildDeviationTable,
+  perturbedOutcome,
+  type DeviationTable,
+} from "./uniqueness";
 
 /**
  * Stable master seed for the browser-swarm. All bot IDs and pick
@@ -447,4 +452,46 @@ export function regenerateBotBracket(
     match,
     pick: regenerateBotPick(masterSeed, botIndex, match),
   }));
+}
+
+/**
+ * Unique-by-construction variant of `regenerateBotBracket`. The picked
+ * outcome for each match is derived from the swarm's index-based
+ * perturbation table (`uniqueness.ts`) so two distinct bot indices are
+ * guaranteed to produce structurally distinct 104-outcome brackets.
+ * The gold/silver/bronze ranking still comes from the chalk-blended
+ * probabilities so the display surface keeps the existing variety
+ * signal.
+ *
+ * Use this in the worker + the detail page when the run is meant to be
+ * federated; `regenerateBotBracket` (above) is kept for backwards
+ * compatibility with the list page where the chalk-blended "chosen"
+ * outcome is fine for the summary medal columns.
+ */
+export function regenerateBotBracketUnique(
+  masterSeed: string,
+  botIndex: number,
+  matches: readonly MatchSpec[],
+  /** Optional pre-built deviation table. The list page memoises the
+   * table across rows; per-page callers can pass it in to avoid
+   * rebuilding for every bot. Cheap to build (one pass over matches)
+   * but cheaper still to share. */
+  deviationTable?: DeviationTable,
+): ReadonlyArray<{ match: MatchSpec; pick: RankedPick }> {
+  const table = deviationTable ?? buildDeviationTable(matches);
+  return matches.map((match, idx) => {
+    const base = regenerateBotPick(masterSeed, botIndex, match);
+    const unique = perturbedOutcome(table, botIndex, idx);
+    if (unique === base.chosen) return { match, pick: base };
+    // Override the chosen outcome but keep the ranking for display.
+    const newProb = base.ranking.find((r) => r.outcome === unique)?.probability ?? 0;
+    return {
+      match,
+      pick: {
+        chosen: unique,
+        ranking: base.ranking,
+        chosenProbability: newProb,
+      },
+    };
+  });
 }

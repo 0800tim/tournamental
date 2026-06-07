@@ -55,6 +55,15 @@ import {
 } from "./persistence";
 import { MASTER_SEED, buildDemoMatches } from "./regenerate";
 import {
+  ANCHOR_LABEL_BY_MODE,
+  ANCHOR_TOURNAMENT_ID,
+  ANCHOR_WEIGHT_BY_MODE,
+  captureAnchorSnapshot,
+  DEFAULT_ANCHOR_MODE,
+  type AnchorMode,
+  type AnchorSnapshot,
+} from "./anchor";
+import {
   probeSupabase,
   SUPABASE_SCHEMA_SQL,
   supabasePersistence,
@@ -121,6 +130,28 @@ const INITIAL_STATS: SwarmStats = {
 };
 
 const CORES_FALLBACK = 4;
+
+/**
+ * Reverse-map a stored anchor_weight (0 / 0.4 / 0.75 / 1) back to its
+ * AnchorMode enum value. Anything in between snaps to the closest
+ * preset so the slider is robust to future tweaks of the weight
+ * constants.
+ */
+function modeFromWeight(weight: number): AnchorMode {
+  const entries = Object.entries(ANCHOR_WEIGHT_BY_MODE) as ReadonlyArray<
+    [AnchorMode, number]
+  >;
+  let best: AnchorMode = DEFAULT_ANCHOR_MODE;
+  let bestDist = Number.POSITIVE_INFINITY;
+  for (const [mode, w] of entries) {
+    const d = Math.abs(w - weight);
+    if (d < bestDist) {
+      bestDist = d;
+      best = mode;
+    }
+  }
+  return best;
+}
 
 function workerCount(): number {
   if (typeof navigator !== "undefined" && navigator.hardwareConcurrency) {
@@ -257,6 +288,14 @@ export default function BrowserSwarm({
   const [lastRunAt, setLastRunAt] = useState<string | null>(null);
   const nextBotIndexRef = useRef<number>(0);
 
+  // A11 Phase 2: user-anchored swarm slider. Default mode is read from
+  // IndexedDB on mount; subsequent changes persist back so the slider
+  // position survives a tab close. The user's bracket draft itself
+  // lives in localStorage (see apps/web/lib/bracket/storage.ts) and is
+  // re-snapshotted on every Start press.
+  const [anchorMode, setAnchorMode] = useState<AnchorMode>(DEFAULT_ANCHOR_MODE);
+  const [lastAnchorHash, setLastAnchorHash] = useState<string | null>(null);
+
   const persistenceRef = useRef<Persistence>(defaultPersistence());
   const workersRef = useRef<Worker[]>([]);
   const runIdRef = useRef<string>("");
@@ -304,6 +343,10 @@ export default function BrowserSwarm({
         setSwarmTotal(s.total_bots_generated);
         setBatchesCommitted(s.batches_committed);
         setLastRunAt(s.last_run_at_utc);
+        // A11 Phase 2: restore the anchor weight slider.
+        const mode = modeFromWeight(s.anchor_weight ?? 0);
+        setAnchorMode(mode);
+        setLastAnchorHash(s.last_anchor_hash ?? null);
       })
       .catch(() => {});
     return () => {
@@ -380,6 +423,15 @@ export default function BrowserSwarm({
     workerProgressRef.current = new Array(cores).fill(0);
     workerHashingRef.current = new Array(cores).fill(null);
     lastHashingRenderRef.current = 0;
+
+    // A11 Phase 2: capture the user's anchor bracket NOW so each bot
+    // in this batch sees the SAME snapshot. If the user edits their
+    // bracket mid-run, the next batch picks up the new snapshot. The
+    // already-running batch keeps using the captured one.
+    const anchorSnapshot: AnchorSnapshot | undefined =
+      anchorMode === "off"
+        ? undefined
+        : captureAnchorSnapshot(ANCHOR_TOURNAMENT_ID, anchorMode);
 
     setProgress((p) => ({ ...p, phase: "generating" }));
 
@@ -491,6 +543,7 @@ export default function BrowserSwarm({
           run_id: runId,
           strategy,
           matches: demoMatches,
+          anchor: anchorSnapshot,
         });
       }
       if (finished === cores) resolve();
@@ -635,12 +688,16 @@ export default function BrowserSwarm({
     setSwarmTotal(newTotalEverGenerated);
     setBatchesCommitted(newBatchesCommitted);
     setLastRunAt(runAt);
+    const anchorHash = anchorSnapshot?.bracket_hash ?? null;
+    setLastAnchorHash(anchorHash);
     await persistenceRef.current
       .saveSwarmState({
         next_bot_index: newNextIndex,
         total_bots_generated: newTotalEverGenerated,
         last_run_at_utc: runAt,
         batches_committed: newBatchesCommitted,
+        anchor_weight: ANCHOR_WEIGHT_BY_MODE[anchorMode],
+        last_anchor_hash: anchorHash,
       })
       .catch(() => {});
 
@@ -651,6 +708,7 @@ export default function BrowserSwarm({
       picks_made: totalPicks,
     }));
   }, [
+    anchorMode,
     batchesCommitted,
     botCount,
     credentials,
@@ -660,6 +718,31 @@ export default function BrowserSwarm({
     strategy,
     supabaseConfig,
   ]);
+
+  // A11 Phase 2: persist anchor weight whenever the slider changes,
+  // even before the user runs another batch. The persisted value
+  // survives a tab close so the slider position is restored exactly.
+  const onAnchorChange = useCallback(
+    async (mode: AnchorMode) => {
+      setAnchorMode(mode);
+      // Persist without blocking the UI; race conditions are fine
+      // because the next save call (post-run) will overwrite anyway.
+      try {
+        const load = await persistenceRef.current.loadSwarmState();
+        await persistenceRef.current.saveSwarmState({
+          next_bot_index: load.state.next_bot_index,
+          total_bots_generated: load.state.total_bots_generated,
+          last_run_at_utc: load.state.last_run_at_utc,
+          batches_committed: load.state.batches_committed,
+          anchor_weight: ANCHOR_WEIGHT_BY_MODE[mode],
+          last_anchor_hash: load.state.last_anchor_hash,
+        });
+      } catch {
+        // Silent: persistence is best-effort.
+      }
+    },
+    [],
+  );
 
   const onStop = useCallback(() => {
     for (const w of workersRef.current) w.terminate();
@@ -776,7 +859,53 @@ export default function BrowserSwarm({
         </FieldsetCard>
 
         <FieldsetCard
-          title="3. Swarm size"
+          title="3. Anchor to my bracket"
+          subtitle="Blend the chalk strategy with your own bracket draft. Soft / Strong / Lockstep keep the swarm trending toward your picks while perturbation still guarantees uniqueness."
+        >
+          <label className="vt-swarm-label" htmlFor="vt-anchor">
+            Anchor weight:{" "}
+            <strong>{ANCHOR_LABEL_BY_MODE[anchorMode]}</strong>
+          </label>
+          <select
+            id="vt-anchor"
+            className="vt-swarm-input"
+            value={anchorMode}
+            onChange={(e) => void onAnchorChange(e.target.value as AnchorMode)}
+            aria-describedby="vt-anchor-help"
+          >
+            <option value="off">Off (pure chalk + uniqueness)</option>
+            <option value="soft">Soft (40% you, 60% chalk)</option>
+            <option value="strong">Strong (75% you, 25% chalk)</option>
+            <option value="lockstep">Lockstep (100% you)</option>
+          </select>
+          <p
+            id="vt-anchor-help"
+            style={{
+              margin: "8px 0 0",
+              fontSize: 12,
+              color: "#98a0b7",
+              lineHeight: 1.4,
+            }}
+          >
+            Reads your saved bracket from{" "}
+            <code>/world-cup-2026</code>. Each batch you generate
+            snapshots the bracket at that moment, so committed batches
+            stay locked to the snapshot they used. The next batch you
+            run picks up whatever you have saved at that moment.
+            {lastAnchorHash && (
+              <>
+                {" "}Last anchor hash:{" "}
+                <code style={{ color: "#f6c64f" }}>
+                  {lastAnchorHash.slice(0, 16)}
+                </code>
+                .
+              </>
+            )}
+          </p>
+        </FieldsetCard>
+
+        <FieldsetCard
+          title="4. Swarm size"
           subtitle={`Generating across ${cores} CPU cores. Start small, scale up.`}
         >
           <label className="vt-swarm-label" htmlFor="vt-count">
@@ -807,7 +936,7 @@ export default function BrowserSwarm({
         </FieldsetCard>
 
         <FieldsetCard
-          title="4. Run"
+          title="5. Run"
           subtitle="Workers spin up in parallel. Tab stays responsive."
         >
           <button
