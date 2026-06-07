@@ -121,7 +121,12 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
     let lastProgress = t0;
 
     for (let i = bot_start; i < bot_end; i++) {
-      const seed = `${run_id}:${i}`;
+      // Tim 2026-06-07: stable per-bot seed derived from the
+      // MASTER_SEED constant in regenerate.ts. The /run/bots list +
+      // detail pages can now regenerate any bot's bracket from its
+      // index alone without storing picks. run_id stays in the bot_id
+      // for batch traceability but does not affect the picks.
+      const seed = `tournamental-browser-v1:${i}`;
       const chalkScore = defaultChalkScore(seed);
       const botId = `bot-${run_id}-${i}`;
 

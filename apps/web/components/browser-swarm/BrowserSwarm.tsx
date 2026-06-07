@@ -766,6 +766,22 @@ export default function BrowserSwarm({
               Press <strong>Start swarm</strong> again to add more.
               Close the tab and the count persists.
             </p>
+            {swarmTotal > 0 && (
+              <p style={{ marginTop: 6 }}>
+                <a
+                  href="/run/bots"
+                  style={{
+                    color: "#f6c64f",
+                    fontFamily: '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+                    fontSize: 12,
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  View all my bots ({formatNumber(swarmTotal)}) →
+                </a>
+              </p>
+            )}
           </div>
         </div>
       </div>
