@@ -53,6 +53,7 @@ import {
   defaultPersistence,
   type Persistence,
 } from "./persistence";
+import { MASTER_SEED, buildDemoMatches } from "./regenerate";
 import {
   probeSupabase,
   SUPABASE_SCHEMA_SQL,
@@ -62,58 +63,43 @@ import type {
   BotPick,
   BotRecord,
   CommitLogRow,
+  HashingSnapshot,
   MatchSpec,
   NodeCredentials,
   StrategyName,
   SupabaseConfig,
+  SwarmCompletionPayload,
   SwarmProgress,
   SwarmStats,
+  WorkerErrorMessage,
+  WorkerHashingMessage,
+  WorkerProgressMessage,
+  WorkerSliceDoneMessage,
 } from "./types";
 
 const PHASE_LABEL: Record<SwarmProgress["phase"], string> = {
   idle: "Idle",
   preparing: "Preparing workers",
   generating: "Generating bots",
-  committing: "Building merkle roots",
+  hashing: "Sealing cryptographic proof",
+  committing: "Combining merkle roots",
   federating: "Publishing to federation",
   done: "Done",
   error: "Error",
 };
 
-interface SliceDonePayload {
-  kind: "slice_done";
-  worker_index: number;
-  run_id: string;
-  merkle_roots_by_match: Record<string, string>;
-  best_bot_score: number;
-  bots_generated: number;
-  picks_made: number;
-  elapsed_ms: number;
-  sample_bots: BotRecord[];
-  sample_picks: BotPick[];
-}
+type WorkerMessage =
+  | WorkerProgressMessage
+  | WorkerHashingMessage
+  | WorkerSliceDoneMessage
+  | WorkerErrorMessage;
 
-interface ProgressPayload {
-  kind: "progress";
-  worker_index: number;
-  bots_generated: number;
-  picks_made: number;
-  current_match_id: string | null;
-}
-
-interface ErrorPayload {
-  kind: "error";
-  worker_index: number;
-  message: string;
-}
-
-type WorkerMessage = SliceDonePayload | ProgressPayload | ErrorPayload;
-
-// Tim 2026-06-07: real 104-match WC 2026 fixtures now plumbed through
-// regenerate.ts (single source of truth shared with /run/bots list +
-// detail pages). The worker generates 104 picks per bot, the list +
-// detail pages regenerate the same 104 picks from the bot index.
-import { buildDemoMatches } from "./regenerate";
+// Tim 2026-06-07: real WC 2026 fixtures (72 group + 32 knockout = 104
+// matches) come from `./regenerate.buildDemoMatches()`. The previous
+// local 12-team round-robin stub here was generating 64 fake fixtures
+// and biasing every bot toward the same top-3 winners. Deleted; the
+// imported version uses A1's loadFixtures2026() + FIFA-rank-derived
+// odds + per-bot "darling team" variety nudge.
 
 const INITIAL_PROGRESS: SwarmProgress = {
   phase: "idle",
@@ -124,6 +110,7 @@ const INITIAL_PROGRESS: SwarmProgress = {
   errors: [],
   throughput: 0,
   started_at: null,
+  hashing: null,
 };
 
 const INITIAL_STATS: SwarmStats = {
@@ -153,6 +140,73 @@ function formatDuration(ms: number): string {
   const m = Math.floor(s / 60);
   const rest = Math.round(s - m * 60);
   return `${m}m ${rest}s`;
+}
+
+/**
+ * Combine per-worker hashing snapshots into one swarm-wide snapshot
+ * the live panel renders.
+ *
+ *   - slices_done counts workers whose snapshot is null AFTER ever
+ *     having reported (i.e. they've completed). We can't know that
+ *     from a null alone (a worker might not have started hashing yet),
+ *     so we infer from slice_index/slice_total of the latest message:
+ *     workers that hit slice_total - 1 with leaves_remaining 0 are
+ *     "done" with hashing.
+ *   - level shows the deepest level any active worker has reached;
+ *     this is the "we are X% through the tree" signal.
+ *   - leaves_remaining sums across active workers so a 16-worker swarm
+ *     reports total in-flight hashes.
+ */
+function aggregateHashing(
+  perWorker: ReadonlyArray<WorkerHashingMessage | null>,
+  matchCount: number,
+): HashingSnapshot {
+  let slicesDone = 0;
+  let slicesActiveMin = matchCount;
+  let level = 0;
+  let totalLevels = 0;
+  let leavesRemaining = 0;
+  let levelSize = 0;
+  let any = false;
+  for (const snap of perWorker) {
+    if (!snap) continue;
+    any = true;
+    // A worker that just finished the last leaf of the last slice
+    // reports slice_index = slice_total - 1, leaves_remaining = 0,
+    // total_levels = 0 (the sentinel beat). Count those as done.
+    const isLastBeat =
+      snap.leaves_remaining === 0 &&
+      snap.total_levels === 0 &&
+      snap.slice_index === snap.slice_total - 1;
+    if (isLastBeat) {
+      slicesDone += snap.slice_total;
+    } else {
+      slicesDone += snap.slice_index;
+      slicesActiveMin = Math.min(slicesActiveMin, snap.slice_index);
+      level = Math.max(level, snap.level);
+      totalLevels = Math.max(totalLevels, snap.total_levels);
+      leavesRemaining += snap.leaves_remaining;
+      levelSize += snap.level_size;
+    }
+  }
+  if (!any) {
+    return {
+      slices_done: 0,
+      slices_total: matchCount * perWorker.length,
+      level: 0,
+      total_levels: 0,
+      leaves_remaining: 0,
+      level_size: 0,
+    };
+  }
+  return {
+    slices_done: slicesDone,
+    slices_total: matchCount * perWorker.length,
+    level,
+    total_levels: totalLevels,
+    leaves_remaining: leavesRemaining,
+    level_size: levelSize,
+  };
 }
 
 export interface BrowserSwarmProps {
@@ -186,6 +240,13 @@ export default function BrowserSwarm({
   const [progress, setProgress] = useState<SwarmProgress>(INITIAL_PROGRESS);
   const [stats, setStats] = useState<SwarmStats>(INITIAL_STATS);
   const [credentials, setCredentials] = useState<NodeCredentials | null>(null);
+  /** Final swarm-completion payload, populated when the run finishes.
+   *  A3 (federation.ts) consumes this from the React state in a follow-
+   *  up wire-up; for now we expose it to the UI so the merkle root is
+   *  shown copyable + with an explainer tooltip. */
+  const [completionPayload, setCompletionPayload] =
+    useState<SwarmCompletionPayload | null>(null);
+  const [copiedRoot, setCopiedRoot] = useState(false);
 
   // Tim 2026-06-07: persistent cumulative swarm cursor. Each press of
   // Start ADDS botCount bots starting from next_bot_index, then writes
@@ -201,7 +262,16 @@ export default function BrowserSwarm({
   const runIdRef = useRef<string>("");
   const throughputSamplesRef = useRef<Array<{ t: number; bots: number }>>([]);
   const workerProgressRef = useRef<number[]>([]);
-  const sliceResultsRef = useRef<SliceDonePayload[]>([]);
+  const sliceResultsRef = useRef<WorkerSliceDoneMessage[]>([]);
+  /** Per-worker hashing snapshot: the last hashing message we got from
+   *  worker i. We aggregate across these to produce the
+   *  SwarmProgress.hashing snapshot. `null` = worker not hashing right
+   *  now (still generating or already done). */
+  const workerHashingRef = useRef<Array<WorkerHashingMessage | null>>([]);
+  /** Throttle for setting hashing state on the React side. The workers
+   *  are already at ~8Hz each; aggregating N workers means we don't
+   *  need to update React faster than ~10Hz to feel live. */
+  const lastHashingRenderRef = useRef<number>(0);
 
   // Load cached credentials on first mount.
   useEffect(() => {
@@ -224,8 +294,12 @@ export default function BrowserSwarm({
     let cancelled = false;
     persistenceRef.current
       .loadSwarmState()
-      .then((s) => {
+      .then((load) => {
         if (cancelled) return;
+        // A6 (Tim 2026-06-07) wrapped the flat state under `.state` so
+        // the loader can also signal a fixture-version wipe via
+        // `reset_for_version_change`. Unpack here.
+        const s = load.state;
         nextBotIndexRef.current = s.next_bot_index;
         setSwarmTotal(s.total_bots_generated);
         setBatchesCommitted(s.batches_committed);
@@ -266,19 +340,28 @@ export default function BrowserSwarm({
   }, []);
 
   const onStart = useCallback(async () => {
-    if (progress.phase === "generating" || progress.phase === "committing") return;
+    if (
+      progress.phase === "generating" ||
+      progress.phase === "hashing" ||
+      progress.phase === "committing" ||
+      progress.phase === "federating"
+    )
+      return;
 
     const runId = `run-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     runIdRef.current = runId;
     sliceResultsRef.current = [];
     throughputSamplesRef.current = [];
 
+    const progressStartedAt = Date.now();
     setProgress({
       ...INITIAL_PROGRESS,
       phase: "preparing",
-      started_at: Date.now(),
+      started_at: progressStartedAt,
     });
     setStats(INITIAL_STATS);
+    setCompletionPayload(null);
+    setCopiedRoot(false);
 
     // Register / re-use credentials.
     const fed = new FederationClient({ dry_run: dryRun });
@@ -295,6 +378,8 @@ export default function BrowserSwarm({
     const cores = workerCount();
     const perWorker = Math.ceil(botCount / cores);
     workerProgressRef.current = new Array(cores).fill(0);
+    workerHashingRef.current = new Array(cores).fill(null);
+    lastHashingRenderRef.current = 0;
 
     setProgress((p) => ({ ...p, phase: "generating" }));
 
@@ -334,8 +419,30 @@ export default function BrowserSwarm({
             current_match_id: msg.current_match_id,
             throughput,
           }));
+        } else if (msg.kind === "hashing") {
+          // Tim 2026-06-07: surface per-batch merkle progress so the
+          // hashing phase no longer looks frozen. We store the most
+          // recent message per worker, then aggregate.
+          workerHashingRef.current[msg.worker_index] = msg;
+          const now = performance.now();
+          // Throttle React re-renders to ~10Hz regardless of how many
+          // workers report. Individual workers are already at ~8Hz.
+          if (now - lastHashingRenderRef.current < 100) return;
+          lastHashingRenderRef.current = now;
+          const snap = aggregateHashing(
+            workerHashingRef.current,
+            demoMatches.length,
+          );
+          setProgress((p) => ({
+            ...p,
+            phase: p.phase === "generating" ? "hashing" : p.phase,
+            hashing: snap,
+          }));
         } else if (msg.kind === "slice_done") {
           sliceResultsRef.current.push(msg);
+          // Mark this worker as no longer hashing so the aggregate
+          // doesn't include its stale snapshot.
+          workerHashingRef.current[msg.worker_index] = null;
           finished++;
           if (finished === cores) resolve();
         } else if (msg.kind === "error") {
@@ -395,8 +502,10 @@ export default function BrowserSwarm({
     workersRef.current = [];
 
     // Combine per-worker, per-match roots into a single root per match
-    // (sorted-pair sha256, same shape as everywhere else).
-    setProgress((p) => ({ ...p, phase: "committing" }));
+    // (sorted-pair sha256, same shape as everywhere else). Clear the
+    // hashing snapshot now that workers are done so the UI shows the
+    // combining phase cleanly.
+    setProgress((p) => ({ ...p, phase: "committing", hashing: null }));
 
     const allSlices = sliceResultsRef.current;
     const totalBots = allSlices.reduce((s, r) => s + r.bots_generated, 0);
@@ -436,6 +545,17 @@ export default function BrowserSwarm({
       }
     }
 
+    // Tim 2026-06-07: roll the per-match roots up into one swarm-wide
+    // merkle root. This is what we surface to the user as "your swarm's
+    // proof" — it commits to every per-match root, which commits to
+    // every per-worker slice root, which commits to every pick. The
+    // OpenTimestamps + Bitcoin anchor in the federation layer (A3) only
+    // needs THIS one hex string.
+    const matchRootsOrdered = demoMatches.map(
+      (m) => combinedRoots[m.match_id] ?? "",
+    );
+    const swarmMerkleRoot = await merkleRoot(matchRootsOrdered);
+
     setProgress((p) => ({
       ...p,
       merkle_roots_built: merkleBuilt,
@@ -445,11 +565,9 @@ export default function BrowserSwarm({
     // Pick the first match as the representative commit for the demo
     // and federate that. Real flow per-match is wired up by Agent A09.
     const firstMatch = demoMatches[0];
-    let topMerkle: string | null = null;
     let federationRank: number | null = null;
     if (firstMatch && creds) {
       const root = combinedRoots[firstMatch.match_id]!;
-      topMerkle = root;
       const commitRow: CommitLogRow = {
         match_id: firstMatch.match_id,
         merkle_root: root,
@@ -484,9 +602,27 @@ export default function BrowserSwarm({
     setStats({
       best_bot_score: bestScore,
       bots_still_perfect: totalBots,
-      merkle_root: topMerkle,
+      merkle_root: swarmMerkleRoot,
       federation_rank: federationRank,
     });
+
+    // Build the swarm completion payload A3 (federation.ts) will pick
+    // up. Shape is the contract; A3 fills `top_N_claim` when the
+    // scoring rule lands.
+    const startedAt = progressStartedAt;
+    const finishedAt = Date.now();
+    const completion: SwarmCompletionPayload = {
+      master_seed: MASTER_SEED,
+      run_id: runId,
+      total_bots: totalBots,
+      merkle_root: swarmMerkleRoot,
+      strategy,
+      started_at: startedAt,
+      finished_at: finishedAt,
+      per_match_roots: combinedRoots,
+      best_bot_score: bestScore,
+    };
+    setCompletionPayload(completion);
 
     // Tim 2026-06-07: advance the persistent swarm cursor + bump the
     // visible cumulative total. The next press of Start picks up from
@@ -680,6 +816,7 @@ export default function BrowserSwarm({
             onClick={onStart}
             disabled={
               progress.phase === "generating" ||
+              progress.phase === "hashing" ||
               progress.phase === "committing" ||
               progress.phase === "federating"
             }
@@ -775,6 +912,18 @@ export default function BrowserSwarm({
             botCount > 0 ? Math.min(1, progress.bots_generated / botCount) : 0
           }
         />
+        <PicksLine
+          picks={progress.picks_made}
+          total={botCount * demoMatches.length}
+        />
+        {progress.phase === "hashing" && progress.hashing && (
+          <SealingBanner snap={progress.hashing} />
+        )}
+        {progress.phase === "committing" && (
+          <p className="vt-swarm-sealing-blurb">
+            Combining per-match roots into a single swarm proof.
+          </p>
+        )}
         <div className="vt-swarm-stats vt-swarm-stats--secondary">
           <Stat
             label="Best bot (chalk score)"
@@ -809,6 +958,23 @@ export default function BrowserSwarm({
               <li key={i}>{e}</li>
             ))}
           </ul>
+        )}
+        {completionPayload && (
+          <MerkleRootCard
+            root={completionPayload.merkle_root}
+            copied={copiedRoot}
+            onCopy={async () => {
+              try {
+                await navigator.clipboard.writeText(
+                  completionPayload.merkle_root,
+                );
+                setCopiedRoot(true);
+                setTimeout(() => setCopiedRoot(false), 2000);
+              } catch {
+                // No-op; the input is still selectable.
+              }
+            }}
+          />
         )}
         {credentials && (
           <p className="vt-swarm-creds">
@@ -877,5 +1043,222 @@ function SupabaseBadge({
           : "Not tested";
   return (
     <span className={`vt-swarm-badge vt-swarm-badge--${status}`}>{label}</span>
+  );
+}
+
+/**
+ * Compact "Picks: 95,000 of 111,000 (89%)" line that always reflects
+ * the current run so the user has something to look at while workers
+ * grind. We show this in both generating and hashing phases — during
+ * hashing, picks are fixed at 100%, but the line still anchors the
+ * count above the merkle banner.
+ */
+function PicksLine({
+  picks,
+  total,
+}: {
+  picks: number;
+  total: number;
+}): JSX.Element | null {
+  if (total <= 0) return null;
+  const pct = Math.min(100, Math.round((picks / total) * 100));
+  return (
+    <p
+      className="vt-swarm-picks-line"
+      style={{
+        margin: "10px 0 4px",
+        fontFamily:
+          '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+        fontSize: 13,
+        letterSpacing: "0.02em",
+        color: "#b9b9b9",
+      }}
+    >
+      Picks: <strong style={{ color: "#f6c64f" }}>{formatNumber(picks)}</strong>{" "}
+      of {formatNumber(total)} ({pct}%)
+    </p>
+  );
+}
+
+/**
+ * The "Sealing cryptographic proof" banner that appears once the
+ * workers stop generating and start hashing. It surfaces the per-slice,
+ * per-level merkle progress so the UI no longer goes quiet during the
+ * 5-30s the WebCrypto SHA-256 walk takes for a million-leaf tree.
+ *
+ * The blurb under the headline is the "this is what makes your swarm
+ * auditable" line Tim asked for.
+ */
+function SealingBanner({ snap }: { snap: HashingSnapshot }): JSX.Element {
+  const sliceLine =
+    snap.slices_total > 0
+      ? `slice ${Math.min(snap.slices_done + 1, snap.slices_total)} of ${snap.slices_total}`
+      : null;
+  const levelLine =
+    snap.total_levels > 0
+      ? `level ${Math.min(snap.level + 1, snap.total_levels)} of ${snap.total_levels}`
+      : null;
+  const remainingLine =
+    snap.leaves_remaining > 0
+      ? `${formatNumber(snap.leaves_remaining)} hashes left`
+      : null;
+  const detailParts = [sliceLine, levelLine, remainingLine].filter(
+    (s): s is string => s !== null,
+  );
+  return (
+    <div
+      className="vt-swarm-sealing"
+      role="status"
+      style={{
+        marginTop: 10,
+        padding: "12px 14px",
+        border: "1px solid rgba(246, 198, 79, 0.35)",
+        borderRadius: 8,
+        background: "rgba(246, 198, 79, 0.06)",
+      }}
+    >
+      <p
+        className="vt-swarm-sealing-title"
+        style={{
+          margin: 0,
+          color: "#f6c64f",
+          fontFamily:
+            '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+          fontSize: 13,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+        }}
+      >
+        Sealing cryptographic proof
+        {detailParts.length > 0 && (
+          <span
+            className="vt-swarm-sealing-detail"
+            style={{
+              color: "#d6d6d6",
+              textTransform: "none",
+              letterSpacing: "0.02em",
+            }}
+          >
+            {": "}
+            {detailParts.join(", ")}
+          </span>
+        )}
+      </p>
+      <p
+        className="vt-swarm-sealing-blurb"
+        style={{
+          margin: "6px 0 0",
+          fontSize: 12,
+          color: "#a8a8a8",
+          lineHeight: 1.5,
+        }}
+      >
+        This is what makes your swarm auditable on the blockchain.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Final swarm-merkle-root display card.
+ *
+ * Shows the full hex root in a monospace, copyable input plus a "What
+ * is this?" disclosure that explains the OpenTimestamps + Bitcoin
+ * anchor. We intentionally keep the explainer collapsed so the card
+ * stays compact for return users who already know the drill.
+ */
+function MerkleRootCard({
+  root,
+  copied,
+  onCopy,
+}: {
+  root: string;
+  copied: boolean;
+  onCopy: () => void;
+}): JSX.Element {
+  return (
+    <div
+      className="vt-swarm-root-card"
+      style={{
+        marginTop: 14,
+        padding: "12px 14px",
+        border: "1px solid rgba(246, 198, 79, 0.4)",
+        borderRadius: 8,
+        background: "rgba(246, 198, 79, 0.08)",
+      }}
+    >
+      <div
+        className="vt-swarm-root-card-head"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 8,
+        }}
+      >
+        <span
+          className="vt-swarm-root-card-label"
+          style={{
+            color: "#f6c64f",
+            fontFamily:
+              '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+            fontSize: 12,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+          }}
+        >
+          Swarm merkle root (proof)
+        </span>
+        <button
+          type="button"
+          className="vt-swarm-button vt-swarm-button--ghost"
+          onClick={onCopy}
+        >
+          {copied ? "Copied" : "Copy"}
+        </button>
+      </div>
+      <input
+        readOnly
+        className="vt-swarm-root-card-input"
+        value={root}
+        onFocus={(e) => e.target.select()}
+        aria-label="Swarm merkle root, hex string"
+        style={{
+          width: "100%",
+          padding: "8px 10px",
+          border: "1px solid rgba(255,255,255,0.12)",
+          borderRadius: 6,
+          background: "rgba(0,0,0,0.35)",
+          color: "#eaeaea",
+          fontFamily:
+            '"JetBrains Mono", ui-monospace, SFMono-Regular, monospace',
+          fontSize: 12,
+          letterSpacing: "0.02em",
+        }}
+      />
+      <details className="vt-swarm-details" style={{ marginTop: 8 }}>
+        <summary style={{ cursor: "pointer", color: "#d6d6d6", fontSize: 12 }}>
+          What is this?
+        </summary>
+        <p style={{ marginTop: 6, fontSize: 12, color: "#a8a8a8", lineHeight: 1.5 }}>
+          A single 64-character hex string that commits to every pick
+          your swarm just made. Every per-match root commits to every
+          per-worker slice root, which commits to every individual
+          pick. This root will be anchored to{" "}
+          <a
+            href="https://opentimestamps.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "#f6c64f" }}
+          >
+            OpenTimestamps
+          </a>{" "}
+          and the Bitcoin blockchain so anyone in the future can prove
+          your bots were locked in BEFORE the matches kicked off. No
+          retroactive editing, no rewriting history.
+        </p>
+      </details>
+    </div>
   );
 }

@@ -84,6 +84,7 @@ export interface SwarmProgress {
     | "idle"
     | "preparing"
     | "generating"
+    | "hashing"
     | "committing"
     | "federating"
     | "done"
@@ -97,6 +98,31 @@ export interface SwarmProgress {
   readonly throughput: number;
   /** UNIX ms when the run started. */
   readonly started_at: number | null;
+  /** Live merkle-hashing progress aggregated across workers. Null when
+   *  no worker is currently hashing. */
+  readonly hashing: HashingSnapshot | null;
+}
+
+/**
+ * Aggregated merkle-hashing progress across all workers. The UI uses
+ * this to render lines like:
+ *   "Sealing Merkle: slice 7 of 8, level 4 of 17, 1,024 hashes left"
+ */
+export interface HashingSnapshot {
+  /** Number of workers that have finished hashing all their slices. */
+  readonly slices_done: number;
+  /** Total slice count (one per worker). */
+  readonly slices_total: number;
+  /** Highest level reached by any active worker (loose: best signal of
+   *  "we are this deep into the tree"). */
+  readonly level: number;
+  /** Total levels in the tree currently being walked. */
+  readonly total_levels: number;
+  /** Sum of leaves_remaining across all active workers. */
+  readonly leaves_remaining: number;
+  /** Sum of level_size across all active workers when each level
+   *  started. Used for "X of Y" framing. */
+  readonly level_size: number;
 }
 
 export interface SwarmStats {
@@ -104,4 +130,91 @@ export interface SwarmStats {
   readonly bots_still_perfect: number;
   readonly merkle_root: string | null;
   readonly federation_rank: number | null;
+}
+
+/**
+ * Worker -> main thread message shapes.
+ *
+ * Exported so the main thread (BrowserSwarm.tsx) and any federation
+ * consumers (federation.ts) can import a single source of truth instead
+ * of redefining them.
+ */
+export interface WorkerProgressMessage {
+  readonly kind: "progress";
+  readonly worker_index: number;
+  readonly bots_generated: number;
+  readonly picks_made: number;
+  readonly current_match_id: string | null;
+}
+
+export interface WorkerHashingMessage {
+  readonly kind: "hashing";
+  readonly worker_index: number;
+  /** Which slice (= which match) inside this worker's queue. 0-indexed. */
+  readonly slice_index: number;
+  /** Total slices this worker will hash (= matches.length). */
+  readonly slice_total: number;
+  /** Which level of the merkle tree the worker just finished a batch on. */
+  readonly level: number;
+  /** Total levels in the tree for this match's slice. */
+  readonly total_levels: number;
+  /** Items remaining at THIS level when the message was sent. */
+  readonly leaves_remaining: number;
+  /** Items in the level when it started. */
+  readonly level_size: number;
+}
+
+export interface WorkerSliceDoneMessage {
+  readonly kind: "slice_done";
+  readonly worker_index: number;
+  readonly run_id: string;
+  readonly merkle_roots_by_match: Record<string, string>;
+  readonly best_bot_score: number;
+  readonly bots_generated: number;
+  readonly picks_made: number;
+  readonly elapsed_ms: number;
+  readonly sample_bots: BotRecord[];
+  readonly sample_picks: BotPick[];
+}
+
+export interface WorkerErrorMessage {
+  readonly kind: "error";
+  readonly worker_index: number;
+  readonly message: string;
+}
+
+export type WorkerOutboundMessage =
+  | WorkerProgressMessage
+  | WorkerHashingMessage
+  | WorkerSliceDoneMessage
+  | WorkerErrorMessage;
+
+/**
+ * Final swarm completion payload, posted to the federation layer (A3).
+ *
+ * A3 owns `federation.ts` and decides what `top_N_claim` looks like at
+ * the wire; we leave the slot so federation can fill it from the sample
+ * bots once a scoring rule lands.
+ */
+export interface SwarmCompletionPayload {
+  readonly master_seed: string;
+  readonly run_id: string;
+  readonly total_bots: number;
+  readonly merkle_root: string;
+  readonly strategy: StrategyName;
+  readonly started_at: number;
+  readonly finished_at: number;
+  /** Per-match merkle roots, combined across workers. The single
+   *  `merkle_root` above is the merkle root over THESE roots (sorted-
+   *  pair sha256), so the federation server can verify the rollup. */
+  readonly per_match_roots: Record<string, string>;
+  /** Best chalk-score observed across the swarm. */
+  readonly best_bot_score: number;
+  /** Optional bracket-of-N submission the federation layer can use to
+   *  stake a leaderboard claim. A3 fills the schema; we keep the slot. */
+  readonly top_N_claim?: ReadonlyArray<{
+    readonly bot_index: number;
+    readonly top3_picks: readonly Outcome[];
+    readonly claimed_score?: number;
+  }>;
 }

@@ -47,9 +47,9 @@ export default function TheBetPage(): JSX.Element {
               If you can predict the correct outcome of all 104 matches at the
               2026 World Cup, I&apos;ll give you my house.
             </p>
-            {/* Tim 2026-06-05: press release lives in
-              * apps/web/public/press/. Anchor target=_blank, not next/link,
-              * because this is a static PDF download / new-tab read. */}
+            {/* Tim 2026-06-05: press releases live in
+              * apps/web/public/press/. Anchors target=_blank because they're
+              * static HTML/PDF intended for a new-tab read. */}
             <a
               href="/press/tournamental-press-release-2026-06-05.pdf"
               target="_blank"
@@ -57,6 +57,14 @@ export default function TheBetPage(): JSX.Element {
               className="vt-bet-header-cta"
             >
               Read Press Release <span aria-hidden="true">→</span>
+            </a>
+            <a
+              href="/press/2026-06-07.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vt-bet-header-cta vt-bet-header-cta--ghost"
+            >
+              The bot floor (7 June) <span aria-hidden="true">↗</span>
             </a>
             <p className="vt-bet-footnote">
               Free to enter. Picks lock at each match&apos;s kickoff.
@@ -119,29 +127,55 @@ export default function TheBetPage(): JSX.Element {
             need every pick locked in by the kickoff of its own match.
           </p>
 
-          <h2 className="vt-bet-h2">Worried? No.<br/>Risky? Hardly.</h2>
+          <h2 className="vt-bet-h2">The perfect bracket challenge.<br/>Worried? No. Risky? Hardly.</h2>
           <p>
             104 matches in total. The group stage has 72 matches, each
             with three possible outcomes (home win, draw, away win). The
-            knockout rounds have 32 matches, each with two outcomes (the
-            team that progresses, or the team that doesn&apos;t).
+            knockout rounds have 32 matches, each with two outcomes
+            (the team that progresses, or the team that doesn&apos;t).
           </p>
           <p>
-            Multiply that out: 3<sup>72</sup> &times; 2<sup>32</sup>. The
-            answer is a number with{" "}
-            <strong>44 digits</strong>, roughly 9.7 followed by 43 zeros.{" "}
+            Multiply that out: 3<sup>72</sup> &times; 2<sup>32</sup>.
+            The answer is a number with{" "}
+            <strong>44 digits</strong>, roughly 9.7 followed by 43
+            zeros. The probability of a random bracket landing perfectly
+            is around <strong>1 in 10<sup>49</sup></strong>.{" "}
             <Link href="/odds">See the maths</Link>.
           </p>
           <p>
             ESPN have run a March Madness bracket challenge since 1998.
-            Millions of entries a year. 63 games to predict.{" "}
+            Millions of entries a year. 63 games to predict, two
+            outcomes each, no draws.{" "}
             <strong>Nobody has ever submitted a perfect bracket.</strong>{" "}
-            Mine has 104.
+            Mine has 104 matches and roughly ten thousand trillion
+            trillion times more bracket combinations than ESPN&apos;s.
           </p>
           <p>
-            Even smart picks (Brazil over Tahiti, France not losing to
-            Tunisia in the group stage) don&apos;t dent that headline
-            number. The maths is on my side. Loudly.
+            Even smart picks (Brazil to beat the bottom seed in their
+            group, France not losing to the lowest-ranked side they
+            face) don&apos;t dent that headline number. The maths is on
+            my side. Loudly.
+          </p>
+          <p>
+            And before anyone asks: I&apos;ve opened the platform to AI
+            bots too. Anyone with a browser tab can spin up a swarm of
+            a million unique AI brackets at{" "}
+            <Link href="/run">play.tournamental.com/run</Link>. The
+            <strong> bots are not eligible for my house</strong> (the{" "}
+            <Link href="/terms/house-prize">house-prize terms</Link>{" "}
+            require a Humanness Score of 50+, and bots are scored zero
+            by design). But they are racing the same 104 matches on a
+            separate Bot leaderboard, anchored to the same Bitcoin
+            blockchain audit trail. The whole bot story is in the{" "}
+            <a
+              href="/press/2026-06-07.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              7 June press release
+            </a>
+            . Short version: even a trillion bots can&apos;t hit a
+            perfect bracket in expectation. My maths is fine.
           </p>
 
           <h2 className="vt-bet-h2">I&apos;m not insured.</h2>

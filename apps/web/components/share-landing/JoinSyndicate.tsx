@@ -113,6 +113,35 @@ function clearPending(): void {
   }
 }
 
+/**
+ * Standard "the code / link is dead" copy with a tappable WhatsApp
+ * deep-link that pre-fills the keyword `login` (carrying the pool
+ * slug so the auth-sms inbound-login route returns the user straight
+ * to this pool). Tim 2026-06-07. */
+function renderWhatsAppRecovery(
+  headline: string,
+  poolSlug?: string,
+): React.ReactNode {
+  return (
+    <>
+      {headline}{" "}
+      <a
+        href={whatsAppLoginDeepLink(poolSlug ?? null)}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          color: "#fbbf24",
+          textDecoration: "underline",
+          fontWeight: 600,
+        }}
+      >
+        Text &ldquo;login&rdquo; to Tournamental on WhatsApp
+      </a>{" "}
+      to get a fresh code and magic link.
+    </>
+  );
+}
+
 /** Normalise a free-text phone input to a best-effort E.164. Falls back
  * to the digits-only string if no country code was supplied. The
  * server runs the same normalisation, so a slightly off value here
@@ -209,7 +238,10 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
 
   // Shared
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  // Errors can be plain strings or a small ReactNode (e.g. with an
+  // embedded "Text login to Tournamental on WhatsApp" deep-link for
+  // already-used / expired codes). Tim 2026-06-07.
+  const [error, setError] = useState<React.ReactNode>(null);
   const [info, setInfo] = useState<string | null>(null);
 
   // Live-slugified preview of the @handle. The user types what they
@@ -660,10 +692,13 @@ export function JoinSyndicate({ slug, syndicateName }: JoinSyndicateProps) {
       if (!res.ok) {
         setError(
           res.error === "unknown-or-expired"
-            ? "That code didn't match. It may have already been used or expired — request a new one."
+            ? renderWhatsAppRecovery(
+                "That code has already been used or expired.",
+                slug,
+              )
             : res.error === "ip-throttled"
               ? "Too many tries from this network. Wait a minute and try again."
-              : "Sign-in failed. Try again.",
+              : renderWhatsAppRecovery("Sign-in failed.", slug),
         );
         setBusy(false);
         return;

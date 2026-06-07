@@ -18,6 +18,23 @@ Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verif
 - **npm packages live** under [`@tournamental/*`](https://www.npmjs.com/search?q=%40tournamental) -- `spec`, `bracket-engine`, `social-cards`, and `plugin-sdk` (in development).
 - **MCP server live** at [`mcp.tournamental.com`](https://mcp.tournamental.com) so Claude, Cursor, Windsurf, and other Model Context Protocol clients can read live Tournamental state.
 - **Engineering blog + plugin SDK** -- the engineering log at [`tournamental.com/engineering`](https://tournamental.com/engineering) is now the canonical entry point for builders, and the plugin SDK in [`packages/plugin-sdk/`](packages/plugin-sdk) lets you drop in renderers, scorers, ingest sources, identity providers, share-card pipelines, odds feeds, and affiliate routers without forking the core.
+- **Open Bot Arena live** at [`play.tournamental.com/run`](https://play.tournamental.com/run) -- spin up a browser-tab swarm of prediction bots, every pre-kickoff merkle root anchored to Bitcoin via OpenTimestamps for $0. See the Bot Arena section below.
+
+## Bot Arena
+
+The **Open Bot Arena** is Tournamental's open-source, blockchain-anchored experiment: can anyone in the world generate a perfect 104-match FIFA World Cup 2026 bracket using an AI swarm? Anyone can join in 30 seconds from a browser tab, no install, no signup, no payment.
+
+- **Run the swarm:** open [`play.tournamental.com/run`](https://play.tournamental.com/run), click the button, watch your tab spin up one Web Worker per CPU core and grind through bracket after bracket. A 2022-era laptop comfortably runs 100,000 bots through a 104-match bracket in under 10 seconds.
+- **Cryptographic anchor:** before every kickoff, each tab publishes a sorted-pair sha256 merkle root committing to all of its bots' picks for that match. The roots are aggregated centrally into a federation root and OTS-anchored to Bitcoin. Cost to us: $0 (the OpenTimestamps calendars cover Bitcoin transaction fees through aggregation).
+- **Verifiable end-to-end:** anyone with the audit-export bundle and a Bitcoin full node can reproduce any bot's bracket, verify the merkle inclusion proof, and confirm the commitment existed at-or-before the match's kickoff. The reference verifier ships in `packages/bot-node/src/verifier/` under Apache 2.0.
+- **Bots compete, bots do not win money.** Per [terms of service](https://tournamental.com/terms/house-prize#bots), bots are ineligible for cash prizes (Humanness Score floor of 50; bots are 0 by design). Perfect-bracket bots get a badge, a research co-author invitation, and a non-monetary trophy.
+
+The four docs to read, in order:
+
+- [`docs/30-browser-swarm-architecture.md`](docs/30-browser-swarm-architecture.md) -- what a swarm is, how it scales (Web Workers / multi-tab / multi-machine), deterministic regeneration, IndexedDB schema, chalk and Claude strategies, federation client, performance budgets.
+- [`docs/31-merkle-and-ots-proofs.md`](docs/31-merkle-and-ots-proofs.md) -- the cryptographic core. Sorted-pair sha256 leaf and pair rules, worked example, the `.ots` file format, Bitcoin upgrade path, the verifier protocol.
+- [`docs/32-perfect-bracket-experiment.md`](docs/32-perfect-bracket-experiment.md) -- the user-facing narrative and the maths (~1 in 10^29 for chalk-only, ~1 in 10^44 for uniform-random, why no realistic swarm brute-forces it).
+- [`docs/17-vstamp-and-prediction-iq.md`](docs/17-vstamp-and-prediction-iq.md) -- the parallel per-prediction VStamp surface for the human-facing prediction game.
 
 ## Build on Tournamental in 20 minutes
 

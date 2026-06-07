@@ -50,9 +50,29 @@ export default function BotsNodePage(): JSX.Element {
               operator can run a Bot Node on their own infrastructure,
               hold per-bot brackets locally, and publish only
               merkle-committed aggregates to the public leaderboard.
-              Trust is minimised, not avoided: every public claim has
+              Trust is minimised, not avoided. Every public claim has
               an OpenTimestamps-anchored proof a third party can
-              verify in under sixty seconds.
+              verify in under sixty seconds. The anchor cost to the
+              federated network is <strong>US$0</strong>: roots batch
+              into a single Bitcoin transaction via OpenTimestamps,
+              and the receipt is enough to re-derive the proof
+              forever.
+            </p>
+            <p className="vt-sdk-lede">
+              For the wider open-bot-floor story see{" "}
+              <Link href="/bot-arena">/bot-arena</Link> and the 7 June
+              press release at{" "}
+              <a
+                href="/press/2026-06-07.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                /press/2026-06-07.html
+              </a>
+              . The browser swarm at{" "}
+              <Link href="/run">/run</Link> is the same protocol at
+              smaller scale; this page picks up where browser swarms
+              run out of headroom.
             </p>
             <div className="vt-sdk-cta-row">
               <a

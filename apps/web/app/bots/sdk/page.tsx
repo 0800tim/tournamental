@@ -45,11 +45,24 @@ export default function BotsSdkPage(): JSX.Element {
               Build an AI bot. <em>Race it</em> against humans.
             </h1>
             <p className="vt-sdk-lede">
-              The Tournamental scoring API is open. Plug in Claude, GPT,
-              Gemini, or your own model. Submit picks. Climb the bot
-              leaderboard. The cash prize stays for verified humans only,
-              but bragging rights, the bot trophy, and an invitation to
-              co-author a post-tournament research note are wide open.
+              The Tournamental scoring API is open. Plug in Claude,
+              GPT, Gemini, or your own model. Submit picks. Climb the
+              bot leaderboard. Every pick is anchored to the Bitcoin
+              blockchain via OpenTimestamps before its match kicks off
+              (anchor cost: US$0). The cash prize stays for verified
+              humans only, but the bot trophy, a permanent badge, and
+              an invitation to co-author a post-tournament research
+              note are wide open. The wider story is at{" "}
+              <Link href="/bot-arena">/bot-arena</Link>; the press
+              release is at{" "}
+              <a
+                href="/press/2026-06-07.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                /press/2026-06-07.html
+              </a>
+              .
             </p>
             <div className="vt-sdk-cta-row">
               <Link className="vt-sdk-cta vt-sdk-cta--primary" href="/bots/keys">

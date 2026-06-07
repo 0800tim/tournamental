@@ -17,15 +17,41 @@
  * the user sees "Signing you in…" rather than a silent loading state.
  */
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
-import { verifyMagicToken } from "@/lib/auth/inbound-login";
+import { verifyMagicToken, whatsAppLoginDeepLink } from "@/lib/auth/inbound-login";
 
 type Phase =
   | { state: "idle" }
   | { state: "busy" }
   | { state: "success"; phone: string | null }
-  | { state: "error"; message: string };
+  | { state: "error"; message: ReactNode };
+
+/**
+ * Standard "the code / link is dead" message: a soft headline + a
+ * tappable WhatsApp deep-link that pre-fills the word "login" so the
+ * user gets a fresh OTP + magic link in one tap. Tim 2026-06-07.
+ */
+function whatsAppRecoveryMessage(headline: string): ReactNode {
+  return (
+    <>
+      {headline}{" "}
+      <a
+        href={whatsAppLoginDeepLink()}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          color: "#fbbf24",
+          textDecoration: "underline",
+          fontWeight: 600,
+        }}
+      >
+        Text &ldquo;login&rdquo; to Tournamental on WhatsApp
+      </a>{" "}
+      to get a fresh code and magic link.
+    </>
+  );
+}
 
 const MAGIC_TOKEN_PARAM = "v";
 const POOL_PARAM = "pool";
@@ -138,16 +164,18 @@ export function MagicLinkConsumer() {
         return;
       }
 
-      const message =
+      const message: ReactNode =
         res.error === "fingerprint-mismatch"
           ? "This sign-in link was opened on a different device. Use the device you messaged us from, or paste the 6-digit code."
           : res.error === "unknown-or-expired"
-          ? "This sign-in link has expired or already been used. Message 'login' on WhatsApp again to get a fresh one."
+          ? whatsAppRecoveryMessage(
+              "This sign-in link has expired or already been used.",
+            )
           : res.error === "ip-throttled"
           ? "Too many sign-in attempts from this network. Try again in a few minutes."
           : res.error === "network"
           ? "Could not reach the sign-in service. Check your connection and try again."
-          : "Sign-in failed. Try again, or paste the 6-digit code.";
+          : whatsAppRecoveryMessage("Sign-in failed.");
       setPhase({ state: "error", message });
     });
   }, []);
