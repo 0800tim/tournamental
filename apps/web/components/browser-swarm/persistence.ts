@@ -269,6 +269,14 @@ export interface Persistence {
   loadDeviceIdentity(): Promise<DeviceIdentity>;
   /** Update last_seen_at_utc (and optionally a renamed label). */
   touchDeviceIdentity(args?: { label?: string }): Promise<DeviceIdentity>;
+  /**
+   * Optional operator API key for cross-device aggregate publishing.
+   * When set, BrowserSwarm POSTs a summary to
+   * /v1/swarms/<api_key_hash>/summary after every successful batch.
+   * Returns null if the user hasn't pasted one. A13.
+   */
+  loadOperatorApiKey(): Promise<string | null>;
+  saveOperatorApiKey(key: string): Promise<void>;
   reset(): Promise<void>;
 }
 
@@ -418,6 +426,27 @@ export const indexedDbPersistence: Persistence = {
     await writeMany(STORE_DEVICE, [{ key: "self", ...next }]);
     return next;
   },
+  async loadOperatorApiKey() {
+    if (!isIndexedDBAvailable()) return null;
+    const db = await openDb();
+    let row: any;
+    try {
+      row = await new Promise<any>((resolve, reject) => {
+        const tx = db.transaction(STORE_DEVICE, "readonly");
+        const req = tx.objectStore(STORE_DEVICE).get("operator_key");
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error ?? new Error("IndexedDB read failed"));
+      });
+    } finally {
+      db.close();
+    }
+    return row && typeof row.api_key === "string" ? row.api_key : null;
+  },
+  async saveOperatorApiKey(key) {
+    await writeMany(STORE_DEVICE, [
+      { key: "operator_key", api_key: key, saved_at: Date.now() },
+    ]);
+  },
   async reset() {
     await clearStore(STORE_BOT);
     await clearStore(STORE_PICK);
@@ -482,6 +511,10 @@ export const noopPersistence: Persistence = {
       last_seen_at_utc: now,
     };
   },
+  async loadOperatorApiKey() {
+    return null;
+  },
+  async saveOperatorApiKey() {},
   async reset() {},
 };
 

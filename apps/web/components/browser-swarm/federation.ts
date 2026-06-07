@@ -374,6 +374,58 @@ export class FederationClient {
     return null;
   }
 
+  /**
+   * Publish an operator-keyed aggregate summary (A13).
+   *
+   * The operator_id is the sha256 hash of `apiKey`. The browser computes
+   * the hash with WebCrypto and POSTs to
+   * /v1/swarms/<operator_id>/summary with Bearer auth.
+   *
+   * Soft-fails on network errors and missing crypto so the user-facing
+   * UI never blocks. Returns `{ ok, offline }` for callers that want
+   * to badge a transient outage.
+   */
+  async publishOperatorSummary(
+    apiKey: string,
+    payload: {
+      total_bots: number;
+      bots_alive_after_match_n: Array<{ n: number; alive_count: number }>;
+      best_bot_score: number;
+      top_k: Array<{ bot_id: string; score: number; chalk_score: number }>;
+      merkle_root: string;
+      kickoff_at: number;
+      generated_at: number;
+    },
+  ): Promise<{ ok: boolean; offline: boolean }> {
+    if (this.dryRun) return { ok: true, offline: true };
+    if (!apiKey || !/^tnm_/.test(apiKey)) return { ok: false, offline: false };
+    let operatorId: string;
+    try {
+      operatorId = await sha256Hex(apiKey);
+    } catch {
+      return { ok: false, offline: true };
+    }
+    try {
+      const res = await fetch(
+        `${this.baseUrl}/v1/swarms/${operatorId}/summary`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+            authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(payload),
+        },
+      );
+      if (res.status >= 200 && res.status < 300) {
+        return { ok: true, offline: false };
+      }
+      return { ok: false, offline: false };
+    } catch {
+      return { ok: false, offline: true };
+    }
+  }
+
   private localCredentials(operatorEmail: string | null): NodeCredentials {
     const nodeId = `browser-${randomHex(8)}`;
     return {
@@ -483,6 +535,23 @@ export function adaptWorkerPayloadToSummary(args: {
     finished_at: finishedAt,
     top_n_claim: claim,
   };
+}
+
+/**
+ * SHA-256 hex digest of `input`. Used to derive operator_id from an
+ * api_key client-side so the URL path matches what the server
+ * computes server-side (operator_id = sha256(api_key)).
+ */
+async function sha256Hex(input: string): Promise<string> {
+  if (typeof crypto === "undefined" || !crypto.subtle) {
+    throw new Error("subtle crypto not available");
+  }
+  const bytes = new TextEncoder().encode(input);
+  const buf = await crypto.subtle.digest("SHA-256", bytes);
+  const view = new Uint8Array(buf);
+  let hex = "";
+  for (let i = 0; i < view.length; i++) hex += view[i]!.toString(16).padStart(2, "0");
+  return hex;
 }
 
 function randomHex(bytes: number): string {

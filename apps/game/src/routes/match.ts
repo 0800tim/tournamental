@@ -18,6 +18,7 @@ import { matchResultBodySchema } from "../schemas.js";
 import type { GameStore } from "../store/db.js";
 import type { LeaderboardCache } from "../scoring/cache.js";
 import { computeBracketScore } from "../scoring/recompute.js";
+import { runPerfectTrackWatch } from "../services/perfect-track-watch.js";
 import type { Bracket, MatchOutcome } from "../types.js";
 import { makeAdminGuard } from "./auth.js";
 
@@ -112,6 +113,16 @@ export async function registerMatchRoutes(
       });
 
       deps.cache.invalidateTournament(body.tournament_id);
+
+      // Perfect-track watch: scoring just resolved a match, so any
+      // operator whose latest summary shows alive bots past match 80
+      // is worth surfacing on the home page. Cheap (one query per
+      // operator with a summary) and silent on failure.
+      try {
+        runPerfectTrackWatch({ store: deps.store, now: now() });
+      } catch (err) {
+        req.log.warn({ err }, "perfect-track-watch failed during settlement");
+      }
 
       return reply.code(200).send({
         match_id: matchId,

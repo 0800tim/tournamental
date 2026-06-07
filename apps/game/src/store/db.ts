@@ -22,6 +22,10 @@ import { BotOwnerStore } from "./bot-owners.js";
 import { QuotaStore } from "./quotas.js";
 import { FederatedNodeStore } from "./federated-nodes.js";
 import { SwarmClaimStore } from "./swarm-claims.js";
+import {
+  PerfectTrackAlertStore,
+  SwarmSummaryStore,
+} from "./swarm-summaries.js";
 
 export interface GameStoreOptions {
   /** Filesystem path to the SQLite file. ":memory:" for tests. */
@@ -106,6 +110,8 @@ export class GameStore {
   readonly quotas!: QuotaStore;
   readonly federatedNodes!: FederatedNodeStore;
   readonly swarmClaims!: SwarmClaimStore;
+  readonly swarmSummaries!: SwarmSummaryStore;
+  readonly perfectTrackAlerts!: PerfectTrackAlertStore;
 
   // Prepared statements
   private upsertUserStmt!: Statement;
@@ -166,6 +172,10 @@ export class GameStore {
     (this as { swarmClaims: SwarmClaimStore }).swarmClaims = new SwarmClaimStore(
       this.db,
     );
+    (this as { swarmSummaries: SwarmSummaryStore }).swarmSummaries =
+      new SwarmSummaryStore(this.db);
+    (this as { perfectTrackAlerts: PerfectTrackAlertStore }).perfectTrackAlerts =
+      new PerfectTrackAlertStore(this.db);
   }
 
   // ---------- migrations ----------
