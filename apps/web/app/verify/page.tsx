@@ -1,13 +1,14 @@
 /**
- * /verify — Tournamental's public audit trail.
+ * /verify, Tournamental's public audit trail.
  *
  * Lists every snapshot of the prediction-bearing tables that has been
- * SHA-256 hashed and anchored into Bitcoin via OpenTimestamps. The
- * receipts (.ots files) are public and prove that the hash is sealed
- * on Bitcoin's proof-of-work chain at a known time. The raw snapshots
- * themselves stay private — they contain everyone's picks, which is
- * strategic data we don't want to give competitors before a match —
- * and are released only as part of the dispute-resolution process.
+ * SHA-256 Merkle-hashed and anchored into Bitcoin via OpenTimestamps.
+ * The receipts (.ots files) are public and prove that the root is
+ * sealed on Bitcoin's proof-of-work chain at a known time. The raw
+ * snapshots themselves stay private (they contain everyone's picks,
+ * which is strategic data we don't want competitors mining mid-
+ * tournament) and are released only as part of the dispute-resolution
+ * process.
  *
  * The combined proof: the anchor script is open-source, the hash is
  * on Bitcoin, therefore the snapshot at time T cannot have been
@@ -34,7 +35,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Audit trail · Tournamental",
   description:
-    "Every Tournamental prediction snapshot is SHA-256 hashed and anchored into Bitcoin via OpenTimestamps. The hash chain is public; raw snapshots are released under formal dispute review.",
+    "Every Tournamental prediction snapshot is SHA-256 Merkle-hashed and anchored to Bitcoin via OpenTimestamps. Anchor cost: US$0. The hash chain is public; raw snapshots are released under formal dispute review.",
 };
 
 interface LedgerEntry {
@@ -89,20 +90,46 @@ export default async function VerifyPage(): Promise<JSX.Element> {
 
         <section>
           <p>
-            At every match kickoff, and once a day in between, Tournamental
-            computes a SHA-256 hash of the predictions database and commits
-            that hash to the Bitcoin blockchain via OpenTimestamps. The
-            hash chain is public. The script that produces it is
-            open-source. Together those two facts prove that picks present
-            at time T cannot be changed after T without leaving an
-            unmissable on-chain trail.
+            At every match kickoff, and once a day in between,
+            Tournamental computes a SHA-256 Merkle root over the
+            predictions database and commits that root to the Bitcoin
+            blockchain via OpenTimestamps. The receipt chain is
+            public. The anchor script is open-source. The anchor cost
+            to Tournamental is <strong>US$0</strong> because
+            OpenTimestamps batches thousands of commitments into a
+            single Bitcoin transaction. Together those facts prove
+            that any pick present at time T cannot be changed after T
+            without leaving an unmissable on-chain trail.
           </p>
           <p>
-            <strong>The raw snapshots are private.</strong> They contain
-            everyone&apos;s in-flight predictions, which is strategic data
-            we don&apos;t want competitors mining mid-tournament. Snapshots
-            are released only as part of the formal dispute-resolution
-            process below.
+            The audit chain runs in three steps:
+          </p>
+          <ol>
+            <li>
+              <strong>Pick &rarr; Merkle leaf.</strong> Every{" "}
+              <code>(player_id, match_id, outcome)</code> tuple is
+              hashed into a 32-byte leaf.
+            </li>
+            <li>
+              <strong>Merkle tree &rarr; root.</strong> Leaves combine
+              pairwise up to a single 32-byte root per snapshot.
+            </li>
+            <li>
+              <strong>Root &rarr; Bitcoin via OpenTimestamps.</strong>{" "}
+              OpenTimestamps batches the root with other commitments
+              and anchors the batch in a Bitcoin transaction. A
+              confirmation typically lands within an hour;
+              six-confirmation finality within a working day. The{" "}
+              <code>.ots</code> receipt is enough to verify the root
+              against the public Bitcoin chain forever after.
+            </li>
+          </ol>
+          <p>
+            <strong>The raw snapshots are private.</strong> They
+            contain everyone&apos;s in-flight predictions, which is
+            strategic data we don&apos;t want competitors mining
+            mid-tournament. Snapshots are released only as part of the
+            formal dispute-resolution process below.
           </p>
           <p>
             The anchor script lives at{" "}
@@ -117,7 +144,9 @@ export default async function VerifyPage(): Promise<JSX.Element> {
                 docs/audit-trail.md
               </a>
             </code>
-            .
+            . The press release covering the open bot floor and the
+            full audit story is at{" "}
+            <a href="/press/2026-06-07.html">/press/2026-06-07.html</a>.
           </p>
         </section>
 
@@ -172,19 +201,33 @@ export default async function VerifyPage(): Promise<JSX.Element> {
         <section>
           <h2>Verify the timestamping</h2>
           <p>
-            Anyone with a laptop and the OpenTimestamps client can confirm
-            that the hash above was committed to the Bitcoin blockchain
-            at the time we claim. You don&apos;t need the snapshot itself
-            to do this, the receipt alone proves the hash is sealed into
-            Bitcoin&apos;s proof-of-work chain.
+            Anyone with a laptop and the OpenTimestamps client can
+            confirm that the Merkle root above was committed to the
+            Bitcoin blockchain at the time we claim. You don&apos;t
+            need the snapshot itself to do this, the receipt alone
+            proves the root is sealed into Bitcoin&apos;s
+            proof-of-work chain.
+          </p>
+          <p>
+            Anchors start in a <strong>pending</strong> state. From the
+            moment <code>ots stamp</code> runs, the commitment is queued
+            in the public OpenTimestamps calendars. A Bitcoin
+            confirmation typically lands within roughly one hour; the
+            usual six-confirmation finality threshold is reached within
+            a working day. The same{" "}
+            <code>.ots</code> receipt file works for both states:{" "}
+            <code>ots info</code> shows the calendar attestations
+            immediately, and <code>ots verify</code> succeeds once a
+            confirming Bitcoin block has landed.
           </p>
           <p>
             One anchor on the ledger is also flagged as a{" "}
             <strong>public sample</strong> so visitors can see what an
-            end-to-end audit looks like (download the snapshot, recompute
-            the hash, run <code>ots verify</code>, inspect the SQLite
-            contents). Future anchors don&apos;t publish the snapshot by
-            default; raw picks are released under the dispute flow below.
+            end-to-end audit looks like (download the snapshot,
+            recompute the hash, run <code>ots verify</code>, inspect
+            the SQLite contents). Future anchors don&apos;t publish
+            the snapshot by default; raw picks are released under the
+            dispute flow below.
           </p>
           <pre className="vt-verify-code">{`# 1. install the OpenTimestamps client
 pip install opentimestamps-client

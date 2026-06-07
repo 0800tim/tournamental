@@ -21,7 +21,7 @@ export const dynamic = "force-static";
 export const metadata: Metadata = {
   title: "Bot Arena · Tournamental",
   description:
-    "Launching 9 June 2026. Spawn a million unique AI bracket predictions in your browser. Tune the swarm. Lock in billions of predictions before kickoff on 11 June and compete against humans on the live 2026 FIFA World Cup leaderboard. Sign up now and we will alert you the moment the swarm builder goes live.",
+    "Run AI swarms in your browser to forecast every match of the FIFA World Cup 2026. 104 matches, 1 in 10^49 chance of a random perfect bracket. Every pick anchored to Bitcoin via OpenTimestamps. Free, open-source, US$0 anchor cost. Bots cannot win the cash prize; that stays with verified humans.",
   robots: { index: true, follow: true },
 };
 
@@ -36,30 +36,41 @@ export default function BotArenaPage(): JSX.Element {
             Tournamental Open Bot Arena · Swarm builder goes live 9 June 2026
           </p>
           <h1 className="vt-arena-title">
-            Spawn a <em>million unique bots</em>.
+            Run AI swarms in your browser.
             <br />
-            Right in your browser.
+            Forecast every match of the <em>FIFA World Cup 2026</em>.
           </h1>
           <p className="vt-arena-lede">
-            The Tournamental swarm builder launches on{" "}
-            <strong>9 June 2026</strong>, one day before the opening
-            match. Sign up now, save your own human bracket, and we will
-            send you the alert the moment the builder goes live. From
-            9 June you will be able to lock in <strong>billions of AI
-            bracket predictions</strong> before kickoff on 11 June, and
-            compete against humans on the live global leaderboard for
-            the full five weeks of the tournament.
+            104 matches. 9.74 &times; 10<sup>43</sup> possible brackets.
+            Roughly <strong>1 in 10<sup>49</sup></strong> chance of a
+            random perfect bracket. The Tournamental swarm builder
+            launches on <strong>9 June 2026</strong>, two days before
+            the opening match. Sign up now, save your own human
+            bracket, and from 9 June lock in billions of AI bracket
+            predictions before kickoff on 11 June. Every pick, human
+            and bot, is anchored to the Bitcoin blockchain via
+            OpenTimestamps. The anchor cost is US$0. The audit is open
+            to anyone.
           </p>
           <div className="vt-arena-cta-row">
-            <Link href="/world-cup-2026" className="vt-arena-cta-primary">
-              Sign up + reserve your spot →
+            <Link href="/run" className="vt-arena-cta-primary">
+              Start a swarm <span aria-hidden="true">→</span>
             </Link>
-            <Link href="#how" className="vt-arena-cta-secondary">
-              What you will be able to do
+            <Link href="/verify" className="vt-arena-cta-secondary">
+              How verification works
             </Link>
+            <a
+              href="/press/2026-06-07.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vt-arena-cta-secondary"
+            >
+              Read the press release <span aria-hidden="true">↗</span>
+            </a>
           </div>
           <p className="vt-arena-footnote">
-            Free. No install. Bots cannot win the cash prize. The house stays for verified humans.
+            Free. No install. Open source under Apache 2.0. Bots cannot
+            win the cash prize. The house stays for verified humans.
           </p>
         </header>
 
@@ -271,6 +282,78 @@ export default function BotArenaPage(): JSX.Element {
             scoring bot is likely to finish.
           </p>
 
+          <h2 className="vt-arena-h2">How many bots do you need?</h2>
+          <p>
+            Honest answer: <strong>more than the planet has compute
+            for</strong>. The 104-match space is 9.74 &times; 10
+            <sup>43</sup> distinct brackets. Live odds + per-match
+            kickoff lock raise the per-bot perfect-bracket probability
+            from random to roughly <code>0.58<sup>72</sup> &times;
+            0.65<sup>32</sup> &approx; 10<sup>-22</sup></code>. To get
+            a coin-flip&apos;s chance of one perfect bot, you need
+            around <strong>10 sextillion</strong> bots, which is ten
+            trillion times more compute than humanity currently has.
+          </p>
+          <p>
+            What a serious swarm actually does is run its{" "}
+            <strong>best</strong> bot up to roughly 88 to 95 of 104
+            correct. That comfortably beats the best human bracket
+            (typically 70 to 80 of 104 in a World Cup pool) and beats
+            the closing-line accuracy of every major sportsbook on
+            earth. The honest, open mathematical question for the next
+            five weeks is not <em>can any AI nail 104-from-104</em>{" "}
+            (no), it is <em>can a swarm of AIs beat every human pundit
+            on the planet at predicting elite football</em> (we expect
+            yes; the leaderboard settles it on chain by 19 July).
+          </p>
+          <p>
+            The full working lives at <Link href="/run">/run</Link>{" "}
+            (throughput table + perfect-bracket arithmetic) and the{" "}
+            <Link href="/whitepaper/perfect-bot-bracket">
+              perfect-bot-bracket white paper
+            </Link>
+            .
+          </p>
+
+          <h2 className="vt-arena-h2">Merkle &rarr; OpenTimestamps &rarr; Bitcoin.</h2>
+          <p>
+            Every pick by every player and every bot enters a SHA-256
+            Merkle tree before its match kicks off. The Merkle root is
+            anchored to the Bitcoin blockchain via OpenTimestamps. The
+            chain costs Tournamental zero dollars per anchor because
+            OpenTimestamps batches thousands of commitments into a
+            single Bitcoin transaction. The verification is open to
+            anyone with a CLI tool and a block explorer. Three steps:
+          </p>
+          <ol className="vt-arena-list">
+            <li>
+              <strong>Pick &rarr; Merkle leaf.</strong> Every{" "}
+              <code>(player_id, match_id, outcome)</code> tuple is
+              hashed into a 32-byte leaf.
+            </li>
+            <li>
+              <strong>Merkle tree &rarr; root.</strong> Leaves combine
+              pairwise up to a single 32-byte root per snapshot. The
+              entire predictions table compresses to one hash.
+            </li>
+            <li>
+              <strong>Root &rarr; Bitcoin (FREE via OpenTimestamps).</strong>{" "}
+              OpenTimestamps batches the root with other commitments,
+              anchors the batch in a Bitcoin transaction, and returns
+              a receipt. Confirmation typically lands within one hour;
+              six confirmations within a working day.
+            </li>
+          </ol>
+          <p>
+            If anyone, including the founder, alters a single pick
+            after that match has kicked off, the recomputed Merkle
+            root no longer matches the on-chain commitment. The
+            tampering is provably detectable by a public command-line
+            tool, in roughly sixty seconds, by anyone with the receipt
+            and the snapshot. The full walk-through is at{" "}
+            <Link href="/verify">play.tournamental.com/verify</Link>.
+          </p>
+
           <h2 className="vt-arena-h2">Three runtimes for three scales.</h2>
 
           <div className="vt-arena-grid">
@@ -427,10 +510,21 @@ export default function BotArenaPage(): JSX.Element {
 
           <div className="vt-arena-cta-final">
             <Link href="/run" className="vt-arena-cta-primary">
-              Spawn a swarm in your browser →
+              Start a swarm <span aria-hidden="true">→</span>
             </Link>
+            <Link href="/verify" className="vt-arena-cta-secondary">
+              How verification works
+            </Link>
+            <a
+              href="/press/2026-06-07.html"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="vt-arena-cta-secondary"
+            >
+              Read the press release <span aria-hidden="true">↗</span>
+            </a>
             <Link href="/developers" className="vt-arena-cta-secondary">
-              Or read the full developer guide
+              Developer guide
             </Link>
           </div>
 

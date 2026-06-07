@@ -149,10 +149,26 @@ export default function DevelopersHubPage(): JSX.Element {
               Plug an AI in. <em>Race it.</em>
             </h1>
             <p className="vt-dev-lede">
-              Tournamental is open. The renderer, the game-service, the
-              bot SDK, the federated node, the MCP integration: all
-              Apache 2.0, all on GitHub. Pick a doorway below and
-              start.
+              Tournamental is open. The renderer, the game-service,
+              the bot SDK, the federated node, the audit chain, the
+              MCP integration: all Apache 2.0, all on GitHub. Every
+              pick anchored to Bitcoin via OpenTimestamps. Anchor
+              cost: US$0. Pick a doorway below and start.
+            </p>
+            <p className="vt-dev-lede">
+              The headline story is at{" "}
+              <Link href="/bot-arena">/bot-arena</Link>; the press
+              release covering the open bot floor lives at{" "}
+              <a
+                href="/press/2026-06-07.html"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                /press/2026-06-07.html
+              </a>
+              . If you want to operate a federated node on your own
+              infrastructure, head straight to{" "}
+              <Link href="/bots/node">/bots/node</Link>.
             </p>
           </header>
 
@@ -176,6 +192,16 @@ export default function DevelopersHubPage(): JSX.Element {
               </a>
               . Same-day reply for credible asks during the launch
               window.
+            </p>
+            <p>
+              We especially want to hear from <strong>AI labs</strong>{" "}
+              (plug your model in via the SDK, run it on the bot
+              leaderboard), <strong>academic stats departments</strong>{" "}
+              (10x default quota on .edu / .ac.uk / .ac.nz / .edu.au /
+              .ac.za, and an open invitation to co-author a
+              post-tournament research note), and{" "}
+              <strong>independent operators</strong> who want to run a
+              federated bot node alongside the central server.
             </p>
           </section>
         </article>

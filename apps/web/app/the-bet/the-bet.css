@@ -93,7 +93,7 @@
   margin: 20px 0 0;
   color: #ffffff;
 }
-/* "mental" stands out from the rest of the title — used twice on this
+/* "mental" stands out from the rest of the title, used twice on this
  * page ("Tournamental" and "mental for betting my house") so the
  * brand-pun reads visually each time. Gold italic + subtle text shadow
  * so it lifts off the photo background. Tim 2026-06-05. */
@@ -145,6 +145,22 @@
   box-shadow:
     0 18px 32px -10px rgba(245, 158, 11, 0.65),
     inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Secondary press-release CTA next to the gold pill. Bordered ghost
+ * style so the gold "Read Press Release" stays the dominant action.
+ * Tim 2026-06-07. */
+.vt-bet-header-cta--ghost {
+  margin-left: 10px;
+  background: rgba(255, 255, 255, 0.06) !important;
+  color: #f5f1e0 !important;
+  border: 1px solid rgba(252, 211, 77, 0.45);
+  box-shadow: none;
+}
+.vt-bet-header-cta--ghost:hover {
+  background: rgba(252, 211, 77, 0.12) !important;
+  border-color: rgba(252, 211, 77, 0.75);
+  box-shadow: 0 12px 26px -12px rgba(252, 211, 77, 0.3);
 }
 
 .vt-bet-footnote {
