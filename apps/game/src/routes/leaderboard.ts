@@ -32,47 +32,79 @@ const TOP_N = 100;
 const PUBLIC_CACHE_HEADER = "public, max-age=30, stale-while-revalidate=60";
 
 /**
- * Per-tournament catalogue of fixture kickoff epoch-ms, sorted ascending.
- * Used to compute `matches_available_to_user` = count of fixtures whose
- * kickoff has happened AND landed strictly after the user's
- * `registered_at` timestamp. Cached for the process lifetime; FIFA
- * 2026 fixtures don't change.
+ * Per-tournament catalogue: match_id → kickoff_utc epoch-ms.
+ * Used so we can join the set of recorded match-results against
+ * fixture kickoff times when computing `matches_available_to_user`.
+ * FIFA 2026 fixtures don't change so the catalogue is process-cached.
  */
-const kickoffCatalogueCache = new Map<string, readonly number[]>();
+const kickoffCatalogueCache = new Map<string, ReadonlyMap<string, number>>();
 
-function kickoffCatalogue(tournamentId: string): readonly number[] {
+function kickoffCatalogue(tournamentId: string): ReadonlyMap<string, number> {
   const cached = kickoffCatalogueCache.get(tournamentId);
   if (cached) return cached;
-  const kickoffs: number[] = [];
+  const map = new Map<string, number>();
   if (tournamentId === "fifa-wc-2026") {
     const tournament = loadFixtures2026();
     for (const f of tournament.group_fixtures) {
       const ms = Date.parse(f.kickoff_utc);
-      if (!Number.isNaN(ms)) kickoffs.push(ms);
+      if (!Number.isNaN(ms)) map.set(String(f.match_no), ms);
     }
     for (const k of tournament.knockouts) {
       if (!k.kickoff_utc) continue;
       const ms = Date.parse(k.kickoff_utc);
-      if (!Number.isNaN(ms)) kickoffs.push(ms);
+      if (!Number.isNaN(ms)) map.set(k.id, ms);
     }
-    kickoffs.sort((a, b) => a - b);
   }
-  kickoffCatalogueCache.set(tournamentId, kickoffs);
-  return kickoffs;
+  kickoffCatalogueCache.set(tournamentId, map);
+  return map;
 }
 
-/** Count of fixtures whose kickoff is <= `now` and > `registeredAt`. */
+/**
+ * Count of matches whose result has been recorded AND whose kickoff
+ * landed strictly after `registeredAt`. This is the per-user
+ * denominator in the leaderboard's "X / Y" display.
+ *
+ *   - Numerator (`score_total`) is awarded by the recompute hook
+ *     when a result lands.
+ *   - Denominator (this) is the same set, scoped to matches the user
+ *     could legitimately have predicted (kickoff after they joined).
+ *
+ * A user who joined at match 10's kickoff and got match 11's result
+ * right is `1 / 1`; a user who joined before match 1 and went 5-for-
+ * 10 is `5 / 10` and ranks above. Tim 2026-06-07. */
 function matchesAvailableTo(
-  tournamentId: string,
+  recordedMatchKickoffs: readonly number[],
   registeredAt: number,
-  now: number,
 ): number {
-  const kickoffs = kickoffCatalogue(tournamentId);
   let count = 0;
-  for (const k of kickoffs) {
-    if (k <= now && k > registeredAt) count += 1;
+  for (const k of recordedMatchKickoffs) {
+    if (k > registeredAt) count += 1;
   }
   return count;
+}
+
+/**
+ * Resolve the kickoff times for every match-result row in
+ * `tournamentId`, returning an array of epoch-ms (kickoff-of-recorded
+ * match, sorted ascending). Matches whose id isn't in the fixture
+ * catalogue (test rows, custom tournaments) are skipped.
+ *
+ * Cheap: one O(R) walk over recorded results + O(1) catalogue
+ * lookups. Re-fetched per leaderboard render so a newly-POSTed result
+ * is reflected the moment the cache is invalidated.
+ */
+function recordedMatchKickoffs(
+  store: GameStore,
+  tournamentId: string,
+): readonly number[] {
+  const catalogue = kickoffCatalogue(tournamentId);
+  const out: number[] = [];
+  for (const r of store.listMatchResults(tournamentId)) {
+    const k = catalogue.get(r.match_id);
+    if (typeof k === "number") out.push(k);
+  }
+  out.sort((a, b) => a - b);
+  return out;
 }
 
 /**
@@ -156,18 +188,14 @@ export async function registerLeaderboardRoutes(
           return deps.store.federatedNodes.listFederatedTopK(TOP_N);
         }
         const rows = deps.store.topNByScope(tournamentId, scope, TOP_N);
-        const now = Date.now();
+        const recorded = recordedMatchKickoffs(deps.store, tournamentId);
         return rows.map((r, i) => ({
           rank: i + 1,
           user_handle: hashUserHandle(r.user_id),
           share_guid: r.share_guid,
           score_total: r.score_total,
           bracket_id: r.id,
-          matches_available_to_user: matchesAvailableTo(
-            tournamentId,
-            r.joined_at,
-            now,
-          ),
+          matches_available_to_user: matchesAvailableTo(recorded, r.joined_at),
         }));
       });
       reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
@@ -187,18 +215,15 @@ export async function registerLeaderboardRoutes(
       return { tournament_id: tournamentId, rows: cached };
     }
     const rows = deps.store.topN(tournamentId, TOP_N);
-    const now = Date.now();
+    const recorded = recordedMatchKickoffs(deps.store, tournamentId);
     const out: LeaderboardRow[] = rows.map((r, i) => ({
       rank: i + 1,
       user_handle: hashUserHandle(r.user_id),
       share_guid: r.share_guid,
       score_total: r.score_total,
+      correct_picks: r.correct_picks,
       bracket_id: r.id,
-      matches_available_to_user: matchesAvailableTo(
-        tournamentId,
-        r.joined_at,
-        now,
-      ),
+      matches_available_to_user: matchesAvailableTo(recorded, r.joined_at),
     }));
     deps.cache.set(key, out);
     reply.header("Cache-Control", PUBLIC_CACHE_HEADER);
@@ -233,18 +258,15 @@ export async function registerLeaderboardRoutes(
         };
       }
       const rows = deps.store.topNForSyndicate(tournamentId, syndicateId, TOP_N);
-      const now = Date.now();
+      const recorded = recordedMatchKickoffs(deps.store, tournamentId);
       const out: LeaderboardRow[] = rows.map((r, i) => ({
         rank: i + 1,
         user_handle: hashUserHandle(r.user_id),
         share_guid: r.share_guid,
         score_total: r.score_total,
+        correct_picks: r.correct_picks,
         bracket_id: r.id,
-        matches_available_to_user: matchesAvailableTo(
-          tournamentId,
-          r.joined_at,
-          now,
-        ),
+        matches_available_to_user: matchesAvailableTo(recorded, r.joined_at),
       }));
       deps.cache.set(key, out);
       reply.header("Cache-Control", PUBLIC_CACHE_HEADER);

@@ -77,21 +77,31 @@ export interface LeaderboardRow {
   readonly rank: number;
   readonly user_handle: string;
   readonly share_guid: string | null;
+  /**
+   * Multiplier-weighted score (legacy semantic, docs/16). Kept so
+   * existing analytics / tests stay green; the leaderboard UI now
+   * displays `correct_picks` as the X column.
+   */
   readonly score_total: number;
+  /**
+   * Count of correctly predicted match outcomes (1 per right match,
+   * no partial credit). This is the X in the leaderboard's "X / Y"
+   * display. Sort order is `correct_picks DESC, locked_at ASC`.
+   * Tim 2026-06-07. */
+  readonly correct_picks: number;
   readonly bracket_id: string;
   /**
-   * Count of tournament fixtures whose kickoff_utc has elapsed AND
-   * landed strictly after this user's "registered at" timestamp.
-   * Denominator for the "X / Y" display: how many matches has this
-   * particular user actually been around to score on?
+   * Count of tournament matches whose result has been recorded AND
+   * whose kickoff_utc landed strictly after this user's "registered
+   * at" timestamp. Denominator for the "X / Y" display: how many
+   * matches has this particular user actually been around to score
+   * on?
    *
    *   - For syndicate scope: registered_at = syndicate_members.joined_at.
    *   - For global scope: registered_at = brackets.locked_at (the
    *     first time the user committed predictions to the tournament).
    *
-   * 0 before any fixture has kicked off (the entire tournament is
-   * pre-kickoff today). Renders as `0 / 0` until the first match
-   * starts, then ticks up. Tim 2026-06-07.
+   * 0 before any result lands. Tim 2026-06-07.
    */
   readonly matches_available_to_user: number;
 }

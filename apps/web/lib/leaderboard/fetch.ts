@@ -22,11 +22,16 @@ export interface LeaderboardRow {
   /** Public-share token for the user's bracket. Deep-links to the
    * public-profile page. May be null on legacy rows. */
   readonly share_guid: string | null;
+  /** Multiplier-weighted score (docs/16). Surfaced for any analytics
+   * the UI may want; the leaderboard X column is `correct_picks`. */
   readonly score_total: number;
+  /** Count of correctly predicted match outcomes (1 per right match).
+   * The leaderboard renders this as the X in "X / Y". */
+  readonly correct_picks: number;
   readonly bracket_id: string;
-  /** Count of fixtures kicked off after this user registered AND on
-   * or before now. The leaderboard renders `X / Y` as
-   * `score_total / matches_available_to_user`. */
+  /** Count of recorded match results whose fixture kickoff_utc landed
+   * after this user registered. The leaderboard renders this as the
+   * Y in "X / Y" — a late joiner has a smaller Y than an early one. */
   readonly matches_available_to_user: number;
 }
 

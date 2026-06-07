@@ -508,7 +508,12 @@ Content-Type: application/json
                 <Link href="/bots/node">/bots/node</Link>. Operators
                 hold their bot brackets locally and only publish
                 pre-kickoff merkle commitments + post-match aggregates
-                to the central server.
+                to the central server. Already running a node? See{" "}
+                <Link href="/bots/node#updating">
+                  Updating your bot-node
+                </Link>{" "}
+                for the v0.2.0 strategy recalibration and the upgrade
+                path.
               </p>
             </details>
             <details>

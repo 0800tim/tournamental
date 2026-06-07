@@ -102,8 +102,12 @@ export function useCountUp<T extends HTMLElement = HTMLElement>(
     }
 
     // Tween a private holder so we don't churn React state every frame.
+    // We DON'T overwrite el.textContent here, the SSR-rendered number
+    // stays visible until the section scrolls into view (Tim 2026-06-07,
+    // previously a 1-correct-pick leaderboard rendered '0' on first
+    // paint, only animating up to '1' once the user scrolled — fine
+    // for big jingoistic ticker numbers, jarring for a leaderboard).
     const holder = { v: 0 };
-    el.textContent = format(0);
 
     const tween = gsap.to(holder, {
       v: target,
@@ -126,7 +130,13 @@ export function useCountUp<T extends HTMLElement = HTMLElement>(
       // as the IntersectionObserver-based reveals on marketing.
       start: "top 85%",
       once: true,
-      onEnter: () => tween.play(),
+      onEnter: () => {
+        // Reset to 0 the moment the tween starts so the animation has
+        // somewhere to count up from.
+        holder.v = 0;
+        el.textContent = format(0);
+        tween.play();
+      },
     });
 
     return () => {

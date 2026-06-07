@@ -258,6 +258,97 @@ cheating node: cannot produce a valid proof, gets flagged + delisted.`}</code></
               Phase 2 lands.
             </p>
           </section>
+
+          <section id="updating" className="vt-sdk-section">
+            <h2>Updating to a new bot-node release</h2>
+            <p>
+              Tournamental publishes strategy and protocol updates
+              regularly. Running an out-of-date bot-node still posts to
+              the leaderboard, but your picks will trail real-world
+              signal. The most recent release,{" "}
+              <strong>v0.2.0</strong>, fixes a calibration bug where
+              chalk-blended group matches resolved to all-draws and the
+              cup-winner cascade favoured longshots. Full changelog at{" "}
+              <a
+                href="https://github.com/0800tim/tournamental/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                github.com/0800tim/tournamental/releases
+              </a>
+              .
+            </p>
+
+            <h3>Check the current version</h3>
+            <pre className="vt-sdk-code"><code>{`docker exec tournamental-bot-node tournamental-bot-node --version`}</code></pre>
+
+            <h3>Update via Docker (preferred)</h3>
+            <p>
+              Pull the new image and recreate the container in place.
+              The named-volume bot data is preserved across the upgrade
+              (the SQLite DBs survive container recreate).
+            </p>
+            <pre className="vt-sdk-code"><code>{`cd path/to/your/docker-compose-dir
+docker compose pull
+docker compose up -d --force-recreate`}</code></pre>
+
+            <h3>Update via npm (if you embedded the SDK directly)</h3>
+            <pre className="vt-sdk-code"><code>{`npm install @tournamental/bot-node@latest
+# or pin a specific version:
+npm install @tournamental/bot-node@0.2.0`}</code></pre>
+
+            <h3>Verify the update worked</h3>
+            <ul>
+              <li>
+                Hit the node&apos;s <code>/stats</code> endpoint and
+                confirm the version field reflects the new release. If
+                your build doesn&apos;t expose <code>version</code> on{" "}
+                <code>/stats</code> yet, rely on the CLI{" "}
+                <code>--version</code> output instead.
+              </li>
+              <li>
+                Open a sample bot&apos;s bracket on{" "}
+                <code>play.tournamental.com/run/bots/&lt;index&gt;</code>{" "}
+                and confirm group matches no longer all resolve to{" "}
+                <em>Draw</em>, and the cup-winner pick is not a
+                tournament longshot.
+              </li>
+            </ul>
+
+            <h3>Versioning policy</h3>
+            <ul>
+              <li>Tournamental uses semver.</li>
+              <li>
+                <code>0.x.x</code> is pre-1.0. Strategy and protocol
+                semantics may change with a minor bump, so{" "}
+                <code>0.1 → 0.2</code> is a breaking strategy change.
+              </li>
+              <li>
+                Pin major + minor in production:{" "}
+                <code>@tournamental/bot-node@^0.2.0</code>.
+              </li>
+              <li>
+                Subscribe to GitHub releases at{" "}
+                <a
+                  href="https://github.com/0800tim/tournamental/releases"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  github.com/0800tim/tournamental/releases
+                </a>{" "}
+                for changelogs.
+              </li>
+            </ul>
+
+            <h3>Got bots running on an old version?</h3>
+            <p>
+              Previously-generated bot brackets stay on the
+              leaderboard. The commits are immutable, so nothing you
+              already published gets rewritten. Only new batches go
+              through the new strategy. Recommended sequence: stop the
+              swarm, update, restart. No bot-history loss.
+            </p>
+          </section>
         </article>
       </main>
     </AppShell>

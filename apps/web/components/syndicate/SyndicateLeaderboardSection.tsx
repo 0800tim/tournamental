@@ -52,7 +52,10 @@ function rowToMember(r: LeaderboardRow): MockMember {
     country: "",
     flag: "🌐",
     rank: r.rank,
-    points: r.score_total,
+    // Numerator is the count of correctly predicted match outcomes.
+    // The multiplier-weighted `score_total` stays on the wire for
+    // analytics but doesn't drive the X column.
+    points: r.correct_picks,
     movement: 0,
     matchesAvailable: r.matches_available_to_user,
   };

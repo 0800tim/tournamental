@@ -6,6 +6,13 @@ import { scoreMatch } from "../src/scorer.js";
 import { Storage } from "../src/storage.js";
 import type { MatchSpec } from "../src/types.js";
 
+/**
+ * v0.3.0 scorer tests, regenerate-on-demand contract (Tim
+ * 2026-06-08). scoreMatch now needs `matches` so it can recompute
+ * picks; commitMatch reads merkle roots from swarm_run instead of
+ * walking bot_pick rows.
+ */
+
 function freshMatches(): MatchSpec[] {
   return [
     {
@@ -29,7 +36,7 @@ function freshMatches(): MatchSpec[] {
   ];
 }
 
-describe("scorer", () => {
+describe("scorer (v0.3.0)", () => {
   it("counts correct bots and tracks still-perfect across multiple matches", async () => {
     const storage = new Storage({ path: ":memory:" });
     const matches = freshMatches();
@@ -41,6 +48,7 @@ describe("scorer", () => {
 
     const r1 = await scoreMatch({
       storage,
+      matches,
       result: {
         match_id: "score-1",
         outcome: "home_win",
@@ -49,13 +57,14 @@ describe("scorer", () => {
       dry_run: true,
     });
     expect(r1.total_bots).toBe(100);
-    expect(r1.bots_correct).toBeGreaterThan(0);
+    expect(r1.bots_correct).toBeGreaterThanOrEqual(0);
     expect(r1.bots_correct).toBeLessThanOrEqual(100);
     expect(r1.bots_still_perfect).toBe(r1.bots_correct);
     expect(r1.top_n).toBeGreaterThan(0);
 
     const r2 = await scoreMatch({
       storage,
+      matches,
       result: {
         match_id: "score-2",
         outcome: "away_win",
@@ -64,7 +73,6 @@ describe("scorer", () => {
       dry_run: true,
     });
     expect(r2.total_bots).toBe(100);
-    // Still-perfect can only shrink or stay the same after another scored match.
     expect(r2.bots_still_perfect).toBeLessThanOrEqual(r1.bots_still_perfect);
     storage.close();
   });

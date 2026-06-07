@@ -37,16 +37,27 @@
 .vt-arena-title {
   font-family: Fraunces, Georgia, serif;
   font-weight: 500;
-  font-size: clamp(32px, 5.5vw, 56px);
-  line-height: 1.05;
+  /* Tim 2026-06-08: cap a touch lower than 56 so the snappier two-beat
+   * headline ("Spawn a million bots..." / "Will yours top...") lays
+   * out as two clean lines on desktop instead of breaking awkwardly. */
+  font-size: clamp(30px, 5vw, 50px);
+  line-height: 1.08;
   letter-spacing: -0.02em;
   color: #ffffff;
   margin: 0;
+  /* text-wrap: balance distributes leftover words across lines instead
+   * of orphaning a single word on the last line; widely supported in
+   * modern browsers, falls back to normal wrapping where unavailable. */
+  text-wrap: balance;
+  max-width: 22ch;
 }
 .vt-arena-title em {
   font-style: italic;
   color: #f6c64f;
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.78em;
 }
 
 .vt-arena-lede {
@@ -180,6 +191,34 @@
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
   margin: 0 0 32px;
+}
+/* Tim 2026-06-08: hero variant sits inside the photo scrim above the
+ * CTAs. Compact, transparent panels so the underlying photo still
+ * carries the banner. */
+.vt-arena-stats--hero {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 22px 0 6px;
+  max-width: 640px;
+}
+.vt-arena-stats--hero .vt-arena-stat {
+  padding: 10px 14px 10px;
+  background: rgba(8, 10, 18, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(220, 169, 75, 0.36);
+}
+.vt-arena-stats--hero .vt-arena-stat-value {
+  font-size: clamp(22px, 3vw, 28px);
+}
+.vt-arena-stats--hero .vt-arena-stat-label,
+.vt-arena-stats--hero .vt-arena-stat-sub {
+  font-size: 10px;
+}
+@media (max-width: 560px) {
+  .vt-arena-stats--hero {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 .vt-arena-stat {
   border-radius: 12px;

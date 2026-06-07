@@ -172,6 +172,34 @@ export class SwarmSummaryStore {
   }
 
   /**
+   * Aggregate totals across every operator's latest summary. Surfaced
+   * through the /v1/swarm/totals "bots in the arena" headline so
+   * federation-mode operators (browser tabs at /run, bot-node Docker
+   * containers, anything that posts to /v1/swarms/<id>/summary) get
+   * folded in alongside the older swarm_claims tally.
+   */
+  totals(): { total_bots: number; total_operators: number } {
+    const row = this.db
+      .prepare(
+        `SELECT COUNT(*) AS total_operators, COALESCE(SUM(latest_total), 0) AS total_bots
+           FROM (
+             SELECT operator_id, total_bots AS latest_total
+               FROM swarm_summary s
+              WHERE kickoff_at = (
+                SELECT MAX(kickoff_at) FROM swarm_summary s2
+                 WHERE s2.operator_id = s.operator_id
+              )
+              GROUP BY operator_id
+           )`,
+      )
+      .get() as { total_bots: number; total_operators: number };
+    return {
+      total_bots: Number(row.total_bots ?? 0),
+      total_operators: Number(row.total_operators ?? 0),
+    };
+  }
+
+  /**
    * Latest summary per operator. Used by the perfect-track watcher to
    * find any operator still carrying alive bots past match 80.
    */

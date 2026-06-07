@@ -49,13 +49,21 @@ export default function BotArenaPage(): JSX.Element {
             <p className="vt-arena-dateline">
               Tournamental Open Bot Arena &middot; Live now
             </p>
+            {/* Tim 2026-06-08: tighter copy so the headline doesn't wrap
+              * into a 5-line wall on desktop. Two beats: action verb
+              * with the scale, then the italic gold competitive hook.
+              * text-wrap: balance on .vt-arena-title gives graceful
+              * line breaks if it still has to wrap on narrow widths. */}
             <h1 className="vt-arena-title">
-              Spawn millions or billions of bots.
+              Spawn a million bots to predict the FIFA World Cup.
               <br />
-              Change predictions anytime.
-              <br />
-              <em>Will one of your bots dominate the bot leaderboard?</em>
+              <em>Will yours top the leaderboard?</em>
             </h1>
+            {/* Live stats live in the hero now (rep'd from the strip
+              * that used to sit below). Pulls device-local count from
+              * IndexedDB and the server aggregate from /v1/swarm/totals;
+              * hidden by the component itself until either is non-zero. */}
+            <ArenaStats variant="hero" />
             <div className="vt-arena-cta-row">
               <Link href="/run" className="vt-arena-cta-primary">
                 Run your own bot swarm now <span aria-hidden="true">&rarr;</span>
@@ -73,13 +81,6 @@ export default function BotArenaPage(): JSX.Element {
             </p>
           </div>
         </header>
-
-        {/* Live stats chips (client island). Hidden until the device
-          * has bots or the server-aggregate has crossed zero. Polls
-          * /v1/swarm/totals every 45s; the endpoint caches for 60s so
-          * the strip ticks across browser windows and accounts within
-          * a one-minute window. */}
-        <ArenaStats />
 
         <span id="how" />
 

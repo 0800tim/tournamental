@@ -4,21 +4,17 @@
  * Reads the cumulative count from IndexedDB (swarm_state.total_bots_
  * generated). For each page, regenerates the 1,000 bots on demand
  * via the deterministic chalk strategy and shows a one-line summary
- * with gold / silver / bronze flags for the three most-likely cup
- * winners according to each bot's tuned strategy.
+ * with the bot's champion pick. The full bracket lives behind the
+ * "view bracket" link, so the list stays scannable.
  *
  * All in-browser. No network. The list scales from zero to billions
  * because we never materialise the picks, we just enumerate indices.
  *
- * Tim 2026-06-07: rewired onto the real WC 2026 fixtures
- * (`@tournamental/bracket-engine`'s `loadFixtures2026()`). Each row
- * now shows a deterministic FIFA-flag persona, the bot's sentimental
- * "darling team" as the gold pick (which is what drives variety
- * across the list, without which the chalk strategy clusters every
- * confident bot onto the rank-1 favourite), and the bot's two
- * next-highest-confidence real-team picks across the 72 group
- * matches as silver/bronze. Knockouts use slot labels pre-tournament
- * so they're excluded from the medal columns.
+ * Tim 2026-06-08: dropped the silver/bronze "next pick / 3rd pick"
+ * columns; they always landed on the same two FIFA favourites and
+ * added no information. Also gated the "darling" label on the
+ * champion being a real top-16 contender, so longshots like Iraq or
+ * Cape Verde no longer carry the label.
  */
 
 "use client";
@@ -34,7 +30,6 @@ import {
   botIdFromIndex,
   chalkScoreForBot,
   darlingTeamForBot,
-  regenerateBotPick,
   teamMeta,
 } from "@/components/browser-swarm/regenerate";
 import { personaForBot } from "@/components/browser-swarm/personas";
@@ -44,6 +39,13 @@ import "./bots.css";
 
 const PAGE_SIZE = 1000;
 
+/**
+ * Only flag a champion as a "darling" pick when the team is a real
+ * FIFA top-16 contender. Below that, the label is uncredible noise
+ * (longshots like Iraq or Cape Verde) and we suppress it.
+ */
+const DARLING_RANK_THRESHOLD = 16;
+
 interface BotRowSummary {
   readonly index: number;
   readonly bot_id: string;
@@ -52,11 +54,10 @@ interface BotRowSummary {
   readonly persona_handle: string;
   readonly persona_flag: string;
   readonly persona_country: string;
-  /** Champion pick (gold): the bot's sentimental darling team. */
-  readonly champion: { team: string; team_name: string };
-  /** Silver/bronze: the bot's next two highest-confidence real-team
-   *  picks across the group stage. */
-  readonly top_supporting: ReadonlyArray<{ team: string; team_name: string; probability: number }>;
+  /** Champion pick: the bot's sentimental darling team. The
+   *  `is_darling` flag is true only when the team is in the FIFA
+   *  top-16, so the badge is only shown when it adds signal. */
+  readonly champion: { team: string; team_name: string; is_darling: boolean };
 }
 
 function teamDisplayName(code: string): string {
@@ -69,15 +70,9 @@ export default function BotsListPage(): JSX.Element {
   const [rows, setRows] = useState<readonly BotRowSummary[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  const matches = useMemo(() => buildDemoMatches(), []);
-  // Only group fixtures carry real team codes pre-tournament; knockout
-  // slot labels are placeholders until the cascade resolves. The
-  // silver/bronze "high-confidence pick" columns therefore look at
-  // group matches only so they always render a recognisable team.
-  const groupMatches = useMemo(
-    () => matches.filter((m) => m.allows_draw),
-    [matches],
-  );
+  // Build the fixture set once so cached team metadata is warmed for
+  // teamMeta() lookups in the row loop below.
+  useMemo(() => buildDemoMatches(), []);
 
   // Load cumulative count once.
   useEffect(() => {
@@ -122,38 +117,10 @@ export default function BotsListPage(): JSX.Element {
         const chalk_score = chalkScoreForBot(MASTER_SEED, i);
         const persona = personaForBot(MASTER_SEED, i);
         const darling = darlingTeamForBot(MASTER_SEED, i);
-
-        // Silver/bronze: scan group matches, pick the two highest-
-        // confidence non-draw outcomes that land on a real team code.
-        const picks = groupMatches
-          .map((m) => {
-            const pick = regenerateBotPick(MASTER_SEED, i, m);
-            const team =
-              pick.chosen === "home_win"
-                ? m.home_team
-                : pick.chosen === "away_win"
-                  ? m.away_team
-                  : null;
-            return { team, probability: pick.chosenProbability };
-          })
-          .filter((p): p is { team: string; probability: number } => p.team !== null)
-          .sort((a, b) => b.probability - a.probability);
-
-        // De-dup so we don't show the same team three times. The
-        // chalk strategy concentrates probability on the favourite
-        // across all of that team's three group games.
-        const seen = new Set<string>([darling]);
-        const top_supporting: Array<{ team: string; team_name: string; probability: number }> = [];
-        for (const p of picks) {
-          if (seen.has(p.team)) continue;
-          seen.add(p.team);
-          top_supporting.push({
-            team: p.team,
-            team_name: teamDisplayName(p.team),
-            probability: p.probability,
-          });
-          if (top_supporting.length >= 2) break;
-        }
+        const darling_meta = teamMeta(darling);
+        const is_darling =
+          darling_meta !== null &&
+          darling_meta.fifa_rank <= DARLING_RANK_THRESHOLD;
 
         computed.push({
           index: i,
@@ -163,8 +130,11 @@ export default function BotsListPage(): JSX.Element {
           persona_handle: persona.handle,
           persona_flag: persona.flag,
           persona_country: persona.country,
-          champion: { team: darling, team_name: teamDisplayName(darling) },
-          top_supporting,
+          champion: {
+            team: darling,
+            team_name: teamDisplayName(darling),
+            is_darling,
+          },
         });
       }
       if (i < endIdx) {
@@ -179,7 +149,7 @@ export default function BotsListPage(): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [page, total, groupMatches]);
+  }, [page, total]);
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
@@ -246,18 +216,7 @@ export default function BotsListPage(): JSX.Element {
                     <th>Persona</th>
                     <th>Bot ID</th>
                     <th>Chalk score</th>
-                    <th>
-                      <span className="vt-bots-medal vt-bots-medal--gold" aria-label="gold">🥇</span>{" "}
-                      Champion pick
-                    </th>
-                    <th>
-                      <span className="vt-bots-medal vt-bots-medal--silver" aria-label="silver">🥈</span>{" "}
-                      Next pick
-                    </th>
-                    <th>
-                      <span className="vt-bots-medal vt-bots-medal--bronze" aria-label="bronze">🥉</span>{" "}
-                      3rd pick
-                    </th>
+                    <th>Champion pick</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -278,24 +237,12 @@ export default function BotsListPage(): JSX.Element {
                       <td>{row.chalk_score.toFixed(3)}</td>
                       <td>
                         <span className="vt-bots-pick">
-                          <strong>{row.champion.team_name}</strong>{" "}
-                          <span className="vt-bots-prob">darling</span>
+                          <strong>{row.champion.team_name}</strong>
+                          {row.champion.is_darling ? (
+                            <span className="vt-bots-prob">darling</span>
+                          ) : null}
                         </span>
                       </td>
-                      {[0, 1].map((medalIdx) => (
-                        <td key={medalIdx}>
-                          {row.top_supporting[medalIdx] ? (
-                            <span className="vt-bots-pick">
-                              <strong>{row.top_supporting[medalIdx]!.team_name}</strong>{" "}
-                              <span className="vt-bots-prob">
-                                {Math.round(row.top_supporting[medalIdx]!.probability * 100)}%
-                              </span>
-                            </span>
-                          ) : (
-                            <span className="vt-bots-pick-empty">-</span>
-                          )}
-                        </td>
-                      ))}
                       <td>
                         <Link
                           href={`/run/bots/${row.index}`}

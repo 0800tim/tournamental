@@ -1,6 +1,6 @@
 {
   "name": "@tournamental/bot-node",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Federated Tournamental Bot Node: run your own bot swarm, commit merkle roots pre-kickoff, report aggregates post-match. Apache 2.0.",
   "keywords": [
     "tournamental",

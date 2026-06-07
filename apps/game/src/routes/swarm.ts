@@ -210,13 +210,21 @@ export async function registerSwarmRoutes(
   app.get("/v1/swarm/totals", async (_req, reply) => {
     const now = Date.now();
     if (!totalsCache || now - totalsCache.at_ms > TOTALS_TTL_MS) {
-      const t = deps.store.swarmClaims.totals();
+      // Two aggregation paths fold into one headline:
+      //   swarm_claims     - per-run best-bot OTS claims (A11 era)
+      //   swarm_summary    - per-operator federated aggregates (A13 era,
+      //                      what /run + bot-node container POST to)
+      // Without this fold the bot-arena card showed only the claims
+      // bucket, so a container posting 1.45M bots to swarm_summary
+      // never moved the headline. Tim 2026-06-08.
+      const claims = deps.store.swarmClaims.totals();
+      const summaries = deps.store.swarmSummaries.totals();
       totalsCache = {
         at_ms: now,
         body: {
-          total_bots: t.total_bots,
-          total_swarms: t.total_swarms,
-          total_devices: t.total_devices,
+          total_bots: claims.total_bots + summaries.total_bots,
+          total_swarms: claims.total_swarms + summaries.total_operators,
+          total_devices: claims.total_devices + summaries.total_operators,
           cached_at_utc: new Date(now).toISOString(),
         },
       };

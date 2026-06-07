@@ -100,9 +100,22 @@ export function chalkDecide(match: MatchSpec, ctx: ChalkContext): ChalkPick {
   return { outcome: outcomes[outcomes.length - 1]! };
 }
 
+/**
+ * Default chalk-score distribution. Bucketed three-tier:
+ *   50% chalk-followers   [0.70, 0.90]
+ *   30% moderates         [0.40, 0.70]
+ *   20% contrarians       [0.05, 0.40]
+ *
+ * Mirrors `chalkScoreForBot` in regenerate.ts so the worker-generated
+ * picks and the on-demand /run/bots/* regeneration use the same score
+ * distribution and don't diverge.
+ */
 export function defaultChalkScore(seed: string): number {
-  const f = seededFraction(seed, "chalk_score");
-  return 0.65 + f * 0.25;
+  const tierRoll = seededFraction(seed, "tier");
+  const innerRoll = seededFraction(seed, "chalk_score");
+  if (tierRoll < 0.5) return 0.7 + innerRoll * 0.2;
+  if (tierRoll < 0.8) return 0.4 + innerRoll * 0.3;
+  return 0.05 + innerRoll * 0.35;
 }
 
 export const CHALK_STRATEGY_NAME = "chalk-v1" as const;

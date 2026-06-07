@@ -160,6 +160,69 @@
   margin-top: 32px;
 }
 
+/* Tim 2026-06-08: incognito / private browsing banner. IndexedDB is
+ * wiped when the last private window closes, so the user's bot picks
+ * vanish along with any audit trail. The warning sits above the
+ * Storage card and is dismissible. */
+.vt-swarm-incognito-warning {
+  margin: 0 0 20px;
+  padding: 16px 20px;
+  background: linear-gradient(180deg, rgba(220, 60, 60, 0.10) 0%, rgba(220, 60, 60, 0.04) 100%);
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 12px;
+  color: #fecaca;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.vt-swarm-incognito-warning-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.vt-swarm-incognito-warning-head strong {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 17px;
+  color: #fde68a;
+  letter-spacing: -0.01em;
+}
+.vt-swarm-incognito-warning p {
+  margin: 6px 0 0;
+}
+.vt-swarm-incognito-warning code {
+  background: rgba(0, 0, 0, 0.35);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 12.5px;
+}
+.vt-swarm-incognito-ack {
+  margin-top: 10px;
+  background: transparent;
+  color: #fecaca;
+  border: 1px solid rgba(248, 113, 113, 0.55);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 12px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+}
+.vt-swarm-incognito-ack:hover {
+  background: rgba(248, 113, 113, 0.15);
+}
+.vt-swarm-incognito-cleared {
+  margin-top: 10px !important;
+  color: #86efac;
+  font-weight: 500;
+}
+.vt-swarm-start-blocked {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: #fca5a5;
+  line-height: 1.5;
+}
+
 .vt-swarm-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -636,6 +699,19 @@
   color: #dca94b;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.vt-swarm-odds-source {
+  margin: 0 0 14px;
+  padding: 8px 12px;
+  border: 1px solid rgba(220, 169, 75, 0.25);
+  border-radius: 6px;
+  background: rgba(220, 169, 75, 0.06);
+  color: #c7d0e6;
+}
+.vt-swarm-odds-source strong {
+  color: #f6c64f;
+  font-weight: 600;
 }
 
 .vt-swarm-faq-list {
