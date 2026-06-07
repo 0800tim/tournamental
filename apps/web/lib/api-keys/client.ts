@@ -218,3 +218,79 @@ export const ALL_SCOPES: readonly string[] = [
   "picks:write",
   "share:write",
 ];
+
+// ---------------------------------------------------------------------
+// Cookie-session fallback (no Supabase needed).
+//
+// The flows above all require a Supabase JWT, which doesn't exist for
+// vtorn-dev users who signed in via SMS-OTP or Telegram. The fallback
+// posts to /api/v1/bots/keys (the Next.js route that resolves the
+// cookie session via getSessionFromRequest and then proxies to the
+// game-service /v1/bots/keys/issue endpoint). The plaintext key is in
+// the response and rendered as a freshly-minted key with the same UX
+// as the Supabase path.
+//
+// Returns the minted key in the same `MintedUserApiKey` shape the
+// Supabase-backed `mintApiKey()` returns so the UI can be agnostic.
+// ---------------------------------------------------------------------
+
+interface BotsKeysIssueResponse {
+  api_key?: string;
+  key_hash?: string;
+  owner_email?: string;
+  label?: string | null;
+  quota_bots?: number;
+  quota_picks_per_hour?: number;
+  created_at?: number;
+  error?: string;
+  message?: string;
+}
+
+export async function mintApiKeyViaCookie(
+  input: MintInput,
+): Promise<ApiKeysResult<MintedUserApiKey>> {
+  try {
+    const res = await fetch("/api/v1/bots/keys", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ label: input.label }),
+      cache: "no-store",
+      credentials: "same-origin",
+    });
+    const json = ((await readJson(res)) ?? {}) as BotsKeysIssueResponse;
+    if (!res.ok || !json.api_key) {
+      return {
+        ok: false,
+        status: res.status,
+        code: json.error ?? "mint_failed",
+        message: json.message,
+      };
+    }
+    const createdAtMs =
+      typeof json.created_at === "number" ? json.created_at : Date.now();
+    const minted: MintedUserApiKey = {
+      // The /v1/bots/keys/issue response carries the same plaintext key
+      // shape as the Supabase /v1/me/api-keys endpoint, but the row
+      // model differs (no per-user keys table on the bot-arena side).
+      // Synthesise the UI fields from what the response provides.
+      id: json.key_hash ?? "bots-key",
+      label: json.label ?? input.label,
+      prefix: json.api_key.slice(0, 8),
+      scopes: input.scopes ?? ALL_SCOPES,
+      rate_limit_rpm: 0,
+      created_at: new Date(createdAtMs).toISOString(),
+      last_used_at: null,
+      revoked_at: null,
+      status: "active",
+      key: json.api_key,
+    };
+    return { ok: true, data: minted };
+  } catch (err) {
+    return {
+      ok: false,
+      status: 0,
+      code: "network_error",
+      message: err instanceof Error ? err.message : String(err),
+    };
+  }
+}
