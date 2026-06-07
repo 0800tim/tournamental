@@ -1,0 +1,30 @@
+{
+  "name": "@tournamental/seed-bots",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Deterministic CLI that seeds ~18k cosmetic humans-style bots for the Tournamental leaderboard.",
+  "type": "module",
+  "bin": {
+    "tournamental-seed-bots": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "dev": "tsx src/index.ts",
+    "seed": "tsx src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.3.0",
+    "seedrandom": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^20.14.10",
+    "@types/seedrandom": "^3.0.8",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^4.1.8"
+  }
+}

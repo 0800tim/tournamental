@@ -1,0 +1,654 @@
+{
+  "tournament_id": "fifa-wc-2026",
+  "groups": {
+    "1": {
+      "home_p": 0.8098,
+      "draw_p": 0.18,
+      "away_p": 0.0102,
+      "favourite_slot": "MEX"
+    },
+    "2": {
+      "home_p": 0.6416,
+      "draw_p": 0.26,
+      "away_p": 0.0984,
+      "favourite_slot": "KOR"
+    },
+    "3": {
+      "home_p": 0.5205,
+      "draw_p": 0.288,
+      "away_p": 0.1915,
+      "favourite_slot": "MEX"
+    },
+    "4": {
+      "home_p": 0.5952,
+      "draw_p": 0.272,
+      "away_p": 0.1328,
+      "favourite_slot": "CZE"
+    },
+    "5": {
+      "home_p": 0.0412,
+      "draw_p": 0.228,
+      "away_p": 0.7308,
+      "favourite_slot": "MEX"
+    },
+    "6": {
+      "home_p": 0.0261,
+      "draw_p": 0.212,
+      "away_p": 0.7619,
+      "favourite_slot": "KOR"
+    },
+    "7": {
+      "home_p": 0.7392,
+      "draw_p": 0.224,
+      "away_p": 0.0368,
+      "favourite_slot": "CAN"
+    },
+    "8": {
+      "home_p": 0.0184,
+      "draw_p": 0.2,
+      "away_p": 0.7816,
+      "favourite_slot": "SUI"
+    },
+    "9": {
+      "home_p": 0.7308,
+      "draw_p": 0.228,
+      "away_p": 0.0412,
+      "favourite_slot": "CAN"
+    },
+    "10": {
+      "home_p": 0.7877,
+      "draw_p": 0.196,
+      "away_p": 0.0163,
+      "favourite_slot": "SUI"
+    },
+    "11": {
+      "home_p": 0.4997,
+      "draw_p": 0.292,
+      "away_p": 0.2083,
+      "favourite_slot": "SUI"
+    },
+    "12": {
+      "home_p": 0.3207,
+      "draw_p": 0.316,
+      "away_p": 0.3633,
+      "favourite_slot": "QAT"
+    },
+    "13": {
+      "home_p": 0.5779,
+      "draw_p": 0.276,
+      "away_p": 0.1461,
+      "favourite_slot": "BRA"
+    },
+    "14": {
+      "home_p": 0.0368,
+      "draw_p": 0.224,
+      "away_p": 0.7392,
+      "favourite_slot": "SCO"
+    },
+    "15": {
+      "home_p": 0.8194,
+      "draw_p": 0.18,
+      "away_p": 0.0006,
+      "favourite_slot": "BRA"
+    },
+    "16": {
+      "home_p": 0.0412,
+      "draw_p": 0.228,
+      "away_p": 0.7308,
+      "favourite_slot": "MAR"
+    },
+    "17": {
+      "home_p": 0.0115,
+      "draw_p": 0.184,
+      "away_p": 0.8045,
+      "favourite_slot": "BRA"
+    },
+    "18": {
+      "home_p": 0.8177,
+      "draw_p": 0.18,
+      "away_p": 0.0023,
+      "favourite_slot": "MAR"
+    },
+    "19": {
+      "home_p": 0.8167,
+      "draw_p": 0.18,
+      "away_p": 0.0033,
+      "favourite_slot": "USA"
+    },
+    "20": {
+      "home_p": 0.6116,
+      "draw_p": 0.268,
+      "away_p": 0.1204,
+      "favourite_slot": "AUS"
+    },
+    "21": {
+      "home_p": 0.5405,
+      "draw_p": 0.284,
+      "away_p": 0.1755,
+      "favourite_slot": "USA"
+    },
+    "22": {
+      "home_p": 0.7219,
+      "draw_p": 0.232,
+      "away_p": 0.0461,
+      "favourite_slot": "TUR"
+    },
+    "23": {
+      "home_p": 0.0461,
+      "draw_p": 0.232,
+      "away_p": 0.7219,
+      "favourite_slot": "USA"
+    },
+    "24": {
+      "home_p": 0.0102,
+      "draw_p": 0.18,
+      "away_p": 0.8098,
+      "favourite_slot": "AUS"
+    },
+    "25": {
+      "home_p": 0.8184,
+      "draw_p": 0.18,
+      "away_p": 0.0016,
+      "favourite_slot": "GER"
+    },
+    "26": {
+      "home_p": 0.0232,
+      "draw_p": 0.208,
+      "away_p": 0.7688,
+      "favourite_slot": "ECU"
+    },
+    "27": {
+      "home_p": 0.8171,
+      "draw_p": 0.18,
+      "away_p": 0.0029,
+      "favourite_slot": "GER"
+    },
+    "28": {
+      "home_p": 0.7991,
+      "draw_p": 0.188,
+      "away_p": 0.0129,
+      "favourite_slot": "ECU"
+    },
+    "29": {
+      "home_p": 0.0798,
+      "draw_p": 0.252,
+      "away_p": 0.6682,
+      "favourite_slot": "GER"
+    },
+    "30": {
+      "home_p": 0.2441,
+      "draw_p": 0.3,
+      "away_p": 0.4559,
+      "favourite_slot": "CIV"
+    },
+    "31": {
+      "home_p": 0.5597,
+      "draw_p": 0.28,
+      "away_p": 0.1603,
+      "favourite_slot": "NED"
+    },
+    "32": {
+      "home_p": 0.1603,
+      "draw_p": 0.28,
+      "away_p": 0.5597,
+      "favourite_slot": "TUN"
+    },
+    "33": {
+      "home_p": 0.7816,
+      "draw_p": 0.2,
+      "away_p": 0.0184,
+      "favourite_slot": "NED"
+    },
+    "34": {
+      "home_p": 0.1603,
+      "draw_p": 0.28,
+      "away_p": 0.5597,
+      "favourite_slot": "JPN"
+    },
+    "35": {
+      "home_p": 0.0577,
+      "draw_p": 0.24,
+      "away_p": 0.7023,
+      "favourite_slot": "NED"
+    },
+    "36": {
+      "home_p": 0.7023,
+      "draw_p": 0.24,
+      "away_p": 0.0577,
+      "favourite_slot": "JPN"
+    },
+    "37": {
+      "home_p": 0.7547,
+      "draw_p": 0.216,
+      "away_p": 0.0293,
+      "favourite_slot": "BEL"
+    },
+    "38": {
+      "home_p": 0.8138,
+      "draw_p": 0.18,
+      "away_p": 0.0062,
+      "favourite_slot": "IRN"
+    },
+    "39": {
+      "home_p": 0.6116,
+      "draw_p": 0.268,
+      "away_p": 0.1204,
+      "favourite_slot": "BEL"
+    },
+    "40": {
+      "home_p": 0.0293,
+      "draw_p": 0.216,
+      "away_p": 0.7547,
+      "favourite_slot": "EGY"
+    },
+    "41": {
+      "home_p": 0.0012,
+      "draw_p": 0.18,
+      "away_p": 0.8188,
+      "favourite_slot": "BEL"
+    },
+    "42": {
+      "home_p": 0.1204,
+      "draw_p": 0.268,
+      "away_p": 0.6116,
+      "favourite_slot": "IRN"
+    },
+    "43": {
+      "home_p": 0.8199,
+      "draw_p": 0.18,
+      "away_p": 0.0001,
+      "favourite_slot": "ESP"
+    },
+    "44": {
+      "home_p": 0.0002,
+      "draw_p": 0.18,
+      "away_p": 0.8198,
+      "favourite_slot": "URU"
+    },
+    "45": {
+      "home_p": 0.8199,
+      "draw_p": 0.18,
+      "away_p": 0.0001,
+      "favourite_slot": "ESP"
+    },
+    "46": {
+      "home_p": 0.8198,
+      "draw_p": 0.18,
+      "away_p": 0.0002,
+      "favourite_slot": "URU"
+    },
+    "47": {
+      "home_p": 0.1755,
+      "draw_p": 0.284,
+      "away_p": 0.5405,
+      "favourite_slot": "ESP"
+    },
+    "48": {
+      "home_p": 0.34,
+      "draw_p": 0.32,
+      "away_p": 0.34,
+      "favourite_slot": "CPV"
+    },
+    "49": {
+      "home_p": 0.6803,
+      "draw_p": 0.248,
+      "away_p": 0.0717,
+      "favourite_slot": "FRA"
+    },
+    "50": {
+      "home_p": 0.0023,
+      "draw_p": 0.18,
+      "away_p": 0.8177,
+      "favourite_slot": "NOR"
+    },
+    "51": {
+      "home_p": 0.82,
+      "draw_p": 0.18,
+      "away_p": 0.0,
+      "favourite_slot": "FRA"
+    },
+    "52": {
+      "home_p": 0.1204,
+      "draw_p": 0.268,
+      "away_p": 0.6116,
+      "favourite_slot": "SEN"
+    },
+    "53": {
+      "home_p": 0.0163,
+      "draw_p": 0.196,
+      "away_p": 0.7877,
+      "favourite_slot": "FRA"
+    },
+    "54": {
+      "home_p": 0.8195,
+      "draw_p": 0.18,
+      "away_p": 0.0005,
+      "favourite_slot": "SEN"
+    },
+    "55": {
+      "home_p": 0.8188,
+      "draw_p": 0.18,
+      "away_p": 0.0012,
+      "favourite_slot": "ARG"
+    },
+    "56": {
+      "home_p": 0.7023,
+      "draw_p": 0.24,
+      "away_p": 0.0577,
+      "favourite_slot": "AUT"
+    },
+    "57": {
+      "home_p": 0.8098,
+      "draw_p": 0.18,
+      "away_p": 0.0102,
+      "favourite_slot": "ARG"
+    },
+    "58": {
+      "home_p": 0.2819,
+      "draw_p": 0.308,
+      "away_p": 0.4101,
+      "favourite_slot": "ALG"
+    },
+    "59": {
+      "home_p": 0.0008,
+      "draw_p": 0.18,
+      "away_p": 0.8192,
+      "favourite_slot": "ARG"
+    },
+    "60": {
+      "home_p": 0.0798,
+      "draw_p": 0.252,
+      "away_p": 0.6682,
+      "favourite_slot": "AUT"
+    },
+    "61": {
+      "home_p": 0.8199,
+      "draw_p": 0.18,
+      "away_p": 0.0001,
+      "favourite_slot": "POR"
+    },
+    "62": {
+      "home_p": 0.0048,
+      "draw_p": 0.18,
+      "away_p": 0.8152,
+      "favourite_slot": "COL"
+    },
+    "63": {
+      "home_p": 0.8182,
+      "draw_p": 0.18,
+      "away_p": 0.0018,
+      "favourite_slot": "POR"
+    },
+    "64": {
+      "home_p": 0.8198,
+      "draw_p": 0.18,
+      "away_p": 0.0002,
+      "favourite_slot": "COL"
+    },
+    "65": {
+      "home_p": 0.1915,
+      "draw_p": 0.288,
+      "away_p": 0.5205,
+      "favourite_slot": "POR"
+    },
+    "66": {
+      "home_p": 0.0328,
+      "draw_p": 0.22,
+      "away_p": 0.7472,
+      "favourite_slot": "UZB"
+    },
+    "67": {
+      "home_p": 0.4997,
+      "draw_p": 0.292,
+      "away_p": 0.2083,
+      "favourite_slot": "ENG"
+    },
+    "68": {
+      "home_p": 0.627,
+      "draw_p": 0.264,
+      "away_p": 0.109,
+      "favourite_slot": "GHA"
+    },
+    "69": {
+      "home_p": 0.7619,
+      "draw_p": 0.212,
+      "away_p": 0.0261,
+      "favourite_slot": "ENG"
+    },
+    "70": {
+      "home_p": 0.0115,
+      "draw_p": 0.184,
+      "away_p": 0.8045,
+      "favourite_slot": "CRO"
+    },
+    "71": {
+      "home_p": 0.0048,
+      "draw_p": 0.18,
+      "away_p": 0.8152,
+      "favourite_slot": "ENG"
+    },
+    "72": {
+      "home_p": 0.7023,
+      "draw_p": 0.24,
+      "away_p": 0.0577,
+      "favourite_slot": "CRO"
+    }
+  },
+  "knockouts": {
+    "73": {
+      "home_p": 0.5312,
+      "away_p": 0.4688,
+      "favourite_slot": "1A"
+    },
+    "74": {
+      "home_p": 0.4688,
+      "away_p": 0.5312,
+      "favourite_slot": "2F"
+    },
+    "75": {
+      "home_p": 0.9047,
+      "away_p": 0.0953,
+      "favourite_slot": "1C"
+    },
+    "76": {
+      "home_p": 0.8355,
+      "away_p": 0.1645,
+      "favourite_slot": "1D"
+    },
+    "77": {
+      "home_p": 0.8355,
+      "away_p": 0.1645,
+      "favourite_slot": "1E"
+    },
+    "78": {
+      "home_p": 0.9047,
+      "away_p": 0.0953,
+      "favourite_slot": "1F"
+    },
+    "79": {
+      "home_p": 0.6225,
+      "away_p": 0.3775,
+      "favourite_slot": "1G"
+    },
+    "80": {
+      "home_p": 0.9047,
+      "away_p": 0.0953,
+      "favourite_slot": "1H"
+    },
+    "81": {
+      "home_p": 0.7549,
+      "away_p": 0.2451,
+      "favourite_slot": "1I"
+    },
+    "82": {
+      "home_p": 0.8355,
+      "away_p": 0.1645,
+      "favourite_slot": "1J"
+    },
+    "83": {
+      "home_p": 0.977,
+      "away_p": 0.023,
+      "favourite_slot": "1K"
+    },
+    "84": {
+      "home_p": 0.8808,
+      "away_p": 0.1192,
+      "favourite_slot": "1L"
+    },
+    "85": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "3A/B/C/D"
+    },
+    "86": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "3I/J/K/L"
+    },
+    "87": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "3C/D/G/H"
+    },
+    "88": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "3A/B/F/J"
+    },
+    "89": {
+      "home_p": 0.5622,
+      "away_p": 0.4378,
+      "favourite_slot": "W73"
+    },
+    "90": {
+      "home_p": 0.7311,
+      "away_p": 0.2689,
+      "favourite_slot": "W75"
+    },
+    "91": {
+      "home_p": 0.4378,
+      "away_p": 0.5622,
+      "favourite_slot": "W78"
+    },
+    "92": {
+      "home_p": 0.3486,
+      "away_p": 0.6514,
+      "favourite_slot": "W80"
+    },
+    "93": {
+      "home_p": 0.4688,
+      "away_p": 0.5312,
+      "favourite_slot": "W82"
+    },
+    "94": {
+      "home_p": 0.4378,
+      "away_p": 0.5622,
+      "favourite_slot": "W84"
+    },
+    "95": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "W85"
+    },
+    "96": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "W87"
+    },
+    "97": {
+      "home_p": 0.2227,
+      "away_p": 0.7773,
+      "favourite_slot": "W90"
+    },
+    "98": {
+      "home_p": 0.3775,
+      "away_p": 0.6225,
+      "favourite_slot": "W92"
+    },
+    "99": {
+      "home_p": 0.5927,
+      "away_p": 0.4073,
+      "favourite_slot": "W93"
+    },
+    "100": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "W95"
+    },
+    "101": {
+      "home_p": 0.4378,
+      "away_p": 0.5622,
+      "favourite_slot": "W98"
+    },
+    "102": {
+      "home_p": 0.9999,
+      "away_p": 0.0001,
+      "favourite_slot": "W99"
+    },
+    "103": {
+      "home_p": 0.5,
+      "away_p": 0.5,
+      "favourite_slot": "L101"
+    },
+    "104": {
+      "home_p": 0.4378,
+      "away_p": 0.5622,
+      "favourite_slot": "W102"
+    }
+  },
+  "cup_winner_prior": [
+    {
+      "team3": "BRA",
+      "p": 0.2
+    },
+    {
+      "team3": "FRA",
+      "p": 0.17
+    },
+    {
+      "team3": "ARG",
+      "p": 0.16
+    },
+    {
+      "team3": "ENG",
+      "p": 0.13
+    },
+    {
+      "team3": "ESP",
+      "p": 0.12
+    },
+    {
+      "team3": "GER",
+      "p": 0.1
+    },
+    {
+      "team3": "POR",
+      "p": 0.05
+    },
+    {
+      "team3": "NED",
+      "p": 0.03
+    },
+    {
+      "team3": "ITA",
+      "p": 0.015
+    },
+    {
+      "team3": "BEL",
+      "p": 0.012
+    },
+    {
+      "team3": "URU",
+      "p": 0.008
+    },
+    {
+      "team3": "USA",
+      "p": 0.005
+    }
+  ],
+  "_meta": {
+    "source": "FIFA ranking heuristic (May 2026 outlook)",
+    "generated_by": "apps/seed-bots/scripts/build-odds-snapshot.py",
+    "match_count": 104
+  }
+}
