@@ -34,6 +34,8 @@ import { registerPickRoutes } from "./routes/picks.js";
 import { registerPicksBulkRoute } from "./routes/picks-bulk.js";
 import { registerNodesRoutes } from "./routes/nodes.js";
 import { registerSwarmRoutes } from "./routes/swarm.js";
+import { registerSwarmsRoutes } from "./routes/swarms.js";
+import { registerPerfectTrackRoutes } from "./routes/perfect-track.js";
 import { registerUserApiKeyRoutes } from "./routes/user-api-keys.js";
 import { registerBotsKeysIssueRoute } from "./routes/bots-keys-issue.js";
 import { GameStore } from "./store/db.js";
@@ -155,6 +157,8 @@ export async function buildServer(opts: BuildServerOptions = {}): Promise<BuiltS
   });
   await registerPicksBulkRoute(app, { store, nowMs: opts.nowMs });
   await registerNodesRoutes(app, { store, nowMs: opts.nowMs });
+  await registerSwarmsRoutes(app, { store, nowMs: opts.nowMs });
+  await registerPerfectTrackRoutes(app, { store });
   await registerSwarmRoutes(app, {
     store,
     nowMs: opts.nowMs,

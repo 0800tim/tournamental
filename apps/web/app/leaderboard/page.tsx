@@ -27,6 +27,7 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
+import { PerfectTrackBadge } from "@/components/leaderboard/PerfectTrackBadge";
 import { StageProgressChart } from "@/components/leaderboard/StageProgressChart";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { DraftWatermark } from "@/components/mock/DraftWatermark";
@@ -85,6 +86,10 @@ export default function LeaderboardPage() {
     >
       <div className="vt-page-content vt-lb-page">
         <DraftPreviewBanner />
+
+        <div style={{ marginBottom: 16 }}>
+          <PerfectTrackBadge />
+        </div>
 
         <section className="vt-lb-hero">
           {heroStats.map((s) => (

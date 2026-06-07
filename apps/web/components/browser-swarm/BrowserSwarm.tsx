@@ -354,6 +354,14 @@ export default function BrowserSwarm({
     useState<SwarmCompletionPayload | null>(null);
   const [copiedRoot, setCopiedRoot] = useState(false);
 
+  // A13: optional operator API key. When the user pastes a key here,
+  // BrowserSwarm publishes an aggregate summary to
+  // /v1/swarms/<api_key_hash>/summary after every successful batch so
+  // friends viewing the user's profile get a cheap edge-cached JSON of
+  // their swarm aggregates. Stored in IndexedDB, never leaves this tab.
+  const [operatorApiKey, setOperatorApiKey] = useState<string>("");
+  const [operatorKeySaved, setOperatorKeySaved] = useState<boolean>(false);
+
   // Tim 2026-06-07: persistent cumulative swarm cursor. Each press of
   // Start ADDS botCount bots starting from next_bot_index, then writes
   // back so the next press continues. Survives tab close + reopen via
@@ -400,6 +408,35 @@ export default function BrowserSwarm({
       cancelled = true;
     };
   }, []);
+
+  // A13: load any cached operator key so the publish path lights up
+  // automatically across tab reopens.
+  useEffect(() => {
+    let cancelled = false;
+    persistenceRef.current
+      .loadOperatorApiKey()
+      .then((k) => {
+        if (!cancelled && k) {
+          setOperatorApiKey(k);
+          setOperatorKeySaved(true);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const onSaveOperatorKey = useCallback(async () => {
+    const trimmed = operatorApiKey.trim();
+    if (!trimmed) return;
+    try {
+      await persistenceRef.current.saveOperatorApiKey(trimmed);
+      setOperatorKeySaved(true);
+    } catch {
+      // Silent: persistence is best-effort.
+    }
+  }, [operatorApiKey]);
 
   // Tim 2026-06-07: load the persistent swarm cursor on mount so each
   // press of Start picks up where the last one left off (across tab
@@ -734,6 +771,56 @@ export default function BrowserSwarm({
       federation_rank: federationRank,
     });
 
+    // A13 operator-aggregate publish. Pulls the optional operator API
+    // key from IndexedDB; if absent (most browser tabs), this is a
+    // silent no-op. The merkle_root we publish is the swarm-wide
+    // root, kickoff_at uses the first match's kickoff as the
+    // idempotency anchor, and top_k samples the top 100 sample bots
+    // by chalk score.
+    try {
+      const operatorKey = await persistenceRef.current
+        .loadOperatorApiKey()
+        .catch(() => null);
+      if (operatorKey) {
+        // Build top_k from the sample bots we just persisted. The
+        // browser only materialises ~1k sample bots per batch, so
+        // this is bounded.
+        const topKSource = sampleBots
+          .slice()
+          .sort((a, b) => (b.chalk_score ?? 0) - (a.chalk_score ?? 0))
+          .slice(0, 100)
+          .map((b) => ({
+            bot_id: b.bot_id,
+            score: 0, // pre-kickoff: no resolved matches yet
+            chalk_score: b.chalk_score ?? 0,
+          }));
+        const newTotalEverGeneratedForA13 =
+          nextBotIndexRef.current + totalBots;
+        const kickoffAt = firstMatch
+          ? new Date(firstMatch.kickoff_utc).getTime()
+          : Date.now();
+        const aliveAfterMatch = demoMatches.map((_, idx) => ({
+          n: idx + 1,
+          alive_count: newTotalEverGeneratedForA13, // pre-kickoff stub
+        }));
+        // Fire-and-forget; failures must not block the user-visible
+        // post-run state.
+        void fed
+          .publishOperatorSummary(operatorKey, {
+            total_bots: newTotalEverGeneratedForA13,
+            bots_alive_after_match_n: aliveAfterMatch,
+            best_bot_score: Math.round(bestScore),
+            top_k: topKSource,
+            merkle_root: swarmMerkleRoot,
+            kickoff_at: kickoffAt,
+            generated_at: Date.now(),
+          })
+          .catch(() => undefined);
+      }
+    } catch {
+      // Silent: operator publish is best-effort.
+    }
+
     // Build the swarm completion payload A3 (federation.ts) will pick
     // up. Shape is the contract; A3 fills `top_N_claim` when the
     // scoring rule lands.
@@ -887,6 +974,44 @@ export default function BrowserSwarm({
               </span>
             </span>
           </label>
+
+          <details className="vt-swarm-details" style={{ marginTop: 12 }}>
+            <summary>
+              Optional: publish aggregate to your Tournamental profile
+            </summary>
+            <p
+              className="vt-swarm-faq-detail"
+              style={{ marginTop: 6, fontSize: 12, color: "#a8a8a8" }}
+            >
+              Paste an operator API key (issued at{" "}
+              <a href="/profile/api-keys">/profile/api-keys</a>) and we
+              upload an aggregate summary after every batch so anyone
+              looking at your profile sees your swarm stats. Picks stay
+              private until a bot survives match 80 on a perfect track.
+              Key stays in this tab; only the cumulative aggregate is
+              sent.
+            </p>
+            <input
+              className="vt-swarm-input"
+              type="password"
+              placeholder="tnm_..."
+              value={operatorApiKey}
+              onChange={(e) => {
+                setOperatorApiKey(e.target.value);
+                setOperatorKeySaved(false);
+              }}
+            />
+            <div className="vt-swarm-row" style={{ marginTop: 8 }}>
+              <button
+                type="button"
+                className="vt-swarm-button vt-swarm-button--ghost"
+                onClick={() => void onSaveOperatorKey()}
+                disabled={!operatorApiKey.trim() || operatorKeySaved}
+              >
+                {operatorKeySaved ? "Saved" : "Save key"}
+              </button>
+            </div>
+          </details>
 
           {replicateToSupabase && (
             <>
