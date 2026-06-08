@@ -66,7 +66,10 @@ function LeaderboardRow({
         {member.flag_emoji}
       </span>
       <span className="vt-share-leaderboard-handle">@{member.handle}</span>
-      <span ref={ref} className="vt-share-leaderboard-pts">
+      <span
+        ref={ref as React.RefObject<HTMLSpanElement>}
+        className="vt-share-leaderboard-pts"
+      >
         {member.points}
       </span>
     </li>

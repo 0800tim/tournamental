@@ -262,22 +262,16 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
         window.location.reload();
         return;
       }
-      // Server-side or test invocations: fall back to the original
-      // in-place flow so the surrounding code keeps working.
+      // Server-side or test invocations only: the early-return above
+      // covers every real browser path, so this fallback runs only
+      // when `typeof window === "undefined"`. We deliberately omit the
+      // `tnm:auth-changed` dispatch here because there is no window to
+      // dispatch on; tests that exercise the in-place flow do so via
+      // the SSR rendering path that never reaches the auth event bus.
+      // Tim 2026-06-06.
       if (verifiedUser) setUser(verifiedUser);
       const fresh = verifiedUser ?? (await fetchInboundUser());
       if (fresh) setUser(fresh);
-      // Tell `useUser` to re-probe the inbound session so the global
-      // ProfileCompletionGate flips to its "authenticated, missing
-      // display_name" state and shows the @handle picker overlay.
-      // Without this dispatch, useUser only learns about Supabase auth
-      // events, the `tnm_session` cookie set by inbound-login goes
-      // unnoticed, and the OnboardingStep's poll loop sits on
-      // "Setting up your profile…" indefinitely because no UI ever
-      // surfaces to let the user pick a name. Tim 2026-06-06.
-      if (typeof window !== "undefined") {
-        window.dispatchEvent(new CustomEvent("tnm:auth-changed"));
-      }
       const status = await fetchMembershipStatus(slug);
       routeSignedIn(status);
     },
