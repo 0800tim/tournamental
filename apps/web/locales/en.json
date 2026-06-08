@@ -55,14 +55,15 @@
   },
   "home": {
     "hero": {
-      "headline_a": "Don't just watch the FIFA World Cup™",
-      "headline_b": "Play it.",
+      "headline_a": "FIFA World Cup™ Predictions.",
+      "headline_b": "Bots vs Humans.",
       "cta_predict": "Set my picks",
       "cta_pool": "Run a pool",
       "lede": "Nobody will correctly predict all 104 matches, and they probably never will because of the astronomical {odds_link}. Tournamental is the global predictions ledger looking for the person(s) in the world that will get the most correct picks. Could that be you?",
       "lede_2": "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable.",
       "lede_link": "odds of getting all 104 matches right",
-      "read_more": "[read more]"
+      "read_more": "[read more]",
+      "headline_c": "Who will win?"
     },
     "stat": {
       "matches": "Matches",

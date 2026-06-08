@@ -32,8 +32,17 @@ import {
   darlingTeamForBot,
   teamMeta,
 } from "@/components/browser-swarm/regenerate";
+import { championForBot } from "@/components/browser-swarm/cascade";
 import { personaForBot } from "@/components/browser-swarm/personas";
 import { debug } from "@/components/browser-swarm/debug-log";
+import {
+  ANCHOR_TOURNAMENT_ID,
+  captureAnchorSnapshotAsync,
+  DEFAULT_ANCHOR_MODE,
+  type AnchorMode,
+  type AnchorSnapshot,
+} from "@/components/browser-swarm/anchor";
+import { modeFromWeight } from "@/components/browser-swarm/anchor-mode";
 
 import "./bots.css";
 
@@ -71,16 +80,25 @@ export default function BotsListPage(): JSX.Element {
   const [loading, setLoading] = useState<boolean>(true);
 
   // Build the fixture set once so cached team metadata is warmed for
-  // teamMeta() lookups in the row loop below.
-  useMemo(() => buildDemoMatches(), []);
+  // teamMeta() lookups in the row loop below AND so championForBot can
+  // cascade each bot's bracket to a concrete champion team.
+  const matches = useMemo(() => buildDemoMatches(), []);
 
-  // Load cumulative count once.
+  // A11 Phase 2 anchor fix: the champion column now reflects the
+  // user-bracket anchor (Strong by default). We restore the saved anchor
+  // weight and async-capture the snapshot (local draft -> server
+  // fallback) once, then cascade each bot's bracket through it.
+  const [anchor, setAnchor] = useState<AnchorSnapshot | undefined>(undefined);
+
+  // Load cumulative count + anchor snapshot once.
   useEffect(() => {
+    let cancelled = false;
     const persist =
       typeof indexedDB !== "undefined" ? indexedDbPersistence : noopPersistence;
-    persist
-      .loadSwarmState()
-      .then((load) => {
+    void (async () => {
+      try {
+        const load = await persist.loadSwarmState();
+        if (cancelled) return;
         // A6 wraps state under `.state` and flags fixture-version wipes
         // via `reset_for_version_change`. We don't surface the toast on
         // this list page (BrowserSwarm.tsx handles it), but the rows
@@ -88,10 +106,35 @@ export default function BotsListPage(): JSX.Element {
         const s = load.state;
         setTotal(s.total_bots_generated);
         debug("loaded swarm_state.total_bots_generated", s.total_bots_generated);
-      })
-      .catch((e) => {
+        const mode: AnchorMode = modeFromWeight(s.anchor_weight ?? 0);
+        if (mode === "off") {
+          if (!cancelled) setAnchor(undefined);
+        } else {
+          const snap = await captureAnchorSnapshotAsync(
+            ANCHOR_TOURNAMENT_ID,
+            mode,
+          );
+          if (!cancelled) setAnchor(snap);
+        }
+      } catch (e) {
         debug("loadSwarmState failed", e);
-      });
+        // Default-anchor fallback so a load failure still biases picks.
+        if (DEFAULT_ANCHOR_MODE !== "off") {
+          try {
+            const snap = await captureAnchorSnapshotAsync(
+              ANCHOR_TOURNAMENT_ID,
+              DEFAULT_ANCHOR_MODE,
+            );
+            if (!cancelled) setAnchor(snap);
+          } catch {
+            // give up; pure chalk
+          }
+        }
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Regenerate the current page's rows whenever page or total changes.
@@ -111,16 +154,32 @@ export default function BotsListPage(): JSX.Element {
     let i = startIdx;
     function tick(): void {
       if (cancelled) return;
-      const chunkEnd = Math.min(endIdx, i + 100);
+      // Smaller chunk when an anchor is active: championForBot runs a
+      // full cascade (~3ms) per bot, vs the old O(1) darling lookup. 40
+      // per frame keeps each rAF tick well under one 60fps frame budget.
+      const chunkSize = anchor ? 40 : 100;
+      const chunkEnd = Math.min(endIdx, i + chunkSize);
       for (; i < chunkEnd; i++) {
         const bot_id = botIdFromIndex(MASTER_SEED, i);
         const chalk_score = chalkScoreForBot(MASTER_SEED, i);
         const persona = personaForBot(MASTER_SEED, i);
         const darling = darlingTeamForBot(MASTER_SEED, i);
         const darling_meta = teamMeta(darling);
+
+        // Champion pick: when an anchor is active the bot's REAL champion
+        // (from its cascaded, user-biased bracket) is what we show, which
+        // is what makes the column visibly cluster on the user's pick.
+        // Without an anchor we keep the cheap darling label so the
+        // unanchored list stays O(1) per row.
+        let championTeam = darling;
+        if (anchor) {
+          championTeam = championForBot(MASTER_SEED, i, matches, anchor) ?? darling;
+        }
+        const champion_meta = teamMeta(championTeam);
         const is_darling =
-          darling_meta !== null &&
-          darling_meta.fifa_rank <= DARLING_RANK_THRESHOLD;
+          champion_meta !== null &&
+          champion_meta.fifa_rank <= DARLING_RANK_THRESHOLD &&
+          championTeam === darling;
 
         computed.push({
           index: i,
@@ -131,8 +190,8 @@ export default function BotsListPage(): JSX.Element {
           persona_flag: persona.flag,
           persona_country: persona.country,
           champion: {
-            team: darling,
-            team_name: teamDisplayName(darling),
+            team: championTeam,
+            team_name: teamDisplayName(championTeam),
             is_darling,
           },
         });
@@ -149,7 +208,7 @@ export default function BotsListPage(): JSX.Element {
     return () => {
       cancelled = true;
     };
-  }, [page, total]);
+  }, [page, total, anchor, matches]);
 
   const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
 

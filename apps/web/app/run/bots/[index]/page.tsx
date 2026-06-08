@@ -20,7 +20,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "next/navigation";
 
 import { AppShell } from "@/components/shell";
@@ -38,6 +38,15 @@ import {
   resolveBotBracket,
   resolvedKnockoutSlots,
 } from "@/components/browser-swarm/cascade";
+import {
+  ANCHOR_TOURNAMENT_ID,
+  captureAnchorSnapshotAsync,
+  DEFAULT_ANCHOR_MODE,
+  type AnchorMode,
+  type AnchorSnapshot,
+} from "@/components/browser-swarm/anchor";
+import { indexedDbPersistence, noopPersistence } from "@/components/browser-swarm/persistence";
+import { modeFromWeight } from "@/components/browser-swarm/anchor-mode";
 
 import "../bots.css";
 
@@ -68,21 +77,55 @@ export default function BotDetailPage(): JSX.Element {
   const botIndex = Number.parseInt(params.index ?? "0", 10);
 
   const matches = useMemo(() => buildDemoMatches(), []);
+
+  // A11 Phase 2 anchor fix: capture the user's anchor snapshot (the SAME
+  // one the swarm was generated with) so this bot's regenerated bracket
+  // reflects the user-bracket bias, not just chalk. We restore the saved
+  // anchor weight from IndexedDB, then async-read the bracket (local
+  // draft first, server fallback) once and cache it. Until it resolves
+  // we render with no anchor (pure chalk), then re-render with the
+  // anchored picks. Determinism holds: same snapshot => same picks.
+  const [anchor, setAnchor] = useState<AnchorSnapshot | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    const persist =
+      typeof indexedDB !== "undefined" ? indexedDbPersistence : noopPersistence;
+    void (async () => {
+      let mode: AnchorMode = DEFAULT_ANCHOR_MODE;
+      try {
+        const load = await persist.loadSwarmState();
+        mode = modeFromWeight(load.state.anchor_weight ?? 0);
+      } catch {
+        // keep default
+      }
+      if (mode === "off") {
+        if (!cancelled) setAnchor(undefined);
+        return;
+      }
+      const snap = await captureAnchorSnapshotAsync(ANCHOR_TOURNAMENT_ID, mode);
+      if (!cancelled) setAnchor(snap);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // A11 Phase 2: render the bracket from the within-swarm-unique
-  // perturbation. The chosen outcomes here match exactly what the
-  // worker committed for this bot index, so the detail page shows
-  // the same picks that landed on the leaderboard.
+  // perturbation, now blended toward the user's bracket by the anchor.
+  // The chosen outcomes here match exactly what the worker committed for
+  // this bot index, so the detail page shows the same picks that landed
+  // on the leaderboard.
   const bracket = useMemo(
-    () => regenerateBotBracketUnique(MASTER_SEED, botIndex, matches),
-    [botIndex, matches],
+    () => regenerateBotBracketUnique(MASTER_SEED, botIndex, matches, undefined, anchor),
+    [botIndex, matches, anchor],
   );
   // Resolve every knockout slot to a concrete team id (winner of group
   // A becomes "France" when this bot's group A standings put France
   // first, etc.). Powers the real-team-name rendering in the knockout
   // table below.
   const resolved = useMemo(
-    () => resolveBotBracket(MASTER_SEED, botIndex, matches),
-    [botIndex, matches],
+    () => resolveBotBracket(MASTER_SEED, botIndex, matches, anchor),
+    [botIndex, matches, anchor],
   );
 
   const botId = botIdFromIndex(MASTER_SEED, botIndex);

@@ -36,6 +36,9 @@
 
 import type { Bracket } from "@tournamental/bracket-engine";
 
+import { loadServerBracket } from "@/lib/bracket/api";
+import { localUserId } from "@/lib/bracket/storage";
+
 import type { Outcome } from "./types";
 
 export type AnchorMode = "off" | "soft" | "strong" | "lockstep";
@@ -54,7 +57,16 @@ export const ANCHOR_LABEL_BY_MODE: Record<AnchorMode, string> = {
   lockstep: "Lockstep (100%)",
 };
 
-export const DEFAULT_ANCHOR_MODE: AnchorMode = "off";
+/**
+ * Tim 2026-06-08: default the anchor to Strong. The swarm's whole
+ * credibility hinges on the bots backing the user's bracket, so a fresh
+ * tab now centres the swarm on the user's champion out of the box. The
+ * saved choice in `swarm_state.anchor_weight` always wins over this
+ * default once the user has touched the dropdown (the loader in
+ * BrowserSwarm.tsx restores it), so this only governs the very first
+ * render before any state has been persisted.
+ */
+export const DEFAULT_ANCHOR_MODE: AnchorMode = "strong";
 
 /**
  * Snapshot of the user's bracket at anchor capture time. The hash is
@@ -179,6 +191,135 @@ export function captureAnchorSnapshot(
     bracket_hash: hashPicks(picks),
     captured_at_utc: new Date().toISOString(),
   };
+}
+
+/**
+ * Build a snapshot from an already-resolved picks map. Used by the async
+ * capture path once it has decided whether the local draft or the server
+ * bracket is authoritative.
+ */
+function snapshotFromPicks(
+  picks: Readonly<Record<string, Outcome>>,
+  mode: AnchorMode,
+): AnchorSnapshot {
+  return {
+    weight: ANCHOR_WEIGHT_BY_MODE[mode],
+    picks,
+    bracket_hash: hashPicks(picks),
+    captured_at_utc: new Date().toISOString(),
+  };
+}
+
+/**
+ * Async anchor capture with a SERVER-bracket fallback.
+ *
+ * Root-cause fix for the "Last anchor hash: 00000000:00000000" bug: the
+ * user's bracket is authoritative on the game-service (he made picks
+ * that synced server-side), but his localStorage on the /run origin can
+ * be empty (he built the bracket on a different origin / device). When
+ * the local draft is empty we fall back to `GET /v1/bracket/me` and
+ * flatten the server bracket instead, so the swarm anchors to his real
+ * Portugal-as-champion bracket rather than to nothing.
+ *
+ * Resolution order:
+ *   1. localStorage draft (instant, no network) - used if non-empty.
+ *   2. server bracket via loadServerBracket (cookie session) - used when
+ *      the local draft has zero picks.
+ *   3. empty snapshot - only if both are empty (genuinely no bracket).
+ *
+ * The result MUST be captured once and cached by the caller (it is async
+ * and we don't want to re-read the server on every render); pass the
+ * cached snapshot down to the deterministic regenerate functions.
+ *
+ * Determinism is preserved: the snapshot is a frozen picks map + weight,
+ * and `blendOutcome` consumes a caller-supplied seeded `r`, so the same
+ * (snapshot, seed) always yields the same picks.
+ */
+export async function captureAnchorSnapshotAsync(
+  tournament_id: string,
+  mode: AnchorMode,
+): Promise<AnchorSnapshot> {
+  const localDraft = readUserBracketDraft(tournament_id);
+  const localPicks = flattenBracket(localDraft);
+  if (Object.keys(localPicks).length > 0) {
+    return snapshotFromPicks(localPicks, mode);
+  }
+
+  // Local draft empty: try the server bracket. Cookie-forwarded; for a
+  // logged-in user this returns their real champion + knockout path.
+  if (typeof window !== "undefined") {
+    try {
+      const res = await loadServerBracket({
+        userId: localUserId(),
+        tournamentId: tournament_id,
+      });
+      if (res.ok) {
+        const serverPicks = flattenBracket(res.bracket);
+        if (Object.keys(serverPicks).length > 0) {
+          return snapshotFromPicks(serverPicks, mode);
+        }
+      }
+    } catch {
+      // Network / auth failure: fall through to an empty snapshot. The
+      // swarm still runs (pure chalk for those matches).
+    }
+  }
+
+  return snapshotFromPicks({}, mode);
+}
+
+/**
+ * Deterministic [0, 1) draw per (botIndex, matchId) for the anchor
+ * blend. Mirrors the worker's `anchorDraw` so the on-demand regenerate
+ * path (list + detail pages) and the worker's committed picks agree
+ * bit-for-bit. Load-bearing: same (botIndex, matchId) always returns the
+ * same r, so same (seed, bracket, weight) => identical picks.
+ *
+ * Used for GROUP matches: independent per match, so each bot's group
+ * stage keeps a realistic spread of upsets even at high weight.
+ */
+export function anchorDrawFor(botIndex: number, matchId: string): number {
+  const h = fnv1a(`anchor:${botIndex}:${matchId}`);
+  return (h >>> 0) / 0x1_0000_0000;
+}
+
+/**
+ * Path-level [0, 1) draw per bot, used for KNOCKOUT matches.
+ *
+ * Why correlate the knockout draws? The champion is a PATH outcome (the
+ * bot must follow the user across every round to crown the user's
+ * champion). If each knockout re-rolled independently at weight w, the
+ * champion-follow rate would collapse to ~w^depth (e.g. 0.75^4 ≈ 0.32),
+ * so "Strong" would barely move the champion column - which is exactly
+ * the bug we are fixing. Instead, one path-level draw decides whether a
+ * given bot follows the user's bracket through the ENTIRE knockout tree.
+ * That makes the champion-follow rate ≈ the anchor weight directly (so
+ * Strong ≈ 75% of bots crown the user's champion) with a clean
+ * diversified tail of ≈ (1 - weight) bots running pure chalk knockouts.
+ *
+ * Determinism holds: keyed on botIndex alone, so it is stable across the
+ * worker, the list page, and the detail page.
+ */
+export function anchorPathDrawFor(botIndex: number): number {
+  const h = fnv1a(`anchor-path:${botIndex}`);
+  return (h >>> 0) / 0x1_0000_0000;
+}
+
+/**
+ * Pick the right anchor draw for a match: path-level for knockouts
+ * (so a bot follows the user's whole bracket or none of it, making the
+ * champion bias track the weight), per-match for group games (so the
+ * group stage keeps a realistic spread). `allowsDraw` distinguishes the
+ * two (group fixtures allow draws, knockouts do not).
+ */
+export function anchorDrawForMatch(
+  botIndex: number,
+  matchId: string,
+  allowsDraw: boolean,
+): number {
+  return allowsDraw
+    ? anchorDrawFor(botIndex, matchId)
+    : anchorPathDrawFor(botIndex);
 }
 
 /**
