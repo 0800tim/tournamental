@@ -78,6 +78,15 @@ export interface RejectedPrediction {
 function filterPredictionsByKickoff(
   predictions: Record<string, MatchPrediction>,
   kickoffFor: (matchId: string) => string | null,
+  // SEC-BRK-02 (Tim 2026-06-08): the lock decision MUST use the server
+  // clock, never the client-supplied `pred.lockedAt`. The old code
+  // compared `pred.lockedAt >= kickoff`, which a tampered client could
+  // bypass by sending a faked early lockedAt for a pick it actually
+  // made after kickoff. We now reject any non-imported prediction whose
+  // match has already kicked off per `nowMs` (the route's server now()).
+  // Browser-clock manipulation is irrelevant: this value comes from the
+  // server, not the request.
+  nowMs: number,
 ): {
   kept: Record<string, MatchPrediction>;
   rejected: RejectedPrediction[];
@@ -91,19 +100,18 @@ function filterPredictionsByKickoff(
       continue;
     }
     const kickoffMs = Date.parse(kickoff);
-    const lockedMs = Date.parse(pred.lockedAt);
-    if (Number.isNaN(kickoffMs) || Number.isNaN(lockedMs)) {
+    if (Number.isNaN(kickoffMs)) {
       kept[key] = pred;
       continue;
     }
-    if (lockedMs >= kickoffMs) {
+    if (nowMs >= kickoffMs) {
       // Bracket-import bypass (docs/69-bracket-import.md): picks
       // carrying source='imported' come from a rival platform's
       // public bracket page, which already locked them at first-match
       // kickoff. The successful scrape is the proof-of-lock-in, so we
-      // accept the pick despite the late lockedAt timestamp. Live
-      // picks (no source field, or source='live') still go through
-      // the standard kickoff backstop and get rejected.
+      // accept the pick despite the late submission. Live picks (no
+      // source field, or source='live') are rejected once the match has
+      // kicked off on the server clock.
       if (pred.source === "imported") {
         kept[key] = pred;
         continue;
@@ -176,13 +184,16 @@ export async function registerBracketRoutes(
 
     // Filter every per-match prediction (groups + knockouts) against the
     // tournament's known kickoffs. Rejected predictions are echoed back.
+    const submitNowMs = now();
     const groupFiltered = filterPredictionsByKickoff(
       bracket.matchPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
+      submitNowMs,
     );
     const knockoutFiltered = filterPredictionsByKickoff(
       bracket.knockoutPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
+      submitNowMs,
     );
     const rejected: RejectedPrediction[] = [
       ...groupFiltered.rejected,
