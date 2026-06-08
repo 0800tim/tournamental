@@ -238,8 +238,12 @@
    * Whutuporo o te Ao katoa?" were cropping on the right edge of narrow
    * phones (Tim 2026-05-24). The clamp top stays at 96px so English /
    * Spanish hero impact is unchanged. */
-  font-size: clamp(32px, 7.2vw, 96px);
-  line-height: 1.02;
+  /* Tim 2026-06-08: new two-line headline ("FIFA World Cup Predictions." /
+   * "Bots vs Humans. Who will win?") is longer per line than the old
+   * "Play it." closer, so the upper bound drops from 96 to 74 to keep
+   * each span on a single line inside the hero. */
+  font-size: clamp(30px, 5.6vw, 74px);
+  line-height: 1.04;
   color: #ffffff;
   margin: 0 0 24px;
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.55);

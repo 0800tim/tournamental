@@ -30,6 +30,11 @@ import type {
   Tournament,
 } from "@tournamental/bracket-engine";
 
+import {
+  anchorDrawForMatch,
+  blendOutcome,
+  type AnchorSnapshot,
+} from "./anchor";
 import type { MatchOdds, MatchSpec, Outcome } from "./types";
 import {
   buildDeviationTable,
@@ -491,11 +496,29 @@ const DARLING_BONUS = 0.10;
 /**
  * Regenerate a bot's pick for a single match, with the ranking of
  * alternatives for gold/silver/bronze display.
+ *
+ * Tim 2026-06-08 (the critical anchor fix): this function is the source
+ * of truth for the on-demand list + detail pages, so the user-bracket
+ * anchor MUST be applied HERE, not only in the worker. When `anchor` is
+ * supplied with weight > 0 AND the user has a pick for this match, we
+ * blend the chalk+darling pick toward the user's pick deterministically
+ * via `blendOutcome` with a seeded draw keyed on (botIndex, match_id) -
+ * the SAME draw the worker uses, so display and committed picks agree.
+ *
+ * The darling-team scatter only influences the chalk side of the blend,
+ * so it never fights the anchor: per the weight, `r < weight` returns
+ * the user's pick untouched, and only the `(1 - weight)` tail keeps the
+ * diversified darling behaviour. That gives the swarm a strong centre of
+ * mass on the user's champion with a minority upset tail.
  */
 export function regenerateBotPick(
   masterSeed: string,
   botIndex: number,
   match: MatchSpec,
+  /** Optional user-bracket anchor snapshot (picks + weight). When
+   *  omitted or weight === 0 the behaviour is identical to Phase 1:
+   *  pure chalk + darling diversification. */
+  anchor?: AnchorSnapshot,
 ): RankedPick {
   const seed = botIdFromIndex(masterSeed, botIndex);
   const chalkScore = chalkScoreForBot(masterSeed, botIndex);
@@ -534,25 +557,46 @@ export function regenerateBotPick(
   const normalised = blended.map((v) => v / total);
 
   const r = seededFraction(seed, match.match_id);
+  let chalkIdx = outcomes.length - 1;
   let cumulative = 0;
-  let chosenIdx = outcomes.length - 1;
   for (let i = 0; i < outcomes.length; i++) {
     cumulative += normalised[i]!;
     if (r < cumulative) {
-      chosenIdx = i;
+      chalkIdx = i;
       break;
     }
   }
+  const chalkOutcome = outcomes[chalkIdx]!;
 
-  // Sort outcomes by descending probability for ranking display.
+  // Anchor blend. Deterministic given (botIndex, match_id): same anchor
+  // snapshot + same weight => identical chosen outcome, bit-for-bit.
+  let chosen = chalkOutcome;
+  if (anchor && anchor.weight > 0) {
+    chosen = blendOutcome(
+      match.match_id,
+      chalkOutcome,
+      anchor,
+      anchorDrawForMatch(botIndex, match.match_id, match.allows_draw),
+    );
+  }
+  const chosenIdx = outcomes.indexOf(chosen);
+
+  // Sort outcomes by descending probability for ranking display. When
+  // the anchor moved the pick away from the chalk favourite we surface
+  // the chosen outcome first so the displayed probability matches the
+  // pick the user is actually backing.
   const ranking = outcomes
     .map((o, i) => ({ outcome: o, probability: normalised[i]! }))
-    .sort((a, b) => b.probability - a.probability);
+    .sort((a, b) => {
+      if (a.outcome === chosen && b.outcome !== chosen) return -1;
+      if (b.outcome === chosen && a.outcome !== chosen) return 1;
+      return b.probability - a.probability;
+    });
 
   return {
-    chosen: outcomes[chosenIdx]!,
+    chosen,
     ranking,
-    chosenProbability: normalised[chosenIdx]!,
+    chosenProbability: normalised[chosenIdx >= 0 ? chosenIdx : 0]!,
   };
 }
 
@@ -565,10 +609,11 @@ export function regenerateBotBracket(
   masterSeed: string,
   botIndex: number,
   matches: readonly MatchSpec[],
+  anchor?: AnchorSnapshot,
 ): ReadonlyArray<{ match: MatchSpec; pick: RankedPick }> {
   return matches.map((match) => ({
     match,
-    pick: regenerateBotPick(masterSeed, botIndex, match),
+    pick: regenerateBotPick(masterSeed, botIndex, match, anchor),
   }));
 }
 
@@ -595,19 +640,46 @@ export function regenerateBotBracketUnique(
    * rebuilding for every bot. Cheap to build (one pass over matches)
    * but cheaper still to share. */
   deviationTable?: DeviationTable,
+  /** Optional user-bracket anchor snapshot. Mirrors the worker exactly:
+   *  perturbation produces a structurally-unique base outcome, then the
+   *  anchor blend pulls it toward the user's pick by weight. The order
+   *  (perturb -> anchor) is load-bearing for bit-for-bit agreement with
+   *  the committed picks the worker writes. */
+  anchor?: AnchorSnapshot,
 ): ReadonlyArray<{ match: MatchSpec; pick: RankedPick }> {
   const table = deviationTable ?? buildDeviationTable(matches);
   return matches.map((match, idx) => {
+    // base is the chalk-blended pick (carries the ranking for display).
     const base = regenerateBotPick(masterSeed, botIndex, match);
-    const unique = perturbedOutcome(table, botIndex, idx);
-    if (unique === base.chosen) return { match, pick: base };
-    // Override the chosen outcome but keep the ranking for display.
-    const newProb = base.ranking.find((r) => r.outcome === unique)?.probability ?? 0;
+    // Perturb to guarantee within-swarm uniqueness, exactly as the worker.
+    const perturbed = perturbedOutcome(table, botIndex, idx);
+    // Then apply the anchor blend on top of the perturbed outcome, with
+    // the SAME (botIndex, match_id) seeded draw the worker uses.
+    const finalOutcome =
+      anchor && anchor.weight > 0
+        ? blendOutcome(
+            match.match_id,
+            perturbed,
+            anchor,
+            anchorDrawForMatch(botIndex, match.match_id, match.allows_draw),
+          )
+        : perturbed;
+    if (finalOutcome === base.chosen) return { match, pick: base };
+    // Override the chosen outcome but keep the ranking for display, with
+    // the chosen outcome floated to the front so the displayed
+    // probability matches the pick.
+    const newProb =
+      base.ranking.find((rk) => rk.outcome === finalOutcome)?.probability ?? 0;
+    const ranking = [...base.ranking].sort((a, b) => {
+      if (a.outcome === finalOutcome && b.outcome !== finalOutcome) return -1;
+      if (b.outcome === finalOutcome && a.outcome !== finalOutcome) return 1;
+      return b.probability - a.probability;
+    });
     return {
       match,
       pick: {
-        chosen: unique,
-        ranking: base.ranking,
+        chosen: finalOutcome,
+        ranking,
         chosenProbability: newProb,
       },
     };

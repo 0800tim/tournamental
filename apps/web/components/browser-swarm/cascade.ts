@@ -51,9 +51,30 @@ import {
   type Tournament,
 } from "@tournamental/bracket-engine";
 
+import {
+  anchorDrawForMatch,
+  blendOutcome,
+  type AnchorSnapshot,
+} from "./anchor";
 import { loadTournament, regenerateBotPick } from "./regenerate";
 import { buildDeviationTable, perturbedOutcome } from "./uniqueness";
 import type { MatchSpec, Outcome } from "./types";
+
+/**
+ * Resolved real-team standings, keyed by group id, ordered best-first.
+ *
+ * Cascade resolution (design decision 3): once the group stage has
+ * actually been played, the settled results give us the REAL teams that
+ * advanced. Knockout bots should then pick from those real teams rather
+ * than from each bot's own predicted standings. Pre-tournament this map
+ * is empty / undefined, in which case the resolver gracefully falls back
+ * to each bot's predicted group standings (current behaviour).
+ *
+ * The map is intentionally a plain object so the /run page can drop a
+ * game-service `GET /v1/results/groups` response straight in. Each value
+ * is the advancing order for that group: [winner, runner_up, third, ...].
+ */
+export type ResolvedGroupStandings = Readonly<Record<string, readonly string[]>>;
 
 /**
  * Build a `MatchPrediction` from a single browser-swarm Outcome. We do
@@ -155,6 +176,14 @@ export function bracketPredictionForBot(
   masterSeed: string,
   botIndex: number,
   matches: readonly MatchSpec[],
+  /** Optional user-bracket anchor; biases each bot's per-match pick
+   *  toward the user's bracket, identical to the list + worker paths. */
+  anchor?: AnchorSnapshot,
+  /** Optional resolved real-team group standings (post-group-stage).
+   *  When present, the named group's order overrides the bot's own
+   *  predicted standings so knockout slots project the REAL advancing
+   *  teams. Pre-tournament this is undefined => no-op. */
+  resolvedStandings?: ResolvedGroupStandings,
 ): {
   prediction: BracketPrediction;
   tournament: Tournament;
@@ -181,9 +210,21 @@ export function bracketPredictionForBot(
   const deviationTable = buildDeviationTable(matches);
   for (let mi = 0; mi < matches.length; mi++) {
     const m = matches[mi]!;
-    const fallback = regenerateBotPick(masterSeed, botIndex, m);
-    const outcome: Outcome =
+    const fallback = regenerateBotPick(masterSeed, botIndex, m, anchor);
+    const perturbed: Outcome =
       perturbedOutcome(deviationTable, botIndex, mi) ?? fallback.chosen;
+    // Anchor blend on the perturbed outcome, same (botIndex, match_id)
+    // seeded draw as the worker + list path so the cascade resolves the
+    // SAME bracket the user sees committed.
+    const outcome: Outcome =
+      anchor && anchor.weight > 0
+        ? blendOutcome(
+            m.match_id,
+            perturbed,
+            anchor,
+            anchorDrawForMatch(botIndex, m.match_id, m.allows_draw),
+          )
+        : perturbed;
     if (m.allows_draw) {
       groupPredictionsByMatch[m.match_id] = predictionFromOutcome(
         m.match_id,
@@ -198,9 +239,24 @@ export function bracketPredictionForBot(
   }
 
   // -- 1. Group predictions from standings -------------------------------
+  // Cascade resolution (design decision 3): if the group stage has been
+  // played and we have the REAL advancing order for a group, use it
+  // verbatim so knockout slots project the teams that ACTUALLY advanced.
+  // Otherwise fall back to the bot's own predicted standings. The user's
+  // path bias still lives in the per-match anchor blend above, so the
+  // bot's knockout picks keep weighting toward the user's bracket where
+  // the user's teams are still alive.
   const tiebreakers = buildGroupTiebreakers(tournament, teamsById);
   const groupPredictions: GroupPrediction[] = [];
   for (const group of tournament.groups) {
+    const resolvedOrder = resolvedStandings?.[group.id];
+    if (resolvedOrder && resolvedOrder.length > 0) {
+      groupPredictions.push({
+        group_id: group.id,
+        order: [...resolvedOrder],
+      });
+      continue;
+    }
     const standings = computeGroupStandings(
       group.id,
       tournament,
@@ -307,14 +363,60 @@ export function resolveBotBracket(
   masterSeed: string,
   botIndex: number,
   matches: readonly MatchSpec[],
+  anchor?: AnchorSnapshot,
+  resolvedStandings?: ResolvedGroupStandings,
 ): ResolvedBotBracket {
   const { prediction, tournament } = bracketPredictionForBot(
     masterSeed,
     botIndex,
     matches,
+    anchor,
+    resolvedStandings,
   );
   const cascaded = cascade(tournament, prediction);
   return { prediction, cascaded, tournament };
+}
+
+/**
+ * Resolve a single bot's CHAMPION (winner of the final) to a concrete
+ * team id. This is what the /run/bots list "Champion pick" column should
+ * show: the team this bot actually crowns once its bracket is cascaded,
+ * which now honours the user-bracket anchor. Returns null only if the
+ * final slot can't be resolved (malformed fixtures).
+ *
+ * Cost: one full cascade per bot (~3ms). The list page already budgets
+ * "~3s" for a 1000-bot page and chunks via rAF, so this stays inside
+ * budget. When the anchor centres the swarm on the user's champion the
+ * column visibly clusters on that team with a diversified tail.
+ */
+export function championForBot(
+  masterSeed: string,
+  botIndex: number,
+  matches: readonly MatchSpec[],
+  anchor?: AnchorSnapshot,
+  resolvedStandings?: ResolvedGroupStandings,
+): string | null {
+  const { cascaded, tournament } = resolveBotBracket(
+    masterSeed,
+    botIndex,
+    matches,
+    anchor,
+    resolvedStandings,
+  );
+  // The 2026 final carries the canonical id "final" (see
+  // bracket-engine tournament.ts). Look it up directly; fall back to the
+  // knockout fixture with the highest match_no if the id convention ever
+  // changes, so the champion column never silently goes blank.
+  let final = cascaded.knockouts.find((k) => k.id === "final") ?? null;
+  if (final === null) {
+    const lastFixture = [...tournament.knockouts].sort(
+      (a, b) => b.match_no - a.match_no,
+    )[0];
+    if (lastFixture) {
+      final = cascaded.knockouts.find((k) => k.id === lastFixture.id) ?? null;
+    }
+  }
+  return final?.predicted_winner ?? null;
 }
 
 /**

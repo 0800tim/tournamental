@@ -66,11 +66,12 @@ import {
   ANCHOR_LABEL_BY_MODE,
   ANCHOR_TOURNAMENT_ID,
   ANCHOR_WEIGHT_BY_MODE,
-  captureAnchorSnapshot,
+  captureAnchorSnapshotAsync,
   DEFAULT_ANCHOR_MODE,
   type AnchorMode,
   type AnchorSnapshot,
 } from "./anchor";
+import { modeFromWeight } from "./anchor-mode";
 import {
   probeSupabase,
   SUPABASE_SCHEMA_SQL,
@@ -276,28 +277,6 @@ const VENDOR_KEY_URL: Readonly<Record<VendorId, string>> = {
 // single batch at a count that will make the laptop hot. 100k is the
 // threshold where chunked rAF stops feeling instant on a quad-core.
 const HIGH_LOAD_BOT_COUNT = 100_000;
-
-/**
- * Reverse-map a stored anchor_weight (0 / 0.4 / 0.75 / 1) back to its
- * AnchorMode enum value. Anything in between snaps to the closest
- * preset so the slider is robust to future tweaks of the weight
- * constants.
- */
-function modeFromWeight(weight: number): AnchorMode {
-  const entries = Object.entries(ANCHOR_WEIGHT_BY_MODE) as ReadonlyArray<
-    [AnchorMode, number]
-  >;
-  let best: AnchorMode = DEFAULT_ANCHOR_MODE;
-  let bestDist = Number.POSITIVE_INFINITY;
-  for (const [mode, w] of entries) {
-    const d = Math.abs(w - weight);
-    if (d < bestDist) {
-      bestDist = d;
-      best = mode;
-    }
-  }
-  return best;
-}
 
 function workerCount(): number {
   if (typeof navigator !== "undefined" && navigator.hardwareConcurrency) {
@@ -573,6 +552,16 @@ export default function BrowserSwarm({
   const [anchorMode, setAnchorMode] = useState<AnchorMode>(DEFAULT_ANCHOR_MODE);
   const [lastAnchorHash, setLastAnchorHash] = useState<string | null>(null);
 
+  // A11 re-forecast (design decision 2): the swarm re-derives its
+  // upcoming-match picks as odds move / the bracket resolves. We do this
+  // automatically on /run mount, on tab refocus (visibilitychange), and
+  // expose a manual "Re-run my swarm" button. `lastReforecastAt` drives
+  // the "last re-forecast: <time>" line near the anchor card.
+  const [lastReforecastAt, setLastReforecastAt] = useState<number | null>(null);
+  const [reforecasting, setReforecasting] = useState<boolean>(false);
+  const reforecastBusyRef = useRef<boolean>(false);
+  const lastReforecastTickRef = useRef<number>(0);
+
   const persistenceRef = useRef<Persistence>(defaultPersistence());
   const workersRef = useRef<Worker[]>([]);
   const runIdRef = useRef<string>("");
@@ -787,10 +776,17 @@ export default function BrowserSwarm({
     // in this batch sees the SAME snapshot. If the user edits their
     // bracket mid-run, the next batch picks up the new snapshot. The
     // already-running batch keeps using the captured one.
+    //
+    // Anchor fix (Tim 2026-06-08): the async capture reads the local
+    // bracket draft first and FALLS BACK to the server bracket
+    // (GET /v1/bracket/me) when local is empty. This is what stops the
+    // "Last anchor hash: 00000000:00000000" empty-bracket bug for users
+    // who built their bracket on a different origin. We await it here,
+    // once, before generation so the snapshot is fixed for the batch.
     const anchorSnapshot: AnchorSnapshot | undefined =
       anchorMode === "off"
         ? undefined
-        : captureAnchorSnapshot(ANCHOR_TOURNAMENT_ID, anchorMode);
+        : await captureAnchorSnapshotAsync(ANCHOR_TOURNAMENT_ID, anchorMode);
 
     setProgress((p) => ({ ...p, phase: "generating" }));
 
@@ -1154,6 +1150,125 @@ export default function BrowserSwarm({
     },
     [],
   );
+
+  // A11 re-forecast (design decision 2). Re-derives the swarm's
+  // forward-looking picks: refresh the live-odds snapshot (so picks
+  // track the market) and re-capture the user-bracket anchor (local
+  // draft -> server fallback, so newly-resolved bracket paths flow in).
+  // The actual per-bot picks are regenerated on demand on the /run/bots
+  // pages from (seed, anchor snapshot), so refreshing the snapshot +
+  // odds IS the re-forecast; we then surface the new hash + timestamp.
+  //
+  // Debounced via reforecastBusyRef so refocus storms / rapid calls
+  // don't stack. Safe to call from mount, visibilitychange, the manual
+  // button, and the stage-resolved hook.
+  const runReforecast = useCallback(
+    async (reason: "mount" | "focus" | "manual" | "stage") => {
+      if (reforecastBusyRef.current) return;
+      // Debounce: ignore auto-triggers within 5s of the last one. The
+      // manual button always runs (the user explicitly asked).
+      const now = Date.now();
+      if (reason !== "manual" && now - lastReforecastTickRef.current < 5000) {
+        return;
+      }
+      reforecastBusyRef.current = true;
+      lastReforecastTickRef.current = now;
+      setReforecasting(true);
+      try {
+        // 1. Refresh live odds (forces a fetch so the market move shows).
+        const snap = await fetchOddsSnapshot(true);
+        if (snap) {
+          setLiveOddsByMatchId(snap.matches);
+          setOddsSourceStatus({
+            kind: "live",
+            generated_at: snap.generated_at,
+            matches: Object.keys(snap.matches).length,
+          });
+        } else {
+          setLiveOddsByMatchId(undefined);
+          setOddsSourceStatus({ kind: "fallback" });
+        }
+        // 2. Re-capture the anchor snapshot (server fallback) so the hash
+        //    reflects the live bracket and the /run/bots pages pick it up.
+        if (anchorMode !== "off") {
+          const anchorSnapshot = await captureAnchorSnapshotAsync(
+            ANCHOR_TOURNAMENT_ID,
+            anchorMode,
+          );
+          setLastAnchorHash(anchorSnapshot.bracket_hash);
+        }
+        setLastReforecastAt(Date.now());
+      } catch {
+        // Best-effort: a failed re-forecast leaves the previous snapshot
+        // in place so the swarm keeps running on the last good data.
+      } finally {
+        reforecastBusyRef.current = false;
+        setReforecasting(false);
+      }
+    },
+    [anchorMode],
+  );
+
+  // Auto re-forecast on mount.
+  useEffect(() => {
+    void runReforecast("mount");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Auto re-forecast when the tab regains focus (the user returns).
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onVisible = (): void => {
+      if (document.visibilityState === "visible") {
+        void runReforecast("focus");
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
+  }, [runReforecast]);
+
+  // Auto re-forecast when a knockout stage resolves while the page is
+  // open. Pre-tournament there are no settled results, so this poller is
+  // dormant infrastructure: it watches the live-odds snapshot's
+  // `generated_at` (which the game-service bumps when group/knockout
+  // results land and odds collapse to 0/1) and triggers a re-forecast on
+  // a fresh timestamp. Once results actually flow this lights up
+  // automatically; today it simply no-ops because the timestamp is
+  // stable between settlements. Polls every 60s and only fires when the
+  // upstream data genuinely advanced, so it is not spammy.
+  const lastOddsStampRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (oddsSourceStatus.kind !== "live") return;
+    const stamp = oddsSourceStatus.generated_at;
+    if (lastOddsStampRef.current === null) {
+      lastOddsStampRef.current = stamp;
+      return;
+    }
+    if (stamp > lastOddsStampRef.current) {
+      lastOddsStampRef.current = stamp;
+      void runReforecast("stage");
+    }
+  }, [oddsSourceStatus, runReforecast]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const id = window.setInterval(() => {
+      // Refresh the odds snapshot in the background; the effect above
+      // diffs the timestamp and re-forecasts only when it advanced.
+      void (async () => {
+        const snap = await fetchOddsSnapshot(false);
+        if (snap) {
+          setOddsSourceStatus({
+            kind: "live",
+            generated_at: snap.generated_at,
+            matches: Object.keys(snap.matches).length,
+          });
+        }
+      })();
+    }, 60_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   const onStop = useCallback(() => {
     // Tim 2026-06-07 evening: also tell the loop driver to stop after
@@ -1628,6 +1743,29 @@ export default function BrowserSwarm({
               </>
             )}
           </p>
+          <div
+            style={{
+              marginTop: 12,
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <button
+              type="button"
+              className="vt-bots-button"
+              onClick={() => void runReforecast("manual")}
+              disabled={reforecasting}
+            >
+              {reforecasting ? "Re-forecasting..." : "Re-run my swarm"}
+            </button>
+            <span style={{ fontSize: 12, color: "#98a0b7" }}>
+              {lastReforecastAt
+                ? `Last re-forecast: ${formatRelativeTime(lastReforecastAt)}`
+                : "Re-forecasts automatically when you open this page or return to the tab."}
+            </span>
+          </div>
         </FieldsetCard>
 
         <FieldsetCard

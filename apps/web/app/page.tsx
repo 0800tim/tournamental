@@ -86,7 +86,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   // strings into the catalogue. The hero is the visitor's first paint
   // so it carries the biggest visible language change.
   const keys = await Promise.all([
-    safeT("home.hero.headline_a", "Don't just watch the FIFA World Cup™"),
+    safeT("home.hero.headline_a", "FIFA World Cup™ Predictions."),
     safeT("home.hero.cta_predict", "Set my picks"),
     safeT("home.hero.cta_pool", "Run a pool"),
     safeTRaw("home.hero.lede", "Nobody will correctly predict all 104 matches, and they probably never will because of the astronomical {odds_link}. Tournamental is the global predictions ledger looking for the person(s) in the world that will get the most correct picks. Could that be you?"),
@@ -95,7 +95,8 @@ export default async function HomePage(): Promise<JSX.Element> {
     // Tim 2026-05-29: second line of the headline ('Play it.') + the
     // immutability paragraph beneath the lede. Wired in after PR #243
     // which set the marketing-site Hero.astro to the same copy.
-    safeT("home.hero.headline_b", "Play it."),
+    safeT("home.hero.headline_b", "Bots vs Humans."),
+    safeT("home.hero.headline_c", "Who will win?"),
     safeT("home.hero.lede_2", "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable."),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
@@ -156,7 +157,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   ]);
   const [
     headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
-    headlineB, lede2,
+    headlineB, headlineC, lede2,
     countdownEyebrow, countdownTitle,
     statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
     step1Tag, step1Headline, step1Lede,
@@ -194,6 +195,7 @@ export default async function HomePage(): Promise<JSX.Element> {
               <h1 className="vt-home-headline">
                 <span className="vt-home-hero-line">{headlineA}</span>
                 <span className="vt-home-hero-line">{headlineB}</span>
+                <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
               {/* Tim 2026-06-08: CTAs stay overlaid on the hero banner
@@ -207,6 +209,9 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
                   {ctaPool}
                 </Link>
+                <Link href="/bot-arena" className="vt-home-btn vt-home-btn-light">
+                  Bot Arena
+                </Link>
               </div>
 
               {/* Tim 2026-06-05: single lede paragraph replaces the
@@ -216,16 +221,14 @@ export default async function HomePage(): Promise<JSX.Element> {
                 * explain WHAT Tournamental is and tease the bet. */}
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
-                  Tournamental is a &lsquo;bracket&rsquo; app that keeps
-                  a global ledger of user match predictions and commits
-                  every pick to the blockchain before each match kicks
-                  off, so your predictions are immutable and any claim
-                  to glory is finally provable. Our quest is to find
-                  the person (or animal!) that can predict the most
-                  correct outcomes. Predict all 104 correctly and{" "}
-                  <Link href="/the-bet" className="vt-home-hero-readmore">
-                    I&apos;ll give you my house!
-                  </Link>
+                  A FIFA World Cup predictions game that lets you create
+                  free pools to play with friends, run office sweepstakes,
+                  and spawn millions of unique &lsquo;bracket
+                  predictions&rsquo; in search of the perfect bracket.
+                  Your picks are the anchor, your bot will spawn millions
+                  of variations around <em>your predictions</em> to try
+                  keep a perfect bracket as upsets happen during the
+                  tournament. And they can change them along the way!
                 </p>
               </div>
             </div>

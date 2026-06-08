@@ -37,7 +37,7 @@ import {
   buildDeviationTable,
   perturbedOutcome,
 } from "./uniqueness";
-import { blendOutcome, type AnchorSnapshot } from "./anchor";
+import { anchorDrawForMatch, blendOutcome, type AnchorSnapshot } from "./anchor";
 import type {
   BotPick,
   BotRecord,
@@ -71,25 +71,6 @@ interface GenerateMessage {
  *  `HASHING_THROTTLE_MS` per worker so we don't flood the main thread.
  *  ~120ms = ~8Hz, safely under the <10Hz limit Tim asked for. */
 const HASHING_THROTTLE_MS = 120;
-
-/**
- * Deterministic [0, 1) draw per (bot_index, match_index). Used to
- * sample whether a bot's outcome follows the user anchor or chalk.
- * FNV-mixed to keep the worker dependency-free; the draws don't need
- * to be crypto-quality because they only choose between two already-
- * sealed outcomes.
- */
-function anchorDraw(botIndex: number, matchIdx: number): number {
-  const FNV_OFFSET = 0x811c9dc5;
-  const FNV_PRIME = 0x01000193;
-  let h = FNV_OFFSET;
-  const s = `anchor:${botIndex}:${matchIdx}`;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = Math.imul(h, FNV_PRIME);
-  }
-  return (h >>> 0) / 0x1_0000_0000;
-}
 
 self.onmessage = (event: MessageEvent<GenerateMessage>) => {
   const msg = event.data;
@@ -160,13 +141,17 @@ async function runGenerate(msg: GenerateMessage): Promise<void> {
         // anchor weight. The PRNG draw is seeded by (bot_index,
         // match_id) so a re-run with the same snapshot reproduces the
         // same picks.
+        // anchorDrawForMatch keys group games on (bot_index, match_id)
+        // and knockouts on (bot_index) alone - the SAME keys the
+        // on-demand regenerate path (list + detail pages) uses, so the
+        // committed bracket and the regenerated display agree bit-for-bit.
         const outcome =
           msg.anchor && msg.anchor.weight > 0
             ? blendOutcome(
                 match.match_id,
                 baseOutcome,
                 msg.anchor,
-                anchorDraw(i, mi),
+                anchorDrawForMatch(i, match.match_id, match.allows_draw),
               )
             : baseOutcome;
         // Retained for the expected-score signal only.
