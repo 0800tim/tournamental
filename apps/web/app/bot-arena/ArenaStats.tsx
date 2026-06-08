@@ -131,11 +131,14 @@ export function ArenaStats({
         />
       )}
       {arenaTotal > 0 && (
-        <ArenaStat
-          label="Bots in the arena"
-          value={arenaTotal}
-          sub={`across ${formatCompact(totals?.total_devices ?? 0)} devices`}
-        />
+        // Tim 2026-06-08: the device subline used to read "across N
+        // devices" but `total_devices` is a count of distinct
+        // operator_ids (sha256 of API key), not literal machines.
+        // A single operator running across many tabs and machines
+        // is one row in the DB, so the count chronically undercounts
+        // and looks lonely. Sub omitted until we have a real device
+        // count to surface.
+        <ArenaStat label="Bots in the arena" value={arenaTotal} />
       )}
     </section>
   );
@@ -149,7 +152,7 @@ function ArenaStat({
 }: {
   label: string;
   value: number;
-  sub: string;
+  sub?: string;
   tone?: "gold";
 }) {
   return (
@@ -158,7 +161,7 @@ function ArenaStat({
       <strong className="vt-arena-stat-value" aria-live="polite">
         {formatCompact(value)}
       </strong>
-      <span className="vt-arena-stat-sub">{sub}</span>
+      {sub && <span className="vt-arena-stat-sub">{sub}</span>}
     </article>
   );
 }
