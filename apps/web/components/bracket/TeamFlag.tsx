@@ -125,7 +125,13 @@ export function TeamFlag({
         alt={`${name ?? code} flag`}
         width={isCircle ? circleDim! : w}
         height={isCircle ? circleDim! : h}
-        loading="lazy"
+        // Tim 2026-06-05: was loading="lazy", which on mobile webkit
+        // dropped the decoded texture when the panel scroll-snapped
+        // off-screen horizontally. Swiping back left a black/empty
+        // circle until the browser repainted. Flags are 1-3 KB SVGs;
+        // eager-loading the lot is cheap and removes the bug.
+        loading="eager"
+        decoding="async"
         style={
           isCircle
             ? { width: "100%", height: "100%", objectFit: "cover" }

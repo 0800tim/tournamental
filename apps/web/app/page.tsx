@@ -86,7 +86,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   // strings into the catalogue. The hero is the visitor's first paint
   // so it carries the biggest visible language change.
   const keys = await Promise.all([
-    safeT("home.hero.headline_a", "Don't just watch the FIFA World Cup™"),
+    safeT("home.hero.headline_a", "FIFA World Cup™ Predictions."),
     safeT("home.hero.cta_predict", "Set my picks"),
     safeT("home.hero.cta_pool", "Run a pool"),
     safeTRaw("home.hero.lede", "Nobody will correctly predict all 104 matches, and they probably never will because of the astronomical {odds_link}. Tournamental is the global predictions ledger looking for the person(s) in the world that will get the most correct picks. Could that be you?"),
@@ -95,7 +95,8 @@ export default async function HomePage(): Promise<JSX.Element> {
     // Tim 2026-05-29: second line of the headline ('Play it.') + the
     // immutability paragraph beneath the lede. Wired in after PR #243
     // which set the marketing-site Hero.astro to the same copy.
-    safeT("home.hero.headline_b", "Play it."),
+    safeT("home.hero.headline_b", "Bots vs Humans."),
+    safeT("home.hero.headline_c", "Who will win?"),
     safeT("home.hero.lede_2", "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable."),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
@@ -156,7 +157,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   ]);
   const [
     headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
-    headlineB, lede2,
+    headlineB, headlineC, lede2,
     countdownEyebrow, countdownTitle,
     statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
     step1Tag, step1Headline, step1Lede,
@@ -194,14 +195,22 @@ export default async function HomePage(): Promise<JSX.Element> {
               <h1 className="vt-home-headline">
                 <span className="vt-home-hero-line">{headlineA}</span>
                 <span className="vt-home-hero-line">{headlineB}</span>
+                <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
+              {/* Tim 2026-06-08: CTAs stay overlaid on the hero banner
+                * (this matches prod). Earlier attempt to extract them
+                * into a standalone 2-col row pushed them way down past
+                * the Bot Arena card and broke the at-a-glance read. */}
               <div className="vt-home-hero-ctas">
                 <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
                   {ctaPredict} →
                 </Link>
                 <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
                   {ctaPool}
+                </Link>
+                <Link href="/bot-arena" className="vt-home-btn vt-home-btn-light">
+                  Bot Arena
                 </Link>
               </div>
 
@@ -212,16 +221,14 @@ export default async function HomePage(): Promise<JSX.Element> {
                 * explain WHAT Tournamental is and tease the bet. */}
               <div className="vt-home-hero-lede-stack">
                 <p className="vt-home-hero-lede">
-                  Tournamental is a &lsquo;bracket&rsquo; app that keeps
-                  a global ledger of user match predictions and commits
-                  every pick to the blockchain before each match kicks
-                  off, so your predictions are immutable and any claim
-                  to glory is finally provable. Our quest is to find
-                  the person (or animal!) that can predict the most
-                  correct outcomes. Predict all 104 correctly and{" "}
-                  <Link href="/the-bet" className="vt-home-hero-readmore">
-                    I&apos;ll give you my house!
-                  </Link>
+                  A FIFA World Cup predictions game that lets you create
+                  free pools to play with friends, run office sweepstakes,
+                  and spawn millions of unique &lsquo;bracket
+                  predictions&rsquo; in search of the perfect bracket.
+                  Your picks are the anchor, your bot will spawn millions
+                  of variations around <em>your predictions</em> to try
+                  keep a perfect bracket as upsets happen during the
+                  tournament. And they can change them along the way!
                 </p>
               </div>
             </div>
@@ -261,11 +268,87 @@ export default async function HomePage(): Promise<JSX.Element> {
           </div>
         </section>
 
+        {/* ============== BOT ARENA FEATURE ============== */}
+        {/* Tim 2026-06-08: dramatic image-overlay feature card mirroring
+          * the bet card pattern but sitting first under the hero stats
+          * row. Promotes the perfect-bot-bracket experiment: spawn a
+          * swarm of bots in the browser and battle for the bracket.
+          * Press release + white paper published 2026-06-07. */}
+        <section className="vt-home-section vt-home-section--bots">
+          <article className="vt-bots-feature" aria-label="The Bot Arena">
+            <div className="vt-bots-feature-bg" aria-hidden="true" />
+            <div className="vt-bots-feature-scrim" aria-hidden="true" />
+            <div className="vt-bots-feature-inner">
+              <div className="vt-bots-feature-text">
+                <p className="vt-bots-feature-eyebrow">The Bot Arena</p>
+                <h2 className="vt-bots-feature-headline">
+                  Send <em>millions of bots</em> into battle.
+                </h2>
+                <p className="vt-bots-feature-body">
+                  Spawn a <strong>swarm of AI bots</strong> in your browser,
+                  forge their World Cup brackets, and pit them against
+                  every other swarm on Earth. <em>How close can your bots get to perfect?</em>
+                </p>
+              </div>
+              <div className="vt-bots-feature-action">
+                <Link href="/bot-arena" className="vt-bots-feature-cta">
+                  Enter the Bot Arena <span aria-hidden="true">→</span>
+                </Link>
+                <a
+                  href="/press/tournamental-press-release-2026-06-07.pdf"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="vt-bots-feature-cta vt-bots-feature-cta--white"
+                >
+                  Read Press Release <span aria-hidden="true">→</span>
+                </a>
+                <p className="vt-bots-feature-fine">
+                  <Link
+                    href="/whitepaper/perfect-bot-bracket"
+                    style={{ color: "inherit", textDecoration: "underline" }}
+                  >
+                    Read the white paper
+                  </Link>{" "}
+                  · 104 matches · 0 perfect brackets
+                </p>
+              </div>
+            </div>
+          </article>
+        </section>
+
+        {/* ============== STEP 1, PICKS ============== */}
+        {/* Tim 2026-06-08: moved up to sit between the 2-col CTA row
+            and the Tournamental? Maybe bet card, so the "Set your picks"
+            CTA flows straight into the explainer of what setting picks
+            actually means.
+          *
+          * Reveal-on-scroll wrappers ride the shared motion grammar
+            (8-14px rise + opacity, 600ms power3.out, light stagger). They
+            replace nothing visible: each section was already visible
+            on first paint; the wrapper only opts in once the section
+            crosses the viewport edge. Reduced motion makes it a no-op. */}
+        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
+          <div className="vt-home-step-tag">{step1Tag}</div>
+          <h2 className="vt-home-h2">{step1Headline}</h2>
+          <p className="vt-home-p">{step1Lede}</p>
+          <ul className="vt-home-bullets">
+            <li><strong>{step1B1Strong}</strong> {step1B1Body}</li>
+            <li><strong>{step1B2Strong}</strong> {step1B2Body}</li>
+            <li><strong>{step1B3Strong}</strong> {step1B3Body}</li>
+          </ul>
+          <div className="vt-home-cta-row">
+            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
+              {step1Cta} →
+            </Link>
+          </div>
+        </RevealOnScroll>
+
         {/* ============== BET FEATURE ============== */}
-        {/* Tim 2026-06-05: dramatic image-overlay feature card directly
-          * below the hero stats row. The --bet modifier kills the
-          * default section border-top and zeroes top padding so the
-          * card lands tight under the stats with no divider. */}
+        {/* Tim 2026-06-05: dramatic image-overlay feature card. Was
+          * directly below the hero stats row; as of 2026-06-08 it sits
+          * after the Step 1 picks block so the "set picks" CTA flows
+          * naturally into the "and by the way, here's my house on the
+          * line" hook. */}
         <section className="vt-home-section vt-home-section--bet">
           <article className="vt-bet-feature" aria-label="The bet">
             <div className="vt-bet-feature-bg" aria-hidden="true" />
@@ -307,28 +390,6 @@ export default async function HomePage(): Promise<JSX.Element> {
             </div>
           </article>
         </section>
-
-        {/* ============== STEP 1, PICKS ============== */}
-        {/* Reveal-on-scroll wrappers below ride the shared motion grammar
-            (8-14px rise + opacity, 600ms power3.out, light stagger). They
-            replace nothing visible: each section was already visible
-            on first paint; the wrapper only opts in once the section
-            crosses the viewport edge. Reduced motion makes it a no-op. */}
-        <RevealOnScroll as="section" className="vt-home-section vt-home-step" id="picks">
-          <div className="vt-home-step-tag">{step1Tag}</div>
-          <h2 className="vt-home-h2">{step1Headline}</h2>
-          <p className="vt-home-p">{step1Lede}</p>
-          <ul className="vt-home-bullets">
-            <li><strong>{step1B1Strong}</strong> {step1B1Body}</li>
-            <li><strong>{step1B2Strong}</strong> {step1B2Body}</li>
-            <li><strong>{step1B3Strong}</strong> {step1B3Body}</li>
-          </ul>
-          <div className="vt-home-cta-row">
-            <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-primary">
-              {step1Cta} →
-            </Link>
-          </div>
-        </RevealOnScroll>
 
         {/* Step 2 (3D Molecule watch-along) and the Watch demo CTAs were
          * dropped on 2026-05-21, play app is bracket-only for the

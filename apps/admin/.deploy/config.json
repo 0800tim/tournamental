@@ -1,0 +1,12 @@
+{
+  "$schema": "../../../infra/deploy/lib/config.schema.json",
+  "buildKind": "next",
+  "port": 3340,
+  "smokePort": 3098,
+  "healthzPath": "/login",
+  "smoke": [
+    { "url": "/login", "label": "login", "maxMs": 2500 }
+  ],
+  "cacheWarm": [],
+  "warmBase": "https://admin.tournamental.com"
+}

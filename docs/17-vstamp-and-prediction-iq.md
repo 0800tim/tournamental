@@ -2,6 +2,17 @@
 
 > Two related things that together turn Tournamental from "another tipping comp" into a credible reputation network. **VStamp** is the cryptographic verification of *what* you predicted *when*. **Prediction IQ** is the long-term reputation score derived from a verified history of your calls. Engine in `apps/vstamp-service`; shared with `apps/game-service` (agent J, [doc 09](09-agent-task-breakdown.md)).
 
+## What's actually wired today (2026-06-07 status)
+
+This doc was originally written as a forward-looking spec for the human-facing prediction game's per-prediction VStamp surface. As of June 2026, the cryptographic spine has been shipped in two related-but-distinct places:
+
+1. **Per-kickoff commitments via `commitKickoff()` in `apps/game/src/services/kickoff-commit.ts`** (commit `2a9942f`), this is what the Open Bot Arena uses today. The commitment is **per (tournament, match) pair**, built once before kickoff, and the leaf encoding is `sha256(bot_id|match_id|outcome|locked_at_utc)`. See [doc 31, Merkle and OTS Proofs](31-merkle-and-ots-proofs.md) for the cryptographic details and [doc 30, Browser Swarm Architecture](30-browser-swarm-architecture.md) for the federation surface.
+2. **Per-prediction-batch commitments described in the rest of this doc**, the original 1-minute snapshotter cadence with the human-game leaf shape `(user_id, match_id, prediction_type, predicted_outcome, market_implied_probability_at_lock, confidence_chips, locked_at_ms, nonce)`. This is **not yet wired** in `apps/vstamp-service`; the per-kickoff path was prioritised because the Open Bot Arena Phase 1 launch needed pre-kickoff anchoring per match, and the per-prediction-batch flow can land on top of the same OTS anchor surface in Phase 2.
+
+**Why two cadences, not one.** The Bot Arena commits per match because there is one well-defined moment ("just before kickoff") when every contributing pick is final. The human game commits per minute because human predictions can land at any time and waiting until kickoff would deny users the "verified within seconds of lock" experience the marketing surface promises. Two cadences, one OTS anchor surface, one leaf-hash family. The verifier in `packages/bot-node/src/verifier/` will eventually handle both.
+
+**What this means for the Phase 1 launch.** Bot-arena bots get the strong, per-match, Bitcoin-anchored verifiability described in [doc 31](31-merkle-and-ots-proofs.md). Human predictions get the per-prediction game scoring described in [doc 16](16-game-modes-and-scoring.md) and are functionally identical to what the long-term VStamp spec promises, but the cryptographic anchor for human predictions is queued behind the bot-arena rollout. Public copy should say "verifiable" for bots and "verified" for the bot-arena's audit window; humans get the same verifiability surface in Phase 2 without a schema migration.
+
 ## Why this matters
 
 The single feature that makes Tournamental stronger than every other tipping comp is the *verifiability* of historical predictions. A leaderboard alone is bragging rights; a verifiable on-chain history is a reputation asset.

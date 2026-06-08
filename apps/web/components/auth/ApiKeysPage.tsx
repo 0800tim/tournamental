@@ -29,6 +29,7 @@ import { useUser } from "@/lib/auth/useUser";
 import {
   listApiKeys,
   mintApiKey,
+  mintApiKeyViaCookie,
   regenerateApiKey,
   revokeApiKey,
   ALL_SCOPES,
@@ -100,7 +101,15 @@ function ApiKeysEditor() {
 
   const refresh = useCallback(async () => {
     const sb = browserClient();
-    if (!sb) return;
+    if (!sb) {
+      // No Supabase client , the cookie-session fallback at
+      // /api/v1/bots/keys is mint-only (the game-service does not
+      // expose a list-my-bot-keys surface yet). Surface an empty
+      // table so the page renders, and don't block the loading flag.
+      setKeys([]);
+      setLoading(false);
+      return;
+    }
     const out = await listApiKeys(sb);
     if (out.ok) {
       setKeys(out.data);
@@ -126,8 +135,6 @@ function ApiKeysEditor() {
   }, []);
 
   const handleMint = async () => {
-    const sb = browserClient();
-    if (!sb) return;
     const trimmed = label.trim();
     if (!trimmed) {
       setError("Give your key a label so you can identify it later.");
@@ -135,7 +142,16 @@ function ApiKeysEditor() {
     }
     setBusy(true);
     setError(null);
-    const out = await mintApiKey(sb, { label: trimmed, scopes });
+    const sb = browserClient();
+    // Tim 2026-06-07: SMS-OTP / Telegram users have no Supabase
+    // session, so the original Supabase-only path no-opped silently.
+    // Fall back to the cookie-session proxy at /api/v1/bots/keys ,
+    // it resolves the inbound session via getSessionFromRequest and
+    // mints a Bot Arena key against the game-service shared-secret
+    // endpoint.
+    const out = sb
+      ? await mintApiKey(sb, { label: trimmed, scopes })
+      : await mintApiKeyViaCookie({ label: trimmed, scopes });
     setBusy(false);
     if (!out.ok) {
       setError(humanize(out.code, out.message));

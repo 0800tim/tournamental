@@ -28,6 +28,11 @@ import { useEffect, useState } from "react";
 
 const DISMISS_KEY = "vt-install-dismissed-at";
 const DISMISS_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30 days
+// Session-scoped guard so the auto-prompt fires at most once per tab.
+// Persisted in sessionStorage so a soft-nav between routes (which keeps
+// the SPA mounted but re-runs the effect on remount) does not re-pop
+// the native dialog after the user already saw it.
+const AUTO_PROMPTED_KEY = "vt-install-auto-prompted";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -84,6 +89,36 @@ function isIosSafari(): boolean {
   const isIos = /iPad|iPhone|iPod/i.test(ua);
   const isChromeOrFx = /CriOS|FxiOS/i.test(ua);
   return isIos && !isChromeOrFx;
+}
+
+/**
+ * Android Chromium UA test, gates the auto-fire of the native install
+ * prompt to the platform where it makes sense. Desktop Chromium also
+ * supports beforeinstallprompt but auto-popping there interrupts the
+ * page; we only auto-fire on Android.
+ */
+function isAndroidChromium(): boolean {
+  if (typeof window === "undefined") return false;
+  const ua = window.navigator.userAgent ?? "";
+  return /Android/i.test(ua) && /Chrome|Chromium|CriOS/i.test(ua);
+}
+
+function hasAutoPromptedThisSession(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.sessionStorage?.getItem(AUTO_PROMPTED_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function markAutoPrompted(): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.sessionStorage?.setItem(AUTO_PROMPTED_KEY, "1");
+  } catch {
+    // ignore quota / private-mode failures
+  }
 }
 
 /** Browser-specific instruction copy shown when we can't trigger the
@@ -171,7 +206,41 @@ export function InstallPrompt() {
 
     const handler = (e: Event) => {
       e.preventDefault();
-      setState({ kind: "chromium", event: e as BeforeInstallPromptEvent });
+      const event = e as BeforeInstallPromptEvent;
+      setState({ kind: "chromium", event });
+      // Tim 2026-06-06: on Android, auto-fire the native install dialog
+      // the first time `beforeinstallprompt` arrives in a session. The
+      // drawer affordance remains the manual path for repeat visits +
+      // desktop chromium + iOS Safari. Desktop chromium is excluded so
+      // we don't interrupt people browsing on a laptop.
+      if (!isAndroidChromium()) return;
+      if (hasAutoPromptedThisSession()) return;
+      markAutoPrompted();
+      // Defer one frame so React commits the chromium state first and
+      // the page paints before the native modal slides up; without this,
+      // Chrome on some devices throttles back-to-back prompt() calls
+      // racing with a heavy render.
+      const raf =
+        typeof window.requestAnimationFrame === "function"
+          ? window.requestAnimationFrame
+          : (cb: FrameRequestCallback) => setTimeout(() => cb(0), 16);
+      raf(() => {
+        event
+          .prompt()
+          .then(() => event.userChoice)
+          .then((choice) => {
+            if (choice.outcome === "accepted") {
+              writeDismissedAt();
+              setState({ kind: "hidden" });
+            }
+            // outcome === "dismissed": leave the drawer affordance in
+            // place so the user can opt back in later without nagging.
+          })
+          .catch(() => {
+            // event.prompt() can throw if the browser already consumed
+            // the saved event. Drawer affordance remains as fallback.
+          });
+      });
     };
     window.addEventListener("beforeinstallprompt", handler);
 

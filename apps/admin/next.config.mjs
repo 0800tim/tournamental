@@ -7,6 +7,16 @@ const __dirname = path.dirname(__filename);
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // The deploy orchestrator (infra/deploy/lib/publish.ts) builds into a
+  // per-slot directory so the live PM2 process can keep reading the
+  // current `.next-prod` while the new `.next-staging` is built + smoke-
+  // tested. Next doesn't honour NEXT_BUILD_DIR natively and rejects
+  // absolute paths in `distDir`, so we accept the env var and pass
+  // through just the basename. Unset → default `.next`. Mirrors the
+  // identical block in apps/web/next.config.mjs.
+  ...(process.env.NEXT_BUILD_DIR
+    ? { distDir: process.env.NEXT_BUILD_DIR.replace(/^.*\//, "") || ".next" }
+    : {}),
   // Pin the file-tracing root at the monorepo root (vtorn/) so Next 15
   // doesn't probe upwards and pick up an unrelated package-lock.json
   // sitting in ~/clawdia/. Without this, builds emit a noisy "we

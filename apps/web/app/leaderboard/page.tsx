@@ -3,57 +3,95 @@
 /**
  * /leaderboard, global prediction-IQ leaderboard.
  *
+ * Phase 1 of the Open Bot Arena (spec §5) turned this page into a
+ * three-tab surface:
+ *   - Humans   (default landing tab, prize-eligible competitors)
+ *   - Bots     (AI competitors, ranked separately; ineligible for cash)
+ *   - My Pools (the user's own Pool memberships)
+ *
+ * The tab strip lives in the LeaderboardTabs client component, which
+ * owns the active-scope state and renders the appropriate body. The
+ * surrounding hero (kickoff countdown + brackets-locked tiles) and the
+ * "You vs the pool" + "Pundits to follow" rails are shared across all
+ * audience tabs so the page identity stays the same.
+ *
  * Until the live picks DB starts ingesting at kickoff (2026-06-11),
  * this surface renders deterministic mock data via
- * `mockLeaderboardMembers(null, 50)` and shows the DraftPreviewBanner
- * + the in-card "Preview data" footer chip. The shape of the data
- * is intentionally identical to what the real `/api/leaderboard`
- * endpoint will return, to go live, replace the
- * `mockLeaderboardMembers(...)` call with a server-side fetch and
- * drop both the banner and the watermark wrappers.
+ * `mockLeaderboardMembers(...)` and shows the DraftPreviewBanner + the
+ * in-card "Preview data" footer chip. The data shape is intentionally
+ * identical to what the real `/api/leaderboard?scope=<audience>`
+ * endpoint will return; to go live, the LeaderboardTabs component
+ * swaps its mock fetch for a server-side call.
  */
 
 import { useEffect, useMemo, useState } from "react";
 
-import {
-  Leaderboard,
-  type LeaderboardScope,
-} from "@/components/leaderboard/Leaderboard";
+import { Leaderboard } from "@/components/leaderboard/Leaderboard";
+import { PerfectTrackBadge } from "@/components/leaderboard/PerfectTrackBadge";
 import { StageProgressChart } from "@/components/leaderboard/StageProgressChart";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { DraftWatermark } from "@/components/mock/DraftWatermark";
-import { AppShell, PillTabs } from "@/components/shell";
+import { AppShell } from "@/components/shell";
 import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import {
   mockPointsHistory,
   mockPoolAverage,
 } from "@/lib/mock/points-history";
 
+import { LeaderboardTabs } from "./LeaderboardTabs";
+
 import "./leaderboard.css";
 
 export default function LeaderboardPage() {
-  const [tab, setTab] = useState<"global" | "friends" | "country">("global");
-  const [scope, setScope] = useState<LeaderboardScope>("top50");
-
+  // Tim 2026-06-07: the Global/Friends/Country chooser used to live in
+  // the AppShell subHeader pill row. It now sits inside the leaderboard
+  // card next to the Humans/Bots/My Pools audience tabs, so the page
+  // padding can compress and both decisions live next to the list they
+  // filter.
   const members = useMemo(() => mockLeaderboardMembers(null, 50), []);
 
-  // "You" pinned to mid-pack so the highlight row is visibly demoed.
+  // "You" pinned to mid-pack so the highlight row is visibly demoed in
+  // the side rails.
   const youId = members[12]?.id;
 
-  // Static stats (kickoff tile is rendered separately as a mini
-  // countdown). Tim 2026-06-05: the third tile used to show a coarse
-  // "7 days" rounded-up readout which read as wrong at the boundary
-  // (six days and change reads as "7 days" by ceil). Swapped for a
-  // mini days/hours/minutes countdown that mirrors the home page.
+  // Live bot count from central via /v1/swarm/totals. Browser swarms
+  // and Docker containers both fold in. The number ticks within a
+  // one-minute cache window. Mock fallback (18,000) shows until the
+  // first fetch lands so the tile never renders blank. Tim 2026-06-08.
+  const [liveBotTotal, setLiveBotTotal] = useState<number | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOnce = async () => {
+      try {
+        const res = await fetch("/v1/swarm/totals", { cache: "no-store" });
+        if (!res.ok) return;
+        const body = (await res.json()) as { total_bots?: number };
+        if (!cancelled && typeof body.total_bots === "number") {
+          setLiveBotTotal(body.total_bots);
+        }
+      } catch {
+        /* silent: tile keeps last good value */
+      }
+    };
+    void fetchOnce();
+    const id = window.setInterval(fetchOnce, 45_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
+  }, []);
+
   const heroStats = useMemo(
     () => [
-      { value: "24,388", label: "brackets locked" },
-      { value: "1,204", label: "syndicates running" },
+      { value: "24,388", label: "humans locked in" },
+      {
+        value: (liveBotTotal ?? 18_000).toLocaleString(),
+        label: "bots competing",
+      },
     ],
-    [],
+    [liveBotTotal],
   );
 
-  // For the "you vs the pool" chart, seed from the highlighted member.
   const memberSeries = useMemo(
     () => mockPointsHistory(youId ?? "you", 28),
     [youId],
@@ -64,23 +102,11 @@ export default function LeaderboardPage() {
   );
 
   return (
-    <AppShell
-      title="Leaderboard"
-      subHeader={
-        <PillTabs
-          ariaLabel="Leaderboard scope"
-          tabs={[
-            { id: "global", label: "Global" },
-            { id: "friends", label: "Friends" },
-            { id: "country", label: "Country" },
-          ]}
-          active={tab}
-          onChange={(id) => setTab(id as typeof tab)}
-        />
-      }
-    >
+    <AppShell title="Leaderboard">
       <div className="vt-page-content vt-lb-page">
         <DraftPreviewBanner />
+
+        <PerfectTrackBadge />
 
         <section className="vt-lb-hero">
           {heroStats.map((s) => (
@@ -98,16 +124,7 @@ export default function LeaderboardPage() {
 
         <section className="vt-lb-grid">
           <DraftWatermark>
-            <Leaderboard
-              title="Global leaderboard"
-              members={members}
-              highlightMemberId={youId}
-              showStreakColumn
-              activeTab={scope}
-              onTabChange={setScope}
-              totalMembers={24388}
-              matchesPlayed={DEMO_MATCHES_PLAYED}
-            />
+            <LeaderboardTabs initialTab="humans" />
           </DraftWatermark>
 
           <aside className="vt-lb-side">
@@ -150,12 +167,11 @@ export default function LeaderboardPage() {
 
 /**
  * Mini countdown tile, sits in the third slot of the leaderboard hero
- * row in place of the old static "N days / to kickoff" readout. Three
- * cells (D / H / M) styled to match the home page's countdown banner
- * at tile-scale; no seconds, so a one-minute tick is plenty and the
- * SSR/CSR text-mismatch surface is much smaller. The kickoff instant
- * is the FIFA WC 2026 opener (2026-06-11T19:00:00Z, Mexico City), the
- * same target the home page uses.
+ * row. Three cells (D / H / M) styled to match the home page's
+ * countdown banner at tile-scale; no seconds, so a one-minute tick is
+ * plenty and the SSR/CSR text-mismatch surface is much smaller. The
+ * kickoff instant is the FIFA WC 2026 opener (2026-06-11T19:00:00Z,
+ * Mexico City), the same target the home page uses.
  *
  * Tim 2026-06-05.
  */

@@ -1,0 +1,609 @@
+/**
+ * /bot-arena page styles. Editorial-sport tone matching /the-bet.
+ * Charcoal canvas, Fraunces display serif, gold accents.
+ */
+
+.vt-arena {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: clamp(20px, 4vw, 48px) clamp(14px, 3vw, 28px) 96px;
+  line-height: 1.65;
+}
+
+.vt-arena-article {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+/* ---------- header ---------- */
+
+.vt-arena-header {
+  padding-bottom: 36px;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.22);
+  margin-bottom: 40px;
+}
+
+.vt-arena-dateline {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+.vt-arena-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  /* Tim 2026-06-08: cap a touch lower than 56 so the snappier two-beat
+   * headline ("Spawn a million bots..." / "Will yours top...") lays
+   * out as two clean lines on desktop instead of breaking awkwardly. */
+  font-size: clamp(30px, 5vw, 50px);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  color: #ffffff;
+  margin: 0;
+  /* text-wrap: balance distributes leftover words across lines instead
+   * of orphaning a single word on the last line; widely supported in
+   * modern browsers, falls back to normal wrapping where unavailable. */
+  text-wrap: balance;
+  max-width: 22ch;
+}
+.vt-arena-title em {
+  font-style: italic;
+  color: #f6c64f;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.78em;
+}
+
+.vt-arena-lede {
+  font-family: Fraunces, Georgia, serif;
+  font-style: italic;
+  font-size: clamp(17px, 2vw, 19px);
+  line-height: 1.55;
+  color: #c7d0e6;
+  margin: 24px 0 0;
+  max-width: 64ch;
+}
+
+.vt-arena-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 16px;
+}
+
+.vt-arena-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 22px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f6c64f 0%, #dca94b 100%);
+  color: #15151a;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+  box-shadow: 0 8px 30px rgba(220, 169, 75, 0.25);
+}
+.vt-arena-cta-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 36px rgba(220, 169, 75, 0.35);
+  text-decoration: none;
+}
+
+.vt-arena-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  padding: 14px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(220, 169, 75, 0.55);
+  background: transparent;
+  color: #e7ecf7;
+  font-weight: 500;
+  font-size: 15px;
+  text-decoration: none;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.vt-arena-cta-secondary:hover {
+  border-color: #dca94b;
+  background: rgba(220, 169, 75, 0.08);
+  text-decoration: none;
+}
+
+.vt-arena-footnote {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  color: #98a0b7;
+  margin: 0;
+}
+
+/* ---------- hero variant (Tim 2026-06-08) ----------
+ *
+ * Mirrors /the-bet's hero treatment: full-bleed photo, dual-gradient
+ * scrim, content sits bottom-left of the image. The article column
+ * stays 820px otherwise; the hero alone breaks out via negative side
+ * margins on mobile and rounds to a card on tablet+. Image lives at
+ * public/hero/bot-arena-hero.{webp,jpg} (1920x1047 each, lossy from
+ * the 2816x1536 original). */
+.vt-arena-header--hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 18px;
+  margin: -24px -20px 28px;
+  padding: clamp(48px, 8vw, 96px) clamp(24px, 4vw, 56px) clamp(36px, 5vw, 64px);
+  border-bottom: none;
+  background: #15151a;
+  min-height: clamp(360px, 50vw, 540px);
+  display: flex;
+  align-items: flex-end;
+}
+.vt-arena-header-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-image: image-set(
+    url("/hero/bot-arena-hero.webp") type("image/webp"),
+    url("/hero/bot-arena-hero.jpg") type("image/jpeg")
+  );
+  background-size: cover;
+  background-position: center;
+  background-color: #1e1e26;
+}
+.vt-arena-header-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* Vertical gradient anchors the headline at the bottom against the
+   * stadium roof; horizontal gradient keeps the right edge of the
+   * photo readable (it's a packed crowd, busy already). */
+  background:
+    linear-gradient(180deg, rgba(15, 15, 22, 0.25) 0%, rgba(15, 15, 22, 0.55) 55%, rgba(15, 15, 22, 0.92) 100%),
+    linear-gradient(90deg, rgba(15, 15, 22, 0.55) 0%, rgba(15, 15, 22, 0.15) 60%, rgba(15, 15, 22, 0.0) 100%);
+}
+.vt-arena-header-content {
+  position: relative;
+  z-index: 2;
+  max-width: 920px;
+}
+@media (min-width: 720px) {
+  .vt-arena-header--hero {
+    margin-left: 0;
+    margin-right: 0;
+    border-radius: 24px;
+  }
+}
+
+/* ---------- live stats chips (Tim 2026-06-08) ----------
+ *
+ * Three-up row beneath the hero. Hidden by the component until the
+ * device has bots or the arena total is non-zero. Wraps to a column
+ * on narrow viewports. */
+.vt-arena-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 0 0 32px;
+}
+/* Tim 2026-06-08: hero variant sits inside the photo scrim above the
+ * CTAs. Compact, transparent panels so the underlying photo still
+ * carries the banner. */
+.vt-arena-stats--hero {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 22px 0 6px;
+  max-width: 640px;
+}
+.vt-arena-stats--hero .vt-arena-stat {
+  padding: 10px 14px 10px;
+  background: rgba(8, 10, 18, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-color: rgba(220, 169, 75, 0.36);
+}
+.vt-arena-stats--hero .vt-arena-stat-value {
+  font-size: clamp(22px, 3vw, 28px);
+}
+.vt-arena-stats--hero .vt-arena-stat-label,
+.vt-arena-stats--hero .vt-arena-stat-sub {
+  font-size: 10px;
+}
+@media (max-width: 560px) {
+  .vt-arena-stats--hero {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.vt-arena-stat {
+  border-radius: 12px;
+  padding: 14px 16px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(220, 169, 75, 0.28);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.vt-arena-stat[data-tone="gold"] {
+  background: linear-gradient(180deg, rgba(246, 198, 79, 0.18) 0%, rgba(220, 169, 75, 0.06) 100%);
+  border-color: rgba(246, 198, 79, 0.55);
+}
+.vt-arena-stat-label {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 10.5px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #c7b283;
+}
+.vt-arena-stat-value {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(26px, 4.4vw, 34px);
+  line-height: 1.05;
+  color: #ffffff;
+  letter-spacing: -0.018em;
+}
+.vt-arena-stat[data-tone="gold"] .vt-arena-stat-value {
+  color: #f6c64f;
+  text-shadow: 0 2px 14px rgba(246, 198, 79, 0.35);
+}
+.vt-arena-stat-sub {
+  font-size: 12px;
+  color: #98a0b7;
+}
+
+/* ---------- body ---------- */
+
+.vt-arena-body {
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.vt-arena-h2 {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 30px);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  margin: 48px 0 14px;
+}
+
+.vt-arena-body p {
+  margin: 0 0 14px;
+  color: #d8def0;
+}
+
+.vt-arena-body strong {
+  color: #ffffff;
+}
+
+.vt-arena-body a {
+  color: #f6c64f;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.vt-arena-body a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.vt-arena-body code {
+  background: rgba(220, 169, 75, 0.08);
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 13px;
+  color: #f6c64f;
+}
+
+.vt-arena-pullquote {
+  font-family: Fraunces, Georgia, serif;
+  font-size: clamp(18px, 2.6vw, 22px);
+  line-height: 1.4;
+  color: #ffffff;
+  padding: 18px 24px;
+  margin: 18px 0;
+  border-left: 3px solid #dca94b;
+  background: rgba(220, 169, 75, 0.06);
+  border-radius: 4px;
+}
+
+/* ---------- launch-timing banner ---------- */
+
+.vt-arena-launch-banner {
+  margin: 40px 0;
+  padding: 28px 24px;
+  background: linear-gradient(
+    180deg,
+    rgba(220, 169, 75, 0.08) 0%,
+    rgba(220, 169, 75, 0.03) 100%
+  );
+  border: 1px solid rgba(220, 169, 75, 0.32);
+  border-radius: 14px;
+}
+.vt-arena-launch-eyebrow {
+  color: #f6c64f;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin: 0 0 6px;
+}
+.vt-arena-launch-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(22px, 3vw, 28px);
+  color: #ffffff;
+  margin: 0 0 18px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+}
+.vt-arena-launch-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .vt-arena-launch-grid { grid-template-columns: 1fr; }
+}
+.vt-arena-launch-card {
+  background: rgba(8, 8, 12, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  padding: 18px;
+}
+.vt-arena-launch-when {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  margin: 0 0 8px;
+}
+.vt-arena-launch-when strong {
+  color: #f6c64f;
+  font-weight: 600;
+}
+.vt-arena-launch-card p:not(.vt-arena-launch-when) {
+  font-size: 15px;
+  line-height: 1.65;
+  color: #d8def0;
+  margin: 0;
+}
+.vt-arena-launch-footnote {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 18px 0 0;
+  font-style: italic;
+}
+
+/* ---------- 4-way grid + slider grid ---------- */
+
+.vt-arena-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 20px 0 28px;
+}
+.vt-arena-grid-tight {
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 920px) {
+  .vt-arena-grid-tight { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 720px) {
+  .vt-arena-grid { grid-template-columns: 1fr; }
+  .vt-arena-grid-tight { grid-template-columns: 1fr; }
+}
+
+.vt-arena-slider-card {
+  background: rgba(220, 169, 75, 0.05);
+  border: 1px solid rgba(220, 169, 75, 0.18);
+  border-radius: 10px;
+  padding: 16px;
+}
+.vt-arena-slider-name {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  margin: 0 0 6px;
+}
+.vt-arena-slider-card p:not(.vt-arena-slider-name) {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #c7d0e6;
+  margin: 0;
+}
+
+.vt-arena-list {
+  margin: 14px 0 18px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-arena-list li {
+  margin: 0 0 10px;
+  line-height: 1.65;
+}
+.vt-arena-list strong {
+  color: #ffffff;
+}
+
+.vt-arena-card {
+  background: linear-gradient(180deg, #15151a 0%, #111116 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+}
+.vt-arena-card:hover {
+  border-color: rgba(220, 169, 75, 0.32);
+}
+
+.vt-arena-card-eyebrow {
+  color: #dca94b;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin: 0 0 8px;
+}
+
+.vt-arena-card-title {
+  font-family: Fraunces, Georgia, serif;
+  font-weight: 500;
+  font-size: 22px;
+  line-height: 1.2;
+  letter-spacing: -0.005em;
+  color: #ffffff;
+  margin: 0 0 10px;
+}
+
+.vt-arena-card p {
+  flex: 1;
+  font-size: 15px;
+  line-height: 1.65;
+  color: #c7d0e6;
+  margin: 0 0 14px;
+}
+
+.vt-arena-card-cta {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f6c64f;
+  text-decoration: none;
+  align-self: flex-start;
+}
+.vt-arena-card-cta:hover {
+  text-decoration: underline;
+}
+
+/* ---------- steps ---------- */
+
+.vt-arena-steps {
+  margin: 18px 0 24px;
+  padding-left: 22px;
+  color: #d8def0;
+}
+.vt-arena-steps li {
+  margin: 0 0 12px;
+  line-height: 1.65;
+}
+.vt-arena-steps strong {
+  color: #ffffff;
+}
+
+/* ---------- signoff ---------- */
+
+.vt-arena-signoff {
+  font-family: Fraunces, Georgia, serif;
+  font-style: italic;
+  font-size: 18px;
+  color: #c7d0e6;
+  margin: 36px 0 14px;
+}
+
+.vt-arena-byline {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 0 0 36px;
+}
+.vt-arena-byline strong {
+  color: #e7ecf7;
+}
+.vt-arena-byline a {
+  color: #f6c64f;
+  text-decoration: none;
+}
+.vt-arena-byline a:hover {
+  text-decoration: underline;
+}
+
+.vt-arena-cta-final {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 28px 0 0;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- storage-cost table (Tim 2026-06-08) ----------
+ *
+ * Sits inside the "How much disk does a swarm need?" section. Mono
+ * digits for the bot/disk columns so the powers of 10 line up; gold
+ * border + subtle row stripes to match the rest of the editorial
+ * tone. Scrolls horizontally on mobile rather than wrapping. */
+.vt-arena-table {
+  width: 100%;
+  margin: 24px 0 12px;
+  border-collapse: collapse;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(220, 169, 75, 0.22);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.vt-arena-table-caption {
+  caption-side: bottom;
+  text-align: left;
+  padding: 12px 4px 0;
+  color: #98a0b7;
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-style: italic;
+}
+.vt-arena-table thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #c7b283;
+  border-bottom: 1px solid rgba(220, 169, 75, 0.25);
+  background: rgba(220, 169, 75, 0.05);
+}
+.vt-arena-table tbody td {
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #e7ecf7;
+  vertical-align: top;
+}
+.vt-arena-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.vt-arena-table tbody td:first-child,
+.vt-arena-table tbody td:nth-child(2) {
+  font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.vt-arena-table tbody td:nth-child(3) {
+  color: #98a0b7;
+  font-style: italic;
+}
+.vt-arena-table--storage {
+  display: block;
+  overflow-x: auto;
+}
+.vt-arena-table-footnote {
+  font-size: 14px;
+  color: #98a0b7;
+  margin: 4px 0 0;
+  line-height: 1.55;
+}

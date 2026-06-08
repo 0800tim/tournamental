@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "tournamental": {
+      "command": "npx",
+      "args": ["-y", "@tournamental/bot-mcp"],
+      "env": {
+        "TOURNAMENTAL_API_KEY": "tnm_replace_with_your_own_key_from_play_tournamental_com_bots_keys"
+      }
+    }
+  }
+}

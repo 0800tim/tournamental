@@ -306,6 +306,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
     return null;
   });
   const [tab, setTabState] = useState<TabId>("groups");
+  // Mirror of `tab` for callbacks that need to read the current value
+  // outside of React's render cycle (e.g. the carousel scroll handler,
+  // which used to read it via a setTabState updater + side effect, which
+  // is an anti-pattern and triggered the "Cannot update Router while
+  // rendering BracketBuilder" warning. Tim 2026-06-06.).
+  const tabRef = useRef<TabId>("groups");
   const [submitState, setSubmitState] = useState<string>("");
   const [lastSaveOk, setLastSaveOk] = useState<boolean>(false);
   // Tim 2026-06-05: dirty-detect + autosave. lastSavedSig is the
@@ -437,6 +443,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
     }, 600);
   }, []);
 
+  // Keep tabRef in sync with tab. Used by the carousel scroll handler
+  // so it can read the current tab without going through a setTabState
+  // updater (which must be pure — see Tim 2026-06-06 note on tabRef).
+  useEffect(() => {
+    tabRef.current = tab;
+  }, [tab]);
+
   // Sync the active tab to whichever panel is most in-view on the
   // mobile carousel. Throttled via requestAnimationFrame and
   // suppressed while we're driving the scroll programmatically.
@@ -454,15 +467,24 @@ export function BracketBuilder(props: BracketBuilderProps) {
         const idx = Math.round(el.scrollLeft / width);
         const clamped = Math.max(0, Math.min(TAB_ORDER.length - 1, idx));
         const nextTab = TAB_ORDER[clamped]!;
-        setTabState((cur) => {
-          if (cur === nextTab) return cur;
+        // Tim 2026-06-06: side effects (history.replaceState) MUST NOT
+        // live inside a setTabState updater. React 18+ may invoke an
+        // updater twice in StrictMode + dev, and an observable side
+        // effect there schedules a Router state update mid-render
+        // ("Cannot update a component while rendering" warning), which
+        // in turn drops the rAF-deferred scroll-to-top and occasionally
+        // leaves `tab` flipped one stage ahead. Read current tab from
+        // a ref, then update state + URL outside the setter.
+        if (tabRef.current === nextTab) return;
+        tabRef.current = nextTab;
+        setTabState(nextTab);
+        if (typeof window !== "undefined") {
           const target = TABS.find((t) => t.id === nextTab)?.hash ?? "#groups";
-          if (typeof window !== "undefined" && window.location.hash !== target) {
+          if (window.location.hash !== target) {
             const url = `${window.location.pathname}${window.location.search}${target}`;
             window.history.replaceState(null, "", url);
           }
-          return nextTab;
-        });
+        }
       });
     };
     el.addEventListener("scroll", onScroll, { passive: true });
@@ -494,6 +516,37 @@ export function BracketBuilder(props: BracketBuilderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMobile]);
 
+  // Track the active panel's natural height and apply it to the
+  // carousel container. Without this, the carousel sizes to the TALLEST
+  // panel (group stage, ~3000px) and every other stage shows hundreds
+  // of pixels of empty space below its content (Tim 2026-06-05). With
+  // align-items: start on the carousel (set in CSS), each panel keeps
+  // its natural content height; this effect makes the carousel itself
+  // resize to whichever panel is currently active.
+  useEffect(() => {
+    if (!isMobile) return;
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    const activePanel = carousel.querySelector(
+      `#bracket-panel-${tab}`,
+    ) as HTMLElement | null;
+    if (!activePanel) return;
+
+    const apply = () => {
+      const h = activePanel.getBoundingClientRect().height;
+      if (h > 0) carousel.style.height = `${Math.ceil(h)}px`;
+    };
+    apply();
+    // Re-apply whenever the panel's content changes height (picks
+    // toggled, warnings banner appears/disappears, etc.).
+    const ro =
+      typeof ResizeObserver !== "undefined" ? new ResizeObserver(apply) : null;
+    ro?.observe(activePanel);
+    return () => {
+      ro?.disconnect();
+    };
+  }, [isMobile, tab]);
+
   // Scroll the tab strip to the top of the viewport on every tab
   // change. Without this, navigating from a long stage (group stage
   // scrolled to bottom) to a shorter one leaves the user staring at
@@ -501,25 +554,63 @@ export function BracketBuilder(props: BracketBuilderProps) {
   // content. Skips on initial mount so a deep-link to #r16 doesn't
   // override the browser's own hash-restore scroll. Smooth except
   // for users who prefer reduced motion.
+  //
+  // Tim 2026-06-05: defer the scroll by two animation frames. The tab
+  // change fires the active-panel ResizeObserver above, which mutates
+  // the carousel's height — the document gets shorter mid-scroll. If
+  // we scroll synchronously, the browser clamps the smooth-scroll
+  // target to the (shrinking) max scrollY and the user ends up stuck
+  // wherever the new max is, often near the bottom of the new panel.
+  // Two rAFs ensures layout has settled and ResizeObserver has fired
+  // before we ask the browser to animate.
   useEffect(() => {
     if (tabScrollSkipMountRef.current) {
       tabScrollSkipMountRef.current = false;
       return;
     }
     if (typeof window === "undefined") return;
-    const el = tabsRef.current;
-    if (!el) return;
     const prefersReducedMotion =
       typeof window.matchMedia === "function" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // Align the tab strip just below the (sticky) AppBar so the active
-    // tab + the first row of the new panel are visible together.
-    const rect = el.getBoundingClientRect();
-    const targetY = window.scrollY + rect.top - 8;
-    window.scrollTo({
-      top: Math.max(0, targetY),
-      behavior: prefersReducedMotion ? "auto" : "smooth",
+
+    // Target the ACTIVE panel, not the tab strip. The tab strip is
+    // position:sticky (top: 56px) so its getBoundingClientRect().top
+    // is permanently ~56 once scrolled — using it as a scroll target
+    // only nudges the page by ~48px regardless of how far down the
+    // user was. scrollIntoView on the panel + scroll-margin-top in CSS
+    // (sized to clear the appbar + sticky tabs stack) gives the
+    // browser the right pivot.
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = window.requestAnimationFrame(() => {
+      raf2 = window.requestAnimationFrame(() => {
+        const carousel = carouselRef.current;
+        const panel = carousel?.querySelector(
+          `#bracket-panel-${tab}`,
+        ) as HTMLElement | null;
+        if (!panel) return;
+        // Tim 2026-06-06: was panel.scrollIntoView({block:"start"}) but
+        // that ALSO adjusts the horizontal scroll position to bring the
+        // panel into view inside the carousel. When the user reaches
+        // r16 by SWIPING left/right (carousel scrollLeft animating),
+        // scrollIntoView fights the carousel's snap and the page never
+        // makes it to the top of the new stage. Compute the vertical
+        // target manually and use window.scrollTo so we only touch
+        // scrollY, leaving the carousel's scrollLeft alone.
+        const rect = panel.getBoundingClientRect();
+        const scrollMarginTop =
+          parseFloat(window.getComputedStyle(panel).scrollMarginTop) || 0;
+        const target = Math.max(0, rect.top + window.scrollY - scrollMarginTop);
+        window.scrollTo({
+          top: target,
+          behavior: prefersReducedMotion ? "auto" : "smooth",
+        });
+      });
     });
+    return () => {
+      window.cancelAnimationFrame(raf1);
+      window.cancelAnimationFrame(raf2);
+    };
   }, [tab]);
 
   useEffect(() => {
@@ -714,6 +805,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
       );
     });
     if (!changed) return;
+    // Tim 2026-06-06: only scroll when the cascaded change is in the
+    // CURRENT tab's stage. Without this, picking a team in R32 (which
+    // populates a downstream R16 slot via the cascade) would scroll
+    // the carousel to the R16 panel, snapping the user off the round
+    // they were still picking on.
+    const tabStages: readonly string[] =
+      tab === "final" ? ["f", "tp"] : [tab];
+    if (!tabStages.includes(changed.stage)) return;
     const raf =
       typeof window !== "undefined" && typeof window.requestAnimationFrame === "function"
         ? window.requestAnimationFrame
@@ -2058,34 +2157,14 @@ function NextStageButton({
         type="button"
         className="bracket-next-stage-btn"
         onClick={() => {
+          // setTab triggers BracketBuilder's `[tab]` effect which
+          // double-rAFs and scroll-aligns the tab strip to the top of
+          // the viewport (handles vertical scroll, ResizeObserver-
+          // driven carousel resize, and reduced-motion preference).
+          // We deliberately do NOT scroll inline here — competing
+          // smooth scrolls against the effect left users clamped near
+          // the bottom of the previous stage (Tim 2026-06-05).
           setTab(next);
-          if (typeof window === "undefined") return;
-          // Mobile uses a horizontal scroll-snap carousel for the six
-          // stage panels. setTab() handles the horizontal scroll. The
-          // page's *vertical* scroll position carries over from the
-          // previous stage, so without resetting it the user lands in
-          // a blank gap below the shorter R16/R32/etc column (Tim
-          // 2026-05-21).
-          //
-          // We scroll the page so the carousel's top lines up with the
-          // bottom of the sticky chrome (appbar + tab strip). The
-          // sticky tabs follow the scroll, so visually the user lands
-          // on the first match of the new stage with the tab strip
-          // pinned right above it.
-          const stages = document.querySelector<HTMLElement>(
-            ".bracket-stages",
-          );
-          if (!stages) {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-            return;
-          }
-          const stickyOffset = 110; // appbar 56 + tab strip ~50 + 4
-          const absoluteTop =
-            stages.getBoundingClientRect().top + window.scrollY;
-          window.scrollTo({
-            top: Math.max(0, absoluteTop - stickyOffset),
-            behavior: "smooth",
-          });
         }}
         aria-label={`Continue to ${label}`}
       >

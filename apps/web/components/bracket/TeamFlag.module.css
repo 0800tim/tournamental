@@ -12,8 +12,12 @@
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.5),
     0 0 0 1px rgba(255, 255, 255, 0.06) inset;
-  transform: translateZ(0);
-  perspective: 600px;
+  /* Tim 2026-06-05: dropped `transform: translateZ(0)` + `perspective: 600px`.
+   * They promoted the wrap to its own GPU layer, which on mobile webkit
+   * dropped the flag-image texture when the bracket carousel scroll-snapped
+   * the panel off-screen horizontally. On swipe-back the layer painted
+   * empty until something else forced a repaint. The .sparkle .flagImg
+   * skew animation still composites fine without the parent perspective. */
 }
 
 .flagImg {

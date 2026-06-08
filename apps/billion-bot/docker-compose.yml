@@ -1,0 +1,49 @@
+services:
+  billion-bot:
+    image: tournamental/billion-bot:dev
+    build:
+      context: .
+    container_name: tournamental-billion-bot
+    restart: unless-stopped
+    environment:
+      WORKERS: ${WORKERS:-48}
+      BATCH_SIZE: ${BATCH_SIZE:-100000}
+      TARGET_BOTS: ${TARGET_BOTS:-1000000000}
+      NODE_LABEL: ${NODE_LABEL:-vtorn-dev-1b-test}
+      MAX_WORKERS: ${MAX_WORKERS:-96}
+      HOST_PROC_STAT: /host-proc/stat
+      DASH_PORT: 4080
+      DASH_HOST: 0.0.0.0
+      # Aggregate-leaderboard publish path. When OPERATOR_API_KEY is
+      # set the dashboard auto-POSTs /v1/swarms/<sha256(key)>/summary
+      # to CENTRAL_URL every 30s, same idempotency keys the browser
+      # swarm uses. Leave the key unset to keep the run dry / local-only.
+      OPERATOR_API_KEY: ${OPERATOR_API_KEY:-}
+      CENTRAL_URL: ${CENTRAL_URL:-https://api.tournamental.com}
+      PUBLISH_INTERVAL_MS: ${PUBLISH_INTERVAL_MS:-30000}
+    # No CPU limit - let the dashboard throttle dynamically.
+    volumes:
+      # Named volume lands under /var/lib/docker/volumes/ which is on
+      # /dev/sdb1 here, keeping the multi-GB SQLite files off the main
+      # disk. ./data was on /dev/sda2 and filled / to 99% last time.
+      - billion_bot_data:/app/data
+      # Read-only bind mount of host /proc/stat so the dashboard can
+      # report host-level CPU usage. /proc is per-pid-namespace inside
+      # the container; this exposes the host's view.
+      - /proc/stat:/host-proc/stat:ro
+      - /proc/loadavg:/host-proc/loadavg:ro
+    # Bound to 0.0.0.0 so Tailscale (100.x) + LAN (192.168.x) + WireGuard
+    # (10.x) can reach the dashboard. There's no public ingress on this
+    # box (everything behind CF tunnels), so this only exposes to
+    # networks Tim is already on.
+    ports:
+      - "0.0.0.0:4080:4080"
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://127.0.0.1:4080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  billion_bot_data:
+    name: billion_bot_data

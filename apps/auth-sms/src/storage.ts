@@ -84,6 +84,15 @@ export interface UserRecord {
   highlevel_contact_id: string | null;
   /** Unix seconds when the contact was last synced to HighLevel. NULL if not yet. */
   highlevel_synced_at: number | null;
+  /**
+   * 1 if this row represents a bot competing in the Open Bot Arena
+   * (Phase 1, FIFA WC 2026 launch). 0 for human users. Bots are
+   * ineligible for the cash prize regardless of leaderboard position;
+   * see /terms/house-prize and docs/20-identity-humanness-bots.md. The
+   * column is indexed so the leaderboard scope filter
+   * (humans|bots|all) can short-circuit cheaply.
+   */
+  is_bot: 0 | 1;
 }
 
 export interface SessionRecord {
@@ -244,7 +253,32 @@ export class Storage {
     this.db.exec(SCHEMA);
     this.migrateUserTableIfNeeded();
     this.migrateUserProfileColumns();
+    this.migrateUserBotColumn();
     this.migratePhoneOtpTableIfNeeded();
+  }
+
+  /**
+   * v0.4 -> v0.5: add `is_bot` flag for the Open Bot Arena. The Phase 1
+   * launch (FIFA WC 2026) seeds ~18k bot rows so the public leaderboard
+   * is populated from minute one, and external operators register their
+   * own bots via the bot SDK. Bots are ineligible for the cash prize
+   * (humanness < 50 gate) so this column doubles as a fast filter on the
+   * leaderboard read path. See
+   * docs/superpowers/specs/2026-06-07-bot-arena-design.md §4.1.
+   */
+  private migrateUserBotColumn(): void {
+    const cols = this.db
+      .prepare(`PRAGMA table_info(user)`)
+      .all() as Array<{ name: string }>;
+    const names = new Set(cols.map((c) => c.name));
+    if (!names.has('is_bot')) {
+      this.db.exec(
+        `ALTER TABLE user ADD COLUMN is_bot INTEGER NOT NULL DEFAULT 0`,
+      );
+    }
+    this.db.exec(
+      `CREATE INDEX IF NOT EXISTS idx_user_is_bot ON user(is_bot)`,
+    );
   }
 
   /**
@@ -682,6 +716,7 @@ export class Storage {
       favourite_team_code: null,
       highlevel_contact_id: null,
       highlevel_synced_at: null,
+      is_bot: 0,
     };
     this.db
       .prepare(
@@ -726,6 +761,7 @@ export class Storage {
       favourite_team_code: null,
       highlevel_contact_id: null,
       highlevel_synced_at: null,
+      is_bot: 0,
     };
     this.db
       .prepare(
@@ -809,11 +845,66 @@ export class Storage {
       favourite_team_code: null,
       highlevel_contact_id: null,
       highlevel_synced_at: null,
+      is_bot: 0,
     };
     this.db
       .prepare(
         `INSERT INTO user (id, phone, display_name, country, telegram_id, telegram_username, created_at, last_seen_at)
          VALUES (@id, @phone, @display_name, @country, @telegram_id, @telegram_username, @created_at, @last_seen_at)`,
+      )
+      .run(rec);
+    return rec;
+  }
+
+  /**
+   * Insert a synthetic bot row for the Open Bot Arena.
+   *
+   * Used by both the apps/seed-bots CLI (which mints the launch-day
+   * 18k seed cohort) and the bot SDK (which mints externally-operated
+   * bots on behalf of an API-key holder). Phone, email, telegram are
+   * all NULL by definition , bots authenticate via their owning API
+   * key, not via OTP.
+   *
+   * Idempotent on `id`: re-running the seed CLI does not duplicate
+   * rows or perturb existing bot brackets.
+   *
+   * Spec: docs/superpowers/specs/2026-06-07-bot-arena-design.md §4.1
+   */
+  insertBotUser(opts: {
+    id: string;
+    display_name?: string | null;
+    country?: string | null;
+    favourite_team_code?: string | null;
+    created_at: number;
+  }): UserRecord {
+    const existing = this.getUser(opts.id);
+    if (existing) return existing;
+    const rec: UserRecord = {
+      id: opts.id,
+      phone: null,
+      display_name: opts.display_name ?? null,
+      country: opts.country ?? null,
+      telegram_id: null,
+      telegram_username: null,
+      created_at: opts.created_at,
+      last_seen_at: opts.created_at,
+      email: null,
+      first_name: null,
+      last_name: null,
+      city: null,
+      favourite_team_code: opts.favourite_team_code ?? null,
+      highlevel_contact_id: null,
+      highlevel_synced_at: null,
+      is_bot: 1,
+    };
+    this.db
+      .prepare(
+        `INSERT INTO user
+           (id, display_name, country, favourite_team_code,
+            created_at, last_seen_at, is_bot)
+         VALUES
+           (@id, @display_name, @country, @favourite_team_code,
+            @created_at, @last_seen_at, 1)`,
       )
       .run(rec);
     return rec;

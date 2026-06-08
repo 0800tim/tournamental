@@ -1,6 +1,6 @@
 {
   "name": "@tournamental/plugin-sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Plugin SDK for Tournamental. Types + manifest schema + test harness for authoring third-party plugins (renderers, scorers, ingest sources, identity providers, commentary, share cards, odds sources, affiliate routers).",
   "license": "Apache-2.0",
   "type": "module",

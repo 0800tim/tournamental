@@ -267,6 +267,17 @@ export function JoinFlowClient({ slug, initialName }: JoinFlowClientProps): JSX.
       if (verifiedUser) setUser(verifiedUser);
       const fresh = verifiedUser ?? (await fetchInboundUser());
       if (fresh) setUser(fresh);
+      // Tell `useUser` to re-probe the inbound session so the global
+      // ProfileCompletionGate flips to its "authenticated, missing
+      // display_name" state and shows the @handle picker overlay.
+      // Without this dispatch, useUser only learns about Supabase auth
+      // events, the `tnm_session` cookie set by inbound-login goes
+      // unnoticed, and the OnboardingStep's poll loop sits on
+      // "Setting up your profile…" indefinitely because no UI ever
+      // surfaces to let the user pick a name. Tim 2026-06-06.
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tnm:auth-changed"));
+      }
       const status = await fetchMembershipStatus(slug);
       routeSignedIn(status);
     },

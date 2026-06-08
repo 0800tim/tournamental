@@ -37,6 +37,18 @@ import "./leaderboard.css";
 
 export type LeaderboardScope = "top50" | "this-week" | "all-time";
 
+/**
+ * Audience scope, distinct from the "Top 50 / This week / All time" time
+ * scope above. The Bot Arena work (spec §5) introduced the
+ * Humans / Bots / My Pools tab triplet on `/leaderboard`; this type
+ * carries the audience selection through to the data fetcher. When set,
+ * the component (and the future real API client) appends
+ * `?scope=<audience>` to the leaderboard request and renders a
+ * `data-scope` attribute on the card root so styles / instrumentation
+ * can distinguish a humans-only vs bots-only board.
+ */
+export type LeaderboardAudienceScope = "humans" | "bots";
+
 export interface LeaderboardTab {
   readonly id: LeaderboardScope;
   readonly label: string;
@@ -47,6 +59,10 @@ export interface LeaderboardProps {
   readonly title: string;
   /** Pre-sorted by `rank`. */
   readonly members: readonly MockMember[];
+  /** Audience filter. When set, the component renders a `data-scope`
+   *  attribute and (when wired) appends `?scope=<value>` to the data
+   *  fetch URL. Defaults to undefined (all audiences, current behaviour). */
+  readonly scope?: LeaderboardAudienceScope;
   /** When set, the matching row is highlighted with a "YOU" pill. */
   readonly highlightMemberId?: string;
   readonly showMovementColumn?: boolean;
@@ -85,6 +101,7 @@ const DEFAULT_TABS: readonly LeaderboardTab[] = [
 export function Leaderboard({
   title,
   members,
+  scope,
   highlightMemberId,
   showMovementColumn = true,
   showCountryColumn = true,
@@ -120,6 +137,7 @@ export function Leaderboard({
       className="vt-lb-card"
       data-density={density}
       data-draft={draftMark ? "1" : undefined}
+      data-scope={scope}
       aria-label={title}
     >
       <header className="vt-lb-header">
@@ -319,18 +337,23 @@ function LeaderboardRow({
 }
 
 function MovementIndicator({ value }: { value: number }) {
+  // Tim 2026-06-07: a single match result moves any one bracket by at
+  // most one position relative to its neighbours, so the displayed
+  // delta is capped at ±1. The underlying `value` may carry a wider
+  // signal for sort tie-breaks (e.g. how far ahead the next clump is),
+  // but the leaderboard chip itself reads as just direction + "1".
   const dir: "up" | "down" | "flat" = value > 0 ? "up" : value < 0 ? "down" : "flat";
   const glyph = dir === "up" ? "▲" : dir === "down" ? "▼" : "·";
   const label =
     dir === "up"
-      ? `Up ${value} positions`
+      ? "Up 1 position"
       : dir === "down"
-      ? `Down ${Math.abs(value)} positions`
+      ? "Down 1 position"
       : "No change";
   return (
     <span className="vt-lb-movement" data-dir={dir} aria-label={label}>
       <span aria-hidden="true">{glyph}</span>
-      <span>{value === 0 ? "" : Math.abs(value)}</span>
+      <span>{dir === "flat" ? "" : "1"}</span>
     </span>
   );
 }

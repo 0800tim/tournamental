@@ -1,0 +1,149 @@
+/*
+ * /developers, the developer hub landing page.
+ *
+ * Editorial canvas matches /the-bet and /bots/sdk so the developer
+ * micro-site reads as one consistent surface.
+ */
+
+.vt-dev {
+  min-height: 100vh;
+  background: #0e0e12;
+  color: #e7ecf7;
+  font-family: system-ui, -apple-system, sans-serif;
+  padding: 48px 20px 96px;
+  line-height: 1.55;
+}
+
+.vt-dev-article {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.vt-dev-header {
+  padding-bottom: 32px;
+  margin-bottom: 32px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.vt-dev-eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #f1c447;
+  margin: 0 0 16px;
+}
+
+.vt-dev-title {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.08;
+  margin: 0 0 18px;
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+
+.vt-dev-title em {
+  color: #f1c447;
+  font-style: italic;
+}
+
+.vt-dev-lede {
+  font-size: clamp(17px, 1.6vw, 20px);
+  color: #b8c0d4;
+  max-width: 62ch;
+  margin: 0;
+}
+
+.vt-dev-section {
+  margin: 40px 0;
+}
+
+.vt-dev-section h2 {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(20px, 2.4vw, 26px);
+  margin: 0 0 16px;
+  color: #fff;
+}
+
+.vt-dev-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+@media (max-width: 720px) {
+  .vt-dev-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vt-dev-card {
+  background: #15151a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  transition: border-color 120ms ease, transform 120ms ease;
+}
+
+.vt-dev-card:hover {
+  border-color: rgba(241, 196, 71, 0.4);
+  transform: translateY(-1px);
+}
+
+.vt-dev-card-link {
+  display: block;
+  padding: 22px 24px;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+}
+
+.vt-dev-card h3 {
+  font-size: 18px;
+  color: #fff;
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vt-dev-card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #f1c447;
+  background: rgba(241, 196, 71, 0.10);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.vt-dev-card-arrow {
+  margin-left: auto;
+  color: #f1c447;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.vt-dev-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #b8c0d4;
+  line-height: 1.5;
+}
+
+.vt-dev-contact p {
+  color: #d6dbe8;
+  font-size: 15px;
+  margin: 0;
+  max-width: 60ch;
+}
+
+.vt-dev-contact a {
+  color: #f1c447;
+  text-decoration: underline;
+}

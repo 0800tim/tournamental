@@ -33,8 +33,26 @@
 .vt-lb-page {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  /* Tim 2026-06-07: tightened from 18 → 10 so the Preview-data banner
+   * sits snug against the PerfectTrack chip and hero tiles below it
+   * instead of a half-inch of negative space the user flagged on the
+   * dev screenshot. */
+  gap: 10px;
   padding-bottom: 48px;
+  /* Defence-in-depth (Tim 2026-06-08): any child that goes wider than
+   * the page (typically the audience tablist on narrow phones) gets
+   * clipped here so the body never grows a horizontal scrollbar. The
+   * tablist itself still scrolls internally via its own overflow-x. */
+  min-width: 0;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Cancel the legacy 16px bottom margin that DraftPreviewBanner ships
+ * with so the page's own gap (above) is the single source of truth
+ * for vertical rhythm here. */
+.vt-lb-page > .vt-draft-banner {
+  margin-bottom: 0;
 }
 
 .vt-lb-hero {
@@ -163,8 +181,12 @@
 }
 
 @media (max-width: 960px) {
+  /* Tim 2026-06-08: `1fr` lets a wide child push the track past the
+   * viewport (e.g. the 5-tab single-row strip). minmax(0, 1fr) clamps
+   * the track to the available width so children must shrink instead
+   * of triggering page-level horizontal scroll. */
   .vt-lb-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .vt-lb-hero {
     grid-template-columns: repeat(3, 1fr);
@@ -181,4 +203,194 @@
   .vt-lb-hero {
     grid-template-columns: 1fr;
   }
+}
+
+/* ----- Audience tab triplet (Bot Arena, spec §5) ----- */
+
+.vt-lb-audience {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  /* Tim 2026-06-08: caps the column at its parent's width so the
+   * inline-flex tablist below cannot push past the viewport and
+   * cause page-level horizontal scroll on mobile. */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.vt-lb-audience-tablist {
+  display: inline-flex;
+  align-self: flex-start;
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
+  border-radius: 999px;
+  padding: 4px;
+  gap: 2px;
+  /* Constrain to parent width so the tablist's own overflow-x: auto
+   * (set below) actually clips the 5 tabs rather than letting them
+   * blow out the page. Tim 2026-06-08. */
+  max-width: 100%;
+}
+
+.vt-lb-audience-tab {
+  font: inherit;
+  color: var(--vt-text-muted, #b8c0d4);
+  background: transparent;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  transition: background 120ms ease, color 120ms ease;
+}
+
+.vt-lb-audience-tab:hover {
+  color: var(--vt-text, #e7ecf7);
+}
+
+.vt-lb-audience-tab[data-active="1"] {
+  background: var(--vt-accent, #f1c447);
+  color: #0e0e12;
+}
+
+.vt-lb-audience-tab:focus-visible {
+  outline: 2px solid var(--vt-accent, #f1c447);
+  outline-offset: 2px;
+}
+
+.vt-lb-audience-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vt-lb-mypools {
+  border-radius: 14px;
+  background: var(--vt-bg-elev);
+  border: 1px solid var(--vt-border);
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.vt-lb-mypools-empty {
+  margin: 0;
+  color: var(--vt-text-muted, #b8c0d4);
+  line-height: 1.55;
+  max-width: 56ch;
+}
+
+.vt-lb-mypools-link {
+  color: var(--vt-accent, #f1c447);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.vt-lb-mypools-link:hover {
+  text-decoration: none;
+}
+
+/* ----- "My Pools" rows (Tim 2026-06-07) ----- */
+
+.vt-lb-mypools-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vt-lb-mypools-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid var(--vt-border);
+}
+
+.vt-lb-mypools-row-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vt-lb-mypools-rank {
+  font-family: var(--vt-font-editorial, "Fraunces", ui-serif, Georgia, serif);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  font-size: 1.1rem;
+  color: var(--vt-gold-400, #dca94b);
+  min-width: 44px;
+  text-align: center;
+}
+
+.vt-lb-mypools-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.vt-lb-mypools-name {
+  font-weight: 600;
+  color: var(--vt-text, #e7ecf7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vt-lb-mypools-members {
+  font-size: 0.78rem;
+  color: var(--vt-text-muted, #b8c0d4);
+}
+
+.vt-lb-mypools-view {
+  flex-shrink: 0;
+  color: var(--vt-accent, #f1c447);
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 196, 71, 0.35);
+  transition: background 120ms ease, border-color 120ms ease;
+  white-space: nowrap;
+}
+
+.vt-lb-mypools-view:hover {
+  background: rgba(241, 196, 71, 0.12);
+  border-color: rgba(241, 196, 71, 0.55);
+}
+
+.vt-lb-mypools-footnote {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--vt-text-muted, #b8c0d4);
+}
+
+/* ----- Single-row tab strip (Tim 2026-06-07) -----
+ * Five tabs (Humans / Bots / Global / Country / My Pools) all on one
+ * row. On narrow screens the row scrolls horizontally rather than
+ * wrapping so the pill rhythm stays intact. */
+
+.vt-lb-audience-tablist {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.vt-lb-audience-tablist::-webkit-scrollbar {
+  display: none;
+}
+
+.vt-lb-audience-tab {
+  white-space: nowrap;
 }
