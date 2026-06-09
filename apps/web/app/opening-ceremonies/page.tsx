@@ -14,6 +14,7 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
 
+import { LocalTime } from "./LocalTime";
 import "./opening-ceremonies.css";
 
 export const dynamic = "force-static";
@@ -38,7 +39,9 @@ interface Ceremony {
   readonly home: Team;
   readonly away: Team;
   readonly kickoffLocal: string;
+  readonly kickoffUtc: string;
   readonly ceremonyStartLocal: string;
+  readonly ceremonyStartUtc: string;
   readonly duration: string;
   readonly expect: string;
   readonly performers: readonly string[];
@@ -53,8 +56,10 @@ const CEREMONIES: readonly Ceremony[] = [
     home: { code: "MEX", name: "Mexico" },
     away: { code: "RSA", name: "South Africa" },
     kickoffLocal: "1:00 PM",
-    ceremonyStartLocal: "11:00 AM",
-    duration: "about 16 minutes",
+    kickoffUtc: "2026-06-11T19:00:00Z",
+    ceremonyStartLocal: "11:30 AM",
+    ceremonyStartUtc: "2026-06-11T17:30:00Z",
+    duration: "live music set ~16 min",
     expect:
       "A celebration of Mexican culture: Indigenous performers, folkloric dance and papel picado, before the hosts open the tournament.",
     performers: [
@@ -78,8 +83,10 @@ const CEREMONIES: readonly Ceremony[] = [
     home: { code: "CAN", name: "Canada" },
     away: { code: "BIH", name: "Bosnia and Herzegovina" },
     kickoffLocal: "3:00 PM",
+    kickoffUtc: "2026-06-12T19:00:00Z",
     ceremonyStartLocal: "1:30 PM",
-    duration: "about 13 minutes",
+    ceremonyStartUtc: "2026-06-12T17:30:00Z",
+    duration: "live music set ~13 min",
     expect:
       "A cultural mosaic and a musical journey across Canada, from coast to coast to coast.",
     performers: [
@@ -102,8 +109,10 @@ const CEREMONIES: readonly Ceremony[] = [
     home: { code: "USA", name: "United States" },
     away: { code: "PAR", name: "Paraguay" },
     kickoffLocal: "6:00 PM",
+    kickoffUtc: "2026-06-13T01:00:00Z",
     ceremonyStartLocal: "4:30 PM",
-    duration: "about 13 minutes",
+    ceremonyStartUtc: "2026-06-12T23:30:00Z",
+    duration: "live music set ~13 min",
     expect:
       "A large-scale spectacle of US pop culture, with immersive visuals and global pop power.",
     performers: ["Katy Perry", "Future", "Anitta", "LISA", "Rema", "Tyla"],
@@ -149,9 +158,9 @@ export default function OpeningCeremoniesPage(): JSX.Element {
             <h1 className="vt-oc-title">Opening Ceremonies</h1>
             <p className="vt-oc-lede">
               Three host nations, three opening games, three shows. Each
-              ceremony starts 90 minutes before kick-off. Here is who is
-              playing, when the show starts and what to expect. All times are
-              local to the host city.
+              ceremony starts 90 minutes before kick-off with a flag parade
+              and the match-ball presentation, building to a live music set.
+              Times show in your timezone, with the host-city time in brackets.
             </p>
           </header>
 
@@ -172,13 +181,19 @@ export default function OpeningCeremoniesPage(): JSX.Element {
                   <div className="vt-oc-meta-row">
                     <dt>Kick-off</dt>
                     <dd>
-                      {c.kickoffLocal} · {c.stadium}
+                      <LocalTime
+                        iso={c.kickoffUtc}
+                        localText={`${c.kickoffLocal} local · ${c.stadium}`}
+                      />
                     </dd>
                   </div>
                   <div className="vt-oc-meta-row">
                     <dt>Ceremony</dt>
                     <dd>
-                      {c.ceremonyStartLocal} ({c.duration})
+                      <LocalTime
+                        iso={c.ceremonyStartUtc}
+                        localText={`${c.ceremonyStartLocal} local · ${c.duration}`}
+                      />
                     </dd>
                   </div>
                 </dl>
@@ -201,12 +216,14 @@ export default function OpeningCeremoniesPage(): JSX.Element {
 
           <footer className="vt-oc-foot">
             <p>
-              How to watch: USA on FOX, FS1 and Telemundo (free stream on
-              Tubi); Canada on CTV and TSN; Mexico on Televisa and TV Azteca;
-              UK on BBC and ITV.
+              How to watch: New Zealand on TVNZ+; USA on FOX, FS1 and
+              Telemundo (free stream on Tubi); Canada on CTV and TSN; Mexico on
+              Televisa and TV Azteca; UK on BBC and ITV.
             </p>
             <p className="vt-oc-foot-source">
-              Line-ups and timings per FIFA and reporting as of June 2026.
+              The minutes shown are the live music set; each ceremony also
+              includes a flag parade and the match-ball presentation. Line-ups
+              and timings per FIFA and reporting as of June 2026.
             </p>
           </footer>
         </article>
