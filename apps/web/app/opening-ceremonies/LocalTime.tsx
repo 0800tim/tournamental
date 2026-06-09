@@ -57,3 +57,38 @@ export function LocalTime({
     </>
   );
 }
+
+/**
+ * Renders a date in the viewer's own timezone (weekday, day, month, year),
+ * so the card header matches the day the match actually airs for the
+ * viewer. Until mount it shows the host-city date `fallback`, which keeps
+ * SSR and the first client paint identical (no hydration mismatch).
+ */
+export function LocalDate({
+  iso,
+  fallback,
+}: {
+  iso: string;
+  fallback: string;
+}): JSX.Element {
+  const [local, setLocal] = useState<string | null>(null);
+
+  useEffect(() => {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return;
+    try {
+      setLocal(
+        new Intl.DateTimeFormat(undefined, {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }).format(d),
+      );
+    } catch {
+      setLocal(null);
+    }
+  }, [iso]);
+
+  return <>{local ?? fallback}</>;
+}

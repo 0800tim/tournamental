@@ -14,7 +14,7 @@ import type { Metadata } from "next";
 
 import { AppShell } from "@/components/shell";
 
-import { LocalTime } from "./LocalTime";
+import { LocalTime, LocalDate } from "./LocalTime";
 import "./opening-ceremonies.css";
 
 export const dynamic = "force-static";
@@ -168,7 +168,8 @@ export default function OpeningCeremoniesPage(): JSX.Element {
             {CEREMONIES.map((c) => (
               <li key={c.city} className="vt-oc-card">
                 <p className="vt-oc-card-eyebrow">
-                  {c.host} · {c.city} · {c.date}
+                  {c.host} · {c.city} ·{" "}
+                  <LocalDate iso={c.kickoffUtc} fallback={c.date} />
                 </p>
 
                 <div className="vt-oc-match">
