@@ -199,3 +199,18 @@ export function CalendarIcon(props: SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+export function RobotIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <path d="M12 3.5v3" />
+      <circle cx="12" cy="3" r="0.6" fill="currentColor" stroke="none" />
+      <rect x="4" y="7" width="16" height="12" rx="3" />
+      <path d="M2.5 11v4" />
+      <path d="M21.5 11v4" />
+      <circle cx="9" cy="13" r="1.3" fill="currentColor" stroke="none" />
+      <circle cx="15" cy="13" r="1.3" fill="currentColor" stroke="none" />
+      <path d="M9.5 16h5" />
+    </svg>
+  );
+}

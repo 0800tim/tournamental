@@ -31,6 +31,8 @@ import {
   MoleculeIcon,
   HouseStackIcon,
   CalendarIcon,
+  FlagIcon,
+  RobotIcon,
 } from "./icons";
 
 export interface NavLink {
@@ -109,7 +111,7 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     label: "Bot Arena",
     i18nKey: "nav.bot_arena",
     href: "/bot-arena",
-    icon: <CodeIcon />,
+    icon: <RobotIcon />,
     matchPrefix: "/bot-arena",
   },
   {
@@ -167,7 +169,8 @@ export const DRAWER_PRIMARY: readonly NavLink[] = [
   { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
   { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
   { label: "Match calendar",   i18nKey: "nav.calendar",        href: "/world-cup-2026/calendar",   icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
-  { label: "Bot Arena",        i18nKey: "nav.bot_arena",       href: "/bot-arena",                 icon: <CodeIcon />,     matchPrefix: "/bot-arena" },
+  { label: "Opening Ceremonies", i18nKey: "nav.opening_ceremonies", href: "/opening-ceremonies",    icon: <FlagIcon />,     matchPrefix: "/opening-ceremonies" },
+  { label: "Bot Arena",        i18nKey: "nav.bot_arena",       href: "/bot-arena",                 icon: <RobotIcon />,    matchPrefix: "/bot-arena" },
   { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
   { label: "The Bet",          i18nKey: "nav.the_bet",         href: "/the-bet",                   icon: <HouseStackIcon />, matchPrefix: "/the-bet" },
   { label: "My Profile",       i18nKey: "nav.profile_my",      href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
