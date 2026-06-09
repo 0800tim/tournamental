@@ -40,33 +40,46 @@ describe("game-service / kickoff lockout", () => {
     await app.close();
   });
 
-  it("rejects a prediction whose lockedAt is 1 minute AFTER kickoff", async () => {
-    const { app } = await built;
-    // Match "1" kicks off at 19:00Z; lockedAt 1 min after.
-    const lateLockedAt = "2026-06-11T19:01:00Z";
-    const bracket = makeBracket("bk_late", {
-      "1": makeMatchPrediction("1", "home_win", { lockedAt: lateLockedAt }),
+  it("SEC-BRK-02: a spoofed early lockedAt does NOT bypass the lock once the server clock is past kickoff", async () => {
+    // The decision uses the SERVER clock, never the client's lockedAt.
+    // Server now() is 5 minutes AFTER match 1's 19:00Z kickoff, but the
+    // attacker sends a faked lockedAt of 18:00Z (before kickoff). Under
+    // the old (spoofable) code this would have been accepted; now it is
+    // rejected because the server clock says the match has started.
+    const tamper = makeServer({
+      kickoffs: makeStubRegistry(TOURNAMENT, KICKOFFS),
+      nowMs: () => Date.parse("2026-06-11T19:05:00Z"),
     });
-    const res = await app.inject({
-      method: "POST",
-      url: "/v1/bracket/submit",
-      headers: { "x-user-id": "u_late" },
-      payload: {
-        tournament_id: TOURNAMENT,
-        user_id: "u_late",
-        bracket,
-      },
-    });
-    expect(res.statusCode).toBe(201);
-    const body = res.json();
-    expect(Array.isArray(body.rejected)).toBe(true);
-    expect(body.rejected).toHaveLength(1);
-    expect(body.rejected[0]).toEqual({
-      matchId: "1",
-      error: "match_already_started",
-      kickoff_utc: "2026-06-11T19:00:00Z",
-      lockedAt: lateLockedAt,
-    });
+    const { app } = await tamper;
+    try {
+      const spoofedEarlyLockedAt = "2026-06-11T18:00:00Z";
+      const bracket = makeBracket("bk_tamper", {
+        "1": makeMatchPrediction("1", "home_win", {
+          lockedAt: spoofedEarlyLockedAt,
+        }),
+      });
+      const res = await app.inject({
+        method: "POST",
+        url: "/v1/bracket/submit",
+        headers: { "x-user-id": "u_tamper" },
+        payload: { tournament_id: TOURNAMENT, user_id: "u_tamper", bracket },
+      });
+      expect(res.statusCode).toBe(201);
+      const body = res.json();
+      expect(Array.isArray(body.rejected)).toBe(true);
+      expect(body.rejected).toHaveLength(1);
+      expect(body.rejected[0].matchId).toBe("1");
+      expect(body.rejected[0].error).toBe("match_already_started");
+      // The match was rejected → not persisted, even with the spoof.
+      const me = await app.inject({
+        method: "GET",
+        url: `/v1/bracket/me?tournament_id=${TOURNAMENT}`,
+        headers: { "x-user-id": "u_tamper" },
+      });
+      expect(me.json().bracket?.matchPredictions?.["1"]).toBeUndefined();
+    } finally {
+      (await tamper).app.close();
+    }
   });
 
   it("accepts a prediction whose lockedAt is 1 minute BEFORE kickoff", async () => {
@@ -101,59 +114,62 @@ describe("game-service / kickoff lockout", () => {
   });
 
   it("echoes back rejected matches but still persists the others", async () => {
-    const { app } = await built;
-    // Match "1": late lockedAt → reject.
-    // Match "2": early lockedAt → keep.
-    // Knockout "r32_01": early lockedAt → keep.
-    // Knockout "r16_01": no kickoff in registry → keep (cascade unresolved).
-    const bracket = makeBracket(
-      "bk_mixed",
-      {
-        "1": makeMatchPrediction("1", "home_win", {
-          lockedAt: "2026-06-11T19:30:00Z",
-        }),
-        "2": makeMatchPrediction("2", "away_win", {
-          lockedAt: "2026-06-12T20:00:00Z",
-        }),
-      },
-      {
-        r32_01: makeMatchPrediction("r32_01", "home_win", {
-          lockedAt: "2026-06-30T00:00:00Z",
-        }),
-        r16_01: makeMatchPrediction("r16_01", "home_win", {
-          lockedAt: "2026-07-05T00:00:00Z",
-        }),
-      },
-    );
-    const res = await app.inject({
-      method: "POST",
-      url: "/v1/bracket/submit",
-      headers: { "x-user-id": "u_mixed" },
-      payload: {
-        tournament_id: TOURNAMENT,
-        user_id: "u_mixed",
-        bracket,
-      },
+    // Server clock is 2026-06-12T00:00Z: AFTER match 1 (06-11 19:00) but
+    // BEFORE match 2 (06-12 22:00) and all knockouts. So match 1 is
+    // locked-out by the server clock; everything else is still open.
+    const mixed = makeServer({
+      kickoffs: makeStubRegistry(TOURNAMENT, KICKOFFS),
+      nowMs: () => Date.parse("2026-06-12T00:00:00Z"),
     });
-    expect(res.statusCode).toBe(201);
-    const body = res.json();
-    expect(body.rejected).toHaveLength(1);
-    expect(body.rejected[0].matchId).toBe("1");
+    const { app } = await mixed;
+    try {
+      const bracket = makeBracket(
+        "bk_mixed",
+        {
+          "1": makeMatchPrediction("1", "home_win", {
+            lockedAt: "2026-06-11T18:00:00Z",
+          }),
+          "2": makeMatchPrediction("2", "away_win", {
+            lockedAt: "2026-06-12T00:00:00Z",
+          }),
+        },
+        {
+          r32_01: makeMatchPrediction("r32_01", "home_win", {
+            lockedAt: "2026-06-12T00:00:00Z",
+          }),
+          r16_01: makeMatchPrediction("r16_01", "home_win", {
+            lockedAt: "2026-06-12T00:00:00Z",
+          }),
+        },
+      );
+      const res = await app.inject({
+        method: "POST",
+        url: "/v1/bracket/submit",
+        headers: { "x-user-id": "u_mixed" },
+        payload: { tournament_id: TOURNAMENT, user_id: "u_mixed", bracket },
+      });
+      expect(res.statusCode).toBe(201);
+      const body = res.json();
+      expect(body.rejected).toHaveLength(1);
+      expect(body.rejected[0].matchId).toBe("1");
 
-    const me = await app.inject({
-      method: "GET",
-      url: `/v1/bracket/me?tournament_id=${TOURNAMENT}`,
-      headers: { "x-user-id": "u_mixed" },
-    });
-    expect(me.statusCode).toBe(200);
-    const stored = me.json().bracket;
-    // Match "1" was rejected → not stored.
-    expect(stored.matchPredictions["1"]).toBeUndefined();
-    // Match "2" passed → stored.
-    expect(stored.matchPredictions["2"]).toBeDefined();
-    // Both knockout picks (one with kickoff, one without) → stored.
-    expect(stored.knockoutPredictions["r32_01"]).toBeDefined();
-    expect(stored.knockoutPredictions["r16_01"]).toBeDefined();
+      const me = await app.inject({
+        method: "GET",
+        url: `/v1/bracket/me?tournament_id=${TOURNAMENT}`,
+        headers: { "x-user-id": "u_mixed" },
+      });
+      expect(me.statusCode).toBe(200);
+      const stored = me.json().bracket;
+      // Match "1" kicked off on the server clock → rejected, not stored.
+      expect(stored.matchPredictions["1"]).toBeUndefined();
+      // Match "2" still open → stored.
+      expect(stored.matchPredictions["2"]).toBeDefined();
+      // Both knockout picks (one with kickoff, one without) → stored.
+      expect(stored.knockoutPredictions["r32_01"]).toBeDefined();
+      expect(stored.knockoutPredictions["r16_01"]).toBeDefined();
+    } finally {
+      (await mixed).app.close();
+    }
   });
 
   it("treats unknown tournaments as no-kickoff (all predictions accepted)", async () => {
