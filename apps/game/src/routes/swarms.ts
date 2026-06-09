@@ -43,7 +43,11 @@ const BOT_ID_MAX = 128;
 
 const MAX_TOP_K = 1_000;
 const MAX_ALIVE_ROWS = 200;
-const MAX_TOTAL_BOTS = 1_000_000_000;
+// Operators routinely cross a billion bots (the billion-bot container
+// alone commits 1B+ in a session), so the publish cap sits at a trillion.
+// Aggregate reads SUM these across operators; a trillion-per-row ceiling
+// keeps even thousands of operators inside JS's safe-integer range.
+const MAX_TOTAL_BOTS = 1_000_000_000_000;
 
 const AliveAfterMatchSchema = z
   .object({

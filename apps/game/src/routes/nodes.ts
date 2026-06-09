@@ -42,7 +42,7 @@ const CommitSchema = z
     node_id: z.string().min(1).max(64),
     match_id: z.string().min(1).max(64),
     merkle_root: z.string().regex(HEX_64),
-    bot_count: z.number().int().min(0).max(1_000_000_000),
+    bot_count: z.number().int().min(0).max(1_000_000_000_000),
     kickoff_at: z.number().int(),
   })
   .strict();
@@ -51,9 +51,9 @@ const LeaderboardReportSchema = z
   .object({
     node_id: z.string().min(1).max(64),
     match_id: z.string().min(1).max(64),
-    total_bots: z.number().int().min(0).max(1_000_000_000),
-    bots_correct: z.number().int().min(0).max(1_000_000_000),
-    bots_still_perfect: z.number().int().min(0).max(1_000_000_000),
+    total_bots: z.number().int().min(0).max(1_000_000_000_000),
+    bots_correct: z.number().int().min(0).max(1_000_000_000_000),
+    bots_still_perfect: z.number().int().min(0).max(1_000_000_000_000),
     top_1000: z
       .array(z.unknown())
       .max(1_000)

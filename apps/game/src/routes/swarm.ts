@@ -45,7 +45,7 @@ const CALENDAR_RE = /^[a-z0-9-]+$/;
 
 const TopNClaimSchema = z
   .object({
-    bot_index: z.number().int().min(0).max(1_000_000_000),
+    bot_index: z.number().int().min(0).max(1_000_000_000_000),
     claimed_score: z.number().finite(),
     picks_count: z.number().int().min(0).max(1_000_000),
   })
@@ -57,7 +57,7 @@ const CommitSchema = z
     run_id: z.string().regex(RUN_ID_RE),
     master_seed: z.string().min(1).max(256),
     strategy: z.string().min(1).max(64).default("chalk-v1"),
-    total_bots: z.number().int().min(1).max(1_000_000_000),
+    total_bots: z.number().int().min(1).max(1_000_000_000_000),
     merkle_root: z.string().regex(HEX_64),
     top_n_claim: TopNClaimSchema,
     started_at: z.number().int(),
