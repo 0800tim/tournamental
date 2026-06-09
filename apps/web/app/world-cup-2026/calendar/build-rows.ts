@@ -113,6 +113,16 @@ export function buildCalendarRows(tournament: Tournament): readonly CalendarRow[
     });
   }
 
-  rows.sort((a, b) => a.matchNo - b.matchNo);
+  // Chronological order so the day-grouped calendar reads top-to-bottom by
+  // date. Match numbers group by group (Group A's three matchdays span the
+  // whole group stage before Group B starts), which would fragment the day
+  // headers; kickoff order keeps one header per actual match day. Ties
+  // (simultaneous kickoffs) fall back to match number for stable ordering.
+  rows.sort((a, b) => {
+    const ka = Date.parse(a.kickoffUtc);
+    const kb = Date.parse(b.kickoffUtc);
+    if (ka !== kb && !Number.isNaN(ka) && !Number.isNaN(kb)) return ka - kb;
+    return a.matchNo - b.matchNo;
+  });
   return rows;
 }

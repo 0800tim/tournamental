@@ -17,7 +17,7 @@
 
 "use client";
 
-import type { MouseEvent } from "react";
+import { useEffect, useState, type MouseEvent } from "react";
 
 import { useOverlay } from "@/components/overlay/OverlayProvider";
 import { canonicalTeam } from "@/app/match/[id]/preview/_lib/match-data";
@@ -44,12 +44,25 @@ export function CalendarList({ rows }: CalendarListProps) {
     overlay.open("team", { code });
   };
 
-  // Group rows by calendar day (in venue local time) so the list gets
-  // day headers — keeps the scroll legible across 104 entries.
+  // Group rows by calendar day in the viewer's own timezone so the day
+  // headers match the per-row "your time" (a 13:00 GMT-6 kickoff is the
+  // 12th, not the 11th, for a GMT+12 viewer). Resolving the browser tz
+  // only happens after mount; SSR and the first client paint fall back to
+  // the venue tz so the grouped DOM structure matches and React doesn't
+  // throw a hydration mismatch. After mount we re-group in local time.
+  const [userTz, setUserTz] = useState<string | null>(null);
+  useEffect(() => {
+    try {
+      setUserTz(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    } catch {
+      // Keep the venue-tz fallback if the runtime can't resolve a tz.
+    }
+  }, []);
+
   const groups: { dayKey: string; dayLabel: string; rows: CalendarRow[] }[] = [];
   for (const row of rows) {
     const v = venueInfo(row.venue);
-    const tz = v?.timezone ?? "UTC";
+    const tz = userTz ?? v?.timezone ?? "UTC";
     const dayKey = dayKeyInTz(row.kickoffUtc, tz);
     const dayLabel = dayLabelInTz(row.kickoffUtc, tz);
     const last = groups[groups.length - 1];
