@@ -63,6 +63,7 @@ import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
 import type { SyndicateRecord } from "@/lib/syndicate/store";
 import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
+import { payingMemberCount } from "@/lib/syndicate/oracle";
 import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
 
@@ -488,11 +489,14 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
     .sort((a, b) => b.points - a.points)
     .slice(0, 5);
   const allPointsZero = topFive.every((m) => m.points === 0);
-  // "Recent members" is now "Pool members" (Tim 2026-06-02). Sorted by
-  // joined_at descending so the most recent joiner heads the grid.
-  const poolMembers = [...enrichedMembers]
-    .sort((a, b) => b.joined_at.localeCompare(a.joined_at))
-    .slice(0, 12);
+  // "Recent members" is now "Pool members" (Tim 2026-06-02), so it shows
+  // the whole pool rather than a recent slice. Sorted by joined_at
+  // descending so the most recent joiner heads the grid. Tim 2026-06-10:
+  // the old .slice(0, 12) hid members past the twelfth (a 16-member pool
+  // showed only 12); pools are size-bounded so we render them all.
+  const poolMembers = [...enrichedMembers].sort((a, b) =>
+    b.joined_at.localeCompare(a.joined_at),
+  );
   const memberCount = syndicate.members.length;
   const sponsor = syndicate.sponsor ?? null;
   const sponsorPresent =
@@ -908,7 +912,9 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
   // Now we always render a minimal "Stake / Members" pair so the
   // public page reads as a real pool even on day-one creation.
   const memberCount = Math.max(1, syndicate.members.length);
-  const pool = fee > 0 ? fee * memberCount : 0;
+  // The Oracle (Molly) is a member but does not pay an entry fee, so the
+  // pot is the fee times the paying members only. Tim 2026-06-10.
+  const pool = fee > 0 ? fee * payingMemberCount(syndicate.members) : 0;
 
   return (
     <section className="vt-share-prize" aria-labelledby="vt-share-prize-title">
