@@ -69,6 +69,17 @@ function projectOwnerRow(row: SyndicateRow): Record<string, unknown> {
     description_text: row.description_text,
     is_public: row.is_public === 1,
     requires_approval: row.requires_approval === 1,
+    // Country gate: bare E.164 dial codes (e.g. ["64"]). Empty array =
+    // no restriction. Parsed inline to keep this route's import surface
+    // small (mirrors the public /config projection).
+    allowed_phone_countries: (() => {
+      const csv = row.allowed_phone_countries;
+      if (!csv) return [] as string[];
+      return csv
+        .split(",")
+        .map((s) => s.trim())
+        .filter((s) => /^[1-9]\d{0,3}$/.test(s));
+    })(),
   };
 }
 

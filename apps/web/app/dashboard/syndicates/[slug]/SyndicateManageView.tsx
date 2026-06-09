@@ -48,7 +48,26 @@ interface OwnerSyndicate {
   readonly description_text: string | null;
   readonly is_public: boolean;
   readonly requires_approval: boolean;
+  /** Bare E.164 dial codes ("64", "61", ...). Empty array means "no
+   * country restriction". */
+  readonly allowed_phone_countries: readonly string[];
 }
+
+const COUNTRY_CODES = [
+  { iso: "NZ", dial: "+64", name: "New Zealand", flag: "🇳🇿" },
+  { iso: "AU", dial: "+61", name: "Australia", flag: "🇦🇺" },
+  { iso: "GB", dial: "+44", name: "United Kingdom", flag: "🇬🇧" },
+  { iso: "US", dial: "+1", name: "United States", flag: "🇺🇸" },
+  { iso: "IE", dial: "+353", name: "Ireland", flag: "🇮🇪" },
+  { iso: "ZA", dial: "+27", name: "South Africa", flag: "🇿🇦" },
+  { iso: "IN", dial: "+91", name: "India", flag: "🇮🇳" },
+  { iso: "BR", dial: "+55", name: "Brazil", flag: "🇧🇷" },
+  { iso: "DE", dial: "+49", name: "Germany", flag: "🇩🇪" },
+  { iso: "FR", dial: "+33", name: "France", flag: "🇫🇷" },
+] as const;
+
+/** Cap mirrors the server's MAX_ALLOWED_COUNTRIES (10). */
+const MAX_ALLOWED_COUNTRIES = 10;
 
 interface PendingRequest {
   /**
@@ -410,6 +429,19 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
         }
       />
 
+      {/* Country lock */}
+      <CountryLockEditor
+        slug={s.slug}
+        initial={s}
+        onSaved={(updated) =>
+          setState({
+            status: "ready",
+            syndicate: { ...s, ...updated },
+            pending_requests: pendingRequests,
+          })
+        }
+      />
+
       {/* Prize pool editor (above branding so owners find it before
        * scrolling past logo/hero uploads). Tim 2026-05-24: the prize
        * editor was buried below branding which made setting fees /
@@ -623,6 +655,202 @@ function VisibilityEditor({ slug, initial, onSaved }: VisibilityEditorProps): JS
         </label>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 16 }}>
+          <button
+            type="submit"
+            disabled={!dirty || save.status === "saving"}
+            className="vt-dash-action vt-dash-action-primary"
+          >
+            {save.status === "saving" ? "Saving…" : dirty ? "Save changes" : "Saved"}
+          </button>
+          {save.status === "saved" && (
+            <span style={{ color: "var(--vt-gold-400, #dca94b)", fontSize: 13 }}>✓ Saved</span>
+          )}
+          {save.status === "error" && (
+            <span style={{ color: "#f87171", fontSize: 13 }}>{save.message}</span>
+          )}
+        </div>
+      </form>
+    </section>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// CountryLockEditor - restrict who can join by verified phone country code.
+// Mirrors the picker on the create form and the /manage page. The toggle
+// controls whether the lock is active at all; turning it off (or clearing
+// the list) sends an empty array, which the server stores as NULL so the
+// join page stops showing the "<flag> residents only" gate. Email-only
+// signups bypass this gate. Tim 2026-06-10.
+// ---------------------------------------------------------------------------
+
+interface CountryLockEditorProps {
+  readonly slug: string;
+  readonly initial: OwnerSyndicate;
+  readonly onSaved: (patch: Partial<OwnerSyndicate>) => void;
+}
+
+function CountryLockEditor({ slug, initial, onSaved }: CountryLockEditorProps): JSX.Element {
+  const initialCountries = useMemo(
+    () => (initial.allowed_phone_countries ?? []).slice(),
+    [initial.allowed_phone_countries],
+  );
+  const [locked, setLocked] = useState<boolean>(initialCountries.length > 0);
+  const [countries, setCountries] = useState<string[]>(initialCountries);
+  const [save, setSave] = useState<SaveState>({ status: "idle" });
+
+  // What we'd persist: empty array when the lock is off, regardless of
+  // any chips left in local state.
+  const effective = locked ? countries : [];
+  const dirty = useMemo(() => {
+    if (effective.length !== initialCountries.length) return true;
+    const a = [...effective].sort();
+    const b = [...initialCountries].sort();
+    return a.some((v, i) => v !== b[i]);
+  }, [effective, initialCountries]);
+
+  const handleSubmit = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    if (!dirty) return;
+    setSave({ status: "saving" });
+    try {
+      const r = await fetch(`/api/v1/syndicates/${encodeURIComponent(slug)}/owner`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ allowed_phone_countries: effective }),
+      });
+      if (!r.ok) {
+        const errBody = (await r.json().catch(() => ({}))) as { error?: string };
+        setSave({ status: "error", message: errBody.error ?? `Server returned ${r.status}` });
+        return;
+      }
+      const ok = (await r.json()) as { syndicate?: OwnerSyndicate };
+      if (ok.syndicate) {
+        onSaved({ allowed_phone_countries: ok.syndicate.allowed_phone_countries });
+        setCountries((ok.syndicate.allowed_phone_countries ?? []).slice());
+        setLocked((ok.syndicate.allowed_phone_countries ?? []).length > 0);
+      }
+      setSave({ status: "saved" });
+      window.setTimeout(() => setSave({ status: "idle" }), 2500);
+    } catch (err) {
+      setSave({
+        status: "error",
+        message: err instanceof Error ? err.message : "Network error",
+      });
+    }
+  };
+
+  return (
+    <section className="vt-dash-row vt-dash-row-form" style={{ marginBottom: 16 }}>
+      <div className="vt-dash-row-head">
+        <div>
+          <h2 className="vt-dash-row-name">Lock entries by country</h2>
+          <p className="vt-dash-row-meta">
+            Restrict who can join using the verified phone country code (+64, +44, +61, etc).
+            Leave off to accept members from anywhere. Email-only signups bypass this gate.
+          </p>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="vt-brand-form">
+        <label className="vt-brand-field" style={{ display: "flex", gap: 10, alignItems: "flex-start", marginBottom: 12 }}>
+          <input
+            type="checkbox"
+            checked={locked}
+            onChange={(e) => {
+              const next = e.target.checked;
+              setLocked(next);
+              if (next && countries.length === 0) setCountries(["64"]);
+            }}
+            style={{ marginTop: 4 }}
+          />
+          <span>
+            <strong style={{ display: "block", fontWeight: 600 }}>Restrict joiners by phone country code</strong>
+            <span style={{ color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13, lineHeight: 1.4 }}>
+              When off, anyone with a verified number can join. When on, only the countries you
+              list below are allowed.
+            </span>
+          </span>
+        </label>
+
+        {locked && (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {countries.length === 0 ? (
+                <span style={{ color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13 }}>
+                  No countries selected. Add one to keep the lock active, or turn the lock off.
+                </span>
+              ) : (
+                countries.map((dial) => {
+                  const country = COUNTRY_CODES.find((c) => c.dial === `+${dial}`);
+                  return (
+                    <span
+                      key={dial}
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 6,
+                        padding: "4px 10px",
+                        borderRadius: 9999,
+                        background: "rgba(255,255,255,0.06)",
+                        border: "1px solid rgba(255,255,255,0.1)",
+                        fontSize: 13,
+                      }}
+                    >
+                      <span aria-hidden="true">{country?.flag ?? "🌐"}</span>
+                      <span>{country?.name ?? `+${dial}`}</span>
+                      <span style={{ opacity: 0.6 }}>+{dial}</span>
+                      <button
+                        type="button"
+                        aria-label={`Remove ${country?.name ?? dial}`}
+                        onClick={() => setCountries((cur) => cur.filter((c) => c !== dial))}
+                        style={{
+                          background: "transparent",
+                          border: 0,
+                          color: "inherit",
+                          cursor: "pointer",
+                          fontSize: 16,
+                          lineHeight: 1,
+                          padding: 0,
+                          marginLeft: 2,
+                        }}
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })
+              )}
+            </div>
+            {countries.length < MAX_ALLOWED_COUNTRIES ? (
+              <select
+                value=""
+                onChange={(e) => {
+                  const dial = e.target.value;
+                  if (!dial) return;
+                  setCountries((cur) => (cur.includes(dial) ? cur : [...cur, dial]));
+                }}
+                className="vt-brand-input"
+                style={{ marginTop: 8, maxWidth: 320 }}
+              >
+                <option value="" disabled>
+                  {countries.length === 0 ? "Pick a country…" : "+ Add another country…"}
+                </option>
+                {COUNTRY_CODES.filter((c) => !countries.includes(c.dial.slice(1))).map((c) => (
+                  <option key={c.iso} value={c.dial.slice(1)}>
+                    {c.flag} {c.name} ({c.dial})
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span style={{ display: "block", marginTop: 8, color: "var(--vt-fg-muted, #94a3b8)", fontSize: 13 }}>
+                Maximum {MAX_ALLOWED_COUNTRIES} countries per pool. Remove one to add another.
+              </span>
+            )}
+          </div>
+        )}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <button
             type="submit"
             disabled={!dirty || save.status === "saving"}
