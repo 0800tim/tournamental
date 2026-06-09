@@ -34,6 +34,7 @@ async function safeT(key: string, fallback: string): Promise<string> {
 export const dynamic = "force-dynamic";
 
 import { LiveWidgetDemo } from "./LiveWidgetDemo";
+import { MyPoolsInline } from "@/components/syndicate/MyPoolsInline";
 import "./syndicates.css";
 
 export const metadata: Metadata = {
@@ -130,7 +131,6 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     quickstart_time,
     cta_primary,
     cta_secondary,
-    cta_view_my_pools,
     trust_no_card,
     trust_no_app,
     trust_open_source,
@@ -198,7 +198,6 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
     safeT("syndicates_page.quickstart_time", "≈ 60 seconds"),
     safeT("syndicates_page.cta_primary", "Start free in 60 seconds →"),
     safeT("syndicates_page.cta_secondary", "Read the playbook"),
-    safeT("syndicates_page.cta_view_my_pools", "My Pools"),
     safeT("syndicates_page.trust_no_card", "No credit card"),
     safeT("syndicates_page.trust_no_app", "No app install"),
     safeT("syndicates_page.trust_open_source", "Apache 2.0 open source"),
@@ -263,21 +262,13 @@ export default async function SyndicatesIndexPage(): Promise<JSX.Element> {
       <div className="vt-syndicates-page">
         {/* Hero */}
         <section className="vt-syndicates-hero">
-          {/* Top-right "My Pools" affordance for visitors who already
-              own or have joined a pool, so they can jump straight to
-              the list without scrolling. Anchors into the existing
-              MyPoolsSection on /profile (owner + member rows).
-              Tim 2026-06-03: moved out of the bottom CTA row up to
-              the hero's top-right corner; renamed to a tight "My
-              Pools" since space is at a premium there. */}
-          <Link
-            href="/profile#profile-pools"
-            className="vt-syndicates-hero-corner-cta"
-            aria-label={cta_view_my_pools}
-          >
-            {cta_view_my_pools}
-          </Link>
           <span className="vt-syndicates-eyebrow">{eyebrow}</span>
+          {/* Pools the signed-in user is already in, surfaced at the very
+              top so the common single-pool case is one tap from View.
+              Replaces the old top-right "My Pools" button. Renders
+              nothing for signed-out visitors or anyone in zero pools, so
+              the marketing hero is unchanged for them. Tim 2026-06-10. */}
+          <MyPoolsInline />
           <h1 className="vt-syndicates-title">{hero_title}</h1>
           <p className="vt-syndicates-claim">
             {hero_claim}
