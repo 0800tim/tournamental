@@ -292,9 +292,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           dim={!!prediction && !isHome}
         />
         <span className="mpr-pick-code">{homeTeam.id}</span>
-        <span className="mpr-pick-pct" data-outcome="home_win">
-          {pctLabel(odds?.homeWin)}
-        </span>
+        {/* Tim 2026-06-12: hide the live odds percentage once the match
+         *  has kicked off. Past-kickoff percentages are by definition
+         *  stale and read as "0%" most of the time once Polymarket's
+         *  market settles, which was confusing on the resulted view. */}
+        {!matchStarted && (
+          <span className="mpr-pick-pct" data-outcome="home_win">
+            {pctLabel(odds?.homeWin)}
+          </span>
+        )}
       </button>
 
       {!noDraw && (
@@ -307,9 +313,11 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           disabled={locked}
         >
           <span className="mpr-pick-draw-pill">{safeT(t, "bracket.match.draw", "DRAW")}</span>
-          <span className="mpr-pick-pct" data-outcome="draw">
-            {pctLabel(odds?.draw)}
-          </span>
+          {!matchStarted && (
+            <span className="mpr-pick-pct" data-outcome="draw">
+              {pctLabel(odds?.draw)}
+            </span>
+          )}
         </button>
       )}
 
@@ -332,9 +340,11 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           dim={!!prediction && !isAway}
         />
         <span className="mpr-pick-code">{awayTeam.id}</span>
-        <span className="mpr-pick-pct" data-outcome="away_win">
-          {pctLabel(odds?.awayWin)}
-        </span>
+        {!matchStarted && (
+          <span className="mpr-pick-pct" data-outcome="away_win">
+            {pctLabel(odds?.awayWin)}
+          </span>
+        )}
       </button>
 
       {kickoffIso && (
