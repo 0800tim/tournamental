@@ -66,7 +66,7 @@ import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
 import { payingMemberCount } from "@/lib/syndicate/oracle";
 import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
-import { fetchSyndicateLeaderboard } from "@/lib/leaderboard/fetch";
+import { getPersistence } from "@/lib/syndicate/persistence";
 
 import "@/components/share-landing/share-landing.css";
 
@@ -493,39 +493,45 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
   // anyone who gets a result wrong drops down. Replaces the old members
   // grid; pools are small so the whole board renders without pagination.
   // Tim 2026-06-11.
+  // Dense ranking: every distinct points tier gets the next sequential
+  // rank, so a pool with [3,3,3,2,2,1] reads as 1=,1=,1=,2=,2=,3. The
+  // = suffix lights up when two or more members share a tier, hides when
+  // a tier is a single row (per Tim's 2026-06-12 spec). Ties within a
+  // tier sort by join order so the earliest joiner heads the tier.
   const lbSorted = [...enrichedMembers].sort(
     (a, b) => b.points - a.points || a.joined_at.localeCompare(b.joined_at),
   );
-  let lbRank = 0;
-  let lbPrevPoints: number | null = null;
-  const leaderboardRows = lbSorted.map((m, i) => {
-    if (lbPrevPoints === null || m.points !== lbPrevPoints) {
-      lbRank = i + 1;
-      lbPrevPoints = m.points;
+  // Compute the tier each member sits in. The tier is "which distinct
+  // points value, counting from the top", so consecutive identical
+  // points share a tier number; a drop in points bumps the tier.
+  type LbRow = {
+    readonly m: (typeof lbSorted)[number];
+    readonly rank: number;
+    readonly tied: boolean;
+  };
+  const tierByPoints = new Map<number, number>();
+  const countByTier = new Map<number, number>();
+  let tier = 0;
+  let prev: number | null = null;
+  for (const m of lbSorted) {
+    if (prev === null || m.points !== prev) {
+      tier += 1;
+      prev = m.points;
+      tierByPoints.set(m.points, tier);
     }
-    return { m, rank: lbRank };
-  });
-  // Y for the X/Y predictions column. Sourced from the game service's
-  // syndicate leaderboard, which already tracks `matches_available_to_user`
-  // (count of recorded match results, with the late-entry rule applied
-  // per user). We take the global max across rows as the pool's Y, which
-  // is correct for everyone joined pre-kickoff (every demo pool here).
-  // If the game service is unreachable or returns no rows we fall back to
-  // 0 and the X/Y column hides itself. Tim 2026-06-12.
-  let matchesAvailableForPool = 0;
-  try {
-    const lb = await fetchSyndicateLeaderboard(
-      syndicate.tournament_id,
-      syndicate.slug,
-    );
-    for (const r of lb.rows) {
-      if (r.matches_available_to_user > matchesAvailableForPool) {
-        matchesAvailableForPool = r.matches_available_to_user;
-      }
-    }
-  } catch {
-    /* game service unreachable, skip the X/Y badge */
+    countByTier.set(tier, (countByTier.get(tier) ?? 0) + 1);
   }
+  const leaderboardRows: LbRow[] = lbSorted.map((m) => {
+    const t = tierByPoints.get(m.points) ?? 0;
+    return { m, rank: t, tied: (countByTier.get(t) ?? 0) > 1 };
+  });
+  // Y for the X / Y predictions column = number of match-results recorded
+  // for this tournament. Read directly from the persistence layer (the
+  // same DB the game service writes to) so we do not depend on the
+  // syndicate-scoped leaderboard route, which keys by the syndicate UUID
+  // and would need a slug-to-id lookup to call from here. Tim 2026-06-12.
+  const matchesAvailableForPool = getPersistence()
+    .countRecordedMatchesForTournament(syndicate.tournament_id);
   const memberCount = syndicate.members.length;
   const sponsor = syndicate.sponsor ?? null;
   const sponsorPresent =
@@ -575,7 +581,20 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         {thePool}
       </h2>
       <div className="vt-share-pool-lb" role="list">
-        {leaderboardRows.map(({ m, rank }) => {
+        {/* Column header. Shows the user the meaning of the rank and
+         *  the right-hand correct/resulted ratio. Hidden via CSS when
+         *  there is no Y yet (pre-kickoff) so we do not promise a
+         *  column that will be empty for every row. */}
+        <div className="vt-share-pool-lb-header" aria-hidden="true">
+          <span className="vt-share-pool-lb-header-rank">Rank</span>
+          <span className="vt-share-pool-lb-header-name">Member</span>
+          {matchesAvailableForPool > 0 && (
+            <span className="vt-share-pool-lb-header-score">
+              correct / resulted
+            </span>
+          )}
+        </div>
+        {leaderboardRows.map(({ m, rank, tied }) => {
           const label = m.display_name?.trim() || m.handle;
           const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
           const slug =
@@ -598,7 +617,10 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           // Tim 2026-06-12.
           const inner = (
             <>
-              <span className="vt-share-pool-lb-rank">{rank}</span>
+              <span className="vt-share-pool-lb-rank">
+                {rank}
+                {tied && <span className="vt-share-pool-lb-rank-eq">=</span>}
+              </span>
               <span className="vt-share-pool-lb-avatar-wrap">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

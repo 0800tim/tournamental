@@ -2071,13 +2071,60 @@
   background: rgba(255, 255, 255, 0.05);
 }
 .vt-share-pool-lb-rank {
-  flex: 0 0 2ch;
+  flex: 0 0 3ch;
   text-align: right;
   font-family: Fraunces, Georgia, serif;
   font-size: 22px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: var(--vt-gold-400, #dca94b);
+  /* Allow the = suffix to sit just outside the digits without breaking
+   * the tabular-nums alignment of the rank itself. */
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 1px;
+}
+.vt-share-pool-lb-rank-eq {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--vt-fg-muted, #9aa6c2);
+  font-family: Fraunces, Georgia, serif;
+}
+/* Header row above the leaderboard rows. Mirrors the row's flex layout
+ * so 'Rank' / 'Member' / 'correct / resulted' align with the columns
+ * below. Tim 2026-06-12. */
+.vt-share-pool-lb-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 4px 14px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vt-fg-muted, #9aa6c2);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 4px;
+}
+.vt-share-pool-lb-header-rank {
+  flex: 0 0 3ch;
+  text-align: right;
+}
+.vt-share-pool-lb-header-name {
+  flex: 1 1 auto;
+  /* Indent so 'Member' aligns roughly under the name column, not under
+   * the avatar gap. 64px avatar + 14px gap = 78px. */
+  margin-left: 78px;
+}
+.vt-share-pool-lb-header-score {
+  flex: 0 0 auto;
+  text-align: right;
+}
+@media (max-width: 480px) {
+  .vt-share-pool-lb-header-name {
+    margin-left: 70px;
+  }
 }
 /* Avatar wrapper holds both the avatar and the flag badge so the badge
  * can absolute-position over the avatar's bottom-right, matching the

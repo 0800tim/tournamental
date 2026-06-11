@@ -40,9 +40,9 @@ import Link from "next/link";
 import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
-import { fetchSyndicateLeaderboard } from "@/lib/leaderboard/fetch";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
 import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
+import { getPersistence } from "@/lib/syndicate/persistence";
 import { loadSyndicateBySlug } from "@/lib/syndicate/store";
 
 // share-landing.css owns the `.vt-share-pool-lb-*` row treatment used
@@ -166,42 +166,56 @@ export default async function LeaderboardPage({
       members: activeRecord.members,
       tournamentId: activeRecord.tournament_id,
     });
+    // Dense ranking + = suffix when a tier shares two or more members,
+    // matching the /s/<slug> treatment (Tim 2026-06-12). A pool with
+    // [3,3,3,2,2,1] reads as 1=,1=,1=,2=,2=,3.
     const lbSorted = [...enrichedMembers].sort(
       (a, b) =>
         b.points - a.points || a.joined_at.localeCompare(b.joined_at),
     );
-    let lbRank = 0;
-    let lbPrevPoints: number | null = null;
-    const leaderboardRows = lbSorted.map((m, i) => {
-      if (lbPrevPoints === null || m.points !== lbPrevPoints) {
-        lbRank = i + 1;
-        lbPrevPoints = m.points;
+    type LbRow = {
+      readonly m: (typeof lbSorted)[number];
+      readonly rank: number;
+      readonly tied: boolean;
+    };
+    const tierByPoints = new Map<number, number>();
+    const countByTier = new Map<number, number>();
+    {
+      let tier = 0;
+      let prev: number | null = null;
+      for (const m of lbSorted) {
+        if (prev === null || m.points !== prev) {
+          tier += 1;
+          prev = m.points;
+          tierByPoints.set(m.points, tier);
+        }
+        countByTier.set(tier, (countByTier.get(tier) ?? 0) + 1);
       }
-      return { m, rank: lbRank };
+    }
+    const leaderboardRows: LbRow[] = lbSorted.map((m) => {
+      const t = tierByPoints.get(m.points) ?? 0;
+      return { m, rank: t, tied: (countByTier.get(t) ?? 0) > 1 };
     });
 
-    // Y for the X / Y predictions column. Sourced from the game
-    // service's syndicate leaderboard; max across rows is the pool's
-    // Y. If the service is unreachable we fall back to 0 and the
-    // badge hides itself per the same rule as /s/<slug>.
-    let matchesAvailableForPool = 0;
-    try {
-      const lb = await fetchSyndicateLeaderboard(
-        activeRecord.tournament_id,
-        activeRecord.slug,
-      );
-      for (const r of lb.rows) {
-        if (r.matches_available_to_user > matchesAvailableForPool) {
-          matchesAvailableForPool = r.matches_available_to_user;
-        }
-      }
-    } catch {
-      /* game service unreachable, skip the X / Y badge */
-    }
+    // Y = count of recorded match-results for this tournament. Read
+    // straight from the persistence layer instead of the syndicate-
+    // scoped leaderboard route, which keys by syndicate UUID and would
+    // need a slug-to-id lookup from here.
+    const matchesAvailableForPool = getPersistence()
+      .countRecordedMatchesForTournament(activeRecord.tournament_id);
 
     body = (
       <div className="vt-share-pool-lb" role="list">
-        {leaderboardRows.map(({ m, rank }) => {
+        <div className="vt-share-pool-lb-header" aria-hidden="true">
+          <span className="vt-share-pool-lb-header-rank">Rank</span>
+          <span className="vt-share-pool-lb-header-name">Member</span>
+          {matchesAvailableForPool > 0 && (
+            <span className="vt-share-pool-lb-header-score">
+              correct / resulted
+            </span>
+          )}
+        </div>
+        {leaderboardRows.map(({ m, rank, tied }) => {
           const label = m.display_name?.trim() || m.handle;
           const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
           const slug =
@@ -218,7 +232,10 @@ export default async function LeaderboardPage({
           const cardKey = m.user_id ?? m.handle;
           const inner = (
             <>
-              <span className="vt-share-pool-lb-rank">{rank}</span>
+              <span className="vt-share-pool-lb-rank">
+                {rank}
+                {tied && <span className="vt-share-pool-lb-rank-eq">=</span>}
+              </span>
               <span className="vt-share-pool-lb-avatar-wrap">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img

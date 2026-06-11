@@ -622,6 +622,26 @@ export class SyndicatePersistence {
     return out;
   }
 
+  /** Count of match-results recorded for a tournament. Used as the Y
+   *  denominator in pool leaderboard rows (X / Y, "X correct of Y
+   *  resulted"). Reads directly from match_results in the same DB the
+   *  game service writes to; safe to call from SSR pages because
+   *  better-sqlite3 is sync and the row count is constant-time-ish.
+   *  Returns 0 if the table doesn't exist (fresh dev DB) so callers
+   *  fall back to the badge-hidden state. Tim 2026-06-12. */
+  countRecordedMatchesForTournament(tournamentId: string): number {
+    try {
+      const row = this.db
+        .prepare(
+          `SELECT COUNT(*) AS n FROM match_results WHERE tournament_id = ?`,
+        )
+        .get(tournamentId) as { n: number } | undefined;
+      return row?.n ?? 0;
+    } catch {
+      return 0;
+    }
+  }
+
   /** True if another member of this syndicate already claims this
    * handle (case-insensitive). The join modal calls this BEFORE
    * sending the OTP so the user can pick again without spending an
