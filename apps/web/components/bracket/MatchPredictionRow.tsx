@@ -47,6 +47,7 @@ import type { MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import type { MatchOdds } from "@/lib/odds/types";
 import { snapshotOdds } from "@/lib/bracket/history";
+import type { ResultedMatch } from "./BracketBuilder";
 import {
   headToHeadFor,
   type HeadToHeadCounts,
@@ -75,6 +76,11 @@ export interface MatchPredictionRowProps {
   /** Pre-fetched odds (shape from `/api/odds/snapshot`). Rendered
    * inline as the W/D/L percentages under each pick. */
   readonly odds?: MatchOdds | null;
+  /** Recorded match result, when one has landed. Drives the
+   *  resulted-state rendering: score "pucks" replacing the flag
+   *  circles, the green "Resulted" chip, and the tick/cross badge
+   *  over the user's pick. null pre-result. Tim 2026-06-12. */
+  readonly result?: ResultedMatch | null;
   /**
    * Optional override for the home team's last-5 W/D/L sequence (most
    * recent first). When omitted we look it up from the bundled stub.
@@ -123,6 +129,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     noDraw,
     kickoffIso,
     odds,
+    result,
     homeForm,
     awayForm,
     headToHead,
@@ -195,6 +202,24 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const isDraw = prediction?.outcome === "draw";
   const isAway = prediction?.outcome === "away_win";
 
+  // Resulted-state derived flags. `result` is the source of truth for
+  // whether to flip the card into its post-result rendering (score
+  // puck + green chip + tick/cross badge over the user's pick). We
+  // intentionally don't conflate this with `matchStarted`: a match
+  // that has kicked off but isn't recorded yet stays in the
+  // 'in progress' rendering. Tim 2026-06-12.
+  const hasResult = !!result;
+  const userPickedCorrectly =
+    hasResult && prediction?.outcome === result.outcome;
+  const homeScoreLabel =
+    hasResult && typeof result.homeScore === "number"
+      ? String(result.homeScore)
+      : null;
+  const awayScoreLabel =
+    hasResult && typeof result.awayScore === "number"
+      ? String(result.awayScore)
+      : null;
+
   // Resolve form + h2h from props or fall back to the bundled stub. We
   // recompute these on every render, the underlying lookups are pure
   // synchronous reads from a small map so the cost is negligible relative
@@ -222,16 +247,22 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       {matchStarted && (
         // Tim 2026-06-12: the verbose "Sorry, this match has already
         // started" copy collapses to a small padlock chip in the
-        // upper-right of the row. Hover gives the same context on
-        // desktop; touch users see a `title`-driven long-press hint.
-        // The chip's label flips from "in progress" to "resulted" once
-        // a result is known (wired in a follow-up pass). For now the
-        // chip just says "in progress".
+        // upper-right of the row. Label + tone flip from red 'In
+        // progress' to green 'Resulted' the moment a result lands.
         <div
           className="mpr-lock-chip"
+          data-state={hasResult ? "resulted" : "in-progress"}
           role="img"
-          aria-label="Match is in progress and locked"
-          title="You cannot make changes to this prediction, the match is in progress."
+          aria-label={
+            hasResult
+              ? "Match has resulted and the pick is locked"
+              : "Match is in progress and locked"
+          }
+          title={
+            hasResult
+              ? "You cannot make changes to this prediction, the match has resulted."
+              : "You cannot make changes to this prediction, the match is in progress."
+          }
         >
           <svg
             viewBox="0 0 24 24"
@@ -247,7 +278,9 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
             <rect x="5" y="11" width="14" height="9" rx="2" />
             <path d="M8 11V8a4 4 0 0 1 8 0v3" />
           </svg>
-          <span className="mpr-lock-chip-label">In progress</span>
+          <span className="mpr-lock-chip-label">
+            {hasResult ? "Resulted" : "In progress"}
+          </span>
         </div>
       )}
       {/* The previous top-right "⋯" link (Tim 2026-06-06) was folded
@@ -263,6 +296,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           presentation="sheet"
           noDraw={noDraw}
           odds={odds ?? null}
+          result={result ?? null}
           initialPick={prediction ?? null}
           onSaved={(saved) => {
             // Mirror the popup save back into the parent state so the
@@ -281,6 +315,18 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         onClick={() => choose("home_win")}
         disabled={locked}
       >
+        {/* Tim 2026-06-12: tick/cross overlay on the user's pick when
+         *  the match has resulted. Green tick if the user got it
+         *  right, red cross if they got it wrong. */}
+        {hasResult && isHome && (
+          <span
+            className="mpr-pick-result-badge"
+            data-result={userPickedCorrectly ? "correct" : "incorrect"}
+            aria-hidden="true"
+          >
+            {userPickedCorrectly ? "✓" : "✕"}
+          </span>
+        )}
         <TeamFlag
           code={homeTeam.id}
           name={homeTeam.name}
@@ -295,10 +341,21 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         {/* Tim 2026-06-12: hide the live odds percentage once the match
          *  has kicked off. Past-kickoff percentages are by definition
          *  stale and read as "0%" most of the time once Polymarket's
-         *  market settles, which was confusing on the resulted view. */}
+         *  market settles, which was confusing on the resulted view.
+         *  Replaced by the score (slightly larger) when the result
+         *  has landed. */}
         {!matchStarted && (
           <span className="mpr-pick-pct" data-outcome="home_win">
             {pctLabel(odds?.homeWin)}
+          </span>
+        )}
+        {homeScoreLabel !== null && (
+          <span
+            className="mpr-pick-score"
+            data-side="home"
+            aria-label={`${homeTeam.name} scored ${homeScoreLabel}`}
+          >
+            {homeScoreLabel}
           </span>
         )}
       </button>
@@ -312,6 +369,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
           onClick={() => choose("draw")}
           disabled={locked}
         >
+          {hasResult && isDraw && (
+            <span
+              className="mpr-pick-result-badge"
+              data-result={userPickedCorrectly ? "correct" : "incorrect"}
+              aria-hidden="true"
+            >
+              {userPickedCorrectly ? "✓" : "✕"}
+            </span>
+          )}
           <span className="mpr-pick-draw-pill">{safeT(t, "bracket.match.draw", "DRAW")}</span>
           {!matchStarted && (
             <span className="mpr-pick-pct" data-outcome="draw">
@@ -329,6 +395,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         onClick={() => choose("away_win")}
         disabled={locked}
       >
+        {hasResult && isAway && (
+          <span
+            className="mpr-pick-result-badge"
+            data-result={userPickedCorrectly ? "correct" : "incorrect"}
+            aria-hidden="true"
+          >
+            {userPickedCorrectly ? "✓" : "✕"}
+          </span>
+        )}
         <TeamFlag
           code={awayTeam.id}
           name={awayTeam.name}
@@ -343,6 +418,15 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         {!matchStarted && (
           <span className="mpr-pick-pct" data-outcome="away_win">
             {pctLabel(odds?.awayWin)}
+          </span>
+        )}
+        {awayScoreLabel !== null && (
+          <span
+            className="mpr-pick-score"
+            data-side="away"
+            aria-label={`${awayTeam.name} scored ${awayScoreLabel}`}
+          >
+            {awayScoreLabel}
           </span>
         )}
       </button>

@@ -235,6 +235,26 @@ export interface SyndicateBrandingPatch {
   allowed_phone_countries?: readonly string[];
 }
 
+/**
+ * Recorded match result row, decoded from match_results.outcome (JSON
+ * column written by the game service when an admin records a result).
+ * Used by the bracket UI to flip the post-kickoff "in progress" card
+ * into a "resulted" card with scores + correct/incorrect markers.
+ * Tim 2026-06-12.
+ */
+export interface RecordedMatchResult {
+  /** Match number as a string (e.g. "1"); matches `MatchPredictionRow`'s
+   *  `matchId` prop directly so the consumer can key into a Map. */
+  readonly match_id: string;
+  readonly outcome: "home_win" | "draw" | "away_win";
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+  /** Team-code winner (e.g. "MEX") when present. May be null for draws. */
+  readonly winner_code: string | null;
+  /** Unix ms when the result was written, for cache invalidation. */
+  readonly recorded_at: number;
+}
+
 export interface PendingGhlRow {
   id: number;
   syndicate_id: string;
@@ -639,6 +659,70 @@ export class SyndicatePersistence {
       return row?.n ?? 0;
     } catch {
       return 0;
+    }
+  }
+
+  /** List of every recorded match-result for a tournament. Each row
+   *  parses the `outcome` JSON the game service writes (shape:
+   *  { outcome, homeScore?, awayScore?, winner?, stage? }) so the
+   *  caller gets a typed view without re-implementing the parse on
+   *  every consumer. Returns an empty array if the table is missing
+   *  or any row's JSON is malformed (corruption is preferable to a
+   *  500 on a page that would otherwise render fine). Tim 2026-06-12. */
+  listRecordedMatchResultsForTournament(
+    tournamentId: string,
+  ): RecordedMatchResult[] {
+    try {
+      const rows = this.db
+        .prepare(
+          `SELECT match_id, outcome, recorded_at
+             FROM match_results
+            WHERE tournament_id = ?`,
+        )
+        .all(tournamentId) as Array<{
+        match_id: string;
+        outcome: string;
+        recorded_at: number;
+      }>;
+      const out: RecordedMatchResult[] = [];
+      for (const r of rows) {
+        try {
+          const parsed = JSON.parse(r.outcome) as {
+            outcome?: "home_win" | "draw" | "away_win";
+            homeScore?: number;
+            awayScore?: number;
+            winner?: string;
+            stage?: string;
+          };
+          if (
+            parsed.outcome !== "home_win" &&
+            parsed.outcome !== "draw" &&
+            parsed.outcome !== "away_win"
+          ) {
+            continue;
+          }
+          out.push({
+            match_id: r.match_id,
+            outcome: parsed.outcome,
+            homeScore:
+              typeof parsed.homeScore === "number"
+                ? parsed.homeScore
+                : null,
+            awayScore:
+              typeof parsed.awayScore === "number"
+                ? parsed.awayScore
+                : null,
+            winner_code:
+              typeof parsed.winner === "string" ? parsed.winner : null,
+            recorded_at: r.recorded_at,
+          });
+        } catch {
+          /* skip the bad row, keep the rest */
+        }
+      }
+      return out;
+    } catch {
+      return [];
     }
   }
 

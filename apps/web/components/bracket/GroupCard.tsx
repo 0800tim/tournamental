@@ -63,6 +63,7 @@ import {
 import { groupMatchId } from "@/lib/bracket/match-ids";
 import { hostCityByMatchNumber } from "@/lib/host-cities";
 import type { MatchOdds } from "@/lib/odds/types";
+import type { ResultedMatch } from "./BracketBuilder";
 import { GroupWinnerChips } from "../odds/GroupWinnerChips";
 import { MatchPredictionRow } from "./MatchPredictionRow";
 
@@ -83,6 +84,10 @@ export interface GroupCardProps {
    * percentages render inline under each pick without firing 6 fetches
    * per group. */
   readonly oddsByMatch?: ReadonlyMap<string, MatchOdds>;
+  /** Recorded match results keyed by `matchId` (= String(match_no)).
+   *  Drives the resulted-state rendering on each MatchPredictionRow.
+   *  Empty map until the page-level fetch lands. Tim 2026-06-12. */
+  readonly resultsByMatch?: ReadonlyMap<string, ResultedMatch>;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
   /** Optional per-group auto-pick. When provided the header surfaces a
@@ -113,6 +118,7 @@ export function GroupCard(props: GroupCardProps) {
     country,
     showOddsChips = true,
     oddsByMatch,
+    resultsByMatch,
     onChangeMatch,
     onChangeTiebreaker,
     onAutoPickGroup,
@@ -305,6 +311,7 @@ export function GroupCard(props: GroupCardProps) {
               country={country}
               showOddsChip={showOddsChips}
               odds={oddsByMatch?.get(id) ?? null}
+              result={resultsByMatch?.get(id) ?? null}
               hostCity={hostCityByMatchNumber(f.match_no)}
               onChange={onChangeMatch}
             />

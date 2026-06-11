@@ -395,3 +395,60 @@
 .mpp-btn-primary:hover:not(:disabled) {
   filter: brightness(1.08);
 }
+
+/* Resulted-state score row, sits between the title and the pick
+ * buttons on a resulted match. Large Fraunces digits, en-dash
+ * separator, team codes flanking either side. The winner's score
+ * brightens via data-winner so the eye lands on the win first.
+ * Tim 2026-06-12. */
+.mpp-result-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 12px;
+  margin: 4px 16px 8px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(34, 197, 94, 0.08), rgba(34, 197, 94, 0.02));
+  border: 1px solid rgba(34, 197, 94, 0.32);
+}
+.mpp-result-team {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.66);
+}
+.mpp-result-score {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 44px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  color: rgba(255, 255, 255, 0.72);
+}
+.mpp-result-score[data-winner="1"] {
+  color: #fff;
+}
+.mpp-result-sep {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 30px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.35);
+}
+@media (max-width: 480px) {
+  .mpp-result-row {
+    gap: 9px;
+    margin: 4px 12px 8px;
+    padding: 12px 10px;
+  }
+  .mpp-result-score {
+    font-size: 38px;
+  }
+  .mpp-result-sep {
+    font-size: 24px;
+  }
+  .mpp-result-team {
+    font-size: 14px;
+  }
+}

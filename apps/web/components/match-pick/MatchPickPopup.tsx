@@ -60,6 +60,14 @@ export interface MatchPickPopupProps {
   readonly tournamentId?: string;
   /** Live odds; clicking the chip expands an oddsAtLock summary. */
   readonly odds?: MatchOdds | null;
+  /** Recorded match result, when one has landed. When present the
+   *  popup renders the score row (home goals + away goals) and any
+   *  internal flag/draw labels reflect the resulted state. */
+  readonly result?: {
+    readonly outcome: "home_win" | "draw" | "away_win";
+    readonly homeScore: number | null;
+    readonly awayScore: number | null;
+  } | null;
   /** Optional override for the inline user id (tests). */
   readonly userId?: string;
   /** Knockouts hide the draw button. */
@@ -113,6 +121,7 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
     venue,
     tournamentId,
     odds,
+    result,
     userId,
     noDraw,
     presentation,
@@ -322,9 +331,36 @@ export function MatchPickPopup(props: MatchPickPopupProps) {
         )}
       </header>
 
-      {matchStarted && (
+      {matchStarted && !result && (
         <div className="mpp-locked-banner" role="status" aria-live="polite">
           Sorry, this match has already started. You can&apos;t change it now.
+        </div>
+      )}
+
+      {/* Tim 2026-06-12: when the popup opens for a resulted match we
+       *  show the scoreline up front, between the title and the (now
+       *  locked) picks. Large, centred, Fraunces digits. The dash is
+       *  rendered as a small en-dash glyph so the eye lands on the
+       *  numbers first. */}
+      {result && (
+        <div className="mpp-result-row" role="status">
+          <span className="mpp-result-team">{homeTeam.id}</span>
+          <span
+            className="mpp-result-score"
+            data-winner={result.outcome === "home_win" ? "1" : undefined}
+          >
+            {result.homeScore ?? "-"}
+          </span>
+          <span className="mpp-result-sep" aria-hidden="true">
+            –
+          </span>
+          <span
+            className="mpp-result-score"
+            data-winner={result.outcome === "away_win" ? "1" : undefined}
+          >
+            {result.awayScore ?? "-"}
+          </span>
+          <span className="mpp-result-team">{awayTeam.id}</span>
         </div>
       )}
 

@@ -142,6 +142,18 @@ export interface BracketBuilderProps {
  */
 type TabId = "groups" | "thirds" | "r32" | "r16" | "qf" | "sf" | "final";
 
+/** Minimal in-component view of a recorded match result. Mirrors the
+ *  /api/v1/match-results body but is the type the children prefer to
+ *  receive, so the bracket UI doesn't depend on the persistence-row
+ *  shape directly. Tim 2026-06-12. */
+export interface ResultedMatch {
+  readonly outcome: "home_win" | "draw" | "away_win";
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+  /** Three-letter team code of the winner, e.g. "MEX". null for draws. */
+  readonly winnerCode: string | null;
+}
+
 const TAB_ORDER: readonly TabId[] = ["groups", "thirds", "r32", "r16", "qf", "sf", "final"];
 
 interface TabMeta {
@@ -345,6 +357,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [oddsByMatch, setOddsByMatch] = useState<ReadonlyMap<string, MatchOdds>>(
     () => new Map(),
   );
+  // Match results keyed by match_no (string), populated client-side from
+  // /api/v1/match-results/<tournament_id>. Drives the "resulted" state on
+  // each MatchPredictionRow + MatchPickPopup. Empty map until the fetch
+  // lands, so cards stay in their pre-result rendering on first paint.
+  // Tim 2026-06-12.
+  const [resultsByMatch, setResultsByMatch] = useState<
+    ReadonlyMap<string, ResultedMatch>
+  >(() => new Map());
   const [punditStatus, setPunditStatus] = useState<PunditStatus>(UNVERIFIED);
   // Mobile viewport flag (<= 768px). Drives the stage-as-page carousel
   // layout: on mobile all six stage panels render inline in a horizontal
@@ -733,6 +753,53 @@ export function BracketBuilder(props: BracketBuilderProps) {
       cancelled = true;
     };
   }, []);
+
+  // Match results from /api/v1/match-results/<tournament>. Fires once on
+  // mount, again on focus regain so a user who left the tab open through
+  // kickoff picks up the result the next time they look. Tim 2026-06-12.
+  useEffect(() => {
+    let cancelled = false;
+    const load = async (): Promise<void> => {
+      try {
+        const r = await fetch(
+          `/api/v1/match-results/${encodeURIComponent(tournament.id)}`,
+          { cache: "no-store", headers: { Accept: "application/json" } },
+        );
+        if (!r.ok) return;
+        const body = (await r.json()) as {
+          results?: ReadonlyArray<{
+            match_id: string;
+            outcome: "home_win" | "draw" | "away_win";
+            homeScore: number | null;
+            awayScore: number | null;
+            winner_code: string | null;
+          }>;
+        };
+        if (cancelled || !Array.isArray(body.results)) return;
+        const m = new Map<string, ResultedMatch>();
+        for (const row of body.results) {
+          m.set(String(row.match_id), {
+            outcome: row.outcome,
+            homeScore: row.homeScore,
+            awayScore: row.awayScore,
+            winnerCode: row.winner_code,
+          });
+        }
+        setResultsByMatch(m);
+      } catch {
+        /* leave the map empty; cards stay in their pre-result state */
+      }
+    };
+    void load();
+    const onVis = (): void => {
+      if (document.visibilityState === "visible") void load();
+    };
+    window.addEventListener("visibilitychange", onVis);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("visibilitychange", onVis);
+    };
+  }, [tournament.id]);
 
   const teamMap = useMemo(
     () => new Map(tournament.teams.map((t) => [t.id, t])),
@@ -1877,6 +1944,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       tiebreaker={bracket.groupTiebreakers[g.id]}
                       country={country}
                       oddsByMatch={oddsByMatch}
+                      resultsByMatch={resultsByMatch}
                       onChangeMatch={onChangeMatch}
                       onChangeTiebreaker={onChangeTiebreaker}
                       onAutoPickGroup={handleAutoPickGroup}
