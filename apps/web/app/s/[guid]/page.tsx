@@ -66,6 +66,7 @@ import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
 import { payingMemberCount } from "@/lib/syndicate/oracle";
 import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
 import { slugifyDisplayName } from "@/lib/share/handle-slug";
+import { fetchSyndicateLeaderboard } from "@/lib/leaderboard/fetch";
 
 import "@/components/share-landing/share-landing.css";
 
@@ -485,18 +486,46 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
     members: syndicate.members,
     tournamentId: syndicate.tournament_id,
   });
-  const topFive = [...enrichedMembers]
-    .sort((a, b) => b.points - a.points)
-    .slice(0, 5);
-  const allPointsZero = topFive.every((m) => m.points === 0);
-  // "Recent members" is now "Pool members" (Tim 2026-06-02), so it shows
-  // the whole pool rather than a recent slice. Sorted by joined_at
-  // descending so the most recent joiner heads the grid. Tim 2026-06-10:
-  // the old .slice(0, 12) hid members past the twelfth (a 16-member pool
-  // showed only 12); pools are size-bounded so we render them all.
-  const poolMembers = [...enrichedMembers].sort((a, b) =>
-    b.joined_at.localeCompare(a.joined_at),
+  // Pool leaderboard: every member ranked by points (their correct
+  // picks, which update live as results land), highest first, ties
+  // broken by join order. Competition ranking so members on equal points
+  // share a position — before any results everyone sits level at 1, and
+  // anyone who gets a result wrong drops down. Replaces the old members
+  // grid; pools are small so the whole board renders without pagination.
+  // Tim 2026-06-11.
+  const lbSorted = [...enrichedMembers].sort(
+    (a, b) => b.points - a.points || a.joined_at.localeCompare(b.joined_at),
   );
+  let lbRank = 0;
+  let lbPrevPoints: number | null = null;
+  const leaderboardRows = lbSorted.map((m, i) => {
+    if (lbPrevPoints === null || m.points !== lbPrevPoints) {
+      lbRank = i + 1;
+      lbPrevPoints = m.points;
+    }
+    return { m, rank: lbRank };
+  });
+  // Y for the X/Y predictions column. Sourced from the game service's
+  // syndicate leaderboard, which already tracks `matches_available_to_user`
+  // (count of recorded match results, with the late-entry rule applied
+  // per user). We take the global max across rows as the pool's Y, which
+  // is correct for everyone joined pre-kickoff (every demo pool here).
+  // If the game service is unreachable or returns no rows we fall back to
+  // 0 and the X/Y column hides itself. Tim 2026-06-12.
+  let matchesAvailableForPool = 0;
+  try {
+    const lb = await fetchSyndicateLeaderboard(
+      syndicate.tournament_id,
+      syndicate.slug,
+    );
+    for (const r of lb.rows) {
+      if (r.matches_available_to_user > matchesAvailableForPool) {
+        matchesAvailableForPool = r.matches_available_to_user;
+      }
+    }
+  } catch {
+    /* game service unreachable, skip the X/Y badge */
+  }
   const memberCount = syndicate.members.length;
   const sponsor = syndicate.sponsor ?? null;
   const sponsorPresent =
@@ -531,11 +560,110 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
   const logoUrl = syndicate.branding?.logo_url ?? null;
   const hasBrandedHeader = !!heroUrl || !!logoUrl;
 
+  // One complete pool leaderboard, rendered at the very top of the page
+  // (above the title/intro and the prize block) so the standings are the
+  // first thing members see. Full linear list, ranked by points, no
+  // pagination. Tim 2026-06-11.
+  const leaderboardSection = (
+    <RevealOnScroll
+      as="section"
+      className="vt-share-syn-section vt-share-syn-lb-top"
+      aria-labelledby="vt-share-members-title"
+    >
+      <p className="vt-dateline">Pool leaderboard</p>
+      <h2 id="vt-share-members-title" className="vt-share-syn-section-head">
+        {thePool}
+      </h2>
+      <div className="vt-share-pool-lb" role="list">
+        {leaderboardRows.map(({ m, rank }) => {
+          const label = m.display_name?.trim() || m.handle;
+          const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
+          const slug =
+            slugifyDisplayName(m.display_name) ??
+            slugifyDisplayName(m.handle) ??
+            null;
+          const isPermalinkUser =
+            !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
+          const profileHref = slug
+            ? `/s/${slug}`
+            : isPermalinkUser
+              ? `/s/${m.user_id}`
+              : null;
+          const cardKey = m.user_id ?? m.handle;
+          // Flag overlay on the avatar mirrors the MembersGrid treatment
+          // (bottom-right of the avatar) so the leaderboard reads like the
+          // pool member tiles, just denser. The X/Y badge on the right is
+          // omitted entirely when `matchesAvailableForPool === 0`
+          // (pre-kickoff or game service down), so a blank pool is clean.
+          // Tim 2026-06-12.
+          const inner = (
+            <>
+              <span className="vt-share-pool-lb-rank">{rank}</span>
+              <span className="vt-share-pool-lb-avatar-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="vt-share-pool-lb-avatar"
+                  src={avatarSrc}
+                  alt=""
+                  width={128}
+                  height={128}
+                  loading="lazy"
+                />
+                {m.flag_emoji && (
+                  <span
+                    className="vt-share-pool-lb-flag"
+                    aria-hidden="true"
+                  >
+                    {m.flag_emoji}
+                  </span>
+                )}
+              </span>
+              <span className="vt-share-pool-lb-name">
+                {label}
+                {m.display_name && (
+                  <span className="vt-share-pool-lb-handle">@{m.handle}</span>
+                )}
+              </span>
+              {matchesAvailableForPool > 0 && (
+                <span
+                  className="vt-share-pool-lb-score"
+                  aria-label={`${m.points} correct of ${matchesAvailableForPool}`}
+                >
+                  <span className="vt-share-pool-lb-score-x">{m.points}</span>
+                  <span className="vt-share-pool-lb-score-sep">/</span>
+                  <span className="vt-share-pool-lb-score-y">
+                    {matchesAvailableForPool}
+                  </span>
+                </span>
+              )}
+            </>
+          );
+          return profileHref ? (
+            <a
+              key={cardKey}
+              className="vt-share-pool-lb-row vt-share-pool-lb-row--link"
+              href={profileHref}
+              role="listitem"
+              aria-label={`View ${label}'s bracket`}
+            >
+              {inner}
+            </a>
+          ) : (
+            <div key={cardKey} className="vt-share-pool-lb-row" role="listitem">
+              {inner}
+            </div>
+          );
+        })}
+      </div>
+    </RevealOnScroll>
+  );
+
   return (
     <section
       className="vt-share vt-share-syn vt-editorial"
       data-testid="share-syndicate-landing"
     >
+      {leaderboardSection}
       {hasBrandedHeader ? (
         <header
           className="vt-share-syn-pageheader"
@@ -609,32 +737,6 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       <RevealOnScroll>
         <PrizePoolBlock syndicate={syndicate} prizeEyebrow={prizeEyebrow} />
       </RevealOnScroll>
-      <RevealOnScroll
-        as="section"
-        className="vt-share-syn-section"
-        aria-labelledby="vt-share-leaderboard-title"
-      >
-        <p className="vt-dateline">{leaderboardEyebrow}</p>
-        <h2
-          id="vt-share-leaderboard-title"
-          className="vt-share-syn-section-head"
-        >
-          {standings}
-        </h2>
-        {allPointsZero ? (
-          <p className="vt-share-leaderboard-empty">
-            {leaderboardEmpty}
-          </p>
-        ) : (
-          <SyndicateLeaderboardRows
-            rows={topFive.map((m) => ({
-              handle: m.handle,
-              points: m.points,
-              flag_emoji: m.flag_emoji,
-            }))}
-          />
-        )}
-      </RevealOnScroll>
       <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
         <p className="vt-footnote vt-share-syn-join-note">
@@ -649,102 +751,6 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
         shareTitle={`${syndicate.name} on Tournamental`}
         shareText={`Do you think you can predict the outcome of the FIFA World Cup better than I can? Join my pool "${syndicate.name}" and let's find out.`}
       />
-      <RevealOnScroll
-        as="section"
-        className="vt-share-syn-section"
-        aria-labelledby="vt-share-members-title"
-      >
-        <p className="vt-dateline">{recentMembersEyebrow}</p>
-        <h2
-          id="vt-share-members-title"
-          className="vt-share-syn-section-head vt-share-syn-section-head-quiet"
-        >
-          {thePool}
-        </h2>
-        <div className="vt-share-members-grid" role="list">
-          {poolMembers.map((m) => {
-            const label = m.display_name?.trim() || m.handle;
-            // Pre-rendered avatar; the route serves a 404 when the
-            // user hasn't uploaded one, so we only emit the URL when
-            // the enrichment confirmed the file exists on disk -
-            // otherwise we fall back to the neutral silhouette.
-            const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
-            // Resolve a pretty URL that routes to this member's bracket
-            // landing.  Tim 2026-06-04: prefer the slugified display
-            // name (pretty URL) over the u_<hex> permalink.  Trade-off
-            // accepted: a user who renames will break any old shared
-            // /s/<oldname> links, but display-name uniqueness is
-            // enforced server-side at PATCH /v1/auth/me time so the
-            // current-name slug always resolves cleanly.  Permalink
-            // form is the fallback for legacy anon joins (no user_id).
-            const slug =
-              slugifyDisplayName(m.display_name) ??
-              slugifyDisplayName(m.handle) ??
-              null;
-            const isPermalinkUser =
-              !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
-            const profileHref = slug
-              ? `/s/${slug}`
-              : isPermalinkUser
-                ? `/s/${m.user_id}`
-                : null;
-            const cardKey = m.user_id ?? m.handle;
-            const inner = (
-              <>
-                <div className="vt-share-member-avatar-wrap">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    className="vt-share-member-avatar"
-                    src={avatarSrc}
-                    alt=""
-                    width={96}
-                    height={96}
-                    loading="lazy"
-                  />
-                  <span
-                    className="vt-share-member-flag-badge"
-                    aria-hidden="true"
-                    title={
-                      m.predicted_winner_code
-                        ? `Predicted winner: ${m.predicted_winner_code}`
-                        : m.favourite_team_code
-                          ? `Favourite team: ${m.favourite_team_code}`
-                          : m.country_iso2
-                            ? `From ${m.country_iso2}`
-                            : "Country"
-                    }
-                  >
-                    {m.flag_emoji}
-                  </span>
-                </div>
-                <span className="vt-share-member-name">{label}</span>
-                {m.display_name && (
-                  <span className="vt-share-member-handle">@{m.handle}</span>
-                )}
-              </>
-            );
-            return profileHref ? (
-              <a
-                key={cardKey}
-                className="vt-share-member-card vt-share-member-card--link"
-                href={profileHref}
-                role="listitem"
-                aria-label={`View ${label}'s bracket`}
-              >
-                {inner}
-              </a>
-            ) : (
-              <div
-                key={cardKey}
-                className="vt-share-member-card"
-                role="listitem"
-              >
-                {inner}
-              </div>
-            );
-          })}
-        </div>
-      </RevealOnScroll>
       {sponsorPresent ? (
         <SponsorLine sponsor={sponsor!} />
       ) : null}

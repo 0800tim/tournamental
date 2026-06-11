@@ -2042,3 +2042,140 @@
   border-color: rgba(255, 255, 255, 0.28);
   box-shadow: none;
 }
+
+/* ---- Pool leaderboard (replaces the old members grid) ---------------
+ * Full ranked standings: position, avatar, name. Sorted by points so
+ * results push correct pickers up and wrong ones down. Tim 2026-06-11. */
+.vt-share-pool-lb {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.vt-share-pool-lb-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  text-decoration: none;
+  color: inherit;
+}
+.vt-share-pool-lb-row--link {
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+.vt-share-pool-lb-row--link:hover {
+  border-color: rgba(220, 169, 75, 0.45);
+  background: rgba(255, 255, 255, 0.05);
+}
+.vt-share-pool-lb-rank {
+  flex: 0 0 2ch;
+  text-align: right;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 22px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--vt-gold-400, #dca94b);
+}
+/* Avatar wrapper holds both the avatar and the flag badge so the badge
+ * can absolute-position over the avatar's bottom-right, matching the
+ * MembersGrid treatment elsewhere on the pool page (Tim 2026-06-12). */
+.vt-share-pool-lb-avatar-wrap {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  width: 64px;
+  height: 64px;
+}
+.vt-share-pool-lb-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #1e1e26;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+}
+.vt-share-pool-lb-flag {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  background: rgba(15, 20, 34, 0.92);
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  letter-spacing: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+.vt-share-pool-lb-name {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-weight: 600;
+  color: var(--vt-fg, #f4f4f5);
+}
+.vt-share-pool-lb-handle {
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--vt-fg-muted, #9aa6c2);
+}
+/* X / Y predictions count on the right. Hidden when Y is 0 so the row
+ * stays clean pre-kickoff or when the game service is offline. Gold X
+ * (the score that matters), muted Y (the context). Tabular nums so the
+ * column lines up visually. Tim 2026-06-12. */
+.vt-share-pool-lb-score {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+  font-family: Fraunces, Georgia, serif;
+}
+.vt-share-pool-lb-score-x {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-share-pool-lb-score-sep {
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--vt-fg-muted, #9aa6c2);
+  margin: 0 1px;
+}
+.vt-share-pool-lb-score-y {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--vt-fg-muted, #9aa6c2);
+}
+@media (max-width: 480px) {
+  .vt-share-pool-lb-avatar-wrap,
+  .vt-share-pool-lb-avatar {
+    width: 56px;
+    height: 56px;
+  }
+  .vt-share-pool-lb-flag {
+    width: 22px;
+    height: 22px;
+    font-size: 13px;
+  }
+  .vt-share-pool-lb-rank {
+    font-size: 20px;
+  }
+  .vt-share-pool-lb-score-x {
+    font-size: 20px;
+  }
+}
+
+/* Pool leaderboard pinned to the top of the pool page. */
+.vt-share-syn-lb-top {
+  margin-top: 8px;
+  margin-bottom: 28px;
+}

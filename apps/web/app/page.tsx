@@ -349,47 +349,13 @@ export default async function HomePage(): Promise<JSX.Element> {
           * after the Step 1 picks block so the "set picks" CTA flows
           * naturally into the "and by the way, here's my house on the
           * line" hook. */}
-        <section className="vt-home-section vt-home-section--bet">
-          <article className="vt-bet-feature" aria-label="The bet">
-            <div className="vt-bet-feature-bg" aria-hidden="true" />
-            <div className="vt-bet-feature-scrim" aria-hidden="true" />
-            <div className="vt-bet-feature-inner">
-              <div className="vt-bet-feature-text">
-                <p className="vt-bet-feature-eyebrow">The Bet</p>
-                <h2 className="vt-bet-feature-headline">
-                  Tourna<em>mental?</em>{" "}
-                  <span className="vt-bet-feature-shrug">Maybe.</span>
-                </h2>
-                <p className="vt-bet-feature-body">
-                  I&apos;m betting my{" "}
-                  <strong>NZ$1.5 million dollar house</strong> that
-                  no-one nails all 104 picks. <em>If you do, it&apos;s yours!</em>
-                </p>
-              </div>
-              <div className="vt-bet-feature-action">
-                <Link href="/the-bet" className="vt-bet-feature-cta">
-                  Read the bet <span aria-hidden="true">→</span>
-                </Link>
-                {/* Tim 2026-06-05: press release lives as a static PDF
-                  * under apps/web/public/press/, so an anchor with
-                  * target=_blank is the right primitive (Next Link is
-                  * for client-side route transitions; this is a file
-                  * download / new-tab read). */}
-                <a
-                  href="/press/tournamental-press-release-2026-06-05.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="vt-bet-feature-cta vt-bet-feature-cta--white"
-                >
-                  Read Press Release <span aria-hidden="true">→</span>
-                </a>
-                <p className="vt-bet-feature-fine">
-                  Open globally · 18+ · Mobile phone verified
-                </p>
-              </div>
-            </div>
-          </article>
-        </section>
+        {/* Tim 2026-06-12: bet feature card hidden from the home page.
+          * The /the-bet page itself stays live (still reachable via direct
+          * URL) but no longer surfaces here or in the nav, while the WC26
+          * marketing tone shifts away from the house-wager hook for the
+          * tournament-window push. To restore, uncomment this section and
+          * re-add the nav entries in components/shell/nav-links.tsx.
+          */}
 
         {/* Step 2 (3D Molecule watch-along) and the Watch demo CTAs were
          * dropped on 2026-05-21, play app is bracket-only for the

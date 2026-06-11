@@ -176,7 +176,14 @@
 .vt-appbar {
   position: sticky;
   top: 0;
-  height: var(--vt-shell-appbar-h);
+  /* iOS standalone PWA: viewport-fit=cover lets content run under the
+   * status bar, so the header/burger sat behind the clock + battery and
+   * was hard to tap. Pad the bar down by the top safe-area inset and grow
+   * its height to match, so the nav row clears the status bar and the
+   * blurred bar backs the inset area. env() is 0 in normal browsers, so
+   * this is a no-op outside standalone/notched contexts. Tim 2026-06-11. */
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--vt-shell-appbar-h) + env(safe-area-inset-top, 0px));
   z-index: 30;
   display: flex;
   flex-direction: column;
