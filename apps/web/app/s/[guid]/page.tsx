@@ -574,12 +574,17 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
     <RevealOnScroll
       as="section"
       className="vt-share-syn-section vt-share-syn-lb-top"
-      aria-labelledby="vt-share-members-title"
+      aria-labelledby="vt-share-pool-leaderboard-eyebrow"
     >
-      <p className="vt-dateline">Pool leaderboard</p>
-      <h2 id="vt-share-members-title" className="vt-share-syn-section-head">
-        {thePool}
-      </h2>
+      {/* Tim 2026-06-12: drop the 'The pool' h2 below the eyebrow
+       * since 'Pool leaderboard' on the line above already names this
+       * section. Leaderboard sits directly under the branded hero. */}
+      <p
+        id="vt-share-pool-leaderboard-eyebrow"
+        className="vt-dateline"
+      >
+        Pool leaderboard
+      </p>
       <div className="vt-share-pool-lb" role="list">
         {/* Column header. Shows the user the meaning of the rank and
          *  the right-hand correct/resulted ratio. Hidden via CSS when
@@ -680,12 +685,17 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
     </RevealOnScroll>
   );
 
+  // Tim 2026-06-12: branded hero (image + logo + pool name + tagline)
+  // is the first thing on the page, with the leaderboard sitting
+  // directly under it. Previously the leaderboard was pinned above the
+  // hero; that read as identity-disconnected, especially for sponsor-
+  // branded pools where the hero IS the identity. Both header variants
+  // (branded + plain editorial fallback) stay below.
   return (
     <section
       className="vt-share vt-share-syn vt-editorial"
       data-testid="share-syndicate-landing"
     >
-      {leaderboardSection}
       {hasBrandedHeader ? (
         <header
           className="vt-share-syn-pageheader"
@@ -739,6 +749,7 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
           <p className="vt-lede vt-share-syn-lede">{lede}</p>
         </header>
       )}
+      {leaderboardSection}
       {/* The OG preview image used to render inline here, which
        * read as a duplicate hero ("Tournamental" wordmark + member
        * count + sky-blue Free-To-Play badge) sitting directly under
