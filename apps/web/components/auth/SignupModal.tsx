@@ -29,6 +29,7 @@ import {
   type TelegramAuthPayload,
 } from "@/lib/auth/signIn";
 import {
+  detectSmsCountry,
   requestEmailOtp,
   smsLoginDeepLink,
   verifyEmailOtp,
@@ -133,15 +134,38 @@ function SignInOptions() {
     fetchChannelsState(ac.signal).then(setChannels);
     return () => ac.abort();
   }, []);
+
+  // Tim 2026-06-12: when WhatsApp is unavailable (e.g. Meta-side account
+  // suspension), promote SMS into the prominent button slot WhatsApp
+  // would have occupied. NZ/AU readers can tap and the SMS deep-link
+  // pre-fills "login" on the carrier shortcode. Outside NZ/AU the SMS
+  // deep-link is non-functional, so the WhatsApp slot just stays empty
+  // and email leads. SmsFooter stays as the tertiary always-on link.
+  const smsCountry = useSmsCountry();
+  const showSmsButton = !channels.whatsapp.available && smsCountry !== null;
+
   return (
     <div className="vt-signin-stack">
       <EmailBlock />
       {channels.whatsapp.available ? <WhatsAppButton /> : null}
+      {showSmsButton ? <SmsButton /> : null}
       <TelegramButton />
       <CodePasteForm />
       <SmsFooter />
     </div>
   );
+}
+
+/** Hook wrapper around `detectSmsCountry` that runs client-side only so
+ *  SSR + first paint agree (server has no Intl.DateTimeFormat / locale).
+ *  Returns null until the effect runs, which keeps the SmsButton out of
+ *  the SSR markup and avoids a hydration mismatch. Tim 2026-06-12. */
+function useSmsCountry(): "NZ" | "AU" | null {
+  const [c, setC] = useState<"NZ" | "AU" | null>(null);
+  useEffect(() => {
+    setC(detectSmsCountry());
+  }, []);
+  return c;
 }
 
 // ---------------- EMAIL (request + verify) ----------------
@@ -490,7 +514,36 @@ function CodePasteForm() {
   );
 }
 
-// ---------------- SMS footer (NZ + AU only) ----------------
+// ---------------- SMS prominent button (NZ + AU, WA degraded) -------
+
+/**
+ * SmsButton, the prominent SMS sign-in CTA shown when WhatsApp is
+ * unavailable and the visitor's locale resolves to NZ/AU. Mirrors the
+ * WhatsAppButton treatment so the visual weight of the modal does not
+ * collapse when WA is hidden. Visitors outside NZ/AU never see this
+ * (the SMS deep-link is meaningless to them); they fall back to the
+ * email path. Tim 2026-06-12.
+ */
+function SmsButton() {
+  return (
+    <div className="vt-signin-sms-wrap">
+      <a href={smsLoginDeepLink()} className="vt-signin-btn vt-signin-btn-sms">
+        <span className="vt-signin-btn-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM7 9h2v2H7V9zm4 0h2v2h-2V9zm4 0h2v2h-2V9z" />
+          </svg>
+        </span>
+        Sign in by SMS
+      </a>
+      <p className="vt-signin-sms-button-hint">
+        Send <strong>login</strong> from your phone. We&apos;ll text you a
+        magic link to sign in. NZ &amp; AU only.
+      </p>
+    </div>
+  );
+}
+
+// ---------------- SMS footer (always-on tertiary link) ----------------
 
 function SmsFooter() {
   return (

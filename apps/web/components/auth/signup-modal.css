@@ -182,6 +182,36 @@
   text-decoration: underline;
 }
 
+/* SMS prominent button: shown only when WhatsApp is unavailable + the
+ * visitor's locale resolves to NZ/AU. Mirrors the WhatsApp button's
+ * visual weight (full-width pill, gold fill matching the brand) so the
+ * stack doesn't collapse to "email + tiny SMS footer link" during a
+ * WhatsApp outage. Tim 2026-06-12. */
+.vt-signin-btn-sms {
+  background: var(--vt-gold-400, #dca94b);
+  color: #15151a;
+  border-color: var(--vt-gold-500, #b88f2f);
+}
+.vt-signin-btn-sms:hover {
+  background: var(--vt-gold-300, #fcd34d);
+}
+.vt-signin-sms-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.vt-signin-sms-button-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--vt-fg-muted, #a3a3ad);
+  text-align: center;
+}
+.vt-signin-sms-button-hint strong {
+  color: var(--vt-fg, #f4f4f5);
+  font-weight: 700;
+}
+
 /* ---- Code paste section ---- */
 
 .vt-signin-codeblock {
