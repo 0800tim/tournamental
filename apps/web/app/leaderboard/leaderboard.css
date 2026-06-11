@@ -394,3 +394,114 @@
 .vt-lb-audience-tab {
   white-space: nowrap;
 }
+
+/* ===== Pool-cycler /leaderboard surface (Tim 2026-06-12) =================
+ * The page is scoped to the viewer's own pools. The chip strip lists the
+ * pools they own or are in; tapping cycles via `?pool=<slug>`. Body uses
+ * the same `.vt-share-pool-lb-*` row styles defined in
+ * share-landing.css (imported by this page) so the row treatment matches
+ * /s/<slug> exactly.
+ * ======================================================================= */
+
+.vt-lb-pool-header {
+  margin-top: 8px;
+  margin-bottom: 16px;
+}
+.vt-lb-pool-title {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 28px;
+  font-weight: 600;
+  margin: 4px 0 0;
+  color: var(--vt-fg, #f4f4f5);
+}
+
+.vt-lb-pool-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.vt-lb-pool-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--vt-fg, #f4f4f5);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.vt-lb-pool-chip:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(220, 169, 75, 0.45);
+}
+.vt-lb-pool-chip[data-active="1"] {
+  background: var(--vt-gold-400, #dca94b);
+  border-color: var(--vt-gold-400, #dca94b);
+  color: #15151a;
+}
+
+.vt-lb-pool-body {
+  margin-top: 8px;
+  margin-bottom: 28px;
+}
+
+/* Empty state for signed-out viewers and viewers with zero pools. */
+.vt-lb-empty {
+  display: flex;
+  justify-content: center;
+}
+.vt-lb-empty-card {
+  max-width: 560px;
+  text-align: left;
+  padding: 28px 24px;
+  margin-top: 24px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.vt-lb-empty-head {
+  font-family: Fraunces, Georgia, serif;
+  font-size: 26px;
+  font-weight: 600;
+  margin: 4px 0 12px;
+  color: var(--vt-fg, #f4f4f5);
+}
+.vt-lb-empty-body {
+  color: var(--vt-fg-muted, #9aa6c2);
+  line-height: 1.5;
+  margin: 0 0 20px;
+}
+.vt-lb-empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.vt-lb-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--vt-gold-400, #dca94b);
+  color: #15151a;
+  font-weight: 600;
+  text-decoration: none;
+  transition: filter 0.15s ease;
+}
+.vt-lb-empty-cta:hover {
+  filter: brightness(1.05);
+}
+.vt-lb-empty-cta--ghost {
+  background: transparent;
+  border: 1px solid rgba(220, 169, 75, 0.5);
+  color: var(--vt-gold-400, #dca94b);
+}
+.vt-lb-empty-cta--ghost:hover {
+  background: rgba(220, 169, 75, 0.1);
+}

@@ -1,225 +1,319 @@
-"use client";
-
-/**
- * /leaderboard, global prediction-IQ leaderboard.
- *
- * Phase 1 of the Open Bot Arena (spec §5) turned this page into a
- * three-tab surface:
- *   - Humans   (default landing tab, prize-eligible competitors)
- *   - Bots     (AI competitors, ranked separately; ineligible for cash)
- *   - My Pools (the user's own Pool memberships)
- *
- * The tab strip lives in the LeaderboardTabs client component, which
- * owns the active-scope state and renders the appropriate body. The
- * surrounding hero (kickoff countdown + brackets-locked tiles) and the
- * "You vs the pool" + "Pundits to follow" rails are shared across all
- * audience tabs so the page identity stays the same.
- *
- * Until the live picks DB starts ingesting at kickoff (2026-06-11),
- * this surface renders deterministic mock data via
- * `mockLeaderboardMembers(...)` and shows the DraftPreviewBanner + the
- * in-card "Preview data" footer chip. The data shape is intentionally
- * identical to what the real `/api/leaderboard?scope=<audience>`
- * endpoint will return; to go live, the LeaderboardTabs component
- * swaps its mock fetch for a server-side call.
+/*
+ * Copyright 2026 Tournamental
+ * Apache 2.0 (see LICENSE).
  */
 
-import { useEffect, useMemo, useState } from "react";
+/**
+ * /leaderboard, pool cycler.
+ *
+ * Tim 2026-06-12 rework: the previous Humans / Bots / Global / Country /
+ * My Pools tab strip is gone. The leaderboard is now scoped to the
+ * viewer's own pools, with a chip strip across the top, one chip per
+ * pool the viewer owns or is a member of. Tapping a chip selects that
+ * pool via `?pool=<slug>` and renders its full leaderboard inline,
+ * matching the row treatment used on /s/<slug>: rank, avatar with
+ * country flag overlay, name + handle, and X / Y predictions count.
+ *
+ * Bot Arena, the pundit rail, the kickoff hero stats, and the points-
+ * vs-pool chart all dropped on the same pass to keep this surface
+ * laser-focused on "your pools, your standings".
+ *
+ * For a signed-out viewer or a signed-in viewer with zero pools we
+ * render a polite empty state pointing at the pools index.
+ *
+ * Data flow:
+ *   - User's pools are sourced from /api/v1/profile/syndicates via an
+ *     internal fetch with the inbound cookies forwarded so the session
+ *     resolves on the server.
+ *   - The active pool's record is loaded directly via loadSyndicateBySlug
+ *     and members are enriched server-side; this is the same chain that
+ *     powers /s/<slug>.
+ *   - Y (matches available) per pool comes from the syndicate-scoped
+ *     leaderboard route in the game service, taking the global max
+ *     across rows so pre-kickoff pools render a clean 0 / 0 (which
+ *     hides the badge) and post-kickoff pools render the right denom.
+ */
 
-import { Leaderboard } from "@/components/leaderboard/Leaderboard";
-import { PerfectTrackBadge } from "@/components/leaderboard/PerfectTrackBadge";
-import { StageProgressChart } from "@/components/leaderboard/StageProgressChart";
-import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
-import { DraftWatermark } from "@/components/mock/DraftWatermark";
+import { cookies, headers } from "next/headers";
+import Link from "next/link";
+
 import { AppShell } from "@/components/shell";
-import { mockLeaderboardMembers, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
-import {
-  mockPointsHistory,
-  mockPoolAverage,
-} from "@/lib/mock/points-history";
+import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
+import { DEFAULT_AVATAR_DATA_URI } from "@/lib/profile/avatar";
+import { fetchSyndicateLeaderboard } from "@/lib/leaderboard/fetch";
+import { slugifyDisplayName } from "@/lib/share/handle-slug";
+import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
+import { loadSyndicateBySlug } from "@/lib/syndicate/store";
 
-import { LeaderboardTabs } from "./LeaderboardTabs";
-
+// share-landing.css owns the `.vt-share-pool-lb-*` row treatment used
+// by the per-pool body. Importing it here also brings those rules into
+// the /leaderboard route's CSS bundle so the rows render identically to
+// the ones on /s/<slug>.
+import "@/components/share-landing/share-landing.css";
 import "./leaderboard.css";
 
-export default function LeaderboardPage() {
-  // Tim 2026-06-07: the Global/Friends/Country chooser used to live in
-  // the AppShell subHeader pill row. It now sits inside the leaderboard
-  // card next to the Humans/Bots/My Pools audience tabs, so the page
-  // padding can compress and both decisions live next to the list they
-  // filter.
-  const members = useMemo(() => mockLeaderboardMembers(null, 50), []);
+export const dynamic = "force-dynamic";
 
-  // "You" pinned to mid-pack so the highlight row is visibly demoed in
-  // the side rails.
-  const youId = members[12]?.id;
+interface MyPool {
+  readonly slug: string;
+  readonly name: string;
+  readonly role: "owner" | "member";
+  readonly member_count: number;
+  readonly tournament_id: string;
+}
 
-  // Live bot count from central via /v1/swarm/totals. Browser swarms
-  // and Docker containers both fold in. The number ticks within a
-  // one-minute cache window. Mock fallback (18,000) shows until the
-  // first fetch lands so the tile never renders blank. Tim 2026-06-08.
-  const [liveBotTotal, setLiveBotTotal] = useState<number | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    const fetchOnce = async () => {
-      try {
-        const res = await fetch("/v1/swarm/totals", { cache: "no-store" });
-        if (!res.ok) return;
-        const body = (await res.json()) as { total_bots?: number };
-        if (!cancelled && typeof body.total_bots === "number") {
-          setLiveBotTotal(body.total_bots);
-        }
-      } catch {
-        /* silent: tile keeps last good value */
-      }
-    };
-    void fetchOnce();
-    const id = window.setInterval(fetchOnce, 45_000);
-    return () => {
-      cancelled = true;
-      window.clearInterval(id);
-    };
-  }, []);
+interface PageSearchParams {
+  readonly pool?: string | string[];
+}
 
-  const heroStats = useMemo(
-    () => [
-      { value: "24,388", label: "humans locked in" },
-      {
-        value: (liveBotTotal ?? 18_000).toLocaleString(),
-        label: "bots competing",
+/**
+ * Resolve the absolute origin we should call our own API routes on.
+ * In a server component the host header is the user's request host;
+ * `x-forwarded-proto` carries the scheme behind the prod tunnel.
+ */
+function selfOrigin(): string {
+  const h = headers();
+  const proto = h.get("x-forwarded-proto") ?? "http";
+  const host = h.get("host") ?? "localhost:3300";
+  return `${proto}://${host}`;
+}
+
+async function loadMyPools(): Promise<MyPool[]> {
+  const url = `${selfOrigin()}/api/v1/profile/syndicates`;
+  try {
+    const r = await fetch(url, {
+      headers: {
+        cookie: cookies().toString(),
+        accept: "application/json",
       },
-    ],
-    [liveBotTotal],
-  );
+      cache: "no-store",
+    });
+    if (!r.ok) return [];
+    const body = (await r.json()) as { syndicates?: MyPool[] };
+    return body.syndicates ?? [];
+  } catch {
+    return [];
+  }
+}
 
-  const memberSeries = useMemo(
-    () => mockPointsHistory(youId ?? "you", 28),
-    [youId],
-  );
-  const poolSeries = useMemo(
-    () => mockPoolAverage(youId ?? "you", 28),
-    [youId],
-  );
+export default async function LeaderboardPage({
+  searchParams,
+}: {
+  searchParams?: PageSearchParams;
+}): Promise<JSX.Element> {
+  const myPools = await loadMyPools();
+
+  // No pools / signed out: friendly empty state.
+  if (myPools.length === 0) {
+    return (
+      <AppShell title="Leaderboard">
+        <div className="vt-page-content vt-lb-page vt-lb-empty">
+          <RevealOnScroll as="section" className="vt-lb-empty-card">
+            <p className="vt-dateline">Leaderboard</p>
+            <h2 className="vt-lb-empty-head">
+              Your pool leaderboards land here.
+            </h2>
+            <p className="vt-lb-empty-body">
+              You are not in a pool yet. Join one (or run your own) and
+              this page will list your standings, match by match.
+            </p>
+            <div className="vt-lb-empty-actions">
+              <Link href="/pools" className="vt-lb-empty-cta">
+                Browse pools
+                <span aria-hidden="true"> →</span>
+              </Link>
+              <Link
+                href="/pools/new"
+                className="vt-lb-empty-cta vt-lb-empty-cta--ghost"
+              >
+                Run my own pool
+                <span aria-hidden="true"> →</span>
+              </Link>
+            </div>
+          </RevealOnScroll>
+        </div>
+      </AppShell>
+    );
+  }
+
+  // Resolve the active pool. Default is the first pool the viewer is
+  // in; the `?pool=<slug>` query overrides for the chip clicks.
+  const wantedSlugRaw = Array.isArray(searchParams?.pool)
+    ? searchParams!.pool[0]
+    : searchParams?.pool;
+  const wantedSlug = (wantedSlugRaw ?? "").trim().toLowerCase();
+  const activePool =
+    myPools.find((p) => p.slug === wantedSlug) ?? myPools[0];
+
+  // Load the active pool's full record so we can enrich members
+  // server-side. The slug-resolver is the same one that powers
+  // /s/<slug>, so this is a known-cheap call.
+  const activeRecord = await loadSyndicateBySlug(activePool.slug);
+
+  // Build the body. If the record fails to load (rare; would indicate
+  // the pool was archived between profile-fetch and now), fall through
+  // to an inline note rather than 500-ing.
+  let body: JSX.Element;
+  if (!activeRecord) {
+    body = (
+      <p className="vt-lb-empty-body">
+        We could not load the {activePool.name} leaderboard right now.
+        Please refresh or check back in a minute.
+      </p>
+    );
+  } else {
+    const enrichedMembers = await enrichSyndicateMembers({
+      members: activeRecord.members,
+      tournamentId: activeRecord.tournament_id,
+    });
+    const lbSorted = [...enrichedMembers].sort(
+      (a, b) =>
+        b.points - a.points || a.joined_at.localeCompare(b.joined_at),
+    );
+    let lbRank = 0;
+    let lbPrevPoints: number | null = null;
+    const leaderboardRows = lbSorted.map((m, i) => {
+      if (lbPrevPoints === null || m.points !== lbPrevPoints) {
+        lbRank = i + 1;
+        lbPrevPoints = m.points;
+      }
+      return { m, rank: lbRank };
+    });
+
+    // Y for the X / Y predictions column. Sourced from the game
+    // service's syndicate leaderboard; max across rows is the pool's
+    // Y. If the service is unreachable we fall back to 0 and the
+    // badge hides itself per the same rule as /s/<slug>.
+    let matchesAvailableForPool = 0;
+    try {
+      const lb = await fetchSyndicateLeaderboard(
+        activeRecord.tournament_id,
+        activeRecord.slug,
+      );
+      for (const r of lb.rows) {
+        if (r.matches_available_to_user > matchesAvailableForPool) {
+          matchesAvailableForPool = r.matches_available_to_user;
+        }
+      }
+    } catch {
+      /* game service unreachable, skip the X / Y badge */
+    }
+
+    body = (
+      <div className="vt-share-pool-lb" role="list">
+        {leaderboardRows.map(({ m, rank }) => {
+          const label = m.display_name?.trim() || m.handle;
+          const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
+          const slug =
+            slugifyDisplayName(m.display_name) ??
+            slugifyDisplayName(m.handle) ??
+            null;
+          const isPermalinkUser =
+            !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
+          const profileHref = slug
+            ? `/s/${slug}`
+            : isPermalinkUser
+              ? `/s/${m.user_id}`
+              : null;
+          const cardKey = m.user_id ?? m.handle;
+          const inner = (
+            <>
+              <span className="vt-share-pool-lb-rank">{rank}</span>
+              <span className="vt-share-pool-lb-avatar-wrap">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className="vt-share-pool-lb-avatar"
+                  src={avatarSrc}
+                  alt=""
+                  width={128}
+                  height={128}
+                  loading="lazy"
+                />
+                {m.flag_emoji && (
+                  <span className="vt-share-pool-lb-flag" aria-hidden="true">
+                    {m.flag_emoji}
+                  </span>
+                )}
+              </span>
+              <span className="vt-share-pool-lb-name">
+                {label}
+                {m.display_name && (
+                  <span className="vt-share-pool-lb-handle">@{m.handle}</span>
+                )}
+              </span>
+              {matchesAvailableForPool > 0 && (
+                <span
+                  className="vt-share-pool-lb-score"
+                  aria-label={`${m.points} correct of ${matchesAvailableForPool}`}
+                >
+                  <span className="vt-share-pool-lb-score-x">{m.points}</span>
+                  <span className="vt-share-pool-lb-score-sep">/</span>
+                  <span className="vt-share-pool-lb-score-y">
+                    {matchesAvailableForPool}
+                  </span>
+                </span>
+              )}
+            </>
+          );
+          return profileHref ? (
+            <a
+              key={cardKey}
+              className="vt-share-pool-lb-row vt-share-pool-lb-row--link"
+              href={profileHref}
+              role="listitem"
+              aria-label={`View ${label}'s bracket`}
+            >
+              {inner}
+            </a>
+          ) : (
+            <div
+              key={cardKey}
+              className="vt-share-pool-lb-row"
+              role="listitem"
+            >
+              {inner}
+            </div>
+          );
+        })}
+      </div>
+    );
+  }
+
+  // Single-pool shortcut: skip the chip strip when there's only one
+  // pool to choose. The hero still reads "<pool> leaderboard" so the
+  // viewer knows which surface they are on.
+  const showChips = myPools.length > 1;
 
   return (
     <AppShell title="Leaderboard">
       <div className="vt-page-content vt-lb-page">
-        <DraftPreviewBanner />
+        <RevealOnScroll as="section" className="vt-lb-pool-header">
+          <p className="vt-dateline">Pool leaderboard</p>
+          <h1 className="vt-lb-pool-title">{activePool.name}</h1>
+        </RevealOnScroll>
 
-        <PerfectTrackBadge />
+        {showChips && (
+          <nav className="vt-lb-pool-chips" aria-label="Your pools">
+            {myPools.map((p) => {
+              const active = p.slug === activePool.slug;
+              const href = active ? "/leaderboard" : `/leaderboard?pool=${p.slug}`;
+              return (
+                <Link
+                  key={p.slug}
+                  href={href}
+                  className="vt-lb-pool-chip"
+                  data-active={active ? "1" : undefined}
+                  aria-current={active ? "page" : undefined}
+                >
+                  {p.name}
+                </Link>
+              );
+            })}
+          </nav>
+        )}
 
-        <section className="vt-lb-hero">
-          {heroStats.map((s) => (
-            <DraftWatermark key={s.label} tileWidth={180}>
-              <article className="vt-lb-hero-card">
-                <strong>{s.value}</strong>
-                <span>{s.label}</span>
-              </article>
-            </DraftWatermark>
-          ))}
-          <DraftWatermark key="countdown" tileWidth={180}>
-            <MiniCountdownTile />
-          </DraftWatermark>
-        </section>
-
-        <section className="vt-lb-grid">
-          <DraftWatermark>
-            <LeaderboardTabs initialTab="humans" />
-          </DraftWatermark>
-
-          <aside className="vt-lb-side">
-            <DraftWatermark>
-              <article className="vt-lb-card vt-lb-chart-card">
-                <header className="vt-lb-header">
-                  <div className="vt-lb-header-row">
-                    <h3 className="vt-lb-title">You vs the pool</h3>
-                  </div>
-                </header>
-                <div className="vt-lb-chart-wrap">
-                  <StageProgressChart
-                    memberSeries={memberSeries}
-                    poolSeries={poolSeries}
-                  />
-                </div>
-                <footer className="vt-lb-footer">
-                  <span>Cumulative points by match-day</span>
-                  <span>Preview data</span>
-                </footer>
-              </article>
-            </DraftWatermark>
-
-            <Leaderboard
-              title="Pundits to follow"
-              members={members}
-              badgeFilter="pundit"
-              showMovementColumn={false}
-              showCountryColumn
-              density="comfortable"
-              tabs={[]}
-              matchesPlayed={DEMO_MATCHES_PLAYED}
-            />
-          </aside>
-        </section>
+        <section className="vt-lb-pool-body">{body}</section>
       </div>
     </AppShell>
-  );
-}
-
-/**
- * Mini countdown tile, sits in the third slot of the leaderboard hero
- * row. Three cells (D / H / M) styled to match the home page's
- * countdown banner at tile-scale; no seconds, so a one-minute tick is
- * plenty and the SSR/CSR text-mismatch surface is much smaller. The
- * kickoff instant is the FIFA WC 2026 opener (2026-06-11T19:00:00Z,
- * Mexico City), the same target the home page uses.
- *
- * Tim 2026-06-05.
- */
-function MiniCountdownTile() {
-  const KICKOFF_MS = Date.UTC(2026, 5, 11, 19, 0, 0);
-  // Seed with the target so SSR + first client render agree; effect
-  // snaps to wall-clock and ticks every minute (no seconds shown).
-  const [now, setNow] = useState<number>(() => KICKOFF_MS);
-  useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-
-  const diff = Math.max(0, KICKOFF_MS - now);
-  const days = Math.floor(diff / 86_400_000);
-  const hours = Math.floor(diff / 3_600_000) % 24;
-  const minutes = Math.floor(diff / 60_000) % 60;
-  const live = diff === 0;
-
-  return (
-    <article className="vt-lb-hero-card vt-lb-hero-card--countdown" aria-live="polite">
-      {live ? (
-        <strong>Live</strong>
-      ) : (
-        <div className="vt-lb-mini-countdown">
-          <MiniCell value={days} label="Days" />
-          <MiniCell value={hours} label="Hrs" />
-          <MiniCell value={minutes} label="Min" />
-        </div>
-      )}
-      <span>to kickoff</span>
-    </article>
-  );
-}
-
-function MiniCell({ value, label }: { value: number; label: string }) {
-  const padded = String(Math.max(0, value)).padStart(2, "0");
-  return (
-    <div className="vt-lb-mini-countdown-cell">
-      {/* SSR-seeded `now` equals the target until hydration, so the
-        * server emits "00" for every cell and the client patches to
-        * the real values on first effect run. Suppress the expected
-        * text-mismatch on just this node. */}
-      <span className="vt-lb-mini-countdown-num" suppressHydrationWarning>
-        {padded}
-      </span>
-      <span className="vt-lb-mini-countdown-label">{label}</span>
-    </div>
   );
 }
