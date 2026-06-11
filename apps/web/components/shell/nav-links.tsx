@@ -103,16 +103,10 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     icon: <ShareIcon />,
     matchPrefix: "/world-cup-2026/save-share",
   },
-  // Bot Arena (Tim 2026-06-07 evening): promoted to first-class primary
-  // nav. Bot Arena is the differentiating story this week and deserves
-  // to sit right after Save & share. The Bet drops to More.
-  {
-    label: "Bot Arena",
-    i18nKey: "nav.bot_arena",
-    href: "/bot-arena",
-    icon: <RobotIcon />,
-    matchPrefix: "/bot-arena",
-  },
+  // Bot Arena was inline (Tim 2026-06-07) but dropped back to More on
+  // 2026-06-12 once the WC kicked off and the day-to-day surfaces
+  // (Leaderboard, Pools) became the primary destinations. The page is
+  // still reachable in one click via the More menu.
   {
     label: "Leaderboard",
     i18nKey: "nav.leaderboard",
@@ -141,6 +135,10 @@ export const MORE_DESKTOP: readonly NavLink[] = [
   // the top-level inline nav.
   // Calendar (Tim 2026-06-06): flat list of all 104 matches in
   // chronological order. Lives at /world-cup-2026/calendar.
+  // Bot Arena dropped from PRIMARY_DESKTOP back to More
+  // (Tim 2026-06-12) once the WC kicked off and Leaderboard / Pools
+  // became the primary daily destinations.
+  { label: "Bot Arena", i18nKey: "nav.bot_arena", href: "/bot-arena", icon: <RobotIcon />, matchPrefix: "/bot-arena" },
   { label: "Match calendar", i18nKey: "nav.calendar", href: "/world-cup-2026/calendar", icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
   // The Bet entry removed from the desktop "More" dropdown
   // (Tim 2026-06-12). The /the-bet page stays live but is no longer
