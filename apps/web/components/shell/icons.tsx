@@ -71,6 +71,20 @@ export function TrophyIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+/** Bar-chart icon used for the Leaderboard nav entry: three ascending
+ *  bars sitting on an implied baseline. Replaces the trophy in the
+ *  side menu + bottom dock so the icon reads as "standings" rather
+ *  than "winners". Tim 2026-06-12. */
+export function BarChartIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg {...baseProps} {...props}>
+      <rect x="3.5" y="13" width="4" height="8" rx="0.5" />
+      <rect x="10" y="8" width="4" height="13" rx="0.5" />
+      <rect x="16.5" y="4" width="4" height="17" rx="0.5" />
+    </svg>
+  );
+}
+
 export function ShareIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg {...baseProps} {...props}>

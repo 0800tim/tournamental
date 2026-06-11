@@ -309,6 +309,16 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         </div>
       </section>
 
+      {/* Tim 2026-06-12: Pools sits at the top of the profile, directly
+       *  under the greeting + action row. Most signed-in players come
+       *  here either to manage a pool or to find their place on a pool
+       *  leaderboard, so the destination should be the first thing
+       *  below the identity strip. The other sections (Avatar, Details,
+       *  Location, Favourite team, Save row) stay in their original
+       *  order below.
+       */}
+      <MyPoolsSection />
+
       <MyBotSwarmCard />
 
       <section className="vt-section">
@@ -535,7 +545,9 @@ function InboundProfileEditor({ userId }: { userId: string }) {
         )}
       </section>
 
-      <MyPoolsSection />
+      {/* MyPoolsSection moved to the top of the profile page
+       *  (Tim 2026-06-12). The Developer section now follows the save
+       *  row directly. */}
 
       <section className="vt-section">
         <h2 className="vt-section-title">{safeT(t, "profile_page.developer_section_title", "Developer")}</h2>

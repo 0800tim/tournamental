@@ -21,10 +21,10 @@
 import type { ReactNode } from "react";
 
 import {
+  BarChartIcon,
   HomeIcon,
   PredictIcon,
   ProfileIcon,
-  TrophyIcon,
   GroupsIcon,
   CodeIcon,
   ShareIcon,
@@ -117,7 +117,7 @@ export const PRIMARY_DESKTOP: readonly NavLink[] = [
     label: "Leaderboard",
     i18nKey: "nav.leaderboard",
     href: "/leaderboard",
-    icon: <TrophyIcon />,
+    icon: <BarChartIcon />,
     matchPrefix: "/leaderboard",
   },
   // Pools (formerly "Syndicates") promoted to top-level, owner-run
@@ -161,19 +161,26 @@ export const MORE_DESKTOP: readonly NavLink[] = [
  * inside AppMenuDrawer based on auth status; we keep the canonical entry
  * here so the renderer always has a stable href + icon to draw.
  */
+// Tim 2026-06-12: drawer order per the screenshot brief. The eight
+// primary destinations are Home, Play, Leaderboard, Pools, Calendar,
+// My Profile, Bot Arena, Share & Save. Opening Ceremonies stays paired
+// with Match calendar (its natural sister). 3D Molecule moves to sit
+// directly above My Profile per Tim's follow-up. Leaderboard's icon
+// flips from TrophyIcon to BarChartIcon so the drawer + dock + desktop
+// nav all read as "standings" rather than "winners".
 export const DRAWER_PRIMARY: readonly NavLink[] = [
-  { label: "Home",             i18nKey: "nav.home",            href: "/",                          icon: <HomeIcon />,     matchPrefix: "__never__" },
-  { label: "Play (Predict)",    i18nKey: "nav.predict_bracket", href: "/world-cup-2026",           icon: <PredictIcon />,  matchPrefix: "/world-cup-2026" },
-  { label: "3D Molecule",      i18nKey: "nav.molecule_3d",     href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />, matchPrefix: "/world-cup-2026/molecule" },
-  { label: "Leaderboard",      i18nKey: "nav.leaderboard",     href: "/leaderboard",               icon: <TrophyIcon />,   matchPrefix: "/leaderboard" },
-  { label: "Match calendar",   i18nKey: "nav.calendar",        href: "/world-cup-2026/calendar",   icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
-  { label: "Opening Ceremonies", i18nKey: "nav.opening_ceremonies", href: "/opening-ceremonies",    icon: <FlagIcon />,     matchPrefix: "/opening-ceremonies" },
-  { label: "Bot Arena",        i18nKey: "nav.bot_arena",       href: "/bot-arena",                 icon: <RobotIcon />,    matchPrefix: "/bot-arena" },
-  { label: "Pools",            i18nKey: "nav.pools",           href: "/syndicates",                icon: <GroupsIcon />,   matchPrefix: "/syndicates" },
+  { label: "Home",               i18nKey: "nav.home",               href: "/",                          icon: <HomeIcon />,      matchPrefix: "__never__" },
+  { label: "Play (Predict)",     i18nKey: "nav.predict_bracket",    href: "/world-cup-2026",            icon: <PredictIcon />,   matchPrefix: "/world-cup-2026" },
+  { label: "Leaderboard",        i18nKey: "nav.leaderboard",        href: "/leaderboard",               icon: <BarChartIcon />,  matchPrefix: "/leaderboard" },
+  { label: "Pools",              i18nKey: "nav.pools",              href: "/syndicates",                icon: <GroupsIcon />,    matchPrefix: "/syndicates" },
+  { label: "Match calendar",     i18nKey: "nav.calendar",           href: "/world-cup-2026/calendar",   icon: <CalendarIcon />,  matchPrefix: "/world-cup-2026/calendar" },
+  { label: "Opening Ceremonies", i18nKey: "nav.opening_ceremonies", href: "/opening-ceremonies",        icon: <FlagIcon />,      matchPrefix: "/opening-ceremonies" },
+  { label: "3D Molecule",        i18nKey: "nav.molecule_3d",        href: "/world-cup-2026/molecule",   icon: <MoleculeIcon />,  matchPrefix: "/world-cup-2026/molecule" },
   // The Bet drawer entry removed (Tim 2026-06-12). Page still lives at
   // /the-bet but is no longer surfaced from the menu.
-  { label: "My Profile",       i18nKey: "nav.profile_my",      href: "/profile",                   icon: <ProfileIcon />,  matchPrefix: "/profile" },
-  { label: "Share & Save",     i18nKey: "nav.share_save",      href: "/world-cup-2026/save-share", icon: <ShareIcon />,    matchPrefix: "/world-cup-2026/save-share" },
+  { label: "My Profile",         i18nKey: "nav.profile_my",         href: "/profile",                   icon: <ProfileIcon />,   matchPrefix: "/profile" },
+  { label: "Bot Arena",          i18nKey: "nav.bot_arena",          href: "/bot-arena",                 icon: <RobotIcon />,     matchPrefix: "/bot-arena" },
+  { label: "Share & Save",       i18nKey: "nav.share_save",         href: "/world-cup-2026/save-share", icon: <ShareIcon />,     matchPrefix: "/world-cup-2026/save-share" },
 ];
 
 /**

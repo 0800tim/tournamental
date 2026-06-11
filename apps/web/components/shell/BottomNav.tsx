@@ -42,7 +42,7 @@ import {
   HomeIcon,
   PredictIcon,
   GroupsIcon,
-  ProfileIcon,
+  BarChartIcon,
   PlusIcon,
   MenuIcon,
 } from "./icons";
@@ -91,12 +91,16 @@ export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
     icon: <GroupsIcon />,
     matchPrefix: "/pools",
   },
+  // Tim 2026-06-12: Profile drops out of the dock; Leaderboard takes
+  // its slot with the bar-chart icon. The profile is still reachable
+  // from the side-drawer 'My Profile' entry and the avatar chip at
+  // the top of the app bar.
   {
-    label: "Profile",
-    i18nKey: "nav.profile",
-    href: "/profile",
-    icon: <ProfileIcon />,
-    matchPrefix: "/profile",
+    label: "Leaderboard",
+    i18nKey: "nav.leaderboard",
+    href: "/leaderboard",
+    icon: <BarChartIcon />,
+    matchPrefix: "/leaderboard",
   },
 ];
 
