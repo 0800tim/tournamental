@@ -24,6 +24,7 @@
 import {
   cascade,
   computeGroupStandings,
+  isGroupComplete,
   type Bracket,
   type BracketPrediction,
   type CascadedBracket,
@@ -94,11 +95,8 @@ function bracketToCascadeInput(
   bracket: Bracket,
   userId: string,
 ): BracketPrediction {
-  const standingsByGroup = new Map<
-    string,
-    ReturnType<typeof computeGroupStandings>
-  >();
   const groups = tournament.groups.map((g) => {
+    const complete = isGroupComplete(g.id, tournament, bracket.matchPredictions);
     const tiebreaker = bracket.groupTiebreakers[g.id];
     const standings = computeGroupStandings(
       g.id,
@@ -106,28 +104,21 @@ function bracketToCascadeInput(
       bracket.matchPredictions,
       tiebreaker,
     );
-    standingsByGroup.set(g.id, standings);
+    // Only emit the order for fully-predicted groups; an incomplete
+    // group's standings lean on tiebreaker fallbacks that mis-seed the
+    // knockouts. Mirrors apps/web/lib/bracket/cascade-bridge.ts.
     return {
       group_id: g.id,
-      order: standings.map((s) => s.teamCode),
+      order: complete ? standings.map((s) => s.teamCode) : [],
     };
   });
 
-  // Best 8 third-placers go to R32. Rank by points -> goal diff -> goals
-  // for -> code (deterministic last-resort).
-  const thirdPlacers = tournament.groups
-    .map((g) => {
-      const s = standingsByGroup.get(g.id);
-      return s && s.length >= 3 ? s[2] : null;
-    })
-    .filter((s): s is NonNullable<typeof s> => s !== null);
-  thirdPlacers.sort((a, b) => {
-    if (a.points !== b.points) return b.points - a.points;
-    if (a.goalDiff !== b.goalDiff) return b.goalDiff - a.goalDiff;
-    if (a.goalsFor !== b.goalsFor) return b.goalsFor - a.goalsFor;
-    return a.teamCode.localeCompare(b.teamCode);
-  });
-  const best_thirds = thirdPlacers.slice(0, 8).map((s) => s.teamCode);
+  // Use the user's saved best-third-placed picks, exactly like the web
+  // cascade-bridge. Recomputing them from standings here diverged from
+  // the web cascade and seeded the R32 differently, so a manipulated
+  // bracket showed a different finalist on the share podium than in the
+  // builder/molecule (Tim 2026-06-11). Empty when unset.
+  const best_thirds = bracket.bestThirds ?? [];
 
   return {
     tournament_id: tournament.id,
