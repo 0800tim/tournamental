@@ -26,6 +26,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import {
   SESSION_COOKIE_NAME,
   SESSION_TTL_SECONDS,
+  getAdminEmail,
   getAdminPhone,
   getAllowedUserIds,
   getAuthSmsBase,
@@ -33,6 +34,13 @@ import {
   issueSessionCookie,
   maskAdminPhone,
 } from "@/lib/auth";
+
+type Channel = "whatsapp" | "sms" | "email";
+
+function parseChannel(raw: unknown): Channel {
+  if (raw === "sms" || raw === "email" || raw === "whatsapp") return raw;
+  return "whatsapp";
+}
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -73,7 +81,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
-  let body: { code?: string };
+  let body: { code?: string; channel?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -83,22 +91,41 @@ export async function POST(req: NextRequest) {
   if (!/^\d{6}$/.test(code)) {
     return NextResponse.json({ error: "bad_code" }, { status: 400 });
   }
+  // Channel pins the upstream route. Whatever channel the request route
+  // dispatched to is what we verify against here; the client tracks it
+  // through the two-step form. Tim 2026-06-12.
+  const channel: Channel = parseChannel(body.channel);
 
-  // Pin the verify call to the configured admin phone. This scopes the
-  // OTP brute-force budget on auth-sms to the admin's own phone row,
-  // not the global "most recent unconsumed OTP" used by /verify-by-code.
-  const phone = getAdminPhone();
-  if (!phone) {
-    return NextResponse.json({ error: "login_disabled" }, { status: 503 });
+  // Pin the verify call to the configured admin destination, scoping the
+  // OTP brute-force budget on auth-sms to the admin's own row rather
+  // than the global "most recent unconsumed OTP" used by /verify-by-code.
+  let url: string;
+  let upstreamBody: string;
+  if (channel === "email") {
+    const email = getAdminEmail();
+    if (!email) {
+      return NextResponse.json(
+        { error: "email_not_configured" },
+        { status: 503 },
+      );
+    }
+    url = `${getAuthSmsBase()}/v1/auth/email/verify`;
+    upstreamBody = JSON.stringify({ email, code });
+  } else {
+    const phone = getAdminPhone();
+    if (!phone) {
+      return NextResponse.json({ error: "login_disabled" }, { status: 503 });
+    }
+    url = `${getAuthSmsBase()}/v1/auth/verify`;
+    upstreamBody = JSON.stringify({ phone, code });
   }
 
-  const url = `${getAuthSmsBase()}/v1/auth/verify`;
   let upstream: Response;
   try {
     upstream = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone, code }),
+      body: upstreamBody,
       cache: "no-store",
     });
   } catch {

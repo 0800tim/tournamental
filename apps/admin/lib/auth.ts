@@ -99,6 +99,19 @@ export function getAdminPhone(): string | null {
   return p;
 }
 
+/** Configured admin email. Server-side only — never sent to the browser.
+ *  Used as a fallback delivery channel when the WhatsApp/SMS transports
+ *  are degraded (e.g. Meta-side WhatsApp account suspension or carrier
+ *  SMS outage). Routed through the same auth-sms email-OTP path the
+ *  consumer app uses (SendGrid), so it is independent of aiva-api and
+ *  Baileys. Unset → the email button on the login screen hides itself
+ *  and the email channel returns 503. Tim 2026-06-12. */
+export function getAdminEmail(): string | null {
+  const e = (process.env.ADMIN_EMAIL ?? "").trim().toLowerCase();
+  if (!e.includes("@") || e.length < 6) return null;
+  return e;
+}
+
 /** Auth-SMS public origin. Defaults to the prod host so the dashboard
  *  works out of the box when `ADMIN_AUTH_SMS_BASE_URL` isn't set. */
 export function getAuthSmsBase(): string {
