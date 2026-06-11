@@ -220,8 +220,34 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
       style={accent}
     >
       {matchStarted && (
-        <div className="mpr-locked-banner" role="status" aria-live="polite">
-          Sorry, this match has already started. You can&apos;t change it now.
+        // Tim 2026-06-12: the verbose "Sorry, this match has already
+        // started" copy collapses to a small padlock chip in the
+        // upper-right of the row. Hover gives the same context on
+        // desktop; touch users see a `title`-driven long-press hint.
+        // The chip's label flips from "in progress" to "resulted" once
+        // a result is known (wired in a follow-up pass). For now the
+        // chip just says "in progress".
+        <div
+          className="mpr-lock-chip"
+          role="img"
+          aria-label="Match is in progress and locked"
+          title="You cannot make changes to this prediction, the match is in progress."
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="5" y="11" width="14" height="9" rx="2" />
+            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+          </svg>
+          <span className="mpr-lock-chip-label">In progress</span>
         </div>
       )}
       {/* The previous top-right "⋯" link (Tim 2026-06-06) was folded

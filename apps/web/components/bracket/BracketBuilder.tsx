@@ -977,10 +977,25 @@ export function BracketBuilder(props: BracketBuilderProps) {
     const ts = new Date().toISOString();
 
     // ---------- Group fixtures ----------
+    // Past-kickoff guard: AutoPick must never write a prediction to a
+    // match that has already kicked off, even when the operator opts
+    // to "overwrite existing picks". The server clock would refuse to
+    // count a post-kickoff pick anyway (SEC-BRK-02 kickoff lock), so
+    // letting AutoPick paint a flag on the card just lies to the user.
+    // Tim 2026-06-12.
+    const nowMs = Date.now();
     for (const f of tournament.group_fixtures) {
       const id = String(f.match_no);
       const o = byNo.get(id);
       if (!o) continue;
+      // Skip matches whose kickoff is already in the past, regardless
+      // of overwrite. Picks are frozen at kickoff and the persisted
+      // prediction would not score.
+      const koMs = f.kickoff_utc ? Date.parse(f.kickoff_utc) : Number.NaN;
+      if (Number.isFinite(koMs) && koMs <= nowMs) {
+        groupSkipped += 1;
+        continue;
+      }
       // Preserve-existing: skip slots the user has already picked.
       if (!overwrite && next.matchPredictions[id]) {
         groupSkipped += 1;
@@ -1178,18 +1193,37 @@ export function BracketBuilder(props: BracketBuilderProps) {
     });
     let next: Bracket = bracket;
     let added = 0;
+    let skipped = 0;
     const ts = new Date().toISOString();
+    const nowMs = Date.now();
     for (const f of fixtures) {
       const id = String(f.match_no);
       const o = oddsByMatch.get(id);
       if (!o) continue;
+      // Past-kickoff guard (Tim 2026-06-12): the per-group AutoPick
+      // skips matches whose kickoff has already passed, matching the
+      // global AutoPick behaviour. Painting a flag on a locked match
+      // would mislead the user about what scored.
+      const koMs = f.kickoff_utc ? Date.parse(f.kickoff_utc) : Number.NaN;
+      if (Number.isFinite(koMs) && koMs <= nowMs) {
+        skipped += 1;
+        continue;
+      }
+      // Preserve-existing: group-level AutoPick also leaves any pick
+      // the user has already made alone. It's a 'fill the blanks'
+      // shortcut, not an 'overwrite my decisions' shortcut.
+      if (next.matchPredictions[id]) {
+        skipped += 1;
+        continue;
+      }
       const h = o.homeWin;
       const d = o.draw ?? -1;
       const a = o.awayWin;
       const max = Math.max(h, d, a);
       const outcome: MatchPrediction["outcome"] =
         max === h ? "home_win" : max === d ? "draw" : "away_win";
-      const prev = next.matchPredictions[id]?.outcome;
+      // After the preserve-existing guard above this slot is known
+      // empty, so the history `prevOutcome` is always undefined.
       const oddsAtLock = snapshotOdds(o);
       next = {
         ...next,
@@ -1202,7 +1236,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         type: "match_pick",
         id,
         outcome,
-        prevOutcome: prev,
+        prevOutcome: undefined,
         odds: oddsAtLock,
         ts,
       });
@@ -1655,27 +1689,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
           {safeT(t, "bracket.hero.lede", "Group standings update live from your picks.")}
         </p>
         <div className="bracket-header-lower">
-          <aside className="bracket-edit-anytime" role="note" aria-labelledby="bracket-edit-anytime-heading">
-            <div className="bracket-edit-anytime-icon" aria-hidden="true">
-              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
-                <path d="M21 3v5h-5" />
-                <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
-                <path d="M3 21v-5h5" />
-              </svg>
-            </div>
-            <div className="bracket-edit-anytime-body">
-              <h2 id="bracket-edit-anytime-heading" className="bracket-edit-anytime-heading">
-                {safeT(t, "bracket.hero.edit_anytime_heading", "Flexible to change throughout the tournament")}
-              </h2>
-              <p className="bracket-edit-anytime-lead">
-                {safeT(t, "bracket.hero.edit_anytime_lead", "Enter all match predictions now, so your followers can see how you predict your team's path to victory.")}
-              </p>
-              <p className="bracket-edit-anytime-detail">
-                {safeT(t, "bracket.hero.edit_anytime_detail", "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!")}
-              </p>
-            </div>
-          </aside>
+          <EditAnytimeCallout t={t} />
 
           {/* Right column: auto-pick CTA stacked above a prominent
             * "X of Y matches picked" stat counter. Auto-pick lives here
@@ -2454,5 +2468,155 @@ function SaveBracketPanel({
         <p className="bracket-save-panel-status">{submitState}</p>
       ) : null}
     </div>
+  );
+}
+
+/**
+ * Edit-anytime callout that collapses to a one-line pill once the user
+ * has dismissed it. State persists in localStorage so seasoned users
+ * who already know the "change any time" mechanic don't keep losing
+ * screen real estate to it on every revisit. Tim 2026-06-12.
+ *
+ * Layout:
+ *   - Expanded (default): the original gold-accent banner with heading,
+ *     lede + detail, plus a small X close button top-right.
+ *   - Dismissed: a thin single-line note "You can change your picks any
+ *     time" with a leading (i) icon. Click the pill to re-expand.
+ */
+function EditAnytimeCallout({
+  t,
+}: {
+  t: ReturnType<typeof useTranslations>;
+}): JSX.Element {
+  const STORAGE_KEY = "vt-bracket-edit-anytime-dismissed";
+  const [dismissed, setDismissed] = useState<boolean>(false);
+  // Hydrate the dismissed state from localStorage post-mount so SSR
+  // emits the expanded banner (the safer default for first-time
+  // visitors) and the client patches in the dismissed pill if the
+  // viewer has previously dismissed it.
+  useEffect(() => {
+    try {
+      if (window.localStorage?.getItem(STORAGE_KEY) === "1") {
+        setDismissed(true);
+      }
+    } catch {
+      /* private browsing, storage unavailable, ignore */
+    }
+  }, []);
+
+  const persist = (next: boolean): void => {
+    try {
+      if (next) window.localStorage.setItem(STORAGE_KEY, "1");
+      else window.localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* ignore */
+    }
+  };
+
+  if (dismissed) {
+    return (
+      <button
+        type="button"
+        className="bracket-edit-anytime-pill"
+        onClick={() => {
+          setDismissed(false);
+          persist(false);
+        }}
+        aria-label={safeT(
+          t,
+          "bracket.hero.edit_anytime_expand",
+          "Show the change-anytime note",
+        )}
+      >
+        <span className="bracket-edit-anytime-pill-i" aria-hidden="true">
+          i
+        </span>
+        <span className="bracket-edit-anytime-pill-label">
+          {safeT(
+            t,
+            "bracket.hero.edit_anytime_pill",
+            "You can change your picks any time",
+          )}
+        </span>
+      </button>
+    );
+  }
+
+  return (
+    <aside
+      className="bracket-edit-anytime"
+      role="note"
+      aria-labelledby="bracket-edit-anytime-heading"
+    >
+      <div className="bracket-edit-anytime-icon" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M3 12a9 9 0 0 1 15.5-6.4L21 8" />
+          <path d="M21 3v5h-5" />
+          <path d="M21 12a9 9 0 0 1-15.5 6.4L3 16" />
+          <path d="M3 21v-5h5" />
+        </svg>
+      </div>
+      <div className="bracket-edit-anytime-body">
+        <h2
+          id="bracket-edit-anytime-heading"
+          className="bracket-edit-anytime-heading"
+        >
+          {safeT(
+            t,
+            "bracket.hero.edit_anytime_heading",
+            "Flexible to change throughout the tournament",
+          )}
+        </h2>
+        <p className="bracket-edit-anytime-lead">
+          {safeT(
+            t,
+            "bracket.hero.edit_anytime_lead",
+            "Enter all match predictions now, so your followers can see how you predict your team's path to victory.",
+          )}
+        </p>
+        <p className="bracket-edit-anytime-detail">
+          {safeT(
+            t,
+            "bracket.hero.edit_anytime_detail",
+            "Change them any time, right up to kick-off of each match, at which point that match's pick is locked-in. Tweak as form changes, as injuries land, and as each stage reshapes the bracket. We don't punish you for early incorrect picks like other bracket apps do!",
+          )}
+        </p>
+      </div>
+      <button
+        type="button"
+        className="bracket-edit-anytime-dismiss"
+        onClick={() => {
+          setDismissed(true);
+          persist(true);
+        }}
+        aria-label={safeT(
+          t,
+          "bracket.hero.edit_anytime_dismiss",
+          "Dismiss the change-anytime note",
+        )}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="16"
+          height="16"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6l-12 12" />
+        </svg>
+      </button>
+    </aside>
   );
 }
