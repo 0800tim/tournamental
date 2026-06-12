@@ -87,6 +87,18 @@ function filterPredictionsByKickoff(
   // Browser-clock manipulation is irrelevant: this value comes from the
   // server, not the request.
   nowMs: number,
+  // SEC-BRK-02 follow-up (Tim 2026-06-12): the server-clock check above
+  // also destroyed previously-saved picks. A user who picked Mexico at
+  // 06:30 NZT (pre-kickoff) then resumed editing at 11:17 NZT (post-
+  // kickoff) would autosave with match 1 still in the payload; the
+  // filter saw `nowMs >= kickoffMs` and stripped it from the persist
+  // path, deleting their already-saved correct pick. Pass in the
+  // previously-persisted predictions for the same field and, when a
+  // post-kickoff prediction matches one we already have on file, keep
+  // the existing one verbatim instead of rejecting. The anti-tamper
+  // intent still holds: NEW picks for past-kickoff matches that the
+  // user did not already have are still rejected.
+  existing?: Record<string, MatchPrediction>,
 ): {
   kept: Record<string, MatchPrediction>;
   rejected: RejectedPrediction[];
@@ -116,6 +128,18 @@ function filterPredictionsByKickoff(
         kept[key] = pred;
         continue;
       }
+      // Preserve previously-saved picks (Tim 2026-06-12). If the
+      // existing persisted bracket already carried a prediction for
+      // this match (made before kickoff) keep it as-is. This stops
+      // the autosave-after-kickoff bug that was overwriting good
+      // picks with empty slots. We do not let the client mutate the
+      // existing prediction's outcome via this path: the stored one
+      // wins regardless of what the incoming pred says.
+      const prior = existing?.[key];
+      if (prior) {
+        kept[key] = prior;
+        continue;
+      }
       rejected.push({
         matchId: pred.matchId,
         error: "match_already_started",
@@ -125,6 +149,24 @@ function filterPredictionsByKickoff(
       continue;
     }
     kept[key] = pred;
+  }
+  // Belt and braces: re-include any existing predictions for past-
+  // kickoff matches that the submitter omitted entirely (e.g. their
+  // client purged the entry after an earlier rejection). The same
+  // preserve-priors rule applies. Pre-kickoff existing picks the
+  // client dropped are deliberately NOT re-included here; for those
+  // matches the user is allowed to unset their pick.
+  if (existing) {
+    for (const [key, prior] of Object.entries(existing)) {
+      if (kept[key]) continue;
+      const kickoff = kickoffFor(prior.matchId);
+      if (!kickoff) continue;
+      const kickoffMs = Date.parse(kickoff);
+      if (Number.isNaN(kickoffMs)) continue;
+      if (nowMs >= kickoffMs) {
+        kept[key] = prior;
+      }
+    }
   }
   return { kept, rejected };
 }
@@ -184,16 +226,36 @@ export async function registerBracketRoutes(
 
     // Filter every per-match prediction (groups + knockouts) against the
     // tournament's known kickoffs. Rejected predictions are echoed back.
+    // We also load the previously-persisted bracket so the filter can
+    // preserve picks the user already made before kickoff; without this
+    // an autosave after kickoff would strip those picks and lose the
+    // user's pre-lock correct pick (Tim 2026-06-12).
     const submitNowMs = now();
+    const existingRow = deps.store.getBracketForUser(user_id, tournament_id);
+    let existingBracket: Bracket | null = null;
+    if (existingRow) {
+      try {
+        existingBracket = JSON.parse(existingRow.payload_json) as Bracket;
+      } catch {
+        /* corrupt row — treat as no priors and let the filter behave
+         *  the same as a first submit. */
+      }
+    }
     const groupFiltered = filterPredictionsByKickoff(
       bracket.matchPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
       submitNowMs,
+      existingBracket?.matchPredictions as
+        | Record<string, MatchPrediction>
+        | undefined,
     );
     const knockoutFiltered = filterPredictionsByKickoff(
       bracket.knockoutPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
       submitNowMs,
+      existingBracket?.knockoutPredictions as
+        | Record<string, MatchPrediction>
+        | undefined,
     );
     const rejected: RejectedPrediction[] = [
       ...groupFiltered.rejected,
