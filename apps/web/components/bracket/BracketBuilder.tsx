@@ -109,6 +109,7 @@ import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 // fire-and-forget for the same reasons). See BracketAutoSave.tsx.
 import { GAME_API_BASE, loadServerBracket, saveFullBracket } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
+import { bracketSignature } from "@/lib/bracket/signature";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
@@ -200,20 +201,8 @@ function emptyBracket(): Bracket {
   };
 }
 
-/**
- * Fingerprint of the "user pick" surface of a bracket; used by the
- * autosave dirty-detector. Deliberately ignores `bracketId`, `lockedAt`
- * and `version` so a round-trip through the server (which may stamp
- * those) doesn't show up as a dirty diff. Tim 2026-06-05.
- */
-function bracketSignature(b: Bracket): string {
-  return JSON.stringify({
-    m: b.matchPredictions ?? {},
-    k: b.knockoutPredictions ?? {},
-    g: b.groupTiebreakers ?? {},
-    t: b.bestThirds ?? [],
-  });
-}
+// bracketSignature lives in @/lib/bracket/signature so the calendar
+// picker provider can share the same fingerprint. Tim 2026-06-12.
 
 /**
  * One-time migration for drafts saved before the FIFA Annex C R32 fix

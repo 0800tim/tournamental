@@ -24,6 +24,9 @@ import { canonicalTeam } from "@/app/match/[id]/preview/_lib/match-data";
 import { venueInfo, hostFlag } from "@/lib/venues";
 
 import type { CalendarRow, CalendarSide } from "./build-rows";
+import { useCalendarPicks } from "./CalendarPicksContext";
+import { CalendarPickBar } from "./CalendarPickBar";
+import { CalendarResultBar } from "./CalendarResultBar";
 
 interface CalendarListProps {
   readonly rows: readonly CalendarRow[];
@@ -111,6 +114,19 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   const localTime = formatTimeInTz(row.kickoffUtc, tz);
   const yourTime = formatTimeLocal(row.kickoffUtc);
 
+  // Tim 2026-06-12: per-row pick + result state read from the
+  // CalendarPicksProvider. For knockouts, the cascade may have
+  // resolved team codes the static row doesn't carry, so prefer the
+  // cascade map when it's populated.
+  const picks = useCalendarPicks();
+  const cascaded = picks.cascadeCodes.get(row.matchId);
+  const homeCode = cascaded?.home ?? row.home.code;
+  const awayCode = cascaded?.away ?? row.away.code;
+  const result = picks.resultsByMatch.get(row.matchId) ?? null;
+  // Lock once kickoff has passed (server clock — close enough for the
+  // UI; the server enforces SEC-BRK-02 authoritatively).
+  const isLocked = Date.now() >= Date.parse(row.kickoffUtc);
+
   return (
     <li className="vt-cal-row" data-stage={row.stage}>
       <button
@@ -151,6 +167,22 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
           </div>
         </footer>
       </button>
+      {result ? (
+        <CalendarResultBar
+          row={row}
+          result={result}
+          homeCode={homeCode}
+          awayCode={awayCode}
+        />
+      ) : (
+        <CalendarPickBar
+          row={row}
+          homeCode={homeCode}
+          awayCode={awayCode}
+          isLocked={isLocked}
+          hasResult={false}
+        />
+      )}
     </li>
   );
 }

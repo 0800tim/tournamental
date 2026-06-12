@@ -21,6 +21,7 @@ import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/en
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
 import { CalendarList } from "./CalendarList";
+import { CalendarPicksProvider } from "./CalendarPicksProvider";
 import { buildCalendarRows } from "./build-rows";
 
 import "./calendar.css";
@@ -61,7 +62,9 @@ export default async function CalendarPage(props: CalendarPageProps) {
               known.
             </p>
           </header>
-          <CalendarList rows={rows} />
+          <CalendarPicksProvider tournament={tournament}>
+            <CalendarList rows={rows} />
+          </CalendarPicksProvider>
           <OverlayServerShim searchParams={searchParams} />
         </main>
       </BracketOverlayShell>
