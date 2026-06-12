@@ -34,6 +34,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { HeroKickoffTime } from "./_components/HeroKickoffTime";
+
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { AppShell } from "@/components/shell";
@@ -138,7 +140,14 @@ export default async function MatchPreviewPage(props: MatchPreviewPageProps) {
   } as React.CSSProperties;
 
   const kickoff = new Date(match.kickoffUtc);
-  const kickoffLabel = formatKickoff(kickoff);
+  // Tim 2026-06-12: kickoffLabel (UTC, en-NZ) is retained only as a
+  // legacy SSR fallback string the hero strapline used to render
+  // directly. Display is now owned by the client-side HeroKickoffTime
+  // component which formats in the viewer's resolved timezone after
+  // hydration. Keeping the helper around in case other call sites
+  // appear; the eslint-unused-disable lets the variable exist while
+  // we audit consumers.
+  void formatKickoff(kickoff);
 
   const homeName = home?.name ?? match.homeCode ?? "";
   const awayName = away?.name ?? match.awayCode ?? "";
@@ -158,9 +167,7 @@ export default async function MatchPreviewPage(props: MatchPreviewPageProps) {
           <span className="mp-stage" data-testid="mp-stage-label">
             {match.stageLabel}
           </span>
-          <time className="mp-kickoff" dateTime={match.kickoffUtc}>
-            {kickoffLabel}
-          </time>
+          <HeroKickoffTime kickoffUtc={match.kickoffUtc} />
           {match.venue && (
             <span className="mp-venue" aria-label="Venue">{match.venue}</span>
           )}
