@@ -711,12 +711,18 @@ export function BracketBuilder(props: BracketBuilderProps) {
       setBracket((current) => {
         const merged = mergeBrackets(current, remote.bracket);
         saveDraft(tournament.id, merged, id);
-        // Tim 2026-06-05: the merged bracket reflects what the server
-        // currently holds (plus any local edits we just folded in).
-        // Seed the autosave dirty-detector baseline so the floating
-        // Save button only lights up when the user makes a NEW
-        // change on top of this.
-        setLastSavedSig(bracketSignature(merged));
+        // Tim 2026-06-12: previously the autosave baseline was set to
+        // the merged signature, which silently swallowed the case
+        // where local has picks the server doesn't (e.g. after the
+        // SEC-BRK-02 incident stripped match-1 from server-side
+        // brackets). The autosave then thought "everything's saved"
+        // and never pushed the local-only pick back up. Anchor the
+        // baseline to the REMOTE signature instead, so the dirty-
+        // detector sees a diff whenever local has more than remote
+        // and fires an autosave on next tick. Cost: the Save button
+        // lights up immediately on page load for any user with
+        // outstanding local-only state — which is the correct UX.
+        setLastSavedSig(bracketSignature(remote.bracket));
         return merged;
       });
     })();
