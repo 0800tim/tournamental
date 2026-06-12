@@ -34,6 +34,52 @@ import {
 import type { MatchPrediction } from "@tournamental/bracket-engine";
 import { resolveUserId as resolveCallerId } from "./identity.js";
 
+/**
+ * One-time recovery allowlist + window for the SEC-BRK-02 regression
+ * (Tim 2026-06-12). These ten accounts had their match-1 pick destroyed
+ * by autosaves that fired after kickoff before the fix landed. Their
+ * browser localStorage still carries the original pre-kickoff pick so
+ * when they re-open the app on the same device the autosave resubmits
+ * it; under this allowlist + a pre-kickoff `lockedAt` check the server
+ * accepts it. The window auto-expires 48 hours after the patch so the
+ * allowlist becomes inert with no further code change required.
+ */
+const RECOVERY_ALLOWLIST_MATCH_1: ReadonlySet<string> = new Set([
+  "u_c43df586f27c4d668e15f6", // Sam Schuetz
+  "u_c9d465f6aa894345bd456a", // Tracey Neilson
+  "u_60e467a2710d4d529bcfd3", // Jared Ho
+  "u_24bc02b8d166463c8de35a", // Ingrid Proctor
+  "u_f651e3bd05c34aa1adc8e1", // Pablo Tumax
+  "u_474a7859ae87483c835138", // Gordon Tan
+  "u_ad0880ba84904319af7d20", // Priyansh Malik
+  "u_d2573924f4574e1090413a", // Zac Metin
+  "u_22b42c911cdc4edba48eed", // Holly Parkes (kwitty_kwat)
+  "u_e56caeb8c57b4402a65fae", // Hamish Wood (Hamish ADLT)
+]);
+
+/** Expiry timestamp for the recovery window. 48h after the patch
+ *  landed (2026-06-12 13:30 NZT = 2026-06-12 01:30 UTC). */
+const RECOVERY_EXPIRES_MS = Date.UTC(2026, 5, 14, 1, 30, 0);
+
+/**
+ * Returns true when `lockedAtRaw` parses to a timestamp that is at
+ * least one hour before the match's kickoff. We use the lower bound
+ * to narrow the recovery window's tamper surface: a tampered client
+ * cannot just claim "I picked one second before kickoff" to slip in
+ * a late pick. One hour is generous for users who locked their
+ * bracket in the few days before match 1 (the 10 allowlisted
+ * accounts all locked their picks days to weeks pre-kickoff).
+ */
+function isPreKickoffLockedAt(
+  lockedAtRaw: string | undefined,
+  kickoffMs: number,
+): boolean {
+  if (!lockedAtRaw) return false;
+  const ms = Date.parse(lockedAtRaw);
+  if (Number.isNaN(ms)) return false;
+  return ms <= kickoffMs - 60 * 60 * 1000;
+}
+
 // SEC-BRK-09: the dev-fallback `X-User-Id` header is enabled ONLY
 // when `GAME_DEV_AUTH=1`. Production previously also activated it
 // via `NODE_ENV !== "production"`, which is footgun-flavoured: a
@@ -87,6 +133,10 @@ function filterPredictionsByKickoff(
   // Browser-clock manipulation is irrelevant: this value comes from the
   // server, not the request.
   nowMs: number,
+  // SEC-BRK-02 recovery (Tim 2026-06-12): the operator's user_id is
+  // passed in so the filter can apply the one-time post-incident
+  // recovery rule below for the ten affected accounts.
+  userId: string,
   // SEC-BRK-02 follow-up (Tim 2026-06-12): the server-clock check above
   // also destroyed previously-saved picks. A user who picked Mexico at
   // 06:30 NZT (pre-kickoff) then resumed editing at 11:17 NZT (post-
@@ -138,6 +188,24 @@ function filterPredictionsByKickoff(
       const prior = existing?.[key];
       if (prior) {
         kept[key] = prior;
+        continue;
+      }
+      // One-time recovery window for the 10 users whose match-1 pick
+      // was destroyed by the SEC-BRK-02 regression before the fix
+      // landed (Tim 2026-06-12). Their browser localStorage still
+      // carries the original pre-kickoff pick; when they re-open the
+      // app on the same device the autosave resubmits it, and we
+      // accept it for match 1 only, with `pred.lockedAt` proving the
+      // pick predates kickoff by at least an hour. Window expires at
+      // RECOVERY_EXPIRES_MS (48h after the fix) after which the
+      // allowlist becomes a no-op.
+      if (
+        nowMs < RECOVERY_EXPIRES_MS &&
+        pred.matchId === "1" &&
+        RECOVERY_ALLOWLIST_MATCH_1.has(userId) &&
+        isPreKickoffLockedAt(pred.lockedAt, kickoffMs)
+      ) {
+        kept[key] = pred;
         continue;
       }
       rejected.push({
@@ -245,6 +313,7 @@ export async function registerBracketRoutes(
       bracket.matchPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
       submitNowMs,
+      user_id,
       existingBracket?.matchPredictions as
         | Record<string, MatchPrediction>
         | undefined,
@@ -253,6 +322,7 @@ export async function registerBracketRoutes(
       bracket.knockoutPredictions as Record<string, MatchPrediction>,
       (id) => lookup.kickoffFor(id),
       submitNowMs,
+      user_id,
       existingBracket?.knockoutPredictions as
         | Record<string, MatchPrediction>
         | undefined,
@@ -276,6 +346,34 @@ export async function registerBracketRoutes(
       lockedAt,
       shareGuid: share_guid ?? null,
     });
+
+    // Verbose audit log of the submit (Tim 2026-06-12). The previous
+    // logs only carried request URL + status, so when a regression
+    // silently stripped match-1 predictions we had no replay material.
+    // Now every full-bracket submit dumps the persisted predictions
+    // map AND any rejected predictions inline. The line is structured
+    // (pino default) so an ops grep can rebuild a user's bracket at
+    // any point in time, and the rejected list flags any anti-tamper
+    // or recovery-path action that fired. Field names line up with
+    // the per_match_pick_put audit event written by picks.ts.
+    req.log.info(
+      {
+        evt: "bracket_submit",
+        user_id,
+        tournament_id,
+        bracket_id: result.bracketId,
+        share_guid: result.shareGuid,
+        created: result.created,
+        locked_at: new Date(lockedAt).toISOString(),
+        kept_match_count: Object.keys(groupFiltered.kept).length,
+        kept_knockout_count: Object.keys(knockoutFiltered.kept).length,
+        rejected_count: rejected.length,
+        match_predictions: groupFiltered.kept,
+        knockout_predictions: knockoutFiltered.kept,
+        ...(rejected.length ? { rejected } : {}),
+      },
+      "bracket submitted",
+    );
 
     const receipt: LockReceipt & {
       rejected?: RejectedPrediction[];
