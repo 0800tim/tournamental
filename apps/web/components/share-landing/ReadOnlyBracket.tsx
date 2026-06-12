@@ -19,7 +19,7 @@
 
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   isGroupComplete,
@@ -92,10 +92,66 @@ function teamLite(code: string | null | undefined): {
   };
 }
 
+/**
+ * Result row as exposed by /api/v1/match-results/[tournament_id]. We
+ * key the in-memory lookup by `match_id` (the stringified group
+ * match_no, or the knockout slot id).
+ *
+ * Tim 2026-06-12: added the resulted-state row treatment so the
+ * read-only bracket on /s/<handle> shows the actual score next to
+ * each team and a tick/cross at the row's right edge once a match
+ * has been played. Mirrors what the interactive bracket page already
+ * does for the owner; the share page was lagging behind.
+ */
+interface RecordedResult {
+  readonly match_id: string;
+  readonly outcome: "home_win" | "draw" | "away_win";
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+}
+
 export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
   const { bracket, ownerUserId, ownerHandle } = props;
   const tournament = useEnrichedTournament();
   const auth = useUser();
+  const [resultsByMatch, setResultsByMatch] = useState<Map<string, RecordedResult>>(
+    () => new Map(),
+  );
+
+  // Fetch recorded results once on mount + whenever the tab becomes
+  // visible again. The endpoint has a 15s edge cache + SWR so the
+  // round trip is cheap and viewers pick up newly-resulted matches
+  // within a minute of admin recording them.
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const r = await fetch(`/api/v1/match-results/${tournament.id}`, {
+          credentials: "same-origin",
+        });
+        if (!r.ok) return;
+        const body = (await r.json()) as {
+          results?: ReadonlyArray<RecordedResult>;
+        };
+        if (cancelled || !body.results) return;
+        const map = new Map<string, RecordedResult>();
+        for (const row of body.results) map.set(row.match_id, row);
+        setResultsByMatch(map);
+      } catch {
+        // Silent: a missing results map just falls back to the
+        // pre-result row treatment, which is still correct.
+      }
+    }
+    void load();
+    function onVisible() {
+      if (document.visibilityState === "visible") void load();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [tournament.id]);
   const viewerIsOwner =
     !!ownerUserId &&
     auth.status === "authenticated" &&
@@ -164,6 +220,7 @@ export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
             tournament={tournament}
             bracket={bracket}
             groupId={g.id}
+            resultsByMatch={resultsByMatch}
           />
         ))}
       </div>
@@ -218,10 +275,12 @@ function ReadOnlyGroupCard({
   tournament,
   bracket,
   groupId,
+  resultsByMatch,
 }: {
   tournament: Tournament;
   bracket: Bracket;
   groupId: string;
+  resultsByMatch: Map<string, RecordedResult>;
 }) {
   const group = tournament.groups.find((g) => g.id === groupId);
   if (!group) return null;
@@ -248,8 +307,26 @@ function ReadOnlyGroupCard({
           const home = teamLite(teamIds[f.home_idx]);
           const away = teamLite(teamIds[f.away_idx]);
           const outcome = pick?.outcome ?? null;
+          const result = resultsByMatch.get(String(f.match_no)) ?? null;
+          // Tim 2026-06-12: for resulted matches, show the actual score
+          // inside the row (e.g. MEX 2 vs 0 RSA) and a tick/cross on the
+          // far right indicating whether the owner's pick matched the
+          // outcome. Only renders when both the result and a pick exist;
+          // otherwise the row keeps the pre-result treatment.
+          const pickedCorrectly =
+            result && outcome ? outcome === result.outcome : null;
+          const middleLabel =
+            result?.outcome === "draw"
+              ? "DRAW"
+              : outcome === "draw"
+                ? "DRAW"
+                : "vs";
           return (
-            <li className="rob-fixture-row" key={f.match_no}>
+            <li
+              className="rob-fixture-row"
+              key={f.match_no}
+              data-resulted={result ? "true" : "false"}
+            >
               <span className="rob-fixture-num">#{f.match_no}</span>
               <span
                 className="rob-fixture-team rob-fixture-team--home"
@@ -258,12 +335,22 @@ function ReadOnlyGroupCard({
                 <span className="rob-flag" aria-hidden>{home.flag}</span>
                 <span className="rob-team-code">{home.code}</span>
               </span>
+              {result && result.homeScore != null ? (
+                <span className="rob-fixture-score" aria-label={`${home.code} score`}>
+                  {result.homeScore}
+                </span>
+              ) : null}
               <span
                 className="rob-fixture-vs"
                 data-picked={outcome === "draw" ? "draw" : "no"}
               >
-                {outcome === "draw" ? "DRAW" : "vs"}
+                {middleLabel}
               </span>
+              {result && result.awayScore != null ? (
+                <span className="rob-fixture-score" aria-label={`${away.code} score`}>
+                  {result.awayScore}
+                </span>
+              ) : null}
               <span
                 className="rob-fixture-team rob-fixture-team--away"
                 data-result={outcomeResult(outcome, "away")}
@@ -271,6 +358,25 @@ function ReadOnlyGroupCard({
                 <span className="rob-team-code">{away.code}</span>
                 <span className="rob-flag" aria-hidden>{away.flag}</span>
               </span>
+              {pickedCorrectly === true ? (
+                <span
+                  className="rob-fixture-verdict"
+                  data-verdict="correct"
+                  aria-label="Pick was correct"
+                  title="Pick was correct"
+                >
+                  ✓
+                </span>
+              ) : pickedCorrectly === false ? (
+                <span
+                  className="rob-fixture-verdict"
+                  data-verdict="wrong"
+                  aria-label="Pick was incorrect"
+                  title="Pick was incorrect"
+                >
+                  ✕
+                </span>
+              ) : null}
             </li>
           );
         })}
