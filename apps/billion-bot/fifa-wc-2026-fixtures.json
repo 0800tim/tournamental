@@ -940,7 +940,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1A",
     "away_team": "2C",
-    "kickoff_utc": "2026-06-28T20:00:00Z",
+    "kickoff_utc": "2026-06-28T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -953,7 +953,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1B",
     "away_team": "2F",
-    "kickoff_utc": "2026-06-28T20:00:00Z",
+    "kickoff_utc": "2026-06-29T20:30:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -966,7 +966,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1C",
     "away_team": "2A",
-    "kickoff_utc": "2026-06-29T20:00:00Z",
+    "kickoff_utc": "2026-06-30T01:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -979,7 +979,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1D",
     "away_team": "2E",
-    "kickoff_utc": "2026-06-29T20:00:00Z",
+    "kickoff_utc": "2026-06-29T17:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -992,7 +992,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1E",
     "away_team": "2D",
-    "kickoff_utc": "2026-06-30T20:00:00Z",
+    "kickoff_utc": "2026-06-30T21:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1005,7 +1005,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1F",
     "away_team": "2B",
-    "kickoff_utc": "2026-06-30T20:00:00Z",
+    "kickoff_utc": "2026-06-30T17:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1018,7 +1018,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1G",
     "away_team": "2H",
-    "kickoff_utc": "2026-07-01T20:00:00Z",
+    "kickoff_utc": "2026-07-01T01:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1031,7 +1031,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1H",
     "away_team": "2G",
-    "kickoff_utc": "2026-07-01T20:00:00Z",
+    "kickoff_utc": "2026-07-01T16:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1044,7 +1044,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1I",
     "away_team": "2L",
-    "kickoff_utc": "2026-07-02T20:00:00Z",
+    "kickoff_utc": "2026-07-02T00:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1057,7 +1057,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1J",
     "away_team": "2K",
-    "kickoff_utc": "2026-07-02T20:00:00Z",
+    "kickoff_utc": "2026-07-01T20:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1070,7 +1070,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1K",
     "away_team": "2J",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-02T23:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1083,7 +1083,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "1L",
     "away_team": "2I",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-02T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1096,7 +1096,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "3A/B/C/D",
     "away_team": "3E/F/G/H",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-03T03:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1109,7 +1109,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "3I/J/K/L",
     "away_team": "3A/B/E/F",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-03T22:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1122,7 +1122,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "3C/D/G/H",
     "away_team": "3I/J/K/L",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-04T01:30:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1135,7 +1135,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "3A/B/F/J",
     "away_team": "3C/E/H/I",
-    "kickoff_utc": "2026-07-03T20:00:00Z",
+    "kickoff_utc": "2026-07-03T18:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1148,7 +1148,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W73",
     "away_team": "W74",
-    "kickoff_utc": "2026-07-04T20:00:00Z",
+    "kickoff_utc": "2026-07-04T21:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1161,7 +1161,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W75",
     "away_team": "W76",
-    "kickoff_utc": "2026-07-04T20:00:00Z",
+    "kickoff_utc": "2026-07-04T17:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1187,7 +1187,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W79",
     "away_team": "W80",
-    "kickoff_utc": "2026-07-05T20:00:00Z",
+    "kickoff_utc": "2026-07-06T00:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1200,7 +1200,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W81",
     "away_team": "W82",
-    "kickoff_utc": "2026-07-06T20:00:00Z",
+    "kickoff_utc": "2026-07-06T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1213,7 +1213,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W83",
     "away_team": "W84",
-    "kickoff_utc": "2026-07-06T20:00:00Z",
+    "kickoff_utc": "2026-07-07T00:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1226,7 +1226,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W85",
     "away_team": "W86",
-    "kickoff_utc": "2026-07-07T20:00:00Z",
+    "kickoff_utc": "2026-07-07T16:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1265,7 +1265,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W91",
     "away_team": "W92",
-    "kickoff_utc": "2026-07-09T20:00:00Z",
+    "kickoff_utc": "2026-07-10T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1278,7 +1278,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W93",
     "away_team": "W94",
-    "kickoff_utc": "2026-07-11T20:00:00Z",
+    "kickoff_utc": "2026-07-11T21:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1291,7 +1291,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W95",
     "away_team": "W96",
-    "kickoff_utc": "2026-07-11T20:00:00Z",
+    "kickoff_utc": "2026-07-12T01:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1304,7 +1304,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W97",
     "away_team": "W98",
-    "kickoff_utc": "2026-07-14T20:00:00Z",
+    "kickoff_utc": "2026-07-14T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1317,7 +1317,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "W99",
     "away_team": "W100",
-    "kickoff_utc": "2026-07-15T20:00:00Z",
+    "kickoff_utc": "2026-07-15T19:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,
@@ -1330,7 +1330,7 @@
     "tournament_id": "fifa-wc-2026",
     "home_team": "L101",
     "away_team": "L102",
-    "kickoff_utc": "2026-07-18T19:00:00Z",
+    "kickoff_utc": "2026-07-18T21:00:00Z",
     "allows_draw": false,
     "odds": {
       "home_win": 0.45,

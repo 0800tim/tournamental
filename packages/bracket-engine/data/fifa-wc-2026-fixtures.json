@@ -787,7 +787,7 @@
       },
       "host": "US",
       "id": "r32_01",
-      "kickoff_utc": "2026-06-28T20:00:00Z",
+      "kickoff_utc": "2026-06-28T19:00:00Z",
       "match_no": 73,
       "stage": "r32",
       "venue": "Lincoln Financial Field"
@@ -804,7 +804,7 @@
       },
       "host": "US",
       "id": "r32_02",
-      "kickoff_utc": "2026-06-28T20:00:00Z",
+      "kickoff_utc": "2026-06-29T20:30:00Z",
       "match_no": 74,
       "stage": "r32",
       "venue": "AT&T Stadium"
@@ -822,7 +822,7 @@
       },
       "host": "CA",
       "id": "r32_03",
-      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "kickoff_utc": "2026-06-30T01:00:00Z",
       "match_no": 75,
       "stage": "r32",
       "venue": "BMO Field"
@@ -840,7 +840,7 @@
       },
       "host": "US",
       "id": "r32_04",
-      "kickoff_utc": "2026-06-29T20:00:00Z",
+      "kickoff_utc": "2026-06-29T17:00:00Z",
       "match_no": 76,
       "stage": "r32",
       "venue": "SoFi Stadium"
@@ -857,7 +857,7 @@
       },
       "host": "US",
       "id": "r32_05",
-      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "kickoff_utc": "2026-06-30T21:00:00Z",
       "match_no": 77,
       "stage": "r32",
       "venue": "Gillette Stadium"
@@ -875,7 +875,7 @@
       },
       "host": "US",
       "id": "r32_06",
-      "kickoff_utc": "2026-06-30T20:00:00Z",
+      "kickoff_utc": "2026-06-30T17:00:00Z",
       "match_no": 78,
       "stage": "r32",
       "venue": "Mercedes-Benz Stadium"
@@ -892,7 +892,7 @@
       },
       "host": "US",
       "id": "r32_07",
-      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "kickoff_utc": "2026-07-01T01:00:00Z",
       "match_no": 79,
       "stage": "r32",
       "venue": "Hard Rock Stadium"
@@ -909,7 +909,7 @@
       },
       "host": "MX",
       "id": "r32_08",
-      "kickoff_utc": "2026-07-01T20:00:00Z",
+      "kickoff_utc": "2026-07-01T16:00:00Z",
       "match_no": 80,
       "stage": "r32",
       "venue": "Estadio BBVA"
@@ -926,7 +926,7 @@
       },
       "host": "US",
       "id": "r32_09",
-      "kickoff_utc": "2026-07-02T20:00:00Z",
+      "kickoff_utc": "2026-07-02T00:00:00Z",
       "match_no": 81,
       "stage": "r32",
       "venue": "Lincoln Financial Field"
@@ -943,7 +943,7 @@
       },
       "host": "US",
       "id": "r32_10",
-      "kickoff_utc": "2026-07-02T20:00:00Z",
+      "kickoff_utc": "2026-07-01T20:00:00Z",
       "match_no": 82,
       "stage": "r32",
       "venue": "NRG Stadium"
@@ -961,7 +961,7 @@
       },
       "host": "MX",
       "id": "r32_11",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-02T23:00:00Z",
       "match_no": 83,
       "stage": "r32",
       "venue": "Estadio Akron"
@@ -979,7 +979,7 @@
       },
       "host": "US",
       "id": "r32_12",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-02T19:00:00Z",
       "match_no": 84,
       "stage": "r32",
       "venue": "Levi's Stadium"
@@ -996,7 +996,7 @@
       },
       "host": "US",
       "id": "r32_13",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-03T03:00:00Z",
       "match_no": 85,
       "stage": "r32",
       "venue": "Lumen Field"
@@ -1014,7 +1014,7 @@
       },
       "host": "US",
       "id": "r32_14",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-03T22:00:00Z",
       "match_no": 86,
       "stage": "r32",
       "venue": "Arrowhead Stadium"
@@ -1031,7 +1031,7 @@
       },
       "host": "US",
       "id": "r32_15",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-04T01:30:00Z",
       "match_no": 87,
       "stage": "r32",
       "venue": "MetLife Stadium"
@@ -1049,7 +1049,7 @@
       },
       "host": "MX",
       "id": "r32_16",
-      "kickoff_utc": "2026-07-03T20:00:00Z",
+      "kickoff_utc": "2026-07-03T18:00:00Z",
       "match_no": 88,
       "stage": "r32",
       "venue": "Estadio Azteca"
@@ -1065,7 +1065,7 @@
       },
       "host": "US",
       "id": "r16_01",
-      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "kickoff_utc": "2026-07-04T21:00:00Z",
       "match_no": 89,
       "stage": "r16",
       "venue": "Gillette Stadium"
@@ -1081,7 +1081,7 @@
       },
       "host": "US",
       "id": "r16_02",
-      "kickoff_utc": "2026-07-04T20:00:00Z",
+      "kickoff_utc": "2026-07-04T17:00:00Z",
       "match_no": 90,
       "stage": "r16",
       "venue": "Mercedes-Benz Stadium"
@@ -1113,7 +1113,7 @@
       },
       "host": "US",
       "id": "r16_04",
-      "kickoff_utc": "2026-07-05T20:00:00Z",
+      "kickoff_utc": "2026-07-06T00:00:00Z",
       "match_no": 92,
       "stage": "r16",
       "venue": "AT&T Stadium"
@@ -1129,7 +1129,7 @@
       },
       "host": "US",
       "id": "r16_05",
-      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "kickoff_utc": "2026-07-06T19:00:00Z",
       "match_no": 93,
       "stage": "r16",
       "venue": "Hard Rock Stadium"
@@ -1145,7 +1145,7 @@
       },
       "host": "US",
       "id": "r16_06",
-      "kickoff_utc": "2026-07-06T20:00:00Z",
+      "kickoff_utc": "2026-07-07T00:00:00Z",
       "match_no": 94,
       "stage": "r16",
       "venue": "Lincoln Financial Field"
@@ -1161,7 +1161,7 @@
       },
       "host": "US",
       "id": "r16_07",
-      "kickoff_utc": "2026-07-07T20:00:00Z",
+      "kickoff_utc": "2026-07-07T16:00:00Z",
       "match_no": 95,
       "stage": "r16",
       "venue": "Arrowhead Stadium"
@@ -1209,7 +1209,7 @@
       },
       "host": "US",
       "id": "qf_02",
-      "kickoff_utc": "2026-07-09T20:00:00Z",
+      "kickoff_utc": "2026-07-10T19:00:00Z",
       "match_no": 98,
       "stage": "qf",
       "venue": "Gillette Stadium"
@@ -1225,7 +1225,7 @@
       },
       "host": "US",
       "id": "qf_03",
-      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "kickoff_utc": "2026-07-11T21:00:00Z",
       "match_no": 99,
       "stage": "qf",
       "venue": "Hard Rock Stadium"
@@ -1241,7 +1241,7 @@
       },
       "host": "US",
       "id": "qf_04",
-      "kickoff_utc": "2026-07-11T20:00:00Z",
+      "kickoff_utc": "2026-07-12T01:00:00Z",
       "match_no": 100,
       "stage": "qf",
       "venue": "Arrowhead Stadium"
@@ -1257,7 +1257,7 @@
       },
       "host": "US",
       "id": "sf_01",
-      "kickoff_utc": "2026-07-14T20:00:00Z",
+      "kickoff_utc": "2026-07-14T19:00:00Z",
       "match_no": 101,
       "stage": "sf",
       "venue": "Mercedes-Benz Stadium"
@@ -1273,7 +1273,7 @@
       },
       "host": "US",
       "id": "sf_02",
-      "kickoff_utc": "2026-07-15T20:00:00Z",
+      "kickoff_utc": "2026-07-15T19:00:00Z",
       "match_no": 102,
       "stage": "sf",
       "venue": "AT&T Stadium"
@@ -1289,7 +1289,7 @@
       },
       "host": "US",
       "id": "tp_01",
-      "kickoff_utc": "2026-07-18T19:00:00Z",
+      "kickoff_utc": "2026-07-18T21:00:00Z",
       "match_no": 103,
       "stage": "tp",
       "venue": "Hard Rock Stadium"
