@@ -27,7 +27,7 @@
       "group_id": "A",
       "home_idx": 2,
       "host": "MX",
-      "kickoff_utc": "2026-06-12T22:00:00Z",
+      "kickoff_utc": "2026-06-12T02:00:00Z",
       "match_no": 2,
       "venue": "Estadio Akron"
     },
@@ -36,7 +36,7 @@
       "group_id": "A",
       "home_idx": 0,
       "host": "MX",
-      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "kickoff_utc": "2026-06-19T01:00:00Z",
       "match_no": 3,
       "venue": "Estadio Azteca"
     },
@@ -45,7 +45,7 @@
       "group_id": "A",
       "home_idx": 3,
       "host": "MX",
-      "kickoff_utc": "2026-06-18T22:00:00Z",
+      "kickoff_utc": "2026-06-18T16:00:00Z",
       "match_no": 4,
       "venue": "Estadio Akron"
     },
@@ -54,7 +54,7 @@
       "group_id": "A",
       "home_idx": 3,
       "host": "MX",
-      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "kickoff_utc": "2026-06-25T01:00:00Z",
       "match_no": 5,
       "venue": "Estadio Azteca"
     },
@@ -63,7 +63,7 @@
       "group_id": "A",
       "home_idx": 1,
       "host": "MX",
-      "kickoff_utc": "2026-06-24T23:00:00Z",
+      "kickoff_utc": "2026-06-25T01:00:00Z",
       "match_no": 6,
       "venue": "Estadio Akron"
     },
@@ -81,7 +81,7 @@
       "group_id": "B",
       "home_idx": 2,
       "host": "CA",
-      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "kickoff_utc": "2026-06-13T19:00:00Z",
       "match_no": 8,
       "venue": "BC Place"
     },
@@ -90,7 +90,7 @@
       "group_id": "B",
       "home_idx": 0,
       "host": "CA",
-      "kickoff_utc": "2026-06-18T19:00:00Z",
+      "kickoff_utc": "2026-06-18T22:00:00Z",
       "match_no": 9,
       "venue": "BMO Field"
     },
@@ -99,7 +99,7 @@
       "group_id": "B",
       "home_idx": 3,
       "host": "CA",
-      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "kickoff_utc": "2026-06-18T19:00:00Z",
       "match_no": 10,
       "venue": "BC Place"
     },
@@ -108,7 +108,7 @@
       "group_id": "B",
       "home_idx": 3,
       "host": "CA",
-      "kickoff_utc": "2026-06-24T20:00:00Z",
+      "kickoff_utc": "2026-06-24T19:00:00Z",
       "match_no": 11,
       "venue": "BMO Field"
     },
@@ -117,7 +117,7 @@
       "group_id": "B",
       "home_idx": 1,
       "host": "CA",
-      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "kickoff_utc": "2026-06-24T19:00:00Z",
       "match_no": 12,
       "venue": "BC Place"
     },
@@ -126,7 +126,7 @@
       "group_id": "C",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "kickoff_utc": "2026-06-13T22:00:00Z",
       "match_no": 13,
       "venue": "Lincoln Financial Field"
     },
@@ -135,7 +135,7 @@
       "group_id": "C",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-13T19:00:00Z",
+      "kickoff_utc": "2026-06-14T01:00:00Z",
       "match_no": 14,
       "venue": "Hard Rock Stadium"
     },
@@ -144,7 +144,7 @@
       "group_id": "C",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "kickoff_utc": "2026-06-20T00:30:00Z",
       "match_no": 15,
       "venue": "Gillette Stadium"
     },
@@ -153,7 +153,7 @@
       "group_id": "C",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-19T19:00:00Z",
+      "kickoff_utc": "2026-06-19T22:00:00Z",
       "match_no": 16,
       "venue": "Lincoln Financial Field"
     },
@@ -162,7 +162,7 @@
       "group_id": "C",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "kickoff_utc": "2026-06-24T22:00:00Z",
       "match_no": 17,
       "venue": "Hard Rock Stadium"
     },
@@ -171,7 +171,7 @@
       "group_id": "C",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "kickoff_utc": "2026-06-24T22:00:00Z",
       "match_no": 18,
       "venue": "Gillette Stadium"
     },
@@ -180,7 +180,7 @@
       "group_id": "D",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-12T19:00:00Z",
+      "kickoff_utc": "2026-06-13T01:00:00Z",
       "match_no": 19,
       "venue": "SoFi Stadium"
     },
@@ -189,7 +189,7 @@
       "group_id": "D",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-13T22:00:00Z",
+      "kickoff_utc": "2026-06-14T04:00:00Z",
       "match_no": 20,
       "venue": "Lumen Field"
     },
@@ -207,7 +207,7 @@
       "group_id": "D",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-19T22:00:00Z",
+      "kickoff_utc": "2026-06-20T03:00:00Z",
       "match_no": 22,
       "venue": "Levi's Stadium"
     },
@@ -216,7 +216,7 @@
       "group_id": "D",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-25T20:00:00Z",
+      "kickoff_utc": "2026-06-26T02:00:00Z",
       "match_no": 23,
       "venue": "SoFi Stadium"
     },
@@ -225,7 +225,7 @@
       "group_id": "D",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-25T23:00:00Z",
+      "kickoff_utc": "2026-06-26T02:00:00Z",
       "match_no": 24,
       "venue": "Lumen Field"
     },
@@ -234,7 +234,7 @@
       "group_id": "E",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-13T16:00:00Z",
+      "kickoff_utc": "2026-06-14T17:00:00Z",
       "match_no": 25,
       "venue": "Gillette Stadium"
     },
@@ -243,7 +243,7 @@
       "group_id": "E",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-14T19:00:00Z",
+      "kickoff_utc": "2026-06-14T23:00:00Z",
       "match_no": 26,
       "venue": "MetLife Stadium"
     },
@@ -252,7 +252,7 @@
       "group_id": "E",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-19T16:00:00Z",
+      "kickoff_utc": "2026-06-20T20:00:00Z",
       "match_no": 27,
       "venue": "Lincoln Financial Field"
     },
@@ -261,7 +261,7 @@
       "group_id": "E",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-20T19:00:00Z",
+      "kickoff_utc": "2026-06-21T00:00:00Z",
       "match_no": 28,
       "venue": "Gillette Stadium"
     },
@@ -270,7 +270,7 @@
       "group_id": "E",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-25T17:00:00Z",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
       "match_no": 29,
       "venue": "MetLife Stadium"
     },
@@ -279,7 +279,7 @@
       "group_id": "E",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-26T20:00:00Z",
+      "kickoff_utc": "2026-06-25T20:00:00Z",
       "match_no": 30,
       "venue": "Lincoln Financial Field"
     },
@@ -288,7 +288,7 @@
       "group_id": "F",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-14T18:00:00Z",
+      "kickoff_utc": "2026-06-14T20:00:00Z",
       "match_no": 31,
       "venue": "AT&T Stadium"
     },
@@ -297,7 +297,7 @@
       "group_id": "F",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-14T21:00:00Z",
+      "kickoff_utc": "2026-06-15T02:00:00Z",
       "match_no": 32,
       "venue": "Mercedes-Benz Stadium"
     },
@@ -306,7 +306,7 @@
       "group_id": "F",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-20T18:00:00Z",
+      "kickoff_utc": "2026-06-20T17:00:00Z",
       "match_no": 33,
       "venue": "AT&T Stadium"
     },
@@ -315,7 +315,7 @@
       "group_id": "F",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-20T21:00:00Z",
+      "kickoff_utc": "2026-06-21T04:00:00Z",
       "match_no": 34,
       "venue": "Arrowhead Stadium"
     },
@@ -324,7 +324,7 @@
       "group_id": "F",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-26T19:00:00Z",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
       "match_no": 35,
       "venue": "Mercedes-Benz Stadium"
     },
@@ -333,7 +333,7 @@
       "group_id": "F",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-26T22:00:00Z",
+      "kickoff_utc": "2026-06-25T23:00:00Z",
       "match_no": 36,
       "venue": "AT&T Stadium"
     },
@@ -342,7 +342,7 @@
       "group_id": "G",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-14T16:00:00Z",
+      "kickoff_utc": "2026-06-15T19:00:00Z",
       "match_no": 37,
       "venue": "Hard Rock Stadium"
     },
@@ -351,7 +351,7 @@
       "group_id": "G",
       "home_idx": 2,
       "host": "CA",
-      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "kickoff_utc": "2026-06-16T01:00:00Z",
       "match_no": 38,
       "venue": "BMO Field"
     },
@@ -360,7 +360,7 @@
       "group_id": "G",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-20T16:00:00Z",
+      "kickoff_utc": "2026-06-21T19:00:00Z",
       "match_no": 39,
       "venue": "Hard Rock Stadium"
     },
@@ -369,7 +369,7 @@
       "group_id": "G",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "kickoff_utc": "2026-06-22T01:00:00Z",
       "match_no": 40,
       "venue": "MetLife Stadium"
     },
@@ -378,7 +378,7 @@
       "group_id": "G",
       "home_idx": 3,
       "host": "CA",
-      "kickoff_utc": "2026-06-26T17:00:00Z",
+      "kickoff_utc": "2026-06-27T03:00:00Z",
       "match_no": 41,
       "venue": "BMO Field"
     },
@@ -387,7 +387,7 @@
       "group_id": "G",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "kickoff_utc": "2026-06-27T03:00:00Z",
       "match_no": 42,
       "venue": "Hard Rock Stadium"
     },
@@ -396,7 +396,7 @@
       "group_id": "H",
       "home_idx": 0,
       "host": "MX",
-      "kickoff_utc": "2026-06-15T19:00:00Z",
+      "kickoff_utc": "2026-06-15T16:00:00Z",
       "match_no": 43,
       "venue": "Estadio BBVA"
     },
@@ -414,7 +414,7 @@
       "group_id": "H",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-21T19:00:00Z",
+      "kickoff_utc": "2026-06-21T16:00:00Z",
       "match_no": 45,
       "venue": "Levi's Stadium"
     },
@@ -432,7 +432,7 @@
       "group_id": "H",
       "home_idx": 3,
       "host": "MX",
-      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "kickoff_utc": "2026-06-27T00:00:00Z",
       "match_no": 47,
       "venue": "Estadio Akron"
     },
@@ -441,7 +441,7 @@
       "group_id": "H",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "kickoff_utc": "2026-06-27T00:00:00Z",
       "match_no": 48,
       "venue": "Levi's Stadium"
     },
@@ -450,7 +450,7 @@
       "group_id": "I",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-15T16:00:00Z",
+      "kickoff_utc": "2026-06-16T19:00:00Z",
       "match_no": 49,
       "venue": "MetLife Stadium"
     },
@@ -459,7 +459,7 @@
       "group_id": "I",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "kickoff_utc": "2026-06-16T22:00:00Z",
       "match_no": 50,
       "venue": "Lincoln Financial Field"
     },
@@ -468,7 +468,7 @@
       "group_id": "I",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-21T16:00:00Z",
+      "kickoff_utc": "2026-06-22T21:00:00Z",
       "match_no": 51,
       "venue": "Gillette Stadium"
     },
@@ -477,7 +477,7 @@
       "group_id": "I",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "kickoff_utc": "2026-06-23T00:00:00Z",
       "match_no": 52,
       "venue": "MetLife Stadium"
     },
@@ -486,7 +486,7 @@
       "group_id": "I",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-27T17:00:00Z",
+      "kickoff_utc": "2026-06-26T19:00:00Z",
       "match_no": 53,
       "venue": "Lincoln Financial Field"
     },
@@ -495,7 +495,7 @@
       "group_id": "I",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "kickoff_utc": "2026-06-26T19:00:00Z",
       "match_no": 54,
       "venue": "Gillette Stadium"
     },
@@ -504,7 +504,7 @@
       "group_id": "J",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-16T18:00:00Z",
+      "kickoff_utc": "2026-06-17T01:00:00Z",
       "match_no": 55,
       "venue": "Arrowhead Stadium"
     },
@@ -513,7 +513,7 @@
       "group_id": "J",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-16T21:00:00Z",
+      "kickoff_utc": "2026-06-17T04:00:00Z",
       "match_no": 56,
       "venue": "NRG Stadium"
     },
@@ -522,7 +522,7 @@
       "group_id": "J",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-22T18:00:00Z",
+      "kickoff_utc": "2026-06-22T17:00:00Z",
       "match_no": 57,
       "venue": "Mercedes-Benz Stadium"
     },
@@ -531,7 +531,7 @@
       "group_id": "J",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-22T21:00:00Z",
+      "kickoff_utc": "2026-06-23T03:00:00Z",
       "match_no": 58,
       "venue": "Arrowhead Stadium"
     },
@@ -540,7 +540,7 @@
       "group_id": "J",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "kickoff_utc": "2026-06-28T02:00:00Z",
       "match_no": 59,
       "venue": "NRG Stadium"
     },
@@ -549,7 +549,7 @@
       "group_id": "J",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "kickoff_utc": "2026-06-28T02:00:00Z",
       "match_no": 60,
       "venue": "Mercedes-Benz Stadium"
     },
@@ -558,7 +558,7 @@
       "group_id": "K",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-16T19:00:00Z",
+      "kickoff_utc": "2026-06-17T17:00:00Z",
       "match_no": 61,
       "venue": "Lumen Field"
     },
@@ -567,7 +567,7 @@
       "group_id": "K",
       "home_idx": 2,
       "host": "CA",
-      "kickoff_utc": "2026-06-17T22:00:00Z",
+      "kickoff_utc": "2026-06-18T02:00:00Z",
       "match_no": 62,
       "venue": "BC Place"
     },
@@ -576,7 +576,7 @@
       "group_id": "K",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-22T19:00:00Z",
+      "kickoff_utc": "2026-06-23T17:00:00Z",
       "match_no": 63,
       "venue": "Lumen Field"
     },
@@ -585,7 +585,7 @@
       "group_id": "K",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-23T22:00:00Z",
+      "kickoff_utc": "2026-06-24T02:00:00Z",
       "match_no": 64,
       "venue": "SoFi Stadium"
     },
@@ -594,7 +594,7 @@
       "group_id": "K",
       "home_idx": 3,
       "host": "CA",
-      "kickoff_utc": "2026-06-27T20:00:00Z",
+      "kickoff_utc": "2026-06-27T23:30:00Z",
       "match_no": 65,
       "venue": "BC Place"
     },
@@ -603,7 +603,7 @@
       "group_id": "K",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T23:00:00Z",
+      "kickoff_utc": "2026-06-27T23:30:00Z",
       "match_no": 66,
       "venue": "SoFi Stadium"
     },
@@ -612,7 +612,7 @@
       "group_id": "L",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-17T18:00:00Z",
+      "kickoff_utc": "2026-06-17T20:00:00Z",
       "match_no": 67,
       "venue": "NRG Stadium"
     },
@@ -621,7 +621,7 @@
       "group_id": "L",
       "home_idx": 2,
       "host": "US",
-      "kickoff_utc": "2026-06-17T21:00:00Z",
+      "kickoff_utc": "2026-06-17T23:00:00Z",
       "match_no": 68,
       "venue": "Arrowhead Stadium"
     },
@@ -630,7 +630,7 @@
       "group_id": "L",
       "home_idx": 0,
       "host": "US",
-      "kickoff_utc": "2026-06-23T18:00:00Z",
+      "kickoff_utc": "2026-06-23T20:00:00Z",
       "match_no": 69,
       "venue": "AT&T Stadium"
     },
@@ -639,7 +639,7 @@
       "group_id": "L",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-23T21:00:00Z",
+      "kickoff_utc": "2026-06-23T23:00:00Z",
       "match_no": 70,
       "venue": "NRG Stadium"
     },
@@ -648,7 +648,7 @@
       "group_id": "L",
       "home_idx": 3,
       "host": "US",
-      "kickoff_utc": "2026-06-27T19:00:00Z",
+      "kickoff_utc": "2026-06-27T21:00:00Z",
       "match_no": 71,
       "venue": "Arrowhead Stadium"
     },
@@ -657,7 +657,7 @@
       "group_id": "L",
       "home_idx": 1,
       "host": "US",
-      "kickoff_utc": "2026-06-27T22:00:00Z",
+      "kickoff_utc": "2026-06-27T21:00:00Z",
       "match_no": 72,
       "venue": "Mercedes-Benz Stadium"
     }
@@ -1422,7 +1422,7 @@
       "country": "CUW",
       "fifa_rank": 82,
       "id": "CUW",
-      "name": "Curaçao",
+      "name": "Cura\u00e7ao",
       "placeholder": false,
       "pre_tournament_implied_win": 0.0006
     },
@@ -1430,7 +1430,7 @@
       "country": "CZE",
       "fifa_rank": 41,
       "id": "CZE",
-      "name": "Czech Republic",
+      "name": "Czechia",
       "placeholder": false,
       "pre_tournament_implied_win": 0.0121
     },
