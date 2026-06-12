@@ -565,3 +565,185 @@
   color: #f87171;
   border: 1px solid rgba(248, 113, 113, 0.48);
 }
+
+/* ── Calendar-as-picker overrides (Tim 2026-06-12) ──────────────
+ * vt-cal-side-team is now a <button> (the flag-tile IS the pick
+ * target), so it needs button reset + cursor + selected + disabled
+ * state styling. The nested .vt-cal-team-button rules from above
+ * are now dead code; left in place to avoid a wider refactor while
+ * we iterate on the dev branch. */
+
+button.vt-cal-side-team {
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+  font: inherit;
+  color: #fff;
+  text-align: center;
+  flex-direction: column;
+  gap: 6px;
+  padding: 14px 12px;
+  transition: border-color 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
+}
+button.vt-cal-side-team:hover:not(:disabled) {
+  border-color: var(--vt-cal-accent, #fbbf24);
+}
+button.vt-cal-side-team:active:not(:disabled) {
+  transform: scale(0.985);
+}
+button.vt-cal-side-team:focus-visible {
+  outline: 2px solid var(--vt-cal-accent, #fbbf24);
+  outline-offset: 2px;
+}
+button.vt-cal-side-team:disabled {
+  cursor: default;
+}
+
+/* Selected pick: bold gold border + faint inner glow. */
+button.vt-cal-side-team[data-selected="true"] {
+  border-color: #fbbf24;
+  box-shadow:
+    inset 0 0 0 1px rgba(251, 191, 36, 0.55),
+    0 0 18px rgba(251, 191, 36, 0.22);
+}
+
+/* Verdict tints */
+button.vt-cal-side-team[data-verdict="correct"] {
+  border-color: rgba(34, 197, 94, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.45);
+}
+button.vt-cal-side-team[data-verdict="wrong"] {
+  border-color: rgba(248, 113, 113, 0.72);
+  box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.45);
+}
+
+/* Score badge — big Fraunces digits inside the tile, directly under
+ * the team code. */
+.vt-cal-side-score {
+  position: relative;
+  z-index: 2;
+  font: 800 1.6rem/1 "Fraunces", "Cormorant Garamond", Georgia, serif;
+  color: #fbbf24;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+  margin-top: 2px;
+}
+
+/* Tick/cross verdict — top-right corner of the tile, never blocking
+ * the flag focus. */
+.vt-cal-side-verdict {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.84rem;
+  font-weight: 900;
+  line-height: 1;
+}
+.vt-cal-side-verdict[data-verdict="correct"] {
+  background: rgba(34, 197, 94, 0.96);
+  color: #052e16;
+  border: 1px solid rgba(34, 197, 94, 1);
+}
+.vt-cal-side-verdict[data-verdict="wrong"] {
+  background: rgba(248, 113, 113, 0.96);
+  color: #450a0a;
+  border: 1px solid rgba(248, 113, 113, 1);
+}
+
+/* DRAW button — replaces the static "VS" divider on group rows. */
+.vt-cal-draw {
+  appearance: none;
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 14px;
+  min-width: 58px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.04);
+  color: rgba(231, 234, 243, 0.85);
+  font: 800 0.78rem/1 -apple-system, "Inter", system-ui, sans-serif;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, transform 0.08s ease;
+}
+.vt-cal-draw:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.32);
+}
+.vt-cal-draw:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.vt-cal-draw:disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+.vt-cal-draw[data-selected="true"] {
+  background: rgba(251, 191, 36, 0.20);
+  border-color: rgba(251, 191, 36, 0.82);
+  color: #fbbf24;
+}
+.vt-cal-draw[data-verdict="correct"] {
+  border-color: rgba(34, 197, 94, 0.62);
+}
+.vt-cal-draw[data-verdict="wrong"] {
+  border-color: rgba(248, 113, 113, 0.62);
+}
+.vt-cal-draw-label {
+  font-weight: 800;
+}
+
+/* LOCKED / FT header pill (small status indicator next to "Match N"). */
+.vt-cal-status-pill {
+  font: 700 0.66rem/1 -apple-system, "Inter", system-ui, sans-serif;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  border-radius: 999px;
+  margin-left: 6px;
+}
+.vt-cal-status-pill[data-state="locked"] {
+  background: rgba(248, 113, 113, 0.16);
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.36);
+}
+.vt-cal-status-pill[data-state="ft"] {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.42);
+}
+
+/* Footer click area (now a separate button below the team strip,
+ * because the outer row is no longer a single button). */
+.vt-cal-row-footer-btn {
+  appearance: none;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 12px 16px;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  gap: 12px 16px;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+.vt-cal-row-footer-btn:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.vt-cal-row-footer-btn:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: -2px;
+}

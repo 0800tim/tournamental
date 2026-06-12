@@ -24,9 +24,8 @@ import { canonicalTeam } from "@/app/match/[id]/preview/_lib/match-data";
 import { venueInfo, hostFlag } from "@/lib/venues";
 
 import type { CalendarRow, CalendarSide } from "./build-rows";
-import { useCalendarPicks } from "./CalendarPicksContext";
-import { CalendarPickBar } from "./CalendarPickBar";
-import { CalendarResultBar } from "./CalendarResultBar";
+import { useCalendarPicks, type Outcome } from "./CalendarPicksContext";
+import type { ResultedMatch } from "./types";
 
 interface CalendarListProps {
   readonly rows: readonly CalendarRow[];
@@ -114,10 +113,9 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   const localTime = formatTimeInTz(row.kickoffUtc, tz);
   const yourTime = formatTimeLocal(row.kickoffUtc);
 
-  // Tim 2026-06-12: per-row pick + result state read from the
-  // CalendarPicksProvider. For knockouts, the cascade may have
-  // resolved team codes the static row doesn't carry, so prefer the
-  // cascade map when it's populated.
+  // Tim 2026-06-12: per-row pick + result state. For knockouts the
+  // cascade may have resolved team codes the static row doesn't
+  // carry, so prefer the cascade map when it's populated.
   const picks = useCalendarPicks();
   const cascaded = picks.cascadeCodes.get(row.matchId);
   const homeCode = cascaded?.home ?? row.home.code;
@@ -126,76 +124,141 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   // Lock once kickoff has passed. nowMs is 0 on SSR / pre-mount so
   // every row renders as "future" first paint (no SSR/client clock
   // mismatch); after mount the provider's interval updates the clock
-  // and the lock / live / past state takes effect. Tim 2026-06-12.
+  // and the lock / live / past state takes effect.
   const isLocked = picks.nowMs > 0 && picks.nowMs >= Date.parse(row.kickoffUtc);
+  const isGroup = row.stage === "group";
+  const stageKey = row.stage as "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
+
+  // Current pick on this match (group / knockout map).
+  const pick = (
+    isGroup
+      ? picks.bracket.matchPredictions?.[row.matchId]
+      : picks.bracket.knockoutPredictions?.[row.matchId]
+  ) as { outcome?: Outcome } | undefined;
+  const picked = pick?.outcome ?? null;
+
+  // Pick targets are disabled until hydration + tournament cascade
+  // (for knockouts where teams haven't resolved), and after kickoff.
+  const teamsResolved = !!homeCode && !!awayCode;
+  const canPick = picks.hydrated && !isLocked && teamsResolved;
+
+  function pickOutcome(outcome: Outcome) {
+    return (e: MouseEvent) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!canPick) return;
+      picks.setPick({ matchId: row.matchId, outcome, stage: stageKey });
+    };
+  }
 
   return (
-    <li className="vt-cal-row" data-stage={row.stage}>
+    <li className="vt-cal-row" data-stage={row.stage} data-locked={isLocked ? "true" : "false"}>
+      <header className="vt-cal-row-header">
+        <span className="vt-cal-row-badge" data-stage={row.stage}>
+          {row.stageBadge}
+        </span>
+        <span className="vt-cal-row-no">Match {row.matchNo}</span>
+        {isLocked && !result ? (
+          <span className="vt-cal-status-pill" data-state="locked">LOCKED</span>
+        ) : null}
+        {result ? (
+          <span className="vt-cal-status-pill" data-state="ft">FT</span>
+        ) : null}
+      </header>
+
+      <div className="vt-cal-row-teams" role="group" aria-label={describeRowForA11y(row)}>
+        <PickableSide
+          side={row.home}
+          resolvedCode={homeCode}
+          isSelected={picked === "home_win"}
+          isPickable={canPick}
+          onPick={pickOutcome("home_win")}
+          onOpenTeam={onOpenTeam}
+          score={result?.homeScore ?? null}
+          verdict={picked && result ? verdictFor(picked, "home_win", result.outcome) : null}
+        />
+
+        {isGroup ? (
+          <DrawPick
+            isSelected={picked === "draw"}
+            isPickable={canPick}
+            onPick={pickOutcome("draw")}
+            verdict={picked && result ? verdictFor(picked, "draw", result.outcome) : null}
+          />
+        ) : (
+          <span className="vt-cal-vs" aria-hidden="true">VS</span>
+        )}
+
+        <PickableSide
+          side={row.away}
+          resolvedCode={awayCode}
+          isSelected={picked === "away_win"}
+          isPickable={canPick}
+          onPick={pickOutcome("away_win")}
+          onOpenTeam={onOpenTeam}
+          score={result?.awayScore ?? null}
+          verdict={picked && result ? verdictFor(picked, "away_win", result.outcome) : null}
+        />
+      </div>
+
       <button
         type="button"
-        className="vt-cal-row-button"
+        className="vt-cal-row-footer-btn"
         onClick={onOpenMatch(row.matchId)}
-        aria-label={`Match ${row.matchNo}: ${describeRowForA11y(row)}. Open match details.`}
+        aria-label={`Open match details for match ${row.matchNo}`}
       >
-        <header className="vt-cal-row-header">
-          <span className="vt-cal-row-badge" data-stage={row.stage}>
-            {row.stageBadge}
-          </span>
-          <span className="vt-cal-row-no">Match {row.matchNo}</span>
-        </header>
-
-        <div className="vt-cal-row-teams">
-          <SideBox side={row.home} onOpenTeam={onOpenTeam} />
-          <span className="vt-cal-vs" aria-hidden="true">VS</span>
-          <SideBox side={row.away} onOpenTeam={onOpenTeam} />
+        <div className="vt-cal-time">
+          <span className="vt-cal-time-primary">{yourTime.time}</span>
+          <span className="vt-cal-time-label">{yourTime.tzLabel} · your time</span>
         </div>
-
-        <footer className="vt-cal-row-footer">
-          <div className="vt-cal-time">
-            <span className="vt-cal-time-primary">{yourTime.time}</span>
-            <span className="vt-cal-time-label">{yourTime.tzLabel} · your time</span>
-          </div>
-          <div className="vt-cal-time">
-            <span className="vt-cal-time-primary">{localTime.time}</span>
-            <span className="vt-cal-time-label">{localTime.tzLabel} · local kickoff</span>
-          </div>
-          <div className="vt-cal-venue">
-            <span className="vt-cal-flag" aria-hidden="true">{hostFlag(row.host)}</span>
-            <span className="vt-cal-venue-text">
-              {v ? `${v.city}, ${v.country}` : row.host}
-              <span className="vt-cal-venue-sep"> · </span>
-              <strong>{row.venue}</strong>
-            </span>
-          </div>
-        </footer>
+        <div className="vt-cal-time">
+          <span className="vt-cal-time-primary">{localTime.time}</span>
+          <span className="vt-cal-time-label">{localTime.tzLabel} · local kickoff</span>
+        </div>
+        <div className="vt-cal-venue">
+          <span className="vt-cal-flag" aria-hidden="true">{hostFlag(row.host)}</span>
+          <span className="vt-cal-venue-text">
+            {v ? `${v.city}, ${v.country}` : row.host}
+            <span className="vt-cal-venue-sep"> · </span>
+            <strong>{row.venue}</strong>
+          </span>
+        </div>
       </button>
-      {result ? (
-        <CalendarResultBar
-          row={row}
-          result={result}
-          homeCode={homeCode}
-          awayCode={awayCode}
-        />
-      ) : (
-        <CalendarPickBar
-          row={row}
-          homeCode={homeCode}
-          awayCode={awayCode}
-          isLocked={isLocked}
-          hasResult={false}
-        />
-      )}
     </li>
   );
 }
 
-interface SideBoxProps {
-  readonly side: CalendarSide;
-  readonly onOpenTeam: (code: string) => (e: MouseEvent) => void;
+// Whether the user's pick was correct given the actual outcome, but
+// only render a verdict on the SIDE the user picked (so a "MEX win"
+// pick shows the verdict on the MEX flag, not on the RSA flag).
+function verdictFor(
+  picked: Outcome,
+  side: Outcome,
+  actual: ResultedMatch["outcome"],
+): "correct" | "wrong" | null {
+  if (picked !== side) return null;
+  return picked === actual ? "correct" : "wrong";
 }
 
-function SideBox({ side, onOpenTeam }: SideBoxProps) {
-  if (!side.code) {
+interface PickableSideProps {
+  readonly side: CalendarSide;
+  readonly resolvedCode: string | undefined;
+  readonly isSelected: boolean;
+  readonly isPickable: boolean;
+  readonly onPick: (e: MouseEvent) => void;
+  readonly onOpenTeam: (code: string) => (e: MouseEvent) => void;
+  readonly score: number | null;
+  readonly verdict: "correct" | "wrong" | null;
+}
+
+function PickableSide(props: PickableSideProps) {
+  const { side, resolvedCode, isSelected, isPickable, onPick, score, verdict } = props;
+  // void the team-overlay handler for now — calendar-as-picker means
+  // tapping a flag picks; tapping the time/venue strip opens match
+  // detail. Team-detail page is reachable from anywhere else.
+  void props.onOpenTeam;
+
+  if (!resolvedCode) {
     return (
       <div className="vt-cal-side vt-cal-side-tbd" aria-label="To be determined">
         <span className="vt-cal-tbd-label">TBD</span>
@@ -206,14 +269,15 @@ function SideBox({ side, onOpenTeam }: SideBoxProps) {
     );
   }
 
-  const team = canonicalTeam(side.code);
-  const name = team?.name ?? side.code;
-  const code = side.code.toUpperCase();
+  const team = canonicalTeam(resolvedCode);
+  const name = team?.name ?? resolvedCode;
+  const code = resolvedCode.toUpperCase();
   const flagUrl = `/flags/${code}.svg`;
   const accent = team?.kit?.primary ?? "#dca94b";
 
   return (
-    <span
+    <button
+      type="button"
       className="vt-cal-side vt-cal-side-team"
       style={
         {
@@ -222,30 +286,77 @@ function SideBox({ side, onOpenTeam }: SideBoxProps) {
         } as React.CSSProperties
       }
       data-team-code={code}
+      data-selected={isSelected ? "true" : "false"}
+      data-verdict={verdict ?? "none"}
+      disabled={!isPickable}
+      onClick={onPick}
+      aria-pressed={isSelected}
+      aria-label={`Pick ${name} to win`}
     >
       <span className="vt-cal-side-scrim" aria-hidden="true" />
-      <button
-        type="button"
-        className="vt-cal-team-button"
-        onClick={onOpenTeam(code)}
-        aria-label={`Open ${name} team details`}
-      >
-        <span className="vt-cal-flag-circle">
-          <img
-            src={flagUrl}
-            alt=""
-            width={56}
-            height={56}
-            loading="eager"
-            decoding="async"
-          />
+      <span className="vt-cal-flag-circle">
+        <img
+          src={flagUrl}
+          alt=""
+          width={56}
+          height={56}
+          loading="eager"
+          decoding="async"
+        />
+      </span>
+      <span className="vt-cal-side-name">{name}</span>
+      <span className="vt-cal-side-code">{code}</span>
+      {score !== null ? (
+        <span className="vt-cal-side-score" aria-label={`${code} score`}>
+          {score}
         </span>
-        <span className="vt-cal-side-name">{name}</span>
-        <span className="vt-cal-side-code">{code}</span>
-      </button>
-    </span>
+      ) : null}
+      {verdict ? (
+        <span
+          className="vt-cal-side-verdict"
+          data-verdict={verdict}
+          aria-label={verdict === "correct" ? "Pick was correct" : "Pick was incorrect"}
+        >
+          {verdict === "correct" ? "✓" : "✕"}
+        </span>
+      ) : null}
+    </button>
   );
 }
+
+interface DrawPickProps {
+  readonly isSelected: boolean;
+  readonly isPickable: boolean;
+  readonly onPick: (e: MouseEvent) => void;
+  readonly verdict: "correct" | "wrong" | null;
+}
+
+function DrawPick({ isSelected, isPickable, onPick, verdict }: DrawPickProps) {
+  return (
+    <button
+      type="button"
+      className="vt-cal-draw"
+      data-selected={isSelected ? "true" : "false"}
+      data-verdict={verdict ?? "none"}
+      disabled={!isPickable}
+      onClick={onPick}
+      aria-pressed={isSelected}
+      aria-label="Pick draw"
+    >
+      <span className="vt-cal-draw-label">DRAW</span>
+      {verdict ? (
+        <span className="vt-cal-side-verdict" data-verdict={verdict} aria-hidden="true">
+          {verdict === "correct" ? "✓" : "✕"}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
+// SideBox removed 2026-06-12: PickableSide (above) replaces it. The
+// original SideBox rendered a static flag tile with a nested
+// "open team details" button; the calendar now uses flags directly
+// as pick targets, matching the bracket page's tap-the-flag pattern.
 
 // ---------- date / time helpers ----------
 
