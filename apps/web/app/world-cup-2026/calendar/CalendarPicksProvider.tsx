@@ -80,6 +80,16 @@ export function CalendarPicksProvider({
   const [resultsByMatch, setResultsByMatch] = useState<
     ReadonlyMap<string, ResultedMatch>
   >(new Map());
+  // nowMs starts at 0 so SSR + client first paint agree (no row is
+  // "locked" yet). After mount, a ticking update swaps in the real
+  // clock and the lock state takes effect. 30s tick is fine — we
+  // don't need sub-minute granularity for kickoff transitions.
+  const [nowMs, setNowMs] = useState<number>(0);
+  useEffect(() => {
+    setNowMs(Date.now());
+    const id = window.setInterval(() => setNowMs(Date.now()), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
 
   // Hydrate: localStorage first (instant) → server bracket (async,
   // merged with the past-kickoff rule).
@@ -133,7 +143,11 @@ export function CalendarPicksProvider({
         };
         if (cancelled || !body.results) return;
         const map = new Map<string, ResultedMatch>();
-        for (const row of body.results) map.set(row.matchId, row);
+        // Field name is `match_id` (snake_case) — see ResultedMatch
+        // comment for why. Tim 2026-06-12: shipped this wrong first
+        // pass; results map was always empty so every past match
+        // rendered as "Locked · awaiting result".
+        for (const row of body.results) map.set(row.match_id, row);
         setResultsByMatch(map);
       } catch {
         // Silent — calendar still renders pre-result state.
@@ -259,8 +273,8 @@ export function CalendarPicksProvider({
   }, [flush]);
 
   const value: CalendarPicksContextValue = useMemo(
-    () => ({ bracket, setPick, resultsByMatch, cascadeCodes, hydrated }),
-    [bracket, setPick, resultsByMatch, cascadeCodes, hydrated],
+    () => ({ bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs }),
+    [bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs],
   );
 
   return (

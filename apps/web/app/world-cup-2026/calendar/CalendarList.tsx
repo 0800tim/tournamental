@@ -123,9 +123,11 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   const homeCode = cascaded?.home ?? row.home.code;
   const awayCode = cascaded?.away ?? row.away.code;
   const result = picks.resultsByMatch.get(row.matchId) ?? null;
-  // Lock once kickoff has passed (server clock — close enough for the
-  // UI; the server enforces SEC-BRK-02 authoritatively).
-  const isLocked = Date.now() >= Date.parse(row.kickoffUtc);
+  // Lock once kickoff has passed. nowMs is 0 on SSR / pre-mount so
+  // every row renders as "future" first paint (no SSR/client clock
+  // mismatch); after mount the provider's interval updates the clock
+  // and the lock / live / past state takes effect. Tim 2026-06-12.
+  const isLocked = picks.nowMs > 0 && picks.nowMs >= Date.parse(row.kickoffUtc);
 
   return (
     <li className="vt-cal-row" data-stage={row.stage}>
