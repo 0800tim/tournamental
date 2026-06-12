@@ -632,23 +632,41 @@ button.vt-cal-side-team[data-selected="true"] .vt-cal-side-code {
     0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-/* Tim 2026-06-12 dev iter #5: the 3-letter code lives under the
- * circle flag, but on selected tiles whose flag bg is now sharp
- * white (Scotland) / pale blue (Australia) the code reads invisible
- * against its own flag. Always-on dark pill behind the code so it
- * pops on any background. Selected or not. */
+/* Tim 2026-06-12 dev iter #6: the previous pass put a dark pill
+ * under the code but selected tiles still showed no text at all in
+ * the wild. Diagnosis: with blur(0) + opacity:1 on ::before for
+ * selected tiles, the flag bg paints over the foreground children
+ * because the flex items (circle, name, code) have no explicit
+ * z-index — the ::before's z-index:0 in a positioned context can
+ * win the paint order. Fix: pin all foreground content to z-index:3
+ * so it is unconditionally above the bg + scrim.
+ *
+ * Also bumps the dark pill alpha + adds a bright border so the
+ * code reads brighter than the flag in both states. */
+.vt-cal-flag-circle,
+.vt-cal-side-name,
+.vt-cal-side-code {
+  position: relative;
+  z-index: 3;
+}
 .vt-cal-side-code {
   display: inline-block;
-  padding: 2px 8px;
-  background: rgba(8, 8, 12, 0.74);
+  padding: 3px 10px;
+  background: rgba(8, 8, 12, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 999px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  font-weight: 800;
 }
 button.vt-cal-side-team[data-selected="true"] .vt-cal-side-code {
-  background: rgba(251, 191, 36, 0.92);
+  background: #fbbf24;
+  border-color: #fde68a;
   color: #1a1206;
   text-shadow: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+  box-shadow:
+    0 0 0 2px rgba(8, 8, 12, 0.55),
+    0 2px 8px rgba(251, 191, 36, 0.55);
+  letter-spacing: 0.20em;
 }
 
 /* Sibling-dim rule: when one option in this row is picked, push the
