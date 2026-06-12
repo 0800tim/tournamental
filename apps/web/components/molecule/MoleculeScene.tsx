@@ -424,7 +424,7 @@ export function MoleculeScene({
       const remote = await loadServerBracket({ userId: id, tournamentId: tournament.id });
       if (cancelled || !remote.ok) return;
       setBracket((current) => {
-        const merged = mergeBrackets(current, remote.bracket);
+        const merged = mergeBrackets(current, remote.bracket, { tournament });
         saveDraft(tournament.id, merged, id);
         return merged;
       });

@@ -709,7 +709,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       });
       if (cancelled || !remote.ok) return;
       setBracket((current) => {
-        const merged = mergeBrackets(current, remote.bracket);
+        const merged = mergeBrackets(current, remote.bracket, { tournament });
         saveDraft(tournament.id, merged, id);
         // Tim 2026-06-12: previously the autosave baseline was set to
         // the merged signature, which silently swallowed the case

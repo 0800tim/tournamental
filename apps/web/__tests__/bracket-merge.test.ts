@@ -144,4 +144,109 @@ describe("mergeBrackets", () => {
     const merged = mergeBrackets(local, remote);
     expect(merged.groupTiebreakers["A"]?.rankedTeams[0]).toBe("MEX");
   });
+
+  // Tim 2026-06-12: regression. The bracket UI was showing a local
+  // post-kickoff toggle as the user's pick because mergeBrackets used
+  // newer-lockedAt-wins indiscriminately. The leaderboard scored from
+  // the server (correct) so user state was inconsistent across the
+  // two surfaces. Once a match has kicked off, the server side is the
+  // only truth — local edits made after kickoff are UI ghosts.
+  it("server wins for past-kickoff matches even if local lockedAt is newer", () => {
+    const tournament = {
+      id: "fifa-wc-2026",
+      group_fixtures: [
+        {
+          match_no: 2,
+          group_id: "A" as const,
+          home_idx: 2,
+          away_idx: 3,
+          kickoff_utc: "2026-06-12T02:00:00Z",
+        },
+      ],
+      knockouts: [],
+    } as unknown as Parameters<typeof mergeBrackets>[2] extends {
+      tournament?: infer T;
+    }
+      ? T
+      : never;
+
+    const local: Bracket = {
+      ...empty("bk_local"),
+      matchPredictions: {
+        "2": {
+          matchId: "2",
+          // User toggled to draw 30 seconds AFTER kickoff. Server
+          // would have rejected this; the client shouldn't render it.
+          outcome: "draw",
+          lockedAt: "2026-06-12T02:00:30.000Z",
+        },
+      },
+    };
+    const remote: Bracket = {
+      ...empty("bk_server"),
+      matchPredictions: {
+        "2": {
+          matchId: "2",
+          // Final pre-kickoff pick the server accepted, 30 sec before
+          // kickoff.
+          outcome: "home_win",
+          lockedAt: "2026-06-12T01:59:30.000Z",
+        },
+      },
+    };
+
+    const merged = mergeBrackets(local, remote, {
+      tournament,
+      now: Date.parse("2026-06-12T04:00:00.000Z"), // 2h after kickoff
+    });
+    expect(merged.matchPredictions["2"]?.outcome).toBe("home_win");
+  });
+
+  // Mirror of the rule above for future matches: a local edit made
+  // before kickoff should still win against an older server pick.
+  it("local pick still wins for future matches when its lockedAt is newer", () => {
+    const tournament = {
+      id: "fifa-wc-2026",
+      group_fixtures: [
+        {
+          match_no: 7,
+          group_id: "B" as const,
+          home_idx: 0,
+          away_idx: 1,
+          kickoff_utc: "2026-06-12T19:00:00Z",
+        },
+      ],
+      knockouts: [],
+    } as unknown as Parameters<typeof mergeBrackets>[2] extends {
+      tournament?: infer T;
+    }
+      ? T
+      : never;
+
+    const local: Bracket = {
+      ...empty("bk_local"),
+      matchPredictions: {
+        "7": {
+          matchId: "7",
+          outcome: "draw",
+          lockedAt: "2026-06-12T10:00:00.000Z",
+        },
+      },
+    };
+    const remote: Bracket = {
+      ...empty("bk_server"),
+      matchPredictions: {
+        "7": {
+          matchId: "7",
+          outcome: "home_win",
+          lockedAt: "2026-06-12T08:00:00.000Z",
+        },
+      },
+    };
+    const merged = mergeBrackets(local, remote, {
+      tournament,
+      now: Date.parse("2026-06-12T12:00:00.000Z"), // before 19:00 kickoff
+    });
+    expect(merged.matchPredictions["7"]?.outcome).toBe("draw");
+  });
 });

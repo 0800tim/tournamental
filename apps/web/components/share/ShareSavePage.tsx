@@ -285,7 +285,7 @@ export function ShareSavePage({
       });
       if (cancelled || !remote.ok) return;
       const merged = starting
-        ? mergeBrackets(starting, remote.bracket)
+        ? mergeBrackets(starting, remote.bracket, { tournament })
         : remote.bracket;
       saveDraft(tournament.id, merged, id);
       setBracket(merged);
