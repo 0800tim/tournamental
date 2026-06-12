@@ -35,7 +35,9 @@
     "open_menu": "Ouvrir le menu",
     "play": "Jouer",
     "the_bet": "Le Pari",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Calendrier des matchs"
   },
   "authchip": {
     "sign_in_up": "Connexion / Inscription",
@@ -61,7 +63,9 @@
       "lede": "Personne ne l'a jamais fait, et personne ne le fera probablement à cause des {odds_link} astronomiques. Vingt-deux Coupes du Monde, 964 matchs, et le pronostic parfait reste à réclamer. Les 104 matchs de 2026 sont la prochaine tentative. Tournamental tient le registre mondial et inscrit chaque pronostic dans la blockchain avant le coup d'envoi de chaque match, tes prédictions sont donc immuables et toute prétention à la gloire devient enfin prouvable.",
       "lede_link": "chances de réussir les 104 matchs",
       "read_more": "[en savoir plus]",
-      "lede_2": "Tournamental tient le registre mondial et inscrit chaque pronostic sur la blockchain avant le coup d'envoi de chaque match. Tes prédictions sont donc immuables et toute prétention à la gloire enfin prouvable."
+      "lede_2": "Tournamental tient le registre mondial et inscrit chaque pronostic sur la blockchain avant le coup d'envoi de chaque match. Tes prédictions sont donc immuables et toute prétention à la gloire enfin prouvable.",
+      "headline_c": "Qui va gagner ?",
+      "bot_arena_lede": "Un jeu de pronostics de la Coupe du Monde FIFA qui vous permet de créer des pools gratuits entre amis, de lancer des concours au bureau et de générer des millions de « pronostics de tableau » uniques à la recherche du tableau parfait. Vos choix sont l'ancre, votre bot générera des millions de variations autour de vos pronostics pour tenter de garder un tableau parfait au fil des surprises du tournoi. Et il peut les modifier en cours de route !"
     },
     "stat": {
       "matches": "Matchs",

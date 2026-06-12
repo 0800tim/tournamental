@@ -36,7 +36,9 @@
     "open_menu": "Whakatuwhera te tahua",
     "play": "Tākaro",
     "the_bet": "Te Whakapae",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Maramataka tākaro"
   },
   "authchip": {
     "sign_in_up": "Takiuru / Rēhita",
@@ -62,7 +64,9 @@
       "lede": "Kāhore tētahi i tutuki, ā, nā te nui rawa o ngā {odds_link}, kāhore pea e tutuki ake. E rua tekau mā rua ngā Ipu o te Ao FIFA, 964 ngā kēmu, kāhore anō kia kitea he pukapuka tino tika. Ko ngā kēmu 104 o 2026 te whakamātau hou. Ka pupuri a Tournamental i te pukapuka taupū o te ao, ka tuhia ia matapae ki te poraka mua i te whakaaranga o ia kēmu, nō reira kāhore e taea te whakarerekē, ā, ka taea anō te whakamana i te kōrero kororia.",
       "lede_link": "ngā āheinga ki te tika i ngā kēmu 104 katoa",
       "read_more": "[pānuihia atu]",
-      "lede_2": "Ka pupuri a Tournamental i te rēhita o te ao, ā, ka tāuru i ia matapae ki te paorohia i mua i te tīmatanga o ia whakataetae, nō reira e kore e taea te whakarerekē ō matapae me ka taea te whakapūmau i te kerēme korōria."
+      "lede_2": "Ka pupuri a Tournamental i te rēhita o te ao, ā, ka tāuru i ia matapae ki te paorohia i mua i te tīmatanga o ia whakataetae, nō reira e kore e taea te whakarerekē ō matapae me ka taea te whakapūmau i te kerēme korōria.",
+      "headline_c": "Ko wai e wikitoria?",
+      "bot_arena_lede": "He kēmu matapae mō te Whutuporo o te Ao FIFA e taea ai e koe te hanga puna kore utu hei tākaro me ō hoa, te whakahaere whakaaweawe tari, me te whakaputa miriona o ngā matapae ahurei e rapu ana i te brackets tino pai. Ko ō kōwhiringa te punga, ka whakaputa tō pōtae miriona o ngā rerekētanga huri noa i ō matapae kia mau ai te brackets tino pai i te wā e puta ana ngā ohorere i te whakataetae. Ā, ka taea e rātou te whakarerekē i te ara!"
     },
     "stat": {
       "matches": "Kēmu",

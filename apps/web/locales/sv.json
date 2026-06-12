@@ -36,7 +36,9 @@
     "open_menu": "Öppna menyn",
     "play": "Spela",
     "the_bet": "Vadet",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Matchschema"
   },
   "authchip": {
     "sign_in_up": "Logga in / Registrera",
@@ -62,7 +64,9 @@
       "lede": "Ingen har lyckats förut, och troligen kommer ingen att lyckas eftersom {odds_link} är astronomiska. Tjugotvå VM, 964 matcher, det perfekta tippet är fortfarande hemlöst. De 104 matcherna 2026 är nästa försök. Tournamental för den globala loggboken och skriver in varje tipp i blockkedjan före varje avspark, så att dina tippningar är oföränderliga och alla anspråk på äran äntligen blir bevisbara.",
       "lede_link": "chansen att pricka alla 104 matcher",
       "read_more": "[läs mer]",
-      "lede_2": "Tournamental för den globala liggaren och skriver varje tips till blockkedjan innan varje match börjar, så dina förutsägelser är oföränderliga och varje anspråk på ära äntligen bevisbart."
+      "lede_2": "Tournamental för den globala liggaren och skriver varje tips till blockkedjan innan varje match börjar, så dina förutsägelser är oföränderliga och varje anspråk på ära äntligen bevisbart.",
+      "headline_c": "Vem vinner?",
+      "bot_arena_lede": "Ett FIFA-VM tippspel som låter dig skapa gratis pooler att spela med vänner, köra kontorstävlingar och generera miljoner unika 'bracket-prognoser' i jakten på den perfekta bracketen. Dina val är ankaret, din bot skapar miljoner variationer runt dina prognoser för att försöka hålla en perfekt bracket när överraskningar inträffar under turneringen. Och den kan ändra dem på vägen!"
     },
     "stat": {
       "matches": "Matcher",

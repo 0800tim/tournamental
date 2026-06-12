@@ -36,7 +36,9 @@
     "open_menu": "Abrir menu",
     "play": "Jogar",
     "the_bet": "A Aposta",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Calendário de jogos"
   },
   "authchip": {
     "sign_in_up": "Entrar / Cadastrar",
@@ -62,7 +64,9 @@
       "lede": "Ninguém nunca conseguiu, e provavelmente ninguém vai conseguir por causa das {odds_link} astronômicas. Vinte e duas Copas, 964 jogos, e o gabarito perfeito segue sem dono. Os 104 jogos de 2026 são a próxima tentativa. O Tournamental mantém o livro global e grava cada palpite na blockchain antes de cada apito inicial, então as suas previsões ficam imutáveis e qualquer reivindicação de glória vira, enfim, provável.",
       "lede_link": "chances de acertar os 104 jogos",
       "read_more": "[ler mais]",
-      "lede_2": "O Tournamental mantém o registro global e grava cada palpite na blockchain antes do início de cada partida, então suas previsões são imutáveis e qualquer reivindicação de glória é finalmente comprovável."
+      "lede_2": "O Tournamental mantém o registro global e grava cada palpite na blockchain antes do início de cada partida, então suas previsões são imutáveis e qualquer reivindicação de glória é finalmente comprovável.",
+      "headline_c": "Quem vai vencer?",
+      "bot_arena_lede": "Um jogo de palpites da Copa do Mundo da FIFA que permite criar bolões gratuitos para jogar com amigos, organizar bolões de escritório e gerar milhões de «palpites de chaveamento» únicos em busca do palpite perfeito. Seus palpites são a âncora, seu bot vai gerar milhões de variações em torno dos seus palpites para tentar manter um chaveamento perfeito enquanto surpresas acontecem durante o torneio. E pode mudá-los no caminho!"
     },
     "stat": {
       "matches": "Jogos",

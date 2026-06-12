@@ -36,7 +36,9 @@
     "open_menu": "Menyuni ochish",
     "play": "Oʻyna",
     "the_bet": "Garov",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "O'yinlar jadvali"
   },
   "authchip": {
     "sign_in_up": "Kirish / Roʻyxatdan oʻtish",
@@ -62,7 +64,9 @@
       "lede": "Hech kim hali bunga erishmagan va astronomik {odds_link} tufayli, ehtimol, hech kim erishmaydi ham. Yigirma ikki Jahon chempionati, 964 oʻyin va mukammal kupon hali ham egasiz. 2026-yilning 104 oʻyini navbatdagi urinish. Tournamental global daftarni yuritadi va har bir bashoratni har bir oʻyinning hushtagi chalinishidan oldin blokcheynga yozadi, shu sababli bashoratlaringiz oʻzgarmas boʻlib qoladi va shon-shuhratga daʼvolar nihoyat isbotlanadigan boʻladi.",
       "lede_link": "104 oʻyin natijasini topish ehtimoli",
       "read_more": "[davomi]",
-      "lede_2": "Tournamental global daftar yuritadi va har bir oʻyin boshlanishidan oldin har bir bashoratni blokcheynga yozadi, shu sababli sizning bashoratlaringiz oʻzgartirib boʻlmas va shon-shuhratga har qanday daʼvo nihoyat isbotlanadigan boʻladi."
+      "lede_2": "Tournamental global daftar yuritadi va har bir oʻyin boshlanishidan oldin har bir bashoratni blokcheynga yozadi, shu sababli sizning bashoratlaringiz oʻzgartirib boʻlmas va shon-shuhratga har qanday daʼvo nihoyat isbotlanadigan boʻladi.",
+      "headline_c": "Kim g'olib bo'ladi?",
+      "bot_arena_lede": "FIFA Jahon Chempionati bashorat o'yini bo'lib, do'stlaringiz bilan o'ynash uchun bepul guruhlar yaratish, ofis bashoratlarini o'tkazish va mukammal jadval izlash uchun millionlab noyob 'jadval bashoratlari' yaratish imkonini beradi. Sizning tanlovlaringiz - bu langar, botingiz esa turnirda kutilmagan natijalar sodir bo'lganda mukammal jadvalni saqlash uchun bashoratlaringiz atrofida millionlab variantlar yaratadi. Va u ularni yo'l davomida o'zgartirishi mumkin!"
     },
     "stat": {
       "matches": "Oʻyinlar",

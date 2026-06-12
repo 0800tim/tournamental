@@ -36,7 +36,9 @@
     "open_menu": "Menü megnyitása",
     "play": "Játék",
     "the_bet": "A Fogadás",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Mérkőzésnaptár"
   },
   "authchip": {
     "sign_in_up": "Belépés / Regisztráció",
@@ -62,7 +64,9 @@
       "lede": "Még senkinek nem sikerült, és a {odds_link} csillagászati nagysága miatt valószínűleg soha senkinek nem is fog. Huszonkét vébé, 964 meccs, és a tökéletes tippsor még mindig gazdátlan. 2026 104 mérkőzése a következő próbálkozás. A Tournamental vezeti a globális főkönyvet, és minden tippet a sípszó előtt a blokkláncba ír, így a tippjeid változtathatatlanok, és a dicsőségre vonatkozó bármilyen igény végre bizonyítható.",
       "lede_link": "esély, hogy mind a 104 meccset eltaláld",
       "read_more": "[bővebben]",
-      "lede_2": "A Tournamental vezeti a globális főkönyvet, és minden tippet a blockchainre rögzít a mérkőzés kezdete előtt, így a tippeid változtathatatlanok, és minden dicsőségre szóló igény végre bizonyítható."
+      "lede_2": "A Tournamental vezeti a globális főkönyvet, és minden tippet a blockchainre rögzít a mérkőzés kezdete előtt, így a tippeid változtathatatlanok, és minden dicsőségre szóló igény végre bizonyítható.",
+      "headline_c": "Ki nyer?",
+      "bot_arena_lede": "FIFA világbajnokság jóslatos játék, amellyel ingyenes pólyákat hozhatsz létre a barátaiddal, irodai tippversenyt indíthatsz, és több millió egyedi „tippsort\" generálhatsz a tökéletes tipp keresésére. A te tippjeid az alap, a botod pedig több millió változatot generál a tippjeid köré, hogy fenntartsa a tökéletes tippsort, ahogy a meglepetések történnek a torna alatt. És útközben változtathatnak rajtuk!"
     },
     "stat": {
       "matches": "Mérkőzés",

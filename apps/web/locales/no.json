@@ -36,7 +36,9 @@
     "open_menu": "Åpne meny",
     "play": "Spill",
     "the_bet": "Veddemålet",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Kampkalender"
   },
   "authchip": {
     "sign_in_up": "Logg inn / Registrer",
@@ -62,7 +64,9 @@
       "lede": "Ingen har klart det før, og fordi {odds_link} er astronomiske, kommer trolig ingen til å klare det. Tjueto VM, 964 kamper, og den perfekte kupongen er fortsatt uten eier. De 104 kampene i 2026 er neste forsøk. Tournamental fører den globale hovedboka og skriver hver tipp inn i blokkjeden før avspark i hver kamp, slik at tippene dine ikke kan endres og ethvert krav på heder endelig blir mulig å bevise.",
       "lede_link": "sjansen for å treffe alle 104 kampene",
       "read_more": "[les mer]",
-      "lede_2": "Tournamental fører det globale registeret og skriver hvert tips inn på blokkjeden før hver kamp starter, så tipsene dine er uforanderlige og enhver påstand om ære endelig er beviselig."
+      "lede_2": "Tournamental fører det globale registeret og skriver hvert tips inn på blokkjeden før hver kamp starter, så tipsene dine er uforanderlige og enhver påstand om ære endelig er beviselig.",
+      "headline_c": "Hvem vinner?",
+      "bot_arena_lede": "Et FIFA-VM-tippespill som lar deg lage gratis pooler å spille med venner, kjøre kontortippinger og generere millioner av unike 'bracket-prognoser' i jakten på den perfekte bracketen. Dine valg er ankeret, boten din genererer millioner av variasjoner rundt prognosene dine for å holde en perfekt bracket mens overraskelser skjer under turneringen. Og den kan endre dem underveis!"
     },
     "stat": {
       "matches": "Kamper",

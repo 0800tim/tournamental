@@ -36,7 +36,9 @@
     "open_menu": "Otevřít menu",
     "play": "Hraj",
     "the_bet": "Sázka",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Rozpis zápasů"
   },
   "authchip": {
     "sign_in_up": "Přihlásit / Registrovat",
@@ -62,7 +64,9 @@
       "lede": "Nikomu se to ještě nepovedlo a kvůli astronomickým {odds_link} se to pravděpodobně nikdy nepovede. Dvacet dva mistrovství světa, 964 zápasů, perfektní tiket stále bez majitele. 104 zápasů v roce 2026 je další pokus. Tournamental vede globální knihu a zapisuje každý tip do blockchainu před výkopem každého zápasu, takže tvé tipy jsou nezměnitelné a jakýkoli nárok na slávu konečně doložitelný.",
       "lede_link": "šance trefit všech 104 zápasů",
       "read_more": "[číst dál]",
-      "lede_2": "Tournamental vede globální registr a každý tip zapisuje do blockchainu před začátkem každého zápasu, takže tvé předpovědi jsou neměnné a nárok na slávu je konečně prokazatelný."
+      "lede_2": "Tournamental vede globální registr a každý tip zapisuje do blockchainu před začátkem každého zápasu, takže tvé předpovědi jsou neměnné a nárok na slávu je konečně prokazatelný.",
+      "headline_c": "Kdo vyhraje?",
+      "bot_arena_lede": "Předpovědní hra na fotbalové MS FIFA, která ti umožní vytvářet bezplatné poole pro hraní s přáteli, pořádat kancelářské sázky a generovat miliony unikátních 'tipovacích bracketů' při hledání toho dokonalého. Tvé tipy jsou kotvou, tvůj bot vygeneruje miliony variací kolem tvých tipů, aby se snažil udržet dokonalý bracket, když na turnaji přijdou překvapení. A může je za pochodu měnit!"
     },
     "stat": {
       "matches": "Zápasy",

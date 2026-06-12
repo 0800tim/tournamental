@@ -98,6 +98,7 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.hero.headline_b", "Bots vs Humans."),
     safeT("home.hero.headline_c", "Who will win?"),
     safeT("home.hero.lede_2", "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable."),
+    safeT("home.hero.bot_arena_lede", "A FIFA World Cup predictions game that lets you create free pools to play with friends, run office sweepstakes, and spawn millions of unique 'bracket predictions' in search of the perfect bracket. Your picks are the anchor, your bot will spawn millions of variations around your predictions to try keep a perfect bracket as upsets happen during the tournament. And they can change them along the way!"),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
     safeT("home.stat.matches", "Matches"),
@@ -157,7 +158,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   ]);
   const [
     headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
-    headlineB, headlineC, lede2,
+    headlineB, headlineC, lede2, botArenaLede,
     countdownEyebrow, countdownTitle,
     statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
     step1Tag, step1Headline, step1Lede,
@@ -220,16 +221,7 @@ export default async function HomePage(): Promise<JSX.Element> {
                 * the astronomical-odds talk, so the hero just needs to
                 * explain WHAT Tournamental is and tease the bet. */}
               <div className="vt-home-hero-lede-stack">
-                <p className="vt-home-hero-lede">
-                  A FIFA World Cup predictions game that lets you create
-                  free pools to play with friends, run office sweepstakes,
-                  and spawn millions of unique &lsquo;bracket
-                  predictions&rsquo; in search of the perfect bracket.
-                  Your picks are the anchor, your bot will spawn millions
-                  of variations around <em>your predictions</em> to try
-                  keep a perfect bracket as upsets happen during the
-                  tournament. And they can change them along the way!
-                </p>
+                <p className="vt-home-hero-lede">{botArenaLede}</p>
               </div>
             </div>
 

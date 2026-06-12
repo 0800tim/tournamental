@@ -36,7 +36,9 @@
     "open_menu": "Abrir menu",
     "play": "Jogar",
     "the_bet": "A Aposta",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Calendário de jogos"
   },
   "authchip": {
     "sign_in_up": "Entrar / Registar",
@@ -62,7 +64,9 @@
       "lede": "Nunca ninguém conseguiu, e provavelmente nunca conseguirá por causa das {odds_link} astronómicas. Vinte e dois Mundiais, 964 jogos, e o boletim perfeito continua por reclamar. Os 104 jogos de 2026 são a próxima tentativa. A Tournamental mantém o livro global e regista cada prognóstico na blockchain antes de cada apito inicial, por isso as tuas previsões ficam imutáveis e qualquer pretensão à glória torna-se, finalmente, demonstrável.",
       "lede_link": "probabilidades de acertar nos 104 jogos",
       "read_more": "[ler mais]",
-      "lede_2": "O Tournamental mantém o registo global e grava cada prognóstico na blockchain antes do apito inicial de cada jogo, pelo que as tuas previsões são imutáveis e qualquer pretensão à glória é finalmente comprovável."
+      "lede_2": "O Tournamental mantém o registo global e grava cada prognóstico na blockchain antes do apito inicial de cada jogo, pelo que as tuas previsões são imutáveis e qualquer pretensão à glória é finalmente comprovável.",
+      "headline_c": "Quem vai ganhar?",
+      "bot_arena_lede": "Um jogo de previsões do Mundial FIFA que te permite criar bolões gratuitos para jogar com amigos, organizar bolões de escritório e gerar milhões de «previsões de chaveamento» únicas em busca do chaveamento perfeito. As tuas escolhas são a âncora, o teu bot irá gerar milhões de variações em torno das tuas previsões para tentar manter um chaveamento perfeito à medida que as surpresas acontecem no torneio. E pode mudá-las pelo caminho!"
     },
     "stat": {
       "matches": "Jogos",

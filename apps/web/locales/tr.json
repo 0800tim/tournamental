@@ -36,7 +36,9 @@
     "open_menu": "Menüyü aç",
     "play": "Oyna",
     "the_bet": "Bahis",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Maç takvimi"
   },
   "authchip": {
     "sign_in_up": "Giriş yap / Kaydol",
@@ -62,7 +64,9 @@
       "lede": "Şimdiye kadar kimse başaramadı ve {odds_link} astronomik olduğu için muhtemelen kimse de başaramayacak. Yirmi iki Dünya Kupası, 964 maç, ve kusursuz fişin sahibi hâlâ yok. 2026'nın 104 maçı bir sonraki deneme. Tournamental küresel kayıt defterini tutuyor ve her tahmini ilk düdükten önce blockchain'e işliyor, böylece tahminlerin değiştirilemez kalıyor ve şana dair her iddia nihayet ispatlanabilir hale geliyor.",
       "lede_link": "104 maçın tamamını tutturma ihtimali",
       "read_more": "[devamını oku]",
-      "lede_2": "Tournamental küresel kayıt defterini tutar ve her maçın başlama düdüğünden önce her tahmini blockchain'e işler, böylece tahminleriniz değiştirilemez ve şana her hak iddiası nihayet kanıtlanabilir olur."
+      "lede_2": "Tournamental küresel kayıt defterini tutar ve her maçın başlama düdüğünden önce her tahmini blockchain'e işler, böylece tahminleriniz değiştirilemez ve şana her hak iddiası nihayet kanıtlanabilir olur.",
+      "headline_c": "Kim kazanacak?",
+      "bot_arena_lede": "Arkadaşlarınla oynamak için ücretsiz havuzlar oluşturmana, ofis tahminleri düzenlemene ve mükemmel braketi aramak için milyonlarca benzersiz 'braket tahmini' üretmene olanak tanıyan bir FIFA Dünya Kupası tahmin oyunu. Seçimlerin çıpa görevi görür, botun da turnuva sırasında sürprizler yaşandıkça mükemmel bir braketi korumak için tahminlerin etrafında milyonlarca varyasyon üretir. Ve yol boyunca onları değiştirebilir!"
     },
     "stat": {
       "matches": "Maç",

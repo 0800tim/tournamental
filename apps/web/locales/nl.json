@@ -36,7 +36,9 @@
     "open_menu": "Menu openen",
     "play": "Spelen",
     "the_bet": "De Weddenschap",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Wedstrijdkalender"
   },
   "authchip": {
     "sign_in_up": "Inloggen / Registreren",
@@ -62,7 +64,9 @@
       "lede": "Niemand is het ooit gelukt, en waarschijnlijk lukt het ook niemand vanwege de astronomische {odds_link}. Tweeëntwintig WK's, 964 wedstrijden, en het perfecte bracket blijft onopgeëist. De 104 wedstrijden van 2026 zijn de volgende poging. Tournamental houdt het wereldwijde grootboek bij en schrijft elke voorspelling vóór de aftrap op de blockchain, jouw voorspellingen zijn dus onveranderlijk en elke claim op roem wordt eindelijk bewijsbaar.",
       "lede_link": "kans om alle 104 wedstrijden goed te hebben",
       "read_more": "[lees meer]",
-      "lede_2": "Tournamental beheert het wereldwijde grootboek en legt elke voorspelling vóór elke aftrap vast op de blockchain, zodat je voorspellingen onveranderlijk zijn en elke claim op roem eindelijk bewijsbaar is."
+      "lede_2": "Tournamental beheert het wereldwijde grootboek en legt elke voorspelling vóór elke aftrap vast op de blockchain, zodat je voorspellingen onveranderlijk zijn en elke claim op roem eindelijk bewijsbaar is.",
+      "headline_c": "Wie wint?",
+      "bot_arena_lede": "Een FIFA Wereldkampioenschap voorspellingsspel waarmee je gratis pools maakt om met vrienden te spelen, kantoorsweepstakes runt en miljoenen unieke 'bracket-voorspellingen' genereert op zoek naar de perfecte bracket. Jouw keuzes vormen het anker, je bot genereert miljoenen variaties rondom jouw voorspellingen om een perfecte bracket te behouden terwijl er verrassingen plaatsvinden tijdens het toernooi. En hij kan ze onderweg aanpassen!"
     },
     "stat": {
       "matches": "Wedstrijden",

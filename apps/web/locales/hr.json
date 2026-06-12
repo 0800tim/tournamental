@@ -36,7 +36,9 @@
     "open_menu": "Otvori izbornik",
     "play": "Igraj",
     "the_bet": "Oklada",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Raspored utakmica"
   },
   "authchip": {
     "sign_in_up": "Prijava / Registracija",
@@ -62,7 +64,9 @@
       "lede": "Nitko to još nije uspio i, zbog astronomskih {odds_link}, vjerojatno nikada neće. Dvadeset dva Svjetska prvenstva, 964 utakmice, a savršena listica i dalje je bez vlasnika. 104 utakmice 2026. sljedeći su pokušaj. Tournamental vodi globalnu knjigu i upisuje svaki tip u blockchain prije početka svake utakmice, pa su tvoja predviđanja nepromjenjiva, a svaki zahtjev za slavom napokon dokaziv.",
       "lede_link": "izgledi da pogodiš svih 104 utakmice",
       "read_more": "[čitaj više]",
-      "lede_2": "Tournamental vodi globalni registar i upisuje svaki tip u blockchain prije početka svake utakmice, pa su tvoja predviđanja nepromjenjiva i svaka pretenzija na slavu konačno dokaziva."
+      "lede_2": "Tournamental vodi globalni registar i upisuje svaki tip u blockchain prije početka svake utakmice, pa su tvoja predviđanja nepromjenjiva i svaka pretenzija na slavu konačno dokaziva.",
+      "headline_c": "Tko će pobijediti?",
+      "bot_arena_lede": "Prognostička igra FIFA Svjetskog prvenstva koja ti omogućuje besplatno stvaranje grupa za igranje s prijateljima, vođenje uredskih kvota i generiranje milijuna jedinstvenih 'bracket prognoza' u potrazi za savršenom. Tvoji izbori su sidro, tvoj bot će generirati milijune varijacija oko tvojih prognoza kako bi pokušao zadržati savršen bracket dok se događaju iznenađenja na turniru. I može ih mijenjati usput!"
     },
     "stat": {
       "matches": "Utakmice",

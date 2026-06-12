@@ -64,7 +64,8 @@
       "lede_2": "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable.",
       "lede_link": "odds of getting all 104 matches right",
       "read_more": "[read more]",
-      "headline_c": "Who will win?"
+      "headline_c": "Who will win?",
+      "bot_arena_lede": "A FIFA World Cup predictions game that lets you create free pools to play with friends, run office sweepstakes, and spawn millions of unique 'bracket predictions' in search of the perfect bracket. Your picks are the anchor, your bot will spawn millions of variations around your predictions to try keep a perfect bracket as upsets happen during the tournament. And they can change them along the way!"
     },
     "stat": {
       "matches": "Matches",

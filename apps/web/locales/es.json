@@ -35,7 +35,9 @@
     "open_menu": "Abrir menú",
     "play": "Jugar",
     "the_bet": "La Apuesta",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "bot_arena": "Bot Arena",
+    "calendar": "Calendario de partidos"
   },
   "authchip": {
     "sign_in_up": "Entrar / Registrarse",
@@ -61,7 +63,9 @@
       "lede": "Nadie lo ha conseguido nunca, y probablemente nadie lo conseguirá por las astronómicas {odds_link}. Veintidós Mundiales, 964 partidos, y el pleno perfecto sigue sin reclamar. Los 104 partidos de 2026 son el próximo intento. Tournamental lleva el registro global y graba cada pronóstico en blockchain antes de cada pitido inicial, así tus apuestas son inmutables y cualquier reclamo de gloria queda finalmente demostrable.",
       "lede_link": "probabilidades de acertar los 104 partidos",
       "read_more": "[leer más]",
-      "lede_2": "Tournamental mantiene el registro global y graba cada pronóstico en la blockchain antes del inicio de cada partido, así tus predicciones son inmutables y cualquier reclamo de gloria es por fin demostrable."
+      "lede_2": "Tournamental mantiene el registro global y graba cada pronóstico en la blockchain antes del inicio de cada partido, así tus predicciones son inmutables y cualquier reclamo de gloria es por fin demostrable.",
+      "headline_c": "¿Quién ganará?",
+      "bot_arena_lede": "Un juego de pronósticos de la Copa del Mundo FIFA que te permite crear quinielas gratuitas para jugar con amigos, organizar quinielas de oficina y generar millones de «pronósticos de bracket» únicos en busca del bracket perfecto. Tus elecciones son el ancla, tu bot generará millones de variaciones en torno a tus pronósticos para intentar mantener un bracket perfecto mientras ocurren sorpresas durante el torneo. ¡Y puede cambiarlas en el camino!"
     },
     "stat": {
       "matches": "Partidos",
