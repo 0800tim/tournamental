@@ -624,7 +624,31 @@ button.vt-cal-side-team[data-selected="true"]::before {
 button.vt-cal-side-team[data-selected="true"] .vt-cal-side-name,
 button.vt-cal-side-team[data-selected="true"] .vt-cal-side-code {
   color: #fff;
-  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.75);
+  text-shadow:
+    -1px -1px 0 rgba(0, 0, 0, 0.85),
+    1px -1px 0 rgba(0, 0, 0, 0.85),
+    -1px 1px 0 rgba(0, 0, 0, 0.85),
+    1px 1px 0 rgba(0, 0, 0, 0.85),
+    0 2px 8px rgba(0, 0, 0, 0.7);
+}
+
+/* Tim 2026-06-12 dev iter #5: the 3-letter code lives under the
+ * circle flag, but on selected tiles whose flag bg is now sharp
+ * white (Scotland) / pale blue (Australia) the code reads invisible
+ * against its own flag. Always-on dark pill behind the code so it
+ * pops on any background. Selected or not. */
+.vt-cal-side-code {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(8, 8, 12, 0.74);
+  border-radius: 999px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+}
+button.vt-cal-side-team[data-selected="true"] .vt-cal-side-code {
+  background: rgba(251, 191, 36, 0.92);
+  color: #1a1206;
+  text-shadow: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
 }
 
 /* Sibling-dim rule: when one option in this row is picked, push the
@@ -634,19 +658,22 @@ button.vt-cal-side-team[data-selected="true"] .vt-cal-side-code {
  * Uses CSS :has() (Chrome 105+ / Safari 15.4+ / Firefox 121+). Falls
  * back to "no dim" on older engines, in which case only the gold
  * border on the selected tile signals the pick. */
+/* Tim 2026-06-12 dev iter #5: bumped opacity from 0.42 → 0.62 and
+ * grayscale from 0.45 → 0.30 so the non-picked option stays a
+ * recognisable flag (the picker is meant to be reversible). */
 .vt-cal-row-teams:has([data-selected="true"]) button.vt-cal-side-team[data-selected="false"],
 .vt-cal-row-teams:has(.vt-cal-draw[data-selected="true"]) button.vt-cal-side-team[data-selected="false"] {
-  opacity: 0.42;
-  filter: grayscale(0.45);
+  opacity: 0.62;
+  filter: grayscale(0.30);
   transition: opacity 0.18s ease, filter 0.18s ease;
 }
 .vt-cal-row-teams:has([data-selected="true"]) button.vt-cal-side-team[data-selected="false"]::before {
-  filter: blur(22px) saturate(0.55) brightness(0.7);
-  opacity: 0.50;
+  filter: blur(18px) saturate(0.7) brightness(0.82);
+  opacity: 0.62;
 }
 .vt-cal-row-teams:has(button.vt-cal-side-team[data-selected="true"]) .vt-cal-draw[data-selected="false"] {
-  opacity: 0.40;
-  filter: grayscale(0.45);
+  opacity: 0.55;
+  filter: grayscale(0.30);
 }
 
 /* Verdict tints */
