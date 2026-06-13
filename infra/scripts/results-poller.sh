@@ -126,10 +126,24 @@ if not pending:
     log(f"all {len(fixtures)} candidate fixtures already recorded")
     sys.exit(0)
 
-# ── 3. Fetch ESPN scoreboard for each distinct UTC date in pending. ─
-# ESPN's dates= parameter is YYYYMMDD in UTC. A match at 02:00 UTC and
-# another at 22:00 UTC the same day both fall on the same date.
-dates = sorted({f["kickoff"].strftime("%Y%m%d") for f in pending})
+# ── 3. Fetch ESPN scoreboard for each kickoff UTC date AND the day
+# before AND the day after. ESPN buckets events under the US
+# broadcast date (EDT/EST) which can be the day before our UTC
+# kickoff for matches that start in the early UTC hours (e.g. m19
+# kicked off at 01:00 UTC June 13; ESPN files it under 20260612).
+# Probe a 3-day window so we never miss the event again.
+# Tim 2026-06-13: this was the bug that left match 19 unrecorded for
+# ~10 min after FT.
+def date_window(kickoff):
+    d0 = kickoff.strftime("%Y%m%d")
+    d_minus_1 = (kickoff - timedelta(days=1)).strftime("%Y%m%d")
+    d_plus_1  = (kickoff + timedelta(days=1)).strftime("%Y%m%d")
+    return [d_minus_1, d0, d_plus_1]
+
+dates_set = set()
+for f in pending:
+    dates_set.update(date_window(f["kickoff"]))
+dates = sorted(dates_set)
 log(f"polling ESPN for dates={dates}, pending={[f['match_no'] for f in pending]}")
 
 def fetch_espn(date_yyyymmdd):
