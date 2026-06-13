@@ -130,6 +130,10 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   // match is actually on the pitch right now. Wins over the static
   // 'LOCKED' chip so viewers see the score + clock instead.
   const live = picks.liveByMatch.get(row.matchId) ?? null;
+  // Score to render inside each flag tile: prefer FT result, fall
+  // back to live score, hide if neither. Tim 2026-06-13.
+  const homeScoreShown = result?.homeScore ?? (live ? live.homeScore : null);
+  const awayScoreShown = result?.awayScore ?? (live ? live.awayScore : null);
   const isGroup = row.stage === "group";
   const stageKey = row.stage as "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
 
@@ -186,7 +190,7 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
           isPickable={canPick}
           onPick={pickOutcome("home_win")}
           onOpenTeam={onOpenTeam}
-          score={result?.homeScore ?? null}
+          score={homeScoreShown}
           verdict={picked && result ? verdictFor(picked, "home_win", result.outcome) : null}
         />
 
@@ -208,7 +212,7 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
           isPickable={canPick}
           onPick={pickOutcome("away_win")}
           onOpenTeam={onOpenTeam}
-          score={result?.awayScore ?? null}
+          score={awayScoreShown}
           verdict={picked && result ? verdictFor(picked, "away_win", result.outcome) : null}
         />
       </div>

@@ -218,14 +218,23 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
   const hasResult = !!result;
   const userPickedCorrectly =
     hasResult && prediction?.outcome === result.outcome;
+  // Tim 2026-06-13: while the match is live (no result yet, ESPN
+  // says state='in'), surface the running score inside the flag
+  // tiles using the same .mpr-pick-score puck the resulted-state
+  // uses. Resulted result wins over live if both are present
+  // (shouldn't happen, defensive).
   const homeScoreLabel =
     hasResult && typeof result.homeScore === "number"
       ? String(result.homeScore)
-      : null;
+      : liveStatus && !hasResult
+        ? String(liveStatus.homeScore)
+        : null;
   const awayScoreLabel =
     hasResult && typeof result.awayScore === "number"
       ? String(result.awayScore)
-      : null;
+      : liveStatus && !hasResult
+        ? String(liveStatus.awayScore)
+        : null;
 
   // Resolve form + h2h from props or fall back to the bundled stub. We
   // recompute these on every render, the underlying lookups are pure
