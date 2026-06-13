@@ -38,7 +38,8 @@
     "the_bet": "Oklada",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Raspored utakmica"
+    "calendar": "Raspored utakmica",
+    "schedule": "Raspored"
   },
   "authchip": {
     "sign_in_up": "Prijava / Registracija",
@@ -135,6 +136,12 @@
       "f3_body": "Kvizovi na dan utakmice, line betovi, igre unosa rezultata preko Telegram bota. Šest sedmica kontakta, ne pet minuta forme.",
       "f4_title": "Izgrađeno na globalnim podacima",
       "f4_body": "Otvoreni podaci StatsBomba, kvote Polymarketa, javni podaci reprezentacija. Plaćamo svojim izvorima; oni dijele upside."
+    },
+    "actions": {
+      "my_picks": "Moji izbori",
+      "schedule": "Raspored",
+      "pools": "Grupe",
+      "leaderboard": "Ljestvica"
     }
   },
   "countdown": {

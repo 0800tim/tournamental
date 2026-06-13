@@ -38,7 +38,8 @@
     "the_bet": "Die Wette",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Spielplan"
+    "calendar": "Spielplan",
+    "schedule": "Spielplan"
   },
   "authchip": {
     "sign_in_up": "Anmelden / Registrieren",
@@ -135,6 +136,12 @@
       "f3_body": "Spieltag-Quiz, Line-Bets, Ergebnis-Spiele via Telegram-Bot. Sechs Wochen Berührungspunkte statt fünf Minuten Formular.",
       "f4_title": "Auf globalen Daten gebaut",
       "f4_body": "StatsBomb-Open-Data, Polymarket-Quoten, öffentliche Mannschaftsdaten. Wir zahlen unsere Quellen; sie teilen am Upside."
+    },
+    "actions": {
+      "my_picks": "Meine Tipps",
+      "schedule": "Spielplan",
+      "pools": "Pools",
+      "leaderboard": "Bestenliste"
     }
   },
   "countdown": {

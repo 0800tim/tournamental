@@ -38,7 +38,8 @@
     "the_bet": "더 베트",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "경기 일정"
+    "calendar": "경기 일정",
+    "schedule": "일정"
   },
   "authchip": {
     "sign_in_up": "로그인 / 가입",
@@ -135,6 +136,12 @@
       "f3_body": "경기일 퀴즈, 라인 베팅, Telegram 봇을 통한 스코어 입력 게임. 5분짜리 폼이 아닌 6주간의 접점.",
       "f4_title": "글로벌 데이터 위에 구축",
       "f4_body": "StatsBomb 오픈 데이터, Polymarket 배당, 공개 대표팀 데이터. 데이터 소스에 대가를 지불하고, 그들은 업사이드를 공유합니다."
+    },
+    "actions": {
+      "my_picks": "내 예측",
+      "schedule": "일정",
+      "pools": "풀",
+      "leaderboard": "순위"
     }
   },
   "countdown": {

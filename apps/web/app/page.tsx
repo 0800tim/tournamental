@@ -99,6 +99,14 @@ export default async function HomePage(): Promise<JSX.Element> {
     safeT("home.hero.headline_c", "Who will win?"),
     safeT("home.hero.lede_2", "Tournamental keeps the global ledger and commits every pick to the blockchain before each match kicks off, so your predictions are immutable and any claim to glory is finally provable."),
     safeT("home.hero.bot_arena_lede", "A FIFA World Cup predictions game that lets you create free pools to play with friends, run office sweepstakes, and spawn millions of unique 'bracket predictions' in search of the perfect bracket. Your picks are the anchor, your bot will spawn millions of variations around your predictions to try keep a perfect bracket as upsets happen during the tournament. And they can change them along the way!"),
+    // Tim 2026-06-13: tournament-in-flight quick-actions block.
+    // Replaces the marketing-era 3-CTA row with the 4 daily
+    // destinations players need now: bracket, calendar, pools,
+    // leaderboard. 2x2 grid on mobile, single row on desktop.
+    safeT("home.actions.my_picks", "My picks"),
+    safeT("home.actions.schedule", "Schedule"),
+    safeT("home.actions.pools", "Pools"),
+    safeT("home.actions.leaderboard", "Leaderboard"),
     safeT("countdown.eyebrow", "Kickoff"),
     safeT("countdown.title_default", "Mexico vs South Africa, 11 June 2026"),
     safeT("home.stat.matches", "Matches"),
@@ -159,6 +167,7 @@ export default async function HomePage(): Promise<JSX.Element> {
   const [
     headlineA, ctaPredict, ctaPool, lede, ledeLink, readMore,
     headlineB, headlineC, lede2, botArenaLede,
+    actionMyPicks, actionSchedule, actionPools, actionLeaderboard,
     countdownEyebrow, countdownTitle,
     statMatches, statTeams, statPerfectBrackets, statClaimToGlory,
     step1Tag, step1Headline, step1Lede,
@@ -199,19 +208,28 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
-              {/* Tim 2026-06-08: CTAs stay overlaid on the hero banner
-                * (this matches prod). Earlier attempt to extract them
-                * into a standalone 2-col row pushed them way down past
-                * the Bot Arena card and broke the at-a-glance read. */}
-              <div className="vt-home-hero-ctas">
-                <Link href="/world-cup-2026" className="vt-home-btn vt-home-btn-pick">
-                  {ctaPredict} →
+              {/* Tim 2026-06-13: tournament-in-flight quick actions.
+                * Replaces the previous 3-CTA marketing row (predict /
+                * pool / bot-arena) with the four daily destinations
+                * players need now the WC has kicked off: their picks,
+                * the pickable schedule, pools, and the leaderboard.
+                * Layout: 2x2 grid on mobile, single row on desktop. */}
+              <div className="vt-home-hero-actions" data-count="4">
+                <Link href="/world-cup-2026" className="vt-home-action-btn" data-tone="primary">
+                  <span className="vt-home-action-icon" aria-hidden="true">🏟️</span>
+                  <span className="vt-home-action-label">{actionMyPicks}</span>
                 </Link>
-                <Link href="/syndicates" className="vt-home-btn vt-home-btn-light">
-                  {ctaPool}
+                <Link href="/world-cup-2026/calendar" className="vt-home-action-btn">
+                  <span className="vt-home-action-icon" aria-hidden="true">📅</span>
+                  <span className="vt-home-action-label">{actionSchedule}</span>
                 </Link>
-                <Link href="/bot-arena" className="vt-home-btn vt-home-btn-light">
-                  Bot Arena
+                <Link href="/pools" className="vt-home-action-btn">
+                  <span className="vt-home-action-icon" aria-hidden="true">👥</span>
+                  <span className="vt-home-action-label">{actionPools}</span>
+                </Link>
+                <Link href="/leaderboard" className="vt-home-action-btn">
+                  <span className="vt-home-action-icon" aria-hidden="true">📊</span>
+                  <span className="vt-home-action-label">{actionLeaderboard}</span>
                 </Link>
               </div>
 

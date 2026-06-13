@@ -38,7 +38,8 @@
     "the_bet": "De Weddenschap",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Wedstrijdkalender"
+    "calendar": "Wedstrijdkalender",
+    "schedule": "Kalender"
   },
   "authchip": {
     "sign_in_up": "Inloggen / Registreren",
@@ -135,6 +136,12 @@
       "f3_body": "Wedstrijddagquizzen, line bets, scoreverzendspellen via de Telegram-bot. Zes weken touchpoints, geen vijf minuten formulier.",
       "f4_title": "Gebouwd op globale data",
       "f4_body": "Open StatsBomb-data, Polymarket-odds, publieke landendata. We betalen onze bronnen; zij delen in het upside."
+    },
+    "actions": {
+      "my_picks": "Mijn keuzes",
+      "schedule": "Kalender",
+      "pools": "Pools",
+      "leaderboard": "Ranglijst"
     }
   },
   "countdown": {

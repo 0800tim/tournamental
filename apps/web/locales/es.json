@@ -37,7 +37,8 @@
     "the_bet": "La Apuesta",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Calendario de partidos"
+    "calendar": "Calendario de partidos",
+    "schedule": "Calendario"
   },
   "authchip": {
     "sign_in_up": "Entrar / Registrarse",
@@ -134,6 +135,12 @@
       "f3_body": "Quizzes de día de partido, apuestas de línea, juegos de meter marcadores via el bot de Telegram. Seis semanas de contacto, no cinco minutos de formulario.",
       "f4_title": "Construido sobre datos globales",
       "f4_body": "Datos abiertos de StatsBomb, cuotas de Polymarket, datos públicos de selecciones. Pagamos a nuestras fuentes; comparten el upside."
+    },
+    "actions": {
+      "my_picks": "Mis pronósticos",
+      "schedule": "Calendario",
+      "pools": "Quinielas",
+      "leaderboard": "Clasificación"
     }
   },
   "countdown": {

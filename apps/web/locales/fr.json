@@ -37,7 +37,8 @@
     "the_bet": "Le Pari",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Calendrier des matchs"
+    "calendar": "Calendrier des matchs",
+    "schedule": "Calendrier"
   },
   "authchip": {
     "sign_in_up": "Connexion / Inscription",
@@ -134,6 +135,12 @@
       "f3_body": "Quiz de jour de match, paris de ligne, jeux de saisie de score via le bot Telegram. Six semaines de points de contact, pas cinq minutes de formulaire.",
       "f4_title": "Bâti sur des données mondiales",
       "f4_body": "Données ouvertes StatsBomb, cotes Polymarket, données publiques des sélections. On paie nos sources ; elles partagent les retombées."
+    },
+    "actions": {
+      "my_picks": "Mes pronostics",
+      "schedule": "Calendrier",
+      "pools": "Pools",
+      "leaderboard": "Classement"
     }
   },
   "countdown": {

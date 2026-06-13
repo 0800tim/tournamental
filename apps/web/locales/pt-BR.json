@@ -38,7 +38,8 @@
     "the_bet": "A Aposta",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Calendário de jogos"
+    "calendar": "Calendário de jogos",
+    "schedule": "Calendário"
   },
   "authchip": {
     "sign_in_up": "Entrar / Cadastrar",
@@ -135,6 +136,12 @@
       "f3_body": "Quizzes de dia de jogo, apostas de linha, jogos de chutar placar via o bot do Telegram. Seis semanas de contato, não cinco minutos de formulário.",
       "f4_title": "Construído em cima de dados globais",
       "f4_body": "Dados abertos do StatsBomb, odds do Polymarket, dados públicos de seleções. A gente paga as fontes; elas dividem o upside."
+    },
+    "actions": {
+      "my_picks": "Meus palpites",
+      "schedule": "Calendário",
+      "pools": "Bolões",
+      "leaderboard": "Ranking"
     }
   },
   "countdown": {

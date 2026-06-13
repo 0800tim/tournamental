@@ -38,7 +38,8 @@
     "the_bet": "ザ・ベット",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "試合日程"
+    "calendar": "試合日程",
+    "schedule": "日程"
   },
   "authchip": {
     "sign_in_up": "ログイン / 登録",
@@ -135,6 +136,12 @@
       "f3_body": "試合日クイズ、ラインベット、スコア入力ゲームをTelegramボットで。5分のフォーム入力ではなく、6週間の接触。",
       "f4_title": "グローバルデータで構築",
       "f4_body": "StatsBombのオープンデータ、Polymarketのオッズ、公開チームデータ。データソースに対価を払い、彼らはアップサイドを共有します。"
+    },
+    "actions": {
+      "my_picks": "マイ予想",
+      "schedule": "日程",
+      "pools": "プール",
+      "leaderboard": "ランキング"
     }
   },
   "countdown": {

@@ -37,7 +37,8 @@
     "the_bet": "The Bet",
     "calendar": "Match calendar",
     "bot_arena": "Bot Arena",
-    "opening_ceremonies": "Opening Ceremonies"
+    "opening_ceremonies": "Opening Ceremonies",
+    "schedule": "Schedule"
   },
   "authchip": {
     "sign_in_up": "Sign in/up",
@@ -134,6 +135,12 @@
       "f3_body": "Match-day quizzes, line bets, score-input games via the Telegram bot. Six weeks of touchpoints, not five minutes of form-fill.",
       "f4_title": "Built on global data",
       "f4_body": "StatsBomb open data, Polymarket odds, public team data. We pay our data sources; they share in upside."
+    },
+    "actions": {
+      "my_picks": "My picks",
+      "schedule": "Schedule",
+      "pools": "Pools",
+      "leaderboard": "Leaderboard"
     }
   },
   "countdown": {

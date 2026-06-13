@@ -38,7 +38,8 @@
     "the_bet": "La Scommessa",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Calendario partite"
+    "calendar": "Calendario partite",
+    "schedule": "Calendario"
   },
   "authchip": {
     "sign_in_up": "Entra / Registrati",
@@ -135,6 +136,12 @@
       "f3_body": "Quiz nei giorni partita, line bet, giochi di inserimento risultato via bot Telegram. Sei settimane di touchpoint, non cinque minuti di form.",
       "f4_title": "Costruito su dati globali",
       "f4_body": "Dati aperti StatsBomb, quote Polymarket, dati pubblici nazionali. Paghiamo le fonti; condividono l'upside."
+    },
+    "actions": {
+      "my_picks": "I miei pronostici",
+      "schedule": "Calendario",
+      "pools": "Pool",
+      "leaderboard": "Classifica"
     }
   },
   "countdown": {

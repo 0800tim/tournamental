@@ -38,7 +38,8 @@
     "the_bet": "A Fogadás",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Mérkőzésnaptár"
+    "calendar": "Mérkőzésnaptár",
+    "schedule": "Menetrend"
   },
   "authchip": {
     "sign_in_up": "Belépés / Regisztráció",
@@ -135,6 +136,12 @@
       "f3_body": "Meccsnapi kvízek, vonalfogadások, eredménybeküldős játékok a Telegram boton. Hat hét érintés, nem öt perc űrlap.",
       "f4_title": "Globális adatra építve",
       "f4_body": "Nyílt StatsBomb adat, Polymarket szorzók, nyilvános válogatott adat. Fizetjük a forrásainkat; ők osztoznak a felfelé."
+    },
+    "actions": {
+      "my_picks": "Tippjeim",
+      "schedule": "Menetrend",
+      "pools": "Pólyák",
+      "leaderboard": "Ranglista"
     }
   },
   "countdown": {

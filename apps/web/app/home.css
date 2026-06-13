@@ -1658,3 +1658,78 @@
    * cells fit comfortably alongside the four stat cells. */
   gap: clamp(10px, 1.4vw, 18px);
 }
+
+/* ── Tournament-in-flight quick actions (Tim 2026-06-13) ─────────
+ * 2x2 grid on mobile, single row of 4 on desktop. Replaces the
+ * marketing-era 3-CTA row now that players need the daily
+ * destinations front + centre. Sits in the same `ctas` grid area
+ * on the desktop hero. */
+.vt-home-hero-actions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  width: 100%;
+}
+@media (min-width: 720px) {
+  .vt-home-hero-actions {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+}
+@media (min-width: 960px) {
+  /* On desktop the actions sit in the hero's right column (grid-area
+   * "ctas"). Stay 2x2 there because the column is narrow; revert to
+   * the 4-col row at large width only via the parent's media query. */
+  .vt-home-hero-actions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1200px) {
+  .vt-home-hero-actions {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.vt-home-hero-actions { grid-area: ctas; align-self: end; padding-bottom: 6px; }
+
+.vt-home-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 14px 8px;
+  min-height: 78px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: #fff;
+  text-decoration: none;
+  font: 700 0.92rem/1.1 "Inter", -apple-system, system-ui, sans-serif;
+  text-align: center;
+  transition: transform 0.08s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.vt-home-action-btn:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.vt-home-action-btn:active {
+  transform: scale(0.98);
+}
+.vt-home-action-btn[data-tone="primary"] {
+  background: linear-gradient(180deg, #fbbf24, #f59e0b);
+  border-color: #fcd34d;
+  color: #1a1206;
+  box-shadow: 0 6px 18px rgba(251, 191, 36, 0.30);
+}
+.vt-home-action-btn[data-tone="primary"]:hover {
+  background: linear-gradient(180deg, #fcd34d, #fbbf24);
+}
+.vt-home-action-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.vt-home-action-label {
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}

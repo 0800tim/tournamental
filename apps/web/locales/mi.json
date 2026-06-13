@@ -38,7 +38,8 @@
     "the_bet": "Te Whakapae",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Maramataka tākaro"
+    "calendar": "Maramataka tākaro",
+    "schedule": "Maramataka"
   },
   "authchip": {
     "sign_in_up": "Takiuru / Rēhita",
@@ -135,6 +136,12 @@
       "f3_body": "Whakamātautau o te rā kēmu, line bet, kēmu kuhu kaute mā te Telegram bot. E ono wiki o ngā wāhi pā, kaua ko te rima meneti o te puka.",
       "f4_title": "I hangaia ki runga i ngā raraunga ao",
       "f4_body": "Raraunga tuwhera StatsBomb, ngā tūponotanga Polymarket, raraunga poiwhana tūmatanui. Ka utu mātou i ngā puna; ka tohaina e rātou ngā piro pai."
+    },
+    "actions": {
+      "my_picks": "Aku kōwhiringa",
+      "schedule": "Maramataka",
+      "pools": "Roopu",
+      "leaderboard": "Whakatakanga"
     }
   },
   "countdown": {

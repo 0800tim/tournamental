@@ -38,7 +38,8 @@
     "the_bet": "Bahis",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Maç takvimi"
+    "calendar": "Maç takvimi",
+    "schedule": "Takvim"
   },
   "authchip": {
     "sign_in_up": "Giriş yap / Kaydol",
@@ -135,6 +136,12 @@
       "f3_body": "Maç günü kısa sınavlar, line bahisler, Telegram bot üzerinden skor girişi oyunları. Beş dakikalık form değil, altı haftalık temas noktası.",
       "f4_title": "Küresel veri üzerine inşa",
       "f4_body": "StatsBomb açık veri, Polymarket oranları, kamuya açık takım verileri. Kaynaklarımıza ödüyoruz; onlar da kazançtan pay alıyor."
+    },
+    "actions": {
+      "my_picks": "Tahminlerim",
+      "schedule": "Takvim",
+      "pools": "Havuzlar",
+      "leaderboard": "Sıralama"
     }
   },
   "countdown": {

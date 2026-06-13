@@ -38,7 +38,8 @@
     "the_bet": "Vadet",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Matchschema"
+    "calendar": "Matchschema",
+    "schedule": "Spelschema"
   },
   "authchip": {
     "sign_in_up": "Logga in / Registrera",
@@ -135,6 +136,12 @@
       "f3_body": "Matchdagsquiz, line bets, resultat-input via Telegram-boten. Sex veckor av touchpoints, inte fem minuter formulär.",
       "f4_title": "Byggt på global data",
       "f4_body": "Öppen StatsBomb-data, Polymarket-odds, offentlig lagsdata. Vi betalar våra källor; de delar i uppsidan."
+    },
+    "actions": {
+      "my_picks": "Mina tips",
+      "schedule": "Spelschema",
+      "pools": "Pooler",
+      "leaderboard": "Topplista"
     }
   },
   "countdown": {

@@ -43,6 +43,7 @@ import {
   PredictIcon,
   GroupsIcon,
   BarChartIcon,
+  CalendarIcon,
   PlusIcon,
   MenuIcon,
 } from "./icons";
@@ -80,16 +81,18 @@ export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
     icon: <PredictIcon />,
     matchPrefix: "/world-cup-2026",
   },
-  // "Watch" tab dropped from the dock for the WC2026 launch - the
-  // dedicated watch surface isn't player-facing yet. Replaced with
-  // Pools (multi-person GroupsIcon) since pools are the v0.2 hook
-  // (Tim 2026-06-03).
+  // Tim 2026-06-13: Pools tab swapped for Schedule now that the
+  // tournament is in flight. The calendar surface is the primary
+  // daily destination (pickable, with live scores), and Pools +
+  // Leaderboard are effectively the same audience-side view; few
+  // people will start a new pool mid-tournament. Pools is still
+  // one tap away from the side-drawer.
   {
-    label: "Pools",
-    i18nKey: "nav.pools",
-    href: "/pools",
-    icon: <GroupsIcon />,
-    matchPrefix: "/pools",
+    label: "Schedule",
+    i18nKey: "nav.schedule",
+    href: "/world-cup-2026/calendar",
+    icon: <CalendarIcon />,
+    matchPrefix: "/world-cup-2026/calendar",
   },
   // Tim 2026-06-12: Profile drops out of the dock; Leaderboard takes
   // its slot with the bar-chart icon. The profile is still reachable

@@ -38,7 +38,8 @@
     "the_bet": "豪赌",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "比赛日程"
+    "calendar": "比赛日程",
+    "schedule": "赛程"
   },
   "authchip": {
     "sign_in_up": "登录 / 注册",
@@ -135,6 +136,12 @@
       "f3_body": "比赛日小测、盘口投注、通过 Telegram 机器人输入比分的小游戏。六周的接触点，而不是五分钟的表单。",
       "f4_title": "构建在全球数据之上",
       "f4_body": "StatsBomb 开放数据、Polymarket 赔率、公开的球队数据。我们付钱给数据源，他们分享上行收益。"
+    },
+    "actions": {
+      "my_picks": "我的预测",
+      "schedule": "赛程",
+      "pools": "池子",
+      "leaderboard": "排行榜"
     }
   },
   "countdown": {

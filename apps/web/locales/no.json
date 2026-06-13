@@ -38,7 +38,8 @@
     "the_bet": "Veddemålet",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Kampkalender"
+    "calendar": "Kampkalender",
+    "schedule": "Spillplan"
   },
   "authchip": {
     "sign_in_up": "Logg inn / Registrer",
@@ -135,6 +136,12 @@
       "f3_body": "Kampdagsquiz, line bets, resultat-input via Telegram-boten. Seks uker med kontaktpunkter, ikke fem minutter med skjema.",
       "f4_title": "Bygd på globale data",
       "f4_body": "Åpen StatsBomb-data, Polymarket-odds, offentlige lagsdata. Vi betaler kildene; de deler oppsiden."
+    },
+    "actions": {
+      "my_picks": "Mine tips",
+      "schedule": "Spillplan",
+      "pools": "Pooler",
+      "leaderboard": "Topplista"
     }
   },
   "countdown": {

@@ -38,7 +38,8 @@
     "the_bet": "Sázka",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "Rozpis zápasů"
+    "calendar": "Rozpis zápasů",
+    "schedule": "Rozpis"
   },
   "authchip": {
     "sign_in_up": "Přihlásit / Registrovat",
@@ -135,6 +136,12 @@
       "f3_body": "Kvízy v den zápasu, line bety, hry zadávání výsledku přes Telegram bota. Šest týdnů kontaktů, ne pět minut formuláře.",
       "f4_title": "Postavené na globálních datech",
       "f4_body": "Otevřená data StatsBomb, kurzy Polymarket, veřejná data týmů. Naše zdroje platíme; sdílí upside."
+    },
+    "actions": {
+      "my_picks": "Mé tipy",
+      "schedule": "Rozpis",
+      "pools": "Tipovačky",
+      "leaderboard": "Žebříček"
     }
   },
   "countdown": {

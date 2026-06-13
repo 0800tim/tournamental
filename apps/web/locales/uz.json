@@ -38,7 +38,8 @@
     "the_bet": "Garov",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "O'yinlar jadvali"
+    "calendar": "O'yinlar jadvali",
+    "schedule": "Jadval"
   },
   "authchip": {
     "sign_in_up": "Kirish / Roʻyxatdan oʻtish",
@@ -135,6 +136,12 @@
       "f3_body": "Oʻyin kuni viktorinalari, line betlar, Telegram bot orqali hisob kiritish oʻyinlari. Besh daqiqalik forma emas, olti haftalik aloqa.",
       "f4_title": "Global maʼlumotlarga qurilgan",
       "f4_body": "StatsBomb ochiq maʼlumotlari, Polymarket koeffitsiyentlari, ochiq jamoa maʼlumotlari. Manbalarimizga toʻlaymiz; ular yutuqdan ulush oladi."
+    },
+    "actions": {
+      "my_picks": "Mening tanlovlarim",
+      "schedule": "Jadval",
+      "pools": "Guruhlar",
+      "leaderboard": "Reyting"
     }
   },
   "countdown": {

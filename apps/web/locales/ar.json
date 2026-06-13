@@ -38,7 +38,8 @@
     "the_bet": "الرهان",
     "opening_ceremonies": "Opening Ceremonies",
     "bot_arena": "Bot Arena",
-    "calendar": "تقويم المباريات"
+    "calendar": "تقويم المباريات",
+    "schedule": "الجدول"
   },
   "authchip": {
     "sign_in_up": "تسجيل الدخول / إنشاء حساب",
@@ -135,6 +136,12 @@
       "f3_body": "اختبارات يوم المباراة، رهانات line، ألعاب إدخال النتائج عبر بوت Telegram. ستة أسابيع من نقاط التماس، لا خمس دقائق من نموذج.",
       "f4_title": "مبنية على بيانات عالمية",
       "f4_body": "بيانات StatsBomb المفتوحة، احتمالات Polymarket، بيانات منتخبات عامة. ندفع لمصادرنا؛ يتشاركون الـupside."
+    },
+    "actions": {
+      "my_picks": "اختياراتي",
+      "schedule": "الجدول",
+      "pools": "المجموعات",
+      "leaderboard": "المتصدرين"
     }
   },
   "countdown": {
