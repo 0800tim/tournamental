@@ -25,6 +25,12 @@ import { getTranslations } from "next-intl/server";
 import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { CountdownBanner } from "@/components/ui";
+import {
+  PredictIcon,
+  CalendarIcon,
+  GroupsIcon,
+  BarChartIcon,
+} from "@/components/shell/icons";
 
 import "./home.css";
 
@@ -208,30 +214,40 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
-              {/* Tim 2026-06-13: tournament-in-flight quick actions.
-                * Replaces the previous 3-CTA marketing row (predict /
-                * pool / bot-arena) with the four daily destinations
-                * players need now the WC has kicked off: their picks,
-                * the pickable schedule, pools, and the leaderboard.
-                * Layout: 2x2 grid on mobile, single row on desktop. */}
-              <div className="vt-home-hero-actions" data-count="4">
-                <Link href="/world-cup-2026" className="vt-home-action-btn" data-tone="primary">
-                  <span className="vt-home-action-icon" aria-hidden="true">🏟️</span>
+              {/* Tim 2026-06-14: tournament-in-flight quick actions.
+                * Overlaid on the hero banner full-width; 2x2 grid on
+                * mobile, single row on desktop. Monochrome icons match
+                * the drawer + dock so the visual language is consistent.
+                * Not colourful per Tim. */}
+              <nav
+                className="vt-home-hero-actions"
+                aria-label="Quick actions"
+              >
+                <Link href="/world-cup-2026" className="vt-home-action-btn">
+                  <span className="vt-home-action-icon" aria-hidden="true">
+                    <PredictIcon />
+                  </span>
                   <span className="vt-home-action-label">{actionMyPicks}</span>
                 </Link>
                 <Link href="/world-cup-2026/calendar" className="vt-home-action-btn">
-                  <span className="vt-home-action-icon" aria-hidden="true">📅</span>
+                  <span className="vt-home-action-icon" aria-hidden="true">
+                    <CalendarIcon />
+                  </span>
                   <span className="vt-home-action-label">{actionSchedule}</span>
                 </Link>
                 <Link href="/pools" className="vt-home-action-btn">
-                  <span className="vt-home-action-icon" aria-hidden="true">👥</span>
+                  <span className="vt-home-action-icon" aria-hidden="true">
+                    <GroupsIcon />
+                  </span>
                   <span className="vt-home-action-label">{actionPools}</span>
                 </Link>
                 <Link href="/leaderboard" className="vt-home-action-btn">
-                  <span className="vt-home-action-icon" aria-hidden="true">📊</span>
+                  <span className="vt-home-action-icon" aria-hidden="true">
+                    <BarChartIcon />
+                  </span>
                   <span className="vt-home-action-label">{actionLeaderboard}</span>
                 </Link>
-              </div>
+              </nav>
 
               {/* Tim 2026-06-05: single lede paragraph replaces the
                 * previous "Nobody will correctly predict..." + global
@@ -266,14 +282,10 @@ export default async function HomePage(): Promise<JSX.Element> {
                   <span className="vt-home-stat-label">{statClaimToGlory}</span>
                 </li>
               </ul>
-              <div className="vt-home-stats-countdown">
-                <CountdownBanner
-                  targetUtc={WC_2026_KICKOFF_UTC}
-                  eyebrow={countdownEyebrow}
-                  title={countdownTitle}
-                  compact
-                />
-              </div>
+              {/* Tim 2026-06-14: countdown removed now that the
+                * tournament is in flight. The stat-strip alone reads
+                * cleanly. CountdownBanner import kept for the other
+                * surfaces that still use it. */}
             </div>
           </div>
         </section>
