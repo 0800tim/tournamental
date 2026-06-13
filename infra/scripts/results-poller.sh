@@ -225,6 +225,12 @@ for f in pending:
         headers={
             "Authorization": f"Bearer {TOKEN}",
             "Content-Type": "application/json",
+            # Tim 2026-06-13: Cloudflare in front of game.tournamental.com
+            # rejects the default 'Python-urllib/3.x' User-Agent with
+            # error 1010 ("banned by browser signature"). Sending a
+            # generic browser/curl-like UA gets the request through to
+            # the origin where the bearer-token check actually runs.
+            "User-Agent": "Mozilla/5.0 vtorn-results-poller/0.2",
         },
     )
     try:
