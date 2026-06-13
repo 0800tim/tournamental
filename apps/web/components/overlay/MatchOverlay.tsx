@@ -35,6 +35,7 @@ import { loadFixtures2026 } from "@tournamental/bracket-engine";
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import { hostCityById, type HostCity } from "@/lib/host-cities";
+import { useLiveMatchStatus } from "@/lib/bracket/use-live-status";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
 import {
@@ -44,6 +45,57 @@ import {
 
 import { Sheet } from "./Sheet";
 import { useOverlay } from "./OverlayProvider";
+
+const FIFA_2026_TID = "fifa-wc-2026";
+
+interface MatchResultSummary {
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+}
+
+/** One-shot fetch of recorded results, polled every 60s. Same surface
+ *  the bracket + calendar pages use, scoped here to the single match
+ *  whose overlay is currently open. Tim 2026-06-14. */
+function useMatchResult(matchId: string): MatchResultSummary | null {
+  const [result, setResult] = useState<MatchResultSummary | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const r = await fetch(`/api/v1/match-results/${FIFA_2026_TID}`, {
+          credentials: "same-origin",
+        });
+        if (!r.ok) return;
+        const body = (await r.json()) as {
+          results?: ReadonlyArray<{
+            match_id: string;
+            homeScore: number | null;
+            awayScore: number | null;
+          }>;
+        };
+        if (cancelled || !body.results) return;
+        const row = body.results.find((x) => x.match_id === matchId);
+        setResult(
+          row ? { homeScore: row.homeScore, awayScore: row.awayScore } : null,
+        );
+      } catch {
+        /* silent — overlay falls back to pre-result rendering */
+      }
+    }
+    void load();
+    const id = window.setInterval(load, 60_000);
+    function onVisible() {
+      if (document.visibilityState === "visible") void load();
+    }
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [matchId]);
+  return result;
+}
 
 interface MatchOverlayProps {
   readonly id: string;
@@ -84,6 +136,20 @@ export function MatchOverlay(props: MatchOverlayProps) {
   const homeName = home?.name ?? match.homeCode ?? "TBD";
   const awayName = away?.name ?? match.awayCode ?? "TBD";
 
+  // Tim 2026-06-14: resulted state + live state for this match.
+  // Both polled every 60s by their respective hooks so the overlay
+  // updates without the user closing/reopening it.
+  const result = useMatchResult(match.matchId);
+  const liveByMatch = useLiveMatchStatus(FIFA_2026_TID);
+  const live = liveByMatch.get(match.matchId) ?? null;
+  const homeScore = result?.homeScore ?? (live ? live.homeScore : null);
+  const awayScore = result?.awayScore ?? (live ? live.awayScore : null);
+  const matchState: "ft" | "live" | "future" = result
+    ? "ft"
+    : live
+      ? "live"
+      : "future";
+
   const hostCity = hostCityById(match.hostCityId);
   const stageChipText = `${match.stageLabel} · Match ${match.matchNo}`;
   const someTbd = !match.homeCode || !match.awayCode;
@@ -107,15 +173,28 @@ export function MatchOverlay(props: MatchOverlayProps) {
         )}
         <header className="vt-match-overlay-meta">
           <span className="vt-match-overlay-stage-chip">{stageChipText}</span>
+          {matchState === "ft" && (
+            <span className="vt-match-overlay-status" data-state="ft">
+              FT
+            </span>
+          )}
+          {matchState === "live" && live && (
+            <span className="vt-match-overlay-status" data-state="live">
+              <span className="vt-match-overlay-status-dot" aria-hidden="true" />
+              LIVE
+              <span className="vt-match-overlay-status-clock">{live.clock}</span>
+            </span>
+          )}
         </header>
 
-        <div className="vt-match-overlay-row">
+        <div className="vt-match-overlay-row" data-state={matchState}>
           <SideCard
             code={match.homeCode}
             name={homeName}
             primary={home?.kit?.primary}
             slotLabel={match.homeSlotLabel}
             onOpenTeam={(code) => overlay.replace("team", { code })}
+            score={homeScore}
           />
           <span className="vt-match-overlay-vs" aria-hidden="true">
             VS
@@ -126,6 +205,7 @@ export function MatchOverlay(props: MatchOverlayProps) {
             primary={away?.kit?.primary}
             slotLabel={match.awaySlotLabel}
             onOpenTeam={(code) => overlay.replace("team", { code })}
+            score={awayScore}
           />
         </div>
 
@@ -145,10 +225,14 @@ interface SideCardProps {
   readonly primary?: string;
   readonly slotLabel?: string;
   readonly onOpenTeam: (code: string) => void;
+  /** Current score (FT for resulted matches, live for in-progress).
+   *  When non-null, renders as a big bold overlay across the flag tile.
+   *  Tim 2026-06-14. */
+  readonly score?: number | null;
 }
 
 function SideCard(props: SideCardProps) {
-  const { code, name, primary, slotLabel, onOpenTeam } = props;
+  const { code, name, primary, slotLabel, onOpenTeam, score } = props;
   if (!code) {
     return (
       <div className="vt-match-overlay-side vt-match-overlay-side-tbd">
@@ -186,6 +270,14 @@ function SideCard(props: SideCardProps) {
       />
       <span className="vt-match-overlay-name">{name}</span>
       <span className="vt-match-overlay-code">{code}</span>
+      {typeof score === "number" && (
+        <span
+          className="vt-match-overlay-score"
+          aria-label={`${name} score: ${score}`}
+        >
+          {score}
+        </span>
+      )}
     </button>
   );
 }

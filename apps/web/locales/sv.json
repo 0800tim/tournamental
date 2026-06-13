@@ -59,7 +59,7 @@
   "home": {
     "hero": {
       "headline_a": "Kan du tippa hela VM?",
-      "headline_b": "Tjugotvå VM, 964 matcher, ingen har spikat tippet.",
+      "headline_b": "Spela med vänner",
       "cta_predict": "Lägg mina tipp",
       "cta_pool": "Starta en pool",
       "lede": "Ingen har lyckats förut, och troligen kommer ingen att lyckas eftersom {odds_link} är astronomiska. Tjugotvå VM, 964 matcher, det perfekta tippet är fortfarande hemlöst. De 104 matcherna 2026 är nästa försök. Tournamental för den globala loggboken och skriver in varje tipp i blockkedjan före varje avspark, så att dina tippningar är oföränderliga och alla anspråk på äran äntligen blir bevisbara.",

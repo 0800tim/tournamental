@@ -210,24 +210,17 @@ export default async function HomePage(): Promise<JSX.Element> {
             <div className="vt-home-hero-top">
               <h1 className="vt-home-headline">
                 <span className="vt-home-hero-line">{headlineA}</span>
+                {/* Tim 2026-06-14: second line replaces the previous
+                  * 'Bots vs Humans. Who will win?' pair (now-stale
+                  * marketing-era copy) with a single 'Play with
+                  * Friends' line — the v0.2 hook now the tournament
+                  * is in flight. */}
                 <span className="vt-home-hero-line">{headlineB}</span>
-                <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
-              {/* Tim 2026-06-05: single lede paragraph replaces the
-                * previous "Nobody will correctly predict..." + global
-                * ledger pair. The bet page (/the-bet) now carries all
-                * the astronomical-odds talk, so the hero just needs to
-                * explain WHAT Tournamental is and tease the bet. */}
-              <div className="vt-home-hero-lede-stack">
-                <p className="vt-home-hero-lede">{botArenaLede}</p>
-              </div>
-
-              {/* Tim 2026-06-14: tournament-in-flight quick actions.
-                * Sits at the bottom of the hero, overlaid on the
-                * banner image. Full-width 2x2 grid on mobile, 4-up
-                * row on desktop. Monochrome icons match the drawer
-                * + dock so the visual language is consistent. */}
+              {/* Tim 2026-06-14 v4: actions go DIRECTLY UNDER the
+                * heading, BEFORE the lede paragraph. Monochrome
+                * icons match the drawer + dock. */}
               <nav
                 className="vt-home-hero-actions"
                 aria-label="Quick actions"
@@ -257,6 +250,15 @@ export default async function HomePage(): Promise<JSX.Element> {
                   <span className="vt-home-action-label">{actionLeaderboard}</span>
                 </Link>
               </nav>
+
+              {/* Tim 2026-06-05: single lede paragraph replaces the
+                * previous "Nobody will correctly predict..." + global
+                * ledger pair. The bet page (/the-bet) now carries all
+                * the astronomical-odds talk, so the hero just needs to
+                * explain WHAT Tournamental is and tease the bet. */}
+              <div className="vt-home-hero-lede-stack">
+                <p className="vt-home-hero-lede">{botArenaLede}</p>
+              </div>
             </div>
 
             {/* Stats + inline countdown share one row, separated by a

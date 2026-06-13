@@ -58,7 +58,7 @@
   "home": {
     "hero": {
       "headline_a": "Peux-tu pronostiquer toute la Coupe du Monde ?",
-      "headline_b": "Vingt-deux Coupes du Monde, 964 matchs, aucun grand chelem.",
+      "headline_b": "Jouez entre amis",
       "cta_predict": "Faire mes pronos",
       "cta_pool": "Lancer un pool",
       "lede": "Personne ne l'a jamais fait, et personne ne le fera probablement à cause des {odds_link} astronomiques. Vingt-deux Coupes du Monde, 964 matchs, et le pronostic parfait reste à réclamer. Les 104 matchs de 2026 sont la prochaine tentative. Tournamental tient le registre mondial et inscrit chaque pronostic dans la blockchain avant le coup d'envoi de chaque match, tes prédictions sont donc immuables et toute prétention à la gloire devient enfin prouvable.",
