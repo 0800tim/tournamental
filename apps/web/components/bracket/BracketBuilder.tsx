@@ -796,8 +796,14 @@ export function BracketBuilder(props: BracketBuilderProps) {
       if (document.visibilityState === "visible") void load();
     };
     window.addEventListener("visibilitychange", onVis);
+    // Tim 2026-06-13: also poll every 60s so a freshly-recorded FT
+    // (the results-poller cron writes within ~1 min of ESPN's
+    // STATUS_FULL_TIME) flips the row's chip from LIVE/IN-PROGRESS
+    // to RESULTED + score without the user having to refresh.
+    const interval = window.setInterval(load, 60_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
       window.removeEventListener("visibilitychange", onVis);
     };
   }, [tournament.id]);

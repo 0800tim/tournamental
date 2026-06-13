@@ -2415,10 +2415,11 @@ a.bracket-share-cta-primary {
   letter-spacing: 0.02em;
   text-transform: uppercase;
   cursor: help;
-  /* Tim 2026-06-13 dev iter: chip was touching the flag tile below.
-   * Push it up and right slightly so it floats clear of the picks
-   * row no matter how long the live "3-1 90'+1'" label gets. */
-  margin: 2px 4px 8px 0;
+  /* Tim 2026-06-13 dev iter #2: 8px bottom margin still let the
+   * chip touch the flag tile on narrow screens once the live label
+   * grew. Doubling to 16px and adding right-padding inside the chip
+   * so it sits well clear of both the row edge and the picks below. */
+  margin: 2px 6px 16px 0;
 }
 .mpr-lock-chip[data-state="resulted"] {
   background: rgba(34, 197, 94, 0.16);

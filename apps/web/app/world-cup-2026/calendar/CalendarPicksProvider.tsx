@@ -159,8 +159,14 @@ export function CalendarPicksProvider({
       if (document.visibilityState === "visible") void load();
     }
     document.addEventListener("visibilitychange", onVisible);
+    // Tim 2026-06-13: poll every 60s so a fresh FT recorded by the
+    // results-poller cron lands on the client within ~1 min without
+    // needing a manual page refresh. Pairs with the live-status
+    // 60s poll so the transition LIVE -> FT is automatic.
+    const interval = window.setInterval(load, 60_000);
     return () => {
       cancelled = true;
+      window.clearInterval(interval);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [tournament.id]);
