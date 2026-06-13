@@ -214,11 +214,20 @@ export default async function HomePage(): Promise<JSX.Element> {
                 <span className="vt-home-hero-line">{headlineC}</span>
               </h1>
 
+              {/* Tim 2026-06-05: single lede paragraph replaces the
+                * previous "Nobody will correctly predict..." + global
+                * ledger pair. The bet page (/the-bet) now carries all
+                * the astronomical-odds talk, so the hero just needs to
+                * explain WHAT Tournamental is and tease the bet. */}
+              <div className="vt-home-hero-lede-stack">
+                <p className="vt-home-hero-lede">{botArenaLede}</p>
+              </div>
+
               {/* Tim 2026-06-14: tournament-in-flight quick actions.
-                * Overlaid on the hero banner full-width; 2x2 grid on
-                * mobile, single row on desktop. Monochrome icons match
-                * the drawer + dock so the visual language is consistent.
-                * Not colourful per Tim. */}
+                * Sits at the bottom of the hero, overlaid on the
+                * banner image. Full-width 2x2 grid on mobile, 4-up
+                * row on desktop. Monochrome icons match the drawer
+                * + dock so the visual language is consistent. */}
               <nav
                 className="vt-home-hero-actions"
                 aria-label="Quick actions"
@@ -248,15 +257,6 @@ export default async function HomePage(): Promise<JSX.Element> {
                   <span className="vt-home-action-label">{actionLeaderboard}</span>
                 </Link>
               </nav>
-
-              {/* Tim 2026-06-05: single lede paragraph replaces the
-                * previous "Nobody will correctly predict..." + global
-                * ledger pair. The bet page (/the-bet) now carries all
-                * the astronomical-odds talk, so the hero just needs to
-                * explain WHAT Tournamental is and tease the bet. */}
-              <div className="vt-home-hero-lede-stack">
-                <p className="vt-home-hero-lede">{botArenaLede}</p>
-              </div>
             </div>
 
             {/* Stats + inline countdown share one row, separated by a

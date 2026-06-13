@@ -1667,17 +1667,14 @@
  * marketing-era 3-CTA row now that players need the daily
  * destinations front + centre. Sits in the same `ctas` grid area
  * on the desktop hero. */
-/* Tim 2026-06-14 v2: pull the actions out of the narrow `ctas`
- * grid column. They now span the full hero width as a single row
- * of buttons (2x2 on mobile, 4-up at ≥720px). Monochrome icons
- * from the drawer/dock; no gold primary tile — Tim's "not
- * colourful" + match the burger menu visual language. */
+/* Tim 2026-06-14 v3: hero quick-actions row, sits at the bottom of
+ * the hero overlaid on the banner image. Document order in the JSX
+ * places it AFTER the lede so on mobile (single-column auto-flow)
+ * it naturally appears last. The named grid-area only applies at
+ * >=880px where the parent template actually defines an "actions"
+ * area; setting grid-area at all breakpoints triggered an implicit
+ * grid-track and broke the mobile layout (v2 regression). */
 .vt-home-hero-actions {
-  /* Span every column of the hero's grid so it doesn't get pinned
-   * into the narrow right-hand ctas slot. */
-  grid-column: 1 / -1;
-  grid-area: actions;
-  align-self: end;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10px;
@@ -1688,6 +1685,12 @@
   .vt-home-hero-actions {
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
+  }
+}
+@media (min-width: 880px) {
+  /* Only inside the desktop hero grid does the named area exist. */
+  .vt-home-hero-actions {
+    grid-area: actions;
   }
 }
 
