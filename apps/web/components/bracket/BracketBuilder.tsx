@@ -110,6 +110,7 @@ import { localUserId, loadDraft, saveDraft } from "@/lib/bracket/storage";
 import { GAME_API_BASE, loadServerBracket, saveFullBracket } from "@/lib/bracket/api";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { bracketSignature } from "@/lib/bracket/signature";
+import { useLiveMatchStatus } from "@/lib/bracket/use-live-status";
 import { submitBracket } from "@/lib/bracket/submit";
 import { useUser } from "@/lib/auth/useUser";
 import { SignupModal } from "@/components/auth/SignupModal";
@@ -354,6 +355,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const [resultsByMatch, setResultsByMatch] = useState<
     ReadonlyMap<string, ResultedMatch>
   >(() => new Map());
+  // Live (in-progress) match status keyed by match_no. Polled from
+  // /api/v1/live-status/<tid> every 60s by the shared hook. Drives the
+  // LIVE chip with current score + match clock on each row. Empty
+  // before the first poll lands. Tim 2026-06-13.
+  const liveByMatch = useLiveMatchStatus(tournament.id);
   const [punditStatus, setPunditStatus] = useState<PunditStatus>(UNVERIFIED);
   // Mobile viewport flag (<= 768px). Drives the stage-as-page carousel
   // layout: on mobile all six stage panels render inline in a horizontal
@@ -1940,6 +1946,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       country={country}
                       oddsByMatch={oddsByMatch}
                       resultsByMatch={resultsByMatch}
+                      liveByMatch={liveByMatch}
                       onChangeMatch={onChangeMatch}
                       onChangeTiebreaker={onChangeTiebreaker}
                       onAutoPickGroup={handleAutoPickGroup}

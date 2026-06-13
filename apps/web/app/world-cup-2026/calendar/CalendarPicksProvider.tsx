@@ -36,6 +36,7 @@ import { useUser } from "@/lib/auth/useUser";
 import { bracketSignature } from "@/lib/bracket/signature";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { cascadeWithUserPicks } from "@/lib/bracket/cascade-iter";
+import { useLiveMatchStatus } from "@/lib/bracket/use-live-status";
 import {
   loadDraft,
   saveDraft,
@@ -272,9 +273,14 @@ export function CalendarPicksProvider({
     };
   }, [flush]);
 
+  const liveByMatch = useLiveMatchStatus(tournament.id);
+
   const value: CalendarPicksContextValue = useMemo(
-    () => ({ bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs }),
-    [bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs],
+    () => ({
+      bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs,
+      liveByMatch,
+    }),
+    [bracket, setPick, resultsByMatch, cascadeCodes, hydrated, nowMs, liveByMatch],
   );
 
   return (

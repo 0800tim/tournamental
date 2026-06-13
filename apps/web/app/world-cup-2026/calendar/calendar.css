@@ -834,3 +834,39 @@ button.vt-cal-side-team[data-verdict="wrong"] {
   outline: 2px solid #fbbf24;
   outline-offset: -2px;
 }
+
+/* Live (in-progress) pill — replaces the static "LOCKED" chip on
+ * matches with state="in" from /api/v1/live-status. Tim 2026-06-13. */
+.vt-cal-status-pill[data-state="live"] {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(248, 113, 113, 0.16);
+  color: #fca5a5;
+  border: 1px solid rgba(248, 113, 113, 0.42);
+}
+.vt-cal-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5);
+  animation: vt-cal-pulse 1.4s ease-out infinite;
+}
+@keyframes vt-cal-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0.55); }
+  70%  { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0); }
+}
+.vt-cal-status-score {
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+.vt-cal-status-clock {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.72);
+  font-variant-numeric: tabular-nums;
+}

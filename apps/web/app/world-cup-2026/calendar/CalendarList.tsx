@@ -126,6 +126,10 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   // mismatch); after mount the provider's interval updates the clock
   // and the lock / live / past state takes effect.
   const isLocked = picks.nowMs > 0 && picks.nowMs >= Date.parse(row.kickoffUtc);
+  // Live status from ESPN (polled every 60s). Present only when the
+  // match is actually on the pitch right now. Wins over the static
+  // 'LOCKED' chip so viewers see the score + clock instead.
+  const live = picks.liveByMatch.get(row.matchId) ?? null;
   const isGroup = row.stage === "group";
   const stageKey = row.stage as "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
 
@@ -158,11 +162,19 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
           {row.stageBadge}
         </span>
         <span className="vt-cal-row-no">Match {row.matchNo}</span>
-        {isLocked && !result ? (
-          <span className="vt-cal-status-pill" data-state="locked">LOCKED</span>
-        ) : null}
         {result ? (
           <span className="vt-cal-status-pill" data-state="ft">FT</span>
+        ) : live ? (
+          <span className="vt-cal-status-pill" data-state="live">
+            <span className="vt-cal-status-dot" aria-hidden="true" />
+            <span className="vt-cal-status-label">LIVE</span>
+            <span className="vt-cal-status-score">
+              {live.homeScore}-{live.awayScore}
+            </span>
+            <span className="vt-cal-status-clock">{live.clock}</span>
+          </span>
+        ) : isLocked ? (
+          <span className="vt-cal-status-pill" data-state="locked">LOCKED</span>
         ) : null}
       </header>
 

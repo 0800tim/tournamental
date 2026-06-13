@@ -2422,6 +2422,39 @@ a.bracket-share-cta-primary {
   border-color: rgba(34, 197, 94, 0.5);
   color: #bbf7d0;
 }
+/* Live: ESPN says the ball is on the pitch right now. Pulsing dot
+ * + current score + match-clock string. Tim 2026-06-13. */
+.mpr-lock-chip[data-state="live"] {
+  background: rgba(220, 38, 38, 0.28);
+  border-color: rgba(220, 38, 38, 0.65);
+  color: #fff;
+  padding-right: 10px;
+}
+.mpr-lock-chip-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.55);
+  animation: mpr-live-pulse 1.4s ease-out infinite;
+}
+@keyframes mpr-live-pulse {
+  0%   { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0.65); }
+  70%  { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+  100% { box-shadow: 0 0 0 0   rgba(239, 68, 68, 0); }
+}
+.mpr-lock-chip-score {
+  margin-left: 4px;
+  font-weight: 800;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.mpr-lock-chip-clock {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.78);
+  font-variant-numeric: tabular-nums;
+}
 .mpr-lock-chip-label {
   line-height: 1;
 }

@@ -81,6 +81,12 @@ export interface MatchPredictionRowProps {
    *  circles, the green "Resulted" chip, and the tick/cross badge
    *  over the user's pick. null pre-result. Tim 2026-06-12. */
   readonly result?: ResultedMatch | null;
+  /** Live in-progress status for this match (current score + match
+   *  clock). When present + no result yet, the lock chip in the
+   *  upper-right swaps from "In progress" to "LIVE - 3-1 - 77'".
+   *  Polled from /api/v1/live-status/<tid> by the parent every 60s.
+   *  Tim 2026-06-13. */
+  readonly liveStatus?: import("@/lib/bracket/use-live-status").LiveStatus | null;
   /**
    * Optional override for the home team's last-5 W/D/L sequence (most
    * recent first). When omitted we look it up from the bundled stub.
@@ -130,6 +136,7 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
     kickoffIso,
     odds,
     result,
+    liveStatus,
     homeForm,
     awayForm,
     headToHead,
@@ -249,14 +256,26 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
         // started" copy collapses to a small padlock chip in the
         // upper-right of the row. Label + tone flip from red 'In
         // progress' to green 'Resulted' the moment a result lands.
+        // Tim 2026-06-13: when liveStatus is populated (ESPN says
+        // the ball is on the pitch right now), swap the static
+        // 'In progress' for a live "LIVE - 3-1 - 77'" treatment so
+        // viewers see the live score + match clock at a glance.
         <div
           className="mpr-lock-chip"
-          data-state={hasResult ? "resulted" : "in-progress"}
+          data-state={
+            hasResult
+              ? "resulted"
+              : liveStatus
+                ? "live"
+                : "in-progress"
+          }
           role="img"
           aria-label={
             hasResult
               ? "Match has resulted and the pick is locked"
-              : "Match is in progress and locked"
+              : liveStatus
+                ? `Match is live: ${liveStatus.homeScore} - ${liveStatus.awayScore} at ${liveStatus.clock}`
+                : "Match is in progress and locked"
           }
           title={
             hasResult
@@ -264,23 +283,39 @@ export function MatchPredictionRow(props: MatchPredictionRowProps) {
               : "You cannot make changes to this prediction, the match is in progress."
           }
         >
-          <svg
-            viewBox="0 0 24 24"
-            width="14"
-            height="14"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-          >
-            <rect x="5" y="11" width="14" height="9" rx="2" />
-            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-          </svg>
+          {liveStatus && !hasResult ? (
+            <span className="mpr-lock-chip-dot" aria-hidden="true" />
+          ) : (
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="5" y="11" width="14" height="9" rx="2" />
+              <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+            </svg>
+          )}
           <span className="mpr-lock-chip-label">
-            {hasResult ? "Resulted" : "In progress"}
+            {hasResult
+              ? "Resulted"
+              : liveStatus
+                ? "LIVE"
+                : "In progress"}
           </span>
+          {liveStatus && !hasResult ? (
+            <>
+              <span className="mpr-lock-chip-score">
+                {liveStatus.homeScore}-{liveStatus.awayScore}
+              </span>
+              <span className="mpr-lock-chip-clock">{liveStatus.clock}</span>
+            </>
+          ) : null}
         </div>
       )}
       {/* The previous top-right "⋯" link (Tim 2026-06-06) was folded

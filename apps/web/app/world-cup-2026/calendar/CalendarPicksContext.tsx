@@ -16,6 +16,8 @@ import { createContext, useContext } from "react";
 
 import type { Bracket, MatchPrediction } from "@tournamental/bracket-engine";
 
+import type { LiveStatus } from "@/lib/bracket/use-live-status";
+
 import type { ResultedMatch } from "./types";
 
 export type Outcome = MatchPrediction["outcome"];
@@ -51,6 +53,15 @@ export interface CalendarPicksContextValue {
    * applies. Avoids the SSR-vs-client clock-skew hydration error.
    */
   readonly nowMs: number;
+  /**
+   * Live (in-progress) match status, by matchId. Polled from
+   * /api/v1/live-status/<tid> every 60s. Populated only for matches
+   * currently with state='in' (i.e. the ball is on the pitch);
+   * resulted matches appear in resultsByMatch instead.
+   *
+   * Tim 2026-06-13.
+   */
+  readonly liveByMatch: ReadonlyMap<string, LiveStatus>;
 }
 
 const NULL: CalendarPicksContextValue = {
@@ -68,6 +79,7 @@ const NULL: CalendarPicksContextValue = {
   cascadeCodes: new Map(),
   hydrated: false,
   nowMs: 0,
+  liveByMatch: new Map(),
 };
 
 export const CalendarPicksContext =

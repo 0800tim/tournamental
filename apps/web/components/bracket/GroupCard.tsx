@@ -88,6 +88,13 @@ export interface GroupCardProps {
    *  Drives the resulted-state rendering on each MatchPredictionRow.
    *  Empty map until the page-level fetch lands. Tim 2026-06-12. */
   readonly resultsByMatch?: ReadonlyMap<string, ResultedMatch>;
+  /** Live (in-progress) match status keyed by `matchId`. Drives the
+   *  live-score chip on rows whose match is on the pitch right now.
+   *  Empty map until ESPN's first poll returns. Tim 2026-06-13. */
+  readonly liveByMatch?: ReadonlyMap<
+    string,
+    import("@/lib/bracket/use-live-status").LiveStatus
+  >;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
   /** Optional per-group auto-pick. When provided the header surfaces a
@@ -119,6 +126,7 @@ export function GroupCard(props: GroupCardProps) {
     showOddsChips = true,
     oddsByMatch,
     resultsByMatch,
+    liveByMatch,
     onChangeMatch,
     onChangeTiebreaker,
     onAutoPickGroup,
@@ -312,6 +320,7 @@ export function GroupCard(props: GroupCardProps) {
               showOddsChip={showOddsChips}
               odds={oddsByMatch?.get(id) ?? null}
               result={resultsByMatch?.get(id) ?? null}
+              liveStatus={liveByMatch?.get(id) ?? null}
               hostCity={hostCityByMatchNumber(f.match_no)}
               onChange={onChangeMatch}
             />
