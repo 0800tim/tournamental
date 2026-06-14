@@ -211,14 +211,23 @@ for f in pending:
     outcome = "home_win" if h > a else "away_win" if a > h else "draw"
     winner = f["home"] if outcome == "home_win" else f["away"] if outcome == "away_win" else None
 
-    body = json.dumps({
+    # Tim 2026-06-14: build the payload OMITTING `winner` on draws.
+    # The Zod schema on the server is `winner: z.string().optional()`
+    # which accepts the field being missing or a string but REJECTS
+    # null. Previously we sent `winner: None` -> `null` for draws
+    # and got HTTP 400 invalid_payload on every draw FT. Leaderboard
+    # silently stuck on the last non-draw result until manually
+    # posted.
+    payload = {
         "tournament_id": TID,
         "outcome": outcome,
         "homeScore": h,
         "awayScore": a,
-        "winner": winner,
         "stage": "group",
-    }).encode("utf-8")
+    }
+    if winner:
+        payload["winner"] = winner
+    body = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         f"{BASE}/v1/match/{f['match_no']}/result",
         data=body, method="POST",
