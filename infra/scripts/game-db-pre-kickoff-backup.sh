@@ -31,6 +31,20 @@ RETAIN_DAYS="${RETAIN_DAYS:-30}"
 LEAD_MINUTES_MIN=10
 LEAD_MINUTES_MAX=11
 
+# Tim 2026-06-16: cron's PATH doesn't include linuxbrew where sqlite3
+# lives on this host; same fix as infra/audit/anchor.sh. Resolve the
+# binary explicitly so the cron run actually produces files.
+for cand in /home/linuxbrew/.linuxbrew/bin/sqlite3 /usr/bin/sqlite3 /usr/local/bin/sqlite3 sqlite3; do
+  if command -v "$cand" >/dev/null 2>&1 || [ -x "$cand" ]; then
+    SQLITE_BIN="$cand"; break
+  fi
+done
+if [ -z "${SQLITE_BIN:-}" ]; then
+  echo "$(date -u +%FT%TZ) FATAL: sqlite3 not found on this box" >&2
+  exit 1
+fi
+OTS_BIN="${OTS_BIN:-/home/clawdbot/venv/bin/ots}"
+
 mkdir -p "$BACKUP_DIR"
 
 now_s=$(date -u +%s)
@@ -78,26 +92,41 @@ fi
 # command — it copies pages while holding short locks so writers are
 # barely delayed. The output file is a complete, consistent DB ready to
 # open with sqlite3 directly.
-if ! sqlite3 "$DB_PATH" ".backup '$target'"; then
+if ! "$SQLITE_BIN" "$DB_PATH" ".backup '$target'"; then
   echo "$(date -u +%FT%TZ) FAILED backup before match=$matched_match_id" >&2
   exit 2
 fi
 
 # Verify the snapshot opens + has the brackets table populated (cheap
 # sanity check; abort and remove the file if it looks empty).
-n=$(sqlite3 "$target" "SELECT COUNT(*) FROM brackets WHERE tournament_id='fifa-wc-2026'" 2>/dev/null || echo 0)
+n=$("$SQLITE_BIN" "$target" "SELECT COUNT(*) FROM brackets WHERE tournament_id='fifa-wc-2026'" 2>/dev/null || echo 0)
 if [[ "$n" -lt 1 ]]; then
   echo "$(date -u +%FT%TZ) BAD snapshot (brackets=$n) at $target — removing" >&2
   rm -f "$target"
   exit 3
 fi
 
+# Tim 2026-06-16: hash + OpenTimestamps stamp the snapshot so each
+# pre-kickoff backup carries a verifiable Bitcoin-anchored receipt of
+# its existence at the kickoff moment. ~1KB .ots file lives next to
+# the .bak. Previously only the daily anchor stamped (and that was
+# broken too — see infra/audit/anchor.sh fix from the same date).
+sha256="$(sha256sum "$target" | awk '{print $1}')"
+ots_status="ots-skipped"
+if [ -x "$OTS_BIN" ]; then
+  if "$OTS_BIN" stamp "$target" >/dev/null 2>&1 && [ -f "${target}.ots" ]; then
+    ots_status="ots-pending"
+  else
+    ots_status="ots-failed"
+  fi
+fi
+
 # Log success to a tiny rolling journal so ops can see what fired.
 journal="$BACKUP_DIR/journal.log"
-echo "$(date -u +%FT%TZ) ok match=$matched_match_id brackets=$n -> $(basename "$target")" >> "$journal"
+echo "$(date -u +%FT%TZ) ok match=$matched_match_id brackets=$n sha256=$sha256 $ots_status -> $(basename "$target")" >> "$journal"
 
-# Rotate: drop anything older than $RETAIN_DAYS so the backup dir does
-# not grow unbounded.
-find "$BACKUP_DIR" -maxdepth 1 -name "game.db.*.bak" -type f -mtime +$RETAIN_DAYS -delete 2>/dev/null || true
+# Rotate: drop anything older than $RETAIN_DAYS (.bak + .ots together)
+# so the backup dir does not grow unbounded.
+find "$BACKUP_DIR" -maxdepth 1 \( -name "game.db.*.bak" -o -name "game.db.*.bak.ots" \) -type f -mtime +$RETAIN_DAYS -delete 2>/dev/null || true
 
 exit 0

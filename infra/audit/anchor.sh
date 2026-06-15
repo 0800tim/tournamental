@@ -41,7 +41,21 @@ AUDIT_ROOT="${REPO_ROOT}/apps/web/data/audit"
 LEDGER="${AUDIT_ROOT}/ledger.json"
 
 OTS_BIN="${OTS_BIN:-/home/clawdbot/venv/bin/ots}"
-SQLITE_BIN="${SQLITE_BIN:-sqlite3}"
+# Tim 2026-06-16: cron's minimal PATH doesn't include linuxbrew where
+# sqlite3 lives on this box, so every cron run since 2026-06-07 has
+# failed with "sqlite3: command not found". Resolve via an explicit
+# search across the known locations rather than relying on PATH.
+if [ -z "${SQLITE_BIN:-}" ] || ! command -v "${SQLITE_BIN:-sqlite3}" >/dev/null 2>&1; then
+  for cand in /home/linuxbrew/.linuxbrew/bin/sqlite3 /usr/bin/sqlite3 /usr/local/bin/sqlite3 sqlite3; do
+    if command -v "$cand" >/dev/null 2>&1 || [ -x "$cand" ]; then
+      SQLITE_BIN="$cand"; break
+    fi
+  done
+fi
+if ! { command -v "${SQLITE_BIN}" >/dev/null 2>&1 || [ -x "${SQLITE_BIN}" ]; }; then
+  echo "[anchor] FATAL: sqlite3 not found on this box" >&2
+  exit 1
+fi
 
 if [ ! -f "${GAME_DB}" ]; then
   echo "[anchor] FATAL: ${GAME_DB} not found" >&2
