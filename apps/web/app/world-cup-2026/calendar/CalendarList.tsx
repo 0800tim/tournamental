@@ -47,11 +47,51 @@ export function CalendarList({ rows }: CalendarListProps) {
     overlay.open("team", { code });
   };
 
-  // Tim 2026-06-16: auto-scroll on first paint to the most relevant
-  // row — a live match if any, else the soonest future kickoff, else
-  // the final row when the tournament's over. Ref-gated so the page
-  // doesn't keep yanking the viewport on every poll tick.
+  // Tim 2026-06-16 iter#6 — simplified per Tim's feedback. Forget
+  // ESPN live-status and userTz gating; just compare each row's
+  // kickoff_utc to the device clock and scroll to the first match
+  // whose kickoff is still in the future. Runs once on mount with
+  // a 500ms layout-settling delay; ref guard prevents re-fire on
+  // unrelated state changes. Anchors on the day-header for first-
+  // of-day so the date label sits at the top of the viewport.
   const didAutoScrollRef = useRef(false);
+  useEffect(() => {
+    if (didAutoScrollRef.current) return;
+    didAutoScrollRef.current = true;
+    if (typeof history !== "undefined" && "scrollRestoration" in history) {
+      try {
+        history.scrollRestoration = "manual";
+      } catch {
+        /* some embedded contexts forbid this; ignore */
+      }
+    }
+    const timer = window.setTimeout(() => {
+      const now = Date.now();
+      const els = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-kickoff-utc]"),
+      );
+      if (els.length === 0) return;
+      let target: HTMLElement | null = null;
+      for (const el of els) {
+        const ko = Date.parse(el.dataset.kickoffUtc ?? "");
+        if (Number.isFinite(ko) && ko > now) {
+          target = el;
+          break;
+        }
+      }
+      if (!target) target = els[els.length - 1] ?? null;
+      if (!target) return;
+      const daySection = target.closest(
+        "li.vt-calendar-day",
+      ) as HTMLElement | null;
+      const dayRowsList = target.parentElement;
+      const isFirstOfDay =
+        !!dayRowsList && dayRowsList.firstElementChild === target;
+      const anchor = isFirstOfDay && daySection ? daySection : target;
+      anchor.scrollIntoView({ block: "start", behavior: "smooth" });
+    }, 500);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   // Group rows by calendar day in the viewer's own timezone so the day
   // headers match the per-row "your time" (a 13:00 GMT-6 kickoff is the
@@ -67,83 +107,6 @@ export function CalendarList({ rows }: CalendarListProps) {
       // Keep the venue-tz fallback if the runtime can't resolve a tz.
     }
   }, []);
-
-  // Auto-scroll, second pass. Declared AFTER userTz so the gate
-  // reads the live state, and so the effect re-fires when userTz
-  // flips from null -> resolved (which re-groups the days under
-  // the user's timezone, shifting every row's position in the DOM).
-  useEffect(() => {
-    if (didAutoScrollRef.current) return;
-    // Wait for BOTH the clock and the user's IANA timezone to be
-    // resolved before scrolling. The page first paints day groups
-    // bucketed by venue timezone (deterministic for SSR), then the
-    // userTz useEffect above resolves the user's tz and re-groups.
-    // Scrolling between those two paints lands on a stale offset.
-    if (picks.nowMs === 0) return;
-    if (userTz === null) return;
-    if (typeof history !== "undefined" && "scrollRestoration" in history) {
-      try {
-        history.scrollRestoration = "manual";
-      } catch {
-        /* embedded contexts may forbid this; safe to ignore */
-      }
-    }
-    didAutoScrollRef.current = true;
-
-    let targetId: string | null = null;
-    // 1. Prefer a currently live match.
-    for (const r of rows) {
-      if (picks.liveByMatch.has(r.matchId)) {
-        targetId = r.matchId;
-        break;
-      }
-    }
-    // 2. Otherwise the soonest future kickoff.
-    if (!targetId) {
-      let bestId: string | null = null;
-      let bestDelta = Infinity;
-      for (const r of rows) {
-        const ko = Date.parse(r.kickoffUtc);
-        if (!Number.isFinite(ko)) continue;
-        const delta = ko - picks.nowMs;
-        if (delta >= 0 && delta < bestDelta) {
-          bestDelta = delta;
-          bestId = r.matchId;
-        }
-      }
-      targetId = bestId;
-    }
-    // 3. Otherwise the final row (tournament over).
-    if (!targetId && rows.length > 0) {
-      targetId = rows[rows.length - 1]!.matchId;
-    }
-    if (!targetId) return;
-
-    // 80ms setTimeout lets React's userTz commit + the day re-grouping
-    // land in the DOM before we measure. scrollIntoView then lets the
-    // browser pick the right Y itself; scroll-margin-top (calendar.css)
-    // keeps the anchor clear of the sticky app bar.
-    const targetIdSnap = targetId;
-    const timer = window.setTimeout(() => {
-      const row = document.querySelector(
-        `[data-match-id="${CSS.escape(targetIdSnap as string)}"]`,
-      ) as HTMLElement | null;
-      if (!row) return;
-      // First match of its day? Anchor on the day-group wrapper so
-      // the 'Wednesday, 17 June 2026 · 4 MATCHES' header lands at the
-      // top of the viewport with the target row directly under it.
-      // Otherwise anchor on the row itself.
-      const daySection = row.closest(
-        "li.vt-calendar-day",
-      ) as HTMLElement | null;
-      const dayRowsList = row.parentElement;
-      const isFirstOfDay =
-        !!dayRowsList && dayRowsList.firstElementChild === row;
-      const anchor = isFirstOfDay && daySection ? daySection : row;
-      anchor.scrollIntoView({ block: "start", behavior: "smooth" });
-    }, 80);
-    return () => window.clearTimeout(timer);
-  }, [picks.nowMs, picks.liveByMatch, rows, userTz]);
 
   const groups: { dayKey: string; dayLabel: string; rows: CalendarRow[] }[] = [];
   for (const row of rows) {
@@ -249,6 +212,7 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
       data-stage={row.stage}
       data-locked={isLocked ? "true" : "false"}
       data-match-id={row.matchId}
+      data-kickoff-utc={row.kickoffUtc}
     >
       <header className="vt-cal-row-header">
         <span className="vt-cal-row-badge" data-stage={row.stage}>
