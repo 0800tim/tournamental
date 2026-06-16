@@ -54,13 +54,21 @@ export function CalendarList({ rows }: CalendarListProps) {
   // a 500ms layout-settling delay; ref guard prevents re-fire on
   // unrelated state changes. Anchors on the day-header for first-
   // of-day so the date label sits at the top of the viewport.
-  // Idempotency guard lives INSIDE the timer callback, not before it.
-  // React 18 strict mode (active under `next dev`) mounts every
-  // component twice: the first mount's cleanup cancels its setTimeout,
-  // and if the ref is flipped before scheduling, the second mount
-  // early-returns and nothing ever fires. Letting the second mount
-  // schedule its own timer (and gating the actual scroll on the ref)
-  // works in both dev and prod.
+  // Auto-scroll to the next upcoming match.
+  //
+  // Why this is fiddlier than it looks:
+  //   - React 18 strict mode (active under `next dev`) mounts every
+  //     component twice. If the dedupe ref is set BEFORE scheduling
+  //     the timer, the first cleanup cancels the timer and the second
+  //     mount early-returns; nothing fires. Guard ref lives INSIDE
+  //     the timer callback instead.
+  //   - Each row lazy-loads 4+ flag images. They paint after first
+  //     layout, growing the column by hundreds of pixels. A scroll
+  //     fired before that settle lands hundreds of px short.
+  //
+  // Strategy: scroll once after the document fires `load` (all images
+  // decoded), then verify the anchor is within ±40px of the viewport
+  // top; if not, do a second instant correction pass.
   const didAutoScrollRef = useRef(false);
   useEffect(() => {
     if (didAutoScrollRef.current) return;
@@ -71,14 +79,19 @@ export function CalendarList({ rows }: CalendarListProps) {
         /* some embedded contexts forbid this; ignore */
       }
     }
-    const timer = window.setTimeout(() => {
-      if (didAutoScrollRef.current) return;
-      didAutoScrollRef.current = true;
+
+    let correctionTimer: number | null = null;
+    let cancelled = false;
+
+    function findAnchor(): {
+      target: HTMLElement;
+      anchor: HTMLElement;
+    } | null {
       const now = Date.now();
       const els = Array.from(
         document.querySelectorAll<HTMLElement>("[data-kickoff-utc]"),
       );
-      if (els.length === 0) return;
+      if (els.length === 0) return null;
       let target: HTMLElement | null = null;
       for (const el of els) {
         const ko = Date.parse(el.dataset.kickoffUtc ?? "");
@@ -88,7 +101,7 @@ export function CalendarList({ rows }: CalendarListProps) {
         }
       }
       if (!target) target = els[els.length - 1] ?? null;
-      if (!target) return;
+      if (!target) return null;
       const daySection = target.closest(
         "li.vt-calendar-day",
       ) as HTMLElement | null;
@@ -96,9 +109,43 @@ export function CalendarList({ rows }: CalendarListProps) {
       const isFirstOfDay =
         !!dayRowsList && dayRowsList.firstElementChild === target;
       const anchor = isFirstOfDay && daySection ? daySection : target;
-      anchor.scrollIntoView({ block: "start", behavior: "smooth" });
-    }, 500);
-    return () => window.clearTimeout(timer);
+      return { target, anchor };
+    }
+
+    function performScroll() {
+      if (cancelled || didAutoScrollRef.current) return;
+      didAutoScrollRef.current = true;
+      const hit = findAnchor();
+      if (!hit) return;
+      hit.anchor.scrollIntoView({ block: "start", behavior: "smooth" });
+      // Smooth scroll settles in ~500ms. Verify after, correct if
+      // late image loads shifted the anchor away from the viewport
+      // top. The CSS scroll-margin-top is ~120px, so anything between
+      // 0 and ~160 is on-target.
+      correctionTimer = window.setTimeout(() => {
+        if (cancelled) return;
+        const hit2 = findAnchor();
+        if (!hit2) return;
+        const top = hit2.anchor.getBoundingClientRect().top;
+        if (top < -40 || top > 200) {
+          hit2.anchor.scrollIntoView({ block: "start", behavior: "auto" });
+        }
+      }, 900);
+    }
+
+    // Wait for `load` (all images decoded) so layout has settled.
+    if (document.readyState === "complete") {
+      // Tiny defer so the userTz re-grouping effect lands first.
+      window.setTimeout(performScroll, 80);
+    } else {
+      window.addEventListener("load", performScroll, { once: true });
+    }
+
+    return () => {
+      cancelled = true;
+      if (correctionTimer !== null) window.clearTimeout(correctionTimer);
+      window.removeEventListener("load", performScroll);
+    };
   }, []);
 
   // Group rows by calendar day in the viewer's own timezone so the day
