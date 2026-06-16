@@ -56,6 +56,7 @@ import {
   ShareMoleculeEmbed,
   JoinSyndicate,
   SyndicateLeaderboardRows,
+  PoolLeaderboardLive,
   BracketPosterCallout,
   ShareBracketButton,
 } from "./ClientChunks";
@@ -585,103 +586,27 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       >
         Pool leaderboard
       </p>
-      <div className="vt-share-pool-lb" role="list">
-        {/* Column header. Shows the user the meaning of the rank and
-         *  the right-hand correct/resulted ratio. Hidden via CSS when
-         *  there is no Y yet (pre-kickoff) so we do not promise a
-         *  column that will be empty for every row. */}
-        <div className="vt-share-pool-lb-header" aria-hidden="true">
-          <span className="vt-share-pool-lb-header-rank">Rank</span>
-          <span className="vt-share-pool-lb-header-name">Member</span>
-          {matchesAvailableForPool > 0 && (
-            <span className="vt-share-pool-lb-header-score">
-              correct / resulted
-            </span>
-          )}
-        </div>
-        {leaderboardRows.map(({ m, rank, tied }) => {
-          const label = m.display_name?.trim() || m.handle;
-          const avatarSrc = m.avatar_url ?? DEFAULT_AVATAR_DATA_URI;
-          const slug =
-            slugifyDisplayName(m.display_name) ??
-            slugifyDisplayName(m.handle) ??
-            null;
-          const isPermalinkUser =
-            !!m.user_id && /^u_[0-9a-f]+$/i.test(m.user_id);
-          const profileHref = slug
-            ? `/s/${slug}`
-            : isPermalinkUser
-              ? `/s/${m.user_id}`
-              : null;
-          const cardKey = m.user_id ?? m.handle;
-          // Flag overlay on the avatar mirrors the MembersGrid treatment
-          // (bottom-right of the avatar) so the leaderboard reads like the
-          // pool member tiles, just denser. The X/Y badge on the right is
-          // omitted entirely when `matchesAvailableForPool === 0`
-          // (pre-kickoff or game service down), so a blank pool is clean.
-          // Tim 2026-06-12.
-          const inner = (
-            <>
-              <span className="vt-share-pool-lb-rank">
-                {rank}
-                {tied && <span className="vt-share-pool-lb-rank-eq">=</span>}
-              </span>
-              <span className="vt-share-pool-lb-avatar-wrap">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="vt-share-pool-lb-avatar"
-                  src={avatarSrc}
-                  alt=""
-                  width={128}
-                  height={128}
-                  loading="lazy"
-                />
-                {m.flag_emoji && (
-                  <span
-                    className="vt-share-pool-lb-flag"
-                    aria-hidden="true"
-                  >
-                    {m.flag_emoji}
-                  </span>
-                )}
-              </span>
-              <span className="vt-share-pool-lb-name">
-                {label}
-                {m.display_name && (
-                  <span className="vt-share-pool-lb-handle">@{m.handle}</span>
-                )}
-              </span>
-              {matchesAvailableForPool > 0 && (
-                <span
-                  className="vt-share-pool-lb-score"
-                  aria-label={`${m.points} correct of ${matchesAvailableForPool}`}
-                >
-                  <span className="vt-share-pool-lb-score-x">{m.points}</span>
-                  <span className="vt-share-pool-lb-score-sep">/</span>
-                  <span className="vt-share-pool-lb-score-y">
-                    {matchesAvailableForPool}
-                  </span>
-                </span>
-              )}
-            </>
-          );
-          return profileHref ? (
-            <a
-              key={cardKey}
-              className="vt-share-pool-lb-row vt-share-pool-lb-row--link"
-              href={profileHref}
-              role="listitem"
-              aria-label={`View ${label}'s bracket`}
-            >
-              {inner}
-            </a>
-          ) : (
-            <div key={cardKey} className="vt-share-pool-lb-row" role="listitem">
-              {inner}
-            </div>
-          );
-        })}
-      </div>
+      {/* Tim 2026-06-16: pool standings used to be inline server-
+       * rendered. The SSR is great for first-paint, but users sat on
+       * stale rows until they pulled-to-refresh after a result landed.
+       * Now seeded from `leaderboardRows` for instant first paint,
+       * then the client polls /api/v1/syndicates/<slug>/leaderboard
+       * every 30s and replaces state with fresh data. Rank + tied
+       * computed inside the component so the SSR page no longer
+       * carries the tier logic. */}
+      <PoolLeaderboardLive
+        slug={syndicate.slug}
+        initialRows={leaderboardRows.map(({ m }) => ({
+          user_id: m.user_id ?? null,
+          handle: m.handle,
+          display_name: m.display_name ?? null,
+          points: m.points,
+          flag_emoji: m.flag_emoji,
+          avatar_url: m.avatar_url ?? null,
+          joined_at: m.joined_at,
+        }))}
+        initialMatchesAvailable={matchesAvailableForPool}
+      />
     </RevealOnScroll>
   );
 

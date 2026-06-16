@@ -54,6 +54,14 @@ export const SyndicateLeaderboardRows = nextDynamic(
   { ssr: false, loading: () => null },
 );
 
+export const PoolLeaderboardLive = nextDynamic(
+  () =>
+    import("@/components/share-landing/PoolLeaderboardLive").then(
+      (mod) => mod.PoolLeaderboardLive,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 export const BracketPosterCallout = nextDynamic(
   () =>
     import("@/components/share-landing/BracketPosterCallout").then(
