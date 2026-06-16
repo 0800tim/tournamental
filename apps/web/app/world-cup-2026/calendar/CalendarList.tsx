@@ -17,7 +17,7 @@
 
 "use client";
 
-import { useEffect, useState, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 
 import { useOverlay } from "@/components/overlay/OverlayProvider";
 import { canonicalTeam } from "@/app/match/[id]/preview/_lib/match-data";
@@ -33,6 +33,7 @@ interface CalendarListProps {
 
 export function CalendarList({ rows }: CalendarListProps) {
   const overlay = useOverlay();
+  const picks = useCalendarPicks();
 
   const openMatch = (id: string) => (e: MouseEvent): void => {
     if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -45,6 +46,12 @@ export function CalendarList({ rows }: CalendarListProps) {
     e.stopPropagation();
     overlay.open("team", { code });
   };
+
+  // Tim 2026-06-16: auto-scroll on first paint to the most relevant
+  // row — a live match if any, else the soonest future kickoff, else
+  // the final row when the tournament's over. Ref-gated so the page
+  // doesn't keep yanking the viewport on every poll tick.
+  const didAutoScrollRef = useRef(false);
 
   // Group rows by calendar day in the viewer's own timezone so the day
   // headers match the per-row "your time" (a 13:00 GMT-6 kickoff is the
@@ -60,6 +67,83 @@ export function CalendarList({ rows }: CalendarListProps) {
       // Keep the venue-tz fallback if the runtime can't resolve a tz.
     }
   }, []);
+
+  // Auto-scroll, second pass. Declared AFTER userTz so the gate
+  // reads the live state, and so the effect re-fires when userTz
+  // flips from null -> resolved (which re-groups the days under
+  // the user's timezone, shifting every row's position in the DOM).
+  useEffect(() => {
+    if (didAutoScrollRef.current) return;
+    // Wait for BOTH the clock and the user's IANA timezone to be
+    // resolved before scrolling. The page first paints day groups
+    // bucketed by venue timezone (deterministic for SSR), then the
+    // userTz useEffect above resolves the user's tz and re-groups.
+    // Scrolling between those two paints lands on a stale offset.
+    if (picks.nowMs === 0) return;
+    if (userTz === null) return;
+    if (typeof history !== "undefined" && "scrollRestoration" in history) {
+      try {
+        history.scrollRestoration = "manual";
+      } catch {
+        /* embedded contexts may forbid this; safe to ignore */
+      }
+    }
+    didAutoScrollRef.current = true;
+
+    let targetId: string | null = null;
+    // 1. Prefer a currently live match.
+    for (const r of rows) {
+      if (picks.liveByMatch.has(r.matchId)) {
+        targetId = r.matchId;
+        break;
+      }
+    }
+    // 2. Otherwise the soonest future kickoff.
+    if (!targetId) {
+      let bestId: string | null = null;
+      let bestDelta = Infinity;
+      for (const r of rows) {
+        const ko = Date.parse(r.kickoffUtc);
+        if (!Number.isFinite(ko)) continue;
+        const delta = ko - picks.nowMs;
+        if (delta >= 0 && delta < bestDelta) {
+          bestDelta = delta;
+          bestId = r.matchId;
+        }
+      }
+      targetId = bestId;
+    }
+    // 3. Otherwise the final row (tournament over).
+    if (!targetId && rows.length > 0) {
+      targetId = rows[rows.length - 1]!.matchId;
+    }
+    if (!targetId) return;
+
+    // 80ms setTimeout lets React's userTz commit + the day re-grouping
+    // land in the DOM before we measure. scrollIntoView then lets the
+    // browser pick the right Y itself; scroll-margin-top (calendar.css)
+    // keeps the anchor clear of the sticky app bar.
+    const targetIdSnap = targetId;
+    const timer = window.setTimeout(() => {
+      const row = document.querySelector(
+        `[data-match-id="${CSS.escape(targetIdSnap as string)}"]`,
+      ) as HTMLElement | null;
+      if (!row) return;
+      // First match of its day? Anchor on the day-group wrapper so
+      // the 'Wednesday, 17 June 2026 · 4 MATCHES' header lands at the
+      // top of the viewport with the target row directly under it.
+      // Otherwise anchor on the row itself.
+      const daySection = row.closest(
+        "li.vt-calendar-day",
+      ) as HTMLElement | null;
+      const dayRowsList = row.parentElement;
+      const isFirstOfDay =
+        !!dayRowsList && dayRowsList.firstElementChild === row;
+      const anchor = isFirstOfDay && daySection ? daySection : row;
+      anchor.scrollIntoView({ block: "start", behavior: "smooth" });
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [picks.nowMs, picks.liveByMatch, rows, userTz]);
 
   const groups: { dayKey: string; dayLabel: string; rows: CalendarRow[] }[] = [];
   for (const row of rows) {
@@ -160,7 +244,12 @@ function CalendarRowItem({ row, onOpenMatch, onOpenTeam }: RowItemProps) {
   }
 
   return (
-    <li className="vt-cal-row" data-stage={row.stage} data-locked={isLocked ? "true" : "false"}>
+    <li
+      className="vt-cal-row"
+      data-stage={row.stage}
+      data-locked={isLocked ? "true" : "false"}
+      data-match-id={row.matchId}
+    >
       <header className="vt-cal-row-header">
         <span className="vt-cal-row-badge" data-stage={row.stage}>
           {row.stageBadge}

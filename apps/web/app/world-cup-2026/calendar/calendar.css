@@ -870,3 +870,12 @@ button.vt-cal-side-team[data-verdict="wrong"] {
   color: rgba(255, 255, 255, 0.72);
   font-variant-numeric: tabular-nums;
 }
+
+/* Tim 2026-06-16: scroll-margin-top so the auto-scroll anchor (either
+ * a day-group wrapper or a single match row) lands cleanly below the
+ * sticky app bar instead of getting tucked behind it. App bar
+ * height + iOS safe-area inset + a touch of breathing room. */
+.vt-calendar-day,
+.vt-cal-row {
+  scroll-margin-top: calc(var(--vt-shell-appbar-h, 56px) + env(safe-area-inset-top, 0px) + 12px);
+}
