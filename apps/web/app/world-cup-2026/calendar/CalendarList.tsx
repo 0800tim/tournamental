@@ -115,22 +115,35 @@ export function CalendarList({ rows }: CalendarListProps) {
     function performScroll() {
       if (cancelled || didAutoScrollRef.current) return;
       didAutoScrollRef.current = true;
-      const hit = findAnchor();
-      if (!hit) return;
-      hit.anchor.scrollIntoView({ block: "start", behavior: "smooth" });
-      // Smooth scroll settles in ~500ms. Verify after, correct if
-      // late image loads shifted the anchor away from the viewport
-      // top. The CSS scroll-margin-top is ~120px, so anything between
-      // 0 and ~160 is on-target.
-      correctionTimer = window.setTimeout(() => {
-        if (cancelled) return;
-        const hit2 = findAnchor();
-        if (!hit2) return;
-        const top = hit2.anchor.getBoundingClientRect().top;
-        if (top < -40 || top > 200) {
-          hit2.anchor.scrollIntoView({ block: "start", behavior: "auto" });
-        }
-      }, 900);
+      // Iterative snap-and-recheck.
+      //
+      // Smooth scroll computes its target Y at scroll start and then
+      // commits to that absolute Y. If lazy images load during the
+      // animation (which they do, 4+ flags per row across ~20 rows
+      // above the target), the target row drifts hundreds of pixels
+      // while the scroll is locked to the original Y. Result: scroll
+      // overshoots or undershoots by 1000px+.
+      //
+      // Instant scrolls re-measure on every call, so a tight recheck
+      // loop converges as the layout stabilises. CSS scroll-margin-top
+      // is ~120px; anything in [-40, 200] is on-target.
+      let attempts = 0;
+      const MAX = 8;
+      function snap() {
+        if (cancelled || attempts >= MAX) return;
+        attempts += 1;
+        const hit = findAnchor();
+        if (!hit) return;
+        hit.anchor.scrollIntoView({ block: "start", behavior: "auto" });
+        correctionTimer = window.setTimeout(() => {
+          if (cancelled) return;
+          const hit2 = findAnchor();
+          if (!hit2) return;
+          const top = hit2.anchor.getBoundingClientRect().top;
+          if (top < -40 || top > 200) snap();
+        }, 280);
+      }
+      snap();
     }
 
     // Wait for `load` (all images decoded) so layout has settled.
