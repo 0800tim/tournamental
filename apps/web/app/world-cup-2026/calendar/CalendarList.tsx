@@ -54,10 +54,16 @@ export function CalendarList({ rows }: CalendarListProps) {
   // a 500ms layout-settling delay; ref guard prevents re-fire on
   // unrelated state changes. Anchors on the day-header for first-
   // of-day so the date label sits at the top of the viewport.
+  // Idempotency guard lives INSIDE the timer callback, not before it.
+  // React 18 strict mode (active under `next dev`) mounts every
+  // component twice: the first mount's cleanup cancels its setTimeout,
+  // and if the ref is flipped before scheduling, the second mount
+  // early-returns and nothing ever fires. Letting the second mount
+  // schedule its own timer (and gating the actual scroll on the ref)
+  // works in both dev and prod.
   const didAutoScrollRef = useRef(false);
   useEffect(() => {
     if (didAutoScrollRef.current) return;
-    didAutoScrollRef.current = true;
     if (typeof history !== "undefined" && "scrollRestoration" in history) {
       try {
         history.scrollRestoration = "manual";
@@ -66,6 +72,8 @@ export function CalendarList({ rows }: CalendarListProps) {
       }
     }
     const timer = window.setTimeout(() => {
+      if (didAutoScrollRef.current) return;
+      didAutoScrollRef.current = true;
       const now = Date.now();
       const els = Array.from(
         document.querySelectorAll<HTMLElement>("[data-kickoff-utc]"),

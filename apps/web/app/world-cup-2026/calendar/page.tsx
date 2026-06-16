@@ -48,7 +48,7 @@ export default async function CalendarPage(props: CalendarPageProps) {
   const rows = buildCalendarRows(tournament);
 
   return (
-    <AppShell title="Match Calendar">
+    <AppShell title="Match Calendar" suppressMicrositeNav>
       <BracketOverlayShell pageLabel="Match Calendar" pageHref="/world-cup-2026/calendar">
         <main className="vt-calendar-page">
           <header className="vt-calendar-header">
