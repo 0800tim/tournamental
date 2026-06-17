@@ -1,10 +1,18 @@
 /**
- * PicksGrid styling. The grid is admin-only and lives at the bottom
- * of the pool manage page. Horizontal scrolling wrapper around a real
- * <table> so screen readers and keyboard nav still work; the first
- * column ("Member") and the last three columns (streak / best / total)
- * use position:sticky so the eye can scan a single row without losing
- * its place when scrolling sideways.
+ * PicksGrid styling. The grid is admin-only on /dashboard/pools/<slug>
+ * and public on /s/<slug>. Horizontal scrolling wrapper around a real
+ * <table> so screen readers and keyboard nav still work. The first
+ * column ("Member") sticks to the left; the last three columns
+ * ("Streak / Best / Total") stick to the right via explicit classes
+ * with hard-coded right offsets — :nth-last-of-type counts among all
+ * <th>/<td> siblings regardless of class, so it would land on the
+ * wrong cells in a table where most siblings are match columns.
+ *
+ * The /s/<slug> mount passes fullBleed which sets data-full-bleed="1"
+ * on the outer section. That triggers a viewport-edge escape so the
+ * table can use the entire screen width on desktop; the title + lede
+ * stay clamped to the editorial gutter so the page rhythm doesn't
+ * jump.
  */
 
 .vt-picks-grid-section {
@@ -15,37 +23,37 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-/* Full-bleed escape used on /s/<slug> so desktop viewers see more
-   match columns at once. Breaks out of the parent's editorial-width
-   container by snapping to the viewport edges. The inner scroll
-   container still clamps the inner padding so the title + lede
-   sit at the editorial gutter, not jammed against the screen edge. */
+/* --------------------------------------------------------------------
+   Full-bleed (public /s/<slug> variant).
+   -------------------------------------------------------------------- */
 .vt-picks-grid-section[data-full-bleed="1"] {
+  /* Canonical full-bleed escape: anchor at the parent's centre and
+     pull each side out by half the viewport. Works regardless of how
+     wide the parent container is. */
+  position: relative;
   width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   border-radius: 0;
   border-left: 0;
   border-right: 0;
-  padding-left: max(16px, calc(50vw - 580px));
-  padding-right: max(16px, calc(50vw - 580px));
+  padding-left: 0;
+  padding-right: 0;
 }
 .vt-picks-grid-section[data-full-bleed="1"] .vt-picks-grid-header {
-  /* Keep the title + lede at the editorial gutter, even though the
-     section's scrollable region runs to the screen edges below. */
+  /* Keep the title + lede at the editorial gutter even though the
+     scrollable region runs to the screen edges. */
   max-width: 1160px;
   margin-left: auto;
   margin-right: auto;
-}
-/* Let the table itself reach all the way to the section padding edges
-   under full-bleed so the visible column count maxes out. */
-.vt-picks-grid-section[data-full-bleed="1"] .vt-picks-grid-scroll {
-  margin-left: calc(-1 * max(16px, calc(50vw - 580px)));
-  margin-right: calc(-1 * max(16px, calc(50vw - 580px)));
-  padding-left: max(16px, calc(50vw - 580px));
-  padding-right: max(16px, calc(50vw - 580px));
+  padding: 20px 16px 12px;
 }
 
+/* --------------------------------------------------------------------
+   Section header (title + lede).
+   -------------------------------------------------------------------- */
 .vt-picks-grid-header {
   margin-bottom: 12px;
 }
@@ -64,13 +72,14 @@
   line-height: 1.45;
 }
 
+/* --------------------------------------------------------------------
+   Scroll wrapper.
+   -------------------------------------------------------------------- */
 .vt-picks-grid-scroll {
   width: 100%;
   overflow-x: auto;
   overflow-y: visible;
   -webkit-overflow-scrolling: touch;
-  /* Visible focus ring so keyboard users know this region is
-     scrollable. */
   border-radius: 10px;
   outline: none;
 }
@@ -87,13 +96,33 @@
   font-size: 13px;
 }
 
-/* ---------- header cells ---------- */
+/* --------------------------------------------------------------------
+   Column dimensions, kept consistent header ↔ body so sticky offsets
+   line up across all rows. Single source of truth via CSS custom
+   properties on the section.
+   -------------------------------------------------------------------- */
+.vt-picks-grid-section {
+  --col-name: 180px;
+  --col-match: 56px;
+  --col-stick: 52px;
+}
+@media (max-width: 720px) {
+  .vt-picks-grid-section {
+    --col-name: 140px;
+    --col-match: 48px;
+    --col-stick: 46px;
+  }
+}
+
+/* --------------------------------------------------------------------
+   Header cells.
+   -------------------------------------------------------------------- */
 .vt-picks-grid-th {
   background: rgba(20, 22, 30, 0.92);
   color: var(--vt-fg-muted, rgba(255, 255, 255, 0.7));
   font-weight: 600;
   text-align: center;
-  padding: 8px 6px;
+  padding: 6px 4px 8px;
   white-space: nowrap;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
   position: sticky;
@@ -105,7 +134,8 @@
   text-align: left;
   padding-left: 12px;
   padding-right: 12px;
-  min-width: 180px;
+  width: var(--col-name);
+  min-width: var(--col-name);
   position: sticky;
   left: 0;
   z-index: 3;
@@ -113,41 +143,66 @@
 }
 
 .vt-picks-grid-th-match {
-  min-width: 56px;
-}
-.vt-picks-grid-th-no {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--vt-fg, #f3f4f6);
-}
-.vt-picks-grid-th-date {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.55));
-  margin-top: 2px;
+  width: var(--col-match);
+  min-width: var(--col-match);
 }
 
-.vt-picks-grid-th-streak,
-.vt-picks-grid-th-total {
-  min-width: 52px;
+.vt-picks-grid-th-flag {
+  font-size: 20px;
+  line-height: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vt-picks-grid-th-draw {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  padding: 2px 4px;
+  border-radius: 3px;
+  line-height: 1.1;
+}
+.vt-picks-grid-th-teams {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.7));
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+.vt-picks-grid-th-date {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.5));
+  margin-top: 1px;
+}
+
+/* Sticky-right header cells — three explicit classes, each with its
+   own right offset. The Total column is anchored at right:0; Best
+   sits one column width inside; Streak two column widths inside. */
+.vt-picks-grid-th-stick {
+  width: var(--col-stick);
+  min-width: var(--col-stick);
   position: sticky;
   z-index: 3;
   border-left: 1px solid rgba(255, 255, 255, 0.12);
   background: rgba(20, 22, 30, 0.96);
 }
-/* Stagger the right-sticky columns so they all stick to the edge.
-   60px = approx. column width; tweak with min-width above if needed. */
-.vt-picks-grid-th-streak:nth-last-of-type(3) {
-  right: 104px;
+.vt-picks-grid-th-stick-streak {
+  right: calc(2 * var(--col-stick));
 }
-.vt-picks-grid-th-streak:nth-last-of-type(2) {
-  right: 52px;
+.vt-picks-grid-th-stick-best {
+  right: var(--col-stick);
 }
-.vt-picks-grid-th-total {
+.vt-picks-grid-th-stick-total {
   right: 0;
 }
 
-/* ---------- body cells ---------- */
+/* --------------------------------------------------------------------
+   Body cells.
+   -------------------------------------------------------------------- */
 .vt-picks-grid-cell {
   padding: 6px 4px;
   text-align: center;
@@ -172,6 +227,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  width: var(--col-name);
+  min-width: var(--col-name);
 }
 .vt-picks-grid tbody tr:hover .vt-picks-grid-cell-name {
   background: rgba(30, 32, 40, 0.96);
@@ -194,7 +251,8 @@
 .vt-picks-grid-cell-pick {
   font-size: 16px;
   font-weight: 700;
-  width: 40px;
+  width: var(--col-match);
+  min-width: var(--col-match);
 }
 .vt-picks-grid-cell-pick[data-pick="correct"] {
   color: #34d399;
@@ -208,31 +266,29 @@
   color: rgba(255, 255, 255, 0.25);
 }
 
-.vt-picks-grid-cell-streak,
-.vt-picks-grid-cell-total {
+/* Sticky-right body cells, mirror of header classes. */
+.vt-picks-grid-cell-stick {
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   position: sticky;
   z-index: 1;
   background: rgba(15, 17, 24, 0.96);
   border-left: 1px solid rgba(255, 255, 255, 0.12);
-  min-width: 52px;
+  width: var(--col-stick);
+  min-width: var(--col-stick);
   color: var(--vt-fg, #f3f4f6);
 }
-.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-streak,
-.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-total {
-  background: rgba(30, 32, 40, 0.96);
+.vt-picks-grid-cell-stick-streak {
+  right: calc(2 * var(--col-stick));
 }
-
-/* Stagger the right-sticky body columns to match headers. */
-.vt-picks-grid-cell-streak:nth-last-of-type(3) {
-  right: 104px;
+.vt-picks-grid-cell-stick-best {
+  right: var(--col-stick);
 }
-.vt-picks-grid-cell-streak:nth-last-of-type(2) {
-  right: 52px;
-}
-.vt-picks-grid-cell-total {
+.vt-picks-grid-cell-stick-total {
   right: 0;
+}
+.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-stick {
+  background: rgba(30, 32, 40, 0.96);
 }
 
 /* Highlight the leader (row 1) so the prize winner pops. */
@@ -243,27 +299,13 @@
     rgba(15, 17, 24, 0.96) 80%
   );
 }
-.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-streak,
-.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-total {
+.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-stick {
   color: var(--vt-accent-warm, #f5b942);
 }
 
-/* Compact view on narrow viewports — keep cells tight. */
+/* Mobile: hide the public (full-bleed) variant; admin grid stays
+   visible at all widths since admins may be on phones. */
 @media (max-width: 720px) {
-  .vt-picks-grid-th-name {
-    min-width: 140px;
-  }
-  .vt-picks-grid-cell-pick {
-    width: 36px;
-    font-size: 14px;
-  }
-  .vt-picks-grid-th-match {
-    min-width: 48px;
-  }
-  /* Tim 2026-06-18: hide the public-surface grid on mobile entirely
-     ('hide it entirely on mobile as it doesn't fit. desktop only').
-     The dashboard manage view (no data-full-bleed) keeps rendering
-     at all widths since admins may be on phones. */
   .vt-picks-grid-section[data-full-bleed="1"] {
     display: none;
   }

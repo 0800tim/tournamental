@@ -28,6 +28,7 @@ interface MatchRow {
   home_code: string | null;
   away_code: string | null;
   outcome: "home_win" | "draw" | "away_win";
+  winner_flag_emoji: string | null;
 }
 
 interface MemberRow {
@@ -214,29 +215,45 @@ export function PicksGrid({
               <th className="vt-picks-grid-th vt-picks-grid-th-name">
                 Member
               </th>
-              {matches.map((m) => (
-                <th
-                  key={m.match_no}
-                  className="vt-picks-grid-th vt-picks-grid-th-match"
-                  title={
-                    m.home_code && m.away_code
-                      ? `Match ${m.match_no}, ${m.home_code} v ${m.away_code}`
-                      : `Match ${m.match_no}`
-                  }
-                >
-                  <div className="vt-picks-grid-th-no">M{m.match_no}</div>
-                  <div className="vt-picks-grid-th-date">
-                    {formatHeaderDate(m.kickoff_utc)}
-                  </div>
-                </th>
-              ))}
-              <th className="vt-picks-grid-th vt-picks-grid-th-streak">
+              {matches.map((m) => {
+                const teams =
+                  m.home_code && m.away_code
+                    ? `${m.home_code} v ${m.away_code}`
+                    : "";
+                return (
+                  <th
+                    key={m.match_no}
+                    className="vt-picks-grid-th vt-picks-grid-th-match"
+                    title={
+                      teams
+                        ? `Match ${m.match_no}, ${teams}`
+                        : `Match ${m.match_no}`
+                    }
+                  >
+                    <div
+                      className="vt-picks-grid-th-flag"
+                      aria-hidden="true"
+                    >
+                      {m.outcome === "draw" || !m.winner_flag_emoji ? (
+                        <span className="vt-picks-grid-th-draw">DRAW</span>
+                      ) : (
+                        m.winner_flag_emoji
+                      )}
+                    </div>
+                    <div className="vt-picks-grid-th-teams">{teams}</div>
+                    <div className="vt-picks-grid-th-date">
+                      {formatHeaderDate(m.kickoff_utc)}
+                    </div>
+                  </th>
+                );
+              })}
+              <th className="vt-picks-grid-th vt-picks-grid-th-stick vt-picks-grid-th-stick-streak">
                 Streak
               </th>
-              <th className="vt-picks-grid-th vt-picks-grid-th-streak">
+              <th className="vt-picks-grid-th vt-picks-grid-th-stick vt-picks-grid-th-stick-best">
                 Best
               </th>
-              <th className="vt-picks-grid-th vt-picks-grid-th-total">
+              <th className="vt-picks-grid-th vt-picks-grid-th-stick vt-picks-grid-th-stick-total">
                 Total
               </th>
             </tr>
@@ -281,15 +298,15 @@ export function PicksGrid({
                   </td>
                 ))}
                 <td
-                  className="vt-picks-grid-cell vt-picks-grid-cell-streak"
+                  className="vt-picks-grid-cell vt-picks-grid-cell-stick vt-picks-grid-cell-stick-streak"
                   data-current-streak={member.current_streak}
                 >
                   {member.current_streak}
                 </td>
-                <td className="vt-picks-grid-cell vt-picks-grid-cell-streak">
+                <td className="vt-picks-grid-cell vt-picks-grid-cell-stick vt-picks-grid-cell-stick-best">
                   {member.best_streak}
                 </td>
-                <td className="vt-picks-grid-cell vt-picks-grid-cell-total">
+                <td className="vt-picks-grid-cell vt-picks-grid-cell-stick vt-picks-grid-cell-stick-total">
                   {member.correct_total}
                 </td>
               </tr>

@@ -60,6 +60,19 @@ import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { loadSyndicateBySlug } from "@/lib/syndicate/store";
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
+import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
+
+interface CanonicalTeam {
+  readonly code: string;
+  readonly flag_emoji: string;
+}
+
+const TEAM_FLAG_BY_CODE: Map<string, string> = (() => {
+  const out = new Map<string, string>();
+  const raw = (canonicalTeamsRaw as { teams: CanonicalTeam[] }).teams;
+  for (const t of raw) out.set(t.code, t.flag_emoji);
+  return out;
+})();
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -70,6 +83,9 @@ interface MatchRow {
   home_code: string | null;
   away_code: string | null;
   outcome: "home_win" | "draw" | "away_win";
+  /** Flag emoji of the winning team. Null on draw (renderer shows a
+   *  DRAW pill instead). */
+  winner_flag_emoji: string | null;
 }
 
 interface MemberRow {
@@ -165,15 +181,38 @@ export async function GET(
   const matches: MatchRow[] = results
     .map((r) => {
       const fx = fixtureByNo.get(r.match_id);
+      const homeCode = fx?.home_code ?? null;
+      const awayCode = fx?.away_code ?? null;
+      const winnerCode =
+        r.outcome === "home_win"
+          ? homeCode
+          : r.outcome === "away_win"
+            ? awayCode
+            : null;
       return {
         match_no: r.match_id,
         kickoff_utc: fx?.kickoff_utc ?? "",
-        home_code: fx?.home_code ?? null,
-        away_code: fx?.away_code ?? null,
+        home_code: homeCode,
+        away_code: awayCode,
         outcome: r.outcome,
+        winner_flag_emoji: winnerCode
+          ? (TEAM_FLAG_BY_CODE.get(winnerCode) ?? null)
+          : null,
       };
     })
-    .sort((a, b) => Number(a.match_no) - Number(b.match_no));
+    // Sort by kickoff_utc ascending so the column order is truly
+    // chronological. Tim 2026-06-18: FIFA's match_no isn't always
+    // chronological once the host's late-kickoff fixtures get scheduled
+    // around the rest of the group stage. Fall back to match_no when
+    // two fixtures share a kickoff (rare).
+    .sort((a, b) => {
+      const ta = Date.parse(a.kickoff_utc);
+      const tb = Date.parse(b.kickoff_utc);
+      if (Number.isFinite(ta) && Number.isFinite(tb) && ta !== tb) {
+        return ta - tb;
+      }
+      return Number(a.match_no) - Number(b.match_no);
+    });
 
   // Pull predictions for every member with a user_id (anonymous late-
   // entry rows have no bracket, those members render no_pick across).
