@@ -59,6 +59,7 @@ import {
   PoolLeaderboardLive,
   BracketPosterCallout,
   ShareBracketButton,
+  PicksGrid,
 } from "./ClientChunks";
 import { resolveShareGuid } from "@/lib/share/resolve-guid";
 import type { BracketByGuid } from "@/lib/bracket/by-guid";
@@ -70,6 +71,7 @@ import { slugifyDisplayName } from "@/lib/share/handle-slug";
 import { getPersistence } from "@/lib/syndicate/persistence";
 
 import "@/components/share-landing/share-landing.css";
+import "@/components/pool-admin/picks-grid.css";
 
 // 60-second edge revalidation mirrors the upstream game-service's
 // `s-maxage=60`. Re-shares (the common case, one tweet -> thousands of
@@ -712,6 +714,7 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       {sponsorPresent ? (
         <SponsorLine sponsor={sponsor!} />
       ) : null}
+      <PicksGrid slug={syndicate.slug} pollIntervalMs={30000} />
       <footer className="vt-share-syn-colophon vt-footnote">
         <span>Founded {formatFoundedDate(syndicate.created_at)}</span>
         <span aria-hidden className="vt-share-syn-colophon-sep">·</span>

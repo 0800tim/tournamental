@@ -77,3 +77,12 @@ export const ShareBracketButton = nextDynamic(
     ),
   { ssr: false, loading: () => null },
 );
+
+// Tim 2026-06-18: was admin-only on /dashboard/pools/<slug>, now also
+// on the public /s/<guid> page so members can see who's on the prize-
+// winning streak. Same component, polled every 30s on the public side.
+export const PicksGrid = nextDynamic(
+  () =>
+    import("@/components/pool-admin/PicksGrid").then((mod) => mod.PicksGrid),
+  { ssr: false, loading: () => null },
+);

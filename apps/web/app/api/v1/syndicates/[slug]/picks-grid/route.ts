@@ -6,15 +6,16 @@
 /**
  * GET /api/v1/syndicates/[slug]/picks-grid
  *
- * Owner-only. Returns a per-member, per-resulted-match correctness grid
- * for the pool-admin "Picks Grid" surface (Tim 2026-06-18, weekly
- * winning-streak prize tool). One row per pool member, one column per
- * resulted match. Each cell is `correct` (member's pick matched the
- * recorded outcome), `wrong` (pick did not match), `no_pick` (member
- * had no prediction for this match), or `skipped` (rare — bracket
- * payload missing). Sorted server-side by current-streak DESC, then
- * by total-correct DESC, then by join order ASC so the admin can spot
- * the prize winner without paging.
+ * Public. Returns a per-member, per-resulted-match correctness grid
+ * for the pool "Picks Grid" surface (Tim 2026-06-18, weekly winning-
+ * streak prize tool, originally admin-only then opened to public
+ * once Tim confirmed the privacy posture). One row per pool member,
+ * one column per resulted match. Each cell is `correct` (member's
+ * pick matched the recorded outcome), `wrong` (pick did not match),
+ * `no_pick` (member had no prediction for this match), or `skipped`
+ * (rare — bracket payload missing). Sorted server-side by current-
+ * streak DESC, then by total-correct DESC, then by join order ASC
+ * so the prize winner appears as row 1.
  *
  * Response shape:
  *
@@ -43,17 +44,18 @@
  *     }>,
  *   }
  *
- * Auth: requires a valid tnm_session cookie AND ownership of the
- * syndicate (or super-admin). Mirrors the /owner gate exactly so the
- * same dashboard session that loads the manage view authorises this.
+ * Auth: none required. Pool member handles + flags are already public
+ * on /s/<slug>; the grid only adds per-resulted-match correctness,
+ * which never reveals an unresolved (still-exploitable) pick.
  *
- * Cache: private, no-store. Per-owner, mutable on every result.
+ * Cache: short edge cache mirroring the public leaderboard route
+ * (max-age=10, s-maxage=10, stale-while-revalidate=30) so a recorded
+ * result propagates to viewers within ~10s. The grid component polls
+ * the BFF on a similar cadence on the public page.
  */
 
 import type { NextRequest } from "next/server";
 
-import { getSessionFromRequest } from "@/lib/auth/session";
-import { isSuperAdmin } from "@/lib/auth/super-admin";
 import { enrichSyndicateMembers } from "@/lib/syndicate/enrich-members";
 import { getPersistence } from "@/lib/syndicate/persistence";
 import { loadSyndicateBySlug } from "@/lib/syndicate/store";
@@ -81,34 +83,30 @@ interface MemberRow {
   best_streak: number;
 }
 
-function jsonResponse(body: unknown, status: number): Response {
+function jsonResponse(
+  body: unknown,
+  status: number,
+  cacheControl = "public, max-age=10, s-maxage=10, stale-while-revalidate=30",
+): Response {
   return Response.json(body, {
     status,
-    headers: { "Cache-Control": "private, no-store" },
+    headers: { "Cache-Control": cacheControl },
   });
 }
 
 export async function GET(
-  req: NextRequest,
+  _req: NextRequest,
   props: { params: Promise<{ slug: string }> },
 ): Promise<Response> {
   const params = await props.params;
   const slug = (params.slug ?? "").toLowerCase().trim();
-  if (!slug) return jsonResponse({ error: "bad_slug" }, 400);
+  if (!slug) return jsonResponse({ error: "bad_slug" }, 400, "no-store");
 
-  const session = await getSessionFromRequest(req);
-  if (!session) return jsonResponse({ error: "unauthorised" }, 401);
-
-  const persistence = getPersistence();
-  const synRow = persistence.getBySlug(slug);
-  if (!synRow) return jsonResponse({ error: "not_found" }, 404);
-  if (synRow.owner_user_id !== session.userId && !isSuperAdmin(session)) {
-    return jsonResponse({ error: "forbidden" }, 403);
-  }
-
-  // Full syndicate (with members, enriched display_name / flag_emoji).
+  // Public surface. Full syndicate (with members, enriched display_name
+  // and flag_emoji). loadSyndicateBySlug returns null when the slug
+  // doesn't resolve so the client can stop polling.
   const syndicate = await loadSyndicateBySlug(slug);
-  if (!syndicate) return jsonResponse({ error: "not_found" }, 404);
+  if (!syndicate) return jsonResponse({ error: "not_found" }, 404, "no-store");
 
   const tournamentId = syndicate.tournament_id;
 

@@ -51,6 +51,14 @@ interface GridPayload {
 
 interface PicksGridProps {
   readonly slug: string;
+  /**
+   * Poll the BFF every N ms after the first fetch. Used on the public
+   * `/s/<guid>` surface so viewers see new resulted-match columns land
+   * within ~30s without pull-to-refresh. Pool-admin manage view leaves
+   * this undefined (one fetch on mount is fine there). Tab-hide pauses
+   * the polling.
+   */
+  readonly pollIntervalMs?: number;
 }
 
 function formatHeaderDate(iso: string): string {
@@ -67,7 +75,10 @@ function formatHeaderDate(iso: string): string {
   return `${day} ${month}`;
 }
 
-export function PicksGrid({ slug }: PicksGridProps): JSX.Element {
+export function PicksGrid({
+  slug,
+  pollIntervalMs,
+}: PicksGridProps): JSX.Element {
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
@@ -76,20 +87,22 @@ export function PicksGrid({ slug }: PicksGridProps): JSX.Element {
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    let timer: number | null = null;
+
+    async function load(initial: boolean): Promise<void> {
       try {
         const r = await fetch(
           `/api/v1/syndicates/${encodeURIComponent(slug)}/picks-grid`,
           { method: "GET", credentials: "include", cache: "no-store" },
         );
         if (r.status === 401 || r.status === 403) {
-          if (!cancelled) {
+          if (!cancelled && initial) {
             setState({ kind: "error", message: "Owner sign-in required." });
           }
           return;
         }
         if (!r.ok) {
-          if (!cancelled) {
+          if (!cancelled && initial) {
             setState({
               kind: "error",
               message: `Could not load picks grid (HTTP ${r.status}).`,
@@ -100,15 +113,34 @@ export function PicksGrid({ slug }: PicksGridProps): JSX.Element {
         const data = (await r.json()) as GridPayload;
         if (!cancelled) setState({ kind: "ready", data });
       } catch {
-        if (!cancelled) {
+        if (!cancelled && initial) {
           setState({ kind: "error", message: "Network error loading grid." });
         }
       }
-    })();
+    }
+
+    void load(true);
+
+    if (pollIntervalMs && pollIntervalMs > 0) {
+      const tick = (): void => {
+        // Skip polling while the tab is hidden; saves the BFF (and edge
+        // cache) from pointless work for background tabs.
+        if (cancelled) return;
+        if (
+          typeof document !== "undefined" &&
+          document.visibilityState === "visible"
+        ) {
+          void load(false);
+        }
+      };
+      timer = window.setInterval(tick, pollIntervalMs);
+    }
+
     return () => {
       cancelled = true;
+      if (timer !== null) window.clearInterval(timer);
     };
-  }, [slug]);
+  }, [slug, pollIntervalMs]);
 
   if (state.kind === "loading") {
     return (
@@ -158,8 +190,7 @@ export function PicksGrid({ slug }: PicksGridProps): JSX.Element {
           {members.length} {members.length === 1 ? "member" : "members"} ·{" "}
           {matches.length} resulted{" "}
           {matches.length === 1 ? "match" : "matches"}. Sorted by current
-          streak (the weekly prize winner is row 1). Scroll sideways to
-          see every match. Admin-only.
+          winning streak. Scroll sideways to see every match.
         </p>
       </header>
       <div
