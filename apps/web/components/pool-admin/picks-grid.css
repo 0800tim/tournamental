@@ -1,0 +1,232 @@
+/**
+ * PicksGrid styling. The grid is admin-only and lives at the bottom
+ * of the pool manage page. Horizontal scrolling wrapper around a real
+ * <table> so screen readers and keyboard nav still work; the first
+ * column ("Member") and the last three columns (streak / best / total)
+ * use position:sticky so the eye can scan a single row without losing
+ * its place when scrolling sideways.
+ */
+
+.vt-picks-grid-section {
+  margin: 32px 0 16px;
+  padding: 20px 16px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.vt-picks-grid-header {
+  margin-bottom: 12px;
+}
+
+.vt-picks-grid-title {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 4px;
+  color: var(--vt-fg, #f3f4f6);
+}
+
+.vt-picks-grid-lede {
+  font-size: 13px;
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.6));
+  margin: 0;
+  line-height: 1.45;
+}
+
+.vt-picks-grid-scroll {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  /* Visible focus ring so keyboard users know this region is
+     scrollable. */
+  border-radius: 10px;
+  outline: none;
+}
+.vt-picks-grid-scroll:focus-visible {
+  box-shadow: 0 0 0 2px var(--vt-accent-warm, #f5b942);
+}
+
+.vt-picks-grid {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: max-content;
+  min-width: 100%;
+  font-variant-numeric: tabular-nums;
+  font-size: 13px;
+}
+
+/* ---------- header cells ---------- */
+.vt-picks-grid-th {
+  background: rgba(20, 22, 30, 0.92);
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.7));
+  font-weight: 600;
+  text-align: center;
+  padding: 8px 6px;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.vt-picks-grid-th-name {
+  text-align: left;
+  padding-left: 12px;
+  padding-right: 12px;
+  min-width: 180px;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.vt-picks-grid-th-match {
+  min-width: 56px;
+}
+.vt-picks-grid-th-no {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--vt-fg, #f3f4f6);
+}
+.vt-picks-grid-th-date {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.55));
+  margin-top: 2px;
+}
+
+.vt-picks-grid-th-streak,
+.vt-picks-grid-th-total {
+  min-width: 52px;
+  position: sticky;
+  z-index: 3;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(20, 22, 30, 0.96);
+}
+/* Stagger the right-sticky columns so they all stick to the edge.
+   60px = approx. column width; tweak with min-width above if needed. */
+.vt-picks-grid-th-streak:nth-last-of-type(3) {
+  right: 104px;
+}
+.vt-picks-grid-th-streak:nth-last-of-type(2) {
+  right: 52px;
+}
+.vt-picks-grid-th-total {
+  right: 0;
+}
+
+/* ---------- body cells ---------- */
+.vt-picks-grid-cell {
+  padding: 6px 4px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(15, 17, 24, 0.5);
+}
+
+.vt-picks-grid tbody tr:hover .vt-picks-grid-cell {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.vt-picks-grid-cell-name {
+  text-align: left;
+  padding-left: 12px;
+  padding-right: 12px;
+  position: sticky;
+  left: 0;
+  background: rgba(15, 17, 24, 0.96);
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  z-index: 1;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-name {
+  background: rgba(30, 32, 40, 0.96);
+}
+
+.vt-picks-grid-flag {
+  font-size: 18px;
+  line-height: 1;
+}
+.vt-picks-grid-handle {
+  font-weight: 600;
+  color: var(--vt-fg, #f3f4f6);
+}
+.vt-picks-grid-subhandle {
+  font-size: 11px;
+  color: var(--vt-fg-muted, rgba(255, 255, 255, 0.5));
+  margin-left: 4px;
+}
+
+.vt-picks-grid-cell-pick {
+  font-size: 16px;
+  font-weight: 700;
+  width: 40px;
+}
+.vt-picks-grid-cell-pick[data-pick="correct"] {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.08);
+}
+.vt-picks-grid-cell-pick[data-pick="wrong"] {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.08);
+}
+.vt-picks-grid-cell-pick[data-pick="no_pick"] {
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.vt-picks-grid-cell-streak,
+.vt-picks-grid-cell-total {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  position: sticky;
+  z-index: 1;
+  background: rgba(15, 17, 24, 0.96);
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  min-width: 52px;
+  color: var(--vt-fg, #f3f4f6);
+}
+.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-streak,
+.vt-picks-grid tbody tr:hover .vt-picks-grid-cell-total {
+  background: rgba(30, 32, 40, 0.96);
+}
+
+/* Stagger the right-sticky body columns to match headers. */
+.vt-picks-grid-cell-streak:nth-last-of-type(3) {
+  right: 104px;
+}
+.vt-picks-grid-cell-streak:nth-last-of-type(2) {
+  right: 52px;
+}
+.vt-picks-grid-cell-total {
+  right: 0;
+}
+
+/* Highlight the leader (row 1) so the prize winner pops. */
+.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-name {
+  background: linear-gradient(
+    90deg,
+    rgba(245, 185, 66, 0.18),
+    rgba(15, 17, 24, 0.96) 80%
+  );
+}
+.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-streak,
+.vt-picks-grid tbody tr:first-child .vt-picks-grid-cell-total {
+  color: var(--vt-accent-warm, #f5b942);
+}
+
+/* Compact view on narrow viewports — keep cells tight. */
+@media (max-width: 720px) {
+  .vt-picks-grid-th-name {
+    min-width: 140px;
+  }
+  .vt-picks-grid-cell-pick {
+    width: 36px;
+    font-size: 14px;
+  }
+  .vt-picks-grid-th-match {
+    min-width: 48px;
+  }
+}

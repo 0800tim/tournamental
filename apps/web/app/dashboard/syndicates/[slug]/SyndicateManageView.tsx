@@ -13,6 +13,8 @@ import { useEffect, useMemo, useState } from "react";
 
 import { useUser } from "@/lib/auth/useUser";
 import { BrandingImageUploader } from "@/components/syndicate/BrandingImageUploader";
+import { PicksGrid } from "@/components/pool-admin/PicksGrid";
+import "@/components/pool-admin/picks-grid.css";
 
 import { HlStatusBanner } from "../HlStatusBanner";
 
@@ -517,6 +519,8 @@ export function SyndicateManageView({ slug }: { slug: string }): JSX.Element {
           </Link>
         </div>
       </section>
+
+      <PicksGrid slug={slug} />
 
       <footer className="vt-dash-foot">
         <p className="vt-dash-sub">

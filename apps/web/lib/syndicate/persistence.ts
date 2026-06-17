@@ -642,6 +642,76 @@ export class SyndicatePersistence {
     return out;
   }
 
+  /** Per-user, per-match outcome predictions for a tournament. Returns
+   *  Map<user_id, Map<match_id, "home_win" | "draw" | "away_win">>.
+   *
+   *  Used by the pool-admin Picks Grid (Tim 2026-06-18, weekly-streak-
+   *  prize tool). The grid renders one row per pool member and one cell
+   *  per resulted match, with a ✓ when the member's predicted outcome
+   *  matches the recorded outcome and a ✗ otherwise. We read the bracket
+   *  JSON in bulk, parse it server-side, and project just the
+   *  outcome strings so the BFF doesn't have to ship megabytes of
+   *  oddsAtLock + lockedAt per member.
+   *
+   *  Reads BOTH matchPredictions (group stage) and knockoutPredictions
+   *  (R16+) since the grid covers the whole tournament. Match IDs are
+   *  strings keyed identically to RecordedMatchResult.match_id so the
+   *  consumer can zip-join cleanly. Returns an empty map when the
+   *  brackets table is missing or any single row is malformed (skip
+   *  the bad row, keep the rest). */
+  getPredictionsByUsers(
+    tournamentId: string,
+    userIds: readonly string[],
+  ): Map<string, Map<string, "home_win" | "draw" | "away_win">> {
+    const out = new Map<string, Map<string, "home_win" | "draw" | "away_win">>();
+    if (userIds.length === 0) return out;
+    try {
+      const placeholders = userIds.map(() => "?").join(",");
+      const stmt = this.db.prepare(
+        `SELECT user_id, payload_json FROM brackets
+          WHERE tournament_id = ? AND user_id IN (${placeholders})`,
+      );
+      const rows = stmt.all(tournamentId, ...userIds) as Array<{
+        user_id: string;
+        payload_json: string;
+      }>;
+      for (const r of rows) {
+        try {
+          const parsed = JSON.parse(r.payload_json) as {
+            matchPredictions?: Record<
+              string,
+              { outcome?: "home_win" | "draw" | "away_win" }
+            >;
+            knockoutPredictions?: Record<
+              string,
+              { outcome?: "home_win" | "draw" | "away_win" }
+            >;
+          };
+          const picks = new Map<string, "home_win" | "draw" | "away_win">();
+          const merge = (
+            src: Record<string, { outcome?: string }> | undefined,
+          ): void => {
+            if (!src) return;
+            for (const [matchId, pred] of Object.entries(src)) {
+              const oc = pred?.outcome;
+              if (oc === "home_win" || oc === "draw" || oc === "away_win") {
+                picks.set(String(matchId), oc);
+              }
+            }
+          };
+          merge(parsed.matchPredictions);
+          merge(parsed.knockoutPredictions);
+          out.set(r.user_id, picks);
+        } catch {
+          /* skip the bad row, keep the rest */
+        }
+      }
+    } catch {
+      /* table missing on fresh dev DBs; fall through to empty map */
+    }
+    return out;
+  }
+
   /** Count of match-results recorded for a tournament. Used as the Y
    *  denominator in pool leaderboard rows (X / Y, "X correct of Y
    *  resulted"). Reads directly from match_results in the same DB the
