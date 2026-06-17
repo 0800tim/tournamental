@@ -260,4 +260,11 @@
   .vt-picks-grid-th-match {
     min-width: 48px;
   }
+  /* Tim 2026-06-18: hide the public-surface grid on mobile entirely
+     ('hide it entirely on mobile as it doesn't fit. desktop only').
+     The dashboard manage view (no data-full-bleed) keeps rendering
+     at all widths since admins may be on phones. */
+  .vt-picks-grid-section[data-full-bleed="1"] {
+    display: none;
+  }
 }
