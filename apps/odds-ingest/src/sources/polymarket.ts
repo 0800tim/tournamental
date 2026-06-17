@@ -396,7 +396,17 @@ export function gammaEventToInternal(
   const cls = classifyMarket(title) ?? classifyMarket(children[0]?.question ?? "");
 
   // --- Per-match moneyline: title looks like "A vs. B". ---------------------
-  const pair = pairFromMatchQuestion(title, data);
+  // Reject sub-market variants. Polymarket publishes Halftime Result + Exact
+  // Score events under titles like "Portugal vs. DR Congo - Halftime Result"
+  // and "Portugal vs. DR Congo - Exact Score". The pair parser happily
+  // matches them (split on " vs ", recognise the two team names) so without
+  // this guard they overwrite the main moneyline market (same match_no key)
+  // with halftime-leader probabilities. Tim 2026-06-18: visible on POR vs
+  // COD where store had 57/34/8 (halftime) while Polymarket UI showed
+  // 77/17/8 (full time). Survey of current FIFA WC event titles confirms
+  // " - " is unique to the sub-markets; no main moneyline uses it.
+  const isSubMarket = title.includes(" - ");
+  const pair = isSubMarket ? null : pairFromMatchQuestion(title, data);
   const looksLikeMatch =
     pair != null && (cls == null || cls.kind === "match_moneyline");
   if (looksLikeMatch && pair) {
