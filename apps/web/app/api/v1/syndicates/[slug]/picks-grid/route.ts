@@ -108,6 +108,7 @@ export async function GET(
   const syndicate = await loadSyndicateBySlug(slug);
   if (!syndicate) return jsonResponse({ error: "not_found" }, 404, "no-store");
 
+  const persistence = getPersistence();
   const tournamentId = syndicate.tournament_id;
 
   // Resulted matches, sorted by match_no ascending (chronological for
