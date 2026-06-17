@@ -59,6 +59,14 @@ interface PicksGridProps {
    * the polling.
    */
   readonly pollIntervalMs?: number;
+  /**
+   * Break out of the parent's editorial-width container and span the
+   * full viewport. Used on `/s/<slug>` so desktop users can see as
+   * many match columns as the screen will fit. Implemented with a
+   * `width: 100vw; margin-left: calc(50% - 50vw)` escape (CSS only,
+   * applied via a data attribute the stylesheet matches on).
+   */
+  readonly fullBleed?: boolean;
 }
 
 function formatHeaderDate(iso: string): string {
@@ -78,6 +86,7 @@ function formatHeaderDate(iso: string): string {
 export function PicksGrid({
   slug,
   pollIntervalMs,
+  fullBleed,
 }: PicksGridProps): JSX.Element {
   const [state, setState] = useState<
     | { kind: "loading" }
@@ -144,7 +153,7 @@ export function PicksGrid({
 
   if (state.kind === "loading") {
     return (
-      <section className="vt-picks-grid-section" aria-label="Picks grid">
+      <section className="vt-picks-grid-section" aria-label="Picks grid" data-full-bleed={fullBleed ? "1" : "0"}>
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">Loading per-match picks…</p>
       </section>
@@ -152,7 +161,7 @@ export function PicksGrid({
   }
   if (state.kind === "error") {
     return (
-      <section className="vt-picks-grid-section" aria-label="Picks grid">
+      <section className="vt-picks-grid-section" aria-label="Picks grid" data-full-bleed={fullBleed ? "1" : "0"}>
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">{state.message}</p>
       </section>
@@ -162,7 +171,7 @@ export function PicksGrid({
   const { matches, members } = state.data;
   if (matches.length === 0) {
     return (
-      <section className="vt-picks-grid-section" aria-label="Picks grid">
+      <section className="vt-picks-grid-section" aria-label="Picks grid" data-full-bleed={fullBleed ? "1" : "0"}>
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">
           No resulted matches yet. The grid populates once admins record
@@ -173,7 +182,7 @@ export function PicksGrid({
   }
   if (members.length === 0) {
     return (
-      <section className="vt-picks-grid-section" aria-label="Picks grid">
+      <section className="vt-picks-grid-section" aria-label="Picks grid" data-full-bleed={fullBleed ? "1" : "0"}>
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">
           No members in this pool yet.
@@ -183,7 +192,7 @@ export function PicksGrid({
   }
 
   return (
-    <section className="vt-picks-grid-section" aria-label="Picks grid">
+    <section className="vt-picks-grid-section" aria-label="Picks grid" data-full-bleed={fullBleed ? "1" : "0"}>
       <header className="vt-picks-grid-header">
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">

@@ -697,6 +697,14 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       <RevealOnScroll>
         <PrizePoolBlock syndicate={syndicate} prizeEyebrow={prizeEyebrow} />
       </RevealOnScroll>
+      {/* Tim 2026-06-18: picks grid moved up under the prize block,
+        * breaking out to full viewport width so desktop can show as
+        * many match columns as possible without horizontal scrolling. */}
+      <PicksGrid
+        slug={syndicate.slug}
+        pollIntervalMs={30000}
+        fullBleed
+      />
       <div className="vt-share-syn-join">
         <JoinSyndicate slug={syndicate.slug} syndicateName={syndicate.name} />
         <p className="vt-footnote vt-share-syn-join-note">
@@ -714,7 +722,6 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
       {sponsorPresent ? (
         <SponsorLine sponsor={sponsor!} />
       ) : null}
-      <PicksGrid slug={syndicate.slug} pollIntervalMs={30000} />
       <footer className="vt-share-syn-colophon vt-footnote">
         <span>Founded {formatFoundedDate(syndicate.created_at)}</span>
         <span aria-hidden className="vt-share-syn-colophon-sep">·</span>

@@ -15,6 +15,37 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
+/* Full-bleed escape used on /s/<slug> so desktop viewers see more
+   match columns at once. Breaks out of the parent's editorial-width
+   container by snapping to the viewport edges. The inner scroll
+   container still clamps the inner padding so the title + lede
+   sit at the editorial gutter, not jammed against the screen edge. */
+.vt-picks-grid-section[data-full-bleed="1"] {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  border-radius: 0;
+  border-left: 0;
+  border-right: 0;
+  padding-left: max(16px, calc(50vw - 580px));
+  padding-right: max(16px, calc(50vw - 580px));
+}
+.vt-picks-grid-section[data-full-bleed="1"] .vt-picks-grid-header {
+  /* Keep the title + lede at the editorial gutter, even though the
+     section's scrollable region runs to the screen edges below. */
+  max-width: 1160px;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Let the table itself reach all the way to the section padding edges
+   under full-bleed so the visible column count maxes out. */
+.vt-picks-grid-section[data-full-bleed="1"] .vt-picks-grid-scroll {
+  margin-left: calc(-1 * max(16px, calc(50vw - 580px)));
+  margin-right: calc(-1 * max(16px, calc(50vw - 580px)));
+  padding-left: max(16px, calc(50vw - 580px));
+  padding-right: max(16px, calc(50vw - 580px));
+}
+
 .vt-picks-grid-header {
   margin-bottom: 12px;
 }
