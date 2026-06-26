@@ -49,13 +49,21 @@ export function displayKnockoutTeam(slot: ResolvedSlot): string | null {
 }
 
 /** Minimal recorded-result shape this helper needs. The map is keyed by
- *  the bare match-number string ("1".."72"); the value only needs the
- *  outcome and (optional) scores. The calendar's and bracket's own
- *  `ResultedMatch` types both satisfy this structurally. */
+ *  the bare match-number string ("1".."104"); the value needs the outcome
+ *  and (for knockout matches) the winning team code, exposed as either
+ *  `winner` (calendar) or `winnerCode` (bracket) — both are read. Scores
+ *  are optional. The calendar's and bracket's own `ResultedMatch` types
+ *  satisfy this structurally. */
 export interface RecordedResultLite {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** 3-letter code of the winner; for knockouts, the team that advances.
+   *  Read from whichever field the caller exposes: `winner` / `winnerCode`
+   *  (typed) or the raw API's `winner_code` (snake_case). */
+  readonly winner?: string | null;
+  readonly winnerCode?: string | null;
+  readonly winner_code?: string | null;
 }
 
 /**
@@ -100,7 +108,27 @@ export function buildCompletedResults(
     };
   });
 
-  // Phase 1: no knockout results fed back yet (R32 onward is a later
-  // phase). Group standings alone resolve every R32 group_position slot.
-  return { groups, knockouts: [] };
+  // Knockout results: once a knockout match (R32 onward) has a recorded
+  // winner, feed it in as a settled actual so the cascade resolves the next
+  // round's slot to the REAL team that advanced, overriding the player's
+  // forecast. Keyed by the knockout fixture id (eg "r32_01"). Knockouts have
+  // no draws, so a settled result always carries a winner code. Tim
+  // 2026-06-26 (forecast-forward + actual-override).
+  const knockouts: Array<{
+    match_id: string;
+    winner: string;
+    settled: boolean;
+  }> = [];
+  for (const ko of tournament.knockouts) {
+    // Knockout RESULTS are keyed by the knockout id (eg "r32_01"), the same
+    // key knockout PICKS use, so scoring lines up. (Group results are keyed
+    // by bare match number.) Tim 2026-06-26.
+    const r = byMatch.get(ko.id);
+    if (!r) continue;
+    const winner = r.winner ?? r.winnerCode ?? r.winner_code ?? null;
+    if (!winner) continue;
+    knockouts.push({ match_id: ko.id, winner, settled: true });
+  }
+
+  return { groups, knockouts };
 }

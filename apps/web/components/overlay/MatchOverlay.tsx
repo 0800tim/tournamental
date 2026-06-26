@@ -102,6 +102,8 @@ type ResultRow = {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Winner's team code; for knockouts, the team that advances. */
+  readonly winner_code: string | null;
 };
 
 /** Full recorded-results map (outcome + scores) keyed by match-number
@@ -129,6 +131,7 @@ function useAllRecordedResults(): ReadonlyMap<string, ResultRow> {
             outcome: row.outcome,
             homeScore: row.homeScore,
             awayScore: row.awayScore,
+            winner_code: row.winner_code ?? null,
           });
         }
         setMap(m);
