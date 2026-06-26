@@ -32,8 +32,11 @@ import type {
   KnockoutFixture,
   Tournament,
   CascadedKnockout,
+  CompletedResults,
 } from "@tournamental/bracket-engine";
 import { cascade, type BracketPrediction } from "@tournamental/bracket-engine";
+
+import { displayKnockoutTeam } from "@/lib/bracket/real-standings";
 
 import canonicalFixturesRaw from "../../../../../../../data/fifa-wc-2026/fixtures.json";
 import canonicalTeamsRaw from "../../../../../../../data/fifa-wc-2026/teams.json";
@@ -153,6 +156,7 @@ function emptyBracketPrediction(tournament: Tournament): BracketPrediction {
 export function resolveMatch(
   tournament: Tournament,
   rawId: string,
+  completedResults?: CompletedResults,
 ): ResolvedMatch | null {
   const id = rawId.trim();
 
@@ -164,12 +168,12 @@ export function resolveMatch(
     // Could also be a knockout match_no (73-104) since the canonical
     // fixtures.json keys knockouts by sequential match_number too.
     const ko = tournament.knockouts.find((x) => x.match_no === asNum);
-    if (ko) return resolveKnockoutFixture(tournament, ko);
+    if (ko) return resolveKnockoutFixture(tournament, ko, completedResults);
   }
 
   // 2. Knockout id? "r32_01", "qf_03", "final", "tp_01".
   const ko = tournament.knockouts.find((x) => x.id === id);
-  if (ko) return resolveKnockoutFixture(tournament, ko);
+  if (ko) return resolveKnockoutFixture(tournament, ko, completedResults);
 
   return null;
 }
@@ -199,18 +203,26 @@ function resolveGroupFixture(
 function resolveKnockoutFixture(
   tournament: Tournament,
   ko: KnockoutFixture,
+  completedResults?: CompletedResults,
 ): ResolvedMatch {
-  // Walk the empty cascade to pick up any slot occupant we can resolve
-  // without picks (currently always "TBD" until users predict). Still
-  // run it so future engine improvements (e.g. a pre-seeded bracket
-  // for marketing) Just Work.
-  const cascaded = cascade(tournament, emptyBracketPrediction(tournament));
+  // Resolve slot occupants from REAL results only. With an empty
+  // prediction plus completedResults, a slot resolves to its real team
+  // when its group is settled (from_actual); otherwise it stays TBD.
+  // We deliberately ignore forecasts here. Tim 2026-06-26.
+  const cascaded = cascade(
+    tournament,
+    emptyBracketPrediction(tournament),
+    completedResults,
+  );
   const c = cascaded.knockouts.find((k) => k.id === ko.id) as
     | CascadedKnockout
     | undefined;
 
-  const homeCode = c?.home.team ?? undefined;
-  const awayCode = c?.away.team ?? undefined;
+  // The overlay resolves from real results only (no user bracket here), so
+  // forward slots stay TBD until they actually result. displayKnockoutTeam
+  // keeps the rule consistent with the bracket surfaces. Tim 2026-06-26.
+  const homeCode = c ? (displayKnockoutTeam(c.home) ?? undefined) : undefined;
+  const awayCode = c ? (displayKnockoutTeam(c.away) ?? undefined) : undefined;
   const stageKey = ko.stage as ResolvedMatch["stage"];
   const cf = canonicalFixtureByMatchNumber(ko.match_no);
 

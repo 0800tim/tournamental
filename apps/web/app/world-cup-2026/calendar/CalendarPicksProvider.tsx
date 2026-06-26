@@ -36,6 +36,7 @@ import { useUser } from "@/lib/auth/useUser";
 import { bracketSignature } from "@/lib/bracket/signature";
 import { mergeBrackets } from "@/lib/bracket/merge";
 import { cascadeWithUserPicks } from "@/lib/bracket/cascade-iter";
+import { buildCompletedResults, displayKnockoutTeam } from "@/lib/bracket/real-standings";
 import { useLiveMatchStatus } from "@/lib/bracket/use-live-status";
 import {
   loadDraft,
@@ -176,18 +177,33 @@ export function CalendarPicksProvider({
   const cascadeCodes = useMemo(() => {
     const map = new Map<string, { home?: string; away?: string }>();
     try {
-      const out = cascadeWithUserPicks(tournament, bracket, "calendar-picker");
+      // Feed REAL group standings (derived from recorded results) into
+      // the cascade so knockout group_position slots resolve to the
+      // actual qualifiers the moment a group settles. Unsettled groups
+      // fall back to the player's forecast inside the engine. Tim
+      // 2026-06-26 (Phase 1 — best-thirds still TBC until all groups
+      // close).
+      const completedResults = buildCompletedResults(tournament, resultsByMatch);
+      const out = cascadeWithUserPicks(
+        tournament,
+        bracket,
+        "calendar-picker",
+        completedResults,
+      );
       for (const k of out.knockouts ?? []) {
+        // Hybrid actual-then-forecast: R32 seeds show real-or-TBD; R16+
+        // forward slots show the actual winner or the player's forecast.
+        // Tim 2026-06-26. See displayKnockoutTeam.
         map.set(k.id, {
-          home: k.home.team ?? undefined,
-          away: k.away.team ?? undefined,
+          home: displayKnockoutTeam(k.home) ?? undefined,
+          away: displayKnockoutTeam(k.away) ?? undefined,
         });
       }
     } catch {
       // ignore — leave the map empty so rows fall back to TBD.
     }
     return map;
-  }, [tournament, bracket]);
+  }, [tournament, bracket, resultsByMatch]);
 
   // Per-pick handler. Patches the right map (group vs knockout) and
   // schedules an autosave. Skips silently if the match has already

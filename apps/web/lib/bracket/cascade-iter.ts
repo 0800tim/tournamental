@@ -34,6 +34,7 @@ import {
   type BracketPrediction,
   type CascadedKnockout,
   type CascadedBracket,
+  type CompletedResults,
   type Tournament,
 } from "@tournamental/bracket-engine";
 
@@ -58,13 +59,14 @@ export function cascadeWithUserPicks(
   tournament: Tournament,
   bracket: Bracket,
   userId: string,
+  completedResults?: CompletedResults,
 ): CascadedBracket {
   const input: BracketPrediction = bracketToCascadeInput(
     tournament,
     bracket,
     userId,
   );
-  let cascaded = cascade(tournament, input);
+  let cascaded = cascade(tournament, input, completedResults);
   for (let pass = 0; pass < MAX_PASSES; pass += 1) {
     const overlays: Array<{ match_id: string; winner: string }> = [];
     for (const p of Object.values(bracket.knockoutPredictions ?? {})) {
@@ -83,7 +85,11 @@ export function cascadeWithUserPicks(
     const before = cascaded.knockouts.filter(
       (k: CascadedKnockout) => k.effective_winner,
     ).length;
-    const next = cascade(tournament, { ...input, knockouts: overlays });
+    const next = cascade(
+      tournament,
+      { ...input, knockouts: overlays },
+      completedResults,
+    );
     const after = next.knockouts.filter(
       (k: CascadedKnockout) => k.effective_winner,
     ).length;

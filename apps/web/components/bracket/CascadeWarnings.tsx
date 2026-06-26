@@ -149,6 +149,12 @@ function pickBannerWarning(
 ): { target: BracketTabId; message: string } | null {
   const currentIdx = TAB_ORDER.indexOf(currentTab);
   if (currentIdx <= 0) return null;
+  // The "some slots aren't filled because an upstream stage is incomplete,
+  // head back to finish it" banner is obsolete for the knockouts: they now
+  // fill from the REAL group results, not the user's forecast, so finishing
+  // an upstream stage no longer fills them. Tim 2026-06-26.
+  const KNOCKOUT_TABS = new Set(["r32", "r16", "qf", "sf", "tp", "final"]);
+  if (KNOCKOUT_TABS.has(currentTab)) return null;
   // Walk the warnings, find the earliest-stage origin that's strictly
   // before the current tab.
   let best: { target: BracketTabId; targetIdx: number } | null = null;

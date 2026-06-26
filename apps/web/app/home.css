@@ -1734,3 +1734,52 @@
   font-weight: 700;
   letter-spacing: 0.01em;
 }
+
+/* Round of 32 transition notice (Tim 2026-06-26).
+ * Sits directly under the four hero quick-action tiles. Gold-accented
+ * banner so the timely "groups closing" info reads as a call-out rather
+ * than a fifth peer tile. Full width, links to /next-stage-r32. */
+.vt-home-r32-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  margin-top: 10px;
+  padding: 13px 18px;
+  border-radius: 12px;
+  background: linear-gradient(90deg, rgba(220, 169, 75, 0.16), rgba(220, 169, 75, 0.06));
+  border: 1px solid rgba(220, 169, 75, 0.45);
+  color: #f4ecdb;
+  text-decoration: none;
+  transition: transform 0.08s ease, background 0.12s ease, border-color 0.12s ease;
+}
+.vt-home-r32-notice:hover {
+  background: linear-gradient(90deg, rgba(220, 169, 75, 0.24), rgba(220, 169, 75, 0.10));
+  border-color: rgba(220, 169, 75, 0.7);
+}
+.vt-home-r32-notice:active {
+  transform: scale(0.99);
+}
+.vt-home-r32-notice-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.vt-home-r32-notice-eyebrow {
+  font: 700 0.62rem/1 "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #dca94b;
+}
+.vt-home-r32-notice-label {
+  font: 700 0.95rem/1.2 "Inter", -apple-system, system-ui, sans-serif;
+  color: #f7f1e4;
+}
+.vt-home-r32-notice-arrow {
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #dca94b;
+  flex: none;
+}

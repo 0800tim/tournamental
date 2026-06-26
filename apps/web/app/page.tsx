@@ -251,6 +251,24 @@ export default async function HomePage(): Promise<JSX.Element> {
                 </Link>
               </nav>
 
+              {/* Tim 2026-06-26: Round of 32 transition explainer. Sits
+                * directly under the four quick actions and links to the
+                * group-stage-closing info page so players know their
+                * forecast knockouts switch to the real matchups. */}
+              <Link href="/next-stage-r32" className="vt-home-r32-notice">
+                <span className="vt-home-r32-notice-copy">
+                  <span className="vt-home-r32-notice-eyebrow">
+                    Group stage closing
+                  </span>
+                  <span className="vt-home-r32-notice-label">
+                    Round of 32 stage info
+                  </span>
+                </span>
+                <span className="vt-home-r32-notice-arrow" aria-hidden="true">
+                  →
+                </span>
+              </Link>
+
               {/* Tim 2026-06-05: single lede paragraph replaces the
                 * previous "Nobody will correctly predict..." + global
                 * ledger pair. The bet page (/the-bet) now carries all
@@ -290,54 +308,6 @@ export default async function HomePage(): Promise<JSX.Element> {
                 * surfaces that still use it. */}
             </div>
           </div>
-        </section>
-
-        {/* ============== BOT ARENA FEATURE ============== */}
-        {/* Tim 2026-06-08: dramatic image-overlay feature card mirroring
-          * the bet card pattern but sitting first under the hero stats
-          * row. Promotes the perfect-bot-bracket experiment: spawn a
-          * swarm of bots in the browser and battle for the bracket.
-          * Press release + white paper published 2026-06-07. */}
-        <section className="vt-home-section vt-home-section--bots">
-          <article className="vt-bots-feature" aria-label="The Bot Arena">
-            <div className="vt-bots-feature-bg" aria-hidden="true" />
-            <div className="vt-bots-feature-scrim" aria-hidden="true" />
-            <div className="vt-bots-feature-inner">
-              <div className="vt-bots-feature-text">
-                <p className="vt-bots-feature-eyebrow">The Bot Arena</p>
-                <h2 className="vt-bots-feature-headline">
-                  Send <em>millions of bots</em> into battle.
-                </h2>
-                <p className="vt-bots-feature-body">
-                  Spawn a <strong>swarm of AI bots</strong> in your browser,
-                  forge their World Cup brackets, and pit them against
-                  every other swarm on Earth. <em>How close can your bots get to perfect?</em>
-                </p>
-              </div>
-              <div className="vt-bots-feature-action">
-                <Link href="/bot-arena" className="vt-bots-feature-cta">
-                  Enter the Bot Arena <span aria-hidden="true">→</span>
-                </Link>
-                <a
-                  href="/press/tournamental-press-release-2026-06-07.pdf"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="vt-bots-feature-cta vt-bots-feature-cta--white"
-                >
-                  Read Press Release <span aria-hidden="true">→</span>
-                </a>
-                <p className="vt-bots-feature-fine">
-                  <Link
-                    href="/whitepaper/perfect-bot-bracket"
-                    style={{ color: "inherit", textDecoration: "underline" }}
-                  >
-                    Read the white paper
-                  </Link>{" "}
-                  · 104 matches · 0 perfect brackets
-                </p>
-              </div>
-            </div>
-          </article>
         </section>
 
         {/* ============== STEP 1, PICKS ============== */}

@@ -89,6 +89,7 @@ import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
 import { mockTopN, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
+import { buildCompletedResults } from "@/lib/bracket/real-standings";
 import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
 import {
   HAPTIC,
@@ -156,7 +157,9 @@ export interface ResultedMatch {
   readonly winnerCode: string | null;
 }
 
-const TAB_ORDER: readonly TabId[] = ["groups", "thirds", "r32", "r16", "qf", "sf", "final"];
+// "thirds" (Top 8 3rds) removed from the flow 2026-06-26: best third-placed
+// teams now come from real results, not a user pick, so the stage is gone.
+const TAB_ORDER: readonly TabId[] = ["groups", "r32", "r16", "qf", "sf", "final"];
 
 interface TabMeta {
   readonly id: TabId;
@@ -167,12 +170,9 @@ interface TabMeta {
 
 const TABS: readonly TabMeta[] = [
   { id: "groups", label: "Groups", hash: "#groups", aria: "Group stage matches" },
-  // FIFA 2026: top 2 of each group + 8 best 3rd-placers advance to R32.
-  // We can't deterministically rank the 12 thirds from outcome-only
-  // predictions (no score lines), so the user picks 8 explicitly here.
-  // The cascade engine then routes them via the FIFA Annex C lookup
-  // table (packages/bracket-engine/data/fifa-2026-annex-c-assignments.json).
-  { id: "thirds", label: "Top 8 3rds", hash: "#thirds", aria: "Best 3rd-placed teams that advance" },
+  // The "Top 8 3rds" stage was removed 2026-06-26: best third-placed teams
+  // are now resolved from the real group results, so there is nothing for
+  // the user to pick. Those R32 slots show TBD until they are confirmed.
   { id: "r32", label: "R32", hash: "#r32", aria: "Round of 32" },
   { id: "r16", label: "R16", hash: "#r16", aria: "Round of 16" },
   { id: "qf", label: "QF", hash: "#qf", aria: "Quarter-finals" },
@@ -814,8 +814,13 @@ export function BracketBuilder(props: BracketBuilderProps) {
   );
 
   const cascaded: CascadedBracket = useMemo(() => {
+    // Feed REAL group standings (from recorded results) so knockout
+    // group_position slots resolve to the actual qualifiers; the display
+    // layer (KnockoutMatch / BracketTree) then shows a team only when
+    // from_actual, so forecasts never appear. Tim 2026-06-26.
+    const completedResults = buildCompletedResults(tournament, resultsByMatch);
     const legacy = bracketToCascadeInput(tournament, bracket, userLocalId);
-    let result = cascade(tournament, legacy);
+    let result = cascade(tournament, legacy, completedResults);
     for (let pass = 0; pass < 6; pass += 1) {
       const knockouts = Object.values(bracket.knockoutPredictions)
         .map((p) => {
@@ -826,12 +831,12 @@ export function BracketBuilder(props: BracketBuilderProps) {
         })
         .filter((x): x is { match_id: string; winner: string } => x !== null);
       const before = result.knockouts.filter((k) => k.effective_winner).length;
-      result = cascade(tournament, { ...legacy, knockouts });
+      result = cascade(tournament, { ...legacy, knockouts }, completedResults);
       const after = result.knockouts.filter((k) => k.effective_winner).length;
       if (after === before) break;
     }
     return result;
-  }, [tournament, bracket, userLocalId]);
+  }, [tournament, bracket, userLocalId, resultsByMatch]);
 
   // Gold cascade pulse: when an upstream pick newly populates a
   // downstream slot, pulse the affected R32 / R16 / QF / SF / Final card

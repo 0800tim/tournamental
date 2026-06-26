@@ -18,6 +18,8 @@ import type {
   Tournament,
 } from "@tournamental/bracket-engine";
 
+import { displayKnockoutTeam } from "@/lib/bracket/real-standings";
+
 export interface BracketTreeProps {
   readonly tournament: Tournament;
   readonly knockouts: readonly CascadedKnockout[];
@@ -83,8 +85,13 @@ export function BracketTree(props: BracketTreeProps) {
         {byStage.flatMap((stage, stageIdx) =>
           stage.map((k, rowIdx) => {
             const { x, y } = matchPosition(stageIdx, rowIdx, stage.length);
-            const homeName = teams.get(k.home.team ?? "")?.name ?? "-";
-            const awayName = teams.get(k.away.team ?? "")?.name ?? "-";
+            // Hybrid actual-then-forecast: R32 seeds show real-or-TBD; R16+
+            // forward slots show the actual winner or the player's forecast.
+            // Tim 2026-06-26. See displayKnockoutTeam.
+            const homeReal = displayKnockoutTeam(k.home);
+            const awayReal = displayKnockoutTeam(k.away);
+            const homeName = teams.get(homeReal ?? "")?.name ?? "-";
+            const awayName = teams.get(awayReal ?? "")?.name ?? "-";
             const winner = k.predicted_winner;
             const isHomeWin = winner !== null && winner === k.home.team;
             const isAwayWin = winner !== null && winner === k.away.team;
@@ -95,16 +102,16 @@ export function BracketTree(props: BracketTreeProps) {
                 <text x={8} y={14} className="bracket-card-stage">{k.stage.toUpperCase()} #{k.match_no}</text>
                 <g
                   className={`bracket-card-row ${isHomeWin ? "is-winner" : ""} ${k.home.from_actual ? "is-actual" : ""}`}
-                  onClick={() => k.home.team && onPickWinner(k.id, k.home.team)}
-                  style={{ cursor: k.home.team ? "pointer" : "default" }}
+                  onClick={() => homeReal && onPickWinner(k.id, homeReal)}
+                  style={{ cursor: homeReal ? "pointer" : "default" }}
                 >
                   <rect y={20} width={COL_W - 32} height={16} rx={3} />
                   <text x={8} y={32}>{homeName}</text>
                 </g>
                 <g
                   className={`bracket-card-row ${isAwayWin ? "is-winner" : ""} ${k.away.from_actual ? "is-actual" : ""}`}
-                  onClick={() => k.away.team && onPickWinner(k.id, k.away.team)}
-                  style={{ cursor: k.away.team ? "pointer" : "default" }}
+                  onClick={() => awayReal && onPickWinner(k.id, awayReal)}
+                  style={{ cursor: awayReal ? "pointer" : "default" }}
                 >
                   <rect y={38} width={COL_W - 32} height={16} rx={3} />
                   <text x={8} y={50}>{awayName}</text>

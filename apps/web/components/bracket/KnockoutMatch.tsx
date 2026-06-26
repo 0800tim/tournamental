@@ -26,6 +26,7 @@ import type { CSSProperties, MouseEvent } from "react";
 import type { CascadedKnockout, MatchPrediction, Team } from "@tournamental/bracket-engine";
 
 import { useOptionalOverlay } from "@/components/overlay/OverlayProvider";
+import { displayKnockoutTeam } from "@/lib/bracket/real-standings";
 import {
   hostCityByMatchNumber,
   kickoffIsoByMatchNumber,
@@ -49,8 +50,13 @@ export interface KnockoutMatchProps {
 export function KnockoutMatch(props: KnockoutMatchProps) {
   const { knockout, teams, prediction, country, showOddsChip = true, onChange } = props;
 
-  const homeTeam = knockout.home.team ? teams.get(knockout.home.team) : undefined;
-  const awayTeam = knockout.away.team ? teams.get(knockout.away.team) : undefined;
+  // Hybrid actual-then-forecast: R32 seed slots show only real teams (else
+  // TBD); R16+ forward slots show the actual winner or the player's forecast.
+  // Tim 2026-06-26. See displayKnockoutTeam.
+  const homeCode = displayKnockoutTeam(knockout.home);
+  const awayCode = displayKnockoutTeam(knockout.away);
+  const homeTeam = homeCode ? teams.get(homeCode) : undefined;
+  const awayTeam = awayCode ? teams.get(awayCode) : undefined;
   const slotsKnown = !!homeTeam && !!awayTeam;
 
   const overlay = useOptionalOverlay();

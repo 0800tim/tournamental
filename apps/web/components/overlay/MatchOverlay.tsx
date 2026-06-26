@@ -34,6 +34,7 @@ import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { TeamFlag } from "@/components/bracket/TeamFlag";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
+import { buildCompletedResults } from "@/lib/bracket/real-standings";
 import { hostCityById, type HostCity } from "@/lib/host-cities";
 import { useLiveMatchStatus } from "@/lib/bracket/use-live-status";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -97,6 +98,54 @@ function useMatchResult(matchId: string): MatchResultSummary | null {
   return result;
 }
 
+type ResultRow = {
+  readonly outcome: "home_win" | "draw" | "away_win";
+  readonly homeScore: number | null;
+  readonly awayScore: number | null;
+};
+
+/** Full recorded-results map (outcome + scores) keyed by match-number
+ *  string, used to feed real group standings into the knockout cascade so
+ *  the overlay resolves actual qualifiers (else TBD). Tim 2026-06-26. */
+function useAllRecordedResults(): ReadonlyMap<string, ResultRow> {
+  const [map, setMap] = useState<ReadonlyMap<string, ResultRow>>(
+    () => new Map(),
+  );
+  useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const r = await fetch(`/api/v1/match-results/${FIFA_2026_TID}`, {
+          credentials: "same-origin",
+        });
+        if (!r.ok) return;
+        const body = (await r.json()) as {
+          results?: ReadonlyArray<{ match_id: string } & ResultRow>;
+        };
+        if (cancelled || !body.results) return;
+        const m = new Map<string, ResultRow>();
+        for (const row of body.results) {
+          m.set(row.match_id, {
+            outcome: row.outcome,
+            homeScore: row.homeScore,
+            awayScore: row.awayScore,
+          });
+        }
+        setMap(m);
+      } catch {
+        /* silent — overlay falls back to TBD slot labels */
+      }
+    }
+    void load();
+    const iv = window.setInterval(load, 60_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(iv);
+    };
+  }, []);
+  return map;
+}
+
 interface MatchOverlayProps {
   readonly id: string;
   readonly depth?: number;
@@ -106,16 +155,25 @@ export function MatchOverlay(props: MatchOverlayProps) {
   const { id, depth = 0 } = props;
   const overlay = useOverlay();
 
-  const data = useMemo(() => {
-    const tournament = enrichTournamentTeams(
-      loadFixtures2026(),
-      canonicalTeamsRaw as CanonicalTeamsFile,
-    );
-    const match = resolveMatch(tournament, id);
-    return { match };
-  }, [id]);
+  const tournament = useMemo(
+    () =>
+      enrichTournamentTeams(
+        loadFixtures2026(),
+        canonicalTeamsRaw as CanonicalTeamsFile,
+      ),
+    [],
+  );
+  const allResults = useAllRecordedResults();
+  const match = useMemo(
+    () =>
+      resolveMatch(tournament, id, buildCompletedResults(tournament, allResults)),
+    [tournament, id, allResults],
+  );
 
-  const { match } = data;
+  // Hooks must run before any early return (rules-of-hooks). Both poll
+  // every 60s; matchId falls back to "" when the id doesn't resolve.
+  const result = useMatchResult(match?.matchId ?? "");
+  const liveByMatch = useLiveMatchStatus(FIFA_2026_TID);
 
   if (!match) {
     return (
@@ -136,11 +194,7 @@ export function MatchOverlay(props: MatchOverlayProps) {
   const homeName = home?.name ?? match.homeCode ?? "TBD";
   const awayName = away?.name ?? match.awayCode ?? "TBD";
 
-  // Tim 2026-06-14: resulted state + live state for this match.
-  // Both polled every 60s by their respective hooks so the overlay
-  // updates without the user closing/reopening it.
-  const result = useMatchResult(match.matchId);
-  const liveByMatch = useLiveMatchStatus(FIFA_2026_TID);
+  // Resulted + live state for this match (hooks called above; derive here).
   const live = liveByMatch.get(match.matchId) ?? null;
   const homeScore = result?.homeScore ?? (live ? live.homeScore : null);
   const awayScore = result?.awayScore ?? (live ? live.awayScore : null);
