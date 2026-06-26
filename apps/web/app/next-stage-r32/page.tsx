@@ -251,6 +251,50 @@ export default function NextStageR32Page(): JSX.Element {
             </figcaption>
           </figure>
 
+          {/* ============== LEADERBOARD REALITY ============== */}
+          <section className="vt-r32-section">
+            <p className="vt-r32-kicker">The leaderboard right now</p>
+            <h2 className="vt-r32-h2">
+              Auto-pick got people surprisingly far. Only <em>one</em> human
+              has beaten it.
+            </h2>
+            <div className="vt-r32-stats">
+              <div className="vt-r32-stat">
+                <span className="vt-r32-stat-num">44</span>
+                <span className="vt-r32-stat-lab">top human, out of 62</span>
+              </div>
+              <div className="vt-r32-stat">
+                <span className="vt-r32-stat-num">43</span>
+                <span className="vt-r32-stat-lab">
+                  the auto-pick-and-forget pack
+                </span>
+              </div>
+              <div className="vt-r32-stat">
+                <span className="vt-r32-stat-num">1</span>
+                <span className="vt-r32-stat-lab">
+                  human ahead of doing nothing
+                </span>
+              </div>
+            </div>
+            <p className="vt-r32-p">
+              A whole pack of players auto-picked their bracket, walked away,
+              and are sitting on 43 out of 62. In a lot of pools, that is
+              enough to be near the top.
+            </p>
+            <p className="vt-r32-p">
+              Just one human has done better. John is out in front on 44, a
+              single point clear of every set-and-forget bracket. Well played,
+              John.
+            </p>
+            <p className="vt-r32-p">
+              Here is the catch: the knockouts reset everything. From the Round
+              of 32 your bracket switches to the real teams, and the upsets only
+              get bigger. Auto-pick can still carry you, but only if you run it
+              again before each round kicks off. This is your chance to leave the
+              auto-pickers behind.
+            </p>
+          </section>
+
           {/* ============== FINAL CTA ============== */}
           <section className="vt-r32-final">
             <h2 className="vt-r32-final-head">
