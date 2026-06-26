@@ -32,6 +32,8 @@ RUN cd /app \
     && chown -R botnode:botnode /app
 
 COPY --chown=botnode:botnode dashboard.mjs /app/dashboard.mjs
+COPY --chown=botnode:botnode scorer.mjs /app/scorer.mjs
+COPY --chown=botnode:botnode score-worker.mjs /app/score-worker.mjs
 COPY --chown=botnode:botnode fifa-wc-2026-fixtures.json /app/fifa-wc-2026-fixtures.json
 ENV TOURNAMENTAL_MATCHES=/app/fifa-wc-2026-fixtures.json
 

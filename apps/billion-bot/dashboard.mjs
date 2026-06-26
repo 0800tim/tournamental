@@ -10,11 +10,13 @@
 
 import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, existsSync, readFileSync, statSync } from "node:fs";
+import { mkdirSync, existsSync, readFileSync, writeFileSync, renameSync, statSync } from "node:fs";
 import { createServer } from "node:http";
 import { cpus, totalmem } from "node:os";
 import { join } from "node:path";
 import Database from "better-sqlite3";
+
+import { runScoring, fetchResults, loadFixtures, buildSettled, mapResultsToOutcomes } from "./scorer.mjs";
 
 const PORT = Number(process.env.DASH_PORT || 4080);
 const HOST = process.env.DASH_HOST || "0.0.0.0";
@@ -507,8 +509,113 @@ function aggregateStats() {
       succeeded: publishState.publishes_succeeded,
       last_error: publishState.last_error_msg,
     },
+    scoring: {
+      status: scoreState.status,
+      auto: SCORE_AUTO,
+      perfect: scoreState.result?.perfect ?? null,
+      settled_scored: scoreState.result?.settled ?? null,
+      total_scored: scoreState.result?.total ?? null,
+      scored_at: scoreState.result?.scored_at ?? null,
+      elapsed_ms: scoreState.result?.elapsed_ms ?? null,
+      last_settled_scored: scoreState.last_settled_scored,
+      progress: scoreState.progress,
+      started_at: scoreState.started_at,
+      error: scoreState.error,
+    },
     recent_errors: state.errors.slice(-5),
   };
+}
+
+// ---------- Perfect-bracket scoring ----------
+// The swarm's headline question: how many bots still have a perfect bracket?
+// A full re-score of 1.5B bots takes ~2h, so we never run it on a request.
+// Instead the dashboard scores in the background whenever a new match result
+// lands, caches the answer to the data volume, and serves it instantly.
+const FIXTURES = process.env.TOURNAMENTAL_MATCHES || "/app/fifa-wc-2026-fixtures.json";
+const RESULTS_URL =
+  process.env.RESULTS_URL ||
+  "https://play.tournamental.com/api/v1/match-results/fifa-wc-2026";
+const SCORE_WORKERS =
+  Number(process.env.SCORE_WORKERS) || Math.max(1, Math.min(24, TOTAL_HOST_CORES - 4));
+const SCORE_POLL_MS = Number(process.env.SCORE_POLL_MS) || 15 * 60_000;
+const SCORE_AUTO = process.env.SCORE_AUTO !== "0";
+const SCORE_CACHE = process.env.SCORE_CACHE || join(DATA_DIR, "score-cache.json");
+// Debug knob: score only the first N swarms (fast sanity check). 0 = full fleet.
+const SCORE_SAMPLE_SWARMS = Number(process.env.SCORE_SAMPLE_SWARMS) || 0;
+
+const scoreState = {
+  status: "idle", // idle | running | error
+  progress: { done: 0, total: 0 },
+  started_at: null,
+  result: null, // { total, settled, perfect, curve, scored_at, elapsed_ms }
+  error: null,
+  last_settled_scored: -1,
+};
+
+function loadScoreCache() {
+  try {
+    if (existsSync(SCORE_CACHE)) {
+      const r = JSON.parse(readFileSync(SCORE_CACHE, "utf8"));
+      if (r && typeof r.perfect === "number") {
+        scoreState.result = r;
+        scoreState.last_settled_scored = r.settled ?? -1;
+      }
+    }
+  } catch {
+    // ignore a corrupt cache; next score overwrites it
+  }
+}
+
+function saveScoreCache() {
+  try {
+    const tmp = SCORE_CACHE + ".tmp";
+    writeFileSync(tmp, JSON.stringify(scoreState.result));
+    renameSync(tmp, SCORE_CACHE);
+  } catch (err) {
+    state.errors.push({ worker: -1, code: "score-cache", msg: String(err?.message || err) });
+  }
+}
+
+async function startScoring(opts = {}) {
+  if (scoreState.status === "running") return;
+  scoreState.status = "running";
+  scoreState.error = null;
+  scoreState.started_at = Date.now();
+  scoreState.progress = { done: 0, total: 0 };
+  try {
+    const result = await runScoring({
+      dataDir: DATA_DIR,
+      fixturesPath: FIXTURES,
+      resultsUrl: RESULTS_URL,
+      workers: SCORE_WORKERS,
+      results: opts.results,
+      sampleSwarms: SCORE_SAMPLE_SWARMS || undefined,
+      onProgress: (done, total) => {
+        scoreState.progress = { done, total };
+      },
+    });
+    scoreState.result = result;
+    scoreState.last_settled_scored = result.settled;
+    scoreState.status = "idle";
+    saveScoreCache();
+  } catch (err) {
+    scoreState.status = "error";
+    scoreState.error = String(err?.message || err);
+  }
+}
+
+// Poll for newly-settled matches; re-score only when the settled count grows.
+async function maybeAutoScore() {
+  if (!SCORE_AUTO || scoreState.status === "running") return;
+  try {
+    const results = await fetchResults(RESULTS_URL);
+    const settled = buildSettled(mapResultsToOutcomes(results), loadFixtures(FIXTURES));
+    if (settled.length > scoreState.last_settled_scored) {
+      void startScoring({ results });
+    }
+  } catch {
+    // transient results-feed hiccup; try again on the next poll
+  }
 }
 
 // ---------- HTML ----------
@@ -571,6 +678,27 @@ const HTML = `<!doctype html>
     <div id="sync" style="font-size:12px; color:#71717a;">connecting…</div>
     <div id="errCount" style="color:#fca5a5; font-size:12px;"></div>
   </div>
+
+  <div class="section-h">Perfect brackets</div>
+  <div class="grid">
+    <div class="card" style="grid-column: span 2;">
+      <div class="label">Bots still perfect</div>
+      <div class="value gold" id="perfect" style="font-size:34px;">-</div>
+      <div class="sub2" id="perfect_sub"></div>
+    </div>
+    <div class="card"><div class="label">Matches scored</div><div class="value" id="score_settled">-</div><div class="sub2" id="score_total"></div></div>
+    <div class="card"><div class="label">Last scored</div><div class="value" id="score_when" style="font-size:16px;">-</div><div class="sub2" id="score_dur"></div></div>
+    <div class="card">
+      <div class="label">Scoring</div>
+      <div class="value" id="score_status" style="font-size:16px;">-</div>
+      <div class="bar"><div id="score_bar" style="width:0%; background:#34d399;"></div></div>
+      <div style="margin-top:8px;"><button id="scoreNow" class="minor">Score now</button></div>
+    </div>
+  </div>
+  <details id="curveBox">
+    <summary style="cursor:pointer; color:#9ca3af; font-size:11px;">Survival curve (per match)</summary>
+    <pre id="curve">open to load…</pre>
+  </details>
 
   <div class="ctrl">
     <button id="start">Start</button>
@@ -667,6 +795,27 @@ function cpuClass(pct) {
   if (pct < 75) return "cpu-mid";
   return "cpu-high";
 }
+function fmtAgo(ts) {
+  if (!ts) return "-";
+  const s = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (s < 60) return s + "s ago";
+  if (s < 3600) return Math.round(s/60) + "m ago";
+  if (s < 86400) return (s/3600).toFixed(1) + "h ago";
+  return (s/86400).toFixed(1) + "d ago";
+}
+async function loadCurve() {
+  const el = document.getElementById("curve");
+  try {
+    const r = await fetch("/api/score", { cache: "no-store" });
+    const j = await r.json();
+    if (!j.result || !j.result.curve || !j.result.curve.length) { el.textContent = "no scored matches yet"; return; }
+    const rows = j.result.curve.map(c =>
+      "m#" + String(c.k).padStart(2) + "  " + c.match_id + "  " +
+      (c.home + "-" + c.away).padEnd(9) + " " + String(c.outcome).padEnd(9) +
+      "  " + Number(c.survivors).toLocaleString() + " still perfect");
+    el.textContent = "after each settled match (chronological):\n\n" + rows.join("\n");
+  } catch (e) { el.textContent = "load error: " + e.message; }
+}
 
 let lastTotal = 0;
 let lastSeenAt = 0;
@@ -760,6 +909,38 @@ async function refresh() {
     document.getElementById("pub_ok").textContent = (p.succeeded || 0) + " / " + (p.attempts || 0);
     document.getElementById("pub_last_err").textContent = p.last_error ? "err: " + p.last_error : "";
 
+    // Perfect-bracket scoring card.
+    const sc = s.scoring || {};
+    const perfectEl = document.getElementById("perfect");
+    perfectEl.textContent = sc.perfect == null ? "—" : fmt(sc.perfect);
+    document.getElementById("perfect_sub").textContent =
+      sc.perfect == null ? "not scored yet" :
+      (sc.perfect === 0 ? "no bots survived all scored matches" : "of " + fmt(sc.total_scored) + " bots");
+    document.getElementById("score_settled").textContent = sc.settled_scored == null ? "-" : sc.settled_scored;
+    document.getElementById("score_total").textContent = sc.total_scored ? "across " + fmt(sc.total_scored) + " bots" : "";
+    document.getElementById("score_when").textContent = sc.scored_at ? fmtAgo(sc.scored_at) : "-";
+    document.getElementById("score_dur").textContent = sc.elapsed_ms ? "took " + fmtEta(sc.elapsed_ms/1000) : "";
+    const ssEl = document.getElementById("score_status");
+    const scNowBtn = document.getElementById("scoreNow");
+    if (sc.status === "running") {
+      const pr = sc.progress || {};
+      const pctScore = pr.total ? (pr.done / pr.total) * 100 : 0;
+      ssEl.textContent = "running " + pctScore.toFixed(1) + "%";
+      ssEl.className = "value cpu-mid";
+      document.getElementById("score_bar").style.width = Math.min(100, pctScore) + "%";
+      scNowBtn.disabled = true;
+    } else if (sc.status === "error") {
+      ssEl.textContent = "error";
+      ssEl.className = "value cpu-high";
+      ssEl.title = sc.error || "";
+      scNowBtn.disabled = false;
+    } else {
+      ssEl.textContent = sc.auto ? "idle (auto)" : "idle";
+      ssEl.className = "value cpu-low";
+      document.getElementById("score_bar").style.width = sc.perfect == null ? "0%" : "100%";
+      scNowBtn.disabled = false;
+    }
+
     // Active chip highlighting
     document.querySelectorAll(".chip[data-w]").forEach((el) => {
       el.classList.toggle("active", Number(el.dataset.w) === s.desired_workers);
@@ -793,6 +974,13 @@ async function postJSON(url, body) {
 document.getElementById("start").onclick = async () => { await postJSON("/api/start"); refresh(); };
 document.getElementById("stop").onclick = async () => { await postJSON("/api/stop"); refresh(); };
 document.getElementById("refresh").onclick = refresh;
+document.getElementById("scoreNow").onclick = async () => {
+  await postJSON("/api/score/start");
+  refresh();
+};
+document.getElementById("curveBox").addEventListener("toggle", (e) => {
+  if (e.target.open) loadCurve();
+});
 
 document.querySelectorAll(".chip[data-w]").forEach((el) => {
   el.onclick = async () => { await postJSON("/api/configure", { workers: Number(el.dataset.w) }); refresh(); };
@@ -862,6 +1050,23 @@ const server = createServer(async (req, res) => {
     });
     return;
   }
+  if (req.method === "GET" && req.url === "/api/score") {
+    res.writeHead(200, { "content-type": "application/json" });
+    res.end(JSON.stringify({
+      status: scoreState.status,
+      progress: scoreState.progress,
+      started_at: scoreState.started_at,
+      error: scoreState.error,
+      result: scoreState.result,
+    }));
+    return;
+  }
+  if (req.method === "POST" && req.url === "/api/score/start") {
+    void startScoring();
+    res.writeHead(202, { "content-type": "application/json" });
+    res.end(JSON.stringify({ started: true, workers: SCORE_WORKERS }));
+    return;
+  }
   res.writeHead(404, { "content-type": "application/json" });
   res.end(JSON.stringify({ error: "not_found" }));
 });
@@ -871,6 +1076,15 @@ server.listen(PORT, HOST, () => {
     `billion-bot dashboard up on http://${HOST}:${PORT} - workers=${INITIAL_WORKERS} (max ${MAX_WORKERS}) batch=${INITIAL_BATCH} target=${TARGET} cores=${TOTAL_HOST_CORES}\n`,
   );
 });
+
+// Perfect-bracket scoring: serve the last cached answer immediately, then
+// poll the results feed and re-score in the background when a new match
+// settles. SCORE_AUTO=0 disables the auto-poll (manual "Score now" only).
+loadScoreCache();
+if (SCORE_AUTO) {
+  setTimeout(() => void maybeAutoScore(), 10_000).unref();
+  setInterval(() => void maybeAutoScore(), SCORE_POLL_MS).unref();
+}
 
 function shutdown() {
   stopAll();
