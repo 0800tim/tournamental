@@ -274,6 +274,16 @@ export function cascade(
         return { source, team: team ?? null, from_actual };
       }
       case "best_third": {
+        // Prefer the ACTUAL best-thirds (set once every group settles) over
+        // the player's forecast, so the slot shows the real qualifier.
+        const actualThirds = completedResults?.best_thirds;
+        if (actualThirds && source.rank - 1 < actualThirds.length) {
+          return {
+            source,
+            team: actualThirds[source.rank - 1] ?? null,
+            from_actual: true,
+          };
+        }
         const team = wildcardLookup(source.rank, source.eligible_groups, 3);
         return { source, team, from_actual: false };
       }
@@ -311,8 +321,13 @@ export function cascade(
         // We deliberately ignore unmappable entries (silently): a team
         // that no longer finishes 3rd in any group surfaces elsewhere as
         // a warning when we discover the pool is incomplete.
+        // Prefer the ACTUAL best-thirds (set once every group is settled)
+        // over the player's forecast picks, so the slot resolves to the REAL
+        // qualifier and renders as such. Tim 2026-06-28.
+        const actualThirds = completedResults?.best_thirds;
+        const useActual = !!actualThirds && actualThirds.length === 8;
         const advancingGroups: GroupId[] = [];
-        for (const teamId of predictions.best_thirds) {
+        for (const teamId of useActual ? actualThirds : predictions.best_thirds) {
           const g = thirdPlacerToGroup.get(teamId);
           if (g) advancingGroups.push(g);
         }
@@ -348,7 +363,10 @@ export function cascade(
         }
         const sourceOrder = groupEffective.get(sourceGroup) ?? [];
         const team = sourceOrder.length >= 3 ? sourceOrder[2] ?? null : null;
-        return { source, team, from_actual: false };
+        // from_actual when resolved from real results: the actual best-thirds
+        // are only set once every group is settled, so the source group's
+        // third is the real qualifier.
+        return { source, team, from_actual: useActual && team !== null };
       }
     }
   }

@@ -371,6 +371,16 @@ export interface CompletedResults {
   readonly groups: readonly GroupActualStanding[];
   readonly knockouts: readonly KnockoutActualResult[];
   /**
+   * The actual top-8 third-placed teams, ranked best to 8th, set ONLY once
+   * every group is settled. FIFA ranks the 12 third-placers by points, then
+   * goal difference, then goals scored. The cascade uses this set to resolve
+   * the Annex C best-third R32 slots to the REAL qualifiers (from_actual),
+   * overriding the player's forecast. Absent until all groups finish, in
+   * which case the cascade falls back to the player's best_thirds picks.
+   * Tim 2026-06-28.
+   */
+  readonly best_thirds?: readonly TeamId[];
+  /**
    * Optional list of teams withdrawn from the tournament. Withdrawn teams
    * are treated as automatic losses everywhere they appear in predictions
    * and cascades. The cascade flags affected matches.

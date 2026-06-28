@@ -24,6 +24,7 @@ import {
   type CompletedResults,
   type MatchPrediction,
   type ResolvedSlot,
+  type TeamId,
   type Tournament,
 } from "@tournamental/bracket-engine";
 
@@ -78,6 +79,15 @@ export function buildCompletedResults(
 ): CompletedResults {
   const byMatch = results;
 
+  // Each settled group's 3rd-placed team with the stats needed to rank
+  // them across groups for the best-third (Annex C) allocation.
+  const thirds: Array<{
+    team: TeamId;
+    points: number;
+    goalDiff: number;
+    goalsFor: number;
+  }> = [];
+
   const groups = tournament.groups.map((g) => {
     const groupFixtures = tournament.group_fixtures.filter(
       (f) => f.group_id === g.id,
@@ -101,12 +111,42 @@ export function buildCompletedResults(
 
     const settled = groupFixtures.length > 0 && recorded === groupFixtures.length;
     const standings = computeGroupStandings(g.id, tournament, preds);
+    if (settled && standings.length >= 3) {
+      const t = standings[2];
+      thirds.push({
+        team: t.teamCode,
+        points: t.points,
+        goalDiff: t.goalDiff,
+        goalsFor: t.goalsFor,
+      });
+    }
     return {
       group_id: g.id,
       final_order: standings.map((s) => s.teamCode),
       settled,
     };
   });
+
+  // Best-third (Annex C) pool: once EVERY group is settled, rank the 12
+  // third-placed teams by FIFA's tiebreakers (points -> goal difference ->
+  // goals scored, with a deterministic team-code fallback for the unmodelled
+  // disciplinary / drawing-of-lots steps) and take the top 8. The cascade
+  // consumes this to resolve the real best-third R32 slots. Left undefined
+  // while any group is still in progress, so those slots stay TBD.
+  const allGroupsSettled = groups.length > 0 && groups.every((g) => g.settled);
+  let best_thirds: TeamId[] | undefined;
+  if (allGroupsSettled && thirds.length === tournament.groups.length) {
+    best_thirds = [...thirds]
+      .sort(
+        (a, b) =>
+          b.points - a.points ||
+          b.goalDiff - a.goalDiff ||
+          b.goalsFor - a.goalsFor ||
+          a.team.localeCompare(b.team),
+      )
+      .slice(0, 8)
+      .map((t) => t.team);
+  }
 
   // Knockout results: once a knockout match (R32 onward) has a recorded
   // winner, feed it in as a settled actual so the cascade resolves the next
@@ -130,5 +170,5 @@ export function buildCompletedResults(
     knockouts.push({ match_id: ko.id, winner, settled: true });
   }
 
-  return { groups, knockouts };
+  return { groups, knockouts, ...(best_thirds ? { best_thirds } : {}) };
 }
