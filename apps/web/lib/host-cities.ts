@@ -12,6 +12,7 @@
  * components and client components alike.
  */
 
+import { loadFixtures2026 } from "@tournamental/bracket-engine";
 import raw from "../../../data/fifa-wc-2026/host-cities.json";
 import rawFixtures from "../../../data/fifa-wc-2026/fixtures.json";
 
@@ -74,13 +75,27 @@ const HOST_CITY_BY_MATCH_NO: ReadonlyMap<number, string> = new Map(
     .map((f) => [f.match_number, f.host_city_id]),
 );
 
-const KICKOFF_BY_MATCH_NO: ReadonlyMap<number, string> = new Map(
-  ALL_FIXTURES
-    .filter((f): f is CanonicalFixtureRow & { kickoff_utc: string } =>
-      typeof f.kickoff_utc === "string" && f.kickoff_utc.length > 0,
-    )
-    .map((f) => [f.match_number, f.kickoff_utc]),
-);
+// Kickoff times come from the canonical bracket-engine fixtures (the SAME
+// source the Match Calendar uses via loadFixtures2026), NOT
+// data/fifa-wc-2026/fixtures.json, whose knockout kickoff_utc values are
+// sequential placeholders (two matches per day at 20:00Z) that never got the
+// real R32 draw times. Keying both group_fixtures and knockouts by match_no
+// keeps the bracket and the calendar in lockstep. Tim 2026-06-28.
+const KICKOFF_BY_MATCH_NO: ReadonlyMap<number, string> = (() => {
+  const fx = loadFixtures2026();
+  const m = new Map<number, string>();
+  for (const g of fx.group_fixtures) {
+    if (typeof g.kickoff_utc === "string" && g.kickoff_utc.length > 0) {
+      m.set(g.match_no, g.kickoff_utc);
+    }
+  }
+  for (const k of fx.knockouts) {
+    if (typeof k.kickoff_utc === "string" && k.kickoff_utc.length > 0) {
+      m.set(k.match_no, k.kickoff_utc);
+    }
+  }
+  return m;
+})();
 
 /**
  * Convenience helper for the bracket UI: resolves a fixture's
