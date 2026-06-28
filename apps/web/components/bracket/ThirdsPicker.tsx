@@ -33,7 +33,6 @@ interface ThirdsPickerProps {
   readonly tournament: Tournament;
   readonly bracket: Bracket;
   readonly onChange: (next: readonly TeamId[]) => void;
-  readonly onAutoPick: () => void;
   readonly onClear: () => void;
 }
 
@@ -50,7 +49,7 @@ interface ThirdRow {
 const REQUIRED = 8;
 
 export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
-  const { tournament, bracket, onChange, onAutoPick, onClear } = props;
+  const { tournament, bracket, onChange, onClear } = props;
 
   const { rows, groupsComplete } = useMemo(() => {
     const out: ThirdRow[] = [];
@@ -179,14 +178,6 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
           <strong>{selectedCount}</strong> / {REQUIRED} selected
         </span>
         <div className="bracket-thirds-toolbar-actions">
-          <button
-            type="button"
-            className="bracket-btn bracket-btn-secondary"
-            onClick={onAutoPick}
-            aria-label="Auto-pick the 8 third-placers with the best FIFA rank"
-          >
-            ⚡ Auto-pick top 8 by FIFA rank
-          </button>
           <button
             type="button"
             className="bracket-btn bracket-btn-text"

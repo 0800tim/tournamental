@@ -289,9 +289,9 @@ export default function NextStageR32Page(): JSX.Element {
             <p className="vt-r32-p">
               Here is the catch: the knockouts reset everything. From the Round
               of 32 your bracket switches to the real teams, and the upsets only
-              get bigger. Auto-pick can still carry you, but only if you run it
-              again before each round kicks off. This is your chance to leave the
-              auto-pickers behind.
+              get bigger. The set-and-forget crowd keeps coasting on the picks
+              they already have, so this is your chance to come in, see the real
+              teams, and pick properly to leave them behind.
             </p>
           </section>
 

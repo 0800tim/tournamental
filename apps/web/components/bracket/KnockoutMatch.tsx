@@ -31,7 +31,6 @@ import {
   hostCityByMatchNumber,
   kickoffIsoByMatchNumber,
 } from "@/lib/host-cities";
-import { OddsChip } from "../odds/OddsChip";
 import { MatchVenueFooter } from "./MatchVenueFooter";
 import { TeamFlag } from "./TeamFlag";
 
@@ -48,7 +47,11 @@ export interface KnockoutMatchProps {
 }
 
 export function KnockoutMatch(props: KnockoutMatchProps) {
-  const { knockout, teams, prediction, country, showOddsChip = true, onChange } = props;
+  // `showOddsChip` is retained on the props interface for test
+  // compatibility but is intentionally no longer consumed: knockout
+  // matches do not render a live-odds chip. Group-stage odds are
+  // unaffected (see GroupCard / MatchPredictionRow).
+  const { knockout, teams, prediction, onChange } = props;
 
   // Hybrid actual-then-forecast: R32 seed slots show only real teams (else
   // TBD); R16+ forward slots show the actual winner or the player's forecast.
@@ -196,22 +199,6 @@ export function KnockoutMatch(props: KnockoutMatchProps) {
           <span className="km-tbd">{describeSource(knockout.away.source)}</span>
         )}
       </button>
-      {showOddsChip && slotsKnown && homeTeam && awayTeam && (
-        <div className="km-odds" data-km-odds="">
-          <OddsChip
-            matchNo={knockout.id}
-            homeTeam={homeTeam.id}
-            awayTeam={awayTeam.id}
-            homeLabel={homeTeam.name}
-            awayLabel={awayTeam.name}
-            noDraw
-            groupLabel={knockout.stage.toUpperCase()}
-            country={country}
-            source="bracket-knockout"
-            hideWhenMock
-          />
-        </div>
-      )}
       {kickoffIso && (
         <MatchVenueFooter
           matchId={knockout.id}

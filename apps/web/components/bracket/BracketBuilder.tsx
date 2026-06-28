@@ -83,14 +83,14 @@ import {
 import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
-import { ThirdsPicker, autoPickTop8Thirds } from "./ThirdsPicker";
+import { ThirdsPicker } from "./ThirdsPicker";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
 import { mockTopN, DEMO_MATCHES_PLAYED } from "@/lib/mock/leaderboard";
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
 import { buildCompletedResults } from "@/lib/bracket/real-standings";
-import { appendHistory, snapshotOdds } from "@/lib/bracket/history";
+import { appendHistory } from "@/lib/bracket/history";
 import {
   HAPTIC,
   scrollIntoViewIfHidden,
@@ -132,8 +132,6 @@ import type { MatchOdds } from "@/lib/odds/types";
 import { fetchPunditStatus, type PunditStatus, UNVERIFIED } from "@/lib/pundit";
 
 import type { StageId } from "@tournamental/bracket-engine";
-
-const KO_PICK_STAGES: readonly StageId[] = ["r32", "r16", "qf", "sf", "tp", "f"] as const;
 
 export interface BracketBuilderProps {
   readonly tournament: Tournament;
@@ -326,17 +324,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
     "idle" | "dirty" | "saving" | "saved" | "error"
   >("idle");
   const autoSaveInFlightRef = useRef(false);
-  const [showAutoPickConfirm, setShowAutoPickConfirm] = useState<boolean>(false);
-  /**
-   * Auto-pick: preserve existing picks by default. Tim 2026-06-01:
-   * before this, hitting Auto-pick nuked any picks the user had already
-   * made by hand, which was a real friction point. Now the modal has
-   * an "Overwrite existing picks" checkbox, defaulting to UNCHECKED.
-   * When unchecked, handleAutoPick only fills empty match-prediction
-   * slots and leaves the rest alone. When ticked, restores the
-   * previous behaviour of fully overwriting.
-   */
-  const [overwriteExistingPicks, setOverwriteExistingPicks] = useState<boolean>(false);
   // SignupModal trigger + "save once the user signs in" handoff. Tim
   // 2026-05-21: when an anonymous player finishes their 104 picks and
   // taps "Save my bracket", we open the signup modal first; on success
@@ -653,7 +640,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       starting = migr.bracket;
       if (migr.wiped) {
         setSubmitState(
-          "We updated the 2026 Round-of-32 routing to match FIFA's Annex C rules. Your group picks were preserved, but your knockout picks were cleared — please re-pick R32 onwards (auto-pick will do it instantly).",
+          "We updated the 2026 Round-of-32 routing to match FIFA's Annex C rules. Your group picks were preserved, but your knockout picks were cleared, please re-pick R32 onwards.",
         );
         saveDraft(tournament.id, starting!, id);
       }
@@ -1009,348 +996,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
   };
 
   /**
-   * Auto-pick, fetch live odds via /api/odds/snapshot and fill EVERY
-   * match all the way down to the final, including the 3rd-place
-   * playoff and any group tiebreakers.
-   *
-   * Tim 2026-06-01: respects the `overwriteExistingPicks` modal toggle.
-   * When false (default), only empty match-prediction / tiebreaker
-   * slots are filled; user's hand-made picks are preserved. When true,
-   * every slot is rewritten from live odds (the original behaviour).
-   */
-  const handleAutoPick = async (): Promise<void> => {
-    // Capture the toggle at click-time. Reading from state mid-function
-    // is fine because the modal is closed first, but capturing is a
-    // small defensive against any setState race.
-    const overwrite = overwriteExistingPicks;
-    setShowAutoPickConfirm(false);
-    setSubmitState(
-      overwrite
-        ? "auto-picking from live odds (overwriting existing picks)…"
-        : "auto-picking empty matches from live odds…",
-    );
-    track("bracket.autopick.run", {
-      tournament_id: tournament.id,
-      overwrite_existing: overwrite,
-    });
-    let snap: { matches: MatchOdds[]; source?: string } | null = null;
-    try {
-      const r = await fetch("/api/odds/snapshot", { headers: { Accept: "application/json" } });
-      if (r.ok) snap = await r.json();
-    } catch {
-      /* fall through to mock; /api/odds/snapshot has its own deterministic mock fallback */
-    }
-    if (!snap || !Array.isArray(snap.matches)) {
-      setSubmitState("auto-pick: couldn't load odds; nothing changed.");
-      return;
-    }
-    const byNo = new Map(snap.matches.map((m) => [String(m.matchNo), m]));
-
-    let next: Bracket = bracket;
-    let groupAdded = 0;
-    let groupSkipped = 0;
-    let knockoutAdded = 0;
-    let knockoutSkipped = 0;
-    let tiebreakersSet = 0;
-    let tiebreakersSkipped = 0;
-    const ts = new Date().toISOString();
-
-    // ---------- Group fixtures ----------
-    // Past-kickoff guard: AutoPick must never write a prediction to a
-    // match that has already kicked off, even when the operator opts
-    // to "overwrite existing picks". The server clock would refuse to
-    // count a post-kickoff pick anyway (SEC-BRK-02 kickoff lock), so
-    // letting AutoPick paint a flag on the card just lies to the user.
-    // Tim 2026-06-12.
-    const nowMs = Date.now();
-    for (const f of tournament.group_fixtures) {
-      const id = String(f.match_no);
-      const o = byNo.get(id);
-      if (!o) continue;
-      // Skip matches whose kickoff is already in the past, regardless
-      // of overwrite. Picks are frozen at kickoff and the persisted
-      // prediction would not score.
-      const koMs = f.kickoff_utc ? Date.parse(f.kickoff_utc) : Number.NaN;
-      if (Number.isFinite(koMs) && koMs <= nowMs) {
-        groupSkipped += 1;
-        continue;
-      }
-      // Preserve-existing: skip slots the user has already picked.
-      if (!overwrite && next.matchPredictions[id]) {
-        groupSkipped += 1;
-        continue;
-      }
-      const h = o.homeWin;
-      const d = o.draw ?? -1;
-      const a = o.awayWin;
-      const max = Math.max(h, d, a);
-      const outcome: MatchPrediction["outcome"] =
-        max === h ? "home_win" : max === d ? "draw" : "away_win";
-      const prev = next.matchPredictions[id]?.outcome;
-      const oddsAtLock = snapshotOdds(o);
-      next = {
-        ...next,
-        matchPredictions: {
-          ...next.matchPredictions,
-          [id]: { matchId: id, outcome, lockedAt: ts, oddsAtLock },
-        },
-      };
-      appendHistory(tournament.id, userLocalId, {
-        type: "match_pick",
-        id,
-        outcome,
-        prevOutcome: prev,
-        odds: oddsAtLock,
-        ts,
-      });
-      groupAdded += 1;
-    }
-
-    // ---------- Group tiebreakers ----------
-    for (const g of tournament.groups) {
-      const teamIds = g.team_ids;
-      if (teamIds.length !== 4) continue;
-      // Preserve-existing: skip tiebreakers the user has already set.
-      if (!overwrite && next.groupTiebreakers[g.id]) {
-        tiebreakersSkipped += 1;
-        continue;
-      }
-      const ranked = [...teamIds].sort((aId, bId) => {
-        const ar = tournament.teams.find((t) => t.id === aId)?.fifa_rank ?? 99;
-        const br = tournament.teams.find((t) => t.id === bId)?.fifa_rank ?? 99;
-        return ar - br;
-      }) as [string, string, string, string];
-      next = {
-        ...next,
-        groupTiebreakers: {
-          ...next.groupTiebreakers,
-          [g.id]: { groupId: g.id, rankedTeams: ranked, setAt: ts },
-        },
-      };
-      tiebreakersSet += 1;
-      appendHistory(tournament.id, userLocalId, {
-        type: "tiebreaker_set",
-        id: g.id,
-        ts,
-      });
-    }
-
-    // ---------- Top 8 3rd Place ----------
-    // The cascade can only resolve `annex_c_third` R32 slots once the
-    // user has supplied 8 best-third picks. AutoPick picks the 8 with
-    // the strongest FIFA rank so the downstream R32 cascade routes
-    // through actual teams rather than nulls. Respects the preserve-
-    // existing toggle: skip if the user has already chosen 8 and the
-    // user opted not to overwrite.
-    {
-      const existing = next.bestThirds ?? [];
-      const shouldPick = overwrite || existing.length < 8;
-      if (shouldPick) {
-        const picks = autoPickTop8Thirds(
-          tournament,
-          next.matchPredictions,
-          next.groupTiebreakers,
-        );
-        if (picks.length === 8) {
-          next = { ...next, bestThirds: picks };
-        }
-      }
-    }
-
-    // ---------- Knockouts: stage-by-stage with re-cascade ----------
-    for (const stage of KO_PICK_STAGES) {
-      const legacy = bracketToCascadeInput(tournament, next, userLocalId);
-      let round = cascade(tournament, legacy);
-      for (let pass = 0; pass < 6; pass += 1) {
-        const overlays = Object.values(next.knockoutPredictions)
-          .map((p) => {
-            const k = round.knockouts.find((x) => x.id === p.matchId);
-            if (!k) return null;
-            const team = p.outcome === "home_win" ? k.home.team : k.away.team;
-            return team ? { match_id: p.matchId, winner: team } : null;
-          })
-          .filter((x): x is { match_id: string; winner: string } => x !== null);
-        const before = round.knockouts.filter((k) => k.effective_winner).length;
-        round = cascade(tournament, { ...legacy, knockouts: overlays });
-        const after = round.knockouts.filter((k) => k.effective_winner).length;
-        if (after === before) break;
-      }
-      const stageMatches = round.knockouts.filter((k) => k.stage === stage);
-      for (const k of stageMatches) {
-        if (!k.home.team || !k.away.team) continue;
-        // Preserve-existing: skip knockout slots the user has already picked.
-        if (!overwrite && next.knockoutPredictions[k.id]) {
-          knockoutSkipped += 1;
-          continue;
-        }
-        const o = byNo.get(k.id);
-        const prev = next.knockoutPredictions[k.id]?.outcome;
-        let outcome: MatchPrediction["outcome"];
-        let oddsAtLock = snapshotOdds(o);
-        if (o) {
-          outcome = o.homeWin >= o.awayWin ? "home_win" : "away_win";
-        } else {
-          const homeRank = tournament.teams.find((t) => t.id === k.home.team)?.fifa_rank ?? 99;
-          const awayRank = tournament.teams.find((t) => t.id === k.away.team)?.fifa_rank ?? 99;
-          outcome = homeRank <= awayRank ? "home_win" : "away_win";
-          oddsAtLock = undefined;
-        }
-        next = {
-          ...next,
-          knockoutPredictions: {
-            ...next.knockoutPredictions,
-            [k.id]: { matchId: k.id, outcome, lockedAt: ts, oddsAtLock },
-          },
-        };
-        appendHistory(tournament.id, userLocalId, {
-          type: "knockout_pick",
-          id: k.id,
-          outcome,
-          prevOutcome: prev,
-          odds: oddsAtLock,
-          ts,
-        });
-        knockoutAdded += 1;
-      }
-    }
-
-    appendHistory(tournament.id, userLocalId, {
-      type: "auto_pick_run",
-      id: "",
-      ts,
-      picksAdded: groupAdded + knockoutAdded,
-    });
-
-    update(next);
-    const totalAdded = groupAdded + knockoutAdded;
-    const totalSkipped = groupSkipped + knockoutSkipped + tiebreakersSkipped;
-    if (overwrite) {
-      setSubmitState(
-        `auto-picked ${groupAdded} group + ${knockoutAdded} knockout + ${tiebreakersSet} tiebreakers (source: ${snap.source ?? "mock"}). Adjust any you disagree with.`,
-      );
-    } else if (totalAdded === 0 && totalSkipped > 0) {
-      setSubmitState(
-        `auto-pick: every match was already picked; nothing to fill. Tick "Overwrite existing picks" to redo them.`,
-      );
-    } else {
-      setSubmitState(
-        `auto-picked ${groupAdded} group + ${knockoutAdded} knockout + ${tiebreakersSet} tiebreakers, kept ${totalSkipped} of your existing picks (source: ${snap.source ?? "mock"}).`,
-      );
-    }
-    // Auto-pick previously only mutated localStorage, so a signed-in
-    // user who auto-picked and shared their /s/<handle> URL would 404
-    // because game-service had no bracket row for them. Persist server-
-    // side now so the share link resolves on the very first share.
-    if (auth.status === "authenticated" && totalAdded > 0) {
-      await persistBracketToServer(next);
-    }
-  };
-
-  /**
-   * Per-group auto-pick. Fills only that group's 6 match predictions
-   * + its tiebreaker, using the same odds-favourite rule as the global
-   * Auto-pick. No knockout work, no /api/odds round-trip, the page-level
-   * bulk-fetched oddsByMatch is reused. If the snapshot hasn't landed
-   * yet the user gets a soft message and nothing changes.
-   */
-  const handleAutoPickGroup = async (groupId: string): Promise<void> => {
-    if (!oddsByMatch || oddsByMatch.size === 0) {
-      setSubmitState(
-        `auto-pick group ${groupId}: live odds not loaded yet, try again in a moment.`,
-      );
-      return;
-    }
-    const group = tournament.groups.find((g) => g.id === groupId);
-    if (!group) return;
-    const fixtures = tournament.group_fixtures.filter(
-      (f) => f.group_id === groupId,
-    );
-    if (fixtures.length === 0) return;
-    track("bracket.autopick.group.run", {
-      tournament_id: tournament.id,
-      group_id: groupId,
-    });
-    let next: Bracket = bracket;
-    let added = 0;
-    let skipped = 0;
-    const ts = new Date().toISOString();
-    const nowMs = Date.now();
-    for (const f of fixtures) {
-      const id = String(f.match_no);
-      const o = oddsByMatch.get(id);
-      if (!o) continue;
-      // Past-kickoff guard (Tim 2026-06-12): the per-group AutoPick
-      // skips matches whose kickoff has already passed, matching the
-      // global AutoPick behaviour. Painting a flag on a locked match
-      // would mislead the user about what scored.
-      const koMs = f.kickoff_utc ? Date.parse(f.kickoff_utc) : Number.NaN;
-      if (Number.isFinite(koMs) && koMs <= nowMs) {
-        skipped += 1;
-        continue;
-      }
-      // Preserve-existing: group-level AutoPick also leaves any pick
-      // the user has already made alone. It's a 'fill the blanks'
-      // shortcut, not an 'overwrite my decisions' shortcut.
-      if (next.matchPredictions[id]) {
-        skipped += 1;
-        continue;
-      }
-      const h = o.homeWin;
-      const d = o.draw ?? -1;
-      const a = o.awayWin;
-      const max = Math.max(h, d, a);
-      const outcome: MatchPrediction["outcome"] =
-        max === h ? "home_win" : max === d ? "draw" : "away_win";
-      // After the preserve-existing guard above this slot is known
-      // empty, so the history `prevOutcome` is always undefined.
-      const oddsAtLock = snapshotOdds(o);
-      next = {
-        ...next,
-        matchPredictions: {
-          ...next.matchPredictions,
-          [id]: { matchId: id, outcome, lockedAt: ts, oddsAtLock },
-        },
-      };
-      appendHistory(tournament.id, userLocalId, {
-        type: "match_pick",
-        id,
-        outcome,
-        prevOutcome: undefined,
-        odds: oddsAtLock,
-        ts,
-      });
-      added += 1;
-    }
-    // Tiebreaker by FIFA rank, same convention as the global auto-pick.
-    if (group.team_ids.length === 4) {
-      const ranked = [...group.team_ids].sort((aId, bId) => {
-        const ar = tournament.teams.find((t) => t.id === aId)?.fifa_rank ?? 99;
-        const br = tournament.teams.find((t) => t.id === bId)?.fifa_rank ?? 99;
-        return ar - br;
-      }) as [string, string, string, string];
-      next = {
-        ...next,
-        groupTiebreakers: {
-          ...next.groupTiebreakers,
-          [groupId]: { groupId, rankedTeams: ranked, setAt: ts },
-        },
-      };
-      appendHistory(tournament.id, userLocalId, {
-        type: "tiebreaker_set",
-        id: groupId,
-        ts,
-      });
-    }
-    update(next);
-    setSubmitState(
-      `auto-picked group ${groupId} (${added} matches). Adjust any you disagree with.`,
-    );
-    if (auth.status === "authenticated" && added > 0) {
-      await persistBracketToServer(next);
-    }
-  };
-
-  /**
    * Send a bracket up to the game-service and reflect the server's
    * response back into local state. Shared between the explicit Save
    * button and the auto-pick flows so that auto-picking while signed
@@ -1604,23 +1249,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const totalPicks = totalGroupMatches + totalKnockouts;
   const totalCompleted = completedGroupMatches + completedKnockouts;
 
-  // Subtitle for the prominent Auto-pick CTA changes based on whether the
-  // user has already started filling in picks. Tim's spec: "Fill your
-  // bracket using live consensus odds…" before any picks, "Refresh empty
-  // picks using live consensus odds." once at least one pick exists. Note
-  // tie-breakers are intentionally not counted, they're an implementation
-  // detail of auto-pick, not a user-initiated action.
-  const hasAnyPicks = totalCompleted > 0;
-  const autoPickSubtitle = hasAnyPicks
-    ? safeT(t, "bracket.autopick.subtitle_consensus", "Refresh empty picks using live consensus odds.")
-    : safeT(t, "bracket.autopick.subtitle_default", "Fill your bracket using live consensus odds, you can edit any pick before kickoff.");
-
-  // The auto-pick button has no "no available matches" condition in
-  // practice (any unsaved match is a candidate), but we still wire a
-  // disabled state for the rare edge-case where the tournament fixture is
-  // empty so the keyboard/aria contract is intact.
-  const autoPickDisabled = totalPicks === 0;
-
   // Per-tab progress counter labels.
   const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
   const thirdsProgress = {
@@ -1770,37 +1398,9 @@ export function BracketBuilder(props: BracketBuilderProps) {
         <div className="bracket-header-lower">
           <EditAnytimeCallout t={t} />
 
-          {/* Right column: auto-pick CTA stacked above a prominent
-            * "X of Y matches picked" stat counter. Auto-pick lives here
-            * rather than in its old standalone row so it sits visually
-            * alongside the callout (Tim 2026-06-01-pm) instead of
-            * dropping to its own row below. */}
+          {/* Right column: a prominent "X of Y matches picked" stat
+            * counter. */}
           <div className="bracket-header-aside">
-            <div
-              className="bracket-autopick-row"
-              data-testid="bracket-autopick-row"
-              role="group"
-              aria-label={safeT(t, "bracket.autopick_aria", "Auto-pick")}
-            >
-              <button
-                type="button"
-                className="bracket-autopick-cta"
-                onClick={() => setShowAutoPickConfirm(true)}
-                aria-label={safeT(t, "bracket.autopick.aria", "Auto-pick from live odds")}
-                aria-describedby="bracket-autopick-subtitle"
-                title={safeT(t, "bracket.autopick.title", "Auto-pick every match: Polymarket odds for groups, world ranking for knockouts")}
-                disabled={autoPickDisabled}
-              >
-                <span className="bracket-autopick-cta-icon" aria-hidden="true">⚡</span>
-                <span className="bracket-autopick-cta-label">{safeT(t, "bracket.autopick.label", "Auto-pick")}</span>
-              </button>
-              <p
-                id="bracket-autopick-subtitle"
-                className="bracket-autopick-subtitle"
-              >
-                {autoPickSubtitle}
-              </p>
-            </div>
             <p className="bracket-header-running-total" aria-live="polite">
               <span className="bracket-header-running-total-numbers">
                 <strong>{totalCompleted}</strong>
@@ -1900,16 +1500,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
                     update(updated);
                     persistBestThirdsToServer(updated);
                   }}
-                  onAutoPick={() => {
-                    const picks = autoPickTop8Thirds(
-                      tournament,
-                      bracket.matchPredictions,
-                      bracket.groupTiebreakers,
-                    );
-                    const updated = { ...bracket, bestThirds: picks };
-                    update(updated);
-                    persistBestThirdsToServer(updated);
-                  }}
                   onClear={() => {
                     const updated = { ...bracket, bestThirds: [] };
                     update(updated);
@@ -1960,7 +1550,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       liveByMatch={liveByMatch}
                       onChangeMatch={onChangeMatch}
                       onChangeTiebreaker={onChangeTiebreaker}
-                      onAutoPickGroup={handleAutoPickGroup}
                       initialExpanded={g.id === initialOpenGroupId}
                     />
                   ))}
@@ -2146,72 +1735,6 @@ export function BracketBuilder(props: BracketBuilderProps) {
         mode="details"
       />
 
-
-      {showAutoPickConfirm && (
-        <div
-          className="bracket-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="autopick-confirm-title"
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setShowAutoPickConfirm(false);
-          }}
-        >
-          <div className="bracket-modal">
-            <h2 id="autopick-confirm-title" className="bracket-modal-title">
-              ⚡ Auto-pick the favourite for every match?
-            </h2>
-            <p className="bracket-modal-body">
-              Auto-pick uses live Polymarket odds for the group stage. The
-              knockout rounds don&apos;t have Polymarket markets open yet
-              (matchups aren&apos;t known until groups conclude), so those
-              fall back to world ranking.
-              {overwriteExistingPicks ? (
-                <>
-                  {" "}<strong>Your existing picks will be overwritten.</strong>
-                </>
-              ) : (
-                <>
-                  {" "}<strong>Your existing picks stay as they are</strong>; only
-                  empty matches get filled.
-                </>
-              )}
-            </p>
-            <p className="bracket-modal-body">
-              You can change any pick afterwards, auto-pick is a starting
-              point, not a final answer. Picks save as you tweak them.
-            </p>
-            <label className="bracket-modal-checkbox">
-              <input
-                type="checkbox"
-                checked={overwriteExistingPicks}
-                onChange={(e) => setOverwriteExistingPicks(e.target.checked)}
-                data-testid="autopick-overwrite-toggle"
-              />
-              <span>Overwrite existing picks</span>
-            </label>
-            <div className="bracket-modal-actions">
-              <button
-                type="button"
-                className="bracket-btn bracket-btn-secondary"
-                onClick={() => setShowAutoPickConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="bracket-btn bracket-btn-primary"
-                onClick={handleAutoPick}
-                autoFocus
-              >
-                {overwriteExistingPicks
-                  ? "Yes, auto-pick favourites"
-                  : "Yes, fill empty matches"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <SignupModal
         open={showSignupModal}

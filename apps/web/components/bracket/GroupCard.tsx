@@ -97,10 +97,6 @@ export interface GroupCardProps {
   >;
   readonly onChangeMatch: (next: MatchPrediction) => void;
   readonly onChangeTiebreaker: (next: GroupTiebreaker) => void;
-  /** Optional per-group auto-pick. When provided the header surfaces a
-   * small ⚡ button that fills the 6 matches of this group only,
-   * using the same odds-favourite rule as the page-level Auto-pick. */
-  readonly onAutoPickGroup?: (groupId: string) => void | Promise<void>;
   /** Initial expanded state. Lets the parent auto-expand the first
    * incomplete group on mount (Tim 2026-05-22). After mount the user
    * controls the state; changes to this prop are ignored so we don't
@@ -129,7 +125,6 @@ export function GroupCard(props: GroupCardProps) {
     liveByMatch,
     onChangeMatch,
     onChangeTiebreaker,
-    onAutoPickGroup,
     initialExpanded,
   } = props;
 
@@ -170,10 +165,6 @@ export function GroupCard(props: GroupCardProps) {
   // incomplete group on mount; everything else starts collapsed for
   // a clean SSR pass.
   const [expanded, setExpanded] = useState(initialExpanded ?? false);
-  // Confirmation modal for the per-group auto-pick. Tim 2026-05-21:
-  // tapping the lightning lozenge must warn first because it overwrites
-  // any picks the user has already made in this group.
-  const [showAutoPickConfirm, setShowAutoPickConfirm] = useState(false);
   const bodyId = `bracket-group-body-${group.id}`;
 
   // When the group is fully predicted AND no ties remain, surface the
@@ -275,19 +266,6 @@ export function GroupCard(props: GroupCardProps) {
           })}
         </span>
       </button>
-      {onAutoPickGroup ? (
-        <div className="bracket-group-autopick-row">
-          <button
-            type="button"
-            className="bracket-group-autopick"
-            onClick={() => setShowAutoPickConfirm(true)}
-            aria-label={`Auto-pick all 6 matches in Group ${group.id}`}
-            title={`Auto-pick Group ${group.id} from live odds`}
-          >
-            <span className="bracket-group-autopick-icon" aria-hidden="true">⚡</span>
-          </button>
-        </div>
-      ) : null}
 
       <div id={bodyId} className="bracket-group-body">
         {showOddsChips && (
@@ -352,53 +330,6 @@ export function GroupCard(props: GroupCardProps) {
           />
         )}
       </div>
-      {showAutoPickConfirm && onAutoPickGroup ? (
-        <div
-          className="bracket-modal-backdrop"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby={`group-${group.id}-autopick-title`}
-          onClick={() => setShowAutoPickConfirm(false)}
-        >
-          <div
-            className="bracket-modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3
-              id={`group-${group.id}-autopick-title`}
-              className="bracket-modal-title"
-            >
-              ⚡ Auto-pick Group {group.id}?
-            </h3>
-            <p className="bracket-modal-body">
-              This will <strong>clear any picks you&apos;ve already made in
-              Group {group.id}</strong> and replace them with the favourites
-              from live Polymarket odds. The rest of your bracket stays
-              untouched. You can edit any pick afterwards.
-            </p>
-            <div className="bracket-modal-actions">
-              <button
-                type="button"
-                className="bracket-btn bracket-btn-secondary"
-                onClick={() => setShowAutoPickConfirm(false)}
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                className="bracket-btn bracket-btn-primary"
-                onClick={() => {
-                  setShowAutoPickConfirm(false);
-                  onAutoPickGroup(group.id);
-                }}
-                autoFocus
-              >
-                Continue
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null}
     </div>
   );
 }
