@@ -1,0 +1,226 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+import Layout from "@/layouts/Layout.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+import StatLine from "@/components/StatLine.astro";
+import PrincipleList from "@/components/PrincipleList.astro";
+
+/**
+ * /archive/fwc-2026, the retrospective for the first tournament the
+ * platform ran. The live app is kept, read-only, at
+ * fwc2026.tournamental.com. This page is the editorial summary: the
+ * result, how the platform performed (percentages only, never raw
+ * counts), and what we learned for the next one.
+ */
+const ARCHIVE_HREF = "https://fwc2026.tournamental.com";
+const REGISTER_HREF = "https://play.tournamental.com/#register";
+
+const ENGAGEMENT = [
+  { value: "78%", label: "Players saved a bracket" },
+  { value: "69%", label: "Joined or ran a pool" },
+  { value: "100%", label: "Weeks with new picks" },
+  { value: "100%", label: "Matches settled" },
+];
+
+const ACCURACY = [
+  { value: "69%", label: "Best bracket, correct" },
+  { value: "52%", label: "Average bracket, correct" },
+  { value: "0%", label: "Perfect brackets" },
+  { value: "6", label: "Weeks on the board" },
+];
+
+const WHAT_WORKED = [
+  {
+    index: "01",
+    heading: "Pools did the heavy lifting",
+    body:
+      "Most players arrived through a pool: an office, a group chat, a creator's audience. A branded link and a leaderboard with familiar names on it turned a one-off form fill into six weeks of checking in. Seven in ten players were in a pool by the final.",
+  },
+  {
+    index: "02",
+    heading: "Save, don't lock",
+    body:
+      "Nothing locked at the first whistle. Every match stayed open until its own kickoff, so a bad opening round was never the end of anyone's tournament. New picks were saved in every single week, from the group stage through to the final.",
+  },
+  {
+    index: "03",
+    heading: "A ledger you can point at",
+    body:
+      "Every saved pick was timestamped and committed before kickoff. When the final whistle went, the global board, every pool board and every bracket were settled from one record, and they are still there, exactly as they finished.",
+  },
+] as const;
+
+const RESULTS = [
+  { n: "Final", title: "Spain 1, Argentina 0", body: "After extra time. 19 July 2026, New York New Jersey." },
+  { n: "Third", title: "England", body: "Won the third-place match, 18 July 2026, Miami." },
+  { n: "Semis", title: "Spain and Argentina", body: "Spain won 2-0. Argentina won 2-1." },
+  { n: "Dates", title: "11 June to 19 July 2026", body: "Six weeks, forty-eight teams, every match on the board." },
+] as const;
+---
+<Layout
+  title="FWC 2026 archive, Tournamental"
+  description="How the 2026 book closed. The FIFA World Cup 2026 on Tournamental, kept read-only: the final result, the final boards, and how the platform performed."
+  ogImage="/og/archive-fwc-2026.png"
+>
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="FIFA World Cup 2026™ · Archived · Read-only"
+        title=""
+        lede="Spain beat Argentina 1-0 after extra time in the final on 19 July 2026, and England took third. Every bracket, every pool and the global board are kept exactly as they finished, open to browse, closed to edits."
+        footnote="Archived 2026-10 · Final results verified against the ledger"
+      >
+        <Fragment slot="title">
+          How the 2026 <em>book</em> closed.
+        </Fragment>
+      </EditorialPageHeader>
+
+      <div class="vt-ar-cta-row" data-reveal="cta">
+        <a
+          class="vt-cta-primary"
+          href={ARCHIVE_HREF}
+          data-analytics="cta"
+          data-analytics-label="Open the FWC 2026 archive"
+          data-analytics-surface="archive-fwc2026-hero"
+        >
+          Open the archive <span aria-hidden="true">&rarr;</span>
+        </a>
+        <a
+          class="vt-cta-text"
+          href={REGISTER_HREF}
+          data-analytics="cta"
+          data-analytics-label="Register for RWC 2027"
+          data-analytics-surface="archive-fwc2026-hero"
+        >
+          Register for RWC 2027
+        </a>
+      </div>
+
+      <div class="vt-ar-scale" data-reveal="stats">
+        <StatLine stats={ENGAGEMENT} />
+      </div>
+    </div>
+  </section>
+
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">The result · As it finished</span>
+      <h2 class="vt-section-head mt-3">
+        Spain, in extra time, in New Jersey.
+      </h2>
+    </header>
+    <ol class="vt-ar-grid">
+      {RESULTS.map((r) => (
+        <li class="vt-ar-item">
+          <div class="vt-ar-marker">
+            <span class="vt-ar-index">{r.n}</span>
+            <span class="vt-ar-rule" aria-hidden="true"></span>
+          </div>
+          <h3 class="vt-ar-head">{r.title}</h3>
+          <p class="vt-ar-body">{r.body}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+
+  <section class="vt-editorial container-page pb-14 md:pb-20">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">The boards · How the picks landed</span>
+      <h2 class="vt-section-head mt-3">
+        Nobody called all of it. Everybody stayed in it.
+      </h2>
+      <p class="vt-lede mt-5">
+        The perfect bracket stayed unclaimed, which is the point of the game.
+        The best bracket on the board called more than two thirds of the
+        matches, the average bracket called about half, and the whole field
+        kept saving picks right through to the final.
+      </p>
+    </header>
+    <StatLine stats={ACCURACY} />
+  </section>
+
+  <section class="vt-editorial container-page pb-16 md:pb-24">
+    <header class="mb-10 md:mb-12">
+      <span class="vt-dateline">What worked · Carried into the next one</span>
+      <h2 class="vt-section-head mt-3">
+        Three things the 2026 book taught us.
+      </h2>
+    </header>
+    <PrincipleList items={WHAT_WORKED} />
+
+    <div class="vt-ar-cta-row mt-12">
+      <a class="vt-cta-primary" href={ARCHIVE_HREF}>
+        Browse the archive <span aria-hidden="true">&rarr;</span>
+      </a>
+      <a class="vt-cta-text" href="/archive">All archived tournaments</a>
+    </div>
+
+    <p class="vt-footnote mt-10 max-w-3xl">
+      Tournamental is independent and not affiliated with, endorsed by, or
+      sponsored by FIFA. FIFA World Cup™ and FIFA World Cup 2026™ are
+      trademarks of Fédération Internationale de Football Association.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .vt-ar-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 2rem;
+    margin-top: 1.75rem;
+  }
+  .vt-ar-scale {
+    margin-top: clamp(1.75rem, 3vw, 2.5rem);
+    margin-bottom: clamp(1.75rem, 3.5vw, 3rem);
+  }
+  .vt-ar-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.25rem;
+  }
+  @media (min-width: 768px) {
+    .vt-ar-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 3rem 3.5rem;
+    }
+  }
+  .vt-ar-item { display: grid; gap: 0.85rem; }
+  .vt-ar-marker { display: flex; align-items: center; gap: 0.75rem; }
+  .vt-ar-index {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+  }
+  .vt-ar-rule {
+    flex: 1;
+    height: 1px;
+    background: color-mix(in srgb, var(--vt-fg) 18%, transparent);
+  }
+  .vt-ar-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 72, "SOFT" 30;
+    letter-spacing: -0.012em;
+    line-height: 1.1;
+    font-size: 1.5rem;
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+  .vt-ar-body {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 44ch;
+  }
+</style>

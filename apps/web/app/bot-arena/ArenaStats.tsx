@@ -31,6 +31,7 @@
  * Tim 2026-06-08.
  */
 
+import { useArchive } from "@/lib/archive/context";
 import { useEffect, useState } from "react";
 
 import { defaultPersistence } from "@/components/browser-swarm/persistence";
@@ -60,6 +61,7 @@ export function ArenaStats({
    *  Default is the standalone strip used elsewhere on the page. */
   variant?: "hero";
 } = {}) {
+  const archive = useArchive();
   const [local, setLocal] = useState<LocalState | null>(null);
   const [totals, setTotals] = useState<TotalsBody | null>(null);
 
@@ -108,7 +110,7 @@ export function ArenaStats({
 
   // Hide the strip entirely until we know something interesting.
   const myTotal = local?.my_total ?? 0;
-  const arenaTotal = totals?.total_bots ?? 0;
+  const arenaTotal = archive ? 0 : (totals?.total_bots ?? 0);
   if (myTotal === 0 && arenaTotal === 0) return null;
 
   const sectionClass =

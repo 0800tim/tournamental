@@ -8,6 +8,11 @@ import {
   type Locale,
 } from "./i18n/config";
 import { localeForCountry } from "./i18n/country-locale";
+import {
+  activeTournament,
+  archiveForHost,
+  archivedTournaments,
+} from "./lib/tournaments/registry";
 
 /**
  * Host-based routing for the multi-domain Next app.
@@ -44,10 +49,69 @@ const PLAY_HOSTS = new Set([
 ]);
 
 const DEPRECATED_HOSTS = new Set([
-  "2026wc.tournamental.com",
-  "wc2026.tournamental.com",
   "app.tournamental.com",
 ]);
+
+/**
+ * Archive hostnames (2026-10-16). `wc2026` and `2026wc` used to 301 to
+ * play; they are now aliases of the FWC 2026 archive and 301 to the
+ * canonical archive host instead, so old links land on the archived
+ * tournament rather than the hub.
+ */
+const ARCHIVE_ALIAS_HOSTS: Record<string, string> = {
+  "2026wc.tournamental.com": "fwc2026.tournamental.com",
+  "wc2026.tournamental.com": "fwc2026.tournamental.com",
+};
+
+/** Request header that tells layouts and components they are serving
+ *  a read-only archive. Mirrors lib/archive/server.ts ARCHIVE_HEADER. */
+const ARCHIVE_HEADER = "x-tnm-archive";
+
+/**
+ * Paths that only make sense for a live tournament. On an archive host
+ * they bounce to the archive home: sign-in, profile, pool creation and
+ * management, imports, bot keys, the pre-launch landing, invite codes.
+ */
+const ARCHIVE_BLOCKED_PREFIXES: readonly string[] = [
+  "/auth",
+  "/profile",
+  "/manage",
+  "/dashboard",
+  "/pools",
+  "/syndicates",
+  "/import",
+  "/run",
+  "/bots/keys",
+  "/world-cup-2026/landing",
+  "/predict",
+  "/i/",
+  "/leaderboard",
+  "/next-stage-r32",
+  "/hub",
+];
+
+/** On an archive host, /s/<guid>/join is the one nested path we block. */
+const ARCHIVE_BLOCKED_PATTERNS: readonly RegExp[] = [/^\/s\/[^/]+\/join$/];
+
+/**
+ * Hub mode (play host with no active tournament): only these paths are
+ * served from play itself; everything else 302s to the archive so old
+ * share links keep working.
+ */
+const HUB_ALLOWED_PREFIXES: readonly string[] = [
+  "/api/v1/register-interest",
+  "/api/healthz",
+  "/api/og/",
+  "/hub",
+  "/rwc2027/",
+  "/icons/",
+  "/fonts/",
+  "/manifest.webmanifest",
+  "/sw.js",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/whitepaper/",
+];
 
 /**
  * CSRF / same-origin guard for state-changing /api/v1/** routes
@@ -141,6 +205,73 @@ export function middleware(req: NextRequest) {
     return NextResponse.redirect(target, 301);
   }
 
+  // Archive aliases → 301 to the canonical archive host.
+  const aliasTarget = ARCHIVE_ALIAS_HOSTS[host];
+  if (aliasTarget) {
+    return NextResponse.redirect(new URL(`https://${aliasTarget}${path}${search}`), 301);
+  }
+
+  // ---- Archive mode: read-only past tournament on its own hostname ----
+  const archive = archiveForHost(host);
+  if (archive) {
+    // Nothing mutates in an archive. 403 every state-changing call
+    // (bracket saves go to the game service directly and are rejected
+    // there after kickoff; this covers the Next-side routes).
+    if (MUTATING_METHODS.has(req.method)) {
+      return new NextResponse(JSON.stringify({ error: "archived" }), {
+        status: 403,
+        headers: { "content-type": "application/json", "cache-control": "no-store" },
+      });
+    }
+    const legalRedirect = LEGAL_REDIRECT_MAP[path];
+    if (legalRedirect) {
+      return NextResponse.redirect(new URL(`https://tournamental.com${legalRedirect}${search}`), 301);
+    }
+    if (
+      ARCHIVE_BLOCKED_PREFIXES.some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`)) ||
+      ARCHIVE_BLOCKED_PATTERNS.some((re) => re.test(path))
+    ) {
+      return NextResponse.redirect(new URL(`https://${host}/`), 302);
+    }
+    const extra = new Headers();
+    extra.set(ARCHIVE_HEADER, archive.slug);
+    if (path === "/") {
+      return withLocaleHint(req, extra, "/archive");
+    }
+    return withLocaleHint(req, extra);
+  }
+
+  // ---- Hub mode: play host with no active tournament ----
+  if (isPlayHost(host) && !activeTournament()) {
+    const legalRedirect = LEGAL_REDIRECT_MAP[path];
+    if (legalRedirect) {
+      return NextResponse.redirect(new URL(`https://tournamental.com${legalRedirect}${search}`), 301);
+    }
+    const hubHeaders = new Headers();
+    hubHeaders.set("x-tnm-hub", "1");
+    if (path === "/") {
+      return withLocaleHint(req, hubHeaders, "/hub");
+    }
+    // Personal invite links (referral loop): /i/<code> → hub with ?ref=.
+    const inviteMatch = /^\/i\/([a-z0-9]{4,16})$/i.exec(path);
+    if (inviteMatch) {
+      const u = new URL(`https://${host}/`);
+      u.searchParams.set("ref", inviteMatch[1]!.toLowerCase());
+      return NextResponse.redirect(u, 302);
+    }
+    const allowed =
+      HUB_ALLOWED_PREFIXES.some((p) => path === p || path.startsWith(p)) ||
+      /\.[a-z0-9]{2,5}$/i.test(path); // static files (svg, png, css, js, json)
+    if (!allowed) {
+      // Everything else belongs to the most recent archive so old share
+      // links, pool pages and bookmarks keep resolving.
+      const latest = archivedTournaments()[archivedTournaments().length - 1];
+      const archiveHost = latest?.archiveHost ?? "fwc2026.tournamental.com";
+      return NextResponse.redirect(new URL(`https://${archiveHost}${path}${search}`), 302);
+    }
+    return withLocaleHint(req, hubHeaders);
+  }
+
   if (isPlayHost(host)) {
     // Legal pages live on the marketing site (apps/marketing). When a
     // user lands on play.tournamental.com/terms (linked from the
@@ -189,7 +320,11 @@ export function middleware(req: NextRequest) {
  *
  * Tim 2026-05-24.
  */
-function withLocaleHint(req: NextRequest): NextResponse {
+function withLocaleHint(
+  req: NextRequest,
+  extraRequestHeaders?: Headers,
+  rewriteTo?: string,
+): NextResponse {
   const path = req.nextUrl.pathname;
   const search = req.nextUrl.search;
   const prefix = path.split("/")[1] ?? "";
@@ -219,6 +354,7 @@ function withLocaleHint(req: NextRequest): NextResponse {
     // visible "I picked Spanish and got English" bug -- exactly what
     // Tim saw 2026-05-24.
     const reqHeaders = new Headers(req.headers);
+    extraRequestHeaders?.forEach((v, k) => reqHeaders.set(k, v));
     reqHeaders.set("x-vt-locale", fromPrefix);
     // Patch the Cookie header too so libs that read cookies via the
     // raw header (rather than next/headers cookies()) also see the
@@ -246,7 +382,22 @@ function withLocaleHint(req: NextRequest): NextResponse {
     return res;
   }
 
-  const res = NextResponse.next();
+  // Archive / hub requests carry extra request headers (and may be
+  // internally rewritten to a different page) without a locale prefix.
+  let res: NextResponse;
+  if (extraRequestHeaders || rewriteTo) {
+    const reqHeaders = new Headers(req.headers);
+    extraRequestHeaders?.forEach((v, k) => reqHeaders.set(k, v));
+    if (rewriteTo) {
+      const rewriteUrl = new URL(req.url);
+      rewriteUrl.pathname = rewriteTo;
+      res = NextResponse.rewrite(rewriteUrl, { request: { headers: reqHeaders } });
+    } else {
+      res = NextResponse.next({ request: { headers: reqHeaders } });
+    }
+  } else {
+    res = NextResponse.next();
+  }
   if (fromCookie) return res;
 
   // Auto-detect for the first visit.

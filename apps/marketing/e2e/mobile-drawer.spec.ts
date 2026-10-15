@@ -116,7 +116,7 @@ test.describe("Mobile drawer", () => {
       expect(href).toBeTruthy();
     }
     // CTA is also present at the foot of the drawer.
-    const cta = page.locator("#mobile-menu .vt-mobile-cta");
+    const cta = page.locator("#mobile-menu .vt-mobile-cta-gold");
     await expect(cta).toBeVisible();
     expect(await cta.getAttribute("href")).toContain("play.tournamental.com");
   });

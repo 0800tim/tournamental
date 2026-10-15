@@ -9,8 +9,8 @@
  * Three columns (Game, Build, Legal), no card chrome, hairline rules
  * carry the structure. A small Fraunces wordmark and a masthead-style
  * imprint replace the "Powered by / Made with care" framing. A
- * "Next edition" mono caption reads as a print masthead's recurring
- * fixture, dated to the next World Cup match-day broadcast.
+ * "Next tournament" mono caption reads as a print masthead's recurring
+ * fixture, naming the next tournament on the platform.
  *
  * Lives under the `.vt-editorial` scope so the gold dateline + mono
  * footnotes inherit the editorial tokens from globals.css. No
@@ -19,41 +19,18 @@
  */
 const year = new Date().getFullYear();
 
-/**
- * Compute the next "edition" caption. Editions tick forward through
- * the World Cup 2026 build cycle, anchored to the calendar week. The
- * caption format is "Edition N · weekday day month year" so it reads
- * like a print masthead's next-fixture line.
- */
-function nextEditionLabel(): { number: string; date: string } {
-  const now = new Date();
-  // First edition landed 18 May 2026 alongside the editorial pass;
-  // subsequent editions tick weekly until kickoff (11 June 2026).
-  const epoch = new Date(Date.UTC(2026, 4, 18));
-  const weeks = Math.max(0, Math.floor((now.getTime() - epoch.getTime()) / (7 * 86400 * 1000)));
-  // The "next" edition is one ahead of the current week.
-  const editionNumber = weeks + 2;
-  const next = new Date(epoch.getTime() + (weeks + 1) * 7 * 86400 * 1000);
-  const date = next.toLocaleDateString("en-NZ", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-  return {
-    number: String(editionNumber).padStart(2, "0"),
-    date,
-  };
-}
-
-const NEXT_EDITION = nextEditionLabel();
-const NEXT_EDITION_LABEL = `Edition ${NEXT_EDITION.number} · ${NEXT_EDITION.date}`;
+/* Static "next tournament" fixture line. Rugby World Cup 2027 kicks
+ * off in Perth on 1 October 2027. Update when the next tournament is
+ * announced. */
+const NEXT_EDITION_LABEL = "Rugby World Cup 2027 · kicks off 1 Oct 2027";
 
 const GAME = [
   { href: "/how-it-works", label: "How it works" },
   { href: "/leaderboards", label: "Leaderboards" },
   { href: "/syndicates", label: "Syndicates" },
-  { href: "/world-cup-2026", label: "World Cup 2026" },
+  { href: "https://play.tournamental.com/#register", label: "Rugby World Cup 2027" },
+  { href: "/archive", label: "Archive tournaments" },
+  { href: "/archive/fwc-2026", label: "FWC 2026 archive" },
 ];
 
 const BUILD = [
@@ -117,7 +94,7 @@ const LEGAL = [
     <div class="vt-colophon-foot">
       <p class="vt-footnote vt-colophon-next">
         <span class="vt-colophon-next-marker" aria-hidden="true">●</span>
-        Next edition · {NEXT_EDITION_LABEL}
+        Next tournament · {NEXT_EDITION_LABEL}
       </p>
       <ul class="vt-colophon-social" aria-label="Social channels">
         <li>
@@ -154,7 +131,10 @@ const LEGAL = [
       Tournamental is independent and not affiliated with, endorsed by, or
       sponsored by FIFA. <strong>FIFA World Cup™</strong> and
       <strong>FIFA World Cup 2026™</strong> are trademarks of Fédération
-      Internationale de Football Association.
+      Internationale de Football Association. <strong>Rugby World Cup™</strong>
+      and <strong>Rugby World Cup 2027™</strong> are trademarks of Rugby World
+      Cup Limited. Tournamental is not affiliated with, endorsed by, or
+      sponsored by World Rugby or Rugby World Cup Limited.
     </p>
     <p class="vt-footnote vt-colophon-copy">
       © {year} Growth Spurt Ltd · Type set in Fraunces and Inter · Hosted in Aotearoa

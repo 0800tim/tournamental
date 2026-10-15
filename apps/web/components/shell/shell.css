@@ -1307,3 +1307,48 @@
     width: 380px;
   }
 }
+
+
+/* ---- Archive mode (2026-10-16) ------------------------------------
+ * <html data-archive> is set by app/layout.tsx on archived-tournament
+ * hosts (fwc2026.tournamental.com). Anything that invites a live
+ * action is hidden here as a belt-and-braces layer on top of the
+ * component-level useArchive() checks. */
+.vt-archive-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  padding: 8px 16px;
+  background: linear-gradient(90deg, rgba(220, 169, 75, 0.18), rgba(220, 169, 75, 0.06));
+  border-bottom: 1px solid rgba(220, 169, 75, 0.35);
+  color: #e6e6ea;
+  font-size: 13px;
+  line-height: 1.4;
+}
+.vt-archive-banner-tag {
+  font: 700 10.5px/1 ui-monospace, Menlo, monospace;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #15151a;
+  background: #dca94b;
+  padding: 5px 8px;
+  border-radius: 999px;
+}
+.vt-archive-banner-link {
+  margin-left: auto;
+  color: #dca94b;
+  text-decoration: none;
+  font-weight: 600;
+  white-space: nowrap;
+}
+html[data-archive] .vt-appbar-auth,
+html[data-archive] .vt-appbar-auth-mobile,
+html[data-archive] .vt-archive-hide,
+html[data-archive] .bracket-actions,
+html[data-archive] .bracket-save-panel,
+html[data-archive] .vt-share-syn-join,
+html[data-archive] .vt-lb-share-rank,
+html[data-archive] .vt-install-prompt {
+  display: none !important;
+}

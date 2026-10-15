@@ -2,21 +2,31 @@
 /**
  * Site header.
  *
- * Desktop: 4 top-level items + an "About" dropdown that holds the
- * less-frequently-visited links (News, Blog, Open source, GitHub,
- * Contribute, For influencers, Legal). Theme toggle + Play CTA on
- * the right. Keeps the bar uncluttered.
+ * Desktop: 2 top-level items + an "Archive Tournaments" dropdown
+ * (finished tournaments, each on its own read-only hostname) + an
+ * "About" dropdown that holds the less-frequently-visited links
+ * (News, Blog, Open source, GitHub, Contribute, For influencers,
+ * Legal). Theme toggle + register-interest CTA on the right.
  *
  * Mobile: a single hamburger button opens a fullscreen overlay with
- * the same items in a stack. About becomes an accordion-style group.
+ * the same items in a stack. Archive and About become accordion groups.
  * Drawer dismisses on close button, link click, Escape, or outside tap.
  */
 
 const primaryLinks = [
   { href: "/why", label: "Why" },
   { href: "/how-it-works", label: "How it works" },
-  { href: "/world-cup-2026", label: "World Cup 2026" },
 ];
+
+/* Archive Tournaments: finished tournaments stay browsable, read-only,
+ * on their own hostnames. The marketing archive index lists them all. */
+const archiveLinks = [
+  { href: "https://fwc2026.tournamental.com", label: "FWC 2026", external: true },
+  { href: "/archive", label: "All archives" },
+];
+
+const PLAY_CTA_HREF = "https://play.tournamental.com/#register";
+const PLAY_CTA_LABEL = "Register for RWC 2027";
 
 const aboutLinks = [
   { href: "/syndicates", label: "Syndicates" },
@@ -34,6 +44,7 @@ const aboutLinks = [
 
 const currentPath = Astro.url.pathname.replace(/\/$/, "") || "/";
 const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href);
+const archiveActive = currentPath === "/archive" || currentPath.startsWith("/archive/");
 ---
 <header class="vt-header sticky top-0 z-40 border-b backdrop-blur">
   <div class="container-page flex items-center justify-between py-4">
@@ -60,6 +71,32 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
           ]}
         >{l.label}</a>
       ))}
+      <div class="vt-nav-dropdown" data-state="closed">
+        <button
+          type="button"
+          class:list={["vt-nav-link vt-nav-dropdown-trigger", archiveActive ? "is-active" : ""]}
+          aria-haspopup="true"
+          aria-expanded="false"
+          aria-controls="archive-dropdown"
+        >
+          Archive Tournaments
+          <svg class="size-3" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+            <path d="M2 4l4 4 4-4z"/>
+          </svg>
+        </button>
+        <div id="archive-dropdown" class="vt-nav-dropdown-panel" role="menu">
+          {archiveLinks.map((l) => (
+            <a
+              href={l.href}
+              role="menuitem"
+              class:list={[
+                "vt-nav-dropdown-item",
+                !l.external && currentPath === l.href ? "is-active" : "",
+              ]}
+            >{l.label}</a>
+          ))}
+        </div>
+      </div>
       <div class="vt-nav-dropdown" data-state="closed">
         <button
           type="button"
@@ -113,9 +150,9 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
       </button>
 
       <a
-        href="https://play.tournamental.com/"
+        href={PLAY_CTA_HREF}
         class="hidden md:inline-flex vt-cta-gold vt-glow-cta text-sm"
-      >Play FIFA WC 2026 →</a>
+      >{PLAY_CTA_LABEL} →</a>
 
       <button
         id="mobile-menu-toggle"
@@ -160,9 +197,9 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
         the menu, full-width so it never pushes other items off-screen
         on narrow viewports. */}
     <a
-      href="https://play.tournamental.com/"
+      href={PLAY_CTA_HREF}
       class="vt-mobile-cta-gold"
-    >Play FIFA WC 2026 →</a>
+    >{PLAY_CTA_LABEL} →</a>
     {primaryLinks.map((l) => (
       <a
         href={l.href}
@@ -172,6 +209,25 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
         ]}
       >{l.label}</a>
     ))}
+    <details class="vt-mobile-accordion" open={archiveActive}>
+      <summary class="vt-mobile-link vt-mobile-accordion-summary">
+        Archive Tournaments
+        <svg class="vt-mobile-accordion-icon size-4" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
+          <path d="M2 4l4 4 4-4z"/>
+        </svg>
+      </summary>
+      <div class="vt-mobile-accordion-panel">
+        {archiveLinks.map((l) => (
+          <a
+            href={l.href}
+            class:list={[
+              "vt-mobile-link vt-mobile-sublink",
+              !l.external && currentPath === l.href ? "is-active" : "",
+            ]}
+          >{l.label}</a>
+        ))}
+      </div>
+    </details>
     <details class="vt-mobile-accordion" open={aboutActive}>
       <summary class="vt-mobile-link vt-mobile-accordion-summary">
         About
@@ -203,7 +259,7 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
       <span class="vt-mobile-theme-label">Theme: system</span>
       <span aria-hidden="true">↻</span>
     </button>
-    {/* Bottom CTA removed (Tim 2026-05-23) -- the Play CTA now sits at
+    {/* Bottom CTA removed (Tim 2026-05-23): the Play CTA now sits at
         the top of the drawer where it dominates the column. The footer
         still hosts the theme toggle. */}
   </div>
@@ -246,38 +302,46 @@ const aboutActive = aboutLinks.some((l) => !l.external && currentPath === l.href
       });
     }
 
-    /* Desktop About dropdown */
-    const dd = document.querySelector(".vt-nav-dropdown");
-    if (dd) {
+    /* Desktop dropdowns (Archive Tournaments, About). Each .vt-nav-dropdown
+       owns its trigger + panel; opening one closes the others. */
+    const dropdowns = Array.from(document.querySelectorAll(".vt-nav-dropdown"));
+    function setDdOpen(dd, open) {
+      dd.dataset.state = open ? "open" : "closed";
+      const trigger = dd.querySelector(".vt-nav-dropdown-trigger");
+      if (trigger) trigger.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+    function closeAllDropdowns(except) {
+      dropdowns.forEach((dd) => {
+        if (dd !== except && dd.dataset.state === "open") setDdOpen(dd, false);
+      });
+    }
+    dropdowns.forEach((dd) => {
       const trigger = dd.querySelector(".vt-nav-dropdown-trigger");
       const panel = dd.querySelector(".vt-nav-dropdown-panel");
-      function setDdOpen(open) {
-        dd.dataset.state = open ? "open" : "closed";
-        if (trigger) trigger.setAttribute("aria-expanded", open ? "true" : "false");
-      }
-      if (trigger && panel) {
-        trigger.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setDdOpen(dd.dataset.state !== "open");
+      if (!trigger || !panel) return;
+      trigger.addEventListener("click", (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const willOpen = dd.dataset.state !== "open";
+        closeAllDropdowns(dd);
+        setDdOpen(dd, willOpen);
+      });
+      // Click on a menu item closes (after navigation starts)
+      panel.addEventListener("click", (e) => {
+        if (e.target instanceof HTMLAnchorElement) setDdOpen(dd, false);
+      });
+    });
+    if (dropdowns.length) {
+      // Click outside closes
+      document.addEventListener("click", (e) => {
+        dropdowns.forEach((dd) => {
+          if (dd.dataset.state === "open" && !dd.contains(e.target)) setDdOpen(dd, false);
         });
-        // Click outside closes
-        document.addEventListener("click", (e) => {
-          if (dd.dataset.state === "open" && !dd.contains(e.target)) {
-            setDdOpen(false);
-          }
-        });
-        // Escape closes
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape" && dd.dataset.state === "open") {
-            setDdOpen(false);
-          }
-        });
-        // Click on a menu item closes (after navigation starts)
-        panel.addEventListener("click", (e) => {
-          if (e.target instanceof HTMLAnchorElement) setDdOpen(false);
-        });
-      }
+      });
+      // Escape closes
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") closeAllDropdowns(null);
+      });
     }
 
     /* Theme toggle: cycles system → light → dark → system */

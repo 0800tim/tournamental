@@ -24,6 +24,7 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 
 import { AppShell } from "@/components/shell";
+import { isArchiveRequest } from "@/lib/archive/server";
 
 async function safeT(key: string, fallback: string): Promise<string> {
   try {
@@ -101,6 +102,7 @@ function normaliseGuid(raw: string): string {
 }
 
 export async function generateMetadata(props: PageProps): Promise<Metadata> {
+  const archived = await isArchiveRequest();
   const params = await props.params;
   // Metadata fetch doesn't need the heavy payload; just the summary.
   const resolved = await resolveShareGuid(normaliseGuid(params.guid));
@@ -109,17 +111,23 @@ export async function generateMetadata(props: PageProps): Promise<Metadata> {
     const ogUrl = `/api/og/syndicate?slug=${encodeURIComponent(s.slug)}`;
     return {
       title: `${s.name} on Tournamental`,
-      description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+      description: archived
+        ? `${s.name}: a ${s.tournament_label} pool on Tournamental, kept read-only.`
+        : `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
       openGraph: {
         title: `${s.name} on Tournamental`,
-        description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+        description: archived
+          ? `${s.name}: a ${s.tournament_label} pool on Tournamental, kept read-only.`
+          : `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
         images: [{ url: ogUrl, width: 1200, height: 630, alt: s.name }],
         type: "website",
       },
       twitter: {
         card: "summary_large_image",
         title: `${s.name} on Tournamental`,
-        description: `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
+        description: archived
+          ? `${s.name}: a ${s.tournament_label} pool on Tournamental, kept read-only.`
+          : `${s.members.length} member${s.members.length === 1 ? "" : "s"} predicting the ${s.tournament_label}. Join the pool.`,
         images: [ogUrl],
       },
       other: {
@@ -552,8 +560,12 @@ async function SyndicateLanding({ syndicate }: { syndicate: SyndicateRecord }) {
   // auto-generated stats line so empty / legacy pools don't show a
   // blank space (Tim 2026-05-22).
   const ownerLede = (syndicate.topic ?? "").trim();
+  const archivedPage = await isArchiveRequest();
   const lede =
     ownerLede ||
+    (archivedPage
+      ? `Hosted by @${syndicate.owner_handle}. Every match of ${syndicate.tournament_label}, kept as it finished.`
+      : null) ||
     buildSyndicateLede({
       ownerHandle: syndicate.owner_handle,
       memberCount,
@@ -911,7 +923,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
                 {formatMoney(pool, currency)}
               </dd>
             </div>
-            <div className="vt-share-prize-cell">
+            <div className="vt-share-prize-cell vt-archive-hide">
               <dt className="vt-stat-label">Members</dt>
               <dd className="vt-share-prize-num">{memberCount}</dd>
             </div>
@@ -924,7 +936,7 @@ function PrizePoolBlock({ syndicate, prizeEyebrow }: { syndicate: SyndicateRecor
                 {hasPrize ? "Free to enter" : "Bragging rights"}
               </dd>
             </div>
-            <div className="vt-share-prize-cell">
+            <div className="vt-share-prize-cell vt-archive-hide">
               <dt className="vt-stat-label">Members</dt>
               <dd className="vt-share-prize-num">{memberCount}</dd>
             </div>
@@ -1069,7 +1081,7 @@ function UserNoBracketView({
         Their bracket will appear here once they save it. Beat them to it,
         share your own picks first.
       </p>
-      <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
+      <a className="vt-share-cta vt-archive-hide" data-variant="primary" href="/world-cup-2026">
         Make your bracket
       </a>
     </section>
@@ -1094,7 +1106,7 @@ function NotFoundView({ attempted }: { attempted: string }) {
         We couldn&apos;t find that prediction or syndicate. Pick a fresh
         bracket instead, kick-off is closer than you think.
       </p>
-      <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
+      <a className="vt-share-cta vt-archive-hide" data-variant="primary" href="/world-cup-2026">
         Make a fresh bracket
       </a>
     </section>

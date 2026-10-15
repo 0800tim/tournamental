@@ -1,31 +1,26 @@
 ---
 /**
- * Platform-first marketing hero (2026-05-21 rewrite).
+ * Platform-first marketing hero (2026-10 rewrite).
  *
- * Previously this hero pitched the 2026 World Cup directly; that
- * messaging now lives on play.tournamental.com. tournamental.com is
- * about the *platform* — bracket prediction with a global ledger,
- * syndicate pools, the 3D renderer, the open-source story. The 2026
- * World Cup app gets its own prominent CTA to the right of the main
- * headline.
+ * tournamental.com is about the platform: predictions for every match,
+ * pools for any crew, the bracket bot, leaderboards, and verifiable
+ * picks committed before kickoff, across tournaments. The side card
+ * carries whatever is coming next (right now Rugby World Cup 2027)
+ * and the register-interest CTA into play.tournamental.com. Finished
+ * tournaments live in the archive.
  *
  * Inherits editorial tokens from globals.css (gold accent, opsz axis,
  * hairline rules, choreographed reveal). Motion gates on
  * `prefers-reduced-motion`.
  */
-const KICKOFF_LABEL = "Kickoff 11 June 2026";
-/* Tim 2026-06-05: hero headline rewritten to a one-line brand
- * statement now that the "play the FIFA WC 2026 bracket" CTA card
- * to the right of the headline carries the World-Cup-specific call
- * to action. Split across two spans for editorial cadence: the
- * subject ("We Game-ify") on line one, the object ("the Tournament")
- * on line two. Game-ify with the hyphen retained per Tim's brief. */
+const NEXT_KICKER = "Coming next · 1 Oct to 13 Nov 2027";
 const HEADLINE_LINE_1 = "We Game-ify";
 const HEADLINE_LINE_2 = "the Tournament";
 
 const platformHref = "/how-it-works";
 const repoHref = "https://github.com/0800tim/tournamental";
-const playHref = "https://play.tournamental.com/world-cup-2026";
+const registerHref = "https://play.tournamental.com/#register";
+const archiveHref = "https://fwc2026.tournamental.com";
 ---
 <section class="vt-editorial vt-hero">
   <div class="container-page vt-hero-inner vt-hero-grid">
@@ -42,17 +37,18 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
       <hr class="vt-rule mt-10" data-reveal="rule" aria-hidden="true" />
 
       <p class="vt-lede mt-8" data-reveal="lede">
-        Nobody will correctly predict all 104 matches, and they probably never
-        will because of the astronomical odds of getting all 104 matches right.
-        Tournamental is the <strong>global predictions ledger</strong> that is
-        looking for the person(s) in the world that will get the most correct
-        picks. Could that be you?
+        Tournamental turns a tournament into a game you play every day of it.
+        Predict every match, change any call right up to kickoff, and climb a
+        <strong>global leaderboard</strong> that settles as the results land.
+        Run a pool for your club, your office, your creator audience or your
+        group chat, with your name on it.
       </p>
 
       <p class="vt-lede mt-6" data-reveal="lede">
-        Tournamental keeps the global ledger and commits every pick to the
-        <strong>blockchain</strong> before each match kicks off, so your
-        predictions are immutable and any claim to glory is finally provable.
+        Every pick is committed to a <strong>public ledger</strong> before the
+        whistle, so a claim to glory is finally provable. The bracket bot keeps
+        your crew in the game between matches. The same platform runs every
+        tournament, and keeps the finished ones in the archive.
       </p>
 
       <div class="vt-hero-cta-row mt-12 md:mt-14" data-reveal="cta">
@@ -69,26 +65,35 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
       </p>
     </div>
 
-    <aside class="vt-hero-wc-card" data-reveal="wc-card" aria-labelledby="vt-hero-wc-title">
-      <p class="vt-hero-wc-kicker">
-        Playing now &middot; {KICKOFF_LABEL}
-      </p>
-      <h2 id="vt-hero-wc-title" class="vt-hero-wc-title">
-        Play the<br />
-        FIFA World Cup 2026™<br />
-        bracket app
+    <aside class="vt-hero-next-card" data-reveal="wc-card" aria-labelledby="vt-hero-next-title">
+      <img
+        class="vt-hero-next-art"
+        src="/rwc2027/hero.svg"
+        width="1200"
+        height="800"
+        alt="Illustration: a gold and green rugby ball under the Southern Cross, with goal posts on a floodlit night pitch."
+        loading="eager"
+        decoding="async"
+      />
+      <p class="vt-hero-next-kicker">{NEXT_KICKER}</p>
+      <h2 id="vt-hero-next-title" class="vt-hero-next-title">
+        Rugby World Cup 2027™<br />
+        in Australia
       </h2>
-      <p class="vt-hero-wc-body">
-        Pick all 104 matches. Live group standings, drag-rank tiebreakers, a 3D
-        molecule of your bracket. Free to play, mobile-first.
+      <p class="vt-hero-next-body">
+        Register your interest and be first in when picks open. Every match,
+        pools for your crew, verifiable picks, free to play.
       </p>
-      <a class="vt-hero-wc-cta" href={playHref} data-analytics="cta" data-analytics-label="Play World Cup" data-analytics-surface="hero">
-        Play now <span aria-hidden="true">&rarr;</span>
+      <a class="vt-hero-next-cta" href={registerHref} data-analytics="cta" data-analytics-label="Register interest RWC 2027" data-analytics-surface="hero">
+        Register interest <span aria-hidden="true">&rarr;</span>
       </a>
-      <ul class="vt-hero-wc-meta" aria-hidden="true">
-        <li><span>104</span>Matches</li>
-        <li><span>48</span>Teams</li>
+      <ul class="vt-hero-next-meta" aria-hidden="true">
+        <li><span>24</span>Teams</li>
+        <li><span>52</span>Matches</li>
       </ul>
+      <p class="vt-hero-next-archive">
+        Looking for the last one? <a href={archiveHref}>FWC 2026 archive</a>
+      </p>
     </aside>
   </div>
 </section>
@@ -123,7 +128,7 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
   }
   @media (min-width: 960px) {
     .vt-hero-grid {
-      grid-template-columns: minmax(0, 1.4fr) minmax(280px, 360px);
+      grid-template-columns: minmax(0, 1.3fr) minmax(300px, 400px);
       gap: 3.5rem;
     }
   }
@@ -140,12 +145,12 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     gap: 1.5rem 2rem;
   }
 
-  /* World Cup 2026 side card — the explicit cross-link to the play app
+  /* "Coming next" side card: the explicit cross-link to the play app
    * that earns its own prominent slot in the hero. Gold border, dark
-   * card, a bigger CTA than the platform's how-it-works link so a
-   * casual visitor sees "right, where do I play?" within the first
-   * scroll. */
-  .vt-hero-wc-card {
+   * card, original hero art on top, a bigger CTA than the platform's
+   * how-it-works link so a casual visitor sees "right, where do I
+   * register?" within the first scroll. */
+  .vt-hero-next-card {
     background: linear-gradient(180deg, rgba(245, 197, 66, 0.06) 0%, rgba(245, 197, 66, 0.0) 60%), rgba(28, 28, 34, 0.85);
     border: 1px solid rgba(245, 197, 66, 0.35);
     border-radius: 18px;
@@ -155,7 +160,28 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     box-shadow: 0 20px 60px -28px rgba(245, 197, 66, 0.4);
   }
 
-  .vt-hero-wc-kicker {
+  .vt-hero-next-art {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 0 0 18px;
+    border: 1px solid rgba(245, 197, 66, 0.18);
+  }
+
+  .vt-hero-next-archive {
+    margin: 16px 0 0;
+    font-size: 13px;
+    line-height: 1.4;
+    color: rgba(205, 213, 231, 0.7);
+  }
+  .vt-hero-next-archive a {
+    color: #fbbf24;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .vt-hero-next-kicker {
     margin: 0 0 12px;
     font: 700 11px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
     letter-spacing: 0.18em;
@@ -163,7 +189,7 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     color: #fbbf24;
   }
 
-  .vt-hero-wc-title {
+  .vt-hero-next-title {
     margin: 0 0 14px;
     font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
     font-variation-settings: "opsz" 96;
@@ -174,14 +200,14 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     color: #ffffff;
   }
 
-  .vt-hero-wc-body {
+  .vt-hero-next-body {
     margin: 0 0 22px;
     font-size: 14px;
     line-height: 1.5;
     color: rgba(231, 234, 243, 0.78);
   }
 
-  .vt-hero-wc-cta {
+  .vt-hero-next-cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -198,12 +224,12 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     box-shadow: 0 12px 32px -10px rgba(245, 197, 66, 0.55);
     transition: transform 120ms ease, box-shadow 120ms ease;
   }
-  .vt-hero-wc-cta:hover {
+  .vt-hero-next-cta:hover {
     transform: translateY(-1px);
     box-shadow: 0 16px 36px -10px rgba(245, 197, 66, 0.7);
   }
 
-  .vt-hero-wc-meta {
+  .vt-hero-next-meta {
     list-style: none;
     padding: 18px 0 0;
     margin: 18px 0 0;
@@ -212,7 +238,7 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
-  .vt-hero-wc-meta li {
+  .vt-hero-next-meta li {
     display: flex;
     flex-direction: column;
     gap: 4px;
@@ -221,7 +247,7 @@ const playHref = "https://play.tournamental.com/world-cup-2026";
     text-transform: uppercase;
     color: rgba(205, 213, 231, 0.6);
   }
-  .vt-hero-wc-meta li span {
+  .vt-hero-next-meta li span {
     display: inline-block;
     font-family: "Fraunces", ui-serif, Charter, Georgia, Cambria, "Times New Roman", serif;
     font-variation-settings: "opsz" 96;

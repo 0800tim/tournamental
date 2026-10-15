@@ -27,6 +27,7 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { useArchive } from "@/lib/archive/context";
 import { pickAvatar } from "@/lib/mock/avatar";
 import type { MockMember } from "@/lib/mock/leaderboard";
 import { mockPointsHistory } from "@/lib/mock/points-history";
@@ -118,6 +119,7 @@ export function Leaderboard({
   headerExtras,
   skipSkeleton = false,
 }: LeaderboardProps) {
+  const archive = useArchive();
   const [loading, setLoading] = useState(!skipSkeleton);
 
   useEffect(() => {
@@ -209,9 +211,11 @@ export function Leaderboard({
 
       <footer className="vt-lb-footer">
         <span>
-          {totalMembers
-            ? `Showing ${rows.length.toLocaleString()} of ${totalMembers.toLocaleString()}`
-            : `Showing ${rows.length.toLocaleString()} members`}
+          {archive
+            ? "Final standings"
+            : totalMembers
+              ? `Showing ${rows.length.toLocaleString()} of ${totalMembers.toLocaleString()}`
+              : `Showing ${rows.length.toLocaleString()} members`}
         </span>
         {draftMark && <span>Preview data</span>}
       </footer>

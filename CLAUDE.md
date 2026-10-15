@@ -336,6 +336,7 @@ Single source of truth: [docs/22-deployment-and-tunnels.md](docs/22-deployment-a
 | Service              | Dev port | Public (prod) hostname          |
 | -------------------- | -------- | ------------------------------- |
 | `apps/web`           | 3300     | https://play.tournamental.com   |
+| `apps/web` (archive) | 3300     | https://fwc2026.tournamental.com (read-only FWC 2026; see docs/22 host modes) |
 | Producer WS          | 4001     | wss://stream.tournamental.com   |
 | `apps/api`           | 3310     | https://api.tournamental.com    |
 | `apps/marketing`     | 3320     | https://tournamental.com        |

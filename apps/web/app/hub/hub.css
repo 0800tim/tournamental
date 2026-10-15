@@ -1,0 +1,230 @@
+/* Hub page (play.tournamental.com while no tournament is active).
+ * Reuses the editorial tokens from globals.css (gold scale, Fraunces)
+ * and the dark shell. Mobile-first; two columns from 900px. */
+
+.vt-hub {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 16px 56px;
+  color: #e6e6ea;
+}
+
+.vt-hub-hero {
+  display: grid;
+  gap: 20px;
+  padding: 16px 0 8px;
+}
+@media (min-width: 900px) {
+  .vt-hub-hero {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 40px;
+    padding: 32px 0 16px;
+  }
+  .vt-hub-hero-art { order: 2; }
+}
+.vt-hub-hero-art img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  border: 1px solid rgba(245, 197, 66, 0.25);
+  box-shadow: 0 24px 60px -30px rgba(245, 197, 66, 0.45);
+}
+
+.vt-hub-dateline,
+.vt-hub-step-tag {
+  margin: 0 0 10px;
+  font: 600 11px/1.3 ui-monospace, Menlo, Monaco, monospace;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--vt-gold-400, #dca94b);
+}
+
+.vt-hub-headline {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-variation-settings: "opsz" 144;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.0;
+  font-size: clamp(32px, 5vw, 52px);
+  color: #fff;
+}
+.vt-hub-headline-line { display: block; }
+.vt-hub-headline-sub {
+  color: var(--vt-gold-300, #e8c56c);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.vt-hub-lede {
+  margin: 18px 0 0;
+  font-size: clamp(16px, 1.6vw, 19px);
+  line-height: 1.55;
+  color: rgba(231, 234, 243, 0.82);
+  max-width: 56ch;
+}
+
+.vt-hub-stat-row {
+  list-style: none;
+  margin: 22px 0 0;
+  padding: 18px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.vt-hub-stat-row li { display: grid; gap: 4px; }
+.vt-hub-stat-num {
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-variation-settings: "opsz" 96;
+  font-size: clamp(22px, 2.6vw, 32px);
+  line-height: 1;
+  color: #fff;
+}
+.vt-hub-stat-label {
+  font: 600 10.5px/1.3 ui-monospace, Menlo, Monaco, monospace;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(205, 213, 231, 0.65);
+}
+.vt-hub-hero-copy .vt-countdown,
+.vt-hub-hero-copy [class*="countdown"] { margin-top: 18px; }
+
+.vt-hub-section {
+  margin-top: 40px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.vt-hub-h2 {
+  margin: 0;
+  font-family: "Fraunces", ui-serif, Georgia, serif;
+  font-variation-settings: "opsz" 96;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.08;
+  font-size: clamp(26px, 3.6vw, 38px);
+  color: #fff;
+}
+.vt-hub-p {
+  margin: 14px 0 0;
+  font-size: 16px;
+  line-height: 1.6;
+  color: rgba(231, 234, 243, 0.8);
+  max-width: 62ch;
+}
+.vt-hub-link { color: var(--vt-gold-400, #dca94b); text-decoration: none; border-bottom: 1px solid currentColor; }
+
+.vt-hub-register {
+  display: grid;
+  gap: 28px;
+}
+@media (min-width: 900px) {
+  .vt-hub-register { grid-template-columns: minmax(0, 1fr) minmax(320px, 440px); gap: 48px; align-items: start; }
+}
+.vt-hub-bullets {
+  margin: 18px 0 0;
+  padding: 0 0 0 18px;
+  display: grid;
+  gap: 10px;
+  color: rgba(231, 234, 243, 0.82);
+  line-height: 1.5;
+}
+.vt-hub-bullets strong { color: #fff; }
+
+/* Form */
+.vt-hub-form {
+  background: linear-gradient(180deg, rgba(245, 197, 66, 0.07) 0%, rgba(245, 197, 66, 0) 60%), rgba(28, 28, 34, 0.9);
+  border: 1px solid rgba(245, 197, 66, 0.35);
+  border-radius: 18px;
+  padding: 22px;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 20px 60px -28px rgba(245, 197, 66, 0.4);
+}
+.vt-hub-form-eyebrow { margin: 0; font: 700 11px/1 ui-monospace, Menlo, monospace; letter-spacing: 0.18em; text-transform: uppercase; color: #fbbf24; }
+.vt-hub-form-title { margin: 0; font-family: "Fraunces", ui-serif, Georgia, serif; font-weight: 500; font-size: 24px; line-height: 1.1; color: #fff; }
+.vt-hub-form-p { margin: 0; color: rgba(231, 234, 243, 0.8); line-height: 1.5; font-size: 15px; }
+.vt-hub-field-row { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 12px; }
+.vt-hub-field { display: grid; gap: 6px; font-size: 13px; color: rgba(205, 213, 231, 0.8); }
+.vt-hub-field input {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.35);
+  color: #fff;
+  font-size: 16px;
+}
+.vt-hub-field input:focus { outline: 2px solid #fbbf24; outline-offset: 1px; border-color: transparent; }
+.vt-hub-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.vt-hub-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; line-height: 1.45; color: rgba(231, 234, 243, 0.82); }
+.vt-hub-consent input { margin-top: 3px; width: 18px; height: 18px; accent-color: #fbbf24; flex: none; }
+.vt-hub-form-error { margin: 0; color: #ff9b9b; font-size: 14px; }
+.vt-hub-form-note { margin: 0; font-size: 12.5px; line-height: 1.5; color: rgba(205, 213, 231, 0.6); }
+.vt-hub-form-note a { color: inherit; text-decoration: underline; }
+.vt-hub-form-note strong { color: #fff; font-size: 14px; }
+
+.vt-hub-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border-radius: 999px;
+  font: 700 15px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.vt-hub-btn:disabled { opacity: 0.6; cursor: default; }
+.vt-hub-btn-primary { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: #15151a; box-shadow: 0 12px 32px -10px rgba(245, 197, 66, 0.55); }
+.vt-hub-btn-primary:hover { transform: translateY(-1px); }
+.vt-hub-btn-ghost { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.25); }
+.vt-hub-btn-ghost:hover { border-color: #fbbf24; color: #fbbf24; }
+.vt-hub-btn-block { width: 100%; }
+
+.vt-hub-invite { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.vt-hub-invite-url {
+  display: block;
+  padding: 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 14px;
+  color: #fff;
+  overflow-wrap: anywhere;
+}
+.vt-hub-share-row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* Archive cards */
+.vt-hub-archive-grid { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 16px; }
+@media (min-width: 720px) { .vt-hub-archive-grid { grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); } }
+.vt-hub-archive-card {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  padding: 22px;
+  background: rgba(28, 28, 34, 0.7);
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+.vt-hub-archive-name { margin: 0; font-family: "Fraunces", ui-serif, Georgia, serif; font-weight: 500; font-size: 24px; color: #fff; line-height: 1.1; }
+.vt-hub-archive-result { margin: 0; color: rgba(231, 234, 243, 0.82); line-height: 1.5; }
+.vt-hub-archive-result strong { color: var(--vt-gold-300, #e8c56c); }
+.vt-hub-archive-stats { list-style: none; margin: 4px 0 0; padding: 14px 0 0; border-top: 1px solid rgba(255, 255, 255, 0.1); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.vt-hub-archive-stats li { display: grid; gap: 4px; }
+.vt-hub-archive-card .vt-hub-btn { justify-self: start; }
+
+.vt-hub-feature-grid { display: grid; gap: 14px; margin-top: 20px; }
+@media (min-width: 720px) { .vt-hub-feature-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.vt-hub-feature { border-top: 1px solid rgba(245, 197, 66, 0.35); padding-top: 12px; }
+.vt-hub-feature h3 { margin: 0 0 6px; font-family: "Fraunces", ui-serif, Georgia, serif; font-weight: 500; font-size: 20px; color: #fff; }
+.vt-hub-feature p { margin: 0; color: rgba(231, 234, 243, 0.78); line-height: 1.5; font-size: 15px; }
+
+.vt-hub-disclaimer { margin: 40px 0 0; font-size: 12.5px; line-height: 1.5; color: rgba(205, 213, 231, 0.55); max-width: 72ch; }

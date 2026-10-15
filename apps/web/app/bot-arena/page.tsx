@@ -64,7 +64,7 @@ export default function BotArenaPage(): JSX.Element {
               * IndexedDB and the server aggregate from /v1/swarm/totals;
               * hidden by the component itself until either is non-zero. */}
             <ArenaStats variant="hero" />
-            <div className="vt-arena-cta-row">
+            <div className="vt-arena-cta-row vt-archive-hide">
               <Link href="/run" className="vt-arena-cta-primary">
                 Run your own bot swarm now <span aria-hidden="true">&rarr;</span>
               </Link>
@@ -419,7 +419,7 @@ export default function BotArenaPage(): JSX.Element {
                 cores. Zero install. Free. No coding. Optional Supabase
                 free tier for persistence across sessions.
               </p>
-              <Link href="/run" className="vt-arena-card-cta">
+              <Link href="/run" className="vt-arena-card-cta vt-archive-hide">
                 Spawn one now →
               </Link>
             </div>
@@ -451,7 +451,7 @@ export default function BotArenaPage(): JSX.Element {
                 injection. Only merkle commitments and aggregates flow
                 to the central server.
               </p>
-              <Link href="/bots/node" className="vt-arena-card-cta">
+              <Link href="/bots/node" className="vt-arena-card-cta vt-archive-hide">
                 Run a node →
               </Link>
             </div>
@@ -560,7 +560,7 @@ export default function BotArenaPage(): JSX.Element {
             <a href="mailto:info@tournamental.com">info@tournamental.com</a>
           </p>
 
-          <div className="vt-arena-cta-final">
+          <div className="vt-arena-cta-final vt-archive-hide">
             <Link href="/run" className="vt-arena-cta-primary">
               Start a swarm <span aria-hidden="true">→</span>
             </Link>

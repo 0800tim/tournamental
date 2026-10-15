@@ -1,0 +1,143 @@
+---
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * see LICENSE in the repo root for the canonical text.
+ */
+import Layout from "@/layouts/Layout.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+
+/**
+ * /archive, the index of every tournament the platform has run.
+ * Each finished tournament keeps its app alive, read-only, on its own
+ * hostname, plus an editorial retrospective here. Add a row per
+ * tournament as they close.
+ */
+const TOURNAMENTS = [
+  {
+    code: "FWC 2026",
+    name: "FIFA World Cup 2026™",
+    dates: "11 June to 19 July 2026",
+    where: "USA, Canada, Mexico",
+    winner: "Spain",
+    summary:
+      "Spain beat Argentina 1-0 after extra time in the final. Pools, the save-don't-lock bracket and the global board all ran for the full six weeks.",
+    retro: "/archive/fwc-2026",
+    app: "https://fwc2026.tournamental.com",
+  },
+] as const;
+---
+<Layout
+  title="Archive tournaments, Tournamental"
+  description="Every tournament Tournamental has run, kept read-only: the final results, the final boards, and how each one played out. FWC 2026 is the first."
+  ogImage="/og/archive.png"
+>
+  <section class="vt-editorial">
+    <div class="container-page">
+      <EditorialPageHeader
+        dateline="Archive · Past tournaments"
+        title=""
+        lede="A tournament on Tournamental does not disappear when the trophy is lifted. The app stays up, read-only, with every bracket, pool and board exactly as it finished. This is the shelf."
+        footnote="Read-only · No sign-in needed · Next up: Rugby World Cup 2027"
+      >
+        <Fragment slot="title">
+          Every tournament, <em>kept</em>.
+        </Fragment>
+      </EditorialPageHeader>
+    </div>
+  </section>
+
+  <section class="vt-editorial container-page pb-16 md:pb-24">
+    <ol class="vt-arc-list">
+      {TOURNAMENTS.map((t) => (
+        <li class="vt-arc-card">
+          <div class="vt-arc-meta">
+            <span class="vt-dateline">{t.code} · {t.dates}</span>
+            <span class="vt-arc-where">{t.where}</span>
+          </div>
+          <h2 class="vt-arc-head">{t.name}</h2>
+          <p class="vt-arc-winner"><span class="vt-arc-winner-label">Champions</span> {t.winner}</p>
+          <p class="vt-arc-body">{t.summary}</p>
+          <div class="vt-arc-cta-row">
+            <a class="vt-cta-primary" href={t.app}>
+              Open the archive <span aria-hidden="true">&rarr;</span>
+            </a>
+            <a class="vt-cta-text" href={t.retro}>How it played out</a>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <p class="vt-footnote mt-12 max-w-3xl">
+      Rugby World Cup 2027™ is next, 1 October to 13 November 2027 in Australia.
+      <a class="vt-cta-text" href="https://play.tournamental.com/#register">Register your interest</a>
+      and be first in when picks open.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .vt-arc-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 2rem;
+  }
+  .vt-arc-card {
+    display: grid;
+    gap: 0.9rem;
+    padding: clamp(1.5rem, 3vw, 2.5rem);
+    border: 1px solid color-mix(in srgb, var(--vt-fg) 14%, transparent);
+    border-radius: 18px;
+    background: var(--vt-bg-elev);
+  }
+  .vt-arc-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.5rem 1.25rem;
+  }
+  .vt-arc-where {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vt-fg-muted);
+  }
+  .vt-arc-head {
+    font-family: "Fraunces", ui-serif, Georgia, serif;
+    font-weight: 500;
+    font-variation-settings: "opsz" 96, "SOFT" 30;
+    letter-spacing: -0.015em;
+    line-height: 1.05;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    color: var(--vt-fg-strong);
+    margin: 0;
+  }
+  .vt-arc-winner {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--vt-fg-strong);
+  }
+  .vt-arc-winner-label {
+    font-family: ui-monospace, Menlo, Monaco, monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vt-gold-400);
+    margin-right: 0.5rem;
+  }
+  .vt-arc-body {
+    color: var(--vt-fg-muted);
+    line-height: 1.55;
+    margin: 0;
+    max-width: 60ch;
+  }
+  .vt-arc-cta-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 2rem;
+    margin-top: 0.5rem;
+  }
+</style>

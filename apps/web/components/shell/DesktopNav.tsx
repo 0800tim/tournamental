@@ -48,10 +48,13 @@ import {
   type ReactNode,
 } from "react";
 
+import { useArchive } from "@/lib/archive/context";
+
 import { AuthChip } from "./AuthChip";
 import {
   PRIMARY_DESKTOP,
   MORE_DESKTOP,
+  forArchive,
   isLinkActive,
   pickActiveLink,
   type NavLink,
@@ -62,26 +65,29 @@ export function DesktopNav() {
   // Pick the single most-specific active link from PRIMARY_DESKTOP so
   // /world-cup-2026/molecule highlights "3D Molecule" only, not Predict
   // as well. See pickActiveLink for the longest-prefix rule.
-  const activeInline = pickActiveLink(PRIMARY_DESKTOP, pathname);
-  const activeMore = pickActiveLink(MORE_DESKTOP, pathname);
+  const archive = useArchive();
+  const primary = forArchive(PRIMARY_DESKTOP, archive);
+  const more = forArchive(MORE_DESKTOP, archive);
+  const activeInline = pickActiveLink(primary, pathname);
+  const activeMore = pickActiveLink(more, pathname);
 
   return (
     <nav className="vt-appbar-nav" aria-label="Primary">
       <ul className="vt-appbar-nav-list" role="list">
-        {PRIMARY_DESKTOP.map((link) => (
+        {primary.map((link) => (
           <li key={link.href}>
             <NavPill link={link} active={activeInline?.href === link.href} />
           </li>
         ))}
         <li>
           <MoreDropdown
-            links={MORE_DESKTOP}
+            links={more}
             activeHref={activeMore?.href ?? null}
           />
         </li>
       </ul>
       <div className="vt-appbar-nav-spacer" aria-hidden="true" />
-      <AuthChip />
+      {archive ? null : <AuthChip />}
     </nav>
   );
 }

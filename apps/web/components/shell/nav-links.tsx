@@ -212,6 +212,34 @@ export const DRAWER_SECONDARY: readonly NavLink[] = [
  * both as active. We avoid that by giving each link its own explicit
  * matchPrefix that's longest-first per route family.
  */
+/**
+ * Archive mode (2026-10-16): the read-only archive keeps only the
+ * surfaces that still make sense after a tournament has finished.
+ * Everything that invites a live action (save & share, pools, profile,
+ * API keys, bot arena runs) is dropped, and "Play (Predict)" becomes
+ * "Bracket". Applied by DesktopNav, AppMenuDrawer and BottomNav.
+ */
+const ARCHIVE_HIDDEN_HREFS = new Set([
+  "/world-cup-2026/save-share",
+  "/pools",
+  "/syndicates",
+  "/profile",
+  "/profile/api-keys",
+  "/bot-arena",
+  "/leaderboard",
+]);
+
+export function forArchive(links: readonly NavLink[], archive: boolean): readonly NavLink[] {
+  if (!archive) return links;
+  return links
+    .filter((l) => !ARCHIVE_HIDDEN_HREFS.has(l.href))
+    .map((l) =>
+      l.href === "/world-cup-2026"
+        ? { ...l, label: "Bracket", i18nKey: "nav.bracket_archive", emphasis: undefined }
+        : l,
+    );
+}
+
 export function isLinkActive(link: NavLink, pathname: string): boolean {
   const prefix = link.matchPrefix ?? stripHash(link.href);
   if (prefix === "__never__" || !prefix) return false;

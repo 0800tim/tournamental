@@ -25,6 +25,9 @@ import { EmbedHeightReporter } from "@/components/embed/EmbedHeightReporter";
 import { AppShell } from "@/components/shell";
 import { OverlayServerShim } from "@/components/overlay/OverlayServerShim";
 import { BracketOverlayShell } from "@/components/overlay/BracketOverlayShell";
+import { ArchiveResultsBracket } from "@/components/archive/ArchiveResultsBracket";
+import { isArchiveRequest } from "@/lib/archive/server";
+import { buildOfficialResultsBracket } from "@/lib/archive/results-bracket";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import "./bracket.css";
@@ -72,6 +75,20 @@ export default async function WorldCup2026Page(props: WorldCup2026PageProps) {
   // page is iframe-ready for partner sites. The `pool` query param
   // optionally pre-selects a pool for the player to join.
   const embed = String(searchParams?.embed ?? "") === "1";
+
+  // Archive mode (2026-10-16): the tournament is over, so the page
+  // shows the OFFICIAL results bracket read-only instead of the
+  // pick-form builder. Picks, saves and sign-in are closed on this host.
+  if (await isArchiveRequest()) {
+    const official = buildOfficialResultsBracket(tournament);
+    return (
+      <AppShell title="FIFA World Cup 2026™" suppressMicrositeNav>
+        <main className="bracket-page" data-archive-bracket="1">
+          <ArchiveResultsBracket bracket={official} />
+        </main>
+      </AppShell>
+    );
+  }
   // Theme propagation for the embed iframe. Partner widgets pass
   // ?theme=light|dark; only an explicit value lands as `data-theme` on
   // the bracket page so the light overrides at the bottom of

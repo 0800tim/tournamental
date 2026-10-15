@@ -70,7 +70,7 @@ export function ShareActions({ shareTitle, shareText }: ShareActionsProps) {
   return (
     <div className="vt-share-ctas-wrap">
       <div className="vt-share-ctas">
-        <a className="vt-share-cta" data-variant="primary" href="/world-cup-2026">
+        <a className="vt-share-cta vt-archive-hide" data-variant="primary" href="/world-cup-2026">
           Enter Your Picks
         </a>
         <button
