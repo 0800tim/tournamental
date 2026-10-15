@@ -30,7 +30,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: "Tournamental, Press releases",
     description:
-      "Official press releases from Tournamental. Launch announcements, feature releases, partnerships and milestones. For demos and embargoed briefs, email play@tournamental.com.",
+      "Official press releases from Tournamental. Launch announcements, feature releases, partnerships and milestones. For demos and embargoed briefs, email info@tournamental.com.",
     site: context.site ?? "https://tournamental.com",
     items: releases.map((release) => ({
       title: release.data.title,

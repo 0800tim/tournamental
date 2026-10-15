@@ -32,6 +32,8 @@
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { useArchive } from "@/lib/archive/context";
+
 function safeT(
   t: ReturnType<typeof useTranslations>,
   key: string,
@@ -271,6 +273,7 @@ function knockoutCountFor(
 }
 
 export function BracketBuilder(props: BracketBuilderProps) {
+  const archive = useArchive();
   const { tournament } = props;
   // i18n: resolve every translation via safeT(t, key, englishFallback)
   // so a missing message never crashes the page. The catalogue lives
@@ -1364,7 +1367,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
       {/* Tim 2026-06-05: floating Save button (when dirty) and "Saved ✓"
         * toast (3s, post-save). Renders nothing while bracket is clean
         * and not in a transient state. */}
-      <BracketAutoSave state={autoSaveState} onSaveClick={doAutoSave} />
+      {archive ? null : <BracketAutoSave state={autoSaveState} onSaveClick={doAutoSave} />}
       <header className="bracket-header">
         <h1>
           {(() => {
@@ -1595,7 +1598,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       {renderKnockoutGrid("final")}
                     </div>
                   </div>
-                  <SaveBracketPanel
+                  {archive ? null : <SaveBracketPanel
                     totalCompleted={totalCompleted}
                     totalPicks={totalPicks}
                     authStatus={auth.status}
@@ -1616,7 +1619,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                         tournament.teams.find((t) => t.id === code)?.name ?? code
                       );
                     })()}
-                  />
+                  />}
                   <div className="bracket-final-sidecol">
                     <LockSummary
                       bracket={bracket}
@@ -1624,20 +1627,27 @@ export function BracketBuilder(props: BracketBuilderProps) {
                       tournament={tournament}
                       deadline_utc={tournament.start_utc}
                     />
-                    <div className="bracket-final-leaderboard">
-                      <DraftPreviewBanner />
-                      <Leaderboard
-                        title="Global top 10"
-                        members={mockTopN(null, 10)}
-                        density="compact"
-                        showCountryColumn={false}
-                        showSparkline={false}
-                        showMovementColumn
-                        tabs={[]}
-                        totalMembers={24388}
-                        matchesPlayed={DEMO_MATCHES_PLAYED}
-                      />
-                    </div>
+                    {archive ? (
+                      <div className="bracket-final-leaderboard">
+                        <p className="bracket-final-note">
+                          Final standings are on the <a href="/#standings">archive home</a>.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bracket-final-leaderboard">
+                        <DraftPreviewBanner />
+                        <Leaderboard
+                          title="Global top 10"
+                          members={mockTopN(null, 10)}
+                          density="compact"
+                          showCountryColumn={false}
+                          showSparkline={false}
+                          showMovementColumn
+                          tabs={[]}
+                          matchesPlayed={DEMO_MATCHES_PLAYED}
+                        />
+                      </div>
+                    )}
                   </div>
                 </div>
                 <div className="bracket-lock-counts">
@@ -1651,6 +1661,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                     <strong>{Object.keys(bracket.groupTiebreakers).length}</strong> tiebreakers set
                   </div>
                 </div>
+                {archive ? null : (
                 <div className="bracket-actions">
                   <button
                     type="button"
@@ -1668,6 +1679,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                   </button>
                   {submitState && <span className="bracket-submit-state">{submitState}</span>}
                 </div>
+                )}
                 <p className="bracket-final-note">
                   You can change any pick right up until that match kicks off. Saving
                   now lets you share your bracket. Scoring is one point per correct

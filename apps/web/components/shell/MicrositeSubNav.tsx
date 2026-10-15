@@ -14,6 +14,7 @@
  *, uses momentum scrolling on touch).
  */
 
+import { useArchive } from "@/lib/archive/context";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
@@ -73,6 +74,8 @@ export function MicrositeSubNav({
   links = WC2026_SUBNAV,
   eyebrow = "WC 2026",
 }: MicrositeSubNavProps) {
+  const archive = useArchive();
+  if (archive && eyebrow === "WC 2026") eyebrow = "WC 2026 archive";
   const t = useTranslations();
   const [pathname, setPathname] = useState<string>("/");
 
@@ -88,7 +91,7 @@ export function MicrositeSubNav({
     <nav className="vt-microsite-subnav" aria-label="World Cup 2026 sections">
       <span className="vt-microsite-subnav-eyebrow" aria-hidden="true">{eyebrow}</span>
       <div className="vt-microsite-subnav-pills" role="list">
-        {links.map((link) => {
+        {links.filter((l) => !archive || l.href === "/world-cup-2026").map((link) => {
           const isActive = link.matchPrefix
             ? pathname.startsWith(link.matchPrefix)
             : link.exact
@@ -103,7 +106,7 @@ export function MicrositeSubNav({
               role="listitem"
             >
               <span className="vt-microsite-subnav-icon">{link.icon}</span>
-              <span>{link.i18nKey ? safeT(t, link.i18nKey, link.label) : link.label}</span>
+              <span>{archive && link.href === "/world-cup-2026" ? "Bracket" : link.i18nKey ? safeT(t, link.i18nKey, link.label) : link.label}</span>
             </Link>
           );
         })}

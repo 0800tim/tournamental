@@ -1,5 +1,7 @@
 # CLAUDE.md — Orchestrator and Agent Entrypoint
 
+> **The Hivemind**: this server's long-term memory vault lives at /srv/projects/hivemind (read its _CLAUDE.md). Log substantial sessions and decisions there automatically; load projects/tournamental/ notes early.
+
 > **You are a code agent dropped into the Tournamental repo.** Read this first. It tells you what the project is in 30 seconds, what to build right now, what tools to use, how to coordinate with other agents, and how to leave the repo cleaner than you found it.
 
 ## What this is, in 30 seconds
@@ -334,6 +336,7 @@ Single source of truth: [docs/22-deployment-and-tunnels.md](docs/22-deployment-a
 | Service              | Dev port | Public (prod) hostname          |
 | -------------------- | -------- | ------------------------------- |
 | `apps/web`           | 3300     | https://play.tournamental.com   |
+| `apps/web` (archive) | 3300     | https://fwc2026.tournamental.com (read-only FWC 2026; see docs/22 host modes) |
 | Producer WS          | 4001     | wss://stream.tournamental.com   |
 | `apps/api`           | 3310     | https://api.tournamental.com    |
 | `apps/marketing`     | 3320     | https://tournamental.com        |

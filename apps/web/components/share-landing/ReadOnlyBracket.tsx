@@ -54,6 +54,8 @@ export interface ReadOnlyBracketProps {
   readonly ownerUserId: string | null;
   /** Owner's handle, used for the "your" vs "their" copy. */
   readonly ownerHandle: string;
+  /** Optional heading override (archive: "Official results"). */
+  readonly title?: string;
 }
 
 const STAGE_LABELS: Partial<Record<StageId, string>> = {
@@ -111,7 +113,7 @@ interface RecordedResult {
 }
 
 export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
-  const { bracket, ownerUserId, ownerHandle } = props;
+  const { bracket, ownerUserId, ownerHandle, title } = props;
   const tournament = useEnrichedTournament();
   const auth = useUser();
   const [resultsByMatch, setResultsByMatch] = useState<Map<string, RecordedResult>>(
@@ -199,7 +201,7 @@ export function ReadOnlyBracket(props: ReadOnlyBracketProps) {
     <section className="rob" aria-labelledby="rob-title">
       <header className="rob-head">
         <h2 id="rob-title" className="rob-title">
-          {viewerIsOwner ? "Your full bracket" : `@${ownerHandle}'s full bracket`}
+          {title ?? (viewerIsOwner ? "Your full bracket" : `@${ownerHandle}'s full bracket`)}
         </h2>
         <p className="rob-sub">
           Match-by-match, all 104 picks. Read-only{viewerIsOwner ? "" : " — only the owner can edit"}.

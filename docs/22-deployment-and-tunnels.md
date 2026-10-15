@@ -20,6 +20,7 @@ Maintainers run dev on whatever local hostname their Cloudflare tunnel is config
 | ---------------- | ----------------------------------------------- | ------------------------------------------- | ------------------------ |
 | Marketing site   | `<dev>` → `:3320`                              | `preview.tournamental.com`                  | `tournamental.com`              |
 | App (renderer)   | `<dev>` → `:3300`                              | `dev.tournamental.com`                      | `play.tournamental.com`         |
+| App, archive mode | `:3300` (same process, host-routed)            | `fwc2026.localhost`                         | `fwc2026.tournamental.com` (FWC 2026, read-only; `wc2026` and `2026wc` 301 here) |
 | Match stream WS  | `<dev>` → `:4001`                              | (folded into app, `wss://dev.tournamental.com/ws`)  | `wss://play.tournamental.com/ws` |
 | Stream fan-out   | `<dev>` → `:4002`                              | `stream-dev.tournamental.com`               | `stream.tournamental.com`       |
 | API              | `<dev>` → `:3310`                              | `api-dev.tournamental.com`                  | `api.tournamental.com`          |
@@ -135,6 +136,8 @@ cloudflared tunnel route dns tournamental-staging api-dev.tournamental.com
 # Then write /etc/cloudflared/config.yml with these ingress rules
 sudo systemctl enable --now cloudflared
 ```
+
+**Host modes (2026-10-16).** One `apps/web` process serves three kinds of host, decided by `apps/web/lib/tournaments/registry.ts` and `apps/web/middleware.ts`: the ACTIVE tournament on `play.tournamental.com`; the hub on `play.*` when nothing is active (RWC 2027 register-interest); and each ARCHIVED tournament on its own hostname (`fwc2026.tournamental.com`) in read-only mode. Adding an archive host = DNS CNAME to the tournamental tunnel + an ingress line in `~/.cloudflared/config-tournamental.yml` + a registry entry.
 
 Production replaces `staging` with `prod` and the dev hostnames with `tournamental.com`, `play.tournamental.com`, `api.tournamental.com`. The marketing site `tournamental.com` ideally lives on Cloudflare Pages (no tunnel needed); only the app + API need a tunnel/origin.
 

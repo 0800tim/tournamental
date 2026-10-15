@@ -21,6 +21,11 @@ export default defineConfig({
   // surface as plain Astro. Sitemap auto-discovers the blog index +
   // every generated post slug; nothing to wire by hand.
   integrations: [tailwind({ applyBaseStyles: false }), mdx(), sitemap()],
+  // Finished tournaments move under /archive. The old playbook URL is
+  // linked from blog posts and search results, so keep it alive.
+  redirects: {
+    "/world-cup-2026": "/archive/fwc-2026",
+  },
   // Suppress Astro's dev toolbar in built output. The toolbar is a
   // dev-only convenience but the prod build was shipping it into the
   // static HTML — visible on every marketing page at launch.

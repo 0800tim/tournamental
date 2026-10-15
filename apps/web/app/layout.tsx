@@ -13,7 +13,17 @@ import { MagicLinkConsumer } from "@/components/auth/MagicLinkConsumer";
 import { ProfileCompletionGate } from "@/components/auth/ProfileCompletionGate";
 import { NativeShellBoot } from "@/components/NativeShellBoot";
 import { LOCALES, type Locale } from "@/i18n/config";
+import { ShellModeProvider } from "@/lib/archive/context";
+import { ARCHIVE_HEADER, HUB_HEADER } from "@/lib/archive/server";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
+import { tournamentBySlug } from "@/lib/tournaments/registry";
+
+// Host modes (2026-10-16): the shell reads request headers to decide
+// live / hub / archive. Statically prerendered routes (bot-arena,
+// players, opening-ceremonies, ...) would bake the live shell into
+// HTML served on the archive host, so every route renders per request.
+// Low traffic on archive hosts; the edge still caches static assets.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   // Anchor every page's relative og:image / canonical URL to the
@@ -74,6 +84,19 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const cfCountry = h.get("cf-ipcountry");
   const showConsent = isGdprCountryOrUnknown(cfCountry);
 
+  // Archive mode (2026-10-16): middleware stamps x-tnm-archive on
+  // requests to an archived tournament's hostname. The whole tree then
+  // renders read-only: no sign-in flows, no CTAs, counts as percentages.
+  const archiveSlug = h.get(ARCHIVE_HEADER);
+  const archive = archiveSlug ? tournamentBySlug(archiveSlug) : null;
+  const hub = h.get(HUB_HEADER) === "1";
+  const shellMode = {
+    mode: archive ? ("archive" as const) : hub ? ("hub" as const) : ("live" as const),
+    slug: archive ? archive.slug : null,
+    name: archive ? archive.name : null,
+    endsUtc: archive ? archive.endsUtc : null,
+  };
+
   // i18n: locale is resolved by i18n/request.ts from the vt_locale
   // cookie (set by middleware.ts based on CF-IPCountry + Accept-Language
   // on first visit and by the LocalePicker on user select). messages
@@ -83,7 +106,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
   const meta = LOCALES.find((l) => l.code === locale) ?? LOCALES[0]!;
 
   return (
-    <html lang={locale} dir={meta.rtl ? "rtl" : "ltr"}>
+    <html lang={locale} dir={meta.rtl ? "rtl" : "ltr"} data-archive={archive ? archive.slug : undefined}>
       <head>
         {/* iOS standalone web-app behaviour. The Next metadata API
             covers most of these but the meta tags are still required by
@@ -102,11 +125,17 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         * elsewhere still surface. Tim 2026-06-04. */}
       <body suppressHydrationWarning>
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <GtmRoot showConsentBanner={showConsent} />
-          <NativeShellBoot />
-          <MagicLinkConsumer />
-          <ProfileCompletionGate />
-          {children}
+          <ShellModeProvider value={shellMode}>
+            <GtmRoot showConsentBanner={showConsent} />
+            <NativeShellBoot />
+            {archive ? null : (
+              <>
+                <MagicLinkConsumer />
+                <ProfileCompletionGate />
+              </>
+            )}
+            {children}
+          </ShellModeProvider>
         </NextIntlClientProvider>
       </body>
     </html>

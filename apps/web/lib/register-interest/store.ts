@@ -1,0 +1,249 @@
+/**
+ * Durable store for register-interest signups (RWC 2027 and later).
+ *
+ * Writes to the shared game.db with better-sqlite3, the same pattern as
+ * lib/invite/store.ts. The DDL is idempotent and identical to
+ * apps/game/migrations/0017_register_interest.sql so the web app can
+ * take signups before the game service restarts.
+ *
+ * Privacy: PII (email, name, phone) lives only here and in HighLevel.
+ * Never log a row; log ids and statuses.
+ */
+
+import { createHash, randomBytes } from "node:crypto";
+import { existsSync } from "node:fs";
+import { resolve } from "node:path";
+import Database, { type Database as DB } from "better-sqlite3";
+
+let _db: DB | null = null;
+
+const DDL = `
+CREATE TABLE IF NOT EXISTS register_interest (
+  id               TEXT PRIMARY KEY,
+  tournament_id    TEXT NOT NULL,
+  email            TEXT NOT NULL,
+  first_name       TEXT,
+  country          TEXT,
+  phone            TEXT,
+  consent          INTEGER NOT NULL DEFAULT 0,
+  source_host      TEXT,
+  source_path      TEXT,
+  referred_by_code TEXT,
+  invite_code      TEXT NOT NULL UNIQUE,
+  ip_hash          TEXT,
+  user_agent       TEXT,
+  ghl_status       TEXT NOT NULL DEFAULT 'queued',
+  ghl_contact_id   TEXT,
+  ghl_error        TEXT,
+  ghl_attempts     INTEGER NOT NULL DEFAULT 0,
+  created_at       INTEGER NOT NULL,
+  updated_at       INTEGER NOT NULL,
+  UNIQUE (tournament_id, email)
+);
+CREATE INDEX IF NOT EXISTS idx_register_interest_tournament_created
+  ON register_interest(tournament_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_register_interest_referred_by
+  ON register_interest(referred_by_code);
+CREATE INDEX IF NOT EXISTS idx_register_interest_ghl
+  ON register_interest(ghl_status, updated_at);
+`;
+
+function resolveDbPath(): string {
+  const explicit = process.env.VTORN_GAME_DB_PATH || process.env.GAME_DB_PATH;
+  if (explicit && explicit.length > 0) return explicit;
+  const root = resolve(process.cwd(), "..", "..");
+  return resolve(root, "apps/game/data/game.db");
+}
+
+export function registerInterestDb(): DB | null {
+  if (_db) return _db;
+  const p = resolveDbPath();
+  if (!existsSync(p)) {
+    // eslint-disable-next-line no-console
+    console.warn(`[register-interest/store] game.db not found at ${p}`);
+    return null;
+  }
+  const db = new Database(p);
+  db.pragma("journal_mode = WAL");
+  db.exec(DDL);
+  _db = db;
+  return db;
+}
+
+export interface RegisterInterestRow {
+  id: string;
+  tournament_id: string;
+  email: string;
+  first_name: string | null;
+  country: string | null;
+  phone: string | null;
+  consent: number;
+  source_host: string | null;
+  source_path: string | null;
+  referred_by_code: string | null;
+  invite_code: string;
+  ghl_status: "queued" | "synced" | "failed" | "skipped";
+  ghl_contact_id: string | null;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface RegisterInterestInput {
+  tournament_id: string;
+  email: string;
+  first_name: string | null;
+  country: string | null;
+  phone: string | null;
+  consent: boolean;
+  source_host: string | null;
+  source_path: string | null;
+  referred_by_code: string | null;
+  ip: string | null;
+  user_agent: string | null;
+}
+
+const CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no 0/o/1/l/i
+
+export function newInviteCode(len = 7): string {
+  const bytes = randomBytes(len);
+  let out = "";
+  for (let i = 0; i < len; i++) {
+    out += CODE_ALPHABET[bytes[i]! % CODE_ALPHABET.length];
+  }
+  return out;
+}
+
+function newId(): string {
+  return `ri_${randomBytes(9).toString("hex")}`;
+}
+
+export function hashIp(ip: string | null): string | null {
+  if (!ip) return null;
+  const salt = process.env.TOURNAMENTAL_INTERNAL_SECRET ?? "tournamental";
+  return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
+}
+
+/**
+ * Insert or return the existing row for (tournament, email). Idempotent
+ * on purpose: a second submit from the same person returns the same
+ * invite code rather than an error, so the thank-you state can always
+ * show it. Returns `created` so the caller knows whether to push to
+ * the CRM again.
+ */
+export function upsertRegisterInterest(
+  input: RegisterInterestInput,
+): { row: RegisterInterestRow; created: boolean } | null {
+  const db = registerInterestDb();
+  if (!db) return null;
+  const existing = db
+    .prepare(
+      `SELECT * FROM register_interest WHERE tournament_id = ? AND email = ?`,
+    )
+    .get(input.tournament_id, input.email) as RegisterInterestRow | undefined;
+  if (existing) {
+    // Refresh soft fields the person may have corrected (name, country,
+    // phone, consent). Never overwrite a set referred_by_code.
+    db.prepare(
+      `UPDATE register_interest
+          SET first_name = COALESCE(?, first_name),
+              country = COALESCE(?, country),
+              phone = COALESCE(?, phone),
+              consent = MAX(consent, ?),
+              referred_by_code = COALESCE(referred_by_code, ?),
+              updated_at = ?
+        WHERE id = ?`,
+    ).run(
+      input.first_name,
+      input.country,
+      input.phone,
+      input.consent ? 1 : 0,
+      input.referred_by_code,
+      Date.now(),
+      existing.id,
+    );
+    const row = db
+      .prepare(`SELECT * FROM register_interest WHERE id = ?`)
+      .get(existing.id) as RegisterInterestRow;
+    return { row, created: false };
+  }
+
+  const now = Date.now();
+  const id = newId();
+  // Retry on the (astronomically unlikely) invite_code collision.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const code = newInviteCode();
+    try {
+      db.prepare(
+        `INSERT INTO register_interest
+           (id, tournament_id, email, first_name, country, phone, consent,
+            source_host, source_path, referred_by_code, invite_code,
+            ip_hash, user_agent, ghl_status, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'queued', ?, ?)`,
+      ).run(
+        id,
+        input.tournament_id,
+        input.email,
+        input.first_name,
+        input.country,
+        input.phone,
+        input.consent ? 1 : 0,
+        input.source_host,
+        input.source_path,
+        input.referred_by_code,
+        code,
+        hashIp(input.ip),
+        input.user_agent ? input.user_agent.slice(0, 300) : null,
+        now,
+        now,
+      );
+      const row = db
+        .prepare(`SELECT * FROM register_interest WHERE id = ?`)
+        .get(id) as RegisterInterestRow;
+      return { row, created: true };
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (!msg.includes("UNIQUE") || !msg.includes("invite_code")) throw err;
+    }
+  }
+  throw new Error("register_interest: could not allocate an invite code");
+}
+
+export function markGhl(
+  id: string,
+  status: RegisterInterestRow["ghl_status"],
+  contactId: string | null,
+  error: string | null,
+): void {
+  const db = registerInterestDb();
+  if (!db) return;
+  db.prepare(
+    `UPDATE register_interest
+        SET ghl_status = ?, ghl_contact_id = COALESCE(?, ghl_contact_id),
+            ghl_error = ?, ghl_attempts = ghl_attempts + 1, updated_at = ?
+      WHERE id = ?`,
+  ).run(status, contactId, error ? error.slice(0, 300) : null, Date.now(), id);
+}
+
+/** Does an invite code exist? Used to validate ?ref= before storing it. */
+export function inviteCodeExists(code: string): boolean {
+  const db = registerInterestDb();
+  if (!db) return false;
+  const r = db
+    .prepare(`SELECT 1 FROM register_interest WHERE invite_code = ?`)
+    .get(code);
+  return Boolean(r);
+}
+
+/** Number of verified signups that used this person's code. Own-referral
+ *  progress is the one count the loop is allowed to show (it is the
+ *  person's own number, not a platform total). */
+export function referralCount(code: string): number {
+  const db = registerInterestDb();
+  if (!db) return 0;
+  const r = db
+    .prepare(
+      `SELECT COUNT(*) AS n FROM register_interest WHERE referred_by_code = ?`,
+    )
+    .get(code) as { n: number } | undefined;
+  return r?.n ?? 0;
+}

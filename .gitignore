@@ -132,3 +132,7 @@ apps/web/data/audit/*/snapshot.db.ots
 apps/billion-bot/*.tgz
 apps/billion-bot/data/
 apps/game/data-dev/
+
+# Tim's working briefs for agents (may quote internal metrics). Kept on
+# disk, never committed. Public-safe summaries go in docs/PROGRESS.md.
+docs/briefs/

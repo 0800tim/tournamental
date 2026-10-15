@@ -14,7 +14,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: "Tournamental, Build Log",
     description:
-      "The Tournamental build log: behind-the-scenes engineering and feature show-offs as we ramp toward the 11 June 2026 World Cup kickoff.",
+      "The Tournamental build log: behind-the-scenes engineering and feature show-offs from the FWC 2026 build and the road to Rugby World Cup 2027.",
     site: context.site ?? "https://tournamental.com",
     items: posts.map((post) => ({
       title: post.data.title,

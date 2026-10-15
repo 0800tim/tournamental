@@ -26,6 +26,8 @@
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
+import { useShellMode } from "@/lib/archive/context";
+
 import { AuthChip } from "./AuthChip";
 import { DesktopNav } from "./DesktopNav";
 
@@ -58,6 +60,9 @@ export function AppBar({
 }: AppBarProps) {
   const [scrolled, setScrolled] = useState(false);
   const lastY = useRef(0);
+  const shell = useShellMode();
+  const archive = shell.mode === "archive";
+  const hub = shell.mode === "hub";
 
   useEffect(() => {
     const onScroll = () => {
@@ -97,7 +102,7 @@ export function AppBar({
           />
           <span className="vt-appbar-wordmark vt-wordmark" aria-hidden="true">
             Tournamental<sup className="vt-appbar-wordmark-tm">™</sup>{" "}
-            <span className="vt-appbar-wordmark-sub">FWC2026</span>
+            <span className="vt-appbar-wordmark-sub">{archive ? "FWC 2026 archive" : hub ? "RWC 2027 next" : "FWC2026"}</span>
           </span>
         </Link>
         <h1 className="vt-appbar-title" aria-live="polite">
@@ -126,9 +131,11 @@ export function AppBar({
               * second row on narrow phones (Tim 2026-05-23 screenshot).
               * Moved entirely into AppMenuDrawer; it already renders
               * the variant="drawer" picker there. */}
-            <span className="vt-appbar-auth-mobile" aria-hidden={false}>
-              <AuthChip />
-            </span>
+            {archive || hub ? null : (
+              <span className="vt-appbar-auth-mobile" aria-hidden={false}>
+                <AuthChip />
+              </span>
+            )}
             <button
               type="button"
               className="vt-appbar-action vt-appbar-menu"

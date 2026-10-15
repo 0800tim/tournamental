@@ -24,16 +24,15 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 let renderToPNG, loadDefaultFonts, palette;
+let useFallback = false;
 try {
   ({ renderToPNG, loadDefaultFonts, palette } = await import("@tournamental/social-cards"));
 } catch (err) {
   console.warn(
     `[build-og-cards] @tournamental/social-cards not loadable from node ESM ` +
-      `(needs a TS loader; expected during plain-node CI step). ` +
-      `Skipping OG card generation; pages will fall back to /og-default.png. ` +
-      `Original error: ${err?.message ?? err}`,
+      `(${err?.message ?? err}). Rendering simple cards with the resvg fallback instead.`,
   );
-  process.exit(0);
+  useFallback = true;
 }
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -56,8 +55,8 @@ const MARKETING_OG_PAGES = [
       userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
-      tournamentName: "World Cup 2026",
-      inviteHeadline: "Predict every match. Watch in 3D. Climb the board.",
+      tournamentName: "Rugby World Cup 2027",
+      inviteHeadline: "Predict every match. Run a pool. Climb the board.",
     },
   },
   {
@@ -72,14 +71,25 @@ const MARKETING_OG_PAGES = [
     },
   },
   {
-    slug: "world-cup-2026",
+    slug: "archive",
     kind: "referral-invite",
     data: {
       userHandle: "tournamental",
       userId: "brand",
       bonusTokens: 25,
-      tournamentName: "World Cup 2026",
-      inviteHeadline: "104 matches. One global board. Six weeks.",
+      tournamentName: "Archive tournaments",
+      inviteHeadline: "Every tournament, kept. Read-only, as it finished.",
+    },
+  },
+  {
+    slug: "archive-fwc-2026",
+    kind: "referral-invite",
+    data: {
+      userHandle: "tournamental",
+      userId: "brand",
+      bonusTokens: 25,
+      tournamentName: "FWC 2026 archive",
+      inviteHeadline: "How the 2026 book closed. Spain, in extra time.",
     },
   },
   {
@@ -106,15 +116,13 @@ const MARKETING_OG_PAGES = [
   },
   {
     slug: "leaderboards",
-    kind: "leaderboard-rank",
+    kind: "referral-invite",
     data: {
       userHandle: "tournamental",
       userId: "brand",
-      scope: "global",
-      scopeLabel: "Global",
-      rank: 1,
-      totalEntrants: 412300,
-      weeklyMove: 0,
+      bonusTokens: 25,
+      tournamentName: "Leaderboards",
+      inviteHeadline: "Global, country and pool boards. One ledger.",
     },
   },
   {
@@ -183,8 +191,32 @@ async function fontsAvailable() {
   }
 }
 
+async function renderFallbackCards() {
+  const { cardSvg, renderCardPng, heroArtInner } = await import("./og-fallback.mjs");
+  const art = heroArtInner();
+  console.log(`[build-og-cards] fallback: rendering ${MARKETING_OG_PAGES.length} cards`);
+  for (const page of MARKETING_OG_PAGES) {
+    const d = page.data;
+    const eyebrow = d.tournamentName ?? d.scopeLabel ?? "Tournamental";
+    const headline = d.inviteHeadline ?? "Predict every match. Run a pool. Climb the board.";
+    const png = await renderCardPng(cardSvg({ eyebrow, headline, art: page.slug === "index" ? art : null }));
+    await writeFile(resolve(PUBLIC_OG_DIR, `${page.slug}.png`), png);
+    console.log(`  ✓ ${page.slug}.png  (${png.length} bytes)`);
+  }
+  const defaultPath = resolve(PUBLIC_OG_DIR, "..", "og-default.png");
+  const png = await renderCardPng(
+    cardSvg({ eyebrow: "Tournamental", headline: "We game-ify the tournament.", art }),
+  );
+  await writeFile(defaultPath, png);
+  console.log(`  ✓ og-default.png  (${png.length} bytes)`);
+}
+
 async function main() {
   await mkdir(PUBLIC_OG_DIR, { recursive: true });
+  if (useFallback) {
+    await renderFallbackCards();
+    return;
+  }
 
   const fontsCheck = await fontsAvailable();
   if (fontsCheck !== true) {

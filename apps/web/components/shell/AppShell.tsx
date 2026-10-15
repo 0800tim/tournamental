@@ -29,6 +29,8 @@
 import { useTranslations } from "next-intl";
 import { useEffect, useState, type ReactNode } from "react";
 
+import { useShellMode } from "@/lib/archive/context";
+
 import { AppBar, type AppBarAction } from "./AppBar";
 import { AppMenuDrawer } from "./AppMenuDrawer";
 import { BottomNav, type BottomNavTab } from "./BottomNav";
@@ -75,6 +77,9 @@ export function AppShell({
   embed = false,
 }: AppShellProps) {
   const t = useTranslations();
+  const shell = useShellMode();
+  const archive = shell.mode === "archive";
+  const hub = shell.mode === "hub";
   const [menuOpen, setMenuOpen] = useState(false);
   const [autoSubNav, setAutoSubNav] = useState<ReactNode>(null);
 
@@ -116,8 +121,23 @@ export function AppShell({
         rightAction={rightAction}
         onMenuClick={() => setMenuOpen((o) => !o)}
         menuOpen={menuOpen}
-        hideDesktopNav={variant === "canvas"}
+        hideDesktopNav={variant === "canvas" || hub}
       />
+      {archive ? (
+        <div className="vt-archive-banner" role="note">
+          <span className="vt-archive-banner-tag">Archived</span>
+          <span>
+            {shell.name ?? "This tournament"} finished
+            {shell.endsUtc
+              ? ` on ${new Date(shell.endsUtc).toLocaleDateString("en-NZ", { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" })}`
+              : ""}
+            . This is the read-only record.
+          </span>
+          <a className="vt-archive-banner-link" href="https://play.tournamental.com/">
+            What&apos;s next →
+          </a>
+        </div>
+      ) : null}
       {resolvedSubHeader ? (
         <div className="vt-page-header">{resolvedSubHeader}</div>
       ) : null}
@@ -127,6 +147,12 @@ export function AppShell({
          * use only; we surface the disclaimer site-wide so it sits on
          * every page that mentions the FIFA World Cup. */}
         <footer className="vt-shell-disclaimer" role="contentinfo">
+          {archive ? (
+            <p>
+              This tournament has finished. Picks, pools and sign-in are closed; the record is kept read-only.{" "}
+              <a href="https://play.tournamental.com/">See what&apos;s next on Tournamental</a>.
+            </p>
+          ) : null}
           <p>{shellSafeT(t, "footer.fifa_disclaimer", "Tournamental is independent and not affiliated with FIFA, the FIFA World Cup, or any of its sponsors. FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association.")}</p>
           <p className="vt-shell-disclaimer-links">
             <a href="/languages">{shellSafeT(t, "footer.languages", "Languages")}</a>

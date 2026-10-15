@@ -268,6 +268,7 @@ export async function GET(req: NextRequest): Promise<Response> {
   try {
     const syndicate = await loadSyndicateBySlug(slug);
     args = syndicate ? fromStore(syndicate, size) : fromQuery(req, slug, size);
+    if (req.headers.get("x-tnm-archive")) args = { ...args, memberCount: -1 };
   } catch {
     args = fromQuery(req, slug, size);
   }
@@ -493,8 +494,8 @@ async function renderPNG(args: RenderArgs): Promise<Buffer> {
                   },
                   children: [
                     renderStatCell({
-                      num: formatCount(args.memberCount),
-                      label: memberLabel,
+                      num: args.memberCount < 0 ? "FINAL" : formatCount(args.memberCount),
+                      label: args.memberCount < 0 ? "ARCHIVED" : memberLabel,
                       statNumFont,
                       statLabelFont,
                     }),

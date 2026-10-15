@@ -85,7 +85,7 @@ export function BracketPosterCallout(props: BracketPosterCalloutProps) {
             Here's @0800tim's poster as an example. Open full size →
           </span>
         </a>
-        <a className="vt-share-poster-cta vt-share-poster-cta--secondary" href="/world-cup-2026">
+        <a className="vt-share-poster-cta vt-share-poster-cta--secondary vt-archive-hide" href="/world-cup-2026">
           Complete my bracket →
         </a>
       </section>

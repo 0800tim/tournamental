@@ -22,6 +22,8 @@
 
 import { useEffect, useState } from "react";
 
+import { useArchive } from "@/lib/archive/context";
+
 interface MatchRow {
   match_no: string;
   kickoff_utc: string;
@@ -89,6 +91,7 @@ export function PicksGrid({
   pollIntervalMs,
   fullBleed,
 }: PicksGridProps): JSX.Element {
+  const archive = useArchive();
   const [state, setState] = useState<
     | { kind: "loading" }
     | { kind: "error"; message: string }
@@ -197,10 +200,9 @@ export function PicksGrid({
       <header className="vt-picks-grid-header">
         <h2 className="vt-picks-grid-title">Picks grid</h2>
         <p className="vt-picks-grid-lede">
-          {members.length} {members.length === 1 ? "member" : "members"} ·{" "}
-          {matches.length} resulted{" "}
-          {matches.length === 1 ? "match" : "matches"}. Sorted by current
-          winning streak. Scroll sideways to see every match.
+          {archive
+            ? "Every member, every resulted match. Sorted by final winning streak. Scroll sideways to see every match."
+            : `${members.length} ${members.length === 1 ? "member" : "members"} · ${matches.length} resulted ${matches.length === 1 ? "match" : "matches"}. Sorted by current winning streak. Scroll sideways to see every match.`}
         </p>
       </header>
       <div

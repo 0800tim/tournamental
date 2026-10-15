@@ -382,11 +382,10 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
   }
 
   function leaderboardPaneMarkup(config) {
-    var members = config.member_count || 0;
     var landingUrl = config.public_landing_url || "https://play.tournamental.com/s/" + encodeURIComponent(config.slug);
     return '<div class="tnm-empty">' +
-      '<h3>Leaderboard activates at kickoff</h3>' +
-      '<p>' + members + ' ' + (members === 1 ? "member has" : "members have") + ' joined so far. Points unlock when the first match starts on 11 June 2026.</p>' +
+      '<h3>Leaderboard</h3>' +
+      '<p>Standings settle as results land. Open the full leaderboard for every member.</p>' +
       '<a class="tnm-cta tnm-cta--ghost" href="' + escapeHtml(landingUrl) + '" target="_blank" rel="noopener noreferrer">Open full leaderboard →</a>' +
       '</div>';
   }
@@ -404,7 +403,6 @@ function widgetSource(apiOrigin: string, authOrigin: string): string {
     var sponsor = config.sponsor;
 
     var html = '<div class="tnm-stat-row">' +
-      '<div class="tnm-stat"><div class="tnm-stat-label">Members</div><div class="tnm-stat-value">' + members + '</div></div>' +
       '<div class="tnm-stat"><div class="tnm-stat-label">Entry</div><div class="tnm-stat-value">' +
         (feeCents > 0 ? escapeHtml(formatMoney(feeCents, feeCurrency)) : "Free") +
       '</div></div>';

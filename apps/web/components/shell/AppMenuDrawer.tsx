@@ -25,6 +25,7 @@ import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
 import { useCallback, useEffect, useMemo, type ReactNode } from "react";
 
+import { useShellMode } from "@/lib/archive/context";
 import { useUser } from "@/lib/auth/useUser";
 
 import { InstallPrompt } from "./InstallPrompt";
@@ -34,8 +35,18 @@ import "./locale-picker.css";
 import {
   DRAWER_PRIMARY,
   DRAWER_SECONDARY,
+  forArchive,
   type NavLink as DrawerLink,
 } from "./nav-links";
+
+/** Hub mode (play host, no active tournament): a short list. */
+const HUB_DRAWER_LINKS: readonly DrawerLink[] = [
+  { label: "What's next", i18nKey: "nav.whats_next", href: "/", icon: <span aria-hidden>🏉</span>, matchPrefix: "__never__" },
+  { label: "Register interest", i18nKey: "nav.register_interest", href: "/#register", icon: <span aria-hidden>✉️</span>, matchPrefix: "__never__" },
+];
+const HUB_ARCHIVE_LINKS: readonly DrawerLink[] = [
+  { label: "FWC 2026 archive", i18nKey: "nav.fwc2026_archive", href: "https://fwc2026.tournamental.com/", icon: <span aria-hidden>🏆</span>, external: true },
+];
 
 export interface AppMenuDrawerProps {
   readonly open: boolean;
@@ -48,10 +59,13 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
   // visible label flips.
   const { status } = useUser();
   const t = useTranslations();
+  const shell = useShellMode();
+  const archive = shell.mode === "archive";
+  const hub = shell.mode === "hub";
   const isAuthed = status === "authenticated";
   const primaryLinks = useMemo<readonly DrawerLink[]>(
     () =>
-      DRAWER_PRIMARY.map((l) =>
+      forArchive(DRAWER_PRIMARY, archive).map((l) =>
         l.href === "/profile"
           ? {
               ...l,
@@ -60,7 +74,7 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
             }
           : l,
       ),
-    [isAuthed],
+    [isAuthed, archive],
   );
 
   const handleEsc = useCallback(
@@ -128,12 +142,23 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
          * already in standalone mode or the user dismissed within the
          * last 30 days, so a returning installed visitor doesn't see
          * a now-pointless prompt. */}
-        <InstallPrompt />
+        {archive || hub ? null : <InstallPrompt />}
         <div className="vt-drawer-locale-row">
           <LocalePicker variant="drawer" />
         </div>
-        <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;</div>
-        <DrawerLinks links={primaryLinks} onClick={onClose} />
+        {hub ? (
+          <>
+            <div className="vt-drawer-section-label">Rugby World Cup 2027 &#8482;</div>
+            <DrawerLinks links={HUB_DRAWER_LINKS} onClick={onClose} />
+            <div className="vt-drawer-section-label">Archive</div>
+            <DrawerLinks links={HUB_ARCHIVE_LINKS} onClick={onClose} />
+          </>
+        ) : (
+          <>
+            <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;{archive ? " · Archive" : ""}</div>
+            <DrawerLinks links={primaryLinks} onClick={onClose} />
+          </>
+        )}
         <div className="vt-drawer-section-label">{safeT(t, "nav.section_brand", "Tournamental")}</div>
         <DrawerLinks links={DRAWER_SECONDARY} onClick={onClose} />
       </aside>

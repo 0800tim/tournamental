@@ -28,7 +28,8 @@ Through the dev tunnel: `https://tournamental.com`.
 | `/syndicates`       | For hosts: office sweepstakes, friend pools, fan clubs.               |
 | `/influencers`      | For creators and partner program.                                     |
 | `/leaderboards`     | Global / country / tournament / syndicate scopes.                     |
-| `/world-cup-2026`   | Playbook for the 2026 World Cup tournament.                           |
+| `/archive`          | Index of archived tournaments (read-only apps on their own hosts).    |
+| `/archive/fwc-2026` | Retrospective for FWC 2026 (links to fwc2026.tournamental.com).       |
 | `/open-source`      | Apache 2.0 + CC-BY 4.0 + Drips Network revenue share.                 |
 | `/contribute`       | How to ship code, docs, designs, integrations. Drips opt-in.          |
 | `/start`            | Pick a path: player / host / developer. Onboarding prompt library.    |

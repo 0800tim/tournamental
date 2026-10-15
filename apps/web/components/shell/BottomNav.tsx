@@ -18,6 +18,7 @@
  * context isn't available.
  */
 
+import { useArchive } from "@/lib/archive/context";
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -107,11 +108,21 @@ export const DEFAULT_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
   },
 ];
 
+/** Archive-mode dock: Home (archive summary), Bracket, Results, Standings. */
+export const ARCHIVE_BOTTOM_NAV_TABS: readonly BottomNavTab[] = [
+  { label: "Home", i18nKey: "nav.home", href: "/", icon: <HomeIcon /> },
+  { label: "Bracket", href: "/world-cup-2026", icon: <PredictIcon />, matchPrefix: "/world-cup-2026" },
+  { label: "Results", href: "/world-cup-2026/calendar", icon: <CalendarIcon />, matchPrefix: "/world-cup-2026/calendar" },
+  { label: "Standings", href: "/#standings", icon: <BarChartIcon />, matchPrefix: "__never__" },
+];
+
 export function BottomNav({
-  tabs = DEFAULT_BOTTOM_NAV_TABS,
+  tabs: tabsProp = DEFAULT_BOTTOM_NAV_TABS,
   autoHide = true,
   onMenuClick,
 }: BottomNavProps) {
+  const archive = useArchive();
+  const tabs = archive ? ARCHIVE_BOTTOM_NAV_TABS : tabsProp;
   const t = useTranslations();
   const [pathname, setPathname] = useState<string>("/");
   const [hidden, setHidden] = useState(false);

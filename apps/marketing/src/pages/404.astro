@@ -1,0 +1,24 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import EditorialPageHeader from "@/components/EditorialPageHeader.astro";
+---
+<Layout title="Page not found, Tournamental" description="That page is not here. Try the home page, the archive, or register for Rugby World Cup 2027.">
+  <section class="vt-editorial">
+    <div class="container-page pb-16 md:pb-24">
+      <EditorialPageHeader
+        dateline="404 · Not found"
+        title=""
+        lede="That page is not here. It may have moved when a tournament closed, or the link was never right."
+      >
+        <Fragment slot="title">
+          Off the <em>board</em>.
+        </Fragment>
+      </EditorialPageHeader>
+      <div class="flex flex-wrap items-center gap-x-8 gap-y-4 mt-8">
+        <a class="vt-cta-primary" href="/">Home <span aria-hidden="true">&rarr;</span></a>
+        <a class="vt-cta-text" href="/archive">Archive tournaments</a>
+        <a class="vt-cta-text" href="https://play.tournamental.com/#register">Register for RWC 2027</a>
+      </div>
+    </div>
+  </section>
+</Layout>

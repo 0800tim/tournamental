@@ -17,6 +17,7 @@ import { loadFixtures2026 } from "@tournamental/bracket-engine";
 import { AppShell } from "@/components/shell";
 import { BracketOverlayShell } from "@/components/overlay/BracketOverlayShell";
 import { OverlayServerShim } from "@/components/overlay/OverlayServerShim";
+import { isArchiveRequest } from "@/lib/archive/server";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 
@@ -46,6 +47,7 @@ export default async function CalendarPage(props: CalendarPageProps) {
     canonicalTeamsRaw as CanonicalTeamsFile,
   );
   const rows = buildCalendarRows(tournament);
+  const archived = await isArchiveRequest();
 
   return (
     <AppShell title="Match Calendar" suppressMicrositeNav>
@@ -55,11 +57,9 @@ export default async function CalendarPage(props: CalendarPageProps) {
             <p className="vt-calendar-eyebrow">FIFA World Cup 2026</p>
             <h1 className="vt-calendar-title">Match calendar</h1>
             <p className="vt-calendar-lede">
-              All 104 matches in order, from Match #1 (Mexico vs South
-              Africa opener) to the final on 19 July. Group stages show
-              the confirmed teams; knockouts show TBD vs TBD until each
-              preceding stage closes, and the next stage matches are
-              known.
+              {archived
+                ? "All 104 matches in order with the final scores, from Match #1 (Mexico vs South Africa) to the final on 19 July 2026. Read-only."
+                : "All 104 matches in order, from Match #1 (Mexico vs South Africa opener) to the final on 19 July. Group stages show the confirmed teams; knockouts show TBD vs TBD until each preceding stage closes, and the next stage matches are known."}
             </p>
           </header>
           <CalendarPicksProvider tournament={tournament}>
