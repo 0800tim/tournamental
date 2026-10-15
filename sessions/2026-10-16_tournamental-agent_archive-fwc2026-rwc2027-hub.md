@@ -1,6 +1,6 @@
 # 2026-10-16 · Tournamental agent · FWC 2026 archive, play hub, platform marketing, RWC 2027 plan
 
-status: in-progress
+status: done (PR open; Tim to review copy and art)
 branch: feat/archive-fwc2026-rwc2027-hub
 brief: docs/briefs/2026-10-15-archive-fwc2026-and-rwc2027-index.md (on disk, not in git)
 plan: docs/briefs/2026-10-15-plan-archive-hub-marketing.md (on disk, not in git)
@@ -42,7 +42,26 @@ plan: docs/briefs/2026-10-15-plan-archive-hub-marketing.md (on disk, not in git)
   (build-og-cards.mjs cannot import the TS social-cards package under
   plain node). Left as a follow-up; the RWC 2027 card is a static PNG.
 
-## Done so far
+## Outcome
+
+Live and verified on the real hostnames (screenshots in docs/briefs/
+screenshots/, on disk):
+
+- https://fwc2026.tournamental.com/ archive home (podium, percentages,
+  final standings as ranks, knockout results); /world-cup-2026 shows the
+  official results bracket; /world-cup-2026/calendar all 104 results;
+  pool pages read-only; profile, pools, leaderboard, join and every
+  mutating call are closed (302 home / 403).
+- https://play.tournamental.com/ hub: RWC 2027 hero, countdown,
+  register interest (tested with Tim's address: SQLite row + HighLevel
+  synced), FWC 2026 archive card, trimmed chrome. Any other path 302s
+  to the archive; /i/<code> lands on the hub with ?ref=.
+- https://tournamental.com/ platform-first, Archive Tournaments menu,
+  /archive, /archive/fwc-2026, 404 page, OG cards now render.
+- Root layout is force-dynamic so prerendered pages (bot-arena,
+  players, ...) also pick up the host mode.
+
+## Done
 
 - DNS CNAME fwc2026.tournamental.com -> tournamental tunnel; ingress
   added to ~/.cloudflared/config-tournamental.yml; tunnel restarted.

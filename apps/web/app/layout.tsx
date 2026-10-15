@@ -18,6 +18,13 @@ import { ARCHIVE_HEADER, HUB_HEADER } from "@/lib/archive/server";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
 import { tournamentBySlug } from "@/lib/tournaments/registry";
 
+// Host modes (2026-10-16): the shell reads request headers to decide
+// live / hub / archive. Statically prerendered routes (bot-arena,
+// players, opening-ceremonies, ...) would bake the live shell into
+// HTML served on the archive host, so every route renders per request.
+// Low traffic on archive hosts; the edge still caches static assets.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   // Anchor every page's relative og:image / canonical URL to the
   // public origin instead of letting Next default to

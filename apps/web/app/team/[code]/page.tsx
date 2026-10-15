@@ -54,7 +54,10 @@ import {
 } from "./_lib/team-data";
 import "./team-detail.css";
 
-export const dynamic = "force-static";
+// Was "force-static". Host modes (2026-10-16) need request headers at
+// render time so the archive host gets the read-only shell; the root
+// layout is force-dynamic and a page-level force-static would override it.
+export const dynamic = "force-dynamic";
 
 // Pre-render every team's page at build. Falls back to dynamic for unknown
 // codes, which then 404 via `notFound()`.

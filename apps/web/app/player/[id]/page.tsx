@@ -51,7 +51,10 @@ const TEAMS_BY_CODE: ReadonlyMap<string, CanonicalTeam> = (() => {
   return m;
 })();
 
-export const dynamic = "force-static";
+// Was "force-static". Host modes (2026-10-16) need request headers at
+// render time so the archive host gets the read-only shell; the root
+// layout is force-dynamic and a page-level force-static would override it.
+export const dynamic = "force-dynamic";
 
 /** Pre-render every player page at build time. */
 export function generateStaticParams() {

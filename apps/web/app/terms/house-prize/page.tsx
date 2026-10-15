@@ -16,7 +16,10 @@ import { AppShell } from "@/components/shell";
 
 import "./house-prize.css";
 
-export const dynamic = "force-static";
+// Was "force-static". Host modes (2026-10-16) need request headers at
+// render time so the archive host gets the read-only shell; the root
+// layout is force-dynamic and a page-level force-static would override it.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "House Prize · Terms and Conditions · Tournamental",

@@ -1103,8 +1103,8 @@ function NotFoundView({ attempted }: { attempted: string }) {
       </div>
       <h1 className="vt-share-404-title">Share link not found</h1>
       <p className="vt-share-404-body">
-        We couldn&apos;t find that prediction or syndicate. Pick a fresh
-        bracket instead, kick-off is closer than you think.
+        We couldn&apos;t find that prediction or pool. Check the link, or
+        start from the home page.
       </p>
       <a className="vt-share-cta vt-archive-hide" data-variant="primary" href="/world-cup-2026">
         Make a fresh bracket
