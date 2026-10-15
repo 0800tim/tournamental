@@ -1,5 +1,7 @@
 # CLAUDE.md — Orchestrator and Agent Entrypoint
 
+> **The Hivemind**: this server's long-term memory vault lives at /srv/projects/hivemind (read its _CLAUDE.md). Log substantial sessions and decisions there automatically; load projects/tournamental/ notes early.
+
 > **You are a code agent dropped into the Tournamental repo.** Read this first. It tells you what the project is in 30 seconds, what to build right now, what tools to use, how to coordinate with other agents, and how to leave the repo cleaner than you found it.
 
 ## What this is, in 30 seconds
