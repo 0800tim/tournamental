@@ -23,7 +23,7 @@
 
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useTranslations } from "next-intl";
-import { useCallback, useEffect, useMemo, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { useShellMode } from "@/lib/archive/context";
 import { useUser } from "@/lib/auth/useUser";
@@ -84,30 +84,55 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
     [onClose],
   );
 
+  const panelRef = useRef<HTMLElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
     if (!open) return undefined;
     document.addEventListener("keydown", handleEsc);
     // Lock body scroll while the drawer is open.
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    // Focus management (2026-10-17): remember what opened the drawer,
+    // move focus to the close button, keep Tab inside the panel while
+    // it is open, and give focus back on close.
+    const opener = document.activeElement as HTMLElement | null;
+    closeRef.current?.focus();
+    const trap = (e: KeyboardEvent) => {
+      if (e.key !== "Tab" || !panelRef.current) return;
+      const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      );
+      if (focusables.length === 0) return;
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", trap);
     return () => {
       document.removeEventListener("keydown", handleEsc);
+      document.removeEventListener("keydown", trap);
       document.body.style.overflow = prev;
+      if (opener && typeof opener.focus === "function" && document.contains(opener)) opener.focus();
     };
   }, [open, handleEsc]);
 
   if (!open) return null;
 
   return (
-    <div
-      className="vt-drawer-backdrop"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label="Menu"
-    >
+    <div className="vt-drawer-backdrop" onClick={onClose}>
       <aside
+        ref={panelRef}
         className="vt-drawer"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
         onClick={(e) => e.stopPropagation()}
       >
         <header className="vt-drawer-header">
@@ -129,6 +154,7 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
             </span>
           </span>
           <button
+            ref={closeRef}
             type="button"
             className="vt-drawer-close"
             aria-label="Close menu"
@@ -191,6 +217,7 @@ function DrawerLinks({
               >
                 {link.icon}
                 <span>{label}</span>
+                <span className="vt-sr-only"> (opens in a new tab)</span>
                 <span className="vt-drawer-external-icon" aria-hidden="true">↗</span>
               </a>
             ) : (

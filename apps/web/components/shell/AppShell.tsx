@@ -179,6 +179,7 @@ export function AppShell({
         <BottomNav
           tabs={bottomNavTabs}
           onMenuClick={() => setMenuOpen(true)}
+          menuOpen={menuOpen}
         />
       ) : null}
       <AppMenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
