@@ -63,6 +63,8 @@ export interface BottomNavTab {
 }
 
 export interface BottomNavProps {
+  /** Whether the menu drawer this button opens is currently open (aria-expanded). */
+  readonly menuOpen?: boolean;
   readonly tabs?: readonly BottomNavTab[];
   /** Hide on scroll-down auto-hide. Defaults to true. */
   readonly autoHide?: boolean;
@@ -120,6 +122,7 @@ export function BottomNav({
   tabs: tabsProp = DEFAULT_BOTTOM_NAV_TABS,
   autoHide = true,
   onMenuClick,
+  menuOpen,
 }: BottomNavProps) {
   const archive = useArchive();
   const tabs = archive ? ARCHIVE_BOTTOM_NAV_TABS : tabsProp;
@@ -207,6 +210,7 @@ export function BottomNav({
           }}
           aria-label={safeT(t, "nav.open_menu", "Open menu")}
           aria-haspopup="dialog"
+          aria-expanded={menuOpen ? "true" : "false"}
         >
           <span className="vt-bottomnav-icon"><MenuIcon /></span>
           <span>{safeT(t, "nav.menu", "Menu")}</span>
