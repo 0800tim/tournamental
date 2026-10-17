@@ -101,6 +101,23 @@ export function loadFinalStandings(
   }
 }
 
+/**
+ * Knockout stages as the archive home lists them: final first, back to
+ * the round of 32. Shared with the page so the list and the loader
+ * cannot drift apart again (the round of 32 was missing until
+ * 2026-10-17 because the page's order started at r16).
+ */
+export const KNOCKOUT_STAGE_ORDER: readonly string[] = ["f", "tp", "sf", "qf", "r16", "r32"];
+
+export const KNOCKOUT_STAGE_LABEL: Record<string, string> = {
+  r32: "Round of 32",
+  r16: "Round of 16",
+  qf: "Quarter-finals",
+  sf: "Semi-finals",
+  tp: "Third place",
+  f: "Final",
+};
+
 export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
   const p = gameDbPath();
   if (!existsSync(p)) return [];
@@ -111,8 +128,8 @@ export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
       .prepare(
         `SELECT match_id, outcome FROM match_results
           WHERE tournament_id = ?
-            AND (match_id LIKE 'r16%' OR match_id LIKE 'qf%' OR match_id LIKE 'sf%'
-                 OR match_id LIKE 'tp%' OR match_id = 'final')
+            AND (match_id LIKE 'r32%' OR match_id LIKE 'r16%' OR match_id LIKE 'qf%'
+                 OR match_id LIKE 'sf%' OR match_id LIKE 'tp%' OR match_id = 'final')
           ORDER BY recorded_at ASC`,
       )
       .all(tournamentId) as Array<{ match_id: string; outcome: string }>;
