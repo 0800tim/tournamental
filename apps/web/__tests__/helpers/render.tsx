@@ -26,10 +26,14 @@ import {
   type RenderOptions,
   type RenderResult,
 } from "@testing-library/react";
-import { NextIntlClientProvider } from "next-intl";
+import { NextIntlClientProvider, type AbstractIntlMessages } from "next-intl";
 import type { ComponentType, ReactElement, ReactNode } from "react";
 
-import messages from "@/locales/en.json";
+import en from "@/locales/en.json";
+
+// The catalogue carries a `_meta` block with numbers, which the strict
+// message type rejects; next-intl ignores unknown keys at runtime.
+const messages = en as unknown as AbstractIntlMessages;
 
 export * from "@testing-library/react";
 
