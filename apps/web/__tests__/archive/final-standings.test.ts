@@ -10,7 +10,12 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import Database from "better-sqlite3";
 
-import { loadFinalStandings, loadKnockoutResults } from "@/lib/archive/final-standings";
+import {
+  KNOCKOUT_STAGE_LABEL,
+  KNOCKOUT_STAGE_ORDER,
+  loadFinalStandings,
+  loadKnockoutResults,
+} from "@/lib/archive/final-standings";
 
 const T = "fifa-wc-2026";
 let dir: string;
@@ -209,12 +214,26 @@ describe("loadKnockoutResults", () => {
     expect(rows[3]!.stage).toBe("tp");
   });
 
-  it("leaves out group matches and the round of 32", () => {
+  it("includes the round of 32 and leaves out group matches", () => {
     result("1", { outcome: "home_win", homeScore: 2, awayScore: 0 }, 100);
     result("72", { outcome: "draw", homeScore: 1, awayScore: 1 }, 200);
     result("r32_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "ESP" }, 300);
     result("r16_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "ESP" }, 400);
-    expect(loadKnockoutResults(T).map((r) => r.matchId)).toEqual(["r16_01"]);
+    const rows = loadKnockoutResults(T);
+    expect(rows.map((r) => r.matchId)).toEqual(["r32_01", "r16_01"]);
+    expect(rows[0]!.stage).toBe("r32");
+  });
+
+  it("returns all 16 round-of-32 results, each under a stage the home page lists", () => {
+    for (let i = 1; i <= 16; i++) {
+      const id = `r32_${String(i).padStart(2, "0")}`;
+      result(id, { outcome: "home_win", homeScore: 2, awayScore: 1, winner: `T${i}` }, 1_000 + i);
+    }
+    const rows = loadKnockoutResults(T);
+    expect(rows).toHaveLength(16);
+    expect(new Set(rows.map((r) => r.stage))).toEqual(new Set(["r32"]));
+    expect(rows.map((r) => r.matchId)[15]).toBe("r32_16");
+    for (const r of rows) expect(KNOCKOUT_STAGE_ORDER).toContain(r.stage);
   });
 
   it("tolerates malformed JSON and missing fields", () => {
@@ -228,5 +247,29 @@ describe("loadKnockoutResults", () => {
   it("only reads the requested tournament", () => {
     result("final", { outcome: "home_win", winner: "NZL" }, 100, "rwc-2027");
     expect(loadKnockoutResults(T)).toEqual([]);
+  });
+});
+
+describe("knockout stage order and labels", () => {
+  it("lists the final first and the round of 32 last", () => {
+    expect(KNOCKOUT_STAGE_ORDER[0]).toBe("f");
+    expect(KNOCKOUT_STAGE_ORDER[KNOCKOUT_STAGE_ORDER.length - 1]).toBe("r32");
+    expect(KNOCKOUT_STAGE_ORDER).toEqual(["f", "tp", "sf", "qf", "r16", "r32"]);
+  });
+
+  it("has a human label for every listed stage", () => {
+    for (const s of KNOCKOUT_STAGE_ORDER) expect(KNOCKOUT_STAGE_LABEL[s]).toBeTruthy();
+    expect(KNOCKOUT_STAGE_LABEL.r32).toBe("Round of 32");
+  });
+
+  it("covers every stage the loader can produce from the fixture ids", () => {
+    result("r32_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 100);
+    result("r16_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 200);
+    result("qf_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 300);
+    result("sf_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 400);
+    result("tp", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 500);
+    result("final", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A", stage: "f" }, 600);
+    const stages = new Set(loadKnockoutResults(T).map((r) => r.stage));
+    for (const s of stages) expect(KNOCKOUT_STAGE_ORDER).toContain(s);
   });
 });
