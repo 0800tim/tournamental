@@ -74,6 +74,9 @@ apps/*/dist-failed/
 apps/*/.deploy/rollback.json
 apps/*/.env.staging
 apps/*/.env.production
+# Hand-made backups of env files (never commit; review 2026-10-17)
+.env.bak*
+.env.*.bak*
 .deploy/incident.flag
 
 # Deploy timings JSONL is host-local; not committed.
