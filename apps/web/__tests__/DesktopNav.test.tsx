@@ -14,7 +14,7 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "./helpers/render";
 
 import {
   DRAWER_PRIMARY,
@@ -56,14 +56,14 @@ describe("nav-links / isLinkActive", () => {
     expect(isLinkActive(link, "/world-cup-2026#final")).toBe(false);
   });
 
-  it("matches /world-cup-2026 for Predict", () => {
-    const predict = PRIMARY_DESKTOP.find((l) => l.label === "Predict")!;
+  it("matches /world-cup-2026 for Play (Predict)", () => {
+    const predict = PRIMARY_DESKTOP.find((l) => l.label === "Play (Predict)")!;
     expect(isLinkActive(predict, "/world-cup-2026")).toBe(true);
     expect(isLinkActive(predict, "/world-cup-2026/groups")).toBe(true);
   });
 
-  it("matches /world-cup-2026/molecule for 3D Molecule", () => {
-    const mol = PRIMARY_DESKTOP.find((l) => l.label === "3D Molecule")!;
+  it("matches /world-cup-2026/molecule for Molecule", () => {
+    const mol = PRIMARY_DESKTOP.find((l) => l.label === "Molecule")!;
     expect(isLinkActive(mol, "/world-cup-2026/molecule")).toBe(true);
   });
 
@@ -75,14 +75,14 @@ describe("nav-links / isLinkActive", () => {
 
 describe("pickActiveLink", () => {
   it("prefers the longest prefix when two links share a route family", () => {
-    // /world-cup-2026/molecule should pick "3D Molecule" over "Predict".
+    // /world-cup-2026/molecule should pick "Molecule" over "Play (Predict)".
     const active = pickActiveLink(PRIMARY_DESKTOP, "/world-cup-2026/molecule");
-    expect(active?.label).toBe("3D Molecule");
+    expect(active?.label).toBe("Molecule");
   });
 
-  it("falls back to Predict on /world-cup-2026 root", () => {
+  it("falls back to Play (Predict) on /world-cup-2026 root", () => {
     const active = pickActiveLink(PRIMARY_DESKTOP, "/world-cup-2026");
-    expect(active?.label).toBe("Predict");
+    expect(active?.label).toBe("Play (Predict)");
   });
 
   it("returns null when nothing matches", () => {
@@ -95,9 +95,11 @@ describe("pickActiveLink", () => {
     expect(active?.label).toBe("Leaderboard");
   });
 
-  it("returns Syndicates from MORE_DESKTOP when matched there", () => {
-    const active = pickActiveLink(MORE_DESKTOP, "/syndicates/123");
-    expect(active?.label).toBe("Syndicates");
+  it("returns Bot Arena from MORE_DESKTOP when matched there", () => {
+    // Pools (formerly Syndicates) moved to PRIMARY_DESKTOP on 2026-05-22,
+    // so Bot Arena is now the representative More-menu route.
+    const active = pickActiveLink(MORE_DESKTOP, "/bot-arena/123");
+    expect(active?.label).toBe("Bot Arena");
   });
 });
 
@@ -123,8 +125,8 @@ describe("<DesktopNav />", () => {
   it("emits data-active=1 on 3D Molecule when pathname is /world-cup-2026/molecule", () => {
     setMockPath("/world-cup-2026/molecule");
     render(<DesktopNav />);
-    const mol = screen.getByText("3D Molecule").closest("a");
-    const predict = screen.getByText("Predict").closest("a");
+    const mol = screen.getByText("Molecule").closest("a");
+    const predict = screen.getByText("Play (Predict)").closest("a");
     expect(mol?.getAttribute("data-active")).toBe("1");
     expect(predict?.getAttribute("data-active")).toBe("0");
   });
@@ -132,15 +134,16 @@ describe("<DesktopNav />", () => {
   it("emits data-active=1 on Predict when pathname is /world-cup-2026 (root)", () => {
     setMockPath("/world-cup-2026");
     render(<DesktopNav />);
-    const predict = screen.getByText("Predict").closest("a");
+    const predict = screen.getByText("Play (Predict)").closest("a");
     expect(predict?.getAttribute("data-active")).toBe("1");
   });
 
   it("renders the Sign in chip by default when Supabase is unconfigured", () => {
     render(<DesktopNav />);
     // useUser short-circuits to "unconfigured" -> "Sign in" pill.
-    const signin = screen.getByRole("link", { name: /^sign in$/i });
+    const signin = screen.getByLabelText(/sign in or sign up/i);
     expect(signin).toBeTruthy();
-    expect(signin.getAttribute("href")).toBe("/profile");
+    // The chip opens the SignupModal in place instead of linking to /profile.
+    expect(signin.tagName).toBe("BUTTON");
   });
 });

@@ -16,7 +16,8 @@
 
 import React from "react";
 import { describe, expect, it, beforeEach, afterAll } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
@@ -33,20 +34,25 @@ beforeEach(() => {
 });
 
 const ROUND_TABS = [
-  { name: /^Groups/, label: "Groups" },
-  // FIFA 2026: a "Top 8 3rds" stage sits between Groups and R32 so the
-  // user can consciously select the 8 best 3rd-placed teams (cascade
-  // engine then routes them via FIFA Annex C).
-  { name: /^Top 8 3rds/, label: "Top 8 3rds" },
-  { name: /^R32/, label: "R32" },
-  { name: /^R16/, label: "R16" },
-  { name: /^QF/, label: "QF" },
-  { name: /^SF/, label: "SF + 3rd" },
+  // Labels come from locales/en.json `stage.*`. The "Top 8 3rds" tab
+  // was removed from the flow on 2026-06-26 (best thirds are resolved
+  // by the cascade engine), so the strip has six tabs.
+  { name: /^Group stage/, label: "Group stage" },
+  { name: /^Round of 32/, label: "Round of 32" },
+  { name: /^Round of 16/, label: "Round of 16" },
+  { name: /^Quarter-final/, label: "Quarter-final" },
+  { name: /^Semi-final/, label: "Semi-final" },
   { name: /^Final/, label: "Final" },
 ];
 
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
+
+// Auto-pick was retired on 2026-06-28 (commit 7be699bb), so the cases that
+// exercised its CTA, modal and sticky pill were removed from this file.
 describe("<BracketBuilder>, round tabs", () => {
-  it("renders all seven round tabs", () => {
+  it("renders all six round tabs", () => {
     render(<BracketBuilder tournament={tournament} />);
     for (const t of ROUND_TABS) {
       expect(screen.getByRole("tab", { name: t.name })).toBeTruthy();
@@ -55,17 +61,17 @@ describe("<BracketBuilder>, round tabs", () => {
 
   it("defaults to the Groups tab and shows the 12 group cards", () => {
     render(<BracketBuilder tournament={tournament} />);
-    const groupsTab = screen.getByRole("tab", { name: /^Groups/ });
+    const groupsTab = screen.getByRole("tab", { name: /^Group stage/ });
     expect(groupsTab.getAttribute("aria-selected")).toBe("true");
     expect(screen.getAllByText(/Group [A-L]/).length).toBeGreaterThanOrEqual(12);
   });
 
   it("switching to R32 marks only that tab as aria-selected and shows R32 cards", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /^R32/ }));
-    const r32 = screen.getByRole("tab", { name: /^R32/ });
+    fireEvent.click(screen.getByRole("tab", { name: /^Round of 32/ }));
+    const r32 = screen.getByRole("tab", { name: /^Round of 32/ });
     expect(r32.getAttribute("aria-selected")).toBe("true");
-    const groups = screen.getByRole("tab", { name: /^Groups/ });
+    const groups = screen.getByRole("tab", { name: /^Group stage/ });
     expect(groups.getAttribute("aria-selected")).toBe("false");
     // Round panel heading
     const panel = screen.getByRole("tabpanel", { name: /Round of 32/i });
@@ -77,7 +83,7 @@ describe("<BracketBuilder>, round tabs", () => {
 
   it("R16 tab renders only round-of-16 cards (8 cards)", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /^R16/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Round of 16/ }));
     const panel = screen.getByRole("tabpanel", { name: /Round of 16/i });
     expect(panel.querySelectorAll(".km-card[data-match-id^='r16_']").length).toBe(8);
     expect(panel.querySelectorAll(".km-card[data-match-id^='qf_']").length).toBe(0);
@@ -86,14 +92,14 @@ describe("<BracketBuilder>, round tabs", () => {
 
   it("QF tab renders only quarter-final cards (4 cards)", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /^QF/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Quarter-final/ }));
     const panel = screen.getByRole("tabpanel", { name: /Quarter-finals/i });
     expect(panel.querySelectorAll(".km-card[data-match-id^='qf_']").length).toBe(4);
   });
 
   it("SF + 3rd tab renders both the 2 semi-finals and the 3rd-place playoff in sub-sections", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /^SF/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Semi-final/ }));
     const panel = screen.getByRole("tabpanel", { name: /Semi-finals and 3rd-place/i });
     expect(panel.querySelectorAll(".km-card[data-match-id^='sf_']").length).toBe(2);
     expect(panel.querySelectorAll(".km-card[data-match-id^='tp_']").length).toBe(1);
@@ -122,10 +128,10 @@ describe("<BracketBuilder>, round tabs", () => {
   it("each tab shows a per-round progress counter (picked/total)", () => {
     render(<BracketBuilder tournament={tournament} />);
     // Groups tab counter
-    const groupsTab = screen.getByRole("tab", { name: /^Groups/ });
+    const groupsTab = screen.getByRole("tab", { name: /^Group stage/ });
     expect(groupsTab.textContent).toMatch(/0\/72/);
     // R32 counter: 0 picked of 16 total
-    const r32Tab = screen.getByRole("tab", { name: /^R32/ });
+    const r32Tab = screen.getByRole("tab", { name: /^Round of 32/ });
     expect(r32Tab.textContent).toMatch(/0\/16/);
     // Final counter: 0 picked of 1 total
     const finalTab = screen.getByRole("tab", { name: /^Final/ });
@@ -137,7 +143,7 @@ describe("<BracketBuilder>, round tabs", () => {
     // window.location.hash to pick the right tab.
     window.history.replaceState(null, "", "/world-cup-2026#qf");
     render(<BracketBuilder tournament={tournament} />);
-    const qf = screen.getByRole("tab", { name: /^QF/ });
+    const qf = screen.getByRole("tab", { name: /^Quarter-final/ });
     expect(qf.getAttribute("aria-selected")).toBe("true");
   });
 
@@ -145,7 +151,7 @@ describe("<BracketBuilder>, round tabs", () => {
     window.history.replaceState(null, "", "/world-cup-2026#knockouts");
     const { unmount } = render(<BracketBuilder tournament={tournament} />);
     expect(
-      screen.getByRole("tab", { name: /^R32/ }).getAttribute("aria-selected"),
+      screen.getByRole("tab", { name: /^Round of 32/ }).getAttribute("aria-selected"),
     ).toBe("true");
     unmount();
     window.history.replaceState(null, "", "/world-cup-2026#lock");
@@ -157,7 +163,7 @@ describe("<BracketBuilder>, round tabs", () => {
 
   it("clicking a tab updates the URL hash via replaceState", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /^QF/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Quarter-final/ }));
     expect(window.location.hash).toBe("#qf");
     fireEvent.click(screen.getByRole("tab", { name: /^Final/ }));
     expect(window.location.hash).toBe("#final");
@@ -166,7 +172,7 @@ describe("<BracketBuilder>, round tabs", () => {
   it("hashchange events from back/forward navigation update the active tab", () => {
     render(<BracketBuilder tournament={tournament} />);
     expect(
-      screen.getByRole("tab", { name: /^Groups/ }).getAttribute("aria-selected"),
+      screen.getByRole("tab", { name: /^Group stage/ }).getAttribute("aria-selected"),
     ).toBe("true");
     // Simulate the user using back/forward, change the hash, then
     // dispatch a hashchange event so the listener picks it up. jsdom's
@@ -177,7 +183,7 @@ describe("<BracketBuilder>, round tabs", () => {
     // separate ctor in older jsdom builds.
     fireEvent(window, new Event("hashchange"));
     expect(
-      screen.getByRole("tab", { name: /^SF/ }).getAttribute("aria-selected"),
+      screen.getByRole("tab", { name: /^Semi-final/ }).getAttribute("aria-selected"),
     ).toBe("true");
   });
 
@@ -188,8 +194,8 @@ describe("<BracketBuilder>, round tabs", () => {
     ) as HTMLElement;
     fireEvent.click(groupACard.querySelector(".mpr-pick-home")!);
     // Jump to QF then back to Groups
-    fireEvent.click(screen.getByRole("tab", { name: /^QF/ }));
-    fireEvent.click(screen.getByRole("tab", { name: /^Groups/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Quarter-final/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Group stage/ }));
     // Pick is still selected
     const groupAAgain = screen.getAllByText("Group A")[0]!.closest(
       ".bracket-group",
@@ -202,16 +208,15 @@ describe("<BracketBuilder>, round tabs", () => {
 
   it("the running total in the header reflects picks across rounds", () => {
     render(<BracketBuilder tournament={tournament} />);
-    const total = screen.getByText(/of 104 matches picked/i);
-    expect(total.textContent).toMatch(/^\s*0\s*of\s*104/);
+    // The counter renders as "0/104" plus a "matches picked" label.
+    const totalEl = () => document.querySelector(".bracket-header-running-total") as HTMLElement;
+    expect(totalEl().textContent).toMatch(/0\s*\/\s*104/);
     // Pick a single group match
     const groupACard = screen.getAllByText("Group A")[0]!.closest(
       ".bracket-group",
     ) as HTMLElement;
     fireEvent.click(groupACard.querySelector(".mpr-pick-home")!);
-    expect(screen.getByText(/of 104 matches picked/i).textContent).toMatch(
-      /1\s*of\s*104/,
-    );
+    expect(totalEl().textContent).toMatch(/1\s*\/\s*104/);
   });
 
   it("sticky tab bar is styled with position: sticky (CSS contract)", () => {
@@ -225,29 +230,15 @@ describe("<BracketBuilder>, round tabs", () => {
     expect(tabsEl?.parentElement?.className).toContain("bracket-builder");
   });
 
-  it("Auto-pick CTA is still reachable from the tab bar", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    const autopick = screen.getByRole("button", {
-      name: /Auto-pick from live odds/i,
-    });
-    expect(autopick).toBeTruthy();
-    fireEvent.click(autopick);
-    // Confirm modal appears.
-    expect(
-      screen.getByRole("dialog", { name: /Auto-pick the favourite/i }),
-    ).toBeTruthy();
-    // Cancel to clean up.
-    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
-  });
 });
 
 describe("Lock → Save rename, user-visible copy", () => {
   it("the header copy reads 'save' (not 'lock')", () => {
     render(<BracketBuilder tournament={tournament} />);
-    // Header preamble mentions "Save each pick before its match kicks off"
-    expect(
-      screen.getByText(/Save each pick before its match kicks off/i),
-    ).toBeTruthy();
+    // The hero lede explains picks change until kickoff and never says "lock".
+    const header = document.querySelector(".bracket-header") as HTMLElement;
+    expect(header.textContent).toMatch(/right up to kick-off/i);
+    expect(header.textContent).not.toMatch(/\block\b/i);
   });
 
   it("the Final tab's primary action button says 'Save bracket'", () => {
@@ -279,19 +270,6 @@ describe("Lock → Save rename, user-visible copy", () => {
     expect(offending).toEqual([]);
   });
 
-  it("clicking the auto-pick confirm modal shows 'starting point' (not 'not a lock')", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(
-      screen.getByRole("button", { name: /Auto-pick from live odds/i }),
-    );
-    const modal = screen.getByRole("dialog", {
-      name: /Auto-pick the favourite/i,
-    });
-    expect(modal.textContent).toMatch(/starting point/i);
-    expect(modal.textContent).not.toMatch(/not a lock/i);
-    // Cancel to clean up.
-    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
-  });
 });
 
 /**
@@ -301,111 +279,6 @@ describe("Lock → Save rename, user-visible copy", () => {
  * dedicated row above the tabs, the new subtitle copy, and the
  * mobile-only sticky condensed pill.
  */
-describe("<BracketBuilder>, prominent Auto-pick row", () => {
-  it("renders the Auto-pick CTA in a row separate from the tab strip", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    const autoPickRow = container.querySelector(
-      "[data-testid='bracket-autopick-row']",
-    );
-    const tabStrip = container.querySelector("[data-testid='bracket-tabs']");
-    expect(autoPickRow).toBeTruthy();
-    expect(tabStrip).toBeTruthy();
-    // The auto-pick row must not be a descendant of the tab strip, and
-    // the tab strip must not be a descendant of the auto-pick row.
-    expect(tabStrip!.contains(autoPickRow!)).toBe(false);
-    expect(autoPickRow!.contains(tabStrip!)).toBe(false);
-    // The prominent CTA lives inside the dedicated row.
-    const cta = autoPickRow!.querySelector(".bracket-autopick-cta");
-    expect(cta).toBeTruthy();
-    expect(cta!.getAttribute("aria-label")).toBe("Auto-pick from live odds");
-  });
-
-  it("Auto-pick row appears above the tab strip in DOM order", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    const autoPickRow = container.querySelector(
-      "[data-testid='bracket-autopick-row']",
-    ) as HTMLElement;
-    const tabStrip = container.querySelector(
-      "[data-testid='bracket-tabs']",
-    ) as HTMLElement;
-    // Node.compareDocumentPosition returns DOCUMENT_POSITION_FOLLOWING (4)
-    // when the argument follows the reference node in document order.
-    const FOLLOWING = Node.DOCUMENT_POSITION_FOLLOWING;
-    expect(
-      autoPickRow.compareDocumentPosition(tabStrip) & FOLLOWING,
-    ).toBeTruthy();
-  });
-
-  it("subtitle reads the empty-bracket copy when no picks exist", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    const subtitle = document.getElementById("bracket-autopick-subtitle");
-    expect(subtitle).toBeTruthy();
-    expect(subtitle!.textContent).toMatch(
-      /Fill your bracket using live consensus odds/i,
-    );
-    expect(subtitle!.textContent).toMatch(/edit any pick before kickoff/i);
-  });
-
-  it("subtitle flips to the 'refresh empty picks' copy once the user has at least one pick", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    // Make one group pick.
-    const groupACard = screen.getAllByText("Group A")[0]!.closest(
-      ".bracket-group",
-    ) as HTMLElement;
-    fireEvent.click(groupACard.querySelector(".mpr-pick-home")!);
-    const subtitle = document.getElementById("bracket-autopick-subtitle");
-    expect(subtitle!.textContent).toMatch(
-      /Refresh empty picks using live consensus odds/i,
-    );
-  });
-
-  it("prominent CTA is keyboard-accessible: aria-label + describedby", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    const cta = screen.getByRole("button", {
-      name: /^Auto-pick from live odds$/,
-    });
-    expect(cta.getAttribute("aria-describedby")).toBe(
-      "bracket-autopick-subtitle",
-    );
-    // The describedby target must exist so screen-readers can find it.
-    const desc = document.getElementById("bracket-autopick-subtitle");
-    expect(desc).toBeTruthy();
-  });
-
-  it("clicking the prominent Auto-pick CTA still opens the confirm modal", () => {
-    render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(
-      screen.getByRole("button", { name: /^Auto-pick from live odds$/ }),
-    );
-    expect(
-      screen.getByRole("dialog", { name: /Auto-pick the favourite/i }),
-    ).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /^Cancel/ }));
-  });
-
-  it("no longer renders the mobile-only sticky Auto-pick pill", () => {
-    // Tim 2026-05-21: on mobile the prominent Auto-pick CTA scrolls
-    // away with the page. The duplicate sticky pill that floated over
-    // the tab strip was removed because it covered other menu items.
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    expect(
-      container.querySelector("[data-testid='bracket-autopick-sticky']"),
-    ).toBeNull();
-    expect(container.querySelector(".bracket-autopick-sticky")).toBeNull();
-  });
-
-  it("Auto-pick button is no longer a child of the tab strip nav", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    const tabStrip = container.querySelector("[data-testid='bracket-tabs']");
-    expect(tabStrip).toBeTruthy();
-    // The legacy in-tab-strip auto-pick button used .bracket-tab-autopick
-    // and lived inside the nav. After the hoist the nav should contain
-    // no buttons with that class.
-    const inTabAutopick = tabStrip!.querySelector(".bracket-tab-autopick");
-    expect(inTabAutopick).toBeNull();
-  });
-});
-
 /**
  * Mobile viewport (375x812, iPhone 13 Mini) sanity check. jsdom doesn't
  * apply stylesheets, so we can't measure layout pixels here, but we can
@@ -414,31 +287,3 @@ describe("<BracketBuilder>, prominent Auto-pick row", () => {
  * concern). Precedent: bracket-mobile-gestures.test.tsx uses jsdom +
  * window.innerWidth stubs for similar contract assertions.
  */
-describe("<BracketBuilder>, mobile viewport (375x812) Auto-pick contract", () => {
-  const originalInnerWidth = window.innerWidth;
-  const originalInnerHeight = window.innerHeight;
-  beforeEach(() => {
-    Object.defineProperty(window, "innerWidth", { value: 375, configurable: true });
-    Object.defineProperty(window, "innerHeight", { value: 812, configurable: true });
-  });
-  afterAll(() => {
-    Object.defineProperty(window, "innerWidth", {
-      value: originalInnerWidth,
-      configurable: true,
-    });
-    Object.defineProperty(window, "innerHeight", {
-      value: originalInnerHeight,
-      configurable: true,
-    });
-  });
-
-  it("the prominent CTA + subtitle render on a 375px viewport (no sticky duplicate)", () => {
-    const { container } = render(<BracketBuilder tournament={tournament} />);
-    expect(container.querySelector(".bracket-autopick-cta")).toBeTruthy();
-    expect(container.querySelector(".bracket-autopick-subtitle")).toBeTruthy();
-    // The sticky shortcut pill was removed per Tim 2026-05-21, the main
-    // CTA scrolls away naturally on mobile.
-    expect(container.querySelector(".bracket-autopick-sticky")).toBeNull();
-  });
-});
-

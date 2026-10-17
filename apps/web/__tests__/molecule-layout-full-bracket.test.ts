@@ -67,6 +67,7 @@ function fullyResolvedCascade(t: Tournament): CascadedBracket {
     return filtered[rank - 1] ?? null;
   };
 
+  const usedThirds = new Set<string>();
   const cascadedKnockouts: CascadedKnockout[] = [];
   // We need to resolve in stage order so knockout_winner sources are
   // valid by the time the next stage references them.
@@ -85,6 +86,14 @@ function fullyResolvedCascade(t: Tournament): CascadedBracket {
     }
     if (src.kind === "best_fourth") {
       return null; // not used by WC 2026 fixtures
+    }
+    if (src.kind === "annex_c_third") {
+      // FIFA Annex C routing (fbbc9e32): the eight R32 third-place slots
+      // are allocated as a set rather than by rank. For a fully-resolved
+      // test cascade any distinct third-placed team per slot will do.
+      const next = bestThirdsPool.find((team) => !usedThirds.has(team)) ?? null;
+      if (next) usedThirds.add(next);
+      return next;
     }
     if (src.kind === "knockout_winner") {
       const k = cascadedKnockouts.find((x) => x.id === src.match_id);

@@ -4,7 +4,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render } from "./helpers/render";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",

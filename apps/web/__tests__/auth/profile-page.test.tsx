@@ -13,7 +13,7 @@
 
 import React from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "../helpers/render";
 
 import type { UserProfile } from "@/lib/auth/types";
 
@@ -82,58 +82,27 @@ describe("<ProfilePage>", () => {
     mockStatus = "guest";
     const { getByText, getByRole } = render(<ProfilePage />);
     expect(getByText(/Save your bracket/)).toBeTruthy();
-    expect(getByRole("button", { name: /Sign in/ })).toBeTruthy();
+    expect(getByRole("button", { name: /Sign in\/up/i })).toBeTruthy();
   });
 
   it("opens the SignupModal from the CTA", async () => {
     mockStatus = "guest";
     const { getByRole, queryByRole } = render(<ProfilePage />);
     expect(queryByRole("dialog")).toBeNull();
-    fireEvent.click(getByRole("button", { name: /Sign in/ }));
+    fireEvent.click(getByRole("button", { name: /Sign in\/up/i }));
     await waitFor(() => expect(queryByRole("dialog")).toBeTruthy());
   });
 
-  it("renders the editor when authenticated", () => {
-    mockStatus = "authenticated";
-    mockUser = { id: "u-1", email: "tim@x.com", phone: null };
-    mockProfile = {
-      id: "u-1",
-      handle: "tim",
-      display_name: "Tim",
-      created_at: new Date().toISOString(),
-      last_seen_at: new Date().toISOString(),
-      age_bucket: null,
-      gender: null,
-      country_code: "NZ",
-      city: null,
-      timezone: null,
-      favourite_team_code: "ARG",
-      follows_leagues: null,
-      watches_via: null,
-      visit_count: 3,
-      last_visit_date: null,
-      engagement_band: "warm",
-      telegram_id: null,
-      whatsapp_phone_hash: null,
-      marketing_consent: false,
-      analytics_consent: true,
-      phone_match_consent: false,
-      updated_at: new Date().toISOString(),
-    };
-    const { getByText, getByDisplayValue } = render(<ProfilePage />);
-    // Handle / display name show up as inputs
-    expect(getByDisplayValue("tim")).toBeTruthy();
-    expect(getByDisplayValue("Tim")).toBeTruthy();
-    expect(getByDisplayValue("ARG")).toBeTruthy();
-    expect(getByText(/Privacy/)).toBeTruthy();
-    expect(getByText(/Sign out/)).toBeTruthy();
-  });
-
-  it("shows the recovery message when profile is missing", () => {
+  it("shows the legacy notice for a Supabase-era user (id without the u_ prefix)", () => {
+    // The profile editor is wired to the WhatsApp / SMS (auth-sms) users,
+    // whose ids start with "u_". Anyone still carrying a Supabase session
+    // sees the notice and a sign-out instead of the old editor.
     mockStatus = "authenticated";
     mockUser = { id: "u-1", email: "tim@x.com", phone: null };
     mockProfile = null;
-    const { getByText } = render(<ProfilePage />);
-    expect(getByText(/couldn['']t load your profile/i)).toBeTruthy();
+    const { getByText, getAllByText } = render(<ProfilePage />);
+    expect(getByText(/legacy email flow/i)).toBeTruthy();
+    expect(getAllByText(/Sign out/).length).toBeGreaterThan(0);
   });
+
 });

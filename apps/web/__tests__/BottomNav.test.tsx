@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { act, render, waitFor } from "@testing-library/react";
+import { act, render, waitFor } from "./helpers/render";
 
 import {
   BottomNav,
@@ -41,9 +41,11 @@ describe("<BottomNav>", () => {
     setLocation("/");
     const { getByText } = render(<BottomNav />);
     expect(getByText("Home")).toBeTruthy();
-    expect(getByText("Predict")).toBeTruthy();
-    expect(getByText("Watch")).toBeTruthy();
-    expect(getByText("Profile")).toBeTruthy();
+    // Dock label is the short "Play" (Tim 2026-06-03); the drawer keeps "Play (Predict)".
+    expect(getByText("Play")).toBeTruthy();
+    // Dock order since the calendar landed: Home, Play, Schedule, Leaderboard.
+    expect(getByText("Schedule")).toBeTruthy();
+    expect(getByText("Leaderboard")).toBeTruthy();
   });
 
   it("marks the home tab active on /", async () => {
@@ -64,7 +66,7 @@ describe("<BottomNav>", () => {
       const active = container.querySelector(
         '.vt-bottomnav-tab[aria-current="page"]',
       );
-      expect(active?.textContent).toContain("Predict");
+      expect(active?.textContent).toContain("Play");
     });
   });
 });
