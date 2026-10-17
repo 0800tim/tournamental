@@ -3,6 +3,8 @@ import { fileURLToPath } from "node:url";
 
 import createNextIntlPlugin from "next-intl/plugin";
 
+import { securityHeaderRules } from "./lib/security/headers.mjs";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -80,6 +82,23 @@ const nextConfig = {
   // to it here so the browser never has to know the game-service
   // URL. `GAME_BASE_URL` lets ops point at a remote game-service
   // per environment; default is the local dev port. Tim 2026-06-07.
+  // Security headers for every host mode (live, hub, archive). The
+  // framing rules exempt the partner-embedded bracket (?embed=1) and
+  // /embed/*; the CSP is report-only until it has been watched in
+  // production. See lib/security/headers.mjs and docs/33.
+  async headers() {
+    const odds = process.env.NEXT_PUBLIC_ODDS_API_URL;
+    let extraConnect = [];
+    try {
+      if (odds) extraConnect = [new URL(odds).origin];
+    } catch {
+      extraConnect = [];
+    }
+    return securityHeaderRules({
+      dev: process.env.NODE_ENV !== "production",
+      extraConnect,
+    });
+  },
   async rewrites() {
     const gameBase = process.env.GAME_BASE_URL ?? "http://127.0.0.1:3361";
     return [
