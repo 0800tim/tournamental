@@ -96,11 +96,18 @@ export function CountdownBanner({
   }
 
   const parts = computeParts(targetMs, now);
+  // One sentence for assistive tech, at minute granularity. The grid
+  // ticks every second and is hidden from screen readers; a live region
+  // here would announce every tick (fixed 2026-10-17).
+  const summary = parts.elapsed
+    ? pastLabel
+    : `${summaryFor(parts, safeT(t, "countdown.unit_days", "Days"), safeT(t, "countdown.unit_hours", "Hrs"), safeT(t, "countdown.unit_minutes", "Min"))} to ${title}`;
 
   return (
     <section
       className={compact ? "vt-countdown vt-countdown--compact" : "vt-countdown"}
-      aria-live="polite"
+      role="timer"
+      aria-label={summary}
     >
       {!compact && (
         <div className="vt-countdown-head">
@@ -108,7 +115,7 @@ export function CountdownBanner({
           <h2 className="vt-countdown-title">{title}</h2>
         </div>
       )}
-      <div className="vt-countdown-grid">
+      <div className="vt-countdown-grid" aria-hidden="true">
         <Cell value={parts.days}    label={safeT(t, "countdown.unit_days",    "Days")} dataKey="day" />
         <Cell value={parts.hours}   label={safeT(t, "countdown.unit_hours",   "Hrs")}  dataKey="hr" />
         <Cell value={parts.minutes} label={safeT(t, "countdown.unit_minutes", "Min")}  dataKey="min" />
@@ -116,6 +123,28 @@ export function CountdownBanner({
       </div>
     </section>
   );
+}
+
+/** "12 days, 3 hours and 7 minutes" using the unit labels the grid shows. */
+export function summaryFor(
+  parts: Parts,
+  daysLabel: string,
+  hoursLabel: string,
+  minutesLabel: string,
+): string {
+  const unit = (n: number, label: string): string => {
+    // Labels are the grid's short forms ("Days", "Hrs", "Min"); spell
+    // the common English ones out for speech, keep others as given.
+    const long: Record<string, [string, string]> = {
+      Days: ["day", "days"],
+      Hrs: ["hour", "hours"],
+      Min: ["minute", "minutes"],
+    };
+    const pair = long[label];
+    const word = pair ? (n === 1 ? pair[0] : pair[1]) : label;
+    return `${n} ${word}`;
+  };
+  return `${unit(parts.days, daysLabel)}, ${unit(parts.hours, hoursLabel)} and ${unit(parts.minutes, minutesLabel)}`;
 }
 
 function Cell({

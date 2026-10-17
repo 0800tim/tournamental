@@ -13,7 +13,7 @@
  * the referrer. Stored in sessionStorage so it survives a reload.
  */
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 
 export interface RegisterInterestFormProps {
   readonly tournamentName: string;
@@ -48,16 +48,26 @@ export function RegisterInterestForm({
   const [ref, setRef] = useState<string | null>(null);
   const [invite, setInvite] = useState<{ code: string; url: string; referrals: number } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [errorField, setErrorField] = useState<"email" | "phone" | "consent" | null>(null);
+  const doneHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     setRef(readRef());
   }, []);
+
+  // The form is replaced by the thank-you state on success. Move focus
+  // to its heading so keyboard and screen-reader users are not left on
+  // a button that no longer exists.
+  useEffect(() => {
+    if (phase === "done") doneHeadingRef.current?.focus();
+  }, [phase]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (phase === "busy") return;
     setPhase("busy");
     setError(null);
+    setErrorField(null);
     const form = e.currentTarget;
     const fd = new FormData(form);
     const payload = {
@@ -85,6 +95,7 @@ export function RegisterInterestForm({
       };
       if (!res.ok || !body.ok) {
         setError(messageFor(body.error));
+        setErrorField(fieldFor(body.error));
         setPhase("error");
         return;
       }
@@ -133,7 +144,7 @@ export function RegisterInterestForm({
     return (
       <div className="vt-hub-form vt-hub-form-done" role="status" aria-live="polite">
         <p className="vt-hub-form-eyebrow">You are on the list</p>
-        <h3 className="vt-hub-form-title">Now bring your crew.</h3>
+        <h3 className="vt-hub-form-title" ref={doneHeadingRef} tabIndex={-1}>Now bring your crew.</h3>
         <p className="vt-hub-form-p">
           This is your personal invite link. Everyone who registers through it is
           placed with you when pools open, and your invites count toward the
@@ -141,9 +152,10 @@ export function RegisterInterestForm({
         </p>
         <div className="vt-hub-invite">
           <code className="vt-hub-invite-url">{invite.url}</code>
-          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={copyLink}>
+          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={copyLink} aria-label="Copy your invite link">
             {copied ? "Copied" : "Copy"}
           </button>
+          <span className="vt-sr-only" aria-live="polite">{copied ? "Invite link copied" : ""}</span>
         </div>
         <div className="vt-hub-share-row">
           <a
@@ -152,7 +164,7 @@ export function RegisterInterestForm({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Share on WhatsApp
+            Share on WhatsApp<span className="vt-sr-only"> (opens in a new tab)</span>
           </a>
           <a
             className="vt-hub-btn vt-hub-btn-ghost"
@@ -160,9 +172,9 @@ export function RegisterInterestForm({
             target="_blank"
             rel="noopener noreferrer"
           >
-            Telegram
+            Telegram<span className="vt-sr-only"> (opens in a new tab)</span>
           </a>
-          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={nativeShare}>
+          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={nativeShare} aria-label="More ways to share your invite link">
             More
           </button>
         </div>
@@ -194,31 +206,66 @@ export function RegisterInterestForm({
             maxLength={2}
             defaultValue={defaultCountry ?? ""}
             placeholder="NZ"
+            aria-describedby="ri-country-hint"
             style={{ textTransform: "uppercase" }}
           />
         </label>
+        <span id="ri-country-hint" className="vt-sr-only">Two-letter country code, for example NZ</span>
       </div>
       <label className="vt-hub-field">
         <span>Email</span>
-        <input name="email" type="email" autoComplete="email" required maxLength={200} inputMode="email" />
+        <input
+          name="email"
+          type="email"
+          autoComplete="email"
+          required
+          aria-required="true"
+          maxLength={200}
+          inputMode="email"
+          aria-invalid={errorField === "email" ? "true" : undefined}
+          aria-describedby={errorField === "email" ? "ri-error" : undefined}
+        />
       </label>
       <label className="vt-hub-field">
         <span>Mobile (optional, for match-day picks by text)</span>
-        <input name="phone" type="tel" autoComplete="tel" maxLength={32} inputMode="tel" placeholder="+64 21 ..." />
+        <input
+          name="phone"
+          type="tel"
+          autoComplete="tel"
+          maxLength={32}
+          inputMode="tel"
+          placeholder="+64 21 ..."
+          aria-invalid={errorField === "phone" ? "true" : undefined}
+          aria-describedby={errorField === "phone" ? "ri-error" : undefined}
+        />
       </label>
       {/* Honeypot: hidden from people, filled by bots. */}
-      <label className="vt-hub-hp" aria-hidden="true">
-        Website
-        <input name="website" type="text" tabIndex={-1} autoComplete="off" />
-      </label>
+      <div className="vt-hub-hp" aria-hidden="true">
+        <label>
+          Website
+          <input name="website" type="text" tabIndex={-1} autoComplete="off" />
+        </label>
+      </div>
       <label className="vt-hub-consent">
-        <input name="consent" type="checkbox" required />
+        <input
+          name="consent"
+          type="checkbox"
+          required
+          aria-required="true"
+          aria-invalid={errorField === "consent" ? "true" : undefined}
+          aria-describedby={errorField === "consent" ? "ri-error" : undefined}
+        />
         <span>
           Email me when {tournamentName} picks open, plus pool and prize news. Unsubscribe any time.
         </span>
       </label>
-      {error ? <p className="vt-hub-form-error" role="alert">{error}</p> : null}
-      <button type="submit" className="vt-hub-btn vt-hub-btn-primary vt-hub-btn-block" disabled={phase === "busy"}>
+      {error ? <p id="ri-error" className="vt-hub-form-error" role="alert">{error}</p> : null}
+      <button
+        type="submit"
+        className="vt-hub-btn vt-hub-btn-primary vt-hub-btn-block"
+        disabled={phase === "busy"}
+        aria-busy={phase === "busy" ? "true" : undefined}
+      >
         {phase === "busy" ? "Registering…" : "Register my interest"}
       </button>
       <p className="vt-hub-form-note">
@@ -227,6 +274,20 @@ export function RegisterInterestForm({
       </p>
     </form>
   );
+}
+
+/** Which input an API error code belongs to, for aria-invalid and aria-describedby. */
+export function fieldFor(code: string | undefined): "email" | "phone" | "consent" | null {
+  switch (code) {
+    case "email_invalid":
+      return "email";
+    case "phone_invalid":
+      return "phone";
+    case "consent_required":
+      return "consent";
+    default:
+      return null;
+  }
 }
 
 function messageFor(code: string | undefined): string {
