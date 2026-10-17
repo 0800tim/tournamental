@@ -49,7 +49,7 @@ jobs:
         run: pnpm audit --json --audit-level=low > pnpm-audit.json || true
 
       - name: OSV-Scanner (recursive)
-        uses: google/osv-scanner-action/osv-scanner-action@v1.9.2
+        uses: google/osv-scanner-action/osv-scanner-action@v2.3.8
         with:
           scan-args: |-
             --recursive
