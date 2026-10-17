@@ -28,9 +28,21 @@ describe("buildCalendarRows", () => {
     expect(rows).toHaveLength(104);
   });
 
-  it("rows are sorted by match_no with no gaps", () => {
-    for (let i = 0; i < rows.length; i += 1) {
-      expect(rows[i]!.matchNo).toBe(i + 1);
+  it("rows are sorted chronologically and cover match_no 1..104 with no gaps", () => {
+    // Since 7d0e07cf rows sort by kickoff (ties by match_no) so the
+    // day-grouped calendar reads top to bottom; match_no is no longer
+    // the row order but every number must still appear exactly once.
+    const nos = rows.map((r) => r.matchNo).sort((a, b) => a - b);
+    for (let i = 0; i < nos.length; i += 1) {
+      expect(nos[i]).toBe(i + 1);
+    }
+    for (let i = 1; i < rows.length; i += 1) {
+      const prev = Date.parse(rows[i - 1]!.kickoffUtc);
+      const cur = Date.parse(rows[i]!.kickoffUtc);
+      expect(cur).toBeGreaterThanOrEqual(prev);
+      if (cur === prev) {
+        expect(rows[i]!.matchNo).toBeGreaterThan(rows[i - 1]!.matchNo);
+      }
     }
   });
 

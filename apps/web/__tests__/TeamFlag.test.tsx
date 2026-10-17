@@ -37,11 +37,12 @@ describe("TeamFlag", () => {
     );
     const wrap = container.querySelector("[aria-label='Argentina']") as HTMLElement;
     expect(wrap.dataset.selectionRing).toBe("true");
-    // jsdom serialises the inline style; assert the outline carries the
-    // requested accent colour and the spec'd 3px width.
-    expect(wrap.style.outline).toContain("3px");
+    // jsdom serialises the inline style. Since aa87ef74 (Tim 2026-05-20)
+    // the ring is a 4px brand-gold outline on every pick; the kit colour
+    // passed in via accentColor only drives the soft glow in CSS.
+    expect(wrap.style.outline).toContain("4px");
     expect(wrap.style.outline.toLowerCase()).toContain("solid");
-    expect(wrap.style.outline).toContain("#75AADB");
+    expect(wrap.style.outline).toContain("--vt-gold-400");
   });
 
   it("dim flag flips the data-dim hook the CSS reads", () => {

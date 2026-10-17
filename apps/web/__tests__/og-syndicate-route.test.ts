@@ -26,6 +26,12 @@ let tmpDir: string;
 beforeAll(async () => {
   prevCwd = process.cwd();
   tmpDir = await fs.mkdtemp(join(tmpdir(), "vtorn-og-syndicate-"));
+  // The route reads its Fraunces fonts from <cwd>/public/fonts and writes
+  // the disk cache under <cwd>/public/og. We chdir into a scratch dir so
+  // the cache never lands in the repo, and link the real fonts in so the
+  // render does not fall back to the 1x1 no-store PNG.
+  await fs.mkdir(join(tmpDir, "public"), { recursive: true });
+  await fs.symlink(join(prevCwd, "public", "fonts"), join(tmpDir, "public", "fonts"));
   process.chdir(tmpDir);
 });
 

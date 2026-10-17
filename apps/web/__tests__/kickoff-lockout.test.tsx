@@ -12,7 +12,7 @@
 
 import React from "react";
 import { describe, expect, it, vi } from "vitest";
-import { fireEvent, render } from "@testing-library/react";
+import { fireEvent, render } from "./helpers/render";
 
 import type { MatchOdds } from "../lib/odds/types";
 import { MatchPredictionRow } from "../components/bracket/MatchPredictionRow";
@@ -50,7 +50,7 @@ describe("Kickoff lockout", () => {
   it("blocks pick changes once kickoff has passed and shows the banner", () => {
     const onChange = vi.fn();
     const pastKickoff = new Date(Date.now() - 60_000).toISOString();
-    const { container, getByText } = render(
+    const { container, getByText, getByLabelText } = render(
       <MatchPredictionRow
         matchId="1"
         homeTeam={home}
@@ -61,7 +61,10 @@ describe("Kickoff lockout", () => {
       />,
     );
 
-    expect(getByText(/match has already started/i)).toBeDefined();
+    // The locked banner became the lock chip ("In progress", aria-label
+    // "Match is in progress and locked").
+    expect(getByText(/In progress/)).toBeDefined();
+    expect(getByLabelText(/in progress and locked/i)).toBeDefined();
     const homeBtn = container.querySelector(".mpr-pick-home") as HTMLButtonElement;
     expect(homeBtn.disabled).toBe(true);
     fireEvent.click(homeBtn);

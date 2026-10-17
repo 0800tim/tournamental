@@ -1,127 +1,148 @@
 // @vitest-environment jsdom
 
 /**
- * SignupModal, happy-path smoke tests for each of the three tabs.
+ * SignupModal, happy-path smoke tests for the single-screen sign-in
+ * sheet (email code, WhatsApp deep-link, Telegram widget, code paste).
  *
- * We mock the sign-in helpers at the module boundary so the test
- * doesn't try to spin up a real Supabase client. The component
- * contract is: the user picks a tab, fills in a field, hits the
- * button, the right helper is called with the right argument.
+ * The modal was rebuilt from the original three-tab Supabase layout to
+ * a single screen backed by auth-sms (see the component header). These
+ * tests follow that contract: every option is on screen at once, the
+ * email and code-paste flows call the inbound-login helpers with what
+ * the user typed, and the WhatsApp button follows the channel state.
+ *
+ * We mock the network-touching helpers at the module boundary so no
+ * request leaves jsdom. The modal portals into <body>, so queries go
+ * through `screen` / `document.body` rather than the render container.
  */
 
 import React from "react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 
-import * as signIn from "@/lib/auth/signIn";
+import { DEFAULT_CHANNELS, type ChannelsState } from "@/lib/auth/channels";
+
+const channelsState: { current: ChannelsState } = { current: DEFAULT_CHANNELS };
+
+vi.mock("@/lib/auth/channels", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/auth/channels")>();
+  return {
+    ...actual,
+    fetchChannelsState: async () => channelsState.current,
+  };
+});
+
+const requestEmailOtp = vi.fn();
+const verifyEmailOtp = vi.fn();
+const verifyInboundCode = vi.fn();
+
+vi.mock("@/lib/auth/inbound-login", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("@/lib/auth/inbound-login")>();
+  return {
+    ...actual,
+    requestEmailOtp: (...args: unknown[]) => requestEmailOtp(...args),
+    verifyEmailOtp: (...args: unknown[]) => verifyEmailOtp(...args),
+    verifyInboundCode: (...args: unknown[]) => verifyInboundCode(...args),
+  };
+});
+
 import { SignupModal } from "@/components/auth/SignupModal";
 
-// Pretend Supabase IS configured for the duration of these tests so the
-// tabs are enabled. The actual env var is read inside the component via
-// `readPublicConfig()` which inspects `process.env`.
 beforeEach(() => {
-  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
+  channelsState.current = DEFAULT_CHANNELS;
+  requestEmailOtp.mockReset().mockResolvedValue({ ok: true });
+  verifyEmailOtp.mockReset().mockResolvedValue({ ok: false, error: "bad_code" });
+  verifyInboundCode
+    .mockReset()
+    .mockResolvedValue({ ok: false, error: "bad_code" });
 });
 
 describe("<SignupModal>", () => {
   it("renders nothing when closed", () => {
-    const { container } = render(
-      <SignupModal open={false} onClose={() => {}} />,
-    );
-    expect(container.querySelector(".vt-signup-card")).toBeNull();
+    render(<SignupModal open={false} onClose={() => {}} />);
+    expect(document.body.querySelector(".vt-signup-card")).toBeNull();
   });
 
-  it("renders three tabs when open", () => {
-    const { getByRole, getAllByRole } = render(
-      <SignupModal open onClose={() => {}} />,
-    );
-    expect(getByRole("dialog")).toBeTruthy();
-    const tabs = getAllByRole("tab");
-    expect(tabs.length).toBe(3);
-    expect(tabs[0].textContent).toMatch(/Email/);
-    expect(tabs[1].textContent).toMatch(/Telegram/);
-    expect(tabs[2].textContent).toMatch(/WhatsApp/);
+  it("renders the dialog with email, WhatsApp, Telegram and code options", async () => {
+    render(<SignupModal open onClose={() => {}} />);
+    const dialog = await screen.findByRole("dialog", { name: /Save your bracket/i });
+    expect(dialog).toBeTruthy();
+    expect(screen.getByLabelText(/Email address/i)).toBeTruthy();
+    expect(
+      screen.getByRole("link", { name: /Sign in\/up with WhatsApp/i }),
+    ).toBeTruthy();
+    expect(screen.getByLabelText(/Sign in with Telegram/i)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /Sign in with code/i })).toBeTruthy();
   });
 
-  it("email tab: submits magic-link with the typed email", async () => {
-    const spy = vi
-      .spyOn(signIn, "signInWithMagicLink")
-      .mockResolvedValue({ ok: true, hint: "check-inbox" });
-
-    const { getByLabelText, getByRole, getByText } = render(
-      <SignupModal open onClose={() => {}} initialTab="email" />,
-    );
-    const input = getByLabelText(/Email/i) as HTMLInputElement;
+  it("email: requests a code for the typed address, then verifies it", async () => {
+    render(<SignupModal open onClose={() => {}} />);
+    const input = (await screen.findByLabelText(/Email address/i)) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "tim@example.com" } });
-    fireEvent.click(getByRole("button", { name: /Send magic link/i }));
+    fireEvent.click(screen.getByRole("button", { name: /Email me a code/i }));
 
-    await waitFor(() => expect(spy).toHaveBeenCalled());
-    expect(spy.mock.calls[0][0]).toBe("tim@example.com");
-    await waitFor(() =>
-      expect(getByText(/Check your inbox/i)).toBeTruthy(),
+    await waitFor(() => expect(requestEmailOtp).toHaveBeenCalled());
+    expect(requestEmailOtp.mock.calls[0]?.[0]).toBe("tim@example.com");
+
+    // Second step: the code field for this email appears.
+    await screen.findByText(/Code sent to/i);
+    const codeInputs = screen.getAllByLabelText(/6-digit code/i);
+    // The email block's code field is the first one; the code-paste
+    // form at the foot of the modal has its own.
+    fireEvent.change(codeInputs[0]!, { target: { value: "123456" } });
+    fireEvent.click(
+      screen.getByRole("button", { name: /Sign in with email code/i }),
     );
+
+    await waitFor(() => expect(verifyEmailOtp).toHaveBeenCalled());
+    expect(verifyEmailOtp.mock.calls[0]?.[0]).toBe("tim@example.com");
+    expect(verifyEmailOtp.mock.calls[0]?.[1]).toBe("123456");
+    await screen.findByRole("alert");
   });
 
-  it("whatsapp tab: requests OTP, then verifies on second submit", async () => {
-    const reqSpy = vi
-      .spyOn(signIn, "signInWithWhatsAppOtp")
-      .mockResolvedValue({ ok: true });
-    const verSpy = vi
-      .spyOn(signIn, "verifyWhatsAppOtp")
-      .mockResolvedValue({ ok: true });
+  it("code paste: verifies a pasted 6-digit inbound code", async () => {
+    render(<SignupModal open onClose={() => {}} />);
+    await screen.findByRole("dialog");
+    const codeInputs = screen.getAllByLabelText(/6-digit code/i);
+    const paste = codeInputs[codeInputs.length - 1]!;
+    fireEvent.change(paste, { target: { value: "654321" } });
+    fireEvent.click(screen.getByRole("button", { name: /^Sign in with code$/i }));
 
-    const { getByLabelText, getByRole } = render(
-      <SignupModal open onClose={() => {}} initialTab="whatsapp" />,
-    );
-    const phone = getByLabelText(/WhatsApp phone number/i) as HTMLInputElement;
-    fireEvent.change(phone, { target: { value: "+6421999000" } });
-    fireEvent.click(getByRole("button", { name: /Send code on WhatsApp/i }));
-
-    await waitFor(() => expect(reqSpy).toHaveBeenCalled());
-    expect(reqSpy.mock.calls[0][0]).toBe("+6421999000");
-
-    const code = (await waitFor(() => getByLabelText(/6-digit code/i))) as HTMLInputElement;
-    fireEvent.change(code, { target: { value: "123456" } });
-    fireEvent.click(getByRole("button", { name: /Verify/i }));
-
-    await waitFor(() => expect(verSpy).toHaveBeenCalled());
-    expect(verSpy.mock.calls[0][0]).toBe("+6421999000");
-    expect(verSpy.mock.calls[0][1]).toBe("123456");
+    await waitFor(() => expect(verifyInboundCode).toHaveBeenCalled());
+    expect(verifyInboundCode.mock.calls[0]?.[0]).toBe("654321");
   });
 
-  it("telegram tab: mounts the widget script with the bot username", () => {
+  it("telegram: mounts the widget script with the bot username", async () => {
     process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME = "TournamentalBot";
-    const { container } = render(
-      <SignupModal open onClose={() => {}} initialTab="telegram" />,
-    );
-    // The component appends a <script> to the mount div.
-    const script = container.querySelector("script");
+    render(<SignupModal open onClose={() => {}} />);
+    await screen.findByRole("dialog");
+    // The component appends a <script> to the Telegram mount div.
+    const script = document.body.querySelector("script[data-telegram-login]");
     expect(script).toBeTruthy();
     expect(script?.getAttribute("data-telegram-login")).toBe("TournamentalBot");
     expect(script?.getAttribute("data-onauth")).toMatch(/__vtornTelegramAuth/);
   });
 
-  it("falls back to disabled state when supabase env is missing", () => {
-    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
-    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    const { getByRole, getAllByRole } = render(
-      <SignupModal open onClose={() => {}} />,
-    );
-    // The "sign-in coming soon" banner is rendered.
-    expect(getByRole("status").textContent).toMatch(/coming soon/i);
-    // Tabs are all disabled.
-    for (const t of getAllByRole("tab")) {
-      expect((t as HTMLButtonElement).disabled).toBe(true);
-    }
+  it("hides the WhatsApp button when the channel is unavailable", async () => {
+    channelsState.current = {
+      ...DEFAULT_CHANNELS,
+      whatsapp: { available: false, reason: "suspended" },
+    };
+    render(<SignupModal open onClose={() => {}} />);
+    await screen.findByRole("dialog");
+    await waitFor(() => {
+      expect(
+        screen.queryByRole("link", { name: /Sign in\/up with WhatsApp/i }),
+      ).toBeNull();
+    });
+    // Email still leads regardless of channel state.
+    expect(screen.getByLabelText(/Email address/i)).toBeTruthy();
   });
 
-  it("close button fires onClose", () => {
+  it("close button fires onClose", async () => {
     const onClose = vi.fn();
-    const { getByLabelText } = render(
-      <SignupModal open onClose={onClose} />,
-    );
-    fireEvent.click(getByLabelText(/Close sign-in/i));
+    render(<SignupModal open onClose={onClose} />);
+    fireEvent.click(await screen.findByLabelText(/Close sign-in/i));
     expect(onClose).toHaveBeenCalledOnce();
   });
 });

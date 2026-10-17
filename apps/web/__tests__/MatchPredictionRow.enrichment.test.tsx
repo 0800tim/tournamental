@@ -21,7 +21,8 @@
 
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
+import { render } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { MatchPredictionRow } from "../components/bracket/MatchPredictionRow";
 
@@ -42,6 +43,10 @@ const AWAY = {
   pre_tournament_implied_win: 0.5,
   kit: { primary: "#0055A4", secondary: "#FFFFFF" },
 } as const;
+
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
 
 describe("MatchPredictionRow, enrichment", () => {
   it("does NOT render form dots after the cluttered-MPR cleanup", () => {
@@ -117,8 +122,10 @@ describe("MatchPredictionRow, enrichment", () => {
     ) as HTMLElement | null;
     expect(homeFlagWrap).not.toBeNull();
     expect(awayFlagWrap).toBeNull();
-    expect(homeFlagWrap!.style.outline).toContain("3px");
-    expect(homeFlagWrap!.style.outline).toContain(HOME.kit.primary);
+    // Ring width went from 3px to 4px with the gold ring (TeamFlag RING_GOLD).
+    expect(homeFlagWrap!.style.outline).toContain("4px");
+    // Selection went gold-everywhere (aa87ef74): the ring is the gold token, not the kit colour.
+    expect(homeFlagWrap!.style.outline).toContain("var(--vt-gold-400");
     // The unpicked side dims (data hook the CSS reads).
     const awayDim = awayPick.querySelector(
       "[data-dim='true']",

@@ -24,7 +24,8 @@
 
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
@@ -76,11 +77,15 @@ afterEach(() => {
  * Pinch-zoom container wiring
  * ----------------------------------------------------------------- */
 
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
+
 describe("BracketBuilder, pinch-zoom container", () => {
   it("wraps the .km-grid in a .km-pinch-wrap container with transform-origin set", async () => {
     const { container } = render(<BracketBuilder tournament={tournament} />);
     // Switch to a knockout-round tab so the pinch-zoom grid mounts.
-    fireEvent.click(screen.getByRole("tab", { name: /R32/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Round of 32/ }));
     // Let the pinch-zoom effect run.
     await act(async () => {
       await new Promise((r) => setTimeout(r, 0));

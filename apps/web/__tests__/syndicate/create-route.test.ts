@@ -9,6 +9,23 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NextRequest } from "next/server";
 
+// Create now requires a signed-in session and resolves the owner's
+// contact details from the auth-sms profile rather than the form body
+// (incident 2026-06-03). Neither the JWT secret nor the auth.db exist
+// in the test environment, so stub both lookups with a fixed owner.
+vi.mock("@/lib/auth/session", () => ({
+  getSessionFromRequest: async () => ({
+    userId: "u_test_owner",
+    phone: "+64211234567",
+    jti: "test-jti",
+    via: "cookie",
+  }),
+}));
+vi.mock("@/lib/auth/contact-lookup", () => ({
+  loadUserContact: () => ({ email: "dave@example.com", phone: "+64211234567" }),
+  loadUserContacts: () => new Map(),
+}));
+
 import { POST } from "@/app/api/v1/syndicates/route";
 import {
   __setPersistenceForTests,

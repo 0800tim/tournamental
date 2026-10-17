@@ -90,8 +90,11 @@ describe("KnockoutMatch, flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
-    expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
+    // Since Tim 2026-05-22 the flag rides on the --km-team-bg custom
+    // property and bracket.css paints it via ::before (blurred) so the
+    // foreground chip stays crisp.
+    expect(home.style.getPropertyValue("--km-team-bg")).toContain("/flags/ARG.svg");
+    expect(away.style.getPropertyValue("--km-team-bg")).toContain("/flags/FRA.svg");
     // Neither is a winner pre-pick.
     expect(home.classList.contains("is-winner")).toBe(false);
     expect(away.classList.contains("is-winner")).toBe(false);
@@ -114,8 +117,11 @@ describe("KnockoutMatch, flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
-    expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
+    // Since Tim 2026-05-22 the flag rides on the --km-team-bg custom
+    // property and bracket.css paints it via ::before (blurred) so the
+    // foreground chip stays crisp.
+    expect(home.style.getPropertyValue("--km-team-bg")).toContain("/flags/ARG.svg");
+    expect(away.style.getPropertyValue("--km-team-bg")).toContain("/flags/FRA.svg");
     expect(home.classList.contains("is-winner")).toBe(true);
     expect(away.classList.contains("is-winner")).toBe(false);
   });
@@ -137,8 +143,11 @@ describe("KnockoutMatch, flag-as-background", () => {
     );
     const home = container.querySelector(".km-home") as HTMLButtonElement;
     const away = container.querySelector(".km-away") as HTMLButtonElement;
-    expect(home.style.backgroundImage).toContain("/flags/ARG.svg");
-    expect(away.style.backgroundImage).toContain("/flags/FRA.svg");
+    // Since Tim 2026-05-22 the flag rides on the --km-team-bg custom
+    // property and bracket.css paints it via ::before (blurred) so the
+    // foreground chip stays crisp.
+    expect(home.style.getPropertyValue("--km-team-bg")).toContain("/flags/ARG.svg");
+    expect(away.style.getPropertyValue("--km-team-bg")).toContain("/flags/FRA.svg");
     expect(home.classList.contains("is-winner")).toBe(false);
     expect(away.classList.contains("is-winner")).toBe(true);
   });
@@ -309,7 +318,9 @@ describe("KnockoutMatch, layout improvements", () => {
     expect(container.querySelector(".km-vs")).toBeNull();
   });
 
-  it("renders the View-match link with arrow icon and label", () => {
+  it("renders the venue footer lozenge linking to the match preview", () => {
+    // 30d8e1aa folded the old "View match" link into the full-width
+    // MatchVenueFooter lozenge; it is still an anchor to the preview.
     const { container } = render(
       <KnockoutMatch
         knockout={fixture()}
@@ -318,9 +329,9 @@ describe("KnockoutMatch, layout improvements", () => {
         showOddsChip={false}
       />,
     );
-    const link = container.querySelector("a.km-view-link") as HTMLAnchorElement;
+    const link = container.querySelector("a.mpr-venue-footer") as HTMLAnchorElement;
     expect(link).not.toBeNull();
     expect(link.getAttribute("href")).toBe("/match/f_01/preview");
-    expect(link.querySelector(".km-view-link-label")).not.toBeNull();
+    expect(link.querySelector(".mpr-venue-footer-text")).not.toBeNull();
   });
 });

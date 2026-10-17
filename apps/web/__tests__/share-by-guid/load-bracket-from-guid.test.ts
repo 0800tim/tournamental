@@ -71,10 +71,15 @@ describe("loadBracketFromGuid", () => {
     expect(result?.champion.code).toBe("ARG");
     expect(result?.champion.name).toBe("Argentina");
     expect(result?.runner_up.code).toBe("FRA");
-    expect(result?.path_to_gold.length).toBe(4);
-    expect(result?.path_to_gold[3]?.stage).toBe("final");
+    // Since 1461c394 the path surfaces R32 as well, so five rows always
+    // render; a stage upstream did not send comes back as a TBD placeholder.
+    expect(result?.path_to_gold.length).toBe(5);
+    expect(result?.path_to_gold[0]?.stage).toBe("r32");
+    expect(result?.path_to_gold[0]?.opponent_code).toBe("TBD");
+    expect(result?.path_to_gold[1]?.opponent_code).toBe("AUS");
+    expect(result?.path_to_gold[4]?.stage).toBe("final");
     expect(result?.handle).toBe("Anonymous");
-    expect(result?.tournament_label).toBe("FIFA World Cup 2026");
+    expect(result?.tournament_label).toBe("Football World Cup 2026");
   });
 
   it("returns null when upstream responds 404", async () => {
