@@ -91,17 +91,38 @@ export function buildOddsConsensusBracket(
     };
   }
 
-  // ---------- Knockouts: stage-by-stage with re-cascade ----------
-  let next: Bracket = {
+  // Anonymous user — only used by the cascade-bridge for tagging.
+  const userLocalId = "consensus";
+
+  // ---------- Best thirds (FIFA Annex C) ----------
+  // Since Annex C routing the cascade fills the eight third-placed R32
+  // slots only from an explicit `bestThirds` list; it never ranks thirds
+  // itself. Run the group stage once to learn each group's predicted
+  // third-placed team (from the picks and tiebreakers above), then keep
+  // the eight with the best world rank, ties broken by group id so the
+  // result is deterministic. World rank, not odds, because the snapshot
+  // carries match odds only and no group-winner summaries.
+  const groupStage: Bracket = {
     bracketId: "consensus-odds-v1",
     matchPredictions,
     groupTiebreakers,
     knockoutPredictions: {},
     version: 2,
   };
+  const groupOnly = cascade(tournament, bracketToCascadeInput(tournament, groupStage, userLocalId));
+  const thirds: Array<{ team: string; groupId: string }> = [];
+  for (const g of groupOnly.groups) {
+    const third = g.effective_order[2];
+    if (third) thirds.push({ team: third, groupId: g.group_id });
+  }
+  thirds.sort((a, b) => rankOf(a.team) - rankOf(b.team) || a.groupId.localeCompare(b.groupId));
+  const bestThirds = thirds.slice(0, 8).map((t) => t.team);
 
-  // Anonymous user — only used by the cascade-bridge for tagging.
-  const userLocalId = "consensus";
+  // ---------- Knockouts: stage-by-stage with re-cascade ----------
+  let next: Bracket = {
+    ...groupStage,
+    bestThirds,
+  };
 
   for (const stage of KO_PICK_STAGES) {
     const legacy = bracketToCascadeInput(tournament, next, userLocalId);

@@ -281,7 +281,7 @@ team page says "World #1" since FIFA branding was stripped (9e2e2748).
    SyndicateForm country-lock fieldset) are a different feature and
    probably want an allowlist entry in the guard rather than a copy change.
    Needs Tim's call on both before the guard can be re-enabled.
-2. **Molecule global-prediction bracket never reaches the final**
+2. **Molecule global-prediction bracket never reaches the final** **Fixed 2026-10-20 on `fix/molecule-consensus-best-thirds`:** the builder now runs the group stage once, takes each group's predicted third-placed team and keeps the eight with the best world rank; the test is un-skipped and passes.
    (odds-consensus case skipped). `lib/molecule/odds-consensus.ts` should
    pick eight best thirds (for example by world rank from the group
    orders it already computes) and set `bestThirds` on the bracket before
