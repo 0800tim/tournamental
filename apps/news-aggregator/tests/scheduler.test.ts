@@ -15,6 +15,17 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
+// The store keeps only the last 30 days from Date.now() and these
+// fixtures are dated May 2026, so pin the clock (Date only) there;
+// timers and the event loop stay real. Failing since June otherwise.
+import { vi as viClock, beforeAll as beforeAllClock, afterAll as afterAllClock } from 'vitest';
+beforeAllClock(() => {
+  viClock.useFakeTimers({ toFake: ['Date'], now: Date.parse('2026-05-12T00:00:00.000Z') });
+});
+afterAllClock(() => {
+  viClock.useRealTimers();
+});
+
 const here = dirname(fileURLToPath(import.meta.url));
 const bbcXml = readFileSync(resolve(here, 'fixtures/bbc.xml'), 'utf8');
 const guardianXml = readFileSync(resolve(here, 'fixtures/theguardian.xml'), 'utf8');
