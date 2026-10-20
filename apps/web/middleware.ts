@@ -66,6 +66,8 @@ const ARCHIVE_ALIAS_HOSTS: Record<string, string> = {
 /** Request header that tells layouts and components they are serving
  *  a read-only archive. Mirrors lib/archive/server.ts ARCHIVE_HEADER. */
 const ARCHIVE_HEADER = "x-tnm-archive";
+/** Hub counterpart. Mirrors lib/archive/server.ts HUB_HEADER. */
+const HUB_HEADER = "x-tnm-hub";
 
 /**
  * Paths that only make sense for a live tournament. On an archive host
@@ -172,10 +174,25 @@ function isDeprecatedHost(host: string): boolean {
   return DEPRECATED_HOSTS.has(host);
 }
 
+/**
+ * The path with a leading supported locale prefix removed, so host-mode
+ * routing (archive block list, hub allow list, invite links, the `/`
+ * rewrites) sees `/es/pools` as `/pools`. Redirect targets keep the
+ * original path so the visitor's locale survives the hop. Found by the
+ * host-mode tests 2026-10-17: `/fr/leaderboard` was served on the
+ * archive host and `/es` on the hub fell through to the archive.
+ */
+function routePathOf(path: string): string {
+  const prefix = path.split("/")[1] ?? "";
+  if (!isSupportedLocale(prefix)) return path;
+  return path.slice(prefix.length + 1) || "/";
+}
+
 export function middleware(req: NextRequest) {
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
   const path = req.nextUrl.pathname;
   const search = req.nextUrl.search;
+  const routePath = routePathOf(path);
 
   // SEC-WEB-01: Origin/Referer enforcement on mutating /api/v1/** routes.
   // The session cookie is SameSite=None so the browser will attach it on
@@ -183,9 +200,9 @@ export function middleware(req: NextRequest) {
   // request actually originated from a first-party surface. Bearer-token
   // widget routes are exempted (they don't rely on cookie creds).
   if (
-    path.startsWith("/api/v1/") &&
+    routePath.startsWith("/api/v1/") &&
     MUTATING_METHODS.has(req.method) &&
-    !isCsrfExemptPath(path)
+    !isCsrfExemptPath(routePath)
   ) {
     const origin = req.headers.get("origin");
     if (!origin || !CSRF_ALLOWED_ORIGINS.has(origin)) {
@@ -223,19 +240,21 @@ export function middleware(req: NextRequest) {
         headers: { "content-type": "application/json", "cache-control": "no-store" },
       });
     }
-    const legalRedirect = LEGAL_REDIRECT_MAP[path];
+    const legalRedirect = LEGAL_REDIRECT_MAP[routePath];
     if (legalRedirect) {
       return NextResponse.redirect(new URL(`https://tournamental.com${legalRedirect}${search}`), 301);
     }
     if (
-      ARCHIVE_BLOCKED_PREFIXES.some((p) => path === p || path.startsWith(p.endsWith("/") ? p : `${p}/`)) ||
-      ARCHIVE_BLOCKED_PATTERNS.some((re) => re.test(path))
+      ARCHIVE_BLOCKED_PREFIXES.some(
+        (p) => routePath === p || routePath.startsWith(p.endsWith("/") ? p : `${p}/`),
+      ) ||
+      ARCHIVE_BLOCKED_PATTERNS.some((re) => re.test(routePath))
     ) {
       return NextResponse.redirect(new URL(`https://${host}/`), 302);
     }
     const extra = new Headers();
     extra.set(ARCHIVE_HEADER, archive.slug);
-    if (path === "/") {
+    if (routePath === "/") {
       return withLocaleHint(req, extra, "/archive");
     }
     return withLocaleHint(req, extra);
@@ -243,25 +262,27 @@ export function middleware(req: NextRequest) {
 
   // ---- Hub mode: play host with no active tournament ----
   if (isPlayHost(host) && !activeTournament()) {
-    const legalRedirect = LEGAL_REDIRECT_MAP[path];
+    const legalRedirect = LEGAL_REDIRECT_MAP[routePath];
     if (legalRedirect) {
       return NextResponse.redirect(new URL(`https://tournamental.com${legalRedirect}${search}`), 301);
     }
     const hubHeaders = new Headers();
-    hubHeaders.set("x-tnm-hub", "1");
-    if (path === "/") {
+    hubHeaders.set(HUB_HEADER, "1");
+    if (routePath === "/") {
       return withLocaleHint(req, hubHeaders, "/hub");
     }
     // Personal invite links (referral loop): /i/<code> → hub with ?ref=.
-    const inviteMatch = /^\/i\/([a-z0-9]{4,16})$/i.exec(path);
+    const inviteMatch = /^\/i\/([a-z0-9]{4,16})$/i.exec(routePath);
     if (inviteMatch) {
-      const u = new URL(`https://${host}/`);
+      // Keep the visitor's locale prefix on the hop (review 335-2).
+      const localeSeg = path === routePath ? "" : path.slice(0, path.length - routePath.length);
+      const u = new URL(`https://${host}${localeSeg}/`);
       u.searchParams.set("ref", inviteMatch[1]!.toLowerCase());
       return NextResponse.redirect(u, 302);
     }
     const allowed =
-      HUB_ALLOWED_PREFIXES.some((p) => path === p || path.startsWith(p)) ||
-      /\.[a-z0-9]{2,5}$/i.test(path); // static files (svg, png, css, js, json)
+      HUB_ALLOWED_PREFIXES.some((p) => routePath === p || routePath.startsWith(p)) ||
+      /\.[a-z0-9]{2,5}$/i.test(routePath); // static files (svg, png, css, js, json)
     if (!allowed) {
       // Everything else belongs to the most recent archive so old share
       // links, pool pages and bookmarks keep resolving.
@@ -342,7 +363,9 @@ function withLocaleHint(
   // Browsers retain the visible /<locale>/<rest> in the URL bar, which
   // makes deep-linking ("share my Spanish bracket") work.
   if (fromPrefix) {
-    const rewrittenPath = path.slice(fromPrefix.length + 1) || "/";
+    // Archive and hub pass an explicit page (/archive, /hub) for the
+    // bare locale root; otherwise serve the un-prefixed path.
+    const rewrittenPath = rewriteTo ?? (path.slice(fromPrefix.length + 1) || "/");
     const rewriteUrl = new URL(req.url);
     rewriteUrl.pathname = rewrittenPath;
     // Forward the locale to downstream server components via BOTH a
