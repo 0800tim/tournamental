@@ -9,6 +9,17 @@ import { join } from 'node:path';
 import { NewsStore } from '../src/lib/store.js';
 import type { NewsItem } from '../src/types.js';
 
+// The store keeps only the last 30 days from Date.now() and these
+// fixtures are dated May 2026, so pin the clock (Date only) there;
+// timers and the event loop stay real. Failing since June otherwise.
+import { vi as viClock, beforeAll as beforeAllClock, afterAll as afterAllClock } from 'vitest';
+beforeAllClock(() => {
+  viClock.useFakeTimers({ toFake: ['Date'], now: Date.parse('2026-05-12T00:00:00.000Z') });
+});
+afterAllClock(() => {
+  viClock.useRealTimers();
+});
+
 function mkItem(overrides: Partial<NewsItem>): NewsItem {
   return {
     id: 'stub-00000001',
