@@ -330,7 +330,7 @@ Web code first, in the order that keeps each stacked branch after its base:
 
 7. **#360**: restart `tournamental-game` (no build).
 8. **#352**: build `apps/admin`, restart `tournamental-admin`.
-9. **#351**: nothing to restart; the next CI run on `main` should go green.
+9. **#351** and **#361** (test files only, game and admin suites to green): nothing to restart; with #344 in, the next CI run on `main` should go green.
 10. The docs PRs in any order: #338, #337, #339, #341, #342, #346, #347, #349, #350, #355, #356, #358, #359.
 
 The merge-tree run over all twenty-five in this order reports the one conflict already documented (#348 on `apps/web/app/archive/page.tsx`) and nothing else.
@@ -354,4 +354,4 @@ And in `apps/admin` for #352: `node_modules/.bin/vitest run __tests__/lib/pii.te
 27. The R16 placement rule, the rugby scoring model, the live provider, and whether to commit the rugby-league fixture drafts (#359).
 28. The kickoff-during-outage pool rule and whether to run a second tunnel (#358).
 29. If the FWC 2026 bronze final is missing from `match_results`, re-post it once after #360 restarts the game service.
-30. The three failing cases in `apps/game/tests/match-result.test.ts` and the delete-dialog case in the admin Customer 360 test fail on `main` today; both deserve their own item.
+30. The three failing cases in `apps/game/tests/match-result.test.ts` and the delete-dialog case in the admin Customer 360 test failed on `main`; PR #361 fixes them (and nine more in the game suite) with test-only changes.
