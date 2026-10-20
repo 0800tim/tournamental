@@ -129,6 +129,9 @@ afterEach(async () => {
 describe('phone lockout', () => {
   it('locks the phone for 1 hour after 5 consecutive failed verifies', async () => {
     const phone = '+6421999000';
+    // The failure counter is a fixed 15-minute bucket; start just inside
+    // one so all five failures land in the same window.
+    h.now.value = Math.floor(h.now.value / 900_000) * 900_000 + 5_000;
     // Burn 5 failures across two fresh OTPs (each OTP only takes 4 wrong
     // attempts before its own counter trips at 5; the 5th failure
     // happens against a fresh OTP). We use the rate-limit shortcut by
