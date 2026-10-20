@@ -72,3 +72,17 @@ export function gcRateLimitBuckets(): void {
     if (b.resetAt <= now) buckets.delete(k);
   }
 }
+
+/**
+ * Test and operator helper: drop every bucket, or only those whose key
+ * starts with `prefix`. Never called on a request path.
+ */
+export function resetRateLimitBuckets(prefix?: string): void {
+  if (!prefix) {
+    buckets.clear();
+    return;
+  }
+  for (const k of buckets.keys()) {
+    if (k.startsWith(prefix)) buckets.delete(k);
+  }
+}

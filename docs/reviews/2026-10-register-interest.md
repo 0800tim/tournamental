@@ -42,7 +42,7 @@ passwords.
 | RI-03 | A repeat submit could set `referred_by_code` on an existing row, including to the person's own code, inflating referral counts | Medium | Fixed |
 | RI-04 | Request body parsed with no size limit | Low | Fixed |
 | RI-05 | `source_path` stored as free text | Low | Fixed |
-| RI-06 | Rate limit is in memory, per process and per IP only | Low | Open, see below |
+| RI-06 | Rate limit is in memory, per process and per IP only | Low | Global brake added (`fix/register-interest-global-brake`); Turnstile open |
 | RI-07 | Archive host blocked mutating methods but not the GET routes that write (signed approve and deny links for pool join requests) | Medium | Fixed |
 | RI-08 | Invite code generation had a small modulo bias | Info | Fixed |
 | RI-09 | Country was cut to two characters before validation, so `IRL` became `IR` | Low | Fixed |

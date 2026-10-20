@@ -4,7 +4,7 @@
  * the module boundary and global fetch is stubbed to throw, so no
  * network call can happen.
  */
-import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { NextRequest } from "next/server";
 
 const state = vi.hoisted(() => {
@@ -35,6 +35,8 @@ vi.mock("@/lib/tournaments/registry", async (importOriginal) => {
 import { POST, GET } from "@/app/api/v1/register-interest/route";
 import { pushRegisterInterestToGhl } from "@/lib/register-interest/ghl";
 import { registerInterestDb } from "@/lib/register-interest/store";
+import { GLOBAL_BRAKE_KEY, __resetGlobalBrakeWarn } from "@/lib/register-interest/brake";
+import { resetRateLimitBuckets } from "@/lib/rate-limit/in-memory";
 
 const pushMock = vi.mocked(pushRegisterInterestToGhl);
 
@@ -89,6 +91,9 @@ function rows() {
 beforeEach(() => {
   registerInterestDb()!.exec("DELETE FROM register_interest");
   pushMock.mockClear();
+  // The global brake bucket is per process; keep the rest of this file
+  // from accumulating towards the default ceiling.
+  resetRateLimitBuckets(GLOBAL_BRAKE_KEY);
 });
 
 afterAll(() => {
@@ -252,6 +257,58 @@ describe("rate limit", () => {
     }
     const res = await POST(makeRequest(GOOD, { ip }));
     expect(res.status).toBe(429);
+  });
+});
+
+describe("global brake", () => {
+  beforeEach(() => {
+    resetRateLimitBuckets(GLOBAL_BRAKE_KEY);
+    __resetGlobalBrakeWarn();
+  });
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    resetRateLimitBuckets(GLOBAL_BRAKE_KEY);
+  });
+
+  it("caps attempts per minute across different IPs and answers 429 with Retry-After", async () => {
+    vi.stubEnv("REGISTER_INTEREST_GLOBAL_PER_MINUTE", "3");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    for (let i = 0; i < 3; i++) {
+      const res = await POST(makeRequest({ ...GOOD, email: `gb${i}@example.com` }));
+      expect(res.status, `submit ${i + 1}`).toBe(200);
+    }
+    const res = await POST(makeRequest({ ...GOOD, email: "gb4@example.com" }));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ ok: false, error: "rate_limited", scope: "global" });
+    const retry = Number(res.headers.get("retry-after"));
+    expect(retry).toBeGreaterThanOrEqual(1);
+    expect(retry).toBeLessThanOrEqual(60);
+    expect(res.headers.get("cache-control")).toBe("no-store");
+    // Nothing was stored or pushed for the refused attempt.
+    expect(rows()).toHaveLength(3);
+    expect(pushMock).toHaveBeenCalledTimes(3);
+  });
+
+  it("counts attempts the per-IP limit let through, valid or not", async () => {
+    vi.stubEnv("REGISTER_INTEREST_GLOBAL_PER_MINUTE", "2");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await POST(makeRequest({ ...GOOD, email: "bad" }));
+    await POST(makeRequest({ ...GOOD, email: "bad" }));
+    const res = await POST(makeRequest(GOOD));
+    expect(res.status).toBe(429);
+    expect(rows()).toHaveLength(0);
+  });
+
+  it("does not fire when the per-IP limit already refused the request", async () => {
+    vi.stubEnv("REGISTER_INTEREST_GLOBAL_PER_MINUTE", "1");
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    const ip = "198.51.100.77";
+    for (let i = 0; i < 8; i++) await POST(makeRequest({ ...GOOD, email: "bad" }, { ip }));
+    // The per-IP bucket is full; the global bucket counted only those 8
+    // and a 9th from this IP is refused per-IP, without a scope field.
+    const res = await POST(makeRequest(GOOD, { ip }));
+    expect(res.status).toBe(429);
+    expect(await res.json()).toEqual({ ok: false, error: "rate_limited" });
   });
 });
 
