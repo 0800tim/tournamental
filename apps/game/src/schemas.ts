@@ -143,6 +143,9 @@ export const matchResultBodySchema = z.object({
   // bronze-final settlement was rejected as a validation error
   // (code review of PR #343, finding 343-2).
   stage: z.enum(["group", "r32", "r16", "qf", "sf", "tp", "f"]).optional(),
+  // How a knockout was decided; the archive shows "aet" and "pens"
+  // (review 343-3). Absent means full time.
+  method: z.enum(["ft", "et", "pens"]).optional(),
   impliedAtLock: z.number().min(0).max(1).optional(),
   secondsSinceLock: z.number().min(0).optional(),
   windowSeconds: z.number().min(1).optional(),

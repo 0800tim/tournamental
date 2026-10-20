@@ -43,6 +43,8 @@ export interface MatchOutcome {
    * smoke tests.
    */
   readonly windowSeconds?: number;
+  /** How a knockout was decided: "ft" (default), "et", "pens". */
+  method?: "ft" | "et" | "pens";
 }
 
 /** Lock receipt returned to the user after a successful submit. */

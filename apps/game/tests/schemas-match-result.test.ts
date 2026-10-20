@@ -25,3 +25,13 @@ describe("matchResultBodySchema stage", () => {
     expect(matchResultBodySchema.safeParse(base).success).toBe(true);
   });
 });
+
+describe("matchResultBodySchema method", () => {
+  it.each(["ft", "et", "pens"])("accepts method %s", (method) => {
+    expect(matchResultBodySchema.safeParse({ ...base, method }).success).toBe(true);
+  });
+  it("rejects an unknown method and keeps it optional", () => {
+    expect(matchResultBodySchema.safeParse({ ...base, method: "aet" }).success).toBe(false);
+    expect(matchResultBodySchema.safeParse(base).success).toBe(true);
+  });
+});
