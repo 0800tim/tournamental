@@ -291,3 +291,67 @@ Everything the sixteen PR bodies, their review documents and the hivemind log le
 
 21. The two hand-made `.env.*.bak-sendgrid-2026-10-15` files in the main checkout become ignored once #336 merges; until then never `git add -A` there.
 22. PR #335's locale fix was committed on the 17th (a29e3592) after being found uncommitted; its body now matches its content.
+
+---
+
+# Update, 20 October, evening: the nine PRs opened today, #351 to #360
+
+> Same method, re-run over all twenty-five open draft PRs after the day's work. `main` is still e1e0eac9. The order in the previous section stands; this adds where the new PRs slot in and the one new restart point.
+
+## What the new PRs touch
+
+| PR | Branch (base) | Runtime code | Restart |
+| --- | --- | --- | --- |
+| #351 | `fix/ci-bot-sdk-examples` (main) | `packages/bot-sdk/examples/*` typecheck only | none; CI only |
+| #352 | `fix/admin-customer360-pii` (main) | `apps/admin` lib, two routes, component, three pages | **`tournamental-admin`** after a build of `apps/admin` |
+| #353 | `fix/molecule-consensus-best-thirds` (on #344) | `apps/web/lib/molecule/odds-consensus.ts` | with the web restart |
+| #354 | `fix/register-interest-global-brake` (on #336) | `apps/web` register-interest route, brake module, limiter, `.env.example` | with the web restart |
+| #355 | `docs/draft-pr-code-review` (main) | none | none |
+| #356 | `docs/retention-consent-paper` (main) | none | none |
+| #357 | `feat/registry-chrome-fields` (on #344) | `apps/web` registry, shell context, layout, AppBar, drawer, nav links | with the web restart |
+| #358 | `docs/incident-runbooks` (main) | none | none |
+| #359 | `docs/rwc2027-engine-readiness` (main) | none | none |
+| #360 | `fix/game-settle-bronze-final` (main) | `apps/game/src/schemas.ts` | **`tournamental-game`** (no build, tsx serves the source) |
+
+Same-day fix commits also landed on #335, #336, #343, #345 and #348 for the code review's findings (status table in `docs/reviews/2026-10-draft-pr-code-review.md`); they change nothing about the order below.
+
+## Order, with the new ones placed
+
+Web code first, in the order that keeps each stacked branch after its base:
+
+1. #335, then #336, then **#354** (on #336)
+2. #340, then #343
+3. #344, then **#353** (on #344)
+4. #345
+5. #348 (resolve the archive page conflict as documented above)
+6. **#357** (on #344; its drawer edits sit in different hunks from #348's, the simulation after the resolved conflict shows no further clash)
+
+   **Build `apps/web`, restart `tournamental-web` once, run checks A to D.**
+
+7. **#360**: restart `tournamental-game` (no build).
+8. **#352**: build `apps/admin`, restart `tournamental-admin`.
+9. **#351**: nothing to restart; the next CI run on `main` should go green.
+10. The docs PRs in any order: #338, #337, #339, #341, #342, #346, #347, #349, #350, #355, #356, #358, #359.
+
+The merge-tree run over all twenty-five in this order reports the one conflict already documented (#348 on `apps/web/app/archive/page.tsx`) and nothing else.
+
+## Tests to run on bigmac before merging (additions)
+
+```bash
+node_modules/.bin/vitest run lib/molecule/test/odds-consensus.test.ts        # #353, 9 cases
+node_modules/.bin/vitest run __tests__/register-interest                     # #354 on top of #336, 74 cases
+node_modules/.bin/vitest run __tests__/platform __tests__/shell-chrome.test.tsx __tests__/AppMenuDrawer.test.tsx   # #357, with #335 and #345
+```
+
+And in `apps/admin` for #352: `node_modules/.bin/vitest run __tests__/lib/pii.test.ts __tests__/lib/audit-context.test.ts __tests__/lib/reveal-routes.test.ts __tests__/components/RevealPii.test.tsx __tests__/pages/customer360Tabs.test.tsx` (one pre-existing failure in the last file, the delete dialog, fails on `main` too). In `apps/game` for #360: `node_modules/.bin/vitest run tests/schemas-match-result.test.ts` (the three failing cases in `tests/match-result.test.ts` fail on `main` too).
+
+## Needs Tim, additions to the digest
+
+23. Set `REGISTER_INTEREST_GLOBAL_PER_MINUTE` in `apps/web/.env.production` only if 60 a minute is wrong for launch week (#354).
+24. The two spots that still show an unmasked email in the admin console: the users list column (it is a search key) and the user page header (#352).
+25. The live-mode embed plan before the framing rule is enforced on play: in-frame links need `target="_top"` or to carry `?embed=1` (#345, review 345-1); the archive host is exempt now.
+26. Retention and consent decisions 1 and 2 before the hub form is promoted (#356).
+27. The R16 placement rule, the rugby scoring model, the live provider, and whether to commit the rugby-league fixture drafts (#359).
+28. The kickoff-during-outage pool rule and whether to run a second tunnel (#358).
+29. If the FWC 2026 bronze final is missing from `match_results`, re-post it once after #360 restarts the game service.
+30. The three failing cases in `apps/game/tests/match-result.test.ts` and the delete-dialog case in the admin Customer 360 test fail on `main` today; both deserve their own item.
