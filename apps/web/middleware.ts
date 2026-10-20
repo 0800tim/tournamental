@@ -274,7 +274,9 @@ export function middleware(req: NextRequest) {
     // Personal invite links (referral loop): /i/<code> → hub with ?ref=.
     const inviteMatch = /^\/i\/([a-z0-9]{4,16})$/i.exec(routePath);
     if (inviteMatch) {
-      const u = new URL(`https://${host}/`);
+      // Keep the visitor's locale prefix on the hop (review 335-2).
+      const localeSeg = path === routePath ? "" : path.slice(0, path.length - routePath.length);
+      const u = new URL(`https://${host}${localeSeg}/`);
       u.searchParams.set("ref", inviteMatch[1]!.toLowerCase());
       return NextResponse.redirect(u, 302);
     }

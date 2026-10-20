@@ -273,6 +273,12 @@ describe("hub mode (play host, no active tournament)", () => {
     expect(rewrittenPath(run("play.localhost", "/"))).toBe("/hub");
   });
 
+  it("keeps the locale prefix when an invite link carries one (review 335-2)", () => {
+    const res = run(PLAY, "/es/i/9BSY9ET");
+    expect(res.status).toBe(302);
+    expect(location(res)).toBe(`https://${PLAY}/es/?ref=9bsy9et`);
+  });
+
   it("302s /i/<code> to the hub with ?ref=<code> lower-cased", () => {
     const res = run(PLAY, "/i/9BSY9ET");
     expect(res.status).toBe(302);
