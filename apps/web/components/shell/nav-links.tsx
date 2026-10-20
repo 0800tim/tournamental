@@ -33,6 +33,7 @@ import {
   FlagIcon,
   RobotIcon,
 } from "./icons";
+import { chromeTournament } from "@/lib/tournaments/registry";
 
 export interface NavLink {
   /** English fallback label. Always present so a missing translation
@@ -229,16 +230,48 @@ const ARCHIVE_HIDDEN_HREFS = new Set([
   "/leaderboard",
 ]);
 
-export function forArchive(links: readonly NavLink[], archive: boolean): readonly NavLink[] {
+export function forArchive(
+  links: readonly NavLink[],
+  archive: boolean,
+  routeBase: string = DEFAULT_ROUTE_BASE,
+): readonly NavLink[] {
   if (!archive) return links;
   return links
     .filter((l) => !ARCHIVE_HIDDEN_HREFS.has(l.href))
     .map((l) =>
-      l.href === "/world-cup-2026"
+      l.href === routeBase
         ? { ...l, label: "Bracket", i18nKey: "nav.bracket_archive", emphasis: undefined }
         : l,
     );
 }
+
+/**
+ * The lists above are written against the FWC 2026 route family. The
+ * registry's `routeBase` for the tournament the shell is about swaps
+ * that prefix on `href` and `matchPrefix`, so the next tournament's
+ * pages need a registry entry and nothing here (2026-10-20).
+ */
+const WRITTEN_BASE = "/world-cup-2026";
+export const DEFAULT_ROUTE_BASE: string = chromeTournament()?.routeBase ?? WRITTEN_BASE;
+
+function swapBase(value: string, routeBase: string): string {
+  if (value === WRITTEN_BASE) return routeBase;
+  if (value.startsWith(`${WRITTEN_BASE}/`)) return routeBase + value.slice(WRITTEN_BASE.length);
+  return value;
+}
+
+export function rebaseLinks(links: readonly NavLink[], routeBase: string): readonly NavLink[] {
+  if (routeBase === WRITTEN_BASE) return links;
+  return links.map((l) => ({
+    ...l,
+    href: swapBase(l.href, routeBase),
+    ...(l.matchPrefix ? { matchPrefix: swapBase(l.matchPrefix, routeBase) } : {}),
+  }));
+}
+
+export const primaryDesktopFor = (routeBase: string): readonly NavLink[] => rebaseLinks(PRIMARY_DESKTOP, routeBase);
+export const moreDesktopFor = (routeBase: string): readonly NavLink[] => rebaseLinks(MORE_DESKTOP, routeBase);
+export const drawerPrimaryFor = (routeBase: string): readonly NavLink[] => rebaseLinks(DRAWER_PRIMARY, routeBase);
 
 export function isLinkActive(link: NavLink, pathname: string): boolean {
   const prefix = link.matchPrefix ?? stripHash(link.href);

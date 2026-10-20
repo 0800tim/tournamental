@@ -26,7 +26,7 @@
 import { LocalizedLink as Link } from "@/components/i18n/LocalizedLink";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
-import { useShellMode } from "@/lib/archive/context";
+import { useShellMode, type ShellModeState } from "@/lib/archive/context";
 
 import { AuthChip } from "./AuthChip";
 import { DesktopNav } from "./DesktopNav";
@@ -102,7 +102,7 @@ export function AppBar({
           />
           <span className="vt-appbar-wordmark vt-wordmark" aria-hidden="true">
             Tournamental<sup className="vt-appbar-wordmark-tm">™</sup>{" "}
-            <span className="vt-appbar-wordmark-sub">{archive ? "FWC 2026 archive" : hub ? "RWC 2027 next" : "FWC2026"}</span>
+            <span className="vt-appbar-wordmark-sub">{wordmarkSub(shell)}</span>
           </span>
         </Link>
         <h1 className="vt-appbar-title" aria-live="polite">
@@ -177,4 +177,14 @@ export function AppBar({
       {hideDesktopNav ? null : <DesktopNav />}
     </header>
   );
+}
+
+/**
+ * The small label after the wordmark, from the registry rather than a
+ * hard-coded tournament: "FWC 2026 archive", "RWC 2027 next", "FWC2026".
+ */
+export function wordmarkSub(shell: ShellModeState): string {
+  if (shell.mode === "archive") return shell.current ? `${shell.current.shortName} archive` : "archive";
+  if (shell.mode === "hub") return shell.upcoming ? `${shell.upcoming.shortName} next` : "";
+  return shell.current?.code ?? "";
 }

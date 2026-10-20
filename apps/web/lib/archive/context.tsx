@@ -19,6 +19,14 @@
 
 import { createContext, useContext, type ReactNode } from "react";
 
+import {
+  chromeTournament,
+  summarise,
+  tournamentBySlug,
+  upcomingTournament,
+  type TournamentSummary,
+} from "@/lib/tournaments/registry";
+
 export type ShellMode = "live" | "archive" | "hub";
 
 export interface ShellModeState {
@@ -29,14 +37,30 @@ export interface ShellModeState {
   readonly name: string | null;
   /** ISO end date of the archived tournament. */
   readonly endsUtc: string | null;
+  /**
+   * The tournament this request is about: the archived entry on an
+   * archive host, the active (or newest archived) entry on the live
+   * host, null on the hub. Chrome reads names, codes and route bases
+   * from here instead of naming a tournament (2026-10-20).
+   */
+  readonly current: TournamentSummary | null;
+  /** The upcoming entry, for hub labels and "what's next" links. */
+  readonly upcoming: TournamentSummary | null;
 }
 
-const ShellModeContext = createContext<ShellModeState>({
-  mode: "live",
-  slug: null,
-  name: null,
-  endsUtc: null,
-});
+/** State for a plain live render with no provider (tests, previews). */
+export function defaultShellMode(): ShellModeState {
+  return {
+    mode: "live",
+    slug: null,
+    name: null,
+    endsUtc: null,
+    current: summarise(chromeTournament()),
+    upcoming: summarise(upcomingTournament()),
+  };
+}
+
+const ShellModeContext = createContext<ShellModeState>(defaultShellMode());
 
 export function ShellModeProvider({
   value,
@@ -56,9 +80,17 @@ export function ArchiveProvider({
   slug: string | null;
   children: ReactNode;
 }) {
+  const entry = slug ? tournamentBySlug(slug) : null;
   return (
     <ShellModeProvider
-      value={{ mode: slug ? "archive" : "live", slug, name: null, endsUtc: null }}
+      value={{
+        mode: slug ? "archive" : "live",
+        slug,
+        name: entry?.name ?? null,
+        endsUtc: entry?.endsUtc ?? null,
+        current: summarise(entry ?? chromeTournament()),
+        upcoming: summarise(upcomingTournament()),
+      }}
     >
       {children}
     </ShellModeProvider>
