@@ -1,3 +1,7 @@
 # Playwright e2e specs require @playwright/test which isn't installed in
 # this monorepo yet; they're a placeholder for when the dependency lands.
 __tests__/e2e/
+
+# Ambient declaration for the plain-ESM headers module; next lint's parser
+# does not treat .d.mts as a declaration file (2026-10-20).
+lib/security/headers.d.mts
