@@ -90,12 +90,16 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
     [isAuthed, archive, routeBase],
   );
 
-  const handleEsc = useCallback(
-    (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    },
-    [onClose],
-  );
+  // Keep the latest onClose in a ref so the focus effect below depends on
+  // `open` alone; a fresh arrow from the parent must not re-run it and
+  // yank focus back to the close button (review 348-2).
+  const onCloseRef = useRef(onClose);
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+  const handleEsc = useCallback((e: KeyboardEvent) => {
+    if (e.key === "Escape") onCloseRef.current();
+  }, []);
 
   const panelRef = useRef<HTMLElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -119,6 +123,13 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
       if (focusables.length === 0) return;
       const first = focusables[0]!;
       const last = focusables[focusables.length - 1]!;
+      // Focus that has drifted outside the panel (a click on dead space)
+      // comes back to the first control instead of the page behind.
+      if (!panelRef.current.contains(document.activeElement)) {
+        e.preventDefault();
+        first.focus();
+        return;
+      }
       if (e.shiftKey && document.activeElement === first) {
         e.preventDefault();
         last.focus();

@@ -152,10 +152,9 @@ export function RegisterInterestForm({
         </p>
         <div className="vt-hub-invite">
           <code className="vt-hub-invite-url">{invite.url}</code>
-          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={copyLink} aria-label="Copy your invite link">
+          <button type="button" className="vt-hub-btn vt-hub-btn-ghost" onClick={copyLink} aria-label={copied ? "Invite link copied" : "Copy your invite link"}>
             {copied ? "Copied" : "Copy"}
           </button>
-          <span className="vt-sr-only" aria-live="polite">{copied ? "Invite link copied" : ""}</span>
         </div>
         <div className="vt-hub-share-row">
           <a

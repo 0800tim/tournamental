@@ -99,7 +99,11 @@ export function CountdownBanner({
   // One sentence for assistive tech, at minute granularity. The grid
   // ticks every second and is hidden from screen readers; a live region
   // here would announce every tick (fixed 2026-10-17).
-  const summary = parts.elapsed
+  // Before hydration `now` is seeded with the target itself, so the parts
+  // read as elapsed; give a neutral label until the real clock lands.
+  const summary = now === targetMs
+    ? `Countdown to ${title}`
+    : parts.elapsed
     ? pastLabel
     : `${summaryFor(parts, safeT(t, "countdown.unit_days", "Days"), safeT(t, "countdown.unit_hours", "Hrs"), safeT(t, "countdown.unit_minutes", "Min"))} to ${title}`;
 

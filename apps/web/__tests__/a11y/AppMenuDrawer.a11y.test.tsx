@@ -57,6 +57,15 @@ describe("<AppMenuDrawer> accessibility", () => {
     expect(document.activeElement).toBe(last);
   });
 
+  it("brings focus back into the panel when it has drifted out", () => {
+    render(<Harness open onClose={() => {}} />);
+    (document.activeElement as HTMLElement | null)?.blur();
+    expect(document.activeElement).toBe(document.body);
+    fireEvent.keyDown(document, { key: "Tab" });
+    const dialog = screen.getByRole("dialog", { name: "Menu" });
+    expect(dialog.contains(document.activeElement)).toBe(true);
+  });
+
   it("closes on Escape", () => {
     const onClose = vi.fn();
     render(<Harness open onClose={onClose} />);
