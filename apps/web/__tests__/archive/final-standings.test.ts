@@ -201,18 +201,18 @@ describe("loadFinalStandings: missing or broken database", () => {
 });
 
 describe("loadKnockoutResults", () => {
-  it("returns round of 16 onward in recorded order with parsed scores", () => {
+  it("returns round of 16 onward in match id order with parsed scores", () => {
     result("final", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "ESP", method: "aet", stage: "final" }, 900);
     result("sf_01", { outcome: "home_win", homeScore: 2, awayScore: 0, winner: "ESP" }, 700);
     result("qf_03", { outcome: "away_win", homeScore: 1, awayScore: 2, winner: "ARG" }, 600);
     result("r16_02", { outcome: "home_win", homeScore: 3, awayScore: 1, winner: "ENG" }, 500);
     result("tp", { outcome: "home_win", homeScore: 6, awayScore: 4, winner: "ENG", method: "pens" }, 800);
     const rows = loadKnockoutResults(T);
-    expect(rows.map((r) => r.matchId)).toEqual(["r16_02", "qf_03", "sf_01", "tp", "final"]);
-    expect(rows[0]).toEqual({ matchId: "r16_02", stage: "r16", homeScore: 3, awayScore: 1, winner: "ENG", method: null });
+    expect(rows.map((r) => r.matchId)).toEqual(["final", "qf_03", "r16_02", "sf_01", "tp"]);
+    expect(rows[2]).toEqual({ matchId: "r16_02", stage: "r16", homeScore: 3, awayScore: 1, winner: "ENG", method: null });
     // "final" (from the id or a stored stage) is normalised to the page key "f".
-    expect(rows[4]).toEqual({ matchId: "final", stage: "f", homeScore: 1, awayScore: 0, winner: "ESP", method: "aet" });
-    expect(rows[3]!.stage).toBe("tp");
+    expect(rows[0]).toEqual({ matchId: "final", stage: "f", homeScore: 1, awayScore: 0, winner: "ESP", method: "aet" });
+    expect(rows[4]!.stage).toBe("tp");
   });
 
   it("includes the round of 32 and leaves out group matches", () => {
@@ -235,6 +235,13 @@ describe("loadKnockoutResults", () => {
     expect(new Set(rows.map((r) => r.stage))).toEqual(new Set(["r32"]));
     expect(rows.map((r) => r.matchId)[15]).toBe("r32_16");
     for (const r of rows) expect(KNOCKOUT_STAGE_ORDER).toContain(r.stage);
+  });
+
+  it("orders a stage by match id even when results were recorded out of order", () => {
+    result("r16_02", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "A" }, 100);
+    result("r16_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "B" }, 200);
+    result("r16_10", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "C" }, 50);
+    expect(loadKnockoutResults(T).map((r) => r.matchId)).toEqual(["r16_01", "r16_02", "r16_10"]);
   });
 
   it("lists a final settled without a stage under f, so the home page shows it", () => {

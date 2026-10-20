@@ -126,6 +126,9 @@ function normaliseStage(stage: string): string {
   return stage === "final" ? "f" : stage;
 }
 
+/** Knockout results ordered by match id, which the fixtures zero-pad
+ *  (r16_01, r16_02, ...), so each stage lists in bracket order rather
+ *  than the order results happened to be recorded (review 343-4). */
 export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
   const p = gameDbPath();
   if (!existsSync(p)) return [];
@@ -138,7 +141,7 @@ export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
           WHERE tournament_id = ?
             AND (match_id LIKE 'r32%' OR match_id LIKE 'r16%' OR match_id LIKE 'qf%'
                  OR match_id LIKE 'sf%' OR match_id LIKE 'tp%' OR match_id = 'final')
-          ORDER BY recorded_at ASC`,
+          ORDER BY match_id ASC`,
       )
       .all(tournamentId) as Array<{ match_id: string; outcome: string }>;
     return rows.map((r) => {
