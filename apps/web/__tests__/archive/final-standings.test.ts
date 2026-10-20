@@ -221,8 +221,9 @@ describe("loadKnockoutResults", () => {
     result("r32_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "ESP" }, 300);
     result("r16_01", { outcome: "home_win", homeScore: 1, awayScore: 0, winner: "ESP" }, 400);
     const rows = loadKnockoutResults(T);
-    expect(rows.map((r) => r.matchId)).toEqual(["r32_01", "r16_01"]);
-    expect(rows[0]!.stage).toBe("r32");
+    // Ordered by match id, so r16_01 precedes r32_01; the page groups by stage.
+    expect(rows.map((r) => r.matchId)).toEqual(["r16_01", "r32_01"]);
+    expect(rows[1]!.stage).toBe("r32");
   });
 
   it("returns all 16 round-of-32 results, each under a stage the home page lists", () => {
