@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Api } from "@/lib/api";
 import { requireAuth } from "@/lib/auth";
 import { fetchCustomer360 } from "@/lib/customer360";
+import { maskEmail, maskPhone } from "@/lib/pii";
 import { liveUserPools } from "@/lib/live";
 import { HumannessChip } from "@/components/HumannessChip";
 import { PunditChip } from "@/components/PunditChip";
@@ -44,10 +45,23 @@ export default async function UserDetailPage(
 ) {
   const params = await props.params;
   const session = await requireAuth();
-  const [u, customer360] = await Promise.all([
+  const [u, customer360Raw] = await Promise.all([
     Api.user(session, params.id),
     fetchCustomer360(params.id),
   ]);
+  // Mask the CRM contact's email and phone before the data crosses into
+  // the client component; the full values come back only through the
+  // audited /api/users/:id/reveal route (2026-10-20).
+  const customer360 = customer360Raw.crmContact
+    ? {
+        ...customer360Raw,
+        crmContact: {
+          ...customer360Raw.crmContact,
+          email: customer360Raw.crmContact.email ? maskEmail(customer360Raw.crmContact.email) : undefined,
+          phone: customer360Raw.crmContact.phone ? maskPhone(customer360Raw.crmContact.phone) : undefined,
+        },
+      }
+    : customer360Raw;
   const userPools = liveUserPools(params.id) ?? [];
   const ownedSlugs = userPools.filter((p) => p.role === "owner").map((p) => p.slug);
 
