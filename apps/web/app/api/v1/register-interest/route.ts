@@ -7,7 +7,8 @@
  * tagged for the tournament. Returns the person's invite code so the
  * thank-you state can show their personal link.
  *
- * Abuse controls: honeypot field, per-IP rate limit, strict field
+ * Abuse controls: honeypot field, per-IP rate limit, a global per-minute
+ * brake (REGISTER_INTEREST_GLOBAL_PER_MINUTE, default 60), strict field
  * lengths, referral code validated against existing codes. Mutating
  * /api/v1 routes are also Origin-checked in middleware (SEC-WEB-01).
  *
@@ -24,6 +25,7 @@ import {
   referralCount,
   upsertRegisterInterest,
 } from "@/lib/register-interest/store";
+import { checkGlobalBrake } from "@/lib/register-interest/brake";
 import { pushRegisterInterestToGhl } from "@/lib/register-interest/ghl";
 import { upcomingTournament } from "@/lib/tournaments/registry";
 
@@ -85,6 +87,24 @@ export async function POST(req: NextRequest) {
         headers: {
           ...NO_STORE,
           "retry-after": String(Math.ceil(rl.retryAfterMs / 1000)),
+        },
+      },
+    );
+  }
+
+  // Global brake (RI-06): a per-process ceiling on attempts per minute
+  // across every IP, so a distributed flood cannot outrun the per-IP
+  // limit. Same error code as the per-IP limit so the form copy holds;
+  // `scope` tells an operator which brake fired.
+  const brake = checkGlobalBrake();
+  if (!brake.ok) {
+    return Response.json(
+      { ok: false, error: "rate_limited", scope: "global" },
+      {
+        status: 429,
+        headers: {
+          ...NO_STORE,
+          "retry-after": String(Math.max(1, Math.ceil(brake.retryAfterMs / 1000))),
         },
       },
     );
