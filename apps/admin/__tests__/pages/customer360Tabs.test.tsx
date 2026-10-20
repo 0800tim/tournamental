@@ -196,7 +196,8 @@ describe("<Customer360Tabs>", () => {
     const dialog = screen.getByRole("dialog");
     expect(dialog).toBeInTheDocument();
     const within = await import("@testing-library/react").then((m) => m.within(dialog));
-    const confirmBtn = within.getByRole("button", { name: /Delete data/i });
+    // The confirm label reads "Delete user" (the dialog is the account delete).
+    const confirmBtn = within.getByRole("button", { name: /Delete user/i });
     expect(confirmBtn).toBeDisabled();
     await user.type(within.getByLabelText(/confirm phrase/i), "u_42");
     expect(confirmBtn).not.toBeDisabled();

@@ -8,7 +8,7 @@ import {
 } from "./helpers.js";
 
 describe("game-service / leaderboard", () => {
-  const built = makeServer({ cacheTtlMs: 50 });
+  const built = makeServer({ cacheTtlMs: 50, nowMs: () => Date.parse("2026-06-01T00:00:00Z") });
   afterAll(async () => {
     const { app } = await built;
     await app.close();
@@ -125,7 +125,7 @@ describe("game-service / leaderboard", () => {
 });
 
 describe("game-service / syndicate leaderboard", () => {
-  const built = makeServer({ cacheTtlMs: 50 });
+  const built = makeServer({ cacheTtlMs: 50, nowMs: () => Date.parse("2026-06-01T00:00:00Z") });
   afterAll(async () => {
     const { app } = await built;
     await app.close();

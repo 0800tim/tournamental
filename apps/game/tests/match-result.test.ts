@@ -8,7 +8,12 @@ import {
 } from "./helpers.js";
 
 describe("game-service / match result + scoring", () => {
-  const built = makeServer();
+  // Pin the server clock before the tournament: bracket submit strips
+  // any pick whose match has kicked off on the server clock, so on the
+  // real clock (past July 2026) both seeded brackets lost matches 11 and
+  // 12 and nothing was left to re-score. Same pattern as
+  // kickoff-lockout.test.ts.
+  const built = makeServer({ nowMs: () => Date.parse("2026-06-01T00:00:00Z") });
   afterAll(async () => {
     const { app } = await built;
     await app.close();
