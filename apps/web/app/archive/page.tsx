@@ -22,6 +22,7 @@ import {
   loadFinalStandings,
   loadKnockoutResults,
 } from "@/lib/archive/final-standings";
+import { knockoutLinkLabel, knockoutScoreText } from "@/lib/archive/labels";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import { tournamentBySlug, upcomingTournament } from "@/lib/tournaments/registry";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -158,14 +159,15 @@ export default async function ArchiveHomePage(): Promise<JSX.Element> {
                   <ul className="vt-arc-ko-list">
                     {(byStage.get(s) ?? []).map((k) => (
                       <li key={k.matchId} className="vt-arc-ko-match">
-                        <span className="vt-arc-ko-winner">{flagOf(k.winner)} {teamName(k.winner)}</span>
-                        <span className="vt-arc-ko-score">
-                          {k.homeScore !== null && k.awayScore !== null
-                            ? `${Math.max(k.homeScore, k.awayScore)}-${Math.min(k.homeScore, k.awayScore)}`
-                            : "won"}
-                          {k.method === "et" ? " aet" : k.method === "pens" ? " pens" : ""}
-                        </span>
-                        <a className="vt-arc-ko-link" href={`/match/${encodeURIComponent(k.matchId)}`}>Match</a>
+                        <span className="vt-arc-ko-winner"><span aria-hidden="true">{flagOf(k.winner)}</span> {teamName(k.winner)}</span>
+                        <span className="vt-arc-ko-score">{knockoutScoreText(k)}</span>
+                        <a
+                          className="vt-arc-ko-link"
+                          href={`/match/${encodeURIComponent(k.matchId)}`}
+                          aria-label={knockoutLinkLabel(KNOCKOUT_STAGE_LABEL[s] ?? s, teamName(k.winner), k)}
+                        >
+                          Match
+                        </a>
                       </li>
                     ))}
                   </ul>
