@@ -334,7 +334,7 @@ describe("hub mode (play host, no active tournament)", () => {
   });
 
   it("recognises invite links under a locale prefix", () => {
-    expect(location(run(PLAY, "/es/i/abcd"))).toBe(`https://${PLAY}/?ref=abcd`);
+    expect(location(run(PLAY, "/es/i/abcd"))).toBe(`https://${PLAY}/es/?ref=abcd`);
   });
 
   it("301s legal paths to the marketing site", () => {
