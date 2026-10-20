@@ -5,7 +5,7 @@
 
 ## Change
 
-`tp` added to the stage enum; a schema test covering every stage, an unknown stage and the optional case. `tests/schemas-match-result.test.ts` plus the existing `tests/match-result.test.ts` pass under `systemd-run --user --scope -p MemoryMax=3G`; eslint clean.
+`tp` added to the stage enum; a schema test covering every stage, an unknown stage and the optional case. `tests/schemas-match-result.test.ts` passes (9 cases) under `systemd-run --user --scope -p MemoryMax=3G`. The existing `tests/match-result.test.ts` has three failing cases (re-scoring after a result) that fail identically on untouched `main` in a throwaway worktree, so they are pre-existing and not touched here; `apps/game` has no eslint of its own.
 
 ## Needs Tim
 
