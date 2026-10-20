@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { RevealPii } from "@/components/RevealPii";
+import { maskEmail, maskPhone } from "@/lib/pii";
 import type { Role } from "@/lib/perms";
 import type {
   AdminMatchPrediction,
@@ -95,7 +97,7 @@ export function Customer360Tabs({ userId, data, role, profileSlot }: Customer360
       {active === "profile" && (
         <section role="tabpanel" aria-label="Profile">
           {profileSlot}
-          <CrmContactCard contact={data.crmContact} />
+          <CrmContactCard contact={data.crmContact} userId={userId} />
         </section>
       )}
 
@@ -173,7 +175,7 @@ function MissingData({ label, todo }: { label: string; todo: string }) {
   );
 }
 
-function CrmContactCard({ contact }: { contact: CrmContact | null }) {
+function CrmContactCard({ contact, userId }: { contact: CrmContact | null; userId: string }) {
   if (!contact) {
     return (
       <div className="mt-4">
@@ -189,8 +191,18 @@ function CrmContactCard({ contact }: { contact: CrmContact | null }) {
     <div className="mt-4">
       <h3 className="text-sm uppercase tracking-wider text-ink-500 mb-2">CRM contact</h3>
       <div className="rounded-lg ring-1 ring-ink-700 bg-ink-800 p-4 grid grid-cols-2 gap-3 text-sm">
-        <Row label="Email" value={contact.email ?? "—"} />
-        <Row label="Phone" value={contact.phone ?? "—"} />
+        {/* The page masks email and phone before they reach this client
+          * component and the mask is applied again here (idempotent) as a
+          * guard; Show fetches the full value through the audited reveal
+          * route (2026-10-20). */}
+        <div>
+          <div className="text-xs uppercase tracking-wider text-ink-500">Email</div>
+          <div className="text-ink-50"><RevealPii userId={userId} kind="email" masked={maskEmail(contact.email)} /></div>
+        </div>
+        <div>
+          <div className="text-xs uppercase tracking-wider text-ink-500">Phone</div>
+          <div className="text-ink-50"><RevealPii userId={userId} kind="phone" masked={maskPhone(contact.phone)} /></div>
+        </div>
         <Row
           label="Marketing opt-in"
           value={contact.marketingOptIn === undefined ? "—" : contact.marketingOptIn ? "yes" : "no"}

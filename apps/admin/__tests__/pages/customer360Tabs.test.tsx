@@ -106,7 +106,10 @@ describe("<Customer360Tabs>", () => {
     );
     expect(screen.getByTestId("profile-slot")).toBeInTheDocument();
     expect(screen.getByText(/CRM contact$/)).toBeInTheDocument();
-    expect(screen.getByText("user42@example.test")).toBeInTheDocument();
+    // Masked by default; the full address is behind the audited Show.
+    expect(screen.queryByText("user42@example.test")).not.toBeInTheDocument();
+    expect(screen.getByText("us***@example.test")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Show email/ })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole("tab", { name: /Predictions/ }));
     expect(screen.getByText(/Bracket draft/)).toBeInTheDocument();

@@ -10,6 +10,8 @@
 
 import Link from "next/link";
 import { requireAuth } from "@/lib/auth";
+import { RevealPii } from "@/components/RevealPii";
+import { maskEmail, maskPhone } from "@/lib/pii";
 import {
   fetchContactCountForTag,
   fetchContactsSnapshot,
@@ -155,7 +157,25 @@ export default async function HighLevelPage() {
                 <tr key={c.id} className="border-t border-ink-700">
                   <td className="px-4 py-2">{c.name}</td>
                   <td className="px-4 py-2 text-xs text-ink-200">
-                    {c.email ?? c.phone ?? "—"}
+                    {/* Masked by default; Show goes through the audited
+                      * HighLevel reveal route (2026-10-20). */}
+                    {c.email ? (
+                      <RevealPii
+                        userId={c.id}
+                        kind="email"
+                        masked={maskEmail(c.email)}
+                        revealUrl={`/api/highlevel/contacts/${encodeURIComponent(c.id)}/reveal`}
+                      />
+                    ) : c.phone ? (
+                      <RevealPii
+                        userId={c.id}
+                        kind="phone"
+                        masked={maskPhone(c.phone)}
+                        revealUrl={`/api/highlevel/contacts/${encodeURIComponent(c.id)}/reveal`}
+                      />
+                    ) : (
+                      "—"
+                    )}
                   </td>
                   <td className="px-4 py-2 text-xs">
                     <div className="flex flex-wrap gap-1">

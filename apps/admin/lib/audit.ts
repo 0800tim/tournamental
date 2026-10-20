@@ -23,19 +23,32 @@ export interface AuditWrite {
   reason?: string;
 }
 
-const AUDIT_PATH = process.env.ADMIN_AUDIT_LOG_PATH
-  ?? path.join(process.cwd(), ".admin-audit.jsonl");
+/** Where the action came from. Recorded on every entry that has it. */
+export interface AuditContext {
+  ip?: string | null;
+  userAgent?: string | null;
+}
 
-export async function writeAudit(session: AdminSession, write: AuditWrite): Promise<void> {
+function auditPath(): string {
+  return process.env.ADMIN_AUDIT_LOG_PATH ?? path.join(process.cwd(), ".admin-audit.jsonl");
+}
+
+export async function writeAudit(
+  session: AdminSession,
+  write: AuditWrite,
+  ctx: AuditContext = {},
+): Promise<void> {
   const entry = {
     id: `a_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
     ts: new Date().toISOString(),
     actor: session.email,
     role: session.role,
+    ...(ctx.ip ? { ip: ctx.ip } : {}),
+    ...(ctx.userAgent ? { ua: ctx.userAgent } : {}),
     ...write,
   };
   try {
-    await fs.appendFile(AUDIT_PATH, JSON.stringify(entry) + "\n", { encoding: "utf-8" });
+    await fs.appendFile(auditPath(), JSON.stringify(entry) + "\n", { encoding: "utf-8" });
   } catch (err) {
     // Audit must never fail loud and stop a successful action; log to stderr.
     // eslint-disable-next-line no-console
