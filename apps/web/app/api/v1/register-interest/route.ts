@@ -32,6 +32,13 @@ export const dynamic = "force-dynamic";
 
 const NO_STORE = { "cache-control": "no-store" } as const;
 
+/** A real submission is a few hundred bytes. Anything bigger is noise
+ *  and would otherwise be parsed in full (review 2026-10-17, RI-04). */
+const MAX_BODY_BYTES = 8 * 1024;
+
+/** Where on the hub the form was submitted from. A path, nothing else. */
+const SOURCE_PATH_RE = /^\/[A-Za-z0-9/_.-]{0,119}$/;
+
 function json(body: unknown, status = 200) {
   return Response.json(body, { status, headers: NO_STORE });
 }
@@ -83,9 +90,19 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const declared = Number(req.headers.get("content-length") ?? "0");
+  if (Number.isFinite(declared) && declared > MAX_BODY_BYTES) {
+    return json({ ok: false, error: "body_too_large" }, 413);
+  }
   let body: Record<string, unknown>;
   try {
-    body = (await req.json()) as Record<string, unknown>;
+    const raw = await req.text();
+    // Bytes, not UTF-16 units: a body of multi-byte characters is larger
+    // than its string length (review 336-2).
+    if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
+      return json({ ok: false, error: "body_too_large" }, 413);
+    }
+    body = JSON.parse(raw) as Record<string, unknown>;
   } catch {
     return json({ ok: false, error: "invalid_json" }, 400);
   }
@@ -103,7 +120,10 @@ export async function POST(req: NextRequest) {
     return json({ ok: false, error: "email_invalid" }, 400);
   }
   const firstName = str(body.first_name, 80);
-  const countryRaw = str(body.country, 2);
+  // Exactly two letters (ISO 3166-1 alpha-2, as CF-IPCountry sends it).
+  // Validate before trimming: slicing "IRL" to "IR" would file Ireland
+  // under Iran (review 2026-10-17, RI-09).
+  const countryRaw = str(body.country, 8);
   const country =
     countryRaw && /^[A-Za-z]{2}$/.test(countryRaw) ? countryRaw.toUpperCase() : null;
   const phone = normalisePhone(str(body.phone, 32));
@@ -121,6 +141,9 @@ export async function POST(req: NextRequest) {
       : null;
 
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
+  const sourcePathRaw = str(body.source_path, 120);
+  const sourcePath =
+    sourcePathRaw && SOURCE_PATH_RE.test(sourcePathRaw) ? sourcePathRaw : null;
 
   let result;
   try {
@@ -132,7 +155,7 @@ export async function POST(req: NextRequest) {
       phone,
       consent,
       source_host: host || null,
-      source_path: str(body.source_path, 120),
+      source_path: sourcePath,
       referred_by_code: ref,
       ip,
       user_agent: req.headers.get("user-agent"),
@@ -147,10 +170,6 @@ export async function POST(req: NextRequest) {
   }
 
   const { row, created } = result;
-  // Self-referral guard: a person cannot be referred by their own code.
-  if (ref && ref === row.invite_code) {
-    // Nothing to do; the store ignores referred_by on existing rows.
-  }
 
   if (created || row.ghl_status !== "synced") {
     const push = await pushRegisterInterestToGhl(row, {
@@ -171,9 +190,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
+  // The response is the same for a first and a repeat submit on purpose:
+  // a `created` flag would tell a caller whether an email is already
+  // registered (review 2026-10-17, RI-01).
   return json({
     ok: true,
-    created,
     invite_code: row.invite_code,
     invite_url: `${inviteBaseUrl()}/i/${row.invite_code}`,
     referrals: referralCount(row.invite_code),

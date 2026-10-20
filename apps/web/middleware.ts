@@ -96,6 +96,16 @@ const ARCHIVE_BLOCKED_PREFIXES: readonly string[] = [
 const ARCHIVE_BLOCKED_PATTERNS: readonly RegExp[] = [/^\/s\/[^/]+\/join$/];
 
 /**
+ * API paths whose GET handlers write (the signed approve and deny links
+ * that pool owners get by email). The method check below does not see
+ * them, so on an archive host they get the same 403 as a POST
+ * (review 2026-10-17, RI-07).
+ */
+const ARCHIVE_BLOCKED_API: readonly RegExp[] = [
+  /^\/api\/v1\/syndicates\/[^/]+\/join-requests\//,
+];
+
+/**
  * Hub mode (play host with no active tournament): only these paths are
  * served from play itself; everything else 302s to the archive so old
  * share links keep working.
@@ -234,7 +244,11 @@ export function middleware(req: NextRequest) {
     // Nothing mutates in an archive. 403 every state-changing call
     // (bracket saves go to the game service directly and are rejected
     // there after kickoff; this covers the Next-side routes).
-    if (MUTATING_METHODS.has(req.method)) {
+    // Review 336-1: test the locale-stripped path too, or /es/api/v1/...
+    // walks past the block and the locale rewrite runs the handler.
+    const localePrefix = path.split("/")[1] ?? "";
+    const apiPath = isSupportedLocale(localePrefix) ? path.slice(localePrefix.length + 1) || "/" : path;
+    if (MUTATING_METHODS.has(req.method) || ARCHIVE_BLOCKED_API.some((re) => re.test(apiPath))) {
       return new NextResponse(JSON.stringify({ error: "archived" }), {
         status: 403,
         headers: { "content-type": "application/json", "cache-control": "no-store" },

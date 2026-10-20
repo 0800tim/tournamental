@@ -104,11 +104,20 @@ export interface RegisterInterestInput {
 
 const CODE_ALPHABET = "abcdefghjkmnpqrstuvwxyz23456789"; // no 0/o/1/l/i
 
+/** Largest multiple of the alphabet size below 256; bytes at or above
+ *  it are rejected so every character is equally likely (no modulo
+ *  bias). 248 = 8 * 31. */
+const CODE_REJECT_FROM = 256 - (256 % CODE_ALPHABET.length);
+
 export function newInviteCode(len = 7): string {
-  const bytes = randomBytes(len);
   let out = "";
-  for (let i = 0; i < len; i++) {
-    out += CODE_ALPHABET[bytes[i]! % CODE_ALPHABET.length];
+  while (out.length < len) {
+    const bytes = randomBytes(len * 2);
+    for (let i = 0; i < bytes.length && out.length < len; i++) {
+      const b = bytes[i]!;
+      if (b >= CODE_REJECT_FROM) continue;
+      out += CODE_ALPHABET[b % CODE_ALPHABET.length];
+    }
   }
   return out;
 }
@@ -117,10 +126,25 @@ function newId(): string {
   return `ri_${randomBytes(9).toString("hex")}`;
 }
 
+let warnedNoSalt = false;
+
 export function hashIp(ip: string | null): string | null {
   if (!ip) return null;
-  const salt = process.env.TOURNAMENTAL_INTERNAL_SECRET ?? "tournamental";
-  return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
+  const salt = process.env.TOURNAMENTAL_INTERNAL_SECRET;
+  if (!salt && !warnedNoSalt) {
+    // A constant salt makes the hash reversible by anyone with the
+    // code; the hash still beats a raw address, so warn once rather
+    // than refuse (review 336-5).
+    warnedNoSalt = true;
+    // eslint-disable-next-line no-console
+    console.warn("[register-interest/store] TOURNAMENTAL_INTERNAL_SECRET is unset; ip_hash uses the default salt");
+  }
+  return createHash("sha256").update(`${salt ?? "tournamental"}:${ip}`).digest("hex").slice(0, 32);
+}
+
+/** Test helper so the one-time warning can be exercised again. */
+export function __resetHashIpWarning(): void {
+  warnedNoSalt = false;
 }
 
 /**
@@ -129,6 +153,13 @@ export function hashIp(ip: string | null): string | null {
  * invite code rather than an error, so the thank-you state can always
  * show it. Returns `created` so the caller knows whether to push to
  * the CRM again.
+ *
+ * A repeat submit never changes what is stored, apart from consent,
+ * which can only be raised. The form is unauthenticated, so anyone who
+ * knows an email address could otherwise overwrite that person's name
+ * and phone, or point their attribution at a different invite code
+ * (including their own, to inflate a referral count). Attribution is
+ * first touch only (review 2026-10-17, RI-02 and RI-03).
  */
 export function upsertRegisterInterest(
   input: RegisterInterestInput,
@@ -141,26 +172,12 @@ export function upsertRegisterInterest(
     )
     .get(input.tournament_id, input.email) as RegisterInterestRow | undefined;
   if (existing) {
-    // Refresh soft fields the person may have corrected (name, country,
-    // phone, consent). Never overwrite a set referred_by_code.
     db.prepare(
       `UPDATE register_interest
-          SET first_name = COALESCE(?, first_name),
-              country = COALESCE(?, country),
-              phone = COALESCE(?, phone),
-              consent = MAX(consent, ?),
-              referred_by_code = COALESCE(referred_by_code, ?),
+          SET consent = MAX(consent, ?),
               updated_at = ?
         WHERE id = ?`,
-    ).run(
-      input.first_name,
-      input.country,
-      input.phone,
-      input.consent ? 1 : 0,
-      input.referred_by_code,
-      Date.now(),
-      existing.id,
-    );
+    ).run(input.consent ? 1 : 0, Date.now(), existing.id);
     const row = db
       .prepare(`SELECT * FROM register_interest WHERE id = ?`)
       .get(existing.id) as RegisterInterestRow;
@@ -222,6 +239,20 @@ export function markGhl(
             ghl_error = ?, ghl_attempts = ghl_attempts + 1, updated_at = ?
       WHERE id = ?`,
   ).run(status, contactId, error ? error.slice(0, 300) : null, Date.now(), id);
+}
+
+/**
+ * Remove a person's row for a tournament (privacy request). Returns the
+ * number of rows removed. The HighLevel contact is removed by hand in
+ * the CRM; this only covers the local copy.
+ */
+export function deleteRegisterInterest(tournamentId: string, email: string): number {
+  const db = registerInterestDb();
+  if (!db) return 0;
+  const r = db
+    .prepare(`DELETE FROM register_interest WHERE tournament_id = ? AND email = ?`)
+    .run(tournamentId, email.trim().toLowerCase());
+  return r.changes;
 }
 
 /** Does an invite code exist? Used to validate ?ref= before storing it. */
