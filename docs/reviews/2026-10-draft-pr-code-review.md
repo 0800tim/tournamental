@@ -210,3 +210,17 @@ Checked and sound: `role="timer"` with `aria-label` and an `aria-hidden` grid is
 - #343: `r32` filter and labels, read-only database access with `finally` close, empty results on missing file or missing table, group ids cannot match the `LIKE` filters.
 - #345: `nosniff` safe for `widget.js`, OG images, `sw.js` and the manifest; `Permissions-Policy` denies nothing the app uses; `Referrer-Policy` matches the browser default and no server code reads `Referer`; CSP is report-only and covers GTM, blob workers, first-party fetch origins and the stream WebSocket; headers applied before middleware rewrites.
 - #348: dialog semantics, focus order on open and close, honeypot still hidden and untabbable, `aria-describedby` targets exist, visible link text retained in the accessible name, `aria-expanded` wiring, `aria-busy` on submit.
+
+## Status after fixes, 20 October (same day)
+
+Applied on the branches as one commit each, with a test, after this review was written. The findings above describe the branches before these commits.
+
+| Finding | Commit on | What changed | Test |
+| --- | --- | --- | --- |
+| 335-1 | `test/archive-middleware-host-modes` (#335) | Origin guard keys on `routePath` | three cases in `middleware-host-modes.test.ts`; platform folder 86 pass |
+| 336-1 | `review/register-interest-security` (#336) | `ARCHIVE_BLOCKED_API` tested on the locale-stripped path | two prefixed paths in `middleware-archive-api.test.ts`; 9 pass |
+| 343-1 | `feat/archive-r32-results` (#343) | loader maps a `final` id to stage `f` | new case in `final-standings.test.ts`; archive folder 30 pass |
+| 345-1, 345-2, 345-3 | `feat/web-security-headers` (#345) | archive hosts exempt from the framing rule via a `missing` host condition; Telegram origins in `script-src` and `frame-src`; precedence comment corrected | two cases in `security-headers.test.ts`; 17 pass |
+| 348-2 to 348-5 | `fix/a11y-hub-archive-shell` (#348) | `onClose` in a ref so the effect depends on `open` only; Tab from outside the panel returns to its first control; one copy announcement through the button name; neutral countdown label before hydration | one case in `AppMenuDrawer.a11y.test.tsx`; a11y folder 22 pass |
+
+Left as they were: 335-2, 335-3, 336-2 to 336-5, 343-2 to 343-4, 345-4 to 345-7, 348-1 (the conflict, resolved at merge time per the merge-order paper) and 348-6. The hold on #345 becomes "merge with the live-mode embed plan agreed": in-frame links inside the partner embed need `target="_top"` or to carry `?embed=1` before the framing rule is enforced on the live host.
