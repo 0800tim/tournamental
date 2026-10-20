@@ -33,20 +33,32 @@ import { LocalePicker } from "./LocalePicker";
 
 import "./locale-picker.css";
 import {
-  DRAWER_PRIMARY,
+  DEFAULT_ROUTE_BASE,
   DRAWER_SECONDARY,
+  drawerPrimaryFor,
   forArchive,
   type NavLink as DrawerLink,
 } from "./nav-links";
+import { archivedTournaments } from "@/lib/tournaments/registry";
 
 /** Hub mode (play host, no active tournament): a short list. */
 const HUB_DRAWER_LINKS: readonly DrawerLink[] = [
   { label: "What's next", i18nKey: "nav.whats_next", href: "/", icon: <span aria-hidden>🏉</span>, matchPrefix: "__never__" },
   { label: "Register interest", i18nKey: "nav.register_interest", href: "/#register", icon: <span aria-hidden>✉️</span>, matchPrefix: "__never__" },
 ];
-const HUB_ARCHIVE_LINKS: readonly DrawerLink[] = [
-  { label: "FWC 2026 archive", i18nKey: "nav.fwc2026_archive", href: "https://fwc2026.tournamental.com/", icon: <span aria-hidden>🏆</span>, external: true },
-];
+/** One row per archived tournament, newest first, from the registry. */
+function hubArchiveLinks(): readonly DrawerLink[] {
+  return [...archivedTournaments()]
+    .reverse()
+    .filter((t) => t.archiveHost)
+    .map((t) => ({
+      label: `${t.shortName} archive`,
+      i18nKey: `nav.${t.slug}_archive`,
+      href: `https://${t.archiveHost}/`,
+      icon: <span aria-hidden>🏆</span>,
+      external: true,
+    }));
+}
 
 export interface AppMenuDrawerProps {
   readonly open: boolean;
@@ -63,9 +75,10 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
   const archive = shell.mode === "archive";
   const hub = shell.mode === "hub";
   const isAuthed = status === "authenticated";
+  const routeBase = shell.current?.routeBase ?? DEFAULT_ROUTE_BASE;
   const primaryLinks = useMemo<readonly DrawerLink[]>(
     () =>
-      forArchive(DRAWER_PRIMARY, archive).map((l) =>
+      forArchive(drawerPrimaryFor(routeBase), archive, routeBase).map((l) =>
         l.href === "/profile"
           ? {
               ...l,
@@ -74,7 +87,7 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
             }
           : l,
       ),
-    [isAuthed, archive],
+    [isAuthed, archive, routeBase],
   );
 
   const handleEsc = useCallback(
@@ -148,14 +161,14 @@ export function AppMenuDrawer({ open, onClose }: AppMenuDrawerProps) {
         </div>
         {hub ? (
           <>
-            <div className="vt-drawer-section-label">Rugby World Cup 2027 &#8482;</div>
+            <div className="vt-drawer-section-label">{shell.upcoming?.name ?? "What's next"}</div>
             <DrawerLinks links={HUB_DRAWER_LINKS} onClick={onClose} />
             <div className="vt-drawer-section-label">Archive</div>
-            <DrawerLinks links={HUB_ARCHIVE_LINKS} onClick={onClose} />
+            <DrawerLinks links={hubArchiveLinks()} onClick={onClose} />
           </>
         ) : (
           <>
-            <div className="vt-drawer-section-label">FIFA World Cup 2026 &#8482;{archive ? " · Archive" : ""}</div>
+            <div className="vt-drawer-section-label">{shell.current?.name ?? "Tournament"}{archive ? " · Archive" : ""}</div>
             <DrawerLinks links={primaryLinks} onClick={onClose} />
           </>
         )}

@@ -16,7 +16,7 @@ import { LOCALES, type Locale } from "@/i18n/config";
 import { ShellModeProvider } from "@/lib/archive/context";
 import { ARCHIVE_HEADER, HUB_HEADER } from "@/lib/archive/server";
 import { isGdprCountryOrUnknown } from "@/lib/geo/eea";
-import { tournamentBySlug } from "@/lib/tournaments/registry";
+import { chromeTournament, summarise, tournamentBySlug, upcomingTournament } from "@/lib/tournaments/registry";
 
 // Host modes (2026-10-16): the shell reads request headers to decide
 // live / hub / archive. Statically prerendered routes (bot-arena,
@@ -95,6 +95,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
     slug: archive ? archive.slug : null,
     name: archive ? archive.name : null,
     endsUtc: archive ? archive.endsUtc : null,
+    // The entry the chrome is about (2026-10-20): the archived one on an
+    // archive host, the active or newest archived one on play, none on
+    // the hub, where the upcoming entry carries the labels instead.
+    current: archive ? summarise(archive) : hub ? null : summarise(chromeTournament()),
+    upcoming: summarise(upcomingTournament()),
   };
 
   // i18n: locale is resolved by i18n/request.ts from the vt_locale

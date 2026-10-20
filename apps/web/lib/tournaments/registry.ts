@@ -37,6 +37,16 @@ export interface TournamentEntry {
   readonly startsUtc: string;
   readonly endsUtc: string;
   readonly status: TournamentStatus;
+  /** Short badge for titles, the AppBar and OG images: "FWC2026". */
+  readonly code: string;
+  /** Path family the tournament's pages live under: "/world-cup-2026". */
+  readonly routeBase: string;
+  /** Public folder for hub and hero art, with slashes: "/rwc2027/". */
+  readonly artDir?: string;
+  /** Extra hostnames that 301 to the archive host (archived only). */
+  readonly aliasHosts?: readonly string[];
+  /** The retro page on tournamental.com: "/archive/fwc-2026". */
+  readonly marketingArchivePath?: string;
   /** Hostname that serves the read-only archive (archived only). */
   readonly archiveHost?: string;
   /** Trademark owner line used in disclaimers. */
@@ -63,6 +73,10 @@ export const TOURNAMENTS: readonly TournamentEntry[] = [
     startsUtc: "2026-06-11T19:00:00Z",
     endsUtc: "2026-07-19T19:00:00Z",
     status: "archived",
+    code: "FWC2026",
+    routeBase: "/world-cup-2026",
+    aliasHosts: ["wc2026.tournamental.com", "2026wc.tournamental.com"],
+    marketingArchivePath: "/archive/fwc-2026",
     archiveHost: "fwc2026.tournamental.com",
     trademarkLine:
       "FIFA World Cup 2026™ is a trademark of Fédération Internationale de Football Association. Tournamental is independent and not affiliated with FIFA.",
@@ -95,6 +109,9 @@ export const TOURNAMENTS: readonly TournamentEntry[] = [
     startsUtc: "2027-10-01T09:00:00Z",
     endsUtc: "2027-11-13T09:00:00Z",
     status: "upcoming",
+    code: "RWC2027",
+    routeBase: "/rwc-2027",
+    artDir: "/rwc2027/",
     trademarkLine:
       "Rugby World Cup™ and Rugby World Cup 2027™ are trademarks of Rugby World Cup Limited. Tournamental is independent and not affiliated with, endorsed by, or sponsored by World Rugby or Rugby World Cup Limited.",
     teams: 24,
@@ -135,4 +152,42 @@ export function archiveForHost(host: string): TournamentEntry | null {
     if (h === t.archiveHost || h === `${t.slug}.localhost`) return t;
   }
   return null;
+}
+
+/**
+ * The slice of an entry the shell chrome needs, safe to hand to client
+ * components (no stats, no results). Carried by ShellModeProvider.
+ */
+export interface TournamentSummary {
+  readonly slug: string;
+  readonly code: string;
+  readonly name: string;
+  readonly shortName: string;
+  readonly routeBase: string;
+  readonly archiveHost: string | null;
+  readonly endsUtc: string;
+}
+
+export function summarise(t: TournamentEntry | null | undefined): TournamentSummary | null {
+  if (!t) return null;
+  return {
+    slug: t.slug,
+    code: t.code,
+    name: t.name,
+    shortName: t.shortName,
+    routeBase: t.routeBase,
+    archiveHost: t.archiveHost ?? null,
+    endsUtc: t.endsUtc,
+  };
+}
+
+/**
+ * The entry the live shell is about: the active tournament, or, with
+ * nothing active, the newest archived one (its route family is what
+ * the play host still serves). Never the upcoming entry: that one has
+ * no pages yet.
+ */
+export function chromeTournament(): TournamentEntry | null {
+  const archived = archivedTournaments();
+  return activeTournament() ?? archived[archived.length - 1] ?? null;
 }
