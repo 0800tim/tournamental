@@ -101,6 +101,34 @@ export function loadFinalStandings(
   }
 }
 
+/**
+ * Knockout stages as the archive home lists them: final first, back to
+ * the round of 32. Shared with the page so the list and the loader
+ * cannot drift apart again (the round of 32 was missing until
+ * 2026-10-17 because the page's order started at r16).
+ */
+export const KNOCKOUT_STAGE_ORDER: readonly string[] = ["f", "tp", "sf", "qf", "r16", "r32"];
+
+export const KNOCKOUT_STAGE_LABEL: Record<string, string> = {
+  r32: "Round of 32",
+  r16: "Round of 16",
+  qf: "Quarter-finals",
+  sf: "Semi-finals",
+  tp: "Third place",
+  f: "Final",
+};
+
+/**
+ * The final's match id is `final` (no underscore), so the id-derived
+ * stage would be "final" while the page lists "f" (review 343-1).
+ */
+function normaliseStage(stage: string): string {
+  return stage === "final" ? "f" : stage;
+}
+
+/** Knockout results ordered by match id, which the fixtures zero-pad
+ *  (r16_01, r16_02, ...), so each stage lists in bracket order rather
+ *  than the order results happened to be recorded (review 343-4). */
 export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
   const p = gameDbPath();
   if (!existsSync(p)) return [];
@@ -111,9 +139,9 @@ export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
       .prepare(
         `SELECT match_id, outcome FROM match_results
           WHERE tournament_id = ?
-            AND (match_id LIKE 'r16%' OR match_id LIKE 'qf%' OR match_id LIKE 'sf%'
-                 OR match_id LIKE 'tp%' OR match_id = 'final')
-          ORDER BY recorded_at ASC`,
+            AND (match_id LIKE 'r32%' OR match_id LIKE 'r16%' OR match_id LIKE 'qf%'
+                 OR match_id LIKE 'sf%' OR match_id LIKE 'tp%' OR match_id = 'final')
+          ORDER BY match_id ASC`,
       )
       .all(tournamentId) as Array<{ match_id: string; outcome: string }>;
     return rows.map((r) => {
@@ -125,7 +153,7 @@ export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
       }
       return {
         matchId: r.match_id,
-        stage: String(o.stage ?? r.match_id.split("_")[0]),
+        stage: normaliseStage(String(o.stage ?? r.match_id.split("_")[0])),
         homeScore: typeof o.homeScore === "number" ? o.homeScore : null,
         awayScore: typeof o.awayScore === "number" ? o.awayScore : null,
         winner: typeof o.winner === "string" ? o.winner : null,

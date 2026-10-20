@@ -16,7 +16,12 @@ import { loadFixtures2026 } from "@tournamental/bracket-engine";
 import { AppShell } from "@/components/shell";
 import { RevealOnScroll } from "@/components/motion/RevealOnScroll";
 import { archiveSlug } from "@/lib/archive/server";
-import { loadFinalStandings, loadKnockoutResults } from "@/lib/archive/final-standings";
+import {
+  KNOCKOUT_STAGE_LABEL,
+  KNOCKOUT_STAGE_ORDER,
+  loadFinalStandings,
+  loadKnockoutResults,
+} from "@/lib/archive/final-standings";
 import { enrichTournamentTeams, type CanonicalTeamsFile } from "@/lib/bracket/enrich";
 import { tournamentBySlug, upcomingTournament } from "@/lib/tournaments/registry";
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
@@ -35,14 +40,6 @@ export const metadata: Metadata = {
     images: [{ url: "/og/bracket/default.png", width: 1200, height: 630, alt: "Tournamental FWC 2026 archive" }],
     type: "website",
   },
-};
-
-const STAGE_LABEL: Record<string, string> = {
-  r16: "Round of 16",
-  qf: "Quarter-finals",
-  sf: "Semi-finals",
-  tp: "Third place",
-  f: "Final",
 };
 
 function fmtDate(iso: string): string {
@@ -76,7 +73,6 @@ export default async function ArchiveHomePage(): Promise<JSX.Element> {
     list.push(k);
     byStage.set(k.stage, list);
   }
-  const stageOrder = ["f", "tp", "sf", "qf", "r16"];
 
   return (
     <AppShell title={t.shortName}>
@@ -156,9 +152,9 @@ export default async function ArchiveHomePage(): Promise<JSX.Element> {
             <p className="vt-arc-step-tag">Road to the final</p>
             <h2 className="vt-arc-h2">Knockout results.</h2>
             <div className="vt-arc-ko">
-              {stageOrder.filter((s) => byStage.has(s)).map((s) => (
+              {KNOCKOUT_STAGE_ORDER.filter((s) => byStage.has(s)).map((s) => (
                 <div key={s} className="vt-arc-ko-stage">
-                  <h3 className="vt-arc-ko-stage-head">{STAGE_LABEL[s] ?? s}</h3>
+                  <h3 className="vt-arc-ko-stage-head">{KNOCKOUT_STAGE_LABEL[s] ?? s}</h3>
                   <ul className="vt-arc-ko-list">
                     {(byStage.get(s) ?? []).map((k) => (
                       <li key={k.matchId} className="vt-arc-ko-match">
