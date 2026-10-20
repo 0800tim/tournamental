@@ -15,7 +15,8 @@
 
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
+import { render } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { MatchPredictionRow } from "../components/bracket/MatchPredictionRow";
 
@@ -36,6 +37,10 @@ const AWAY = {
   pre_tournament_implied_win: 0.5,
   kit: { primary: "#0055A4" },
 } as const;
+
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
 
 describe("MatchPredictionRow, mobile fit", () => {
   it("no FormDots strip in either pick column (cluttered-MPR cleanup)", () => {
@@ -69,7 +74,7 @@ describe("MatchPredictionRow, mobile fit", () => {
     expect(container.querySelectorAll(".mpr-h2h")).toHaveLength(0);
   });
 
-  it("structural footprint, picks + scores rows only", () => {
+  it("structural footprint, three pick buttons only", () => {
     const { container } = render(
       <MatchPredictionRow
         matchId="m1"
@@ -90,7 +95,10 @@ describe("MatchPredictionRow, mobile fit", () => {
     const directChildren = Array.from(row.children).filter(
       (c) => !c.classList.contains("mpr-locked-banner"),
     );
-    expect([5, 6]).toContain(directChildren.length);
+    // Home, draw and away pick buttons. The score inputs now live inside
+    // the pick buttons (mpr-pick-score) and the venue footer only renders
+    // when a kickoff is supplied, so an un-timed row is three children.
+    expect(directChildren.length).toBe(3);
     // And no H2H pill is rendered.
     expect(row.querySelectorAll(".mpr-h2h")).toHaveLength(0);
   });

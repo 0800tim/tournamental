@@ -20,7 +20,7 @@ function jsonResponse(status: number, body: unknown): Response {
 }
 
 describe("savePerMatchPick", () => {
-  it("PUTs to /v1/picks/:userId/:matchId with X-User-Id + JSON body", async () => {
+  it("PUTs to /v1/picks/:userId/:matchId with cookie identity + JSON body", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       jsonResponse(200, {
         pick: {
@@ -57,8 +57,11 @@ describe("savePerMatchPick", () => {
     expect(url).toBe("https://t.invalid/v1/picks/u_1/42");
     const reqInit = init as RequestInit;
     expect(reqInit.method).toBe("PUT");
+    // SEC-WEB-03: identity rides on the session cookie, so the request
+    // must forward credentials and must NOT carry the dev x-user-id.
+    expect(reqInit.credentials).toBe("include");
     const headers = reqInit.headers as Record<string, string>;
-    expect(headers["x-user-id"]).toBe("u_1");
+    expect(headers["x-user-id"]).toBeUndefined();
     expect(headers["content-type"]).toBe("application/json");
     expect(JSON.parse(reqInit.body as string)).toEqual({
       tournament_id: "fifa-wc-2026",
@@ -140,8 +143,11 @@ describe("saveFullBracket", () => {
 
     const [url, init] = fetchImpl.mock.calls[0] ?? [];
     expect(url).toBe("https://t.invalid/v1/bracket/submit");
-    const headers = (init as RequestInit).headers as Record<string, string>;
-    expect(headers["x-user-id"]).toBe("u_1");
+    // SEC-WEB-03: cookie-only identity, no x-user-id header.
+    const reqInit = init as RequestInit;
+    expect(reqInit.credentials).toBe("include");
+    const headers = (reqInit.headers ?? {}) as Record<string, string>;
+    expect(headers["x-user-id"]).toBeUndefined();
     expect(JSON.parse((init as RequestInit).body as string)).toMatchObject({
       tournament_id: "fifa-wc-2026",
       user_id: "u_1",
@@ -188,7 +194,7 @@ describe("saveFullBracket", () => {
 });
 
 describe("loadServerBracket", () => {
-  it("GETs /v1/bracket/me?tournament_id=... with X-User-Id", async () => {
+  it("GETs /v1/bracket/me?tournament_id=... with cookie identity", async () => {
     const fetchImpl = vi.fn().mockResolvedValue(
       jsonResponse(200, {
         bracket_id: "bk_abc",
@@ -224,8 +230,11 @@ describe("loadServerBracket", () => {
     expect(url).toBe(
       "https://t.invalid/v1/bracket/me?tournament_id=fifa-wc-2026",
     );
-    const headers = (init as RequestInit).headers as Record<string, string>;
-    expect(headers["x-user-id"]).toBe("u_1");
+    // SEC-WEB-03: cookie-only identity, no x-user-id header.
+    const reqInit = init as RequestInit;
+    expect(reqInit.credentials).toBe("include");
+    const headers = (reqInit.headers ?? {}) as Record<string, string>;
+    expect(headers["x-user-id"]).toBeUndefined();
   });
 
   it("returns ok:false code:not_found on 404", async () => {

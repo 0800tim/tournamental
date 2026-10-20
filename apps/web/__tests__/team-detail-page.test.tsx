@@ -5,7 +5,8 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, renderAsync } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 // next/link → render plain <a>. The team page uses Link for nav only.
 vi.mock("next/link", () => ({
@@ -32,45 +33,48 @@ vi.mock("next/navigation", () => ({
 
 import TeamPage from "../app/team/[code]/page";
 
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
+
 describe("/team/[code] page", () => {
-  it("renders Argentina (ARG), name, FIFA rank, group J", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
+  it("renders Argentina (ARG), name, FIFA rank, group J", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Argentina");
     // FIFA #1, comes from data file.
-    expect(html).toMatch(/FIFA\s*#1(?!\d)/);
+    // FIFA branding was stripped from the page (9e2e2748); the rank chip reads "World #1".
+    expect(html).toMatch(/World\s*#1(?!\d)/);
     // Argentina is in Group J in the canonical fixtures JSON.
     expect(html).toContain("Group J");
   });
 
-  it("renders Mexico (MEX), name + Group A", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "MEX" })} />);
+  it("renders Mexico (MEX), name + Group A", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "MEX" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Mexico");
     expect(html).toContain("Group A");
   });
 
-  it("accepts lowercase codes", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "usa" })} />);
+  it("accepts lowercase codes", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "usa" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("United States");
   });
 
-  it("returns 404 for unknown codes", () => {
-    expect(() => {
-      render(<TeamPage params={Promise.resolve({ code: "XYZ" })} />);
-    }).toThrow(/NEXT_NOT_FOUND/);
+  it("returns 404 for unknown codes", async () => {
+    await expect(renderAsync(<TeamPage params={Promise.resolve({ code: "XYZ" })} />)).rejects.toThrow(/NEXT_NOT_FOUND/);
   });
 
-  it("renders a quick-pick CTA pointing into the bracket", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
+  it("renders a quick-pick CTA pointing into the bracket", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     const cta = container.querySelector('[data-testid="td-quick-pick"]') as HTMLAnchorElement | null;
     expect(cta).not.toBeNull();
     expect(cta!.getAttribute("href")).toMatch(/^\/world-cup-2026(#match-\d+)?$/);
   });
 
-  it("renders the real player-card squad grid for teams with player data", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
+  it("renders the real player-card squad grid for teams with player data", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "ARG" })} />);
     // ARG is fully populated in apps/web/data/players-2026.json, uses
     // <PlayerCard /> grid, not the stub `.td-squad-card`.
     const realCards = container.querySelectorAll('[data-testid="player-card"]');
@@ -80,17 +84,17 @@ describe("/team/[code] page", () => {
     expect(firstHref).toMatch(/^\/player\/ARG-/);
   });
 
-  it("falls back to the stub squad when the team has no player data", () => {
+  it("falls back to the stub squad when the team has no player data", async () => {
     // Pick a code that's in canonical teams.json but has no entries in
     // players-2026.json. ALG has no seed players (seed only covers 24
     // marquee teams).
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "ALG" })} />);
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "ALG" })} />);
     const stub = container.querySelectorAll(".td-squad-card");
     expect(stub.length).toBeGreaterThan(0);
   });
 
-  it("renders 5 recent-form dots", () => {
-    const { container } = render(<TeamPage params={Promise.resolve({ code: "BRA" })} />);
+  it("renders 5 recent-form dots", async () => {
+    const { container } = await renderAsync(<TeamPage params={Promise.resolve({ code: "BRA" })} />);
     const dots = container.querySelectorAll(".td-form-dot");
     expect(dots.length).toBe(5);
   });

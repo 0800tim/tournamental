@@ -9,12 +9,20 @@
 
 import React from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { fireEvent, render, waitFor } from "@testing-library/react";
+import { fireEvent, render, waitFor } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { BracketBuilder } from "../components/bracket/BracketBuilder";
 import type { MatchOdds } from "../lib/odds/types";
+
+// The builder resolves its storage id only once `useUser` stops loading;
+// the real hook probes auth-sms over fetch and stays loading in jsdom,
+// so picks would be keyed to "ssr_user". Answer as a settled guest.
+vi.mock("@/lib/auth/useUser", () => ({
+  useUser: () => ({ status: "guest", user: null, profile: null, loading: false }),
+}));
 
 const tournament = loadFixtures2026();
 
@@ -81,7 +89,10 @@ beforeEach(() => {
           teamCode,
           groupId: "A",
           groupWinnerProb: 0.25,
-          source: "mock-fifa-rank",
+          // GroupWinnerChips hides the bar unless at least one summary is
+          // real Polymarket data (uniform mock splits are noise), so the
+          // stub has to answer as a live market for the chips to render.
+          source: "polymarket",
           updatedAt: new Date().toISOString(),
         }),
       );
@@ -93,6 +104,10 @@ beforeEach(() => {
 afterEach(() => {
   vi.restoreAllMocks();
 });
+
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
 
 describe("Bracket page, match-row inline odds integration", () => {
   it("renders three inline W/D/L percentages under each group match row", async () => {

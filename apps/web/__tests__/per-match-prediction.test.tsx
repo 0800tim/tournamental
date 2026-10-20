@@ -19,12 +19,20 @@
 // @vitest-environment jsdom
 
 import React from "react";
-import { describe, expect, it, beforeEach } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { fireEvent, render, screen, within } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import { BracketBuilder } from "../components/bracket/BracketBuilder";
+
+// The builder resolves its storage id only once `useUser` stops loading;
+// the real hook probes auth-sms over fetch and stays loading in jsdom,
+// so picks would be keyed to "ssr_user". Answer as a settled guest.
+vi.mock("@/lib/auth/useUser", () => ({
+  useUser: () => ({ status: "guest", user: null, profile: null, loading: false }),
+}));
 
 const tournament = loadFixtures2026();
 
@@ -36,6 +44,10 @@ beforeEach(() => {
     window.history.replaceState(null, "", "/");
   }
 });
+
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
 
 describe("BracketBuilder, per-match predictions", () => {
   it("renders the 12 group cards on the group-stage tab by default", () => {
@@ -111,7 +123,7 @@ describe("BracketBuilder, per-match predictions", () => {
 
   it("switching to the R32 tab shows the round-of-32 grid", () => {
     render(<BracketBuilder tournament={tournament} />);
-    fireEvent.click(screen.getByRole("tab", { name: /R32/ }));
+    fireEvent.click(screen.getByRole("tab", { name: /^Round of 32/ }));
     expect(screen.getByText(/Tap the team you predict will advance/)).toBeDefined();
     // The R32 tab is the active panel, its heading reads "Round of 32".
     expect(screen.getAllByText(/Round of 32/i).length).toBeGreaterThan(0);

@@ -7,7 +7,8 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { act } from "react";
-import { render, fireEvent, within } from "@testing-library/react";
+import { render, renderAsync, fireEvent, within } from "./helpers/render";
+import { pinClockBeforeTournament } from "./helpers/clock";
 
 vi.mock("next/link", () => ({
   default: ({ children, href, ...rest }: { children: React.ReactNode; href: string }) => (
@@ -44,37 +45,39 @@ import {
 } from "../app/match/[id]/preview/_lib/match-data";
 import { loadFixtures2026 } from "@tournamental/bracket-engine";
 
+// Pin the clock before the first kickoff: rows lock and the builder
+// hides pick controls once the real date passes a match's kickoff.
+pinClockBeforeTournament();
+
 describe("/match/[id]/preview server component", () => {
-  it("renders match #1 (group A: MEX vs RSA), both teams + Group A", () => {
-    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
+  it("renders match #1 (group A: MEX vs RSA), both teams + Group A", async () => {
+    const { container } = await renderAsync(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Mexico");
     expect(html).toContain("South Africa");
     expect(html).toContain("Group A");
   });
 
-  it("renders the final by knockout id", () => {
-    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "final" })} />);
+  it("renders the final by knockout id", async () => {
+    const { container } = await renderAsync(<MatchPreviewPage params={Promise.resolve({ id: "final" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Final");
     // Final's slot occupants are unresolved (no picks) → labelled TBD.
     expect(html).toMatch(/TBD/);
   });
 
-  it("renders an R32 match by id", () => {
-    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "r32_01" })} />);
+  it("renders an R32 match by id", async () => {
+    const { container } = await renderAsync(<MatchPreviewPage params={Promise.resolve({ id: "r32_01" })} />);
     const html = container.textContent ?? "";
     expect(html).toContain("Round of 32");
   });
 
-  it("returns 404 for unknown ids", () => {
-    expect(() => {
-      render(<MatchPreviewPage params={Promise.resolve({ id: "not-a-match" })} />);
-    }).toThrow(/NEXT_NOT_FOUND/);
+  it("returns 404 for unknown ids", async () => {
+    await expect(renderAsync(<MatchPreviewPage params={Promise.resolve({ id: "not-a-match" })} />)).rejects.toThrow(/NEXT_NOT_FOUND/);
   });
 
-  it("renders all 5 tab buttons", () => {
-    const { container } = render(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
+  it("renders all 5 tab buttons", async () => {
+    const { container } = await renderAsync(<MatchPreviewPage params={Promise.resolve({ id: "1" })} />);
     const tabs = container.querySelectorAll('[role="tab"]');
     expect(tabs.length).toBe(5);
     const labels = Array.from(tabs).map((t) => (t.textContent ?? "").trim());
@@ -179,11 +182,14 @@ describe("MatchPredictionRow + KnockoutMatch view-match link", () => {
         matchId="1"
         homeTeam={home}
         awayTeam={away}
+        kickoffIso="2026-06-11T19:00:00Z"
         onChange={onChange}
       />,
     );
+    // The dedicated view link became the venue/time footer lozenge
+    // (30d8e1aa); it is still the row's link into the match preview.
     const link = container.querySelector(
-      "a.mpr-view-link",
+      "a.mpr-venue-footer",
     ) as HTMLAnchorElement | null;
     expect(link).not.toBeNull();
     expect(link!.getAttribute("href")).toBe("/match/1/preview");

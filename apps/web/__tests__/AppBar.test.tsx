@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { act, fireEvent, render, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, waitFor } from "./helpers/render";
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/",

@@ -40,6 +40,26 @@ vi.mock("../components/share/MoleculeSharePreview", () => ({
   ),
 }));
 
+// The page is now behind a sign-in gate (cd6d4d33) and reads the draft
+// under the signed-in user's id, then hydrates from the server. Neither
+// auth nor the API has a network in jsdom, so resolve `useUser` as a
+// signed-in user whose id is the same local id the draft is seeded
+// under. The id is deliberately not a UUID and the profile is null so
+// resolveShareGuid falls through to the seeded bracketId. The server
+// read misses so the local draft is what renders.
+vi.mock("@/lib/auth/useUser", () => ({
+  useUser: () => ({
+    status: "authenticated",
+    user: { id: "test-user-1" },
+    profile: null,
+    loading: false,
+    refresh: async () => undefined,
+  }),
+}));
+vi.mock("@/lib/bracket/api", () => ({
+  loadServerBracket: async () => ({ ok: false, reason: "offline" }),
+}));
+
 import { ShareSavePage } from "../components/share/ShareSavePage";
 
 const tournament = loadFixtures2026();

@@ -1,11 +1,28 @@
 /**
  * SyndicateForm component test.
  *
+ * Copy note: "Syndicates" were renamed "Pools" in the user-facing copy
+ * (Tim 2026-05-22); the component and route names are unchanged.
+ *
  * jsdom doesn't ship fetch, so we stub it to control the responses
  * for the slug-availability check and the create POST.
  */
 import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+
+// The form sits behind a sign-in gate now and submit requires a handle,
+// so resolve `useUser` as a signed-in player with a registered handle
+// but no email or phone on file; those fields then stay editable and
+// the tests type into them as before.
+vi.mock("@/lib/auth/useUser", () => ({
+  useUser: () => ({
+    status: "authenticated",
+    user: { id: "u_test", email: null, phone: null },
+    profile: { handle: "dave_mates" },
+    loading: false,
+    refresh: async () => undefined,
+  }),
+}));
 
 import { SyndicateForm } from "@/app/syndicates/new/SyndicateForm";
 
@@ -29,12 +46,12 @@ describe("<SyndicateForm />", () => {
     ) as unknown as typeof fetch;
 
     render(<SyndicateForm />);
-    expect(screen.getByLabelText(/Syndicate name/i)).toBeTruthy();
+    expect(screen.getByLabelText(/Pool name/i)).toBeTruthy();
     expect(screen.getByLabelText(/Syndicate URL/i)).toBeTruthy();
     expect(screen.getByLabelText(/Your email/i)).toBeTruthy();
     expect(screen.getByLabelText(/Your phone/i)).toBeTruthy();
     expect(
-      screen.getByRole("button", { name: /Create my syndicate/i }),
+      screen.getByRole("button", { name: /Create my pool/i }),
     ).toBeTruthy();
   });
 
@@ -46,7 +63,7 @@ describe("<SyndicateForm />", () => {
     ) as unknown as typeof fetch;
 
     render(<SyndicateForm />);
-    const name = screen.getByLabelText(/Syndicate name/i) as HTMLInputElement;
+    const name = screen.getByLabelText(/Pool name/i) as HTMLInputElement;
     fireEvent.change(name, { target: { value: "Dave's Mates" } });
     const slug = screen.getByLabelText(/Syndicate URL/i) as HTMLInputElement;
     expect(slug.value).toBe("dave-s-mates");
@@ -60,9 +77,9 @@ describe("<SyndicateForm />", () => {
     ) as unknown as typeof fetch;
 
     render(<SyndicateForm />);
-    const name = screen.getByLabelText(/Syndicate name/i) as HTMLInputElement;
+    const name = screen.getByLabelText(/Pool name/i) as HTMLInputElement;
     fireEvent.change(name, { target: { value: "Dave's Mates" } });
-    const btn = screen.getByRole("button", { name: /Create my syndicate/i });
+    const btn = screen.getByRole("button", { name: /Create my pool/i });
     expect(btn).toHaveProperty("disabled", true);
   });
 
@@ -89,7 +106,7 @@ describe("<SyndicateForm />", () => {
     }) as unknown as typeof fetch;
 
     render(<SyndicateForm />);
-    fireEvent.change(screen.getByLabelText(/Syndicate name/i), {
+    fireEvent.change(screen.getByLabelText(/Pool name/i), {
       target: { value: "Dave's Mates" },
     });
     fireEvent.change(screen.getByLabelText(/Your email/i), {
@@ -102,11 +119,11 @@ describe("<SyndicateForm />", () => {
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[checkboxes.length - 1]!);
     fireEvent.submit(
-      screen.getByRole("button", { name: /Create my syndicate/i }).closest("form")!,
+      screen.getByRole("button", { name: /Create my pool/i }).closest("form")!,
     );
 
     await waitFor(() => {
-      expect(screen.queryByText(/Your syndicate is live/i)).toBeTruthy();
+      expect(screen.queryByText(/Your pool is live/i)).toBeTruthy();
     });
     expect(postCalled).toBe(true);
   });
@@ -130,7 +147,7 @@ describe("<SyndicateForm />", () => {
     }) as unknown as typeof fetch;
 
     render(<SyndicateForm />);
-    fireEvent.change(screen.getByLabelText(/Syndicate name/i), {
+    fireEvent.change(screen.getByLabelText(/Pool name/i), {
       target: { value: "Admin Pool" },
     });
     fireEvent.change(screen.getByLabelText(/Your email/i), {
@@ -142,7 +159,7 @@ describe("<SyndicateForm />", () => {
     const checkboxes = screen.getAllByRole("checkbox");
     fireEvent.click(checkboxes[checkboxes.length - 1]!);
     fireEvent.submit(
-      screen.getByRole("button", { name: /Create my syndicate/i }).closest("form")!,
+      screen.getByRole("button", { name: /Create my pool/i }).closest("form")!,
     );
 
     await waitFor(() => {

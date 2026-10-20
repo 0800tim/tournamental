@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render, renderAsync } from "./helpers/render";
 
 import type { Tournament } from "@tournamental/bracket-engine";
 
@@ -36,19 +36,19 @@ vi.mock("@/components/shell", () => ({
 import WorldCup2026MoleculePage from "../app/world-cup-2026/molecule/page";
 
 describe("/world-cup-2026/molecule page (server component)", () => {
-  it("renders without throwing", () => {
-    const { container } = render(<WorldCup2026MoleculePage />);
+  it("renders without throwing", async () => {
+    const { container } = await renderAsync(<WorldCup2026MoleculePage />);
     expect(container.textContent).toBeTruthy();
   });
 
-  it("passes the FIFA World Cup tournament to the client scene", () => {
-    const { getByTestId } = render(<WorldCup2026MoleculePage />);
+  it("passes the FIFA World Cup tournament to the client scene", async () => {
+    const { getByTestId } = await renderAsync(<WorldCup2026MoleculePage />);
     const stub = getByTestId("molecule-client-stub");
     expect(stub.textContent).toMatch(/World Cup 2026/i);
   });
 
-  it("passes the full 48-team roster through", () => {
-    const { getByTestId } = render(<WorldCup2026MoleculePage />);
+  it("passes the full 48-team roster through", async () => {
+    const { getByTestId } = await renderAsync(<WorldCup2026MoleculePage />);
     const count = Number(getByTestId("team-count").textContent ?? "0");
     expect(count).toBe(48);
   });

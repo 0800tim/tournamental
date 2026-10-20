@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect, vi } from "vitest";
-import { render } from "@testing-library/react";
+import { render } from "./helpers/render";
 
 import { AppMenuDrawer } from "@/components/shell/AppMenuDrawer";
 
@@ -37,16 +37,17 @@ describe("<AppMenuDrawer>", () => {
   });
 
   it("renders every section when open", () => {
-    const { getByText } = render(
+    const { getByText, getAllByText } = render(
       <AppMenuDrawer open onClose={() => {}} />,
     );
-    expect(getByText("App")).toBeTruthy();
-    expect(getByText("World Cup 2026")).toBeTruthy();
-    expect(getByText("More")).toBeTruthy();
+    // Live mode (the default shell mode): one tournament section and
+    // the brand section. Hub and archive modes swap the first section.
+    expect(getByText(/FIFA World Cup 2026/)).toBeTruthy();
+    expect(getAllByText("Tournamental").length).toBeGreaterThan(0);
     // Spot-check a row in each section.
     expect(getByText("Home")).toBeTruthy();
-    expect(getByText("Bracket Prophet")).toBeTruthy();
     expect(getByText("Leaderboard")).toBeTruthy();
+    expect(getByText("Engineering log")).toBeTruthy();
   });
 
   it("routes About Tournamental, Engineering log, and Open source as external new-window links", () => {
@@ -90,39 +91,19 @@ describe("<AppMenuDrawer>", () => {
     }
   });
 
-  it("renders the Save & share row pointing at the dedicated save-share page", () => {
+  it("renders the Share & Save row pointing at the dedicated save-share page", () => {
     const { container } = render(
       <AppMenuDrawer open onClose={() => {}} />,
     );
     const saveShare = Array.from(
       container.querySelectorAll<HTMLAnchorElement>("a.vt-drawer-link"),
-    ).find((a) => a.textContent?.includes("Save & share"));
+    ).find((a) => a.textContent?.includes("Share & Save"));
     expect(saveShare?.getAttribute("href")).toBe(
       "/world-cup-2026/save-share",
     );
   });
 
-  it("renders Create a syndicate as a sub-item below Syndicates", () => {
-    const { container } = render(
-      <AppMenuDrawer open onClose={() => {}} />,
-    );
-    const links = Array.from(
-      container.querySelectorAll<HTMLAnchorElement>("a.vt-drawer-link"),
-    );
-    const create = links.find((a) =>
-      a.textContent?.includes("Create a syndicate"),
-    );
-    expect(create).toBeTruthy();
-    expect(create?.getAttribute("data-subitem")).toBe("1");
-    expect(create?.getAttribute("href")).toBe("/syndicates/new");
-    // Sub-item sits immediately after the Syndicates parent in DOM order.
-    const syndicatesIdx = links.findIndex((a) =>
-      a.textContent?.includes("Syndicates") &&
-      !a.textContent.includes("Create"),
-    );
-    const createIdx = links.findIndex((a) =>
-      a.textContent?.includes("Create a syndicate"),
-    );
-    expect(createIdx).toBe(syndicatesIdx + 1);
-  });
+  // "Create a syndicate" left the drawer when Syndicates became Pools
+  // (/syndicates is now the single "Pools" row), so the sub-item case
+  // that lived here was removed on 2026-10-17.
 });
