@@ -9,6 +9,20 @@
  * Spec: docs/superpowers/specs/2026-06-07-bot-arena-design.md §15.6
  */
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { createHmac } from "node:crypto";
+
+// Since 1c44074f (2026-06-08) a swarm commit requires a signed-in user.
+// The route verifies an auth-sms session JWT (HS256) against
+// AUTH_JWT_SECRET and, unlike its sibling routes, never enables the
+// x-user-id dev fallback, so the test mints a real token.
+process.env.AUTH_JWT_SECRET = "swarm-test-secret";
+function mintSessionJwt(sub: string): string {
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
+  const signingInput = `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub, exp: Math.floor(Date.now() / 1000) + 3600 })}`;
+  const sig = createHmac("sha256", process.env.AUTH_JWT_SECRET!).update(signingInput).digest("base64url");
+  return `${signingInput}.${sig}`;
+}
+const SESSION = `Bearer ${mintSessionJwt("u_swarm_test")}`;
 
 import { buildServer } from "../src/server.js";
 import { resolve, dirname } from "node:path";
@@ -72,7 +86,8 @@ describe("POST /v1/swarm/commit", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/swarm/commit",
-      payload: {
+      headers: { authorization: SESSION },
+        payload: {
         node_id: "browser-abc12345",
         run_id: "run-aaa-111",
         master_seed: "tournamental-browser-v1",
@@ -108,7 +123,8 @@ describe("POST /v1/swarm/commit", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/swarm/commit",
-      payload: {
+      headers: { authorization: SESSION },
+        payload: {
         node_id: "browser-abc12345",
         run_id: "run-bad-merkle",
         master_seed: "x",
@@ -127,7 +143,8 @@ describe("POST /v1/swarm/commit", () => {
     const res = await app.inject({
       method: "POST",
       url: "/v1/swarm/commit",
-      payload: {
+      headers: { authorization: SESSION },
+        payload: {
         node_id: "hacker!@#",
         run_id: "ok-run",
         master_seed: "x",
@@ -157,6 +174,7 @@ describe("GET /v1/swarm/leaderboard + /v1/swarm/proof/...", () => {
       app.inject({
         method: "POST",
         url: "/v1/swarm/commit",
+        headers: { authorization: SESSION },
         payload: {
           node_id: "browser-1234abcd",
           run_id: runId,
@@ -272,6 +290,7 @@ describe("scheduler upgrade integration", () => {
       await app.inject({
         method: "POST",
         url: "/v1/swarm/commit",
+        headers: { authorization: SESSION },
         payload: {
           node_id: "browser-deadbeef",
           run_id: "sched-1",

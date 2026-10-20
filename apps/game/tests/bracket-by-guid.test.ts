@@ -17,7 +17,9 @@ import { afterAll, describe, expect, it } from "vitest";
 import { makeBracket, makeMatchPrediction, makeServer } from "./helpers.js";
 
 describe("game-service / share guid round-trip", () => {
-  const built = makeServer();
+  // Server clock pinned before the tournament so submitted picks are not
+  // stripped at kickoff (same as kickoff-lockout.test.ts).
+  const built = makeServer({ nowMs: () => Date.parse("2026-06-01T00:00:00Z") });
   afterAll(async () => {
     const { app } = await built;
     await app.close();
