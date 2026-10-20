@@ -14,42 +14,88 @@ Tournamental is a **subsidiary of Growth Spurt Ltd**, a New Zealand company head
 
 Read [Tournamental Pitch.md](Tournamental%20Pitch.md) for the marketing one-pager. Read [README.md](README.md) for the repo layout and doc index. Read [REVIEW.md](REVIEW.md) for the current state of the design pack.
 
-## Right now (the AR-FR 2022 critical path)
+## Production runs from this checkout (read before touching anything)
 
-**Goal**: get the **2022 FIFA World Cup Final, Argentina 3–3 France (4–2 pens)** rendering in a browser, end-to-end, in under one working week. This is the v0.1 demo.
+The live services are systemd user units on this box that start
+straight from this working tree:
 
-Skip everything that isn't on this path. The full agent breakdown in [docs/09-agent-task-breakdown.md](docs/09-agent-task-breakdown.md) lists 16 agents (A–P); only four of those are on the critical path right now:
+| Unit | What | Port |
+| --- | --- | --- |
+| `tournamental-web` | apps/web, `next start` | 3300 |
+| `tournamental-game` | apps/game (Fastify, SQLite) | 3360 |
+| `tournamental-auth-sms` | apps/auth-sms (OTP) | 3330 |
+| `tournamental-admin` | apps/admin | 3340 |
+| `tournamental-odds-ingest` | apps/odds-ingest | 3341 |
+| `tournamental-tournament-bot` | Telegram bot | 3350 |
+| `tournamental-tunnel` | Cloudflare tunnel | n/a |
 
-1. **`apps/statsbomb-replay/`** (Python) — converts StatsBomb open data for the AR-FR final into a spec stream. See [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md).
-2. **`apps/web/`** (Next.js + React Three Fiber) — connects to the producer's stream and renders a watchable 90-min + extra-time + penalty match. See [docs/04-renderer.md](docs/04-renderer.md).
-3. **`packages/avatar/`** + assets in `apps/web/public/` — procedural body GLB, runtime jersey-texture generator, billboard faces from Wikidata for the 22 starters. See [docs/07-avatars-and-assets.md](docs/07-avatars-and-assets.md).
-4. **`apps/mock-producer/`** (Node TS) — a synthetic match for renderer dev. See [docs/05-mock-producer.md](docs/05-mock-producer.md).
+So in `/srv/projects/internal/tournamental` itself: never `git checkout`
+another branch, never `pnpm install`, never build. Any of those changes
+what production is serving. Do branch work in a separate worktree under
+`/srv/projects/internal/tournamental-worktrees/<name>/`, symlink
+`node_modules` (root and `apps/web`) from the main checkout, and run
+test binaries directly (`node_modules/.bin/vitest`; `pnpm exec` in a
+worktree tries to reinstall). Wrap builds and test runs in
+`systemd-run --user --scope -p MemoryMax=3G`, one at a time: the box is
+shared and short on memory. Restart services by unit name only
+(`systemctl --user restart tournamental-web`), never by killing a
+process pattern. Deploys (merge, build, restart) are Tim's call.
 
-Concrete starter prompts for each are in [AGENT-PROMPTS.md](AGENT-PROMPTS.md). Read those next.
+## Right now (October 2026)
 
-## After the AR-FR demo works
+The FIFA World Cup 2026 ran 11 June to 19 July 2026 and is over. The
+state of the product today:
 
-Phase 2 begins as soon as the renderer + producer pair plays the 2022 final correctly. The work fans out into the rest of the agent matrix in [docs/09-agent-task-breakdown.md](docs/09-agent-task-breakdown.md):
+- **fwc2026.tournamental.com** serves the FWC 2026 app as a read-only
+  archive (podium, engagement as percentages only, final standings as
+  ranks, the official results bracket). Every mutating request gets a
+  403; sign-in, saves, joins and pool creation are closed. `wc2026` and
+  `2026wc` redirect there.
+- **play.tournamental.com** is the hub while no tournament is active:
+  a Rugby World Cup 2027 hero, a register-interest form (SQLite table
+  `register_interest` in game.db, mirrored to HighLevel with the tag
+  `rwc2027_interest`), and a personal invite link per signup
+  (`/i/<code>`). Every other path on play redirects to the latest
+  archive so old share links keep working.
+- **tournamental.com** (apps/marketing, Astro, static) is about the
+  platform, with an Archive Tournaments menu and a "Coming next: Rugby
+  World Cup 2027" card.
+- **The host switch** is `apps/web/lib/tournaments/registry.ts`. One
+  process serves active, hub and archive modes; `middleware.ts` decides
+  per hostname. Setting RWC 2027 to `active` hands play back to the
+  live app. Details: docs/22 "Host modes" and docs/PROGRESS.md.
 
-- **Stream server + CDN** (agents C, G; docs 03, 08) — required before more than a handful of viewers.
-- **Game service + flat-file leaderboards** (agent J; doc 12) — required for the prediction game.
-- **Tournament Bot** (agent K; doc 13) — required for free-tier auth and push.
-- **VStamp service** (agent M; doc 17) — required for the "verified" marketing claim.
-- **Identity + Humanness Score** (agent O; doc 20) — required for friend leaderboards and bot policy.
-- **Clip pipeline** (agent L; doc 14) — required for social distribution.
-- **Affiliate router** (agent N; doc 18) — required before any revenue.
-- **On-chain Pool + Oracle** (agent P; doc 21) — required for trustless settlement; gated on smart-contract audit.
+Next tournament: Rugby World Cup 2027, Australia, 1 October to
+13 November 2027 (24 teams, 52 matches). Marketing starts June 2027;
+picks open 1 September 2027. The marketing material, lead lists and
+prize planning are not in this repository (it is public); they live in
+the gitignored `docs/internal/` tree per `docs/INTERNAL-DOCS-POLICY.md`.
+Engagement numbers from FWC 2026 are published only as percentages.
 
-These can all begin **in parallel** as soon as the spec is proven against AR-FR.
+What to work on now, in order: the safe review and test items on the
+hivemind burn board (`/srv/projects/hivemind/boards/burn-backlog.md`,
+tournamental section), then IDEAS.md. Open draft PRs, never merge.
+
+## History: the AR-FR 2022 renderer demo
+
+The original critical path (May 2026) was a browser replay of the 2022
+FIFA World Cup Final, Argentina 3-3 France (4-2 pens), from StatsBomb
+open data: `apps/statsbomb-replay/` (producer), `apps/web/` (renderer),
+`packages/avatar/` and `apps/mock-producer/`. The agent breakdown is in
+[docs/09-agent-task-breakdown.md](docs/09-agent-task-breakdown.md), the
+starter prompts in [AGENT-PROMPTS.md](AGENT-PROMPTS.md), the data plan
+in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md).
+The prediction game, pools, bot arena, auth and CRM work that followed
+is logged in `sessions/` and docs/PROGRESS.md.
 
 ## Dev environment (get this on the box first)
 
 ```
 Node:        v20+  (we use pnpm-workspaces)
-pnpm:        v9+
+pnpm:        v11 (workspace settings live in pnpm-workspace.yaml)
 Python:      3.11+ (uv recommended)
 ffmpeg:      4.4+
-Redis:       7+    (for game-service hot KV, doc 12)
+Redis:       7+    (design target, doc 12; production is SQLite today)
 Postgres:    15+   (optional, for offline replay/analytics, doc 03)
 Docker:      for service deployment
 git:         v2.40+ with signed commits configured
@@ -273,40 +319,15 @@ Long-term reasoning context (how a feature evolved across sprints) lives in `doc
 
 Full pipeline detail in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## How to run the AR-FR demo (target end-state)
+## Running the historic AR-FR demo
 
-When the four critical-path agents have shipped:
-
-```bash
-# In one terminal — run the StatsBomb-replay producer
-cd apps/statsbomb-replay
-uv run python replay.py \
-  --match=fifa-wc-2022-final-arg-fra-2022-12-18 \
-  --time-scale=10 \
-  --out=ws --port=4001
-
-# In another terminal — run the renderer
-cd apps/web
-pnpm dev
-# open http://localhost:3000/match/fifa-wc-2022-final-arg-fra-2022-12-18
-
-# Optional third terminal for synthetic-data dev:
-cd apps/mock-producer
-pnpm start -- --seed=42 --out=ws --port=4002
-```
-
-The renderer reads from the WebSocket the producer emits on. At `time-scale=10`, the 2.5-hour AR-FR final (incl. ET and pens) plays in 15 minutes — perfect for development and shareable demos. At `time-scale=1`, real-time replay.
-
-## What "done" looks like for the AR-FR demo
-
-- Hits the criteria in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md):
-  - HUD score matches the actual final exactly: 1–0 Messi (23'), 2–0 Di María (36'), 2–1 Mbappé (80' pen), 2–2 Mbappé (81'), 3–2 Messi (108'), 3–3 Mbappé (118' pen), then penalties Argentina 4–2.
-  - Player nameplate floats over the right body for the right events.
-  - Ball ends up in the goal on goals; flies toward the keeper on shots.
-  - Total runtime ≤ 2.5 hours at `--time-scale=1`, ≤ 15 min at `--time-scale=10`.
-- Renders at 60fps on a mid-range 2022 Android in the browser.
-- Audio mix plays commentary cues at goals and shootout attempts.
-- A 30-second screen recording of the demo is shareable on social.
+Kept for the renderer path. Producer: `cd apps/statsbomb-replay && uv run
+python replay.py --match=fifa-wc-2022-final-arg-fra-2022-12-18
+--time-scale=10 --out=ws --port=4001`. Renderer: `cd apps/web && pnpm dev`
+then open `/match/fifa-wc-2022-final-arg-fra-2022-12-18` on port 3000.
+Acceptance criteria (score timeline, nameplates, 60 fps on a 2022
+mid-range Android) are in docs/11. Do not run `pnpm dev` in the
+production checkout; use a worktree.
 
 ## Performance and caching are paramount
 
@@ -347,6 +368,11 @@ When you change a port, update `docs/22-deployment-and-tunnels.md` and the corre
 
 ## Database and cache stack
 
+Production today is SQLite: `apps/game/data/game.db` (game, pools,
+register_interest) and the auth service's `auth.db`, read and written
+in place by the units above. Back them up before any schema change.
+The Postgres and Redis stack below is the dev and analytics design.
+
 Postgres 16 + Redis 7, both Dockerised, brought up via `bash infra/scripts/db-up.sh`. Connection settings come from `.env` (template at `.env.example`). See:
 
 - `infra/docker/compose.yml` — the stack.
@@ -374,8 +400,9 @@ A schema migration that requires a wipe (e.g. v0.3.0's regenerate-on-demand coll
 
 ## Three things to remember
 
-1. **Ship the AR-FR demo first.** Everything else is enabled by it.
+1. **Production runs from this checkout.** Branch work happens in a worktree; merge and deploy are Tim's.
 2. **The spec is sacred.** Do not branch the spec. Spec changes are escalated to the orchestrator.
 3. **Leave the repo cleaner than you found it.** Session notes, conventional commits, doc updates, and trimmed scope. The whole stack is open source — somebody else will read your code in three months.
 
-Now read [AGENT-PROMPTS.md](AGENT-PROMPTS.md) for the actual starter prompts.
+Then read docs/PROGRESS.md for what shipped most recently, and
+[AGENT-PROMPTS.md](AGENT-PROMPTS.md) only if you are on the renderer path.

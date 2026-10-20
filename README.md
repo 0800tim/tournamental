@@ -15,6 +15,7 @@ Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verif
 
 ## What just shipped
 
+- **FIFA World Cup 2026 archived, Rugby World Cup 2027 next** (October 2026). The finished FWC 2026 app is read-only at [`fwc2026.tournamental.com`](https://fwc2026.tournamental.com); [`play.tournamental.com`](https://play.tournamental.com) is the hub for Rugby World Cup 2027 (Australia, 1 October to 13 November 2027) with register-interest and personal invite links; [`tournamental.com`](https://tournamental.com) now presents the platform. One `apps/web` process serves active, hub and archive modes per hostname, switched by `apps/web/lib/tournaments/registry.ts`. See [`docs/PROGRESS.md`](docs/PROGRESS.md).
 - **npm packages live** under [`@tournamental/*`](https://www.npmjs.com/search?q=%40tournamental) -- `spec`, `bracket-engine`, `social-cards`, and `plugin-sdk` (in development).
 - **MCP server live** at [`mcp.tournamental.com`](https://mcp.tournamental.com) so Claude, Cursor, Windsurf, and other Model Context Protocol clients can read live Tournamental state.
 - **Engineering blog + plugin SDK** -- the engineering log at [`tournamental.com/engineering`](https://tournamental.com/engineering) is now the canonical entry point for builders, and the plugin SDK in [`packages/plugin-sdk/`](packages/plugin-sdk) lets you drop in renderers, scorers, ingest sources, identity providers, share-card pipelines, odds feeds, and affiliate routers without forking the core.
@@ -22,9 +23,9 @@ Domain: **tournamental.com**. Brand expansion when needed: **Tournamental, Verif
 
 ## Bot Arena
 
-The **Open Bot Arena** is Tournamental's open-source, blockchain-anchored experiment: can anyone in the world generate a perfect 104-match FIFA World Cup 2026 bracket using an AI swarm? Anyone can join in 30 seconds from a browser tab, no install, no signup, no payment.
+The **Open Bot Arena** is Tournamental's open-source, blockchain-anchored experiment: can anyone in the world generate a perfect bracket using an AI swarm? It ran across all 104 matches of FIFA World Cup 2026 (nobody managed it; the arena is archived read-only at [`fwc2026.tournamental.com/bot-arena`](https://fwc2026.tournamental.com/bot-arena)) and returns for Rugby World Cup 2027. Anyone can join in 30 seconds from a browser tab, no install, no signup, no payment.
 
-- **Run the swarm:** open [`play.tournamental.com/run`](https://play.tournamental.com/run), click the button, watch your tab spin up one Web Worker per CPU core and grind through bracket after bracket. A 2022-era laptop comfortably runs 100,000 bots through a 104-match bracket in under 10 seconds.
+- **Run the swarm:** during a live tournament, open `play.tournamental.com/run`, click the button, watch your tab spin up one Web Worker per CPU core and grind through bracket after bracket. A 2022-era laptop comfortably runs 100,000 bots through a 104-match bracket in under 10 seconds.
 - **Cryptographic anchor:** before every kickoff, each tab publishes a sorted-pair sha256 merkle root committing to all of its bots' picks for that match. The roots are aggregated centrally into a federation root and OTS-anchored to Bitcoin. Cost to us: $0 (the OpenTimestamps calendars cover Bitcoin transaction fees through aggregation).
 - **Verifiable end-to-end:** anyone with the audit-export bundle and a Bitcoin full node can reproduce any bot's bracket, verify the merkle inclusion proof, and confirm the commitment existed at-or-before the match's kickoff. The reference verifier ships in `packages/bot-node/src/verifier/` under Apache 2.0.
 - **Bots compete, bots do not win money.** Per [terms of service](https://tournamental.com/terms/house-prize#bots), bots are ineligible for cash prizes (Humanness Score floor of 50; bots are 0 by design). Perfect-bracket bots get a badge, a research co-author invitation, and a non-monetary trophy.
@@ -147,13 +148,15 @@ Public packages:
 - `@tournamental/plugin-sdk` -- plugin contracts for community-built
   modes (in development).
 
-## v0.2 demo target: 2022 World Cup Final
+## Historic renderer demo: 2022 World Cup Final
 
-The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). Tournamental-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.
+The first non-mock renderer demo recreates **Argentina 3–3 France (4–2 pens), 2022 World Cup Final**, driven by **StatsBomb Open Data** (free, on GitHub, includes events + 360° freeze-frames for every match). Player photos via Wikidata / Wikimedia Commons. Full plan in [docs/11-historic-data-sources.md](docs/11-historic-data-sources.md). Tournamental-flavour: every viewer can predict the match alongside the rendered replay, score against the 2022 implied probabilities (we have the StatsBomb data for that), and walk away with a verifiable VStamp on their best calls.
 
 ## Documentation
 
 - **Hive-mind index** for agents and contributors: [`docs/README.md`](docs/README.md). Start here.
+- **Progress log** of what shipped, public-safe: [`docs/PROGRESS.md`](docs/PROGRESS.md).
+- **Host modes** (active, hub, archive per hostname): [`docs/22-deployment-and-tunnels.md`](docs/22-deployment-and-tunnels.md).
 - **Glossary** of Tournamental-specific terms: [`docs/glossary.md`](docs/glossary.md).
 - **Playbooks** for adding apps, routes, debugging PRs, merge conflicts, feature flags, doc updates: [`docs/playbook/`](docs/playbook/).
 - **API reference** with per-service Swagger UI URLs and committed OpenAPI 3.0 specs: [`docs/api/README.md`](docs/api/README.md).
@@ -164,6 +167,8 @@ The first non-mock demo recreates **Argentina 3–3 France (4–2 pens), 2022 Wo
 - **Per-service snapshots** committed under [`docs/api/`](docs/api/), regenerated by `pnpm --filter @vtorn/<service> run openapi:snapshot` (alias for the existing `dump-openapi` script).
 
 ## Quickstart for code agents
+
+Read [`CLAUDE.md`](CLAUDE.md) first: it says what the product is doing right now (October 2026: FWC 2026 archived, play as the RWC 2027 hub) and carries the one rule that matters on the production box, which is that the live services run from the main checkout, so branch work happens in a separate worktree and nothing is merged or deployed without Tim.
 
 Each doc in `docs/` is written to be picked up by a separate code agent and implemented independently. The agent task breakdown lives in [docs/09-agent-task-breakdown.md](docs/09-agent-task-breakdown.md) and identifies which docs are blocking, which can run in parallel, and the contract surface each agent must respect.
 
@@ -199,6 +204,8 @@ pnpm add @tournamental/plugin-sdk
 Plugins are dynamically loaded at app boot. License must be Apache-2.0, MIT, BSD-2-Clause, or BSD-3-Clause (the manifest schema rejects everything else). Plugins shipped in `packages/plugins/*` or under the `@tournamental-plugin/*` npm scope receive a share of the upstream Drips treasury per [doc 19](docs/19-open-source-and-contributor-revenue.md).
 
 ## Deploys
+
+Production today is a set of systemd user units (`tournamental-web`, `tournamental-game`, `tournamental-auth-sms`, `tournamental-admin`, `tournamental-odds-ingest`, `tournamental-tournament-bot`, `tournamental-tunnel`) started from the repository checkout on the host, with SQLite data files and a Cloudflare tunnel in front. Ports and hostnames are in [`docs/22-deployment-and-tunnels.md`](docs/22-deployment-and-tunnels.md). The pipeline below is the target design and drives the marketing site build.
 
 CI/CD is build-slot blue-green: build to `<slot>-staging`, smoke-test on a
 private port, atomic-swap `<slot>-prod`, PM2 reload. Worst-case ~2-3s
