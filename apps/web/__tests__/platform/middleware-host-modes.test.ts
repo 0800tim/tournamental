@@ -374,3 +374,25 @@ describe("other hosts", () => {
     expect(rewrittenPath(res)).toBeNull();
   });
 });
+
+describe("Origin guard sees through a locale prefix (review 335-1)", () => {
+  it("refuses a cross-site POST to /es/api/v1/... on play like the bare path", async () => {
+    const res = run(PLAY, "/es/api/v1/register-interest", { method: "POST" });
+    expect(res.status).toBe(403);
+    expect(await json(res)).toEqual({ error: "bad_origin" });
+  });
+
+  it("refuses it on the archive host too, before the archive 403", async () => {
+    const res = run(ARCHIVE, "/fr/api/v1/syndicates", { method: "POST" });
+    expect(res.status).toBe(403);
+    expect(await json(res)).toEqual({ error: "bad_origin" });
+  });
+
+  it("still lets a first-party POST through the guard on a locale-prefixed path", () => {
+    const res = run(PLAY, "/es/api/v1/register-interest", {
+      method: "POST",
+      headers: { origin: "https://play.tournamental.com" },
+    });
+    expect(res.status).not.toBe(403);
+  });
+});

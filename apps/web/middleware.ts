@@ -200,9 +200,9 @@ export function middleware(req: NextRequest) {
   // request actually originated from a first-party surface. Bearer-token
   // widget routes are exempted (they don't rely on cookie creds).
   if (
-    path.startsWith("/api/v1/") &&
+    routePath.startsWith("/api/v1/") &&
     MUTATING_METHODS.has(req.method) &&
-    !isCsrfExemptPath(path)
+    !isCsrfExemptPath(routePath)
   ) {
     const origin = req.headers.get("origin");
     if (!origin || !CSRF_ALLOWED_ORIGINS.has(origin)) {
