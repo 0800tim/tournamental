@@ -210,7 +210,8 @@ describe("loadKnockoutResults", () => {
     const rows = loadKnockoutResults(T);
     expect(rows.map((r) => r.matchId)).toEqual(["r16_02", "qf_03", "sf_01", "tp", "final"]);
     expect(rows[0]).toEqual({ matchId: "r16_02", stage: "r16", homeScore: 3, awayScore: 1, winner: "ENG", method: null });
-    expect(rows[4]).toEqual({ matchId: "final", stage: "final", homeScore: 1, awayScore: 0, winner: "ESP", method: "aet" });
+    // "final" (from the id or a stored stage) is normalised to the page key "f".
+    expect(rows[4]).toEqual({ matchId: "final", stage: "f", homeScore: 1, awayScore: 0, winner: "ESP", method: "aet" });
     expect(rows[3]!.stage).toBe("tp");
   });
 
@@ -234,6 +235,13 @@ describe("loadKnockoutResults", () => {
     expect(new Set(rows.map((r) => r.stage))).toEqual(new Set(["r32"]));
     expect(rows.map((r) => r.matchId)[15]).toBe("r32_16");
     for (const r of rows) expect(KNOCKOUT_STAGE_ORDER).toContain(r.stage);
+  });
+
+  it("lists a final settled without a stage under f, so the home page shows it", () => {
+    result("final", { outcome: "home_win", homeScore: 2, awayScore: 1, winner: "ESP" }, 100);
+    const rows = loadKnockoutResults(T);
+    expect(rows[0]!.stage).toBe("f");
+    expect(KNOCKOUT_STAGE_ORDER).toContain(rows[0]!.stage);
   });
 
   it("tolerates malformed JSON and missing fields", () => {

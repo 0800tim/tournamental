@@ -118,6 +118,14 @@ export const KNOCKOUT_STAGE_LABEL: Record<string, string> = {
   f: "Final",
 };
 
+/**
+ * The final's match id is `final` (no underscore), so the id-derived
+ * stage would be "final" while the page lists "f" (review 343-1).
+ */
+function normaliseStage(stage: string): string {
+  return stage === "final" ? "f" : stage;
+}
+
 export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
   const p = gameDbPath();
   if (!existsSync(p)) return [];
@@ -142,7 +150,7 @@ export function loadKnockoutResults(tournamentId: string): KnockoutResultRow[] {
       }
       return {
         matchId: r.match_id,
-        stage: String(o.stage ?? r.match_id.split("_")[0]),
+        stage: normaliseStage(String(o.stage ?? r.match_id.split("_")[0])),
         homeScore: typeof o.homeScore === "number" ? o.homeScore : null,
         awayScore: typeof o.awayScore === "number" ? o.awayScore : null,
         winner: typeof o.winner === "string" ? o.winner : null,
