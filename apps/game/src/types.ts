@@ -27,8 +27,8 @@ export interface MatchOutcome {
   readonly awayScore?: number;
   /** Canonical winner team id for knockout matches (R32+). */
   readonly winner?: string;
-  /** Knockout stage (r32, r16, qf, sf, f). Omitted for group matches. */
-  readonly stage?: "group" | "r32" | "r16" | "qf" | "sf" | "f";
+  /** Knockout stage (r32, r16, qf, sf, tp, f). Omitted for group matches. */
+  readonly stage?: "group" | "r32" | "r16" | "qf" | "sf" | "tp" | "f";
   /** Polymarket-implied probability of the actual outcome at lock time. */
   readonly impliedAtLock?: number;
   /**
@@ -43,6 +43,8 @@ export interface MatchOutcome {
    * smoke tests.
    */
   readonly windowSeconds?: number;
+  /** How a knockout was decided: "ft" (default), "et", "pens". */
+  method?: "ft" | "et" | "pens";
 }
 
 /** Lock receipt returned to the user after a successful submit. */

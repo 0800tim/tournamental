@@ -139,7 +139,13 @@ export const matchResultBodySchema = z.object({
   homeScore: z.number().int().min(0).max(99).optional(),
   awayScore: z.number().int().min(0).max(99).optional(),
   winner: z.string().min(1).max(16).optional(),
-  stage: z.enum(["group", "r32", "r16", "qf", "sf", "f"]).optional(),
+  // "tp" is the third-place play-off; without it the results poller's
+  // bronze-final settlement was rejected as a validation error
+  // (code review of PR #343, finding 343-2).
+  stage: z.enum(["group", "r32", "r16", "qf", "sf", "tp", "f"]).optional(),
+  // How a knockout was decided; the archive shows "aet" and "pens"
+  // (review 343-3). Absent means full time.
+  method: z.enum(["ft", "et", "pens"]).optional(),
   impliedAtLock: z.number().min(0).max(1).optional(),
   secondsSinceLock: z.number().min(0).optional(),
   windowSeconds: z.number().min(1).optional(),

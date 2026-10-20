@@ -64,6 +64,7 @@ export async function registerMatchRoutes(
         awayScore: body.awayScore,
         winner: body.winner,
         stage: body.stage,
+        method: body.method,
         impliedAtLock: body.impliedAtLock,
         secondsSinceLock: body.secondsSinceLock,
         windowSeconds: body.windowSeconds,
