@@ -19,6 +19,8 @@ function run(host: string, path: string, method = "GET", headers: Record<string,
 describe("archive host, GET routes that write", () => {
   it.each([
     "/api/v1/syndicates/mates/join-requests/u_1/approve?t=abc",
+    "/es/api/v1/syndicates/mates/join-requests/u_1/approve?t=abc",
+    "/pt-BR/api/v1/syndicates/mates/join-requests/u_1/deny?t=abc",
     "/api/v1/syndicates/mates/join-requests/u_1/deny?t=abc",
     "/api/v1/syndicates/mates/join-requests/u_1",
   ])("403s %s as archived", async (p) => {

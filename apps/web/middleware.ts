@@ -227,7 +227,11 @@ export function middleware(req: NextRequest) {
     // Nothing mutates in an archive. 403 every state-changing call
     // (bracket saves go to the game service directly and are rejected
     // there after kickoff; this covers the Next-side routes).
-    if (MUTATING_METHODS.has(req.method) || ARCHIVE_BLOCKED_API.some((re) => re.test(path))) {
+    // Review 336-1: test the locale-stripped path too, or /es/api/v1/...
+    // walks past the block and the locale rewrite runs the handler.
+    const localePrefix = path.split("/")[1] ?? "";
+    const apiPath = isSupportedLocale(localePrefix) ? path.slice(localePrefix.length + 1) || "/" : path;
+    if (MUTATING_METHODS.has(req.method) || ARCHIVE_BLOCKED_API.some((re) => re.test(apiPath))) {
       return new NextResponse(JSON.stringify({ error: "archived" }), {
         status: 403,
         headers: { "content-type": "application/json", "cache-control": "no-store" },
