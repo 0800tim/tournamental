@@ -19,6 +19,7 @@ const tmp = vi.hoisted(() => {
 
 import {
   deleteRegisterInterest,
+  __resetHashIpWarning,
   hashIp,
   inviteCodeExists,
   newInviteCode,
@@ -70,6 +71,26 @@ describe("newInviteCode", () => {
     const seen = new Set<string>();
     for (let i = 0; i < 3000; i++) for (const ch of newInviteCode()) seen.add(ch);
     expect(seen.size).toBe(31);
+  });
+});
+
+describe("hashIp without a configured salt", () => {
+  it("still hashes, and warns once per process", () => {
+    const saved = process.env.TOURNAMENTAL_INTERNAL_SECRET;
+    delete process.env.TOURNAMENTAL_INTERNAL_SECRET;
+    __resetHashIpWarning();
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const a = hashIp("203.0.113.5");
+      const b = hashIp("203.0.113.6");
+      expect(a).toMatch(/^[0-9a-f]{32}$/);
+      expect(b).not.toBe(a);
+      expect(warn).toHaveBeenCalledTimes(1);
+    } finally {
+      warn.mockRestore();
+      process.env.TOURNAMENTAL_INTERNAL_SECRET = saved;
+      __resetHashIpWarning();
+    }
   });
 });
 

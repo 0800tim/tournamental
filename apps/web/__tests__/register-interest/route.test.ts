@@ -177,6 +177,15 @@ describe("validation", () => {
     expect(rows()).toHaveLength(0);
   });
 
+  it("measures the cap in bytes, so multi-byte characters cannot slip a bigger body through", async () => {
+    // 5000 euro signs: 5000 UTF-16 units, 15000 UTF-8 bytes.
+    const raw = JSON.stringify({ ...GOOD, first_name: "€".repeat(5000) });
+    expect(raw.length).toBeLessThan(8 * 1024);
+    expect(Buffer.byteLength(raw, "utf8")).toBeGreaterThan(8 * 1024);
+    const res = await POST(makeRequest(null, { rawBody: raw }));
+    expect(res.status).toBe(413);
+  });
+
   it("rejects a declared oversized Content-Length with 413", async () => {
     const res = await POST(makeRequest(GOOD, { headers: { "content-length": "999999" } }));
     expect(res.status).toBe(413);

@@ -126,10 +126,25 @@ function newId(): string {
   return `ri_${randomBytes(9).toString("hex")}`;
 }
 
+let warnedNoSalt = false;
+
 export function hashIp(ip: string | null): string | null {
   if (!ip) return null;
-  const salt = process.env.TOURNAMENTAL_INTERNAL_SECRET ?? "tournamental";
-  return createHash("sha256").update(`${salt}:${ip}`).digest("hex").slice(0, 32);
+  const salt = process.env.TOURNAMENTAL_INTERNAL_SECRET;
+  if (!salt && !warnedNoSalt) {
+    // A constant salt makes the hash reversible by anyone with the
+    // code; the hash still beats a raw address, so warn once rather
+    // than refuse (review 336-5).
+    warnedNoSalt = true;
+    // eslint-disable-next-line no-console
+    console.warn("[register-interest/store] TOURNAMENTAL_INTERNAL_SECRET is unset; ip_hash uses the default salt");
+  }
+  return createHash("sha256").update(`${salt ?? "tournamental"}:${ip}`).digest("hex").slice(0, 32);
+}
+
+/** Test helper so the one-time warning can be exercised again. */
+export function __resetHashIpWarning(): void {
+  warnedNoSalt = false;
 }
 
 /**

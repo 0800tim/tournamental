@@ -97,7 +97,9 @@ export async function POST(req: NextRequest) {
   let body: Record<string, unknown>;
   try {
     const raw = await req.text();
-    if (raw.length > MAX_BODY_BYTES) {
+    // Bytes, not UTF-16 units: a body of multi-byte characters is larger
+    // than its string length (review 336-2).
+    if (Buffer.byteLength(raw, "utf8") > MAX_BODY_BYTES) {
       return json({ ok: false, error: "body_too_large" }, 413);
     }
     body = JSON.parse(raw) as Record<string, unknown>;
