@@ -7,14 +7,20 @@
  * agent (docs/33 item on Customer 360, 2026-10-20).
  */
 
-import { maskAdminPhone } from "./auth";
-
 export type PiiKind = "email" | "phone";
 
-/** `+6421535832` becomes `+64****5832`; short or empty values pass through. */
+/**
+ * `+6421535832` becomes `+64****5832`; short or empty values pass through.
+ * Lives here, not in lib/auth.ts, because this module is imported by
+ * client components and auth.ts pulls in next/headers and jose.
+ */
 export function maskPhone(phone: string | null | undefined): string {
   if (!phone) return "";
-  return maskAdminPhone(phone);
+  if (phone.length < 6) return phone;
+  const head = phone.slice(0, 3);
+  const tail = phone.slice(-4);
+  const stars = "*".repeat(Math.max(2, phone.length - head.length - tail.length));
+  return `${head}${stars}${tail}`;
 }
 
 /** `aroha.walker@example.co.nz` becomes `ar***@example.co.nz`. */

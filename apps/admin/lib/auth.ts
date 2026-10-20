@@ -40,6 +40,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Role } from "./perms";
+import { maskPhone } from "./pii";
 
 const SESSION_COOKIE =
   process.env.NODE_ENV === "production" ? "__Host-admin" : "admin-session";
@@ -129,13 +130,11 @@ export function isLoginEnabled(): boolean {
   return getAdminPhone() !== null && getAllowedUserIds().size > 0;
 }
 
-/** Mask a phone for display: `+6421535832` → `+64****5832`. */
+/** Mask a phone for display: `+6421535832` → `+64****5832`. The
+ *  implementation lives in lib/pii.ts so client components can use it
+ *  without pulling this server-only module into their bundle. */
 export function maskAdminPhone(phone: string): string {
-  if (phone.length < 6) return phone;
-  const head = phone.slice(0, 3);
-  const tail = phone.slice(-4);
-  const stars = "*".repeat(Math.max(2, phone.length - head.length - tail.length));
-  return `${head}${stars}${tail}`;
+  return maskPhone(phone);
 }
 
 export async function issueSessionCookie(args: {
