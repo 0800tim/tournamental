@@ -7,6 +7,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  ARCHIVE_HOSTS,
   NO_FRAMING_HEADERS,
   baseSecurityHeaders,
   contentSecurityPolicy,
@@ -59,6 +60,11 @@ describe("report-only Content Security Policy", () => {
     expect(directive(prod, "script-src")).toContain("https://www.googletagmanager.com");
     expect(directive(prod, "frame-src")).toContain("https://www.googletagmanager.com");
     expect(directive(prod, "connect-src")).toContain("https://www.google-analytics.com");
+  });
+
+  it("allows the Telegram login widget script and its oauth frame", () => {
+    expect(directive(prod, "script-src")).toContain("https://telegram.org");
+    expect(directive(prod, "frame-src")).toContain("https://oauth.telegram.org");
   });
 
   it("allows fetches to auth-sms, odds, the game service and the producer stream", () => {
@@ -117,6 +123,18 @@ describe("framing per request shape", () => {
     }
   });
 
+  it("exempts the read-only archive hosts from framing, every path", () => {
+    expect(ARCHIVE_HOSTS).toContain("fwc2026.tournamental.com");
+    for (const path of ["/", "/world-cup-2026", "/players", "/world-cup-2026/calendar"]) {
+      const h = headersFor({ path, host: "fwc2026.tournamental.com" });
+      expect(get(h, "X-Frame-Options")).toBeUndefined();
+      expect(get(h, "Content-Security-Policy")).toBeUndefined();
+      expect(get(h, "X-Content-Type-Options")).toBe("nosniff");
+    }
+    expect(framingAllowed({ path: "/", host: "FWC2026.tournamental.com:443" })).toBe(true);
+    expect(framingAllowed({ path: "/", host: "play.tournamental.com" })).toBe(false);
+  });
+
   it("does not treat embed look-alikes as the embed", () => {
     expect(framingAllowed({ path: "/embedded" })).toBe(false);
     expect(framingAllowed({ path: "/world-cup-2026", query: { embed: "0" } })).toBe(false);
@@ -141,6 +159,9 @@ describe("next.config headers() rules", () => {
     expect(re.test("/embed/widget.js")).toBe(false);
     expect(re.test("/embed")).toBe(false);
     expect(re.test("/embedded")).toBe(true);
-    expect(framing.missing).toEqual([{ type: "query", key: "embed", value: "1" }]);
+    expect(framing.missing).toEqual([
+      { type: "query", key: "embed", value: "1" },
+      { type: "host", value: "fwc2026\\.tournamental\\.com" },
+    ]);
   });
 });

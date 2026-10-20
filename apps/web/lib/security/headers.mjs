@@ -13,7 +13,13 @@
  *     on ordinary pages. The embed widget frames the bracket at
  *     `/world-cup-2026?embed=1` from partner sites and `/embed/*`
  *     carries the widget script and its get-code page, so those two
- *     shapes get no framing restriction.
+ *     shapes get no framing restriction. Archive hosts are exempt as a
+ *     whole (review 345-1): the middleware refuses every write there,
+ *     so there is nothing to clickjack, and today the partner embed is
+ *     redirected to the archive host, where in-frame clicks would
+ *     otherwise hit a DENY page. Before the rule is enforced in live
+ *     mode the bracket's in-frame links need `target="_top"` or to
+ *     carry `?embed=1`; that is a separate change.
  *
  * What is report-only (nothing is blocked yet): a Content Security
  * Policy sized for the current app. It allows the GTM bootstrap in
@@ -37,6 +43,14 @@ const FIRST_PARTY_CONNECT = [
 ];
 
 const ANALYTICS_SCRIPT = ["https://www.googletagmanager.com", "https://www.google-analytics.com"];
+// Telegram login widget (app/auth/TelegramLogin.tsx, SignupModal,
+// LinkTelegramButton): script from telegram.org, popup/iframe on
+// oauth.telegram.org (review 345-2).
+const TELEGRAM_SCRIPT = ["https://telegram.org"];
+const TELEGRAM_FRAME = ["https://oauth.telegram.org"];
+/** Read-only archive hostnames, exempt from the framing rule. Add each
+ *  new archive here when it gets a registry entry. */
+export const ARCHIVE_HOSTS = ["fwc2026.tournamental.com"];
 const ANALYTICS_CONNECT = [
   "https://www.google-analytics.com",
   "https://*.google-analytics.com",
@@ -53,7 +67,7 @@ const AVATAR_IMG = ["https://api.dicebear.com"];
 export function contentSecurityPolicy(opts = {}) {
   const dev = opts.dev ?? false;
   const extra = (opts.extraConnect ?? []).filter(Boolean);
-  const scriptSrc = ["'self'", "'unsafe-inline'", "blob:", ...ANALYTICS_SCRIPT];
+  const scriptSrc = ["'self'", "'unsafe-inline'", "blob:", ...ANALYTICS_SCRIPT, ...TELEGRAM_SCRIPT];
   // Next's dev runtime evaluates code at runtime; production bundles do not.
   if (dev) scriptSrc.push("'unsafe-eval'");
   const directives = [
@@ -65,7 +79,7 @@ export function contentSecurityPolicy(opts = {}) {
     ["font-src", ["'self'", "data:"]],
     ["media-src", ["'self'", "blob:", "https:"]],
     ["connect-src", ["'self'", ...FIRST_PARTY_CONNECT, ...ANALYTICS_CONNECT, ...AVATAR_IMG, ...extra, ...(dev ? ["ws:", "http://localhost:*", "http://127.0.0.1:*"] : [])]],
-    ["frame-src", ["'self'", "https://www.googletagmanager.com"]],
+    ["frame-src", ["'self'", "https://www.googletagmanager.com", ...TELEGRAM_FRAME]],
     ["object-src", ["'none'"]],
     ["base-uri", ["'self'"]],
     ["form-action", ["'self'", "https://auth.tournamental.com"]],
@@ -92,18 +106,19 @@ export const NO_FRAMING_HEADERS = [
 /**
  * Is this request shape allowed inside a partner iframe?
  * Mirrors the `has` / `missing` conditions in `securityHeaderRules()`.
- * @param {{ path: string, query?: Record<string, string | undefined> }} req
+ * @param {{ path: string, host?: string, query?: Record<string, string | undefined> }} req
  */
 export function framingAllowed(req) {
+  if (req.host && ARCHIVE_HOSTS.includes(req.host.toLowerCase().split(":")[0])) return true;
   if (req.path === "/embed" || req.path.startsWith("/embed/")) return true;
   return req.query?.embed === "1";
 }
 
 /**
  * The `headers()` entries for next.config.mjs.
- * Rule order matters only for readability; Next applies every matching
- * rule and later values do not override earlier ones for the same key,
- * so the framing headers live in their own exclusive rules.
+ * Next applies every matching rule; when two rules set the same key the
+ * later one wins, which is why the framing headers live in their own
+ * exclusive rule rather than being unset by a later catch-all.
  * @param {{ dev?: boolean, extraConnect?: readonly string[] }} [opts]
  */
 export function securityHeaderRules(opts = {}) {
@@ -114,7 +129,12 @@ export function securityHeaderRules(opts = {}) {
     // Ordinary pages outside /embed and without ?embed=1: no framing.
     {
       source: "/:path((?!embed(?:/|$)).*)",
-      missing: [{ type: "query", key: "embed", value: "1" }],
+      // `missing` entries are ANDed: the rule applies only when the
+      // request is neither the embed nor on an archive host.
+      missing: [
+        { type: "query", key: "embed", value: "1" },
+        ...ARCHIVE_HOSTS.map((h) => ({ type: "host", value: h.replace(/\./g, "\\.") })),
+      ],
       headers: NO_FRAMING_HEADERS,
     },
   ];
@@ -124,7 +144,7 @@ export function securityHeaderRules(opts = {}) {
  * Resolve the full header set for a request the way Next would, for
  * tests and for curl comparisons: base headers always, framing headers
  * unless `framingAllowed`.
- * @param {{ path: string, query?: Record<string, string | undefined> }} req
+ * @param {{ path: string, host?: string, query?: Record<string, string | undefined> }} req
  */
 export function headersFor(req, opts = {}) {
   const out = [...baseSecurityHeaders(opts)];
