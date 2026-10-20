@@ -68,8 +68,24 @@ describe("buildOddsConsensusBracket", () => {
     }
   });
 
-  // OPEN: buildOddsConsensusBracket never sets bestThirds, so since FIFA Annex C routing (fbbc9e32) the eight annex R32 slots stay empty and the consensus bracket stops before the final; see __tests__/REPAIR-NOTES-2026-10.md
-  it.skip("populates knockout predictions through to the final", () => {
+  it("picks eight best thirds, one per group, by world rank", () => {
+    const bracket = buildOddsConsensusBracket(tournament, new Map());
+    const thirds = bracket.bestThirds ?? [];
+    expect(thirds).toHaveLength(8);
+    expect(new Set(thirds).size).toBe(8);
+    // Each pick is a real team and no two come from the same group.
+    const groupOf = (id: string) => tournament.groups.find((g) => g.team_ids.includes(id))?.id;
+    const groups = thirds.map(groupOf);
+    expect(groups.every(Boolean)).toBe(true);
+    expect(new Set(groups).size).toBe(8);
+    // Ordered best world rank first.
+    const rankOf = (id: string) => tournament.teams.find((t) => t.id === id)?.fifa_rank ?? 99;
+    for (let i = 1; i < thirds.length; i += 1) {
+      expect(rankOf(thirds[i - 1]!)).toBeLessThanOrEqual(rankOf(thirds[i]!));
+    }
+  });
+
+  it("populates knockout predictions through to the final", () => {
     const bracket = buildOddsConsensusBracket(tournament, new Map());
     const koIds = tournament.knockouts.map((k) => k.id);
     // We expect predictions for at least one match per stage.
