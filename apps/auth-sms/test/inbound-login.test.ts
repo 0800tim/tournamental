@@ -15,6 +15,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { buildServer } from '../src/index.js';
+import { DEFAULT_RATE_LIMIT_CONFIG } from '../src/rate-limit.js';
 import { Storage } from '../src/storage.js';
 import type { AuthContext } from '../src/context.js';
 import type {
@@ -174,11 +175,15 @@ describe('POST /v1/auth/inbound-login', () => {
     expect(r2.json().reason).toBe('phone-cooldown');
   });
 
-  it('rate-limits per-phone (hourly cap) — 5+ requests per phone per hour is 429', async () => {
+  it('rate-limits per-phone (hourly cap) — one more than the cap per phone per hour is 429', async () => {
     const phone = '+6421000101';
-    // Five requests, each beyond the 60s cooldown.
-    for (let i = 0; i < 5; i += 1) {
-      h.now.value = 1_700_000_000_000 + i * 70 * 1000;
+    // The cap and cooldown come from the defaults (loosened 2026-05-22),
+    // each request beyond the cooldown and all inside one hourly bucket.
+    const { phoneHourlyMax, phoneCooldownSeconds } = DEFAULT_RATE_LIMIT_CONFIG;
+    const step = (phoneCooldownSeconds + 5) * 1000;
+    const start = Math.floor(1_700_000_000_000 / 3_600_000) * 3_600_000 + 1000;
+    for (let i = 0; i < phoneHourlyMax; i += 1) {
+      h.now.value = start + i * step;
       const r = await h.app.inject({
         method: 'POST',
         url: '/v1/auth/inbound-login',
@@ -187,7 +192,7 @@ describe('POST /v1/auth/inbound-login', () => {
       });
       expect(r.statusCode).toBe(200);
     }
-    h.now.value = 1_700_000_000_000 + 6 * 70 * 1000;
+    h.now.value = start + phoneHourlyMax * step;
     const blocked = await h.app.inject({
       method: 'POST',
       url: '/v1/auth/inbound-login',
@@ -244,16 +249,20 @@ describe('POST /v1/auth/magic-verify', () => {
     expect(String(setCookie)).toContain('Domain=.tournamental.com');
     expect(String(setCookie)).toContain('HttpOnly');
     expect(String(setCookie)).toContain('Secure');
-    expect(String(setCookie)).toContain('SameSite=Lax');
+    // SameSite=None since 2026-05-22 so the partner embed keeps the session.
+    expect(String(setCookie)).toContain('SameSite=None');
   });
 
-  it('consumes the OTP row on success (single-use)', async () => {
+  it('consumes the OTP row on success (single-use after the 60 s replay window)', async () => {
     const { magicToken } = await issue();
     await h.app.inject({
       method: 'POST',
       url: '/v1/auth/magic-verify',
       payload: { token: magicToken },
     });
+    // A same-browser retry inside 60 s re-mints by design (SEC-AUTH-02);
+    // after that window the consumed row is gone for good.
+    h.now.value += 61 * 1000;
     const res = await h.app.inject({
       method: 'POST',
       url: '/v1/auth/magic-verify',

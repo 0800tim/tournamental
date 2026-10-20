@@ -2,6 +2,10 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Storage } from '../src/storage.js';
 import { checkOtpRequestLimit } from '../src/rate-limit.js';
 
+// The defaults were loosened on 2026-05-22 (20 s cooldown, 30 per phone,
+// 60 per IP); these two cases test the mechanics with the caps they name.
+const STRICT = { phoneCooldownSeconds: 60, phoneHourlyMax: 5, ipHourlyMax: 30 };
+
 let storage: Storage;
 
 beforeEach(() => {
@@ -51,11 +55,11 @@ describe('rate-limit', () => {
     let t = 1_700_000_000;
     // 5 requests across the hour, each just outside the 60s cooldown.
     for (let i = 0; i < 5; i++) {
-      const r = checkOtpRequestLimit({ storage, phone, ip, now: t });
+      const r = checkOtpRequestLimit({ storage, phone, ip, now: t, config: STRICT });
       expect(r.ok).toBe(true);
       t += 65;
     }
-    const blocked = checkOtpRequestLimit({ storage, phone, ip, now: t });
+    const blocked = checkOtpRequestLimit({ storage, phone, ip, now: t, config: STRICT });
     expect(blocked.ok).toBe(false);
     if (!blocked.ok) expect(blocked.reason).toBe('phone-hourly');
   });
@@ -64,7 +68,7 @@ describe('rate-limit', () => {
     let t = 1_700_000_000;
     for (let i = 0; i < 30; i++) {
       const phoneI = `+642100000${String(i).padStart(2, '0')}`;
-      const r = checkOtpRequestLimit({ storage, phone: phoneI, ip, now: t });
+      const r = checkOtpRequestLimit({ storage, phone: phoneI, ip, now: t, config: STRICT });
       expect(r.ok).toBe(true);
       t += 1;
     }
@@ -73,6 +77,7 @@ describe('rate-limit', () => {
       phone: '+6421999999',
       ip,
       now: t + 100,
+      config: STRICT,
     });
     expect(blocked.ok).toBe(false);
     if (!blocked.ok) expect(blocked.reason).toBe('ip-hourly');
