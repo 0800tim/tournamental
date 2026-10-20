@@ -67,7 +67,13 @@ async function main(): Promise<void> {
     console.error("Set TOURNAMENTAL_API_KEY and ANTHROPIC_API_KEY.");
     process.exit(1);
   }
-  const mod = (await import("@anthropic-ai/sdk").catch(() => null)) as
+  // The SDK is an optional peer the reader installs themselves, so it is
+  // not in this package's dependencies. A literal specifier makes tsc
+  // resolve the module at typecheck time (TS2307 in CI since June 2026);
+  // a variable specifier keeps the dynamic import untyped and the catch
+  // below still handles the "not installed" case at runtime.
+  const sdkModule = "@anthropic-ai/sdk";
+  const mod = (await import(sdkModule).catch(() => null)) as
     | { default: new (opts: { apiKey: string }) => ClaudeClient }
     | null;
   if (!mod) {
