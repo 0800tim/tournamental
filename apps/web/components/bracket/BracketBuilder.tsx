@@ -1582,6 +1582,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                   * CTA without scrolling past the final-match card. */}
                 <CascadeWarnings
                   warnings={cascaded.warnings}
+                  tournament={tournament}
                   currentTab="final"
                   onJumpToTab={(target) => setTab(target as TabId)}
                   mode="banner"
@@ -1715,6 +1716,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 * renders at the bottom of the whole tabpanel grid. */}
               <CascadeWarnings
                 warnings={cascaded.warnings}
+                tournament={tournament}
                 currentTab={panelId as CascadeTab}
                 onJumpToTab={(target) => setTab(target as TabId)}
                 mode="banner"
@@ -1743,6 +1745,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         * collapsible details list stays here as a reference. */}
       <CascadeWarnings
         warnings={cascaded.warnings}
+        tournament={tournament}
         currentTab={tab as CascadeTab}
         onJumpToTab={(target) => setTab(target as TabId)}
         mode="details"

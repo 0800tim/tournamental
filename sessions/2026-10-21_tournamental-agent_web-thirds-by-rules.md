@@ -39,6 +39,13 @@ files (helper, RWC 2027 results path, picker) and two existing tests
 updated for the new fallback order. 41 tests pass across the seven
 affected files; `tsc` clean; eslint clean on the changed files.
 
+## Second commit
+
+`CascadeWarnings` takes an optional `tournament` and sizes the
+best-thirds messages from it ("all 4 picks before the Round of 16");
+the 2026 wording is the fallback when none is passed. The builder's
+three call sites pass it. Three tests; bracket-tabs suite still green.
+
 ## Next steps
 
 - Needs Tim: nothing beyond merging #366, #369 and this in order.
