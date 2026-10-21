@@ -30,7 +30,10 @@ export function bestThirdsTarget(tournament: Pick<Tournament, "advancement">): n
 /**
  * The world ranking used for ordering and labels. `world_rank` is the
  * sport-neutral field; `fifa_rank` is what the 2026 data carries. 99
- * when neither is known so unranked teams sort last.
+ * when neither is known so unranked teams sort last. (The engine's own
+ * `world_rank` criterion treats an unranked team as negative infinity,
+ * so a team ranked 100 or worse would sort below an unranked one here;
+ * no vendored team is ranked worse than 89.)
  */
 export function teamWorldRank(
   team: Pick<Team, "fifa_rank" | "world_rank"> | undefined,
@@ -85,8 +88,11 @@ export function rankingLabel(tournament: Pick<Tournament, "sport">): {
 } {
   switch (tournament.sport) {
     case "rugby_union":
-    case "rugby_league":
       return { short: "WR", long: "World Rugby ranking", body: "World Rugby" };
+    case "rugby_league":
+      // The IRL publishes rugby league's rankings; no league tournament
+      // is vendored yet, so the label is a placeholder until one is.
+      return { short: "IRL", long: "IRL ranking", body: "the IRL" };
     case "football":
     case undefined:
     default:

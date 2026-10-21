@@ -60,6 +60,7 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
   const { tournament, bracket, onChange, onClear } = props;
   const REQUIRED = bestThirdsTarget(tournament);
   const ranking = rankingLabel(tournament);
+  const football = tournament.sport === undefined || tournament.sport === "football";
 
   const { rows, groupsComplete } = useMemo(() => {
     const out: ThirdRow[] = [];
@@ -130,7 +131,7 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
     if (next.has(teamId)) {
       next.delete(teamId);
     } else {
-      if (atLimit) return; // ignore extra picks once 8 are chosen
+      if (atLimit) return; // ignore extra picks once the count is reached
       next.add(teamId);
     }
     onChange([...next]);
@@ -164,9 +165,9 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
           This tournament advances the top {tournament.advancement.automatic_per_group}{" "}
           from each group <em>plus</em> the {REQUIRED} best 3rd-placed teams
           (out of {tournament.groups.length}). In real life {ranking.body} ranks
-          those thirds by points, then {thirdsTiebreakLabels(tournament).join(", ")},
-          then steps like discipline or a drawing of lots. Tournamental only
-          asks you to pick a winner / draw / loser for each match (not the
+          those thirds by points, then {listWithAnd(thirdsTiebreakLabels(tournament))}
+          {football ? ", then discipline and a drawing of lots" : ""}. Tournamental
+          only asks you to pick a winner / draw / loser for each match (not the
           score line), so we can&apos;t deterministically rank the thirds
           beyond their points record.
         </p>
@@ -251,6 +252,12 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
       )}
     </div>
   );
+}
+
+/** "a, b and c" for the explainer sentence. */
+function listWithAnd(items: readonly string[]): string {
+  if (items.length <= 1) return items.join("");
+  return `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
 }
 
 /**

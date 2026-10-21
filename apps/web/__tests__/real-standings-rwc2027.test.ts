@@ -18,28 +18,38 @@ import { teamWorldRank } from "@/lib/bracket/thirds";
 const rwc: Tournament = loadFixturesRwc2027();
 
 /**
- * Every pool: the lower-indexed team wins. The winning margin and the
- * winner's tries vary by pool so the six thirds (index 2 in each pool)
- * end up with different records: a close loss (margin 7 or less) earns
- * the third a losing bonus point, and beating the fourth team with four
- * tries earns a try bonus.
+ * Every pool: the lower-indexed team wins. The winning margin varies by
+ * pool so the six thirds (index 2 in each pool) end up with different
+ * records: a close loss (margin 7 or less) earns the third a losing bonus
+ * point. With `withTries`, the thirds of pools A and B beat their fourth
+ * team with four tries, which earns a try bonus; every other winner
+ * scores two tries and every loser one.
  */
 const MARGIN = [20, 15, 5, 12, 3, 25] as const;
-const WINNER_TRIES = [3, 2, 2, 2, 2, 4] as const;
+const TRY_BONUS_POOLS = new Set(["A", "B"]);
 
-function recordAll(skipMatchNo?: number): Map<string, RecordedResultLite> {
+function recordAll(opts: { skipMatchNo?: number; withTries?: boolean } = {}): Map<string, RecordedResultLite> {
   const results = new Map<string, RecordedResultLite>();
   rwc.groups.forEach((g, gi) => {
     for (const f of rwc.group_fixtures.filter((x) => x.group_id === g.id)) {
-      if (f.match_no === skipMatchNo) continue;
+      if (f.match_no === opts.skipMatchNo) continue;
       const homeWins = f.home_idx < f.away_idx;
       const margin = MARGIN[gi]!;
       const winnerScore = 10 + margin;
       const loserScore = 10;
+      const thirdBeatsFourth = Math.min(f.home_idx, f.away_idx) === 2;
+      const winnerTries = thirdBeatsFourth && TRY_BONUS_POOLS.has(g.id) ? 4 : 2;
+      const loserTries = 1;
       results.set(String(f.match_no), {
         outcome: homeWins ? "home_win" : "away_win",
         homeScore: homeWins ? winnerScore : loserScore,
         awayScore: homeWins ? loserScore : winnerScore,
+        ...(opts.withTries
+          ? {
+              homeTries: homeWins ? winnerTries : loserTries,
+              awayTries: homeWins ? loserTries : winnerTries,
+            }
+          : {}),
         winner: g.team_ids[homeWins ? f.home_idx : f.away_idx]!,
       });
     }
@@ -57,6 +67,8 @@ function thirdsByRule(results: ReadonlyMap<string, RecordedResultLite>): string[
         outcome: r.outcome,
         homeScore: r.homeScore ?? undefined,
         awayScore: r.awayScore ?? undefined,
+        homeTries: r.homeTries ?? undefined,
+        awayTries: r.awayTries ?? undefined,
         lockedAt: "",
       };
     }
@@ -85,7 +97,7 @@ describe("buildCompletedResults for Rugby World Cup 2027", () => {
   });
 
   it("leaves best thirds undefined while any pool is unsettled", () => {
-    const out = buildCompletedResults(rwc, recordAll(36));
+    const out = buildCompletedResults(rwc, recordAll({ skipMatchNo: 36 }));
     expect(out.groups.filter((g) => g.settled)).toHaveLength(5);
     expect(out.best_thirds).toBeUndefined();
   });
@@ -101,5 +113,19 @@ describe("buildCompletedResults for Rugby World Cup 2027", () => {
     // carry losing bonus points and must be in the four.
     expect(out.best_thirds).toContain("ESP");
     expect(out.best_thirds).toContain("USA");
+    // Without tries recorded nobody earns a try bonus, so the four are
+    // the two losing-bonus thirds (USA ahead of ESP on points difference,
+    // -3 against -5) and then the two with the best points difference:
+    // URU (pool D, lost by 12) and GEO (pool B, lost by 15).
+    expect(out.best_thirds).toEqual(["USA", "ESP", "URU", "GEO"]);
+  });
+
+  it("carries tries through so a try bonus can change the four", () => {
+    const results = recordAll({ withTries: true });
+    const out = buildCompletedResults(rwc, results);
+    expect(out.best_thirds).toEqual(thirdsByRule(results).slice(0, 4));
+    // CHI (pool A) and GEO (pool B) scored four tries against their
+    // fourth team: 5 points each, above URU's 4, so CHI replaces URU.
+    expect(out.best_thirds).toEqual(["USA", "ESP", "GEO", "CHI"]);
   });
 });

@@ -36,9 +36,4 @@ describe("CascadeWarnings best-thirds copy", () => {
       screen.getByText("The best 3rd-placed teams stage needs all 8 picks before the Round of 32 can fill in."),
     ).toBeTruthy();
   });
-
-  it("falls back to the 2026 wording without a tournament", () => {
-    render(<CascadeWarnings warnings={incomplete} currentTab="groups" onJumpToTab={() => {}} mode="details" />);
-    expect(screen.getByText(/all 8 picks before the Round of 32/)).toBeTruthy();
-  });
 });

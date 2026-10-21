@@ -12,10 +12,9 @@
  * This component does three things:
  *
  *   1. Translates each warning code into a single, plain-English
- *      sentence ("Pick 8 best 3rd-placed teams to unlock the Round
- *      of 32"). Identical warnings collapse to one line. The thirds
- *      count and the round they enter come from the tournament when
- *      one is passed; the 2026 wording is the fallback.
+ *      sentence ("Pick 4 best 3rd-placed teams to unlock the Round
+ *      of 16"). Identical warnings collapse to one line. The thirds
+ *      count and the round they enter come from the tournament.
  *   2. Renders a contextual banner at the top of late-stage tabs
  *      when empty slots are present because earlier stages aren't
  *      filled, with a direct link/CTA to the right tab.
@@ -47,11 +46,8 @@ export type BracketTabId =
 
 export interface CascadeWarningsProps {
   readonly warnings: ReadonlyArray<CascadeWarning>;
-  /**
-   * Sizes the best-thirds copy (how many picks, which round they
-   * unlock). Optional so older call sites keep the 2026 wording.
-   */
-  readonly tournament?: Tournament;
+  /** Sizes the best-thirds copy (how many picks, which round they unlock). */
+  readonly tournament: Tournament;
   /** The tab the user is currently looking at. Drives the banner. */
   readonly currentTab: BracketTabId;
   /**
@@ -83,10 +79,7 @@ interface ThirdsCopy {
   readonly entryStage: string;
 }
 
-const THIRDS_COPY_2026: ThirdsCopy = { count: 8, entryStage: "Round of 32" };
-
-function thirdsCopyFor(tournament: Tournament | undefined): ThirdsCopy {
-  if (!tournament) return THIRDS_COPY_2026;
+function thirdsCopyFor(tournament: Tournament): ThirdsCopy {
   return {
     count: bestThirdsTarget(tournament),
     entryStage: thirdsEntryStageLabel(tournament),
@@ -209,7 +202,7 @@ export function CascadeWarnings({
   if (warnings.length === 0) return null;
   const thirds = thirdsCopyFor(tournament);
 
-  // Collapse duplicate code+message pairs so eight identical
+  // Collapse duplicate code+message pairs so several identical
   // "annex_c_third_pool_incomplete" lines render as one sentence.
   const uniqueByCode = new Map<string, string>();
   for (const w of warnings) {

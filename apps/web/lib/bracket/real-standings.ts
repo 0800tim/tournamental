@@ -61,6 +61,10 @@ export interface RecordedResultLite {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Tries scored (rugby). Absent or null for football and for results
+   *  recorded without them; the engine then awards no try bonus. */
+  readonly homeTries?: number | null;
+  readonly awayTries?: number | null;
   /** 3-letter code of the winner; for knockouts, the team that advances.
    *  Read from whichever field the caller exposes: `winner` / `winnerCode`
    *  (typed) or the raw API's `winner_code` (snake_case). */
@@ -102,6 +106,8 @@ export function buildCompletedResults(
         outcome: r.outcome,
         ...(typeof r.homeScore === "number" ? { homeScore: r.homeScore } : {}),
         ...(typeof r.awayScore === "number" ? { awayScore: r.awayScore } : {}),
+        ...(typeof r.homeTries === "number" ? { homeTries: r.homeTries } : {}),
+        ...(typeof r.awayTries === "number" ? { awayTries: r.awayTries } : {}),
         lockedAt: "",
       };
     }

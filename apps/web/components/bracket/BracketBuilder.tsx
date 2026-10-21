@@ -154,6 +154,9 @@ export interface ResultedMatch {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Tries scored (rugby); null or absent for football. */
+  readonly homeTries?: number | null;
+  readonly awayTries?: number | null;
   /** Three-letter team code of the winner, e.g. "MEX". null for draws. */
   readonly winnerCode: string | null;
 }
@@ -764,6 +767,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
             outcome: "home_win" | "draw" | "away_win";
             homeScore: number | null;
             awayScore: number | null;
+            homeTries?: number | null;
+            awayTries?: number | null;
             winner_code: string | null;
           }>;
         };
@@ -774,6 +779,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
             outcome: row.outcome,
             homeScore: row.homeScore,
             awayScore: row.awayScore,
+            homeTries: row.homeTries ?? null,
+            awayTries: row.awayTries ?? null,
             winnerCode: row.winner_code,
           });
         }
@@ -1487,11 +1494,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 key={panelId}
                 id="bracket-panel-thirds"
                 role="tabpanel"
-                aria-label="Top 8 third-placed teams"
+                aria-label={`Best ${thirdsProgress.total} third-placed teams`}
                 className="bracket-panel bracket-thirds-section bracket-stage-panel"
               >
                 <div className="bracket-round-header">
-                  <h2>Top 8 3rd Place</h2>
+                  <h2>Best 3rd Place</h2>
                   <span className="bracket-round-progress">
                     <strong>{thirdsProgress.picked}</strong> of {thirdsProgress.total} picked
                   </span>

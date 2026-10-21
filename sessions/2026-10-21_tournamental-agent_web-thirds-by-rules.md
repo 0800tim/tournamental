@@ -49,3 +49,23 @@ three call sites pass it. Three tests; bracket-tabs suite still green.
 ## Next steps
 
 - Needs Tim: nothing beyond merging #366, #369 and this in order.
+
+## Review (2026-10-22)
+
+Independent review, all findings actioned in the third commit.
+Medium: the thirds panel heading and aria-label still said "Top 8";
+now "Best 3rd Place" and sized from the tournament. Medium: the
+results path ranked rugby thirds by tries but no try counts reached
+the engine; `RecordedResultLite`, the persistence row, the archive
+builder, the results API body and the builder's `ResultedMatch` now
+carry `homeTries`/`awayTries` (the game stores them on #374), with a
+test where a try bonus changes the four. Low: the unused
+`WINNER_TRIES` is gone; the readiness doc no longer claims the swarm
+goes through the helper (it keeps rank-only order for bots, by
+design, and reads `world_rank` first); the explainer lists the chain
+with "and" and only mentions discipline and lots for football;
+`CascadeWarnings` requires the tournament and the 2026 fallback is
+gone; stale "8" comments fixed; the picker ordering test now uses a
+drawn pool match so predicted points beat world rank. Notes: a
+comment on the 99 versus negative-infinity rank fallback; rugby
+league gets its own ranking label.

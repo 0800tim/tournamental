@@ -15,11 +15,12 @@
  *   1. From the bot's per-match group-stage picks, compute group
  *      standings via `computeGroupStandings()` (which already handles
  *      points -> GD -> GF -> head-to-head -> alphabetical fallback).
- *   2. Select the bot's 8 "best thirds" deterministically. Without
- *      explicit scores the engine's tiebreaker would alphabetise every
- *      group's 3rd-placer; instead we rank by FIFA-rank (lower = better)
- *      so the bot's group standings cascade to a coherent best-third
- *      pool. The same rank table feeds the chalk strategy elsewhere.
+ *   2. Select the bot's best thirds (as many as the format advances)
+ *      deterministically. Without explicit scores the engine's
+ *      tiebreaker would alphabetise every group's 3rd-placer; instead
+ *      we rank by world rank (lower = better) so the bot's group
+ *      standings cascade to a coherent best-third pool. The same rank
+ *      table feeds the chalk strategy elsewhere.
  *   3. Walk knockout fixtures in order, choosing each knockout winner
  *      from the bot's pre-existing per-knockout Outcome (home_win vs
  *      away_win). The cascade calculator resolves which two team codes
@@ -134,12 +135,14 @@ function buildGroupTiebreakers(
 }
 
 /**
- * Build the 8 best-third TeamIds for a bot deterministically. We rank
- * each group's 3rd-placer by FIFA rank (lower rank = better third), then
- * pick the top `wildcard_third` slots. This deliberately does NOT consult
- * the bot's own pick weights for the third-place ranking; the order has
- * to be consistent for the Annex C lookup table to be meaningful, and
- * FIFA rank is the most defensible signal pre-tournament.
+ * Build the best-third TeamIds for a bot deterministically. We rank
+ * each group's 3rd-placer by world rank (lower rank = better third),
+ * then pick the top `wildcard_third` slots. This deliberately does NOT
+ * consult the bot's own pick weights or predicted points for the
+ * third-place ranking (unlike `lib/bracket/thirds.ts`, which the user
+ * and results paths use); the order has to be consistent for the Annex
+ * C lookup table to be meaningful, and world rank is the most
+ * defensible signal pre-tournament.
  *
  * If fewer than `wildcard_third` groups have a 3rd-placer (e.g. partial
  * standings during a unit-test smoke run), the function pads with

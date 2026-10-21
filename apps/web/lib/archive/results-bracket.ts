@@ -16,6 +16,8 @@ export function buildOfficialResultsBracket(tournament: Tournament): Bracket {
     outcome: "home_win" | "draw" | "away_win";
     homeScore?: number | null;
     awayScore?: number | null;
+    homeTries?: number | null;
+    awayTries?: number | null;
     winner?: string | null;
   }>;
   const byMatch = new Map<string, RecordedResultLite>();
@@ -24,6 +26,8 @@ export function buildOfficialResultsBracket(tournament: Tournament): Bracket {
       outcome: r.outcome,
       homeScore: typeof r.homeScore === "number" ? r.homeScore : null,
       awayScore: typeof r.awayScore === "number" ? r.awayScore : null,
+      homeTries: typeof r.homeTries === "number" ? r.homeTries : null,
+      awayTries: typeof r.awayTries === "number" ? r.awayTries : null,
       winner: r.winner ?? null,
     });
   }
