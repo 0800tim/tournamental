@@ -20,6 +20,7 @@
 
 import {
   cascade,
+  computeGroupStandings,
   type Bracket,
   type GroupTiebreaker,
   type MatchPrediction,
@@ -28,6 +29,7 @@ import {
 } from "@tournamental/bracket-engine";
 
 import { bracketToCascadeInput } from "@/lib/bracket/cascade-bridge";
+import { selectBestThirds, teamWorldRank, type ThirdCandidate } from "@/lib/bracket/thirds";
 import type { MatchOdds } from "@/lib/odds/types";
 
 const KO_PICK_STAGES: readonly StageId[] = [
@@ -50,7 +52,7 @@ export function buildOddsConsensusBracket(
   oddsByMatch: ReadonlyMap<string, MatchOdds>,
 ): Bracket {
   const rankOf = (code: string): number =>
-    tournament.teams.find((t) => t.id === code)?.fifa_rank ?? 99;
+    teamWorldRank(tournament.teams.find((t) => t.id === code));
   const ts = new Date().toISOString();
 
   // ---------- Group fixtures ----------
@@ -94,14 +96,16 @@ export function buildOddsConsensusBracket(
   // Anonymous user — only used by the cascade-bridge for tagging.
   const userLocalId = "consensus";
 
-  // ---------- Best thirds (FIFA Annex C) ----------
-  // Since Annex C routing the cascade fills the eight third-placed R32
+  // ---------- Best thirds (Annex C) ----------
+  // Since Annex C routing the cascade fills the third-placed knockout
   // slots only from an explicit `bestThirds` list; it never ranks thirds
   // itself. Run the group stage once to learn each group's predicted
   // third-placed team (from the picks and tiebreakers above), then keep
-  // the eight with the best world rank, ties broken by group id so the
-  // result is deterministic. World rank, not odds, because the snapshot
-  // carries match odds only and no group-winner summaries.
+  // the number the format advances, ordered by the tournament's
+  // cross-group chain: predicted points first, then world rank (the
+  // picks carry no score lines, so the goal and try criteria are level).
+  // World rank, not odds, because the snapshot carries match odds only
+  // and no group-winner summaries.
   const groupStage: Bracket = {
     bracketId: "consensus-odds-v1",
     matchPredictions,
@@ -110,13 +114,19 @@ export function buildOddsConsensusBracket(
     version: 2,
   };
   const groupOnly = cascade(tournament, bracketToCascadeInput(tournament, groupStage, userLocalId));
-  const thirds: Array<{ team: string; groupId: string }> = [];
+  const thirds: ThirdCandidate[] = [];
   for (const g of groupOnly.groups) {
     const third = g.effective_order[2];
-    if (third) thirds.push({ team: third, groupId: g.group_id });
+    if (!third) continue;
+    const standing = computeGroupStandings(
+      g.group_id,
+      tournament,
+      matchPredictions,
+      groupTiebreakers[g.group_id],
+    ).find((s) => s.teamCode === third);
+    if (standing) thirds.push({ groupId: g.group_id, standing });
   }
-  thirds.sort((a, b) => rankOf(a.team) - rankOf(b.team) || a.groupId.localeCompare(b.groupId));
-  const bestThirds = thirds.slice(0, 8).map((t) => t.team);
+  const bestThirds = selectBestThirds(tournament, thirds);
 
   // ---------- Knockouts: stage-by-stage with re-cascade ----------
   let next: Bracket = {

@@ -136,7 +136,7 @@ describe("buildOfficialResultsBracket: best thirds from actual results (79286bb3
     expect(b.bestThirds).toEqual(expected);
   });
 
-  it("breaks a full tie on points, goal difference and goals by team code", () => {
+  it("breaks a full tie on points, goal difference and goals by FIFA rank, then team code", () => {
     // Every group identical: third team has 3 points, GD -1, 1 goal.
     tournament.groups.forEach((g) => {
       for (const f of tournament.group_fixtures.filter((x) => x.group_id === g.id)) {
@@ -144,7 +144,11 @@ describe("buildOfficialResultsBracket: best thirds from actual results (79286bb3
         record(String(f.match_no), { outcome: homeWins ? "home_win" : "away_win", homeScore: homeWins ? 1 : 0, awayScore: homeWins ? 0 : 1 });
       }
     });
-    const thirds = tournament.groups.map((g) => g.team_ids[2]!).sort((a, c) => a.localeCompare(c)).slice(0, 8);
+    const rankOf = (id: string) => tournament.teams.find((t) => t.id === id)?.fifa_rank ?? 99;
+    const thirds = tournament.groups
+      .map((g) => g.team_ids[2]!)
+      .sort((a, c) => rankOf(a) - rankOf(c) || a.localeCompare(c))
+      .slice(0, 8);
     expect(buildOfficialResultsBracket(tournament).bestThirds).toEqual(thirds);
   });
 });
