@@ -82,6 +82,40 @@ describe("loadBracketFromGuid", () => {
     expect(result?.tournament_label).toBe("Football World Cup 2026");
   });
 
+  it("renders four rounds for a Rugby World Cup 2027 bracket, starting at the Round of 16", async () => {
+    const fetchImpl = mockFetch({
+      status: 200,
+      body: {
+        ok: true,
+        bracket: {
+          share_guid: "d64a707a-9af2-4c1a-8661-45f69bd52160",
+          user_handle: null,
+          tournament_id: "rwc-2027",
+          champion_code: "NZL",
+          runner_up_code: "RSA",
+          third_place_code: "IRE",
+          knockout_path: [
+            { stage: "r16", opponent_code: "SCO", result: "win" },
+            { stage: "qf", opponent_code: "ARG", result: "win" },
+            { stage: "sf", opponent_code: "FRA", result: "win" },
+            { stage: "final", opponent_code: "RSA", result: "win" },
+          ],
+          locked_at: "2027-09-30T12:00:00Z",
+        },
+      },
+    });
+
+    const result = await loadBracketFromGuid(
+      "d64a707a-9af2-4c1a-8661-45f69bd52160",
+      { fetchImpl, baseUrl: "http://test" },
+    );
+    expect(result).not.toBeNull();
+    expect(result?.path_to_gold.map((p) => p.stage)).toEqual(["r16", "qf", "sf", "final"]);
+    expect(result?.path_to_gold[0]?.opponent_code).toBe("SCO");
+    expect(result?.path_to_gold[0]?.stage_label).toBe("Round of 16");
+    expect(result?.tournament_label).toBe("Rugby World Cup 2027");
+  });
+
   it("returns null when upstream responds 404", async () => {
     const fetchImpl = mockFetch({
       status: 404,

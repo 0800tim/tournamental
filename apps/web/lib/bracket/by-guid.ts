@@ -31,7 +31,12 @@
  * bracket than the one he saved. This file is the data-layer fix.
  */
 
-import type { Bracket } from "@tournamental/bracket-engine";
+import {
+  loadFixtures,
+  VENDORED_TOURNAMENT_IDS,
+  type Bracket,
+  type VendoredTournamentId,
+} from "@tournamental/bracket-engine";
 
 import canonicalTeamsRaw from "@/../../data/fifa-wc-2026/teams.json";
 import type { CanonicalTeamsFile } from "@/lib/bracket/enrich";
@@ -112,8 +117,33 @@ const STAGE_LABEL: Record<PathToGoldEntry["stage"], string> = {
   final: "Final",
 };
 
+/** Every round the share landing can render, in order. */
+const ALL_PATH_STAGES: ReadonlyArray<PathToGoldEntry["stage"]> = ["r32", "r16", "qf", "sf", "final"];
+
+const pathStagesCache = new Map<string, ReadonlyArray<PathToGoldEntry["stage"]>>();
+
+/**
+ * The rounds a tournament actually plays, in order: the 2026 World Cup
+ * starts its knockouts at a Round of 32, Rugby World Cup 2027 at a Round
+ * of 16. Read from the vendored fixtures and cached per id; an unknown
+ * id gets the full list so nothing is hidden by mistake.
+ */
+function pathStagesFor(tournamentId: string): ReadonlyArray<PathToGoldEntry["stage"]> {
+  if (!(VENDORED_TOURNAMENT_IDS as readonly string[]).includes(tournamentId)) return ALL_PATH_STAGES;
+  const cached = pathStagesCache.get(tournamentId);
+  if (cached) return cached;
+  const present = new Set<string>();
+  for (const k of loadFixtures(tournamentId as VendoredTournamentId).knockouts) {
+    present.add(k.stage === "f" ? "final" : k.stage);
+  }
+  const stages = ALL_PATH_STAGES.filter((s) => present.has(s));
+  pathStagesCache.set(tournamentId, stages);
+  return stages;
+}
+
 const TOURNAMENT_LABEL: Record<string, string> = {
   "fifa-wc-2026": "Football World Cup 2026",
+  "rwc-2027": "Rugby World Cup 2027",
 };
 
 /**
@@ -506,19 +536,15 @@ function normaliseUpstream(
   const runner_up = teamLite(b.runner_up_code);
   const third_place = teamLite(b.third_place_code);
 
-  // Build path_to_gold from upstream entries. The four expected stages
-  // are always surfaced even if upstream skipped one, so the share
-  // landing always renders four rows. Missing entries get TBD.
+  // Build path_to_gold from upstream entries. Every round the
+  // tournament plays is surfaced even if upstream skipped one, so the
+  // share landing always renders the same rows for a given tournament
+  // (five for the 2026 World Cup, four for Rugby World Cup 2027).
+  // Missing entries get TBD.
   const byStage = new Map<string, UpstreamBracket["knockout_path"][number]>();
   for (const k of b.knockout_path) byStage.set(k.stage, k);
 
-  const stages: ReadonlyArray<PathToGoldEntry["stage"]> = [
-    "r32",
-    "r16",
-    "qf",
-    "sf",
-    "final",
-  ];
+  const stages = pathStagesFor(b.tournament_id);
   const path_to_gold: PathToGoldEntry[] = stages.map((stage) => {
     const upstream = byStage.get(stage);
     const opp = teamLite(upstream?.opponent_code ?? null);
