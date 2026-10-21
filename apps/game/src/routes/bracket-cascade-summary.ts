@@ -22,9 +22,8 @@
  */
 
 import {
+  bracketToCascadeInput,
   cascade,
-  computeGroupStandings,
-  isGroupComplete,
   type Bracket,
   type BracketPrediction,
   type CascadedBracket,
@@ -81,55 +80,6 @@ function publicStageFor(
     default:
       return null;
   }
-}
-
-/**
- * Convert a per-match `Bracket` into the `BracketPrediction` shape the
- * cascade engine consumes. Mirrors `apps/web/lib/bracket/cascade-bridge.ts`
- * but lives here so the game service can do it server-side without
- * pulling in a web-only dep. Future cleanup: hoist into
- * `@tournamental/bracket-engine` so both sides share one helper.
- */
-function bracketToCascadeInput(
-  tournament: Tournament,
-  bracket: Bracket,
-  userId: string,
-): BracketPrediction {
-  const groups = tournament.groups.map((g) => {
-    const complete = isGroupComplete(g.id, tournament, bracket.matchPredictions);
-    const tiebreaker = bracket.groupTiebreakers[g.id];
-    const standings = computeGroupStandings(
-      g.id,
-      tournament,
-      bracket.matchPredictions,
-      tiebreaker,
-    );
-    // Only emit the order for fully-predicted groups; an incomplete
-    // group's standings lean on tiebreaker fallbacks that mis-seed the
-    // knockouts. Mirrors apps/web/lib/bracket/cascade-bridge.ts.
-    return {
-      group_id: g.id,
-      order: complete ? standings.map((s) => s.teamCode) : [],
-    };
-  });
-
-  // Use the user's saved best-third-placed picks, exactly like the web
-  // cascade-bridge. Recomputing them from standings here diverged from
-  // the web cascade and seeded the R32 differently, so a manipulated
-  // bracket showed a different finalist on the share podium than in the
-  // builder/molecule (Tim 2026-06-11). Empty when unset.
-  const best_thirds = bracket.bestThirds ?? [];
-
-  return {
-    tournament_id: tournament.id,
-    user_id: userId,
-    groups,
-    best_thirds,
-    best_fourths: [],
-    knockouts: [],
-    locks: [],
-    updated_at_utc: bracket.lockedAt ?? new Date().toISOString(),
-  };
 }
 
 /**
