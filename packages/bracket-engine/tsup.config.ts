@@ -7,6 +7,7 @@ export default defineConfig({
     "src/cascade.ts",
     "src/score.ts",
     "src/standings.ts",
+    "src/bridge.ts",
     "src/vstamp.ts",
   ],
   format: ["esm", "cjs"],
