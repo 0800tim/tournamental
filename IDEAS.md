@@ -6,6 +6,7 @@ Format: `- [year-month-day, source] description (status)`. Status is one of `ope
 
 ## Backlog
 
+- [2026-10-22, rwc2027] Share-page summariser: `PUBLIC_PATH_STAGES` in apps/game/src/routes/bracket-cascade-summary.ts is hard-coded r32 to final, so an RWC 2027 bracket carries a permanent `r32: tbd` row. Size the knockout path from `tournament.knockouts` when the rugby share UI lands. (open)
 ### Renderer
 - [2026-05-10, phase 3] Add the cheering-fan sprite atlas (crowd-atlas-day.png / night.png) and switch the InstancedMesh material to a textured atlas sampler with per-instance frame offset. Phase-3 ships with a flat colour-jittered billboard which reads OK at distance but misses the cheering frames. (open)
 - [2026-05-10, phase 3] Run the offline ElevenLabs MP3 batch step for the AR-FR final and check the resulting manifest.json + 200-line corpus into apps/web/public/audio/commentary/{lang}/. Renderer-side scheduling already wired in lib/audio/pre-rendered-track.ts. (open)
