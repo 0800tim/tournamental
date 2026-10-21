@@ -30,7 +30,9 @@ Pre-1.0, breaking changes signal with a minor bump (0.x.0 -> 0.(x+1).0).
 ### Changed
 
 - The standings sort is a generic criterion chain evaluated on nested
-  blocks of level teams. Football output is unchanged (points, goal
+  blocks of level teams; once a criterion separates some of a block,
+  the teams still level restart from the first criterion, as the World
+  Rugby and FIFA regulations both say. Football output is unchanged (points, goal
   difference, goals for, head-to-head mini-table, user pick); the 93
   existing tests pass as they were.
 

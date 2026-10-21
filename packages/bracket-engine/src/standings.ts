@@ -15,8 +15,12 @@
  *     user's tiebreaker pick.
  *
  * Points are always compared first. Each criterion in the chain only
- * applies to teams still level after the one before it, so the chain is
- * evaluated as nested blocks, the way the rule books describe it.
+ * applies to teams still level after the one before it, and once a
+ * criterion separates some of a level block the teams still level start
+ * the chain again from the first criterion (World Rugby's "the process
+ * would repeat, starting at the first criterion"; FIFA re-applies its
+ * head-to-head criteria to the remaining subset the same way). So the
+ * chain is evaluated as nested blocks, the way the rule books describe it.
  *
  * "Score" is goals in football and match points in rugby. The row
  * fields keep their original `goalsFor` / `goalsAgainst` / `goalDiff`
@@ -90,12 +94,14 @@ export const FOOTBALL_STANDINGS_RULES: StandingsRules = {
 
 /**
  * World Rugby pool rules as applied at Rugby World Cup 2023 (Tournament
- * Rules, pool stage): 4-2-0, a bonus point for four or more tries and
- * one for losing by seven or fewer; ties broken by the winner of the
- * match between the two tied teams, then points difference, tries
- * difference, points scored, tries scored, then World Rugby ranking.
- * Confirm against the published RWC 2027 regulations before picks open;
- * a tournament whose chain differs sets `standings_rules` in its data.
+ * Rules, pool stage) and published for RWC 2027: 4-2-0, a bonus point
+ * for four or more tries and one for losing by fewer than eight; ties
+ * broken by the winner of the match between the two tied teams, then
+ * points difference, tries difference, points scored, tries scored,
+ * then the World Rugby ranking (as of 18 October 2027 for RWC 2027).
+ * The best third-placed teams are ranked by points difference, points
+ * scored, tries scored, then the ranking. A tournament whose chain
+ * differs sets `standings_rules` in its data.
  */
 export const RUGBY_UNION_STANDINGS_RULES: StandingsRules = {
   points: {
@@ -106,6 +112,7 @@ export const RUGBY_UNION_STANDINGS_RULES: StandingsRules = {
     losing_bonus: { max_margin: 7, points: 1 },
   },
   tiebreak: ["h2h_winner", "score_diff", "try_diff", "score_for", "try_for", "world_rank"],
+  thirds_tiebreak: ["score_diff", "score_for", "try_for", "world_rank"],
 };
 
 /**
@@ -333,8 +340,10 @@ function rankGroup(ctx: RankContext): Ranked {
 
 /**
  * Apply criterion `depth` of the chain to a block of teams that are
- * level on everything before it. Sub-blocks still level after it recurse
- * to the next criterion; the end of the chain is the user's pick.
+ * level on everything before it. If the criterion separates the block,
+ * each smaller block still level starts again at the first criterion;
+ * if it separates nothing, the whole block moves to the next one. The
+ * end of the chain is the user's pick.
  */
 function rankBlock(block: readonly GroupStanding[], ctx: RankContext, depth: number): Ranked {
   if (block.length <= 1) return { order: block, ties: [] };
@@ -343,10 +352,12 @@ function rankBlock(block: readonly GroupStanding[], ctx: RankContext, depth: num
 
   const keys = keysFor(criterion, block, ctx);
   const sorted = [...block].sort((a, b) => compareKeys(keys.get(b.teamCode)!, keys.get(a.teamCode)!));
+  const blocks = runs(sorted, (s) => keys.get(s.teamCode)!);
+  if (blocks.length === 1) return rankBlock(block, ctx, depth + 1);
   const order: GroupStanding[] = [];
   const ties: (readonly TeamId[])[] = [];
-  for (const sub of runs(sorted, (s) => keys.get(s.teamCode)!)) {
-    const r = rankBlock(sub, ctx, depth + 1);
+  for (const sub of blocks) {
+    const r = rankBlock(sub, ctx, 0);
     order.push(...r.order);
     ties.push(...r.ties);
   }
@@ -531,9 +542,9 @@ export function detectTiesNeedingTiebreaker(
 
 /**
  * Comparator for ranking rows from different groups against each other
- * (the best third-placed teams): points, then the chain's whole-pool
- * criteria in order. Head-to-head criteria do not apply across groups
- * and are skipped. Returns a negative number when `a` ranks higher.
+ * (the best third-placed teams): points, then `rules.thirds_tiebreak`,
+ * or the pool chain without its head-to-head criteria, which cannot
+ * apply across groups. Returns a negative number when `a` ranks higher.
  * Pass `teams` when the chain includes `world_rank`.
  */
 export function compareStandingsAcrossGroups(
@@ -541,9 +552,10 @@ export function compareStandingsAcrossGroups(
   teams?: readonly Team[],
 ): (a: GroupStanding, b: GroupStanding) => number {
   const byId = new Map((teams ?? []).map((t) => [t.id, t]));
+  const chain = rules.thirds_tiebreak ?? rules.tiebreak;
   const key = (s: GroupStanding): readonly number[] => {
     const k: number[] = [s.points];
-    for (const c of rules.tiebreak) {
+    for (const c of chain) {
       switch (c) {
         case "score_diff":
           k.push(s.goalDiff);

@@ -188,19 +188,46 @@ describe("rugby standings: the tiebreak chain", () => {
 
   it("with three teams level the head-to-head winner is skipped and difference decides", () => {
     // Circle: NZL beats ARG, ARG beats ITA, ITA beats NZL; all beat TGA.
+    // Differences: ARG +30, NZL +20, ITA +20. ARG is clear on difference;
+    // NZL and ITA then restart the chain and ITA won the match between them.
     const s = computeGroupStandings(
       "A",
       pool,
       Object.fromEntries([
-        pred(1, "home_win", [20, 10]), // NZL > ARG, +10
-        pred(6, "home_win", [20, 10]), // ARG > ITA, +10
-        pred(3, "away_win", [10, 30]), // ITA > NZL, +20
+        pred(1, "home_win", [20, 10]), // NZL > ARG
+        pred(6, "home_win", [20, 10]), // ARG > ITA
+        pred(3, "away_win", [10, 30]), // ITA > NZL
         pred(5, "home_win", [30, 0]),
         pred(4, "home_win", [30, 0]),
         pred(2, "home_win", [10, 0]),
       ]),
     );
-    expect(order(s)).toEqual(["ARG", "NZL", "ITA", "TGA"]); // +30, +20, +10
+    expect(s.map((r) => r.goalDiff)).toEqual([30, 20, 20, -70]);
+    expect(order(s)).toEqual(["ARG", "ITA", "NZL", "TGA"]);
+  });
+
+  it("teams still level after a split start the chain again from the first criterion", () => {
+    // NZL, ARG and ITA each beat TGA and form a circle; ITA has the best
+    // difference, NZL and ARG are level on +30. ARG has the better tries
+    // difference, but the regulations restart the chain for the two still
+    // level, and NZL won the match between them.
+    const s = computeGroupStandings(
+      "A",
+      pool,
+      Object.fromEntries([
+        pred(1, "home_win", [20, 10], [1, 2]), // NZL > ARG
+        pred(6, "home_win", [30, 10]), // ARG > ITA
+        pred(3, "away_win", [10, 50]), // ITA > NZL
+        pred(5, "home_win", [60, 0]), // NZL > TGA
+        pred(4, "home_win", [30, 10]), // ARG > TGA
+        pred(2, "home_win", [40, 10]), // ITA > TGA
+      ]),
+    );
+    expect(s.map((r) => r.points)).toEqual([8, 8, 8, 0]);
+    expect(row(s, "NZL").goalDiff).toBe(30);
+    expect(row(s, "ARG").goalDiff).toBe(30);
+    expect(row(s, "ARG").tryDiff).toBeGreaterThan(row(s, "NZL").tryDiff);
+    expect(order(s)).toEqual(["ITA", "NZL", "ARG", "TGA"]);
   });
 
   it("tries difference, then points for, then tries for break a level difference", () => {
@@ -303,12 +330,12 @@ describe("compareStandingsAcrossGroups", () => {
     bonusPoints: 0, points: 6,
   };
 
-  it("ranks thirds by points, then difference, tries difference, for, tries for, ranking; never head-to-head", () => {
+  it("ranks thirds by points, then difference, points for, tries for, ranking; never tries difference or head-to-head", () => {
     const cmp = compareStandingsAcrossGroups(RUGBY_UNION_STANDINGS_RULES, teams);
     const rows: GroupStanding[] = [
-      { ...base, teamCode: "TGA" }, // world_rank 15
+      { ...base, teamCode: "TGA", tryDiff: 3 }, // world_rank 15; tries difference does not count for thirds
       { ...base, teamCode: "ARG" }, // world_rank 6
-      { ...base, teamCode: "ITA", triesFor: 7, tryDiff: 1 },
+      { ...base, teamCode: "ITA", triesFor: 7, triesAgainst: 7 },
       { ...base, teamCode: "NZL", goalDiff: 5 },
     ];
     expect(rows.sort(cmp).map((r) => r.teamCode)).toEqual(["NZL", "ITA", "ARG", "TGA"]);
