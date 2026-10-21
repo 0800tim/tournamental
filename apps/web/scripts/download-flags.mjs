@@ -1,15 +1,22 @@
 #!/usr/bin/env node
 /**
- * Pre-download all 48 World Cup team flags from Wikimedia Commons
- * to `apps/web/public/flags/{FIFA_CODE}.svg`. CC0/PD or attribution-free.
- * Run once at setup time; results are committed.
+ * Pre-download team flags from Wikimedia Commons to
+ * `apps/web/public/flags/{CODE}.svg`. Public domain or attribution-free;
+ * the licence of each file is recorded in the teams JSON when known.
+ * Run once at setup time; results are committed. Existing files are
+ * kept, so re-running for a new tournament only fetches the new unions.
+ *
+ *   node scripts/download-flags.mjs                        # FIFA World Cup 2026 (default)
+ *   node scripts/download-flags.mjs ../../data/rwc-2027/teams.json
  */
 import { readFile, writeFile, mkdir, access } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const TEAMS_PATH = resolve(here, "..", "..", "..", "data", "fifa-wc-2026", "teams.json");
+const TEAMS_PATH = process.argv[2]
+  ? resolve(process.cwd(), process.argv[2])
+  : resolve(here, "..", "..", "..", "data", "fifa-wc-2026", "teams.json");
 const OUT_DIR = resolve(here, "..", "public", "flags");
 
 await mkdir(OUT_DIR, { recursive: true });

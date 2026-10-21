@@ -1,0 +1,208 @@
+{
+  "_note": "The 24 unions at the Men's Rugby World Cup 2027 (Australia, 1 October to 13 November 2027), sorted by code. Codes are the repo's FIFA-style trigrams shared with apps/web/public/flags, with IRE for the all-island Ireland union. flag_svg_url points at Wikimedia Commons (licence recorded per file from the Commons metadata when the flags were downloaded); IRE has none because the IRFU flag is the union's own mark and is not on Commons under a free licence. world_rugby_ranking_at_2025_12_01 is the ranking used for the draw bands. The engine's fixture data is packages/bracket-engine/data/rwc-2027-fixtures.json.",
+  "tournament": "Men's Rugby World Cup 2027",
+  "teams": [
+    {
+      "code": "ARG",
+      "name": "Argentina",
+      "flag_emoji": "🇦🇷",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Argentina.svg",
+      "flag_commons_file": "File:Flag_of_Argentina.svg",
+      "world_rugby_ranking_at_2025_12_01": 6
+    },
+    {
+      "code": "AUS",
+      "name": "Australia",
+      "flag_emoji": "🇦🇺",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Australia_(converted).svg",
+      "flag_commons_file": "File:Flag_of_Australia_(converted).svg",
+      "world_rugby_ranking_at_2025_12_01": 7
+    },
+    {
+      "code": "CAN",
+      "name": "Canada",
+      "flag_emoji": "🇨🇦",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Canada_(Pantone).svg",
+      "flag_commons_file": "File:Flag_of_Canada_(Pantone).svg",
+      "world_rugby_ranking_at_2025_12_01": 21
+    },
+    {
+      "code": "CHI",
+      "name": "Chile",
+      "flag_emoji": "🇨🇱",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Chile.svg",
+      "flag_commons_file": "File:Flag_of_Chile.svg",
+      "world_rugby_ranking_at_2025_12_01": 17,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "ENG",
+      "name": "England",
+      "flag_emoji": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_England.svg",
+      "flag_commons_file": "File:Flag_of_England.svg",
+      "world_rugby_ranking_at_2025_12_01": 3
+    },
+    {
+      "code": "ESP",
+      "name": "Spain",
+      "flag_emoji": "🇪🇸",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Spain.svg",
+      "flag_commons_file": "File:Flag_of_Spain.svg",
+      "world_rugby_ranking_at_2025_12_01": 15
+    },
+    {
+      "code": "FIJ",
+      "name": "Fiji",
+      "flag_emoji": "🇫🇯",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Fiji.svg",
+      "flag_commons_file": "File:Flag_of_Fiji.svg",
+      "world_rugby_ranking_at_2025_12_01": 8,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "FRA",
+      "name": "France",
+      "flag_emoji": "🇫🇷",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_France.svg",
+      "flag_commons_file": "File:Flag_of_France.svg",
+      "world_rugby_ranking_at_2025_12_01": 5
+    },
+    {
+      "code": "GEO",
+      "name": "Georgia",
+      "flag_emoji": "🇬🇪",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Georgia.svg",
+      "flag_commons_file": "File:Flag_of_Georgia.svg",
+      "world_rugby_ranking_at_2025_12_01": 13,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "HKG",
+      "name": "Hong Kong China",
+      "flag_emoji": "🇭🇰",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Hong_Kong.svg",
+      "flag_commons_file": "File:Flag_of_Hong_Kong.svg",
+      "world_rugby_ranking_at_2025_12_01": 23,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "IRE",
+      "name": "Ireland",
+      "flag_emoji": "☘️",
+      "flag_svg_url": null,
+      "flag_commons_file": null,
+      "world_rugby_ranking_at_2025_12_01": 4
+    },
+    {
+      "code": "ITA",
+      "name": "Italy",
+      "flag_emoji": "🇮🇹",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Italy.svg",
+      "flag_commons_file": "File:Flag_of_Italy.svg",
+      "world_rugby_ranking_at_2025_12_01": 10,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "JPN",
+      "name": "Japan",
+      "flag_emoji": "🇯🇵",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Japan.svg",
+      "flag_commons_file": "File:Flag_of_Japan.svg",
+      "world_rugby_ranking_at_2025_12_01": 12
+    },
+    {
+      "code": "NZL",
+      "name": "New Zealand",
+      "flag_emoji": "🇳🇿",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_New_Zealand.svg",
+      "flag_commons_file": "File:Flag_of_New_Zealand.svg",
+      "world_rugby_ranking_at_2025_12_01": 2
+    },
+    {
+      "code": "POR",
+      "name": "Portugal",
+      "flag_emoji": "🇵🇹",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Portugal.svg",
+      "flag_commons_file": "File:Flag_of_Portugal.svg",
+      "world_rugby_ranking_at_2025_12_01": 20
+    },
+    {
+      "code": "ROU",
+      "name": "Romania",
+      "flag_emoji": "🇷🇴",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Romania.svg",
+      "flag_commons_file": "File:Flag_of_Romania.svg",
+      "world_rugby_ranking_at_2025_12_01": 22,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "RSA",
+      "name": "South Africa",
+      "flag_emoji": "🇿🇦",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_South_Africa.svg",
+      "flag_commons_file": "File:Flag_of_South_Africa.svg",
+      "world_rugby_ranking_at_2025_12_01": 1
+    },
+    {
+      "code": "SAM",
+      "name": "Samoa",
+      "flag_emoji": "🇼🇸",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Samoa.svg",
+      "flag_commons_file": "File:Flag_of_Samoa.svg",
+      "world_rugby_ranking_at_2025_12_01": 19,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "SCO",
+      "name": "Scotland",
+      "flag_emoji": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Scotland.svg",
+      "flag_commons_file": "File:Flag_of_Scotland.svg",
+      "world_rugby_ranking_at_2025_12_01": 9
+    },
+    {
+      "code": "TGA",
+      "name": "Tonga",
+      "flag_emoji": "🇹🇴",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Tonga.svg",
+      "flag_commons_file": "File:Flag_of_Tonga.svg",
+      "world_rugby_ranking_at_2025_12_01": 18,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "URU",
+      "name": "Uruguay",
+      "flag_emoji": "🇺🇾",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Uruguay.svg",
+      "flag_commons_file": "File:Flag_of_Uruguay.svg",
+      "world_rugby_ranking_at_2025_12_01": 14
+    },
+    {
+      "code": "USA",
+      "name": "United States",
+      "flag_emoji": "🇺🇸",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_the_United_States.svg",
+      "flag_commons_file": "File:Flag_of_the_United_States.svg",
+      "world_rugby_ranking_at_2025_12_01": 16
+    },
+    {
+      "code": "WAL",
+      "name": "Wales",
+      "flag_emoji": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Wales.svg",
+      "flag_commons_file": "File:Flag_of_Wales.svg",
+      "world_rugby_ranking_at_2025_12_01": 11,
+      "flag_licence": "Public domain"
+    },
+    {
+      "code": "ZIM",
+      "name": "Zimbabwe",
+      "flag_emoji": "🇿🇼",
+      "flag_svg_url": "https://commons.wikimedia.org/wiki/Special:FilePath/Flag_of_Zimbabwe.svg",
+      "flag_commons_file": "File:Flag_of_Zimbabwe.svg",
+      "world_rugby_ranking_at_2025_12_01": 24,
+      "flag_licence": "Public domain"
+    }
+  ]
+}
