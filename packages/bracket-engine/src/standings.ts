@@ -14,13 +14,14 @@
  *     tries difference, score for, tries for, world ranking, then the
  *     user's tiebreaker pick.
  *
- * Points are always compared first. Each criterion in the chain only
- * applies to teams still level after the one before it, and once a
- * criterion separates some of a level block the teams still level start
- * the chain again from the first criterion (World Rugby's "the process
- * would repeat, starting at the first criterion"; FIFA re-applies its
- * head-to-head criteria to the remaining subset the same way). So the
- * chain is evaluated as nested blocks, the way the rule books describe it.
+ * Points are always compared first. For football each criterion then
+ * applies to the teams still level after the one before it, nested,
+ * and the user's pick settles what the chain cannot (FIFA lists no
+ * re-application step). For rugby union the chain runs until one team
+ * is the highest ranked, that team is placed, and the process repeats
+ * from the first criterion for the rest ("once the highest ranked Team
+ * has been determined ... the process would repeat, starting at the
+ * first criterion"), which `restart_after_highest` switches on.
  *
  * "Score" is goals in football and match points in rugby. The row
  * fields keep their original `goalsFor` / `goalsAgainst` / `goalDiff`
@@ -94,12 +95,17 @@ export const FOOTBALL_STANDINGS_RULES: StandingsRules = {
 
 /**
  * World Rugby pool rules as applied at Rugby World Cup 2023 (Tournament
- * Rules, pool stage) and published for RWC 2027: 4-2-0, a bonus point
- * for four or more tries and one for losing by fewer than eight; ties
- * broken by the winner of the match between the two tied teams, then
- * points difference, tries difference, points scored, tries scored,
- * then the World Rugby ranking (as of 18 October 2027 for RWC 2027).
- * The best third-placed teams are ranked by points difference, points
+ * Rules, pool stage) and as published for RWC 2027 on the tournament
+ * page (the regulations document itself was not available when this
+ * was written): 4-2-0, a bonus point for four or more tries and one
+ * for losing by fewer than eight; ties broken by the winner of the
+ * match between the two tied teams, then points difference, tries
+ * difference, points scored, tries scored, then the World Rugby
+ * ranking (as of 18 October 2027 for RWC 2027). With three or more
+ * level, the chain finds the highest ranked team and then repeats from
+ * the first criterion for the rest; this is read literally, so the
+ * restart happens only once a single team is clear at the top. The
+ * best third-placed teams are ranked by points difference, points
  * scored, tries scored, then the ranking. A tournament whose chain
  * differs sets `standings_rules` in its data.
  */
@@ -112,6 +118,7 @@ export const RUGBY_UNION_STANDINGS_RULES: StandingsRules = {
     losing_bonus: { max_margin: 7, points: 1 },
   },
   tiebreak: ["h2h_winner", "score_diff", "try_diff", "score_for", "try_for", "world_rank"],
+  restart_after_highest: true,
   thirds_tiebreak: ["score_diff", "score_for", "try_for", "world_rank"],
 };
 
@@ -239,17 +246,20 @@ function applyPrediction(
   }
 
   switch (prediction.outcome) {
+    // The losing bonus needs scores that agree with the outcome (the
+    // engine never derives one from the other, so a contradictory pair
+    // earns nothing).
     case "home_win":
       home.wins += 1;
       away.losses += 1;
-      if (hasScores && rule.losing_bonus && Math.abs(hs - as) <= rule.losing_bonus.max_margin) {
+      if (hasScores && rule.losing_bonus && hs > as && hs - as <= rule.losing_bonus.max_margin) {
         away.bonusPoints += rule.losing_bonus.points;
       }
       return;
     case "away_win":
       home.losses += 1;
       away.wins += 1;
-      if (hasScores && rule.losing_bonus && Math.abs(hs - as) <= rule.losing_bonus.max_margin) {
+      if (hasScores && rule.losing_bonus && as > hs && as - hs <= rule.losing_bonus.max_margin) {
         home.bonusPoints += rule.losing_bonus.points;
       }
       return;
@@ -331,7 +341,7 @@ function rankGroup(ctx: RankContext): Ranked {
   const order: GroupStanding[] = [];
   const ties: (readonly TeamId[])[] = [];
   for (const block of runs(byPoints, (s) => [s.points])) {
-    const r = rankBlock(block, ctx, 0);
+    const r = ctx.rules.restart_after_highest ? rankByHighest(block, ctx) : rankBlock(block, ctx, 0);
     order.push(...r.order);
     ties.push(...r.ties);
   }
@@ -339,11 +349,9 @@ function rankGroup(ctx: RankContext): Ranked {
 }
 
 /**
- * Apply criterion `depth` of the chain to a block of teams that are
- * level on everything before it. If the criterion separates the block,
- * each smaller block still level starts again at the first criterion;
- * if it separates nothing, the whole block moves to the next one. The
- * end of the chain is the user's pick.
+ * Nested chain (football): apply criterion `depth` to a block of teams
+ * level on everything before it; each smaller block still level moves
+ * to the next criterion, and the end of the chain is the user's pick.
  */
 function rankBlock(block: readonly GroupStanding[], ctx: RankContext, depth: number): Ranked {
   if (block.length <= 1) return { order: block, ties: [] };
@@ -352,16 +360,46 @@ function rankBlock(block: readonly GroupStanding[], ctx: RankContext, depth: num
 
   const keys = keysFor(criterion, block, ctx);
   const sorted = [...block].sort((a, b) => compareKeys(keys.get(b.teamCode)!, keys.get(a.teamCode)!));
-  const blocks = runs(sorted, (s) => keys.get(s.teamCode)!);
-  if (blocks.length === 1) return rankBlock(block, ctx, depth + 1);
   const order: GroupStanding[] = [];
   const ties: (readonly TeamId[])[] = [];
-  for (const sub of blocks) {
-    const r = rankBlock(sub, ctx, 0);
+  for (const sub of runs(sorted, (s) => keys.get(s.teamCode)!)) {
+    const r = rankBlock(sub, ctx, depth + 1);
     order.push(...r.order);
     ties.push(...r.ties);
   }
   return { order, ties };
+}
+
+/**
+ * Highest-then-restart chain (World Rugby): run the criteria over the
+ * teams still in contention for the top of the block until one team is
+ * clear, place it, and start again from the first criterion with every
+ * remaining team. Teams the chain cannot separate at the top are
+ * ordered by the user's pick together (they are identical on every
+ * criterion, so a restart could not separate them either) and the
+ * teams below them restart.
+ */
+function rankByHighest(block: readonly GroupStanding[], ctx: RankContext): Ranked {
+  if (block.length <= 1) return { order: block, ties: [] };
+  let candidates: readonly GroupStanding[] = block;
+  for (let depth = 0; ; depth++) {
+    const criterion = ctx.rules.tiebreak[depth];
+    if (criterion === undefined) {
+      const top = resolveByTiebreaker(candidates, ctx.tiebreaker);
+      const placed = new Set(candidates.map((s) => s.teamCode));
+      const rest = rankByHighest(block.filter((s) => !placed.has(s.teamCode)), ctx);
+      return { order: [...top.order, ...rest.order], ties: [...top.ties, ...rest.ties] };
+    }
+    const keys = keysFor(criterion, candidates, ctx);
+    const sorted = [...candidates].sort((a, b) => compareKeys(keys.get(b.teamCode)!, keys.get(a.teamCode)!));
+    const top = runs(sorted, (s) => keys.get(s.teamCode)!)[0]!;
+    if (top.length === 1) {
+      const highest = top[0]!;
+      const rest = rankByHighest(block.filter((s) => s.teamCode !== highest.teamCode), ctx);
+      return { order: [highest, ...rest.order], ties: rest.ties };
+    }
+    candidates = top;
+  }
 }
 
 /** Split an already-sorted list into maximal runs with equal keys. */

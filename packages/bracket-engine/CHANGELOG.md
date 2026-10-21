@@ -39,10 +39,18 @@ Pre-1.0, breaking changes signal with a minor bump (0.x.0 -> 0.(x+1).0).
 
 ### Changed
 
-- The standings sort is a generic criterion chain evaluated on nested
-  blocks of level teams; once a criterion separates some of a block,
-  the teams still level restart from the first criterion, as the World
-  Rugby and FIFA regulations both say. Football output is unchanged (points, goal
+- The standings sort is a generic criterion chain. Football keeps
+  FIFA's nested evaluation (points, goal difference, goals for,
+  head-to-head mini-table, then the user's pick, with no
+  re-application). Rugby union sets `restart_after_highest`: the chain
+  finds the highest ranked of the level teams, places it, and repeats
+  from the first criterion for the rest, as World Rugby's pool rules
+  say. The 93 existing football tests pass as they were, plus one that
+  pins the no-restart behaviour.
+- The losing bonus is paid only when the scores agree with the outcome.
+- The worktree's `node_modules` symlink that the previous push had
+  committed is removed; `.gitignore` now ignores `node_modules` as a
+  file or a directory. Football output is unchanged (points, goal
   difference, goals for, head-to-head mini-table, user pick); the 93
   existing tests pass as they were.
 - The cascade's Annex C routing takes the number of best thirds from
