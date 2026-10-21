@@ -6,6 +6,7 @@ describe("archive knockout link names", () => {
   it("formats the score with the method suffix", () => {
     expect(knockoutScoreText({ homeScore: 1, awayScore: 0, method: "et" })).toBe("1-0 aet");
     expect(knockoutScoreText({ homeScore: 4, awayScore: 6, method: "pens" })).toBe("6-4 pens");
+    expect(knockoutScoreText({ homeScore: 28, awayScore: 28, method: "kicks" })).toBe("28-28 kicks");
     expect(knockoutScoreText({ homeScore: 2, awayScore: 1, method: null })).toBe("2-1");
     expect(knockoutScoreText({ homeScore: null, awayScore: null, method: null })).toBe("won");
   });
