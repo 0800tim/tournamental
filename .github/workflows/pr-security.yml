@@ -15,7 +15,7 @@ name: PR security
 
 on:
   pull_request:
-    branches: [main]
+    # No base-branch filter: stacked PRs are scanned too (see ci.yml).
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:

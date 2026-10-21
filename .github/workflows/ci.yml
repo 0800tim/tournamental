@@ -1,8 +1,11 @@
 name: CI
 
 on:
+  # Every pull request, whatever its base branch. Stacked PRs (a branch
+  # opened against another feature branch) used to get "no checks
+  # reported" because of a `branches: [main]` filter here; the filter is
+  # on `push` only, so a merge into main still runs the full suite once.
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
