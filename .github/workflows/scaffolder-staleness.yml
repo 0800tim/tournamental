@@ -51,7 +51,7 @@ jobs:
 
       - name: Open staleness issue on failure
         if: failure()
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const title = `Scaffolder staleness check failed on Node ${{ matrix.node }}`;
