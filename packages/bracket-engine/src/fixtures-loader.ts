@@ -1,12 +1,15 @@
 /**
- * Convenience loader for the vendored 2026 WC fixtures JSON.
+ * Convenience loaders for the vendored fixture JSON files: the 2026
+ * FIFA World Cup and the 2027 Men's Rugby World Cup. `loadFixtures(id)`
+ * picks by tournament id; the per-tournament functions stay for callers
+ * that want the typed `_meta`.
  *
- * The JSON file is a structural description of the tournament — it has a
- * `_meta` block documenting its source, a list of placeholder teams (real
- * teams when FIFA's draw is finalised), 8 groups of 6 with placeholder
- * fixtures, and the full knockout slot graph with declarative
- * dependencies. Swapping in real teams and real kickoff times is a JSON
- * replacement; no engine code changes.
+ * Each JSON file is a structural description of its tournament: a
+ * `_meta` block documenting the source, the teams, the groups (pools),
+ * the group fixtures, and the full knockout slot graph with declarative
+ * dependencies (plus the third-place routing table where the format
+ * needs one). New teams, kickoffs or a new tournament are JSON changes;
+ * no engine code changes.
  */
 
 import type { Tournament } from "./tournament.js";
@@ -16,6 +19,7 @@ import type { Tournament } from "./tournament.js";
 // also load the JSON themselves and pass it to a Tournament directly.
 import fixtures2026 from "../data/fifa-wc-2026-fixtures.json";
 import annexC2026 from "../data/fifa-2026-annex-c-assignments.json";
+import fixturesRwc2027 from "../data/rwc-2027-fixtures.json";
 
 export interface Fixtures2026 extends Tournament {
   readonly _meta: {
@@ -49,4 +53,36 @@ export function loadFixtures2026(): Fixtures2026 {
     ...base,
     annex_c_assignments: normalised as Fixtures2026["annex_c_assignments"],
   } as Fixtures2026;
+}
+
+export interface FixturesRwc2027 extends Tournament {
+  readonly _meta: Fixtures2026["_meta"];
+}
+
+/**
+ * Men's Rugby World Cup 2027: 24 teams in six pools of four, a round of
+ * 16 fed by the top two per pool and the four best thirds (routed by
+ * the published permutation table, carried as `annex_c_assignments`),
+ * then quarter-finals, semi-finals, the bronze final and the final.
+ * `sport` is `rugby_union`, so the standings computer applies 4-2-0
+ * with bonus points and the World Rugby tiebreak chain.
+ */
+export function loadFixturesRwc2027(): FixturesRwc2027 {
+  return fixturesRwc2027 as unknown as FixturesRwc2027;
+}
+
+export type VendoredTournamentId = "fifa-wc-2026" | "rwc-2027";
+
+export const VENDORED_TOURNAMENT_IDS: readonly VendoredTournamentId[] = ["fifa-wc-2026", "rwc-2027"];
+
+/** The vendored tournament with this id; throws for any other id. */
+export function loadFixtures(tournamentId: VendoredTournamentId): Fixtures2026 | FixturesRwc2027 {
+  switch (tournamentId) {
+    case "fifa-wc-2026":
+      return loadFixtures2026();
+    case "rwc-2027":
+      return loadFixturesRwc2027();
+    default:
+      throw new Error(`loadFixtures: no vendored fixtures for "${String(tournamentId)}"`);
+  }
 }

@@ -1,0 +1,1005 @@
+{
+  "_meta": {
+    "source": "World Rugby's published RWC 2027 pools, schedule and round of 16 permutations: transcribed from the English Wikipedia tournament and pool pages, then every match checked against the official match list (read 2026-10-21)",
+    "source_url": "https://www.rugbyworldcup.com/2027/en/matches",
+    "schedule_status": "official",
+    "fetched_at_utc": "2026-10-21T00:00:00Z",
+    "notes": "24 teams, 6 pools of 4, 36 pool matches, round of 16 (top two per pool plus the four best thirds), quarter-finals, semi-finals, bronze final and final: 52 matches. Match numbers are chronological by UTC kickoff (1 to 36) then the knockout order above; they are not World Rugby's match numbers. Team ids are the repo's FIFA-style trigrams shared with the flag assets, with IRE for Ireland; flags for CHI, HKG, ITA, GEO, ROU, FIJ, IRE, WAL, TGA, ZIM and SAM are not in apps/web/public/flags yet. world_rank and fifa_rank both hold the World Rugby ranking of 1 December 2025 (the draw seeding); the pool tiebreak uses the ranking of 18 October 2027, so refresh before the pool stage ends. pre_tournament_implied_win values are rough estimates, not market data. Kickoff times are local as published, converted to UTC with the zone the source gives per match, and agree with the official list. Venue names are the official list's (Brisbane Stadium is Lang Park)."
+  },
+  "id": "rwc-2027",
+  "name": "Men's Rugby World Cup 2027",
+  "sport": "rugby_union",
+  "start_utc": "2027-10-01T10:45:00Z",
+  "final_utc": "2027-11-13T09:00:00Z",
+  "teams": [
+    {
+      "id": "NZL",
+      "name": "New Zealand",
+      "country": "NZL",
+      "fifa_rank": 2,
+      "world_rank": 2,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.2,
+      "placeholder": false
+    },
+    {
+      "id": "AUS",
+      "name": "Australia",
+      "country": "AUS",
+      "fifa_rank": 7,
+      "world_rank": 7,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.07,
+      "placeholder": false
+    },
+    {
+      "id": "CHI",
+      "name": "Chile",
+      "country": "CHI",
+      "fifa_rank": 17,
+      "world_rank": 17,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.001,
+      "placeholder": false
+    },
+    {
+      "id": "HKG",
+      "name": "Hong Kong China",
+      "country": "HKG",
+      "fifa_rank": 23,
+      "world_rank": 23,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.0005,
+      "placeholder": false
+    },
+    {
+      "id": "RSA",
+      "name": "South Africa",
+      "country": "RSA",
+      "fifa_rank": 1,
+      "world_rank": 1,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.22,
+      "placeholder": false
+    },
+    {
+      "id": "ITA",
+      "name": "Italy",
+      "country": "ITA",
+      "fifa_rank": 10,
+      "world_rank": 10,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.015,
+      "placeholder": false
+    },
+    {
+      "id": "GEO",
+      "name": "Georgia",
+      "country": "GEO",
+      "fifa_rank": 13,
+      "world_rank": 13,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.005,
+      "placeholder": false
+    },
+    {
+      "id": "ROU",
+      "name": "Romania",
+      "country": "ROU",
+      "fifa_rank": 22,
+      "world_rank": 22,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.001,
+      "placeholder": false
+    },
+    {
+      "id": "ARG",
+      "name": "Argentina",
+      "country": "ARG",
+      "fifa_rank": 6,
+      "world_rank": 6,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.06,
+      "placeholder": false
+    },
+    {
+      "id": "FIJ",
+      "name": "Fiji",
+      "country": "FIJ",
+      "fifa_rank": 8,
+      "world_rank": 8,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.02,
+      "placeholder": false
+    },
+    {
+      "id": "ESP",
+      "name": "Spain",
+      "country": "ESP",
+      "fifa_rank": 15,
+      "world_rank": 15,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.002,
+      "placeholder": false
+    },
+    {
+      "id": "CAN",
+      "name": "Canada",
+      "country": "CAN",
+      "fifa_rank": 21,
+      "world_rank": 21,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.001,
+      "placeholder": false
+    },
+    {
+      "id": "IRE",
+      "name": "Ireland",
+      "country": "IRE",
+      "fifa_rank": 4,
+      "world_rank": 4,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.11,
+      "placeholder": false
+    },
+    {
+      "id": "SCO",
+      "name": "Scotland",
+      "country": "SCO",
+      "fifa_rank": 9,
+      "world_rank": 9,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.03,
+      "placeholder": false
+    },
+    {
+      "id": "URU",
+      "name": "Uruguay",
+      "country": "URU",
+      "fifa_rank": 14,
+      "world_rank": 14,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.003,
+      "placeholder": false
+    },
+    {
+      "id": "POR",
+      "name": "Portugal",
+      "country": "POR",
+      "fifa_rank": 20,
+      "world_rank": 20,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.002,
+      "placeholder": false
+    },
+    {
+      "id": "FRA",
+      "name": "France",
+      "country": "FRA",
+      "fifa_rank": 5,
+      "world_rank": 5,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.11,
+      "placeholder": false
+    },
+    {
+      "id": "JPN",
+      "name": "Japan",
+      "country": "JPN",
+      "fifa_rank": 12,
+      "world_rank": 12,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.01,
+      "placeholder": false
+    },
+    {
+      "id": "USA",
+      "name": "United States",
+      "country": "USA",
+      "fifa_rank": 16,
+      "world_rank": 16,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.003,
+      "placeholder": false
+    },
+    {
+      "id": "SAM",
+      "name": "Samoa",
+      "country": "SAM",
+      "fifa_rank": 19,
+      "world_rank": 19,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.003,
+      "placeholder": false
+    },
+    {
+      "id": "ENG",
+      "name": "England",
+      "country": "ENG",
+      "fifa_rank": 3,
+      "world_rank": 3,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.09,
+      "placeholder": false
+    },
+    {
+      "id": "WAL",
+      "name": "Wales",
+      "country": "WAL",
+      "fifa_rank": 11,
+      "world_rank": 11,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.015,
+      "placeholder": false
+    },
+    {
+      "id": "TGA",
+      "name": "Tonga",
+      "country": "TGA",
+      "fifa_rank": 18,
+      "world_rank": 18,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.003,
+      "placeholder": false
+    },
+    {
+      "id": "ZIM",
+      "name": "Zimbabwe",
+      "country": "ZIM",
+      "fifa_rank": 24,
+      "world_rank": 24,
+      "ranked_at": "2025-12-01",
+      "pre_tournament_implied_win": 0.0005,
+      "placeholder": false
+    }
+  ],
+  "groups": [
+    {
+      "id": "A",
+      "team_ids": [
+        "NZL",
+        "AUS",
+        "CHI",
+        "HKG"
+      ]
+    },
+    {
+      "id": "B",
+      "team_ids": [
+        "RSA",
+        "ITA",
+        "GEO",
+        "ROU"
+      ]
+    },
+    {
+      "id": "C",
+      "team_ids": [
+        "ARG",
+        "FIJ",
+        "ESP",
+        "CAN"
+      ]
+    },
+    {
+      "id": "D",
+      "team_ids": [
+        "IRE",
+        "SCO",
+        "URU",
+        "POR"
+      ]
+    },
+    {
+      "id": "E",
+      "team_ids": [
+        "FRA",
+        "JPN",
+        "USA",
+        "SAM"
+      ]
+    },
+    {
+      "id": "F",
+      "team_ids": [
+        "ENG",
+        "WAL",
+        "TGA",
+        "ZIM"
+      ]
+    }
+  ],
+  "group_fixtures": [
+    {
+      "match_no": 1,
+      "group_id": "A",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-01T10:45:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "match_no": 2,
+      "group_id": "F",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-02T02:45:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 3,
+      "group_id": "A",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-02T05:15:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "match_no": 4,
+      "group_id": "E",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-02T07:45:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 5,
+      "group_id": "F",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-02T10:15:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 6,
+      "group_id": "E",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-03T01:15:00Z",
+      "host": "AU",
+      "venue": "Newcastle Stadium, Newcastle"
+    },
+    {
+      "match_no": 7,
+      "group_id": "B",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-03T03:45:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 8,
+      "group_id": "D",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-03T06:15:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 9,
+      "group_id": "B",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-03T10:15:00Z",
+      "host": "AU",
+      "venue": "North Queensland Stadium, Townsville"
+    },
+    {
+      "match_no": 10,
+      "group_id": "C",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-04T03:15:00Z",
+      "host": "AU",
+      "venue": "Newcastle Stadium, Newcastle"
+    },
+    {
+      "match_no": 11,
+      "group_id": "D",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-04T06:15:00Z",
+      "host": "AU",
+      "venue": "Sydney Football Stadium, Sydney"
+    },
+    {
+      "match_no": 12,
+      "group_id": "C",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-04T08:45:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 13,
+      "group_id": "F",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-08T07:15:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 14,
+      "group_id": "F",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-08T09:45:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 15,
+      "group_id": "E",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-09T04:15:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "match_no": 16,
+      "group_id": "A",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-09T06:10:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "match_no": 17,
+      "group_id": "E",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-09T08:45:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 18,
+      "group_id": "A",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-09T10:15:00Z",
+      "host": "AU",
+      "venue": "North Queensland Stadium, Townsville"
+    },
+    {
+      "match_no": 19,
+      "group_id": "C",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-10T01:45:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 20,
+      "group_id": "C",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-10T04:15:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 21,
+      "group_id": "B",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-10T06:45:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 22,
+      "group_id": "D",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-10T09:45:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "match_no": 23,
+      "group_id": "D",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-11T06:15:00Z",
+      "host": "AU",
+      "venue": "Newcastle Stadium, Newcastle"
+    },
+    {
+      "match_no": 24,
+      "group_id": "B",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-11T08:45:00Z",
+      "host": "AU",
+      "venue": "Sydney Football Stadium, Sydney"
+    },
+    {
+      "match_no": 25,
+      "group_id": "A",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-15T06:15:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 26,
+      "group_id": "E",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-15T09:30:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 27,
+      "group_id": "F",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-15T10:15:00Z",
+      "host": "AU",
+      "venue": "North Queensland Stadium, Townsville"
+    },
+    {
+      "match_no": 28,
+      "group_id": "C",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-16T02:45:00Z",
+      "host": "AU",
+      "venue": "Adelaide Oval, Adelaide"
+    },
+    {
+      "match_no": 29,
+      "group_id": "A",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-16T05:10:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 30,
+      "group_id": "F",
+      "home_idx": 0,
+      "away_idx": 1,
+      "kickoff_utc": "2027-10-16T08:45:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "match_no": 31,
+      "group_id": "C",
+      "home_idx": 2,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-16T10:15:00Z",
+      "host": "AU",
+      "venue": "North Queensland Stadium, Townsville"
+    },
+    {
+      "match_no": 32,
+      "group_id": "B",
+      "home_idx": 1,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-17T01:15:00Z",
+      "host": "AU",
+      "venue": "Newcastle Stadium, Newcastle"
+    },
+    {
+      "match_no": 33,
+      "group_id": "D",
+      "home_idx": 0,
+      "away_idx": 2,
+      "kickoff_utc": "2027-10-17T03:45:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "match_no": 34,
+      "group_id": "D",
+      "home_idx": 1,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-17T06:15:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "match_no": 35,
+      "group_id": "E",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-17T08:45:00Z",
+      "host": "AU",
+      "venue": "Sydney Football Stadium, Sydney"
+    },
+    {
+      "match_no": 36,
+      "group_id": "B",
+      "home_idx": 0,
+      "away_idx": 3,
+      "kickoff_utc": "2027-10-17T11:15:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    }
+  ],
+  "knockouts": [
+    {
+      "id": "r16_01",
+      "stage": "r16",
+      "match_no": 37,
+      "home": {
+        "kind": "group_position",
+        "group": "C",
+        "position": 2
+      },
+      "away": {
+        "kind": "group_position",
+        "group": "F",
+        "position": 2
+      },
+      "kickoff_utc": "2027-10-23T03:15:00Z",
+      "host": "AU",
+      "venue": "Sydney Football Stadium, Sydney"
+    },
+    {
+      "id": "r16_02",
+      "stage": "r16",
+      "match_no": 38,
+      "home": {
+        "kind": "group_position",
+        "group": "A",
+        "position": 1
+      },
+      "away": {
+        "kind": "annex_c_third",
+        "group_winner": "A"
+      },
+      "kickoff_utc": "2027-10-23T05:45:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "id": "r16_03",
+      "stage": "r16",
+      "match_no": 39,
+      "home": {
+        "kind": "group_position",
+        "group": "E",
+        "position": 1
+      },
+      "away": {
+        "kind": "group_position",
+        "group": "D",
+        "position": 2
+      },
+      "kickoff_utc": "2027-10-23T08:15:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "id": "r16_04",
+      "stage": "r16",
+      "match_no": 40,
+      "home": {
+        "kind": "group_position",
+        "group": "B",
+        "position": 1
+      },
+      "away": {
+        "kind": "annex_c_third",
+        "group_winner": "B"
+      },
+      "kickoff_utc": "2027-10-23T10:45:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "id": "r16_05",
+      "stage": "r16",
+      "match_no": 41,
+      "home": {
+        "kind": "group_position",
+        "group": "C",
+        "position": 1
+      },
+      "away": {
+        "kind": "annex_c_third",
+        "group_winner": "C"
+      },
+      "kickoff_utc": "2027-10-24T03:15:00Z",
+      "host": "AU",
+      "venue": "Sydney Football Stadium, Sydney"
+    },
+    {
+      "id": "r16_06",
+      "stage": "r16",
+      "match_no": 42,
+      "home": {
+        "kind": "group_position",
+        "group": "D",
+        "position": 1
+      },
+      "away": {
+        "kind": "annex_c_third",
+        "group_winner": "D"
+      },
+      "kickoff_utc": "2027-10-24T05:45:00Z",
+      "host": "AU",
+      "venue": "Docklands Stadium, Melbourne"
+    },
+    {
+      "id": "r16_07",
+      "stage": "r16",
+      "match_no": 43,
+      "home": {
+        "kind": "group_position",
+        "group": "A",
+        "position": 2
+      },
+      "away": {
+        "kind": "group_position",
+        "group": "E",
+        "position": 2
+      },
+      "kickoff_utc": "2027-10-24T08:15:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "id": "r16_08",
+      "stage": "r16",
+      "match_no": 44,
+      "home": {
+        "kind": "group_position",
+        "group": "F",
+        "position": 1
+      },
+      "away": {
+        "kind": "group_position",
+        "group": "B",
+        "position": 2
+      },
+      "kickoff_utc": "2027-10-24T10:45:00Z",
+      "host": "AU",
+      "venue": "Perth Stadium, Perth"
+    },
+    {
+      "id": "qf_01",
+      "stage": "qf",
+      "match_no": 45,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "r16_02"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "r16_04"
+      },
+      "kickoff_utc": "2027-10-30T05:45:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "id": "qf_02",
+      "stage": "qf",
+      "match_no": 46,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "r16_01"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "r16_03"
+      },
+      "kickoff_utc": "2027-10-30T08:45:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "id": "qf_03",
+      "stage": "qf",
+      "match_no": 47,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "r16_05"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "r16_06"
+      },
+      "kickoff_utc": "2027-10-31T06:00:00Z",
+      "host": "AU",
+      "venue": "Brisbane Stadium, Brisbane"
+    },
+    {
+      "id": "qf_04",
+      "stage": "qf",
+      "match_no": 48,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "r16_07"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "r16_08"
+      },
+      "kickoff_utc": "2027-10-31T09:00:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "id": "sf_01",
+      "stage": "sf",
+      "match_no": 49,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "qf_01"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "qf_02"
+      },
+      "kickoff_utc": "2027-11-05T09:00:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "id": "sf_02",
+      "stage": "sf",
+      "match_no": 50,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "qf_03"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "qf_04"
+      },
+      "kickoff_utc": "2027-11-06T09:00:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "id": "tp_01",
+      "stage": "tp",
+      "match_no": 51,
+      "home": {
+        "kind": "knockout_loser",
+        "match_id": "sf_01"
+      },
+      "away": {
+        "kind": "knockout_loser",
+        "match_id": "sf_02"
+      },
+      "kickoff_utc": "2027-11-12T08:45:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    },
+    {
+      "id": "final",
+      "stage": "f",
+      "match_no": 52,
+      "home": {
+        "kind": "knockout_winner",
+        "match_id": "sf_01"
+      },
+      "away": {
+        "kind": "knockout_winner",
+        "match_id": "sf_02"
+      },
+      "kickoff_utc": "2027-11-13T09:00:00Z",
+      "host": "AU",
+      "venue": "Stadium Australia, Sydney"
+    }
+  ],
+  "advancement": {
+    "automatic_per_group": 2,
+    "wildcard_third": 4,
+    "wildcard_fourth": 0
+  },
+  "annex_c_assignments": {
+    "A,B,C,D": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,B,C,E": {
+      "1A": "C",
+      "1B": "E",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,B,C,F": {
+      "1A": "C",
+      "1B": "F",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,B,D,E": {
+      "1A": "E",
+      "1B": "D",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,B,D,F": {
+      "1A": "F",
+      "1B": "D",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,B,E,F": {
+      "1A": "E",
+      "1B": "F",
+      "1C": "A",
+      "1D": "B"
+    },
+    "A,C,D,E": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "A",
+      "1D": "E"
+    },
+    "A,C,D,F": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "A",
+      "1D": "F"
+    },
+    "A,C,E,F": {
+      "1A": "C",
+      "1B": "E",
+      "1C": "A",
+      "1D": "F"
+    },
+    "A,D,E,F": {
+      "1A": "E",
+      "1B": "D",
+      "1C": "A",
+      "1D": "F"
+    },
+    "B,C,D,E": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "E",
+      "1D": "B"
+    },
+    "B,C,D,F": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "F",
+      "1D": "B"
+    },
+    "B,C,E,F": {
+      "1A": "C",
+      "1B": "E",
+      "1C": "F",
+      "1D": "B"
+    },
+    "B,D,E,F": {
+      "1A": "E",
+      "1B": "D",
+      "1C": "F",
+      "1D": "B"
+    },
+    "C,D,E,F": {
+      "1A": "C",
+      "1B": "D",
+      "1C": "E",
+      "1D": "F"
+    }
+  }
+}

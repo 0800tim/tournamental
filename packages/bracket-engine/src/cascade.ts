@@ -324,20 +324,24 @@ export function cascade(
         // Prefer the ACTUAL best-thirds (set once every group is settled)
         // over the player's forecast picks, so the slot resolves to the REAL
         // qualifier and renders as such. Tim 2026-06-28.
+        // The number of thirds that advance is the tournament's (eight
+        // at the 2026 World Cup, four at RWC 2027), never a constant.
+        const wildcardThirds = tournament.advancement.wildcard_third;
         const actualThirds = completedResults?.best_thirds;
-        const useActual = !!actualThirds && actualThirds.length === 8;
+        const useActual = !!actualThirds && actualThirds.length === wildcardThirds;
         const advancingGroups: GroupId[] = [];
         for (const teamId of useActual ? actualThirds : predictions.best_thirds) {
           const g = thirdPlacerToGroup.get(teamId);
           if (g) advancingGroups.push(g);
         }
-        if (advancingGroups.length !== 8) {
+        if (advancingGroups.length !== wildcardThirds) {
           // Either too few or too many best-third picks. Cascade leaves
-          // the slot empty; the bracket UI gates the R32 tab on having
-          // exactly 8 picked, so this is mostly a programming guard.
+          // the slot empty; the bracket UI gates the first knockout tab
+          // on having exactly that many picked, so this is mostly a
+          // programming guard.
           warnings.push({
             code: "annex_c_third_pool_incomplete",
-            message: `FIFA Annex C routing requires exactly 8 best-third picks (got ${advancingGroups.length}).`,
+            message: `Annex C routing requires exactly ${wildcardThirds} best-third picks (got ${advancingGroups.length}).`,
             key: `slot:annex_c_third:1${source.group_winner}`,
           });
           return { source, team: null, from_actual: false };
