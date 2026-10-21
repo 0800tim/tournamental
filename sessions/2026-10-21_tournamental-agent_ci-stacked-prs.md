@@ -27,7 +27,11 @@ on main so a merge still runs the suite once.
 Two-line trigger change in each workflow, YAML parsed to confirm the
 triggers. The stacked PRs already open will get checks once their
 base branch carries this change or they are retargeted to main after
-the branch below them merges.
+the branch below them merges. Note that a retarget fires `edited`,
+which is not a default activity type, so the retarget itself does not
+re-run the checks; the next push does, and the merge into main runs
+the suite once via `push`. (`edited` is deliberately not added: it
+also fires on title and body edits.)
 
 ## Next steps
 
