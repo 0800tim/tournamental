@@ -6,7 +6,7 @@
  * the 2027 Men's Rugby World Cup) and indexes every match's kickoff
  * time by the match-id used in user-submitted brackets.
  *
- *   - Group fixtures: keyed by `String(match_no)` — matches
+ *   - Group fixtures: keyed by `String(match_no)`, matching
  *     `groupMatchId()` in the web client.
  *   - Knockout fixtures: keyed by the engine's stable `id` (e.g. "r32_01",
  *     "final") — matches `knockoutMatchId()` in the web client.

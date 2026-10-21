@@ -62,6 +62,8 @@ export async function registerMatchRoutes(
         outcome: body.outcome,
         homeScore: body.homeScore,
         awayScore: body.awayScore,
+        homeTries: body.homeTries,
+        awayTries: body.awayTries,
         winner: body.winner,
         stage: body.stage,
         method: body.method,

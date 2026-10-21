@@ -34,29 +34,28 @@ const TOP_N = 100;
 const PUBLIC_CACHE_HEADER = "public, max-age=30, stale-while-revalidate=60";
 
 /**
- * Per-tournament catalogue: match_id → kickoff_utc epoch-ms.
- * Used so we can join the set of recorded match-results against
- * fixture kickoff times when computing `matches_available_to_user`.
- * Vendored fixtures don't change so the catalogue is process-cached;
- * an unknown tournament id has an empty catalogue.
+ * Vendored fixtures don't change so the catalogue is process-cached.
+ * An unknown tournament id has an empty catalogue and is never cached:
+ * the id comes from a public path parameter, so caching it would let
+ * any caller grow the map one entry per distinct string.
  */
 const kickoffCatalogueCache = new Map<string, ReadonlyMap<string, number>>();
+const EMPTY_CATALOGUE: ReadonlyMap<string, number> = new Map();
 
 export function kickoffCatalogue(tournamentId: string): ReadonlyMap<string, number> {
+  if (!isVendoredTournament(tournamentId)) return EMPTY_CATALOGUE;
   const cached = kickoffCatalogueCache.get(tournamentId);
   if (cached) return cached;
   const map = new Map<string, number>();
-  if (isVendoredTournament(tournamentId)) {
-    const tournament = loadFixtures(tournamentId);
-    for (const f of tournament.group_fixtures) {
-      const ms = Date.parse(f.kickoff_utc);
-      if (!Number.isNaN(ms)) map.set(String(f.match_no), ms);
-    }
-    for (const k of tournament.knockouts) {
-      if (!k.kickoff_utc) continue;
-      const ms = Date.parse(k.kickoff_utc);
-      if (!Number.isNaN(ms)) map.set(k.id, ms);
-    }
+  const tournament = loadFixtures(tournamentId);
+  for (const f of tournament.group_fixtures) {
+    const ms = Date.parse(f.kickoff_utc);
+    if (!Number.isNaN(ms)) map.set(String(f.match_no), ms);
+  }
+  for (const k of tournament.knockouts) {
+    if (!k.kickoff_utc) continue;
+    const ms = Date.parse(k.kickoff_utc);
+    if (!Number.isNaN(ms)) map.set(k.id, ms);
   }
   kickoffCatalogueCache.set(tournamentId, map);
   return map;
