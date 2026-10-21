@@ -42,6 +42,61 @@ export const KNOCKOUT_STAGES: readonly StageId[] = [
   "f",
 ] as const;
 
+// ---------- sport and pool table rules ----------
+
+export type SportId = "football" | "rugby_union" | "rugby_league";
+
+/**
+ * Pool table points. Football is 3-1-0 with no bonuses; rugby union is
+ * 4-2-0 plus a point for four or more tries and a point for losing by
+ * seven or fewer. Both bonuses are optional so a sport (or a
+ * competition) without them simply leaves them out.
+ */
+export interface PoolPointsRule {
+  readonly win: number;
+  readonly draw: number;
+  readonly loss: number;
+  /** Bonus point for scoring at least `min_tries` tries, win or lose. */
+  readonly try_bonus?: {
+    readonly min_tries: number;
+    readonly points: number;
+  };
+  /** Bonus point for the loser when the margin is at most `max_margin`. */
+  readonly losing_bonus?: {
+    readonly max_margin: number;
+    readonly points: number;
+  };
+}
+
+/**
+ * One step of a pool tiebreak chain. Points are always compared first;
+ * the chain applies, in order, to teams still level. The user's
+ * tiebreaker pick is always the last resort and is not listed.
+ *
+ *   - `h2h_winner`: the winner of the match between two tied teams
+ *     (World Rugby's first criterion). Skipped when more than two teams
+ *     are tied or the match was drawn or not yet predicted.
+ *   - `h2h_table`: a mini-table of the matches between all tied teams,
+ *     ordered by points, score difference, score for (FIFA's criterion).
+ *   - `score_diff`, `score_for`: over all pool matches. Goals in
+ *     football, match points in rugby.
+ *   - `try_diff`, `try_for`: over all pool matches, rugby only.
+ *   - `world_rank`: the governing body's ranking, lower is better.
+ */
+export type TiebreakCriterion =
+  | "h2h_winner"
+  | "h2h_table"
+  | "score_diff"
+  | "score_for"
+  | "try_diff"
+  | "try_for"
+  | "world_rank";
+
+export interface StandingsRules {
+  readonly points: PoolPointsRule;
+  readonly tiebreak: readonly TiebreakCriterion[];
+}
+
 // ---------- team ----------
 
 export interface Team {
@@ -53,6 +108,15 @@ export interface Team {
   readonly country: string;
   /** FIFA world ranking at config time, lower = stronger. */
   readonly fifa_rank: number;
+  /**
+   * Governing-body world ranking for sports other than football (World
+   * Rugby, IRL). Lower = stronger. The `world_rank` tiebreak criterion
+   * reads this first and falls back to `fifa_rank`. Optional so the
+   * 2026 football data is untouched.
+   */
+  readonly world_rank?: number;
+  /** ISO-8601 date the ranking was taken, when the regulations fix one. */
+  readonly ranked_at?: string;
   /**
    * Pre-tournament market-implied win probability (0–1). Used by the score
    * model when an explicit lock-time market price isn't available.
@@ -166,6 +230,19 @@ export interface KnockoutFixture {
 export interface Tournament {
   readonly id: string; // e.g. "fifa-wc-2026"
   readonly name: string;
+  /**
+   * Which sport's pool arithmetic applies. Absent means `football`,
+   * which keeps every 2026 fixture file valid. The standings computer
+   * picks its points rule and tiebreak chain from this unless
+   * `standings_rules` overrides it.
+   */
+  readonly sport?: SportId;
+  /**
+   * Explicit pool table rules. Wins over the `sport` preset when both
+   * are present, so a tournament whose regulations differ from the
+   * sport's usual chain can say so in data rather than in code.
+   */
+  readonly standings_rules?: StandingsRules;
   readonly start_utc: string; // tournament kickoff (UTC)
   readonly final_utc: string; // tournament final kickoff (UTC)
   readonly teams: readonly Team[];
@@ -272,6 +349,14 @@ export interface MatchPrediction {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore?: number;
   readonly awayScore?: number;
+  /**
+   * Predicted try counts, rugby only. The try bonus point and the
+   * tries-based tiebreak criteria read these; when they are absent the
+   * standings computer treats tries as unknown (no bonus, no tiebreak
+   * contribution), the same stance it takes on blank scores.
+   */
+  readonly homeTries?: number;
+  readonly awayTries?: number;
   /** ISO-8601 timestamp of when this prediction was last edited. */
   readonly lockedAt: string;
   /**
