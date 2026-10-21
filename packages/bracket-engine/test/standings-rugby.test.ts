@@ -206,11 +206,11 @@ describe("rugby standings: the tiebreak chain", () => {
     expect(order(s)).toEqual(["ARG", "ITA", "NZL", "TGA"]);
   });
 
-  it("teams still level after a split start the chain again from the first criterion", () => {
-    // NZL, ARG and ITA each beat TGA and form a circle; ITA has the best
-    // difference, NZL and ARG are level on +30. ARG has the better tries
-    // difference, but the regulations restart the chain for the two still
-    // level, and NZL won the match between them.
+  it("places the highest ranked team, then restarts the chain for the rest", () => {
+    // NZL, ARG and ITA each beat TGA and form a circle. ITA is clear on
+    // difference (+50 to +30), so it is placed first; NZL and ARG then
+    // restart from the first criterion and NZL won the match between
+    // them, which outranks ARG's better tries difference.
     const s = computeGroupStandings(
       "A",
       pool,
@@ -228,6 +228,36 @@ describe("rugby standings: the tiebreak chain", () => {
     expect(row(s, "ARG").goalDiff).toBe(30);
     expect(row(s, "ARG").tryDiff).toBeGreaterThan(row(s, "NZL").tryDiff);
     expect(order(s)).toEqual(["ITA", "NZL", "ARG", "TGA"]);
+  });
+
+  it("keeps applying criteria until one team is clear at the top before any restart", () => {
+    // NZL and ARG level on +30, ITA on +20: nobody is placed yet. Tries
+    // difference then makes ARG the highest. The process restarts for
+    // NZL and ITA, and ITA won their match, so ITA finishes above NZL
+    // despite the worse difference.
+    const s = computeGroupStandings(
+      "A",
+      pool,
+      Object.fromEntries([
+        pred(1, "home_win", [20, 10], [1, 2]), // NZL > ARG
+        pred(6, "home_win", [30, 10]), // ARG > ITA
+        pred(3, "away_win", [10, 20]), // ITA > NZL
+        pred(5, "home_win", [30, 0]), // NZL > TGA
+        pred(4, "home_win", [30, 10]), // ARG > TGA
+        pred(2, "home_win", [40, 10]), // ITA > TGA
+      ]),
+    );
+    expect(s.map((r) => r.points)).toEqual([8, 8, 8, 0]);
+    expect([row(s, "NZL").goalDiff, row(s, "ARG").goalDiff, row(s, "ITA").goalDiff]).toEqual([30, 30, 20]);
+    expect(order(s)).toEqual(["ARG", "ITA", "NZL", "TGA"]);
+  });
+
+  it("pays no losing bonus when the scores contradict the outcome", () => {
+    const s = computeGroupStandings("A", pool, Object.fromEntries([pred(1, "home_win", [20, 20]), pred(2, "away_win", [30, 10])]));
+    expect(row(s, "ARG").bonusPoints).toBe(0); // "home win" with level scores
+    expect(row(s, "ITA").bonusPoints).toBe(0); // "away win" while ahead on the scores
+    expect(row(s, "NZL").points).toBe(4);
+    expect(row(s, "TGA").points).toBe(4);
   });
 
   it("tries difference, then points for, then tries for break a level difference", () => {
@@ -276,9 +306,10 @@ describe("rugby standings: the tiebreak chain", () => {
 
   it("world ranking is the last criterion and falls back to fifa_rank", () => {
     // ITA (no world_rank, fifa_rank 10) v TGA (world_rank 15): same everything.
-    const s = computeGroupStandings("A", pool, Object.fromEntries([pred(2, "draw", [15, 15], [2, 2])]));
+    const predictions = Object.fromEntries([pred(2, "draw", [15, 15], [2, 2])]);
+    const s = computeGroupStandings("A", pool, predictions);
     expect(order(s).slice(0, 2)).toEqual(["ITA", "TGA"]);
-    expect(detectTiesNeedingTiebreaker(s, { tournament: pool, groupId: "A", predictions: {} })).toEqual([]);
+    expect(detectTiesNeedingTiebreaker(s, { tournament: pool, groupId: "A", predictions })).toEqual([]);
   });
 
   it("falls through to the user's pick when the chain cannot separate teams", () => {
@@ -299,6 +330,28 @@ describe("rugby standings: the tiebreak chain", () => {
     const picked = computeGroupStandings("A", noRanks, predictions, tiebreaker);
     expect(order(picked)).toEqual(["TGA", "ITA", "NZL", "ARG"]);
     expect(detectTiesNeedingTiebreaker(picked, { tournament: noRanks, groupId: "A", predictions, tiebreaker })).toEqual([]);
+  });
+});
+
+describe("rugby standings: teams the chain cannot separate", () => {
+  it("orders identical teams by the user's pick together and reports one tie group", () => {
+    const noRanks: Tournament = { ...pool, teams: teams.map((t) => ({ ...t, fifa_rank: 50, world_rank: undefined })) };
+    const predictions = Object.fromEntries([
+      pred(1, "draw", [10, 10], [1, 1]),
+      pred(3, "draw", [10, 10], [1, 1]),
+      pred(6, "draw", [10, 10], [1, 1]),
+      pred(5, "home_win", [30, 0]),
+      pred(4, "home_win", [30, 0]),
+      pred(2, "home_win", [30, 0]),
+    ]);
+    const s = computeGroupStandings("A", noRanks, predictions);
+    expect(s.map((r) => r.points)).toEqual([8, 8, 8, 0]);
+    expect(order(s)).toEqual(["ARG", "ITA", "NZL", "TGA"]); // alphabetical fallback
+    expect(detectTiesNeedingTiebreaker(s, { tournament: noRanks, groupId: "A", predictions })).toEqual([
+      { positions: [1, 2, 3], teamCodes: ["ARG", "ITA", "NZL"] },
+    ]);
+    const tiebreaker: GroupTiebreaker = { groupId: "A", rankedTeams: ["NZL", "ITA", "ARG", "TGA"], setAt: "2027-09-01T00:00:00Z" };
+    expect(order(computeGroupStandings("A", noRanks, predictions, tiebreaker))).toEqual(["NZL", "ITA", "ARG", "TGA"]);
   });
 });
 

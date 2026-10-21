@@ -95,12 +95,20 @@ export type TiebreakCriterion =
 export interface StandingsRules {
   readonly points: PoolPointsRule;
   /**
-   * Pool tiebreak chain, applied to teams level on points. When a
-   * criterion separates some of a level block, the teams still level
-   * start again from the first criterion (World Rugby and FIFA both
-   * re-apply the chain to the remaining subset).
+   * Pool tiebreak chain, applied to teams level on points. Points are
+   * always compared first and the user's pick is always the last
+   * resort; neither is listed.
    */
   readonly tiebreak: readonly TiebreakCriterion[];
+  /**
+   * How the chain treats three or more level teams. Absent or false
+   * (FIFA): each criterion applies to the teams still level after the
+   * one before it, nested, and the user's pick settles what the chain
+   * cannot. True (World Rugby): the chain runs until one team is the
+   * highest ranked, that team is placed, and the process repeats from
+   * the first criterion for the rest.
+   */
+  readonly restart_after_highest?: boolean;
   /**
    * Chain for ranking teams from different pools against each other
    * (the best third-placed teams). Defaults to `tiebreak` without the
