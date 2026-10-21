@@ -157,7 +157,9 @@ function selectBestThirds(
   for (const pred of groupPredictions) {
     if (pred.order.length < 3) continue;
     const team = pred.order[2]!;
-    const rank = teamsById.get(team)?.fifa_rank ?? 999;
+    const meta = teamsById.get(team);
+    // world_rank is the sport-neutral field; fifa_rank is the 2026 data.
+    const rank = meta?.world_rank ?? meta?.fifa_rank ?? 999;
     thirds.push({ team, rank, group_id: pred.group_id });
   }
   thirds.sort((a, b) => {

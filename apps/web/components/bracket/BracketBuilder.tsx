@@ -86,6 +86,7 @@ import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
 import { ThirdsPicker } from "./ThirdsPicker";
+import { bestThirdsTarget } from "@/lib/bracket/thirds";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
@@ -1256,7 +1257,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
   const thirdsProgress = {
     picked: (bracket.bestThirds ?? []).length,
-    total: 8,
+    total: bestThirdsTarget(tournament),
   };
   const r32Progress = knockoutCountFor("r32", cascaded);
   const r16Progress = knockoutCountFor("r16", cascaded);

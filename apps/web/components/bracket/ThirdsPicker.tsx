@@ -1,15 +1,18 @@
 /**
- * "Top 8 3rd Place" stage. Lives between Groups and R32 in the bracket
- * tabs. The 2026 World Cup advances the top 2 of each group + the 8 best
- * 3rd-placed teams. The 8 are determined by FIFA's tiebreaker rules
- * (points → goal diff → goals scored → discipline → drawing of lots),
- * which can't be computed from our outcome-only predictions (no score
- * lines). So we ask the user to consciously select 8 of the 12 third
- * placers, persist into `bracket.bestThirds`, then let the FIFA
- * Annex C lookup in the cascade engine route them into R32 slots.
+ * "Best 3rd Place" stage. Lives between Groups and the first knockout
+ * round in the bracket tabs. Formats like the 2026 World Cup (8 of 12
+ * thirds) and Rugby World Cup 2027 (4 of 6) advance the top 2 of each
+ * group plus the best third-placed teams. The organiser ranks the
+ * thirds by its tiebreaker rules, which end in steps we cannot compute
+ * from outcome-only predictions (discipline, drawing of lots). So we
+ * ask the user to consciously select the thirds, persist them into
+ * `bracket.bestThirds`, then let the Annex C lookup in the cascade
+ * engine route them into the knockout slots.
  *
  * Order doesn't matter, this is a set selection. We sort the rendered
- * tiles by FIFA rank so the most plausible picks surface first.
+ * tiles by the tournament's cross-group chain (predicted points, then
+ * world ranking) so the most plausible picks surface first. The count
+ * and the chain come from the tournament, not from this file.
  */
 
 import type React from "react";
@@ -27,6 +30,17 @@ import {
   isGroupComplete,
 } from "@tournamental/bracket-engine";
 
+import {
+  bestThirdsTarget,
+  rankThirds,
+  rankingLabel,
+  selectBestThirds,
+  teamWorldRank,
+  thirdsEntryStageLabel,
+  thirdsTiebreakLabels,
+  type ThirdCandidate,
+} from "@/lib/bracket/thirds";
+
 import { TeamFlag } from "./TeamFlag";
 
 interface ThirdsPickerProps {
@@ -36,20 +50,16 @@ interface ThirdsPickerProps {
   readonly onClear: () => void;
 }
 
-interface ThirdRow {
+interface ThirdRow extends ThirdCandidate {
   readonly teamId: TeamId;
-  readonly groupId: string;
   readonly teamName: string;
-  readonly fifaRank: number;
-  readonly points: number;
-  readonly goalDiff: number;
-  readonly goalsFor: number;
+  readonly worldRank: number;
 }
-
-const REQUIRED = 8;
 
 export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
   const { tournament, bracket, onChange, onClear } = props;
+  const REQUIRED = bestThirdsTarget(tournament);
+  const ranking = rankingLabel(tournament);
 
   const { rows, groupsComplete } = useMemo(() => {
     const out: ThirdRow[] = [];
@@ -73,18 +83,15 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
       out.push({
         teamId: third.teamCode,
         groupId: g.id,
+        standing: third,
         teamName: team?.name ?? third.teamCode,
-        fifaRank: team?.fifa_rank ?? 99,
-        points: third.points,
-        goalDiff: third.goalDiff,
-        goalsFor: third.goalsFor,
+        worldRank: teamWorldRank(team),
       });
     }
-    // Sort by FIFA rank (best first) so the most plausible picks sit at
-    // the top. FIFA rank is a fair proxy for "how likely is this 3rd to
-    // be among the best 8".
-    out.sort((a, b) => a.fifaRank - b.fifaRank);
-    return { rows: out, groupsComplete: allComplete };
+    // Best first by the tournament's cross-group chain (predicted
+    // points, then world ranking once the score-based criteria are
+    // level) so the most plausible picks sit at the top.
+    return { rows: rankThirds(tournament, out), groupsComplete: allComplete };
   }, [tournament, bracket.matchPredictions, bracket.groupTiebreakers]);
 
   // The current set of valid 3rd-placer team-ids (one per complete
@@ -154,18 +161,19 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
           Why this stage exists
         </h3>
         <p>
-          The 2026 World Cup advances the top 2 from each group <em>plus</em>{" "}
-          the 8 best 3rd-placed teams (out of 12). In real life FIFA breaks
-          ties on those 12 thirds by goal difference, goals scored, then
-          discipline, then a drawing of lots. Tournamental only asks you to
-          pick a winner / draw / loser for each match (not the score line),
-          so we can&apos;t deterministically rank the 12 thirds beyond their
-          points record.
+          This tournament advances the top {tournament.advancement.automatic_per_group}{" "}
+          from each group <em>plus</em> the {REQUIRED} best 3rd-placed teams
+          (out of {tournament.groups.length}). In real life {ranking.body} ranks
+          those thirds by points, then {thirdsTiebreakLabels(tournament).join(", ")},
+          then steps like discipline or a drawing of lots. Tournamental only
+          asks you to pick a winner / draw / loser for each match (not the
+          score line), so we can&apos;t deterministically rank the thirds
+          beyond their points record.
         </p>
         <p>
-          Pick the <strong>8</strong> you think will have the strongest
-          records. We then route them into the Round of 32 using FIFA&apos;s
-          official Annex C lookup table.
+          Pick the <strong>{REQUIRED}</strong> you think will have the strongest
+          records. We then route them into the {thirdsEntryStageLabel(tournament)}{" "}
+          using the official allocation table.
         </p>
       </div>
 
@@ -190,7 +198,11 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
         </div>
       </div>
 
-      <ul className="bracket-thirds-grid" role="listbox" aria-label="12 third-placed teams">
+      <ul
+        className="bracket-thirds-grid"
+        role="listbox"
+        aria-label={`${tournament.groups.length} third-placed teams`}
+      >
         {rows.map((r) => {
           const isSelected = selected.has(r.teamId);
           const disabled = !isSelected && atLimit;
@@ -215,9 +227,9 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
                 <span className="bracket-thirds-tile-group">3{r.groupId}</span>
                 <span
                   className="bracket-thirds-tile-rank"
-                  aria-label={`FIFA rank ${r.fifaRank}`}
+                  aria-label={`${ranking.long} ${r.worldRank}`}
                 >
-                  FR {r.fifaRank}
+                  {ranking.short} {r.worldRank}
                 </span>
                 <span className="bracket-thirds-tile-flag" aria-hidden="true">
                   <TeamFlag code={r.teamId} size="md" />
@@ -234,7 +246,7 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
 
       {selectedCount < REQUIRED && (
         <p className="bracket-thirds-hint" role="status">
-          Pick {REQUIRED - selectedCount} more to unlock the Round of 32.
+          Pick {REQUIRED - selectedCount} more to unlock the {thirdsEntryStageLabel(tournament)}.
         </p>
       )}
     </div>
@@ -242,18 +254,19 @@ export function ThirdsPicker(props: ThirdsPickerProps): JSX.Element {
 }
 
 /**
- * Helper used by the global AutoPick handler. Given the tournament + the
- * current bracket, returns the 8 third-placers with the best FIFA rank
- * (preferring lower-ranked = better teams). If fewer than 8 groups are
- * complete, returns whatever subset is available. Order is canonical
- * (alphabetical by team id) since order doesn't matter for the cascade.
+ * Helper for an auto-pick handler. Given the tournament + the current
+ * bracket, returns the best third-placers by the tournament's
+ * cross-group chain, as many as the format advances. If fewer groups
+ * are complete, returns whatever subset is available. Order is
+ * canonical (alphabetical by team id) since order doesn't matter for
+ * the cascade.
  */
-export function autoPickTop8Thirds(
+export function autoPickBestThirds(
   tournament: Tournament,
   matchPredictions: Record<string, MatchPrediction>,
   groupTiebreakers: Bracket["groupTiebreakers"],
 ): readonly TeamId[] {
-  const candidates: Array<{ teamId: TeamId; fifaRank: number }> = [];
+  const candidates: ThirdCandidate[] = [];
   for (const g of tournament.groups) {
     if (!isGroupComplete(g.id, tournament, matchPredictions)) continue;
     const standings = computeGroupStandings(
@@ -265,9 +278,7 @@ export function autoPickTop8Thirds(
     if (standings.length < 3) continue;
     const third = standings[2];
     if (!third) continue;
-    const team = tournament.teams.find((t) => t.id === third.teamCode);
-    candidates.push({ teamId: third.teamCode, fifaRank: team?.fifa_rank ?? 99 });
+    candidates.push({ groupId: g.id, standing: third });
   }
-  candidates.sort((a, b) => a.fifaRank - b.fifaRank);
-  return candidates.slice(0, 8).map((c) => c.teamId).sort();
+  return [...selectBestThirds(tournament, candidates)].sort();
 }
