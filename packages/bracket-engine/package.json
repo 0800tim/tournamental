@@ -7,6 +7,8 @@
     "tournamental",
     "bracket",
     "world-cup-2026",
+    "rugby-world-cup-2027",
+    "rugby",
     "fifa",
     "prediction",
     "tournament"
@@ -29,7 +31,8 @@
     "./score": "./src/score.ts",
     "./standings": "./src/standings.ts",
     "./vstamp": "./src/vstamp.ts",
-    "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json"
+    "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json",
+    "./fixtures-rwc-2027": "./data/rwc-2027-fixtures.json"
   },
   "files": [
     "dist",
@@ -109,7 +112,8 @@
           "default": "./dist/vstamp.js"
         }
       },
-      "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json"
+      "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json",
+      "./fixtures-rwc-2027": "./data/rwc-2027-fixtures.json"
     }
   },
   "scripts": {
