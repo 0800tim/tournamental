@@ -4,12 +4,12 @@
  * picks by tournament id; the per-tournament functions stay for callers
  * that want the typed `_meta`.
  *
- * The JSON file is a structural description of the tournament — it has a
- * `_meta` block documenting its source, a list of placeholder teams (real
- * teams when FIFA's draw is finalised), 8 groups of 6 with placeholder
- * fixtures, and the full knockout slot graph with declarative
- * dependencies. Swapping in real teams and real kickoff times is a JSON
- * replacement; no engine code changes.
+ * Each JSON file is a structural description of its tournament: a
+ * `_meta` block documenting the source, the teams, the groups (pools),
+ * the group fixtures, and the full knockout slot graph with declarative
+ * dependencies (plus the third-place routing table where the format
+ * needs one). New teams, kickoffs or a new tournament are JSON changes;
+ * no engine code changes.
  */
 
 import type { Tournament } from "./tournament.js";
