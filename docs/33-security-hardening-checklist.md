@@ -2,7 +2,7 @@
 
 > Pre-launch security pass for Tournamental. Free-to-play prediction game with affiliate links and phone-OTP auth. The threat model is mostly: bot floods on the bracket and on the register-interest form, scraping of the odds cache, abuse of affiliate-click endpoints, and PII leakage on the OTP and signup flows. Plus the standard OWASP top 10 across every public surface.
 >
-> Run this checklist before each public launch. Date last reviewed: 2026-10-17 (against `main` at e1e0eac9, plus the six open draft PRs #335 to #340 where noted).
+> Run this checklist before each public launch. Date last reviewed: 2026-10-21 (against `main` at 76e4db87, after the October review round #335 to #365 merged and deployed on 2026-10-20; the 2026-10-17 pass was against e1e0eac9).
 
 ## How to read this review
 
@@ -32,15 +32,15 @@ Headers come from the nginx config at `/data/infra/apps/tournamental/nginx.conf`
 
 ### `apps/web` (Next 14, three host modes)
 
-- [ ] Open: security headers. `apps/web/middleware.ts` sets none and `next.config.mjs` has no `headers()`. Live play.tournamental.com and fwc2026.tournamental.com send only `cache-control` (checked 2026-10-17). Nosniff, Referrer-Policy and frame-ancestors are a ten-line change in `next.config.mjs`; do that before any CSP work.
-- [ ] Open: CSP. Nothing sent. The 3D renderer and the GTM bootstrap (`components/analytics/GtmRoot.tsx`) need `blob:` workers and an inline-script allowance, so start in report-only mode.
+- [x] Done: security headers. `apps/web/lib/security/headers.mjs` via `next.config.mjs` `headers()` (PR #345, live 2026-10-20): `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`, `Permissions-Policy`, `X-Frame-Options: DENY` and `frame-ancestors 'none'` on play.tournamental.com, verified on the live response after the deploy.
+- [ ] Partial: CSP. `Content-Security-Policy-Report-Only` is sent (PR #345) with `blob:` workers, the GTM bootstrap, and the Telegram login widget's origins (`telegram.org` script, `oauth.telegram.org` frame, review 345-2). There is no report endpoint, so promotion to enforcing is a manual watch of the browser console on the hub, the archive and, before the next live day, the live mode. Tim's call to promote.
 - [x] Done: SRI on third-party CDN scripts. There are none; the only third-party script is GTM, loaded from `googletagmanager.com` by `GtmRoot.tsx`, which cannot be SRI-pinned. Nothing from a generic CDN.
-- [ ] Open: `frame-ancestors 'none'` (or `X-Frame-Options`). Not set. Note the embed widget (`app/embed/widget.js/route.ts`) is meant to be framed by partner pages, so this must be per-route, not blanket.
+- [x] Done: `frame-ancestors 'none'` and `X-Frame-Options: DENY` per route (PR #345): exempt for `?embed=1`, `/embed/*` and the archive hosts (`ARCHIVE_HOSTS`), which partner pages frame; verified live on 2026-10-20 (no framing headers on `?embed=1` or fwc2026.tournamental.com). Open item for live mode: in-frame links need `target="_top"` or to carry `?embed=1` before the rule is enforced on play (review 345-1, needs Tim).
 - [x] Done: CORS narrowed. `app/api/v1/auth-status/route.ts` echoes `Origin` with credentials (documented as safe: it exposes nothing the embedding page cannot already see). `app/api/v1/syndicates/[slug]/join/route.ts` sends no `Allow-Credentials` and only echoes a known origin. The widget script itself is `*` but carries no credentials.
 - [x] Done: CSRF guard on every mutating `/api/v1/**` call (SEC-WEB-01, `middleware.ts` `CSRF_ALLOWED_ORIGINS`). Needed because `tnm_session` is `SameSite=None; Secure` (`apps/auth-sms/src/routes/magic-verify.ts` `buildSessionCookie`). Bearer-token widget routes are exempt. PR #335 adds 83 tests covering this ordering.
 - [ ] Partial: GET routes that write. `join-requests/[userId]/approve` and `deny` are GET handlers (signed links for owners). PR #336 blocks them on archive hosts (`ARCHIVE_BLOCKED_API`). They remain GET on the live host because they are opened from email; acceptable while signed and single-purpose.
 - [ ] Open: Turnstile on `/api/syndicate/intent`, `/api/affiliate/click` and the register-interest form. See section D.
-- [ ] Partial: rate limits. In-process limiter `lib/rate-limit/in-memory.ts` guards `register-interest` (8/10 min/IP), `widget-otp`, `manage-auth` and `handle-check`. No general `/api/*` limit in the app and no Cloudflare rate rule for `play.*` that this review could verify from the box (`infra/cloudflare/otp-protection.sh` only covers `/v1/auth/otp/*` on auth.tournamental.com). Edge rules need the dashboard or an API token to confirm.
+- [ ] Partial: rate limits. In-process limiter `lib/rate-limit/in-memory.ts` guards `register-interest` (8/10 min/IP) plus a global brake across all addresses (`REGISTER_INTEREST_GLOBAL_PER_MINUTE`, default 60, PR #354), `widget-otp`, `manage-auth` and `handle-check`. No general `/api/*` limit in the app and no Cloudflare rate rule for `play.*` that this review could verify from the box (`infra/cloudflare/otp-protection.sh` only covers `/v1/auth/otp/*` on auth.tournamental.com). Edge rules need the dashboard or an API token to confirm.
 
 ### `apps/api` (Fastify, not deployed)
 
@@ -60,7 +60,7 @@ The May items assumed magic-link email sign-in. The gate moved to WhatsApp OTP s
 - [ ] Partial: session cookie. `__Host-admin` is HttpOnly, Secure in production, `SameSite=Lax`, Path=/ (`app/api/auth/verify/route.ts`). TTL is 24 h, not the 8 h this checklist asked for; the reason is documented in `lib/auth.ts`. Middleware crypto-verifies the JWT for `/api/**` and checks presence for UI routes, with `requireAuth()` doing the full check server-side.
 - [ ] Partial: audit log. `lib/audit.ts` appends every state-changing action to `.admin-audit.jsonl` (user, action, target, timestamp). IP and user agent are not recorded. The planned move to a Postgres row via `apps/api` has not happened.
 - [x] Done: no GET side effects. No GET handler under `apps/admin/app/api` writes.
-- [ ] Partial: PII redaction. The settings and syndicate pages mask phones (`maskAdminPhone`, `maskPhone`). The Customer 360 tab (`app/(authed)/users/[id]/Customer360Tabs.tsx`) and the HighLevel page show full phone and email with no "show" action and no audit of the view.
+- [x] Done: PII redaction. The settings and syndicate pages mask phones (`maskAdminPhone`, `maskPhone`); the Customer 360 tab masks phone and email by default with an audited reveal (PR #352, `lib/pii.ts`, reveal routes write to the audit log). Still unmasked, by design and for Tim to confirm: the users list column (a search key) and the user page header (review item 24).
 
 ### `apps/odds-ingest` (Fastify)
 
