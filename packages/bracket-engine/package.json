@@ -28,6 +28,7 @@
     "./cascade": "./src/cascade.ts",
     "./score": "./src/score.ts",
     "./standings": "./src/standings.ts",
+    "./bridge": "./src/bridge.ts",
     "./vstamp": "./src/vstamp.ts",
     "./fixtures-2026": "./data/fifa-wc-2026-fixtures.json"
   },
@@ -97,6 +98,16 @@
         "require": {
           "types": "./dist/standings.d.ts",
           "default": "./dist/standings.js"
+        }
+      },
+      "./bridge": {
+        "import": {
+          "types": "./dist/bridge.d.mts",
+          "default": "./dist/bridge.mjs"
+        },
+        "require": {
+          "types": "./dist/bridge.d.ts",
+          "default": "./dist/bridge.js"
         }
       },
       "./vstamp": {

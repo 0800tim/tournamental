@@ -9,6 +9,14 @@ Pre-1.0, breaking changes signal with a minor bump (0.x.0 -> 0.(x+1).0).
 
 ## [Unreleased]
 
+### Added
+
+- `bracketToCascadeInput(tournament, bracket, userId, nowIso?)` in
+  `bridge`: the per-match `Bracket` to cascade `BracketPrediction`
+  conversion that the web app and the game service each carried a copy
+  of. One helper, one set of rules (orders only for complete groups,
+  best thirds from the user's picks, knockouts left for the cascade).
+
 ## [0.1.0] - 2026-05-13
 
 - Initial public release on npm under the `@tournamental` scope.
