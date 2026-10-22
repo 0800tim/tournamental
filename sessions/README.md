@@ -2,7 +2,7 @@
 
 > Short markdown notes — one per agent-session — that document **what was decided and why** during a working session. Not a logbook; not a journal. The minimum that a future contributor (or future-you) needs to understand what just happened.
 
-Older sessions auto-archive into `sessions/archive/<YYYY>/` after 30 days. Archive is `git mv` and committed in a `chore: archive sessions older than 30d` PR every month.
+Older sessions are archived into `sessions/archive/<YYYY>/` after 30 days by `scripts/archive-sessions.sh`, a `git mv` committed in a `chore: archive sessions older than 30d` PR every month.
 
 ## Filename convention
 
@@ -99,14 +99,17 @@ The discipline is small (5 minutes at start, 5 minutes at sign-off) and the payo
 
 ## Archival
 
-Run from the repo root:
+Run from the repo root, on a chore branch:
 
 ```bash
-# In a chore: archive PR
-mkdir -p sessions/archive/$(date +%Y)
-find sessions -maxdepth 1 -name "*.md" -mtime +30 -not -name README.md \
-  -exec git mv {} sessions/archive/$(date +%Y)/ \;
+scripts/archive-sessions.sh --dry-run   # list the notes that would move
+scripts/archive-sessions.sh             # git mv them into sessions/archive/<YYYY>/
 git commit -sm "chore: archive sessions older than 30d"
 ```
+
+The script reads each note's age from the date in its filename, not
+the file's mtime (on a fresh clone every mtime is the clone time).
+`DAYS=60 scripts/archive-sessions.sh` changes the cutoff. `README.md`,
+`daily/` and `screenshots/` stay where they are.
 
 Archived notes stay searchable and linkable; they just don't clutter the active directory.
