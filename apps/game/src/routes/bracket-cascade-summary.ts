@@ -45,10 +45,16 @@ export interface KnockoutPathEntry {
   readonly stage: "r32" | "r16" | "qf" | "sf" | "final";
   /** Opponent team code. Null when the prior round hasn't been picked. */
   readonly opponent_code: string | null;
-  readonly result: "win" | "loss" | "tbd";
+  /**
+   * "win" when the cascade names the champion as this round's winner,
+   * "tbd" when the round or its winner is unresolved. A loss cannot
+   * occur: the champion only appears in a round by winning the one
+   * before it, so there is no "loss" value.
+   */
+  readonly result: "win" | "tbd";
 }
 
-/** Stages the share landing renders, in order. */
+/** Every stage the share landing can render, in order. */
 const PUBLIC_PATH_STAGES: ReadonlyArray<KnockoutPathEntry["stage"]> = [
   "r32",
   "r16",
@@ -56,6 +62,27 @@ const PUBLIC_PATH_STAGES: ReadonlyArray<KnockoutPathEntry["stage"]> = [
   "sf",
   "final",
 ];
+
+/**
+ * The stages this tournament actually plays, in order: the 2026 FIFA
+ * World Cup starts its knockouts at a Round of 32, Rugby World Cup 2027
+ * at a Round of 16. Read from the cascaded knockouts so a bracket never
+ * carries a permanent "tbd" row for a round its tournament has no
+ * fixtures in. Falls back to the full list only when the cascade has no
+ * knockouts at all, which an empty bracket does not trigger: the cascade
+ * emits one entry per knockout fixture whether or not it has picks.
+ */
+function pathStagesFor(
+  cascaded: CascadedBracket,
+): ReadonlyArray<KnockoutPathEntry["stage"]> {
+  const present = new Set<KnockoutPathEntry["stage"]>();
+  for (const k of cascaded.knockouts) {
+    const stage = publicStageFor(k);
+    if (stage) present.add(stage);
+  }
+  if (present.size === 0) return PUBLIC_PATH_STAGES;
+  return PUBLIC_PATH_STAGES.filter((s) => present.has(s));
+}
 
 /**
  * Map the bracket-engine's knockout stage codes onto the public-share
@@ -153,11 +180,11 @@ export function summariseFromCascade(
   const third_place_code = tp?.effective_winner ?? null;
 
   // Champion's path-to-gold: walk the cascaded knockouts in stage order
-  // and find each round where the champion was a combatant. We surface
-  // the opponent code, regardless of whether the champion's predicted
-  // result was a win (which it should be, since they reached the final)
-  // or a loss.
-  const knockout_path: KnockoutPathEntry[] = PUBLIC_PATH_STAGES.map(
+  // (only the rounds this tournament plays) and find each round where
+  // the champion was a combatant. We surface the opponent code; the
+  // result is "win" when the cascade names the champion as that
+  // round's winner and "tbd" otherwise.
+  const knockout_path: KnockoutPathEntry[] = pathStagesFor(cascaded).map(
     (stage): KnockoutPathEntry => {
       if (!champion_code) {
         return { stage, opponent_code: null, result: "tbd" };
