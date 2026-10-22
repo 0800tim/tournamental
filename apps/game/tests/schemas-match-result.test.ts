@@ -27,7 +27,7 @@ describe("matchResultBodySchema stage", () => {
 });
 
 describe("matchResultBodySchema method", () => {
-  it.each(["ft", "et", "pens"])("accepts method %s", (method) => {
+  it.each(["ft", "et", "pens", "kicks"])("accepts method %s", (method) => {
     expect(matchResultBodySchema.safeParse({ ...base, method }).success).toBe(true);
   });
   it("rejects an unknown method and keeps it optional", () => {

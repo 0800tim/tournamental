@@ -38,6 +38,8 @@ Recommendation: make the tiebreak chain data on the `Tournament` (an ordered lis
 
 ### 4. Knockout draws and the bronze final (S)
 
+> **Done**: `tp` in the settlement enum landed in PR #360 (2026-10-20); the `kicks` method on results, the game types and the archive label is on `feat/knockout-method-kicks` (2026-10-21).
+
 `tp` exists and `cascade.ts` resolves `knockout_loser` slots, so the bronze final is already expressible. Rugby knockouts resolve a level score by extra time, sudden death, then a kicking competition; the engine records `winner` and optional `method`, and `KnockoutResultRow.method` already allows `et` and `pens`. Add a `kicks` method label for the archive and match pages; nothing structural. The settlement schema's `stage` enum lacks `tp` (noted in the code review of PR #343), so a bronze final cannot be settled with its stage today: one-line fix.
 
 ### 5. Team ids, rankings and flags (S)

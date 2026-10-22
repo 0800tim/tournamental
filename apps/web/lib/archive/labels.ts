@@ -12,13 +12,14 @@ export interface KnockoutRowLike {
   readonly method: string | null;
 }
 
-/** "1-0 aet", "6-4 pens" or "won" when scores are unknown. */
+/** "1-0 aet", "6-4 pens", "28-28 kicks" (rugby kicking competition) or "won" when scores are unknown. */
 export function knockoutScoreText(k: KnockoutRowLike): string {
   const score =
     k.homeScore !== null && k.awayScore !== null
       ? `${Math.max(k.homeScore, k.awayScore)}-${Math.min(k.homeScore, k.awayScore)}`
       : "won";
-  const suffix = k.method === "et" ? " aet" : k.method === "pens" ? " pens" : "";
+  const suffix =
+    k.method === "et" ? " aet" : k.method === "pens" ? " pens" : k.method === "kicks" ? " kicks" : "";
   return `${score}${suffix}`;
 }
 
