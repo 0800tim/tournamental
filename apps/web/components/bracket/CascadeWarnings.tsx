@@ -12,8 +12,9 @@
  * This component does three things:
  *
  *   1. Translates each warning code into a single, plain-English
- *      sentence ("Pick 8 best 3rd-placed teams to unlock the Round
- *      of 32"). Identical warnings collapse to one line.
+ *      sentence ("Pick 4 best 3rd-placed teams to unlock the Round
+ *      of 16"). Identical warnings collapse to one line. The thirds
+ *      count and the round they enter come from the tournament.
  *   2. Renders a contextual banner at the top of late-stage tabs
  *      when empty slots are present because earlier stages aren't
  *      filled, with a direct link/CTA to the right tab.
@@ -27,7 +28,9 @@
  * combination.
  */
 
-import type { CascadeWarning } from "@tournamental/bracket-engine";
+import type { CascadeWarning, Tournament } from "@tournamental/bracket-engine";
+
+import { bestThirdsTarget, thirdsEntryStageLabel } from "@/lib/bracket/thirds";
 
 import "./cascade-warnings.css";
 
@@ -43,6 +46,8 @@ export type BracketTabId =
 
 export interface CascadeWarningsProps {
   readonly warnings: ReadonlyArray<CascadeWarning>;
+  /** Sizes the best-thirds copy (how many picks, which round they unlock). */
+  readonly tournament: Tournament;
   /** The tab the user is currently looking at. Drives the banner. */
   readonly currentTab: BracketTabId;
   /**
@@ -69,17 +74,29 @@ export interface CascadeWarningsProps {
  * line so we don't leak an `annex_c_third_pool_incomplete`-shaped
  * string at the user.
  */
-function friendlyMessage(code: CascadeWarning["code"]): string {
+interface ThirdsCopy {
+  readonly count: number;
+  readonly entryStage: string;
+}
+
+function thirdsCopyFor(tournament: Tournament): ThirdsCopy {
+  return {
+    count: bestThirdsTarget(tournament),
+    entryStage: thirdsEntryStageLabel(tournament),
+  };
+}
+
+function friendlyMessage(code: CascadeWarning["code"], thirds: ThirdsCopy): string {
   switch (code) {
     case "missing_group_prediction":
     case "incomplete_group_order":
       return "A group still needs every match predicted before the cascade can rank the standings.";
     case "missing_wildcard_pick":
     case "annex_c_third_pool_incomplete":
-      return "The Top 8 3rd-placed teams stage needs all 8 picks before the Round of 32 can fill in.";
+      return `The best 3rd-placed teams stage needs all ${thirds.count} picks before the ${thirds.entryStage} can fill in.`;
     case "annex_c_lookup_missing":
     case "annex_c_no_third_for_group_winner":
-      return "Your Top 8 3rds combination is rare enough that FIFA's Annex C lookup table doesn't cover it. Try swapping one of the picks.";
+      return "Your best 3rds combination is rare enough that the official allocation table doesn't cover it. Try swapping one of the picks.";
     case "team_not_in_group":
     case "duplicate_team_in_group":
       return "A group has a duplicated team. Re-pick that group's matches to fix the ordering.";
@@ -117,7 +134,7 @@ function originTab(code: CascadeWarning["code"]): BracketTabId {
 
 const TAB_LABEL: Record<BracketTabId, string> = {
   groups: "Group stage",
-  thirds: "Top 8 3rds",
+  thirds: "Best 3rds",
   r32: "Round of 32",
   r16: "Round of 16",
   qf: "Quarter-finals",
@@ -177,19 +194,21 @@ function pickBannerWarning(
 
 export function CascadeWarnings({
   warnings,
+  tournament,
   currentTab,
   onJumpToTab,
   mode = "full",
 }: CascadeWarningsProps): JSX.Element | null {
   if (warnings.length === 0) return null;
+  const thirds = thirdsCopyFor(tournament);
 
-  // Collapse duplicate code+message pairs so eight identical
+  // Collapse duplicate code+message pairs so several identical
   // "annex_c_third_pool_incomplete" lines render as one sentence.
   const uniqueByCode = new Map<string, string>();
   for (const w of warnings) {
     const key = w.code;
     if (!uniqueByCode.has(key)) {
-      uniqueByCode.set(key, friendlyMessage(w.code));
+      uniqueByCode.set(key, friendlyMessage(w.code, thirds));
     }
   }
   const friendlyList = Array.from(uniqueByCode.entries());
