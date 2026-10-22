@@ -170,7 +170,7 @@ export interface GroupFixture {
   readonly home_idx: number;
   readonly away_idx: number;
   readonly kickoff_utc: string; // ISO-8601, e.g. "2026-06-11T16:00:00Z"
-  readonly host: "US" | "CA" | "MX";
+  readonly host: "US" | "CA" | "MX" | "AU";
   readonly venue: string;
 }
 
@@ -241,7 +241,7 @@ export interface KnockoutFixture {
   readonly home: SlotSource;
   readonly away: SlotSource;
   readonly kickoff_utc: string;
-  readonly host: "US" | "CA" | "MX";
+  readonly host: "US" | "CA" | "MX" | "AU";
   readonly venue: string;
 }
 

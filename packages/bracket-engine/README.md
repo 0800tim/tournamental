@@ -15,6 +15,9 @@ Surface:
   tiebreak chain come from the tournament (`sport` or `standings_rules`);
   football 3-1-0 is the default, rugby union 4-2-0 with bonus points and
   the World Rugby chain is a preset.
+- `loadFixtures(id)`, `loadFixtures2026()`, `loadFixturesRwc2027()` --
+  the vendored FIFA World Cup 2026 and Men's Rugby World Cup 2027
+  fixtures (`./fixtures-2026`, `./fixtures-rwc-2027`).
 - `vstamp` -- content-hashed, signed prediction-receipt envelope.
 - `fixtures-2026` -- vendored FIFA WC 2026 tournament JSON.
 
