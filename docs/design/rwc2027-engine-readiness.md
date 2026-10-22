@@ -44,6 +44,8 @@ Recommendation: make the tiebreak chain data on the `Tournament` (an ordered lis
 
 ### 5. Team ids, rankings and flags (S)
 
+> **Flags done 2026-10-21** on `feat/rwc-2027-flags`: ten public-domain flags from Wikimedia Commons (CHI, HKG, ITA, GEO, ROU, FIJ, WAL, TGA, ZIM, SAM) via `apps/web/scripts/download-flags.mjs`, which now takes a teams file; `data/rwc-2027/teams.json` lists the 24 unions with the Commons file and licence per flag. Still open: `IRE` (the IRFU flag is the union's own mark, not on Commons under a free licence; Tim to source or approve a substitute) and the `fifa_rank` to `world_rank` rename.
+
 Keep the string ids and use World Rugby codes. Three details: `IRE` (rugby) is not `IRL` (football), and the flag is the IRFU flag, not the tricolour, so `apps/web/public/flags/IRE.svg` is a new asset; `TGA` and `FJI` need flags checked against what the 2026 set holds; the `Team` type's `fifa_rank` is read in a dozen places (`odds-consensus.ts`, auto-rank tiebreakers, the thirds picker) and should become `world_rank`. A canonical `teams.json` for the 24 unions with code, name, flag emoji, rank and a `union` field replaces `data/fifa-wc-2026/teams.json`.
 
 ### 6. A data package in place of `apps/wc2026-data` (L)
