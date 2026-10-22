@@ -25,6 +25,9 @@ export interface MatchOutcome {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore?: number;
   readonly awayScore?: number;
+  /** Tries scored (rugby); feed the engine's try bonus and try tiebreaks. */
+  readonly homeTries?: number;
+  readonly awayTries?: number;
   /** Canonical winner team id for knockout matches (R32+). */
   readonly winner?: string;
   /** Knockout stage (r32, r16, qf, sf, tp, f). Omitted for group matches. */

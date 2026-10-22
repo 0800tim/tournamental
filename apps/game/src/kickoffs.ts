@@ -1,11 +1,12 @@
 /**
  * Kickoff index for server-side lockout enforcement.
  *
- * Loads the canonical 2026 FIFA World Cup fixture data from
- * `@tournamental/bracket-engine` and indexes every match's kickoff time by the
- * match-id used in user-submitted brackets.
+ * Loads the vendored fixture data for every tournament the bracket
+ * engine ships (`VENDORED_TOURNAMENT_IDS`: the 2026 FIFA World Cup and
+ * the 2027 Men's Rugby World Cup) and indexes every match's kickoff
+ * time by the match-id used in user-submitted brackets.
  *
- *   - Group fixtures: keyed by `String(match_no)` (1..72) — matches
+ *   - Group fixtures: keyed by `String(match_no)`, matching
  *     `groupMatchId()` in the web client.
  *   - Knockout fixtures: keyed by the engine's stable `id` (e.g. "r32_01",
  *     "final") — matches `knockoutMatchId()` in the web client.
@@ -19,8 +20,8 @@
  * rejected as `match_already_started`.
  */
 
-import { loadFixtures2026 } from "@tournamental/bracket-engine";
-import type { Tournament } from "@tournamental/bracket-engine";
+import { loadFixtures, VENDORED_TOURNAMENT_IDS } from "@tournamental/bracket-engine";
+import type { Tournament, VendoredTournamentId } from "@tournamental/bracket-engine";
 
 export interface KickoffLookup {
   /** Tournament identifier these kickoffs belong to (e.g. "fifa-wc-2026"). */
@@ -75,25 +76,30 @@ export function buildKickoffLookup(tournament: Tournament): KickoffLookup {
 }
 
 /**
- * Default registry: maps tournament id → kickoff lookup. Right now we
- * only ship the WC 2026 fixtures; future tournaments register here.
+ * Default registry: maps tournament id → kickoff lookup. Every
+ * tournament the engine vendors is known; anything else gets the
+ * null lookup (no kickoff, so every prediction is accepted).
  */
 export interface KickoffRegistry {
   /** Returns the kickoff lookup for `tournamentId`, or a null-lookup if unknown. */
   forTournament(tournamentId: string): KickoffLookup;
 }
 
+export function isVendoredTournament(tournamentId: string): tournamentId is VendoredTournamentId {
+  return (VENDORED_TOURNAMENT_IDS as readonly string[]).includes(tournamentId);
+}
+
 export function buildDefaultKickoffRegistry(): KickoffRegistry {
-  let wc2026: KickoffLookup | null = null;
+  const cache = new Map<string, KickoffLookup>();
   return {
     forTournament(tournamentId: string): KickoffLookup {
-      if (tournamentId === "fifa-wc-2026") {
-        if (!wc2026) {
-          wc2026 = buildKickoffLookup(loadFixtures2026());
-        }
-        return wc2026;
+      if (!isVendoredTournament(tournamentId)) return NULL_LOOKUP;
+      let lookup = cache.get(tournamentId);
+      if (!lookup) {
+        lookup = buildKickoffLookup(loadFixtures(tournamentId));
+        cache.set(tournamentId, lookup);
       }
-      return NULL_LOOKUP;
+      return lookup;
     },
   };
 }

@@ -43,7 +43,9 @@
 
 import type { FastifyInstance } from "fastify";
 
-import { loadFixtures2026, type Tournament } from "@tournamental/bracket-engine";
+import { loadFixtures, loadFixtures2026, type Tournament } from "@tournamental/bracket-engine";
+
+import { isVendoredTournament } from "../kickoffs.js";
 
 import type { GameStore } from "../store/db.js";
 import type { Bracket } from "../types.js";
@@ -249,6 +251,21 @@ const PAYLOAD_PUBLIC_CACHE_HEADER = "public, max-age=60, stale-while-revalidate=
 // Loaded once at module scope: the canonical fixture set is read-only
 // and ~100KB of JSON; we don't need to re-parse it per request.
 const FIXTURES_2026: Tournament = loadFixtures2026();
+const fixturesCache = new Map<string, Tournament>([[FIXTURES_2026.id, FIXTURES_2026]]);
+
+/**
+ * The fixture set a bracket was saved against: any tournament the
+ * engine vendors, cached per id. An unknown id falls back to the 2026
+ * set so the legacy regex summariser still gets a shot.
+ */
+export function fixturesForTournament(tournamentId: string): Tournament {
+  const cached = fixturesCache.get(tournamentId);
+  if (cached) return cached;
+  if (!isVendoredTournament(tournamentId)) return FIXTURES_2026;
+  const t = loadFixtures(tournamentId);
+  fixturesCache.set(tournamentId, t);
+  return t;
+}
 
 export async function registerBracketByGuidRoutes(
   app: FastifyInstance,
@@ -314,11 +331,7 @@ export async function registerBracketByGuidRoutes(
       }
     }
 
-    // Pick the right tournament fixture set. For 2026 we have one; if
-    // the bracket was saved against an unknown id, fall back to the
-    // canonical set so the regex path still gets a shot.
-    const tournament =
-      row.tournament_id === FIXTURES_2026.id ? FIXTURES_2026 : FIXTURES_2026;
+    const tournament = fixturesForTournament(row.tournament_id);
 
     const summary = summariseBracket(payload, tournament);
 
@@ -469,8 +482,7 @@ export async function registerBracketByGuidRoutes(
       }
     }
 
-    const tournament =
-      row.tournament_id === FIXTURES_2026.id ? FIXTURES_2026 : FIXTURES_2026;
+    const tournament = fixturesForTournament(row.tournament_id);
     const summary = summariseBracket(payload, tournament);
 
     const body: { ok: true; bracket: BracketByGuidPayload } = {

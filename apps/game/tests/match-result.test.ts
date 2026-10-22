@@ -128,6 +128,30 @@ describe("game-service / match result + scoring", () => {
     expect(body.rescored_brackets).toBe(2);
   });
 
+  it("stores tries with the result so rugby standings can award try bonuses", async () => {
+    const { app, store } = await built;
+    const res = await app.inject({
+      method: "POST",
+      url: "/v1/match/12/result",
+      headers: { authorization: `Bearer ${TEST_ADMIN_TOKEN}` },
+      payload: {
+        tournament_id: "fifa-wc-2026",
+        outcome: "home_win",
+        homeScore: 31,
+        awayScore: 10,
+        homeTries: 4,
+        awayTries: 1,
+        stage: "group",
+      },
+    });
+    expect(res.statusCode).toBe(200);
+    const row = store.getMatchResult("12", "fifa-wc-2026");
+    expect(row).not.toBeNull();
+    const stored = JSON.parse(row!.outcome) as { homeTries?: number; awayTries?: number };
+    expect(stored.homeTries).toBe(4);
+    expect(stored.awayTries).toBe(1);
+  });
+
   it("Alice (correct outcome + exact score) ranks above Bob (wrong outcome)", async () => {
     const { app } = await built;
     const aliceRes = await app.inject({
