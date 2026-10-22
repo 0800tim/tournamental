@@ -355,3 +355,123 @@ And in `apps/admin` for #352: `node_modules/.bin/vitest run __tests__/lib/pii.te
 28. The kickoff-during-outage pool rule and whether to run a second tunnel (#358).
 29. If the FWC 2026 bronze final is missing from `match_results`, re-post it once after #360 restarts the game service.
 30. The three failing cases in `apps/game/tests/match-result.test.ts` and the delete-dialog case in the admin Customer 360 test failed on `main`; PR #361 fixes them (and nine more in the game suite) with test-only changes.
+
+# Update, 22 October 2026: the fifteen draft PRs #366 to #380
+
+> Different method from the sections above: instead of a `merge-tree` dry run, all fifteen branches were merged for real, in the order below, into a throwaway branch (`integration/2026-10-22-burn-chain`, pushed for reference, not for merging as it stands) in a separate worktree, and the engine, game and web suites and typechecks were run on the combined tree on this box, one at a time under `MemoryMax=3G`. `main` was 76e4db87 throughout (nothing has merged since #348). This section is the order for these fifteen; the two sections above stand for the older PRs, all of which have merged.
+
+## What each PR touches
+
+| PR | Branch (base) | Runtime code | Tests | Docs and data | Restart |
+| --- | --- | --- | --- | --- | --- |
+| #366 | `feat/engine-rugby-standings` (main) | `packages/bracket-engine/src/standings.ts`, `tournament.ts`; `apps/game/src/schemas.ts` (tries fields) | engine `standings-rugby.test.ts`, `standings.test.ts`; game `schemas-tries.test.ts` | engine README and CHANGELOG, `docs/design/rwc2027-engine-readiness.md`, `.gitignore` | web build, web and game |
+| #367 | `docs/progress-2026-10-20` (main) | none | none | `docs/PROGRESS.md` | none |
+| #368 | `feat/knockout-method-kicks` (main) | `apps/game/src/schemas.ts`, `types.ts`; `apps/web/lib/archive/labels.ts` | game `schemas-match-result.test.ts`; web `a11y/archive-labels.test.ts` | readiness doc | web build, web and game |
+| #369 | `feat/rwc-2027-fixtures` (on #366) | `packages/bracket-engine/src/fixtures-loader.ts`, `cascade.ts`, `tournament.ts`, `index.ts`, `data/rwc-2027-fixtures.json`, generator script | engine `fixtures-rwc-2027.test.ts` | engine README and CHANGELOG, readiness doc | web build, web and game |
+| #370 | `refactor/cascade-bridge-hoist` (main) | `packages/bracket-engine/src/bridge.ts`, `index.ts`, `tsup.config.ts`; `apps/web/lib/bracket/cascade-bridge.ts`; `apps/game/src/routes/bracket-cascade-summary.ts` | engine `bridge.test.ts` | engine CHANGELOG, IDEAS.md | web build, web and game |
+| #371 | `feat/rwc-2027-flags` (main) | ten SVGs under `apps/web/public/flags/`, `apps/web/scripts/download-flags.mjs` | none | `data/rwc-2027/teams.json` (24 unions: code, name, flag emoji, Commons file, ranking), readiness doc | web build, web |
+| #372 | `docs/security-checklist-2026-10-21` (main) | none | none | `docs/33-security-hardening-checklist.md` | none |
+| #373 | `test/game-cascade-summary` (main) | none | game `bracket-cascade-summary.test.ts` | none | none |
+| #374 | `feat/game-vendored-tournaments` (on #369) | `apps/game/src/kickoffs.ts`, `routes/bracket-by-guid.ts`, `leaderboard.ts`, `match.ts`, `types.ts` | game `vendored-tournaments.test.ts`, `match-result.test.ts` | IDEAS.md | game |
+| #375 | `ci/stacked-pr-checks` (main) | none | none | `.github/workflows/ci.yml`, `pr-security.yml` | none |
+| #376 | `feat/web-thirds-by-rules` (on #369) | `apps/web/lib/bracket/thirds.ts` (new), `real-standings.ts`, `lib/archive/results-bracket.ts`, `lib/molecule/odds-consensus.ts`, `lib/syndicate/persistence.ts`, `components/bracket/BracketBuilder.tsx`, `CascadeWarnings.tsx`, `ThirdsPicker.tsx`, `components/browser-swarm/cascade.ts` | six web test files | readiness doc | web build, web |
+| #377 | `feat/game-summary-path-by-tournament` (on #374) | `apps/game/src/routes/bracket-cascade-summary.ts` | game `cascade-summary-rwc2027.test.ts` | IDEAS.md | game |
+| #378 | `fix/web-share-path-by-tournament` (on #369) | `apps/web/lib/bracket/by-guid.ts` | web `share-by-guid/load-bracket-from-guid.test.ts` | none | web build, web |
+| #379 | `chore/archive-sessions` (main) | `scripts/archive-sessions.sh` | none | `sessions/README.md`; 104 notes moved to `sessions/archive/2026/` | none |
+| #380 | `fix/web-tests-no-stray-db` (main) | none (`apps/web/vitest.config.ts`) | none | none | none |
+
+Restart column: the web app bundles the engine from source at build time and the game unit runs `tsx src/server.ts` against the workspace source, so an engine change needs a web build plus a restart of both `tournamental-web` and `tournamental-game`; a game-only change needs only the game restart, with no build.
+
+## Every overlap, confirmed by merging
+
+Files touched by more than one PR, session notes aside:
+
+| File | PRs | Outcome |
+| --- | --- | --- |
+| `packages/bracket-engine/CHANGELOG.md` | #366, #369, #370 | **conflict** #370 then #366 (resolution below); #369 is stacked on #366 and edits on top |
+| `packages/bracket-engine/src/index.ts` | #369, #370 | **conflict** #370 then #369 (resolution below) |
+| `packages/bracket-engine/package.json` | #369, #370 | clean |
+| `packages/bracket-engine/src/tournament.ts` | #366, #369 | stacked, not a clash |
+| `packages/bracket-engine/README.md` | #366, #369 | stacked |
+| `apps/game/src/schemas.ts` | #366, #368 | clean (tries fields and the kicks method are different hunks) |
+| `apps/game/src/types.ts` | #368, #374 | clean |
+| `apps/game/src/routes/bracket-cascade-summary.ts` | #370, #377 | clean (#370 replaces the bridge copy, #377 changes the path builder) |
+| `docs/design/rwc2027-engine-readiness.md` | #366, #368, #369, #371, #376 | clean, each updates its own gap |
+| `IDEAS.md` | #370, #374, #377 | clean, one line each |
+
+The two conflicts are both with #370 and both are "keep both sides":
+
+1. **`packages/bracket-engine/CHANGELOG.md`, #366 after #370.** Both add bullets under Unreleased. Keep #370's `bracketToCascadeInput` bullet, then #366's Added and Changed bullets.
+2. **`packages/bracket-engine/src/index.ts`, #369 after #370.** #370 adds `export * from "./bridge.js";` next to the old one-name `loadFixtures2026` export line, which #369 widens to `loadFixtures`, `loadFixtures2026`, `loadFixturesRwc2027`, `VENDORED_TOURNAMENT_IDS` and the `VendoredTournamentId` type. Keep the bridge export and #369's export block; drop the old one-name line.
+
+Merging #366 and #369 before #370 avoids both; then #370 conflicts the other way round on the same two files, with the same resolution.
+
+#379 moves 104 session notes dated 12 August and earlier. No open PR touches any of them, so it merges cleanly in any position.
+
+## Proposed order and what to do after each
+
+| Step | PR | Why here | After merge |
+| --- | --- | --- | --- |
+| 1 | #375 | Until it lands, the stacked PRs (#369, #374, #376, #377, #378) get no CI at all | Nothing to restart |
+| 2 | #379, #380, #367, #372, #373 | No runtime change; any order | Nothing |
+| 3 | #366 | Engine standings; base of the rugby stack | Hold the restart until step 7 |
+| 4 | #369 | Vendored RWC 2027 fixtures and the loader; retarget its PR to `main` after #366 merges (GitHub does this itself when the base branch is deleted on merge) | Hold |
+| 5 | #370 | Resolve the two conflicts above | Hold |
+| 6 | #368, #371 | Independent of the stack; any order | Hold |
+| 7 | #374, #376, #378 | Each retargets to `main` once #369 is in; any order | Build `apps/web`, restart `tournamental-web` and `tournamental-game`, run the checks below |
+| 8 | #377 | After #374 | Restart `tournamental-game` only, check D |
+
+One build and one restart for the whole sitting is enough if steps 3 to 8 happen together: build after #377 and restart both units once.
+
+### Build and restart
+
+Same commands as "Build and restart" above for the web app, plus the game unit, which needs no build:
+
+```bash
+cd /srv/projects/internal/tournamental
+git pull --ff-only origin main
+cd apps/web && systemd-run --user --scope -p MemoryMax=4G pnpm run build && cd ../..
+systemctl --user restart tournamental-web tournamental-game
+systemctl --user status tournamental-web tournamental-game --no-pager | grep -E 'Active|Main PID'
+```
+
+`tournamental-auth-sms`, `-admin`, `-odds-ingest`, `-tournament-bot` and `-tunnel` read nothing these PRs change.
+
+## Checks after the restart
+
+Run check A from the first section (host-mode lines) as before, then:
+
+**D. The share path is still five rounds for a 2026 bracket (#377, #378).** Take any public share link from the archive, `https://fwc2026.tournamental.com/s/<guid>`, expect 200, and the game service behind it:
+
+```bash
+curl -s http://localhost:3360/v1/bracket/by-guid/<guid> | python3 -c 'import json,sys; b=json.load(sys.stdin)["bracket"]; print([k["stage"] for k in b["knockout_path"]])'
+# ['r32', 'r16', 'qf', 'sf', 'final']
+```
+
+**E. The archive's results bracket is unchanged (#376).** `https://fwc2026.tournamental.com/archive` expect 200 with the same eight best thirds as before the restart. The new ranking was checked against the real 2026 results before #376 was opened and the eight did not change.
+
+**F. The result route accepts tries and the kicks method (#366, #368, #374).** Both are additive and optional; a result posted without them is stored as before. The archive host returns 403 to every mutating request, so there is nothing to post on fwc2026; the check is that `tournamental-game` starts and `curl -s http://localhost:3360/healthz` answers.
+
+## Tests on the combined tree
+
+All run on this box in the integration worktree, one at a time, under `MemoryMax=3G`, after the merges above:
+
+| Package | Command (from the package directory) | Result |
+| --- | --- | --- |
+| `packages/bracket-engine` | `node_modules/.bin/vitest run --no-watch --maxWorkers=2` | 7 files, 130 tests pass; `tsc --noEmit` clean |
+| `apps/game` | same | 35 files, 288 tests pass; `tsc --noEmit` clean |
+| `apps/web` | same, about two minutes | 142 files, 1465 pass, 1 skip (the Lock copy guard, open since #344); `tsc --noEmit` clean |
+
+`eslint` on the 20 web files the chain touches: one warning, a `useEffect` in `BracketBuilder.tsx` missing `tournament` from its dependency list, which predates every PR here (the effect is keyed on `tournament.id` on purpose).
+
+## Needs Tim, additions to the digest
+
+31. Merge steps 1 to 8 above; expect the two changelog and index conflicts if #370 goes before #366 and #369. One web build and one restart of `tournamental-web` and `tournamental-game` covers the lot.
+32. **Round of 16 placement** (readiness gap 3): do the published RWC 2027 regulations fix the bracket by the qualifying pools' combination, or rank the four best thirds and slot them by rank? #369 vendors the fixtures with `best_third` slots; a combination table is a different build.
+33. **`fifa_rank` to `world_rank`**: the engine reads `world_rank` first and falls back (#366), and the web helpers do the same (#376). The rename across web, mcp, odds-ingest and wc2026-data is a dozen files and is best done once steps 3 to 8 have merged.
+34. **Flags for the rugby unions**: #371 ships ten SVGs and `data/rwc-2027/teams.json` with a flag emoji per union (IRE gets ☘️, no SVG). Still Tim's: the IRFU flag asset itself. Once #371 and #378 are both in, the share page can read rugby flag emoji from that file instead of showing a white flag; that is a small follow-up PR, not a decision.
+35. **Rugby route family and share-page copy**: `data/rwc-2027/teams.json` now exists (#371), so what remains is the URL shape for the rugby pages and whether the share page should say "pool" rather than "group" for rugby.
+36. **Live rugby results** (gap 7): Sportradar rugby union or ESPN's public scoreboard. A provider choice, and one is paid.
+37. **Rugby scoring model** (gap 8): a product call, needed before picks open on 1 September 2027.
+38. **Lock copy guard**: the last `it.skip` in the web suite waits on a decision about the remaining user-visible "Lock" strings.
+39. **Session-note archive**: `scripts/archive-sessions.sh` (#379) is a monthly chore; run it again in late November.
