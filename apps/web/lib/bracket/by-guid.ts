@@ -98,14 +98,42 @@ export interface TeamLite {
   readonly flag_emoji: string;
 }
 
-function teamLite(code: string | null | undefined): TeamLite {
+const EMPTY_NAMES: ReadonlyMap<string, string> = new Map();
+const vendoredNamesCache = new Map<string, ReadonlyMap<string, string>>();
+
+/**
+ * Team names from the vendored fixtures for a tournament, cached per id.
+ * The curated 2026 team file only knows the 48 football teams, so a
+ * rugby code it has never heard of (IRE, WAL, FIJ, TGA, ...) would
+ * otherwise render as its bare code.
+ */
+function vendoredTeamNames(tournamentId: string): ReadonlyMap<string, string> {
+  if (!(VENDORED_TOURNAMENT_IDS as readonly string[]).includes(tournamentId)) return EMPTY_NAMES;
+  const cached = vendoredNamesCache.get(tournamentId);
+  if (cached) return cached;
+  const names = new Map(
+    loadFixtures(tournamentId as VendoredTournamentId).teams.map((t) => [t.id, t.name] as const),
+  );
+  vendoredNamesCache.set(tournamentId, names);
+  return names;
+}
+
+/**
+ * Code, display name and flag for a team on the share page. The curated
+ * 2026 file wins for names and flags when it knows the code; otherwise
+ * the name comes from the tournament's vendored fixtures. Unions the
+ * 2026 file does not cover get a plain white flag until the rugby team
+ * file lands.
+ */
+function teamLite(code: string | null | undefined, tournamentId: string): TeamLite {
   const safe = (code ?? "").toUpperCase();
   const file = canonicalTeamsRaw as CanonicalTeamsFile;
-  const t = file.teams.find((x) => x.code === safe);
+  const canonical = file.teams.find((x) => x.code === safe);
+  const vendored = safe ? vendoredTeamNames(tournamentId).get(safe) : undefined;
   return {
     code: safe || "TBD",
-    name: t?.name ?? (safe || "TBD"),
-    flag_emoji: t?.flag_emoji ?? "🏳️",
+    name: canonical?.name ?? vendored ?? (safe || "TBD"),
+    flag_emoji: canonical?.flag_emoji ?? "🏳️",
   };
 }
 
@@ -125,8 +153,9 @@ const pathStagesCache = new Map<string, ReadonlyArray<PathToGoldEntry["stage"]>>
 /**
  * The rounds a tournament actually plays, in order: the 2026 World Cup
  * starts its knockouts at a Round of 32, Rugby World Cup 2027 at a Round
- * of 16. Read from the vendored fixtures and cached per id; an unknown
- * id gets the full list so nothing is hidden by mistake.
+ * of 16. Read from the vendored fixtures and cached per id. An unknown
+ * id gets the full list, mirroring the game service, which falls back
+ * to the 2026 fixture set for ids it does not know.
  */
 function pathStagesFor(tournamentId: string): ReadonlyArray<PathToGoldEntry["stage"]> {
   if (!(VENDORED_TOURNAMENT_IDS as readonly string[]).includes(tournamentId)) return ALL_PATH_STAGES;
@@ -532,9 +561,9 @@ function normaliseUpstream(
   b: UpstreamBracket,
   owner?: OwnerPublicProfile | null,
 ): BracketByGuid {
-  const champion = teamLite(b.champion_code);
-  const runner_up = teamLite(b.runner_up_code);
-  const third_place = teamLite(b.third_place_code);
+  const champion = teamLite(b.champion_code, b.tournament_id);
+  const runner_up = teamLite(b.runner_up_code, b.tournament_id);
+  const third_place = teamLite(b.third_place_code, b.tournament_id);
 
   // Build path_to_gold from upstream entries. Every round the
   // tournament plays is surfaced even if upstream skipped one, so the
@@ -547,7 +576,7 @@ function normaliseUpstream(
   const stages = pathStagesFor(b.tournament_id);
   const path_to_gold: PathToGoldEntry[] = stages.map((stage) => {
     const upstream = byStage.get(stage);
-    const opp = teamLite(upstream?.opponent_code ?? null);
+    const opp = teamLite(upstream?.opponent_code ?? null, b.tournament_id);
     return {
       stage,
       stage_label: STAGE_LABEL[stage],

@@ -114,6 +114,41 @@ describe("loadBracketFromGuid", () => {
     expect(result?.path_to_gold[0]?.opponent_code).toBe("SCO");
     expect(result?.path_to_gold[0]?.stage_label).toBe("Round of 16");
     expect(result?.tournament_label).toBe("Rugby World Cup 2027");
+    // Names come from the vendored rugby fixtures: the curated 2026 file
+    // knows SCO but not the rugby IRE (football uses IRL).
+    expect(result?.path_to_gold[0]?.opponent_name).toBe("Scotland");
+    expect(result?.third_place.name).toBe("Ireland");
+    expect(result?.third_place.flag_emoji).toBe("🏳️");
+    expect(result?.champion.name).toBe("New Zealand");
+  });
+
+  it("pads a sparse Rugby World Cup 2027 path to its four rounds, never adding a Round of 32", async () => {
+    const fetchImpl = mockFetch({
+      status: 200,
+      body: {
+        ok: true,
+        bracket: {
+          share_guid: "d64a707a-9af2-4c1a-8661-45f69bd52160",
+          user_handle: null,
+          tournament_id: "rwc-2027",
+          champion_code: "NZL",
+          runner_up_code: "RSA",
+          third_place_code: null,
+          knockout_path: [{ stage: "final", opponent_code: "RSA", result: "win" }],
+          locked_at: "2027-09-30T12:00:00Z",
+        },
+      },
+    });
+
+    const result = await loadBracketFromGuid(
+      "d64a707a-9af2-4c1a-8661-45f69bd52160",
+      { fetchImpl, baseUrl: "http://test" },
+    );
+    expect(result?.path_to_gold.map((p) => p.stage)).toEqual(["r16", "qf", "sf", "final"]);
+    expect(result?.path_to_gold.slice(0, 3).map((p) => p.opponent_code)).toEqual(["TBD", "TBD", "TBD"]);
+    expect(result?.path_to_gold.slice(0, 3).map((p) => p.opponent_name)).toEqual(["TBD", "TBD", "TBD"]);
+    expect(result?.path_to_gold[3]?.opponent_name).toBe("South Africa");
+    expect(result?.third_place.code).toBe("TBD");
   });
 
   it("returns null when upstream responds 404", async () => {

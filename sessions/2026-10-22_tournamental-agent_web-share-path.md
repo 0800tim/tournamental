@@ -27,3 +27,18 @@ unknown id.
 One new test (rugby bracket: r16, qf, sf, final, labels and
 tournament label). Share-by-guid and resolver suites pass (23);
 `tsc` and eslint clean.
+
+## Review follow-up (same day)
+
+An independent review found that `teamLite` resolved every code against
+the curated 2026 football team file, so rugby-only unions (IRE, WAL, FIJ,
+TGA and so on) rendered as a bare code with a white flag, and the rugby
+test avoided asserting names. Now the curated file wins when it knows the
+code, otherwise the name comes from the tournament's vendored fixtures,
+cached per tournament id. Flag emoji for unions the 2026 file does not
+cover stay white until the rugby team file lands (Needs Tim, gap 5). The
+rugby test asserts names, and a second rugby case sends a sparse path
+(final only) and expects exactly r16, qf, sf, final with TBD rows, so
+the padding is pinned for rugby as well as for 2026. The unknown-id
+comment now says it mirrors the game service's 2026 fallback. 9 tests
+pass in the file, typecheck and lint clean.
