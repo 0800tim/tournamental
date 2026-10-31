@@ -304,8 +304,24 @@ describe("rugby standings: the tiebreak chain", () => {
     expect(order(byTriesFor).slice(2)).toEqual(["TGA", "ITA"]);
   });
 
-  it("world ranking is the last criterion and falls back to fifa_rank", () => {
+  it("world ranking is the last criterion and reads world_rank before fifa_rank when both are set", () => {
+    // ITA world_rank 20 but the better fifa_rank; TGA world_rank 15. The
+    // rugby chain must rank on World Rugby, so TGA goes above ITA even
+    // though a football-style read of fifa_rank would put ITA first.
+    const ranked: Tournament = {
+      ...pool,
+      teams: teams.map((t) => (t.id === "ITA" ? { ...t, fifa_rank: 10, world_rank: 20 } : t)),
+    };
+    const predictions = Object.fromEntries([pred(2, "draw", [15, 15], [2, 2])]);
+    const s = computeGroupStandings("A", ranked, predictions);
+    expect(order(s).slice(0, 2)).toEqual(["TGA", "ITA"]);
+    expect(detectTiesNeedingTiebreaker(s, { tournament: ranked, groupId: "A", predictions })).toEqual([]);
+  });
+
+  it("falls back to fifa_rank only for a team with no world_rank (2026 data compatibility)", () => {
     // ITA (no world_rank, fifa_rank 10) v TGA (world_rank 15): same everything.
+    // The rugby data sets world_rank on every union, so this path is for
+    // the football file, whose teams carry fifa_rank alone.
     const predictions = Object.fromEntries([pred(2, "draw", [15, 15], [2, 2])]);
     const s = computeGroupStandings("A", pool, predictions);
     expect(order(s).slice(0, 2)).toEqual(["ITA", "TGA"]);

@@ -131,7 +131,10 @@ export interface Team {
   /**
    * Governing-body world ranking for sports other than football (World
    * Rugby, IRL). Lower = stronger. The `world_rank` tiebreak criterion
-   * reads this first and falls back to `fifa_rank`. Optional so the
+   * reads this first and falls back to `fifa_rank` only when it is
+   * absent, which is the case for the 2026 football file alone. Every
+   * rugby union must carry `world_rank`; a refresh that updates
+   * `fifa_rank` instead is ignored by the rugby chain. Optional so the
    * 2026 football data is untouched.
    */
   readonly world_rank?: number;
