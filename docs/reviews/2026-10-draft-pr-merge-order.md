@@ -475,3 +475,29 @@ All run on this box in the integration worktree, one at a time, under `MemoryMax
 37. **Rugby scoring model** (gap 8): a product call, needed before picks open on 1 September 2027.
 38. **Lock copy guard**: the last `it.skip` in the web suite waits on a decision about the remaining user-visible "Lock" strings.
 39. **Session-note archive**: `scripts/archive-sessions.sh` (#379) is a monthly chore; run it again in late November.
+
+# Independent review, 31 October 2026: the seven code PRs
+
+A read-only review agent went over the code in #366, #368, #369, #370, #371, #374 and #376 on the integration branch (the 22 October review covered only #377 and #378). It checked the rugby rules against the published World Rugby regulations and the RWC 2027 bracket, and compared every behaviour-preserving claim against `main`.
+
+## Found correct
+
+- Pool tiebreak chain, in order: head-to-head winner, points difference, tries difference, points scored, tries scored, World Rugby ranking. Bonus points: four or more tries, and a loss by seven or fewer. Both tested at the boundary.
+- Best-thirds chain: points difference, points scored, tries scored, ranking (no tries difference and no head-to-head, as published). Highest-then-restart semantics tested in both shapes.
+- Football standings unchanged: the data-driven chain reduces to the same sequence as the old code, every pre-existing test untouched, and the FWC 2026 archive still picks the same eight thirds from the recorded results.
+- RWC 2027 fixtures: 24 unique teams, six pools of four, 36 pool matches with every pair once, 16 knockouts, every knockout source valid, all 15 third-place combinations present and matching the published table row for row. (The brief said 48 pool matches; six pools of four is 36, and 36 + 16 = 52.)
+- The bridge hoist (#370) is line-for-line the same logic as both removed copies. The kicks method (#368) widens only the enum; nothing in scoring or settlement reads `method`. The game's 2026 fallback for unknown tournament ids (#374) is explicit and tested.
+
+## Findings and what was done
+
+| # | PR | Finding | Outcome |
+| --- | --- | --- | --- |
+| 1 | #376 | The archive results bracket collected try counts for the thirds ranking but dropped them from the group `matchPredictions`, so a rugby pool table could show a 4-point win where the thirds ranking had counted 5. | Fixed, ef4b530f: tries ride along into group and knockout predictions, with a test. No change for 2026. |
+| 2 | #371 | Ireland has no SVG (the IRFU mark is not freely licensed) and `TeamFlag` had no error path, so every Ireland tile on the bracket builder, thirds picker and molecule would be a broken image. | Fixed, 4241dae1: on image error the component shows a flat tile with the code, or a new `fallbackEmoji` prop. Three tests. |
+| 3 | #366 | The only test of the ranking criterion ranked a rugby team through the `fifa_rank` fallback, so a regression that read `fifa_rank` first would still pass. | Fixed, 1acae134: a case where both ranks disagree pins `world_rank` first; the fallback case is labelled 2026 compatibility; the `Team` doc comment says every rugby union must carry `world_rank`. |
+| 4 | #376 | `BracketBuilder.tsx` hard-codes a Round of 32 tab and sends the thirds step to `r32`, while the RWC copy now says "unlock the Round of 16". On an RWC bracket the user lands on an empty tab. Not a regression for 2026. | Not changed. The builder's tab order should come from the tournament's knockout stages; that is the next RWC gap and a Tim-free follow-up once this chain merges. |
+| 5 | #366 | `detectTiesNeedingTiebreaker` now lists tied teams alphabetically rather than in mini-table order. Detection itself is unchanged; only the order of the tiebreaker control's list changes. | Noted, no change. The football regression test is written to the new order. |
+
+The three fixes are on their own branches and were not re-merged into `integration/2026-10-22-burn-chain`, which stays as the 22 October snapshot; the merge order above is unaffected. Test counts after the fixes: engine 131, web 1469 plus the one skip.
+
+40. **Bracket builder tabs for rugby** (finding 4): derive `TAB_ORDER` and the thirds step's next stage from the tournament's knockouts so RWC goes straight from thirds to the Round of 16. Tim-free, but sized at a day because `BracketBuilder.tsx` keys several effects and deep links on the stage list; best done after steps 3 to 8 have merged.
