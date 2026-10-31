@@ -22,3 +22,7 @@ domain, compatible with Apache 2.0; source URLs in the teams file.
 - IRE: the IRFU flag is the union's own mark and is not on Commons
   under a free licence. Source it from the union or approve a
   substitute (the four-province flag, or the tricolour with a note).
+
+## Review follow-up (31 October 2026)
+
+An independent read-only review of #366 to #376 on the integration branch raised one finding here. Actioned as fix(web) 4241dae1: TeamFlag swaps a failed SVG for a flat tile showing the code, or the new fallbackEmoji prop, so Ireland (no SVG, IRFU mark not freely licensed) is never a broken image on the bracket builder, thirds picker or molecule. Three tests added; the existing no-img-element lint warning predates the change.
