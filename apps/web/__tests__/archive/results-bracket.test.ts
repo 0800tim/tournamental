@@ -82,6 +82,18 @@ describe("buildOfficialResultsBracket: shape", () => {
     expect(Object.keys(b.matchPredictions)).toHaveLength(2);
   });
 
+  it("carries recorded tries into group and knockout predictions so pool tables award the same bonus points as the thirds ranking", () => {
+    record("1", { outcome: "home_win", homeScore: 31, awayScore: 10, homeTries: 4, awayTries: 1 });
+    record("2", { outcome: "draw", homeScore: 1, awayScore: 1, homeTries: null, awayTries: "3" });
+    const first = tournament.knockouts[0]!;
+    record(first.id, { outcome: "away_win", homeScore: 7, awayScore: 24, homeTries: 1, awayTries: 3, winner: "ARG" });
+    const b = buildOfficialResultsBracket(tournament);
+    expect(b.matchPredictions["1"]).toEqual({ matchId: "1", outcome: "home_win", homeScore: 31, awayScore: 10, homeTries: 4, awayTries: 1, lockedAt: "" });
+    // Non-numeric tries are dropped rather than coerced.
+    expect(b.matchPredictions["2"]).toEqual({ matchId: "2", outcome: "draw", homeScore: 1, awayScore: 1, lockedAt: "" });
+    expect(b.knockoutPredictions[first.id]).toEqual({ matchId: first.id, outcome: "away_win", homeScore: 7, awayScore: 24, homeTries: 1, awayTries: 3, lockedAt: "" });
+  });
+
   it("ignores results for match ids the tournament does not have and for other tournaments", () => {
     record("999", { outcome: "home_win" });
     record("nope_01", { outcome: "home_win", winner: "ESP" });

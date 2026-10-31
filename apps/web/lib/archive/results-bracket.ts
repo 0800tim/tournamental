@@ -32,6 +32,10 @@ export function buildOfficialResultsBracket(tournament: Tournament): Bracket {
     });
   }
 
+  // Tries ride along with the scores: the rendered pool table awards the
+  // rugby bonus points from the prediction, and buildCompletedResults
+  // ranks the best thirds from byMatch, so the two must see the same
+  // tries or a table could disagree with the thirds it feeds.
   const matchPredictions: Record<string, MatchPrediction> = {};
   for (const f of tournament.group_fixtures) {
     const key = String(f.match_no);
@@ -42,6 +46,8 @@ export function buildOfficialResultsBracket(tournament: Tournament): Bracket {
       outcome: r.outcome,
       ...(typeof r.homeScore === "number" ? { homeScore: r.homeScore } : {}),
       ...(typeof r.awayScore === "number" ? { awayScore: r.awayScore } : {}),
+      ...(typeof r.homeTries === "number" ? { homeTries: r.homeTries } : {}),
+      ...(typeof r.awayTries === "number" ? { awayTries: r.awayTries } : {}),
       lockedAt: "",
     };
   }
@@ -55,6 +61,8 @@ export function buildOfficialResultsBracket(tournament: Tournament): Bracket {
       outcome: r.outcome,
       ...(typeof r.homeScore === "number" ? { homeScore: r.homeScore } : {}),
       ...(typeof r.awayScore === "number" ? { awayScore: r.awayScore } : {}),
+      ...(typeof r.homeTries === "number" ? { homeTries: r.homeTries } : {}),
+      ...(typeof r.awayTries === "number" ? { awayTries: r.awayTries } : {}),
       lockedAt: "",
     };
   }
