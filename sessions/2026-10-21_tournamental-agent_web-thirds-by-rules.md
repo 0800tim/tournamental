@@ -69,3 +69,7 @@ gone; stale "8" comments fixed; the picker ordering test now uses a
 drawn pool match so predicted points beat world rank. Notes: a
 comment on the 99 versus negative-infinity rank fallback; rugby
 league gets its own ranking label.
+
+## Review follow-up (31 October 2026)
+
+An independent read-only review of #366 to #376 on the integration branch raised one finding here. Actioned as fix(web) ef4b530f: the official results bracket now carries homeTries and awayTries into the group and knockout predictions, so a rugby pool table awards the same bonus points as the thirds ranking built from the same results. Test added; FWC 2026 unchanged (no tries recorded).
