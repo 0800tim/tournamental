@@ -9,7 +9,7 @@
  *     malformed JSON, and abort.
  */
 import { describe, it, expect } from "vitest";
-import { loadFixtures2026 } from "@tournamental/bracket-engine";
+import { computeGroupStandings, loadFixtures2026 } from "@tournamental/bracket-engine";
 
 import type { MatchOdds } from "@/lib/odds/types";
 import {
@@ -68,7 +68,7 @@ describe("buildOddsConsensusBracket", () => {
     }
   });
 
-  it("picks eight best thirds, one per group, by world rank", () => {
+  it("picks eight best thirds, one per group, by predicted points then world rank", () => {
     const bracket = buildOddsConsensusBracket(tournament, new Map());
     const thirds = bracket.bestThirds ?? [];
     expect(thirds).toHaveLength(8);
@@ -78,10 +78,26 @@ describe("buildOddsConsensusBracket", () => {
     const groups = thirds.map(groupOf);
     expect(groups.every(Boolean)).toBe(true);
     expect(new Set(groups).size).toBe(8);
-    // Ordered best world rank first.
+    // Ordered by the tournament's cross-group chain: predicted points
+    // first (the picks carry no score lines, so goals are level), then
+    // world rank.
     const rankOf = (id: string) => tournament.teams.find((t) => t.id === id)?.fifa_rank ?? 99;
+    const pointsOf = (id: string) =>
+      computeGroupStandings(groupOf(id)!, tournament, bracket.matchPredictions, bracket.groupTiebreakers[groupOf(id)!])
+        .find((s) => s.teamCode === id)!.points;
     for (let i = 1; i < thirds.length; i += 1) {
-      expect(rankOf(thirds[i - 1]!)).toBeLessThanOrEqual(rankOf(thirds[i]!));
+      const prev = thirds[i - 1]!;
+      const cur = thirds[i]!;
+      expect(pointsOf(prev)).toBeGreaterThanOrEqual(pointsOf(cur));
+      if (pointsOf(prev) === pointsOf(cur)) expect(rankOf(prev)).toBeLessThanOrEqual(rankOf(cur));
+    }
+    // And nothing left out had a better record than the last pick.
+    const allThirds = tournament.groups.map((g) =>
+      computeGroupStandings(g.id, tournament, bracket.matchPredictions, bracket.groupTiebreakers[g.id])[2]!.teamCode,
+    );
+    const last = thirds[thirds.length - 1]!;
+    for (const t of allThirds.filter((x) => !thirds.includes(x))) {
+      expect(pointsOf(t)).toBeLessThanOrEqual(pointsOf(last));
     }
   });
 

@@ -82,6 +82,18 @@ describe("buildOfficialResultsBracket: shape", () => {
     expect(Object.keys(b.matchPredictions)).toHaveLength(2);
   });
 
+  it("carries recorded tries into group and knockout predictions so pool tables award the same bonus points as the thirds ranking", () => {
+    record("1", { outcome: "home_win", homeScore: 31, awayScore: 10, homeTries: 4, awayTries: 1 });
+    record("2", { outcome: "draw", homeScore: 1, awayScore: 1, homeTries: null, awayTries: "3" });
+    const first = tournament.knockouts[0]!;
+    record(first.id, { outcome: "away_win", homeScore: 7, awayScore: 24, homeTries: 1, awayTries: 3, winner: "ARG" });
+    const b = buildOfficialResultsBracket(tournament);
+    expect(b.matchPredictions["1"]).toEqual({ matchId: "1", outcome: "home_win", homeScore: 31, awayScore: 10, homeTries: 4, awayTries: 1, lockedAt: "" });
+    // Non-numeric tries are dropped rather than coerced.
+    expect(b.matchPredictions["2"]).toEqual({ matchId: "2", outcome: "draw", homeScore: 1, awayScore: 1, lockedAt: "" });
+    expect(b.knockoutPredictions[first.id]).toEqual({ matchId: first.id, outcome: "away_win", homeScore: 7, awayScore: 24, homeTries: 1, awayTries: 3, lockedAt: "" });
+  });
+
   it("ignores results for match ids the tournament does not have and for other tournaments", () => {
     record("999", { outcome: "home_win" });
     record("nope_01", { outcome: "home_win", winner: "ESP" });
@@ -136,7 +148,7 @@ describe("buildOfficialResultsBracket: best thirds from actual results (79286bb3
     expect(b.bestThirds).toEqual(expected);
   });
 
-  it("breaks a full tie on points, goal difference and goals by team code", () => {
+  it("breaks a full tie on points, goal difference and goals by FIFA rank, then team code", () => {
     // Every group identical: third team has 3 points, GD -1, 1 goal.
     tournament.groups.forEach((g) => {
       for (const f of tournament.group_fixtures.filter((x) => x.group_id === g.id)) {
@@ -144,7 +156,11 @@ describe("buildOfficialResultsBracket: best thirds from actual results (79286bb3
         record(String(f.match_no), { outcome: homeWins ? "home_win" : "away_win", homeScore: homeWins ? 1 : 0, awayScore: homeWins ? 0 : 1 });
       }
     });
-    const thirds = tournament.groups.map((g) => g.team_ids[2]!).sort((a, c) => a.localeCompare(c)).slice(0, 8);
+    const rankOf = (id: string) => tournament.teams.find((t) => t.id === id)?.fifa_rank ?? 99;
+    const thirds = tournament.groups
+      .map((g) => g.team_ids[2]!)
+      .sort((a, c) => rankOf(a) - rankOf(c) || a.localeCompare(c))
+      .slice(0, 8);
     expect(buildOfficialResultsBracket(tournament).bestThirds).toEqual(thirds);
   });
 });

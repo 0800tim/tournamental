@@ -28,6 +28,8 @@ import {
   type Tournament,
 } from "@tournamental/bracket-engine";
 
+import { bestThirdsTarget, selectBestThirds, type ThirdCandidate } from "./thirds";
+
 /**
  * The team to DISPLAY for a resolved knockout slot, under the hybrid
  * actual-then-forecast model (Tim 2026-06-26):
@@ -59,6 +61,10 @@ export interface RecordedResultLite {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Tries scored (rugby). Absent or null for football and for results
+   *  recorded without them; the engine then awards no try bonus. */
+  readonly homeTries?: number | null;
+  readonly awayTries?: number | null;
   /** 3-letter code of the winner; for knockouts, the team that advances.
    *  Read from whichever field the caller exposes: `winner` / `winnerCode`
    *  (typed) or the raw API's `winner_code` (snake_case). */
@@ -79,14 +85,9 @@ export function buildCompletedResults(
 ): CompletedResults {
   const byMatch = results;
 
-  // Each settled group's 3rd-placed team with the stats needed to rank
-  // them across groups for the best-third (Annex C) allocation.
-  const thirds: Array<{
-    team: TeamId;
-    points: number;
-    goalDiff: number;
-    goalsFor: number;
-  }> = [];
+  // Each settled group's 3rd-placed team with its standing, ranked
+  // across groups below for the best-third (Annex C) allocation.
+  const thirds: ThirdCandidate[] = [];
 
   const groups = tournament.groups.map((g) => {
     const groupFixtures = tournament.group_fixtures.filter(
@@ -105,6 +106,8 @@ export function buildCompletedResults(
         outcome: r.outcome,
         ...(typeof r.homeScore === "number" ? { homeScore: r.homeScore } : {}),
         ...(typeof r.awayScore === "number" ? { awayScore: r.awayScore } : {}),
+        ...(typeof r.homeTries === "number" ? { homeTries: r.homeTries } : {}),
+        ...(typeof r.awayTries === "number" ? { awayTries: r.awayTries } : {}),
         lockedAt: "",
       };
     }
@@ -112,13 +115,7 @@ export function buildCompletedResults(
     const settled = groupFixtures.length > 0 && recorded === groupFixtures.length;
     const standings = computeGroupStandings(g.id, tournament, preds);
     if (settled && standings.length >= 3) {
-      const t = standings[2];
-      thirds.push({
-        team: t.teamCode,
-        points: t.points,
-        goalDiff: t.goalDiff,
-        goalsFor: t.goalsFor,
-      });
+      thirds.push({ groupId: g.id, standing: standings[2] });
     }
     return {
       group_id: g.id,
@@ -127,25 +124,23 @@ export function buildCompletedResults(
     };
   });
 
-  // Best-third (Annex C) pool: once EVERY group is settled, rank the 12
-  // third-placed teams by FIFA's tiebreakers (points -> goal difference ->
-  // goals scored, with a deterministic team-code fallback for the unmodelled
-  // disciplinary / drawing-of-lots steps) and take the top 8. The cascade
-  // consumes this to resolve the real best-third R32 slots. Left undefined
-  // while any group is still in progress, so those slots stay TBD.
+  // Best-third (Annex C) pool: once EVERY group is settled, rank the
+  // third-placed teams by the tournament's cross-group tiebreakers (FIFA:
+  // points, goal difference, goals scored; World Rugby: points, points
+  // difference, points scored, tries scored, world ranking) and take the
+  // number the format advances. World ranking then team code stand in for
+  // the unmodelled disciplinary and drawing-of-lots steps. The cascade
+  // consumes this to resolve the real best-third slots. Left undefined
+  // while any group is still in progress, so those slots stay TBD, and
+  // for formats that advance no thirds.
   const allGroupsSettled = groups.length > 0 && groups.every((g) => g.settled);
   let best_thirds: TeamId[] | undefined;
-  if (allGroupsSettled && thirds.length === tournament.groups.length) {
-    best_thirds = [...thirds]
-      .sort(
-        (a, b) =>
-          b.points - a.points ||
-          b.goalDiff - a.goalDiff ||
-          b.goalsFor - a.goalsFor ||
-          a.team.localeCompare(b.team),
-      )
-      .slice(0, 8)
-      .map((t) => t.team);
+  if (
+    bestThirdsTarget(tournament) > 0 &&
+    allGroupsSettled &&
+    thirds.length === tournament.groups.length
+  ) {
+    best_thirds = selectBestThirds(tournament, thirds);
   }
 
   // Knockout results: once a knockout match (R32 onward) has a recorded

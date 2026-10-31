@@ -86,6 +86,7 @@ import { GroupCard } from "./GroupCard";
 import { KnockoutMatch } from "./KnockoutMatch";
 import { LockSummary } from "./LockSummary";
 import { ThirdsPicker } from "./ThirdsPicker";
+import { bestThirdsTarget } from "@/lib/bracket/thirds";
 import { Leaderboard } from "@/components/leaderboard/Leaderboard";
 import { DraftPreviewBanner } from "@/components/mock/DraftPreviewBanner";
 import { PunditBadge } from "@/components/shared/PunditBadge";
@@ -153,6 +154,9 @@ export interface ResultedMatch {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Tries scored (rugby); null or absent for football. */
+  readonly homeTries?: number | null;
+  readonly awayTries?: number | null;
   /** Three-letter team code of the winner, e.g. "MEX". null for draws. */
   readonly winnerCode: string | null;
 }
@@ -763,6 +767,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
             outcome: "home_win" | "draw" | "away_win";
             homeScore: number | null;
             awayScore: number | null;
+            homeTries?: number | null;
+            awayTries?: number | null;
             winner_code: string | null;
           }>;
         };
@@ -773,6 +779,8 @@ export function BracketBuilder(props: BracketBuilderProps) {
             outcome: row.outcome,
             homeScore: row.homeScore,
             awayScore: row.awayScore,
+            homeTries: row.homeTries ?? null,
+            awayTries: row.awayTries ?? null,
             winnerCode: row.winner_code,
           });
         }
@@ -1256,7 +1264,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
   const groupProgress = { picked: completedGroupMatches, total: totalGroupMatches };
   const thirdsProgress = {
     picked: (bracket.bestThirds ?? []).length,
-    total: 8,
+    total: bestThirdsTarget(tournament),
   };
   const r32Progress = knockoutCountFor("r32", cascaded);
   const r16Progress = knockoutCountFor("r16", cascaded);
@@ -1486,11 +1494,11 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 key={panelId}
                 id="bracket-panel-thirds"
                 role="tabpanel"
-                aria-label="Top 8 third-placed teams"
+                aria-label={`Best ${thirdsProgress.total} third-placed teams`}
                 className="bracket-panel bracket-thirds-section bracket-stage-panel"
               >
                 <div className="bracket-round-header">
-                  <h2>Top 8 3rd Place</h2>
+                  <h2>Best 3rd Place</h2>
                   <span className="bracket-round-progress">
                     <strong>{thirdsProgress.picked}</strong> of {thirdsProgress.total} picked
                   </span>
@@ -1581,6 +1589,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                   * CTA without scrolling past the final-match card. */}
                 <CascadeWarnings
                   warnings={cascaded.warnings}
+                  tournament={tournament}
                   currentTab="final"
                   onJumpToTab={(target) => setTab(target as TabId)}
                   mode="banner"
@@ -1714,6 +1723,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
                 * renders at the bottom of the whole tabpanel grid. */}
               <CascadeWarnings
                 warnings={cascaded.warnings}
+                tournament={tournament}
                 currentTab={panelId as CascadeTab}
                 onJumpToTab={(target) => setTab(target as TabId)}
                 mode="banner"
@@ -1742,6 +1752,7 @@ export function BracketBuilder(props: BracketBuilderProps) {
         * collapsible details list stays here as a reference. */}
       <CascadeWarnings
         warnings={cascaded.warnings}
+        tournament={tournament}
         currentTab={tab as CascadeTab}
         onJumpToTab={(target) => setTab(target as TabId)}
         mode="details"

@@ -249,6 +249,9 @@ export interface RecordedMatchResult {
   readonly outcome: "home_win" | "draw" | "away_win";
   readonly homeScore: number | null;
   readonly awayScore: number | null;
+  /** Tries scored (rugby); null when the result was recorded without them. */
+  readonly homeTries?: number | null;
+  readonly awayTries?: number | null;
   /** Team-code winner (e.g. "MEX") when present. May be null for draws. */
   readonly winner_code: string | null;
   /** Unix ms when the result was written, for cache invalidation. */
@@ -761,6 +764,8 @@ export class SyndicatePersistence {
             outcome?: "home_win" | "draw" | "away_win";
             homeScore?: number;
             awayScore?: number;
+            homeTries?: number;
+            awayTries?: number;
             winner?: string;
             stage?: string;
           };
@@ -782,6 +787,10 @@ export class SyndicatePersistence {
               typeof parsed.awayScore === "number"
                 ? parsed.awayScore
                 : null,
+            homeTries:
+              typeof parsed.homeTries === "number" ? parsed.homeTries : null,
+            awayTries:
+              typeof parsed.awayTries === "number" ? parsed.awayTries : null,
             winner_code:
               typeof parsed.winner === "string" ? parsed.winner : null,
             recorded_at: r.recorded_at,
