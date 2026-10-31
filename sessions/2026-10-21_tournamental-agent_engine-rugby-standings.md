@@ -41,3 +41,7 @@ reach the engine.
   regulations (not found online on 2026-10-21); the preset carries the
   2023 chain. If it differs, set `standings_rules` in the RWC 2027 data.
 - Gap 3 (R16 placement) still waits on the regulations.
+
+## Review follow-up (31 October 2026)
+
+An independent read-only review of #366 to #376 on the integration branch raised one finding here. Actioned as test(bracket-engine) 1acae134: a case where world_rank and fifa_rank disagree, so the rugby chain is pinned to World Rugby and the fallback is labelled 2026 compatibility.
