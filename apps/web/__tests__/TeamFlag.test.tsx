@@ -12,7 +12,7 @@
 
 import React from "react";
 import { describe, expect, it } from "vitest";
-import { render } from "@testing-library/react";
+import { fireEvent, render } from "@testing-library/react";
 
 import { TeamFlag } from "../components/bracket/TeamFlag";
 
@@ -51,5 +51,29 @@ describe("TeamFlag", () => {
     );
     const wrap = container.querySelector("[aria-label='France']") as HTMLElement;
     expect(wrap.dataset.dim).toBe("true");
+  });
+
+  it("renders the image by default and no fallback", () => {
+    const { container } = render(<TeamFlag code="IRE" name="Ireland" />);
+    expect(container.querySelector("img")?.getAttribute("src")).toBe("/flags/IRE.svg");
+    expect(container.querySelector("[data-flag-fallback]")).toBeNull();
+  });
+
+  it("swaps a missing SVG for the team code so Ireland is never a broken image", () => {
+    const { container } = render(<TeamFlag code="IRE" name="Ireland" />);
+    fireEvent.error(container.querySelector("img")!);
+    expect(container.querySelector("img")).toBeNull();
+    const fallback = container.querySelector("[data-flag-fallback]") as HTMLElement;
+    expect(fallback.textContent).toBe("IRE");
+    // The wrapper keeps its accessible name; the fallback is decorative.
+    expect(container.querySelector("[aria-label='Ireland']")).not.toBeNull();
+    expect(fallback.getAttribute("aria-hidden")).toBe("true");
+  });
+
+  it("prefers fallbackEmoji when the image fails", () => {
+    const shamrock = "\u2618\uFE0F";
+    const { container } = render(<TeamFlag code="IRE" name="Ireland" fallbackEmoji={shamrock} shape="circle" />);
+    fireEvent.error(container.querySelector("img")!);
+    expect(container.querySelector("[data-flag-fallback]")?.textContent).toBe(shamrock);
   });
 });

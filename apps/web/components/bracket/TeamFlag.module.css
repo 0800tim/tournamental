@@ -134,3 +134,20 @@
     animation: none !important;
   }
 }
+
+/* Shown when the SVG is missing (for example Ireland in RWC 2027). A
+   flat accent-tinted tile with the code or emoji centred, same box as
+   the image so the layout does not shift. */
+.flagFallback {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--vt-flag-accent, #fbbf24) 22%, #0f172a);
+  color: #f8fafc;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  user-select: none;
+}
