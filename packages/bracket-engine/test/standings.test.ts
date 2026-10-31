@@ -435,3 +435,35 @@ describe("standings — determinism", () => {
     expect(s).toEqual([]);
   });
 });
+
+describe("standings — football never re-applies the chain after the head-to-head table", () => {
+  it("reports two teams still level after a three-way mini-table instead of replaying their own match", () => {
+    // MEX beats RSA 1-0, KOR beats MEX 2-1, RSA beats KOR 2-1; MEX and RSA
+    // beat CZE 2-1, KOR beats CZE 1-0. All three on 6 pts, GD +1, GF 4.
+    // Mini-table: KOR 3 pts GD 0 GF 3; MEX and RSA 3 pts GD 0 GF 2. FIFA
+    // stops there: MEX and RSA go to the user's pick, not to their own match.
+    const byPair = new Map<string, number>();
+    for (const f of fixturesA) byPair.set(`${groupA.team_ids[f.home_idx]}-${groupA.team_ids[f.away_idx]}`, f.match_no);
+    const game = (home: string, away: string, hs: number, as: number): [string, MatchPrediction] => {
+      const direct = byPair.get(`${home}-${away}`);
+      if (direct !== undefined) return pred(direct, hs > as ? "home_win" : hs < as ? "away_win" : "draw", hs, as);
+      const flipped = byPair.get(`${away}-${home}`)!;
+      return pred(flipped, as > hs ? "home_win" : as < hs ? "away_win" : "draw", as, hs);
+    };
+    const predictions = Object.fromEntries([
+      game(MEX, RSA, 1, 0),
+      game(KOR, MEX, 2, 1),
+      game(RSA, KOR, 2, 1),
+      game(MEX, CZE, 2, 1),
+      game(RSA, CZE, 2, 1),
+      game(KOR, CZE, 1, 0),
+    ]);
+    const s = computeGroupStandings("A", tournament, predictions);
+    expect(s.slice(0, 3).map((r) => [r.points, r.goalDiff, r.goalsFor])).toEqual([[6, 1, 4], [6, 1, 4], [6, 1, 4]]);
+    expect(s[0]!.teamCode).toBe(KOR);
+    expect(s.slice(1, 3).map((r) => r.teamCode)).toEqual([MEX, RSA].sort());
+    expect(detectTiesNeedingTiebreaker(s, { tournament, groupId: "A", predictions })).toEqual([
+      { positions: [2, 3], teamCodes: [MEX, RSA].sort() },
+    ]);
+  });
+});

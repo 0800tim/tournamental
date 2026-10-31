@@ -38,6 +38,10 @@ export const matchPredictionSchema = z
     outcome: z.enum(["home_win", "draw", "away_win"]),
     homeScore: z.number().int().min(0).max(99).optional(),
     awayScore: z.number().int().min(0).max(99).optional(),
+    // Rugby: predicted try counts feed the bonus point and the tries
+    // tiebreak criteria in the bracket engine's standings computer.
+    homeTries: z.number().int().min(0).max(30).optional(),
+    awayTries: z.number().int().min(0).max(30).optional(),
     lockedAt: z.string().min(1).max(64),
     oddsAtLock: oddsAtLockSchema.optional(),
   })
@@ -138,6 +142,9 @@ export const matchResultBodySchema = z.object({
   outcome: z.enum(["home_win", "draw", "away_win"]),
   homeScore: z.number().int().min(0).max(99).optional(),
   awayScore: z.number().int().min(0).max(99).optional(),
+  // Rugby: actual try counts from the live provider, for the pool table.
+  homeTries: z.number().int().min(0).max(30).optional(),
+  awayTries: z.number().int().min(0).max(30).optional(),
   winner: z.string().min(1).max(16).optional(),
   // "tp" is the third-place play-off; without it the results poller's
   // bronze-final settlement was rejected as a validation error

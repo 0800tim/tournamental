@@ -19,6 +19,8 @@ RWC 2027 (registry: 24 teams, 52 matches, Australia, 1 October to 13 November 20
 
 ### 1. Pool table arithmetic: 4-2-0 with bonus points (M)
 
+> **Done 2026-10-21** on `feat/engine-rugby-standings`: `Tournament.sport` and `standings_rules`, `MatchPrediction.homeTries` / `awayTries`, bonus points computed only when the inputs are present, `GroupStanding.bonusPoints` for the "with bonus points" label. The game service's pick and result schemas accept the try counts. The prediction UI does not ask for tries yet (gap 6, second half).
+
 `standings.ts` computes `points: 3 * m.wins + m.draws` and tracks goals for and against. Rugby's pool table is 4 for a win, 2 for a draw, 0 for a loss, plus 1 bonus point for scoring four or more tries and 1 for losing by seven or fewer points. Two things are missing:
 
 - a per-sport points rule: `{ win: 4, draw: 2, loss: 0 }` against football's `{ 3, 1, 0 }`, carried on the `Tournament` (a `scoring` or `sport` field) rather than hard-coded;
@@ -27,6 +29,8 @@ RWC 2027 (registry: 24 teams, 52 matches, Australia, 1 October to 13 November 20
 Recommendation: add `tries` alongside `score` as optional prediction fields, compute both bonuses only when the inputs are present (the same stance the engine takes with goal counts today), and surface "with bonus points" in the standings panel so players know when it is being applied. The actual results path gets tries from the live provider (gap 7).
 
 ### 2. Rugby tiebreakers (M)
+
+> **Done 2026-10-21** on the same branch: the chain is an ordered list of criteria on the tournament, each implemented once in `standings.ts`; `RUGBY_UNION_STANDINGS_RULES` carries the RWC 2023 chain and `Team.world_rank` (optional, `ranked_at` alongside) feeds the last criterion. `compareStandingsAcrossGroups` ranks thirds by the same rules for gap 3. Still to confirm: the published RWC 2027 regulations, which were not found online on 2026-10-21; if the chain differs, the tournament data sets `standings_rules` and no code changes.
 
 The engine sorts points, then goal difference, then goals for, then head-to-head between tied teams, then the player's tiebreaker pick (`standings.ts`, `sortStandings` and `resolveBlock`). World Rugby's pool tiebreak for two tied teams is the winner of the match between them first, then points difference, then tries difference, then points scored, then tries scored, then World Rugby ranking at a fixed date; for three or more tied teams the same chain applies across the matches between them before falling back to the whole pool. The order differs from football's and it needs tries and a ranking date.
 

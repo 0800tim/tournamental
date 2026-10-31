@@ -11,7 +11,10 @@ Surface:
 - `cascade` -- resolve a partial prediction's downstream tree against a
   tournament plus optional actual results.
 - `score` -- long-shot-rewarding score model (docs/16, docs/24).
-- `standings` -- group-stage standings calculator.
+- `standings` -- group-stage standings calculator. Pool points and the
+  tiebreak chain come from the tournament (`sport` or `standings_rules`);
+  football 3-1-0 is the default, rugby union 4-2-0 with bonus points and
+  the World Rugby chain is a preset.
 - `vstamp` -- content-hashed, signed prediction-receipt envelope.
 - `fixtures-2026` -- vendored FIFA WC 2026 tournament JSON.
 
